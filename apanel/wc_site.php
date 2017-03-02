@@ -1,0 +1,54 @@
+<?php
+// CONFIG FILE
+require_once 'config.php';
+// HTTP -> HTTPS
+$request_scheme = isset($_SERVER['REQUEST_SCHEME']) ? $_SERVER['REQUEST_SCHEME'] : 'http';
+if (defined(HTTPS) && HTTPS && $request_scheme == 'http' && $_SERVER['HTTP_HOST'] != 'localhost' && ! filter_var($_SERVER['HTTP_HOST'], FILTER_VALIDATE_IP)) {
+	header('Location: https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+	exit();
+}
+// GET SUB FOLDER
+$sub_folder = str_replace('index.php', '', $_SERVER['PHP_SELF']);
+if ($sub_folder == '/') {
+	$sub_folder = '';
+}
+$request_uri = explode('?', str_replace(str_replace('index.php', '', $_SERVER['PHP_SELF']), '', $_SERVER['REQUEST_URI']));
+$request_dir = explode('/', $request_uri[0]);
+if (isset($_GET['/' . $request_uri[0]])) {
+	unset($_GET['/' . $request_uri[0]]);
+}
+// ASSET LOADER
+if ($request_dir[0] == 'assets' && isset($request_dir[1]) && isset($request_dir[2])) {
+	$temp_dir = $request_dir;
+	unset($temp_dir[0]);
+	if (in_array($temp_dir[1], array('css', 'js', 'fonts', 'images'))) {
+		$asset_path = 'view/assets/' . implode('/', $temp_dir);
+		$asset_type = $temp_dir[1];
+	} else {
+		unset($temp_dir[1]);
+		$asset_path = 'modules/' . $temp_dir[1] . '/assets/' . implode('/', $temp_dir);
+		$asset_type = $temp_dir[2];
+	}
+	if ($asset_type == 'css') {
+		header('Content-Type: text/css');
+	}
+	if (file_exists($asset_path) || DEBUGGING) {
+		readfile($asset_path);
+		exit();
+	} else {
+		$this->show404();
+	}
+}
+define('SUB_FOLDER', trim(implode('/' , $request_dir), '/'));
+foreach ((isset($request_uri[1]) ? explode('&', $request_uri[1]) : array()) as $row) {
+	$temp_ = explode('=', $row);
+	$_GET[$temp_[0]] = isset($temp_[1]) ? $temp_[1] : '';
+}
+// DEFINE BASE URL
+define('BASE_URL', $request_scheme . '://' . $_SERVER['HTTP_HOST'] . $sub_folder);
+require_once 'system/wc_controller.php';
+require_once 'system/wc_model.php';
+require_once 'system/wc_view.php';
+require_once 'system/wc_xloader.php';
+require_once 'wc_' . PAGE_TYPE . '.php';
+

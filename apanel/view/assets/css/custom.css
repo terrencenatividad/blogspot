@@ -1,0 +1,7 @@
+textarea {
+    resize: none;
+}
+.form-control.input-sm {
+	height: 30px !important;
+	padding: 5px 10px !important;
+}

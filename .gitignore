@@ -1,0 +1,3 @@
+apanel/modules/*
+!apanel/modules/home
+!apanel/modules/wc_core
