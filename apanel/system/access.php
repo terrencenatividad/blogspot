@@ -10,7 +10,6 @@ class access {
 	public function isApanelUser() {
 		$session = new session();
 		$login = $session->get('login');
-		var_dump($login);
 		if (isset($login['apanel_user']) && $login['apanel_user']) {
 			return true;
 		} else {

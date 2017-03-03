@@ -15,7 +15,6 @@ class input {
 			if (is_numeric($key)) {
 				$return[$value] = isset($_POST[$value]) ? $_POST[$value] : 'SS';
 			} else {
-				var_dump($key);
 				$return[$value] = isset($_POST[$key]) ? $_POST[$key] : 'AA';
 			}
 		}

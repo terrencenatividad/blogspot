@@ -8,13 +8,23 @@ class backend {
 	private $args = array();
 
 	public function __construct() {
-		$this->load = new load();
+		// AUTOLOADER
+		spl_autoload_register(function ($class) {
+			if (file_exists("system/$class.php")) {
+				require_once "system/$class.php";
+			} else if (file_exists(MODULE_PATH . "/model/$class.php")) {
+				require_once MODULE_PATH . "/model/$class.php";
+			}
+		});
 	}
 
 	public function getModulePath() {
-		$this->load->system('db');
 		$db = new db();
-		if (SUB_FOLDER != '') {
+		if (SUB_FOLDER == 'login') {
+			$this->module_folder = 'wc_core';
+			$this->module_file = 'login';
+			$this->module_function = 'index';
+		} else if (SUB_FOLDER != '') {
 			$paths = $db->retrieveRow('module_link, folder, file, default_function', 'wc_modules', "'" . SUB_FOLDER . "/' LIKE module_link AND active");
 			if ($paths) {
 				$this->module_link = $paths->module_link;

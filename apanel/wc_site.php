@@ -49,6 +49,5 @@ define('BASE_URL', $request_scheme . '://' . $_SERVER['HTTP_HOST'] . $sub_folder
 require_once 'system/wc_controller.php';
 require_once 'system/wc_model.php';
 require_once 'system/wc_view.php';
-require_once 'system/wc_xloader.php';
 require_once 'wc_' . PAGE_TYPE . '.php';
 
