@@ -62,7 +62,7 @@ class db {
 			foreach($temp as $key => $value) {
 				$this->fields[] = $key;
 			}
-			$this->values = (is_array($fields_values[0])) ? $fields_values : array($fields_values);
+			$this->values = (isset($fields_values[0])) ? $fields_values : array($fields_values);
 		}
 		return $this;
 	}
