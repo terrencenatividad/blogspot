@@ -10,3 +10,15 @@ textarea {
     font-size: 9pt;
     color: #fe0003;
 }
+.pageheader {
+	background-color: #3c8dbc;
+    width: 100%;
+    padding: 12px;
+}
+.pagetitle {
+    text-transform: uppercase;
+    font-size: 15px;
+    font-family: sans-serif;
+    color: white;
+    font-weight: bold;
+}
