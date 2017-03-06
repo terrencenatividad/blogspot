@@ -5,3 +5,8 @@ textarea {
 	height: 30px !important;
 	padding: 5px 10px !important;
 }
+.asterisk {
+    font-weight: bold;
+    font-size: 9pt;
+    color: #fe0003;
+}
