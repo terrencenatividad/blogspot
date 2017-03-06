@@ -126,7 +126,7 @@ class db {
 			foreach ($this->values as $key => $values) {
 				$query .= "('" . implode("', '", $values) . "'), ";
 			}
-			$this->query = (substr($query, -2) == ',') ? substr($query, 0, -2) : $query;
+			$this->query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
 			$result = $this->conn->query($this->query);
 			$this->result = $result;
 		}
