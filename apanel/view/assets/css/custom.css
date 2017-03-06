@@ -32,3 +32,6 @@ tr td .invi {
 tr:hover td .invi {
 	visibility: visible;
 }
+.text-center {
+	text-align:center;
+}
