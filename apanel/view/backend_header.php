@@ -11,6 +11,7 @@
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/select2.min.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/AdminLTE.min.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/skin.min.css">
+	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/icheck.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/custom.css">
 	<!--[if lt IE 9]>
 	<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -23,6 +24,7 @@
 	<script src="<?= BASE_URL ?>assets/js/jquery-2.2.3.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/select2.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/bootstrap.min.js"></script>
+	<script src="<?= BASE_URL ?>assets/js/icheck.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/slimscroll.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/fastclick.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/app.min.js"></script>

@@ -40,7 +40,8 @@ class ui {
 	}
 
 	public function setPlaceholder($placeholder) {
-		$this->attribute['placeholder'] = $placeholder;
+		$index = ($this->type == 'dropdown') ? 'data-placeholder' : 'placeholder';
+		$this->attribute[$index] = $placeholder;
 		return $this;
 	}
 
@@ -140,7 +141,7 @@ class ui {
 			$attributes[] = '{$key}="{$value}"';
 		}
 		$attributes = implode(' ', $attributes);
-		$placeholder = (isset($this->attributes['placeholder'])) ? '<option></option>' : '';
+		$placeholder = (isset($this->attributes['data-placeholder'])) ? '<option></option>' : '';
 		$input = '<select {$attributes}>{$placeholder}';
 		foreach ($this->list as $key => $value) {
 			$selected = ($key == $this->value) ? ' selected' : '';
