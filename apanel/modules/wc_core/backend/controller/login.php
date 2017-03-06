@@ -4,6 +4,7 @@ class controller extends wc_controller {
 	public function index() {
 		$this->access = new access();
 		$this->input = new input();
+		$this->login_model = new login();
 		$this->view->title = 'Login Page';
 		if ($this->access->isApanelUser()) {
 			$this->url->redirect(BASE_URL);
@@ -14,7 +15,7 @@ class controller extends wc_controller {
 				'password'
 			));
 			extract($data);
-			$result = $this->model->getUserAccess($email, $password);
+			$result = $this->login_model->getUserAccess($email, $password);
 			if ($result) {
 				$this->session->set('login', $result);
 				$this->url->redirect(BASE_URL . 'login');

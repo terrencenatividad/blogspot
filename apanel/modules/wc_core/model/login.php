@@ -1,5 +1,5 @@
 <?php
-class model {
+class login {
 
 	private $validation = array();
 
