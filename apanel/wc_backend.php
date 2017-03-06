@@ -25,7 +25,11 @@ class backend {
 			$this->module_file = 'login';
 			$this->module_function = 'index';
 		} else if (SUB_FOLDER != '') {
-			$paths = $db->retrieveRow('module_link, folder, file, default_function', 'wc_modules', "'" . SUB_FOLDER . "/' LIKE module_link AND active");
+			$paths = $db->setTable('wc_modules')
+						->setFields('module_link, folder, file, default_function', 'wc_modules')
+						->setWhere("'" . SUB_FOLDER . "/' LIKE module_link AND active")
+						->runSelect()
+						->getRow();
 			if ($paths) {
 				$this->module_link = $paths->module_link;
 				$this->module_folder = $paths->folder;

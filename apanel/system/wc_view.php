@@ -40,7 +40,11 @@ class wc_view {
 		$nav = array();
 		if (PAGE_TYPE == 'backend') {
 			$db = new db();
-			$result = $db->retrieveRecord('module_link, module_name, module_group, label', 'wc_modules', 'active');
+			$result = $db->setTable('wc_modules')
+							->setFields('module_link, module_name, module_group, label')
+							->setWhere('active')
+							->runSelect()
+							->getResult();
 			foreach($result as $row) {
 				$nav[$row->label][$row->module_group][$row->module_name] = $row->module_link;
 			}

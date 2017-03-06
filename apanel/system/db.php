@@ -2,98 +2,203 @@
 class db {
 
 	private $conn = '';
-	public $query = '';
+	private $table = '';
+	private $result = array();
+	private $fields = array();
+	private $values = array();
+	private $num_rows = '';
+	private $limit = '';
+	private $limit_offset = '';
+	private $where_condition = '';
+	private $query = '';
+
 
 	public function __construct() {
 		$this->conn = new mysqli(WC_HOSTNAME, WC_USERNAME, WC_PASSWORD, WC_DATABASE);
 	}
 
-	public function changeDatabase($database = WC_DATABASE) {
-
+	public function changeDatabase($database) {
+		$this->conn = new mysqli(WC_HOSTNAME, WC_USERNAME, WC_PASSWORD, $database);
 	}
 
-	public function retrieveRecord($fields, $table, $condition, $limit = NULL) {
-		$return = array();
-		$query_fields = '';
-		if (is_array($fields)) {
-			$query_fields = implode(', ', $fields);
-		} else {
-			$query_fields = $fields;
-		}
-		$this->query = "SELECT $fields FROM $table WHERE $condition" . (($limit > 0) ? " LIMIT $limit" : '');
-		$result = $this->conn->query($this->query);
-		if ($result) {
-			while ($row = $result->fetch_object()) {
-				$return[] = $row;
+	public function setTable($table) {
+		$this->table = $table;
+		return $this;
+	}
+
+	public function setQuery($query) {
+		$this->query = $query;
+		return $this;
+	}
+
+	public function getQuery() {
+		return $this->query;
+	}
+
+	public function getNumRows() {
+		return $this->num_rows;
+	}
+
+	public function setLimit($limit) {
+		$this->limit = $limit;
+		return $this;
+	}
+
+	public function setLimitOffset($limit_offset) {
+		$this->limit_offset = $limit_offset;
+		return $this;
+	}
+
+	public function setFields($fields) {
+		$this->fields = (is_array($fields)) ? $fields : explode(',', $fields);
+		$this->values = array();
+		return $this;
+	}
+
+	public function setValues(array $fields_values) {
+		if ( ! empty($fields_values)) {
+			$temp = $fields_values[0];
+			if ( ! is_array($temp)) {
+				$temp = $fields_values;
 			}
-		} else {
-			$this->displayError();
-		}
-		return $return;
-	}
-
-	public function retrieveRow($fields, $table, $condition) {
-		$return = false;
-		$result = $this->retrieveRecord($fields, $table, $condition, 1);
-		if ($result) {
-			return $result[0];
-		}
-		return $return;
-	}
-
-	public function insertRecord($values, $table) {
-		$fields = array();
-		$field_values = array();
-		if (is_array($values)) {
-			foreach ($values as $key => $value) {
-				$field[] = $key;
-				$field_values[] = $value;
+			$this->fields = array();
+			foreach($temp as $key => $value) {
+				$this->fields[] = $key;
 			}
+			$this->values = (is_array($fields_values[0])) ? $fields_values : array($fields_values);
 		}
-		$fields = implode(', ', $fields);
-		$field_values = "'" . implode("', '", $field_values) . "'";
-		$query = "INSERT INTO $table ($fields) VALUES ($field_values)";
-		$this->conn->query($query);
+		return $this;
 	}
 
-	public function updateRecord($values, $table, $condition, $limit = NULL) {
-
+	public function setWhere($value) {
+		$this->where_condition = $value;
+		return $this;
 	}
 
-	public function deleteRecord($table, $condition, $limit = NULL) {
-
+	public function cleanFieldsAndValues() {
+		$this->values = array();
+		return $this;
 	}
 
-	public function getValue($field, $table, $condition) {
-		$this->query = "SELECT $field FROM $table WHERE $condition LIMIT 1";
-		$result = $this->conn->query($this->query);
-		if ($result) {
+	public function cleanAll() {
+		$this->table = '';
+		$this->result = array();
+		$this->fields = array();
+		$this->values = array();
+		$this->num_rows = '';
+		$this->limit = '';
+		$this->limit_offset = '';
+		$this->where_condition = '';
+		$this->query = '';
+		return $this;
+	}
+
+	public function runSelect() {
+		$check = $this->runCheck(array('fields', 'table'));
+		if ($check) {
+			$fields = implode(', ', $this->fields);
+			$table = $this->table;
+			$where_condition = ( ! empty($this->where_condition)) ? "WHERE " . $this->where_condition : '';
+			$limit = ( ! empty($this->limit)) ? "LIMIT " . $this->limit : '';
+			$limit_offset = ( ! empty($this->limit) && ! empty($this->limit_offset)) ? ", " . $this->limit_offset : '';
+			$this->query = "SELECT $fields FROM $table $where_condition $limit $limit_offset";
+			$result = $this->conn->query($this->query);
 			if ($result->num_rows > 0) {
-				$row = $result->fetch_object();
-				return $row->{$field};
-			} else {
-				return '';
+				while ($row = $result->fetch_object()) {
+					$this->result[] = $row;
+				}
 			}
-		} else {
-			$this->displayError();
+		}
+		return $this;
+	}
+
+	public function getRow() {
+		return (empty($this->result)) ? false : $this->result[0];
+	}
+
+	public function getResult() {
+		return $this->result;
+	}
+
+	public function runInsert() {
+		$check = $this->runCheck(array('fields', 'table', 'values'));
+		if ($check) {
+			$fields = implode(', ', $this->fields);
+			$table = $this->table;
+			$query = "INSERT INTO $table ($fields) VALUES";
+			foreach ($this->values as $key => $values) {
+				$query .= "('" . implode("', '", $values) . "'), ";
+			}
+			$this->query = (substr($query, -2) == ',') ? substr($query, 0, -2) : $query;
+		}
+		return $this->query;
+	}
+
+	public function runUpdate() {
+		$check = $this->runCheck(array('fields', 'table', 'values', 'where'));
+		if ($check) {
+			$table = $this->table;
+			$where_condition = $this->where_condition;
+			$limit = ( ! empty($this->limit)) ? "LIMIT " . $this->limit : '';
+			$temp = array();
+			$values = $this->values[0];
+			$query = "UPDATE $table SET ";
+			foreach ($values as $key => $value) {
+				$query .= "$key = '$value', ";
+			}
+			$query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
+			$query .= " WHERE $where_condition $limit";
+			$this->query = $query;
+		}
+		return $this->query;
+	}
+
+	public function runDelete() {
+		$check = $this->runCheck(array('table', 'where'));
+		if ($check) {
+			$table = $this->table;
+			$where_condition = $this->where_condition;
+			$limit = ( ! empty($this->limit)) ? "LIMIT " . $this->limit : '';
+			$this->query = "DELETE FROM $table WHERE $where_condition $limit";
 		}
 	}
 
-	public function isExist($table, $condition) {
+	private function runCheck(array $args) {
+		foreach ($args as $arg) {
+			if ($arg == 'table') {
+				if (empty($this->table)) {
+					$this->showError("Table Empty. Please Run: setTable(string < table >)");
+					return false;
+				}
+			} else if ($arg == 'fields') {
+				if (empty($this->fields)) {
+					$this->showError("Fields Empty. Please Run: setFields(array < fields >)");
+					return false;
+				}
+			} else if ($arg == 'where') {
+				if (empty($this->where_condition)) {
+					$this->showError("Where Condition Empty. Please Run: setWhere(string < condition >)");
+					return false;
+				}
+			} else if ($arg == 'values') {
+				if (empty($this->values)) {
+					$this->showError("Values Empty. Please Run: setValues(array < values >)");
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 
+	private function showError($error) {
+		if (DEBUGGING) {
+			echo $error;
+
+		}
 	}
 
 	public function close() {
 		$this->conn->close();
 	}
 
-	public function displayError() {
-		if (DEBUGGING) {
-			echo $this->query . "\n";
-			echo $this->conn->error;
-		}
-	}
-
 }
-
-$db = new db;
