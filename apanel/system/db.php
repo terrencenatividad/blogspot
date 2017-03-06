@@ -127,8 +127,10 @@ class db {
 				$query .= "('" . implode("', '", $values) . "'), ";
 			}
 			$this->query = (substr($query, -2) == ',') ? substr($query, 0, -2) : $query;
+			$result = $this->conn->query($this->query);
+			$this->result = $result;
 		}
-		return $this->query;
+		return $this->result;
 	}
 
 	public function runUpdate() {
@@ -146,8 +148,10 @@ class db {
 			$query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
 			$query .= " WHERE $where_condition $limit";
 			$this->query = $query;
+			$result = $this->conn->query($this->query);
+			$this->result = $result;
 		}
-		return $this->query;
+		return $this->result;
 	}
 
 	public function runDelete() {
@@ -157,7 +161,9 @@ class db {
 			$where_condition = $this->where_condition;
 			$limit = ( ! empty($this->limit)) ? "LIMIT " . $this->limit : '';
 			$this->query = "DELETE FROM $table WHERE $where_condition $limit";
+			$result = $this->conn->query($this->query);
 		}
+		return $this->result;
 	}
 
 	private function runCheck(array $args) {
