@@ -25,3 +25,10 @@ textarea {
 .width100 {
 	width: 100%;
 }
+tr td .invi {
+	white-space: nowrap;
+    visibility: hidden;
+}
+tr:hover td .invi {
+	visibility: visible;
+}
