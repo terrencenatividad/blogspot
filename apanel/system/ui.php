@@ -63,7 +63,7 @@ class ui {
 		return $this->draw;
 	}
 
-	public function checkDraw() {
+	private function checkDraw() {
 		switch ($this->type) {
 			case "text":
 				return $this->createInputText();
@@ -78,15 +78,15 @@ class ui {
 				return $this->createTextarea();
 				break;
 			case "radio":
-				return $this->createRadio();
+				return $this->createInput('radio');
 				break;
 			case "checkbox":
-				return $this->createCheckbox();
+				return $this->createInput('checkbox');
 				break;
 		}
 	}
 
-	public function createLabel() {
+	private function createLabel() {
 		$label = '';
 		$for = ((isset($this->attribute['id']) && ! empty($this->attribute['id'])) ? ' for="' . $this->attribute['id'] . '"' : '');
 		if ( ! empty($this->label)) {
@@ -95,7 +95,7 @@ class ui {
 		return $label;
 	}
 
-	public function createAddon() {
+	private function createAddon() {
 		$addon = '';
 		if ( ! empty($this->addon)) {
 			$addon = '<div class="input-group-addon"><i class="glyphicon glyphicon-{this->addon}"></i></div>';
@@ -103,17 +103,28 @@ class ui {
 		return $addon;
 	}
 
-	public function createInputText($type = 'text') {
+	private function createInput($type = 'radio') {
+		$attributes = array();
+		foreach ($this->attributes as $key => $value) {
+			$attributes[] = '{$key}="{$value}"';
+		}
+		$checked = ($this->default == $this->value) ? ' checked' : '';
+		$attributes = implode(' ', $attributes);
+		$input = '<input type="{$type}" {$attributes}{$checked} value="{$this->default}">';
+		return $input;
+	}
+
+	private function createInputText($type = 'text') {
 		$attributes = array();
 		foreach ($this->attributes as $key => $value) {
 			$attributes[] = '{$key}="{$value}"';
 		}
 		$attributes = implode(' ', $attributes);
-		$input = '<input type="{$type}" {$attributes} value="{$this->value}">';
+		$input = '<input type="{$type}" {$attributes} {$checked} value="{$this->value}">';
 		return $input;
 	}
 
-	public function createTextarea() {
+	private function createTextarea() {
 		$attributes = array();
 		foreach ($this->attributes as $key => $value) {
 			$attributes[] = '{$key}="{$value}"';
@@ -123,7 +134,7 @@ class ui {
 		return $input;
 	}
 
-	public function createDropDown() {
+	private function createDropDown() {
 		$attributes = array();
 		foreach ($this->attributes as $key => $value) {
 			$attributes[] = '{$key}="{$value}"';
@@ -137,14 +148,6 @@ class ui {
 		}
 		$input .= '</select>';
 		return $input;
-	}
-
-	public function createRadio() {
-
-	}
-
-	public function createCheckbox() {
-
 	}
 
 }
