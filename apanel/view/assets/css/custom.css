@@ -22,3 +22,6 @@ textarea {
     color: white;
     font-weight: bold;
 }
+.width100 {
+	width: 100%;
+}
