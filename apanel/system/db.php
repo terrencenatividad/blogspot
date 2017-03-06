@@ -57,10 +57,7 @@ class db {
 
 	public function setValues(array $fields_values) {
 		if ( ! empty($fields_values)) {
-			$temp = $fields_values[0];
-			if ( ! is_array($temp)) {
-				$temp = $fields_values;
-			}
+			$temp = isset($fields_values[0]) ? $fields_values[0] : $fields_values;
 			$this->fields = array();
 			foreach($temp as $key => $value) {
 				$this->fields[] = $key;
