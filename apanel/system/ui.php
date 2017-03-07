@@ -8,7 +8,7 @@ class ui {
 	private $type = '';
 	private $addon = '';
 	private $label = '';
-	private $draw = '';
+	private $draw = true;
 	private $class = array();
 	private $split = array();
 
@@ -20,7 +20,7 @@ class ui {
 		$this->type = $type;
 		$this->addon = '';
 		$this->label = '';
-		$this->draw = '';
+		$this->draw = true;
 		$this->class = array();
 		$this->split = array();
 		return $this;
@@ -83,11 +83,10 @@ class ui {
 	}
 
 	public function draw($draw = true) {
-		if ($draw) {
-			$label = $this->createLabel();
-			$input = $this->drawInput();
-			$this->draw = '<div class="form-group">' . $label . $input . '</div>';
-		}
+		$this->draw = $draw;
+		$label = $this->createLabel();
+		$input = $this->drawInput();
+		$this->draw = '<div class="form-group">' . $label . $input . '</div>';
 		return $this->draw;
 	}
 
@@ -96,7 +95,7 @@ class ui {
 		$input = $this->checkDraw();
 		$x = (isset($this->split[1])) ? '<div class="' . $this->split[1] . '">' : '';
 		$y = (isset($this->split[1])) ? '</div>' : '';
-		if (empty($this->addon)) {
+		if (empty($this->addon) || $this->draw) {
 			return $x . $input . $y;
 		} else {
 			return $x . '<div class="input-group">' . $input . $addon . '</div>' . $y;
@@ -138,63 +137,83 @@ class ui {
 
 	private function createAddon() {
 		$addon = '';
-		if ( ! empty($this->addon)) {
+		if ( ! empty($this->addon) && $this->draw) {
 			$addon = '<div class="input-group-addon"><i class="glyphicon glyphicon-{this->addon}"></i></div>';
 		}
 		return $addon;
 	}
 
 	private function createInput($type = 'radio') {
-		$attributes = array();
-		foreach ($this->attribute as $key => $value) {
-			$attributes[] = $key . '="' . $value . '"';
+		if ($this->draw) {
+			$attributes = array();
+			foreach ($this->attribute as $key => $value) {
+				$attributes[] = $key . '="' . $value . '"';
+			}
+			$checked = ($this->default == $this->value) ? ' checked' : '';
+			$attributes = implode(' ', $attributes);
+			$input = '<input type="' . $type . '" ' . $attributes . $checked . 'value="' . $this->default . '">';
+		} else {
+			$input = $this->drawStaticInput();
 		}
-		$checked = ($this->default == $this->value) ? ' checked' : '';
-		$attributes = implode(' ', $attributes);
-		$input = '<input type="' . $type . '" ' . $attributes . $checked . 'value="' . $this->default . '">';
 		return $input;
 	}
 
 	private function createInputText($type = 'text') {
-		$attributes = array();
-		$this->class[] = 'form-control';
-		$this->attribute['class'] = implode(' ', $this->class);
-		foreach ($this->attribute as $key => $value) {
-			$attributes[] = $key . '="' . $value . '"';
+		if ($this->draw) {
+			$attributes = array();
+			$this->class[] = 'form-control';
+			$this->attribute['class'] = implode(' ', $this->class);
+			foreach ($this->attribute as $key => $value) {
+				$attributes[] = $key . '="' . $value . '"';
+			}
+			$attributes = implode(' ', $attributes);
+			$input = '<input type="' . $type . '" ' . $attributes . ' value="' . $this->value . '">';
+		} else {
+			$input = $this->drawStaticInput();
 		}
-		$attributes = implode(' ', $attributes);
-		$input = '<input type="' . $type . '" ' . $attributes . ' value="' . $this->value . '">';
 		return $input;
 	}
 
 	private function createTextarea() {
-		$attributes = array();
-		$this->class[] = 'form-control';
-		$this->attribute['class'] = implode(' ', $this->class);
-		foreach ($this->attribute as $key => $value) {
-			$attributes[] = $key . '="' . $value . '"';
+		if ($this->draw) {
+			$attributes = array();
+			$this->class[] = 'form-control';
+			$this->attribute['class'] = implode(' ', $this->class);
+			foreach ($this->attribute as $key => $value) {
+				$attributes[] = $key . '="' . $value . '"';
+			}
+			$attributes = implode(' ', $attributes);
+			$input = '<textarea ' . $attributes . '>' . $this->value . '</textarea>';
+		} else {
+			$input = $this->drawStaticInput();
 		}
-		$attributes = implode(' ', $attributes);
-		$input = '<textarea ' . $attributes . '>' . $this->value . '</textarea>';
 		return $input;
 	}
 
 	private function createDropDown() {
-		$attributes = array();
-		$this->class[] = 'form-control';
-		$this->attribute['class'] = implode(' ', $this->class);
-		foreach ($this->attribute as $key => $value) {
-			$attributes[] = $key . '="' . $value . '"';
+		if ($this->draw) {
+			$attributes = array();
+			$this->class[] = 'form-control';
+			$this->attribute['class'] = implode(' ', $this->class);
+			foreach ($this->attribute as $key => $value) {
+				$attributes[] = $key . '="' . $value . '"';
+			}
+			$attributes = implode(' ', $attributes);
+			$placeholder = (isset($this->attributes['data-placeholder'])) ? '<option></option>' : '';
+			$input = '<select ' . $attributes . '>' . $placeholder;
+			foreach ($this->list as $key => $value) {
+				$selected = ($key == $this->value) ? ' selected' : '';
+				$input .= '<option value="' . $key . '"' . $selected . '>' . $value . '</option>';
+			}
+			$input .= '</select>';
+		} else {
+			$input = $this->drawStaticInput();
 		}
-		$attributes = implode(' ', $attributes);
-		$placeholder = (isset($this->attributes['data-placeholder'])) ? '<option></option>' : '';
-		$input = '<select ' . $attributes . '>' . $placeholder;
-		foreach ($this->list as $key => $value) {
-			$selected = ($key == $this->value) ? ' selected' : '';
-			$input .= '<option value="' . $key . '"' . $selected . '>' . $value . '</option>';
-		}
-		$input .= '</select>';
 		return $input;
+	}
+
+	private function drawStaticInput() {
+		return '<p class="form-control-static">' . $this->value . '</p>'
 	}
 
 }
