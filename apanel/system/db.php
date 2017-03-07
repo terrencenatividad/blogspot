@@ -28,7 +28,9 @@ class db {
 	}
 
 	public function showQuery($show) {
-		$this->show_query = $show;
+		if (DEBUGGING) {
+			$this->show_query = $show;
+		}
 		return $this;
 	}
 
