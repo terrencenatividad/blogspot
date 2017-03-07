@@ -54,6 +54,11 @@ class ui {
 		return $this;
 	}
 
+	public function setAttribute(array $attributes) {
+		$this->attribute = array_merge($this->attribute, $attribute);
+		return $this;
+	}
+
 	public function setValue($value) {
 		$this->value = $value;
 		return $this;
