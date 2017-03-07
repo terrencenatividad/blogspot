@@ -18,6 +18,8 @@ class ui {
 		$this->type = $type;
 		$this->addon = '';
 		$this->draw = '';
+		$this->class = array();
+		$this->split = array();
 		return $this;
 	}
 
@@ -65,19 +67,22 @@ class ui {
 	public function draw($draw = true) {
 		if ($draw) {
 			$label = $this->createLabel();
-			$input = $this->checkDraw();
-			$addon = $this->createAddon();
-			if (empty($this->addon)) {
-				if (empty($this->split)) {
-					$this->draw = '<div class="form-group">' . $label . $input . '</div>';
-				} else {
-					$this->draw = '<div class="form-group">' . $label . $input . '</div>';
-				}
-			} else {
-				$this->draw = '<div class="form-group"><div class="input-group">' . $label . $input . $addon . '</div></div>';
-			}
+			$input = $this->drawInput();
+			$this->draw = '<div class="form-group">' . $label . $input . '</div>';
 		}
 		return $this->draw;
+	}
+
+	private function drawInput() {
+		$addon = $this->createAddon();
+		$input = $this->checkDraw();
+		$x = (isset($this->split[1])) ? '<div class="' . $this->split[1] . '">' : '';
+		$y = (isset($this->split[1])) ? '</div>' : '';
+		if (empty($this->addon)) {
+			return $x . $input . $y;
+		} else {
+			return $x . '<div class="input-group">' . $input . $addon . '</div>' . $y;
+		}
 	}
 
 	private function checkDraw() {
@@ -106,7 +111,7 @@ class ui {
 	private function createLabel() {
 		$label = '';
 		$for = ((isset($this->attribute['id']) && ! empty($this->attribute['id'])) ? ' for="' . $this->attribute['id'] . '"' : '');
-		$class = (!empty($this->split)) ? ' class="control-label' . $this->split[0] . '"' : '';
+		$class = (!empty($this->split)) ? ' class="control-label ' . $this->split[0] . '"' : '';
 		if ( ! empty($this->label)) {
 			$label = '<label' . $for . $class . '>' . $this->label . '</label>';
 		}
