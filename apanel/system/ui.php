@@ -149,7 +149,7 @@ class ui {
 			foreach ($this->attribute as $key => $value) {
 				$attributes[] = $key . '="' . $value . '"';
 			}
-			$checked = ($this->default == $this->value) ? ' checked' : '';
+			$checked = ($this->default == $this->value) ? ' checked ' : '';
 			$attributes = implode(' ', $attributes);
 			$input = '<input type="' . $type . '" ' . $attributes . $checked . 'value="' . $this->default . '">';
 		} else {
