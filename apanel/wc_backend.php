@@ -35,6 +35,12 @@ class backend {
 				$this->module_folder = $paths->folder;
 				$this->module_file = $paths->file;
 				$this->module_function = ($this->getPage()) ? $this->getPage() : $paths->default_function;
+				$link_args = explode('/', rtrim($paths->module_link, '/'));
+				$args = explode('/', rtrim(SUB_FOLDER, '/'));
+				foreach ($link_args as $key => $value) {
+					unset($args[$key]);
+				}
+				$this->args = $args;
 			} else if (DEBUGGING) {
 				echo '<p><b>Unable to find Path in Database:</b> ' . SUB_FOLDER . '</p>';
 				exit();
@@ -62,7 +68,7 @@ class backend {
 		if (file_exists($path)) {
 			require_once $path;
 			$controller = new controller;
-			$controller->{$this->module_function}();
+			call_user_func_array(array($controller, $this->module_function), $this->args);
 		} else if (DEBUGGING) {
 			echo '<p><b>Unable to find Controller File:</b> ' . $path . '</p>';
 			exit();
