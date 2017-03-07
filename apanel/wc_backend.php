@@ -38,6 +38,9 @@ class backend {
 				$link_args = explode('/', rtrim($paths->module_link, '/'));
 				$args = explode('/', rtrim(SUB_FOLDER, '/'));
 				foreach ($link_args as $key => $value) {
+					if ($value == '%') {
+						$this->module_function = $args[$key];
+					}
 					unset($args[$key]);
 				}
 				$this->args = $args;
