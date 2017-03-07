@@ -199,11 +199,16 @@ class ui {
 				$attributes[] = $key . '="' . $value . '"';
 			}
 			$attributes = implode(' ', $attributes);
-			$placeholder = (isset($this->attributes['data-placeholder'])) ? '<option></option>' : '';
+			$placeholder = (isset($this->attribute['data-placeholder'])) ? '<option></option>' : '';
 			$input = '<select ' . $attributes . '>' . $placeholder;
 			foreach ($this->list as $key => $value) {
-				$selected = ($key == $this->value) ? ' selected' : '';
-				$input .= '<option value="' . $key . '"' . $selected . '>' . $value . '</option>';
+				if (is_object($value)) {
+					$selected = ($value->ind == $this->value) ? ' selected' : '';
+					$input .= '<option value="' . $value->ind . '"' . $selected . '>' . $value->val . '</option>';
+				} else {
+					$selected = ($key == $this->value) ? ' selected' : '';
+					$input .= '<option value="' . $key . '"' . $selected . '>' . $value . '</option>';
+				}
 			}
 			$input .= '</select>';
 		} else {
