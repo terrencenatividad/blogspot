@@ -11,6 +11,9 @@ textarea {
 .navbar-nav .dropdown-menu a {
 	padding: 10px 15px;
 }
+.form-group .icheckbox_square-blue {
+	margin-top: 6px;
+}
 
 
 
