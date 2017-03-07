@@ -61,7 +61,7 @@ class ui {
 	}
 
 	public function setAttribute(array $attributes) {
-		$this->attribute = array_merge($this->attribute, $attribute);
+		$this->attribute = array_merge($this->attribute, $attributes);
 		return $this;
 	}
 
