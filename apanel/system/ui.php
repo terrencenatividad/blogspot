@@ -17,6 +17,7 @@ class ui {
 		$this->value = '';
 		$this->type = $type;
 		$this->addon = '';
+		$this->label = '';
 		$this->draw = '';
 		$this->class = array();
 		$this->split = array();
@@ -45,6 +46,11 @@ class ui {
 
 	public function setId($id) {
 		$this->attribute['id'] = $id;
+		return $this;
+	}
+
+	public function setList(array $list) {
+		$this->list = $list;
 		return $this;
 	}
 
