@@ -4,6 +4,7 @@ class ui {
 	private $attribute = array();
 	private $list = array();
 	private $value = '';
+	private $default = '';
 	private $type = '';
 	private $addon = '';
 	private $label = '';
@@ -15,6 +16,7 @@ class ui {
 		$this->attribute = array();
 		$this->list = array();
 		$this->value = '';
+		$this->default = '';
 		$this->type = $type;
 		$this->addon = '';
 		$this->label = '';
@@ -51,6 +53,11 @@ class ui {
 
 	public function setList(array $list) {
 		$this->list = $list;
+		return $this;
+	}
+
+	public function setDefault($default) {
+		$this->default = $default;
 		return $this;
 	}
 

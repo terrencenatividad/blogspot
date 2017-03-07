@@ -101,6 +101,7 @@ class db {
 			$this->query = "SELECT $fields FROM $table $where_condition $limit $limit_offset";
 			$result = $this->conn->query($this->query);
 			if ($result->num_rows > 0) {
+				$this->result = array();
 				while ($row = $result->fetch_object()) {
 					$this->result[] = $row;
 				}

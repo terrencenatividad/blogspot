@@ -13,9 +13,9 @@ class input {
 		$return = array();
 		foreach ($post as $key => $value) {
 			if (is_numeric($key)) {
-				$return[$value] = isset($_POST[$value]) ? $_POST[$value] : 'SS';
+				$return[$value] = isset($_POST[$value]) ? $_POST[$value] : '';
 			} else {
-				$return[$value] = isset($_POST[$key]) ? $_POST[$key] : 'AA';
+				$return[$value] = isset($_POST[$key]) ? $_POST[$key] : '';
 			}
 		}
 		return $return;
