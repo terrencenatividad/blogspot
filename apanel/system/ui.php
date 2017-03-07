@@ -213,7 +213,7 @@ class ui {
 	}
 
 	private function drawStaticInput() {
-		return '<p class="form-control-static">' . $this->value . '</p>'
+		return '<p class="form-control-static">' . $this->value . '</p>';
 	}
 
 }
