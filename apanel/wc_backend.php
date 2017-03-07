@@ -38,7 +38,7 @@ class backend {
 				$link_args = explode('/', rtrim($paths->module_link, '/'));
 				$args = explode('/', rtrim(SUB_FOLDER, '/'));
 				foreach ($link_args as $key => $value) {
-					if ($value == '%') {
+					if ($value == '%' && isset($args[$key])) {
 						$this->module_function = $args[$key];
 					}
 					unset($args[$key]);
@@ -71,7 +71,13 @@ class backend {
 		if (file_exists($path)) {
 			require_once $path;
 			$controller = new controller;
-			call_user_func_array(array($controller, $this->module_function), $this->args);
+			if (method_exists($controller,$this->module_function)) {
+				call_user_func_array(array($controller, $this->module_function), $this->args);
+			} else if (DEBUGGING) {
+				echo '<p><b>Unable to find Controller Function:</b> ' . $this->module_function . '()</p>';
+			} else {
+				echo 'show 404';
+			}
 		} else if (DEBUGGING) {
 			echo '<p><b>Unable to find Controller File:</b> ' . $path . '</p>';
 			exit();
