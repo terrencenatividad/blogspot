@@ -8,6 +8,7 @@ class ui {
 	private $addon = '';
 	private $label = '';
 	private $draw = '';
+	private $split = array();
 
 	public function formField($type) {
 		$this->attribute = array();
@@ -26,6 +27,11 @@ class ui {
 
 	public function setAddon($addon) {
 		$this->addon = $addon;
+		return $this;
+	}
+
+	public function setClass($class) {
+		$this->attribute['class'] = $class;
 		return $this;
 	}
 
@@ -50,13 +56,22 @@ class ui {
 		return $this;
 	}
 
+	public function setSplit($x, $y) {
+		$this->split = array($x, $y);
+		return $this;
+	}
+
 	public function draw($draw = true) {
 		if ($draw) {
 			$label = $this->createLabel();
 			$input = $this->checkDraw();
 			$addon = $this->createAddon();
 			if (empty($this->addon)) {
-				$this->draw = '<div class="form-group">' . $label . $input . '</div>';
+				if (empty($this->split)) {
+					$this->draw = '<div class="form-group">' . $label . $input . '</div>';
+				} else {
+					$this->draw = '<div class="form-group">' . $label . $input . '</div>';
+				}
 			} else {
 				$this->draw = '<div class="form-group"><div class="input-group">' . $label . $input . $addon . '</div></div>';
 			}
@@ -106,7 +121,7 @@ class ui {
 
 	private function createInput($type = 'radio') {
 		$attributes = array();
-		foreach ($this->attributes as $key => $value) {
+		foreach ($this->attribute as $key => $value) {
 			$attributes[] = '{$key}="{$value}"';
 		}
 		$checked = ($this->default == $this->value) ? ' checked' : '';
@@ -117,7 +132,7 @@ class ui {
 
 	private function createInputText($type = 'text') {
 		$attributes = array();
-		foreach ($this->attributes as $key => $value) {
+		foreach ($this->attribute as $key => $value) {
 			$attributes[] = '{$key}="{$value}"';
 		}
 		$attributes = implode(' ', $attributes);
@@ -127,7 +142,7 @@ class ui {
 
 	private function createTextarea() {
 		$attributes = array();
-		foreach ($this->attributes as $key => $value) {
+		foreach ($this->attribute as $key => $value) {
 			$attributes[] = '{$key}="{$value}"';
 		}
 		$attributes = implode(' ', $attributes);
@@ -137,7 +152,7 @@ class ui {
 
 	private function createDropDown() {
 		$attributes = array();
-		foreach ($this->attributes as $key => $value) {
+		foreach ($this->attribute as $key => $value) {
 			$attributes[] = '{$key}="{$value}"';
 		}
 		$attributes = implode(' ', $attributes);
