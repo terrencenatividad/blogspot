@@ -10,6 +10,7 @@ class db {
 	private $limit = '';
 	private $limit_offset = '';
 	private $where_condition = '';
+	private $show_query = false;
 	private $query = '';
 
 
@@ -26,8 +27,8 @@ class db {
 		return $this;
 	}
 
-	public function setQuery($query) {
-		$this->query = $query;
+	public function showQuery($show) {
+		$this->show_query = $show;
 		return $this;
 	}
 
@@ -111,11 +112,19 @@ class db {
 	}
 
 	public function getRow() {
-		return (empty($this->result)) ? false : $this->result[0];
+		if ($this->show_query) {
+			return $this->query;
+		} else {
+			return (empty($this->result)) ? false : $this->result[0];
+		}
 	}
 
 	public function getResult() {
-		return $this->result;
+		if ($this->show_query) {
+			return $this->query;
+		} else {
+			return $this->result;
+		}
 	}
 
 	public function runInsert() {
@@ -131,7 +140,11 @@ class db {
 			$result = $this->conn->query($this->query);
 			$this->result = $result;
 		}
-		return $this->result;
+		if ($this->show_query) {
+			return $this->query;
+		} else {
+			return $this->result;
+		}
 	}
 
 	public function runUpdate() {
@@ -152,7 +165,11 @@ class db {
 			$result = $this->conn->query($this->query);
 			$this->result = $result;
 		}
-		return $this->result;
+		if ($this->show_query) {
+			return $this->query;
+		} else {
+			return $this->result;
+		}
 	}
 
 	public function runDelete() {
@@ -164,7 +181,11 @@ class db {
 			$this->query = "DELETE FROM $table WHERE $where_condition $limit";
 			$result = $this->conn->query($this->query);
 		}
-		return $this->result;
+		if ($this->show_query) {
+			return $this->query;
+		} else {
+			return $this->result;
+		}
 	}
 
 	private function runCheck(array $args) {
