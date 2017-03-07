@@ -8,6 +8,7 @@ class ui {
 	private $addon = '';
 	private $label = '';
 	private $draw = '';
+	private $class = array();
 	private $split = array();
 
 	public function formField($type) {
@@ -31,7 +32,7 @@ class ui {
 	}
 
 	public function setClass($class) {
-		$this->attribute['class'] = $class;
+		$this->class = array_merge(explode(' ', $class), $this->class);
 		return $this;
 	}
 
@@ -105,8 +106,9 @@ class ui {
 	private function createLabel() {
 		$label = '';
 		$for = ((isset($this->attribute['id']) && ! empty($this->attribute['id'])) ? ' for="' . $this->attribute['id'] . '"' : '');
+		$class = (!empty($this->split)) ? ' class="control-label' . $this->split[0] . '"' : '';
 		if ( ! empty($this->label)) {
-			$label = '<label' . $for . '>' . $this->label . '</label>';
+			$label = '<label' . $for . $class . '>' . $this->label . '</label>';
 		}
 		return $label;
 	}
@@ -122,45 +124,51 @@ class ui {
 	private function createInput($type = 'radio') {
 		$attributes = array();
 		foreach ($this->attribute as $key => $value) {
-			$attributes[] = '{$key}="{$value}"';
+			$attributes[] = $key . '="' . $value . '"';
 		}
 		$checked = ($this->default == $this->value) ? ' checked' : '';
 		$attributes = implode(' ', $attributes);
-		$input = '<input type="{$type}" {$attributes}{$checked} value="{$this->default}">';
+		$input = '<input type="' . $type . '" ' . $attributes . $checked . 'value="' . $this->default . '">';
 		return $input;
 	}
 
 	private function createInputText($type = 'text') {
 		$attributes = array();
+		$this->class[] = 'form-control';
+		$this->attribute['class'] = implode(' ', $this->class);
 		foreach ($this->attribute as $key => $value) {
-			$attributes[] = '{$key}="{$value}"';
+			$attributes[] = $key . '="' . $value . '"';
 		}
 		$attributes = implode(' ', $attributes);
-		$input = '<input type="{$type}" {$attributes} {$checked} value="{$this->value}">';
+		$input = '<input type="' . $type . '" ' . $attributes . ' value="' . $this->value . '">';
 		return $input;
 	}
 
 	private function createTextarea() {
 		$attributes = array();
+		$this->class[] = 'form-control';
+		$this->attribute['class'] = implode(' ', $this->class);
 		foreach ($this->attribute as $key => $value) {
-			$attributes[] = '{$key}="{$value}"';
+			$attributes[] = $key . '="' . $value . '"';
 		}
 		$attributes = implode(' ', $attributes);
-		$input = '<textarea {$attributes}>{$this->value}</textarea>';
+		$input = '<textarea ' . $attributes . '>' . $this->value . '</textarea>';
 		return $input;
 	}
 
 	private function createDropDown() {
 		$attributes = array();
+		$this->class[] = 'form-control';
+		$this->attribute['class'] = implode(' ', $this->class);
 		foreach ($this->attribute as $key => $value) {
-			$attributes[] = '{$key}="{$value}"';
+			$attributes[] = $key . '="' . $value . '"';
 		}
 		$attributes = implode(' ', $attributes);
 		$placeholder = (isset($this->attributes['data-placeholder'])) ? '<option></option>' : '';
-		$input = '<select {$attributes}>{$placeholder}';
+		$input = '<select ' . $attributes . '>' . $placeholder;
 		foreach ($this->list as $key => $value) {
 			$selected = ($key == $this->value) ? ' selected' : '';
-			$input .= '<option value="{$key}"{$selected}>{$value}</option>';
+			$input .= '<option value="' . $key . '"' . $selected . '>' . $value . '</option>';
 		}
 		$input .= '</select>';
 		return $input;
