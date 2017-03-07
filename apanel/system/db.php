@@ -94,6 +94,7 @@ class db {
 	}
 
 	public function runSelect() {
+		$this->result = array();
 		$check = $this->runCheck(array('fields', 'table'));
 		if ($check) {
 			$fields = implode(', ', $this->fields);
@@ -103,10 +104,11 @@ class db {
 			$limit_offset = ( ! empty($this->limit) && ! empty($this->limit_offset)) ? ", " . $this->limit_offset : '';
 			$this->query = "SELECT $fields FROM $table $where_condition $limit $limit_offset";
 			$result = $this->conn->query($this->query);
-			if ($result->num_rows > 0) {
-				$this->result = array();
-				while ($row = $result->fetch_object()) {
-					$this->result[] = $row;
+			if ($result) {
+				if ($result->num_rows > 0) {
+					while ($row = $result->fetch_object()) {
+						$this->result[] = $row;
+					}
 				}
 			}
 		}
