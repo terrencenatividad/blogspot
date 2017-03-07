@@ -1,10 +1,20 @@
 textarea {
-    resize: none;
+	resize: none;
 }
 .form-control.input-sm {
 	height: 30px !important;
 	padding: 5px 10px !important;
 }
+.navbar-nav .dropdown-menu {
+	padding: 0;
+}
+.navbar-nav .dropdown-menu a {
+	padding: 10px 15px;
+}
+
+
+
+
 .asterisk {
     font-weight: bold;
     font-size: 9pt;
