@@ -3,7 +3,7 @@ function drawTemplate() {
 		width: '100%',
 		containerCssClass: ':all:',
 	});
-	$('input[type="checkbox"], input[type="radio"]').iCheck({
+	$(':not(table) input[type="checkbox"], :not(table) input[type="radio"]').iCheck({
 		checkboxClass: 'icheckbox_square-blue',
 		radioClass: 'iradio_square-blue'
 	});

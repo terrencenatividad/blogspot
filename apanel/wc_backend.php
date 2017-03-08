@@ -45,7 +45,7 @@ class backend {
 					unset($args[$key]);
 				}
 				$this->args = $args;
-				define('MODULE_URL', BASE_URL . rtrim(str_replace('%', '', $paths->module_link)));
+				define('MODULE_URL', BASE_URL . str_replace('%', '', $paths->module_link));
 			} else if (DEBUGGING) {
 				echo '<p><b>Unable to find Path in Database:</b> ' . SUB_FOLDER . '</p>';
 				exit();
