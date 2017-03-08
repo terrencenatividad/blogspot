@@ -12,3 +12,13 @@ drawTemplate();
 $(document).ajaxComplete(function() {
 	drawTemplate();
 });
+$('table').on('click', '[title="Delete"]', function() {
+	var module_url = $('#module_url').val();
+	$.post(module_url + 'ajax/ajax_delete', 'delete[]=' + $(this).attr('data-id'), function(data) {
+		console.log(data);
+	});
+});
+$('table').on('ifToggled', 'tr [type="checkbox"].checkall', function() {
+	var checked = $(this).prop('checked');
+	$(this).closest('table').find('tbody [type="checkbox"]').prop('checked', checked).iCheck('update');
+});

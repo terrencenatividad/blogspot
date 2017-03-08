@@ -44,6 +44,8 @@ class backend {
 					unset($args[$key]);
 				}
 				$this->args = $args;
+				define('MODULE_URL', str_replace(implode('/', $args), '', FULL_URL));
+				//var_dump(MODULE_URL);
 			} else if (DEBUGGING) {
 				echo '<p><b>Unable to find Path in Database:</b> ' . SUB_FOLDER . '</p>';
 				exit();
