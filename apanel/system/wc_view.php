@@ -4,6 +4,7 @@ class wc_view {
 	public $css = array();
 	public $title = '';
 	public $sub_title = '';
+	public $header_active = '';
 
 	public function addCss($css) {
 		$this->css[] = 'assets/' . MODULE_FOLDER . '/' . PAGE_TYPE . '/assets/' . $css;
@@ -18,6 +19,7 @@ class wc_view {
 			// LOAD HEADER
 			if ($enclosed) {
 				$header_nav = $this->getNav();
+				$header_active = $this->header_active;
 				$include_css = $this->css;
 				$page_title = $this->title;
 				$page_subtitle = $this->enclose($this->sub_title, '<small>', '</small>');

@@ -149,7 +149,7 @@
 		</nav>
 	</header>
 	<script>
-		$('.sidebar-menu [href="<?php echo BASE_URL . $header_active ?>"]').parents('li').addClass('active');
+		$('.navbar-static-top [href="<?php echo BASE_URL . $header_active ?>"]').parents('li').addClass('active');
 	</script>
 	<div class="content-wrapper">
 		<section class="content-header">
