@@ -11,6 +11,7 @@ class db {
 	private $limit_offset = '';
 	private $where_condition = '';
 	private $show_query = false;
+	private $preview = false;
 	private $query = '';
 
 
@@ -31,6 +32,11 @@ class db {
 		if (DEBUGGING) {
 			$this->show_query = $show;
 		}
+		return $this;
+	}
+
+	public function setPreview() {
+		$this->preview = true;
 		return $this;
 	}
 
@@ -90,6 +96,7 @@ class db {
 		$this->limit_offset = '';
 		$this->where_condition = '';
 		$this->query = '';
+		$this->preview = false;
 		return $this;
 	}
 
@@ -116,7 +123,7 @@ class db {
 	}
 
 	public function getRow() {
-		if ($this->show_query) {
+		if ($this->show_query || $this->preview) {
 			return $this->query;
 		} else {
 			return (empty($this->result)) ? false : $this->result[0];
@@ -124,7 +131,7 @@ class db {
 	}
 
 	public function getResult() {
-		if ($this->show_query) {
+		if ($this->show_query || $this->preview) {
 			return $this->query;
 		} else {
 			return $this->result;
@@ -141,10 +148,12 @@ class db {
 				$query .= "('" . implode("', '", $values) . "'), ";
 			}
 			$this->query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
-			$result = $this->conn->query($this->query);
+			if ( ! $this->preview) {
+				$result = $this->conn->query($this->query);
+			}
 			$this->result = $result;
 		}
-		if ($this->show_query) {
+		if ($this->show_query || $this->preview) {
 			return $this->query;
 		} else {
 			return $this->result;
@@ -166,9 +175,11 @@ class db {
 			$query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
 			$query .= " WHERE $where_condition $limit";
 			$this->query = $query;
-			$this->result = $this->conn->query($this->query);
+			if ( ! $this->preview) {
+				$this->result = $this->conn->query($this->query);
+			}
 		}
-		if ($this->show_query) {
+		if ($this->show_query || $this->preview) {
 			return $this->query;
 		} else {
 			return $this->result;
@@ -182,9 +193,11 @@ class db {
 			$where_condition = $this->where_condition;
 			$limit = ( ! empty($this->limit)) ? "LIMIT " . $this->limit : '';
 			$this->query = "DELETE FROM $table WHERE $where_condition $limit";
-			$this->result = $this->conn->query($this->query);
+			if ( ! $this->preview) {
+				$this->result = $this->conn->query($this->query);
+			}
 		}
-		if ($this->show_query) {
+		if ($this->show_query || $this->preview) {
 			return $this->query;
 		} else {
 			return $this->result;
