@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `wc_admin_logs` (
   `caption` varchar(30) NOT NULL,
   `details` varchar(255) NOT NULL,
-  `recorddate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `recorddate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
