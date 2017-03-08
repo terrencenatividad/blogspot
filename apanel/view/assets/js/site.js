@@ -12,7 +12,7 @@ drawTemplate();
 $(document).ajaxComplete(function() {
 	drawTemplate();
 });
-$('table').on('click', '[title="Delete"]', function() {
+$('table').on('click', '.ajax_delete', function() {
 	var module_url = $('#module_url').val();
 	$.post(module_url + 'ajax/ajax_delete', 'delete[]=' + $(this).attr('data-id'), function(data) {
 		console.log(data);
