@@ -5,13 +5,11 @@
 # You can specify a custom docker image from Docker Hub as your build environment.
 #image: samueldebruyn/debian-git
 
-#pipelines:
-#  default:
-#    - step:
-#        script: # Modify the commands below to build your repository.
-          #- apt-get update
-          #- apt-get -y install git-ftp
-#          - git ftp push --user $FTP_USERNAME --passwd $FTP_PASSWORD ftp://ourwebprojects.com/public_html/varianttwo/
-
-FROM samueldebruyn/debian-git
-RUN apt-get update
+pipelines:
+          default:
+                   - step:
+                              script: # Modify the commands below to build your repository.
+                                        - apt-get update
+                                        - apt-get -y install git-ftp
+                              script:
+                                        - git ftp push --user $FTP_USERNAME --passwd $FTP_PASSWORD ftp://ourwebprojects.com/public_html/varianttwo/
