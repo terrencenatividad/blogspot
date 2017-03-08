@@ -122,6 +122,9 @@ class ui {
 			case "checkbox":
 				return $this->createInput('checkbox');
 				break;
+			case "submit":
+				return $this->createSubmit();
+				break;
 		}
 	}
 
@@ -153,6 +156,7 @@ class ui {
 			$attributes = implode(' ', $attributes);
 			$input = '<input type="' . $type . '" ' . $attributes . $checked . 'value="' . $this->default . '">';
 		} else {
+			$this->value = ($this->value) ? 'Yes' : 'No';
 			$input = $this->drawStaticInput();
 		}
 		return $input;
@@ -212,9 +216,25 @@ class ui {
 			}
 			$input .= '</select>';
 		} else {
+			foreach ($this->list as $key => $value) {
+				if (is_object($value)) {
+					$this->value = ($value->ind == $this->value) ? $value->val : $this->value;
+				} else {
+					$this->value = ($key == $this->value) ? $value : $this->value;
+				}
+			}
 			$input = $this->drawStaticInput();
 		}
 		return $input;
+	}
+
+	public function drawSubmit($draw) {
+		if ($draw) {
+			return '<button type="submit" class="btn btn-primary">Save</button>';
+		} else {
+			$url = str_replace('view', 'edit', FULL_URL);
+			return '<a href="' . $url  . '" class="btn btn-primary">Edit</a>';
+		}
 	}
 
 	private function drawStaticInput() {
