@@ -37,6 +37,7 @@ class backend {
 				$this->module_function = ($this->getPage()) ? $this->getPage() : $paths->default_function;
 				$link_args = explode('/', rtrim($paths->module_link, '/'));
 				$args = explode('/', rtrim(SUB_FOLDER, '/'));
+				$module_url = array();
 				foreach ($link_args as $key => $value) {
 					if ($value == '%' && isset($args[$key])) {
 						$this->module_function = $args[$key];
@@ -44,8 +45,7 @@ class backend {
 					unset($args[$key]);
 				}
 				$this->args = $args;
-				define('MODULE_URL', str_replace(implode('/', $args), '', FULL_URL));
-				//var_dump(MODULE_URL);
+				define('MODULE_URL', BASE_URL . rtrim(str_replace('%', '', $paths->module_link)));
 			} else if (DEBUGGING) {
 				echo '<p><b>Unable to find Path in Database:</b> ' . SUB_FOLDER . '</p>';
 				exit();
