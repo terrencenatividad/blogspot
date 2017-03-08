@@ -1,0 +1,14 @@
+# This is a sample build configuration for PHP.
+# Check our guides at https://confluence.atlassian.com/x/e8YWN for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+image: mwienk/docker-git-ftp
+
+pipelines:
+    default:
+        - step:
+            script: # Modify the commands below to build your repository.
+                #- apt-get update
+                #- apt-get -y install git-ftp
+                - git ftp push --user $FTP_USERNAME --passwd $FTP_PASSWORD ftp://ourwebprojects.com/public_html/varianttwo/

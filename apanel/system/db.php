@@ -10,6 +10,8 @@ class db {
 	private $limit = '';
 	private $limit_offset = '';
 	private $where_condition = '';
+	private $show_query = false;
+	private $preview = false;
 	private $query = '';
 
 
@@ -26,8 +28,15 @@ class db {
 		return $this;
 	}
 
-	public function setQuery($query) {
-		$this->query = $query;
+	public function showQuery($show) {
+		if (DEBUGGING) {
+			$this->show_query = $show;
+		}
+		return $this;
+	}
+
+	public function setPreview() {
+		$this->preview = true;
 		return $this;
 	}
 
@@ -87,10 +96,12 @@ class db {
 		$this->limit_offset = '';
 		$this->where_condition = '';
 		$this->query = '';
+		$this->preview = false;
 		return $this;
 	}
 
 	public function runSelect() {
+		$this->result = array();
 		$check = $this->runCheck(array('fields', 'table'));
 		if ($check) {
 			$fields = implode(', ', $this->fields);
@@ -100,10 +111,11 @@ class db {
 			$limit_offset = ( ! empty($this->limit) && ! empty($this->limit_offset)) ? ", " . $this->limit_offset : '';
 			$this->query = "SELECT $fields FROM $table $where_condition $limit $limit_offset";
 			$result = $this->conn->query($this->query);
-			if ($result->num_rows > 0) {
-				$this->result = array();
-				while ($row = $result->fetch_object()) {
-					$this->result[] = $row;
+			if ($result) {
+				if ($result->num_rows > 0) {
+					while ($row = $result->fetch_object()) {
+						$this->result[] = $row;
+					}
 				}
 			}
 		}
@@ -111,11 +123,19 @@ class db {
 	}
 
 	public function getRow() {
-		return (empty($this->result)) ? false : $this->result[0];
+		if ($this->show_query || $this->preview) {
+			return $this->query;
+		} else {
+			return (empty($this->result)) ? false : $this->result[0];
+		}
 	}
 
 	public function getResult() {
-		return $this->result;
+		if ($this->show_query || $this->preview) {
+			return $this->query;
+		} else {
+			return $this->result;
+		}
 	}
 
 	public function runInsert() {
@@ -128,10 +148,16 @@ class db {
 				$query .= "('" . implode("', '", $values) . "'), ";
 			}
 			$this->query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
-			$result = $this->conn->query($this->query);
+			if ( ! $this->preview) {
+				$result = $this->conn->query($this->query);
+			}
 			$this->result = $result;
 		}
-		return $this->result;
+		if ($this->show_query || $this->preview) {
+			return $this->query;
+		} else {
+			return $this->result;
+		}
 	}
 
 	public function runUpdate() {
@@ -149,10 +175,15 @@ class db {
 			$query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
 			$query .= " WHERE $where_condition $limit";
 			$this->query = $query;
-			$result = $this->conn->query($this->query);
-			$this->result = $result;
+			if ( ! $this->preview) {
+				$this->result = $this->conn->query($this->query);
+			}
 		}
-		return $this->result;
+		if ($this->show_query || $this->preview) {
+			return $this->query;
+		} else {
+			return $this->result;
+		}
 	}
 
 	public function runDelete() {
@@ -162,9 +193,15 @@ class db {
 			$where_condition = $this->where_condition;
 			$limit = ( ! empty($this->limit)) ? "LIMIT " . $this->limit : '';
 			$this->query = "DELETE FROM $table WHERE $where_condition $limit";
-			$result = $this->conn->query($this->query);
+			if ( ! $this->preview) {
+				$this->result = $this->conn->query($this->query);
+			}
 		}
-		return $this->result;
+		if ($this->show_query || $this->preview) {
+			return $this->query;
+		} else {
+			return $this->result;
+		}
 	}
 
 	private function runCheck(array $args) {

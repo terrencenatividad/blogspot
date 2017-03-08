@@ -11,14 +11,22 @@ class input {
 
 	public function post($post = array()) {
 		$return = array();
-		foreach ($post as $key => $value) {
-			if (is_numeric($key)) {
-				$return[$value] = isset($_POST[$value]) ? $_POST[$value] : '';
-			} else {
-				$return[$value] = isset($_POST[$key]) ? $_POST[$key] : '';
+		if (is_array($post)) {
+			foreach ($post as $key => $value) {
+				if (is_numeric($key)) {
+					$return[$value] = isset($_POST[$value]) ? $this->clean($_POST[$value]) : '';
+				} else {
+					$return[$value] = isset($_POST[$key]) ? $this->clean($_POST[$key]) : '';
+				}
 			}
+		} else {
+			$return = isset($_POST[$post]) ? $this->clean($_POST[$post]) : '';
 		}
 		return $return;
+	}
+
+	private function clean($value) {
+		return addslashes(implode('', explode("\\", trim($value))));
 	}
 
 }

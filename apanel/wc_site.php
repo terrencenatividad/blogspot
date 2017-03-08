@@ -3,10 +3,11 @@
 require_once 'config.php';
 // HTTP -> HTTPS
 $request_scheme = isset($_SERVER['REQUEST_SCHEME']) ? $_SERVER['REQUEST_SCHEME'] : 'http';
-if (defined(HTTPS) && HTTPS && $request_scheme == 'http' && $_SERVER['HTTP_HOST'] != 'localhost' && ! filter_var($_SERVER['HTTP_HOST'], FILTER_VALIDATE_IP)) {
+if (defined('HTTPS') && HTTPS && $request_scheme == 'http' && $_SERVER['HTTP_HOST'] != 'localhost' && ! filter_var($_SERVER['HTTP_HOST'], FILTER_VALIDATE_IP)) {
 	header('Location: https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 	exit();
 }
+define('FULL_URL', $request_scheme . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 // GET SUB FOLDER
 $sub_folder = str_replace('index.php', '', $_SERVER['PHP_SELF']);
 if ($sub_folder == '/') {
