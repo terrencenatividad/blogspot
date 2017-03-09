@@ -1,5 +1,23 @@
 				<script src="<?= BASE_URL ?>assets/js/site.js"></script>
 			</div>
+			<div id="delete_modal" class="modal modal-danger">
+				<div class="modal-dialog" style = "width: 300px;">
+					<div class="modal-content">
+						<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Confirmation</h4>
+						</div>
+						<div class="modal-body">
+							<p>Are you sure you want to delete this record?</p>
+						</div>
+						<div class="modal-footer text-center">
+							<button type="button" id="delete_yes" class="btn btn-outline btn-flat" onclick="">Yes</button>
+							<button type="button" class="btn btn-outline btn-flat" data-dismiss="modal">No</button>
+						</div>
+					</div>
+				</div>
+			</div>
 			<footer class="main-footer">
 				<div class="pull-right hidden-xs">
 					<b>Version</b> 2.3.8

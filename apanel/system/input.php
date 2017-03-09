@@ -26,7 +26,15 @@ class input {
 	}
 
 	private function clean($value) {
-		return addslashes(implode('', explode("\\", trim($value))));
+		if (is_array($value)) {
+			$temp = array();
+			foreach ($value as $val) {
+				$temp[] = $this->clean($val);
+			}
+			return $temp;
+		} else {
+			return addslashes(implode('', explode("\\", trim($value))));
+		}
 	}
 
 }

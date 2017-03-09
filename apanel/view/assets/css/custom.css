@@ -14,7 +14,9 @@ textarea {
 .form-group .icheckbox_square-blue {
 	margin-top: 6px;
 }
-
+* + .delete_button {
+	margin-left: 20px;
+}
 
 
 
