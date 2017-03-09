@@ -17,6 +17,7 @@ function linkDeleteMultipleToTable(delete_multiple, table) {
 			$(delete_multiple).html('Delete').attr('disabled', true);
 		}
 	}
+	countChecked();
 	$(document).ajaxComplete(function() {
 		countChecked();
 	});
