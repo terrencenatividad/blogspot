@@ -11,6 +11,7 @@ class ui {
 	private $draw = true;
 	private $class = array();
 	private $split = array();
+	private $switch = false;
 
 	public function formField($type) {
 		$this->attribute = array();
@@ -23,6 +24,7 @@ class ui {
 		$this->draw = true;
 		$this->class = array();
 		$this->split = array();
+		$this->switch = false;
 		return $this;
 	}
 
@@ -82,11 +84,21 @@ class ui {
 		return $this;
 	}
 
+	public function setSwitch() {
+		$this->switch = true;
+		return $this;
+	}
+
 	public function draw($draw = true) {
 		$this->draw = $draw;
 		$label = $this->createLabel();
 		$input = $this->drawInput();
-		$this->draw = '<div class="form-group">' . $label . $input . '</div>';
+		if ($this->switch) {
+			$this->draw = '<div class="form-group">' . $input . $label . '</div>';
+		} else {
+
+			$this->draw = '<div class="form-group">' . $label . $input . '</div>';
+		}
 		return $this->draw;
 	}
 

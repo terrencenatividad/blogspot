@@ -24,6 +24,8 @@ class db {
 	}
 
 	public function setTable($table) {
+		$this->limit = '';
+		$this->limit_offset = '';
 		$this->table = $table;
 		return $this;
 	}
@@ -118,6 +120,9 @@ class db {
 					}
 				}
 			}
+			if ($this->conn->error) {
+				$this->showError($this->conn->error);
+			}
 		}
 		return $this;
 	}
@@ -149,7 +154,10 @@ class db {
 			}
 			$this->query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
 			if ( ! $this->preview) {
-				$result = $this->conn->query($this->query);
+				$this->result = $this->conn->query($this->query);
+			}
+			if ($this->conn->error) {
+				$this->showError($this->conn->error);
 			}
 			$this->result = $result;
 		}
@@ -178,6 +186,9 @@ class db {
 			if ( ! $this->preview) {
 				$this->result = $this->conn->query($this->query);
 			}
+			if ($this->conn->error) {
+				$this->showError($this->conn->error);
+			}
 		}
 		if ($this->show_query || $this->preview) {
 			return $this->query;
@@ -195,6 +206,9 @@ class db {
 			$this->query = "DELETE FROM $table WHERE $where_condition $limit";
 			if ( ! $this->preview) {
 				$this->result = $this->conn->query($this->query);
+			}
+			if ($this->conn->error) {
+				$this->showError($this->conn->error);
 			}
 		}
 		if ($this->show_query || $this->preview) {
@@ -231,10 +245,9 @@ class db {
 		return true;
 	}
 
-	private function showError($error) {
+	private function showError($error = 'Error') {
 		if (DEBUGGING) {
-			echo $error;
-
+			echo $error . '<br>Query: ' . $this->query;
 		}
 	}
 

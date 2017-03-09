@@ -17,7 +17,12 @@ textarea {
 * + .delete_button {
 	margin-left: 20px;
 }
-
+.force-left {
+	text-align: left !important;
+}
+.force-right {
+	text-align: right !important;
+}
 
 
 .asterisk {
