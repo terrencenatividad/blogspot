@@ -32,9 +32,10 @@ if ($request_dir[0] == 'assets' && isset($request_dir[1]) && isset($request_dir[
 	}
 	if ($asset_type == 'css') {
 		header('Content-Type: text/css');
-		if ($request_dir[count($request_dir) - 1] != 'custom.css') {
-			header('Cache-Control: public, max-age=31536000');
-		}
+	}
+	if ( ! in_array($request_dir[count($request_dir) - 1], array('custom.css', 'site.js'))) {
+		header('Cache-Control: public, max-age=31536000');
+		header('Pragma: public, max-age=31536000');
 	}
 	if (file_exists($asset_path) || DEBUGGING) {
 		readfile($asset_path);
