@@ -28,8 +28,8 @@ class input {
 	private function clean($value) {
 		if (is_array($value)) {
 			$temp = array();
-			foreach ($value as $val) {
-				$temp[] = $this->clean($val);
+			foreach ($value as $key => $val) {
+				$temp[$this->clean($key)] = $this->clean($val);
 			}
 			return $temp;
 		} else {

@@ -13,6 +13,7 @@ class db {
 	private $show_query = false;
 	private $preview = false;
 	private $query = '';
+	private $insert_id = '';
 
 
 	public function __construct() {
@@ -26,6 +27,7 @@ class db {
 	public function setTable($table) {
 		$this->limit = '';
 		$this->limit_offset = '';
+		$this->insert_id = '';
 		$this->table = $table;
 		return $this;
 	}
@@ -48,6 +50,10 @@ class db {
 
 	public function getNumRows() {
 		return $this->num_rows;
+	}
+
+	public function getInsertId() {
+		return $this->insert_id;
 	}
 
 	public function setLimit($limit) {
@@ -155,11 +161,11 @@ class db {
 			$this->query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
 			if ( ! $this->preview) {
 				$this->result = $this->conn->query($this->query);
+				$this->insert_id = $this->conn->insert_id;
 			}
 			if ($this->conn->error) {
 				$this->showError($this->conn->error);
 			}
-			$this->result = $result;
 		}
 		if ($this->show_query || $this->preview) {
 			return $this->query;
