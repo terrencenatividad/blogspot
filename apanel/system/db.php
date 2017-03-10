@@ -221,8 +221,18 @@ class db {
 
 	// --------------------Properties------------------------ //
 
-	public function getProperties($properties) {
-		return $this->{$properties};
+	public function getProperties($properties = array('table', 'fields', 'values', 'where', 'groupby', 'having', 'join')) {
+		$temp = array();
+		if (is_array($properties)) {
+			foreach ($properties as $value) {
+				if (isset($this->{$value})) {
+					$temp[$value] = $this->{$value};
+				}
+			}
+		} else if (isset($this->{$properties})) {
+			$temp = $this->{$properties};
+		}
+		return $temp;
 	}
 
 	public function getNumRows() {
@@ -233,16 +243,14 @@ class db {
 		return $this->insert_id;
 	}
 
-	public function setProperties($db, array $array = array('table', 'fields', 'values', 'where', 'groupby', 'having', 'join')) {
-		$retain = array();
-		foreach ($array as $value) {
-			if (isset($this->{$value})) {
-				$retain[$value] = $db->getProperties($value);
+	public function setProperties($properties, array $array = array('table', 'fields', 'values', 'where', 'groupby', 'having', 'join')) {
+		$temp = array();
+		if (is_array($properties)) {
+			foreach ($properties as $key => $value) {
+				if (isset($this->{$key})) {
+					$this->{$key} = $value;
+				}
 			}
-		}
-		$this->cleanProperties();
-		foreach ($retain as $key => $value) {
-			$this->{$key} = $value;
 		}
 		return $this;
 	}
