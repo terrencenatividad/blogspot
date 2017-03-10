@@ -221,8 +221,8 @@ class db {
 
 	// --------------------Properties------------------------ //
 
-	public function getProperities($properites) {
-		return $this->properites;
+	public function getProperties($properties) {
+		return $this->{$properties};
 	}
 
 	public function getNumRows() {
@@ -233,13 +233,14 @@ class db {
 		return $this->insert_id;
 	}
 
-	public function setProperties(object $db, array $array) {
+	public function setProperties($db, array $array = array('table', 'fields', 'values', 'where', 'groupby', 'having', 'join')) {
 		$this->cleanProperties();
 		foreach ($array as $value) {
 			if (isset($this->{$value})) {
-				$this->{$value} = $db->setProperties($properites);
+				$this->{$value} = $db->getProperties($value);
 			}
 		}
+		return $this;
 	}
 
 	public function cleanProperties() {
