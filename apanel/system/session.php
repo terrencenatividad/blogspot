@@ -1,5 +1,5 @@
 <?php
-class session  {
+class session {
 
 	private $session = array();
 	private $flas = array();

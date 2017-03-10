@@ -89,6 +89,7 @@ class backend {
 	}
 
 }
-
 $backend = new backend();
+$session = new session(); // To be Deleted
+$session->set('companycode', 'CID'); // To be Deleted
 $backend->loadModule();
