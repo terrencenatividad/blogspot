@@ -243,7 +243,7 @@ class db {
 		return $this->insert_id;
 	}
 
-	public function setProperties($properties, array $array = array('table', 'fields', 'values', 'where', 'groupby', 'having', 'join')) {
+	public function setProperties($properties) {
 		$temp = array();
 		if (is_array($properties)) {
 			foreach ($properties as $key => $value) {
