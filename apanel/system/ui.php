@@ -107,7 +107,7 @@ class ui {
 		$input = $this->checkDraw();
 		$x = (isset($this->split[1])) ? '<div class="' . $this->split[1] . '">' : '';
 		$y = (isset($this->split[1])) ? '</div>' : '';
-		if (empty($this->addon) || $this->draw) {
+		if (empty($this->addon) || ! $this->draw) {
 			return $x . $input . $y;
 		} else {
 			return $x . '<div class="input-group">' . $input . $addon . '</div>' . $y;
@@ -156,7 +156,7 @@ class ui {
 	private function createAddon() {
 		$addon = '';
 		if ( ! empty($this->addon) && $this->draw) {
-			$addon = '<div class="input-group-addon"><i class="glyphicon glyphicon-{this->addon}"></i></div>';
+			$addon = '<div class="input-group-addon"><i class="glyphicon glyphicon-' . $this->addon . '"></i></div>';
 		}
 		return $addon;
 	}
