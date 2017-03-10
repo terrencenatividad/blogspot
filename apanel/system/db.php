@@ -31,6 +31,7 @@ class db {
 	// ---------------------Properties---------------------- //
 
 	public function setTable($table) {
+		$this->cleanProperties();
 		$this->table = $table;
 		return $this;
 	}
@@ -289,7 +290,7 @@ class db {
 
 	private function showError($error = 'Error') {
 		if (DEBUGGING) {
-			echo $error . '<br>Query: ' . $this->query;
+			echo $error . (($this->query) ? '<br>Query: ' . $this->query : '');
 		}
 	}
 

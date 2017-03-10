@@ -23,6 +23,10 @@ textarea {
 .force-right {
 	text-align: right !important;
 }
+.form-hr {
+	margin-top: 0;
+	margin-bottom: 10px;
+}
 
 
 .asterisk {
