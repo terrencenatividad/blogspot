@@ -26,6 +26,8 @@ function linkDeleteMultipleToTable(delete_multiple, table) {
 	});
 }
 
+$('.datepicker').datepicker();
+
 function linkDeleteToModal(delete_button, callback) {
 	$('body').on('click', delete_button, function() {
 		var id = $(this).attr('data-id');
