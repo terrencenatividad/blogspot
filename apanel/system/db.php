@@ -1,20 +1,24 @@
 <?php
 class db {
+	
+	private $table			= '';
+	private $join			= '';
+	private $where			= '';
+	private $groupby		= '';
+	private $having			= '';
+	private $orderby		= '';
+	private $limit			= '';
+	private $limit_offset	= '';
 
-	private $conn = '';
-	private $table = '';
-	private $result = array();
-	private $fields = array();
-	private $values = array();
-	private $num_rows = '';
-	private $limit = '';
-	private $limit_offset = '';
-	private $where_condition = '';
-	private $show_query = false;
-	private $preview = false;
-	private $query = '';
-	private $insert_id = '';
+	private $fields			= array();
+	private $value			= array();
+	private $result			= array();
+	private $query			= '';
+	private $num_rows		= 0;
+	private $error			= '';
+	private $insert_id		= '';
 
+	// ----------------------Database----------------------- //
 
 	public function __construct() {
 		$this->conn = new mysqli(WC_HOSTNAME, WC_USERNAME, WC_PASSWORD, WC_DATABASE);
@@ -24,47 +28,54 @@ class db {
 		$this->conn = new mysqli(WC_HOSTNAME, WC_USERNAME, WC_PASSWORD, $database);
 	}
 
+	// ---------------------Properties---------------------- //
+
 	public function setTable($table) {
-		$this->limit = '';
-		$this->limit_offset = '';
-		$this->insert_id = '';
 		$this->table = $table;
 		return $this;
 	}
 
-	public function showQuery($show) {
-		if (DEBUGGING) {
-			$this->show_query = $show;
-		}
+	public function innerJoin($join) {
+		$this->join .= ($join) ? ' INNER JOIN ' . $join : '';
 		return $this;
 	}
 
-	public function setPreview() {
-		$this->preview = true;
+	public function leftJoin($join) {
+		$this->join .= ($join) ? ' LEFT JOIN ' . $join : '';
 		return $this;
 	}
 
-	public function getQuery() {
-		return $this->query;
+	public function setWhere($where) {
+		$this->where = ($where) ? " WHERE $where" : '';
+		return $this;
 	}
 
-	public function getNumRows() {
-		return $this->num_rows;
+	public function setGroupBy($groupby) {
+		$this->groupby = ($groupby) ? " GROUP BY $groupby" : '';
+		return $this;
 	}
 
-	public function getInsertId() {
-		return $this->insert_id;
+	public function setHaving($having) {
+		$this->having = ($having) ? " HAVING $having" : '';
+		return $this;
+	}
+
+	public function setOrderBy($orderby) {
+		$this->orderby = ($orderby) ? " ORDER BY $orderby" : '';
+		return $this;
 	}
 
 	public function setLimit($limit) {
-		$this->limit = $limit;
+		$this->limit = ($limit) ? " LIMIT $limit" : '';
 		return $this;
 	}
 
 	public function setLimitOffset($limit_offset) {
-		$this->limit_offset = $limit_offset;
+		$this->limit_offset = ($this->limit) ? " $limit_offset" : '';
 		return $this;
 	}
+
+	// -----------------Fields and Values------------------- //
 
 	public function setFields($fields) {
 		$this->fields = (is_array($fields)) ? $fields : explode(',', $fields);
@@ -72,157 +83,182 @@ class db {
 		return $this;
 	}
 
-	public function setValues(array $fields_values) {
-		if ( ! empty($fields_values)) {
-			$temp = isset($fields_values[0]) ? $fields_values[0] : $fields_values;
+	public function setValues(array $values) {
+		if ( ! empty($values)) {
+			$temp = isset($values[0]) ? $values[0] : $values;
 			$this->fields = array();
 			foreach($temp as $key => $value) {
 				$this->fields[] = $key;
 			}
-			$this->values = (isset($fields_values[0])) ? $fields_values : array($fields_values);
+			$this->values = (isset($values[0])) ? $values : array($values);
 		}
 		return $this;
 	}
 
-	public function setWhere($value) {
-		$this->where_condition = $value;
-		return $this;
-	}
+	// --------------------Query Builder--------------------- //
 
-	public function cleanFieldsAndValues() {
-		$this->values = array();
-		return $this;
-	}
-
-	public function cleanAll() {
-		$this->table = '';
-		$this->result = array();
-		$this->fields = array();
-		$this->values = array();
-		$this->num_rows = '';
-		$this->limit = '';
-		$this->limit_offset = '';
-		$this->where_condition = '';
-		$this->query = '';
-		$this->preview = false;
-		return $this;
-	}
-
-	public function runSelect() {
-		$this->result = array();
+	public function buildSelect() {
+		$this->result	= array();
+		$this->query	= '';
+		$this->num_rows = 0;
 		$check = $this->runCheck(array('fields', 'table'));
 		if ($check) {
 			$fields = implode(', ', $this->fields);
-			$table = $this->table;
-			$where_condition = ( ! empty($this->where_condition)) ? "WHERE " . $this->where_condition : '';
-			$limit = ( ! empty($this->limit)) ? "LIMIT " . $this->limit : '';
-			$limit_offset = ( ! empty($this->limit) && ! empty($this->limit_offset)) ? ", " . $this->limit_offset : '';
-			$this->query = "SELECT $fields FROM $table $where_condition $limit $limit_offset";
-			$result = $this->conn->query($this->query);
-			if ($result) {
-				if ($result->num_rows > 0) {
-					while ($row = $result->fetch_object()) {
-						$this->result[] = $row;
-					}
-				}
-			}
+			$this->query = "SELECT $fields FROM {$this->table}{$this->join}{$this->where}{$this->groupby}{$this->having}{$this->orderby}{$this->limit}{$this->limit_offset}";
 			if ($this->conn->error) {
 				$this->showError($this->conn->error);
 			}
+		}
+		return $this->query;
+	}
+
+	public function buildInsert() {
+		$this->insert_id	= '';
+		$this->query		= '';
+		$check = $this->runCheck(array('fields', 'table', 'values'));
+		if ($check) {
+			$fields = implode(', ', $this->fields);
+			$query = "INSERT INTO {$this->table} ($fields) VALUES";
+			foreach ($this->values as $key => $values) {
+				$query .= "('" . implode("', '", $values) . "'), ";
+			}
+			$this->query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
+		}
+		return $this->query;
+	}
+
+	public function buildUpdate() {
+		$this->query = '';
+		$check = $this->runCheck(array('fields', 'table', 'values', 'where'));
+		if ($check) {
+			$temp = array();
+			$values = $this->values[0];
+			$query = "UPDATE {$this->table} SET ";
+			foreach ($values as $key => $value) {
+				$query .= "$key = '$value', ";
+			}
+			$query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
+			$query .= "{$this->where}{$this->limit}";
+			$this->query = $query;
+		}
+		return $this->query;
+	}
+
+	public function buildDelete() {
+		$this->query = '';
+		$check = $this->runCheck(array('table', 'where'));
+		if ($check) {
+			$this->query = "DELETE FROM {$this->table}{$this->where}{$this->limit}";
+		}
+		return $this->query;
+	}
+
+	// --------------------Execute Query--------------------- //
+
+	public function runSelect() {
+		$this->buildSelect();
+		$this->cleanProperties();
+		$result = $this->conn->query($this->query);
+		if ($result) {
+			$this->num_rows = $result->num_rows;
+			if ($result->num_rows > 0) {
+				while ($row = $result->fetch_object()) {
+					$this->result[] = $row;
+				}
+			}
+		}
+		if ($this->conn->error) {
+			$this->showError($this->conn->error);
 		}
 		return $this;
 	}
 
 	public function getRow() {
-		if ($this->show_query || $this->preview) {
-			return $this->query;
-		} else {
-			return (empty($this->result)) ? false : $this->result[0];
-		}
+		return (empty($this->result)) ? false : $this->result[0];
 	}
 
 	public function getResult() {
-		if ($this->show_query || $this->preview) {
-			return $this->query;
-		} else {
-			return $this->result;
-		}
+		return $this->result;
 	}
 
 	public function runInsert() {
-		$check = $this->runCheck(array('fields', 'table', 'values'));
-		if ($check) {
-			$fields = implode(', ', $this->fields);
-			$table = $this->table;
-			$query = "INSERT INTO $table ($fields) VALUES";
-			foreach ($this->values as $key => $values) {
-				$query .= "('" . implode("', '", $values) . "'), ";
-			}
-			$this->query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
-			if ( ! $this->preview) {
-				$this->result = $this->conn->query($this->query);
-				$this->insert_id = $this->conn->insert_id;
-			}
+		$this->buildInsert();
+		$this->cleanProperties();
+		if ($this->query) {
+			$this->result = $this->conn->query($this->query);
 			if ($this->conn->error) {
 				$this->showError($this->conn->error);
 			}
+			$this->insert_id = $this->conn->insert_id;
 		}
-		if ($this->show_query || $this->preview) {
-			return $this->query;
-		} else {
-			return $this->result;
-		}
+		return $this->result;
 	}
 
 	public function runUpdate() {
-		$check = $this->runCheck(array('fields', 'table', 'values', 'where'));
-		if ($check) {
-			$table = $this->table;
-			$where_condition = $this->where_condition;
-			$limit = ( ! empty($this->limit)) ? "LIMIT " . $this->limit : '';
-			$temp = array();
-			$values = $this->values[0];
-			$query = "UPDATE $table SET ";
-			foreach ($values as $key => $value) {
-				$query .= "$key = '$value', ";
-			}
-			$query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
-			$query .= " WHERE $where_condition $limit";
-			$this->query = $query;
-			if ( ! $this->preview) {
-				$this->result = $this->conn->query($this->query);
-			}
+		$this->buildUpdate();
+		$this->cleanProperties();
+		if ($this->query) {
+			$this->result = $this->conn->query($this->query);
 			if ($this->conn->error) {
 				$this->showError($this->conn->error);
 			}
 		}
-		if ($this->show_query || $this->preview) {
-			return $this->query;
-		} else {
-			return $this->result;
-		}
+		return $this->result;
 	}
 
 	public function runDelete() {
-		$check = $this->runCheck(array('table', 'where'));
-		if ($check) {
-			$table = $this->table;
-			$where_condition = $this->where_condition;
-			$limit = ( ! empty($this->limit)) ? "LIMIT " . $this->limit : '';
-			$this->query = "DELETE FROM $table WHERE $where_condition $limit";
-			if ( ! $this->preview) {
-				$this->result = $this->conn->query($this->query);
-			}
+		$this->buildDelete();
+		$this->cleanProperties();
+		if ($this->query) {
+			$this->result = $this->conn->query($this->query);
 			if ($this->conn->error) {
 				$this->showError($this->conn->error);
 			}
 		}
-		if ($this->show_query || $this->preview) {
-			return $this->query;
-		} else {
-			return $this->result;
+		return $this->result;
+	}
+
+	// --------------------Properties------------------------ //
+
+	public function getProperities($properites) {
+		return $this->properites;
+	}
+
+	public function getNumRows() {
+		return $this->num_rows();
+	}
+
+	public function getInsertId() {
+		return $this->insert_id;
+	}
+
+	public function setProperties(object $db, array $array) {
+		$this->cleanProperties();
+		foreach ($array as $value) {
+			if (isset($this->{$value})) {
+				$this->{$value} = $db->setProperties($properites);
+			}
 		}
 	}
+
+	public function cleanProperties() {
+		$this->table		= '';
+		$this->join			= '';
+		$this->where		= '';
+		$this->groupby		= '';
+		$this->having		= '';
+		$this->orderby		= '';
+		$this->limit		= '';
+		$this->limit_offset	= '';
+
+		$this->fields		= array();
+		$this->value		= array();
+		$this->num_rows		= 0;
+		$this->error		= '';
+		$this->insert_id	= '';
+	}
+
+	// --------------------Addons---------------------------- //
 
 	private function runCheck(array $args) {
 		foreach ($args as $arg) {
@@ -237,7 +273,7 @@ class db {
 					return false;
 				}
 			} else if ($arg == 'where') {
-				if (empty($this->where_condition)) {
+				if (empty($this->where)) {
 					$this->showError("Where Condition Empty. Please Run: setWhere(string < condition >)");
 					return false;
 				}

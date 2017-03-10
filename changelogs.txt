@@ -1,0 +1,29 @@
+
+
+
+#Friday, 10 March 2017
+- db class
+	* change how table properties are retained
+		$retain = $this->db->setTable('test')
+				->setFields('test, test, test')
+				->setWhere("id = '1'")
+		
+		$all_rows = $this->db->setProperties($retain)
+							->runSelect()
+							->getNumRows();
+		
+		$result = $this->db->setProperties($retain)
+							->setLimit($limit)
+							->setLimitOffset(($limit_offset)
+							->runSelect()
+							->getResult();
+							
+		$page_rows = $this->db->getNumRows();
+
+	* change how query are checked
+		$this->db->setTable('test')
+				->setFields('test, test, test')
+				->setWhere("id = '1'")
+
+		// echo $this->db->buildSelect();
+		return $this->db->runSelect()->getRow();

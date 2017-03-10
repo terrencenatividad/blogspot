@@ -122,6 +122,9 @@ class ui {
 			case "password":
 				return $this->createInputText('password');
 				break;
+			case "file":
+				return $this->createUploadFile();
+				break;
 			case "dropdown":
 				return $this->createDropDown();
 				break;
@@ -238,6 +241,22 @@ class ui {
 			$input = $this->drawStaticInput();
 		}
 		return $input;
+	}
+
+	public function createUploadFile() {
+		if ($draw) {
+			return '<div class="input-group">
+						<span class="input-group-btn">
+							<label class="btn btn-info">
+								Upload Resume
+								<input id="' . $this->attribute['id'] . '" name="' . $this->attribute['name'] . '" class="hidden" type="file" data-uploader accept=".docx, .doc, .pdf">
+							</label>
+						</span>
+						<label for="' . $this->attribute['id'] . '" class="form-control"></label>
+					</div>';
+		} else {
+			return '<a href=""></a>';
+		}
 	}
 
 	public function drawSubmit($draw) {
