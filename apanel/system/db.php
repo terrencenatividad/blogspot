@@ -234,11 +234,15 @@ class db {
 	}
 
 	public function setProperties($db, array $array = array('table', 'fields', 'values', 'where', 'groupby', 'having', 'join')) {
-		$this->cleanProperties();
+		$retain = array();
 		foreach ($array as $value) {
 			if (isset($this->{$value})) {
-				$this->{$value} = $db->getProperties($value);
+				$retain[$value] = $db->getProperties($value);
 			}
+		}
+		$this->cleanProperties();
+		foreach ($retain as $key => $value) {
+			$this->{$key} = $value;
 		}
 		return $this;
 	}
