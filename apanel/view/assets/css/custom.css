@@ -62,3 +62,9 @@ tr:hover td .invi {
 .no-margin {
 	margin: 0;
 }
+
+.input_label{
+	border:0px solid transparent; 
+	background-color:transparent !important; 
+	width:100%;
+}
