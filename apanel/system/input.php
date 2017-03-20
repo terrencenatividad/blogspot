@@ -9,7 +9,7 @@ class input {
 		}
 	}
 
-	public function post($post = array()) {
+	public function post($post = '') {
 		$return = array();
 		if (is_array($post)) {
 			foreach ($post as $key => $value) {
@@ -22,6 +22,7 @@ class input {
 		} else if ( ! empty($post)) {
 			$return = isset($_POST[$post]) ? $this->clean($_POST[$post]) : '';
 		} else {
+			var_dump('lksjdlfkjsdf');
 			$return = $this->clean($_POST);
 		}
 		return $return;
