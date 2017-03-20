@@ -19,8 +19,10 @@ class input {
 					$return[$value] = isset($_POST[$key]) ? $this->clean($_POST[$key]) : '';
 				}
 			}
-		} else {
+		} else if ( ! empty($post)) {
 			$return = isset($_POST[$post]) ? $this->clean($_POST[$post]) : '';
+		} else {
+			$return = $this->clean($_POST);
 		}
 		return $return;
 	}
