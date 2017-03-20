@@ -22,7 +22,6 @@ class input {
 		} else if ( ! empty($post)) {
 			$return = isset($_POST[$post]) ? $this->clean($_POST[$post]) : '';
 		} else {
-			var_dump('lksjdlfkjsdf');
 			$return = $this->clean($_POST);
 		}
 		return $return;
