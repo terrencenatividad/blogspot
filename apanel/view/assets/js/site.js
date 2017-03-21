@@ -87,5 +87,25 @@ $('body').on('input blur', '[data-validation~="required"]', function(e) {
 		}
 	}
 });
+$('body').on('keydown', '[data-validation~="decimal"]', function(e) {
+	var keyCode = e.originalEvent.keyCode;
+	console.log(keyCode);
+	if (keyCode > 31 && (keyCode < 48 || keyCode > 57) && (keyCode < 96 || keyCode > 105) && keyCode != 190 && keyCode != 110 && keyCode != 188) 
+		return false;
+	return true;
+});
+$('body').on('blur', '[data-validation~="decimal"]', function() {
+	var value = $(this).val();
+	if (value.replace(/\,\s/g,'') != '') {
+		$(this).val(parseFloat(value.replace(/\,/g,'')).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+	}
+});
+$('body').on('keydown', '[data-validation~="integer"]', function(e) {
+	var keyCode = e.originalEvent.keyCode;
+	console.log(keyCode);
+	if (keyCode > 31 && (keyCode < 48 || keyCode > 57) && (keyCode < 96 || keyCode > 105)) 
+		return false;
+	return true;
+});
 // /\
 // || Input Validations
