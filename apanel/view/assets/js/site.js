@@ -75,7 +75,13 @@ $('table').on('ifToggled', 'tr [type="checkbox"].checkall', function() {
 
 // || Input Validations
 // \/
-$('body').on('input blur', '[data-validation~="required"]', function(e) {
+var controlDown = false;
+$('body').on('keyup', function(e) {
+	if (e.originalEvent.keyCode == '17') {
+		controlDown = false;
+	}
+})
+$('body').on('input change blur', '[data-validation~="required"]', function(e) {
 	var error_message = 'This field is required';
 	var form_group = $(this).closest('.form-group');
 	if ($(this).val().replace(/\s/g, '') == '') {
@@ -89,23 +95,38 @@ $('body').on('input blur', '[data-validation~="required"]', function(e) {
 });
 $('body').on('keydown', '[data-validation~="decimal"]', function(e) {
 	var keyCode = e.originalEvent.keyCode;
-	console.log(keyCode);
-	if (keyCode > 31 && (keyCode < 48 || keyCode > 57) && (keyCode < 96 || keyCode > 105) && keyCode != 190 && keyCode != 110 && keyCode != 188) 
+	if (keyCode == 17) {
+		controlDown = true;
+	}
+	if ((keyCode > 31 && (keyCode < 48 || keyCode > 57) && (keyCode < 96 || keyCode > 105) && keyCode != 190 && keyCode != 110 && keyCode != 188) && ! (controlDown && (keyCode == 67 || keyCode == 86)) && keyCode != 116) 
 		return false;
 	return true;
 });
 $('body').on('blur', '[data-validation~="decimal"]', function() {
 	var value = $(this).val();
 	if (value.replace(/\,\s/g,'') != '') {
-		$(this).val(parseFloat(value.replace(/\,/g,'')).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+		var decimal = parseFloat(value.replace(/\,/g,''));
+		if (isNaN(decimal)) {
+			decimal = 0;
+		}
+		$(this).val(decimal.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
 	}
 });
 $('body').on('keydown', '[data-validation~="integer"]', function(e) {
 	var keyCode = e.originalEvent.keyCode;
-	console.log(keyCode);
 	if (keyCode > 31 && (keyCode < 48 || keyCode > 57) && (keyCode < 96 || keyCode > 105)) 
 		return false;
 	return true;
+});
+$('body').on('blur', '[data-validation~="integer"]', function(e) {
+	var value = $(this).val();
+	if (value.replace(/\,\s/g,'') != '') {
+		var decimal = parseFloat(value.replace(/\,/g,''));
+		if (isNaN(decimal)) {
+			decimal = 0;
+		}
+		$(this).val(decimal.toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+	}
 });
 // /\
 // || Input Validations
