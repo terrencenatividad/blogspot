@@ -12,6 +12,7 @@ class ui {
 	private $class = array();
 	private $split = array();
 	private $switch = false;
+	private $validation = false;
 
 	public function formField($type) {
 		$this->attribute = array();
@@ -25,6 +26,7 @@ class ui {
 		$this->class = array();
 		$this->split = array();
 		$this->switch = false;
+		$this->validation = false;
 		return $this;
 	}
 
@@ -79,6 +81,12 @@ class ui {
 		return $this;
 	}
 
+	public function setValidation($value) {
+		$this->attribute['data-validation'] = $value;
+		$this->validation = true;
+		return $this;
+	}
+
 	public function setSplit($x, $y) {
 		$this->split = array($x, $y);
 		return $this;
@@ -107,10 +115,11 @@ class ui {
 		$input = $this->checkDraw();
 		$x = (isset($this->split[1])) ? '<div class="' . $this->split[1] . '">' : '';
 		$y = (isset($this->split[1])) ? '</div>' : '';
+		$z = ($this->validation) ? '<p class="help-block m-none"></p>' : '';
 		if (empty($this->addon) || ! $this->draw) {
-			return $x . $input . $y;
+			return $x . $input . $z . $y;
 		} else {
-			return $x . '<div class="input-group">' . $input . $addon . '</div>' . $y;
+			return $x . '<div class="input-group">' . $input . $addon . '</div>' . $z . $y;
 		}
 	}
 

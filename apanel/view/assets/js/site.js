@@ -59,14 +59,33 @@ $(document).ajaxComplete(function() {
 	drawTemplate();
 });
 
-
+// Ajax Delete
 $('table').on('click', '.ajax_delete', function() {
 	var module_url = $('#module_url').val();
 	$.post(module_url + 'ajax/ajax_delete', 'delete[]=' + $(this).attr('data-id'), function(data) {
 		console.log(data);
 	});
 });
+// Checkall Checkbox
 $('table').on('ifToggled', 'tr [type="checkbox"].checkall', function() {
 	var checked = $(this).prop('checked');
 	$(this).closest('table').find('tbody [type="checkbox"]').prop('checked', checked).iCheck('update');
 });
+
+
+// || Input Validations
+// \/
+$('body').on('input blur', '[data-validation~="required"]', function(e) {
+	var error_message = 'This field is required';
+	var form_group = $(this).closest('.form-group');
+	if ($(this).val().replace(/\s/g, '') == '') {
+		form_group.addClass('has-error');
+			form_group.find('p.help-block.m-none').html(error_message)
+	} else {
+		if (form_group.find('p.help-block.m-none').html() == error_message) {
+			form_group.removeClass('has-error').find('p.help-block.m-none').html('');
+		}
+	}
+});
+// /\
+// || Input Validations
