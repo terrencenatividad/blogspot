@@ -188,6 +188,9 @@ class ui {
 			$attributes = implode(' ', $attributes);
 			$input = '<input type="' . $type . '" ' . $attributes . ' value="' . $this->value . '">';
 		} else {
+			if ($type == 'password') {
+				$this->value = '*********';
+			}
 			$input = $this->drawStaticInput();
 		}
 		return $input;
