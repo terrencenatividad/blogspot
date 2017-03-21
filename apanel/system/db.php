@@ -188,7 +188,6 @@ class db {
 		if ($this->query) {
 			$this->result = $this->conn->query($this->query);
 			if ($this->conn->error && $this->conn->errno != 1062) {
-				var_dump($this->conn);
 				$this->showError($this->conn->error);
 			}
 			$this->insert_id = $this->conn->insert_id;
