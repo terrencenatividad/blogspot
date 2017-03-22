@@ -34,7 +34,7 @@ class backend {
 		$url	= new url();
 		$function = ($this->getPage()) ? $this->getPage() : $default_function;
 
-		if ($this->checkAccessType(array('add', 'create'), $function)) {
+		if ($this->checkAccessType(array('add', 'create', 'insert'), $function)) {
 			$type = 'mod_add';
 		} else if ($this->checkAccessType(array('view'), $function)) {
 			$type = 'mod_view';
@@ -42,7 +42,7 @@ class backend {
 			$type = 'mod_edit';
 		} else if ($this->checkAccessType(array('delete', 'remove'), $function)) {
 			$type = 'mod_delete';
-		} else if ($this->checkAccessType(array('list'), $function)) {
+		} else if ($this->checkAccessType(array('list', 'export'), $function)) {
 			$type = 'mod_list';
 		} else if ($this->checkAccessType(array('print'), $function)) {
 			$type = 'mod_print';
@@ -53,7 +53,7 @@ class backend {
 					->setWhere("groupname = '" . GROUPNAME . "' AND module_name = '$module_name'")
 					->runSelect()
 					->getRow();
-					
+
 		if ($result && $result->$type !== '1') {
 			$url->redirect(BASE_URL);
 		} else if ($result) {
