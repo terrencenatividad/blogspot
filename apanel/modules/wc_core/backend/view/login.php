@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<title>AdminLTE 2 | Log in</title>
+		<title>Login</title>
 		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 		<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/bootstrap.min.css">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
@@ -22,14 +22,18 @@
 	<body class="hold-transition login-page">
 		<div class="login-box">
 			<div class="login-logo">
-				<a href=""><b>Admin</b>LTE</a>
+				<a href=""><b>Login</b>Page</a>
 			</div>
 			<div class="login-box-body">
-				<p class="login-box-msg">Sign in to start your session</p>
+				<?php if ( ! empty($error_msg)): ?>
+					<p class="login-box-msg text-red"><?=$error_msg?></p>
+				<?php else: ?>
+					<p class="login-box-msg">Sign in to start your session</p>
+				<?php endif ?>
 				<form action="" method="post">
 					<div class="form-group has-feedback">
-						<input type="email" name="email" class="form-control" placeholder="Email">
-						<span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+						<input type="text" name="username" class="form-control" placeholder="Username">
+						<span class="glyphicon glyphicon-user form-control-feedback"></span>
 					</div>
 					<div class="form-group has-feedback">
 						<input type="password" name="password" class="form-control" placeholder="Password">

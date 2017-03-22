@@ -61,4 +61,18 @@ class session {
 		return $this->flash;
 	}
 
+	public function clean($index = '') {
+		if (is_array($index)) {
+			foreach ($index as $ind) {
+				unset($this->session[$ind]);
+			}
+		} else if (empty($index)) {
+			$this->session = array();
+		} else {
+			unset($this->session[$index]);
+		}
+		$session = json_encode($this->session);
+		$_SESSION['session'] = base64_encode($session);
+	}
+
 }

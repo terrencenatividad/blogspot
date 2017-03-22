@@ -27,6 +27,24 @@ class input {
 		return $return;
 	}
 
+	public function get($get = '') {
+		$return = array();
+		if (is_array($get)) {
+			foreach ($get as $key => $value) {
+				if (is_numeric($key)) {
+					$return[$value] = isset($_GET[$value]) ? $this->clean($_GET[$value]) : '';
+				} else {
+					$return[$value] = isset($_GET[$key]) ? $this->clean($_GET[$key]) : '';
+				}
+			}
+		} else if ( ! empty($get)) {
+			$return = isset($_GET[$get]) ? $this->clean($_GET[$get]) : '';
+		} else {
+			$return = $this->clean($_GET);
+		}
+		return $return;
+	}
+
 	private function clean($value) {
 		if (is_array($value)) {
 			$temp = array();

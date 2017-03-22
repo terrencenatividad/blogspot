@@ -45,7 +45,7 @@ class wc_view {
 			$result = $db->setTable('wc_modules')
 							->setFields('module_link, module_name, module_group, label')
 							->setWhere('active')
-							->runSelect()
+							->runSelect(false)
 							->getResult();
 			foreach($result as $row) {
 				$nav[$row->label][$row->module_group][$row->module_name] = $row->module_link;

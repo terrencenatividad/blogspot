@@ -21,7 +21,11 @@ class db {
 	// ----------------------Database----------------------- //
 
 	public function __construct() {
-		$this->conn = new mysqli(WC_HOSTNAME, WC_USERNAME, WC_PASSWORD, WC_DATABASE);
+		$session = new session();
+		$this->conn			= new mysqli(WC_HOSTNAME, WC_USERNAME, WC_PASSWORD, WC_DATABASE);
+		$this->companycode	= COMPANYCODE;
+		$this->datetime		= date('Y-m-d H:i:s');
+		$this->username		= USERNAME;
 	}
 
 	public function changeDatabase($database) {
@@ -98,14 +102,19 @@ class db {
 
 	// --------------------Query Builder--------------------- //
 
-	public function buildSelect() {
+	public function buildSelect($addon = true) {
 		$this->result	= array();
 		$this->query	= '';
 		$this->num_rows = 0;
 		$check = $this->runCheck(array('fields', 'table'));
+		$where = $this->where;
+		if ($addon) {
+			$main_table = $this->getMainTable();
+			$where .= ((empty($this->where)) ? " WHERE " : " AND ") . " {$main_table}companycode = '{$this->companycode}' ";
+		}
 		if ($check) {
 			$fields = implode(', ', $this->fields);
-			$this->query = "SELECT $fields FROM {$this->table}{$this->join}{$this->where}{$this->groupby}{$this->having}{$this->orderby}{$this->limit}{$this->limit_offset}";
+			$this->query = "SELECT $fields FROM {$this->table}{$this->join}{$where}{$this->groupby}{$this->having}{$this->orderby}{$this->limit}{$this->limit_offset}";
 			if ($this->conn->error) {
 				$this->showError($this->conn->error);
 			}
@@ -113,14 +122,26 @@ class db {
 		return $this->query;
 	}
 
-	public function buildInsert() {
+	public function buildInsert($addon = true) {
 		$this->insert_id	= '';
 		$this->query		= '';
 		$check = $this->runCheck(array('fields', 'table', 'values'));
+		$temp_fields = $this->fields;
+		$where = $this->where;
+		if ($addon) {
+			$temp_fields[] = 'enteredby';
+			$temp_fields[] = 'entereddate';
+			$temp_fields[] = 'companycode';
+		}
 		if ($check) {
-			$fields = implode(', ', $this->fields);
+			$fields = implode(', ', $temp_fields);
 			$query = "INSERT INTO {$this->table} ($fields) VALUES";
 			foreach ($this->values as $key => $values) {
+				if ($addon) {
+					$values['enteredby']	= $this->username;
+					$values['entereddate']	= $this->datetime;
+					$values['companycode']	= $this->companycode;
+				}
 				$query .= "('" . implode("', '", $values) . "'), ";
 			}
 			$this->query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
@@ -128,36 +149,50 @@ class db {
 		return $this->query;
 	}
 
-	public function buildUpdate() {
+	public function buildUpdate($addon = true) {
 		$this->query = '';
 		$check = $this->runCheck(array('fields', 'table', 'values', 'where'));
+		$where = $this->where;
+		if ($addon) {
+			$main_table = $this->getMainTable();
+			$where .= ((empty($this->where)) ? " WHERE " : " AND ") . " {$main_table}companycode = '{$this->companycode}' ";
+		}
 		if ($check) {
 			$temp = array();
 			$values = $this->values[0];
+			if ($addon) {
+				$values['updateby']		= $this->username;
+				$values['updatedate']	= $this->datetime;
+			}
 			$query = "UPDATE {$this->table} SET ";
 			foreach ($values as $key => $value) {
 				$query .= "$key = '$value', ";
 			}
 			$query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
-			$query .= "{$this->where}{$this->limit}";
+			$query .= "{$where}{$this->limit}";
 			$this->query = $query;
 		}
 		return $this->query;
 	}
 
-	public function buildDelete() {
+	public function buildDelete($addon = true) {
 		$this->query = '';
 		$check = $this->runCheck(array('table', 'where'));
+		$where = $this->where;
+		if ($addon) {
+			$main_table = $this->getMainTable();
+			$where .= ((empty($this->where)) ? " WHERE " : " AND ") . " {$main_table}companycode = '{$this->companycode}' ";
+		}
 		if ($check) {
-			$this->query = "DELETE FROM {$this->table}{$this->where}{$this->limit}";
+			$this->query = "DELETE FROM {$this->table}{$where}{$this->limit}";
 		}
 		return $this->query;
 	}
 
 	// --------------------Execute Query--------------------- //
 
-	public function runSelect() {
-		$this->buildSelect();
+	public function runSelect($addon = true) {
+		$this->buildSelect($addon);
 		$this->cleanProperties();
 		$result = $this->conn->query($this->query);
 		if ($result) {
@@ -182,8 +217,8 @@ class db {
 		return $this->result;
 	}
 
-	public function runInsert() {
-		$this->buildInsert();
+	public function runInsert($addon = true) {
+		$this->buildInsert($addon);
 		$this->cleanProperties();
 		if ($this->query) {
 			$this->result = $this->conn->query($this->query);
@@ -195,8 +230,8 @@ class db {
 		return $this->result;
 	}
 
-	public function runUpdate() {
-		$this->buildUpdate();
+	public function runUpdate($addon = true) {
+		$this->buildUpdate($addon);
 		$this->cleanProperties();
 		if ($this->query) {
 			$this->result = $this->conn->query($this->query);
@@ -207,8 +242,8 @@ class db {
 		return $this->result;
 	}
 
-	public function runDelete() {
-		$this->buildDelete();
+	public function runDelete($addon = true) {
+		$this->buildDelete($addon);
 		$this->cleanProperties();
 		if ($this->query) {
 			$this->result = $this->conn->query($this->query);
@@ -299,6 +334,15 @@ class db {
 			}
 		}
 		return true;
+	}
+
+	private function getMainTable() {
+		$temp = explode(' ',$this->table);
+		if ($temp) {
+			return $temp[count($temp) - 1] . '.';
+		} else {
+			return '';
+		}
 	}
 
 	private function showError($error = 'Error') {

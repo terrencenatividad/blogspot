@@ -16,9 +16,19 @@ class backend {
 				require_once MODULE_PATH . "/model/$class.php";
 			}
 		});
+		$this->session = new session();
+	}
+
+	public function getSession() {
+		$login = $this->session->get('login');
+		$companycode	= (isset($login['companycode']))	? $login['companycode']	: '';
+		$username		= (isset($login['username']))		? $login['username']	: '';
+		define('COMPANYCODE', $companycode);
+		define('USERNAME', $username);
 	}
 
 	public function getModulePath() {
+		$this->getSession();
 		$db = new db();
 		if (SUB_FOLDER == 'login') {
 			$this->module_folder = 'wc_core';
@@ -28,7 +38,7 @@ class backend {
 			$paths = $db->setTable('wc_modules')
 						->setFields('module_link, folder, file, default_function', 'wc_modules')
 						->setWhere("'" . SUB_FOLDER . "/' LIKE module_link AND active")
-						->runSelect()
+						->runSelect(false)
 						->getRow();
 			if ($paths) {
 				$this->module_link = $paths->module_link;
@@ -89,7 +99,16 @@ class backend {
 	}
 
 }
-$backend = new backend();
-$session = new session(); // To be Deleted
-$session->set('companycode', 'CID'); // To be Deleted
-$backend->loadModule();
+$backend	= new backend();
+$session	= new session();
+$url		= new url();
+$access		= new access();
+if (SUB_FOLDER == 'logout') {
+	$session->clean('login');
+	$url->redirect(BASE_URL);
+} else if ($access->isApanelUser() || SUB_FOLDER == 'login') {
+	$backend->loadModule();
+} else {
+	$redirect = (BASE_URL == FULL_URL) ? '' : '?redirect=' . base64_encode(FULL_URL);
+	$url->redirect(BASE_URL . 'login' . $redirect);
+}

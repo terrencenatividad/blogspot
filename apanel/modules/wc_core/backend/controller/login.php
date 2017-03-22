@@ -2,28 +2,33 @@
 class controller extends wc_controller {
 
 	public function index() {
-		$this->access = new access();
-		$this->input = new input();
-		$this->login_model = new login();
-		$this->view->title = 'Login Page';
-		if ($this->access->isApanelUser()) {
-			$this->url->redirect(BASE_URL);
+		$access				= new access();
+		$input				= new input();
+		$login_model		= new login();
+		$url				= new url();
+		$session			= new session();
+		$data = array('error_msg' => '');
+		if ($access->isApanelUser()) {
+			$redirect = base64_decode($input->get('redirect'));
+			$redirect = ( ! empty($redirect)) ? $redirect : BASE_URL;
+			$url->redirect($redirect);
 		}
-		if ($this->input->isPost) {
-			$data = $this->input->post(array(
-				'email',
+		if ($input->isPost) {
+			$data = $input->post(array(
+				'username',
 				'password'
 			));
 			extract($data);
-			$result = $this->login_model->getUserAccess($email, $password);
+			$result = $login_model->getUserAccess($username, $password);
 			if ($result) {
-				$this->session->set('login', $result);
-				$this->url->redirect(BASE_URL . 'login');
+				$session->set('login', $result);
+				$url->redirect(FULL_URL);
 			} else {
-				var_dump('Error');
+				$data['error_msg'] = 'Invalid Username or Password';
 			}
 		}
-		$this->view->load('login', array(), false);
+
+		$this->view->load('login', $data, false);
 	}
 
 }
