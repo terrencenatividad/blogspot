@@ -26,6 +26,7 @@ class db {
 		$this->companycode	= COMPANYCODE;
 		$this->datetime		= date('Y-m-d H:i:s');
 		$this->username		= USERNAME;
+		$this->updateprogram	= MODULE_NAME . '|' . MODULE_TASK;
 	}
 
 	public function changeDatabase($database) {
@@ -132,15 +133,17 @@ class db {
 			$temp_fields[] = 'enteredby';
 			$temp_fields[] = 'entereddate';
 			$temp_fields[] = 'companycode';
+			$temp_fields[] = 'updateprogram';
 		}
 		if ($check) {
 			$fields = implode(', ', $temp_fields);
 			$query = "INSERT INTO {$this->table} ($fields) VALUES";
 			foreach ($this->values as $key => $values) {
 				if ($addon) {
-					$values['enteredby']	= $this->username;
-					$values['entereddate']	= $this->datetime;
-					$values['companycode']	= $this->companycode;
+					$values['enteredby']		= $this->username;
+					$values['entereddate']		= $this->datetime;
+					$values['companycode']		= $this->companycode;
+					$values['updateprogram']	= $this->updateprogram;
 				}
 				$query .= "('" . implode("', '", $values) . "'), ";
 			}
@@ -163,6 +166,7 @@ class db {
 			if ($addon) {
 				$values['updateby']		= $this->username;
 				$values['updatedate']	= $this->datetime;
+				$values['updateprogram']	= $this->updateprogram;
 			}
 			$query = "UPDATE {$this->table} SET ";
 			foreach ($values as $key => $value) {

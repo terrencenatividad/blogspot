@@ -53,6 +53,7 @@ class backend {
 					->setWhere("groupname = '" . GROUPNAME . "' AND module_name = '$module_name'")
 					->runSelect()
 					->getRow();
+					
 		if ($result && $result->$type !== '1') {
 			$url->redirect(BASE_URL);
 		} else if ($result) {
@@ -62,6 +63,8 @@ class backend {
 			define('MOD_DELETE', ($result->mod_delete === '1'));
 			define('MOD_LIST', ($result->mod_list === '1'));
 			define('MOD_PRINT', ($result->mod_print === '1'));
+			define('MODULE_NAME', $module_name);
+			define('MODULE_TASK', $type);
 		}
 
 		$db->close();
