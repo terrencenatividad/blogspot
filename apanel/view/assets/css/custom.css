@@ -78,3 +78,7 @@ tr:hover td .invi {
 .no-margin-bottom {
 	margin-bottom: 0;
 }
+
+.no-pad {
+	padding: 0;
+}
