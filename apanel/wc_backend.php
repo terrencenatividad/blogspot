@@ -23,8 +23,57 @@ class backend {
 		$login = $this->session->get('login');
 		$companycode	= (isset($login['companycode']))	? $login['companycode']	: '';
 		$username		= (isset($login['username']))		? $login['username']	: '';
+		$groupname		= (isset($login['groupname']))		? $login['groupname']	: '';
 		define('COMPANYCODE', $companycode);
 		define('USERNAME', $username);
+		define('GROUPNAME', $groupname);
+	}
+
+	public function getAccess($module_name, $default_function) {
+		$db		= new db();
+		$url	= new url();
+		$function = ($this->getPage()) ? $this->getPage() : $default_function;
+
+		if ($this->checkAccessType(array('add', 'create'), $function)) {
+			$type = 'mod_add';
+		} else if ($this->checkAccessType(array('view'), $function)) {
+			$type = 'mod_view';
+		} else if ($this->checkAccessType(array('update', 'edit'), $function)) {
+			$type = 'mod_edit';
+		} else if ($this->checkAccessType(array('delete', 'remove'), $function)) {
+			$type = 'mod_delete';
+		} else if ($this->checkAccessType(array('list'), $function)) {
+			$type = 'mod_list';
+		} else if ($this->checkAccessType(array('print'), $function)) {
+			$type = 'mod_print';
+		}
+
+		$result = $db->setTable('wc_module_access')
+					->setFields('mod_add, mod_view, mod_edit, mod_delete, mod_list, mod_print')
+					->setWhere("groupname = '" . GROUPNAME . "' AND module_name = '$module_name'")
+					->runSelect()
+					->getRow();
+		if ($result && $result->$type !== '1') {
+			$url->redirect(BASE_URL);
+		} else if ($result) {
+			define('MOD_ADD', ($result->mod_add === '1'));
+			define('MOD_VIEW', ($result->mod_view === '1'));
+			define('MOD_EDIT', ($result->mod_edit === '1'));
+			define('MOD_DELETE', ($result->mod_delete === '1'));
+			define('MOD_LIST', ($result->mod_list === '1'));
+			define('MOD_PRINT', ($result->mod_print === '1'));
+		}
+
+		$db->close();
+	}
+
+	public function checkAccessType($array, $access) {
+		foreach ($array as $value) {
+			if (strpos($access, $value) !== false) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public function getModulePath() {
@@ -36,18 +85,20 @@ class backend {
 			$this->module_function = 'index';
 		} else if (SUB_FOLDER != '') {
 			$paths = $db->setTable('wc_modules')
-						->setFields('module_link, folder, file, default_function', 'wc_modules')
+						->setFields('module_name, module_link, folder, file, default_function', 'wc_modules')
 						->setWhere("'" . SUB_FOLDER . "/' LIKE module_link AND active")
 						->runSelect(false)
 						->getRow();
+			
 			if ($paths) {
 				$this->module_link = $paths->module_link;
+				$this->getAccess($paths->module_name, $paths->default_function);
 				$this->module_folder = $paths->folder;
 				$this->module_file = $paths->file;
-				$this->module_function = ($this->getPage()) ? $this->getPage() : $paths->default_function;
 				$link_args = explode('/', rtrim($paths->module_link, '/'));
 				$args = explode('/', rtrim(SUB_FOLDER, '/'));
 				$module_url = array();
+				$this->module_function = $paths->default_function;
 				foreach ($link_args as $key => $value) {
 					if ($value == '%' && isset($args[$key])) {
 						$this->module_function = $args[$key];
@@ -71,8 +122,10 @@ class backend {
 
 	public function getPage() {
 		$page = explode('/', str_replace(str_replace('%', '', $this->module_link), '', SUB_FOLDER));
-		if (in_array($page[0], array('add', 'view', 'edit', 'delete', 'listing'))) {
+		if (in_array($page[0], array('add', 'view', 'edit', 'delete', 'listing', 'print'))) {
 			return $page[0];
+		} else if ($page[0] == 'ajax') {
+			return (isset($page[1])) ? $page[1] : false;
 		} else {
 			return false;
 		}
@@ -103,7 +156,7 @@ $backend	= new backend();
 $session	= new session();
 $url		= new url();
 $access		= new access();
-$session->set('login', array('username' => 'superadmin', 'apanel_user' => true, 'companycode' => 'CID')); // Disable Login
+$session->set('login', array('username' => 'superadmin', 'apanel_user' => true, 'companycode' => 'CID', 'groupname' => 'superadmin')); // Disable Login
 if (SUB_FOLDER == 'logout') {
 	$session->clean('login');
 	$url->redirect(BASE_URL);
