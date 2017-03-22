@@ -22,11 +22,14 @@ class db {
 
 	public function __construct() {
 		$session = new session();
-		$this->conn			= new mysqli(WC_HOSTNAME, WC_USERNAME, WC_PASSWORD, WC_DATABASE);
-		$this->companycode	= COMPANYCODE;
-		$this->datetime		= date('Y-m-d H:i:s');
-		$this->username		= USERNAME;
-		$this->updateprogram	= MODULE_NAME . '|' . MODULE_TASK;
+		$this->conn				= new mysqli(WC_HOSTNAME, WC_USERNAME, WC_PASSWORD, WC_DATABASE);
+		$this->companycode		= COMPANYCODE;
+		$this->datetime			= date('Y-m-d H:i:s');
+		$this->username			= USERNAME;
+		$this->updateprogram	= '';
+		if (defined('MODULE_NAME') && defined('MODULE_TASK')) {
+			$this->updateprogram	= MODULE_NAME . '|' . MODULE_TASK;
+		}
 	}
 
 	public function changeDatabase($database) {
