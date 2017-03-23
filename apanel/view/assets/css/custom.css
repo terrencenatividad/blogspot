@@ -30,6 +30,9 @@ textarea {
 .help-block.m-none {
 	margin: 0 !important;
 }
+tbody .form-group {
+	margin-bottom: 0;
+}
 
 
 .asterisk {
