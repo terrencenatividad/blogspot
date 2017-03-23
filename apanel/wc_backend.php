@@ -34,7 +34,7 @@ class backend {
 		$url	= new url();
 		$function = ($this->getPage()) ? $this->getPage() : $default_function;
 
-		if ($this->checkAccessType(array('add', 'create', 'insert'), $function)) {
+		if ($this->checkAccessType(array('add', 'create', 'insert', 'save'), $function)) {
 			$type = 'mod_add';
 		} else if ($this->checkAccessType(array('view', 'get'), $function)) {
 			$type = 'mod_view';
