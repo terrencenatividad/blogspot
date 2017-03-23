@@ -36,7 +36,7 @@ class backend {
 
 		if ($this->checkAccessType(array('add', 'create', 'insert'), $function)) {
 			$type = 'mod_add';
-		} else if ($this->checkAccessType(array('view'), $function)) {
+		} else if ($this->checkAccessType(array('view', 'get'), $function)) {
 			$type = 'mod_view';
 		} else if ($this->checkAccessType(array('update', 'edit'), $function)) {
 			$type = 'mod_edit';
@@ -54,8 +54,13 @@ class backend {
 					->runSelect()
 					->getRow();
 
-		if ($result && $result->$type !== '1') {
-			$url->redirect(BASE_URL);
+		if ( ! isset($type) || ($result && $result->$type !== '1')) {
+			if (DEBUGGING) {
+				echo "Function Name Error: " . $function;
+				exit();
+			} else {
+				$url->redirect(BASE_URL);
+			}
 		} else if ($result) {
 			define('MOD_ADD', ($result->mod_add === '1'));
 			define('MOD_VIEW', ($result->mod_view === '1'));
