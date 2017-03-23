@@ -25,6 +25,7 @@
 	<script src="<?= BASE_URL ?>assets/js/jquery-2.2.3.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/select2.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/bootstrap.min.js"></script>
+	<script src="<?= BASE_URL ?>assets/js/bootbox.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/moment.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/bootstrap-datepicker.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/icheck.min.js"></script>
