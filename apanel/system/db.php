@@ -11,7 +11,7 @@ class db {
 	private $limit_offset	= '';
 
 	private $fields			= array();
-	private $value			= array();
+	private $values			= array();
 	private $result			= array();
 	private $query			= '';
 	private $num_rows		= 0;
@@ -100,6 +100,33 @@ class db {
 				$this->fields[] = $key;
 			}
 			$this->values = (isset($values[0])) ? $values : array($values);
+		}
+		return $this;
+	}
+
+	public function setValuesFromPost(array $values) {
+		$max			= 0;
+		$static			= array();
+		$array			= array();
+		$this->values	= array();
+		foreach ($values as $key => $value) {
+			$this->fields[] = $key;
+			if (is_array($value)) {
+				$max		= count($value);
+				$array[]	= $key;
+			} else {
+				$static[]	= $key;
+			}
+		}
+		for ($x = 0; $x < $max; $x++) {
+			$temp = array();
+			foreach ($static as $key) {
+				$temp[$key] = $values[$key];
+			}
+			foreach ($array as $key) {
+				$temp[$key] = $values[$key][$x];
+			}
+			$this->values[] = $temp;
 		}
 		return $this;
 	}
@@ -277,6 +304,10 @@ class db {
 		return $temp;
 	}
 
+	public function getQuery() {
+		return $this->query;
+	}
+
 	public function getNumRows() {
 		return $this->num_rows();
 	}
@@ -308,7 +339,7 @@ class db {
 		$this->limit_offset	= '';
 
 		$this->fields		= array();
-		$this->value		= array();
+		$this->values		= array();
 		$this->num_rows		= 0;
 		$this->error		= '';
 		$this->insert_id	= '';

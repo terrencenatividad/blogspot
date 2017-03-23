@@ -3,6 +3,7 @@ function drawTemplate() {
 		width: '100%',
 		containerCssClass: ':all:',
 	});
+	$('select').trigger('change');
 	$(':not(table) input[type="checkbox"], :not(table) input[type="radio"]').iCheck({
 		checkboxClass: 'icheckbox_square-blue',
 		radioClass: 'iradio_square-blue'
