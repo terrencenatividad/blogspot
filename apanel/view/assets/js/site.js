@@ -26,7 +26,7 @@ function linkDeleteMultipleToTable(delete_multiple, table) {
 	});
 }
 
-$('.datepicker').datepicker({
+$('.datepicker-input').datepicker({
 	format: 'M d, yyyy'
 });
 
