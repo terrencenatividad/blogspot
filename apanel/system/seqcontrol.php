@@ -1,10 +1,10 @@
 <?php
 class seqcontrol extends db {
 
-	public function getValue($code, $companycode) {
+	public function getValue($code) {
 		$properties = $this->setTable('wc_sequence_control')
 						->setFields('current, prefix')
-						->setWhere("companycode = '$companycode' AND code = '$code'")
+						->setWhere("AND code = '$code'")
 						->setLimit(1)
 						->getProperties();
 		$result = $this->setProperties($properties)
