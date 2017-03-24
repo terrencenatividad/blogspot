@@ -173,10 +173,10 @@ class ui {
 	private function createInput($type = 'radio') {
 		if ($this->draw) {
 			$attributes = array();
+			$this->attributes['class'] = implode(' ', $this->class);
 			foreach ($this->attribute as $key => $value) {
 				$attributes[] = $key . '="' . $value . '"';
 			}
-			$attributes['class'] = implode(' ', $this->class);
 			$checked = ($this->default == $this->value) ? ' checked ' : '';
 			$attributes = implode(' ', $attributes);
 			$input = '<input type="' . $type . '" ' . $attributes . $checked . 'value="' . $this->default . '">';
