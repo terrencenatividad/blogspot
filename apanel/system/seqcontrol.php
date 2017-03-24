@@ -16,7 +16,7 @@ class seqcontrol extends db {
 			$result->current += 1;
 			$this->setProperties($properties)
 				->setValues((array) $result);
-			$this->runUpdate();
+			$this->runUpdate(false);
 		}
 		return $return;
 	}
