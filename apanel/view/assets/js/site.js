@@ -84,7 +84,8 @@ $('body').on('keyup', function(e) {
 $('body').on('input change blur', '[data-validation~="required"]', function(e) {
 	var error_message = 'This field is required';
 	var form_group = $(this).closest('.form-group');
-	if ($(this).val().replace(/\s/g, '') == '') {
+	var val = $(this).val() || '0';
+	if (val.replace(/\s/g, '') == '') {
 		form_group.addClass('has-error');
 			form_group.find('p.help-block.m-none').html(error_message)
 	} else {
