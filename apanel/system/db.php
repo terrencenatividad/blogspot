@@ -106,18 +106,22 @@ class db {
 
 	public function setValuesFromPost(array $values) {
 		$max			= 0;
+		$fields_static	= array();
+		$fields_array	= array();
 		$static			= array();
 		$array			= array();
 		$this->values	= array();
 		foreach ($values as $key => $value) {
-			$this->fields[] = $key;
 			if (is_array($value)) {
-				$max		= count($value);
-				$array[]	= $key;
+				$fields_array[]	= $key;
+				$max				= count($value);
+				$array[]			= $key;
 			} else {
-				$static[]	= $key;
+				$fields_static[]	= $key;
+				$static[]			= $key;
 			}
 		}
+		$this->fields = array_merge($fields_static, $fields_array);
 		for ($x = 0; $x < $max; $x++) {
 			$temp = array();
 			foreach ($static as $key) {
