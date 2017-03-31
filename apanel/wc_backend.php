@@ -14,6 +14,14 @@ class backend {
 				require_once "system/$class.php";
 			} else if (file_exists(MODULE_PATH . "/model/$class.php")) {
 				require_once MODULE_PATH . "/model/$class.php";
+			} else {
+				$dir = new RecursiveDirectoryIterator('system');
+				foreach (new RecursiveIteratorIterator($dir) as $file){
+					if (strpos($file , $class . '.php') !== false) {
+						include_once $file;
+						break;
+					}
+				}
 			}
 		});
 		$this->session = new session();
