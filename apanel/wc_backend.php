@@ -44,7 +44,7 @@ class backend {
 
 		if ($this->checkAccessType(array('add', 'create', 'insert', 'save', 'apply'), $function)) {
 			$type = 'mod_add';
-		} else if ($this->checkAccessType(array('view', 'get'), $function)) {
+		} else if ($this->checkAccessType(array('view', 'get', 'load'), $function)) {
 			$type = 'mod_view';
 		} else if ($this->checkAccessType(array('update', 'edit'), $function)) {
 			$type = 'mod_edit';
