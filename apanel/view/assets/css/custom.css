@@ -91,3 +91,7 @@ tr:hover td .invi {
 .no-pad {
 	padding: 0;
 }
+
+.req-color {
+	color: #a94442;
+}
