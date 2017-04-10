@@ -13,6 +13,7 @@ class ui {
 	private $split = array();
 	private $switch = false;
 	private $validation = false;
+	private $none = '';
 
 	public function formField($type) {
 		$this->attribute = array();
@@ -27,6 +28,7 @@ class ui {
 		$this->split = array();
 		$this->switch = false;
 		$this->validation = false;
+		$this->none = '';
 		return $this;
 	}
 
@@ -94,6 +96,11 @@ class ui {
 
 	public function setSwitch() {
 		$this->switch = true;
+		return $this;
+	}
+
+	public function setNone($caption) {
+		$this->none = $caption;
 		return $this;
 	}
 
@@ -232,6 +239,9 @@ class ui {
 			}
 			$attributes = implode(' ', $attributes);
 			$placeholder = (isset($this->attribute['data-placeholder'])) ? '<option></option>' : '';
+			if ($this->none) {
+				$this->list = array_merge(array((object) array('ind' => 'none', 'val' => $this->none)), $this->list);
+			}
 			$input = '<select ' . $attributes . '>' . $placeholder;
 			foreach ($this->list as $key => $value) {
 				if (is_object($value)) {
