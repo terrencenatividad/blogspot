@@ -36,6 +36,9 @@ tbody .form-group {
 .form-padding {
 	padding: 6px 12px;
 }
+ul.nav.nav-tabs + table {
+	margin-top: 1px;
+}
 
 
 .asterisk {
