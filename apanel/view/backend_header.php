@@ -34,6 +34,7 @@
 	<script src="<?= BASE_URL ?>assets/js/slimscroll.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/fastclick.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/app.min.js"></script>
+	<script src="<?= BASE_URL ?>assets/js/jquery.inputmask.bundle.js"></script>
 </head>
 <body class="hold-transition skin-blue layout-top-nav">
 <div class="wrapper">

@@ -7,6 +7,7 @@ function drawTemplate() {
 		checkboxClass: 'icheckbox_square-blue',
 		radioClass: 'iradio_square-blue'
 	});
+	$('[data-inputmask]').inputmask();
 }
 function linkDeleteMultipleToTable(delete_multiple, table) {
 	function countChecked () {
@@ -162,4 +163,4 @@ $('[data-daterangefilter]').each(function() {
 	} else {
 
 	}
-})
+});
