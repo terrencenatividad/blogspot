@@ -76,6 +76,9 @@ class backend {
 			define('MOD_DELETE', ($result->mod_delete === '1'));
 			define('MOD_LIST', ($result->mod_list === '1'));
 			define('MOD_PRINT', ($result->mod_print === '1'));
+		}
+		
+		if (isset($type)) {
 			define('MODULE_NAME', $module_name);
 			define('MODULE_TASK', $type);
 		}
