@@ -3,7 +3,7 @@ function drawTemplate() {
 		width: '100%',
 		containerCssClass: ':all:',
 	});
-	$(':not(table) input[type="checkbox"], :not(table) input[type="radio"]').iCheck({
+	$('input[type="checkbox"], *:not(.btn) > input[type="radio"]').iCheck({
 		checkboxClass: 'icheckbox_square-blue',
 		radioClass: 'iradio_square-blue'
 	});
@@ -56,9 +56,16 @@ function getDeleteId(ids) {
 }
 
 drawTemplate();
+$(document).ajaxStart(function() {
+	Pace.restart();
+}); 
 $(document).ajaxComplete(function() {
 	drawTemplate();
+	Pace.stop();
 });
+$(function() {
+	Pace.stop();
+})
 
 // Ajax Delete
 $('table').on('click', '.ajax_delete', function() {
