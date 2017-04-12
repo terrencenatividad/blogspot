@@ -15,6 +15,7 @@
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/skin.min.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/icheck.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/custom.css">
+	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/pace.min.css">
 	<!--[if lt IE 9]>
 	<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -35,8 +36,9 @@
 	<script src="<?= BASE_URL ?>assets/js/fastclick.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/app.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/jquery.inputmask.bundle.js"></script>
+	<script src="<?= BASE_URL ?>assets/js/pace.min.js"></script>
 </head>
-<body class="hold-transition skin-blue layout-top-nav">
+<body class="hold-transition skin-blue fixed layout-top-nav">
 <div class="wrapper">
 	<header class="main-header">
 		<nav class="navbar navbar-static-top">
