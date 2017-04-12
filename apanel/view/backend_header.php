@@ -36,6 +36,22 @@
 	<script src="<?= BASE_URL ?>assets/js/fastclick.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/app.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/jquery.inputmask.bundle.js"></script>
+	<script>
+		paceOptions = {
+			catchupTime : 5000,
+			startOnPageLoad: false,
+			maxProgressPerFrame:1,
+			ghostTime: Number.MAX_SAFE_INTEGER,
+			checkInterval :{
+				checkInterval: 10000
+			},
+			eventLag : {
+				minSamples: 1,
+				sampleCount: 30000000,
+				lagThreshold: 0.1
+			}
+		}
+	</script>
 	<script src="<?= BASE_URL ?>assets/js/pace.min.js"></script>
 </head>
 <body class="hold-transition skin-blue fixed layout-top-nav">

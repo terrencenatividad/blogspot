@@ -63,11 +63,6 @@ $(document).ajaxComplete(function() {
 	drawTemplate();
 	Pace.stop();
 });
-$(function() {
-	setTimeout(function() {
-		Pace.stop();
-	}, 200);
-});
 
 // Ajax Delete
 $('table').on('click', '.ajax_delete', function() {
