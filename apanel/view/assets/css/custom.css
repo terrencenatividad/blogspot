@@ -53,6 +53,15 @@ table {
 .form-control[readonly].datepicker-input {
 	background-color: #fff;
 }
+tfoot.summary > tr > td:not(.b-top) {
+	border-top: none;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+
+
+
 
 .asterisk {
     font-weight: bold;
