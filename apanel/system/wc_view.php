@@ -45,6 +45,7 @@ class wc_view {
 			$result = $db->setTable('wc_modules')
 							->setFields('module_link, module_name, module_group, label')
 							->setWhere('active AND show_nav')
+							->setOrderBy('group_order, module_order, module_name')
 							->runSelect(false)
 							->getResult();
 			foreach($result as $row) {
