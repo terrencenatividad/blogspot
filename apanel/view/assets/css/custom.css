@@ -47,6 +47,9 @@ ul.nav.nav-tabs + table {
 	overflow-x: hidden;
 	overflow-y: auto;
 }
+table {
+	overflow: hidden;
+}
 
 
 .asterisk {
