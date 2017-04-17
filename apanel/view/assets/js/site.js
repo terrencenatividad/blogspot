@@ -28,7 +28,8 @@ function linkDeleteMultipleToTable(delete_multiple, table) {
 }
 
 $('.datepicker-input').datepicker({
-	format: 'M d, yyyy'
+	format: 'M d, yyyy',
+	autoclose: true
 });
 
 $('.datepicker-input').each(function() {

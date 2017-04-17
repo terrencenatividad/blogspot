@@ -50,7 +50,9 @@ ul.nav.nav-tabs + table {
 table {
 	overflow: hidden;
 }
-
+.form-control[readonly].datepicker-input {
+	background-color: #fff;
+}
 
 .asterisk {
     font-weight: bold;
