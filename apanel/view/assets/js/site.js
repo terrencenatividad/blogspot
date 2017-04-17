@@ -31,6 +31,11 @@ $('.datepicker-input').datepicker({
 	format: 'M d, yyyy'
 });
 
+$('.datepicker-input').each(function() {
+	var val = $(this).val();
+	$(this).datepicker('setDate', val);
+});
+
 function linkDeleteToModal(delete_button, callback) {
 	$('body').on('click', delete_button, function() {
 		var id = $(this).attr('data-id');
