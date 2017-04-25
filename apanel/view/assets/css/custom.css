@@ -58,8 +58,13 @@ tfoot.summary > tr > td:not(.b-top) {
 table.table-clickable tr {
 	cursor: pointer;
 }
-
-
+tfoot.summary > tr > td .form-group {
+	margin-bottom: 0;
+}
+tfoot.summary > tr > td {
+	padding-top: 1px !important;
+	padding-bottom: 1px !important;
+}
 
 
 
