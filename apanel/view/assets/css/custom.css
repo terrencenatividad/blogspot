@@ -47,9 +47,6 @@ ul.nav.nav-tabs + table {
 	overflow-x: hidden;
 	overflow-y: auto;
 }
-table {
-	overflow: hidden;
-}
 .form-control[readonly].datepicker-input {
 	background-color: #fff;
 }
@@ -57,6 +54,9 @@ tfoot.summary > tr > td:not(.b-top) {
 	border-top: none;
 	padding-top: 5px;
 	padding-bottom: 5px;
+}
+table.table-clickable tr {
+	cursor: pointer;
 }
 
 

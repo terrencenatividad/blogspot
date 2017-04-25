@@ -17,6 +17,11 @@ class seqcontrol extends db {
 			$this->setProperties($properties)
 				->setValues((array) $result);
 			$this->runUpdate(false);
+		} else {
+			$this->setProperties($properties)
+				->setValues(array('code' => $code, 'companycode' => COMPANYCODE, 'prefix' => $code))
+				->runInsert(false);
+			$return = $code . '0000000001';
 		}
 		return $return;
 	}
