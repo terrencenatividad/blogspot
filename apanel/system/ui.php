@@ -13,6 +13,7 @@ class ui {
 	private $split = array();
 	private $switch = false;
 	private $validation = false;
+	private $add_hidden = false;
 	private $none = '';
 
 	public function formField($type) {
@@ -29,6 +30,7 @@ class ui {
 		$this->switch = false;
 		$this->validation = false;
 		$this->none = '';
+		$this->add_hidden = false;
 		return $this;
 	}
 
@@ -104,15 +106,21 @@ class ui {
 		return $this;
 	}
 
+	public function addHidden($draw = false) {
+		$this->add_hidden = $draw;
+		return $this;
+	}
+
 	public function draw($draw = true) {
 		$this->draw = $draw;
 		$label = $this->createLabel();
+		$hidden = $this->createHidden();
 		$input = $this->drawInput();
 		if ($this->switch) {
 			$this->draw = '<div class="form-group">' . $input . $label . '</div>';
 		} else {
 
-			$this->draw = '<div class="form-group">' . $label . $input . '</div>';
+			$this->draw = '<div class="form-group">' . $label . $hidden . $input . '</div>';
 		}
 		return $this->draw;
 	}
@@ -167,6 +175,20 @@ class ui {
 			$label = '<label' . $for . $class . '>' . $this->label . '</label>';
 		}
 		return $label;
+	}
+
+	private function createHidden() {
+		$input = '';
+		if ($this->add_hidden) {
+			$attributes = array();
+			$this->attribute['class'] = implode(' ', $this->class);
+			foreach ($this->attribute as $key => $value) {
+				$attributes[] = $key . '="' . $value . '"';
+			}
+			$attributes = implode(' ', $attributes);
+			$input = '<input type="hidden" ' . $attributes . 'value="' . $this->value . '">';
+		}
+		return $input;
 	}
 
 	private function createAddon() {
