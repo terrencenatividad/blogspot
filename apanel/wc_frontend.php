@@ -7,8 +7,8 @@
 		body {
 			text-align: center;
 		}
-		h2 {
-
+		h1 {
+			margin-top: 15px;
 		}
 	</style>
 </head>
