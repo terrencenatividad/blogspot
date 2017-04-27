@@ -5,6 +5,8 @@
 > Owner: cidsystems
 >
 > Project: <Create new project>
+* Clone Project to www
+> git clone <Project Git Link>
 * Add webcore_modular as upstream
 > git remote add upstream <Webcore_modular Git Link>
 * Delete Ignored Files in GitIgnore
