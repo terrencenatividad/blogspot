@@ -18,7 +18,7 @@
 * Add Modules
 > cd apanel/modules
 >
-> git submodule add upstream <Module Git Link>
+> git submodule add <Module Git Link>
 
 ### How to update project's webcore
 * Merge from upstream
