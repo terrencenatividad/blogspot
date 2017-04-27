@@ -18,6 +18,24 @@
 					</div>
 				</div>
 			</div>
+			<div id="confimation_modal" class="modal">
+				<div class="modal-dialog" style = "width: 300px;">
+					<div class="modal-content">
+						<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Confirmation</h4>
+						</div>
+						<div class="modal-body">
+							<p id="confimation_question">Are you sure you want to delete this record?</p>
+						</div>
+						<div class="modal-footer text-center">
+							<button type="button" id="confirmation_yes" class="btn btn-primary btn-flat" onclick="">Yes</button>
+							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+						</div>
+					</div>
+				</div>
+			</div>
 			<footer class="main-footer">
 				<div class="pull-right hidden-xs">
 					<b>Version</b> 2.0.1

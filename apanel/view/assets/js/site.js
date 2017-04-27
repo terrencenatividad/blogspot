@@ -45,6 +45,14 @@ function linkDeleteToModal(delete_button, callback) {
 	});
 }
 
+function createConfimationLink(link, callback) {
+	$('body').on('click', link, function() {
+		var id = $(this).attr('data-id');
+		$('#confimation_modal #confirmation_yes').attr('data-id', id).attr('onclick', callback + '("' + id + '"); $(this).closest("#confimation_modal").modal("hide");');
+		$('#confimation_modal').modal('show');
+	});
+}
+
 function linkDeleteMultipleToModal(delete_multiple, table, callback) {
 	$('body').on('click', delete_multiple, function() {
 		var id = [];

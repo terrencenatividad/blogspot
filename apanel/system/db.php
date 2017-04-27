@@ -16,6 +16,7 @@ class db {
 	private $query			= '';
 	private $num_rows		= 0;
 	private $error			= '';
+	private $insert_select	= '';
 	private $insert_id		= '';
 
 	// ----------------------Database----------------------- //
@@ -82,6 +83,10 @@ class db {
 	public function setLimitOffset($limit_offset) {
 		$this->limit_offset = ($this->limit) ? " $limit_offset" : '';
 		return $this;
+	}
+
+	public function setInsertSelect($select) {
+		$this->insert_select = $select;
 	}
 
 	// -----------------Fields and Values------------------- //
@@ -160,7 +165,9 @@ class db {
 	public function buildInsert($addon = true) {
 		$this->insert_id	= '';
 		$this->query		= '';
-		$check = $this->runCheck(array('fields', 'table', 'values'));
+		$check_values		= $this->runCheck(array('values'));
+		$check_insert_select		= $this->runCheck(array('insert_select'));
+		$check = $this->runCheck(array('fields', 'table'));
 		$temp_fields = $this->fields;
 		$where = $this->where;
 		if ($addon) {
@@ -169,19 +176,24 @@ class db {
 			$temp_fields[] = 'companycode';
 			$temp_fields[] = 'updateprogram';
 		}
-		if ($check) {
+		if ($check && ($check_values || $check_insert_select)) {
 			$fields = implode(', ', $temp_fields);
-			$query = "INSERT INTO {$this->table} ($fields) VALUES";
-			foreach ($this->values as $key => $values) {
-				if ($addon) {
-					$values['enteredby']		= $this->username;
-					$values['entereddate']		= $this->datetime;
-					$values['companycode']		= $this->companycode;
-					$values['updateprogram']	= $this->updateprogram;
+			$query = "INSERT INTO {$this->table} ($fields)";
+			if ($check_values) {
+				$query .= " VALUES";
+				foreach ($this->values as $key => $values) {
+					if ($addon) {
+						$values['enteredby']		= $this->username;
+						$values['entereddate']		= $this->datetime;
+						$values['companycode']		= $this->companycode;
+						$values['updateprogram']	= $this->updateprogram;
+					}
+					$query .= "('" . implode("', '", $values) . "'), ";
 				}
-				$query .= "('" . implode("', '", $values) . "'), ";
+				$this->query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
+			} else if ($check_insert_select) {
+				$query .= " {$this->insert_select}";
 			}
-			$this->query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
 		}
 		return $this->query;
 	}
@@ -346,31 +358,36 @@ class db {
 		$this->values		= array();
 		$this->num_rows		= 0;
 		$this->error		= '';
+		$thisinsert_select	= '';
 		$this->insert_id	= '';
 	}
 
 	// --------------------Addons---------------------------- //
 
-	private function runCheck(array $args) {
+	private function runCheck(array $args, $show = true) {
 		foreach ($args as $arg) {
 			if ($arg == 'table') {
 				if (empty($this->table)) {
-					$this->showError("Table Empty. Please Run: setTable(string < table >)");
+					$this->showError("Table Empty. Please Run: setTable(string < table >)", $show);
 					return false;
 				}
 			} else if ($arg == 'fields') {
 				if (empty($this->fields)) {
-					$this->showError("Fields Empty. Please Run: setFields(array < fields >)");
+					$this->showError("Fields Empty. Please Run: setFields(array < fields >)", $show);
 					return false;
 				}
 			} else if ($arg == 'where') {
 				if (empty($this->where)) {
-					$this->showError("Where Condition Empty. Please Run: setWhere(string < condition >)");
+					$this->showError("Where Condition Empty. Please Run: setWhere(string < condition >)", $show);
 					return false;
 				}
 			} else if ($arg == 'values') {
 				if (empty($this->values)) {
-					$this->showError("Values Empty. Please Run: setValues(array < values >)");
+					$this->showError("Values Empty. Please Run: setValues(array < values >)", $show);
+					return false;
+				}
+			} else if ($arg == 'insert_select') {
+				if (empty($this->insert_select)) {
 					return false;
 				}
 			}
@@ -387,8 +404,8 @@ class db {
 		}
 	}
 
-	private function showError($error = 'Error') {
-		if (DEBUGGING) {
+	private function showError($error = 'Error', $show = true) {
+		if (DEBUGGING && $show) {
 			echo $error . (($this->query) ? '<br>Query: ' . $this->query : '');
 		}
 	}
