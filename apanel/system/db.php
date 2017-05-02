@@ -164,10 +164,10 @@ class db {
 	}
 
 	public function buildInsert($addon = true) {
-		$this->insert_id	= '';
-		$this->query		= '';
-		$check_values		= $this->runCheck(array('values'));
-		$check_insert_select		= $this->runCheck(array('insert_select'));
+		$this->insert_id		= '';
+		$this->query			= '';
+		$check_insert_select	= $this->runCheck(array('insert_select'), false);
+		$check_values			= $this->runCheck(array('values'), !$check_insert_select);
 		$check = $this->runCheck(array('fields', 'table'));
 		$temp_fields = $this->fields;
 		$where = $this->where;
