@@ -39,7 +39,7 @@ label.padded {
 .form-padding {
 	padding: 6px 12px;
 }
-ul.nav.nav-tabs + table {
+ul.nav.nav-tabs + table, ul.nav.nav-tabs + .tab-content {
 	margin-top: 1px;
 }
 .navbar .dropdown-menu {
@@ -67,6 +67,9 @@ tfoot.summary > tr > td {
 }
 .link {
 	cursor: pointer;
+}
+table.table > tbody + tbody {
+	border-top: 25px solid white;
 }
 
 
