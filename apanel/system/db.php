@@ -87,6 +87,7 @@ class db {
 
 	public function setInsertSelect($select) {
 		$this->insert_select = $select;
+		return $this;
 	}
 
 	// -----------------Fields and Values------------------- //
