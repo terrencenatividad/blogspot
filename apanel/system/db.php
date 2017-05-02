@@ -193,7 +193,7 @@ class db {
 				}
 				$this->query = (substr($query, -2) == ', ') ? substr($query, 0, -2) : $query;
 			} else if ($check_insert_select) {
-				$query .= " {$this->insert_select}";
+				$this->query = "$query {$this->insert_select}";
 			}
 		}
 		return $this->query;
