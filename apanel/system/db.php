@@ -168,9 +168,9 @@ class db {
 		$this->query			= '';
 		$check_insert_select	= $this->runCheck(array('insert_select'), false);
 		$check_values			= $this->runCheck(array('values'), !$check_insert_select);
-		$check = $this->runCheck(array('fields', 'table'));
-		$temp_fields = $this->fields;
-		$where = $this->where;
+		$check 					= $this->runCheck(array('fields', 'table'));
+		$temp_fields 			= $this->fields;
+		$where 					= $this->where;
 		if ($addon) {
 			$temp_fields[] = 'enteredby';
 			$temp_fields[] = 'entereddate';
@@ -346,21 +346,21 @@ class db {
 	}
 
 	public function cleanProperties() {
-		$this->table		= '';
-		$this->join			= '';
-		$this->where		= '';
-		$this->groupby		= '';
-		$this->having		= '';
-		$this->orderby		= '';
-		$this->limit		= '';
-		$this->limit_offset	= '';
+		$this->table			= '';
+		$this->join				= '';
+		$this->where			= '';
+		$this->groupby			= '';
+		$this->having			= '';
+		$this->orderby			= '';
+		$this->limit			= '';
+		$this->limit_offset		= '';
 
-		$this->fields		= array();
-		$this->values		= array();
-		$this->num_rows		= 0;
-		$this->error		= '';
-		$thisinsert_select	= '';
-		$this->insert_id	= '';
+		$this->fields			= array();
+		$this->values			= array();
+		$this->num_rows			= 0;
+		$this->error			= '';
+		$this->insert_select	= '';
+		$this->insert_id		= '';
 	}
 
 	// --------------------Addons---------------------------- //
