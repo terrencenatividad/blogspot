@@ -71,6 +71,10 @@ tfoot.summary > tr > td {
 table.table > tbody + tbody {
 	border-top: 25px solid white;
 }
+.table-responsive table {
+	margin-bottom: 0;
+}
+
 
 
 .asterisk {
