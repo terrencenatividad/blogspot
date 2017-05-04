@@ -131,3 +131,10 @@ tr:hover td .invi {
 .req-color {
 	color: #a94442;
 }
+
+.hidden-input-border{
+	border: transparent;
+    width: 100%;
+    padding: 0;
+	height: auto;
+}
