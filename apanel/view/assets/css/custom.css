@@ -74,7 +74,9 @@ table.table > tbody + tbody {
 .table-responsive table {
 	margin-bottom: 0;
 }
-
+.bold {
+	font-weight: bold;
+}
 
 
 .asterisk {
