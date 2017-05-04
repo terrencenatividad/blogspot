@@ -39,7 +39,7 @@ label.padded {
 .form-padding {
 	padding: 6px 12px;
 }
-ul.nav.nav-tabs + table, ul.nav.nav-tabs + .tab-content {
+ul.nav.nav-tabs + table, ul.nav.nav-tabs + .tab-content, ul.nav.nav-tabs + .table-responsive {
 	margin-top: 1px;
 }
 .navbar .dropdown-menu {
