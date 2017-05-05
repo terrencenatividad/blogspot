@@ -33,9 +33,10 @@ textarea {
 tbody .form-group {
 	margin-bottom: 0;
 }
-label.padded {
+label.padded, .padded {
 	padding: 6px 0;
 }
+
 .form-padding {
 	padding: 6px 12px;
 }
