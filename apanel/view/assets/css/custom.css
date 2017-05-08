@@ -77,6 +77,12 @@ table.table > tbody + tbody {
 .bold {
 	font-weight: bold;
 }
+script + .wrapper > .main-header {
+	position: relative;
+}
+script + .wrapper > .content-wrapper {
+	padding-top: 0;
+}
 
 
 .asterisk {
