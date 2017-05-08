@@ -200,7 +200,7 @@ class ui {
 	}
 
 	private function createInput($type = 'radio') {
-		if ($this->draw) {
+		if ($this->draw && ! $this->add_hidden) {
 			$attributes = array();
 			$this->attribute['class'] = implode(' ', $this->class);
 			foreach ($this->attribute as $key => $value) {
@@ -217,7 +217,7 @@ class ui {
 	}
 
 	private function createInputText($type = 'text') {
-		if ($this->draw) {
+		if ($this->draw && ! $this->add_hidden) {
 			$attributes = array();
 			$this->class[] = 'form-control';
 			$this->attribute['class'] = implode(' ', $this->class);
@@ -236,7 +236,7 @@ class ui {
 	}
 
 	private function createTextarea() {
-		if ($this->draw) {
+		if ($this->draw && ! $this->add_hidden) {
 			$attributes = array();
 			$this->class[] = 'form-control';
 			$this->attribute['class'] = implode(' ', $this->class);
@@ -252,7 +252,7 @@ class ui {
 	}
 
 	private function createDropDown() {
-		if ($this->draw) {
+		if ($this->draw && ! $this->add_hidden) {
 			$attributes = array();
 			$this->class[] = 'form-control';
 			$this->attribute['class'] = implode(' ', $this->class);
@@ -314,7 +314,8 @@ class ui {
 	}
 
 	private function drawStaticInput() {
-		return '<p class="form-control-static">' . $this->value . '</p>';
+		$value = (($this->add_hidden !== true || $this->add_hidden !== false) && $this->draw ) ? $this->add_hidden : $this->value;
+		return '<p class="form-control-static">' . $value . '</p>';
 	}
 
 }
