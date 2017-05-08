@@ -83,7 +83,9 @@ script + .wrapper > .main-header {
 script + .wrapper > .content-wrapper {
 	padding-top: 0;
 }
-
+.table-responsive {
+	overflow-x: visible;
+}
 
 .asterisk {
     font-weight: bold;
