@@ -1,12 +1,14 @@
 <?php
 class ui {
 
+	private $form_group = false;
 	private $attribute = array();
 	private $list = array();
 	private $value = '';
 	private $default = '';
 	private $type = '';
 	private $addon = '';
+	private $addonbutton = '';
 	private $label = '';
 	private $draw = true;
 	private $class = array();
@@ -17,20 +19,15 @@ class ui {
 	private $none = '';
 
 	public function formField($type) {
-		$this->attribute = array();
-		$this->list = array();
-		$this->value = '';
-		$this->default = '';
+		$this->reset();
+		$this->form_group = true;
 		$this->type = $type;
-		$this->addon = '';
-		$this->label = '';
-		$this->draw = true;
-		$this->class = array();
-		$this->split = array();
-		$this->switch = false;
-		$this->validation = false;
-		$this->none = '';
-		$this->add_hidden = false;
+		return $this;
+	}
+
+	public function setElement($type) {
+		$this->reset();
+		$this->type = $type;
 		return $this;
 	}
 
@@ -41,6 +38,11 @@ class ui {
 
 	public function setAddon($addon) {
 		$this->addon = $addon;
+		return $this;
+	}
+
+	public function setButtonAddon($addonbutton) {
+		$this->addonbutton = $addonbutton;
 		return $this;
 	}
 
@@ -114,13 +116,14 @@ class ui {
 	public function draw($draw = true) {
 		$this->draw = $draw;
 		$label = $this->createLabel();
-		$hidden = $this->createHidden();
+		$hidden = $this->createSubHidden();
 		$input = $this->drawInput();
-		if ($this->switch) {
-			$this->draw = '<div class="form-group">' . $input . $label . '</div>';
+		if ($this->form_group) {
+			$this->draw = $input;
+		} else if ($this->switch) {
+			$this->draw = $x . $input . $label . $y;
 		} else {
-
-			$this->draw = '<div class="form-group">' . $label . $hidden . $input . '</div>';
+			$this->draw = $x . $label . $hidden . $input . $y;
 		}
 		return $this->draw;
 	}
@@ -131,7 +134,7 @@ class ui {
 		$x = (isset($this->split[1])) ? '<div class="' . $this->split[1] . '">' : '';
 		$y = (isset($this->split[1])) ? '</div>' : '';
 		$z = ($this->validation) ? '<p class="help-block m-none"></p>' : '';
-		if (empty($this->addon) || ! $this->draw) {
+		if ((empty($this->addon) && empty($this->addonbutton)) || ! $this->draw) {
 			return $x . $input . $z . $y;
 		} else {
 			return $x . '<div class="input-group">' . $input . $addon . '</div>' . $z . $y;
@@ -142,6 +145,9 @@ class ui {
 		switch ($this->type) {
 			case "text":
 				return $this->createInputText();
+				break;
+			case "hidden":
+				return $this->createInputText('hidden');
 				break;
 			case "password":
 				return $this->createInputText('password');
@@ -177,7 +183,7 @@ class ui {
 		return $label;
 	}
 
-	private function createHidden() {
+	private function createSubHidden() {
 		$input = '';
 		if ($this->add_hidden) {
 			$attributes = array();
@@ -195,6 +201,9 @@ class ui {
 		$addon = '';
 		if ( ! empty($this->addon) && $this->draw) {
 			$addon = '<div class="input-group-addon"><i class="glyphicon glyphicon-' . $this->addon . '"></i></div>';
+		}
+		if ( ! empty($this->addonbutton) && $this->draw) {
+			$addon = '<div class="input-group-btn"><button type="button" id="' . $this->attribute['id'] . '_button" class="btn btn-primary btn-flat"><i class="glyphicon glyphicon-' . $this->addonbutton . '"></i></button></div>';
 		}
 		return $addon;
 	}
@@ -310,6 +319,36 @@ class ui {
 		} else {
 			$url = str_replace('view', 'edit', FULL_URL);
 			return '<a href="' . $url  . '" class="btn btn-primary">Edit</a>';
+		}
+	}
+
+	private function reset() {
+		$this->form_group = false;
+		$this->attribute = array();
+		$this->list = array();
+		$this->value = '';
+		$this->default = '';
+		$this->type = '';
+		$this->addon = '';
+		$this->addonbutton = '';
+		$this->label = '';
+		$this->draw = true;
+		$this->class = array();
+		$this->split = array();
+		$this->switch = false;
+		$this->validation = false;
+		$this->none = '';
+		$this->add_hidden = false;
+	}
+
+	private function checkType($type, array $checklist) {
+		if (in_array($type, $checklist)) {
+			return true;
+		} else {
+			if (DEBUGGING) {
+				echo "Type: $type is not in " . json_encode($checklist);
+			}
+			return false;
 		}
 	}
 
