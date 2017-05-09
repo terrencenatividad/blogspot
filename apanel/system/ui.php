@@ -118,6 +118,8 @@ class ui {
 		$label = $this->createLabel();
 		$hidden = $this->createSubHidden();
 		$input = $this->drawInput();
+		$x = '<div class="form-group">';
+		$y = '</div>';
 		if ( ! $this->form_group) {
 			$this->draw = $input;
 		} else if ($this->switch) {
