@@ -32,9 +32,11 @@ class backend {
 		$companycode	= (isset($login['companycode']))	? $login['companycode']	: '';
 		$username		= (isset($login['username']))		? $login['username']	: '';
 		$groupname		= (isset($login['groupname']))		? $login['groupname']	: '';
+		$name			= (isset($login['name']))			? $login['name']		: '';
 		define('COMPANYCODE', $companycode);
 		define('USERNAME', $username);
 		define('GROUPNAME', $groupname);
+		define('NAME', $name);
 	}
 
 	public function getAccess($module_name, $default_function) {
@@ -175,7 +177,7 @@ $backend	= new backend();
 $session	= new session();
 $url		= new url();
 $access		= new access();
-$session->set('login', array('username' => 'superadmin', 'apanel_user' => true, 'companycode' => 'CID', 'groupname' => 'superadmin')); // Disable Login
+$session->set('login', array('name' => 'Super 12 Admin', 'username' => 'superadmin', 'apanel_user' => true, 'companycode' => 'CID', 'groupname' => 'superadmin')); // Disable Login
 if (SUB_FOLDER == 'logout') {
 	$session->clean('login');
 	$url->redirect(BASE_URL);
