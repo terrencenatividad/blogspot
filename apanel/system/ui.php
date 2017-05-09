@@ -314,7 +314,7 @@ class ui {
 	}
 
 	private function drawStaticInput() {
-		$value = (($this->add_hidden !== true || $this->add_hidden !== false) && $this->draw ) ? $this->add_hidden : $this->value;
+		$value = ($this->add_hidden !== true && $this->add_hidden !== false && $this->draw ) ? $this->add_hidden : $this->value;
 		return '<p class="form-control-static">' . $value . '</p>';
 	}
 
