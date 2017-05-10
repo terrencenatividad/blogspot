@@ -86,6 +86,14 @@ script + .wrapper > .content-wrapper {
 .table-responsive {
 	overflow-x: visible;
 }
+.list-caret {
+	margin-left: -15px;
+	margin-right: 3px;
+}
+.list-indent {
+	height: 1px;
+	width: 15px;
+}
 
 .asterisk {
     font-weight: bold;

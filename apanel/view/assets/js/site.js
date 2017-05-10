@@ -78,6 +78,33 @@ $(document).ajaxComplete(function() {
 	Pace.stop();
 });
 
+// List Caret
+$('tbody').on('click', '.list-caret', function() {
+	if ($(this).hasClass('glyphicon-triangle-bottom')) {
+		$(this).trigger('click-hide');
+	} else {
+		$(this).trigger('click-show');
+	}
+});
+$('tbody').on('click-hide', '.list-caret', function() {
+	var selector = $(this).attr('data-target');
+	$(this).removeClass('glyphicon-triangle-bottom');
+	$(this).addClass('glyphicon-triangle-right');
+	$(selector).closest('tr').hide();
+	$(selector).each(function() {
+		$(this).closest('tr').find('.list-caret').trigger('click-hide');
+	});
+});
+$('tbody').on('click-show', '.list-caret', function() {
+	var selector = $(this).attr('data-target');
+	$(this).removeClass('glyphicon-triangle-right');
+	$(this).addClass('glyphicon-triangle-bottom');
+	$(selector).closest('tr').show();
+	$(selector).each(function() {
+		$(this).closest('tr').find('.list-caret').trigger('click-show');
+	});
+});
+
 // Ajax Delete
 $('table').on('click', '.ajax_delete', function() {
 	var module_url = $('#module_url').val();
