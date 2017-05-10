@@ -6,7 +6,7 @@
 						<div class="row">
 							<div class="col-md-4">
 								<div class="form-group">
-									<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create</a>
+									<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create User Group</a>
 									<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete</button>
 								</div>
 							</div>

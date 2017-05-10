@@ -8,7 +8,7 @@
 						<?php
 							echo $ui->formField('text')
 								->setLabel('First Name')
-								->setSplit('col-md-4', 'col-md-8')
+								->setSplit('col-md-4', 'col-md-7')
 								->setName('firstname')
 								->setId('firstname')
 								->setValue($firstname)
@@ -34,7 +34,7 @@
 						<?php
 							echo $ui->formField('text')
 								->setLabel('Last Name')
-								->setSplit('col-md-4', 'col-md-8')
+								->setSplit('col-md-4', 'col-md-7')
 								->setName('lastname')
 								->setId('lastname')
 								->setValue($lastname)
@@ -47,7 +47,7 @@
 							echo $ui->formField('dropdown')
 								->setLabel('Group Access')
 								->setPlaceholder('Select Group')
-								->setSplit('col-md-4', 'col-md-8')
+								->setSplit('col-md-4', 'col-md-7')
 								->setName('groupname')
 								->setId('groupname')
 								->setList($group_list)
@@ -62,7 +62,7 @@
 						<?php
 							echo $ui->formField('text')
 								->setLabel('E-mail')
-								->setSplit('col-md-4', 'col-md-8')
+								->setSplit('col-md-4', 'col-md-7')
 								->setName('email')
 								->setId('email')
 								->setValue($email)
@@ -76,7 +76,7 @@
 						<?php
 							echo $ui->formField('text')
 								->setLabel('Phone')
-								->setSplit('col-md-4', 'col-md-8')
+								->setSplit('col-md-4', 'col-md-7')
 								->setName('phone')
 								->setId('phone')
 								->setValue($phone)
@@ -88,7 +88,7 @@
 						<?php
 							echo $ui->formField('text')
 								->setLabel('Mobile')
-								->setSplit('col-md-4', 'col-md-8')
+								->setSplit('col-md-4', 'col-md-7')
 								->setName('mobile')
 								->setId('mobile')
 								->setValue($mobile)
@@ -102,7 +102,7 @@
 						<?php
 							echo $ui->formField('text')
 								->setLabel('Username')
-								->setSplit('col-md-4', 'col-md-8')
+								->setSplit('col-md-4', 'col-md-7')
 								->setName('username')
 								->setId('username')
 								->setValidation('required')
@@ -115,7 +115,7 @@
 							if ($show_input) {
 								echo $ui->formField('text')
 									->setLabel('Password')
-									->setSplit('col-md-4', 'col-md-8')
+									->setSplit('col-md-4', 'col-md-7')
 									->setName('password')
 									->setId('password')
 									->setValidation((($ajax_task == 'ajax_edit') ? '' : 'required'))
