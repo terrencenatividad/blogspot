@@ -94,6 +94,28 @@ script + .wrapper > .content-wrapper {
 	height: 1px;
 	width: 15px;
 }
+.small-box > .row .small-box-footer {
+	position: relative;
+	text-align: center;
+	padding: 3px 0;
+	color: #fff;
+	color: rgba(255,255,255,0.8);
+	display: block;
+	z-index: 10;
+	background: rgba(0,0,0,0.1);
+	text-decoration: none;
+}
+.small-box .icon .glyphicon {
+	top: 10px;
+	right: 20px;
+}
+.chart .morris-hover.morris-default-style {
+	color: #f9f9f9;
+	background: rgba(0, 0, 0, 0.8);
+	border: solid 2px rgba(0, 0, 0, 0.9);
+}
+
+
 
 .asterisk {
     font-weight: bold;

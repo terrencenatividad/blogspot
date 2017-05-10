@@ -16,6 +16,7 @@
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/icheck.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/custom.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/pace.min.css">
+	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/morris.css">
 	<!--[if lt IE 9]>
 	<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -36,6 +37,8 @@
 	<script src="<?= BASE_URL ?>assets/js/fastclick.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/app.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/jquery.inputmask.bundle.js"></script>
+	<script src="<?= BASE_URL ?>assets/js/raphael.min.js"></script>
+	<script src="<?= BASE_URL ?>assets/js/morris.min.js"></script>
 	<script>
 		paceOptions = {
 			catchupTime : 5000,
