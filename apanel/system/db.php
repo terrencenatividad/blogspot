@@ -18,6 +18,7 @@ class db {
 	private $error			= '';
 	private $insert_select	= '';
 	private $insert_id		= '';
+	private $pagination		= '';
 
 	// ----------------------Database----------------------- //
 
@@ -241,6 +242,24 @@ class db {
 	}
 
 	// --------------------Execute Query--------------------- //
+
+	public function runPagination($addon = true) {
+		$this->buildSelect($addon);
+		$this->cleanProperties();
+		$result = $this->conn->query($this->query);
+		if ($result) {
+			$this->num_rows = $result->num_rows;
+			if ($result->num_rows > 0) {
+				while ($row = $result->fetch_object()) {
+					$this->result[] = $row;
+				}
+			}
+		}
+		if ($this->conn->error) {
+			$this->showError($this->conn->error);
+		}
+		return $this;
+	}
 
 	public function runSelect($addon = true) {
 		$this->buildSelect($addon);

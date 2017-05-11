@@ -327,9 +327,9 @@ class ui {
 		$attributes = array();
 		foreach ($this->attribute as $key => $value) {
 			if (is_int($key)) {
-				$attributes[] = $key . '="' . $value . '"';
-			} else {
 				$attributes[] = $value . '="' . $value . '"';
+			} else {
+				$attributes[] = $key . '="' . $value . '"';
 			}
 		}
 		$attributes = implode(' ', $attributes);
