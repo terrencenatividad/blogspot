@@ -3,7 +3,7 @@ class log extends db {
 
 	public function __construct() {
 		parent::__construct();
-		$ipaddress = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? end(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])) : (isset($_SERVER['REMOTE_ADDR'])? $_SERVER['REMOTE_ADDR'] : isset($_SERVER['HTTP_CLIENT_IP']) ? $_SERVER['HTTP_CLIENT_IP'] : '-');
+		$ipaddress = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? end(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])) : (isset($_SERVER['REMOTE_ADDR'])? $_SERVER['REMOTE_ADDR'] : (isset($_SERVER['HTTP_CLIENT_IP']) ? $_SERVER['HTTP_CLIENT_IP'] : '-'));
 		$browser = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '-';
 		$this->data = array(
 			'companycode' => COMPANYCODE,
