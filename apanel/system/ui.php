@@ -108,7 +108,7 @@ class ui {
 		return $this;
 	}
 
-	public function addHidden($draw = false) {
+	public function addHidden($draw = true) {
 		$this->add_hidden = $draw;
 		return $this;
 	}
@@ -188,12 +188,8 @@ class ui {
 	private function createSubHidden() {
 		$input = '';
 		if ($this->add_hidden) {
-			$attributes = array();
 			$this->attribute['class'] = implode(' ', $this->class);
-			foreach ($this->attribute as $key => $value) {
-				$attributes[] = $key . '="' . $value . '"';
-			}
-			$attributes = implode(' ', $attributes);
+			$attributes = $this->getAttributes();
 			$input = '<input type="hidden" ' . $attributes . 'value="' . $this->value . '">';
 		}
 		return $input;
@@ -211,14 +207,10 @@ class ui {
 	}
 
 	private function createInput($type = 'radio') {
-		if ($this->draw && ! $this->add_hidden) {
-			$attributes = array();
+		if ($this->draw && ! $this->add_hidden) 
 			$this->attribute['class'] = implode(' ', $this->class);
-			foreach ($this->attribute as $key => $value) {
-				$attributes[] = $key . '="' . $value . '"';
-			}
 			$checked = ($this->default == $this->value) ? ' checked ' : '';
-			$attributes = implode(' ', $attributes);
+			$attributes = $this->getAttributes();
 			$input = '<input type="' . $type . '" ' . $attributes . $checked . 'value="' . $this->default . '">';
 		} else {
 			$this->value = ($this->value) ? 'Yes' : 'No';
@@ -229,13 +221,9 @@ class ui {
 
 	private function createInputText($type = 'text') {
 		if ($this->draw && ! $this->add_hidden) {
-			$attributes = array();
 			$this->class[] = 'form-control';
 			$this->attribute['class'] = implode(' ', $this->class);
-			foreach ($this->attribute as $key => $value) {
-				$attributes[] = $key . '="' . $value . '"';
-			}
-			$attributes = implode(' ', $attributes);
+			$attributes = $this->getAttributes();
 			$input = '<input type="' . $type . '" ' . $attributes . ' value="' . $this->value . '">';
 		} else {
 			if ($type == 'password') {
@@ -248,13 +236,9 @@ class ui {
 
 	private function createTextarea() {
 		if ($this->draw && ! $this->add_hidden) {
-			$attributes = array();
 			$this->class[] = 'form-control';
 			$this->attribute['class'] = implode(' ', $this->class);
-			foreach ($this->attribute as $key => $value) {
-				$attributes[] = $key . '="' . $value . '"';
-			}
-			$attributes = implode(' ', $attributes);
+			$attributes = $this->getAttributes();
 			$input = '<textarea ' . $attributes . '>' . $this->value . '</textarea>';
 		} else {
 			$input = $this->drawStaticInput();
@@ -264,13 +248,9 @@ class ui {
 
 	private function createDropDown() {
 		if ($this->draw && ! $this->add_hidden) {
-			$attributes = array();
 			$this->class[] = 'form-control';
 			$this->attribute['class'] = implode(' ', $this->class);
-			foreach ($this->attribute as $key => $value) {
-				$attributes[] = $key . '="' . $value . '"';
-			}
-			$attributes = implode(' ', $attributes);
+			$attributes = $this->getAttributes();
 			$placeholder = (isset($this->attribute['data-placeholder'])) ? '<option></option>' : '';
 			if ($this->none) {
 				$this->list = array_merge(array((object) array('ind' => 'none', 'val' => $this->none)), $this->list);
@@ -341,6 +321,19 @@ class ui {
 		$this->validation = false;
 		$this->none = '';
 		$this->add_hidden = false;
+	}
+
+	private function getAttributes() {
+		$attributes = array();
+		foreach ($this->attribute as $key => $value) {
+			if (is_int($key)) {
+				$attributes[] = $key . '="' . $value . '"';
+			} else {
+				$attributes[] = $value . '="' . $value . '"';
+			}
+		}
+		$attributes = implode(' ', $attributes);
+		return $attributes;
 	}
 
 	private function checkType($type, array $checklist) {
