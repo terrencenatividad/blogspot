@@ -207,7 +207,7 @@ class ui {
 	}
 
 	private function createInput($type = 'radio') {
-		if ($this->draw && ! $this->add_hidden) 
+		if ($this->draw && ! $this->add_hidden) {
 			$this->attribute['class'] = implode(' ', $this->class);
 			$checked = ($this->default == $this->value) ? ' checked ' : '';
 			$attributes = $this->getAttributes();
