@@ -18,10 +18,10 @@ class log extends db {
 	}
 
 	public function saveActivity($activity) {
-		$this->data['activity'] = $activity;
+		$this->data['activitydone'] = $activity;
 		return $this->setTable('wc_admin_logs')
-				->setValue($this->data)
-				->runInsert();
+					->setValues($this->data)
+					->runInsert(false);
 	}
 
 }
