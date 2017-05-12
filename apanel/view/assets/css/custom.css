@@ -83,7 +83,7 @@ script + .wrapper > .main-header {
 script + .wrapper > .content-wrapper {
 	padding-top: 0;
 }
-.table-responsive {
+.table-responsive:not(.scroll) {
 	overflow-x: visible;
 }
 .list-caret {
