@@ -170,7 +170,10 @@ class ui {
 				return $this->createInput('checkbox');
 				break;
 			case "submit":
-				return $this->createSubmit();
+				return $this->createButton('submit');
+				break;
+			case "button":
+				return $this->createButton('button');
 				break;
 		}
 	}
@@ -275,6 +278,30 @@ class ui {
 				}
 			}
 			$input = $this->drawStaticInput();
+		}
+		return $input;
+	}
+
+	private function createButton($type) {
+		$input = '';
+		if ($this->draw) {
+			$btn_class = array('btn');
+			$btn = array('btn-primary', 'btn-success', 'btn-default', 'btn-warning', 'btn-info');
+			$add_btn = true;
+			foreach ($btn as $btn_type) {
+				if (in_array($btn_type, $this->class)) {
+					$add_btn = false;
+				}
+			}
+			if ($add_btn) {
+				$btn_class[] = 'btn-primary';
+			}
+			$this->class = array_merge($this->class, $btn_class);
+			$this->attribute['class'] = implode(' ', $this->class);
+			$placeholder = $this->attribute['placeholder'];
+			unset($this->attribute['placeholder']);
+			$attributes = $this->getAttributes();
+			$input = '<button type="' . $type . '" ' . $attributes . 'value="' . $this->default . '">' . $placeholder . '</button>';
 		}
 		return $input;
 	}
