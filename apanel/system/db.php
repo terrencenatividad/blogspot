@@ -18,7 +18,12 @@ class db {
 	private $error			= '';
 	private $insert_select	= '';
 	private $insert_id		= '';
-	private $pagination		= '';
+
+	// Pagination
+	private $page			= 0;
+	private $page_limit		= 0;
+	private $result_limit	= 0;
+	private $result_count	= 0;
 
 	// ----------------------Database----------------------- //
 
@@ -32,6 +37,7 @@ class db {
 		if (defined('MODULE_NAME') && defined('MODULE_TASK')) {
 			$this->updateprogram	= MODULE_NAME . '|' . MODULE_TASK;
 		}
+		$this->initPagination();
 	}
 
 	public function changeDatabase($database) {
@@ -82,7 +88,7 @@ class db {
 	}
 
 	public function setLimitOffset($limit_offset) {
-		$this->limit_offset = ($this->limit) ? " $limit_offset" : '';
+		$this->limit_offset = ($this->limit) ? ", $limit_offset" : '';
 		return $this;
 	}
 
@@ -242,24 +248,6 @@ class db {
 	}
 
 	// --------------------Execute Query--------------------- //
-
-	public function runPagination($addon = true) {
-		$this->buildSelect($addon);
-		$this->cleanProperties();
-		$result = $this->conn->query($this->query);
-		if ($result) {
-			$this->num_rows = $result->num_rows;
-			if ($result->num_rows > 0) {
-				while ($row = $result->fetch_object()) {
-					$this->result[] = $row;
-				}
-			}
-		}
-		if ($this->conn->error) {
-			$this->showError($this->conn->error);
-		}
-		return $this;
-	}
 
 	public function runSelect($addon = true) {
 		$this->buildSelect($addon);
@@ -422,6 +410,145 @@ class db {
 		} else {
 			return '';
 		}
+	}
+
+	// Pagination
+	public function initPagination() {
+		$this->page			= isset($_POST['page'])		? $_POST['page']	: 1;
+		$this->result_limit	= isset($_POST['limit'])	? $_POST['limit']	: 10;
+	}
+
+	public function setPageLimit($page_limit) {
+		$this->page_limit = $page_limit;
+	}
+
+	public function setPage($page) {
+		$this->page = $page;
+	}
+
+	public function setPaginationCallback($callback) {
+		$this->callback = $callback;
+	}
+
+	public function runPagination($addon = true) {
+		$query_all		= $this->buildPagination($addon);
+		$this->setLimit((($this->page - 1) * $this->result_limit) + 1);
+		$this->setLimitOffset($this->result_limit);
+		$query_limit	= $this->buildPagination($addon, false);
+		$this->cleanProperties();
+		$result = $this->conn->query($query_all);
+		if ($result) {
+			if ($result->num_rows > 0) {
+				while ($row = $result->fetch_object()) {
+					$this->result[] = $row;
+				}
+				$this->result_count = $this->getRow()->count;
+				$this->page_limit = ceil($this->result_count / $this->result_limit);
+			}
+		}
+		if ($this->conn->error) {
+			$this->showError($this->conn->error);
+		}
+		$this->result = array();
+		$result = $this->conn->query($query_limit);
+		if ($result) {
+			$this->num_rows = $result->num_rows;
+			if ($result->num_rows > 0) {
+				while ($row = $result->fetch_object()) {
+					$this->result[] = $row;
+				}
+			}
+		}
+		if ($this->conn->error) {
+			$this->showError($this->conn->error);
+		}
+		return (object) array(
+			'result'		=> $this->getResult(),
+			'result_count'	=> $this->result_count,
+			'page'			=> $this->page,
+			'page_limit'	=> $this->page_limit,
+			'pagination'	=> $this->drawPagination()
+		);
+	}
+
+	private function buildPagination($addon, $limit = true) {
+		$this->result	= array();
+		$this->query	= '';
+		$this->num_rows = 0;
+		$check = $this->runCheck(array('fields', 'table'));
+		$where = $this->where;
+		if ($addon) {
+			$main_table = $this->getMainTable();
+			$where .= ((empty($this->where)) ? " WHERE " : " AND ") . " {$main_table}companycode = '{$this->companycode}' ";
+		}
+		if ($check) {
+			$fields = implode(', ', $this->fields);
+			if ($limit) {
+				if (empty($this->having)) {
+					$fields = 'COUNT(*) count';
+				} else {
+					$fields = "COUNT({$this->fields[0]}) count";
+				}
+			}
+			$this->query = "SELECT $fields FROM {$this->table}{$this->join}{$where}{$this->groupby}{$this->having}{$this->orderby}{$this->limit}{$this->limit_offset}";
+			if ($this->conn->error) {
+				$this->showError($this->conn->error);
+			}
+		}
+		return $this->query;
+	}
+
+	private function drawPagination() {
+		$inner_page				= (($this->page - 2) > 2) ? ($this->page - 2) : 2;
+		$inner_counter			= 0;
+		$inner_counter_limit	= 5;
+		$pagination = '';
+
+		if ($this->page_limit > 1) {
+			$active = '';
+			$active_class = 'class="active"';
+			if ($this->page == 1) {
+				$active = $active_class;
+			}
+			$pagination .= '<div class="text-center">
+								<ul class="pagination">
+									<li>
+										<a href="#" data-page="' . ((($this->page - 1) > 0) ? $this->page - 1 : 1) . '">
+											<span aria-hidden="true">&laquo;</span>
+										</a>
+									</li>
+									<li ' . $active . '><a href="#" data-page="1">1</a></li>';
+
+			if ($inner_page != 2) {
+				$pagination .= '<li><a>...</a></li>';
+			}
+
+			for (; $inner_page < $this->page_limit && $inner_counter < $inner_counter_limit; $inner_page++, $inner_counter++) {
+				$active = '';
+				if ($this->page == $inner_page) {
+					$active = $active_class;
+				}
+				$pagination .= '<li ' . $active . '><a href="#" data-page="' . $inner_page . '">' . $inner_page . '</a></li>';
+			}
+
+			if ($inner_page != $this->page_limit) {
+				$pagination .= '<li><a>...</a></li>';
+			}
+			$active = '';
+			if ($this->page == $this->page_limit) {
+				$active = $active_class;
+			}
+			$pagination .= '
+									<li ' . $active . '><a href="#" data-page="' . $this->page_limit . '">' . $this->page_limit . '</a></li>
+									<li>
+										<a href="#" data-page="' . ((($this->page + 1) <= $this->page_limit) ? $this->page + 1 : $this->page_limit) . '">
+											<span aria-hidden="true">&raquo;</span>
+										</a>
+									</li>
+								</ul>
+							</div>';
+		}
+		return $pagination;
 	}
 
 	private function showError($error = 'Error', $show = true) {
