@@ -301,7 +301,7 @@ class ui {
 			$placeholder = $this->attribute['placeholder'];
 			unset($this->attribute['placeholder']);
 			$attributes = $this->getAttributes();
-			$input = '<button type="' . $type . '" ' . $attributes . 'value="' . $this->default . '">' . $placeholder . '</button>';
+			$input = '<button type="' . $type . '" ' . $attributes . 'value="' . $this->value . '">' . $placeholder . '</button>';
 		}
 		return $input;
 	}
