@@ -83,7 +83,7 @@ class db {
 	}
 
 	public function setLimit($limit) {
-		$this->limit = ($limit) ? " LIMIT $limit" : '';
+		$this->limit = ($limit !== '') ? " LIMIT $limit" : '';
 		return $this;
 	}
 
