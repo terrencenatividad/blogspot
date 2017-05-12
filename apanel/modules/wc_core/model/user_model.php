@@ -38,7 +38,7 @@ class user_model extends wc_model {
 						->getRow();
 	}
 
-	public function getUserList($fields, $search, $typeid, $classid) {
+	public function getUserPagination($fields, $search, $typeid, $classid) {
 		$fields = array(
 			'username',
 			'password',
@@ -63,13 +63,13 @@ class user_model extends wc_model {
 		if ($classid && $classid != 'null') {
 			$condition .= (($condition) ? " AND " : " ") . "i.classid = '$classid'";
 		}
-		$this->db->setTable("wc_users wu")
-						->innerJoin("wc_user_group wug ON wug.groupname = wu.groupname AND wug.companycode = wu.companycode")
-						->setFields($fields)
-						->setWhere($condition);
+		$result = $this->db->setTable("wc_users wu")
+							->innerJoin("wc_user_group wug ON wug.groupname = wu.groupname AND wug.companycode = wu.companycode")
+							->setFields($fields)
+							->setWhere($condition)
+							->runPagination();
 
-		return $this->db->runSelect()
-						->getResult();
+		return $result;
 	}
 
 	public function getGroupList() {

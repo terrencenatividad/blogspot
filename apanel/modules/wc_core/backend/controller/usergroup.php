@@ -77,12 +77,12 @@ class controller extends wc_controller {
 		$data = $this->input->post(array('search', 'typeid', 'classid'));
 		$search = $data['search'];
 
-		$list = $this->usergroup_model->getGroupList($this->fields, $search);
+		$pagination = $this->usergroup_model->getGroupPagination($this->fields, $search);
 		$table = '';
-		if (empty($list)) {
+		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-		foreach ($list as $key => $row) {
+		foreach ($pagination->result as $key => $row) {
 			$id = base64_encode($row->groupname);
 			$table .= '<tr>';
 			$table .= '<td align = "center">
@@ -97,9 +97,8 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->description . '</td>';
 			$table .= '</tr>';
 		}
-		return array(
-			'table' => $table
-		);
+		$pagination->table = $table;
+		return $pagination;
 	}
 
 	private function ajax_create() {

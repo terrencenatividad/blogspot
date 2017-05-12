@@ -78,12 +78,12 @@ class controller extends wc_controller {
 		$typeid = $data['typeid'];
 		$classid = $data['classid'];
 
-		$list = $this->user_model->getUserList($this->fields, $search, $typeid, $classid);
+		$pagination = $this->user_model->getUserPagination($this->fields, $search, $typeid, $classid);
 		$table = '';
-		if (empty($list)) {
+		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-		foreach ($list as $key => $row) {
+		foreach ($pagination->result as $key => $row) {
 			$table .= '<tr>';
 			$table .= '<td align = "center">
 							<input type="checkbox" class="checkbox item_checkbox" value="' . $row->username . '">
@@ -100,9 +100,8 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->stat . '</td>';
 			$table .= '</tr>';
 		}
-		return array(
-			'table' => $table
-		);
+		$pagination->table = $table;
+		return $pagination;
 	}
 
 	private function ajax_create() {

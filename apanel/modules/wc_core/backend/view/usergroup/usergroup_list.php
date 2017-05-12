@@ -37,6 +37,7 @@
 				</table>
 			</div>
 		</div>
+		<div id="pagination"></div>
 	</section>
 	<div class="delete-modal">
 		<div class="modal modal-danger">
@@ -62,23 +63,20 @@
 		var ajax = {}
 		var ajax_call = {};
 		$('#table_search').on('input', function () {
+			ajax.page = 1;
 			ajax.search = $(this).val();
 			ajax_call.abort();
 			getList();
 		});
-		$('#classid').on('change', function() {
-			ajax.classid = $(this).val();
-			ajax_call.abort();
-			getList();
-		});
-		$('#typeid').on('change', function() {
-			ajax.typeid = $(this).val();
-			ajax_call.abort();
+		$('#pagination').on('click', 'a', function(e) {
+			e.preventDefault();
+			ajax.page = $(this).attr('data-page');
 			getList();
 		});
 		function getList() {
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
 				$('#tableList tbody').html(data.table);
+				$('#pagination').html(data.pagination);
 			});
 		}
 		getList();

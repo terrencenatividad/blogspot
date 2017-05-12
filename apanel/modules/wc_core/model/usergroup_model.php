@@ -68,16 +68,17 @@ class usergroup_model extends wc_model {
 						->getRow();
 	}
 
-	public function getGroupList($fields, $search) {
+	public function getGroupPagination($fields, $search) {
 		$condition = '';
 		if ($search) {
 			$condition = $this->generateSearch($search, $fields);
 		}
-		return $this->db->setTable('wc_user_group')
-						->setFields($fields)
-						->setWhere($condition)
-						->runSelect()
-						->getResult();
+		$result =  $this->db->setTable('wc_user_group')
+							->setFields($fields)
+							->setWhere($condition)
+							->runPagination();
+
+		return $result;
 	}
 
 	public function getGroupListDropdown() {
