@@ -432,7 +432,7 @@ class db {
 
 	public function runPagination($addon = true) {
 		$query_all		= $this->buildPagination($addon);
-		$this->setLimit((($this->page - 1) * $this->result_limit) + 1);
+		$this->setLimit((($this->page - 1) * $this->result_limit));
 		$this->setLimitOffset($this->result_limit);
 		$query_limit	= $this->buildPagination($addon, false);
 		$this->cleanProperties();
