@@ -184,6 +184,7 @@ $('[data-daterangefilter]').each(function() {
 		var year_filter = moment().year();
 		$(this).daterangepicker(
 			{
+				linkedCalendars: false,
 				ranges: {
 					'January': [moment().month(0).year(year_filter).startOf('month'), moment().month(0).year(year_filter).endOf('month')],
 					'February': [moment().month(1).year(year_filter).startOf('month'), moment().month(1).year(year_filter).endOf('month')],
