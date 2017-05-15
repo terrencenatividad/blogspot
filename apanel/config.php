@@ -2,6 +2,7 @@
 // SETUP CONFIG
 define('HTTPS', true);
 define('DEBUGGING', true);
+define('AUTO_LOGIN', true);
 // PHP CONFIG
 error_reporting(E_ALL);
 ini_set('display_errors', (DEBUGGING ? 1 : 0));

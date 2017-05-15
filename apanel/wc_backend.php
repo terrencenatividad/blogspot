@@ -177,7 +177,10 @@ $backend	= new backend();
 $session	= new session();
 $url		= new url();
 $access		= new access();
-$session->set('login', array('name' => 'Super 12 Admin', 'username' => 'superadmin', 'apanel_user' => true, 'companycode' => 'CID', 'groupname' => 'superadmin')); // Disable Login
+if (AUTO_LOGIN && ! $access->isApanelUser()) {
+	$session->set('login', array('name' => 'Super 12 Admin', 'username' => 'superadmin', 'apanel_user' => true, 'companycode' => 'CID', 'groupname' => 'superadmin')); // Disable Login
+	$url->redirect(FULL_URL);
+}
 if (SUB_FOLDER == 'logout') {
 	$session->clean('login');
 	$url->redirect(BASE_URL);
