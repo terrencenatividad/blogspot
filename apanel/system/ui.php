@@ -258,14 +258,20 @@ class ui {
 			if ($this->none) {
 				$this->list = array_merge(array((object) array('ind' => 'none', 'val' => $this->none)), $this->list);
 			}
+			$parent = '';
 			$input = '<select ' . $attributes . '>' . $placeholder;
 			foreach ($this->list as $key => $value) {
-				if (is_object($value)) {
-					$selected = ($value->ind == $this->value) ? ' selected' : '';
-					$input .= '<option value="' . $value->ind . '"' . $selected . '>' . $value->val . '</option>';
-				} else {
-					$selected = ($key == $this->value) ? ' selected' : '';
-					$input .= '<option value="' . $key . '"' . $selected . '>' . $value . '</option>';
+				$optvalue = (is_object($value)) ? $value->ind : $key;
+				$optlabel = (is_object($value)) ? $value->val : $value;
+				$selected = ($optvalue == $this->value) ? ' selected' : '';
+				if (isset($value->parent) && $parent != $value->parent) {
+					$input .= '<optgroup label="' . $value->parent . '">';
+					$parent = $value->parent;
+				}
+				$input .= '<option value="' . $optvalue . '"' . $selected . '>' . $optlabel . '</option>';
+				$n = $key + 1;
+				if ( ! isset($this->list[$n]) || ! isset($this->list[$n]->parent) || (isset($this->list[$n]->parent) && $this->list[$n]->parent != $parent)) {
+					$input .= '</optgroup>';
 				}
 			}
 			$input .= '</select>';
