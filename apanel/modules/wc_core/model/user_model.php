@@ -1,11 +1,22 @@
 <?php
 class user_model extends wc_model {
 
+	public function __construct() {
+		parent::__construct();
+		$this->log = new log();
+	}
+
 	public function saveUser($data) {
 		$data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
-		return $this->db->setTable('wc_users')
-			->setValues($data)
-			->runInsert();
+		$result = $this->db->setTable('wc_users')
+							->setValues($data)
+							->runInsert();
+		
+		if ($result) {
+			$this->log->saveActivity("Create User [{$data['username']}]");
+		}
+
+		return $result;
 	}
 
 	public function updateUser($data, $username) {
@@ -14,19 +25,32 @@ class user_model extends wc_model {
 		} else {
 			unset($data['password']);
 		}
-		return $this->db->setTable('wc_users')
-				->setValues($data)
-				->setWhere("username = '$username'")
-				->setLimit(1)
-				->runUpdate();
+		$result = $this->db->setTable('wc_users')
+							->setValues($data)
+							->setWhere("username = '$username'")
+							->setLimit(1)
+							->runUpdate();
+
+		if ($result) {
+			$this->log->saveActivity("Update User [$username]");
+		}
+
+		return $result;
 	}
 
 	public function deleteUsers($data) {
 		$ids = "'" . implode("','", $data) . "'";
-		return $this->db->setTable('wc_users')
-				->setWhere("username IN ($ids)")
-				->setLimit(count($data))
-				->runDelete();
+		$result = $this->db->setTable('wc_users')
+							->setWhere("username IN ($ids)")
+							->setLimit(count($data))
+							->runDelete();
+
+		if ($result) {
+			$log_id = implode(',', $ids);
+			$this->log->saveActivity("Delete User [$log_id]");
+		}
+		
+		return $result;
 	}
 
 	public function getUserById($fields, $username) {

@@ -1,11 +1,19 @@
 <?php
 class usergroup_model extends wc_model {
 
+	public function __construct() {
+		parent::__construct();
+		$this->log = new log();
+	}
+
 	public function saveGroup($data, $module_access) {
 		$result = $this->db->setTable('wc_user_group')
-			->setValues($data)
-			->runInsert();
+							->setValues($data)
+							->runInsert();
 		if ($result) {
+			if ($result) {
+				$this->log->saveActivity("Create User Group [{$data['groupname']}]");
+			}
 			$result = $this->setGroupAccess($module_access, $data['groupname']);
 		}
 		return $result;
@@ -47,16 +55,27 @@ class usergroup_model extends wc_model {
 				->setWhere("groupname = '$group_id'")
 				->setLimit(1)
 				->runUpdate();
+
+		if ($result) {
+			$this->log->saveActivity("Update User Group [$group_id]");
+		}
 				
 		return $this->setGroupAccess($module_access, $group_id);
 	}
 
 	public function deleteGroup($data) {
 		$groupnames = "'" . implode("','", $data) . "'";
-		return $this->db->setTable('wc_user_group')
-				->setWhere("groupname IN ($groupnames)")
-				->setLimit(count($data))
-				->runDelete();
+		$result = $this->db->setTable('wc_user_group')
+							->setWhere("groupname IN ($groupnames)")
+							->setLimit(count($data))
+							->runDelete();
+
+		if ($result) {
+			$log_id = implode(',', $ids);
+			$this->log->saveActivity("Delete User Group [$log_id]");
+		}
+		
+		return $result;
 	}
 
 	public function getGroupByName($fields, $groupname) {
