@@ -44,11 +44,11 @@ class backend {
 		$url	= new url();
 		$function = ($this->getPage()) ? $this->getPage() : $default_function;
 
-		if ($this->checkAccessType(array('add', 'create', 'insert', 'save', 'apply', 'retrieve'), $function)) {
+		if ($this->checkAccessType(array('add', 'create', 'insert', 'save'), $function)) {
 			$type = 'mod_add';
-		} else if ($this->checkAccessType(array('view', 'get', 'load'), $function)) {
+		} else if ($this->checkAccessType(array('view', 'get', 'load', 'retrieve'), $function)) {
 			$type = 'mod_view';
-		} else if ($this->checkAccessType(array('update', 'edit'), $function)) {
+		} else if ($this->checkAccessType(array('update', 'edit', 'apply'), $function)) {
 			$type = 'mod_edit';
 		} else if ($this->checkAccessType(array('delete', 'remove', 'cancel'), $function)) {
 			$type = 'mod_delete';
@@ -57,21 +57,28 @@ class backend {
 		} else if ($this->checkAccessType(array('print'), $function)) {
 			$type = 'mod_print';
 		}
-
 		$result = $db->setTable('wc_module_access')
 					->setFields('mod_add, mod_view, mod_edit, mod_delete, mod_list, mod_print')
 					->setWhere("groupname = '" . GROUPNAME . "' AND module_name = '$module_name'")
 					->runSelect()
 					->getRow();
 
-		if ( ! isset($type) || ($result && $result->$type !== '1')) {
+		if ( ! isset($type)) {
 			if (DEBUGGING) {
 				echo "Function Name Error: " . $function;
 				exit();
 			} else {
 				$url->redirect(BASE_URL);
 			}
-		} else if ($result) {
+		} else if ( ! $result || $result->$type !== '1') {
+			if (DEBUGGING) {
+				echo "No Permission to Access this Module Task: " . ucfirst(str_replace('mod_', '', $type));
+				exit();
+			} else {
+				$url->redirect(BASE_URL);
+			}
+		}
+		if ($result) {
 			define('MOD_ADD', ($result->mod_add === '1'));
 			define('MOD_VIEW', ($result->mod_view === '1'));
 			define('MOD_EDIT', ($result->mod_edit === '1'));
@@ -79,7 +86,6 @@ class backend {
 			define('MOD_LIST', ($result->mod_list === '1'));
 			define('MOD_PRINT', ($result->mod_print === '1'));
 		}
-		
 		if (isset($type)) {
 			define('MODULE_NAME', $module_name);
 			define('MODULE_TASK', $type);
