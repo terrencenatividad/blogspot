@@ -12,7 +12,7 @@ class login extends wc_model {
 							->getRow();
 		if ($result) {
 			if (password_verify($password, $result->password)) {
-				return array('username' => $result->username, 'apanel_user' => true, 'companycode' => $result->companycode, 'groupname' => $result->groupname);
+				return array('username' => $result->username, 'apanel_user' => true, 'companycode' => $result->companycode, 'groupname' => $result->groupname, 'name' => $result->name);
 			} else {
 				return false;
 			}
