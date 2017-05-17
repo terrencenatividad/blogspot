@@ -31,7 +31,7 @@
 						</div>
 						<div class="modal-footer text-center">
 							<button type="button" id="confirmation_yes" class="btn btn-primary btn-flat" onclick="">Yes</button>
-							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+							<button type="button" id="confirmation_no" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
 						</div>
 					</div>
 				</div>
