@@ -32,7 +32,7 @@
 				<?php endif ?>
 				<form action="" method="post">
 					<div class="form-group has-feedback">
-						<input type="text" name="username" class="form-control" placeholder="Username">
+						<input type="text" name="username" class="form-control" placeholder="Username" value="<?php echo $username ?>">
 						<span class="glyphicon glyphicon-user form-control-feedback"></span>
 					</div>
 					<div class="form-group has-feedback">

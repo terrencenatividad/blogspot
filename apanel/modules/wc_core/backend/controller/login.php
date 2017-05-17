@@ -8,16 +8,16 @@ class controller extends wc_controller {
 		$url				= new url();
 		$session			= new session();
 		$data = array('error_msg' => '');
+		$data = $input->post(array(
+			'username',
+			'password'
+		));
 		if ($access->isApanelUser()) {
 			$redirect = base64_decode($input->get('redirect'));
 			$redirect = ( ! empty($redirect)) ? $redirect : BASE_URL;
 			$url->redirect($redirect);
 		}
 		if ($input->isPost) {
-			$data = $input->post(array(
-				'username',
-				'password'
-			));
 			extract($data);
 			$result = $login_model->getUserAccess($username, $password);
 			if ($result) {
