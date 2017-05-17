@@ -57,13 +57,13 @@
 	</script>
 	<script src="<?= BASE_URL ?>assets/js/pace.min.js"></script>
 </head>
-<body class="hold-transition skin-blue fixed layout-top-nav">
+<body class="hold-transition skin-red fixed layout-top-nav">
 <div class="wrapper">
 	<header class="main-header">
 		<nav class="navbar navbar-static-top">
 			<div class="container-fluid">
 				<div class="navbar-header">
-					<a href="" class="navbar-brand"><b>Admin</b>LTE</a>
+					<a href="" class="navbar-brand"><b>Oojeema</b>Prime</a>
 					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
 						<i class="fa fa-bars"></i>
 					</button>
