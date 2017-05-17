@@ -28,7 +28,11 @@
 		padding-top: 100px;
 	}
 }
-
+@media (max-width:768px) {
+	.fixed .content-wrapper, .fixed .right-side {
+		padding-top: 50px;
+	}
+}
 textarea {
 	resize: none;
 }
