@@ -1,4 +1,5 @@
 				<script src="<?= BASE_URL ?>assets/js/site.js"></script>
+				<section class="footer-padding"></section>
 			</div>
 			<div id="delete_modal" class="modal modal-danger">
 				<div class="modal-dialog" style = "width: 300px;">

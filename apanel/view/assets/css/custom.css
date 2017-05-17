@@ -33,6 +33,12 @@
 		padding-top: 50px;
 	}
 }
+.footer-padding {
+	height: 50px;
+}
+.dropdown-menu > li > a {
+	color: #333;
+}
 textarea {
 	resize: none;
 }
