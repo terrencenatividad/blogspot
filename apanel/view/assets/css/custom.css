@@ -1,3 +1,6 @@
+.skin-red .main-header .navbar {
+	background-color: #d50505;
+}
 textarea {
 	resize: none;
 }
