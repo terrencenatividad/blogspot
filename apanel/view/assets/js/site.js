@@ -45,9 +45,10 @@ function linkDeleteToModal(delete_button, callback) {
 	});
 }
 
-function createConfimationLink(link, callback) {
+function createConfimationLink(link, callback, confimation_question) {
 	$('body').on('click', link, function() {
 		var id = $(this).attr('data-id');
+		$('#confimation_question').html(confimation_question || 'Are you sure?');
 		$('#confimation_modal #confirmation_yes').attr('data-id', id).attr('onclick', callback + '("' + id + '"); $(this).closest("#confimation_modal").modal("hide");');
 		$('#confimation_modal').modal('show');
 	});
