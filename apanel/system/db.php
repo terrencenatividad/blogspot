@@ -443,6 +443,9 @@ class db {
 					$this->result[] = $row;
 				}
 				$this->result_count = $this->getRow()->count;
+				if ($result->num_rows > 1) {
+					$this->result_count = $result->num_rows;
+				}
 				$this->page_limit = ceil($this->result_count / $this->result_limit);
 			}
 		}
