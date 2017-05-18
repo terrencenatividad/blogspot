@@ -45,7 +45,7 @@ class check_task {
 
 	public function draw() {
 		$check_task = '';
-		$dropdown_top = ($this->add || $this->view || $this->print);
+		$dropdown_top = ($this->edit || $this->view || $this->print);
 		$dropdown_addon = (count($this->addon));
 		$dropdown = ($dropdown_top || $this->delete || $dropdown_addon);
 		if ($this->checkbox || $dropdown > 0) {
@@ -93,7 +93,7 @@ class check_task {
 	private function reset() {
 		$this->checkbox			= false;
 		$this->value			= '';
-		$this->add				= false;
+		$this->edit				= false;
 		$this->view				= false;
 		$this->delete			= false;
 		$this->print			= false;
