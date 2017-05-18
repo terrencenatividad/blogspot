@@ -11,6 +11,7 @@ class wc_view {
 	}
 
 	public function load($file, $data = array(), $enclosed = true) {
+		$this->header_active = ($this->header_active) ? BASE_URL . $this->header_active : MODULE_URL;
 		if (is_array($data) || DEBUGGING) {
 			extract($data);
 		}
