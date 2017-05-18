@@ -73,8 +73,8 @@ class check_task {
 				$check_task .= ($dropdown_top && $dropdown_addon) ? '<li class="divider"></li>' : '';
 
 				foreach ($this->addon as $addon) {
-					$class = strtolower(str_replace(' ', '_', $this->task));
-					$check_task .= ($addon->show) ? '<li><a class="btn-sm link ' . $class . '" data-id="' . $this->value . '"><i class="glyphicon glyphicon-' . $this->glyphicon . '"></i> ' . $this->task . '</a></li>' : '';
+					$class = strtolower(str_replace(' ', '_', $addon->task));
+					$check_task .= ($addon->show) ? '<li><a class="btn-sm link ' . $class . '" data-id="' . $this->value . '"><i class="glyphicon glyphicon-' . $addon->glyphicon . '"></i> ' . $addon->task . '</a></li>' : '';
 				}
 					
 				$check_task .= ($this->delete && ($dropdown_top || $dropdown_addon)) ? '<li class="divider"></li>' : '';
