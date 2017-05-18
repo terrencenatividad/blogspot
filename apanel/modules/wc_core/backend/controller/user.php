@@ -85,24 +85,15 @@ class controller extends wc_controller {
 		}
 		foreach ($pagination->result as $key => $row) {
 			$table .= '<tr>';
-			$table .= '<td align = "center">
-							<div class="btn-group">
-								<label type="button" class="btn btn-default btn-flat btn-checkbox">
-									<input type="checkbox" class="checkbox item_checkbox" value="' . $row->username . '">
-								</label>
-								<button type="button" class="btn btn-default btn-flat dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									<span class="caret"></span>
-									<span class="sr-only">Toggle Dropdown</span>
-								</button>
-								<ul class="dropdown-menu">
-									<li><a class="btn-sm" href="'. MODULE_URL .'view/' . $row->username . '"><i class="glyphicon glyphicon-eye-open"></i> View</a></li>
-									<li><a class="btn-sm" href="'. MODULE_URL .'edit/' . $row->username . '"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li>
-									<li><a class="btn-sm" href="'. MODULE_URL .'print_preview/' . $row->username . '"><i class="glyphicon glyphicon-print"></i> Print Voucher</a></li>
-									<li class="divider"></li>
-									<li><a class="btn-sm delete link" data-id="' . $row->username . '"><i class="glyphicon glyphicon-trash"></i> Delete</a></li>
-								</ul>
-							</div>
-						</td>';
+			$dropdown = $this->ui->loadElement('check_task')
+									->addView()
+									->addEdit()
+									->addPrint()
+									->addDelete()
+									->addCheckbox()
+									->setValue($row->username)
+									->draw();
+			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $row->username . '</td>';
 			$table .= '<td>' . $row->firstname . ' ' . $row->lastname . '</td>';
 			$table .= '<td>' . $row->email . '</td>';
@@ -112,12 +103,6 @@ class controller extends wc_controller {
 		}
 		$pagination->table = $table;
 		return $pagination;
-		// <input type="checkbox" class="checkbox item_checkbox" value="' . $row->username . '">
-		// <div class = "invi">
-		// 	<a class="btn btn-sm btn-link" href = "'. MODULE_URL .'edit/' . $row->username . '" title = "Edit"><span class="glyphicon glyphicon-pencil"></span></a>
-		// 	<a class="btn btn-sm btn-link delete" data-id = "' . $row->username . '" title = "Delete" ><i class="glyphicon glyphicon-trash"></i></a>
-		// 	<a class="btn btn-sm btn-link publish" href = "'. MODULE_URL .'view/' . $row->username . '" title = "View"><i class="glyphicon glyphicon-eye-open"></i></a>
-		// </div>
 	}
 
 	private function ajax_create() {

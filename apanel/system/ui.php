@@ -30,6 +30,17 @@ class ui {
 		$this->type = $type;
 		return $this;
 	}
+	
+	public function loadElement($type) {
+		$element = '';
+		if (file_exists("system/ui_classes/$type.php")) {
+			require_once "system/ui_classes/$type.php";
+			$element = new $type();
+		} else if (DEBUGGING) {
+			echo "Invalid Element Type";
+		}
+		return $element;
+	}
 
 	public function setLabel($label) {
 		$this->label = $label;
