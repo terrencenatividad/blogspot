@@ -142,6 +142,7 @@ class backend {
 			$this->module_folder = 'home';
 			$this->module_file = 'home';
 			$this->module_function = 'index';
+			define('MODULE_URL', BASE_URL);
 		}
 		define('MODULE_PATH', 'modules/' . $this->module_folder);
 		return MODULE_PATH . '/' . PAGE_TYPE . '/controller/' . $this->module_file . '.php';
