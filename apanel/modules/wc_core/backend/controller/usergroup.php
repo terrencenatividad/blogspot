@@ -85,14 +85,14 @@ class controller extends wc_controller {
 		foreach ($pagination->result as $key => $row) {
 			$id = base64_encode($row->groupname);
 			$table .= '<tr>';
-			$table .= '<td align = "center">
-							<input type="checkbox" class="checkbox item_checkbox" value="' . $id . '">
-							<div class = "invi">
-								<a class="btn btn-sm btn-link" href = "'. MODULE_URL .'edit/' . $id . '" title = "Edit"><span class="glyphicon glyphicon-pencil"></span></a>
-								<a class="btn btn-sm btn-link delete" data-id = "' . $row->groupname . '" title = "Delete" ><i class="glyphicon glyphicon-trash"></i></a>
-								<a class="btn btn-sm btn-link publish" href = "'. MODULE_URL .'view/' . $id . '" title = "View"><i class="glyphicon glyphicon-eye-open"></i></a>
-							</div>
-						</td>';
+			$dropdown = $this->ui->loadElement('check_task')
+									->addView()
+									->addEdit()
+									->addDelete()
+									->addCheckbox()
+									->setValue($id)
+									->draw();
+			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $row->groupname . '</td>';
 			$table .= '<td>' . $row->description . '</td>';
 			$table .= '</tr>';
@@ -130,7 +130,11 @@ class controller extends wc_controller {
 	private function ajax_delete() {
 		$data = $this->input->post('delete_id');
 		if ($data) {
-			$this->usergroup_model->deleteGroup($data);
+			$new_data = array();
+			foreach ($data as $d) {
+				$new_data[] = base64_decode($d);
+			}
+			$this->usergroup_model->deleteGroup($new_data);
 		}
 	}
 
