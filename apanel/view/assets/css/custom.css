@@ -1,5 +1,5 @@
-.skin-red .main-header .navbar, .navbar-static-top #navbar-collapse .nav.navbar-nav > li.active > a {
-	background-color: #235088;
+.skin-red .main-header .navbar, .navbar-static-top #navbar-collapse .nav.navbar-nav > li.active > a, .main-header li.user-header {
+	background-color: #235088 !important;
 }
 @media (min-width:768px) {
 	.navbar-static-top #navbar-collapse {
