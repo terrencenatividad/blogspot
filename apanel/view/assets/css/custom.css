@@ -1,10 +1,10 @@
-.skin-red .main-header .navbar {
-	background-color: #d50505;
+.skin-red .main-header .navbar, .navbar-static-top #navbar-collapse .nav.navbar-nav > li.active > a {
+	background-color: #235088;
 }
 @media (min-width:768px) {
 	.navbar-static-top #navbar-collapse {
 		width: 100%;
-		background-color: darkred;
+		background-color: #2a3132;
 		position: absolute;
 		top: 50px;
 		left: 0;
@@ -19,7 +19,6 @@
 		padding: 8px 20px 7px;
 	}
 	.navbar-static-top #navbar-collapse .nav.navbar-nav > li.active > a {
-		background-color: #D50505;
 		border-radius: 0 0 7px 7px;
 		padding: 8px 20px 14px;
 		color: #fff;
