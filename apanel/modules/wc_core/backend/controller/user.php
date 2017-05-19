@@ -98,11 +98,24 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->firstname . ' ' . $row->lastname . '</td>';
 			$table .= '<td>' . $row->email . '</td>';
 			$table .= '<td>' . $row->groupname . '</td>';
-			$table .= '<td>' . $row->stat . '</td>';
+			$table .= '<td>' . $this->colorStat($row->stat) . '</td>';
 			$table .= '</tr>';
 		}
 		$pagination->table = $table;
 		return $pagination;
+	}
+
+	private function colorStat($stat) {
+		$color = 'default';
+		switch ($stat) {
+			case 'active':
+				$color = 'success';
+				break;
+			case 'inactive':
+				$color = 'warning';
+				break;
+		}
+		return '<span class="label label-' . $color . '">' . strtoupper($stat) . '</span>';
 	}
 
 	private function ajax_create() {
