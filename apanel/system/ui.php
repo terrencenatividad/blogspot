@@ -265,7 +265,7 @@ class ui {
 			$this->class[] = 'form-control';
 			$this->attribute['class'] = implode(' ', $this->class);
 			$attributes = $this->getAttributes();
-			$placeholder = (isset($this->attribute['data-placeholder'])) ? '<option></option>' : '';
+			$placeholder = (isset($this->attribute['data-placeholder']) && ! in_array('multiple', $this->attribute)) ? '<option></option>' : '';
 			if ($this->none) {
 				$this->list = array_merge(array((object) array('ind' => 'none', 'val' => $this->none)), $this->list);
 			}

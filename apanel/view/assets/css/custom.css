@@ -32,6 +32,15 @@
 		padding-top: 50px;
 	}
 }
+/*bootstrap-select*/
+.bootstrap-select button {
+	background: none !important;
+	border-radius: 0;
+	box-shadow: unset !important;
+}
+.bootstrap-select .dropdown-menu {
+	border-radius: 0;
+}
 .footer-padding {
 	height: 50px;
 }

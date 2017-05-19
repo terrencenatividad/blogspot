@@ -1,7 +1,11 @@
 function drawTemplate() {
-	$('select').select2({
+	$('select:not([multiple])').select2({
 		width: '100%',
 		containerCssClass: ':all:',
+	});
+	$('select[multiple]').selectpicker({
+		container: '.content-wrapper',
+		selectedTextFormat: 'count'
 	});
 	$('input[type="checkbox"], *:not(.btn) > input[type="radio"]').iCheck({
 		checkboxClass: 'icheckbox_square-blue',
@@ -26,7 +30,6 @@ function linkDeleteMultipleToTable(delete_multiple, table) {
 		countChecked();
 	});
 }
-
 $('.datepicker-input').datepicker({
 	format: 'M d, yyyy',
 	autoclose: true
