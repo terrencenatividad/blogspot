@@ -153,8 +153,12 @@
 				<?php echo $page_subtitle ?>
 			</h1>
 			<ol class="breadcrumb">
-				<li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-				<li><a href="#">Examples</a></li>
-				<li class="active">Blank page</li>
+				<li><a href="<?php echo BASE_URL ?>"><i class="fa fa-dashboard"></i> Home</a></li>
+				<?php if (defined('MODULE_NAME')): ?>
+				<li><a href="<?php echo MODULE_URL ?>"><?php echo MODULE_GROUP ?></a></li>
+				<li class="active"><?php echo MODULE_NAME ?></li>
+				<?php else: ?>
+				<li class="active">Dashboard</li>
+				<?php endif ?>
 			</ol>
 		</section>

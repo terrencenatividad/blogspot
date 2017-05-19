@@ -39,7 +39,7 @@ class backend {
 		define('NAME', $name);
 	}
 
-	public function getAccess($module_name, $default_function) {
+	public function getAccess($module_name, $module_group, $default_function) {
 		$db		= new db();
 		$url	= new url();
 		$function = ($this->getPage()) ? $this->getPage() : $default_function;
@@ -88,6 +88,7 @@ class backend {
 		}
 		if (isset($type)) {
 			define('MODULE_NAME', $module_name);
+			define('MODULE_GROUP', $module_group);
 			define('MODULE_TASK', $type);
 		}
 
@@ -113,14 +114,14 @@ class backend {
 			define('MODULE_URL', BASE_URL . 'login');
 		} else if (SUB_FOLDER != '') {
 			$paths = $db->setTable('wc_modules')
-						->setFields('module_name, module_link, folder, file, default_function', 'wc_modules')
+						->setFields('module_name, module_group, module_link, folder, file, default_function', 'wc_modules')
 						->setWhere("'" . SUB_FOLDER . "/' LIKE module_link AND active")
 						->runSelect(false)
 						->getRow();
 			
 			if ($paths) {
 				$this->module_link = $paths->module_link;
-				$this->getAccess($paths->module_name, $paths->default_function);
+				$this->getAccess($paths->module_name, $paths->module_group, $paths->default_function);
 				$this->module_folder = $paths->folder;
 				$this->module_file = $paths->file;
 				$link_args = explode('/', rtrim($paths->module_link, '/'));
