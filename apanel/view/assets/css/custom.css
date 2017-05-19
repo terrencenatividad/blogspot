@@ -167,6 +167,14 @@ script + .wrapper > .content-wrapper {
 	padding: 5px 5px 4px 5px;
 	min-height: 34px;
 }
+.btn-checkbox.btn-sm {
+	padding: 3px 3px 3px 3px;
+	min-height: 30px;
+}
+.btn-checkbox .icheckbox_square-blue:not(.checked) {
+	background-color: white;
+}
+
 
 
 .asterisk {

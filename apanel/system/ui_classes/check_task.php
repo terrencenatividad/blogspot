@@ -52,13 +52,13 @@ class check_task {
 			$check_task .= '<div class="btn-group">';
 			if ($this->checkbox) {
 				$check_task .= '
-								<label type="button" class="btn btn-default btn-flat btn-checkbox">
+								<label type="button" class="btn btn-default btn-flat btn-sm btn-checkbox">
 									<input type="checkbox" class="checkbox item_checkbox" value="' . $this->value . '">
 								</label>';
 			}
 			if ($dropdown) {
 				$check_task .= '
-					<button type="button" class="btn btn-default btn-flat dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<button type="button" class="btn btn-default btn-flat btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<span class="caret"></span>
 						<span class="sr-only">Toggle Dropdown</span>
 					</button>
