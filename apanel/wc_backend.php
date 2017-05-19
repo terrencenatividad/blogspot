@@ -110,6 +110,7 @@ class backend {
 			$this->module_folder = 'wc_core';
 			$this->module_file = 'login';
 			$this->module_function = 'index';
+			define('MODULE_URL', BASE_URL . 'login');
 		} else if (SUB_FOLDER != '') {
 			$paths = $db->setTable('wc_modules')
 						->setFields('module_name, module_link, folder, file, default_function', 'wc_modules')
