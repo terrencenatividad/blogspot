@@ -193,9 +193,16 @@ script + .wrapper > .content-wrapper {
 .table td .btn-group.check_task.full_task {
 	width: 55px;
 }
-	
+/*Helper*/
+.mb-none {
+	margin-bottom: 0;
+}
+.mt-none {
+	margin-top: 0;
+}
 
 
+/**/
 .asterisk {
     font-weight: bold;
     font-size: 9pt;
