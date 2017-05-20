@@ -1,6 +1,8 @@
 <?php
 class log extends db {
 
+	private $data = '';
+
 	public function __construct() {
 		parent::__construct();
 		$ipaddress = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? end(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])) : (isset($_SERVER['REMOTE_ADDR'])? $_SERVER['REMOTE_ADDR'] : (isset($_SERVER['HTTP_CLIENT_IP']) ? $_SERVER['HTTP_CLIENT_IP'] : '-'));
@@ -18,6 +20,12 @@ class log extends db {
 	}
 
 	public function saveActivity($activity) {
+		if ($activity == 'Login') {$
+			$session		= new session();
+			$login			= $session->get('login');
+			$companycode	= (isset($login['companycode']))	? $login['companycode']	: '';
+			$username		= (isset($login['username']))		? $login['username']	: '';
+		}
 		$this->data['activitydone'] = $activity;
 		return $this->setTable('wc_admin_logs')
 					->setValues($this->data)
