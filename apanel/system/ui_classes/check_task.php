@@ -48,9 +48,9 @@ class check_task {
 		$dropdown_top		= ($this->edit || $this->view || $this->print);
 		$dropdown_addon		= (count($this->addon));
 		$dropdown			= ($dropdown_top || $this->delete || $dropdown_addon);
-		$check_task_class	= ($this->checkbox && $dropdown) ? 'check_task' : '';
+		$check_class	= ($this->checkbox && $dropdown) ? 'full_task' : '';
 		if ($this->checkbox || $dropdown) {
-			$check_task .= '<div class="btn-group ' . $check_task_class . '">';
+			$check_task .= '<div class="btn-group check_task ' . $check_class . '">';
 			if ($this->checkbox) {
 				$check_task .= '
 								<label type="button" class="btn btn-default btn-flat btn-sm btn-checkbox">
