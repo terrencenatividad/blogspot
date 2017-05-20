@@ -23,10 +23,10 @@
 				</div>
 			</div>
 			<div class="box-body table-responsive no-padding">
-				<table id="tableList" class="table table-hover">
+				<table id="tableList" class="table table-hover table-sidepad">
 					<thead>
 						<tr class="info">
-							<th class="text-center" style="width: 100px"><input type="checkbox" class="checkall"></th>
+							<th class="text-center" style="width: 15px"><input type="checkbox" class="checkall"></th>
 							<th>Username</th>
 							<th>Name</th>
 							<th>E-mail Address</th>
