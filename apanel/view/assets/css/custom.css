@@ -174,7 +174,9 @@ script + .wrapper > .content-wrapper {
 .btn-checkbox .icheckbox_square-blue:not(.checked) {
 	background-color: white;
 }
-
+.list-group:last-of-type {
+	margin-bottom: 0;
+}
 
 
 .asterisk {
