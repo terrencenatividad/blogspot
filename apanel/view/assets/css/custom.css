@@ -193,6 +193,9 @@ script + .wrapper > .content-wrapper {
 .table td .btn-group.check_task.full_task {
 	width: 55px;
 }
+.check_task .btn-default {
+	background: none;
+}
 /*Helper*/
 .mb-none {
 	margin-bottom: 0;
