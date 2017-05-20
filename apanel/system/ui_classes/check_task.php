@@ -44,12 +44,13 @@ class check_task {
 	}
 
 	public function draw() {
-		$check_task = '';
-		$dropdown_top = ($this->edit || $this->view || $this->print);
-		$dropdown_addon = (count($this->addon));
-		$dropdown = ($dropdown_top || $this->delete || $dropdown_addon);
-		if ($this->checkbox || $dropdown > 0) {
-			$check_task .= '<div class="btn-group check_task">';
+		$check_task			= '';
+		$dropdown_top		= ($this->edit || $this->view || $this->print);
+		$dropdown_addon		= (count($this->addon));
+		$dropdown			= ($dropdown_top || $this->delete || $dropdown_addon);
+		$check_task_class	= ($this->checkbox && $dropdown) ? 'check_task' : '';
+		if ($this->checkbox || $dropdown) {
+			$check_task .= '<div class="btn-group ' . $check_task_class . '">';
 			if ($this->checkbox) {
 				$check_task .= '
 								<label type="button" class="btn btn-default btn-flat btn-sm btn-checkbox">
