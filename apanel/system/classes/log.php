@@ -20,7 +20,7 @@ class log extends db {
 	}
 
 	public function saveActivity($activity) {
-		if ($activity == 'Login') {$
+		if ($activity == 'Login') {
 			$session		= new session();
 			$login			= $session->get('login');
 			$companycode	= (isset($login['companycode']))	? $login['companycode']	: '';
