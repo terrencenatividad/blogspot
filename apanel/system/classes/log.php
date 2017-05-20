@@ -21,10 +21,10 @@ class log extends db {
 
 	public function saveActivity($activity) {
 		if ($activity == 'Login') {
-			$session		= new session();
-			$login			= $session->get('login');
-			$companycode	= (isset($login['companycode']))	? $login['companycode']	: '';
-			$username		= (isset($login['username']))		? $login['username']	: '';
+			$session					= new session();
+			$login						= $session->get('login');
+			$this->data['companycode']	= (isset($login['companycode']))	? $login['companycode']	: '';
+			$this->data['username']		= (isset($login['username']))		? $login['username']	: '';
 		}
 		$this->data['activitydone'] = $activity;
 		return $this->setTable('wc_admin_logs')
