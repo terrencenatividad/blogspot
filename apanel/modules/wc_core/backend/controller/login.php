@@ -7,6 +7,7 @@ class controller extends wc_controller {
 		$login_model		= new login();
 		$url				= new url();
 		$session			= new session();
+		$log				= new log();
 		$data = array('error_msg' => '');
 		$data = $input->post(array(
 			'username',
@@ -22,6 +23,7 @@ class controller extends wc_controller {
 			$result = $login_model->getUserAccess($username, $password);
 			if ($result) {
 				$session->set('login', $result);
+				$log->saveActivity('Logged In');
 				$url->redirect(FULL_URL);
 			} else {
 				$data['error_msg'] = 'Invalid Username or Password';
