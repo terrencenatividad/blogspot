@@ -177,7 +177,10 @@ script + .wrapper > .content-wrapper {
 .list-group:last-of-type {
 	margin-bottom: 0;
 }
-
+.table td .btn-group.check_task {
+	margin-top: -9px;
+	margin-bottom: -6px;
+}
 
 .asterisk {
     font-weight: bold;
