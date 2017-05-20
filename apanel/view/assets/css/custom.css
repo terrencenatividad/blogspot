@@ -26,6 +26,12 @@
 	.fixed .content-wrapper, .fixed .right-side {
 		padding-top: 100px;
 	}
+	.table.table-sidepad > tbody > tr > td:first-child {
+		padding-left: 25px;
+	}
+	.table.table-sidepad > tbody > tr > td:last-child {
+		padding-right: 25px;
+	}
 }
 @media (max-width:768px) {
 	.fixed .content-wrapper, .fixed .right-side {
@@ -182,7 +188,6 @@ script + .wrapper > .content-wrapper {
 	margin-bottom: -6px;
 	width: 55px;
 }
-
 
 
 .asterisk {
