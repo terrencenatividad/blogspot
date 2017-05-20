@@ -6,21 +6,21 @@ class check_task {
 	}
 
 	public function addView($show = '') {
-		$this->view = ($show === '') ? MOD_VIEW : $show;
+		$this->view = ($show === '') ? MOD_VIEW : (MOD_VIEW && $show);
 		return $this;
 	}
 
 	public function addEdit($show = '') {
-		$this->edit = ($show === '') ? MOD_EDIT : $show;
+		$this->edit = ($show === '') ? MOD_EDIT : (MOD_EDIT && $show);
 		return $this;
 	}
 	public function addPrint($show = '') {
-		$this->print = ($show === '') ? MOD_PRINT : $show;
+		$this->print = ($show === '') ? MOD_PRINT : (MOD_PRINT && $show);
 		return $this;
 	}
 
 	public function addDelete($show = '') {
-		$this->delete = ($show === '') ? MOD_DELETE : $show;
+		$this->delete = ($show === '') ? MOD_DELETE : (MOD_DELETE && $show);
 		return $this;
 	}
 
