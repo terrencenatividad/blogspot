@@ -180,7 +180,10 @@ script + .wrapper > .content-wrapper {
 .table td .btn-group.check_task {
 	margin-top: -9px;
 	margin-bottom: -6px;
+	width: 55px;
 }
+
+
 
 .asterisk {
     font-weight: bold;
