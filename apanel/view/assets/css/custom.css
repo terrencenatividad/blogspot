@@ -32,6 +32,9 @@
 	.table.table-sidepad > tbody > tr > td:last-child, .table.table-sidepad > thead > tr > th:last-child {
 		padding-right: 25px;
 	}
+	.table.table-sidepad td .btn-group.check_task, .table.table-sidepad th .icheckbox_square-blue {
+		margin-right: 25px;
+	}
 }
 @media (max-width:768px) {
 	.fixed .content-wrapper, .fixed .right-side {
