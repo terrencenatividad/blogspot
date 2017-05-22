@@ -24,8 +24,8 @@ class check_task {
 		return $this;
 	}
 
-	public function addCheckbox() {
-		$this->checkbox = true;
+	public function addCheckbox($show = true) {
+		$this->checkbox = $show;
 		return $this;
 	}
 
