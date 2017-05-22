@@ -3,6 +3,7 @@ class wc_controller {
 
 	public function __construct() {
 		$this->view = new wc_view();
+		$this->date = new date();
 	}
 
 	public function checkOutModel($model) {
