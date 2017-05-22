@@ -12,12 +12,12 @@ class date {
 	}
 
 	public function dateFormat($date = '') {
-		$date = $this->convertDate($date, 'M j, Y');
+		$date = $this->convertDate($date, 'M d, Y');
 		return $date;
 	}
 
 	public function datetimeFormat($date = '') {
-		$date = $this->convertDate($date, 'M j, Y h:i:s A');
+		$date = $this->convertDate($date, 'M d, Y h:i:s A');
 		return $date;
 	}
 
