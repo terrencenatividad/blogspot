@@ -51,10 +51,11 @@ class check_task {
 		$check_class	= ($this->checkbox && $dropdown) ? 'full_task' : '';
 		if ($this->checkbox || $dropdown) {
 			$check_task .= '<div class="btn-group check_task ' . $check_class . '">';
-			if ($this->checkbox) {
+			if ($this->checkbox !== '') {
+				$check_disabled = ($this->checkbox) ? '' : ' diabled';
 				$check_task .= '
 								<label type="button" class="btn btn-default btn-flat btn-sm btn-checkbox">
-									<input type="checkbox" class="checkbox item_checkbox" value="' . $this->value . '">
+									<input type="checkbox" class="checkbox item_checkbox" value="' . $this->value . '"' . $check_disabled . '>
 								</label>';
 			}
 			if ($dropdown) {
@@ -92,7 +93,7 @@ class check_task {
 	}
 
 	private function reset() {
-		$this->checkbox			= false;
+		$this->checkbox			= '';
 		$this->value			= '';
 		$this->edit				= false;
 		$this->view				= false;
