@@ -90,7 +90,7 @@
 			});
 		}
 		$(function() {
-			linkDeleteMultipleToTable('#item_multiple_delete', '#tableList');
+			linkButtonToTable('#item_multiple_delete', '#tableList', 'Delete');
 			linkDeleteToModal('#tableList .delete', 'ajaxCallback');
 			linkDeleteMultipleToModal('#item_multiple_delete', '#tableList', 'ajaxCallback');
 		});
