@@ -31,7 +31,7 @@ function linkButtonToTable(button, table) {
 	});
 }
 $('.datepicker-input').datepicker({
-	format: 'M d, yyyy',
+	format: 'M dd, yyyy',
 	autoclose: true
 });
 
