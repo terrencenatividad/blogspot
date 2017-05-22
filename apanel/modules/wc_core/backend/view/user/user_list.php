@@ -7,7 +7,7 @@
 							<div class="col-md-4">
 								<div class="form-group">
 									<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create User</a>
-									<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete</button>
+									<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete<span></span></button>
 								</div>
 							</div>
 						</div>
