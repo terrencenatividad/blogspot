@@ -13,13 +13,13 @@ function drawTemplate() {
 	});
 	$('[data-inputmask]').inputmask();
 }
-function linkDeleteMultipleToTable(delete_multiple, table) {
+function linkButtonToTable(button, table, caption) {
 	function countChecked () {
 		var count = $(table + ' tbody').find('[type="checkbox"]:checked').length;
 		if (count > 0) {
-			$(delete_multiple).html('Delete [' + count + ']').attr('disabled', false);
+			$(button).html(caption + ' [' + count + ']').attr('disabled', false);
 		} else {
-			$(delete_multiple).html('Delete').attr('disabled', true);
+			$(button).html(caption + '').attr('disabled', true);
 		}
 	}
 	countChecked();
