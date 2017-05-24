@@ -41,6 +41,10 @@
 		padding-top: 50px;
 	}
 }
+.navbar-brand.navbar-logo {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
 /*bootstrap-select*/
 .bootstrap-select button {
 	background: none !important;
