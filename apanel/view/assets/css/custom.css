@@ -45,6 +45,9 @@
 	padding-top: 10px;
 	padding-bottom: 10px;
 }
+.dropdown.user.user-menu .dropdown-menu {
+	box-shadow: 1px 1px 2px 1px #777;
+}
 /*bootstrap-select*/
 .bootstrap-select button {
 	background: none !important;
