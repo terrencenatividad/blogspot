@@ -187,6 +187,19 @@ $('body').on('blur', '[data-validation~="integer"]', function(e) {
 		$(this).val(decimal.toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
 	}
 });
+$('body').on('blur', '[data-max]', function(e) {
+	var max = parseFloat($(this).attr('data-max').replace(/\,\s/g,''));
+	var value = parseFloat($(this).val().replace(/\,\s/g,''));
+	if (value != '') {
+		if (max < value) {
+			value = max;
+		}
+		if (isNaN(value)) {
+			value = 0;
+		}
+		$(this).val(value.toFixed(0));
+	}
+});
 // /\
 // || Input Validations
 
