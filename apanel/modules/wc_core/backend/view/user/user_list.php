@@ -31,7 +31,7 @@
 							<th>Name</th>
 							<th>E-mail Address</th>
 							<th>Group Name</th>
-							<th>Status</th>
+							<th style="width: 15px;">Status</th>
 						</tr>
 					</thead>
 					<tbody>
