@@ -105,16 +105,18 @@ class backend {
 	}
 
 	public function getModulePath() {
+		$subfolders	= explode('/', SUB_FOLDER);
+		$subfolder	= $subfolders[0];
 		$this->getSession();
 		$db = new db();
-		if (SUB_FOLDER == 'login') {
+		if ($subfolder == 'login') {
 			$this->module_folder = 'wc_core';
 			$this->module_file = 'login';
 			$this->module_function = 'index';
 			define('MODULE_URL', BASE_URL . 'login');
 			define('MODULE_TASK', 'login');
 			define('MODULE_NAME', 'Login');
-		} else if (SUB_FOLDER != '') {
+		} else if ($subfolder != '' && $subfolder != 'ajax') {
 			$paths = $db->setTable('wc_modules')
 						->setFields('module_name, module_group, module_link, folder, file, default_function', 'wc_modules')
 						->setWhere("'" . SUB_FOLDER . "/' LIKE module_link AND active")
@@ -145,7 +147,9 @@ class backend {
 		} else {
 			$this->module_folder = 'home';
 			$this->module_file = 'home';
-			$this->module_function = 'index';
+			$this->module_function = ($subfolder == 'ajax') ? 'ajax' : 'index';
+			unset($subfolders[0]);
+			$this->args = $subfolders;
 			define('MODULE_URL', BASE_URL);
 		}
 		define('MODULE_PATH', 'modules/' . $this->module_folder);
