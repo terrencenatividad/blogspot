@@ -133,72 +133,121 @@
 		</div>
 	</section>
 	<script>
-		var revenue_expense = <?php echo $revenue_expense ?>;
-		var aging = <?php echo $aging ?>;
-		var sales_purchases = <?php echo $sales_purchases ?>;
+		var revenue_expense = '';
+		var aging = '';
+		var sales_purchases = '';
+		var shortMonth	= ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		var fullMonth	= ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+		$.post('<?php echo MODULE_URL ?>ajax/get_chart', function(data) {
+			revenue_expense = data.revenue_expense;
+			aging = data.aging;
+			sales_purchases = data.sales_purchases;
+			showChart();
+		});
 
 		$('#aging_nav').on('click', '[data-toggle="tab"]', function() {
 			var url = $(this).attr('data-url');
 			$('#report_aging').attr('href', url);
 		});
+		
+		function showChart() {
+			new Morris.Area({
+				behaveLikeLine: true,
+				gridTextSize: 10,
+				element: 'current_year',
+				data: revenue_expense['<?php echo date('Y') ?>'],
+				xkey: 'month',
+				ykeys: ['expense', 'revenue'],
+				labels: ['Expense', 'Revenue'],
+				hideHover: true,
+				xLabelFormat: function (x){
+					var month = shortMonth[new Date(x).getMonth()];
+					return month;
+				},
+				dateFormat: function (x) { 
+					var month = fullMonth[new Date(x).getMonth()];
+					return month;
+				}
+			});
+			$('.previous_year').one('click', function() {
+				setTimeout(function(){
+					new Morris.Area({
+						behaveLikeLine: true,
+						gridTextSize: 10,
+						element: 'previous_year',
+						data: revenue_expense['<?php echo date('Y') - 1 ?>'],
+						xkey: 'month',
+						ykeys: ['expense', 'revenue'],
+						labels: ['Expense', 'Revenue'],
+						hideHover: true,
+						xLabelFormat: function (x){
+							var month = shortMonth[new Date(x).getMonth()];
+							return month;
+						},
+						dateFormat: function (x) { 
+							var month = shortMonth[new Date(x).getMonth()];
+							return month;
+						}
+					});
+				}, 10);
+			});
+			new Morris.Donut({
+				element: 'accounts_payable',
+				data: aging.ap,
+				xkey: 'month',
+				ykeys: ['value'],
+				labels: ['Value'],
+				hideHover: true
+			});
+			$('.accounts_receivable').one('click', function() {
+				setTimeout(function(){
+					new Morris.Donut({
+						element: 'accounts_receivable',
+						data: aging.ar
+					});
+				}, 10);
+			});
 
-		new Morris.Line({
-			element: 'current_year',
-			data: revenue_expense['<?php echo date('Y') ?>'],
-			xkey: 'year',
-			ykeys: ['expense', 'revenue'],
-			labels: ['Expense', 'Revenue'],
-			hideHover: true
-		});
-		$('.previous_year').one('click', function() {
-			setTimeout(function(){
-				new Morris.Line({
-					element: 'previous_year',
-					data: revenue_expense['<?php echo date('Y') - 1 ?>'],
-					xkey: 'year',
-					ykeys: ['expense', 'revenue'],
-					labels: ['Expense', 'Revenue'],
-					hideHover: true
-				});
-			}, 10);
-		});
-		new Morris.Donut({
-			element: 'accounts_payable',
-			data: aging.ap,
-			xkey: 'year',
-			ykeys: ['value'],
-			labels: ['Value'],
-			hideHover: true
-		});
-		$('.accounts_receivable').one('click', function() {
-			setTimeout(function(){
-				new Morris.Donut({
-					element: 'accounts_receivable',
-					data: aging.ar
-				});
-			}, 10);
-		});
-
-		new Morris.Line({
-			element: 'sales',
-			data: sales_purchases.sales,
-			xkey: 'year',
-			ykeys: ['value'],
-			labels: ['Value'],
-			gridTextColor: '#efefef',
-			lineColors: ['#efefef'],
-			gridLineColor: ['#efefef'],
-			hideHover: true
-		});
-		new Morris.Line({
-			element: 'purchases',
-			data: sales_purchases.purchases,
-			xkey: 'year',
-			ykeys: ['value'],
-			labels: ['Value'],
-			gridTextColor: '#efefef',
-			lineColors: ['#efefef'],
-			gridLineColor: ['#efefef'],
-			hideHover: true
-		});
+			new Morris.Line({
+				gridTextSize: 10,
+				element: 'sales',
+				data: sales_purchases.sales,
+				xkey: 'month',
+				ykeys: ['value'],
+				labels: ['Value'],
+				gridTextColor: '#efefef',
+				lineColors: ['#efefef'],
+				gridLineColor: ['#efefef'],
+				hideHover: true,
+				xLabelFormat: function (x){
+					var month = shortMonth[new Date(x).getMonth()];
+					return month;
+				},
+				dateFormat: function (x) { 
+					var month = fullMonth[new Date(x).getMonth()];
+					return month;
+				}
+			});
+			new Morris.Line({
+				gridTextSize: 10,
+				element: 'purchases',
+				data: sales_purchases.purchases,
+				xkey: 'month',
+				ykeys: ['value'],
+				labels: ['Value'],
+				gridTextColor: '#efefef',
+				lineColors: ['#efefef'],
+				gridLineColor: ['#efefef'],
+				hideHover: true,
+				xLabelFormat: function (x){
+					var month = shortMonth[new Date(x).getMonth()];
+					return month;
+				},
+				dateFormat: function (x) { 
+					var month = fullMonth[new Date(x).getMonth()];
+					return month;
+				}
+			});
+		}
 	</script>

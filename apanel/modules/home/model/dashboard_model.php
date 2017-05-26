@@ -20,21 +20,35 @@ class dashboard_model extends wc_model {
 	public function getRevenuesAndExpenses() {
 		$rae = array(
 			'2017' => array(
-				array('year' => '2008', 'expense' => '20', 'revenue' => '40'),
-				array('year' => '2009', 'expense' => '10', 'revenue' => '40'),
-				array('year' => '2010', 'expense' => '51', 'revenue' => '44'),
-				array('year' => '2011', 'expense' => '59', 'revenue' => '45'),
-				array('year' => '2012', 'expense' => '20', 'revenue' => '46')
+				array('month' => '2017-01', 'expense' => '20', 'revenue' => '66'),
+				array('month' => '2017-02', 'expense' => '10', 'revenue' => '40'),
+				array('month' => '2017-03', 'expense' => '51', 'revenue' => '42'),
+				array('month' => '2017-04', 'expense' => '59', 'revenue' => '45'),
+				array('month' => '2017-05', 'expense' => '20', 'revenue' => '46'),
+				array('month' => '2017-06', 'expense' => '20', 'revenue' => '40'),
+				array('month' => '2017-07', 'expense' => '10', 'revenue' => '15'),
+				array('month' => '2017-08', 'expense' => '51', 'revenue' => '23'),
+				array('month' => '2017-09', 'expense' => '59', 'revenue' => '45'),
+				array('month' => '2017-10', 'expense' => '20', 'revenue' => '46'),
+				array('month' => '2017-11', 'expense' => '59', 'revenue' => '33'),
+				array('month' => '2017-12', 'expense' => '20', 'revenue' => '46')
 			),
 			'2016' => array(
-				array('year' => '2008', 'expense' => '25', 'revenue' => '40'),
-				array('year' => '2009', 'expense' => '15', 'revenue' => '22'),
-				array('year' => '2010', 'expense' => '22', 'revenue' => '55'),
-				array('year' => '2011', 'expense' => '44', 'revenue' => '11'),
-				array('year' => '2012', 'expense' => '20', 'revenue' => '22')
+				array('month' => '2016-01', 'expense' => '20', 'revenue' => '40'),
+				array('month' => '2016-02', 'expense' => '10', 'revenue' => '22'),
+				array('month' => '2016-03', 'expense' => '51', 'revenue' => '11'),
+				array('month' => '2016-04', 'expense' => '59', 'revenue' => '45'),
+				array('month' => '2016-05', 'expense' => '20', 'revenue' => '46'),
+				array('month' => '2016-06', 'expense' => '20', 'revenue' => '40'),
+				array('month' => '2016-07', 'expense' => '10', 'revenue' => '55'),
+				array('month' => '2016-08', 'expense' => '51', 'revenue' => '22'),
+				array('month' => '2016-09', 'expense' => '59', 'revenue' => '45'),
+				array('month' => '2016-10', 'expense' => '20', 'revenue' => '46'),
+				array('month' => '2016-11', 'expense' => '59', 'revenue' => '77'),
+				array('month' => '2016-12', 'expense' => '20', 'revenue' => '34')
 			)
 		);
-		return json_encode($rae);
+		return $rae;
 	}
 
 	public function getAging() {
@@ -50,27 +64,41 @@ class dashboard_model extends wc_model {
 				array('label' => '60 days over', 'value' => '512')
 			)
 		);
-		return json_encode($aging);
+		return $aging;
 	}
 
 	public function getSalesAndPurchases() {
 		$aging = array(
 			'sales' => array(
-				array('year' => '2008', 'value' => '20'),
-				array('year' => '2009', 'value' => '10'),
-				array('year' => '2010', 'value' => '5'),
-				array('year' => '2011', 'value' => '5'),
-				array('year' => '2012', 'value' => '20')
+				array('month' => '2017-01', 'value' => '40'),
+				array('month' => '2017-02', 'value' => '40'),
+				array('month' => '2017-03', 'value' => '44'),
+				array('month' => '2017-04', 'value' => '45'),
+				array('month' => '2017-05', 'value' => '46'),
+				array('month' => '2017-06', 'value' => '40'),
+				array('month' => '2017-07', 'value' => '40'),
+				array('month' => '2017-08', 'value' => '44'),
+				array('month' => '2017-09', 'value' => '45'),
+				array('month' => '2017-10', 'value' => '46'),
+				array('month' => '2017-11', 'value' => '45'),
+				array('month' => '2017-12', 'value' => '46')
 			),
 			'purchases' => array(
-				array('year' => '2008', 'value' => '220'),
-				array('year' => '2009', 'value' => '101'),
-				array('year' => '2010', 'value' => '151'),
-				array('year' => '2011', 'value' => '252'),
-				array('year' => '2012', 'value' => '214')
+				array('month' => '2017-01', 'value' => '40'),
+				array('month' => '2017-02', 'value' => '24'),
+				array('month' => '2017-03', 'value' => '44'),
+				array('month' => '2017-04', 'value' => '22'),
+				array('month' => '2017-05', 'value' => '46'),
+				array('month' => '2017-06', 'value' => '33'),
+				array('month' => '2017-07', 'value' => '40'),
+				array('month' => '2017-08', 'value' => '44'),
+				array('month' => '2017-09', 'value' => '53'),
+				array('month' => '2017-10', 'value' => '11'),
+				array('month' => '2017-11', 'value' => '45'),
+				array('month' => '2017-12', 'value' => '23')
 			)
 		);
-		return json_encode($aging);
+		return $aging;
 	}
 
 }
