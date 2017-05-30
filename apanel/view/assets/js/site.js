@@ -84,10 +84,12 @@ function getDeleteId(ids) {
 drawTemplate();
 $(document).ajaxStart(function() {
 	Pace.restart();
+	$('body').css('cursor', 'progress');
 }); 
 $(document).ajaxComplete(function() {
 	drawTemplate();
 	Pace.stop();
+	$('body').css('cursor', '');
 });
 
 // List Caret
