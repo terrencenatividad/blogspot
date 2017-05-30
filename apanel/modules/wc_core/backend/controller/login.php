@@ -13,9 +13,14 @@ class controller extends wc_controller {
 			'username',
 			'password'
 		));
+		$locktime = base64_decode($input->get('locktime'));
+		if ($locktime) {
+			$locktime = $this->date->datetimeFormat($locktime);
+		}
+		$data['locktime'] = $locktime;
 		if ($access->isApanelUser()) {
 			$redirect = base64_decode($input->get('redirect'));
-			$redirect = ( ! empty($redirect)) ? $redirect : BASE_URL;
+			$redirect = ( ! empty($redirect) && strpos($redirect, BASE_URL) !== false) ? $redirect : BASE_URL;
 			$url->redirect($redirect);
 		}
 		if ($input->isPost) {

@@ -30,6 +30,9 @@
 				<?php else: ?>
 					<p class="login-box-msg">Sign in to start your session</p>
 				<?php endif ?>
+				<?php if ( ! empty($locktime)): ?>
+					<p class="login-box-msg text-red">Login Locked Till: <?=$locktime?></p>
+				<?php endif ?>
 				<form action="" method="post">
 					<div class="form-group has-feedback">
 						<input type="text" name="username" class="form-control" placeholder="Username" value="<?php echo $username ?>">

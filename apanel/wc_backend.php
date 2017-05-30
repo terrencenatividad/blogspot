@@ -40,8 +40,8 @@ class backend {
 	}
 
 	public function getAccess($module_name, $module_group, $default_function) {
-		$db		= new db();
-		$url	= new url();
+		$db			= new db();
+		$url		= new url();
 		$function = ($this->getPage()) ? $this->getPage() : $default_function;
 
 		if ($this->checkAccessType(array('add', 'create', 'insert', 'save'), $function)) {
@@ -57,11 +57,11 @@ class backend {
 		} else if ($this->checkAccessType(array('print'), $function)) {
 			$type = 'mod_print';
 		}
-		$result = $db->setTable('wc_module_access')
-					->setFields('mod_add, mod_view, mod_edit, mod_delete, mod_list, mod_print')
-					->setWhere("groupname = '" . GROUPNAME . "' AND module_name = '$module_name'")
-					->runSelect()
-					->getRow();
+		$result		= $db->setTable('wc_module_access')
+							->setFields('mod_add, mod_view, mod_edit, mod_delete, mod_list, mod_print')
+							->setWhere("groupname = '" . GROUPNAME . "' AND module_name = '$module_name'")
+							->runSelect()
+							->getRow();
 
 		if ( ! isset($type)) {
 			if (DEBUGGING) {
@@ -108,7 +108,31 @@ class backend {
 		$subfolders	= explode('/', SUB_FOLDER);
 		$subfolder	= $subfolders[0];
 		$this->getSession();
-		$db = new db();
+		$db			= new db();
+		$url		= new url();
+		$session	= new session();
+		$input		= new input();
+
+
+		$locktime = $db->setTable('wc_users')
+						->setFields('locktime')
+						->setWhere("username = '" . USERNAME . "' AND locktime >= NOW()")
+						->setLimit(1)
+						->runSelect()
+						->getRow();
+
+		if ($locktime && $subfolder != 'login') {
+			if ($input->isPost) {
+				header('Content-type: application/json');
+				echo json_encode(array('locked' => true, 'lockedtlocktimeime' => $locktime->locktime));
+				exit();
+			} else {
+				$session->clean('login');
+				$redirect = (BASE_URL == FULL_URL) ? '' : '&redirect=' . base64_encode(FULL_URL);
+				$url->redirect(BASE_URL . 'login?locktime=' . base64_encode($locktime->locktime) . $redirect);
+			}
+		}
+
 		if ($subfolder == 'login') {
 			$this->module_folder = 'wc_core';
 			$this->module_file = 'login';
