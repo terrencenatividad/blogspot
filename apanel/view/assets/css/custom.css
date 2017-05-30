@@ -108,7 +108,7 @@ ul.nav.nav-tabs + table, ul.nav.nav-tabs + .tab-content, ul.nav.nav-tabs + .tabl
 	margin-top: 1px;
 }
 .navbar .dropdown-menu {
-	max-height: 500px;
+	max-height: 325px;
 	overflow-x: hidden;
 	overflow-y: auto;
 }
