@@ -1,7 +1,7 @@
 
 	<section class="content">
 		<div class="row">
-			<div class="col-md-3">
+			<div class="col-md-3 col-sm-6">
 				<div class="small-box bg-aqua">
 					<div class="inner">
 						<h3><?php echo $invoices ?></h3>
@@ -11,16 +11,16 @@
 						<i class="glyphicon glyphicon-shopping-cart"></i>
 					</div>
 					<div class="row">
-						<div class="col-md-5">
+						<div class="col-xs-5">
 							<a href="<?php echo BASE_URL ?>sales/sales_invoice/" class="small-box-footer">View List <i class="fa fa-arrow-circle-right"></i></a>
 						</div>
-						<div class="col-md-7">
-							<a href="<?php echo BASE_URL ?>sales/sales_invoice/create" class="small-box-footer">Create New Invoice <i class="fa fa-plus-circle"></i></a>
+						<div class="col-xs-7">
+							<a href="<?php echo BASE_URL ?>sales/sales_invoice/create" class="small-box-footer"><span class="hidden-md">Create </span>New Invoice <i class="fa fa-plus-circle"></i></a>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-3 col-sm-6">
 				<div class="small-box bg-yellow">
 					<div class="inner">
 						<h3><?php echo $purchases ?></h3>
@@ -30,16 +30,16 @@
 						<i class="glyphicon glyphicon-tags"></i>
 					</div>
 					<div class="row">
-						<div class="col-md-5">
+						<div class="col-xs-5">
 							<a href="<?php echo BASE_URL ?>purchase/purchase_receipt/" class="small-box-footer">View List <i class="fa fa-arrow-circle-right"></i></a>
 						</div>
-						<div class="col-md-7">
-							<a href="<?php echo BASE_URL ?>purchase/purchase_receipt/create" class="small-box-footer">Create New Purchase <i class="fa fa-plus-circle"></i></a>
+						<div class="col-xs-7">
+							<a href="<?php echo BASE_URL ?>purchase/purchase_receipt/create" class="small-box-footer"><span class="hidden-md">Create </span>New Purchase <i class="fa fa-plus-circle"></i></a>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-3 col-sm-6">
 				<div class="small-box bg-green">
 					<div class="inner">
 						<h3><?php echo $billings ?></h3>
@@ -49,16 +49,16 @@
 						<i class="glyphicon glyphicon-calendar"></i>
 					</div>
 					<div class="row">
-						<div class="col-md-5">
+						<div class="col-xs-5">
 							<a href="<?php echo BASE_URL ?>billing/" class="small-box-footer">View List <i class="fa fa-arrow-circle-right"></i></a>
 						</div>
-						<div class="col-md-7">
-							<a href="<?php echo BASE_URL ?>billing/create" class="small-box-footer">Create New Bill <i class="fa fa-plus-circle"></i></a>
+						<div class="col-xs-7">
+							<a href="<?php echo BASE_URL ?>billing/create" class="small-box-footer"><span class="hidden-md">Create </span>New Bill <i class="fa fa-plus-circle"></i></a>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-3 col-sm-6">
 				<div class="small-box bg-red">
 					<div class="inner">
 						<h3><?php echo $journalvouchers ?></h3>
@@ -68,11 +68,11 @@
 						<i class="glyphicon glyphicon-briefcase"></i>
 					</div>
 					<div class="row">
-						<div class="col-md-5">
+						<div class="col-xs-5">
 							<a href="<?php echo BASE_URL ?>financials/journal_voucher/" class="small-box-footer">View List <i class="fa fa-arrow-circle-right"></i></a>
 						</div>
-						<div class="col-md-7">
-							<a href="<?php echo BASE_URL ?>financials/journal_voucher/create" class="small-box-footer">Create New Journal <i class="fa fa-plus-circle"></i></a>
+						<div class="col-xs-7">
+							<a href="<?php echo BASE_URL ?>financials/journal_voucher/create" class="small-box-footer"><span class="hidden-md">Create </span>New Journal <i class="fa fa-plus-circle"></i></a>
 						</div>
 					</div>
 				</div>
