@@ -18,6 +18,8 @@ class db {
 	private $error			= '';
 	private $insert_select	= '';
 	private $insert_id		= '';
+	private $errorno		= '';
+	private $error_allowed	= array();
 
 	// Pagination
 	private $page			= 0;
@@ -34,6 +36,7 @@ class db {
 		$this->datetime			= date('Y-m-d H:i:s');
 		$this->username			= USERNAME;
 		$this->updateprogram	= '';
+		$this->error_allowed	= array('1062', '1451');
 		if (defined('MODULE_NAME') && defined('MODULE_TASK')) {
 			$this->updateprogram	= MODULE_NAME . '|' . MODULE_TASK;
 		}
@@ -280,7 +283,8 @@ class db {
 		$this->cleanProperties();
 		if ($this->query) {
 			$this->result = $this->conn->query($this->query);
-			if ($this->conn->error && $this->conn->errno != 1062) {
+			$this->errorno = $this->conn->errno;
+			if ($this->conn->error && ! in_array($this->conn->errno, $this->error_allowed)) {
 				$this->showError($this->conn->error);
 			}
 			$this->insert_id = $this->conn->insert_id;
@@ -293,7 +297,8 @@ class db {
 		$this->cleanProperties();
 		if ($this->query) {
 			$this->result = $this->conn->query($this->query);
-			if ($this->conn->error && $this->conn->errno != 1062) {
+			$this->errorno = $this->conn->errno;
+			if ($this->conn->error && ! in_array($this->conn->errno, $this->error_allowed)) {
 				$this->showError($this->conn->error);
 			}
 		}
@@ -305,7 +310,9 @@ class db {
 		$this->cleanProperties();
 		if ($this->query) {
 			$this->result = $this->conn->query($this->query);
-			if ($this->conn->error) {
+			$this->errorno = $this->conn->errno;
+			if ($this->conn->error && ! in_array($this->conn->errno, $this->error_allowed)) {
+				var_dump($this->conn->errno);
 				$this->showError($this->conn->error);
 			}
 		}
@@ -340,6 +347,21 @@ class db {
 		return $this->insert_id;
 	}
 
+	public function getError() {
+		switch ($this->errorno) {
+			case '1062':
+				$error = 'duplicate';
+				break;
+			case '1451':
+				$error = 'locked';
+				break;
+			default:
+				$error = '';
+		}
+
+		return $error;
+	}
+
 	public function setProperties($properties) {
 		$temp = array();
 		if (is_array($properties)) {
@@ -368,6 +390,7 @@ class db {
 		$this->error			= '';
 		$this->insert_select	= '';
 		$this->insert_id		= '';
+		$this->errorno			= '';
 	}
 
 	// --------------------Addons---------------------------- //
