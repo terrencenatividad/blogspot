@@ -1,57 +1,99 @@
 <?php
 class dashboard_model extends wc_model {
 
+	public function __construct() {
+		parent::__construct();
+		$this->year					= date('Y');
+		$this->current_month_query	= $this->getMonthly();
+		$this->previous_month_query	= $this->getMonthly(1);
+	}
+
+	private function getMonthly($y = 0) {
+		$months	= array();
+		$year	= $this->year - $y;
+		for ($x = 1; $x <= 12; $x++) {
+			$months[] = "SELECT '$x' month, '$year' year, '" . COMPANYCODE . "' companycode";
+		}
+
+		return implode(' UNION ALL ', $months);
+	}
+
 	public function getInvoices() {
-		return '54';
+		$result = $this->db->setTable('salesinvoice')
+							->setFields('COUNT(companycode) quantity')
+							->setWhere("stat NOT IN ('cancelled', 'temporary') AND fiscalyear = '{$this->year}'")
+							->runSelect()
+							->getRow();
+		
+		$count = ($result) ? $result->quantity : 0;
+
+		return $count;
 	}
 
 	public function getPurchases() {
-		return '80';
+		$result = $this->db->setTable('purchasereceipt')
+							->setFields('COUNT(companycode) quantity')
+							->setWhere("stat NOT IN ('cancelled', 'temporary') AND fiscalyear = '{$this->year}'")
+							->runSelect()
+							->getRow();
+		
+		$count = ($result) ? $result->quantity : 0;
+
+		return $count;
 	}
 
 	public function getBillings() {
-		return '30';
+		$result = $this->db->setTable('salesinvoice')
+							->setFields('COUNT(companycode) quantity')
+							->setWhere("stat NOT IN ('cancelled', 'temporary') AND fiscalyear = '{$this->year}'")
+							->runSelect()
+							->getRow();
+		
+		$count = ($result) ? $result->quantity : 0;
+
+		return $count;
 	}
 
 	public function getJournalVouchers() {
-		return '34';
+		$result = $this->db->setTable('journalvoucher')
+							->setFields('COUNT(companycode) quantity')
+							->setWhere("stat = 'posted' AND transtype = 'JV' AND fiscalyear = '{$this->year}'")
+							->runSelect()
+							->getRow();
+		
+		$count = ($result) ? $result->quantity : 0;
+
+		return $count;
 	}
 
 	public function getRevenuesAndExpenses() {
+		$current	= $this->db->setTable("({$this->current_month_query}) m")
+								->leftJoin("salesinvoice si ON si.period = m.month AND si.companycode = m.companycode AND si.fiscalyear = m.year AND si.stat NOT IN ('temporary', 'cancelled')")
+								->leftJoin("purchaseorder po ON po.period = m.month AND po.companycode = m.companycode AND po.fiscalyear = m.year AND po.stat NOT IN ('temporary', 'cancelled')")
+								->setFields("IFNULL(SUM(si.amount), 0) revenue, IFNULL(SUM(po.amount), 0) expense, CONCAT(m.year, '-', m.month) month")
+								->setGroupBy('m.month')
+								->runSelect()
+								->getResult();
+
+		$previous	= $this->db->setTable("({$this->previous_month_query}) m")
+								->leftJoin("salesinvoice si ON si.period = m.month AND si.companycode = m.companycode AND si.fiscalyear = m.year AND si.stat NOT IN ('temporary', 'cancelled')")
+								->leftJoin("purchaseorder po ON po.period = m.month AND po.companycode = m.companycode AND po.fiscalyear = m.year AND po.stat NOT IN ('temporary', 'cancelled')")
+								->setFields("IFNULL(SUM(si.amount), 0) revenue, IFNULL(SUM(po.amount), 0) expense, CONCAT(m.year, '-', m.month) month")
+								->setGroupBy('m.month')
+								->runSelect()
+								->getResult();
+
 		$rae = array(
-			'2017' => array(
-				array('month' => '2017-01', 'expense' => '20', 'revenue' => '66'),
-				array('month' => '2017-02', 'expense' => '10', 'revenue' => '40'),
-				array('month' => '2017-03', 'expense' => '51', 'revenue' => '42'),
-				array('month' => '2017-04', 'expense' => '59', 'revenue' => '45'),
-				array('month' => '2017-05', 'expense' => '20', 'revenue' => '46'),
-				array('month' => '2017-06', 'expense' => '20', 'revenue' => '40'),
-				array('month' => '2017-07', 'expense' => '10', 'revenue' => '15'),
-				array('month' => '2017-08', 'expense' => '51', 'revenue' => '23'),
-				array('month' => '2017-09', 'expense' => '59', 'revenue' => '45'),
-				array('month' => '2017-10', 'expense' => '20', 'revenue' => '46'),
-				array('month' => '2017-11', 'expense' => '59', 'revenue' => '33'),
-				array('month' => '2017-12', 'expense' => '20', 'revenue' => '46')
-			),
-			'2016' => array(
-				array('month' => '2016-01', 'expense' => '20', 'revenue' => '40'),
-				array('month' => '2016-02', 'expense' => '10', 'revenue' => '22'),
-				array('month' => '2016-03', 'expense' => '51', 'revenue' => '11'),
-				array('month' => '2016-04', 'expense' => '59', 'revenue' => '45'),
-				array('month' => '2016-05', 'expense' => '20', 'revenue' => '46'),
-				array('month' => '2016-06', 'expense' => '20', 'revenue' => '40'),
-				array('month' => '2016-07', 'expense' => '10', 'revenue' => '55'),
-				array('month' => '2016-08', 'expense' => '51', 'revenue' => '22'),
-				array('month' => '2016-09', 'expense' => '59', 'revenue' => '45'),
-				array('month' => '2016-10', 'expense' => '20', 'revenue' => '46'),
-				array('month' => '2016-11', 'expense' => '59', 'revenue' => '77'),
-				array('month' => '2016-12', 'expense' => '20', 'revenue' => '34')
-			)
+			'current'	=> $current,
+			'previous'	=> $previous
 		);
 		return $rae;
 	}
 
 	public function getAging() {
+		$ap = $this->db->setTable('accountspayable')
+						->setFields('amount');
+
 		$aging = array(
 			'ap' => array(
 				array('label' => '1 to 30 days', 'value' => '20000'),
@@ -68,35 +110,23 @@ class dashboard_model extends wc_model {
 	}
 
 	public function getSalesAndPurchases() {
+		$sales		= $this->db->setTable("({$this->current_month_query}) m")
+								->leftJoin("salesinvoice si ON si.period = m.month AND si.companycode = m.companycode AND si.fiscalyear = m.year AND si.stat NOT IN ('temporary', 'cancelled')")
+								->setFields("IFNULL(SUM(amount), 0) value, CONCAT(m.year, '-', m.month) month")
+								->setGroupBy('m.month')
+								->runSelect()
+								->getResult();
+
+		$purchases	= $this->db->setTable("({$this->current_month_query}) m")
+								->leftJoin("purchaseorder po ON po.period = m.month AND po.companycode = m.companycode AND po.fiscalyear = m.year AND po.stat NOT IN ('temporary', 'cancelled')")
+								->setFields("IFNULL(SUM(amount), 0) value, CONCAT(m.year, '-', m.month) month")
+								->setGroupBy('m.month')
+								->runSelect()
+								->getResult();
+
 		$aging = array(
-			'sales' => array(
-				array('month' => '2017-01', 'value' => '40'),
-				array('month' => '2017-02', 'value' => '40'),
-				array('month' => '2017-03', 'value' => '44'),
-				array('month' => '2017-04', 'value' => '45'),
-				array('month' => '2017-05', 'value' => '46'),
-				array('month' => '2017-06', 'value' => '40'),
-				array('month' => '2017-07', 'value' => '40'),
-				array('month' => '2017-08', 'value' => '44'),
-				array('month' => '2017-09', 'value' => '45'),
-				array('month' => '2017-10', 'value' => '46'),
-				array('month' => '2017-11', 'value' => '45'),
-				array('month' => '2017-12', 'value' => '46')
-			),
-			'purchases' => array(
-				array('month' => '2017-01', 'value' => '40'),
-				array('month' => '2017-02', 'value' => '24'),
-				array('month' => '2017-03', 'value' => '44'),
-				array('month' => '2017-04', 'value' => '22'),
-				array('month' => '2017-05', 'value' => '46'),
-				array('month' => '2017-06', 'value' => '33'),
-				array('month' => '2017-07', 'value' => '40'),
-				array('month' => '2017-08', 'value' => '44'),
-				array('month' => '2017-09', 'value' => '53'),
-				array('month' => '2017-10', 'value' => '11'),
-				array('month' => '2017-11', 'value' => '45'),
-				array('month' => '2017-12', 'value' => '23')
-			)
+			'sales'		=> $sales,
+			'purchases'	=> $purchases
 		);
 		return $aging;
 	}
