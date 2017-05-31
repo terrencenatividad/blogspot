@@ -86,10 +86,12 @@ $(document).ajaxStart(function() {
 	Pace.restart();
 	$('body').css('cursor', 'progress');
 }); 
-$(document).ajaxComplete(function() {
+$(document).ajaxComplete(function(data, e) {
 	drawTemplate();
-	Pace.stop();
-	$('body').css('cursor', '');
+	if (e.statusText == 'OK') {
+		Pace.stop();
+		$('body').css('cursor', '');
+	}
 });
 
 // List Caret
