@@ -7,7 +7,7 @@ class controller extends wc_controller {
 	}
 
 	public function index() {
-		$this->view->title			= ('Dashboard (Sample Data, Edit: Dashboard Model)');
+		$this->view->title			= ('Dashboard');
 		$data						= array();
 		$data['invoices']			= $this->dashboard->getInvoices();
 		$data['purchases']			= $this->dashboard->getPurchases();
