@@ -26,7 +26,7 @@
 													->setAttribute(array("maxlength" => "20"))
 													->setValidation('required')
 													->setValue("")
-													->draw($show_input);
+													->draw();
 										?>
 									</div>
 									<div class="row row-dense remove-margin">
@@ -39,7 +39,7 @@
 													->setAttribute(array("maxlength" => "20"))
 													->setValidation('required')
 													->setValue("")
-													->draw($show_input);
+													->draw();
 										?>
 									</div>
 									<div class="row row-dense">
@@ -58,7 +58,7 @@
 												->setId('first_name')
 												->setValue("")
 												->setValidation('required')
-												->draw($show_input);
+												->draw();
 										?>
 									</div>
 									<div class="row row-dense remove-margin <span class='asterisk'> * </span>">
@@ -70,7 +70,7 @@
 												->setId('last_name')
 												->setValue("")
 												->setValidation('required')
-												->draw($show_input);
+												->draw();
 										?>
 									</div>
 									<div class="row row-dense">
@@ -83,7 +83,7 @@
 													->setAttribute(array("maxlength" => "150"))
 													->setPlaceHolder("email@oojeema.com")
 													->setValue("")
-													->draw($show_input);
+													->draw();
 										?>
 									</div>
 									<div class="row row-dense remove-margin">
@@ -96,7 +96,7 @@
 													->setAttribute(array("rows" => "1"))
 													->setValidation('required')
 													->setValue("")
-													->draw($show_input);
+													->draw();
 										?>
 									</div>
 									<div class="row row-dense remove-margin">
@@ -107,10 +107,10 @@
 												->setSplit('col-md-3', 'col-md-8')
 												->setName('businesstype')
 												->setId('businesstype')
-												->setList($business_type_list)
+												->setList((isset($business_type_list) ? $business_type_list : array()))
 												->setValidation('required')
 												->setValue("")
-												->draw($show_input);
+												->draw();
 
 										?>
 									</div>
@@ -124,7 +124,7 @@
 													->setAttribute(array('data-inputmask' => "'mask': '999-999-999-999'"))
 													->setPlaceholder('000-000-000-000')
 													->setValue("")
-													->draw($show_input);
+													->draw();
 										?>
 									</div>
 									<div class="row row-dense">
@@ -136,7 +136,7 @@
 													->setId('terms')
 													->setAttribute(array("maxlength" => "5"))
 													->setValue("30")
-													->draw($show_input);
+													->draw();
 										?>
 									</div>
 								</div>
