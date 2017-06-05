@@ -168,6 +168,10 @@
 				dateFormat: function (x) { 
 					var month = fullMonth[new Date(x).getMonth()];
 					return month;
+				},
+				yLabelFormat: function(y) {
+					let val = parseFloat(y);
+					return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 				}
 			});
 			$('.previous_year').one('click', function() {
@@ -188,6 +192,10 @@
 						dateFormat: function (x) { 
 							var month = shortMonth[new Date(x).getMonth()];
 							return month;
+						},
+						yLabelFormat: function(y) {
+							let val = parseFloat(y);
+							return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 						}
 					});
 				}, 10);
@@ -239,6 +247,10 @@
 				dateFormat: function (x) { 
 					var month = fullMonth[new Date(x).getMonth()];
 					return month;
+				},
+				yLabelFormat: function(y) {
+					let val = parseFloat(y);
+					return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 				}
 			});
 			new Morris.Line({
@@ -259,6 +271,10 @@
 				dateFormat: function (x) { 
 					var month = fullMonth[new Date(x).getMonth()];
 					return month;
+				},
+				yLabelFormat: function(y) {
+					let val = parseFloat(y);
+					return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 				}
 			});
 		}
