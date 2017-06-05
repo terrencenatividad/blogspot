@@ -69,19 +69,39 @@ class dashboard_model extends wc_model {
 	public function getRevenuesAndExpenses() {
 		$current	= $this->db->setTable("({$this->current_month_query}) m")
 								->leftJoin("salesinvoice si ON si.period = m.month AND si.companycode = m.companycode AND si.fiscalyear = m.year AND si.stat NOT IN ('temporary', 'cancelled')")
+								->setFields("IFNULL(SUM(si.amount), 0) revenue, CONCAT(m.year, '-', m.month) month")
+								->setGroupBy('m.month')
+								->runSelect()
+								->getResult();
+
+		$current2	= $this->db->setTable("({$this->current_month_query}) m")
 								->leftJoin("purchaseorder po ON po.period = m.month AND po.companycode = m.companycode AND po.fiscalyear = m.year AND po.stat NOT IN ('temporary', 'cancelled')")
-								->setFields("IFNULL(SUM(si.amount), 0) revenue, IFNULL(SUM(po.amount), 0) expense, CONCAT(m.year, '-', m.month) month")
+								->setFields("IFNULL(SUM(po.amount), 0) expense")
 								->setGroupBy('m.month')
 								->runSelect()
 								->getResult();
 
 		$previous	= $this->db->setTable("({$this->previous_month_query}) m")
 								->leftJoin("salesinvoice si ON si.period = m.month AND si.companycode = m.companycode AND si.fiscalyear = m.year AND si.stat NOT IN ('temporary', 'cancelled')")
-								->leftJoin("purchaseorder po ON po.period = m.month AND po.companycode = m.companycode AND po.fiscalyear = m.year AND po.stat NOT IN ('temporary', 'cancelled')")
-								->setFields("IFNULL(SUM(si.amount), 0) revenue, IFNULL(SUM(po.amount), 0) expense, CONCAT(m.year, '-', m.month) month")
+								->setFields("IFNULL(SUM(si.amount), 0) revenue, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
 								->runSelect()
 								->getResult();
+
+		$previous2	= $this->db->setTable("({$this->previous_month_query}) m")
+								->leftJoin("purchaseorder po ON po.period = m.month AND po.companycode = m.companycode AND po.fiscalyear = m.year AND po.stat NOT IN ('temporary', 'cancelled')")
+								->setFields("IFNULL(SUM(po.amount), 0) expense, CONCAT(m.year, '-', m.month) month")
+								->setGroupBy('m.month')
+								->runSelect()
+								->getResult();
+
+		foreach ($current as $key => $row) {
+			$current[$key]->expense = $current2[$key]->expense;
+		}
+
+		foreach ($previous as $key => $row) {
+			$previous[$key]->expense = $previous2[$key]->expense;
+		}
 
 		$rae = array(
 			'current'	=> $current,
