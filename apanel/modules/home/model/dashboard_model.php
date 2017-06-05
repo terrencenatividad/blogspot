@@ -91,22 +91,55 @@ class dashboard_model extends wc_model {
 	}
 
 	public function getAging() {
-		$ap = $this->db->setTable('accountspayable')
-						->setFields('amount');
+		$datefilter = $this->date->dateDbFormat() . ' 23:59:59';
+		$ap	= $this->db->setTable('accountspayable ap')
+						->innerJoin('pv_application pva ON pva.apvoucherno = ap.voucherno AND pva.companycode = ap.companycode')
+						->setFields("
+							pva.convertedamount value,
+							CASE
+								WHEN DATEDIFF('$datefilter', ap.duedate) > 60 THEN '1 to 30 days'
+								WHEN DATEDIFF('$datefilter', ap.duedate) > 30 THEN '31 to 60 days'
+								WHEN DATEDIFF('$datefilter', ap.duedate) > 1 THEN '60 days over'
+							END label
+						")
+						->setWhere("ap.stat = 'posted' AND pva.stat = 'posted' AND ap.duedate < '$datefilter'")
+						->buildSelect();
+
+
+		$ar	= $this->db->setTable('accountsreceivable ar')
+						->innerJoin('rv_application rva ON rva.arvoucherno = ar.voucherno AND rva.companycode = ar.companycode')
+						->setFields("
+							rva.convertedamount value,
+							CASE
+								WHEN DATEDIFF('$datefilter', ar.duedate) > 60 THEN '1 to 30 days'
+								WHEN DATEDIFF('$datefilter', ar.duedate) > 30 THEN '31 to 60 days'
+								WHEN DATEDIFF('$datefilter', ar.duedate) > 1 THEN '60 days over'
+							END label
+						")
+						->setWhere("ar.stat = 'posted' AND rva.stat = 'posted' AND ar.duedate < '$datefilter'")
+						->buildSelect();
 
 		$aging = array(
-			'ap' => array(
-				array('label' => '1 to 30 days', 'value' => '20000'),
-				array('label' => '31 to 60 days', 'value' => '1011'),
-				array('label' => '60 days over', 'value' => '5222')
-			),
-			'ar' => array(
-				array('label' => '1 to 30 days', 'value' => '23000'),
-				array('label' => '31 to 60 days', 'value' => '1021'),
-				array('label' => '60 days over', 'value' => '512')
-			)
+			'ap' => $this->getVoucherApplication($ap),
+			'ar' => $this->getVoucherApplication($ar)
 		);
 		return $aging;
+	}
+
+	private function getVoucherApplication($query) {
+		$result = $this->db->setTable("($query) query")
+							->setFields('label, SUM(value) value')
+							->setGroupBy('label')
+							->runSelect(false)
+							->getResult();
+
+		if ($result) {
+			return $result;
+		} else {
+			return array(
+				array('label' => 'No Aging', 'value' => '0')
+			);
+		}
 	}
 
 	public function getSalesAndPurchases() {

@@ -195,16 +195,28 @@
 			new Morris.Donut({
 				element: 'accounts_payable',
 				data: aging.ap,
-				xkey: 'month',
-				ykeys: ['value'],
-				labels: ['Value'],
-				hideHover: true
+				formatter: function(value, data) {
+					let val = parseFloat(value);
+					if (val == 0) {
+						return '';
+					} else {
+						return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+					}
+				}
 			});
 			$('.accounts_receivable').one('click', function() {
 				setTimeout(function(){
 					new Morris.Donut({
 						element: 'accounts_receivable',
-						data: aging.ar
+						data: aging.ar,
+						formatter: function(value, data) {
+							let val = parseFloat(value);
+							if (val == 0) {
+								return '';
+							} else {
+								return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+							}
+						}
 					});
 				}, 10);
 			});
