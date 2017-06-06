@@ -1,6 +1,8 @@
 				<script src="<?= BASE_URL ?>assets/js/site.js"></script>
 				<section class="footer-padding"></section>
 			</div>
+			<?php if (isset($ui)): ?>
+
 			<!-- Vendor Modal -->
 			<div class="modal fade" id="vendor_modal" tabindex="-1" data-backdrop="static">
 				<div class="modal-dialog modal-md">
@@ -318,6 +320,7 @@
 				</div>
 			</div>
 			<!-- End Customer Modal -->
+			<?php endif ?>
 			<div id="warning_modal" class="modal fade" role="dialog">
 				<div class="modal-dialog modal-sm" role="document">
 					<div class="modal-content">
