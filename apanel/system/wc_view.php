@@ -6,6 +6,10 @@ class wc_view {
 	public $sub_title = '';
 	public $header_active = '';
 
+	public function __construct() {
+		$this->date = new date();
+	}
+
 	public function addCss($css) {
 		$this->css[] = 'assets/' . MODULE_FOLDER . '/' . PAGE_TYPE . '/assets/' . $css;
 	}
@@ -18,7 +22,7 @@ class wc_view {
 		$path = MODULE_PATH . '/' . PAGE_TYPE . '/view/' . $file . '.php';
 		if (file_exists($path)) {
 			// LOAD HEADER
-			if ($enclosed) {
+			if ($enclosed && ! MODAL) {
 				$header_nav = $this->getNav();
 				$header_active = $this->header_active;
 				$include_css = $this->css;
@@ -29,7 +33,7 @@ class wc_view {
 			// LOAD MODULE
 			require_once $path;
 			// LOAD FOOTER
-			if ($enclosed) {
+			if ($enclosed && ! MODAL) {
 				require_once (PAGE_TYPE == 'backend' ? '' : 'apanel/') . 'view/' . PAGE_TYPE . '_footer.php';
 			}
 		} else if (DEBUGGING) {
