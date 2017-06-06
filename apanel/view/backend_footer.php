@@ -107,7 +107,7 @@
 												->setSplit('col-md-3', 'col-md-8 field_col')
 												->setName('businesstype')
 												->setId('businesstype')
-												->setList($business_type_list)
+												->setList((isset($business_type_list) ? $business_type_list : array()))
 												->setValidation('required')
 												->setValue("")
 												->draw($show_input);
