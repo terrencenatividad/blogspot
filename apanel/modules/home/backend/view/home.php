@@ -96,10 +96,10 @@
 				<div class="nav-tabs-custom">
 					<ul id="aging_nav" class="nav nav-tabs pull-right">
 						<li>
-							<a href="<?php echo BASE_URL ?>accounts_payable" id="report_aging" aria-expanded="true">View Report</a>
+							<a href="<?php echo BASE_URL ?>report/ap_aging" id="report_aging" aria-expanded="true">View Report</a>
 						</li>
-						<li class="active"><a href="#accounts_payable" data-toggle="tab" aria-expanded="true" data-url="<?php echo BASE_URL ?>agingpayable">Accounts Payable</a></li>
-						<li class=""><a href="#accounts_receivable" class="accounts_receivable" data-toggle="tab" aria-expanded="false" data-url="<?php echo BASE_URL ?>agingreceivable">Accounts Receivable</a></li>
+						<li class="active"><a href="#accounts_payable" data-toggle="tab" aria-expanded="true" data-url="<?php echo BASE_URL ?>report/ap_aging">Accounts Payable</a></li>
+						<li class=""><a href="#accounts_receivable" class="accounts_receivable" data-toggle="tab" aria-expanded="false" data-url="<?php echo BASE_URL ?>report/ar_aging">Accounts Receivable</a></li>
 						<li class="pull-left header">Aging </li>
 					</ul>
 					<div class="tab-content no-padding">
