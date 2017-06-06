@@ -57,6 +57,20 @@
 .bootstrap-select .dropdown-menu {
 	border-radius: 0;
 }
+.modal-dialog .content {
+	padding: 0;
+}
+.modal-dialog .content .box {
+	border: 0;
+	padding-right: 20px;
+	padding-left: 20px;
+}
+.modal-dialog .content .col-md-6 {
+	width: 100%;
+}
+.p-none {
+	padding: 0;
+}
 .footer-padding {
 	height: 50px;
 }
