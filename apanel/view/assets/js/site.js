@@ -93,6 +93,11 @@ $(document).ajaxComplete(function(data, e) {
 		$('body').css('cursor', '');
 	}
 });
+$('body').on('hidden.bs.modal', '.modal', function (e) {
+	if ($('.modal').hasClass('in')) {
+		$('body').addClass('modal-open');
+	}
+});
 
 // List Caret
 $('tbody').on('click', '.list-caret', function() {
