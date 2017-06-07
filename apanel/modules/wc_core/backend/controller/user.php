@@ -146,4 +146,13 @@ class controller extends wc_controller {
 		}
 	}
 
+	private function ajax_check_username() {
+		$username	= $this->input->post('username');
+		$reference	= $this->input->post('username_ref');
+		$result = $this->user_model->checkUsername($username, $reference);
+		return array(
+			'available'	=> $result
+		);
+	}
+
 }

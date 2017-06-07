@@ -53,6 +53,21 @@ class user_model extends wc_model {
 		return $result;
 	}
 
+	public function checkUsername($username, $reference) {
+		$result = $this->db->setTable('wc_users')
+							->setFields('username')
+							->setWhere("username = '$username' AND username != '$reference'")
+							->setLimit(1)
+							->runSelect(false)
+							->getRow();
+
+		if ($result) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	public function getUserById($fields, $username) {
 		return $this->db->setTable('wc_users')
 						->setFields($fields)
