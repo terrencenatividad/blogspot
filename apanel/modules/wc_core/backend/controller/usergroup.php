@@ -138,4 +138,13 @@ class controller extends wc_controller {
 		}
 	}
 
+	private function ajax_check_groupname() {
+		$groupname	= $this->input->post('groupname');
+		$reference	= $this->input->post('groupname_ref');
+		$result = $this->usergroup_model->checkGroupname($groupname, $reference);
+		return array(
+			'available'	=> $result
+		);
+	}
+
 }

@@ -78,6 +78,21 @@ class usergroup_model extends wc_model {
 		return $result;
 	}
 
+	public function checkGroupName($groupname, $reference) {
+		$result = $this->db->setTable('wc_user_group')
+							->setFields('groupname')
+							->setWhere("groupname = '$groupname' AND groupname != '$reference'")
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+
+		if ($result) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	public function getGroupByName($fields, $groupname) {
 		return $this->db->setTable('wc_user_group')
 						->setFields($fields)

@@ -76,6 +76,27 @@
 	</section>
 	<?php if ($show_input): ?>
 	<script>
+		var ajax_call = '';
+		$('#groupname').on('blur', function() {
+			if (ajax_call != '') {
+				ajax_call.abort();
+			}
+			var groupname = $(this).val();
+			$('#groupname').closest('form').find('[type="submit"]').addClass('disabled');
+			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_check_groupname', 'groupname=' + groupname + '<?=$ajax_post?>', function(data) {
+				var error_message = 'Group Name already Exist';
+				if (data.available) {
+					var form_group = $('#groupname').closest('.form-group');
+					if (form_group.find('p.help-block').html() == error_message) {
+						form_group.removeClass('has-error').find('p.help-block').html('');
+					}
+				} else {
+					$('#groupname').closest('.form-group').addClass('has-error').find('p.help-block').html(error_message);
+				}
+				$('#groupname').closest('form').find('[type="submit"]').removeClass('disabled');
+			});
+		});
+
 		$('form').submit(function(e) {
 			e.preventDefault();
 			$(this).find('.form-group').find('input, textarea, select').trigger('blur');
