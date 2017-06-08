@@ -20,5 +20,16 @@ class login extends wc_model {
 			return false;
 		}
 	}
+
+	public function checkLockedAccount($username) {
+		$result = $this->db->setTable('wc_users')
+							->setFields('locktime')
+							->setWhere("username = '$username' AND locktime >= NOW()")
+							->setLimit(1)
+							->runSelect(false)
+							->getRow();
+
+		return $result;
+	}
 	
 }

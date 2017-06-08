@@ -13,11 +13,6 @@ class controller extends wc_controller {
 			'username',
 			'password'
 		));
-		$locktime = base64_decode($input->get('locktime'));
-		if ($locktime) {
-			$locktime = $this->date->datetimeFormat($locktime);
-		}
-		$data['locktime'] = $locktime;
 		if ($access->isApanelUser()) {
 			$redirect = base64_decode($input->get('redirect'));
 			$redirect = ( ! empty($redirect) && strpos($redirect, BASE_URL) !== false) ? $redirect : BASE_URL;
@@ -27,9 +22,14 @@ class controller extends wc_controller {
 			extract($data);
 			$result = $login_model->getUserAccess($username, $password);
 			if ($result) {
-				$session->set('login', $result);
-				$log->saveActivity('Login');
-				$url->redirect(FULL_URL);
+				$locktime = $login_model->checkLockedAccount($username);
+				if ($locktime) {
+					$data['locktime'] = $this->date->datetimeFormat($locktime->locktime);
+				} else {
+					$session->set('login', $result);
+					$log->saveActivity('Login');
+					$url->redirect(FULL_URL);
+				}
 			} else {
 				$data['error_msg'] = 'Invalid Username or Password';
 			}
