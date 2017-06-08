@@ -117,9 +117,9 @@ class dashboard_model extends wc_model {
 						->setFields("
 							pva.convertedamount value,
 							CASE
-								WHEN DATEDIFF('$datefilter', ap.duedate) > 60 THEN '1 to 30 days'
+								WHEN DATEDIFF('$datefilter', ap.duedate) > 60 THEN '60 days over'
 								WHEN DATEDIFF('$datefilter', ap.duedate) > 30 THEN '31 to 60 days'
-								WHEN DATEDIFF('$datefilter', ap.duedate) > 1 THEN '60 days over'
+								WHEN DATEDIFF('$datefilter', ap.duedate) > 0 THEN '1 to 30 days'
 							END label
 						")
 						->setWhere("ap.stat = 'posted' AND pva.stat = 'posted' AND ap.duedate < '$datefilter'")
@@ -131,9 +131,9 @@ class dashboard_model extends wc_model {
 						->setFields("
 							rva.convertedamount value,
 							CASE
-								WHEN DATEDIFF('$datefilter', ar.duedate) > 60 THEN '1 to 30 days'
+								WHEN DATEDIFF('$datefilter', ar.duedate) > 60 THEN '60 days over'
 								WHEN DATEDIFF('$datefilter', ar.duedate) > 30 THEN '31 to 60 days'
-								WHEN DATEDIFF('$datefilter', ar.duedate) > 1 THEN '60 days over'
+								WHEN DATEDIFF('$datefilter', ar.duedate) > 0 THEN '1 to 30 days'
 							END label
 						")
 						->setWhere("ar.stat = 'posted' AND rva.stat = 'posted' AND ar.duedate < '$datefilter'")
