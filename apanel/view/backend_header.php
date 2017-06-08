@@ -148,6 +148,27 @@
 	<script>
 		$('.navbar-static-top [href="<?php echo $header_active ?>"]').parents('li').addClass('active');
 	</script>
+	<div class="modal" id="locked_popup" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title text-center">System is Locked for the Moment</h4>
+				</div>
+				<div class="modal-body">
+					<p class="text-red text-center">Locked Time: <span id="locktime"></span></p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php if (defined('LOCKED')): ?>
+	<script>
+		$('#locked_popup').modal('show');
+		$('#locked_popup #locktime').html('<?php echo LOCKED ?>');
+		setTimeout(function() {
+			$.post('<?php echo BASE_URL ?>', function() {});
+		}, <?php echo LOCKED_SEC ?> * 1000);
+	</script>
+	<?php endif ?>
 	<div class="content-wrapper">
 		<section class="content-header">
 			<h1>

@@ -12,7 +12,7 @@ class backend {
 		spl_autoload_register(function ($class) {
 			if (file_exists("system/$class.php")) {
 				require_once "system/$class.php";
-			} else if (file_exists(MODULE_PATH . "/model/$class.php")) {
+			} else if (defined('MODULE_PATH') && file_exists(MODULE_PATH . "/model/$class.php")) {
 				require_once MODULE_PATH . "/model/$class.php";
 			} else {
 				$dir = new RecursiveDirectoryIterator('system');
@@ -122,14 +122,17 @@ class backend {
 						->getRow();
 
 		if ($locktime && $subfolder != 'login') {
+			$date = new date();
+			$fdate		= strtotime($locktime->locktime);
+			$sdate		= strtotime($date->datetimeDBFormat());
+			$locksec 	= $fdate - $sdate;
 			if ($input->isPost) {
 				header('Content-type: application/json');
-				echo json_encode(array('locked' => true, 'lockedtlocktimeime' => $locktime->locktime));
+				echo json_encode(array('locked' => true, 'locktime' => $locktime->locktime, 'locksec' => $locksec, 'baseurl' => BASE_URL));
 				exit();
 			} else {
-				$session->clean('login');
-				$redirect = (BASE_URL == FULL_URL) ? '' : '&redirect=' . base64_encode(FULL_URL);
-				$url->redirect(BASE_URL . 'login?locktime=' . base64_encode($locktime->locktime) . $redirect);
+				define('LOCKED', $date->datetimeFormat($locktime->locktime));
+				define('LOCKED_SEC', $locksec);
 			}
 		}
 

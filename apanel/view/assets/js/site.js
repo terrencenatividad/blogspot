@@ -86,11 +86,25 @@ $(document).ajaxStart(function() {
 	Pace.restart();
 	$('body').css('cursor', 'progress');
 }); 
-$(document).ajaxComplete(function(data, e) {
+$(document).ajaxComplete(function(event, xhr) {
 	drawTemplate();
-	if (e.statusText == 'OK') {
+	if (xhr.statusText == 'OK') {
 		Pace.stop();
 		$('body').css('cursor', '');
+		var data = {};
+		try {
+			data = $.parseJSON(xhr.responseText)
+		} catch (e) {}
+		if (data.locked === true) {
+			$('#locked_popup').modal('show');
+			$('#locked_popup #locktime').html(data.locktime);
+			setTimeout(function() {
+				$.post(data.baseurl, function() {});
+			}, data.locksec * 1000);
+		} else {
+			console.log('hide modal');
+			$('#locked_popup').modal('hide');
+		}
 	}
 });
 $('body').on('hidden.bs.modal', '.modal', function (e) {
