@@ -116,6 +116,7 @@
 										if ($show_input) {
 											echo $ui->formField('text')
 												->setLabel('Password')
+												->setAttribute(array('autocomplete' => 'off'))
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('password')
 												->setId('password')
