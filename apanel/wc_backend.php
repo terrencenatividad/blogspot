@@ -128,7 +128,7 @@ class backend {
 			$locksec 	= $fdate - $sdate;
 			if ($input->isPost) {
 				header('Content-type: application/json');
-				echo json_encode(array('locked' => true, 'locktime' => $locktime->locktime, 'locksec' => $locksec, 'baseurl' => BASE_URL));
+				echo json_encode(array('locked' => true, 'locktime' => $date->datetimeFormat($locktime->locktime), 'locksec' => $locksec, 'baseurl' => BASE_URL));
 				exit();
 			} else {
 				define('LOCKED', $date->datetimeFormat($locktime->locktime));
