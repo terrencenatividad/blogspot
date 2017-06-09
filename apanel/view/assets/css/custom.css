@@ -34,10 +34,10 @@
 	.fixed .content-wrapper, .fixed .right-side {
 		padding-top: 100px;
 	}
-	.table.table-sidepad > tbody > tr > td:first-child, .table.table-sidepad > tfoot > tr > td:first-child, .table.table-sidepad > thead > tr > th:first-child {
+	.table.table-sidepad tr > td:first-child, .table.table-sidepad tr > th:first-child {
 		padding-left: 25px;
 	}
-	.table.table-sidepad > tbody > tr > td:last-child, .table.table-sidepad > tfoot > tr > td:last-child, .table.table-sidepad > thead > tr > th:last-child {
+	.table.table-sidepad tr > td:last-child, .table.table-sidepad tr > th:last-child {
 		padding-right: 25px;
 	}
 	.table.table-sidepad td .btn-group.check_task, .table.table-sidepad th .icheckbox_square-blue {
