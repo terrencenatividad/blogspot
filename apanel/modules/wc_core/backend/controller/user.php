@@ -141,9 +141,14 @@ class controller extends wc_controller {
 
 	private function ajax_delete() {
 		$delete_id = $this->input->post('delete_id');
+		$error_id = array();
 		if ($delete_id) {
-			$this->user_model->deleteUsers($delete_id);
+			$error_id = $this->user_model->deleteUsers($delete_id);
 		}
+		return array(
+			'success'	=> (empty($error_id)),
+			'error_id'	=> $error_id
+		);
 	}
 
 	private function ajax_check_username() {

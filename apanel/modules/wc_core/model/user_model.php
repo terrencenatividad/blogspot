@@ -39,18 +39,23 @@ class user_model extends wc_model {
 	}
 
 	public function deleteUsers($data) {
-		$ids = "'" . implode("','", $data) . "'";
-		$result = $this->db->setTable('wc_users')
-							->setWhere("username IN ($ids)")
-							->setLimit(count($data))
-							->runDelete();
-
-		if ($result) {
-			$log_id = implode(',', $ids);
-			$this->log->saveActivity("Delete User [$log_id]");
-		}
+		$error_id = array();
+		foreach ($data as $id) {
+			$result =  $this->db->setTable('wc_users')
+								->setWhere("username = '$id'")
+								->setLimit(1)
+								->runDelete();
 		
-		return $result;
+			if ($result) {
+				$this->log->saveActivity("Delete Item Type [$id]");
+			} else {
+				if ($this->db->getError() == 'locked') {
+					$error_id[] = $id;
+				}
+			}
+		}
+
+		return $error_id;
 	}
 
 	public function checkUsername($username, $reference) {
