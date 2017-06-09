@@ -1,6 +1,14 @@
 .skin-red .main-header .navbar, .navbar-static-top #navbar-collapse .nav.navbar-nav > li.active > a, .main-header li.user-header {
 	background-color: #235088 !important;
 }
+@media (min-width:992px) {
+	.navbar-static-top #navbar-collapse .nav.navbar-nav > li > a {
+		padding: 8px 20px 7px;
+	}
+	.navbar-static-top #navbar-collapse .nav.navbar-nav > li.active > a {
+		padding: 8px 20px 14px;
+	}
+}
 @media (min-width:768px) {
 	.navbar-static-top #navbar-collapse {
 		width: 100%;
@@ -12,15 +20,15 @@
 		height: 35px !important;
 	}
 	.navbar-static-top #navbar-collapse .nav.navbar-nav {
-		margin: 0 25px !important;
+		margin: 0 15px !important;
 		float: none !important;
 	}
 	.navbar-static-top #navbar-collapse .nav.navbar-nav > li > a {
-		padding: 8px 20px 7px;
+		padding: 8px 15px 7px;
 	}
 	.navbar-static-top #navbar-collapse .nav.navbar-nav > li.active > a {
 		border-radius: 0 0 7px 7px;
-		padding: 8px 20px 14px;
+		padding: 8px 15px 14px;
 		color: #fff;
 	}
 	.fixed .content-wrapper, .fixed .right-side {

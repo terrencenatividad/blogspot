@@ -74,7 +74,7 @@
 				</div>
 				<div class="collapse navbar-collapse pull-left" id="navbar-collapse">
 					<ul class="nav navbar-nav">
-						<li>
+						<li class="hidden-sm">
 							<a href="<?php echo BASE_URL ?>">
 								<span>Dashboard</span>
 							</a>
