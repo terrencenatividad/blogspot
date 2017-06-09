@@ -556,6 +556,10 @@ class db {
 				$inner_counter_limit--;
 			}
 
+			if ($inner_page < 2) {
+				$inner_page = 2;
+			}
+
 			for (; $inner_page < $this->page_limit && $inner_counter < $inner_counter_limit; $inner_page++, $inner_counter++) {
 				$active = '';
 				if ($this->page == $inner_page) {
