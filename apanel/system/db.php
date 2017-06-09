@@ -312,7 +312,6 @@ class db {
 			$this->result = $this->conn->query($this->query);
 			$this->errorno = $this->conn->errno;
 			if ($this->conn->error && ! in_array($this->conn->errno, $this->error_allowed)) {
-				var_dump($this->conn->errno);
 				$this->showError($this->conn->error);
 			}
 		}
