@@ -1,6 +1,6 @@
 	<section class="content">
 		<div class="box box-primary">
-			<div class="box-header">
+			<div class="box-header pb-none">
 				<div class="row">
 					<div class="col-md-8">
 						<div class="row">
@@ -13,10 +13,12 @@
 						</div>
 					</div>
 					<div class="col-md-4">
-						<div class="input-group">
-							<input id="table_search" class="form-control pull-right" placeholder="Search" type="text">
-							<div class="input-group-btn">
-								<button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+						<div class="form-group">
+							<div class="input-group">
+								<input id="table_search" class="form-control pull-right" placeholder="Search" type="text">
+								<div class="input-group-btn">
+									<button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+								</div>
 							</div>
 						</div>
 					</div>
