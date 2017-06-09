@@ -129,13 +129,18 @@ class controller extends wc_controller {
 
 	private function ajax_delete() {
 		$data = $this->input->post('delete_id');
+		$error_id = array();
 		if ($data) {
-			$new_data = array();
+			$delete_id = array();
 			foreach ($data as $d) {
-				$new_data[] = base64_decode($d);
+				$delete_id[] = base64_decode($d);
 			}
-			$this->usergroup_model->deleteGroup($new_data);
+			$error_id = $this->usergroup_model->deleteGroup($delete_id);
 		}
+		return array(
+			'success'	=> (empty($error_id)),
+			'error_id'	=> $error_id
+		);
 	}
 
 	private function ajax_check_groupname() {

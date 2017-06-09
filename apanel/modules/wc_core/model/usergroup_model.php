@@ -64,18 +64,23 @@ class usergroup_model extends wc_model {
 	}
 
 	public function deleteGroup($data) {
-		$groupnames = "'" . implode("','", $data) . "'";
-		$result = $this->db->setTable('wc_user_group')
-							->setWhere("groupname IN ($groupnames)")
-							->setLimit(count($data))
-							->runDelete();
-
-		if ($result) {
-			$log_id = implode(',', $ids);
-			$this->log->saveActivity("Delete User Group [$log_id]");
-		}
+		$error_id = array();
+		foreach ($data as $id) {
+			$result =  $this->db->setTable('wc_user_group')
+								->setWhere("groupname = '$id'")
+								->setLimit(1)
+								->runDelete();
 		
-		return $result;
+			if ($result) {
+				$this->log->saveActivity("Delete User Group [$id]");
+			} else {
+				if ($this->db->getError() == 'locked') {
+					$error_id[] = $id;
+				}
+			}
+		}
+
+		return $error_id;
 	}
 
 	public function checkGroupName($groupname, $reference) {

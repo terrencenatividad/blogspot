@@ -85,6 +85,13 @@
 		function ajaxCallback(id) {
 			var ids = getDeleteId(id);
 			$.post('<?=MODULE_URL?>ajax/ajax_delete', ids, function(data) {
+				if ( ! data.success) {
+					$('#warning_modal #warning_message').html('<p>Unable to delete User Group: User Group in Use</p>');
+					data.error_id.forEach(function(id) {
+						$('#warning_modal #warning_message').append('<p>User Group Name: ' + id + '</p>');
+					});
+					$('#warning_modal').modal('show');
+				}
 				getList();
 			});
 		}
