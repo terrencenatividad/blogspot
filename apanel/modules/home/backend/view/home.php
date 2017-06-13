@@ -154,7 +154,7 @@
 		function showChart() {
 			new Morris.Area({
 				behaveLikeLine: true,
-				gridTextSize: 10,
+				gridTextSize: 8,
 				element: 'current_year',
 				data: revenue_expense.current,
 				xkey: 'month',
@@ -178,7 +178,7 @@
 				setTimeout(function(){
 					new Morris.Area({
 						behaveLikeLine: true,
-						gridTextSize: 10,
+						gridTextSize: 8,
 						element: 'previous_year',
 						data: revenue_expense.previous,
 						xkey: 'month',
@@ -230,7 +230,7 @@
 			});
 
 			new Morris.Line({
-				gridTextSize: 10,
+				gridTextSize: 8,
 				element: 'sales',
 				data: sales_purchases.sales,
 				xkey: 'month',
@@ -254,7 +254,7 @@
 				}
 			});
 			new Morris.Line({
-				gridTextSize: 10,
+				gridTextSize: 8,
 				element: 'purchases',
 				data: sales_purchases.purchases,
 				xkey: 'month',
