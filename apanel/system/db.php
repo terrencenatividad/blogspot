@@ -524,7 +524,7 @@ class db {
 	}
 
 	private function drawPagination() {
-		$inner_page				= (($this->page - 2) > 2) ? ($this->page - 2) : 2;
+		$inner_page				= (($this->page - 2) > 3) ? ($this->page - 2) : 2;
 		$inner_counter			= 0;
 		$inner_counter_limit	= 7;
 		$pagination = '';
@@ -549,7 +549,7 @@ class db {
 				$inner_counter_limit--;
 			}
 
-			if (($inner_page + $inner_counter_limit) > $this->page_limit) {
+			if (($inner_page + $inner_counter_limit) >= $this->page_limit) {
 				$inner_page = $this->page_limit - $inner_counter_limit;
 			} else {
 				$inner_counter_limit--;
