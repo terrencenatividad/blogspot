@@ -102,7 +102,6 @@ $(document).ajaxComplete(function(event, xhr) {
 				$.post(data.baseurl, function() {});
 			}, data.locksec * 1000);
 		} else {
-			console.log('hide modal');
 			$('#locked_popup').modal('hide');
 		}
 	}
@@ -144,7 +143,7 @@ $('tbody').on('click-show', '.list-caret', function() {
 $('table').on('click', '.ajax_delete', function() {
 	var module_url = $('#module_url').val();
 	$.post(module_url + 'ajax/ajax_delete', 'delete[]=' + $(this).attr('data-id'), function(data) {
-		console.log(data);
+
 	});
 });
 // Checkall Checkbox
