@@ -324,19 +324,16 @@ class ui {
 	}
 
 	public function createUploadFile() {
-		if ($draw) {
-			return '<div class="input-group">
-						<span class="input-group-btn">
-							<label class="btn btn-info">
-								Upload Resume
-								<input id="' . $this->attribute['id'] . '" name="' . $this->attribute['name'] . '" class="hidden" type="file" data-uploader accept=".docx, .doc, .pdf">
-							</label>
-						</span>
-						<label for="' . $this->attribute['id'] . '" class="form-control"></label>
-					</div>';
-		} else {
-			return '<a href=""></a>';
-		}
+		$attributes = $this->getAttributes();
+		return '<div class="input-group">
+					<span class="input-group-btn">
+						<label class="btn btn-info">
+							Browse...
+							<input type="file" ' . $attributes . '" class="hidden" data-uploader="file">
+						</label>
+					</span>
+					<label for="' . $this->attribute['id'] . '" class="form-control">' . $this->label . '</label>
+				</div>';
 	}
 
 	public function drawSubmit($draw) {
