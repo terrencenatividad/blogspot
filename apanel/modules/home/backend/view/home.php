@@ -114,7 +114,7 @@
 						<i class="fa fa-th"></i>
 						<h3 class="box-title">Sales Graph</h3>
 					</div>
-					<div class="box-body border-radius-none">
+					<div class="box-body border-radius-none no-padding">
 						<div class="chart" id="sales" style="height: 250px;"></div>
 					</div>
 				</div>
@@ -125,7 +125,7 @@
 						<i class="fa fa-th"></i>
 						<h3 class="box-title">Purchases Graph</h3>
 					</div>
-					<div class="box-body border-radius-none">
+					<div class="box-body border-radius-none no-padding">
 						<div class="chart" id="purchases" style="height: 250px;"></div>
 					</div>
 				</div>
