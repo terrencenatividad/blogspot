@@ -82,6 +82,10 @@
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
 				$('#tableList tbody').html(data.table);
 				$('#pagination').html(data.pagination);
+				if (ajax.page > data.page_limit && data.page_limit > 0) {
+					ajax.page = data.page_limit;
+					getList();
+				}
 			});
 		}
 		getList();
