@@ -166,7 +166,7 @@ $('body').on('keyup', function(e) {
 		controlDown = false;
 	}
 })
-$('body').on('input change blur', '[data-validation~="required"]', function(e) {
+$('body').on('input change blur blur_validate', '[data-validation~="required"]', function(e) {
 	var error_message = 'This field is required';
 	var form_group = $(this).closest('.form-group');
 	var val = $(this).val() || '';
@@ -188,7 +188,7 @@ $('body').on('keydown', '[data-validation~="decimal"]', function(e) {
 		return false;
 	return true;
 });
-$('body').on('blur', '[data-validation~="decimal"]', function() {
+$('body').on('blur blur_validate', '[data-validation~="decimal"]', function() {
 	var value = $(this).val();
 	if (value.replace(/\,\s/g,'') != '') {
 		var decimal = parseFloat(value.replace(/\,/g,''));
@@ -204,7 +204,7 @@ $('body').on('keydown', '[data-validation~="integer"]', function(e) {
 		return false;
 	return true;
 });
-$('body').on('blur', '[data-validation~="integer"]', function(e) {
+$('body').on('blur blur_validate', '[data-validation~="integer"]', function(e) {
 	var value = $(this).val();
 	if (value.replace(/\,\s/g,'') != '') {
 		var decimal = parseFloat(value.replace(/\,/g,''));
@@ -214,7 +214,7 @@ $('body').on('blur', '[data-validation~="integer"]', function(e) {
 		$(this).val(decimal.toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
 	}
 });
-$('body').on('blur', '[data-max]', function(e) {
+$('body').on('blur blur_validate', '[data-max]', function(e) {
 	var max = parseFloat($(this).attr('data-max').replace(/\,\s/g,''));
 	var value = parseFloat($(this).val().replace(/\,\s/g,''));
 	if (value != '') {
