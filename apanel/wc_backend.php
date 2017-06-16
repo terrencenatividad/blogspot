@@ -48,7 +48,7 @@ class backend {
 			$type = 'mod_add';
 		} else if ($this->checkAccessType(array('view', 'get', 'load', 'retrieve', 'check'), $function)) {
 			$type = 'mod_view';
-		} else if ($this->checkAccessType(array('update', 'edit', 'apply'), $function)) {
+		} else if ($this->checkAccessType(array('set', 'update', 'edit', 'apply'), $function)) {
 			$type = 'mod_edit';
 		} else if ($this->checkAccessType(array('delete', 'remove', 'cancel'), $function)) {
 			$type = 'mod_delete';
