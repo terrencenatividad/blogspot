@@ -96,13 +96,18 @@ $(document).ajaxComplete(function(event, xhr) {
 			data = $.parseJSON(xhr.responseText)
 		} catch (e) {}
 		if (data.locked === true) {
-			$('#locked_popup').modal('show');
-			$('#locked_popup #locktime').html(data.locktime);
+			var modal = '#locked_popup';
+			if ($('.modal.in:not(#locked_popup):not(#locked_popup_modal)').length) {
+				modal = '#locked_popup_modal';
+			}
+			$(modal).modal('show');
+			$(modal + ' #locktime').html(data.locktime);
 			setTimeout(function() {
 				$.post(data.baseurl, function() {});
 			}, data.locksec * 1000);
 		} else {
 			$('#locked_popup').modal('hide');
+			$('#locked_popup_modal').modal('hide');
 		}
 	}
 });

@@ -53,6 +53,18 @@
 					</div>
 				</div>
 			</div>
+			<div class="modal" id="locked_popup_modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+				<div class="modal-dialog modal-sm" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title text-center">System is Locked for the Moment</h4>
+						</div>
+						<div class="modal-body">
+							<p class="text-red text-center">Locked Time: <span id="locktime"></span></p>
+						</div>
+					</div>
+				</div>
+			</div>
 			<footer class="main-footer">
 				<div class="pull-right hidden-xs">
 					<b>Version</b> 0.9.1
