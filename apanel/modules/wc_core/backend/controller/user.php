@@ -73,12 +73,11 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_list() {
-		$data = $this->input->post(array('search', 'typeid', 'classid'));
-		$search = $data['search'];
-		$typeid = $data['typeid'];
-		$classid = $data['classid'];
+		$data	= $this->input->post(array('search', 'sort'));
+		$search	= $data['search'];
+		$sort	= $data['sort'];
 
-		$pagination = $this->user_model->getUserPagination($this->fields, $search, $typeid, $classid);
+		$pagination = $this->user_model->getUserPagination($this->fields, $search, $sort);
 		$table = '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';

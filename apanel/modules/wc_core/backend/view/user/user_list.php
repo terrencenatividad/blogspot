@@ -26,7 +26,7 @@
 			</div>
 			<div class="box-body table-responsive no-padding">
 				<table id="tableList" class="table table-hover table-sidepad">
-					<thead>
+					<!--<thead>
 						<tr class="info">
 							<th class="text-center" style="width: 15px"><input type="checkbox" class="checkall"></th>
 							<th>Username</th>
@@ -35,7 +35,24 @@
 							<th>Group Name</th>
 							<th style="width: 15px;">Status</th>
 						</tr>
-					</thead>
+					</thead>-->
+					<?php
+						echo $ui->loadElement('table')
+								->setHeaderClass('info')
+								->addHeader(
+									'<input type="checkbox" class="checkall">',
+									array(
+										'class' => 'text-center',
+										'style' => 'width: 15px'
+									)
+								)
+								->addHeader('Username', array('class' => 'col-md-4'), 'sort', 'username', 'asc')
+								->addHeader('Name', array('class' => 'col-md-2'), 'sort', 'firstname')
+								->addHeader('E-mail Address', array('class' => 'col-md-2'), 'sort', 'email')
+								->addHeader('Group Name', array('class' => 'col-md-2'), 'sort', 'wu.groupname')
+								->addHeader('Status', array('style' => 'width: 15px'), 'sort', 'stat')
+								->draw();
+					?>
 					<tbody>
 
 					</tbody>
@@ -67,6 +84,21 @@
 	<script>
 		var ajax = {}
 		var ajax_call = {};
+		$('#tableList').on('click', 'a[data-sort]', function() {
+			var field = $(this).attr('data-field');
+			var sort = $(this).attr('data-sort');
+			$(this).closest('tr').find('a[data-sort]').attr('data-sort', '');
+			var new_sort = '';
+			if (sort != 'asc') {
+				new_sort = 'asc';
+			} else {
+				new_sort = 'desc';
+			}
+			$(this).attr('data-sort', new_sort);
+			ajax.sort = field + ' ' + new_sort;
+			ajax.page = 1;
+			getList();
+		});
 		$('#table_search').on('input', function () {
 			ajax.page = 1;
 			ajax.search = $(this).val();

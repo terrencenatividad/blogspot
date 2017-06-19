@@ -82,7 +82,8 @@ class user_model extends wc_model {
 						->getRow();
 	}
 
-	public function getUserPagination($fields, $search, $typeid, $classid) {
+	public function getUserPagination($fields, $search, $sort) {
+		$sort		= ($sort) ? $sort : 'username';
 		$fields = array(
 			'username',
 			'password',
@@ -101,16 +102,11 @@ class user_model extends wc_model {
 		if ($search) {
 			$condition .= $this->generateSearch($search, array('username' , 'wu.groupname', 'firstname', 'lastname'));
 		}
-		if ($typeid && $typeid != 'null') {
-			$condition .= (($condition) ? " AND " : " ") . "i.typeid = '$typeid'";
-		}
-		if ($classid && $classid != 'null') {
-			$condition .= (($condition) ? " AND " : " ") . "i.classid = '$classid'";
-		}
 		$result = $this->db->setTable("wc_users wu")
 							->innerJoin("wc_user_group wug ON wug.groupname = wu.groupname AND wug.companycode = wu.companycode")
 							->setFields($fields)
 							->setWhere($condition)
+							->setOrderBy($sort)
 							->runPagination();
 
 		return $result;
