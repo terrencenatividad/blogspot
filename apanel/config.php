@@ -15,7 +15,7 @@ session_start();
 session_cache_limiter('private');
 session_cache_expire(480);
 // DATABASE CONFIG
-define('WC_HOSTNAME', 'localhost');
+define('WC_HOSTNAME', '192.168.100.235');
 define('WC_USERNAME', 'root');
-define('WC_PASSWORD', '');
+define('WC_PASSWORD', '123456');
 define('WC_DATABASE', 'webcore');
