@@ -246,6 +246,9 @@ th {
 th > a[data-sort] {
 	cursor: pointer;
 }
+th > a[data-sort] {
+	white-space: nowrap;
+}
 th > a[data-sort] > span {
 	font-family: 'Glyphicons Halflings';
 	font-weight: 400;
