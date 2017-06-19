@@ -240,6 +240,28 @@ script + .wrapper > .content-wrapper {
 .mt-none {
 	margin-top: 0;
 }
+th {
+	font-size: 14px;
+}
+th > a[data-sort] {
+	cursor: pointer;
+}
+th > a[data-sort] > span {
+	font-family: 'Glyphicons Halflings';
+	font-weight: 400;
+	font-size: 12px;
+	bottom: 0px;
+}
+th > a[data-sort=""] > span:before {
+	opacity: 0.4;
+	content: "\e150";
+}
+th > a[data-sort="asc"] > span:before {
+	content: "\e155";
+}
+th > a[data-sort="desc"] > span:before {
+	content: "\e156";
+}
 
 
 /**/
