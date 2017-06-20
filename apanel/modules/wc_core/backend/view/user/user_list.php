@@ -26,16 +26,6 @@
 			</div>
 			<div class="box-body table-responsive no-padding">
 				<table id="tableList" class="table table-hover table-sidepad">
-					<!--<thead>
-						<tr class="info">
-							<th class="text-center" style="width: 15px"><input type="checkbox" class="checkall"></th>
-							<th>Username</th>
-							<th>Name</th>
-							<th>E-mail Address</th>
-							<th>Group Name</th>
-							<th style="width: 15px;">Status</th>
-						</tr>
-					</thead>-->
 					<?php
 						echo $ui->loadElement('table')
 								->setHeaderClass('info')
