@@ -24,8 +24,10 @@ class date {
 	private function convertDate($date, $format) {
 		if (empty($date)) {
 			return date($format);
-		} else {
+		} else if (strtotime($date) > 0) {
 			return date($format, strtotime($date));
+		} else {
+			return '';
 		}
 	}
 
