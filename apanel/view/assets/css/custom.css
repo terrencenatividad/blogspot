@@ -265,6 +265,15 @@ th > a[data-sort="asc"] > span:before {
 th > a[data-sort="desc"] > span:before {
 	content: "\e156";
 }
+th > a {
+	color: #333;
+}
+th > a:hover {
+	color: #333;
+}
+th > a[data-sort]:hover {
+	opacity: 0.7;
+}
 
 
 /**/
