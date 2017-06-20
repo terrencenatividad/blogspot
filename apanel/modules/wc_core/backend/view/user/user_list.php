@@ -73,7 +73,7 @@
 	</div>
 	<script>
 		var ajax = {}
-		var ajax_call = {};
+		var ajax_call = '';
 		tableSort('#tableList', function(value) {
 			ajax.sort = value;
 			ajax.page = 1;
@@ -82,7 +82,6 @@
 		$('#table_search').on('input', function () {
 			ajax.page = 1;
 			ajax.search = $(this).val();
-			ajax_call.abort();
 			getList();
 		});
 		$('#pagination').on('click', 'a', function(e) {
@@ -91,6 +90,9 @@
 			getList();
 		});
 		function getList() {
+			if (ajax_call != '') {
+				ajax_call.abort();
+			}
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
 				$('#tableList tbody').html(data.table);
 				$('#pagination').html(data.pagination);
