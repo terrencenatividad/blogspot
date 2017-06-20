@@ -101,7 +101,6 @@
 			ajax.page = $(this).attr('data-page');
 			getList();
 		});
-		
 		function getList() {
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
 				$('#tableList tbody').html(data.table);
