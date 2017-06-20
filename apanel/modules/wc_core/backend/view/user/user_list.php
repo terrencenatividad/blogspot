@@ -47,7 +47,7 @@
 									)
 								)
 								->addHeader('Username', array('class' => 'col-md-4'), 'sort', 'username', 'asc')
-								->addHeader('Name', array('class' => 'col-md-2'), 'sort', 'firstname')
+								->addHeader('Name', array('class' => 'col-md-2'), 'sort', 'firstname, lastname')
 								->addHeader('E-mail Address', array('class' => 'col-md-2'), 'sort', 'email')
 								->addHeader('Group Name', array('class' => 'col-md-2'), 'sort', 'wu.groupname')
 								->addHeader('Status', array('style' => 'width: 15px'), 'sort', 'stat')
@@ -87,6 +87,7 @@
 		$('#tableList').on('click', 'a[data-sort]', function() {
 			var field = $(this).attr('data-field');
 			var sort = $(this).attr('data-sort');
+			var fields = field.split(',');
 			$(this).closest('tr').find('a[data-sort]').attr('data-sort', '');
 			var new_sort = '';
 			if (sort != 'asc') {
@@ -95,7 +96,7 @@
 				new_sort = 'desc';
 			}
 			$(this).attr('data-sort', new_sort);
-			ajax.sort = field + ' ' + new_sort;
+			ajax.sort = fields.join(' ' + new_sort + ', ') + ' ' + new_sort;
 			ajax.page = 1;
 			getList();
 		});
