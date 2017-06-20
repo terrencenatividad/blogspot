@@ -96,8 +96,6 @@
 			ajax_call.abort();
 			getList();
 		});
-
-		
 		$('#pagination').on('click', 'a', function(e) {
 			e.preventDefault();
 			ajax.page = $(this).attr('data-page');
