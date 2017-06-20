@@ -111,7 +111,7 @@ class dashboard_model extends wc_model {
 	}
 
 	public function getAging() {
-		$datefilter = $this->date->dateDbFormat() . ' 23:59:59';
+		$datefilter = $this->date->dateDbFormat() . ' 00:00:00';
 		$ap	= $this->db->setTable('accountspayable ap')
 						->innerJoin('pv_application pva ON pva.apvoucherno = ap.voucherno AND pva.companycode = ap.companycode')
 						->setFields("
