@@ -41,6 +41,7 @@
 	<script src="<?= BASE_URL ?>assets/js/raphael.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/morris.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/bootstrap-select.min.js"></script>
+	<script src="<?= BASE_URL ?>assets/js/global.js"></script>
 	<script>
 		paceOptions = {
 			catchupTime : 5000,
