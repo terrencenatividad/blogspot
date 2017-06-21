@@ -14,4 +14,12 @@ function tableSort(table, callback) {
 		var value = fields.join(' ' + new_sort + ', ') + ' ' + new_sort;
 		callback(value);
 	});
+	var value = '';
+	var element_sort = $(table).find('a[data-sort]:not([data-sort=""])');
+	if (element_sort.length) {
+		var sort	= element_sort.attr('data-sort');
+		var fields	= element_sort.attr('data-field').split(',');
+		value = fields.join(' ' + sort + ', ') + ' ' + sort;
+	}
+	callback(value);
 }
