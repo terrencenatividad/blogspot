@@ -66,11 +66,11 @@ class check_task {
 					</button>
 					<ul class="dropdown-menu">';
 
-				$check_task .= ($this->view) ? '<li><a class="btn-sm" href="'. MODULE_URL .'view/' . $this->value . '"><i class="glyphicon glyphicon-eye-open"></i> View</a></li>' : '';
+				$check_task .= ($this->view) ? '<li><a href="'. MODULE_URL .'view/' . $this->value . '" class="btn-sm"><i class="glyphicon glyphicon-eye-open"></i> View</a></li>' : '';
 				
-				$check_task .= ($this->edit) ? '<li><a class="btn-sm" href="'. MODULE_URL .'edit/' . $this->value . '"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li>' : '';
+				$check_task .= ($this->edit) ? '<li><a href="'. MODULE_URL .'edit/' . $this->value . '" class="btn-sm"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li>' : '';
 				
-				$check_task .= ($this->print) ? '<li><a class="btn-sm" href="'. MODULE_URL .'print_preview/' . $this->value . '"><i class="glyphicon glyphicon-print"></i> Print Voucher</a></li>' : '';
+				$check_task .= ($this->print) ? '<li><a href="'. MODULE_URL .'print_preview/' . $this->value . '" target="_blank" class="btn-sm"><i class="glyphicon glyphicon-print"></i> Print Voucher</a></li>' : '';
 
 				$check_task .= ($dropdown_top && $dropdown_addon) ? '<li class="divider"></li>' : '';
 
