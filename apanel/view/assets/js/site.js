@@ -166,6 +166,9 @@ $('body').on('keyup', function(e) {
 		controlDown = false;
 	}
 })
+$('body').on('focus', '[data-validation~="decimal"], [data-validation~="integer"]', function() {
+	$(this).select();
+});
 $('body').on('input change blur blur_validate', '[data-validation~="required"]', function(e) {
 	var error_message = 'This field is required';
 	var form_group = $(this).closest('.form-group');
@@ -184,7 +187,7 @@ $('body').on('keydown', '[data-validation~="decimal"]', function(e) {
 	if (keyCode == 17) {
 		controlDown = true;
 	}
-	if ((keyCode > 31 && (keyCode < 48 || keyCode > 57) && (keyCode < 96 || keyCode > 105) && keyCode != 190 && keyCode != 110 && keyCode != 188) && ! (controlDown && (keyCode == 67 || keyCode == 86)) && keyCode != 116) 
+	if ((keyCode > 31 && (keyCode < 48 || keyCode > 57) && (keyCode < 96 || keyCode > 105) && keyCode != 190 && keyCode != 110 && keyCode != 188) && ! (controlDown && (keyCode == 67 || keyCode == 86)) && keyCode != 116 && (keyCode < 37 || keyCode > 40) && keyCode != 46) 
 		return false;
 	return true;
 });
@@ -200,7 +203,10 @@ $('body').on('blur blur_validate', '[data-validation~="decimal"]', function() {
 });
 $('body').on('keydown', '[data-validation~="integer"]', function(e) {
 	var keyCode = e.originalEvent.keyCode;
-	if (keyCode > 31 && (keyCode < 48 || keyCode > 57) && (keyCode < 96 || keyCode > 105)) 
+	if (keyCode == 17) {
+		controlDown = true;
+	}
+	if ((keyCode > 31 && (keyCode < 48 || keyCode > 57) && (keyCode < 96 || keyCode > 105) && keyCode != 110 && keyCode != 188) && ! (controlDown && (keyCode == 67 || keyCode == 86)) && keyCode != 116 && (keyCode < 37 || keyCode > 40) && keyCode != 46) 
 		return false;
 	return true;
 });
