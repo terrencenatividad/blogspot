@@ -1,7 +1,16 @@
 function drawTemplate() {
-	$('select:not([multiple])').select2({
-		width: '100%',
-		containerCssClass: ':all:',
+	$('select:not([multiple])').each(function() {
+		var parent = '';
+		if ($(this).closest('.content').length) {
+			parent = $(this).closest('.content');
+		} else if ($(this).closest('.modal-body').length) {
+			parent = $(this).closest('.modal-body');
+		}
+		$(this).select2({
+			width: '100%',
+			containerCssClass: ':all:',
+			dropdownParent: parent
+		});
 	});
 	$('select[multiple]').selectpicker({
 		container: '.content-wrapper',
@@ -87,8 +96,8 @@ $(document).ajaxStart(function() {
 	$('body').css('cursor', 'progress');
 }); 
 $(document).ajaxComplete(function(event, xhr) {
-	drawTemplate();
 	if (xhr.statusText == 'OK') {
+		drawTemplate();
 		Pace.stop();
 		$('body').css('cursor', '');
 		var data = {};
