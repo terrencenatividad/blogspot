@@ -23,7 +23,7 @@ if ($request_dir[0] == 'assets' && isset($request_dir[1]) && isset($request_dir[
 	$temp_dir = $request_dir;
 	unset($temp_dir[0]);
 	if (in_array($temp_dir[1], array('css', 'js', 'fonts', 'images'))) {
-		$asset_path = 'view/assets/' . implode('/', $temp_dir);
+		$asset_path = PRE_PATH . CORE_COMPONENTS . 'assets/' . implode('/', $temp_dir);
 		$asset_type = $temp_dir[1];
 	} else {
 		unset($temp_dir[1]);
@@ -53,8 +53,8 @@ foreach ((isset($request_uri[1]) ? explode('&', $request_uri[1]) : array()) as $
 }
 // DEFINE BASE URL
 define('BASE_URL', $request_scheme . '://' . $_SERVER['HTTP_HOST'] . $sub_folder);
-require_once 'system/wc_controller.php';
-require_once 'system/wc_model.php';
-require_once 'system/wc_view.php';
+require_once PRE_PATH . CORE_COMPONENTS . 'system/wc_controller.php';
+require_once PRE_PATH . CORE_COMPONENTS . 'system/wc_model.php';
+require_once PRE_PATH . CORE_COMPONENTS . 'system/wc_view.php';
 require_once 'wc_' . PAGE_TYPE . '.php';
 
