@@ -21,7 +21,7 @@ class wc_controller {
 		}
 	}
 
-	private function cleanData($data) {
+	public function cleanData($data) {
 		if (isset($this->clean_number)) {
 			foreach ($this->clean_number as $index) {
 				$temp = $data[$index];
