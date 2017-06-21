@@ -21,5 +21,22 @@ class wc_controller {
 		}
 	}
 
+	private function cleanData($data) {
+		if (isset($this->clean_number)) {
+			foreach ($this->clean_number as $index) {
+				$temp = $data[$index];
+				if (is_array($temp)) {
+					$array = array();
+					foreach ($temp as $key => $value) {
+						$array[$key] = str_replace(',', '', $value);
+					}
+					$data[$index] = $array;
+				} else {
+					$data[$index] = str_replace(',', '', $temp);
+				}
+			}
+		}
+		return $data;
+	}
 
 }
