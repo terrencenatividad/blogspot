@@ -33,8 +33,8 @@ class ui {
 	
 	public function loadElement($type) {
 		$element = '';
-		if (file_exists("system/ui_classes/$type.php")) {
-			require_once "system/ui_classes/$type.php";
+		if (file_exists(PRE_PATH . CORE_COMPONENTS . "system/ui_classes/$type.php")) {
+			require_once PRE_PATH . CORE_COMPONENTS . "system/ui_classes/$type.php";
 			$element = new $type();
 		} else if (DEBUGGING) {
 			echo "Invalid Element Type";
