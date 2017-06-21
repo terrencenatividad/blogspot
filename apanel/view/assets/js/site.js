@@ -193,7 +193,7 @@ $('body').on('keydown', '[data-validation~="decimal"]', function(e) {
 });
 $('body').on('blur blur_validate', '[data-validation~="decimal"]', function() {
 	var value = $(this).val();
-	if (value.replace(/\,\s/g,'') != '') {
+	if (value.replace(/\,/g) != '') {
 		var decimal = parseFloat(value.replace(/\,/g,''));
 		if (isNaN(decimal)) {
 			decimal = 0;
@@ -212,7 +212,7 @@ $('body').on('keydown', '[data-validation~="integer"]', function(e) {
 });
 $('body').on('blur blur_validate', '[data-validation~="integer"]', function(e) {
 	var value = $(this).val();
-	if (value.replace(/\,\s/g,'') != '') {
+	if (value.replace(/\,/g,'') != '') {
 		var decimal = parseFloat(value.replace(/\,/g,''));
 		if (isNaN(decimal)) {
 			decimal = 0;
@@ -221,8 +221,10 @@ $('body').on('blur blur_validate', '[data-validation~="integer"]', function(e) {
 	}
 });
 $('body').on('blur blur_validate', '[data-max]', function(e) {
-	var max = parseFloat($(this).attr('data-max').replace(/\,\s/g,''));
-	var value = parseFloat($(this).val().replace(/\,\s/g,''));
+	var max = parseFloat($(this).attr('data-max').replace(/\,/g,''));
+	var value = parseFloat($(this).val().replace(/\,/g,''));
+	console.log(max);
+	console.log($(this).val().replace(/\,/g,''));
 	if (value != '') {
 		if (max < value) {
 			value = max;
@@ -230,7 +232,7 @@ $('body').on('blur blur_validate', '[data-max]', function(e) {
 		if (isNaN(value)) {
 			value = 0;
 		}
-		$(this).val(value.toFixed(0));
+		$(this).val(value.toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
 	}
 });
 // /\
