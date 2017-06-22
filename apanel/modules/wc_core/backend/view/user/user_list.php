@@ -36,10 +36,10 @@
 										'style' => 'width: 15px'
 									)
 								)
-								->addHeader('Username', array('class' => 'col-md-4'), 'sort', 'username', 'asc')
-								->addHeader('Name', array('class' => 'col-md-2'), 'sort', 'firstname, lastname')
-								->addHeader('E-mail Address', array('class' => 'col-md-2'), 'sort', 'email')
-								->addHeader('Group Name', array('class' => 'col-md-2'), 'sort', 'wu.groupname')
+								->addHeader('Username', array('class' => 'col-md-3'), 'sort', 'username', 'asc')
+								->addHeader('Name', array('class' => 'col-md-3'), 'sort', 'firstname, lastname')
+								->addHeader('E-mail Address', array('class' => 'col-md-3'), 'sort', 'email')
+								->addHeader('Group Name', array('class' => 'col-md-3'), 'sort', 'wu.groupname')
 								->addHeader('Status', array('style' => 'width: 15px'), 'sort', 'stat')
 								->draw();
 					?>
