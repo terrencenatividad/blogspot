@@ -11,7 +11,16 @@ class access {
 		$session = new session();
 		$login = $session->get('login');
 		if (isset($login['apanel_user']) && $login['apanel_user']) {
-			return true;
+			$db = new db();
+			$result = $db->setTable(PRE_TABLE . '_users')
+						->setFields('username')
+						->setWhere("username = '{$login['username']}'")
+						->setLimit(1)
+						->runSelect(false)
+						->getRow();
+
+			$db->close();
+			return $result;
 		} else {
 			return false;
 		}
