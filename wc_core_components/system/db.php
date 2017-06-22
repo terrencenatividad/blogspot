@@ -32,9 +32,9 @@ class db {
 	public function __construct() {
 		$session = new session();
 		$this->conn				= new mysqli(WC_HOSTNAME, WC_USERNAME, WC_PASSWORD, WC_DATABASE);
-		$this->companycode		= COMPANYCODE;
+		$this->companycode		= defined('COMPANYCODE') ? COMPANYCODE : '';
 		$this->datetime			= date('Y-m-d H:i:s');
-		$this->username			= USERNAME;
+		$this->username			= defined('USERNAME') ? USERNAME : '';
 		$this->updateprogram	= '';
 		$this->error_allowed	= array('1062', '1451');
 		if (defined('MODULE_NAME') && defined('MODULE_TASK')) {

@@ -3,6 +3,7 @@
 if ( ! ob_start('ob_gzhandler')) {
 	ob_start();
 }
+define('PRE_TABLE', 'wc');
 define('PRE_PATH', '');
 define('PAGE_TYPE', 'frontend');
 require_once PRE_PATH . 'settings.php';

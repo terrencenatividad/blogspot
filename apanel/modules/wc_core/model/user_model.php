@@ -8,7 +8,7 @@ class user_model extends wc_model {
 
 	public function saveUser($data) {
 		$data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
-		$result = $this->db->setTable('wc_users')
+		$result = $this->db->setTable(PRE_TABLE . '_users')
 							->setValues($data)
 							->runInsert();
 		
@@ -25,7 +25,7 @@ class user_model extends wc_model {
 		} else {
 			unset($data['password']);
 		}
-		$result = $this->db->setTable('wc_users')
+		$result = $this->db->setTable(PRE_TABLE . '_users')
 							->setValues($data)
 							->setWhere("username = '$username'")
 							->setLimit(1)
@@ -41,7 +41,7 @@ class user_model extends wc_model {
 	public function deleteUsers($data) {
 		$error_id = array();
 		foreach ($data as $id) {
-			$result =  $this->db->setTable('wc_users')
+			$result =  $this->db->setTable(PRE_TABLE . '_users')
 								->setWhere("username = '$id'")
 								->setLimit(1)
 								->runDelete();
@@ -59,7 +59,7 @@ class user_model extends wc_model {
 	}
 
 	public function checkUsername($username, $reference) {
-		$result = $this->db->setTable('wc_users')
+		$result = $this->db->setTable(PRE_TABLE . '_users')
 							->setFields('username')
 							->setWhere("username = '$username' AND username != '$reference'")
 							->setLimit(1)
@@ -74,7 +74,7 @@ class user_model extends wc_model {
 	}
 
 	public function getUserById($fields, $username) {
-		return $this->db->setTable('wc_users')
+		return $this->db->setTable(PRE_TABLE . '_users')
 						->setFields($fields)
 						->setWhere("username = '$username'")
 						->setLimit(1)
@@ -102,8 +102,8 @@ class user_model extends wc_model {
 		if ($search) {
 			$condition .= $this->generateSearch($search, array('username' , 'wu.groupname', 'firstname', 'lastname'));
 		}
-		$result = $this->db->setTable("wc_users wu")
-							->innerJoin("wc_user_group wug ON wug.groupname = wu.groupname AND wug.companycode = wu.companycode")
+		$result = $this->db->setTable(PRE_TABLE . "_users wu")
+							->innerJoin(PRE_TABLE . "_user_group wug ON wug.groupname = wu.groupname AND wug.companycode = wu.companycode")
 							->setFields($fields)
 							->setWhere($condition)
 							->setOrderBy($sort)
@@ -113,7 +113,7 @@ class user_model extends wc_model {
 	}
 
 	public function getGroupList() {
-		return $this->db->setTable('wc_user_group')
+		return $this->db->setTable(PRE_TABLE . '_user_group')
 						->setFields('groupname ind, groupname val')
 						->runSelect()
 						->getResult();

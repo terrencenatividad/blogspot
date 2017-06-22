@@ -4,7 +4,7 @@ class login extends wc_model {
 	private $validation = array();
 
 	public function getUserAccess($username, $password) {
-		$result = $this->db->setTable('wc_users')
+		$result = $this->db->setTable(PRE_TABLE . '_users')
 							->setFields("username, password, companycode, groupname, CONCAT(firstname, ' ', middleinitial, ' ', lastname) name")
 							->setWhere("username = '$username'")
 							->setLimit(1)
@@ -22,7 +22,7 @@ class login extends wc_model {
 	}
 
 	public function checkLockedAccount($username) {
-		$result = $this->db->setTable('wc_users')
+		$result = $this->db->setTable(PRE_TABLE . '_users')
 							->setFields('locktime')
 							->setWhere("username = '$username' AND locktime >= NOW()")
 							->setLimit(1)

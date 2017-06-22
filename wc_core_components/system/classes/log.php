@@ -27,7 +27,7 @@ class log extends db {
 			$this->data['username']		= (isset($login['username']))		? $login['username']	: '';
 		}
 		$this->data['activitydone'] = $activity;
-		return $this->setTable('wc_admin_logs')
+		return $this->setTable(PRE_TABLE . '_admin_logs')
 					->setValues($this->data)
 					->runInsert(false);
 	}

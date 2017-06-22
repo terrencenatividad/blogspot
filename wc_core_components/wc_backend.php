@@ -57,7 +57,7 @@ class backend {
 		} else if ($this->checkAccessType(array('print'), $function)) {
 			$type = 'mod_print';
 		}
-		$result		= $db->setTable('wc_module_access')
+		$result		= $db->setTable(PRE_TABLE . '_module_access')
 							->setFields('mod_add, mod_view, mod_edit, mod_delete, mod_list, mod_print')
 							->setWhere("groupname = '" . GROUPNAME . "' AND module_name = '$module_name'")
 							->runSelect()
@@ -114,7 +114,7 @@ class backend {
 		$input		= new input();
 
 
-		$locktime = $db->setTable('wc_users')
+		$locktime = $db->setTable(PRE_TABLE . '_users')
 						->setFields('locktime')
 						->setWhere("username = '" . USERNAME . "' AND locktime >= NOW()")
 						->setLimit(1)
@@ -144,8 +144,8 @@ class backend {
 			define('MODULE_TASK', 'login');
 			define('MODULE_NAME', 'Login');
 		} else if ($subfolder != '' && $subfolder != 'ajax') {
-			$paths = $db->setTable('wc_modules')
-						->setFields('module_name, module_group, module_link, folder, file, default_function', 'wc_modules')
+			$paths = $db->setTable(PRE_TABLE . '_modules')
+						->setFields('module_name, module_group, module_link, folder, file, default_function')
 						->setWhere("'" . SUB_FOLDER . "/' LIKE module_link AND active")
 						->runSelect(false)
 						->getRow();

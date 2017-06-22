@@ -47,7 +47,7 @@ class wc_view {
 		$nav = array();
 		if (PAGE_TYPE == 'backend') {
 			$db = new db();
-			$result = $db->setTable('wc_modules')
+			$result = $db->setTable(PRE_TABLE . '_modules')
 							->setFields('module_link, module_name, module_group, label')
 							->setWhere('active AND show_nav')
 							->setOrderBy('group_order, module_order, module_name')

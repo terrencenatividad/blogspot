@@ -7,7 +7,7 @@ class usergroup_model extends wc_model {
 	}
 
 	public function saveGroup($data, $module_access) {
-		$result = $this->db->setTable('wc_user_group')
+		$result = $this->db->setTable(PRE_TABLE . '_user_group')
 							->setValues($data)
 							->runInsert();
 		if ($result) {
@@ -25,7 +25,7 @@ class usergroup_model extends wc_model {
 
 	private function setGroupAccess($module_access, $groupname) {
 		$values = array();
-		$this->db->setTable('wc_module_access')
+		$this->db->setTable(PRE_TABLE . '_module_access')
 				->setWhere("groupname = '$groupname'")
 				->runDelete(false);
 
@@ -43,14 +43,14 @@ class usergroup_model extends wc_model {
 			);
 			$values[] = $mod;
 		}
-		$result = $this->db->setTable('wc_module_access')
+		$result = $this->db->setTable(PRE_TABLE . '_module_access')
 							->setValues($values)
 							->runInsert(false);
 		return $result;
 	}
 
 	public function updateGroup($data, $group_id, $module_access) {
-		$result = $this->db->setTable('wc_user_group')
+		$result = $this->db->setTable(PRE_TABLE . '_user_group')
 				->setValues($data)
 				->setWhere("groupname = '$group_id'")
 				->setLimit(1)
@@ -66,7 +66,7 @@ class usergroup_model extends wc_model {
 	public function deleteGroup($data) {
 		$error_id = array();
 		foreach ($data as $id) {
-			$result =  $this->db->setTable('wc_user_group')
+			$result =  $this->db->setTable(PRE_TABLE . '_user_group')
 								->setWhere("groupname = '$id'")
 								->setLimit(1)
 								->runDelete();
@@ -84,7 +84,7 @@ class usergroup_model extends wc_model {
 	}
 
 	public function checkGroupName($groupname, $reference) {
-		$result = $this->db->setTable('wc_user_group')
+		$result = $this->db->setTable(PRE_TABLE . '_user_group')
 							->setFields('groupname')
 							->setWhere("groupname = '$groupname' AND groupname != '$reference'")
 							->setLimit(1)
@@ -99,7 +99,7 @@ class usergroup_model extends wc_model {
 	}
 
 	public function getGroupByName($fields, $groupname) {
-		return $this->db->setTable('wc_user_group')
+		return $this->db->setTable(PRE_TABLE . '_user_group')
 						->setFields($fields)
 						->setWhere("groupname = '$groupname'")
 						->setLimit(1)
@@ -113,7 +113,7 @@ class usergroup_model extends wc_model {
 		if ($search) {
 			$condition = $this->generateSearch($search, $fields);
 		}
-		$result =  $this->db->setTable('wc_user_group')
+		$result =  $this->db->setTable(PRE_TABLE . '_user_group')
 							->setFields($fields)
 							->setWhere($condition)
 							->setOrderBy($sort)
@@ -123,7 +123,7 @@ class usergroup_model extends wc_model {
 	}
 
 	public function getGroupListDropdown() {
-		return $this->db->setTable('wc_user_group')
+		return $this->db->setTable(PRE_TABLE . '_user_group')
 						->setFields('groupname ind, groupname val')
 						->runSelect()
 						->getResult();
@@ -131,13 +131,13 @@ class usergroup_model extends wc_model {
 
 	public function getModuleAccessList($groupname = '') {
 		$condition = '';
-		$left_select = $this->db->setTable('wc_user_group ug')
+		$left_select = $this->db->setTable(PRE_TABLE . '_user_group ug')
 								->setFields('wma.module_name module_name, mod_add, mod_view, mod_edit, mod_delete, mod_list, mod_print')
-								->innerJoin('wc_module_access wma ON ug.groupname = wma.groupname')
+								->innerJoin(PRE_TABLE . '_module_access wma ON ug.groupname = wma.groupname')
 								->setWhere("ug.groupname = '$groupname'")
 								->buildSelect();
 
-		$this->db->setTable('wc_modules wm')
+		$this->db->setTable(PRE_TABLE . '_modules wm')
 					->setFields('wm.module_name module_name, ug.mod_add mod_add, ug.mod_view mod_view, ug.mod_edit mod_edit, ug.mod_delete mod_delete, ug.mod_list mod_list, ug.mod_print mod_print, has_add, has_view, has_edit, has_delete, has_list, has_print')
 					->leftJoin("($left_select) ug ON ug.module_name = wm.module_name")
 					->setGroupBy('wm.module_name');
