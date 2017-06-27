@@ -103,6 +103,7 @@
 									<?php
 										echo $ui->formField('text')
 											->setLabel('Username')
+											->setAttribute(array('autocomplete' => 'off'))
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('username')
 											->setId('username')
