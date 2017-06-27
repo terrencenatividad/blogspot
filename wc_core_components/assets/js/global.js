@@ -12,7 +12,7 @@ function tableSort(table, callback) {
 		}
 		$(this).attr('data-sort', new_sort);
 		var value = fields.join(' ' + new_sort + ', ') + ' ' + new_sort;
-		callback(value);
+		callback(value, true);
 	});
 	var value = '';
 	var element_sort = $(table).find('a[data-sort]:not([data-sort=""])');
@@ -21,5 +21,5 @@ function tableSort(table, callback) {
 		var fields	= element_sort.attr('data-field').split(',');
 		value = fields.join(' ' + sort + ', ') + ' ' + sort;
 	}
-	callback(value);
+	callback(value, false);
 }
