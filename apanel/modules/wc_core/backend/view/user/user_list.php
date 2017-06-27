@@ -74,10 +74,12 @@
 	<script>
 		var ajax = {}
 		var ajax_call = '';
-		tableSort('#tableList', function(value) {
+		tableSort('#tableList', function(value, getlist) {
 			ajax.sort = value;
 			ajax.page = 1;
-			getList();
+			if (getlist) {
+				getList();
+			}
 		});
 		$('#table_search').on('input', function () {
 			ajax.page = 1;
