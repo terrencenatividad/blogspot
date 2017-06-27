@@ -35,7 +35,7 @@ if ($request_dir[0] == 'assets' && isset($request_dir[1]) && isset($request_dir[
 	} else if ($asset_type == 'js') {
 		header('Content-Type: application/javascript');
 	}
-	if ( ! in_array($request_dir[count($request_dir) - 1], array('custom.css', 'site.js'))) {
+	if ( ! in_array($request_dir[count($request_dir) - 1], array('custom.css', 'site.js', 'global.js'))) {
 		header('Cache-Control: public, max-age=31536000');
 		header('Pragma: public, max-age=31536000');
 	}
