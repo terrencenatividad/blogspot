@@ -8,6 +8,7 @@
 							<?php
 								echo $ui->formField('text')
 									->setLabel('Group Name')
+									->setAttribute(array('autocomplete' => 'off'))
 									->setSplit('col-md-2', 'col-md-8')
 									->setName('groupname')
 									->setId('groupname')
