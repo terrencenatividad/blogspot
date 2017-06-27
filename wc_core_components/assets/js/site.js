@@ -232,8 +232,10 @@ $('body').on('blur blur_validate', '[data-validation~="integer"]', function(e) {
 $('body').on('blur blur_validate', '[data-max]', function(e) {
 	var max = parseFloat($(this).attr('data-max').replace(/\,/g,''));
 	var value = parseFloat($(this).val().replace(/\,/g,''));
-	console.log(max);
-	console.log($(this).val().replace(/\,/g,''));
+	var decimal_place = 2;
+	if ($(this).filter('[data-validation~="integer"]').length) {
+		decimal_place = 0;
+	}
 	if (value != '') {
 		if (max < value) {
 			value = max;
@@ -241,7 +243,7 @@ $('body').on('blur blur_validate', '[data-max]', function(e) {
 		if (isNaN(value)) {
 			value = 0;
 		}
-		$(this).val(value.toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+		$(this).val(value.toFixed(decimal_place).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
 	}
 });
 // /\
