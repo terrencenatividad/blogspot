@@ -45,6 +45,7 @@ class check_task {
 
 	public function draw() {
 		$check_task			= '';
+		$check_task_addon	= '';
 		$dropdown_top		= ($this->edit || $this->view || $this->print);
 		$dropdown_addon		= (count($this->addon));
 		$dropdown			= ($dropdown_top || $this->delete || $dropdown_addon);
@@ -72,11 +73,14 @@ class check_task {
 				
 				$check_task .= ($this->print) ? '<li><a href="'. MODULE_URL .'print_preview/' . $this->value . '" target="_blank" class="btn-sm"><i class="glyphicon glyphicon-print"></i> Print Voucher</a></li>' : '';
 
-				$check_task .= ($dropdown_top && $dropdown_addon) ? '<li class="divider"></li>' : '';
-
 				foreach ($this->addon as $addon) {
 					$class = strtolower(str_replace(' ', '_', $addon->task));
-					$check_task .= ($addon->show) ? '<li><a class="btn-sm link ' . $class . '" data-id="' . $this->value . '"><i class="glyphicon glyphicon-' . $addon->glyphicon . '"></i> ' . $addon->task . '</a></li>' : '';
+					$check_task_addon .= ($addon->show) ? '<li><a class="btn-sm link ' . $class . '" data-id="' . $this->value . '"><i class="glyphicon glyphicon-' . $addon->glyphicon . '"></i> ' . $addon->task . '</a></li>' : '';
+				}
+
+				if ($check_task_addon) {
+					$check_task .= ($dropdown_top && $dropdown_addon) ? '<li class="divider"></li>' : '';
+					$check_task .= $check_task_addon;
 				}
 					
 				$check_task .= ($this->delete && ($dropdown_top || $dropdown_addon)) ? '<li class="divider"></li>' : '';
