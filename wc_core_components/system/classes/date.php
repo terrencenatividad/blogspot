@@ -1,29 +1,29 @@
 <?php
 class date {
 
-	public function dateDbFormat($date = '') {
-		$date = $this->convertDate($date, 'Y-m-d');
+	public function dateDbFormat($date = '', $offset = '+0 day') {
+		$date = $this->convertDate($date, 'Y-m-d', $offset);
 		return $date;
 	}
 
-	public function datetimeDbFormat($date = '') {
-		$date = $this->convertDate($date, 'Y-m-d H:i:s');
+	public function datetimeDbFormat($date = '', $offset = '+0 day') {
+		$date = $this->convertDate($date, 'Y-m-d H:i:s', $offset);
 		return $date;
 	}
 
-	public function dateFormat($date = '') {
-		$date = $this->convertDate($date, 'M d, Y');
+	public function dateFormat($date = '', $offset = '+0 day') {
+		$date = $this->convertDate($date, 'M d, Y', $offset);
 		return $date;
 	}
 
-	public function datetimeFormat($date = '') {
-		$date = $this->convertDate($date, 'M d, Y h:i:s A');
+	public function datetimeFormat($date = '', $offset = '+0 day') {
+		$date = $this->convertDate($date, 'M d, Y h:i:s A', $offset);
 		return $date;
 	}
 
-	private function convertDate($date, $format) {
+	private function convertDate($date, $format, $offset) {
 		if (empty($date)) {
-			return date($format);
+			return date($format, strtotime($offset));
 		} else if (strtotime($date) > 0) {
 			return date($format, strtotime($date));
 		} else {
