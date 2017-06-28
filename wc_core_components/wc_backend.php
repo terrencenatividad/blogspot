@@ -216,7 +216,6 @@ class backend {
 
 }
 $backend	= new backend();
-$session	= new session();
 $url		= new url();
 $access		= new access();
 $input		= new input();
@@ -224,15 +223,17 @@ $input		= new input();
 define('MODAL', $input->post('modal'));
 
 if (AUTO_LOGIN && ! $access->isApanelUser()) {
+	$session	= new session();
 	$session->set('login', array('name' => 'Super 12 Admin', 'username' => 'superadmin', 'apanel_user' => true, 'companycode' => 'CID', 'groupname' => 'superadmin')); // Disable Login
 	$url->redirect(FULL_URL);
 }
 if (SUB_FOLDER == 'logout') {
-	$session->clean('login');
+	$access->logoutUser();
 	$url->redirect(BASE_URL);
 } else if ($access->isApanelUser() || SUB_FOLDER == 'login') {
 	$backend->loadModule();
 } else {
+	$access->logoutUser();
 	$redirect = (BASE_URL == FULL_URL) ? '' : '?redirect=' . base64_encode(FULL_URL);
 	$url->redirect(BASE_URL . 'login' . $redirect);
 }

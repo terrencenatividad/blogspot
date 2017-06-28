@@ -27,6 +27,7 @@ class controller extends wc_controller {
 					$data['locktime'] = $this->date->datetimeFormat($locktime->locktime);
 				} else {
 					$session->set('login', $result);
+					$access->loginUser();
 					$log->saveActivity('Login');
 					$url->redirect(FULL_URL);
 				}
