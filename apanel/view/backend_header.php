@@ -15,9 +15,9 @@
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/skin.min.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/icheck.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/custom.css">
-	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/pace.min.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/morris.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/bootstrap-select.min.css">
+	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/nprogress.css">
 	<!--[if lt IE 9]>
 	<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -42,28 +42,13 @@
 	<script src="<?= BASE_URL ?>assets/js/morris.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/bootstrap-select.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/global.js"></script>
-	<script>
-		paceOptions = {
-			catchupTime : 5000,
-			startOnPageLoad: false,
-			maxProgressPerFrame:1,
-			ghostTime: Number.MAX_SAFE_INTEGER,
-			checkInterval :{
-				checkInterval: 10000
-			},
-			eventLag : {
-				minSamples: 1,
-				sampleCount: 30000000,
-				lagThreshold: 0.1
-			}
-		}
-	</script>
-	<script src="<?= BASE_URL ?>assets/js/pace.min.js"></script>
+	<script src="<?= BASE_URL ?>assets/js/nprogress.js"></script>
 </head>
 <body class="hold-transition skin-red fixed layout-top-nav">
 <div class="wrapper">
 	<header class="main-header">
 		<nav class="navbar navbar-static-top">
+			<div id="nprogress_parent"></div>
 			<div class="container-fluid">
 				<div class="navbar-header">
 					<a href="<?php echo BASE_URL ?>" class="navbar-brand navbar-logo">

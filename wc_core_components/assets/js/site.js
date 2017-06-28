@@ -92,14 +92,15 @@ function getDeleteId(ids) {
 
 drawTemplate();
 $(document).ajaxStart(function() {
-	Pace.restart();
+	NProgress.set(0.1);
+	NProgress.start();
 	$('body').addClass('ajax_loading');
 });
 var last_ajax = {};
 $(document).ajaxComplete(function(event, xhr, ajax) {
 	if (xhr.statusText == 'OK') {
 		drawTemplate();
-		Pace.stop();
+		NProgress.done();
 		$('body').removeClass('ajax_loading');
 		var data = {};
 		try {
