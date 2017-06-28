@@ -93,13 +93,13 @@ function getDeleteId(ids) {
 drawTemplate();
 $(document).ajaxStart(function() {
 	Pace.restart();
-	$('body').css('cursor', 'progress');
+	$('body').addClass('ajax_loading');
 }); 
 $(document).ajaxComplete(function(event, xhr) {
 	if (xhr.statusText == 'OK') {
 		drawTemplate();
 		Pace.stop();
-		$('body').css('cursor', '');
+		$('body').removeClass('ajax_loading');
 		var data = {};
 		try {
 			data = $.parseJSON(xhr.responseText)

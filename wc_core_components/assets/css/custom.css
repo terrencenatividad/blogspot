@@ -1,6 +1,12 @@
 .skin-red .main-header .navbar, .navbar-static-top #navbar-collapse .nav.navbar-nav > li.active > a, .main-header li.user-header {
 	background-color: #235088 !important;
 }
+body.ajax_loading {
+	cursor: progress !important;
+}
+body.ajax_loading *:hover {
+	cursor: progress !important;
+}
 @media (min-width:992px) {
 	.navbar-static-top #navbar-collapse .nav.navbar-nav > li > a {
 		padding: 8px 20px 7px;
