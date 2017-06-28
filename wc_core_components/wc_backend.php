@@ -225,6 +225,7 @@ define('MODAL', $input->post('modal'));
 if (AUTO_LOGIN && ! $access->isApanelUser()) {
 	$session	= new session();
 	$session->set('login', array('name' => 'Super 12 Admin', 'username' => 'superadmin', 'apanel_user' => true, 'companycode' => 'CID', 'groupname' => 'superadmin')); // Disable Login
+	$access->loginUser();
 	$url->redirect(FULL_URL);
 }
 if (SUB_FOLDER == 'logout') {
