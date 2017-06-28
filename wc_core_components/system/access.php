@@ -25,10 +25,6 @@ class access {
 
 			if ($result) {
 				$this->loginUser();
-			} else {
-				var_dump($login);
-				var_dump($db->getQuery());
-				exit();
 			}
 
 			$db->close();
