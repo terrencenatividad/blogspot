@@ -7,6 +7,13 @@ body.ajax_loading {
 body.ajax_loading *:hover {
 	cursor: progress !important;
 }
+html.nprogress-busy .modal-backdrop.fade.in, html.nprogress-busy .modal.fade.in{
+	border-top: 2px solid transparent;
+	background-clip: padding-box;
+}
+.modal-backdrop.fade.in, .modal.fade.in{
+	border-top: 2px solid transparent;
+}
 @media (min-width:992px) {
 	.navbar-static-top #navbar-collapse .nav.navbar-nav > li > a {
 		padding: 8px 20px 7px;
