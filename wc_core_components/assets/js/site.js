@@ -252,6 +252,20 @@ $('body').on('blur blur_validate', '[data-max]', function(e) {
 		$(this).val(value.toFixed(decimal_place).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
 	}
 });
+$('body').on('blur blur_validate', '[data-min]', function(e) {
+	var min = parseFloat($(this).attr('data-min').replace(/\,/g,''));
+	var value = parseFloat($(this).val().replace(/\,/g,''));
+	var decimal_place = 2;
+	if ($(this).filter('[data-validation~="integer"]').length) {
+		decimal_place = 0;
+	}
+	if (value != '') {
+		if (min > value || isNaN(value)) {
+			value = min;
+		}
+		$(this).val(value.toFixed(decimal_place).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+	}
+});
 // /\
 // || Input Validations
 
