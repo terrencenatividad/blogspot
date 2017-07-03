@@ -259,7 +259,7 @@ $('body').on('blur blur_validate', '[data-min]', function(e) {
 	if ($(this).filter('[data-validation~="integer"]').length) {
 		decimal_place = 0;
 	}
-	if (value != '') {
+	if (value !== '') {
 		if (min > value || isNaN(value)) {
 			value = min;
 		}
