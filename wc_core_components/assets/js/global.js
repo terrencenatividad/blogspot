@@ -23,3 +23,26 @@ function tableSort(table, callback) {
 	}
 	callback(value, false);
 }
+function removeComma(value, type) {
+	if (typeof value == 'string') {
+		value = value.replace(/\,/g,'');
+	}
+	if (type == 'int') {
+		return parseInt(value);
+	} else {
+		return parseFloat(value);
+	}
+}
+function addComma(value, type) {
+	if (typeof value == 'string') {
+		value = value.replace(/\,/g,'');
+	}
+	var decimal_place = 2;
+	if (type == 'int') {
+		value = parseInt(value);
+		decimal_place = 0;
+	} else {
+		value = parseFloat(value);
+	}
+	return value.toFixed(decimal_place).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+}
