@@ -287,13 +287,21 @@ class ui {
 			}
 			$input .= '</select>';
 		} else {
-			foreach ($this->list as $key => $value) {
-				if (is_object($value)) {
-					$this->value = ($value->ind == $this->value) ? $value->val : $this->value;
-				} else {
-					$this->value = ($key == $this->value) ? $value : $this->value;
-				}
+			if ($this->value === 0 || $this->value === '0') {
+				$this->value = '';
 			}
+			if (isset($this->list[0]) && is_object($this->list[0])) {
+				foreach ($this->list as $key => $value) {
+					if ($value->ind == $this->value) {
+						$this->value = $value->val;
+					}
+				}
+			} else if (isset($this->list[$this->value])) {
+				$this->value = $this->list[$this->value];
+			} else if (isset($this->list->{$this->value})) {
+				$this->value = $this->list->{$this->value};
+			}
+			
 			$input = $this->drawStaticInput();
 		}
 		return $input;
