@@ -158,6 +158,9 @@ $('tbody').on('click-show', '.list-caret', function() {
 		$(this).closest('tr').find('.list-caret').trigger('click-show');
 	});
 });
+$('body').on('click', '.input-group-addon', function() {
+	$(this).closest('.input-group').find('.form-control').focus();
+});
 
 // Ajax Delete
 $('table').on('click', '.ajax_delete', function() {
