@@ -172,7 +172,11 @@ $('table').on('click', '.ajax_delete', function() {
 // Checkall Checkbox
 $('table').on('ifToggled', 'tr [type="checkbox"].checkall', function() {
 	var checked = $(this).prop('checked');
-	$(this).closest('table').find('tbody [type="checkbox"]').prop('checked', checked).iCheck('update');
+	var check_type = 'ifUnchecked';
+	if (checked) {
+		check_type = 'ifChecked';
+	}
+	$(this).closest('table').find('tbody [type="checkbox"]').prop('checked', checked).iCheck('update').trigger(check_type);
 });
 
 
