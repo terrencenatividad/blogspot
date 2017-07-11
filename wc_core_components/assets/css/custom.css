@@ -53,7 +53,7 @@ html.nprogress-busy .modal-backdrop.fade.in, html.nprogress-busy .modal.fade.in{
 	.table.table-sidepad tr > td:last-child, .table.table-sidepad tr > th:last-child {
 		padding-right: 25px;
 	}
-	.table.table-sidepad td .btn-group.check_task, .table.table-sidepad th .icheckbox_square-blue {
+	.table.table-sidepad:not(.only-checkbox) td .btn-group.check_task, .table.table-sidepad:not(.only-checkbox) th .icheckbox_square-blue {
 		margin-right: 25px;
 	}
 }
@@ -61,6 +61,9 @@ html.nprogress-busy .modal-backdrop.fade.in, html.nprogress-busy .modal.fade.in{
 	.fixed .content-wrapper, .fixed .right-side {
 		padding-top: 50px;
 	}
+}
+.table.full-form td .check_task {
+	margin-top: 2px !important;
 }
 .navbar-brand.navbar-logo {
 	padding-top: 10px;
