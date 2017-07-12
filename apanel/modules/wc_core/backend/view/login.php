@@ -50,5 +50,12 @@
 				</form>
 			</div>
 		</div>
+		<script>
+			if ($('[name="username"]').val().length > 0) {
+				$('[name="password"]').focus();
+			} else {
+				$('[name="username"]').focus();
+			}
+		</script>
 	</body>
 </html>
