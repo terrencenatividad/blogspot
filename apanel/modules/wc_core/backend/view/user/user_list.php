@@ -23,6 +23,25 @@
 						</div>
 					</div>
 				</div>
+				<div class="row">
+					<div class="col-md-4 col-md-offset-8">
+						<div class="row">
+							<div class="col-sm-8 col-xs-6 text-right">
+								<label for="" class="padded">Items: </label>
+							</div>
+							<div class="col-sm-4 col-xs-6">
+								<div class="form-group">
+									<select id="items">
+										<option value="10">10</option>
+										<option value="20">20</option>
+										<option value="50">50</option>
+										<option value="100">100</option>
+									</select>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div class="box-body table-responsive no-padding">
 				<table id="tableList" class="table table-hover table-sidepad">
@@ -84,6 +103,11 @@
 		$('#table_search').on('input', function () {
 			ajax.page = 1;
 			ajax.search = $(this).val();
+			getList();
+		});
+		$('#items').on('change', function() {
+			ajax.limit = $(this).val();
+			ajax.page = 1;
 			getList();
 		});
 		$('#pagination').on('click', 'a', function(e) {
