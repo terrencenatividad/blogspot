@@ -33,7 +33,7 @@ class dashboard_model extends wc_model {
 	public function getPurchases() {
 		$result = $this->db->setTable('purchasereceipt')
 							->setFields('COUNT(companycode) quantity')
-							->setWhere("stat NOT IN ('cancelled', 'temporary') AND fiscalyear = '{$this->year}'")
+							->setWhere("stat NOT IN ('Cancelled', 'temporary') AND fiscalyear = '{$this->year}'")
 							->runSelect()
 							->getRow();
 		
@@ -75,8 +75,8 @@ class dashboard_model extends wc_model {
 								->getResult();
 
 		$current2	= $this->db->setTable("({$this->current_month_query}) m")
-								->leftJoin("purchaseorder po ON po.period = m.month AND po.companycode = m.companycode AND po.fiscalyear = m.year AND po.stat NOT IN ('temporary', 'cancelled')")
-								->setFields("IFNULL(SUM(po.amount), 0) expense")
+								->leftJoin("purchasereceipt pr ON pr.period = m.month AND pr.companycode = m.companycode AND pr.fiscalyear = m.year AND pr.stat NOT IN ('temporary', 'Cancelled')")
+								->setFields("IFNULL(SUM(pr.amount), 0) expense")
 								->setGroupBy('m.month')
 								->runSelect()
 								->getResult();
@@ -89,8 +89,8 @@ class dashboard_model extends wc_model {
 								->getResult();
 
 		$previous2	= $this->db->setTable("({$this->previous_month_query}) m")
-								->leftJoin("purchaseorder po ON po.period = m.month AND po.companycode = m.companycode AND po.fiscalyear = m.year AND po.stat NOT IN ('temporary', 'cancelled')")
-								->setFields("IFNULL(SUM(po.amount), 0) expense, CONCAT(m.year, '-', m.month) month")
+								->leftJoin("purchasereceipt pr ON pr.period = m.month AND pr.companycode = m.companycode AND pr.fiscalyear = m.year AND pr.stat NOT IN ('temporary', 'Cancelled')")
+								->setFields("IFNULL(SUM(pr.amount), 0) expense, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
 								->runSelect()
 								->getResult();
@@ -171,7 +171,7 @@ class dashboard_model extends wc_model {
 								->getResult();
 
 		$purchases	= $this->db->setTable("({$this->current_month_query}) m")
-								->leftJoin("purchaseorder po ON po.period = m.month AND po.companycode = m.companycode AND po.fiscalyear = m.year AND po.stat NOT IN ('temporary', 'cancelled')")
+								->leftJoin("purchasereceipt pr ON pr.period = m.month AND pr.companycode = m.companycode AND pr.fiscalyear = m.year AND pr.stat NOT IN ('temporary', 'Cancelled')")
 								->setFields("IFNULL(SUM(amount), 0) value, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
 								->runSelect()
