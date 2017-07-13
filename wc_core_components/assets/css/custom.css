@@ -296,6 +296,52 @@ th > a[data-sort]:hover {
 .input-group-addon.with-checkbox .icheckbox_square-blue {
 	margin: 0;
 }
+/* Step */
+.form-steps .step .step-icon {
+	margin: 0 auto;
+	padding-top: 5px;
+	margin-bottom: 5px;
+	width: 60px;
+	height: 60px;
+	/* border: 2px solid #3c8dbc; */
+	border: 2px solid #ccc; 
+	background-color: #ccc;
+	color: white;
+	border-radius: 100px;
+	font-size: 34px;
+}
+.form-steps .step {
+	margin-top: -32px;
+}
+.form-steps .step.active .step-icon {
+	border: 2px solid #3c8dbc;
+	background-color: #3c8dbc;
+	color: white;
+}
+.form-steps .step.prev .step-icon {
+	border: 2px solid #3c8dbc;
+	background-color: white;
+	color: #3c8dbc;
+}
+.form-steps .step p {
+	color: #ccc;
+}
+.form-steps .step.active p, .form-steps .step.prev p {
+	color: #3c8dbc;
+}
+.form-steps.steps-2 .step {
+	width: 50%;
+	float: left;
+}
+.form-steps .step-line {
+	background-color: #ccc;
+	height: 2px;
+	margin-top: 32px;
+}
+.form-steps .step-line .step-progress {
+	background-color: #3c8dbc;
+	height: 2px;
+}
 
 
 /**/
