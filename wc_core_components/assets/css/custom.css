@@ -309,6 +309,7 @@ th > a[data-sort]:hover {
 	color: white;
 	border-radius: 100px;
 	font-size: 34px;
+	display: block;
 }
 .form-steps .step {
 	margin-top: -32px;
