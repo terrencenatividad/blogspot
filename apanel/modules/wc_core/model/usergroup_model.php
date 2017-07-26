@@ -60,7 +60,7 @@ class usergroup_model extends wc_model {
 			$this->log->saveActivity("Update User Group [$group_id]");
 		}
 				
-		return $this->setGroupAccess($module_access, $group_id);
+		return $this->setGroupAccess($module_access, $data['groupname']);
 	}
 
 	public function deleteGroup($data) {

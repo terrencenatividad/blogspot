@@ -5,6 +5,11 @@ class check_task {
 		$this->reset();
 	}
 
+	public function addSave($show = '') {
+		$this->add = ($show === '') ? MOD_ADD : (MOD_ADD && $show);
+		return $this;
+	}
+
 	public function addView($show = '') {
 		$this->view = ($show === '') ? MOD_VIEW : (MOD_VIEW && $show);
 		return $this;
@@ -16,6 +21,11 @@ class check_task {
 	}
 	public function addPrint($show = '') {
 		$this->print = ($show === '') ? MOD_PRINT : (MOD_PRINT && $show);
+		return $this;
+	}
+
+	public function addCancel() {
+		$this->cancel = true;
 		return $this;
 	}
 
@@ -96,13 +106,82 @@ class check_task {
 		return $check_task;
 	}
 
+	public function draw_button() {
+
+		$task				= '';
+		$task_addon	 		= '';
+		$default_button		= ( $this->add || $this->edit || $this->delete || $this->print || $this->cancel || $this->addon );
+
+		if( $default_button )
+		{
+			if( $this->add )
+			{
+				$task 	.= 	'<div class="btn-group" id="save_group">
+								<button type="button" id="btnSave" class="btn btn-info btn-flat">Save</button>
+								<button type="button" id="btnSave_toggle" class="btn btn-info dropdown-toggle btn-flat" data-toggle="dropdown">
+									<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu left" role="menu">
+									<li style="cursor:pointer;" id="save_new">
+										&nbsp;&nbsp;Save & New
+										<input type = "hidden" name = "h_save_new" id = "h_save_new"/>
+									</li>
+									<li class="divider"></li>
+									<li style="cursor:pointer;" id="save_preview">
+										&nbsp;&nbsp;Save & Preview
+										<input type = "hidden" name = "h_save_preview" id = "h_save_new"/>
+									</li>
+								</ul>
+							</div>';
+			}
+
+			if( $this->edit )
+			{
+				$task 	.= ' <a class="btn btn-primary btn-flat" role="button" href="'. MODULE_URL .'edit/' . $this->value . '" >Edit</a>';
+			}
+
+			if( $this->delete )
+			{
+				$task 	.= ' <button type="button" class="btn btn-danger btn-flat" data-id="'. $this->value .'">Delete</button>';
+			}
+
+			if( $this->print )
+			{	
+				$task 	.= 	' <a class="btn btn-default btn-flat" role="button" href="'. MODULE_URL .'print_preview/' . $this->value . '"><i class="glyphicon glyphicon-print"> Print</a>';
+			}
+
+			foreach ($this->addon as $addon) {
+				$class = strtolower(str_replace(' ', '_', $addon->task));
+				if($addon->show)
+				{
+					$task_addon 	.=	'<button type="button" class="btn btn-default btn-flat '.$class.'" data-id="'. $this->value .'"><i class="glyphicon glyphicon-' . $addon->glyphicon . '"></i>'.$addon->task.'</button>';
+				} 
+			}
+
+			if ($task_addon) {
+				$task .= $task_addon;
+			}
+
+			if( $this->cancel )
+			{
+				$task 	.= ' <button type="button" class="btn btn-default btn-flat" data-id="'. $this->value .'" id="cancelbtn">Cancel</button>';
+			}
+
+			$this->reset();
+			return $task;
+		}
+
+	}
+
 	private function reset() {
 		$this->checkbox			= '';
 		$this->value			= '';
+		$this->add 				= false;
 		$this->edit				= false;
 		$this->view				= false;
 		$this->delete			= false;
 		$this->print			= false;
+		$this->cancel 			= false;
 		$this->addon			= array();
 	}
 
