@@ -82,6 +82,18 @@ class user_model extends wc_model {
 						->getRow();
 	}
 
+	public function checkExistingUser($data) {
+		$item_types = "'" . implode("', '", $data) . "'";
+
+		$result = $this->db->setTable(PRE_TABLE . '_users')
+							->setFields('username')
+							->setWhere("username IN ($item_types)")
+							->runSelect()
+							->getResult();
+		
+		return $result;
+	}
+
 	public function getUserPagination($fields, $search, $sort) {
 		$sort		= ($sort) ? $sort : 'username';
 		$fields = array(
@@ -112,11 +124,31 @@ class user_model extends wc_model {
 		return $result;
 	}
 
-	public function getGroupList() {
-		return $this->db->setTable(PRE_TABLE . '_user_group')
+	public function getGroupList($search = '') {
+		$condition = '';
+		if ($search) {
+			$condition = " groupname = '$search'";
+		}
+		$result = $this->db->setTable(PRE_TABLE . '_user_group')
 						->setFields('groupname ind, groupname val')
+						->setWhere($condition)
+						->setOrderBy('groupname')
 						->runSelect()
 						->getResult();
+
+		return $result;
+	}
+
+	public function saveUserCSV($values) {
+		foreach ($values as $key => $row) {
+			$values[$key]['password'] = password_hash($row['password'], PASSWORD_BCRYPT);
+		}
+
+		$result = $this->db->setTable(PRE_TABLE . '_users')
+							->setValues($values)
+							->runInsert();
+
+		return $result;
 	}
 
 	private function generateSearch($search, $array) {
