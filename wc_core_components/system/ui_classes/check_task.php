@@ -108,9 +108,9 @@ class check_task {
 
 	public function draw_button() {
 
-		$task			= '';
-		$task_addon	 	= '';
-		$default_button		= ( $this->add || $this->edit || $this->delete || $this->print );
+		$task				= '';
+		$task_addon	 		= '';
+		$default_button		= ( $this->add || $this->edit || $this->delete || $this->print || $this->cancel || $this->addon );
 
 		if( $default_button )
 		{
@@ -140,11 +140,6 @@ class check_task {
 				$task 	.= ' <a class="btn btn-primary btn-flat" role="button" href="'. MODULE_URL .'edit/' . $this->value . '" >Edit</a>';
 			}
 
-			if( $this->cancel )
-			{
-				$task 	.= ' <button type="button" class="btn btn-default btn-flat" data-id="'. $this->value .'" id="cancelbtn">Cancel</button>';
-			}
-
 			if( $this->delete )
 			{
 				$task 	.= ' <button type="button" class="btn btn-danger btn-flat" data-id="'. $this->value .'">Delete</button>';
@@ -165,6 +160,11 @@ class check_task {
 
 			if ($task_addon) {
 				$task .= $task_addon;
+			}
+
+			if( $this->cancel )
+			{
+				$task 	.= ' <button type="button" class="btn btn-default btn-flat" data-id="'. $this->value .'" id="cancelbtn">Cancel</button>';
 			}
 
 			$this->reset();
