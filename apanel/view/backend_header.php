@@ -43,6 +43,7 @@
 	<script src="<?= BASE_URL ?>assets/js/bootstrap-select.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/global.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/nprogress.js"></script>
+	<script src="<?= BASE_URL ?>assets/js/jquery.form.min.js"></script>
 </head>
 <body class="hold-transition skin-red fixed layout-top-nav">
 <div class="wrapper">

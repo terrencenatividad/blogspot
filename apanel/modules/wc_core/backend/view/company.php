@@ -18,7 +18,15 @@
 					</label>
 
 					<div class = "col-md-4 field_col">
-						<button type="button" class="btn btn-default btn-sm " title="Add a company logo" data-toggle="modal" data-target="#uploadModal"><span class="glyphicon glyphicon-picture"></span></button>
+					<?php
+						if(empty($companyimage)){
+							echo '<button type="button" class="btn btn-default btn-sm " title="Add a system logo" data-toggle="modal" data-target="#uploadModal"><span class="glyphicon glyphicon-picture"></span></button>';
+						}else{
+							echo '<a href="" data-toggle="modal" data-target="#uploadModal" >';
+							echo '<img src="../../../wc_core_components/assets/images/'.$companyimage.'" />';
+							echo '</a>';
+						}
+					?>
 					</div>
 				</div>
 				<br/>
@@ -135,7 +143,39 @@
 				</div>
 			</form>
 		</div>
-        
+		<!--UPLOAD MODAL-->
+		<div class="modal fade" id="uploadModal" tabindex="-1" data-backdrop="static">
+			<div class="modal-dialog modal-md">
+				<div class="modal-content">
+					<div class="modal-header">
+						Please select a file to be uploaded.
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<form action="<?=BASE_URL?>maintenance/company/ajax/upload" onSubmit="return false" method="post" enctype="multipart/form-data" id="uploadForm">
+					<div class="modal-body">
+						<div class="form-group field_col">
+							<input type="file"  class="form_iput"    value="" name="upload_logo" id="upload_logo" />					<span class="help-block hidden small"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
+						</div>
+						<p class="help-block">The file to be imported must be in .jpeg, .jpg, .png and .gif file.</p>
+						<div id="progressbox" style="display:none;"><div id="progressbar"></div ><div id="statustxt">0%</div></div>
+						<div id="output"></div>
+					</div>
+					<div class="modal-footer">
+						<div class="row row-dense">
+							<div class="col-md-12 right">
+								<input type="submit" class="btn btn-info" value="Upload" name="upload" id="uploadBtn"/>
+								<button type="button" class="btn btn-default hidden" data-dismiss="modal" id="uploadOk">Close</button>
+									&nbsp;&nbsp;&nbsp;
+								<div class="btn-group">
+									<button type="button" class="btn btn-default" data-dismiss="modal" id="uploadCancel" onClick="this.form.upload_logo.value = '';">Cancel</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					</form>
+				</div>
+			</div>
+		</div>
 	</div>
 </section>
 <script>
@@ -180,5 +220,116 @@
 			e.preventDefault();
 			location.href = '<?=BASE_URL?>';
 		});
+
+		$('#uploadModal').on('hidden.bs.modal',function(){
+        	$('#uploadModal').find("input[type=file]").val("");
+			
+			if($("#uploadModal #uploadCancel.hidden")[0]){
+				location.reload();
+			}else{
+				$("#uploadModal #uploadBtn").removeClass('hidden');
+				$("#uploadModal #uploadOk").addClass('hidden');
+				$("#uploadModal #uploadCancel").removeClass('hidden');
+				$("#uploadModal #output").html('');
+			}
+			
+        });
+
+		/**UPLOAD INVOICE LOGO**/
+		var progressbox     = $('#progressbox');
+		var progressbar     = $('#progressbar');
+		var statustxt       = $('#statustxt');
+		var completed       = '0%';
+	
+		var options = { 
+				target:   '#output',   // target element(s) to be updated with server response 
+				beforeSubmit:  beforeSubmit,  // pre-submit callback 
+				uploadProgress: OnProgress,
+				success:       afterSuccess,  // post-submit callback 
+				resetForm: true        // reset the form after successful submit 
+			}; 
+		
+		$('#uploadForm').submit(function() { 
+			$(this).ajaxSubmit(options);  			
+			// return false to prevent standard browser submit and page navigation 
+			return false; 
+		});
+
+		//when upload progresses	
+		function OnProgress(event, position, total, percentComplete)
+		{
+			//Progress bar
+			progressbar.width(percentComplete + '%') //update progressbar percent complete
+			statustxt.html(percentComplete + '%'); //update status text
+			if(percentComplete>50)
+			{
+				statustxt.css('color','#fff'); //change status text to white after 50%
+			}
+		}
+		
+		//after succesful upload
+		function afterSuccess()
+		{
+			$('#uploadOk').removeClass('hidden'); //show confirm button
+			$('#uploadBtn').addClass('hidden'); //hide submit button
+			$('#uploadCancel').addClass('hidden'); //hide cancel button
+			
+			$('#loading-img').hide(); //hide submit button
+			location.reload();
+		}
+
+		//function to check file size before uploading.
+		function beforeSubmit(){
+			//check whether browser fully supports all File API
+		   if (window.File && window.FileReader && window.FileList && window.Blob)
+			{
+
+				if( !$('#upload_logo').val()) //check empty input filed
+				{
+					$("#output").html("Please select a file to proceed.");
+					return false
+				}
+		
+				var fsize = $('#upload_logo')[0].files[0].size; //get file size
+				var ftype = $('#upload_logo')[0].files[0].type; // get file type
+		
+				//allow only valid image file types 
+				switch(ftype)
+				{
+				    case 'image/png': case 'image/gif': case 'image/jpeg': case 'image/pjpeg':
+				        break;
+				    default:
+				        $("#output").html("<b>"+ftype+"</b> Unsupported file type!");
+						return false
+				}
+		
+				//Allowed file size is less than 1 MB (1048576)
+				if(fsize>1048576) 
+				{
+					$("#output").html("<b>"+bytesToSize(fsize) +"</b> Too big Image file! <br>Please reduce the size of your photo using an image editor.");
+					return false
+				}
+		
+				//Progress bar
+				progressbox.show(); //show progressbar
+				progressbar.width(completed); //initial value 0% of progressbar
+				statustxt.html(completed); //set status text
+				statustxt.css('color','#000'); //initial color of status text
+
+				
+				//$('#submit-btn').hide(); //hide submit button
+				$('#uploadOk').addClass('hidden'); //hide confirm button
+				$('#uploadBtn').removeClass('hidden'); //show submit button
+				$('#uploadCancel').removeClass('hidden'); //show cancel button
+				$('#loading-img').show(); //hide submit button
+				$("#output").html("");  
+			}
+			else
+			{
+				//Output error to older unsupported browsers that doesn't support HTML5 File API
+				$("#output").html("Please upgrade your browser, because your current browser lacks some new features we need!");
+				return false;
+			}
+		}
 	});
 </script>
