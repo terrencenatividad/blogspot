@@ -165,7 +165,7 @@ class controller extends wc_controller
 			$BigImageMaxSize 		= 200; //Image Maximum height or width
 			$ThumbPrefix			= "thumb_"; //Normal thumb Prefix
 			//$DestinationDirectory	= SITE_ROOT.'/uploads/company_logo/'; //specify upload directory ends with / (slash)
-			echo $DestinationDirectory	= $_SERVER["DOCUMENT_ROOT"]."/webcore_modular/wc_core_components/assets/images/";
+			$DestinationDirectory	= $_SERVER["DOCUMENT_ROOT"]."/webcore_modular/wc_core_components/assets/images/";
 			$Quality 				= 90; //jpeg quality
 			##########################################
 		
