@@ -156,7 +156,7 @@ class check_task {
 				$btn_class = strtolower("btn-".$addon->class);
 				if($addon->show)
 				{
-					$task_addon 	.=	'<button type="button" class="btn btn-default btn-flat '.$btn_class.' '.$caller_name.'" data-id="'. $this->value .'"><i class="glyphicon glyphicon-' . $addon->glyphicon . '"></i>'.$addon->task.'</button>';
+					$task_addon 	.=	'<button type="button" class="btn btn-flat '.$btn_class.' '.$caller_name.'" data-id="'. $this->value .'"><i class="glyphicon glyphicon-' . $addon->glyphicon . '"></i>'.$addon->task.'</button>';
 				} 
 			}
 
