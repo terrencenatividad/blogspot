@@ -6,7 +6,16 @@
 						<div class="row">
 							<div class="col-md-4">
 								<div class="form-group">
-									<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create User</a>
+									<div class="btn-group">
+										<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create User</a>
+										<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											<span class="caret"></span>
+											<span class="sr-only">Toggle Dropdown</span>
+										</button>
+										<ul class="dropdown-menu">
+											<li><a href="#import-modal" data-toggle="modal"><i class="glyphicon glyphicon-save"></i>Import User/s</a></li>
+										</ul>
+									</div>
 									<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete<span></span></button>
 								</div>
 							</div>
@@ -90,9 +99,51 @@
 			</div>
 		</div>
 	</div>
+	<!-- Import Modal -->
+	<div class="modal fade" id="import-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form method="post" id="importForm">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">×</span>
+						</button>
+						<h4 class="modal-title">Import Item/s</h4>
+					</div>
+					<div class="modal-body">
+						<label>Step 1. Download the sample template <a href="<?=MODULE_URL?>get_import" download="item_type_csv_template.csv">here</a></label>
+						<hr>
+						<label>Step 2. Fill up the information needed for each columns of the template.</label>
+						<hr>
+						<div class="form-group">
+							<label for="import_csv">Step 3. Select the updated file and click 'Import' to proceed.</label>
+							<?php
+								echo $ui->setElement('file')
+										->setId('import_csv')
+										->setName('import_csv')
+										->setAttribute(array('accept' => '.csv'))
+										->setValidation('required')
+										->draw();
+							?>
+							<span class="help-block"></span>
+						</div>
+						<p class="help-block">The file to be imported must be in CSV (Comma Separated Values) file.</p>
+					</div>
+					<div class="modal-footer text-center">
+						<button type="submit" class="btn btn-info btn-flat">Import</button>
+						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 	<script>
 		var ajax = {}
 		var ajax_call = '';
+		function changeExportLink() {
+			var url = '<?= MODULE_URL ?>get_export/';
+			$('#export_table').attr('href', url + btoa(ajax.search || '') + '/' + btoa(ajax.sort || ''));
+		}
 		tableSort('#tableList', function(value, getlist) {
 			ajax.sort = value;
 			ajax.page = 1;
@@ -115,7 +166,88 @@
 			ajax.page = $(this).attr('data-page');
 			getList();
 		});
+		$('#import-modal').on('show.bs.modal', function() {
+			var form_csv = $('#import_csv').val('').closest('.form-group').find('.form-control').html('').closest('.form-group').html();
+			$('#import_csv').closest('.form-group').html(form_csv);
+		});
+		$('#importForm').on('change', '#import_csv', function() {
+			var filename = $(this).val().split("\\");
+			$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
+		});
+		function addError(error, clean) {
+			if (clean) {
+				$('#warning_modal .modal-body').html(error);
+			} else {
+				$('#warning_modal .modal-body').append(error);
+			}
+		}
+		$('#importForm').submit(function(e) {
+			e.preventDefault();
+			var form_element = $(this);
+			form_element.find('.form-group').find('input').trigger('blur');
+			if (form_element.find('.form-group.has-error').length == 0) {
+				form_element.find('[type="submit"]').addClass('disabled');
+				var formData =	new FormData();
+				formData.append('file',$('#import_csv')[0].files[0]);
+				$.ajax({
+					url : 			'<?=MODULE_URL?>ajax/ajax_save_import',
+					data:			formData,
+					cache: 			false,
+					processData:	false, 
+					contentType:	false,
+					type: 			'POST',
+					success: 		function(data){
+						form_element.find('[type="submit"]').removeClass('disabled');
+						form_element.closest('.modal').modal('hide');
+						if (data.success) {
+							getList();
+							$('#import-modal').modal('hide');
+						} else {
+							addError('<p>' + data.error + '</p>', true);
+							try {
+								data.duplicate['Item Type'].forEach(function(item_type) {
+									addError('<p><b>Duplicate Value</b>: "' + item_type + '"</p>');
+								});
+							} catch(e) {}
+							try {
+								data.exist['Item Type'].forEach(function(item_type) {
+									addError('<p><b>Exist Value</b>: "' + item_type + '"</p>');
+								});
+							} catch(e) {}
+							try {
+								let invalid = data.invalid;
+								for (var key in invalid) {
+									if (invalid.hasOwnProperty(key)) {
+										let invalid2 = invalid[key];
+										for (var key2 in invalid2) {
+											if (invalid2.hasOwnProperty(key2)) {
+												addError('<p><b>Invalid ' + key + '</b>: ' + invalid2[key2] + '</p>');
+											}
+										}
+									}
+								}
+							} catch(e) {}
+							try {
+								let validity = data.validity;
+								for (var key in validity) {
+									if (validity.hasOwnProperty(key)) {
+										let validity2 = validity[key];
+										for (var key2 in validity2) {
+											if (validity2.hasOwnProperty(key2)) {
+												addError('<p><b>' + key + ' Field</b>: ' + key2 + '</p>');
+											}
+										}
+									}
+								}
+							} catch(e) {}
+							$('#warning_modal').modal('show');
+						}
+					}
+				});
+			}
+		});
 		function getList() {
+			changeExportLink();
 			if (ajax_call != '') {
 				ajax_call.abort();
 			}

@@ -21,7 +21,17 @@ class controller extends wc_controller {
 			'phone',
 			'mobile'
 		);
-		$this->data = array();
+		$this->csv_header		= array(
+			'First Name',
+			'Middle Initial',
+			'Last Name',
+			'User Group',
+			'Email',
+			'Phone Number',
+			'Mobile',
+			'Username',
+			'Password'
+		);
 		$this->view->header_active = 'maintenance/user/';
 	}
 
@@ -62,6 +72,11 @@ class controller extends wc_controller {
 		$data['group_list'] = $this->user_model->getGroupList('');
 		$data['show_input'] = false;
 		$this->view->load('user/user', $data);
+	}
+
+	public function get_import() {
+		$csv = $this->csv_header();
+		echo $csv;
 	}
 	
 	public function ajax($task) {
@@ -157,6 +172,138 @@ class controller extends wc_controller {
 		return array(
 			'available'	=> $result
 		);
+	}
+
+	private function csv_header() {
+		header('Content-type: application/csv');
+
+		$csv = '';
+		$csv .= '"' . implode('","', $this->csv_header) . '"';
+
+		return $csv;
+	}
+
+	private function ajax_save_import() {
+		$csv_array	= array_map('str_getcsv', file($_FILES['file']['tmp_name']));
+		$result		= false;
+		$duplicate	= array();
+		$exist		= array();
+		$error		= array();
+		$values		= array();
+		$invalid	= array();
+		$validity	= array();
+		if ($csv_array[0] == $this->csv_header) {
+			unset($csv_array[0]);
+
+			if (empty($csv_array)) {
+				$error = 'No Data Given';
+			} else {
+				$check_field = array(
+					'Username' => array()
+				);
+				foreach ($csv_array as $row) {
+					$check_field['Username'][] = $this->getValueCSV('Username', $row);
+					$values[] = array(
+						'firstname'		=> $this->getValueCSV('First Name', $row, 'required', $validity),
+						'middleinitial'	=> $this->getValueCSV('Middle Initial', $row, 'required', $validity),
+						'lastname'		=> $this->getValueCSV('Last Name', $row, 'required', $validity),
+						'groupname'		=> $this->getValueCSV('User Group', $row, 'required', $validity, 'getGroupList', $invalid),
+						'email'			=> $this->getValueCSV('Email', $row, 'required', $validity),
+						'phone'			=> $this->getValueCSV('Phone Number', $row, 'required', $validity),
+						'mobile'		=> $this->getValueCSV('Mobile', $row, 'required', $validity),
+						'username'		=> $this->getValueCSV('Username', $row, 'required', $validity),
+						'password'		=> $this->getValueCSV('Password', $row, 'required', $validity)
+					);
+				}
+				foreach ($check_field as $key => $row) {
+					$data_duplicate = $this->check_duplicate($row);
+					if ($data_duplicate) {
+						$duplicate[$key]	= array_values($data_duplicate);
+					}
+				}
+
+				$exist_check = $this->user_model->checkExistingUser($check_field['Username']);
+				if ($exist_check) {
+					foreach ($exist_check as $row) {
+						$exist['Username'][] = $row->username;
+					}
+				}
+
+				if ($duplicate) {
+					$error[] = 'Duplicate Entry'; 
+				}
+					
+				if ($exist) {
+					$error[] = 'Entry Already Exist';
+				}
+				
+				if ($invalid) {
+					$error[] = 'Invalid Entry';
+				}
+						
+				if ($validity) {
+					$error[] = 'Invalid Entry';
+				}
+
+				$error = implode('. ', $error);
+
+				if (empty($error)) {
+					$result = $this->user_model->saveUserCSV($values);
+				}
+
+			}
+		} else {
+			$error = 'Invalid Import File. Please Use our Template for Uploading CSV';
+		}
+
+		$json = array(
+			'success'	=> $result,
+			'error'		=> $error,
+			'duplicate'	=> $duplicate,
+			'exist'		=> $exist,
+			'invalid'	=> $invalid,
+			'validity'	=> $validity
+		);
+		return $json;
+	}
+
+	private function getValueCSV($field, $array, $checker = '', &$error = array(), $checker_function = '', &$error_function = array()) {
+		$key	= array_search($field, $this->csv_header);
+		$value	= (isset($array[$key])) ? trim($array[$key]) : '';
+		if ($checker != '') {
+			$checker_array = explode(' ', $checker);
+			if (in_array('integer', $checker_array)) {
+				$value = str_replace(',', ' ', $value);
+				if ( ! preg_match('/^[0-9]*$/', $value)) {
+					$error['Integer'][$field] = 'Integer';
+				}
+			}
+			if (in_array('decimal', $checker_array)) {
+				$value = str_replace(',', ' ', $value);
+				if ( ! preg_match('/^[0-9.]*$/', $value)) {
+					$error['Decimal'][$field] = 'Decimal';
+				}
+			}
+			if (in_array('required', $checker_array)) {
+				if ($value == '') {
+					$error['Required'][$field] = 'Required';
+				}
+			}
+		}
+		if ($checker_function && $value != '') {
+			$result = $this->user_model->{$checker_function}($value);
+			if ($result) {
+				$value = $result[0]->ind;
+			} else {
+				$error_function[$field][] = $value;
+				$value = '';
+			}
+		}
+		return $value;
+	}
+
+	private function check_duplicate($array) {
+		return array_unique(array_diff_assoc($array, array_unique($array)));
 	}
 
 }

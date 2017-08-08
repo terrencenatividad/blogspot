@@ -53,7 +53,7 @@ class input {
 			}
 			return $temp;
 		} else {
-			return addslashes(implode('', explode("\\", trim($value))));
+			return addslashes(implode('', explode("\\", trim(strip_tags($value)))));
 		}
 	}
 
