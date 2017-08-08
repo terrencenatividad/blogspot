@@ -44,10 +44,11 @@ class check_task {
 		return $this;
 	}
 	
-	public function addOtherTask($task, $glyphicon, $show = true) {
+	public function addOtherTask($task, $glyphicon, $show = true, $class="") {
 		$this->addon[] = (object) array(
 									'task' => $task,
 									'glyphicon' => $glyphicon,
+									'class' => $class,
 									'show' => $show
 								);
 		return $this;
@@ -151,10 +152,11 @@ class check_task {
 			}
 
 			foreach ($this->addon as $addon) {
-				$class = strtolower(str_replace(' ', '_', $addon->task));
+				$caller_name = strtolower(str_replace(' ', '_', $addon->task));
+				$btn_class = strtolower("btn-".$addon->class);
 				if($addon->show)
 				{
-					$task_addon 	.=	'<button type="button" class="btn btn-default btn-flat '.$class.'" data-id="'. $this->value .'"><i class="glyphicon glyphicon-' . $addon->glyphicon . '"></i>'.$addon->task.'</button>';
+					$task_addon 	.=	'<button type="button" class="btn btn-default btn-flat '.$btn_class.' '.$caller_name.'" data-id="'. $this->value .'"><i class="glyphicon glyphicon-' . $addon->glyphicon . '"></i>'.$addon->task.'</button>';
 				} 
 			}
 
