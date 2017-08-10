@@ -166,9 +166,6 @@ class db {
 		if ($check) {
 			$fields = implode(', ', $this->fields);
 			$this->query = "SELECT $fields FROM {$this->table}{$this->join}{$where}{$this->groupby}{$this->having}{$this->orderby}{$this->limit}{$this->limit_offset}";
-			if ($this->conn->error) {
-				$this->showError($this->conn->error);
-			}
 		}
 		return $this->query;
 	}
