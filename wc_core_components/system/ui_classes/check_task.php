@@ -82,7 +82,7 @@ class check_task {
 				
 				$check_task .= ($this->edit) ? '<li><a href="'. MODULE_URL .'edit/' . $this->value . '" class="btn-sm"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li>' : '';
 				
-				$check_task .= ($this->print) ? '<li><a href="'. MODULE_URL .'print_preview/' . $this->value . '" target="_blank" class="btn-sm"><i class="glyphicon glyphicon-print"></i> Print Voucher</a></li>' : '';
+				$check_task .= ($this->print) ? '<li><a href="'. MODULE_URL .'print_preview/' . $this->value . '" target="_blank" class="btn-sm"><i class="glyphicon glyphicon-print"></i> Print Preview </a></li>' : '';
 
 				foreach ($this->addon as $addon) {
 					$class = strtolower(str_replace(' ', '_', $addon->task));
