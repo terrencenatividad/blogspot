@@ -5,6 +5,14 @@ class check_task {
 		$this->reset();
 	}
 
+	public function setLabels(array $labels) {
+		foreach ($labels as $key => $value) {
+			if (isset($this->labels->$key)) {
+				$this->labels->$key = $value;
+			}
+		}
+	}
+
 	public function addSave($show = '') {
 		$this->add = ($show === '') ? MOD_ADD : (MOD_ADD && $show);
 		return $this;
@@ -78,11 +86,11 @@ class check_task {
 					</button>
 					<ul class="dropdown-menu">';
 
-				$check_task .= ($this->view) ? '<li><a href="'. MODULE_URL .'view/' . $this->value . '" class="btn-sm"><i class="glyphicon glyphicon-eye-open"></i> View</a></li>' : '';
+				$check_task .= ($this->view) ? '<li><a href="'. MODULE_URL .'view/' . $this->value . '" class="btn-sm"><i class="glyphicon glyphicon-eye-open"></i> ' . $this->labels->view . '</a></li>' : '';
 				
-				$check_task .= ($this->edit) ? '<li><a href="'. MODULE_URL .'edit/' . $this->value . '" class="btn-sm"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li>' : '';
+				$check_task .= ($this->edit) ? '<li><a href="'. MODULE_URL .'edit/' . $this->value . '" class="btn-sm"><i class="glyphicon glyphicon-pencil"></i> ' . $this->labels->edit . '</a></li>' : '';
 				
-				$check_task .= ($this->print) ? '<li><a href="'. MODULE_URL .'print_preview/' . $this->value . '" target="_blank" class="btn-sm"><i class="glyphicon glyphicon-print"></i> Print Preview </a></li>' : '';
+				$check_task .= ($this->print) ? '<li><a href="'. MODULE_URL .'print_preview/' . $this->value . '" target="_blank" class="btn-sm"><i class="glyphicon glyphicon-print"></i> ' . $this->labels->print . '</a></li>' : '';
 
 				foreach ($this->addon as $addon) {
 					$class = strtolower(str_replace(' ', '_', $addon->task));
@@ -96,7 +104,7 @@ class check_task {
 					
 				$check_task .= ($this->delete && ($dropdown_top || $dropdown_addon)) ? '<li class="divider"></li>' : '';
 				
-				$check_task .= ($this->delete) ? '<li><a class="btn-sm delete link" data-id="' . $this->value . '"><i class="glyphicon glyphicon-trash"></i> Delete</a></li>' : '';
+				$check_task .= ($this->delete) ? '<li><a class="btn-sm delete link" data-id="' . $this->value . '"><i class="glyphicon glyphicon-trash"></i> ' . $this->labels->delete . '</a></li>' : '';
 					
 				$check_task .= '</ul>';
 			}
@@ -185,6 +193,13 @@ class check_task {
 		$this->print			= false;
 		$this->cancel 			= false;
 		$this->addon			= array();
+		$this->labels			= (object) array(
+			'save'		=> 'Save',
+			'view'		=> 'View',
+			'edit'		=> 'Edit',
+			'print'		=> 'Print',
+			'delete'	=> 'Delete'
+		);
 	}
 
 }
