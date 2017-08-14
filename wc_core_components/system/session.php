@@ -1,17 +1,18 @@
 <?php
 class session {
 
-	private $session = array();
-	private $flas = array();
-	private $key = 'session_key_test';
+	private $session	= array();
+	private $flas		= array();
+	private $key		= '';
 
 	public function __construct() {
-		$session = (isset($_SESSION['session']) ? $_SESSION['session'] : '');
-		$session = base64_decode($session);
-		$this->session = (array) json_decode($session);
-		$flash = (isset($_SESSION['flash']) ? $_SESSION['flash'] : '');
-		$flash = base64_decode($flash);
-		$this->flash = (array) json_decode($flash);
+		$this->key		= base64_encode(defined('BASE_URL') ? BASE_URL : 'session_key_test');
+		$session		= (isset($_SESSION[$this->key]) ? $_SESSION[$this->key] : '');
+		$session		= base64_decode($session);
+		$this->session	= (array) json_decode($session);
+		$flash			= (isset($_SESSION['flash']) ? $_SESSION['flash'] : '');
+		$flash			= base64_decode($flash);
+		$this->flash	= (array) json_decode($flash);
 	}
 
 	public function set($index, $value = '') {
@@ -20,8 +21,8 @@ class session {
 		} else {
 			$this->session[$index] = $value;
 		}
-		$session = json_encode($this->session);
-		$_SESSION['session'] = base64_encode($session);
+		$session				= json_encode($this->session);
+		$_SESSION[$this->key]	= base64_encode($session);
 	}
 
 	public function get($index) {
@@ -49,10 +50,10 @@ class session {
 	public function getFlash($index) {
 		$flash = '';
 		if (isset($this->flash[$index])) {
-			$flash = $this->flash[$index];
+			$flash				= $this->flash[$index];
 			unset($this->flash[$index]);
-			$flash = json_encode($this->flash);
-			$_SESSION['flash'] = base64_encode($flash);
+			$flash				= json_encode($this->flash);
+			$_SESSION['flash']	= base64_encode($flash);
 		}
 		return $flash;
 	}
@@ -72,7 +73,7 @@ class session {
 			unset($this->session[$index]);
 		}
 		$session = json_encode($this->session);
-		$_SESSION['session'] = base64_encode($session);
+		$_SESSION[$this->key] = base64_encode($session);
 	}
 
 }
