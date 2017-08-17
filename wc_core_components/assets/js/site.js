@@ -183,11 +183,27 @@ $('table').on('ifToggled', 'tr [type="checkbox"].checkall', function() {
 // || Input Validations
 // \/
 var controlDown = false;
+$('body').on('keydown', function(e) {
+	if (e.originalEvent.keyCode == '17') {
+		controlDown = true;
+	}
+});
 $('body').on('keyup', function(e) {
 	if (e.originalEvent.keyCode == '17') {
 		controlDown = false;
 	}
-})
+});
+var shiftDown = false;
+$('body').on('keydown', function(e) {
+	if (e.originalEvent.keyCode == '16') {
+		shiftDown = true;
+	}
+});
+$('body').on('keyup', function(e) {
+	if (e.originalEvent.keyCode == '16') {
+		shiftDown = false;
+	}
+});
 $('body').on('focus', '[data-validation~="decimal"], [data-validation~="integer"]', function() {
 	$(this).select();
 });
@@ -206,9 +222,6 @@ $('body').on('input change blur blur_validate', '[data-validation~="required"]',
 });
 $('body').on('keydown', '[data-validation~="decimal"]', function(e) {
 	var keyCode = e.originalEvent.keyCode;
-	if (keyCode == 17) {
-		controlDown = true;
-	}
 	if ((keyCode > 31 && (keyCode < 48 || keyCode > 57) && (keyCode < 96 || keyCode > 105) && keyCode != 190 && keyCode != 110 && keyCode != 188) && ! (controlDown && (keyCode == 67 || keyCode == 86)) && keyCode != 116 && (keyCode < 37 || keyCode > 40) && keyCode != 46) 
 		return false;
 	return true;
@@ -225,10 +238,14 @@ $('body').on('blur blur_validate', '[data-validation~="decimal"]', function() {
 });
 $('body').on('keydown', '[data-validation~="integer"]', function(e) {
 	var keyCode = e.originalEvent.keyCode;
-	if (keyCode == 17) {
-		controlDown = true;
-	}
 	if ((keyCode > 31 && (keyCode < 48 || keyCode > 57) && (keyCode < 96 || keyCode > 105) && keyCode != 110 && keyCode != 188) && ! (controlDown && (keyCode == 67 || keyCode == 86)) && keyCode != 116 && (keyCode < 37 || keyCode > 40) && keyCode != 46) 
+		return false;
+	return true;
+});
+$('body').on('keydown', '[data-validation~="contactnumber"]', function(e) {
+	var keyCode = e.originalEvent.keyCode;
+	console.log(keyCode);
+	if ((shiftDown && ((keyCode > 31 && (keyCode < 48 || keyCode > 57) && (keyCode < 96 || keyCode > 105) && keyCode != 110 && keyCode != 188) && keyCode != 116 && (keyCode < 37 || keyCode > 40) && keyCode != 46)) && ! (controlDown && (keyCode == 67 || keyCode == 86)) && ! (shiftDown && (keyCode == 57 || keyCode == 48))) 
 		return false;
 	return true;
 });
@@ -256,7 +273,7 @@ $('body').on('blur blur_validate', '[data-max]', function(e) {
 		if (isNaN(value)) {
 			value = 0;
 		}
-		$(this).val(value.toFixed(decimal_place).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+		$(this).val(value.toFixed(decimal_place).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")).trigger('recompute');
 	}
 });
 $('body').on('blur blur_validate', '[data-min]', function(e) {
@@ -270,7 +287,7 @@ $('body').on('blur blur_validate', '[data-min]', function(e) {
 		if (min > value || isNaN(value)) {
 			value = min;
 		}
-		$(this).val(value.toFixed(decimal_place).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+		$(this).val(value.toFixed(decimal_place).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")).trigger('recompute');
 	}
 });
 // /\
