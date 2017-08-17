@@ -176,7 +176,7 @@ $('table').on('ifToggled', 'tr [type="checkbox"].checkall', function() {
 	if (checked) {
 		check_type = 'ifChecked';
 	}
-	$(this).closest('table').find('tbody [type="checkbox"]').prop('checked', checked).iCheck('update').trigger(check_type);
+	$(this).closest('table').find('tbody [type="checkbox"]:not(:disabled, .disabled)').prop('checked', checked).iCheck('update').trigger(check_type);
 });
 
 
