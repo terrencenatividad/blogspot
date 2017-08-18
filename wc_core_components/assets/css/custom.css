@@ -343,6 +343,32 @@ th > a[data-sort]:hover {
 	background-color: #3c8dbc;
 	height: 2px;
 }
+/* Date Range Filter */
+#monthly_datefilter {
+	position: relative;
+}
+#monthly_datefilter .daterangepicker .ranges ul:before, #monthly_datefilter .daterangepicker .ranges ul {
+	width: 255px;
+}
+#monthly_datefilter .daterangepicker .ranges ul:before, #monthly_datefilter .daterangepicker .ranges ul:after {
+	content: " ";
+	display: table;
+}
+#monthly_datefilter .daterangepicker .ranges ul:after {
+	clear: both;
+}
+#monthly_datefilter .daterangepicker .ranges ul li:nth-child(n):not(:last-child) {
+	width: 125px;
+	box-sizing: border-box;
+	float: left;
+}
+#monthly_datefilter .daterangepicker .ranges ul li:nth-of-type(2n+1) {
+	margin-right: 5px;
+}
+#monthly_datefilter .daterangepicker .ranges ul li:last-child {
+	width: 100%;
+	float: left;
+}
 
 
 /**/

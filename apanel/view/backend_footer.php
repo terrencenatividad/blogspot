@@ -1,4 +1,4 @@
-				<script src="<?= BASE_URL ?>assets/js/site.js"></script>
+
 				<section class="footer-padding"></section>
 			</div>
 			<div id="warning_modal" class="modal fade" role="dialog">
@@ -227,6 +227,8 @@
 				</div>
 			</aside>
 			<div class="control-sidebar-bg"></div>
-		</div>
+		</div>				
+		<div id="monthly_datefilter"></div>
+		<script src="<?= BASE_URL ?>assets/js/site.js"></script>
 	</body>
 </html>

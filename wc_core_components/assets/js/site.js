@@ -302,23 +302,24 @@ $('[data-daterangefilter]').each(function() {
 				linkedCalendars: false,
 				ranges: {
 					'January': [moment().month(0).year(year_filter).startOf('month'), moment().month(0).year(year_filter).endOf('month')],
-					'February': [moment().month(1).year(year_filter).startOf('month'), moment().month(1).year(year_filter).endOf('month')],
-					'March': [moment().month(2).year(year_filter).startOf('month'), moment().month(2).year(year_filter).endOf('month')],
-					'April': [moment().month(3).year(year_filter).startOf('month'), moment().month(3).year(year_filter).endOf('month')],
-					'May': [moment().month(4).year(year_filter).startOf('month'), moment().month(4).year(year_filter).endOf('month')],
-					'June': [moment().month(5).year(year_filter).startOf('month'), moment().month(5).year(year_filter).endOf('month')],
 					'July': [moment().month(6).year(year_filter).startOf('month'), moment().month(6).year(year_filter).endOf('month')],
+					'February': [moment().month(1).year(year_filter).startOf('month'), moment().month(1).year(year_filter).endOf('month')],
 					'August': [moment().month(7).year(year_filter).startOf('month'), moment().month(7).year(year_filter).endOf('month')],
+					'March': [moment().month(2).year(year_filter).startOf('month'), moment().month(2).year(year_filter).endOf('month')],
 					'September': [moment().month(8).year(year_filter).startOf('month'), moment().month(8).year(year_filter).endOf('month')],
+					'April': [moment().month(3).year(year_filter).startOf('month'), moment().month(3).year(year_filter).endOf('month')],
 					'October': [moment().month(9).year(year_filter).startOf('month'), moment().month(9).year(year_filter).endOf('month')],
+					'May': [moment().month(4).year(year_filter).startOf('month'), moment().month(4).year(year_filter).endOf('month')],
 					'November': [moment().month(10).year(year_filter).startOf('month'), moment().month(10).year(year_filter).endOf('month')],
+					'June': [moment().month(5).year(year_filter).startOf('month'), moment().month(5).year(year_filter).endOf('month')],
 					'December': [moment().month(11).year(year_filter).startOf('month'), moment().month(11).year(year_filter).endOf('month')]
 				},
 				startDate: moment().startOf('month'),
 				endDate: moment().endOf('month'),
 				locale: {
 					format: 'MMM DD, YYYY'
-				}
+				},
+				parentEl: $('#monthly_datefilter')[0]
 			}
 		);
 	} else {
