@@ -161,6 +161,9 @@ ul.nav.nav-tabs + table, ul.nav.nav-tabs + .tab-content, ul.nav.nav-tabs + .tabl
 .form-control[readonly].datepicker-input {
 	background-color: #fff;
 }
+.form-control[readonly][data-daterangefilter] {
+	background-color: #fff;
+}
 tfoot.summary > tr > td:not(.b-top) {
 	border-top: none;
 	padding-top: 5px;
