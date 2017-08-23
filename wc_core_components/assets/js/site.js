@@ -290,6 +290,19 @@ $('body').on('blur blur_validate', '[data-min]', function(e) {
 		$(this).val(value.toFixed(decimal_place).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")).trigger('recompute');
 	}
 });
+$('body').on('keyup', '[data-validation~="code"]', function(e) {
+	var error_message = `Invalid Character Found <a href="#invalid_characters" class="glyphicon glyphicon-info-sign" data-toggle="modal"></a>`;
+	var form_group = $(this).closest('.form-group');
+	var val = $(this).val() || '';
+	if ( ! (/^[a-zA-Z0-9-_]*$/.test(val))) {
+		form_group.addClass('has-error');
+		form_group.find('p.help-block.m-none').html(error_message)
+	} else {
+		if (form_group.find('p.help-block.m-none').html() == error_message) {
+			form_group.removeClass('has-error').find('p.help-block.m-none').html('');
+		}
+	}
+});
 // /\
 // || Input Validations
 
