@@ -291,7 +291,7 @@ $('body').on('blur blur_validate', '[data-min]', function(e) {
 	}
 });
 $('body').on('keyup', '[data-validation~="code"]', function(e) {
-	var error_message = `Invalid Character Found <a href="#invalid_characters" class="glyphicon glyphicon-info-sign" data-toggle="modal"></a>`;
+	var error_message = `Invalid Input <a href="#invalid_characters" class="glyphicon glyphicon-info-sign" data-toggle="modal"></a>`;
 	var form_group = $(this).closest('.form-group');
 	var val = $(this).val() || '';
 	if ( ! (/^[a-zA-Z0-9-_]*$/.test(val))) {
