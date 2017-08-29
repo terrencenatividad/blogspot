@@ -21,7 +21,7 @@
 				<div class="modal-dialog modal-sm" role="document">
 					<div class="modal-content">
 						<div class="modal-header">
-							<h4 class="modal-title modal-success"><span class="glyphicon glyphicon-warning-sign"></span> Success!</h4>
+							<h4 class="modal-title modal-success"><span class="glyphicon glyphicon-ok"></span> Success!</h4>
 						</div>
 						<div class="modal-body">
 							<p id = "message"></p>
