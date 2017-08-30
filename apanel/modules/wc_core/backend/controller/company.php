@@ -66,7 +66,7 @@ class controller extends wc_controller
 			$result = $this->upload();
 		}
 
-		echo json_decode($result);
+		echo json_encode($result);
 	}
 
 	/**
@@ -187,7 +187,7 @@ class controller extends wc_controller
 			$data_var 		= (array) $companydata;
 			
 			$company_logo	= $data_var['companyimage'];
-			if(!empty($company_logo)){
+			if(file_exists($DestinationDirectory.$company_logo) && !empty($company_logo)){
 				unlink($DestinationDirectory.$company_logo);
 			}
 
@@ -276,10 +276,11 @@ class controller extends wc_controller
 				$msg 	= 'Upload Error!';
 			}
 
-			return array(
-				'code'=>$code,
-				'msg'=>$msg
+			$returnArray = array(
+				'code'=> $code,
+				'msg'=> $msg
 			);
+			return $returnArray;
 		}
 	}
 
