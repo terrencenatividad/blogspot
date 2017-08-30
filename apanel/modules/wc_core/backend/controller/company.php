@@ -269,10 +269,17 @@ class controller extends wc_controller
 				$update_info['companyimage']  	= $NewImageName;
 				$result = $this->companyclass->updateData('update',$update_info," stat = 'active' ");
 
-				return 'System Logo successfully uploaded.';
+				$code 	= 1;
+				$msg 	= 'System Logo successfully uploaded.';
 			}else{
-				return 0;
+				$code 	= 0;
+				$msg 	= 'Upload Error!';
 			}
+
+			return array(
+				'code'=>$code,
+				'msg'=>$msg
+			);
 		}
 	}
 
