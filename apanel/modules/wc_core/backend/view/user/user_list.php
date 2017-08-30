@@ -35,10 +35,10 @@
 				<div class="row">
 					<div class="col-md-4 col-md-offset-8">
 						<div class="row">
-							<div class="col-sm-8 col-xs-6 text-right">
+							<div class="col-sm-9 col-xs-6 text-right">
 								<label for="" class="padded">Items: </label>
 							</div>
-							<div class="col-sm-4 col-xs-6">
+							<div class="col-sm-3 col-xs-6">
 								<div class="form-group">
 									<select id="items">
 										<option value="10">10</option>
