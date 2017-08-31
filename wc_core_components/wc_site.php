@@ -26,8 +26,9 @@ if ($request_dir[0] == 'assets' && isset($request_dir[1]) && isset($request_dir[
 		$asset_path = PRE_PATH . CORE_COMPONENTS . 'assets/' . implode('/', $temp_dir);
 		$asset_type = $temp_dir[1];
 	} else {
+		$asset_path = 'apanel/modules/' . $temp_dir[1] . '/' . PAGE_TYPE . '/assets/';
 		unset($temp_dir[1]);
-		$asset_path = 'modules/' . $temp_dir[1] . '/assets/' . implode('/', $temp_dir);
+		$asset_path .= implode('/', $temp_dir);
 		$asset_type = $temp_dir[2];
 	}
 	if ($asset_type == 'css') {
@@ -35,7 +36,7 @@ if ($request_dir[0] == 'assets' && isset($request_dir[1]) && isset($request_dir[
 	} else if ($asset_type == 'js') {
 		header('Content-Type: application/javascript');
 	}
-	if ( ! in_array($request_dir[count($request_dir) - 1], array('custom.css', 'site.js', 'global.js'))) {
+	if ( ! in_array($request_dir[count($request_dir) - 1], array('style.css', 'custom.css', 'script.js', 'site.js', 'global.js'))) {
 		header('Cache-Control: public, max-age=31536000');
 		header('Pragma: public, max-age=31536000');
 	}

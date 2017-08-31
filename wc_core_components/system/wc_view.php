@@ -22,7 +22,7 @@ class wc_view {
 		$path = MODULE_PATH . '/' . PAGE_TYPE . '/view/' . $file . '.php';
 		if (file_exists($path)) {
 			// LOAD HEADER
-			if ($enclosed && ! MODAL) {
+			if ($enclosed && ( ! defined('MODAL') || (defined('MODAL') && ! MODAL))) {
 				$header_nav = $this->getNav();
 				$header_active = $this->header_active;
 				$include_css = $this->css;
@@ -33,7 +33,7 @@ class wc_view {
 			// LOAD MODULE
 			require_once $path;
 			// LOAD FOOTER
-			if ($enclosed && ! MODAL) {
+			if ($enclosed && ( ! defined('MODAL') || (defined('MODAL') && ! MODAL))) {
 				require_once (PAGE_TYPE == 'backend' ? '' : 'apanel/') . 'view/' . PAGE_TYPE . '_footer.php';
 			}
 		} else if (DEBUGGING) {

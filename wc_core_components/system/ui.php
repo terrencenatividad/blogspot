@@ -348,7 +348,10 @@ class ui {
 		if ($draw) {
 			return '<button type="submit" class="btn btn-primary">Save</button>';
 		} else {
-			$url = str_replace('view', 'edit', FULL_URL);
+			$url = MODULE_URL . 'edit';
+			if (FULL_URL != MODULE_URL) {
+				$url = str_replace('view', 'edit', FULL_URL);
+			}
 			return '<a href="' . $url  . '" class="btn btn-primary">Edit</a>';
 		}
 	}
