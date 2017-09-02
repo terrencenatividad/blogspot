@@ -33,7 +33,7 @@
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-md-3 col-md-offset-9">
+					<div class="col-md-4 col-md-offset-8">
 						<div class="row">
 							<div class="col-sm-8 col-xs-6 text-right">
 								<label for="" class="padded">Items: </label>
