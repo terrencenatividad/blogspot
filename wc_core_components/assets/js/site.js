@@ -6,9 +6,15 @@ function drawTemplate() {
 		} else if ($(this).closest('.modal-body').length) {
 			parent = $(this).closest('.modal-body');
 		}
+		var minresult = 1;
+		var itemsperpage = `<optionvalue="10">10</option><optionvalue="20">20</option><optionvalue="50">50</option><optionvalue="100">100</option>`;
+		if ($(this).html().replace(/\s/g, '') == itemsperpage) {
+			minresult = 'Infinity';
+		}
 		$(this).select2({
 			width: '100%',
 			containerCssClass: ':all:',
+			minimumResultsForSearch: minresult,
 			dropdownParent: parent
 		});
 	});
