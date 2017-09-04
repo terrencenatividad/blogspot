@@ -27,6 +27,9 @@ function removeComma(value, type) {
 	if (typeof value == 'string') {
 		value = value.replace(/\,/g,'');
 	}
+	if (value == '') {
+		value = 0;
+	}
 	if (type == 'int') {
 		return parseInt(value);
 	} else {
@@ -36,6 +39,9 @@ function removeComma(value, type) {
 function addComma(value, type) {
 	if (typeof value == 'string') {
 		value = value.replace(/\,/g,'');
+	}
+	if (value == '') {
+		value = 0;
 	}
 	var decimal_place = 2;
 	if (type == 'int') {

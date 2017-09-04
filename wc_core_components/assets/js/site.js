@@ -244,7 +244,6 @@ $('body').on('keydown', '[data-validation~="integer"]', function(e) {
 });
 $('body').on('keydown', '[data-validation~="contactnumber"]', function(e) {
 	var keyCode = e.originalEvent.keyCode;
-	console.log(keyCode);
 	if ((shiftDown && ((keyCode > 31 && (keyCode < 48 || keyCode > 57) && (keyCode < 96 || keyCode > 105) && keyCode != 110 && keyCode != 188) && keyCode != 116 && (keyCode < 37 || keyCode > 40) && keyCode != 46)) && ! (controlDown && (keyCode == 67 || keyCode == 86)) && ! (shiftDown && (keyCode == 57 || keyCode == 48))) 
 		return false;
 	return true;
