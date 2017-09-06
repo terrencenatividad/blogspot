@@ -42,18 +42,18 @@
 			<div class="col-md-3 col-sm-6">
 				<div class="small-box bg-green">
 					<div class="inner">
-						<h3><?php echo $billings ?></h3>
-						<p>Bills</p>
+						<h3><?php echo $items ?></h3>
+						<p>Items</p>
 					</div>
 					<div class="icon">
-						<i class="glyphicon glyphicon-calendar"></i>
+						<i class="glyphicon glyphicon-equalizer"></i>
 					</div>
 					<div class="row">
 						<div class="col-xs-5">
-							<a href="<?php echo BASE_URL ?>billing/" class="small-box-footer">View List <i class="fa fa-arrow-circle-right"></i></a>
+							<a href="<?php echo BASE_URL ?>maintenance/item/" class="small-box-footer">View List <i class="fa fa-arrow-circle-right"></i></a>
 						</div>
 						<div class="col-xs-7">
-							<a href="<?php echo BASE_URL ?>billing/create" class="small-box-footer"><span class="hidden-md">Create </span>New Bill <i class="fa fa-plus-circle"></i></a>
+							<a href="<?php echo BASE_URL ?>maintenance/item/create" class="small-box-footer"><span class="hidden-md">Create </span>New Item <i class="fa fa-plus-circle"></i></a>
 						</div>
 					</div>
 				</div>

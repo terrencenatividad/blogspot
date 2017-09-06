@@ -11,7 +11,7 @@ class controller extends wc_controller {
 		$data						= array();
 		$data['invoices']			= $this->dashboard->getInvoices();
 		$data['purchases']			= $this->dashboard->getPurchases();
-		$data['billings']			= $this->dashboard->getBillings();
+		$data['items']				= $this->dashboard->getItems();
 		$data['journalvouchers']	= $this->dashboard->getJournalVouchers();
 		$this->view->load('home', $data);
 	}

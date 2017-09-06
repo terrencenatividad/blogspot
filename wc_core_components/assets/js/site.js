@@ -6,9 +6,15 @@ function drawTemplate() {
 		} else if ($(this).closest('.modal-body').length) {
 			parent = $(this).closest('.modal-body');
 		}
+		var minresult = 1;
+		var itemsperpage = `<optionvalue="10">10</option><optionvalue="20">20</option><optionvalue="50">50</option><optionvalue="100">100</option>`;
+		if ($(this).html().replace(/\s/g, '') == itemsperpage) {
+			minresult = 'Infinity';
+		}
 		$(this).select2({
 			width: '100%',
 			containerCssClass: ':all:',
+			minimumResultsForSearch: minresult,
 			dropdownParent: parent
 		});
 	});
@@ -54,6 +60,14 @@ function linkDeleteToModal(delete_button, callback) {
 		var id = $(this).attr('data-id');
 		$('#delete_modal #delete_yes').attr('data-id', id).attr('onclick', callback + '("' + id + '"); $(this).closest("#delete_modal").modal("hide");');
 		$('#delete_modal').modal('show');
+	});
+}
+
+function linkCancelToModal(cancel_button, callback) {
+	$('body').on('click', cancel_button, function() {
+		var id = $(this).attr('data-id');
+		$('#cancel_modal #cancel_yes').attr('data-id', id).attr('onclick', callback + '("' + id + '"); $(this).closest("#cancel_modal").modal("hide");');
+		$('#cancel_modal').modal('show');
 	});
 }
 
@@ -244,7 +258,6 @@ $('body').on('keydown', '[data-validation~="integer"]', function(e) {
 });
 $('body').on('keydown', '[data-validation~="contactnumber"]', function(e) {
 	var keyCode = e.originalEvent.keyCode;
-	console.log(keyCode);
 	if ((shiftDown && ((keyCode > 31 && (keyCode < 48 || keyCode > 57) && (keyCode < 96 || keyCode > 105) && keyCode != 110 && keyCode != 188) && keyCode != 116 && (keyCode < 37 || keyCode > 40) && keyCode != 46)) && ! (controlDown && (keyCode == 67 || keyCode == 86)) && ! (shiftDown && (keyCode == 57 || keyCode == 48))) 
 		return false;
 	return true;

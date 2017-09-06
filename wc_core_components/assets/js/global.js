@@ -27,15 +27,25 @@ function removeComma(value, type) {
 	if (typeof value == 'string') {
 		value = value.replace(/\,/g,'');
 	}
-	if (type == 'int') {
-		return parseInt(value);
-	} else {
-		return parseFloat(value);
+	if (value == '' || value == '.') {
+		value = 0;
 	}
+	if (type == 'int') {
+		value = parseInt(value);
+	} else {
+		value = parseFloat(value);
+	}
+	if ( ! value > 0) {
+		value = 0;
+	}
+	return value;
 }
 function addComma(value, type) {
 	if (typeof value == 'string') {
 		value = value.replace(/\,/g,'');
+	}
+	if (value == '' || value == '.') {
+		value = 0;
 	}
 	var decimal_place = 2;
 	if (type == 'int') {
@@ -43,6 +53,9 @@ function addComma(value, type) {
 		decimal_place = 0;
 	} else {
 		value = parseFloat(value);
+	}
+	if ( ! value > 0) {
+		value = 0;
 	}
 	return value.toFixed(decimal_place).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 }

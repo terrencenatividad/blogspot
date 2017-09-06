@@ -66,7 +66,7 @@ class controller extends wc_controller
 			$result = $this->upload();
 		}
 
-		echo json_decode($result);
+		echo json_encode($result);
 	}
 
 	/**
@@ -187,7 +187,7 @@ class controller extends wc_controller
 			$data_var 		= (array) $companydata;
 			
 			$company_logo	= $data_var['companyimage'];
-			if(!empty($company_logo)){
+			if(file_exists($DestinationDirectory.$company_logo) && !empty($company_logo)){
 				unlink($DestinationDirectory.$company_logo);
 			}
 
@@ -269,10 +269,18 @@ class controller extends wc_controller
 				$update_info['companyimage']  	= $NewImageName;
 				$result = $this->companyclass->updateData('update',$update_info," stat = 'active' ");
 
-				return 'System Logo successfully uploaded.';
+				$code 	= 1;
+				$msg 	= 'System Logo successfully uploaded.';
 			}else{
-				return 0;
+				$code 	= 0;
+				$msg 	= 'Upload Error!';
 			}
+
+			$returnArray = array(
+				'code'=> $code,
+				'msg'=> $msg
+			);
+			return $returnArray;
 		}
 	}
 

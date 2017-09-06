@@ -68,6 +68,24 @@
 					</div>
 				</div>
 			</div>
+			<div id="cancel_modal" class="modal modal-warning">
+				<div class="modal-dialog" style = "width: 300px;">
+					<div class="modal-content">
+						<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Confirmation</h4>
+						</div>
+						<div class="modal-body">
+							<p>Are you sure you want to cancel this record?</p>
+						</div>
+						<div class="modal-footer text-center">
+							<button type="button" id="cancel_yes" class="btn btn-outline btn-flat" onclick="">Yes</button>
+							<button type="button" class="btn btn-outline btn-flat" data-dismiss="modal">No</button>
+						</div>
+					</div>
+				</div>
+			</div>
 			<div id="confimation_modal" class="modal">
 				<div class="modal-dialog" style = "width: 300px;">
 					<div class="modal-content">
