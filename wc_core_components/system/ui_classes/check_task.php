@@ -11,6 +11,7 @@ class check_task {
 				$this->labels->$key = $value;
 			}
 		}
+		return $this;
 	}
 
 	public function addSave($show = '') {
