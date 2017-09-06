@@ -351,7 +351,7 @@ $('[data-daterangefilter]').each(function() {
 			$(this).val(picker.startDate.format('MMM DD, YYYY') + ' - ' + picker.endDate.format('MMM DD, YYYY')).trigger('change');
 		}).on('cancel.daterangepicker', function(ev, picker) {
 			$(this).val('').trigger('change');
-		});
+		}).attr('placeholder', 'Date Filter');
 	} else {
 
 	}
