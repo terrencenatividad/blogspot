@@ -63,6 +63,14 @@ function linkDeleteToModal(delete_button, callback) {
 	});
 }
 
+function linkCancelToModal(cancel_button, callback) {
+	$('body').on('click', cancel_button, function() {
+		var id = $(this).attr('data-id');
+		$('#cancel_modal #cancel_yes').attr('data-id', id).attr('onclick', callback + '("' + id + '"); $(this).closest("#cancel_modal").modal("hide");');
+		$('#cancel_modal').modal('show');
+	});
+}
+
 function createConfimationLink(link, callback, confimation_question) {
 	$('body').on('click', link, function() {
 		var id = $(this).attr('data-id');
