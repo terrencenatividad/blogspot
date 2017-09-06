@@ -1,6 +1,11 @@
 <?php
 class date {
 
+	public function datefilterMonth($date = '') {
+		$date = $this->convertDate($date, 'M 01, Y', '+0 day') . ' - ' . $this->convertDate($date, 'M t, Y', '+0 day');
+		return $date;
+	}
+
 	public function dateDbFormat($date = '', $offset = '+0 day') {
 		$date = $this->convertDate($date, 'Y-m-d', $offset);
 		return $date;
