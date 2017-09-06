@@ -138,7 +138,7 @@ class check_task {
 									<li class="divider"></li>
 									<li style="cursor:pointer;" id="save_preview">
 										&nbsp;&nbsp;Save & Preview
-										<input type = "hidden" name = "h_save_preview" id = "h_save_new"/>
+										<input type = "hidden" name = "h_save_preview" id = "h_save_preview"/>
 									</li>
 								</ul>
 							</div>';
