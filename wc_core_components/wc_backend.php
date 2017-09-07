@@ -200,17 +200,26 @@ class backend {
 			require_once $path;
 			$controller = new controller;
 			if (method_exists($controller,$this->module_function)) {
+				if ($this->module_function == 'ajax') {
+					if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+						echo 'show 404';
+						exit();
+					}
+				}
 				call_user_func_array(array($controller, $this->module_function), $this->args);
 			} else if (DEBUGGING) {
 				echo '<p><b>Unable to find Controller Function:</b> ' . $this->module_function . '()</p>';
+				exit();
 			} else {
 				echo 'show 404';
+				exit();
 			}
 		} else if (DEBUGGING) {
 			echo '<p><b>Unable to find Controller File:</b> ' . $path . '</p>';
 			exit();
 		} else {
 			echo 'show 404';
+			exit();
 		}
 	}
 
