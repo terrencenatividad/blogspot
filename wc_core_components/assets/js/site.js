@@ -99,6 +99,17 @@ function linkDeleteMultipleToModal(delete_multiple, table, callback) {
 	});
 }
 
+function linkCancelMultipleToModal(cancel_multiple, table, callback) {
+	$('body').on('click', cancel_multiple, function() {
+		var id = [];
+		$(table + ' tbody').find('[type="checkbox"]:checked').each(function() {
+			id.push($(this).val());
+		});
+		$('#cancel_modal #cancel_yes').attr('data-id', id).attr('onclick', callback + '("' + id + '"); $(this).closest("#cancel_modal").modal("hide");');
+		$('#cancel_modal').modal('show');
+	});
+}
+
 function getDeleteId(ids) {
 	var x = ids.split(",");
 	return "delete_id[]=" + x.join("&delete_id[]=");
