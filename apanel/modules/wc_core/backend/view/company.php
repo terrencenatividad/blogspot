@@ -153,9 +153,18 @@
 					</div>
 					<form action="<?=BASE_URL?>maintenance/company/ajax/upload" onSubmit="return false" method="post" enctype="multipart/form-data" id="uploadForm">
 					<div class="modal-body">
-						<div class="form-group field_col">
+						<!-- <div class="form-group field_col">
 							<input type="file"  class="form_iput"    value="" name="upload_logo" id="upload_logo" />					<span class="help-block hidden small"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
-						</div>
+						</div> -->
+						<?php
+							echo $ui->formField('file')
+								->setSplit('', 'col-md-12')
+								->setName('upload_logo')
+								->setId('upload_logo')
+								->setValidation('required')
+								->draw();
+						?>
+						<br/>
 						<p class="help-block">The file to be imported must be in .jpeg, .jpg, .png and .gif file.</p>
 						<div id="progressbox" style="display:none;"><div id="progressbar"></div ><div id="statustxt">0%</div></div>
 						<div id="output"></div>
