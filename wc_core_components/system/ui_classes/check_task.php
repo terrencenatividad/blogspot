@@ -48,6 +48,11 @@ class check_task {
 		return $this;
 	}
 
+	public function setModuleURL($url = '') {
+		$this->url = BASE_URL . $url . '/';
+		return $this;
+	}
+
 	public function setValue($value) {
 		$this->value = $value;
 		return $this;
@@ -87,11 +92,11 @@ class check_task {
 					</button>
 					<ul class="dropdown-menu">';
 
-				$check_task .= ($this->view) ? '<li><a href="'. MODULE_URL .'view/' . $this->value . '" class="btn-sm"><i class="glyphicon glyphicon-eye-open"></i> ' . $this->labels->view . '</a></li>' : '';
+				$check_task .= ($this->view) ? '<li><a href="'. $this->url .'view/' . $this->value . '" class="btn-sm"><i class="glyphicon glyphicon-eye-open"></i> ' . $this->labels->view . '</a></li>' : '';
 				
-				$check_task .= ($this->edit) ? '<li><a href="'. MODULE_URL .'edit/' . $this->value . '" class="btn-sm"><i class="glyphicon glyphicon-pencil"></i> ' . $this->labels->edit . '</a></li>' : '';
+				$check_task .= ($this->edit) ? '<li><a href="'. $this->url .'edit/' . $this->value . '" class="btn-sm"><i class="glyphicon glyphicon-pencil"></i> ' . $this->labels->edit . '</a></li>' : '';
 				
-				$check_task .= ($this->print) ? '<li><a href="'. MODULE_URL .'print_preview/' . $this->value . '" target="_blank" class="btn-sm"><i class="glyphicon glyphicon-print"></i> ' . $this->labels->print . '</a></li>' : '';
+				$check_task .= ($this->print) ? '<li><a href="'. $this->url .'print_preview/' . $this->value . '" target="_blank" class="btn-sm"><i class="glyphicon glyphicon-print"></i> ' . $this->labels->print . '</a></li>' : '';
 
 				foreach ($this->addon as $addon) {
 					$class = strtolower(str_replace(' ', '_', $addon->task));
@@ -193,6 +198,7 @@ class check_task {
 		$this->delete			= false;
 		$this->print			= false;
 		$this->cancel 			= false;
+		$this->url				= MODULE_URL;
 		$this->addon			= array();
 		$this->labels			= (object) array(
 			'save'		=> 'Save',
