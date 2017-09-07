@@ -116,7 +116,6 @@ class controller extends wc_controller
 	{
 		$data_var = array(
 			'companycode',
-			'companyimage',
 			'companyname',
 			'businesstype',
 			'contactname',
