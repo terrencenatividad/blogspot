@@ -81,7 +81,9 @@ function ajaxToFilter(ajax, data, type = 'input') {
 	for (var key in data) {
 		if (data.hasOwnProperty(key)) {
 			if (type == 'input') {
-				$(data[key]).val(ajax[key]);
+				if (ajax[key]) {
+					$(data[key]).val(ajax[key]);
+				}
 			}
 		}
 	}
