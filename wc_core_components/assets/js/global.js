@@ -59,3 +59,35 @@ function addComma(value, type) {
 	}
 	return value.toFixed(decimal_place).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 }
+function filterToURL() {
+	for (var key in ajax) {
+		if (ajax.hasOwnProperty(key)) {
+			if (ajax[key] == '') {
+				delete(ajax[key]);
+			}
+		}
+	}
+	var url = window.location.href.replace(window.location.search, '') + '?' + $.param(ajax);
+	window.history.pushState("string", "Page", url);
+}
+function filterFromURL() {
+	var json = {};
+	try {
+		json = JSON.parse('{"' + decodeURIComponent(window.location.search.replace(/\?/g, '').replace(/&/g, "\",\"").replace(/=/g,"\":\"")).replace(/\+/g, ' ') + '"}');
+	} catch (e) {}
+	return json;
+}
+function ajaxToFilter(ajax, data, type = 'input') {
+	for (var key in data) {
+		if (data.hasOwnProperty(key)) {
+			if (type == 'input') {
+				$(data[key]).val(ajax[key]);
+			}
+		}
+	}
+}
+function ajaxToFilterTab(ajax, element, key) {
+	if (ajax[key]) {
+		$(element).find('li').removeClass('active').closest('ul').find('a[href="' + ajax[key] + '"]').closest('li').addClass('active');
+	}
+}

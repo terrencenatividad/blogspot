@@ -204,6 +204,17 @@ $('table').on('ifToggled', 'tr [type="checkbox"].checkall', function() {
 	$(this).closest('table').find('tbody [type="checkbox"]:not(:disabled, .disabled)').prop('checked', checked).iCheck('update').trigger(check_type);
 });
 
+// Cancel Button
+$('body').on('click', 'a[data-toggle="back_page"]', function(e) {
+	if (document.referrer) {
+		e.preventDefault();
+		if (window.history.length > 1) {
+			window.history.back()
+		} else {
+			window.location = document.referrer;
+		}
+	}
+});
 
 // || Input Validations
 // \/
