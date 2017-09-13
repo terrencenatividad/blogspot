@@ -180,7 +180,7 @@ class check_task {
 
 			if( $this->cancel )
 			{
-				$task 	.= ' <button type="button" class="btn btn-default btn-flat" data-id="'. $this->value .'" id="cancelbtn">Cancel</button>';
+				$task 	.= ' <button type="button" class="btn btn-default btn-flat" data-id="'. $this->value .'" id="cancelbtn" data-toggle="back_page">Cancel</button>';
 			}
 
 			$this->reset();
