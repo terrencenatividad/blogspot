@@ -88,8 +88,9 @@
 		</div>
 	</div>
 	<script>
-		var ajax = {}
+		var ajax = filterFromURL();
 		var ajax_call = '';
+		ajaxToFilter(ajax, { search : '#table_search', limit : '#items' });
 		tableSort('#tableList', function(value, getlist) {
 			ajax.sort = value;
 			ajax.page = 1;
@@ -113,6 +114,7 @@
 			getList();
 		});
 		function getList() {
+			filterToURL();
 			if (ajax_call != '') {
 				ajax_call.abort();
 			}

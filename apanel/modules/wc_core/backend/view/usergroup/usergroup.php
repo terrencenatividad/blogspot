@@ -68,7 +68,7 @@
 					<div class="row">
 						<div class="col-md-12 text-center">
 							<?php echo $ui->drawSubmit($show_input); ?>
-							<a href="<?=MODULE_URL?>" class="btn btn-default">Cancel</a>
+							<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
 						</div>
 					</div>
 				</form>
