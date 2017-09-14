@@ -67,8 +67,11 @@ function filterToURL() {
 			}
 		}
 	}
-	var url = window.location.href.replace(window.location.search, '') + '?' + $.param(ajax);
-	window.history.pushState("string", "Page", url);
+	if ( ! $.isEmptyObject(ajax)) {
+		console.log('lskjdflksdf');
+		var url = window.location.href.replace(window.location.search, '') + '?' + $.param(ajax);
+		window.history.pushState("string", "Page", url);
+	}
 }
 function filterFromURL() {
 	var json = {};
