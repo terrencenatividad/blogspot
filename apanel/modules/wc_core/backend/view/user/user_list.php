@@ -138,8 +138,9 @@
 		</div>
 	</div>
 	<script>
-		var ajax = {}
+		var ajax = filterFromURL();
 		var ajax_call = '';
+		ajaxToFilter(ajax, { search : '#table_search', limit : '#items' });
 		function changeExportLink() {
 			var url = '<?= MODULE_URL ?>get_export/';
 			$('#export_table').attr('href', url + btoa(ajax.search || '') + '/' + btoa(ajax.sort || ''));
@@ -247,6 +248,7 @@
 			}
 		});
 		function getList() {
+			filterToURL();
 			changeExportLink();
 			if (ajax_call != '') {
 				ajax_call.abort();
