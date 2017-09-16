@@ -358,16 +358,20 @@ class ui {
 	
 	public function drawSubmitDropdown($draw, $ajax_task = 'ajax_create') {
 		if ($draw) {
-			return '<div class="btn-group" id="save_group">
-						<button type="submit" name="submit" class="btn btn-info" value="save">Save</button>
-						<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
-							<span class="caret"></span>
-						</button>
-						<ul class="dropdown-menu">
-							<li><a class="clickable" data-link="input">Save & New <input type="submit" name="submit" class="hidden" value="save_new"></a></li>
-							<li><a class="clickable" data-link="input">Save & Preview <input type="submit" name="submit" class="hidden" value="save_preview"></a></li>
-						</ul>
-					</div>';
+			if ($ajax_task == 'ajax_create') {
+				return '<div class="btn-group" id="save_group">
+							<button type="submit" name="submit" class="btn btn-primary" value="save">Save</button>
+							<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu">
+								<li><a class="clickable" data-link="input">Save & New <input type="submit" name="submit" class="hidden" value="save_new"></a></li>
+								<li><a class="clickable" data-link="input">Save & Preview <input type="submit" name="submit" class="hidden" value="save_preview"></a></li>
+							</ul>
+						</div>';
+			} else {
+				return '<button type="submit" name="submit" class="btn btn-primary" value="save">Save</button>';
+			}
 		} else {
 			$url = MODULE_URL . 'edit';
 			if (FULL_URL != MODULE_URL) {
