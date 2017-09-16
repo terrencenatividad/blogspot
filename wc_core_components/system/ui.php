@@ -355,6 +355,31 @@ class ui {
 			return '<a href="' . $url  . '" class="btn btn-primary">Edit</a>';
 		}
 	}
+	
+	public function drawSubmitDropdown($draw, $ajax_task = 'ajax_create') {
+		if ($draw) {
+			return '<div class="btn-group" id="save_group">
+						<button type="submit" name="submit" class="btn btn-info" value="save">Save</button>
+						<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu">
+							<li><a class="clickable" data-link="input">Save & New <input type="submit" name="submit" class="hidden" value="save_new"></a></li>
+							<li><a class="clickable" data-link="input">Save & Preview <input type="submit" name="submit" class="hidden" value="save_preview"></a></li>
+						</ul>
+					</div>';
+		} else {
+			$url = MODULE_URL . 'edit';
+			if (FULL_URL != MODULE_URL) {
+				$url = str_replace('view', 'edit', FULL_URL);
+			}
+			return '<a href="' . $url  . '" class="btn btn-primary">Edit</a>';
+		}
+	}
+
+	public function drawCancel() {
+		return ' <a href="' . MODULE_URL . '" class="btn btn-default" data-toggle="back_page">Cancel</a>';
+	}
 
 	private function reset() {
 		$this->form_group = false;
