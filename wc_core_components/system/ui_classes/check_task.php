@@ -78,7 +78,7 @@ class check_task {
 		if ($this->checkbox || $dropdown) {
 			$check_task .= '<div class="btn-group check_task ' . $check_class . '">';
 			if ($this->checkbox !== '') {
-				$check_disabled = ($this->checkbox) ? '' : ' diabled';
+				$check_disabled = ($this->checkbox) ? '' : ' disabled';
 				$check_task .= '
 								<label type="button" class="btn btn-default btn-flat btn-sm btn-checkbox">
 									<input type="checkbox" class="checkbox item_checkbox" value="' . $this->value . '"' . $check_disabled . '>
