@@ -47,9 +47,11 @@ class wc_view {
 		$nav = array();
 		if (PAGE_TYPE == 'backend') {
 			$db = new db();
-			$result = $db->setTable(PRE_TABLE . '_modules')
-							->setFields('module_link, module_name, module_group, label')
-							->setWhere('active AND show_nav')
+			$result = $db->setTable(PRE_TABLE . '_modules m')
+							->innerJoin(PRE_TABLE . '_module_access ma ON ma.module_name = m.module_name')
+							->setFields('module_link, m.module_name, module_group, label')
+							->setWhere('active AND show_nav AND (mod_add + mod_view + mod_edit + mod_delete + mod_list + mod_print) > 0')
+							->setGroupBy('module_name')
 							->setOrderBy('group_order, module_order, module_name')
 							->runSelect(false)
 							->getResult();
