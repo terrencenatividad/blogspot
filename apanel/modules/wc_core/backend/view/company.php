@@ -224,6 +224,11 @@
 				}, 3000);
 			});
 		});
+
+		$('#uploadForm').on('change', '#upload_logo', function() {
+			var filename = $(this).val().split("\\");
+			$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
+		});
 		
 		$('#companyForm #cancel').click(function(e) {
 			e.preventDefault();
