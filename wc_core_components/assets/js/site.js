@@ -55,6 +55,12 @@ $('.datepicker-input').each(function() {
 	$(this).datepicker('setDate', val);
 });
 
+$('body').on('click', '[data-link]', function(e) {
+	if (e.target == this) {
+		$(this).find($(this).attr('data-link')).click();
+	}
+});
+
 function linkDeleteToModal(delete_button, callback) {
 	$('body').on('click', delete_button, function() {
 		var id = $(this).attr('data-id');
