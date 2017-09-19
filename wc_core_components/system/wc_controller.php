@@ -9,7 +9,7 @@ class wc_controller {
 	public function checkOutModel($model) {
 		$temp = explode('/', $model);
 		if (isset($temp[1])) {
-			$path = "modules/{$temp[0]}/model/{$temp[1]}.php";
+			$path = ((PAGE_TYPE) == 'frontend' ? 'apanel/' : '') .  "modules/{$temp[0]}/model/{$temp[1]}.php";
 			if (is_file($path)) {
 				require_once($path);
 				return new $temp[1]();
