@@ -8,6 +8,7 @@
 * Run
 ```
 cd <to your /www/>
+
 cd webcore_modular_full/
 git pull origin master
 cd webcore_modular_full/apanel/modules/sales_module/
