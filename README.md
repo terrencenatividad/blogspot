@@ -30,7 +30,6 @@ cd ../financials_module/
 git reset --hard origin/master
 git pull origin master
 cd ../../../
-rm apanel/modules/billing_module/bitbucket-pipelines.yml
 rm apanel/modules/sales_module/bitbucket-pipelines.yml
 rm apanel/modules/purchase_module/bitbucket-pipelines.yml
 rm apanel/modules/inventory_module/bitbucket-pipelines.yml
