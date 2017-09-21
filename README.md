@@ -11,7 +11,7 @@ cd <to your /www/>
 
 cd webcore_modular_full/
 git pull origin master
-cd webcore_modular_full/apanel/modules/sales_module/
+cd apanel/modules/sales_module/
 git reset --hard origin/master
 git pull origin master
 cd ../purchase_module/
