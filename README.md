@@ -29,7 +29,7 @@ git pull origin master
 cd ../financials_module/
 git reset --hard origin/master
 git pull origin master
-cd ../../../webcore_modular_full/
+cd ../../../
 rm apanel/modules/billing_module/bitbucket-pipelines.yml
 rm apanel/modules/sales_module/bitbucket-pipelines.yml
 rm apanel/modules/purchase_module/bitbucket-pipelines.yml
