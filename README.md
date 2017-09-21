@@ -1,7 +1,7 @@
 # Specifications
 
 ### How to make a project
-* Use webcore_modular_full
+* Fork webcore_modular_full
 
 ### How to update webcore_modular_full
 * Copy Modules from webcore_modular to webcore_modular_full
