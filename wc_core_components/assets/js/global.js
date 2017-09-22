@@ -68,7 +68,6 @@ function filterToURL() {
 		}
 	}
 	if ( ! $.isEmptyObject(ajax)) {
-		console.log('lskjdflksdf');
 		var url = window.location.href.replace(window.location.search, '') + '?' + $.param(ajax);
 		window.history.pushState("string", "Page", url);
 	}
