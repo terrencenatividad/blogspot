@@ -44,6 +44,9 @@
 	<script src="<?= BASE_URL ?>assets/js/global.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/nprogress.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/jquery.form.min.js"></script>
+	<?php foreach ($include_js as $inc_js): ?>
+	<script src="<?= BASE_URL . $inc_js ?>"></script>
+	<?php endforeach ?>
 </head>
 <body class="hold-transition skin-red fixed layout-top-nav">
 <div class="wrapper">
