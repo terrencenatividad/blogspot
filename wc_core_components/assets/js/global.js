@@ -79,7 +79,8 @@ function filterFromURL() {
 	} catch (e) {}
 	return json;
 }
-function ajaxToFilter(ajax, data, type = 'input') {
+function ajaxToFilter(ajax, data, type) {
+	var type = type || 'input';
 	for (var key in data) {
 		if (data.hasOwnProperty(key)) {
 			if (type == 'input') {
