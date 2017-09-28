@@ -250,6 +250,9 @@ $('body').on('focus', '[data-validation~="decimal"], [data-validation~="integer"
 	$(this).select();
 });
 $('body').on('input change blur blur_validate', '[data-validation~="required"]', function(e) {
+	if ((e.originalEvent ? e.originalEvent.type : e.type) == 'blur' && $(this).is('[data-daterangefilter]')) {
+		return false;
+	}
 	var error_message = 'This field is required';
 	var form_group = $(this).closest('.form-group');
 	var val = $(this).val() || '';

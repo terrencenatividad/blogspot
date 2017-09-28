@@ -1,17 +1,30 @@
 <?php
 class wc_view {
 
-	public $css = array();
-	public $title = '';
-	public $sub_title = '';
-	public $header_active = '';
+	private $css			= array();
+	private $js				= array();
+	public $title			= '';
+	public $sub_title		= '';
+	public $header_active	= '';
 
 	public function __construct() {
 		$this->date = new date();
 	}
-
-	public function addCss($css) {
-		$this->css[] = 'assets/' . MODULE_FOLDER . '/' . PAGE_TYPE . '/assets/' . $css;
+	
+	public function addCSS($css) {
+		if (is_array($css)) {
+			$this->css = array_merge($this->css, $css);
+		} else {
+			$this->css[] = $css;
+		}
+	}
+	
+	public function addJS($js) {
+		if (is_array($js)) {
+			$this->js = array_merge($this->js, $js);
+		} else {
+			$this->js[] = $js;
+		}
 	}
 
 	public function load($file, $data = array(), $enclosed = true) {
@@ -23,11 +36,12 @@ class wc_view {
 		if (file_exists($path)) {
 			// LOAD HEADER
 			if ($enclosed && ( ! defined('MODAL') || (defined('MODAL') && ! MODAL))) {
-				$header_nav = $this->getNav();
-				$header_active = $this->header_active;
-				$include_css = $this->css;
-				$page_title = $this->title;
-				$page_subtitle = $this->enclose($this->sub_title, '<small>', '</small>');
+				$header_nav		= $this->getNav();
+				$header_active	= $this->header_active;
+				$include_css	= $this->css;
+				$include_js		= $this->js;
+				$page_title		= $this->title;
+				$page_subtitle	= $this->enclose($this->sub_title, '<small>', '</small>');
 				require_once (PAGE_TYPE == 'backend' ? '' : 'apanel/') . 'view/' . PAGE_TYPE . '_header.php';
 			}
 			// LOAD MODULE

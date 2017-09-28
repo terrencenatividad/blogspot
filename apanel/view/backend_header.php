@@ -18,13 +18,13 @@
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/morris.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/bootstrap-select.min.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/nprogress.css">
+<?php foreach ($include_css as $inc_css): ?>
+	<link rel="stylesheet" href="<?= BASE_URL . 'assets/css/' . $inc_css ?>">
+<?php endforeach ?>
 	<!--[if lt IE 9]>
 	<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 	<![endif]-->
-	<?php foreach ($include_css as $inc_css): ?>
-	<link rel="stylesheet" href="<?= BASE_URL . $inc_css ?>">
-	<?php endforeach ?>
 
 	<script src="<?= BASE_URL ?>assets/js/jquery-2.2.3.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/select2.min.js"></script>
@@ -44,6 +44,9 @@
 	<script src="<?= BASE_URL ?>assets/js/global.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/nprogress.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/jquery.form.min.js"></script>
+<?php foreach ($include_js as $inc_js): ?>
+	<script src="<?= BASE_URL . 'assets/js/' . $inc_js ?>"></script>
+<?php endforeach ?>
 </head>
 <body class="hold-transition skin-red fixed layout-top-nav">
 <div class="wrapper">
