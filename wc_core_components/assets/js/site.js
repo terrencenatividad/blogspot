@@ -246,7 +246,7 @@ $('body').on('keyup', function(e) {
 		shiftDown = false;
 	}
 });
-$('body').on('focus', '[data-validation~="decimal"], [data-validation~="integer"]', function() {
+$('body').on('focus', '[data-validation*="decimal"], [data-validation~="integer"]', function() {
 	$(this).select();
 });
 $('body').on('input change blur blur_validate', '[data-validation~="required"]', function(e) {
@@ -265,20 +265,29 @@ $('body').on('input change blur blur_validate', '[data-validation~="required"]',
 		}
 	}
 });
-$('body').on('keydown', '[data-validation~="decimal"]', function(e) {
+$('body').on('keydown', '[data-validation*="decimal"]', function(e) {
 	var keyCode = e.originalEvent.keyCode;
 	if ((keyCode > 31 && (keyCode < 48 || keyCode > 57) && (keyCode < 96 || keyCode > 105) && keyCode != 190 && keyCode != 110 && keyCode != 188) && ! (controlDown && (keyCode == 67 || keyCode == 86)) && keyCode != 116 && (keyCode < 37 || keyCode > 40) && keyCode != 46) 
 		return false;
 	return true;
 });
-$('body').on('blur blur_validate', '[data-validation~="decimal"]', function() {
+$('body').on('blur blur_validate', '[data-validation*="decimal"]', function() {
+	var decimal_place = 2;
+	var validations = $(this).attr('data-validation').split(' ');
+	for (var x = 0; x < validations.length; x++) {
+		if (validations[x].includes('decimal')) {
+			decimal_place = parseInt(validations[x].replace('decimal', '').replace('[', '').replace(']', '')) || 2;
+		}
+	}
 	var value = $(this).val();
 	if (value.replace(/\,/g) != '') {
 		var decimal = parseFloat(value.replace(/\,/g,''));
 		if (isNaN(decimal)) {
 			decimal = 0;
 		}
-		$(this).val(decimal.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+		var parts = decimal.toFixed(decimal_place).split('.');
+		parts[0] = parts[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+		$(this).val(parts.join('.'));
 	}
 });
 $('body').on('keydown', '[data-validation~="integer"]', function(e) {
@@ -307,6 +316,12 @@ $('body').on('blur blur_validate', '[data-max]', function(e) {
 	var max = parseFloat($(this).attr('data-max').replace(/\,/g,''));
 	var value = parseFloat($(this).val().replace(/\,/g,''));
 	var decimal_place = 2;
+	var validations = $(this).attr('data-validation').split(' ');
+	for (var x = 0; x < validations.length; x++) {
+		if (validations[x].includes('decimal')) {
+			decimal_place = parseInt(validations[x].replace('decimal', '').replace('[', '').replace(']', '')) || 2;
+		}
+	}
 	if ($(this).filter('[data-validation~="integer"]').length) {
 		decimal_place = 0;
 	}
@@ -317,13 +332,21 @@ $('body').on('blur blur_validate', '[data-max]', function(e) {
 		if (isNaN(value)) {
 			value = 0;
 		}
-		$(this).val(value.toFixed(decimal_place).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")).trigger('recompute');
+		var parts = value.toFixed(decimal_place).split('.');
+		parts[0] = parts[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+		$(this).val(parts.join('.')).trigger('recompute');
 	}
 });
 $('body').on('blur blur_validate', '[data-min]', function(e) {
 	var min = parseFloat($(this).attr('data-min').replace(/\,/g,''));
 	var value = parseFloat($(this).val().replace(/\,/g,''));
 	var decimal_place = 2;
+	var validations = $(this).attr('data-validation').split(' ');
+	for (var x = 0; x < validations.length; x++) {
+		if (validations[x].includes('decimal')) {
+			decimal_place = parseInt(validations[x].replace('decimal', '').replace('[', '').replace(']', '')) || 2;
+		}
+	}
 	if ($(this).filter('[data-validation~="integer"]').length) {
 		decimal_place = 0;
 	}
@@ -331,7 +354,9 @@ $('body').on('blur blur_validate', '[data-min]', function(e) {
 		if (min > value || isNaN(value)) {
 			value = min;
 		}
-		$(this).val(value.toFixed(decimal_place).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")).trigger('recompute');
+		var parts = value.toFixed(decimal_place).split('.');
+		parts[0] = parts[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+		$(this).val(parts.join('.')).trigger('recompute');
 	}
 });
 $('body').on('keyup', '[data-validation~="code"]', function(e) {
