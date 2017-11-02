@@ -108,10 +108,10 @@
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true">×</span>
 						</button>
-						<h4 class="modal-title">Import Item/s</h4>
+						<h4 class="modal-title">Import Users/s</h4>
 					</div>
 					<div class="modal-body">
-						<label>Step 1. Download the sample template <a href="<?=MODULE_URL?>get_import" download="item_type_csv_template.csv">here</a></label>
+						<label>Step 1. Download the sample template <a href="<?=MODULE_URL?>get_import" download="users_csv_template.csv">here</a></label>
 						<hr>
 						<label>Step 2. Fill up the information needed for each columns of the template.</label>
 						<hr>
