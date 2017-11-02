@@ -35,7 +35,7 @@
 					<?php foreach ($moduleaccess_list as $key => $moduleaccess): ?>
 						<hr class="form-hr">
 						<div class="row">
-							<label class="control-label col-md-2">
+							<label class="control-label col-md-2 module_label" data-id="<?php echo "module_access_{$key}" ?>">
 								<?php echo $moduleaccess->module_name ?>:
 							</label>
 							<div class="col-md-8">
@@ -78,6 +78,19 @@
 	<?php if ($show_input): ?>
 	<script>
 		var ajax_call = '';
+		$('.module_label').on('click', function() {
+			var module_label = $(this).attr('data-id');
+			var check_status = 'uncheck';
+			$('[id*="' + module_label + '"]').each(function() {
+				if ( ! $(this).is(':checked')) {
+					check_status = 'check';
+				}
+			});
+			$('[id*="' + module_label + '"]').iCheck(check_status);
+		});
+		$('.module_label').on('mouseenter mouseout', function(e) {
+			$(this).next().find('label').trigger(e.type);
+		});
 		$('#groupname').on('blur', function() {
 			if (ajax_call != '') {
 				ajax_call.abort();
