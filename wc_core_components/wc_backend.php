@@ -9,7 +9,7 @@ class backend {
 
 	public function __construct() {
 		// AUTOLOADER
-		spl_autoload_register(function ($class) {
+		function autoload_function($class) {
 			if (file_exists("system/$class.php")) {
 				require_once "system/$class.php";
 			} else if (defined('MODULE_PATH') && file_exists(MODULE_PATH . "/model/$class.php")) {
@@ -23,7 +23,8 @@ class backend {
 					}
 				}
 			}
-		});
+		}
+		spl_autoload_register('autoload_function');
 		$this->session = new session();
 	}
 
