@@ -28,9 +28,9 @@ class onload {
 								->getRow();
 
 			if ($result) {
-				$module_url = str_replace('%', '', $module->module_link) . 'edit';
-				if ($_SERVER['QUERY_STRING'] != '/' . $module_url) {
-					header('Location: ' . BASE_URL . $module_url);
+				$module_url = str_replace('%', '', $module->module_link);
+				if ( ! strstr($_SERVER['QUERY_STRING'], '/' . $module_url)) {
+					header('Location: ' . BASE_URL . $module_url . 'edit');
 					exit();
 				}
 			}
