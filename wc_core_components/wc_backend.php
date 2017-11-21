@@ -180,6 +180,8 @@ class backend {
 			$this->args = $subfolders;
 			define('MODULE_URL', BASE_URL);
 		}
+		$onload = new onload();
+		$onload->init();
 		define('MODULE_PATH', 'modules/' . $this->module_folder);
 		return MODULE_PATH . '/' . PAGE_TYPE . '/controller/' . $this->module_file . '.php';
 	}
