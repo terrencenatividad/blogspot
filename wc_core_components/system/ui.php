@@ -149,6 +149,8 @@ class ui {
 		$z = ($this->validation) ? '<p class="help-block m-none"></p>' : '';
 		if ((empty($this->addon) && empty($this->addonbutton)) || ! $this->draw) {
 			return $x . $input . $z . $y;
+		} else if ($this->switch) {
+			return $x . '<div class="input-group">' . $addon . $input . '</div>' . $z . $y;
 		} else {
 			return $x . '<div class="input-group">' . $input . $addon . '</div>' . $z . $y;
 		}
@@ -212,7 +214,11 @@ class ui {
 	private function createAddon() {
 		$addon = '';
 		if ( ! empty($this->addon) && $this->draw) {
-			$addon = '<div class="input-group-addon"><i class="glyphicon glyphicon-' . $this->addon . '"></i></div>';
+			if (is_array($this->addon)) {
+				$addon = '<div class="input-group-addon ' . $this->addon['class'] . '">' . $this->addon['value'] . '</div>';
+			} else {
+				$addon = '<div class="input-group-addon"><i class="glyphicon glyphicon-' . $this->addon . '"></i></div>';
+			}
 		}
 		if ( ! empty($this->addonbutton) && $this->draw) {
 			$addon = '<div class="input-group-btn"><button type="button" id="' . $this->attribute['id'] . '_button" class="btn btn-primary btn-flat"><i class="glyphicon glyphicon-' . $this->addonbutton . '"></i></button></div>';
