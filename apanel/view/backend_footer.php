@@ -116,6 +116,25 @@
 					</div>
 				</div>
 			</div>
+			<div class="modal" id="login_popup_modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+				<div class="modal-dialog modal-sm" role="document">
+					<div class="modal-content">
+						<div class="form-group has-feedback">
+							<input type="text" id="login_form_username" name="login_form_username" class="form-control" placeholder="Username" value="<?php echo USERNAME ?>" readonly>
+							<span class="glyphicon glyphicon-user form-control-feedback"></span>
+						</div>
+						<div class="form-group has-feedback">
+							<input type="password" id="login_form_password" name="login_form_password" class="form-control" placeholder="Password">
+							<span class="glyphicon glyphicon-lock form-control-feedback"></span>
+						</div>
+						<div class="row">
+							<div class="col-xs-12">
+								<button type="button" id="login_form_button" class="btn btn-primary btn-block btn-flat">Sign In</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 			<footer class="main-footer">
 				<div class="pull-right hidden-xs">
 					<b>Version</b> 0.9.1

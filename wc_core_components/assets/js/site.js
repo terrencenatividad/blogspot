@@ -137,8 +137,19 @@ $(document).ajaxComplete(function(event, xhr, ajax) {
 		try {
 			data = $.parseJSON(xhr.responseText)
 		} catch (e) {}
-		if (data.locked === true) {
-			last_ajax = ajax;
+		if (data.show_login_form) {
+			if ( ! ($('#login_popup.modal.in').length || $('#login_popup_modal.modal.in').length)) {
+				last_ajax = ajax;
+			}
+			var modal = '#login_popup';
+			if ($('.modal.in:not(#login_popup):not(#login_popup_modal)').length) {
+				modal = '#login_popup_modal';
+			}
+			$(modal).modal('show');
+		} else if (data.locked === true) {
+			if ( ! ($('#locked_popup.modal.in').length || $('#locked_popup_modal.modal.in').length)) {
+				last_ajax = ajax;
+			}
 			var modal = '#locked_popup';
 			if ($('.modal.in:not(#locked_popup):not(#locked_popup_modal)').length) {
 				modal = '#locked_popup_modal';
@@ -153,6 +164,11 @@ $(document).ajaxComplete(function(event, xhr, ajax) {
 				$.ajax(last_ajax);
 				$('#locked_popup').modal('hide');
 				$('#locked_popup_modal').modal('hide');
+			}
+			if ($('#login_popup.modal.in, #login_popup_modal.modal.in').length) {
+				$.ajax(last_ajax);
+				$('#login_popup').modal('hide');
+				$('#login_popup_modal').modal('hide');
 			}
 		}
 	}

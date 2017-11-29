@@ -150,6 +150,31 @@
 			</div>
 		</div>
 	</div>
+	<div class="modal" id="login_popup" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Login</h4>
+				</div>
+				<div class="modal-body">
+					<div id="error_box"></div>
+					<div class="form-group has-feedback">
+						<input type="text" id="login_form_username" name="login_form_username" class="form-control" placeholder="Username" value="<?php echo USERNAME ?>" readonly>
+						<span class="glyphicon glyphicon-user form-control-feedback"></span>
+					</div>
+					<div class="form-group has-feedback">
+						<input type="password" id="login_form_password" name="login_form_password" class="form-control" placeholder="Password">
+						<span class="glyphicon glyphicon-lock form-control-feedback"></span>
+					</div>
+					<div class="row">
+						<div class="col-xs-12">
+							<button type="button" id="login_form_button" class="btn btn-primary btn-block btn-flat">Sign In</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<?php if (defined('LOCKED')): ?>
 	<script>
 		$('#locked_popup').modal('show');
@@ -159,6 +184,26 @@
 		}, <?php echo LOCKED_SEC ?> * 1000);
 	</script>
 	<?php endif ?>
+	<script>
+		$(function() {
+			$('#login_form_password').keypress(function(event){
+				var keycode = (event.keyCode ? event.keyCode : event.which);
+				if(keycode == '13'){
+					$('#login_form_button').trigger('click').focus();
+				}
+			});
+			$('#login_form_button').on('click', function() {
+				var login_form = $(this).closest('.modal');
+				var username = login_form.find('#login_form_username').val();
+				var password = login_form.find('#login_form_password').val();
+				$.post('<?php echo BASE_URL ?>login', { username: username, password: password, ajax: 'ajax_access' }, function(data) {
+					var error_msg = data.error_msg || '';
+					login_form.find('#error_box').html('<p class="login-box-msg text-red">' + error_msg + '</p>');
+					login_form.find('#login_form_password').val('');
+				})
+			});
+		});
+	</script>
 	<div class="content-wrapper">
 		<section class="content-header">
 			<h1>

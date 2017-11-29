@@ -246,7 +246,16 @@ if (SUB_FOLDER == 'logout') {
 } else if ($access->isApanelUser() || SUB_FOLDER == 'login') {
 	$backend->loadModule();
 } else {
-	$access->logoutUser();
-	$redirect = (BASE_URL == FULL_URL) ? '' : '?redirect=' . base64_encode(FULL_URL);
-	$url->redirect(BASE_URL . 'login' . $redirect);
+	if ($input->isPost) {
+		header('Content-type: application/json');
+		echo json_encode(
+				array(
+					'show_login_form' => true
+				)
+			);
+	} else {
+		$access->logoutUser();
+		$redirect = (BASE_URL == FULL_URL) ? '' : '?redirect=' . base64_encode(FULL_URL);
+		$url->redirect(BASE_URL . 'login' . $redirect);
+	}
 }
