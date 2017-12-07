@@ -40,15 +40,17 @@ function removeComma(value, type) {
 	}
 	return value;
 }
-function addComma(value, type) {
+function addComma(value, decimal_place) {
 	if (typeof value == 'string') {
 		value = value.replace(/\,/g,'');
 	}
 	if (value == '' || value == '.') {
 		value = 0;
 	}
-	var decimal_place = 2;
-	if (type == 'int') {
+	if ( ! (decimal_place >= 0)) {
+		decimal_place = 2;
+	}
+	if (decimal_place === 0) {
 		value = parseInt(value);
 		decimal_place = 0;
 	} else {
