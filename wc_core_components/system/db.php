@@ -506,13 +506,10 @@ class db {
 		if ($check) {
 			$fields = implode(', ', $this->fields);
 			if ($limit) {
-				if (empty($this->having)) {
-					$fields = 'COUNT(*) count';
-				} else {
-					$fields = "COUNT({$this->fields[0]}) count";
-				}
+				$this->query = "SELECT COUNT(*) count FROM (SELECT $fields FROM {$this->table}{$this->join}{$where}{$this->groupby}{$this->having}{$this->orderby}) x";
+			} else {
+				$this->query = "SELECT $fields FROM {$this->table}{$this->join}{$where}{$this->groupby}{$this->having}{$this->orderby}{$this->limit}{$this->limit_offset}";
 			}
-			$this->query = "SELECT $fields FROM {$this->table}{$this->join}{$where}{$this->groupby}{$this->having}{$this->orderby}{$this->limit}{$this->limit_offset}";
 			if ($this->conn->error) {
 				$this->showError($this->conn->error);
 			}
