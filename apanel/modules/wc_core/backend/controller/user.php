@@ -273,13 +273,13 @@ class controller extends wc_controller {
 		if ($checker != '') {
 			$checker_array = explode(' ', $checker);
 			if (in_array('integer', $checker_array)) {
-				$value = str_replace(',', ' ', $value);
+				$value = str_replace(',', '', $value);
 				if ( ! preg_match('/^[0-9]*$/', $value)) {
 					$error['Integer'][$field] = 'Integer';
 				}
 			}
 			if (in_array('decimal', $checker_array)) {
-				$value = str_replace(',', ' ', $value);
+				$value = str_replace(',', '', $value);
 				if ( ! preg_match('/^[0-9.]*$/', $value)) {
 					$error['Decimal'][$field] = 'Decimal';
 				}
