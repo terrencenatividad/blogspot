@@ -234,7 +234,7 @@ $input		= new input();
 
 define('MODAL', $input->post('modal'));
 
-if (AUTO_LOGIN && ! function_exists('password_verify') && ! $access->isApanelUser()) {
+if (AUTO_LOGIN && ! function_exists('password_verify') && ! $access->isApanelUser() && $_SERVER['HTTP_HOST'] == 'localhost') {
 	$session	= new session();
 	$session->set('login', array('name' => 'Super 12 Admin', 'username' => 'superadmin', 'apanel_user' => true, 'companycode' => 'CID', 'groupname' => 'superadmin')); // Disable Login
 	$access->loginUser();
