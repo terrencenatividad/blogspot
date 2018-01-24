@@ -29,7 +29,7 @@ class onload {
 
 			if ($result) {
 				$module_url = str_replace('%', '', $module->module_link);
-				if ( ! strstr($_SERVER['QUERY_STRING'], '/' . $module_url)) {
+				if ( ! strstr($_SERVER['QUERY_STRING'], '/' . $module_url) && ! strstr($_SERVER['QUERY_STRING'], '/chartofaccounts')) {
 					header('Location: ' . BASE_URL . $module_url . 'edit');
 					exit();
 				}
