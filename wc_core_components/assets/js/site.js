@@ -375,7 +375,7 @@ $('body').on('blur blur_validate', '[data-min]', function(e) {
 		$(this).val(parts.join('.')).trigger('recompute');
 	}
 });
-$('body').on('keyup', '[data-validation~="code"]', function(e) {
+$('body').on('blur blur_validate keyup keydown', '[data-validation~="code"]', function(e) {
 	var error_message = `Invalid Input <a href="#invalid_characters" class="glyphicon glyphicon-info-sign" data-toggle="modal"></a>`;
 	var form_group = $(this).closest('.form-group');
 	var val = $(this).val() || '';
