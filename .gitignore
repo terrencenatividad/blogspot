@@ -1,4 +1,2 @@
-apanel/modules/*
-!apanel/modules/home
-!apanel/modules/wc_core
+apanel/modules/*.yml
 *_.*
