@@ -18,6 +18,9 @@ function drawTemplate() {
 			dropdownParent: parent
 		});
 	});
+	$('select:not([multiple])').on('select2:select', function() {
+		$(this).closest('.form-group').find('select').focus();
+	});
 	$('select[multiple]').selectpicker({
 		container: '.content-wrapper',
 		selectedTextFormat: 'count'
