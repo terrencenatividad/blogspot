@@ -20,9 +20,9 @@
 												->setName('itemcode')
 												->setId('itemcode')
 												->setValue($itemcode)
-												->addHidden($ajax_task == 'ajax_edit')
+												->addHidden((isset($ajax_tast) && $ajax_task == 'ajax_edit'))
 												->setValidation('required code')
-												->draw($ajax_task == 'ajax_create');
+												->draw((isset($ajax_tast) && $ajax_task == 'ajax_create'));
 										?>
 									</div>
 									<div class="col-md-6">
