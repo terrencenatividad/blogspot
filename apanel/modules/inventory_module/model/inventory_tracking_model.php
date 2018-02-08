@@ -26,7 +26,7 @@ class inventory_tracking_model extends wc_model {
 			$datefilter[$key] = $this->date->dateDbFormat($date);
 		}
 		if (isset($datefilter[1])) {
-			$condition .= (empty($condition) ? '' : ' AND ') . " il.entereddate >= '{$datefilter[0]}' AND il.entereddate <= '{$datefilter[1]}'";
+			$condition .= (empty($condition) ? '' : ' AND ') . " il.entereddate >= '{$datefilter[0]}' AND il.entereddate <= '{$datefilter[1]} 23:59:59'";
 		}
 		$query = $this->db->setTable('inventorylogs il')
 							->innerJoin('items i ON i.itemcode = il.itemcode AND i.companycode = il.companycode')
