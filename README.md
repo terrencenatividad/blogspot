@@ -7,9 +7,6 @@
 * Copy Modules from webcore_modular to webcore_modular_full
 * Run
 ```
-cd <to your /www/>
-
-cd webcore_modular_full/
 git pull origin master
 cd apanel/modules/sales_module/
 git reset --hard origin/master
