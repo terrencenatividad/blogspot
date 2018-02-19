@@ -99,7 +99,7 @@ class check_task {
 				$check_task .= ($this->print) ? '<li><a href="'. $this->url .'print_preview/' . $this->value . '" target="_blank" class="btn-sm"><i class="glyphicon glyphicon-print"></i> ' . $this->labels->print . '</a></li>' : '';
 
 				foreach ($this->addon as $addon) {
-					$class = strtolower(str_replace(' ', '_', $addon->task));
+					$class = strtolower(str_replace(' ', '_', $addon->task)) . ' ' . $addon->class;
 					$check_task_addon .= ($addon->show) ? '<li><a class="btn-sm link ' . $class . '" data-id="' . $this->value . '"><i class="glyphicon glyphicon-' . $addon->glyphicon . '"></i> ' . $addon->task . '</a></li>' : '';
 				}
 
