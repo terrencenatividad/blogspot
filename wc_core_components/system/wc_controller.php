@@ -2,8 +2,9 @@
 class wc_controller {
 
 	public function __construct() {
-		$this->view = new wc_view();
-		$this->date = new date();
+		$this->view		= new wc_view();
+		$this->date		= new date();
+		$this->access	= new access();
 	}
 
 	public function checkOutModel($model) {
@@ -37,6 +38,15 @@ class wc_controller {
 			}
 		}
 		return $data;
+	}
+
+	public function ajax_get_lock_access() {
+		$task		= $this->input->post('task');
+		$spec_data	= $this->input->post('spec_data');
+		$access = $this->access->checkLockAccess($task, $spec_data);
+		return array(
+			'no_access_modal' => ! $access
+		);
 	}
 
 }
