@@ -10,6 +10,54 @@ class access {
 		$this->db->close();
 	}
 
+	public function checkLockAccess($module_page = '', $data_spec = '') {
+		$db				= new db();
+		$date_now		= $this->date->datetimeDbFormat();
+		$username		= USERNAME;
+		$module_name	= defined('MODULE_NAME') ? MODULE_NAME : '';
+
+		if ($module_page == '') {
+			return true;
+		}
+
+		$result			= $db->setTable(PRE_TABLE . '_lock_access')
+								->setFields('module_name')
+								->setWhere("username != '$username' AND module_name = '$module_name' AND data_spec = '$data_spec' AND DATE_ADD(access_time, INTERVAL 20 SECOND) >= '$date_now'")
+								->setLimit(1)
+								->runSelect()
+								->getRow();
+
+		if ($result) {
+			return false;
+		}
+
+		$result			= $db->setTable(PRE_TABLE . '_lock_access')
+								->setFields('module_name')
+								->setWhere("username = '$username' AND module_name = '$module_name'")
+								->setLimit(1)
+								->runSelect()
+								->getRow();
+
+		$db->setTable(PRE_TABLE . '_lock_access')
+			->setValues(array(
+				'username'		=> $username,
+				'module_name'	=> $module_name,
+				'module_page'	=> $module_page,
+				'data_spec'		=> $data_spec,
+				'access_time'	=> $date_now
+			));
+		
+		if ($result) {
+			$result = $db->setWhere("username = '$username' AND module_name = '$module_name'")
+						->runUpdate();
+		} else {
+			$result = $db->runInsert();
+		}
+
+		$db->close();
+		return $result;
+	}
+
 	public function isApanelUser() {
 		$db			= new db();
 		$session	= new session();

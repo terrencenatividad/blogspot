@@ -125,21 +125,26 @@ function getDeleteId(ids) {
 }
 
 drawTemplate();
-$(document).ajaxStart(function() {
-	NProgress.set(0.1);
-	NProgress.start();
-	$('body').addClass('ajax_loading');
+$(document).ajaxStart(function(ajax) {
+	if (typeof window.loading_indicator === 'undefined' || window.loading_indicator) {
+		NProgress.set(0.1);
+		NProgress.start();
+		$('body').addClass('ajax_loading');
+	}
+	window.loading_indicator = true;
 });
 var last_ajax = {};
 $(document).ajaxComplete(function(event, xhr, ajax) {
 	if (xhr.statusText == 'OK') {
-		drawTemplate();
-		NProgress.done();
-		$('body').removeClass('ajax_loading');
 		var data = {};
 		try {
 			data = $.parseJSON(xhr.responseText)
 		} catch (e) {}
+		if (typeof data.no_access_modal === 'undefined') {
+			drawTemplate();
+		}
+		NProgress.done();
+		$('body').removeClass('ajax_loading');
 		if (data.show_login_form) {
 			if ( ! ($('#login_popup.modal.in').length || $('#login_popup_modal.modal.in').length)) {
 				last_ajax = ajax;

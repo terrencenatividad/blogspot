@@ -150,6 +150,21 @@
 			</div>
 		</div>
 	</div>
+	<div class="modal" id="no_access_modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title text-center">Page Locked</h4>
+				</div>
+				<div class="modal-body">
+					<p class="text-red text-center">Page is currently being access by someone</p>
+				</div>
+				<div class="modal-footer">
+					<a href="<?php echo BASE_URL ?>" class="btn btn-primary" data-toggle="back_page">Close</a>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div class="modal" id="login_popup" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
 		<div class="modal-dialog modal-sm" role="document">
 			<div class="modal-content">
@@ -175,6 +190,24 @@
 			</div>
 		</div>
 	</div>
+	<script>
+		function getLockAccess(task, spec_data) {
+			window.loading_indicator = false;
+			$.post('<?php echo MODULE_URL ?>ajax/ajax_get_lock_access', { task: task, spec_data: spec_data }, function(data) {
+				if (data.no_access_modal === true) {
+					$('#no_access_modal').modal('show');
+				} else if (data.no_access_modal === false) {
+					$('#no_access_modal').modal('hide');
+				}
+				setTimeout(function() {
+					getLockAccess(task, spec_data);
+				}, 10000);
+			});
+		}
+		<?php if (isset($no_access_modal) && $no_access_modal): ?>
+		$('#no_access_modal').modal('show');
+		<?php endif ?>
+	</script>
 	<?php if (defined('LOCKED')): ?>
 	<script>
 		$('#locked_popup').modal('show');
