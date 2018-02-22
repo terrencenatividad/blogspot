@@ -2,24 +2,25 @@
 class inventory_adjustment_model extends wc_model {
 
 	public function getInventoryAdjustmentList($itemcode, $warehouse, $sort) {
-		$condition = '';
-		
+		$warehouse_cond = '';
+		$condition 		= '';
+
 		if ($warehouse && $warehouse != 'none') {
-			$condition .= "inv.warehouse = '$warehouse'";
+			$warehouse_cond .= " AND inv.warehouse = '$warehouse'";
 			
 			if ($itemcode && $itemcode != 'none') {
-				$condition .= " AND items.itemcode = '$itemcode'";
+				$condition .= " items.itemcode = '$itemcode'";
 			}
 		}
 
 		$result = $this->db->setTable("items as items")
-							->leftJoin('invfile as inv ON inv.itemcode = items.itemcode')  
+							->leftJoin('invfile as inv ON inv.itemcode = items.itemcode '.$warehouse_cond)  
                             ->leftJoin('invdtlfile as invdtlfile ON invdtlfile.itemcode = inv.itemcode AND invdtlfile.warehouse = inv.warehouse') 
 							->setFields("items.itemcode as itemcode, inv.onhandQty as OHQty, inv.warehouse as warehouse , inv.allocatedQty as AllocQty, inv.orderedQty as OrderQty,items.itemname as itemname")
 							->setWhere($condition)
 							->setOrderBy($sort)
 							->runPagination();
-
+		// echo $this->db->getQuery();
 		return $result;
 	}	
 

@@ -912,7 +912,7 @@
 			$selling_price 	=	$this->input->post('price');
 			
 			$existing 		=	$this->pricelist->getValue('items_price',array('itemcode')," itemcode = '$itemcode' ");
-			$ret_code 		= 	$existing[0]->itemcode;
+			$ret_code 		= 	isset($existing[0]->itemcode) 	? 	$existing[0]->itemcode 	:	'';
 
 			if(!empty($ret_code) && !is_null($ret_code) && $ret_code != ""){
 

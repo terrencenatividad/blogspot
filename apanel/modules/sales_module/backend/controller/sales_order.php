@@ -54,6 +54,10 @@ class controller extends wc_controller
 	public function create($quotation_no = '')
 	{
 		$data 					= $this->input->post($this->fields);
+	
+		// Item Limit
+		$item_limit 			= $this->so->getReference("so_limit");
+		$data['item_limit']		= ($item_limit[0]->value) 	? 	$item_limit[0]->value 	: 	50; 
 		
 		/**LOAD DEFAULT VALUES**/
 
@@ -230,6 +234,10 @@ class controller extends wc_controller
 	{
 		$retrieved_data 		= $this->so->retrieveExistingSO($voucherno);
 
+		// Item Limit
+		$item_limit 			= $this->so->getReference("so_limit");
+		$data['item_limit']		= ($item_limit[0]->value) 	? 	$item_limit[0]->value 	: 	50; 
+		
 		$data['customer_list'] 	= $this->so->retrieveCustomerList();
 		$data['proforma_list'] 	= $this->so->retrieveProformaList();
 		$data["business_type"] 	= $this->so->getOption("businesstype");

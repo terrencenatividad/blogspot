@@ -513,7 +513,6 @@ function checkItemCode() {
 	for(var i = 1;i <= count;i++)
 	{
 		var row = table.rows[i];
-
 		var itemcode_id = row.cells[0].getElementsByTagName("select")[0].id;
 		var itemcode 	= document.getElementById(itemcode_id).value;
 		

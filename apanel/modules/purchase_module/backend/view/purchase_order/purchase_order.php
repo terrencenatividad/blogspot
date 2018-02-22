@@ -699,6 +699,24 @@
 	</div>
 
 </section>
+
+<div id="row_limit" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Item Limit</h4>
+			</div>
+			<div class="modal-body">
+				<p>Sorry, but the printout for this record is only limited to <strong><?=$item_limit?></strong> items.</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script>
 	function addVendorToDropdown() {
 
@@ -1466,10 +1484,17 @@ $(document).ready(function(){
 			var clone = $("#itemsTable tbody tr.clone:first").clone(true); 
 
 			var ParentRow = $("#itemsTable tbody tr.clone").last();
-		
-			clone.clone(true).insertAfter(ParentRow);
 			
-			setZero();
+			var table 		= document.getElementById('itemsTable');
+			var rows 		= table.tBodies[0].rows.length;
+			var rowlimit 	= '<?echo $item_limit?>';
+		
+			if(rowlimit == 0 || rows < rowlimit){
+				clone.clone(true).insertAfter(ParentRow);
+				setZero();
+			}else{
+				$('#row_limit').modal('show');
+			}
 			
 			$('#itemsTable tbody tr.clone select').select2({width: "100%"});
 		});

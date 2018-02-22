@@ -45,6 +45,19 @@ class payment_voucher_model extends wc_model
 
 		return $result;
 	}
+
+	public function retrieveDataPagination($table, $fields = array(), $cond = "", $join = "", $orderby = "", $groupby = "")
+	{
+		$result = $this->db->setTable($table)
+					->setFields($fields)
+					->leftJoin($join)
+					->setGroupBy($groupby)
+					->setWhere($cond)
+					// ->setOrderBy($orderby)
+					->runPagination();
+					// echo $this->db->getQuery();
+		return $result;
+	}
 	
 	public function retrieveEditData($sid)
 	{
@@ -396,11 +409,16 @@ class payment_voucher_model extends wc_model
 
 	}
 
-	public function retrieveAPList($data)
+	public function retrieveAPList($data,$search)
 	{
 		$vendorcode = (isset($data["vendor"]) && !empty($data["vendor"])) ? $data["vendor"]         : "";
 		$voucherno  = (isset($data["voucherno"]) && !empty($data["voucherno"])) ? $data["voucherno"]: "";
 		$tempArr    = array();
+		$search_key = '';
+
+		if ($search) {
+			$search_key .= ' AND ' . $this->generateSearch($search, array("main.voucherno", "main.transactiondate ", "main.convertedamount ", "main.balance ", "p.partnername ", "main.referenceno "));
+		}
 
 		// Sub Select
 		$table_pv  = "pv_application AS pv";
@@ -410,38 +428,11 @@ class payment_voucher_model extends wc_model
 		// Main Queries
 		$main_table   = "accountspayable as main";
 		$main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "main.balance as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno");
-		$main_join 	  = "partners p ON p.partnercode = main.vendor";
+		$main_join 	  = "partners p ON p.partnercode = main.vendor ";
 		$orderby  	  = "main.transactiondate DESC";
 
 		if($vendorcode && empty($voucherno))
 		{
-			// echo "if";
-			
-			/*  var_dump of query
-				SELECT main.voucherno as voucherno, main.transactiondate as transactiondate, main.convertedamount as amount, main.balance as balance, p.partnername AS vendor_name, main.referenceno as referenceno 
-				FROM accountspayable as main 
-				LEFT JOIN partners p ON p.partnercode = main.vendor 
-				WHERE main.stat = 'posted' AND main.vendor = 'SUP_003' AND 
-				(
-					SELECT COALESCE(SUM(pv.convertedamount), 0) + COALESCE(SUM(pv.discount), 0) - COALESCE(SUM(pv.forexamount), 0
-					FROM pv_application AS pv 
-					WHERE pv.apvoucherno = main.voucherno AND pv.stat IN('posted') AND  pv.companycode = 'CID' 
-				) = 0 OR
-				(
-					SELECT COALESCE(SUM(pv.convertedamount), 0) + COALESCE(SUM(pv.discount), 0) - COALESCE(SUM(pv.forexamount), 0)
-					FROM pv_application AS pv 
-					WHERE pv.apvoucherno = main.voucherno and pv.stat = 'posted' AND  pv.companycode = 'CID'
-				) > 0 AND main.convertedamount >
-				(
-					SELECT COALESCE(SUM(pv.convertedamount), 0) + COALESCE(SUM(pv.discount), 0) - COALESCE(SUM(pv.forexamount), 0) 
-					FROM pv_application AS pv 
-					WHERE pv.apvoucherno = main.voucherno and pv.stat = 'posted' AND  pv.companycode = 'CID' 
-				)
-				AND  main.companycode = 'CID'
-			*/
-			
-			// Display Unpaid and Partial AP
-			// Sub select for unpaid
 			$sub_select = $this->db->setTable($table_pv)
 							   ->setFields($pv_fields)
 							   ->setWhere($pv_cond)
@@ -449,9 +440,9 @@ class payment_voucher_model extends wc_model
 			
 			$addCondition = "AND ($sub_select) = 0 OR ($sub_select) > 0 AND main.convertedamount > ($sub_select)";
 
-			$main_cond    = "main.stat = 'posted' AND main.vendor = '$vendorcode' $addCondition";
+			$main_cond    = "main.stat = 'posted'  AND main.vendor = '$vendorcode' $search_key $addCondition ";
 			
-			$query = $this->retrieveData($main_table, $main_fields, $main_cond, $main_join, $orderby);
+			$query = $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
 
 			$tempArr["result"] = $query;
 
@@ -468,9 +459,10 @@ class payment_voucher_model extends wc_model
 
 			$addCondition	= "AND main.convertedamount = ($sub_select AND pv.voucherno = '$voucherno') OR ($sub_select AND pv.voucherno = '$voucherno') > 0";
 
-			$main_cond    = "main.stat = 'posted' AND main.vendor = '$vendorcode' $addCondition";
+			$main_cond    = "main.stat = 'posted' AND main.vendor = '$vendorcode' $addCondition ";
 
-			$query = $this->retrieveData($main_table, $main_fields, $main_cond, $main_join, $orderby);
+			$query = $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
+			
 
 			$tempArr["result"] = $query;
 
@@ -494,7 +486,7 @@ class payment_voucher_model extends wc_model
 			*/
 		}
 		
-		return $tempArr;
+		return $query;
 	}
 
 	public function retrievePVDetails($data)
@@ -533,6 +525,7 @@ class payment_voucher_model extends wc_model
 							->setOrderBy($orderby)
 							->runSelect()
 							->getResult();
+							// echo $this->db->getQuery();
 							// ->buildSelect();
 		
 		// var_dump($query);
@@ -585,14 +578,16 @@ class payment_voucher_model extends wc_model
 		return $result;
 	}
 
-	public function getValue($table, $cols = array(), $cond = "", $orderby = "", $bool = "")
+	public function getValue($table, $cols = array(), $cond = "", $orderby = "", $bool = "", $groupby = "")
 	{
 		$result = $this->db->setTable($table)
 					->setFields($cols)
 					->setWhere($cond)
 					->setOrderBy($orderby)
+					->setGroupBy($groupby)
 					->runSelect($bool)
 					->getResult();
+					// echo $this->db->getQuery();
 					// ->buildSelect();
 
 		// var_dump($result);
@@ -1599,7 +1594,7 @@ class payment_voucher_model extends wc_model
 			$addCondition	= '';
 		}
 
-		$add_query 	= (!empty($searchkey)) ? "AND (main.voucherno LIKE '%$searchkey%' OR main.invoiceno LIKE '%$searchkey%' OR main.particulars LIKE '%$searchkey%' OR p.first_name LIKE '%$searchkey%' OR p.last_name LIKE '%$searchkey%') " : "";
+		
 		$add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND main.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 		$add_query .= (!empty($vendfilter) && $vendfilter != '') ? "AND p.partnercode = '$vendfilter' " : "";
 		$add_query .= $addCondition;
@@ -1867,6 +1862,14 @@ class payment_voucher_model extends wc_model
 
 		return $query;
 
+	}
+
+	private function generateSearch($search, $array) {
+		$temp = array();
+		foreach ($array as $arr) {
+			$temp[] = $arr . " LIKE '%" . str_replace(' ', '%', $search) . "%'";
+		}
+		return '(' . implode(' OR ', $temp) . ')';
 	}
 
 }

@@ -13,6 +13,18 @@
 			return $result;
 		}
 
+		public function getReference($code)
+		{
+			$result = $this->db->setTable('wc_reference')
+						->setFields("value")
+						->setWhere("code = '$code'")
+						->setLimit('1')
+						->runSelect(false)
+						->getResult();
+
+			return $result;
+		}
+		
 		public function retrieveVendorDetails($vendor_code)
 		{
 			$fields = "address1, tinno, terms, email, partnername as companyname, CONCAT( first_name, ' ', last_name ) AS name";

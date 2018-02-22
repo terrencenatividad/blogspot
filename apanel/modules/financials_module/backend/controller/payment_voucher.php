@@ -93,6 +93,7 @@ class controller extends wc_controller
 
 	public function create()
 	{	
+		$access	= $this->access->checkLockAccess('create');
 		$cmp = $this->companycode;
 		$seq = new seqcontrol();
 
@@ -263,6 +264,7 @@ class controller extends wc_controller
 
 	public function edit($sid)
 	{
+		$access				   = $this->access->checkLockAccess('edit');
 		$data         		   = $this->payment_voucher->retrieveEditData($sid);
 
 		$data["ui"]            = $this->ui;
@@ -352,7 +354,7 @@ class controller extends wc_controller
 		// Retrieve Document Details
 		$docdet_table   = "pv_details as dtl";
 		$docdet_fields  = array("chart.segment5 as accountcode", "chart.accountname as accountname", "SUM(dtl.debit) as debit","SUM(dtl.credit) as credit");
-		$docdet_join    = "chartaccount as chart ON chart.id = dtl.accountcode AND chart.companycode = dtl.companycode";
+		$docdet_join    = "chartaccount as chart ON chart.id = dtl.accountcode AND chart.companycode = dtl.companycode ";
 		$docdet_cond    = "dtl.voucherno = '$voucherno'";
 		$docdet_groupby = "dtl.accountcode";
 		$docdet_orderby = "CASE WHEN dtl.debit > 0 THEN 1 ELSE 2 END, dtl.linenum";
@@ -363,9 +365,35 @@ class controller extends wc_controller
 		$paymentArray	 = $this->payment_voucher->retrievePaymentDetails($voucherno);
 
 		// Retrieve Cheque Details
+
+		// Retrieval of Voucher Status //
 		$pv_v 		  = "";
 		$pv_voucherno = $this->payment_voucher->getValue("pv_application", array("voucherno"), "voucherno = '$voucherno'");
+		$ap_voucher   = $this->payment_voucher->getValue("pv_details", array("apvoucherno"), "voucherno = '$voucherno'","","","apvoucherno" );
 		
+		foreach ($ap_voucher as $row) {
+			$apvoucher[] = $row->apvoucherno;
+		}
+		$ap =  implode("','" , $apvoucher);
+		$ap_no = "('".$ap."')";
+		$ap_amount    = $this->payment_voucher->getValue("accountspayable", array("SUM(amount) total_amount"), "voucherno IN $ap_no" );
+		$total_amount = $ap_amount[0]->total_amount;
+		$amount = $paymentArray[0]->amount;
+		$balance = $total_amount - $amount;
+		
+		if($balance != $amount && $balance != 0)
+		{
+			$voucher_status = 'PARTIAL';
+		}
+		else if($balance != 0)
+		{
+			$voucher_status = 'UNPAID';
+		}
+		else
+		{
+			$voucher_status = 'PAID';
+		}
+
 		$chequeArray = "";
 		if(!empty($pv_voucherno))
 		{
@@ -377,20 +405,31 @@ class controller extends wc_controller
 			$pv_v = rtrim($pv_v, ", ");
 			
 			$cheque_table = "pv_cheques pvc";
-			$cheque_fields = array("pvc.chequeaccount", "chart.accountname AS accountname", "pvc.chequenumber AS chequenumber", "pvc.chequedate AS chequedate", "pvc.chequeamount AS chequeamount");
-			$cheque_cond = "pvc.voucherno IN($pv_v)";
-			$cheque_join = "chartaccount chart ON pvc.chequeaccount = chart.id";
+			$cheque_fields = array("pv.referenceno referenceno", "chart.accountname AS accountname", "pvc.chequenumber AS chequenumber", "pvc.chequedate AS chequedate", "pvc.chequeamount AS chequeamount");
+			$cheque_cond = "pvc.voucherno IN($pv_v) " ;
+			$cheque_join = "chartaccount chart ON pvc.chequeaccount = chart.id LEFT JOIN paymentvoucher pv ON pv.voucherno = pvc.voucherno" ;
+			$cheque_group = "pvc.chequenumber";
 			$chequeArray = $this->payment_voucher->retrieveData($cheque_table, $cheque_fields, $cheque_cond, $cheque_join);
+			$chequeArray_2 = $this->payment_voucher->retrieveData($cheque_table, $cheque_fields, $cheque_cond, $cheque_join,"");
 		}
+
+		// Retrieve Applied Payment //
+		$p_table = "pv_application pv";
+		$p_fields = array("apvoucherno voucherno", "pv.amount amount", "ap.referenceno si_no", "pv.discount discount") ;
+		$p_cond = "pv.voucherno IN($pv_v) " ;
+		$p_join = "accountspayable ap ON pv.apvoucherno = ap.voucherno" ;
+		$appliedpaymentArray = $this->payment_voucher->retrieveData($p_table, $p_fields, $p_cond, $p_join);
 		
 		// Setting for PDFs
 		$print = new print_voucher_model('P', 'mm', 'Letter');
 		$print->setDocumentType('Payment Voucher')
 				->setDocumentInfo($documentinfo[0])
 				->setVendor($vendor)
-				->setPayments($paymentArray)
+				->setVoucherStatus($voucher_status)
+				->setPayments($chequeArray_2)
 				->setDocumentDetails($documentdetails)
 				->setCheque($chequeArray)
+				->setAppliedPayment($appliedpaymentArray)
 				->drawPDF('pv_voucher_' . $voucherno);
 	}
 
@@ -453,6 +492,11 @@ class controller extends wc_controller
 		else if($task == "getpvdetails")
 		{
 			$this->getpvdetails();
+		}
+		else if($task == "ajax_get_lock_access")
+		{
+			$result = $this->ajax_get_lock_access();
+			echo json_encode($result);
 		}
 	}
 
@@ -868,8 +912,17 @@ class controller extends wc_controller
 	{
 		$data       = $this->input->post(array("vendor", "voucherno"));
 		$task       = $this->input->post("task");
+		$search			= $this->input->post('search');
 
-		$result     = $this->payment_voucher->retrieveAPList($data);
+		$vno 		= $this->input->post('vno');
+		
+		//$d    = json_decode($vno, true);
+
+		$check_rows 	= (isset($vno) && (!empty($vno))) ? trim($vno) : "";
+		$check_rows  	= str_replace('\\', '', $check_rows);
+		$decode_json    = json_decode($check_rows, true);	
+
+		$pagination     = $this->payment_voucher->retrieveAPList($data,$search);
 
 		$table             = "";
 		$j 	               = 1;
@@ -879,20 +932,38 @@ class controller extends wc_controller
 		$json_encode       = "";
 		$edited_amount 	   = 0;
 
-		// var_dump($result);
+		if (empty($pagination->result)) {
+			$table = '<tr><td  class="text-center"><b>No Records Found</b></td></tr>';
+		}
 
-		if(!empty($result["result"][0]->voucherno))
+		if($pagination->result)
 		{
-			// echo "inside";
-			for($i = 0; $i < count($result["result"]); $i++, $j++)
+			$voucher_checked = '';
+			$amt_checked = '';
+			$voucher_array = array();
+			$amt_array = array();
+			$checker = array();
+			
+			if(!empty($decode_json)) {
+				foreach($decode_json as $value => $row)
+				{	
+						array_push($voucher_array, $row['vno']);
+						$amt_array[$row['vno']] = $row;
+				}	
+			}
+			
+			for($i = 0; $i < count($pagination->result); $i++, $j++)
 			{
-				$date			= $result["result"][$i]->transactiondate;
+
+				$date			= $pagination->result[$i]->transactiondate;
 				$date			= $this->date->dateFormat($date);
-				$voucher		= $result["result"][$i]->voucherno;
-				$vendor			= $result["result"][$i]->vendor_name;
-				$balance		= $result["result"][$i]->balance; 
-				$totalamount	= $result["result"][$i]->amount;
-				$referenceno	= $result["result"][$i]->referenceno;
+				$voucher		= $pagination->result[$i]->voucherno;
+				$vendor			= $pagination->result[$i]->vendor_name;
+				$balance		= $pagination->result[$i]->balance; 
+				$totalamount	= $pagination->result[$i]->amount;
+				$referenceno	= $pagination->result[$i]->referenceno;
+				$voucher_checked = (in_array($voucher , $voucher_array)) ? 'checked' : '';
+				$amt_checked = (in_array($voucher , $amt_array)) ? $amt_checked : '';
 
 				$total_pay 		+= $totalamount;
 
@@ -905,6 +976,16 @@ class controller extends wc_controller
 
 				$appliedamount	= $this->payment_voucher->getValue("pv_application", array("SUM(amount) AS amount"),"apvoucherno = '$voucher' AND stat IN('posted', 'temporary')");
 				$appliedamount  = $appliedamount[0]->amount;
+
+				$balance_2		= $balance;
+				
+				if (isset($amt_array[$voucher])) {
+					$balance_2	= str_replace(',', '', $amt_array[$voucher]['bal']);
+					$balance_2 	= str_replace(',', '', $balance_2); 
+					$amount		= str_replace(',', '', $amt_array[$voucher]['amt']);
+					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0';
+					$balance_2 = $balance_2 - $amount - $discount ;
+				}
 
 				$table	.= '<tr>'; 
 				// $table	.= 	'<td class="text-center" style="vertical-align:middle;">';
@@ -932,45 +1013,102 @@ class controller extends wc_controller
 				// 			</td>';
 				
 				$table	.= 	'<td class="text-center" style="vertical-align:middle;">';
-				$table	.= 		'<input type="checkbox" name="checkBox[]" id = "check'.$voucher.'" class = "icheckbox" toggleid="0" row="'.$voucher.'">'; 
+				$table	.= 		'<input type="checkbox" name="checkBox[]" id = "check'.$voucher.'" class = "icheckbox" toggleid="0" row="'.$voucher.'" '.$voucher_checked.'>'; 
 				$table	.= 	'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" onClick="selectPayable(\''.$voucher.'\',1);">'.$date.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" onClick="selectPayable(\''.$voucher.'\',1);">'.$voucher.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" onClick="selectPayable(\''.$voucher.'\',1);">'.$referenceno.'</td>';
 				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_amount'.$voucher.'" onClick="selectPayable(\''.$voucher.'\',1);">'.number_format($totalamount,2).'</td>';
-				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_balance'.$voucher.'" onClick="selectPayable(\''.$voucher.'\',1);">'.number_format($balance,2).'</td>';
+				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_balance'.$voucher.'" onClick="selectPayable(\''.$voucher.'\',1);" data-value="'.number_format($balance,2).'">'.number_format($balance_2,2).'</td>';
+				if($voucher_checked == 'checked'){
+					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
+					$this->ui->formField('text')
+						->setSplit('', 'col-md-12')
+						->setClass("input-sm text-right paymentamount")
+						->setId('paymentamount'.$voucher)
+						->setPlaceHolder("0.00")
+						->setAttribute(
+							array(
+								"maxlength" => "20", 
+								"onBlur" => ' formatNumber(this.id);', 
+								"onClick" => " SelectAll(this.id); ",
+								"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
+							)
+						)
+						->setValue(number_format($amount,2))
+						->draw(true).'</td>';
+				}
+				else{
+					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
+					$this->ui->formField('text')
+						->setSplit('', 'col-md-12')
+						->setClass("input-sm text-right paymentamount")
+						->setId('paymentamount'.$voucher)
+						->setPlaceHolder("0.00")
+						->setAttribute(
+							array(
+								"maxlength" => "20", 
+								"disabled" => "disabled", 
+								"onBlur" => ' formatNumber(this.id);', 
+								"onClick" => " SelectAll(this.id); ",
+								"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
+							)
+						)
+						->setValue(number_format(0, 2))
+						->draw(true).'</td>';
+				}
+				if($voucher_checked == 'checked'){
 				$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
 								$this->ui->formField('text')
 									->setSplit('', 'col-md-12')
-									->setClass("input-sm text-right paymentamount")
-									->setId('paymentamount'.$voucher)
+									->setClass("input-sm text-right discountamount")
+									->setId('discountamount'.$voucher)
 									->setPlaceHolder("0.00")
 									->setAttribute(
 										array(
 											"maxlength" => "20", 
-											"disabled" => "disabled", 
 											"onBlur" => ' formatNumber(this.id);', 
 											"onClick" => " SelectAll(this.id); ",
 											"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
 										)
 									)
-									->setValue(number_format($appliedamount, 2))
+									->setValue(number_format($discount, 2))
 									->draw(true).'</td>';
-				
 				$table	.= '</tr>';
+			}else{
+				$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
+				$this->ui->formField('text')
+					->setSplit('', 'col-md-12')
+					->setClass("input-sm text-right discountamount")
+					->setId('discountamount'.$voucher)
+					->setPlaceHolder("0.00")
+					->setAttribute(
+						array(
+							"maxlength" => "20", 
+							"disabled" => "disabled", 
+							"onBlur" => ' formatNumber(this.id);', 
+							"onClick" => " SelectAll(this.id); ",
+							"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
+						)
+					)
+					->setValue(number_format(0, 2))
+					->draw(true).'</td>';
+	$table	.= '</tr>';
 			}
+		}
 		}
 		else
 		{
-			// echo "else";
 			$table	.= '<tr>';
 			$table	.= 	'<td class="text-center" colspan="6">- No Records Found -</td>';
 			$table	.= '</tr>';
 		}
-
-		$dataArray = array( "table" => $table, "json_encode" => $json_encode);
+		$pagination->table = $table;
+		$dataArray = array( "table" => $pagination->table, "json_encode" => $json_encode, "pagination" => $pagination->pagination, "page" => $pagination->page, "page_limit" => $pagination->page_limit );
+		
 		echo json_encode($dataArray);
 	}
+
 
 	private function getpvdetails()
 	{
@@ -980,12 +1118,21 @@ class controller extends wc_controller
 		$invoice_data  	= str_replace('\\', '', $invoice_data);
 		$decode_json    = json_decode($invoice_data, true);
 		$cond 			= "IN(";
+		$debit      	= '0.00';
+		$account_amounts = array();
 
 		for($i = 0; $i < count($decode_json); $i++)
 		{
 			$apvoucherno = $decode_json[$i]["vno"];
+			$accountcode = $this->payment_voucher->getValue('ap_details apd LEFT JOIN chartaccount AS chart ON apd.accountcode = chart.id AND chart.companycode = apd.companycode','accountcode',"voucherno = '$apvoucherno' AND chart.accountclasscode = 'ACCPAY'","","","apd.accountcode");
+			$accountcode = $accountcode[0]->accountcode;
+			if ( ! isset($account_amounts[$accountcode])) {
+				$account_amounts[$accountcode] = 0;
+			}
+			$account_amounts[$accountcode] += str_replace(',', '', $decode_json[$i]["amt"]); 
 			$cond 		.= "'".$apvoucherno."',";
 		}
+
 
 		$cond 			= substr($cond, 0, -1);
 		$cond 			.= ")";
@@ -995,7 +1142,6 @@ class controller extends wc_controller
 		$data["cond"]   = $cond;
 
 		$results 		= $this->payment_voucher->retrievePVDetails($data);
-
 		$table 			= "";
 		$row 			= 1;
 
@@ -1013,15 +1159,15 @@ class controller extends wc_controller
 		{
 			$credit      = '0.00';
 			$count       = count($results);
-
+			
 			for($i = 0; $i < $count; $i++, $row++)
 			{
 				$accountcode       = (!empty($results[$i]->accountcode)) ? $results[$i]->accountcode : "";
 				$detailparticulars = (!empty($results[$i]->detailparticulars)) ? $results[$i]->detailparticulars : "";
 
 				// Sum of credit will go to debit side on PV
-				$debit         	   = number_format($results[$i]->sumcredit, 2);
-
+				// $debit         	   = number_format($results[$i]->sumcredit, 2);
+				$debit = (isset($account_amounts[$accountcode])) ? $account_amounts[$accountcode] : 0;
 				$totaldebit    	   += $credit;
 
 				$table .= '<tr class="clone" valign="middle">';
@@ -1030,6 +1176,7 @@ class controller extends wc_controller
 										->setPlaceholder('Select One')
 										->setSplit('', 'col-md-12')
 										->setName("accountcode[".$row."]")
+										->setClass("accountcode")
 										->setId("accountcode[".$row."]")
 										->setList($account_entry_list)
 										->setValue($accountcode)
@@ -1050,13 +1197,14 @@ class controller extends wc_controller
 									->setName('debit['.$row.']')
 									->setId('debit['.$row.']')
 									->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
-									->setValue($debit)
+									->setValue(number_format($debit,2))
 									->draw($show_input).			
 								'</td>';
 				$table 	.= '<td class = "remove-margin">'
 								.$ui->formField('text')
 									->setSplit('', 'col-md-12')
 									->setName('credit['.$row.']')
+									->setClass("text-right account_amount")
 									->setId('credit['.$row.']')
 									->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", "readonly" => ""))
 									->setValue($credit)
@@ -1140,9 +1288,9 @@ class controller extends wc_controller
 										</a>
 									</li>';
 		
-				
+				if($balance == $amount){
 				$task		.= '<li><a class="btn-sm" href="'.$editlink.'"><span class="glyphicon glyphicon-pencil"></span> Edit</a></li>';
-
+				}
 				$task		.= '<li><a class="btn-sm" href="'.$voucherlink.'" target="_blank"><span class="glyphicon glyphicon-print"></span> Print Voucher</a></li>';
 
 				if($balance != 0)

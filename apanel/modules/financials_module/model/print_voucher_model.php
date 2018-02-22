@@ -39,6 +39,11 @@ class print_voucher_model extends fpdf {
 		return $this;
 	}
 
+	public function setVoucherStatus($voucher_status) {
+		$this->voucher_status = $voucher_status;
+		return $this;
+	}
+
 	public function setCustomer($customer) {
 		$this->customer = $customer;
 		return $this;
@@ -54,8 +59,8 @@ class print_voucher_model extends fpdf {
 		return $this;
 	}
 
-	public function setPayments($payments) {
-		$this->payments = $payments;
+	public function setPayments($chequeArray_2) {
+		$this->chequeArray_2 = $chequeArray_2;
 		return $this;
 	}
 
@@ -66,6 +71,11 @@ class print_voucher_model extends fpdf {
 
 	public function setDocumentDetails($accounts) {
 		$this->accounts = $accounts;
+		return $this;
+	}
+
+	public function setAppliedPayment($appliedpaymentArray){
+		$this->appliedpaymentArray = $appliedpaymentArray;
 		return $this;
 	}
 
@@ -108,9 +118,26 @@ class print_voucher_model extends fpdf {
 		$this->SetFont('Arial', '', 12);
 		$this->Cell(200, $rowheight, $document_type, 0, 0, 'C');
 		$this->Ln();
-		$this->Ln();	
+		$this->Ln();
+
+
+
+		// $this->SetTextColor(255,255,255);
+		// $w = $this->GetStringWidth($this->voucher_status);
+		// if ($this->voucher_status == 'PAID'){
+		// 	$this->SetFillColor(0,166,90);
+		// } else if ($this->voucher_status == 'UNPAID'){
+		// 	$this->SetFillColor(255,0,0);
+		// } else if ($this->voucher_status == 'PARTIAL'){
+		// 	$this->SetFillColor(0,192,239);
+		// } 
+		// $this->SetFont('Arial', 'B', 9);
+		// $this->Cell($w,5,$this->voucher_status,5,5,'L',true);
+		
+		$this->Ln();
 		
 		//Invoice Date
+		$this->SetTextColor(0,0,0);
 		$this->SetFont('Arial', 'B', 9);
 		$this->Cell(30 ,$rowheight, 'Invoice Date', 0, 0, 'L');
 		$this->SetFont('Arial', '', 9);
@@ -121,6 +148,12 @@ class print_voucher_model extends fpdf {
 		$this->Cell(30, $rowheight, 'Voucher Number', 0, 0, 'L');
 		$this->SetFont('Arial', '', 9);
 		$this->Cell(40, $rowheight, $voucherno, 'B', 0, 'L');
+		
+		
+		// $this->Ln();
+
+		
+
 		$this->Ln();
 
 		if ( ! empty($referenceno)) {
@@ -212,7 +245,36 @@ class print_voucher_model extends fpdf {
 		} else {
 			$this->Cell(140, 6, 'Total :', 0, 0, 'R');
 		}
-		
+
+		if ( ! empty($this->appliedpaymentArray)) {
+			$this->SetFont('Arial','B','9');
+			$this->Cell(200, 6, 'APPLIED PAYABLES :', 0, 0, 'L');
+			$this->Ln();
+			$this->Cell(50, 6, 'AP NO.', 1, 0, 'C', true);
+			$this->Cell(50, 6, 'PR NO.', 1, 0, 'C', true);
+			$this->Cell(50, 6, 'AMOUNT', 1, 0, 'C', true);
+			$this->Cell(50, 6, 'DISCOUNT', 1, 0, 'C', true);
+			$this->Ln();
+			$this->SetFont('Arial','','9');
+			$totalpayment = 0;
+			$totaldiscount = 0;
+			$this->SetWidths(array(50, 50, 50, 50));
+			$this->SetAligns(array('L', 'L', 'R', 'R'));
+			foreach ($this->appliedpaymentArray as $key => $applied_payment) {
+
+				$totalpayment			+= $applied_payment->amount;
+				$totaldiscount			+= $applied_payment->discount;
+				$applied_payment->amount	= number_format($applied_payment->amount, 2);
+				$applied_payment->discount	= number_format($applied_payment->discount, 2);
+				$this->row($applied_payment, 'applied_payment');
+			}
+			$this->SetFont('Arial', 'B', '9');
+			$this->Cell(100, 6, 'Total :', 0, 0, 'R');
+			$this->Cell(50, 6, number_format($totalpayment, 2), 0, 0, 'R');
+			$this->Cell(50, 6, number_format($totaldiscount, 2), 0, 0, 'R');
+			$this->Ln(10);
+		}
+
 		$this->SetFont('Arial', 'B', '9');
 		$this->Cell(200, 6, 'NOTES', 1, 0, 'C', true);
 		$this->Ln();
@@ -220,27 +282,24 @@ class print_voucher_model extends fpdf {
 		$this->MultiCell(200, 6, $notes, 1);
 		$this->Ln();
 
-		if ( ! empty($this->payments)) {
+		if ( ! empty($this->chequeArray_2)) {
 			$this->SetFont('Arial', 'B', '9');
-			$this->Cell(200, 6, 'PAYMENT DETAILS :', 0, 0, 'L');
+			$this->Cell(200, 6, 'CHEQUE DETAILS :', 0, 0, 'L');
 			$this->Ln();
-			$this->Cell(30, 6, 'INVOICE', 1, 0, 'C', true);
-			$this->Cell(30, 6, 'CHECK NO', 1, 0, 'C', true);
-			$this->Cell(30, 6, 'REFERENCE NO', 1, 0, 'C', true);
-			$this->Cell(80, 6, 'REMARKS', 1, 0, 'C', true);
-			$this->Cell(30, 6, 'AMOUNT', 1, 0, 'C', true);
+			// $this->Cell(30, 6, 'REFERENCE NO.', 1, 0, 'C', true);
+			$this->Cell(50, 6, 'CHECK NO', 1, 0, 'C', true);
+			$this->Cell(50, 6, 'CHECK DATE', 1, 0, 'C', true);
+			$this->Cell(50, 6, 'BANK', 1, 0, 'C', true);
+			$this->Cell(50, 6, 'AMOUNT', 1, 0, 'C', true);
 			$this->Ln();
 			$this->SetFont('Arial','','9');
 			$totalpayment = 0;
-			$this->SetWidths(array(30, 30, 30, 80, 30));
-			$this->SetAligns(array('L', 'L', 'L', 'L', 'R'));
-			foreach ($this->payments as $key => $payment) {
-
-				// $payment->checknumber	= (strtolower($payment->paymenttype) == 'cash') ? '' : $payment->checknumber;
-				// $payment->referenceno	= (strtolower($payment->paymenttype) == 'cash') ? $payment->referenceno : '';
-				$totalpayment			+= $payment->amount;
-				$payment->amount		= number_format($payment->amount, 2);
-			
+			$this->SetWidths(array(50, 50, 50, 50));
+			$this->SetAligns(array('L', 'L', 'L', 'R', 'R'));
+			foreach ($this->chequeArray_2 as $key => $payment) {
+				$payment->chequedate	= date('M j, Y', strtotime($payment->chequedate));
+				$totalpayment			+= $payment->chequeamount;
+				$payment->chequeamount	= number_format($payment->chequeamount, 2);
 				$this->row($payment, 'payments');
 			}
 			$this->SetFont('Arial', 'B', '9');
@@ -249,33 +308,6 @@ class print_voucher_model extends fpdf {
 			$this->Ln(10);
 		}
 
-		if ( ! empty($this->cheque)) {
-			$this->SetFont('Arial','B','9');
-			$this->Cell(200, 6, 'CHEQUE DETAILS :', 0, 0, 'L');
-			$this->Ln();
-			$this->Cell(100, 6, 'CHEQUE ACCOUNT', 1, 0, 'C', true);
-			$this->Cell(35, 6, 'CHEQUE NUMBER', 1, 0, 'C', true);
-			$this->Cell(35, 6, 'CHEQUE DATE', 1, 0, 'C', true);
-			$this->Cell(30, 6, 'AMOUNT', 1, 0, 'C', true);
-			$this->Ln();
-			$this->SetFont('Arial','','9');
-			$totalpayment = 0;
-			$this->SetWidths(array(100, 35, 35, 30));
-			$this->SetAligns(array('L', 'L', 'L', 'R'));
-			foreach ($this->cheque as $key => $cheque) {
-
-				$totalpayment			+= $cheque->chequeamount;
-				$cheque->chequedate		= date('M j, Y', strtotime($cheque->chequedate));
-				$cheque->chequeamount	= number_format($cheque->chequeamount, 2);
-			
-				$this->row($cheque, 'cheque');
-			}
-			$this->SetFont('Arial', 'B', '9');
-			$this->Cell(170, 6, 'Total :', 0, 0, 'R');
-			$this->Cell(30, 6, number_format($totalpayment, 2), 0, 0, 'R');
-			$this->Ln(10);
-		}
-		
 		$this->drawSignature();
 	}
 	
@@ -328,9 +360,11 @@ class print_voucher_model extends fpdf {
 		if ($type == 'accounts') {
 			$col_index = array('accountname', 'debit', 'credit');
 		} else if ($type == 'payments') {
-			$col_index = array('sourceno', 'checknumber', 'referenceno', 'remarks', 'amount');
+			$col_index = array('chequenumber', 'chequedate', 'accountname', 'chequeamount');
 		} else if ($type == 'cheque') {
 			$col_index = array('accountname', 'chequenumber', 'chequedate', 'chequeamount');
+		} else if ($type == 'applied_payment'){
+			$col_index = array('voucherno', 'si_no', 'amount', 'discount');
 		}
 		foreach ($this->widths as $index => $width) {
 			$nb = max($nb, $this->NbLines($width, $data->{$col_index[$index]}));

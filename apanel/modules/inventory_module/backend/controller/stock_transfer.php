@@ -17,6 +17,55 @@ class controller extends wc_controller
 		$this->companycode      = $session->get('companycode');
 		
 		$this->user 		    = USERNAME;
+
+		$this->fields1 = array(
+			"stocktransferno",
+			"reference",
+			"source",
+			"transactiondate",
+			"destination",
+			"transferdate",
+			"prepared_by",
+			"remarks",
+			"total_amount"  
+		);  
+	  
+		$this->fields2 = array(
+			"itemcode",
+			"detailparticular",
+			"source",
+			"destination",
+			"ohqty",
+			"qtytoapply",
+			"uom",
+			"price",
+			"amount",
+		);
+
+		$this->approval_header = array(
+			"stocktransferno",
+			"reference",
+			"source",
+			"transactiondate",
+			"destination",
+			"transferdate",
+			"approved_by",
+			"remarks",
+			"total_amount",
+			"source_no" 
+		);  
+		
+		$this->approval_fields = array(
+			"itemcode",
+			"linenum",
+			"detailparticular",
+			"ohqty",
+			"qtytransferred",
+			"qtytoapply",
+			"uom",
+			"price",
+			"amount",
+		);
 	}
 
 	public function  create() {
@@ -35,219 +84,156 @@ class controller extends wc_controller
 		$data['ajax_task'] 			= 'create';
 		$data['ajax_post']          = '';
 		$data['transactionno']      = '';
-		$data['reference']        = '';
-		$data['transactiondate'] = date('M j, Y');
-		$data['transferdate']    = '';
-		$data['remarks'] = '';
-		$data['prepared_by'] = '';
-		$data['destination'] = "";
-		$data['source']      = "";
-		$data['stat'] 		= "";
-		$row = array();
-		$row["itemcode"] = "";
-		$row["itemname"] = "";
-		$row["source"] = "";
-		$row["destination"] = "";
-		$row["ohqty"] = "";
-		$row["qtytoapply"] = "";
-		$row["uom"] = "";
-		$row["price"] = "";
-		$row["amount"] = "";
-		$data['row_details'] = json_encode(array($row));
+		$data['reference']        	= '';
+		$data['transactiondate'] 	= date('M j, Y');
+		$data['transferdate']    	= '';
+		$data['remarks'] 			= '';
+		$data['prepared_by'] 		= '';
+		$data['destination'] 		= "";
+		$data['source']      		= "";
+		$data['stat'] 				= "";
+		$data['row_details'] 		= json_encode(array($this->fields2));
 
+		// Item Limit
+		$item_limit 			= $this->stock_transfer->getReference("st_limit");
+		$data['item_limit']		= ($item_limit[0]->value) 	? 	$item_limit[0]->value 	: 	50; 
+		
 		$this->view->load('stock_transfer/stocktransfer', $data);
 	}
 
 	public function edit($sid = ""){
 		$this->view->title = 'Edit Stock Transfer Request';
-	
-		$fields1 = array(
-		"reference",
-		"source",
-		"transactiondate",
-		"destination",
-		"transferdate",
-		"prepared_by",
-		"remarks",
-		"total_amount"  
-		);  
-  
-		$fields2 = array("dtl.itemcode",
-				"i.itemname",
-				"dtl.detailparticular",
-				"dtl.source",
-				"dtl.destination",
-				"dtl.ohqty",
-				"dtl.qtytoapply",
-				"dtl.uom",
-				"dtl.price",
-				"dtl.amount",
-		);
+
 		$stocktransferno = $sid;
-		$data = (array) $this->stock_transfer->getStockTransfer($fields1, $stocktransferno);
+		$data = (array) $this->stock_transfer->getStockTransferRequest($this->fields1, $stocktransferno);
 		$data['transactionno'] = $stocktransferno;
 		$data['transactiondate'] = date('M j, Y', strtotime($data['transactiondate']));
 		$data['transferdate']    = date('M j, Y', strtotime($data['transferdate']));
 		$data['ui'] = $this->ui;
 		$data['warehouse_list']		= $this->stock_transfer->getWarehouseList();
 		$data["item_list"] 			= $this->stock_transfer->getItemList();
-		$data['row_details'] = json_encode($this->stock_transfer->getStockTransferDetails($fields2,$stocktransferno));
+		$data['row_details'] = json_encode($this->stock_transfer->getStockTransferDetailsRequest($stocktransferno));
 		$data['ajax_task'] = 'edit';
 		$data['ajax_post'] = "&stocktransferno=$stocktransferno";
 		$data['show_input'] = true;
 		$data["task"] 		= "edit";
+		$data['h_site_source'] 	=	$data['source'];
 		
-		$current_stat 		=	$this->stock_transfer->getStat($sid);
+		$current_stat 		=	$this->stock_transfer->getStat($sid,'stock_transfer');
 		$data['stat'] 		=	$current_stat->stat;
 
+		// Item Limit
+		$item_limit 			= $this->stock_transfer->getReference("st_limit");
+		$data['item_limit']		= ($item_limit[0]->value) 	? 	$item_limit[0]->value 	: 	50; 
+		
 		$this->view->load('stock_transfer/stocktransfer', $data);
 	}
 
 	public function view($sid = ""){
 		$stocktransferno = $sid;
-		$fields1 = array(
-		"reference",
-		"source",
-		"transactiondate",
-		"destination",
-		"transferdate",
-		"prepared_by",
-		"remarks",
-		"total_amount"  
-		);  
-  
-		$fields2 = array("dtl.itemcode",
-				"i.itemname",
-				"dtl.detailparticular",
-				"dtl.source",
-				"dtl.destination",
-				"dtl.ohqty",
-				"dtl.qtytoapply",
-				"dtl.uom",
-				"dtl.price",
-				"dtl.amount",
-		);
-		$this->view->title = 'View Stock Transfer';
-		$data = (array) $this->stock_transfer->getStockTransfer($fields1, $stocktransferno);
+		
+		$this->view->title 		= 'View Stock Transfer Request';
+		$data = (array) $this->stock_transfer->getStockTransferRequest($this->fields1, $stocktransferno);
 		$data['transactionno'] = $stocktransferno;
 		$data['transactiondate'] = date('M j, Y', strtotime($data['transactiondate']));
 		$data['transferdate']    = date('M j, Y', strtotime($data['transferdate']));
 		$data['ui'] = $this->ui;
 		$data['warehouse_list']		= $this->stock_transfer->getWarehouseList();
 		$data["item_list"] 			= $this->stock_transfer->getItemList();
-		$data['row_details'] = json_encode($this->stock_transfer->getStockTransferDetails($fields2,$stocktransferno));
+		$data['row_details'] = json_encode($this->stock_transfer->getStockTransferDetailsRequest($stocktransferno));
 		$data['show_input'] = false;
 		$stocktransferno = $sid;
-		$fields1 = array(
-		"reference",
-		"source",
-		"transactiondate",
-		"destination",
-		"transferdate",
-		"prepared_by",
-		"remarks",
-		"total_amount"  
-		);  
-  
-		$fields2 = array("dtl.itemcode",
-				"i.itemname",
-				"dtl.detailparticular",
-				"dtl.source",
-				"dtl.destination",
-				"dtl.ohqty",
-				"dtl.qtytoapply",
-				"dtl.uom",
-				"dtl.price",
-				"dtl.amount",
-		);
-		$this->view->title = 'View Stock Transfer';
-		$data = (array) $this->stock_transfer->getStockTransfer($fields1, $stocktransferno);
+		$current_stat 		=	$this->stock_transfer->getStat($sid,'stock_transfer');
+		$data['stat'] 		=	$current_stat->stat;
+		$data["task"] 		= 	"view";
+		$this->view->load('stock_transfer/stocktransfer', $data);
+	}
+
+	public function edit_approval($sid = ""){
+		$this->view->title = 'Edit Stock Transfer';
+
+		$stocktransferno = $sid;
+		$data = (array) $this->stock_transfer->getStockTransferApproval($this->approval_header, $stocktransferno);
+		
+		$source 	=	$data['source_no'];
 		$data['transactionno'] = $stocktransferno;
 		$data['transactiondate'] = date('M j, Y', strtotime($data['transactiondate']));
 		$data['transferdate']    = date('M j, Y', strtotime($data['transferdate']));
 		$data['ui'] = $this->ui;
 		$data['warehouse_list']		= $this->stock_transfer->getWarehouseList();
 		$data["item_list"] 			= $this->stock_transfer->getItemList();
-		$data['row_details'] = json_encode($this->stock_transfer->getStockTransferDetails($fields2,$stocktransferno));
-		$data['show_input'] = false;
-		$data["task"]  = "view";
-
-		$current_stat 		=	$this->stock_transfer->getStat($sid);
+		$data['row_details'] = json_encode($this->stock_transfer->getStockTransferDetailsApproval($this->approval_fields, $stocktransferno, false));
+	
+		$data['ajax_task'] = 'update_approval';
+		$data['ajax_post'] = "&stocktransferno=$stocktransferno";
+		$data['show_input'] = true;
+		$data["task"] 		= "edit_approval";
+		$data['h_site_source'] 	=	$data['source'];
+		
+		$current_stat 		=	$this->stock_transfer->getStat($sid,'stock_approval');
 		$data['stat'] 		=	$current_stat->stat;
-		$this->view->load('stock_transfer/stocktransfer', $data);
+
+		$this->view->load('stock_transfer/stocktransfer_approval', $data);
+	}
+	
+	public function view_approval($sid = ""){
+		$stocktransferno = $sid;
+		
+		$this->view->title = 'View Stock Transfer';
+		$data = (array) $this->stock_transfer->getStockTransferApproval($this->approval_header, $stocktransferno);
+	
+		$data['transactionno'] 	 = $stocktransferno;
+		$source 				 = $data['source_no'];
+		$data['transactiondate'] = date('M j, Y', strtotime($data['transactiondate']));
+		$data['transferdate']    = date('M j, Y', strtotime($data['transferdate']));
+		$data['ui'] 			 = $this->ui;
+		$data['warehouse_list']	 = $this->stock_transfer->getWarehouseList();
+		$data["item_list"] 		 = $this->stock_transfer->getItemList();
+		$data['row_details'] 	 = json_encode($this->stock_transfer->getStockTransferDetailsApproval($this->approval_fields, $stocktransferno));
+		$data['show_input'] 	 = false;
+		$data['task'] 			 = "view_approval";
+		$data['ajax_task'] 	     = "";
+		$data['ajax_post'] 	     = "";
+		$current_stat 			 = $this->stock_transfer->getStat($sid,'stock_approval');
+		$data['stat'] 			 = $current_stat->stat;
+		$this->view->load('stock_transfer/stocktransfer_approval', $data);
 	}
 
 	public function release($sid = ""){
 		$stocktransferno = $sid;
-		$fields1 = array(
-		"reference",
-		"source",
-		"transactiondate",
-		"destination",
-		"transferdate",
-		"prepared_by",
-		"remarks",
-		"total_amount"  
-		);  
-  
-		$fields2 = array("dtl.itemcode",
-				"i.itemname",
-				"dtl.detailparticular",
-				"dtl.source",
-				"dtl.destination",
-				"dtl.ohqty",
-				"dtl.qtytoapply",
-				"dtl.uom",
-				"dtl.price",
-				"dtl.amount",
-		);
-		$this->view->title = 'View Stock Transfer';
-		$data = (array) $this->stock_transfer->getStockTransfer($fields1, $stocktransferno);
-		$data['transactionno'] = $stocktransferno;
+
+		$this->view->title = 'Release Stock Transfer Request';
+		$data = (array) $this->stock_transfer->getStockTransferRequest($this->fields1, $stocktransferno);
+		$data['approved_by'] 	 = "";
+		$data['remarks'] 	 	 = "";
+		$data['reference'] 	     = "";
+		$data['transactionno'] 	 = $stocktransferno;
 		$data['transactiondate'] = date('M j, Y', strtotime($data['transactiondate']));
 		$data['transferdate']    = date('M j, Y', strtotime($data['transferdate']));
-		$data['ui'] = $this->ui;
-		$data['warehouse_list']		= $this->stock_transfer->getWarehouseList();
-		$data["item_list"] 			= $this->stock_transfer->getItemList();
-		$data['row_details'] = json_encode($this->stock_transfer->getStockTransferDetails($fields2,$stocktransferno));
-		$data['show_input'] = false;
-		$data["task"]  = "release";
+		$data['ui'] 			 = $this->ui;
+		$data['warehouse_list']	 = $this->stock_transfer->getWarehouseList();
+		$data["item_list"] 		 = $this->stock_transfer->getItemList();
+		$data['row_details'] 	 = json_encode($this->stock_transfer->getStockTransferDetailsRequest($sid));
+		$data['show_input'] 	 = true;
+		$data["task"]  			 = "release";
+		$data["ajax_task"] 		 = "set_release";
+		$data['ajax_post']		 = '';
+		$data['source_no'] 		 = $stocktransferno;
 		$this->view->load('stock_transfer/stocktransfer_approval', $data);
 	}
 
 	public function received($sid = ""){
 		$stocktransferno = $sid;
-		$fields1 = array(
-		"reference",
-		"source",
-		"transactiondate",
-		"destination",
-		"transferdate",
-		"prepared_by",
-		"remarks",
-		"total_amount"  
-		);  
-  
-		$fields2 = array("dtl.itemcode",
-				"i.itemname",
-				"dtl.detailparticular",
-				"dtl.source",
-				"dtl.destination",
-				"dtl.ohqty",
-				"dtl.qtytoapply",
-				"dtl.uom",
-				"dtl.price",
-				"dtl.amount",
-		);
+	
 		$this->view->title = 'View Stock Transfer';
-		$data = (array) $this->stock_transfer->getStockTransfer($fields1, $stocktransferno);
+		$data = (array) $this->stock_transfer->getStockTransferRequest($this->fields1, $stocktransferno);
 		$data['transactionno'] = $stocktransferno;
 		$data['transactiondate'] = date('M j, Y', strtotime($data['transactiondate']));
 		$data['transferdate']    = date('M j, Y', strtotime($data['transferdate']));
 		$data['ui'] = $this->ui;
 		$data['warehouse_list']		= $this->stock_transfer->getWarehouseList();
 		$data["item_list"] 			= $this->stock_transfer->getItemList();
-		$data['row_details'] = json_encode($this->stock_transfer->getStockTransferDetails($fields2,$stocktransferno));
+		$data['row_details'] = json_encode($this->stock_transfer->getStockTransferDetails($this->fields2,$stocktransferno));
 		$data['show_input'] = false;
 		$data["task"] = "received";
 		$this->view->load('stock_transfer/stocktransfer_approval', $data);
@@ -275,58 +261,106 @@ class controller extends wc_controller
 		$this->view->load('stock_transfer/stocktransfer_list', $data);
 	}
 
-	public function print_preview($voucherno) 
-	{
-		$docinfo_table  = "stock_transfer st";
-		$docinfo_fields = array(
-			"st.stocktransferno",
-			"st.reference",
-			"w.description source",
-			"st.transactiondate",
-			"w2.description destination",
-			"st.transferdate",
-			"st.prepared_by",
-			"st.remarks",
-			"st.total_amount"  
-		);
-		$docinfo_join   = "warehouse w ON w.warehousecode = st.source AND w.companycode = st.companycode ";
-		$docinfo_join   .= " LEFT JOIN warehouse w2 ON w2.warehousecode = st.destination AND w2.companycode = st.companycode ";
-		$docinfo_cond 	= "st.stocktransferno = '$voucherno'";
-
-		$documentinfo  	= $this->stock_transfer->retrieveData($docinfo_table, $docinfo_fields, $docinfo_cond, $docinfo_join);
-		
-		$docdet_table   = "stock_transfer_details dtl";
-		$docdet_fields = $fields2 = array("dtl.itemcode",
-			"dtl.detailparticular",
-			"dtl.qtytoapply",
-			"dtl.uom",
-			"dtl.price",
-			"dtl.amount"
+	public function print_preview($voucherno) {
+		$documentinfo		= $this->stock_transfer->getDocumentRequestInfo($voucherno);
+		$documentdetails	= array(
+			'Date'			=> $this->date->dateFormat($documentinfo->documentdate),
+			'Transfer Date'	=> $this->date->dateFormat($documentinfo->transferdate),
+			'Request #'		=> $voucherno,
+			'Reference' 	=> $documentinfo->reference
 		);
 
-		$docdet_cond    = "dtl.stocktransferno = '$voucherno'";
-		$docdet_join 	= "items i ON dtl.itemcode = i.itemcode";
-		$docdet_groupby = "";
-		$docdet_orderby = "dtl.linenum";
-		$documentdetails = $this->stock_transfer->retrieveData($docdet_table, $docdet_fields, $docdet_cond, $docdet_join, $docdet_orderby, $docdet_groupby);
-		
-		$customercode 		=	$this->stock_transfer->getValue("packinglist", array('customer')," voucherno = '$voucherno'");
-		
-		$custField			= array('partnercode','first_name','last_name','address1','email','tinno','terms','mobile');
-		// $customerDetails	= $this->stock_transfer->retrieveData("partners",$custField," partnertype = 'customer' AND partnercode = '".$customercode[0]->customer."'");
+		$print = new print_inventory_model();
+		$print->setDocumentType('Transfer - Request')
+			  ->setFooterDetails(
+					array(
+						'Prepared By' => $documentinfo->prepared_by, 
+						'Checked By' => '')
+					)
+			  ->setCustomerDetails($documentinfo)
+			  ->setDocumentDetails($documentdetails)
+			  // ->addTermsAndCondition()
+			  ->addReceived();
 
-		$print = new print_inventory_model('P', 'mm', 'Letter');
+		$print->setHeaderWidth(array(40, 100, 30, 30))
+				->setHeaderAlign(array('C', 'C', 'C', 'C'))
+				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM'))
+				->setRowAlign(array('L', 'L', 'R', 'L'))
+				->setSummaryWidth(array('170', '30'));
 		
-		$print->setDocumentType('Stock Transfer')
-				->setDocumentCode('ST')
-				->setDocumentInfo($documentinfo[0])
-				->setDocumentDetails($documentdetails)
-				->drawPDF('st_voucher_' . $voucherno);
+		$documentcontent	= $this->stock_transfer->getDocumentRequestContent($voucherno);
+		$detail_height = 37;
+
+		$total_quantity = 0;
+		foreach ($documentcontent as $key => $row) {
+			if ($key % $detail_height == 0) {
+				$print->drawHeader();
+			}
+
+			$total_quantity	+= $row->Quantity;
+			$row->Quantity	= number_format($row->Quantity, 2);
+			$print->addRow($row);
+			if (($key + 1) % $detail_height == 0) {
+				$print->drawSummary(array('Total Quantity' => $total_quantity));
+				$total_quantity = 0;
+			}
+		}
+		$print->drawSummary(array('Total Quantity' => $total_quantity));
+
+		$print->drawPDF('Approved Stock Transfer - ' . $voucherno);
 	}
 
+	public function print_approval($voucherno) {
+		$documentinfo		= $this->stock_transfer->getDocumentApprovalInfo($voucherno);
+		$documentdetails	= array(
+			'Date'			=> $this->date->dateFormat($documentinfo->documentdate),
+			'Transfer Date'	=> $this->date->dateFormat($documentinfo->transferdate),
+			'Transfer #'	=> $voucherno,
+			'Request #'		=> $documentinfo->referenceno,
+			'Reference' 	=> $documentinfo->reference
+		);
 
-	public function ajax($task)
-	{
+		$print = new print_inventory_model();
+		$print->setDocumentType('Transfer - Approved')
+				->setFooterDetails(
+					array(
+						'Approved By' => $documentinfo->approved_by, 
+						'Checked By' => '')
+					)
+				->setCustomerDetails($documentinfo)
+				->setDocumentDetails($documentdetails)
+				// ->addTermsAndCondition()
+				->addReceived();
+
+		$print->setHeaderWidth(array(40, 100, 30, 30))
+				->setHeaderAlign(array('C', 'C', 'C', 'C'))
+				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM'))
+				->setRowAlign(array('L', 'L', 'R', 'L'))
+				->setSummaryWidth(array('170', '30'));
+		
+		$documentcontent	= $this->stock_transfer->getDocumentApprovalContent($voucherno);
+		$detail_height = 37;
+
+		$total_quantity = 0;
+		foreach ($documentcontent as $key => $row) {
+			if ($key % $detail_height == 0) {
+				$print->drawHeader();
+			}
+
+			$total_quantity	+= $row->Quantity;
+			$row->Quantity	= number_format($row->Quantity, 2);
+			$print->addRow($row);
+			if (($key + 1) % $detail_height == 0) {
+				$print->drawSummary(array('Total Quantity' => $total_quantity));
+				$total_quantity = 0;
+			}
+		}
+		$print->drawSummary(array('Total Quantity' => $total_quantity));
+
+		$print->drawPDF('Approved Transfer - ' . $voucherno);
+	}
+
+	public function ajax($task){
 		header('Content-type: application/json');
 		$result 	=	"";
 
@@ -367,6 +401,18 @@ class controller extends wc_controller
 		{
 			$result = $this->get_warehouse_list();
 		}
+		else if( $task == 'update_approval' )
+		{
+			$result = $this->update_approval();
+		}
+		else if( $task == 'update_request_status' )
+		{
+			$result = $this->update_request_status();
+		} 
+		else if( $task == 'delete_approval' )
+		{
+			$result = $this->delete_approval();
+		}
 
 		echo json_encode($result); 
 	}
@@ -401,8 +447,9 @@ class controller extends wc_controller
 		$warehouse 	=	$data['warehouse'];
 		$type 		=	$data['type'];
 
-		$pagination = $this->stock_transfer->getStockTransferList($search, $filter, $dates[0], $dates[1], $warehouse, $type);
-		//var_dump($pagination);
+		$pagination_req = $this->stock_transfer->getStockTransferRequestList($search, $filter, $dates[0], $dates[1], $warehouse, $type);
+		$pagination_app = $this->stock_transfer->getStockTransferApprovalList($search, $filter, $dates[0], $dates[1], $warehouse, $type);
+		
 		$table = '';
 
 		$transfer_in 	=	"";
@@ -411,104 +458,97 @@ class controller extends wc_controller
 		$not_open 		= 0;
 		$not_released  	= 0;
 
-		if (empty($pagination->result)) {
-			//$table = '<tr><td colspan="5" class="text-center"><b>No Records Found</td></tr>';
-			$transfer_in 	.=	'<tr><td colspan="6" class="text-center">No Records Found</td></tr>';
-			$transfer_out 	.=	'<tr><td colspan="6" class="text-center">No Records Found</td></tr>';
-		}
+		for ($i = 0; $i < count($pagination_req->result); $i++) {
 
-		for ($i = 0; $i < count($pagination->result); $i++) {
-
-			$transactiondate	= $pagination->result[$i]->transactiondate;
+			$transactiondate	= $pagination_req->result[$i]->transactiondate;
 			$transactiondate	= date("M d, Y",strtotime($transactiondate));
-			$transferdate	    = $pagination->result[$i]->transferdate;
+			$transferdate	    = $pagination_req->result[$i]->transferdate;
 			$transferdate		= date("M d, Y",strtotime($transferdate));
-			$stocktransferno	= $pagination->result[$i]->stocktransferno;
-			$source 		    = $pagination->result[$i]->source;
-			$destination	    = $pagination->result[$i]->destination;
-			$prepared_by        = $pagination->result[$i]->prepared_by;
-			$stat				= $pagination->result[$i]->stat;
-			$remarks			= $pagination->result[$i]->remarks;
-			$total_amount		= $pagination->result[$i]->total_amount;
-
-			if( $stat == 'open' )
-			{
-				$dropdown = $this->ui->loadElement('check_task')
+			$stocktransferno	= $pagination_req->result[$i]->stocktransferno;
+			$source 		    = $pagination_req->result[$i]->source;
+			$destination	    = $pagination_req->result[$i]->destination;
+			$prepared_by        = $pagination_req->result[$i]->prepared_by;
+			$stat				= $pagination_req->result[$i]->stat;
+			$remarks			= $pagination_req->result[$i]->remarks;
+			$total_amount		= $pagination_req->result[$i]->total_amount;
+			$enteredby			= $pagination_req->result[$i]->enteredby;
+			
+			$dropdown = $this->ui->loadElement('check_task')
 								 ->addView()
-								 ->addEdit(($stat != 'released'))
-								 ->addOtherTask('Release', 'open',($stat == 'open'))
-								 ->addDelete($stat != 'released')
+								 ->addEdit($stat == 'open' && ($enteredby == $this->user))
+								 ->addOtherTask('Transfer Stocks', 'open',($stat == 'approved' || $stat == 'partial'))
+								 ->addOtherTask('Approve', 'thumbs-up', $stat == 'open')
+								 ->addOtherTask('Reject', 'thumbs-down', $stat == 'open')
+								 ->addDelete(($stat == 'open') &&  ($enteredby == $this->user))
+								 ->addPrint($stat != "rejected")
 								 ->setValue($stocktransferno)
 								 ->setLabels(array('delete'=>'Cancel'))
 								 ->draw();
 			
-				$status = '';
+			$status = '';
 
-				if( $stat == 'posted' )
-				{
-					$status = '<span class="label label-success">TRANSFERRED</span>';
-				}
-				else if( $stat == 'open' || $stat == 'request')
-				{
-					$status = '<span class="label label-warning">PENDING</span>';
-					$disabled_edit = 0;
-				}
+			if( $stat == 'posted' ) {
+				$status = '<span class="label label-success">TRANSFERRED</span>';
+			} else if( $stat == 'open' || $stat == 'request' ) {
+				$status = '<span class="label bg-purple">PENDING</span>';
+			} else if( $stat == 'approved' ) {
+				$status = '<span class="label label-warning">APPROVED</span>';
+			} else if( $stat == 'partial') {
+				$status = '<span class="label label-info">PARTIAL</span>';
+			} else if( $stat == 'rejected') {
+				$status = '<span class="label label-danger">REJECTED</span>';
+			}
 
-				$transfer_out .= '<tr>';
-				$transfer_out .= '<td>' . $dropdown . '</td>';
-				$transfer_out .= '<td>' . $stocktransferno. '</td>';
-				$transfer_out .= '<td>' . $destination. '</td>';
-				$transfer_out .= '<td>' . $source. '</td>';
-				$transfer_out .= '<td>' . $transactiondate . '</td>';
-				$transfer_out .= '<td>' . $status. '</td>';
-				$transfer_out .= '</tr>';
-			}
-			else
-			{
-				// $not_open	+= 1;
-				// $transfer_out .= '<tr>';
-				// $transfer_out .= '<td colspan = "6" class="text-center">No Records Found</td>';
-				// $transfer_out .= '</tr>';
-			}
+			$transfer_out .= '<tr>';
+			$transfer_out .= '<td>' . $dropdown . '</td>';
+			$transfer_out .= '<td>' . $stocktransferno. '</td>';
+			$transfer_out .= '<td>' . $destination. '</td>';
+			$transfer_out .= '<td>' . $source. '</td>';
+			$transfer_out .= '<td>' . $transactiondate . '</td>';
+			$transfer_out .= '<td>' . $status. '</td>';
+			$transfer_out .= '</tr>';
 			
-			if( $stat == 'released' )//|| $stat == 'received'
-			{
-				$dropdown = $this->ui->loadElement('check_task')
-								 ->addView()
-								 ->addEdit(($stat != 'posted'))
-								 ->addOtherTask('Receive', 'save',($stat == 'released'))
-								 ->addDelete($stat != 'posted')
+		} 
+
+		for ($i = 0; $i < count($pagination_app->result); $i++) {
+
+			$transactiondate	= $pagination_app->result[$i]->transactiondate;
+			$transactiondate	= date("M d, Y",strtotime($transactiondate));
+			$transferdate	    = $pagination_app->result[$i]->transferdate;
+			$transferdate		= date("M d, Y",strtotime($transferdate));
+			$stocktransferno	= $pagination_app->result[$i]->stocktransferno;
+			$source_no			= $pagination_app->result[$i]->source_no;		
+			$source 		    = $pagination_app->result[$i]->source;
+			$destination	    = $pagination_app->result[$i]->destination;
+			$approved_by        = $pagination_app->result[$i]->approved_by;
+			$stat				= $pagination_app->result[$i]->stat;
+			$remarks			= $pagination_app->result[$i]->remarks;
+			$total_amount		= $pagination_app->result[$i]->total_amount;
+			$enteredby			= $pagination_app->result[$i]->enteredby;
+
+			$dropdown = $this->ui->loadElement('check_task')
+								 ->addOtherTask('View','eye-open',true,'view_approval')
+								 ->addOtherTask('Edit','pencil',($stat != 'posted' &&  ($enteredby == $this->user)),'edit_approval')
+								 ->addOtherTask('Print','print',true,'print_approval')
+								//  ->addDelete(($stat != 'posted') &&  ($enteredby == $this->user))
+								 ->addOtherTask('Cancel','trash',($stat != 'posted') &&  ($enteredby == $this->user),'delete_approval') 
 								 ->setValue($stocktransferno)
-								 ->setLabels(array('delete'=>'Cancel'))
 								 ->draw();
-				$status = '';
+			$status = '';
 
-				if( $stat == 'posted' )//|| $stat == 'received'
-				{
-					$status = '<span class="label label-success">TRANSFERRED</span>';
-				}
-				else if( $stat == 'open' || $stat == 'released')
-				{
-					$status = '<span class="label label-info">RELEASED</span>';
-					$disabled_edit = 0;
-				}
+			if( $stat == 'open' || $stat == 'released'){
+				$status = '<span class="label label-success">TRANSFERRED</span>';
+			}
 
-				$transfer_in .= '<tr>';
-				$transfer_in .= '<td>' . $dropdown . '</td>';
-				$transfer_in .= '<td>' . $stocktransferno. '</td>';
-				$transfer_in .= '<td>' . $destination. '</td>';
-				$transfer_in .= '<td>' . $source. '</td>';
-				$transfer_in .= '<td>' . $transactiondate . '</td>';
-				$transfer_in .= '<td>' . $status. '</td>';
-				$transfer_in .= '</tr>';
-			}
-			else
-			{
-				// $not_released	+= 1;
-				// $transfer_in .= '<tr>';
-				// $transfer_in .= '<td colspan = "6" class="text-center">No Records Found</td>';
-				// $transfer_in .= '</tr>';
-			}
+			$transfer_in .= '<tr>';
+			$transfer_in .= '<td>' . $dropdown . '</td>';
+			$transfer_in .= '<td>' . $stocktransferno. '</td>';
+			$transfer_in .= '<td>' . $source_no. '</td>';
+			$transfer_in .= '<td>' . $destination. '</td>';
+			$transfer_in .= '<td>' . $source. '</td>';
+			$transfer_in .= '<td>' . $transactiondate . '</td>';
+			$transfer_in .= '<td>' . $status. '</td>';
+			$transfer_in .= '</tr>';
 		} 
 		
 		if ( $transfer_out == "" ){
@@ -518,9 +558,9 @@ class controller extends wc_controller
 			$transfer_in 	.=	'<tr><td colspan="6" class="text-center">No Records Found</td></tr>';
 		}
 
-		$pagination->out = $transfer_out;
-		$pagination->in  = $transfer_in;
-		return $pagination;
+		$pagination_req->out = $transfer_out;
+		$pagination_req->in  = $transfer_in;
+		return $pagination_req;
 
 	}
 
@@ -529,7 +569,7 @@ class controller extends wc_controller
 		$itemcode 	= $this->input->post('itemcode');
 		$warehouse 	= $this->input->post('warehouse');
 
-		$result 	= $this->stock_transfer->retrieveItemDetails($itemcode, $warehouse);
+		$result 	= $this->stock_transfer->getItemDetails($itemcode, $warehouse);
 		if(!$result)
 			$var = (object) array("notfound"=>true); 
 		
@@ -537,25 +577,83 @@ class controller extends wc_controller
 	}
 
 	private function set_release(){
-		$stocktransferno 	= $this->input->post('transaction_no');
+		// Merge header and details data
+		$data						= $this->input->post($this->approval_header);
+		// var_dump($data);
+		$data2						= $this->getItemDetails();
+		$data2						= $this->cleanData($data2);
+		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
+		$data['transferdate']		= $this->date->dateDbFormat($data['transferdate']);
+		$seq						= new seqcontrol();
+		$data['stocktransferno']	= $seq->getValue('STA');
+		$result						= $this->stock_transfer->saveStockTransferApproval($data, $data2);
+		if ($result && $this->inventory_model) {
+			$this->inventory_model->generateBalanceTable();
+		}
+		$redirect_url = MODULE_URL;
+		
+		return array(
+			'redirect'	=> $redirect_url,
+			'success'	=> $result
+		);
+	}
 
-		$data['stat'] 	=	'released';
-		$result 	= $this->stock_transfer->updateStatus($data, 'stock_transfer', $stocktransferno);
-		// var_dump($result);
-		if( $result )
-		{
-			$msg = "success";
-			$this->logs->saveActivity("Released Stock Transfer [$stocktransferno] ");
-			if ( $this->inventory_model ) {
-				$this->inventory_model->generateBalanceTable();
+	private function update_approval(){
+		$this->fields1[]   			= "source_no";	
+		$data						= $this->input->post($this->approval_header);
+		unset($data['voucherno']);
+
+		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
+		$data['transferdate']		= $this->date->dateDbFormat($data['transferdate']);
+		$voucherno					= $data['stocktransferno'];
+		$data2						= $this->getItemDetails();
+		$data2						= $this->cleanData($data2);
+		$result						= $this->stock_transfer->updateStockApproval($data, $data2, $voucherno);
+	
+		if ($result && $this->inventory_model) {
+			$this->inventory_model->generateBalanceTable();
+		}
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+		);
+	}
+
+	private function update_request_status(){
+		$transferno 				= $this->input->post('transferno');
+		$status 					= $this->input->post('status');
+
+		$data['stat'] 				= $status;
+		$result						= $this->stock_transfer->updateStockTransferStatus($data,$transferno);
+	
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+		);
+	}
+
+	private function getItemDetails() {
+		$data = array();
+		$temp = $this->input->post($this->approval_fields);
+		// var_dump($temp);
+		foreach ($temp['qtytransferred'] as $key => $quantity) {
+			if ($quantity < 1) {
+				foreach ($this->approval_fields as $field) {
+					if (is_array($temp[$field])) {
+						unset($temp[$field][$key]);
+					}
+				}
 			}
 		}
-		else
-		{
-			$msg = $result;
+		foreach ($this->approval_fields as $field) {
+			if (is_array($temp[$field])) {
+				$data[$field] = array_values($temp[$field]);
+			} else {
+				$data[$field] = $temp[$field];
+			}
 		}
-
-		return $dataArray = array("msg" => $msg);
+		// var_dump($data);
+		return $data;
 	}
 
 	private function set_received(){
@@ -624,19 +722,8 @@ class controller extends wc_controller
 				"total_amount"  
 				);  
   
-  		$fields2 = array("itemcode",
-					    "itemname"=>"detailparticular",
-						"sitesource"=>"source",
-						"sitedestination"=>"destination",
-  						"ohqty",
-						"qtytoapply",
-						"uom",
-  						"price",
-  						"amount",
-		  		);
-
 		$data = $this->input->post($fields1);
-		$data2 = $this->input->post($fields2);
+		$data2 = $this->input->post($this->fields2);
 
 		$data['transactiondate'] = date('Y-m-d', strtotime($data['transactiondate']));
 		$data['transferdate'] = date('Y-m-d', strtotime($data['transferdate']));
@@ -666,21 +753,10 @@ class controller extends wc_controller
   				"remarks",
 				"total_amount"  
 				);  
-  
-  		$fields2 = array("itemcode",
-					    "itemname"=>"detailparticular",
-						"sitesource"=>"source",
-						"sitedestination"=>"destination",
-  						"ohqty",
-						"qtytoapply",
-						"uom",
-  						"price",
-  						"amount",
-		  		);
 
 		//$data = $this->input->post();
 		$data = $this->input->post($fields1);
-		$data2 = $this->input->post($fields2);
+		$data2 = $this->input->post($this->fields2);
 
 		$data['transactiondate'] = date('Y-m-d', strtotime($data['transactiondate']));
 		$data['transferdate'] = date('Y-m-d', strtotime($data['transferdate']));
@@ -705,6 +781,20 @@ class controller extends wc_controller
 			$this->logs->saveActivity("Delete Stock Transfer Request [".$delete_id."] ");
 		}
 
+		return array(
+			'msg'	=> ''
+		);
+	}
+
+	private function delete_approval() 
+	{
+		
+		$delete_id = $this->input->post('voucherno');
+		if ($delete_id) {
+			$this->stock_transfer->deleteStockTransferApproval($delete_id);
+			$this->inventory_model->generateBalanceTable();
+		}
+		
 		return array(
 			'msg'	=> ''
 		);

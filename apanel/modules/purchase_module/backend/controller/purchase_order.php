@@ -53,6 +53,10 @@ class controller extends wc_controller
 	{
 		$data 					= $this->input->post($this->fields);
 
+		// Item Limit
+		$item_limit 			= $this->po->getReference("po_limit");
+		$data['item_limit']		= ($item_limit[0]->value) 	? 	$item_limit[0]->value 	: 	50; 
+
 		$data['vendor_list'] 	= $this->po->retrieveVendorList();
 		$data['proforma_list'] 	= $this->po->retrieveProformaList();
 
@@ -224,6 +228,11 @@ class controller extends wc_controller
 	public function edit($voucherno)
 	{
 		$retrieved_data 		= $this->po->retrieveExistingPO($voucherno);
+
+		// Item Limit
+		$item_limit 			= $this->po->getReference("po_limit");
+		$data['item_limit']		= ($item_limit[0]->value) 	? 	$item_limit[0]->value 	: 	50; 
+
 
 		$data['vendor_list'] 	= $this->po->retrieveVendorList();
 		$data['proforma_list'] 	= $this->po->retrieveProformaList();

@@ -538,6 +538,18 @@
 							->getResult();
 		}
 
+		public function getReference($code)
+		{
+			$result = $this->db->setTable('wc_reference')
+						->setFields("value")
+						->setWhere("code = '$code'")
+						->setLimit('1')
+						->runSelect(false)
+						->getResult();
+
+			return $result;
+		}
+
 		public function export_main($data) {
 			
 			$fields 			= array('s.voucherno','s.quotation_no', 'p.partnername', 's.transactiondate','s.stat','s.netamount');

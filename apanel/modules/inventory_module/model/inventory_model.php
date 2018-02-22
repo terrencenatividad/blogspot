@@ -116,16 +116,16 @@ class inventory_model extends wc_model {
 						->buildSelect();
 
 		
-		$sts = $this->db->setTable('stock_transfer a')
-						->innerJoin('stock_transfer_details b ON a.stocktransferno = b.stocktransferno AND a.companycode = b.companycode')
-						->setFields($this->createFields('st', '-1 * qtytoapply', array('b.warehouse' => 'a.source warehouse')))
-						->setWhere("a.stat = 'released' OR a.stat = 'received'")
+		$sts = $this->db->setTable('stock_approval a')
+						->innerJoin('stock_approval_details b ON a.stocktransferno = b.stocktransferno AND a.companycode = b.companycode')
+						->setFields($this->createFields('st', '-1 * qtytransferred', array('b.warehouse' => 'a.source warehouse')))
+						->setWhere("a.stat = 'open'")
 						->buildSelect();
 
-		$std = $this->db->setTable('stock_transfer a')
-						->innerJoin('stock_transfer_details b ON a.stocktransferno = b.stocktransferno AND a.companycode = b.companycode')
-						->setFields($this->createFields('st', 'qtytoapply', array('b.warehouse' => 'a.destination warehouse')))
-						->setWhere("a.stat = 'received'")
+		$std = $this->db->setTable('stock_approval a')
+						->innerJoin('stock_approval_details b ON a.stocktransferno = b.stocktransferno AND a.companycode = b.companycode')
+						->setFields($this->createFields('st', 'qtytransferred', array('b.warehouse' => 'a.destination warehouse')))
+						->setWhere("a.stat = 'open'")
 						->buildSelect();
 
 		$st = $this->db->setTable("($sts UNION ALL $std) st")

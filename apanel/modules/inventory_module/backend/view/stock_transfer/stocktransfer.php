@@ -61,7 +61,7 @@
 									->draw($show_input);
 						?>
 						</div>
-						<input id="h_site_source" name="h_site_source" type="hidden">
+						<input id="h_site_source" name="h_site_source" type="hidden" value="<?=$source?>">
 						<div class="col-md-6">
 						<?
 							echo $ui->formField('text')
@@ -147,11 +147,14 @@
 							<th>Item Name</th>
 							<!--<th>Request Site</th>
 							<th>Destination Site</th>-->
-							<th>On Hand Qty</th>
+							<!-- <th>On Hand Qty</th> -->
 							<th>Requested Qty</th>
+							<?php if (!$show_input): ?>
+								<th>Balance Qty</th>
+							<?php endif; ?>
 							<th>UOM</th>
-							<th>Price</th>
-							<th>Amount</th>
+							<!-- <th>Price</th>
+							<th>Amount</th> -->
 							<th>&nbsp;</th>
 						</tr>
 					</thead>
@@ -160,7 +163,7 @@
 					</tbody>
 					<?php if ($show_input): ?>
 						<tfoot>
-							<td colspan="6">
+							<td colspan="4">
 								<button type="button" id="addNewItem" class="btn btn-link">Add a New Line</button>
 							</td>
 						</tfoot>
@@ -172,10 +175,14 @@
 				<div class="row">
 					<div class="col-md-12 text-center" id="submit-box">
 						<?php  
-								if( $stat != 'received' ){
+								if( $stat == 'open' || $stat == '' ){
 									echo $ui->drawSubmit($show_input);
 								} 
 						?>
+						<? if( $stat == 'open' && $task != 'edit' ){ ?>
+							<a class="approve btn btn-warning" data-id="<?=$transactionno?>">Approve</a>
+							<a class="reject btn btn-danger" data-id="<?=$transactionno?>">Reject</a>	
+						<? } ?>
 						<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
 					</div>
 				</div>
@@ -184,6 +191,23 @@
 	</div>
 </section>
 
+<div id="row_limit" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Item Limit</h4>
+			</div>
+			<div class="modal-body">
+				<p>Sorry, but the printout for this record is only limited to <strong><?=$item_limit?></strong> items.</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script type='text/javascript'>
 
 		var delete_row	= {};
@@ -191,18 +215,19 @@
 		var ajax_call	= '';
 		var min_row		= 1;
 		var header_min_row = 0;
-		var on_hand = 0; 
+		var on_hand 	= 0; 
+		var task 		= '<?=$task?>';
 		function addRowDetails(details, index) 
 		{
-			var details = details || {itemcode: '', itemname: '', source: '',destination: '',
+			var details = details || {itemcode: '', detailparticular: '', source: '',destination: '',
 						ohqty: '', qtytoapply: '', price: '', amount: '', uom : ''};
 						if(details.ohqty == null || details.ohqty == ''){ details.ohqty = '0.00';}
-						if(details.itemname == ""){ details.itemname = "";}
+						if(details.detailparticular == null){ details.detailparticular = "";}
 						if(details.source == ""){ details.source = "";}
 						if(details.destination == ""){ details.destination = "";}
 						if(details.ohqty == null || details.ohqty == ""){ details.ohqty = '0';}
 						if(details.qtytoapply == null || details.qtyapply == ""){ details.qtyapply = '0';}
-						if(details.uom == ""){ details.uom = "";}
+						if(details.uom == null){ details.uom = "";}
 						if(details.price == null || details.price == ""){ details.price = '0.00';}
 						if(details.amount == null || details.amount == ""){ details.amount = '0.00';}
 						on_hand = details.ohqty;
@@ -229,10 +254,10 @@
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
 								->setPlaceholder('Item Name')
-								->setName('itemname[]')
-								->setClass('itemname')
+								->setName('detailparticular[]')
+								->setClass('detailparticular')
 								->setAttribute(array("readonly"=>""))
-								->setValue('` + details.itemname + `')
+								->setValue('` + details.detailparticular + `')
 								//->addHidden(true)
 								->draw($show_input);
 						?>
@@ -264,7 +289,7 @@
 							// 	->draw($show_input);
 						?>
 					</td>
-					<td>
+					<td class = "hidden">
 						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
@@ -287,6 +312,20 @@
 								
 						?>
 					</td>
+					<?php if (!$show_input): ?>
+					<td>
+						<?php
+							echo $ui->formField('text')
+								->setSplit('', 'col-md-12')
+								->setName('qtytoapply[]')
+								->setClass('qtytoapply')
+								->setValidation('required integer')
+								->setValue('` + (parseInt(details.balanceqty) || 0) + `')
+								->draw($show_input);
+								
+						?>
+					</td>
+					<?php endif; ?>
 					<td >
 						<?php
 							echo $ui->formField('text')
@@ -295,12 +334,12 @@
 								->setClass('uomcode')
 								//->setValidation('required integer')
 								->setAttribute(array("readonly"=>""))
-								->setValue('` + details.uom + `')
+								->setValue('` + details.uom.toUpperCase() + `')
 								->draw($show_input);
 								
 						?>
 					</td>
-					<td>
+					<td class = "hidden">
 						<?php	
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
@@ -314,7 +353,7 @@
 								->draw($show_input);
 						?>
 					</td>
-					<td>
+					<td class = "hidden">
 						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
@@ -369,6 +408,25 @@
 		}
 		displayDetails(row_details);
 
+
+	function approve_request(transferno){
+		$.post('<?=MODULE_URL?>ajax/update_request_status', 'transferno=' + transferno + "&status=approved", function(data) {
+			window.location = '<?=MODULE_URL;?>';
+		});	
+	}
+
+	function reject_request(transferno){
+		$.post('<?=MODULE_URL?>ajax/update_request_status', 'transferno=' + transferno + "&status=rejected", function(data) {
+			window.location = '<?=MODULE_URL;?>';
+		});	
+	}
+
+	$(function(){
+		createConfimationLink('.approve', 'approve_request', 'Are you sure you want to Approve this Request?');
+		createConfimationLink('.reject', 'reject_request', 'Are you sure you want to Reject this Request?');
+	});
+
+
 <?php if ($show_input): ?>
 	
 	function get_item_details(itemcode, warehouse, l){
@@ -379,7 +437,7 @@
 			// var l 		=	$('#tableList');
 			if(data.notfound){
 			}else{
-				l.closest('tr').find(".itemname").val(data.itemdesc);
+				l.closest('tr').find(".detailparticular").val(data.itemdesc);
 				l.closest('tr').find(".sitesource").val(warehouse);
 				l.closest('tr').find(".ohqty").val(data.onhandQty);
 				l.closest('tr').find('.uomcode').val(data.uom_base);	
@@ -412,6 +470,7 @@
 	$('#stockTransferForm').on('change','.itemcode',function(){
 		var itemcode = $(this).val();
 		var warehouse = $("#h_site_source").val();
+		var task  	 = '<?=$task?>';
 		var l = $(this);
 
 		if( warehouse!="" ){
@@ -424,7 +483,15 @@
 	});
 
 	$('#addNewItem').on('click', function() {
+
+		var length 	=	$('#tableList tbody tr').length;
+		var rowlimit 	= '<?echo $item_limit?>';
+
+		if(rowlimit == 0 || length < rowlimit){
 			addRowDetails();
+		} else {
+			$('#row_limit').modal('show');
+		}
 	});
 
 	function addAmounts() 
@@ -432,13 +499,9 @@
 		var counter = 0;
 		$( ".amount" ).each(function() {
 			var value = $( this ).val();
-			if(value && value != '0' && value != '0.00')
-			{                            
+			if(value && value != '0' && value != '0.00'){                            
 				value = removeComma(value);
-
-			}
-			else
-			{             
+			} else {             
 				value = 0;
 				counter++;
 			}
@@ -447,15 +510,6 @@
 
 		subtotal	 = Math.round(1000*subtotal)/1000;
 		
-		// if(subtotal > 0){
-		// 	$("#submit-box button[type=submit]").prop("disabled",false);
-		// }else{
-		// 	$("#submit-box button[type=submit]").prop("disabled",true);
-		// }
-
-		// if(counter > 0){
-		// 	$("#submit-box button[type=submit]").prop("disabled",true);
-		// }
 		document.getElementById('total_amount').value 					= subtotal.toFixed(2);
 		});
 	}
@@ -478,11 +532,15 @@
 		delete_row = $(this).closest('tr');
 		$('.itemcode').trigger('change');
 	});
+	
 	$(function(){
 		linkDeleteToModal('.delete_row', 'deleteRowDetails');
-		$("#submit-box button[type=submit]").prop("disabled",true);
-		$(document.body).on('blur','.format_values', function(e) 
-		{
+		
+		if( task != 'edit' ){
+			$("#submit-box button[type=submit]").prop("disabled",true);
+		}
+
+		$(document.body).on('blur','.format_values', function(e) {
 			var amount = $(this).val();
 			amount     = removeComma(amount);
 			var result = amount * 1;
@@ -491,17 +549,9 @@
 			$(this).val(amount);
 		});
 
-
-		$(document.body).on('keypress','.format_values', function(e) 
-		{
+		$(document.body).on('keypress','.format_values', function(e) {
 			isNumberKey2(e);
 		});
-		// $(document.body).on("change",".itemcode",function(){
-		// 	$(".sitesource").val($("#site_source").val());
-		// });
-		// $(document.body).on("change",".itemcode",function(){
-		// 	$(".sitedestination").val($("#site_destination").val());
-		// });
 
 		$(document.body).on("change","#site_source",function(){
 			//check site_destination
@@ -580,7 +630,7 @@
 			var qtytoapply = l.val();
 			var price = l.closest('tr').find(".price").val();
 			var onhand = l.closest('tr').find(".ohqty").val();
-			console.log('onhand  '+onhand);
+			// console.log('onhand  '+onhand);
 			if(price != '0' && price != '0.00')
 			{                            
 				price = removeComma(price);
@@ -594,15 +644,17 @@
 			{                            
 				qtytoapply = removeComma(qtytoapply);
 				
-				if( onhand < qtytoapply ){
-					$(this).closest('.form-group').addClass("has-error");
-					$("#submit-box button[type=submit]").prop("disabled",true);
-					$('#warning_modal #warning_message').html("<b>You cannot input a quantity greater than the Onhand.</b>");
-					$('#warning_modal').modal('show');
-				} else {
-					$(this).closest('.form-group').removeClass("has-error");
-					$("#submit-box button[type=submit]").prop("disabled",false);
-				}
+				// if( onhand < qtytoapply ){
+				// 	$(this).closest('.form-group').addClass("has-error");
+				// 	$("#submit-box button[type=submit]").prop("disabled",true);
+				// 	$('#warning_modal #warning_message').html("<b>You cannot input a quantity greater than the Onhand.</b>");
+				// 	$('#warning_modal').modal('show');
+				// } else {
+				// 	$(this).closest('.form-group').removeClass("has-error");
+				// 	$("#submit-box button[type=submit]").prop("disabled",false);
+				// }
+				$(this).closest('.form-group').removeClass("has-error");
+				$("#submit-box button[type=submit]").prop("disabled",false);
 			}
 			else
 			{             
@@ -618,8 +670,8 @@
 			l.closest('tr').find(".amount").val(addComma(amount.toFixed(2)));
 			addAmounts();
 		});
-
 	});
+
 	$('form').submit(function(e) {
 		e.preventDefault();
 		addAmounts(); 
@@ -636,8 +688,6 @@
 			$('#warning_modal').modal('show');
 		}
 	});
-
-
 
 	/**LIMIT INPUT TO NUMBERS ONLY**/
 	function isNumberKey2(evt) 
