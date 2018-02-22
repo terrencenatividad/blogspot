@@ -319,16 +319,16 @@
 				{
 					if ( ! empty($b)) 
 					{	
-						$suppliercode 	   	= htmlspecialchars(addslashes(trim($b[0])));
-						$companyname        = htmlspecialchars(addslashes(trim($b[1])));
-						$firstname        	= htmlspecialchars(addslashes(trim($b[2])));
-						$lastname           = htmlspecialchars(addslashes(trim($b[3])));
-						$address            = htmlspecialchars(addslashes(trim($b[4])));
-						$email 				= htmlspecialchars(addslashes(trim($b[5])));
-						$business 			= htmlspecialchars(addslashes(trim($b[6])));
-						$tinno 				= htmlspecialchars(addslashes(trim($b[7])));
-						$terms 				= htmlspecialchars(addslashes(trim($b[8])));
-						$contact 			= htmlspecialchars(addslashes(trim($b[9])));
+						$suppliercode 	   	= isset($b[0]) 	?	htmlspecialchars(addslashes(trim($b[0])))	: 	"";
+						$companyname        = isset($b[1]) 	?	htmlspecialchars(addslashes(trim($b[1])))	: 	"";
+						$firstname        	= isset($b[2]) 	?	htmlspecialchars(addslashes(trim($b[2])))	: 	"";
+						$lastname           = isset($b[3]) 	?	htmlspecialchars(addslashes(trim($b[3])))	: 	"";
+						$address            = isset($b[4]) 	?	htmlspecialchars(addslashes(trim($b[4])))	: 	"";
+						$email 				= isset($b[5]) 	?	htmlspecialchars(addslashes(trim($b[5])))	: 	"";
+						$business 			= isset($b[6]) 	?	htmlspecialchars(addslashes(trim($b[6])))	: 	"";
+						$tinno 				= isset($b[7]) 	?	htmlspecialchars(addslashes(trim($b[7])))	: 	"";
+						$terms 				= isset($b[8]) 	?	htmlspecialchars(addslashes(trim($b[8])))	: 	"";
+						$contact 			= isset($b[9]) 	?	htmlspecialchars(addslashes(trim($b[9])))	: 	"";
 
 						$exists = $this->supplier->check_duplicate($suppliercode);
 						$count = $exists[0]->count;
