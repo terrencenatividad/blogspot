@@ -374,7 +374,7 @@ class controller extends wc_controller {
 			}
 			if (in_array('alphanum', $checker_array)) {
 				$value = str_replace(',', '', $value);
-				if ( ! preg_match('/^[a-zA-Z0-9]*$/', $value)) {
+				if ( ! preg_match('/^[a-zA-Z0-9-_]*$/', $value)) {
 					$error['Alpha Numeric'][$field] = 'Alpha Numeric';
 				}
 			}
