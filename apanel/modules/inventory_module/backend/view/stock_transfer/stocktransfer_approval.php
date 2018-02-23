@@ -376,10 +376,10 @@
 		e.preventDefault();
 		var form_element = $(this).closest('form');
 		var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
-		// recomputeAll();
-		$('#btnRelease').attr('disabled', true);
+
 		form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
 		if (form_element.find('.form-group.has-error').length == 0) {
+			$('btnRelease').attr('disabled', false);
 			var items = 0;
 			$('.qtytransferred:not([readonly])').each(function() {
 				items += removeComma($(this).val());
@@ -388,17 +388,15 @@
 				$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
 					if (data.success) {
 						window.location = data.redirect;
-					} else {
-						$('btnRelease').attr('disabled', false);
-					}
+					} 
 				});
 			} else {
 				$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');
-				$('btnRelease').attr('disabled', false);
+				$('btnRelease').attr('disabled', true);
 			}
 		} else {
 			form_element.find('.form-group.has-error').first().find('input, textarea, select').focus();
-			$('btnRelease').attr('disabled', false);
+			$('btnRelease').attr('disabled', true);
 		}
 	});
 	

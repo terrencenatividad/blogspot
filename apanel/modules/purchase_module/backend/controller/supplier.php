@@ -327,7 +327,7 @@
 						$email 				= isset($b[5]) 	?	htmlspecialchars(addslashes(trim($b[5])))	: 	"";
 						$business 			= isset($b[6]) 	?	htmlspecialchars(addslashes(trim($b[6])))	: 	"";
 						$tinno 				= isset($b[7]) 	?	htmlspecialchars(addslashes(trim($b[7])))	: 	"";
-						$terms 				= isset($b[8]) 	?	htmlspecialchars(addslashes(trim($b[8])))	: 	"";
+						$terms 				= isset($b[8]) 	?	htmlspecialchars(addslashes(trim($b[8])))	: 	"0";
 						$contact 			= isset($b[9]) 	?	htmlspecialchars(addslashes(trim($b[9])))	: 	"";
 
 						$exists = $this->supplier->check_duplicate($suppliercode);

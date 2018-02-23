@@ -9,15 +9,11 @@
 								<span class="input-group-addon">
 									<i class="glyphicon glyphicon-calendar"></i>
 								</span>
-								<!--<input type="text" name="daterangefilter" id="daterangefilter" class="form-control" value="<?php echo $datefilter ?>" data-daterangefilter="month">-->
 							</div>
 						</div>
 					</div>
-					
-		
 					<div class="col-md-3">
 						<?php
-
 							echo $ui->formField('dropdown')
 								->setPlaceholder('Select Source')
 								->setName('warehouse')
@@ -40,11 +36,9 @@
 					</div> 
 					<div class="col-md-2">
 					</div>
-				
 					<div class="col-md-1">
 						<a href="" id="export_csv" download="Sales Report per Stock Transfer.csv" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-export"></span> Export</a>
 					</div>
-
 				</div>
 				<div class="row">
 					<div class="col-md-4 col-md-offset-8">
@@ -65,30 +59,31 @@
 						</div>
 					</div>
 				</div>
-
 			</div>
 		</div>
 
 		<div class="nav-tabs-custom">
 			<ul id="filter_tabs" class="nav nav-tabs">
-				<li class="active"><a href="all" data-toggle="tab">All</a></li>	
 				<li><a href="open" data-toggle="tab">Pending</a></li>
-				<li><a href="released" data-toggle="tab">Released</a></li>
-				<li><a href="received" data-toggle="tab">Received</a></li>
+				<li><a href="approved" data-toggle="tab">Approved</a></li>
+				<li><a href="rejected" data-toggle="tab">Rejected</a></li>
+				<li><a href="partial" data-toggle="tab">Partial</a></li>
+				<li><a href="transferred" data-toggle="tab">Transferred</a></li>
+				<li class="active"><a href="all" data-toggle="tab">All</a></li>	
 			</ul>
 			<table id = "tableList" class="table table-hover">
 				<thead>
 					<?php
-
 						echo $ui->loadElement('table')
 								->setHeaderClass('info')
 								->addHeader('',array(),'','')
-								->addHeader('Transaction Date',array(),'sort','transactiondate')
-								->addHeader('Stock Transfer No.',array(),'sort','st.stocktransferno')
-								->addHeader('Source',array(),'sort','w.description')
-								->addHeader('Destination',array(),'sort','wh.description')
-								->addHeader('Quantity',array(),'sort','qtytoapply')
-								->addHeader('Status',array(),'sort','st.stat')
+								->addHeader('Transaction Date',array(),'sort','main.date')
+								->addHeader('Request No.',array(),'sort','main.st_no')
+								->addHeader('Approval No.',array(),'sort','main.source_no')
+								->addHeader('Requesting Warehouse',array(),'sort','main.source')
+								->addHeader('Source Warehouse',array(),'sort','main.destination')
+								// ->addHeader('Quantity',array(),'sort','main.qty')
+								->addHeader('Status',array(),'sort','main.status')
 								->draw();
 						?>
 				</thead>
@@ -99,11 +94,9 @@
 			</table>
 			<div id="pagination"></div>
 		</div>
-	
 	</section>
 
 	<script>
-		// var ajax = {}
 		var ajax_call = {};
 		var ajax = filterFromURL();
 		ajax.filter = 'all';
@@ -167,6 +160,4 @@
 				getList();
 			}
 		},ajax);
-
-
 	</script>
