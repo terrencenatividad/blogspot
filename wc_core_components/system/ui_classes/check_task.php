@@ -53,6 +53,13 @@ class check_task {
 		return $this;
 	}
 
+	public function setTaskLink($links = array()) {
+		foreach ($links as $key => $link) {
+			$this->task_url->{$key} = $link;
+		}
+		return $this;
+	}
+
 	public function setValue($value) {
 		$this->value = $value;
 		return $this;
@@ -92,11 +99,11 @@ class check_task {
 					</button>
 					<ul class="dropdown-menu">';
 
-				$check_task .= ($this->view) ? '<li><a href="'. $this->url .'view/' . $this->value . '" class="btn-sm"><i class="glyphicon glyphicon-eye-open"></i> ' . $this->labels->view . '</a></li>' : '';
+				$check_task .= ($this->view) ? '<li><a href="'. $this->url . $this->task_url->view . '/' . $this->value . '" class="btn-sm"><i class="glyphicon glyphicon-eye-open"></i> ' . $this->labels->view . '</a></li>' : '';
 				
-				$check_task .= ($this->edit) ? '<li><a href="'. $this->url .'edit/' . $this->value . '" class="btn-sm"><i class="glyphicon glyphicon-pencil"></i> ' . $this->labels->edit . '</a></li>' : '';
+				$check_task .= ($this->edit) ? '<li><a href="'. $this->url . $this->task_url->edit . '/' . $this->value . '" class="btn-sm"><i class="glyphicon glyphicon-pencil"></i> ' . $this->labels->edit . '</a></li>' : '';
 				
-				$check_task .= ($this->print) ? '<li><a href="'. $this->url .'print_preview/' . $this->value . '" target="_blank" class="btn-sm"><i class="glyphicon glyphicon-print"></i> ' . $this->labels->print . '</a></li>' : '';
+				$check_task .= ($this->print) ? '<li><a href="'. $this->url . $this->task_url->print . '/' . $this->value . '" target="_blank" class="btn-sm"><i class="glyphicon glyphicon-print"></i> ' . $this->labels->print . '</a></li>' : '';
 
 				foreach ($this->addon as $addon) {
 					$class = strtolower(str_replace(' ', '_', $addon->task)) . ' ' . $addon->class;
@@ -199,6 +206,11 @@ class check_task {
 		$this->print			= false;
 		$this->cancel 			= false;
 		$this->url				= MODULE_URL;
+		$this->task_url			= (object) array(
+			'view'		=> 'view',
+			'edit'		=> 'edit',
+			'print'		=> 'print_preview'
+		);
 		$this->addon			= array();
 		$this->labels			= (object) array(
 			'save'		=> 'Save',
