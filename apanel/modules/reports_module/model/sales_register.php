@@ -106,10 +106,11 @@
 	
 			$result 	=	$this->db->setTable('deliveryreceipt main')
 									 ->setFields($fields)
-									 ->setWhere(" stat IN ('Cancelled','With Invoice') ")
+									 ->setWhere(" stat IN ('Cancelled','With Invoice') ".$condition)
 									 ->setGroupBy('stat')
 									 ->runSelect()
 									 ->getResult();
+									//  echo $this->db->getQuery();
 			return $result;				 
 
 		}
