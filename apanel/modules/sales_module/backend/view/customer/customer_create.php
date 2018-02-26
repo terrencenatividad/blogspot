@@ -16,6 +16,7 @@
 								->setName('partnercode')
 								->setId('partnercode')
 								->setValidation('required code')
+								->addHidden((isset($task) && $task == 'update'))
 								->setValue($partnercode)
 								->draw((isset($task) && $task == 'add'));
 						?>

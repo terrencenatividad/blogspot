@@ -72,8 +72,12 @@
 						<div class="list-group">
 							<a href="sales_report" class="list-group-item">
 								<h4 class="list-group-item-heading">Sales Report</h4>
-								<p class="list-group-item-text">List of sales transactions in a given period</p>
+								<p class="list-group-item-text">List of sales transactions in a per month and per year basis</p>
 							</a>
+							<!-- <a href="sales_register" class="list-group-item">
+								<h4 class="list-group-item-heading">Sales Register</h4>
+								<p class="list-group-item-text">List of sales transactions in a given period</p>
+							</a> -->
 							<a href="sales_customer" class="list-group-item">
 								<h4 class="list-group-item-heading">Sales Report per Customer</h4>
 								<p class="list-group-item-text">List of sales transactions per customer in a given period</p>

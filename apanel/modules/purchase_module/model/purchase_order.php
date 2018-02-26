@@ -43,9 +43,9 @@
 
 		public function retrieveItemDetails($itemcode)
 		{
-			$fields = "i.itemname as itemname, i.itemdesc as itemdesc, i.weight as weight , i.uom_base, p.price_average as price, u.uomcode as uomcode";
-			$cond 	= "p.itemcode = '$itemcode'";
-			$order 	= "p.linenum DESC";
+			$fields = "i.itemname as itemname, i.itemdesc as itemdesc, i.weight as weight , i.uom_base, COALESCE(p.price_average,0) as price, u.uomcode as uomcode";
+			$cond 	= "i.itemcode = '$itemcode'";
+			// $order 	= "p.linenum DESC";
 
 			$result = $this->db->setTable('items i')
 								->leftJoin('uom u ON u.uomcode = i.uom_purchasing AND u.companycode = i.companycode')
@@ -55,7 +55,7 @@
 								->setLimit('1')
 								->runSelect()
 								->getRow();
-
+			// echo $this->db->getQuery();
 			return $result;
 		}
 
