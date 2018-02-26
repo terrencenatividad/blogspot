@@ -46,7 +46,7 @@
 			
 			$fields			=	array('main.transactiondate','main.voucherno','customer.partnername company','main.amount');
 
-			$condition 		.=	($customer!="none" && $customer != "") 	?  "AND main.partnercode = '$customer'" 	: 	"";	
+			$condition 		.=	($customer!="none" && $customer != "") 	?  "AND main.customer = '$customer'" 	: 	"";	
 			
 			if ($start && $end){
 				$condition .=  "AND main.transactiondate >= '$start' AND main.transactiondate <= '$end' ";
@@ -71,7 +71,7 @@
 
 			$fields			=	array('SUM(main.amount) amount');
 
-			$condition 		.=	($customer!="none" && $customer != "") 	?  "AND main.partnercode = '$customer'" 	: 	"";	
+			$condition 		.=	($customer!="none" && $customer != "") 	?  "AND main.customer = '$customer'" 	: 	"";	
 			
 			if ($start && $end){
 				$condition .=  "AND main.transactiondate >= '$start' AND main.transactiondate <= '$end' ";
@@ -98,7 +98,7 @@
 
 			$fields			=	array('stat, COUNT(*) total');
 
-			$condition 		.=	($customer!="none" && $customer != "") 	?  "AND main.partnercode = '$customer'" 	: 	"";	
+			$condition 		.=	($customer!="none" && $customer != "") 	?  "AND main.customer = '$customer'" 	: 	"";	
 			
 			if ($start && $end){
 				$condition .=  "AND main.transactiondate >= '$start' AND main.transactiondate <= '$end' ";
@@ -125,7 +125,7 @@
 
 			$fields			=	array('main.transactiondate','main.voucherno','customer.partnername company','main.amount');
 
-			$condition 		.=	($customer!="none" && $customer != "") 	?  "AND main.partnercode = '$customer'" 	: 	"";	
+			$condition 		.=	($customer!="none" && $customer != "") 	?  "AND main.customer = '$customer'" 	: 	"";	
 			
 			if ($start && $end){
 				$condition .=  "AND main.transactiondate >= '$start' AND main.transactiondate <= '$end' ";
@@ -138,60 +138,6 @@
 									 ->runSelect()
 									 ->getResult();
 			return $result;	
-		}
-
-		public function getYearList() {
-			$year_list	= array();
-			$year_now	= date('Y');
-			for ($year = $year_now; $year > $year_now - 5; $year--) {
-				$year_list[$year] = $year;
-			}
-			return $year_list;
-		}
-
-		public function getDaily($data){
-
-			$month 		=	isset($data['month']) 	?	trim($data['month']) 	: 	"";
-			$year 		=	isset($data['year']) 	?	trim($data['year']) 	: 	"";
-			$customer 	=	isset($data['customer'])? 	trim($data['customer']) : 	"";
-			
-			$condition 	= " (si.voucherno != '' AND si.voucherno != '-')  AND si.stat NOT IN ('temporary', 'cancelled') ";
-			$condition .= (!empty($data) && !empty($year)) 	? 	" AND ( MONTH(si.transactiondate) = '$month' AND YEAR(si.transactiondate) = '$year') "	: 	"";
-			$condition .= (!empty($customer)) 	? 	" AND sect.partnercode =  '$customer'"	: 	"";
-            $fields     =   array('si.transactiondate as date','si.voucherno invoice','ar.voucherno ar','si.amount as totalamount, si.referenceno reference');
-
-            $result = $this->db->setTable("salesinvoice as si")
-								->leftJoin('accountsreceivable ar ON ar.invoiceno = si.voucherno AND si.companycode = ar.companycode')
-                                ->leftJoin('partners as sect ON sect.partnercode = si.customer AND sect.partnertype = "customer" ') 
-                                ->setFields($fields)
-								->setWhere($condition)
-								->setGroupBy('si.voucherno')
-								->runPagination();
-									
-			return $result;
-		}
-
-		public function export_daily($data){
-
-			$month 		=	isset($data['month']) 	?	trim($data['month']) 	: 	"";
-			$year 		=	isset($data['year']) 	?	trim($data['year']) 	: 	"";
-			$customer 	=	isset($data['customer'])? 	trim($data['customer']) : 	"";
-			
-			$condition 	= " (si.voucherno != '' AND si.voucherno != '-')  AND si.stat NOT IN ('temporary', 'cancelled') ";
-			$condition .= (!empty($data) && !empty($year)) 	? 	" AND ( MONTH(si.transactiondate) = '$month' AND YEAR(si.transactiondate) = '$year') "	: 	"";
-			$condition .= (!empty($customer)) 	? 	" AND sect.partnercode =  '$customer'"	: 	"";
-			$fields     =   array('si.transactiondate as date','si.voucherno invoice','ar.voucherno ar','si.amount as totalamount, si.referenceno reference');
-
-			$result = $this->db->setTable("salesinvoice as si")
-								->leftJoin('accountsreceivable ar ON ar.invoiceno = si.voucherno AND si.companycode = ar.companycode')
-								->leftJoin('partners as sect ON sect.partnercode = si.customer AND sect.partnertype = "customer" ') 
-								->setFields($fields)
-								->setWhere($condition)
-								->setGroupBy('si.voucherno')
-								->runSelect()
-								->getResult();
-								
-			return $result;
 		}
     }
 

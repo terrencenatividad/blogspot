@@ -87,7 +87,7 @@ class controller extends wc_controller {
 			$table 			.=  '</tr>';
 		} else {
 			$table 			.=	"<tr>";
-			$table 			.=  "<td colspan='3' class='text-center'>No Records Found</td>";
+			$table 			.=  "<td colspan='4' class='text-center'>No Records Found</td>";
 			$table 			.=  '</tr>';	
 		}
 
@@ -133,70 +133,6 @@ class controller extends wc_controller {
 		$table 			.=	'"Total Sales Delivery Issued","","'.$issuedDR.'"';
 		$table 			.= "\n";	
 		$table 			.=	'"Total Sales Delivery Cancelled","","'.$cancelledDR.'"';
-
-		return $table;
-	}
-
-	public function daily_listing(){
-		$data = $this->input->post(array('month','customer','year'));
-		$pagination = $this->report->getDaily($data);
-
-		$table = '';
-		$totalamount 	=	0;
-		if (empty($pagination->result)) {
-			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
-		}
-		foreach ($pagination->result as $key => $row) {
-			$totalamount 	+= 	$row->totalamount;
-			$table .= '<tr>';
-			$table .= '<td>' . $this->date->dateFormat($row->date) . '</td>' ;
-			$table .= '<td><a href="'.BASE_URL.'sales/sales_invoice/view/' . $row->invoice . '">' . $row->invoice . '</a></td>';
-			$table .= '<td>' . $row->reference . '</td>' ;
-			$table .= '<td><a href="'.BASE_URL.'financials/accounts_receivable/view/' . $row->ar . '">'.$row->ar.'</a></td>';
-			$table .= '<td class="text-right">' . number_format($row->totalamount,2) . '</td>';
-			$table .= '</tr>';
-		}
-		$table .= '<tr>';
-		$table .= '<td colspan="3"></td>';
-		$table .= '<td ><strong>Total</strong></td>';
-		$table .= '<td class="text-right"><strong>' . number_format($totalamount,2) . '</strong></td>';
-		$table .= '</tr>';
-		$pagination->table = $table;
-		$pagination->csv = $this->generateDailyCSV();
-		return $pagination;
-	}
-
-	private function generateDailyCSV() {
-		$data = $this->input->post(array('month','customer','year'));
-
-		$customer_code 	= $data['customer'];
-
-		$ret_details 	= $this->report->retrieveCustomerDetails($customer_code);
-
-		$list = $this->report->export_daily($data);
-		
-		$header 	=	array('Date','Sales Invoice No.','Reference','AR No.','Amount');
-		
-		$totalamount=	0;
-
-		$table = '';
-		$table .= '"Customer : ","'.$ret_details->name.'"';
-		$table .= "\n";
-		$table .= '"Address : ","'.$ret_details->address1.'"';
-		$table .= "\n\n";
-		$table .= '"' . implode('","', $header) . '"';
-		$table .= "\n";
-		foreach ($list as $key => $row) {
-			$totalamount 	+= 	$row->totalamount;
-			$table .= '"'.$this->date->dateFormat($row->date).'",';
-			$table .= '"'.$row->invoice.'",';
-			$table .= '"'.$row->reference.'",';
-			$table .= '"'.$row->ar.'",';
-			$table .= '"'.number_format($row->totalamount,2).'"';
-			$table .= "\n";
-		}
-
-		$table .= '"","","","Total","'.number_format($totalamount,2).'"';
 
 		return $table;
 	}
