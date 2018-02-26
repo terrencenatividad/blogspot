@@ -108,7 +108,7 @@
 			<div class="nav-tabs-custom box box-gray"  >
 				<div class="col-md-10">
 					<label class='form-label'>
-						<h4 class='bold'>Transferred Documents</h4>
+						<h4 class='bold'>Stock Transfer Transmittal</h4>
 					</label>
 				</div>
 				<div class="col-md-2 text-right" style="padding:10px;vertical-align:middle">
@@ -121,7 +121,7 @@
 						<thead>
 							<tr class="info">
 								<th class="text-center" style="width: 100px"></th>
-								<th>Approval No.</th>
+								<th>Transfer No.</th>
 								<th>Request No.</th>
 								<th>Requesting Warehouse</th>
 								<th>Source Warehouse</th>

@@ -500,9 +500,10 @@
 
 			$result = $this->db->setTable("stock_approval sa")
 						->setFields("DATE_FORMAT(sa.transactiondate, '%b %d, %Y') transactiondate, DATE_FORMAT(sa.transferdate, '%b %d, %Y') transferdate, sa.stocktransferno,w.description as source,w2.description as destination,
-						sa.approved_by,sa.remarks,sa.total_amount,sa.stat, sa.source_no, sa.enteredby")
+						sa.approved_by,sa.remarks,sa.total_amount,sa.stat, sa.source_no, sa.enteredby, trans.stat request_stat")
 						->leftJoin("warehouse w ON w.warehousecode = sa.source AND w.companycode = sa.companycode")
 						->leftJoin("warehouse w2 ON w2.warehousecode = sa.destination AND w2.companycode = sa.companycode")
+						->leftJoin("stock_transfer trans ON trans.stocktransferno = sa.source_no AND trans.companycode = sa.companycode")
 						->setWhere($condition)
 						->setOrderBy('sa.stocktransferno DESC')
 						->runPagination();
