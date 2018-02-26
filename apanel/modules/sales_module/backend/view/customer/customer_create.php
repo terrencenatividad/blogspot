@@ -17,7 +17,7 @@
 								->setId('partnercode')
 								->setValidation('required code')
 								->setValue($partnercode)
-								->draw($show_input);
+								->draw((isset($task) && $task == 'add'));
 						?>
 					</div>
 				</div>

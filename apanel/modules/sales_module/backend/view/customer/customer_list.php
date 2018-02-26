@@ -297,8 +297,9 @@ function ajaxCallback(id) {
 		}
 		else
 		{
-			// Call function to display error_get_last
-			show_error(data.msg);
+			$('#warning_modal #warning_message').html('<p>Unable to delete Customer: Customer in Use</p>');
+			$('#warning_modal #warning_message').append('<p>Customer Code: ' + id + '</p>');
+			$('#warning_modal').modal('show');
 		}
 	});
 
