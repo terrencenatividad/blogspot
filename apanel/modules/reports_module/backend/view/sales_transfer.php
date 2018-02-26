@@ -15,7 +15,7 @@
 					<div class="col-md-3">
 						<?php
 							echo $ui->formField('dropdown')
-								->setPlaceholder('Select Source')
+								->setPlaceholder('Requesting Warehouse')
 								->setName('warehouse')
 								->setId('warehouse1')
 								->setList($warehouse_list)
@@ -26,7 +26,7 @@
 					<div class="col-md-3">
 						<?php
 							echo $ui->formField('dropdown')
-								->setPlaceholder('Select Destination')
+								->setPlaceholder('Source Warehouse')
 								->setName('warehouse')
 								->setId('warehouse2')
 								->setList($warehouse_list)
@@ -78,8 +78,8 @@
 								->setHeaderClass('info')
 								->addHeader('',array(),'','')
 								->addHeader('Transaction Date',array(),'sort','main.date')
-								->addHeader('Request No.',array(),'sort','main.st_no')
 								->addHeader('Approval No.',array(),'sort','main.source_no')
+								->addHeader('Transfer No.',array(),'sort','main.st_no')
 								->addHeader('Requesting Warehouse',array(),'sort','main.source')
 								->addHeader('Source Warehouse',array(),'sort','main.destination')
 								// ->addHeader('Quantity',array(),'sort','main.qty')
