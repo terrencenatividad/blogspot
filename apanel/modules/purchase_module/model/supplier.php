@@ -70,20 +70,19 @@
 
 			for($i = 0; $i < count($id_array); $i++)
 			{
-				$partnercode 	= $id_array[$i];
+				$partnercode 	=	$id_array[$i];
 
-				$condition 		= " partnercode = '$partnercode' AND partnertype = 'supplier' ";
-					
+				$condition 		= " partnercode = '$partnercode' AND partnertype = 'supplier' AND stat = 'active' ";
+				
 				$result 		= $this->db->setTable('partners')
-											->setWhere($condition)
-											->runDelete();
-
-				$error = $this->db->getError();
+										->setWhere($condition)
+										->runDelete();
+				$error 			= $this->db->getError();
 
 				if ($error == 'locked') {
-					$errmsg[]  = "<p class = 'no-margin'>Canbcelling Supplier: $partnercode</p>";
+					$errmsg[]  = "<p class = 'no-margin'>Deleting Customer: $partnercode . There are existing transactions for this customer.</p>";
 				}
-
+			
 			}
 			
 			return $errmsg;
@@ -109,6 +108,7 @@
 							->setWhere(" partnercode = '$code'  AND partnertype = 'supplier' ")
 							->runSelect()
 							->getResult();
+							echo $this->db->getQuery();
 		}
 
 		public function export($search, $sort)

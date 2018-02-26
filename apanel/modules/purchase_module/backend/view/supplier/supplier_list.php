@@ -291,8 +291,9 @@ function ajaxCallback(id) {
 		}
 		else
 		{
-			// Call function to display error_get_last
-			show_error(data.msg);
+			$('#warning_modal #warning_message').html('<p>Unable to delete Supplier: Supplier in Use</p>');
+			$('#warning_modal #warning_message').append('<p>Supplier Code: ' + id + '</p>');
+			$('#warning_modal').modal('show');
 		}	
 	});
 }

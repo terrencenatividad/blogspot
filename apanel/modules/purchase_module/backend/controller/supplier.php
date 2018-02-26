@@ -199,7 +199,7 @@
 			$id_array 		= array('id');
 			$id       		= $this->input->post($id_array);
 			
-			$result 		= $this->supplier->Supplier($id);
+			$result 		= $this->supplier->deleteSupplier($id);
 
 			if( empty($result) )
 			{
