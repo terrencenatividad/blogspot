@@ -69,6 +69,8 @@
 				<li><a href="rejected" data-toggle="tab">Rejected</a></li>
 				<li><a href="partial" data-toggle="tab">Partial</a></li>
 				<li><a href="transferred" data-toggle="tab">Transferred</a></li>
+				<li><a href="posted" data-toggle="tab">Ready for Tagging</a></li>
+				<li><a href="closed" data-toggle="tab">Closed</a></li>
 				<li class="active"><a href="all" data-toggle="tab">All</a></li>	
 			</ul>
 			<table id = "tableList" class="table table-hover">
@@ -78,7 +80,7 @@
 								->setHeaderClass('info')
 								->addHeader('',array(),'','')
 								->addHeader('Transaction Date',array(),'sort','main.date')
-								->addHeader('Approval No.',array(),'sort','main.source_no')
+								->addHeader('Request No.',array(),'sort','main.source_no')
 								->addHeader('Transfer No.',array(),'sort','main.st_no')
 								->addHeader('Requesting Warehouse',array(),'sort','main.source')
 								->addHeader('Source Warehouse',array(),'sort','main.destination')

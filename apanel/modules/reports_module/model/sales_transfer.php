@@ -28,6 +28,10 @@
 				$condition .= "AND status = 'rejected'";
 			} else if ($filter == 'approved'){
 				$condition .= "AND status = 'approved'";
+			} else if ($filter == 'closed'){
+				$condition .= "AND status = 'closed'";
+			} else if ($filter == 'posted'){
+				$condition .= "AND status = 'posted'";
 			}
 
 			$sub = "SELECT st.stat status, st.stocktransferno st_no ,  st.transactiondate date, w.description source,  wh.description destination,SUM( std.qtytoapply ) qty, '' source_no,
@@ -40,12 +44,12 @@
 			LEFT JOIN stock_transfer_details std ON st.stocktransferno = std.stocktransferno
 			LEFT JOIN stock_approval sa ON st.stocktransferno = sa.source_no
 			AND std.companycode = st.companycode
-			WHERE st.stat != 'cancelled' AND st.stat != 'posted'  
+			WHERE st.stat != 'cancelled'  
 			GROUP BY st.stocktransferno 
 
 			UNION 
 
-			SELECT st.stat status, st.stocktransferno st_no ,  st.transactiondate date, w.description source,  wh.description destination,SUM( std.qtytoapply ) qty, st.source_no,st.companycode
+			SELECT st.stat status, st.source_no  ,  st.transactiondate date, w.description source,  wh.description destination,SUM( std.qtytoapply ) qty, st.stocktransferno st_no ,st.companycode
 			FROM stock_approval st
 			LEFT JOIN warehouse w ON w.warehousecode = st.source
 			AND w.companycode = st.companycode
@@ -61,6 +65,7 @@
 						->setWhere($condition)
 						->setOrderBy($sort)
 						->runPagination();
+						// echo $this->db->getQuery();
 			return $result;
 		}
 
@@ -92,6 +97,10 @@
 				$condition .= "AND status = 'rejected'";
 			} else if ($filter == 'approved'){
 				$condition .= "AND status = 'approved'";
+			} else if ($filter == 'closed'){
+				$condition .= "AND status = 'closed'";
+			} else if ($filter == 'posted'){
+				$condition .= "AND status = 'posted'";
 			}
 
 			$sub = "SELECT st.stat status, st.stocktransferno st_no ,  st.transactiondate date, w.description source,  wh.description destination,SUM( std.qtytoapply ) qty, '' source_no,
@@ -104,12 +113,12 @@
 			LEFT JOIN stock_transfer_details std ON st.stocktransferno = std.stocktransferno
 			LEFT JOIN stock_approval sa ON st.stocktransferno = sa.source_no
 			AND std.companycode = st.companycode
-			WHERE st.stat != 'cancelled' AND st.stat != 'posted'  
+			WHERE st.stat != 'cancelled'  
 			GROUP BY st.stocktransferno 
 
 			UNION 
 
-			SELECT st.stat status, st.stocktransferno st_no ,  st.transactiondate date, w.description source,  wh.description destination,SUM( std.qtytoapply ) qty, st.source_no,st.companycode
+			SELECT st.stat status, st.source_no  ,  st.transactiondate date, w.description source,  wh.description destination,SUM( std.qtytoapply ) qty, st.stocktransferno st_no ,st.companycode
 			FROM stock_approval st
 			LEFT JOIN warehouse w ON w.warehousecode = st.source
 			AND w.companycode = st.companycode

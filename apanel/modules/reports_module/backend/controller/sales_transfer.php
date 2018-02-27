@@ -67,36 +67,31 @@ class controller extends wc_controller {
 			}
 			else if( $row->status == 'rejected' ) {	
 				$status = '<span class="label label-danger">REJECTED</span>';
-			} else if( $row->status == 'approved' ) {	
+			} 
+			else if( $row->status == 'closed' ) {	
+				$status = '<span class="label label-primary">CLOSED</span>';
+			}
+			else if( $row->status == 'approved' ) {	
 				$status = '<span class="label label-warning">APPROVED</span>';
+			}
+			else if( $row->status == 'posted' ) {	
+				$status = '<span class="label label-default">READY FOR TAGGING</span>';
 			}
 			
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
-						->addView()
 						->addPrint();
-						if ($row->source_no != ""){
-							$dropdown->setTaskLink(array('view' => 'view_approval','print' => 'print_approval'));
-						}else{
-							$dropdown->setTaskLink(array('view' => 'view','print' => 'print_preview'));
-						}
 						$dropdown = $dropdown->setModuleURL('inventory/stock_transfer')
 						->setValue($row->st_no)
 						->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->date) . '</td>';
 			$link 	= '';
-			if ($row->source_no != ""){
-				$link .= 'view_approval';
-			}else{
-				$link .= 'view';
-			}
-			$table .= '<td><a href="'.BASE_URL.'inventory/stock_transfer/'.$link.'/' . $row->st_no . '">' . $row->st_no . '</a></td>';
-
-			$table .= '<td>' . $row->source_no . '</td>';
+			$link .= 'view';
+			$table .= '<td><a href="'.BASE_URL.'inventory/stock_transfer/view/' . $row->st_no . '">' . $row->st_no . '</a></td>';
+			$table .= '<td><a href="'.BASE_URL.'inventory/stock_transfer/view_approval/' . $row->source_no. '">' . $row->source_no . '</a></td>';
 			$table .= '<td>' . $row->source . '</td>';
 			$table .= '<td>' . $row->destination . '</td>';
-			// $table .= '<td>' . number_format($row->qty,0) . '</td>';
 			$table .= '<td>' . $status. '</td>';
 			$table .= '</tr>';
 		}
@@ -123,7 +118,7 @@ class controller extends wc_controller {
 		$start = $dates[0];
 		$end = $dates[1];
 		$result = $this->sales_stock->fileExport($start, $end, $warehouse1, $warehouse2, $limit , $filter, $sort);
-		$header = array("Transaction Date","Request No.","Approval No.","Requesting Warehouse","Source Warehouse","Status");
+		$header = array("Transaction Date","Request No.","Transfer No.","Requesting Warehouse","Source Warehouse","Status");
 
 		$csv = '';
 		$csv = '"' . implode('","', $header) . '"';
@@ -142,9 +137,17 @@ class controller extends wc_controller {
 				}
 				else if( $row->status == 'rejected' ) {	
 					$status = 'REJECTED';
-				} else if( $row->status == 'approved' ) {	
+				} 
+				else if( $row->status == 'approved' ) {	
 					$status = 'APPROVED';
 				}
+				else if( $row->status == 'closed' ) {	
+					$status = 'CLOSED';
+				}
+				else if( $row->status == 'posted' ) {	
+					$status = 'READY FOR TAGGING';
+				}
+
 				$csv .= '"' . $this->date->dateFormat($row->date) . '",';
 				$csv .= '"' . $row->st_no . '",';
 				$csv .= '"' . $row->source_no . '",';
