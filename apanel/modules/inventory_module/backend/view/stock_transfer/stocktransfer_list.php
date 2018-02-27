@@ -342,12 +342,19 @@
 				getList();
 			});
 		}
-		
+
+		function close_request(transferno){
+			$.post('<?=MODULE_URL?>ajax/update_request_status', 'transferno=' + transferno + "&status=closed", function(data) {
+				window.location = '<?=MODULE_URL;?>';
+			});	
+		}
+
 		$(function() {
 			linkCancelToModal('#transfer_out .delete','ajaxCallback');
 			linkCancelToModal('#transfer_in .delete_approval','cancel_approval');			
 			createConfimationLink('#transfer_out .approve', 'approve_request', 'Are you sure you want to Approve this Request?');
 			createConfimationLink('#transfer_out .reject', 'reject_request', 'Are you sure you want to Reject this Request?');
+			createConfimationLink('#transfer_out .close_request', 'close_request', 'Are you sure you want to Close this Request?');
 		});
 
 		$('#transfertype').on('change',function(){

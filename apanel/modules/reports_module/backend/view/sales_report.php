@@ -86,7 +86,7 @@
 			<div class="modal-body">
 				<div class="row">
 					<div class="col-md-8">
-						<p><span><strong>Customer:  </strong></span><span id="current_vendor"></span></p>
+						<p><span><strong>Customer:  </strong></span><span id="current_customer"></span></p>
 						<p><span><strong>Address:  </strong></span><span id="current_address"></span></p>
 					</div>
 					<div class="col-md-4">

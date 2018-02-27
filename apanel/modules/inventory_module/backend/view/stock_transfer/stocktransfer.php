@@ -421,9 +421,16 @@
 		});	
 	}
 
+	function close_request(transferno){
+		$.post('<?=MODULE_URL?>ajax/update_request_status', 'transferno=' + transferno + "&status=rejected", function(data) {
+			window.location = '<?=MODULE_URL;?>';
+		});	
+	}
+
 	$(function(){
 		createConfimationLink('.approve', 'approve_request', 'Are you sure you want to Approve this Request?');
 		createConfimationLink('.reject', 'reject_request', 'Are you sure you want to Reject this Request?');
+		createConfimationLink('.close_request', 'close_request', 'Are you sure you want to Close this Request?');
 	});
 
 

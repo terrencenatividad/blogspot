@@ -447,7 +447,7 @@
 
 		public function getStockTransferRequestList($search,$filter, $startdate, $enddate, $warehouse, $type) 
 		{
-			$condition = "st.stat NOT IN ('posted','temporary','cancelled') ";
+			$condition = "st.stat NOT IN ('closed','temporary','cancelled') ";
 			if ($search) {
 				$condition .= ' AND ' . $this->generateSearch($search, array('st.stocktransferno'));
 			}

@@ -479,6 +479,7 @@ class controller extends wc_controller
 								 ->addOtherTask('Transfer Stocks', 'open',($stat == 'approved' || $stat == 'partial'))
 								 ->addOtherTask('Approve', 'thumbs-up', $stat == 'open')
 								 ->addOtherTask('Reject', 'thumbs-down', $stat == 'open')
+								 ->addOtherTask('Close Request', 'bookmark', $stat == 'posted')
 								 ->addDelete(($stat == 'open') &&  ($enteredby == $this->user))
 								 ->addPrint($stat != "rejected")
 								 ->setValue($stocktransferno)
@@ -488,7 +489,7 @@ class controller extends wc_controller
 			$status = '';
 
 			if( $stat == 'posted' ) {
-				$status = '<span class="label label-success">COMPLETE</span>';
+				$status = '<span class="label label-default">READY FOR CLOSING</span>';
 			} else if( $stat == 'open' || $stat == 'request' ) {
 				$status = '<span class="label bg-purple">PENDING</span>';
 			} else if( $stat == 'approved' ) {
@@ -529,10 +530,10 @@ class controller extends wc_controller
 
 			$dropdown = $this->ui->loadElement('check_task')
 								 ->addOtherTask('View','eye-open',true,'view_approval')
-								 ->addOtherTask('Edit','pencil',($request_stat != 'posted' &&  ($enteredby == $this->user)),'edit_approval')
+								 ->addOtherTask('Edit','pencil',($request_stat != 'closed' &&  ($enteredby == $this->user)),'edit_approval')
 								 ->addOtherTask('Print','print',true,'print_approval')
 								//  ->addDelete(($stat != 'posted') &&  ($enteredby == $this->user))
-								 ->addOtherTask('Cancel','trash',($request_stat != 'posted') &&  ($enteredby == $this->user),'delete_approval') 
+								 ->addOtherTask('Cancel','trash',($request_stat != 'closed') &&  ($enteredby == $this->user),'delete_approval') 
 								 ->setValue($stocktransferno)
 								 ->draw();
 			$status = '';
