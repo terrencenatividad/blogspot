@@ -7,12 +7,15 @@
 			if ($start && $end) {
 				$condition .= " main.date >= '$start' AND main.date <= '$end'";
 			}
+			// if ($warehouse1 == 'none'  || $warehouse2 == 'none'){
+			// 	$condition 	.=  '';
+			// }
 
-			if ($warehouse1) {
+			if ($warehouse1 && $warehouse1 != 'none') {
 				$condition .= "AND main.source  = '$warehouse1'";
 			}
 
-			if ($warehouse2) {
+			if ($warehouse2 && $warehouse2 != 'none') {
 				$condition .= "AND main.destination = '$warehouse2'";
 			}
 
@@ -77,12 +80,12 @@
 				$condition 	.= " main.date >= '$start' AND main.date <= '$end'";
 			}
 
-			if ($warehouse1) {
-				$condition 	.= "AND main.source  = '$warehouse1'";
+			if ($warehouse1 && $warehouse1 != 'none') {
+				$condition .= "AND main.source  = '$warehouse1'";
 			}
 
-			if ($warehouse2) {
-				$condition 	.= "AND main.destination = '$warehouse2'";
+			if ($warehouse2 && $warehouse2 != 'none') {
+				$condition .= "AND main.destination = '$warehouse2'";
 			}
 
 			if ($filter == 'all') {

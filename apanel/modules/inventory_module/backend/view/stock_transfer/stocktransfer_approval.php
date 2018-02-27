@@ -172,7 +172,7 @@
 					<?php elseif ($task == "received"): ?>	
 							<button type="button" id="btnReceive" class="btn btn-success btn-sm btn-flat">Receive</button>
 					<? endif; ?>	
-						<a href="<?=MODULE_URL?>" class="btn btn-default">Cancel</a>
+						<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
 					</div>
 				</div>
 			</div>

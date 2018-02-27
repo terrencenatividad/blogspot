@@ -81,8 +81,15 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 						->addPrint();
+						if ($row->source_no != ""){
+							$dropdown->setTaskLink(array('print' => 'print_approval'))
+							->setValue($row->source_no);
+						} else {
+							$dropdown->setTaskLink(array('print' => 'print_preview'))
+							->setValue($row->st_no);
+						}
 						$dropdown = $dropdown->setModuleURL('inventory/stock_transfer')
-						->setValue($row->st_no)
+						// ->setValue($row->st_no)
 						->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->date) . '</td>';

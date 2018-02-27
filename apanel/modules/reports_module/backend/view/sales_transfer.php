@@ -18,6 +18,7 @@
 								->setPlaceholder('Requesting Warehouse')
 								->setName('warehouse')
 								->setId('warehouse1')
+								->setNone('All')
 								->setList($warehouse_list)
 								->setValue($warehouse)
 								->draw($show_input);
@@ -29,6 +30,7 @@
 								->setPlaceholder('Source Warehouse')
 								->setName('warehouse')
 								->setId('warehouse2')
+								->setNone('All')
 								->setList($warehouse_list)
 								->setValue($warehouse)
 								->draw($show_input);
