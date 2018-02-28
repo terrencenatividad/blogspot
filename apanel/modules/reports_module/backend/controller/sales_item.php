@@ -121,7 +121,7 @@ class controller extends wc_controller {
 
 		if ($pagination->page_limit > 1) {
 			$tabledetails .= '<tr class="success">
-								<td colspan="6" class="text-center">Page ' . $pagination->page . ' of ' . $pagination->page_limit . '</td>
+								<td colspan="7" class="text-center">Page ' . $pagination->page . ' of ' . $pagination->page_limit . '</td>
 							</tr>';
 		}
 
