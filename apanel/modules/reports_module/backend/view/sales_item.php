@@ -12,9 +12,9 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-md-5">
+					<div class="col-md-7">
 						<div class="row">
-							<div class="col-md-6">
+							<div class="col-md-4">
 								<?php
 									echo $ui->formField('dropdown')
 											->setPlaceholder('Filter Item')
@@ -25,20 +25,31 @@
 											->draw();
 								?>
 							</div>
-							<div class="col-md-6">
+							<div class="col-md-4">
 								<?php
-									// echo $ui->formField('dropdown')
-									// 		->setPlaceholder('Filter Category and Child')
-									// 		->setName('category')
-									// 		->setId('category')
-									// 		->setNone('Filter: All')
-									// 		->setList($category_list)
-									// 		->draw();
+									echo $ui->formField('dropdown')
+											->setPlaceholder('Customer')
+											->setName('customer')
+											->setId('customer')
+											->setNone('Filter: All')
+											->setList($customer_list)
+											->draw();
+								?>
+							</div>
+							<div class="col-md-4">
+								<?php
+									echo $ui->formField('dropdown')
+											->setPlaceholder('Warehouse')
+											->setName('warehouse')
+											->setId('warehouse')
+											->setNone('Filter: All')
+											->setList($warehouse_list)
+											->draw();
 								?>
 							</div>
 						</div>
 					</div>
-					<div class="col-md-4 text-right">
+					<div class="col-md-2 text-right">
 						<div class="form-group">
 							<?php
 								echo $ui->setElement('button')
@@ -140,6 +151,18 @@
 		$('#itemcode').on('change', function() {
 			ajax.page = 1;
 			ajax.itemcode = $(this).val();
+			getList();
+		});
+
+		$('#customer').on('change', function() {
+			ajax.page = 1;
+			ajax.customer = $(this).val();
+			getList();
+		});
+
+		$('#warehouse').on('change', function() {
+			ajax.page = 1;
+			ajax.warehouse = $(this).val();
 			getList();
 		});
 

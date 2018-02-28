@@ -1,23 +1,23 @@
 <?php
 class sales_item_model extends wc_model {
 
-	public function getSalesPagination($category, $itemcode, $sort, $start, $end) {
-		$result	= $this->getQueryDetails($category, $itemcode, $sort, $start, $end)
+	public function getSalesPagination($category, $itemcode, $customer, $warehouse, $sort, $start, $end) {
+		$result	= $this->getQueryDetails($category, $itemcode, $customer, $warehouse, $sort, $start, $end)
 						->runPagination();
 
 		return $result;
 	}
 
-	public function getSales($category, $itemcode, $sort, $start, $end) {
-		$result	= $this->getQueryDetails($category, $itemcode, $sort, $start, $end)
+	public function getSales($category, $itemcode, $customer, $warehouse, $sort, $start, $end) {
+		$result	= $this->getQueryDetails($category, $itemcode, $customer, $warehouse, $sort, $start, $end)
 						->runSelect()
 						->getResult();
 
 		return $result;
 	}
 
-	public function getSalesTotal($category, $itemcode, $start, $end) {
-		$result	= $this->getQueryDetails($category, $itemcode, '', $start, $end)
+	public function getSalesTotal($category, $itemcode, $customer, $warehouse, $start, $end) {
+		$result	= $this->getQueryDetails($category, $itemcode, $customer, $warehouse, '', $start, $end)
 						->setGroupBy('')
 						->runSelect()
 						->getRow();
@@ -25,10 +25,16 @@ class sales_item_model extends wc_model {
 		return $result;
 	}
 
-	private function getQueryDetails($category, $itemcode, $sort, $start, $end) {
+	private function getQueryDetails($category, $itemcode, $customer, $warehouse, $sort, $start, $end) {
 		$condition = '';
 		if ($itemcode && $itemcode != 'none') {
-			$condition = " AND i.itemcode = '$itemcode'";
+			$condition .= " AND i.itemcode = '$itemcode'";
+		}
+		if ($customer && $customer != 'none') {
+			$condition .= " AND iq.customer = '$customer'";
+		}
+		if ($warehouse && $warehouse != 'none') {
+			$condition .= " AND iq.warehouse = '$warehouse'";
 		}
 		$sort = ($sort) ? str_replace('+', ' ', $sort) : '';
 		if ($category == '' || $category == 'none') {
@@ -37,13 +43,13 @@ class sales_item_model extends wc_model {
 
 		$si = $this->db->setTable('salesinvoice a')
 						->innerJoin('salesinvoice_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields("itemcode, transactiondate, a.companycode, b.warehouse, issueqty sales, 0 returns, b.amount + b.taxamount - b.itemdiscount amount, issueuom uom")
+						->setFields("itemcode, transactiondate, a.companycode, a.customer, b.warehouse, issueqty sales, 0 returns, b.amount + b.taxamount - b.itemdiscount amount, issueuom uom")
 						->setWhere("a.stat = 'open' OR a.stat = 'posted'")
 						->buildSelect();
 
 		$sr = $this->db->setTable('salesreturn a')
 						->innerJoin('salesreturn_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields("itemcode, transactiondate, a.companycode, b.warehouse, 0 sales, issueqty returns, 0 amount, issueuom uom")
+						->setFields("itemcode, transactiondate, a.companycode, a.customer, b.warehouse, 0 sales, issueqty returns, 0 amount, issueuom uom")
 						->setWhere("a.stat = 'open' OR a.stat = 'posted'")
 						->buildSelect();
 
@@ -55,7 +61,7 @@ class sales_item_model extends wc_model {
 							->leftJoin('items i ON i.classid = ic.id AND i.companycode = ic.companycode')
 							->leftJoin("($inner_query) iq ON iq.itemcode = i.itemcode AND iq.companycode = i.companycode")
 							->setFields('itemname, warehouse, label category, SUM(sales) sales, SUM(returns) returns, SUM(amount) total_amount, uom')
-							->setWhere("warehouse != '' AND ((transactiondate >= '$start' AND transactiondate <= '$end') OR transactiondate IS NULL) AND amount > 0" . $condition)
+							->setWhere("warehouse != '' AND ((transactiondate >= '$start' AND transactiondate <= '$end')) AND amount > 0" . $condition)
 							->setGroupBy('i.itemcode')
 							->setOrderBy($sort);
 
@@ -75,6 +81,25 @@ class sales_item_model extends wc_model {
 	public function getItemList() {
 		$result = $this->db->setTable('items')
 						->setFields("itemcode ind, itemname val")
+						->runSelect()
+						->getResult();
+
+		return $result;
+	}
+
+	public function getCustomerList() {
+		$result = $this->db->setTable('partners')
+						->setFields("partnercode ind, partnername val")
+						->setWhere("partnertype = 'customer'")
+						->runSelect()
+						->getResult();
+
+		return $result;
+	}
+
+	public function getWarehouseList() {
+		$result = $this->db->setTable('warehouse')
+						->setFields("warehousecode ind, description val")
 						->runSelect()
 						->getResult();
 

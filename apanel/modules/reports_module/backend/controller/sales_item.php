@@ -17,6 +17,8 @@ class controller extends wc_controller {
 		$data['datefilter']		= $this->date->datefilterMonth();
 		$data['category_list']	= $this->item_class_model->getParentClass('');
 		$data['item_list']		= $this->sales_item_model->getItemList();
+		$data['customer_list']		= $this->sales_item_model->getCustomerList();
+		$data['warehouse_list']		= $this->sales_item_model->getWarehouseList();
 		$this->view->load('sales_item', $data);
 	}
 
@@ -27,6 +29,8 @@ class controller extends wc_controller {
 		$sort		= $this->input->get('sort');
 		$category	= $this->input->get('category');
 		$itemcode	= $this->input->get('itemcode');
+		$customer	= $this->input->get('customer');
+		$warehouse	= $this->input->get('warehouse');
 		$datefilter	= $this->input->get('daterangefilter');
 		$datefilter = explode('-', $datefilter);
 		$dates		= array();
@@ -46,7 +50,7 @@ class controller extends wc_controller {
 		$totalsold		= 0;
 		$totalreturned	= 0;
 		$totalamount	= 0;
-		$result = $this->sales_item_model->getSales($category, $itemcode, $sort, $dates[0], $dates[1]);
+		$result = $this->sales_item_model->getSales($category, $itemcode, $customer, $warehouse, $sort, $dates[0], $dates[1]);
 		foreach ($result as $key => $row) {
 			$totalsold		+= $row->sales;
 			$totalreturned	+= $row->returns;
@@ -85,13 +89,15 @@ class controller extends wc_controller {
 		$sort		= $this->input->post('sort');
 		$category	= $this->input->post('category');
 		$itemcode	= $this->input->post('itemcode');
+		$customer	= $this->input->post('customer');
+		$warehouse	= $this->input->post('warehouse');
 		$datefilter	= $this->input->post('daterangefilter');
 		$datefilter = explode('-', $datefilter);
 		$dates		= array();
 		foreach ($datefilter as $date) {
 			$dates[] = $this->date->dateDbFormat($date);
 		}
-		$pagination = $this->sales_item_model->getSalesPagination($category, $itemcode, $sort, $dates[0], $dates[1]);
+		$pagination = $this->sales_item_model->getSalesPagination($category, $itemcode, $customer, $warehouse, $sort, $dates[0], $dates[1]);
 
 		if ($pagination->result) {
 			foreach ($pagination->result as $key => $row) {
@@ -109,7 +115,7 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 
-		$details = $this->sales_item_model->getSalesTotal($category, $itemcode, $dates[0], $dates[1]);
+		$details = $this->sales_item_model->getSalesTotal($category, $itemcode, $customer, $warehouse, $dates[0], $dates[1]);
 
 		$tabledetails = '';
 
