@@ -124,7 +124,8 @@ class inventory_adjustment_model extends wc_model {
 			$increase 		= 0;
 		}
 
-		$amt_value 			= ( $increase != 0 ) 	?	$retrieval->onhandQty +	$increase	:	$retrieval->onhandQty + $decrease;
+		$ret_onhand 		= isset($retrieval->onhandQty) 	?  $retrieval->onhandQty 	: 	0;
+		$amt_value 			= ( $increase != 0 ) 	?	$ret_onhand +	$increase	:	$ret_onhand + $decrease;
 
 		$header['voucherno']  			= $generatedvoucher;
 		$header['transactiondate'] 		= $transactiondate;
@@ -148,7 +149,7 @@ class inventory_adjustment_model extends wc_model {
 			
 			$details['voucherno'] 		= $generatedvoucher;
 			$details['itemcode'] 		= $itemcode;
-			$details['onhand'] 			= $retrieval->onhandQty;
+			$details['onhand'] 			= $ret_onhand;
 			$details['increase'] 		= $increase;
 			$details['decrease'] 		= $decrease;
 			$details['unitprice'] 		= isset($ret_aveprice[0]->price_average) 	?	$ret_aveprice[0]->price_average 	: 	0;

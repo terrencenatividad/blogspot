@@ -52,6 +52,7 @@ class controller extends wc_controller {
 		$end   = $dates[1];
 		$pagination = $this->sales_stock->sales_transferlist($start, $end, $warehouse1, $warehouse2, $limit , $filter, $sort);
 		$table = '';
+		$status 	=	"";
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
@@ -130,7 +131,7 @@ class controller extends wc_controller {
 		$csv = '';
 		$csv = '"' . implode('","', $header) . '"';
 		$csv .= "\n";
-
+		$status="";
 		if(!empty($result)){
 			foreach ($result as $key => $row){
 				if($row->status == 'partial') {
