@@ -61,7 +61,7 @@ class sales_item_model extends wc_model {
 							->leftJoin('items i ON i.classid = ic.id AND i.companycode = ic.companycode')
 							->leftJoin("($inner_query) iq ON iq.itemcode = i.itemcode AND iq.companycode = i.companycode")
 							->setFields('itemname, warehouse, label category, SUM(sales) sales, SUM(returns) returns, SUM(amount) total_amount, uom')
-							->setWhere("warehouse != '' AND ((transactiondate >= '$start' AND transactiondate <= '$end')) AND amount > 0" . $condition)
+							->setWhere("warehouse != '' AND ((transactiondate >= '$start' AND transactiondate <= '$end')) AND iq.itemcode IS NOT NULL" . $condition)
 							->setGroupBy('i.itemcode')
 							->setOrderBy($sort);
 
