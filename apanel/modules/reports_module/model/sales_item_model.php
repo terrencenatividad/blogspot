@@ -50,7 +50,7 @@ class sales_item_model extends wc_model {
 		$sr = $this->db->setTable('salesreturn a')
 						->innerJoin('salesreturn_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
 						->setFields("itemcode, transactiondate, a.companycode, a.customer, b.warehouse, 0 sales, issueqty returns, 0 amount, issueuom uom")
-						->setWhere("a.stat = 'open' OR a.stat = 'posted'")
+						->setWhere("a.stat = 'Returned'")
 						->buildSelect();
 
 		$inner_query = $si . ' UNION ALL ' . $sr;
