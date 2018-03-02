@@ -66,8 +66,11 @@
 								<th></th>
 								<th>Transaction Date</th>
 								<th>SI No.</th>
+								<!-- <th>SR No.</th> -->
 								<th>Reference No.</th>
-								<th>Amount</th>
+								<th>Sales Amount</th>
+								<th>Return Amount</th>
+								<th>Total</th>
 							</tr>
 						</thead>
 						<tbody>

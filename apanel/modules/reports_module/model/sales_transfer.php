@@ -5,136 +5,51 @@
 			$condition = '';
 			$add = '';
 			if ($start && $end) {
-				$condition .= " main.date >= '$start' AND main.date <= '$end'";
+				$condition .= "AND sa.transactiondate >= '$start' AND sa.transactiondate <= '$end'";
 			}
-			// if ($warehouse1 == 'none'  || $warehouse2 == 'none'){
-			// 	$condition 	.=  '';
-			// }
+			
 
 			if ($warehouse1 && $warehouse1 != 'none') {
-				$condition .= "AND main.source  = '$warehouse1'";
+				$condition .= "AND w.description  = '$warehouse1'";
 			}
 
 			if ($warehouse2 && $warehouse2 != 'none') {
-				$condition .= "AND main.destination = '$warehouse2'";
+				$condition .= "AND wh.description = '$warehouse2'";
 			}
-
-			if ($filter == 'all') {
-				$condition .= "";
-			} else if ($filter == 'transferred'){
-				$condition .= "AND status = 'open' AND source_no != '' ";
-			} else if ($filter == 'partial'){
-				$condition .= "AND status = 'partial'";
-			} else if ($filter == 'open'){
-				$condition .= "AND status = 'open' AND source_no = '' ";
-			} else if ($filter == 'rejected'){
-				$condition .= "AND status = 'rejected'";
-			} else if ($filter == 'approved'){
-				$condition .= "AND status = 'approved'";
-			} else if ($filter == 'closed'){
-				$condition .= "AND status = 'closed'";
-			} else if ($filter == 'posted'){
-				$condition .= "AND status = 'posted'";
-			}
-
-			$sub = "SELECT st.stat status, st.stocktransferno st_no ,  st.transactiondate date, w.description source,  wh.description destination,SUM( std.qtytoapply ) qty, '' source_no,
-			st.companycode
-			FROM stock_transfer st
-			LEFT JOIN warehouse w ON w.warehousecode = st.source
-			AND w.companycode = st.companycode
-			LEFT JOIN warehouse wh ON wh.warehousecode = st.destination
-			AND wh.companycode = st.companycode
-			LEFT JOIN stock_transfer_details std ON st.stocktransferno = std.stocktransferno
-			LEFT JOIN stock_approval sa ON st.stocktransferno = sa.source_no
-			AND std.companycode = st.companycode
-			WHERE st.stat != 'cancelled'  
-			GROUP BY st.stocktransferno 
-
-			UNION 
-
-			SELECT st.stat status, st.source_no  ,  st.transactiondate date, w.description source,  wh.description destination,SUM( std.qtytoapply ) qty, st.stocktransferno st_no ,st.companycode
-			FROM stock_approval st
-			LEFT JOIN warehouse w ON w.warehousecode = st.source
-			AND w.companycode = st.companycode
-			LEFT JOIN warehouse wh ON wh.warehousecode = st.destination
-			AND wh.companycode = st.companycode
-			LEFT JOIN stock_approval_details std ON st.stocktransferno = std.stocktransferno
-			AND std.companycode = st.companycode
-			WHERE st.stat != 'cancelled' 
-			GROUP BY st.stocktransferno ";
-
-			$result = 	$this->db->setTable("($sub) main")
-						->setFields('main.status,main.st_no,main.date,main.source,main.destination,main.qty,source_no')
-						->setWhere($condition)
+		
+			$result = 	$this->db->setTable("stock_approval sa")
+						->setFields('sa.transactiondate date ,w.description source, wh.description destination, sa.stocktransferno, itemcode, detailparticular,source_no ,qtytransferred, uom')
+						->leftJoin("stock_approval_details sad ON sa.stocktransferno = sad.stocktransferno")
+						->leftJoin("warehouse w ON sa.source = w.warehousecode")
+						->leftJoin("warehouse wh ON sa.destination = wh.warehousecode")
+						->setWhere("sa.stat != 'cancelled'" .$condition)
 						->setOrderBy($sort)
 						->runPagination();
-						// echo $this->db->getQuery();
 			return $result;
 		}
 
 		public function fileExport($start, $end, $warehouse1, $warehouse2, $limit , $filter, $sort){
 			$condition = '';
-			$condition = '';
 			$add = '';
 			if ($start && $end) {
-				$condition 	.= " main.date >= '$start' AND main.date <= '$end'";
+				$condition .= "AND sa.transactiondate >= '$start' AND sa.transactiondate <= '$end'";
 			}
+			
 
 			if ($warehouse1 && $warehouse1 != 'none') {
-				$condition .= "AND main.source  = '$warehouse1'";
+				$condition .= "AND w.description  = '$warehouse1'";
 			}
 
 			if ($warehouse2 && $warehouse2 != 'none') {
-				$condition .= "AND main.destination = '$warehouse2'";
+				$condition .= "AND wh.description = '$warehouse2'";
 			}
-
-			if ($filter == 'all') {
-				$condition .= "";
-			} else if ($filter == 'transferred'){
-				$condition .= "AND status = 'open' AND source_no != '' ";
-			} else if ($filter == 'partial'){
-				$condition .= "AND status = 'partial'";
-			} else if ($filter == 'open'){
-				$condition .= "AND status = 'open' AND source_no = '' ";
-			} else if ($filter == 'rejected'){
-				$condition .= "AND status = 'rejected'";
-			} else if ($filter == 'approved'){
-				$condition .= "AND status = 'approved'";
-			} else if ($filter == 'closed'){
-				$condition .= "AND status = 'closed'";
-			} else if ($filter == 'posted'){
-				$condition .= "AND status = 'posted'";
-			}
-
-			$sub = "SELECT st.stat status, st.stocktransferno st_no ,  st.transactiondate date, w.description source,  wh.description destination,SUM( std.qtytoapply ) qty, '' source_no,
-			st.companycode
-			FROM stock_transfer st
-			LEFT JOIN warehouse w ON w.warehousecode = st.source
-			AND w.companycode = st.companycode
-			LEFT JOIN warehouse wh ON wh.warehousecode = st.destination
-			AND wh.companycode = st.companycode
-			LEFT JOIN stock_transfer_details std ON st.stocktransferno = std.stocktransferno
-			LEFT JOIN stock_approval sa ON st.stocktransferno = sa.source_no
-			AND std.companycode = st.companycode
-			WHERE st.stat != 'cancelled'  
-			GROUP BY st.stocktransferno 
-
-			UNION 
-
-			SELECT st.stat status, st.source_no  ,  st.transactiondate date, w.description source,  wh.description destination,SUM( std.qtytoapply ) qty, st.stocktransferno st_no ,st.companycode
-			FROM stock_approval st
-			LEFT JOIN warehouse w ON w.warehousecode = st.source
-			AND w.companycode = st.companycode
-			LEFT JOIN warehouse wh ON wh.warehousecode = st.destination
-			AND wh.companycode = st.companycode
-			LEFT JOIN stock_approval_details std ON st.stocktransferno = std.stocktransferno
-			AND std.companycode = st.companycode
-			WHERE st.stat != 'cancelled' 
-			GROUP BY st.stocktransferno ";
-
-			$result = 	$this->db->setTable("($sub) main")
-						->setFields('main.status,main.st_no,main.date,main.source,main.destination,main.qty,source_no')
-						->setWhere($condition)
+		
+			$result = 	$this->db->setTable("stock_approval sa")
+						->setFields('sa.transactiondate date,w.description source, wh.description destination, sa.stocktransferno, itemcode, detailparticular,source_no ,qtytransferred, uom')
+						->leftJoin("stock_approval_details sad ON sa.stocktransferno = sad.stocktransferno")
+						->leftJoin("warehouse w ON sa.source = w.warehousecode")
+						->leftJoin("warehouse wh ON sa.destination = wh.warehousecode")
+						->setWhere("sa.stat != 'cancelled'" .$condition)
 						->setOrderBy($sort)
 						->runSelect()
 						->getResult();

@@ -3,15 +3,22 @@ class sales_customer extends wc_model {
 
 	public function customer_list($startdate, $enddate,$customer,$search) {
 		$condition = '';
+		$condition2 = '';
 		if ($startdate && $enddate) {
 			$condition .= " AND inv.transactiondate >= '$startdate' AND inv.transactiondate <= '$enddate'";
 		}
 		if($customer && $customer != 'none'){
 			$condition .= " AND cust.partnercode = '$customer'";
 		}
-		// if($search){
-		// 	$condition .= " AND cust.partnername LIKE '%$search%'";
-		// }	
+
+		if ($startdate && $enddate) {
+			$condition2 .= " AND sr.transactiondate >= '$startdate' AND sr.transactiondate <= '$enddate'";
+		}
+		if($customer && $customer != 'none'){
+			$condition2 .= " AND cust.partnercode = '$customer'";
+		}
+
+		$sub_query = "(SELECT sr.warehouse warehouse ,sr.companycode,sr.voucherno,sr.source_no,SUM(amount) ramount FROM salesreturn sr LEFT JOIN partners cust ON cust.partnercode = sr.customer AND cust.companycode = sr.companycode  WHERE sr.stat = 'Returned' $condition2 )";	
 
 		$fields = array(
 			'inv.transactiondate date',
@@ -24,12 +31,15 @@ class sales_customer extends wc_model {
 			"partnername name",
 			'SUM(inv.amount) amount',
 			'inv.stat stat',
-			'inv.referenceno as ref'
+			'inv.referenceno as ref',
+			'sra.ramount as ramount',
+			'sra.warehouse srwarehouse'
 		);
 
 		$result = $this->db->setTable('salesinvoice as inv')
 						->setFields($fields)
 						->leftJoin('partners cust ON cust.partnercode = inv.customer AND cust.companycode = inv.companycode')
+						->leftJoin($sub_query .'as sra ON sra.companycode = inv.companycode' )
 						->setWhere(" inv.stat = 'posted'" .$condition)
 						->setOrderBy("SUM(inv.amount) DESC ")
 						->setGroupBy("cust.partnercode ")
@@ -40,6 +50,7 @@ class sales_customer extends wc_model {
 
 	public function fileExport($data) {
 		$condition = '';
+		$condition2 = '';
 		$datefilter	= $data['daterangefilter'];
 		$customer 	= $data['customer'];
 		$search 	= $data['search'];
@@ -55,18 +66,34 @@ class sales_customer extends wc_model {
 		if($customer && $customer != 'none'){
 			$condition .= " AND cust.partnercode = '$customer'";
 		}
-		// if($search){
-		// 	$condition .= " AND cust.partnername LIKE '%$search%'";
-		// }	
+		if ($startdate && $enddate) {
+			$condition2 .= " AND sr.transactiondate >= '$startdate' AND sr.transactiondate <= '$enddate'";
+		}
+		if($customer && $customer != 'none'){
+			$condition2 .= " AND cust.partnercode = '$customer'";
+		}
+
+		$sub_query = "(SELECT sr.companycode,sr.voucherno,sr.source_no,SUM(amount) ramount FROM salesreturn sr LEFT JOIN partners cust ON cust.partnercode = sr.customer AND cust.companycode = sr.companycode  WHERE sr.stat = 'Returned' $condition2 )";	
 
 		$fields = array(
+			'inv.transactiondate date',
+			'inv.voucherno voucherno',
+			'inv.warehouse',
+			'cust.partnercode partnercode',
+			'cust.email email',
+			'cust.address1 address1',
+			'cust.mobile mobile',
 			"partnername name",
-			'SUM(inv.amount) amount'
+			'SUM(inv.amount) amount',
+			'inv.stat stat',
+			'inv.referenceno as ref',
+			'sra.ramount as ramount'
 		);
 
 		$result = $this->db->setTable('salesinvoice as inv')
 						->setFields($fields)
 						->leftJoin('partners cust ON cust.partnercode = inv.customer AND cust.companycode = inv.companycode')
+						->leftJoin($sub_query .'as sra ON sra.companycode = inv.companycode' )
 						->setWhere(" inv.stat = 'posted'" .$condition)
 						->setGroupBy("cust.partnercode ")
 						->setOrderBy("SUM(inv.amount) DESC ")
@@ -98,10 +125,12 @@ class sales_customer extends wc_model {
 		$cust_code = $data['partnercode'];
 		$res = $this->customerDetails($cust_code);
 		$condition = '';
+		$condition2 = '';
 		$filter = explode('-',$data['datefilter']);
 		foreach($filter as $date){
 			$dates[] = date('Y-m-d',strtotime($date));
 		}
+
 		$start = $dates[0];
 		$end   = $dates[1];
 
@@ -110,9 +139,11 @@ class sales_customer extends wc_model {
 			'inv.voucherno voucherno',
 			'inv.warehouse',
 			"partnername name",
-			'SUM(inv.amount) amount',
+			'(inv.amount) amount',
 			'inv.stat stat',
-			'inv.referenceno as ref'
+			'inv.referenceno as ref',
+			'sra.voucherno as srno',
+			'SUM(sra.ramount) sr_amount' 
 		);
 
 		if ($start && $end){
@@ -122,12 +153,23 @@ class sales_customer extends wc_model {
 		if ($cust_code){
 			$condition .=  "AND inv.customer = '$cust_code' ";
 		}
+
+		if ($start && $end){
+			$condition2 .= " AND sr.transactiondate >= '$start' AND sr.transactiondate <= '$end'";
+		}
+
+		if ($cust_code){
+			$condition2 .= " AND cust.partnercode = '$cust_code'";
+		}
+
+		$sub_query = "(SELECT sr.companycode,sr.voucherno,sr.source_no,amount ramount FROM salesreturn sr LEFT JOIN partners cust ON cust.partnercode = sr.customer AND cust.companycode = sr.companycode  WHERE sr.stat = 'Returned' $condition2 )";
 		
 		$result = $this->db->setTable('salesinvoice as inv')
 						->setFields($fields)
 						->leftJoin('partners cust ON cust.partnercode = inv.customer AND cust.companycode = inv.companycode')
+						->leftJoin($sub_query .'as sra ON sra.companycode = inv.companycode AND inv.voucherno = sra.source_no'  )
 						->setWhere(" inv.stat = 'posted'" .$condition)
-						->setGroupBy("inv.voucherno ")
+						->setGroupBy("inv.voucherno")
 						->setOrderBy(" inv.voucherno DESC ")
 						->runSelect()
 						->getResult();
@@ -136,6 +178,7 @@ class sales_customer extends wc_model {
 
 	public function customerInvoices($cust_code,$datefilter){
 		$condition = '';
+		$condition2 = '';
 		$filter = explode('-',$datefilter);
 		foreach($filter as $date){
 			$dates[] = date('Y-m-d',strtotime($date));
@@ -148,9 +191,11 @@ class sales_customer extends wc_model {
 			'inv.voucherno voucherno',
 			'inv.warehouse',
 			"partnername name",
-			'SUM(inv.amount) amount',
+			'(inv.amount) amount',
 			'inv.stat stat',
-			'inv.referenceno as ref'
+			'inv.referenceno as ref',
+			'sra.voucherno as srno',
+			'SUM(sra.ramount) sr_amount' 
 		);
 
 		if ($start && $end){
@@ -160,12 +205,23 @@ class sales_customer extends wc_model {
 		if ($cust_code){
 			$condition .=  "AND inv.customer = '$cust_code' ";
 		}
+
+		if ($start && $end){
+			$condition2 .= " AND sr.transactiondate >= '$start' AND sr.transactiondate <= '$end'";
+		}
+
+		if ($cust_code){
+			$condition2 .= " AND cust.partnercode = '$cust_code'";
+		}
+
+		$sub_query = "(SELECT sr.companycode,sr.voucherno,sr.source_no,amount ramount FROM salesreturn sr LEFT JOIN partners cust ON cust.partnercode = sr.customer AND cust.companycode = sr.companycode  WHERE sr.stat = 'Returned' $condition2 )";
 		
 		$result = $this->db->setTable('salesinvoice as inv')
 						->setFields($fields)
 						->leftJoin('partners cust ON cust.partnercode = inv.customer AND cust.companycode = inv.companycode')
+						->leftJoin($sub_query .'as sra ON sra.companycode = inv.companycode AND inv.voucherno = sra.source_no'  )
 						->setWhere(" inv.stat = 'posted'" .$condition)
-						->setGroupBy("inv.voucherno ")
+						->setGroupBy("inv.voucherno")
 						->setOrderBy(" inv.voucherno DESC ")
 						->runPagination();
 		return $result;

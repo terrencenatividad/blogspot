@@ -23,7 +23,7 @@
 							->setId('customer')
 							->setList($customer_list)
 							// ->setValue($warehouse)
-							->setNone('Filter: All')
+							// ->setNone('Filter: All')
 							->draw($show_input);
 						?>
 					</div>
@@ -54,9 +54,11 @@
 							<?php
 								echo $ui->loadElement('table')
 								->setHeaderClass('info')
-								->addHeader('',array('class'=>'col-md-3'),'','name')
-								->addHeader('Customer',array('class'=>'col-md-4'),'sort','partnercode')
-								->addHeader('Amount', array('class'=>'col-md-4'),'sort','amount')
+								->addHeader('',array('class'=>'col-md-1'),'','name')
+								->addHeader('Customer',array('class'=>'col-md-3'),'sort','partnercode')
+								->addHeader('Sales Amount', array('class'=>'col-md-3'),'sort','amount')
+								->addHeader('Returned Amount', array('class'=>'col-md-3'),'sort','ramount')
+								->addHeader('Total', array('class'=>'col-md-4'),'sort','amount')
 								->draw();
 							?>
 						</tr>

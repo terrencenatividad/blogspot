@@ -65,7 +65,7 @@
 		</div>
 
 		<div class="nav-tabs-custom">
-			<ul id="filter_tabs" class="nav nav-tabs">
+			<!-- <ul id="filter_tabs" class="nav nav-tabs">
 				<li><a href="open" data-toggle="tab">Pending</a></li>
 				<li><a href="approved" data-toggle="tab">Approved</a></li>
 				<li><a href="rejected" data-toggle="tab">Rejected</a></li>
@@ -74,20 +74,23 @@
 				<li><a href="posted" data-toggle="tab">Ready for Tagging</a></li>
 				<li><a href="closed" data-toggle="tab">Closed</a></li>
 				<li class="active"><a href="all" data-toggle="tab">All</a></li>	
-			</ul>
+			</ul> -->
 			<table id = "tableList" class="table table-hover">
 				<thead>
 					<?php
 						echo $ui->loadElement('table')
 								->setHeaderClass('info')
 								->addHeader('',array(),'','')
-								->addHeader('Transaction Date',array(),'sort','main.date')
-								->addHeader('Request No.',array(),'sort','main.source_no')
-								->addHeader('Transfer No.',array(),'sort','main.st_no')
-								->addHeader('Requesting Warehouse',array(),'sort','main.source')
-								->addHeader('Source Warehouse',array(),'sort','main.destination')
-								// ->addHeader('Quantity',array(),'sort','main.qty')
-								->addHeader('Status',array(),'sort','main.status')
+								->addHeader('Transfer No.',array(),'sort','sa.stocktransferno')
+								->addHeader('Transaction Date',array(),'sort','sa.transactiondate')
+								->addHeader('Requesting Warehouse',array(),'sort','w.description')
+								->addHeader('Destination Warehouse',array(),'sort','wh.description')
+								->addHeader('Request No',array(),'sort','source_no')
+								->addHeader('Item Code',array(),'sort','itemcode')
+								->addHeader('Item Desc',array(),'sort','detailparticular')
+								->addHeader('Uom',array(),'sort','uom')
+								->addHeader('No of Items',array(),'sort','qtytransferred')
+								->addHeader('',array(),'','')
 								->draw();
 						?>
 				</thead>

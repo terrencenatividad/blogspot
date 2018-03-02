@@ -56,53 +56,55 @@ class controller extends wc_controller {
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
+		$prev = '';
+		$next = '';
+		$prev1 = '';
+		$next1 = '';
+		$qty = 0;
 		foreach ($pagination->result as $key => $row) {
-			if($row->status == 'partial') {
-				$status = '<span class="label label-info">PARTIAL</span>';
-			}
-			else if( $row->status == 'open' && $row->source_no != "" ) {	
-				$status = '<span class="label label-success">TRANSFERRED</span>';
-			}
-			else if($row->status == 'open') {
-				$status = '<span class="label bg-purple">PENDING</span>';
-			}
-			else if( $row->status == 'rejected' ) {	
-				$status = '<span class="label label-danger">REJECTED</span>';
-			} 
-			else if( $row->status == 'closed' ) {	
-				$status = '<span class="label label-primary">CLOSED</span>';
-			}
-			else if( $row->status == 'approved' ) {	
-				$status = '<span class="label label-warning">APPROVED</span>';
-			}
-			else if( $row->status == 'posted' ) {	
-				$status = '<span class="label label-default">READY FOR TAGGING</span>';
-			}
 			
+			$prev  = $row->stocktransferno;
+
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
-						->addPrint();
-						if ($row->source_no != ""){
-							$dropdown->setTaskLink(array('print' => 'print_approval'))
-							->setValue($row->source_no);
-						} else {
-							$dropdown->setTaskLink(array('print' => 'print_preview'))
-							->setValue($row->st_no);
-						}
-						$dropdown = $dropdown->setModuleURL('inventory/stock_transfer')
-						// ->setValue($row->st_no)
-						->draw();
-			$table .= '<td align = "center">' . $dropdown . '</td>';
-			$table .= '<td>' . $this->date->dateFormat($row->date) . '</td>';
-			$link 	= '';
-			$link .= 'view';
-			$table .= '<td><a href="'.BASE_URL.'inventory/stock_transfer/view/' . $row->st_no . '">' . $row->st_no . '</a></td>';
-			$table .= '<td><a href="'.BASE_URL.'inventory/stock_transfer/view_approval/' . $row->source_no. '">' . $row->source_no . '</a></td>';
-			$table .= '<td>' . $row->source . '</td>';
-			$table .= '<td>' . $row->destination . '</td>';
-			$table .= '<td>' . $status. '</td>';
+			->addPrint();
+			$dropdown->setTaskLink(array('print' => 'print_approval'))
+			->setValue($row->stocktransferno);
+			$dropdown = $dropdown->setModuleURL('inventory/stock_transfer')
+			->draw();
+			
+			if ($prev != $next){
+				$table .= '<td align = "center">' . $dropdown . '</td>';
+				
+				$table .= '<td style="font-weight:bold">' . $row->stocktransferno . '</td>';
+				$table .= '<td>' . $this->date($row->date) . '</td>';
+				$table .= '<td>' . $row->source . '</td>';
+				$table .= '<td>' . $row->destination . '</td>';
+				$table .= '<td><a href="'.BASE_URL.'/inventory/stock_transfer/print_preview/'.$row->source_no.'">' . $row->source_no . '</a></td>';
+			} else {
+				$table .='<td></td>';
+				$table .='<td></td>';
+				$table .='<td></td>';
+				$table .='<td></td>';
+				$table .='<td></td>';
+				$table .='<td></td>';
+			}
+			
+			$table .= '<td>' . ($row->itemcode) . '</td>';
+			$table .= '<td>' . $row->detailparticular . '</td>';
+			$table .= '<td>' . strtoupper($row->uom) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->qtytransferred,0) . '</td>';
 			$table .= '</tr>';
+
+			$next = $prev; 
+			$qty 	+=  $row->qtytransferred;
 		}
+		$table .= '<tr>';
+		$table .= '<td colspan = "8"></td>';
+		$table .= '<td><strong>TOTAL<strong></td>';
+		$table .= '<td style="font-weight:bold;" class="text-right"><strong>'.$qty.'<strong></td>';
+		$table .= '<td></td>';
+		$table .= '</tr>' ;
 		$pagination->table = $table;
 		$pagination->csv 	= $this->export();
 		return $pagination;
@@ -126,47 +128,58 @@ class controller extends wc_controller {
 		$start = $dates[0];
 		$end = $dates[1];
 		$result = $this->sales_stock->fileExport($start, $end, $warehouse1, $warehouse2, $limit , $filter, $sort);
-		$header = array("Transaction Date","Request No.","Transfer No.","Requesting Warehouse","Source Warehouse","Status");
+		$header = array("Transfer No.","Transation Date","Requesting Warehouse","Destination Warehouse","Request No.","Item Code","Item Desc","Uom","No of Items");
 
 		$csv = '';
 		$csv = '"' . implode('","', $header) . '"';
 		$csv .= "\n";
 		$status="";
+		$next = '';
+		$prev = '';
+		$qty = 0;
 		if(!empty($result)){
 			foreach ($result as $key => $row){
-				if($row->status == 'partial') {
-					$status = 'PARTIAL';
+				$prev  = $row->stocktransferno;
+				if ($prev != $next){
+					$csv .= '"' . $row->stocktransferno . '",';
+					$csv .= '"' . $this->date($row->date) . '",';
+					$csv .= '"' . $row->source . '",';
+					$csv .= '"' . $row->destination . '",';
+					$csv .= '"' . $row->source_no . '",';
+				} else {
+					$csv .= '"",';
+					$csv .= '"",';
+					$csv .= '"",';
+					$csv .= '"",';
+					$csv .= '"",';
 				}
-				else if( $row->status == 'open' && $row->source_no != "" ) {	
-					$status = 'TRANSFERRED';
-				}
-				else if($row->status == 'open') {
-					$status = 'PENDING';
-				}
-				else if( $row->status == 'rejected' ) {	
-					$status = 'REJECTED';
-				} 
-				else if( $row->status == 'approved' ) {	
-					$status = 'APPROVED';
-				}
-				else if( $row->status == 'closed' ) {	
-					$status = 'CLOSED';
-				}
-				else if( $row->status == 'posted' ) {	
-					$status = 'READY FOR TAGGING';
-				}
-
-				$csv .= '"' . $this->date->dateFormat($row->date) . '",';
-				$csv .= '"' . $row->st_no . '",';
-				$csv .= '"' . $row->source_no . '",';
-				$csv .= '"' . $row->source . '",';
-				$csv .= '"' . $row->destination . '",';
-				// $csv .= '"' . number_format($row->qty,0) . '",';
-				$csv .= '"' . $status . '",';
+				
+				$csv .= '"' . $row->itemcode . '",';
+				$csv .= '"' . $row->detailparticular . '",';
+				$csv .= '"' . strtoupper($row->uom). '",';
+				$csv .= '"' . number_format($row->qtytransferred,0) . '",';
 				$csv .= "\n";
+				$next = $prev; 
+				$qty += $row->qtytransferred;
 			}
+			$csv .= '"",';
+			$csv .= '"",';
+			$csv .= '"",';
+			$csv .= '"",';
+			$csv .= '"",';
+			$csv .= '"",';
+			$csv .= '"",';
+			$csv .= '"TOTAL",';
+			$csv .= '"'.$qty.'",';
+			
+			
 		}
 		return $csv;
+	}
+
+	private function date($date)
+	{
+		return date("M d, Y",strtotime($date));
 	}
 
 }

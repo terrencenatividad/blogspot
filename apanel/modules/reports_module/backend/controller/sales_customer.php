@@ -52,14 +52,21 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		$total = 0.00;
+		$total_ret = 0.00;
+		$sum  = 0.00;
 		foreach ($pagination->result as $key => $row) {
 			$total += $row->amount;
+			$total_ret += $row->sr_amount;
+			$sum += $row->amount - $row->sr_amount;
 			$table .= '<tr>';
 			$table .= '<td></td>';
 			$table .= '<td>' . $this->date->dateFormat($row->date) . '</td>';
 			$table .= '<td><a href="' . BASE_URL . 'sales/sales_invoice/view/'.$row->voucherno.'">'.$row->voucherno.'</a></td>';
+			// $table .= '<td><a href="' . BASE_URL . 'sales/sales_return/view/'.$row->srno.'">'.$row->srno.'</a></td>';
 			$table .= '<td class="text-left">' . ($row->ref) . '</td>';
 			$table .= '<td class="text-left">' . $this->amount($row->amount) . '</td>';
+			$table .= '<td class="text-left">' . $this->amount($row->sr_amount) . '</td>';
+			$table .= '<td class="text-left">' . $this->amount($row->amount - $row->sr_amount) . '</td>';
 			$table .= '</tr>';
 		}
 		$table .= '<tr>	
@@ -67,7 +74,10 @@ class controller extends wc_controller {
 			<td></td>
 			<td></td>
 			<td style="font-weight:bold">Total Amount</td>
-			<td style="font-weight:bold">' .$this->amount($total). '</td></tr>';
+			<td style="font-weight:bold">' .$this->amount($total). '</td>
+			<td style="font-weight:bold">' .$this->amount($total_ret). '</td>
+			<td style="font-weight:bold">' .$this->amount($sum). '</td>
+			</tr>';
 		
 
 		$pagination->table = $table;
@@ -95,18 +105,28 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		$totalAmount = 0.00;
+		$totalretAmount = 0.00;
+		$grand_total = 0.00;
 		foreach ($pagination->result as $key => $row) {
 			$totalAmount += $row->amount;
+			$totalretAmount += $row->ramount;
+			$grand_total += $row->amount - $row->ramount;
 			$table .= '<tr class="clickable" data-id="' . base64_encode($row->partnercode) . '/' . base64_encode($data['daterangefilter']) . '">';
 			$table .= '<td></td>';
 			$table .= '<td><a>' . $row->name . '</a></td>';
 			$table .= '<td class="text-left">' . $this->amount($row->amount) . '</td>';
+			$table .= '<td><a href="' . BASE_URL . 'report/returns_customer/view/'.$row->srwarehouse.'/'. base64_encode($row->partnercode).'/'.base64_encode($data['daterangefilter']) .'">'. $this->amount($row->ramount) . '</a></td>';
+			$table .= '<td class="text-left">' . $this->amount($row->amount - $row->ramount) . '</td>';
 			$table .= '</tr>';
 		}
 			$table .= '<tr>	
 			<td></td>
-			<td style="font-weight:bold">Total Amount</td>
-			<td style="font-weight:bold">' .$this->amount($totalAmount). '</td></tr>';
+			<td style="font-weight:bold">Total </td>
+			<td style="font-weight:bold">' .$this->amount($totalAmount). '</td>
+			<td style="font-weight:bold">' .$this->amount($totalretAmount). '</td>  
+			<td style="font-weight:bold">' .$this->amount($grand_total). '</td> 
+			</tr>';
+			
 		$pagination->table  = $table;
 		$pagination->csv 	= $this->export();
 		
@@ -118,22 +138,28 @@ class controller extends wc_controller {
 		$data = $this->input->post(array('customer','warehouse','daterangefilter','search'));
 		$data['daterangefilter'] = str_replace(array('%2C', '+'), array(',', ' '), $data['daterangefilter']);
 		$result = $this->sales_customer->fileExport($data);
-		$header = array("Customer", "Amount");
+		$header = array("Customer","Sales Amount","Returned Amount","Total");
 
 		$csv = '';
 		$csv = '"' . implode('","', $header) . '"';
 		$csv .= "\n";
 		
 		$totalAmount = 0.00;
+		$r_amount = 0.00;
+		$total = 0.00;
 		if (!empty($result)){
 			foreach ($result as $key => $row){
 				$totalAmount += $row->amount;
+				$r_amount += $row->ramount;
+				$total += $row->amount - $row->ramount;
 				$csv .= '"' . $row->name . '",';
-				$csv .= '"' . $this->amount($row->amount) . '"';
+				$csv .= '"' . $this->amount($row->amount) . '",';
+				$csv .= '"' . $this->amount($row->ramount) . '",';
+				$csv .= '"' . $this->amount($row->amount - $row->ramount) . '"';
 				$csv .= "\n";
 			}
 		}
-		$csv .= '"Total Amount:","' . $this->amount($totalAmount) . '"';
+		$csv .= '"Total Amount:","'.$this->amount($totalAmount).'","'.$this->amount($r_amount).'","'.$this->amount($total).'"';
 		return $csv;
 	}
 
@@ -144,7 +170,7 @@ class controller extends wc_controller {
 		$res = $this->sales_customer->customerDetails($partnercode); 
 		$result = $this->sales_customer->fileExport2($data);
 
-		$header3 = array("Transaction Date","SI No","Reference No","Amount");
+		$header3 = array("Transaction Date","SI No","Reference No","Sales Amount","Returned","Total");
 
 		$csv = '';
 		$csv .= '"' . 'Detailed report Per Customer' . '",';
@@ -166,17 +192,24 @@ class controller extends wc_controller {
 		$csv .= '"' . implode('","', $header3) . '"';
 		$csv .= "\n";
 		$totalAmount = 0.00;
+		$total_ret = 0.00;
+		$sum = 0.00; 
 		if (!empty($result)){
 			foreach ($result as $key => $row){
 				$totalAmount += $row->amount;
+				$total_ret += $row->sr_amount;
+				$sum += $row->amount - $row->sr_amount; 
 				$csv .= '"' . $row->date . '",';
 				$csv .= '"' . $row->voucherno . '",';
+				// $csv .= '"' . $row->srno . '",';
 				$csv .= '"' . $row->ref . '",';
 				$csv .= '"' . $this->amount($row->amount) . '",';
+				$csv .= '"' . $this->amount($row->sr_amount) . '",';
+				$csv .= '"' . $this->amount($row->amount - $row->sr_amount) . '"';
 				$csv .= "\n";
 			}
 		}
-		$csv .= '"","","Total Amount:","' . $this->amount($totalAmount) . '"';
+		$csv .= '"","","Total","' . number_format($totalAmount,2) . '","' . number_format($total_ret,2) . '","' . $this->amount($sum) . '"';
 		return $csv;
 	}
 
