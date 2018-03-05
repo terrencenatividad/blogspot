@@ -4,8 +4,8 @@
     {        
         public function retrievePartnerList(){
 			$result = $this->db->setTable('partners')
-						->setFields("partnercode ind, CONCAT( first_name, ' ', last_name ) val")
-						->setWhere("partnercode != '' AND ( partnertype = 'supplier' OR partnertype = 'customer' ) AND stat = 'active'")
+						->setFields("partnercode ind, partnername val")
+						->setWhere("partnercode != '' AND ( partnertype = 'customer' ) AND stat = 'active'")
 						->setOrderBy("val")
 						->runSelect()
 						->getResult();
