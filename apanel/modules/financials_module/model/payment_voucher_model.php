@@ -430,60 +430,28 @@ class payment_voucher_model extends wc_model
 		$main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "main.balance as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno");
 		$main_join 	  = "partners p ON p.partnercode = main.vendor ";
 		$orderby  	  = "main.transactiondate DESC";
-
+		
 		if($vendorcode && empty($voucherno))
 		{
-			$sub_select = $this->db->setTable($table_pv)
+			$sub_select 		= $this->db->setTable($table_pv)
 							   ->setFields($pv_fields)
 							   ->setWhere($pv_cond)
 							   ->buildSelect();
-			
-			$addCondition = "AND ($sub_select) = 0 OR ($sub_select) > 0 AND main.convertedamount > ($sub_select)";
-
-			$main_cond    = "main.stat = 'posted'  AND main.vendor = '$vendorcode' $search_key $addCondition ";
-			
-			$query = $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
-
+			$addCondition 		= "AND ($sub_select) = 0 OR ($sub_select) > 0 AND main.convertedamount > ($sub_select)";
+			$main_cond    		= "main.stat = 'posted'  AND main.vendor = '$vendorcode' $search_key $addCondition ";
+			$query 				= $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
 			$tempArr["result"] = $query;
-
 		}
 		else if($voucherno)
 		{
-			// echo "else";
-
-			// Display Paid AP
 			$sub_select = $this->db->setTable($table_pv)
 								->setFields($pv_fields)
 								->setWhere($pv_cond)
 								->buildSelect();
-
-			$addCondition	= "AND main.convertedamount = ($sub_select AND pv.voucherno = '$voucherno') OR ($sub_select AND pv.voucherno = '$voucherno') > 0";
-
-			$main_cond    = "main.stat = 'posted' AND main.vendor = '$vendorcode' $addCondition ";
-
-			$query = $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
-			
-
+			$addCondition		= "AND main.convertedamount = ($sub_select AND pv.voucherno = '$voucherno') OR ($sub_select AND pv.voucherno = '$voucherno') > 0";
+			$main_cond    		= "main.stat = 'posted' AND main.vendor = '$vendorcode' $addCondition ";
+			$query 				= $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
 			$tempArr["result"] = $query;
-
-			// var_dump($query);
-
-			/* Query for Paid and Partial
-			SELECT main.voucherno as voucherno, main.transactiondate as transactiondate, main.convertedamount as amount, main.balance as balance, p.partnername AS vendor_name, main.referenceno as referenceno 
-			FROM accountspayable as main 
-			LEFT JOIN partners p ON p.partnercode = main.vendor 
-			WHERE main.stat = 'posted' AND main.vendor = 'SUP_003' AND main.convertedamount = 
-			(
-				SELECT COALESCE(SUM(pv.convertedamount), 0) + COALESCE(SUM(pv.discount), 0) - COALESCE(SUM(pv.forexamount), 0) 
-				FROM pv_application AS pv 
-				WHERE pv.apvoucherno = main.voucherno AND pv.stat IN('posted') AND  pv.companycode = 'CID'  AND pv.voucherno = 'PV0000000006'
-			) OR 
-			(
-				SELECT COALESCE(SUM(pv.convertedamount), 0) + COALESCE(SUM(pv.discount), 0) - COALESCE(SUM(pv.forexamount), 0) 
-				FROM pv_application AS pv 
-				WHERE pv.apvoucherno = main.voucherno AND pv.stat IN('posted') AND  pv.companycode = 'CID'  AND pv.voucherno = 'PV0000000006'
-			) > 0 AND  main.companycode = 'CID' 
-			*/
 		}
 		
 		return $query;
@@ -642,158 +610,114 @@ class payment_voucher_model extends wc_model
 		return $errmsg;
 	}
 
-	public function applyPayments_($data)
+	public function savePayment($data)
 	{
-		$errmsg				   = array();
-		$seq 				   = new seqcontrol();
-		$datetime			   = date("Y-m-d H:i:s");
+		$errmsg				   	= array();
+		$seq 				   	= new seqcontrol();
+		$datetime			   	= date("Y-m-d H:i:s");
+
+		$errmsg[] 				= "";
 
 		/**SET TABLES**/
-		$mainAppTable		   = "paymentvoucher"; 
-		$detailAppTable		   = "pv_details";
-		$applicationTable	   = "pv_application"; 
-		$chequeTable		   = "pv_cheques"; 
-		$applicableHeaderTable = "accountspayable"; 
-		$applicableDetailTable = "ap_details"; 
+		$mainAppTable		   	= "paymentvoucher"; 
+		$detailAppTable		   	= "pv_details";
+		$applicationTable	   	= "pv_application"; 
+		$chequeTable		   	= "pv_cheques"; 
+		$applicableHeaderTable 	= "accountspayable"; 
+		$applicableDetailTable 	= "ap_details"; 
 
-		$source				   = "PV"; 
+		$source				   	= "PV"; 
 
-		$continue_flag		   = 1;
-		$insertResult		   = 0;
+		$insertResult		   	= 0;
 	
 		$voucherno				= (isset($data['h_voucher_no']) && (!empty($data['h_voucher_no']))) ? htmlentities(addslashes(trim($data['h_voucher_no']))) : "";
-		$vendor				= (isset($data['vendor']) && (!empty($data['vendor']))) ? htmlentities(addslashes(trim($data['vendor']))) : "";
-		$referenceno		= (isset($data['paymentreference']) && (!empty($data['paymentreference']))) ? htmlentities(addslashes(trim($data['paymentreference']))) : "";
-		$transactiondate	= (isset($data['document_date']) && (!empty($data['document_date']))) ? htmlentities(addslashes(trim($data['document_date']))) : "";
-		$remarks			= (isset($data['remarks']) && (!empty($data['remarks']))) ? htmlentities(addslashes(trim($data['remarks']))) : "";
-		$totalamount		= (isset($data['total_debit']) && (!empty($data['total_debit']))) ? htmlentities(addslashes(trim($data['total_debit']))) : "";
-		$paymenttype		= (isset($data['paymentmode']) && (!empty($data['paymentmode']))) ? htmlentities(addslashes(trim($data['paymentmode']))) : "";
-		$total_debit		= (isset($data['total_debit']) && (!empty($data['total_debit']))) ? htmlentities(addslashes(trim($data['total_debit']))) : "";
-		$total_credit		= (isset($data['total_credit']) && (!empty($data['total_credit']))) ? htmlentities(addslashes(trim($data['total_credit']))) : "";
-		$total_payment		= (isset($data['total_payment']) && (!empty($data['total_payment']))) ? htmlentities(addslashes(trim($data['total_payment']))) : $total_debit;
-		$task 				= (isset($data['h_task']) && (!empty($data['h_task']))) ? htmlentities(addslashes(trim($data['h_task']))) : "";
-		$h_check_rows 		= (isset($data['h_check_rows']) && (!empty($data['h_check_rows']))) ? htmlentities(addslashes(trim($data['h_check_rows']))) : "";
-		$invoice_data  		= str_replace('\\', '', $h_check_rows);
-		$invoice_data  		= html_entity_decode($invoice_data);
-		$decode_json   		= json_decode($invoice_data, true);
-
-		$exchangerate		= (!empty($data['paymentrate'])) ? $data['paymentrate'] : "1.00";
-		$convertedamount	= (!empty($data['paymentconverted'])) ? $data['paymentconverted'] : $total_payment;
-		$checkdate			= (!empty($data['checkdate'])) ? $data['checkdate'] : "0000-00-00";
+		$vendor					= (isset($data['vendor']) && (!empty($data['vendor']))) ? htmlentities(addslashes(trim($data['vendor']))) : "";
+		$referenceno			= (isset($data['paymentreference']) && (!empty($data['paymentreference']))) ? htmlentities(addslashes(trim($data['paymentreference']))) : "";
+		$transactiondate		= (isset($data['document_date']) && (!empty($data['document_date']))) ? htmlentities(addslashes(trim($data['document_date']))) : "";
+		$remarks				= (isset($data['remarks']) && (!empty($data['remarks']))) ? htmlentities(addslashes(trim($data['remarks']))) : "";
+		$totalamount			= (isset($data['total_debit']) && (!empty($data['total_debit']))) ? htmlentities(addslashes(trim($data['total_debit']))) : "";
+		$paymenttype			= (isset($data['paymentmode']) && (!empty($data['paymentmode']))) ? htmlentities(addslashes(trim($data['paymentmode']))) : "";
+		$total_debit			= (isset($data['total_debit']) && (!empty($data['total_debit']))) ? htmlentities(addslashes(trim($data['total_debit']))) : "";
+		$total_credit			= (isset($data['total_credit']) && (!empty($data['total_credit']))) ? htmlentities(addslashes(trim($data['total_credit']))) : "";
+		$total_payment			= (isset($data['total_payment']) && (!empty($data['total_payment']))) ? htmlentities(addslashes(trim($data['total_payment']))) : $total_debit;
+		$task 					= (isset($data['h_task']) && (!empty($data['h_task']))) ? htmlentities(addslashes(trim($data['h_task']))) : "";
+		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
+		$invoice_data  			= str_replace('\\', '', $h_check_rows);
+		$invoice_data  			= html_entity_decode($invoice_data);
+		$picked_payables		= json_decode($invoice_data, true);
+		
+		$exchangerate			= (!empty($data['paymentrate'])) ? $data['paymentrate'] : "1.00";
+		$convertedamount		= (!empty($data['paymentconverted'])) ? $data['paymentconverted'] : $total_payment;
+		$checkdate				= (!empty($data['checkdate'])) ? $data['checkdate'] : "0000-00-00";
 
 		/**TRIM COMMAS FROM AMOUNTS**/
-		$totalamount		= str_replace(',','',$totalamount);
-		$total_payment		= str_replace(',','',$total_payment);
-		$convertedamount 	= str_replace(',','',$convertedamount);
-		$total_debit 		= str_replace(',','',$total_debit);
-		$total_credit 		= str_replace(',','',$total_credit);
+		$totalamount			= str_replace(',','',$totalamount);
+		$total_payment			= str_replace(',','',$total_payment);
+		$convertedamount 		= str_replace(',','',$convertedamount);
+		$total_debit 			= str_replace(',','',$total_debit);
+		$total_credit 			= str_replace(',','',$total_credit);
 		
-		// Decode JSON data to get the selected AP and amount
-		$invoice_ = array();
-		$amount_ = array();
+		$gen_value              = $this->getValue("paymentvoucher", "COUNT(*) as count", " voucherno != ''");	
+		$temporary_voucher     	= (!empty($gen_value[0]->count)) ? 'PV_'.($gen_value[0]->count + 1) : 'PV_1';
 
-		for($i = 0; $i < count($decode_json); $i++)
-		{
-			$invoice_[$i + 1] = $decode_json[$i]["apvoucher"];
-			$amount_[$i + 1]  = $decode_json[$i]["amount"];
-
-			$data["invoice_modal_"] = $invoice_;
-			$data["pay_amount_"] = $amount_;
-		}
+		$voucherno 				= (!empty($voucherno)) ? $voucherno : $temporary_voucher;
 		
-		// var_dump($data);
-
 		/**CLEAN PASSED DATA**/
+		$aJournalData 	= array();
+		$aChequeData 	= array();
 		foreach($data as $postIndex => $postValue)
 		{
-			// echo "\n" . $postIndex . " ";
-			// var_dump($postValue);
-
-			if(($postIndex == 'invoice_modal_' || $postIndex=='accountcode' || $postIndex=='pay_amount_' || (array) $postIndex=='paymentdiscount' || (array) $postIndex=='paymentconverted' || (array) $postIndex=='paymentrate' ||  $postIndex=='detailparticulars' || $postIndex=='debit' || $postIndex=='credit' || $postIndex == "paid_amount") && !empty($postValue))
+			if($postIndex=='accountcode' ||  $postIndex=='detailparticulars' || $postIndex=='debit' || $postIndex=='credit')
 			{
 				$a		= '';
-
-				// echo "\n" . $postIndex . " ";
-				// var_dump($postValue);
-
-				foreach($postValue as $postValueIndex => $postValueIndexValue)
-				{
-					// echo "\n" . $postValueIndex . " ";
-					// var_dump($postValueIndexValue);
-
-					if($postIndex == 'pay_amount_' || $postIndex == 'paymentdiscount' || $postIndex == 'paymentconverted' || $postIndex == 'paymentrate' || $postIndex == 'debit' || $postIndex == 'credit' || $postIndex == "paid_amount")
-					{
+				foreach($postValue as $postValueIndex => $postValueIndexValue){
+					if($postIndex == 'debit' || $postIndex == 'credit'){
 						$a = str_replace(',', '', $postValueIndexValue);
 					}
-					else if($postIndex == 'paymentdate' || $postIndex == 'checkdate')
-					{
-						$a = ($postValueIndexValue != '') ? date("Y-m-d", strtotime($postValueIndexValue)) : "0000-00-00";
-					}
-					else
-					{
+					else{
 						$a = htmlentities(addslashes(trim($postValueIndexValue)));
 					}
-				
-					$arrayData[$postIndex][$postValueIndex] = $a;	
+					$aJournalData[$postIndex][$postValueIndex] = $a;	
 				}	
 			}
 			
 			if(($postIndex == 'chequeaccount' || $postIndex == 'chequenumber' || $postIndex == 'chequedate' || $postIndex == 'chequeamount' || $postIndex == 'chequeconvertedamount') && !empty($postValue) )
 			{
 				$b		= '';
-
-				foreach($postValue as $postValueIndex => $postValueIndexValue)
-				{
-					if($postIndex == 'chequeamount' || $postIndex == 'chequeconvertedamount')
-					{
-						// echo "\n1";
+				foreach($postValue as $postValueIndex => $postValueIndexValue){
+					if($postIndex == 'chequeamount' || $postIndex == 'chequeconvertedamount'){
 						$b = str_replace(',', '', $postValueIndexValue);
-					}
-					else if($postIndex == 'chequedate')
-					{
-						// echo "\n2";
+					}else if($postIndex == 'chequedate'){
 						$b = ($postValueIndexValue != '') ? date("Y-m-d", strtotime($postValueIndexValue)) : "0000-00-00";
-					}
-					else
-					{
-						// echo "\n3";
+					}else{
 						$b = htmlentities(addslashes(trim($postValueIndexValue)));
 					}
-					
-					$chequeData[$postIndex][$postValueIndex] = $b;
+					$aChequeData[$postIndex][$postValueIndex] = $b;
 				}
 			}
 		}
 
-		// var_dump($arrayData);
-
-		foreach($arrayData as $arrayDataIndex => $arrayDataValue)
-		{
-			foreach($arrayDataValue as $postValueIndex => $postValueIndexValue)
-			{	
-				$tempArray[$postValueIndex][$arrayDataIndex] = $postValueIndexValue;
+		if(!empty($aJournalData)){
+			foreach($aJournalData as $arrayDataIndex => $arrayDataValue){
+				foreach($arrayDataValue as $postValueIndex => $postValueIndexValue){	
+					$tempArray[$postValueIndex][$arrayDataIndex] = $postValueIndexValue;
+				}
 			}
 		}
 
-		// var_dump($tempArray);
-		
 		/**CHEQUE DETAILS**/
-		if(!empty($chequeData))
+		if(!empty($aChequeData))
 		{
-			foreach($chequeData as $chequeDataIndex => $chequeDataValue)
-			{
-				foreach($chequeDataValue as $chequeValueIndex => $chequeValueIndexValue)
-				{
+			foreach($aChequeData as $chequeDataIndex => $chequeDataValue){
+				foreach($chequeDataValue as $chequeValueIndex => $chequeValueIndexValue){
 					$newArray[$chequeValueIndex][$chequeDataIndex] = $chequeValueIndexValue;
 				}
 			}
 		}
 
-		$count				= 1;
+		$code				= 1;
 		$linenum			= 1;
 		$totalamount		= 0;
-		$totaltaxamount		= 0;
-		$totalwtaxamount	= 0;
 		
 		$cheque_info		= array();
 		$tempCheque 		= array();
@@ -803,17 +727,14 @@ class payment_voucher_model extends wc_model
 		{
 			$linecount		= 1;
 
-			foreach($newArray as $newArrayIndex => $newArrayValue)
-			{
+			foreach($newArray as $newArrayIndex => $newArrayValue){
 				$chequeaccount			= (!empty($newArrayValue['chequeaccount'])) ? $newArrayValue['chequeaccount'] : "";
 				$chequenumber			= (!empty($newArrayValue['chequenumber'])) ? $newArrayValue['chequenumber'] : "";
 				$chequedate				= (!empty($newArrayValue['chequedate'])) ? $newArrayValue['chequedate'] : "";
 				$chequeamount			= (!empty($newArrayValue['chequeamount'])) ? $newArrayValue['chequeamount'] : "";
-				// $chequeconvertedamount	= (!empty($newArrayValue['chequeconvertedamount'])) ? $newArrayValue['chequeconvertedamount'] : "";
 				$chequedate				= $this->date->dateDbFormat($chequedate);
 				
-				if(!empty($chequedate) && !empty($chequeaccount) && !empty($chequenumber) && !empty($chequeamount))
-				{
+				if(!empty($chequedate) && !empty($chequeaccount) && !empty($chequenumber) && !empty($chequeamount)){
 					$cheque_header['voucherno']				= $voucherno;
 					$cheque_header['transtype']				= "PV";
 					$cheque_header['linenum']				= $linecount;
@@ -821,21 +742,18 @@ class payment_voucher_model extends wc_model
 					$cheque_header['chequenumber']			= $chequenumber;
 					$cheque_header['chequedate']			= $chequedate;
 					$cheque_header['chequeamount']			= $chequeamount;
-					$cheque_header['chequeconvertedamount']	= $chequeamount; //$chequeconvertedamount;
+					$cheque_header['chequeconvertedamount']	= $chequeamount;
 					$cheque_header['stat']					= 'uncleared';
 				
 					$linecount++;
-					
-					$cheque_info[$chequeaccount]['amount'][]	 = $chequeamount; //$chequeconvertedamount;
-					
-					$tempCheque[] = $cheque_header;
+					$tempCheque[] 							= $cheque_header;
 				}
 			}
 		}
 
-		$isExist			= $this->getValue($mainAppTable, array("stat"), "voucherno = '$voucherno' AND stat = 'posted'");
-		$status				= (!empty($isExist[0]->stat)) ? "posted" : "temporary";
-		$valid 				= 0;
+		$isExist						= $this->getValue($mainAppTable, array("stat"), "voucherno = '$voucherno' AND stat = 'posted'");
+		$status							= (!empty($isExist[0]->stat)) ? "posted" : "temporary";
+		$valid 							= 0;
 
 		$transactiondate				= $this->date->dateDbFormat($transactiondate); 
 		$period							= date("n",strtotime($transactiondate));
@@ -849,7 +767,6 @@ class payment_voucher_model extends wc_model
 		$post_header['particulars']		= $remarks;
 		$post_header['period']			= $period;
 		$post_header['fiscalyear']		= $fiscalyear;
-		$post_header['checkrelease']	= $transactiondate;
 		$post_header['releaseby']		= USERNAME;
 		$post_header['currencycode']	= 'PHP';
 		$post_header['amount']			= $total_payment;
@@ -857,22 +774,7 @@ class payment_voucher_model extends wc_model
 		$post_header['convertedamount']	= $convertedamount;
 		$post_header['source']			= $source;
 		$post_header['paymenttype']		= $paymenttype;	
-		$post_header['bankcode']		= '';
-		$post_header['account']			= '';
-
-		if(strtolower($paymenttype) == 'cheque')
-		{
-			$post_header['checknumber']		= $referenceno;
-			$post_header['referenceno']		= $referenceno;
-		}
-		else
-		{
-			$post_header['checknumber']		= $referenceno;
-			$post_header['referenceno']		= $referenceno;
-		}
-
-		$post_header['checkdate']		= $checkdate;
-		$post_header['checkstat']		= '';
+		$post_header['referenceno']		= $referenceno;
 		$post_header['stat']			= $status;
 		$post_header['postedby']		= USERNAME;
 		$post_header['postingdate']		= $datetime;
@@ -883,441 +785,179 @@ class payment_voucher_model extends wc_model
 		/**INSERT HEADER**/
 		if($status == 'temporary')
 		{	
-			// echo "\n1\n";
-			
-			// Delete temporary data
-			// paymentvoucher
 			$this->db->setTable($mainAppTable)
 					->setWhere("voucherno = '$voucherno'");
-					// ->buildDelete();
 			$insertResult = $this->db->runDelete();
 
 			if(!$insertResult)
 				$valid++;
 			
-			// paymentvoucher
 			$this->db->setTable($mainAppTable) 
 				->setValues($tempData);
-				// ->buildInsert();
 
 			$insertResult = ($valid == 0) ? $this->db->runInsert() : false;
 
-			if(!$insertResult)
-				$errmsg[] = "<li>Saving Payment Voucher Header.</li>";
+			if(!$insertResult){
+				$code 		= 0;
+				$errmsg[] 	= "<li>Error in Saving Payment Voucher Header.</li>";
+			}	
 		}
 		else
 		{
-			// echo "\n2\n";
-
 			$insertResult = $this->db->setTable($mainAppTable)
 								->setValues($tempData)
 								->setWhere("voucherno = '$voucherno'")
 								->runUpdate();
-								// ->buildUpdate();
 
-			// var_dump($insertResult);
-
-			if(!$insertResult)
-				$errmsg[] = "<li>Updating Payment Voucher Header.</li>";
+			if(!$insertResult){
+				$code 		= 0;
+				$errmsg[] = "<li>Error in Updating Payment Voucher Header.</li>";
+			}
 		}
 
-		$counter = 0;
-
-		$arrDB = array();
-		$arrCB = array();
+		$iDetailLineNum = 1;
+		$aPvDetailArray = array();
 
 		foreach($tempArray as $tempArrayIndex => $tempArrayValue)
 		{
-			$accountcode 		= (!empty($tempArrayValue['accountcode'])) ? $tempArrayValue['accountcode'] : "";
+			$accountcode 						= $tempArrayValue['accountcode'];
+			$detailparticulars					= $tempArrayValue['detailparticulars'];
+			$debit			    				= $tempArrayValue['debit'];
+			$credit			    				= $tempArrayValue['credit'];
 
-			if($task == "create")
-				$amount = (!empty($tempArrayValue['pay_amount_'])) ? $tempArrayValue['pay_amount_'] : "";
-			else
-				$amount = (!empty($tempArrayValue['paid_amount'])) ? $tempArrayValue['paid_amount'] : "";
+			$post_detail['voucherno']			= $voucherno;
+			$post_detail['linenum']				= $iDetailLineNum;
+			$post_detail['transtype']			= $source;
+			$post_detail['accountcode']			= $accountcode;
+			$post_detail['debit']				= $debit;
+			$post_detail['credit']				= $credit;
+			$post_detail['converteddebit']		= $debit;
+			$post_detail['convertedcredit'] 	= $credit;
+			$post_detail['currencycode']		= 'PHP';
+			$post_detail['detailparticulars'] 	= $detailparticulars;
+			$post_detail['stat']				= $post_header['stat'];
 
-			
-			$convertedamount	= (!empty($tempArrayValue['paymentconverted'])) ? $tempArrayValue['paymentconverted'] : $amount;
+			$iDetailLineNum++;
+			$aPvDetailArray[]					= $post_detail;
+		}
+
+		if(!empty($picked_payables)){
+			$aPvApplicationArray 	= array();
+			$iApplicationLineNum	= 1;
+			foreach ($picked_payables as $pickedKey => $pickedValue) {
+				$payable 	= $pickedValue['vno'];
+				$amount 	= $pickedValue['amt'];
+				$discount 	= $pickedValue['dis'];
+
+				$totalamount+=$amount;
+
+				$post_application['voucherno']			= $voucherno;
+				$post_application['transtype']			= 'PV';
+				$post_application['linenum']			= $iApplicationLineNum;
+				$post_application['apvoucherno']		= $payable;
+				$post_application['discount']			= $discount;
+				$post_application['amount']		 		= $amount;
+				$post_application['currencycode']		= 'PHP';
+				$post_application['exchangerate']		= '1.00';
+				$post_application['convertedamount']	= $amount;
+				$post_application['stat']			 	= $post_header['stat'];
+
+				$iApplicationLineNum++;
+				$aPvApplicationArray[]					= $post_application;
+			}
+		}
+
+		// details and pv_application
+		$isAppDetailExist	= $this->getValue($applicationTable, array("COUNT(*) AS count"), " voucherno = '$voucherno'");
 		
-			$exchangerate		= (!empty($tempArrayValue['paymentrate'])) ? $tempArrayValue['paymentrate'] : "1.00";
-			$paymentdiscount 	= (!empty($tempArrayValue['paymentdiscount'])) ? $tempArrayValue['paymentdiscount'] : 0;
+		if($isAppDetailExist[0]->count > 0){
 
-			// For PV Application
-			$invoice			= (!empty($tempArrayValue['invoice_modal_'])) ? $tempArrayValue['invoice_modal_'] : "";
-			$pay_amount			= (!empty($tempArrayValue['pay_amount_'])) ? $tempArrayValue['pay_amount_'] : "";
+			$this->db->setTable($detailAppTable)
+					->setWhere("voucherno = '$voucherno'")
+					->runDelete();
 
-			// For PV Details
-			$detailparticulars	= (!empty($tempArrayValue['detailparticulars'])) ? $tempArrayValue['detailparticulars'] : "";
-			$debit			    = (!empty($tempArrayValue['debit'])) ? $tempArrayValue['debit'] : "";
-			$credit			    = (!empty($tempArrayValue['credit'])) ? $tempArrayValue['credit'] : "";
-
-			// accountspayable
-			$payablerate		= $this->getValue($applicableHeaderTable, array("exchangerate"),"voucherno = '$invoice' AND stat = 'posted'"); 	
-			$payablerate 		= (isset($payablerate[0]->exchangerate)) ? $payablerate[0]->exchangerate : "1.00";
-
-			if(!empty($transactiondate) && !empty($paymenttype) && ( ($total_debit == $total_credit) || $paymentdiscount > 0))
-			{
-				$taxamount	      = 0;
-				$tempDetail       = array();
-				$discountaccount  = '120';
-
-				// if(empty($tempArray['paymentconverted'])) will receive value of $amount
-				$newamount			= $convertedamount - $paymentdiscount;
-				$forexamount 		= 0;
-
-				if($payablerate != $exchangerate)
-				{
-					// echo "if";
-					$payableconverted	= $amount * $payablerate;
-					$forexamount 		= $convertedamount - $payableconverted;
-					$newamount			= ($forexamount > 0) ? $newamount - abs($forexamount) : $newamount + abs($forexamount);
-					$forexaccount		= ($forexamount > 0) ? "208" : "209";
-				}
-				else
-				{
-					$payableconverted	= $convertedamount;
-				}
-
-				$creditamount		= ($newamount > 0) ? $convertedamount : abs($newamount);
-
-				// For PV DETAILS
-				$post_detail = array();
-				$post_detail['voucherno']		= $voucherno;
-				$post_detail['transtype']		= $source;
-				$post_detail['slcode']			= '-';
-				$post_detail['costcentercode']	= '-';
-				$post_detail['checkstat']		= 'uncleared';
-				$post_detail['checknumber']		= $post_header['checknumber'];
-				$post_detail['postedby']		= USERNAME;
-				$post_detail['postingdate']		= $datetime;
-				$post_detail['stat']			= $post_header['stat'];
-
-				if($paymenttype == 'cheque')
-				{
-					$other_detail = array();
-
-					if($debit != 0)
-					{
-						$post_detail['linenum']				= $linenum;
-						$post_detail['apvoucherno']			= $invoice;
-						$post_detail['accountcode']			= $accountcode;
-						$post_detail['debit']				= $debit;
-						$post_detail['credit']  			= $credit;
-						$post_detail['converteddebit']		= $post_detail['debit'];
-						$post_detail['convertedcredit']		= $post_detail['credit'];
-						$post_detail['detailparticulars']	= $detailparticulars;
-
-						// $other_detail['linenum']			= $linenum;
-						$other_detail['apvoucherno']		= $invoice;
-						$other_detail['debit']				= $debit;
-						$other_detail['converteddebit']		= $other_detail['debit'];
-
-						$arrDB[] = $other_detail;
-
-						// Start Insert for Debit
-						$errmsg[] = $this->insert_detail_entry($voucherno, $post_detail);
-
-						// var_dump($post_detail);
-					} 
-					else
-					{
-
-						$other_detail['linenum']			= $linenum;
-						$other_detail['accountcode']		= $accountcode;
-						$other_detail['credit']  			= $credit;
-						$other_detail['convertedcredit']	= $other_detail['credit'];
-						$other_detail['detailparticulars']	= $detailparticulars;
-
-						$arrCB[] = $other_detail;
-
-						// Insert for Credit
-						for($i = 0; $i < count($arrDB); $i++)
-						{
-							for($j = 0; $j < count($arrCB); $j++)
-							{
-								$dis_credit                         = ($arrDB[$i]["debit"] / $total_debit) * $arrCB[$j]["credit"];
-
-								$credit_detail["linenum"]           = ($arrCB[$j]["linenum"] + $i);
-								$credit_detail["apvoucherno"]       = $arrDB[$i]["apvoucherno"];
-								$credit_detail["accountcode"]       = $arrCB[$j]["accountcode"];
-								$credit_detail["credit"]            = $dis_credit;
-								$credit_detail["convertedcredit"]   = $dis_credit;
-								$credit_detail["detailparticulars"] = $arrCB[$j]["detailparticulars"];
-
-								$post_detail["linenum"] 			= $credit_detail["linenum"];
-								$post_detail["apvoucherno"] 		= $credit_detail["apvoucherno"];
-								$post_detail["accountcode"] 		= $credit_detail["accountcode"];
-								$post_detail["credit"] 				= $credit_detail["credit"];
-								$post_detail["convertedcredit"]     = $credit_detail["convertedcredit"];
-								$post_detail["detailparticulars"]   = $credit_detail["detailparticulars"];
-
-								// Start Insert for Credit
-								if($dis_credit != 0)
-									$errmsg[] = $this->insert_detail_entry($voucherno, $post_detail);
-							}
-						}
-					}
-
-					// var_dump($post_detail);
-
-					$linenum++;
-
-
-					if(!empty($cheque_info))
-					{
-						foreach($cheque_info as $cheque_index => $cheque_value)
-						{
-							$totalamount					= array_sum($cheque_value['amount']);
-							$post_detail['linenum']			= $linenum;
-							$post_detail['apvoucherno']		= $invoice;
-							$post_detail['accountcode']		= $cheque_index;
-							$post_detail['debit']			= 0;
-							$post_detail['credit']			= $totalamount;
+			$insertResult = $this->db->setTable($detailAppTable) 
+								->setValues($aPvDetailArray)
+								->setWhere("voucherno = '$voucherno'")
+								->runInsert();
 							
-							$post_detail['converteddebit']	= $post_detail['debit'];
-							$post_detail['convertedcredit']	= $post_detail['credit'];
-							
-							// pv_details
-							$isAppDetailExist	= $this->getValue($detailAppTable, array("COUNT(*) AS count"),"voucherno = '$voucherno' AND accountcode = '$cheque_index' AND linenum = '$linenum'");
-							
-							// var_dump($post_detail);
-						}
-					}
-				}
-				else if($paymenttype == "cash")
-				{
-					if($paymentdiscount > 0 && $convertedamount == 0)
-					{
-						echo "\n 3 \n";
-						// ap_details
-						$accountcode = $this->getValue($applicableDetailTable, "accountcode", "voucherno = '$invoice' AND linenum = '1' LIMIT 1");
-						$accountcode = $accountcode[0]->accountcode;
-					}
+			if(!$insertResult){
+				$code 		= 0;
+				$errmsg[] 	= "<li>Error in Saving Payment Voucher Details.</li>";
+			}
+
+			$this->db->setTable($applicationTable)
+					->setWhere("voucherno = '$voucherno'")
+					->runDelete();
 					
-					$other_detail = array();
-
-					if($debit != 0)
-					{
-						$post_detail['linenum']				= $linenum;
-						$post_detail['apvoucherno']			= $invoice;
-						$post_detail['accountcode']			= $accountcode;
-						$post_detail['debit']				= $debit;
-						$post_detail['credit']  			= $credit;
-						$post_detail['converteddebit']		= $post_detail['debit'];
-						$post_detail['convertedcredit']		= $post_detail['credit'];
-						$post_detail['detailparticulars']	= $detailparticulars;
-
-						$other_detail['apvoucherno']		= $invoice;
-						$other_detail['debit']				= $debit;
-						$other_detail['converteddebit']		= $other_detail['debit'];
-
-						$arrDB[] = $other_detail;
-
-						// var_dump($post_detail);
-
-						// Start Insert for Debit
-						$errmsg[] = $this->insert_detail_entry($voucherno, $post_detail);
-					} 
-					else
-					{
-
-						$other_detail['linenum']			= $linenum;
-						$other_detail['accountcode']		= $accountcode;
-						$other_detail['credit']  			= $credit;
-						$other_detail['convertedcredit']	= $other_detail['credit'];
-						$other_detail['detailparticulars']	= $detailparticulars;
-
-						$arrCB[] = $other_detail;
-
-						// var_dump($other_detail);
-
-						// Insert for Credit
-						for($i = 0; $i < count($arrDB); $i++)
-						{
-							for($j = 0; $j < count($arrCB); $j++)
-							{
-								$dis_credit                         = ($arrDB[$i]["debit"] / $total_debit) * $arrCB[$j]["credit"];
-
-								$credit_detail["linenum"]           = ($arrCB[$j]["linenum"] + $i) + 1;
-								$credit_detail["apvoucherno"]       = $arrDB[$i]["apvoucherno"];
-								$credit_detail["accountcode"]       = $arrCB[$j]["accountcode"];
-								$credit_detail["credit"]            = $dis_credit;
-								$credit_detail["convertedcredit"]   = $dis_credit;
-								$credit_detail["detailparticulars"] = $arrCB[$j]["detailparticulars"];
-
-								$post_detail["linenum"] 			= $credit_detail["linenum"];
-								$post_detail["apvoucherno"] 		= $credit_detail["apvoucherno"];
-								$post_detail["accountcode"] 		= $credit_detail["accountcode"];
-								$post_detail["credit"] 				= $credit_detail["credit"];
-								$post_detail["convertedcredit"]     = $credit_detail["convertedcredit"];
-								$post_detail["detailparticulars"]   = $credit_detail["detailparticulars"];
-
-								// Start Insert for Credit
-								if($dis_credit != 0)
-									$errmsg[] = $this->insert_detail_entry($voucherno, $post_detail);
+			$insertResult = $this->db->setTable($applicationTable) 
+								->setValues($aPvApplicationArray)
+								->setWhere("voucherno = '$voucherno'")
+								->runInsert();
+							
+			if(!$insertResult){
+				$code 		= 0;
+				$errmsg[] 	= "<li>Error in Updating Payment Voucher Application.</li>";
+			}
+		}else if(!empty($isAppDetailExist)){
+			$insertResult = $this->db->setTable($detailAppTable) 
+								->setValues($aPvDetailArray)
+								->runInsert();
 								
-							}
-						}
-					}
+			if(!$insertResult){
+				$code 		= 0;
+				$errmsg[] 	= "<li>Error in Updating Payment Voucher Details.</li>";
+			}
 
-					// var_dump($post_detail);
+			$insertResult = $this->db->setTable($applicationTable) 
+								->setValues($aPvApplicationArray)
+								->runInsert();
 
-					$linenum++;
-
-				} // end else()
-
-				/**DISCOUNT ACCOUNT**/
-				if($paymentdiscount > 0)
-				{
-					echo "\n 8 \n";
-					$post_detail['linenum']			= $linenum;
-					$post_detail['accountcode']		= $discountaccount; // hardcoded
-					$post_detail['debit']			= $paymentdiscount;
-					$post_detail['credit']			= 0;
-
-					$post_detail['converteddebit']	= $post_detail['debit'];
-					$post_detail['convertedcredit']	= $post_detail['credit'];
-					
-					//pv_details
-					echo $this->db->setTable($detailAppTable) 
-							->setValues($post_detail);
-					
-					$insertResult = false; //$this->db->runInsert();
-
-					if(!$insertResult)
-						$errmsg[] = "<li>Applying the Discount.</li>";
-
-					$linenum++;
-				}
-
-				/**FOREX GAIN / LOSS**/
-				if(abs($forexamount) > 0)
-				{
-					echo "\n 9 \n";
-					$post_detail['linenum']			= $linenum;
-					$post_detail['accountcode']		= $forexaccount;
-					$post_detail['debit']			= abs($forexamount);
-					$post_detail['credit']			= 0;
-					$post_detail['converteddebit']	= $post_detail['debit'];
-					$post_detail['convertedcredit']	= $post_detail['credit'];
-					
-					//pv_details
-					$this->db->setTable($detailAppTable) 
-							->setValues($post_detail);
-					
-					$insertResult = false; //$this->db->runInsert();
-					
-					if(!$insertResult)
-						$errmsg[] = "<li>Applying the Discount.</li>";
-
-					$linenum++;
-				}
-
-				/**UPDATE APPLICATION TABLE**/
-				$post_application['voucherno']		 = $voucherno;
-				$post_application['transactiondate'] = $transactiondate;
-				$post_application['transtype']		 = $source;
-				$post_application['linenum']		 = $count;
-				$post_application['apvoucherno']	 = $invoice;
-				$post_application['discount']		 = $paymentdiscount;
-				$post_application['amount']			 = $amount;
-				$post_application['currencycode']	 = 'PHP';
-				$post_application['exchangerate']	 = $exchangerate;
-				$post_application['convertedamount'] = $convertedamount;
-				$post_application['forexamount']	 = abs($forexamount);
-				$post_application['stat']			 = $post_header['stat'];
-
-				// pv_application
-				$isAppDetailExist	= $this->getValue($applicationTable, array("COUNT(*) AS count"), "voucherno = '$voucherno' AND apvoucherno = '$invoice'");
-
-				if($isAppDetailExist[0]->count > 0)
-				{
-					// echo "\n 10 \n";
-
-					//pv_application
-					$insertResult = $this->db->setTable($applicationTable) 
-										->setValues($post_application)
-										->setWhere("voucherno = '$voucherno' AND apvoucherno = '$invoice'")
-										// ->buildUpdate();
-										->runUpdate();
-
-					// var_dump($insertResult);					
-
-					if(!$insertResult)
-						$errmsg[] = "<li>Updating Payment Voucher Application.</li>";
-
-				}
-				else if(!empty($isAppDetailExist) && !empty($invoice))
-				{
-					// echo "\n 11 \n";
-
-					//pv_application
-					$insertResult = $this->db->setTable($applicationTable) 
-										->setValues($post_application)
-										// ->buildInsert();
-										->runInsert();
-					
-					// var_dump($insertResult);	
-					
-					if(!$insertResult)
-						$errmsg[] = "<li>Updating Payment Voucher Application.</li>";
-				}
-				
-				$count++;
-
-				$totalamount		+= $amount;
-				$totaltaxamount		+= $taxamount;
-
-			} // end if()
-
-		} // end foreach()
-
+			if(!$insertResult){
+				$code 		= 0;
+				$errmsg[] 	= "<li>Error in Updating Payment Voucher Application.</li>";
+			}
+		}
+			
 		/**UPDATE HEADER AMOUNTS**/
 		$update_info				= array();
 		$update_info['netamount']	= $totalamount;
-		$update_info['taxamount']	= $totaltaxamount;
 
-		// echo "\n 13 \n";
-		// paymentvoucher
 		$insertResult = $this->db->setTable($mainAppTable) 
 							->setValues($update_info)
-							->setWhere("voucherno = '$voucherno' AND stat = '$status'")
-							// ->buildUpdate();
+							->setWhere("voucherno = '$voucherno'")
 							->runUpdate();
 
-		// var_dump($insertResult);
-
-		if(!$insertResult)
-			$errmsg[] = "<li>Updating Payment Voucher Header.</li>";
+		if(!$insertResult){
+			$code 		= 0;
+			$errmsg[] 	= "<li>Error in Updating Payment Voucher Header.</li>";
+		}
 		
 		/**INSERT TO CHEQUES TABLE**/
 		if(strtolower($paymenttype) == 'cheque')
 		{
-			// echo "\n 16 \n";
-
-			// Delete
 			$insertResult = $this->db->setTable($chequeTable)
 								->setWhere("voucherno = '$voucherno'")
-								// ->buildDelete();
 								->runDelete();
-			
-			// Insert
 			if($insertResult && !empty($tempCheque))
 			{
-				// echo "\n 17 \n";
-
 				$insertResult = $this->db->setTable($chequeTable)
 									->setValues($tempCheque)
-									// ->buildInsert();
 									->runInsert();
 
-				if(!$insertResult)
-					$errmsg[] = "<li>Saving in Cheque Details.</li>";
+				if(!$insertResult){
+					$code 		= 0;
+					$errmsg[] = "<li>Error in Saving in Cheque Details.</li>";
+				}
 			}
 		}
 
-		return $errmsg;
-
-	} // end applyPayments_()
+		return array(
+			'code' 		=> $code,
+			'voucher' 	=> $voucherno,
+			'errmsg' 	=> $errmsg
+		);
+	}
 
 	public function saveDetails($table, $data, $form = "")
 	{

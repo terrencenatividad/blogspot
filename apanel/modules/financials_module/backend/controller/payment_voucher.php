@@ -93,9 +93,12 @@ class controller extends wc_controller
 
 	public function create()
 	{	
+		/**
+		 * Method to lock screen when in use by other users
+		 */
 		$access	= $this->access->checkLockAccess('create');
-		$cmp = $this->companycode;
-		$seq = new seqcontrol();
+		$cmp 	= $this->companycode;
+		$seq 	= new seqcontrol();
 
 		// Initialize variables
 		$data = $this->input->post(array(
@@ -124,11 +127,6 @@ class controller extends wc_controller
 		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList();
 
 		// Retrieve business type list
-		$bus_type_data                = array("code ind", "value val");
-		$bus_type_cond                = "type = 'businesstype'";
-		$data["business_type_list"]   = $this->payment_voucher->getValue("wc_option", $bus_type_data, $bus_type_cond, false);
-
-		// Retrieve business type list
 		$acc_entry_data               = array("id ind","accountname val");
 		$acc_entry_cond               = "accounttype != 'P'";
 		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
@@ -141,8 +139,9 @@ class controller extends wc_controller
 		$data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
 		// Retrieve generated ID
-		$gen_value                    = $this->payment_voucher->getValue("paymentvoucher", "COUNT(*) as count", "voucherno != ''");	
-		$data["generated_id"]         = (!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
+		// $gen_value                    = $this->payment_voucher->getValue("paymentvoucher", "COUNT(*) as count", "voucherno != ''");	
+		// $data["generated_id"]         = (!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
+		$data["generated_id"]     = '';
 
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
@@ -171,7 +170,7 @@ class controller extends wc_controller
 				$updateTempRecord			= $this->payment_voucher->editData($update_info,"pv_cheques",$update_condition);
 
 				/**UPDATE MAIN INVOICE**/
-				$this->update_app($data_validate['h_check_rows_']);
+				$this->update_app($data_validate['selected_rows']);
 			}
 			
 			if(empty($errmsg))
@@ -179,23 +178,16 @@ class controller extends wc_controller
 				// For Admin Logs
 				$this->logs->saveActivity("Add New Payment Voucher [$generatedvoucher]");
 
-				if(!empty($data_validate['h_save']))
-				{
+				if(!empty($data_validate['h_save'])){
 					$this->url->redirect(BASE_URL . 'financials/payment_voucher');
-				}
-				else if(!empty($data_validate['h_save_preview']))
-				{
+				}else if(!empty($data_validate['h_save_preview'])){
 					$this->url->redirect(BASE_URL . 'financials/payment_voucher/view/' . $generatedvoucher);
-				}
-				else
-				{
+				}else{
 					$this->url->redirect(BASE_URL . 'financials/payment_voucher/create');
 				}
-			}
-			else
+			}else{
 				$data["errmsg"] = $errmsg;
-			
-				
+			}
 		}
 		
 		$this->view->load('payment_voucher/payment_voucher', $data);
@@ -279,11 +271,6 @@ class controller extends wc_controller
 		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList();
 
 		// Retrieve business type list
-		$bus_type_data                = array("code ind", "value val");
-		$bus_type_cond                = "type = 'businesstype'";
-		$data["business_type_list"]   = $this->payment_voucher->getValue("wc_option", $bus_type_data, $bus_type_cond, false);
-
-		// Retrieve business type list
 		$acc_entry_data               = array("id ind","accountname val");
 		$acc_entry_cond               = "accounttype != 'P'";
 		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
@@ -303,10 +290,6 @@ class controller extends wc_controller
 		$data["transactiondate"] = $this->date->dateFormat($data["main"]->transactiondate);
 		$data["particulars"]     = $data["main"]->particulars;
 		$data["paymenttype"]     = $data["main"]->paymenttype;
-
-		$data["terms"] 		 = (!empty($data["cust"]->terms)) ? $data["cust"]->terms : "";
-		$data["tinno"] 		 = (!empty($data["cust"]->tinno)) ? $data["cust"]->tinno : "";
-		$data["address1"] 	 = (!empty($data["cust"]->address1)) ? $data["cust"]->address1 : "";
 		
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
@@ -869,24 +852,23 @@ class controller extends wc_controller
 
 	private function apply_payments_()
 	{
-		$success   = false;
-		$msg 	   = "";
 		
-		$data_post = $this->input->post();
+		$data_post 	= $this->input->post();
 
-		$result    = array_filter($this->payment_voucher->applyPayments_($data_post));
+		$result    	= array_filter($this->payment_voucher->savePayment($data_post));
 
-		if(!empty($result))
+		$code 		= 0;
+		$voucher 	= '';
+		$errmsg 	= array();
+
+		if($result)
 		{
-			$success = false;
-			$msg 	 = $result;
-		}
-		else
-		{
-			$success = true;
+			$code 		= $result['code'];
+			$voucher 	= $result['voucher'];
+			$errmsg 	= $result['errmsg'];
 		}
 
-		$dataArray = array("msg" => $msg, "success" => $success);
+		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);
 		echo json_encode($dataArray);
 	}
 
@@ -910,20 +892,18 @@ class controller extends wc_controller
 
 	private function load_payables()
 	{
-		$data       = $this->input->post(array("vendor", "voucherno"));
-		$task       = $this->input->post("task");
+		$data       	= $this->input->post(array("vendor", "voucherno"));
+		$task       	= $this->input->post("task");
 		$search			= $this->input->post('search');
 
-		$vno 		= $this->input->post('vno');
+		$vno 			= $this->input->post('vno');
 		
-		//$d    = json_decode($vno, true);
-
 		$check_rows 	= (isset($vno) && (!empty($vno))) ? trim($vno) : "";
 		$check_rows  	= str_replace('\\', '', $check_rows);
 		$decode_json    = json_decode($check_rows, true);	
 
 		$pagination     = $this->payment_voucher->retrieveAPList($data,$search);
-
+		
 		$table             = "";
 		$j 	               = 1;
 		$json_encode_array = array();
