@@ -117,7 +117,7 @@
 			}
 			// For Search
 			if ( !empty($search) ) {
-				$condition .= " AND (chq.chequenumber LIKE '%$search%' OR ar.invoiceno LIKE '%$search%') ";
+				$condition .= " AND (chq.chequenumber LIKE '%$search%' OR ar.invoiceno LIKE '%$search%' OR rv.voucherno LIKE '%$search%' OR coa.accountname LIKE '%$search%' OR pt.partnername LIKE '%$search%') ";
 			}
 			$sort 		=	($sort 	!=	"") 	? 	$sort 	:	"rv.voucherno DESC";
 
