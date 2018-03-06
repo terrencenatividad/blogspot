@@ -46,16 +46,14 @@ class payment_voucher_model extends wc_model
 		return $result;
 	}
 
-	public function retrieveDataPagination($table, $fields = array(), $cond = "", $join = "", $orderby = "", $groupby = "")
+	public function retrieveDataPagination($table, $fields = array(), $cond = "", $join = "", $groupby = "")
 	{
 		$result = $this->db->setTable($table)
 					->setFields($fields)
 					->leftJoin($join)
 					->setGroupBy($groupby)
 					->setWhere($cond)
-					// ->setOrderBy($orderby)
 					->runPagination();
-					// echo $this->db->getQuery();
 		return $result;
 	}
 	
@@ -76,20 +74,6 @@ class payment_voucher_model extends wc_model
 
 		$temp["main"] = $retrieveArrayMain;
 
-		// Retrieve Vendor Details
-		$vendor_code = $temp["main"]->vendor;
-		$custFields = "address1, tinno, terms, email, CONCAT( first_name, ' ', last_name ), partnername AS name";
-		$cust_cond = "partnercode = '$vendor_code'";
-
-		$custDetails = $this->db->setTable('partners')
-							->setFields($custFields)
-							->setWhere($cust_cond)
-							->setLimit('1')
-							->runSelect()
-							->getRow();
-		
-		$temp["cust"] = $custDetails;
-
 		// Retrieve Details
 		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.debit, SUM(main.credit) credit";
 		$detail_cond  = "main.voucherno = '$sid' AND main.stat != 'temporary'";
@@ -105,47 +89,19 @@ class payment_voucher_model extends wc_model
 									->setOrderBy($orderby)
 									->runSelect()
 									->getResult();
-									// ->buildSelect();
-		
-		// var_dump($retrieveArrayDetail);
 
 		$temp["details"] = $retrieveArrayDetail;
-
-		
-
-		/*
-		SELECT app.voucherno, main.transactiondate, detail.accountcode, chart.accountname, main.wtaxcode, ftax.shortname, main.paymenttype, main.referenceno, app.amount, app.stat, main.checkdate, main.atcCode, main.particulars, detail.checkstat, app.discount, app.exchangerate, SUM(app.convertedamount) convertedamount, app.apvoucherno, SUM(detail.credit) sum 
-		FROM pv_application as app 
-		LEFT JOIN paymentvoucher as main ON main.voucherno = app.voucherno AND main.companycode = app.companycode 
-		LEFT JOIN pv_details as detail ON detail.apvoucherno = app.apvoucherno AND detail.companycode = app.companycode 
-		LEFT JOIN chartaccount as chart ON chart.id = detail.accountcode AND chart.companycode = detail.companycode 
-		LEFT JOIN fintaxcode as ftax ON ftax.fstaxcode = main.wtaxcode AND ftax.companycode = main.companycode 
-		WHERE app.voucherno = 'PV0000000007' AND app.stat != 'cancelled' AND detail.credit != 0 AND app.companycode = 'CID' 
-		*/
 		
 		// Retrieve Payments
-		$applicationFields = "app.voucherno,main.transactiondate,detail.accountcode,chart.accountname,main.wtaxcode,ftax.shortname,main.paymenttype,main.referenceno,app.amount,app.stat,main.checkdate,main.atcCode,main.particulars,detail.checkstat,app.discount,app.exchangerate, app.convertedamount AS convertedamount, app.apvoucherno, detail.credit AS sum";
-
-		$appJoin_pv  = "paymentvoucher as main ON main.voucherno = app.voucherno AND main.companycode = app.companycode";
-		$appJoin_pvd = "pv_details as detail ON detail.apvoucherno = app.apvoucherno AND detail.companycode = app.companycode";
-		$appJoin_ca  = "chartaccount as chart ON chart.id = detail.accountcode AND chart.companycode = detail.companycode";
-		$appJoin_fin = "fintaxcode as ftax ON ftax.fstaxcode = main.wtaxcode AND ftax.companycode = main.companycode";
-
-		$app_cond 	 = "app.voucherno = '$sid' AND app.stat != 'cancelled' AND detail.credit != 0";
+		$applicationFields = "app.voucherno as vno, app.amount as amt, '0.00' as bal, app.discount as discount";
+		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 ";
 
 		$applicationArray = $this->db->setTable('pv_application as app')
 									->setFields($applicationFields)
-									->leftJoin($appJoin_pv)
-									->leftJoin($appJoin_pvd)
-									->leftJoin($appJoin_ca)
-									->leftJoin($appJoin_fin)
 									->setWhere($app_cond)
 									->runSelect()
 									->getResult();
-									// ->buildSelect();
-		
-		// var_dump($applicationArray);
-		
+
 		$temp["payments"] = $applicationArray;
 
 		// Received Cheques
@@ -423,7 +379,7 @@ class payment_voucher_model extends wc_model
 		// Sub Select
 		$table_pv  = "pv_application AS pv";
 		$pv_fields = "COALESCE(SUM(pv.convertedamount),0) + COALESCE(SUM(pv.discount),0) - COALESCE(SUM(pv.forexamount),0)";
-		$pv_cond   = "pv.apvoucherno = main.voucherno AND pv.stat IN('posted')"; //'temporary'
+		$pv_cond   = "pv.apvoucherno = main.voucherno AND pv.stat IN('posted')";
 	
 		// Main Queries
 		$main_table   = "accountspayable as main";
@@ -431,6 +387,15 @@ class payment_voucher_model extends wc_model
 		$main_join 	  = "partners p ON p.partnercode = main.vendor ";
 		$orderby  	  = "main.transactiondate DESC";
 		
+		$mainTable	= "accountspayable as main";
+		$mainFields	= array(
+							"main.voucherno as voucherno", "main.transactiondate as transactiondate",
+							"main.convertedamount as amount", "main.balance as balance", "main.referenceno as referenceno",
+							"SUM(pv.convertedamount) as payment"
+						);
+		$mainJoin	= "pv_application AS pv ON pv.apvoucherno = main.voucherno";
+		$orderBy 	= "main.voucherno";
+
 		if($vendorcode && empty($voucherno))
 		{
 			$sub_select 		= $this->db->setTable($table_pv)
@@ -444,13 +409,16 @@ class payment_voucher_model extends wc_model
 		}
 		else if($voucherno)
 		{
-			$sub_select = $this->db->setTable($table_pv)
-								->setFields($pv_fields)
-								->setWhere($pv_cond)
-								->buildSelect();
-			$addCondition		= "AND main.convertedamount = ($sub_select AND pv.voucherno = '$voucherno') OR ($sub_select AND pv.voucherno = '$voucherno') > 0";
-			$main_cond    		= "main.stat = 'posted' AND main.vendor = '$vendorcode' $addCondition ";
-			$query 				= $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
+			// $sub_select = $this->db->setTable($table_pv)
+			// 					->setFields($pv_fields)
+			// 					->setWhere($pv_cond)
+			// 					->buildSelect();
+			// $addCondition		= "AND main.convertedamount = ($sub_select AND pv.voucherno = '$voucherno') OR ($sub_select AND pv.voucherno = '$voucherno') > 0";
+			// $main_cond    		= "main.stat = 'posted' AND main.vendor = '$vendorcode' $addCondition ";
+			// $query 				= $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
+			//$addCondition		= "AND main.convertedamount = ($sub_select AND pv.voucherno = '$voucherno') OR ($sub_select AND pv.voucherno = '$voucherno') > 0";
+			$main_cond    		= "main.stat = 'posted' AND main.vendor = '$vendorcode' ";
+			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $main_cond, $mainJoin, $orderBy);
 			$tempArr["result"] = $query;
 		}
 		
