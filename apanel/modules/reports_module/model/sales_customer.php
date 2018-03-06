@@ -18,7 +18,8 @@ class sales_customer extends wc_model {
 			$condition2 .= " AND cust.partnercode = '$customer'";
 		}
 
-		$sub_query = "(SELECT sr.warehouse warehouse ,sr.companycode,sr.voucherno,sr.source_no,SUM(amount) ramount FROM salesreturn sr LEFT JOIN partners cust ON cust.partnercode = sr.customer AND cust.companycode = sr.companycode  WHERE sr.stat = 'Returned' $condition2 )";	
+		$sub_query = "(SELECT sr.warehouse warehouse ,sr.companycode,sr.voucherno,sr.source_no,SUM(amount) ramount FROM salesreturn sr LEFT JOIN partners cust ON cust.partnercode = sr.customer AND cust.companycode = sr.companycode  WHERE sr.stat = 'Returned'  GROUP BY source_no )";
+		// var_dump($sub_query);	
 
 		$fields = array(
 			'inv.transactiondate date',
@@ -32,14 +33,14 @@ class sales_customer extends wc_model {
 			'SUM(inv.amount) amount',
 			'inv.stat stat',
 			'inv.referenceno as ref',
-			'sra.ramount as ramount',
+			'SUM(sra.ramount) as ramount',
 			'sra.warehouse srwarehouse'
 		);
 
 		$result = $this->db->setTable('salesinvoice as inv')
 						->setFields($fields)
 						->leftJoin('partners cust ON cust.partnercode = inv.customer AND cust.companycode = inv.companycode')
-						->leftJoin($sub_query .'as sra ON sra.companycode = inv.companycode' )
+						->leftJoin($sub_query .'as sra ON sra.companycode = inv.companycode AND inv.voucherno = sra.source_no' )
 						->setWhere(" inv.stat = 'posted'" .$condition)
 						->setOrderBy("SUM(inv.amount) DESC ")
 						->setGroupBy("cust.partnercode ")
@@ -73,7 +74,7 @@ class sales_customer extends wc_model {
 			$condition2 .= " AND cust.partnercode = '$customer'";
 		}
 
-		$sub_query = "(SELECT sr.companycode,sr.voucherno,sr.source_no,SUM(amount) ramount FROM salesreturn sr LEFT JOIN partners cust ON cust.partnercode = sr.customer AND cust.companycode = sr.companycode  WHERE sr.stat = 'Returned' $condition2 )";	
+		$sub_query = "(SELECT sr.warehouse warehouse ,sr.companycode,sr.voucherno,sr.source_no,SUM(amount) ramount FROM salesreturn sr LEFT JOIN partners cust ON cust.partnercode = sr.customer AND cust.companycode = sr.companycode  WHERE sr.stat = 'Returned'  GROUP BY source_no )";
 
 		$fields = array(
 			'inv.transactiondate date',
@@ -90,13 +91,13 @@ class sales_customer extends wc_model {
 			'sra.ramount as ramount'
 		);
 
-		$result = $this->db->setTable('salesinvoice as inv')
+						$result = $this->db->setTable('salesinvoice as inv')
 						->setFields($fields)
 						->leftJoin('partners cust ON cust.partnercode = inv.customer AND cust.companycode = inv.companycode')
-						->leftJoin($sub_query .'as sra ON sra.companycode = inv.companycode' )
+						->leftJoin($sub_query .'as sra ON sra.companycode = inv.companycode AND inv.voucherno = sra.source_no' )
 						->setWhere(" inv.stat = 'posted'" .$condition)
-						->setGroupBy("cust.partnercode ")
 						->setOrderBy("SUM(inv.amount) DESC ")
+						->setGroupBy("cust.partnercode ")
 						->runSelect()
 						->getResult();
 		return $result;
@@ -162,7 +163,7 @@ class sales_customer extends wc_model {
 			$condition2 .= " AND cust.partnercode = '$cust_code'";
 		}
 
-		$sub_query = "(SELECT sr.companycode,sr.voucherno,sr.source_no,amount ramount FROM salesreturn sr LEFT JOIN partners cust ON cust.partnercode = sr.customer AND cust.companycode = sr.companycode  WHERE sr.stat = 'Returned' $condition2 )";
+		$sub_query = "(SELECT sr.companycode,sr.voucherno,sr.source_no,amount ramount FROM salesreturn sr LEFT JOIN partners cust ON cust.partnercode = sr.customer AND cust.companycode = sr.companycode  WHERE sr.stat = 'Returned' )";
 		
 		$result = $this->db->setTable('salesinvoice as inv')
 						->setFields($fields)
@@ -214,7 +215,7 @@ class sales_customer extends wc_model {
 			$condition2 .= " AND cust.partnercode = '$cust_code'";
 		}
 
-		$sub_query = "(SELECT sr.companycode,sr.voucherno,sr.source_no,amount ramount FROM salesreturn sr LEFT JOIN partners cust ON cust.partnercode = sr.customer AND cust.companycode = sr.companycode  WHERE sr.stat = 'Returned' $condition2 )";
+		$sub_query = "(SELECT sr.companycode,sr.voucherno,sr.source_no,amount ramount FROM salesreturn sr LEFT JOIN partners cust ON cust.partnercode = sr.customer AND cust.companycode = sr.companycode  WHERE sr.stat = 'Returned'  )";
 		
 		$result = $this->db->setTable('salesinvoice as inv')
 						->setFields($fields)

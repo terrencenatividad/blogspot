@@ -25,7 +25,7 @@ class controller extends wc_controller
 		$this->view->load('returns_customer/returns_customer_list', $data);
 	}
 
-	public function view($warehouse, $cust_code, $datefilter)
+	public function view($warehouse, $cust_code, $datefilter, $data_type = 'return')
 	{
 		$cust_code =  base64_decode($cust_code);
 		$datefilter = base64_decode($datefilter);
@@ -37,6 +37,7 @@ class controller extends wc_controller
 		$data['cust_code'] = $cust_code;
 		$data['datefilter'] = $datefilter;
 		$data['warehouse'] = $warehouse;
+		$data['data_type'] = $data_type;
 		$this->view->load('returns_customer/returns_customer', $data);
 	}
 	
@@ -51,11 +52,12 @@ class controller extends wc_controller
 
 	private function get_invoice()
 	{
-		$data       = $this->input->post(array('customer','datefilter', 'warehouse'));
+		$data       = $this->input->post(array('customer','datefilter', 'warehouse', 'data_type'));
 		$cust_code  = $data['customer'];
 		$datefilter = $data['datefilter'];
 		$warehouse  = $data['warehouse'];
-		$pagination = $this->returns_customer->customerInvoices($cust_code,$datefilter, $warehouse);
+		$data_type  = $data['data_type'];
+		$pagination = $this->returns_customer->customerInvoices($cust_code,$datefilter, $warehouse, $data_type);
 		$table      = '';
 		
 		if (empty($pagination->result)) 
@@ -140,7 +142,7 @@ class controller extends wc_controller
 
 	private function export_details()
 	{
-		$data = $this->input->post(array('customer','warehouse','datefilter'));
+		$data = $this->input->post(array('customer','warehouse','datefilter','data_type'));
 		
 		$customer = isset($data['customer'])  	?  	$data['customer'] 	: 	"";
 		

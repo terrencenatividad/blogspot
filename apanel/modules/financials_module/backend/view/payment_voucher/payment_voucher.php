@@ -10,7 +10,7 @@
 	<p class = "text-bold">Please contact admin to fix this issue.</p>
 </div>
 
-<form method = "post" class="form-horizontal" id = "paymentForm">
+<form method = "post" class="form-horizontal" id = "payableForm">
 	<div class="box box-primary">
 		<div class="box-body">
 			<div class = "row">
@@ -95,6 +95,8 @@
 								</div>
 							</div>
 						</div>
+						<!-- Text Area for selected payables -->
+						<textarea class = "hidden" id = "selected_rows" name = "selected_rows">[]</textarea>
 						<div class = "col-md-6">
 							<?php
 								echo $ui->formField('text')
@@ -108,9 +110,6 @@
 							?>
 						</div>
 					</div>
-
-					
-
 					<div class="row">
 						<div class = "col-md-12">
 							<?php
@@ -271,19 +270,18 @@
 						</thead>
 						<tbody id = "ap_items">
 							<?php
+								$row 				= 1;
+
+								$total_debit 		= 0;
+								$total_credit 		= 0;
+
 								if($task == 'create')
 								{
 									$accountcode 		= '';
 									$detailparticulars 	= '';
 									$debit 				= '0.00';
 									$credit 			= '0.00';
-								
-									$row 				= 1;
-									$total_debit 		= 0;
-									$total_credit 		= 0;
-
-									$disable_debit		= '';
-									$disable_credit		= '';
+		
 							?>
 
 							<tr class="clone">
@@ -318,7 +316,7 @@
 												->setName('debit['.$row.']')
 												->setId('debit['.$row.']')
 												->setClass("text-right")
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
+												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($debit, 2))
 												->draw($show_input);
 									?>
@@ -330,7 +328,7 @@
 												->setName('credit['.$row.']')
 												->setId('credit['.$row.']')
 												->setClass("text-right account_amount")
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_credit))
+												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($credit, 2))
 												->draw($show_input);
 									?>
@@ -376,7 +374,7 @@
 												->setName('debit['.$row.']')
 												->setId('debit['.$row.']')
 												->setClass("text-right")
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
+												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($debit, 2))
 												->draw($show_input);
 									?>
@@ -388,7 +386,7 @@
 												->setName('credit['.$row.']')
 												->setClass("text-right account_amount")
 												->setId('credit['.$row.']')
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_credit))
+												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($credit, 2))
 												->draw($show_input);
 									?>
@@ -399,6 +397,77 @@
 							</tr>
 
 							<?php
+								}else{
+									$aPvJournalDetails 	= $data['details'];
+									$detail_row 		= '';
+									if(!empty($aPvJournalDetails)){
+										foreach ($aPvJournalDetails as $aPvJournalDetails_Index => $aPvJournalDetails_Value) {
+											$accountcode 		= $aPvJournalDetails_Value->accountcode;
+											$detailparticulars 	= $aPvJournalDetails_Value->detailparticulars;
+											$debit 				= $aPvJournalDetails_Value->debit;
+											$credit 			= $aPvJournalDetails_Value->credit;
+											$disable_debit		= ($debit > 0) ? '' : 'readOnly';
+											$disable_credit		= ($credit > 0) ? '' : 'readOnly';
+
+											$total_debit 		+= $debit;
+											$total_credit 		+= $credit;
+											$detail_row	.= '<tr class="clone">';
+
+											$detail_row	.= '<td>';
+											$detail_row .= $ui->formField('dropdown')
+															->setPlaceholder('Select One')
+															->setSplit('', 'col-md-12')
+															->setName("accountcode[".$row."]")
+															->setClass("accountcode")
+															->setId("accountcode[".$row."]")
+															->setList($account_entry_list)
+															->setValue($accountcode)
+															->draw($show_input);
+											$detail_row	.= '</td>';
+
+											$detail_row	.= '<td>';
+											$detail_row .= $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName('detailparticulars['.$row.']')
+															->setId('detailparticulars['.$row.']')
+															->setAttribute(array("maxlength" => "100"))
+															->setValue($detailparticulars)
+															->draw($show_input);
+											$detail_row	.= '</td>';
+
+											$detail_row	.= '<td>';
+											$detail_row .= $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName('debit['.$row.']')
+															->setId('debit['.$row.']')
+															->setClass("text-right")
+															->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
+															->setValue(number_format($debit, 2))
+															->draw($show_input);
+											$detail_row	.= '</td>';
+
+											$detail_row	.= '<td>';
+											$detail_row .= $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName('credit['.$row.']')
+															->setClass("text-right account_amount")
+															->setId('credit['.$row.']')
+															->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_credit))
+															->setValue(number_format($credit, 2))
+															->draw($show_input);
+											$detail_row	.= '</td>';
+
+											$detail_row .= '<td class="text-center">';
+
+											$detail_row .= '<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"><span class="glyphicon glyphicon-trash"></span></button>';
+											$detail_row .= '</td>';
+											$detail_row	.= '</tr>';
+
+											$row++;
+										}
+
+										echo $detail_row;
+									}
 								}
 							?>
 						</tbody>
@@ -561,8 +630,6 @@
 								</tr>
 							</tfoot>
 						</table>
-						<!-- Text Area for selected payables -->
-						<textarea class = "hidden" id = "selected_rows" name = "selected_rows">[]</textarea>
 					</div>
 					<div id="pagination"></div>
 					<div class="modal-footer">
@@ -718,59 +785,45 @@ echo $ui->loadElement('modal')
 var ajax 	 = {};
 var id_array = [];
 
-// Change event for chequeaccount
-
-
 var accounts = [];
-// var chequeacct 	= [];
-// var chequeamt 	= [];
+
 $('#chequeTable .cheque_account').on('change', function() 
 {
 
-var val = $(this).val();
-var id 	= $(this).attr("id");
-	id 	= id.replace(/[a-z\[\]]/g, '');
+	var val = $(this).val();
+	var id 	= $(this).attr("id");
+		id 	= id.replace(/[a-z\[\]]/g, '');
 
-// Get length of cheque items
-// var apptable 	= document.getElementById('chequeTable');
-// var apptablelen	= apptable.rows.length - 2;
-// for (var i = 1; i <= apptablelen; i++) {
-// 	var chequeamount  = Number($("#chequeamount\\["+ i +"\\]").val());
-// 	var acc  		  = $("#accountcode\\["+ i +"\\]").val();
-// 	chequeamt.push(chequeamount);
-// }
-// chequeacct.push(val);
+	// Get length of ap_items
+	var table 		= document.getElementById('ap_items');
+	var newid 		= table.rows.length + 1;
+		newid 		= parseFloat(newid);
 
-// Get length of ap_items
-var table 		= document.getElementById('ap_items');
-var newid 		= table.rows.length + 1;
-	newid 		= parseFloat(newid);
-	
-// Set value for PV Details
-			var found_same = false;
+	// Set value for PV Details
+	var found_same = false;
 
-			if (jQuery.inArray(val, accounts) > -1) {				
-					found_same = true;
-				}
-			if (found_same) {
-				
-			}else{
-				$('#entriesTable tbody tr.clone select').select2('destroy');
-	
-				var clone = $("#entriesTable tbody tr.clone:first").clone(true); 
-				
-				var ParentRow = $("#entriesTable tbody tr.clone").last();
+	if (jQuery.inArray(val, accounts) > -1) {				
+		found_same = true;
+	}
+	if (found_same) {
+		
+	}else{
+		$('#entriesTable tbody tr.clone select').select2('destroy');
 
-				clone.clone(true).insertAfter(ParentRow);
-				
-				setZero();
-				
-				$('#entriesTable tbody tr.clone select').select2({width: "100%"});
-				
-				var accountcode = $("#accountcode\\["+ newid +"\\]").val(val).trigger('change.select2');
-			}
-			accounts.push(val);
-			return found_same;
+		var clone = $("#entriesTable tbody tr.clone:first").clone(true); 
+		
+		var ParentRow = $("#entriesTable tbody tr.clone").last();
+
+		clone.clone(true).insertAfter(ParentRow);
+		
+		setZero();
+		
+		$('#entriesTable tbody tr.clone select').select2({width: "100%"});
+		
+		var accountcode = $("#accountcode\\["+ newid +"\\]").val(val).trigger('change.select2');
+	}
+	accounts.push(val);
+	return found_same;
 });
 
 var checker 	= new Array();
@@ -790,125 +843,80 @@ $('#chequeTable .chequeamount').on('change', function() {
 		if (typeof checker['acc-' + $(this).val()] === 'undefined') {
 		} else {
 			var ca = checker['acc-' + $(this).val()];
-			$(this).closest('tr').find('.account_amount').val(ca);
-				
-		}
-		
-		
+			$(this).closest('tr').find('.account_amount').val(ca);	
+		}	
 	});
 	formatNumber("credit["+ newid +"]");
 	addAmountAll('credit');
-	
 });
-
-
-/*
-$('#chequeTable .cheque_account').on('change', function() 
-{
-var val = $(this).val();
-var id 	= $(this).attr("id");
-	id 	= id.replace(/[a-z\[\]]/g, '');
-
-// Get length of ap_items
-var table 		= document.getElementById('ap_items');
-var newid 		= table.rows.length;
-	newid 		= parseFloat(newid);
-
-// Set value for PV Details
-var accountcode = $("#accountcode\\["+ newid +"\\]").val(val).trigger('change.select2');
-});
-*/
-
-// Change event for chequeamount
-/*
-$('#chequeTable .chequeamount').on('change', function() 
-{
-var val = $(this).val();
-var id 	= $(this).attr("id");
-	id 	= id.replace(/[a-z\[\]]/g, '');
-
-// Get length of ap_items
-var table 		= document.getElementById('ap_items');
-var newid 		= table.rows.length;
-	newid 		= parseFloat(newid);
-
-var chequeamount  = $("#chequeamount\\["+ id +"\\]").val();
-
-// Set value for DV Details
-$("#ap_items #credit\\["+ newid +"\\]").val(chequeamount);
-formatNumber("credit["+ newid +"]");
-addAmountAll('credit');
-});
-*/
 
 function computeDueDate()
 {
-var invoice = $("#transactiondate").val();
-var terms 	= $("#vendor_terms").val();
+	var invoice = $("#transactiondate").val();
+	var terms 	= $("#vendor_terms").val();
 
-if(invoice != '')
-{
-	var newDate	= moment(invoice).add(terms, 'days').format("MMM DD, YYYY");
-	$("#due_date").val(newDate);
-}
+	if(invoice != '')
+	{
+		var newDate	= moment(invoice).add(terms, 'days').format("MMM DD, YYYY");
+		$("#due_date").val(newDate);
+	}
 }
 
 function getPartnerInfo(code)
 {
-if(code == '' || code == 'add' || code == "none")
-{
-	$("#vendor_tin").val("");
-	$("#vendor_terms").val("");
-	$("#vendor_address").val("");
+	if(code == '' || code == 'add' || code == "none")
+	{
+		$("#vendor_tin").val("");
+		$("#vendor_terms").val("");
+		$("#vendor_address").val("");
 
-	bootbox.dialog({
-		message: "Please select Vendor.",
-		title: "Oops!",
-			buttons: {
-			yes: {
-			label: "OK",
-			className: "btn-primary btn-flat",
-			callback: function(result) {
-				
+		bootbox.dialog({
+			message: "Please select Vendor.",
+			title: "Oops!",
+				buttons: {
+				yes: {
+				label: "OK",
+				className: "btn-primary btn-flat",
+				callback: function(result) {
+					
+					}
 				}
 			}
-		}
-	});
-
-	computeDueDate();
-}
-else
-{
-	$.post('<?=BASE_URL?>financials/payment_voucher/ajax/get_value', "code=" + code + "&event=getPartnerInfo", function(data) 
-	{
-		var address		= data.address.trim();
-		var tinno		= data.tinno.trim();
-		var terms		= data.terms.trim();
-		
-		$("#vendor_tin").val(tinno);
-		$("#vendor_terms").val(terms);
-		$("#vendor_address").val(address);
-
-		// Remove disabled for Payment Mode
-		// $("#paymentmode").removeAttr("disabled");
+		});
 
 		computeDueDate();
-	});
-}
-}
+	}
+	else
+	{
+		$.post('<?=BASE_URL?>financials/payment_voucher/ajax/get_value', "code=" + code + "&event=getPartnerInfo", function(data) 
+		{
+			var address		= data.address.trim();
+			var tinno		= data.tinno.trim();
+			var terms		= data.terms.trim();
+			
+			$("#vendor_tin").val(tinno);
+			$("#vendor_terms").val(terms);
+			$("#vendor_address").val(address);
 
+			// Remove disabled for Payment Mode
+			// $("#paymentmode").removeAttr("disabled");
+
+			computeDueDate();
+		});
+	}
+}
 
 function addCommas(nStr)
 {
-nStr += '';
-x = nStr.split('.');
-x1 = x[0];
-x2 = x.length > 1 ? '.' + x[1] : '';
-var rgx = /(\d+)(\d{3})/;
-while (rgx.test(x1)) {
-	x1 = x1.replace(rgx, '$1' + ',' + '$2');
-}
-return x1 + x2;
+	nStr += '';
+	x = nStr.split('.');
+	x1 = x[0];
+	x2 = x.length > 1 ? '.' + x[1] : '';
+	var rgx = /(\d+)(\d{3})/;
+	while (rgx.test(x1)) {
+		x1 = x1.replace(rgx, '$1' + ',' + '$2');
+	}
+	return x1 + x2;
 }
 
 /**
@@ -917,214 +925,213 @@ return x1 + x2;
 */
 function toggleExchangeRate(tp)
 {
-tp = typeof tp !== 'undefined' ? tp : '';
+	tp = typeof tp !== 'undefined' ? tp : '';
 
-if(tp == '')
-{
-	var amount 				= $('#payableForm #h_amount').val();
-	var exchangerate 		= $('#payableForm #h_exchangerate').val();
-	var convertedamount 	= $('#payableForm #h_convertedamount').val();
+	if(tp == '')
+	{
+		var amount 				= $('#payableForm #h_amount').val();
+		var exchangerate 		= $('#payableForm #h_exchangerate').val();
+		var convertedamount 	= $('#payableForm #h_convertedamount').val();
 
-	var oldamount 			= amount * 1;
-	var rate 				= exchangerate * 1;
-	var newamount 			= convertedamount * 1;
+		var oldamount 			= amount * 1;
+		var rate 				= exchangerate * 1;
+		var newamount 			= convertedamount * 1;
 
-	// Set hidden values
-	$('#rateForm #oldamount_').val(addCommas(oldamount.toFixed(2)));
-	$('#rateForm #rate_').val(addCommas(rate.toFixed(2)));
-	$('#rateForm #newamount_').val(addCommas(newamount.toFixed(2)));		
+		// Set hidden values
+		$('#rateForm #oldamount_').val(addCommas(oldamount.toFixed(2)));
+		$('#rateForm #rate_').val(addCommas(rate.toFixed(2)));
+		$('#rateForm #newamount_').val(addCommas(newamount.toFixed(2)));		
 
-	$('#rateModal').modal('toggle');	
-}
-else
-{
-	var amount 				= $('#receiptForm #paymentamount\\[1\\]').val();
-	var exchangerate 		= $('#receiptForm #exchangerate\\[1\\]').val();
-	var convertedamount 	= $('#receiptForm #convertedamount\\[1\\]').val();
+		$('#rateModal').modal('toggle');	
+	}
+	else
+	{
+		var amount 				= $('#receiptForm #paymentamount\\[1\\]').val();
+		var exchangerate 		= $('#receiptForm #exchangerate\\[1\\]').val();
+		var convertedamount 	= $('#receiptForm #convertedamount\\[1\\]').val();
 
-	amount 					= amount.replace(/,/g,'');
-	exchangerate 			= exchangerate.replace(/,/g,'');
-	convertedamount 		= convertedamount.replace(/,/g,'');
+		amount 					= amount.replace(/,/g,'');
+		exchangerate 			= exchangerate.replace(/,/g,'');
+		convertedamount 		= convertedamount.replace(/,/g,'');
 
-	var oldamount 	= amount * 1;
-	var rate 		= exchangerate * 1;
-	var newamount 	= convertedamount * 1;
+		var oldamount 	= amount * 1;
+		var rate 		= exchangerate * 1;
+		var newamount 	= convertedamount * 1;
 
-	$('#paymentRateForm #paymentoldamount').val(addCommas(oldamount.toFixed(2)));
-	$('#paymentRateForm #paymentrate').val(addCommas(rate.toFixed(2)));
-	$('#paymentRateForm #paymentnewamount').val(addCommas(newamount.toFixed(2)));
+		$('#paymentRateForm #paymentoldamount').val(addCommas(oldamount.toFixed(2)));
+		$('#paymentRateForm #paymentrate').val(addCommas(rate.toFixed(2)));
+		$('#paymentRateForm #paymentnewamount').val(addCommas(newamount.toFixed(2)));
 
-	$('#receiptForm #paymentamount\\[1\\]').val($('#paymentRateForm #paymentoldamount').val());
+		$('#receiptForm #paymentamount\\[1\\]').val($('#paymentRateForm #paymentoldamount').val());
 
-	$('#paymentRateModal').modal('toggle');
-}
+		$('#paymentRateModal').modal('toggle');
+	}
 }
 
 /**RESET IDS OF ROWS**/
 function resetIds()
 {
-var table 	= document.getElementById('entriesTable');
-var count	= table.rows.length - 3;
+	var table 	= document.getElementById('entriesTable');
+	var count	= table.rows.length - 3;
 
-x = 1;
-for(var i = 1;i <= count;i++)
-{
-	var row = table.rows[i];
-	
-	row.cells[0].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
-	row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
-	row.cells[2].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
-	row.cells[3].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
-	
-	row.cells[0].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
-	row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
-	row.cells[2].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
-	row.cells[3].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
-	
-	row.cells[4].getElementsByTagName("button")[0].setAttribute('id',x);
-	row.cells[0].getElementsByTagName("select")[0].setAttribute('data-id',x);
-	row.cells[4].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
+	x = 1;
+	for(var i = 1;i <= count;i++)
+	{
+		var row = table.rows[i];
+		
+		row.cells[0].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
+		row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
+		row.cells[3].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
+		
+		row.cells[0].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
+		row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
+		row.cells[3].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
+		
+		row.cells[4].getElementsByTagName("button")[0].setAttribute('id',x);
+		row.cells[0].getElementsByTagName("select")[0].setAttribute('data-id',x);
+		row.cells[4].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
 
-	x++;
-}
-
+		x++;
+	}
 }
 
 function resetChequeIds()
 {
-var table 	= document.getElementById('chequeTable');
-var count	= table.rows.length - 2;
+	var table 	= document.getElementById('chequeTable');
+	var count	= table.rows.length - 2;
 
-x = 1;
+	x = 1;
 
-for(var i = 1;i <= count;i++)
-{
-	var row = table.rows[i];
-	
-	row.cells[0].getElementsByTagName("select")[0].id 	= 'chequeaccount['+x+']';
-	row.cells[1].getElementsByTagName("input")[0].id 	= 'chequenumber['+x+']';
-	row.cells[2].getElementsByTagName("input")[0].id 	= 'chequedate['+x+']';
-	row.cells[3].getElementsByTagName("input")[0].id 	= 'chequeamount['+x+']';
-	
-	row.cells[0].getElementsByTagName("select")[0].name = 'chequeaccount['+x+']';
-	row.cells[1].getElementsByTagName("input")[0].name 	= 'chequenumber['+x+']';
-	row.cells[2].getElementsByTagName("input")[0].name 	= 'chequedate['+x+']';
-	row.cells[3].getElementsByTagName("input")[0].name 	= 'chequeamount['+x+']';
-	
-	row.cells[4].getElementsByTagName("button")[0].setAttribute('id',x);
-	row.cells[0].getElementsByTagName("select")[0].setAttribute('data-id',x);
-	
-	row.cells[2].getElementsByTagName("input")[0].setAttribute('onClick','clearInput(\'chequedate['+x+']\')');
-	row.cells[2].getElementsByTagName("div")[0].setAttribute('onClick','clearInput(\'chequedate['+x+']\')');
-	
-	row.cells[3].getElementsByTagName("input")[0].setAttribute('onBlur','formatNumber(\'chequeamount['+x+']\'); addAmounts();');
-	row.cells[3].getElementsByTagName("input")[0].setAttribute('onClick','SelectAll(\'chequeamount['+x+']\')');
-	row.cells[4].getElementsByTagName("button")[0].setAttribute('onClick','confirmChequeDelete('+x+')');
-	x++;
-}
+	for(var i = 1;i <= count;i++)
+	{
+		var row = table.rows[i];
+		
+		row.cells[0].getElementsByTagName("select")[0].id 	= 'chequeaccount['+x+']';
+		row.cells[1].getElementsByTagName("input")[0].id 	= 'chequenumber['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].id 	= 'chequedate['+x+']';
+		row.cells[3].getElementsByTagName("input")[0].id 	= 'chequeamount['+x+']';
+		
+		row.cells[0].getElementsByTagName("select")[0].name = 'chequeaccount['+x+']';
+		row.cells[1].getElementsByTagName("input")[0].name 	= 'chequenumber['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].name 	= 'chequedate['+x+']';
+		row.cells[3].getElementsByTagName("input")[0].name 	= 'chequeamount['+x+']';
+		
+		row.cells[4].getElementsByTagName("button")[0].setAttribute('id',x);
+		row.cells[0].getElementsByTagName("select")[0].setAttribute('data-id',x);
+		
+		row.cells[2].getElementsByTagName("input")[0].setAttribute('onClick','clearInput(\'chequedate['+x+']\')');
+		row.cells[2].getElementsByTagName("div")[0].setAttribute('onClick','clearInput(\'chequedate['+x+']\')');
+		
+		row.cells[3].getElementsByTagName("input")[0].setAttribute('onBlur','formatNumber(\'chequeamount['+x+']\'); addAmounts();');
+		row.cells[3].getElementsByTagName("input")[0].setAttribute('onClick','SelectAll(\'chequeamount['+x+']\')');
+		row.cells[4].getElementsByTagName("button")[0].setAttribute('onClick','confirmChequeDelete('+x+')');
+		x++;
+	}
 
 }
 
 /**SET TABLE ROWS TO DEFAULT VALUES**/
 function setZero()
 {
-resetIds();
+	resetIds();
 
-var table 		= document.getElementById('entriesTable');
-var newid 		= table.rows.length - 3;
-var account		= document.getElementById('accountcode['+newid+']');
+	var table 		= document.getElementById('entriesTable');
+	var newid 		= table.rows.length - 3;
+	var account		= document.getElementById('accountcode['+newid+']');
 
-if(document.getElementById('accountcode['+newid+']') != null)
-{
-	document.getElementById('accountcode['+newid+']').value 		= '';
-	document.getElementById('detailparticulars['+newid+']').value 	= '';
-	document.getElementById('debit['+newid+']').value 				= '0.00';
-	document.getElementById('credit['+newid+']').value 				= '0.00';
+	if(document.getElementById('accountcode['+newid+']') != null)
+	{
+		document.getElementById('accountcode['+newid+']').value 		= '';
+		document.getElementById('detailparticulars['+newid+']').value 	= '';
+		document.getElementById('debit['+newid+']').value 				= '0.00';
+		document.getElementById('credit['+newid+']').value 				= '0.00';
 
-	document.getElementById('debit['+newid+']').readOnly 			= false;
-	document.getElementById('credit['+newid+']').readOnly 			= false;
-}
+		document.getElementById('debit['+newid+']').readOnly 			= false;
+		document.getElementById('credit['+newid+']').readOnly 			= false;
+	}
 }
 
 function setChequeZero()
 {
-resetChequeIds();
+	resetChequeIds();
 
-var table 		= document.getElementById('chequeTable');
-var newid 		= table.rows.length - 2;
-var account		= document.getElementById('chequeaccount['+newid+']');
+	var table 		= document.getElementById('chequeTable');
+	var newid 		= table.rows.length - 2;
+	var account		= document.getElementById('chequeaccount['+newid+']');
 
-if(document.getElementById('chequeaccount['+newid+']')!=null)
-{
-	document.getElementById('chequeaccount['+newid+']').value 	= '';
-	document.getElementById('chequenumber['+newid+']').value 	= '';
-	document.getElementById('chequeamount['+newid+']').value 	= '0.00';
-}
+	if(document.getElementById('chequeaccount['+newid+']')!=null)
+	{
+		document.getElementById('chequeaccount['+newid+']').value 	= '';
+		document.getElementById('chequenumber['+newid+']').value 	= '';
+		document.getElementById('chequeamount['+newid+']').value 	= '0.00';
+	}
 }
 
 /**VALIDATE FIELD**/
 function validateField(form,id,help_block)
 {
-var field	= $("#"+form+" #"+id).val();
+	var field	= $("#"+form+" #"+id).val();
 
-if(id.indexOf('_chosen') != -1)
-{
-	var id2	= id.replace("_chosen","");
-	field	= $("#"+form+" #"+id2).val();
-}
-
-if((field == '' || parseFloat(field) == 0) || help_block == "exrateamount_help" || field == "none" )
-{
-	$("#"+form+" #"+id)
-		.closest('.field_col')
-		.addClass('has-error');
-	
-	$("#"+form+" #"+help_block)
-		.removeClass('hidden');
-
-
-	if($("#"+form+" .row-dense").next(".help-block")[0])
+	if(id.indexOf('_chosen') != -1)
 	{
-		$("#"+form+" #"+help_block)
-		// .parent()
-		// .next(".help-block")
-		.removeClass('hidden');
+		var id2	= id.replace("_chosen","");
+		field	= $("#"+form+" #"+id2).val();
 	}
 
-	return 1;
-}
-else
-{
-	$("#"+form+" #"+id)
-		.closest('.field_col')
-		.removeClass('has-error');
-
-	$("#"+form+" #"+help_block)
-		.addClass('hidden');
-
-	if($("#"+form+" .row-dense").next(".help-block")[0])
+	if((field == '' || parseFloat(field) == 0) || help_block == "exrateamount_help" || field == "none" )
 	{
+		$("#"+form+" #"+id)
+			.closest('.field_col')
+			.addClass('has-error');
+		
 		$("#"+form+" #"+help_block)
-		// .parent()
-		// .next(".help-block")
-		.removeClass('hidden');
-	}
+			.removeClass('hidden');
 
-	return 0;
-}
+
+		if($("#"+form+" .row-dense").next(".help-block")[0])
+		{
+			$("#"+form+" #"+help_block)
+			// .parent()
+			// .next(".help-block")
+			.removeClass('hidden');
+		}
+
+		return 1;
+	}
+	else
+	{
+		$("#"+form+" #"+id)
+			.closest('.field_col')
+			.removeClass('has-error');
+
+		$("#"+form+" #"+help_block)
+			.addClass('hidden');
+
+		if($("#"+form+" .row-dense").next(".help-block")[0])
+		{
+			$("#"+form+" #"+help_block)
+			// .parent()
+			// .next(".help-block")
+			.removeClass('hidden');
+		}
+
+		return 0;
+	}
 }
 
 /**VALIDATION FOR NUMERIC FIELDS**/
 function isNumberKey(evt,exemptChar) 
 {
-if(evt.which != 0)
-{
-	var charCode = (evt.which) ? evt.which : event.keyCode 
-	if(charCode == exemptChar) return true; 
-	if (charCode > 31 && (charCode < 48 || charCode > 57)) 
-	return false; 
-	return true;
-}
+	if(evt.which != 0)
+	{
+		var charCode = (evt.which) ? evt.which : event.keyCode 
+		if(charCode == exemptChar) return true; 
+		if (charCode > 31 && (charCode < 48 || charCode > 57)) 
+		return false; 
+		return true;
+	}
 }
 
 /**LIMIT INPUT TO NUMBERS ONLY**/
@@ -1143,333 +1150,282 @@ if(evt.which != 0){
 /**HIGHTLIGHT CONTENT OF INPUT**/
 function SelectAll(id)
 {
-document.getElementById(id).focus();
-document.getElementById(id).select();
+	document.getElementById(id).focus();
+	document.getElementById(id).select();
 }
 
 /**FORMAT NUMBERS TO DECIMAL**/
 function formatNumber(id)
 {
-var amount = document.getElementById(id).value;
-amount     = amount.replace(/\,/g,'');
-var result = amount * 1;
-document.getElementById(id).value = addCommas(result.toFixed(2));
+	var amount = document.getElementById(id).value;
+	amount     = amount.replace(/\,/g,'');
+	var result = amount * 1;
+	document.getElementById(id).value = addCommas(result.toFixed(2));
 }
 
 /**COMPUTE TOTAL CHEQUE AMOUNT**/
 function addAmounts() 
 {
-var sum 		= 0;
-var subtotal 	= 0;
+	var sum 		= 0;
+	var subtotal 	= 0;
 
-var subData 	= 0;
+	var subData 	= 0;
 
-var table 	= document.getElementById('chequeTable');
-var count	= table.rows.length - 2;
+	var table 	= document.getElementById('chequeTable');
+	var count	= table.rows.length - 2;
 
-for(i = 1; i <= count; i++) 
-{  
-	var inputamt	= document.getElementById('chequeamount['+i+']');
-	
-	if(document.getElementById('chequeamount['+i+']') != null)
-	{          
-		if(inputamt.value && inputamt != '0' && inputamt.value != '0.00')
-		{                            
-			subData = inputamt.value.replace(/,/g,'');
-		}
-		else
-		{             
-			subData = 0;
-		}
-		subtotal = parseFloat(subtotal) + parseFloat(subData);
-	}	
-}
-subtotal	= Math.round(1000*subtotal) / 1000;
+	for(i = 1; i <= count; i++) 
+	{  
+		var inputamt	= document.getElementById('chequeamount['+i+']');
+		
+		if(document.getElementById('chequeamount['+i+']') != null)
+		{          
+			if(inputamt.value && inputamt != '0' && inputamt.value != '0.00')
+			{                            
+				subData = inputamt.value.replace(/,/g,'');
+			}
+			else
+			{             
+				subData = 0;
+			}
+			subtotal = parseFloat(subtotal) + parseFloat(subData);
+		}	
+	}
+	subtotal	= Math.round(1000*subtotal) / 1000;
 
-$("#chequeTable #totalcheques").val(addCommas(subtotal.toFixed(2)));
+	$("#chequeTable #totalcheques").val(addCommas(subtotal.toFixed(2)));
 }
 
 
 function addAmountAll(field) 
 {
-var sum    = 0;       
-var valid  = true;
-var inData = 0;
+	var sum    = 0;       
+	var valid  = true;
+	var inData = 0;
 
-var chk	   = document.getElementsByName('chk[]');
+	var chk	   = document.getElementsByName('chk[]');
 
-if(field == 'debit')
-{
-	notfield	= 'credit';
-}
-else
-{
-	notfield	= 'debit';
-}
+	if(field == 'debit')
+	{
+		notfield	= 'credit';
+	}
+	else
+	{
+		notfield	= 'debit';
+	}
 
-for(i = 0; i <= chk.length; i++) 
-{  
-	var inputs 		= document.getElementById(field+'['+i+']');
-	var disables 	= document.getElementById(notfield+'['+i+']');
-	
-	if(document.getElementById(notfield+'['+i+']')!=null)
-	{          
-		if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
-		{                            
-			inData = inputs.value.replace(/,/g,'');
-			disables.readOnly = true;
-		}
-		else
-		{             
-			inData = 0;
-			disables.readOnly = false;
-		} 
-
-		sum = parseFloat(sum) + parseFloat(inData);
-	}	
-}
+	for(i = 0; i <= chk.length; i++) 
+	{  
+		var inputs 		= document.getElementById(field+'['+i+']');
+		var disables 	= document.getElementById(notfield+'['+i+']');
 		
-if(field == 'debit')
-{
-	document.getElementById('total_debit').value = addCommas(sum.toFixed(2));
-}
-else
-{
-	document.getElementById('total_credit').value = addCommas(sum.toFixed(2));
-}
+		if(document.getElementById(notfield+'['+i+']')!=null)
+		{          
+			if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
+			{                            
+				inData = inputs.value.replace(/,/g,'');
+				disables.readOnly = true;
+			}
+			else
+			{             
+				inData = 0;
+				disables.readOnly = false;
+			} 
+
+			sum = parseFloat(sum) + parseFloat(inData);
+		}	
+	}
+		
+	if(field == 'debit')
+	{
+		document.getElementById('total_debit').value = addCommas(sum.toFixed(2));
+	}
+	else
+	{
+		document.getElementById('total_credit').value = addCommas(sum.toFixed(2));
+	}
 }
 
 function confirmDelete(id)
 {
-$('#deleteItemModal').data('id', id).modal('show');
+	$('#deleteItemModal').data('id', id).modal('show');
 }
 
 function confirmChequeDelete(row)
 {
-$('#deleteChequeModal').data('row', row).modal('show');
+	$('#deleteChequeModal').data('row', row).modal('show');
 }
-
-// $('#deleteChequeModal').data('row', row).modal('show');
-// function confirmChequeDelete(row)
-// {
-// var table 		= document.getElementById('chequeTable');
-// var rowCount 	= table.rows.length - 2;
-// var valid		= 1;
-// var rowindex	= table.rows[row];
-
-// if($('#chequeaccount\\['+row+'\\]').val() != '')
-// {
-// 	if(rowCount > 1)
-// 	{
-// 		table.deleteRow(row);	
-// 		resetChequeIds();
-// 		addAmounts();
-// 	}
-// 	else
-// 	{	
-// 		document.getElementById('chequeaccount['+row+']').value 	= '';
-
-// 		$('#chequeaccount\\['+row+'\\]').trigger("change.select2");
-		
-// 		document.getElementById('chequenumber['+row+']').value 		= '';
-// 		document.getElementById('chequedate['+row+']').value 		= '<?= $transactiondate ?>';//today();
-// 		document.getElementById('chequeamount['+row+']').value 		= '0.00';
-		
-// 		addAmounts();
-// 	}
-// }
-// else
-// {
-// 	if(rowCount > 1)
-// 	{
-// 		table.deleteRow(row);	
-// 		resetChequeIds();
-// 		addAmounts();
-// 	}
-// 	else
-// 	{
-// 		document.getElementById('chequeaccount['+row+']').value 	= '';
-		
-// 		$('#chequeaccount\\['+row+'\\]').trigger("change.select2");
-
-// 		document.getElementById('chequenumber['+row+']').value 		= '';
-// 		document.getElementById('chequedate['+row+']').value 		= '<?= $transactiondate ?>';//today();
-// 		document.getElementById('chequeamount['+row+']').value 		= '0.00';
-// 		addAmounts();
-// 	}
-// }
-// }
 
 function deleteItem(row)
 {
-var task		= '<?= $task ?>';
-var voucher		= document.getElementById('h_voucher_no').value;
-var companycode	= '<?= COMPANYCODE ?>';
-var table 		= document.getElementById('entriesTable');
-var rowCount 	= table.rows.length - 2;
-var valid		= 1;
+	var task		= '<?= $task ?>';
+	var voucher		= document.getElementById('h_voucher_no').value;
+	var companycode	= '<?= COMPANYCODE ?>';
+	var table 		= document.getElementById('entriesTable');
+	var rowCount 	= table.rows.length - 2;
+	var valid		= 1;
 
-console.log("row: " + rowCount);
+	console.log("row: " + rowCount);
 
-var rowindex	= table.rows[row];
-if(rowindex.cells[0].childNodes[1] != null)
-{
-	var index		= rowindex.cells[0].childNodes[1].value;
-	var datatable	= 'ar_details';
-	var condition	= " linenum = '"+index+"' AND voucherno = '"+voucher+"'";
-
-	if(rowCount > 2)
+	var rowindex	= table.rows[row];
+	if(rowindex.cells[0].childNodes[1] != null)
 	{
-		if(task == 'create')
+		var index		= rowindex.cells[0].childNodes[1].value;
+		var datatable	= 'ar_details';
+		var condition	= " linenum = '"+index+"' AND voucherno = '"+voucher+"'";
+
+		if(rowCount > 2)
 		{
-			console.log("1");
-			$.post("<?=BASE_URL?>financials/payment_voucher/ajax/delete_row",{table:datatable,condition:condition})
-			.done(function( data ) 
+			if(task == 'create')
 			{
+				console.log("1");
+				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/delete_row",{table:datatable,condition:condition})
+				.done(function( data ) 
+				{
+					table.deleteRow(row);	
+					resetIds();
+					addAmountAll('debit');
+					addAmountAll('credit');
+				});
+			}
+			else
+			{
+				console.log("2");
 				table.deleteRow(row);	
 				resetIds();
 				addAmountAll('debit');
 				addAmountAll('credit');
-			});
+			}
 		}
 		else
+		{	
+			console.log("else");
+			resetIds();
+			
+			document.getElementById('accountcode['+row+']').value 			= '';
+			document.getElementById('detailparticulars['+row+']').value 	= '';
+			document.getElementById('debit['+row+']').value 				= '0.00';
+			document.getElementById('credit['+row+']').value 				= '0.00';
+		
+			addAmountAll('debit');
+			addAmountAll('credit');
+		}
+	}
+	else
+	{
+		console.log("else 2");
+		if(rowCount > 2)
 		{
-			console.log("2");
 			table.deleteRow(row);	
 			resetIds();
 			addAmountAll('debit');
 			addAmountAll('credit');
 		}
 	}
-	else
-	{	
-		console.log("else");
-		resetIds();
-		
-		document.getElementById('accountcode['+row+']').value 			= '';
-		document.getElementById('detailparticulars['+row+']').value 	= '';
-		document.getElementById('debit['+row+']').value 				= '0.00';
-		document.getElementById('credit['+row+']').value 				= '0.00';
-	
-		addAmountAll('debit');
-		addAmountAll('credit');
-	}
-}
-else
-{
-	console.log("else 2");
-	if(rowCount > 2)
-	{
-		table.deleteRow(row);	
-		resetIds();
-		addAmountAll('debit');
-		addAmountAll('credit');
-	}
-}
 }
 
-/**VALIDATE ITEM ROWS**/
+/**VALIDATE ACCOUNT ROWS**/
 function validateDetails()
 {
-var table 			= document.getElementById('itemsTable');
-var total_debit 	= $('#total_debit').val();
-var total_credit 	= $('#total_credit').val();
-total_debit 		= total_debit.replace(/\,/g,'');
-total_credit 		= total_credit.replace(/\,/g,'');
+	var table 			= document.getElementById('entriesTable');
+	var total_debit 	= $('#total_debit').val();
+	var total_credit 	= $('#total_credit').val();
+	total_debit 		= total_debit.replace(/\,/g,'');
+	total_credit 		= total_credit.replace(/\,/g,'');
 
-/**
-* Validate if total debit / credit is equal to the total amount specified
-*/
-var total_amount	= $('#payableForm #h_convertedamount').val();
-total_amount 		= total_amount.replace(/\,/g,'');
-var newtotal_amount = total_amount * 1;
+	/**
+	* Validate if total debit / credit is equal to the total amount specified
+	*/
+	var total_amount	= $('#payableForm #h_convertedamount').val();
+	//total_amount 		= total_amount.replace(/\,/g,'');
+	var newtotal_amount = total_amount * 1;
 
-count				= table.rows.length - 3;
-var valid1			= 0;
-var valid2			= 0;
-var valid3			= 0;
+	count				= table.rows.length - 3;
+	var valid1			= 0;
+	var valid2			= 0;
+	var valid3			= 0;
 
-if(valid1 == 0)
-{
-	for(var i=1;i<=count;i++)
+	if(valid1 == 0)
 	{
-		var accountcode = document.getElementById('accountcode['+i+']').value;
-		var debit 		= document.getElementById('debit['+i+']').value;
-		var credit 		= document.getElementById('credit['+i+']').value;
-	
-		if(accountcode == '')
+		for(var i=1;i<=count;i++)
 		{
-			$("#payableForm #accountcode\\["+i+"\\]").closest('tr').addClass('danger');
-			valid1++;
-		}
-		else
-		{
-			$("#payableForm #accountcode\\["+i+"\\]").closest('tr').removeClass('danger');
-		}
+			var accountcode = document.getElementById('accountcode['+i+']').value;
+			var debit 		= document.getElementById('debit['+i+']').value;
+			var credit 		= document.getElementById('credit['+i+']').value;
 		
-		if(parseFloat(debit) == 0 && parseFloat(credit) == 0)
-		{
-			$("#payableForm #accountcode\\["+i+"\\]").closest('tr').addClass('danger');
-			valid2++;
-		}
-		else
-		{
-			$("#payableForm #accountcode\\["+i+"\\]").closest('tr').removeClass('danger');
-		}
-	}
-	
-	if(valid1 > 0)
-	{
-		$("#payableForm #detailAccountError").removeClass('hidden');
-	}
-	else
-	{
-		$("#payableForm #detailAccountError").addClass('hidden');
-	}
-	
-	if(valid2 > 0)
-	{
-		$("#payableForm #detailAmountError").removeClass('hidden');
-	}
-	else
-	{
-		$("#payableForm #detailAmountError").addClass('hidden');
-	}
-	
-	if(parseFloat(total_debit) != parseFloat(total_credit))
-	{
-		$("#payableForm #detailTotalError").removeClass('hidden');
-		valid1 = 1;
-	}
-	else
-	{
-		$("#payableForm #detailTotalError").addClass('hidden');
-
-		if(parseFloat(total_amount) > 0)
-		{
-			if(parseFloat(total_amount) != parseFloat(total_debit))
+			if(accountcode == '')
 			{
-				$("#payableForm #detailEqualError strong").html(addCommas(newtotal_amount.toFixed(2)));
-				$("#payableForm #detailEqualError").removeClass('hidden');
-				valid1 = 1;
+				$("#payableForm #accountcode\\["+i+"\\]").closest('tr').addClass('danger');
+				valid1++;
 			}
 			else
 			{
-				$("#payableForm #detailEqualError strong").html('');
-				$("#payableForm #detailEqualError").addClass('hidden');
+				$("#payableForm #accountcode\\["+i+"\\]").closest('tr').removeClass('danger');
+			}
+			
+			if(parseFloat(debit) == 0 && parseFloat(credit) == 0)
+			{
+				$("#payableForm #accountcode\\["+i+"\\]").closest('tr').addClass('danger');
+				valid2++;
+			}
+			else
+			{
+				$("#payableForm #accountcode\\["+i+"\\]").closest('tr').removeClass('danger');
+			}
+		}
+		
+		if(valid1 > 0)
+		{
+			$("#payableForm #detailAccountError").removeClass('hidden');
+		}
+		else
+		{
+			$("#payableForm #detailAccountError").addClass('hidden');
+		}
+		
+		if(valid2 > 0)
+		{
+			$("#payableForm #detailAmountError").removeClass('hidden');
+		}
+		else
+		{
+			$("#payableForm #detailAmountError").addClass('hidden');
+		}
+		
+		if(parseFloat(total_debit) != parseFloat(total_credit))
+		{
+			$("#payableForm #detailTotalError").removeClass('hidden');
+			valid1 = 1;
+		}
+		else
+		{
+			$("#payableForm #detailTotalError").addClass('hidden');
+
+			if(parseFloat(total_amount) > 0)
+			{
+				if(parseFloat(total_amount) != parseFloat(total_debit))
+				{
+					$("#payableForm #detailEqualError strong").html(addCommas(newtotal_amount.toFixed(2)));
+					$("#payableForm #detailEqualError").removeClass('hidden');
+					valid1 = 1;
+				}
+				else
+				{
+					$("#payableForm #detailEqualError strong").html('');
+					$("#payableForm #detailEqualError").addClass('hidden');
+				}
 			}
 		}
 	}
-}
 
-if(valid1 > 0 || valid2 > 0)
-{
-	return 1;
-}
-else
-{
-	return 0;
-}
+	if(valid1 > 0 || valid2 > 0)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 /**CANCEL TRANSACTION**/
@@ -1603,20 +1559,20 @@ bootbox.dialog({
 var ajax		= {};
 function showList(voucherno)
 {
-	var vnose = JSON.stringify(container);
-	var	vendor_code	= $('#paymentForm #vendor').val();
+	var vnose 		= JSON.stringify(container);
+	var	vendor_code	= $('#payableForm #vendor').val();
 	voucherno 		= (voucherno == undefined) ? "" : voucherno;
 
 	var ajax_call	= '';
-	ajax.limit = 5;
+	ajax.limit 		= 5;
 	if (ajax_call != '') {
 		ajax_call.abort();
 	}
 
-	ajax.vendor = vendor_code;
-	ajax.voucherno = voucherno;
-	ajax.vno = vnose;
-	ajax_call = $.post("<?= BASE_URL ?>financials/payment_voucher/ajax/load_payables", ajax )
+	ajax.vendor 	= vendor_code;
+	ajax.voucherno 	= voucherno;
+	ajax.vno 		= vnose;
+	ajax_call 		= $.post("<?= BASE_URL ?>financials/payment_voucher/ajax/load_payables", ajax )
 	.done(function( data ) 
 	{
 	if ( ! edited) {
@@ -1634,33 +1590,20 @@ function showList(voucherno)
 		showList();
 	}
 	
-	// console.log(data);
-
-
-	// if (ajax.page > data.page_limit && data.page_limit > 0) {
-	// 	ajax.page = data.page_limit;
-	// 	showList();
-	// }
-
-	
 	if('<?= $task ?>' == "edit" && !edited)
-		$("#paymentModal #selected_rows").html(data.json_encode);
+		$("#payableForm #selected_rows").html(data.json_encode);
 
 	if(!($("paymentModal").data('bs.modal') || {isShown: false}).isShown)
 	{
-		var check_rows = $('#paymentModal #selected_rows').html();
-
+		var check_rows = $('#payableForm #selected_rows').html();
 		var obj = (check_rows != "") ? JSON.parse(check_rows) : 0;
 
 		for(var i = 0; i < obj.length; i++)
 		{
 			$('input#row_check' + obj[i]["row"]).iCheck('check');
 		} 
-
 		$('#paymentModal').modal('show');
 	};
-	
-	
 });
 
 
@@ -1785,8 +1728,8 @@ var selectedIndex 	= -1;
 function getPVDetails()
 {
 var vendorcode   	= $("#vendor").val();
-var selected_rows 	= ($("#selected_rows").html() != "[]") ? $("#selected_rows").html() : "";
 var selected_rows 	= JSON.stringify(container);
+$("#selected_rows").html(selected_rows);
 
 var data 		 = "checkrows=" + selected_rows + "&vendor=" + vendorcode;
 
@@ -2155,163 +2098,25 @@ else
 }
 }
 
-// -------- NOT USED -------
-function applySelected(e)
-{
-e.preventDefault();
-
-var paymentvendor		= $("#payableForm #vendor").val();
-var paymentdate			= document.getElementById('document_date').value;
-var paymentaccount		= document.getElementById('paymentaccount').value;
-var paymentmode			= document.getElementById('paymentmode').value;
-var paymentreference	= document.getElementById('paymentreference').value;
-var paymentnotes		= document.getElementById('paymentnotes').value;
-var voucherno 			= $("#voucherno").val();
-
-var valid				= 0;
-
-valid	+= validateField('payableForm','vendor', "vendor_help");
-valid	+= validateField('payableForm','document_date', "document_date_help");
-valid	+= validateField('payableForm','paymentmode', "paymentmode_help");
-
-if(paymentmode == 'cash')
-{
-	valid	+= validateField('payableForm','paymentaccount', "paymentaccount_help");
-}
-else
-{
-	valid	+= validateCheques();
-	valid	+= totalPaymentGreaterThanChequeAmount();
-}
-
-valid	+= validateInvoices();
-
-if(valid == 0)
-{
-	var table 		= document.getElementById('app_payableList');
-	var count 		= table.rows.length;
-	
-	var selected 			= [];
-	var selectedamount 		= [];
-	
-	var selecteddate 		= [];
-	var selectedaccount		= [];
-	var selectedmode		= [];
-	var selectedreference	= [];
-	var selectednotes		= [];
-	var selectedvendor		= [];
-	
-	var selectedcheque		= [];
-	var selectedchequenumber= [];
-	var selectedchequedate	= [];
-	var selectedchequeamount= [];
-	
-	for(var i=0;i<count;i++)
-	{
-		var row   = table.rows[i];
-		
-		if(row.cells[0].getElementsByTagName("input")[0].checked)
-		{
-			var invoiceno 		= document.getElementById('invoice['+i+']').value;
-			var paymentamount	= document.getElementById('paymentamount['+i+']').value;
-		
-			selected.push(invoiceno);
-			selectedamount.push(paymentamount);
-			
-			selecteddate.push(paymentdate);
-			selectedaccount.push(paymentaccount);
-			selectedmode.push(paymentmode);
-			selectedreference.push(paymentreference);
-			selectednotes.push(paymentnotes);
-			//selectednotes.push(paymentvendor);
-		}
-	}
-	
-	/**Multiple Cheque payments**/
-	var chequeTable		= document.getElementById('chequeTable');
-	var chequeCount		= chequeTable.rows.length - 2;
-	
-	for(var j=1;j<=chequeCount;j++)
-	{
-		var chequeRow   = chequeTable.rows[j];
-		
-		if(document.getElementById('chequeaccount['+j+']').value != '')
-		{
-			var chequeaccount 	= document.getElementById('chequeaccount['+j+']').value;
-			var chequenumber 	= document.getElementById('chequenumber['+j+']').value;
-			var chequedate 		= document.getElementById('chequedate['+j+']').value;
-			var chequeamount 	= document.getElementById('chequeamount['+j+']').value;
-			
-			selectedcheque.push(chequeaccount);
-			selectedchequenumber.push(chequenumber);
-			selectedchequedate.push(chequedate);
-			selectedchequeamount.push(chequeamount);
-		}
-	}
-
-	// Set hidden value
-	$("#h_stattemp").val("temporary");
-	var stat = $("#h_stattemp").val();
-
-	$.post("<?= BASE_URL ?>financials/payment_voucher/ajax/apply_payments",
-	{ 
-		"invoiceno[]": selected, 
-		"paymentdate[]": selecteddate, 
-		"paymentnumber[]": '', 
-		"paymentaccount[]": selectedaccount,
-		"paymentmode[]": selectedmode,
-		"paymentreference[]": selectedreference,
-		"paymentamount[]": selectedamount,
-		"paymentnotes[]": selectednotes,
-		"vendor": paymentvendor,
-		"chequeaccount[]": selectedcheque,
-		"chequenumber[]": selectedchequenumber,
-		"chequedate[]": selectedchequedate,
-		"chequeamount[]": selectedchequeamount,
-		"stat" : stat,
-		"voucherno" : voucherno
-	}).done(function(data)
-	{
-		if(data.success)
-		{
-			// Clear inputs from payment modal
-			$("#paymentaccount").val("").trigger("change");
-			$("#total_payment").val("");
-			$("#paymentreference").val("");
-			$("#paymentnotes").val("");
-
-			$("#voucherno").val(data.voucherno);
-			$('#paymentModal').modal('hide');
-
-			// Call function to retrieve payments
-			getPayments($("#voucherno").val());
-		}
-			
-	});
-}
-}
-
 function applySelected_()
 {
-// e.preventDefault();
+	var paymentvendor		= $("#payableForm #vendor").val();
+	var paymentdate			= document.getElementById('document_date').value;
+	var paymentmode			= document.getElementById('paymentmode').value;
+	var paymentreference	= document.getElementById('paymentreference').value;
+	var voucherno 			= $("#voucherno").val();
 
-var paymentvendor		= $("#payableForm #vendor").val();
-var paymentdate			= document.getElementById('document_date').value;
-var paymentmode			= document.getElementById('paymentmode').value;
-var paymentreference	= document.getElementById('paymentreference').value;
-var voucherno 			= $("#voucherno").val();
+	var valid				= 0;
 
-var valid				= 0;
+	valid	+= validateField('payableForm','vendor', "vendor_help");
+	valid	+= validateField('payableForm','document_date', "document_date_help");
+	valid	+= validateField('payableForm','paymentmode', "paymentmode_help");
 
-valid	+= validateField('payableForm','vendor', "vendor_help");
-valid	+= validateField('payableForm','document_date', "document_date_help");
-valid	+= validateField('payableForm','paymentmode', "paymentmode_help");
-
-if(paymentmode == 'cheque')
-{
-	valid	+= validateCheques();
-	valid	+= totalPaymentGreaterThanChequeAmount();
-}
+	if(paymentmode == 'cheque')
+	{
+		valid	+= validateCheques();
+		valid	+= totalPaymentGreaterThanChequeAmount();
+	}
 }
 
 function getPayments(voucherno)
@@ -2444,286 +2249,286 @@ $.post("<?=BASE_URL?>financials/payment/ajax/check", "chequevalue=" + value)
 
 $(document).ready(function() 
 {
-// Call toggleExchangeRate
-$( "#exchange_rate" ).click(function() 
-{
-	toggleExchangeRate();
-});
-
-// For adding new rol
-$('body').on('click', '.add-data', function() 
-{	
-	$('#itemsTable tbody tr.clone select').select2('destroy');
-	
-	var clone = $("#itemsTable tbody tr.clone:first").clone(true); 
-
-	var ParentRow = $("#itemsTable tbody tr.clone").last();
-
-	clone.clone(true).insertAfter(ParentRow);
-	
-	setZero();
-	
-	$('#itemsTable tbody tr.clone select').select2({width: "100%"});
-});
-
-/**ADD NEW BANK ROW**/
-$('body').on('click', '.add-cheque', function() 
-{
-	$('#chequeTable tbody tr.clone select').select2('destroy');
-
-	var clone1 = $("#chequeTable tbody tr.clone:first").clone(true);
-
-	var ParentRow = $("#chequeTable tbody tr.clone").last();
-	
-	clone1.clone(true).insertAfter(ParentRow);
-	
-	setChequeZero();
-	
-	$('#chequeTable tbody tr.clone select').select2({width: "100%"});
-	$('#chequeTable tbody tr.clone:last .input-group.date ').datepicker({ format: 'M dd, yyyy', autoclose: true });
-
-	// Trigger add new line .add-data
-	$(".add-data").trigger("click");
-
-});
-
-/**
-* Apply Exchange Rate and converted amount
-*/
-$('#rateForm #btnProceed').click(function(e)
-{
-	console.log(e);
-
-	var valid 			= 0;
-	var oldamount 		= $('#rateForm #oldamount').val();
-	oldamount			= oldamount.replace(/,/g,'');
-	var exchangerate 	= $('#rateForm #rate').val();
-	exchangerate		= exchangerate.replace(/,/g,'');
-	var newamount 		= $('#rateForm #newamount').val();
-	newamount			= newamount.replace(/,/g,'');
-	var account 		= $('#rateForm #defaultaccount').val();
-
-	var amount 			= $('#payableForm #h_amount').val();
-	var accountentry	= $('#payableForm #accountcode\\[1\\]').val();
-	
-	// Validation
-	$("#rateForm").find('.form-group').find('input, textarea, select').trigger('focus');
-	valid 	+= $("#rateForm").find('.form-group.has-error').length;
-	
-
-	// valid		+= validateField('rateForm','oldamount', "oldamount_help");
-	// valid		+= validateField('rateForm','rate', "rate_help");
-	// valid		+= validateField('rateForm','newamount', "newamount_help");
-
-	if(valid == 0)
+	// Call toggleExchangeRate
+	$( "#exchange_rate" ).click(function() 
 	{
-		if(parseFloat(amount) == 0)
+		toggleExchangeRate();
+	});
+
+	// For adding new rol
+	$('body').on('click', '.add-data', function() 
+	{	
+		$('#itemsTable tbody tr.clone select').select2('destroy');
+		
+		var clone = $("#itemsTable tbody tr.clone:first").clone(true); 
+
+		var ParentRow = $("#itemsTable tbody tr.clone").last();
+
+		clone.clone(true).insertAfter(ParentRow);
+		
+		setZero();
+		
+		$('#itemsTable tbody tr.clone select').select2({width: "100%"});
+	});
+
+	/**ADD NEW BANK ROW**/
+	$('body').on('click', '.add-cheque', function() 
+	{
+		$('#chequeTable tbody tr.clone select').select2('destroy');
+
+		var clone1 = $("#chequeTable tbody tr.clone:first").clone(true);
+
+		var ParentRow = $("#chequeTable tbody tr.clone").last();
+		
+		clone1.clone(true).insertAfter(ParentRow);
+		
+		setChequeZero();
+		
+		$('#chequeTable tbody tr.clone select').select2({width: "100%"});
+		$('#chequeTable tbody tr.clone:last .input-group.date ').datepicker({ format: 'M dd, yyyy', autoclose: true });
+
+		// Trigger add new line .add-data
+		$(".add-data").trigger("click");
+
+	});
+
+	/**
+	* Apply Exchange Rate and converted amount
+	*/
+	$('#rateForm #btnProceed').click(function(e)
+	{
+		console.log(e);
+
+		var valid 			= 0;
+		var oldamount 		= $('#rateForm #oldamount').val();
+		oldamount			= oldamount.replace(/,/g,'');
+		var exchangerate 	= $('#rateForm #rate').val();
+		exchangerate		= exchangerate.replace(/,/g,'');
+		var newamount 		= $('#rateForm #newamount').val();
+		newamount			= newamount.replace(/,/g,'');
+		var account 		= $('#rateForm #defaultaccount').val();
+
+		var amount 			= $('#payableForm #h_amount').val();
+		var accountentry	= $('#payableForm #accountcode\\[1\\]').val();
+		
+		// Validation
+		$("#rateForm").find('.form-group').find('input, textarea, select').trigger('focus');
+		valid 	+= $("#rateForm").find('.form-group.has-error').length;
+		
+
+		// valid		+= validateField('rateForm','oldamount', "oldamount_help");
+		// valid		+= validateField('rateForm','rate', "rate_help");
+		// valid		+= validateField('rateForm','newamount', "newamount_help");
+
+		if(valid == 0)
 		{
-			if(accountentry == '')
+			if(parseFloat(amount) == 0)
 			{
-				$.post('<?=BASE_URL?>financials/payment_voucher/ajax/get_value', "account=" + account + "&event=exchange_rate")
-				.done(function(data) 
+				if(accountentry == '')
 				{
-					var accountnature		= data.accountnature;
-
-					$('#exchange_rate').val(exchangerate);
-
-					$('#payableForm #h_amount').val(oldamount);
-					$('#payableForm #h_exchangerate').val(exchangerate);
-					$('#payableForm #h_convertedamount').val(newamount);
-
-					$('#payableForm #accountcode\\[1\\]').val(account);
-
-					if(accountnature == 'Debit' || accountnature == 'debit')
+					$.post('<?=BASE_URL?>financials/payment_voucher/ajax/get_value', "account=" + account + "&event=exchange_rate")
+					.done(function(data) 
 					{
-						$('#payableForm #debit\\[1\\]').val($('#rateForm #newamount').val());
-						$('#payableForm #credit\\[1\\]').prop('readOnly',true);
+						var accountnature		= data.accountnature;
 
-						$('#payableForm #credit\\[1\\]').val('0.00');
-						$('#payableForm #debit\\[1\\]').prop('readOnly',false);
-						addAmountAll("debit");
-					}
-					else
-					{
-						$('#payableForm #credit\\[1\\]').val($('#rateForm #newamount').val());
-						$('#payableForm #debit\\[1\\]').prop('readOnly',true);
+						$('#exchange_rate').val(exchangerate);
 
-						$('#payableForm #debit\\[1\\]').val('0.00');
-						$('#payableForm #credit\\[1\\]').prop('readOnly',false);
-						addAmountAll("credit");
-					}
+						$('#payableForm #h_amount').val(oldamount);
+						$('#payableForm #h_exchangerate').val(exchangerate);
+						$('#payableForm #h_convertedamount').val(newamount);
 
-					$('#payableForm #accountcode\\[1\\]').trigger("change");
-					$('#rateForm #defaultaccount').prop('disabled',true);
-					$('#rateForm #defaultaccount').trigger("change");
-					$('#rateModal').modal('hide');
-				});
+						$('#payableForm #accountcode\\[1\\]').val(account);
+
+						if(accountnature == 'Debit' || accountnature == 'debit')
+						{
+							$('#payableForm #debit\\[1\\]').val($('#rateForm #newamount').val());
+							$('#payableForm #credit\\[1\\]').prop('readOnly',true);
+
+							$('#payableForm #credit\\[1\\]').val('0.00');
+							$('#payableForm #debit\\[1\\]').prop('readOnly',false);
+							addAmountAll("debit");
+						}
+						else
+						{
+							$('#payableForm #credit\\[1\\]').val($('#rateForm #newamount').val());
+							$('#payableForm #debit\\[1\\]').prop('readOnly',true);
+
+							$('#payableForm #debit\\[1\\]').val('0.00');
+							$('#payableForm #credit\\[1\\]').prop('readOnly',false);
+							addAmountAll("credit");
+						}
+
+						$('#payableForm #accountcode\\[1\\]').trigger("change");
+						$('#rateForm #defaultaccount').prop('disabled',true);
+						$('#rateForm #defaultaccount').trigger("change");
+						$('#rateModal').modal('hide');
+					});
+				}
+				else
+				{
+					bootbox.dialog({
+						message: "Are you sure you want to apply this exchange rate? <br/><br/>"
+						+"Applying this would overwrite the first entry you've added.",
+						title: "Confirmation",
+							buttons: {
+							yes: {
+							label: "Yes",
+							className: "btn-primary btn-flat",
+							callback: function(result) 
+							{
+								
+									var data = "account=" + account + "&event=exchange_rate";
+									$.post("<?=BASE_URL?>financials/accounts_payable/ajax/get_value",data)
+									.done(function(response) 
+									{
+										var accountnature		= data.accountnature;
+
+										$('#btnRate').html(exchangerate+'&nbsp;&nbsp;');
+
+										$('#payableForm #amount').val(oldamount);
+										$('#payableForm #exchangerate').val(exchangerate);
+										$('#payableForm #convertedamount').val(newamount);
+
+										$('#payableForm #accountcode\\[1\\]').val(account);
+
+										if(accountnature == 'Debit' || accountnature == 'debit')
+										{
+											$('#payableForm #debit\\[1\\]').val($('#rateForm #newamount').val());
+											$('#payableForm #credit\\[1\\]').prop('readOnly',true);
+
+											$('#payableForm #credit\\[1\\]').val('0.00');
+											$('#payableForm #debit\\[1\\]').prop('readOnly',false);
+											
+											addAmountAll("debit");
+										}
+										else
+										{
+											$('#payableForm #credit\\[1\\]').val($('#rateForm #newamount').val());
+											$('#payableForm #debit\\[1\\]').prop('readOnly',true);
+
+											$('#payableForm #debit\\[1\\]').val('0.00');
+											$('#payableForm #credit\\[1\\]').prop('readOnly',false);
+											
+											addAmountAll("credit");
+										}
+
+										$('#payableForm #accountcode\\[1\\]').trigger("change");
+										$('#rateForm #defaultaccount').prop('disabled',true);
+										$('#rateForm #defaultaccount').trigger("change");
+
+										$('#rateModal').modal('hide');
+									});
+								}
+							},
+							no: {
+							label: "No",
+							className: "btn-default btn-flat",
+							callback: function(result) {
+									
+								}
+							}
+						}
+					});
+				}
+
 			}
 			else
 			{
-				bootbox.dialog({
-					message: "Are you sure you want to apply this exchange rate? <br/><br/>"
-					+"Applying this would overwrite the first entry you've added.",
-					title: "Confirmation",
-						buttons: {
-						yes: {
-						label: "Yes",
-						className: "btn-primary btn-flat",
-						callback: function(result) 
-						{
-							
-								var data = "account=" + account + "&event=exchange_rate";
-								$.post("<?=BASE_URL?>financials/accounts_payable/ajax/get_value",data)
-								.done(function(response) 
-								{
-									var accountnature		= data.accountnature;
+				$('#exchange_rate').val(exchangerate);
 
-									$('#btnRate').html(exchangerate+'&nbsp;&nbsp;');
+				$('#payableForm #h_amount').val(oldamount);
+				$('#payableForm #h_exchangerate').val(exchangerate);
+				$('#payableForm #h_convertedamount').val(newamount);
 
-									$('#payableForm #amount').val(oldamount);
-									$('#payableForm #exchangerate').val(exchangerate);
-									$('#payableForm #convertedamount').val(newamount);
-
-									$('#payableForm #accountcode\\[1\\]').val(account);
-
-									if(accountnature == 'Debit' || accountnature == 'debit')
-									{
-										$('#payableForm #debit\\[1\\]').val($('#rateForm #newamount').val());
-										$('#payableForm #credit\\[1\\]').prop('readOnly',true);
-
-										$('#payableForm #credit\\[1\\]').val('0.00');
-										$('#payableForm #debit\\[1\\]').prop('readOnly',false);
-										
-										addAmountAll("debit");
-									}
-									else
-									{
-										$('#payableForm #credit\\[1\\]').val($('#rateForm #newamount').val());
-										$('#payableForm #debit\\[1\\]').prop('readOnly',true);
-
-										$('#payableForm #debit\\[1\\]').val('0.00');
-										$('#payableForm #credit\\[1\\]').prop('readOnly',false);
-										
-										addAmountAll("credit");
-									}
-
-									$('#payableForm #accountcode\\[1\\]').trigger("change");
-									$('#rateForm #defaultaccount').prop('disabled',true);
-									$('#rateForm #defaultaccount').trigger("change");
-
-									$('#rateModal').modal('hide');
-								});
-							}
-						},
-						no: {
-						label: "No",
-						className: "btn-default btn-flat",
-						callback: function(result) {
-								
-							}
-						}
-					}
-				});
+				$('#rateModal').modal('hide');
 			}
-
 		}
 		else
 		{
-			$('#exchange_rate').val(exchangerate);
+			bootbox.dialog({
+				message: "Please complete all required fields.",
+				title: "Warning",
+				buttons: {
+					success: {
+						label: "OK",
+						className: "btn-primary btn-flat",
+						callback: function() {
 
-			$('#payableForm #h_amount').val(oldamount);
-			$('#payableForm #h_exchangerate').val(exchangerate);
-			$('#payableForm #h_convertedamount').val(newamount);
-
-			$('#rateModal').modal('hide');
+						}
+					}
+				}
+			});
 		}
-	}
-	else
-	{
-		bootbox.dialog({
-			message: "Please complete all required fields.",
-			title: "Warning",
-			buttons: {
-				success: {
-					label: "OK",
-					className: "btn-primary btn-flat",
-					callback: function() {
-
-					}
-				}
-			}
-		});
-	}
-	
-});
-
-/**
-* Apply Exchange Rate and converted amount
-*/
-$('#paymentRateForm #btnProceed').click(function(e)
-{
-	var valid 			= 0;
-	var oldamount 		= $('#paymentRateForm #paymentoldamount').val();
-	oldamount			= oldamount.replace(/,/g,'');
-	var exchangerate 	= $('#paymentRateForm #paymentrate').val();
-	exchangerate		= exchangerate.replace(/,/g,'');
-	var newamount 		= $('#paymentRateForm #paymentnewamount').val();
-
-	var totalInvoice 	= $("#receiptForm #totalInvoice").val();
-
-	// var amount 			= $('#receiptForm #amount').val();
-
-	valid		+= validateField('paymentRateForm','paymentoldamount', "paymentoldamount_help");
-	valid		+= validateField('paymentRateForm','paymentrate', "paymentrate_help");
-	valid		+= validateField('paymentRateForm','paymentnewamount', "paymentnewamount_help");
-
-	var newamount_ = newamount.replace(/,/g,'')
-
-	if( parseFloat(totalInvoice) < parseFloat(newamount_) )
-		valid		+= validateField('paymentRateForm','paymentnewamount', "exrateamount_help");
 		
+	});
 
-	if(valid == 0)
+	/**
+	* Apply Exchange Rate and converted amount
+	*/
+	$('#paymentRateForm #btnProceed').click(function(e)
 	{
-		$('#receiptForm #paymentexchangerate\\[1\\]').val(exchangerate);
+		var valid 			= 0;
+		var oldamount 		= $('#paymentRateForm #paymentoldamount').val();
+		oldamount			= oldamount.replace(/,/g,'');
+		var exchangerate 	= $('#paymentRateForm #paymentrate').val();
+		exchangerate		= exchangerate.replace(/,/g,'');
+		var newamount 		= $('#paymentRateForm #paymentnewamount').val();
 
-		$('#receiptForm #paymentamount\\[1\\]').val(oldamount);
-		$('#receiptForm #exchangerate\\[1\\]').val(exchangerate);
-		$('#receiptForm #convertedamount\\[1\\]').val(newamount);
+		var totalInvoice 	= $("#receiptForm #totalInvoice").val();
 
-		$('#paymentRateModal').modal('hide');
-	}
-	else
-	{
-		bootbox.dialog({
-			message: "Please complete all required fields.",
-			title: "Warning",
-			buttons: {
-				success: {
-					label: "Ok",
-					className: "btn-primary btn-flat",
-					callback: function() {
+		// var amount 			= $('#receiptForm #amount').val();
 
+		valid		+= validateField('paymentRateForm','paymentoldamount', "paymentoldamount_help");
+		valid		+= validateField('paymentRateForm','paymentrate', "paymentrate_help");
+		valid		+= validateField('paymentRateForm','paymentnewamount', "paymentnewamount_help");
+
+		var newamount_ = newamount.replace(/,/g,'')
+
+		if( parseFloat(totalInvoice) < parseFloat(newamount_) )
+			valid		+= validateField('paymentRateForm','paymentnewamount', "exrateamount_help");
+			
+
+		if(valid == 0)
+		{
+			$('#receiptForm #paymentexchangerate\\[1\\]').val(exchangerate);
+
+			$('#receiptForm #paymentamount\\[1\\]').val(oldamount);
+			$('#receiptForm #exchangerate\\[1\\]').val(exchangerate);
+			$('#receiptForm #convertedamount\\[1\\]').val(newamount);
+
+			$('#paymentRateModal').modal('hide');
+		}
+		else
+		{
+			bootbox.dialog({
+				message: "Please complete all required fields.",
+				title: "Warning",
+				buttons: {
+					success: {
+						label: "Ok",
+						className: "btn-primary btn-flat",
+						callback: function() {
+
+						}
 					}
 				}
-			}
-		});
-	}	
-});
+			});
+		}	
+	});
 
-// Deletion of Row
-$('#deleteItemModal #btnYes').click(function() 
-{
-	// handle deletion here
-	var id = $('#deleteItemModal').data('id');
+	// Deletion of Row
+	$('#deleteItemModal #btnYes').click(function() 
+	{
+		// handle deletion here
+		var id = $('#deleteItemModal').data('id');
 
-	var table 		= document.getElementById('entriesTable');
-	var rowCount 	= table.rows.length - 2;
+		var table 		= document.getElementById('entriesTable');
+		var rowCount 	= table.rows.length - 2;
 
-	deleteItem(id);
-	
-	$('#deleteItemModal').modal('hide');
-});
+		deleteItem(id);
+		
+		$('#deleteItemModal').modal('hide');
+	});
 
 /**SCRIPT FOR HANDLING DELETE RECORD CONFIRMATION**/
 $('#btnCancel').click(function() 
@@ -2893,32 +2698,24 @@ $('#paymentreference').on('blur', function(e)
 if('<?= $task ?>' == "create")
 {
 	/**SAVE TEMPORARY DATA THROUGH AJAX**/
-	$("#payableForm").change(function()
+	$("#payableForm").change(function(e)
 	{
-		if( $("#itemsTable #accountcode\\[1\\]").val() != '' && $("#payableForm #document_date").val() != '' && (parseFloat($("#itemsTable #debit\\[1\\]").val()) > 0 || parseFloat($("#itemsTable #credit\\[1\\]").val()) > 0) && (parseFloat($("#itemsTable #debit\\[2\\]").val()) > 0 || parseFloat($("#itemsTable #credit\\[2\\]").val()) > 0) && $("#payableForm #vendor").val() != '' )
+		if( $("#entriesTable #accountcode\\[1\\]").val() != '' && $("#payableForm #document_date").val() != '' && (parseFloat($("#itemsTable #debit\\[1\\]").val()) > 0 || parseFloat($("#itemsTable #credit\\[1\\]").val()) > 0) && (parseFloat($("#itemsTable #debit\\[2\\]").val()) > 0 || parseFloat($("#itemsTable #credit\\[2\\]").val()) > 0) && $("#payableForm #vendor").val() != '' )
 		{
-			// validate form
-			// applySelected_();
-
 			setTimeout(function() 
 			{
-				$("#salesForm #btnSave").addClass('disabled');
-				$("#salesForm #btnSave_toggle").addClass('disabled');
+				$("#payableForm #btnSave").addClass('disabled');
+				$("#payableForm #btnSave_toggle").addClass('disabled');
 				
-				$("#salesForm #btnSave").html('Saving...');
+				$("#payableForm #btnSave").html('Saving...');
 				
 				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{	
-					// if(data.success)
-					// {
-					// 	$("#payableForm #btnSave").removeClass('disabled');
-					// 	$("#payableForm #btnSave_toggle").removeClass('disabled');
-					
-					// 	$("#payableForm #btnSave").html('Save');
-					// }
-					// else
-					// 	console.log("else");	
+					if(data.code == '1')
+					{
+						$("#payableForm #h_voucher_no").val(data.voucher);
+					}
 				});
 			});
 		}
@@ -2928,13 +2725,32 @@ if('<?= $task ?>' == "create")
 	$("#payableForm #btnSave").click(function()
 	{
 		var valid	= 0;
-		
+		var selected_rows 	= JSON.stringify(container);
 		/**validate vendor field**/
 		valid		+= validateField('payableForm','document_date', "document_date_help");
 		valid		+= validateField('payableForm','vendor', "vendor_help");
 		
-		/**validate items**/
-		valid		+= validateDetails();
+		if(selected_rows == "[]")
+		{
+			bootbox.dialog({
+				message: "Please tag payables first.",
+				title: "Oops!",
+					buttons: {
+					yes: {
+					label: "OK",
+					className: "btn-primary btn-flat",
+					callback: function(result) {
+							valid		+= 1;
+						}
+					}
+				}
+			});
+		}
+
+		if(valid == 0){
+			/**validate accounts**/
+			valid		+= validateDetails();
+		}
 
 		if(valid == 0)
 		{
@@ -2944,7 +2760,6 @@ if('<?= $task ?>' == "create")
 			$("#payableForm #btnSave").html('Saving...');
 
 			$("#payableForm #h_save").val("h_save");
-			$("#selected_rows_").val($("#selected_rows").val());
 
 			// validate form
 			applySelected_();
@@ -2952,8 +2767,9 @@ if('<?= $task ?>' == "create")
 			$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
 			.done(function(data)
 			{	
-				if(data.success)
+				if(data.code == '1')
 				{
+					$("#payableForm #h_voucher_no").val(data.voucher);
 					$("#payableForm").submit();
 				}
 				else
@@ -2992,7 +2808,6 @@ if('<?= $task ?>' == "create")
 			applySelected_();
 
 			$("#payableForm #h_save_new").val("h_save_new");
-			$("#selected_rows_").val($("#selected_rows").val());
 
 			$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
 			.done(function(data)
@@ -3038,7 +2853,6 @@ if('<?= $task ?>' == "create")
 			applySelected_();
 
 			$("#payableForm #h_save_preview").val("h_save_preview");
-			$("#selected_rows_").val($("#selected_rows").val());
 
 			$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
 			.done(function(data)
@@ -3101,7 +2915,6 @@ else if('<?= $task ?>' == "edit")
 			$("#payableForm #btnSave").html('Saving...');
 
 			$("#payableForm #h_save").val("h_save");
-			$("#selected_rows_").val($("#selected_rows").val());
 			
 			$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
 			.done(function(data)
@@ -3151,7 +2964,6 @@ else if('<?= $task ?>' == "edit")
 			$("#payableForm #btnSave").html('Saving...');
 
 			$("#payableForm #h_save_new").val("h_save_new");
-			$("#selected_rows_").val($("#selected_rows").val());
 			
 			$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
 			.done(function(data)
@@ -3200,7 +3012,6 @@ else if('<?= $task ?>' == "edit")
 			$("#payableForm #btnSave").html('Saving...');
 
 			$("#payableForm #h_save_preview").val("h_save_preview");
-			$("#selected_rows_").val($("#selected_rows").val());
 			
 			$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
 			.done(function( data ) 

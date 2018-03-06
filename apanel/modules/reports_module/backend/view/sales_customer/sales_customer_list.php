@@ -23,7 +23,7 @@
 							->setId('customer')
 							->setList($customer_list)
 							// ->setValue($warehouse)
-							// ->setNone('Filter: All')
+							->setNone('Filter: All')
 							->draw($show_input);
 						?>
 					</div>

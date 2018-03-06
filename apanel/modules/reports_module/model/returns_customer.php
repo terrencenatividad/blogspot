@@ -109,7 +109,7 @@ class returns_customer extends wc_model
 		return $result;
 	}
 
-	public function customerInvoices($cust_code,$datefilter, $warehouse)
+	public function customerInvoices($cust_code,$datefilter, $warehouse, $data_type)
 	{
 		$condition = '';
 		$filter = explode('-',$datefilter);
@@ -135,9 +135,14 @@ class returns_customer extends wc_model
 			'sr.stat stat'
 		);
 
+		$date_field = 'sr.transactiondate';
+		if ($data_type == 'sales') {
+			$date_field = 'si.transactiondate';
+		}
+
 		if ($start && $end)
 		{
-			$condition .=  "AND sr.transactiondate >= '$start' AND sr.transactiondate <= '$end' ";
+			$condition .=  "AND $date_field >= '$start' AND $date_field <= '$end' ";
 		}
 		// if($warehouse)
 		// {
@@ -148,6 +153,7 @@ class returns_customer extends wc_model
 						->setFields($fields)
 						->leftJoin("salesreturn_details as srd ON sr.voucherno = srd.voucherno AND sr.companycode = srd.companycode")
 						->leftJoin('partners cust ON cust.partnercode = sr.customer AND cust.companycode = sr.companycode')
+						->leftJoin('salesinvoice si ON si.voucherno = sr.source_no AND si.companycode = sr.companycode')
 						->setWhere(" sr.stat NOT IN ('temporary','cancelled') AND partnercode = '$cust_code' " .$condition)
 						->setOrderBy(" sr.voucherno DESC ")
 						->runPagination();
@@ -160,6 +166,7 @@ class returns_customer extends wc_model
 		$condition 	= '';
 		$datefilter	= $data['datefilter'];
 		$customer 	= $data['customer'];
+		$data_type 	= $data['data_type'];
 		$datefilter = explode('-', $datefilter);
 		
 		foreach ($datefilter as $date) 
@@ -170,9 +177,14 @@ class returns_customer extends wc_model
 		$startdate  = 	$dates[0];
 		$enddate	= 	$dates[1];
 		
-		if ( isset($startdate) && isset($enddate)) 
+		$date_field = 'sr.transactiondate';
+		if ($data_type == 'sales') {
+			$date_field = 'si.transactiondate';
+		}
+
+		if ($startdate && $enddate)
 		{
-			$condition .= " AND sr.transactiondate >= '$startdate' AND sr.transactiondate <= '$enddate'";
+			$condition .=  "AND $date_field >= '$startdate' AND $date_field <= '$enddate' ";
 		}
 		
 		if(!empty($customer) && isset($customer))
@@ -198,6 +210,7 @@ class returns_customer extends wc_model
 		$result = $this->db->setTable('salesreturn as sr')
 						->setFields($fields)
 						->leftJoin("salesreturn_details as srd ON sr.voucherno = srd.voucherno AND sr.companycode = srd.companycode")
+						->leftJoin('salesinvoice si ON si.voucherno = sr.source_no AND si.companycode = sr.companycode')
 						->leftJoin('partners cust ON cust.partnercode = sr.customer AND cust.companycode = sr.companycode')
 						->setWhere(" sr.stat NOT IN ('temporary','cancelled') AND partnercode = '$customer' " .$condition)
 						->setOrderBy(" sr.voucherno DESC ")

@@ -115,7 +115,7 @@ class controller extends wc_controller {
 			$table .= '<td></td>';
 			$table .= '<td><a>' . $row->name . '</a></td>';
 			$table .= '<td class="text-left">' . $this->amount($row->amount) . '</td>';
-			$table .= '<td><a href="' . BASE_URL . 'report/returns_customer/view/'.$row->srwarehouse.'/'. base64_encode($row->partnercode).'/'.base64_encode($data['daterangefilter']) .'">'. $this->amount($row->ramount) . '</a></td>';
+			$table .= '<td><a href="' . BASE_URL . 'report/returns_customer/view/'.$row->srwarehouse.'/'. base64_encode($row->partnercode).'/'.base64_encode($data['daterangefilter']) . '/sales' .'">'. $this->amount($row->ramount) . '</a></td>';
 			$table .= '<td class="text-left">' . $this->amount($row->amount - $row->ramount) . '</td>';
 			$table .= '</tr>';
 		}

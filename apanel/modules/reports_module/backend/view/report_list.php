@@ -59,6 +59,10 @@
 								<h4 class="list-group-item-heading">Cheque List</h4>
 								<p class="list-group-item-text">List of Issued Cheques in a given period of time.</p>
 							</a>
+							<a href="collection_register" class="list-group-item">
+								<h4 class="list-group-item-heading">Collection Register</h4>
+								<p class="list-group-item-text">List of Issued Payment in a given period of time.</p>
+							</a>
 						</div>
 					</div>
 				</div>

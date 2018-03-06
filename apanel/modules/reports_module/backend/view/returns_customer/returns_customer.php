@@ -104,6 +104,7 @@ function getList()
 	ajax.customer = '<?php echo $cust_code ?>';
 	ajax.datefilter = '<?php echo $datefilter ?>';
 	ajax.warehouse = '<?php echo $warehouse ?>';
+	ajax.data_type = '<?php echo $data_type ?>';
 	ajax_call = $.post('<?=MODULE_URL?>ajax/get_invoice', ajax, function(data) 
 	{
 		$('#tableList tbody').html(data.table);
