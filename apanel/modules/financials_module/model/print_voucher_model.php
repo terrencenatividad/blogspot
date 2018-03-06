@@ -246,7 +246,7 @@ class print_voucher_model extends fpdf {
 			$this->Cell(140, 6, 'Total :', 0, 0, 'R');
 		}
 
-		if ( ! empty($this->appliedpaymentArray)) {
+		if ( ! empty($this->appliedpaymentArray) && !is_null($this->appliedpaymentArray)) {
 			$this->SetFont('Arial','B','9');
 			$this->Cell(200, 6, 'APPLIED PAYABLES :', 0, 0, 'L');
 			$this->Ln();
@@ -282,7 +282,7 @@ class print_voucher_model extends fpdf {
 		$this->MultiCell(200, 6, $notes, 1);
 		$this->Ln();
 
-		if ( ! empty($this->chequeArray_2)) {
+		if ( ! empty($this->cheque) && !is_null($this->cheque)) {
 			$this->SetFont('Arial', 'B', '9');
 			$this->Cell(200, 6, 'CHEQUE DETAILS :', 0, 0, 'L');
 			$this->Ln();
@@ -296,7 +296,7 @@ class print_voucher_model extends fpdf {
 			$totalpayment = 0;
 			$this->SetWidths(array(50, 50, 50, 50));
 			$this->SetAligns(array('L', 'L', 'L', 'R', 'R'));
-			foreach ($this->chequeArray_2 as $key => $payment) {
+			foreach ($this->cheque as $key => $payment) {
 				$payment->chequedate	= date('M j, Y', strtotime($payment->chequedate));
 				$totalpayment			+= $payment->chequeamount;
 				$payment->chequeamount	= number_format($payment->chequeamount, 2);
