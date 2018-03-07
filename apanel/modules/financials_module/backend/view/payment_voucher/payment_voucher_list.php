@@ -58,24 +58,23 @@
 							</div>
 						</div>
 					</div>
+					<div class="col-md-1 pull-right">
+						<a href="" id="export_csv" download="Payment Voucher.csv" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-export"></span>Export</a>
+					</div>
 				</div>
 			</div>
-
-			
-
 			<div class="panel panel-default">
-				<!-- <div class="panel-heading" id="option_filter">
+				<div class="panel-heading" id="option_filter">
 					<div class="row">
 						<div class="control-label col-md-9 col-sm-9 col-xs-9">
 						<ul class="nav nav-tabs">
-							<li class="active"><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('unpaid');">Unpaid Accounts</a></li>
-							<li><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('partial');">With Partial Payment</a></li>
-							<li><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('paid');">Paid</a></li>
 							<li><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('all');">All</a></li>
+							<li class="active"><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('paid');">Posted</a></li>
+							<li><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('partial');">Unposted</a></li>
 						</ul>
 						</div>
 					</div>
-				</div>	 -->
+				</div>	
 				<div class="box-body table-responsive" style = "overflow-x: inherit;">
 					<table id="tableList" class="table table-hover">
 						<?php
@@ -87,14 +86,14 @@
 											'class' => 'col-md-1 text-center'
 										)
 									)
-									->addHeader('Date', array('class' => 'col-md-3 text-center'), 'sort', 'main.transactiondate', 'asc')
+									->addHeader('Voucher Date', array('class' => ''), 'sort', 'main.transactiondate', 'asc')
 									// ->addHeader('AP Voucher No', array('class' => 'col-md-3 text-center'), 'sort', ' 	main.voucherno')
-									->addHeader('PV Voucher No', array('class' => 'col-md-3 text-center'), 'sort', ' 	pv.voucherno')
-									->addHeader('Vendor', array('class' => 'col-md-3 text-center'), 'sort', 'p.partnername')
-									->addHeader('Reference', array('class' => 'col-md-3 text-center'), 'sort', 'main.referenceno')
-									->addHeader('Amount', array('class' => 'col-md-3 text-center'), 'sort', 'main.convertedamount')
-									->addHeader('Balance', array('class' => 'col-md-3 text-center'), 'sort', 'main.balance')
-									->addHeader('Status', array('class' => 'col-md-3 text-center'))
+									->addHeader('PV Voucher No', array('class' => ''), 'sort', ' 	pv.voucherno')
+									->addHeader('Vendor', array('class' => ' '), 'sort', 'p.partnername')
+									// ->addHeader('Reference', array('class' => 'col-md-3 text-center'), 'sort', 'main.referenceno')
+									->addHeader('Amount', array('class' => ''), 'sort', 'main.convertedamount')
+									// ->addHeader('Balance', array('class' => 'col-md-3 text-center'), 'sort', 'main.balance')
+									->addHeader('Status', array('class' => 'text-center'))
 									->draw();
 						?>
 
@@ -551,6 +550,7 @@ function showList(pg)
 	{
 		$('#list_container').html(data.list);
 		$('#page_links').html(data.pagination);
+		$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 	});
 }
 

@@ -358,6 +358,7 @@ class payment_voucher_model extends wc_model
 								->setGroupBy($groupby)
 								// ->buildSelect();
 								->runPagination();
+								// echo $this->db->getQuery();
 
 		// var_dump($query);
 
@@ -1202,8 +1203,8 @@ class payment_voucher_model extends wc_model
 			$addCondition	= '';
 		}
 
-		
-		$add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND main.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
+		$add_query = '';
+ 		$add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND main.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 		$add_query .= (!empty($vendfilter) && $vendfilter != '') ? "AND p.partnercode = '$vendfilter' " : "";
 		$add_query .= $addCondition;
 
@@ -1480,4 +1481,63 @@ class payment_voucher_model extends wc_model
 		return '(' . implode(' OR ', $temp) . ')';
 	}
 
+	public function fileExportlist($data){
+
+		$daterangefilter = isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
+		$vendfilter      = isset($data['vendfilter']) ? htmlentities($data['vendfilter']) : ""; 
+		$addCond         = isset($data['addCond']) ? htmlentities($data['addCond']) : "";
+		$searchkey 		 = isset($data['search']) ? htmlentities($data['search']) : "";
+		$sort 		 	 = isset($data['sort']) ? htmlentities($data['sort']) : "main.transactiondate";
+
+		$datefilterArr		= explode(' - ',$daterangefilter);
+		$datefilterFrom		= (!empty($datefilterArr[0])) ? $this->date->dateDbFormat($datefilterArr[0]) : ""; 
+		$datefilterTo		= (!empty($datefilterArr[1])) ? $this->date->dateDbFormat($datefilterArr[1]) : "";
+
+		$add_query 	= (!empty($searchkey)) ? "AND (main.voucherno LIKE '%$searchkey%' OR main.referenceno LIKE '%$searchkey%' OR p.partnername LIKE '%$searchkey%' OR pv.voucherno LIKE '%$searchkey%' ) " : "";
+		$add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND pv.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
+		$add_query .= (!empty($vendfilter) && $vendfilter != '') ? "AND p.partnercode = '$vendfilter' " : "";
+
+		// Sub Select for Paid
+		$table_pv     = "pv_application AS pv";
+		$pv_fields    = "COALESCE(SUM(pv.convertedamount),0) + COALESCE(SUM(pv.discount),0) - COALESCE(SUM(pv.forexamount),0)";
+		$pv_cond      = "pv.apvoucherno = main.voucherno and pv.stat = 'posted'";
+		$sub_select_paid   = $this->db->setTable($table_pv)
+							->setFields($pv_fields)
+							->setWhere($pv_cond)
+							->buildSelect();
+		
+		// Sub Select for Partial
+		$sub_select_partial_bal = $this->db->setTable($table_pv)
+										->setFields($pv_fields)
+										->setWhere($pv_cond)
+										->buildSelect();
+		
+		$sub_select_partial_mainbal = $this->db->setTable($table_pv)
+										->setFields($pv_fields)
+										->setWhere($pv_cond)
+										->buildSelect();
+
+		$addCondition = "AND main.convertedamount = ($sub_select_paid) OR ($sub_select_partial_bal) > 0 AND main.convertedamount > ($sub_select_partial_mainbal) ";
+
+		$add_query .= $addCondition;
+
+		$main_fields = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "SUM(main.convertedamount) as amount","SUM(main.balance) as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS partnername", "pv.voucherno AS pv_voucherno", "pv.transactiondate as pvtransdate");
+		$main_join   = "partners p ON p.partnercode = main.vendor";
+		$pv_join 	 = "pv_application pv ON main.voucherno = pv.apvoucherno AND pv.stat = 'posted'";
+		$main_table  = "accountspayable as main";
+		$main_cond   = "main.stat = 'posted' $add_query";
+		$groupby 	 = "pv.voucherno";
+
+		$query 		 = $this->db->setTable($main_table)
+								->setFields($main_fields)
+								->leftJoin($main_join)
+								->leftJoin($pv_join)
+								->setWhere($main_cond)
+								->setOrderBy($sort)
+								->setGroupBy($groupby)
+								->runSelect()
+								->getResult();
+		return $query;
+
+	}
 }

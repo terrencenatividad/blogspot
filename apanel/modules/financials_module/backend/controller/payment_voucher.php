@@ -438,7 +438,7 @@ class controller extends wc_controller
 		}
 		else if ($task == 'export') 
 		{
-			$this->export();
+			$this->export2();
 		}
 		else if ($task == 'get_value') 
 		{
@@ -755,7 +755,7 @@ class controller extends wc_controller
 	{
 		$data_get = $this->input->get(array("daterangefilter", "vendfilter", "addCond", "search"));
 		$data_get['daterangefilter'] = str_replace(array('%2F', '+'), array('/', ' '), $data_get['daterangefilter']);
-		$result = $this->payment_voucher->fileExport($data_get);
+		$result = $this->payment_voucher->fileExportlist($data_get);
 		$header = array("Document Date", "Voucher No", "Vendor", "Invoice No", "Amount", "Balance", "Notes"); 
 		$csv 	= '';
 
@@ -1220,7 +1220,7 @@ class controller extends wc_controller
 		if( !empty($list->result) ) :
 			foreach($list->result as $key => $row)
 			{
-				$date        = (is_null($row->pvtransdate)) ? $row->transactiondate : $row->pvtransdate;
+				$date        = (($row->pvtransdate == '0000-00-00' || is_null)) ? $row->transactiondate : $row->pvtransdate;
 				$date        = $this->date->dateFormat($date);
 				$apvoucher   = $row->voucherno; 
 				$balance     = $row->balance; 
@@ -1287,13 +1287,13 @@ class controller extends wc_controller
 
 				$table	.= '<tr id="'.$viewlink.'" class="list_row">';
 				$table	.= '<td class="text-center" style="vertical-align:middle;">'.$task.'</td>';
-				$table	.= '<td class="text-center" style="vertical-align:middle;">'.$date.'</td>';
+				$table	.= '<td  style="vertical-align:middle;">'.$date.'</td>';
 				// $table	.= '<td class="text-left" style="vertical-align:middle;">&nbsp;'.$apvoucher.'</td>';
-				$table	.= '<td class="text-left" style="vertical-align:middle;">&nbsp;'.$pvvoucher.'</td>';
-				$table	.= '<td class="text-left" style="vertical-align:middle;">&nbsp;'.$vendor.'</td>';
-				$table	.= '<td class="text-left" style="vertical-align:middle;">&nbsp;'.$referenceno.'</td>';
+				$table	.= '<td  style="vertical-align:middle;">&nbsp;'.$pvvoucher.'</td>';
+				$table	.= '<td  style="vertical-align:middle;">&nbsp;'.$vendor.'</td>';
+				// $table	.= '<td class="text-left" style="vertical-align:middle;">&nbsp;'.$referenceno.'</td>';
 				$table	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.number_format($amount,2).'</td>';
-				$table	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.number_format($balance,2).'</td>';
+				// $table	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.number_format($balance,2).'</td>';
 				$table	.= '<td class="text-center" style="vertical-align:middle;">&nbsp;'.$voucher_status.'</td>';
 				$table	.= '</tr>';
 			}
@@ -1303,8 +1303,65 @@ class controller extends wc_controller
 					  </tr>";
 		endif;
 
-		$dataArray = array( "list" => $table, "pagination" => $list->pagination );
+		$dataArray = array( "list" => $table, "pagination" => $list->pagination , "csv" => $this->export2() );
 		echo json_encode($dataArray);
+	}
+
+	private function export2(){
+		$data_get = $this->input->post(array("daterangefilter", "vendfilter", "addCond", "search"));
+		$data_get['daterangefilter'] = str_replace(array('%2F', '+'), array('/', ' '), $data_get['daterangefilter']);
+		$result2 = $this->payment_voucher->fileExportlist($data_get);
+		$header = array("Voucher Date","Voucher No","Vendor","Amount","Status");
+		
+		$csv = '';
+		$csv = '"' . implode('","', $header) . '"';
+		$csv .= "\n";
+
+		if (!empty($result2)){
+			foreach ($result2 as $key => $row){
+				$date        = (($row->pvtransdate == '0000-00-00' || is_null)) ? $row->transactiondate : $row->pvtransdate;
+				$date        = $this->date->dateFormat($date);
+				$apvoucher   = $row->voucherno; 
+				$balance     = $row->balance; 
+				$amount	  	 = $row->amount; 
+				$vendor		 = $row->partnername; 
+				$referenceno = $row->referenceno; 
+				$pvvoucher   = $row->pv_voucherno; 
+
+				if($balance != $amount && $balance != 0)
+				{
+					$voucher_status = 'PARTIAL';
+
+					
+
+				}
+				else if($balance != 0)
+				{
+					$voucher_status = 'UNPAID';
+
+					
+				}
+				else
+				{
+					$voucher_status = 'PAID';
+
+				
+
+				}
+				
+
+				$csv .= '"' . $date . '",';
+				$csv .= '"' . $pvvoucher . '",';
+				$csv .= '"' . $vendor . '",';
+				$csv .= '"' . $amount . '",';
+				$csv .= '"' . $voucher_status . '"';
+				$csv .= "\n";
+			}
+		}
+
+		
+
+		return $csv;
 	}
 	
 }
