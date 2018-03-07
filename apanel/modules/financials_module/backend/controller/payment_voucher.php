@@ -143,6 +143,11 @@ class controller extends wc_controller
 		// $data["generated_id"]         = (!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
 		$data["generated_id"]     = '';
 
+		// Application Data
+		$data['sum_applied'] 	= 0;
+		$data['sum_discount']	= 0;
+		$data['payments'] 		= "''";
+
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
 
@@ -249,23 +254,21 @@ class controller extends wc_controller
 			$data["noCashAccounts"]  = true;
 		}
 
-		// var_dump($data["payments"]);
-
 		$this->view->load('payment_voucher/payment_voucher', $data);
 	}
 
 	public function edit($sid)
 	{
-		$access				   = $this->access->checkLockAccess('edit');
-		$data         		   = $this->payment_voucher->retrieveEditData($sid);
+		$access				   	= $this->access->checkLockAccess('edit');
+		$data         		   	= $this->payment_voucher->retrieveEditData($sid);
+		
+		$data["ui"]            	= $this->ui;
+		$data['show_input']    	= $this->show_input;
+		$data["task"] 		   	= "edit";
 
-		$data["ui"]            = $this->ui;
-		$data['show_input']    = $this->show_input;
-		$data["task"] 		   = "edit";
-
-		$data["generated_id"]  = $sid;
-		$data["sid"] 		   = $sid;
-		$data["date"] 		   = date("M d, Y");
+		$data["generated_id"]  	= $sid;
+		$data["sid"] 		   	= $sid;
+		$data["date"] 		   	= date("M d, Y");
 
 		// Retrieve vendor list
 		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList();
@@ -291,6 +294,23 @@ class controller extends wc_controller
 		$data["particulars"]     = $data["main"]->particulars;
 		$data["paymenttype"]     = $data["main"]->paymenttype;
 		
+		// Application Data
+		$payments 			= $data['payments'];
+		$sum_applied		= 0;
+		$sum_discount		= 0;
+		if($payments){
+			foreach($payments as $key=>$value){
+				if(isset($value->amt))   
+					$sum_applied += $value->amt;
+				
+				if(isset($value->dis))   
+					$sum_discount += $value->dis;
+			}
+		}
+		$data['sum_applied'] 	= $sum_applied;
+		$data['sum_discount'] 	= $sum_discount;
+		$data['payments'] 		= json_encode($payments);
+
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
 
@@ -900,7 +920,7 @@ class controller extends wc_controller
 		
 		$check_rows 	= (isset($vno) && (!empty($vno))) ? trim($vno) : "";
 		$check_rows  	= str_replace('\\', '', $check_rows);
-		$decode_json    = json_decode($check_rows, true);	
+		$decode_json    = json_decode($check_rows,true);	
 
 		$pagination     = $this->payment_voucher->retrieveAPList($data,$search);
 		
@@ -913,7 +933,7 @@ class controller extends wc_controller
 		$edited_amount 	   = 0;
 
 		if (empty($pagination->result)) {
-			$table = '<tr><td  class="text-center"><b>No Records Found</b></td></tr>';
+			$table = '<tr><td class="text-center" colspan="8"><b>No Records Found</b></td></tr>';
 		}
 
 		if($pagination->result)
@@ -927,18 +947,17 @@ class controller extends wc_controller
 			if(!empty($decode_json)) {
 				foreach($decode_json as $value => $row)
 				{	
-						array_push($voucher_array, $row['vno']);
-						$amt_array[$row['vno']] = $row;
+					array_push($voucher_array, $row['vno']);
+					$amt_array[$row['vno']] = $row;
 				}	
 			}
-			
+
 			for($i = 0; $i < count($pagination->result); $i++, $j++)
 			{
 
 				$date			= $pagination->result[$i]->transactiondate;
 				$date			= $this->date->dateFormat($date);
 				$voucher		= $pagination->result[$i]->voucherno;
-				$vendor			= $pagination->result[$i]->vendor_name;
 				$balance		= $pagination->result[$i]->balance; 
 				$totalamount	= $pagination->result[$i]->amount;
 				$referenceno	= $pagination->result[$i]->referenceno;
@@ -964,34 +983,13 @@ class controller extends wc_controller
 					$balance_2 	= str_replace(',', '', $balance_2); 
 					$amount		= str_replace(',', '', $amt_array[$voucher]['amt']);
 					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0';
-					$balance_2 = $balance_2 - $amount - $discount ;
+					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount;
+
+					$balance_2 	= $balance_2 - $amount - $discount;
+					
 				}
 
 				$table	.= '<tr>'; 
-				// $table	.= 	'<td class="text-center" style="vertical-align:middle;">';
-				// $table	.= 		'<input type="checkbox" name="checkBox[]" id = "row_check'.$i.'" class = "icheckbox" row = '.$i.' toggleid = "0" onClick="selectPayable('.$i.',0);">'; 
-				// $table	.= 		'<input type="hidden" id="invoice['.$i.']" name = "invoice_modal['.$j.']" >';
-				// $table	.= 	'</td>';
-				// $table	.= 	'<td class="text-left" style="vertical-align:middle;" id = "date_modal'.$i.'" onClick="selectPayable('.$i.',1);">'.$date.'</td>';
-				
-				// $table	.= '<td class="text-left" style="vertical-align:middle;" id = "apvoucher_modal'.$i.'" onClick="selectPayable('.$i.',1);">'.$voucher.'</td>';
-				// $table	.= '<td class="text-left" style="vertical-align:middle;" id = "reference_modal'.$i.'" onClick="selectPayable('.$i.',1);">'.$referenceno.'</td>';
-				// $table	.= '<td class="text-right" style="vertical-align:middle;" id = "totalamount_modal'.$i.'" onClick="selectPayable('.$i.',1);">'.number_format($totalamount,2).'
-				// 			<input type = "hidden" name = "totalamountval['.$j.']" id = "totalamountval['.$j.']" value = "'.number_format($totalamount, 2).'"/>
-				// 			</td>';
-				// $table	.= '<td class="text-right" style="vertical-align:middle;" id = "balance_modal'.$i.'" onClick="selectPayable('.$i.',1);">'.number_format($balance,2).'</td>';
-				// $table	.= '<td class="text-right pay" style="vertical-align:middle;">'
-				// 				.$this->ui->formField('text')
-				// 							->setSplit('', 'col-md-12')
-				// 							->setClass("input-sm text-right paymentamount")
-				// 							->setId('paymentamount'.$voucher)
-				// 							->setPlaceHolder("0.00")
-				// 							->setAttribute(array("maxlength" => "50", "disabled" => "disabled", "onBlur" => 'checkBalance(this.value,'.$i.'); formatNumber(this.id);', "onClick" => "SelectAll(this.id);"))
-				// 							->setValue(number_format($appliedamount, 2))
-				// 							->draw(true).
-				// 				'<input type = "hidden" name = "pay_amount['.$j.']" id = "pay_amount['.$j.']" value = "'.number_format($appliedamount, 2).'"/>
-				// 			</td>';
-				
 				$table	.= 	'<td class="text-center" style="vertical-align:middle;">';
 				$table	.= 		'<input type="checkbox" name="checkBox[]" id = "check'.$voucher.'" class = "icheckbox" toggleid="0" row="'.$voucher.'" '.$voucher_checked.'>'; 
 				$table	.= 	'</td>';

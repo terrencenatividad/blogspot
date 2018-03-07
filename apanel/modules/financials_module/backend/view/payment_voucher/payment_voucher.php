@@ -90,7 +90,7 @@
 								<div class="col-md-8">
 									<button type="button" id="apv" class="btn btn-block btn-success btn-flat">
 										<em class="pull-left"><small>Click to view tagged payables</small></em>
-										<strong id="pv_amount" class="pull-right">0.00</strong>
+										<strong id="pv_amount" class="pull-right"><?=number_format($sum_applied,2)?></strong>
 									</button>
 								</div>
 							</div>
@@ -566,7 +566,7 @@
 											"readonly" => "readonly"
 										)
 									)
-									->setValue("")
+									->setValue(number_format($sum_applied,2))
 									->draw(true);
 						?>
 						</div>
@@ -587,7 +587,7 @@
 											"readonly" => "readonly"
 										)
 									)
-									->setValue("")
+									->setValue(number_format($sum_discount,2))
 									->draw(true);
 						?>
 						</div>
@@ -1558,11 +1558,11 @@ bootbox.dialog({
 
 
 var ajax		= {};
-function showList(voucherno)
+function showList()
 {
 	var vnose 		= JSON.stringify(container);
 	var	vendor_code	= $('#payableForm #vendor').val();
-	voucherno 		= (voucherno == undefined) ? "" : voucherno;
+	voucherno 		= $('#payableForm #h_voucher_no').val();
 
 	var ajax_call	= '';
 	ajax.limit 		= 5;
@@ -1723,7 +1723,8 @@ function addPaymentAmount()
 	// document.getElementById('total_discount').value 	= addCommas(subdiscount.toFixed(2));	
 }
 
-var container 		= [];
+var payments 		= <?=$payments;?>;
+var container 		= (payments != '') ? payments : [];
 var selectedIndex 	= -1;
 function getPVDetails()
 {

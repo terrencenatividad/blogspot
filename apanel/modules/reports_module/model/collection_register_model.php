@@ -135,8 +135,6 @@
                                     ->leftJoin("rv_application as app ON app.voucherno = rv.voucherno AND app.companycode = rv.companycode ")
 									->leftJoin("accountsreceivable as ar ON ar.voucherno = app.arvoucherno AND ar.companycode = app.companycode ")
 									->leftJoin("chartaccount as coa ON coa.id = chq.chequeaccount AND coa.companycode = chq.companycode ")
-                                    ->leftJoin("bankdetail as btl ON btl.accountlevel = chq.chequeaccount AND btl.companycode = chq.companycode ")
-                                    ->leftJoin("bank as bnk ON btl.bankcode = bnk.bankcode AND btl.companycode = bnk.companycode ")
                                     ->leftJoin("partners as pt ON pt.partnercode = ar.customer AND pt.partnertype = 'customer' AND ar.companycode = pt.companycode ")
                                     ->setFields($fields)
 									->setWhere($condition)

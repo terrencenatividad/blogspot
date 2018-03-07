@@ -54,6 +54,7 @@ class payment_voucher_model extends wc_model
 					->setGroupBy($groupby)
 					->setWhere($cond)
 					->runPagination();
+
 		return $result;
 	}
 	
@@ -93,7 +94,7 @@ class payment_voucher_model extends wc_model
 		$temp["details"] = $retrieveArrayDetail;
 		
 		// Retrieve Payments
-		$applicationFields = "app.voucherno as vno, app.amount as amt, '0.00' as bal, app.discount as discount";
+		$applicationFields = "app.apvoucherno as vno, app.amount as amt, '0.00' as bal, app.discount as dis";
 		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 ";
 
 		$applicationArray = $this->db->setTable('pv_application as app')
@@ -374,13 +375,13 @@ class payment_voucher_model extends wc_model
 		$search_key = '';
 
 		if ($search) {
-			$search_key .= ' AND ' . $this->generateSearch($search, array("main.voucherno", "main.transactiondate ", "main.convertedamount ", "main.balance ", "p.partnername ", "main.referenceno "));
+			$search_key .= ' AND ' . $this->generateSearch($search, array("main.voucherno"));
 		}
 
 		// Sub Select
 		$table_pv  = "pv_application AS pv";
 		$pv_fields = "COALESCE(SUM(pv.convertedamount),0) + COALESCE(SUM(pv.discount),0) - COALESCE(SUM(pv.forexamount),0)";
-		$pv_cond   = "pv.apvoucherno = main.voucherno AND pv.stat IN('posted')";
+		$pv_cond   = "pv.apvoucherno = main.voucherno AND pv.stat IN('posted') AND pv.voucherno = '$voucherno' ";
 	
 		// Main Queries
 		$main_table   = "accountspayable as main";
@@ -392,9 +393,9 @@ class payment_voucher_model extends wc_model
 		$mainFields	= array(
 							"main.voucherno as voucherno", "main.transactiondate as transactiondate",
 							"main.convertedamount as amount", "main.balance as balance", "main.referenceno as referenceno",
-							"SUM(pv.convertedamount) as payment"
+							"SUM(app.convertedamount) as payment"
 						);
-		$mainJoin	= "pv_application AS pv ON pv.apvoucherno = main.voucherno";
+		$mainJoin	= "pv_application AS app ON app.apvoucherno = main.voucherno";
 		$orderBy 	= "main.voucherno";
 
 		if($vendorcode && empty($voucherno))
@@ -403,23 +404,25 @@ class payment_voucher_model extends wc_model
 							   ->setFields($pv_fields)
 							   ->setWhere($pv_cond)
 							   ->buildSelect();
-			$addCondition 		= "AND ($sub_select) = 0 OR ($sub_select) > 0 AND main.convertedamount > ($sub_select)";
-			$main_cond    		= "main.stat = 'posted'  AND main.vendor = '$vendorcode' $search_key $addCondition ";
-			$query 				= $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
+			// $addCondition 		= "AND ($sub_select) = 0 OR ($sub_select) > 0 AND main.convertedamount > ($sub_select)";
+			// $main_cond    		= "main.stat = 'posted'  AND main.vendor = '$vendorcode' $search_key $addCondition ";
+			// $query 				= $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
+			$mainCondition   		= "main.stat = 'posted' AND main.vendor = '$vendorcode' AND main.balance > 0 ";
+			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $orderBy);
 			$tempArr["result"] = $query;
 		}
 		else if($voucherno)
 		{
-			// $sub_select = $this->db->setTable($table_pv)
-			// 					->setFields($pv_fields)
-			// 					->setWhere($pv_cond)
-			// 					->buildSelect();
+			$sub_select = $this->db->setTable($table_pv)
+								->setFields($pv_fields)
+								->setWhere($pv_cond)
+								->buildSelect();
 			// $addCondition		= "AND main.convertedamount = ($sub_select AND pv.voucherno = '$voucherno') OR ($sub_select AND pv.voucherno = '$voucherno') > 0";
 			// $main_cond    		= "main.stat = 'posted' AND main.vendor = '$vendorcode' $addCondition ";
 			// $query 				= $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
 			//$addCondition		= "AND main.convertedamount = ($sub_select AND pv.voucherno = '$voucherno') OR ($sub_select AND pv.voucherno = '$voucherno') > 0";
-			$main_cond    		= "main.stat = 'posted' AND main.vendor = '$vendorcode' ";
-			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $main_cond, $mainJoin, $orderBy);
+			$mainCondition   		= "main.stat = 'posted' AND main.vendor = '$vendorcode' AND ((main.balance - ($sub_select)) <= main.convertedamount) AND ((main.balance > 0) OR ($sub_select) > 0)";
+			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $orderBy);
 			$tempArr["result"] = $query;
 		}
 		
@@ -524,10 +527,6 @@ class payment_voucher_model extends wc_model
 					->setGroupBy($groupby)
 					->runSelect($bool)
 					->getResult();
-					// echo $this->db->getQuery();
-					// ->buildSelect();
-
-		// var_dump($result);
 
 		return $result;
 	}
@@ -918,6 +917,55 @@ class payment_voucher_model extends wc_model
 					$code 		= 0;
 					$errmsg[] = "<li>Error in Saving in Cheque Details.</li>";
 				}
+			}
+		}
+
+		/**
+		 * Update Accounts Payable Balance
+		 */
+		if(!empty($picked_payables)){
+			$aPvApplicationArray 	= array();
+			$iApplicationLineNum	= 1;
+			foreach ($picked_payables as $pickedKey => $pickedValue) {
+				$payable 					= $pickedValue['vno'];
+
+				$applied_sum				= 0;
+				$applied_discount			= 0;
+				$applied_forexamount		= 0;
+
+				$invoice_amounts			= $this->getValue(
+												$applicableHeaderTable, 
+												array(
+													"amount as convertedamount"
+												), 
+												" voucherno = '$payable' "
+											);
+
+				$applied_amounts			= $this->getValue(
+												$applicationTable, 
+												array(
+													"SUM(amount) AS convertedamount",
+													"SUM(discount) AS discount",
+													"SUM(forexamount) AS forexamount"
+												), 
+												" apvoucherno = '$payable' AND stat = 'posted' "
+											);
+
+				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount;
+				
+				$invoice_amount				= (!empty($invoice_amount)) ? $invoice_amounts[0]->convertedamount : 0;
+				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
+
+				//$invoice_balance			= $invoice_amount - $applied_sum - $applied_amounts[0]->discount;
+
+				$balance_info['amountpaid']	= $applied_sum;
+
+				$balance_info['balance']	= $invoice_amount - $applied_sum;
+				
+				$insertResult = $this->db->setTable($applicableHeaderTable)
+								->setValues($balance_info)
+								->setWhere("voucherno = '$payable'")
+								->runUpdate();
 			}
 		}
 
