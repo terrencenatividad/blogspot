@@ -335,7 +335,7 @@ class controller extends wc_controller
 		$ap_prefix 		  		 = $this->accounts_receivable->getValue("wc_sequence_control", array("prefix"), "code = 'AR'");
 		$data["prefix"] 		 = $ap_prefix[0]->prefix;
 
-		$data['show_paymentdetails'] 	=	(!empty($data['payments'] && !is_null($data['payments']))) 		?  	1 	: 0;
+		$data['show_paymentdetails'] 	=	(!empty($data['payments']) && !is_null($data['payments'])) 		?  	1 	: 0;
 		
 		/**
 		 * Status Badge
