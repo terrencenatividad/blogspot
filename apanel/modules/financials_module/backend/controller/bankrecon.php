@@ -336,7 +336,8 @@ class controller extends wc_controller {
 
 			$csv_array = array_reverse($csv_array);
 			foreach ($csv_array as $key => $row) {
-				if (empty(implode('', $row))) {
+				$temp = implode('', $row);
+				if (empty($temp)) {
 					unset($csv_array[$key]);
 				} else {
 					break;
