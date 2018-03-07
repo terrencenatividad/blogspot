@@ -72,7 +72,7 @@
 			}
 			if( $partner && !in_array('none', $partner) ){
 				$partner_names = implode( "','", $partner );
-				$having_cond .= " AND partnercode IN ( '$partner_names' ) ";
+				$having_cond .= " AND partnername IN ( '$partner_names' ) ";
 			}
 
 			$result	= $this->getQueryDetails($search, $startdate, $enddate, $partner, $filter, $bank, $sort, $mode)
