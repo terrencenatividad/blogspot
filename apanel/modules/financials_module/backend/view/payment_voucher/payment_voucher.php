@@ -639,7 +639,8 @@
 							</div>
 							&nbsp;&nbsp;&nbsp;
 							<div class="btn-group">
-								<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal" onClick="clearPayment();">Cancel</button>
+								<!-- noted by Sir Mark to remove this onclick function upon cancel. onClick="clearPayment();"-->
+								<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal" >Cancel</button>
 							</div>
 						</div>
 					</div>
@@ -1471,30 +1472,30 @@ else
 /**TOGGLE CHECK DATE FIELD**/
 function toggleCheckInfo(val)
 {
-var selected_rows = $("#selected_rows").html();
+	var selected_rows = $("#selected_rows").html();
 
-if(val == 'cheque')
-{
-	// Trigger click event to add new row
-	$(".add-data").trigger("click");
-	
-	$("#payableForm #cash_payment_details").addClass('hidden');
-	$("#payableForm #check_details").removeClass('hidden');
-}
-else
-{
-	// Delete last row in details if paymentmode is cash
-	var $tbody = $("#ap_items");
-	var $last  = $tbody.find('tr:last');
-
-	if(!$last.is(':first-child'))
+	if(val == 'cheque')
 	{
-		$last.remove();
+		// Trigger click event to add new row
+		$(".add-data").trigger("click");
+		
+		$("#payableForm #cash_payment_details").addClass('hidden');
+		$("#payableForm #check_details").removeClass('hidden');
 	}
+	else
+	{
+		// Delete last row in details if paymentmode is cash
+		// var $tbody = $("#ap_items");
+		// var $last  = $tbody.find('tr:last');
 
-	$("#payableForm #cash_payment_details").removeClass('hidden');
-	$("#payableForm #check_details").addClass('hidden');
-}
+		// if(!$last.is(':first-child'))
+		// {
+		// 	$last.remove();
+		// }
+
+		$("#payableForm #cash_payment_details").removeClass('hidden');
+		$("#payableForm #check_details").addClass('hidden');
+	}
 
 }
 
@@ -1505,14 +1506,14 @@ document.getElementById(id).value = '';
 
 function clearPayment()
 {	
-var today	= moment().format("MMM D, YYYY");
+	var today	= moment().format("MMM D, YYYY");
 
-clearInput("total_payment");
+	clearInput("total_payment");
 
-$("#payableForm #paymentdate").val('<?= $transactiondate ?>');
-$("#payableForm #paymentmode").val('cash');
-toggleCheckInfo('cash');
-$("#payableForm #paymentcheckdate").val('');
+	$("#payableForm #paymentdate").val('<?= $transactiondate ?>');
+	$("#payableForm #paymentmode").val('cash');
+	toggleCheckInfo('cash');
+	$("#payableForm #paymentcheckdate").val('');
 
 }
 
@@ -1663,113 +1664,125 @@ else
 /**COMPUTE TOTAL PAYMENTS APPLIED**/
 function addPaymentAmount() 
 {
-var sum 		= 0;
-var subtotal 	= 0;
-var subdiscount = 0;
+	var sum 		= 0;
+	var subtotal 	= 0;
+	var subdiscount = 0;
 
-var subData 	= 0;
-var subDis		= 0;
+	var subData 	= 0;
+	var subDis		= 0;
 
-var table 	= document.getElementById('payable_list_container'); // app_payableList
-var count	= table.rows.length;
-var count_container = Object.keys(container).length;
-amount = 0; 
-discount = 0;
-for(i = 0; i < count_container; i++) {
-	amt_ = (container[i]['amt']).replace(/,/g,'');
-	dis = parseFloat(0) || (container[i]['dis']) ;
-	amt = parseFloat(amt_);
-	dis = parseFloat(dis) ;
-	amount += amt;
-	discount += dis;
-}
-if(isNaN(discount)) {
+	var table 	= document.getElementById('payable_list_container'); // app_payableList
+	var count	= table.rows.length;
+	console.log(container);
+	var count_container = Object.keys(container).length;
+	amount = 0; 
 	discount = 0;
-}
-amount = addCommas(amount.toFixed(2));
-$('#total_payment').val(amount);
-discount = addCommas(discount.toFixed(2));
-$('#total_discount').val(discount);
+	for(i = 0; i < count_container; i++) {
+		amt_ = (container[i]['amt']).replace(/,/g,'');
+		dis = parseFloat(0) || (container[i]['dis']) ;
+		amt = parseFloat(amt_);
+		dis = parseFloat(dis) ;
+		amount += amt;
+		discount += dis;
+	}
+	if(isNaN(discount)) {
+		discount = 0;
+	}
+	amount = addCommas(amount.toFixed(2));
+	$('#total_payment').val(amount);
+	discount = addCommas(discount.toFixed(2));
+	$('#total_discount').val(discount);
 
+	for(i = 0; i < count; i++)  {  
+		//var inputpay = ('<?= $task ?>' == "create") ? 'paymentamount['+i+']' : 'amount_paid['+i+']';
+		var row = table.rows[i];
+		var inputamt	= row.cells[6].getElementsByTagName("input")[0];
+		var inputdis	= row.cells[7].getElementsByTagName("input")[0];
+		
+		if(inputamt != null)
+		{          
+			if( (inputamt.value && inputamt != '0' && inputamt.value != '0.00') )
+			{                            
+				subData = inputamt.value.replace(/,/g,'');
+				subDis 	= inputdis.value.replace(/,/g,'');
+			}
+			else
+			{             
+				subData = 0;
+				subDis  = 0;
+			}
+			subtotal = parseFloat(subtotal) + parseFloat(subData) ;
+			subdiscount = parseFloat(subdiscount) + parseFloat(subDis) ;
+		}	
 
-for(i = 0; i < count; i++) 
-{  
-	//var inputpay = ('<?= $task ?>' == "create") ? 'paymentamount['+i+']' : 'amount_paid['+i+']';
-	var row = table.rows[i];
-	var inputamt	= row.cells[6].getElementsByTagName("input")[0];
-	var inputdis	= row.cells[7].getElementsByTagName("input")[0];
-	
-	if(inputamt != null)
-	{          
-		if( (inputamt.value && inputamt != '0' && inputamt.value != '0.00') )
-		{                            
-			subData = inputamt.value.replace(/,/g,'');
-			subDis 	= inputdis.value.replace(/,/g,'');
-		}
-		else
-		{             
-			subData = 0;
-			subDis  = 0;
-		}
-		subtotal = parseFloat(subtotal) + parseFloat(subData) ;
-		subdiscount = parseFloat(subdiscount) + parseFloat(subDis) ;
-	}	
+	}
 
-}
-
-subtotal	= Math.round(1000*subtotal)/1000;
-subdiscount	= Math.round(1000*subdiscount)/1000;
-// document.getElementById('total_payment').value 		= addCommas(subtotal.toFixed(2));	
-// document.getElementById('total_discount').value 	= addCommas(subdiscount.toFixed(2));	
+	subtotal	= Math.round(1000*subtotal)/1000;
+	subdiscount	= Math.round(1000*subdiscount)/1000;
+	// document.getElementById('total_payment').value 		= addCommas(subtotal.toFixed(2));	
+	// document.getElementById('total_discount').value 	= addCommas(subdiscount.toFixed(2));	
 }
 
 var container 		= [];
 var selectedIndex 	= -1;
 function getPVDetails()
 {
-var vendorcode   	= $("#vendor").val();
-var selected_rows 	= JSON.stringify(container);
-$("#selected_rows").html(selected_rows);
+	var vendorcode   	= $("#vendor").val();
+	var selected_rows 	= JSON.stringify(container);
+	$("#selected_rows").html(selected_rows);
 
-var data 		 = "checkrows=" + selected_rows + "&vendor=" + vendorcode;
+	var data 		 = "checkrows=" + selected_rows + "&vendor=" + vendorcode;
 
-if(selected_rows == "")
-{
-	bootbox.dialog({
-		message: "Please select AP Voucher.",
-		title: "Oops!",
-			buttons: {
-			yes: {
-			label: "OK",
-			className: "btn-primary btn-flat",
-			callback: function(result) {
-				
+	if(selected_rows == "")
+	{
+		bootbox.dialog({
+			message: "Please select AP Voucher.",
+			title: "Oops!",
+				buttons: {
+				yes: {
+				label: "OK",
+				className: "btn-primary btn-flat",
+				callback: function(result) {
+					
+					}
 				}
 			}
-		}
-	});
-}
-else
-{
-	$.post("<?=BASE_URL?>financials/payment_voucher/ajax/getpvdetails", data )
-	.done(function(data)
+		});
+	}
+	else
 	{
-		var total_payment = $("#paymentModal #total_payment").val();
-		$("#paymentModal").modal("hide");
-
-		if(selected_rows != "")
-			$("#paymentmode").removeAttr("disabled");
-
-		if('<?= $task ?>' == "create")
+		$.post("<?=BASE_URL?>financials/payment_voucher/ajax/getpvdetails", data )
+		.done(function(data)
 		{
-			// load payables
-			$("#entriesTable tbody").html(data.table);
-			$("#pv_amount").html(total_payment);
-			// display total of debit
-			addAmountAll("debit");
-		}
-	});
-}
+			var total_payment = $("#paymentModal #total_payment").val();
+			$("#paymentModal").modal("hide");
+
+			if(selected_rows != "")
+				$("#paymentmode").removeAttr("disabled");
+
+			if('<?= $task ?>' == "create")
+			{
+				// load payables
+				$("#entriesTable tbody").html(data.table);
+				$("#pv_amount").html(total_payment);
+				// display total of debit
+				addAmountAll("debit");
+				
+				var count_container = Object.keys(container).length;
+				var discount_amount =	0;
+
+				for(i = 0; i < count_container; i++) {
+					discount_amount += parseFloat(0) || parseFloat(container[i]['dis']) ;
+				}
+				if( parseFloat(discount_amount) != 0 ){
+					discount_amount 	=	addCommas(discount_amount.toFixed(2));
+					$('.add-entry').click();
+					$('#entriesTable tbody tr.clone').last().find('.accountcode').val(660);
+					$("#entriesTable tbody tr.clone").last().find('.account_amount').val(discount_amount).blur();
+				}
+			}
+		});
+	}
 }
 
 function selectPayable(id,toggle)
@@ -1825,88 +1838,106 @@ if (localStorage.selectedPayables)
 }
 
 function add_storage(id,balance,discount){
-var amount 		= $('#paymentModal #paymentamount'+id).val();
-var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount};
+	var amount 		= $('#paymentModal #paymentamount'+id).val();
+	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount};
+	if(amount != ''){
+		var found = false;
+		for(var i=0; element=container[i]; i++) {
+			if(element.vno == newvalue.vno) {
+				var original_amount 	=	element.amt.replace(/\,/g,'');
+				var original_balance 	=	element.bal.replace(/\,/g,'');
+				var original_discount	=	((element.dis > 0) ? element.dis.replace(/\,/g,'') : 0);
+				
+				// console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount);
 
-if(amount != ''){
-	var found = false;
-	for(var i=0; element=container[i]; i++) {
-		if(element.vno == newvalue.vno) {
-			amounts = newvalue.amt.replace(/\,/g,'');
-			dis = newvalue.dis.replace(/\,/g,'');
-			var avail_balance =  balance - amounts - dis;
-			var bal = addCommas(avail_balance.toFixed(2));
-			$('#payable_list_container #payable_balance'+id).html(bal);
-			found = true;
-			if(newvalue.amount === 0) {
-				container[i] = false;
-				
-			} else {
-				
-				container[i] = newvalue;
-			}            
+				var new_amount 			=	newvalue.amt.replace(/\,/g,'');
+				var new_balance 		=	newvalue.bal.replace(/\,/g,'');
+				var discount 			=	newvalue.dis.replace(/\,/g,'');
+
+				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount)) - new_amount;
+				available_balance 		=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
+			
+				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount)) - discount;
+				discounted_amount 		=	addCommas(discounted_amount.toFixed(2));
+
+				$('#payable_list_container #payable_balance'+id).html(available_balance);
+				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
+
+				// console.log("New || "+discounted_amount+ " | " + new_balance + " | "+discount);
+
+				found = true;
+				if(parseFloat(new_amount) === 0) {
+					container[i] = false;
+					
+				} else {
+					newvalue.amt 	=	discounted_amount;
+					container[i] = newvalue;
+				}            
+				// console.log(newvalue);
+			}
 		}
+		if(found === false) {
+			var discount_val 	=	0;
+			container.push(newvalue);
+			$('#payable_list_container #payable_balance'+id).html(0);
+			$('#payable_list_container #discountamount'+id).val(addCommas(discount_val.toFixed(2)));
+		}
+		
+	}else{
+		$('#payable_list_container #payable_balance'+id).html(balance);;
+		container = container.filter(function( obj ) {
+			return obj.vno !== id;
+		});
 	}
-	if(found === false) {
-		container.push(newvalue);
-		$('#payable_list_container #payable_balance'+id).html(0);
-	}
-	
-}else{
-	$('#payable_list_container #payable_balance'+id).html(balance);;
-	container = container.filter(function( obj ) {
-		return obj.vno !== id;
-	});
-}
-localStorage.selectedPayables = JSON.stringify(container);
-init_storage();
-//console.log(JSON.parse(localStorage.getItem('selectedPayables')));
+	localStorage.selectedPayables = JSON.stringify(container);
+	init_storage();
+	//console.log(JSON.parse(localStorage.getItem('selectedPayables')));
 }
 
 /**CHECK BALANCE**/
 function checkBalance(val,id)
 {
-var table 			= document.getElementById('payable_list_container');
-var dueamount 		= $('#payable_list_container #payable_balance'+id).attr('data-value');
-var discountamount 	= $('#payable_list_container #discountamount'+id).val();
+	var table 			= document.getElementById('payable_list_container');
+	var dueamount 		= $('#payable_list_container #payable_balance'+id).attr('data-value');
+	var discountamount 	= $('#payable_list_container #discountamount'+id).val();
 
-dueamount			= dueamount.replace(/\,/g,'');
-discount			= discountamount.replace(/\,/g,'');
+	dueamount			= dueamount.replace(/\,/g,'');
+	discount			= discountamount.replace(/\,/g,'');
 
 
-// var row   			= table.rows[id];
-// var dueamount		= row.cells[4].innerHTML;
-// dueamount			= dueamount.replace(/\,/g,''); 
+	// var row   			= table.rows[id];
+	// var dueamount		= row.cells[4].innerHTML;
+	// dueamount			= dueamount.replace(/\,/g,''); 
 
-var newval			= val.replace(/,/g,'');
+	var newval			= val.replace(/,/g,'');
 
-var condition = "";
-var input 	  = "";
+	var condition = "";
+	var input 	  = "";
 
-condition 			= (parseFloat(newval) || parseFloat(discount)) > (parseFloat(dueamount) );
+	condition 			= (parseFloat(newval) || parseFloat(discount)) > (parseFloat(dueamount) );
 
-if(condition)
-{
-	$('#payable_list_container #paymentamount'+id).value = '';
-}else{
-	$('#payable_list_container #paymentamount'+id).value = val;
-}
-
-// console.log(parseFloat(val) + " " + parseFloat(totalamountval));
-
-if(condition)
-{
-	bootbox.alert("Payment amount is greater than the due amount of this Bill.", function() 
+	if(condition)
 	{
-		//add_storage(id);
-	});
-}
-else
-{
-	add_storage(id,dueamount,discount);
-}
-	
-addPaymentAmount();	
+		$('#payable_list_container #paymentamount'+id).value = '';
+	}else{
+		$('#payable_list_container #paymentamount'+id).value = val;
+	}
+
+	// console.log(parseFloat(val) + " " + parseFloat(totalamountval));
+
+	if(condition)
+	{
+		bootbox.alert("Payment amount is greater than the due amount of this Bill.", function() 
+		{
+			//add_storage(id);
+		});
+	}
+	else
+	{
+		add_storage(id,dueamount,discount);
+	}
+		
+	addPaymentAmount();	
 }
 
 function validateCheques()
@@ -3094,8 +3125,9 @@ $('body').on('click','#apv',function(e){
 // Isabelle -  eto ung pag clone ng td sa may accounting details 
 $('body').on('click', '.add-entry', function() 
 {	
-	$('#entriesTable tbody tr.clone select').select2('destroy');
-	
+	if ($('#entriesTable tbody tr.clone select').data('select2')) {
+		$('#entriesTable tbody tr.clone select').select2('destroy');
+	}
 	var clone = $("#entriesTable tbody tr.clone:first").clone(true); 
 
 	var ParentRow = $("#entriesTable tbody tr.clone").last();
