@@ -373,7 +373,7 @@ class pricelist extends wc_model
                             ->setFields(array('p.partnercode as partnercode',"p.partnername as partnername", 'cd.customerCode as tagged'))
                             ->leftJoin("customer_price_list cd ON cd.customerCode = p.partnercode AND cd.companycode = p.companycode AND cd.stat != 'deleted' ")
                             ->setWhere(" p.partnertype = 'customer' AND p.stat = 'active' AND (cd.itemPriceCode = '$code' OR cd.itemPriceCode IS NULL) $add_cond")
-                            ->setOrderBy('cd.itemPriceCode DESC')
+                            ->setOrderBy('cd.customerCode DESC, p.partnercode ASC')
                             ->runPagination();
                             
         return $result;
@@ -385,7 +385,7 @@ class pricelist extends wc_model
                             ->setFields(array('cd.customerCode as tagged'))
                             ->leftJoin("customer_price_list cd ON cd.customerCode = p.partnercode AND cd.companycode = p.companycode AND cd.stat != 'deleted' ")
                             ->setWhere(" p.partnertype = 'customer' AND p.stat = 'active' AND (cd.itemPriceCode = '$code' OR cd.itemPriceCode IS NULL)")
-                            ->setOrderBy('cd.itemPriceCode DESC')
+                            // ->setOrderBy('cd.itemPriceCode DESC')
                             ->runSelect()
                             ->getResult();
                             

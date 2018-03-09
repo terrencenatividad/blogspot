@@ -54,6 +54,7 @@
 								->setFields(array('p.partnercode as partnercode',"p.partnername as partnername", 'cd.customercode as tagged'))
 								->leftJoin("customer_discount cd ON cd.customercode = p.partnercode AND cd.companycode = p.companycode ")
 								->setWhere(" p.partnertype = 'customer' AND p.stat = 'active' AND (cd.discountcode = '$discountcode' OR cd.discountcode IS NULL) $add_cond")
+								->setOrderBy('cd.customerCode DESC, p.partnercode ASC')
 								->runPagination();
 			//echo $this->db->getQuery();
 			return $result;

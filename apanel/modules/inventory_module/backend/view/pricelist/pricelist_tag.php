@@ -247,6 +247,7 @@ function list_items(){
     });
 }
 
+var set_tagged = true;
 function list_customers(){
 	ajax2.plcode 	=	'<?=$itemPriceCode?>';
 	ajax2.tagged 	= 	tagged;
@@ -256,9 +257,9 @@ function list_customers(){
         $('#pagination').html(data.pagination);
 		
 		var ret_tagged 	=	data.tagged; 
-		if( ret_tagged.length != 0 )
-		{
+		if( ret_tagged.length != 0 && set_tagged ) {
 			tagged 	=	ret_tagged;
+			set_tagged = false;
 		}
 		
 		for ( var i = 0, l = tagged.length; i < l; i++ ) {
@@ -271,12 +272,6 @@ function list_customers(){
 			ajax.page = data.page_limit;
 			list_customers();
 		}
-
-		// if( tagged.length > 0 ){
-		// 	$('#tag_customer_form button[type="submit"]').attr('disabled',false);
-		// }else{
-		// 	$('#tag_customer_form button[type="submit"]').attr('disabled',true);
-		// }
     });
 }
 
@@ -332,12 +327,7 @@ $(document).ready(function(){
 		{
 			tagged.push(code);
 		}
-		console.log(JSON.stringify(tagged));
-		// if( tagged.length > 0 ){
-		// 	$('#tag_customer_form button[type="submit"]').attr('disabled',false);
-		// }else{
-		// 	$('#tag_customer_form button[type="submit"]').attr('disabled',true);
-		// }
+		// console.log(JSON.stringify(tagged));
 	});
 
 	$('#tag_customer_table').on('ifUnchecked', 'input[type="checkbox"]', function() {
@@ -345,12 +335,7 @@ $(document).ready(function(){
 		tagged = jQuery.grep(tagged, function(value) {
 			return value != remove_this;
 		});
-		console.log(JSON.stringify(tagged));
-		// if( tagged.length > 0 ){
-		// 	$('#tag_customer_form button[type="submit"]').attr('disabled',false);
-		// }else{
-		// 	$('#tag_customer_form button[type="submit"]').attr('disabled',true);
-		// }
+		// console.log(JSON.stringify(tagged));
 	});
 });
 
