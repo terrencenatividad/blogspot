@@ -633,15 +633,9 @@ class accounts_receivable extends wc_model
 		/**CLEAN PASSED DATA**/
 		foreach($data as $postIndex => $postValue)
 		{
-			// echo "\n" . $postIndex . " ";
-			// var_dump($postValue);
-
 			if(($postIndex == 'invoiceno' || $postIndex=='paymentdate' || $postIndex == 'paymentnumber' || $postIndex=='paymentaccount' || $postIndex=='paymentmode' || $postIndex=='paymentreference' || $postIndex=='paymentamount' || $postIndex == 'paymenttaxcode' || $postIndex == 'paymentnotes' || $postIndex == 'customer' || $postIndex == 'customer' || $postIndex == 'paymentdiscount' || $postIndex == 'paymentconverted' || $postIndex == 'paymentrate') && !empty($postValue))
 			{
 				$a		= '';
-
-				// echo "\n" . $postIndex . " ";
-				// var_dump($postValue);
 
 				foreach($postValue as $postValueIndex => $postValueIndexValue)
 				{
@@ -670,17 +664,14 @@ class accounts_receivable extends wc_model
 				{
 					if($postIndex == 'chequeamount' || $postIndex == 'chequeconvertedamount')
 					{
-						// echo "\n1";
 						$b = str_replace(',', '', $postValueIndexValue);
 					}
 					else if($postIndex == 'chequedate')
 					{
-						// echo "\n2";
 						$b = ($postValueIndexValue != '') ? date("Y-m-d", strtotime($postValueIndexValue)) : "0000-00-00";
 					}
 					else
 					{
-						// echo "\n3";
 						$b = htmlentities(addslashes(trim($postValueIndexValue)));
 					}
 					
@@ -742,21 +733,17 @@ class accounts_receivable extends wc_model
 					$cheque_header['chequenumber']			= $chequenumber;
 					$cheque_header['chequedate']			= $chequedate;
 					$cheque_header['chequeamount']			= $chequeamount;
-					//$cheque_header['chequeconvertedamount']	= $chequeconvertedamount;
 					$cheque_header['chequeconvertedamount']	= $chequeamount;
 					$cheque_header['stat']					= 'uncleared';
 				
 					$linecount++;
 					
-					//$cheque_info[$chequeaccount]['amount'][]	 = $chequeconvertedamount;
 					$cheque_info[$chequeaccount]['amount'][]	 = $chequeamount;
 					
 					$tempCheque[] = $cheque_header;
 				}
 			}
 		}
-
-		// var_dump($tempArray);
 
 		foreach($tempArray as $tempArrayIndex => $tempArrayValue)
 		{
@@ -773,7 +760,6 @@ class accounts_receivable extends wc_model
 			$amount							= (!empty($tempArrayValue['paymentamount'])) ? $tempArrayValue['paymentamount'] : "";
 			$convertedamount				= (!empty($tempArrayValue['paymentconverted'])) ? $tempArrayValue['paymentconverted'] : $amount;
 			$exchangerate					= (!empty($tempArrayValue['paymentrate'])) ? $tempArrayValue['paymentrate'] : "1.00";
-			//$wtaxcode						= (!empty($tempArrayValue['paymenttaxcode'])) ? $tempArrayValue['paymenttaxcode'] : $mainwtaxcode;
 			$checkdate						= (!empty($tempArrayValue['checkdate'])) ? $tempArrayValue['checkdate'] : "0000-00-00";
 			$particulars					= (!empty($tempArrayValue['paymentnotes'])) ? $tempArrayValue['paymentnotes'] : "";
 			
@@ -781,7 +767,6 @@ class accounts_receivable extends wc_model
 			
 			$invoice						= (!empty($tempArrayValue['invoiceno'])) ? $tempArrayValue['invoiceno'] : "";
 
-			// accountsreceivable
 			$payablerate					= $this->getValue($applicableHeaderTable, array("exchangerate"),"voucherno = '$invoice' AND stat = 'posted'"); 
 
 			$payablerate 					= $payablerate[0]->exchangerate;
@@ -805,27 +790,15 @@ class accounts_receivable extends wc_model
 				$post_header['releaseby']		= USERNAME;
 				$post_header['currencycode']	= $currencycode;
 				$post_header['amount']			= $amount;
-				//$post_header['discountamount']	= $paymentdiscount;
 				$post_header['exchangerate']	= $exchangerate;
 				$convertedamount 				= $amount;
-				//$post_header['convertedamount']	= $convertedamount;
 				$post_header['convertedamount']	= $convertedamount;
 				$post_header['source']			= $source;
 				$post_header['paymenttype']		= $paymenttype;	
 				$post_header['bankcode']		= '';
 				$post_header['account']			= '';
-
-				if(strtolower($paymenttype) == 'cheque')
-				{
-					$post_header['checknumber']		= $referenceno;
-					$post_header['referenceno']		= $referenceno;
-				}
-				else
-				{
-					$post_header['checknumber']		= $referenceno;
-					$post_header['referenceno']		= $referenceno;
-				}
-
+				$post_header['checknumber']		= $referenceno;
+				$post_header['referenceno']		= $referenceno;
 				$post_header['checkdate']		= $checkdate;
 				$post_header['checkstat']		= '';
 				$post_header['stat']			= 'posted';
@@ -841,20 +814,20 @@ class accounts_receivable extends wc_model
 
 					if($isDetailExist[0]->count > 0)
 					{
-						$this->db->setTable($applicationTable) //rv_application
+						$this->db->setTable($applicationTable)
 							->setWhere("voucherno = '$voucherno'");
 						$this->db->runDelete();
 						
-						$this->db->setTable($detailAppTable) //rv_details
+						$this->db->setTable($detailAppTable)
 							->setWhere("voucherno = '$voucherno'"); 
 						$this->db->runDelete();
 
-						$this->db->setTable($chequeTable) //rv_cheques
+						$this->db->setTable($chequeTable)
 							->setWhere("voucherno = '$voucherno'");
 						$this->db->runDelete();	
 						
 						
-						$this->db->setTable($mainAppTable) //receiptvoucher
+						$this->db->setTable($mainAppTable)
 							->setValues($tempData)
 							->setWhere("voucherno = '$voucherno'");
 						
@@ -862,7 +835,7 @@ class accounts_receivable extends wc_model
 					}
 					else
 					{
-						$insertResult = $this->db->setTable($mainAppTable) //receiptvoucher
+						$insertResult = $this->db->setTable($mainAppTable)
 											->setValues($tempData)
 											->runInsert();
 					}
@@ -917,11 +890,8 @@ class accounts_receivable extends wc_model
 							$post_detail['converteddebit']	= $post_detail['debit'];
 							$post_detail['convertedcredit']	= $post_detail['credit'];
 							
-							// rv_details
 							$isAppDetailExist	= $this->getValue($detailAppTable, array("COUNT(*) AS count"),"voucherno = '$voucherno' AND accountcode = '$cheque_index' AND linenum = '$linenum'");
 							
-							// var_dump($isAppDetailExist);
-
 							$tempDetail[] = $post_detail;
 							$testing[] = $isAppDetailExist;
 						
@@ -950,13 +920,9 @@ class accounts_receivable extends wc_model
 						}
 
 					}
-				}
-				else if($paymenttype == "cash")
-				{
+				}else{
 					if($paymentdiscount > 0 && $convertedamount == 0)
 					{
-						// echo "\n 3 \n";
-						// ar_details
 						$accountcode = $this->getValue($applicableDetailTable, "accountcode", "voucherno = '$invoice' AND linenum = '1' LIMIT 1");
 						$accountcode = $accountcode[0]->accountcode;
 					}
@@ -974,7 +940,7 @@ class accounts_receivable extends wc_model
 
 					if($isAppDetailExist[0]->count_pv > 0)
 					{
-						$this->db->setTable($detailAppTable) //rv_details
+						$this->db->setTable($detailAppTable)
 							->setValues($post_detail)
 							->setWhere("voucherno = '$voucherno' AND accountcode = '$accountcode' AND linenum = '$linenum'");
 
@@ -982,7 +948,7 @@ class accounts_receivable extends wc_model
 					}
 					else
 					{
-						$insertResult = $this->db->setTable($detailAppTable) //rv_details
+						$insertResult = $this->db->setTable($detailAppTable)
 											->setValues($post_detail)
 											->runInsert();
 					}
@@ -1015,12 +981,10 @@ class accounts_receivable extends wc_model
 					$post_detail['converteddebit']	= $post_detail['debit'];
 					$post_detail['convertedcredit']	= $post_detail['credit'];
 
-					// rv_details
 					$isAppDetailExist				= $this->getValue($detailAppTable, array("COUNT(*) AS count"),"voucherno = '$voucherno' AND accountcode = '$apDebitAccount' AND linenum = '$linenum'");
 
 					if($isAppDetailExist[0]->count > 0)
 					{
-						// echo "\n 6 \n";
 						$this->db->setTable($detailAppTable) //rv_details
 							->setValues($post_detail)
 							->setWhere("voucherno = '$voucherno' AND accountcode = '$apDebitAccount' AND linenum = '$linenum'");
@@ -1029,13 +993,9 @@ class accounts_receivable extends wc_model
 					}
 					else
 					{
-						// echo "\n 7 \n";
-						$insertResult = $this->db->setTable($detailAppTable) //rv_details
+						$insertResult = $this->db->setTable($detailAppTable)
 											->setValues($post_detail)
-											// ->buildInsert();
 											->runInsert();
-						
-						// var_dump($insertResult);
 					}
 				
 					$linenum++;
@@ -1044,7 +1004,6 @@ class accounts_receivable extends wc_model
 				/**DISCOUNT ACCOUNT**/
 				if($paymentdiscount > 0)
 				{
-					// echo "\n 8 \n";
 					$post_detail['linenum']			= $linenum;
 					$post_detail['accountcode']		= $discountaccount[0]->account;
 					$post_detail['debit']			= 0;
@@ -1053,9 +1012,8 @@ class accounts_receivable extends wc_model
 					$post_detail['converteddebit']	= $post_detail['debit'];
 					$post_detail['convertedcredit']	= $post_detail['credit'];
 					
-					$insertResult = $this->db->setTable($detailAppTable) //rv_details
+					$insertResult = $this->db->setTable($detailAppTable)
 						 				->setValues($post_detail)
-										// ->buildInsert();
 										->runInsert();
 					
 					$linenum++;
@@ -1064,7 +1022,6 @@ class accounts_receivable extends wc_model
 				/**FOREX GAIN / LOSS**/
 				if(abs($forexamount) > 0)
 				{
-					// echo "\n 9 \n";
 					$post_detail['linenum']			= $linenum;
 					$post_detail['accountcode']		= $forexaccount;
 					$post_detail['debit']			= 0;
@@ -1072,9 +1029,8 @@ class accounts_receivable extends wc_model
 					$post_detail['converteddebit']	= $post_detail['debit'];
 					$post_detail['convertedcredit']	= $post_detail['credit'];
 					
-					$insertResult =  $this->db->setTable($detailAppTable) //rv_details
+					$insertResult =  $this->db->setTable($detailAppTable)
 						 					->setValues($post_detail)
-											// ->buildInsert();
 											->runInsert();
 					
 					$linenum++;
@@ -1082,7 +1038,6 @@ class accounts_receivable extends wc_model
 
 				/**UPDATE APPLICATION TABLE**/
 				$post_application['voucherno']		= $voucherno;
-				//$post_application['transactiondate'] = $transactiondate;
 				$post_application['transtype']		= $source;
 				$post_application['linenum']		= $count;
 				$post_application['arvoucherno']	= $invoice;
@@ -1090,7 +1045,6 @@ class accounts_receivable extends wc_model
 				$post_application['amount']			= $amount;
 				$post_application['currencycode']	= $currencycode;
 				$post_application['exchangerate']	= $exchangerate;
-				//$post_application['convertedamount']= $convertedamount;
 				$post_application['convertedamount']= $amount;
 				$post_application['forexamount']	= abs($forexamount);
 				$post_application['stat']			= $post_header['stat'];
@@ -1099,22 +1053,16 @@ class accounts_receivable extends wc_model
 
 				if($isAppDetailExist[0]->count > 0)
 				{
-					// echo "\n 10 \n";
-					$insertResult = $this->db->setTable($applicationTable) //rv_application
+					$insertResult = $this->db->setTable($applicationTable)
 										->setValues($post_application)
 										->setWhere("voucherno = '$voucherno' AND arvoucherno = '$invoice'")
-										// ->buildUpdate();
 										->runUpdate();
 				}
 				else
 				{
-					// echo "\n 11 \n";
-					$insertResult = $this->db->setTable($applicationTable) //rv_application
+					$insertResult = $this->db->setTable($applicationTable)
 										->setValues($post_application)
-										// ->buildInsert();
 										->runInsert();
-						
-					// var_dump($insertResult);
 				}
 
 				/**UPDATE MAIN INVOICE**/
@@ -1138,15 +1086,10 @@ class accounts_receivable extends wc_model
 
 				$balance_info['balance']	= $invoice_amount - $applied_sum - $applied_discount[0]->discount;
 				
-				// Update
-				// echo "\n 12 \n";
-				$insertResult = $this->db->setTable($applicableHeaderTable) //accountsreceivable
+				$insertResult = $this->db->setTable($applicableHeaderTable)
 								->setValues($balance_info)
 								->setWhere("voucherno = '$invoice'")
-								// ->buildUpdate();
 								->runUpdate();
-				
-				// var_dump($insertResult);
 		
 				$count++;
 				
@@ -1161,15 +1104,10 @@ class accounts_receivable extends wc_model
 		$update_info['netamount']	= $totalamount;
 		$update_info['taxamount']	= $totaltaxamount;
 
-		// echo "\n 13 \n";
-
-		$insertResult = $this->db->setTable($mainAppTable) //receiptvoucher
+		$insertResult = $this->db->setTable($mainAppTable)
 						->setValues($update_info)
 						->setWhere("voucherno = '$voucherno' AND stat = 'posted'")
-						// ->buildUpdate();
 						->runUpdate();
-	
-		// var_dump($insertResult);
 
 		/**INSERT TO CHEQUES TABLE**/
 		if(strtolower($paymenttype) == 'cheque')
@@ -1185,10 +1123,7 @@ class accounts_receivable extends wc_model
 			{
 				$insertResult =  $this->db->setTable($chequeTable)
 										->setValues($tempCheque)
-										// ->buildInsert();
 										->runInsert();
-						
-				// var_dump($this->db->getQuery());		
 			}
 			
 			if($insertResult != 1)
@@ -1210,7 +1145,7 @@ class accounts_receivable extends wc_model
 
 		return $errmsg;
 
-	} // end applyPayments()
+	}
 
 	public function saveDetails($table, $data, $form = "")
 	{

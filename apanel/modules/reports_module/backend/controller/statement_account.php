@@ -121,6 +121,9 @@ class controller extends wc_controller
 		$filter 		= $this->input->post("filter");
 		$cust 			= $this->input->post("custfilter");
 		$result 		= $this->soa->fileExport($posted_data);
+
+		$cDetails = $this->soa->retrieveCustomerDetails($cust);
+	
 		
 		$date 	= $this->input->post('daterangefilter');
 		$datefilterArr		= explode(' - ',$date);
@@ -131,6 +134,25 @@ class controller extends wc_controller
 		$csv = '"' . implode('", "', $header) . '"';
 		$csv .= "\n";
 		$amount = 0.00;
+
+		$csv = '';
+		$csv .= '"' . 'Statement of Account' . '",';
+		$csv .= "\n";
+		$csv .= "\n";
+		$csv .= '"' . 'Customer:' . '",';
+		$csv .= '"' . $cDetails->name . '",';
+		$csv .= "\n";
+		$csv .= '"' . 'Address:' . '",';
+		$csv .= '"' . $cDetails->address1 . '",';
+		$csv .= "\n";
+		$csv .= '"' . 'Date Range' . '",';
+		$csv .= '"' . $date . '",';
+		
+		$csv .= "\n";
+		$csv .= "\n";
+		$csv .= '"' . implode('","', $header) . '"';
+		$csv .= "\n";
+
 		if (!empty($result)){
 			
 			foreach ($result as $key => $row){

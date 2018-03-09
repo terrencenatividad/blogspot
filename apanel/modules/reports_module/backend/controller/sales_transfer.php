@@ -131,7 +131,21 @@ class controller extends wc_controller {
 		$header = array("Transfer No.","Transation Date","Requesting Warehouse","Destination Warehouse","Request No.","Item Code","Item Desc","Uom","No of Items");
 
 		$csv = '';
-		$csv = '"' . implode('","', $header) . '"';
+
+
+		$csv .= '"' . 'Stock Transfer Report' . '",';
+		$csv .= "\n";
+		$csv .= "\n";
+		$csv .= '"' . 'Date Range:' . '",';
+		$csv .= '"' . $data_post['daterangefilter'] . '",';
+		$csv .= "\n";
+		$csv .= '"' . 'Requesting Warehouse:' . '",';
+		$csv .= '"' . $warehouse1 . '",';
+		$csv .= "\n";
+		$csv .= '"' . 'Source Warehouse:' . '",';
+		$csv .= '"' . $warehouse2 . '",';
+		$csv .= "\n\n";
+		$csv .= '"' . implode('","', $header) . '"';
 		$csv .= "\n";
 		$status="";
 		$next = '';

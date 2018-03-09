@@ -1329,25 +1329,16 @@ class controller extends wc_controller
 				if($balance != $amount && $balance != 0)
 				{
 					$voucher_status = 'PARTIAL';
-
-					
-
 				}
 				else if($balance != 0)
 				{
 					$voucher_status = 'UNPAID';
-
-					
 				}
 				else
 				{
 					$voucher_status = 'PAID';
-
-				
-
 				}
 				
-
 				$csv .= '"' . $date . '",';
 				$csv .= '"' . $pvvoucher . '",';
 				$csv .= '"' . $vendor . '",';
@@ -1356,9 +1347,6 @@ class controller extends wc_controller
 				$csv .= "\n";
 			}
 		}
-
-		
-
 		return $csv;
 	}
 	

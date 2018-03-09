@@ -30,7 +30,7 @@
 				</div>
 
 				<div class = "row">
-					<input type = "hidden" value = "unpaid" name = "addCond" id = "addCond" />
+					<input type = "hidden" value = "all" name = "addCond" id = "addCond" />
 
 
 					<div class = "col-md-3">
@@ -68,9 +68,9 @@
 					<div class="row">
 						<div class="control-label col-md-9 col-sm-9 col-xs-9">
 						<ul class="nav nav-tabs">
-							<li><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('all');">All</a></li>
-							<li class="active"><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('paid');">Posted</a></li>
-							<li><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('partial');">Unposted</a></li>
+							<li class="active"><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('all');">All</a></li>
+							<li><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('posted');">Posted</a></li>
+							<li><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('unposted');">Unposted</a></li>
 						</ul>
 						</div>
 					</div>

@@ -78,7 +78,12 @@
                                                 ->setClass("input-sm payment_mode")
                                                 ->setName('paymentmode[1]')
                                                 ->setId('paymentmode[1]')
-                                                ->setList(array("cash" => "Cash", "cheque" => "Cheque"))
+                                                ->setList(
+                                                    array(
+                                                        "cash" => "Cash", 
+                                                        "cheque" => "Cheque",
+                                                        "transfer" => "Bank Transfer"
+                                                    ))
                                                 ->setValidation('required')
                                                 ->setAttribute(
                                                     array(
@@ -596,6 +601,7 @@
                                         // $paymenttaxcode		= $data["payments"][$i]->wtaxcode;
                                         // $paymenttax			= $applicationArr[5];
                                         $paymentmode		= $data["payments"][$i]->paymenttype;
+                                        $modeOfPayment		= ($paymentmode == 'transfer') ? 'Bank Transfer' : ucwords($paymentmode);
                                         $reference			= $data["payments"][$i]->referenceno;
                                         $paymentamount		= $data["payments"][$i]->amount;
                                         $paymentstat		= $data["payments"][$i]->stat;
@@ -628,7 +634,7 @@
                                                         ->setName("pmode1".$row)
                                                         ->setId("pmode1".$row)
                                                         ->setAttribute(array("disabled" => "disabled"))
-                                                        ->setValue(ucwords($paymentmode))
+                                                        ->setValue($modeOfPayment)
                                                         ->draw(true);
                                                 
                                                 echo '<input value="'.$paymentmode.'" name = "paymentmode'.$row.'" id = "paymentmode'.$row.'" type = "hidden">';
