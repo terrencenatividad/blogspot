@@ -1535,7 +1535,7 @@ function savePaymentRow(e,id)
     //valid		+= validateField('receiptForm','paymentmode\\['+id+'\\]');
     
 
-    if(paymentmode == 'cash'){
+    if(paymentmode == 'cash' || paymentmode == 'transfer'){
         if(parseFloat(Number(paymentamount)) > 0)
         {
             $('#receiptForm #paymentaccount\\['+id+'\\]').trigger('blur');
