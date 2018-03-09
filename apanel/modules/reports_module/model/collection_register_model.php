@@ -44,7 +44,7 @@
 								   pt.partnername partnername,
 								   SUM(rv.amount) totalamount,
 								   IF(rv.paymenttype = "cash","CASH",
-									IF(rv.paymenttype = "cheque", CONCAT(coa.accountname," : ",chq.chequenumber),"ONLINE")) payment,
+									IF(rv.paymenttype = "cheque", CONCAT(coa.accountname," : ",chq.chequenumber),"BANK TRANSFER")) payment,
 								   IFNULL(chq.chequedate, rv.transactiondate) paymentdate,
 								   rv.paymenttype type');
 
@@ -126,7 +126,7 @@
 									pt.partnername,
 									coa.accountname bank,
 									IF(rv.paymenttype = "cash","CASH",
-									IF(rv.paymenttype = "cheque", CONCAT(coa.accountname," : ",chq.chequenumber),"ONLINE")) payment,
+									IF(rv.paymenttype = "cheque", CONCAT(coa.accountname," : ",chq.chequenumber),"BANK TRANSFER")) payment,
 									IFNULL(chq.chequedate, rv.transactiondate) paymentdate,
 									rv.amount');
 
