@@ -38,8 +38,22 @@
 				</div>
 
 				<hr/>
+				<div class="col-md-4">
+					<button type="button" id="open_customer_modal" class="btn btn-info btn-sm" data-toggle="modal"><i class="glyphicon glyphicon-new-window"></i> Tag Customer</button>
+				</div>
+
+				<div class="col-md-4 pull-right">
+					<div class="input-group input-group-sm">
+						<input id="tag_search" name="table_search" class="form-control pull-right" placeholder="Search" type="text">
+						<div class="input-group-btn">
+							<button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+						</div>
+					</div>
+					<br>
+				</div>
 
 				<!-- Table Here -->
+				
 				<table id = "tag_customer_table" class="table table-hover">
 					<thead>
 						<tr class = "info">
@@ -53,54 +67,11 @@
 						</tr>
 					</thead>
 				
-					<tbody id = "list_container">
-
-					<?php
-						$count 		=	1;
-						if( !empty($customer_list) )
-						{
-							foreach ($customer_list as $key => $row) 
-							{
-								$customercode 	=	$row->partnercode;
-								$customername 	=	$row->partnername;
-								$tagged 		=	$row->tagged;
-					?>
-						<tr>
-							<td class="text-center hide_in_view">
-								<input id = "<?php echo $customercode; ?>" type = "checkbox" name = "taggedCustomers[]" value = "<?php echo $customercode; ?>" >
-								<input type = "hidden" id = "<?=$count?>" class="h_checkboxes" value = "<?=$tagged?>"
-							</td>
-
-							<td class = 'show_in_view hidden'>&nbsp;</td>
-
-							<td>
-								<?php echo $customercode;?>
-							</td>
-
-							<td>
-								<?php echo $customername;?>
-							</td>
-
-							<td class = 'show_in_view hidden' >&nbsp;</td>
-						</tr>
-					<?php
-								$count++;
-							}
-						}
-						else
-						{
-					?>
-						<tr>
-							<td colspan='3' class="text-center">
-								No Records Found.
-							</td>
-						</tr>
-					<?php
-						}
-					?>
-					</tbody>
+					<tbody id = "list_container"></tbody>
 
 				</table>
+				<input id="retrieved_tag" name="retrieved_tag" class="hidden">
+				<div id="pagination"></div>
 
 				<hr/>
 
@@ -119,7 +90,51 @@
 
 </div>
 
+<!-- Import Customers Modal -->
+<div class="import-modal" id="import-tagcust-modal" tabindex="-1" data-backdrop="static">>
+	<div class="modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form method="POST" id="importForm" ENCTYPE="multipart/form-data">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">×</span></button>
+						<h4 class="modal-title">Import Customers</h4>
+					</div>
+					<div class="modal-body">
+						<label>Step 1. Download the sample template <a href="<?=MODULE_URL?>get_import_customers" download="Sales Person [<?php echo $partnercode ." - ". $salespersonname ?>] - Customers.csv">here</a></label>
+						<hr/>
+						<label>Step 2. Fill up the information needed for each columns of the template.</label>
+						<hr/>
+						<div class="form-group">
+							<label for="import_cust_csv">Step 3. Select the updated file and click 'Import' to proceed.</label>
+							<?php
+								echo $ui->setElement('file')
+										->setId('import_cust_csv')
+										->setName('import_cust_csv')
+										->setAttribute(array('accept' => '.csv'))
+										->setValidation('required')
+										->draw();
+							?>
+							<span class="help-block"></span>
+						</div>
+						<p class="help-block">The file to be imported must be in CSV (Comma Separated Values) file.</p>
+					</div>
+					<div class="modal-footer text-center">
+						<button type="button" class="btn btn-info btn-flat" id = "btnImport">Import</button>
+						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+
 <script>
+var ajax = {};
+var tagged 		 = new Array();
+var ret_tagged 	 = new Array();
 
 function addCommas(nStr)
 {
@@ -194,18 +209,58 @@ function validateField(form,id,help_block)
 	}
 }
 
-$(document).ready(function(){
+function show_success_msg(msg)
+{
+	$('#success_modal #message').html(msg);
+	$('#success_modal').modal('show');
+}
 
-	//For Edit - Checks the input boxes with greater than 0 and triggers checkbox
-	$( ".h_checkboxes" ).each(function( index ) {
+var set_tagged = true;
+function showList(){
 
-		var code 		=	$(this).val();
-		
-		if( code != "" && code.length > 0 ) 
+	ajax.code 	=	$('#partnercode').val();
+	ajax.tagged = 	tagged;	
+	$.post('<?=BASE_URL?>maintenance/sales_person/ajax/tagging_list',ajax, function(data) {
+
+		$('#tag_customer_table #list_container').html(data.table);
+		$('#pagination').html(data.pagination);
+
+		var ret_tagged 	=	data.tagged; 
+		if( ret_tagged.length != 0 && set_tagged )
 		{
-			$('#'+code).iCheck('check');
+			tagged 	=	ret_tagged;
+			set_tagged = false;
+		}
+
+		for ( var i = 0, l = tagged.length; i < l; i++ ) {
+			var checked = tagged[i];
+
+			$('#'+checked).iCheck('check');
+		}
+
+		if (ajax.page > data.page_limit && data.page_limit > 0) {
+			ajax.page = data.page_limit;
+			showList();
 		}
 	});
+};
+
+$( "#tag_search" ).keyup(function() 
+{
+	var search = $( this ).val();
+	ajax.search = search;
+	showList();
+});
+
+$('#pagination').on('click', 'a', function(e) {
+	e.preventDefault();
+	ajax.page = $(this).attr('data-page');
+	showList();
+});
+
+showList();
+
+$(document).ready(function(){
 	
 	var task 	=	'<?=$task?>';
 
@@ -217,13 +272,82 @@ $(document).ready(function(){
 
 	$('form').submit(function(e) {
 		e.preventDefault();
-		$.post('<?=BASE_URL?>maintenance/sales_person/ajax/<?=$task?>', $(this).serialize()+ '<?=$ajax_post?>', function(data) {
+		$.post('<?=BASE_URL?>maintenance/sales_person/ajax/<?=$task?>', $(this).serialize()+ '<?=$ajax_post?>'+"&tagged="+tagged, function(data) {
 			if (data.msg == 'success') {
 				window.location = '<?php echo BASE_URL . 'maintenance/sales_person'; ?>';
 			}
 		});
 	});
 
+	$('#tag_customer_table').on('ifChecked', 'input[type="checkbox"]', function() {
+		var code = 	$(this).val(); 
+		if(  jQuery.inArray( code, tagged ) == -1 )
+		{
+			tagged.push(code);
+		}
+		console.log(JSON.stringify(tagged));
+	});
+
+	$('#tag_customer_table').on('ifUnchecked', 'input[type="checkbox"]', function() {
+		var remove_this  = 	$(this).val(); 
+		tagged = jQuery.grep(tagged, function(value) {
+			return value != remove_this;
+		});
+		console.log(JSON.stringify(tagged));
+	});
+
+	/** For Import Modal **/
+	
+	$('#open_customer_modal').on('click',function(){
+		$('#import-tagcust-modal').modal('show');
+	});
+
+	$("#open_customer_modal").click(function() 
+	{
+		$(".import-modal > .modal").css("display", "inline");
+		$('.import-modal').modal();
+	});
+
+	$("#importForm #btnImport").click(function() 
+	{
+		var formData =	new FormData();
+		formData.append('file',$('#import_cust_csv')[0].files[0]);
+		formData.append('partnercode',$('#partnercode').val());
+		ajax_call 	=	$.ajax({
+							url : '<?=MODULE_URL?>ajax/save_import_customers',
+							data:	formData,
+							cache: 	false,
+							processData: false, 
+							contentType: false,
+							type: 	'POST',
+							success: function(response){
+								if(response && response.errmsg == ""){
+									$('#import-tagcust-modal').modal('hide');
+									$(".alert-warning").addClass("hidden");
+									$("#errmsg").html('');
+									show_success_msg("Your Data has been successfully imported!");
+								}else{
+									$('#import-tagcust-modal').modal('hide');
+									show_error(response.errmsg);
+								}
+							},
+						});
+	});
+	
+	$('#importForm').on('change', '#import_cust_csv', function() {
+		var filename = $(this).val().split("\\");
+		$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
+	});
+
+    $('#import-tagcust-modal').on('show.bs.modal', function() {
+		var form_csv = $('#import_cust_csv').val('').closest('.form-group').find('.form-control').html('').closest('.form-group').html();
+		$('#import_cust_csv').closest('.form-group').html(form_csv);
+	});
+
+	$('#success_modal .btn-success').on('click', function(){
+		$('#success_modal').modal('hide');
+		showList();
+	});
 });
 
 </script>

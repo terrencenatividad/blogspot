@@ -47,11 +47,6 @@ class purchase_journal extends wc_model {
 		return $result;
 	}
 
-	
-	
-
-	
-
 	public function getVendorList() {
 		$result = $this->db->setTable('partners')
 						->setFields("partnercode ind, partnername val")
@@ -67,6 +62,16 @@ class purchase_journal extends wc_model {
 			$temp[] = $arr . " LIKE '%" . str_replace(' ', '%', $search) . "%'";
 		}
 		return '(' . implode(' OR ', $temp) . ')';
+	}
+
+	public function vendorInfo($code){
+		$result = $this->db->setTable('partners')
+				->setFields("partnername val")
+				->setWhere("stat = 'active' AND partnertype = 'supplier'")
+				->runSelect()
+				->getResult();
+		return $result;
+
 	}
 
 }

@@ -95,9 +95,29 @@ class controller extends wc_controller {
 		}
 		$result = $this->purchase_journal->fileExport($dates[0], $dates[1], $vendor, $sort);
 		$header = array("Date","Supplier Tin","Vendor Name","Description","Reference No.","Amount","Discount","VAT amount","Net Purchases");
+		$cus = $this->purchase_journal->vendorInfo($vendor);
+		// var_dump($cus);
 
 		$csv = '';
-		$csv = '"' . implode('","', $header) . '"';
+		$csv .= '"' . 'Purchase Journal' . '",';
+		$csv .= "\n";
+		$csv .= "\n";
+		$csv .= '"' . 'Date Range:' . '",';
+		$csv .= '"' . $data["daterangefilter"] . '",';
+		$csv .= "\n";
+		$csv .= '"' . 'Vendor:' . '",';
+		foreach ($cus as $key => $value) {
+			$csv .= '"' . $value->val. '"';
+			$csv .= "\n";
+			$csv .= '"",';
+
+			// implode(',', $vendor) 
+		}
+		// foreach($cus => $row){
+		// 	$csv .= '"' . $row->$val. '",';
+		// }
+		$csv .= "\n\n";
+		$csv .= '"' . implode('","', $header) . '"';
 		$csv .= "\n";
 		
 		$totalamount  	=	$totaldiscount 	= 	$totalvat 	=	$totalnetpurchases 	= 	$total_amt = 0;

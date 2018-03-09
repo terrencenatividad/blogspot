@@ -119,9 +119,23 @@ class controller extends wc_controller {
 		$data['daterangefilter'] = str_replace(array('%2C', '+'), array(',', ' '), $data['daterangefilter']);
 		$result = $this->sales_warehouse->fileExport($data);
 		$header = array("Warehouse Code","Warehouse","Quantity");
+		$warehouse_list = $this->sales_warehouse->warehouses($data['warehouse']);
 
 		$csv = '';
-		$csv = '"' . implode('","', $header) . '"';
+		$csv .= '"' . 'Sales Report per Warehouse ' . '",';
+		$csv .= "\n";
+		$csv .= "\n";
+		$csv .= '"' . 'Date Range:' . '",';
+		$csv .= '"' . $data["daterangefilter"] . '",';
+		$csv .= "\n";
+		$csv .= '"' . 'Warehouse:' . '",';
+		foreach ($warehouse_list as $key => $value) {
+			$csv .= '"' . $value->val. '"';
+			$csv .= "\n";
+			$csv .= '"",';
+		}
+		$csv .= "\n\n";
+		$csv .= '"' . implode('","', $header) . '"';
 		$csv .= "\n";
 		
 		$quantity = 0.00;

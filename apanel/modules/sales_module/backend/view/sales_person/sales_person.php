@@ -15,9 +15,10 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('partnercode')
 								->setId('partnercode')
+								->addHidden((isset($task) && $task == 'update'))
 								->setValidation('required code')
 								->setValue($partnercode)
-								->draw($show_input);
+								->draw((isset($task) && $task == 'add'));
 						?>
 					</div>
 				</div>

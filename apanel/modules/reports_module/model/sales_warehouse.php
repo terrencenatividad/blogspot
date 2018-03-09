@@ -188,4 +188,14 @@ class sales_warehouse extends wc_model {
 		return '(' . implode(' OR ', $temp) . ')';
 	}
 
+	public function warehouses($warehouse){
+		$result = $this->db->setTable('warehouse')
+		->setFields("warehousecode ind, description val")
+		->setWhere("stat = 'active'")
+		->runSelect()
+		->getResult();
+
+		return $result;
+	}
+
 }

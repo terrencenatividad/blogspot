@@ -29,9 +29,10 @@
 
 		public function listing()
 		{
-			$this->view->title = 'Sales Person Listing';
-			$data['ui'] 	   = $this->ui;
-			$this->view->load('sales_person/sales_person_list',$data);
+			$this->view->title 		= 'Sales Person Listing';
+			$data['ui'] 			= $this->ui;
+			$data['show_input'] 	= true;
+			$this->view->load('sales_person/sales_person_list', $data);
 		}
 
 		public function create()
@@ -89,7 +90,7 @@
 
 			$data 			 	= (array) $this->sales_person->retrieveExistingSalesPerson($this->fields, $code);
 			$data['discountchoice'] = array('percentage'=>"Percentage", 'amouunt'=>'Amount');
-			$data['customer_list']  = $this->sales_person->retrieveCustomerListing($code);
+			// $data['customer_list']  = $this->sales_person->retrieveCustomerListing($code);
 			$data['salespersonname']= $data['first_name']." ".$data['last_name'];
 
 			$data['ui'] 		= $this->ui;
@@ -133,14 +134,14 @@
 		private function apply_to_sales()
 		{
 			$sales_code 		= $this->input->post('sales_code');
-			$tagged_customers 	= $this->input->post('taggedCustomers');	
+			$tagged_customers 	= $this->input->post('tagged');	
 
 			$result 			= $this->sales_person->tagCustomer($sales_code, $tagged_customers);
 			
 			if( $result )
 			{	
 				$msg = "success";
-				$this->log->saveActivity("Tagged Customer(s) [ ". implode($tagged_customers,',') ." ] to Sales Person [$sales_code] ");
+				$this->log->saveActivity("Tagged Customer(s) [ ". $tagged_customers ." ] to Sales Person [$sales_code] ");
 			}
 			else
 			{
@@ -148,9 +149,65 @@
 			}
 
 			return $dataArray = array("msg" => $msg);
+		}	
+
+		private function retrieve_currsp_details()
+		{
+			// Current Sales Person Code
+			$curr_code 	=	$this->input->post('code');
+
+			// Sales Person Name
+			$retrieved  = 	$this->sales_person->getValue('partners',array("CONCAT(first_name,' ',last_name) AS name"), " partnercode = '$curr_code' AND partnertype = 'sales' ");
+			$curr_name 	=	$retrieved[0]->name;
+
+			$table 		= 	"";
+			$option 	=	"";
+			// Get Other Sales Person
+			$retrieved_options 		=	$this->sales_person->retrieveOtherSalesPersonListing($curr_code);
+			
+			if( !empty($retrieved_options) ) :
+				foreach ($retrieved_options as $key => $row) {
+
+					$code 		=	$row->partnercode;
+					$name 		=	$row->name;
+
+					$option 	.=	"<option value='$code'>$name</option>";
+				}
+			endif;
+			//var_dump($option);
+			// Get Tagged Customer of current Sales Person
+			$linked_customer_lists 	=	$this->sales_person->retrieveLinkedCustomerListing($curr_code);
+
+			if( !empty($linked_customer_lists->result) ) :
+				foreach ($linked_customer_lists->result as $key => $row) {
+
+					$action = $this->ui->loadElement('check_task')
+										 ->addCheckbox()
+										 ->setValue($row->partnercode)
+										 ->draw();
+					
+					$table .= '<tr>';					 
+					$table .= '<td class="text-center">' . $action . '</td>';
+					$table .= '<td>' . $row->partnercode . '</td>';
+					$table .= '<td>' . $row->partnername . '</td>';
+					$table .= '</tr>';
+				}
+			else:
+				$table .= "<tr>
+								<td colspan = '5' class = 'text-center'>No Records Found</td>
+						</tr>";
+			endif;
+
+			$linked_customer_lists->table 		=	$table;
+			$linked_customer_lists->code 		=	$curr_code;
+			$linked_customer_lists->curr_name 	=	$curr_name;
+			$linked_customer_lists->options 	=	$option;
+			
+			return $linked_customer_lists;
 		}
 
-		private function sales_person_list() {
+		private function sales_person_list() 
+		{
 
 			$search = $this->input->post('search');
 			$sort 	= $this->input->post('sort');
@@ -165,13 +222,15 @@
 					$dropdown = $this->ui->loadElement('check_task')
 										 ->addView()
 										 ->addEdit()
+										 ->addOtherTask('Tag Customers', 'bookmark')
+										 ->addOtherTask('Import Customers', 'import')
+										 ->addOtherTask('Transfer Customers', 'share-alt')
 										 ->addDelete()
-										 ->addCheckbox()
 										 ->setValue($row->partnercode)
 										 ->draw();
 
 					$table .= '<tr>';
-					$table .= '<td>' . $dropdown . '</td>';
+					$table .= '<td class="text-center">' . $dropdown . '</td>';
 					$table .= '<td>' . $row->partnercode . '</td>';
 					$table .= '<td>' . $row->contact_person. '</td>';
 					$table .= '<td>' . $row->email . '</td>';
@@ -242,6 +301,26 @@
 			{
 				$msg = "success";
 				$this->log->saveActivity("Cancelled Sales Person(s) [". implode($id, ', ') ."] ");
+			}
+			else
+			{
+				$msg = $result;
+			}
+
+			return $dataArray = array("msg" => $msg);
+		}
+
+		private function apply_transfer()
+		{
+			$current 	=	$this->input->post('curr_sp');
+			$transferto =	$this->input->post('transferto');
+
+			$result  	= 	$this->sales_person->transferCustomers($current, $transferto);
+
+			if( $result )
+			{	
+				$msg = "success";
+				$this->log->saveActivity("Moved Customers of Sales Person [$current] to [$transferto] ");
 			}
 			else
 			{
@@ -432,5 +511,190 @@
 			return array("proceed" => $proceed,"errmsg"=>$error_messages);
 		} 
 
+		public function get_import_customers(){
+			header('Content-type: application/csv');
+			$header = array('Customer Code');
+			$return = '';
+			$return .= '"' . implode('","',$header) . '"';
+			$return .= "\n";
+			$return .= '"CUS001"';
+			$return .= "\n";
+			$return .= '"CUS002"';
+			echo $return;
+		}
+
+		private function save_import_customers(){
+			
+			$salespersoncode =	$this->input->post('partnercode');
+
+			$file		= fopen($_FILES['file']['tmp_name'],'r') or exit ("File Unable to upload") ;
+
+			$filedir	= $_FILES["file"]["tmp_name"];
+	
+			$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
+
+			/**VALIDATE FILE IF CORRUPT**/
+			if(!empty($_FILES['file']['error'])){
+				$errmsg[] = "File being uploaded is corrupted.<br/>";
+			}
+
+			/**VALIDATE FILE TYPE**/
+			if(!in_array($_FILES['file']['type'],$file_types)){
+				$errmsg[]= "Invalid file type, file must be .csv.<br/>";
+			}
+			
+			$headerArr = array('Customer Code');
+			
+			if( empty($errmsg) )
+			{
+				$row_start = 2;
+				//$x = file_get_contents($_FILES['file']['tmp_name']);
+				$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
+
+				for ($n = 0; $n < count($x); $n++) {
+					if($n==0)
+					{
+						$layout = count($headerArr);
+						$template = count($x);
+						$header = $x[$n];
+						
+						for ($m=0; $m< $layout; $m++)
+						{
+							$template_header = $header[$m];
+
+							$error = (empty($template_header) && !in_array($template_header,$headerArr)) ? "error" : "";
+						}	
+
+						$errmsg[]	= (!empty($error) || $error != "" ) ? "Invalid template. Please download template from the system first.<br/>" : "";
+						
+						$errmsg		= array_filter($errmsg);
+
+					}
+
+					if ($n > 0) 
+					{
+						$z[] = $x[$n];
+					}
+				}
+				
+				$line 				=	1;
+				$customercode_ 		= 	array();
+				
+				foreach ($z as $b) 
+				{
+					if ( ! empty($b)) 
+					{	
+						$customercode 	   	= (!empty($b[0])) ?	$b[0] 	: 	'';
+
+						//check if customer code exists
+						$customer_exists 	= $this->sales_person->check_custom_duplicate($customercode,'partners',"partnercode");
+						$cust_count  		= $customer_exists[0]->count;
+
+						if( $customercode != "" && $cust_count <= 0 )
+						{
+							$errmsg[]	= "Customer Code [<strong>$customercode</strong>] on row $line does not exists.<br/>";
+							$errmsg		= array_filter($errmsg);
+						} 
+
+						// Check if Customer-Sales Person pair exists in Database
+						$dc_exists 			= $this->sales_person->check_duplicate_pair($customercode, $salespersoncode);
+						$dc_count  			= (!empty($dc_exists)) ? $dc_exists[0]->count 	: 	0 ;
+			
+						if( $dc_count > 0 )
+						{
+							$errmsg[]	= "The [<strong>$salespersoncode - $customercode</strong>] pair on row $line already exists.<br/>";
+							$errmsg		= array_filter($errmsg);
+						}
+
+						// Check if Customer already exists in a Discount within document 
+						if( $customercode != ""  && !in_array($customercode, $customercode_) ){
+							$customercode_[] 	=	$customercode;
+						}
+						else if( $customercode != "" )
+						{
+							$errmsg[]	= "Customer Code [<strong>$customercode</strong>] on row $line has a duplicate within the document.<br/>";
+							$errmsg		= array_filter($errmsg);
+						}
+
+						$line++;
+					}
+				}
+
+				$proceed 	=	false;
+
+				if( empty($errmsg) )
+				{
+					$posted_pair 	=	array(
+						'salespersoncode' 		=> $salespersoncode,
+						'customercode' 		=> $customercode_
+					);
+
+					$proceed 			= $this->sales_person->importPair($posted_pair);					
+			
+					if( $proceed )
+					{
+						$this->log->saveActivity("Imported Customers For Sales Person [$salespersoncode] .");
+					}
+				}
+			}
+
+			$error_messages		= implode(' ', $errmsg);
+			
+			return array("proceed" => $proceed,"errmsg"=>$error_messages);
+		}
+
+		private function tagging_list(){
+			$search = $this->input->post("search");
+			$code 	= $this->input->post('code');
+			$list 	= $this->sales_person->retrieveCustomerListing($code, $search);
+
+			$table 	= '';
+			$count 	= 1;	
+			$tagged_ = array();
+			if( !empty($list->result) ) :
+				foreach ($list->result as $key => $row) {
+					
+					$customercode 	=	$row->partnercode;
+					$customername 	=	$row->partnername;
+					$tagged 		=	$row->tagged;
+					// echo $tagged;
+					$table .= '<tr>';
+					$table .= '<td class="text-center">
+									<input id = "'.$customercode.'" type = "checkbox" name = "taggedCustomers[]" value = "'.$customercode.'">
+									<input type = "hidden" id = "'.$count.'" class="h_checkboxes" value = "'.$tagged.'">	
+								 </td>';
+					$table .= '<td class = "show_in_view hidden">&nbsp;</td>';
+					$table .= '<td>' . $customercode . '</td>';
+					$table .= '<td>' . $customername. '</td>';
+					$table .= '<td class = "show_in_view hidden">&nbsp;</td>';
+					$table .= '</tr>';
+
+					$count++;
+					// if( $tagged != "" && isset($tagged) ){
+					// 	$tagged_[] 	=	$tagged;
+					// }
+				}
+			else:
+				$table .= "<tr>
+								<td colspan = '5' class = 'text-center'>No Records Found</td>
+						</tr>";
+			endif;
+
+			$tag_result 	= 	$this->sales_person->retrieveTagged($code);
+		
+			if( !empty($tag_result) ) {
+				foreach ($tag_result as $key => $row) {
+					if( $row->tagged != null )
+					{
+						$tagged_[] 	=	$row->tagged;
+					}
+				}
+			}
+
+			$list->table 	=	$table;
+			$list->tagged 	=	$tagged_;
+
+			return $list;
+		}
 	}
 ?>
