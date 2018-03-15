@@ -35,6 +35,21 @@ class cash_position_model extends wc_model {
 		return $amount;
 	}
 
+	public function getCompanyName() {
+		$companyname = '';
+		$result = $this->db->setTable('company')
+							->setFields('companyname')
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+
+		if ($result) {
+			$companyname = $result->companyname;
+		}
+
+		return $companyname;
+	}
+
 	public function getCashPositionDetails($datefilter, $stat) {
 		$query	= $this->getCashPositionDetailsQuery($datefilter, $stat);
 		$result	= $query->runSelect()

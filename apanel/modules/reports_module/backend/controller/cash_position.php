@@ -27,6 +27,7 @@ class controller extends wc_controller {
 		$for_deposit	= ($for_deposit) ? $for_deposit : 0;
 
 		$cash_position	= $this->cash_position_model->getCashPosition($datefilter);
+		$companyname	= $this->cash_position_model->getCompanyName();
 
 		$cash_position->outstanding_checks = str_replace(',', '', $cash_position->outstanding_checks);
 		$cash_position->check_for_release = str_replace(',', '', $cash_position->check_for_release);
@@ -34,15 +35,15 @@ class controller extends wc_controller {
 
 		$phpexcel = new PHPExcel();
 		$phpexcel->getProperties()
-				->setCreator("Versia")
-				->setLastModifiedBy("Versia")
+				->setCreator($companyname)
+				->setLastModifiedBy($companyname)
 				->setTitle("Office 2007 XLSX Test Document")
 				->setSubject("Office 2007 XLSX Test Document")
 				->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
 				->setKeywords("office 2007 openxml php");
 
 		$phpexcel->setActiveSheetIndex(0)
-				->setCellValue('A1', 'Versia')
+				->setCellValue('A1', $companyname)
 				->setCellValue('A2', 'Cash Position Report')
 				->setCellValue('A3', 'As of ' . $dateasof);
 
@@ -87,7 +88,7 @@ class controller extends wc_controller {
 		if ($released) {
 			$phpexcel->createSheet();
 			$phpexcel->setActiveSheetIndex($sheet_num)
-					->setCellValue('A1', 'Versia')
+					->setCellValue('A1', $companyname)
 					->setCellValue('A2', 'Cash Position Report')
 					->setCellValue('A3', 'As of ' . $dateasof);
 
@@ -122,7 +123,7 @@ class controller extends wc_controller {
 		if ($uncleared) {
 			$phpexcel->createSheet();
 			$phpexcel->setActiveSheetIndex($sheet_num)
-					->setCellValue('A1', 'Versia')
+					->setCellValue('A1', $companyname)
 					->setCellValue('A2', 'Cash Position Report')
 					->setCellValue('A3', 'As of ' . $dateasof);
 
@@ -157,7 +158,7 @@ class controller extends wc_controller {
 		if ($postdated) {
 			$phpexcel->createSheet();
 			$phpexcel->setActiveSheetIndex($sheet_num)
-					->setCellValue('A1', 'Versia')
+					->setCellValue('A1', $companyname)
 					->setCellValue('A2', 'Cash Position Report')
 					->setCellValue('A3', 'As of ' . $dateasof);
 
