@@ -124,7 +124,7 @@ class controller extends wc_controller
 		$data["row"] 			  		= 1;
 		$data["transactiondate"]      = $this->date->dateFormat();
 
-		// Retrieve vendor list
+		// Retrieve customer list
 		$data["customer_list"]          = $this->receipt_voucher->retrieveCustomerList();
 
 		// Retrieve business type list
@@ -150,9 +150,9 @@ class controller extends wc_controller
 		$data['payments'] 		= "''";
 
 		// Process form when form is submitted
-		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
+		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
 
-		if (!empty($data_validate["vendor"]) && !empty($data_validate["document_date"])) 
+		if (!empty($data_validate["customer"]) && !empty($data_validate["document_date"])) 
 		{
 			$errmsg = array();
 			$temp 	= array();
@@ -219,7 +219,7 @@ class controller extends wc_controller
 
 		// Main
 		$data["voucherno"]         = $data["main"]->voucherno;
-		$data["vendorcode"]        = $data["main"]->vendor;
+		$data["vendorcode"]        = $data["main"]->customer;
 		$data["v_convertedamount"] = $data["main"]->convertedamount;
 		$data["exchangerate"]      = $data["main"]->exchangerate;
 		$data["transactiondate"]   = $this->date->dateFormat($data["main"]->transactiondate);
@@ -227,7 +227,7 @@ class controller extends wc_controller
 		$data["paymenttype"]       = $data["main"]->paymenttype;
 		$data["particulars"]       = $data["main"]->particulars;
 
-		// Vendor/Customer Details
+		// customer/Customer Details
 		$data["v_vendor"] 		   = $data["cust"]->name;
 		$data["v_email"] 		   = $data["cust"]->email;
 		$data["tinno"] 		   	   = $data["cust"]->tinno;
@@ -271,7 +271,7 @@ class controller extends wc_controller
 		$data["sid"] 		   	= $sid;
 		$data["date"] 		   	= date("M d, Y");
 
-		// Retrieve vendor list
+		// Retrieve customer list
 		$data["customer_list"]          = $this->receipt_voucher->retrieveCustomerList();
 
 		// Retrieve business type list
@@ -289,7 +289,7 @@ class controller extends wc_controller
 		// Header Data
 		$data["voucherno"]       = $data["main"]->voucherno;
 		$data["referenceno"]     = $data["main"]->referenceno;
-		$data["vendorcode"]      = $data["main"]->vendor;
+		$data["vendorcode"]      = $data["main"]->customer;
 		$data["exchangerate"]    = $data["main"]->exchangerate;
 		$data["transactiondate"] = $this->date->dateFormat($data["main"]->transactiondate);
 		$data["particulars"]     = $data["main"]->particulars;
@@ -313,14 +313,14 @@ class controller extends wc_controller
 		$data['payments'] 		= json_encode($payments);
 
 		// Process form when form is submitted
-		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
+		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
 
-		if (!empty($data_validate["vendor"]) && !empty($data_validate["document_date"])) 
+		if (!empty($data_validate["customer"]) && !empty($data_validate["document_date"])) 
 		{
 			$this->update_app($data_validate["h_check_rows_"]);
 
 			// For Admin Logs
-			$this->logs->saveActivity("Update Payment Voucher [$sid]");
+			$this->logs->saveActivity("Update Receipt Voucher [$sid]");
 
 			if(!empty($data_validate['h_save']))
 			{
@@ -347,13 +347,13 @@ class controller extends wc_controller
 		$sub_select[0]->amount;
 		
 		$docinfo_table  = "receiptvoucher as pv";
-		$docinfo_fields = array('pv.transactiondate AS documentdate','pv.voucherno AS voucherno',"CONCAT( first_name, ' ', last_name )","'{$sub_select[0]->amount}' AS amount",'pv.amount AS pvamount', "'' AS referenceno", "particulars AS remarks", "p.partnername AS vendor");
+		$docinfo_fields = array('pv.transactiondate AS documentdate','pv.voucherno AS voucherno',"CONCAT( first_name, ' ', last_name )","'{$sub_select[0]->amount}' AS amount",'pv.amount AS pvamount', "'' AS referenceno", "particulars AS remarks", "p.partnername AS customer");
 		$docinfo_join   = "partners as p ON p.partnercode = pv.customer AND p.companycode = pv.companycode";
 		$docinfo_cond 	= "pv.voucherno = '$voucherno'";
 
 		$documentinfo  	= $this->receipt_voucher->retrieveData($docinfo_table, $docinfo_fields, $docinfo_cond, $docinfo_join);
 
-		$customer 	    = $documentinfo[0]->vendor;
+		$customer 	    = $documentinfo[0]->customer;
 
 		// Retrieve Document Details
 		$docdet_table   = "rv_details as dtl";
@@ -681,7 +681,7 @@ class controller extends wc_controller
 
 	private function load_ap()
 	{
-		$data_post = $this->input->post(array("searchkey", "sort", "sortBy", "vendor"));
+		$data_post = $this->input->post(array("searchkey", "sort", "sortBy", "customer"));
 
 		$list   = $this->receipt_voucher->retrieveAPList($data_post);
 
@@ -778,7 +778,7 @@ class controller extends wc_controller
 		$data_get = $this->input->get(array("daterangefilter", "vendfilter", "addCond", "search"));
 		$data_get['daterangefilter'] = str_replace(array('%2F', '+'), array('/', ' '), $data_get['daterangefilter']);
 		$result = $this->receipt_voucher->fileExportlist($data_get);
-		$header = array("Document Date", "Voucher No", "Vendor", "Invoice No", "Amount", "Balance", "Notes"); 
+		$header = array("Document Date", "Voucher No", "customer", "Invoice No", "Amount", "Balance", "Notes"); 
 		$csv 	= '';
 
 		$filename = "export_receipt_voucher.csv";
@@ -857,7 +857,7 @@ class controller extends wc_controller
 			$data_post = $this->input->post($data_var);
 			
 			/**
-			* Save Vendor Detials
+			* Save customer Detials
 			*/
 			$result = $this->receipt_voucher->saveDetails("partners", $data_post, "vendordetail");
 		}
@@ -1228,7 +1228,7 @@ class controller extends wc_controller
 				$apvoucher   = $row->voucherno; 
 				$balance     = $row->balance; 
 				$amount	  	 = $row->amount; 
-				$vendor		 = $row->partnername; 
+				$customer		 = $row->partnername; 
 				$referenceno = $row->referenceno; 
 				$pvvoucher   = $row->pv_voucherno; 
 
@@ -1293,7 +1293,7 @@ class controller extends wc_controller
 				$table	.= '<td  style="vertical-align:middle;">'.$date.'</td>';
 				// $table	.= '<td class="text-left" style="vertical-align:middle;">&nbsp;'.$apvoucher.'</td>';
 				$table	.= '<td  style="vertical-align:middle;">&nbsp;'.$pvvoucher.'</td>';
-				$table	.= '<td  style="vertical-align:middle;">&nbsp;'.$vendor.'</td>';
+				$table	.= '<td  style="vertical-align:middle;">&nbsp;'.$customer.'</td>';
 				// $table	.= '<td class="text-left" style="vertical-align:middle;">&nbsp;'.$referenceno.'</td>';
 				$table	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.number_format($amount,2).'</td>';
 				// $table	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.number_format($balance,2).'</td>';
@@ -1327,7 +1327,7 @@ class controller extends wc_controller
 				$apvoucher   = $row->voucherno; 
 				$balance     = $row->balance; 
 				$amount	  	 = $row->amount; 
-				$vendor		 = $row->partnername; 
+				$customer		 = $row->partnername; 
 				$referenceno = $row->referenceno; 
 				$pvvoucher   = $row->pv_voucherno; 
 
@@ -1346,7 +1346,7 @@ class controller extends wc_controller
 				
 				$csv .= '"' . $date . '",';
 				$csv .= '"' . $pvvoucher . '",';
-				$csv .= '"' . $vendor . '",';
+				$csv .= '"' . $customer . '",';
 				$csv .= '"' . $amount . '",';
 				$csv .= '"' . $voucher_status . '"';
 				$csv .= "\n";

@@ -58,9 +58,9 @@
 									->setId('vendor')
 									->setList($vendor_list)
 									->setValue($vendorcode)
-									->addHidden()
 									->setAttribute(array("onChange" => "getPartnerInfo(this.value);"))
 									->setValidation('required')
+									->addHidden(($task == 'view'))
 									->draw($show_input);
 							?>
 						</div>
@@ -72,7 +72,7 @@
 										->setClass("payment_mode")
 										->setName('paymentmode')
 										->setId('paymentmode')
-										->addHidden()
+										->addHidden(($task == 'view'))
 										->setList(array("cash" => "Cash", "cheque" => "Cheque"))
 										->setAttribute(
 											array(
@@ -303,11 +303,12 @@
 													->draw($show_input);
 										?>
 									</td>	
-								</tr>
+								
 								<? if($show_input):?>
 								<td class="text-center">
 									<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
 								</td>
+								</tr>
 								<? endif; ?>	
 							<?
 								$row++;
@@ -1546,8 +1547,7 @@ function cancelTransaction(vno){
 	var datatable	= 'accountspayable';
 	var detailtable	= 'ar_details';
 	var condition	= " voucherno = '"+vno+"' AND stat = 'temporary' ";
-	// var condition	= " voucherno = '"+vno+"' AND companycode = '"+companycode+"' AND stat = 'temporary' ";
-
+	
 	if(task == 'create')
 	{	
 		var data	= "table="+datatable+"&condition="+condition;
@@ -1564,7 +1564,7 @@ function cancelTransaction(vno){
 
 					if(data2.msg == "success")
 					{
-						window.location.href = '<?=BASE_URL?>financials/payment';
+						window.location.href = '<?=BASE_URL?>financials/payment_voucher';
 					}
 				});
 			}
@@ -1572,7 +1572,7 @@ function cancelTransaction(vno){
 	}
 	else
 	{
-		window.location.href	= "<?=BASE_URL?>financials/payment";
+		window.location.href	= "<?=BASE_URL?>financials/payment_voucher";
 	}
 }
 
@@ -2858,7 +2858,7 @@ $(document).ready(function() {
 				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{	
-					if(data.code == '1')
+					if(data.code == 1)
 					{
 						$("#payableForm #h_voucher_no").val(data.voucher);
 						$("#payableForm").submit();
@@ -2903,7 +2903,7 @@ $(document).ready(function() {
 				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{
-					if(data.success)
+					if(data.code == 1)
 					{
 						$("#payableForm").submit();
 					}
@@ -2948,7 +2948,7 @@ $(document).ready(function() {
 				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{
-					if(data.success)
+					if(data.code == 1)
 					{
 						$("#payableForm").submit();
 					}
@@ -2974,7 +2974,7 @@ $(document).ready(function() {
 		if(paymentmode == "cheque")
 		{
 			toggleCheckInfo(paymentmode);
-			loadCheques();
+			//loadCheques();
 		}
 
 		$("#paymentmode").removeAttr("disabled");
@@ -3008,7 +3008,7 @@ $(document).ready(function() {
 				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{
-					if(data.success)
+					if(data.code == 1)
 					{
 						$("#payableForm").submit();
 					}
@@ -3057,7 +3057,7 @@ $(document).ready(function() {
 				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{
-					if(data.success)
+					if(data.code == 1)
 					{
 						$("#payableForm").submit();
 					}
@@ -3105,7 +3105,7 @@ $(document).ready(function() {
 				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
 				.done(function( data ) 
 				{
-					if(data.success)
+					if(data.code == 1)
 					{
 						$("#payableForm").submit();
 					}

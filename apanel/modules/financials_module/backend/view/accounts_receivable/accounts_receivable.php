@@ -2238,7 +2238,7 @@ function savePaymentRow(e,id)
 	//validateField('receiptForm','convertedamount\\['+id+'\\]', 'convertedamount\\['+id+'\\]_help');
 	// valid		+= validateField('receiptForm','paymentmode\\['+id+'\\]', 'paymentmode\\['+id+'\\]_help');
 
-	if(paymentmode == 'cash')
+	if(paymentmode == 'cash' || paymentmode == 'transfer')
 	{
 		if(parseFloat(Number(paymentamount)) > 0)
 		{
@@ -2296,7 +2296,7 @@ function savePaymentRow(e,id)
 
 		selecteddate.push(paymentdate);
 		
-		if(paymentmode == 'cash')
+		if(paymentmode == 'cash' || paymentmode == 'transfer')
 		{
 			selectedaccount.push(paymentaccount);
 		}

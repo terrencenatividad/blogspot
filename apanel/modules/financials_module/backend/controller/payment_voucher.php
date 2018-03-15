@@ -226,8 +226,10 @@ class controller extends wc_controller
 		$data["vendor_list"]    	= array();
 
 		// Main
+		$vendor_details 		   = $this->payment_voucher->getValue("partners", "partnername"," partnertype = 'supplier' AND partnercode = '".$data["main"]->vendor."'", "");
+
 		$data["voucherno"]         = $data["main"]->voucherno;
-		$data["vendorcode"]        = $data["main"]->vendor;
+		$data["vendorcode"]        = $vendor_details[0]->partnername;
 		$data["v_convertedamount"] = $data["main"]->convertedamount;
 		$data["exchangerate"]      = $data["main"]->exchangerate;
 		$data["transactiondate"]   = $this->date->dateFormat($data["main"]->transactiondate);
@@ -322,6 +324,8 @@ class controller extends wc_controller
 		$data["particulars"]     = $data["main"]->particulars;
 		$data["paymenttype"]     = $data["main"]->paymenttype;
 		
+		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
+
 		// Application Data
 		$payments 			= $data['payments'];
 		$sum_applied		= 0;

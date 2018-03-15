@@ -609,7 +609,7 @@ class receipt_voucher_model extends wc_model
 		$total_credit 			= str_replace(',','',$total_credit);
 		
 		$gen_value              = $this->getValue("receiptvoucher", "COUNT(*) as count", " voucherno != ''");	
-		$temporary_voucher     	= (!empty($gen_value[0]->count)) ? 'RV_'.($gen_value[0]->count + 1) : 'PV_1';
+		$temporary_voucher     	= (!empty($gen_value[0]->count)) ? 'RV_'.($gen_value[0]->count + 1) : 'RV_1';
 
 		$voucherno 				= (!empty($voucherno)) ? $voucherno : $temporary_voucher;
 		

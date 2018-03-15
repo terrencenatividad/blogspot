@@ -743,8 +743,8 @@
 </div>
 <!-- End DELETE RECORD CONFIRMATION MODAL-->
 
- <!-- ON CHANGING OF VENDOR MODAL -->
-<div class="modal fade" id="change_vendor_modal" tabindex="-1" data-backdrop="static">
+ <!-- ON CHANGING OF customer MODAL -->
+<div class="modal fade" id="change_customer_modal" tabindex="-1" data-backdrop="static">
 	<div class="modal-dialog modal-sm">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -783,34 +783,34 @@ var edited = false;
 $('#paymentModal').on('blur', 'input', function() {
 edited = true;
 });
-function addVendorToDropdown() 
+function addcustomerToDropdown() 
 {
-var optionvalue = $("#vendor_modal #supplierForm #partnercode").val();
-var optiondesc 	= $("#vendor_modal #supplierForm #partnername").val();
+var optionvalue = $("#customer_modal #supplierForm #partnercode").val();
+var optiondesc 	= $("#customer_modal #supplierForm #partnername").val();
 
-$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#paymentForm #vendor option");
-$('#paymentForm #vendor').val(optionvalue);
+$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#paymentForm #customer option");
+$('#paymentForm #customer').val(optionvalue);
 
 getPartnerInfo(optionvalue);
 
-$('#vendor_modal').modal('hide');
-$('#vendor_modal').find("input[type=text], textarea, select").val("");
+$('#customer_modal').modal('hide');
+$('#customer_modal').find("input[type=text], textarea, select").val("");
 }
 
 function closeModal()
 {
-$('#vendor_modal').modal('hide');
+$('#customer_modal').modal('hide');
 }
-$('#vendor_button').click(function() 
+$('#customer_button').click(function() 
 {
-$('#vendor_modal').modal('show');
+$('#customer_modal').modal('show');
 });
 </script>
 <?php
 echo $ui->loadElement('modal')
-	->setId('vendor_modal')
+	->setId('customer_modal')
 	->setContent('maintenance/supplier/create')
-	->setHeader('Add a Vendor')
+	->setHeader('Add a customer')
 	->draw();
 ?>
 
@@ -886,7 +886,7 @@ $('#chequeTable .chequeamount').on('change', function() {
 function computeDueDate()
 {
 	var invoice = $("#transactiondate").val();
-	var terms 	= $("#vendor_terms").val();
+	var terms 	= $("#customer_terms").val();
 
 	if(invoice != '')
 	{
@@ -899,9 +899,9 @@ function getPartnerInfo(code)
 {
 	if(code == '' || code == 'add' || code == "none")
 	{
-		$("#vendor_tin").val("");
-		$("#vendor_terms").val("");
-		$("#vendor_address").val("");
+		$("#customer_tin").val("");
+		$("#customer_terms").val("");
+		$("#customer_address").val("");
 
 		bootbox.dialog({
 			message: "Please select Customer.",
@@ -927,9 +927,9 @@ function getPartnerInfo(code)
 			var tinno		= data.tinno.trim();
 			var terms		= data.terms.trim();
 			
-			$("#vendor_tin").val(tinno);
-			$("#vendor_terms").val(terms);
-			$("#vendor_address").val(address);
+			$("#customer_tin").val(tinno);
+			$("#customer_terms").val(terms);
+			$("#customer_address").val(address);
 
 			// Remove disabled for Payment Mode
 			// $("#paymentmode").removeAttr("disabled");
@@ -1660,11 +1660,11 @@ $('#pagination').on('click', 'a', function(e) {
 function showIssuePayment()
 {
 var valid		= 0;
-var	customer_code	= $('#paymentForm #vendor').val();
-$('#paymentForm #vendor').trigger('blur');
+var	customer_code	= $('#paymentForm #customer').val();
+$('#paymentForm #customer').trigger('blur');
 var h_voucher_no = ('<?= $task ?>' == "edit") ? $("#payableForm #h_voucher_no").val() : "";
 
-valid			+= validateField('payableForm','vendor', "vendor_help");
+valid			+= validateField('payableForm','customer', "customer_help");
 
 if(valid == 0 && customer_code != "")
 {
@@ -2165,7 +2165,7 @@ else
 
 function applySelected_()
 {
-	var paymentvendor		= $("#payableForm #vendor").val();
+	var paymentcustomer		= $("#payableForm #customer").val();
 	var paymentdate			= document.getElementById('document_date').value;
 	var paymentmode			= document.getElementById('paymentmode').value;
 	var paymentreference	= document.getElementById('paymentreference').value;
@@ -2173,7 +2173,7 @@ function applySelected_()
 
 	var valid				= 0;
 
-	valid	+= validateField('payableForm','vendor', "vendor_help");
+	valid	+= validateField('payableForm','customer', "customer_help");
 	valid	+= validateField('payableForm','document_date', "document_date_help");
 	valid	+= validateField('payableForm','paymentmode', "paymentmode_help");
 
@@ -2763,9 +2763,9 @@ $('#paymentreference').on('blur', function(e)
 if('<?= $task ?>' == "create")
 {
 	/**SAVE TEMPORARY DATA THROUGH AJAX**/
-	$("#payableForm").change(function(e)
+	$("#payableForm").on('change',function(e)
 	{
-		if( $("#entriesTable #accountcode\\[1\\]").val() != '' && $("#payableForm #document_date").val() != '' && (parseFloat($("#itemsTable #debit\\[1\\]").val()) > 0 || parseFloat($("#itemsTable #credit\\[1\\]").val()) > 0) && (parseFloat($("#itemsTable #debit\\[2\\]").val()) > 0 || parseFloat($("#itemsTable #credit\\[2\\]").val()) > 0) && $("#payableForm #vendor").val() != '' )
+		if( $("#entriesTable #accountcode\\[1\\]").val() != '' && $("#payableForm #document_date").val() != '' && (parseFloat($("#itemsTable #debit\\[1\\]").val()) > 0 || parseFloat($("#itemsTable #credit\\[1\\]").val()) > 0) && (parseFloat($("#itemsTable #debit\\[2\\]").val()) > 0 || parseFloat($("#itemsTable #credit\\[2\\]").val()) > 0) && $("#payableForm #customer").val() != '' )
 		{
 			setTimeout(function() 
 			{
@@ -2791,9 +2791,9 @@ if('<?= $task ?>' == "create")
 	{
 		var valid	= 0;
 		var selected_rows 	= JSON.stringify(container);
-		/**validate vendor field**/
+		/**validate customer field**/
 		valid		+= validateField('payableForm','document_date', "document_date_help");
-		valid		+= validateField('payableForm','vendor', "vendor_help");
+		valid		+= validateField('payableForm','customer', "customer_help");
 		
 		if(selected_rows == "[]")
 		{
@@ -2858,9 +2858,9 @@ if('<?= $task ?>' == "create")
 	{
 		var valid	= 0;
 
-		/**validate vendor field**/
+		/**validate customer field**/
 		valid		+= validateField('payableForm','document_date', "document_date_help");
-		valid		+= validateField('payableForm','vendor', "vendor_help");
+		valid		+= validateField('payableForm','customer', "customer_help");
 		
 		valid		+= validateField('payableForm','due_date', "due_date_help");
 		
@@ -2903,9 +2903,9 @@ if('<?= $task ?>' == "create")
 	{
 		var valid	= 0;
 		
-		/**validate vendor field**/
+		/**validate customer field**/
 		valid		+= validateField('payableForm','document_date', "document_date_help");
-		valid		+= validateField('payableForm','vendor', "vendor_help");
+		valid		+= validateField('payableForm','customer', "customer_help");
 		
 		valid		+= validateField('payableForm','duedate', "due_date_help");
 		
@@ -2960,9 +2960,9 @@ else if('<?= $task ?>' == "edit")
 	{
 		var valid	= 0;
 
-		/**validate vendor field**/
+		/**validate customer field**/
 		valid		+= validateField('payableForm','document_date', "document_date_help");
-		valid		+= validateField('payableForm','vendor', "vendor_help");
+		valid		+= validateField('payableForm','customer', "customer_help");
 		
 		valid		+= validateField('payableForm','due_date', "due_date_help");
 		
@@ -3009,9 +3009,9 @@ else if('<?= $task ?>' == "edit")
 	{
 		var valid	= 0;
 		
-		/**validate vendor field**/
+		/**validate customer field**/
 		valid		+= validateField('payableForm','document_date', "document_date_help");
-		valid		+= validateField('payableForm','vendor', "vendor_help");
+		valid		+= validateField('payableForm','customer', "customer_help");
 		
 		valid		+= validateField('payableForm','due_date', "due_date_help");
 		
@@ -3057,9 +3057,9 @@ else if('<?= $task ?>' == "edit")
 	{
 		var valid	= 0;
 		
-		/**validate vendor field**/
+		/**validate customer field**/
 		valid		+= validateField('payableForm','document_date', "document_date_help");
-		valid		+= validateField('payableForm','vendor', "vendor_help");
+		valid		+= validateField('payableForm','customer', "customer_help");
 		
 		valid		+= validateField('payableForm','duedate', "due_date_help");
 		
@@ -3183,7 +3183,7 @@ $('#paymentmode').on('change',function(){
 	
 })
 
-$('#change_vendor_modal').on('click','#yes_to_reset',function(){
+$('#change_customer_modal').on('click','#yes_to_reset',function(){
 	
 	$('#ap_items .clone').each(function(index) {
 		if (index > 0) {
@@ -3208,7 +3208,7 @@ $('#change_vendor_modal').on('click','#yes_to_reset',function(){
 	$('#tbody_cheque .chequeamount').val('0.00');
 	$('#totalcheques').val('0.00');
 
-	$('#change_vendor_modal').modal('hide');
+	$('#change_customer_modal').modal('hide');
 	
 	container = [];
 	clearPayment();
@@ -3216,7 +3216,7 @@ $('#change_vendor_modal').on('click','#yes_to_reset',function(){
 
 $('#customer').on('change',function(){
 	if ($('.accountcode').val()	 != '' || $('.chequeaccount').val()	 != '' ) {
-		$('#change_vendor_modal').modal('show');
+		$('#change_customer_modal').modal('show');
 	} 
 })
 </script>

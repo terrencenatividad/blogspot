@@ -378,14 +378,14 @@ class payment_voucher_model extends wc_model
 	
 		// Main Queries
 		$main_table   = "accountspayable as main";
-		$main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "(main.convertedamount - SUM(app.convertedamount)) as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno");
+		$main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0)) as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno");
 		$main_join 	  = "partners p ON p.partnercode = main.vendor ";
 		$orderby  	  = "main.transactiondate DESC";
 		
 		$mainTable	= "accountspayable as main";
 		$mainFields	= array(
 							"main.voucherno as voucherno", "main.transactiondate as transactiondate",
-							"main.convertedamount as amount", "(main.convertedamount - SUM(app.convertedamount)) as balance", "main.referenceno as referenceno",
+							"main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0)) as balance", "main.referenceno as referenceno",
 							"SUM(app.convertedamount) as payment"
 						);
 		$mainJoin	= "pv_application AS app ON app.apvoucherno = main.voucherno";
@@ -400,7 +400,7 @@ class payment_voucher_model extends wc_model
 			// $addCondition 		= "AND ($sub_select) = 0 OR ($sub_select) > 0 AND main.convertedamount > ($sub_select)";
 			// $main_cond    		= "main.stat = 'posted'  AND main.vendor = '$vendorcode' $search_key $addCondition ";
 			// $query 				= $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
-			$mainCondition   		= "main.stat = 'posted' AND main.vendor = '$vendorcode'";
+			$mainCondition   		= "main.stat = 'posted' AND main.vendor = '$vendorcode' AND main.balance > 0 ";
 			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $orderBy);
 			$tempArr["result"] = $query;
 		}
@@ -831,6 +831,21 @@ class payment_voucher_model extends wc_model
 			}
 		}
 
+		/**
+		 * Get previous tagged payables
+		 */
+		$aOldApplicationObj = $this->db->setTable('pv_application')
+									->setFields("apvoucherno as vno, '0.00' as amt, '0.00' as bal, '0.00' as dis")
+									->setWhere(" voucherno = '$voucherno' ")
+									->runSelect()
+									->getResult();
+		if(!empty($aOldApplicationObj) && !is_null($aOldApplicationObj)){
+			$aOldApplicationArray 	= json_decode(json_encode($aOldApplicationObj), true);
+			$combined_payables 		= $this->unique_multidim_array(array_merge($picked_payables,$aOldApplicationArray), 'vno');
+		}else{
+			$combined_payables 		= $picked_payables;
+		}
+
 		// details and pv_application
 		$isAppDetailExist	= $this->getValue($applicationTable, array("COUNT(*) AS count"), " voucherno = '$voucherno'");
 		
@@ -919,10 +934,10 @@ class payment_voucher_model extends wc_model
 		/**
 		 * Update Accounts Payable Balance
 		 */
-		if(!empty($picked_payables)){
+		if(!empty($combined_payables)){
 			$aPvApplicationArray 	= array();
 			$iApplicationLineNum	= 1;
-			foreach ($picked_payables as $pickedKey => $pickedValue) {
+			foreach ($combined_payables as $pickedKey => $pickedValue) {
 				$payable 					= $pickedValue['vno'];
 
 				$applied_sum				= 0;
@@ -940,16 +955,16 @@ class payment_voucher_model extends wc_model
 				$applied_amounts			= $this->getValue(
 												$applicationTable, 
 												array(
-													"SUM(amount) AS convertedamount",
-													"SUM(discount) AS discount",
-													"SUM(forexamount) AS forexamount"
+													"COALESCE(SUM(amount),0) AS convertedamount",
+													"COALESCE(SUM(discount),0) AS discount",
+													"COALESCE(SUM(forexamount),0) AS forexamount"
 												), 
 												" apvoucherno = '$payable' AND stat = 'posted' "
 											);
 
 				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount;
 				
-				$invoice_amount				= (!empty($invoice_amount)) ? $invoice_amounts[0]->convertedamount : 0;
+				$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
 
 				//$invoice_balance			= $invoice_amount - $applied_sum - $applied_amounts[0]->discount;
@@ -972,6 +987,20 @@ class payment_voucher_model extends wc_model
 		);
 	}
 
+	private function unique_multidim_array($array, $key) { 
+		$temp_array = array(); 
+		$i = 0; 
+		$key_array = array(); 
+		
+		foreach($array as $val) { 
+			if (!in_array($val[$key], $key_array)) { 
+				$key_array[$i] = $val[$key]; 
+				$temp_array[$i] = $val; 
+			} 
+			$i++; 
+		} 
+		return $temp_array; 
+	}
 	public function saveDetails($table, $data, $form = "")
 	{
 		$result 				   = "";

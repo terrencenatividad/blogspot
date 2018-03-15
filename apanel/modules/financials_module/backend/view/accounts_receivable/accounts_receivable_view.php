@@ -1590,7 +1590,7 @@ function savePaymentRow(e,id)
         selectedconverted.push(convertedamount);
 
         selecteddate.push(paymentdate);
-        if(paymentmode == 'cash'){
+        if(paymentmode == 'cash' || paymentmode == 'transfer'){
             selectedaccount.push(paymentaccount);
             selectedamount.push(convertedamount);
         }else{

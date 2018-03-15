@@ -86,9 +86,9 @@
 											'class' => 'col-md-1 text-center'
 										)
 									)
-									->addHeader('Voucher Date', array('class' => ''), 'sort', 'main.transactiondate', 'asc')
+									->addHeader('Voucher Date', array('class' => ''), 'sort', 'main.transactiondate')
 									// ->addHeader('AP Voucher No', array('class' => 'col-md-3 text-center'), 'sort', ' 	main.voucherno')
-									->addHeader('PV Voucher No', array('class' => ''), 'sort', ' 	pv.voucherno')
+									->addHeader('PV Voucher No', array('class' => ''), 'sort', ' 	pv.voucherno', 'desc')
 									->addHeader('Vendor', array('class' => ' '), 'sort', 'p.partnername')
 									// ->addHeader('Reference', array('class' => 'col-md-3 text-center'), 'sort', 'main.referenceno')
 									->addHeader('Amount', array('class' => ''), 'sort', 'main.convertedamount')
