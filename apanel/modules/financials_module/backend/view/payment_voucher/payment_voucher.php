@@ -2788,7 +2788,7 @@ $(document).ready(function() {
 	// Process New Transaction
 	if('<?= $task ?>' == "create"){
 		/**SAVE TEMPORARY DATA THROUGH AJAX**/
-		$("#payableForm").change(function(e)
+		$("#payableForm").on('change',function(e)
 		{
 			if( $("#entriesTable #accountcode\\[1\\]").val() != '' && $("#payableForm #document_date").val() != '' && (parseFloat($("#itemsTable #debit\\[1\\]").val()) > 0 || parseFloat($("#itemsTable #credit\\[1\\]").val()) > 0) && (parseFloat($("#itemsTable #debit\\[2\\]").val()) > 0 || parseFloat($("#itemsTable #credit\\[2\\]").val()) > 0) && $("#payableForm #vendor").val() != '' )
 			{

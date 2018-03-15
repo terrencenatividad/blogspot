@@ -95,7 +95,7 @@
 
         public function getQueryDetails($search, $startdate, $enddate, $partner, $filter, $bank, $sort, $mode) {
 		
-			$condition = "(rv.voucherno != '' )  "; 
+			$condition = "(rv.voucherno != '' )  AND  rv.stat != 'cancelled'  "; 
 			
 			// For Date
 			if ( $startdate && $enddate ) {

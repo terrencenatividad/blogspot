@@ -687,7 +687,7 @@ class receipt_voucher_model extends wc_model
 				
 				if(!empty($chequedate) && !empty($chequeaccount) && !empty($chequenumber) && !empty($chequeamount)){
 					$cheque_header['voucherno']				= $voucherno;
-					$cheque_header['transtype']				= "PV";
+					$cheque_header['transtype']				= "RV";
 					$cheque_header['linenum']				= $linecount;
 					$cheque_header['chequeaccount']			= $chequeaccount;
 					$cheque_header['chequenumber']			= $chequenumber;
