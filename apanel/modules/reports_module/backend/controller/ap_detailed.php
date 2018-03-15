@@ -252,13 +252,23 @@ class controller extends wc_controller {
 	private function export()
 	{
 		$data 		= $this->input->post(array('daterangefilter','customer','voucher','status'));
-		
+		$strdate	= $data['daterangefilter'];
+		$datefilter = explode('-', $data['daterangefilter']);
+		$dates		= array();
+		foreach ($datefilter as $date) {
+			$dates[] = date('Y-m-d', strtotime($date));
+		}
+
 		$retrieved = $this->ap_detailed->fileExport($data);
 		
 		$main 	= array("Customer Code","Customer Name"); 
 		$header = array("Voucher Number","Payment Voucher","Transaction Date","Invoice No","Amount","Amount Applied","Balance","Remarks","Terms","Status");
 		
 		$csv 	= '';
+		$csv 	.= 'Accounts Payable Detailed Aging';
+		$csv 	.= "\n\n";
+		$csv 	.= '"Date:","'.$strdate.'"';
+		$csv 	.= "\n\n";
 		$csv 	.= '"' . implode('","',$main).'"';
 		$csv 	.= "\n";
 		$csv 	.= '"' . implode('","',$header).'"';

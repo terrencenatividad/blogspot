@@ -109,8 +109,11 @@ class controller extends wc_controller {
 		$result = $this->stock_based->fileExport($data);
 		$header = array("Date","Invoice","Customer","Quantity","Total","Unit Price","Amount");
 
-		$csv = '';
-		$csv = '"' . implode('","', $header) . '"';
+		$csv = 'Stock Based Sales';
+		$csv .= "\n\n";
+		$csv .= '"Date:","'.$data['daterangefilter'].'"';
+		$csv .= "\n\n";
+		$csv .= '"' . implode('","', $header) . '"';
 		$csv .= "\n";
 		
 		$grandqty 			= 0;

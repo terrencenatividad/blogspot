@@ -74,10 +74,10 @@ class controller extends wc_controller {
 
 	private function export(){
 		$data = $this->input->post(array('daterangefilter','customer','sort'));
-		$datefilter	= $data['daterangefilter'];
+		$strdate	= $data['daterangefilter'];
 		$customer 	= $data['customer'];
 		$sort      = $data['sort'];
-		$datefilter = explode('-', $datefilter);
+		$datefilter = explode('-', $data['daterangefilter']);
 		$dates		= array();
 		foreach ($datefilter as $date) {
 			$dates[] = date('Y-m-d', strtotime($date));
@@ -86,7 +86,11 @@ class controller extends wc_controller {
 		$header = array("Date","Reference No.","Remarks","Account Title","Debit","Credit");
 
 		$csv = '';
-		$csv = '"' . implode('","', $header) . '"';
+		$csv .= 'General Journal';
+		$csv .= "\n\n";
+		$csv .= '"Date:","'.$strdate.'"';
+		$csv .= "\n\n";
+		$csv .= '"' . implode('","', $header) . '"';
 		$csv .= "\n";
         
         $totaldebit = 0.00;

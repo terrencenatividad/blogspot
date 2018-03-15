@@ -239,15 +239,19 @@ class controller extends wc_controller {
 		$input_list 	= $this->vat_summary->getPurchase(urldecode($range));
 		$list = (object) array_merge_recursive((array) $output_list, (array) $input_list);
 		
-		$this->generateCSV($list, $header);
+		$this->generateCSV($list, $header, urldecode($range));
 	}
 
-	private function generateCSV($list, $header) {
+	private function generateCSV($list, $header, $range) {
 		header('Content-type: text/csv');
 		header('Content-Disposition: attachment; filename="VAT Summary.csv"');
 		$total = array();
 		$table = '';
-		$table = '"' . implode('", "', $header) . '"';
+		$table = 'VAT Summary';
+		$table .= "\n\n";
+		$table .= '"Date:","'.$range.'"';
+		$table .= "\n\n";
+		$table .= '"' . implode('", "', $header) . '"';
 		$maindata = $list->rows;
 		$prevname = '';
 		$nextname = '';

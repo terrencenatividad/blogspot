@@ -106,7 +106,11 @@ class controller extends wc_controller {
 
 		$table 			= '';
 		$total_amount 	= 0;
-		$table = '"' . implode('","', $header) . '"';
+		$table .= 'Sales Register';
+		$table .= "\n\n";
+		$table .= '"Date:","'.$datefilter.'"';
+		$table .= "\n\n";
+		$table .= '"' . implode('","', $header) . '"';
 		$table .= "\n";
 		
 		$list 		= $this->report->export_main($datefilter, $customer);

@@ -5,8 +5,8 @@
         public function retrievePartnerList()
 		{
 			$result = $this->db->setTable('partners')
-						->setFields("partnercode ind, CONCAT( first_name, ' ', last_name ) val")
-						->setWhere("partnercode != '' AND ( partnertype = 'supplier' OR partnertype = 'customer' ) AND stat = 'active'")
+						->setFields("partnercode ind, partnername val")
+						->setWhere("partnercode != '' AND partnertype = 'supplier' AND stat = 'active'")
 						->setOrderBy("val")
 						->runSelect()
 						->getResult();
@@ -74,7 +74,7 @@
 			// For Search
 			if ( !empty($search) ) 
 			{
-				$condition .= " AND (chq.chequenumber LIKE '%$search%' OR inv.invoiceno LIKE '%$search%') ";
+				$condition .= " AND (chq.chequenumber LIKE '%$search%' OR ap.invoiceno LIKE '%$search%' OR pt.partnername LIKE '%$search%') ";
 			}
 
             $fields     =   array('chq.releasedate, chq.chequenumber, ap.invoiceno, chq.voucherno, chq.chequedate, coa.accountname bank, pt.partnername as partner, chq.chequeamount, chq.stat, chq.cleardate, chq.transtype, chq.companycode');
@@ -87,7 +87,7 @@
 							   ->setFields($fields)
 							   ->setWhere($condition)
 							   ->runPagination();	
-
+			// echo $this->db->getQuery();
 			// $query = $pvchq; //. ' UNION ALL ' . $rvchq
 
 			// $fields2 	=	array("a.releasedate, a.chequenumber, a.invoiceno, a.voucherno, a.chequedate, a.bank, a.partner, a.cleardate, a.chequeamount, a.stat, a.transtype");
@@ -139,7 +139,7 @@
 			// For Search
 			if ( !empty($search) ) 
 			{
-				$condition .= " AND (chq.chequenumber LIKE '%$search%' OR inv.invoiceno LIKE '%$search%') ";
+				$condition .= " AND (chq.chequenumber LIKE '%$search%' OR ap.invoiceno LIKE '%$search%' OR pt.partnername LIKE '%$search%') ";
 			}
 
             $fields     =   array('chq.releasedate, chq.chequenumber, ap.invoiceno, chq.voucherno, chq.chequedate, coa.accountname bank, pt.partnername as partner, chq.chequeamount, chq.stat, chq.cleardate, chq.transtype, chq.companycode');

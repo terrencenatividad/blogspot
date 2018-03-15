@@ -141,7 +141,9 @@ class controller extends wc_controller {
 		$total_july =	$total_aug 	=	$total_sept =	$total_oct 		=	$total_nov 		=	$total_decm 	=	0;
 
 		$table = '';
-		$table = '"' . implode('","', $header) . '"';
+		$table .= 'Sales Report';
+		$table .= "\n\n";
+		$table .= '"' . implode('","', $header) . '"';
 		$table .= "\n";
 		
 		$list = $this->report->export_main($year, $customer);

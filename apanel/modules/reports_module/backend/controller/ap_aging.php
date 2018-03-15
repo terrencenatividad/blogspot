@@ -153,7 +153,7 @@ class controller extends wc_controller {
 		
 		$data['daterangefilter'] = str_replace(array('%2C', '+'), array(',', ' '), $data['daterangefilter']);
 		
-		$datefilter	= $data['daterangefilter'];	
+		$strdate	= $data['daterangefilter'];	
 		// $datefilter = explode('-', $datefilter);
 		// $dates		= array();
 		// foreach ($datefilter as $date) {
@@ -164,7 +164,7 @@ class controller extends wc_controller {
 		// $datefilterFrom = (!empty($dates[0]))? $dates[0] : "";
 		// $datefilterTo   = (!empty($dates[1]))? $dates[1] : "";
 
-		$datefilter     = date("Y-m-d",strtotime($datefilter));
+		$datefilter     = date("Y-m-d",strtotime($data['daterangefilter']));
 		$customer 	 	= isset($data['customer'])	? $data['customer'] : "";
 
 		$totalcurrent = 0;
@@ -178,6 +178,10 @@ class controller extends wc_controller {
 		$header = array("Customer","Reference","Terms","Due Date","Current","1 - 30 Days","31 - 60 Days","Over 60 Days","Balance");
 		
 		$csv 	= '';
+		$csv 	.= 'Accounts Payable Aging';
+		$csv 	.= "\n\n";
+		$csv 	.= '"Date:","'.$strdate.'"';
+		$csv 	.= "\n\n";
 		$csv 	.= '"' . implode('","',$header).'"';
 		$csv 	.= "\n";
 

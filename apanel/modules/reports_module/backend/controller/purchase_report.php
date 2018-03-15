@@ -140,8 +140,9 @@ class controller extends wc_controller {
 		$total_jan 	=	$total_feb 	=	$total_march 	=	$total_april 	=	$total_may 		=	$total_june  	=	0;
 		$total_july =	$total_aug 	=	$total_sept =	$total_oct 		=	$total_nov 		=	$total_decm 	=	0;
 
-		$table = '';
-		$table = '"' . implode('","', $header) . '"';
+		$table = 'Purchase Report';
+		$table .= "\n\n";
+		$table .= '"' . implode('","', $header) . '"';
 		$table .= "\n";
 		
 		$list = $this->report->export_main($year, $vendor);

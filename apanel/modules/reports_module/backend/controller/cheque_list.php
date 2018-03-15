@@ -175,8 +175,8 @@ class controller extends wc_controller {
 		$bank 		= $data['bank'];
 		$search 	= $data['search'];
 		$sort 		= $data['sort'];
-		$datefilter	= $data['daterangefilter'];	
-		$datefilter = explode('-', $datefilter);
+		$strdate	= $data['daterangefilter'];	
+		$datefilter = explode('-', $data['daterangefilter']);
 		$dates		= array();
 		foreach ($datefilter as $date) {
 			$dates[] = date('Y-m-d', strtotime($date));
@@ -186,8 +186,12 @@ class controller extends wc_controller {
 		$header = array("Check Date","Check Number","Invoice No.","Bank","Partner","Release Date","Cleared Date","Amount","Check Status"); 
 	
 		$csv 	= '';
-		$csv .= '"' . implode('","', $header) . '"';
-		$csv .= "\n";
+		$csv 	.= 'Cheque List';
+		$csv 	.= "\n\n";
+		$csv 	.= '"Date:","'.$strdate.'"';
+		$csv 	.= "\n\n";
+		$csv 	.= '"' . implode('","', $header) . '"';
+		$csv 	.= "\n";
 		
 		if (!empty($retrieved)){
 			foreach ($retrieved as $key => $row){

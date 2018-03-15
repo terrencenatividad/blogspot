@@ -136,7 +136,7 @@ class controller extends wc_controller {
 		$csv .= '"' . 'Stock Transfer Report' . '",';
 		$csv .= "\n";
 		$csv .= "\n";
-		$csv .= '"' . 'Date Range:' . '",';
+		$csv .= '"' . 'Date:' . '",';
 		$csv .= '"' . $data_post['daterangefilter'] . '",';
 		$csv .= "\n";
 		$csv .= '"' . 'Requesting Warehouse:' . '",';

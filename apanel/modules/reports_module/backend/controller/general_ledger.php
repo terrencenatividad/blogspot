@@ -248,8 +248,8 @@ class controller extends wc_controller {
 
 		$data['daterangefilter'] = str_replace(array('%2C', '+'), array(',', ' '), $data['daterangefilter']);
 		
-		$datefilter	= $data['daterangefilter'];	
-		$datefilter = explode('-', $datefilter);
+		$strdate	= $data['daterangefilter'];	
+		$datefilter = explode('-', $data['daterangefilter']);
 		$dates		= array();
 		foreach ($datefilter as $date) {
 			$dates[] = date('Y-m-d', strtotime($date));
@@ -275,6 +275,10 @@ class controller extends wc_controller {
 		$header = array("Transaction Date","Voucher No.","Partner","Description","Status","Total Debit","Total Credit"); 
 		
 		$csv 	= '';
+		$csv 	.= 'General Ledger';
+		$csv 	.= "\n\n";
+		$csv 	.= '"Date:","'.$strdate.'"';
+		$csv 	.= "\n\n";
 		$csv 	.= '"' . implode('","', $main) . '"';
 		$csv  	.= "\n";
 		$csv 	.= '"' . implode('","', $header) . '"';

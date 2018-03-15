@@ -30,6 +30,10 @@ class controller extends wc_controller {
 		foreach ($datefilter as $date) {
 			$dates[] = $this->date->dateDbFormat(str_replace(array('+', '%2C'), array(' ', ','), $date));
 		}
+		$csv = 'Sales Analysis - Top Item';
+		$csv .= "\n\n";
+		$csv .= '"Date:","'.$this->date->dateFormat($dates[0]).' - '.$this->date->dateFormat($dates[1]).'"';
+		$csv .= "\n\n";
 		$csv .= '"' . implode('","', array('Rank', 'Item', 'Category', 'UOM', 'Qty Sold', 'Qty Return', 'Net Qty', 'Total Amount')) . '"';
 		$result = $this->sales_top_model->getSales($warehouse, $sort, $dates[0], $dates[1]);
 		foreach ($result as $key => $row) {

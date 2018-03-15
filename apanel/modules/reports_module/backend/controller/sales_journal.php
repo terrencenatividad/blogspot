@@ -105,8 +105,11 @@ class controller extends wc_controller {
 		$result = $this->sales_journal->fileExport($dates[0], $dates[1], $customer, $sort);
 		$header = array("Date","Customer Tin","Customer Name","Description","Ref No.","Amount","Discount","VAT amount","Net Sales");
 
-		$csv = '';
-		$csv = '"' . implode('","', $header) . '"';
+		$csv = 'Sales Journal';
+		$csv .= "\n\n";
+		$csv .= '"Date:","'.$this->date->dateFormat($dates[0]).' - '.$this->date->dateFormat($dates[1]).'"';
+		$csv .= "\n\n";
+		$csv .= '"' . implode('","', $header) . '"';
 		$csv .= "\n";
 		
 		$totalamount  	=	$totaldiscount 	= 	$totalvat 	=	$totalnetpurchases 	= 	$tot_amount = 0 ;

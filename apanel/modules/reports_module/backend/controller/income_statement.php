@@ -210,7 +210,9 @@ class controller extends wc_controller {
 		header('Content-Disposition: attachment; filename="Income Statement - ' . $filename . '.csv"');
 		$total 			= array();
 		$table 			= '';
-		$table 			= '"' . implode('","', $header) . '"';
+		$table 			.= 'Income Statement';
+		$table 			.= "\n\n";
+		$table 			.= '"' . implode('","', $header) . '"';
 		$total 			= array();
 		$prevkey  		= '';
 		$nextkey 		= '';

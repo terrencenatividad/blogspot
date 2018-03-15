@@ -46,7 +46,11 @@ class controller extends wc_controller {
 			'Net Qty',
 			'Amount',
 		);
-		$csv = '"' . implode('","', $header) . '"';
+		$csv = 'Sales Per Item';
+		$csv .= "\n\n";
+		$csv .= '"Date:","'.$this->date->dateFormat($dates[0]).' - '.$this->date->dateFormat($dates[1]).'"';
+		$csv .= "\n\n";
+		$csv .= '"' . implode('","', $header) . '"';
 		$totalsold		= 0;
 		$totalreturned	= 0;
 		$totalamount	= 0;

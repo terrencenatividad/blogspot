@@ -145,7 +145,7 @@ class controller extends wc_controller
 		$csv .= '"' . 'Address:' . '",';
 		$csv .= '"' . $cDetails->address1 . '",';
 		$csv .= "\n";
-		$csv .= '"' . 'Date Range' . '",';
+		$csv .= '"' . 'Date' . '",';
 		$csv .= '"' . $date . '",';
 		
 		$csv .= "\n";

@@ -197,8 +197,11 @@ class controller extends wc_controller
 
 		$header = array("Customer", "Amount");
 
-		$csv = '';
-		$csv = '"' . implode('", "', $header) . '"';
+		$csv = 'Sales Return per Customer';
+		$csv .= "\n\n";
+		$csv .= '"Date:","'.$data['daterangefilter'].'"';
+		$csv .= "\n\n";
+		$csv .= '"' . implode('", "', $header) . '"';
 		$csv .= "\n";
 		
 		$totalAmount = 0.00;

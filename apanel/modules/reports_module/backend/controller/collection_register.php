@@ -210,8 +210,8 @@ class controller extends wc_controller {
 		$search 	= $data['search'];
 		$sort 		= $data['sort'];
 		$mode 		= $data['mode'];
-		$datefilter	= $data['daterangefilter'];	
-		$datefilter = explode('-', $datefilter);
+		$strdate	= $data['daterangefilter'];	
+		$datefilter = explode('-', $data['daterangefilter']);
 		$dates		= array();
 		foreach ($datefilter as $date) {
 			$dates[] = date('Y-m-d', strtotime($date));
@@ -227,8 +227,11 @@ class controller extends wc_controller {
 		$totalreceiptamt 	=	0;
 
 		$prevdate 			=	$nextdate 	=	"";
-
-		$csv 	= 'Collection Register';
+		
+		$csv  = "";
+		$csv .= 'Collection Register';
+		$csv .= "\n\n";
+		$csv .= '"Date:","'.$strdate.'"';
 		$csv .= "\n\n";
 		$csv .= '"' . implode('","', $header) . '"';
 		$csv .= "\n";

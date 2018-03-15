@@ -88,8 +88,11 @@ class controller extends wc_controller {
 		$result = $this->sales_category->fileExport($data);
 		$header = array("Item Category","Sales Quantity","Base Quantity","Amount");
 
-		$csv = '';
-		$csv = '"' . implode('","', $header) . '"';
+		$csv = 'Sales Per Category';
+		$csv .= "\n\n";
+		$csv .= '"Date:","'.$data['daterangefilter'].'"';
+		$csv .= "\n\n";
+		$csv .= '"' . implode('","', $header) . '"';
 		$csv .= "\n";
 		
 		$totalAmount = 0.00;

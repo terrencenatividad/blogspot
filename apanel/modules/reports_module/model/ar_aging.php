@@ -77,7 +77,7 @@ class ar_aging extends wc_model {
 					->runSelect(false)
 					->getResult();
 					//->buildSelect(false);
-		echo $this->db->getQuery();			
+		// echo $this->db->getQuery();			
 		return $result;
 	}
 

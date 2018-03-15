@@ -156,7 +156,7 @@ class controller extends wc_controller {
 	{
 		$data 		= $this->input->post(array('daterangefilter','customer'));
 		
-		//$data['daterangefilter'] = str_replace(array('%2C', '+'), array(',', ' '), $data['daterangefilter']);
+		$strdate 	= str_replace(array('%2C', '+'), array(',', ' '), $data['daterangefilter']);
 		
 		$datefilter	= $data['daterangefilter'];	
 		// $datefilter = explode('-', $datefilter);
@@ -183,6 +183,10 @@ class controller extends wc_controller {
 		$header = array("Customer","Reference","Terms","Due Date","Current","1 - 30 Days","31 - 60 Days","Over 60 Days","Balance");
 		
 		$csv 	= '';
+		$csv 	.= 'Accounts Receivable Aging';
+		$csv 	.= "\n\n";
+		$csv 	.= '"Date:","'.$strdate.'"';
+		$csv 	.= "\n\n";
 		$csv 	.= '"' . implode('","',$header).'"';
 		$csv 	.= "\n";
 

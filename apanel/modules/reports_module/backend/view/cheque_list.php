@@ -63,7 +63,7 @@
 					<div class="col-md-3">
 						<div class="form-group">
 							<div class="input-group" >
-								<input name="table_search" id = "search" class="form-control pull-right" placeholder="Search" type="text" style = "height: 34px;">
+								<input name="search" id = "search" class="form-control pull-right" placeholder="Search" type="text" style = "height: 34px;">
 								<div class="input-group-btn" style = "height: 34px;">
 									<button type="submit" class="btn btn-default" id="daterange-btn" style = "height: 34px;"><i class="fa fa-search"></i></button>
 								</div>

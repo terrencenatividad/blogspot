@@ -148,7 +148,7 @@ class controller extends wc_controller {
 		$csv .= '"' . 'Sales per Customer Report' . '",';
 		$csv .= "\n";
 		$csv .= "\n";
-		$csv .= '"' . 'Date Range:' . '",';
+		$csv .= '"' . 'Date:' . '",';
 		$csv .= '"' . $data["daterangefilter"] . '",';
 		$csv .= "\n";
 		$csv .= '"' . 'Customer:' . '",';

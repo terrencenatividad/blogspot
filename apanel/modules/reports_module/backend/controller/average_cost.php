@@ -32,7 +32,9 @@ class controller extends wc_controller {
 			'Total'
 		);
 
-		$csv = '"' . implode('","', $header) . '"';
+		$csv = 'Average Cost';
+		$csv .= "\n\n";
+		$csv .= '"' . implode('","', $header) . '"';
 		$grand_total = 0;
 		$result = $this->average_cost_model->getAverageCost($search);
 		foreach ($result as $key => $row) {

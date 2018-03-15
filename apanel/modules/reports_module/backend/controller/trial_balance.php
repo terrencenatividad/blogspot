@@ -179,6 +179,8 @@ class controller extends wc_controller {
 		$header		= array('Account Code','Account Name','Prev Carryforward','Balance Carryforward','Total Debit','Total Credit','Balance for the Period','Accumulated Balance');
 
 		$csv 	= '';
+		$csv 	.= 'Trial Balance';
+		$csv 	.= "\n\n";
 		$csv 	.= '"' . implode('","',$header).'"';
 		$csv 	.= "\n";
 

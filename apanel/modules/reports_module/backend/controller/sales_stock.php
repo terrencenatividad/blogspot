@@ -101,7 +101,11 @@ class controller extends wc_controller {
 		$header = array("Item Code","Item Category","Stocks","Warehouse","Unit Price","Quantity","Amount");
 
 		$csv = '';
-		$csv = '"' . implode('","', $header) . '"';
+		$csv .= 'Sales Report Per Stock';
+		$csv .= "\n\n";
+		$csv .= '"Date:","'.$data_post['daterangefilter'].'"';
+		$csv .= "\n\n";
+		$csv .= '"' . implode('","', $header) . '"';
 		$csv .= "\n";
 
 		if(!empty($result)){

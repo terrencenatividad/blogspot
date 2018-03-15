@@ -148,7 +148,9 @@ class controller extends wc_controller {
 		header('Content-Disposition: attachment; filename="Balance Sheet - ' . $filename . '.csv"');
 		$total = array();
 		$table = '';
-		$table = '"' . implode('","', $header) . '"';
+		$table .= 'Balance Sheet';
+		$table .= "\n\n";
+		$table .= '"' . implode('","', $header) . '"';
 		foreach ($list as $key => $row1) {
 			$total_type = array();
 			$table .= "\n";
