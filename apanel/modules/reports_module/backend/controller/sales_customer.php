@@ -139,6 +139,7 @@ class controller extends wc_controller {
 		$data['daterangefilter'] = str_replace(array('%2C', '+'), array(',', ' '), $data['daterangefilter']);
 		$result = $this->sales_customer->fileExport($data);
 		$cus_name = $this->sales_customer->customer_name($data['customer']);
+		
 		$header = array("Customer","Sales Amount","Returned Amount","Total");
 		$csv = '';
 		$totalAmount = 0.00;
@@ -151,11 +152,17 @@ class controller extends wc_controller {
 		$csv .= '"' . $data["daterangefilter"] . '",';
 		$csv .= "\n";
 		$csv .= '"' . 'Customer:' . '",';
-		foreach ($cus_name as $key => $value) {
-			$csv .= '"' . $value->name. '"';
+		if ($data['customer'] == 'none'){
+			$csv .= '"' . 'All'. '"';
 			$csv .= "\n";
 			$csv .= '"",';
-		}
+		} else {
+			foreach ($cus_name as $key => $value) {
+				$csv .= '"' . $value->name. '"';
+				$csv .= "\n";
+				$csv .= '"",';
+			}
+		}	
 		$csv .= "\n\n";
 		$csv .= '"' . implode('","', $header) . '"';
 		$csv .= "\n";

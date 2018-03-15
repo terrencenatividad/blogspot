@@ -120,6 +120,7 @@ class controller extends wc_controller {
 		$result = $this->sales_warehouse->fileExport($data);
 		$header = array("Warehouse Code","Warehouse","Quantity");
 		$warehouse_list = $this->sales_warehouse->warehouses($data['warehouse']);
+		// var_dump($warehouse_list);
 
 		$csv = '';
 		$csv .= '"' . 'Sales Report per Warehouse ' . '",';
@@ -129,11 +130,18 @@ class controller extends wc_controller {
 		$csv .= '"' . $data["daterangefilter"] . '",';
 		$csv .= "\n";
 		$csv .= '"' . 'Warehouse:' . '",';
-		foreach ($warehouse_list as $key => $value) {
-			$csv .= '"' . $value->val. '"';
+		if ($data['warehouse'] == ''){
+			$csv .= '"' . 'All'. '"';
 			$csv .= "\n";
 			$csv .= '"",';
+		}  else {
+			foreach ($warehouse_list as $key => $value) {
+				$csv .= '"' . $value->val. '"';
+				$csv .= "\n";
+				$csv .= '"",';
+			}
 		}
+		
 		$csv .= "\n\n";
 		$csv .= '"' . implode('","', $header) . '"';
 		$csv .= "\n";

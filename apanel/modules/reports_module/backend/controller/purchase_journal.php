@@ -106,13 +106,23 @@ class controller extends wc_controller {
 		$csv .= '"' . $data["daterangefilter"] . '",';
 		$csv .= "\n";
 		$csv .= '"' . 'Vendor:' . '",';
-		foreach ($cus as $key => $value) {
-			$csv .= '"' . $value->val. '"';
+		if ($data['vendor'] == ''){
+			$csv .= '"' . 'All'. '"';
 			$csv .= "\n";
 			$csv .= '"",';
-
-			// implode(',', $vendor) 
+		}  else {
+			foreach ($cus as $key => $value) {
+				$csv .= '"' . $value->val. '"';
+				$csv .= "\n";
+				$csv .= '"",';
+			}
 		}
+
+		// foreach ($cus as $key => $value) {
+		// 	$csv .= '"' . $value->val. '"';
+		// 	$csv .= "\n";
+		// 	$csv .= '"",';
+		// }
 		// foreach($cus => $row){
 		// 	$csv .= '"' . $row->$val. '",';
 		// }

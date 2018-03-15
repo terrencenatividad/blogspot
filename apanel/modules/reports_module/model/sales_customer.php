@@ -258,8 +258,7 @@ class sales_customer extends wc_model {
 	public function customer_name($customer){
 		$result = $this->db->setTable('partners')
 					->setFields("partnername name")
-					->setWhere("partnertype = 'customer' AND stat = 'active'")
-					// ->setOrderBy("val")
+					->setWhere("partnertype = 'customer' AND stat = 'active' AND partnercode = '$customer'")
 					->runSelect()
 					->getResult();
 		return $result;

@@ -1,4 +1,5 @@
 <?php
+
 class sales_warehouse extends wc_model {
 
 	public function warehouse_list($startdate, $enddate,$warehouse, $sort) {
@@ -189,12 +190,20 @@ class sales_warehouse extends wc_model {
 	}
 
 	public function warehouses($warehouse){
+		
+		if ($warehouse == ''){
+			$wh = "('')";
+		} else {
+			$wh = "'". implode("','" ,$warehouse)."'";
+			$wh = "($wh)";
+		}
+		
 		$result = $this->db->setTable('warehouse')
-		->setFields("warehousecode ind, description val")
-		->setWhere("stat = 'active'")
-		->runSelect()
-		->getResult();
-
+						->setFields("warehousecode ind, description val")
+						->setWhere("stat = 'active' AND warehousecode IN $wh ")
+						->runSelect()
+						->getResult();
+						// echo $this->db->getQuery();
 		return $result;
 	}
 

@@ -9,14 +9,22 @@
 </style>
 
 <section class="content">
+	<!-- Error Message -->
+	<!--<div class = "alert alert-warning alert-dismissable hidden">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<h4><strong>Error!<strong></h4>
+		<div id = "errmsg"></div>
+	</div>-->
+
     <div class="box box-primary">
 		<form method = "post">
 			<div class="box-header">
 				<div class="row">
-					<div class = "col-md-8">
-						<a class="btn btn-primary btn-flat" data-toggle = "modal" role="button" href = "<?=BASE_URL?>financials/receipt_voucher/create" style="outline:none;">Create New Receipt Voucher</a>
-					</div>
 
+					<div class = "col-md-8">
+						<a class="btn btn-primary btn-flat" role="button" href="<?=BASE_URL?>financials/receipt_voucher/create" style="outline:none;">Create New Receipt Voucher</a>
+					</div>
+					
 					<div class = "col-md-4">
 						<div class = "form-group">
 							<div class="input-group">
@@ -28,15 +36,14 @@
 						</div>
 					</div>
 				</div>
-
 				<div class = "row">
-					<input type = "hidden" value = "all" name = "addCond" id = "addCond" />
-
+					<input type = "hidden" value = "unpaid" name = "addCond" id = "addCond" />
 
 					<div class = "col-md-3">
-						<div class = "form-group">
+						<div class="form-group">
 							<div class="input-group monthlyfilter">
 								<input type="text" readOnly name="daterangefilter" id="daterangefilter" class="form-control" value = "" onFocusOut="showList();" data-daterangefilter="month"/>
+
 								<span class="input-group-addon glyphicon glyphicon-calendar"></span>
 							</div>
 						</div>
@@ -58,25 +65,38 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-md-1 pull-right">
-						<a href="" id="export_csv" download="Payment Voucher.csv" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-export"></span>Export</a>
-					</div>
+
 				</div>
-			</div>
+			</div>	
 			<div class="panel panel-default">
 				<div class="panel-heading" id="option_filter">
 					<div class="row">
 						<div class="control-label col-md-9 col-sm-9 col-xs-9">
 						<ul class="nav nav-tabs">
-							<li class="active"><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('all');">All</a></li>
-							<li><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('posted');">Posted</a></li>
-							<li><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('unposted');">Unposted</a></li>
+							<li class="active"><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('unpaid');">Unpaid Accounts</a></li>
+							<li><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('partial');">With Partial Payment</a></li>
+							<li><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('paid');">Paid</a></li>
+							<li><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('all');">All</a></li>
 						</ul>
 						</div>
 					</div>
 				</div>	
 				<div class="box-body table-responsive" style = "overflow-x: inherit;">
 					<table id="tableList" class="table table-hover">
+						<!--<thead>
+							<tr class = "info">
+								<th class = "col-md-1 text-center">
+								</th>
+								<th class = "col-md-1 text-center">Date</th>
+								<th class = "col-md-1 text-center">AR Voucher No</th>
+								<th class = "col-md-1 text-center">RV Voucher No</th>
+								<th class = "col-md-1 text-center">Customer</th>
+								<th class = "col-md-1 text-center">Reference</th>
+								<th class = "col-md-1 text-center">Amount</th>
+								<th class = "col-md-1 text-center">Balance</th>
+								<th class = "col-md-1 text-center">Status</th>
+							</tr>
+						</thead>-->
 						<?php
 							echo $ui->loadElement('table')
 									->setHeaderClass('info')
@@ -86,35 +106,26 @@
 											'class' => 'col-md-1 text-center'
 										)
 									)
-									->addHeader('Voucher Date', array('class' => ''), 'sort', 'main.transactiondate', 'asc')
-									// ->addHeader('AP Voucher No', array('class' => 'col-md-3 text-center'), 'sort', ' 	main.voucherno')
-									->addHeader('PV Voucher No', array('class' => ''), 'sort', ' 	pv.voucherno')
-									->addHeader('Customer', array('class' => ' '), 'sort', 'p.partnername')
-									// ->addHeader('Reference', array('class' => 'col-md-3 text-center'), 'sort', 'main.referenceno')
-									->addHeader('Amount', array('class' => ''), 'sort', 'main.convertedamount')
-									// ->addHeader('Balance', array('class' => 'col-md-3 text-center'), 'sort', 'main.balance')
-									->addHeader('Status', array('class' => 'text-center'))
+									->addHeader('Date', array('class' => 'col-md-3 text-center'), 'sort', 'main.transactiondate', 'asc')
+									->addHeader('AR Voucher No', array('class' => 'col-md-3 text-center'), 'sort', 'main.voucherno')
+									->addHeader('RV Voucher No', array('class' => 'col-md-3 text-center'), 'sort', 'rv.voucherno')
+									->addHeader('Customer', array('class' => 'col-md-3 text-center'), 'sort', 'p.partnername')
+									->addHeader('Reference', array('class' => 'col-md-3 text-center'), 'sort', 'main.referenceno')
+									->addHeader('Amount', array('class' => 'col-md-3 text-center'), 'sort', 'main.convertedamount')
+									->addHeader('Balance', array('class' => 'col-md-3 text-center'), 'sort', 'main.balance')
+									->addHeader('Status', array('class' => 'col-md-3 text-center'))
 									->draw();
 						?>
-
 						<tbody id = "list_container">
 						</tbody>
-
-						<tfoot>
-							<tr>
-								<td colspan="8" class="text-center" id="page_links"></td>
-							</tr>
-						</tfoot>
-
 					</table>
 				</div>
-			</div>
+			</div>		
 		</form>
     </div>
     
 </section>
-
-<!-- Delete Modal for Paid, Partial PV -->
+<!-- Delete Modal for Paid, Partial RV -->
 <div class="modal fade" id="deleteModal" tabindex="-1" data-backdrop="static">
 	<div class="modal-dialog modal-sm">
 		<div class="modal-content">
@@ -130,11 +141,13 @@
 				<div class="row row-dense">
 					<div class="col-md-12 text-center">
 						<div class="btn-group">
-							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+							<button type="button" class="btn btn-primary btn-flat" 
+							id="btnYes">Yes</button>
 						</div>
 							&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
-							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+							<button type="button" class="btn btn-default btn-flat" 
+							data-dismiss="modal">No</button>
 						</div>
 					</div>
 				</div>
@@ -159,11 +172,13 @@
 				<div class="row row-dense">
 					<div class="col-md-12 text-center">
 						<div class="btn-group">
-							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+							<button type="button" class="btn btn-primary btn-flat" 
+							id="btnYes">Yes</button>
 						</div>
 							&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
-							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+							<button type="button" class="btn btn-default btn-flat" 
+							data-dismiss="modal">No</button>
 						</div>
 					</div>
 				</div>
@@ -184,7 +199,7 @@
 						<h4 class="modal-title">Import Taxes</h4>
 					</div>
 					<div class="modal-body">
-						<label>Step 1. Download the sample template <a href="<?=BASE_URL?>modules/financials_module/backend/view/pdf/import_payable.csv">here</a></label>
+						<label>Step 1. Download the sample template <a href="<?=BASE_URL?>modules/financials_module/backend/view/pdf/import_receivable.csv">here</a></label>
 						<hr/>
 						<label>Step 2. Fill up the information needed for each columns of the template.</label>
 						<hr/>
@@ -210,14 +225,14 @@
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				Issue Payments
+				Receive Payments
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 			<div class="modal-body">
 				<div class="well well-md">
 					<form class="form-horizontal" id="paymentForm">
 						<div class="row row-dense">
-							<div class = "col-md-6 vendor_div remove-margin">
+							<div class = "col-md-6 customer_div remove-margin">
 								<?php
 									echo $ui->formField('dropdown')
 											->setLabel('Customer:')
@@ -230,23 +245,32 @@
 											->draw($show_input);
 								?>
 								<div class="col-md-4" style = "width: 36%;">&nbsp;</div>
-								<span class="help-block hidden small req-color" id = "vendor_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Please select a vendor.</span> <!-- style = "margin-bottom: 0px" -->
+								<span class="help-block hidden small req-color" 
+								id = "customer_help">
+								<i class="glyphicon glyphicon-exclamation-sign"></i> 
+								Please select a customer.</span> 
 							</div>
 
 							<div class = "col-md-6 remove-margin">
 								<div class="form-group">
-									<label class="control-label col-md-4 force-left" for="daterangefilter">Document Date:</label>
+									<label class="control-label col-md-4 force-left" 
+									for="daterangefilter">Document Date:</label>
 									<div class = "col-md-7 field_col">
 										<div class="input-group date">
 											<div class="input-group-addon">
 												<i class="fa fa-calendar"></i>
 											</div>
-											<input class="form-control pull-right datepicker" value = "" id="document_date" name = "document_date" type="text">
+											<input class="form-control pull-right datepicker" 
+											value = "" id="document_date" name = "document_date" 
+											type="text">
 										</div>
 									</div>
 								</div>
 								<div class="col-md-3" style = "width: 32%;">&nbsp;</div>
-								<span class="help-block hidden small req-color col-md-7" id = "document_date_help" style = "margin-bottom: 0px"><i class="glyphicon glyphicon-exclamation-sign"></i> Please select a document date.</span>
+								<span class="help-block hidden small req-color col-md-7" 
+								id = "document_date_help" style = "margin-bottom: 0px">
+								<i class="glyphicon glyphicon-exclamation-sign">
+								</i> Please select a document date.</span>
 							</div>
 
 
@@ -303,7 +327,9 @@
 											->draw(true);
 								?>
 								<div class="col-md-4" style = "width: 35%;">&nbsp;</div>
-								<span class="help-block hidden small req-color" id = "paymentaccount_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Please select an account.</span>
+								<span class="help-block hidden small req-color" 
+								id = "paymentaccount_help"><i class="glyphicon glyphicon-exclamation-sign"></i> 
+								Please select an account.</span>
 							</div>
 
 							<div class = "col-md-6 remove-margin" id = "check_field">
@@ -320,7 +346,9 @@
 											->draw(true);
 								?>
 								<div class="col-md-4" style = "width: 36%;">&nbsp;</div>
-								<span class="help-block hidden small req-color" id = "paymentreference_help" style = "margin-bottom: 0px"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
+								<span class="help-block hidden small req-color" 
+								id = "paymentreference_help" style = "margin-bottom: 0px">
+								<i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
 							</div>
 
 						</div>
@@ -353,11 +381,14 @@
 							</span>
 							<span id="appAmountError" class="help-block hidden small">
 								<i class="glyphicon glyphicon-exclamation-sign"></i> 
-								Please make sure that the amount paid for the payable(s) below are greater than zero(0).
+								Please make sure that the amount paid for the payable(s) below are 
+								greater than zero(0).
 							</span>
 							<span id="paymentAmountError" class="help-block hidden small">
 								<i class="glyphicon glyphicon-exclamation-sign"></i> 
-								Please make sure that the total payment applied (<strong id="disp_tot_payment">0</strong>) should be equal to (<strong id="disp_tot_cheque">0</strong>).
+								Please make sure that the total payment applied 
+								(<strong id="disp_tot_payment">0</strong>) should be equal to 
+								(<strong id="disp_tot_cheque">0</strong>).
 							</span>
 						</div>
 
@@ -436,7 +467,10 @@
 											</td>
 
 											<td class="text-center">
-												<button type="button" class="btn btn-sm btn-danger btn-flat confirm-delete" name="chk[]" style="outline:none;" onClick="confirmChequeDelete(1);"><span class="glyphicon glyphicon-trash"></span></button>
+												<button type="button" class="btn btn-sm btn-danger btn-flat 
+												confirm-delete" name="chk[]" style="outline:none;" 
+												onClick="confirmChequeDelete(1);">
+												<span class="glyphicon glyphicon-trash"></span></button>
 											</td>
 										</tr>
 									</tbody>
@@ -444,7 +478,9 @@
 									<tfoot>
 										<tr>
 											<td colspan="2">
-												<a type="button" class="btn btn-sm btn-link add-data"  style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Line</a>
+												<a type="button" class="btn btn-sm btn-link add-data"  
+												style="text-decoration:none; outline:none;" 
+												href="javascript:void(0);">Add a New Line</a>
 											</td>
 											<td class="text-right"><label class="control-label">Total</label></td>
 											<td class="text-right">
@@ -484,7 +520,8 @@
 									<table class="table table-condensed table-hover" id="app_payableList">
 										<tbody id="payable_list_container">
 											<tr>
-												<td class="text-center" style="vertical-align:middle;" colspan="7">- No Records Found -</td>
+												<td class="text-center" style="vertical-align:middle;" 
+												colspan="7">- No Records Found -</td>
 											</tr>
 										</tbody>
 									</table>
@@ -504,11 +541,13 @@
 						<div class="row">
 							<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 								<div class="btn-group">
-									<button type = "submit" class = "btn btn-info btn-sm btn-flat" id="btnSave" onClick="applySelected(event);">Save&nbsp;</button>
+									<button type = "submit" class = "btn btn-info btn-sm btn-flat" 
+									id="btnSave" onClick="applySelected(event);">Save&nbsp;</button>
 								</div>
 									&nbsp;&nbsp;&nbsp;
 								<div class="btn-group">
-									<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal" onClick="clearPayment();">Cancel</button>
+									<button type="button" class="btn btn-default btn-sm btn-flat" 
+									data-dismiss="modal" onClick="clearPayment();">Cancel</button>
 								</div>
 							</div>
 						</div>
@@ -534,13 +573,14 @@ tableSort('#tableList', function(value, x)
 	}
 });
 
+//
 function show_error(msg)
 {
 	$(".delete-modal").modal("hide");
 	$(".alert-warning").removeClass("hidden");
 	$("#errmsg").html(msg);
 }
-
+//
 function showList(pg) 
 {
 	ajax.daterangefilter = $("#daterangefilter").val();
@@ -548,13 +588,11 @@ function showList(pg)
 	ajax.addCond 		 = $("#addCond").val();
 
 	$.post('<?=BASE_URL?>financials/receipt_voucher/ajax/load_list', ajax, function(data)
-	{
+	{ //alert(data);
 		$('#list_container').html(data.list);
-		$('#page_links').html(data.pagination);
-		$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 	});
 }
-
+//
 /**FILTER BY TYPE**/
 function filterList(tab)
 {
@@ -575,17 +613,17 @@ $( "#search" ).keyup(function()
 /**JSON : RETRIEVE PAYABLES**/
 function showPayableList() 
 {
-	var vendfilter = $("#paymentForm #customer").val();
+	var custfilter = $("#paymentForm #customer").val();
 
-	var data 	   = "customer=" + vendfilter;
+	var data 	   = "customer=" + custfilter;
 	
-	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/load_payables",data)
+	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/load_receivables",data)
 	.done(function( data ) 
 	{
 		$('#payable_list_container').html(data.table);
 	});
 }
-
+//
 /**VALIDATE FIELD**/
 function validateField(form,id,help_block)
 {
@@ -636,7 +674,7 @@ function validateField(form,id,help_block)
 		return 0;
 	}
 }
-
+//
 function toggleCheckInfo(val)
 {	
 	if(val == 'cheque')
@@ -650,13 +688,13 @@ function toggleCheckInfo(val)
 		$("#paymentForm #check_details").addClass('hidden');
 	}
 }
-
+//
 function SelectAll(id)
 {
 	document.getElementById(id).focus();
 	document.getElementById(id).select();
 }
-
+//
 function addCommas(nStr)
 {
 	nStr += '';
@@ -669,7 +707,7 @@ function addCommas(nStr)
 	}
 	return x1 + x2;
 }
-
+//
 function formatNumber(id)
 {
 	var amount = document.getElementById(id).value;
@@ -677,7 +715,7 @@ function formatNumber(id)
 	var result = amount * 1;
 	document.getElementById(id).value = addCommas(result.toFixed(2));
 }
-
+//
 function addAmounts() 
 {
 	var sum 		= 0;
@@ -710,7 +748,7 @@ function addAmounts()
 	
 	document.getElementById('total').value = addCommas(subtotal.toFixed(2));
 }
-
+//
 function resetIds()
 {
 	var table 	= document.getElementById('chequeTable');
@@ -745,7 +783,7 @@ function resetIds()
 	}
 	
 }
-
+//
 function setZero()
 {
 	resetIds();
@@ -761,12 +799,12 @@ function setZero()
 		document.getElementById('chequeamount['+newid+']').value 	= '0.00';
 	}
 }
-
+//
 function clearInput(id)
 {
 	document.getElementById(id).value = '';
 }
-
+//
 function confirmDelete(row)
 {
 	var table 		= document.getElementById('chequeTable');
@@ -818,7 +856,7 @@ function confirmDelete(row)
 		}
 	}
 }
-
+//
 function validateCheques()
 {
 	var table 	= document.getElementById('chequeTable');
@@ -888,7 +926,7 @@ function validateCheques()
 		return 0;
 	}
 }
-
+//
 /**COMPARE TOTAL CHEQUE AMOUNT WITH PAYMENT**/
 function totalPaymentGreaterThanChequeAmount()
 {
@@ -912,7 +950,7 @@ function totalPaymentGreaterThanChequeAmount()
 		return 1;
 	}
 }
-
+//
 /**VALIDATE AMOUNTS IN SELECTED INVOICES**/
 function validateInvoices()
 {
@@ -998,12 +1036,12 @@ function validateInvoices()
 		return 0;
 	}
 }
-
+//
 function applySelected(e)
 {
 	e.preventDefault();
 	
-	var paymentvendor		= $("#paymentForm #vendor").val();
+	var paymentcustomer		= $("#paymentForm #customer").val();
 	var paymentdate			= document.getElementById('document_date').value;
 	var paymentaccount		= document.getElementById('paymentaccount').value;
 	var paymentmode			= document.getElementById('paymentmode').value;
@@ -1013,7 +1051,7 @@ function applySelected(e)
 
 	// console.log("test: " + paymentnotes);
 	
-	valid	+= validateField('paymentForm','vendor', "vendor_help");
+	valid	+= validateField('paymentForm','customer', "customer_help");
 	valid	+= validateField('paymentForm','document_date', "document_date_help");
 	valid	+= validateField('paymentForm','paymentmode', "paymentmode_help");
 	
@@ -1042,7 +1080,7 @@ function applySelected(e)
 		var selectedmode		= [];
 		var selectedreference	= [];
 		var selectednotes		= [];
-		var selectedvendor		= [];
+		var selectedcustomer	= [];
 		
 		var selectedcheque		= [];
 		var selectedchequenumber= [];
@@ -1102,7 +1140,7 @@ function applySelected(e)
 			"paymentreference[]": selectedreference,
 			"paymentamount[]": selectedamount,
 			"paymentnotes[]": selectednotes,
-			"vendor[]": paymentvendor,
+			"customer[]": paymentcustomer,
 			"chequeaccount[]": selectedcheque,
 			"chequenumber[]": selectedchequenumber,
 			"chequedate[]": selectedchequedate,
@@ -1114,11 +1152,11 @@ function applySelected(e)
 		});
 	}
 }
-
+//
 function clearPayment()
 {
 	var today	= moment().format("MMM D, YYYY");
-	clearInput('vendor');
+	clearInput('customer');
 	showPayableList();
 	clearInput('paymentreference');
 	clearInput('paymentaccount');
@@ -1128,7 +1166,7 @@ function clearPayment()
 	toggleCheckInfo('cash');
 	$("#paymentForm #paymentcheckdate").val('');
 }
-
+//
 /**COMPUTE TOTAL PAYMENTS APPLIED**/
 function addPaymentAmount() 
 {
@@ -1162,7 +1200,7 @@ function addPaymentAmount()
 	
 	document.getElementById('total_payment').value 		= addCommas(subtotal.toFixed(2));	
 }
-
+//
 function selectPayable(id,toggle)
 {
 	var table 		= document.getElementById('app_payableList');
@@ -1210,7 +1248,7 @@ function selectPayable(id,toggle)
 	
 	addPaymentAmount();
 }
-
+//
 /**CHECK BALANCE**/
 function checkBalance(val,id)
 {
@@ -1234,6 +1272,7 @@ function checkBalance(val,id)
 	
 	addPaymentAmount();	
 }
+
 $(document).ready(function() 
 {
 	// Load data
@@ -1249,7 +1288,7 @@ $(document).ready(function()
 		showList();
 	});
 
-	// Deletion of PV
+	// Deletion of RV
 	$('#deleteModal #btnYes').click(function() 
 	{
 		// handle deletion here
@@ -1257,7 +1296,8 @@ $(document).ready(function()
 
 		ajax.voucher 	=	id;
 
-		$.post('<?=BASE_URL?>financials/receipt_voucher/ajax/delete_payments', ajax , function(data) 
+		$.post('<?=BASE_URL?>financials/receipt_voucher/ajax/delete_payments', ajax , 
+		function(data) 
 		{
 			if(data.msg == "success")
 			{
@@ -1271,25 +1311,27 @@ $(document).ready(function()
 		});
 	});
 
-	// Deletion of AP (no payment issued)
-	$('#deleteModalAP #btnYes').click(function() 
+	// Deletion of AR (no payment issued)
+	$('#deleteModalAR #btnYes').click(function() 
 	{
 		// handle deletion here
-		var id 		   = $('#deleteModalAP #recordId').val();
+		var id 		   = $('#deleteModalAR #recordId').val();
 
 		var column	   = {};
 		column['stat'] = 'cancelled';
 
 		// Update Details
-		$.post("<?= BASE_URL ?>financials/accounts_payable/ajax/update",{ table: "ap_details", condition: "voucherno = '"+id+"'", fields : column });
+		$.post("<?= BASE_URL ?>financials/accounts_receivable/ajax/update",{ 
+			table: "ar_details", condition: "voucherno = '"+id+"'", fields : column });
 
 		// Update Header
-		$.post("<?= BASE_URL ?>financials/accounts_payable/ajax/update",{ table: "accountspayable", condition: "voucherno = '"+id+"'", fields : column })
+		$.post("<?= BASE_URL ?>financials/accounts_receivable/ajax/update",{ 
+			table: "accountsreceivable", condition: "voucherno = '"+id+"'", fields : column })
 		.done(function( data ) 
 		{
 			if(data.msg == "success")
 			{
-				$('#deleteModalAP').modal('hide');
+				$('#deleteModalAR').modal('hide');
 				showList();
 			}
 		});
@@ -1299,7 +1341,7 @@ $(document).ready(function()
 	/*
 	* For Payment Form Validations
 	*/
-	$('#paymentForm #vendor').on('change', function(e) 
+	$('#paymentForm #customer').on('change', function(e) 
 	{
 		showPayableList(); 
 		validateField('paymentForm',e.target.id, e.target.id + "_help");
@@ -1387,12 +1429,17 @@ $(document).ready(function()
 		}
 	});
 
-	// For Pagination
-	$('#page_links').on('click', 'a', function(e) 
+
+	/*
+	* For Export
+	*/
+	$("#export").click(function() 
 	{
-		e.preventDefault();
-		ajax.page = $(this).attr('data-page');
-		showList();
+		ajax.daterangefilter = $("#daterangefilter").val();
+		ajax.custfilter      = $("#customer").val();
+		ajax.addCond 		 = $("#addCond").val();
+
+		window.location = '<?=BASE_URL?>financials/receipt_voucher/ajax/export?' + $.param(ajax);
 	});
 
 

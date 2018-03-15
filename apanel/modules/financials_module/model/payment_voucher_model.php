@@ -54,13 +54,13 @@ class payment_voucher_model extends wc_model
 					->setGroupBy($groupby)
 					->setWhere($cond)
 					->runPagination();
-
+		// echo $this->db->getQuery();
 		return $result;
 	}
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype";
+		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -93,6 +93,20 @@ class payment_voucher_model extends wc_model
 
 		$temp["details"] = $retrieveArrayDetail;
 		
+		$setFields = "partnername name, email, tinno, address1, terms";
+		$vendor    = $temp["main"]->vendor;
+		$cond = "partnercode = '$vendor'";
+
+		// Retrieve Header
+		$retrieveArrayVendor =  $this->db->setTable('partners')
+									->setFields($setFields)
+									->setWhere($cond)
+									->setLimit('1')
+									->runSelect()
+									->getRow();
+
+		$temp["vend"] = $retrieveArrayVendor;
+
 		// Retrieve Payments
 		$applicationFields = "app.apvoucherno as vno, app.amount as amt, '0.00' as bal, app.discount as dis";
 		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 ";
@@ -106,34 +120,73 @@ class payment_voucher_model extends wc_model
 		$temp["payments"] = $applicationArray;
 
 		// Received Cheques
-		$sub_select = $this->db->setTable("pv_application AS app")
-							   ->setFields("app.voucherno")
-							   ->setWhere("app.voucherno = '$sid'")
-							   ->buildSelect();
+		// $sub_select = $this->db->setTable("pv_application AS app")
+		// 					   ->setFields("app.voucherno")
+		// 					   ->setWhere("app.voucherno = '$sid'")
+		// 					   ->buildSelect();
 
-		$chequeFields = 'voucherno, chequeaccount, chequenumber, chequedate, chequeamount, chequeconvertedamount';
-		$cheque_cond  = "voucherno IN($sub_select)";
+		// $chequeFields = 'voucherno, chequeaccount, chequenumber, chequedate, chequeamount, chequeconvertedamount';
+		// $cheque_cond  = "voucherno IN($sub_select)";
 
-		$chequeArray  = $this->db->setTable('pv_cheques')
+		// $chequeArray  = $this->db->setTable('pv_cheques')
+		// 							->setFields($chequeFields)
+		// 							->setWhere($cheque_cond)
+		// 							// ->buildSelect();
+		// 							->runSelect()
+		// 							->getResult();
+		
+		// // var_dump($chequeArray);
+
+		// $rollArray	  = array();
+	
+		// if(!empty($chequeArray))
+		// {
+		// 	$checkArray	= array();
+			
+		// 	$chequeListArray	= array();
+
+		// 	for($c = 0; $c < count($chequeArray); $c++)
+		// 	{
+		// 		$pvno					= $chequeArray[$c]->voucherno;
+		// 		$chequeaccount			= $chequeArray[$c]->chequeaccount;
+		// 		$chequenumber			= $chequeArray[$c]->chequenumber; 
+		// 		$chequedate				= $chequeArray[$c]->chequedate; 
+		// 		$chequedate				= $this->date->dateFormat($chequedate);
+		// 		$chequeamount			= $chequeArray[$c]->chequeamount;
+		// 		$chequeconvertedamount	= $chequeArray[$c]->chequeconvertedamount;
+
+		// 		$rollArray1['chequeaccount']		= $chequeaccount;
+		// 		$rollArray1['chequenumber']			= $chequenumber;
+		// 		$rollArray1['chequedate']			= $chequedate;
+		// 		$rollArray1['chequeamount']			= $chequeamount;
+		// 		$rollArray1['chequeconvertedamount'] = $chequeconvertedamount;
+				
+		// 		$rollArray[$pvno][]				= $rollArray1;
+		// 	}
+		// }
+		
+		// $temp["rollArray"] = $rollArray;
+
+		// Received Cheques for View
+		$chequeFields = 'pvc.voucherno, pvc.chequeaccount, chart.accountname, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount';
+		$cheque_cond  = "pvc.voucherno = '$sid'";
+		$cheque_join  = "chartaccount chart ON chart.id = pvc.chequeaccount AND chart.companycode = pvc.companycode";
+		
+		$chequeArray  = $this->db->setTable('pv_cheques AS pvc')
 									->setFields($chequeFields)
+									->leftJoin($cheque_join)
 									->setWhere($cheque_cond)
-									// ->buildSelect();
 									->runSelect()
 									->getResult();
 		
-		// var_dump($chequeArray);
-
 		$rollArray	  = array();
 	
 		if(!empty($chequeArray))
 		{
-			$checkArray	= array();
-			
-			$chequeListArray	= array();
-
 			for($c = 0; $c < count($chequeArray); $c++)
 			{
 				$pvno					= $chequeArray[$c]->voucherno;
+				$accountname			= $chequeArray[$c]->accountname;
 				$chequeaccount			= $chequeArray[$c]->chequeaccount;
 				$chequenumber			= $chequeArray[$c]->chequenumber; 
 				$chequedate				= $chequeArray[$c]->chequedate; 
@@ -141,57 +194,18 @@ class payment_voucher_model extends wc_model
 				$chequeamount			= $chequeArray[$c]->chequeamount;
 				$chequeconvertedamount	= $chequeArray[$c]->chequeconvertedamount;
 
-				$rollArray1['chequeaccount']		= $chequeaccount;
-				$rollArray1['chequenumber']			= $chequenumber;
-				$rollArray1['chequedate']			= $chequedate;
-				$rollArray1['chequeamount']			= $chequeamount;
-				$rollArray1['chequeconvertedamount'] = $chequeconvertedamount;
+				$rollArray['accountname']			= $accountname;
+				$rollArray['chequeaccount']			= $chequeaccount;
+				$rollArray['chequenumber']			= $chequenumber;
+				$rollArray['chequedate']			= $chequedate;
+				$rollArray['chequeamount']			= $chequeamount;
+				$rollArray['chequeconvertedamount'] = $chequeconvertedamount;
 				
-				$rollArray[$pvno][]				= $rollArray1;
+				$rollArray[$pvno][]					= $rollArray;
 			}
 		}
 		
 		$temp["rollArray"] = $rollArray;
-
-		// Received Cheques for View
-		$chequeFieldsv = 'pvc.voucherno, pvc.chequeaccount, chart.accountname, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount';
-		$cheque_condv  = "pvc.voucherno = '$sid'";
-		$cheque_joinv  = "chartaccount chart ON chart.id = pvc.chequeaccount AND chart.companycode = pvc.companycode";
-		
-		$chequeArrayv  = $this->db->setTable('pv_cheques AS pvc')
-									->setFields($chequeFieldsv)
-									->leftJoin($cheque_joinv)
-									->setWhere($cheque_condv)
-									->runSelect()
-									->getResult();
-		
-		$rollArrayv	  = array();
-	
-		if(!empty($chequeArrayv))
-		{
-			for($c = 0; $c < count($chequeArrayv); $c++)
-			{
-				$pvno					= $chequeArrayv[$c]->voucherno;
-				$accountname			= $chequeArrayv[$c]->accountname;
-				$chequeaccount			= $chequeArrayv[$c]->chequeaccount;
-				$chequenumber			= $chequeArrayv[$c]->chequenumber; 
-				$chequedate				= $chequeArrayv[$c]->chequedate; 
-				$chequedate				= $this->date->dateFormat($chequedate);
-				$chequeamount			= $chequeArrayv[$c]->chequeamount;
-				$chequeconvertedamount	= $chequeArrayv[$c]->chequeconvertedamount;
-
-				$rollArray2['accountname']			= $accountname;
-				$rollArray2['chequeaccount']		= $chequeaccount;
-				$rollArray2['chequenumber']			= $chequenumber;
-				$rollArray2['chequedate']			= $chequedate;
-				$rollArray2['chequeamount']			= $chequeamount;
-				$rollArray2['chequeconvertedamount'] = $chequeconvertedamount;
-				
-				$rollArrayv[$pvno][]				= $rollArray2;
-			}
-		}
-		
-		$temp["rollArrayv"] = $rollArrayv;
 
 
 		return $temp;
@@ -291,34 +305,17 @@ class payment_voucher_model extends wc_model
 		$add_query 	= (!empty($searchkey)) ? "AND (main.voucherno LIKE '%$searchkey%' OR main.referenceno LIKE '%$searchkey%' OR p.partnername LIKE '%$searchkey%' OR pv.voucherno LIKE '%$searchkey%' ) " : "";
 		$add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND pv.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 		$add_query .= (!empty($vendfilter) && $vendfilter != '') ? "AND p.partnercode = '$vendfilter' " : "";
+		// $filter   .=(empty($addCond)) ? "main.stat != 'cancelled'" : "";
+		$filter = '';
 
-		/* var_dump of query
+		if ($addCond == 'all'){
+			$filter .= "AND main.stat != 'cancelled'";
+		} else if ($addCond == 'posted'){
+			$filter .= "AND main.stat = 'posted' AND main.stat != 'cancelled'";
+		} else if ($addCond == 'unposted'){
+			$filter .= "AND main.stat = 'unposted' AND main.stat != 'cancelled'";
+		}
 		
-			SELECT main.voucherno as voucherno, main.transactiondate as transactiondate, SUM(main.convertedamount) as amount, SUM(main.balance) as balance, CONCAT( first_name, ' ', last_name ), main.referenceno as referenceno, p.partnername AS partnername, pv.voucherno AS pv_voucherno, pv.transactiondate as pvtransdate 
-			FROM accountspayable as main 
-			LEFT JOIN partners p ON p.partnercode = main.vendor 
-			LEFT JOIN pv_application pv ON main.voucherno = pv.apvoucherno AND pv.stat = 'posted' 
-			WHERE main.stat = 'posted' AND (main.voucherno LIKE '%PV0000000013%' OR main.referenceno LIKE '%PV0000000013%' OR pv.voucherno LIKE '%PV0000000013%' OR p.partnername LIKE '%PV0000000013%' ) AND pv.transactiondate BETWEEN '2017-07-01' AND '2017-07-31' AND main.convertedamount = 
-			(
-				SELECT COALESCE(SUM(pv.convertedamount), 0) + COALESCE(SUM(pv.discount), 0) - COALESCE(SUM(pv.forexamount), 0) 
-				FROM pv_application AS pv 
-				WHERE pv.apvoucherno = main.voucherno and pv.stat = 'posted' AND  pv.companycode = 'CID' 
-			) OR
-			(
-				SELECT COALESCE(SUM(pv.convertedamount), 0) + COALESCE(SUM(pv.discount), 0) - COALESCE(SUM(pv.forexamount), 0) 
-				FROM pv_application AS pv 
-				WHERE pv.apvoucherno = main.voucherno and pv.stat = 'posted' AND  pv.companycode = 'CID'
-			) > 0 AND main.convertedamount >
-			(
-				SELECT COALESCE(SUM(pv.convertedamount), 0) + COALESCE(SUM(pv.discount), 0) - COALESCE(SUM(pv.forexamount), 0) 
-				FROM pv_application AS pv 
-				WHERE pv.apvoucherno = main.voucherno and pv.stat = 'posted' AND  pv.companycode = 'CID' 
-			)
-			AND  main.companycode = 'CID'  
-			GROUP BY pv.voucherno
-			ORDER BY main.transactiondate asc
-		*/
-
 		// Sub Select for Paid
 		$table_pv     = "pv_application AS pv";
 		$pv_fields    = "COALESCE(SUM(pv.convertedamount),0) + COALESCE(SUM(pv.discount),0) - COALESCE(SUM(pv.forexamount),0)";
@@ -339,15 +336,15 @@ class payment_voucher_model extends wc_model
 										->setWhere($pv_cond)
 										->buildSelect();
 
-		$addCondition = "AND main.convertedamount = ($sub_select_paid) OR ($sub_select_partial_bal) > 0 AND main.convertedamount > ($sub_select_partial_mainbal) ";
+		$addCondition = "main.convertedamount = ($sub_select_paid) OR ($sub_select_partial_bal) > 0 AND main.convertedamount > ($sub_select_partial_mainbal) ";
 
 		$add_query .= $addCondition;
 
-		$main_fields = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "SUM(main.convertedamount) as amount","SUM(main.balance) as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS partnername", "pv.voucherno AS pv_voucherno", "pv.transactiondate as pvtransdate");
+		$main_fields = array("main.stat stat,main.voucherno as voucherno", "main.transactiondate as transactiondate", "SUM(main.convertedamount) as amount","SUM(main.balance) as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS partnername", "pv.voucherno AS pv_voucherno", "pv.transactiondate as pvtransdate");
 		$main_join   = "partners p ON p.partnercode = main.vendor";
 		$pv_join 	 = "pv_application pv ON main.voucherno = pv.apvoucherno AND pv.stat = 'posted'";
 		$main_table  = "accountspayable as main";
-		$main_cond   = "main.stat = 'posted' $add_query";
+		$main_cond   =  $add_query . $filter ;
 		$groupby 	 = "pv.voucherno";
 
 		$query 		 = $this->db->setTable($main_table)
@@ -357,12 +354,8 @@ class payment_voucher_model extends wc_model
 								->setWhere($main_cond)
 								->setOrderBy($sort)
 								->setGroupBy($groupby)
-								// ->buildSelect();
 								->runPagination();
 								// echo $this->db->getQuery();
-
-		// var_dump($query);
-
 		return $query;
 
 	}
@@ -385,14 +378,14 @@ class payment_voucher_model extends wc_model
 	
 		// Main Queries
 		$main_table   = "accountspayable as main";
-		$main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "main.balance as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno");
+		$main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "(main.convertedamount - SUM(app.convertedamount)) as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno");
 		$main_join 	  = "partners p ON p.partnercode = main.vendor ";
 		$orderby  	  = "main.transactiondate DESC";
 		
 		$mainTable	= "accountspayable as main";
 		$mainFields	= array(
 							"main.voucherno as voucherno", "main.transactiondate as transactiondate",
-							"main.convertedamount as amount", "main.balance as balance", "main.referenceno as referenceno",
+							"main.convertedamount as amount", "(main.convertedamount - SUM(app.convertedamount)) as balance", "main.referenceno as referenceno",
 							"SUM(app.convertedamount) as payment"
 						);
 		$mainJoin	= "pv_application AS app ON app.apvoucherno = main.voucherno";
@@ -407,7 +400,7 @@ class payment_voucher_model extends wc_model
 			// $addCondition 		= "AND ($sub_select) = 0 OR ($sub_select) > 0 AND main.convertedamount > ($sub_select)";
 			// $main_cond    		= "main.stat = 'posted'  AND main.vendor = '$vendorcode' $search_key $addCondition ";
 			// $query 				= $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
-			$mainCondition   		= "main.stat = 'posted' AND main.vendor = '$vendorcode' AND main.balance > 0 ";
+			$mainCondition   		= "main.stat = 'posted' AND main.vendor = '$vendorcode'";
 			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $orderBy);
 			$tempArr["result"] = $query;
 		}
@@ -421,11 +414,11 @@ class payment_voucher_model extends wc_model
 			// $main_cond    		= "main.stat = 'posted' AND main.vendor = '$vendorcode' $addCondition ";
 			// $query 				= $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
 			//$addCondition		= "AND main.convertedamount = ($sub_select AND pv.voucherno = '$voucherno') OR ($sub_select AND pv.voucherno = '$voucherno') > 0";
-			$mainCondition   		= "main.stat = 'posted' AND main.vendor = '$vendorcode' AND ((main.balance - ($sub_select)) <= main.convertedamount) AND ((main.balance > 0) OR ($sub_select) > 0)";
+			$mainCondition   		= "main.stat = 'posted' AND main.vendor = '$vendorcode' AND ((main.balance - ($sub_select)) <= main.convertedamount) AND ( main.balance > 0 OR ($sub_select) > 0)";
 			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $orderBy);
 			$tempArr["result"] = $query;
 		}
-		
+		// echo $this->db->getQuery();
 		return $query;
 	}
 
@@ -451,7 +444,7 @@ class payment_voucher_model extends wc_model
 		$apd_join 	  = "ap_details AS apd ON main.voucherno = apd.voucherno AND main.companycode = apd.companycode";
 		$chart_join   = "chartaccount AS chart ON apd.accountcode = chart.id AND chart.companycode = apd.companycode";
 		$main_join 	  = "partners p ON p.partnercode = main.vendor";
-		$main_cond 	  = "main.stat = 'posted' AND main.vendor = '$vendorcode' AND chart.accountclasscode = 'ACCPAY' AND apd.voucherno $cond";
+		$main_cond 	  = "main.stat = 'posted' AND main.vendor = '$vendorcode' AND chart.accountclasscode = 'ACCPAY' AND apd.voucherno  IN $cond";
 		$groupby 	  = "apd.accountcode";
 		$orderby  	  = "main.transactiondate DESC";
 
@@ -817,6 +810,9 @@ class payment_voucher_model extends wc_model
 				$amount 	= $pickedValue['amt'];
 				$discount 	= $pickedValue['dis'];
 
+				$amount 	= str_replace(',','',$amount);
+				$discount 	= str_replace(',','',$discount);
+				
 				$totalamount+=$amount;
 
 				$post_application['voucherno']			= $voucherno;

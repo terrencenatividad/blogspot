@@ -65,11 +65,18 @@ class purchase_journal extends wc_model {
 	}
 
 	public function vendorInfo($code){
+		if ($code == ''){
+			$wh = "('')";
+		} else {
+			$wh = "'". implode("','" ,$code)."'";
+			$wh = "($wh)";
+		}
 		$result = $this->db->setTable('partners')
 				->setFields("partnername val")
-				->setWhere("stat = 'active' AND partnertype = 'supplier'")
+				->setWhere("stat = 'active' AND partnertype = 'supplier' AND partnercode IN $wh")
 				->runSelect()
 				->getResult();
+				// echo $this->db->getQuery();
 		return $result;
 
 	}
