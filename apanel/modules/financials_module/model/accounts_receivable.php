@@ -76,7 +76,7 @@ class accounts_receivable extends wc_model
 		$temp["cust"] = $custDetails;
 
 		// Retrieve Details
-		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.debit, main.credit";
+		$detailFields = "main.accountcode, CONCAT(chart.segment5, ' - ', chart.accountname) accountname, main.detailparticulars, main.debit, main.credit";
 		$detail_cond  = "main.voucherno = '$sid'";
 		$orderby 	  = "main.linenum";	
 		$detailJoin   = "chartaccount as chart ON chart.id = main.accountcode AND chart.companycode = main.companycode";
@@ -92,7 +92,7 @@ class accounts_receivable extends wc_model
 		$temp["details"] = $retrieveArrayDetail;
 
 		// Retrieve Payments
-		$applicationFields = "app.voucherno,main.transactiondate,detail.accountcode,chart.accountname,main.wtaxcode,ftax.shortname,main.paymenttype,main.referenceno,app.amount,app.stat,main.checkdate,main.atcCode,main.particulars,detail.checkstat,app.discount,app.exchangerate,app.convertedamount";
+		$applicationFields = "app.voucherno,main.transactiondate,detail.accountcode,CONCAT(chart.segment5, ' - ', chart.accountname) accountname,main.wtaxcode,ftax.shortname,main.paymenttype,main.referenceno,app.amount,app.stat,main.checkdate,main.atcCode,main.particulars,detail.checkstat,app.discount,app.exchangerate,app.convertedamount";
 
 		$appJoin_pv  = "receiptvoucher as main ON main.voucherno = app.voucherno AND main.companycode = app.companycode";
 		$appJoin_pvd = "rv_details as detail ON detail.voucherno = app.voucherno AND detail.companycode = app.companycode";

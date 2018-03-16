@@ -49,7 +49,7 @@ class payment extends wc_model
 	public function retrieveCashAccountList()
 	{
 		$result = $this->db->setTable('chartaccount chart')
-							->setFields("id ind , accountname val")
+							->setFields("id ind , CONCAT(segment5, ' - ', accountname) val")
 							->leftJoin("accountclass as class USING(accountclasscode)")
 							->setWhere("chart.accounttype != 'P'")
 							// ->setWhere("class.accountclasscode = 'CASH' ")
@@ -620,7 +620,7 @@ class payment extends wc_model
 		$retrieved_data['vendor'] =		$this->retrieveVendorDetails($vendor_code);
 
 		// Retrieve Details
-		$detail_fields 		= "pv.costcentercode, pv.accountcode, pv.detailparticulars, pv.debit, pv.credit, chart.accountname";
+		$detail_fields 		= "pv.costcentercode, pv.accountcode, pv.detailparticulars, pv.debit, pv.credit, CONCAT(segment5, ' - ', accountname) accountname";
 		$condition 			= " voucherno = '$voucherno' ";
 		$detailJoin   		= "chartaccount as chart ON chart.id = pv.accountcode AND chart.companycode = pv.companycode";
 		
@@ -632,7 +632,7 @@ class payment extends wc_model
 											->getResult();
 		
 		// Retrieve Payments
-		$applicationFields = "app.voucherno,main.transactiondate,detail.accountcode,chart.accountname,main.wtaxcode,ftax.shortname,main.paymenttype,main.referenceno,app.amount,app.stat,main.checkdate,main.atcCode,main.particulars,detail.checkstat,app.discount,app.exchangerate,app.convertedamount";
+		$applicationFields = "app.voucherno,main.transactiondate,detail.accountcode,CONCAT(segment5, ' - ', accountname) accountname,main.wtaxcode,ftax.shortname,main.paymenttype,main.referenceno,app.amount,app.stat,main.checkdate,main.atcCode,main.particulars,detail.checkstat,app.discount,app.exchangerate,app.convertedamount";
 
 		$appJoin_pv  = "paymentvoucher as main ON main.voucherno = app.voucherno AND main.companycode = app.companycode";
 		$appJoin_pvd = "pv_details as detail ON detail.voucherno = app.voucherno AND detail.companycode = app.companycode";
@@ -698,7 +698,7 @@ class payment extends wc_model
 
 
 		// Received Cheques for View
-		$chequeFieldsv = 'pvc.voucherno, pvc.chequeaccount, chart.accountname, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount';
+		$chequeFieldsv = 'pvc.voucherno, pvc.chequeaccount, CONCAT(segment5, ' - ', accountname) accountname, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount';
 		$cheque_condv  = "pvc.voucherno = '$voucherno'";
 		$cheque_joinv  = "chartaccount chart ON chart.id = pvc.chequeaccount AND chart.companycode = pvc.companycode";
 		

@@ -139,22 +139,6 @@
 			</form>
 		</div>
 	</section>
-	<div class="modal modal-warning" id="sameAccountModal" tabindex="-1" role="dialog">
-		<div class="modal-dialog modal-sm" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title">Warning</h4>
-				</div>
-				<div class="modal-body">
-					<p>Same account is not allowed!</p>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-outline btn-flat" data-dismiss="modal">Close</button>
-				</div>
-			</div>
-		</div>
-	</div>
 	<script>
 		var delete_row		= {};
 		var ajax_call		= '';
@@ -273,9 +257,6 @@
 			var old = parseFloat($(id).html().replace(/\,/g,'') || 0);
 			$(id).html((old + parseFloat(amount.replace(/\,/g,'') || 0)).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
 		}
-		$('#tableList').on('change', '[name="accountcode[]"]', function() {
-			checkAccounts();
-		});
 		var proforma = [];
 		function revertProforma(code) {
 			proformacode = code;
@@ -302,23 +283,6 @@
 				});
 			}
 		});
-		function checkAccounts() {
-			var found_same = false;
-			var accounts = [];
-			$('[name="accountcode[]"]').each(function() {
-				var temp = $(this).val();
-				if (accounts.indexOf(temp) >= 0 && temp != '') {
-					found_same = true;
-				}
-				accounts.push($(this).val());
-			});
-			
-			if (found_same) {
-				$('#sameAccountModal').modal('show');
-			}
-			return found_same;
-		}
-		checkAccounts();
 		<?php if ($show_input): ?>
 		$('body').on('input blur', '[name="debit[]"], [name="credit[]"]', function() {
 			recomputeTotal();
@@ -358,26 +322,23 @@
 			e.preventDefault();
 			var form_element = $(this).closest('form');
 			var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
-			var found_same = checkAccounts();
-			if ( ! found_same) {
-				var total_debit = parseFloat($('#total_debit').html().replace(/\,/g,'') || 0);
-				var total_credit = parseFloat($('#total_credit').html().replace(/\,/g,'') || 0);
-				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
-				if (total_debit == total_credit && (total_debit > 0 || total_credit > 0)) {
-					if (form_element.closest('form').find('.form-group.has-error').length == 0) {
-						$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' + '&finalized=finalized' + submit_data, function(data) {
-							if (data.success) {
-								window.location = data.redirect;
-							}
-						});
-					} else {
-						form_element.closest('form').find('.form-group.has-error').first().find('input, textarea, select').focus();
-					}
-				} else if (total_debit <= 0 || total_credit <= 0) {
-					$('#error_msg').html('Total Debit and Total Credit must have a value');
+			var total_debit = parseFloat($('#total_debit').html().replace(/\,/g,'') || 0);
+			var total_credit = parseFloat($('#total_credit').html().replace(/\,/g,'') || 0);
+			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+			if (total_debit == total_credit && (total_debit > 0 || total_credit > 0)) {
+				if (form_element.closest('form').find('.form-group.has-error').length == 0) {
+					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' + '&finalized=finalized' + submit_data, function(data) {
+						if (data.success) {
+							window.location = data.redirect;
+						}
+					});
 				} else {
-					$('#error_msg').html('Total Debit and Total Credit must match');
+					form_element.closest('form').find('.form-group.has-error').first().find('input, textarea, select').focus();
 				}
+			} else if (total_debit <= 0 || total_credit <= 0) {
+				$('#error_msg').html('Total Debit and Total Credit must have a value');
+			} else {
+				$('#error_msg').html('Total Debit and Total Credit must match');
 			}
 		});
 		<?php else: ?>

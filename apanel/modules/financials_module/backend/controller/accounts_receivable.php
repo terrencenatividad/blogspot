@@ -219,12 +219,12 @@ class controller extends wc_controller
 		$data["business_type_list"]   = $this->accounts_receivable->getValue("wc_option", $bus_type_data, $bus_type_cond, false);
 
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","accountname val");
+		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
 		$acc_entry_cond               = "accounttype != 'P'";
 		$data["account_entry_list"]   = $this->accounts_receivable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// Retrieve Receivable account list
-		$pay_account_data 			  = array("id ind", "accountname val");
+		$pay_account_data 			  = array("id ind", "CONCAT(segment5, ' - ', accountname) val");
 		$pay_account_cond 			  = "accountclasscode = 'ACCREC' AND accounttype != 'P'";
 		$data["receivable_account_list"] = $this->accounts_receivable->getValue("chartaccount", $pay_account_data, $pay_account_cond, "accountname");
 
@@ -385,12 +385,12 @@ class controller extends wc_controller
 		$data["business_type_list"]   = $this->accounts_receivable->getValue("wc_option", $bus_type_data, $bus_type_cond, false);
 
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","accountname val");
+		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
 		$acc_entry_cond               = "accounttype != 'P'";
 		$data["account_entry_list"]   = $this->accounts_receivable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// Retrieve Receivable account list
-		$pay_account_data 			  = array("id ind", "accountname val");
+		$pay_account_data 			  = array("id ind", "CONCAT(segment5, ' - ', accountname) val");
 		$pay_account_cond 			  = "accountclasscode = 'ACCREC' AND accounttype != 'P'";
 		$data["receivable_account_list"] = $this->accounts_receivable->getValue("chartaccount", $pay_account_data, $pay_account_cond, "accountname");
 		

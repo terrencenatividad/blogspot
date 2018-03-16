@@ -190,7 +190,7 @@ class debit_memo_model extends wc_model {
 
 	public function getChartOfAccountList() {
 		$result = $this->db->setTable('chartaccount')
-							->setFields('id ind, accountname val')
+							->setFields("id ind, CONCAT(segment5, ' - ', accountname) val")
 							->runSelect()
 							->getResult();
 		return $result;

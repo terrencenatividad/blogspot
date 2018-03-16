@@ -171,7 +171,7 @@
 								<table class="table table-hover">
 									<thead>
 										<tr class="info">
-											<th class="col-md-3 text-center">Account code</th>
+											<th class="col-md-3 text-center">Account</th>
 											<th class="col-md-4 text-center">Description</th>
 											<th class="col-md-2 text-center">Debit</th>
 											<th class="col-md-2 text-center">Credit</th>

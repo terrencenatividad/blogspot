@@ -364,7 +364,7 @@
 					<table class="table table-hover table-condensed " id="entriesTable">
 						<thead>
 							<tr class="info">
-								<th class="col-md-4">Account code</th>
+								<th class="col-md-4">Account</th>
 								<th class="col-md-3">Description</th>
 								<th class="col-md-2">Debit</th>
 								<th class="col-md-2">Credit</th>

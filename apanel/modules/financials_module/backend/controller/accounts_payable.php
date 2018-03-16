@@ -219,12 +219,12 @@ class controller extends wc_controller
 		$data["business_type_list"]   = $this->accounts_payable->getValue("wc_option", $bus_type_data, $bus_type_cond, false);
 
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","accountname val");
+		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
 		$acc_entry_cond               = "accounttype != 'P'";
 		$data["account_entry_list"]   = $this->accounts_payable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// Retrieve payable account list
-		$pay_account_data 			  = array("id ind", "accountname val");
+		$pay_account_data 			  = array("id ind", "CONCAT(segment5, ' - ', accountname) val");
 		$pay_account_cond 			  = "accountclasscode = 'ACCPAY' AND accounttype != 'P'";
 		$data["payable_account_list"] = $this->accounts_payable->getValue("chartaccount", $pay_account_data, $pay_account_cond, "accountname");
 
@@ -386,12 +386,12 @@ class controller extends wc_controller
 		$data["business_type_list"]   = $this->accounts_payable->getValue("wc_option", $bus_type_data, $bus_type_cond, false);
 
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","accountname val");
+		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
 		$acc_entry_cond               = "accounttype != 'P'";
 		$data["account_entry_list"]   = $this->accounts_payable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// Retrieve payable account list
-		$pay_account_data 			  = array("id ind", "accountname val");
+		$pay_account_data 			  = array("id ind", "CONCAT(segment5, ' - ', accountname) val");
 		$pay_account_cond 			  = "accountclasscode = 'ACCPAY' AND accounttype != 'P'";
 		$data["payable_account_list"] = $this->accounts_payable->getValue("chartaccount", $pay_account_data, $pay_account_cond, "accountname");
 		

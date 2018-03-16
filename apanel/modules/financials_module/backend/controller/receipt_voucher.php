@@ -128,7 +128,7 @@ class controller extends wc_controller
 		$data["customer_list"]          = $this->receipt_voucher->retrieveCustomerList();
 
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","accountname val");
+		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
 		$acc_entry_cond               = "accounttype != 'P'";
 		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
@@ -275,7 +275,7 @@ class controller extends wc_controller
 		$data["customer_list"]          = $this->receipt_voucher->retrieveCustomerList();
 
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","accountname val");
+		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
 		$acc_entry_cond               = "accounttype != 'P'";
 		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
@@ -357,7 +357,7 @@ class controller extends wc_controller
 
 		// Retrieve Document Details
 		$docdet_table   = "rv_details as dtl";
-		$docdet_fields  = array("chart.segment5 as accountcode", "chart.accountname as accountname", "SUM(dtl.debit) as debit","SUM(dtl.credit) as credit");
+		$docdet_fields  = array("chart.segment5 as accountcode", "CONCAT(segment5, ' - ', accountname) as accountname", "SUM(dtl.debit) as debit","SUM(dtl.credit) as credit");
 		$docdet_join    = "chartaccount as chart ON chart.id = dtl.accountcode AND chart.companycode = dtl.companycode ";
 		$docdet_cond    = "dtl.voucherno = '$voucherno'";
 		$docdet_groupby = "dtl.accountcode";
@@ -410,7 +410,7 @@ class controller extends wc_controller
 			$pv_v = rtrim($pv_v, ", ");
 			
 			$cheque_table = "rv_cheques pvc";
-			$cheque_fields = array("pv.referenceno referenceno", "chart.accountname AS accountname", "pvc.chequenumber AS chequenumber", "pvc.chequedate AS chequedate", "pvc.chequeamount AS chequeamount");
+			$cheque_fields = array("pv.referenceno referenceno", "CONCAT(segment5, ' - ', accountname) AS accountname", "pvc.chequenumber AS chequenumber", "pvc.chequedate AS chequedate", "pvc.chequeamount AS chequeamount");
 			$cheque_cond = "pvc.voucherno IN($pv_v) " ;
 			$cheque_join = "chartaccount chart ON pvc.chequeaccount = chart.id LEFT JOIN paymentvoucher pv ON pv.voucherno = pvc.voucherno" ;
 			$cheque_group = "pvc.chequenumber";
