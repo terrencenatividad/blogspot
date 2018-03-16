@@ -2,6 +2,8 @@
 
     class collection_register_model extends wc_model
     {        
+		public $condition 	=	"";
+
         public function retrievePartnerList(){
 			$result = $this->db->setTable('partners')
 						->setFields("partnercode ind, partnername val")
@@ -50,23 +52,37 @@
 
 			$having_cond 	=	"";
 			$group_by 		=	"";
-			if ( $startdate && $enddate && $type != 'pdc' ) {
+
+			$db	= $this->getQueryDetails($search, $startdate, $enddate, $partner, $filter, $bank, $sort, $mode)
+						->setFields($fields);
+
+			// if( $type == 'dated' ){
+			// 	echo $startdate;
+			// 	echo $enddate;
+			// 	echo $type;
+			// }
+
+			if ( (!empty($startdate) && !empty($enddate)) && $type != 'pdc' ) {
 				$having_cond .= " transactiondate >= '$startdate' AND transactiondate <= '$enddate' ";
-			} else if ( $startdate && $enddate && $type == 'dated' ) {
-				$having_cond .= " paymentdate >= '$startdate' AND paymentdate <= '$enddate' ";
-			} else {
-				$having_cond .= " paymentdate > '$enddate' ";
+			} 
+			if ( (!empty($startdate) && !empty($enddate)) && $type == 'dated' ) {
+				// echo "here";
+				$this->condition .= " AND (IFNULL(chq.chequedate, rv.transactiondate) <= rv.transactiondate)";
+			} 
+			if ( (!empty($startdate) && !empty($enddate)) && $type == 'pdc' ) {
+				// $having_cond .= " paymentdate > '$enddate' ";
+				$this->condition .= " AND (IFNULL(chq.chequedate, rv.transactiondate) > rv.transactiondate)";
 			}
-			 
+				
 			if( $type && $type == 'cash' ){
 				$having_cond .=	" AND payment = 'cash' ";
-				$group_by	 .= "rv.voucherno, rv.paymenttype";
-			} else if($type && $type == 'dated'){
-				$having_cond .=	" AND payment != 'cash' ";
 				$group_by	 .= "rv.paymenttype";
+			} else if($type && $type == 'dated'){
+				$this->condition .= " AND rv.paymenttype != 'cash'";
 			} else if($type && $type == 'pdc'){
-				$having_cond .=	" AND payment != 'cash' ";
-				$group_by	 .= "rv.voucherno, rv.paymenttype";
+				// $having_cond .=	" AND payment != 'cash' ";
+				// $group_by	 .= "rv.voucherno, rv.paymenttype";
+				$this->condition .= " AND rv.paymenttype != 'cash'";
 			} else {
 				$group_by 	.=	"";
 			}
@@ -75,21 +91,25 @@
 				$having_cond .= " AND partnername IN ( '$partner_names' ) ";
 			}
 
-			$result	= $this->getQueryDetails($search, $startdate, $enddate, $partner, $filter, $bank, $sort, $mode)
-							->setFields($fields)
-							->setGroupBy($group_by)
-							->setHaving($having_cond)
-							->runSelect()
+			if( $type == 'dated' || $type == 'pdc' ){
+				$db->setWhere($this->condition);
+			} else {
+				$db->setGroupBy($group_by);
+				$db->setHaving($having_cond);
+			}
+
+			$result = $db->runSelect()
 							->getRow();
-			// echo $this->db->getQuery();
-			// echo "\n\n";
+			if( $type == 'dated' ){
+				// echo $this->db->getQuery();
+			}
 			return $result;
 		}
 	
 		public function retrieveChequeList($search, $startdate, $enddate, $partner, $filter, $bank, $sort, $mode) {
 			$result	= $this->getQueryDetails($search, $startdate, $enddate, $partner, $filter, $bank, $sort, $mode)
 							->runPagination();
-	
+			// echo $this->db->getQuery();
 			return $result;
 		}
 
@@ -119,13 +139,15 @@
 			if ( !empty($search) ) {
 				$condition .= " AND (chq.chequenumber LIKE '%$search%' OR ar.invoiceno LIKE '%$search%' OR rv.voucherno LIKE '%$search%' OR coa.accountname LIKE '%$search%' OR pt.partnername LIKE '%$search%') ";
 			}
-			$sort 		=	($sort 	!=	"") 	? 	$sort 	:	"rv.voucherno DESC";
+			$sort 		=	($sort 	!=	"") 	? 	$sort 	:	"rv.transactiondate DESC, rv.voucherno DESC";
+
+			$this->condition 	=	$condition;
 
 			$fields 	= 	array('rv.transactiondate,
 									rv.voucherno,
 									pt.partnername,
 									coa.accountname bank,
-									IF(rv.paymenttype = "cash","CASH",
+									IF(rv.paymenttype = "cash", "CASH",
 									IF(rv.paymenttype = "cheque", CONCAT(coa.accountname," : ",chq.chequenumber),"BANK TRANSFER")) payment,
 									IFNULL(chq.chequedate, rv.transactiondate) paymentdate,
 									rv.amount');
@@ -156,7 +178,7 @@
 			$result	= $this->getQueryDetails($search, $startdate, $enddate, $partner, $filter, $bank, $sort, $mode)
 							->runSelect()
 							->getResult();
-			
+				// echo $this->db->getQuery();
 			return $result;
 		}
 		

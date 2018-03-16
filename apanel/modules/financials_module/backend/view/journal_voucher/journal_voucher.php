@@ -94,7 +94,7 @@
 					<table id="tableList" class="table table-hover table-sidepad">
 						<thead>
 							<tr class="info">
-								<th class="col-xs-3">Account Code</th>
+								<th class="col-xs-3">Account</th>
 								<th>Description</th>
 								<th class="col-xs-2 text-right">Debit</th>
 								<th class="col-xs-2 text-right">Credit</th>

@@ -800,6 +800,9 @@ class receipt_voucher_model extends wc_model
 				$amount 	= $pickedValue['amt'];
 				$discount 	= $pickedValue['dis'];
 
+				$amount 	= str_replace(',','',$amount);
+				$discount 	= str_replace(',','',$discount);
+
 				$totalamount+=$amount;
 
 				$post_application['voucherno']			= $voucherno;

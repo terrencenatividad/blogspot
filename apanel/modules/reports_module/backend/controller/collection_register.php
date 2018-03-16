@@ -105,6 +105,8 @@ class controller extends wc_controller {
 			$grandAmount 		= 0;
 			$subtotal 	 		= 0;
 
+			$prev_date 			= $next_date 	=	"";
+
 			foreach ($pagination->result as $key => $row) {
 				$transactiondate 		=	$row->transactiondate;
 				$receiptno 				= 	$row->voucherno;
@@ -113,19 +115,25 @@ class controller extends wc_controller {
 				$bank					=	$row->bank;
 				$amount 				=	$row->amount;
 				$paymentdate	 		=	$row->paymentdate;
-
 				$subtotal 				+=	$amount;
 				
-				$transactiondate 	=	$this->date->dateFormat($transactiondate);
+				$transactiondate 		=	$this->date->dateFormat($transactiondate);
+				$prev_date 				=	$transactiondate;
 
 				$table .= '<tr>';
-				$table .= '<td>' . $transactiondate	. '</td>';
+				if( $prev_date != $next_date ) {
+					$table .= '<td>' . $transactiondate	. '</td>';
+				} else {
+					$table .= '<td></td>';
+				}
 				$table .= '<td>' . $receiptno 	. '</td>';
 				$table .= '<td>' . $partnername . '</td>';
 				$table .= '<td>' . $paymentdetail 	. '</td>';
 				$table .= '<td>' . $this->date->dateFormat($paymentdate) . '</td>';
 				$table .= '<td class="text-right">' . number_format($amount,2) . '</td>';
 				$table .= '</tr>';
+				
+				$next_date 	=	$prev_date;
 			}
 
 			$footerdtl 			= 	$this->report->getSalesTotal($search, $dates[0], $dates[1], $partner, $filter, $bank, $sort, $mode, "grand");
@@ -136,12 +144,12 @@ class controller extends wc_controller {
 			$totalcashamount 	=	isset($footerdtl->totalamount) 	? 	$footerdtl->totalamount 	: 	0;
 			
 			$footerdtl 			= 	$this->report->getSalesTotal($search, $dates[0], $dates[1], $partner, $filter, $bank, $sort, $mode, "pdc");
-			$totalpdcissued 	=	isset($footerdtl->count) 		?	$footerdtl->count		:	0;
-			$totalpdcamount 	=	isset($footerdtl->totalamount)	?	$footerdtl->totalamount : 	0;
+			$totalpdcissued 	=	isset($footerdtl->count) 		?	$footerdtl->count			:	0;
+			$totalpdcamount 	=	isset($footerdtl->totalamount)	?	$footerdtl->totalamount 	: 	0;
 
 			$footerdtl 			= 	$this->report->getSalesTotal($search, $dates[0], $dates[1], $partner, $filter, $bank, $sort, $mode, "dated");
-			$totaldatedissued 	=	isset($footerdtl->count) 		?	$footerdtl->count 	-	$totalpdcissued				:	0;
-			$totaldatedamount 	=	isset($footerdtl->totalamount)	?	$footerdtl->totalamount 	-	$totalpdcamount	: 	0;
+			$totaldatedissued 	=	isset($footerdtl->count) 		?	$footerdtl->count 			:	0;
+			$totaldatedamount 	=	isset($footerdtl->totalamount)	?	$footerdtl->totalamount 	: 	0;
 
 
 			$totalreceiptissued =	0;
@@ -263,7 +271,7 @@ class controller extends wc_controller {
 			$footerdtl 			= 	$this->report->getSalesTotal($search, $dates[0], $dates[1], $partner, $filter, $bank, $sort, $mode, "dated");
 			$totaldatedissued 	=	isset($footerdtl->count) 		?	$footerdtl->count		:	0;
 			$totaldatedamount 	=	isset($footerdtl->totalamount)	?	$footerdtl->totalamount : 	0;
-
+			// var_dump($footerdtl);
 			$footerdtl 			= 	$this->report->getSalesTotal($search, $dates[0], $dates[1], $partner, $filter, $bank, $sort, $mode, "pdc");
 			$totalpdcissued 	=	isset($footerdtl->count) 		?	$footerdtl->count		:	0;
 			$totalpdcamount 	=	isset($footerdtl->totalamount)	?	$footerdtl->totalamount : 	0;
@@ -288,7 +296,7 @@ class controller extends wc_controller {
 			$csv .= '"Total Provisional Receipt Issued","'.$totalreceiptissued.'","'.number_format($totalreceiptamt,2).'"';
 
 
-			return $csv;
+			// return $csv;
 		}
 
 		return $csv;
