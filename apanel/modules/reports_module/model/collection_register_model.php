@@ -71,7 +71,8 @@
 			} 
 			if ( (!empty($startdate) && !empty($enddate)) && $type == 'pdc' ) {
 				// $having_cond .= " paymentdate > '$enddate' ";
-				$this->condition .= " AND (IFNULL(chq.chequedate, rv.transactiondate) > rv.transactiondate)";
+				// payment > 
+				$this->condition .= " AND (IFNULL(chq.chequedate, rv.transactiondate) > IF(date(rv.entereddate) <  IFNULL(chq.chequedate, rv.transactiondate), date(rv.entereddate), rv.transactiondate) )";
 			}
 				
 			if( $type && $type == 'cash' ){
@@ -143,8 +144,9 @@
 
 			$this->condition 	=	$condition;
 
-			$fields 	= 	array('rv.transactiondate,
+			$fields 	= 	array(' IF((date(rv.entereddate) <  rv.transactiondate), date(rv.entereddate), rv.transactiondate) transactiondate,
 									rv.voucherno,
+									ar.voucherno arv,
 									pt.partnername,
 									coa.accountname bank,
 									IF(rv.paymenttype = "cash", "CASH",
