@@ -87,10 +87,10 @@
 			} else {
 				$group_by 	.=	"";
 			}
-			if( $partner && !in_array('none', $partner) ){
-				$partner_names = implode( "','", $partner );
-				$having_cond .= " AND partnername IN ( '$partner_names' ) ";
-			}
+			// if( $partner && !in_array('none', $partner) ){
+			// 	$partner_names = implode( "','", $partner );
+			// 	$having_cond .= " AND partnername IN ( '$partner_names' ) ";
+			// }
 
 			if( $type == 'dated' || $type == 'pdc' ){
 				$db->setWhere($this->condition);

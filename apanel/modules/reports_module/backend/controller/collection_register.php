@@ -126,7 +126,7 @@ class controller extends wc_controller {
 				} else {
 					$table .= '<td></td>';
 				}
-				$table .= '<td><a href="'.BASE_URL.'financials/receipt_voucher/print_preview/'.$receiptno.'">' . $receiptno 	. '</td>';
+				$table .= '<td><a target="_blank" href="'.BASE_URL.'financials/receipt_voucher/print_preview/'.$receiptno.'">' . $receiptno 	. '</td>';
 				$table .= '<td>' . $partnername . '</td>';
 				$table .= '<td>' . $paymentdetail 	. '</td>';
 				$table .= '<td>' . $this->date->dateFormat($paymentdate) . '</td>';
