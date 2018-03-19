@@ -56,22 +56,13 @@
 			$db	= $this->getQueryDetails($search, $startdate, $enddate, $partner, $filter, $bank, $sort, $mode)
 						->setFields($fields);
 
-			// if( $type == 'dated' ){
-			// 	echo $startdate;
-			// 	echo $enddate;
-			// 	echo $type;
-			// }
-
 			if ( (!empty($startdate) && !empty($enddate)) && $type != 'pdc' ) {
 				$having_cond .= " transactiondate >= '$startdate' AND transactiondate <= '$enddate' ";
 			} 
 			if ( (!empty($startdate) && !empty($enddate)) && $type == 'dated' ) {
-				// echo "here";
 				$this->condition .= " AND (IFNULL(chq.chequedate, rv.transactiondate) <= rv.transactiondate)";
 			} 
 			if ( (!empty($startdate) && !empty($enddate)) && $type == 'pdc' ) {
-				// $having_cond .= " paymentdate > '$enddate' ";
-				// payment > 
 				$this->condition .= " AND (IFNULL(chq.chequedate, rv.transactiondate) > IF(date(rv.entereddate) <  IFNULL(chq.chequedate, rv.transactiondate), date(rv.entereddate), rv.transactiondate) )";
 			}
 				
@@ -81,17 +72,10 @@
 			} else if($type && $type == 'dated'){
 				$this->condition .= " AND rv.paymenttype != 'cash'";
 			} else if($type && $type == 'pdc'){
-				// $having_cond .=	" AND payment != 'cash' ";
-				// $group_by	 .= "rv.voucherno, rv.paymenttype";
 				$this->condition .= " AND rv.paymenttype != 'cash'";
 			} else {
 				$group_by 	.=	"";
 			}
-			// if( $partner && !in_array('none', $partner) ){
-			// 	$partner_names = implode( "','", $partner );
-			// 	$having_cond .= " AND partnername IN ( '$partner_names' ) ";
-			// }
-
 			if( $type == 'dated' || $type == 'pdc' ){
 				$db->setWhere($this->condition);
 			} else {
@@ -101,9 +85,7 @@
 
 			$result = $db->runSelect()
 							->getRow();
-			if( $type == 'dated' ){
-				// echo $this->db->getQuery();
-			}
+
 			return $result;
 		}
 	

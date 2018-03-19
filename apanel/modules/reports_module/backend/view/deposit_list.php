@@ -5,22 +5,14 @@
 				<div class="row">
 					<div class="col-md-12">
 						<div class="row">
-							<div class = "col-md-2 form-group">
-                                <?php
-                                    // echo $ui->setElement("button")
-									// 	->setId("release")
-									// 	->setClass("btn btn-primary ")
-									// 	->setPlaceholder('<i class="glyphicon glyphicon-send"></i>  Release <span></span>')
-									// 	->draw();
-								?>
+							<div class="col-md-11"></div>
+							<div clss="col-md-1">
+								<a href="" id="export_csv" download="Cheque List.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 							</div>
-							<div class = "col-md-9"></div>
-							<div clss = "col-md-1">
-								<a href="" id="export_csv" download="Collection Register.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
-							</div>
+							<div class="col-md-12">&nbsp;</div>
 						</div>
 					</div>
-                    <div class="col-md-12">&nbsp;</div>
+
 					<div class="col-md-3">
 						<?php
 							echo $ui->formField('text')
@@ -50,10 +42,10 @@
 							<div class = "col-md-6">
 								<?php
 									echo $ui->formField('dropdown')
-										->setPlaceholder('Filter Payment Type')
-										->setName('mode')
-										->setId('mode')
-										->setList($payment_list)
+										->setPlaceholder('Filter Bank')
+										->setName('bank')
+										->setId('bank')
+										->setList($bank_list)
 										->setNone('All')
 										->setAttribute(array('multiple'))
 										->draw();
@@ -64,7 +56,7 @@
 					<div class="col-md-3">
 						<div class="form-group">
 							<div class="input-group" >
-								<input name="table_search" id = "search" class="form-control pull-right" placeholder="Search" type="text" style = "height: 34px;">
+								<input name="search" id = "search" class="form-control pull-right" placeholder="Search" type="text" style = "height: 34px;">
 								<div class="input-group-btn" style = "height: 34px;">
 									<button type="submit" class="btn btn-default" id="daterange-btn" style = "height: 34px;"><i class="fa fa-search"></i></button>
 								</div>
@@ -76,27 +68,16 @@
 		</form>
 		
 		<div class="nav-tabs-custom">
-	
-			<!-- <ul class="nav nav-tabs">
-				<li class="active"><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('all');">All</a></li>
-				<li><a href="#" data-toggle="tab" style="outline:none;" 
-						onClick="filterList('released');">Released</a></li>
-				<li><a href="#" data-toggle="tab" style="outline:none;" 
-						onClick="filterList('uncleared');">Unreleased</a></li>
-				<li><a href="#" data-toggle="tab" style="outline:none;" 
-						onClick="filterList('cleared');">Cleared</a></li>
-			</ul> -->
-			
 			<table id="tableList" class="table table-hover">
 				<thead>
 					<?php
 						echo $ui->loadElement('table')
 								->setHeaderClass('info')
-								->addHeader('Date',array('class'=>'col-md-1 center'),'sort','chq.chequedate')
-								->addHeader('Voucher No.', array('class'=>'col-md-1 center'),'sort','chq.chequenumber')
-								->addHeader('Customer',array('class'=>'col-md-1 center'),'sort','inv.invoiceno')
-								->addHeader('Payment Details',array('class'=>'col-md-2 center'),'sort','bnk.bankcode, bnk.longname')
-								->addHeader('Payment Date',array('class'=>'col-md-1 center'),'sort','pt.partnername')
+								->addHeader('Check Date',array('class'=>'col-md-1 center'),'sort','chq.chequedate')
+								->addHeader('Check Number', array('class'=>'col-md-1 center'),'sort','chq.chequenumber')
+								->addHeader('Invoice No.',array('class'=>'col-md-1 center'),'sort','ar.invoiceno')
+								->addHeader('Bank',array('class'=>'col-md-2 center'),'sort','coa.accountname')
+								->addHeader('Partner',array('class'=>'col-md-1 center'),'sort','pt.partnername')
 								->addHeader('Amount',array('class'=>'col-md-1 center'),'sort','chq.chequeamount')
 								->draw();
 					?>
@@ -147,18 +128,18 @@
 						?>
 					</div>
 					<div class="modal-footer">
-							<div class="row row-dense">
-								<div class="col-md-12 col-sm-12 col-xs-12 text-center">
-									<div class="btn-group">
-										<button type="button" class="btn btn-info btn-flat" id="btnSave">Save</button>
-									</div>
-										&nbsp;&nbsp;&nbsp;
-									<div class="btn-group">
-										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
-									</div>
+						<div class="row row-dense">
+							<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+								<div class="btn-group">
+									<button type="button" class="btn btn-info btn-flat" id="btnSave">Save</button>
+								</div>
+									&nbsp;&nbsp;&nbsp;
+								<div class="btn-group">
+									<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
 								</div>
 							</div>
 						</div>
+					</div>
 				</form>
 			</div>
 		</div>
@@ -168,12 +149,9 @@
 <script>
 	var ajax = {}
 	var ajax_call = {};
-	
-	$('#mode').on('change', function() {
-		ajax.mode = $(this).val();
-		if (Array.isArray(ajax.mode) && ajax.mode.indexOf('none') != -1) {
-			$(this).selectpicker('deselectAll');
-		}
+
+	$('#bank').on('change', function() {
+		ajax.bank = $(this).val();
 		ajax_call.abort();
 		getList();
 	});
@@ -197,11 +175,11 @@
 		ajax.page = $(this).attr('data-page');
 		getList();
 	});
-	// function filterList(tab){
-	// 	ajax.filter = tab;
-	// 	ajax_call.abort();
-	// 	getList();
-	// }
+	function filterList(tab){
+		ajax.filter = tab;
+		ajax_call.abort();
+		getList();
+	}
 	function getList() {
 		ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
 			$('#tableList tbody').html(data.table);
@@ -234,23 +212,22 @@
 		});
 		return id;
 	}
-	// $("#release").click(function() 
-	// {
-	// 	$('#release_modal').modal('show');
-	// });
-	// $('#releaseForm #btnSave').on('click',function(){
-	// 	ids 	=	getSelectedIds();
-	// 	$.post('<?//=MODULE_URL?>ajax/update_cheques', $('#releaseForm').serialize()+"&ids="+ids, function(data) {
-	// 		if( data.msg == 'success' )
-	// 		{
-	// 			getList();
-	// 			$('#release_modal').modal('hide');
-	// 		} 
-	// 	});
-	// });
-	// $(function() {
-	// 	linkButtonToTable('#release', '#tableList');
-	// });
+	$("#release").click(function() {
+		$('#release_modal').modal('show');
+	});
+	$('#releaseForm #btnSave').on('click',function(){
+		ids 	=	getSelectedIds();
+		$.post('<?=MODULE_URL?>ajax/update_cheques', $('#releaseForm').serialize()+"&ids="+ids, function(data) {
+			if( data.msg == 'success' )
+			{
+				getList();
+				$('#release_modal').modal('hide');
+			} 
+		});
+	});
+	$(function() {
+		linkButtonToTable('#release', '#tableList');
+	});
 	tableSort('#tableList', function(value) {
 		ajax.sort = value;
 		ajax.page = 1;

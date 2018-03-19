@@ -1,12 +1,11 @@
 <?php
 
-    class cheque_list_model extends wc_model
-    {        
-        public function retrievePartnerList()
-		{
+    class deposit_list_model extends wc_model{     
+
+        public function retrievePartnerList(){
 			$result = $this->db->setTable('partners')
 						->setFields("partnercode ind, partnername val")
-						->setWhere("partnercode != '' AND partnertype = 'supplier' AND stat = 'active'")
+						->setWhere("partnercode != '' AND partnertype = 'customer' AND stat = 'active'")
 						->setOrderBy("val")
 						->runSelect()
 						->getResult();
@@ -14,8 +13,7 @@
 			return $result;
 		}
 
-		public function retrieveBankList()
-		{
+		public function retrieveBankList(){
 			$result = $this->db->setTable('chartaccount as chart')
 						->setFields("chart.id ind, chart.accountname val, class.accountclass")
 						->leftJoin('accountclass as class USING(accountclasscode)')
@@ -42,6 +40,7 @@
 		}
 
 		public function getQueryDetails($search, $startdate, $enddate, $partner, $filter, $bank, $sort) {
+		
 			$condition = "(chq.voucherno != '' )  AND  chq.stat != 'cancelled'  "; 
 			
 			// For Check Date
@@ -71,30 +70,33 @@
 				}
 			}
 			// For Search
-			if ( !empty($search) ) {
+			if ( !empty($search) ) 
+			{
 				$condition .= " AND (chq.chequenumber LIKE '%$search%' OR ar.invoiceno LIKE '%$search%' OR pt.partnername LIKE '%$search%') ";
 			}
 			$sort 		=	($sort 	!=	"") 	? 	$sort 	:	"chq.chequedate ASC";
 
-            $fields     =   array('chq.releasedate, chq.chequenumber, ap.invoiceno, chq.voucherno, chq.chequedate, coa.accountname bank, pt.partnername as partner, chq.chequeamount, chq.stat, chq.cleardate, chq.transtype, chq.companycode');
+			// $this->condition 	=	$condition;
 
-            $query 	= $this->db->setTable("pv_cheques as chq")
-									->leftJoin("pv_application as pva ON pva.voucherno = chq.voucherno AND pva.companycode = chq.companycode")							   
-									->leftJoin("accountspayable as ap ON ap.voucherno = pva.apvoucherno AND ap.companycode = pva.companycode ")
-									->leftJoin("chartaccount as coa ON coa.id = chq.chequeaccount AND coa.companycode = chq.companycode ")
-									->leftJoin("partners as pt ON pt.partnercode = ap.vendor AND pt.partnertype = 'supplier' AND ap.companycode = pt.companycode ")
-									->setFields($fields)
-									->setWhere($condition)
-									->setOrderBy($sort);	
+			$fields     =   array('chq.releasedate, chq.chequenumber, ar.invoiceno, chq.voucherno, chq.chequedate, coa.accountname bank, pt.partnername as partner, chq.chequeamount, chq.stat, chq.cleardate, chq.transtype, chq.companycode');
+
+            $query 		= 	$this->db->setTable("rv_cheques as chq")
+									 ->leftJoin("rv_application as rva ON rva.voucherno = chq.voucherno AND rva.companycode = chq.companycode")							   
+									 ->leftJoin("accountsreceivable as ar ON ar.voucherno = rva.arvoucherno AND ar.companycode = rva.companycode ")
+									 ->leftJoin("chartaccount as coa ON coa.id = chq.chequeaccount AND coa.companycode = chq.companycode ")
+									 ->leftJoin("partners as pt ON pt.partnercode = ar.customer AND pt.partnertype = 'customer' AND ar.companycode = pt.companycode ")
+									 ->setFields($fields)
+									 ->setWhere($condition)
+									 ->setOrderBy($sort);	
 									
             return $query;				
-		}
-		
+        }
+
         public function retrieveChequeList($search, $startdate, $enddate, $partner, $filter, $bank, $sort) {
 			$result	= $this->getQueryDetails($search, $startdate, $enddate, $partner, $filter, $bank, $sort)
 							->runPagination();		
-
-			return $result;			
+			
+            return $result;				
         }
 
         private function generateSearch($search, $array) {
@@ -124,7 +126,7 @@
 			return $result;
 		}
 		
-		public function updateData($data, $table, $cond) {
+		public function updateData($data, $table, $cond){
 			$result = $this->db->setTable($table)
 					->setValues($data)
 					->setWhere($cond)

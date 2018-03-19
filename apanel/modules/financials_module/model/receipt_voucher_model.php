@@ -583,7 +583,7 @@ class receipt_voucher_model extends wc_model
 	
 		$voucherno				= (isset($data['h_voucher_no']) && (!empty($data['h_voucher_no']))) ? htmlentities(addslashes(trim($data['h_voucher_no']))) : "";
 		$customer				= (isset($data['customer']) && (!empty($data['customer']))) ? htmlentities(addslashes(trim($data['customer']))) : "";
-		$referenceno			= (isset($data['paymentreference']) && (!empty($data['paymentreference']))) ? htmlentities(addslashes(trim($data['paymentreference']))) : "";
+		$or_no					= (isset($data['paymentreference']) && (!empty($data['paymentreference']))) ? htmlentities(addslashes(trim($data['paymentreference']))) : "";
 		$transactiondate		= (isset($data['document_date']) && (!empty($data['document_date']))) ? htmlentities(addslashes(trim($data['document_date']))) : "";
 		$remarks				= (isset($data['remarks']) && (!empty($data['remarks']))) ? htmlentities(addslashes(trim($data['remarks']))) : "";
 		$totalamount			= (isset($data['total_debit']) && (!empty($data['total_debit']))) ? htmlentities(addslashes(trim($data['total_debit']))) : "";
@@ -725,7 +725,8 @@ class receipt_voucher_model extends wc_model
 		$post_header['convertedamount']	= $convertedamount;
 		$post_header['source']			= $source;
 		$post_header['paymenttype']		= $paymenttype;	
-		$post_header['referenceno']		= $referenceno;
+		// $post_header['referenceno']		= $referenceno;
+		$post_header['or_no']			= $or_no;
 		$post_header['stat']			= $status;
 		$post_header['postedby']		= USERNAME;
 		$post_header['postingdate']		= $datetime;

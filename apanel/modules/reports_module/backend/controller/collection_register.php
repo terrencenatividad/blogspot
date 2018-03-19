@@ -20,7 +20,10 @@ class controller extends wc_controller {
 
         $data['partner_list'] 		= $this->report->retrievePartnerList();
 		$data['payment_list'] 		= $this->report->retrieveReceiptOptions();
-		$data['datefilter'] 		= $this->date->datefilterMonth();
+		// $data['datefilter'] 		= $this->date->datefilterMonth();
+
+		$current_date 				= date('Y-m-d');
+		$data['datefilter'] 		= $this->date->datefilterToday($current_date);
 		$this->view->load('collection_register', $data);
 	}
 	

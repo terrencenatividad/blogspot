@@ -96,8 +96,8 @@
 										array('class'=>'col-md-1 text-center'))
 								->addHeader('Check Date',array('class'=>'col-md-1 center'),'sort','chq.chequedate')
 								->addHeader('Check Number', array('class'=>'col-md-1 center'),'sort','chq.chequenumber')
-								->addHeader('Invoice No.',array('class'=>'col-md-1 center'),'sort','inv.invoiceno')
-								->addHeader('Bank',array('class'=>'col-md-2 center'),'sort','bnk.bankcode, bnk.longname')
+								->addHeader('Invoice No.',array('class'=>'col-md-1 center'),'sort','ap.invoiceno')
+								->addHeader('Bank',array('class'=>'col-md-2 center'),'sort','coa.accountname')
 								->addHeader('Partner',array('class'=>'col-md-1 center'),'sort','pt.partnername')
 								->addHeader('Amount',array('class'=>'col-md-1 center'),'sort','chq.chequeamount')
 								->addHeader('Release Date',array('class'=>'col-md-1 center'),'sort','chq.releasedate')
@@ -106,9 +106,8 @@
 								->draw();
 					?>
 				</thead>
-				<tbody>
-
-				</tbody>
+				<tbody></tbody>
+				<tfoot></tfoot>
 			</table>
 			<div id="pagination"></div>
 		</div>
@@ -208,6 +207,10 @@
 	function getList() {
 		ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
 			$('#tableList tbody').html(data.table);
+			if (data.result_count == 0) {
+				data.tabledetails = '';
+			}
+			$('#tableList tfoot').html(data.tabledetails);
 			$('#pagination').html(data.pagination);
 			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 		});

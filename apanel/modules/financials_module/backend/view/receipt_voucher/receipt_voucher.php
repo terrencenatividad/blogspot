@@ -1236,7 +1236,7 @@ function addAmountAll(field)
 	var valid  = true;
 	var inData = 0;
 
-	var chk	   = document.getElementsByName('chk[]');
+	var chk	   = $('#ap_items [name="chk[]"]');//document.getElementsByName('chk[]');
 
 	if(field == 'debit')
 	{
@@ -1246,12 +1246,10 @@ function addAmountAll(field)
 	{
 		notfield	= 'debit';
 	}
-
-	for(i = 0; i <= chk.length; i++) 
+	for(i = 1; i <= chk.length; i++) 
 	{  
 		var inputs 		= document.getElementById(field+'['+i+']');
 		var disables 	= document.getElementById(notfield+'['+i+']');
-		
 		if(document.getElementById(notfield+'['+i+']')!=null)
 		{          
 			if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
@@ -1801,7 +1799,10 @@ function getPVDetails()
 				$("#pv_amount").html(total_payment);
 				// display total of debit
 				addAmountAll("credit");
-				
+				$('#credit').trigger("change");
+				// $('#entriesTable .credit').blur();
+				// $('#entriesTable .debit').blur();
+
 				var count_container = Object.keys(container).length;
 				var discount_amount =	0;
 
@@ -3218,5 +3219,12 @@ $('#customer').on('change',function(){
 	if ($('.accountcode').val()	 != '' || $('.chequeaccount').val()	 != '' ) {
 		$('#change_customer_modal').modal('show');
 	} 
-})
+});
+
+$('#entriesTable').on('blur','.credit',function(){
+	addAmountAll("credit");
+});
+				// $('#entriesTable .debit').blur();
+
+
 </script>

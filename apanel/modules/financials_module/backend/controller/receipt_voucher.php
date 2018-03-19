@@ -1121,8 +1121,9 @@ class controller extends wc_controller
 		$customer       	= $this->input->post("customer");
 		$data["customer"] = $customer;
 		$data["cond"]   = $cond;
-
-		$results 		= $this->receipt_voucher->retrievePVDetails($data);
+		$results			= array(array());
+		$result 		= $this->receipt_voucher->retrievePVDetails($data);
+		$results = array_merge($results, $result);
 		$table 			= "";
 		$row 			= 1;
 
@@ -1152,6 +1153,7 @@ class controller extends wc_controller
 				$credit = number_format($credit,2);
 				$totalcredit    	   += $debit;
 
+
 				$table .= '<tr class="clone" valign="middle">';
 				$table .= 	'<td class = "remove-margin">'	
 									.$ui->formField('dropdown')
@@ -1178,7 +1180,7 @@ class controller extends wc_controller
 									->setSplit('', 'col-md-12')
 									->setName('debit['.$row.']')
 									->setId('debit['.$row.']')
-									->setClass('debit account_amount')
+									->setClass('text-right debit account_amount')
 									->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 									->setValue(number_format($debit,2))
 									->draw($show_input).			

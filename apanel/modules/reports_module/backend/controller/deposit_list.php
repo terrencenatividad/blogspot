@@ -5,14 +5,14 @@ class controller extends wc_controller {
 		parent::__construct();
 		$this->ui				= new ui();
 		$this->input			= new input();
-		$this->report   	    = new cheque_list_model();
+		$this->report   	    = new deposit_list_model();
 		$this->session			= new session();
 		$this->data = array();
-		$this->view->header_active = 'cheque_list/';
+		$this->view->header_active = 'deposit_list/';
 	}
 
 	public function view() {
-		$this->view->title = 'Cheque List';
+		$this->view->title = 'Cheque for Deposit List';
 		$data['ui'] = $this->ui;
 		
 		$this->report_model = new report_model;
@@ -21,7 +21,7 @@ class controller extends wc_controller {
         $data['partner_list'] 		= $this->report->retrievePartnerList();
 		$data['bank_list'] 			= $this->report->retrieveBankList();
 		$data['datefilter'] 		= $this->date->datefilterMonth();
-		$this->view->load('cheque_list', $data);
+		$this->view->load('deposit_list', $data);
 	}
 	
 	public function ajax($task) {
@@ -86,23 +86,24 @@ class controller extends wc_controller {
 		$search 	= $data['search'];
 		$sort 		= $data['sort'];
 		$datefilter	= $data['daterangefilter'];	
-
+	
 		$datefilter = explode('-', $datefilter);
 		$dates		= array();
 		foreach ($datefilter as $date) {
 			$dates[] = date('Y-m-d', strtotime($date));
 		}
 		$pagination = $this->report->retrieveChequeList($search, $dates[0], $dates[1], $partner, $filter, $bank, $sort);
-		$table 			= 	'';
-		$tabledetails	=	'';
+		
+		$table = '';
+		$tabledetails = '';
 
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
-		}
-		else
-		{
+		} else {
 			$prevcust 			= '';
 			$nextcust			= '';
+			$prev_date 			= '';
+			$next_date 			= '';
 
 			$grandTotalAmount 	= 0;
 			$grandTaxAmount 	= 0;
@@ -122,7 +123,7 @@ class controller extends wc_controller {
 				$transtype 			= 	$row->transtype;
 
 				$prev_date			=	$chequedate;
-				
+
 				$dropdown = $this->ui->loadElement('check_task')
 									 ->addCheckbox($stat!='released')
 									 ->setValue($transtype."-".$chequenumber)
@@ -141,17 +142,19 @@ class controller extends wc_controller {
 				}
 				
 				$table .= '<tr>';
-				$table .= '<td style="text-align:center;">' . $dropdown 	. '</td>';
-				$table .= '<td>' . $this->date->dateFormat($chequedate) 	. '</td>';
+				if( $prev_date != $next_date ) {
+					$table .= '<td>' . $this->date->dateFormat($chequedate)	. '</td>';
+				} else {
+					$table .= '<td></td>';
+				}
 				$table .= '<td>' . $chequenumber 	. '</td>';
 				$table .= '<td>' . $invoiceno 		. '</td>';
 				$table .= '<td>' . $bankname 		. '</td>';
 				$table .= '<td>' . $partnername 	. '</td>';
 				$table .= '<td class="text-right">' . number_format($chequeamount,2) . '</td>';
-				$table .= '<td>' . $releasedate 	. '</td>';
-				$table .= '<td>' . $cleareddate 	. '</td>';
-				$table .= '<td>' . $status_display 	. '</td>';
 				$table .= '</tr>';
+
+				$next_date 	=	$prev_date;
 			}
 
 			$footerdtl 			= 	$this->report->getSalesTotal($search, $dates[0], $dates[1], $partner, $filter, $bank, $sort);
@@ -159,18 +162,18 @@ class controller extends wc_controller {
 
 			if ($pagination->page_limit > 1) {
 				$tabledetails .= '<tr class="success">
-									<td colspan="10" class="text-center">Page ' . $pagination->page . ' of ' . $pagination->page_limit . '</td>
+									<td colspan="6" class="text-center">Page ' . $pagination->page . ' of ' . $pagination->page_limit . '</td>
 								</tr>';
 			}
 
 			$tabledetails .= '<tr>
-								<th colspan="6">Grand Total: </th>
+								<th colspan="5">Grand Total: </th>
 								<th class="text-right">' . number_format($grandtotal,2) . '</th>
 							</tr>';
 		}
 
 		$pagination->table 			= $table;
-		$pagination->tabledetails 	= $tabledetails;
+		$pagination->tabledetails	= $tabledetails;
 		$pagination->csv 			= $this->export();
 		return $pagination;
 	}
@@ -192,24 +195,22 @@ class controller extends wc_controller {
 		}
 		$retrieved = $this->report->fileExport($search, $dates[0], $dates[1], $partner, $filter, $bank, $sort);
 		
-		$header = array("Check Date","Check Number","Invoice No.","Bank","Partner","Release Date","Cleared Date","Amount","Check Status"); 
+		$header = array("Check Date","Check Number","Invoice No.","Bank","Partner","Amount"); 
 	
 		$csv 	= '';
-		$csv 	.= 'Cheque List';
+		$csv 	.= 'Cheque for Deposit List';
 		$csv 	.= "\n\n";
 		$csv 	.= '"Date:","'.$strdate.'"';
 		$csv 	.= "\n\n";
 		$csv 	.= '"' . implode('","', $header) . '"';
 		$csv 	.= "\n";
-
-		$grandtotal 	=	0;
+		
 		
 		if (!empty($retrieved)){
 			$next_date 	=	$prev_date 	=	"";
 			$total_per_cheque	=	0;
 			$count_per_cheque 	=	0;
 			$total 		=	0;
-
 			foreach ($retrieved as $key => $row){
 				$chequedate 		=	$row->chequedate;
 				$chequenumber 		=	$row->chequenumber;
@@ -225,28 +226,24 @@ class controller extends wc_controller {
 				} 
 					
 				$csv .= ($prev_date!=$next_date) 	? 	'"' . $chequedate . '",' 	:	'"",';
-				$csv .= '"' . $row->chequenumber . '",';
+				$csv .= '"' . $chequenumber . '",';
 				$csv .= '"' . $row->invoiceno . '",';
 				$csv .= '"' . $row->bank . '",';
 				$csv .= '"' . $row->partner . '",';
-				$csv .= '"' . number_format($row->chequeamount,2) . '",';
-				$csv .= '"' . $row->releasedate . '",';
-				$csv .= '"' . $row->cleardate . '",';
-				$csv .= '"' . $row->stat . '"';
+				$csv .= '"' . number_format($row->chequeamount,2) . '"';
 				$csv .= "\n";
-
+				
 
 				$next_date 	=	$prev_date;
 
-				$total_per_cheque 	+=	$row->chequeamount;
-				$grandtotal 		+=	$row->chequeamount;
+				$total 				+=	$row->chequeamount;
+				$total_per_cheque	+=	$row->chequeamount;
 				$count_per_cheque 	+=	1;
 			}
-
 			$csv .= '"","","","Total checks for '.$chequedate.'","'.$count_per_cheque.'","' . number_format($total_per_cheque,2) . '"';
 			$csv .= "\n\n";
 			
-			$csv .= '"","","","","Grand Total","' . number_format($grandtotal,2) . '"';
+			$csv .= '"","","","","Grand Total","' . number_format($total,2) . '"';
 			$csv .= "\n";
 		}
 

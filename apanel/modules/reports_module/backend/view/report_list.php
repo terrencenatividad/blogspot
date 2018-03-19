@@ -3,8 +3,9 @@
 			<div class="col-md-6">
 				<div class="panel panel-primary">
 					<div class="panel-heading">
-						Financial Statement
+						Financial Statements 
 					</div>
+					
 					<div class="panel-body">
 						<div class="list-group">
 							<a href="balance_sheet" class="list-group-item">
@@ -59,6 +60,10 @@
 								<h4 class="list-group-item-heading">Cheque List</h4>
 								<p class="list-group-item-text">List of Issued Cheques in a given period of time.</p>
 							</a>
+							<a href="deposit_list" class="list-group-item">
+								<h4 class="list-group-item-heading">Cheque for Deposit List</h4>
+								<p class="list-group-item-text">List of Issued Cheques in a given period of time.</p>
+							</a>
 							<a href="collection_register" class="list-group-item">
 								<h4 class="list-group-item-heading">Collection Register</h4>
 								<p class="list-group-item-text">List of Issued Payment in a given period of time.</p>
@@ -66,7 +71,6 @@
 						</div>
 					</div>
 				</div>
-
 
 				<div class="panel panel-primary">
 					<div class="panel-heading">
@@ -78,22 +82,26 @@
 								<h4 class="list-group-item-heading">Sales Report</h4>
 								<p class="list-group-item-text">List of sales transactions in a per month and per year basis</p>
 							</a>
-							<!-- <a href="sales_register" class="list-group-item">
+							<a href="sales_register" class="list-group-item">
 								<h4 class="list-group-item-heading">Sales Register</h4>
 								<p class="list-group-item-text">List of sales transactions in a given period</p>
-							</a> -->
+							</a>
 							<a href="sales_customer" class="list-group-item">
 								<h4 class="list-group-item-heading">Sales Report per Customer</h4>
 								<p class="list-group-item-text">List of sales transactions per customer in a given period</p>
+							</a>
+							<a href="sales_person" class="list-group-item">
+								<h4 class="list-group-item-heading">Sales Report per Sales Person</h4>
+								<p class="list-group-item-text">List of sales transactions per sales person in a given period</p>
 							</a>
 							<a href="sales_warehouse" class="list-group-item">
 								<h4 class="list-group-item-heading">Sales Report per Warehouse</h4>
 								<p class="list-group-item-text">List of sales transactions per warehouse in a given period</p>
 							</a>
-							<!-- <a href="sales_stock" class="list-group-item">
+							<a href="sales_stock" class="list-group-item">
 								<h4 class="list-group-item-heading">Sales Report per Stock</h4>
 								<p class="list-group-item-text">List of sales transactions per stock in a given period</p>
-							</a> -->
+							</a>
 							<a href="sales_transfer" class="list-group-item">
 								<h4 class="list-group-item-heading">Stock Transfer Report</h4>
 								<p class="list-group-item-text">List of stock transfer in a given period</p>
@@ -117,6 +125,10 @@
 							<a href="returns_customer" class="list-group-item">
 								<h4 class="list-group-item-heading">Sales Return per Customer</h4>
 								<p class="list-group-item-text">List of returns per customer in a given period</p>
+							</a>
+							<a href="cust_type_sales" class="list-group-item">
+								<h4 class="list-group-item-heading">Sales per Customer Type</h4>
+								<p class="list-group-item-text">List of sales return per customer in a given period</p>
 							</a>
 							<!--<a href="stock_ledger" class="list-group-item">
 								<h4 class="list-group-item-heading">Stock Transaction Ledger Report</h4>
