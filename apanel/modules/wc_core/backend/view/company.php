@@ -23,7 +23,7 @@
 							echo '<button type="button" class="btn btn-default btn-sm " title="Add a system logo" data-toggle="modal" data-target="#uploadModal"><span class="glyphicon glyphicon-picture"></span></button>';
 						}else{
 							echo '<a href="" data-toggle="modal" data-target="#uploadModal" >';
-							echo '<img src="../../../wc_core_components/assets/images/'.$companyimage.'" />';
+							echo '<img src="../../../uploads/company_logo/'.$companyimage.'" />';
 							echo '</a>';
 						}
 					?>

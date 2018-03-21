@@ -1,2 +1,5 @@
 apanel/modules/*.yml
 *_.*
+uploads/*/*
+!uploads/*index.php
+!uploads/*/index.php
