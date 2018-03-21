@@ -27,7 +27,7 @@ class sales_print_model extends fpdf {
 
 	public function header() {
 		$company = $this->db->setTable('company')
-							->setFields('companycode, companyname, address, email, tin, phone, fax,mobile')
+							->setFields('companycode, companyimage, companyname, address, email, tin, phone, fax,mobile')
 							->setWhere("companycode = '" . COMPANYCODE . "'")
 							->setLimit(1)
 							->runSelect()
@@ -51,7 +51,22 @@ class sales_print_model extends fpdf {
 		$contactno	= (isset($this->customer_details->contactno))	? $this->customer_details->contactno	: '';
 		$tinno		= (isset($this->customer_details->tinno))		? $this->customer_details->tinno		: '';
 
-		$this->Rect($this->margin_side, $detail_start, $detail_width, 24);
+		$document_detail_height = 6;
+		$document_detail_offset = 6;
+		$rect_height = 24;
+		$companyimage = str_replace('/apanel', '', BASE_URL) . 'uploads/company_logo/' . $company->companyimage;
+		if (@is_array(getimagesize($companyimage))) {
+			list($image_width, $image_height) = getimagesize($companyimage);
+			$image_ratio = 11 / $image_height;
+			$image_width = $image_width * $image_ratio;
+			$image_height = $image_height * $image_ratio;
+			$this->Image($companyimage, 216 - $image_width - $this->margin_side, $this->margin_top, 0, 11);
+			$document_detail_height = 5;
+			$document_detail_offset = 0;
+			$rect_height = 25;
+		}
+
+		$this->Rect($this->margin_side, $detail_start, $detail_width, $rect_height);
 		$this->SetY($detail_start + 1);
 		$this->SetFont('Arial', 'B', 8);
 		$this->Cell(17, 4, 'SOLD TO', 0, 0, 'L');
@@ -82,42 +97,43 @@ class sales_print_model extends fpdf {
 		$gap			= 2;
 		$this->SetFillColor(230,230,230);
 
-		$this->SetY($detail_start - 12);
+		$this->SetY($detail_start - $document_detail_offset - 6);
 		$this->SetX($this->margin_side + ($detail_width + $gap));
 		$this->SetFont('Arial', 'B', 13);
 		$this->Cell(216 - ($this->margin_side * 2) - ($detail_width + $gap), 6, strtoupper($this->document_type), 0, 0, 'C');
 		$this->Ln();
+
 		$this->SetX($this->margin_side + ($detail_width + $gap));
-		$this->Cell(216 - ($this->margin_side * 2) - ($detail_width + $gap) - $content_width, 6, '', 'TLR', 0, 'L', true);
-		$this->Cell($content_width, 6, '', 'TR', 0, 'L');
+		$this->Cell(216 - ($this->margin_side * 2) - ($detail_width + $gap) - $content_width, $document_detail_height, '', 'TLR', 0, 'L', true);
+		$this->Cell($content_width, $document_detail_height, '', 'TR', 0, 'L');
 		$this->Ln();
 		$this->SetX($this->margin_side + ($detail_width + $gap));
-		$this->Cell(216 - ($this->margin_side * 2) - ($detail_width + $gap) - $content_width, 6, '', 'TLR', 0, 'L', true);
-		$this->Cell($content_width, 6, '', 'TR', 0, 'L');
+		$this->Cell(216 - ($this->margin_side * 2) - ($detail_width + $gap) - $content_width, $document_detail_height, '', 'TLR', 0, 'L', true);
+		$this->Cell($content_width, $document_detail_height, '', 'TR', 0, 'L');
 		$this->Ln();
 		$this->SetX($this->margin_side + ($detail_width + $gap));
-		$this->Cell(216 - ($this->margin_side * 2) - ($detail_width + $gap) - $content_width, 6, '', 'TLR', 0, 'L', true);
-		$this->Cell($content_width, 6, '', 'TR', 0, 'L');
+		$this->Cell(216 - ($this->margin_side * 2) - ($detail_width + $gap) - $content_width, $document_detail_height, '', 'TLR', 0, 'L', true);
+		$this->Cell($content_width, $document_detail_height, '', 'TR', 0, 'L');
 		$this->Ln();
 		$this->SetX($this->margin_side + ($detail_width + $gap));
-		$this->Cell(216 - ($this->margin_side * 2) - ($detail_width + $gap) - $content_width, 6, '', 'TLR', 0, 'L', true);
-		$this->Cell($content_width, 6, '', 'TR', 0, 'L');
+		$this->Cell(216 - ($this->margin_side * 2) - ($detail_width + $gap) - $content_width, $document_detail_height, '', 'TLR', 0, 'L', true);
+		$this->Cell($content_width, $document_detail_height, '', 'TR', 0, 'L');
 		$this->Ln();
 		$this->SetX($this->margin_side + ($detail_width + $gap));
-		$this->Cell(216 - ($this->margin_side * 2) - ($detail_width + $gap) - $content_width, 6, '', 'TLRB', 0, 'L', true);
-		$this->Cell($content_width, 6, '', 'TRB', 0, 'L');
+		$this->Cell(216 - ($this->margin_side * 2) - ($detail_width + $gap) - $content_width, $document_detail_height, '', 'TLRB', 0, 'L', true);
+		$this->Cell($content_width, $document_detail_height, '', 'TRB', 0, 'L');
 		$header_end = $this->GetY();
 
 		if ($this->document_details) {
-			$this->SetY($detail_start - 6);
+			$this->SetY($detail_start - $document_detail_offset);
 			$this->SetX($this->margin_side + ($detail_width + $gap));
 			foreach ($this->document_details as $document_label => $document_details) {
 				$this->SetFont('Arial', 'B', 9);
 				$this->SetX($this->margin_side + ($detail_width + $gap));
-				$this->Cell($content_width, 6, strtoupper($document_label), 0, 0, 'L');
+				$this->Cell($content_width, $document_detail_height, strtoupper($document_label), 0, 0, 'L');
 				$this->SetFont('Arial', '', 9);
 				$this->SetX(216 - $this->margin_side - $content_width);
-				$this->Cell($content_width, 6, strtoupper($document_details), 0, 0, 'L');
+				$this->Cell($content_width, $document_detail_height, strtoupper($document_details), 0, 0, 'L');
 				$this->Ln();
 			}
 		}
