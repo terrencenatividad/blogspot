@@ -2,5 +2,6 @@ apanel/modules/*
 !apanel/modules/home
 !apanel/modules/wc_core
 *_.*
-uploads/
+uploads/*/*
 !uploads/*index.php
+!uploads/*/index.php
