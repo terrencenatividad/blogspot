@@ -62,7 +62,7 @@ class controller extends wc_controller
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->sq->getValue("currency", $curr_type_data,'','currencycode');
 
-		$cc_entry_data          = array("itemcode ind","itemname val");
+		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode, ' - ', itemname) val");
 		$data["itemcodes"] 		= $this->sq->getValue("items", $cc_entry_data,'',"itemcode");
 
 		$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
@@ -168,7 +168,7 @@ class controller extends wc_controller
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->sq->getValue("currency", $curr_type_data,'','currencycode');
 
-		$cc_entry_data          = array("itemcode ind","itemname val");
+		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode, ' - ', itemname) val");
 		$data["itemcodes"] 		= $this->sq->getValue("items", $cc_entry_data,'',"itemcode");
 
 		$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
@@ -237,7 +237,7 @@ class controller extends wc_controller
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->sq->getValue("currency", $curr_type_data,'','currencycode');
 
-		$cc_entry_data          = array("itemcode ind","itemname val");
+		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode, ' - ', itemname) val");
 		$data["itemcodes"] 		= $this->sq->getValue("items", $cc_entry_data,'',"itemcode");
 
 		$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");

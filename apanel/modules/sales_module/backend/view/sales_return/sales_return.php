@@ -104,7 +104,7 @@
 						<?php if ($show_input): ?>
 						<th class="text-center" style="width: 20px"><input type="checkbox" class="checkall"></th>
 						<?php endif ?>
-						<th class="col-xs-2">Item Name</th>
+						<th class="col-xs-2">Item</th>
 						<th class="col-xs-2">Description</th>
 						<th class="col-xs-2">Warehouse</th>
 						<th class="col-xs-<?php echo ($show_input) ? '1' : '2' ?> text-right">Unit Cost</th>

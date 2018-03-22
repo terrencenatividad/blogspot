@@ -116,7 +116,7 @@
 					<table class="table table-hover table-condensed " id="itemsTable">
 						<thead>
 							<tr class="info">
-								<th class="col-md-3 text-center">Item Name</th>
+								<th class="col-md-3 text-center">Item</th>
 								<th class="col-md-4 text-center">Description</th>
 								<th class="col-md-2 text-center">Quantity</th>
 								<th class="col-md-2 text-center">UOM</th>

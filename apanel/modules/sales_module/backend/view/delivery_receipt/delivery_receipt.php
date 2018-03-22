@@ -111,7 +111,7 @@
 					<table id="tableList" class="table table-hover table-sidepad">
 						<thead>
 							<tr class="info">
-								<th class="col-xs-3">Item Name</th>
+								<th class="col-xs-3">Item</th>
 								<th class="col-xs-3">Description</th>
 								<th class="col-xs-3">Warehouse</th>
 								<th class="col-xs-2 text-right">Qty</th>

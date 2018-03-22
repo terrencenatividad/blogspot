@@ -313,7 +313,7 @@ class purchase_receipt_model extends wc_model {
 
 	public function getItemList() {
 		$result = $this->db->setTable('items')
-						->setFields("itemcode ind, itemname val")
+						->setFields("itemcode ind, CONCAT(itemcode, ' - ', itemname) val")
 						->runSelect()
 						->getResult();
 
