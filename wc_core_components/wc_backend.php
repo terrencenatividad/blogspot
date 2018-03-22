@@ -148,6 +148,7 @@ class backend {
 			$paths = $db->setTable(PRE_TABLE . '_modules')
 						->setFields('module_name, module_group, module_link, folder, file, default_function')
 						->setWhere("'" . SUB_FOLDER . "/' LIKE module_link AND active")
+						->setOrderBy('length(module_link) DESC')
 						->runSelect(false)
 						->getRow();
 			
