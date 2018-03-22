@@ -73,12 +73,12 @@
 					<?php
 						echo $ui->loadElement('table')
 								->setHeaderClass('info')
-								->addHeader('Check Date',array('class'=>'col-md-1 center'),'sort','chq.chequedate')
-								->addHeader('Check Number', array('class'=>'col-md-1 center'),'sort','chq.chequenumber')
-								->addHeader('Invoice No.',array('class'=>'col-md-1 center'),'sort','ar.invoiceno')
-								->addHeader('Bank',array('class'=>'col-md-2 center'),'sort','coa.accountname')
-								->addHeader('Partner',array('class'=>'col-md-1 center'),'sort','pt.partnername')
-								->addHeader('Amount',array('class'=>'col-md-1 center'),'sort','chq.chequeamount')
+								->addHeader('Check Date',array('class'=>'col-md-2 center'),'','chq.chequedate')
+								->addHeader('Customer',array('class'=>'col-md-3 center'),'','pt.partnername')
+								->addHeader('Bank',array('class'=>'col-md-2 center'),'','coa.accountname')
+								->addHeader('Check Number', array('class'=>'col-md-3 center'),'','chq.chequenumber')
+								// ->addHeader('Invoice No.',array('class'=>'col-md-1 center'),'','ar.invoiceno')
+								->addHeader('Amount',array('class'=>'col-md-2 center'),'','chq.chequeamount')
 								->draw();
 					?>
 				</thead>

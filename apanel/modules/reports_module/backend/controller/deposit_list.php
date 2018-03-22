@@ -98,7 +98,7 @@ class controller extends wc_controller {
 		$tabledetails = '';
 
 		if (empty($pagination->result)) {
-			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+			$table = '<tr><td colspan="5" class="text-center"><b>No Records Found</b></td></tr>';
 		} else {
 			$prevcust 			= '';
 			$nextcust			= '';
@@ -147,10 +147,10 @@ class controller extends wc_controller {
 				} else {
 					$table .= '<td></td>';
 				}
-				$table .= '<td>' . $chequenumber 	. '</td>';
-				$table .= '<td>' . $invoiceno 		. '</td>';
-				$table .= '<td>' . $bankname 		. '</td>';
 				$table .= '<td>' . $partnername 	. '</td>';
+				$table .= '<td>' . $bankname 		. '</td>';
+				$table .= '<td>' . $chequenumber 	. '</td>';
+				// $table .= '<td>' . $invoiceno 		. '</td>';
 				$table .= '<td class="text-right">' . number_format($chequeamount,2) . '</td>';
 				$table .= '</tr>';
 
@@ -167,7 +167,7 @@ class controller extends wc_controller {
 			}
 
 			$tabledetails .= '<tr>
-								<th colspan="5">Grand Total: </th>
+								<th colspan="4">Grand Total: </th>
 								<th class="text-right">' . number_format($grandtotal,2) . '</th>
 							</tr>';
 		}
@@ -195,7 +195,7 @@ class controller extends wc_controller {
 		}
 		$retrieved = $this->report->fileExport($search, $dates[0], $dates[1], $partner, $filter, $bank, $sort);
 		
-		$header = array("Check Date","Check Number","Invoice No.","Bank","Partner","Amount"); 
+		$header = array("Check Date","Customer","Bank","Check Number","Amount"); 
 	
 		$csv 	= '';
 		$csv 	.= 'Cheque for Deposit List';
@@ -214,22 +214,23 @@ class controller extends wc_controller {
 			foreach ($retrieved as $key => $row){
 				$chequedate 		=	$row->chequedate;
 				$chequenumber 		=	$row->chequenumber;
-				$prev_date			=	$chequedate;
-				
-				if( $prev_date != $next_date ){
+
+				if( $chequedate != $next_date ){
 					if ($next_date != "") {
-						$csv .= '"","","","Total checks for '.$chequedate.'","'.$count_per_cheque.'","' . number_format($total_per_cheque,2) . '"';
+						$csv .= '"","","Total checks for '.$prev_date.'","'.$count_per_cheque.'","' . number_format($total_per_cheque,2) . '"';
 						$csv .= "\n\n";
 						$total_per_cheque	=	0;
 						$count_per_cheque 	=	0;
-					}
+					} 
 				} 
+				
+				$prev_date			=	$chequedate;
 					
 				$csv .= ($prev_date!=$next_date) 	? 	'"' . $chequedate . '",' 	:	'"",';
-				$csv .= '"' . $chequenumber . '",';
-				$csv .= '"' . $row->invoiceno . '",';
-				$csv .= '"' . $row->bank . '",';
 				$csv .= '"' . $row->partner . '",';
+				$csv .= '"' . $row->bank . '",';
+				$csv .= '"' . $chequenumber . '",';
+				// $csv .= '"' . $row->invoiceno . '",';
 				$csv .= '"' . number_format($row->chequeamount,2) . '"';
 				$csv .= "\n";
 				
@@ -240,10 +241,10 @@ class controller extends wc_controller {
 				$total_per_cheque	+=	$row->chequeamount;
 				$count_per_cheque 	+=	1;
 			}
-			$csv .= '"","","","Total checks for '.$chequedate.'","'.$count_per_cheque.'","' . number_format($total_per_cheque,2) . '"';
+			$csv .= '"","","Total checks for '.$chequedate.'","'.$count_per_cheque.'","' . number_format($total_per_cheque,2) . '"';
 			$csv .= "\n\n";
 			
-			$csv .= '"","","","","Grand Total","' . number_format($total,2) . '"';
+			$csv .= '"","","","Grand Total","' . number_format($total,2) . '"';
 			$csv .= "\n";
 		}
 
