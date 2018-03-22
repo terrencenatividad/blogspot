@@ -265,78 +265,68 @@ class controller extends wc_controller {
 	private function ajax_save_import() {
 		$csv_array	= array_map('str_getcsv', file($_FILES['file']['tmp_name']));
 		$result		= false;
-		$duplicate	= array();
-		$exist		= array();
-		$error		= array();
-		$values		= array();
-		$invalid	= array();
-		$validity	= array();
+		$errors		= array();
 		if ($csv_array[0] == $this->csv_header) {
 			unset($csv_array[0]);
 
 			if (empty($csv_array)) {
 				$error = 'No Data Given';
+			} else if (count($csv_array) > 2000) {
+				$error = 'Too Many Data. Please Upload Maximum of 2000 Rows';
 			} else {
 				$check_field = array(
 					'Item Code' => array()
 				);
-				foreach ($csv_array as $row) {
-					$check_field['Item Code'][] = $this->getValueCSV('Item Code', $row);
+				foreach ($csv_array as $key => $row) {
+					$row['row_num'] = $key + 1;
+					$check_field['Item Code'][$row['row_num']] = $this->getValueCSV('Item Code', $row);
 					$values[] = array(
-						'itemcode'				=> $this->getValueCSV('Item Code', $row, 'alphanum', $validity),
-						'itemname'				=> $this->getValueCSV('Item Name', $row, 'required', $validity),
-						'itemdesc'				=> $this->getValueCSV('Item Description', $row, 'required', $validity),
-						'typeid'				=> $this->getValueCSV('Item Type', $row, 'required', $validity, 'getItemTypeList', $invalid),
-						'classid'				=> $this->getValueCSV('Item Class', $row, 'required', $validity, 'getItemClassList', $invalid, 'Item Class Parent'),
-						'weight'				=> $this->getValueCSV('Weight', $row, 'decimal', $validity),
-						'weight_type'			=> $this->getValueCSV('Weight Type', $row, '', $validity, 'getWeightTypeList', $invalid),
-						'uom_base'				=> $this->getValueCSV('Base UOM', $row, 'required', $validity, 'getUOMList', $invalid),
-						'uom_purchasing'		=> $this->getValueCSV('Purchasing UOM', $row, 'required', $validity, 'getUOMList', $invalid),
-						'purchasing_conv'		=> $this->getValueCSV('Converted Purchasing UOM', $row, 'required integer', $validity),
-						'uom_selling'			=> $this->getValueCSV('Selling UOM', $row, 'required', $validity, 'getUOMList', $invalid),
-						'selling_conv'			=> $this->getValueCSV('Converted Selling UOM', $row, 'required integer', $validity),
-						'receivable_account'	=> $this->getValueCSV('Sales Debit Account', $row, '', $validity, 'getReceivableAccountList', $invalid),
-						'revenue_account'		=> $this->getValueCSV('Sales Credit Account', $row, '', $validity, 'getRevenueAccountList', $invalid),
-						'expense_account'		=> $this->getValueCSV('Purchase Debit Account', $row, '', $validity, 'getExpenseAccountList', $invalid),
-						'payable_account'		=> $this->getValueCSV('Purchase Credit Account', $row, '', $validity, 'getPayableAccountList', $invalid),
-						'inventory_account'		=> $this->getValueCSV('Inventory Account', $row, '', $validity, 'getChartAccountList', $invalid),
-						'revenuetype'			=> $this->getValueCSV('Revenue Type', $row, '', $validity, 'getRevenueTypeList', $invalid),
-						'expensetype'			=> $this->getValueCSV('Expense Type', $row, '', $validity, 'getExpenseTypeList', $invalid)
+						'itemcode'				=> $this->getValueCSV('Item Code', $row, 'alphanum', $errors),
+						'itemname'				=> $this->getValueCSV('Item Name', $row, 'required text', $errors),
+						'itemdesc'				=> $this->getValueCSV('Item Description', $row, 'required', $errors),
+						'typeid'				=> $this->getValueCSV('Item Type', $row, 'required', $errors, 'getItemTypeList'),
+						'classid'				=> $this->getValueCSV('Item Class', $row, 'required', $errors, 'getItemClassList', 'Item Class Parent'),
+						'weight'				=> $this->getValueCSV('Weight', $row, 'decimal', $errors),
+						'weight_type'			=> $this->getValueCSV('Weight Type', $row, '', $errors, 'getWeightTypeList'),
+						'uom_base'				=> $this->getValueCSV('Base UOM', $row, 'required', $errors, 'getUOMList'),
+						'uom_purchasing'		=> $this->getValueCSV('Purchasing UOM', $row, 'required', $errors, 'getUOMList'),
+						'purchasing_conv'		=> $this->getValueCSV('Converted Purchasing UOM', $row, 'required integer', $errors),
+						'uom_selling'			=> $this->getValueCSV('Selling UOM', $row, 'required', $errors, 'getUOMList'),
+						'selling_conv'			=> $this->getValueCSV('Converted Selling UOM', $row, 'required integer', $errors),
+						'receivable_account'	=> $this->getValueCSV('Sales Debit Account', $row, '', $errors, 'getReceivableAccountList'),
+						'revenue_account'		=> $this->getValueCSV('Sales Credit Account', $row, '', $errors, 'getRevenueAccountList'),
+						'expense_account'		=> $this->getValueCSV('Purchase Debit Account', $row, '', $errors, 'getExpenseAccountList'),
+						'payable_account'		=> $this->getValueCSV('Purchase Credit Account', $row, '', $errors, 'getPayableAccountList'),
+						'inventory_account'		=> $this->getValueCSV('Inventory Account', $row, '', $errors, 'getChartAccountList'),
+						'revenuetype'			=> $this->getValueCSV('Revenue Type', $row, '', $errors, 'getRevenueTypeList'),
+						'expensetype'			=> $this->getValueCSV('Expense Type', $row, '', $errors, 'getExpenseTypeList')
 					);
 				}
-				foreach ($check_field as $key => $row) {
-					$data_duplicate = $this->check_duplicate($row);
+
+				foreach ($check_field as $key => $check_row) {
+					$data_duplicate = $this->check_duplicate($check_row);
 					if ($data_duplicate) {
-						$duplicate[$key]	= array_values($data_duplicate);
+						$duplicate	= array_values($data_duplicate);
+						foreach ($check_row as $num_row => $value) {
+							if (in_array(strtolower($value), $duplicate)) {
+								$errors[$num_row]['Item Code']['Duplicate Data'] = $value;
+							}
+						}
 					}
 				}
 
 				$exist_check = $this->item_model->checkExistingItem($check_field['Item Code']);
 				if ($exist_check) {
-					foreach ($exist_check as $row) {
-						$exist['Item Code'][] = $row->itemcode;
+					foreach ($exist_check as $exist_row) {
+						foreach ($check_field['Item Code'] as $num_row => $itemcode) {
+							if ($exist_row->itemcode == $itemcode) {
+								$errors[$num_row]['Item Code']['Already Exist'] = $exist_row->itemcode;
+							}
+						}
 					}
 				}
 
-				if ($duplicate) {
-					$error[] = 'Duplicate Entry'; 
-				}
-				
-				if ($exist) {
-					$error[] = 'Entry Already Exist';
-				}
-				
-				if ($invalid) {
-					$error[] = 'Invalid Entry';
-				}
-						
-				if ($validity) {
-					$error[] = 'Invalid Entry';
-				}
-
-				$error = implode('. ', $error);
-
-				if (empty($error)) {
+				if (empty($errors)) {
 					$result = $this->item_model->saveItemCSV($values);
 				}
 			}
@@ -346,41 +336,44 @@ class controller extends wc_controller {
 
 		$json = array(
 			'success'	=> $result,
-			'error'		=> $error,
-			'duplicate'	=> $duplicate,
-			'exist'		=> $exist,
-			'invalid'	=> $invalid,
-			'validity'	=> $validity
+			'errors'	=> $errors,
 		);
 		return $json;
 	}
 
-	private function getValueCSV($field, $array, $checker = '', &$error = array(), $checker_function = '', &$error_function = array(), $add_args = '') {
+	private function getValueCSV($field, $array, $checker = '', &$errors = array(), $checker_function = '', $add_args = '') {
 		$key	= array_search($field, $this->csv_header);
-		$value	= (isset($array[$key])) ? trim($array[$key]) : '';
+		$value	= (isset($array[$key])) ? addslashes(implode('', explode("\\", trim(strip_tags($array[$key]))))) : '';
+		
 		if ($checker != '') {
 			$checker_array = explode(' ', $checker);
 			if (in_array('integer', $checker_array)) {
 				$value = str_replace(',', '', $value);
 				if ( ! preg_match('/^[0-9]*$/', $value)) {
-					$error['Integer'][$field] = 'Integer';
+					$errors[$array['row_num']][$field]['Not Integer'] = $value;
 				}
 			}
 			if (in_array('decimal', $checker_array)) {
 				$value = str_replace(',', '', $value);
 				if ( ! preg_match('/^[0-9.]*$/', $value)) {
-					$error['Decimal'][$field] = 'Decimal';
+					$errors[$array['row_num']][$field]['Not Decimal'] = $value;
 				}
 			}
 			if (in_array('alphanum', $checker_array)) {
 				$value = str_replace(',', '', $value);
 				if ( ! preg_match('/^[a-zA-Z0-9-_]*$/', $value)) {
-					$error['Alpha Numeric'][$field] = 'Alpha Numeric';
+					$errors[$array['row_num']][$field]['Not Alpha Numeric'] = $value;
+				}
+			}
+			if (in_array('text', $checker_array)) {
+				$value = str_replace(',', '', $value);
+				if ( ! preg_match('/^[\\a-zA-Z0-9-_ !@#$%^&*()\/<>?,.{}:;=+\r\n"\']*$/', $value)) {
+					$errors[$array['row_num']][$field]['Unsupported Character'] = $value;
 				}
 			}
 			if (in_array('required', $checker_array)) {
 				if ($value == '') {
-					$error['Required'][$field] = 'Required';
+					$errors[$array['row_num']][$field]['Required'] = $value;
 				}
 			}
 		}
@@ -395,17 +388,16 @@ class controller extends wc_controller {
 			if ($result) {
 				$value = $result[0]->ind;
 			} else {
-				$error_function[$field][] = $value;
-				$value = '';
-				if ($add_args) {
-					$error_function[$add_args][] = $new_arg;
-				}
+				$errors[$array['row_num']][$field]['Invalid Entry'] = $value;
 			}
 		}
 		return $value;
 	}
 
 	private function check_duplicate($array) {
+		foreach ($array as $key => $value) {
+			$array[$key] = strtolower($value);
+		}
 		return array_unique(array_diff_assoc($array, array_unique($array)));
 	}
 

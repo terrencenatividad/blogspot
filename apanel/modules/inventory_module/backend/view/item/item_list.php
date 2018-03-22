@@ -221,7 +221,7 @@
 			if (clean) {
 				$('#warning_modal .modal-body').html(error);
 			} else {
-				$('#warning_modal .modal-body').append(error);
+				$('#warning_modal .modal-body table tbody').append(error);
 			}
 		}
 		$('#importForm').submit(function(e) {
@@ -246,48 +246,44 @@
 							getList();
 							$('#import-modal').modal('hide');
 						} else {
-							addError('<p>' + data.error + '</p>', true);
-							try {
-								data.duplicate['Item Code'].forEach(function(item_code) {
-									addError('<p><b>Duplicate Value</b>: "' + item_code + '"</p>');
-								});
-							} catch(e) {}
-							try {
-								data.exist['Item Code'].forEach(function(item_code) {
-									addError('<p><b>Exist Value</b>: "' + item_code + '"</p>');
-								});
-							} catch(e) {}
-							try {
-								let invalid = data.invalid;
-								for (var key in invalid) {
-									if (invalid.hasOwnProperty(key)) {
-										let invalid2 = invalid[key];
-										for (var key2 in invalid2) {
-											if (invalid2.hasOwnProperty(key2)) {
-												addError('<p><b>Invalid ' + key + '</b>: ' + invalid2[key2] + '</p>');
-											}
-										}
+							addError(`
+								<table class="table">
+									<thead>
+										<tr class="info">
+											<th>Row</th>
+											<th>Column</th>
+											<th>Data</th>
+											<th>Error</th>
+										</tr>
+									</thead>
+									<tbody>
+									
+									</tbody>
+								</table>`, true);
+							for (var row in data.errors) {
+								for (var column in data.errors[row]) {
+									for (var error in data.errors[row][column]) {
+										addError(`
+											<tr>
+												<td>` + row + `</td>
+												<td>` + column + `</td>
+												<td>` + data.errors[row][column][error] + `</td>
+												<td>` + error + `</td>
+											</tr>`);
 									}
 								}
-							} catch(e) {}
-							try {
-								let validity = data.validity;
-								for (var key in validity) {
-									if (validity.hasOwnProperty(key)) {
-										let validity2 = validity[key];
-										for (var key2 in validity2) {
-											if (validity2.hasOwnProperty(key2)) {
-												addError('<p><b>' + key + ' Field</b>: ' + key2 + '</p>');
-											}
-										}
-									}
-								}
-							} catch(e) {}
+							}
+							$('#warning_modal').find('.modal-dialog').removeClass('modal-sm').addClass('modal-lg');
+							$('#warning_modal').find('.modal-body').css('padding', '0');
 							$('#warning_modal').modal('show');
 						}
 					}
 				});
 			}
+		});
+		$('#warning_modal').on('hidden.bs.modal', function() {
+			$(this).find('.modal-body').html('').removeAttr('style');
+			$(this).find('.modal-dialog').addClass('modal-sm').removeClass('modal-lg');
 		});
 		function getList() {
 			filterToURL();
