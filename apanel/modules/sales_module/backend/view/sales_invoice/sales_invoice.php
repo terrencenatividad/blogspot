@@ -247,7 +247,7 @@
 						<table class="table table-hover table-condensed " id="itemsTable">
 							<thead>
 								<tr class="info">
-									<th class="col-md-2 text-left">Item Name</th>
+									<th class="col-md-2 text-left">Item</th>
 									<th class="col-md-3 text-left">Description</th>
 									<th class="col-md-1 text-left">Quantity</th>
 									<th class="col-md-1 text-left">UOM</th>
@@ -712,11 +712,11 @@
 							
 							
 							<div class="btn-group" id="save_group">
-								<button type="button" id="btnSave" class="btn btn-info btn-flat">Save</button>
+								<button type="button" id="btnSave" class="btn btn-primary">Save</button>
 								<?php
 								if($task == 'create'){
 								?>
-								<button type="button" id="btnSave_toggle" class="btn btn-info dropdown-toggle btn-flat" data-toggle="dropdown">
+								<button type="button" id="btnSave_toggle" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
 									<span class="caret"></span>
 								</button>
 								<ul class="dropdown-menu left" role="menu">
@@ -736,7 +736,7 @@
 							</div>
 							&nbsp;&nbsp;&nbsp;
 							<div class="btn-group">
-								<button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel" data-toggle="back_page">Cancel</button>
+								<button type="button" class="btn btn-default" data-id="<?=$generated_id?>" id="btnCancel" data-toggle="back_page">Cancel</button>
 							</div>
 						<? 	
 						}
@@ -746,7 +746,7 @@
 							{
 						?>
 							<div class="btn-group">
-								<a class="btn btn-info btn-flat" role="button" href="<?=BASE_URL?>sales/sales_invoice/edit/<?=$sid?>" style="outline:none;">Edit</a>
+								<a class="btn btn-primary" role="button" href="<?=BASE_URL?>sales/sales_invoice/edit/<?=$sid?>" style="outline:none;">Edit</a>
 							</div>
 							&nbsp;&nbsp;&nbsp;
 
@@ -754,7 +754,7 @@
 							}
 						?>
 							<div class="btn-group">
-								<a class="btn btn-default btn-flat" role="button" href="<?=BASE_URL?>sales/sales_invoice" data-toggle="back_page" style="outline:none;   ">Exit</a>
+								<a class="btn btn-default" role="button" href="<?=BASE_URL?>sales/sales_invoice" data-toggle="back_page" style="outline:none;   ">Exit</a>
 							</div>
 						<?
 						}

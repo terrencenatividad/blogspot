@@ -13,639 +13,642 @@
 
 		<form method = "post" class="form-horizontal" id = "sales_order_form">
 			
-			<div class = "row">
-                <div class = "col-md-12">&nbsp;</div>
-			</div>
-
-			<div class = "row">
-				<div class = "col-md-6">
-					<?php
-						echo $ui->formField('text')
-								->setLabel('SO No:')
-								->setSplit('col-md-3', 'col-md-8')
-								->setName('voucher_no')
-								->setId('voucher_no')
-								->setAttribute(array("disabled" => "disabled"))
-								->setPlaceholder("- auto generate -")
-								->setValue($voucherno)
-								->draw($show_input);
-					?>
-					<input type = "hidden" id = "h_voucher_no" name = "h_voucher_no" value = "<?= $generated_id ?>">
-					<input class = "form_iput" value = "<?=$quotation_no?>" name = "h_quotation_no" id = "h_quotation_no" type="hidden">
-				</div>
-
-				<div class = "col-md-6">
-					<?php
-						echo $ui->formField('text')
-							->setLabel('Transaction Date')
-							->setSplit('col-md-3', 'col-md-8')
-							->setName('transaction_date')
-							->setId('transaction_date')
-							->setClass('datepicker-input')
-							->setAttribute(array('readonly' => ''))
-							->setAddon('calendar')
-							->setValue($transactiondate)
-							->setValidation('required')
-							->draw($show_input);
-					?>
-				</div>
-			</div>
-
-			<div class = "row">
-				<div class = "col-md-6 customer_div">
-					<?php
-						if($show_input){
-							echo $ui->formField('dropdown')
-								->setLabel('Customer')
-								->setPlaceholder('None')
-								->setSplit('col-md-3', 'col-md-8')
-								->setName('customer')
-								->setId('customer')
-								->setList($customer_list)
-								->setValue($customer)
-								->setValidation('required')
-								->setButtonAddon('plus')
-								->draw($show_input);
-						}else{
-							echo $ui->formField('text')
-								->setLabel('Customer')
-								->setSplit('col-md-3', 'col-md-8')
-								->setValue($customer)
-								->draw($show_input);
-
-							echo '<input type="hidden" id="customer" name="customer" value="'.$customer.'">';
-						}
-					?>
-				</div>
-
-				<div class = "col-md-6 hidden">
-					<label class="control-label col-md-3" for="daterangefilter">Due Date:</label>
-					<div class = "col-md-8" style = "padding-left: 8px; padding-right: 3px;">
-						<div class="input-group date">
-							<div class="input-group-addon">
-								<i class="fa fa-calendar"></i>
+			<div class="box-body">
+				<br>
+				<div class="row">
+					<div class="col-md-11">
+						<div class = "row">
+							<div class = "col-md-6">
+								<?php
+									echo $ui->formField('text')
+											->setLabel('SO No:')
+											->setSplit('col-md-4', 'col-md-8')
+											->setName('voucher_no')
+											->setId('voucher_no')
+											->setAttribute(array("disabled" => "disabled"))
+											->setPlaceholder("- auto generate -")
+											->setValue($voucherno)
+											->draw($show_input);
+								?>
+								<input type = "hidden" id = "h_voucher_no" name = "h_voucher_no" value = "<?= $generated_id ?>">
+								<input class = "form_iput" value = "<?=$quotation_no?>" name = "h_quotation_no" id = "h_quotation_no" type="hidden">
 							</div>
-							<input class="form-control pull-right datepicker" id="due_date" name = "due_date" type="text" value="<?=$due_date?>">
-							<span class="help-block hidden small req-color" id = "duedate_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
+
+							<div class = "col-md-6">
+								<?php
+									echo $ui->formField('text')
+										->setLabel('Transaction Date')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('transaction_date')
+										->setId('transaction_date')
+										->setClass('datepicker-input')
+										->setAttribute(array('readonly' => ''))
+										->setAddon('calendar')
+										->setValue($transactiondate)
+										->setValidation('required')
+										->draw($show_input);
+								?>
+							</div>
+						</div>
+
+						<div class = "row">
+							<div class = "col-md-6 customer_div">
+								<?php
+									if($show_input){
+										echo $ui->formField('dropdown')
+											->setLabel('Customer')
+											->setPlaceholder('None')
+											->setSplit('col-md-4', 'col-md-8')
+											->setName('customer')
+											->setId('customer')
+											->setList($customer_list)
+											->setValue($customer)
+											->setValidation('required')
+											->setButtonAddon('plus')
+											->draw($show_input);
+									}else{
+										echo $ui->formField('text')
+											->setLabel('Customer')
+											->setSplit('col-md-4', 'col-md-8')
+											->setValue($customer)
+											->draw($show_input);
+
+										echo '<input type="hidden" id="customer" name="customer" value="'.$customer.'">';
+									}
+								?>
+							</div>
+
+							<div class = "col-md-6 hidden">
+								<label class="control-label col-md-4" for="daterangefilter">Due Date:</label>
+								<div class = "col-md-8" style = "padding-left: 8px; padding-right: 3px;">
+									<div class="input-group date">
+										<div class="input-group-addon">
+											<i class="fa fa-calendar"></i>
+										</div>
+										<input class="form-control pull-right datepicker" id="due_date" name = "due_date" type="text" value="<?=$due_date?>">
+										<span class="help-block hidden small req-color" id = "duedate_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class = 'hidden'>
+							<div class="row">
+								<div class="col-md-6 remove-margin">
+									<?php
+										echo $ui->formField('text')
+												->setLabel('<i>Tin</i>')
+												->setSplit('col-md-4', 'col-md-8')
+												->setName('customer_tin')
+												->setId('customer_tin')
+												->setAttribute(array("maxlength" => "15", "rows" => "1"))
+												->setPlaceholder("000-000-000-000")
+												->setClass("input_label")
+												->setValue($tinno)
+												->draw($show_input);
+									?>
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-md-6 remove-margin">
+									<?php
+										echo $ui->formField('text')
+												->setLabel('<i>Terms</i>')
+												->setSplit('col-md-4', 'col-md-8')
+												->setName('customer_terms')
+												->setId('customer_terms')
+												->setAttribute(array("readonly" => "", "maxlength" => "15"))
+												->setPlaceholder("0")
+												->setClass("input_label")
+												->setValue($terms)
+												->draw($show_input);
+									?>
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-md-6 remove-margin">
+									<?php
+										echo $ui->formField('textarea')
+												->setLabel('<i>Address</i>')
+												->setSplit('col-md-4', 'col-md-8')
+												->setName('customer_address')
+												->setId('customer_address')
+												->setClass("input_label")
+												->setAttribute(array("readonly" => "", "rows" => "1"))
+												->setValue($address1)
+												->draw($show_input);
+									?>
+								</div>
+							</div>
+						</div>
+
+						<div class = "row">
+							<div class = "col-md-12">
+								<?php
+									echo $ui->formField('textarea')
+											->setLabel('Notes:')
+											->setSplit('col-md-2', 'col-md-10')
+											->setName('remarks')
+											->setId('remarks')
+											->setValue($remarks)
+											->draw($show_input);
+								?>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<div class = 'hidden'>
-				<div class="row">
-					<div class="col-md-6 remove-margin">
+			<div class="box-body table-responsive no-padding">
+				<table class="table table-hover table-condensed table-sidepad" id="itemsTable">
+					<thead>
+						<tr class="info">
+							<th class="col-md-2 text-center">Item</th>
+							<th class="col-md-3 text-center">Description</th>
+							<th class="col-md-2 text-center">Warehouse</th>
+							<th class="col-md-1 text-center">Quantity</th>
+							<th class="col-md-1 text-center">UOM</th>
+							<th class="col-md-1 text-center">Price</th>
+							<th class="col-md-2 text-center">Amount</th>
+							<th class="text-center"></th>
+						</tr>
+					</thead>
+					<tbody>
 						<?php
-							echo $ui->formField('text')
-									->setLabel('<i>Tin</i>')
-									->setSplit('col-md-3', 'col-md-8')
-									->setName('customer_tin')
-									->setId('customer_tin')
-									->setAttribute(array("maxlength" => "15", "rows" => "1"))
-									->setPlaceholder("000-000-000-000")
-									->setClass("input_label")
-									->setValue($tinno)
-									->draw($show_input);
+							if($task == 'create' && empty($quotation_no))
+							{
+								$accountcode 	   	= '';
+								$detailparticulars 	= '';
+								$warehouse 			= '';
+								$price	   			= '0.00';
+								$rowamount 			= '0.00';
+
+								$quantity 		 	= 0;
+								$uom 				= '';
+								$row 			   	= 1;
+								$total_debit 	   	= 0;
+								$total_credit 	   	= 0;
+								$vatable_sales 	   	= 0;
+								$vat_exempt_sales 	= 0;
+								$t_subtotal 		= 0;
+								$t_discount  		= 0;
+								$t_total 			= 0;
+								$t_vat 				= 0;
+								$t_vatsales 		= 0;
+								$t_vatexempt 		= 0;
+								$discount_check_amt = 0;
+								$discount_check_perc = 0;
+
+								$startnumber 	   	= ($row_ctr == 0) ? 1: $row_ctr;
+
 						?>
-					</div>
-				</div>
-
-				<div class="row">
-					<div class="col-md-6 remove-margin">
-						<?php
-							echo $ui->formField('text')
-									->setLabel('<i>Terms</i>')
-									->setSplit('col-md-3', 'col-md-8')
-									->setName('customer_terms')
-									->setId('customer_terms')
-									->setAttribute(array("readonly" => "", "maxlength" => "15"))
-									->setPlaceholder("0")
-									->setClass("input_label")
-									->setValue($terms)
-									->draw($show_input);
-						?>
-					</div>
-				</div>
-
-				<div class="row">
-					<div class="col-md-6 remove-margin">
-						<?php
-							echo $ui->formField('textarea')
-									->setLabel('<i>Address</i>')
-									->setSplit('col-md-3', 'col-md-8')
-									->setName('customer_address')
-									->setId('customer_address')
-									->setClass("input_label")
-									->setAttribute(array("readonly" => "", "rows" => "1"))
-									->setValue($address1)
-									->draw($show_input);
-						?>
-					</div>
-				</div>
-			</div>
-
-			<div class = "row">
-				<div class = "col-md-6">
-					<?php
-						echo $ui->formField('textarea')
-								->setLabel('Notes:')
-								->setSplit('col-md-3', 'col-md-8')
-								->setName('remarks')
-								->setId('remarks')
-								->setValue($remarks)
-								->draw($show_input);
-					?>
-				</div>
-			</div>
-
-			<div class="panel panel-default">
-				<div class="table-responsive">
-					<table class="table table-hover table-condensed " id="itemsTable">
-						<thead>
-							<tr class="info">
-								<th class="col-md-2 text-center">Item Name</th>
-								<th class="col-md-3 text-center">Description</th>
-								<th class="col-md-1 text-center">Warehouse</th>
-								<th class="col-md-1 text-center">Quantity</th>
-								<th class="col-md-1 text-center">UOM</th>
-								<th class="col-md-1 text-center">Price</th>
-								<th class="col-md-1 text-center">Amount</th>
-								<th class="col-md-1 taxt-center"></th>
-							</tr>
-						</thead>
-						<tbody>
-							<?php
-								if($task == 'create' && empty($quotation_no))
-								{
-									$accountcode 	   	= '';
-									$detailparticulars 	= '';
-									$warehouse 			= '';
-									$price	   			= '0.00';
-									$rowamount 			= '0.00';
-
-									$quantity 		 	= 0;
-									$uom 				= '';
-									$row 			   	= 1;
-									$total_debit 	   	= 0;
-									$total_credit 	   	= 0;
-									$vatable_sales 	   	= 0;
-									$vat_exempt_sales 	= 0;
-									$t_subtotal 		= 0;
-									$t_discount  		= 0;
-									$t_total 			= 0;
-									$t_vat 				= 0;
-									$t_vatsales 		= 0;
-									$t_vatexempt 		= 0;
-									$discount_check_amt = 0;
-									$discount_check_perc = 0;
-
-									$startnumber 	   	= ($row_ctr == 0) ? 1: $row_ctr;
-
-							?>
-									<tr class="clone" valign="middle">
-										<td class = "remove-margin">
-											<?php
-												echo $ui->formField('dropdown')
-													->setPlaceholder('Select One')
-													->setSplit('	', 'col-md-12')
-													->setName("itemcode[".$row."]")
-													->setId("itemcode[".$row."]")
-													->setClass('itemcode')
-													->setList($itemcodes)
-													->setValidation('required')
-													->setValue("")
-													->draw($show_input);
-											?>
-										</td>
-										<td class = "remove-margin">
-											<?php
-												echo $ui->formField('text')
-														->setSplit('', 'col-md-12')
-														->setName('detailparticulars['.$row.']')
-														->setId('detailparticulars['.$row.']')
-														->setAttribute(array("maxlength" => "100"))
-														->setValue("")
-														->draw($show_input);
-											?>
-										</td>
-										<td class = "remove-margin">
-											<?php
-												echo $ui->formField('dropdown')
-													->setPlaceholder('Select One')
-													->setSplit('	', 'col-md-12')
-													->setName("warehouse[".$row."]")
-													->setId("warehouse[".$row."]")
-													->setClass('warehouse')
-													->setList($warehouses)
-													->setValidation('required')
-													->setValue("")
-													->draw($show_input);
-											?>
-										</td>
-										<td class = "remove-margin">
-											<?php
-												echo $ui->formField('text')
-														->setSplit('', 'col-md-12')
-														->setName('quantity['.$row.']')
-														->setId('quantity['.$row.']')
-														->setClass('quantity text-right')
-														->setAttribute(array("maxlength" => "20"))
-														->setValidation('integer')
-														->setValue($quantity)
-														->draw($show_input);
-											?>
-										</td>
-										<td class = "remove-margin">
-											<?php
-												echo $ui->formField('text')
-														->setSplit('', 'col-md-12')
-														->setName('uom['.$row.']')
-														->setId('uom['.$row.']')
-														->setClass("text-right")
-														->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
-														->setValue($uom)
-														->draw($show_input);
-											?>
-										</td>
-										<td class = "remove-margin">
-											<?php
-												echo $ui->formField('text')
-														->setSplit('', 'col-md-12')
-														->setName('itemprice['.$row.']')
-														->setId('itemprice['.$row.']')
-														->setClass("text-right price")
-														->setAttribute(array("maxlength" => "20"))
-														->setValue($price)
-														->setValidation('decimal')
-														//->addHidden(true)
-														->draw($show_input);
-											?>
-										</td>
-										<!--<td class = "remove-margin">-->
-											<?php
-												// echo $ui->formField('dropdown')
-												// 		->setSplit('', 'col-md-12')
-												// 		->setName('taxcode['.$row.']')
-												// 		->setId('taxcode['.$row.']')
-												// 		->setClass("taxcode")
-												// 		->setAttribute(
-												// 			array(
-												// 				"maxlength" => "20"
-												// 			)
-												// 		)
-												// 		->setList($tax_codes)
-												// 		->draw($show_input);
-											?>
-											<!--<input id = '<?php //echo 'taxrate['.$row.']'; ?>' name = '<?php //echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value='0.00' >
-											<input id = '<?php //echo 'taxamount['.$row.']'; ?>' name = '<?php //echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value='0.00'>-->
-										<!--</td>-->
-										<td class = "remove-margin">
-											<?php
-												echo $ui->formField('text')
-														->setSplit('', 'col-md-12')
-														->setName('amount['.$row.']')
-														->setId('amount['.$row.']')
-														->setClass("text-right")
-														->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
-														->setValidation('decimal')
-														->setValue($rowamount)
-														->draw($show_input);
-											?>
-
-											<input id = '<?php echo 'h_amount['.$row.']'; ?>' name = '<?php echo 'h_amount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' >
-										</td>
-										<td class="text-center">
-											<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
-										</td>			
-									</tr>
-							<?
-								}
-								else if( (!empty($sid) && $task!='create') || ( $task == 'create' && !empty($quotation_no) ) )
-								{
-									$row 			= 1;
-									$disable_debit	= '';
-									$disable_credit	= '';
-									for($i = 0; $i < count($details); $i++)
-									{
-										$itemcode 	 		= $details[$i]->itemcode;
-										$detailparticular	= $details[$i]->detailparticular;
-										$quantity 			= isset($details[$i]->issueqty) ?	number_format($details[$i]->issueqty,0) 	: 	"1";
-										$itemprice 			= $details[$i]->unitprice;
-										$uom 				= $details[$i]->issueuom;
-										// $taxcode 			= $details[$i]->taxcode;
-										// $taxrate 			= $details[$i]->taxrate;
-										$amount  			= $details[$i]->amount;
-										// $uom  				= (empty($quotation_no)) ? $details[$i]->issueuom 	: 	$details[$i]->issueuom;
-										$warehouse_code		= (empty($quotation_no)) ? $details[$i]->warehouse 	: 	'';
-										$warehouse_name		= (empty($quotation_no)) ? $details[$i]->description: 	'';
-										
-										//itemcode, detailparticular, unitprice, issueqty, taxcode, taxrate, amount
-
-								?>	
-										<tr class="clone" valign="middle">
-											<td class = "remove-margin">
-											<?php
-												echo $ui->formField('dropdown')
-													->setPlaceholder('Select One')
-													->setSplit('	', 'col-md-12')
-													->setName("itemcode[".$row."]")
-													->setId("itemcode[".$row."]")
-													->setList($itemcodes)
-													->setClass('itemcode')
-													->setValue($itemcode)
-													->setValidation('required')
-													->draw($show_input);
-											?>
-										</td>
-										<td class = "remove-margin">
-											<?php
-												echo $ui->formField('text')
-														->setSplit('', 'col-md-12')
-														->setName('detailparticulars['.$row.']')
-														->setId('detailparticulars['.$row.']')
-														->setAttribute(array("maxlength" => "100"))
-														->setValue($detailparticular)
-														->draw($show_input);
-											?>
-										</td>
-										<td class = "remove-margin">
-											<?php
-												$value 	=	( $task == 'view' ) 	? 	$warehouse_name 	: 	$warehouse_code;
-
-												echo $ui->formField('dropdown')
-													->setPlaceholder('Select One')
-													->setSplit('	', 'col-md-12')
-													->setName("warehouse[".$row."]")
-													->setId("warehouse[".$row."]")
-													->setClass('warehouse')
-													->setList($warehouses)
-													->setValidation('required')
-													->setValue($value)
-													->draw($show_input);
-											?>
-										</td>
-										<td class = "remove-margin text-right">
-											<?php
-												echo $ui->formField('text')
-														->setSplit('', 'col-md-12')
-														->setName('quantity['.$row.']')
-														->setId('quantity['.$row.']')
-														->setClass('quantity text-right')
-														->setAttribute(array("maxlength" => "20"))
-														->setValidation('integer')
-														->setValue($quantity)
-														->draw($show_input);
-											?>
-										</td>
-										<td class = "remove-margin">	
-											<?php
-												echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
-												->setName('uom['.$row.']')
-												->setId('uom['.$row.']')
-												->setClass("text-right")
-												->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
-												->setValue($uom)
+								<tr class="clone" valign="middle">
+									<td class = "remove-margin">
+										<?php
+											echo $ui->formField('dropdown')
+												->setPlaceholder('Select One')
+												->setSplit('	', 'col-md-12')
+												->setName("itemcode[".$row."]")
+												->setId("itemcode[".$row."]")
+												->setClass('itemcode')
+												->setList($itemcodes)
+												->setValidation('required')
+												->setValue("")
 												->draw($show_input);
-											?>
-										</td>
-										<td class = "remove-margin text-right">
-											<?php
-												echo $ui->formField('text')
-														->setSplit('', 'col-md-12')
-														->setName('itemprice['.$row.']')
-														->setId('itemprice['.$row.']')
-														->setClass("price text-right")
-														->setAttribute(array("maxlength" => "20"))
-														->setValidation('decimal')
-														->setValue($itemprice)
-														->draw($show_input);
-											?>
-										</td>
-										<!--<td class = "remove-margin">-->
-											<?php
-
-												// echo $ui->formField('dropdown')
-												// 		->setSplit('', 'col-md-12')
-												// 		->setName('taxcode['.$row.']')
-												// 		->setId('taxcode['.$row.']')
-												// 		->setClass("taxcode")
-												// 		->setAttribute(array("maxlength" => "20"))
-												// 		->setList($tax_codes)
-												// 		->setValue($taxcode)
-												// 		->draw($show_input);
-											?>
-											<!--<input id = '<?php //echo 'taxrate['.$row.']'; ?>' name = '<?php //echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value="<?php echo $taxrate;?>" >
-											<input id = '<?php //echo 'taxamount['.$row.']'; ?>' name = '<?php //echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' >-->
-										<!--</td>-->
-										<td class = "remove-margin text-right">
-											<?php
-												echo $ui->formField('text')
-														->setSplit('', 'col-md-12')
-														->setName('amount['.$row.']')
-														->setId('amount['.$row.']')
-														->setClass("text-right")
-														->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
-														->setValidation('decimal')
-														->setValue(number_format($amount,'2','.',','))
-														->draw($show_input);
-											?>
-											
-											<input id = '<?php echo 'h_amount['.$row.']'; ?>' name = '<?php echo 'h_amount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' >
-										</td>
-										<?if($task!='view'){ ?>
-											<td class="text-center">
-												<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
-											</td>
-										<?}?>		
-										</tr>
-								<?	
-										$row++;	
-									}
-								}
-							?>
-						</tbody>
-						<tfoot class="summary">
-							<tr>
-								<td>
-									<? if($task != 'view') { ?>
-										<a type="button" class="btn btn-link add-data" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Line</a>
-									<? } ?>
-								</td>	
-							</tr>	
-
-							<tr id="vatable_sales" class='hidden'>
-								<td colspan = '5'></td>
-								<td class="right">
-									<label class="control-label col-md-12">VATable Sales</label>
-								</td>
-								<td class="text-right">
-									<?php
-										echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
-												->setName('t_vatsales')
-												->setId('t_vatsales')
-												->setClass("input_label text-right remove-margin")
-												->setValue(number_format($t_vatsales,2))
-												->draw($show_input);
-									?>
-								</td>
-								
-							</tr>
-							
-							<tr id="vat_exempt_sales" class='hidden'>
-								<td colspan = '5'></td>
-								<td class="right">
-									<label class="control-label col-md-12">VAT-Exempt Sales</label>
-								</td>
-								<td class="text-right">
-									<?php
-										echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
-												->setName('t_vatexempt')
-												->setId('t_vatexempt')
-												->setClass("input_label text-right remove-margin")
-												->setValue(number_format($t_vatexempt,2))
-												->draw($show_input);
-									?>
-								</td>
-							</tr>
-
-							<tr id="total_sales" class='hidden'>
-								<td colspan = '5'></td>
-								<td class="right">
-									<label class="control-label col-md-12">Total Sales</label>
-								</td>
-								<td class="text-right">
-									<?php
-										echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
-												->setName('t_subtotal')
-												->setId('t_subtotal')
-												->setClass("input_label text-right")
-												->setAttribute(array("maxlength" => "40"))
-												->setValue(number_format($t_subtotal,2))
-												->draw($show_input);
-									?>
-								</td>
-							</tr>
-
-							<tr id="discount" class='hidden'>
-								<td colspan = '5'></td>
-								<td class="right">
-									<label class="control-label col-md-12">Discount</label>
-								</td>
-								<td class="text-right">
-									<div class = 'col-md-7'>
-									<?php if($show_input) {?>
-										<div class="btn-group btn-group-xs" data-toggle="buttons">
-											<label class="btn btn-default" onChange="computeAmount();">
-												<input type="radio" class='d_opt' name="discounttype" id="discounttype1" autocomplete="off" value="amt">amt
-											</label>
-											<label class="btn btn-default active" onChange="computeAmount();">
-												<input type="radio" class='d_opt' name="discounttype" id="discounttype2" autocomplete="off" value="perc"  checked="checked">%
-											</label>
-										</div>
-										<?php } ?>
-									</div>
-									<div class = 'col-md-5'>
+										?>
+									</td>
+									<td class = "remove-margin">
 										<?php
 											echo $ui->formField('text')
-													->setSplit('', '')
-													->setName('t_discount')
-													->setId('t_discount')
-													->setClass("text-right")
-													->setValue(number_format($t_discount,2) . " " . $percentage )
+													->setSplit('', 'col-md-12')
+													->setName('detailparticulars['.$row.']')
+													->setId('detailparticulars['.$row.']')
+													->setAttribute(array("maxlength" => "100"))
+													->setValue("")
 													->draw($show_input);
 										?>
+									</td>
+									<td class = "remove-margin">
+										<?php
+											echo $ui->formField('dropdown')
+												->setPlaceholder('Select One')
+												->setSplit('	', 'col-md-12')
+												->setName("warehouse[".$row."]")
+												->setId("warehouse[".$row."]")
+												->setClass('warehouse')
+												->setList($warehouses)
+												->setValidation('required')
+												->setValue("")
+												->draw($show_input);
+										?>
+									</td>
+									<td class = "remove-margin">
+										<?php
+											echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('quantity['.$row.']')
+													->setId('quantity['.$row.']')
+													->setClass('quantity text-right')
+													->setAttribute(array("maxlength" => "20"))
+													->setValidation('integer')
+													->setValue($quantity)
+													->draw($show_input);
+										?>
+									</td>
+									<td class = "remove-margin">
+										<?php
+											echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('uom['.$row.']')
+													->setId('uom['.$row.']')
+													->setClass("text-right")
+													->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
+													->setValue($uom)
+													->draw($show_input);
+										?>
+									</td>
+									<td class = "remove-margin">
+										<?php
+											echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('itemprice['.$row.']')
+													->setId('itemprice['.$row.']')
+													->setClass("text-right price")
+													->setAttribute(array("maxlength" => "20"))
+													->setValue($price)
+													->setValidation('decimal')
+													//->addHidden(true)
+													->draw($show_input);
+										?>
+									</td>
+									<!--<td class = "remove-margin">-->
+										<?php
+											// echo $ui->formField('dropdown')
+											// 		->setSplit('', 'col-md-12')
+											// 		->setName('taxcode['.$row.']')
+											// 		->setId('taxcode['.$row.']')
+											// 		->setClass("taxcode")
+											// 		->setAttribute(
+											// 			array(
+											// 				"maxlength" => "20"
+											// 			)
+											// 		)
+											// 		->setList($tax_codes)
+											// 		->draw($show_input);
+										?>
+										<!--<input id = '<?php //echo 'taxrate['.$row.']'; ?>' name = '<?php //echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value='0.00' >
+										<input id = '<?php //echo 'taxamount['.$row.']'; ?>' name = '<?php //echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value='0.00'>-->
+									<!--</td>-->
+									<td class = "remove-margin">
+										<?php
+											echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('amount['.$row.']')
+													->setId('amount['.$row.']')
+													->setClass("text-right")
+													->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
+													->setValidation('decimal')
+													->setValue($rowamount)
+													->draw($show_input);
+										?>
+
+										<input id = '<?php echo 'h_amount['.$row.']'; ?>' name = '<?php echo 'h_amount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' >
+									</td>
+									<td class="text-center">
+										<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+									</td>			
+								</tr>
+						<?
+							}
+							else if( (!empty($sid) && $task!='create') || ( $task == 'create' && !empty($quotation_no) ) )
+							{
+								$row 			= 1;
+								$disable_debit	= '';
+								$disable_credit	= '';
+								for($i = 0; $i < count($details); $i++)
+								{
+									$itemcode 	 		= $details[$i]->itemcode;
+									$detailparticular	= $details[$i]->detailparticular;
+									$quantity 			= isset($details[$i]->issueqty) ?	number_format($details[$i]->issueqty,0) 	: 	"1";
+									$itemprice 			= $details[$i]->unitprice;
+									$uom 				= $details[$i]->issueuom;
+									// $taxcode 			= $details[$i]->taxcode;
+									// $taxrate 			= $details[$i]->taxrate;
+									$amount  			= $details[$i]->amount;
+									// $uom  				= (empty($quotation_no)) ? $details[$i]->issueuom 	: 	$details[$i]->issueuom;
+									$warehouse_code		= (empty($quotation_no)) ? $details[$i]->warehouse 	: 	'';
+									$warehouse_name		= (empty($quotation_no)) ? $details[$i]->description: 	'';
+									
+									//itemcode, detailparticular, unitprice, issueqty, taxcode, taxrate, amount
+
+							?>	
+									<tr class="clone" valign="middle">
+										<td class = "remove-margin">
+										<?php
+											echo $ui->formField('dropdown')
+												->setPlaceholder('Select One')
+												->setSplit('	', 'col-md-12')
+												->setName("itemcode[".$row."]")
+												->setId("itemcode[".$row."]")
+												->setList($itemcodes)
+												->setClass('itemcode')
+												->setValue($itemcode)
+												->setValidation('required')
+												->draw($show_input);
+										?>
+									</td>
+									<td class = "remove-margin">
+										<?php
+											echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('detailparticulars['.$row.']')
+													->setId('detailparticulars['.$row.']')
+													->setAttribute(array("maxlength" => "100"))
+													->setValue($detailparticular)
+													->draw($show_input);
+										?>
+									</td>
+									<td class = "remove-margin">
+										<?php
+											$value 	=	( $task == 'view' ) 	? 	$warehouse_name 	: 	$warehouse_code;
+
+											echo $ui->formField('dropdown')
+												->setPlaceholder('Select One')
+												->setSplit('	', 'col-md-12')
+												->setName("warehouse[".$row."]")
+												->setId("warehouse[".$row."]")
+												->setClass('warehouse')
+												->setList($warehouses)
+												->setValidation('required')
+												->setValue($value)
+												->draw($show_input);
+										?>
+									</td>
+									<td class = "remove-margin text-right">
+										<?php
+											echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('quantity['.$row.']')
+													->setId('quantity['.$row.']')
+													->setClass('quantity text-right')
+													->setAttribute(array("maxlength" => "20"))
+													->setValidation('integer')
+													->setValue($quantity)
+													->draw($show_input);
+										?>
+									</td>
+									<td class = "remove-margin">	
+										<?php
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('uom['.$row.']')
+											->setId('uom['.$row.']')
+											->setClass("text-right")
+											->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
+											->setValue($uom)
+											->draw($show_input);
+										?>
+									</td>
+									<td class = "remove-margin text-right">
+										<?php
+											echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('itemprice['.$row.']')
+													->setId('itemprice['.$row.']')
+													->setClass("price text-right")
+													->setAttribute(array("maxlength" => "20"))
+													->setValidation('decimal')
+													->setValue($itemprice)
+													->draw($show_input);
+										?>
+									</td>
+									<!--<td class = "remove-margin">-->
+										<?php
+
+											// echo $ui->formField('dropdown')
+											// 		->setSplit('', 'col-md-12')
+											// 		->setName('taxcode['.$row.']')
+											// 		->setId('taxcode['.$row.']')
+											// 		->setClass("taxcode")
+											// 		->setAttribute(array("maxlength" => "20"))
+											// 		->setList($tax_codes)
+											// 		->setValue($taxcode)
+											// 		->draw($show_input);
+										?>
+										<!--<input id = '<?php //echo 'taxrate['.$row.']'; ?>' name = '<?php //echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value="<?php echo $taxrate;?>" >
+										<input id = '<?php //echo 'taxamount['.$row.']'; ?>' name = '<?php //echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' >-->
+									<!--</td>-->
+									<td class = "remove-margin text-right">
+										<?php
+											echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('amount['.$row.']')
+													->setId('amount['.$row.']')
+													->setClass("text-right")
+													->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
+													->setValidation('decimal')
+													->setValue(number_format($amount,'2','.',','))
+													->draw($show_input);
+										?>
+										
+										<input id = '<?php echo 'h_amount['.$row.']'; ?>' name = '<?php echo 'h_amount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' >
+									</td>
+									<?if($task!='view'){ ?>
+										<td class="text-center">
+											<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+										</td>
+									<?}?>		
+									</tr>
+							<?	
+									$row++;	
+								}
+							}
+						?>
+					</tbody>
+					<tfoot class="summary">
+						<tr>
+							<td>
+								<? if($task != 'view') { ?>
+									<a type="button" class="btn btn-link add-data" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Line</a>
+								<? } ?>
+							</td>	
+						</tr>	
+
+						<tr id="vatable_sales" class='hidden'>
+							<td colspan = '5'></td>
+							<td class="right">
+								<label class="control-label col-md-12">VATable Sales</label>
+							</td>
+							<td class="text-right">
+								<?php
+									echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('t_vatsales')
+											->setId('t_vatsales')
+											->setClass("input_label text-right remove-margin")
+											->setValue(number_format($t_vatsales,2))
+											->draw($show_input);
+								?>
+							</td>
+							
+						</tr>
+						
+						<tr id="vat_exempt_sales" class='hidden'>
+							<td colspan = '5'></td>
+							<td class="right">
+								<label class="control-label col-md-12">VAT-Exempt Sales</label>
+							</td>
+							<td class="text-right">
+								<?php
+									echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('t_vatexempt')
+											->setId('t_vatexempt')
+											->setClass("input_label text-right remove-margin")
+											->setValue(number_format($t_vatexempt,2))
+											->draw($show_input);
+								?>
+							</td>
+						</tr>
+
+						<tr id="total_sales" class='hidden'>
+							<td colspan = '5'></td>
+							<td class="right">
+								<label class="control-label col-md-12">Total Sales</label>
+							</td>
+							<td class="text-right">
+								<?php
+									echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('t_subtotal')
+											->setId('t_subtotal')
+											->setClass("input_label text-right")
+											->setAttribute(array("maxlength" => "40"))
+											->setValue(number_format($t_subtotal,2))
+											->draw($show_input);
+								?>
+							</td>
+						</tr>
+
+						<tr id="discount" class='hidden'>
+							<td colspan = '5'></td>
+							<td class="right">
+								<label class="control-label col-md-12">Discount</label>
+							</td>
+							<td class="text-right">
+								<div class = 'col-md-7'>
+								<?php if($show_input) {?>
+									<div class="btn-group btn-group-xs" data-toggle="buttons">
+										<label class="btn btn-default" onChange="computeAmount();">
+											<input type="radio" class='d_opt' name="discounttype" id="discounttype1" autocomplete="off" value="amt">amt
+										</label>
+										<label class="btn btn-default active" onChange="computeAmount();">
+											<input type="radio" class='d_opt' name="discounttype" id="discounttype2" autocomplete="off" value="perc"  checked="checked">%
+										</label>
 									</div>
-
-								</td>
-							</tr>
-
-							<tr id="total_sales" class='hidden'>
-								<td colspan = '5'></td>
-								<td class="right">
-									<label class="control-label col-md-12">Add 12% VAT</label>
-								</td>
-								<td class="text-right">
+									<?php } ?>
+								</div>
+								<div class = 'col-md-5'>
 									<?php
 										echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
-												->setName('t_vat')
-												->setId('t_vat')
-												->setClass("input_label text-right")
-												->setAttribute(array("maxlength" => "40"))
-												->setValue(number_format($t_vat,2))
+												->setSplit('', '')
+												->setName('t_discount')
+												->setId('t_discount')
+												->setClass("text-right")
+												->setValue(number_format($t_discount,2) . " " . $percentage )
 												->draw($show_input);
 									?>
-								</td>
-							</tr>
+								</div>
 
-							<tr id="total_amount_due">
-								<td colspan = '5'></td>
-								<td class="right">
-									<label class="control-label col-md-12">Total Amount</label>
-								</td>
-								<td class="text-right" style="border-top:1px solid #DDDDDD;">
-									<?php
-										echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
-												->setName('t_total')
-												->setId('t_total')
-												->setClass("input_label text-right")
-												->setAttribute(array("maxlength" => "40"))
-												->setValue(number_format($t_total,'2','.',','))
-												->draw($show_input);
-									?>
-								</td>
-							</tr>
+							</td>
+						</tr>
 
-						</tfoot>
-					</table>
+						<tr id="total_sales" class='hidden'>
+							<td colspan = '5'></td>
+							<td class="right">
+								<label class="control-label col-md-12">Add 12% VAT</label>
+							</td>
+							<td class="text-right">
+								<?php
+									echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('t_vat')
+											->setId('t_vat')
+											->setClass("input_label text-right")
+											->setAttribute(array("maxlength" => "40"))
+											->setValue(number_format($t_vat,2))
+											->draw($show_input);
+								?>
+							</td>
+						</tr>
+
+						<tr id="total_amount_due">
+							<td colspan = '5'></td>
+							<td class="right">
+								<label class="control-label col-md-12">Total Amount</label>
+							</td>
+							<td class="text-right" style="border-top:1px solid #DDDDDD;">
+								<?php
+									echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('t_total')
+											->setId('t_total')
+											->setClass("input_label text-right")
+											->setAttribute(array("maxlength" => "40"))
+											->setValue(number_format($t_total,'2','.',','))
+											->draw($show_input);
+								?>
+							</td>
+							<td></td>
+						</tr>
+
+					</tfoot>
+				</table>
+			</div>
+
+			<div class="box-body">
+				<div class="row">
+					<div class="col-md-12 col-sm-12 text-center">
+						<?php
+							$save		= ($task == 'create') ? 'name="save"' : '';
+							$save_new	= ($task == 'create') ? 'name="save_new"' : '';
+						?>
+							<input class = "form_iput" value = "" name = "save" id = "save" type = "hidden">
+						<?php 	
+							echo $ui->loadElement('check_task')
+									->addSave(($task == 'create'))
+									->addOtherTask('Save','',($task == 'edit'),'primary')
+									->addEdit(($task == 'view' && ( $stat == 'open' )))
+									->setValue($voucherno)
+									->draw_button($show_input);
+
+						?>
+						&nbsp;&nbsp;&nbsp;
+						<?  
+						if( $task != "view" )
+						{
+						?>
+							<div class="btn-group">
+								<button type="button" class="btn btn-default btn-flat" data-id="<?php echo $generated_id?>" id="btnCancel" data-toggle="back_page">Cancel</button>
+							</div>
+						<?
+						}
+						else
+						{
+						?>
+							<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
+						<?
+						}
+						?>
+					</div>
+				</div>
+				
+				<div class="row">
+					<div class = "col-md-12">&nbsp;</div>
 				</div>
 			</div>
-
-			<div class="row">
-				<div class="col-md-12 col-sm-12 text-center">
-					<?php
-						$save		= ($task == 'create') ? 'name="save"' : '';
-						$save_new	= ($task == 'create') ? 'name="save_new"' : '';
-					?>
-						<input class = "form_iput" value = "" name = "save" id = "save" type = "hidden">
-					<?php 	
-						echo $ui->loadElement('check_task')
-								->addSave(($task == 'create'))
-								->addOtherTask('Save','',($task == 'edit'),'primary')
-								->addEdit(($task == 'view' && ( $stat == 'open' )))
-								->setValue($voucherno)
-								->draw_button($show_input);
-
-					?>
-					&nbsp;&nbsp;&nbsp;
-					<?  
-					if( $task != "view" )
-					{
-					?>
-						<div class="btn-group">
-							<button type="button" class="btn btn-default btn-flat" data-id="<?php echo $generated_id?>" id="btnCancel" data-toggle="back_page">Cancel</button>
-						</div>
-					<?
-					}
-					else
-					{
-					?>
-						<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
-					<?
-					}
-					?>
-				</div>
-			</div>
-			
-			<div class="row">
-				<div class = "col-md-12">&nbsp;</div>
-			</div>
-
 		</form>
 
 	</div>

@@ -165,7 +165,7 @@ class controller extends wc_controller
 		$data["vat_type"] 		= $this->invoice->getOption("vat_type");
 		$data["tax_codes"] 		= $this->invoice->getTaxCode('VAT');
 
-		$item_entry_data        = array("itemcode ind","itemname val");
+		$item_entry_data        = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$data["itemcodes"] 		= $this->invoice->getValue("items", $item_entry_data,'',"itemcode");
 
 		$uom_data          		= array("uomcode ind","uomdesc val");
@@ -243,7 +243,7 @@ class controller extends wc_controller
 		$data["vat_type"] 		= $this->invoice->getOption("vat_type");
 		$data["tax_codes"] 		= $this->invoice->getTaxCode('VAT');
 
-		$item_entry_data        = array("itemcode ind","itemname val");
+		$item_entry_data        = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$data["itemcodes"] 		= $this->invoice->getValue("items", $item_entry_data,'',"itemcode");
 
 		$uom_data          		= array("uomcode ind","uomdesc val");
@@ -638,7 +638,7 @@ class controller extends wc_controller
 		$customer 	= $deliveries['header']->customer;
 		$notes 		= $deliveries['header']->remarks;
 
-		$item_entry_data    = array("itemcode ind","itemname val");
+		$item_entry_data    = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$itemcodes 			= $this->invoice->getValue("items", $item_entry_data,'',"itemcode");
 
 		$tax_codes 			= $this->invoice->getTaxCode('VAT');

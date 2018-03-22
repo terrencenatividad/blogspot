@@ -365,8 +365,8 @@
 						<input class = "form_iput" value = "" name = "save" id = "save" type = "hidden">
 						
 						<div class="btn-group" id="save_group">
-							<button   type="button" id="btnSave" class="btn btn-info btn-sm btn-flat">&nbsp;Save&nbsp;</button>
-							<button type="button" id="btnSave_toggle" class="btn btn-info dropdown-toggle btn-sm btn-flat" data-toggle="dropdown">
+							<button   type="button" id="btnSave" class="btn btn-primary btn-sm">&nbsp;Save&nbsp;</button>
+							<button type="button" id="btnSave_toggle" class="btn btn-primary dropdown-toggle btn-sm" data-toggle="dropdown">
 								<span class="caret"></span>
 							</button>
 							<ul class="dropdown-menu left" role="menu">
@@ -383,7 +383,7 @@
 						</div>
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
-							<!--<button type="button" data-id="<?=$generated_id?>"  id="btnCancel" class="btn btn-default btn-flat" >Cancel</button>-->
+							<!--<button type="button" data-id="<?=$generated_id?>"  id="btnCancel" class="btn btn-default" >Cancel</button>-->
 							<a href="<?=MODULE_URL?>"class="btn btn-default back" data-toggle="back_page" >Cancel</a>
 						</div>
 					<? 	
@@ -392,12 +392,12 @@
 					{ 	
 					?>
 						<div class="btn-group">
-							<a class="btn btn-info btn-flat" role="button" href="<?=BASE_URL?>sales/sales_quotation/edit/<?=$sid?>" style="outline:none;">Edit</a>
+							<a class="btn btn-primary" role="button" href="<?=BASE_URL?>sales/sales_quotation/edit/<?=$sid?>" style="outline:none;">Edit</a>
 						</div>
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
-							<!--<a class="btn btn-default btn-flat" role="button" href="<?=MODULE_URL?>" style="outline:none;">Cancel</a>-->
-							<a href="<?=MODULE_URL?>" class="btn btn-default btn-flat back" data-toggle="back_page">Cancel</a>
+							<!--<a class="btn btn-default" role="button" href="<?=MODULE_URL?>" style="outline:none;">Cancel</a>-->
+							<a href="<?=MODULE_URL?>" class="btn btn-default back" data-toggle="back_page">Cancel</a>
 						</div>
 					<?
 					}
