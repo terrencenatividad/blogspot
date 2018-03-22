@@ -139,11 +139,11 @@ class check_task {
 			if( $this->add )
 			{
 				$task 	.= 	'<div class="btn-group" id="save_group">
-								<button type="button" id="btnSave" class="btn btn-info btn-flat">Save</button>
-								<button type="button" id="btnSave_toggle" class="btn btn-info dropdown-toggle btn-flat" data-toggle="dropdown">
+								<button type="button" id="btnSave" class="btn btn-primary">Save</button>
+								<button type="button" id="btnSave_toggle" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
 									<span class="caret"></span>
 								</button>
-								<ul class="dropdown-menu left" role="menu">
+								<ul class="dropdown-menu" role="menu">
 									<li style="cursor:pointer;" id="save_new">
 										&nbsp;&nbsp;Save & New
 										<input type = "hidden" name = "h_save_new" id = "h_save_new"/>
@@ -159,17 +159,17 @@ class check_task {
 
 			if( $this->edit )
 			{
-				$task 	.= ' <a class="btn btn-primary btn-flat" role="button" href="'. MODULE_URL .'edit/' . $this->value . '" >Edit</a>';
+				$task 	.= ' <a class="btn btn-primary" role="button" href="'. MODULE_URL .'edit/' . $this->value . '" >Edit</a>';
 			}
 
 			if( $this->delete )
 			{
-				$task 	.= ' <button type="button" class="btn btn-danger btn-flat" data-id="'. $this->value .'">Delete</button>';
+				$task 	.= ' <button type="button" class="btn btn-danger" data-id="'. $this->value .'">Delete</button>';
 			}
 
 			if( $this->print )
 			{	
-				$task 	.= 	' <a class="btn btn-default btn-flat" role="button" href="'. MODULE_URL .'print_preview/' . $this->value . '"><i class="glyphicon glyphicon-print"> Print</a>';
+				$task 	.= 	' <a class="btn btn-default" role="button" href="'. MODULE_URL .'print_preview/' . $this->value . '"><i class="glyphicon glyphicon-print"> Print</a>';
 			}
 
 			foreach ($this->addon as $addon) {
@@ -187,7 +187,7 @@ class check_task {
 
 			if( $this->cancel )
 			{
-				$task 	.= ' <button type="button" class="btn btn-default btn-flat" data-id="'. $this->value .'" id="cancelbtn" data-toggle="back_page">Cancel</button>';
+				$task 	.= ' <button type="button" class="btn btn-default" data-id="'. $this->value .'" id="cancelbtn" data-toggle="back_page">Cancel</button>';
 			}
 
 			$this->reset();
