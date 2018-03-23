@@ -36,7 +36,7 @@
 					<div class = "col-md-3">
 						<div class = "form-group">
 							<div class="input-group monthlyfilter">
-								<input type="text" readOnly name="daterangefilter" id="daterangefilter" class="form-control" value = "" onFocusOut="showList();" data-daterangefilter="month"/>
+								<input type="text" readOnly name="daterangefilter" id="daterangefilter" class="form-control" value = "" data-daterangefilter="month"/>
 								<span class="input-group-addon glyphicon glyphicon-calendar"></span>
 							</div>
 						</div>
@@ -51,7 +51,6 @@
 											->setName('vendor')
 											->setId('vendor')
 											->setList($vendor_list)
-											->setAttribute(array("onChange" => "showList();"))
 											->setNone('All')
 											->draw($show_input);
 								?>
@@ -63,51 +62,42 @@
 					</div>
 				</div>
 			</div>
-			<div class="panel panel-default">
-				<div class="panel-heading" id="option_filter">
-					<div class="row">
-						<div class="control-label col-md-9 col-sm-9 col-xs-9">
-						<ul class="nav nav-tabs">
-							<li class="active"><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('all');">All</a></li>
-							<li><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('posted');">Posted</a></li>
-							<li><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('unposted');">Unposted</a></li>
-						</ul>
-						</div>
-					</div>
-				</div>	
-				<div class="box-body table-responsive" style = "overflow-x: inherit;">
-					<table id="tableList" class="table table-hover">
-						<?php
-							echo $ui->loadElement('table')
-									->setHeaderClass('info')
-									->addHeader(
-										'',
-										array(
-											'class' => 'col-md-1 text-center'
-										)
+			<div class="nav-tabs-custom">
+				<ul id="filter_tabs" class="nav nav-tabs">
+					<li class="active"><a href="all" data-toggle="tab">All</a></li>
+					<li><a href="unposted" data-toggle="tab">Unposted</a></li>
+					<li><a href="posted" data-toggle="tab">Posted</a></li>
+				</ul>
+				<table id="tableList" class="table table-hover table-bordered table-striped">
+					<?php
+						echo $ui->loadElement('table')
+								->setHeaderClass('info')
+								->addHeader(
+									'',
+									array(
+										'class' => 'col-md-1 text-center'
 									)
-									->addHeader('Voucher Date', array('class' => ''), 'sort', 'main.transactiondate')
-									// ->addHeader('AP Voucher No', array('class' => 'col-md-3 text-center'), 'sort', ' 	main.voucherno')
-									->addHeader('PV Voucher No', array('class' => ''), 'sort', ' 	pv.voucherno', 'desc')
-									->addHeader('Vendor', array('class' => ' '), 'sort', 'p.partnername')
-									// ->addHeader('Reference', array('class' => 'col-md-3 text-center'), 'sort', 'main.referenceno')
-									->addHeader('Amount', array('class' => ''), 'sort', 'main.convertedamount')
-									// ->addHeader('Balance', array('class' => 'col-md-3 text-center'), 'sort', 'main.balance')
-									->addHeader('Status', array('class' => 'text-center'))
-									->draw();
-						?>
+								)
+								->addHeader('Date', array('class' => 'col-md-1'), 'sort', 'main.transactiondate')
+								->addHeader('Voucher', array('class' => 'col-md-1'), 'sort', 'main.voucherno', 'desc')
+								->addHeader('Vendor', array('class' => 'col-md-3'), 'sort', 'p.partnername')
+								->addHeader('Reference', array('class' => 'col-md-3'), 'sort', 'main.referenceno')
+								->addHeader('Payment Mode', array('class' => 'col-md-1'), 'sort', 'main.paymentmode')
+								->addHeader('Amount', array('class' => 'col-md-1'), 'sort', 'main.convertedamount')
+								->addHeader('Status', array('class' => 'col-md-1'))
+								->draw();
+					?>
 
-						<tbody id = "list_container">
-						</tbody>
+					<tbody id = "list_container">
+					</tbody>
 
-						<tfoot>
-							<tr>
-								<td colspan="8" class="text-center" id="page_links"></td>
-							</tr>
-						</tfoot>
+					<tfoot>
+						<tr>
+							<td colspan="8" class="text-center" id="page_links"></td>
+						</tr>
+					</tfoot>
 
-					</table>
-				</div>
+				</table>
 			</div>
 		</form>
     </div>
@@ -181,10 +171,10 @@
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true">×</span></button>
-						<h4 class="modal-title">Import Taxes</h4>
+						<h4 class="modal-title">Import Payment Vouchers</h4>
 					</div>
 					<div class="modal-body">
-						<label>Step 1. Download the sample template <a href="<?=BASE_URL?>modules/financials_module/backend/view/pdf/import_payable.csv">here</a></label>
+						<label>Step 1. Download the sample template <a href="<?=BASE_URL?>modules/financials_module/backend/view/pdf/import_payment_voucher.csv">here</a></label>
 						<hr/>
 						<label>Step 2. Fill up the information needed for each columns of the template.</label>
 						<hr/>
@@ -205,333 +195,25 @@
 	</div>
 </div>
 
-<!-- Payment Modal -->
-<div class="modal fade" id="paymentModal" tabindex="-1" data-backdrop="static">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				Issue Payments
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-			</div>
-			<div class="modal-body">
-				<div class="well well-md">
-					<form class="form-horizontal" id="paymentForm">
-						<div class="row row-dense">
-							<div class = "col-md-6 vendor_div remove-margin">
-								<?php
-									echo $ui->formField('dropdown')
-											->setLabel('Vendor:')
-											->setPlaceholder('Filter Vendor')
-											->setSplit('col-md-4 force-left', 'col-md-6 field_col')
-											->setName('vendor')
-											->setId('vendor')
-											->setList($vendor_list)
-											->setNone('All')
-											->draw($show_input);
-								?>
-								<div class="col-md-4" style = "width: 36%;">&nbsp;</div>
-								<span class="help-block hidden small req-color" id = "vendor_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Please select a vendor.</span> <!-- style = "margin-bottom: 0px" -->
-							</div>
-
-							<div class = "col-md-6 remove-margin">
-								<div class="form-group">
-									<label class="control-label col-md-4 force-left" for="daterangefilter">Document Date:</label>
-									<div class = "col-md-7 field_col">
-										<div class="input-group date">
-											<div class="input-group-addon">
-												<i class="fa fa-calendar"></i>
-											</div>
-											<input class="form-control pull-right datepicker" value = "" id="document_date" name = "document_date" type="text">
-										</div>
-									</div>
-								</div>
-								<div class="col-md-3" style = "width: 32%;">&nbsp;</div>
-								<span class="help-block hidden small req-color col-md-7" id = "document_date_help" style = "margin-bottom: 0px"><i class="glyphicon glyphicon-exclamation-sign"></i> Please select a document date.</span>
-							</div>
-
-
-						</div>
-
-						<div class="row row-dense">
-							<div class = "col-md-6 remove-margin">
-								<?php
-									echo $ui->formField('dropdown')
-											->setLabel('Payment Mode: ')
-											->setSplit('col-md-4 force-left', 'col-md-6 field_col')
-											->setClass("input-sm payment_mode")
-											->setName('paymentmode')
-											->setId('paymentmode')
-											->setList(array("cash" => "Cash", "cheque" => "Cheque"))
-											->setValue("")
-											->draw(true);
-								?>
-								<div class="col-md-3">&nbsp;</div>
-								<span class="help-block hidden small req-color" id = "paymentmode_help" style = "margin-bottom: 0px"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
-							</div>
-
-							<div class = "col-md-6 remove-margin">
-								<?php
-									echo $ui->formField('text')
-											->setLabel('Total Payment: ')
-											->setSplit('col-md-4 force-left', 'col-md-7 field_col')
-											->setClass("input-sm")
-											->setName('total_payment')
-											->setId('total_payment')
-											->setPlaceHolder("0.00")
-											->setAttribute(array("maxlength" => "50", "readonly" => "readonly"))
-											->setValue("")
-											->draw(true);
-								?>
-								<div class="col-md-3" style = "width: 17%;">&nbsp;</div>
-								<span class="help-block hidden small req-color" id = "total_payment_help" style = "margin-bottom: 0px"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
-							</div>
-
-						</div>
-
-						<div class="row row-dense" id = "cash_payment_details">
-							<div class = "col-md-6 remove-margin">
-								<?php
-									echo $ui->formField('dropdown')
-											->setLabel('Paid To: ')
-											->setSplit('col-md-4 force-left', 'col-md-6 field_col')
-											->setClass("input-sm pay_account")
-											->setPlaceholder('None')
-											->setName('paymentaccount')
-											->setId('paymentaccount')
-											->setList($cash_account_list)
-											->setNone('All')
-											->draw(true);
-								?>
-								<div class="col-md-4" style = "width: 35%;">&nbsp;</div>
-								<span class="help-block hidden small req-color" id = "paymentaccount_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Please select an account.</span>
-							</div>
-
-							<div class = "col-md-6 remove-margin" id = "check_field">
-								<?php
-									echo $ui->formField('text')
-											->setLabel('Reference Number: ')
-											->setSplit('col-md-4 force-left', 'col-md-7 field_col')
-											->setClass("input-sm")
-											->setName('paymentreference')
-											->setId('paymentreference')
-											->setPlaceHolder("Cheque/Reference No")
-											->setAttribute(array("maxlength" => "50"))
-											->setValue("")
-											->draw(true);
-								?>
-								<div class="col-md-4" style = "width: 36%;">&nbsp;</div>
-								<span class="help-block hidden small req-color" id = "paymentreference_help" style = "margin-bottom: 0px"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
-							</div>
-
-						</div>
-
-						<div class="row row-dense">
-							<div class="col-md-12">
-								<?php
-									echo $ui->formField('textarea')
-											->setLabel('Notes:')
-											->setSplit('col-md-2 force-left', 'col-md-10')
-											->setName('paymentnotes')
-											->setId('paymentnotes')
-											->draw(true);
-								?>
-							</div>
-						</div>
-
-						<div class="has-error">
-							<span id="chequeCountError" class="help-block hidden small">
-								<i class="glyphicon glyphicon-exclamation-sign"></i> 
-								Please specify at least one(1) cheque.
-							</span>
-							<span id="appCountError" class="help-block hidden small">
-								<i class="glyphicon glyphicon-exclamation-sign"></i> 
-								Please select at least one(1) payable.
-							</span>
-							<span id="chequeAmountError" class="help-block hidden small">
-								<i class="glyphicon glyphicon-exclamation-sign"></i> 
-								Please complete the fields on the highlighted row(s).
-							</span>
-							<span id="appAmountError" class="help-block hidden small">
-								<i class="glyphicon glyphicon-exclamation-sign"></i> 
-								Please make sure that the amount paid for the payable(s) below are greater than zero(0).
-							</span>
-							<span id="paymentAmountError" class="help-block hidden small">
-								<i class="glyphicon glyphicon-exclamation-sign"></i> 
-								Please make sure that the total payment applied (<strong id="disp_tot_payment">0</strong>) should be equal to (<strong id="disp_tot_cheque">0</strong>).
-							</span>
-						</div>
-
-						<!-- Cheque Details -->
-						<div class="panel panel-default hidden" id="check_details">
-							<div class="table-responsive">
-								<table class="table table-condensed table-bordered table-hover" id="chequeTable">
-									<thead>
-										<tr class="info">
-											<th class="col-md-2 text-center">Bank Account</th>
-											<th class="col-md-2 text-center">Cheque Number</th>
-											<th class="col-md-2 text-center">Cheque Date</th>
-											<th class="col-md-2 text-center">Amount</th>
-											<th class="col-md-1 text-center"></th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr class="clone">
-											<td class="">
-												<?php
-													echo $ui->formField('dropdown')
-															->setSplit('', 'col-md-12 field_col')
-															->setPlaceholder('Select One')
-															->setClass("input-sm test")
-															->setName('chequeaccount[1]')
-															->setId('chequeaccount[1]')
-															->setList($cash_account_list)
-															->setValue("")
-															->draw(true);
-												?>
-											</td>
-
-											<td>
-												<?php
-													echo $ui->formField('text')
-															->setSplit('', 'col-md-12 field_col')
-															->setClass("input-sm")
-															->setName('chequenumber[1]')
-															->setId('chequenumber[1]')
-															->setAttribute(array("maxlength" => "100"))
-															->setValue("")
-															->draw(true);
-												?>
-											</td>
-
-											<td>
-												<div class="input-group date remove-margin">
-													<div class="input-group-addon">
-														<i class="fa fa-calendar"></i>
-													</div>
-
-													<?php
-														echo $ui->formField('text')
-																->setSplit('', 'col-md-12 field_col')
-																->setClass("input-sm datepicker")
-																->setName('chequedate[1]')
-																->setId('chequedate[1]')
-																->setAttribute(array("maxlength" => "50"))
-																->setValue($date)
-																->draw(true);
-													?>
-												</div>
-											</td>
-
-											<td>
-												<?php
-													echo $ui->formField('text')
-															->setSplit('', 'col-md-12 field_col')
-															->setClass("input-sm text-right chequeamount")
-															->setName('chequeamount[1]')
-															->setId('chequeamount[1]')
-															->setAttribute(array("maxlength" => "20"))
-															->setValue("0.00")
-															->draw(true);
-												?>
-											</td>
-
-											<td class="text-center">
-												<button type="button" class="btn btn-sm btn-danger btn-flat confirm-delete" name="chk[]" style="outline:none;" onClick="confirmChequeDelete(1);"><span class="glyphicon glyphicon-trash"></span></button>
-											</td>
-										</tr>
-									</tbody>
-
-									<tfoot>
-										<tr>
-											<td colspan="2">
-												<a type="button" class="btn btn-sm btn-link add-data"  style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Line</a>
-											</td>
-											<td class="text-right"><label class="control-label">Total</label></td>
-											<td class="text-right">
-												<?php
-													echo $ui->formField('text')
-															->setSplit('', 'col-md-12 field_col')
-															->setClass("text-right input_label")
-															->setId("total")
-															->setAttribute(array("readonly" => "readonly"))
-															->setValue(number_format(0, 2))
-															->draw(true);
-												?>
-											</td>
-										</tr>	
-									</tfoot>
-
-								</table>
-							</div>
-						</div>
-
-						<div class="panel panel-default">
-							<div class="table-responsive">
-								<table class="table table-condensed table-bordered table-hover">
-									<thead>
-										<tr class="info">
-											<th class="col-md-1 center"></th>
-											<th class="col-md-2 text-center">Date</th>
-											<th class="col-md-2 text-center">Voucher</th>
-											<th class="col-md-2 text-center">Total Amount</th>
-											<th class="col-md-2 text-center">Balance</th>
-											<th class="col-md-3 text-center">Amount to Pay</th>
-										</tr>
-									</thead>
-								</table>
-
-								<div style="overflow: auto; width: 100%; height: 250px; padding:0px; margin: 0px">
-									<table class="table table-condensed table-hover" id="app_payableList">
-										<tbody id="payable_list_container">
-											<tr>
-												<td class="text-center" style="vertical-align:middle;" colspan="7">- No Records Found -</td>
-											</tr>
-										</tbody>
-									</table>
-								</div>
-
-								<table class="table table-condensed table-bordered table-hover">
-									<tfoot>
-										<tr class="info">
-											<td class="col-md-3 center" id="app_page_info">&nbsp;</td>
-											<td class="col-md-9 center" id="app_page_links"></td>
-										</tr>
-									</tfoot>
-								</table>
-							</div>
-						</div>
-
-						<div class="row">
-							<div class="col-md-12 col-sm-12 col-xs-12 text-center">
-								<div class="btn-group">
-									<button type = "submit" class = "btn btn-info btn-sm btn-flat" id="btnSave" onClick="applySelected(event);">Save&nbsp;</button>
-								</div>
-									&nbsp;&nbsp;&nbsp;
-								<div class="btn-group">
-									<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal" onClick="clearPayment();">Cancel</button>
-								</div>
-							</div>
-						</div>
-
-					</form>
-				</div>					
-			</div>
-		</div>
-	</div>
-</div>
-
 <script>
-var ajax = {};
+	var ajax_call 	= {};
+	var ajax 		= filterFromURL();
+	ajax.filter 	= $('#filter_tabs .active a').attr('href');
+	ajax.limit 		= $('#items').val();
+	ajax.filter 	= ajax.filter || $('#filter_tabs .active a').attr('href');
+	ajaxToFilter(ajax, { search : '#table_search', limit : '#items', vendor : '#vendor', daterangefilter : '#daterangefilter' });
 
-tableSort('#tableList', function(value, x) 
-{
-	ajax.sort = value;
-	ajax.page = 1;
-	if (x) 
+	ajaxToFilterTab(ajax, '#filter_tabs', 'filter');
+
+	tableSort('#tableList', function(value, x) 
 	{
-		showList();
-	}
-});
+		ajax.sort = value;
+		ajax.page = 1;
+		if (x) 
+		{
+			showList();
+		}
+	});
 
 function show_error(msg)
 {
@@ -540,13 +222,9 @@ function show_error(msg)
 	$("#errmsg").html(msg);
 }
 
-function showList(pg) 
+function showList() 
 {
-	ajax.daterangefilter = $("#daterangefilter").val();
-	ajax.vendfilter      = ($("#vendor").val() != "none") ? $("#vendor").val() : "";
-	ajax.addCond 		 = $("#addCond").val();
-
-	$.post('<?=BASE_URL?>financials/payment_voucher/ajax/load_list', ajax, function(data)
+	ajax_call = $.post('<?=BASE_URL?>financials/payment_voucher/ajax/load_list', ajax, function(data)
 	{
 		$('#list_container').html(data.list);
 		$('#page_links').html(data.pagination);
@@ -570,6 +248,26 @@ $( "#search" ).keyup(function()
 	ajax.search = search;
 	showList();
 });
+
+$('#vendor').on('change', function() {
+	ajax.page 	= 1;
+	ajax.vendor = $(this).val();
+	ajax_call.abort();
+	showList();
+});
+
+$('#filter_tabs li').on('click', function() {
+	ajax.page = 1;
+	ajax.filter = $(this).find('a').attr('href');
+	ajax_call.abort();
+	showList();
+});
+
+$('#daterangefilter').on('change', function() {
+	ajax.daterangefilter = $(this).val();
+	ajax_call.abort();
+	showList();
+})
 
 /**JSON : RETRIEVE PAYABLES**/
 function showPayableList() 

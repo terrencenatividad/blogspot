@@ -43,8 +43,8 @@ class controller extends wc_controller
 	public function update_app($check_rows)
 	{
 		/**UPDATE MAIN INVOICE**/
-		$applicableHeaderTable = "accountspayable";
-		$applicationTable 	   = "pv_application";
+		$applicableHeaderTable = "accountsreceivable";
+		$applicationTable 	   = "rv_application";
 		
 		$invoice_data 	= (isset($check_rows) && (!empty($check_rows))) ? trim($check_rows) : "";
 		$invoice_data  = str_replace('\\', '', $invoice_data);
@@ -56,21 +56,21 @@ class controller extends wc_controller
 		{
 			for($i = 0; $i < count($decode_json); $i++)
 			{
-				$invoice = $decode_json[$i]["apvoucher"];
+				$invoice = $decode_json[$i]["arvoucher"];
 				$amount  = $decode_json[$i]["amount"];
 
-				// accountspayable
+				// accountsreceivevable
 				$invoice_amount				= $this->receipt_voucher->getValue($applicableHeaderTable, array("convertedamount"), "voucherno = '$invoice' AND stat = 'posted'");
 				$applied_discount			= 0;
 
-				// pv_application
-				$applied_sum				= $this->receipt_voucher->getValue($applicationTable, array("SUM(convertedamount) AS convertedamount")," apvoucherno = '$invoice' AND stat = 'posted' ");
+				// rv_application
+				$applied_sum				= $this->receipt_voucher->getValue($applicationTable, array("SUM(convertedamount) AS convertedamount")," arvoucherno = '$invoice' AND stat = 'posted' ");
 
-				// pv_application
-				$applied_discount			= $this->receipt_voucher->getValue($applicationTable, array("SUM(discount) AS discount"), "apvoucherno = '$invoice' AND stat = 'posted' ");
+				// rv_application
+				$applied_discount			= $this->receipt_voucher->getValue($applicationTable, array("SUM(discount) AS discount"), "arvoucherno = '$invoice' AND stat = 'posted' ");
 
-				// pv_application
-				$applied_forexamount		= $this->receipt_voucher->getValue($applicationTable, array("SUM(forexamount) AS forexamount"), "apvoucherno = '$invoice' AND stat = 'posted' ");
+				// rv_application
+				$applied_forexamount		= $this->receipt_voucher->getValue($applicationTable, array("SUM(forexamount) AS forexamount"), "arvoucherno = '$invoice' AND stat = 'posted' ");
 
 				$applied_sum				= $applied_sum[0]->convertedamount - $applied_forexamount[0]->forexamount;
 
@@ -83,8 +83,8 @@ class controller extends wc_controller
 				// $balance_info['convertedamount']	= $applied_sum + $applied_discount[0]->discount;
 				$balance_info['balance']	= $invoice_amount - $applied_sum - $applied_discount[0]->discount;
 
-				// accountspayable
-				$insertResult = $this->receipt_voucher->editData($balance_info, $applicableHeaderTable, "voucherno = '$invoice'");	
+				// accountsreceivebable
+				$insertResult = $this->receipt_voucher->editData($balance_info, $applicableHeaderTable, "voucherno = '$invoice'");
 				if(!$insertResult)
 					$errmsg["error"][] = "The system has encountered an error in updating Account Payable [$invoice]. Please contact admin to fix this issue.<br/>";
 			}
@@ -103,8 +103,8 @@ class controller extends wc_controller
 		// Initialize variables
 		$data = $this->input->post(array(
 			"voucherno",
-			"referenceno",
-			"vendorcode",
+			"or_no",
+			"customercode",
 			"tinno",
 			"address1",
 			"duedate",
@@ -126,8 +126,7 @@ class controller extends wc_controller
 
 		// Retrieve customer list
 		$data["customer_list"]          = $this->receipt_voucher->retrieveCustomerList();
-
-		// Retrieve business type list
+			// Retrieve business type list
 		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
 		$acc_entry_cond               = "accounttype != 'P'";
 		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
@@ -140,7 +139,7 @@ class controller extends wc_controller
 		$data["cash_account_list"] = $this->receipt_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
 		// Retrieve generated ID
-		// $gen_value                    = $this->receipt_voucher->getValue("paymentvoucher", "COUNT(*) as count", "voucherno != ''");	
+		// $gen_value                    = $this->payment_voucher->getValue("paymentvoucher", "COUNT(*) as count", "voucherno != ''");	
 		// $data["generated_id"]         = (!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
 		$data["generated_id"]     = '';
 
@@ -151,11 +150,13 @@ class controller extends wc_controller
 
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
-
+		// echo "before";
 		if (!empty($data_validate["customer"]) && !empty($data_validate["document_date"])) 
 		{
 			$errmsg = array();
 			$temp 	= array();
+			// echo "HERE";
+			// echo $data_validate['h_save'];
 
 			$voucherno = (isset($data_validate['h_voucher_no']) && (!empty($data_validate['h_voucher_no']))) ? htmlentities(trim($data_validate['h_voucher_no'])) : "";
 
@@ -186,7 +187,7 @@ class controller extends wc_controller
 
 				if(!empty($data_validate['h_save'])){
 					$this->url->redirect(BASE_URL . 'financials/receipt_voucher');
-				}else if(!empty($data_validate['h_save_preview'])){
+				}else if(!empty($data_validate['h_save']) && $data_validate['h_save'] == 'h_save_preview'){
 					$this->url->redirect(BASE_URL . 'financials/receipt_voucher/view/' . $generatedvoucher);
 				}else{
 					$this->url->redirect(BASE_URL . 'financials/receipt_voucher/create');
@@ -210,34 +211,42 @@ class controller extends wc_controller
 		$data['show_input'] 	   = false;
 		$data["button_name"] 	   = "Edit";
 		$data["task"] 	  		   = "view";
-		$data["sid"] 			   = $sid;
+		$data["generated_id"]  	   = $sid;
+		$data["sid"] 		   	   = $sid;
 		$data["date"] 			   = date("M d, Y");
 
 		$data["business_type_list"] = array();
-		$data["account_entry_list"] = array();
+		
+		// Retrieve business type list
+		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
+		$acc_entry_cond               = "accounttype != 'P'";
+		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
+
 		$data["customer_list"]    	= array();
 
 		// Main
+		$vendor_details 		   = $this->receipt_voucher->getValue("partners", "partnername"," partnertype = 'customer' AND partnercode = '".$data["main"]->customer."'", "");
+
 		$data["voucherno"]         = $data["main"]->voucherno;
-		$data["vendorcode"]        = $data["main"]->customer;
+		$data["customercode"]        = $vendor_details[0]->partnername;
 		$data["v_convertedamount"] = $data["main"]->convertedamount;
 		$data["exchangerate"]      = $data["main"]->exchangerate;
 		$data["transactiondate"]   = $this->date->dateFormat($data["main"]->transactiondate);
-		$data["referenceno"]       = $data["main"]->referenceno;
+		$data["or_no"]       		= $data["main"]->or_no;
 		$data["paymenttype"]       = $data["main"]->paymenttype;
 		$data["particulars"]       = $data["main"]->particulars;
 
-		// customer/Customer Details
-		$data["v_vendor"] 		   = $data["cust"]->name;
-		$data["v_email"] 		   = $data["cust"]->email;
-		$data["tinno"] 		   	   = $data["cust"]->tinno;
-		$data["address1"] 	       = $data["cust"]->address1;
-		$data["terms"] 	   		   = $data["cust"]->terms;
+		// Vendor/Customer Details
+		$data["v_vendor"] 		   = $data["vend"]->name;
+		$data["v_email"] 		   = $data["vend"]->email;
+		$data["tinno"] 		   	   = $data["vend"]->tinno;
+		$data["address1"] 	       = $data["vend"]->address1;
+		$data["terms"] 	   		   = $data["vend"]->terms;
 
 		/**
 		* Get the total forex amount applied
 		*/
-		$forex_result 			  = $this->receipt_voucher->getValue("pv_application", array("SUM(forexamount) as forexamount"), "apvoucherno = '$sid' AND stat = 'posted'");
+		$forex_result 			  = $this->receipt_voucher->getValue("rv_application", array("SUM(forexamount) as forexamount"), "arvoucherno = '$sid' AND stat = 'posted'");
 		$forexamount			  = ($forex_result[0]->forexamount != '') ? $forex_result[0]->forexamount : 0;
 
 		$data["forexamount"] 	  = $forexamount;
@@ -255,6 +264,25 @@ class controller extends wc_controller
 			$data["noCashAccounts"]  = true;
 		}
 
+		$payments 				= 	$data['payments'];
+
+		$data["listofcheques"] 	=	isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
+		$data['payments'] 		= 	json_encode($payments);
+
+		$sum_applied		= 0;
+		$sum_discount		= 0;
+		if($payments){
+			foreach($payments as $key=>$value){
+				if(isset($value->amt))   
+					$sum_applied += $value->amt;
+				
+				if(isset($value->dis))   
+					$sum_discount += $value->dis;
+			}
+		}
+		$data['sum_applied'] 	= $sum_applied;
+		$data['sum_discount'] 	= $sum_discount;
+
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
 
@@ -271,11 +299,11 @@ class controller extends wc_controller
 		$data["sid"] 		   	= $sid;
 		$data["date"] 		   	= date("M d, Y");
 
-		// Retrieve customer list
+		// Retrieve vendor list
 		$data["customer_list"]          = $this->receipt_voucher->retrieveCustomerList();
 
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
+		$acc_entry_data               = array("id ind","accountname val");
 		$acc_entry_cond               = "accounttype != 'P'";
 		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
@@ -288,13 +316,15 @@ class controller extends wc_controller
 
 		// Header Data
 		$data["voucherno"]       = $data["main"]->voucherno;
-		$data["referenceno"]     = $data["main"]->referenceno;
-		$data["vendorcode"]      = $data["main"]->customer;
+		$data["or_no"]    		 = $data["main"]->or_no;
+		$data["customercode"]    = $data["main"]->customer;
 		$data["exchangerate"]    = $data["main"]->exchangerate;
 		$data["transactiondate"] = $this->date->dateFormat($data["main"]->transactiondate);
 		$data["particulars"]     = $data["main"]->particulars;
 		$data["paymenttype"]     = $data["main"]->paymenttype;
 		
+		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
+
 		// Application Data
 		$payments 			= $data['payments'];
 		$sum_applied		= 0;
@@ -397,7 +427,6 @@ class controller extends wc_controller
 		{
 			$voucher_status = 'PAID';
 		}
-
 
 		$chequeArray = "";
 		if(!empty($pv_voucherno))
@@ -547,7 +576,7 @@ class controller extends wc_controller
 				$paymentdiscount	= $row->discount;
 				$paymentrate		= (isset($row->exchangerate) && !empty($row->exchangerate)) ? $row->exchangerate : 1;
 				$paymentconverted	= (isset($row->convertedamount) && $row->convertedamount > 0) ? $row->convertedamount : $paymentamount;
-				$apvoucherno 		= $row->apvoucherno;
+				$apvoucherno 		= $row->arvoucherno;
 
 				$cheque_values		= "";//(!is_null($rollArray) && !empty($rollArray[$paymentnumber])) ? json_encode($rollArray[$paymentnumber]) : "";
 
@@ -857,7 +886,7 @@ class controller extends wc_controller
 			$data_post = $this->input->post($data_var);
 			
 			/**
-			* Save customer Detials
+			* Save Vendor Detials
 			*/
 			$result = $this->receipt_voucher->saveDetails("partners", $data_post, "vendordetail");
 		}
@@ -876,10 +905,11 @@ class controller extends wc_controller
 	{
 		
 		$data_post 	= $this->input->post();
+		
 
-		$result    	= array_filter($this->receipt_voucher->savePayment($data_post));
+		$result    	= $this->receipt_voucher->savePayment($data_post);
 
-		$code 		= 0;
+		$code 		= '';
 		$voucher 	= '';
 		$errmsg 	= array();
 
@@ -888,6 +918,10 @@ class controller extends wc_controller
 			$code 		= $result['code'];
 			$voucher 	= $result['voucher'];
 			$errmsg 	= $result['errmsg'];
+		} else {
+			$code 		= '';
+			$voucher 	= '';
+			$errmsg 	= '';
 		}
 
 		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);
@@ -925,7 +959,7 @@ class controller extends wc_controller
 		$decode_json    = json_decode($check_rows,true);	
 
 		$pagination     = $this->receipt_voucher->retrieveAPList($data,$search);
-		
+
 		$table             = "";
 		$j 	               = 1;
 		$json_encode_array = array();
@@ -934,6 +968,8 @@ class controller extends wc_controller
 		$json_encode       = "";
 		$edited_amount 	   = 0;
 
+		$show_input 	   = ($task != "view") 	? 	1	:	0;
+	
 		if (empty($pagination->result)) {
 			$table = '<tr><td class="text-center" colspan="8"><b>No Records Found</b></td></tr>';
 		}
@@ -962,7 +998,9 @@ class controller extends wc_controller
 				$voucher		= $pagination->result[$i]->voucherno;
 				$balance		= $pagination->result[$i]->balance; 
 				$totalamount	= $pagination->result[$i]->amount;
+				$received	= $pagination->result[$i]->received;
 				$referenceno	= $pagination->result[$i]->referenceno;
+				$newbal			= $pagination->result[$i]->newbal;
 				$voucher_checked = (in_array($voucher , $voucher_array)) ? 'checked' : '';
 				$amt_checked = (in_array($voucher , $amt_array)) ? $amt_checked : '';
 
@@ -971,11 +1009,12 @@ class controller extends wc_controller
 				$json_encode_array["row"]       = $i;
 				$json_encode_array["apvoucher"] = $voucher;
 				$json_encode_array["amount"]    = $totalamount;
+				$json_encode_array["balance"]   = $balance;
 				$json_data[] 					= $json_encode_array;
 
 				$json_encode 					= json_encode($json_data);
 
-				$appliedamount	= $this->receipt_voucher->getValue("pv_application", array("SUM(amount) AS amount"),"apvoucherno = '$voucher' AND stat IN('posted', 'temporary')");
+				$appliedamount	= $this->receipt_voucher->getValue("rv_application", array("SUM(amount) AS amount"),"arvoucherno = '$voucher' AND stat IN('posted', 'temporary')");
 				$appliedamount  = $appliedamount[0]->amount;
 
 				$balance_2		= $balance;
@@ -992,14 +1031,20 @@ class controller extends wc_controller
 				}
 
 				$table	.= '<tr>'; 
-				$table	.= 	'<td class="text-center" style="vertical-align:middle;">';
-				$table	.= 		'<input type="checkbox" name="checkBox[]" id = "check'.$voucher.'" class = "icheckbox" toggleid="0" row="'.$voucher.'" '.$voucher_checked.'>'; 
-				$table	.= 	'</td>';
+				if($show_input){
+					$table	.= 	'<td class="text-center" style="vertical-align:middle;">';
+					$table	.= 		'<input type="checkbox" name="checkBox[]" id = "check'.$voucher.'" class = "icheckbox" toggleid="0" row="'.$voucher.'" '.$voucher_checked.'>'; 
+					$table	.= 	'</td>';
+				}
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" onClick="selectPayable(\''.$voucher.'\',1);">'.$date.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" onClick="selectPayable(\''.$voucher.'\',1);">'.$voucher.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" onClick="selectPayable(\''.$voucher.'\',1);">'.$referenceno.'</td>';
 				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_amount'.$voucher.'" onClick="selectPayable(\''.$voucher.'\',1);">'.number_format($totalamount,2).'</td>';
+				
 				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_balance'.$voucher.'" onClick="selectPayable(\''.$voucher.'\',1);" data-value="'.number_format($balance,2).'">'.number_format($balance_2,2).'</td>';
+				$table	.= 	'<td class="text-right hidden" style="vertical-align:middle;" id = "orig_bal'.$voucher.'" onClick="selectPayable(\''.$voucher.'\',1);" data-value="'.number_format($newbal,2).'">'.number_format($received,2).'</td>';
+				
+				
 				if($voucher_checked == 'checked'){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
 					$this->ui->formField('text')
@@ -1016,8 +1061,9 @@ class controller extends wc_controller
 							)
 						)
 						->setValue(number_format($amount,2))
-						->draw(true).'</td>';
-				}
+						->draw($show_input).'</td>';
+				} 
+
 				else{
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
 					$this->ui->formField('text')
@@ -1035,7 +1081,7 @@ class controller extends wc_controller
 							)
 						)
 						->setValue(number_format(0, 2))
-						->draw(true).'</td>';
+						->draw($show_input).'</td>';
 				}
 				if($voucher_checked == 'checked'){
 				$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
@@ -1053,7 +1099,7 @@ class controller extends wc_controller
 										)
 									)
 									->setValue(number_format($discount, 2))
-									->draw(true).'</td>';
+									->draw($show_input).'</td>';
 				$table	.= '</tr>';
 			}else{
 				$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
@@ -1072,7 +1118,7 @@ class controller extends wc_controller
 						)
 					)
 					->setValue(number_format(0, 2))
-					->draw(true).'</td>';
+					->draw($show_input).'</td>';
 	$table	.= '</tr>';
 			}
 		}
@@ -1123,7 +1169,7 @@ class controller extends wc_controller
 		$data["cond"]   = $cond;
 		$results			= array(array());
 		$result 		= $this->receipt_voucher->retrievePVDetails($data);
-		$results = array_merge($results, $result);
+		$results = array_merge($results, $result);		
 		$table 			= "";
 		$row 			= 1;
 
@@ -1152,8 +1198,6 @@ class controller extends wc_controller
 				$credit = (isset($account_amounts[$accountcode])) ? $account_amounts[$accountcode] : 0;
 				$credit = number_format($credit,2);
 				$totalcredit    	   += $debit;
-
-
 				$table .= '<tr class="clone" valign="middle">';
 				$table .= 	'<td class = "remove-margin">'	
 									.$ui->formField('dropdown')
@@ -1208,7 +1252,7 @@ class controller extends wc_controller
 			$table	.= 	'<td class="text-center" colspan="5">- No Records Found -</td>';
 			$table	.= '</tr>';
 		}
-
+		// var_dump($totaldebit);
 		$dataArray = array( "table" => $table, "totaldebit" => number_format($totalcredit, 2) );
 		echo json_encode($dataArray);
 
@@ -1216,52 +1260,52 @@ class controller extends wc_controller
 
 	private function load_list()
 	{
-		$data_post = $this->input->post(array("daterangefilter", "custfilter", "addCond", "search", "sort"));
+		$data_post 	= $this->input->post(array("daterangefilter", "customer", "filter", "search", "sort"));
 
-		$list   = $this->receipt_voucher->retrieveList($data_post);
+		$list   	= $this->receipt_voucher->retrieveList($data_post);
 		
-		$table  = "";
+		$table  	= "";
 
 		if( !empty($list->result) ) :
+			$prevvno = '';
+			$nextvno = '';
 			foreach($list->result as $key => $row)
 			{
-				$date        = (($row->pvtransdate == '0000-00-00' || is_null)) ? $row->transactiondate : $row->pvtransdate;
-				$date        = $this->date->dateFormat($date);
-				$apvoucher   = $row->voucherno; 
-				$balance     = $row->balance; 
-				$amount	  	 = $row->amount; 
-				$customer		 = $row->partnername; 
-				$referenceno = $row->referenceno; 
-				$pvvoucher   = $row->pv_voucherno; 
+				$date        	= $row->paymentdate;
+				$date       	= $this->date->dateFormat($date);
+				$voucher   		= $row->voucherno; 
+				$customer		 	= $row->partner; 
+				$reference		= $row->reference;
+				$paymentmode 	= $row->paymentmode; 
+				$amount	  	 	= $row->amount;
+				$status   		= $row->status;
+				$or_no   		= $row->or_no;
+				/**
+				 * Cheque Details
+				 */
+				$bankaccount   	= $row->bankaccount;
+				$chequenumber   = $row->chequenumber;
+				$bank   		= $row->bank;
+				$chequedate   	= $this->date->dateFormat($row->chequedate);
+				$chequeamount  	= $row->chequeamount;
 
-				if($balance != $amount && $balance != 0)
+				$prevvno 		= $voucher;
+				$voucher_status = '<span class="label label-danger">'.strtoupper($status).'</span>';
+
+				if($status == 'unposted')
 				{
-					$voucher_status = '<span class="label label-info">PARTIAL</span>';
+					$voucher_status = '<span class="label label-info">'.strtoupper($status).'</span>';
 
-					$viewlink		= BASE_URL . "financials/receipt_voucher/view/$pvvoucher";
-					$editlink		= BASE_URL . "financials/receipt_voucher/edit/$pvvoucher";
+					$viewlink		= BASE_URL . "financials/receipt_voucher/view/$voucher";
+					$editlink		= BASE_URL . "financials/receipt_voucher/edit/$voucher";
 					$voucherlink	= MODULE_URL . "print_preview/$pvvoucher";
-					$paymentlink	= BASE_URL . "financials/receipt_voucher/view/$pvvoucher#payment";
 
-				}
-				else if($balance != 0)
-				{
-					$voucher_status = '<span class="label label-warning">UNPAID</span>';
+				}else if($status == 'posted'){
+					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
 
-					$viewlink		= BASE_URL . "financials/accounts_payable/view/$apvoucher";
-					$editlink		= BASE_URL . "financials/accounts_payable/edit/$apvoucher";
-					$voucherlink	= BASE_URL . "financials/accounts_payable/print_preview/$apvoucher";
-					$paymentlink	= BASE_URL . "financials/accounts_payable/view/$apvoucher#payment";
-				}
-				else
-				{
-					$voucher_status = '<span class="label label-success">PAID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
-
-					$viewlink		= BASE_URL . "financials/receipt_voucher/view/$pvvoucher";
-					$editlink		= BASE_URL . "financials/receipt_voucher/edit/$pvvoucher";
-					$voucherlink	= MODULE_URL . "print_preview/$pvvoucher";
-					$paymentlink	= BASE_URL . "financials/receipt_voucher/view/$pvvoucher#payment";
-
+					$viewlink		= BASE_URL . "financials/receipt_voucher/view/$voucher";
+					$editlink		= BASE_URL . "financials/receipt_voucher/edit/$voucher";
+					$voucherlink	= BASE_URL . "financials/receipt_voucher/print_preview/$voucher";
 				}
 				
 				$task		= '<div class="btn-group task_buttons" name="task_buttons">
@@ -1273,34 +1317,58 @@ class controller extends wc_controller
 										</a>
 									</li>';
 		
-				if($balance == $amount){
-				$task		.= '<li><a class="btn-sm" href="'.$editlink.'"><span class="glyphicon glyphicon-pencil"></span> Edit</a></li>';
+				if($status == 'unposted'){
+					$task		.= '<li><a class="btn-sm" href="'.$editlink.'"><span class="glyphicon glyphicon-pencil"></span> Edit</a></li>';
 				}
+
 				$task		.= '<li><a class="btn-sm" href="'.$voucherlink.'" target="_blank"><span class="glyphicon glyphicon-print"></span> Print Voucher</a></li>';
 
-				if($balance != 0)
-				{
-					$task		.= '<li class="divider"></li><li><a class="btn-sm record-delete" href = "#deleteModalAP" data-toggle="modal" onClick="$(\'#deleteModalAP .modal-body #recordId\').val(\''.$apvoucher.'\');" data-id="'.$apvoucher.'"><span class="glyphicon glyphicon-trash"></span> Delete</a></li>';
-				}
-				else
-				{
-					$task		.= '<li class="divider"></li><li><a class="btn-sm record-delete" href="#deleteModal" data-toggle="modal" onClick="$(\'#deleteModal .modal-body #recordId\').val(\''.$apvoucher.'\');" data-id="'.$apvoucher.'"><span class="glyphicon glyphicon-trash"></span> Delete</a></li>';
+				if($status == 'unposted'){
+					$task		.= '<li class="divider"></li><li><a class="btn-sm record-delete" href="#cancelModal" data-toggle="modal" onClick="$(\'#deleteModal .modal-body #recordId\').val(\''.$voucher.'\');" data-id="'.$voucher.'"><span class="glyphicon glyphicon-trash"></span> Delete</a></li>';
 				}
 				
 				$task		.= '</ul>
 							</div>';
 
-				$table	.= '<tr id="'.$viewlink.'" class="list_row">';
-				$table	.= '<td class="text-center" style="vertical-align:middle;">'.$task.'</td>';
-				$table	.= '<td  style="vertical-align:middle;">'.$date.'</td>';
-				// $table	.= '<td class="text-left" style="vertical-align:middle;">&nbsp;'.$apvoucher.'</td>';
-				$table	.= '<td  style="vertical-align:middle;">&nbsp;'.$pvvoucher.'</td>';
-				$table	.= '<td  style="vertical-align:middle;">&nbsp;'.$customer.'</td>';
-				// $table	.= '<td class="text-left" style="vertical-align:middle;">&nbsp;'.$referenceno.'</td>';
-				$table	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.number_format($amount,2).'</td>';
-				// $table	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.number_format($balance,2).'</td>';
-				$table	.= '<td class="text-center" style="vertical-align:middle;">&nbsp;'.$voucher_status.'</td>';
-				$table	.= '</tr>';
+				if($nextvno != $prevvno){
+					$table	.= '<tr>';
+					$table	.= '<td class="text-center">'.$task.'</td>';
+					$table	.= '<td >'.$date.'</td>';
+					$table	.= '<td >'.$voucher.'</td>';
+					$table	.= '<td >'.$customer.'</td>';
+					$table	.= '<td >'.$or_no.'</td>';
+					$table	.= '<td >'.ucwords($paymentmode).'</td>';
+					$table	.= '<td class="text-right" >'.number_format($amount,2).'</td>';
+					$table	.= '<td >'.$voucher_status.'</td>';
+					$table	.= '</tr>';
+				}
+
+				if($paymentmode == 'cheque'){
+					if($nextvno != $prevvno){
+						$table	.= '<tr>';
+						$table	.= '<td></td>';
+						$table	.= '<td colspan="2" class="warning" ><strong>Bank Account</strong></td>';
+						$table	.= '<td class="warning" ><strong>Bank</strong></td>';
+						$table	.= '<td class="warning" ><strong>Cheque Number</strong></td>';
+						$table	.= '<td class="warning" ><strong>Cheque Date</strong></td>';
+						$table	.= '<td class="warning" ><strong>Cheque Amount</strong></td>';
+						$table	.= '</tr>';
+
+
+					}
+					$table	.= '<tr >';
+					$table	.= '<td></td>';
+					$table	.= '<td colspan="2" class="warning">'.$bankaccount.'</td>';
+					$table	.= '<td class="warning">'.$bank.'</td>';
+					$table	.= '<td class="warning">'.$chequenumber.'</td>';
+					$table	.= '<td class="warning">'.$chequedate.'</td>';
+					$table	.= '<td class="text-right warning">'.number_format($chequeamount,2).'</td>';
+					$table	.= '<td colspan="2"></td>';
+					$table	.= '</tr>';
+				}
+
+				$nextvno     	= $prevvno;
+				
 			}
 		else:
 			$table .= "<tr>
@@ -1313,45 +1381,68 @@ class controller extends wc_controller
 	}
 
 	private function export2(){
-		$data_get = $this->input->post(array("daterangefilter", "vendfilter", "addCond", "search"));
+		$data_get = $this->input->post(array("daterangefilter", "customer", "filter", "search", "sort"));
 		$data_get['daterangefilter'] = str_replace(array('%2F', '+'), array('/', ' '), $data_get['daterangefilter']);
 		$result2 = $this->receipt_voucher->fileExportlist($data_get);
-		$header = array("Voucher Date","Voucher No","Customer","Amount","Status");
+		
+		$header = array("Date","Voucher","Customer","Reference","Amount","Status");
 		
 		$csv = '';
 		$csv = '"' . implode('","', $header) . '"';
 		$csv .= "\n";
 
 		if (!empty($result2)){
+			$prevvno = '';
+			$nextvno = '';
 			foreach ($result2 as $key => $row){
-				$date        = (($row->pvtransdate == '0000-00-00' || is_null)) ? $row->transactiondate : $row->pvtransdate;
-				$date        = $this->date->dateFormat($date);
-				$apvoucher   = $row->voucherno; 
-				$balance     = $row->balance; 
-				$amount	  	 = $row->amount; 
-				$customer		 = $row->partnername; 
-				$referenceno = $row->referenceno; 
-				$pvvoucher   = $row->pv_voucherno; 
+				$date        	= $row->paymentdate;
+				$date       	= $this->date->dateFormat($date);
+				$voucher   		= $row->voucherno; 
+				$customer		 	= $row->partner; 
+				$reference		= $row->reference;
+				$paymentmode 	= $row->paymentmode; 
+				$amount	  	 	= $row->amount;
+				$status   		= $row->status;
+				/**
+				 * Cheque Details
+				 */
+				$bankaccount   	= $row->bankaccount;
+				$chequenumber   = $row->chequenumber;
+				$chequedate   	= $this->date->dateFormat($row->chequedate);
+				$chequeamount  	= $row->chequeamount;
 
-				if($balance != $amount && $balance != 0)
-				{
-					$voucher_status = 'PARTIAL';
-				}
-				else if($balance != 0)
-				{
-					$voucher_status = 'UNPAID';
-				}
-				else
-				{
-					$voucher_status = 'PAID';
-				}
+				$prevvno 		= $voucher;
+				$voucher_status = strtoupper($status);
 				
-				$csv .= '"' . $date . '",';
-				$csv .= '"' . $pvvoucher . '",';
-				$csv .= '"' . $customer . '",';
-				$csv .= '"' . $amount . '",';
-				$csv .= '"' . $voucher_status . '"';
+				if($nextvno != $prevvno){
+					$csv .= '"' . $date . '",';
+					$csv .= '"' . $voucher . '",';
+					$csv .= '"' . $customer . '",';
+					$csv .= '"' . $reference . '",';
+					$csv .= '"' . ucwords($paymentmode) . '",';
+					$csv .= '"' . number_format($amount,2) . '",';
+					$csv .= '"' . $voucher_status . '"';
+					$csv .= "\n";
+				}
+
+				if($paymentmode == 'cheque'){
+					if($nextvno != $prevvno){
+						$csv .= '"",';
+						$csv .= '"Bank Account",';
+						$csv .= '"Cheque Number",';
+						$csv .= '"Cheque Date",';
+						$csv .= '"Cheque Amount",';
+						$csv .= "\n";
+					}
+					$csv .= '"",';
+					$csv .= '"'.$bankaccount.'",';
+					$csv .= '"'.$chequenumber.'",';
+					$csv .= '"'.$chequedate.'",';
+					$csv .= '"'.number_format($chequeamount,2).'",';
+					$csv .= "\n";
+				}
 				$csv .= "\n";
+				$nextvno     	= $prevvno;
 			}
 		}
 		return $csv;

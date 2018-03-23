@@ -1857,7 +1857,7 @@ function getPVDetails(){
 			if(selected_rows != "")
 				$("#paymentmode").removeAttr("disabled");
 
-			if('<?= $task ?>' == "create")
+			if('<?= $task ?>' == "create" || '<?= $task ?>' == "edit")
 			{
 				// load payables
 				$("#entriesTable tbody").html(data.table);

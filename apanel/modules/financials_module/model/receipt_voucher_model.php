@@ -54,19 +54,19 @@ class receipt_voucher_model extends wc_model
 					->setGroupBy($groupby)
 					->setWhere($cond)
 					->runPagination();
-
+		// echo $this->db->getQuery();
 		return $result;
 	}
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype";
+		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
 
 		// Retrieve Header
-		$retrieveArrayMain =  $this->db->setTable('paymentvoucher')
+		$retrieveArrayMain =  $this->db->setTable('receiptvoucher')
 									->setFields($setFields)
 									->setWhere($cond)
 									->setLimit('1')
@@ -82,7 +82,7 @@ class receipt_voucher_model extends wc_model
 		$detailJoin   = "chartaccount as chart ON chart.id = main.accountcode AND chart.companycode = main.companycode";
 		$groupby      = "main.accountcode";
 
-		$retrieveArrayDetail = $this->db->setTable('pv_details as main')
+		$retrieveArrayDetail = $this->db->setTable('rv_details as main')
 									->setFields($detailFields)
 									->leftJoin($detailJoin)
 									->setWhere($detail_cond)
@@ -93,11 +93,25 @@ class receipt_voucher_model extends wc_model
 
 		$temp["details"] = $retrieveArrayDetail;
 		
+		$setFields = "partnername name, email, tinno, address1, terms";
+		$customer    = $temp["main"]->customer;
+		$cond = "partnercode = '$customer'";
+
+		// Retrieve Header
+		$retrieveArrayVendor =  $this->db->setTable('partners')
+									->setFields($setFields)
+									->setWhere($cond)
+									->setLimit('1')
+									->runSelect()
+									->getRow();
+
+		$temp["vend"] = $retrieveArrayVendor;
+
 		// Retrieve Payments
 		$applicationFields = "app.arvoucherno as vno, app.amount as amt, '0.00' as bal, app.discount as dis";
 		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 ";
 
-		$applicationArray = $this->db->setTable('pv_application as app')
+		$applicationArray = $this->db->setTable('rv_application as app')
 									->setFields($applicationFields)
 									->setWhere($app_cond)
 									->runSelect()
@@ -106,92 +120,94 @@ class receipt_voucher_model extends wc_model
 		$temp["payments"] = $applicationArray;
 
 		// Received Cheques
-		$sub_select = $this->db->setTable("pv_application AS app")
-							   ->setFields("app.voucherno")
-							   ->setWhere("app.voucherno = '$sid'")
-							   ->buildSelect();
+		// $sub_select = $this->db->setTable("rv_application AS app")
+		// 					   ->setFields("app.voucherno")
+		// 					   ->setWhere("app.voucherno = '$sid'")
+		// 					   ->buildSelect();
 
-		$chequeFields = 'voucherno, chequeaccount, chequenumber, chequedate, chequeamount, chequeconvertedamount';
-		$cheque_cond  = "voucherno IN($sub_select)";
+		// $chequeFields = 'voucherno, chequeaccount, chequenumber, chequedate, chequeamount, chequeconvertedamount';
+		// $cheque_cond  = "voucherno IN($sub_select)";
 
-		$chequeArray  = $this->db->setTable('pv_cheques')
+		// $chequeArray  = $this->db->setTable('pv_cheques')
+		// 							->setFields($chequeFields)
+		// 							->setWhere($cheque_cond)
+		// 							// ->buildSelect();
+		// 							->runSelect()
+		// 							->getResult();
+		
+		// // var_dump($chequeArray);
+
+		// $rollArray	  = array();
+	
+		// if(!empty($chequeArray))
+		// {
+		// 	$checkArray	= array();
+			
+		// 	$chequeListArray	= array();
+
+		// 	for($c = 0; $c < count($chequeArray); $c++)
+		// 	{
+		// 		$pvno					= $chequeArray[$c]->voucherno;
+		// 		$chequeaccount			= $chequeArray[$c]->chequeaccount;
+		// 		$chequenumber			= $chequeArray[$c]->chequenumber; 
+		// 		$chequedate				= $chequeArray[$c]->chequedate; 
+		// 		$chequedate				= $this->date->dateFormat($chequedate);
+		// 		$chequeamount			= $chequeArray[$c]->chequeamount;
+		// 		$chequeconvertedamount	= $chequeArray[$c]->chequeconvertedamount;
+
+		// 		$rollArray1['chequeaccount']		= $chequeaccount;
+		// 		$rollArray1['chequenumber']			= $chequenumber;
+		// 		$rollArray1['chequedate']			= $chequedate;
+		// 		$rollArray1['chequeamount']			= $chequeamount;
+		// 		$rollArray1['chequeconvertedamount'] = $chequeconvertedamount;
+				
+		// 		$rollArray[$pvno][]				= $rollArray1;
+		// 	}
+		// }
+		
+		// $temp["rollArray"] = $rollArray;
+
+		// Received Cheques for View
+		$chequeFields = 'pvc.voucherno, pvc.chequeaccount, chart.accountname, pvc.chequenumber, pvc.bank, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount';
+		$cheque_cond  = "pvc.voucherno = '$sid'";
+		$cheque_join  = "chartaccount chart ON chart.id = pvc.chequeaccount AND chart.companycode = pvc.companycode";
+		
+		$chequeArray  = $this->db->setTable('rv_cheques AS pvc')
 									->setFields($chequeFields)
+									->leftJoin($cheque_join)
 									->setWhere($cheque_cond)
-									// ->buildSelect();
 									->runSelect()
 									->getResult();
 		
-		// var_dump($chequeArray);
-
 		$rollArray	  = array();
 	
 		if(!empty($chequeArray))
 		{
-			$checkArray	= array();
-			
-			$chequeListArray	= array();
-
 			for($c = 0; $c < count($chequeArray); $c++)
 			{
 				$pvno					= $chequeArray[$c]->voucherno;
+				$accountname			= $chequeArray[$c]->accountname;
 				$chequeaccount			= $chequeArray[$c]->chequeaccount;
+				$bank					= $chequeArray[$c]->bank;
 				$chequenumber			= $chequeArray[$c]->chequenumber; 
 				$chequedate				= $chequeArray[$c]->chequedate; 
 				$chequedate				= $this->date->dateFormat($chequedate);
 				$chequeamount			= $chequeArray[$c]->chequeamount;
 				$chequeconvertedamount	= $chequeArray[$c]->chequeconvertedamount;
 
-				$rollArray1['chequeaccount']		= $chequeaccount;
-				$rollArray1['chequenumber']			= $chequenumber;
-				$rollArray1['chequedate']			= $chequedate;
-				$rollArray1['chequeamount']			= $chequeamount;
-				$rollArray1['chequeconvertedamount'] = $chequeconvertedamount;
+				$rollArray['accountname']			= $accountname;
+				$rollArray['chequeaccount']			= $chequeaccount;
+				$rollArray['bank']					= $bank;
+				$rollArray['chequenumber']			= $chequenumber;
+				$rollArray['chequedate']			= $chequedate;
+				$rollArray['chequeamount']			= $chequeamount;
+				$rollArray['chequeconvertedamount'] = $chequeconvertedamount;
 				
-				$rollArray[$pvno][]				= $rollArray1;
+				$rollArray[$pvno][]					= $rollArray;
 			}
 		}
 		
 		$temp["rollArray"] = $rollArray;
-
-		// Received Cheques for View
-		$chequeFieldsv = 'pvc.voucherno, pvc.chequeaccount, chart.accountname, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount';
-		$cheque_condv  = "pvc.voucherno = '$sid'";
-		$cheque_joinv  = "chartaccount chart ON chart.id = pvc.chequeaccount AND chart.companycode = pvc.companycode";
-		
-		$chequeArrayv  = $this->db->setTable('pv_cheques AS pvc')
-									->setFields($chequeFieldsv)
-									->leftJoin($cheque_joinv)
-									->setWhere($cheque_condv)
-									->runSelect()
-									->getResult();
-		
-		$rollArrayv	  = array();
-	
-		if(!empty($chequeArrayv))
-		{
-			for($c = 0; $c < count($chequeArrayv); $c++)
-			{
-				$pvno					= $chequeArrayv[$c]->voucherno;
-				$accountname			= $chequeArrayv[$c]->accountname;
-				$chequeaccount			= $chequeArrayv[$c]->chequeaccount;
-				$chequenumber			= $chequeArrayv[$c]->chequenumber; 
-				$chequedate				= $chequeArrayv[$c]->chequedate; 
-				$chequedate				= $this->date->dateFormat($chequedate);
-				$chequeamount			= $chequeArrayv[$c]->chequeamount;
-				$chequeconvertedamount	= $chequeArrayv[$c]->chequeconvertedamount;
-
-				$rollArray2['accountname']			= $accountname;
-				$rollArray2['chequeaccount']		= $chequeaccount;
-				$rollArray2['chequenumber']			= $chequenumber;
-				$rollArray2['chequedate']			= $chequedate;
-				$rollArray2['chequeamount']			= $chequeamount;
-				$rollArray2['chequeconvertedamount'] = $chequeconvertedamount;
-				
-				$rollArrayv[$pvno][]				= $rollArray2;
-			}
-		}
-		
-		$temp["rollArrayv"] = $rollArrayv;
 
 
 		return $temp;
@@ -206,14 +222,14 @@ class receipt_voucher_model extends wc_model
 		// Retrieve Payments
 		$applicationFields = "app.voucherno,main.transactiondate,detail.accountcode,chart.accountname,main.wtaxcode,ftax.shortname,main.paymenttype,main.referenceno,app.amount,app.stat,main.checkdate,main.atcCode,main.particulars,detail.checkstat,app.discount,app.exchangerate,app.convertedamount,app.arvoucherno";
 
-		$appJoin_pv  = "paymentvoucher as main ON main.voucherno = app.voucherno AND main.companycode = app.companycode";
-		$appJoin_pvd = "pv_details as detail ON detail.voucherno = app.voucherno AND detail.companycode = app.companycode";
+		$appJoin_pv  = "receiptvoucher as main ON main.voucherno = app.voucherno AND main.companycode = app.companycode";
+		$appJoin_pvd = "rv_details as detail ON detail.voucherno = app.voucherno AND detail.companycode = app.companycode";
 		$appJoin_ca  = "chartaccount as chart ON chart.id = detail.accountcode AND chart.companycode = detail.companycode";
 		$appJoin_fin = "fintaxcode as ftax ON ftax.fstaxcode = main.wtaxcode AND ftax.companycode = main.companycode";
 
 		$app_cond 	 = "app.voucherno = '$voucherno' AND detail.linenum = '1' AND app.stat != 'cancelled'";
 
-		$applicationArray = $this->db->setTable('pv_application as app')
+		$applicationArray = $this->db->setTable('rv_application as app')
 									->setFields($applicationFields)
 									->leftJoin($appJoin_pv)
 									->leftJoin($appJoin_pvd)
@@ -229,7 +245,7 @@ class receipt_voucher_model extends wc_model
 		$temp["payments"] = $applicationArray;
 
 		// Received Cheques
-		$sub_select = $this->db->setTable("pv_application AS app")
+		$sub_select = $this->db->setTable("rv_application AS app")
 							   ->setFields("app.voucherno")
 							   ->setWhere("app.arvoucherno = '$voucherno'")
 							   ->buildSelect();
@@ -237,7 +253,7 @@ class receipt_voucher_model extends wc_model
 		$chequeFields = 'voucherno, chequeaccount, chequenumber, chequedate, chequeamount, chequeconvertedamount';
 		$cheque_cond  = "voucherno IN($sub_select)";
 
-		$chequeArray  = $this->db->setTable('pv_cheques')
+		$chequeArray  = $this->db->setTable('rv_cheques')
 									->setFields($chequeFields)
 									->setWhere($cheque_cond)
 									->runSelect()
@@ -277,71 +293,58 @@ class receipt_voucher_model extends wc_model
 	}
 
 	public function retrieveList($data)
-	{	
-		$daterangefilter = isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
-		$custfilter      = isset($data['custfilter']) ? htmlentities($data['custfilter']) : ""; 
-		$addCond         = isset($data['addCond']) ? htmlentities($data['addCond']) : "";
-		$searchkey 		 = isset($data['search']) ? htmlentities($data['search']) : "";
-		$sort 		 	 = isset($data['sort']) ? htmlentities($data['sort']) : "main.transactiondate";
+	{
+		$daterangefilter	= isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
+		$custfilter      	= isset($data['customer']) ? htmlentities($data['customer']) : ""; 
+		$filter         	= isset($data['filter']) ? htmlentities($data['filter']) : "";
+		$searchkey 		 	= isset($data['search']) ? htmlentities($data['search']) : "";
+		$sort 		 	 	= isset($data['sort']) ? htmlentities($data['sort']) : "main.transactiondate DESC";
 
 		$datefilterArr		= explode(' - ',$daterangefilter);
 		$datefilterFrom		= (!empty($datefilterArr[0])) ? $this->date->dateDbFormat($datefilterArr[0]) : ""; 
 		$datefilterTo		= (!empty($datefilterArr[1])) ? $this->date->dateDbFormat($datefilterArr[1]) : "";
 
-		$add_query 	= (!empty($searchkey)) ? "AND (main.voucherno LIKE '%$searchkey%' OR main.referenceno LIKE '%$searchkey%' OR p.partnername LIKE '%$searchkey%' OR pv.voucherno LIKE '%$searchkey%' ) " : "";
-		$add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND pv.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
-		$add_query .= (!empty($custfilter) && $custfilter != '') ? "AND p.partnercode = '$custfilter' " : "";
-		// $filter   .=(empty($addCond)) ? "main.stat != 'cancelled'" : "";
-		$filter = '';
-
-		if ($addCond == 'all'){
-			$filter .= " main.stat != 'cancelled'";
-		} else if ($addCond == 'posted'){
-			$filter .= " main.stat = 'posted' AND main.stat != 'cancelled'";
-		} else if ($addCond == 'unposted'){
-			$filter .= " main.stat = 'unposted' AND main.stat != 'cancelled'";
+		$add_query 			= '';
+		
+		if ($filter != 'all' && $filter != ''){
+			$add_query .= " AND main.stat = '$filter' ";
 		}
-		
-		// Sub Select for Paid
-		$table_pv     = "rv_application AS pv";
-		$pv_fields    = "COALESCE(SUM(pv.convertedamount),0) + COALESCE(SUM(pv.discount),0) - COALESCE(SUM(pv.forexamount),0)";
-		$pv_cond      = "pv.arvoucherno = main.voucherno and pv.stat = 'posted'";
-		$sub_select_paid   = $this->db->setTable($table_pv)
-							->setFields($pv_fields)
-							->setWhere($pv_cond)
-							->buildSelect();
-		
-		// Sub Select for Partial
-		$sub_select_partial_bal = $this->db->setTable($table_pv)
-										->setFields($pv_fields)
-										->setWhere($pv_cond)
-										->buildSelect();
-		
-		$sub_select_partial_mainbal = $this->db->setTable($table_pv)
-										->setFields($pv_fields)
-										->setWhere($pv_cond)
-										->buildSelect();
+		if ($daterangefilter){
+			$add_query .= " AND main.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' ";
+		}
+		if ($custfilter && $custfilter != 'none'){
+			$add_query .= " AND p.partnercode = '$custfilter' ";
+		}
+		if ($searchkey){
+			$add_query .= " AND ".$this->generateSearch($searchkey, array("main.voucherno","p.partername","coa.accountname","pvc.chequenumber"));
+		}
 
-		$addCondition = "AND main.convertedamount = ($sub_select_paid) OR ($sub_select_partial_bal) > 0 AND main.convertedamount > ($sub_select_partial_mainbal) ";
-
-		$add_query .= $addCondition;
-
-		$main_fields = array("main.stat stat,main.voucherno as voucherno", "main.transactiondate as transactiondate", "SUM(main.convertedamount) as amount","SUM(main.balance) as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS partnername", "pv.voucherno AS pv_voucherno", "pv.transactiondate as pvtransdate");
-		$main_join   = "partners p ON p.partnercode = main.customer";
-		$pv_join 	 = "rv_application pv ON main.voucherno = pv.arvoucherno AND pv.stat = 'posted'";
-		$main_table  = "accountsreceivable as main";
-		$main_cond   =  $filter . $add_query   ;
-		$groupby 	 = "pv.voucherno";
-
-		$query 		 = $this->db->setTable($main_table)
-								->setFields($main_fields)
-								->leftJoin($main_join)
-								->leftJoin($pv_join)
-								->setWhere($main_cond)
+		$query 		 = $this->db->setTable("receiptvoucher main")
+								->setFields(
+									array(
+										"main.transactiondate as paymentdate",
+										"main.voucherno as voucherno",
+										"p.partnername as partner",
+										"main.referenceno as reference",
+										"main.paymenttype as paymentmode",
+										"main.convertedamount as amount",
+										"main.stat as status",
+										"main.or_no",
+										"coa.accountname as bankaccount",
+										"pvc.chequenumber as chequenumber",
+										"pvc.chequedate as chequedate",
+										"pvc.bank as bank",
+										"pvc.chequeamount as chequeamount",
+										"pvc.stat as chequestat"
+									)
+								)
+								->leftJoin("partners p ON p.partnercode = main.customer ")
+								->leftJoin("rv_cheques as pvc ON pvc.voucherno = main.voucherno ")
+								->leftJoin("chartaccount coa ON coa.id = pvc.chequeaccount ")
+								->setWhere("main.stat != 'temporary' ".$add_query)
 								->setOrderBy($sort)
-								->setGroupBy($groupby)
+								->setGroupBy("main.voucherno, pvc.chequenumber")
 								->runPagination();
-								// echo $this->db->getQuery();
 		return $query;
 
 	}
@@ -370,7 +373,7 @@ class receipt_voucher_model extends wc_model
 		$mainTable	= "accountsreceivable as main";
 		$mainFields	= array(
 							"main.voucherno as voucherno", "main.transactiondate as transactiondate",
-							"main.convertedamount as amount", "main.balance as balance", "main.referenceno as referenceno",
+							"main.convertedamount as amount","main.convertedamount - main.amountreceived received","main.convertedamount - main.amountreceived  newbal" ,"main.balance as balance", "main.referenceno as referenceno",
 							"SUM(app.convertedamount) as payment"
 						);
 		$mainJoin	= "rv_application AS app ON app.arvoucherno = main.voucherno";
@@ -419,7 +422,7 @@ class receipt_voucher_model extends wc_model
 
 		/*
 			SELECT main.voucherno as voucherno, main.transactiondate as transactiondate, main.convertedamount as amount, main.balance as balance, p.partnername AS vendor_name, main.referenceno as referenceno, apd.accountcode, chart.accountclasscode, SUM(apd.credit), apd.debit, apd.detailparticulars 
-			FROM accountspayable as main 
+			FROM accountreceivable as main 
 			LEFT JOIN ap_details AS apd ON main.voucherno = apd.voucherno AND main.companycode = apd.companycode
 			LEFT JOIN chartaccount AS chart ON apd.accountcode = chart.id AND chart.companycode = apd.companycode
 			LEFT JOIN partners p ON p.partnercode = main.vendor 
@@ -471,9 +474,9 @@ class receipt_voucher_model extends wc_model
 	{
 		/*
 			SELECT app.arvoucherno as sourceno, main.checknumber, ap.referenceno, main.particulars as remarks, app.amount as amount, main.paymenttype 
-			FROM pv_application as app 
-			LEFT JOIN accountspayable as ap ON ap.voucherno = app.arvoucherno AND ap.companycode = app.companycode 
-			LEFT JOIN paymentvoucher as main ON main.voucherno = app.voucherno AND main.companycode = app.companycode 
+			FROM rv_application as app 
+			LEFT JOIN accountreceivable as ap ON ap.voucherno = app.arvoucherno AND ap.companycode = app.companycode 
+			LEFT JOIN receiptvoucher as main ON main.voucherno = app.voucherno AND main.companycode = app.companycode 
 			WHERE app.voucherno = 'PV0000000014' AND app.companycode = 'CID' 
 			ORDER BY app.linenum
 
@@ -518,19 +521,19 @@ class receipt_voucher_model extends wc_model
 	{
 		$accountcode    = $post_detail["accountcode"];
 		$linenum 	    = $post_detail["linenum"];
-		$detailAppTable = "pv_details";
+		$detailAppTable = "rv_details";
 		$errmsg 		= "";
 
 		// var_dump($post_detail);
 
-		// pv_details
+		// rv_details
 		$isAppDetailExist	= $this->getValue($detailAppTable, array("COUNT(*) AS count_pv"), "voucherno = '$voucherno' AND accountcode = '$accountcode' AND linenum = '$linenum'");
 
 		if($isAppDetailExist[0]->count_pv > 0)
 		{
 			// echo "\n 4 \n";
 		
-			//pv_details
+			//rv_details
 			$insertResult = $this->db->setTable($detailAppTable) 
 								->setValues($post_detail)
 								->setWhere("voucherno = '$voucherno' AND accountcode = '$accountcode' AND linenum = '$linenum'")
@@ -540,13 +543,13 @@ class receipt_voucher_model extends wc_model
 			// var_dump($insertResult);
 
 			if(!$insertResult)
-				$errmsg = "<li>Updating PV Details.</li>";
+				$errmsg = "<li>Updating RV Details.</li>";
 		}
 		else
 		{
 			// echo "\n 5 \n";
 
-			//pv_details
+			//rv_details
 			$insertResult = $this->db->setTable($detailAppTable) 
 								->setValues($post_detail)
 								// ->buildInsert();
@@ -555,7 +558,7 @@ class receipt_voucher_model extends wc_model
 			// var_dump($insertResult);
 			
 			if(!$insertResult)
-				$errmsg = "<li>Saving Payment Voucher Details.</li>";
+				$errmsg = "<li>Saving Receipt Voucher Details.</li>";
 		}
 
 		return $errmsg;
@@ -593,6 +596,7 @@ class receipt_voucher_model extends wc_model
 		$total_payment			= (isset($data['total_payment']) && (!empty($data['total_payment']))) ? htmlentities(addslashes(trim($data['total_payment']))) : $total_debit;
 		$task 					= (isset($data['h_task']) && (!empty($data['h_task']))) ? htmlentities(addslashes(trim($data['h_task']))) : "";
 		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
+
 		$invoice_data  			= str_replace('\\', '', $h_check_rows);
 		$invoice_data  			= html_entity_decode($invoice_data);
 		$picked_payables		= json_decode($invoice_data, true);
@@ -632,7 +636,7 @@ class receipt_voucher_model extends wc_model
 				}	
 			}
 			
-			if(($postIndex == 'chequeaccount' || $postIndex == 'chequenumber' || $postIndex == 'chequedate' || $postIndex == 'chequeamount' || $postIndex == 'chequeconvertedamount') && !empty($postValue) )
+			if(($postIndex == 'chequeaccount' || $postIndex == 'bank'  || $postIndex == 'chequenumber' || $postIndex == 'chequedate' || $postIndex == 'chequeamount' || $postIndex == 'chequeconvertedamount') && !empty($postValue) )
 			{
 				$b		= '';
 				foreach($postValue as $postValueIndex => $postValueIndexValue){
@@ -680,6 +684,7 @@ class receipt_voucher_model extends wc_model
 
 			foreach($newArray as $newArrayIndex => $newArrayValue){
 				$chequeaccount			= (!empty($newArrayValue['chequeaccount'])) ? $newArrayValue['chequeaccount'] : "";
+				$bank					= (!empty($newArrayValue['bank'])) ? $newArrayValue['bank'] : "";
 				$chequenumber			= (!empty($newArrayValue['chequenumber'])) ? $newArrayValue['chequenumber'] : "";
 				$chequedate				= (!empty($newArrayValue['chequedate'])) ? $newArrayValue['chequedate'] : "";
 				$chequeamount			= (!empty($newArrayValue['chequeamount'])) ? $newArrayValue['chequeamount'] : "";
@@ -691,6 +696,7 @@ class receipt_voucher_model extends wc_model
 					$cheque_header['linenum']				= $linecount;
 					$cheque_header['chequeaccount']			= $chequeaccount;
 					$cheque_header['chequenumber']			= $chequenumber;
+					$cheque_header['bank']					= $bank;
 					$cheque_header['chequedate']			= $chequedate;
 					$cheque_header['chequeamount']			= $chequeamount;
 					$cheque_header['chequeconvertedamount']	= $chequeamount;
@@ -793,7 +799,31 @@ class receipt_voucher_model extends wc_model
 			$aPvDetailArray[]					= $post_detail;
 		}
 
-		if(!empty($picked_payables)){
+		if (empty($picked_payables)) {
+			
+			$chequeFields = 'voucherno, transtype, linenum, arvoucherno, discount, amount, currencycode,exchangerate,convertedamount,stat';
+	
+			$picked   = $this->db->setTable('rv_application')
+										->setFields($chequeFields)
+										->setWhere("voucherno = '$voucherno' ")
+										->runSelect()
+										->getResult();
+			
+			$post_application['voucherno']			= $picked[0]->voucherno;
+			$post_application['transtype']			= 'RV';
+			$post_application['linenum']			= $picked[0]->linenum;
+			$post_application['arvoucherno']		= $picked[0]->arvoucherno;
+			$post_application['discount']			= $picked[0]->discount;
+			$post_application['amount']		 		= $picked[0]->amount;
+			$post_application['currencycode']		= 'PHP';
+			$post_application['exchangerate']		= '1.00';
+			$post_application['convertedamount']	= $picked[0]->convertedamount;
+			$post_application['stat']			 	= $post_header['stat'];
+
+			$aPvApplicationArray[]					= $post_application;
+
+		}
+		else if (!empty($picked_payables)){
 			$aPvApplicationArray 	= array();
 			$iApplicationLineNum	= 1;
 			foreach ($picked_payables as $pickedKey => $pickedValue) {
@@ -820,73 +850,99 @@ class receipt_voucher_model extends wc_model
 				$iApplicationLineNum++;
 				$aPvApplicationArray[]					= $post_application;
 			}
+		} 
+
+		/**
+		 * Get previous tagged payables
+		 */
+		$aOldApplicationObj = $this->db->setTable('rv_application')
+									->setFields("arvoucherno as vno, '0.00' as amt, '0.00' as bal, '0.00' as dis")
+									->setWhere(" voucherno = '$voucherno' ")
+									->runSelect()
+									->getResult();
+		if(!empty($aOldApplicationObj) && !is_null($aOldApplicationObj)){
+			$aOldApplicationArray 	= json_decode(json_encode($aOldApplicationObj), true);
+			$combined_payables 		= $this->unique_multidim_array(array_merge($picked_payables,$aOldApplicationArray), 'vno');
+		}else{
+			$combined_payables 		= $picked_payables;
 		}
 
-		// details and pv_application
-		$isAppDetailExist	= $this->getValue($applicationTable, array("COUNT(*) AS count"), " voucherno = '$voucherno'");
+		// details and rv_application
+		$isAppDetailExist	= $this->getValue($applicationTable, array("COUNT(*) AS count"), "voucherno = '$voucherno'");
 		
-		if($isAppDetailExist[0]->count > 0){
+		// if($isAppDetailExist[0]->count > 0){
+		// 	echo "df";
+		// 	$this->db->setTable($detailAppTable)
+		// 			->setWhere("voucherno = '$voucherno'")
+		// 			->runDelete();
+
+		// 	$insertResult = $this->db->setTable($detailAppTable) 
+		// 						->setValues($aPvDetailArray)
+		// 						->runInsert();
+							
+		// 	if(!$insertResult){
+		// 		$code 		= 0;
+		// 		$errmsg[] 	= "<li>Error in Saving Receipt Voucher Details.</li>";
+		// 	}
+
+		// 	$this->db->setTable($applicationTable)
+		// 			->setWhere("voucherno = '$voucherno'")
+		// 			->runDelete();
+					
+		// 	$insertResult = $this->db->setTable($applicationTable) 
+		// 						->setValues($aPvApplicationArray)
+		// 						->runInsert();
+		// 	if(!$insertResult){
+		// 		$code 		= 0;
+		// 		$errmsg[] 	= "<li>Error in Updating Payment Voucher Application.</li>";
+		// 	}
+		// }
+
+		// Same with condition above // 
+
+		 if(!empty($isAppDetailExist)){
 
 			$this->db->setTable($detailAppTable)
-					->setWhere("voucherno = '$voucherno'")
-					->runDelete();
-
-			$insertResult = $this->db->setTable($detailAppTable) 
-								->setValues($aPvDetailArray)
-								->setWhere("voucherno = '$voucherno'")
-								->runInsert();
-							
-			if(!$insertResult){
-				$code 		= 0;
-				$errmsg[] 	= "<li>Error in Saving Receipt Voucher Details.</li>";
-			}
-
-			$this->db->setTable($applicationTable)
-					->setWhere("voucherno = '$voucherno'")
-					->runDelete();
-					
-			$insertResult = $this->db->setTable($applicationTable) 
-								->setValues($aPvApplicationArray)
-								->setWhere("voucherno = '$voucherno'")
-								->runInsert();
-							
-			if(!$insertResult){
-				$code 		= 0;
-				$errmsg[] 	= "<li>Error in Updating Payment Voucher Application.</li>";
-			}
-		}else if(!empty($isAppDetailExist)){
+		 			->setWhere("voucherno = '$voucherno'")
+					 ->runDelete();
+					 
 			$insertResult = $this->db->setTable($detailAppTable) 
 								->setValues($aPvDetailArray)
 								->runInsert();
 								
 			if(!$insertResult){
 				$code 		= 0;
-				$errmsg[] 	= "<li>Error in Updating Payment Voucher Details.</li>";
+				$errmsg[] 	= "<li>Error in Updating Receipt Voucher Details.</li>";
 			}
+
+			$this->db->setTable($applicationTable)
+		 			->setWhere("voucherno = '$voucherno'")
+		 			->runDelete();
 
 			$insertResult = $this->db->setTable($applicationTable) 
 								->setValues($aPvApplicationArray)
 								->runInsert();
 
+
 			if(!$insertResult){
 				$code 		= 0;
-				$errmsg[] 	= "<li>Error in Updating Payment Voucher Application.</li>";
+				$errmsg[] 	= "<li>Error in Updating Receipt Voucher Application.</li>";
 			}
 		}
 			
-		/**UPDATE HEADER AMOUNTS**/
-		$update_info				= array();
-		$update_info['netamount']	= $totalamount;
+			/**UPDATE HEADER AMOUNTS**/
+			$update_info				= array();
+			$update_info['netamount']	= $totalamount;
 
-		$insertResult = $this->db->setTable($mainAppTable) 
-							->setValues($update_info)
-							->setWhere("voucherno = '$voucherno'")
-							->runUpdate();
+			$insertResult = $this->db->setTable($mainAppTable) 
+								->setValues($update_info)
+								->setWhere("voucherno = '$voucherno'")
+								->runUpdate();
 
-		if(!$insertResult){
-			$code 		= 0;
-			$errmsg[] 	= "<li>Error in Updating Payment Voucher Header.</li>";
-		}
+			if(!$insertResult){
+				$code 		= 0;
+				$errmsg[] 	= "<li>Error in Updating Payment Voucher Header.</li>";
+			}
 		
 		/**INSERT TO CHEQUES TABLE**/
 		if(strtolower($paymenttype) == 'cheque')
@@ -894,26 +950,25 @@ class receipt_voucher_model extends wc_model
 			$insertResult = $this->db->setTable($chequeTable)
 								->setWhere("voucherno = '$voucherno'")
 								->runDelete();
-			if($insertResult && !empty($tempCheque))
-			{
+			
 				$insertResult = $this->db->setTable($chequeTable)
 									->setValues($tempCheque)
 									->runInsert();
-
 				if(!$insertResult){
 					$code 		= 0;
 					$errmsg[] = "<li>Error in Saving in Cheque Details.</li>";
 				}
-			}
+			
 		}
 
 		/**
 		 * Update Accounts Payable Balance
 		 */
-		if(!empty($picked_payables)){
+		
+		if(!empty($combined_payables)){
 			$aPvApplicationArray 	= array();
 			$iApplicationLineNum	= 1;
-			foreach ($picked_payables as $pickedKey => $pickedValue) {
+			foreach ($combined_payables as $pickedKey => $pickedValue) {
 				$payable 					= $pickedValue['vno'];
 
 				$applied_sum				= 0;
@@ -931,16 +986,16 @@ class receipt_voucher_model extends wc_model
 				$applied_amounts			= $this->getValue(
 												$applicationTable, 
 												array(
-													"SUM(amount) AS convertedamount",
-													"SUM(discount) AS discount",
-													"SUM(forexamount) AS forexamount"
+													"COALESCE(SUM(amount),0) AS convertedamount",
+													"COALESCE(SUM(discount),0) AS discount",
+													"COALESCE(SUM(forexamount),0) AS forexamount"
 												), 
 												" arvoucherno = '$payable' AND stat = 'posted' "
 											);
 
 				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount;
 				
-				$invoice_amount				= (!empty($invoice_amount)) ? $invoice_amounts[0]->convertedamount : 0;
+				$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
 
 				//$invoice_balance			= $invoice_amount - $applied_sum - $applied_amounts[0]->discount;
@@ -963,6 +1018,20 @@ class receipt_voucher_model extends wc_model
 		);
 	}
 
+	private function unique_multidim_array($array, $key) { 
+		$temp_array = array(); 
+		$i = 0; 
+		$key_array = array(); 
+		
+		foreach($array as $val) { 
+			if (!in_array($val[$key], $key_array)) { 
+				$key_array[$i] = $val[$key]; 
+				$temp_array[$i] = $val; 
+			} 
+			$i++; 
+		} 
+		return $temp_array; 
+	}
 	public function saveDetails($table, $data, $form = "")
 	{
 		$result 				   = "";
@@ -1096,7 +1165,7 @@ class receipt_voucher_model extends wc_model
 		}
 
 		// Insert Header
-		$insert_result = $this->db->setTable("accountspayable")
+		$insert_result = $this->db->setTable("accountreceivable")
 								->setValues($tempHeader)
 								->runInsert();
 
@@ -1110,11 +1179,11 @@ class receipt_voucher_model extends wc_model
 			if(!empty($voucherList))
 			{
 				$voucherlist	= "'".implode("','",$voucherList)."'";
-				$payableCount	= $this->getValue("accountspayable", array("COUNT(*) AS count"), 'companycode = "'.COMPANYCODE.'"');
+				$payableCount	= $this->getValue("accountreceivable", array("COUNT(*) AS count"), 'companycode = "'.COMPANYCODE.'"');
 				$payableCount 	= $payableCount[0]->count;
 
 				// Delete Data
-				$data_del["table"] = "accountspayable";
+				$data_del["table"] = "accountreceivable";
 				$data_del["condition"] = "voucherno IN($voucherlist)";
 				$this->deleteData($data_del);
 				
@@ -1144,11 +1213,11 @@ class receipt_voucher_model extends wc_model
 				if(!empty($voucherList))
 				{
 					$voucherlist 	= "'".implode("','",$voucherList)."'";
-					$payableCount	= $this->getValue("accountspayable", array("COUNT(*) AS count"), 'companycode = "'.COMPANYCODE.'"');
+					$payableCount	= $this->getValue("accountreceivable", array("COUNT(*) AS count"), 'companycode = "'.COMPANYCODE.'"');
 					$payableCount 	= $payableCount[0]->count;
 					
 					// Delete Data
-					$data_del["table"] = "accountspayable";
+					$data_del["table"] = "accountreceivable";
 					$data_del["condition"] = "voucherno IN($voucherlist)";
 					$this->deleteData($data_del);
 
@@ -1185,7 +1254,7 @@ class receipt_voucher_model extends wc_model
 
 		if($addCond	== 'paid')
 		{
-			$table_pv  = "pv_application AS pv";
+			$table_pv  = "rv_application AS pv";
 			$pv_fields = "COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0)";
 			$pv_cond   = "pv.arvoucherno = main.voucherno and pv.stat = 'posted'";
 			$sub_select = $this->db->setTable($table_pv)
@@ -1195,12 +1264,12 @@ class receipt_voucher_model extends wc_model
 
 			$addCondition	= "AND main.amount = ($sub_select)";
 
-			// $addCondition	= " AND main.amount = (select COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0) from pv_application as pv where pv.arvoucherno = main.voucherno and pv.stat = 'posted') ";
+			// $addCondition	= " AND main.amount = (select COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0) from rv_application as pv where pv.arvoucherno = main.voucherno and pv.stat = 'posted') ";
 
 		}
 		else if($addCond == 'partial')
 		{
-			$table_pv  = "pv_application AS pv";
+			$table_pv  = "rv_application AS pv";
 			$pv_fields = "COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0)";
 			$pv_cond   = "pv.arvoucherno = main.voucherno and pv.stat = 'posted'";
 			$sub_select = $this->db->setTable($table_pv)
@@ -1217,11 +1286,11 @@ class receipt_voucher_model extends wc_model
 			
 			$addCondition = "AND ($sub_select) > 0 AND main.amount > ($sub_select_)";
 
-			// $addCondition	= " AND (select COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0) from pv_application as pv where pv.arvoucherno = main.voucherno and pv.stat = 'posted') > 0 AND main.amount > (select COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0) from pv_application as pv where pv.arvoucherno = main.voucherno and pv.stat = 'posted') ";
+			// $addCondition	= " AND (select COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0) from rv_application as pv where pv.arvoucherno = main.voucherno and pv.stat = 'posted') > 0 AND main.amount > (select COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0) from rv_application as pv where pv.arvoucherno = main.voucherno and pv.stat = 'posted') ";
 		}
 		else if($addCond == 'unpaid')
 		{
-			$table_pv  = "pv_application AS pv";
+			$table_pv  = "rv_application AS pv";
 			$pv_fields = "COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0)";
 			$pv_cond   = "pv.arvoucherno = main.voucherno and pv.stat = 'posted'";
 			$sub_select = $this->db->setTable($table_pv)
@@ -1231,7 +1300,7 @@ class receipt_voucher_model extends wc_model
 			
 			$addCondition = "AND ($sub_select) = 0";
 
-			// $addCondition	= " AND (select COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0) from pv_application as pv where pv.arvoucherno = main.voucherno and pv.stat = 'posted') = 0 ";
+			// $addCondition	= " AND (select COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0) from rv_application as pv where pv.arvoucherno = main.voucherno and pv.stat = 'posted') = 0 ";
 		}
 		else
 		{
@@ -1246,7 +1315,7 @@ class receipt_voucher_model extends wc_model
 		$main_fields = array("main.transactiondate as transactiondate", "main.voucherno as voucherno", "CONCAT( first_name, ' ', last_name ) AS vendor", "main.referenceno as referenceno", "main.amount as amount", "main.balance as balance", "main.particulars");
 
 		$main_join   = "partners p ON p.partnercode = main.vendor"; //AND p.companycode
-		$main_table  = "accountspayable as main";
+		$main_table  = "accountreceivable as main";
 		$main_cond   = "main.stat = 'posted' $add_query";
 		$query 		 = $this->retrieveData($main_table, $main_fields, $main_cond, $main_join);
 
@@ -1284,10 +1353,10 @@ class receipt_voucher_model extends wc_model
 		$update_info 	= array();
 		$errmsg 	 	= array();
 
-		$appTable		= "pv_application";
-		$detailTable	= "pv_details";
-		$mainTable		= "paymentvoucher";
-		$table			= "accountspayable";
+		$appTable		= "rv_application";
+		$detailTable	= "rv_details";
+		$mainTable		= "receiptvoucher";
+		$table			= "accountreceivable";
 		$paymentField	= array('arvoucherno','amount','wtaxamount');
 		
 		$paymentArray   = $this->db->setTable($appTable)
@@ -1315,7 +1384,7 @@ class receipt_voucher_model extends wc_model
 
 				$update_info['amountpaid']	= $amountpaid - $amount - $discount;
 
-				// Update accountspayable
+				// Update accountreceivable
 				$result = $this->db->setTable($table)
 							   ->setValues($update_info)
 							   ->setWhere("voucherno = '$mainvoucher'")
@@ -1330,7 +1399,7 @@ class receipt_voucher_model extends wc_model
 			$update_info			= array();
 			$update_info['stat']	= 'cancelled';
 			
-			// Update pv_application
+			// Update rv_application
 			$result = $this->db->setTable($appTable)
 					->setValues($update_info)
 					->setWhere("voucherno = '$voucher'")
@@ -1341,7 +1410,7 @@ class receipt_voucher_model extends wc_model
 			else
 				$this->log->saveActivity("Update PV Application [$voucher]");
 
-			// Update pv_details
+			// Update rv_details
 			$result = $this->db->setTable($detailTable)
 					->setValues($update_info)
 					->setWhere("voucherno = '$voucher'")
@@ -1352,7 +1421,7 @@ class receipt_voucher_model extends wc_model
 			else
 				$this->log->saveActivity("Update Payment Voucher Details [$voucher]");
 			
-			// Update paymentvoucher
+			// Update receiptvoucher
 			$result = $this->db->setTable($mainTable)
 					->setValues($update_info)
 					->setWhere("voucherno = '$voucher'")
@@ -1389,18 +1458,18 @@ class receipt_voucher_model extends wc_model
 		{
 			/*
 				SELECT main.voucherno as voucherno, main.transactiondate as transactiondate, main.convertedamount as amount, main.balance as balance, CONCAT( first_name, ' ', last_name ) AS vendor, main.referenceno as referenceno, p.partnername 
-				FROM accountspayable as main 
+				FROM accountreceivable as main 
 				LEFT JOIN partners p ON p.partnercode = main.vendor 
 				WHERE main.stat = 'posted' AND main.transactiondate BETWEEN '2017-06-01' AND '2017-06-30' AND main.convertedamount = 
 				(
-					SELECT COALESCE(SUM(pv.convertedamount), 0) + COALESCE(SUM(pv.discount), 0) - COALESCE(SUM(pv.forexamount), 0) FROM pv_application AS pv 
-					WHERE pv.arvoucherno = main.voucherno and pv.stat = 'posted' AND  pv.companycode = 'CID' 
+					SELECT COALESCE(SUM(pv.convertedamount), 0) + COALESCE(SUM(pv.discount), 0) - COALESCE(SUM(pv.forexamount), 0) FROM rv_application AS pv 
+					WHERE pv.apvoucherno = main.voucherno and pv.stat = 'posted' AND  pv.companycode = 'CID' 
 				) AND  main.companycode = 'CID' 
 			*/
 
 			$add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND pv.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 
-			$table_pv  = "pv_application AS pv";
+			$table_pv  = "rv_application AS pv";
 			$pv_fields = "COALESCE(SUM(pv.convertedamount),0) + COALESCE(SUM(pv.discount),0) - COALESCE(SUM(pv.forexamount),0)";
 			$pv_cond   = "pv.arvoucherno = main.voucherno and pv.stat = 'posted'";
 			$sub_select = $this->db->setTable($table_pv)
@@ -1414,22 +1483,22 @@ class receipt_voucher_model extends wc_model
 		{
 			/*
 				SELECT main.voucherno as voucherno, main.transactiondate as transactiondate, main.convertedamount as amount, main.balance as balance, CONCAT( first_name, ' ', last_name ) AS vendor, main.referenceno as referenceno, p.partnername 
-				FROM accountspayable as main 
+				FROM accountreceivable as main 
 				LEFT JOIN partners p ON p.partnercode = main.vendor 
 				WHERE main.stat = 'posted' AND main.transactiondate BETWEEN '2017-06-01' AND '2017-06-30' AND 
 				(
-					SELECT COALESCE(SUM(pv.convertedamount), 0) + COALESCE(SUM(pv.discount), 0) - COALESCE(SUM(pv.forexamount), 0) FROM pv_application AS pv 
-					WHERE pv.arvoucherno = main.voucherno and pv.stat = 'posted' AND  pv.companycode = 'CID' 
+					SELECT COALESCE(SUM(pv.convertedamount), 0) + COALESCE(SUM(pv.discount), 0) - COALESCE(SUM(pv.forexamount), 0) FROM rv_application AS pv 
+					WHERE pv.apvoucherno = main.voucherno and pv.stat = 'posted' AND  pv.companycode = 'CID' 
 				) > 0 AND main.convertedamount > 
 				(
-					SELECT COALESCE(SUM(pv.convertedamount), 0) + COALESCE(SUM(pv.discount), 0) - COALESCE(SUM(pv.forexamount), 0) FROM pv_application AS pv 
-					WHERE pv.arvoucherno = main.voucherno and pv.stat = 'posted' AND  pv.companycode = 'CID' 
+					SELECT COALESCE(SUM(pv.convertedamount), 0) + COALESCE(SUM(pv.discount), 0) - COALESCE(SUM(pv.forexamount), 0) FROM rv_application AS pv 
+					WHERE pv.apvoucherno = main.voucherno and pv.stat = 'posted' AND  pv.companycode = 'CID' 
 				) AND  main.companycode = 'CID' 
 			*/
 
 			$add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND pv.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 
-			$table_pv  = "pv_application AS pv";
+			$table_pv  = "rv_application AS pv";
 			$pv_fields = "COALESCE(SUM(pv.convertedamount),0) + COALESCE(SUM(pv.discount),0) - COALESCE(SUM(pv.forexamount),0)";
 			$pv_cond   = "pv.arvoucherno = main.voucherno and pv.stat = 'posted'";
 			$sub_select = $this->db->setTable($table_pv)
@@ -1450,19 +1519,19 @@ class receipt_voucher_model extends wc_model
 		{
 			/*
 				SELECT main.voucherno as voucherno, main.transactiondate as transactiondate, main.convertedamount as amount, main.balance as balance, CONCAT( first_name, ' ', last_name ) AS vendor, main.referenceno as referenceno, p.partnername, pv.voucherno AS pv_voucherno
-				FROM accountspayable as main 
-				LEFT JOIN pv_application pv ON main.voucherno = pv.arvoucherno AND pv.stat = 'posted'
+				FROM accountreceivable as main 
+				LEFT JOIN rv_application pv ON main.voucherno = pv.apvoucherno AND pv.stat = 'posted'
 				LEFT JOIN partners p ON p.partnercode = main.vendor 
 				WHERE main.stat = 'posted' AND main.transactiondate BETWEEN '2017-06-01' AND '2017-06-30' AND 
 				(
-					SELECT COALESCE(SUM(pv.convertedamount), 0) + COALESCE(SUM(pv.discount), 0) - COALESCE(SUM(pv.forexamount), 0) FROM pv_application AS pv 
-					WHERE pv.arvoucherno = main.voucherno and pv.stat = 'posted' AND  pv.companycode = 'CID' 
+					SELECT COALESCE(SUM(pv.convertedamount), 0) + COALESCE(SUM(pv.discount), 0) - COALESCE(SUM(pv.forexamount), 0) FROM rv_application AS pv 
+					WHERE pv.apvoucherno = main.voucherno and pv.stat = 'posted' AND  pv.companycode = 'CID' 
 				) = 0 AND  main.companycode = 'CID' 
 			*/
 
 			$add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND main.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 
-			$table_pv  = "pv_application AS pv";
+			$table_pv  = "rv_application AS pv";
 			$pv_fields = "COALESCE(SUM(pv.convertedamount),0) + COALESCE(SUM(pv.discount),0) - COALESCE(SUM(pv.forexamount),0)";
 			$pv_cond   = "pv.arvoucherno = main.voucherno and pv.stat = 'posted'";
 			$sub_select = $this->db->setTable($table_pv)
@@ -1478,7 +1547,7 @@ class receipt_voucher_model extends wc_model
 
 			/*
 				SELECT main.voucherno as voucherno, main.transactiondate as transactiondate, main.convertedamount as amount, main.balance as balance, CONCAT( first_name, ' ', last_name ) AS vendor, main.referenceno as referenceno, p.partnername 
-				FROM accountspayable as main 
+				FROM accountreceivable as main 
 				LEFT JOIN partners p ON p.partnercode = main.vendor 
 				WHERE main.stat = 'posted' AND main.transactiondate BETWEEN '2017-06-01' AND '2017-06-30'  AND  main.companycode = 'CID' 
 			*/
@@ -1487,10 +1556,10 @@ class receipt_voucher_model extends wc_model
 
 		$add_query .= $addCondition;
 
-		$main_fields = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount","main.balance as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS partnername", "pv.voucherno AS pv_voucherno", "pv.transactiondate as pvtransdate");
+		$main_fields = array("main.voucherno as voucherno","main.or_no", "main.transactiondate as transactiondate", "main.convertedamount as amount","main.balance as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS partnername", "pv.voucherno AS pv_voucherno", "pv.transactiondate as pvtransdate");
 		$main_join   = "partners p ON p.partnercode = main.vendor"; //AND p.companycode
-		$pv_join 	 = "pv_application pv ON main.voucherno = pv.arvoucherno AND pv.stat = 'posted'";
-		$main_table  = "accountspayable as main";
+		$pv_join 	 = "rv_application pv ON main.voucherno = pv.arvoucherno AND pv.stat = 'posted'";
+		$main_table  = "accountreceivable as main";
 		$main_cond   = "main.stat = 'posted' $add_query";
 
 		$query 		 = $this->db->setTable($main_table)
@@ -1518,68 +1587,54 @@ class receipt_voucher_model extends wc_model
 
 	public function fileExportlist($data){
 
-		$daterangefilter = isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
-		$custfilter      = isset($data['custfilter']) ? htmlentities($data['custfilter']) : ""; 
-		$addCond         = isset($data['addCond']) ? htmlentities($data['addCond']) : "";
-		$searchkey 		 = isset($data['search']) ? htmlentities($data['search']) : "";
-		$sort 		 	 = isset($data['sort']) ? htmlentities($data['sort']) : "main.transactiondate";
+		$daterangefilter	= isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
+		$custfilter      	= isset($data['customer']) ? htmlentities($data['customer']) : ""; 
+		$filter         	= isset($data['filter']) ? htmlentities($data['filter']) : "";
+		$searchkey 		 	= isset($data['search']) ? htmlentities($data['search']) : "";
+		$sort 		 	 	= isset($data['sort']) ? htmlentities($data['sort']) : "main.transactiondate DESC";
 
 		$datefilterArr		= explode(' - ',$daterangefilter);
 		$datefilterFrom		= (!empty($datefilterArr[0])) ? $this->date->dateDbFormat($datefilterArr[0]) : ""; 
 		$datefilterTo		= (!empty($datefilterArr[1])) ? $this->date->dateDbFormat($datefilterArr[1]) : "";
 
-		$add_query 	= (!empty($searchkey)) ? "AND (main.voucherno LIKE '%$searchkey%' OR main.referenceno LIKE '%$searchkey%' OR p.partnername LIKE '%$searchkey%' OR pv.voucherno LIKE '%$searchkey%' ) " : "";
-		$add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND pv.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
-		$add_query .= (!empty($custfilter) && $custfilter != '') ? "AND p.partnercode = '$custfilter' " : "";
-		// $filter   .=(empty($addCond)) ? "main.stat != 'cancelled'" : "";
-		$filter = '';
-
-		if ($addCond == 'all'){
-			$filter .= " main.stat != 'cancelled'";
-		} else if ($addCond == 'posted'){
-			$filter .= " main.stat = 'posted' AND main.stat != 'cancelled'";
-		} else if ($addCond == 'unposted'){
-			$filter .= " main.stat = 'unposted' AND main.stat != 'cancelled'";
+		$add_query 			= '';
+		
+		if ($filter != 'all' && $filter != ''){
+			$add_query .= " AND main.stat = '$filter' ";
 		}
-		
-		// Sub Select for Paid
-		$table_pv     = "rv_application AS pv";
-		$pv_fields    = "COALESCE(SUM(pv.convertedamount),0) + COALESCE(SUM(pv.discount),0) - COALESCE(SUM(pv.forexamount),0)";
-		$pv_cond      = "pv.arvoucherno = main.voucherno and pv.stat = 'posted'";
-		$sub_select_paid   = $this->db->setTable($table_pv)
-							->setFields($pv_fields)
-							->setWhere($pv_cond)
-							->buildSelect();
-		
-		// Sub Select for Partial
-		$sub_select_partial_bal = $this->db->setTable($table_pv)
-										->setFields($pv_fields)
-										->setWhere($pv_cond)
-										->buildSelect();
-		
-		$sub_select_partial_mainbal = $this->db->setTable($table_pv)
-										->setFields($pv_fields)
-										->setWhere($pv_cond)
-										->buildSelect();
+		if ($daterangefilter){
+			$add_query .= " AND main.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' ";
+		}
+		if ($custfilter && $custfilter != 'none'){
+			$add_query .= " AND p.partnercode = '$custfilter' ";
+		}
+		if ($searchkey){
+			$add_query .= " AND ".$this->generateSearch($searchkey, array("main.voucherno","p.partername","coa.accountname","pvc.chequenumber"));
+		}
 
-		$addCondition = "AND main.convertedamount = ($sub_select_paid) OR ($sub_select_partial_bal) > 0 AND main.convertedamount > ($sub_select_partial_mainbal) ";
-
-		$add_query .= $addCondition;
-
-		$main_fields = array("main.stat stat,main.voucherno as voucherno", "main.transactiondate as transactiondate", "SUM(main.convertedamount) as amount","SUM(main.balance) as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS partnername", "pv.voucherno AS pv_voucherno", "pv.transactiondate as pvtransdate");
-		$main_join   = "partners p ON p.partnercode = main.customer";
-		$pv_join 	 = "rv_application pv ON main.voucherno = pv.arvoucherno AND pv.stat = 'posted'";
-		$main_table  = "accountsreceivable as main";
-		$main_cond   =  $filter . $add_query   ;
-		$groupby 	 = "pv.voucherno";
-
-		$query 		 = $this->db->setTable($main_table)
-								->setFields($main_fields)
-								->leftJoin($main_join)
-								->leftJoin($pv_join)
-								->setWhere($main_cond)
+		$query 		 = $this->db->setTable("receiptvoucher main")
+								->setFields(
+									array(
+										"main.transactiondate as paymentdate",
+										"main.voucherno as voucherno",
+										"p.partnername as partner",
+										"main.referenceno as reference",
+										"main.paymenttype as paymentmode",
+										"main.convertedamount as amount",
+										"main.stat as status",
+										"coa.accountname as bankaccount",
+										"pvc.chequenumber as chequenumber",
+										"pvc.chequedate as chequedate",
+										"pvc.chequeamount as chequeamount",
+										"pvc.stat as chequestat"
+									)
+								)
+								->leftJoin("partners p ON p.partnercode = main.customer ")
+								->leftJoin("pv_cheques as pvc ON pvc.voucherno = main.voucherno ")
+								->leftJoin("chartaccount coa ON coa.id = pvc.chequeaccount ")
+								->setWhere("main.stat != 'temporary' ".$add_query)
 								->setOrderBy($sort)
-								->setGroupBy($groupby)
+								->setGroupBy("main.voucherno, pvc.chequenumber")
 								->runSelect()
 								->getResult();
 		return $query;
