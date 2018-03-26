@@ -3,8 +3,8 @@
 ### How to make a project
 * Fork webcore_modular_full
 
-### How to update webcore_modular_full
-* Copy Modules from webcore_modular to webcore_modular_full
+### How to update prime
+* Copy Modules from webcore_modular to prime
 * Run
 ```
 git pull origin master
