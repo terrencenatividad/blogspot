@@ -319,7 +319,7 @@ class controller extends wc_controller {
 				if ($exist_check) {
 					foreach ($exist_check as $exist_row) {
 						foreach ($check_field['Item Code'] as $num_row => $itemcode) {
-							if ($exist_row->itemcode == $itemcode) {
+							if (strtolower($exist_row->itemcode) == strtolower($itemcode)) {
 								$errors[$num_row]['Item Code']['Already Exist'] = $exist_row->itemcode;
 							}
 						}
