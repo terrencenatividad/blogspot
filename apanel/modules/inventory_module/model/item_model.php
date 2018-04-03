@@ -181,11 +181,11 @@ class item_model extends wc_model {
 	public function getUOMList($search = '') {
 		$condition = '';
 		if ($search) {
-			$condition = " AND uomdesc = '$search'";
+			$condition = "uomdesc = '$search'";
 		}
 		return $this->db->setTable('uom')
 						->setFields('uomcode ind, uomdesc val')
-						->setWhere("uomtype != 'weight'" . $condition)
+						->setWhere($condition)
 						->runSelect()
 						->getResult();
 	}
