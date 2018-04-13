@@ -84,32 +84,35 @@ class trial_balance extends wc_model {
 		return $result;
 	}
 
-	public function getTrialBalance($currentyear,$prevyear)
+	public function getTrialBalance($currentyear,$prevyear,$fstype="")
 	{
-
+		$fs_cond 	=	(!empty($fstype)) 	?	" AND chart.fspresentation = '$fstype'" 	:	"";
 		$result = $this->db->setTable("chartaccount as chart")
 						->setFields(array("chart.id as accountid","chart.segment5 as accountcode","chart.accountname as accountname"))
 						->leftJoin("balance_table as bal ON bal.accountcode = chart.id")
 						->setWhere("YEAR(bal.transactiondate) >= $prevyear 
-		AND YEAR(bal.transactiondate) <= $currentyear")
+		AND YEAR(bal.transactiondate) <= $currentyear $fs_cond")
 						->setGroupBy("chart.segment5")
 						->setOrderBy("chart.segment5 ASC")
 						->runPagination();
+
 		return $result;
 	}
 
-	public function fileExport($currentyear,$prevyear)
+	public function fileExport($currentyear,$prevyear,$fstype="")
 	{
-
+		$fs_cond 	=	(!empty($fstype)) 	?	" AND chart.fspresentation = '$fstype'" 	:	"";
+		
 		$result = $this->db->setTable("chartaccount as chart")
 						->setFields(array("chart.id as accountid","chart.segment5 as accountcode","chart.accountname as accountname"))
 						->leftJoin("balance_table as bal ON bal.accountcode = chart.id")
 						->setWhere("YEAR(bal.transactiondate) >= $prevyear 
-		AND YEAR(bal.transactiondate) <= $currentyear")
+		AND YEAR(bal.transactiondate) <= $currentyear $fs_cond")
 						->setGroupBy("chart.segment5")
 						->setOrderBy("chart.segment5 ASC")
 						->runSelect()
 						->getResult();
+						// echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -131,263 +134,8 @@ class trial_balance extends wc_model {
 		$transactdateFrom 	 	= date("Y-m-d",strtotime($dateArr[0]));
 		$transactdateTo 	 	= date("Y-m-d",strtotime($dateArr[1]));
 
-		// $tablerow		= "";
- 
-		// $begQuery       = "";
-		// $mainQuery		= "";
-		// $query_table    = "";
-		// $query_fields   = "";
-		// $query_cond     = "";
-		// $query_groupby  = "";
-		// $query_orderby  = "";
-		/**DATE FILTER**/
-		// if(!empty($datefilter) && $qtr == 0){
-		// 	$transactdateFrom 	 	= date("Y-m-d",strtotime($dateArr[0]));
-		// 	$transactdateTo 	 	= date("Y-m-d",strtotime($dateArr[1]));
-
-		// 	$mainQuery 		.= " AND ((bal.period >= MONTH('$transactdateFrom') 
-		// 						   and bal.period <= MONTH('$transactdateTo')) 
-		// 						   AND (bal.fiscalyear >= YEAR('$transactdateFrom') 
-		// 						   and bal.fiscalyear <= YEAR('$transactdateTo'))) 
-		// 						   and (bal.transactiondate >= '$transactdateFrom' 
-		// 						   and bal.transactiondate <= '$transactdateTo') ";
-		// }else{
-		// 	if($qtr == 1){
-		// 		$mainQuery 		.= " AND ((bal.period >= '1' and bal.period <= '3') 
-		// 							and bal.fiscalyear = YEAR('$datefilter')) ";
-		// 	}else if($qtr == 2){
-		// 		$mainQuery 		.= " AND ((bal.period >= '4' and bal.period <= '6') 
-		// 							and bal.fiscalyear = YEAR('$datefilter')) ";
-		// 	}else if($qtr == 3){
-		// 		$mainQuery 		.= " AND ((bal.period >= '7' and bal.period <= '9') and bal.fiscalyear = YEAR('$datefilter')) ";
-		// 	}else if($qtr == 4){
-		// 		$mainQuery 		.= " AND ((bal.period >= '10' and bal.period <= '12') and bal.fiscalyear = YEAR('$datefilter')) ";
-		// 	}else if($qtr == $year_1){
-		// 		$mainQuery 		.= " AND (bal.fiscalyear = '$year_1') ";
-		// 	}else if($qtr == $year_2){
-		// 		$mainQuery 		.= " AND (bal.fiscalyear = '$year_2') ";
-		// 	}else if($qtr == $year_3){
-		// 		$mainQuery 		.= " AND (bal.fiscalyear = '$year_3') ";
-		// 	}else if(!empty($dateArr)){
-		// 		$transactdateFrom 	 	= date("Y-m-d",strtotime($dateArr[0]));
-		// 		$transactdateTo 	 	= date("Y-m-d",strtotime($dateArr[1]));
-				
-		// 		$begQuery		.= " AND ((MONTH(chart.entereddate) >= MONTH('$transactdateFrom') and MONTH(chart.entereddate) <= MONTH('$transactdateTo')) and (YEAR(chart.entereddate) >= YEAR('$transactdateFrom') and YEAR(chart.entereddate) <= YEAR('$transactdateTo'))) and (DATE_FORMAT(chart.entereddate,'%Y-%m-%d') >= '$transactdateFrom' and DATE_FORMAT(chart.entereddate,'%Y-%m-%d') <= '$transactdateTo') ";
-
-		// 		$mainQuery 		.= " AND ((bal.period >= MONTH('$transactdateFrom') and bal.period <= MONTH('$transactdateTo')) and (bal.fiscalyear >= YEAR('$transactdateFrom') and bal.fiscalyear <= YEAR('$transactdateTo'))) and (bal.transactiondate >= '$transactdateFrom' and bal.transactiondate <= '$transactdateTo') ";
-		// 	}
-		// }
-
-		/**ITEM FILTER**/
-	// if(!empty($acctfilter)){
-	// 	$mainQuery 		.= " AND bal.accountcode = '$acctfilter' ";
-	// }
-	// $query_table         = "balance_table bal";
-	// $query_fields        = array('bal.voucherno as voucherno',
-	//                              'bal.transactiondate as transactiondate',
-	// 							 'bal.debit as debit',
-	// 							 'bal.credit as credit',
-	// 							 'bal.transtype as transtype');
-
-
-	// $query_cond				.= "bal.companycode='".COMPANYCODE."' $mainQuery";
-	
-	// $query_groupby			.= " bal.companycode, bal.voucherno";
-	
-	// $query_orderby			.= (!empty($sort) && !empty($sortBy)) ? " $sort $sortBy " : "";
-
-	//$fetch_result			= $this->retrieveData($query_table, $query_fields, $query_cond,"", $query_orderby, $query_groupby);
-
-	// var_dump($fetch_result);
-	//$transactdateFrom_ =  date("Y-m-d",strtotime($dateArr[0]));
-
-	//$balquery   = "";
-
-	// $chart = "";
-	// $chart_fields = array("DATE_FORMAT(chart.entereddate,'%Y-%m-%d') as transactiondate",
-	// 				      "YEAR(chart.entereddate) as fiscalyear",
-	// 					  "MONTH(chart.entereddate) as period",
-	// 					  "chart.companycode as companycode",
-	// 					  "chart.accountname as particulars",
-	// 					  "chart.companycode referenceno",
-	// 					  "chart.companycode voucherno",
-	// 					  "chart.companycode partner",
-	// 					  "'BEG' as transtype",
-	// 					  "chart.segment5 linenum",
-	// 					  "chart.generalledgercode costcentercode",
-	// 					//   "chart.segment5 accountcode",
-	// 					//   "chart.segment5 account",
-	// 					  "chart.id accountcode",
-	// 					  "chart.id account",
-	// 					  "'DEBIT' as debit",
-	// 					  "'CREDIT' as credit",
-	// 					  "'PHP' as currencycode",
-	// 					  "chart.companycode as taxcode",
-	// 					  "chart.companycode vatflg",
-	// 					  "chart.accountname detailparticulars",
-	// 					  "chart.entereddate entereddate",
-	// 					  "chart.enteredby enteredby",
-	// 					  "chart.updatedate updatedate",
-	// 					  "chart.updateby updateby",
-	// 					  "chart.updateprogram updateprogram",
-	// 					  "'STAT' as stat",
-	// 					  "chart.companycode sitecode"
-	// 					  );
-						  
-	//$chart = $this->buildQuery("chartaccount chart", $chart_fields,"");
-
-	// $ap = "";
-	// $ap =	$this->db->setTable("ap_details ad")
-	// 				->setFields(array("am.invoicedate","am.fiscalyear fiscalyear","am.period period",
-	// 								 "am.companycode companycode","am.particulars particulars",
-	// 								 "am.referenceno referenceno","am.voucherno voucherno",
-	// 								 "am.vendor partner","am.transtype transtype","ad.linenum linenum","ad.costcentercode costcentercode","ad.accountcode accountcode",
-	// 								 "(select acct.segment5 from chartaccount acct where acct.id = ad.accountcode) as account",
-	// 								 "ad.debit debit","ad.credit credit","ad.currencycode currencycode","ad.taxcode taxcode","ad.vatflg vatflg",
-	// 								 "ad.detailparticulars detailparticulars","ad.entereddate entereddate","ad.enteredby enteredby","ad.updatedate updatedate",
-	// 								 "ad.updateby updateby","ad.updateprogram updateprogram",
-	// 								 "am.stat stat","am.sitecode sitecode"))
-	// 				->leftJoin("accountspayable am ON am.voucherno = ad.voucherno and am.companycode = '".COMPANYCODE."'")
-	// 				->setWhere("ad.companycode = '".COMPANYCODE."' AND am.companycode='".COMPANYCODE."' AND am.stat='posted'")
-	// 				->buildSelect(false);
-
-	//$ar = "";
-	// $ar =	$this->db->setTable("ar_details rd")
-	// 				->setFields(array("rm.invoicedate transactiondate","rm.fiscalyear fiscalyear","rm.period period","rm.companycode companycode","rm.particulars particulars","rm.referenceno referenceno", "rm.voucherno voucherno","rm.customer partner","rm.transtype transtype","rd.linenum linenum","rd.costcentercode costcentercode",
-	// 				"rd.accountcode accountcode","(select acct.segment5 from chartaccount acct where acct.id = rd.accountcode) as account", "rd.debit debit", "rd.credit credit","rd.currencycode currencycode", "rd.taxcode taxcode","rd.vatflg vatflg", "rd.detailparticulars detailparticulars","rd.entereddate entereddate", "rd.enteredby enteredby","rd.updatedate updatedate","rd.updateby updateby", "rd.updateprogram updateprogram","rm.stat stat","rm.sitecode sitecode"))
-	// 				->leftJoin("accountsreceivable rm ON rm.voucherno = rd.voucherno and rm.companycode = '".COMPANYCODE."'")
-	// 				->setWhere("rd.companycode = '".COMPANYCODE."' AND rm.companycode='".COMPANYCODE."' AND rm.stat='posted'")
-	// 				->buildSelect(false);
-
-	// $pv = "";
-	// $pv =	$this->db->setTable("pv_details pd")
-	// 				->setFields(array("pm.transactiondate transactiondate","pm.fiscalyear fiscalyear","pm.period period","pm.companycode companycode","pm.particulars particulars","pm.referenceno referenceno", "pm.voucherno voucherno","pm.vendor partner","pm.transtype transtype","pd.linenum linenum","pd.costcentercode costcentercode",
-	// 				"pd.accountcode accountcode","(select acct.segment5 from chartaccount acct where acct.id = pd.accountcode) as account","pd.debit debit","pd.credit credit","pd.currencycode currencycode","pd.taxcode taxcode","pd.vatflg vatflg", "pd.detailparticulars detailparticulars","pd.entereddate entereddate", "pd.enteredby enteredby","pd.updatedate updatedate","pd.updateby updateby", "pd.updateprogram updateprogram","pm.stat stat","'sitecode' as sitecode"))
-	// 				->leftJoin("paymentvoucher pm ON pm.voucherno = pd.voucherno and pm.companycode = '".COMPANYCODE."'")
-	// 				->setWhere("pd.companycode = '".COMPANYCODE."' AND 
-	// 				pm.companycode='".COMPANYCODE."' AND pm.stat='posted'")
-	// 				->buildSelect(false);
-
-	// $rv = "";
-	// $rv =	$this->db->setTable("rv_details vd")
-	// 				->setFields(array("vm.transactiondate transactiondate","vm.fiscalyear fiscalyear","vm.period period","vm.companycode companycode","vm.particulars particulars","vm.referenceno referenceno", "vm.voucherno voucherno","vm.customer partner","vm.transtype transtype","vd.linenum linenum","vd.costcentercode costcentercode",
-	// 				"vd.accountcode accountcode","(select acct.segment5 from chartaccount acct where acct.id = vd.accountcode) as account","vd.debit debit","vd.credit credit","vd.currencycode currencycode","vd.taxcode taxcode","vd.vatflg vatflg", "vd.detailparticulars detailparticulars","vd.entereddate entereddate", "vd.enteredby enteredby","vd.updatedate updatedate","vd.updateby updateby", "vd.updateprogram updateprogram","vm.stat stat","vm.sitecode sitecode"))
-	// 				->leftJoin("receiptvoucher vm ON vm.voucherno = vd.voucherno and vm.companycode = '".COMPANYCODE."'")
-	// 				->setWhere("vd.companycode = '".COMPANYCODE."' AND 
-	// 				vm.companycode='".COMPANYCODE."' AND vm.stat='posted'")
-	// 				->buildSelect(false);
-                 
-	// $jv = "";
-	// $jv =	$this->db->setTable("journaldetails jd")
-	// 				->setFields(array("jm.documentdate transactiondate","jm.fiscalyear fiscalyear","jm.period period","jm.companycode companycode","jm.particulars particulars","jm.referenceno referenceno", "jm.voucherno voucherno","jm.transtype partner","jm.transtype transtype","jd.linenum linenum","jd.costcentercode costcentercode",
-	// 				"jd.accountcode accountcode","(select acct.segment5 from chartaccount acct where acct.id = jd.accountcode) as account","jd.debit debit","jd.credit credit","jd.currencycode currencycode","jd.taxcode taxcode","jd.vatflg vatflg", "jd.detailparticulars detailparticulars","jd.entereddate entereddate", "jd.enteredby enteredby","jd.updatedate updatedate","jd.updateby updateby", "jd.updateprogram updateprogram","jm.stat stat","jm.sitecode sitecode"))
-	// 				->leftJoin("journalvoucher jm ON jm.voucherno = jd.voucherno and jm.companycode = '".COMPANYCODE."'")
-	// 				->setWhere("jd.companycode = '".COMPANYCODE."' AND 
-	// 				jm.companycode='".COMPANYCODE."' AND jm.stat='posted'")
-	// 				->buildSelect(false);
-
-	// $allQuery_fields = array("particulars","transactiondate","companycode","accountcode","SUM(debit) as debit","SUM(credit) as credit","detailparticulars","transtype","voucherno","stat","account");
-	// $allQuery_table  = "($chart union $ap union $ar union $pv union $rv union $jv) gldetails";
-	
-	// if(!empty($transactdateFrom_)){	 		
-	//  	$balquery .= " AND transactiondate < '$transactdateFrom_' ";
-	// }
-
-	// $beg_balance_query_table = $allQuery_table;
-	// $beg_balance_query_fields = $allQuery_fields;
-	// $beg_balance_query_condition  = "companycode='".COMPANYCODE."' AND (stat = 'posted' OR stat = 'active')".$balquery;
-
-	$link		= '';
-	$tablerow   = '';
-	//retrieve beginning balance
-	// $accntTotalDebitBeg 	= 0;
-	// $accntTotalCreditBeg 	= 0;
-	// $arrDebit 	= $this->getAccountCodeBeg($beg_balance_query_table,$beg_balance_query_fields,$beg_balance_query_condition,$acctfilter,"debit");
-	// $arrCredit	= $this->getAccountCodeBeg($beg_balance_query_table,$beg_balance_query_fields,$beg_balance_query_condition,$acctfilter,"credit");
-	// $accntTotalDebitBeg 	= $arrDebit["throw"];
-	// $accntTotalCreditBeg 	= $arrCredit["throw"];
-	// $debit_transactiondate  =date("M d, Y",strtotime($arrDebit["transactiondate"]));
-	// $credit_transactiondate = date("M d, Y",strtotime($arrCredit["transactiondate"]));
-
-	// if($accntTotalDebitBeg > $accntTotalCreditBeg)
-	// 	{
-	// 		$accntTotalDebitBeg = $accntTotalDebitBeg - $accntTotalCreditBeg;
-	// 		$accntTotalCreditBeg = 0;
-	// 	}
-	// 	else{
-	// 		$accntTotalCreditBeg = $accntTotalCreditBeg - $accntTotalDebitBeg;
-	// 		$accntTotalDebitBeg = 0;
-	// 	}
-
-	// if($accntTotalDebitBeg > 0 || $accntTotalCreditBeg > 0)
-	// {	
-	// $tablerow	.= '<tr>';
-	// $tablerow	.= '<td style="vertical-align:middle;" >&nbsp;BEG_BALANCE</td>';
-	// if($accntTotalDebitBeg > $accntTotalCreditBeg)
-	// {
-	// $tablerow	.= '<td class=" center" style="vertical-align:middle;" >&nbsp;'.$debit_transactiondate .'</td>';
-	// }else{
-	// $tablerow	.= '<td class=" center" style="vertical-align:middle;" >&nbsp;'.$credit_transactiondate.'</td>';
-	// }
-	// $tablerow	.= '<td class=" right" style="vertical-align:middle;" >'.number_format($accntTotalDebitBeg,2).'</td>';
-	// $tablerow	.= '<td class=" right" style="vertical-align:middle;" >'.number_format($accntTotalCreditBeg,2).'</td>';
-	// $tablerow	.= '</tr>';
-	// }
-		// if(!empty($fetch_result))
-		// {
-		// 	for($i=0;$i < count($fetch_result);$i++)
-		// 	{	
-		// 		$voucher			= $fetch_result[$i]->voucherno;
-		// 		$transactiondate	= $fetch_result[$i]->transactiondate;
-		// 		$transactiondate	= date("M d, Y",strtotime($transactiondate));
-		// 		$debit				= $fetch_result[$i]->debit;
-		// 		$credit				= $fetch_result[$i]->credit;
-		// 		$transtype			= $fetch_result[$i]->transtype;
-				
-		// 		$documentno = '';
-		// 		$source     = '';
-
-		// 		if($transtype == 'AP'){
-			
-		// 			$documentno	= $this->getValue("accountspayable",array("sourceno"),"voucherno = '$voucher'");
-		// 			$documentno = $documentno[0]->sourceno;
-		// 			$source		= $this->getValue("accountspayable",array("source"),"voucherno = '$voucher'");
-		// 			$source     = $source[0]->source;
-		// 			//$modtype	= ($source == 'EXP') ? "bills" : "purchase_voucher";
-		// 			$link		= '<a href="'.BASE_URL.'financials/accounts_payable/print_preview/'.$documentno .'" target="_blank">'.$documentno.'</a>';
-					
-		// 		}else if($transtype == 'PV'){
-		// 			// $link		= '<a href="' .BASE_URL.'modules/purchase/csv/payment_voucher.php?sid='.$voucher) .'" target="_blank">'.$voucher.'</a>';
-		// 			$link  = '<a href="#" target="_blank">'.$voucher.'</a>';
-		// 		}else if($transtype == 'AR'){
-		// 			$documentno = $this->getValue("accountsreceivable",array("sourceno")," voucherno = '$voucher'");
-		// 			$documentno = $documentno[0]->sourceno;
-		// 			$source 	= $this->getValue("accountsreceivable",array("source")," voucherno = '$voucher'");
-		// 			$source     = $source[0]->source;
-		// 			$link		= '<a href="' .BASE_URL.'financials/accounts_receivable/print_preview/'.$documentno .'" target="_blank">'.$documentno.'</a>';
-		// 		}else if($transtype == 'RV'){
-		// 			$link		= '<a href="' . BASE_URL. 'financials/receipt_voucher/print_preview/'.$voucher .'" target="_blank">'.$voucher.'</a>';
-		// 		}else if($transtype == 'JV'){
-		// 			$link		= '<a href="' . BASE_URL .'financials/journal_voucher/print_preview/'.$voucher .'" target="_blank">'.$voucher.'</a>';
-		// 		}else if($transtype == 'BEG'){
-		// 			$link		= $documentno;
-		// 		}else if($transtype == 'BEG'){
-		// 			$link		= $voucher;
-		// 		}
-
-		// 		$tablerow	.= '<tr>';
-		// 		$tablerow	.= '<td style="vertical-align:middle;" >&nbsp;'.$link.'</td>';
-		// 		$tablerow	.= '<td class=" center" style="vertical-align:middle;" >&nbsp;'.$transactiondate.'</td>';
-		// 		$tablerow	.= '<td class=" right" style="vertical-align:middle;" >'.number_format($debit,2).'</td>';
-		// 		$tablerow	.= '<td class=" right" style="vertical-align:middle;" >'.number_format($credit,2).'</td>';
-		// 		$tablerow	.= '</tr>';
-			
-		// 	}
-		// }else{
-		// 	$tablerow	.= '<tr>';
-		// 	$tablerow	.= '<td class="center" colspan="4">- No Records Found -</td>';
-		// 	$tablerow	.= '</tr>';
-		// }
+		$link		= '';
+		$tablerow   = '';
 		$condition 	=	"";
 
 		// For Account
@@ -412,8 +160,6 @@ class trial_balance extends wc_model {
 						->setOrderBy($sort)
 						->runSelect(false)
 						->getResult();
-						// echo $this->db->getQuery();
-		//var_dump($this->db->getQuery());
 						
 		 if(!empty($fetch_result))
 		{
@@ -606,4 +352,229 @@ class trial_balance extends wc_model {
 		return '(' . implode(' OR ', $temp) . ')';
 	}
 
-}
+	public function check_existing_jv($date){
+		$datestring 		= date('Y-m-d', strtotime($date)).' last day of last month';
+		$date_last_month 	= date_create($datestring);
+		$date_last_month	= $date_last_month->format('Y-m-d'); 
+
+		$result 	= $this->db->setTable("journalvoucher")
+							   ->setFields(array('voucherno'))
+							   ->setWhere("transactiondate = '$date_last_month' AND source='closing'")
+								->runSelect(false)
+								->getResult();
+
+		return $result;
+	}	
+
+	public function save_journal_voucher($data)
+	{	
+		$generatedvoucher 	=	isset($data['voucher']) 			?	$data['voucher'] 			: 	"";
+		$reference 			=	isset($data['reference']) 			?	$data['reference'] 			: 	"";
+		$warehouse 			=	isset($data['warehouse']) 			?	$data['warehouse'] 			: 	"";
+		$date 				=	isset($data['daterangefilter']) 	?	$data['daterangefilter'] 	: 	"";
+		$remarks 			=	isset($data['notes']) 				? 	$data['notes'] 				: 	"";
+		$actualaccount  	=	isset($data['retained_acct']) 		? 	$data['retained_acct'] 		: 	"";
+		$detailparticular 	=	isset($data['detailparticular']) 	? 	$data['detailparticular'] 	:	"";
+
+		/**FORMAT DATES**/
+		$dateArr 			=	explode(' - ',$date);
+		$transactiondate	= 	$this->date->datetimeDbFormat($dateArr[1]);
+		$period				= 	date("n",strtotime($transactiondate));
+		$fiscalyear			= 	date("Y",strtotime($transactiondate));
+
+		$result 			=	0;
+
+		$default_datefilter = date("M d, Y",strtotime('first day of this month')).' - '.date("M d, Y",strtotime('last day of this month'));
+
+		$datefilterFrom 	= (!empty($dateArr[0]))? $this->date->datetimeDbFormat($dateArr[0]) : "";
+		$datefilterTo   	= (!empty($dateArr[1]))? $this->date->datetimeDbFormat($dateArr[1]) : "";
+		$datefilter     	= (!empty($daterangefilter))? $daterangefilter : $default_datefilter;
+		$currentyear 		= date("Y",strtotime($datefilterTo));
+		$prevyear 			= date("Y",strtotime($datefilterFrom." -1 year"));
+
+		$accounts_arr 		= $this->fileExport($currentyear,$prevyear,'IS');
+
+		foreach($accounts_arr as $row){
+			$accountid 		= $row->accountid;
+			$amount			= $this->getCurrent($accountid,$datefilterFrom,$datefilterTo);
+			if( $amount > 0 ){
+				$credit 			= 	$amount;
+			} else {
+				$debit 				= -($amount);
+			}
+		} 
+
+		//Header Details
+		$header['voucherno'] 		=	$generatedvoucher;
+		$header['transtype'] 		=	"JV";
+		$header['stat'] 			=	"temporary";
+		$header['transactiondate'] 	=	$transactiondate;
+		$header['fiscalyear'] 		=	$fiscalyear;
+		$header['period'] 			= 	$period;
+		$header['currencycode'] 	= 	"PHP";
+		$header['exchangerate'] 	=	1;
+		$header['amount'] 	 		=	$debit;
+		$header['convertedamount'] 	=	$debit;
+		$header['referenceno'] 		=	$reference;
+		$header['source'] 			=	"closing";
+		$header['sitecode'] 		= 	$warehouse;
+		$header['remarks'] 			= 	$remarks;
+		
+		//Insert Header
+		$result 	=	 $this->insertdata('journalvoucher',$header);
+
+		$debit 				= 0;
+		$credit 			= 0;
+		$retained 			= 0;
+		$linenum 			= 1;
+
+		if( $result ){
+			foreach($accounts_arr as $row){
+				$accountid 		= $row->accountid;
+				$amount			= $this->getCurrent($accountid,$datefilterFrom,$datefilterTo);
+	
+				$data['account'] 	=	$accountid;
+				$data['linenum'] 	=	$linenum;
+	
+				if( $amount > 0 ){
+					$credit 			= 	$amount;
+					$data['amount'] 	=	$credit;
+					$result 			=	$this->create_jvdetails_credit($data);
+				} else {
+					$debit 				= -($amount);
+					$data['amount'] 	=	$debit;
+					$result 			=	$this->create_jvdetails_debit($data);
+				}
+	
+				$retained 		= ($debit > $credit) ? $debit - $credit : $credit - $debit;
+				$linenum 		+=	1;
+			} 
+	
+			if( $result ) {
+				// Retained
+				$details['voucherno'] 			=	$generatedvoucher;
+				$details['transtype'] 			=	'JV';
+				$details['linenum'] 			=	$linenum;
+				$details['accountcode'] 		= 	$actualaccount;
+				$details['debit'] 				=  	0;
+				$details['credit'] 				=	$retained;
+				$details['exchangerate'] 		= 	1;
+				$details['converteddebit'] 		= 	0;
+				$details['convertedcredit'] 	= 	$retained;
+				$details['source'] 				= 	"closing";
+				$details['detailparticulars'] 	= 	$detailparticular;
+				$details['stat'] 				= 	"temporary";
+	
+				$result 						=	 $this->insertdata('journaldetails',$details);
+			}	
+		}
+
+		return array(
+			 		'result'=>$result,
+					'voucherno'=>$generatedvoucher
+				);
+
+	}
+
+	public function create_jvdetails_debit($data) {
+		$generatedvoucher 	=	isset($data['voucher']) 			?	$data['voucher'] 			: 	"";
+		$reference 			=	isset($data['reference']) 			?	$data['reference'] 			: 	"";
+		$warehouse 			=	isset($data['warehouse']) 			?	$data['warehouse'] 			: 	"";
+		$date 				=	isset($data['daterangefilter']) 	?	$data['daterangefilter'] 	: 	"";
+		$remarks 			=	isset($data['notes']) 				? 	$data['notes'] 				: 	"";
+		$account  			=	isset($data['account']) 			? 	$data['account'] 			: 	"";
+		$amount  			=	isset($data['amount']) 				? 	$data['amount'] 			: 	0;
+		$detailparticular 	=	isset($data['detailparticular']) 	? 	$data['detailparticular'] 	:	"";
+		$linenum 			=	isset($data['linenum']) 			? 	$data['linenum'] 			:	"";
+
+		$details['voucherno'] 			=	$generatedvoucher;
+		$details['transtype'] 			=	'JV';
+		$details['linenum'] 			=	$linenum;
+		$details['accountcode'] 		= 	$account;
+		$details['debit'] 				=  	$amount;
+		$details['credit'] 				=	0;
+		$details['exchangerate'] 		= 	1;
+		$details['converteddebit'] 		= 	$amount;
+		$details['convertedcredit'] 	= 	0;
+		$details['source'] 				= 	"closing";
+		$details['detailparticulars'] 	= 	$detailparticular;
+		$details['stat'] 				= 	"temporary";
+
+		$result 	=	 $this->insertdata('journaldetails',$details);
+
+		return $result;
+	}
+
+	public function create_jvdetails_credit($data) {
+		$generatedvoucher 	=	isset($data['voucher']) 			?	$data['voucher'] 			: 	"";
+		$reference 			=	isset($data['reference']) 			?	$data['reference'] 			: 	"";
+		$warehouse 			=	isset($data['warehouse']) 			?	$data['warehouse'] 			: 	"";
+		$date 				=	isset($data['daterangefilter']) 	?	$data['daterangefilter'] 	: 	"";
+		$remarks 			=	isset($data['notes']) 				? 	$data['notes'] 				: 	"";
+		$account  			=	isset($data['account']) 			? 	$data['account'] 			: 	"";
+		$amount  			=	isset($data['amount']) 				? 	$data['amount'] 			: 	0;
+		$detailparticular 	=	isset($data['detailparticular']) 	? 	$data['detailparticular'] 	:	"";
+		$linenum 			=	isset($data['linenum']) 			? 	$data['linenum'] 			:	"";
+
+		$details['voucherno'] 			=	$generatedvoucher;
+		$details['transtype'] 			=	'JV';
+		$details['linenum'] 			=	$linenum;
+		$details['accountcode'] 		= 	$account;
+		$details['debit'] 				=  	0;
+		$details['credit'] 				=	$amount;
+		$details['exchangerate'] 		= 	1;
+		$details['converteddebit'] 		= 	0;
+		$details['convertedcredit'] 	= 	$amount;
+		$details['source'] 				= 	"closing";
+		$details['detailparticulars'] 	= 	$detailparticular;
+		$details['stat'] 				= 	"temporary";
+
+		$result 						=	$this->insertdata('journaldetails',$details);
+
+		return $result;
+	}
+
+	public function insertData($table, $data) {
+		$result 	=	$this->db->setTable($table)
+				 		->setValues($data)
+				 		->runInsert();
+
+		return $result;
+	}
+
+	public function getChartAccountList($cond_value="") {
+		$cond 	=	(!empty($cond_value)) 	?	" accountname LIKE '%$cond_value%' " 	:	"";
+		return $this->db->setTable('chartaccount c')
+						->innerJoin('accountclass ac ON c.companycode = ac.companycode AND c.accountclasscode = ac.accountclasscode')
+						->setFields('id ind, accountname val, accountclass parent')
+						->setOrderBy('accountclass, accountname')
+						->setWhere($cond)
+						->runSelect()
+						->getResult();
+	}
+
+	public function getJVHeader($voucherno){
+		return $this->db->setTable('journalvoucher')
+						->setFields('referenceno, remarks, proformacode, transactiondate')
+						->setWhere("voucherno = '$voucherno' AND stat = 'temporary' AND source = 'closing' ")
+						->runSelect()
+						->getRow();
+	}
+
+	public function getJVDetails($voucherno){
+		return $this->db->setTable('journaldetails')
+						->setFields('linenum, accountcode, detailparticulars, debit, credit')
+						->setWhere("voucherno = '$voucherno' AND stat = 'temporary' AND source = 'closing' ")
+						->runPagination();
+	}
+
+	public function getProformaList() {
+		$result = $this->db->setTable('proforma')
+							->setFields("proformacode ind, proformadesc val")
+							->setWhere("transactiontype = 'Journal Voucher'")
+							->setOrderBy("proformadesc")
+							->runSelect()
+							->getResult();
+		return $result;
+	}
+}	

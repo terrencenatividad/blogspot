@@ -14,6 +14,7 @@
 	<div class="box box-primary">
 		<div class="box-body">
 			<div class = "row">
+				<div class = "col-md-12">&nbsp;</div>
 				<div class = "col-md-11">
 					<div class = "row">
 						<div class = "col-md-6">
@@ -88,12 +89,21 @@
 					<div class = "row">
 						<div class = "col-md-6">
 							<div class="form-group">
-								<label for="apv" class="control-label col-md-4">Total Payment</label>
+								<label for="apv" class="control-label col-md-4">Total Receivables</label>
 								<div class="col-md-8">
+									<?php
+									if(!$show_input){
+										echo '<p class="form-control-static">'.number_format($sum_applied,2).'</p>';
+									}else{
+
+									?>
 									<button type="button" id="apv" class="btn btn-block btn-success btn-flat">
-										<em class="pull-left"><small>Click to view tagged payables</small></em>
+										<em class="pull-left"><small>Click to view tagged rec</small></em>
 										<strong id="pv_amount" class="pull-right"><?=number_format($sum_applied,2)?></strong>
 									</button>
+									<?php
+									}
+									?>
 								</div>
 							</div>
 						</div>
@@ -135,7 +145,7 @@
 			</div>
 
 			<!--Cheque Details-->
-			<div class="panel panel-default" id="cheque_details">
+			<div class="panel panel-default <?php echo $show_cheques?>" id="cheque_details">
 				<div class="panel-heading">
 					<strong>Cheque Details</strong>
 				</div>
@@ -249,13 +259,16 @@
 							<?else:
 								$row 				=	1;
 								$totalchequeamt 	=	0;
-								foreach ($listofcheques as $index => $cheque):
-									$accountcode 	=	$cheque['chequeaccount'];
-									$bank	 		=	$cheque['bank'];
-									$chequeno	 	=	$cheque['chequenumber'];
-									$chequedate 	=	$cheque['chequedate'];
-									$chequeamount 	=	$cheque['chequeamount'];
-									$convertedamt 	=	$cheque['chequeconvertedamount'];
+								if(!empty($listofcheques) && !is_null($listofcheques)):
+									foreach ($listofcheques as $index => $cheque):
+										
+										$accountcode 	=	$cheque['chequeaccount'];
+										$bank	 		=	$cheque['bank'];
+									
+										$chequeno	 	=	$cheque['chequenumber'];
+										$chequedate 	=	$cheque['chequedate'];
+										$chequeamount 	=	$cheque['chequeamount'];
+										$convertedamt 	=	$cheque['chequeconvertedamount'];
 							?>	
 								<tr class="clone">
 									<td>
@@ -330,16 +343,18 @@
 										?>
 									</td>	
 								
-								<? if($show_input):?>
-								<td class="text-center">
-									<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
-								</td>
+									<? if($show_input):?>
+									<td class="text-center">
+										<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+									</td>
 								</tr>
-								<? endif; ?>	
+									<? endif; ?>	
 							<?
+								
 								$row++;
 								$totalchequeamt 	+=	$chequeamount;
-								endforeach;
+									endforeach;
+								endif;
 							endif;?>
 						</tbody>
 						<tfoot>
@@ -570,6 +585,7 @@
 															->setName('debit['.$row.']')
 															->setId('debit['.$row.']')
 															->setClass("text-right account_amount")
+															
 															->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
 															->setValue(number_format($debit, 2))
 															->draw($show_input);
@@ -653,6 +669,11 @@
 					<input class = "form_iput" value = "" name = "h_save" id = "h_save" type = "hidden">
 					<?endif;?>
 					&nbsp;
+					<?
+					if($status == 'unposted' && !$show_input){
+						echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
+					}
+					?>
 					<button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel">Cancel</button>
 				</div>
 			</div>
@@ -686,7 +707,7 @@
 					<br/>
 					<div class="row">
 						<label class="control-label col-md-2">
-						Total Receivable
+							Total Receivable
 						</label>
 						<div class="col-md-3">
 						<?php
@@ -964,7 +985,6 @@ var newid 		= table.rows.length;
 var task 		= '<?= $task ?>';
 
 $('#chequeTable .cheque_account').on('change', function()  {
-
 	var val = $(this).val();
 	var id 	= $(this).attr("id");
 		id 	= id.replace(/[a-z\[\]]/g, '');
@@ -984,16 +1004,16 @@ $('#chequeTable .cheque_account').on('change', function()  {
 		
 	}else{
 		$('#entriesTable tbody tr.clone select').select2('destroy');
-
-		// var clone = $("#entriesTable tbody tr.clone:first").clone(true); 
-		
-		// var ParentRow = $("#entriesTable tbody tr.clone").last();
-
-		// clone.clone(true).insertAfter(ParentRow);
-		
+		var clone = $("#entriesTable tbody tr.clone:first").clone(true);
+		if (id > 1) {
+			var ParentRow = $("#entriesTable tbody").find("#accountcode\\["+ (id - 1) +"\\]").closest('tr.clone');
+			clone.clone(true).insertAfter(ParentRow);                                                                          
+			resetIds();
+		}
 		$('#entriesTable tbody tr.clone select').select2({width: "100%"});
-		
-		var accountcode = $("#accountcode\\["+ 1 +"\\]").val(val).trigger('change.select2');
+		var accountcode = $("#accountcode\\["+ id +"\\]").val(val).trigger('change.select2');
+		$("#accountcode\\["+ id +"\\]").closest('tr').find('.debit').val('0.00').attr('readonly', false);
+		$("#accountcode\\["+ id +"\\]").closest('tr').find('.credit').val('0.00').attr('readonly', false);
 	}
 	accounts.push(val);
 	return found_same;
@@ -1002,20 +1022,15 @@ $('#chequeTable .cheque_account').on('change', function()  {
 // Change event for chequeamount
 $('#chequeTable .chequeamount').on('change', function() {
 	chequeamount = $(this).val();
-	acc = $(this).closest('tr').find('.cheque_account').val();
-	if (typeof checker['acc-' + acc] === 'undefined') {
-		checker['acc-' + acc] = 0;
-	}
-	checker['acc-' + acc] += parseFloat(chequeamount);
+
+	cheques_obj = getCheckAccounts();
+
 	$('#entriesTable tbody .accountcode').each(function() {
-		if (typeof checker['acc-' + $(this).val()] === 'undefined') {
+		if (typeof cheques_obj[$(this).val()] === 'undefined') {
 		} else {
-			var ca = checker['acc-' + $(this).val()] || '0.00';
-			ca = addCommas(ca);
-			$(this).closest('tr').find('.account_amount').val(ca);	
-		}	
+			$(this).closest('tr').find('.account_amount').val(addComma(cheques_obj[$(this).val()]));
+		}
 	});
-	formatNumber("debit["+ newid +"]");
 	addAmountAll('debit');
 });
 
@@ -1613,28 +1628,34 @@ function cancelTransaction(vno){
 /**TOGGLE CHECK DATE FIELD**/
 function toggleCheckInfo(val){
 	var selected_rows = $("#selected_rows").html();
-
-	if(val == 'cheque')
-	{
-		// Trigger click event to add new row
-		$(".add-data").trigger("click");
-		
-		$("#payableForm #cash_payment_details").addClass('hidden');
-		$("#payableForm #check_details").removeClass('hidden');
+	
+	if(val == 'cheque'){
+		if(selected_rows != '[]'){
+			$("#payableForm #cheque_details").removeClass('hidden');
+		}else{
+			
+			var list 	= (customer != '') ? "<ul><li>Total Receipt</li></ul>" : "<ul><li>Vendor</li><li>Total Receipt</li></ul>";
+			var msg 	= "The following fields are required to process a '<strong>Cheque</strong>' payment."+list;
+			bootbox.dialog({
+				message: msg,
+				title: "Oops!",
+					buttons: {
+					yes: {
+					label: "Ok",
+					className: "btn-primary btn-flat",
+					callback: function(result) {
+							$("#payableForm #paymentmode").val('cash');
+							$('#payableForm #paymentmode').select2('destroy');
+							$('#payableForm #paymentmode').select2({width: "100%"});
+						}
+					}
+				}
+			});
+		}
 	}
 	else
 	{
-		// Delete last row in details if paymentmode is cash
-		// var $tbody = $("#ap_items");
-		// var $last  = $tbody.find('tr:last');
-
-		// if(!$last.is(':first-child'))
-		// {
-		// 	$last.remove();
-		// }
-
-		$("#payableForm #cash_payment_details").removeClass('hidden');
-		$("#payableForm #check_details").addClass('hidden');
+		$("#payableForm #cheque_details").addClass('hidden');
 	}
 
 }
@@ -1667,7 +1688,7 @@ function confirmChequePrint(row){
 			label: "Cheque Only",
 			className: "btn-primary btn-flat",
 			callback: function(result) {
-					var link 	 		= '<?= BASE_URL ?>financials/receipt_voucher/generateCheck/'+paymentvoucher+'/'+chequeno;
+				var link 	 		= '<?= BASE_URL ?>financials/receipt_voucher/generateCheck/'+paymentvoucher+'/'+chequeno;
 					// 'popups/generateCheck.php?sid='+paymentvoucher+'&cn='+chequeno;
 					window.open(link);
 				}
@@ -1676,7 +1697,7 @@ function confirmChequePrint(row){
 			label: "Cheque with Voucher",
 			className: "btn-success btn-flat",
 			callback: function(result) {
-					var link 	 		= '<?= BASE_URL ?>financials/receipt_voucher/generateCheckVoucher/'+paymentvoucher+'/'+chequeno+'/rv';
+				var link 	 		= '<?= BASE_URL ?>financials/receipt_voucher/generateCheckVoucher/'+paymentvoucher+'/'+chequeno+'/rv';
 					// 'popups/generateCheckVoucher.php?sid='+paymentvoucher+'&cn='+chequeno+'&type=rv';
 					window.open(link);
 				}
@@ -1721,7 +1742,7 @@ function showList()
 							$('#pagination').html(data.pagination);
 							$('#paymentModal #payable_list_container').html(data.table);
 
-						selectPayable(); 
+						// selectPayable(); 
 						}
 
 						if (ajax.page > data.page_limit && data.page_limit > 0) {
@@ -1857,16 +1878,42 @@ function addPaymentAmount() {
 	// document.getElementById('total_discount').value 	= addCommas(subdiscount.toFixed(2));	
 }
 
+function getCheckAccounts() {
+	var cheques_obj = {};
+	var cheques = [];
+
+	$('#chequeTable tbody tr').each(function() {
+		var chequeaccount = $(this).find('.chequeaccount').val();
+		var chequeamount = $(this).find('.chequeamount').val();
+		cheques_obj[chequeaccount] = (cheques_obj[chequeaccount] >= 0) ? cheques_obj[chequeaccount] + removeComma(chequeamount) : removeComma(chequeamount);
+	});
+
+	return cheques_obj
+}
+
 var payments 		= <?=$payments;?>;
 var container 		= (payments != '') ? payments : [];
 var selectedIndex 	= -1;
 function getPVDetails(){
 	var customercode   	= $("#customer").val();
 	var selected_rows 	= JSON.stringify(container);
+
+	var cheques = [];
+	cheques_obj = getCheckAccounts();
+
+
+	for (var chequeaccount in cheques_obj) {
+		if (cheques_obj.hasOwnProperty(chequeaccount)) {
+			cheques.push({accountcode: chequeaccount, chequeamount: cheques_obj[chequeaccount]});
+		}
+	}
+
+	cheques = JSON.stringify(cheques);
+
 	$("#selected_rows").html(selected_rows);
 
-	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode;
-
+	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques;
+	
 	if(selected_rows == "")
 	{
 		bootbox.dialog({
@@ -1959,54 +2006,11 @@ function selectPayable(id,toggle){
 		}
 	}
 
-	if ('<?php echo $task == 'edit'?>'){
-			if(check.prop('checked')){
-				console.log('1');
-				if(toggle == 1){
-					check.prop('checked', false);
-					paymentamount.prop('disabled',true);
-					paymentamount.val('');
-					discountamount.prop('disabled',true);
-					// discountamount.val('');
-				}else{
-					check.prop('checked', true);
-					paymentamount.prop('disabled',false);
-					paymentamount.val(balance);
-					discountamount.prop('disabled',false);
-					// discountamount.val(balance);
-				}
-			}else{
-				console.log('2');
-				if(toggle == 1){
-					check.prop('checked', true);
-					paymentamount.prop('disabled',false);
-					paymentamount.val(balance);
-					discountamount.prop('disabled',false);
-					// discountamount.val(balance);
-				}else{
-
-					
-					check.prop('checked', false);
-					paymentamount.prop('disabled',true);
-					orig_bal = balance.replace(/\,/g,'');
-					paymentamount_val = paymentamount_val.replace(/\,/g,'');
-					balance2 = parseFloat(paymentamount_val) + parseFloat(orig_bal);
-					// new_bal.html(orig_bal).attr('data-value', orig_bal);
-					
-					paymentamount.val('');
-					
-
-					discountamount.prop('disabled',true);
-					// discountamount.val('0.00');
-				}
-			}
-
-	}
-
 	$('#payable_list_container #check'+id).iCheck('update');
 
 	// Get number of checkboxes and assign to textarea
 	add_storage(id,balance,0);
+	console.log(id);
 	addPaymentAmount();
 }
 
@@ -2018,14 +2022,8 @@ function init_storage(){
 }
 
 function add_storage(id,balance,discount){
-	var amount 		= $('#paymentModal #paymentamount'+id).val() ;
-	var newbal  		= $('#payable_list_container #orig_bal'+id).attr('data-value');
-	var received  		= $('#payable_list_container #orig_bal'+id).html();
-	received = received.replace(/\,/g,'') || 0;
-	var new_balance = addCommas(received) ;
-
-	var newvalue 	= {vno:id,amt:amount,bal:new_balance,dis:discount};
-
+	var amount 		= $('#paymentModal #paymentamount'+id).val();
+	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount};
 	if(amount != ''){
 		var found = false;
 		for(var i=0; element=container[i]; i++) {
@@ -2046,7 +2044,7 @@ function add_storage(id,balance,discount){
 				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount)) - discount;
 				discounted_amount 		=	addCommas(discounted_amount.toFixed(2));
 
-				$('#payable_list_container #payable_balance'+id).html(new_balance);
+				$('#payable_list_container #payable_balance'+id).html(available_balance);
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
 
 				// console.log("New || "+discounted_amount+ " | " + new_balance + " | "+discount);
@@ -2070,7 +2068,7 @@ function add_storage(id,balance,discount){
 		}
 		
 	}else{
-		$('#payable_list_container #payable_balance'+id).html(new_balance);;
+		$('#payable_list_container #payable_balance'+id).html(balance);;
 		container = container.filter(function( obj ) {
 			return obj.vno !== id;
 		});
@@ -2115,6 +2113,7 @@ function checkBalance(val,id){
 	else
 	{
 		add_storage(id,dueamount,discount);
+		// console.log(id);
 	}
 		
 	addPaymentAmount();	
@@ -2470,7 +2469,7 @@ $(document).ready(function() {
 		
 		$('#itemsTable tbody tr.clone select').select2({width: "100%"});
 	});
-
+	
 	/**ADD NEW BANK ROW**/
 	$('body').on('click', '.add-cheque', function() {
 		$('#chequeTable tbody tr.clone select').select2('destroy');
@@ -2896,7 +2895,7 @@ $(document).ready(function() {
 						if(data.code == '1')
 						{
 							$("#payableForm #h_voucher_no").val(data.voucher);
-							window.location.href = '<?=BASE_URL?>financials/payment_voucher';
+							// window.location.href = '<?=BASE_URL?>financials/receipt_voucher';
 						}
 					});
 				});
@@ -2976,9 +2975,10 @@ $(document).ready(function() {
 			var valid	= 0;
 
 			/**validate vendor field**/
-		valid		+= validateField('payableForm','document_date', "document_date_help");
-		valid		+= validateField('payableForm','customer', "customer_help");
-		valid		+= validateField('payableForm','due_date', "due_date_help");
+			valid		+= validateField('payableForm','document_date', "document_date_help");
+			valid		+= validateField('payableForm','customer', "customer_help");
+
+			valid		+= validateField('payableForm','due_date', "due_date_help");
 			
 			/**validate items**/
 			valid		+= validateDetails();
@@ -3026,6 +3026,7 @@ $(document).ready(function() {
 			valid		+= validateField('payableForm','duedate', "due_date_help");
 			
 			/**validate items**/
+			valid		+= validateDetails();
 			
 			if(valid == 0)
 			{
@@ -3062,7 +3063,7 @@ $(document).ready(function() {
 
 		if(paymentmode == "cheque")
 		{
-			toggleCheckInfo(paymentmode);
+			//toggleCheckInfo(paymentmode);
 			//loadCheques();
 		}
 
@@ -3076,7 +3077,7 @@ $(document).ready(function() {
 			/**validate vendor field**/
 			valid		+= validateField('payableForm','document_date', "document_date_help");
 			valid		+= validateField('payableForm','customer', "customer_help");
-		
+			
 			valid		+= validateField('payableForm','due_date', "due_date_help");
 			
 			/**validate items**/
@@ -3277,22 +3278,7 @@ $(document).ready(function() {
 	});
 
 	var cheque_detail 	=	$('#paymentmode').val();
-
-	if( cheque_detail	== 'cheque' ){
-		$('#cheque_details').show();
-	} else {
-		$('#cheque_details').hide();
-	}
 	
-	$('#paymentmode').on('change',function(){
-		if($(this).val() == 'cheque'){
-			$('#cheque_details').show();
-		} else {
-			$('#cheque_details').hide();
-		}
-		
-	});
-
 	$('#change_customer_modal').on('click','#yes_to_reset',function(){
 		
 		$('#ap_items .clone').each(function(index) {

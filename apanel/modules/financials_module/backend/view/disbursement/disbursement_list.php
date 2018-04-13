@@ -4,13 +4,13 @@
 			<div class="row">
 				<div class = "col-md-8">
 					<div class="btn-group">
-						<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create Payment Voucher</a>
+						<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create Disbursement Voucher</a>
 						<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							<span class="caret"></span>
 							<span class="sr-only">Toggle Dropdown</span>
 						</button>
 						<ul class="dropdown-menu">
-							<li><a href="<?= MODULE_URL ?>get_export" id="export_table" download="Payment Voucher.csv"><i class="glyphicon glyphicon-open"></i>Export Voucher/s</a></li>
+							<li><a href="<?= MODULE_URL ?>get_export" id="export_table" download="Disbursement Voucher.csv"><i class="glyphicon glyphicon-open"></i>Export Voucher/s</a></li>
 							<!--<li><a href="#import-modal" data-toggle="modal"><i class="glyphicon glyphicon-save"></i>Import Voucher/s</a></li>-->
 						</ul>
 					</div>
@@ -174,7 +174,7 @@
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true">×</span></button>
-						<h4 class="modal-title">Import Payment Vouchers</h4>
+						<h4 class="modal-title">Import Disbursement Vouchers</h4>
 					</div>
 					<div class="modal-body">
 						<label>Step 1. Download the sample template <a href="<?=BASE_URL?>modules/financials_module/backend/view/pdf/import_payment_voucher.csv">here</a></label>
@@ -257,15 +257,15 @@
 		linkDeleteToModal('#tableList .delete', 'deleteCallback');
 		linkCancelToModal('#tableList .cancel', 'cancelCallback');
 
-		createConfimationLink('#tableList .post', 'postCallback', 'Are you sure you want to post this payment voucher?');
-		createConfimationLink('#tableList .unpost', 'unpostCallback', 'Are you sure you want to unpost this payment voucher?');
+		createConfimationLink('#tableList .post', 'postCallback', 'Are you sure you want to post this disbursement voucher?');
+		createConfimationLink('#tableList .unpost', 'unpostCallback', 'Are you sure you want to unpost this disbursement voucher?');
 
 		linkDeleteMultipleToModal('#item_multiple_delete', '#tableList', 'deleteCallback');
 		linkCancelMultipleToModal('#item_multiple_cancel', '#tableList', 'cancelCallback');
 	});
 	function showList(){
 		filterToURL();
-		ajax_call = $.post('<?=BASE_URL?>financials/payment_voucher/ajax/load_list', ajax, function(data){
+		ajax_call = $.post('<?=BASE_URL?>financials/disbursement/ajax/load_list', ajax, function(data){
 			$('#list_container').html(data.list);
 			$('#pagination').html(data.pagination);
 			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));

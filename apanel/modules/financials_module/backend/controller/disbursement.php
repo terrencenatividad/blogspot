@@ -10,7 +10,7 @@ class controller extends wc_controller
 		$this->input            = new input();
 		$this->ui 			    = new ui();
 		$this->logs  			= new log;
-		$this->view->title      = 'Payment Voucher';
+		$this->view->title      = 'Disbursement Voucher';
 		$this->show_input 	    = true;
 
 		$this->companycode      = COMPANYCODE;
@@ -36,64 +36,11 @@ class controller extends wc_controller
 		$cash_order_by 		 	  = "class.accountclass";
 		$data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
-		$this->view->load('payment_voucher/payment_voucher_list', $data);
-	}
-
-	public function update_app($check_rows)
-	{
-		/**UPDATE MAIN INVOICE**/
-		$applicableHeaderTable = "accountspayable";
-		$applicationTable 	   = "pv_application";
-		
-		$invoice_data 	= (isset($check_rows) && (!empty($check_rows))) ? trim($check_rows) : "";
-		$invoice_data  = str_replace('\\', '', $invoice_data);
-		$decode_json   = json_decode($invoice_data, true);
-
-		if(!empty($decode_json))
-		{
-			for($i = 0; $i < count($decode_json); $i++)
-			{
-				$invoice = $decode_json[$i]["apvoucher"];
-				$amount  = $decode_json[$i]["amount"];
-
-				// accountspayable
-				$invoice_amount				= $this->payment_voucher->getValue($applicableHeaderTable, array("convertedamount"), "voucherno = '$invoice' AND stat = 'posted'");
-				$applied_discount			= 0;
-
-				// pv_application
-				$applied_sum				= $this->payment_voucher->getValue($applicationTable, array("SUM(convertedamount) AS convertedamount")," apvoucherno = '$invoice' AND stat = 'posted' ");
-
-				// pv_application
-				$applied_discount			= $this->payment_voucher->getValue($applicationTable, array("SUM(discount) AS discount"), "apvoucherno = '$invoice' AND stat = 'posted' ");
-
-				// pv_application
-				$applied_forexamount		= $this->payment_voucher->getValue($applicationTable, array("SUM(forexamount) AS forexamount"), "apvoucherno = '$invoice' AND stat = 'posted' ");
-
-				$applied_sum				= $applied_sum[0]->convertedamount - $applied_forexamount[0]->forexamount;
-
-				$invoice_amount				= (!empty($invoice_amount)) ? $invoice_amount[0]->convertedamount : 0;
-				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
-
-				$invoice_balance			= $invoice_amount - $applied_sum - $applied_discount[0]->discount;
-
-				$balance_info['amountpaid']	= $applied_sum + $applied_discount[0]->discount;
-				// $balance_info['convertedamount']	= $applied_sum + $applied_discount[0]->discount;
-				$balance_info['balance']	= $invoice_amount - $applied_sum - $applied_discount[0]->discount;
-
-				// accountspayable
-				$insertResult = $this->payment_voucher->editData($balance_info, $applicableHeaderTable, "voucherno = '$invoice'");	
-				if(!$insertResult)
-					$errmsg["error"][] = "The system has encountered an error in updating Account Payable [$invoice]. Please contact admin to fix this issue.<br/>";
-			}
-		}
+		$this->view->load('disbursement/disbursement_list', $data);
 	}
 
 	public function create()
 	{	
-		/**
-		 * Method to lock screen when in use by other users
-		 */
-		$access	= $this->access->checkLockAccess('create');
 		$cmp 	= $this->companycode;
 		$seq 	= new seqcontrol();
 
@@ -111,53 +58,48 @@ class controller extends wc_controller
 			"paymenttype"
 		));
 
-		$data["ui"]                   = $this->ui;
-		$data['show_input']           = $this->show_input;
-		$data['button_name']          = "Save";
-		$data["task"] 		          = "create";
-		$data["ajax_post"] 	          = "";
-		$data["row_ctr"] 			  = 0;
-		$data["exchangerate"]         = "1.00";
-		$data["row"] 			  		= 1;
-		$data["transactiondate"]      = $this->date->dateFormat();
-		$data["status"] 				= "";
+		$data["ui"]                	= $this->ui;
+		$data['show_input']         = $this->show_input;
+		$data['button_name']        = "Save";
+		$data["task"] 		        = "create";
+		$data["ajax_post"] 	        = "";
+		$data["row_ctr"] 			= 0;
+		$data["exchangerate"]       = "1.00";
+		$data["row"] 			  	= 1;
+		$data["transactiondate"]    = $this->date->dateFormat();
+		$data["status"] 			= "";
 		// Retrieve vendor list
-		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList();
+		$data["vendor_list"]        = $this->payment_voucher->retrieveVendorList();
 
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond               = "accounttype != 'P'";
-		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
+		$acc_entry_data             = array("id ind","CONCAT(segment5, ' - ', accountname) val");
+		$acc_entry_cond             = "accounttype != 'P'";
+		$data["account_entry_list"] = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// Cash Account Options
-		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
-		$cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		$cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
-		$cash_order_by 		 	  = "class.accountclass";
-		$data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
+		$cash_account_fields 	  	= 'chart.id ind, chart.accountname val, class.accountclass';
+		$cash_account_join 	 	  	= "accountclass as class USING(accountclasscode)";
+		$cash_account_cond 	 	  	= "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
+		$cash_order_by 		 	  	= "class.accountclass";
+		$data["cash_account_list"] 	= $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
-		// Retrieve generated ID
-		// $gen_value                    = $this->payment_voucher->getValue("paymentvoucher", "COUNT(*) as count", "voucherno != ''");	
-		// $data["generated_id"]         = (!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
-		$data["generated_id"]     = '';
+		$data["generated_id"]     	= '';
 
 		// Application Data
-		$data['sum_applied'] 	= 0;
-		$data['sum_discount']	= 0;
-		$data['payments'] 		= "''";
+		$data['sum_applied'] 		= 0;
+		$data['sum_discount']		= 0;
+		$data['payments'] 			= "''";
 
-		$data["listofcheques"]	= "";
-		$data["show_cheques"] 	= 'hidden';
+		$data["listofcheques"]		= "";
+		$data["show_cheques"] 		= 'hidden';
 
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
-		// echo "before";
+		
 		if (!empty($data_validate["vendor"]) && !empty($data_validate["document_date"])) 
 		{
 			$errmsg = array();
 			$temp 	= array();
-			// echo "HERE";
-			// echo $data_validate['h_save'];
 
 			$voucherno = (isset($data_validate['h_voucher_no']) && (!empty($data_validate['h_voucher_no']))) ? htmlentities(trim($data_validate['h_voucher_no'])) : "";
 
@@ -166,7 +108,7 @@ class controller extends wc_controller
 			if($isExist[0]->voucherno)
 			{
 				/**UPDATE MAIN TABLES**/
-				$generatedvoucher			= $seq->getValue('PV'); 
+				$generatedvoucher			= $seq->getValue('DV');
 			
 				$update_info				= array();
 				$update_info['voucherno']	= $generatedvoucher;
@@ -174,31 +116,28 @@ class controller extends wc_controller
 				$update_condition			= "voucherno = '$voucherno'";
 				$updateTempRecord			= $this->payment_voucher->editData($update_info,"paymentvoucher",$update_condition);
 				$updateTempRecord			= $this->payment_voucher->editData($update_info,"pv_details",$update_condition);
-				$updateTempRecord			= $this->payment_voucher->editData($update_info,"pv_application",$update_condition);
 				$updateTempRecord			= $this->payment_voucher->editData($update_info,"pv_cheques",$update_condition);
 
-				/**UPDATE MAIN INVOICE**/
-				$this->update_app($data_validate['selected_rows']);
 			}
 			
 			if(empty($errmsg))
 			{
 				// For Admin Logs
-				$this->logs->saveActivity("Add New Payment Voucher [$generatedvoucher]");
+				$this->logs->saveActivity("Add New Disbursement Voucher [$generatedvoucher]");
 
 				if(!empty($data_validate['h_save'])){
-					$this->url->redirect(BASE_URL . 'financials/payment_voucher');
+					$this->url->redirect(BASE_URL . 'financials/disbursement');
 				}else if(!empty($data_validate['h_save']) && $data_validate['h_save'] == 'h_save_preview'){
-					$this->url->redirect(BASE_URL . 'financials/payment_voucher/view/' . $generatedvoucher);
+					$this->url->redirect(BASE_URL . 'financials/disbursement/view/' . $generatedvoucher);
 				}else{
-					$this->url->redirect(BASE_URL . 'financials/payment_voucher/create');
+					$this->url->redirect(BASE_URL . 'financials/disbursement/create');
 				}
 			}else{
 				$data["errmsg"] = $errmsg;
 			}
 		}
 		
-		$this->view->load('payment_voucher/payment_voucher', $data);
+		$this->view->load('disbursement/disbursement', $data);
 	}
 
 	public function view($sid)
@@ -284,7 +223,7 @@ class controller extends wc_controller
 		$data['sum_applied'] 	= $sum_applied;
 		$data['sum_discount'] 	= $sum_discount;
 
-		$this->view->load('payment_voucher/payment_voucher', $data);
+		$this->view->load('disbursement/disbursement', $data);
 	}
 
 	public function edit($sid)
@@ -323,14 +262,14 @@ class controller extends wc_controller
 		$data["transactiondate"] 	= $this->date->dateFormat($data["main"]->transactiondate);
 		$data["particulars"]     	= $data["main"]->particulars;
 		$data["paymenttype"]     	= $data["main"]->paymenttype;
-		$data['status']				= $data["main"]->stat;
-
-		$data["listofcheques"]	 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
-		$data["show_cheques"] 	 	= isset($data['rollArray'][$sid]) ? '' : 'hidden';
+		$data["status"]     		= $data["main"]->stat;
+		
+		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
+		$data["show_cheques"] 	 = isset($data['rollArray'][$sid]) ? '' : 'hidden';
 		// Application Data
-		$payments 				= $data['payments'];
-		$sum_applied			= 0;
-		$sum_discount			= 0;
+		$payments 			= $data['payments'];
+		$sum_applied		= 0;
+		$sum_discount		= 0;
 		if($payments){
 			foreach($payments as $key=>$value){
 				if(isset($value->amt))   
@@ -349,45 +288,25 @@ class controller extends wc_controller
 
 		if (!empty($data_validate["vendor"]) && !empty($data_validate["document_date"])) 
 		{
-			$this->update_app($data_validate["h_check_rows_"]);
 
 			// For Admin Logs
 			$this->logs->saveActivity("Update Payment Voucher [$sid]");
 
 			if(!empty($data_validate['h_save']))
 			{
-				$this->url->redirect(BASE_URL . 'financials/payment_voucher');
+				$this->url->redirect(BASE_URL . 'financials/disbursement');
 			}
 			else if(!empty($data_validate['h_save_preview']))
 			{
-				$this->url->redirect(BASE_URL . 'financials/payment_voucher/view/' . $sid);
+				$this->url->redirect(BASE_URL . 'financials/disbursement/view/' . $sid);
 			}
 			else
 			{
-				$this->url->redirect(BASE_URL . 'financials/payment_voucher/create');
+				$this->url->redirect(BASE_URL . 'financials/disbursement/create');
 			}	 
 		}
 
-		$this->view->load('payment_voucher/payment_voucher', $data);
-	}
-
-	private function check()
-	{
-		$chequevalue = $this->input->post("chequevalue");
-
-		/**
-		* Validate cheque number
-		*/
-		$result  = $this->payment_voucher->getValue("pv_cheques", "chequenumber", "chequenumber = '$chequevalue'" );
-		$success = false;
-		$msg 	 = "";
-
-		if(!empty($result))
-		{
-			$success = true;
-		}
-
-		return array( "success" => $success );
+		$this->view->load('disbursement/disbursement', $data);
 	}
 
 	public function print_preview($voucherno) 
@@ -680,6 +599,25 @@ class controller extends wc_controller
 
 		$dataArray = array( "msg" => $msg );
 		return $dataArray;
+	}
+
+	private function check()
+	{
+		$chequevalue = $this->input->post("chequevalue");
+
+		/**
+		* Validate cheque number
+		*/
+		$result  = $this->payment_voucher->getValue("pv_cheques", "chequenumber", "chequenumber = '$chequevalue'" );
+		$success = false;
+		$msg 	 = "";
+
+		if(!empty($result))
+		{
+			$success = true;
+		}
+
+		return array( "success" => $success );
 	}
 
 	private function delete_row()
@@ -1152,9 +1090,10 @@ class controller extends wc_controller
 
 	private function load_list()
 	{
-		$data_post 	= $this->input->post(array("daterangefilter", "vendor", "filter", "search", "sort"));
-
-		$list   	= $this->payment_voucher->retrieveList($data_post);
+		$data_post 				= $this->input->post(array("daterangefilter", "vendor", "filter", "search", "sort"));
+		$data_post['voucher'] 	= "DV";
+		
+		$list   				= $this->payment_voucher->retrieveList($data_post);
 		
 		$table  	= "";
 
@@ -1263,8 +1202,9 @@ class controller extends wc_controller
 	}
 
 	private function export(){
-		$data_get = $this->input->post(array("daterangefilter", "vendor", "filter", "search", "sort"));
-		$data_get['daterangefilter'] = str_replace(array('%2F', '+'), array('/', ' '), $data_get['daterangefilter']);
+		$data_get 						= $this->input->post(array("daterangefilter", "vendor", "filter", "search", "sort"));
+		$data_get['daterangefilter'] 	= str_replace(array('%2F', '+'), array('/', ' '), $data_get['daterangefilter']);
+		$data_get['voucher'] 			= "PV";
 		$result2 = $this->payment_voucher->fileExportlist($data_get);
 		
 		$header = array("Date","Voucher","Vendor","Reference","Amount","Status");

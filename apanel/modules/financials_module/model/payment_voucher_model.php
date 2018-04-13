@@ -60,7 +60,7 @@ class payment_voucher_model extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount";
+		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -118,54 +118,6 @@ class payment_voucher_model extends wc_model
 									->getResult();
 
 		$temp["payments"] = $applicationArray;
-
-		// Received Cheques
-		// $sub_select = $this->db->setTable("pv_application AS app")
-		// 					   ->setFields("app.voucherno")
-		// 					   ->setWhere("app.voucherno = '$sid'")
-		// 					   ->buildSelect();
-
-		// $chequeFields = 'voucherno, chequeaccount, chequenumber, chequedate, chequeamount, chequeconvertedamount';
-		// $cheque_cond  = "voucherno IN($sub_select)";
-
-		// $chequeArray  = $this->db->setTable('pv_cheques')
-		// 							->setFields($chequeFields)
-		// 							->setWhere($cheque_cond)
-		// 							// ->buildSelect();
-		// 							->runSelect()
-		// 							->getResult();
-		
-		// // var_dump($chequeArray);
-
-		// $rollArray	  = array();
-	
-		// if(!empty($chequeArray))
-		// {
-		// 	$checkArray	= array();
-			
-		// 	$chequeListArray	= array();
-
-		// 	for($c = 0; $c < count($chequeArray); $c++)
-		// 	{
-		// 		$pvno					= $chequeArray[$c]->voucherno;
-		// 		$chequeaccount			= $chequeArray[$c]->chequeaccount;
-		// 		$chequenumber			= $chequeArray[$c]->chequenumber; 
-		// 		$chequedate				= $chequeArray[$c]->chequedate; 
-		// 		$chequedate				= $this->date->dateFormat($chequedate);
-		// 		$chequeamount			= $chequeArray[$c]->chequeamount;
-		// 		$chequeconvertedamount	= $chequeArray[$c]->chequeconvertedamount;
-
-		// 		$rollArray1['chequeaccount']		= $chequeaccount;
-		// 		$rollArray1['chequenumber']			= $chequenumber;
-		// 		$rollArray1['chequedate']			= $chequedate;
-		// 		$rollArray1['chequeamount']			= $chequeamount;
-		// 		$rollArray1['chequeconvertedamount'] = $chequeconvertedamount;
-				
-		// 		$rollArray[$pvno][]				= $rollArray1;
-		// 	}
-		// }
-		
-		// $temp["rollArray"] = $rollArray;
 
 		// Received Cheques for View
 		$chequeFields = 'pvc.voucherno, pvc.chequeaccount, chart.accountname, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount';
@@ -297,12 +249,13 @@ class payment_voucher_model extends wc_model
 		$filter         	= isset($data['filter']) ? htmlentities($data['filter']) : "";
 		$searchkey 		 	= isset($data['search']) ? htmlentities($data['search']) : "";
 		$sort 		 	 	= isset($data['sort']) ? htmlentities($data['sort']) : "main.transactiondate DESC";
+		$voucher         	= isset($data['voucher']) ? htmlentities($data['voucher']) : "PV";
 
 		$datefilterArr		= explode(' - ',$daterangefilter);
 		$datefilterFrom		= (!empty($datefilterArr[0])) ? $this->date->dateDbFormat($datefilterArr[0]) : ""; 
 		$datefilterTo		= (!empty($datefilterArr[1])) ? $this->date->dateDbFormat($datefilterArr[1]) : "";
 
-		$add_query 			= '';
+		$add_query 			= " ";
 		
 		if ($filter != 'all' && $filter != ''){
 			$add_query .= " AND main.stat = '$filter' ";
@@ -312,6 +265,9 @@ class payment_voucher_model extends wc_model
 		}
 		if ($vendfilter && $vendfilter != 'none'){
 			$add_query .= " AND p.partnercode = '$vendfilter' ";
+		}
+		if ($voucher){
+			$add_query .= " AND main.transtype = '$voucher' ";
 		}
 		if ($searchkey){
 			$add_query .= " AND ".$this->generateSearch($searchkey, array("main.voucherno","p.partername","coa.accountname","pvc.chequenumber"));
@@ -337,7 +293,7 @@ class payment_voucher_model extends wc_model
 								->leftJoin("partners p ON p.partnercode = main.vendor ")
 								->leftJoin("pv_cheques as pvc ON pvc.voucherno = main.voucherno ")
 								->leftJoin("chartaccount coa ON coa.id = pvc.chequeaccount ")
-								->setWhere("main.stat != 'temporary' ".$add_query)
+								->setWhere("main.stat NOT IN('deleted','temporary') ".$add_query)
 								->setOrderBy($sort)
 								->setGroupBy("main.voucherno, pvc.chequenumber")
 								->runPagination();
@@ -572,7 +528,7 @@ class payment_voucher_model extends wc_model
 		$applicableHeaderTable 	= "accountspayable"; 
 		$applicableDetailTable 	= "ap_details"; 
 
-		$source				   	= "PV"; 
+		 
 
 		$insertResult		   	= 0;
 	
@@ -592,6 +548,8 @@ class payment_voucher_model extends wc_model
 		$invoice_data  			= html_entity_decode($invoice_data);
 		$picked_payables		= json_decode($invoice_data, true);
 		
+		$source				   	= (!empty($picked_payables)) ? "PV" : "DV";
+
 		$exchangerate			= (!empty($data['paymentrate'])) ? $data['paymentrate'] : "1.00";
 		$convertedamount		= (!empty($data['paymentconverted'])) ? $data['paymentconverted'] : $total_payment;
 		$checkdate				= (!empty($data['checkdate'])) ? $data['checkdate'] : "0000-00-00";
@@ -604,7 +562,7 @@ class payment_voucher_model extends wc_model
 		$total_credit 			= str_replace(',','',$total_credit);
 		
 		$gen_value              = $this->getValue("paymentvoucher", "COUNT(*) as count", " voucherno != ''");	
-		$temporary_voucher     	= (!empty($gen_value[0]->count)) ? 'PV_'.($gen_value[0]->count + 1) : 'PV_1';
+		$temporary_voucher     	= (!empty($gen_value[0]->count)) ? $source.'_'.($gen_value[0]->count + 1) : $source.'_1';
 
 		$voucherno 				= (!empty($voucherno)) ? $voucherno : $temporary_voucher;
 		
@@ -682,7 +640,7 @@ class payment_voucher_model extends wc_model
 				
 				if(!empty($chequedate) && !empty($chequeaccount) && !empty($chequenumber) && !empty($chequeamount)){
 					$cheque_header['voucherno']				= $voucherno;
-					$cheque_header['transtype']				= "PV";
+					$cheque_header['transtype']				= $source;
 					$cheque_header['linenum']				= $linecount;
 					$cheque_header['chequeaccount']			= $chequeaccount;
 					$cheque_header['chequenumber']			= $chequenumber;
@@ -697,8 +655,8 @@ class payment_voucher_model extends wc_model
 			}
 		}
 
-		$isExist						= $this->getValue($mainAppTable, array("stat"), "voucherno = '$voucherno' AND stat = 'posted'");
-		$status							= (!empty($isExist[0]->stat)) ? "posted" : "temporary";
+		$isExist						= $this->getValue($mainAppTable, array("stat"), "voucherno = '$voucherno' AND stat IN('unposted','posted','cancelled') ");
+		$status							= (!empty($isExist[0]->stat)) ? "unposted" : "temporary";
 		$valid 							= 0;
 
 		$transactiondate				= $this->date->dateDbFormat($transactiondate); 
@@ -787,8 +745,8 @@ class payment_voucher_model extends wc_model
 			$aPvDetailArray[]					= $post_detail;
 		}
 
+		$aPvApplicationArray 	= array();
 		if(!empty($picked_payables)){
-			$aPvApplicationArray 	= array();
 			$iApplicationLineNum	= 1;
 			foreach ($picked_payables as $pickedKey => $pickedValue) {
 				$payable 	= $pickedValue['vno'];
@@ -801,7 +759,7 @@ class payment_voucher_model extends wc_model
 				$totalamount+=$amount;
 
 				$post_application['voucherno']			= $voucherno;
-				$post_application['transtype']			= 'PV';
+				$post_application['transtype']			= $source;
 				$post_application['linenum']			= $iApplicationLineNum;
 				$post_application['apvoucherno']		= $payable;
 				$post_application['discount']			= $discount;
@@ -830,71 +788,101 @@ class payment_voucher_model extends wc_model
 		}else{
 			$combined_payables 		= $picked_payables;
 		}
-
-		// details and pv_application
-		$isAppDetailExist	= $this->getValue($applicationTable, array("COUNT(*) AS count"), " voucherno = '$voucherno'");
 		
-		if($isAppDetailExist[0]->count > 0){
-
-			$this->db->setTable($detailAppTable)
-					->setWhere("voucherno = '$voucherno'")
-					->runDelete();
-
-			$insertResult = $this->db->setTable($detailAppTable) 
-								->setValues($aPvDetailArray)
-								->setWhere("voucherno = '$voucherno'")
-								->runInsert();
-							
-			if(!$insertResult){
-				$code 		= 0;
-				$errmsg[] 	= "<li>Error in Saving Payment Voucher Details.</li>";
-			}
-
-			$this->db->setTable($applicationTable)
-					->setWhere("voucherno = '$voucherno'")
-					->runDelete();
-					
-			$insertResult = $this->db->setTable($applicationTable) 
-								->setValues($aPvApplicationArray)
-								->setWhere("voucherno = '$voucherno'")
-								->runInsert();
-							
-			if(!$insertResult){
-				$code 		= 0;
-				$errmsg[] 	= "<li>Error in Updating Payment Voucher Application.</li>";
-			}
-		}else if(!empty($isAppDetailExist)){
-			$insertResult = $this->db->setTable($detailAppTable) 
-								->setValues($aPvDetailArray)
-								->runInsert();
+		// details and pv_application
+		if(!empty($aPvApplicationArray) && !is_null($aPvApplicationArray)){
+			$isAppDetailExist	= $this->getValue($applicationTable, array("COUNT(*) AS count"), " voucherno = '$voucherno'");
+		
+			if($isAppDetailExist[0]->count > 0){
+	
+				$this->db->setTable($detailAppTable)
+						->setWhere("voucherno = '$voucherno'")
+						->runDelete();
+	
+				$insertResult = $this->db->setTable($detailAppTable) 
+									->setValues($aPvDetailArray)
+									->setWhere("voucherno = '$voucherno'")
+									->runInsert();
 								
+				if(!$insertResult){
+					$code 		= 0;
+					$errmsg[] 	= "<li>Error in Saving Payment Voucher Details.</li>";
+				}
+	
+				$this->db->setTable($applicationTable)
+						->setWhere("voucherno = '$voucherno'")
+						->runDelete();
+						
+				$insertResult = $this->db->setTable($applicationTable) 
+									->setValues($aPvApplicationArray)
+									->setWhere("voucherno = '$voucherno'")
+									->runInsert();
+								
+				if(!$insertResult){
+					$code 		= 0;
+					$errmsg[] 	= "<li>Error in Updating Payment Voucher Application.</li>";
+				}
+			}else if(!empty($isAppDetailExist)){
+				$insertResult = $this->db->setTable($detailAppTable) 
+									->setValues($aPvDetailArray)
+									->runInsert();
+									
+				if(!$insertResult){
+					$code 		= 0;
+					$errmsg[] 	= "<li>Error in Updating Payment Voucher Details.</li>";
+				}
+	
+				$insertResult = $this->db->setTable($applicationTable) 
+									->setValues($aPvApplicationArray)
+									->runInsert();
+	
+				if(!$insertResult){
+					$code 		= 0;
+					$errmsg[] 	= "<li>Error in Updating Payment Voucher Application.</li>";
+				}
+			}
+				
+			/**UPDATE HEADER AMOUNTS**/
+			$update_info				= array();
+			$update_info['netamount']	= $totalamount;
+	
+			$insertResult = $this->db->setTable($mainAppTable) 
+								->setValues($update_info)
+								->setWhere("voucherno = '$voucherno'")
+								->runUpdate();
+	
 			if(!$insertResult){
 				$code 		= 0;
-				$errmsg[] 	= "<li>Error in Updating Payment Voucher Details.</li>";
-			}
-
-			$insertResult = $this->db->setTable($applicationTable) 
-								->setValues($aPvApplicationArray)
-								->runInsert();
-
-			if(!$insertResult){
-				$code 		= 0;
-				$errmsg[] 	= "<li>Error in Updating Payment Voucher Application.</li>";
-			}
-		}
+				$errmsg[] 	= "<li>Error in Updating Payment Voucher Header.</li>";
+			}	
+		}else{
 			
-		/**UPDATE HEADER AMOUNTS**/
-		$update_info				= array();
-		$update_info['netamount']	= $totalamount;
-
-		$insertResult = $this->db->setTable($mainAppTable) 
-							->setValues($update_info)
-							->setWhere("voucherno = '$voucherno'")
-							->runUpdate();
-
-		if(!$insertResult){
-			$code 		= 0;
-			$errmsg[] 	= "<li>Error in Updating Payment Voucher Header.</li>";
+			$isDetailExist	= $this->getValue($detailAppTable, array("COUNT(voucherno) AS count"), " voucherno = '$voucherno'");
+			
+			if($isDetailExist[0]->count > 0){
+				$this->db->setTable($detailAppTable)
+						->setWhere("voucherno = '$voucherno'")
+						->runDelete();
+	
+				$insertResult = $this->db->setTable($detailAppTable) 
+									->setValues($aPvDetailArray)
+									->setWhere("voucherno = '$voucherno'")
+									->runInsert();
+								
+				if(!$insertResult){
+					$code 		= 0;
+					$errmsg[] 	= "<li>Error in Saving Payment Voucher Details.</li>";
+				}
+			}else{
+				$insertResult = $this->db->setTable($detailAppTable) 
+									->setValues($aPvDetailArray)
+									->runInsert();
+								
+				if(!$insertResult){
+					$code 		= 0;
+					$errmsg[] 	= "<li>Error in Updating Payment Voucher Details.</li>";
+				}
+			}
 		}
 		
 		/**INSERT TO CHEQUES TABLE**/
@@ -944,15 +932,13 @@ class payment_voucher_model extends wc_model
 													"COALESCE(SUM(discount),0) AS discount",
 													"COALESCE(SUM(forexamount),0) AS forexamount"
 												), 
-												" apvoucherno = '$payable' AND stat = 'posted' "
+												" apvoucherno = '$payable' "
 											);
 
 				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount;
 				
 				$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
-
-				//$invoice_balance			= $invoice_amount - $applied_sum - $applied_amounts[0]->discount;
 
 				$balance_info['amountpaid']	= $applied_sum;
 
@@ -1281,7 +1267,6 @@ class payment_voucher_model extends wc_model
 		$result = $this->db->setTable($table)
 				->setValues($data)
 				->setWhere($cond)
-				// ->buildUpdate();
 				->runUpdate();
 		
 		return $result;
@@ -1302,7 +1287,7 @@ class payment_voucher_model extends wc_model
 		return $result;
 	}
 
-	public function deletePayments($voucher)
+	public function deletePayments($payments, $type = 'delete')
 	{
 		$update_info 	= array();
 		$errmsg 	 	= array();
@@ -1315,7 +1300,7 @@ class payment_voucher_model extends wc_model
 		
 		$paymentArray   = $this->db->setTable($appTable)
 							   ->setFields($paymentField)
-							   ->setWhere("voucherno = '$voucher' AND stat = 'posted'")
+							   ->setWhere("voucherno IN($payments)")
 							   ->runSelect()
 							   ->getResult();
 
@@ -1328,12 +1313,12 @@ class payment_voucher_model extends wc_model
 				$wtaxamount		= $paymentArray[$i]->wtaxamount;
 				$discount		= 0;
 
-				$balance		= $this->getValue($table, array("balance"), "voucherno = '$mainvoucher' AND stat = 'posted'");
+				$balance		= $this->getValue($table, array("balance"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
 				$balance 		= $balance[0]->balance;
 
 				$update_info['balance']		= $balance + $amount + $discount;
 
-				$amountpaid 	= $this->getValue($table, array("amountpaid"), "voucherno = '$mainvoucher' AND stat = 'posted'");
+				$amountpaid 	= $this->getValue($table, array("amountpaid"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
 				$amountpaid 	= $amountpaid[0]->amountpaid;
 
 				$update_info['amountpaid']	= $amountpaid - $amount - $discount;
@@ -1343,52 +1328,37 @@ class payment_voucher_model extends wc_model
 							   ->setValues($update_info)
 							   ->setWhere("voucherno = '$mainvoucher'")
 							   ->runUpdate();
-				
-				if(!$result)
-					$errmsg[] = "The system has encountered an error in updating Accounts Payable [$mainvoucher]. Please contact admin to fix this issue.";
-				else
-					$this->log->saveActivity("Update Accounts Payable [$mainvoucher]");
 			}
-
-			$update_info			= array();
-			$update_info['stat']	= 'cancelled';
-			
-			// Update pv_application
-			$result = $this->db->setTable($appTable)
-					->setValues($update_info)
-					->setWhere("voucherno = '$voucher'")
-					->runUpdate();
-			
-			if(!$result)
-				$errmsg[] = "The system has encountered an error in updating PV Application [$voucher]. Please contact admin to fix this issue.";
-			else
-				$this->log->saveActivity("Update PV Application [$voucher]");
-
-			// Update pv_details
-			$result = $this->db->setTable($detailTable)
-					->setValues($update_info)
-					->setWhere("voucherno = '$voucher'")
-					->runUpdate();
-			
-			if(!$result)
-				$errmsg[] = "The system has encountered an error in updating Payment Voucher Details [$voucher]. Please contact admin to fix this issue.";
-			else
-				$this->log->saveActivity("Update Payment Voucher Details [$voucher]");
-			
-			// Update paymentvoucher
-			$result = $this->db->setTable($mainTable)
-					->setValues($update_info)
-					->setWhere("voucherno = '$voucher'")
-					->runUpdate();	
-			
-			if(!$result)
-				$errmsg[] = "The system has encountered an error in updating Payment Voucher [$voucher]. Please contact admin to fix this issue.";
-			else
-				$this->log->saveActivity("Update Payment Voucher [$voucher]");
-
-			return $errmsg;
 		}
 
+		$update_info			= array();
+		$update_info['stat']	= ($type == 'delete') ? 'deleted' : 'cancelled';
+			
+		// Update pv_application
+		$result = $this->db->setTable($appTable)
+				->setValues($update_info)
+				->setWhere("voucherno IN($payments)")
+				->runUpdate();
+			
+		// Update pv_details
+		$result = $this->db->setTable($detailTable)
+				->setValues($update_info)
+				->setWhere("voucherno IN($payments)")
+				->runUpdate();
+			
+		// Update paymentvoucher
+		$result = $this->db->setTable($mainTable)
+				->setValues($update_info)
+				->setWhere("voucherno IN($payments) ")
+				->runUpdate();	
+			
+		if(!$result)
+			$errmsg[] = "The system has encountered an error in updating Payment Voucher [$payments]. Please contact admin to fix this issue.";
+		else
+			$this->log->saveActivity(ucfirst($type)." Payment Vouchers [".str_replace("'","",$payments)."]");
+
+		return $errmsg;
+		
 	}
 
 	private function generateSearch($search, $array) {
@@ -1406,6 +1376,7 @@ class payment_voucher_model extends wc_model
 		$filter         	= isset($data['filter']) ? htmlentities($data['filter']) : "";
 		$searchkey 		 	= isset($data['search']) ? htmlentities($data['search']) : "";
 		$sort 		 	 	= isset($data['sort']) ? htmlentities($data['sort']) : "main.transactiondate DESC";
+		$voucher         	= isset($data['voucher']) ? htmlentities($data['voucher']) : "PV";
 
 		$datefilterArr		= explode(' - ',$daterangefilter);
 		$datefilterFrom		= (!empty($datefilterArr[0])) ? $this->date->dateDbFormat($datefilterArr[0]) : ""; 
@@ -1421,6 +1392,9 @@ class payment_voucher_model extends wc_model
 		}
 		if ($vendfilter && $vendfilter != 'none'){
 			$add_query .= " AND p.partnercode = '$vendfilter' ";
+		}
+		if ($voucher){
+			$add_query .= " AND main.transtype = '$voucher' ";
 		}
 		if ($searchkey){
 			$add_query .= " AND ".$this->generateSearch($searchkey, array("main.voucherno","p.partername","coa.accountname","pvc.chequenumber"));

@@ -9,17 +9,23 @@ class controller extends wc_controller {
 		// $this->financials	= new financialsClass();
 		// $this->financials->updateBalanceTable();
 		$this->input            = new input();
+		$this->seq				= new seqcontrol();
 		$this->show_input 	    = true;
 		$session                = new session();
 	}
 
 	public function view() {
-		$this->view->title = 'Trial Balance';
-		$this->report_model = new report_model;
-   		$this->report_model->generateBalanceTable();
-		$data['ui'] = $this->ui;
-		$data['show_input'] = true;
-		$data['datefilter'] = $this->date->datefilterMonth();
+		$this->view->title 			= 	'Trial Balance';
+		$this->report_model 		= 	new report_model;
+		$this->report_model->generateBalanceTable();
+
+		$retained_acct 				=	$this->trial_balance->getChartAccountList("Retained Earning");
+		$data['retained_id']		=	$retained_acct[0]->ind;
+		$data['chart_account_list'] =	$this->trial_balance->getChartAccountList();
+		$data['proforma_list'] 		= 	$this->trial_balance->getProformaList();
+		$data['ui'] 				= 	$this->ui;
+		$data['show_input'] 		= 	true;
+		$data['datefilter'] 		= 	$this->date->datefilterMonth();
 		$this->view->load('trial_balance', $data);
 	}
 
@@ -34,6 +40,12 @@ class controller extends wc_controller {
 			$result = $this->load_account_transactions();
 		}else if($task == 'export'){
 			$result = $this->export();
+		}else if($task == 'check_existing_jv'){
+			$result = $this->check_existing_jv();
+		}else if($task == "temporary_jv_save"){
+			$result = $this->temporary_jv_save();
+		}else if($task == "preview_listing" ){
+			$result = $this->preview_listing();
 		}
 
 		echo json_encode($result); 
@@ -258,5 +270,86 @@ class controller extends wc_controller {
 		);
 	}
 
+	private function check_existing_jv(){
+		$transaction_date  	=	$this->input->post('trans_date');
+		
+		$result = $this->trial_balance->check_existing_jv($transaction_date);
+
+		$existing 	=	0;
+		if( !empty($result) ){
+			$existing 	=	1;
+		}
+
+		return array(
+			'existing' => $existing
+		);
+	}
+
+	private function temporary_jv_save(){
+
+		$data = $this->input->post(array('daterangefilter','reference','notes','retained_acct'));
+		$daterangefilter	= 	$data['daterangefilter'];
+		$account 			=	isset($data['retained_acct']) 	?	$data['retained_acct'] 	:	"";
+		
+		$result 			= 	0;
+		$voucher			= 	$this->seq->getValue('JV');
+
+		$data['voucher'] 		=	$voucher;
+		$data['retained_acct'] 	=	$account;
+
+		$result 			=	$this->trial_balance->save_journal_voucher($data);
+		
+		return $result;
+	}
+
+	private function preview_listing(){
+		$voucherno 	=	$this->input->post('voucherno');
+		$header 	=	$this->trial_balance->getJVHeader($voucherno);
+		// var_dump($header);
+		$details 	= 	$this->trial_balance->getJVDetails($voucherno);
+
+		$totalcredit 	=	0;
+		$totaldebit 	=	0;
+		$table 			=	"";
+		if(count($details->result)>0){
+			for($i=0;$i<count($details->result);$i++){	
+				$linenum          	= $details->result[$i]->linenum;
+				$accountid          = $details->result[$i]->accountcode;
+				$accountname 		= $this->trial_balance->getValue("chartaccount", array("accountname"), "id='$accountid'");
+				$accountname		= $accountname[0]->accountname;
+				$detailparticulars  = $details->result[$i]->detailparticulars;
+				$debit          	= $details->result[$i]->debit;
+				$credit				= $details->result[$i]->credit;
+
+				$table .= '<tr>
+							<td class="text-left">'.$accountname.'</td>
+							<td class="text-left">'.$detailparticulars.'</td>
+							<td class="text-right"><strong>'.number_format($debit,2).'</strong></td>
+							<td class="text-right"><strong>'.number_format($credit,2).'</strong></td>';
+				$table.= '</tr>';
+
+				$totaldebit 		+=	$debit;
+				$totalcredit 		+=	$credit;
+			}
+
+			$table .= '<tr>
+						<td colspan="2"></td>
+						<td class="text-right"><strong>'.number_format($totaldebit,2).'</strong></td>
+						<td class="text-right"><strong>'.number_format($totalcredit,2).'</strong></td>';
+			$table.= '</tr>';
+		}else{
+			$table .= '<tr><td colspan="4" class="text-center"><b>No Records Found</b></td></tr>';
+		}
+
+		$details 	=	array( "table" 				=>	$table,
+							   "voucherno"			=>	$voucherno,	
+							   "transactiondate"	=>	date("Y",strtotime($header->transactiondate)),
+							   "proformacode" 		=>	$header->proformacode,
+							   "reference" 			=>	$header->referenceno,
+							   "remarks" 			=>	$header->remarks
+							 );
+
+		return $details;
+	}
 }
 ?>
