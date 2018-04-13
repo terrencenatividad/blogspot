@@ -226,7 +226,7 @@ class print_voucher_model extends fpdf {
 			$accountInfo	= array();
 			$totaldebit		= 0;
 			$totalcredit	= 0;
-			$notes			= ($this->documentinfo->remarks == '') ? ($this->documentinfo->remarks) : '';
+			$notes			= ($this->documentinfo->remarks) ? ($this->documentinfo->remarks) : '';
 
 			foreach ($accounts as $account) {
 				$totaldebit			+= $account->debit;
