@@ -13,15 +13,13 @@ class credit_memo_model extends wc_model {
 		foreach ($debit as $entry) {
 			$total += $entry;
 		}
-		$period						= date("n");
-		$fiscalyear					= date("Y");
 		// $debit						= $this->removeComma($data2['debit']);
 		// $total						= 0;
 		// $convertedamount			= $data['exchangerate']	= '1.00';
 		$data['transtype']			= 'CM';
 		$data['stat']				= 'posted';
-		$data['period']				=  $period;
-		$data['fiscalyear']			=  $fiscalyear;
+		$data['period']				= date("n", strtotime($data['transactiondate']));
+		$data['fiscalyear']			= date("Y", strtotime($data['transactiondate']));
 		$data['currencycode']		= 'PHP';
 		$exchangerate				= '1.00';
 		$data['amount']				= $total;
@@ -46,6 +44,8 @@ class credit_memo_model extends wc_model {
 		foreach ($debit as $entry) {
 			$total += $entry;
 		}
+		$data['period']				= date("n", strtotime($data['transactiondate']));
+		$data['fiscalyear']			= date("Y", strtotime($data['transactiondate']));
 		$data['amount']		= $total;
 		$data['sr_amount']	= $sr_amount;
 		$data['transtype']	= 'CM';
