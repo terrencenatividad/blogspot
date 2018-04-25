@@ -200,35 +200,51 @@
 					});
 				}, 10);
 			});
-			new Morris.Donut({
+			// new Morris.Donut({
+			// 	element: 'accounts_payable',
+			// 	data: aging.ap,
+			// 	formatter: function(value, data) {
+			// 		let val = parseFloat(value);
+			// 		if (val == 0) {
+			// 			return '';
+			// 		} else {
+			// 			return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+			// 		}
+			// 	}
+			// });
+			new Morris.Bar({
 				element: 'accounts_payable',
 				data: aging.ap,
-				formatter: function(value, data) {
-					let val = parseFloat(value);
-					if (val == 0) {
-						return '';
-					} else {
-						return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-					}
-				}
+				xkey: 'label',
+				ykeys: ['value'],
+				labels: ['Expense'],
+				barColors: ['#f56954']
 			});
 			$('.accounts_receivable').one('click', function() {
 				setTimeout(function(){
-					new Morris.Donut({
+					// new Morris.Donut({
+					// 	element: 'accounts_receivable',
+					// 	data: aging.ar,
+					// 	formatter: function(value, data) {
+					// 		let val = parseFloat(value);
+					// 		if (val == 0) {
+					// 			return '';
+					// 		} else {
+					// 			return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+					// 		}
+					// 	}
+					// });
+					new Morris.Bar({
 						element: 'accounts_receivable',
 						data: aging.ar,
-						formatter: function(value, data) {
-							let val = parseFloat(value);
-							if (val == 0) {
-								return '';
-							} else {
-								return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-							}
-						}
+						xkey: 'label',
+						ykeys: ['value'],
+						labels: ['Revenue'],
+						barColors: ['#00c0ef']
 					});
 				}, 10);
 			});
-
+			
 			new Morris.Line({
 				gridTextSize: 8,
 				element: 'sales',
