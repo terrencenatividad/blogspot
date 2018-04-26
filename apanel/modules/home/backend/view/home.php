@@ -84,7 +84,7 @@
 					<ul class="nav nav-tabs pull-right">
 						<li class="active"><a href="#current_year" data-toggle="tab" aria-expanded="true">2017</a></li>
 						<li class=""><a href="#previous_year" class="previous_year" data-toggle="tab" aria-expanded="false">2016</a></li>
-						<li class="pull-left header">Revenue vs Expense</li>
+						<li class="pull-left header">Revenue vs Cost of Sales</li>
 					</ul>
 					<div class="tab-content no-padding">
 						<div class="chart tab-pane active" id="current_year" style="position: relative; height: 300px;"></div>
