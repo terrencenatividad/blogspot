@@ -108,44 +108,6 @@ class dashboard_model extends wc_model {
 								->runSelect()
 								->getResult();
 
-		// $current	= $this->db->setTable("({$this->current_month_query}) m")
-		// 						->leftJoin("balance_table pr ON pr.period = m.month AND pr.companycode = m.companycode AND pr.fiscalyear = m.year ")
-		// 						->leftJoin("chartaccount coa ON coa.id = pr.accountcode and coa.companycode = pr.companycode")
-		// 						->setFields("IFNULL(SUM(pr.debit), 0) revenue, CONCAT(m.year, '-', m.month) month")
-		// 						->setWhere("coa.accountclasscode IN('REV')")
-		// 						->setGroupBy('m.month')
-		// 						->runSelect()
-		// 						->getResult();
-								
-		// $current2	= $this->db->setTable("({$this->current_month_query}) m")
-		// 						->leftJoin("balance_table pr ON pr.period = m.month AND pr.companycode = m.companycode AND pr.fiscalyear = m.year ")
-		// 						->leftJoin("chartaccount coa ON coa.id = pr.accountcode and coa.companycode = pr.companycode")
-		// 						->setFields("IFNULL(SUM(pr.credit), 0) expense")
-		// 						->setWhere("coa.accountclasscode IN('COST')")
-		// 						->setGroupBy('m.month')
-		// 						->runSelect()
-		// 						->getResult();
-
-		// // echo $this->db->getQuery();
-		// $previous	= $this->db->setTable("({$this->previous_month_query}) m")
-		// 						->leftJoin("balance_table pr ON pr.period = m.month AND pr.companycode = m.companycode AND pr.fiscalyear = m.year ")
-		// 						->leftJoin("chartaccount coa ON coa.id = pr.accountcode and coa.companycode = pr.companycode")
-		// 						->setFields("IFNULL(SUM(pr.debit), 0) revenue, CONCAT(m.year, '-', m.month) month")
-		// 						->setWhere("coa.accountclasscode IN('REV')")
-		// 						->setGroupBy('m.month')
-		// 						->runSelect()
-		// 						->getResult();
-
-		// $previous2	= $this->db->setTable("({$this->previous_month_query}) m")
-		// 						->leftJoin("balance_table pr ON pr.period = m.month AND pr.companycode = m.companycode AND pr.fiscalyear = m.year ")
-		// 						->leftJoin("chartaccount coa ON coa.id = pr.accountcode and coa.companycode = pr.companycode")
-		// 						->setFields("IFNULL(SUM(pr.credit), 0) revenue, CONCAT(m.year, '-', m.month) month")
-		// 						->setWhere("coa.accountclasscode IN('COST')")
-		// 						->setGroupBy('m.month')
-		// 						->runSelect()
-		// 						->getResult();
-
-
 		foreach ($current as $key => $row) {
 			$current[$key]->expense = $current2[$key]->expense;
 		}
