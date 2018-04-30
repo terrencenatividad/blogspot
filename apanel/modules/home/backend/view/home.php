@@ -80,11 +80,33 @@
 		</div>
 		<div class="row">
 			<div class="col-md-6">
+				<div class="box box-solid bg-teal-gradient">
+					<div class="box-header">
+						<i class="fa fa-th"></i>
+						<h3 class="box-title">Sales Graph <?php echo date('Y') ?></h3>
+					</div>
+					<div class="box-body border-radius-none no-padding">
+						<div class="chart" id="sales" style="height: 250px;"></div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="box box-solid bg-yellow-gradient">
+					<div class="box-header">
+						<i class="fa fa-th"></i>
+						<h3 class="box-title">Purchases Graph <?php echo date('Y') ?></h3>
+					</div>
+					<div class="box-body border-radius-none no-padding">
+						<div class="chart" id="purchases" style="height: 250px;"></div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
 				<div class="nav-tabs-custom">
 					<ul class="nav nav-tabs pull-right">
 						<li class="active"><a href="#current_year" data-toggle="tab" aria-expanded="true">2017</a></li>
 						<li class=""><a href="#previous_year" class="previous_year" data-toggle="tab" aria-expanded="false">2016</a></li>
-						<li class="pull-left header">Revenue vs Expense</li>
+						<li class="pull-left header">Revenue vs Cost of Sales</li>
 					</ul>
 					<div class="tab-content no-padding">
 						<div class="chart tab-pane active" id="current_year" style="position: relative; height: 300px;"></div>
@@ -105,28 +127,6 @@
 					<div class="tab-content no-padding">
 						<div class="chart tab-pane active" id="accounts_payable" style="position: relative; height: 300px;"></div>
 						<div class="chart tab-pane" id="accounts_receivable" style="position: relative; height: 300px;"></div>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-6">
-				<div class="box box-solid bg-teal-gradient">
-					<div class="box-header">
-						<i class="fa fa-th"></i>
-						<h3 class="box-title">Sales Graph <?php echo date('Y') ?></h3>
-					</div>
-					<div class="box-body border-radius-none no-padding">
-						<div class="chart" id="sales" style="height: 250px;"></div>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-6">
-				<div class="box box-solid bg-yellow-gradient">
-					<div class="box-header">
-						<i class="fa fa-th"></i>
-						<h3 class="box-title">Purchases Graph <?php echo date('Y') ?></h3>
-					</div>
-					<div class="box-body border-radius-none no-padding">
-						<div class="chart" id="purchases" style="height: 250px;"></div>
 					</div>
 				</div>
 			</div>
@@ -159,7 +159,7 @@
 				data: revenue_expense.current,
 				xkey: 'month',
 				ykeys: ['expense', 'revenue'],
-				labels: ['Expense', 'Revenue'],
+				labels: ['Cost of Sales', 'Revenue'],
 				hideHover: true,
 				xLabelFormat: function (x){
 					var month = shortMonth[new Date(x).getMonth()];
@@ -183,7 +183,7 @@
 						data: revenue_expense.previous,
 						xkey: 'month',
 						ykeys: ['expense', 'revenue'],
-						labels: ['Expense', 'Revenue'],
+						labels: ['Cost of Sales', 'Revenue'],
 						hideHover: true,
 						xLabelFormat: function (x){
 							var month = shortMonth[new Date(x).getMonth()];
@@ -200,35 +200,51 @@
 					});
 				}, 10);
 			});
-			new Morris.Donut({
+			// new Morris.Donut({
+			// 	element: 'accounts_payable',
+			// 	data: aging.ap,
+			// 	formatter: function(value, data) {
+			// 		let val = parseFloat(value);
+			// 		if (val == 0) {
+			// 			return '';
+			// 		} else {
+			// 			return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+			// 		}
+			// 	}
+			// });
+			new Morris.Bar({
 				element: 'accounts_payable',
 				data: aging.ap,
-				formatter: function(value, data) {
-					let val = parseFloat(value);
-					if (val == 0) {
-						return '';
-					} else {
-						return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-					}
-				}
+				xkey: 'label',
+				ykeys: ['value'],
+				labels: ['Expense'],
+				barColors: ['#f56954']
 			});
 			$('.accounts_receivable').one('click', function() {
 				setTimeout(function(){
-					new Morris.Donut({
+					// new Morris.Donut({
+					// 	element: 'accounts_receivable',
+					// 	data: aging.ar,
+					// 	formatter: function(value, data) {
+					// 		let val = parseFloat(value);
+					// 		if (val == 0) {
+					// 			return '';
+					// 		} else {
+					// 			return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+					// 		}
+					// 	}
+					// });
+					new Morris.Bar({
 						element: 'accounts_receivable',
 						data: aging.ar,
-						formatter: function(value, data) {
-							let val = parseFloat(value);
-							if (val == 0) {
-								return '';
-							} else {
-								return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-							}
-						}
+						xkey: 'label',
+						ykeys: ['value'],
+						labels: ['Revenue'],
+						barColors: ['#00c0ef']
 					});
 				}, 10);
 			});
-
+			
 			new Morris.Line({
 				gridTextSize: 8,
 				element: 'sales',
