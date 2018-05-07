@@ -65,7 +65,9 @@ class sales_print_model extends fpdf {
 			$document_detail_offset = 0;
 			$rect_height = 25;
 		}
-
+		if (count($this->document_details) > 5) {
+			$rect_height += ((count($this->document_details) - 5) * 5);
+		}
 		$this->Rect($this->margin_side, $detail_start, $detail_width, $rect_height);
 		$this->SetY($detail_start + 1);
 		$this->SetFont('Arial', 'B', 8);
@@ -119,6 +121,12 @@ class sales_print_model extends fpdf {
 		$this->Cell(216 - ($this->margin_side * 2) - ($detail_width + $gap) - $content_width, $document_detail_height, '', 'TLR', 0, 'L', true);
 		$this->Cell($content_width, $document_detail_height, '', 'TR', 0, 'L');
 		$this->Ln();
+		for ($x = 5; $x < count($this->document_details); $x++) {
+			$this->SetX($this->margin_side + ($detail_width + $gap));
+			$this->Cell(216 - ($this->margin_side * 2) - ($detail_width + $gap) - $content_width, $document_detail_height, '', 'TLR', 0, 'L', true);
+			$this->Cell($content_width, $document_detail_height, '', 'TR', 0, 'L');
+			$this->Ln();
+		}
 		$this->SetX($this->margin_side + ($detail_width + $gap));
 		$this->Cell(216 - ($this->margin_side * 2) - ($detail_width + $gap) - $content_width, $document_detail_height, '', 'TLRB', 0, 'L', true);
 		$this->Cell($content_width, $document_detail_height, '', 'TRB', 0, 'L');
