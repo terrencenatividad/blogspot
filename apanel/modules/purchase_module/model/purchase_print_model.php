@@ -73,7 +73,7 @@ class purchase_print_model extends fpdf {
 		}
 
 		if (count($this->document_details) > 5) {
-			$rect_height += ((count($this->document_details) - 5) * 5);
+			$rect_height += ((count($this->document_details) - 5) * $document_detail_height);
 		}
 		$this->Rect($this->margin_side, $detail_start, $detail_width, $rect_height);
 		$this->SetY($detail_start + 1);
