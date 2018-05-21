@@ -12,3 +12,4 @@ pipelines:
                 #- apt-get update
                 #- apt-get -y install git-ftp
                 - git ftp push --user $FTP_USERNAME --passwd $FTP_PASSWORD ftp://ourwebprojects.com/public_html/varianttwo/
+                - git ftp catchup --user $FIVE_USERNAME --passwd $FIVE_PASSWORD ftp://5e-consulting.com/public_html/prime/
