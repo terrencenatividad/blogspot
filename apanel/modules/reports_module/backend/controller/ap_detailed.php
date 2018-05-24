@@ -30,9 +30,9 @@ class controller extends wc_controller {
 		{
 			$result = $this->ajax_list();
 		}
-		else if($task == 'load_customer_list')
+		else if($task == 'load_supplier_list')
 		{
-			$result = $this->load_customer_list();
+			$result = $this->load_supplier_list();
 		}
 		else if($task == 'load_voucher_list')
 		{
@@ -46,11 +46,10 @@ class controller extends wc_controller {
 		echo json_encode($result); 
 	}
 
-	private function load_customer_list()
-	{
-		$data_post = $this->input->post(array('daterangefilter','customer','voucher','status','limit', "search"));
+	private function load_supplier_list(){
+		$data_post = $this->input->post(array('daterangefilter','supplier','voucher','status','limit', "search"));
 	
-		$pagination = $this->ap_detailed->getCustomerList($data_post);
+		$pagination = $this->ap_detailed->getsupplierList($data_post);
 		$tablerow = "";
 		
 		if(!empty($pagination->result))
@@ -58,14 +57,14 @@ class controller extends wc_controller {
 			for($i=0;$i < count($pagination->result);$i++)
 			{	
 				
-				$customercode		= $pagination->result[$i]->customercode;
-			    $customername		= $pagination->result[$i]->customername;
-			    $customeraddress	= $pagination->result[$i]->customeraddress;
+				$suppliercode		= $pagination->result[$i]->suppliercode;
+			    $suppliername		= $pagination->result[$i]->suppliername;
+			    $supplieraddress	= $pagination->result[$i]->supplieraddress;
 			   
-				$tablerow	.= '<tr data-id = "'.$customercode.'">';
-				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$customercode.'</td>';
-				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$customername.'</td>';
-				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$customeraddress.'</td>';
+				$tablerow	.= '<tr data-id = "'.$suppliercode.'">';
+				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$suppliercode.'</td>';
+				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$suppliername.'</td>';
+				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$supplieraddress.'</td>';
 				$tablerow	.= '</tr>';
 				
 				
@@ -82,7 +81,7 @@ class controller extends wc_controller {
 
 	private function load_voucher_list()
 	{
-		$data_post = $this->input->post(array('daterangefilter','customer','voucher','status','limit', "search"));
+		$data_post = $this->input->post(array('daterangefilter','supplier','voucher','status','limit', "search"));
 	
 		$pagination = $this->ap_detailed->getVoucherList($data_post);
 		$tablerow = "";
@@ -92,7 +91,8 @@ class controller extends wc_controller {
 			for($i=0;$i < count($pagination->result);$i++)
 			{	
 				$voucherno		    = $pagination->result[$i]->voucherno;
-			    $customercode		= $pagination->result[$i]->customercode;
+			    $suppliercode		= $pagination->result[$i]->suppliercode;
+			    $suppliername		= $pagination->result[$i]->suppliername;
 				$referenceno        = $pagination->result[$i]->referenceno;
 			    $transactiondate	= $this->date->dateFormat($pagination->result[$i]->transactiondate); 
 				$invoiceno          = $pagination->result[$i]->invoiceno;
@@ -101,9 +101,9 @@ class controller extends wc_controller {
 
 				$tablerow	.= '<tr data-id = "'.$voucherno.'">';
 				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$voucherno.'</td>';
-				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$customercode.'</td>';
+				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$suppliername.'</td>';
 				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$referenceno.'</td>';
-				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$transactiondate.'</td>';
+				$tablerow	.= '<td class="text-center" class="left" style="vertical-align:middle;">&nbsp;'.$transactiondate.'</td>';
 				$tablerow	.= '<td class="text-center" style="vertical-align:middle;">&nbsp;'.$invoiceno.'</td>';
 				$tablerow	.= '<td class="text-center" style="vertical-align:middle;">&nbsp;'.$invoicedate.'</td>';
 				$tablerow	.= '<td class="text-center" style="vertical-align:middle;">&nbsp;'.$duedate.'</td>';
@@ -123,7 +123,7 @@ class controller extends wc_controller {
 
 	private function ajax_list()
 	{
-		$data_post = $this->input->post(array('daterangefilter','customer','voucher','status'));
+		$data_post = $this->input->post(array('daterangefilter','supplier','voucher','status'));
 	
 		$pagination = $this->ap_detailed->getInvoiceList($data_post);
 		
@@ -145,7 +145,7 @@ class controller extends wc_controller {
 			foreach ($pagination->result as $key => $row) 
 			{
 				
-				$customercode  		=	$row->customercode;
+				$suppliercode  		=	$row->suppliercode;
 				$amount       		= 	$row->amount;
 				$applied       		= 	$row->amountpaid;
 				$balance       		= 	$row->balance;
@@ -153,21 +153,21 @@ class controller extends wc_controller {
 				$total_applied 		+= 	$applied;
 				$total_balance 		+= 	$balance;
 
-				if( !isset($sub[$customercode]['amount']) ){
-					$sub[$customercode]['amount'] 			=	$amount;
-					$subapplied[$customercode]['applied'] 	=	$applied;
-					$subbalance[$customercode]['balance'] 	=	$balance;
+				if( !isset($sub[$suppliercode]['amount']) ){
+					$sub[$suppliercode]['amount'] 			=	$amount;
+					$subapplied[$suppliercode]['applied'] 	=	$applied;
+					$subbalance[$suppliercode]['balance'] 	=	$balance;
 				} else {
-					$sub[$customercode]['amount'] 			+=	$amount;
-					$subapplied[$customercode]['applied'] 	+=	$applied;
-					$subbalance[$customercode]['balance'] 	+=	$balance;
+					$sub[$suppliercode]['amount'] 			+=	$amount;
+					$subapplied[$suppliercode]['applied'] 	+=	$applied;
+					$subbalance[$suppliercode]['balance'] 	+=	$balance;
 				}
 			}
 
 			foreach ($pagination->result as $key => $row) 
 			{	
-				$customercode 		= $row->customercode;
-				$customername 		= $row->customername;
+				$suppliercode 		= $row->suppliercode;
+				$suppliername 		= $row->suppliername;
 				$voucherno    		= $row->voucherno;
 				$pvoucherno   		= $row->pvoucherno;
 				$transactiondate 	= date('M j, Y', strtotime($row->transactiondate));
@@ -181,7 +181,7 @@ class controller extends wc_controller {
 				$aplink      	 	= BASE_URL."financials/accounts_payable/view/".$voucherno;
 				// $rvlink				= (isset($rvoucherno)) 	? 	BASE_URL."financials/accounts_receivable/manage/view/".$voucherno 	: 	"";
 				$pvlink 			= "";
-				$prevcust 			= $customercode;
+				$prevcust 			= $suppliercode;
 
 				if( $prevcust != $nextcust ) {
 					
@@ -195,8 +195,8 @@ class controller extends wc_controller {
 						$tablerow 	.= '</tr>';
 					}
 					$tablerow 	.= '<tr style="background:#DDD;">';
-					$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$customercode.'</td>';
-					$tablerow	.= '<td class="left" colspan="9" style="vertical-align:middle;">&nbsp;<b>'.$customername.'</b></td>';
+					$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$suppliercode.'</td>';
+					$tablerow	.= '<td class="left" colspan="9" style="vertical-align:middle;">&nbsp;<b>'.$suppliername.'</b></td>';
 					$tablerow 	.= '</tr>';
 				}
 				
@@ -215,9 +215,9 @@ class controller extends wc_controller {
 
 				$nextcust 	= $prevcust;
 
-				$subtotal 		= $sub[$customercode]['amount'];
-				$sub_applied 	= $subapplied[$customercode]['applied'];
-				$sub_balance	= $subbalance[$customercode]['balance'];
+				$subtotal 		= $sub[$suppliercode]['amount'];
+				$sub_applied 	= $subapplied[$suppliercode]['applied'];
+				$sub_balance	= $subbalance[$suppliercode]['balance'];
 			}	
 
 			$tablerow 	.= '<tr style="background:#fff;">';
@@ -251,7 +251,7 @@ class controller extends wc_controller {
 
 	private function export()
 	{
-		$data 		= $this->input->post(array('daterangefilter','customer','voucher','status'));
+		$data 		= $this->input->post(array('daterangefilter','supplier','voucher','status'));
 		$strdate	= $data['daterangefilter'];
 		$datefilter = explode('-', $data['daterangefilter']);
 		$dates		= array();
@@ -261,7 +261,7 @@ class controller extends wc_controller {
 
 		$retrieved = $this->ap_detailed->fileExport($data);
 		
-		$main 	= array("Customer Code","Customer Name"); 
+		$main 	= array("supplier Code","supplier Name"); 
 		$header = array("Voucher Number","Payment Voucher","Transaction Date","Invoice No","Amount","Amount Applied","Balance","Remarks","Terms","Status");
 		
 		$csv 	= '';
@@ -293,7 +293,7 @@ class controller extends wc_controller {
 			foreach ($filtered as $key => $row) 
 			{
 				
-				$customercode  		=	$row->customercode;
+				$suppliercode  		=	$row->suppliercode;
 				$amount       		= 	$row->amount;
 				$applied       		= 	$row->amountpaid;
 				$balance       		= 	$row->balance;
@@ -301,20 +301,20 @@ class controller extends wc_controller {
 				$total_applied 		+= 	$applied;
 				$total_balance 		+= 	$balance;
 
-				if( !isset($sub[$customercode]['amount']) ){
-					$sub[$customercode]['amount'] 			=	$amount;
-					$subapplied[$customercode]['applied'] 	=	$applied;
-					$subbalance[$customercode]['balance'] 	=	$balance;
+				if( !isset($sub[$suppliercode]['amount']) ){
+					$sub[$suppliercode]['amount'] 			=	$amount;
+					$subapplied[$suppliercode]['applied'] 	=	$applied;
+					$subbalance[$suppliercode]['balance'] 	=	$balance;
 				} else {
-					$sub[$customercode]['amount'] 			+=	$amount;
-					$subapplied[$customercode]['applied'] 	+=	$applied;
-					$subbalance[$customercode]['balance'] 	+=	$balance;
+					$sub[$suppliercode]['amount'] 			+=	$amount;
+					$subapplied[$suppliercode]['applied'] 	+=	$applied;
+					$subbalance[$suppliercode]['balance'] 	+=	$balance;
 				}
 			}
 			
 			foreach ($filtered as $key => $row){
-				$customercode 		= $row->customercode;
-				$customername 		= $row->customername;
+				$suppliercode 		= $row->suppliercode;
+				$suppliername 		= $row->suppliername;
 				$voucherno    		= $row->voucherno;
 				$pvoucherno   		= $row->pvoucherno;
 				$transactiondate 	= date('M j, Y', strtotime($row->transactiondate));
@@ -325,7 +325,7 @@ class controller extends wc_controller {
 				$particulars        = $row->particulars;
 				$terms              = $row->terms;
 				$status             = $row->stat;
-				$prevcust 			= $customercode;
+				$prevcust 			= $suppliercode;
 
 				if( $prevcust != $nextcust ) {
 					
@@ -335,12 +335,12 @@ class controller extends wc_controller {
 	
 					}
 					$tablerow 	.= '<tr style="background:#DDD;">';
-					$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$customercode.'</td>';
-					$tablerow	.= '<td class="left" colspan="9" style="vertical-align:middle;">&nbsp;<b>'.$customername.'</b></td>';
+					$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$suppliercode.'</td>';
+					$tablerow	.= '<td class="left" colspan="9" style="vertical-align:middle;">&nbsp;<b>'.$suppliername.'</b></td>';
 					$tablerow 	.= '</tr>';
 
-					$csv .= '"'.$customercode.'",';
-					$csv .= '"'.$customername.'"';
+					$csv .= '"'.$suppliercode.'",';
+					$csv .= '"'.$suppliername.'"';
 					$csv .= "\n";
 				}
 				
@@ -358,9 +358,9 @@ class controller extends wc_controller {
 
 				$nextcust 	= $prevcust;
 
-				$subtotal 		= $sub[$customercode]['amount'];
-				$sub_applied	= $subapplied[$customercode]['applied'];
-				$sub_balance 	= $subbalance[$customercode]['balance'];
+				$subtotal 		= $sub[$suppliercode]['amount'];
+				$sub_applied	= $subapplied[$suppliercode]['applied'];
+				$sub_balance 	= $subbalance[$suppliercode]['balance'];
 			}
 
 			$csv .= '"","","","Subtotal","' . number_format($subtotal,2) . '","' . number_format($sub_applied,2) . '","' . number_format($sub_balance,2) . '","","",""';

@@ -21,8 +21,8 @@
 					<?php
 						echo $ui->formField('text')
 							->setPlaceholder('Filter Vendor')
-							->setName('customer')
-							->setId('customer')
+							->setName('supplier')
+							->setId('supplier')
 							->setAddon('search')
 							//->setValidation('required')
 							->setAttribute(array("readonly"))
@@ -92,7 +92,7 @@
 	</div>
 </section>
 
-<div id="customer_list_modal" class="modal fade" tabindex="-1" role="dialog">
+<div id="supplier_list_modal" class="modal fade" tabindex="-1" role="dialog">
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -103,7 +103,7 @@
 				<div class="row">
 					<div class="col-md-4 col-md-offset-8">
 						<div class="input-group">
-							<input type="text" id="customer_list_search" class="form-control" placeholder="Search Vendor" name = "customer_list_search" onKeyUp = "getCustomerList();">
+							<input type="text" id="supplier_list_search" class="form-control" placeholder="Search Vendor" name = "supplier_list_search" onKeyUp = "getsupplierList();">
 							<div class="input-group-addon">
 								<i class="glyphicon glyphicon-search"></i>
 							</div>
@@ -112,7 +112,7 @@
 				</div>
 			</div>
 			<div class="modal-body no-padding">
-				<table id="customer_tableList" class="table table-hover table-clickable">
+				<table id="supplier_tableList" class="table table-hover table-clickable">
 					<thead>
 						<tr class="info">
 							<th class="col-xs-3">Vendor Code</th>
@@ -160,12 +160,12 @@
 				<table id="voucher_tableList" class="table table-hover table-clickable">
 					<thead>
 						<tr class="info">
-							<th class="col-xs-2 text-center">Voucher No</th>
+							<th class="col-xs-1 text-center">Voucher No</th>
 							<th class="col-xs-2 text-center">Vendor</th>
-							<th class="col-xs-1 text-center">Reference No</th>
-							<th class="col-xs-2 text-center">Transaction Date</th>
-							<th class="col-xs-2 text-center">Invoice No</th>
-							<th class="col-xs-2 text-center">Invoice Date</th>
+							<th class="col-xs-2 text-center">Reference No</th>
+							<th class="col-xs-1 text-center">Transaction Date</th>
+							<th class="col-xs-1 text-center">Invoice No</th>
+							<th class="col-xs-1 text-center">Invoice Date</th>
 							<th class="col-xs-1 text-center">Due Date</th>
 						</tr>
 					</thead>
@@ -192,11 +192,11 @@
 		
 	function getList() 
 	{
-		var customer    = document.getElementById('customer').value;
+		var supplier    = document.getElementById('supplier').value;
 		var voucherno   = document.getElementById('voucherno').value;
 		var status      = document.getElementById('status').value;
 		
-		ajax.customer = customer;
+		ajax.supplier = supplier;
 		ajax.voucher = voucherno;
 		ajax.status = status;
 		
@@ -208,34 +208,34 @@
 		});
 	}
 
-	function getCustomerList()
+	function getsupplierList()
 	{
-		var customer = $('#customer').val();
+		var supplier = $('#supplier').val();
 		var status      = document.getElementById('status').value;
-		ajax.customer = customer;
+		ajax.supplier = supplier;
 		ajax.status = status;
-		ajax.search = $("#customer_list_search").val();
+		ajax.search = $("#supplier_list_search").val();
 
-		$('#customer_list_modal').modal('show');
+		$('#supplier_list_modal').modal('show');
 		
 		if (ajax_call != '') 
 		{
 			ajax_call.abort();
 		}
 		
-		ajax_call = $.post('<?=MODULE_URL?>ajax/load_customer_list', ajax, function(data) 
+		ajax_call = $.post('<?=MODULE_URL?>ajax/load_supplier_list', ajax, function(data) 
 		{   
-			$('#customer_tableList tbody').html(data.table);
-			$('#customer_tableList #pagination').html(data.pagination);
+			$('#supplier_tableList tbody').html(data.table);
+			$('#supplier_tableList #pagination').html(data.pagination);
 		});
 	}
 
 	function getVoucherList()
 	{
-		var customer = $('#customer').val();
+		var supplier = $('#supplier').val();
 		var voucherno = $('#voucherno').val();
 		
-		ajax.customer = customer;
+		ajax.supplier = supplier;
 		ajax.voucher  = voucherno;
 		ajax.status   = status;
 		ajax.search   = $("#voucher_list_search").val();
@@ -264,24 +264,24 @@
 		getList();
 	});
 
-	$('#customer_tableList #pagination').on('click', 'a', function(e) 
+	$('#supplier_tableList #pagination').on('click', 'a', function(e) 
 	{
 		e.preventDefault();
 		ajax.page = $(this).attr('data-page');
 		getList();
 	});
 
-	$('#customer_tableList').on('click', 'tr[data-id]', function() 
+	$('#supplier_tableList').on('click', 'tr[data-id]', function() 
 	{
-		var customerid = $(this).attr('data-id');
-		$('#customer').val(customerid).trigger('blur');
-		$('#customer_list_modal').modal('hide');
+		var supplierid = $(this).attr('data-id');
+		$('#supplier').val(supplierid).trigger('blur');
+		$('#supplier_list_modal').modal('hide');
 		getList();	
 	});
 
-	$('#customer').on('focus', function() 
-	{	$('#customer').val("");
-		getCustomerList(); 
+	$('#supplier').on('focus', function() 
+	{	$('#supplier').val("");
+		getsupplierList(); 
 		getList();
 	});
 
