@@ -48,9 +48,10 @@
 								->setHeaderClass('info')
 								->addHeader('Item Code',array('class'=>'col-md-2'),'sort','items.itemcode')
 								->addHeader('Item Name', array('class'=>'col-md-2'),'sort','items.itemname')
-								->addHeader('On Hand Quantity', array('class'=>'col-md-2'),'sort','inv.onhandQty')
-								->addHeader('Allocated Quantity', array('class'=>'col-md-2'),'sort','inv.allocatedQty')
-								->addHeader('Ordered Quantity', array('class'=>'col-md-2'),'sort','inv.orderedQty')
+								->addHeader('On Hand Quantity', array('class'=>'col-md-1'),'sort','inv.onhandQty')
+								->addHeader('Allocated Quantity', array('class'=>'col-md-1'),'sort','inv.allocatedQty')
+								->addHeader('Ordered Quantity', array('class'=>'col-md-1'),'sort','inv.orderedQty')
+								->addHeader('Available Quantity', array('class'=>'col-md-1'),'sort','inv.availableQty')
 								->addHeader('', array('class'=>'col-md-1'))
 								->draw();
 					?>

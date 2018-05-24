@@ -16,7 +16,7 @@ class inventory_adjustment_model extends wc_model {
 		$result = $this->db->setTable("items as items")
 							->leftJoin('invfile as inv ON inv.itemcode = items.itemcode '.$warehouse_cond)  
                             ->leftJoin('invdtlfile as invdtlfile ON invdtlfile.itemcode = inv.itemcode AND invdtlfile.warehouse = inv.warehouse') 
-							->setFields("items.itemcode as itemcode, inv.onhandQty as OHQty, inv.warehouse as warehouse , inv.allocatedQty as AllocQty, inv.orderedQty as OrderQty,items.itemname as itemname")
+							->setFields("items.itemcode as itemcode, inv.onhandQty as OHQty, inv.warehouse as warehouse , inv.allocatedQty as AllocQty, inv.availableQty as AvailQty, inv.orderedQty as OrderQty,items.itemname as itemname")
 							->setWhere($condition)
 							->setOrderBy($sort)
 							->runPagination();
@@ -175,8 +175,7 @@ class inventory_adjustment_model extends wc_model {
 						->runUpdate();
 	}
 
-	public function getChartAccountList() 
-	{
+	public function getChartAccountList() {
 		return $this->db->setTable('chartaccount c')
 						->innerJoin('accountclass ac ON c.companycode = ac.companycode AND c.accountclasscode = ac.accountclasscode')
 						->setFields('id ind, accountname val, accountclass parent')

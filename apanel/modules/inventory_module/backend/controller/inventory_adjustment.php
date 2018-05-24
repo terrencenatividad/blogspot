@@ -170,6 +170,7 @@ class controller extends wc_controller {
 				$quantity 		= 	isset($row->OHQty) 		?	$row->OHQty 	: 	number_format(0,2);
 				$allocated 		=	isset($row->AllocQty) 	?	$row->AllocQty 	: 	number_format(0,2);
 				$ordered 		=  	isset($row->OrderQty) 	? 	$row->OrderQty 	: 	number_format(0,2);
+				$available 		=  	isset($row->AvailQty) 	? 	$row->AvailQty 	: 	number_format(0,2);
 
 				$table .= '<tr>';
 				$table .= '<td>' . $itemcode . '</td>';
@@ -177,6 +178,7 @@ class controller extends wc_controller {
 				$table .= '<td>' . $quantity . '</td>';
 				$table .= '<td>' . $allocated . '</td>';
 				$table .= '<td>' . $ordered . '</td>';
+				$table .= '<td>' . $available . '</td>';
 				$table .= '<td>
 								<button type = "button" id="plus" class = "btn btn-danger" onClick = "adjustment(\''.$itemcode.'\',\''.$itemname.'\', \''.$quantity.'\', \'plus\');" ><i class="fa fa-plus"></i></button>
 								<button type = "button" id="plus" class = "btn btn-danger" onClick = "adjustment(\''.$itemcode.'\',\''.$itemname.'\', \''.$quantity.'\', \'minus\');"><i class="fa fa-minus"></i></button>
@@ -204,7 +206,7 @@ class controller extends wc_controller {
 		$lists 	=	$this->adjustment->getImportList();	
 
 		foreach($lists as $key){
-			$return .= '"'.$key->itemcode.'","'.$key->name.'","'.$key->warehouse.'","0","0.00",""';
+			$return .= '"'.$key->itemcode.'","'.$key->name.'","'.$key->warehouse.'","0","0.00"';
 			$return .= "\n";
 		}
 
@@ -236,46 +238,40 @@ class controller extends wc_controller {
 
 		$importdate =	"";
 
-		if( empty($errmsg) )
-		{
-			//$x = file_get_contents($_FILES['file']['tmp_name']);
+		if( empty($errmsg) )  {
 			$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
-			// var_dump($x);
-			for ($n = 0; $n < count($x); $n++) {
 
-				if($n==0)
-				{
+			for ($n = 0; $n < count($x); $n++) {
+				if($n==0){
 					$header = $x[$n];
 
-					$importdate 	= $header[1];
+					for($y=0; $y < count($header); $y++){
+						if( $header[$y] != ""){
+							$importdate = $header[1];
 
-					$error = (!empty($header[0]) && $header[0] != "Date") ? "error" : "";
-					$errmsg[]	= (!empty($error) || $error != "" ) ? "Invalid template. Please download the template from the system first.<br/>" : "";
-					
-					// echo $error;
-
-					$error = (empty($header[1])) ? "error" : "";
-					$errmsg[]	= (!empty($error) || $error != "" ) ? "Please Input a date.<br/>" : "";
-
-					$errmsg		= array_filter($errmsg);
-					// echo " ERROR = ";
-					// var_dump($errmsg);
+							$error 		= ($header[0] != "Date") ? "error" : "";
+							$errmsg[]	= (!is_null($error) && $error != "" ) ? "Invalid template. Please download the template from the system first.<br/>" : "";
+			
+							$error 		= (empty($header[1])) ? "error" : "";
+							$errmsg[]	= (!is_null($error) && $error != "" ) ? "Please Input a date.<br/>" : "";
+							
+							$errmsg		= array_filter($errmsg);
+						}
+					}
 				}
 				
-				if($n==2 && empty($errmsg))
-				{
+				// echo var_dump($errmsg);
+				if($n==2 && empty($errmsg)){
 					$layout = count($headerArr);
 					$template = count($x);
 					$header = $x[$n];
-					
-					for ($m=0; $m< $layout; $m++)
-					{
+
+					for ($m=0; $m< $layout; $m++){
 						$template_header = $header[$m];
 
-						$error = (empty($template_header) && !in_array($template_header,$headerArr)) ? "error" : "";
+						$error 	= (empty($template_header) && !in_array($template_header,$headerArr)) ? "error" : "";
 					}	
-
-					$errmsg[]	= (!empty($error) || $error != "" ) ? "Invalid template. Please download the template from the system first.<br/>" : "";
+					$errmsg[]	= (!empty($error) ) ? "Invalid template. Please download the template from the system first.<br/>" : "";
 					
 					$errmsg		= array_filter($errmsg);
 
