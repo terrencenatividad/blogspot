@@ -2,9 +2,8 @@
 		<div class="box box-primary">
 			<div class="box-header pb-none">
 				<div class="row">
-					<div class="col-md-8">
-						<div class="row">
-							<div class="col-md-4">
+						<!-- <div class="row"> -->
+							<!-- <div class="col-md-4">
 								<div class="form-group">
 									<div class="btn-group">
 										<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create User</a>
@@ -18,9 +17,18 @@
 									</div>
 									<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete<span></span></button>
 								</div>
-							</div>
+							</div> -->
+						<!-- </div> -->
+					<div class="col-md-8">
+						<?= 
+							$ui->CreateNewButton('');
+						?>
+						<?= 
+							$ui->OptionButton('');
+						?>
+						<input id = "item_multiple_delete" type = "button" name = "delete" 
+							value = "Delete" class="btn btn-danger btn-flat ">
 						</div>
-					</div>
 					<div class="col-md-4">
 						<div class="form-group">
 							<div class="input-group">
@@ -281,4 +289,13 @@
 			linkDeleteToModal('#tableList .delete', 'ajaxCallback');
 			linkDeleteMultipleToModal('#item_multiple_delete', '#tableList', 'ajaxCallback');
 		});
+
+		$('#export_id').addClass('hidden');
+		$('#import_id').prop('href','#import-modal');
+		$("#import_id").click(function() 
+		{
+			$("#import-modal > .modal").css("display", "inline");
+			$('#import-modal').modal();
+		});
+
 	</script>
