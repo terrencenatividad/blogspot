@@ -47,4 +47,36 @@ class companyclass extends wc_model
 		return $result;
 	}
 
+	public function getOption($type, $orderby = "")
+	{
+		$result = $this->db->setTable('wc_option')
+					->setFields("code ind, value val")
+					->setWhere("type = '$type'")
+					->setOrderBy($orderby)
+					->runSelect(false)
+					->getResult();
+
+		return $result;
+	}
+
+	public function getPeriods()
+	{
+		$result = array(
+					"Jan" 	=> "January", 
+					"Feb" 	=> "February", 
+					"Mar" 	=> "March", 
+					"Apr" 	=> "April",
+					"May" 	=> "May", 
+					"Jun" 	=> "June", 
+					"Jul" 	=> "July", 
+					"Aug" 	=> "August",
+					"Sep" 	=> "September", 
+					"Oct" 	=> "October", 
+					"Nov" 	=> "November", 
+					"Dec" 	=> "December",
+                );
+
+		return $result;
+	}
+
 }
