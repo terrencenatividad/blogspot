@@ -457,6 +457,27 @@ class ui {
 			';
 	}
 
+
+	public function ListLabel($type){
+		$mod_name = MODULE_NAME;
+		return $mod_name . ' List';
+	}
+
+	public function AddLabel($type){
+		$mod_name = MODULE_NAME;
+		return 'Add New ' . $mod_name;
+	}
+
+	public function EditLabel($type){
+		$mod_name = MODULE_NAME;
+		return 'Edit ' . $mod_name;
+	}
+
+	public function ViewLabel($type){
+		$mod_name = MODULE_NAME;
+		return 'View ' . $mod_name;
+	}
+
 	private function drawStaticInput() {
 		$value = ($this->add_hidden !== true && $this->add_hidden !== false && ! $this->draw ) ? $this->add_hidden : $this->value;
 		$id = '';
