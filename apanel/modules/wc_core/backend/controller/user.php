@@ -36,7 +36,7 @@ class controller extends wc_controller {
 	}
 
 	public function listing() {
-		$this->view->title = 'User List';
+		$this->view->title = $this->ui->ListLabel('');
 		$data['ui'] = $this->ui;
 		$all = (object) array('ind' => 'null', 'val' => 'Filter: All');
 		$data['group_list'] = array_merge(array($all),  $this->user_model->getGroupList(''));
@@ -44,7 +44,7 @@ class controller extends wc_controller {
 	}
 
 	public function create() {
-		$this->view->title = 'User Create';
+		$this->view->title = $this->ui->AddLabel('');
 		$data = $this->input->post($this->fields);
 		$data['ui'] = $this->ui;
 		$data['group_list'] = $this->user_model->getGroupList('');
@@ -55,7 +55,7 @@ class controller extends wc_controller {
 	}
 
 	public function edit($username) {
-		$this->view->title = 'User Edit';
+		$this->view->title = $this->ui->EditLabel('');
 		$data = (array) $this->user_model->getUserById($this->fields, $username);
 		$data['ui'] = $this->ui;
 		$data['group_list'] = $this->user_model->getGroupList('');
@@ -66,7 +66,7 @@ class controller extends wc_controller {
 	}
 
 	public function view($username) {
-		$this->view->title = 'User View';
+		$this->view->title = $this->ui->ViewLabel('');
 		$data = (array) $this->user_model->getUserById($this->fields, $username);
 		$data['ui'] = $this->ui;
 		$data['group_list'] = $this->user_model->getGroupList('');
