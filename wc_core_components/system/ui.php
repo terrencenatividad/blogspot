@@ -460,7 +460,7 @@ class ui {
 
 	public function ListLabel($type){
 		$mod_name = MODULE_NAME;
-		return $mod_name . ' List';
+		return $mod_name ;
 	}
 
 	public function AddLabel($type){
