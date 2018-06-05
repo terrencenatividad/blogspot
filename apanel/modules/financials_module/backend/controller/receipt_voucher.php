@@ -10,6 +10,7 @@ class controller extends wc_controller
 		$this->input            = new input();
 		$this->ui 			    = new ui();
 		$this->logs  			= new log;
+		$this->session			= new session();
 		$this->view->title      = 'Receipt Voucher';
 		$this->show_input 	    = true;
 
@@ -450,7 +451,7 @@ class controller extends wc_controller
 
 		// Retrieve Applied Payment //
 		$p_table = "rv_application pv";
-		$p_fields = array("arvoucherno voucherno", "pv.amount amount", "ap.referenceno si_no", "pv.discount discount") ;
+		$p_fields = array("arvoucherno voucherno", "pv.amount amount", "ap.sourceno si_no", "pv.discount discount") ;
 		$p_cond = "pv.voucherno IN($pv_v) " ;
 		$p_join = "accountsreceivable ap ON pv.arvoucherno = ap.voucherno" ;
 		$appliedpaymentArray = $this->receipt_voucher->retrieveData($p_table, $p_fields, $p_cond, $p_join);
@@ -465,7 +466,7 @@ class controller extends wc_controller
 				->setDocumentDetails($documentdetails)
 				->setCheque($chequeArray)
 				->setAppliedPayment($appliedpaymentArray)
-				->drawPDF('pv_voucher_' . $voucherno);
+				->drawPDF('rv_voucher_' . $voucherno);
 	}
 
 	public function ajax($task) {
@@ -709,9 +710,9 @@ class controller extends wc_controller
 		$id 			= $this->input->post('id');
 		$type 			= $this->input->post('type');
 
-		$data['stat']	= ($type == 'yes') ? 'posted' : 'unposted';
+		$data['stat']	= ($type == 'post') ? 'posted' : 'open';
 		$result 		= $this->receipt_voucher->editData($data, "receiptvoucher", "voucherno = '$id'");
-		$type 			= ($type == 'yes') ? 'post' : 'unpost';
+		$type 			= ($type == 'post') ? 'post' : 'unpost';
 
 		if($result){
 			$this->receipt_voucher->editData($data, "rv_details", "voucherno = '$id'");
@@ -1019,7 +1020,7 @@ class controller extends wc_controller
 	}
 
 
-	private function getpvdetails()
+	private function getrvdetails()
 	{
 		$checkrows       = $this->input->post("checkrows");
 		$cheques       	 = $this->input->post("cheques");
@@ -1029,13 +1030,13 @@ class controller extends wc_controller
 
 		$cheques = json_decode(str_replace('\\', '', $cheques));
 
-		// $cond 			= "IN(";
 		$debit      	= '0.00';
 		$account_amounts = array();
 		$account_dis = array();
 		$account_total = array();
-		$apvoucher_  = array();
+		$arvoucher_  = array();
 		$dis_amount  = array();
+
 		for($i = 0; $i < count($decode_json); $i++)
 		{
 			$apvoucherno = $decode_json[$i]["vno"];
@@ -1051,22 +1052,21 @@ class controller extends wc_controller
 			$account_dis[$accountcode] += $decode_json[$i]["dis"] ; 
 			$account_total[$accountcode] = $account_amounts[$accountcode] + $account_dis[$accountcode];
 			
-			$apvoucher_[] = $apvoucherno;
-			
-
+			$arvoucher_[] = $apvoucherno;
 		}
-		$condi =  implode("','" , $apvoucher_);
+
+		$condi =  implode("','" , $arvoucher_);
 		$cond = "('".$condi."')";
 
 		$customer       	= $this->input->post("customer");
-		$data["customer"] = $customer;
-		$data["cond"]   = $cond;
+		$data["customer"] 	= $customer;
+		$data["cond"]   	= $cond;
 
 		$results			= ($cheques) ? $cheques : array(array());
-		$result 		= $this->receipt_voucher->retrievePVDetails($data);
-		$results = array_merge($results, $result);
-		$table 			= "";
-		$row 			= 1;
+		$result 			= $this->receipt_voucher->retrieveRVDetails($data);
+		$results			= array_merge($results, $result);
+		$table 				= "";
+		$row 				= 1;
 
 		// Retrieve business type list
 		$acc_entry_data     = array("id ind","accountname val");
@@ -1161,7 +1161,11 @@ class controller extends wc_controller
 		$list   	= $this->receipt_voucher->retrieveList($data_post);
 		
 		$table  	= "";
-
+		$login		= $this->session->get('login');
+		$groupname 	= $login['groupname'];
+		
+		$has_access = $this->receipt_voucher->retrieveAccess($groupname);
+		
 		if( !empty($list->result) ) :
 			$prevvno = '';
 			$nextvno = '';
@@ -1170,7 +1174,7 @@ class controller extends wc_controller
 				$date        	= $row->paymentdate;
 				$date       	= $this->date->dateFormat($date);
 				$voucher   		= $row->voucherno; 
-				$customer		 	= $row->partner; 
+				$customer		= $row->partner; 
 				$reference		= $row->reference;
 				$paymentmode 	= $row->paymentmode; 
 				$amount	  	 	= $row->amount;
@@ -1187,17 +1191,18 @@ class controller extends wc_controller
 
 				$prevvno 		= $voucher;
 				$voucher_status = '<span class="label label-danger">'.strtoupper($status).'</span>';
-				if($status == 'unposted'){
+				if($status == 'open'){
 					$voucher_status = '<span class="label label-info">'.strtoupper($status).'</span>';
 				}else if($status == 'posted'){
 					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
 				}
-				
-				$show_edit 		= ($status == 'unposted');
+
+				$show_edit 		= ($status == 'open');
+				$edit_admin 	= ($status == 'open' && $has_access[0]->mod_post == 1);
 
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()
-							->addEdit($show_edit)
+							->addEdit($edit_admin)
 							->addOtherTask(
 								'Post',
 								'thumbs-up',
