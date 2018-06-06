@@ -203,7 +203,7 @@ class dashboard_model extends wc_model {
 
 		$purchases	= $this->db->setTable("({$this->current_month_query}) m")
 								->leftJoin("purchasereceipt pr ON pr.period = m.month AND pr.companycode = m.companycode AND pr.fiscalyear = m.year AND pr.stat NOT IN ('temporary', 'Cancelled')")
-								->setFields("IFNULL(SUM(amount), 0) value, CONCAT(m.year, '-', m.month) month")
+								->setFields("IFNULL(SUM(netamount), 0) value, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
 								->runSelect()
 								->getResult();
