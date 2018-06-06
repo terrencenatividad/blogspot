@@ -104,8 +104,8 @@
 			<div class="col-md-6">
 				<div class="nav-tabs-custom">
 					<ul class="nav nav-tabs pull-right">
-						<li class="active"><a href="#current_year" data-toggle="tab" aria-expanded="true">2017</a></li>
-						<li class=""><a href="#previous_year" class="previous_year" data-toggle="tab" aria-expanded="false">2016</a></li>
+						<li class="active"><a href="#current_year" data-toggle="tab" aria-expanded="true"><?php echo date('Y') ?></a></li>
+						<li class=""><a href="#previous_year" class="previous_year" data-toggle="tab" aria-expanded="false"><?php echo date('Y') - 1 ?></a></li>
 						<li class="pull-left header">Revenue vs Cost of Sales</li>
 					</ul>
 					<div class="tab-content no-padding">
