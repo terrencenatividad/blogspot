@@ -32,6 +32,20 @@
 							?>
 						</div>
 					</div>
+					<!-- <div class="row">
+						<div class="col-md-12">
+							<?php
+								// echo $ui->formField('checkbox')
+								// 	->setLabel("Admin Access")
+								// 	->setSplit('col-md-2', 'col-md-8')
+								// 	->setName("admin")
+								// 	->setId("admin")
+								// 	->setDefault('1')
+								// 	->setValue('')
+								// 	->draw($show_input); 
+							?>
+						</div>
+					</div> -->
 					<?php foreach ($moduleaccess_list as $key => $moduleaccess): ?>
 						<hr class="form-hr">
 						<div class="row">

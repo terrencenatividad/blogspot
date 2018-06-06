@@ -48,7 +48,12 @@ function linkButtonToTable(button, table) {
 		countChecked();
 	});
 }
+
+var nowDate = new Date($('.datepicker-input').attr('data-date-start-date'));
+var today = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate()+1, 0, 0, 0, 0);
+
 $('.datepicker-input').datepicker({
+	startDate: today,
 	format: 'M dd, yyyy',
 	autoclose: true
 });
