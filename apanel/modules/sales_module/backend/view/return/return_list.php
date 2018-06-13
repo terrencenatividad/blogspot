@@ -84,7 +84,7 @@
 								'style' => 'width: 100px'
 							)
 						)
-						->addHeader('Traction Date', array('class' => 'col-md-3'), 'sort', 'transactiondate')
+						->addHeader('Transaction Date', array('class' => 'col-md-3'), 'sort', 'transactiondate')
 						->addHeader('Return No.', array('class' => 'col-md-3'), 'sort', 'voucherno', 'desc')
 						->addHeader('Customer', array('class' => 'col-md-3'), 'sort', 'customer')
 						->addHeader('Sales Return No.', array('class' => 'col-md-3'), 'sort', 'source_no')
