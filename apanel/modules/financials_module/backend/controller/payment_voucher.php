@@ -171,7 +171,7 @@ class controller extends wc_controller
 			
 				$update_info				= array();
 				$update_info['voucherno']	= $generatedvoucher;
-				$update_info['stat']		= 'unposted';
+				$update_info['stat']		= 'open';
 				$update_condition			= "voucherno = '$voucherno'";
 				$updateTempRecord			= $this->payment_voucher->editData($update_info,"paymentvoucher",$update_condition);
 				$updateTempRecord			= $this->payment_voucher->editData($update_info,"pv_details",$update_condition);
@@ -1205,29 +1205,30 @@ class controller extends wc_controller
 				}else if($status == 'posted'){
 					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
 				}
-				$show_edit 		= ($status == 'unposted' && $has_access[0]->mod_post == 1);
-
+				$show_btn 		= ($status == 'open');
+				$show_post 		= ($status == 'open' && $has_access[0]->mod_post == 1);
+				$show_unpost 	= ($status == 'posted' && $has_access[0]->mod_unpost == 1);
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()
-							->addEdit($show_edit)
+							->addEdit($show_btn)
 							->addOtherTask(
 								'Post',
 								'thumbs-up',
-								$show_edit
+								$show_post
 							)
 							->addOtherTask(
 								'Unpost',
 								'thumbs-down',
-								($status == 'posted')
+								$show_unpost
 							)
 							->addOtherTask(
 								'Cancel',
 								'ban-circle',
-								$show_edit
+								$show_btn
 							)
 							->addPrint()
-							->addDelete($show_edit)
-							->addCheckbox($show_edit)
+							->addDelete($show_btn)
+							->addCheckbox($show_btn)
 							->setValue($voucher)
 							->draw();
 			
