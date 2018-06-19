@@ -10,6 +10,7 @@ class controller extends wc_controller
 		$this->input            = new input();
 		$this->ui 			    = new ui();
 		$this->logs  			= new log;
+		$this->session			= new session();
 		$this->view->title      = 'Payment Voucher';
 		$this->show_input 	    = true;
 
@@ -170,7 +171,7 @@ class controller extends wc_controller
 			
 				$update_info				= array();
 				$update_info['voucherno']	= $generatedvoucher;
-				$update_info['stat']		= 'unposted';
+				$update_info['stat']		= 'open';
 				$update_condition			= "voucherno = '$voucherno'";
 				$updateTempRecord			= $this->payment_voucher->editData($update_info,"paymentvoucher",$update_condition);
 				$updateTempRecord			= $this->payment_voucher->editData($update_info,"pv_details",$update_condition);
@@ -207,6 +208,13 @@ class controller extends wc_controller
 		// Retrieve data
 		$data         			   	= $this->payment_voucher->retrieveEditData($sid);
 
+		//For User Access
+		$login		= $this->session->get('login');
+		$groupname 	= $login['groupname'];
+		
+		$has_access = $this->payment_voucher->retrieveAccess($groupname);
+		$data['has_access'] 		= $has_access[0]->mod_post;
+		
 		$data["ui"]   			   	= $this->ui;
 		$data['show_input'] 	   	= false;
 		$data["button_name"] 	   	= "Edit";
@@ -726,9 +734,9 @@ class controller extends wc_controller
 		$id 			= $this->input->post('id');
 		$type 			= $this->input->post('type');
 
-		$data['stat']	= ($type == 'yes') ? 'posted' : 'unposted';
+		$data['stat']	= ($type == 'post') ? 'posted' : 'unposted';
 		$result 		= $this->payment_voucher->editData($data, "paymentvoucher", "voucherno = '$id'");
-		$type 			= ($type == 'yes') ? 'post' : 'unpost';
+		$type 			= ($type == 'post') ? 'post' : 'unpost';
 
 		if($result){
 			$this->payment_voucher->editData($data, "pv_details", "voucherno = '$id'");
@@ -1016,12 +1024,7 @@ class controller extends wc_controller
 			}
 		}
 		}
-		else
-		{
-			$table	.= '<tr>';
-			$table	.= 	'<td class="text-center" colspan="6">- No Records Found -</td>';
-			$table	.= '</tr>';
-		}
+		
 		$pagination->table = $table;
 		$dataArray = array( "table" => $pagination->table, "json_encode" => $json_encode, "pagination" => $pagination->pagination, "page" => $pagination->page, "page_limit" => $pagination->page_limit );
 		
@@ -1032,38 +1035,49 @@ class controller extends wc_controller
 	private function getpvdetails()
 	{
 		$checkrows       = $this->input->post("checkrows");
-
+		$cheques       	 = $this->input->post("cheques");
 		$invoice_data 	= (isset($checkrows) && (!empty($checkrows))) ? trim($checkrows) : "";
 		$invoice_data  	= str_replace('\\', '', $invoice_data);
 		$decode_json    = json_decode($invoice_data, true);
-		// $cond 			= "IN(";
-		$debit      	= '0.00';
-		$account_amounts = array();
+
+		$cheques = json_decode(str_replace('\\', '', $cheques));
 		
-		$apvoucher_  = array();
-		for($i = 0; $i < count($decode_json); $i++)
-		{
+		$debit      		= '0.00';
+		$account_amounts 	= array();
+		$account_dis	 	= array();
+		$account_total 		= array();
+		$apvoucher_  		= array();
+		$dis_amount  		= array();
+
+		for($i = 0; $i < count($decode_json); $i++) {
 			$apvoucherno = $decode_json[$i]["vno"];
 			$accountcode = $this->payment_voucher->getValue('ap_details apd LEFT JOIN chartaccount AS chart ON apd.accountcode = chart.id AND chart.companycode = apd.companycode','accountcode',"voucherno = '$apvoucherno' AND chart.accountclasscode = 'ACCPAY'","","","apd.accountcode");
 			$accountcode = $accountcode[0]->accountcode;
 			if ( ! isset($account_amounts[$accountcode])) {
 				$account_amounts[$accountcode] = 0;
 			}
-			$account_amounts[$accountcode] += str_replace(',', '', $decode_json[$i]["amt"]); 
-			$apvoucher_[] = $apvoucherno;
+			if ( ! isset($account_dis[$accountcode])) {
+				$account_dis[$accountcode] = 0;
+			}
+			$account_amounts[$accountcode] += str_replace(',','',$decode_json[$i]["amt"]) ; 
+			$account_dis[$accountcode] += $decode_json[$i]["dis"] ; 
+			$account_total[$accountcode] = $account_amounts[$accountcode] + $account_dis[$accountcode];
 			
-
+			$apvoucher_[] = $apvoucherno;
 		}
+
 		$condi =  implode("','" , $apvoucher_);
 		$cond = "('".$condi."')";
 
-		$vendor       	= $this->input->post("vendor");
-		$data["vendor"] = $vendor;
-		$data["cond"]   = $cond;
+		$vendor       		= $this->input->post("vendor");
+		$data["vendor"] 	= $vendor;
+		$data["cond"]   	= $cond;
 
-		$results 		= $this->payment_voucher->retrievePVDetails($data);
-		$table 			= "";
-		$row 			= 1;
+		$results			= ($cheques) ? $cheques : array(array());
+		$result 			= $this->payment_voucher->retrievePVDetails($data);
+		$results			= array_merge($results, $result);
+		$table 				= "";
+		$row 				= 1;
 
 		// Retrieve business type list
 		$acc_entry_data     = array("id ind","accountname val");
@@ -1087,7 +1101,7 @@ class controller extends wc_controller
 
 				// Sum of credit will go to debit side on PV
 				// $debit         	   = number_format($results[$i]->sumcredit, 2);
-				$debit = (isset($account_amounts[$accountcode])) ? $account_amounts[$accountcode] : 0;
+				$debit = (isset($account_total[$accountcode])) ? $account_total[$accountcode] : 0;
 				$totaldebit    	   += $credit;
 
 				$table .= '<tr class="clone" valign="middle">';
@@ -1156,6 +1170,11 @@ class controller extends wc_controller
 
 		$list   	= $this->payment_voucher->retrieveList($data_post);
 		
+		$login		= $this->session->get('login');
+		$groupname 	= $login['groupname'];
+		
+		$has_access = $this->payment_voucher->retrieveAccess($groupname);
+	
 		$table  	= "";
 
 		if( !empty($list->result) ) :
@@ -1186,30 +1205,30 @@ class controller extends wc_controller
 				}else if($status == 'posted'){
 					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
 				}
-				
-				$show_edit 		= ($status == 'unposted');
-
+				$show_btn 		= ($status == 'open');
+				$show_post 		= ($status == 'open' && $has_access[0]->mod_post == 1);
+				$show_unpost 	= ($status == 'posted' && $has_access[0]->mod_unpost == 1);
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()
-							->addEdit($show_edit)
+							->addEdit($show_btn)
 							->addOtherTask(
 								'Post',
 								'thumbs-up',
-								$show_edit
+								$show_post
 							)
 							->addOtherTask(
 								'Unpost',
 								'thumbs-down',
-								($status == 'posted')
+								$show_unpost
 							)
 							->addOtherTask(
 								'Cancel',
 								'ban-circle',
-								$show_edit
+								$show_btn
 							)
 							->addPrint()
-							->addDelete($show_edit)
-							->addCheckbox($show_edit)
+							->addDelete($show_btn)
+							->addCheckbox($show_btn)
 							->setValue($voucher)
 							->draw();
 			

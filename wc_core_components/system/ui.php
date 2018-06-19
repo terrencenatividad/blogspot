@@ -434,6 +434,50 @@ class ui {
 		}
 	}
 
+	public function CreateNewButton($type) {
+		$url = MODULE_URL . 'create';
+		$mod_name = "Add New " . MODULE_NAME;
+		return ' <a href="' . $url . '" class="btn btn-primary btn-flat" role="button">'.$mod_name.'</a>';
+	}
+
+	public function OptionButton($type){
+		$mod_name = MODULE_NAME;
+		return '
+				<div class="btn-group">
+					<button type="button" 
+					class="btn btn-info btn-flat dropdown-toggle" 
+						data-toggle="dropdown">
+						Options <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" role="menu">
+						<li><a class="export" id="export_id"><span class="glyphicon glyphicon-export"></span>Export '.$mod_name.'</a></li>
+						<li><a class="import" id="import_id"><span class="glyphicon glyphicon-save"></span> Import '.$mod_name.'</a></li>
+					</ul>
+				</div>
+			';
+	}
+
+
+	public function ListLabel($type){
+		$mod_name = MODULE_NAME;
+		return $mod_name ;
+	}
+
+	public function AddLabel($type){
+		$mod_name = MODULE_NAME;
+		return 'Add New ' . $mod_name;
+	}
+
+	public function EditLabel($type){
+		$mod_name = MODULE_NAME;
+		return 'Edit ' . $mod_name;
+	}
+
+	public function ViewLabel($type){
+		$mod_name = MODULE_NAME;
+		return 'View ' . $mod_name;
+	}
+
 	private function drawStaticInput() {
 		$value = ($this->add_hidden !== true && $this->add_hidden !== false && ! $this->draw ) ? $this->add_hidden : $this->value;
 		$id = '';

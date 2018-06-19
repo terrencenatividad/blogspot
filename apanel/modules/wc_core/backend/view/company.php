@@ -132,7 +132,42 @@
 						?>
 					</div>
 				</div>
-				
+				<br/>
+				<h3>System Settings</h3>
+				<hr/>
+				<div class="row">
+					<div class="col-md-6">
+						<?php
+							echo $ui->formField('dropdown')
+								->setLabel('Tax Year')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('taxyear')
+								->setId('taxyear')
+								->setList($taxyear_list)
+								->setValue($taxyear)
+								->setValidation('required')
+								->draw();
+						?>
+					</div>
+					<div class="col-md-6">
+						<?php
+							echo $ui->formField('dropdown')
+								->setLabel('Period Start')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('periodstart')
+								->setId('periodstart')
+								->setList($period_list)
+								->setValue($periodstart)
+								->setAttribute(
+									array(
+										$taxyear_lock
+									)
+								)
+								->setValidation('required')
+								->draw();
+						?>
+					</div>
+				</div>
 				<hr/>
 				<div class="row">
 					<div class="col-md-12 text-center">
@@ -233,6 +268,15 @@
 		$('#companyForm #cancel').click(function(e) {
 			e.preventDefault();
 			location.href = '<?=BASE_URL?>';
+		});
+
+		$('#companyForm #taxyear').change(function(e) {
+			if(e.target.value == 'calendar'){
+				$('#companyForm #periodstart').prop('disabled',true);
+				$('#companyForm #periodstart').val('Jan').trigger('change');
+			}else{
+				$('#companyForm #periodstart').prop('disabled',false);
+			}
 		});
 
 		$('#uploadModal').on('hidden.bs.modal',function(){

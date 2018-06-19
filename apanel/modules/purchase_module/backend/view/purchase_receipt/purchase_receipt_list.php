@@ -83,7 +83,7 @@
 										'style' => 'width: 100px'
 									)
 								)
-								->addHeader('Traction Date', array('class' => 'col-md-2'), 'sort', 'transactiondate')
+								->addHeader('Transaction Date', array('class' => 'col-md-2'), 'sort', 'transactiondate')
 								->addHeader('Purchase Receipt No.', array('class' => 'col-md-2'), 'sort', 'voucherno', 'desc')
 								->addHeader('Supplier Invoice No.', array('class' => 'col-md-2'), 'sort', 'invoiceno')
 								->addHeader('Supplier', array('class' => 'col-md-2'), 'sort', 'vendor')

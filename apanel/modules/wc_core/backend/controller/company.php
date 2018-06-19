@@ -28,7 +28,9 @@ class controller extends wc_controller
 			'phone'			=> '',
 			'mobile'		=> '',
 			'address'		=> '',
-			'email'			=> ''
+			'email'			=> '',
+			'taxyear' 		=> '',
+			'periodstart' 	=> ''
 		);
 
 		/**
@@ -46,7 +48,10 @@ class controller extends wc_controller
 		/**
 		* Pass ui class object to be tagged 
 		*/
-        $data_var['ui'] = $ui;
+		$data_var['ui'] 			= $ui;
+		$data_var['taxyear_list']	= $this->companyclass->getOption("tax_year");
+		$data_var['period_list']	= $this->companyclass->getPeriods();
+		$data_var['taxyear_lock']   = ($data_var['taxyear'] == 'calendar') ? "disabled" : "";
 		$this->view->load('company', $data_var);
 	}
 
@@ -84,7 +89,9 @@ class controller extends wc_controller
 			'phone',
 			'mobile',
 			'address',
-			'email'
+			'email',
+			'taxyear',
+			'periodstart'
 		);
 		
 		/**
@@ -123,7 +130,9 @@ class controller extends wc_controller
 			'phone',
 			'mobile',
 			'address',
-			'email'
+			'email',
+			'taxyear',
+			'periodstart'
 		);
 
 		/**
