@@ -39,7 +39,9 @@ class usergroup_model extends wc_model {
 				'mod_view' => $this->getValue($value, 'mod_view'),
 				'mod_delete' => $this->getValue($value, 'mod_delete'),
 				'mod_list' => $this->getValue($value, 'mod_list'),
-				'mod_print' => $this->getValue($value, 'mod_print')
+				'mod_print' => $this->getValue($value, 'mod_print'),
+				'mod_post' => $this->getValue($value, 'mod_post'),
+				'mod_unpost' => $this->getValue($value, 'mod_unpost')
 			);
 			$values[] = $mod;
 		}
@@ -132,13 +134,13 @@ class usergroup_model extends wc_model {
 	public function getModuleAccessList($groupname = '') {
 		$condition = '';
 		$left_select = $this->db->setTable(PRE_TABLE . '_user_group ug')
-								->setFields('wma.module_name module_name, mod_add, mod_view, mod_edit, mod_delete, mod_list, mod_print')
+								->setFields('wma.module_name module_name, mod_add, mod_view, mod_edit, mod_delete, mod_list, mod_print, mod_post, mod_unpost')
 								->innerJoin(PRE_TABLE . '_module_access wma ON ug.groupname = wma.groupname')
 								->setWhere("ug.groupname = '$groupname'")
 								->buildSelect();
 
 		$this->db->setTable(PRE_TABLE . '_modules wm')
-					->setFields('wm.module_name module_name, ug.mod_add mod_add, ug.mod_view mod_view, ug.mod_edit mod_edit, ug.mod_delete mod_delete, ug.mod_list mod_list, ug.mod_print mod_print, has_add, has_view, has_edit, has_delete, has_list, has_print')
+					->setFields('wm.module_name module_name, ug.mod_add mod_add, ug.mod_view mod_view, ug.mod_edit mod_edit, ug.mod_delete mod_delete, ug.mod_list mod_list, ug.mod_print mod_print, ug.mod_post mod_post, ug.mod_unpost mod_unpost, has_add, has_view, has_edit, has_delete, has_list, has_print, has_post, has_unpost')
 					->leftJoin("($left_select) ug ON ug.module_name = wm.module_name")
 					->setGroupBy('wm.module_name');
 	

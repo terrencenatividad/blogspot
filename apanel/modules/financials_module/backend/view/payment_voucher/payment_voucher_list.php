@@ -3,19 +3,25 @@
 		<div class="box-header">
 			<div class="row">
 				<div class = "col-md-8">
-					<div class="btn-group">
-						<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create Payment Voucher</a>
+					<!-- <div class="btn-group">
+						<a href="<?//= MODULE_URL ?>create" class="btn btn-primary">Create Payment Voucher</a>
 						<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							<span class="caret"></span>
 							<span class="sr-only">Toggle Dropdown</span>
 						</button>
 						<ul class="dropdown-menu">
-							<li><a href="<?= MODULE_URL ?>get_export" id="export_table" download="Payment Voucher.csv"><i class="glyphicon glyphicon-open"></i>Export Voucher/s</a></li>
+							<li><a href="<?//= MODULE_URL ?>get_export" id="export_table" download="Payment Voucher.csv"><i class="glyphicon glyphicon-open"></i>Export Voucher/s</a></li> -->
 							<!--<li><a href="#import-modal" data-toggle="modal"><i class="glyphicon glyphicon-save"></i>Import Voucher/s</a></li>-->
-						</ul>
+						<!-- </ul>
 					</div>
 					<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete<span></span></button>
-					<button type="button" id="item_multiple_cancel" class="btn btn-warning delete_button">Cancel<span></span></button>
+					<button type="button" id="item_multiple_cancel" class="btn btn-warning delete_button">Cancel<span></span></button> -->
+					<?
+						echo $ui->CreateNewButton('');
+						echo $ui->OptionButton('');
+					?>
+					<input type="button" id="item_multiple_delete" class="btn btn-danger btn-flat " value="Delete">
+					<input type="button" id="item_multiple_cancel" class="btn btn-warning btn-flat " value="Cancel">
 				</div>
 
 				<div class = "col-md-4">
@@ -217,8 +223,7 @@
 			showList();
 		}
 	});
-	$( "#search" ).keyup(function() 
-	{
+	$( "#search" ).keyup(function() {
 		var search = $( this ).val();
 		ajax.search = search;
 		showList();
@@ -251,6 +256,9 @@
 		ajax.page = $(this).attr('data-page');
 		showList();
 	});
+	// NO Export Yet
+	$('#import_id').addClass('hidden')
+	$('#export_id').prop('download','Payment Voucher.csv');
 	$(function() {
 		linkButtonToTable('#item_multiple_delete', '#tableList');
 		linkButtonToTable('#item_multiple_cancel', '#tableList');
@@ -268,7 +276,7 @@
 		ajax_call = $.post('<?=BASE_URL?>financials/payment_voucher/ajax/load_list', ajax, function(data){
 			$('#list_container').html(data.list);
 			$('#pagination').html(data.pagination);
-			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+			$("#export_id").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 		});
 	}
 	showList();
@@ -286,12 +294,12 @@
 		});
 	}
 	function postCallback(id) {
-		$.post('<?=MODULE_URL?>ajax/ajax_update', {id : id, type: 'yes'}, function(data) {
+		$.post('<?=MODULE_URL?>ajax/ajax_update', {id : id, type: 'post'}, function(data) {
 			showList();
 		});
 	}
 	function unpostCallback(id) {
-		$.post('<?=MODULE_URL?>ajax/ajax_update', {id : id, type: 'no'}, function(data) {
+		$.post('<?=MODULE_URL?>ajax/ajax_update', {id : id, type: 'unpost'}, function(data) {
 			showList();
 		});
 	}

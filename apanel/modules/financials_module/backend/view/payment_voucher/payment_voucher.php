@@ -707,7 +707,7 @@
 					<?endif;?>
 					&nbsp;
 					<?
-					if($status == 'unposted' && !$show_input){
+					if(($status == 'unposted' && $has_access == 1) && !$show_input){
 						echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
 					}
 					?>
@@ -812,9 +812,9 @@
 								</tr>
 							</thead>
 							<tbody id="payable_list_container">
-								<tr>
+								<!-- <tr>
 									<td class="text-center" style="vertical-align:middle;" colspan="7">- No Records Found -</td>
-								</tr>
+								</tr> -->
 							</tbody>
 							<tfoot>
 								<tr> <!-- class="info" -->
@@ -909,30 +909,30 @@
 
 <!--DELETE RECORD CONFIRMATION MODAL-->
 <div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
-<div class="modal-dialog modal-sm">
-	<div class="modal-content">
-		<div class="modal-header">
-			Confirmation
-			<button type="button" class="close" data-dismiss="modal">&times;</button>
-		</div>
-		<div class="modal-body">
-			Are you sure you want to cancel?
-		</div>
-		<div class="modal-footer">
-			<div class="row row-dense">
-				<div class="col-md-12 center">
-					<div class="btn-group">
-						<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
-					</div>
-						&nbsp;&nbsp;&nbsp;
-					<div class="btn-group">
-						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Confirmation
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				Are you sure you want to cancel?
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 center">
+						<div class="btn-group">
+							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+						</div>
+							&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
 </div>
 <!-- End DELETE RECORD CONFIRMATION MODAL-->
 
@@ -1069,10 +1069,10 @@ $('#chequeTable .chequeamount').on('change', function() {
 		if (typeof checker['acc-' + $(this).val()] === 'undefined') {
 		} else {
 			var ca = checker['acc-' + $(this).val()] || '0.00';
-			$(this).closest('tr').find('.account_amount').val(ca);	
+			$(this).closest('tr').find('.account_amount').val(addComma(ca));	
 		}	
 	});
-	formatNumber("credit["+ newid +"]");
+	// formatNumber("credit["+ newid +"]");
 	addAmountAll('credit');
 });
 
@@ -1664,7 +1664,7 @@ function cancelTransaction(vno){
 /**TOGGLE CHECK DATE FIELD**/
 function toggleCheckInfo(val){
 	var selected_rows = $("#selected_rows").html();
-	
+
 	if(val == 'cheque'){
 		if(selected_rows != '[]'){
 			$("#payableForm #cheque_details").removeClass('hidden');
@@ -1688,10 +1688,13 @@ function toggleCheckInfo(val){
 				}
 			});
 		}
-	}
-	else
-	{
+	} else {
+		//For Reseting initial PV & Cheque Details
+		clearChequePayment();
+		getPVDetails();
 		$("#payableForm #cheque_details").addClass('hidden');
+		$('#totalcheques').val(0);
+		formatNumber('totalcheques');
 	}
 
 }
@@ -1825,6 +1828,8 @@ function showIssuePayment(){
 	if(valid == 0 && vendor_code != "")
 	{
 		showList();
+		setChequeZero();
+		clearChequePayment();
 		$('#payable_list_container tbody').html(`<tr>
 			<td colspan="4" class="text-center">Loading Items</td>
 		</tr>`);
@@ -1954,6 +1959,7 @@ function getPVDetails(){
 				$("#entriesTable tbody").html(data.table);
 				$("#pv_amount").html(total_payment);
 				// display total of debit
+				addAmountAll("credit");
 				addAmountAll("debit");
 				
 				var count_container = Object.keys(container).length;
@@ -2448,6 +2454,17 @@ function validateChequeNumber(id, value, n){
 		}
 			
 	});
+}
+
+function clearChequePayment(){
+	$('#tbody_cheque .clone').each(function(index) {
+		accounts = accounts.splice(1,1);
+		if (index > 0) {
+			$(this).remove();
+		}
+	});
+	
+	setChequeZero();
 }
 
 $(document).ready(function() {
@@ -3064,7 +3081,7 @@ $(document).ready(function() {
 
 		if(paymentmode == "cheque")
 		{
-			//toggleCheckInfo(paymentmode);
+			// toggleCheckInfo(paymentmode);
 			//loadCheques();
 		}
 
@@ -3280,21 +3297,6 @@ $(document).ready(function() {
 
 	var cheque_detail 	=	$('#paymentmode').val();
 
-	// if( cheque_detail	== 'cheque' ){
-	// 	$('#cheque_details').show();
-	// } else {
-	// 	$('#cheque_details').hide();
-	// }
-	
-	// $('#paymentmode').on('change',function(){
-	// 	if($(this).val() == 'cheque'){
-	// 		$('#cheque_details').show();
-	// 	} else {
-	// 		$('#cheque_details').hide();
-	// 	}
-		
-	// });
-
 	$('#change_vendor_modal').on('click','#yes_to_reset',function(){
 		
 		$('#ap_items .clone').each(function(index) {
@@ -3303,22 +3305,8 @@ $(document).ready(function() {
 			}
 		});
 		
-		$('#ap_items .accountcode').val('').trigger('change');
-		$('#ap_items .debit').val('0.00');
-		$('#ap_items .account_amount').val('0.00');
-		$('#ap_items .account_amount').removeAttr('readonly');
-		$('#total_debit').val('0.00');
-		
-		$('#tbody_cheque .clone').each(function(index) {
-			if (index > 0) {
-				$(this).remove();
-			}
-		});
-
-		$('#tbody_cheque .chequeaccount').val('').trigger('change');
-		$('#tbody_cheque .chequenumber').val('');
-		$('#tbody_cheque .chequeamount').val('0.00');
-		$('#totalcheques').val('0.00');
+		setChequeZero()
+		clearChequePayment();
 
 		$('#change_vendor_modal').modal('hide');
 		
@@ -3330,6 +3318,47 @@ $(document).ready(function() {
 		if ($('.accountcode').val()	 != '' || $('.chequeaccount').val()	 != '' ) {
 			$('#change_vendor_modal').modal('show');
 		} 
+	});
+
+	$('.accountcode').on('change',function(){
+		var vendor 	= $('#vendor').val();
+		var payable = JSON.stringify(container);
+		var flag 	= 1;
+		
+		var account = $(this).val();
+
+		if( account != "" ){
+			if( vendor == "" ){
+				bootbox.dialog({
+					message: "Please select a Vendor First",
+					title: "Oops!",
+						buttons: {
+							yes: {
+								label: "OK",
+								className: "btn-primary btn-flat",
+								callback: function(result) {
+									flag = 2;
+								}
+						}
+					}
+				});
+			} else if( payable == "[]"){
+				bootbox.dialog({
+					message: "Please tag payables first.",
+					title: "Oops!",
+						buttons: {
+						yes: {
+						label: "OK",
+						className: "btn-primary btn-flat",
+						callback: function(result) {
+								
+							}
+						}
+					}
+				});
+			}
+		}
+
 	});
 }); // end
 

@@ -66,30 +66,44 @@ class dashboard_model extends wc_model {
 	}
 
 	public function getRevenuesAndExpenses() {
-		$current	= $this->db->setTable("({$this->current_month_query}) m")
-								->leftJoin("salesinvoice si ON si.period = m.month AND si.companycode = m.companycode AND si.fiscalyear = m.year AND si.stat NOT IN ('temporary', 'cancelled')")
-								->setFields("IFNULL(SUM(si.amount), 0) revenue, CONCAT(m.year, '-', m.month) month")
+		$coa_cost 	= 	$this->db->setTable("chartaccount")
+								->setFields("id")
+								->setWhere("accountclasscode IN ('COST')")
+								->buildSelect();
+
+		$coa_rev 	= 	$this->db->setTable("chartaccount")
+								->setFields("id")
+								->setWhere("accountclasscode IN ('REV')")
+								->buildSelect();
+
+		$current 	=	$this->db->setTable("({$this->current_month_query}) m")
+								->leftJoin("($coa_rev) n ON 1 = 1")
+								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
+								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) revenue, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
 								->runSelect()
 								->getResult();
 
-		$current2	= $this->db->setTable("({$this->current_month_query}) m")
-								->leftJoin("purchasereceipt pr ON pr.period = m.month AND pr.companycode = m.companycode AND pr.fiscalyear = m.year AND pr.stat NOT IN ('temporary', 'Cancelled')")
-								->setFields("IFNULL(SUM(pr.amount), 0) expense")
+		$current2 	=	$this->db->setTable("({$this->current_month_query}) m")
+								->leftJoin("($coa_cost) n ON 1 = 1")
+								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
+								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) expense")
 								->setGroupBy('m.month')
 								->runSelect()
 								->getResult();
 
-		$previous	= $this->db->setTable("({$this->previous_month_query}) m")
-								->leftJoin("salesinvoice si ON si.period = m.month AND si.companycode = m.companycode AND si.fiscalyear = m.year AND si.stat NOT IN ('temporary', 'cancelled')")
-								->setFields("IFNULL(SUM(si.amount), 0) revenue, CONCAT(m.year, '-', m.month) month")
+		$previous 	=	$this->db->setTable("({$this->previous_month_query}) m")
+								->leftJoin("($coa_rev) n ON 1 = 1")
+								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
+								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) revenue, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
 								->runSelect()
 								->getResult();
 
-		$previous2	= $this->db->setTable("({$this->previous_month_query}) m")
-								->leftJoin("purchasereceipt pr ON pr.period = m.month AND pr.companycode = m.companycode AND pr.fiscalyear = m.year AND pr.stat NOT IN ('temporary', 'Cancelled')")
-								->setFields("IFNULL(SUM(pr.amount), 0) expense, CONCAT(m.year, '-', m.month) month")
+		$previous2 	=	$this->db->setTable("({$this->previous_month_query}) m")
+								->leftJoin("($coa_cost) n ON 1 = 1")
+								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
+								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) expense, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
 								->runSelect()
 								->getResult();
@@ -101,7 +115,7 @@ class dashboard_model extends wc_model {
 		foreach ($previous as $key => $row) {
 			$previous[$key]->expense = $previous2[$key]->expense;
 		}
-
+		// var_dump($current);
 		$rae = array(
 			'current'	=> $current,
 			'previous'	=> $previous
@@ -112,30 +126,28 @@ class dashboard_model extends wc_model {
 	public function getAging() {
 		$datefilter = $this->date->dateDbFormat() . ' 00:00:00';
 		$ap	= $this->db->setTable('accountspayable ap')
-						->innerJoin('pv_application pva ON pva.apvoucherno = ap.voucherno AND pva.companycode = ap.companycode')
 						->setFields("
-							pva.convertedamount value,
+							ap.balance value,
 							CASE
 								WHEN DATEDIFF('$datefilter', ap.duedate) > 60 THEN '60 days over'
 								WHEN DATEDIFF('$datefilter', ap.duedate) > 30 THEN '31 to 60 days'
 								WHEN DATEDIFF('$datefilter', ap.duedate) > 0 THEN '1 to 30 days'
 							END label
 						")
-						->setWhere("ap.stat = 'posted' AND pva.stat = 'posted' AND ap.duedate < '$datefilter'")
+						->setWhere("ap.stat = 'posted' AND ap.duedate < '$datefilter' AND ap.balance > 0")
 						->buildSelect();
 
 
 		$ar	= $this->db->setTable('accountsreceivable ar')
-						->innerJoin('rv_application rva ON rva.arvoucherno = ar.voucherno AND rva.companycode = ar.companycode')
 						->setFields("
-							rva.convertedamount value,
+							ar.balance value,
 							CASE
 								WHEN DATEDIFF('$datefilter', ar.duedate) > 60 THEN '60 days over'
 								WHEN DATEDIFF('$datefilter', ar.duedate) > 30 THEN '31 to 60 days'
 								WHEN DATEDIFF('$datefilter', ar.duedate) > 0 THEN '1 to 30 days'
 							END label
 						")
-						->setWhere("ar.stat = 'posted' AND rva.stat = 'posted' AND ar.duedate < '$datefilter'")
+						->setWhere("ar.stat = 'posted' AND ar.duedate < '$datefilter' AND ar.balance > 0")
 						->buildSelect();
 
 		$aging = array(
@@ -153,6 +165,24 @@ class dashboard_model extends wc_model {
 							->getResult();
 
 		if ($result) {
+			foreach ($result as $content) {
+				$labelarr[] 	=	$content->label;
+			}
+			if(!in_array("1 to 30 days",$labelarr)){
+				$objects['label'] = "1 to 30 days";
+				$objects['value'] = 0;
+				$result[] 		  = $objects;
+			}
+			if(!in_array("31 to 60 days",$labelarr)){
+				$objects['label'] = "31 to 60 days";
+				$objects['value'] = 0;
+				$result[] 		  = $objects;
+			}
+			if(!in_array("60 days over",$labelarr)){
+				$objects['label'] = "60 days over";
+				$objects['value'] = 0;
+				$result[] 		  = $objects;
+			} 
 			return $result;
 		} else {
 			return array(
@@ -171,7 +201,7 @@ class dashboard_model extends wc_model {
 
 		$purchases	= $this->db->setTable("({$this->current_month_query}) m")
 								->leftJoin("purchasereceipt pr ON pr.period = m.month AND pr.companycode = m.companycode AND pr.fiscalyear = m.year AND pr.stat NOT IN ('temporary', 'Cancelled')")
-								->setFields("IFNULL(SUM(amount), 0) value, CONCAT(m.year, '-', m.month) month")
+								->setFields("IFNULL(SUM(netamount), 0) value, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
 								->runSelect()
 								->getResult();

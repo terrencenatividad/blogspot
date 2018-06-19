@@ -20,8 +20,8 @@ class onload {
 		if ($module) {
 			$result = $this->db->setTable("fintaxcode ftc")
 								->setFields('fstaxcode')
-								->leftJoin("chartaccount coa ON coa.companycode = ftc.companycode AND coa.id = ftc.salesAccount AND coa.segment5 != '' AND coa.accounttype != 'P'")
-								->leftJoin("chartaccount coa2 ON coa2.companycode = ftc.companycode AND ftc.purchaseAccount AND coa2.segment5 != '' AND coa2.accounttype != 'P'")
+								->leftJoin("chartaccount coa ON coa.companycode = ftc.companycode AND coa.id = ftc.salesAccount AND coa.segment5 != '' AND coa.accounttype != ''")
+								->leftJoin("chartaccount coa2 ON coa2.companycode = ftc.companycode AND ftc.purchaseAccount AND coa2.segment5 != '' AND coa2.accounttype != ''")
 								->setWhere("(coa.id IS NULL OR coa2.id IS NULL)")
 								->setLimit(1)
 								->runSelect()

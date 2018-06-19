@@ -17,20 +17,22 @@ class controller extends wc_controller {
 			'mod_edit'		=> 'Edit',
 			'mod_delete'	=> 'Delete',
 			'mod_list'		=> 'List',
-			'mod_print'		=> 'Print'
+			'mod_print'		=> 'Print',
+			'mod_post'		=> 'Post',
+			'mod_unpost'	=> 'Unpost'
 		);
 		$this->data = array();
 		$this->view->header_active = 'maintenance/usergroup/';
 	}
 
 	public function listing() {
-		$this->view->title = 'User Group List';
+		$this->view->title = $this->ui->ListLabel('');
 		$data['ui'] = $this->ui;
 		$this->view->load('usergroup/usergroup_list', $data);
 	}
 
 	public function create() {
-		$this->view->title = 'User Group Create';
+		$this->view->title = $this->ui->AddLabel('');
 		$data = $this->input->post($this->fields);
 		$data['ui'] = $this->ui;
 		$data['ajax_task'] = 'ajax_create';
@@ -43,7 +45,7 @@ class controller extends wc_controller {
 
 	public function edit($groupname) {
 		$groupname = base64_decode($groupname);
-		$this->view->title = 'User Group Edit';
+		$this->view->title = $this->ui->EditLabel('');
 		$data = (array) $this->usergroup_model->getGroupByName($this->fields, $groupname);
 		$data['ui'] = $this->ui;
 		$data['ajax_task'] = 'ajax_edit';
@@ -56,7 +58,7 @@ class controller extends wc_controller {
 
 	public function view($groupname) {
 		$groupname = base64_decode($groupname);
-		$this->view->title = 'User Group View';
+		$this->view->title = $this->ui->ViewLabel('');
 		$data = (array) $this->usergroup_model->getGroupByName($this->fields, $groupname);
 		$data['ui'] = $this->ui;
 		$data['moduleaccess_list'] = $this->usergroup_model->getModuleAccessList($groupname);
