@@ -57,9 +57,13 @@ class backend {
 			$type = 'mod_list';
 		} else if ($this->checkAccessType(array('print'), $function)) {
 			$type = 'mod_print';
-		}
+		} else if ($this->checkAccessType(array('post'), $function)) {
+			$type = 'mod_post';
+		} else if ($this->checkAccessType(array('unpost'), $function)) {
+			$type = 'mod_unpost';
+		} 
 		$result		= $db->setTable(PRE_TABLE . '_module_access')
-							->setFields('mod_add, mod_view, mod_edit, mod_delete, mod_list, mod_print')
+							->setFields('mod_add, mod_view, mod_edit, mod_delete, mod_list, mod_print, mod_post, mod_unpost')
 							->setWhere("groupname = '" . GROUPNAME . "' AND module_name = '$module_name'")
 							->runSelect()
 							->getRow();
@@ -86,6 +90,8 @@ class backend {
 			define('MOD_DELETE', ($result->mod_delete === '1'));
 			define('MOD_LIST', ($result->mod_list === '1'));
 			define('MOD_PRINT', ($result->mod_print === '1'));
+			define('MOD_POST', ($result->mod_post === '1'));
+			define('MOD_UNPOST', ($result->mod_unpost === '1'));
 		}
 		if (isset($type)) {
 			define('MODULE_NAME', $module_name);
@@ -137,13 +143,13 @@ class backend {
 			}
 		}
 
-		if ($subfolder == 'login') {
+		if (in_array($subfolder,array('login','register'))) {
 			$this->module_folder = 'wc_core';
-			$this->module_file = 'login';
+			$this->module_file = $subfolder;
 			$this->module_function = 'index';
-			define('MODULE_URL', BASE_URL . 'login');
-			define('MODULE_TASK', 'login');
-			define('MODULE_NAME', 'Login');
+			define('MODULE_URL', BASE_URL . $subfolder);
+			define('MODULE_TASK', $subfolder);
+			define('MODULE_NAME', ucfirst($subfolder));
 		} else if ($subfolder != '' && $subfolder != 'ajax') {
 			$paths = $db->setTable(PRE_TABLE . '_modules')
 						->setFields('module_name, module_group, module_link, folder, file, default_function')
@@ -244,7 +250,7 @@ if (AUTO_LOGIN && ! function_exists('password_verify') && ! $access->isApanelUse
 if (SUB_FOLDER == 'logout') {
 	$access->logoutUser();
 	$url->redirect(BASE_URL);
-} else if ($access->isApanelUser() || SUB_FOLDER == 'login') {
+} else if ($access->isApanelUser() || SUB_FOLDER == 'login' || SUB_FOLDER == 'register') {
 	$backend->loadModule();
 } else {
 	if ($input->isPost) {
