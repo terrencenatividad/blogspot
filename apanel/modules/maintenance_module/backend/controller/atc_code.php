@@ -9,7 +9,7 @@
 			$this->input        = new input();
 			$this->ui 			= new ui();
 			$this->logs  		= new log; 
-			$this->view->title  = 'ATC Code';
+			$this->view->title  = MODULE_NAME;
 			$this->show_input 	= true;
 			$this->companycode  = COMPANYCODE;
 
@@ -25,7 +25,7 @@
 			$data["tax_account"] = "";
 			$data["ajax_post"] = "";
 			$data["ajax_task"] = "add";
-			$this->view->title  = 'Add New ATC Code';
+			$this->view->title  = $this->ui->AddLabel('');
 			$data['ui'] = $this->ui;
 			$data["task"] = "create";
 			$data["button_name"] = "Save";
@@ -38,7 +38,7 @@
 		}
 
 		public function edit($atc_code = ""){
-			$this->view->title  = 'Edit ATC Code';
+			$this->view->title  = $this->ui->EditLabel('');
 			$data["ajax_task"] = "edit";
 			$data["task"] = "edit";
 			$data['ui'] = $this->ui;
@@ -73,7 +73,8 @@
 		}
 
 		public function view($atc_code = ""){
-			$this->view->title  = 'View ATC Code'; 
+			$this->view->title  = $this->ui->ViewLabel('');
+			$data["ajax_task"] = "edit";
 			$data["ajax_task"] = "view";
 			$data["task"] = "view";
 			$data['ui'] = $this->ui;
@@ -178,7 +179,7 @@
 			$data['import_error_messages'] = array();
 			$data["file_import_result"]    = "";
 			$data['ui'] = $this->ui;
-			$this->view->title  = 'ATC Code';
+			$this->view->title  = $this->ui->ListLabel('');
 
 			// For Import
 			$errmsg 			= array();
@@ -248,10 +249,18 @@
 							$errmsg[] 	= "ATC Code [ <strong>$tax_account</strong> ] on row $row already exists.";
 						}
 
+						/**VALIDATE COA**/
+						$natureArray	= $this->atc_code->getValue("chartaccount",array("accountname"),
+						" accountclasscode = 'TAX' ");
+						if(!in_array($tax_account,$natureArray)){
+							$errmsg[] 	= "Tax Account [ <strong>$tax_account</strong> ] on row $row cannot be found on Chart of Accounts table.";
+						}
+
 						$istax_account_id	= $this->atc_code->getValue("chartaccount",array("id"),
 						" accountname = '$tax_account' ");
-						$coa_id = $istax_account_id[0]->id;
+						$coa_id = '';
 						if(isset($istax_account_id[0]->id) && !empty($istax_account_id[0]->id)){
+							$coa_id = $istax_account_id[0]->id ;
 							$errmsg[] 	= "Tax Account[ <strong>$tax_account</strong> ] on row $row already exists.";
 						}
 
