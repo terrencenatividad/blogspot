@@ -68,12 +68,12 @@ class dashboard_model extends wc_model {
 	public function getRevenuesAndExpenses() {
 		$coa_cost 	= 	$this->db->setTable("chartaccount")
 								->setFields("id")
-								->setWhere("accountclasscode IN ('COST')")
+								->setWhere("accountclasscode IN ('COST','COSTSA')")
 								->buildSelect();
 
 		$coa_rev 	= 	$this->db->setTable("chartaccount")
 								->setFields("id")
-								->setWhere("accountclasscode IN ('REV')")
+								->setWhere("accountclasscode IN ('REV','REVENU')")
 								->buildSelect();
 
 		$current 	=	$this->db->setTable("({$this->current_month_query}) m")
