@@ -366,7 +366,7 @@ class receipt_voucher_model extends wc_model
 		return $query;
 	}
 
-	public function retrievePVDetails($data)
+	public function retrieveRVDetails($data)
 	{
 		$cond  		= (isset($data["cond"]) && !empty($data["cond"])) ? $data["cond"]: "";
 		$customercode = (isset($data["customer"]) && !empty($data["customer"])) ? $data["customer"]: "";
@@ -574,9 +574,10 @@ class receipt_voucher_model extends wc_model
 		/**CLEAN PASSED DATA**/
 		$aJournalData 	= array();
 		$aChequeData 	= array();
+
 		foreach($data as $postIndex => $postValue)
 		{
-			if($postIndex=='accountcode' ||  $postIndex=='detailparticulars' || $postIndex=='debit' || $postIndex=='credit')
+			if($postIndex=='accountcode' ||  $postIndex=='h_accountcode' ||	$postIndex=='detailparticulars' || $postIndex=='debit' || $postIndex=='credit')
 			{
 				$a		= '';
 				foreach($postValue as $postValueIndex => $postValueIndexValue){
@@ -733,10 +734,10 @@ class receipt_voucher_model extends wc_model
 
 		$iDetailLineNum = 1;
 		$aPvDetailArray = array();
-
+		// var_dump($tempArray);
 		foreach($tempArray as $tempArrayIndex => $tempArrayValue)
 		{
-			$accountcode 						= $tempArrayValue['accountcode'];
+			$accountcode 						= $tempArrayValue['h_accountcode'];
 			$detailparticulars					= $tempArrayValue['detailparticulars'];
 			$debit			    				= $tempArrayValue['debit'];
 			$credit			    				= $tempArrayValue['credit'];
@@ -1416,5 +1417,13 @@ class receipt_voucher_model extends wc_model
 
 	}
 
-	
+	public function retrieveAccess($groupname){
+		$result = $this->db->setTable("wc_module_access")
+					->setFields(array("mod_add","mod_view","mod_edit","mod_delete","mod_list","mod_print","mod_post","mod_unpost"))
+					->setWhere("groupname = '$groupname' AND companycode = 'CID' AND module_name = 'Receipt Voucher'")
+					->setLimit(1)
+					->runSelect()
+					->getResult();
+		return $result;
+	}
 }
