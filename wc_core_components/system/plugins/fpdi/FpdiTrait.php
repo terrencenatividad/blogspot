@@ -23,7 +23,7 @@ trait FpdiTrait
      *
      * @var PdfReader[]
      */
-    protected $readers = [];
+    protected $readers = array();
 
     /**
      * The current reader id.
@@ -37,21 +37,21 @@ trait FpdiTrait
      *
      * @var array
      */
-    protected $importedPages = [];
+    protected $importedPages = array();
 
     /**
      * A map from object numbers of imported objects to new assigned object numbers by FPDF.
      *
      * @var array
      */
-    protected $objectMap = [];
+    protected $objectMap = array();
 
     /**
      * An array with information about objects, which needs to be copied to the resulting document.
      *
      * @var array
      */
-    protected $objectsToCopy = [];
+    protected $objectsToCopy = array();
 
     /**
      * Set the minimal PDF version.
@@ -60,7 +60,7 @@ trait FpdiTrait
      */
     protected function setMinPdfVersion($pdfVersion)
     {
-        if (\version_compare($pdfVersion, $this->PDFVersion, '>')) {
+        if (version_compare($pdfVersion, $this->PDFVersion, '>')) {
             $this->PDFVersion = $pdfVersion;
         }
     }
@@ -75,7 +75,7 @@ trait FpdiTrait
     protected function getPdfParserInstance(StreamReader $streamReader)
     {
         /** @noinspection PhpUndefinedClassInspection */
-        if (\class_exists(FpdiPdfParser::class)) {
+        if (class_exists(FpdiPdfParser::class)) {
             /** @noinspection PhpUndefinedClassInspection */
             return new FpdiPdfParser($streamReader);
         }
@@ -92,18 +92,18 @@ trait FpdiTrait
      */
     protected function getPdfReaderId($file)
     {
-        if (\is_resource($file)) {
+        if (is_resource($file)) {
             $id = (string) $file;
-        } elseif (\is_string($file)) {
-            $id = \realpath($file);
+        } elseif (is_string($file)) {
+            $id = realpath($file);
             if (false === $id) {
                 $id = $file;
             }
-        } elseif (\is_object($file)) {
-            $id = \spl_object_hash($file);
+        } elseif (is_object($file)) {
+            $id = spl_object_hash($file);
         } else {
-            throw new \InvalidArgumentException(
-                \sprintf('Invalid type in $file parameter (%s)', \gettype($file))
+            throw new InvalidArgumentException(
+                sprintf('Invalid type in $file parameter (%s)', \gettype($file))
             );
         }
 
@@ -111,9 +111,9 @@ trait FpdiTrait
             return $id;
         }
 
-        if (\is_resource($file)) {
+        if (is_resource($file)) {
             $streamReader = new StreamReader($file);
-        } elseif (\is_string($file)) {
+        } elseif (is_string($file)) {
             $streamReader = StreamReader::createByFile($file);
         } else {
             $streamReader = $file;
@@ -137,8 +137,8 @@ trait FpdiTrait
             return $this->readers[$id];
         }
 
-        throw new \InvalidArgumentException(
-            \sprintf('No pdf reader with the given id (%s) exists.', $id)
+        throw new InvalidArgumentException(
+            sprintf('No pdf reader with the given id (%s) exists.', $id)
         );
     }
 
@@ -151,7 +151,7 @@ trait FpdiTrait
     public function setSourceFile($file)
     {
         $this->currentReaderId = $this->getPdfReaderId($file);
-        $this->objectsToCopy[$this->currentReaderId] = [];
+        $this->objectsToCopy[$this->currentReaderId] = array();
 
         $reader = $this->getPdfReader($this->currentReaderId);
         $this->setMinPdfVersion($reader->getPdfVersion());
@@ -172,7 +172,7 @@ trait FpdiTrait
     public function importPage($pageNumber, $box = PageBoundaries::CROP_BOX, $groupXObject = true)
     {
         if (null === $this->currentReaderId) {
-            throw new \BadMethodCallException('No reader initiated. Call setSourceFile() first.');
+            throw new BadMethodCallException('No reader initiated. Call setSourceFile() first.');
         }
 
         $pageId = $this->currentReaderId;
@@ -181,10 +181,10 @@ trait FpdiTrait
         $pageId .= '|' . $pageNumber . '|' . ($groupXObject ? '1' : '0');
 
         // for backwards compatibility with FPDI 1
-        $box = \ltrim($box, '/');
+        $box = ltrim($box, '/');
         if (!PageBoundaries::isValidName($box)) {
-            throw new \InvalidArgumentException(
-                \sprintf('Box name is invalid: "%s"', $box)
+            throw new InvalidArgumentException(
+                sprintf('Box name is invalid: "%s"', $box)
             );
         }
 
@@ -200,7 +200,7 @@ trait FpdiTrait
         $bbox = $page->getBoundary($box);
         if ($bbox === false) {
             throw new PdfReaderException(
-                \sprintf("Page doesn't have a boundary box (%s).", $box),
+                sprintf("Page doesn't have a boundary box (%s).", $box),
                 PdfReaderException::MISSING_DATA
             );
         }
@@ -213,10 +213,10 @@ trait FpdiTrait
 
         if ($groupXObject) {
             $this->setMinPdfVersion('1.4');
-            $dict->value['Group'] = PdfDictionary::create([
+            $dict->value['Group'] = PdfDictionary::create(array(
                 'Type' => PdfName::create('Group'),
                 'S' => PdfName::create('Transparency')
-            ]);
+            ));
         }
 
         $resources = $page->getAttribute('Resources');
@@ -238,8 +238,8 @@ trait FpdiTrait
         if ($rotation !== 0) {
             $rotation *= -1;
             $angle = $rotation * M_PI/180;
-            $a = \cos($angle);
-            $b = \sin($angle);
+            $a = cos($angle);
+            $b = sin($angle);
             $c = -$b;
             $d = $a;
 
@@ -275,7 +275,7 @@ trait FpdiTrait
 
         // just copy the stream reference if it is only a single stream
         if (($contentsIsStream = ($contents instanceof PdfStream))
-            || ($contents instanceof PdfArray && \count($contents->value) === 1)
+            || ($contents instanceof PdfArray && count($contents->value) === 1)
         ) {
             if ($contentsIsStream) {
                 /**
@@ -297,10 +297,10 @@ trait FpdiTrait
         // otherwise extract it from the array and re-compress the whole stream
         } else {
             $streamContent = $this->compress
-                ? \gzcompress($page->getContentStream())
+                ? gzcompress($page->getContentStream())
                 : $page->getContentStream();
 
-            $dict->value['Length'] = PdfNumeric::create(\strlen($streamContent));
+            $dict->value['Length'] = PdfNumeric::create(strlen($streamContent));
             if ($this->compress) {
                 $dict->value['Filter'] = PdfName::create('FlateDecode');
             }
@@ -337,17 +337,17 @@ trait FpdiTrait
      */
     public function useImportedPage($pageId, $x = 0, $y = 0, $width = null, $height = null, $adjustPageSize = false)
     {
-        if (\is_array($x)) {
+        if (is_array($x)) {
             unset($x['pageId']);
-            \extract($x, EXTR_IF_EXISTS);
+            extract($x, EXTR_IF_EXISTS);
             /** @noinspection NotOptimalIfConditionsInspection */
-            if (\is_array($x)) {
+            if (is_array($x)) {
                 $x = 0;
             }
         }
 
         if (!isset($this->importedPages[$pageId])) {
-            throw new \InvalidArgumentException('Imported page does not exist!');
+            throw new InvalidArgumentException('Imported page does not exist!');
         }
 
         $importedPage = $this->importedPages[$pageId];
@@ -360,7 +360,7 @@ trait FpdiTrait
 
         $this->_out(
             // reset standard values, translate and scale
-            \sprintf(
+            sprintf(
                 'q 0 J 1 w 0 j 0 G 0 g %.4F 0 0 %.4F %.4F %.4F cm /%s Do Q',
                 ($newSize['width'] / $originalSize['width']),
                 ($newSize['height'] / $originalSize['height']),
@@ -401,7 +401,7 @@ trait FpdiTrait
             }
 
             if ($height <= 0. || $width <= 0.) {
-                throw new \InvalidArgumentException('Width or height parameter needs to be larger than zero.');
+                throw new InvalidArgumentException('Width or height parameter needs to be larger than zero.');
             }
 
             return [
@@ -424,10 +424,10 @@ trait FpdiTrait
     protected function writePdfType(PdfType $value)
     {
         if ($value instanceof PdfNumeric) {
-            if (\is_int($value->value)) {
+            if (is_int($value->value)) {
                 $this->_put($value->value . ' ', false);
             } else {
-                $this->_put(\rtrim(\rtrim(\sprintf('%.5F', $value->value), '0'), '.') . ' ', false);
+                $this->_put(rtrim(rtrim(sprintf('%.5F', $value->value), '0'), '.') . ' ', false);
             }
 
         } elseif ($value instanceof PdfName) {

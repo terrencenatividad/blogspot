@@ -8,10 +8,6 @@
  * @version   2.0.3
  */
 
-namespace setasign\Fpdi\PdfParser\CrossReference;
-
-use setasign\Fpdi\PdfParser\PdfParserException;
-
 /**
  * Exception used by the CrossReference and Reader classes.
  *

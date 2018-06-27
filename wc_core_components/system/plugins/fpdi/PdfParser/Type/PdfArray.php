@@ -24,7 +24,7 @@ class PdfArray extends PdfType
      */
     public static function parse(Tokenizer $tokenizer, PdfParser $parser)
     {
-        $result = [];
+        $result = array();
 
         // Recurse into this function until we reach the end of the array.
         while (($token = $tokenizer->getNextToken()) !== ']') {
@@ -47,7 +47,7 @@ class PdfArray extends PdfType
      * @param PdfType[] $values
      * @return self
      */
-    public static function create(array $values = [])
+    public static function create(array $values = array())
     {
         $v = new self;
         $v->value = $values;
@@ -65,11 +65,11 @@ class PdfArray extends PdfType
      */
     public static function ensure($array, $size = null)
     {
-        $result = PdfType::ensureType(self::class, $array, 'Array value expected.');
+        $result = PdfType::ensureType(__CLASS__, $array, 'Array value expected.');
 
-        if ($size !== null && \count($array->value) !== $size) {
+        if ($size !== null && count($array->value) !== $size) {
             throw new PdfTypeException(
-                \sprintf('Array with %s entries expected.', $size),
+                sprintf('Array with %s entries expected.', $size),
                 PdfTypeException::INVALID_DATA_SIZE
             );
         }

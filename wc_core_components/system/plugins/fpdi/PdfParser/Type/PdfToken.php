@@ -37,6 +37,6 @@ class PdfToken extends PdfType
      */
     public static function ensure($token)
     {
-        return PdfType::ensureType(self::class, $token, 'Token value expected.');
+        return PdfType::ensureType(__CLASS__, $token, 'Token value expected.');
     }
 }

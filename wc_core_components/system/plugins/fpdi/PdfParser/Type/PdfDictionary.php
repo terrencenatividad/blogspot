@@ -25,7 +25,7 @@ class PdfDictionary extends PdfType
      */
     public static function parse(Tokenizer $tokenizer, StreamReader $streamReader, PdfParser $parser)
     {
-        $entries = [];
+        $entries = array();
 
         while (true) {
             $token = $tokenizer->getNextToken();
@@ -85,7 +85,7 @@ class PdfDictionary extends PdfType
      * @param PdfType[] $entries The keys are the name entries of the dictionary.
      * @return self
      */
-    public static function create(array $entries = [])
+    public static function create(array $entries = array())
     {
         $v = new self;
         $v->value = $entries;
@@ -122,6 +122,6 @@ class PdfDictionary extends PdfType
      */
     public static function ensure($dictionary)
     {
-        return PdfType::ensureType(self::class, $dictionary, 'Dictionary value expected.');
+        return PdfType::ensureType(__CLASS__, $dictionary, 'Dictionary value expected.');
     }
 }

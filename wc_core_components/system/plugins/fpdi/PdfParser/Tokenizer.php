@@ -25,7 +25,7 @@ class Tokenizer
      *
      * @var string[]
      */
-    protected $stack = [];
+    protected $stack = array();
 
     /**
      * Tokenizer constructor.
@@ -52,7 +52,7 @@ class Tokenizer
      */
     public function clearStack()
     {
-        $this->stack = [];
+        $this->stack = array();
     }
 
     /**
@@ -72,7 +72,7 @@ class Tokenizer
      */
     public function getNextToken()
     {
-        $token = \array_pop($this->stack);
+        $token = array_pop($this->stack);
         if (null !== $token) {
             return $token;
         }
@@ -115,7 +115,7 @@ class Tokenizer
         $bufferOffset = $this->streamReader->getOffset();
         do {
             $lastBuffer = $this->streamReader->getBuffer(false);
-            $pos = \strcspn(
+            $pos = strcspn(
                 $lastBuffer,
                 "\x00\x09\x0A\x0C\x0D\x20()<>[]{}/%",
                 $bufferOffset
@@ -125,12 +125,12 @@ class Tokenizer
             // in the current buffer or increase the buffers length
             $lastBuffer !== false &&
             (
-                $bufferOffset + $pos === \strlen($lastBuffer) &&
+                $bufferOffset + $pos === strlen($lastBuffer) &&
                 $this->streamReader->increaseLength()
             )
         );
 
-        $result = \substr($lastBuffer, $bufferOffset - 1, $pos + 1);
+        $result = substr($lastBuffer, $bufferOffset - 1, $pos + 1);
         $this->streamReader->setOffset($bufferOffset + $pos);
 
         return $result;
@@ -149,7 +149,7 @@ class Tokenizer
             }
 
             $buffer = $this->streamReader->getBuffer(false);
-            $matches = \strspn($buffer, "\x20\x0A\x0C\x0D\x09\x00", $this->streamReader->getOffset());
+            $matches = strspn($buffer, "\x20\x0A\x0C\x0D\x09\x00", $this->streamReader->getOffset());
             if ($matches > 0) {
                 $this->streamReader->addOffset($matches);
             }

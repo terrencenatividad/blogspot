@@ -8,10 +8,6 @@
  * @version   2.0.3
  */
 
-namespace setasign\Fpdi\PdfParser\Type;
-
-use setasign\Fpdi\PdfParser\PdfParserException;
-
 /**
  * Exception class for pdf type classes
  *

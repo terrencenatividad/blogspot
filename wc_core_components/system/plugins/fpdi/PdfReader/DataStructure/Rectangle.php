@@ -63,10 +63,10 @@ class Rectangle
      */
     public function __construct($ax, $ay, $bx, $by)
     {
-        $this->llx = \min($ax, $bx);
-        $this->lly = \min($ay, $by);
-        $this->urx = \max($ax, $bx);
-        $this->ury = \max($ay, $by);
+        $this->llx = min($ax, $bx);
+        $this->lly = min($ay, $by);
+        $this->urx = max($ax, $bx);
+        $this->ury = max($ay, $by);
     }
 
     /**
@@ -136,12 +136,12 @@ class Rectangle
      */
     public function toArray()
     {
-        return [
+        return array(
             $this->llx,
             $this->lly,
             $this->urx,
             $this->ury
-        ];
+        );
     }
 
     /**

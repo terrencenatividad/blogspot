@@ -8,10 +8,6 @@
  * @version   2.0.3
  */
 
-namespace setasign\Fpdi\PdfParser\Type;
-
-use setasign\Fpdi\PdfParser\StreamReader;
-
 /**
  * Class representing a PDF string object
  *
@@ -31,7 +27,7 @@ class PdfString extends PdfType
         $openBrackets = 1;
         do {
             $buffer = $streamReader->getBuffer(false);
-            for ($length = \strlen($buffer); $openBrackets !== 0 && $pos < $length; $pos++) {
+            for ($length = strlen($buffer); $openBrackets !== 0 && $pos < $length; $pos++) {
                 switch ($buffer[$pos]) {
                     case '(':
                         $openBrackets++;

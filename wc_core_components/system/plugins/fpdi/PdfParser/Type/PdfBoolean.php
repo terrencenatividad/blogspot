@@ -8,8 +8,6 @@
  * @version   2.0.3
  */
 
-namespace setasign\Fpdi\PdfParser\Type;
-
 /**
  * Class representing a boolean PDF object
  *
@@ -38,6 +36,6 @@ class PdfBoolean extends PdfType
      */
     public static function ensure($value)
     {
-        return PdfType::ensureType(self::class, $value, 'Boolean value expected.');
+        return PdfType::ensureType(__CLASS__, $value, 'Boolean value expected.');
     }
 }
