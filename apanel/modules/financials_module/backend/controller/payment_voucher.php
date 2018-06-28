@@ -1222,7 +1222,7 @@ class controller extends wc_controller
 
 				$prevvno 		= $voucher;
 				$voucher_status = '<span class="label label-danger">'.strtoupper($status).'</span>';
-				if($status == 'unposted'){
+				if($status == 'open'){
 					$voucher_status = '<span class="label label-info">'.strtoupper($status).'</span>';
 				}else if($status == 'posted'){
 					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
