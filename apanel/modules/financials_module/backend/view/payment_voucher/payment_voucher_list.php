@@ -299,7 +299,7 @@
 		});
 	}
 	function unpostCallback(id) {
-		$.post('<?=MODULE_URL?>ajax/ajax_unpost', {id : id, type: 'unpost'}, function(data) {
+		$.post('<?=MODULE_URL?>ajax/ajax_unpost', {id : id}, function(data) {
 			showList();
 		});
 	}
