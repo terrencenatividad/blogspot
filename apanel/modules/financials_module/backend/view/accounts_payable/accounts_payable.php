@@ -122,7 +122,7 @@
 									<div class = "col-md-6 vendor_div ">
 										<?php
 											echo $ui->formField('dropdown')
-												->setLabel('Vendor ')
+												->setLabel('Supplier ')
 												->setPlaceholder('None')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('vendor')
@@ -1202,7 +1202,7 @@ $('#vendor_button').click(function()
 	echo $ui->loadElement('modal')
 		->setId('vendor_modal')
 		->setContent('maintenance/supplier/create')
-		->setHeader('Add a Vendor')
+		->setHeader('Add New Supplier')
 		->draw();
 ?>
 

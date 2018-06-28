@@ -1155,7 +1155,7 @@ class controller extends wc_controller
 			$errmsg[]= "Invalid file type, file must be .csv.<br/>";
 		}
 		
-		$headerArr = array('Document Set','Transaction Date','Due Date','Vendor Code','Invoice No.','Reference No.','Notes','Account Name','Description','Debit','Credit');
+		$headerArr = array('Document Set','Transaction Date','Due Date','Supplier Code','Invoice No.','Reference No.','Notes','Account Name','Description','Debit','Credit');
 
 		if( empty($errmsg) ) {
 			$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
@@ -1212,9 +1212,9 @@ class controller extends wc_controller
 					if ( ! empty($b)) {	
 						$jvno 			=	isset($b[0]) 					? 	$b[0] 										:	"";
 						$transdate 		=	isset($b[1]) 					? 	$b[1] 										:	"";
-						$transdate 		=	($transdate != "") 				?	$this->date->datetimeDbFormat($transdate)	:	"";
+						$transdate 		=	($transdate != "") 				?	$this->date->dateDbFormat($transdate)	:	"";
 						$duedate 		=	isset($b[2]) 					? 	$b[2] 	:	"";
-						$duedate 		=	($duedate != "") 				?	$this->date->datetimeDbFormat($duedate)		:	"";
+						$duedate 		=	($duedate != "") 				?	$this->date->dateDbFormat($duedate)		:	"";
 						$vendor 		=	isset($b[3]) 					?	htmlentities(trim($b[3]))	:	"";
 						$invoiceno 		=	isset($b[4]) 					?	htmlentities(trim($b[4]))	:	"";
 						$reference 		=	isset($b[5]) 					?	htmlentities(trim($b[5]))	:	"";
@@ -1224,14 +1224,20 @@ class controller extends wc_controller
 						$description 	=	isset($b[8]) 					?	htmlentities(trim($b[8]))	:	"";
 						$debit 			=	isset($b[9]) && !empty($b[9]) 	?	$b[9]	:	0;
 						$credit 		=	isset($b[10]) && !empty($b[10])	?	$b[10]	:	0;
-						//Check if account Name exists
-						$acct_exists 	=	$this->accounts_payable->check_if_exists('id','chartaccount'," accountname = '$account' ");
-						$acct_count 	=	$acct_exists[0]->count;
+						//Check if account Name exist
+						$acct_exist 	=	$this->accounts_payable->check_if_exists('id','chartaccount'," accountname = '$account' ");
+						$acct_count 	=	$acct_exist[0]->count;
 					
-						if( $acct_count <= 0 ) {
-							$errmsg[]	= "Account Name [<strong>$account</strong>] on <strong>row $line</strong> does not exists.<br/>";
+						if(!empty($account)){
+							if( $acct_count <= 0 ) {
+								$errmsg[]	= "Account Name [<strong>$account</strong>] on <strong>row $line</strong> does not exist.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+						}else{
+							$errmsg[]	= "Account Name on <strong>row $line</strong> should not be empty.<br/>";
 							$errmsg		= array_filter($errmsg);
 						}
+						
 						if( $key == 0 ){
 							// Check if Document Set is not empty. 
 							if($jvno == ""){
@@ -1252,14 +1258,14 @@ class controller extends wc_controller
 							}
 							//Check if Vendor Code is not empty
 							if($vendor == ''){
-								$errmsg[]	= "Vendor on <strong>row $line</strong> should not be empty.<br/>";
+								$errmsg[]	= "Supplier Code on <strong>row $line</strong> should not be empty.<br/>";
 								$errmsg		= array_filter($errmsg);
 							} else {
-								//Check if Vendor Code exists 
-								$cust_exists 	=	$this->accounts_payable->check_if_exists('partnercode','partners'," partnercode = '$vendor' ");
-								$cust_count 	=	$cust_exists[0]->count;	
+								//Check if Vendor Code exist 
+								$cust_exist 	=	$this->accounts_payable->check_if_exists('partnercode','partners'," partnercode = '$vendor' ");
+								$cust_count 	=	$cust_exist[0]->count;	
 								if( $cust_count <= 0 ) {
-									$errmsg[]	= "Vendor Code [<strong>$vendor</strong>] on <strong>row $line</strong> does not exists.<br/>";
+									$errmsg[]	= "Supplier Code [<strong>$vendor</strong>] on <strong>row $line</strong> does not exist.<br/>";
 									$errmsg		= array_filter($errmsg);
 								}
 							}
@@ -1298,7 +1304,7 @@ class controller extends wc_controller
 									$errmsg		= array_filter($errmsg);
 								}
 								//Compare Transaction Date and Due Date. Due Date must not be earlier than Transaction date. 
-								if($duedate > $transdate){
+								if( ($duedate != "" && $transdate != "") && ($transdate > $duedate)){
 									$errmsg[]	= "Due Date [<strong>$duedate</strong>] on <strong>row $line</strong> must not be earlier than the Transaction Date [<strong>$transdate</strong>].<br/>";
 									$errmsg		= array_filter($errmsg);
 								}
@@ -1317,14 +1323,14 @@ class controller extends wc_controller
 									$vendor 	=	$prev_vendor;
 								}  
 								if ($vendor != $prev_vendor) {
-									$errmsg[]	= "Vendor Code [<strong>$vendor</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
+									$errmsg[]	= "Supplier Code [<strong>$vendor</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
 									$errmsg		= array_filter($errmsg);
 								}
-								//Check if Vendor Code exists 
-								$vendor_exists 	=	$this->accounts_payable->check_if_exists('partnercode','partners'," partnercode = '$vendor' ");
-								$vendor_count 	=	$vendor_exists[0]->count;	
+								//Check if Vendor Code exist 
+								$vendor_exist 	=	$this->accounts_payable->check_if_exists('partnercode','partners'," partnercode = '$vendor' ");
+								$vendor_count 	=	$vendor_exist[0]->count;	
 								if( $vendor_count <= 0 ) {
-									$errmsg[]	= "Vendor Code [<strong>$vendor</strong>] on <strong>row $line</strong> does not exists.<br/>";
+									$errmsg[]	= "Vendor Code [<strong>$vendor</strong>] on <strong>row $line</strong> does not exist.<br/>";
 									$errmsg		= array_filter($errmsg);
 								}
 								//Check the Invoice #

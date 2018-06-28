@@ -1,38 +1,12 @@
 <section class="content">
-	
-	<!-- Success Message for File Import -->
-	<?php
-		$file_import_msg = ($file_import_result) ? "<strong>Success!</strong> CSV file has been uploaded." : "Selected file was not uploaded successfully.";
-
-		if($file_import_result)
-		{
-			echo '<div class="alert alert-success alert-dismissable" id="success_alert">
-					<button type="button" class="close" data-dismiss="alert" >&times;</button>';
-			echo 	'"'.$file_import_msg.'"';
-			echo '</div>';
-		}
-	?>
-
 	<!-- Error Message for File Import -->
-	<?php
-		$errmsg		= array_filter($import_error_messages);
-		$errorcount	= count($errmsg);
+	<div class="alert alert-danger hidden" id="import_error">
+		<button type="button" class="link btn-sm close" >&times;</button>
+		<p>Ok, just a few more things we need to adjust for us to proceed :) </p><hr/>
+		<ul>
 
-		if($errorcount > 0)
-		{
-			echo '<div class="alert alert-warning alert-dismissable">
-					<button type="button" class="close" data-dismiss="alert" >&times;</button>';
-			echo 	"<strong>The system encountered the following error(s) in processing the file you've imported:</strong><hr/>";
-			echo	"<ul>";
-			foreach($errmsg as $errmsgIndex => $errmsgVal)
-			{
-				echo '<li>'.$errmsgVal.'</li>';
-			}		
-			echo	"</ul>";
-			echo '</div>';
-		}
-	?>
-
+		</ul>
+	</div>
 
     <div class="box box-primary">
 		<div class="box-header">
@@ -77,7 +51,7 @@
 						<div class = "col-md-6">
 							<?php
 								echo $ui->formField('dropdown')
-										->setPlaceholder('Filter Vendor')
+										->setPlaceholder('Filter Supplier')
 										->setName('vendor')
 										->setId('vendor')
 										->setList($vendor_list)
@@ -126,7 +100,7 @@
 							)
 							->addHeader('Date', array('class' => 'col-md-1 text-center'), 'sort', 'main.transactiondate', 'desc')
 							->addHeader('Voucher No', array('class' => 'col-md-1 text-center'), 'sort', 'main.voucherno')
-							->addHeader('Vendor', array('class' => 'col-md-2 text-center'), 'sort', 'p.partnername')
+							->addHeader('Supplier', array('class' => 'col-md-2 text-center'), 'sort', 'p.partnername')
 							->addHeader('Reference', array('class' => 'col-md-2 text-center'), 'sort', 'main.referenceno')
 							->addHeader('Amount', array('class' => 'col-md-2 text-center'), 'sort', 'main.convertedamount')
 							->addHeader('Balance', array('class' => 'col-md-2 text-center'), 'sort', 'main.balance')
@@ -185,7 +159,7 @@
 </div>
 
 <div class = "alert alert-warning alert-dismissable hidden">
-	<button type="button" class="close" data-dismiss="alert" >&times;</button>
+	<!-- <button type="button" class="close" data-dismiss="alert" >&times;</button> -->
 	<h4><strong>Warning!</strong></h4>
 	<div id = "errmsg"></div>
 	<div id = "warningmsg"></div>
@@ -246,6 +220,7 @@
 	// 	$(".import-modal > .modal").css("display", "inline");
 	// 	$('.import-modal').modal();
 	// });
+	$('#export_id').addClass('hidden');
 	$('#import_id').prop('href','#import-modal');
 	$("#import_id").click(function() 
 	{
@@ -259,73 +234,86 @@
 		$('#import-modal #import-step2').hide();
 		$('#import-modal').modal('hide');	
 	});
-
 	$('#importForm').on('change', '#import_csv', function() {
 		var filename = $(this).val().split("\\");
 		$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
+	});
+	$('#import-modal').on('show.bs.modal', function() {
+		var form_csv = $('#import_csv').val('').closest('.form-group').find('.form-control').html('').closest('.form-group').html();
+		$('#import_csv').closest('.form-group').html(form_csv);
 	});
 	$('#btnImport').on('click',function(e){
 		var formData =	new FormData();
 			formData.append('file',$('#import_csv')[0].files[0]);
 			ajax_call 	=	$.ajax({
-								url : '<?=MODULE_URL?>ajax/save_import',
-								data:	formData,
-								cache: 	false,
-								processData: false, 
-								contentType: false,
-								type: 	'POST',
-								success: function(response){
-									if(response && response.errmsg == ""){
-										$('#import-modal').modal('hide');
-										$(".alert-warning").addClass("hidden");
-										$("#errmsg").html('');
-										//show_success_msg('Your Data has been imported successfully.');
-										bootbox.dialog({
-											message: "Your Data has been imported successfully.",
-											title: "Success",
-											buttons: {
-												yes: {
-												label: "Ok",
-												className: "btn-success",
-												callback: function(result) {
+			url : '<?=MODULE_URL?>ajax/save_import',
+			data:	formData,
+			cache: 	false,
+			processData: false, 
+			contentType: false,
+			type: 	'POST',
+			success: function(response){
+				if(response && response.errmsg == ""){
+					$('#import-modal').modal('hide');
+					// $(".alert-warning").addClass("hidden");
+					// $("#errmsg").html('');
+					$("#import_error").addClass('hidden');
+					show_success_msg('Your data has been imported successfully.');
+				}else{
+					$('#import-modal').modal('hide');
+					show_error(response.errmsg, response.warning);
+					// bootbox.dialog({
+					// 	message: response.errmsg,
+					// 	title: "Error",
+					// 	buttons: {
+					// 		yes: {
+					// 		label: "Ok",
+					// 		className: "btn-danger",
+					// 		callback: function(result) {
 
-													}
-												}
-											}
-										});
-									}else{
-										$('#import-modal').modal('hide');
-										//show_error(response.errmsg, response.warning);
-										bootbox.dialog({
-											message: response.errmsg,
-											title: "Error",
-											buttons: {
-												yes: {
-												label: "Ok",
-												className: "btn-danger",
-												callback: function(result) {
-
-													}
-												}
-											}
-										});
-									}
-								},
-							});
+					// 			}
+					// 		}
+					// 	}
+					// });
+				}
+			},
+		});
 	});
 	function show_error(msg, warning){
-		$(".delete-modal").modal("hide");
-		$(".alert-warning").removeClass("hidden");
-		$("#errmsg").html(msg);
-		$("#warningmsg").html(warning);
+		//$(".delete-modal").modal("hide");
+		//$(".alert-warning").removeClass("hidden");
+		//$("#errmsg").html(msg);
+		if(msg != ''){
+			var newmsg 	= msg.split("<br/>");
+			var errcnt	= newmsg.length;
+			var list 	= '';
+			for (let index = 0; index < errcnt; index++) {
+				if(newmsg[index] != ''){
+					list += '<li>'+newmsg[index]+'</li>';
+				}
+			}
+		}
+		$("#import_error").removeClass('hidden');
+		$("#import_error ul").html(list);
+
+		//$("#warningmsg").html(warning);
+		$('html,body').animate({ scrollTop: (0) }, 'slow');
 	}
 	function show_success_msg(msg){
 		$('#success_modal #message').html(msg);
 		$('#success_modal').modal('show');
 	}
+	$('body').on('click','#success_modal .btn-success', function(){
+		$('#success_modal').modal('hide');
+		getList();
+	});
 	$("#export").click(function() 
 	{
 		window.location = '<?=BASE_URL?>financials/accounts_payable/ajax/export?' + $.param(ajax);
+	});
+	$(".close").click(function() 
+	{
+		location.reload();
 	});
 	function ajaxCallback(id) {
 		var ids = getDeleteId(id);
