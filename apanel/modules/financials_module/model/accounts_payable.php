@@ -46,7 +46,7 @@ class accounts_payable extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, duedate, amount, balance, exchangerate, convertedamount, invoiceno";
+		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, duedate, amount, balance, exchangerate, convertedamount, invoiceno,companycode, lockkey as importchecker ";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -76,7 +76,7 @@ class accounts_payable extends wc_model
 		$temp["cust"] = $custDetails;
 
 		// Retrieve Details
-		$detailFields = "main.accountcode, CONCAT(chart.segment5, ' - ', chart.accountname) accountname, main.detailparticulars, main.debit, main.credit";
+		$detailFields = "main.accountcode, CONCAT(chart.segment5, ' - ', chart.accountname) accountname, main.detailparticulars, main.debit, main.credit,main.taxcode,main.taxbase_amount";
 		$detail_cond  = "main.voucherno = '$sid'";
 		$orderby 	  = "main.linenum";	
 		$detailJoin   = "chartaccount as chart ON chart.id = main.accountcode AND chart.companycode = main.companycode";
@@ -110,8 +110,6 @@ class accounts_payable extends wc_model
 									->setWhere($app_cond)
 									->runSelect()
 									->getResult();
-		
-		// echo $this->db->buildSelect();
 		
 		$temp["payments"] = $applicationArray;
 
@@ -211,6 +209,55 @@ class accounts_payable extends wc_model
 		return $temp;
 	}
 
+	public function retrieveEditDataDtl($sid)
+	{
+		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, duedate, amount, balance, exchangerate, convertedamount, invoiceno,companycode";
+		$cond = "voucherno = '$sid'";
+		
+		$temp = array();
+
+		// Retrieve Header
+		$retrieveArrayMain =  $this->db->setTable('accountspayable')
+									->setFields($setFields)
+									->setWhere($cond)
+									->setLimit('1')
+									->runSelect()
+									->getRow();
+
+		$temp["main"] = $retrieveArrayMain;
+
+		// Retrieve Vendor Details
+		$vendor_code = $temp["main"]->vendor;
+		$custFields = "address1, tinno, terms, email, CONCAT( first_name, ' ', last_name ), partnername AS name"; 
+		$cust_cond = "partnercode = '$vendor_code'";
+
+		$custDetails = $this->db->setTable('partners')
+							->setFields($custFields)
+							->setWhere($cust_cond)
+							->setLimit('1')
+							->runSelect()
+							->getRow();
+		
+		$temp["cust"] = $custDetails;
+
+		// Retrieve Details
+		$detailFields = "CONCAT(atc.short_desc) atccode,main.accountcode, CONCAT(chart.segment5, ' - ', chart.accountname) accountname, main.detailparticulars, main.debit, main.credit,main.taxcode,main.taxbase_amount,atc_code ";
+		$detail_cond  = "main.voucherno = '$sid' AND main.taxcode != '' ";
+		$orderby 	  = "main.linenum";	
+		$detailJoin   = "chartaccount as chart ON chart.id = main.accountcode AND chart.companycode = main.companycode LEFT JOIN atccode atc ON atc.atcId = main.taxcode";
+
+		$retrieveArrayDetail = $this->db->setTable('ap_details as main')
+									->setFields($detailFields)
+									->leftJoin($detailJoin)
+									->setWhere($detail_cond)
+									->setOrderBy($orderby)
+									->runSelect()
+									->getResult();
+		
+		$temp["details"] = $retrieveArrayDetail;
+		return $temp;
+	}
+
 	public function retrieveList($data)
 	{
 		$daterangefilter = isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
@@ -278,7 +325,7 @@ class accounts_payable extends wc_model
 		$add_query .= (!empty($vendfilter) && $vendfilter != 'none') ? "AND p.partnercode = '$vendfilter' " : "";
 		$add_query .= $addCondition;
 
-		$main_fields = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount","main.balance as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS vendor");
+		$main_fields = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount","main.balance as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS vendor","main.lockkey as importchecker");
 		$main_join   = "partners p ON p.partnercode = main.vendor"; //AND p.companycode
 		$main_table  = "accountspayable as main";
 		$main_cond   = "main.stat = 'posted' $add_query";
@@ -341,7 +388,7 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
-	public function getValue($table, $cols = array(), $cond = "", $orderby = "", $bool = "")
+	public function getValue($table, $cols = array(), $cond = "", $orderby = "", $bool = "" )
 	{
 		$result = $this->db->setTable($table)
 					->setFields($cols)
@@ -349,13 +396,22 @@ class accounts_payable extends wc_model
 					->setOrderBy($orderby)
 					->runSelect($bool)
 					->getResult();
-
-		// var_dump($this->db->buildSelect());
-
 		return $result;
 	}
 
-	public function validateEntry($data)
+	public function getTax($table, $cols = array(), $join = "" ,$cond = "", $orderby = "", $bool = "" )
+	{
+		$result = $this->db->setTable($table)
+					->setFields($cols)
+					->innerJoin($join)
+					->setWhere($cond)
+					->setOrderBy($orderby)
+					->runSelect($bool)
+					->getResult();
+		return $result;
+	}
+
+	public function validatePayableAccount($data)
 	{
 		$ischeck_pay    = array();
 
@@ -441,17 +497,17 @@ class accounts_payable extends wc_model
 		$post_header['sourceno']		= '';
 		$post_header['balance']			= ($amount == $convertedamount) ? $totalamount : $convertedamount;
 		$post_header['sitecode']		= '-';
-
+		
 		/**INSERT DETAILS**/
 		foreach($data as $postIndex => $postValue)
 		{
-			if($postIndex == 'accountcode' ||  $postIndex=='detailparticulars' || $postIndex=='debit' || $postIndex=='credit' )
+			if($postIndex == 'accountcode' ||  $postIndex=='detailparticulars' || $postIndex=='debit' || $postIndex=='credit' || $postIndex=='taxcode' || $postIndex=='taxbase_amount')
 			{
 				$a		= '';
 				
 				foreach($postValue as $postValueIndex => $postValueIndexValue)
 				{
-					if($postIndex == 'debit' || $postIndex == 'credit')
+					if($postIndex == 'debit' || $postIndex == 'credit' || $postIndex == 'taxbase_amount')
 					{
 						$a = str_replace(',', '', $postValueIndexValue);
 					}
@@ -499,6 +555,9 @@ class accounts_payable extends wc_model
 			$data_insert['taxline']			  = '';
 			$data_insert['vatflg']			  = '';
 			$data_insert['detailparticulars'] = $tempArrayValue['detailparticulars'];
+			$data_insert['taxcode']			  = $tempArrayValue['taxcode'];
+			$data_insert['taxbase_amount']		= $tempArrayValue['taxbase_amount'];
+			$data_insert['convertedtaxbase_amount']	= $tempArrayValue['taxbase_amount'];
 			$data_insert['stat']		      = $status;
 
 			$linenum++;
@@ -520,7 +579,7 @@ class accounts_payable extends wc_model
 		$isDetailExist	= $this->getValue($detailInvTable, array("COUNT(*) as count"),"voucherno = '$voucherno'");
 
 		// Check if at least one entry is a payable account 
-		$check_payable = $this->validateEntry($tempAccArr);
+		$check_payable = $this->validatePayableAccount($tempAccArr);
 
 		if($isDetailExist[0]->count == 0)
 		{
@@ -533,8 +592,6 @@ class accounts_payable extends wc_model
 
 				if(!$insertResult)
 					$errmsg[] = "<li>Saving in Accounts Payable Details.</li>";
-
-				// echo $this->db->buildInsert();
 			}
 			else
 			{
@@ -550,7 +607,7 @@ class accounts_payable extends wc_model
 			$this->db->runDelete();
 
 			// Check if at least one entry is a payable account 
-			$check_payable = $this->validateEntry($tempAccArr);
+			$check_payable = $this->validatePayableAccount($tempAccArr);
 
 			if($check_payable)
 			{
@@ -566,7 +623,40 @@ class accounts_payable extends wc_model
 				$errmsg[] = "<li>At least one entry should be a payable account. Please refer to your Chart of Accounts</li>";
 
 		}
+		
+		/**
+		 * Update payable amount based on payable accounts
+		 */
+		if(!is_null($tempAccArr) && !empty($tempAccArr)){
 
+			$accountlist 			= "'".implode("','",$tempAccArr)."'";
+
+			$sum_payable_account 	= $this->db->setTable("ap_details main")
+									->setFields(
+										array(
+											"SUM(debit) debit",
+											"SUM(credit) credit",
+											"SUM(converteddebit) converteddebit",
+											"SUM(convertedcredit) convertedcredit"
+										)
+									)
+									->leftJoin("chartaccount chart ON chart.id = main.accountcode")
+									->setGroupBy("main.accountcode")
+									->setWhere("chart.accountclasscode = 'ACCPAY' AND main.accountcode IN($accountlist) AND main.voucherno = '$voucherno' ")
+									->runSelect()
+									->getResult();
+			$payable_amount				= 0;
+			$payable_convertedamount	= 0;						
+			if($sum_payable_account){
+				$payable_amount 		= ($sum_payable_account[0]->credit != 0) ? $sum_payable_account[0]->credit : $sum_payable_account[0]->debit;
+				$payable_convertedamount= ($sum_payable_account[0]->convertedcredit != 0) ? $sum_payable_account[0]->convertedcredit : $sum_payable_account[0]->converteddebit;
+			}
+			
+			$post_header['amount']			= $payable_amount;
+			$post_header['convertedamount']	= $payable_convertedamount;
+			$post_header['balance']			= $payable_convertedamount;
+		
+		}
 		/**INSERT HEADER**/
 		if($status == 'temporary')
 		{	
@@ -589,9 +679,7 @@ class accounts_payable extends wc_model
 						$errmsg[] = "<li>Saving in Accounts Payable Header.</li>";
 				}
 			}
-		}
-		else
-		{
+		}else{
 			if($check_payable)
 			{
 				$this->db->setTable($mainInvTable)
@@ -1562,4 +1650,40 @@ class accounts_payable extends wc_model
 
 	}
 
+	public function getAccount($tax_account){
+		$result = $this->db->setTable('atccode a')
+					->setFields("tax_rate,tax_account")
+					->leftJoin("chartaccount c ON c.id = a.tax_account ")
+					->setWhere("atcId = '$tax_account'")
+					->runSelect()
+					->getResult();
+		return $result;
+
+
+	}
+
+	public function check_if_exists($column, $table, $condition) {
+		return $this->db->setTable($table)
+						->setFields("COUNT(".$column.") count")
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
+	}
+
+	public function getAccountId($accountname) {
+		$result = $this->db->setTable('chartaccount')
+							->setFields("id")
+							->setWhere("accountname = '$accountname'")
+							->runSelect()
+							->getResult();
+							
+		return $result[0]->id;
+	}
+
+	public function save_import($table, $posted_data){
+		$result = $this->db->setTable($table)
+				->setValuesFromPost($posted_data)
+				->runInsert();
+		return $result;
+	}
 }

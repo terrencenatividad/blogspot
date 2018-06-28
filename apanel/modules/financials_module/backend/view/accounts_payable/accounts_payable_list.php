@@ -38,24 +38,16 @@
 		<div class="box-header">
 			<div class="row">
 				<div class="col-md-8">
-					<div class="form-group">
+					<!-- <div class="form-group">
 						<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create Accounts Payable</a>
 						&nbsp;
-						<!-- <div class="btn-group" id="option_buttons">
-							<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-								Options <span class="caret"></span>
-							</button>
-							<ul class="dropdown-menu" role="menu">
-								<li>
-									<a href = "#" id="export"><span class="glyphicon glyphicon-open"></span> Export Payables</a>
-								</li>
-								<li>
-									<a href="javascript:void(0);" id="import"><span class="glyphicon glyphicon-save"></span> Import Payables</a>
-								</li>
-							</ul>
-						</div> -->
 						<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Cancel<span></span></button>
-					</div>
+					</div> -->
+					<?php
+						echo $ui->CreateNewButton('');
+						echo $ui->OptionButton('');
+					?>
+					<input type="button" id="item_multiple_delete" class="btn btn-danger btn-flat " value="Cancel">
 				</div>
 				<div class = "col-md-4">
 					<div class = "form-group">
@@ -153,7 +145,7 @@
 </section>
 
 <!-- Import Modal -->
-<div class="import-modal">
+<div class="import-modal" id="import-modal" tabindex="-1" data-backdrop="static">
 	<div class="modal">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -164,14 +156,21 @@
 						<h4 class="modal-title">Import Payables</h4>
 					</div>
 					<div class="modal-body">
-						<label>Step 1. Download the sample template <a href="<?=BASE_URL?>modules/financials_module/backend/view/pdf/import_payable.csv">here</a></label>
+					<label>Step 1. Download the sample template <a href="<?=MODULE_URL?>get_import" id="download-link" download="Accounts Payable Template.csv" >here</a></label>
 						<hr/>
 						<label>Step 2. Fill up the information needed for each columns of the template.</label>
 						<hr/>
 						<div class="form-group field_col">
 							<label for="import_csv">Step 3. Select the updated file and click 'Import' to proceed.</label>
-							<input class = "form_iput" value = "" name = "import_csv" id = "import_csv" type = "file">
-							<span class="help-block hidden small" id = "import_csv_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
+							<?php
+								echo $ui->setElement('file')
+										->setId('import_csv')
+										->setName('import_csv')
+										->setAttribute(array('accept' => '.csv'))
+										->setValidation('required')
+										->draw();
+							?>
+							<span class="help-block"></span>
 						</div>
 						<p class="help-block">The file to be imported must be in CSV (Comma Separated Values) file.</p>
 					</div>
@@ -185,6 +184,12 @@
 	</div>
 </div>
 
+<div class = "alert alert-warning alert-dismissable hidden">
+	<button type="button" class="close" data-dismiss="alert" >&times;</button>
+	<h4><strong>Warning!</strong></h4>
+	<div id = "errmsg"></div>
+	<div id = "warningmsg"></div>
+</div>
 <script>
 	var ajax = {}
 	var ajax_call = {};
@@ -236,22 +241,88 @@
 		ajax_call.abort();
 		getList();
 	});
-	$("#import").click(function() 
+	// $("#import").click(function() 
+	// {
+	// 	$(".import-modal > .modal").css("display", "inline");
+	// 	$('.import-modal').modal();
+	// });
+	$('#import_id').prop('href','#import-modal');
+	$("#import_id").click(function() 
 	{
-		$(".import-modal > .modal").css("display", "inline");
-		$('.import-modal').modal();
+		$("#import-modal > .modal").css("display", "inline");
+		$('#import-modal').modal();
 	});
-	$("#importForm #btnImport").click(function() 
-	{
-		var valid	= 0;
-		
-		valid	+= validateField('importForm','import_csv', "import_csv_help");
+	$('#import-modal #btnClose').click(function(){
+		$('#import-modal #import-skip #loading').addClass('hidden');
+		$('#import-modal #import-proceed #loading').addClass('hidden');
+		$('#import-modal #import-step1').show();
+		$('#import-modal #import-step2').hide();
+		$('#import-modal').modal('hide');	
+	});
 
-		if(valid == 0)
-		{
-			$("#importForm").submit();
-		}
+	$('#importForm').on('change', '#import_csv', function() {
+		var filename = $(this).val().split("\\");
+		$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
 	});
+	$('#btnImport').on('click',function(e){
+		var formData =	new FormData();
+			formData.append('file',$('#import_csv')[0].files[0]);
+			ajax_call 	=	$.ajax({
+								url : '<?=MODULE_URL?>ajax/save_import',
+								data:	formData,
+								cache: 	false,
+								processData: false, 
+								contentType: false,
+								type: 	'POST',
+								success: function(response){
+									if(response && response.errmsg == ""){
+										$('#import-modal').modal('hide');
+										$(".alert-warning").addClass("hidden");
+										$("#errmsg").html('');
+										//show_success_msg('Your Data has been imported successfully.');
+										bootbox.dialog({
+											message: "Your Data has been imported successfully.",
+											title: "Success",
+											buttons: {
+												yes: {
+												label: "Ok",
+												className: "btn-success",
+												callback: function(result) {
+
+													}
+												}
+											}
+										});
+									}else{
+										$('#import-modal').modal('hide');
+										//show_error(response.errmsg, response.warning);
+										bootbox.dialog({
+											message: response.errmsg,
+											title: "Error",
+											buttons: {
+												yes: {
+												label: "Ok",
+												className: "btn-danger",
+												callback: function(result) {
+
+													}
+												}
+											}
+										});
+									}
+								},
+							});
+	});
+	function show_error(msg, warning){
+		$(".delete-modal").modal("hide");
+		$(".alert-warning").removeClass("hidden");
+		$("#errmsg").html(msg);
+		$("#warningmsg").html(warning);
+	}
+	function show_success_msg(msg){
+		$('#success_modal #message').html(msg);
+		$('#success_modal').modal('show');
+	}
 	$("#export").click(function() 
 	{
 		window.location = '<?=BASE_URL?>financials/accounts_payable/ajax/export?' + $.param(ajax);
@@ -277,4 +348,8 @@
 		var voucher = $(this).attr('data-id');
 		location.href = '<?=BASE_URL?>financials/accounts_payable/view/'+voucher+'#payment';
 	});
+	$('#tableList').on('click', '.print_2307',function(){
+		var voucher = $(this).attr('data-id');
+		window.location = '<?=MODULE_URL?>apply_bir/' + voucher;
+	})
 </script>

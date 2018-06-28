@@ -312,7 +312,7 @@ class controller extends wc_controller
 		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList();
 
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","accountname val");
+		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
 		$acc_entry_cond               = "accounttype != 'P'";
 		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
@@ -729,22 +729,42 @@ class controller extends wc_controller
 		return $dataArray;
 	}
 
-	private function ajax_update()
-	{
+	private function ajax_post() {
 		$id 			= $this->input->post('id');
 		$type 			= $this->input->post('type');
 
-		$data['stat']	= ($type == 'post') ? 'posted' : 'unposted';
+		$data['stat']	= "posted";
 		$result 		= $this->payment_voucher->editData($data, "paymentvoucher", "voucherno = '$id'");
-		$type 			= ($type == 'post') ? 'post' : 'unpost';
+		$type 			= 'post';
 
 		if($result){
 			$this->payment_voucher->editData($data, "pv_details", "voucherno = '$id'");
 			$code 	= 1; 
-			$msg 	= "Successfully ".$type."ed voucher ".$id;
+			$msg 	= "Successfully Posted voucher ".$id;
 		}else{
 			$code 	= 0; 
-			$msg 	= "Sorry, the system was unable to ".$type." the voucher.";
+			$msg 	= "Sorry, the system was unable to Post the voucher.";
+		}
+
+		$dataArray = array("code" => $code,"msg"=> $msg );
+		return $dataArray;
+	}
+
+	private function ajax_unpost() {
+		$id 			= $this->input->post('id');
+		$type 			= $this->input->post('type');
+
+		$data['stat']	= "open";
+		$result 		= $this->payment_voucher->editData($data, "paymentvoucher", "voucherno = '$id'");
+		$type 			= 'unpost';
+
+		if($result){
+			$this->payment_voucher->editData($data, "pv_details", "voucherno = '$id'");
+			$code 	= 1; 
+			$msg 	= "Successfully Unposted voucher ".$id;
+		}else{
+			$code 	= 0; 
+			$msg 	= "Sorry, the system was unable to Unpost the voucher.";
 		}
 
 		$dataArray = array("code" => $code,"msg"=> $msg );
@@ -815,7 +835,7 @@ class controller extends wc_controller
 	
 	}
 
-	private function apply_payments()
+	private function create_payments()
 	{
 		
 		$data_post 	= $this->input->post();
@@ -1075,12 +1095,12 @@ class controller extends wc_controller
 
 		$results			= ($cheques) ? $cheques : array(array());
 		$result 			= $this->payment_voucher->retrievePVDetails($data);
-		$results			= array_merge($results, $result);
+		$results			= array_merge($result, $results);
 		$table 				= "";
 		$row 				= 1;
 
 		// Retrieve business type list
-		$acc_entry_data     = array("id ind","accountname val");
+		$acc_entry_data     = array("id ind","CONCAT(segment5, ' - ', accountname) val");
 		$acc_entry_cond     = "accounttype != 'P'";
 		$account_entry_list = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
@@ -1088,7 +1108,7 @@ class controller extends wc_controller
 		$show_input         = $this->show_input;
 
 		$totaldebit = 0;
-		
+
 		if(!empty($results))
 		{
 			$credit      = '0.00';
@@ -1115,13 +1135,15 @@ class controller extends wc_controller
 										->setList($account_entry_list)
 										->setValue($accountcode)
 										->draw($show_input).
-							'</td>';
+							'	<input type = "hidden" class="h_accountcode" name="h_accountcode['.$row.']" id="h_accountcode['.$row.']" value="'.$accountcode.'">
+							</td>';
 				$table .= 	'<td class = "remove-margin">'
 								.$ui->formField('text')
 									->setSplit('', 'col-md-12')
 									->setName('detailparticulars['.$row.']')
 									->setId('detailparticulars['.$row.']')
 									->setAttribute(array("maxlength" => "100"))
+									->setClass('description')
 									->setValue($detailparticulars)
 									->draw($show_input).
 							'</td>';
@@ -1206,11 +1228,13 @@ class controller extends wc_controller
 					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
 				}
 				$show_btn 		= ($status == 'open');
+				$show_edit 		= ($status == 'open' && $has_access[0]->mod_edit == 1);
+				$show_dlt 		= ($status == 'open' && $has_access[0]->mod_delete == 1);
 				$show_post 		= ($status == 'open' && $has_access[0]->mod_post == 1);
 				$show_unpost 	= ($status == 'posted' && $has_access[0]->mod_unpost == 1);
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()
-							->addEdit($show_btn)
+							->addEdit($show_edit)
 							->addOtherTask(
 								'Post',
 								'thumbs-up',
@@ -1227,7 +1251,7 @@ class controller extends wc_controller
 								$show_btn
 							)
 							->addPrint()
-							->addDelete($show_btn)
+							->addDelete($show_dlt)
 							->addCheckbox($show_btn)
 							->setValue($voucher)
 							->draw();

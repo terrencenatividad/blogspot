@@ -571,7 +571,7 @@ class payment_voucher_model extends wc_model
 		$aChequeData 	= array();
 		foreach($data as $postIndex => $postValue)
 		{
-			if($postIndex=='accountcode' ||  $postIndex=='detailparticulars' || $postIndex=='debit' || $postIndex=='credit')
+			if($postIndex=='accountcode' || $postIndex=='h_accountcode' || $postIndex=='detailparticulars' || $postIndex=='debit' || $postIndex=='credit')
 			{
 				$a		= '';
 				foreach($postValue as $postValueIndex => $postValueIndexValue){
@@ -724,7 +724,7 @@ class payment_voucher_model extends wc_model
 
 		foreach($tempArray as $tempArrayIndex => $tempArrayValue)
 		{
-			$accountcode 						= $tempArrayValue['accountcode'];
+			$accountcode 						= $tempArrayValue['h_accountcode'];
 			$detailparticulars					= $tempArrayValue['detailparticulars'];
 			$debit			    				= $tempArrayValue['debit'];
 			$credit			    				= $tempArrayValue['credit'];

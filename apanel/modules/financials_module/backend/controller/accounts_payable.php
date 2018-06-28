@@ -32,7 +32,7 @@ class controller extends wc_controller
 		// Cash Account Options
 		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
 		$cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		$cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
+		$cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != ''";
 		$cash_order_by 		 	  = "class.accountclass";
 		$data["cash_account_list"] = $this->accounts_payable->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
@@ -194,7 +194,9 @@ class controller extends wc_controller
 			"particulars",
 			"terms",
 			"date",
-			"invoiceno"
+			"invoiceno",
+			"taxcode",
+			"taxbase_amount"
 		));
 
 		$data["ui"]                 = $this->ui;
@@ -220,17 +222,23 @@ class controller extends wc_controller
 
 		// Retrieve business type list
 		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond               = "accounttype != 'P'";
+		$acc_entry_cond               = "accounttype != ''";
 		$data["account_entry_list"]   = $this->accounts_payable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// Retrieve payable account list
 		$pay_account_data 			  = array("id ind", "CONCAT(segment5, ' - ', accountname) val");
-		$pay_account_cond 			  = "accountclasscode = 'ACCPAY' AND accounttype != 'P'";
+		$pay_account_cond 			  = "accountclasscode = 'ACCPAY' AND accounttype != ''";
 		$data["payable_account_list"] = $this->accounts_payable->getValue("chartaccount", $pay_account_data, $pay_account_cond, "accountname");
 
 		// Retrieve generated ID
 		$gen_value                    = $this->accounts_payable->getValue("accountspayable", "COUNT(*) as count", "voucherno != ''");	
 		$data["generated_id"]         = (!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
+
+		// // Retrieve tax list
+		// $bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
+		// $bus_type_cond                = "tax_account != ''";
+		// $join 						  =  "chartaccount ca ON atc.tax_account = ca.id";
+		// $data["tax_list"]  			 = $this->accounts_payable->getTax("atccode atc", $bus_type_data,$join ,$bus_type_cond, false);
 
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview"));
@@ -289,6 +297,8 @@ class controller extends wc_controller
 		$data["sid"] 			   = $sid;
 		$data["date"] 			   = $this->date->dateFormat();//date("M d, Y");
 
+		$data['checker'] 		   = isset($data['main']->importchecker) && !empty($data['main']->importchecker) 	?	$data['main']->importchecker 	:	"";
+		
 		$data["business_type_list"] = array();
 		$data["account_entry_list"] = array();
 
@@ -321,7 +331,7 @@ class controller extends wc_controller
 		// Cash Account Options
 		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
 		$cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		$cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
+		$cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != ''";
 		$cash_order_by 		 	  = "class.accountclass";
 		$data["cash_account_list"] = $this->accounts_payable->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 		$data["noCashAccounts"]  = false;
@@ -337,6 +347,12 @@ class controller extends wc_controller
 
 		$data['show_paymentdetails'] 	=	(!empty($data['payments']) && !is_null($data['payments'])) 		?  	1 	: 0;
 		$data['show_chequedetails'] 	=	(!empty($data['rollArrayv']) && !is_null($data['rollArrayv'])) 	?  	1 	: 0;
+
+		// Retrieve tax list
+		// $bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
+		// $bus_type_cond                = "tax_account != ''";
+		// $data["tax_list"]  			 = $this->accounts_payable->getValue("atccode", $bus_type_data, $bus_type_cond, false);
+
 		
 		/**
 		 * Status Badge
@@ -365,7 +381,6 @@ class controller extends wc_controller
 	{
 		$cmp 		   		   = $this->companycode;
 		$data         		   = $this->accounts_payable->retrieveEditData($sid);
-
 		$data["ui"]            = $this->ui;
 		$data['show_input']    = $this->show_input;
 		$data["task"] 		   = "edit";
@@ -387,14 +402,19 @@ class controller extends wc_controller
 
 		// Retrieve business type list
 		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond               = "accounttype != 'P'";
+		$acc_entry_cond               = "accounttype != ''";
 		$data["account_entry_list"]   = $this->accounts_payable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// Retrieve payable account list
 		$pay_account_data 			  = array("id ind", "CONCAT(segment5, ' - ', accountname) val");
-		$pay_account_cond 			  = "accountclasscode = 'ACCPAY' AND accounttype != 'P'";
+		$pay_account_cond 			  = "accountclasscode = 'ACCPAY' AND accounttype != ''";
 		$data["payable_account_list"] = $this->accounts_payable->getValue("chartaccount", $pay_account_data, $pay_account_cond, "accountname");
 		
+		// // Retrieve tax list
+		// $bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
+		// $bus_type_cond                = "tax_account != ''";
+		// $data["tax_list"]  			 = $this->accounts_payable->getValue("atccode", $bus_type_data, $bus_type_cond, false);
+
 		// Header Data
 		$data["voucherno"]       = $data["main"]->voucherno;
 		$data["referenceno"]     = $data["main"]->referenceno;
@@ -433,6 +453,72 @@ class controller extends wc_controller
 
 		$this->view->load('accounts_payable/accounts_payable', $data);
 	}
+
+	public function apply_bir($sid){
+		
+		$data        			    = $this->accounts_payable->retrieveEditDataDtl($sid);
+		$ven						= $data["main"]->vendor; 
+		$transactiondate			= $data["main"]->transactiondate; 
+		$ven_dtl 	 				= $this->accounts_payable->getValue("partners",array("partnername","address1","tinno"),"partnercode = '$ven' ");
+		$data['partnername']        = $ven_dtl[0]->partnername;
+		$data['address1']       	= $ven_dtl[0]->address1;
+		$data['tinno']      	  	= $ven_dtl[0]->tinno;
+		$cmp						= $data["main"]->companycode; 
+		$cmp_dtl 	 				= $this->accounts_payable->getValue("company",array("companyname","address","tin"),"companycode = '$cmp' "); 
+		$data['companyname']        = $cmp_dtl[0]->companyname;
+		$data['address']       		= $cmp_dtl[0]->address;
+		$data['tin']      	  		= $cmp_dtl[0]->tin;
+		$data["sid"] 		   		= $sid;
+		$data["task"] 		   		= "apply_bir";
+		$data["ui"]   			    = $this->ui;
+		$data['show_input'] 	    = false;
+		$from = date('Y-m-01', strtotime($transactiondate));
+		$from = explode('-',$from);
+		$data['f_yr']  = $from[0];
+		$data['f_mo']  = $from[1];
+		$data['f_dy']  = $from[2];
+		$to = date('Y-m-t', strtotime($transactiondate));
+		$to = explode('-',$to);
+		$data['to_yr']  = $to[0];
+		$data['to_mo']  = $to[1];
+		$data['to_dy']  = $to[2];
+		$data["button_name"] 	    = "Edit";
+		$this->view->load('accounts_payable/accounts_payable_apply_bir', $data);
+	}
+
+	public function generate_pdf($sid){
+		$data        			    = $this->accounts_payable->retrieveEditDataDtl($sid);
+		$transactiondate			= $data["main"]->transactiondate; 
+		$from = date('Y-m-01', strtotime($transactiondate));
+		$from = explode('-',$from);
+		$data['f_yr']  = $from[0];
+		$data['f_mo']  = $from[1];
+		$data['f_dy']  = $from[2];
+		$to = date('Y-m-t', strtotime($transactiondate));
+		$to = explode('-',$to);
+		$data['to_yr']  = $to[0];
+		$data['to_mo']  = $to[1];
+		$data['to_dy']  = $to[2];
+		$ven							= $data["main"]->vendor; 
+		$ven_dtl 	 					= $this->accounts_payable->getValue("partners",array("partnername","address1","tinno"),"partnercode = '$ven' ");
+		$data_ven['partnername']        = $ven_dtl[0]->partnername;
+		$data_ven['address1']       	= $ven_dtl[0]->address1;
+		$data_ven['tinno']      	  	= $ven_dtl[0]->tinno;
+		$cmp							= $data["main"]->companycode; 
+		$cmp_dtl 	 					= $this->accounts_payable->getValue("company",array("companyname","address","tin"),"companycode = '$cmp' "); 
+		$data_payor['companyname']  	= $cmp_dtl[0]->companyname;
+		$data_payor['address']       	= $cmp_dtl[0]->address;
+		$data_payor['tin']      	  	= $cmp_dtl[0]->tin;
+
+		$print_test = new print_tax();
+		$print_test->setFile('modules/financials_module/model/2307_form.pdf')
+					->setDocumentInfoPayee($data)
+					->setDocumentInfoVendor($data_ven)
+					->setDocumentInfoPayor($data_payor)
+					->setDetails($data)
+					->Output();
+	}
+
 
 	public function print_preview($voucherno) 
 	{
@@ -506,54 +592,38 @@ class controller extends wc_controller
 	{
 		header('Content-type: application/json');
 
-		if ($task == 'save_payable_data') 
-		{
+		if ($task == 'save_payable_data') {
 			$this->add();
-		}
-		else if ($task == 'update') 
-		{
+		}else if ($task == 'update') {
 			$this->update();
-		}
-		else if ($task == 'delete_row') 
-		{
+		}else if ($task == 'delete_row') {
 			$this->delete_row();
-		}
-		else if ($task == 'ajax_list') 
-		{
+		}else if ($task == 'ajax_list') {
 			$this->ajax_list();
-		}
-		else if ($task == 'export') 
-		{
+		}else if ($task == 'export') {
 			$this->export();
-		}
-		else if ($task == 'get_value') 
-		{
+		}else if ($task == 'get_value') {
 			$this->get_value();
-		}
-		else if ($task == 'save_data') 
-		{
+		}else if ($task == 'save_data') {
 			$this->save_data();
-		}
-		else if ($task == 'apply_payments') 
-		{
+		}else if ($task == 'apply_payments') {
 			$this->apply_payments();
-		}
-		else if ($task == 'delete_payments') 
-		{
+		}else if ($task == 'delete_payments') {
 			$this->delete_payments();
-		}
-		else if ($task == 'load_payables') 
-		{
+		}else if ($task == 'load_payables') {
 			$this->load_payables();
-		}
-		else if ($task == 'apply_proforma') 
-		{
+		}else if ($task == 'apply_proforma') {
 			$this->apply_proforma();
-		}
-		else if ($task == 'ajax_delete')
-		{
+		}else if ($task == 'ajax_delete'){
 			$this->delete_invoice();
+		}else if ($task == 'get_account'){
+			$this->get_account();
+		}else if ($task == 'get_tax'){
+			$this->get_tax();
+		}else if ($task == 'save_import'){
+			$this->save_import();
 		}
+		
 	}
 
 	private function delete_invoice()
@@ -596,11 +666,22 @@ class controller extends wc_controller
 			{
 				$date        = $row->transactiondate;
 				$date        = $this->date->dateFormat($date);
+
 				$voucher     = $row->voucherno; 
+				
+				$is_tax 	 = $this->accounts_payable->getValue("ap_details",array("taxcode"),"voucherno = '$voucher' ");
+				$bir_link = false;
+				foreach ($is_tax as $rows) {
+					if ($rows->taxcode != '') {
+						$bir_link = true;
+					}
+				}
+				
 				$balance     = $row->balance; 
 				$amount	  	 = $row->amount; 
 				$vendor		 = $row->vendor; 
 				$referenceno = $row->referenceno; 
+				$checker 	 = $row->importchecker;
 
 				if($balance != $amount && $balance != 0)
 				{
@@ -620,17 +701,23 @@ class controller extends wc_controller
 				$show_payment 	= ($balance != 0);
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()
-							->addEdit($show_edit)
+							->addEdit($show_edit && $checker != "import")
 							->addOtherTask(
 								'Issue Payment',
 								'credit-card',
 								$show_payment
+							)
+							->addOtherTask(
+								'Print 2307',
+								'print',
+								$bir_link
 							)
 							->addDelete($show_delete)
 							->addCheckbox($show_delete)
 							->setValue($voucher)
 							->setLabels(array('delete' => 'Cancel'))
 							->draw();
+							
 				$viewlink		= BASE_URL . "financials/accounts_payable/view/$voucher";
 				$editlink		= BASE_URL . "financials/accounts_payable/edit/$voucher";
 				$voucherlink	= MODULE_URL . "print_preview/$voucher";
@@ -923,7 +1010,7 @@ class controller extends wc_controller
 		
 		// RETRIEVE ACCOUNT CODE
 		$acc_entry_data     = array("id ind","accountname val");
-		// $acc_entry_cond     = "accounttype != 'P'";
+		// $acc_entry_cond     = "accounttype != ''";
 		$account_entry_list = $this->accounts_payable->getValue("chartaccount", $acc_entry_data, "", "segment5");
 
 
@@ -1001,10 +1088,401 @@ class controller extends wc_controller
 			}
 		}
 
-
 		$returnArray = array( "table" => $table );
 		echo json_encode($returnArray);
-
 	}
 
+	public function get_import(){
+		header('Content-type: application/csv');
+		$header = array('Document Set','Transaction Date','Due Date','Vendor Code','Invoice No.','Reference No.','Notes','Account Name','Description','Debit','Credit');
+		$return = "";
+		
+		$return .= '"' . implode('","',$header) . '"';
+		$return .= "\n";
+
+		echo $return;
+	}
+
+	public function get_account(){
+		$tax_account = $this->input->post("tax_account");
+		$tax_amount = $this->input->post("tax_amount");
+		$result 	=  $this->accounts_payable->getAccount($tax_account);
+		$tax = $result[0]->tax_rate;
+		$account = $result[0]->tax_account;
+		$amount = ($tax_amount * $tax) ;
+		$returnArray = array( "tax_amount" => $tax_amount, "tax_account" => $account ,"amount" => $amount);
+		echo json_encode($returnArray);
+	}
+
+	public function get_tax(){
+		$account = $this->input->post("account");
+		$result = $this->accounts_payable->getValue("chartaccount",array("accountclasscode"),"id = '$account' ");
+		$result_class = $result[0]->accountclasscode;
+
+		$bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
+		$bus_type_cond                = "tax_account = '$account'";
+		$join 						  =  "chartaccount ca ON atc.tax_account = ca.id";
+		$tax_list  			 = $this->accounts_payable->getTax("atccode atc", $bus_type_data,$join ,$bus_type_cond, false);
+		$ret = '';
+		foreach ($tax_list as $key) {
+			$in  = $key->ind;
+			$val = $key->val;
+			$ret .= "<option value=". $in.">" .$val. "</option>";
+		}
+		
+		$returnArray = array( "result" => $result_class, "ret" => $ret);
+		echo json_encode($returnArray);
+	}
+
+	private function save_import(){
+		$seq 		= new seqcontrol();
+		$file		= fopen($_FILES['file']['tmp_name'],'r') or exit ("File Unable to upload") ;
+
+		$filedir	= $_FILES["file"]["tmp_name"];
+
+		$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
+
+		$errmsg 	=	array();
+		$proceed 	=	false;
+
+		/**VALIDATE FILE IF CORRUPT**/
+		if(!empty($_FILES['file']['error'])){
+			$errmsg[] = "File being uploaded is corrupted.<br/>";
+		}
+
+		/**VALIDATE FILE TYPE**/
+		if(!in_array($_FILES['file']['type'],$file_types)){
+			$errmsg[]= "Invalid file type, file must be .csv.<br/>";
+		}
+		
+		$headerArr = array('Document Set','Transaction Date','Due Date','Vendor Code','Invoice No.','Reference No.','Notes','Account Name','Description','Debit','Credit');
+
+		if( empty($errmsg) ) {
+			$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
+			$error 	=	array();
+			for ($n = 0; $n < count($x); $n++) {
+				if($n==0 && empty($errmsg)) {
+					$layout = count($headerArr);
+					$template = count($x);
+					$header = $x[$n];
+
+					for ($m=0; $m< $layout; $m++){
+						$template_header = $header[$m];
+						
+						$error = (empty($template_header) || !in_array($template_header,$headerArr)) ? "error" : "";
+					}	
+					
+					$errmsg[]	= (!empty($error) || $error != "" ) ? "Invalid template. Please download the template from the system first.<br/>" : "";
+					
+					$errmsg		= array_filter($errmsg);
+
+				}
+				if ( $n >= 1 ) {
+					$z[] = $x[$n];
+				}
+			}
+			
+			$line 				=	2;
+			$post 				=	array();
+			$warning 			=	array();
+			$vouchlist 			= 	array();
+			$h_vouchlist 		=	array();
+			$datelist 			= 	array();
+			$duedatelist 		=	array();
+			$vendorlist 		=	array();
+			$invoicelist 		=	array();
+			$referencelist 		=	array();
+			$noteslist 			=	array();
+			$accountlist 		=	array();
+			$descriptions 		= 	array();
+			$debitlist 			= 	array();
+			$creditlist 		= 	array();
+			$totaldebit 		=	array();
+			$totalcredit 		=	array();							
+
+			$this->restrict 	= new financials_restriction_model();
+			$close_dates	 	= $this->restrict->getClosedDate();
+
+			if( empty($errmsg)  && !empty($z) ){
+				$total_debit 	=	0;
+				$total_credit 	=	0;
+				$prev_no 		=	$prev_date 		=	$prev_ref 	=	$prev_notes 	=	$voucherno 		= "";
+				$prev_duedate 	=	$prev_invno 	=	$prev_vendor 	= 	"";
+				foreach ($z as $key => $b) {
+					if ( ! empty($b)) {	
+						$jvno 			=	isset($b[0]) 					? 	$b[0] 										:	"";
+						$transdate 		=	isset($b[1]) 					? 	$b[1] 										:	"";
+						$transdate 		=	($transdate != "") 				?	$this->date->datetimeDbFormat($transdate)	:	"";
+						$duedate 		=	isset($b[2]) 					? 	$b[2] 	:	"";
+						$duedate 		=	($duedate != "") 				?	$this->date->datetimeDbFormat($duedate)		:	"";
+						$vendor 		=	isset($b[3]) 					?	htmlentities(trim($b[3]))	:	"";
+						$invoiceno 		=	isset($b[4]) 					?	htmlentities(trim($b[4]))	:	"";
+						$reference 		=	isset($b[5]) 					?	htmlentities(trim($b[5]))	:	"";
+						$notes 			=	isset($b[6]) 					?	htmlentities(trim($b[6]))	:	"";
+						$account 		=	isset($b[7]) 					?	htmlentities(trim($b[7]))	:	"";
+						$account 		= 	str_replace('&ndash;', '-', $account);
+						$description 	=	isset($b[8]) 					?	htmlentities(trim($b[8]))	:	"";
+						$debit 			=	isset($b[9]) && !empty($b[9]) 	?	$b[9]	:	0;
+						$credit 		=	isset($b[10]) && !empty($b[10])	?	$b[10]	:	0;
+						//Check if account Name exists
+						$acct_exists 	=	$this->accounts_payable->check_if_exists('id','chartaccount'," accountname = '$account' ");
+						$acct_count 	=	$acct_exists[0]->count;
+					
+						if( $acct_count <= 0 ) {
+							$errmsg[]	= "Account Name [<strong>$account</strong>] on <strong>row $line</strong> does not exists.<br/>";
+							$errmsg		= array_filter($errmsg);
+						}
+						if( $key == 0 ){
+							// Check if Document Set is not empty. 
+							if($jvno == ""){
+								$errmsg[]	= "Document Set on <strong>row $line</strong> should not be empty.<br/>";
+								$errmsg		= array_filter($errmsg);
+							} else {
+								$voucherno		= $seq->getValue('AP');
+							}
+							// Check if Transaction Date is not Empty 
+							if($transdate == ''){
+								$errmsg[]	= "Transaction Date on <strong>row $line</strong> should not be empty.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+							// Check if Due Date is not Empty 
+							if($duedate == ''){
+								$errmsg[]	= "Due Date on <strong>row $line</strong> should not be empty.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+							//Check if Vendor Code is not empty
+							if($vendor == ''){
+								$errmsg[]	= "Vendor on <strong>row $line</strong> should not be empty.<br/>";
+								$errmsg		= array_filter($errmsg);
+							} else {
+								//Check if Vendor Code exists 
+								$cust_exists 	=	$this->accounts_payable->check_if_exists('partnercode','partners'," partnercode = '$vendor' ");
+								$cust_count 	=	$cust_exists[0]->count;	
+								if( $cust_count <= 0 ) {
+									$errmsg[]	= "Vendor Code [<strong>$vendor</strong>] on <strong>row $line</strong> does not exists.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+							}
+							//Check if Account is not empty
+							if($account == ''){
+								$errmsg[]	= "Account on <strong>row $line</strong> should not be empty.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+							//Check if Debit / Credit has an amount
+							if($debit == '' && $credit == ''){
+								$errmsg[]	= "Debit or Credit on <strong>$line</strong> should have a value.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+						} else {
+							if ($jvno == '') {
+								$jvno = $prev_no;
+							} else if ($jvno != $prev_no) {
+								$total_credit 	= 0;
+								$total_debit 	= 0;
+								$voucherno		= $seq->getValue('AP');
+							} 
+							if ($jvno == $prev_no) {
+								//Check Transaction Date if the same
+								if($transdate == ''){
+									$transdate 	= $prev_date;
+								} else if ($transdate != $prev_date) {
+									$errmsg[]	= "Transaction Date [<strong>$transdate</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+								//Check Due Date is the same
+								if($duedate == ''){
+									$duedate 	= $prev_duedate;
+								} 
+								if ($duedate != $prev_duedate) {
+									$errmsg[]	= "Due Date [<strong>$duedate</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+								//Compare Transaction Date and Due Date. Due Date must not be earlier than Transaction date. 
+								if($duedate > $transdate){
+									$errmsg[]	= "Due Date [<strong>$duedate</strong>] on <strong>row $line</strong> must not be earlier than the Transaction Date [<strong>$transdate</strong>].<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+								//Check if Transaction Date is not within Closed Date Period
+								if($transdate <= $close_dates){
+									$errmsg[]	= "Transaction Date [<strong>$transdate</strong>] on <strong>row $line</strong> must not be within the Closed Period.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+								//Check if Due Date is not within Closed Date Period
+								if($duedate <= $close_dates){
+									$errmsg[]	= "Due Date [<strong>$duedate</strong>] on <strong>row $line</strong> must not be within the Closed Period.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+								//Check the Vendor if the same
+								if($vendor == ''){
+									$vendor 	=	$prev_vendor;
+								}  
+								if ($vendor != $prev_vendor) {
+									$errmsg[]	= "Vendor Code [<strong>$vendor</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+								//Check if Vendor Code exists 
+								$vendor_exists 	=	$this->accounts_payable->check_if_exists('partnercode','partners'," partnercode = '$vendor' ");
+								$vendor_count 	=	$vendor_exists[0]->count;	
+								if( $vendor_count <= 0 ) {
+									$errmsg[]	= "Vendor Code [<strong>$vendor</strong>] on <strong>row $line</strong> does not exists.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+								//Check the Invoice #
+								if($invoiceno == ''){
+									$invoiceno 	=	$prev_invno;
+								} 
+								if ($invoiceno != $prev_invno) {
+									$errmsg[]	= "Invoice No. [<strong>$invoiceno</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+								//Check the Reference #
+								if($reference == ''){
+									$reference 	=	$prev_ref;
+								}  
+								if ($reference != $prev_ref) {
+									$errmsg[]	= "Reference No. [<strong>$reference</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+								//Check the Notes
+								if($notes == ''){
+									$notes 	=	$prev_notes;
+								} 
+								if ($notes != $prev_notes) {
+									$errmsg[]	= "Notes [<strong>$notes</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+								//Check if Credit != 0 && Debit != 0
+								if( $total_credit == 0 && $total_debit == 0 ){
+									$errmsg[]	= "The Total Debit and Total Credit on <strong>row $line</strong> must have a value.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+							}
+						}
+
+						$total_credit 	+=	$credit;
+						$total_debit 	+=	$debit;
+
+						//Check if Debit Total == Credit Total
+						if ( ! isset($z[$key + 1]) || ($jvno != $z[$key + 1][0] && $z[$key + 1][0] != '')) {
+							$totaldebit[] 	= $total_debit;
+							$totalcredit[]	= $total_credit;
+							if ($total_credit != $total_debit){
+								$errmsg[]	= "The Total Debit and Total Credit on <strong>row $line</strong> must be equal.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+						}
+
+						if(empty($errmsg)){
+							$vouchlist[] 		= $voucherno;
+							$accountlist[] 		= $this->accounts_payable->getAccountId($account);
+							$descriptions[] 	= $description;
+							$debitlist[] 		= $debit; 
+							$creditlist[] 		= $credit;
+							$noteslist[] 		= $notes;
+							$referencelist[] 	= $reference;
+
+							if( !isset($h_vouchlist) || !in_array($voucherno, $h_vouchlist) ){
+								$h_vouchlist[] 		= $voucherno;
+							}
+							if( !isset($datelist) || !in_array($transdate, $datelist) ){	
+								$datelist[] 		= $transdate;
+							}
+							if( !isset($duedatelist) || !in_array($duedate, $duedatelist) ){	
+								$duedatelist[] 		= $duedate;
+							}
+							if( !isset($vendorlist) || !in_array($vendor, $vendorlist) ){
+								$vendorlist[] 		= $vendor;
+							}
+							if( !isset($invoicelist) || !in_array($invoiceno, $invoicelist) ){
+								$invoicelist[] 		= $invoiceno;
+							}
+ 						}
+
+						$prev_no 		= $jvno;
+						$prev_date		= $transdate;
+						$prev_duedate	= $duedate;
+						$prev_vendor	= $vendor;
+						$prev_invno 	= $invoiceno;
+						$prev_ref 		= $reference;
+						$prev_notes 	= $notes;
+						
+						$line++;
+					}
+				}
+
+				if( empty($errmsg) ) {
+
+					$header 	=	array(
+						'voucherno' 		=> $h_vouchlist,
+						'transactiondate' 	=> $datelist,
+						'duedate' 			=> $duedatelist,
+						'vendor' 			=> $vendorlist,
+						'invoiceno' 		=> $invoicelist,
+						'referenceno'		=> $referencelist,
+						'particulars'		=> $noteslist,
+						'amount' 			=> $totaldebit,
+						'convertedamount' 	=> $totaldebit,
+						'balance' 			=> $totaldebit
+					); 
+					
+					foreach ($header['voucherno'] as $key => $row) {
+						$header['currencycode'][] 	= "PHP";
+						$header['exchangerate'][] 	= 1;
+						$header['stat'][] 			= "posted";
+						$header['transtype'][] 		= "AP";
+						$header['source'][] 		= "AP";
+						$header['lockkey'][] 		= "import";
+					}
+
+					foreach ($header['transactiondate'] as $key => $row) {
+						$period					= date("n",strtotime($row));
+						$fiscalyear				= date("Y",strtotime($row));
+						$header['period'][] 	= $period;
+						$header['fiscalyear'][] = $fiscalyear;
+					}	
+
+					$proceed  			= $this->accounts_payable->save_import("accountspayable",$header);
+					
+					$details = array(
+						'voucherno' 		=> $vouchlist,
+						'accountcode'		=> $accountlist,
+						'detailparticulars'	=> $descriptions,
+						'debit' 			=> $debitlist,
+						'credit' 			=> $creditlist,
+						'converteddebit' 	=> $debitlist,
+						'convertedcredit'	=> $creditlist
+					);
+
+					$linenum = 1;
+
+					foreach ($details['voucherno'] as $key => $row) {
+						$details['currencycode'][] 	= "PHP";
+						$details['exchangerate'][] 	= 1;
+						$details['linenum'][] 	= $linenum;
+						$details['stat'][] 		= "posted";
+						$details['transtype'][] = "AR";
+						$details['source'][] 	= "AR";
+						$linenum++;
+						if (isset($details['voucherno'][$key + 1]) && $details['voucherno'][$key + 1] != $row) {
+							$linenum = 1;
+						}
+					}
+
+					if($proceed){
+						$proceed 	=	$this->accounts_payable->save_import("ap_details",$details);
+
+						if($proceed){
+							$this->logs->saveActivity("Imported Account Payables.");
+						}
+					} 
+				}
+			}
+		}
+
+		$error_messages		= implode(' ', $errmsg);
+		$warning_messages	= implode(' ', $warning);
+
+		$resultArray 	=	 array("proceed" => $proceed,"errmsg"=>$error_messages, "warning"=>$warning_messages);
+		echo json_encode($resultArray);
+	}
 }

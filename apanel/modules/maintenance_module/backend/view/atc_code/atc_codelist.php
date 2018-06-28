@@ -45,9 +45,12 @@
 			<!--<textarea id="export_json" class="hidden"></textarea>-->
 			<div class="row">
 				<div class = "col-md-8">
-					<a class="btn btn-primary btn-flat" role="button" 
-						href="<?=MODULE_URL?>create" style="outline:none;">Add New ATC Code</a>
-					<form class="navbar-form navbar-left">
+					<!-- <a class="btn btn-primary btn-flat" role="button" 
+						href="<?=MODULE_URL?>create" style="outline:none;">Add New ATC Code</a> -->
+						<?= 
+							$ui->CreateNewButton('');
+						?>
+					<!-- <form class="navbar-form navbar-left">
 						<div class="btn-group" id="option_buttons">
 							<button type="button" 
 							class="btn btn-primary btn-flat dropdown-toggle" 
@@ -60,7 +63,10 @@
 								<span class="glyphicon glyphicon-save"></span> Import ATC Code</a></li>
 							</ul>
 						</div>
-					</form>
+					</form> -->
+						<?= 
+							$ui->OptionButton('');
+						?>
 					<input id = "deleteMultipleBtn" type = "button" name = "delete" 
 						value = "Delete" class="btn btn-danger btn-flat ">
 				</div>
@@ -292,7 +298,7 @@ var ajax = {};
 		{
 			$('#list_container').html(data.table);
 			$('#pagination').html(data.pagination);
-			$("#export_csv").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+			$("#export_id").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 			
 			if (ajax.page > data.page_limit && data.page_limit > 0) 
 			{
@@ -319,26 +325,6 @@ var ajax = {};
 		showList();
 	});
 
-	/**FILTER BY TYPE**/
-    function filterList(tab)
-    {
-    	
-    	if(tab == 'all'){
-    		ajax.addCond	= '';
-    	}else if(tab == 'asset'){
-    		ajax.addCond	= " chart.accountclasscode IN ('OTHCA','ACCREC','CASH','OTHNCA','PPE','PREPAID','VAT','INV') ";
-    	}else if(tab == 'liability'){
-    		ajax.addCond	= " chart.accountclasscode IN ('OTHCL','ACCPAY','LTP','VAT') ";
-    	}else if(tab == 'equity'){
-    		ajax.addCond	= " chart.accountclasscode='EQUITY' ";
-    	}else if(tab == 'revenue'){
-    		ajax.addCond	= " chart.accountclasscode IN ('REV','OTHINC') ";
-    	}else if(tab == 'expense'){
-    		ajax.addCond	= " chart.accountclasscode IN ('EXP','COST') ";
-    	}
-    	
-    	showList();
-    }
 	/**IMPORT**/
 	$('#import-modal').on('show.bs.modal', function() {
 		var form_csv = $('#import_csv').val('').closest('.form-group').
@@ -421,7 +407,7 @@ var ajax = {};
 		/*
 		* For Import Modal
 		*/
-		$("#import").click(function() 
+		$("#import_id").click(function() 
 		{
 			$(".import-modal > .modal").css("display", "inline");
 			$('.import-modal').modal();
@@ -452,6 +438,9 @@ var ajax = {};
 			ajax.page = 1;
 			showList();
 		});
+
+		$('#export_id').prop('download','atccode.csv');
+		// $('#export_id').prop('href','');
 
 	});
 

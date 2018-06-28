@@ -294,12 +294,12 @@
 		});
 	}
 	function postCallback(id) {
-		$.post('<?=MODULE_URL?>ajax/ajax_update', {id : id, type: 'post'}, function(data) {
+		$.post('<?=MODULE_URL?>ajax/ajax_post', {id : id}, function(data) {
 			showList();
 		});
 	}
 	function unpostCallback(id) {
-		$.post('<?=MODULE_URL?>ajax/ajax_update', {id : id, type: 'unpost'}, function(data) {
+		$.post('<?=MODULE_URL?>ajax/ajax_unpost', {id : id, type: 'unpost'}, function(data) {
 			showList();
 		});
 	}

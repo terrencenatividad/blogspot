@@ -17,7 +17,7 @@ class backend {
 			} else {
 				$dir = new RecursiveDirectoryIterator(PRE_PATH . CORE_COMPONENTS . 'system');
 				foreach (new RecursiveIteratorIterator($dir) as $file){
-					if (strpos($file , $class . '.php') !== false) {
+					if (strpos($file, '/' . $class . '.php') !== false) {
 						include_once $file;
 						break;
 					}

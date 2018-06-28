@@ -306,7 +306,7 @@ class controller extends wc_controller
 		$data["customer_list"]          = $this->receipt_voucher->retrieveCustomerList();
 
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","accountname val");
+		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
 		$acc_entry_cond               = "accounttype != 'P'";
 		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
@@ -791,7 +791,7 @@ class controller extends wc_controller
 	
 	}
 
-	private function apply_payments()
+	private function create_payments()
 	{
 		
 		$data_post 	= $this->input->post();
@@ -1007,12 +1007,12 @@ class controller extends wc_controller
 			}
 		}
 		}
-		else
-		{
-			$table	.= '<tr>';
-			$table	.= 	'<td class="text-center" colspan="6">- No Records Found -</td>';
-			$table	.= '</tr>';
-		}
+		// else
+		// {
+		// 	$table	.= '<tr>';
+		// 	$table	.= 	'<td class="text-center" colspan="6">- No Records Found -</td>';
+		// 	$table	.= '</tr>';
+		// }
 		$pagination->table = $table;
 		$dataArray = array( "table" => $pagination->table, "json_encode" => $json_encode, "pagination" => $pagination->pagination, "page" => $pagination->page, "page_limit" => $pagination->page_limit );
 		
@@ -1069,7 +1069,7 @@ class controller extends wc_controller
 		$row 				= 1;
 
 		// Retrieve business type list
-		$acc_entry_data     = array("id ind","accountname val");
+		$acc_entry_data     = array("id ind","CONCAT(segment5, ' - ', accountname) val");
 		$acc_entry_cond     = "accounttype != 'P'";
 		$account_entry_list = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
@@ -1107,13 +1107,15 @@ class controller extends wc_controller
 										->setList($account_entry_list)
 										->setValue($accountcode)
 										->draw($show_input).
-							'</td>';
+							'	<input type = "hidden" class="h_accountcode" name="h_accountcode['.$row.']" id="h_accountcode['.$row.']" value="'.$accountcode.'">
+							</td>';
 				$table .= 	'<td class = "remove-margin">'
 								.$ui->formField('text')
 									->setSplit('', 'col-md-12')
 									->setName('detailparticulars['.$row.']')
 									->setId('detailparticulars['.$row.']')
 									->setAttribute(array("maxlength" => "100"))
+									->setClass('description')
 									->setValue($detailparticulars)
 									->draw($show_input).
 							'</td>';
@@ -1198,12 +1200,14 @@ class controller extends wc_controller
 				}
 
 				$show_btn 		= ($status == 'open');
+				$show_edit 		= ($status == 'open' && $has_access[0]->mod_edit == 1);
+				$show_dlt 		= ($status == 'open' && $has_access[0]->mod_delete == 1);
 				$show_post 		= ($status == 'open' && $has_access[0]->mod_post == 1);
 				$show_unpost 	= ($status == 'posted' && $has_access[0]->mod_unpost == 1);
 
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()
-							->addEdit($show_btn)
+							->addEdit($show_edit)
 							->addOtherTask(
 								'Post',
 								'thumbs-up',
@@ -1220,7 +1224,7 @@ class controller extends wc_controller
 								$show_btn
 							)
 							->addPrint()
-							->addDelete($show_btn)
+							->addDelete($show_dlt)
 							->addCheckbox($show_btn)
 							->setValue($voucher)
 							->draw();

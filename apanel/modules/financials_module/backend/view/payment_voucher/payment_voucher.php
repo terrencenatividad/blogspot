@@ -479,6 +479,7 @@
 												->setValue($accountcode)
 												->draw($show_input);
 									?>
+									<input type = "hidden" class="h_accountcode" name='h_accountcode[<?=$row?>]' id='h_accountcode[<?=$row?>]'>
 								</td>
 								<td>
 									<?php
@@ -486,6 +487,7 @@
 												->setSplit('', 'col-md-12')
 												->setName('detailparticulars['.$row.']')
 												->setId('detailparticulars['.$row.']')
+												->setClass('description')
 												->setAttribute(array("maxlength" => "100"))
 												->setValue($detailparticulars)
 												->draw($show_input);
@@ -509,7 +511,7 @@
 												->setSplit('', 'col-md-12')
 												->setName('credit['.$row.']')
 												->setId('credit['.$row.']')
-												->setClass("text-right   credit")
+												->setClass("text-right account_amount  credit")
 												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($credit, 2))
 												->draw($show_input);
@@ -537,6 +539,7 @@
 												->setValue($accountcode)
 												->draw($show_input);
 									?>
+									<input type = "hidden" class="h_accountcode" name='h_accountcode[<?=$row?>]' id='h_accountcode[<?=$row?>]'>
 								</td>
 								<td>
 									<?php
@@ -545,6 +548,7 @@
 												->setName('detailparticulars['.$row.']')
 												->setId('detailparticulars['.$row.']')
 												->setAttribute(array("maxlength" => "100"))
+												->setClass('description')
 												->setValue($detailparticulars)
 												->draw($show_input);
 									?>
@@ -999,11 +1003,11 @@ function closeModal(){
 });
 </script>
 <?php
-echo $ui->loadElement('modal')
-	->setId('vendor_modal')
-	->setContent('maintenance/supplier/create')
-	->setHeader('Add a Vendor')
-	->draw();
+	echo $ui->loadElement('modal')
+		->setId('vendor_modal')
+		->setContent('maintenance/supplier/create')
+		->setHeader('Add a Vendor')
+		->draw();
 ?>
 
 <script>
@@ -1013,66 +1017,93 @@ var id_array = [];
 var accounts = [];
 
 var checker 	= new Array();
+var cheque_arr 	= [];
 var table 		= document.getElementById('ap_items');
 var newid 		= table.rows.length;
 	newid 		= parseFloat(newid);
 
 var task 		= '<?= $task ?>';
 
+var clone_acct 	= $('#entriesTable tbody tr.clone:first')[0].outerHTML;
+
 $('#chequeTable .cheque_account').on('change', function()  {
-
-	var val = $(this).val();
-	var id 	= $(this).attr("id");
-		id 	= id.replace(/[a-z\[\]]/g, '');
-
-	// Get length of ap_items
-	var table 		= document.getElementById('ap_items');
-	var newid 		= table.rows.length + 1;
-		newid 		= parseFloat(newid);
-
-	// Set value for PV Details
-	var found_same = false;
-
-	if (jQuery.inArray(val, accounts) > -1) {				
-		found_same = true;
-	}
-	if (found_same) {
-		
-	}else{
+	if ($('#entriesTable tbody tr.clone select').data('select2')) {
 		$('#entriesTable tbody tr.clone select').select2('destroy');
-
-		var clone = $("#entriesTable tbody tr.clone:first").clone(true); 
-		
-		var ParentRow = $("#entriesTable tbody tr.clone").last();
-
-		clone.clone(true).insertAfter(ParentRow);
-		
-		setZero();
-		
-		$('#entriesTable tbody tr.clone select').select2({width: "100%"});
-		
-		var accountcode = $("#accountcode\\["+ newid +"\\]").val(val).trigger('change.select2');
 	}
+	var val = $(this).val();
+	
+	cheque_arr = [];
+
+	$('#entriesTable tbody tr.added_row').remove();
+	$('#chequeTable tbody tr select.cheque_account').each(function() {
+		var account = $(this).val();
+		if(account!="" && jQuery.inArray(account,cheque_arr) == -1){
+			cheque_arr.push(account);
+		}
+	});
+
+	var row = 2;
+	cheque_arr.forEach(function(account) {
+		var ParentRow = $("#entriesTable tbody tr.clone").first();
+		if($('#entriesTable tbody tr.added_row').length){
+			ParentRow = $("#entriesTable tbody tr.added_row").last();
+		}
+		ParentRow.after(clone_acct);
+		resetIds();
+		$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
+		var accountcode = $("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
+		disable_acct_fields(row);
+		row++;
+	});
 	accounts.push(val);
-	return found_same;
+	drawTemplate();
 });
+
+function disable_acct_fields(row){
+	$("#accountcode\\["+ row +"\\]").prop("disabled", true);
+	$("#debit\\["+ row +"\\]").prop("readonly", true);
+	$("#credit\\["+ row +"\\]").prop("readonly", true);
+	$("#entriesTable button#"+row).prop('disabled',true);
+}
+
+function acctdetailamtreset(){
+	$('#entriesTable tbody .added_row').each(function() {
+		var accountcode = $(this).find('.accountcode').val();
+		if(!checker.hasOwnProperty('acc-'+accountcode)){
+			$(this).remove();
+		}
+	});
+	$('#entriesTable tbody tr select.accountcode').each(function() {
+		if (typeof checker['acc-' + $(this).val()] === 'undefined') {
+		} else {
+			var ca = checker['acc-' + $(this).val()] || '0.00';
+			if($(this).val() == ""){
+				ca = '0.00';
+			}
+			$(this).closest('tr').find('.account_amount').val(addComma(ca));	
+			$(this).closest('tr').find('.h_accountcode').val($(this).val());	
+		}	
+	});
+}
+
+function recomputechequeamts(){
+	checker = [];
+	$('#chequeTable tbody tr select.cheque_account').each(function() {
+		var account = $(this).val();
+		var ca = $(this).closest('tr').find('.chequeamount').val();
+		if (typeof checker['acc-' + account] === 'undefined') {
+			checker['acc-' + account] = 0;
+		}
+		checker['acc-' + account] += parseFloat(ca);
+	});
+}
 
 // Change event for chequeamount
 $('#chequeTable .chequeamount').on('change', function() {
 	chequeamount = $(this).val();
 	acc = $(this).closest('tr').find('.cheque_account').val();
-	if (typeof checker['acc-' + acc] === 'undefined') {
-		checker['acc-' + acc] = 0;
-	}
-	checker['acc-' + acc] += parseFloat(chequeamount);
-	$('#entriesTable tbody .accountcode').each(function() {
-		if (typeof checker['acc-' + $(this).val()] === 'undefined') {
-		} else {
-			var ca = checker['acc-' + $(this).val()] || '0.00';
-			$(this).closest('tr').find('.account_amount').val(addComma(ca));	
-		}	
-	});
-	// formatNumber("credit["+ newid +"]");
+	recomputechequeamts();
+	acctdetailamtreset();
 	addAmountAll('credit');
 });
 
@@ -1195,11 +1226,13 @@ function resetIds() {
 		var row = table.rows[i];
 		
 		row.cells[0].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].id 	= 'h_accountcode['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
 		row.cells[2].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
 		
 		row.cells[0].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].name 	= 'h_accountcode['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
 		row.cells[2].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
@@ -2467,6 +2500,15 @@ function clearChequePayment(){
 	setChequeZero();
 }
 
+function clear_acct_input(){
+	$('.accountcode').val('').change();
+	$('.description').val('');
+	$('.debit').val('0.00');
+	$('.credit').val('0.00');
+	addAmountAll('debit');
+	addAmountAll('credit');
+}
+
 $(document).ready(function() {
 	// Call toggleExchangeRate
 	$( "#exchange_rate" ).click(function() {
@@ -2786,16 +2828,21 @@ $(document).ready(function() {
 		var valid		= 1;
 		var rowindex	= table.rows[row];
 
-		if($('#chequeaccount\\['+row+'\\]').val() != '')
-		{
-			if(rowCount > 1)
-			{
-				table.deleteRow(row);	
+		var account 	= $('#chequeaccount\\['+row+'\\]').val();
+		var acctamt 	= $('#chequeamount\\['+row+'\\]').val();
+
+		if($('#chequeaccount\\['+row+'\\]').val() != '') {
+			// console.log(checker);
+			if(rowCount > 1) {
+				table.deleteRow(row);
+				checker['acc-'+account] 	-=	acctamt;	
+				
+				recomputechequeamts();
+				acctdetailamtreset();
 				resetChequeIds();
 				addAmounts();
-			}
-			else
-			{	
+				addAmountAll('credit');
+			} else {	
 				document.getElementById('chequeaccount['+row+']').value 	= '';
 
 				$('#chequeaccount\\['+row+'\\]').trigger("change.select2");
@@ -2804,19 +2851,22 @@ $(document).ready(function() {
 				document.getElementById('chequedate['+row+']').value 		= '<?= $transactiondate ?>';//today();
 				document.getElementById('chequeamount['+row+']').value 		= '0.00';
 				
+				checker['acc-'+account] 	-=	acctamt;	
+				recomputechequeamts();
+				acctdetailamtreset();
 				addAmounts();
+				addAmountAll('credit');
 			}
-		}
-		else
-		{
-			if(rowCount > 1)
-			{
+		} else {
+			if(rowCount > 1) {
 				table.deleteRow(row);	
+				checker['acc-'+account] 	-=	acctamt;	
+				recomputechequeamts();
+				acctdetailamtreset();
 				resetChequeIds();
 				addAmounts();
-			}
-			else
-			{
+				addAmountAll('credit');
+			} else {
 				document.getElementById('chequeaccount['+row+']').value 	= '';
 				
 				$('#chequeaccount\\['+row+'\\]').trigger("change.select2");
@@ -2824,7 +2874,13 @@ $(document).ready(function() {
 				document.getElementById('chequenumber['+row+']').value 		= '';
 				document.getElementById('chequedate['+row+']').value 		= '<?= $transactiondate ?>';//today();
 				document.getElementById('chequeamount['+row+']').value 		= '0.00';
+				
+				checker['acc-'+account] 	-=	acctamt;	
+				recomputechequeamts();
+				acctdetailamtreset();
 				addAmounts();
+				addAmountAll('credit');
+
 			}
 		}
 		$('#deleteChequeModal').modal('hide');
@@ -2907,13 +2963,13 @@ $(document).ready(function() {
 					
 					$("#payableForm #btnSave").html('Saving...');
 					
-					$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
+					$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
 					.done(function(data)
 					{	
 						if(data.code == '1')
 						{
 							$("#payableForm #h_voucher_no").val(data.voucher);
-							// window.location.href = '<?=BASE_URL?>financials/payment_voucher';
+							// window.location.href = '<?//=BASE_URL?>financials/payment_voucher';
 						}
 					});
 				});
@@ -2963,7 +3019,7 @@ $(document).ready(function() {
 				// validate form
 				applySelected_();
 
-				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
+				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{	
 					if(data.code == 1)
@@ -2984,7 +3040,7 @@ $(document).ready(function() {
 						$("#errordiv #msg_error ul").html(msg);
 					}
 				});
-			}
+			} 
 		});
 
 		/**FINALIZE TEMPORARY DATA AND REDIRECT TO CREATE NEW INVOICE**/
@@ -3008,7 +3064,7 @@ $(document).ready(function() {
 
 				$("#payableForm #h_save").val("h_save_new");
 
-				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
+				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{
 					if(data.code == 1)
@@ -3053,7 +3109,7 @@ $(document).ready(function() {
 
 				$("#payableForm #h_save").val("h_save_preview");
 
-				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
+				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{
 					if(data.code == 1)
@@ -3113,7 +3169,7 @@ $(document).ready(function() {
 
 				$("#payableForm #h_save").val("h_save");
 				
-				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
+				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{
 					if(data.code == 1)
@@ -3162,7 +3218,7 @@ $(document).ready(function() {
 
 				$("#payableForm #h_save").val("h_save_new");
 				
-				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
+				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{
 					if(data.code == 1)
@@ -3210,7 +3266,7 @@ $(document).ready(function() {
 
 				$("#payableForm #h_save").val("h_save_preview");
 				
-				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/apply_payments",$("#payableForm").serialize())
+				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function( data ) 
 				{
 					if(data.code == 1)
@@ -3337,7 +3393,7 @@ $(document).ready(function() {
 								label: "OK",
 								className: "btn-primary btn-flat",
 								callback: function(result) {
-									flag = 2;
+									clear_acct_input();
 								}
 						}
 					}
@@ -3351,14 +3407,13 @@ $(document).ready(function() {
 						label: "OK",
 						className: "btn-primary btn-flat",
 						callback: function(result) {
-								
+								clear_acct_input();
 							}
 						}
 					}
 				});
 			}
 		}
-
 	});
 }); // end
 

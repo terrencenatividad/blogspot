@@ -555,7 +555,7 @@
                         &nbsp;
                         <?}?>
                         
-                        <?if(empty($data["payments"])){?>
+                        <?if(empty($data["payments"]) && $data['checker'] != "import"){?>
                         <a href="<?=BASE_URL?>financials/accounts_payable/edit/<?=$sid?>" class="btn btn-primary btn-md btn-flat">Edit</a>
                         <?}?>
                     </div>
