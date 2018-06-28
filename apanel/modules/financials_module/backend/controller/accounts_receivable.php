@@ -8,8 +8,9 @@ class controller extends wc_controller
 		$this->url 			    = new url();
 		$this->accounts_receivable = new accounts_receivable();
 		$this->input            = new input();
+		$this->seq 				= new seqcontrol();
 		$this->ui 			    = new ui();
-		$this->logs  			= new log;
+		$this->logs 			= new log();
 		$this->view->title      = 'Accounts Receivable';
 		$this->show_input 	    = true;
 
@@ -287,7 +288,9 @@ class controller extends wc_controller
 		$data["button_name"] 	   = "Edit";
 		$data["task"] 	  		   = "view";
 		$data["sid"] 			   = $sid;
-		$data["date"] 			   = $this->date->dateFormat();//date("M d, Y");
+		$data["date"] 			   = $this->date->dateFormat();//date("M d, Y");e
+
+		$data['checker'] 		   = isset($data['main']->importchecker) && !empty($data['main']->importchecker) 	?	$data['main']->importchecker 	:	"";
 
 		$data["business_type_list"] = array();
 		$data["account_entry_list"] = array();
@@ -505,53 +508,34 @@ class controller extends wc_controller
 	{
 		header('Content-type: application/json');
 
-		if ($task == 'save_receivable_data') 
-		{
+		if ($task == 'save_receivable_data') {
 			$this->add();
-		}
-		else if ($task == 'update') 
-		{
+		} else if ($task == 'update') {
 			$this->update();
-		}
-		else if ($task == 'delete_row') 
-		{
+		} else if ($task == 'delete_row') {
 			$this->delete_row();
-		}
-		else if ($task == 'ajax_list') 
-		{
+		} else if ($task == 'ajax_list') {
 			$this->ajax_list();
-		}
-		else if ($task == 'export') 
-		{
+		} else if ($task == 'export') {
 			$this->export();
-		}
-		else if ($task == 'get_value') 
-		{
+		} else if ($task == 'get_value') {
 			$this->get_value();
-		}
-		else if ($task == 'save_data') 
-		{
+		} else if ($task == 'save_data') {
 			$this->save_data();
-		}
-		else if ($task == 'apply_payments') 
-		{
+		} else if ($task == 'apply_payments') {
 			$this->apply_payments();
-		}
-		else if ($task == 'delete_payments') 
-		{
+		} else if ($task == 'delete_payments') {
 			$this->delete_payments();
-		}
-		else if ($task == 'load_receivables') 
-		{
+		} else if ($task == 'load_receivables') {
 			$this->load_receivables();
-		}
-		else if ($task == 'apply_proforma') 
-		{
+		} else if ($task == 'apply_proforma') {
 			$this->apply_proforma();
-		}
-		else if ($task == 'ajax_delete')
-		{
+		} else if ($task == 'ajax_delete') {
 			$this->delete_invoice();
+		} else if($task == 'get_import') {
+			$this->get_import();
+		} else if($task == 'save_import') {
+			$this->save_import();
 		}
 	}
 
@@ -600,6 +584,7 @@ class controller extends wc_controller
 				$amount	  	 = $row->amount; 
 				$customer	 = $row->customer; 
 				$referenceno = $row->referenceno; 
+				$checker 	 = $row->importchecker; 
 
 				if($balance != $amount && $balance != 0)
 				{
@@ -619,7 +604,7 @@ class controller extends wc_controller
 				$show_payment 	= ($balance != 0);
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()
-							->addEdit($show_edit)
+							->addEdit($show_edit && $checker != "import")
 							->addOtherTask(
 								'Receive Payment',
 								'credit-card',
@@ -1004,6 +989,391 @@ class controller extends wc_controller
 		$returnArray = array( "table" => $table );
 		echo json_encode($returnArray);
 
+	}
+
+	public function get_import(){
+		header('Content-type: application/csv');
+		$header = array('Document Set','Transaction Date','Due Date','Customer Code','Invoice No.','Reference No.','Notes','Account Name','Description','Debit','Credit');
+		$return = "";
+		
+		$return .= '"' . implode('","',$header) . '"';
+		$return .= "\n";
+
+		echo $return;
+	}
+
+	private function save_import(){
+		$file		= fopen($_FILES['file']['tmp_name'],'r') or exit ("File Unable to upload") ;
+
+		$filedir	= $_FILES["file"]["tmp_name"];
+
+		$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
+
+		$errmsg 	=	array();
+		$proceed 	=	false;
+
+		/**VALIDATE FILE IF CORRUPT**/
+		if(!empty($_FILES['file']['error'])){
+			$errmsg[] = "File being uploaded is corrupted.<br/>";
+		}
+
+		/**VALIDATE FILE TYPE**/
+		if(!in_array($_FILES['file']['type'],$file_types)){
+			$errmsg[]= "Invalid file type, file must be .csv.<br/>";
+		}
+		
+		$headerArr = array('Document Set','Transaction Date','Due Date','Customer Code','Invoice No.','Reference No.','Notes','Account Name','Description','Debit','Credit');
+ 
+		if( empty($errmsg) ) {
+			$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
+			$error 	=	array();
+			for ($n = 0; $n < count($x); $n++) {
+				if($n==0 && empty($errmsg)) {
+					$layout = count($headerArr);
+					$template = count($x);
+					$header = $x[$n];
+
+					for ($m=0; $m< $layout; $m++){
+						$template_header = $header[$m];
+						
+						$error = (empty($template_header) || !in_array($template_header,$headerArr)) ? "error" : "";
+					}	
+					
+					$errmsg[]	= (!empty($error) || $error != "" ) ? "Invalid template. Please download the template from the system first.<br/>" : "";
+					
+					$errmsg		= array_filter($errmsg);
+
+				}
+				if ( $n >= 1 ) {
+					$z[] = $x[$n];
+				}
+			}
+			
+			$line 				=	2;
+			$post 				=	array();
+			$warning 			=	array();
+			$vouchlist 			= 	array();
+			$h_vouchlist 		=	array();
+			$datelist 			= 	array();
+			$duedatelist 		=	array();
+			$customerlist 		=	array();
+			$invoicelist 		=	array();
+			$referencelist 		=	array();
+			$noteslist 			=	array();
+			$accountlist 		=	array();
+			$descriptions 		= 	array();
+			$debitlist 			= 	array();
+			$creditlist 		= 	array();
+			$totaldebit 		=	array();
+			$totalcredit 		=	array();							
+
+			$this->restrict 	= new financials_restriction_model();
+			$close_dates	 	= $this->restrict->getClosedDate();
+
+			if( empty($errmsg)  && !empty($z) ){
+				$total_debit 	=	0;
+				$total_credit 	=	0;
+				$prev_no 		=	$prev_date 		=	$prev_ref 	=	$prev_notes 	=	$voucherno 		= "";
+				$prev_duedate 	=	$prev_invno 	=	$prev_cust 	= 	"";
+				foreach ($z as $key => $b) {
+					if ( ! empty($b)) {	
+						$jvno 			=	isset($b[0]) 					? 	$b[0] 										:	"";
+						$transdate 		=	isset($b[1]) 					? 	$b[1] 										:	"";
+						$transdate 		=	($transdate != "") 				?	$this->date->dateDbFormat($transdate)	:	"";
+						$duedate 		=	isset($b[2]) 					? 	$b[2] 	:	"";
+						$duedate 		=	($duedate != "") 				?	$this->date->dateDbFormat($duedate)		:	"";
+						$customer 		=	isset($b[3]) 					?	htmlentities(trim($b[3]))	:	"";
+						$invoiceno 		=	isset($b[4]) 					?	htmlentities(trim($b[4]))	:	"";
+						$reference 		=	isset($b[5]) 					?	htmlentities(trim($b[5]))	:	"";
+						$notes 			=	isset($b[6]) 					?	htmlentities(trim($b[6]))	:	"";
+						$account 		=	isset($b[7]) 					?	htmlentities(trim($b[7]))	:	"";
+						$account 		= 	str_replace('&ndash;', '-', $account);
+						$description 	=	isset($b[8]) 					?	htmlentities(trim($b[8]))	:	"";
+						$debit 			=	isset($b[9]) && !empty($b[9]) 	?	$b[9]	:	0;
+						$credit 		=	isset($b[10]) && !empty($b[10])	?	$b[10]	:	0;
+						//Check if account Name exists
+						$acct_exists 	=	$this->accounts_receivable->check_if_exists('id','chartaccount'," accountname = '$account' ");
+						$acct_count 	=	$acct_exists[0]->count;
+					
+						if(!empty($account)){
+							if( $acct_count <= 0 ) {
+								$errmsg[]	= "Account Name [<strong>$account</strong>] on <strong>row $line</strong> does not exist.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+						}else{
+							$errmsg[]	= "Account Name on <strong>row $line</strong> should not be empty.<br/>";
+							$errmsg		= array_filter($errmsg);
+						}
+						if( $key == 0 ){
+							// Check if Document Set is not empty. 
+							if($jvno == ""){
+								$errmsg[]	= "Document Set on <strong>row $line</strong> should not be empty.<br/>";
+								$errmsg		= array_filter($errmsg);
+							} else {
+								$voucherno		= $this->seq->getValue('AR');
+							}
+							// Check if Transaction Date is not Empty 
+							if($transdate == ''){
+								$errmsg[]	= "Transaction Date on <strong>row $line</strong> should not be empty.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+							// Check if Due Date is not Empty 
+							if($duedate == ''){
+								$errmsg[]	= "Due Date on <strong>row $line</strong> should not be empty.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+							//Check if Customer Code is not empty
+							if($customer == ''){
+								$errmsg[]	= "Customer on <strong>row $line</strong> should not be empty.<br/>";
+								$errmsg		= array_filter($errmsg);
+							} else {
+								//Check if Customer Code exists 
+								$cust_exists 	=	$this->accounts_receivable->check_if_exists('partnercode','partners'," partnercode = '$customer' ");
+								$cust_count 	=	$cust_exists[0]->count;	
+								if( $cust_count <= 0 ) {
+									$errmsg[]	= "Customer Code [<strong>$customer</strong>] on <strong>row $line</strong> does not exist.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+							}
+							//Check if Account is not empty
+							if($account == ''){
+								$errmsg[]	= "Account on <strong>row $line</strong> should not be empty.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+							//Check if Debit / Credit has an amount
+							if($debit == '' && $credit == ''){
+								$errmsg[]	= "Debit or Credit on <strong>$line</strong> should have a value.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+						} else {
+							if ($jvno == '') {
+								$jvno = $prev_no;
+							} else if ($jvno != $prev_no) {
+								$total_credit 	= 0;
+								$total_debit 	= 0;
+								$voucherno		= $this->seq->getValue('AR');
+							} 
+							if ($jvno == $prev_no) {
+								//Check Transaction Date if the same
+								if($transdate == ''){
+									$transdate 	= $prev_date;
+								} else {
+									//Checks if Transaction Date is the same for the same Document Set
+									if ($transdate != $prev_date) {
+										$errmsg[]	= "Transaction Date [<strong>$transdate</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
+										$errmsg		= array_filter($errmsg);
+									}
+									//Check if Transaction Date is not within Closed Date Period
+									if(($transdate!="") && $transdate <= $close_dates){
+										$errmsg[]	= "Transaction Date [<strong>$transdate</strong>] on <strong>row $line</strong> must not be within the Closed Period.<br/>";
+										$errmsg		= array_filter($errmsg);
+									}
+								}
+								//Check Due Date is the same
+								if($duedate == ''){
+									$duedate 	= $prev_duedate;
+								} else {
+									//Checks if Due Date is the same for the same Document Set
+									if ($duedate != $prev_duedate) {
+										$errmsg[]	= "Due Date [<strong>$duedate</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
+										$errmsg		= array_filter($errmsg);
+									}
+									//Check if Due Date is not within Closed Date Period
+									if($duedate <= $close_dates){
+										$errmsg[]	= "Due Date [<strong>$duedate</strong>] on <strong>row $line</strong> must not be within the Closed Period.<br/>";
+										$errmsg		= array_filter($errmsg);
+									}
+								}	
+								//Compare Transaction Date and Due Date. Due Date must not be earlier than Transaction date. 
+								if( ($duedate != "" && $transdate != "") && ($transdate > $duedate)){
+									$errmsg[]	= "Due Date [<strong>$duedate</strong>] on <strong>row $line</strong> must not be earlier than the Transaction Date [<strong>$transdate</strong>].<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+								//Check the Customer if the same
+								if($customer == ''){
+									$customer 	=	$prev_cust;
+								}  else {
+									//Checks if Customer is the same for the same Document Set
+									if ($customer != $prev_cust) {
+										$errmsg[]	= "Customer Code [<strong>$customer</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
+										$errmsg		= array_filter($errmsg);
+									}
+									//Check if Customer Code exists 
+									$cust_exists 	=	$this->accounts_receivable->check_if_exists('partnercode','partners'," partnercode = '$customer' ");
+									$cust_count 	=	$cust_exists[0]->count;	
+									if( $cust_count <= 0 ) {
+										$errmsg[]	= "Customer Code [<strong>$customer</strong>] on <strong>row $line</strong> does not exist.<br/>";
+										$errmsg		= array_filter($errmsg);
+									}
+								}
+								//Check the Invoice #
+								if($invoiceno == ''){
+									$invoiceno 	=	$prev_invno;
+								} else {
+									//Checks if the Invoice No is the same for the same Document Set
+									if ($invoiceno != $prev_invno) {
+										$errmsg[]	= "Invoice No. [<strong>$invoiceno</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
+										$errmsg		= array_filter($errmsg);
+									}
+								}
+								//Check the Reference #
+								if($reference == ''){
+									$reference 	=	$prev_ref;
+								} else {
+									//Checks if the Reference No. is the same for the same Document Set
+									if ($reference != $prev_ref) {
+										$errmsg[]	= "Reference No. [<strong>$reference</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
+										$errmsg		= array_filter($errmsg);
+									}
+								}
+								//Check the Notes
+								if($notes == ''){
+									$notes 	=	$prev_notes;
+								} else {
+									//Checks if the Notes is the same for the same Document Set
+									if ($notes != $prev_notes) {
+										$errmsg[]	= "Notes [<strong>$notes</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
+										$errmsg		= array_filter($errmsg);
+									}
+								}
+								//Check if Credit != 0 && Debit != 0
+								if( $total_credit == 0 && $total_debit == 0 ){
+									$errmsg[]	= "The Total Debit and Total Credit on <strong>row $line</strong> must have a value.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+							}
+						}
+
+						$total_credit 	+=	$credit;
+						$total_debit 	+=	$debit;
+
+						//Check if Debit Total == Credit Total
+						if ( ! isset($z[$key + 1]) || ($jvno != $z[$key + 1][0] && $z[$key + 1][0] != '')) {
+							$totaldebit[] 	= $total_debit;
+							$totalcredit[]	= $total_credit;
+							if ($total_credit != $total_debit){
+								$errmsg[]	= "The Total Debit and Total Credit on <strong>row $line</strong> must be equal.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+						}
+
+						if(empty($errmsg)){
+							$vouchlist[] 		= $voucherno;
+							$accountlist[] 		= $this->accounts_receivable->getAccountId($account);
+							$descriptions[] 	= $description;
+							$debitlist[] 		= $debit; 
+							$creditlist[] 		= $credit;
+
+							if( !isset($h_vouchlist) || !in_array($voucherno, $h_vouchlist) ){
+								$h_vouchlist[] 		= $voucherno;
+								$datelist[] 		= $transdate;
+								$duedatelist[] 		= $duedate;
+								$customerlist[] 	= $customer;
+								$invoicelist[] 		= $invoiceno;
+								$noteslist[] 		= $notes;
+								$referencelist[] 	= $reference;
+							}
+							// if( !isset($datelist) || !in_array($transdate, $datelist) ){	
+							// 	$datelist[] 		= $transdate;
+							// }
+							// if( !isset($duedatelist) || !in_array($duedate, $duedatelist) ){	
+							// 	$duedatelist[] 		= $duedate;
+							// }
+							// if( !isset($customerlist) || !in_array($customer, $customerlist) ){
+							// 	$customerlist[] 	= $customer;
+							// }
+							// if( !isset($invoicelist) || !in_array($invoiceno, $invoicelist) ){
+							// 	$invoicelist[] 		= $invoiceno;
+							// }
+ 						}
+
+						$prev_no 		= $jvno;
+						$prev_date		= $transdate;
+						$prev_duedate	= $duedate;
+						$prev_cust 		= $customer;
+						$prev_invno 	= $invoiceno;
+						$prev_ref 		= $reference;
+						$prev_notes 	= $notes;
+						
+						$line++;
+					}
+				}
+
+				if( empty($errmsg) ) {
+
+					$header 	=	array(
+						'voucherno' 		=> $h_vouchlist,
+						'transactiondate' 	=> $datelist,
+						'duedate' 			=> $duedatelist,
+						'customer' 			=> $customerlist,
+						'invoiceno' 		=> $invoicelist,
+						'referenceno'		=> $referencelist,
+						'particulars'		=> $noteslist,
+						'amount' 			=> $totaldebit,
+						'convertedamount' 	=> $totaldebit,
+						'balance' 			=> $totaldebit
+					); 
+					
+					foreach ($header['voucherno'] as $key => $row) {
+						$header['currencycode'][] 	= "PHP";
+						$header['exchangerate'][] 	= 1;
+						$header['stat'][] 			= "posted";
+						$header['transtype'][] 		= "AR";
+						$header['source'][] 		= "AR";
+						$header['lockkey'][] 	= "import";
+					}
+
+					foreach ($header['transactiondate'] as $key => $row) {
+						$period					= date("n",strtotime($row));
+						$fiscalyear				= date("Y",strtotime($row));
+						$header['period'][] 	= $period;
+						$header['fiscalyear'][] = $fiscalyear;
+					}	
+					// var_dump($header);
+
+					$proceed  			= $this->accounts_receivable->save_import("accountsreceivable",$header);
+					
+					$details = array(
+						'voucherno' 		=> $vouchlist,
+						'accountcode'		=> $accountlist,
+						'detailparticulars'	=> $descriptions,
+						'debit' 			=> $debitlist,
+						'credit' 			=> $creditlist,
+						'converteddebit' 	=> $debitlist,
+						'convertedcredit'	=> $creditlist
+					);
+
+					$linenum = 1;
+
+					foreach ($details['voucherno'] as $key => $row) {
+						$details['currencycode'][] 	= "PHP";
+						$details['exchangerate'][] 	= 1;
+						$details['linenum'][] 	= $linenum;
+						$details['stat'][] 		= "posted";
+						$details['transtype'][] = "AR";
+						$details['source'][] 	= "AR";
+						$linenum++;
+						if (isset($details['voucherno'][$key + 1]) && $details['voucherno'][$key + 1] != $row) {
+							$linenum = 1;
+						}
+					}
+
+					if($proceed){
+						$proceed 	=	$this->accounts_receivable->save_import("ar_details",$details);
+
+						if($proceed){
+							$this->logs->saveActivity("Imported Account Receivables.");
+						}
+					} 
+				}
+			}
+		}
+
+		$error_messages		= implode(' ', $errmsg);
+		$warning_messages	= implode(' ', $warning);
+
+		$resultArray 	=	 array("proceed" => $proceed,"errmsg"=>$error_messages, "warning"=>$warning_messages);
+		echo json_encode($resultArray);
 	}
 
 }

@@ -554,7 +554,7 @@
                         &nbsp;
                         <?}?>
                         
-                        <?if(empty($data["payments"])){?>
+                        <?if(empty($data["payments"]) && $data['checker'] != "import" ){?>
                         <a href="<?=BASE_URL?>financials/accounts_receivable/edit/<?=$sid?>" class="btn btn-primary btn-md btn-flat">Edit</a>
                         <?}?>
                     </div>
@@ -693,9 +693,12 @@
                                                 echo '</td>';
 
                                                 echo '<td class="text-center">';
-                                                echo (strtolower($checkstat) != 'cleared') ? '<button class="btn btn-default btn-xs" onClick="editPaymentRow(event,\'edit'.$row.'\');" title="Edit Payment" ><span class="glyphicon glyphicon-pencil"></span></button>
+                                                // echo (strtolower($checkstat) != 'cleared') ? '<button class="btn btn-default btn-xs" onClick="editPaymentRow(event,\'edit'.$row.'\');" title="Edit Payment" ><span class="glyphicon glyphicon-pencil"></span></button>
+                                                //     <button class="btn btn-default btn-xs" onClick="deletePaymentRow(event,\'delete'.$row.'\');" title="Delete Payment" ><span class="glyphicon glyphicon-trash"></span></button>
+                                                //     <a role="button" class="btn btn-default btn-xs" target="_blank" href="'.BASE_URL.'financials/receipt_voucher/print_preview/'.$paymentnumber.'" title="Print Receipt Voucher"><span class="glyphicon glyphicon-print"></span></a>' : '<a role="button" class="btn btn-default btn-xs" href="'.BASE_URL.'financials/receipt_voucher/print_preview/'.$paymentnumber.'" title="Print Receipt Voucher" ><span class="glyphicon glyphicon-print"></span></a>';
+                                                echo '<button class="btn btn-default btn-xs" onClick="editPaymentRow(event,\'edit'.$row.'\');" title="Edit Payment" ><span class="glyphicon glyphicon-pencil"></span></button>
                                                     <button class="btn btn-default btn-xs" onClick="deletePaymentRow(event,\'delete'.$row.'\');" title="Delete Payment" ><span class="glyphicon glyphicon-trash"></span></button>
-                                                    <a role="button" class="btn btn-default btn-xs" target="_blank" href="'.BASE_URL.'financials/receipt_voucher/print_preview/'.$paymentnumber.'" title="Print Payment Voucher"><span class="glyphicon glyphicon-print"></span></a>' : '<a role="button" class="btn btn-default btn-xs" href="'.BASE_URL.'financials/payment_voucher/print_preview/'.$paymentnumber.'" title="Print Payment Voucher" ><span class="glyphicon glyphicon-print"></span></a>';
+                                                    <a role="button" class="btn btn-default btn-xs" target="_blank" href="'.BASE_URL.'financials/receipt_voucher/print_preview/'.$paymentnumber.'" title="Print Receipt Voucher"><span class="glyphicon glyphicon-print"></span></a>';
                                                 echo '</td>';
 
                                         echo '</tr>';

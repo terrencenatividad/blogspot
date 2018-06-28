@@ -1,61 +1,27 @@
 <section class="content">
-	
-	<!-- Success Message for File Import -->
-	<?php
-		$file_import_msg = ($file_import_result) ? "<strong>Success!</strong> CSV file has been uploaded." : "Selected file was not uploaded successfully.";
-
-		if($file_import_result)
-		{
-			echo '<div class="alert alert-success alert-dismissable" id="success_alert">
-					<button type="button" class="close" data-dismiss="alert" >&times;</button>';
-			echo 	'"'.$file_import_msg.'"';
-			echo '</div>';
-		}
-	?>
-
 	<!-- Error Message for File Import -->
-	<?php
-		$errmsg		= array_filter($import_error_messages);
-		$errorcount	= count($errmsg);
+	<div class="alert alert-danger hidden" id="import_error">
+		<button type="button" class="link btn-sm close" >&times;</button>
+		<p>Ok, just a few more things we need to adjust for us to proceed :) </p><hr/>
+		<ul>
 
-		if($errorcount > 0)
-		{
-			echo '<div class="alert alert-warning alert-dismissable">
-					<button type="button" class="close" data-dismiss="alert" >&times;</button>';
-			echo 	"<strong>The system encountered the following error(s) in processing the file you've imported:</strong><hr/>";
-			echo	"<ul>";
-			foreach($errmsg as $errmsgIndex => $errmsgVal)
-			{
-				echo '<li>'.$errmsgVal.'</li>';
-			}		
-			echo	"</ul>";
-			echo '</div>';
-		}
-	?>
-
-
+		</ul>
+	</div>
     <div class="box box-primary">
 		<div class="box-header">
 			<div class="row">
 				<div class="col-md-8">
-					<div class="form-group">
-						<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create Accounts Receivable</a>
+					<!-- <div class="form-group">
+						<a href="<?//= MODULE_URL ?>create" class="btn btn-primary">Create Accounts Receivable</a>
 						&nbsp;
-						<!-- <div class="btn-group" id="option_buttons">
-							<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-								Options <span class="caret"></span>
-							</button>
-							<ul class="dropdown-menu" role="menu">
-								<li>
-									<a href = "#" id="export"><span class="glyphicon glyphicon-open"></span> Export Receivables</a>
-								</li>
-								<li>
-									<a href="javascript:void(0);" id="import"><span class="glyphicon glyphicon-save"></span> Import Receivables</a>
-								</li>
-							</ul>
-						</div> -->
+						<button type="button" id="import_ar" class="btn btn-info delete_button">Import<span></span></button>
 						<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Cancel<span></span></button>
-					</div>
+					</div> -->
+					<?
+						echo $ui->CreateNewButton('');
+						echo $ui->OptionButton('');
+					?>
+					<input type="button" id="item_multiple_delete" class="btn btn-danger btn-flat " value="Cancel">
 				</div>
 				<div class = "col-md-4">
 					<div class = "form-group">
@@ -113,7 +79,12 @@
 			</div>
 		</div>
 	</div>
-
+	<div class = "alert alert-warning alert-dismissable hidden">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<h4><strong>Warning!</strong></h4>
+		<div id = "errmsg"></div>
+		<div id = "warningmsg"></div>
+	</div>
 	<div class="nav-tabs-custom">
 		<ul id="filter_tabs" class="nav nav-tabs">
 			<li class="active"><a href="all" data-toggle="tab">All</a></li>
@@ -153,34 +124,40 @@
 </section>
 
 <!-- Import Modal -->
-<div class="import-modal">
-	<div class="modal">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<form method="POST" id="importForm" ENCTYPE="multipart/form-data">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true">×</span></button>
-						<h4 class="modal-title">Import Receivables</h4>
+<div class="modal fade" id="import-modal" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form method="POST" id="importForm" ENCTYPE="multipart/form-data">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span></button>
+					<h4 class="modal-title">Import Accounts Receivable</h4>
+				</div>
+				<div class="modal-body">
+					<label>Step 1. Download the sample template <a href="<?=MODULE_URL?>get_import" id="download-link" download="Accounts Receivable Template.csv" >here</a></label>
+					<hr/>
+					<label>Step 2. Fill up the information needed for each columns of the template.</label>
+					<hr/>
+					<div class="form-group">
+						<label for="import_csv">Step 3. Select the updated file and click 'Import' to proceed.</label>
+						<?php
+							echo $ui->setElement('file')
+									->setId('import_csv')
+									->setName('import_csv')
+									->setAttribute(array('accept' => '.csv'))
+									->setValidation('required')
+									->draw();
+						?>
+						<span class="help-block"></span>
 					</div>
-					<div class="modal-body">
-						<label>Step 1. Download the sample template <a href="<?=BASE_URL?>modules/financials_module/backend/view/pdf/import_payable.csv">here</a></label>
-						<hr/>
-						<label>Step 2. Fill up the information needed for each columns of the template.</label>
-						<hr/>
-						<div class="form-group field_col">
-							<label for="import_csv">Step 3. Select the updated file and click 'Import' to proceed.</label>
-							<input class = "form_iput" value = "" name = "import_csv" id = "import_csv" type = "file">
-							<span class="help-block hidden small" id = "import_csv_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
-						</div>
-						<p class="help-block">The file to be imported must be in CSV (Comma Separated Values) file.</p>
-					</div>
+					<p class="help-block">The file to be imported must be in CSV (Comma Separated Values) file.</p>
 					<div class="modal-footer text-center">
-						<button type="button" class="btn btn-primary btn-flat" id = "btnImport">Import</button>
-						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-info btn-flat" id = "btnImport">Import</button>
+						<button type="button" class="btn btn-default btn-flat" id="btnClose">Close</button>
 					</div>
-				</form>
-			</div>
+				</div>
+				
+			</form>
 		</div>
 	</div>
 </div>
@@ -236,25 +213,13 @@
 		ajax_call.abort();
 		getList();
 	});
-	$("#import").click(function() 
-	{
-		$(".import-modal > .modal").css("display", "inline");
-		$('.import-modal').modal();
-	});
-	$("#importForm #btnImport").click(function() 
-	{
-		var valid	= 0;
-		
-		valid	+= validateField('importForm','import_csv', "import_csv_help");
-
-		if(valid == 0)
-		{
-			$("#importForm").submit();
-		}
-	});
 	$("#export").click(function() 
 	{
 		window.location = '<?=BASE_URL?>financials/accounts_receivable/ajax/export?' + $.param(ajax);
+	});
+	$(".close").click(function() 
+	{
+		location.reload();
 	});
 	function ajaxCallback(id) {
 		var ids = getDeleteId(id);
@@ -262,7 +227,6 @@
 			getList();
 		});
 	}
-
 	$('#pagination').on('click', 'a', function(e) {
 		e.preventDefault();
 		ajax.page = $(this).attr('data-page');
@@ -276,5 +240,79 @@
 	$('body').on('click','.receive_payment',function(e){
 		var voucher = $(this).attr('data-id');
 		location.href = '<?=BASE_URL?>financials/accounts_receivable/view/'+voucher+'#payment';
+	});
+	// NO Export Yet
+	$('#export_id').addClass('hidden')
+	$('#import_id').prop('href','#import-modal');
+	$("#import_id").click(function() {
+		$("#import-modal > .modal").css("display", "inline");
+		$('#import-modal').modal();
+	});
+	$('#import-modal #btnClose').click(function(){
+		$('#import-modal #import-skip #loading').addClass('hidden');
+		$('#import-modal #import-proceed #loading').addClass('hidden');
+		$('#import-modal #import-step1').show();
+		$('#import-modal #import-step2').hide();
+		$('#import-modal').modal('hide');	
+	});
+	$('#importForm').on('change', '#import_csv', function() {
+		var filename = $(this).val().split("\\");
+		$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
+	});
+	$('#import-modal').on('show.bs.modal', function() {
+		var form_csv = $('#import_csv').val('').closest('.form-group').find('.form-control').html('').closest('.form-group').html();
+		$('#import_csv').closest('.form-group').html(form_csv);
+	});
+	$('#btnImport').on('click',function(e){
+		var formData =	new FormData();
+		formData.append('file',$('#import_csv')[0].files[0]);
+		ajax_call 	=	$.ajax({
+			url : '<?=MODULE_URL?>ajax/save_import',
+			data:	formData,
+			cache: 	false,
+			processData: false, 
+			contentType: false,
+			type: 	'POST',
+			success: function(response){
+				if(response && response.errmsg == ""){
+					$('#import-modal').modal('hide');
+					// $(".alert-warning").addClass("hidden");
+					// $("#errmsg").html('');
+					$("#import_error").addClass('hidden');
+					show_success_msg('Your data has been imported successfully.');
+				}else{
+					$('#import-modal').modal('hide');
+					show_error(response.errmsg, response.warning);
+				}
+			},
+		});
+	});
+	function show_error(msg, warning){
+		// $(".delete-modal").modal("hide");
+		// $(".alert-warning").removeClass("hidden");
+		// $("#errmsg").html(msg);
+		// $("#warningmsg").html(warning);
+		if(msg != ''){
+			var newmsg 	= msg.split("<br/>");
+			var errcnt	= newmsg.length;
+			var list 	= '';
+			for (let index = 0; index < errcnt; index++) {
+				if(newmsg[index] != ''){
+					list += '<li>'+newmsg[index]+'</li>';
+				}
+			}
+		}
+		$("#import_error").removeClass('hidden');
+		$("#import_error ul").html(list);
+
+		$('html,body').animate({ scrollTop: (0) }, 'slow');
+	}
+	function show_success_msg(msg){
+		$('#success_modal #message').html(msg);
+		$('#success_modal').modal('show');
+	}
+	$('body').on('click','#success_modal .btn-success', function(){
+		$('#success_modal').modal('hide');
+		getList();
 	});
 </script>

@@ -995,8 +995,8 @@
 <script>
 function addCustomerToDropdown() 
 {
-	var optionvalue = $("#customer_modal #supplierForm #partnercode").val();
-	var optiondesc 	= $("#customer_modal #supplierForm #partnername").val();
+	var optionvalue = $("#customer_modal #customerForm #partnercode").val();
+	var optiondesc 	= $("#customer_modal #customerForm #partnername").val();
 
 	$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#receivableForm #customer option");
 	$('#receivableForm #customer').val(optionvalue);
@@ -1019,7 +1019,7 @@ $('#customer_button').click(function()
 <?php
 	echo $ui->loadElement('modal')
 		->setId('customer_modal')
-		->setContent('maintenance/supplier/create')
+		->setContent('maintenance/customer/create')
 		->setHeader('Add a Customer')
 		->draw();
 ?>
