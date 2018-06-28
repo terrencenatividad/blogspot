@@ -1143,6 +1143,7 @@ class controller extends wc_controller
 									->setName('detailparticulars['.$row.']')
 									->setId('detailparticulars['.$row.']')
 									->setAttribute(array("maxlength" => "100"))
+									->setClass('description')
 									->setValue($detailparticulars)
 									->draw($show_input).
 							'</td>';
