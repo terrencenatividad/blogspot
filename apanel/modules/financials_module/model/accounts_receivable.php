@@ -46,7 +46,7 @@ class accounts_receivable extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, customer, referenceno, particulars, duedate, amount, balance, exchangerate, convertedamount, invoiceno";
+		$setFields = "voucherno, transactiondate, customer, referenceno, particulars, duedate, amount, balance, exchangerate, convertedamount, invoiceno, lockkey as importchecker";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -278,7 +278,7 @@ class accounts_receivable extends wc_model
 		$add_query .= (!empty($vendfilter) && $vendfilter != 'none') ? "AND p.partnercode = '$vendfilter' " : "";
 		$add_query .= $addCondition;
 
-		$main_fields = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount","main.balance as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS customer");
+		$main_fields = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount","main.balance as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS customer","main.lockkey as importchecker");
 		$main_join   = "partners p ON p.partnercode = main.customer"; //AND p.companycode
 		$main_table  = "accountsreceivable as main";
 		$main_cond   = "main.stat = 'posted' $add_query";
@@ -565,6 +565,40 @@ class accounts_receivable extends wc_model
 			else
 				$errmsg[] = "<li>At least one entry should be a receivable account. Please refer to your Chart of Accounts</li>";
 
+		}
+
+		/**
+		 * Update receivable amount based on receivable accounts
+		 */
+		if(!is_null($tempAccArr) && !empty($tempAccArr)){
+
+			$accountlist 			= "'".implode("','",$tempAccArr)."'";
+
+			$sum_receivable_account = $this->db->setTable("ar_details main")
+									->setFields(
+										array(
+											"SUM(debit) debit",
+											"SUM(credit) credit",
+											"SUM(converteddebit) converteddebit",
+											"SUM(convertedcredit) convertedcredit"
+										)
+									)
+									->leftJoin("chartaccount chart ON chart.id = main.accountcode")
+									->setGroupBy("main.accountcode")
+									->setWhere("chart.accountclasscode = 'ACCREC' AND main.accountcode IN($accountlist) AND main.voucherno = '$voucherno' ")
+									->runSelect()
+									->getResult();
+			$receivable_amount				= 0;
+			$receivable_convertedamount	= 0;						
+			if($sum_receivable_account){
+				$receivable_amount 			= ($sum_receivable_account[0]->credit != 0) ? $sum_receivable_account[0]->credit : $sum_receivable_account[0]->debit;
+				$receivable_convertedamount	= ($sum_receivable_account[0]->convertedcredit != 0) ? $sum_receivable_account[0]->convertedcredit : $sum_receivable_account[0]->converteddebit;
+			}
+			
+			$post_header['amount']			= $receivable_amount;
+			$post_header['convertedamount']	= $receivable_convertedamount;
+			$post_header['balance']			= $receivable_convertedamount;
+		
 		}
 
 		/**INSERT HEADER**/
@@ -1571,4 +1605,28 @@ class accounts_receivable extends wc_model
 
 	}
 
+	public function check_if_exists($column, $table, $condition) {
+		return $this->db->setTable($table)
+						->setFields("COUNT(".$column.") count")
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
+	}
+
+	public function getAccountId($accountname) {
+		$result = $this->db->setTable('chartaccount')
+							->setFields("id")
+							->setWhere("accountname = '$accountname'")
+							->runSelect()
+							->getResult();
+							
+		return $result[0]->id;
+	}
+	
+	public function save_import($table, $posted_data){
+		$result = $this->db->setTable($table)
+				->setValuesFromPost($posted_data)
+				->runInsert();
+		return $result;
+	}
 }
