@@ -448,6 +448,7 @@
 												->setName('detailparticulars['.$row.']')
 												->setId('detailparticulars['.$row.']')
 												->setAttribute(array("maxlength" => "100"))
+												->setClass('description')
 												->setValue($detailparticulars)
 												->draw($show_input);
 									?>
@@ -498,6 +499,7 @@
 												->setValue($accountcode)
 												->draw($show_input);
 									?>
+									<input type = "hidden" class="h_accountcode" name='h_accountcode[<?=$row?>]' id='h_accountcode[<?=$row?>]'>
 								</td>
 								<td>
 									<?php
@@ -506,6 +508,7 @@
 												->setName('detailparticulars['.$row.']')
 												->setId('detailparticulars['.$row.']')
 												->setAttribute(array("maxlength" => "100"))
+												->setClass('description')
 												->setValue($detailparticulars)
 												->draw($show_input);
 									?>
@@ -574,6 +577,7 @@
 															->setName('detailparticulars['.$row.']')
 															->setId('detailparticulars['.$row.']')
 															->setAttribute(array("maxlength" => "100"))
+															->setClass('description')
 															->setValue($detailparticulars)
 															->draw($show_input);
 											$detail_row	.= '</td>';
@@ -2544,6 +2548,14 @@ function clearChequePayment(){
 	setChequeZero();
 }
 
+function clear_acct_input(){
+	$('.accountcode').val('').change();
+	$('.description').val('');
+	$('.debit').val('0.00');
+	$('.credit').val('0.00');
+	addAmountAll('debit');
+	addAmountAll('credit');
+}
 
 $(document).ready(function() {
 	// Call toggleExchangeRate
@@ -3442,7 +3454,7 @@ $(document).ready(function() {
 								label: "OK",
 								className: "btn-primary btn-flat",
 								callback: function(result) {
-									$('.accountcode').val('').change();
+									clear_acct_input();
 								}
 						}
 					}
@@ -3456,7 +3468,7 @@ $(document).ready(function() {
 						label: "OK",
 						className: "btn-primary btn-flat",
 						callback: function(result) {
-								$('.accountcode').val('').change();
+								clear_acct_input();
 							}
 						}
 					}
