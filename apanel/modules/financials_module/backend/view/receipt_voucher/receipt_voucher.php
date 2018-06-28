@@ -252,7 +252,7 @@
 									?>
 								</td>
 								<td class="text-center">
-									<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+									<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
 								</td>
 							</tr>
 							<?else:
@@ -478,7 +478,7 @@
 									?>
 								</td>
 								<td class="text-center">
-									<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash" id="<?=$row?>"></span></button>
+									<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>"  id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash" id="<?=$row?>"></span></button>
 								</td>
 							</tr>
 
@@ -538,7 +538,7 @@
 									?>
 								</td>
 								<td class="text-center">
-									<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+									<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
 								</td>
 							</tr>
 
@@ -607,7 +607,7 @@
 
 											if( $show_input ){
 												$detail_row .= '<td class="text-center">';
-												$detail_row .= '	<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"><span class="glyphicon glyphicon-trash"></span></button>';
+												$detail_row .= '	<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="'.$row.'" id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"><span class="glyphicon glyphicon-trash"></span></button>';
 												$detail_row .= '</td>';
 											}
 
@@ -1053,6 +1053,7 @@ $('#chequeTable .cheque_account').on('change', function()  {
 	cheque_arr.forEach(function(account) {
 		if( row == 1 ){
 			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
+			$("#entriesTable button#"+row).prop('disabled',true);
 		} else {
 			var ParentRow = $("#entriesTable tbody tr.clone").first();
 			if($('#entriesTable tbody tr.added_row').length){

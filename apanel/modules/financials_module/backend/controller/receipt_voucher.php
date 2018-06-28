@@ -705,22 +705,42 @@ class controller extends wc_controller
 		return $dataArray;
 	}
 
-	private function ajax_update()
-	{
+	private function ajax_post() {
 		$id 			= $this->input->post('id');
 		$type 			= $this->input->post('type');
 
-		$data['stat']	= ($type == 'post') ? 'posted' : 'open';
+		$data['stat']	= "posted";
 		$result 		= $this->receipt_voucher->editData($data, "receiptvoucher", "voucherno = '$id'");
-		$type 			= ($type == 'post') ? 'post' : 'unpost';
+		$type 			= 'post';
 
 		if($result){
 			$this->receipt_voucher->editData($data, "rv_details", "voucherno = '$id'");
 			$code 	= 1; 
-			$msg 	= "Successfully ".$type."ed voucher ".$id;
+			$msg 	= "Successfully Posted Voucher ".$id;
 		}else{
 			$code 	= 0; 
-			$msg 	= "Sorry, the system was unable to ".$type." the voucher.";
+			$msg 	= "Sorry, the system was unable to Post the Voucher.";
+		}
+
+		$dataArray = array("code" => $code,"msg"=> $msg );
+		return $dataArray;
+	}
+
+	private function ajax_unpost() {
+		$id 			= $this->input->post('id');
+		$type 			= $this->input->post('type');
+
+		$data['stat']	= "open";
+		$result 		= $this->receipt_voucher->editData($data, "receiptvoucher", "voucherno = '$id'");
+		$type 			= 'unpost';
+
+		if($result){
+			$this->receipt_voucher->editData($data, "rv_details", "voucherno = '$id'");
+			$code 	= 1; 
+			$msg 	= "Successfully Unposted Voucher ".$id;
+		}else{
+			$code 	= 0; 
+			$msg 	= "Sorry, the system was unable to Unpost the Voucher.";
 		}
 
 		$dataArray = array("code" => $code,"msg"=> $msg );
@@ -1140,7 +1160,7 @@ class controller extends wc_controller
 									->draw($show_input).
 							'</td>';
 				$table  .= '<td class="text-center">
-								<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id='.$row.' name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"><span class="glyphicon glyphicon-trash"></span></button>
+								<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id='.$row.' id='.$row.' name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"><span class="glyphicon glyphicon-trash"></span></button>
 							</td>';
 
 				$table .= '</tr>';
