@@ -128,13 +128,12 @@ class balance_sheet_model extends wc_model {
 
 	private function buildStructure($data) {
 		$y				= array();
-		$asset1_array		= array('OTHCA', 'ACCREC', 'CASH', 'PREPAID', 'INV', 'VAT');
-		$asset2_array		= array('OTHNCA', 'PPE');
-		$liability1_array	= array('OTHCL', 'ACCPAY', 'TAX');
-		$liability2_array	= array('LTP');
+		$asset1_array		= array('OTHCA', 'CUASET', 'ACCREC', 'CASH', 'PREPAID', 'INV', 'NVNTRY', 'VAT', 'INPVAT','OUTVAT');
+		$asset2_array		= array('OTHNCA', 'NCASET', 'PPE');
+		$liability1_array	= array('OTHCL', 'CULIAB', 'ACCPAY', 'TAX');
+		$liability2_array	= array('LTP', 'NCLIAB');
 		$equity_array		= array('EQUITY');
-		$earning_array		= array('COST', 'EXP', 'INTAX');
-		
+		$earning_array		= array('COST', 'COSTSA', 'EXP', 'OPSEXP', 'OTREXP', 'INTAX', 'INCTAX');	
 		$data_key = 0;
 		foreach ($data as $key => $val) {
 			if (count($data[$data_key]) < count($val)) {

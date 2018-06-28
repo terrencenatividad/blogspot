@@ -31,30 +31,35 @@
 		</div>
 		<div class="nav-tabs-custom">
 			<ul id="filter_tabs" class="nav nav-tabs">
-				<li class="<?echo ($tab == 'output_tab') ? 'active' : '';?>"><a href="#Output" id="output_tab" role="tab" data-toggle="tab">Sales</a></li>
-				<li class="<?echo ($tab == 'input_tab') ? 'active' : '';?>"><a href="#Input" id="input_tab" role="tab" data-toggle="tab">Purchase / Billing</a></li>
 				<li class="<?echo ($tab == 'summary_tab') ? 'active' : '';?>"><a href="#Summary" id="summary_tab" role="tab" data-toggle="tab">Summary</a></li>
+				<li class="<?echo ($tab == 'output_tab') ? 'active' : '';?>"><a href="#Output" id="output_tab" role="tab" data-toggle="tab">Sales</a></li>
+				<li class="<?echo ($tab == 'input_tab') ? 'active' : '';?>"><a href="#Input" id="input_tab" role="tab" data-toggle="tab">Purchase / Billing</a></li>	
 			</ul>
 			<div class="tab-content no-padding">
-				<div id="Output" class="tab-pane table-responsive scroll <?echo ($tab == 'output_tab') ? 'active' : '';?>">
+				<div id="Summary" class="tab-pane <?echo ($tab == 'summary_tab') ? 'active' : '';?>">
+					<?php echo $summary_view ?>
+				</div>
+				<div id="Output" class="tab-pane <?echo ($tab == 'output_tab') ? 'active' : '';?>">
 					<?php echo $sales_view ?>
 				</div>
 				<div id="Input" class="tab-pane <?echo ($tab == 'input_tab') ? 'active' : '';?>">
 					<?php echo $purchase_view ?>
 				</div>
-				<div id="Summary" class="tab-pane <?echo ($tab == 'summary_tab') ? 'active' : '';?>">
-					<?php echo $summary_view ?>
-				</div>
+				
 			</div>
 		</div>
 	</section>
 	</form>
 	<script>
 		
-		$('#daterangefilter').on('apply.daterangepicker', function(ev, picker) {
+		// $('#daterangefilter').on('apply.daterangepicker', function(ev, picker) {
+		// 	$('#vat_summary_form').submit();
+		// });
+		
+		$('#daterangefilter').on('change', function() {
 			$('#vat_summary_form').submit();
 		});
-
+		
 		$('#export').click(function() {
 			var daterangefilter = $('#daterangefilter').val();
 
@@ -67,9 +72,9 @@
 			$('#vat_summary_form').submit();
 		});
 
-		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-			$('#vat_summary_form #tab').val(this.id);
-			$('#vat_summary_form').submit();
-		});
+		// $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+		// 	$('#vat_summary_form #tab').val(this.id);
+		// 	$('#vat_summary_form').submit();
+		// });
 		
 	</script>

@@ -13,12 +13,12 @@ class controller extends wc_controller {
 	public function view() {
 		$this->report_model = new report_model;
     	$this->report_model->generateBalanceTable();
-
-		$daterange 	= $this->input->post('daterange');
-		$tab 		= $this->input->post('tab');
 		
+		$daterange 	= $this->input->post('daterangefilter');
+		$tab 		= $this->input->post('tab');
+
 		$daterange 	= ($daterange) ? $daterange : date("M 1, Y")." - ".date("M t, Y");
-		$tab 		= ($tab) ? $tab : 'output_tab';
+		$tab 		= ($tab) ? $tab : 'summary_tab';
 		
 		$this->view->title = 'VAT Summary';
 		

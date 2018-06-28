@@ -47,13 +47,13 @@ class report_model extends wc_model {
 			$pv = $this->db->setTable('paymentvoucher a')
 							->innerJoin('pv_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
 							->setFields(array_merge($fields, array('vendor')))
-							->setWhere("a.stat = 'posted'")
+							->setWhere("(a.stat = 'open' OR a.stat = 'posted')")
 							->buildSelect();
 							
 			$rv = $this->db->setTable('receiptvoucher a')
 							->innerJoin('rv_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
 							->setFields(array_merge($fields, array('customer')))
-							->setWhere("a.stat = 'posted'")
+							->setWhere("(a.stat = 'open' OR a.stat = 'posted')")
 							->buildSelect();
 							
 			$jv = $this->db->setTable('journalvoucher a')
