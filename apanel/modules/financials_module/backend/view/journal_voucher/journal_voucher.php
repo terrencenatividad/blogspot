@@ -130,7 +130,9 @@
 					<div class="row">
 						<div class="col-md-12 text-center">
 							<?php
-								echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
+								if( $checker!="closing" && $checker!="import" ){
+									echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
+								}
 								echo $ui->drawCancel();
 							?>
 						</div>

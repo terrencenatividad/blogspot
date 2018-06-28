@@ -123,6 +123,33 @@ class journal_voucher_model extends wc_model {
 						->getRow();
 	}
 
+	public function checkIfClosing($voucherno){
+		$result 	=	$this->db->setTable('journalvoucher')
+								->setFields('source')
+								->setWhere("voucherno = '$voucherno' AND stat != 'cancelled'")
+								->runSelect()
+								->getRow();
+
+		$closing 	=	false;						
+		if($result->source == 'closing'){
+			$closing 	=	true;
+		}
+		
+		return $closing;
+	}
+	
+	public function getLatestClosedDate(){
+		$result 	=	$this->db->setTable('journalvoucher')
+								 ->setFields('transactiondate closed_date')
+								 ->setWhere("source = 'closing' AND stat != 'cancelled'")
+								 ->setOrderBy('transactiondate DESC')
+								 ->runSelect()
+								 ->getRow();
+
+		return $result;
+
+	}
+
 	public function getJournalVoucherPagination($fields, $search, $sort, $datefilter) {
 		$sort = ($sort) ? $sort : 'transactiondate desc';
 		$condition = "transtype = 'JV' and stat = 'posted' ";
@@ -137,7 +164,7 @@ class journal_voucher_model extends wc_model {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
 		}
 		$result = $this->db->setTable("journalvoucher")
-						->setFields("transactiondate, voucherno, referenceno, amount")
+						->setFields("transactiondate, voucherno, referenceno, amount, source as checker")
 						->setWhere($condition)
 						->setOrderBy($sort)
 						->runPagination();
@@ -229,6 +256,43 @@ class journal_voucher_model extends wc_model {
 			$temp[] = $arr . " LIKE '%" . str_replace(' ', '%', $search) . "%'";
 		}
 		return '(' . implode(' OR ', $temp) . ')';
+	}
+
+	public function getImportList(){
+		return	$this->db->setTable('items')
+						->setFields('items.itemcode as itemcode, items.itemname as name, w.description as warehouse')
+						->leftJoin("warehouse w ON w.companycode = items.companycode")
+						->leftJoin("invfile inv ON inv.itemcode = items.itemcode AND w.warehousecode = inv.warehouse AND w.companycode = inv.companycode")
+						//->setWhere("inv.onhandQty IS NULL")
+						->setOrderBy('items.itemcode')
+						->runSelect()
+						->getResult();
+	}
+
+	public function check_if_exists($column, $table, $condition)
+	{
+		return $this->db->setTable($table)
+						->setFields("COUNT(".$column.") count")
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
+	}
+
+	public function save_import($table, $posted_data){
+		$result = $this->db->setTable($table)
+				->setValuesFromPost($posted_data)
+				->runInsert();
+		return $result;
+	}
+
+	public function getAccountId($accountname) {
+		$result = $this->db->setTable('chartaccount')
+							->setFields("id")
+							->setWhere("accountname = '$accountname'")
+							->runSelect()
+							->getResult();
+							
+		return $result[0]->id;
 	}
 
 }
