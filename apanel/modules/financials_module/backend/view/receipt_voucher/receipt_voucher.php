@@ -263,7 +263,6 @@
 										
 										$accountcode 	=	$cheque['chequeaccount'];
 										$bank	 		=	$cheque['bank'];
-									
 										$chequeno	 	=	$cheque['chequenumber'];
 										$chequedate 	=	$cheque['chequedate'];
 										$chequeamount 	=	$cheque['chequeamount'];
@@ -983,53 +982,15 @@ var newid 		= table.rows.length;
 
 var task 		= '<?= $task ?>';
 
-function update_check_amount(){
-	cheques_obj = getCheckAccounts();
-	$('#entriesTable tbody .accountcode').each(function() {
-		if (typeof cheques_obj[$(this).val()] === 'undefined') {
-		} else {
-			$(this).closest('tr').find('.account_amount').val(addComma(cheques_obj[$(this).val()]));
-		}
-	});
-}
-
-// $('#chequeTable .cheque_account').on('change', function()  {
-// 	var val = $(this).val();
-// 	var id 	= $(this).attr("id");
-// 		id 	= id.replace(/[a-z\[\]]/g, '');
-		
-// 	// Get length of ap_items
-// 	var table 		= document.getElementById('ap_items');
-// 	var newid 		= table.rows.length + 1;
-// 		newid 		= parseFloat(newid);
-
-// 	// Set value for PV Details
-// 	var found_same = false;
-	
-// 	$('#entriesTable tbody .added_row').each(function() {
-// 		var accountcode = $(this).find('.accountcode').val();
-// 		if(val == accountcode){
-// 			found_same = true;
+// function update_check_amount(){
+// 	cheques_obj = getCheckAccounts();
+// 	$('#entriesTable tbody .accountcode').each(function() {
+// 		if (typeof cheques_obj[$(this).val()] === 'undefined') {
+// 		} else {
+// 			$(this).closest('tr').find('.account_amount').val(addComma(cheques_obj[$(this).val()]));
 // 		}
 // 	});
-	
-// 	if (found_same) {
-		
-// 	}else{
-// 		$('#entriesTable tbody tr.clone select').select2('destroy');
-// 		var clone = $("#entriesTable tbody tr.clone:first").clone(true);
-
-// 		var ParentRow = $("#entriesTable tbody").find("#accountcode\\["+ (id - 1) +"\\]").closest('tr.clone');
-// 		clone.clone(true).insertAfter(ParentRow);                                                                          
-// 		resetIds();
-
-// 		$('#entriesTable tbody tr.clone select').select2({width: "100%"});
-// 		var accountcode = $("#accountcode\\["+ id +"\\]").val(val).trigger('change.select2');
-// 		$("#accountcode\\["+ (id-1) +"\\]").closest('tr').addClass('added_row');
-// 	}
-// 	accounts.push(val);
-// 	return found_same;
-// });
+// }
 
 var clone_acct 	= $('#entriesTable tbody tr.clone:first')[0].outerHTML;
 
@@ -1052,22 +1013,40 @@ $('#chequeTable .cheque_account').on('change', function()  {
 	var row = 1;
 	cheque_arr.forEach(function(account) {
 		if( row == 1 ){
+			console.log($("#entriesTable tbody tr.clone select option:selected").length);
+			if($("#entriesTable tbody tr.clone").length == 1){
+				$("#entriesTable tbody tr.clone").last().before(clone_acct);
+			} else {
+				$('#entriesTable tbody tr.clone .accountcode').each(function() {
+					var account = $(this).val();
+					if(account == ""){
+						$(this).closest('tr').remove();
+					}
+				});
+
+				$("#entriesTable tbody tr.clone").first().before(clone_acct);
+			}
+			resetIds();
 			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 			$("#entriesTable button#"+row).prop('disabled',true);
+			$("#entriesTable debit#"+row).prop('disabled',true);
 		} else {
 			var ParentRow = $("#entriesTable tbody tr.clone").first();
 			if($('#entriesTable tbody tr.added_row').length){
 				ParentRow = $("#entriesTable tbody tr.added_row").last();
 			}
 			ParentRow.after(clone_acct);
-			resetIds();
-			$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
-			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 		}
+		resetIds();
+		$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
+		$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 		disable_acct_fields(row);
 		row++;
 	});
+
 	accounts.push(val);
+	recomputechequeamts();
+	acctdetailamtreset();
 	drawTemplate();
 });
 
@@ -1085,6 +1064,7 @@ function acctdetailamtreset(){
 			$(this).find('.accountcode').val('').trigger('change');
 			$(this).find('.debit').val('0.00');
 			$(this).find('.credit').val('0.00');
+			$(this).closest('tr').find('.h_accountcode').val('');	
 			resetIds();
 		} else {
 			if(!checker.hasOwnProperty('acc-'+accountcode)){
@@ -1092,24 +1072,27 @@ function acctdetailamtreset(){
 			}
 		}
 	});
-	$('#entriesTable tbody tr select.accountcode').each(function() {
-		if (typeof checker['acc-' + $(this).val()] === 'undefined') {
-		} else {
-			var ca = checker['acc-' + $(this).val()] || '0.00';
-			$(this).closest('tr').find('.account_amount').val(addComma(ca));	
-			$(this).closest('tr').find('.h_accountcode').val($(this).val());	
-		}	
-	});
+		$('#entriesTable tbody tr select.accountcode').each(function() {
+			if (typeof checker['acc-' + $(this).val()] === 'undefined') {
+			} else {
+				var ca = checker['acc-' + $(this).val()] || '0.00';
+				$(this).closest('tr').find('.account_amount').val(addComma(ca));	
+				$(this).closest('tr').find('.h_accountcode').val($(this).val());	
+			}	
+		});
 }
 function recomputechequeamts(){
 	checker = [];
 	$('#chequeTable .cheque_account').each(function() {
 		var account = $(this).val();
 		var ca = $(this).closest('tr').find('.chequeamount').val();
-		if (typeof checker['acc-' + account] === 'undefined') {
-			checker['acc-' + account] = 0;
+			ca = ca.replace(/,/g,'');
+		if(account!=''){
+			if (typeof checker['acc-' + account] === 'undefined') {
+				checker['acc-' + account] = 0;
+			}
+			checker['acc-' + account] += parseFloat(ca);
 		}
-		checker['acc-' + account] += parseFloat(ca);
 	});
 }
 
@@ -1243,11 +1226,13 @@ function resetIds() {
 		var row = table.rows[i];
 		
 		row.cells[0].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].id 	= 'h_accountcode['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
 		row.cells[2].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
 		
 		row.cells[0].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].name = 'h_accountcode['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
 		row.cells[2].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
@@ -1276,7 +1261,7 @@ function resetChequeIds() {
 		row.cells[4].getElementsByTagName("input")[0].id 	= 'chequeamount['+x+']';
 		
 		row.cells[0].getElementsByTagName("select")[0].name = 'chequeaccount['+x+']';
-		row.cells[1].getElementsByTagName("input")[0].name 	= 'chequenumber['+x+']';
+		row.cells[1].getElementsByTagName("input")[0].name 	= 'bank['+x+']';
 		row.cells[2].getElementsByTagName("input")[0].name 	= 'chequenumber['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].name 	= 'chequedate['+x+']';
 		row.cells[4].getElementsByTagName("input")[0].name 	= 'chequeamount['+x+']';
@@ -1296,15 +1281,16 @@ function resetChequeIds() {
 }
 
 /**SET TABLE ROWS TO DEFAULT VALUES**/
-function setZero() {
+function setZero(offset) {
 	resetIds();
 
 	var table 		= document.getElementById('entriesTable');
-	var newid 		= table.rows.length - 3;
+	var newid 		= table.rows.length - offset;
 	var account		= document.getElementById('accountcode['+newid+']');
 
 	if(document.getElementById('accountcode['+newid+']') != null) {
 		document.getElementById('accountcode['+newid+']').value 		= '';
+		document.getElementById('h_accountcode['+newid+']').value 		= '';
 		document.getElementById('detailparticulars['+newid+']').value 	= '';
 		document.getElementById('debit['+newid+']').value 				= '0.00';
 		document.getElementById('credit['+newid+']').value 				= '0.00';
@@ -2483,7 +2469,6 @@ function loadCheques(i){
 			// var chequeconvertedamount	= arr_from_json[x]['chequeconvertedamount'];
 
 			$('#payableForm #chequeaccount\\['+row+'\\]').val(chequeaccount).trigger("change");
-
 			$('#payableForm #chequenumber\\['+row+'\\]').val(chequenumber);
 			$('#payableForm #chequedate\\['+row+'\\]').val(chequedate);
 			$('#payableForm #chequeamount\\['+row+'\\]').val(chequeamount);
@@ -2551,6 +2536,7 @@ function clearChequePayment(){
 
 function clear_acct_input(){
 	$('.accountcode').val('').change();
+	$('.h_accountcode').val($(this).val());	
 	$('.description').val('');
 	$('.debit').val('0.00');
 	$('.credit').val('0.00');
@@ -2565,19 +2551,19 @@ $(document).ready(function() {
 	});
 
 	// For adding new rol
-	$('body').on('click', '.add-data', function() {	
-		$('#itemsTable tbody tr.clone select').select2('destroy');
+	// $('body').on('click', '.add-data', function() {	
+	// 	$('#itemsTable tbody tr.clone select').select2('destroy');
 		
-		var clone = $("#itemsTable tbody tr.first_row.clone:first").clone(true); 
+	// 	var clone = $("#itemsTable tbody tr.first_row.clone:first").clone(true); 
 
-		var ParentRow = $("#itemsTable tbody tr.clone").last();
+	// 	var ParentRow = $("#itemsTable tbody tr.clone").last();
 
-		clone.clone(true).insertAfter(ParentRow);
+	// 	clone.clone(true).insertAfter(ParentRow);
 		
-		setZero();
+	// 	setZero();
 		
-		$('#itemsTable tbody tr.clone select').select2({width: "100%"});
-	});
+	// 	$('#itemsTable tbody tr.clone select').select2({width: "100%"});
+	// });
 	
 	/**ADD NEW BANK ROW**/
 	$('body').on('click', '.add-cheque', function() {
@@ -2595,7 +2581,7 @@ $(document).ready(function() {
 		$('#chequeTable tbody tr.clone:last .input-group.date ').datepicker({ format: 'M dd, yyyy', autoclose: true });
 
 		// Trigger add new line .add-data
-		$(".add-data").trigger("click");
+		// $(".add-data").trigger("click");
 
 	});
 
@@ -2892,14 +2878,24 @@ $(document).ready(function() {
 				addAmountAll('debit');
 			} else {	
 				document.getElementById('chequeaccount['+row+']').value 	= '';
-
-				$('#chequeaccount\\['+row+'\\]').trigger("change.select2");
-				
+				document.getElementById('bank['+row+']').value 				= '';
 				document.getElementById('chequenumber['+row+']').value 		= '';
 				document.getElementById('chequedate['+row+']').value 		= '<?= $transactiondate ?>';//today();
 				document.getElementById('chequeamount['+row+']').value 		= '0.00';
 				
 				checker['acc-'+account] 	-=	acctamt;	
+
+				$('#chequeaccount\\['+row+'\\]').trigger("change.select2");
+
+				$('#entriesTable #accountcode\\['+row+'\\]').val('').trigger('change');
+				$('#entriesTable #detailparticulars\\['+row+'\\]').val('');
+				$('#entriesTable #debit\\['+row+'\\]').val('0.00');
+				$('#entriesTable #credit\\['+row+'\\]').val('0.00');
+
+				$("#entriesTable button#"+row).prop('disabled',false);
+				$('#entriesTable #accountcode\\['+row+'\\]').prop('disabled',false);
+				$('#entriesTable #debit\\['+row+'\\]').prop('disabled',false);
+
 				recomputechequeamts();
 				acctdetailamtreset();
 				resetChequeIds();
@@ -2924,14 +2920,24 @@ $(document).ready(function() {
 			else
 			{
 				document.getElementById('chequeaccount['+row+']').value 	= '';
-				
-				$('#chequeaccount\\['+row+'\\]').trigger("change.select2");
-
+				document.getElementById('bank['+row+']').value 				= '';
 				document.getElementById('chequenumber['+row+']').value 		= '';
 				document.getElementById('chequedate['+row+']').value 		= '<?= $transactiondate ?>';//today();
 				document.getElementById('chequeamount['+row+']').value 		= '0.00';
 				
 				checker['acc-'+account] 	-=	acctamt;	
+
+				$('#chequeaccount\\['+row+'\\]').trigger("change.select2");
+
+				$('#entriesTable #accountcode\\['+row+'\\]').val('').trigger('change');
+				$('#entriesTable #detailparticulars\\['+row+'\\]').val('');
+				$('#entriesTable #debit\\['+row+'\\]').val('0.00');
+				$('#entriesTable #credit\\['+row+'\\]').val('0.00');
+
+				$("#entriesTable button#"+row).prop('disabled',false);
+				$('#entriesTable #accountcode\\['+row+'\\]').prop('disabled',false);
+				$('#entriesTable #debit\\['+row+'\\]').prop('disabled',false);
+
 				recomputechequeamts();
 				acctdetailamtreset();
 				resetChequeIds();
@@ -3394,18 +3400,20 @@ $(document).ready(function() {
 
 	// Isabelle -  eto ung pag clone ng td sa may accounting details 
 	$('body').on('click', '.add-entry', function()  {	
-		if ($('#entriesTable tbody tr.clone select').data('select2')) {
-			$('#entriesTable tbody tr.clone select').select2('destroy');
-		}
-		var clone = $("#entriesTable tbody tr.clone:first");
-
+		var clone = $("#entriesTable tbody tr.clone:last");
 		var ParentRow = $("#entriesTable tbody tr.clone").last();
-
-		clone.clone(true).insertAfter(ParentRow);
+		var pv_amount = $('#pv_amount').html();
+		var offset 	  = 3;
+		if(parseFloat(pv_amount) > 0){
+			ParentRow.before(clone_acct);
+			offset 	  = 4;
+		} else {
+			ParentRow.after(clone_acct);
+		}
+		setZero(offset);
+		drawTemplate();
 		
-		setZero();
-		
-		$('#entriesTable tbody tr.clone select').select2({width: "100%"});
+		// $('#entriesTable tbody tr.clone select').select2({width: "100%"});
 	});
 
 	var cheque_detail 	=	$('#paymentmode').val();
@@ -3419,6 +3427,7 @@ $(document).ready(function() {
 		});
 
 		$('#ap_items .accountcode').val('').trigger('change');
+		$('#ap_items .h_accountcode').val('');	
 		$('#ap_items .debit').val('0.00');
 		$('#ap_items .account_amount').val('0.00');
 		$('#ap_items .account_amount').removeAttr('readonly');
