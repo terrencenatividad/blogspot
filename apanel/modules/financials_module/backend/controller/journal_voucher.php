@@ -113,16 +113,19 @@ class controller extends wc_controller {
 			$checker 	=	isset($row->checker) && !empty($row->checker) 	? 	$row->checker 	:	"";
 
 			$voucherno			=	$row->voucherno;
-			$transactiondate 	=	$row->transactiondate;
-
-			$closing_checker 	=	$this->jv_model->checkIfClosing($voucherno);
-			$latest 			= 	$this->jv_model->getLatestClosedDate();
+			$transactiondate 	=	isset($row->transactiondate) 	?	$this->date->DateDbFormat($row->transactiondate) 	:	0;
 			
+			$closing_checker 	=	!empty($this->jv_model->checkIfClosing($voucherno)) 	?	$this->jv_model->checkIfClosing($voucherno)	:	0;
+			$latest 			= 	$this->jv_model->getLatestClosedDate();
+			$closed_date 		= 	isset($latest->closed_date) 	?	$this->date->DateDbFormat($latest->closed_date) 	:	0;
+
+			$date_compare 		= 	($transactiondate == $closed_date) 	?	1	:	0;
+
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit($checker!="import" && $checker!="closing")
-									->addDelete(($transactiondate == $latest->closed_date) && $closing_checker)
+									->addDelete($date_compare && $closing_checker)
 									->addPrint()
 									->addCheckbox()
 									->setLabels(array('delete' => 'Cancel'))
