@@ -36,7 +36,7 @@
 											->setName('transactiondate')
 											->setId('transactiondate')
 											->setClass('datepicker-input')
-											->setAttribute(array('readonly'))
+											->setAttribute(array('readonly', 'data-date-start-date' => $close_date))
 											->setAddon('calendar')
 											->setValue($transactiondate)
 											->setValidation('required')
@@ -149,7 +149,7 @@
 					<div class="row">
 						<div id="submit_container" class="col-md-12 text-center">
 							<?php
-								if ($stat == 'Packed' || empty($stat)) {
+								if ($stat == 'Packed' && !$restrict_pl || empty($stat)) {
 									echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 								}
 								echo $ui->drawCancel();

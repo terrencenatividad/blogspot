@@ -7,6 +7,7 @@ class controller extends wc_controller {
 		$this->input			= new input();
 		$this->logs				= new log();
 		$this->packing_model	= new packing_list_model();
+		$this->restrict 		= new sales_restriction_model();
 		$this->inventory_model	= $this->checkoutModel('inventory_module/inventory_model');
 		$this->session			= new session();
 		$this->fields 			= array(
@@ -65,6 +66,9 @@ class controller extends wc_controller {
 		$data['ajax_task']			= 'ajax_create';
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
+		// Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
 		$this->view->load('packing_list/packinglist', $data);
 	}
 
@@ -85,6 +89,10 @@ class controller extends wc_controller {
 		$data['ajax_task']			= 'ajax_edit';
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
+		// Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
+		$data['restrict_pl'] 	= false;
 		$this->view->load('packing_list/packinglist', $data);
 	}
 
@@ -92,7 +100,8 @@ class controller extends wc_controller {
 		$this->view->title			= 'View Packing List';
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->packing_model->getPackingListById($this->fields, $voucherno);
-		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
+		$transactiondate 			= $data['transactiondate'];
+		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ajax_task']			= '';
 		$data['ui']					= $this->ui;
 		$data['customer_list']		= $this->packing_model->getCustomerList();
@@ -104,6 +113,11 @@ class controller extends wc_controller {
 		$data["wtaxcode_list"]		= $this->packing_model->getWTaxCodeList();
 		$data["taxrates"]			= $this->packing_model->getTaxRates();
 		$data['show_input']			= false;
+		// Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+		$restrict_pl 			 	= $this->restrict->setButtonRestriction($transactiondate);
+		$data['restrict_pl'] 		= $restrict_pl;
 		$this->view->load('packing_list/packinglist', $data);
 	}
 
@@ -177,13 +191,15 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
+			$transactiondate 	=	$row->transactiondate;
+			$restrict_pl 		=	$this->restrict->setButtonRestriction($transactiondate);
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($row->stat == 'Packed')
-									->addDelete($row->stat == 'Packed')
+									->addEdit($row->stat == 'Packed' && !$restrict_pl)
+									->addDelete($row->stat == 'Packed' && !$restrict_pl)
 									->addPrint()
-									->addCheckbox($row->stat == 'Packed')
+									->addCheckbox($row->stat == 'Packed' && !$restrict_pl)
 									->setValue($row->voucherno)
 									->setLabels(array('delete' => 'Cancel'))
 									->draw();
