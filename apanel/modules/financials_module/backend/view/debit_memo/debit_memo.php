@@ -49,6 +49,7 @@
 						->setAddon('calendar')
 						->setValue($transactiondate)
 						->setValidation('required')
+						->setAttribute(array('readonly'=>'','data-date-start-date'=>$close_date))
 						->draw($show_input);
 				?>
 			</div>

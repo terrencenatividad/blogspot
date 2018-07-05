@@ -7,6 +7,7 @@ class controller extends wc_controller {
 		$this->input			= new input();
 		$this->show_input 		= true;
 		$this->dm_model			= new debit_memo_model();
+		$this->restrict 		= new financials_restriction_model();
 		$this->session			= new session();
 		$this->fields 			= array(
 			'voucherno',
@@ -39,18 +40,11 @@ class controller extends wc_controller {
 
 	public function create() {
 		$this->view->title	= 'Debit Memo Create';
-		// $data				= $this->dm_model->getJournalVoucherById($this->fields, $this->temp);
-		// if ( ! $data) {
-		// 	$data2					= $this->input->post($this->fields2);
-		// 	$fields['transactiondate']	= $this->date->dateDbFormat();
-		// 	$this->dm_model->saveJournalVoucher($fields, $data2, $this->temp);
-		// 	$data					= $this->dm_model->getJournalVoucherById($this->fields, $this->temp);
-		// }
-		// if ($data) {
-		// 	$data = (array) $data;
-		// }
 		$data						= $this->input->post($this->fields);
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
 		$data['ui'] = $this->ui;
 		$data['partner_list']    	= $this->dm_model->getVendorList();
 		$data['proforma_list']		= $this->dm_model->getProformaList();
@@ -66,7 +60,10 @@ class controller extends wc_controller {
 	public function edit($voucherno) {
 		$this->view->title			= 'Debit Memo  Edit';
 		$data						= (array) $this->dm_model->getJournalVoucherById($this->fields, $voucherno);
-		$data['transactiondate']		= $this->date->dateFormat($data['transactiondate']);
+		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
 		$data['ui'] = $this->ui;
 		$data['proforma_list'] = $this->dm_model->getProformaList();
 		$data['partner_list']    = $this->dm_model->getVendorList();
@@ -82,6 +79,9 @@ class controller extends wc_controller {
 		$this->view->title			= 'Debit Memo View';
 		$data						= (array) $this->dm_model->getJournalVoucherById($this->fields, $voucherno);
 		$data['transactiondate']		= $this->date->dateFormat($data['transactiondate']);
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
 		$data['ui'] = $this->ui;
 		$data['partner_list']   	 = $this->dm_model->getVendorList();
 		$data['proforma_list']		= $this->dm_model->getProformaList();
