@@ -7,6 +7,7 @@ class controller extends wc_controller {
 		$this->input			= new input();
 		$this->logs				= new log();
 		$this->sales_model		= new sales_return_model();
+		$this->restrict 		= new sales_restriction_model();
 		// $this->financial_model  = $this->checkOutModel('financials_module/financial_model');
 		$this->inventory_model	= $this->checkoutModel('inventory_module/inventory_model');
 		$this->session			= new session();
@@ -77,6 +78,9 @@ class controller extends wc_controller {
 		$data['ajax_task']			= 'ajax_create';
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
+		// Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
 		$this->view->load('sales_return/sales_return', $data);
 	}
 
@@ -94,6 +98,10 @@ class controller extends wc_controller {
 		$data['ajax_task']			= 'ajax_edit';
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
+		// Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+		$data['restrict_ra'] 		= false;
 		$this->view->load('sales_return/sales_return', $data);
 	}
 
@@ -101,7 +109,8 @@ class controller extends wc_controller {
 		$this->view->title			= 'View Sales Return';
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->sales_model->getSalesReturnById($this->fields, $voucherno);
-		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
+		$transactiondate 			= $data['transactiondate'];
+		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ajax_task']			= '';
 		$data['ui']					= $this->ui;
 		$data['customer_list']		= $this->sales_model->getCustomerList();
@@ -110,6 +119,11 @@ class controller extends wc_controller {
 		$data['header_values']		= json_encode($this->sales_model->getSalesReturnById($this->fields_header, $voucherno));
 		$data['voucher_details']	= json_encode($this->sales_model->getSalesReturnDetails($this->fields2, $voucherno));
 		$data['show_input']			= false;
+		// Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+		$restrict_ra 			 	= $this->restrict->setButtonRestriction($transactiondate);
+		$data['restrict_ra'] 		= $restrict_ra;
 		$this->view->load('sales_return/sales_return', $data);
 	}
 
@@ -181,13 +195,15 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
+			$transactiondate 	=	$row->transactiondate;
+			$restrict_ra 		=	$this->restrict->setButtonRestriction($transactiondate);
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($row->stat == 'Returned')
-									->addDelete($row->stat == 'Returned')
+									->addEdit($row->stat == 'Returned' && !$restrict_ra)
+									->addDelete($row->stat == 'Returned' && !$restrict_ra)
 									->addPrint($row->stat == 'Returned')
-									->addCheckbox($row->stat == 'Returned')
+									->addCheckbox($row->stat == 'Returned' && !$restrict_ra)
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->voucherno)
 									->draw();
