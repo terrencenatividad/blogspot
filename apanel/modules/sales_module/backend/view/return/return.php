@@ -38,7 +38,7 @@
 									->setName('transactiondate')
 									->setId('transactiondate')
 									->setClass('datepicker-input')
-									->setAttribute(array('readonly'))
+									->setAttribute(array('readonly', 'data-date-start-date'=>$close_date))
 									->setAddon('calendar')
 									->setValue($transactiondate)
 									->setValidation('required')
@@ -159,7 +159,7 @@
 			<div class="row">
 				<div id="submit_container" class="col-md-12 text-center">
 					<?php
-						if ($stat == 'Returned' || empty($stat)) {
+						if ($stat == 'Returned' && !$restrict_ri || empty($stat)) {
 							echo $ui->drawSubmit($show_input); 
 						}
 					?>
