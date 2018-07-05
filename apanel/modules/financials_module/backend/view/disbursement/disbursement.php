@@ -39,7 +39,7 @@
 										->setName('document_date')
 										->setId('document_date')
 										->setClass('datepicker-input')
-										->setAttribute(array('readonly' => ''))
+										->setAttribute(array('readonly' => '','data-date-start-date'=> $close_date))
 										->setAddon('calendar')
 										->setValue($transactiondate)
 										->setValidation('required')
