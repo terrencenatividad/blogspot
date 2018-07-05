@@ -24,7 +24,7 @@
 						->draw(true);
 				?>
 			</div>
-			<div class="form-group pull-right">
+			<div class="col-md-1 pull-right">
 				<a href="" id="export" download="purchase_report.csv" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-export"></span> Export</a>
 			</div>
 		</div>
