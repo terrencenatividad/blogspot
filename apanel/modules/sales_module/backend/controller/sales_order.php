@@ -10,6 +10,7 @@ class controller extends wc_controller
 		$this->input            = new input();
 		$this->ui 			    = new ui();
 		$this->log 				= new log();
+		$this->restrict 		= new sales_restriction_model();
 		$this->view->title      = 'Sales Order';
 		$this->show_input 	    = true;
 
@@ -58,6 +59,10 @@ class controller extends wc_controller
 		// Item Limit
 		$item_limit 			= $this->so->getReference("so_limit");
 		$data['item_limit']		= ($item_limit[0]->value) 	? 	$item_limit[0]->value 	: 	50; 
+		
+		// Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
 		
 		/**LOAD DEFAULT VALUES**/
 
@@ -238,6 +243,10 @@ class controller extends wc_controller
 		$item_limit 			= $this->so->getReference("so_limit");
 		$data['item_limit']		= ($item_limit[0]->value) 	? 	$item_limit[0]->value 	: 	50; 
 		
+		// Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
+
 		$data['customer_list'] 	= $this->so->retrieveCustomerList();
 		$data['proforma_list'] 	= $this->so->retrieveProformaList();
 		$data["business_type"] 	= $this->so->getOption("businesstype");
@@ -302,7 +311,8 @@ class controller extends wc_controller
 		
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
-		
+		$data['restrict_so'] 	 = false;
+
 		$this->view->load('sales_order/sales_order', $data);
 	}
 
@@ -310,6 +320,10 @@ class controller extends wc_controller
 	{
 		$retrieved_data 		= $this->so->retrieveExistingSO($voucherno);
 
+		// Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
+		
 		$data['customer_list'] 	= $this->so->retrieveCustomerList();
 		$data['proforma_list'] 	= $this->so->retrieveProformaList();
 		$data["business_type"] 	= $this->so->getOption("businesstype");
@@ -341,11 +355,14 @@ class controller extends wc_controller
 		$data["row_ctr"] 		= 0;
 		$data['cmp'] 			= $this->companycode;
 
+		$transactiondate 		= $retrieved_data["header"]->transactiondate;
+		$duedate 				= $retrieved_data["header"]->duedate;
+		
 		// Header Data
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["customer"]      	 = $retrieved_data["header"]->partnername;
-		$data["due_date"]    	 = $this->date->dateFormat($retrieved_data["header"]->duedate);
-		$data["transactiondate"] = $this->date->dateFormat($retrieved_data["header"]->transactiondate);
+		$data["due_date"]    	 = $this->date->dateFormat($duedate);
+		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
 		$data['remarks'] 		 = $retrieved_data["header"]->remarks;
 		$data['stat'] 			 = $retrieved_data['header']->stat;
 
@@ -370,6 +387,9 @@ class controller extends wc_controller
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
 		
+		$restrict_so 			 =	$this->restrict->setButtonRestriction($transactiondate);
+		$data['restrict_so'] 	= $restrict_so;
+
 		// Retrieve business type list
 		$bus_type_data                = array("code ind", "value val");
 		$bus_type_cond                = "type = 'businesstype'";
@@ -753,9 +773,11 @@ class controller extends wc_controller
 		$pagination 	= $this->so->retrieveListing($posted_data);
 
 		$table 	= '';
-
+		
 		if( !empty($pagination->result) ) :
 			foreach ($pagination->result as $key => $row) {
+
+				$transactiondate 	=	$row->transactiondate;
 
 				$voucher_status = 	"";
 				if($row->stat == 'open')
@@ -778,13 +800,16 @@ class controller extends wc_controller
 				{
 					$voucher_status = '<span class="label label-danger">CANCELLED</span>';
 				}
+				
+				$restrict_so =	$this->restrict->setButtonRestriction($transactiondate);
 
-				$element = $this->ui->loadElement('check_task')
+				$element 	= 	$this->ui->loadElement('check_task')
 									->addView()
-									->addEdit(($row->stat == 'open'))
+									->addEdit(($row->stat == 'open' && !$restrict_so))
 									->addOtherTask('Tag as Complete', 'bookmark',($row->stat != 'closed' && $row->stat != 'posted' && $row->stat != 'open' && $row->stat != 'cancelled'))
 									->addPrint()
-									->addDelete(($row->stat == 'open'))
+									->addDelete(($row->stat == 'open' && !$restrict_so))
+									// ->setClosed()
 									->setValue($row->voucherno)
 									->setLabels(array('delete'=>'Cancel'));
 
@@ -793,10 +818,10 @@ class controller extends wc_controller
 				}
 
 				$dropdown = $element->draw();
-
+				
 				$table .= '<tr>';
 				$table .= '<td class="text-center">' . $dropdown . '</td>';
-				$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
+				$table .= '<td>' . $this->date->dateFormat($transactiondate) . '</td>';
 				$table .= '<td>' . $row->voucherno. '</td>';
 				// $table .= '<td>' . $row->quotation_no. '</td>';
 				$table .= '<td>' . $row->partnername . '</td>';

@@ -8,6 +8,7 @@
 			<input class = "form_iput" value = "" name = "h_address1" id="h_address1" type="hidden">
 			<input class = "form_iput" value = "update" name = "h_querytype" id="h_querytype" type="hidden">
 			<input class = "form_iput" value = "" name = "h_condition" id = "h_condition" type="hidden">
+			<input class = "form_iput" value = "<?=$close_date?>" name = "h_close_date" id = "h_close_date" type="hidden">
 			<input class = "form_iput" value = "<?=$h_disctype?>" name = "h_disctype" id = "h_disctype" type="hidden">
 		</form>
 
@@ -41,8 +42,8 @@
 										->setSplit('col-md-4', 'col-md-8')
 										->setName('transaction_date')
 										->setId('transaction_date')
-										->setClass('datepicker-input')
-										->setAttribute(array('readonly' => ''))
+										->setClass('datepicker datepicker-input')
+										->setAttribute(array('readonly' => '', 'data-date-start-date' => $close_date))
 										->setAddon('calendar')
 										->setValue($transactiondate)
 										->setValidation('required')
@@ -620,7 +621,7 @@
 							echo $ui->loadElement('check_task')
 									->addSave(($task == 'create'))
 									->addOtherTask('Save','',($task == 'edit'),'primary')
-									->addEdit(($task == 'view' && ( $stat == 'open' )))
+									->addEdit(($task == 'view' && ( $stat == 'open' && !$restrict_so )))
 									->setValue($voucherno)
 									->draw_button($show_input);
 
@@ -763,6 +764,8 @@
 
 <script>
 var ajax = {};
+
+var close_date 	=	$('#h_close_date').val();
 
 /**RETRIEVES CUSTOMER INFORMATION**/
 function getPartnerInfo(code)
@@ -1430,12 +1433,15 @@ $(document).ready(function(){
 			var rows 		= table.tBodies[0].rows.length;
 			var rowlimit 	= '<?echo $item_limit?>';
 		
-			if(rowlimit == 0 || rows < rowlimit){
-				clone.clone(true).insertAfter(ParentRow);
-				setZero();
-			}else{
-				$('#row_limit').modal('show');
-			}
+			// if(rowlimit == 0 || rows < rowlimit){
+			// 	clone.clone(true).insertAfter(ParentRow);
+			// 	setZero();
+			// }else{
+			// 	$('#row_limit').modal('show');
+			// }
+
+			clone.clone(true).insertAfter(ParentRow);
+			setZero();
 
 			$('#itemsTable tbody tr.clone select').select2({width: "100%"});
 		});
@@ -1491,9 +1497,7 @@ $(document).ready(function(){
 				{
 					$.post("<?=BASE_URL?>sales/sales_order/ajax/save_temp_data",$("#sales_order_form").serialize())
 					.done(function(data)
-					{	
-						
-					});
+					{});
 				}
 			});
 
@@ -1525,22 +1529,6 @@ $(document).ready(function(){
 
 				finalizeEditTransaction();
 			});
-
-			//Save & Preview
-			// $("#sales_order_form #save_preview").click(function()
-			// {
-			// 	$('#save').val("final_preview");
-
-			// 	finalizeEditTransaction();
-			// });
-
-			//Save & New
-			// $("#sales_order_form #save_new").click(function()
-			// {
-			// 	$('#save').val("final_new");
-
-			// 	finalizeEditTransaction();
-			// });
 		}
 	// -- For Saving -- End
 
@@ -1584,21 +1572,6 @@ $(document).ready(function(){
 		});
 		
 	// -- For Deletion of Item Per Row -- End
-
-	// -- Has Quotation --
-		// var customer 	=	document.getElementById('customer').value;
-
-		// if( '<?php //echo $quotation_no;?>' != "" && customer != "" )
-		// {
-		// 	var table 	= document.getElementById('itemsTable');
-		// 	var count	= table.tBodies[0].rows.length;
-
-		// 	for(row = 1; row <= count; row++) 
-		// 	{
-		// 		getItemDetails('itemcode['+row+']');  
-		// 	}
-		// }
-	// -- Has Quotation -- End
 
 	// -- Back Button 
 		$('#btnBack').on('click',function(){
