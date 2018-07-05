@@ -7,6 +7,7 @@ class controller extends wc_controller {
 		$this->input			= new input();
 		$this->logs				= new log();
 		$this->delivery_model	= new delivery_receipt_model();
+		$this->restrict 		= new sales_restriction_model();
 		$this->inventory_model	= $this->checkoutModel('inventory_module/inventory_model');
 		$this->session			= new session();
 		$this->fields 			= array(
@@ -75,6 +76,9 @@ class controller extends wc_controller {
 		$data['ajax_task']			= 'ajax_create';
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
+		// Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
 		$this->view->load('delivery_receipt/delivery_receipt', $data);
 	}
 
@@ -93,6 +97,10 @@ class controller extends wc_controller {
 		$data['ajax_task']			= 'ajax_edit';
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
+		// Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+		$data['restrict_dr'] 		= false;
 		$this->view->load('delivery_receipt/delivery_receipt', $data);
 	}
 
@@ -100,8 +108,9 @@ class controller extends wc_controller {
 		$this->view->title			= 'View Delivery Receipt';
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->delivery_model->getDeliveryReceiptById($this->fields, $voucherno);
+		$transactiondate 			= $data['transactiondate'];
 		$data['deliverydate']		= $this->date->dateFormat($data['deliverydate']);
-		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
+		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ajax_task']			= '';
 		$data['ui']					= $this->ui;
 		$data['customer_list']		= $this->delivery_model->getCustomerList();
@@ -110,6 +119,11 @@ class controller extends wc_controller {
 		$data['header_values']		= json_encode($this->delivery_model->getDeliveryReceiptById($this->fields_header, $voucherno));
 		$data['voucher_details']	= json_encode($this->delivery_model->getDeliveryReceiptDetails($this->fields2, $voucherno));
 		$data['show_input']			= false;
+		// Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+		$restrict_dr 			 	= $this->restrict->setButtonRestriction($transactiondate);
+		$data['restrict_dr'] 		= $restrict_dr;
 		$this->view->load('delivery_receipt/delivery_receipt', $data);
 	}
 
@@ -182,19 +196,21 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
+			$transactiondate 	=	$row->transactiondate;
+			$restrict_dr 		=	$this->restrict->setButtonRestriction($transactiondate);
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($row->stat == 'Delivered' || $row->stat == 'Prepared')
-									->addDelete($row->stat == 'Delivered' || $row->stat == 'Prepared')
+									->addEdit(($row->stat == 'Delivered' || $row->stat == 'Prepared') && !$restrict_dr)
+									->addDelete(($row->stat == 'Delivered' || $row->stat == 'Prepared') && !$restrict_dr)
 									->addPrint()
-									->addOtherTask('Tag as Delivered', 'bookmark',($row->stat == 'Prepared'))
-									->addCheckbox($row->stat == 'Delivered' || $row->stat == 'Prepared')
+									->addOtherTask('Tag as Delivered', 'bookmark',($row->stat == 'Prepared' && !$restrict_dr))
+									->addCheckbox(($row->stat == 'Delivered' || $row->stat == 'Prepared') && !$restrict_dr)
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->voucherno)
 									->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
-			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
+			$table .= '<td>' . $this->date->dateFormat($transactiondate) . '</td>';
 			$table .= '<td>' . $row->voucherno . '</td>';
 			$table .= '<td>' . $row->customer . '</td>';
 			$table .= '<td>' . $row->packing_no . '</td>';
