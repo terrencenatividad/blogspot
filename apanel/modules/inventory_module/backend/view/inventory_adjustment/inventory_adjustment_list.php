@@ -27,9 +27,11 @@
 				<div class="col-md-offset-6 col-md-3 hidden">
 					<div>Time left = <span id="timer"></span></div>
 				</div>
-				<div class="col-md-1 pull-right">
-					<a href="javascript:void(0);" id="import" class="btn btn-info pull-right"><span class="glyphicon glyphicon-save"></span> Import Beginning Balance</a>
-				</div>
+				<?if($display_import_btn):?>
+					<div class="col-md-1 pull-right">
+						<a href="javascript:void(0);" id="import" class="btn btn-info pull-right"><span class="glyphicon glyphicon-save"></span> Import Beginning Balance</a>
+					</div>
+				<?endif;?>
 			</div>
 		</div>
 
@@ -344,29 +346,31 @@
 
 <script>
 
-	function show_error(msg, warning)
-	{
+	function show_error(msg, warning) {
 		$(".delete-modal").modal("hide");
 		$(".alert-warning").removeClass("hidden");
 		$("#errmsg").html(msg);
 		$("#warningmsg").html(warning);
 	}
 
-	function show_success_msg(msg)
-	{
+	function show_success_msg(msg) {
 		$('#success_modal #message').html(msg);
 		$('#success_modal').modal('show');
 	}
+	
+	function hide_error() {
+		$(".alert-warning").addClass("hidden");
+		$("#errmsg").html('');
+		$("#warningmsg").html('');
+	}
 
 	/**VALIDATE FIELD**/
-	function validateField(form,id,help_block)
-	{
+	function validateField(form,id,help_block) {
 		var field	= $("#"+form+" #"+id).val();
 
 		if(id.indexOf('_chosen') != -1){
 			var id2	= id.replace("_chosen","");
 			field	= $("#"+form+" #"+id2).val();
-
 		}
 
 		if(field == '' || parseFloat(field) == 0)
@@ -409,15 +413,13 @@
 		}
 	}	
 
-	function getCOAList(current_code)
-	{
+	function getCOAList(current_code){
 		$.post('<?=MODULE_URL?>ajax/get_code', "code="+current_code, function(data) {
 			$('#inventory_account').html(data.list);
 		});
 	}
 
-	function adjustment(partno, partname, qty, action)
-	{ 
+	function adjustment(partno, partname, qty, action){ 
 		$('#adjModal #modal_code').html(partno);
 		$('#adjModal #itemcode').val(partno);
 		$('#adjModal #modal_p_name').html(partname);
@@ -439,7 +441,6 @@
 	}
 
 	var ajax = filterFromURL();
-
 	var ajax_call = '';
 	
 	ajaxToFilter(ajax,{ search: '#table_search', itemcode: '#itemcode', warehouse: '#warehouse'});
@@ -507,8 +508,7 @@
 
 		$("#adjustForm").find('.form-group').find('input, textarea, select').trigger('blur');
 
-		if($("#adjustForm").find('.form-group.has-error').length == 0)
-		{	
+		if($("#adjustForm").find('.form-group.has-error').length == 0){	
 			$("#adjustForm #btnSave").addClass('disabled');
 			$("#adjustForm #btnSave_toggle").addClass('disabled');
 			
@@ -522,8 +522,7 @@
 			
 				$("#adjustForm #btnSave").html('Save');
 				
-				if( data.msg == 'success' )
-				{
+				if( data.msg == 'success' )	{
 					$.post("<?=MODULE_URL?>ajax/create_jv",$("#adjustForm").serialize()+"&adjustment_voucher="+data.voucher)
 					.done(function(data){
 						//$("#updateForm").submit();
@@ -532,10 +531,9 @@
 					
 						$("#adjustForm #btnSave").html('Save');
 						
-						if( data.msg == 'success' )
-						{
+						if( data.msg == 'success' ){
 							getList();
-							
+							hide_error();
 							$("#adjModal").modal('hide');
 						}
 					});
@@ -710,6 +708,7 @@
 									$('#import-modal').modal('hide');
 									$(".alert-warning").addClass("hidden");
 									$("#errmsg").html('');
+									hide_error();
 									show_success_msg('Your Data has been imported successfully.');
 								}else{
 									$('#import-modal').modal('hide');

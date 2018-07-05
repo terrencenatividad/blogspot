@@ -430,12 +430,27 @@ class inventory_adjustment_model extends wc_model {
 		return $result;
 	}
 
-	public function importbeginningbalance($data)
-	{
+	public function deleteBeginningJV($table){
+		$result 	=	$this->db->setTable($table)
+				 		->setWhere("source = 'beginning'")
+				 		->runDelete();
+		// echo $result;
+
+		return $result;
+	}
+
+	public function importbeginningbalance($data){
 		$result = $this->db->setTable('inv_beg_balance')
 				->setValuesFromPost($data)
 				->runInsert();
 
+		return $result;
+	}
+
+	public function truncatebeginningbalance(){
+		$result = $this->db->setTable('inv_beg_balance')
+							->setWhere("companycode = 'CID'")
+							->runDelete(false);
 		return $result;
 	}
 
@@ -492,11 +507,16 @@ class inventory_adjustment_model extends wc_model {
 				$header['exchangerate'] 	=	1;
 				$header['amount'] 	 		=	$amount;
 				$header['convertedamount'] 	=	$amount;
-				$header['referenceno'] 		=	$voucherno;
+				// $header['referenceno'] 		=	$voucherno;
+				$header['referenceno'] 		=	"Beginning Balance";
 				$header['sitecode'] 		= 	'';
 				$header['remarks'] 			= 	'-';
+				$header['source'] 			=	'beginning';
 
-				$result 	=	 $this->insertdata('journalvoucher',$header);
+				$result 		=	$this->deleteBeginningJV("journalvoucher");
+				if($result){
+					$result 	=	 $this->insertdata('journalvoucher',$header);
+				}
 			}
 		}
 
@@ -554,6 +574,7 @@ class inventory_adjustment_model extends wc_model {
 					$details['convertedcredit'] 	= 	$totalamount;
 					$details['detailparticulars'] 	= 	"";
 					$details['stat'] 				= 	"posted";
+					$details['source']				=	"beginning";
 
 					$detailArray[]						= $details;			
 					$linenum++;
@@ -576,6 +597,7 @@ class inventory_adjustment_model extends wc_model {
 					$details['convertedcredit'] 	= 	0;
 					$details['detailparticulars'] 	= 	"";
 					$details['stat'] 				= 	"posted";
+					$details['source']				=	"beginning";
 
 					$detailArray[]						= $details;			
 					$linenum++;
@@ -583,16 +605,51 @@ class inventory_adjustment_model extends wc_model {
 			}
 			
 			if(!empty($detailArray)){
-				$result	 = $this->db->setTable("journaldetails")
+				$result 	=	$this->deleteBeginningJV("journaldetails");
+				if($result){
+					$result	 = $this->db->setTable("journaldetails")
 									->setValues($detailArray)
 									->runInsert();		
-
-									//echo $this->db->getQuery();
+				}
 			}
 		}
-		
-		//echo "Result 2 = ".$result;
+		return $result;
+	}
 
+	public function getDisplayPermission(){
+		// $result 	=	$this->db->setTable("invdtlfile dtl")
+		// 						->leftJoin("inventorylogs logs ON logs.itemcode = dtl.itemcode AND logs.warehouse = dtl.warehouse AND logs.quantity = dtl.beginningQty")
+		// 						->setFields("COUNT(*) count")
+		// 						->setWhere("logs.activity != 'Beginning Balance'")
+		// 						->runSelect()
+		// 						->getRow();
+
+		$ret_seq_cnt 	=	$this->db->setTable("wc_sequence_control")
+								  ->setFields("COUNT(*) count")
+								  ->setWhere("current > start AND prefix NOT IN ('BAL','JV') ")
+								  ->runSelect()
+								  ->getRow();
+								  // > 
+
+		$ret_jrl_cnt 	=	$this->db->setTable('journalvoucher')
+									->setFields("COUNT(*) count")
+									->setWhere("source != 'beginning'")
+									->runSelect()
+									->getRow();
+
+		
+		$result =	1;
+		if($ret_seq_cnt->count > 0 || $ret_jrl_cnt->count > 0){
+			$result = 0;
+		}
+
+		return $result;
+	}
+
+	public function deleteBeginningLogs(){
+		$result 	=	$this->db->setTable('inventorylogs')
+								  ->setWhere("activity = 'Beginning Balance'")
+								  ->runDelete();
 		return $result;
 	}
 }

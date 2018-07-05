@@ -25,6 +25,10 @@ class controller extends wc_controller {
 		$data['voucherno'] 			= "- auto generated -";
  		$data['adjustmentdate'] 	= $adjustmentdate;
 		$data['importdate'] 		= $transactiondate;
+		
+		$display 					= $this->adjustment->getDisplayPermission();
+		// $transactions_count 		= isset($transactions->count) 	? 	$transactions->count 	:	0;
+		$data['display_import_btn'] = $display;
 
 		$data['ui'] 				= $this->ui;
 		$data['chart_account_list'] = $this->adjustment->getChartAccountList();
@@ -277,13 +281,12 @@ class controller extends wc_controller {
 
 				}
 
-				if ( $n > 2 ) 
-				{
+				if ( $n > 2 ) {
 					$z[] = $x[$n];
 				}
 			}
 			
-			$line 				=	1;
+			$line 				=	4;
 			$warehousecode 		= 	"";
 			$accountcode 		=	"";
 			$pair_list 			= 	array();
@@ -299,10 +302,8 @@ class controller extends wc_controller {
 			$total_amount 		=	0;
 
 			if( empty($errmsg)  && !empty($z) ){
-				foreach ($z as $b) 
-				{
-					if ( ! empty($b)) 
-					{	
+				foreach ($z as $b)  {
+					if ( ! empty($b)) {	
 						$itemcode 	   		= $b[0];
 						$warehouse 	        = $b[2];
 						$quantity        	= $b[3];
@@ -319,8 +320,7 @@ class controller extends wc_controller {
 						$exists 			= $this->adjustment->check_if_exists('itemcode','items'," itemcode = '$itemcode' ");
 						$itemcode_count 	= $exists[0]->count;
 			
-						if( $itemcode_count <= 0 )
-						{
+						if( $itemcode_count <= 0 ){
 							$errmsg[]	= "Item Code [<strong>$itemcode</strong>] on row $line does not exists.<br/>";
 							$errmsg		= array_filter($errmsg);
 						}
@@ -333,31 +333,41 @@ class controller extends wc_controller {
 						{
 							$errmsg[]	= "Warehouse [<strong>$warehouse</strong>] on row $line does not exists.<br/>";
 							$errmsg		= array_filter($errmsg);
-						}
-						else
-						{
+						} else {
 							$retrieve 		=	$this->adjustment->getValue('warehouse', array('warehousecode'), " description = '$warehouse' ");
 							$warehousecode 	=	$retrieve[0]->warehousecode;
 						}
 	
 						// Check if Quantity is a number
-						if(!is_numeric($quantity))
-						{
+						if(!is_numeric($quantity)) {
 							$errmsg[] 	= "Quantity [ <strong>$quantity</strong> ] on row $line is not a valid amount.<br/>";
 							$errmsg		= array_filter($errmsg);
 						}
 	
-						if($quantity <= 0)
-						{
-							$errmsg[] 	= "Quantity on row $line is [ <strong>$quantity</strong> ]. Please input a quantity greater than 0.<br/>";
-							$errmsg		= array_filter($errmsg);
+						// if($quantity <= 0)
+						// {
+						// 	$errmsg[] 	= "Quantity on row $line is [ <strong>$quantity</strong> ]. Please input a quantity greater than 0.<br/>";
+						// 	$errmsg		= array_filter($errmsg);
+						// } 
+
+						if($quantity > 0) {
+							if($unitprice <= 0){
+								$errmsg[] 	= "Price on row $line is [ <strong>$unitprice</strong> ]. Please input a Price greater than 0.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
 						}
 	
 						// Check if Price is a number
-						if(!is_numeric($unitprice))
-						{
+						if(!is_numeric($unitprice)) {
 							$errmsg[] 	= "Price [ <strong>$unitprice</strong> ] on row $line is not a valid amount.<br/>";
 							$errmsg		= array_filter($errmsg);
+						}
+
+						if($unitprice > 0) {
+							if($quantity <= 0){
+								$errmsg[] 	= "Quantity on row $line is [ <strong>$quantity</strong> ]. Please input a Quantity greater than 0.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
 						}
 	
 						$amount 		=	$unitprice * $quantity;
@@ -386,9 +396,7 @@ class controller extends wc_controller {
 					
 						if( !in_array($concat_itemnloc, $pair_list) ){
 							$pair_list[] 	=	$concat_itemnloc;
-						}
-						else
-						{
+						} else {
 							$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] and Warehouse [<strong>$warehouse</strong>] on row $line has a duplicate within the document.<br/>";
 							$errmsg		= array_filter($errmsg);
 						}
@@ -407,8 +415,7 @@ class controller extends wc_controller {
 					}
 				}
 			
-				if( empty($errmsg) )
-				{
+				if( empty($errmsg) ){
 					$voucherno 		=	$this->seq->getValue('BAL');
 					$importdate 	=	$this->date->dateDBFormat($importdate);	
 					$post = array(
@@ -419,23 +426,22 @@ class controller extends wc_controller {
 						'quantity'		=> $quantity_,
 						'unitprice' 	=> $price_,
 						'amount' 		=> $amount_
-						//'account'		=> $account_,
 					);
 
-					$proceed  			= $this->adjustment->importbeginningbalance($post);
+					$clear_table 		= $this->adjustment->truncatebeginningbalance();
+					if($clear_table){
+						$proceed  			= $this->adjustment->importbeginningbalance($post);
+					}
 					
-					if( $proceed )
-					{
+					if( $proceed ){
 						$this->log->saveActivity("Imported Beginning Balance[$voucherno].");
 						
-						if( $total_amount > 0 )
-						{
+						if( $total_amount > 0 ){
 							$jv 			= 	$this->seq->getValue('JV');
 							$result 		=	$this->adjustment->generate_beg_jv($voucherno,$jv);
-							// $this->financial_model->generateAccount();
-							if( $result )
-							{
-								$this->log->saveActivity("Created Journal Voucher [$jv] for Beginning Balance[$voucherno] ");
+
+							if( $result ){
+								$this->log->saveActivity("Created Journal Voucher [$jv] for Beginning Balance[$voucherno].");
 							}
 						}
 
