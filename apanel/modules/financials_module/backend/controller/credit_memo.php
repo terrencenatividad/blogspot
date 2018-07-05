@@ -7,6 +7,7 @@ class controller extends wc_controller {
 		$this->input			= new input();
 		$this->show_input 		= true;
 		$this->cm_model			= new credit_memo_model();
+		$this->restrict 		= new financials_restriction_model();
 		$this->session			= new session();
 		$this->fields 			= array(
 			'voucherno',
@@ -26,7 +27,6 @@ class controller extends wc_controller {
 			'debit',
 			'credit'
 		);
-		// $this->temp				= 'TMP_CM_' . USERNAME;
 	}
 
 	public function listing() {
@@ -39,23 +39,15 @@ class controller extends wc_controller {
 
 	public function create() {
 		$this->view->title	= 'Credit Memo Create';
-		// $data				= $this->cm_model->getJournalVoucherById($this->fields, $this->temp);
-		// if ( ! $data) {
-		// 	$data2					= $this->input->post($this->fields2);
-		// 	$fields['transactiondate']	= $this->date->dateDbFormat();
-		// 	$this->cm_model->saveJournalVoucher($fields, $data2, $this->temp);
-		// 	$data					= $this->cm_model->getJournalVoucherById($this->fields, $this->temp);
-		// }
-		// if ($data) {
-		// 	$data = (array) $data;
-		// }
 		$data						= $this->input->post($this->fields);
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
 		$data['ui'] = $this->ui;
 		$data['partner_list']    	= $this->cm_model->getVendorList();
 		$data['proforma_list']		= $this->cm_model->getProformaList();
 		$data['chartofaccounts']	= $this->cm_model->getChartOfAccountList();
-		// $data['voucher_details']	= json_encode($this->cm_model->getJournalVoucherDetails($this->fields2, $this->temp));
 		$data['voucher_details']	= json_encode(array());
 		$data['ajax_task']			= 'ajax_create';
 		$data['ajax_post']			= '';
@@ -67,6 +59,9 @@ class controller extends wc_controller {
 		$this->view->title			= 'Credit Memo  Edit';
 		$data						= (array) $this->cm_model->getJournalVoucherById($this->fields, $voucherno);
 		$data['transactiondate']		= $this->date->dateFormat($data['transactiondate']);
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
 		$data['ui'] = $this->ui;
 		$data['proforma_list']	 	= $this->cm_model->getProformaList();
 		$data['partner_list']    	= $this->cm_model->getVendorList();

@@ -48,6 +48,7 @@
 									->setClass('datepicker-input')
 									->setAddon('calendar')
 									->setValue($transactiondate)
+									->setAttribute(array('readonly'=>'','data-date-start-date'=>$close_date))
 									->setValidation('required')
 									->draw($show_input);
 							?>
