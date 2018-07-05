@@ -59,7 +59,7 @@
                                             ->setName('paymentdate[1]')
                                             ->setId('paymentdate[1]')
                                             ->setClass('input-sm datepicker-input')
-                                            ->setAttribute(array('readonly' => ''))
+                                            ->setAttribute(array('readonly' => '', 'data-date-start-date' => $close_date))
                                             ->setAddon('calendar')
                                             ->setValue($date)
                                             ->setValidation('required')

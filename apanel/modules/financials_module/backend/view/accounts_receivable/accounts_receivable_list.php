@@ -103,13 +103,14 @@
 									'class' => 'col-md-1 text-center'
 								)
 							)
-							->addHeader('Date', array('class' => 'col-md-1 text-center'), 'sort', 'main.transactiondate', 'desc')
-							->addHeader('Voucher No', array('class' => 'col-md-1 text-center'), 'sort', 'main.voucherno')
-							->addHeader('Customer', array('class' => 'col-md-2 text-center'), 'sort', 'p.partnername')
-							->addHeader('Reference', array('class' => 'col-md-2 text-center'), 'sort', 'main.referenceno')
-							->addHeader('Amount', array('class' => 'col-md-2 text-center'), 'sort', 'main.convertedamount')
-							->addHeader('Balance', array('class' => 'col-md-2 text-center'), 'sort', 'main.balance')
-							->addHeader('Status', array('class' => 'col-md-1 text-center'))
+							->addHeader('Date', array('class' => 'col-md-1'), 'sort', 'main.transactiondate', 'desc')
+							->addHeader('Imported', array('class' => 'col-md-1'),'sort','main.lockkey')
+							->addHeader('Voucher No', array('class' => 'col-md-1'), 'sort', 'main.voucherno')
+							->addHeader('Customer', array('class' => 'col-md-2'), 'sort', 'p.partnername')
+							->addHeader('Reference', array('class' => 'col-md-2'), 'sort', 'main.referenceno')
+							->addHeader('Amount', array('class' => 'col-md-2'), 'sort', 'main.convertedamount')
+							->addHeader('Balance', array('class' => 'col-md-2'), 'sort', 'main.balance')
+							->addHeader('Status', array('class' => 'col-md-1'))
 							->draw();
 				?>
 				<tbody>

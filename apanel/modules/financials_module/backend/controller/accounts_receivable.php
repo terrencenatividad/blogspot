@@ -5,17 +5,18 @@ class controller extends wc_controller
 	public function __construct()
 	{
 		parent::__construct();
-		$this->url 			    = new url();
-		$this->accounts_receivable = new accounts_receivable();
-		$this->input            = new input();
-		$this->seq 				= new seqcontrol();
-		$this->ui 			    = new ui();
-		$this->logs 			= new log();
-		$this->view->title      = 'Accounts Receivable';
-		$this->show_input 	    = true;
+		$this->url 			   	 	= new url();
+		$this->accounts_receivable 	= new accounts_receivable();
+		$this->restrict 			= new financials_restriction_model();
+		$this->input            	= new input();
+		$this->seq 					= new seqcontrol();
+		$this->ui 			    	= new ui();
+		$this->logs 				= new log();
+		$this->view->title      	= 'Accounts Receivable';
+		$this->show_input 	    	= true;
 
-		$this->companycode      = COMPANYCODE;
-		$this->username 		= USERNAME;
+		$this->companycode      	= COMPANYCODE;
+		$this->username 			= USERNAME;
 	}
 
 	public function listing()
@@ -214,6 +215,10 @@ class controller extends wc_controller
 		// Retrieve proforma list
 		$data["proforma_list"]        = $this->accounts_receivable->retrieveProformaList();
 
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+
 		// Retrieve business type list
 		$bus_type_data                = array("code ind", "value val");
 		$bus_type_cond                = "type = 'businesstype'";
@@ -313,6 +318,10 @@ class controller extends wc_controller
 		$data["v_tinno"] 		  	= (!empty($data["cust"]->tinno)) ? $data["cust"]->tinno : "";
 		$data["v_address1"] 	   	= (!empty($data["cust"]->address1)) ? $data["cust"]->address1 : "";
 
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+
 		/**
 		* Get the total forex amount applied
 		*/
@@ -381,6 +390,10 @@ class controller extends wc_controller
 
 		// Retrieve proforma list
 		$data["proforma_list"]        = $this->accounts_receivable->retrieveProformaList();
+
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
 
 		// Retrieve business type list
 		$bus_type_data                = array("code ind", "value val");
@@ -585,6 +598,7 @@ class controller extends wc_controller
 				$customer	 = $row->customer; 
 				$referenceno = $row->referenceno; 
 				$checker 	 = $row->importchecker; 
+				$import 	 = ($checker=='import') 	?	"Yes" 	:	"No";
 
 				if($balance != $amount && $balance != 0)
 				{
@@ -610,8 +624,8 @@ class controller extends wc_controller
 								'credit-card',
 								$show_payment
 							)
-							->addDelete($show_delete)
-							->addCheckbox($show_delete)
+							->addDelete($show_delete && $checker != "import")
+							->addCheckbox($show_delete && $checker != "import")
 							->setValue($voucher)
 							->setLabels(array('delete' => 'Cancel'))
 							->draw();
@@ -622,10 +636,11 @@ class controller extends wc_controller
 			
 				$table	.= '<tr>';
 				$table	.= '<td class="text-center" style="vertical-align:middle;">'.$dropdown.'</td>';
-				$table	.= '<td class="text-center" style="vertical-align:middle;">'.$date.'</td>';
-				$table	.= '<td class="text-left" style="vertical-align:middle;">&nbsp;'.$voucher.'</td>';
-				$table	.= '<td class="text-left" style="vertical-align:middle;">&nbsp;'.$customer.'</td>';
-				$table	.= '<td class="text-left" style="vertical-align:middle;">&nbsp;'.$referenceno.'</td>';
+				$table	.= '<td style="vertical-align:middle;">'.$date.'</td>';
+				$table	.= '<td style="vertical-align:middle;">'.$import.'</td>';
+				$table	.= '<td style="vertical-align:middle;">&nbsp;'.$voucher.'</td>';
+				$table	.= '<td style="vertical-align:middle;">&nbsp;'.$customer.'</td>';
+				$table	.= '<td style="vertical-align:middle;">&nbsp;'.$referenceno.'</td>';
 				$table	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.number_format($amount,2).'</td>';
 				$table	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.number_format($balance,2).'</td>';
 				$table	.= '<td class="text-center" style="vertical-align:middle;">&nbsp;'.$voucher_status.'</td>';
@@ -1067,8 +1082,7 @@ class controller extends wc_controller
 			$totaldebit 		=	array();
 			$totalcredit 		=	array();							
 
-			$this->restrict 	= new financials_restriction_model();
-			$close_dates	 	= $this->restrict->getClosedDate();
+			$close_date 		= 	$this->restrict->getClosedDate();
 
 			if( empty($errmsg)  && !empty($z) ){
 				$total_debit 	=	0;
@@ -1117,9 +1131,19 @@ class controller extends wc_controller
 								$errmsg[]	= "Transaction Date on <strong>row $line</strong> should not be empty.<br/>";
 								$errmsg		= array_filter($errmsg);
 							}
+							//Check if Transaction Date is not within Closed Date Period
+							if($transdate <= $close_date){
+								$errmsg[]	= "Transaction Date [<strong>$transdate</strong>] on <strong>row $line</strong> must not be within the Closed Period.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
 							// Check if Due Date is not Empty 
 							if($duedate == ''){
 								$errmsg[]	= "Due Date on <strong>row $line</strong> should not be empty.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+							//Check if Due Date is not within Closed Date Period
+							if($duedate <= $close_date){
+								$errmsg[]	= "Due Date [<strong>$duedate</strong>] on <strong>row $line</strong> must not be within the Closed Period.<br/>";
 								$errmsg		= array_filter($errmsg);
 							}
 							//Check if Customer Code is not empty
@@ -1163,11 +1187,11 @@ class controller extends wc_controller
 										$errmsg[]	= "Transaction Date [<strong>$transdate</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
 										$errmsg		= array_filter($errmsg);
 									}
-									//Check if Transaction Date is not within Closed Date Period
-									if(($transdate!="") && $transdate <= $close_dates){
-										$errmsg[]	= "Transaction Date [<strong>$transdate</strong>] on <strong>row $line</strong> must not be within the Closed Period.<br/>";
-										$errmsg		= array_filter($errmsg);
-									}
+								}
+								//Check if Transaction Date is not within Closed Date Period
+								if(($transdate!="") && $transdate <= $close_date){
+									$errmsg[]	= "Transaction Date [<strong>$transdate</strong>] on <strong>row $line</strong> must not be within the Closed Period.<br/>";
+									$errmsg		= array_filter($errmsg);
 								}
 								//Check Due Date is the same
 								if($duedate == ''){
@@ -1178,12 +1202,12 @@ class controller extends wc_controller
 										$errmsg[]	= "Due Date [<strong>$duedate</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
 										$errmsg		= array_filter($errmsg);
 									}
-									//Check if Due Date is not within Closed Date Period
-									if($duedate <= $close_dates){
-										$errmsg[]	= "Due Date [<strong>$duedate</strong>] on <strong>row $line</strong> must not be within the Closed Period.<br/>";
-										$errmsg		= array_filter($errmsg);
-									}
 								}	
+								//Check if Due Date is not within Closed Date Period
+								if($duedate <= $close_date){
+									$errmsg[]	= "Due Date [<strong>$duedate</strong>] on <strong>row $line</strong> must not be within the Closed Period.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
 								//Compare Transaction Date and Due Date. Due Date must not be earlier than Transaction date. 
 								if( ($duedate != "" && $transdate != "") && ($transdate > $duedate)){
 									$errmsg[]	= "Due Date [<strong>$duedate</strong>] on <strong>row $line</strong> must not be earlier than the Transaction Date [<strong>$transdate</strong>].<br/>";
@@ -1192,19 +1216,18 @@ class controller extends wc_controller
 								//Check the Customer if the same
 								if($customer == ''){
 									$customer 	=	$prev_cust;
-								}  else {
-									//Checks if Customer is the same for the same Document Set
-									if ($customer != $prev_cust) {
-										$errmsg[]	= "Customer Code [<strong>$customer</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
-										$errmsg		= array_filter($errmsg);
-									}
-									//Check if Customer Code exists 
-									$cust_exists 	=	$this->accounts_receivable->check_if_exists('partnercode','partners'," partnercode = '$customer' ");
-									$cust_count 	=	$cust_exists[0]->count;	
-									if( $cust_count <= 0 ) {
-										$errmsg[]	= "Customer Code [<strong>$customer</strong>] on <strong>row $line</strong> does not exist.<br/>";
-										$errmsg		= array_filter($errmsg);
-									}
+								}  
+								//Checks if Customer is the same for the same Document Set
+								if ($customer != $prev_cust) {
+									$errmsg[]	= "Customer Code [<strong>$customer</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+								//Check if Customer Code exists 
+								$cust_exists 	=	$this->accounts_receivable->check_if_exists('partnercode','partners'," partnercode = '$customer' ");
+								$cust_count 	=	$cust_exists[0]->count;	
+								if( $cust_count <= 0 ) {
+									$errmsg[]	= "Customer Code [<strong>$customer</strong>] on <strong>row $line</strong> does not exist.<br/>";
+									$errmsg		= array_filter($errmsg);
 								}
 								//Check the Invoice #
 								if($invoiceno == ''){
@@ -1273,18 +1296,6 @@ class controller extends wc_controller
 								$noteslist[] 		= $notes;
 								$referencelist[] 	= $reference;
 							}
-							// if( !isset($datelist) || !in_array($transdate, $datelist) ){	
-							// 	$datelist[] 		= $transdate;
-							// }
-							// if( !isset($duedatelist) || !in_array($duedate, $duedatelist) ){	
-							// 	$duedatelist[] 		= $duedate;
-							// }
-							// if( !isset($customerlist) || !in_array($customer, $customerlist) ){
-							// 	$customerlist[] 	= $customer;
-							// }
-							// if( !isset($invoicelist) || !in_array($invoiceno, $invoicelist) ){
-							// 	$invoicelist[] 		= $invoiceno;
-							// }
  						}
 
 						$prev_no 		= $jvno;
