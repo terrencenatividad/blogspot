@@ -120,8 +120,6 @@
 							->setWhere($add . $add_query)
 							->setOrderBy($sort)
 							->runPagination();
-							// echo $this->db->getQuery();
-
 			return $result;
 		}
 		
@@ -129,7 +127,7 @@
 		{	 
 			$retrieved_data =	array();
 			
-			$header_fields 	= 	"voucherno, transactiondate, duedate,customer, amount, discounttype, discountamount, netamount,remarks,vat_sales, vat_exempt, taxamount";
+			$header_fields 	= 	"voucherno, transactiondate, duedate,customer, amount, discounttype, discountamount, netamount,remarks,vat_sales, vat_exempt, taxamount,IF(s.duedate < CURDATE() AND s.stat = 'open', 'expired', s.stat) stat";
 
 			$condition 		=	" voucherno = '$voucherno' ";
 			
@@ -153,7 +151,6 @@
 											->setWhere($condition)
 											->runSelect()
 											->getResult();
-											
 			return $retrieved_data;
 		}
 
@@ -415,7 +412,7 @@
 					->setValues($data)
 					->setWhere($cond)
 					->runUpdate();
-					echo $this->db->getQuery();
+					// echo $this->db->getQuery();
 			return $result;
 		}
 

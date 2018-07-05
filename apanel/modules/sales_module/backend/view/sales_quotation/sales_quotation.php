@@ -41,7 +41,7 @@
 							->setName('transaction_date')
 							->setId('transaction_date')
 							->setClass('datepicker-input')
-							->setAttribute(array('readonly' => ''))
+							->setAttribute(array('readonly' => '', 'data-date-start-date' => $close_date))
 							->setAddon('calendar')
 							->setValue($transactiondate)
 							->setValidation('required')
@@ -75,7 +75,7 @@
 							->setName('due_date')
 							->setId('due_date')
 							->setClass('datepicker-input')
-							->setAttribute(array('readonly' => ''))
+							->setAttribute(array('readonly' => '', 'data-date-start-date' => $close_date))
 							->setAddon('calendar')
 							->setValue($due_date)
 							->setValidation('required')
@@ -353,7 +353,7 @@
 				</div>
 			</div>
 
-			<div class="row">
+			<!-- <div class="row">
 				<div class="col-md-12 col-sm-12 text-center">
 					<?php
 
@@ -383,7 +383,6 @@
 						</div>
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
-							<!--<button type="button" data-id="<?=$generated_id?>"  id="btnCancel" class="btn btn-default" >Cancel</button>-->
 							<a href="<?=MODULE_URL?>"class="btn btn-default back" data-toggle="back_page" >Cancel</a>
 						</div>
 					<? 	
@@ -396,13 +395,54 @@
 						</div>
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
-							<!--<a class="btn btn-default" role="button" href="<?=MODULE_URL?>" style="outline:none;">Cancel</a>-->
 							<a href="<?=MODULE_URL?>" class="btn btn-default back" data-toggle="back_page">Cancel</a>
 						</div>
 					<?
 					}
 					?>
 					
+				</div>
+			</div> -->
+
+			<div class="box-body">
+				<div class="row">
+					<div class="col-md-12 col-sm-12 text-center">
+						<?php
+							$save		= ($task == 'create') ? 'name="save"' : '';
+							$save_new	= ($task == 'create') ? 'name="save_new"' : '';
+						?>
+							<input class = "form_iput" value = "" name = "save" id = "save" type = "hidden">
+						<?php 	
+							echo $ui->loadElement('check_task')
+									->addSave(($task == 'create'))
+									->addOtherTask('Save','',($task == 'edit'),'primary')
+									->addEdit(($task == 'view' && ( $stat != 'expired'  && !$restrict_sq ) ))
+									->setValue($voucherno)
+									->draw_button($show_input);
+
+						?>
+						&nbsp;&nbsp;&nbsp;
+						<?  
+						if( $task != "view" )
+						{
+						?>
+							<div class="btn-group">
+								<button type="button" class="btn btn-default btn-flat" data-id="<?php echo $generated_id?>" id="btnCancel" data-toggle="back_page">Cancel</button>
+							</div>
+						<?
+						}
+						else
+						{
+						?>
+							<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
+						<?
+						}
+						?>
+					</div>
+				</div>
+				
+				<div class="row">
+					<div class = "col-md-12">&nbsp;</div>
 				</div>
 			</div>
 			
@@ -436,7 +476,7 @@ $(document).ready(function(){
 		return false;
 	});
 
-	computeDueDate();
+	// computeDueDate();
 });
 
 </script>
@@ -651,6 +691,11 @@ $(document).ready(function(){
 </div>
 <!-- End DELETE RECORD CONFIRMATION MODAL-->
 
+<?php 
+	if (isset($modal_script)) {
+		echo $modal_script;
+	}
+?>
 <script>
 var ajax = {};
 
@@ -746,9 +791,13 @@ function getItemDetails(id)
 			{
 				document.getElementById('itemprice'+row).value 			= 	addCommas(data.c_price);
 			}
-			else
+			else if(data.price != null )
 			{	
 				document.getElementById('itemprice'+row).value 			= 	addCommas(data.price);
+			}
+			else
+			{
+				document.getElementById('itemprice'+row).value 			= 	addCommas('0.00');
 			}
 				
 			$('#sales_quotation_form').trigger('change');
@@ -759,6 +808,7 @@ function getItemDetails(id)
 
 			$('#sales_quotation_form').trigger('change');
 		}
+		computeAmount();
 	});
 
 }
@@ -895,7 +945,7 @@ function setZero()
 	document.getElementById('issueuom['+newid+']').value 			= '';
 	document.getElementById('itemprice['+newid+']').value 			= '0.00';
 
-	$('#itemcode\\['+newid+'\\]').trigger('change');
+	// $('#itemcode\\['+newid+'\\]').trigger('change');
 }
 
 /**CANCEL TRANSACTIONS**/
@@ -914,7 +964,7 @@ function cancelTransaction(vno)
 }
 
 /** FINALIZE SAVING **/
-function finalizeTransaction()
+function finalizeTransaction(type)
 {
 	$("#sales_quotation_form").find('.form-group').find('input, textarea, select').trigger('blur');
 
@@ -927,17 +977,74 @@ function finalizeTransaction()
 		}
 	});
 
+	$('.price').each(function() {
+		if( $(this).val() <= 0 )
+		{
+			no_error = false;
+			$(this).closest('div').addClass('has-error');
+		}
+	});
+
 	if($("#sales_quotation_form").find('.form-group.has-error').length == 0 && no_error)
 	{	
-		 computeAmount();
+		$('#save').val(type);
+		computeAmount();
 
-		if($("#sales_quotation_form #itemcode\\[1\\]").val() != '' && $("#sales_quotation_form #detailparticular\\[1\\]").val() != '' && $("#sales_quotation_form #transaction_date").val() != '' && $("#sales_quotation_form #customer").val() != '')
+		// if($("#sales_quotation_form #itemcode\\[1\\]").val() != '' && $("#sales_quotation_form #detailparticular\\[1\\]").val() != '' && $("#sales_quotation_form #transaction_date").val() != '' && $("#sales_quotation_form #customer").val() != '')
+		// {
+		// 	$('#sales_quotation_form').submit();
+		// 	// setTimeout(function() {
+				
+		// 	// },1000);
+		// }
+		var btn 	=	$('#save').val();
+		if($("#sales_quotation_form #itemcode\\[1\\]").val() != '' && $("#sales_quotation_form #transaction_date").val() != '' && $("#sales_quotation_form #due_date").val() != '' && $("#sales_quotation_form #customer").val() != '')
 		{
 			setTimeout(function() {
-				$('#sales_quotation_form').submit();
+
+				$.post("<?=BASE_URL?>sales/sales_quotation/ajax/<?=$task?>",$("#sales_quotation_form").serialize()+'<?=$ajax_post?>',function(data)
+				{	
+					if( data.msg == 'success' )
+					{
+						if( btn == 'final' )
+						{
+							$('#delay_modal').modal('show');
+							setTimeout(function() {
+								window.location = "<?=BASE_URL?>sales/sales_quotation";
+							}, 1000)
+						}
+						else if( btn == 'final_preview' )
+						{
+							// window.location 	=	"<?=BASE_URL?>sales/sales_quotation/view/"+data.voucher;
+							$('#delay_modal').modal('show');
+							setTimeout(function() {
+								window.location = "<?=BASE_URL?>sales/sales_quotation/view/"+data.voucher;
+							}, 1000)
+						}
+						else if( btn == 'final_new' )
+						{
+							// window.location 	=	"<?=BASE_URL?>sales/sales_quotation/create";
+							$('#delay_modal').modal('show');
+							setTimeout(function() {
+								window.location = "<?=BASE_URL?>sales/sales_quotation/create";
+							}, 1000)
+						}
+						
+					}
+					else
+					{
+						//insert error message / MOdal heree
+						
+					}
+				});
 			},1000);
 		}
 		
+	}else{
+		$('#warning_modal').modal('show').find('#warning_message').html('Please make sure all required fields are filled out.');		
+		//$('#warning_modal').modal('show').find('#warning_message').html('Please Input Quantity > 0');
+		next = $('#sales_order_form').find(".has-error").first();
+		$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
 	}
 }
 
@@ -969,7 +1076,10 @@ function finalizeEditTransaction()
 					{
 						if( btn == 'final' )
 						{
-							window.location 	=	"<?=BASE_URL?>sales/sales_quotation";
+							$('#delay_modal').modal('show');
+							setTimeout(function() {
+								window.location = "<?=BASE_URL?>sales/sales_quotation";
+							}, 1000)
 						}
 						else if( btn == 'final_preview' )
 						{
@@ -1185,15 +1295,12 @@ $(document).ready(function(){
 
 		$('.itemcode').on('change', function(e) 
 		{
-			computeAmount();
 			var customer 	=	$('#customer').val();
 			
 			if( customer != "" )
 			{
 				var id = $(this).attr("id");
 				getItemDetails(id);
-				
-				
 			}
 			else
 			{
@@ -1214,19 +1321,26 @@ $(document).ready(function(){
 		// For adding new roll
 		$('body').on('click', '.add-data', function() 
 		{	
-			
 			$('#itemsTable tbody tr.clone select').select2('destroy');
 			
 			var clone = $("#itemsTable tbody tr.clone:first").clone(true); 
 
 			var ParentRow = $("#itemsTable tbody tr.clone").last();
+			
+			var table 		= document.getElementById('itemsTable');
+			var rows 		= table.tBodies[0].rows.length;
 		
+			// if(rowlimit == 0 || rows < rowlimit){
+			// 	clone.clone(true).insertAfter(ParentRow);
+			// 	setZero();
+			// }else{
+			// 	$('#row_limit').modal('show');
+			// }
+
 			clone.clone(true).insertAfter(ParentRow);
-			
 			setZero();
-			
+
 			$('#itemsTable tbody tr.clone select').select2({width: "100%"});
-			computeAmount();
 		});
 		
 	// -- For Items -- End
@@ -1265,81 +1379,29 @@ $(document).ready(function(){
 			//Final Saving
 			$('#sales_quotation_form #btnSave').click(function(){
 
-				$('#save').val("final");
-
-				finalizeTransaction();
+				finalizeTransaction("final");
 
 			});
 
 			//Save & Preview
 			$("#sales_quotation_form #save_preview").click(function()
 			{
-				$('#save').val("final_preview");
-
-				finalizeTransaction();
+				finalizeTransaction("final_preview");
 			});
 
 			//Save & New
 			$("#sales_quotation_form #save_new").click(function()
 			{
-				$('#save').val("final_new");
-
-				finalizeTransaction();
+				finalizeTransaction("final_new");
 			});
 		}
-		else if('<?= $task ?>' == "edit") 
+		else if('<?= $task ?>' == "edit")
 		{
 			//Final Saving
-			$("#sales_quotation_form").change(function()
-			{
-				computeAmount();
-			});
-			$('#sales_quotation_form #btnSave').click(function(){
+			computeAmount();
+			$('#sales_quotation_form .save').click(function(){
 				
 				$('#save').val("final");
-
-				finalizeEditTransaction();
-			});
-
-			//Save & Preview
-			$("#sales_quotation_form #save_preview").click(function()
-			{
-				$('#save').val("final_preview");
-
-				finalizeEditTransaction();
-			});
-
-			//Save & New
-			$("#sales_quotation_form #save_new").click(function()
-			{
-				$('#save').val("final_new");
-
-				finalizeEditTransaction();
-			});
-		}
-
-		else if('<?= $task ?>' == "create_so") 
-		{
-			//Final Saving
-			$('#sales_quotation_form #btnSave').click(function(){
-				
-				$('#save').val("final");
-
-				finalizeEditTransaction();
-			});
-
-			//Save & Preview
-			$("#sales_quotation_form #save_preview").click(function()
-			{
-				$('#save').val("final_preview");
-
-				finalizeEditTransaction();
-			});
-
-			//Save & New
-			$("#sales_quotation_form #save_new").click(function()
-			{
-				$('#save').val("final_new");
 
 				finalizeEditTransaction();
 			});

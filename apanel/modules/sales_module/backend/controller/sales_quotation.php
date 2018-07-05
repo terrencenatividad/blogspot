@@ -9,6 +9,7 @@ class controller extends wc_controller
 		$this->seq 				= new seqcontrol();
 		$this->input            = new input();
 		$this->ui 			    = new ui();
+		$this->restrict 		= new sales_restriction_model();
 		$this->view->title      = 'Quotation';
 		$this->show_input 	    = true;
 		$this->logs  			= new log;
@@ -59,6 +60,10 @@ class controller extends wc_controller
 		$data['percentage'] 	= "";
 		$data['h_disctype'] 	= "perc";
 
+		// Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
+
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->sq->getValue("currency", $curr_type_data,'','currencycode');
 
@@ -89,69 +94,7 @@ class controller extends wc_controller
 		$data["row_ctr"] 		= 0;
 		$data['cmp'] 			= $this->companycode;
 
-		//Finalize Saving	
-		$save_status 			= $this->input->post('save');
-		//echo $save_status;
-		if( $save_status == "final" || $save_status == "final_preview" || $save_status == "final_new" )
-		{
-			$voucherno 				= $this->input->post('h_voucher_no');	
-			$isExist 				= $this->sq->getValue("salesquotation", array("voucherno"), "voucherno = '$voucherno'");
-			
-			if($isExist[0]->voucherno)
-			{
-				/** RETRIEVE DATA **/
-				$retrieved_data 		= $this->sq->retrieveExistingSQ($voucherno);
-			
-					
-				$data["voucherno"]       = $retrieved_data["header"]->voucherno;
-				$data["customer"]      	 = $retrieved_data["header"]->customer;
-				$data["due_date"]    	 = date('M d,Y', strtotime($retrieved_data["header"]->duedate));
-				$data["transactiondate"] = date('M d,Y', strtotime($retrieved_data["header"]->transactiondate));
-				
-				//Footer Data
-				$data['amount'] 	 = $retrieved_data['header']->amount;
-				$data['t_discount'] 	 = $retrieved_data['header']->discountamount;
-				$data['t_total'] 	 	 = $retrieved_data['header']->netamount;
-
-				$discounttype 		 	 = $retrieved_data['header']->discounttype;
-				$data['percentage'] 	 = "";
-				$data['h_disctype'] 	 = $discounttype;
-
-				//Vendor Data
-				$data["terms"] 		 	 = $retrieved_data["customer"]->terms;
-				$data["tinno"] 		 	 = $retrieved_data["customer"]->tinno;
-				$data["address1"] 		 = $retrieved_data["customer"]->address1;
-				
-				//Details
-				$data['details'] 		 = $retrieved_data['details'];
-
-				/**UPDATE TABLES FOR FINAL SAVING**/
-				$generatedvoucher			= $this->seq->getValue('SQ', $this->companycode); 
-			
-				$update_info				= array();
-				$update_info['voucherno']	= $generatedvoucher;
-				$update_info['stat']		= 'open';
-				$update_condition			= "voucherno = '$voucherno'";
-				$updateTempRecord			= $this->sq->updateData($update_info,"salesquotation",$update_condition);
-				$updateTempRecord			= $this->sq->updateData($update_info,"salesquotation_details",$update_condition);
-
-				$this->logs->saveActivity("Create Quotation [$generatedvoucher] ");
-
-				if( $updateTempRecord && $save_status == 'final' )
-				{
-					$this->url->redirect(BASE_URL . 'sales/sales_quotation');
-				}
-				else if( $updateTempRecord && $save_status == 'final_preview' )
-				{
-					$this->url->redirect(BASE_URL . 'sales/sales_quotation/view/'.$generatedvoucher);
-				}
-				else if( $updateTempRecord && $save_status == 'final_new' )
-				{
-					$this->url->redirect(BASE_URL . 'sales/sales_quotation/create');
-				}
-			}
-
-		}
+		
 
 		$this->view->load('sales_quotation/sales_quotation', $data);
 	}
@@ -168,6 +111,10 @@ class controller extends wc_controller
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->sq->getValue("currency", $curr_type_data,'','currencycode');
 
+		// Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
+		
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode, ' - ', itemname) val");
 		$data["itemcodes"] 		= $this->sq->getValue("items", $cc_entry_data,'',"itemcode");
 
@@ -228,6 +175,10 @@ class controller extends wc_controller
 	{
 		$retrieved_data 		= $this->sq->retrieveExistingSQ($voucherno);
 
+		// Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
+		
 		$data['customer_list'] 	= $this->sq->retrieveCustomerList();
 		$data['proforma_list'] 	= $this->sq->retrieveProformaList();
 		$data["business_type"] 	= $this->sq->getOption("businesstype");
@@ -255,11 +206,16 @@ class controller extends wc_controller
 		$data['cmp'] 			= $this->companycode;
 
 		// Header Data
+		
+		$transactiondate 		= $retrieved_data["header"]->transactiondate;
+		$duedate 				= $retrieved_data["header"]->duedate;
+
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
-		$data["remarks"]       = $retrieved_data["header"]->remarks;
+		$data["remarks"]       	 = $retrieved_data["header"]->remarks;
 		$data["customer"]      	 = $retrieved_data["header"]->customer;
-		$data["due_date"]    	 = date('M d,Y', strtotime($retrieved_data["header"]->duedate));
-		$data["transactiondate"] = date('M d,Y', strtotime($retrieved_data["header"]->transactiondate));
+		$data["due_date"]    	 = $this->date->dateFormat($duedate);
+		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
+		$data['stat'] 			 = $retrieved_data['header']->stat;
 		
 		//Footer Data
 		$data['amount'] 	 	 = $retrieved_data['header']->amount;
@@ -282,6 +238,9 @@ class controller extends wc_controller
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
 		
+		$restrict_sq 			 = $this->restrict->setButtonRestriction($transactiondate);
+		$data['restrict_sq'] 	 = $restrict_sq;
+
 		$this->view->load('sales_quotation/sales_quotation', $data);
 	}
 
@@ -445,9 +404,10 @@ class controller extends wc_controller
 			foreach ($pagination->result as $key => $row) {
 
 				$customer 	= $this->sq->getValue('partners','partnername'," partnercode = '$row->customer' ");
-
 				$customer_name 	=	$customer[0]->partnername;
 
+				$transactiondate 	=	$row->transactiondate;
+				
 				if($row->stat == 'locked')
 				{
 					$voucher_status = '<span class="label label-success">CONVERTED</span>';
@@ -465,22 +425,24 @@ class controller extends wc_controller
 					$voucher_status = '<span class="label label-danger">EXPIRED</span>';
 				}
 
+				$restrict_sq =	$this->restrict->setButtonRestriction($transactiondate);
+
 				$table .= '<tr>';
 				$element = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($row->stat == 'open')
-									->addDelete($row->stat == 'open' || $row->stat == 'expired' )
+									->addEdit($row->stat == 'open' && !$restrict_sq)
+									->addDelete( ($row->stat == 'open' && !$restrict_sq) || ($row->stat == 'expired' && !$restrict_sq) )
 									// ->addOtherTask('Print Preview', 'print',($row->stat == 'open'  || $row->stat == 'cancelled' || $row->stat == 'locked' ))
 									->addPrint()
 									->setLabels(array('delete'=>'Cancel'))
-									->addOtherTask('Convert to SO', 'share', ($row->stat == 'open'))
+									->addOtherTask('Convert to SO', 'share', ($row->stat == 'open' && !$restrict_sq))
 									->setValue($row->voucherno);
 				if ($row->stat == 'open') {
 					$element->addCheckbox();
 				}
 				$dropdown = $element->draw();
 				$table .= '<td align = "center">' . $dropdown . '</td>';
-				$table .= '<td>' . date("M d, Y",strtotime($row->transactiondate)) . '</td>';
+				$table .= '<td>' . date("M d, Y",strtotime($transactiondate)) . '</td>';
 				$table .= '<td>' . $row->voucherno. '</td>';
 				$table .= '<td>' . $customer_name . '</td>';
 				$table .= '<td>' . $voucher_status . '</td>';
@@ -562,14 +524,61 @@ class controller extends wc_controller
 		else
 			$result    = $this->sq->processTransaction($data_post, "create");
 
-		if(!empty($result))
-			$msg = $result;
-		else
-			$msg = "success";
+		//Finalize Saving	
+		$save_status 			= $this->input->post('save');
+		//echo $save_status;
+		if( $save_status == "final" || $save_status == "final_preview" || $save_status == "final_new" )
+		{
+			$voucherno 				= $this->input->post('h_voucher_no');	
+			$isExist 				= $this->sq->getValue("salesquotation", array("voucherno"), "voucherno = '$voucherno'");
+			
+			if($isExist[0]->voucherno)
+			{
+				/** RETRIEVE DATA **/
+				$retrieved_data 		= $this->sq->retrieveExistingSQ($voucherno);
+			
+					
+				$data["voucherno"]       = $retrieved_data["header"]->voucherno;
+				$data["customer"]      	 = $retrieved_data["header"]->customer;
+				$data["due_date"]    	 = date('M d,Y', strtotime($retrieved_data["header"]->duedate));
+				$data["transactiondate"] = date('M d,Y', strtotime($retrieved_data["header"]->transactiondate));
+				
+				//Footer Data
+				$data['amount'] 	 = $retrieved_data['header']->amount;
+				$data['t_discount'] 	 = $retrieved_data['header']->discountamount;
+				$data['t_total'] 	 	 = $retrieved_data['header']->netamount;
 
-		return $dataArray = array("msg" => $msg);
+				$discounttype 		 	 = $retrieved_data['header']->discounttype;
+				$data['percentage'] 	 = "";
+				$data['h_disctype'] 	 = $discounttype;
+
+				//Vendor Data
+				$data["terms"] 		 	 = $retrieved_data["customer"]->terms;
+				$data["tinno"] 		 	 = $retrieved_data["customer"]->tinno;
+				$data["address1"] 		 = $retrieved_data["customer"]->address1;
+				
+				//Details
+				$data['details'] 		 = $retrieved_data['details'];
+
+				/**UPDATE TABLES FOR FINAL SAVING**/
+				$generatedvoucher			= $this->seq->getValue('SQ', $this->companycode); 
+			
+				$update_info				= array();
+				$update_info['voucherno']	= $generatedvoucher;
+				$update_info['stat']		= 'open';
+				$update_condition			= "voucherno = '$voucherno'";
+				$updateTempRecord			= $this->sq->updateData($update_info,"salesquotation",$update_condition);
+				$updateTempRecord			= $this->sq->updateData($update_info,"salesquotation_details",$update_condition);
+
+				$this->logs->saveActivity("Create Quotation [$generatedvoucher] ");
+				$data = array("msg" => 'success', "voucher" => $generatedvoucher);
+			}
+		} else {
+			$data = false;
+		}
+		return $data;
 	}
-	
+
 	private function update()
 	{
 		$data_post 	= $this->input->post();
