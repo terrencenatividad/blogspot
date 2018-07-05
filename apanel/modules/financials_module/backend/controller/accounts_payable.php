@@ -7,6 +7,7 @@ class controller extends wc_controller
 		parent::__construct();
 		$this->url 			    = new url();
 		$this->accounts_payable = new accounts_payable();
+		$this->restrict 		= new financials_restriction_model();
 		$this->input            = new input();
 		$this->ui 			    = new ui();
 		$this->logs  			= new log;
@@ -209,6 +210,10 @@ class controller extends wc_controller
 		$data["transactiondate"]    = $this->date->dateFormat();
 		$data["duedate"]      		= $this->date->dateFormat();
 
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+
 		// Retrieve vendor list
 		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
 
@@ -314,6 +319,10 @@ class controller extends wc_controller
 		$data["v_balance"]     	   = $data["main"]->balance;
 		$data['v_notes'] 		   = $data["main"]->particulars;
 
+		// Retrieve Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
+
 		// Vendor/Customer Details
 		$data["v_vendor"] 		   = (!empty($data["cust"]->name)) ? $data["cust"]->name : "";
 		$data["v_email"] 		   = (!empty($data["cust"]->email)) ? $data["cust"]->email : "";
@@ -388,6 +397,10 @@ class controller extends wc_controller
 		$data["generated_id"]  = $sid;
 		$data["sid"] 		   = $sid;
 		$data["date"] 		   = date("M d, Y");
+
+		// Retrieve Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
 
 		// Retrieve vendor list
 		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
@@ -682,6 +695,7 @@ class controller extends wc_controller
 				$vendor		 = $row->vendor; 
 				$referenceno = $row->referenceno; 
 				$checker 	 = $row->importchecker;
+				$import 	 = ($checker == 'import') 	?	"Yes" 	:	"No";
 
 				if($balance != $amount && $balance != 0)
 				{
@@ -712,8 +726,8 @@ class controller extends wc_controller
 								'print',
 								$bir_link
 							)
-							->addDelete($show_delete)
-							->addCheckbox($show_delete)
+							->addDelete($show_delete && $checker != "import")
+							->addCheckbox($show_delete && $checker != "import")
 							->setValue($voucher)
 							->setLabels(array('delete' => 'Cancel'))
 							->draw();
@@ -725,10 +739,11 @@ class controller extends wc_controller
 			
 				$table	.= '<tr>';
 				$table	.= '<td class="text-center" style="vertical-align:middle;">'.$dropdown.'</td>';
-				$table	.= '<td class="text-center" style="vertical-align:middle;">'.$date.'</td>';
-				$table	.= '<td class="text-left" style="vertical-align:middle;">&nbsp;'.$voucher.'</td>';
-				$table	.= '<td class="text-left" style="vertical-align:middle;">&nbsp;'.$vendor.'</td>';
-				$table	.= '<td class="text-left" style="vertical-align:middle;">&nbsp;'.$referenceno.'</td>';
+				$table	.= '<td style="vertical-align:middle;">'.$date.'</td>';
+				$table	.= '<td style="vertical-align:middle;">'.$import.'</td>';
+				$table	.= '<td style="vertical-align:middle;">&nbsp;'.$voucher.'</td>';
+				$table	.= '<td style="vertical-align:middle;">&nbsp;'.$vendor.'</td>';
+				$table	.= '<td style="vertical-align:middle;">&nbsp;'.$referenceno.'</td>';
 				$table	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.number_format($amount,2).'</td>';
 				$table	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.number_format($balance,2).'</td>';
 				$table	.= '<td class="text-center" style="vertical-align:middle;">&nbsp;'.$voucher_status.'</td>';
@@ -1200,8 +1215,7 @@ class controller extends wc_controller
 			$totaldebit 		=	array();
 			$totalcredit 		=	array();							
 
-			$this->restrict 	= new financials_restriction_model();
-			$close_dates	 	= $this->restrict->getClosedDate();
+			$close_date 		= 	$this->restrict->getClosedDate();
 
 			if( empty($errmsg)  && !empty($z) ){
 				$total_debit 	=	0;
@@ -1251,9 +1265,19 @@ class controller extends wc_controller
 								$errmsg[]	= "Transaction Date on <strong>row $line</strong> should not be empty.<br/>";
 								$errmsg		= array_filter($errmsg);
 							}
+							//Check if Transaction Date is not within Closed Date Period
+							if($transdate <= $close_date){
+								$errmsg[]	= "Transaction Date [<strong>$transdate</strong>] on <strong>row $line</strong> must not be within the Closed Period.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
 							// Check if Due Date is not Empty 
 							if($duedate == ''){
 								$errmsg[]	= "Due Date on <strong>row $line</strong> should not be empty.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+							//Check if Due Date is not within Closed Date Period
+							if($duedate <= $close_date){
+								$errmsg[]	= "Due Date [<strong>$duedate</strong>] on <strong>row $line</strong> must not be within the Closed Period.<br/>";
 								$errmsg		= array_filter($errmsg);
 							}
 							//Check if Vendor Code is not empty
@@ -1309,12 +1333,12 @@ class controller extends wc_controller
 									$errmsg		= array_filter($errmsg);
 								}
 								//Check if Transaction Date is not within Closed Date Period
-								if($transdate <= $close_dates){
+								if($transdate <= $close_date){
 									$errmsg[]	= "Transaction Date [<strong>$transdate</strong>] on <strong>row $line</strong> must not be within the Closed Period.<br/>";
 									$errmsg		= array_filter($errmsg);
 								}
 								//Check if Due Date is not within Closed Date Period
-								if($duedate <= $close_dates){
+								if($duedate <= $close_date){
 									$errmsg[]	= "Due Date [<strong>$duedate</strong>] on <strong>row $line</strong> must not be within the Closed Period.<br/>";
 									$errmsg		= array_filter($errmsg);
 								}
