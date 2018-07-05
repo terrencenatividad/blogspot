@@ -9,6 +9,7 @@ class controller extends wc_controller
 		$this->seq 				= new seqcontrol();
 		$this->input            = new input();
 		$this->ui 			    = new ui();
+		$this->restrict 		= new purchase_restriction_model();
 		$this->view->title      = 'Purchase Request';
 		$this->show_input 	    = true;
 		$this->logs  			= new log;
@@ -49,6 +50,11 @@ class controller extends wc_controller
 	public function create()
 	{
 		$data 					= $this->input->post($this->fields);
+
+		// Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
+		
 		$data['requestor_list'] = $this->pr->retrieverequestorList();
 		$data['proforma_list'] 	= $this->pr->retrieveProformaList();
 		$data["business_type"] 	= $this->pr->getOption("businesstype");
@@ -101,8 +107,8 @@ class controller extends wc_controller
 				/** RETRIEVE DATA **/
 				$retrieved_data 		= $this->pr->retrieveExistingREQ($voucherno);
 				$data["voucherno"]       = $retrieved_data["header"]->voucherno;
-				$data["requestor"]      	 = $retrieved_data["header"]->requestor;
-				$data["department"]    	 = $retrieved_data["department"]->voucherno;
+				$data["requestor"]      = $retrieved_data["header"]->requestor;
+				$data["department"]    	 = $retrieved_data["header"]->department;
 				$data["transactiondate"] = date('M d,Y', strtotime($retrieved_data["header"]
 				->transactiondate));
 				//Footer Data
@@ -115,9 +121,9 @@ class controller extends wc_controller
 				$data['h_disctype'] 	 = $discounttype;
 
 				//Vendor Data
-				$data["terms"] 		 	 = $retrieved_data["requestor"]->terms;
-				$data["tinno"] 		 	 = $retrieved_data["requestor"]->tinno;
-				$data["address1"] 		 = $retrieved_data["requestor"]->address1;
+				// $data["terms"] 		 	 = $retrieved_data["requestor"]->terms;
+				// $data["tinno"] 		 	 = $retrieved_data["requestor"]->tinno;
+				// $data["address1"] 		 = $retrieved_data["requestor"]->address1;
 				
 				//Details
 				$data['details'] 		 = $retrieved_data['details'];
@@ -137,7 +143,17 @@ class controller extends wc_controller
 
 				if( $updateTempRecord && $save_status == 'final' )
 				{
-					$this->url->redirect(BASE_URL . 'purchase/purchase_request');
+					// $this->url->redirect(BASE_URL . 'purchase/purchase_request');
+					$data['modal_script'] =  
+					"<script type='text/javascript'>
+						$(function() {
+							$('#delay_modal').modal('show');
+							setTimeout(function() {
+								window.location = '" . BASE_URL . 'purchase/purchase_request' . "';
+							}, 1000)	
+						});
+					</script>";
+						// window.location = '" . BASE_URL . 'purchase/purchase_request' . "';
 				}
 				else if( $updateTempRecord && $save_status == 'final_preview' )
 				{
@@ -157,6 +173,11 @@ class controller extends wc_controller
 	public function edit($voucherno)
 	{
 		$retrieved_data 		= $this->pr->retrieveExistingREQ($voucherno);
+		
+		// Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
+		
 		$data['requestor_list'] = $this->pr->retrieverequestorList();
 		$data['proforma_list'] 	= $this->pr->retrieveProformaList();
 		$data["business_type"] 	= $this->pr->getOption("businesstype");
@@ -224,6 +245,10 @@ class controller extends wc_controller
 	public function view($voucherno)
 	{
 		$retrieved_data 		= $this->pr->retrieveExistingREQ($voucherno);
+
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
+		
 		$data['requestor_list'] 	= $this->pr->retrieverequestorList();
 		$data['proforma_list'] 	= $this->pr->retrieveProformaList();
 		$data["business_type"] 	= $this->pr->getOption("businesstype");
@@ -250,13 +275,16 @@ class controller extends wc_controller
 		$data["row_ctr"] 		= 0;
 		$data['cmp'] 			= $this->companycode;
 
+		$transactiondate 		= $retrieved_data["header"]->transactiondate;
+		$duedate 				= $retrieved_data["header"]->duedate;
+
 		// Header Data
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
-		$data["requestor"]      	 = $retrieved_data["header"]->requestor;
+		$data["requestor"]       = $retrieved_data["header"]->requestor;
 		$data["remarks"]      	 = $retrieved_data["header"]->remarks;
-		$data["department"]      	 = $retrieved_data["header"]->department;
-		$data["due_date"]    	 = date('M d,Y', strtotime($retrieved_data["header"]->duedate));
-		$data["transactiondate"] = date('M d,Y', strtotime($retrieved_data["header"]->transactiondate));
+		$data["department"]      = $retrieved_data["header"]->department;
+		$data["due_date"]    	 = $this->date->dateFormat($duedate);
+		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
 		
 		//Footer Data
 		$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
@@ -279,6 +307,9 @@ class controller extends wc_controller
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
 		
+		$restrict_req 			 =	$this->restrict->setButtonRestriction($transactiondate);
+		$data['restrict_req'] 	 = $restrict_req;
+
 		$this->view->load('purchase_request/purchase_request', $data);
 	}
 
@@ -463,6 +494,8 @@ class controller extends wc_controller
 
 				$requestor_name  =	$requestor[0]->firstname . " " . $requestor[0]->lastname;
 
+				$transactiondate 	=	$row->transactiondate;
+
 				if($row->stat == 'locked')
 				{
 					$voucher_status = '<span class="label label-success">CONVERTED</span>';
@@ -481,13 +514,16 @@ class controller extends wc_controller
 				}
 				
 				$table .= '<tr>';
+				
+				$restrict_req =	$this->restrict->setButtonRestriction($transactiondate);
+
 				$element = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($row->stat == 'open')
-									->addDelete($row->stat == 'open'  ||  $row->stat == 'expired' )
+									->addEdit($row->stat == 'open' && !$restrict_req )
+									->addDelete( ($row->stat == 'open' && !$restrict_req)  ||  $row->stat == 'expired' )
 									->addPrint()
 									->setLabels(array('delete'=>'Cancel'))
-									->addOtherTask('Convert to PO', 'share', ($row->stat == 'open'))
+									->addOtherTask('Convert to PO', 'share', ($row->stat == 'open' && !$restrict_req))
 									->setValue($row->voucherno);
 									
 
@@ -576,13 +612,58 @@ class controller extends wc_controller
 		else
 			$result    = $this->pr->processTransaction($data_post, "create");
 
-		if(!empty($result))
-			$msg = $result;
-		else{
-			$msg = "success";
-		}
 
-		return $dataArray = array("msg" => $msg);
+		//Finalize Saving	
+		$save_status 			= $this->input->post('save');
+		//echo $save_status;
+		if( $save_status == "final" || $save_status == "final_preview" || $save_status == "final_new" )
+		{
+			$voucherno 				= $this->input->post('h_voucher_no');	
+			$isExist 				= $this->pr->getValue("purchaserequest", array("voucherno"), "voucherno = '$voucherno'");
+			
+			if($isExist[0]->voucherno)
+			{
+				/** RETRIEVE DATA **/
+				$retrieved_data 		= $this->pr->retrieveExistingREQ($voucherno);
+				$data["voucherno"]       = $retrieved_data["header"]->voucherno;
+				$data["requestor"]      = $retrieved_data["header"]->requestor;
+				$data["department"]    	 = $retrieved_data["header"]->department;
+				$data["transactiondate"] = date('M d,Y', strtotime($retrieved_data["header"]
+				->transactiondate));
+				//Footer Data
+				$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
+				$data['t_discount'] 	 = $retrieved_data['header']->discountamount;
+				$data['t_total'] 	 	 = $retrieved_data['header']->netamount;
+
+				$discounttype 		 	 = $retrieved_data['header']->discounttype;
+				$data['percentage'] 	 = "";
+				$data['h_disctype'] 	 = $discounttype;
+
+				//Vendor Data
+				// $data["terms"] 		 	 = $retrieved_data["requestor"]->terms;
+				// $data["tinno"] 		 	 = $retrieved_data["requestor"]->tinno;
+				// $data["address1"] 		 = $retrieved_data["requestor"]->address1;
+				
+				//Details
+				$data['details'] 		 = $retrieved_data['details'];
+
+				/**UPDATE TABLES FOR FINAL SAVING**/
+				$generatedvoucher			= $this->seq->getValue('REQ', $this->companycode); 
+			
+				$update_info				= array();
+				$update_info['voucherno']	= $generatedvoucher;
+				$update_info['stat']		= 'open';
+				$update_condition			= "voucherno = '$voucherno'";
+				$this->logs->saveActivity("Create Purchase Request [$generatedvoucher] ");
+				$updateTempRecord			= $this->pr->updateData($update_info,"purchaserequest",$update_condition);
+				$updateTempRecord			= $this->pr->updateData($update_info,"purchaserequest_details",$update_condition);
+				$data = array("msg" => 'success', "voucher" => $generatedvoucher);
+			}
+
+		} else {
+			$data = false;
+		}
+		return $data;
 	}
 	
 	private function update()

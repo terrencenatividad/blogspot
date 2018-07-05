@@ -41,7 +41,7 @@
 							->setName('transaction_date')
 							->setId('transaction_date')
 							->setClass('datepicker-input')
-							->setAttribute(array('readonly' => ''))
+							->setAttribute(array('readonly' => '', 'data-date-start-date' => $close_date))
 							->setAddon('calendar')
 							->setValue($transactiondate)
 							->setValidation('required')
@@ -94,7 +94,7 @@
 							->setName('department')
 							->setId('department')
 							->setValue($department)
-							->setValidation('required') 
+							// ->setValidation('required') 
 							->draw($show_input);
 					?>
 				</div>
@@ -392,11 +392,13 @@
 					}
 					else
 					{ 	
+						if( !$restrict_req  ){
 					?>
 						<div class="btn-group">
 							<a class="btn btn-primary" role="button" href="<?=BASE_URL?>purchase/purchase_request/edit/<?=$sid?>" style="outline:none;">Edit</a>
 						</div>
 						&nbsp;&nbsp;&nbsp;
+					<?	}	?>
 						<div class="btn-group">
 							<!--<a class="btn btn-default" role="button" href="<?=MODULE_URL?>" style="outline:none;">Cancel</a>-->
 							<a href="<?=MODULE_URL?>" class="btn btn-default back" data-toggle="back_page">Cancel</a>
@@ -416,6 +418,12 @@
 	</div>
 
 </section>
+
+<?php 
+	if (isset($modal_script)) {
+		echo $modal_script;
+	}
+?>
 
 <script>
 	function addVendorToDropdown() {
@@ -890,7 +898,7 @@ function setZero()
 	document.getElementById('quantity['+newid+']').value 			= '1';
 	document.getElementById('uom['+newid+']').value 				= '';
 
-	$('#itemcode\\['+newid+'\\]').trigger('change');
+	// $('#itemcode\\['+newid+'\\]').trigger('change');
 	if (table ==  null){
 		document.getElementById('quantity['+newid+']').value 			= '1';
 	} else {
@@ -915,7 +923,7 @@ function cancelTransaction(vno)
 }
 
 /** FINALIZE SAVING **/
-function finalizeTransaction()
+function finalizeTransaction(type)
 {
 	$("#purchase_request_form").find('.form-group').find('input, textarea, select').trigger('blur');
 
@@ -931,11 +939,46 @@ function finalizeTransaction()
 	if($("#purchase_request_form").find('.form-group.has-error').length == 0 && no_error)
 	{	
 		// computeAmount();
-
+		$('#save').val(type);
+		var btn 	=	$('#save').val();
 		if($("#purchase_request_form #itemcode\\[1\\]").val() != '' && $("#purchase_request_form #detailparticular\\[1\\]").val() != '' && $("#purchase_request_form #transaction_date").val() != '' && $("#purchase_request_form #customer").val() != '')
 		{
 			setTimeout(function() {
-				$('#purchase_request_form').submit();
+				// $('#purchase_request_form').submit();
+				$.post("<?=BASE_URL?>purchase/purchase_request/ajax/<?=$task?>",$("#purchase_request_form").serialize()+'<?=$ajax_post?>',function(data)
+				{		
+					if( data.msg == 'success' )
+					{
+						if( btn == 'final' )
+						{
+							// window.location 	=	"<?=BASE_URL?>purchase/purchase_request";
+							$('#delay_modal').modal('show');
+							setTimeout(function() {
+								window.location = 	"<?=BASE_URL?>purchase/purchase_request";
+							}, 1000);
+						}
+						else if( btn == 'final_preview' )
+						{
+							$('#delay_modal').modal('show');
+							setTimeout(function() {
+								window.location = 	"<?=BASE_URL?>purchase/purchase_request/view/"+data.voucher;
+								}, 1000);
+							}
+						else if( btn == 'final_new' )
+						{
+							$('#delay_modal').modal('show');
+							setTimeout(function() {
+								window.location = 	"<?=BASE_URL?>purchase/purchase_request/create";
+								}, 1000);
+						}
+						
+					}
+					else
+					{
+						//insert error message / MOdal heree
+						
+					}
+				});
 			},1000);
 		}
 		
@@ -970,7 +1013,11 @@ function finalizeEditTransaction()
 					{
 						if( btn == 'final' )
 						{
-							window.location 	=	"<?=BASE_URL?>purchase/purchase_request";
+							// window.location 	=	"<?=BASE_URL?>purchase/purchase_request";
+							$('#delay_modal').modal('show');
+							setTimeout(function() {
+								window.location = 	"<?=BASE_URL?>purchase/purchase_request";
+							}, 1000);
 						}
 						else if( btn == 'final_preview' )
 						{
@@ -1254,26 +1301,23 @@ $(document).ready(function(){
 			//Final Saving
 			$('#purchase_request_form #btnSave').click(function(){
 
-				$('#save').val("final");
-
-				finalizeTransaction();
+				// $('#save').val("final");
+				finalizeTransaction("final");
 
 			});
 
 			//Save & Preview
 			$("#purchase_request_form #save_preview").click(function()
 			{
-				$('#save').val("final_preview");
-
-				finalizeTransaction();
+				// $('#save').val("final_preview");
+				finalizeTransaction("final_preview");
 			});
 
 			//Save & New
 			$("#purchase_request_form #save_new").click(function()
 			{
-				$('#save').val("final_new");
-
-				finalizeTransaction();
+				// $('#save').val("final_new");
+				finalizeTransaction("final_new");
 			});
 		}
 		else if('<?= $task ?>' == "edit") 
