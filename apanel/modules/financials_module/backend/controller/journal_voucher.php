@@ -7,6 +7,7 @@ class controller extends wc_controller {
 		$this->input			= new input();
 		$this->seq 				= new seqcontrol();
 		$this->jv_model			= new journal_voucher_model();
+		$this->restrict 		= new financials_restriction_model();
 		$this->session			= new session();
 		$this->log 				= new log();
 		$this->fields 			= array(
@@ -36,6 +37,9 @@ class controller extends wc_controller {
 	public function create() {
 		$this->view->title	= 'Journal Voucher Create';
 		$data						= $this->input->post($this->fields);
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
 		$data['checker'] 			= "";
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
@@ -51,6 +55,9 @@ class controller extends wc_controller {
 	public function edit($voucherno) {
 		$this->view->title			= 'Journal Voucher  Edit';
 		$data						= (array) $this->jv_model->getJournalVoucherById($this->fields, $voucherno);
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
 		$checker 					= isset($data['source']) && !empty($data['source']) 	? 	$data['source'] 	:	"";
 		$display_edit				= ($checker!="import" && $checker!="beginning" && $checker!="closing") 	?	1	:	0;
 		$data['checker'] 			= $display_edit;
@@ -68,6 +75,9 @@ class controller extends wc_controller {
 	public function view($voucherno) {
 		$this->view->title			= 'Journal Voucher View';
 		$data						= (array) $this->jv_model->getJournalVoucherById($this->fields, $voucherno);
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
 		$checker 					= isset($data['source']) && !empty($data['source']) 	? 	$data['source'] 	:	"";
 		$display_edit				= ($checker!="import" && $checker!="beginning" && $checker!="closing") 	?	1	:	0;
 		$data['checker'] 			= $display_edit;
@@ -124,16 +134,16 @@ class controller extends wc_controller {
 			$closed_date 		= 	isset($latest->closed_date) 	?	$this->date->DateDbFormat($latest->closed_date) 	:	0;
 
 			$date_compare 		= 	($transactiondate == $closed_date) 	?	1	:	0;
-
+	
 			$display_edit_delete=  	($checker!="import" && $checker!="beginning" && $checker!="closing") 	?	1	:	0;
 
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit($display_edit_delete)
-									->addDelete(($date_compare && $closing_checker) || $display_edit_delete)
+									->addDelete(($date_compare && $closing_checker) && $display_edit_delete)
 									->addPrint()
-									->addCheckbox(($date_compare && $closing_checker) || $display_edit_delete)
+									->addCheckbox(($date_compare && $closing_checker) && $display_edit_delete)
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($voucherno)
 									->draw();
