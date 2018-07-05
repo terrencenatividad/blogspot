@@ -42,7 +42,7 @@
 										->setName('transaction_date')
 										->setId('transaction_date')
 										->setClass('datepicker-input')
-										->setAttribute(array('readonly' => ''))
+										->setAttribute(array('readonly' => '', 'data-date-start-date' => $close_date))
 										->setAddon('calendar')
 										->setValue($transactiondate)
 										->setValidation('required')
@@ -667,7 +667,7 @@
 						echo $ui->loadElement('check_task')
 								->addSave(($task == 'create'))
 								->addOtherTask('Save','',($task == 'edit'),'primary')
-								->addEdit(($task == 'view' && ( $stat == 'open' )))
+								->addEdit(($task == 'view' && ( $stat == 'open' && !$restrict_so )))
 								->setValue($voucherno)
 								->draw_button($show_input);
 
@@ -1676,21 +1676,6 @@ $(document).ready(function(){
 		});
 		
 	// -- For Deletion of Item Per Row -- End
-
-	// -- Has Request No. --
-		//var vendor 	=	document.getElementById('vendor').value;
-
-		// if( '<?php //echo $request_no;?>' != "" )
-		// {
-		// 	var table 	= document.getElementById('itemsTable');
-		// 	var count	= table.tBodies[0].rows.length;
-
-		// 	for(row = 1; row <= count; row++) 
-		// 	{
-		// 		getItemDetails('itemcode['+row+']');  
-		// 	}
-		// }
-	// -- Has Request No. -- End
 });
 
 </script>

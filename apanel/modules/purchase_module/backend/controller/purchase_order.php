@@ -10,6 +10,7 @@ class controller extends wc_controller
 		$this->input            = new input();
 		$this->ui 			    = new ui();
 		$this->log 				= new log();
+		$this->restrict 		= new purchase_restriction_model();
 		$this->view->title      = 'Purchase Order';
 		$this->show_input 	    = true;
 
@@ -56,6 +57,10 @@ class controller extends wc_controller
 		// Item Limit
 		$item_limit 			= $this->po->getReference("po_limit");
 		$data['item_limit']		= ($item_limit[0]->value) 	? 	$item_limit[0]->value 	: 	50; 
+
+		// Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
 
 		$data['vendor_list'] 	= $this->po->retrieveVendorList();
 		$data['proforma_list'] 	= $this->po->retrieveProformaList();
@@ -233,6 +238,9 @@ class controller extends wc_controller
 		$item_limit 			= $this->po->getReference("po_limit");
 		$data['item_limit']		= ($item_limit[0]->value) 	? 	$item_limit[0]->value 	: 	50; 
 
+		// Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
 
 		$data['vendor_list'] 	= $this->po->retrieveVendorList();
 		$data['proforma_list'] 	= $this->po->retrieveProformaList();
@@ -309,6 +317,9 @@ class controller extends wc_controller
 	{
 		$retrieved_data 		= $this->po->retrieveExistingPO($voucherno);
 
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
+		
 		$data['vendor_list'] 	= $this->po->retrieveVendorList();
 		$data['proforma_list'] 	= $this->po->retrieveProformaList();
 		$data["business_type"] 	= $this->po->getOption("businesstype");
@@ -346,12 +357,14 @@ class controller extends wc_controller
 		$data["row_ctr"] 		= 0;
 		$data['cmp'] 			= $this->companycode;
 
+		$transactiondate 		= $retrieved_data["header"]->transactiondate;
+
 		// Header Data
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["vendor"]      	 = $retrieved_data["header"]->companyname;
 		$data['department'] 	 = $retrieved_data['header']->department;
 		$data['referenceno'] 	 = $retrieved_data['header']->referenceno;
-		$data["transactiondate"] = date('M d,Y', strtotime($retrieved_data["header"]->transactiondate));
+		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
 		$data['stat'] 			 = $retrieved_data["header"]->stat;
 
 		//Footer Data
@@ -376,7 +389,11 @@ class controller extends wc_controller
 		
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
-		
+
+		$restrict_po 			 =	$this->restrict->setButtonRestriction($transactiondate);
+
+		$data['restrict_po'] 	 = $restrict_po;
+
 		$this->view->load('purchase_order/purchase_order', $data);
 	}
 
@@ -560,6 +577,7 @@ class controller extends wc_controller
 				$has_rcpt 	= $this->po->getValue('purchasereceipt',array('COUNT(voucherno) as receipt')," source_no = '$row->voucherno' ");
 				
 				//$vendor_name 	=	$vendor[0]->first_name . " " . $vendor[0]->last_name;
+				$transactiondate 	=	$row->transactiondate;
 
 				if($row->stat == 'open')
 				{
@@ -578,12 +596,14 @@ class controller extends wc_controller
 					$voucher_status = '<span class="label label-danger">CANCELLED</span>';
 				}
 
+				$restrict_po =	$this->restrict->setButtonRestriction($transactiondate);
+
 				$element = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit(($row->stat == 'open'))
+									->addEdit(($row->stat == 'open' && !$restrict_po))
 									->addOtherTask('Tag as Complete', 'bookmark',($row->stat != 'closed' && $row->stat != 'posted' && $row->stat != 'open' && $row->stat != 'cancelled'))
 									->addPrint()
-									->addDelete(($row->stat == 'open'))
+									->addDelete(($row->stat == 'open' && !$restrict_po))
 									->setValue($row->voucherno)
 									->setLabels(array('delete'=>'Cancel'));
 
