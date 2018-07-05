@@ -5,10 +5,9 @@ class controller extends wc_controller {
 		parent::__construct();
 		$this->ui = new ui();
 		$this->view->header_active = 'report/';
-		$this->trial_balance = new trial_balance();
-		// $this->financials	= new financialsClass();
-		// $this->financials->updateBalanceTable();
+		$this->trial_balance 	= new trial_balance();
 		$this->input            = new input();
+		$this->log 				= new log();
 		$this->seq				= new seqcontrol();
 		$this->show_input 	    = true;
 		$session                = new session();
@@ -19,10 +18,13 @@ class controller extends wc_controller {
 		$this->report_model 		= 	new report_model;
 		$this->report_model->generateBalanceTable();
 
-		$retained_acct 				=	$this->trial_balance->getChartAccountList("Retained Earning");
-		$data['retained_id']		=	$retained_acct[0]->ind;
+		$account 					=	$this->trial_balance->retrieveAccount("IS");
+		$data['is_account']			=	isset($account->salesAccount) 	?	$account->salesAccount 	:	"";
 		$data['chart_account_list'] =	$this->trial_balance->getChartAccountList();
 		$data['proforma_list'] 		= 	$this->trial_balance->getProformaList();
+		$data['openmonth_list']		= 	$this->trial_balance->getOpenList();
+		$month_result 				=	$this->trial_balance->getfirstOpen();
+		$data['datafrom'] 			=	($month_result) ? $month_result->val : "";
 		$data['ui'] 				= 	$this->ui;
 		$data['show_input'] 		= 	true;
 		$data['datefilter'] 		= 	$this->date->datefilterMonth();
@@ -46,6 +48,10 @@ class controller extends wc_controller {
 			$result = $this->temporary_jv_save();
 		}else if($task == "preview_listing" ){
 			$result = $this->preview_listing();
+		}else if($task == "update_jv_status"){
+			$result = $this->update_jv_status();
+		}else if($task == "delete_temporary_jv"){
+			$result = $this->delete_temporary_jv();
 		}
 
 		echo json_encode($result); 
@@ -93,14 +99,8 @@ class controller extends wc_controller {
 				$debit 				= ($amount > 0) ? $amount : 0;
 				$credit 			= ($amount < 0) ? abs($amount) : 0;
 				$periodbalance      = $amount;
-				//$periodbalance      = ($amount > 0) ? $periodbalance : $periodbalance * -1;
-				//$periodbalance      = ($amount > 0) ? $debit : -$amount;
-				//$balcarry         = ($balcarry < 0) ? $balcarry * -1 : 0; 
+
 				$accumulatedbalance = $prevcarry + $balcarry + $periodbalance;
-				// echo "Prev Carry = ".$prevcarry." \n";
-				// echo "Bal Carry = ".$balcarry."\n";
-				// echo "Period = ".$periodbalance."\n";
-				// echo "Accumulated = ".$accumulatedbalance."\n";
 
 				$totalprevcarry 		+= $prevcarry;
 				$totalbalcarry  		+= $balcarry;
@@ -111,17 +111,13 @@ class controller extends wc_controller {
 
 				$periodbalance 		= ($periodbalance < 0) ? '('.number_format(abs($periodbalance),2).')' : number_format(abs($periodbalance),2);
 				$balcarry 			= ($balcarry < 0) ? '('.number_format(abs($balcarry),2).')' : number_format(abs($balcarry),2);
-				 $credit 			= ($credit < 0) ? '('.number_format(abs($credit),2).')' : number_format(abs($credit),2);
+				$credit 			= ($credit < 0) ? '('.number_format(abs($credit),2).')' : number_format(abs($credit),2);
 				$debit 				= ($debit < 0) ? '('.number_format(abs($debit),2).')' : number_format(abs($debit),2);
 				$prevcarry 			= ($prevcarry < 0) ? '('.number_format(abs($prevcarry),2).')' : number_format(abs($prevcarry),2);
-				//$periodbalance  	= ($periodbalance < 0) ? '('.number_format(abs($periodbalance),2).')' : number_format(abs($periodbalance),2);
 				$accumulatedbalance = ($accumulatedbalance < 0) ? '('.number_format(abs($accumulatedbalance),2).')' : number_format(abs($accumulatedbalance),2);
 
 				$debitLink	= ($amount > 0) ? '<a href="javascript:void(0);" onClick="openList(\''.$accountid.'\');" >'.$debit.'</a>' : $debit;
-				// $debitLink	= '<a href="javascript:void(0);" onClick="openList(\''.$accountcode.'\');" >'.$debit.'</a>';
-
 				$creditLink	= ($amount < 0) ? '<a href="javascript:void(0);" onClick="openList(\''.$accountid.'\');" >'.$credit.'</a>' : $credit;
-				// $creditLink	= '<a href="javascript:void(0);" onClick="openList(\''.$accountcode.'\');" >'.$credit.'</a>';
 
 				$table .= "<tr>";																					
 				$table .= '<td class="left">&nbsp;'.$accountcode.'</td>';
@@ -139,9 +135,9 @@ class controller extends wc_controller {
 			$totalcredit 				= ($totalcredit < 0) ? '('.number_format(abs($totalcredit),2).')' : number_format(abs($totalcredit),2);
 			$totalperiodbalance 		= ($totalperiodbalance < 0) ? '('.number_format(abs($totalperiodbalance),2).')' : number_format(abs($totalperiodbalance),2);
 			$totalaccumulatedbalance 	= ($totalaccumulatedbalance < 0) ? '('.number_format(abs($totalaccumulatedbalance),2).')' : number_format(abs($totalaccumulatedbalance),2);
-
 			$totalprevcarry 			= ($totalprevcarry < 0) ? '('.number_format(abs($totalprevcarry),2).')' : number_format(abs($totalprevcarry),2);
 			$totalbalcarry 				= ($totalbalcarry < 0) ? '('.number_format(abs($totalbalcarry),2).')' : number_format(abs($totalbalcarry),2);
+
 			$table .= '<tr class="info">
 						<td class="text-right" colspan="2"><strong>TOTAL</strong></td>
 						<td class="text-right">'.$totalprevcarry.'</td>
@@ -188,7 +184,7 @@ class controller extends wc_controller {
 		$totalcredit 	= 0;
 		$totalperiodbalance = 0;
 		$totalaccumulatedbalance = 0;
-		$retrieved = $this->trial_balance->fileExport($currentyear,$prevyear);
+		$retrieved = $this->trial_balance->retrieveCOAdetails($currentyear,$prevyear);
 		
 		$header		= array('Account Code','Account Name','Prev Carryforward','Balance Carryforward','Total Debit','Total Credit','Balance for the Period','Accumulated Balance');
 
@@ -287,46 +283,53 @@ class controller extends wc_controller {
 
 	private function temporary_jv_save(){
 
-		$data = $this->input->post(array('daterangefilter','reference','notes','retained_acct'));
-		$daterangefilter	= 	$data['daterangefilter'];
-		$account 			=	isset($data['retained_acct']) 	?	$data['retained_acct'] 	:	"";
-		
-		$result 			= 	0;
+		$data 			= 	$this->input->post(array('datefrom','reference','notes','closing_account'));
+		$datefrom 		=	$data['datefrom'];
+		$account 		=	isset($data['closing_account']) 	?	$data['closing_account'] 	:	"";
+
+		$result 		= 	0;
 		$voucher			= 	$this->seq->getValue('JV');
 
-		$data['voucher'] 		=	$voucher;
-		$data['retained_acct'] 	=	$account;
+		$data['voucher'] 			=	$voucher;
+		$data['closing_account'] 	=	$account;
 
 		$result 			=	$this->trial_balance->save_journal_voucher($data);
 		
-		return $result;
+		$dataArray 		=	array( "result" =>	$result, 'voucherno' => $voucher);
+
+		return $dataArray;
 	}
 
 	private function preview_listing(){
 		$voucherno 	=	$this->input->post('voucherno');
+	
 		$header 	=	$this->trial_balance->getJVHeader($voucherno);
-		// var_dump($header);
 		$details 	= 	$this->trial_balance->getJVDetails($voucherno);
 
 		$totalcredit 	=	0;
 		$totaldebit 	=	0;
 		$table 			=	"";
+
 		if(count($details->result)>0){
 			for($i=0;$i<count($details->result);$i++){	
 				$linenum          	= $details->result[$i]->linenum;
 				$accountid          = $details->result[$i]->accountcode;
+				$code 		        = $this->trial_balance->getValue("chartaccount", array("segment5"), "id='$accountid'");
+				$code 				= isset($code[0]->segment5) ?	$code[0]->segment5 	:	"";
 				$accountname 		= $this->trial_balance->getValue("chartaccount", array("accountname"), "id='$accountid'");
-				$accountname		= $accountname[0]->accountname;
+				$accountname		= isset($accountname[0]->accountname)	? 	$accountname[0]->accountname 	:	"";
 				$detailparticulars  = $details->result[$i]->detailparticulars;
 				$debit          	= $details->result[$i]->debit;
 				$credit				= $details->result[$i]->credit;
 
-				$table .= '<tr>
-							<td class="text-left">'.$accountname.'</td>
-							<td class="text-left">'.$detailparticulars.'</td>
-							<td class="text-right"><strong>'.number_format($debit,2).'</strong></td>
-							<td class="text-right"><strong>'.number_format($credit,2).'</strong></td>';
-				$table.= '</tr>';
+				if($debit != 0 || $credit != 0){
+					$table .= '<tr>
+								<td class="text-left">'.$code . " - ". $accountname.'</td>
+								<td class="text-left">'.$detailparticulars.'</td>
+								<td class="text-right"><strong>'.number_format($debit,2).'</strong></td>
+								<td class="text-right"><strong>'.number_format($credit,2).'</strong></td>';
+					$table.= '</tr>';
+				}
 
 				$totaldebit 		+=	$debit;
 				$totalcredit 		+=	$credit;
@@ -341,7 +344,7 @@ class controller extends wc_controller {
 			$table .= '<tr><td colspan="4" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 
-		$details 	=	array( "table" 				=>	$table,
+		$dataArray 	=	array( "table" 				=>	$table,
 							   "voucherno"			=>	$voucherno,	
 							   "transactiondate"	=>	date("Y",strtotime($header->transactiondate)),
 							   "proformacode" 		=>	$header->proformacode,
@@ -349,7 +352,29 @@ class controller extends wc_controller {
 							   "remarks" 			=>	$header->remarks
 							 );
 
-		return $details;
+		return $dataArray;
+	}
+
+	private function update_jv_status(){
+		$voucherno 	=	$this->input->post('voucherno');
+		$ret_arr 	=	$this->trial_balance->getReference($voucherno);
+		$reference 	=	$ret_arr->referenceno;
+		// var_dump($reference);
+		$result 	=	$this->trial_balance->update_jv_status($voucherno);
+		
+		if( $result ){
+			$this->log->saveActivity("Closed Book [$voucherno - $reference] ");
+		}
+
+		return $result;
+	}
+
+	public function delete_temporary_jv(){
+		$voucherno 	=	$this->input->post('voucherno');
+		
+		$result 	=	$this->trial_balance->delete_temporary_jv($voucherno);
+
+		return $result;
 	}
 }
 ?>

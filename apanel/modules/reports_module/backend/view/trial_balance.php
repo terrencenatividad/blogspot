@@ -18,7 +18,7 @@
 				<div class="col-md-6"></div>
 				<div class="col-md-3">
 					<div class="form-group text-right">
-						<button type="button" id="close_book" class="btn btn-primary" disabled><span class="glyphicon glyphicon-book"></span> Close Period<span></span></button>
+						<button type="button" id="close_book" class="btn btn-primary"><span class="glyphicon glyphicon-book"></span> Close Period<span></span></button>
 						<a href="" id="export_csv" download="Trial_Balance.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 					</div>
 				</div>
@@ -113,6 +113,23 @@
 	</div>
 </div>
 
+<div id="alert_modal" class="modal fade" tabindex="-1" role="dialog" style="z-index:10000;">
+	<div class="modal-dialog modal-sm" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close " data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Warning!</h4>
+			</div>
+			<div class="modal-body">
+				
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="alert_modal" class="modal fade" tabindex="-1" role="dialog">
 	<div class="modal-dialog modal-sm" role="document">
 		<div class="modal-content">
@@ -142,61 +159,74 @@
 						<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
 						<p>&nbsp;</p>
 					</div> -->
-					<div class="well well-md">
-						<div class="row">
-							<div class="col-md-12">
-							<div class="row row-dense">
-									<?php
-										echo $ui->formField('text')
-												->setLabel('Date')
-												->setSplit('col-md-3','col-md-8')
-												->setName('daterangefilter')
-												->setId('daterangefilter')
-												->setAttribute(array('data-daterangefilter' => 'month','disabled'))
-												->setAddon('calendar')
-												->setValidation('required')
-												->draw(true);
-									?>
-								</div>
-								<div class="row row-dense">
-									<?php
-										echo $ui->formField('text')
-											->setLabel('Reference')
-											->setSplit('col-md-3','col-md-8')
-											->setName('reference')
-											->setId('reference')
-											->setValidation('required')
-											->draw(true);
-									?>
-								</div>
-								<div class="row row-dense">
-									<?php
-										echo $ui->formField('textarea')
-											->setLabel('Notes')
-											->setSplit('col-md-3','col-md-8')
-											->setName("notes")
-											->setId("notes")
-											->setValidation('required')
-											->draw(true);
-									?>
-								</div>
-								<div class="row row-dense">
-									<?php
-									echo $ui->formField('dropdown')
-											->setLabel('Retained Account')
-											->setPlaceholder('Select an Account')
-											->setSplit('col-md-3', 'col-md-8')
-											->setName('retained_account')
-											->setId('retained_account')
-											->setList($chart_account_list)
-											->setValidation('required')
-											->setValue($retained_id)
-											->draw(true);
-									?>
-								</div>
+					<div class="row">
+						<div class="col-md-3">
+							<div class="form-group">
+								<label class="control-label col-md-12">Date</label>
 							</div>
 						</div>
+						<div class="col-md-8" style="margin:0px;">
+						<?php
+							echo $ui->formField('text')
+									->setSplit('','col-md-12')
+									->setName('datefrom')
+									->setId('datefrom')
+									// ->setClass('datefilter')
+									// ->setAddon('calendar')
+									->setAttribute(array('readonly'))
+									->setValidation('required')
+									->setValue($datafrom)
+									->draw(true);
+						?>
+						</div>
+						<!-- <div class="col-md-3">
+							<div class="form-group">
+								<label class="control-label col-md-12">Date To</label>
+							</div>
+						</div>
+						<div class="col-md-8" style="margin:0px;">
+						<?
+							// echo $ui->formField('dropdown')
+							// 		->setSplit('','col-md-12')
+							// 		->setName('dateto')
+							// 		->setId('dateto')
+							// 		->setClass('datefilter')
+							// 		// ->setAddon('calendar')
+							// 		->setValidation('required')
+							// 		->setList($openmonth_list)
+							// 		->draw(true);
+						?>
+						</div> -->
 					</div>
+					<?php
+						echo $ui->formField('text')
+								->setLabel('Reference')
+								->setSplit('col-md-3','col-md-8')
+								->setName('reference')
+								->setId('reference')
+								->setValidation('required')
+								->draw(true);
+
+						echo $ui->formField('textarea')
+								->setLabel('Notes')
+								->setSplit('col-md-3','col-md-8')
+								->setName("notes")
+								->setId("notes")
+								->setValidation('required')
+								->draw(true);
+						echo $ui->formField('dropdown')
+								->setLabel('Closing Account')
+								->setPlaceholder('Select an Account')
+								->setSplit('col-md-3', 'col-md-8')
+								->setName('closing_account')
+								->setId('closing_account')
+								->setList($chart_account_list)
+								->setValidation('required')
+								->addHidden()
+								->setValue($is_account)
+								->draw(true);
+					?>
+					<br>
 					<div class="row row-dense">
 						<div class="col-md-12 text-center">
 							<div class="btn-group">
@@ -216,7 +246,7 @@
 	</div>
 </div>
 
-<div class="modal fade" id="previewModal" tabindex="-1" data-backdrop="static">
+<div class="modal fade" id="previewModal" tabindex="-1" data-backdrop="static" data-keyboard="false" >
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -234,6 +264,7 @@
 										->setSplit('col-md-4', 'col-md-8')
 										->setName('voucherno')
 										->setId('voucherno')
+										->addHidden('voucherno')
 										->setValidation('required')
 										->draw();
 								?>
@@ -245,6 +276,7 @@
 										->setId('transactiondate')
 										->setClass('datepicker-input')
 										->setAddon('calendar')
+										->addHidden('transactiondate')
 										->setValidation('required')
 										->draw();
 								?>
@@ -254,6 +286,7 @@
 										->setSplit('col-md-4', 'col-md-8')
 										->setName('referenceno')
 										->setId('referenceno')
+										->addHidden('referenceno')
 										->setValidation('required')
 										->draw();
 								?>
@@ -264,6 +297,7 @@
 										->setSplit('col-md-4', 'col-md-8')
 										->setName('proformacode')
 										->setId('proformacode')
+										->addHidden('proformacode')
 										->setList($proforma_list)
 										->draw();
 								?>
@@ -273,6 +307,7 @@
 										->setSplit('col-md-4', 'col-md-8')
 										->setName('remarks')
 										->setId('remarks')
+										->addHidden('remarks')
 										->draw();
 								?>
 							</div>
@@ -291,9 +326,7 @@
 								<th class="col-md-3 text-right">Credit</th>
 							</tr>
 						</thead>
-						<tbody id="ic_rows">
-							
-						</tbody>
+						<tbody id="ic_rows"></tbody>
 					</table>
 					<div id="pagination"></div>	
 					<div class="box-body">
@@ -301,6 +334,7 @@
 						<div class="row">
 							<div class="col-md-12 text-center">
 								<button class="btn btn-primary" id="confirmbtn">Confirm</button>
+								<button type="button" class="btn btn-default" data-dismiss="modal" id="closing_cancel">Close</button>
 							</div>
 						</div>
 					</div>
@@ -350,6 +384,7 @@
 		ajax2.trans_date 	=	end;
 		$.post('<?=MODULE_URL?>ajax/check_existing_jv', ajax2 , function(response) {
 			if( response.existing == 0 ){
+				$('#alert_modal .modal-body').html("<p>You have not performed any closing activities for the Previous Month(s).</p>")
 				$('#alert_modal').modal('show');
 				// $('#close_book').prop('disabled',true);
 			} else {
@@ -387,19 +422,19 @@
 			// check_existing_jv(date_array[1]);
 		}
 
-		check_existing_jv(date_array[1]);
+		// check_existing_jv(date_array[1]);
 	}
 
 	function preview_jv(voucherno){
 		ajax2.voucherno 		=	voucherno;
-		$("#jv_voucher") 
+
 		$.post('<?=MODULE_URL?>ajax/preview_listing', ajax2 , function(response) {
 			//Header
-			$('#previewModal #voucherno').val(response.voucherno);
-			$("#previewModal #transactiondate").val(response.transactiondate);
-			$('#previewModal #referenceno').val(response.reference);
-			$("#previewModal #proforma").val(response.proformacode);
-			$("#previewModal #remarks").val(response.remarks);
+			$('#previewModal #voucherno_static').html(response.voucherno);
+			$("#previewModal #transactiondate_static").html(response.transactiondate);
+			$('#previewModal #referenceno_static').html(response.reference);
+			$("#previewModal #proformacode_static").html(response.proformacode);
+			$("#previewModal #remarks_static").html(response.remarks);
 
 			//Details
 			$('#previewModal #ic_rows').html(response.table);
@@ -419,26 +454,95 @@
 		ajax.daterangefilter = $(this).val();
 		ajax.page = 1;
 		getTrialBalance();
-		enable_button($(this).val());
+		// enable_button($(this).val());
 	}).trigger('change');
 	
 	$('#close_book').on('click',function(){
 		var daterangefilter 	=	$('#daterangefilter').val();
-		$('#jvModal #daterangefilter').val(daterangefilter);
+
+		$('#reference').val("");
+		$('#notes').val("");
 		$("#jvModal").modal('show');
+		$('#btnSaveDetails').prop('disabled',false);
 	});
 	
+	//if current month = date
+	function validate_date(current_month){
+		var date_arr 	=	current_month.split(' ');
+		var flag 		= 	0;
+		
+		var current = new Date(current_month);
+			curr_m 	= current.getMonth() +1;
+			curr_y 	= current.getFullYear();
+			current_month = curr_m+"-"+curr_y;
+
+		var d = new Date(),
+			n = d.getMonth()+1,
+			y = d.getFullYear();
+
+			my 	=	n+"-"+y;
+
+		if(my == current_month){
+			$('#alert_modal .modal-body').html("<p>You cannot Close a Book within the current Month.</p>");
+			$('#alert_modal').modal('show');
+			$('#btnSaveDetails').prop('disabled',true);
+			flag 	=	1;
+		} else {
+			$('#btnSaveDetails').prop('disabled',false);
+		}
+
+		return flag;
+	}
+
 	$('#jv_header').on('click',"#btnSaveDetails", function(){
-		ajax2.daterangefilter 	=	$('#daterangefilter').val();
+		var current_date 		=	$('#jvModal #datefrom').val();
+
+		ajax2.datefrom 			=	current_date;
 		ajax2.reference 		=	$('#jvModal #reference').val();
 		ajax2.notes 			=	$('#jvModal #notes').val();
-		ajax2.retained_acct 	=	$('#jvModal #retained_account').val();
+		ajax2.closing_account 	=	$('#jvModal #closing_account').val();
 
-		$.post('<?=MODULE_URL?>ajax/temporary_jv_save', ajax2 , function(response) {
+		var has_error 	=	validate_date(current_date);
+
+		if(!has_error){
+			$.post('<?=MODULE_URL?>ajax/temporary_jv_save', ajax2 , function(response) {
+				if( response.result ){
+					$("#jvModal").modal('hide');
+					preview_jv(response.voucherno);
+				}
+			});
+		}
+		
+	});
+
+	$('#previewModal').on('click','#confirmbtn',function(){
+		ajax2.voucherno 	=	$('#previewModal #voucherno_static').html();
+		$.post('<?=MODULE_URL?>ajax/update_jv_status', ajax2 , function(response) {
 			if( response.result ){
-				$("#jvModal").modal('hide');
-				preview_jv(response.voucherno);
+				$('#previewModal').modal('hide');
+				window.location 	=	'<?=MODULE_URL?>';
 			}
 		});
 	});
+
+	$('.datefilter').datepicker({
+		format: "MM yyyy",
+		startView: 2,
+		minViewMode: 1,
+		maxViewMode: 2,
+		autoclose: true
+	});
+
+	$('#closing_cancel').on('click',function(e){
+		ajax2.voucherno 	=	$('#previewModal #voucherno_static').html();
+		//delete temporary saved jv... 
+		$.post('<?=MODULE_URL?>ajax/delete_temporary_jv', ajax2 , function(response) {
+			if( response.result ){
+				$('#previewModal').modal('hide');
+				window.location 	=	'<?=MODULE_URL?>';
+			}
+		});
+		//close modal
+	});
+
 </script>
