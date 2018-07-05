@@ -51,7 +51,9 @@ class controller extends wc_controller {
 	public function edit($voucherno) {
 		$this->view->title			= 'Journal Voucher  Edit';
 		$data						= (array) $this->jv_model->getJournalVoucherById($this->fields, $voucherno);
-		$data['checker'] 			= isset($data['source']) && !empty($data['source']) 	? 	$data['source'] 	:	"";
+		$checker 					= isset($data['source']) && !empty($data['source']) 	? 	$data['source'] 	:	"";
+		$display_edit				= ($checker!="import" && $checker!="beginning" && $checker!="closing") 	?	1	:	0;
+		$data['checker'] 			= $display_edit;
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
 		$data['proforma_list'] 		= $this->jv_model->getProformaList();
@@ -66,7 +68,9 @@ class controller extends wc_controller {
 	public function view($voucherno) {
 		$this->view->title			= 'Journal Voucher View';
 		$data						= (array) $this->jv_model->getJournalVoucherById($this->fields, $voucherno);
-		$data['checker'] 			= isset($data['source']) && !empty($data['source']) 	? 	$data['source'] 	:	"";
+		$checker 					= isset($data['source']) && !empty($data['source']) 	? 	$data['source'] 	:	"";
+		$display_edit				= ($checker!="import" && $checker!="beginning" && $checker!="closing") 	?	1	:	0;
+		$data['checker'] 			= $display_edit;
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
 		$data['proforma_list']		= $this->jv_model->getProformaList();
@@ -113,26 +117,29 @@ class controller extends wc_controller {
 			$checker 	=	isset($row->checker) && !empty($row->checker) 	? 	$row->checker 	:	"";
 
 			$voucherno			=	$row->voucherno;
-			$transactiondate 	=	isset($row->transactiondate) 	?	$this->date->DateDbFormat($row->transactiondate) 	:	0;
-			
+			$transactiondate 	=	isset($row->transactiondate) 						?	$this->date->DateDbFormat($row->transactiondate) 	:	0;
+			$import 			=	(isset($row->checker) && ($row->checker == 'import'||$row->checker  == 'beginning'))	?	"Yes" 	:	"No";
 			$closing_checker 	=	!empty($this->jv_model->checkIfClosing($voucherno)) 	?	$this->jv_model->checkIfClosing($voucherno)	:	0;
 			$latest 			= 	$this->jv_model->getLatestClosedDate();
 			$closed_date 		= 	isset($latest->closed_date) 	?	$this->date->DateDbFormat($latest->closed_date) 	:	0;
 
 			$date_compare 		= 	($transactiondate == $closed_date) 	?	1	:	0;
 
+			$display_edit_delete=  	($checker!="import" && $checker!="beginning" && $checker!="closing") 	?	1	:	0;
+
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($checker!="import" && $checker!="closing")
-									->addDelete($date_compare && $closing_checker)
+									->addEdit($display_edit_delete)
+									->addDelete(($date_compare && $closing_checker) || $display_edit_delete)
 									->addPrint()
-									->addCheckbox()
+									->addCheckbox(($date_compare && $closing_checker) || $display_edit_delete)
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($voucherno)
 									->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
+			$table .= '<td>' . $import . '</td>';
 			$table .= '<td>' . $voucherno . '</td>';
 			$table .= '<td>' . $row->referenceno . '</td>';
 			$table .= '<td class="text-right">' . number_format($row->amount, 2) . '</td>';
@@ -272,7 +279,7 @@ class controller extends wc_controller {
 					if ( ! empty($b)) {	
 						$jvno 			=	isset($b[0]) 					? 	$b[0] 	:	"";
 						$transdate 		=	isset($b[1]) 					? 	$b[1] 	:	"";
-						$transdate 		=	$this->date->datetimeDbFormat($transdate);
+						$transdate 		=	$this->date->dateDbFormat($transdate);
 						$reference 		=	isset($b[2]) 					?	htmlentities(trim($b[2]))	:	"";
 						$notes 			=	isset($b[3]) 					?	htmlentities(trim($b[3]))	:	"";
 						$account 		=	isset($b[4]) 					?	htmlentities(trim($b[4]))	:	"";
@@ -418,7 +425,7 @@ class controller extends wc_controller {
 						$header['period'][] 	= $period;
 						$header['fiscalyear'][] = $fiscalyear;
 					}
-					
+
 					$proceed  			= $this->jv_model->save_import("journalvoucher",$header);
 
 					$details = array(

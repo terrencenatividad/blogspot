@@ -81,10 +81,11 @@
 										'style' => 'width: 15px'
 									)
 								)
-								->addHeader('Transaction Date', array('class' => 'col-md-4'), 'sort', 'transactiondate')
-								->addHeader('Voucher Number', array('class' => 'col-md-4'), 'sort', 'voucherno', 'desc')
-								->addHeader('Reference', array('class' => 'col-md-4'), 'sort', 'referenceno')
-								->addHeader('Total Amount', array('class' => 'col-md-2 text-right'), 'sort', 'amount')
+								->addHeader('Transaction Date', array('class' => 'col-md-2'), 'sort', 'transactiondate')
+								->addHeader('Imported', array('class' => 'col-md-2'), 'sort', 'source')
+								->addHeader('Voucher Number', array('class' => 'col-md-2'), 'sort', 'voucherno', 'desc')
+								->addHeader('Reference', array('class' => 'col-md-3'), 'sort', 'referenceno')
+								->addHeader('Total Amount', array('class' => 'col-md-3'), 'sort', 'amount')
 								->draw();
 					?>
 					<tbody>
