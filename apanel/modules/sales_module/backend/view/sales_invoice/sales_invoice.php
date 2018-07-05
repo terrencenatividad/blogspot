@@ -32,14 +32,16 @@
 
 					<div class = "col-md-6">
 						<?php
-							$datepickerclass= ($task != 'view') ? "date" : "";
+							// $datepickerclass= ($task != 'view') ? "date" : "";
 							echo $ui->formField('text')
 									->setLabel('Invoice Date')
-									->setSplit('col-md-3', 'col-md-8 '.$datepickerclass)
+									->setSplit('col-md-3', 'col-md-8')
 									->setName('transactiondate')
 									->setId('transactiondate')
+									->setClass('datepicker datepicker-input')
 									->setValue($transactiondate)
 									->setValidation('required')
+									->setAttribute(array('data-date-start-date' => $close_date))
 									->setAddon('calendar')
 									->draw($show_input);
 						?>
@@ -152,10 +154,12 @@
 						<?php
 							echo $ui->formField('text')
 									->setLabel('Due Date')
-									->setSplit('col-md-3', 'col-md-8 '.$datepickerclass)
+									->setSplit('col-md-3', 'col-md-8')
 									->setName('duedate')
 									->setId('duedate')
 									->setValue($duedate)
+									->setClass('datepicker datepicker-input')
+									->setAttribute(array('data-date-start-date' => $close_date))
 									->setAddon('calendar')
 									->draw($show_input);
 						?>
@@ -742,7 +746,7 @@
 						}
 						else
 						{ 	
-							if($status == 'open')
+							if($status == 'open' && !$restrict_si)
 							{
 						?>
 							<div class="btn-group">
@@ -1551,21 +1555,6 @@ function deleteItem(row)
 	}
 }
 
-function today()
-{
-	var m_names = new Array("Jan", "Feb", "Mar", 
-	"Apr", "May", "Jun", "Jul", "Aug", "Sep", 
-	"Oct", "Nov", "Dec");
-
-	var d = new Date();
-	var curr_date = d.getDate();
-	var curr_month = d.getMonth();
-	var curr_year = d.getFullYear();
-	var today	= m_names[curr_month]+" "+curr_date+", "+ curr_year;
-	
-	return today;
-}
-
 /**ENABLE EDITABLE FIELDS**/
 function editField(id)
 {
@@ -1638,6 +1627,20 @@ function formatNumber(id)
 $(document).ready(function(){
 
 	// -- For Date -- 
+	function today()
+	{
+		var m_names = new Array("Jan", "Feb", "Mar", 
+		"Apr", "May", "Jun", "Jul", "Aug", "Sep", 
+		"Oct", "Nov", "Dec");
+
+		var d = new Date();
+		var curr_date = d.getDate();
+		var curr_month = d.getMonth();
+		var curr_year = d.getFullYear();
+		var today	= m_names[curr_month]+" "+curr_date+", "+ curr_year;
+		
+		return today;
+	}
 
 	//Date picker
 	$('.date').datepicker({

@@ -9,6 +9,7 @@ class controller extends wc_controller
 		$this->seq 				= new seqcontrol();
 		$this->input            = new input();
 		$this->ui 			    = new ui();
+		$this->restrict 		= new sales_restriction_model();
 		$this->show_input 	    = true;
 
 		$session                = new session();
@@ -56,6 +57,10 @@ class controller extends wc_controller
 		$item_limit 			= $this->invoice->getReference("si_limit");
 		$data['item_limit']		= $item_limit[0]->value; 
 
+		// Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
+		
 		// Get Invoice Reference
 		$invoice_reference 		= $this->invoice->getReference("invoice_dr");
 		$invoice_dr 			= $invoice_reference[0]->value;
@@ -160,6 +165,10 @@ class controller extends wc_controller
 		$item_limit 			= $this->invoice->getReference("si_limit");
 		$data['item_limit']		= $item_limit[0]->value;;
 		
+		// Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
+		
 		$data['customer_list'] 	= $this->invoice->retrieveCustomerList();
 		$data["business_type"] 	= $this->invoice->getOption("businesstype");
 		$data["vat_type"] 		= $this->invoice->getOption("vat_type");
@@ -229,7 +238,8 @@ class controller extends wc_controller
 		
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
-		
+		$data['restrict_si'] 	 = false;
+
 		$this->view->load('sales_invoice/sales_invoice', $data);
 	}
 
@@ -246,6 +256,10 @@ class controller extends wc_controller
 		$item_entry_data        = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$data["itemcodes"] 		= $this->invoice->getValue("items", $item_entry_data,'',"itemcode");
 
+		// Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
+		
 		$uom_data          		= array("uomcode ind","uomdesc val");
 		$uom_condition     		= " uomcode != 'P' AND stat = 'active' ";
 		$data["uomcodes"] 		= $this->invoice->getValue("uom", $uom_data,$uom_condition, "uomcode");
@@ -262,12 +276,15 @@ class controller extends wc_controller
 		$data['cmp'] 			= $this->companycode;
 
 		// Header Data
+		$transactiondate 		= $retrieved_data["header"]->transactiondate;
+		$duedate 				= $retrieved_data["header"]->duedate;
+
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["referenceno"]     = $retrieved_data["header"]->referenceno;
 		$data["customercode"]    = $retrieved_data["header"]->customercode;
 		$data["customername"]    = $retrieved_data["header"]->customername;
-		$data["duedate"]    	 = date('M d, Y', strtotime($retrieved_data["header"]->duedate));
-		$data["transactiondate"] = date('M d, Y', strtotime($retrieved_data["header"]->transactiondate));
+		$data["duedate"]    	 = $this->date->dateFormat($duedate);
+		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
 		$data["remarks"]      	 = $retrieved_data["header"]->remarks;
 		$data["status"]       	 = $retrieved_data["header"]->status;
 		
@@ -302,7 +319,9 @@ class controller extends wc_controller
 		
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
-		
+		$restrict_si 			 = $this->restrict->setButtonRestriction($transactiondate);
+		$data['restrict_si'] 	 = $restrict_si;
+
 		$this->view->load('sales_invoice/sales_invoice', $data);
 	}
 
@@ -331,7 +350,8 @@ class controller extends wc_controller
 			$table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
-			$customer  = $row->customer;
+			$customer  			= 	$row->customer;
+			$transactiondate 	=	$row->date;
 
 			if($row->amount == $row->balance && $row->stat == 'posted')
 			{
@@ -355,8 +375,10 @@ class controller extends wc_controller
 				$row->balance = $row->amount;
 			}
 
+			$restrict_si =	$this->restrict->setButtonRestriction($transactiondate);
+
 			$table .= '<tr>';
-			if($row->stat == 'open')
+			if($row->stat == 'open' && !$restrict_si )
 			{
 				$table .= ' <td class = "text-center">
 							<div class="btn-group check_task full_task" name="task_buttons">
@@ -402,10 +424,10 @@ class controller extends wc_controller
 				
 				// Disapprove
 				
-				$table .= ($row->stat == 'posted') ? '				<li class="divider"></li>
+				$table .= ($row->stat == 'posted' && !$restrict_si) ? '				<li class="divider"></li>
 										<li><a class="btn-sm disapprove link" data-id="'.$row->voucherno.'"><span class="glyphicon glyphicon-thumbs-up"></span> Disapprove</a></li>' : '';
 			}
-				
+
 			$table .= '</ul>
 						</div>
 					</td>';
