@@ -686,7 +686,7 @@
 					<?endif;?>
 					&nbsp;
 					<?
-					if($status == 'unposted' && !$show_input){
+					if($status == 'unposted' && !$show_input && $restrict_dv){
 						echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
 					}
 					?>

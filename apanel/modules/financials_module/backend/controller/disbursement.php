@@ -98,6 +98,8 @@ class controller extends wc_controller
 		$data["listofcheques"]		= "";
 		$data["show_cheques"] 		= 'hidden';
 
+		$data['restrict_dv'] 		= false;
+
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
 		
@@ -174,12 +176,13 @@ class controller extends wc_controller
 
 		// Main
 		$vendor_details 		   	= $this->payment_voucher->getValue("partners", "partnername"," partnertype = 'supplier' AND partnercode = '".$data["main"]->vendor."'", "");
-
+		$transactiondate 			= $data["main"]->transactiondate;
+		$restrict_dv 				= $this->restrict->setButtonRestriction($transactiondate);
 		$data["voucherno"]         	= $data["main"]->voucherno;
 		$data["vendorcode"]        	= $vendor_details[0]->partnername;
 		$data["v_convertedamount"] 	= $data["main"]->convertedamount;
 		$data["exchangerate"]      	= $data["main"]->exchangerate;
-		$data["transactiondate"]   	= $this->date->dateFormat($data["main"]->transactiondate);
+		$data["transactiondate"]   	= $this->date->dateFormat($transactiondate);
 		$data["referenceno"]       	= $data["main"]->referenceno;
 		$data["paymenttype"]       	= $data["main"]->paymenttype;
 		$data["particulars"]       	= $data["main"]->particulars;
@@ -231,6 +234,8 @@ class controller extends wc_controller
 		}
 		$data['sum_applied'] 	= $sum_applied;
 		$data['sum_discount'] 	= $sum_discount;
+
+		$data['restrict_dv'] 	= $restrict_dv;
 
 		$this->view->load('disbursement/disbursement', $data);
 	}
@@ -295,6 +300,8 @@ class controller extends wc_controller
 		$data['sum_applied'] 	= $sum_applied;
 		$data['sum_discount'] 	= $sum_discount;
 		$data['payments'] 		= json_encode($payments);
+
+		$data['restrict_dv'] 	= false;
 
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
@@ -1116,6 +1123,7 @@ class controller extends wc_controller
 			foreach($list->result as $key => $row)
 			{
 				$date        	= $row->paymentdate;
+				$restrict_dv 	= $this->restrict->setButtonRestriction($date);
 				$date       	= $this->date->dateFormat($date);
 				$voucher   		= $row->voucherno; 
 				$vendor		 	= $row->partner; 
@@ -1143,25 +1151,25 @@ class controller extends wc_controller
 
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()
-							->addEdit($show_edit)
+							->addEdit($show_edit && $restrict_dv)
 							->addOtherTask(
 								'Post',
 								'thumbs-up',
-								$show_edit
+								$show_edit && $restrict_dv
 							)
 							->addOtherTask(
 								'Unpost',
 								'thumbs-down',
-								($status == 'posted')
+								($status == 'posted' && $restrict_dv)
 							)
 							->addOtherTask(
 								'Cancel',
 								'ban-circle',
-								$show_edit
+								$show_edit && $restrict_dv
 							)
 							->addPrint()
-							->addDelete($show_edit)
-							->addCheckbox($show_edit)
+							->addDelete($show_edit && $restrict_dv)
+							->addCheckbox($show_edit && $restrict_dv)
 							->setValue($voucher)
 							->draw();
 			
