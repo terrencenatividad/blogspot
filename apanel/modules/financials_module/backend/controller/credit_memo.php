@@ -52,13 +52,14 @@ class controller extends wc_controller {
 		$data['ajax_task']			= 'ajax_create';
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
+		$data['restrict_cm'] 		= true;
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
 
 	public function edit($voucherno) {
 		$this->view->title			= 'Credit Memo  Edit';
 		$data						= (array) $this->cm_model->getJournalVoucherById($this->fields, $voucherno);
-		$data['transactiondate']		= $this->date->dateFormat($data['transactiondate']);
+		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
@@ -67,23 +68,28 @@ class controller extends wc_controller {
 		$data['partner_list']    	= $this->cm_model->getVendorList();
 		$data['chartofaccounts']	= $this->cm_model->getChartOfAccountList();
 		$data['voucher_details']	= json_encode($this->cm_model->getJournalVoucherDetails($this->fields2, $voucherno));
-		// var_dump($data);
 		$data['ajax_task']			= 'ajax_edit';
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
+		$data['restrict_cm'] 		= true;
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
 
 	public function view($voucherno) {
 		$this->view->title			= 'Credit Memo View';
 		$data						= (array) $this->cm_model->getJournalVoucherById($this->fields, $voucherno);
-		$data['transactiondate']		= $this->date->dateFormat($data['transactiondate']);
+		$transactiondate 			= $data['transactiondate'];
+		$restrict_cm 				= $this->restrict->setButtonRestriction($data['transactiondate']);
+		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
 		$data['partner_list']   	 = $this->cm_model->getVendorList();
 		$data['proforma_list']		= $this->cm_model->getProformaList();
 		$data['chartofaccounts']	= $this->cm_model->getChartOfAccountList();
 		$data['voucher_details']	= json_encode($this->cm_model->getJournalVoucherDetails($this->fields2, $voucherno));
 		$data['show_input']			= false;
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+		$data['restrict_cm'] 		= $restrict_cm;
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
 
@@ -117,29 +123,27 @@ class controller extends wc_controller {
 		$classid	= $data['classid'];
 		$partner	= $data['partner'];
 		$datefilter	= $data['daterangefilter'];
-		// $datefilter = explode('-', $datefilter);
-		// $dates		= array();
-		// foreach ($datefilter as $date) {
-		// 	$dates[] = $this->date->dateDbFormat($date);
-		// }
 		$pagination	= $this->cm_model->getJournalVoucherPagination($this->fields, $search, $typeid, $classid, $datefilter, $partner, $limit, $sort);
 		$table		= '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
+			$transactiondate 	=	$row->transactiondate;
+			$restrict_cm= $this->restrict->setButtonRestriction($transactiondate);
+
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit()
-									->addDelete()
+									->addEdit($restrict_cm)
+									->addDelete($restrict_cm)
 									->addPrint()
-									->addCheckbox()
+									->addCheckbox($restrict_cm)
 									->setLabels(array('delete'=>'Cancel'))
 									->setValue($row->voucherno)
 									->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
-			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
+			$table .= '<td>' . $this->date->dateFormat($transactiondate) . '</td>';
 			$table .= '<td>' . $row->voucherno . '</td>';
 			$table .= '<td>' . $row->partnername.'</td>';
 			$table .= '<td>' . $row->referenceno . '</td>';
