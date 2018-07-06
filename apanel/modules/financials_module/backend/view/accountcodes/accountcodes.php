@@ -1,6 +1,15 @@
 	<section class="content">
 		<div class="box box-primary">
 			<form action="" method="post">
+				<?php if ($acounts_check): ?>
+					<div class="box-body">
+						<div class="alert alert-success" role="alert" style="margin-bottom: 0">
+							<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+							<span class="sr-only">Important:</span>
+							Please Complete All Details in the form below.
+						</div>
+					</div>
+				<?php endif ?>
 				<div class="box-body table-responsive no-padding">
 					<table id="tableList" class="table table-hover table-sidepad">
 						<?php

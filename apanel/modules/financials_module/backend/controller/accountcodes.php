@@ -16,19 +16,21 @@ class controller extends wc_controller {
 	}
 
 	public function view() {
-		$this->view->title		= 'Account Codes List';
+		$this->view->title		= $this->ui->ViewLabel('');
 		$data['ui']				= $this->ui;
 		$data['accounts']		= $this->accountcodes->getAccountCodes();
 		$data['account_list']	= $this->accountcodes->getChartOfAccountsList();
+		$data['acounts_check']	= $this->accountcodes->checkAccounts();
 		$data['show_input']		= false;
 		$this->view->load('accountcodes/accountcodes', $data);
 	}
 
 	public function edit() {
-		$this->view->title		= 'Account Codes List';
+		$this->view->title		= $this->ui->EditLabel('');
 		$data['ui']				= $this->ui;
 		$data['accounts']		= $this->accountcodes->getAccountCodes();
 		$data['account_list']	= $this->accountcodes->getChartOfAccountsList();
+		$data['acounts_check']	= $this->accountcodes->checkAccounts();
 		$data['ajax_task']		= 'ajax_edit';
 		$data['show_input']		= true;
 		$this->view->load('accountcodes/accountcodes', $data);
