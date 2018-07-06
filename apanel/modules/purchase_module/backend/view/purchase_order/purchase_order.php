@@ -667,7 +667,7 @@
 						echo $ui->loadElement('check_task')
 								->addSave(($task == 'create'))
 								->addOtherTask('Save','',($task == 'edit'),'primary')
-								->addEdit(($task == 'view' && ( $stat == 'open' && !$restrict_so )))
+								->addEdit(($task == 'view' && ( $stat == 'open' && $restrict_po )))
 								->setValue($voucherno)
 								->draw_button($show_input);
 

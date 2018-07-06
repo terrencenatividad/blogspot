@@ -9,10 +9,10 @@
         public function setButtonRestriction($transactiondate) {
             $closed_date     =   $this->getClosedDate();
 
-            if( $closed_date > $transactiondate ){
-                return 1;
-            } else {
+            if( $closed_date >= $transactiondate ){
                 return 0;
+            } else {
+                return 1;
             }
         }
 

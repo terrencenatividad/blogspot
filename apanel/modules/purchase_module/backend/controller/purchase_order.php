@@ -145,7 +145,7 @@ class controller extends wc_controller
 		$data['task'] 			= "create";
 		$data["row_ctr"] 		= 0;
 		$data['cmp'] 			= $this->companycode;
-
+		$data['restrict_po'] 	= false;
 		//Finalize Saving	
 		$save_status 			= $this->input->post('save');
 		//echo $save_status;
@@ -309,7 +309,7 @@ class controller extends wc_controller
 		
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
-		
+		$data['restrict_po'] 	 = false;
 		$this->view->load('purchase_order/purchase_order', $data);
 	}
 
@@ -391,7 +391,6 @@ class controller extends wc_controller
 		$data['details'] 		 = $retrieved_data['details'];
 
 		$restrict_po 			 =	$this->restrict->setButtonRestriction($transactiondate);
-
 		$data['restrict_po'] 	 = $restrict_po;
 
 		$this->view->load('purchase_order/purchase_order', $data);
@@ -600,16 +599,13 @@ class controller extends wc_controller
 
 				$element = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit(($row->stat == 'open' && !$restrict_po))
+									->addEdit(($row->stat == 'open' && $restrict_po))
 									->addOtherTask('Tag as Complete', 'bookmark',($row->stat != 'closed' && $row->stat != 'posted' && $row->stat != 'open' && $row->stat != 'cancelled'))
 									->addPrint()
-									->addDelete(($row->stat == 'open' && !$restrict_po))
+									->addDelete(($row->stat == 'open' && $restrict_po))
 									->setValue($row->voucherno)
+									->addCheckbox($row->stat == 'open'&& $restrict_po)
 									->setLabels(array('delete'=>'Cancel'));
-
-				if ($row->stat == 'open') {
-					$element->addCheckbox();
-				}
 
 				$dropdown = $element->draw();
 

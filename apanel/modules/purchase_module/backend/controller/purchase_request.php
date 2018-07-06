@@ -93,7 +93,7 @@ class controller extends wc_controller
 		$data['task'] 			= "create";
 		$data["row_ctr"] 		= 0;
 		$data['cmp'] 			= $this->companycode;
-
+		$data['restrict_req'] 	= false;
 		//Finalize Saving	
 		$save_status 			= $this->input->post('save');
 		//echo $save_status;
@@ -238,7 +238,7 @@ class controller extends wc_controller
 		
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
-		
+		$data['restrict_req'] 	 = false;
 		$this->view->load('purchase_request/purchase_request', $data);
 	}
 
@@ -519,17 +519,14 @@ class controller extends wc_controller
 
 				$element = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($row->stat == 'open' && !$restrict_req )
-									->addDelete( ($row->stat == 'open' && !$restrict_req)  ||  $row->stat == 'expired' )
+									->addEdit($row->stat == 'open' && $restrict_req )
+									->addDelete( ($row->stat == 'open' || $row->stat == 'expired') && $restrict_req) 
 									->addPrint()
 									->setLabels(array('delete'=>'Cancel'))
-									->addOtherTask('Convert to PO', 'share', ($row->stat == 'open' && !$restrict_req))
+									->addOtherTask('Convert to PO', 'share', ($row->stat == 'open' && $restrict_req))
+									->addCheckbox($row->stat == 'open' && $restrict_req)
 									->setValue($row->voucherno);
 									
-
-				if ($row->stat == 'open') {
-					$element->addCheckbox();
-				}
 				$dropdown = $element->draw();
 				$table .= '<td align = "center">' . $dropdown . '</td>';
 				$table .= '<td>' . date("M d, Y",strtotime($row->transactiondate)) . '</td>';
