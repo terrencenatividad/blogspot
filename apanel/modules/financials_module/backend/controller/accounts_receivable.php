@@ -238,6 +238,7 @@ class controller extends wc_controller
 		$gen_value                    = $this->accounts_receivable->getValue("accountsreceivable", "COUNT(*) as count", "voucherno != ''");	
 		$data["generated_id"]         = (!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
 
+		$data['restrict_ar'] 		  = false;
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview"));
 
@@ -368,7 +369,10 @@ class controller extends wc_controller
 
 		$status_badge = '<span class="label label-'.$status_class.'">'.strtoupper($status).'</span>';
 		$data['status_badge'] 	= $status_badge;
-
+		
+		$restrict_ar	 	= $this->restrict->setButtonRestriction($data["main"]->transactiondate);
+		$data['restrict_ar']= $restrict_ar;
+		
 		$this->view->load('accounts_receivable/accounts_receivable_view', $data);
 	}
 
@@ -424,6 +428,7 @@ class controller extends wc_controller
 		$data["address1"] 	 = $data["cust"]->address1;
 		$data["duedate"]     = $this->date->dateFormat($data["main"]->duedate); 
 		
+		$data['restrict_ar'] = false;
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview"));
 
@@ -590,15 +595,16 @@ class controller extends wc_controller
 		if( !empty($list->result) ) :
 			foreach($list->result as $key => $row)
 			{
-				$date        = $row->transactiondate;
-				$date        = $this->date->dateFormat($date);
-				$voucher     = $row->voucherno; 
-				$balance     = $row->balance; 
-				$amount	  	 = $row->amount; 
-				$customer	 = $row->customer; 
-				$referenceno = $row->referenceno; 
-				$checker 	 = $row->importchecker; 
-				$import 	 = ($checker=='import') 	?	"Yes" 	:	"No";
+				$date        			= $row->transactiondate;
+				$restrict_ar 			= $this->restrict->setButtonRestriction($date);
+				$date        			= $this->date->dateFormat($date);
+				$voucher     			= $row->voucherno; 
+				$balance     			= $row->balance; 
+				$amount	  	 			= $row->amount; 
+				$customer	 			= $row->customer; 
+				$referenceno 			= $row->referenceno; 
+				$checker 	 			= $row->importchecker; 
+				$import 				= ($checker=='import') 	?	"Yes" 	:	"No";
 
 				if($balance != $amount && $balance != 0)
 				{
@@ -618,14 +624,14 @@ class controller extends wc_controller
 				$show_payment 	= ($balance != 0);
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()
-							->addEdit($show_edit && $checker != "import")
+							->addEdit($show_edit && $checker != "import" && $restrict_ar)
 							->addOtherTask(
 								'Receive Payment',
 								'credit-card',
-								$show_payment
+								$show_payment  && $restrict_ar
 							)
-							->addDelete($show_delete && $checker != "import")
-							->addCheckbox($show_delete && $checker != "import")
+							->addDelete($show_delete && $checker != "import"  && $restrict_ar)
+							->addCheckbox($show_delete && $checker != "import"  && $restrict_ar)
 							->setValue($voucher)
 							->setLabels(array('delete' => 'Cancel'))
 							->draw();
