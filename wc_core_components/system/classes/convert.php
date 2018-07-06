@@ -6,7 +6,8 @@ class convert {
 	var $decimal;
 	var $decimal_len;
 
-	function Convert($amount, $currency="Pesos") {
+	function Convert($amount, $currency="Pesos", $cents_fraction = false) {
+		$currency = ($currency == '') ? "Pesos" : $currency;
 		$this->assign();
 		$temp	= (string) $amount;
 		$pos	= strpos($temp,".");
@@ -60,7 +61,13 @@ class convert {
 				if ($str) {
 					$str .= " And ";
 				}
-				$str .= $this->decimal .  " Cents";
+				$str .= $this->decimal;
+				
+				if ($cents_fraction) {
+					$str .= "/100 Only";
+				} else {
+					$str .= " Cents";
+				}
 			}
 		}
 		$this->amount_in_words = $str;
