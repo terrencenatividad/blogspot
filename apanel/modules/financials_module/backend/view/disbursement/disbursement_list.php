@@ -3,19 +3,23 @@
 		<div class="box-header">
 			<div class="row">
 				<div class = "col-md-8">
-					<div class="btn-group">
-						<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create Disbursement Voucher</a>
+					<!-- <div class="btn-group"> -->
+						<!-- <a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create Disbursement Voucher</a>
 						<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							<span class="caret"></span>
 							<span class="sr-only">Toggle Dropdown</span>
-						</button>
-						<ul class="dropdown-menu">
-							<li><a href="<?= MODULE_URL ?>get_export" id="export_table" download="Disbursement Voucher.csv"><i class="glyphicon glyphicon-open"></i>Export Voucher/s</a></li>
+						</button> -->
+						<!-- <ul class="dropdown-menu"> -->
+							<!-- <li><a href="<?= MODULE_URL ?>get_export" id="export_table" download="Disbursement Voucher.csv"><i class="glyphicon glyphicon-open"></i>Export Voucher/s</a></li> -->
 							<!--<li><a href="#import-modal" data-toggle="modal"><i class="glyphicon glyphicon-save"></i>Import Voucher/s</a></li>-->
-						</ul>
-					</div>
-					<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete<span></span></button>
-					<button type="button" id="item_multiple_cancel" class="btn btn-warning delete_button">Cancel<span></span></button>
+						<!-- </ul> -->
+					<!-- </div> -->
+					<?
+						echo $ui->CreateNewButton('');
+						echo $ui->OptionButton('');
+					?>
+					<button type="button" id="item_multiple_delete" class="btn btn-danger btn-flat">Delete<span></span></button>
+					<button type="button" id="item_multiple_cancel" class="btn btn-warning btn-flat">Cancel<span></span></button>
 				</div>
 
 				<div class = "col-md-4">
