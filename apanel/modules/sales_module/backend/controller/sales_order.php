@@ -807,7 +807,7 @@ class controller extends wc_controller
 				$element 	= 	$this->ui->loadElement('check_task')
 									->addView()
 									->addEdit(($row->stat == 'open' && $restrict_so))
-									->addOtherTask('Tag as Complete', 'bookmark',($row->stat != 'closed' && $row->stat != 'posted' && $row->stat != 'open' && $row->stat != 'cancelled'))
+									->addOtherTask('Tag as Complete', 'bookmark',($row->stat == 'partial' && $restrict_so))
 									->addPrint()
 									->addDelete(($row->stat == 'open' && $restrict_so))
 									// ->setClosed()
