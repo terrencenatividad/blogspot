@@ -239,12 +239,8 @@ class controller extends wc_controller
 		$gen_value                    = $this->accounts_payable->getValue("accountspayable", "COUNT(*) as count", "voucherno != ''");	
 		$data["generated_id"]         = (!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
 
-		// // Retrieve tax list
-		// $bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
-		// $bus_type_cond                = "tax_account != ''";
-		// $join 						  =  "chartaccount ca ON atc.tax_account = ca.id";
-		// $data["tax_list"]  			 = $this->accounts_payable->getTax("atccode atc", $bus_type_data,$join ,$bus_type_cond, false);
-
+		$data["restrict_ap"] 		  = false;
+		
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview"));
 
@@ -357,11 +353,8 @@ class controller extends wc_controller
 		$data['show_paymentdetails'] 	=	(!empty($data['payments']) && !is_null($data['payments'])) 		?  	1 	: 0;
 		$data['show_chequedetails'] 	=	(!empty($data['rollArrayv']) && !is_null($data['rollArrayv'])) 	?  	1 	: 0;
 
-		// Retrieve tax list
-		// $bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
-		// $bus_type_cond                = "tax_account != ''";
-		// $data["tax_list"]  			 = $this->accounts_payable->getValue("atccode", $bus_type_data, $bus_type_cond, false);
-
+		$restrict_ap 			= $this->restrict->setButtonRestriction($data["main"]->transactiondate);
+		$data["restrict_ap"] 	= $restrict_ap;
 		
 		/**
 		 * Status Badge
@@ -442,6 +435,7 @@ class controller extends wc_controller
 		$data["address1"] 	 = $data["cust"]->address1;
 		$data["duedate"]     = $this->date->dateFormat($data["main"]->duedate); 
 		
+		$data['restrict_ap'] = false;
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview"));
 
@@ -677,8 +671,9 @@ class controller extends wc_controller
 		if( !empty($list->result) ) :
 			foreach($list->result as $key => $row)
 			{
-				$date        = $row->transactiondate;
-				$date        = $this->date->dateFormat($date);
+				$date        			= $row->transactiondate;
+				$restrict_ap 			= $this->restrict->setButtonRestriction($date);
+				$date        			= $this->date->dateFormat($date);
 
 				$voucher     = $row->voucherno; 
 				
@@ -709,25 +704,24 @@ class controller extends wc_controller
 				{
 					$voucher_status = '<span class="label label-success">PAID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
 				}
-
 				$show_edit 		= ($balance == $amount);
 				$show_delete 	= ($balance == $amount);
 				$show_payment 	= ($balance != 0);
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()
-							->addEdit($show_edit && $checker != "import")
+							->addEdit($show_edit && $checker != "import" && $restrict_ap)
 							->addOtherTask(
 								'Issue Payment',
 								'credit-card',
-								$show_payment
+								$show_payment  && $restrict_ap
 							)
 							->addOtherTask(
 								'Print 2307',
 								'print',
 								$bir_link
 							)
-							->addDelete($show_delete && $checker != "import")
-							->addCheckbox($show_delete && $checker != "import")
+							->addDelete($show_delete && $checker != "import" && $restrict_ap)
+							->addCheckbox($show_delete && $checker != "import" && $restrict_ap)
 							->setValue($voucher)
 							->setLabels(array('delete' => 'Cancel'))
 							->draw();

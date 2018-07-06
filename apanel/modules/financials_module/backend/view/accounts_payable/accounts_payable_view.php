@@ -550,12 +550,12 @@
                     &nbsp;
                     </div>
                     <div class="col-md-8 col-sm-8 col-xs-8 text-center">
-                        <?if($v_balance > 0){?>
+                        <?if($v_balance > 0 && $restrict_ap){?>
                         <button type="button" class="btn btn-primary btn-md btn-flat" id="btnReceive">Issue Payment</button>
                         &nbsp;
                         <?}?>
                         
-                        <?if(empty($data["payments"]) && $data['checker'] != "import"){?>
+                        <?if(empty($data["payments"]) && $data['checker'] != "import" && $restrict_ap){?>
                         <a href="<?=BASE_URL?>financials/accounts_payable/edit/<?=$sid?>" class="btn btn-primary btn-md btn-flat">Edit</a>
                         <?}?>
                     </div>
