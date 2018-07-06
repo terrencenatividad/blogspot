@@ -210,7 +210,11 @@
 		<hr>
 		<div class="row">
 			<div class="col-md-12 text-center">
-				<?php echo $ui->drawSubmit($show_input); ?>
+				<?php 
+					if($restrict_dm):
+						echo $ui->drawSubmit($show_input); 
+					endif;
+				?>
 				<a href="<?=MODULE_URL?>"  data-toggle="back_page" class="btn btn-default">Cancel</a>
 			</div>
 		</div>

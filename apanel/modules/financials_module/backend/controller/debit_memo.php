@@ -54,6 +54,7 @@ class controller extends wc_controller {
 		$data['ajax_task']			= 'ajax_create';
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
+		$data['restrict_dm'] 		= true;
 		$this->view->load('debit_memo/debit_memo', $data);
 	}
 
@@ -72,13 +73,16 @@ class controller extends wc_controller {
 		$data['ajax_task']			= 'ajax_edit';
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
+		$data['restrict_dm'] 		= true;
 		$this->view->load('debit_memo/debit_memo', $data);
 	}
 
 	public function view($voucherno) {
 		$this->view->title			= 'Debit Memo View';
 		$data						= (array) $this->dm_model->getJournalVoucherById($this->fields, $voucherno);
-		$data['transactiondate']		= $this->date->dateFormat($data['transactiondate']);
+		$transactiondate 			= $data['transactiondate'];
+		$restrict_dm 				= $this->restrict->setButtonRestriction($transactiondate);
+		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
@@ -88,6 +92,7 @@ class controller extends wc_controller {
 		$data['chartofaccounts']	= $this->dm_model->getChartOfAccountList();
 		$data['voucher_details']	= json_encode($this->dm_model->getJournalVoucherDetails($this->fields2, $voucherno));
 		$data['show_input']			= false;
+		$data['restrict_dm'] 		= $restrict_dm;
 		$this->view->load('debit_memo/debit_memo', $data);
 	}
 
@@ -121,24 +126,21 @@ class controller extends wc_controller {
 		$classid	= $data['classid'];
 		$partner	= $data['partner'];
 		$datefilter	= $data['daterangefilter'];
-		// $datefilter = explode('-', $datefilter);
-		// $dates		= array();
-		// foreach ($datefilter as $date) {
-		// 	$dates[] = $this->date->dateDbFormat($date);
-		// }
 		$pagination	= $this->dm_model->getJournalVoucherPagination($this->fields, $search, $typeid, $classid, $datefilter, $partner, $limit, $sort);
 		$table		= '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
+			$transactiondate 	=	$row->transactiondate; 
+			$restrict_dm 		= 	$this->restrict->setButtonRestriction($transactiondate);
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit()
-									->addDelete()
+									->addEdit($restrict_dm)
+									->addDelete($restrict_dm)
 									->addPrint()
-									->addCheckbox()
+									->addCheckbox($restrict_dm)
 									->setLabels(array('delete'=>'Cancel'))
 									->setValue($row->voucherno)
 									->draw();
