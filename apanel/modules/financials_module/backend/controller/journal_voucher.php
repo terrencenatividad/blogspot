@@ -40,7 +40,7 @@ class controller extends wc_controller {
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
-		$data['checker'] 			= "";
+		$data['checker'] 			= 1;
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
 		$data['proforma_list']		= $this->jv_model->getProformaList();
@@ -49,6 +49,7 @@ class controller extends wc_controller {
 		$data['ajax_task']			= 'ajax_create';
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
+		$data['restrict_jv'] 		= true;
 		$this->view->load('journal_voucher/journal_voucher', $data);
 	}
 
@@ -58,9 +59,7 @@ class controller extends wc_controller {
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
-		$checker 					= isset($data['source']) && !empty($data['source']) 	? 	$data['source'] 	:	"";
-		$display_edit				= ($checker!="import" && $checker!="beginning" && $checker!="closing") 	?	1	:	0;
-		$data['checker'] 			= $display_edit;
+		$data['checker'] 			= 1;
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
 		$data['proforma_list'] 		= $this->jv_model->getProformaList();
@@ -69,6 +68,7 @@ class controller extends wc_controller {
 		$data['ajax_task']			= 'ajax_edit';
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
+		$data['restrict_jv'] 		= true;
 		$this->view->load('journal_voucher/journal_voucher', $data);
 	}
 
@@ -81,13 +81,15 @@ class controller extends wc_controller {
 		$checker 					= isset($data['source']) && !empty($data['source']) 	? 	$data['source'] 	:	"";
 		$display_edit				= ($checker!="import" && $checker!="beginning" && $checker!="closing") 	?	1	:	0;
 		$data['checker'] 			= $display_edit;
-		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
+		$transactiondate 			= $data['transactiondate'];
+		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui'] = $this->ui;
 		$data['proforma_list']		= $this->jv_model->getProformaList();
 		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
 		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno));
 		$data['show_input']			= false;
-		
+		$restrict_jv 				= $transactiondate;
+		$data['restrict_jv'] 		= $restrict_jv;
 		$this->view->load('journal_voucher/journal_voucher', $data);
 	}
 
@@ -122,33 +124,35 @@ class controller extends wc_controller {
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-		foreach ($pagination->result as $key => $row) {
+		foreach ($pagination->result as $key => $row) {;
+			$voucherno			=	isset($row->voucherno) 			? 	$row->voucherno 									:	"";
+			$transactiondate 	=	isset($row->transactiondate) 	?	$this->date->DateDbFormat($row->transactiondate)	:	"";
+		
 			//Checker for Imported files or Closing
-			$checker 	=	isset($row->checker) && !empty($row->checker) 	? 	$row->checker 	:	"";
-
-			$voucherno			=	$row->voucherno;
-			$transactiondate 	=	isset($row->transactiondate) 						?	$this->date->DateDbFormat($row->transactiondate) 	:	0;
-			$import 			=	(isset($row->checker) && ($row->checker == 'import'||$row->checker  == 'beginning'))	?	"Yes" 	:	"No";
-			$closing_checker 	=	!empty($this->jv_model->checkIfClosing($voucherno)) 	?	$this->jv_model->checkIfClosing($voucherno)	:	0;
-			$latest 			= 	$this->jv_model->getLatestClosedDate();
-			$closed_date 		= 	isset($latest->closed_date) 	?	$this->date->DateDbFormat($latest->closed_date) 	:	0;
-
-			$date_compare 		= 	($transactiondate == $closed_date) 	?	1	:	0;
-	
+			$checker 			=	isset($row->checker) && !empty($row->checker) 		? 	$row->checker 	:	"";
 			$display_edit_delete=  	($checker!="import" && $checker!="beginning" && $checker!="closing") 	?	1	:	0;
+			
+			//Transaction Dates equivalent to the closing date / period should be deleted first
+			$latest_closed_date = 	$this->restrict->getClosedDate();
+			$date_compare 		= 	($transactiondate == $latest_closed_date) 	?	1	:	0;
+
+			//Checker for restricting for Closing on Edit / Delete [ 0 = within closing period ]
+			$restrict_jv 		= 	$this->restrict->setButtonRestriction($transactiondate);
+			
+			$import 			=	($checker!="" && ($row->checker == 'import'||$row->checker  == 'beginning'))	?	"Yes" 	:	"No";
 
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($display_edit_delete)
-									->addDelete(($date_compare && $closing_checker) && $display_edit_delete)
+									->addEdit($display_edit_delete && $restrict_jv)
+									->addDelete($date_compare || ($restrict_jv && $display_edit_delete))
 									->addPrint()
-									->addCheckbox(($date_compare && $closing_checker) && $display_edit_delete)
+									->addCheckbox($date_compare || ($restrict_jv && $display_edit_delete))
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($voucherno)
 									->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
-			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
+			$table .= '<td>' . $this->date->dateFormat($transactiondate) . '</td>';
 			$table .= '<td>' . $import . '</td>';
 			$table .= '<td>' . $voucherno . '</td>';
 			$table .= '<td>' . $row->referenceno . '</td>';
@@ -302,6 +306,9 @@ class controller extends wc_controller {
 						$acct_exists 	=	$this->jv_model->check_if_exists('id','chartaccount'," accountname = '$account' ");
 						$acct_count 	=	$acct_exists[0]->count;	
 
+						//Get latest closing date
+						$close_date 	=	$this->restrict->getClosedDate();
+
 						if(!empty($account)){
 							if( $acct_count <= 0 ) {
 								$errmsg[]	= "Account Name [<strong>$account</strong>] on <strong>row $line</strong> does not exist.<br/>";
@@ -323,6 +330,11 @@ class controller extends wc_controller {
 							// Check if Transaction Date is not Empty 
 							if($transdate == ''){
 								$errmsg[]	= "Transaction Date on <strong>row $line</strong> should not be empty.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+							//Check if Transaction Date is not within Closed Date Period
+							if($transdate <= $close_date){
+								$errmsg[]	= "Transaction Date [<strong>$transdate</strong>] on <strong>row $line</strong> must not be within the Closed Period.<br/>";
 								$errmsg		= array_filter($errmsg);
 							}
 							//Check if Account is not empty
@@ -349,6 +361,11 @@ class controller extends wc_controller {
 									$transdate 	= $prev_date;
 								} else if ($transdate != $prev_date) {
 									$errmsg[]	= "Transaction Date [<strong>$transdate</strong>] on <strong>row $line</strong> should be the same for vouchers # <strong>$jvno</strong>.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+								//Check if Transaction Date is not within Closed Date Period
+								if($transdate <= $close_date){
+									$errmsg[]	= "Transaction Date [<strong>$transdate</strong>] on <strong>row $line</strong> must not be within the Closed Period.<br/>";
 									$errmsg		= array_filter($errmsg);
 								}
 								// Check the Reference #

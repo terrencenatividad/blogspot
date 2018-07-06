@@ -131,7 +131,7 @@
 					<div class="row">
 						<div class="col-md-12 text-center">
 							<?php
-								if($checker || $checker==""){
+								if( $checker && $restrict_jv ){
 									echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 								}
 								echo $ui->drawCancel();

@@ -123,33 +123,6 @@ class journal_voucher_model extends wc_model {
 						->getRow();
 	}
 
-	public function checkIfClosing($voucherno){
-		$result 	=	$this->db->setTable('journalvoucher')
-								->setFields('source')
-								->setWhere("voucherno = '$voucherno' AND stat != 'cancelled'")
-								->runSelect()
-								->getRow();
-
-		$closing 	=	false;						
-		if($result->source == 'closing'){
-			$closing 	=	true;
-		}
-		
-		return $closing;
-	}
-	
-	public function getLatestClosedDate(){
-		$result 	=	$this->db->setTable('journalvoucher')
-								 ->setFields('transactiondate closed_date')
-								 ->setWhere("source = 'closing' AND stat != 'cancelled'")
-								 ->setOrderBy('transactiondate DESC')
-								 ->runSelect()
-								 ->getRow();
-
-		return $result;
-
-	}
-
 	public function getJournalVoucherPagination($fields, $search, $sort, $datefilter) {
 		$sort = ($sort) ? $sort : 'transactiondate desc';
 		$condition = "transtype = 'JV' and stat = 'posted' ";
