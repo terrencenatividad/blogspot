@@ -149,7 +149,7 @@
 					<div class="row">
 						<div id="submit_container" class="col-md-12 text-center">
 							<?php
-								if ($stat == 'Packed' && !$restrict_pl || empty($stat)) {
+								if ($stat == 'Packed' && $restrict_pl || empty($stat)) {
 									echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 								}
 								echo $ui->drawCancel();

@@ -416,7 +416,7 @@
 							echo $ui->loadElement('check_task')
 									->addSave(($task == 'create'))
 									->addOtherTask('Save','',($task == 'edit'),'primary')
-									->addEdit(($task == 'view' && ( $stat != 'expired'  && !$restrict_sq ) ))
+									->addEdit(($task == 'view' && ( $stat != 'expired' && $restrict_sq ) ))
 									->setValue($voucherno)
 									->draw_button($show_input);
 

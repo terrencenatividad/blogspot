@@ -81,6 +81,7 @@ class controller extends wc_controller {
 		// Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
+		$data['restrict_ra'] 		= false;
 		$this->view->load('sales_return/sales_return', $data);
 	}
 
@@ -200,10 +201,10 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($row->stat == 'Returned' && !$restrict_ra)
-									->addDelete($row->stat == 'Returned' && !$restrict_ra)
+									->addEdit($row->stat == 'Returned' && $restrict_ra)
+									->addDelete($row->stat == 'Returned' && $restrict_ra)
 									->addPrint($row->stat == 'Returned')
-									->addCheckbox($row->stat == 'Returned' && !$restrict_ra)
+									->addCheckbox($row->stat == 'Returned' && $restrict_ra)
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->voucherno)
 									->draw();

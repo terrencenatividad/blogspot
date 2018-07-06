@@ -227,6 +227,20 @@
 			return $result;
 		}
 
+		public function getJVDates()
+		{
+			$result = $this->db->setTable("journalvoucher")
+						->setFields("period, fiscalyear, transactiondate")
+						->setWhere("source = 'closing' AND stat != 'temporary'")
+						->setGroupBy("period, fiscalyear")
+						->setOrderBy("period DESC")
+						->setLimit(1)
+						->runSelect()
+						->getResult();
+
+			return $result;
+		}
+
 		public function getOption($type, $orderby = "")
 		{
 			$result = $this->db->setTable('wc_option')
@@ -596,8 +610,6 @@
 							->setLimit($limit)
 							->runSelect()
 							->getResult();
-							
-			return $result;
 		}
 	}
 ?>

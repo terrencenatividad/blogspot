@@ -103,6 +103,7 @@ class controller extends wc_controller
 		$data['disc_perc'] 	 	 = '';
 		$data['disc_radio_amt']  = 'active';
 		$data['disc_radio_perc'] = '';
+		$data['restrict_si'] 	 = false;
 
 		//Finalize Saving	
 		$save_status 			= $this->input->post('save');
@@ -378,7 +379,7 @@ class controller extends wc_controller
 			$restrict_si =	$this->restrict->setButtonRestriction($transactiondate);
 
 			$table .= '<tr>';
-			if($row->stat == 'open' && !$restrict_si )
+			if($row->stat == 'open' && $restrict_si )
 			{
 				$table .= ' <td class = "text-center">
 							<div class="btn-group check_task full_task" name="task_buttons">
@@ -424,7 +425,7 @@ class controller extends wc_controller
 				
 				// Disapprove
 				
-				$table .= ($row->stat == 'posted' && !$restrict_si) ? '				<li class="divider"></li>
+				$table .= ($row->stat == 'posted' && $restrict_si) ? '				<li class="divider"></li>
 										<li><a class="btn-sm disapprove link" data-id="'.$row->voucherno.'"><span class="glyphicon glyphicon-thumbs-up"></span> Disapprove</a></li>' : '';
 			}
 

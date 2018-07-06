@@ -421,7 +421,7 @@
 													->setClass("price text-right")
 													->setAttribute(array("maxlength" => "20"))
 													->setValidation('decimal')
-													->setValue($itemprice)
+													->setValue(number_format($itemprice,'2','.',','))
 													->draw($show_input);
 										?>
 									</td>
@@ -621,7 +621,7 @@
 							echo $ui->loadElement('check_task')
 									->addSave(($task == 'create'))
 									->addOtherTask('Save','',($task == 'edit'),'primary')
-									->addEdit(($task == 'view' && ( $stat == 'open' && !$restrict_so )))
+									->addEdit(($task == 'view' && ( $stat == 'open' && $restrict_so )))
 									->setValue($voucherno)
 									->draw_button($show_input);
 

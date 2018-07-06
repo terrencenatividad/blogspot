@@ -79,6 +79,7 @@ class controller extends wc_controller {
 		// Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
+		$data['restrict_dr'] 		= false;
 		$this->view->load('delivery_receipt/delivery_receipt', $data);
 	}
 
@@ -201,11 +202,11 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit(($row->stat == 'Delivered' || $row->stat == 'Prepared') && !$restrict_dr)
-									->addDelete(($row->stat == 'Delivered' || $row->stat == 'Prepared') && !$restrict_dr)
+									->addEdit($row->stat == 'Prepared' && $restrict_dr)
+									->addDelete($row->stat == 'Prepared' && $restrict_dr)
 									->addPrint()
-									->addOtherTask('Tag as Delivered', 'bookmark',($row->stat == 'Prepared' && !$restrict_dr))
-									->addCheckbox(($row->stat == 'Delivered' || $row->stat == 'Prepared') && !$restrict_dr)
+									->addOtherTask('Tag as Delivered', 'bookmark',($row->stat == 'Prepared' && $restrict_dr))
+									->addCheckbox($row->stat == 'Prepared'&& $restrict_dr)
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->voucherno)
 									->draw();

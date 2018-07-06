@@ -746,7 +746,7 @@
 						}
 						else
 						{ 	
-							if($status == 'open' && !$restrict_si)
+							if($status == 'open' && $restrict_si)
 							{
 						?>
 							<div class="btn-group">

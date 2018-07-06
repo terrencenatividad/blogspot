@@ -176,6 +176,7 @@ class controller extends wc_controller
 			
 			//Details
 			$data['details'] 		 = $retrieved_data['details'];
+			$data['restrict_so'] 	 = false;
 
 			if($isExist[0]->voucherno)
 			{
@@ -387,7 +388,7 @@ class controller extends wc_controller
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
 		
-		$restrict_so 			 =	$this->restrict->setButtonRestriction($transactiondate);
+		$restrict_so 			=	$this->restrict->setButtonRestriction($transactiondate);
 		$data['restrict_so'] 	= $restrict_so;
 
 		// Retrieve business type list
@@ -805,17 +806,14 @@ class controller extends wc_controller
 
 				$element 	= 	$this->ui->loadElement('check_task')
 									->addView()
-									->addEdit(($row->stat == 'open' && !$restrict_so))
+									->addEdit(($row->stat == 'open' && $restrict_so))
 									->addOtherTask('Tag as Complete', 'bookmark',($row->stat != 'closed' && $row->stat != 'posted' && $row->stat != 'open' && $row->stat != 'cancelled'))
 									->addPrint()
-									->addDelete(($row->stat == 'open' && !$restrict_so))
+									->addDelete(($row->stat == 'open' && $restrict_so))
 									// ->setClosed()
 									->setValue($row->voucherno)
+									->addCheckbox($row->stat == 'open'&& $restrict_so)
 									->setLabels(array('delete'=>'Cancel'));
-
-				if ($row->stat == 'open') {
-					$element->addCheckbox();
-				}
 
 				$dropdown = $element->draw();
 				

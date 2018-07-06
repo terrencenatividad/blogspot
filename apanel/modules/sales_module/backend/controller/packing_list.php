@@ -67,8 +67,9 @@ class controller extends wc_controller {
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
 		// Closed Date
-		$close_date 			= $this->restrict->getClosedDate();
-		$data['close_date']		= $close_date;
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+		$data['restrict_pl'] 		= false;
 		$this->view->load('packing_list/packinglist', $data);
 	}
 
@@ -90,9 +91,9 @@ class controller extends wc_controller {
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
 		// Closed Date
-		$close_date 			= $this->restrict->getClosedDate();
-		$data['close_date']		= $close_date;
-		$data['restrict_pl'] 	= false;
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+		$data['restrict_pl'] 		= false;
 		$this->view->load('packing_list/packinglist', $data);
 	}
 
@@ -196,10 +197,10 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($row->stat == 'Packed' && !$restrict_pl)
-									->addDelete($row->stat == 'Packed' && !$restrict_pl)
+									->addEdit($row->stat == 'Packed' && $restrict_pl)
+									->addDelete($row->stat == 'Packed' && $restrict_pl)
 									->addPrint()
-									->addCheckbox($row->stat == 'Packed' && !$restrict_pl)
+									->addCheckbox($row->stat == 'Packed' && $restrict_pl)
 									->setValue($row->voucherno)
 									->setLabels(array('delete' => 'Cancel'))
 									->draw();

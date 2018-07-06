@@ -93,8 +93,7 @@ class controller extends wc_controller
 		$data['task'] 			= "create";
 		$data["row_ctr"] 		= 0;
 		$data['cmp'] 			= $this->companycode;
-
-		
+		$data['restrict_sq'] 	= false;
 
 		$this->view->load('sales_quotation/sales_quotation', $data);
 	}
@@ -167,7 +166,8 @@ class controller extends wc_controller
 		
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
-		
+		$data['restrict_sq'] 	 = false;
+
 		$this->view->load('sales_quotation/sales_quotation', $data); 
 	}
 
@@ -430,16 +430,15 @@ class controller extends wc_controller
 				$table .= '<tr>';
 				$element = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($row->stat == 'open' && !$restrict_sq)
-									->addDelete( ($row->stat == 'open' && !$restrict_sq) || ($row->stat == 'expired' && !$restrict_sq) )
+									->addEdit($row->stat == 'open' && $restrict_sq)
+									->addDelete( (($row->stat == 'open' || $row->stat == 'expired') && $restrict_sq) )
 									// ->addOtherTask('Print Preview', 'print',($row->stat == 'open'  || $row->stat == 'cancelled' || $row->stat == 'locked' ))
 									->addPrint()
 									->setLabels(array('delete'=>'Cancel'))
-									->addOtherTask('Convert to SO', 'share', ($row->stat == 'open' && !$restrict_sq))
+									->addOtherTask('Convert to SO', 'share', ($row->stat == 'open' && $restrict_sq))
+									->addCheckbox(($row->stat == 'open' || $row->stat == 'expired') && $restrict_sq)
 									->setValue($row->voucherno);
-				if ($row->stat == 'open') {
-					$element->addCheckbox();
-				}
+
 				$dropdown = $element->draw();
 				$table .= '<td align = "center">' . $dropdown . '</td>';
 				$table .= '<td>' . date("M d, Y",strtotime($transactiondate)) . '</td>';
