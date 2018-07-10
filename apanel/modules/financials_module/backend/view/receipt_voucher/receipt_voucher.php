@@ -39,7 +39,7 @@
 										->setName('document_date')
 										->setId('document_date')
 										->setClass('datepicker-input')
-										->setAttribute(array('readonly' => ''))
+										->setAttribute(array('readonly' => '','data-date-start-date'=>$close_date))
 										->setAddon('calendar')
 										->setValue($transactiondate)
 										->setValidation('required')
@@ -568,7 +568,8 @@
 															->setList($account_entry_list)
 															->setValue($accountcode)
 															->draw($show_input);
-											$detail_row	.= '</td>';
+											$detail_row	.= '<input type = "hidden" class="h_accountcode" name="h_accountcode['.$row.']" id="h_accountcode['.$row.']">
+															</td>';
 
 											$detail_row	.= '<td>';
 											$detail_row .= $ui->formField('text')
@@ -3447,7 +3448,7 @@ $(document).ready(function() {
 		} 
 	});
 
-	$('.accountcode').on('change',function(){
+	$('#entriesTable').on('change','.accountcode',function(){
 		var customer 	= $('#customer').val();
 		var payable = JSON.stringify(container);
 		var flag 	= 1;
@@ -3483,8 +3484,10 @@ $(document).ready(function() {
 						}
 					}
 				});
+			} else {
+				$(this).closest('tr').find('.h_accountcode').val(account);
 			}
-		}
+		} 
 
 	});
 }); // end

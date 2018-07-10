@@ -7,6 +7,7 @@ class controller extends wc_controller
 		parent::__construct();
 		$this->url 			    = new url();
 		$this->receipt_voucher  = new receipt_voucher_model();
+		$this->restrict 		= new financials_restriction_model();
 		$this->input            = new input();
 		$this->ui 			    = new ui();
 		$this->logs  			= new log;
@@ -123,6 +124,11 @@ class controller extends wc_controller
 		$data["row"] 			  		= 1;
 		$data["transactiondate"]      = $this->date->dateFormat();
 		$data["status"] 				= "";
+
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+
 		// Retrieve customer list
 		$data["customer_list"]          = $this->receipt_voucher->retrieveCustomerList();
 		
@@ -219,6 +225,10 @@ class controller extends wc_controller
 		
 		$data["business_type_list"]	= array();
 		
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+
 		// Retrieve business type list
 		$acc_entry_data             = array("id ind","CONCAT(segment5, ' - ', accountname) val");
 		$acc_entry_cond             = "accounttype != 'P'";
@@ -302,6 +312,10 @@ class controller extends wc_controller
 		$data["sid"] 		   	= $sid;
 		$data["date"] 		   	= date("M d, Y");
 
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+		
 		// Retrieve vendor list
 		$data["customer_list"]          = $this->receipt_voucher->retrieveCustomerList();
 
