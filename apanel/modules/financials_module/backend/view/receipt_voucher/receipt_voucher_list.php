@@ -82,7 +82,7 @@
 	<div class="nav-tabs-custom">
 		<ul id="filter_tabs" class="nav nav-tabs">
 			<li class="active"><a href="all" data-toggle="tab">All</a></li>
-			<li><a href="unposted" data-toggle="tab">Unposted</a></li>
+			<li><a href="open" data-toggle="tab">Unposted</a></li>
 			<li><a href="posted" data-toggle="tab">Posted</a></li>
 			<li><a href="cancelled" data-toggle="tab">Cancelled</a></li>
 		</ul>
