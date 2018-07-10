@@ -39,7 +39,7 @@
 										->setName('document_date')
 										->setId('document_date')
 										->setClass('datepicker-input')
-										->setAttribute(array('readonly' => ''))
+										->setAttribute(array('readonly' => '','data-date-start-date'=>$close_date))
 										->setAddon('calendar')
 										->setValue($transactiondate)
 										->setValidation('required')
@@ -175,7 +175,8 @@
 								<th class="col-md-3">Cheque Number</th>
 								<th class="col-md-2">Cheque Date</th>
 								<th class="col-md-2">Amount</th>
-								<?if($show_input):?><th class="col-md-1">Action</th><?endif;?>
+								<th class="col-md-1">Action</th>
+								<!-- <?if($show_input):?><th class="col-md-1">Action</th><?endif;?> -->
 							</tr>
 						</thead>
 						<tbody id="tbody_cheque">
@@ -282,6 +283,7 @@
 													->setValue($chequeno)
 													->draw($show_input);
 										?>
+										<input class="hidden chequeno" value= "<?=$chequeno?>">
 									</td>
 									<td>
 									<div class="input-group date remove-margin">
@@ -318,6 +320,10 @@
 									<? if($show_input):?>
 									<td class="text-center">
 										<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+									</td>
+									<?php else : ?>
+										<td class="text-center">
+										<button type="button" class="btn btn-info btn-flat print_check"  style="outline:none;" ><span class="glyphicon glyphicon-download-alt"></span></button>
 									</td>
 								</tr>
 									<? endif; ?>	
@@ -711,7 +717,7 @@
 					<?endif;?>
 					&nbsp;
 					<?
-					if(($status == 'unposted' && $has_access == 1) && !$show_input){
+					if(($status == 'open' && $has_access == 1) && $restrict_jv){
 						echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
 					}
 					?>
@@ -1847,8 +1853,13 @@ $('#pagination').on('click', 'a', function(e) {
 	e.preventDefault();
 	ajax.page = $(this).attr('data-page');
 	showList();
-	
 });
+
+$('body').on('click' , '.print_check', function(){
+	var cno 	= $(this).closest('tr').find('.chequeno').val();
+	var vno  	= $('#h_voucher_no').val();
+	window.location = '<?=MODULE_URL?>print_check/' + vno +  '/'+ cno  ;
+})
 
 function showIssuePayment(){
 	var valid		= 0;

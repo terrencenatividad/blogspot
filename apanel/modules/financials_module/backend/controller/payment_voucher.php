@@ -7,6 +7,7 @@ class controller extends wc_controller
 		parent::__construct();
 		$this->url 			    = new url();
 		$this->payment_voucher  = new payment_voucher_model();
+		$this->restrict 		= new financials_restriction_model();
 		$this->input            = new input();
 		$this->ui 			    = new ui();
 		$this->logs  			= new log;
@@ -122,6 +123,11 @@ class controller extends wc_controller
 		$data["row"] 			  		= 1;
 		$data["transactiondate"]      = $this->date->dateFormat();
 		$data["status"] 				= "";
+
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+
 		// Retrieve vendor list
 		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList();
 
@@ -149,6 +155,8 @@ class controller extends wc_controller
 
 		$data["listofcheques"]	= "";
 		$data["show_cheques"] 	= 'hidden';
+
+		$data['restrict_jv'] 	= true;
 
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
@@ -213,8 +221,7 @@ class controller extends wc_controller
 		$groupname 	= $login['groupname'];
 		
 		$has_access = $this->payment_voucher->retrieveAccess($groupname);
-		$data['has_access'] 		= $has_access[0]->mod_post;
-		
+		$data['has_access'] 		= $has_access[0]->mod_edit;
 		$data["ui"]   			   	= $this->ui;
 		$data['show_input'] 	   	= false;
 		$data["button_name"] 	   	= "Edit";
@@ -224,6 +231,10 @@ class controller extends wc_controller
 		$data["date"] 			   	= date("M d, Y");
 		
 		$data["business_type_list"]	= array();
+
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
 		
 		// Retrieve business type list
 		$acc_entry_data             = array("id ind","CONCAT(segment5, ' - ', accountname) val");
@@ -235,11 +246,13 @@ class controller extends wc_controller
 		// Main
 		$vendor_details 		   	= $this->payment_voucher->getValue("partners", "partnername"," partnertype = 'supplier' AND partnercode = '".$data["main"]->vendor."'", "");
 
+		$transactiondate 			= $data["main"]->transactiondate;
+		$restrict_jv 				= $this->restrict->setButtonRestriction($transactiondate);
 		$data["voucherno"]         	= $data["main"]->voucherno;
 		$data["vendorcode"]        	= $vendor_details[0]->partnername;
 		$data["v_convertedamount"] 	= $data["main"]->convertedamount;
 		$data["exchangerate"]      	= $data["main"]->exchangerate;
-		$data["transactiondate"]   	= $this->date->dateFormat($data["main"]->transactiondate);
+		$data["transactiondate"]   	= $this->date->dateFormat($transactiondate);
 		$data["referenceno"]       	= $data["main"]->referenceno;
 		$data["paymenttype"]       	= $data["main"]->paymenttype;
 		$data["particulars"]       	= $data["main"]->particulars;
@@ -291,7 +304,7 @@ class controller extends wc_controller
 		}
 		$data['sum_applied'] 	= $sum_applied;
 		$data['sum_discount'] 	= $sum_discount;
-
+		$data['restrict_jv'] 	= $restrict_jv;
 		$this->view->load('payment_voucher/payment_voucher', $data);
 	}
 
@@ -307,6 +320,10 @@ class controller extends wc_controller
 		$data["generated_id"]  	= $sid;
 		$data["sid"] 		   	= $sid;
 		$data["date"] 		   	= date("M d, Y");
+		
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
 
 		// Retrieve vendor list
 		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList();
@@ -328,7 +345,7 @@ class controller extends wc_controller
 		$data["referenceno"]     	= $data["main"]->referenceno;
 		$data["vendorcode"]      	= $data["main"]->vendor;
 		$data["exchangerate"]    	= $data["main"]->exchangerate;
-		$data["transactiondate"] 	= $this->date->dateFormat($data["main"]->transactiondate);
+		$data["transactiondate"] 	= $this->date->dateFormat();
 		$data["particulars"]     	= $data["main"]->particulars;
 		$data["paymenttype"]     	= $data["main"]->paymenttype;
 		$data['status']				= $data["main"]->stat;
@@ -351,6 +368,8 @@ class controller extends wc_controller
 		$data['sum_applied'] 	= $sum_applied;
 		$data['sum_discount'] 	= $sum_discount;
 		$data['payments'] 		= json_encode($payments);
+
+		$data['restrict_jv'] 	= true;
 
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
@@ -923,6 +942,7 @@ class controller extends wc_controller
 			{
 
 				$date			= $pagination->result[$i]->transactiondate;
+				$restrict_jv 	= $this->restrict->setButtonRestriction($date);
 				$date			= $this->date->dateFormat($date);
 				$voucher		= $pagination->result[$i]->voucherno;
 				$balance		= $pagination->result[$i]->balance; 
@@ -955,18 +975,24 @@ class controller extends wc_controller
 					$balance_2 	= $balance_2 - $amount - $discount;
 					
 				}
+				// echo "RESTRICT = ".$restrict_jv;
+				$disable_checkbox 	=	"";
+				$disable_onclick 	=	'onClick="selectPayable(\''.$voucher.'\',1);"';
 
 				$table	.= '<tr>'; 
-				if($show_input){
-					$table	.= 	'<td class="text-center" style="vertical-align:middle;">';
-					$table	.= 		'<input type="checkbox" name="checkBox[]" id = "check'.$voucher.'" class = "icheckbox" toggleid="0" row="'.$voucher.'" '.$voucher_checked.'>'; 
-					$table	.= 	'</td>';
+				if(!$restrict_jv){
+					$disable_checkbox 	=	"disabled='disabled'";
+					$disable_onclick 	= 	'';
 				}
-				$table	.= 	'<td class="text-left" style="vertical-align:middle;" onClick="selectPayable(\''.$voucher.'\',1);">'.$date.'</td>';
-				$table	.= 	'<td class="text-left" style="vertical-align:middle;" onClick="selectPayable(\''.$voucher.'\',1);">'.$voucher.'</td>';
-				$table	.= 	'<td class="text-left" style="vertical-align:middle;" onClick="selectPayable(\''.$voucher.'\',1);">'.$referenceno.'</td>';
-				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_amount'.$voucher.'" onClick="selectPayable(\''.$voucher.'\',1);">'.number_format($totalamount,2).'</td>';
-				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_balance'.$voucher.'" onClick="selectPayable(\''.$voucher.'\',1);" data-value="'.number_format($balance,2).'">'.number_format($balance_2,2).'</td>';
+				
+				$table	.= 	'<td class="text-center" style="vertical-align:middle;" >';
+				$table	.= 		'<input type="checkbox" name="checkBox[]" id = "check'.$voucher.'" class = "icheckbox" toggleid="0" row="'.$voucher.'" '.$voucher_checked.' '.$disable_checkbox.'>'; 
+				$table	.= 	'</td>';
+				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$date.'</td>';
+				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$voucher.'</td>';
+				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
+				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_amount'.$voucher.'" '.$disable_onclick.'>'.number_format($totalamount,2).'</td>';
+				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_balance'.$voucher.'" data-value="'.number_format($balance,2).'" '.$disable_onclick.'>'.number_format($balance_2,2).'</td>';
 				if($voucher_checked == 'checked'){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
 					$this->ui->formField('text')
@@ -1196,7 +1222,7 @@ class controller extends wc_controller
 		$groupname 	= $login['groupname'];
 		
 		$has_access = $this->payment_voucher->retrieveAccess($groupname);
-	
+		
 		$table  	= "";
 
 		if( !empty($list->result) ) :
@@ -1205,6 +1231,7 @@ class controller extends wc_controller
 			foreach($list->result as $key => $row)
 			{
 				$date        	= $row->paymentdate;
+				$restrict_jv 	= $this->restrict->setButtonRestriction($date);
 				$date       	= $this->date->dateFormat($date);
 				$voucher   		= $row->voucherno; 
 				$vendor		 	= $row->partner; 
@@ -1227,11 +1254,11 @@ class controller extends wc_controller
 				}else if($status == 'posted'){
 					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
 				}
-				$show_btn 		= ($status == 'open');
-				$show_edit 		= ($status == 'open' && $has_access[0]->mod_edit == 1);
-				$show_dlt 		= ($status == 'open' && $has_access[0]->mod_delete == 1);
-				$show_post 		= ($status == 'open' && $has_access[0]->mod_post == 1);
-				$show_unpost 	= ($status == 'posted' && $has_access[0]->mod_unpost == 1);
+				$show_btn 		= ($status == 'open' && $restrict_jv);
+				$show_edit 		= ($status == 'open' && $has_access[0]->mod_edit == 1 && $restrict_jv);
+				$show_dlt 		= ($status == 'open' && $has_access[0]->mod_delete == 1 && $restrict_jv);
+				$show_post 		= ($status == 'open' && $has_access[0]->mod_post == 1 && $restrict_jv);
+				$show_unpost 	= ($status == 'posted' && $has_access[0]->mod_unpost == 1 && $restrict_jv);
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()
 							->addEdit($show_edit)
@@ -1371,6 +1398,17 @@ class controller extends wc_controller
 			}
 		}
 		return $csv;
+	}
+
+	public function print_check($vno, $cno){
+		$print_chkdtl   = $this->payment_voucher->print_check($vno,$cno);
+		$print_dtls = new print_check();
+
+		$print_dtls->setDocumentType('Payment Voucher')
+					->setDocumentInfo($print_chkdtl)
+					->drawPDF('pv_voucher_' . $vno);
+		
+		
 	}
 	
 }
