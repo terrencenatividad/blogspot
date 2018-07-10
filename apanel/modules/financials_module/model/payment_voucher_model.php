@@ -724,7 +724,7 @@ class payment_voucher_model extends wc_model
 
 		foreach($tempArray as $tempArrayIndex => $tempArrayValue)
 		{
-			$accountcode 						= $tempArrayValue['accountcode'];
+			$accountcode 						= $tempArrayValue['h_accountcode'];
 			$detailparticulars					= $tempArrayValue['detailparticulars'];
 			$debit			    				= $tempArrayValue['debit'];
 			$credit			    				= $tempArrayValue['credit'];
@@ -1437,5 +1437,17 @@ class payment_voucher_model extends wc_model
 					->runSelect()
 					->getResult();
 		return $result;
+	}
+
+	public function print_check($vno, $cno){
+		$res = 	$this->db->setTable("pv_cheques pvc")
+					->setFields(array("chequeconvertedamount","vendor","chequedate","partnername"))
+					->leftJoin("paymentvoucher pv ON pvc.voucherno = pv.voucherno ")
+					->leftJoin("partners p ON pv.vendor = p.partnercode ")
+					->setWhere("pvc.voucherno = '$vno' AND chequenumber = '$cno'")
+					->runSelect()
+					->getResult();
+
+		return $res;
 	}
 }
