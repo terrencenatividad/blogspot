@@ -88,7 +88,7 @@ class controller extends wc_controller {
 		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
 		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno));
 		$data['show_input']			= false;
-		$restrict_jv 				= $transactiondate;
+		$restrict_jv 				= $this->restrict->setButtonRestriction($transactiondate);
 		$data['restrict_jv'] 		= $restrict_jv;
 		$this->view->load('journal_voucher/journal_voucher', $data);
 	}
