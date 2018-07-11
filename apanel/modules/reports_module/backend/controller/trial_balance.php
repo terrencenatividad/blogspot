@@ -28,6 +28,9 @@ class controller extends wc_controller {
 		$data['ui'] 				= 	$this->ui;
 		$data['show_input'] 		= 	true;
 		$data['datefilter'] 		= 	$this->date->datefilterMonth();
+		$balance_table 				= 	$this->trial_balance->getBalanceTableCount();
+		$display_button 			=	($balance_table->count > 0) 	? 	0	:	1;
+		$data['display_btn'] 		=	$display_button;
 		$this->view->load('trial_balance', $data);
 	}
 
@@ -288,60 +291,66 @@ class controller extends wc_controller {
 		$account 		=	isset($data['closing_account']) 	?	$data['closing_account'] 	:	"";
 
 		$result 		= 	0;
-		$voucher			= 	$this->seq->getValue('JV');
 
-		$data['voucher'] 			=	$voucher;
+		$gen_value      = $this->trial_balance->getValue("journalvoucher", "COUNT(*) as count", "voucherno != ''");
+		$temporary_id   = (!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
+
+		// $data['voucher'] 			=	$voucher;
+		$data['voucher'] 			=	$temporary_id; 
 		$data['closing_account'] 	=	$account;
 
 		$result 			=	$this->trial_balance->save_journal_voucher($data);
 		
-		$dataArray 		=	array( "result" =>	$result, 'voucherno' => $voucher);
+		$dataArray 		=	array( "result" =>	$result, 'voucherno' => $temporary_id);
 
 		return $dataArray;
 	}
 
 	private function preview_listing(){
 		$voucherno 	=	$this->input->post('voucherno');
-	
+		$search 	= 	$this->input->post('search');
+		$limit 		= 	$this->input->post('limit');
+
 		$header 	=	$this->trial_balance->getJVHeader($voucherno);
-		$details 	= 	$this->trial_balance->getJVDetails($voucherno);
+		$details 	= 	$this->trial_balance->getJVDetails($voucherno, $search, $limit);
 
 		$totalcredit 	=	0;
 		$totaldebit 	=	0;
 		$table 			=	"";
-
+		// var_dump($details);
 		if(count($details->result)>0){
 			for($i=0;$i<count($details->result);$i++){	
 				$linenum          	= $details->result[$i]->linenum;
 				$accountid          = $details->result[$i]->accountcode;
-				$code 		        = $this->trial_balance->getValue("chartaccount", array("segment5"), "id='$accountid'");
-				$code 				= isset($code[0]->segment5) ?	$code[0]->segment5 	:	"";
-				$accountname 		= $this->trial_balance->getValue("chartaccount", array("accountname"), "id='$accountid'");
-				$accountname		= isset($accountname[0]->accountname)	? 	$accountname[0]->accountname 	:	"";
+				$accountname 		= $details->result[$i]->accountname;
 				$detailparticulars  = $details->result[$i]->detailparticulars;
 				$debit          	= $details->result[$i]->debit;
 				$credit				= $details->result[$i]->credit;
 
-				if($debit != 0 || $credit != 0){
-					$table .= '<tr>
-								<td class="text-left">'.$code . " - ". $accountname.'</td>
-								<td class="text-left">'.$detailparticulars.'</td>
-								<td class="text-right"><strong>'.number_format($debit,2).'</strong></td>
-								<td class="text-right"><strong>'.number_format($credit,2).'</strong></td>';
-					$table.= '</tr>';
-				}
+				$table .= '<tr>
+							<td class="text-left">'.$accountname.'</td>
+							<td class="text-left">'.$detailparticulars.'</td>
+							<td class="text-right"><strong>'.number_format($debit,2).'</strong></td>
+							<td class="text-right"><strong>'.number_format($credit,2).'</strong></td>';
+				$table.= '</tr>';
 
 				$totaldebit 		+=	$debit;
 				$totalcredit 		+=	$credit;
 			}
-
-			$table .= '<tr>
-						<td colspan="2"></td>
-						<td class="text-right"><strong>'.number_format($totaldebit,2).'</strong></td>
-						<td class="text-right"><strong>'.number_format($totalcredit,2).'</strong></td>';
-			$table.= '</tr>';
+			
+			if($totaldebit != 0 || $totalcredit != 0){
+				$table .= '<tr>
+							<td colspan="2"></td>
+							<td class="text-right"><strong>'.number_format($totaldebit,2).'</strong></td>
+							<td class="text-right"><strong>'.number_format($totalcredit,2).'</strong></td>';
+				$table.= '</tr>';
+			} else {
+				$table .= '<tr>
+								<td class="text-center" colspan="4"><b>No Entries for this Period.<b></td>';
+				$table.= '</tr>';
+			}
 		}else{
-			$table .= '<tr><td colspan="4" class="text-center"><b>No Records Found</b></td></tr>';
+			$table .= '<tr><td colspan="4" class="text-center"><b>No Entries for this Period.</b></td></tr>';
 		}
 
 		$dataArray 	=	array( "table" 				=>	$table,
@@ -349,7 +358,8 @@ class controller extends wc_controller {
 							   "transactiondate"	=>	date("Y",strtotime($header->transactiondate)),
 							   "proformacode" 		=>	$header->proformacode,
 							   "reference" 			=>	$header->referenceno,
-							   "remarks" 			=>	$header->remarks
+							   "remarks" 			=>	$header->remarks,
+							   "pagination" 		=> 	$details->pagination
 							 );
 
 		return $dataArray;
@@ -374,7 +384,8 @@ class controller extends wc_controller {
 		
 		$result 	=	$this->trial_balance->delete_temporary_jv($voucherno);
 
-		return $result;
+		$dataArray 	= 	array("result"=>$result);
+		return $dataArray;
 	}
 }
 ?>

@@ -606,12 +606,17 @@ class trial_balance extends wc_model {
 						->getRow();
 	}
 
-	public function getJVDetails($voucherno){
-		return $this->db->setTable('journaldetails')
-						->setFields('linenum, accountcode, detailparticulars, debit, credit')
-						->setWhere("voucherno = '$voucherno' AND stat = 'temporary' AND source = 'closing' ")
-						->setOrderBy("linenum")
-						->runPagination();
+	public function getJVDetails($voucherno, $search="", $limit=1){
+		$search_cond 	=	($search!="") 	?	" AND (jv.detailparticulars LIKE '%$search%' OR ca.accountname LIKE '%$search%' OR ca.segment5 LIKE '%$search%' )" 	:	"";
+		$result 		= 	$this->db->setTable('journaldetails jv')
+									->leftJoin('chartaccount ca ON ca.id=jv.accountcode')
+									->setFields('jv.linenum, jv.accountcode, CONCAT(ca.segment5," - ",ca.accountname) accountname, jv.detailparticulars, jv.debit, jv.credit')
+									->setWhere("jv.voucherno = '$voucherno' AND jv.stat = 'temporary' AND jv.source = 'closing' AND ( jv.debit > 0 OR jv.credit > 0 ) $search_cond ")
+									->setOrderBy("jv.linenum")
+									->setLimit($limit)
+									->runPagination();
+		// echo $this->db->getQuery();
+		return $result;
 	}
 
 	public function getProformaList() {
@@ -761,4 +766,12 @@ class trial_balance extends wc_model {
 		
 	}
 
+	public function getBalanceTableCount(){
+		$result 		= 	$this->db->setTable('balance_table')
+									->setFields("COUNT(*) count")
+									->setWhere("companycode = 'CID'")
+									->runSelect()
+									->getRow();
+		return $result;
+	}
 }	

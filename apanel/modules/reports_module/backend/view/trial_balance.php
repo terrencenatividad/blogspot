@@ -18,7 +18,9 @@
 				<div class="col-md-6"></div>
 				<div class="col-md-3">
 					<div class="form-group text-right">
+						<?if($display_btn):?>
 						<button type="button" id="close_book" class="btn btn-primary"><span class="glyphicon glyphicon-book"></span> Close Period<span></span></button>
+						<?endif;?>
 						<a href="" id="export_csv" download="Trial_Balance.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 					</div>
 				</div>
@@ -266,6 +268,7 @@
 										->setId('voucherno')
 										->addHidden('voucherno')
 										->setValidation('required')
+										->setValue("--Auto Generated--")
 										->draw();
 								?>
 								<?php
@@ -317,6 +320,19 @@
 			</div>
 			<div class="modal-body">	
 				<div class="box-body table-responsive no-padding" id="content">
+					<div class="row">
+						<div class="col-md-6"></div>
+						<div class="col-md-6">
+							<div class="form-group">
+								<div class="input-group">
+									<input id="table_search" class="form-control pull-right" placeholder="Search" type="text">
+									<div class="input-group-btn">
+										<button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
 					<table id="is_list" class="table table-hover table-sidepad" cellpadding="0" cellspacing="0" border="0" width="100%">
 						<thead>
 							<tr class="info">
@@ -334,7 +350,7 @@
 						<div class="row">
 							<div class="col-md-12 text-center">
 								<button class="btn btn-primary" id="confirmbtn">Confirm</button>
-								<button type="button" class="btn btn-default" data-dismiss="modal" id="closing_cancel">Close</button>
+								<button type="button" class="btn btn-default"  id="closing_cancel">Close</button>
 							</div>
 						</div>
 					</div>
@@ -348,6 +364,7 @@
 	var ajax = {};
 	var ajax2 = {};
 		ajax.limit 	= 20; 
+		ajax2.limit = 2;
 	var ajax_call 	= {};
 
 	/**JSON : RETRIEVE TRANSACTIONS**/
@@ -374,10 +391,10 @@
 	function getTrialBalance(){
 		ajax.daterangefilter = $("#daterangefilter").val();
 		ajax_call = $.post('<?=MODULE_URL?>ajax/list', ajax , function(data) {
-				$('#trial_container').html(data.table);
-				$("#pagination").html(data.pagination);
-				$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
-			});
+			$('#trial_container').html(data.table);
+			$("#pagination").html(data.pagination);
+			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+		});
 	}
 
 	function check_existing_jv(end){
@@ -430,7 +447,7 @@
 
 		$.post('<?=MODULE_URL?>ajax/preview_listing', ajax2 , function(response) {
 			//Header
-			$('#previewModal #voucherno_static').html(response.voucherno);
+			$('#previewModal #voucherno').val(response.voucherno);
 			$("#previewModal #transactiondate_static").html(response.transactiondate);
 			$('#previewModal #referenceno_static').html(response.reference);
 			$("#previewModal #proformacode_static").html(response.proformacode);
@@ -443,20 +460,17 @@
 			$("#previewModal").modal('show');
 		});
 	}
-
 	$('#pagination').on('click', 'a', function(e) {
 		e.preventDefault();
 		ajax.page = $(this).attr('data-page');
 		getTrialBalance();
 	});
-
 	$('#daterangefilter').on('change', function() {
 		ajax.daterangefilter = $(this).val();
 		ajax.page = 1;
 		getTrialBalance();
 		// enable_button($(this).val());
 	}).trigger('change');
-	
 	$('#close_book').on('click',function(){
 		var daterangefilter 	=	$('#daterangefilter').val();
 
@@ -516,15 +530,30 @@
 	});
 
 	$('#previewModal').on('click','#confirmbtn',function(){
-		ajax2.voucherno 	=	$('#previewModal #voucherno_static').html();
+		ajax2.voucherno 	=	$('#previewModal #voucherno').val();
 		$.post('<?=MODULE_URL?>ajax/update_jv_status', ajax2 , function(response) {
 			if( response.result ){
 				$('#previewModal').modal('hide');
-				window.location 	=	'<?=MODULE_URL?>';
+				//window.location 	=	'<?//=MODULE_URL?>';
+				getTrialBalance();
 			}
 		});
 	});
 
+	$('#previewModal').on('input','#table_search', function () {
+		var voucherno 	=	$('#previewModal #voucherno').val();
+		ajax2.page = 1;
+		ajax2.search = $(this).val();
+		preview_jv(voucherno);
+	});
+
+	$('#previewModal #pagination').on('click', 'a', function(e) {
+		e.preventDefault();
+		var voucherno 	=	$('#previewModal #voucherno').val();
+		ajax2.page = $(this).attr('data-page');
+		preview_jv(voucherno);
+	});
+	
 	$('.datefilter').datepicker({
 		format: "MM yyyy",
 		startView: 2,
@@ -534,12 +563,12 @@
 	});
 
 	$('#closing_cancel').on('click',function(e){
-		ajax2.voucherno 	=	$('#previewModal #voucherno_static').html();
+		ajax2.voucherno 	=	$('#previewModal #voucherno').val();
 		//delete temporary saved jv... 
 		$.post('<?=MODULE_URL?>ajax/delete_temporary_jv', ajax2 , function(response) {
 			if( response.result ){
 				$('#previewModal').modal('hide');
-				window.location 	=	'<?=MODULE_URL?>';
+				getTrialBalance();
 			}
 		});
 		//close modal
