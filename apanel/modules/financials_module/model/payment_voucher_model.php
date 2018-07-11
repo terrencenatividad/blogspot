@@ -547,7 +547,7 @@ class payment_voucher_model extends wc_model
 		$invoice_data  			= str_replace('\\', '', $h_check_rows);
 		$invoice_data  			= html_entity_decode($invoice_data);
 		$picked_payables		= json_decode($invoice_data, true);
-		
+
 		$source				   	= (!empty($picked_payables)) ? "PV" : "DV";
 
 		$exchangerate			= (!empty($data['paymentrate'])) ? $data['paymentrate'] : "1.00";
@@ -637,7 +637,7 @@ class payment_voucher_model extends wc_model
 				$chequedate				= (!empty($newArrayValue['chequedate'])) ? $newArrayValue['chequedate'] : "";
 				$chequeamount			= (!empty($newArrayValue['chequeamount'])) ? $newArrayValue['chequeamount'] : "";
 				$chequedate				= $this->date->dateDbFormat($chequedate);
-				
+
 				if(!empty($chequedate) && !empty($chequeaccount) && !empty($chequenumber) && !empty($chequeamount)){
 					$cheque_header['voucherno']				= $voucherno;
 					$cheque_header['transtype']				= $source;
@@ -1441,7 +1441,7 @@ class payment_voucher_model extends wc_model
 
 	public function print_check($vno, $cno){
 		$res = 	$this->db->setTable("pv_cheques pvc")
-					->setFields(array("chequeconvertedamount","vendor","chequedate","partnername"))
+					->setFields(array("chequeconvertedamount","vendor","chequedate","partnername", "chequenumber"))
 					->leftJoin("paymentvoucher pv ON pvc.voucherno = pv.voucherno ")
 					->leftJoin("partners p ON pv.vendor = p.partnercode ")
 					->setWhere("pvc.voucherno = '$vno' AND chequenumber = '$cno'")

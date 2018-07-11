@@ -205,6 +205,7 @@
 												->setName('chequenumber[1]')
 												->setId('chequenumber[1]')
 												->setClass('chequenumber')
+												->setValidation('required')
 												->setAttribute(array("maxlength" => "100", "onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 												->setValue("")
 												->draw(true);
@@ -598,12 +599,22 @@
 											$detailparticulars 	= $aPvJournalDetails_Value->detailparticulars;
 											$debit 				= $aPvJournalDetails_Value->debit;
 											$credit 			= $aPvJournalDetails_Value->credit;
-											$disable_debit		= ($debit > 0) ? '' : 'readOnly';
-											$disable_credit		= ($credit > 0) ? '' : 'readOnly';
+											
+											$disable_code 		= "";
+											$added_class 		= "";
+											if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque'){
+												$disable_debit		= 'readOnly';
+												$disable_credit		= 'readOnly';
+												$disable_code 		= 'disabled';
+												$added_class 		= 'added_row';
+											} else {
+												$disable_debit		= ($debit > 0) ? '' : 'readOnly';
+												$disable_credit		= ($credit > 0) ? '' : 'readOnly';
+											}
 
 											$total_debit 		+= $debit;
 											$total_credit 		+= $credit;
-											$detail_row	.= '<tr class="clone">';
+											$detail_row	.= '<tr class="clone '.$added_class.'">';
 
 											$detail_row	.= '<td>';
 											$detail_row .= $ui->formField('dropdown')
@@ -614,8 +625,10 @@
 															->setId("accountcode[".$row."]")
 															->setList($account_entry_list)
 															->setValue($accountcode)
+															->setAttribute(array($disable_code))
 															->draw($show_input);
-											$detail_row	.= '</td>';
+											$detail_row	.= '	<input type = "hidden" class="h_accountcode" value="'.$accountcode.'" name="h_accountcode['.$row.']" id="h_accountcode['.$row.']">
+															</td>';
 
 											$detail_row	.= '<td>';
 											$detail_row .= $ui->formField('text')
@@ -631,7 +644,7 @@
 											$detail_row .= $ui->formField('text')
 															->setSplit('', 'col-md-12')
 															->setName('debit['.$row.']')
-															->setClass("account_amount debit text-right")
+															->setClass("debit text-right")
 															->setId('debit['.$row.']')
 															->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
 															->setValue(number_format($debit, 2))
@@ -651,7 +664,7 @@
 
 											if( $show_input ){
 												$detail_row .= '<td class="text-center">';
-												$detail_row .= '	<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"><span class="glyphicon glyphicon-trash"></span></button>';
+												$detail_row .= '	<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');" '.$disable_code.'><span class="glyphicon glyphicon-trash"></span></button>';
 												$detail_row .= '</td>';
 											}
 
@@ -711,11 +724,51 @@
 
 			<div class="row">
 				<div class="col-md-12 col-sm-12 text-center">
-					<?if($show_input):?>
+					<!-- <?if($show_input):?>
 					<input type = "button" value = "Save" name = "save" id = "btnSave" class="btn btn-primary btn-flat"/>
 					<input class = "form_iput" value = "" name = "h_save" id = "h_save" type = "hidden">
 					<?endif;?>
-					&nbsp;
+					&nbsp; -->
+					<?php
+					if( $show_input )
+					{
+						$save		= ($task == 'create') ? 'name="save"' : '';
+						$save_new	= ($task == 'create') ? 'name="save_new"' : '';
+					?>
+						<input class = "form_iput" value = "" name = "h_save" id = "save" type = "hidden">
+						
+						
+						<div class="btn-group" id="save_group">
+							<input type = "button" value = "Save Preview" name = "save" id = "btnSave" class="btn btn-primary btn-flat"/>
+						    <input class = "form_iput" value = "" name = "h_save" id = "h_save" type = "hidden">
+							<?php
+							if($task == 'create'){
+							?>
+							<button type="button" id="btnSave_toggle" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu left" role="menu">
+								<li style="cursor:pointer;" id="save_new">
+									&nbsp;&nbsp;Save &amp; New
+									<input type = "hidden" value = "" name = "h_save_new" id = "h_save_new"/>
+								</li>
+								<li class="divider"></li>
+								<li style="cursor:pointer;" id="save_preview">
+									&nbsp;&nbsp;Save &amp; Exit
+									<input type = "hidden" value = "" name = "h_save_preview" id = "h_save_preview"/>
+								</li>
+							</ul>
+							<?php
+							}
+							?>
+						</div>
+						&nbsp;&nbsp;&nbsp;
+						
+					<? } ?>
+						
+
+
+
 					<?
 					if(($status == 'open' && $has_access == 1) && $restrict_pv){
 						echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
@@ -1050,18 +1103,49 @@ $('#chequeTable .cheque_account').on('change', function()  {
 
 	var row = 2;
 	cheque_arr.forEach(function(account) {
-		var ParentRow = $("#entriesTable tbody tr.clone").first();
-		if($('#entriesTable tbody tr.added_row').length){
-			ParentRow = $("#entriesTable tbody tr.added_row").last();
+		// var ParentRow = $("#entriesTable tbody tr.clone").first();
+		// if($('#entriesTable tbody tr.added_row').length){
+		// 	ParentRow = $("#entriesTable tbody tr.added_row").last();
+		// }
+		// ParentRow.after(clone_acct);
+		// resetIds();
+		// $("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
+		// var accountcode = $("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
+		// disable_acct_fields(row);
+		// row++;
+		if( row == 2 ){
+			if($("#entriesTable tbody tr.clone").length == 1){
+				$("#entriesTable tbody tr.clone").first().after(clone_acct);
+			} else {
+				$('#entriesTable tbody tr.clone .accountcode').each(function() {
+					var account = $(this).val();
+					if(account == ""){
+						$(this).closest('tr').remove();
+					}
+				});
+
+				$("#entriesTable tbody tr.clone").first().after(clone_acct);
+			}
+			resetIds();
+			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
+			$("#entriesTable button#"+row).prop('disabled',true);
+			$("#entriesTable debit#"+row).prop('disabled',true);
+		} else {
+			var ParentRow = $("#entriesTable tbody tr.clone").first();
+			if($('#entriesTable tbody tr.added_row').length){
+				ParentRow = $("#entriesTable tbody tr.added_row").last();
+			}
+			ParentRow.after(clone_acct);
 		}
-		ParentRow.after(clone_acct);
 		resetIds();
 		$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
-		var accountcode = $("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
+		$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 		disable_acct_fields(row);
 		row++;
 	});
 	accounts.push(val);
+	recomputechequeamts();
+	acctdetailamtreset();
 	drawTemplate();
 });
 
@@ -1083,6 +1167,7 @@ function acctdetailamtreset(){
 		if (typeof checker['acc-' + $(this).val()] === 'undefined') {
 		} else {
 			var ca = checker['acc-' + $(this).val()] || '0.00';
+				ca = removeComma(ca);
 			if($(this).val() == ""){
 				ca = '0.00';
 			}
@@ -1097,6 +1182,7 @@ function recomputechequeamts(){
 	$('#chequeTable tbody tr select.cheque_account').each(function() {
 		var account = $(this).val();
 		var ca = $(this).closest('tr').find('.chequeamount').val();
+			ca = removeComma(ca);
 		if (typeof checker['acc-' + account] === 'undefined') {
 			checker['acc-' + account] = 0;
 		}
@@ -1960,15 +2046,40 @@ function addPaymentAmount() {
 	// document.getElementById('total_discount').value 	= addCommas(subdiscount.toFixed(2));	
 }
 
+function getCheckAccounts() {
+	var cheques_obj = {};
+	var cheques = [];
+
+	$('#chequeTable tbody tr').each(function() {
+		var chequeaccount = $(this).find('.cheque_account').val();
+		var chequeamount = $(this).find('.chequeamount').val();
+		cheques_obj[chequeaccount] = (cheques_obj[chequeaccount] >= 0) ? cheques_obj[chequeaccount] + removeComma(chequeamount) : removeComma(chequeamount);
+	});
+
+	return cheques_obj
+}
+
 var payments 		= <?=$payments;?>;
 var container 		= (payments != '') ? payments : [];
 var selectedIndex 	= -1;
 function getPVDetails(){
 	var vendorcode   	= $("#vendor").val();
 	var selected_rows 	= JSON.stringify(container);
-	$("#selected_rows").html(selected_rows);
 
-	var data 		 = "checkrows=" + selected_rows + "&vendor=" + vendorcode;
+	var cheques = [];
+	cheques_obj = getCheckAccounts();
+
+	for (var chequeaccount in cheques_obj) {
+		if (cheques_obj.hasOwnProperty(chequeaccount)) {
+			cheques.push({accountcode: chequeaccount, chequeamount: cheques_obj[chequeaccount]});
+		}
+	}
+	
+	cheques = JSON.stringify(cheques);
+
+	$("#selected_rows").html(selected_rows);
+	
+	var data 		 = "checkrows=" + selected_rows + "&vendor=" + vendorcode + "&cheques=" + cheques;
 
 	if(selected_rows == "")
 	{
@@ -2374,6 +2485,8 @@ function applySelected_(){
 		valid	+= validateCheques();
 		valid	+= totalPaymentGreaterThanChequeAmount();
 	}
+
+	return valid;
 }
 
 function getPayments(voucherno){
@@ -2426,7 +2539,7 @@ function editPaymentRow(e,id, apvoucherno, voucherno){
 	$("#voucherno").val(voucherno);
 }
 
-function loadCheques(i){
+function loadCheques(){
 	var cheques 		= $('#payableForm #rollArray').val();
 
 	if(cheques != '')
@@ -3014,7 +3127,11 @@ $(document).ready(function() {
 			}
 
 			if(valid == 0){
+				var paymentmode = $('#paymentmode').val();
 				/**validate accounts**/
+				if(paymentmode == 'cheque'){
+					valid 	+=	applySelected_();
+				}
 				valid		+= validateDetails();
 			}
 
@@ -3026,9 +3143,6 @@ $(document).ready(function() {
 				$("#payableForm #btnSave").html('Saving...');
 
 				$("#payableForm #h_save").val("h_save");
-
-				// validate form
-				applySelected_();
 
 				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function(data)
@@ -3067,12 +3181,13 @@ $(document).ready(function() {
 			
 			/**validate items**/
 			valid		+= validateDetails();
-
+			var paymentmode = $('#paymentmode').val();
+			/**validate accounts**/
+			if(paymentmode == 'cheque'){
+				valid 	+=	applySelected_();
+			}
 			if(valid == 0)
 			{
-				// validate form
-				applySelected_();
-
 				$("#payableForm #h_save").val("h_save_new");
 
 				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
@@ -3080,6 +3195,7 @@ $(document).ready(function() {
 				{
 					if(data.code == 1)
 					{
+						$("#payableForm #h_voucher_no").val(data.voucher);
 						$("#payableForm").submit();
 					}
 					else
@@ -3112,12 +3228,13 @@ $(document).ready(function() {
 			
 			/**validate items**/
 			valid		+= validateDetails();
-			
+			var paymentmode = $('#paymentmode').val();
+			/**validate accounts**/
+			if(paymentmode == 'cheque'){
+				valid 	+=	applySelected_();
+			}
 			if(valid == 0)
 			{
-				// validate form
-				applySelected_();
-
 				$("#payableForm #h_save").val("h_save_preview");
 
 				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
@@ -3125,6 +3242,7 @@ $(document).ready(function() {
 				{
 					if(data.code == 1)
 					{
+						$("#payableForm #h_voucher_no").val(data.voucher);
 						$("#payableForm").submit();
 					}
 					else
@@ -3146,10 +3264,13 @@ $(document).ready(function() {
 	} else if( task == "edit") {
 		var paymentmode = $("#paymentmode").val();
 
-		if(paymentmode == "cheque")
-		{
+		var selected_rows 	= JSON.stringify(container);
+		$('#selected_rows').html(selected_rows);
+
+		if(paymentmode == "cheque"){
 			// toggleCheckInfo(paymentmode);
-			//loadCheques();
+			// loadCheques();
+			addAmounts();
 		}
 
 		$("#paymentmode").removeAttr("disabled");
@@ -3157,8 +3278,7 @@ $(document).ready(function() {
 		/**SAVE CHANGES AND REDIRECT TO LIST**/
 		$("#payableForm #btnSave").click(function(e)
 		{
-			var valid	= 0;
-
+			var valid			= 0;
 			/**validate vendor field**/
 			valid		+= validateField('payableForm','document_date', "document_date_help");
 			valid		+= validateField('payableForm','vendor', "vendor_help");
@@ -3166,13 +3286,15 @@ $(document).ready(function() {
 			valid		+= validateField('payableForm','due_date', "due_date_help");
 			
 			/**validate items**/
+			var paymentmode = $('#paymentmode').val();
+			/**validate accounts**/
+			if(paymentmode == 'cheque'){
+				valid 	+=	applySelected_();
+			}
 			valid		+= validateDetails();
 			
 			if(valid == 0)
 			{
-				// validate form
-				applySelected_();
-
 				$("#payableForm #btnSave").addClass('disabled');
 				$("#payableForm #btnSave_toggle").addClass('disabled');
 				
@@ -3216,12 +3338,13 @@ $(document).ready(function() {
 			
 			/**validate items**/
 			valid		+= validateDetails();
-			
+			var paymentmode = $('#paymentmode').val();
+			/**validate accounts**/
+			if(paymentmode == 'cheque'){
+				valid 	+=	applySelected_();
+			}
 			if(valid == 0)
 			{
-				// validate form
-				applySelected_();
-				
 				$("#payableForm #btnSave").addClass('disabled');
 				$("#payableForm #btnSave_toggle").addClass('disabled');
 				
@@ -3264,12 +3387,13 @@ $(document).ready(function() {
 			
 			/**validate items**/
 			valid		+= validateDetails();
-			
+			var paymentmode = $('#paymentmode').val();
+			/**validate accounts**/
+			if(paymentmode == 'cheque'){
+				valid 	+=	applySelected_();
+			}
 			if(valid == 0)
 			{
-				// validate form
-				applySelected_();
-
 				$("#payableForm #btnSave").addClass('disabled');
 				$("#payableForm #btnSave_toggle").addClass('disabled');
 				
@@ -3387,7 +3511,7 @@ $(document).ready(function() {
 		} 
 	});
 
-	$('.accountcode').on('change',function(){
+	$('#entriesTable').on('change','.accountcode',function(){
 		var vendor 	= $('#vendor').val();
 		var payable = JSON.stringify(container);
 		var flag 	= 1;
@@ -3395,6 +3519,7 @@ $(document).ready(function() {
 		var account = $(this).val();
 
 		if( account != "" ){
+			$(this).closest('tr').find('.h_accountcode').val(account);
 			if( vendor == "" ){
 				bootbox.dialog({
 					message: "Please select a Vendor First",
