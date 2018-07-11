@@ -72,6 +72,7 @@
 									->setClass('datepicker-input')
 									->setAddon('calendar')
 									->setValue($transactiondate)
+									->setAttribute(array('readonly'=>"","data-date-start-date"=>$close_date))
 									->setValidation('required')
 									->draw($show_input);
 						?>
@@ -105,6 +106,7 @@
 									->setClass('datepicker-input')
 									->setAddon('calendar')
 									->setValue($transferdate)
+									->setAttribute(array('readonly'=>"","data-date-start-date"=>$close_date))
 									->setValidation('required')
 									->draw($show_input);
 							?>
@@ -175,11 +177,11 @@
 				<div class="row">
 					<div class="col-md-12 text-center" id="submit-box">
 						<?php  
-								if( $stat == 'open' || $stat == '' ){
+								if( ($stat == 'open' || $stat == '') && $restrict_str ){
 									echo $ui->drawSubmit($show_input);
 								} 
 						?>
-						<? if( $stat == 'open' && $task != 'edit' ){ ?>
+						<? if( $stat == 'open' && $task != 'edit' && $restrict_str ){ ?>
 							<a class="approve btn btn-warning" data-id="<?=$transactionno?>">Approve</a>
 							<a class="reject btn btn-danger" data-id="<?=$transactionno?>">Reject</a>	
 						<? } ?>

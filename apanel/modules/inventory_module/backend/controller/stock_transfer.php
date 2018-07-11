@@ -6,6 +6,7 @@ class controller extends wc_controller
 		parent::__construct();
 		$this->url 			    = new url();
 		$this->stock_transfer 	= new stock_transfer();
+		$this->restrict 		= new inventory_restriction_model();
 		$this->seq 				= new seqcontrol();
 		$this->input            = new input();
 		$this->ui 			    = new ui();
@@ -94,6 +95,12 @@ class controller extends wc_controller
 		$data['stat'] 				= "";
 		$data['row_details'] 		= json_encode(array($this->fields2));
 
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+
+		$data['restrict_str'] 		= true;
+
 		// Item Limit
 		$item_limit 			= $this->stock_transfer->getReference("st_limit");
 		$data['item_limit']		= ($item_limit[0]->value) 	? 	$item_limit[0]->value 	: 	50; 
@@ -126,6 +133,12 @@ class controller extends wc_controller
 		$item_limit 			= $this->stock_transfer->getReference("st_limit");
 		$data['item_limit']		= ($item_limit[0]->value) 	? 	$item_limit[0]->value 	: 	50; 
 		
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+
+		$data['restrict_str'] 		= true;
+
 		$this->view->load('stock_transfer/stocktransfer', $data);
 	}
 
@@ -135,7 +148,9 @@ class controller extends wc_controller
 		$this->view->title 		= 'View Stock Transfer Request';
 		$data = (array) $this->stock_transfer->getStockTransferRequest($this->fields1, $stocktransferno);
 		$data['transactionno'] = $stocktransferno;
-		$data['transactiondate'] = date('M j, Y', strtotime($data['transactiondate']));
+		$transactiondate 		= $data['transactiondate'];
+		$restrict_str 			= $this->restrict->setButtonRestriction($transactiondate);
+		$data['transactiondate'] = date('M j, Y', strtotime($transactiondate));
 		$data['transferdate']    = date('M j, Y', strtotime($data['transferdate']));
 		$data['ui'] = $this->ui;
 		$data['warehouse_list']		= $this->stock_transfer->getWarehouseList();
@@ -146,6 +161,11 @@ class controller extends wc_controller
 		$current_stat 		=	$this->stock_transfer->getStat($sid,'stock_transfer');
 		$data['stat'] 		=	$current_stat->stat;
 		$data["task"] 		= 	"view";
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
+
+		$data['restrict_str'] 		= $restrict_str;
 		$this->view->load('stock_transfer/stocktransfer', $data);
 	}
 
@@ -173,6 +193,12 @@ class controller extends wc_controller
 		$current_stat 		=	$this->stock_transfer->getStat($sid,'stock_approval');
 		$data['stat'] 		=	$current_stat->stat;
 
+		// Retrieve Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
+
+		$data['restrict_sta'] 	= true;
+
 		$this->view->load('stock_transfer/stocktransfer_approval', $data);
 	}
 	
@@ -196,6 +222,11 @@ class controller extends wc_controller
 		$data['ajax_post'] 	     = "";
 		$current_stat 			 = $this->stock_transfer->getStat($sid,'stock_approval');
 		$data['stat'] 			 = $current_stat->stat;
+		// Retrieve Closed Date
+		$close_date 			= $this->restrict->getClosedDate();
+		$data['close_date']		= $close_date;
+
+		$data['restrict_sta'] 	= $this->restrict->setButtonRestriction($data['transactiondate']);
 		$this->view->load('stock_transfer/stocktransfer_approval', $data);
 	}
 
@@ -219,6 +250,9 @@ class controller extends wc_controller
 		$data["ajax_task"] 		 = "set_release";
 		$data['ajax_post']		 = '';
 		$data['source_no'] 		 = $stocktransferno;
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
 		$this->view->load('stock_transfer/stocktransfer_approval', $data);
 	}
 
@@ -236,6 +270,9 @@ class controller extends wc_controller
 		$data['row_details'] = json_encode($this->stock_transfer->getStockTransferDetails($this->fields2,$stocktransferno));
 		$data['show_input'] = false;
 		$data["task"] = "received";
+		// Retrieve Closed Date
+		$close_date 				= $this->restrict->getClosedDate();
+		$data['close_date']			= $close_date;
 		$this->view->load('stock_transfer/stocktransfer_approval', $data);
 	}
 
@@ -356,7 +393,6 @@ class controller extends wc_controller
 			}
 		}
 		$print->drawSummary(array('Total Quantity' => $total_quantity));
-
 		$print->drawPDF('Approved Transfer - ' . $voucherno);
 	}
 
@@ -440,9 +476,13 @@ class controller extends wc_controller
 		$search = $data['search'];
 		$filter = $data['filter'];
 		$datefilter	= $data['daterangefilter'];
-		$datefilter = explode('-', $datefilter);
-		foreach ($datefilter as $date) {
-			$dates[] = date('Y-m-d', strtotime($date));
+		$dates[0] 	=	"";
+		$dates[1]	=	"";
+		if($datefilter!=""){
+			$datefilter = explode('-', $datefilter);
+			foreach ($datefilter as $date) {
+				$dates[] = date('Y-m-d', strtotime($date));
+			}
 		}
 		$warehouse 	=	$data['warehouse'];
 		$type 		=	$data['type'];
@@ -461,6 +501,8 @@ class controller extends wc_controller
 		for ($i = 0; $i < count($pagination_req->result); $i++) {
 
 			$transactiondate	= $pagination_req->result[$i]->transactiondate;
+			$date 				= $this->date->dateDbFormat($transactiondate);
+			$restrict_str 		= $this->restrict->setButtonRestriction($date);
 			$transactiondate	= date("M d, Y",strtotime($transactiondate));
 			$transferdate	    = $pagination_req->result[$i]->transferdate;
 			$transferdate		= date("M d, Y",strtotime($transferdate));
@@ -475,13 +517,13 @@ class controller extends wc_controller
 			
 			$dropdown = $this->ui->loadElement('check_task')
 								 ->addView()
-								 ->addEdit($stat == 'open' && ($enteredby == $this->user))
-								 ->addOtherTask('Transfer Stocks', 'open',($stat == 'approved' || $stat == 'partial'))
-								 ->addOtherTask('Approve', 'thumbs-up', $stat == 'open')
-								 ->addOtherTask('Reject', 'thumbs-down', $stat == 'open')
-								 ->addOtherTask('Close Request', 'bookmark', $stat == 'posted')
-								 ->addDelete(($stat == 'open') &&  ($enteredby == $this->user))
-								 ->addPrint($stat != "rejected")
+								 ->addEdit($stat == 'open' && ($enteredby == $this->user) && $restrict_str)
+								 ->addOtherTask('Transfer Stocks', 'open',($stat == 'approved' || $stat == 'partial') && $restrict_str)
+								 ->addOtherTask('Approve', 'thumbs-up', $stat == 'open' && $restrict_str)
+								 ->addOtherTask('Reject', 'thumbs-down', $stat == 'open' && $restrict_str)
+								 ->addOtherTask('Close Request', 'bookmark', $stat == 'posted' && $restrict_str)
+								 ->addDelete(($stat == 'open') &&  ($enteredby == $this->user) && $restrict_str)
+								 ->addPrint()
 								 ->setValue($stocktransferno)
 								 ->setLabels(array('delete'=>'Cancel'))
 								 ->draw();
@@ -514,6 +556,8 @@ class controller extends wc_controller
 		for ($i = 0; $i < count($pagination_app->result); $i++) {
 
 			$transactiondate	= $pagination_app->result[$i]->transactiondate;
+			$date 				= $this->date->dateDbFormat($transactiondate);
+			$restrict_sta 		= $this->restrict->setButtonRestriction($date);
 			$transactiondate	= date("M d, Y",strtotime($transactiondate));
 			$transferdate	    = $pagination_app->result[$i]->transferdate;
 			$transferdate		= date("M d, Y",strtotime($transferdate));
@@ -530,10 +574,10 @@ class controller extends wc_controller
 
 			$dropdown = $this->ui->loadElement('check_task')
 								 ->addOtherTask('View','eye-open',true,'view_approval')
-								 ->addOtherTask('Edit','pencil',($request_stat != 'closed' &&  ($enteredby == $this->user)),'edit_approval')
+								 ->addOtherTask('Edit','pencil',($request_stat != 'closed' &&  ($enteredby == $this->user)) && $restrict_sta,'edit_approval')
 								 ->addOtherTask('Print','print',true,'print_approval')
 								//  ->addDelete(($stat != 'posted') &&  ($enteredby == $this->user))
-								 ->addOtherTask('Cancel','trash',($request_stat != 'closed') &&  ($enteredby == $this->user),'delete_approval') 
+								 ->addOtherTask('Cancel','trash',($request_stat != 'closed') &&  ($enteredby == $this->user) && $restrict_sta,'delete_approval') 
 								 ->setValue($stocktransferno)
 								 ->draw();
 			$status = '';
