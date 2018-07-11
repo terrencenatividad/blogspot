@@ -452,14 +452,11 @@
 				$condition .= ' AND ' . $this->generateSearch($search, array('st.stocktransferno'));
 			}
 			if ($filter && $filter != 'all') {
-			
 				$condition .= " AND st.stat = '$filter'";
 			}
-
 			if ($startdate && $enddate) {
 				$condition .= " AND st.transactiondate >= '$startdate' AND st.transactiondate <= '$enddate'";
 			}  
-			
 			if ( ($warehouse && $type) && $type == 'to' ) { // Transfers to : Warehouse __ 
 				$condition .= " AND st.destination = '$warehouse'";
 			} 
@@ -475,7 +472,7 @@
 						->setWhere($condition)
 						->setOrderBy('st.stocktransferno DESC')
 						->runPagination();
-
+			// echo $this->db->getQuery();
 			return $result;
 		}
 

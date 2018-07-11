@@ -14,10 +14,10 @@
 			<div class="row">
 				<div class="col-md-3">
 					<div class="form-group">
-						<div class="input-group">
-							<input type="text" name="daterangefilter" id="daterangefilter" class="form-control" value = "<?=$datefilter?>" data-daterangefilter="month">
+						<div class="input-group monthlyfilter">
+							<input type="text" readOnly name="daterangefilter" id="daterangefilter" class="form-control" value = "" data-daterangefilter="month"/>
 							<span class="input-group-addon">
-								<i class="glyphicon glyphicon-calendar"></i>
+								<span class="glyphicon glyphicon-calendar"></span>
 							</span>
 						</div>
 					</div>
@@ -234,38 +234,41 @@
 			
 		$('#table_search').on('input', function () {
 			ajax.search = $(this).val();
+			ajax_call.abort();
 			getList();
 		});
 		$('#filter_tabs li').on('click', function() {
 			ajax.filter = $(this).find('a').attr('href');
+			ajax_call.abort();
 			getList();
 		});
 		$('#items').on('change', function() {
 			ajax.limit = $(this).val();
 			ajax.page = 1;
+			ajax_call.abort();
 			getList();
 		});
 		$('#daterangefilter').on('change', function() {
 			ajax.daterangefilter = $(this).val();
+			ajax_call.abort();
 			getList();
-		}).trigger('change');
+		});
 		$('#pagination').on('click', 'a', function(e) {
 			e.preventDefault();
 			ajax.page = $(this).attr('data-page');
+			ajax_call.abort();
 			getList();
 		});
 		$('#warehouse').on('change',function(){
 			var type = 	$('#transfertype').val();
 
-			if( type == "" )
-			{
+			if( type == "" ) {
 				$('#warehouse').val('');
 				$('#transfertype').parent().addClass('has-error');
-			}
-			else
-			{
+			} else {
 				ajax.type 	 	= type;
 				ajax.warehouse 	= $(this).val();
+				ajax_call.abort();
 				getList();
 			}
 		});
@@ -289,12 +292,9 @@
 			var transferno	=	$(this).attr('data-id');
 			var win = window.open('<?=MODULE_URL?>print_approval/'+transferno, '_blank');
   			win.focus();
-			//window.location = ;
 		});
 		ajax.limit = 5; 
 		ajaxToFilter(ajax,{ search: '#table_search', limit: '#items', type: '#transfertype', warehouse: '#warehouse' , daterangefilter: '#daterangefilter'});
-		// ajax.filter = ajax.filter || $('#filter_tabs .active a').attr('href');
-		// ajaxToFilterTab(ajax, '#filter_tabs','filter');
 		function getList() {
 			filterToURL();
 			if (ajax_call != '') {
@@ -363,7 +363,7 @@
 
 		$('#transfer_out').on('click','.transfer_stocks',function(){
 			var transferno	=	$(this).attr('data-id');
-			window.location = '<?//=MODULE_URL?>release/'+transferno;
+			window.location = '<?=MODULE_URL?>release/'+transferno;
 		});
 
 		$('#transfer_in').on('click','.receive',function(){
@@ -382,11 +382,6 @@
 				{
 					if( data.msg == "" )
 						window.location.href = "<?=MODULE_URL?>";
-					// else
-					// {
-					// 	// Call function to display error_get_last
-					// 	//show_error(data.msg);
-					// }
 				});	
 			}
 		});
