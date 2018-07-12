@@ -248,6 +248,7 @@
 												->setName('chequeamount[1]')
 												->setId('chequeamount[1]')
 												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
+												->setValidation('decimal')
 												->setValue("0.00")
 												->draw(true);
 									?>
@@ -335,6 +336,7 @@
 													->setClass("chequeamount")
 													->setName('chequeamount['.$row.']')
 													->setId('chequeamount['.$row.']')
+													->setValidation('decimal')
 													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
 													->setValue(number_format($chequeamount,2))
 													->draw($show_input);
@@ -460,6 +462,7 @@
 												->setName('debit['.$row.']')
 												->setId('debit['.$row.']')
 												->setClass("text-right account_amount debit ")
+												->setValidation('decimal')
 												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($debit, 2))
 												->draw($show_input);
@@ -471,6 +474,7 @@
 												->setSplit('', 'col-md-12')
 												->setName('credit['.$row.']')
 												->setId('credit['.$row.']')
+												->setValidation('decimal')
 												->setClass("text-right credit")
 												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($credit, 2))
@@ -519,6 +523,7 @@
 												->setSplit('', 'col-md-12')
 												->setName('debit['.$row.']')
 												->setId('debit['.$row.']')
+												->setValidation('decimal')
 												->setClass("text-right debit account_amount")
 												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($debit, 2))
@@ -532,6 +537,7 @@
 												->setName('credit['.$row.']')
 												->setClass("text-right  credit")
 												->setId('credit['.$row.']')
+												->setValidation('decimal')
 												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($credit, 2))
 												->draw($show_input);
@@ -559,12 +565,18 @@
 
 											$disable_code 		= "";
 											$added_class 		= "";
-											$disable_credit 	= "";
-											$disable_debit 		= "";
+											$added_function_db 	= "";
+											$added_function_cr	= "";
+											$indicator 			= "";
+											// $disable_credit 	= "";
+											// $disable_debit 		= "";
 											if($aPvJournalDetails_Index < ($count-1) && $paymenttype == 'cheque'){												$disable_debit		= 'readOnly';
 												$disable_credit		= 'readOnly';
+												$disable_dedit 		= "readOnly";
 												$disable_code 		= 'disabled';
 												$added_class 		= 'added_row';
+												$indicator 			= "cheque";
+
 											} else {
 												$disable_debit		= ($debit > 0) ? '' : 'readOnly';
 												$disable_credit		= ($credit > 0) ? '' : 'readOnly';
@@ -582,7 +594,7 @@
 															->setAttribute(array($disable_code))
 															->setValue($accountcode)
 															->draw($show_input);
-											$detail_row	.= '<input type = "hidden" class="h_accountcode" name="h_accountcode['.$row.']" id="h_accountcode['.$row.']">
+											$detail_row	.= '<input type = "hidden" class="h_accountcode"  name="h_accountcode['.$row.']" id="h_accountcode['.$row.']" value="'.$accountcode.'" >
 															</td>';
 
 											$detail_row	.= '<td>';
@@ -601,7 +613,8 @@
 															->setSplit('', 'col-md-12')
 															->setName('debit['.$row.']')
 															->setId('debit['.$row.']')
-															->setClass("text-right account_amount")
+															->setClass("text-right account_amount $indicator")
+															->setValidation('decimal')
 															->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
 															->setValue(number_format($debit, 2))
 															->draw($show_input);
@@ -611,8 +624,9 @@
 											$detail_row .= $ui->formField('text')
 															->setSplit('', 'col-md-12')
 															->setName('credit['.$row.']')
-															->setClass("text-right  credit")
+															->setClass("text-right  credit $indicator")
 															->setId('credit['.$row.']')
+															->setValidation('decimal')
 															->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_credit))
 															->setValue(number_format($credit, 2))
 															->draw($show_input);
@@ -1005,14 +1019,25 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 	// enable them to allow a cloned row with enabled dropdown and input fields
 	initial_clone.find('.accountcode').attr('disabled', false);
 	initial_clone.find('.confirm-delete').attr('disabled', false);
+	// remove 'cheque' class for checking purposes
+var cheque_checker 	=	initial_clone.find('.credit').hasClass('cheque');
+
+	if(cheque_checker){
+		initial_clone.find('.account_amount').removeClass('cheque');
+		initial_clone.find('.credit').removeClass('cheque');
+	}
 var clone_acct 	= $('#entriesTable tbody tr.clone:first')[0].outerHTML;
 	// after cloning, set the first row to its initial state ( again, in this case, a disabled fields )
 	initial_clone.find('.accountcode').attr('disabled', disabled_accountcode);
 	initial_clone.find('.confirm-delete').attr('disabled', disabled_button);
+	if( cheque_checker ){
+		initial_clone.find('.account_amount').addClass('cheque');
+		initial_clone.find('.credit').addClass('cheque');
+	}
 
 function storedescriptionstoarray(){
 	acct_details 	=	[];
-	$('#entriesTable tbody tr.added_row').each(function() {
+	$('#entriesTable tbody tr').each(function() {
 		var accountcode = $(this).find('.accountcode').val();
 		var description = $(this).find('.description').val();
 		var debit		= $(this).find('.account_amount').val();
@@ -1510,18 +1535,28 @@ function addAmountAll(field) {
 	{  
 		var inputs 		= document.getElementById(field+'['+i+']');
 		var disables 	= document.getElementById(notfield+'['+i+']');
-		
+		var is_cheque   = $("#"+field+"\\["+i+"\\]").hasClass("cheque");
 		if(document.getElementById(notfield+'['+i+']')!=null)
 		{          
 			if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
 			{                            
 				inData = inputs.value.replace(/,/g,'');
-				disables.readOnly = true;
+				if(is_cheque){
+					inputs.readOnly   = true;
+					disables.readOnly = true;
+				}else {
+					disables.readOnly = true;
+				}
 			}
 			else
 			{             
 				inData = 0;
-				disables.readOnly = false;
+				if(is_cheque){
+					inputs.readOnly   = true;
+					disables.readOnly = true;
+				}else {
+					disables.readOnly = false;
+				}
 			} 
 
 			sum = parseFloat(sum) + parseFloat(inData);
@@ -3258,6 +3293,9 @@ $(document).ready(function() {
 
 	} else if( task == "edit") {
 		var paymentmode = $("#paymentmode").val();
+
+		var selected_rows 	= JSON.stringify(container);
+		$('#selected_rows').html(selected_rows);
 
 		if(paymentmode == "cheque"){
 			addAmounts();
