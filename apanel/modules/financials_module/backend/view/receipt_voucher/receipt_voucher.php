@@ -2968,6 +2968,7 @@ $(document).ready(function() {
 				resetIds();
 				addAmounts();
 				addAmountAll('debit');
+				addAmountAll('credit');
 			} else {	
 				document.getElementById('chequeaccount['+row+']').value 	= '';
 				document.getElementById('bank['+row+']').value 				= '';
@@ -2995,6 +2996,7 @@ $(document).ready(function() {
 				resetIds();
 				addAmounts();
 				addAmountAll('debit');
+				addAmountAll('credit');
 			}
 		}
 		else
@@ -3010,6 +3012,7 @@ $(document).ready(function() {
 				resetIds();
 				addAmounts();
 				addAmountAll('debit');
+				addAmountAll('credit');
 			}
 			else
 			{
@@ -3039,6 +3042,7 @@ $(document).ready(function() {
 				resetIds();
 				addAmounts();
 				addAmountAll('debit');
+				addAmountAll('credit');
 			}
 		}
 		$('#deleteChequeModal').modal('hide');
