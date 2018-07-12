@@ -30,14 +30,14 @@
 
 		public function listing()
 		{
-			$this->view->title = 'Supplier Listing';
+			$this->view->title = $this->ui->ListLabel('');
 			$data['ui'] 	   = $this->ui;
 			$this->view->load('supplier/supplier_list', $data);
 		}
 
 		public function create()
 		{
-			$this->view->title = 'Add Supplier';
+			$this->view->title = $this->ui->AddLabel('');
 			
 			// if ($this->input->isPost) 
 			// {
@@ -57,7 +57,7 @@
 
 		public function edit($code)
 		{
-			$this->view->title = 'Edit Supplier';
+			$this->view->title = $this->ui->EditLabel('');
 			
 			$data 			 	= (array) $this->supplier->retrieveExistingSupplier($this->fields, $code);
 
@@ -72,7 +72,7 @@
 
 		public function view($code)
 		{
-			$this->view->title = 'View Supplier';
+			$this->view->title = $this->ui->ViewLabel('');
 			
 			$data 			 	= (array) $this->supplier->retrieveExistingSupplier($this->fields, $code);
 			$data['bt_select'] 	= $this->supplier->retrieveBusinessTypeDropdown();

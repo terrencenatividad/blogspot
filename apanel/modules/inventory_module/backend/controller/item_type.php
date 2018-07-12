@@ -17,13 +17,13 @@ class controller extends wc_controller {
 	}
 
 	public function listing() {
-		$this->view->title = 'List Item Type';
+		$this->view->title = $this->ui->ListLabel('');
 		$data['ui'] = $this->ui;
 		$this->view->load('item/item_type_list', $data);
 	}
 
 	public function create() {
-		$this->view->title = 'Create Item Type';
+		$this->view->title = $this->ui->AddLabel('');
 		$data = $this->input->post($this->fields);
 		$data['ui'] = $this->ui;
 		$data['ajax_task'] = 'ajax_create';
@@ -33,7 +33,7 @@ class controller extends wc_controller {
 	}
 
 	public function edit($id) {
-		$this->view->title = 'Edit Item Type';
+		$this->view->title = $this->ui->EditLabel('');
 		$data = (array) $this->item_type_model->getItemTypeById($this->fields, $id);
 		$data['ui'] = $this->ui;
 		$data['ajax_task'] = 'ajax_edit';
@@ -43,7 +43,7 @@ class controller extends wc_controller {
 	}
 
 	public function view($id) {
-		$this->view->title = 'View Item Type';
+		$this->view->title = $this->ui->ViewLabel('');
 		$data = (array) $this->item_type_model->getItemTypeById($this->fields, $id);
 		$data['ui'] = $this->ui;
 		$data['show_input'] = false;

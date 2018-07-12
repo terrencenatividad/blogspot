@@ -20,14 +20,14 @@
 
 		public function listing()
 		{
-			$this->view->title = 'Warehouse Listing';
+			$this->view->title = $this->ui->ListLabel('');
 			$data['ui'] 	   = $this->ui;
 			$this->view->load('warehouse/warehouse_list', $data);
 		}
 		
 		public function create()
 		{
-			$this->view->title = 'Add Warehouse';
+			$this->view->title = $this->ui->AddLabel('');
 			
 			$data 				= $this->input->post($this->fields);
 
@@ -41,7 +41,7 @@
 
 		public function edit($code)
 		{
-			$this->view->title = 'Edit Warehouse';
+			$this->view->title = $this->ui->EditLabel('');
 			
 			$data 			 	= (array) $this->warehouse->retrieveExistingWarehouse($this->fields, $code);
 			
@@ -55,7 +55,7 @@
 
 		public function view($code)
 		{
-			$this->view->title = 'View Warehouse';
+			$this->view->title = $this->ui->ViewLabel('');
 			
 			$data 			 	= (array) $this->warehouse->retrieveExistingWarehouse($this->fields, $code);
 			$data['ui'] 		= $this->ui;

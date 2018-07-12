@@ -44,7 +44,7 @@
 				<!--<textarea id="export_json" class="hidden"></textarea>-->
 				<div class="row">
 						<div class = "col-md-8">
-							<a class="btn btn-primary" role="button" 
+							<!-- <a class="btn btn-primary" role="button" 
 								href="<?=MODULE_URL?>create" style="outline:none;">Add New Proforma </a>
 							<form class="navbar-form navbar-left">
 								<div class="btn-group" id="option_buttons">
@@ -61,7 +61,16 @@
 								</div>
 							</form>
 							<input id = "deleteMultipleBtn" type = "button" name = "delete" 
-							value = "Delete" class="btn btn-danger ">
+							value = "Delete" class="btn btn-danger "> -->
+							<?= 
+								$ui->CreateNewButton('');
+							?>
+
+							<?= 
+								$ui->OptionButton('');
+							?>
+							<input id = "deleteMultipleBtn" type = "button" name = "delete" 
+								value = "Delete" class="btn btn-danger btn-flat ">
 							</div>
 						<div class="col-md-4">
 							<div class="input-group ">
@@ -243,7 +252,7 @@
 		{
 			$('#list_container').html(data.table);
 			$('#pagination').html(data.pagination);
-			$("#export_csv").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+			$("#export_id").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 
 			if (ajax.page > data.page_limit && data.page_limit > 0) 
 			{
@@ -351,7 +360,7 @@
 		/*
 		* For Import Modal
 		*/
-		$("#import").click(function() 
+		$("#import_id").click(function() 
 		{
 			$(".import-modal > .modal").css("display", "inline");
 			$('.import-modal').modal();
@@ -376,6 +385,8 @@
 		});
 
 	});
+
+	$('#export_id').prop('download','proforma.csv');
 
 
 

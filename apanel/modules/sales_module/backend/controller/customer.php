@@ -30,14 +30,14 @@
 
 		public function listing()
 		{
-			$this->view->title 	= 'Customer Listing';
+			$this->view->title 	= $this->ui->ListLabel('');
 			$data['ui'] 		= $this->ui;
 			$this->view->load('customer/customer_list' ,$data);
 		}
 		
 		public function create()
 		{
-			$this->view->title = 'Add Customer';
+			$this->view->title = $this->ui->AddLabel('');
 			
 			// if ($this->input->isPost) 
 			// {
@@ -58,7 +58,7 @@
 
 		public function edit($code)
 		{
-			$this->view->title = 'Edit Customer';
+			$this->view->title = $this->ui->EditLabel('');
 			
 			$data 			 	= (array) $this->customer->retrieveExistingCustomer($this->fields, $code);
 			
@@ -73,7 +73,7 @@
 
 		public function view($code)
 		{
-			$this->view->title = 'View Customer';
+			$this->view->title = $this->ui->ViewLabel('');
 			
 			$data 			 	= (array) $this->customer->retrieveExistingCustomer($this->fields, $code);
 			$data['bt_select'] 	= $this->customer->retrieveBusinessTypeDropdown();

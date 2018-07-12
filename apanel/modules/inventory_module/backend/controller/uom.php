@@ -17,7 +17,7 @@ class controller extends wc_controller {
 	}
 
 	public function listing() {
-		$this->view->title = 'Unit of Measure List';
+		$this->view->title = $this->ui->ListLabel('');
 		$data['ui'] = $this->ui;
 		// $all = (object) array('ind' => 'null', 'val' => 'Filter: All');
 		// $data['itemclass_list'] = array_merge(array($all),  $this->item_class_model->getParentClass(''));
@@ -26,7 +26,7 @@ class controller extends wc_controller {
 	}
 
 	public function create() {
-		$this->view->title = 'Unit of Measure Create';
+		$this->view->title = $this->ui->AddLabel('');
 		$data = $this->input->post($this->fields);
 		$data['ui'] = $this->ui;
 		$data['type_list'] = $this->uom_model->getOption('uom_type');
@@ -37,7 +37,7 @@ class controller extends wc_controller {
 	}
 
 	public function edit($dataid) {
-		$this->view->title = 'Unit of Measure Edit';
+		$this->view->title = $this->ui->EditLabel('');
 		$data = (array) $this->uom_model->getItemById($this->fields, $dataid);
 		$data['ui'] = $this->ui;
 		$data['type_list'] = $this->uom_model->getOption('uom_type');
@@ -48,7 +48,7 @@ class controller extends wc_controller {
 	}
 
 	public function view($dataid) {
-		$this->view->title = 'Unit of Measure View';
+		$this->view->title = $this->ui->ViewLabel('');
 		$data = (array) $this->uom_model->getItemById($this->fields, $dataid);
 		$data['ui'] = $this->ui;
 		$data['type_list'] = $this->uom_model->getOption('uom_type');

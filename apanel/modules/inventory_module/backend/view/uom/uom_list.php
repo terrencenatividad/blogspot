@@ -6,8 +6,14 @@
 					<div class="row">
 						<div class="col-md-4">
 							<div class="form-group">
-								<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create Unit of Measure</a>
-								<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete<span></span></button>
+								<!-- <a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create Unit of Measure</a> -->
+								<?= 
+									$ui->CreateNewButton('');
+								?>
+								<!-- <button type="button" id="item_multiple_delete" class="btn btn-danger">Delete<span></span></button> -->
+								<input id = "item_multiple_delete" type = "button" name = "delete" 
+								value = "Delete" class="btn btn-danger btn-flat ">
+			
 							</div>
 						</div>
 					</div>

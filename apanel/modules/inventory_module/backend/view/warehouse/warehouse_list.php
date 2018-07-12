@@ -4,7 +4,7 @@
 			<div class="row">
 				<div class="col-md-4">
 					<div class="form-group">
-						<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create Warehouse</a>
+						<!-- <a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create Warehouse</a>
 						<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete <span></span></button>
 				
 						<div class="btn btn-group" id="option_buttons">
@@ -19,7 +19,15 @@
 									<a href="javascript:void(0);" id="import"><span class="glyphicon glyphicon-save"></span> Import</a>
 								</li>
 							</ul>
-						</div>
+						</div> -->
+						<?= 
+							$ui->CreateNewButton('');
+						?>
+						<?= 
+							$ui->OptionButton('');
+						?>
+						<input id = "item_multiple_delete" type = "button" name = "delete" 
+						value = "Delete" class="btn btn-danger btn-flat ">
 					</div>
 				</div>
 				<div class="col-md-4 pull-right">
@@ -164,7 +172,7 @@
 		ajax_call = $.post('<?=MODULE_URL?>ajax/warehouse_list', ajax, function(data) {
 			$('#tableList tbody').html(data.table);
 			$('#pagination').html(data.pagination);
-			$("#export").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+			$("#export_id").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 			if (ajax.page > data.page_limit && data.page_limit > 0) {
 				ajax.page = data.page_limit;
 				getList();
@@ -206,7 +214,7 @@
 
 	$(document).ready(function(){
 		/** For Import Modal **/
-		$("#import").click(function() 
+		$("#import_id").click(function() 
 		{
 			$(".import-modal > .modal").css("display", "inline");
 			$('.import-modal').modal();
@@ -251,5 +259,7 @@
 			$('#success_modal').modal('hide');
 			getList();
 		});
+
+		$('#export_id').prop('download','warehouse.csv');
 	});
 </script>

@@ -4,7 +4,7 @@
 			<div class="box-header">
 				<div class="row">
 					<div class = "col-md-8">
-						<a class="btn btn-primary" role="button" href="<?=MODULE_URL?>create" style="outline:none;">Create</a>
+						<!-- <a class="btn btn-primary" role="button" href="<?=MODULE_URL?>create" style="outline:none;">Create</a>
 						<form class="navbar-form navbar-left">
 							<div class="btn-group" id="option_buttons">
 								<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
@@ -15,9 +15,14 @@
 									<li><a href="javascript:void(0);" id="import"><span class="glyphicon glyphicon-save"></span> Import Price List</a></li>
 								</ul>
 							</div>
-						</form>
-
-						<a class="btn btn-info" role="button" href="<?=MODULE_URL?>master" style="outline:none;">Master Price List</a>
+						</form> -->
+						<?= 
+							$ui->CreateNewButton('');
+						?>
+						<?= 
+							$ui->OptionButton('');
+						?>
+						<a class="btn btn-info btn-flat" role="button" href="<?=MODULE_URL?>master" style="outline:none;">Master Price List</a>
 					</div>
 					<div class = "col-md-4">
 						<div class="form-group">
@@ -167,7 +172,7 @@ function showList(pg){
 	ajax_call 	=	$.post('<?=BASE_URL?>maintenance/pricelist/ajax/price_list',ajax, function(data) {
 						$('#pricelist_table #list_container').html(data.table);
 						$('#pagination').html(data.pagination);
-						$("#export").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+						$("#export_id").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 						if (ajax.page > data.page_limit && data.page_limit > 0) {
 							ajax.page = data.page_limit;
 							showList();
@@ -325,4 +330,14 @@ tableSort('#pricelist_table', function(value, getlist) {
 		showList();
 	}
 },ajax);
+
+		$('#export_id').prop('download','price_list.csv');
+		// $('#export_id').prop('href','<?= MODULE_URL ?>get_export');
+		$('#import_id').prop('href','#import-modal');
+		// $('#import_id').prop('data-toggle','modal');
+		$("#import_id").click(function() 
+		{
+			$("#import-modal > .modal").css("display", "inline");
+			$('#import-modal').modal();
+		});
 </script>

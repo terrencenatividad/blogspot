@@ -9,9 +9,8 @@ class controller extends wc_controller
 		$this->input        = new input();
 		$this->ui 			= new ui();
 		$this->logs  		= new log; 
-		$this->view->title  = 'Account Class';
+		$this->view->title  = MODULE_NAME;
 		$this->show_input 	= true;
-
 		$this->companycode  = COMPANYCODE;
 
 	}
@@ -28,8 +27,7 @@ class controller extends wc_controller
 			$data["accountnature"] = "";
 			$data["ajax_post"] = "";
 			$data["ajax_task"] = "add";
-			$this->view->title  = 'Add New Account';
-
+			$this->view->title  = $this->ui->AddLabel('');
 		/**RETRIEVALS OPTIONS**/
 		/**ACCOUNT TYPE **/
 		$data["accounttype_list"] = $this->coaclass->getValue("wc_option", 
@@ -63,7 +61,7 @@ class controller extends wc_controller
 	}
 
 	public function edit($accountcode = ""){
-		$this->view->title  = 'Edit Account';
+		$this->view->title  = $this->ui->EditLabel('');
 		$data["ajax_task"] = "edit";
 		$data["task"] = "edit";
 		$data['ui'] = $this->ui;
@@ -123,7 +121,7 @@ class controller extends wc_controller
 	}
 
 	public function view($accountcode = ""){
-		$this->view->title  = 'View Account'; 
+		$this->view->title  = $this->ui->ViewLabel('');
 		$data["ajax_task"] = "view";
 		$data["task"] = "view";
 		$data['ui'] = $this->ui;
@@ -248,7 +246,7 @@ class controller extends wc_controller
 		$data['import_error_messages'] = array();
 		$data["file_import_result"]    = "";
 		$data['ui'] = $this->ui;
-		$this->view->title  = 'Chart of Accounts';
+		$this->view->title  = $this->ui->ListLabel('');
 
 		// For Import
 		$errmsg 			= array();
@@ -279,6 +277,8 @@ class controller extends wc_controller
 			$i			= 0;
 			$row		= 2;
 
+			$accountcodes	= array();
+
 			while (($file_data = fgetcsv($file, 1000, ",")) !== FALSE) 
 			{
 				if(!array_intersect($file_data, $headerArray))
@@ -290,6 +290,12 @@ class controller extends wc_controller
 					$accounttype	= addslashes(htmlentities(trim($file_data[4])));
 					$parentaccount	= addslashes(htmlentities(trim($file_data[5])));
 					$accountnature	= addslashes(htmlentities(trim($file_data[6])));
+
+					if (in_array($accountcode, $accountcodes)) {
+						$errmsg[] 	= "Account Code is already in List. Row $row already Exist.";
+					} else {
+						$accountcodes[] = $accountcode;
+					}
 
 					if(empty($accountcode)){
 						$errmsg[] 	= "Account Code is required. Row $row should not be empty.";

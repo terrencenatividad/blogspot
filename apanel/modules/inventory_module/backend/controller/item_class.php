@@ -34,13 +34,13 @@ class controller extends wc_controller {
 	}
 
 	public function listing() {
-		$this->view->title = 'List Item Class';
+		$this->view->title = $this->ui->ListLabel('');
 		$data['ui'] = $this->ui;
 		$this->view->load('item/item_class_list', $data);
 	}
 
 	public function create() {
-		$this->view->title = 'Create Item Class';
+		$this->view->title = $this->ui->AddLabel('');
 		$data = $this->input->post($this->fields);
 		$data['ui'] = $this->ui;
 		$data['parents'] = $this->item_class_model->getParentClass('', true);
@@ -58,7 +58,7 @@ class controller extends wc_controller {
 	}
 
 	public function edit($id) {
-		$this->view->title = 'Edit Item Class';
+		$this->view->title = $this->ui->EditLabel('');
 		$data = (array) $this->item_class_model->getItemClassById($this->fields, $id);
 		$data['ui'] = $this->ui;
 		$data['parents'] = $this->item_class_model->getParentClass($id, true);
@@ -76,7 +76,7 @@ class controller extends wc_controller {
 	}
 
 	public function view($id) {
-		$this->view->title = 'View Item Class';
+		$this->view->title = $this->ui->ViewLabel('');
 		$data = (array) $this->item_class_model->getItemClassById($this->fields, $id);
 		$data['ui'] = $this->ui;
 		$data['parents'] = $this->item_class_model->getParentClass($id, true);

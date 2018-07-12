@@ -23,14 +23,14 @@
 		}
 
 		public function listing(){
-			$this->view->title = 'Exchange Rate Listing';
+			$this->view->title = $this->ui->ListLabel('');
 			$data['ui'] 	   = $this->ui;
 			$this->view->load('exchange_rate/exchange_rate_list', $data);
 		}
 
 		public function create()
 		{
-			$this->view->title = 'Add Exchange Rate';
+			$this->view->title = $this->ui->AddLabel('');
 
 			$data 				    = $this->input->post($this->fields);
             $data['currencylist']   = $this->exchange_rate->retrieveExchangeRateDropdown();
@@ -45,7 +45,7 @@
 
 		public function edit($code)
 		{
-			$this->view->title = 'Edit Exchange Rate';
+			$this->view->title = $this->ui->EditLabel('');
 			
 			$data 			 		= (array) $this->exchange_rate->retrieveExistingRate($this->fields, $code);
 			$data['effectivedate'] 	= $this->date->dateFormat($data['effectivedate']);
@@ -60,7 +60,7 @@
 
 		public function view($code)
 		{
-			$this->view->title 	= 'View Exchange Rate';
+			$this->view->title 	= $this->ui->ViewLabel('');
 			
 			$data 			 		= (array) $this->exchange_rate->retrieveExistingRate($this->fields, $code);
 			$data['effectivedate'] 	= $this->date->dateFormat($data['effectivedate']);

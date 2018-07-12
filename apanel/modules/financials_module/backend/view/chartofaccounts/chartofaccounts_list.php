@@ -45,9 +45,14 @@
 			<!--<textarea id="export_json" class="hidden"></textarea>-->
 			<div class="row">
 				<div class = "col-md-8">
-					<a class="btn btn-primary btn-flat" role="button" 
-						href="<?=MODULE_URL?>create" style="outline:none;">Add New Account</a>
-					<form class="navbar-form navbar-left">
+					<!-- <a class="btn btn-primary btn-flat" role="button" 
+						href="<?=MODULE_URL?>create" style="outline:none;">Add New Account
+					</a> -->
+					<?= 
+						$ui->CreateNewButton('');
+					?>
+
+					<!-- <form class="navbar-form navbar-left">
 						<div class="btn-group" id="option_buttons">
 							<button type="button" 
 							class="btn btn-primary btn-flat dropdown-toggle" 
@@ -60,7 +65,10 @@
 								<span class="glyphicon glyphicon-save"></span> Import Accounts</a></li>
 							</ul>
 						</div>
-					</form>
+					</form> -->
+					<?= 
+						$ui->OptionButton('');
+					?>
 					<input id = "deleteMultipleBtn" type = "button" name = "delete" 
 						value = "Delete" class="btn btn-danger btn-flat ">
 				</div>
@@ -318,7 +326,7 @@ var ajax = {};
 		{
 			$('#list_container').html(data.table);
 			$('#pagination').html(data.pagination);
-			$("#export_csv").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+			$("#export_id").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 			
 			if (ajax.page > data.page_limit && data.page_limit > 0) 
 			{
@@ -447,7 +455,7 @@ var ajax = {};
 		/*
 		* For Import Modal
 		*/
-		$("#import").click(function() 
+		$("#import_id").click(function() 
 		{
 			$(".import-modal > .modal").css("display", "inline");
 			$('.import-modal').modal();
@@ -480,6 +488,8 @@ var ajax = {};
 		});
 
 	});
+
+	$('#export_id').prop('download','coa.csv');
 
 
 </script>

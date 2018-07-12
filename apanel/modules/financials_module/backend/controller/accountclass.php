@@ -14,7 +14,7 @@ class controller extends wc_controller {
 	}
 
 	public function listing() {
-		$this->view->title	= 'Account Class List';
+		$this->view->title	= $this->ui->ListLabel('');
 		$data['ui']			= $this->ui;
 		$this->view->load('accountclass/accountclass_list', $data);
 	}

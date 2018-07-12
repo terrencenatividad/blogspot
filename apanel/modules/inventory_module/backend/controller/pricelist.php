@@ -74,7 +74,7 @@
 				$this->final_saving($save_status);
 			}
 
-			$this->view->title 	= "Add Price List Template";
+			$this->view->title 	= $this->ui->AddLabel('');
 			$this->view->load('pricelist/pricelist', $data);
 		}
 
@@ -100,7 +100,7 @@
 			$data['task'] 			= 'view';
 			$data['ajax_post'] 		= '';
 
-			$this->view->title 	= "View Price List Template";
+			$this->view->title 	= $this->ui->ViewLabel('');
 			$this->view->load('pricelist/pricelist', $data);
 		}
 
@@ -126,13 +126,13 @@
 			$data['task'] 			= 'edit';
 			$data['ajax_post'] 		= "&itempricecode=$code";
 
-			$this->view->title 	= "Edit Price List Template";
+			$this->view->title 	= $this->ui->EditLabel('');
 			$this->view->load('pricelist/pricelist', $data);
 		}
 
         public function listing()
 		{
-			$this->view->title = 'Price List Listing';
+			$this->view->title = $this->ui->ListLabel('');
 			$data['ui'] 	   = $this->ui;
 			$this->view->load('pricelist/pricelist_list', $data);
 		}

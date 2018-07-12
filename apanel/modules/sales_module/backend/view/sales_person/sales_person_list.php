@@ -4,10 +4,8 @@
         <div class="box-header">
             <div class="row">
 
-				<div class = "col-md-4">
+				<!-- <div class = "col-md-8">
                     <a href="<?php echo BASE_URL; ?>maintenance/sales_person/create" class = "btn btn-primary danger">Create</a>
-					<!-- <button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete <span></span> </button> -->
-					
 					<div class="btn btn-group" id="option_buttons">
 						<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
 							Options <span class="caret"></span>
@@ -21,7 +19,16 @@
 							</li>
 						</ul>
 					</div>
-			    </div>
+			    </div> -->
+
+				<div class = "col-md-8">
+					<?= 
+						$ui->CreateNewButton('');
+					?>
+					<?= 
+						$ui->OptionButton('');
+					?>
+				</div>
 
                 <div class="col-md-4 pull-right">
                     <div class="input-group input-group-sm">
@@ -323,7 +330,7 @@ function showList(pg){
 	ajax_call = $.post('<?=BASE_URL?>maintenance/sales_person/ajax/sales_person_list',ajax, function(data) {
 					$('#sales_person_table #list_container').html(data.table);
 					$('#pagination').html(data.pagination);
-					$("#export").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+					$("#export_id").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 					if (ajax.page > data.page_limit && data.page_limit > 0) {
 						ajax.page = data.page_limit;
 						showList();
@@ -408,7 +415,7 @@ $(document).ready(function()
 	});
 
 		/** For Import Modal **/
-	$("#import").click(function() 
+	$("#import_id").click(function() 
 	{
 		$("#import-modal > .modal").css("display", "inline");
 		$('#import-modal').modal();
@@ -535,6 +542,8 @@ $(function() {
 	linkDeleteToModal('#sales_person_table .delete', 'ajaxCallback');
 	linkDeleteMultipleToModal('#item_multiple_delete', '#sales_person_table', 'ajaxCallback');
 });
+
+$('#export_id').prop('download','sales_person.csv');
 
 </script>
 

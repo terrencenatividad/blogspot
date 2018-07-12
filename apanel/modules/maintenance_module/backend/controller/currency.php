@@ -20,14 +20,14 @@
 		}
 
 		public function listing(){
-			$this->view->title = 'Currency Listing';
+			$this->view->title = $this->ui->ListLabel('');
 			$data['ui'] 	   = $this->ui;
 			$this->view->load('currency/currency_list', $data);
 		}
 
 		public function create()
 		{
-			$this->view->title = 'Add Currency';
+			$this->view->title = $this->ui->AddLabel('');
 			
 			if ($this->input->isPost) 
 			{
@@ -46,7 +46,7 @@
 
 		public function edit($code)
 		{
-			$this->view->title = 'Edit Currency';
+			$this->view->title = $this->ui->EditLabel('');
 			
 			$data 			 	= (array) $this->currency->retrieveExistingCurrency($this->fields, $code);
 			$data['ui'] 		= $this->ui;
@@ -59,7 +59,7 @@
 
 		public function view($code)
 		{
-			$this->view->title 	= 'View Currency';
+			$this->view->title 	= $this->ui->ViewLabel('');
 			
 			$data 			 	= (array) $this->currency->retrieveExistingCurrency($this->fields, $code);
 			

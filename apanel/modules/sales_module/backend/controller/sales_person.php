@@ -29,7 +29,7 @@
 
 		public function listing()
 		{
-			$this->view->title 		= 'Sales Person Listing';
+			$this->view->title 		= $this->ui->ListLabel('');
 			$data['ui'] 			= $this->ui;
 			$data['show_input'] 	= true;
 			$this->view->load('sales_person/sales_person_list', $data);
@@ -37,7 +37,7 @@
 
 		public function create()
 		{
-			$this->view->title = 'Add Sales Person';
+			$this->view->title = $this->ui->AddLabel('');
 			
 			if ($this->input->isPost) 
 			{
@@ -57,7 +57,7 @@
 
 		public function edit($code)
 		{
-			$this->view->title = 'Edit Sales Person';
+			$this->view->title = $this->ui->EditLabel('');
 			
 			$data 			 	= (array) $this->sales_person->retrieveExistingSalesPerson($this->fields, $code);
 
@@ -72,7 +72,7 @@
 
 		public function view($code)
 		{	
-			$this->view->title  = 'View Sales Person';
+			$this->view->title  = $this->ui->ViewLabel('');
 			
 			$data 			 	= (array) $this->sales_person->retrieveExistingSalesPerson($this->fields, $code);
 			$data['bt_select'] 	= $this->sales_person->retrieveBusinessTypeDropdown();

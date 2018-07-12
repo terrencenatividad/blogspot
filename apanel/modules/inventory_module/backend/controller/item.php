@@ -60,7 +60,7 @@ class controller extends wc_controller {
 	}
 
 	public function listing() {
-		$this->view->title = 'Item Master List';
+		$this->view->title = $this->ui->ListLabel('');
 		$data['ui'] = $this->ui;
 		$all = (object) array('ind' => 'null', 'val' => 'Filter: All');
 		$data['itemclass_list'] = array_merge(array($all),  $this->item_class_model->getParentClass(''));
@@ -69,7 +69,7 @@ class controller extends wc_controller {
 	}
 
 	public function create() {
-		$this->view->title = 'Item Create';
+		$this->view->title = $this->ui->AddLabel('');
 		$data = $this->input->post($this->fields);
 		$data['ui']							= $this->ui;
 		$data['uom_list']					= $this->item_model->getUOMList();
@@ -90,7 +90,7 @@ class controller extends wc_controller {
 	}
 
 	public function edit($itemcode) {
-		$this->view->title = 'Item Edit';
+		$this->view->title = $this->ui->EditLabel('');
 		$data = (array) $this->item_model->getItemById($this->fields, $itemcode);
 		$data['ui']							= $this->ui;
 		$data['uom_list']					= $this->item_model->getUOMList();
@@ -111,7 +111,7 @@ class controller extends wc_controller {
 	}
 
 	public function view($itemcode) {
-		$this->view->title = 'Item View';
+		$this->view->title = $this->ui->ViewLabel('');
 		$data = (array) $this->item_model->getItemById($this->fields, $itemcode);
 		$data['ui']							= $this->ui;
 		$data['uom_list']					= $this->item_model->getUOMList();

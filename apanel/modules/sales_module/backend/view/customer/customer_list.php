@@ -4,7 +4,7 @@
         <div class="box-header">
             <div class="row">
 				
-				<div class = "col-md-4">
+				<!-- <div class = "col-md-8">
                     <a href="<?php echo MODULE_URL; ?>create" class = "btn btn-primary danger">Create</a>
 					<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete <span></span> </button>
 					
@@ -21,6 +21,17 @@
 							</li>
 						</ul>
 					</div>
+				</div> -->
+
+				<div class = "col-md-8">
+					<?= 
+						$ui->CreateNewButton('');
+					?>
+					<?= 
+						$ui->OptionButton('');
+					?>
+					<input id = "item_multiple_delete" class="btn btn-danger btn-flat" type = "button" name = "delete" 
+						value = "Delete" class="btn btn-danger btn-flat ">
 				</div>
 
                 <div class="col-md-4 pull-right">
@@ -195,7 +206,7 @@ function showList(pg){
 	ajax_call = $.post('<?=BASE_URL?>maintenance/customer/ajax/customer_list',ajax, function(data) {
 					$('#customer_table #list_container').html(data.table);
 					$('#pagination').html(data.pagination);
-					$("#export").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+					$("#export_id").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 					if (ajax.page > data.page_limit && data.page_limit > 0) {
 						ajax.page = data.page_limit;
 						showList();
@@ -238,7 +249,7 @@ $(document).ready(function()
 	});
 
 	/** For Import Modal **/
-	$("#import").click(function() 
+	$("#import_id").click(function() 
 	{
 		$(".import-modal > .modal").css("display", "inline");
 		$('.import-modal').modal();
@@ -314,6 +325,8 @@ $(function() {
 	linkDeleteToModal('#customer_table .delete', 'ajaxCallback');
 	linkDeleteMultipleToModal('#item_multiple_delete', '#customer_table', 'ajaxCallback');
 });
+
+$('#export_id').prop('download','customer.csv');
 
 </script>
 

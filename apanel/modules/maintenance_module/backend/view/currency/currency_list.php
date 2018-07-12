@@ -4,34 +4,35 @@
         <div class="box-header">
             <div class="row">
 
-            <div class = "col-md-4">
-                    <a href="<?php echo BASE_URL; ?>maintenance/currency/create" class = "btn btn-primary danger">Create</a>
-					<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete <span></span> </button>
-					
-					<!--<div class="btn btn-group" id="option_buttons">
-						<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
-							Options <span class="caret"></span>
-						</button>
-						<ul class="dropdown-menu" role="menu">
-							<li>
-								<a href = "#" id="export" download="Customers.csv" ><span class="glyphicon glyphicon-open"></span> Export</a>
-							</li>
-							<li>
-								<a href="javascript:void(0);" id="import"><span class="glyphicon glyphicon-save"></span> Import</a>
-							</li>
-						</ul>
-					</div>-->
+				<div class = "col-md-8">
+					<?=$ui->CreateNewButton('');?>
+					<input type="button" id="item_multiple_delete" class="btn btn-danger  btn-flat"  value="Delete" >
+					<!-- <input id = "deleteMultipleBtn" type = "button" name = "delete" 
+						value = "Delete" class="btn btn-danger btn-flat ">	 -->
+						<!--<div class="btn btn-group" id="option_buttons">
+							<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+								Options <span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu" role="menu">
+								<li>
+									<a href = "#" id="export" download="Customers.csv" ><span class="glyphicon glyphicon-open"></span> Export</a>
+								</li>
+								<li>
+									<a href="javascript:void(0);" id="import"><span class="glyphicon glyphicon-save"></span> Import</a>
+								</li>
+							</ul>
+						</div>-->
 				</div>
 
-                <div class="col-md-4 pull-right">
+                
                     <div class="input-group input-group-sm">
                         <input id="search" name="table_search" class="form-control pull-right" placeholder="Search" type="text">
                         <div class="input-group-btn">
                             <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
-                </div>
             </div>
+			
 			<br>
 			<div class="row">
 				<div class="col-md-4 col-md-offset-8">

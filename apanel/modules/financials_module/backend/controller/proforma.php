@@ -9,7 +9,7 @@ class controller extends wc_controller
 		$this->input        	= new input();
 		$this->ui 				= new ui();
 		$this->logs  			= new log;
-		$this->view->title  	= 'Proforma';
+		$this->view->title  	= MODULE_NAME;
 		$this->show_input 	    = true;
 
 		$this->companycode  	= COMPANYCODE;
@@ -25,7 +25,7 @@ class controller extends wc_controller
 		$data["button_color"] 		= "btn-info";
 		$data["ajax_post"] 			= "";
 		$data["ajax_task"] 			= "add";
-		$this->view->title  		= 'Add New Proforma';
+		$this->view->title  		= $this->ui->AddLabel('');
 		$data["cmp"] 				= COMPANYCODE;
 
 		/**RETRIEVALS OPTIONS**/
@@ -47,7 +47,7 @@ class controller extends wc_controller
 	public function edit($accountcode = ""){
 
 		
-		$this->view->title  = 'Edit Account';
+		$this->view->title  = $this->ui->EditLabel('');
 		$data["button_color"] = "btn-warning";
 		$data["ajax_task"] = "edit";
 		$data["ajax_post"] = "";
@@ -97,7 +97,7 @@ class controller extends wc_controller
 
 	public function view($accountcode = ""){
 
-		$this->view->title  = 'View Account'; 
+		$this->view->title  = $this->ui->ViewLabel('');
 		$data["ajax_task"]  = "view";
 		$data["sid"]        = $accountcode;
 		$data["cmp"] = $this->companycode;
@@ -209,7 +209,7 @@ class controller extends wc_controller
 		$data['import_error_messages'] = array();
 		$data["file_import_result"]    = "";
 		$data['ui'] = $this->ui;
-		$this->view->title  = 'Proforma';
+		$this->view->title  = $this->ui->ListLabel('');
 
 		// For Import
 		$errmsg 			= array();

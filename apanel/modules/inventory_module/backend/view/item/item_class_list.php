@@ -3,7 +3,7 @@
 			<div class="box-header pb-none">
 				<div class="row">
 					<div class="col-md-8">
-						<div class="row">
+						<!-- <div class="row">
 							<div class="col-md-4">
 								<div class="form-group">
 									<div class="btn-group">
@@ -20,7 +20,15 @@
 									<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete<span></span></button>
 								</div>
 							</div>
-						</div>
+						</div> -->
+						<?= 
+							$ui->CreateNewButton('');
+						?>
+						<?= 
+							$ui->OptionButton('');
+						?>
+						<input id = "item_multiple_delete" type = "button" name = "delete" 
+						value = "Delete" class="btn btn-danger btn-flat ">
 					</div>
 					<div class="col-md-4">
 						<div class="form-group">
@@ -141,7 +149,7 @@
 		$('#table_search').on('input', function () {
 			ajax.search = $(this).val();
 			var url = '<?= MODULE_URL ?>get_export/';
-			$('#export_table').attr('href', url + btoa($(this).val()));
+			$('#export_id').attr('href', url + btoa($(this).val()));
 			getList();
 		});
 		$('#import-modal').on('show.bs.modal', function() {
@@ -262,4 +270,17 @@
 			ajax.limit = $(this).val();
 			getList();
 		});
+		var href = '<?= MODULE_URL ?>get_export';
+
+		$('#export_id').prop('download','item_class.csv');
+		$('#export_id').prop('href','<?= MODULE_URL ?>get_export');
+		$('#import_id').prop('href','#import-modal');
+		// $('#import_id').prop('data-toggle','modal');
+		$("#import_id").click(function() 
+		{
+			$("#import-modal > .modal").css("display", "inline");
+			$('#import-modal').modal();
+		});
+
+
 	</script>

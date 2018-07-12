@@ -4,10 +4,8 @@
         <div class="box-header">
             <div class="row">
 
-				<div class = "col-md-4">
+				<!-- <div class = "col-md-4">
 					<a href="<?php echo BASE_URL; ?>maintenance/discount/create" class="btn btn-primary danger">Create</a>
-					<!--<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Cancel <span></span> </button>-->
-					
 					<div class="btn btn-group" id="option_buttons">
 						<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
 							Options <span class="caret"></span>
@@ -21,6 +19,15 @@
 							</li>
 						</ul>
 					</div>
+				</div> -->
+
+				<div class = "col-md-8">
+					<?= 
+						$ui->CreateNewButton('');
+					?>
+					<?= 
+						$ui->OptionButton('');
+					?>
 				</div>
 
 				<!--<div class = "col-md-1">
@@ -240,7 +247,7 @@ function showList(pg){
 	ajax_call = $.post('<?=BASE_URL?>maintenance/discount/ajax/discount_list',ajax, function(data) {
 					$('#discount_table #list_container').html(data.table);
 					$('#pagination').html(data.pagination);
-					$("#export").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+					$("#export_id").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 					if (ajax.page > data.page_limit && data.page_limit > 0) {
 						ajax.page = data.page_limit;
 						showList();
@@ -321,7 +328,7 @@ $(document).ready(function()
 	/** -- FOR TAGGING AS COMPLETE -- end **/
 
 	/** For Import Modal **/
-	$("#import").click(function() 
+	$("#import_id").click(function() 
 	{
 		$("#import-modal > .modal").css("display", "inline");
 		$('#import-modal').modal();
@@ -424,5 +431,7 @@ $(document).ready(function()
 		showList();
 	});
 });
+
+$('#export_id').prop('download','discount.csv');
 
 </script>

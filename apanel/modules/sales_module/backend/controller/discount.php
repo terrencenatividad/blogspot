@@ -40,13 +40,13 @@
 			$data['task'] 			= 'add';
 			$data['ajax_post'] 		= '';
 
-			$this->view->title 	= "Add Discount Template";
+			$this->view->title 	= $this->ui->AddLabel('');
 			$this->view->load('discount/discount_create', $data);
 		}
 
 		public function edit($code)
 		{
-			$this->view->title 		= 'Edit Discount Template';
+			$this->view->title 	= $this->ui->EditLabel('');
 
 			$data 			 		= (array) $this->discount->retrieveExistingDiscount($this->fields, $code);
 
@@ -63,7 +63,7 @@
 
 		public function view($code)
 		{
-			$this->view->title = 'View Discount Template';
+			$this->view->title = $this->ui->ViewLabel('');
 			
 			$data 			 	= (array) $this->discount->retrieveExistingDiscount($this->fields, $code);
 			$data['discountchoice'] = array('percentage'=>"Percentage", 'amouunt'=>'Amount');
@@ -79,7 +79,7 @@
 
 		public function tag_customers($code)
 		{
-			$this->view->title = 'Tag Customers to Discount Template';
+			$this->view->title = 'Tag Customers to Discount';
 
 			$data 			 	= (array) $this->discount->retrieveExistingDiscount($this->fields, $code);
 			$data['discountchoice'] = array('percentage'=>"Percentage", 'amouunt'=>'Amount');
@@ -95,7 +95,7 @@
 
 		public function listing()
 		{
-			$this->view->title = 'Discount Template Listing';
+			$this->view->title = $this->ui->ListLabel('');
 			$data['ui'] 	   = $this->ui;
 			$this->view->load('discount/discount_list', $data);
 		}

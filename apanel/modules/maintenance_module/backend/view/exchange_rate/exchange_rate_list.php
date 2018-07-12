@@ -4,9 +4,15 @@
         <div class="box-header">
             <div class="row">
 
-            <div class = "col-md-4">
-                    <a href="<?php echo BASE_URL; ?>maintenance/exchange_rate/create" class = "btn btn-primary danger">Create</a>
-					<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete <span></span> </button>
+            <div class = "col-md-8">
+					<?= 
+						$ui->CreateNewButton('');
+					?>
+					<input id = "item_multiple_delete" type = "button" name = "delete" 
+						value = "Delete" class="btn btn-danger btn-flat ">
+
+                    <!-- <a href="<?php echo BASE_URL; ?>maintenance/exchange_rate/create" class = "btn btn-primary danger">Create</a>
+					<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete <span></span> </button> -->
 					
 					<!--<div class="btn btn-group" id="option_buttons">
 						<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
