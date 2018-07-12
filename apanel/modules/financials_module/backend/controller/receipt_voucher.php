@@ -157,6 +157,8 @@ class controller extends wc_controller
 		$data["listofcheques"]	= "";
 		$data["show_cheques"] 	= 'hidden';
 
+		$data['restrict_rv'] 	= true;
+
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
 		// echo "before";
@@ -239,11 +241,13 @@ class controller extends wc_controller
 		// Main
 		$vendor_details 		   	= $this->receipt_voucher->getValue("partners", "partnername"," partnertype = 'customer' AND partnercode = '".$data["main"]->customer."'", "");
 
+		$transactiondate 			= $data["main"]->transactiondate;
+		$restrict_rv 				= $this->restrict->setButtonRestriction($transactiondate);
 		$data["voucherno"]         = $data["main"]->voucherno;
 		$data["customercode"]        = $vendor_details[0]->partnername;
 		$data["v_convertedamount"] = $data["main"]->convertedamount;
 		$data["exchangerate"]      = $data["main"]->exchangerate;
-		$data["transactiondate"]   = $this->date->dateFormat($data["main"]->transactiondate);
+		$data["transactiondate"]   = $this->date->dateFormat($transactiondate);
 		$data["or_no"]       		= $data["main"]->or_no;
 		$data["paymenttype"]       = $data["main"]->paymenttype;
 		$data["particulars"]       = $data["main"]->particulars;
@@ -255,6 +259,12 @@ class controller extends wc_controller
 		$data["address1"] 	       	= $data["vend"]->address1;
 		$data["terms"] 	   		   	= $data["vend"]->terms;
 
+		//For User Access
+		$login						= $this->session->get('login');
+		$groupname 					= $login['groupname'];
+
+		$has_access					= $this->receipt_voucher->retrieveAccess($groupname);
+		$data['has_access'] 		= $has_access[0]->mod_edit;
 		/**
 		* Get the total forex amount applied
 		*/
@@ -296,6 +306,8 @@ class controller extends wc_controller
 		$data['sum_applied'] 	= $sum_applied;
 		$data['sum_discount'] 	= $sum_discount;
 
+		$data['restrict_rv'] 	= $restrict_rv;
+
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
 
@@ -332,7 +344,8 @@ class controller extends wc_controller
 		$data["cash_account_list"] = $this->receipt_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
 		// Header Data
-		$data["voucherno"]       = $data["main"]->voucherno;
+		$voucherno 				 = $data["main"]->voucherno;
+		$data["voucherno"]       = $voucherno;
 		$data["or_no"]    		 = $data["main"]->or_no;
 		$data["customercode"]    = $data["main"]->customer;
 		$data["exchangerate"]    = $data["main"]->exchangerate;
@@ -360,11 +373,22 @@ class controller extends wc_controller
 		$data['sum_discount'] 	= $sum_discount;
 		$data['payments'] 		= json_encode($payments);
 
+		$data['restrict_rv'] 	= true;
+		$data['has_access'] 	= 0;
+
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
 
 		if (!empty($data_validate["customer"]) && !empty($data_validate["document_date"])) 
 		{
+			$update_info				= array();
+			$update_info['stat']		= 'open';
+			$update_condition			= "voucherno = '$voucherno'";
+			$updateTempRecord			= $this->receipt_voucher->editData($update_info,"receiptvoucher",$update_condition);
+			$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_details",$update_condition);
+			$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_application",$update_condition);
+			$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_cheques",$update_condition);
+			
 			$this->update_app($data_validate["h_check_rows_"]);
 
 			// For Admin Logs
@@ -825,9 +849,7 @@ class controller extends wc_controller
 	
 	}
 
-	private function create_payments()
-	{
-		
+	private function create_payments(){
 		$data_post 	= $this->input->post();
 
 		$result    	= array_filter($this->receipt_voucher->savePayment($data_post));
@@ -916,6 +938,7 @@ class controller extends wc_controller
 			{
 
 				$date			= $pagination->result[$i]->transactiondate;
+				$restrict_rv 	= $this->restrict->setButtonRestriction($date);
 				$date			= $this->date->dateFormat($date);
 				$voucher		= $pagination->result[$i]->voucherno;
 				$balance		= $pagination->result[$i]->balance; 
@@ -953,17 +976,22 @@ class controller extends wc_controller
 					
 				}
 
+				$disable_checkbox 	=	"";
+				$disable_onclick 	=	'onClick="selectPayable(\''.$voucher.'\',1);"';
+
 				$table	.= '<tr>'; 
-				if($show_input){
-					$table	.= 	'<td class="text-center" style="vertical-align:middle;">';
-					$table	.= 		'<input type="checkbox" name="checkBox[]" id = "check'.$voucher.'" class = "icheckbox" toggleid="0" row="'.$voucher.'" '.$voucher_checked.'>'; 
-					$table	.= 	'</td>';
+				if(!$restrict_rv){
+					$disable_checkbox 	=	"disabled='disabled'";
+					$disable_onclick 	= 	'';
 				}
-				$table	.= 	'<td class="text-left" style="vertical-align:middle;" onClick="selectPayable(\''.$voucher.'\',1);">'.$date.'</td>';
-				$table	.= 	'<td class="text-left" style="vertical-align:middle;" onClick="selectPayable(\''.$voucher.'\',1);">'.$voucher.'</td>';
-				$table	.= 	'<td class="text-left" style="vertical-align:middle;" onClick="selectPayable(\''.$voucher.'\',1);">'.$referenceno.'</td>';
-				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_amount'.$voucher.'" onClick="selectPayable(\''.$voucher.'\',1);">'.number_format($totalamount,2).'</td>';
-				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_balance'.$voucher.'" onClick="selectPayable(\''.$voucher.'\',1);" data-value="'.number_format($balance,2).'">'.number_format($balance_2,2).'</td>';
+				$table	.= 	'<td class="text-center" style="vertical-align:middle;">';
+				$table	.= 		'<input type="checkbox" name="checkBox[]" id = "check'.$voucher.'" class = "icheckbox" toggleid="0" row="'.$voucher.'" '.$voucher_checked.' '.$disable_checkbox.'>'; 
+				$table	.= 	'</td>';
+				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$date.'</td>';
+				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$voucher.'</td>';
+				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
+				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_amount'.$voucher.'" '.$disable_onclick.'>'.number_format($totalamount,2).'</td>';
+				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_balance'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance_2,2).'</td>';
 				if($voucher_checked == 'checked'){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
 					$this->ui->formField('text')
@@ -1123,12 +1151,13 @@ class controller extends wc_controller
 				$detailparticulars = (!empty($results[$i]->detailparticulars)) ? $results[$i]->detailparticulars : "";
 
 				// Sum of credit will go to debit side on PV
-				// $debit         	   = number_format($results[$i]->sumcredit, 2);
-				$credit = (isset($account_total[$accountcode])) ? $account_total[$accountcode] : 0;
-				$credit = number_format($credit,2);
-				$totalcredit    	   += $debit; 
+				// $debit         	= number_format($results[$i]->sumcredit, 2);
+				$debit 				= (isset($results[$i]->chequeamount)) ? $results[$i]->chequeamount : "0";
 
-				$debit = (isset($results[$i]->chequeamount)) ? $results[$i]->chequeamount : "0";
+				$credit 			= (isset($account_total[$accountcode])) ? $account_total[$accountcode] : 0;
+				$credit 			= number_format($credit,2);
+
+				$totalcredit     	+= $debit; 
 
 				$table .= '<tr class="clone" valign="middle">';
 				$table .= 	'<td class = "remove-margin">'	
@@ -1169,7 +1198,7 @@ class controller extends wc_controller
 									->setName('credit['.$row.']')
 									->setClass("text-right  credit")
 								    ->setId('credit['.$row.']')
-									->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", "" => ""))
+									->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 									->setValue($credit)
 									->draw($show_input).
 							'</td>';
@@ -1208,6 +1237,7 @@ class controller extends wc_controller
 			foreach($list->result as $key => $row)
 			{
 				$date        	= $row->paymentdate;
+				$restrict_rv 	= $this->restrict->setButtonRestriction($date);
 				$date       	= $this->date->dateFormat($date);
 				$voucher   		= $row->voucherno; 
 				$customer		= $row->partner; 
@@ -1233,11 +1263,11 @@ class controller extends wc_controller
 					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
 				}
 
-				$show_btn 		= ($status == 'open');
-				$show_edit 		= ($status == 'open' && $has_access[0]->mod_edit == 1);
-				$show_dlt 		= ($status == 'open' && $has_access[0]->mod_delete == 1);
-				$show_post 		= ($status == 'open' && $has_access[0]->mod_post == 1);
-				$show_unpost 	= ($status == 'posted' && $has_access[0]->mod_unpost == 1);
+				$show_btn 		= ($status == 'open' && $restrict_rv);
+				$show_edit 		= ($status == 'open' && $has_access[0]->mod_edit == 1 && $restrict_rv);
+				$show_dlt 		= ($status == 'open' && $has_access[0]->mod_delete == 1 && $restrict_rv);
+				$show_post 		= ($status == 'open' && $has_access[0]->mod_post == 1 && $restrict_rv);
+				$show_unpost 	= ($status == 'posted' && $has_access[0]->mod_unpost == 1 && $restrict_rv);
 
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()
