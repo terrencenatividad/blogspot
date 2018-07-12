@@ -533,6 +533,7 @@
 							->runSelect()
 							->getResult();
 
+			return $result;
 		}
 	}
 ?>
