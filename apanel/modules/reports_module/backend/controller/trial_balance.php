@@ -29,7 +29,7 @@ class controller extends wc_controller {
 		$data['show_input'] 		= 	true;
 		$data['datefilter'] 		= 	$this->date->datefilterMonth();
 		$balance_table 				= 	$this->trial_balance->getBalanceTableCount();
-		$display_button 			=	($balance_table->count > 0) 	? 	0	:	1;
+		$display_button 			=	($balance_table->count > 0) 	? 	1	:	0;
 		$data['display_btn'] 		=	$display_button;
 		$this->view->load('trial_balance', $data);
 	}
