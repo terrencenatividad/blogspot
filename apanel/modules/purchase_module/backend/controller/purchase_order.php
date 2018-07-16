@@ -13,6 +13,7 @@ class controller extends wc_controller
 		$this->restrict 		= new purchase_restriction_model();
 		$this->view->title      = 'Purchase Order';
 		$this->show_input 	    = true;
+		$this->inventory_model	= $this->checkoutModel('inventory_module/inventory_model');
 
 		$this->user 		    = USERNAME;
 
@@ -77,7 +78,7 @@ class controller extends wc_controller
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
 
-		$w_entry_data          = array("warehousecode ind","warehousecode val");
+		$w_entry_data          = array("warehousecode ind","description val");
 		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,'',"warehousecode");
 
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
@@ -252,7 +253,7 @@ class controller extends wc_controller
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
 
-		$w_entry_data          = array("warehousecode ind","warehousecode val");
+		$w_entry_data          = array("warehousecode ind","description val");
 		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,'',"warehousecode");
 
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
@@ -330,7 +331,7 @@ class controller extends wc_controller
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
 
-		$w_entry_data          = array("warehousecode ind","warehousecode val");
+		$w_entry_data          = array("warehousecode ind","description val");
 		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,'',"warehousecode");
 
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
