@@ -71,7 +71,7 @@ class print_check extends fpdf {
         $this->SetFont('Times','',10);
         $this->Cell(160,4,'',0,0,'R');
         $this->SetFont('Times','B',10);
-        $this->RotatedText(84.5, 46, $date, 90);
+        $this->RotatedText(82, 46, $date, 90);
         $this->Ln(8);
 
         $this->SetFont('Times','B',10);
