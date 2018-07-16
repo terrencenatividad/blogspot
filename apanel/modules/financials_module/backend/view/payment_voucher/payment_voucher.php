@@ -750,7 +750,7 @@
 						
 						
 						<div class="btn-group" id="save_group">
-							<input type = "button" value = "Save Preview" name = "save" id = "btnSave" class="btn btn-primary btn-flat"/>
+							<input type = "button" value = "Save & Preview" name = "save" id = "btnSave" class="btn btn-primary btn-flat"/>
 						    <input class = "form_iput" value = "" name = "h_save" id = "h_save" type = "hidden">
 							<?php
 							if($task == 'create'){
@@ -1997,7 +1997,9 @@ $('#pagination').on('click', 'a', function(e) {
 $('body').on('click' , '.print_check', function(){
 	var cno 	= $(this).closest('tr').find('.chequeno').val();
 	var vno  	= $('#h_voucher_no').val();
-	window.location = '<?=MODULE_URL?>print_check/' + vno +  '/'+ cno  ;
+	// window.location = '<?=MODULE_URL?>print_check/' + vno +  '/'+ cno  ;
+	// a.target="_blank";
+	window.open('<?=MODULE_URL?>print_check/' + vno +  '/'+ cno , '_blank');
 })
 
 function showIssuePayment(){
