@@ -532,9 +532,6 @@ class receipt_voucher_model extends wc_model
 		$applicableDetailTable 	= "ar_details"; 
 		$source				   	= "RV"; 
 
-
-		 
-
 		$insertResult		   	= 0;
 	
 		$voucherno				= (isset($data['h_voucher_no']) && (!empty($data['h_voucher_no']))) ? htmlentities(addslashes(trim($data['h_voucher_no']))) : "";
@@ -666,8 +663,8 @@ class receipt_voucher_model extends wc_model
 			}
 		}
 
-		$isExist						= $this->getValue($mainAppTable, array("stat"), "voucherno = '$voucherno' AND stat IN('unposted','posted','cancelled') ");
-		$status							= (!empty($isExist[0]->stat)) ? "unposted" : "temporary";
+		$isExist						= $this->getValue($mainAppTable, array("stat"), "voucherno = '$voucherno' AND stat IN('posted','cancelled') ");
+		$status							= (!empty($isExist[0]->stat)) ? "open" : "temporary";
 		$valid 							= 0;
 
 		$transactiondate				= $this->date->dateDbFormat($transactiondate); 

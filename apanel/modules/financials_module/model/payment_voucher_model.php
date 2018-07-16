@@ -655,8 +655,8 @@ class payment_voucher_model extends wc_model
 			}
 		}
 
-		$isExist						= $this->getValue($mainAppTable, array("stat"), "voucherno = '$voucherno' AND stat IN('unposted','posted','cancelled') ");
-		$status							= (!empty($isExist[0]->stat)) ? "unposted" : "temporary";
+		$isExist						= $this->getValue($mainAppTable, array("stat"), "voucherno = '$voucherno' AND stat IN('posted','cancelled') ");
+		$status							= (!empty($isExist[0]->stat)) ? "open" : "temporary";
 		$valid 							= 0;
 
 		$transactiondate				= $this->date->dateDbFormat($transactiondate); 
