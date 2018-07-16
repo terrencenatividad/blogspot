@@ -13,6 +13,7 @@ class controller extends wc_controller
 		$this->view->title      = 'Purchase Request';
 		$this->show_input 	    = true;
 		$this->logs  			= new log;
+		$this->inventory_model	= $this->checkoutModel('inventory_module/inventory_model');
 
 		$session                = new session();
 		$this->companycode      = $session->get('companycode');
@@ -839,7 +840,7 @@ class controller extends wc_controller
 			$this->logs->saveActivity("Cancelled Purchase Request [ ". implode(',',$vouchers) ." ] ");
 			$msg = "success";
 
-			if ( $this->inventory_model ) {
+			if ( $result && $this->inventory_model ) {
 				$this->inventory_model->generateBalanceTable();
 			}
 		}
