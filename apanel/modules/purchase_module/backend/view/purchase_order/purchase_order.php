@@ -355,7 +355,7 @@
 									$taxcode 			= $details[$i]->taxcode;
 									$taxrate 			= $details[$i]->taxrate;
 									$amount  			= $details[$i]->amount;
-									$uom  				= (empty($request_no)) ? $details[$i]->receiptuom 	: 	'';
+									$uom  				= $details[$i]->receiptuom;
 									$warehouse_code		= (empty($request_no)) ? $details[$i]->warehouse 	: 	'';
 									$warehouse_name		= (empty($request_no)) ? $details[$i]->description: 	'';
 									

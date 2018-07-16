@@ -187,7 +187,7 @@
 			// $retrieved_data['vendor']  	=	$this->retrieveVendorDetails($vendor_code);
 
 			// Retrieve Details
-			$detail_fields 				= 	"itemcode, detailparticular, unitprice, receiptqty, taxcode, taxrate, amount";
+			$detail_fields 				= 	"itemcode, detailparticular, unitprice, receiptqty, receiptuom, taxcode, taxrate, amount";
 			$condition 					= 	" voucherno = '$request_no' ";
 			
 			$retrieved_data['details'] 	= 	$this->db->setTable('purchaserequest_details')
