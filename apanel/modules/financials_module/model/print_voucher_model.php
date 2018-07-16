@@ -248,12 +248,21 @@ class print_voucher_model extends fpdf {
 
 		if ( ! empty($this->appliedpaymentArray) && !is_null($this->appliedpaymentArray)) {
 			$this->SetFont('Arial','B','9');
-			$this->Cell(200, 6, 'APPLIED PAYABLES :', 0, 0, 'L');
-			$this->Ln();
-			$this->Cell(50, 6, 'AP NO.', 1, 0, 'C', true);
-			$this->Cell(50, 6, 'PR NO.', 1, 0, 'C', true);
-			$this->Cell(50, 6, 'AMOUNT', 1, 0, 'C', true);
-			$this->Cell(50, 6, 'DISCOUNT', 1, 0, 'C', true);
+			if( $this->document_type == "Receipt Voucher" ){
+				$this->Cell(200, 6, 'APPLIED RECEIVABLES :', 0, 0, 'L');
+				$this->Ln();
+				$this->Cell(50, 6, 'AR NO.', 1, 0, 'C', true);
+				$this->Cell(50, 6, 'SI NO.', 1, 0, 'C', true);
+				$this->Cell(50, 6, 'AMOUNT', 1, 0, 'C', true);
+				$this->Cell(50, 6, 'DISCOUNT', 1, 0, 'C', true);
+			} else {
+				$this->Cell(200, 6, 'APPLIED PAYABLES :', 0, 0, 'L');
+				$this->Ln();
+				$this->Cell(50, 6, 'AP NO.', 1, 0, 'C', true);
+				$this->Cell(50, 6, 'PR NO.', 1, 0, 'C', true);
+				$this->Cell(50, 6, 'AMOUNT', 1, 0, 'C', true);
+				$this->Cell(50, 6, 'DISCOUNT', 1, 0, 'C', true);
+			}
 			$this->Ln();
 			$this->SetFont('Arial','','9');
 			$totalpayment = 0;
