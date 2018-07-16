@@ -212,7 +212,7 @@ class item_model extends wc_model {
 		return $this->db->setTable('chartaccount c')
 						->innerJoin('accountclass ac ON c.companycode = ac.companycode AND c.accountclasscode = ac.accountclasscode')
 						->setFields('id ind, accountname val,  accountclass parent')
-						->setWhere("c.accountclasscode = 'REV' AND c.accountnature = 'Credit'" . $condition)
+						->setWhere("c.accountclasscode IN('REV','REVENU') AND c.accountnature = 'Credit'" . $condition)
 						->setOrderBy('accountclass, accountname')
 						->runSelect()
 						->getResult();
@@ -226,7 +226,7 @@ class item_model extends wc_model {
 		return $this->db->setTable('chartaccount c')
 						->innerJoin('accountclass ac ON c.companycode = ac.companycode AND c.accountclasscode = ac.accountclasscode')
 						->setFields('id ind, accountname val, accountclass parent')
-						->setWhere("c.accountclasscode IN('EXP','COST','OTHCA','OTHCL','TAX','CASH','INV','PREPAID','PPE')" . $condition)
+						->setWhere("c.accountclasscode IN('EXP','OPSEXP','OTREXP','COST','COSTSA','OTHCA','CUASET','NCASET','OTHCL','CULIAB','NCLIAB','TAX','INCTAX','CASH','INV','NVNTRY','PREPAID','PPE')" . $condition)
 						->setOrderBy('accountclass, accountname')
 						->runSelect()
 						->getResult();
