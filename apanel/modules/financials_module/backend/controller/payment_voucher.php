@@ -1411,7 +1411,7 @@ class controller extends wc_controller
 	public function print_check($vno, $cno){
 		$print_chkdtl   = $this->payment_voucher->print_check($vno,$cno);
 		if ($print_chkdtl){
-			$this->logs->saveActivity("Print Check [$cno]");
+			$this->logs->saveActivity("Print Check [$cno] on Voucherno  [$vno]");
 		}
 		$print_dtls = new print_check();
 
