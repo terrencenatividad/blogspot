@@ -724,7 +724,7 @@ class payment_voucher_model extends wc_model
 
 		foreach($tempArray as $tempArrayIndex => $tempArrayValue)
 		{
-			$accountcode 						= $tempArrayValue['h_accountcode'];
+			$accountcode 						= isset($tempArrayValue['h_accountcode']) 	? 	$tempArrayValue['h_accountcode'] 	:	$tempArrayValue['accountcode'];
 			$detailparticulars					= $tempArrayValue['detailparticulars'];
 			$debit			    				= $tempArrayValue['debit'];
 			$credit			    				= $tempArrayValue['credit'];
