@@ -80,7 +80,7 @@ class controller extends wc_controller
 			$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 			$data["itemcodes"] 		= $this->so->getValue("items", $cc_entry_data,'',"itemcode");
 
-			$w_entry_data          = array("warehousecode ind","warehousecode val");
+			$w_entry_data          = array("warehousecode ind","description val");
 			$data["warehouses"] 	= $this->so->getValue("warehouse", $w_entry_data,'',"warehousecode");
 
 			$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
@@ -260,7 +260,7 @@ class controller extends wc_controller
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$data["itemcodes"] 		= $this->so->getValue("items", $cc_entry_data,'',"itemcode");
 
-		$w_entry_data          = array("warehousecode ind","warehousecode val");
+		$w_entry_data          = array("warehousecode ind","description val");
 		$data["warehouses"] 	= $this->so->getValue("warehouse", $w_entry_data,'',"warehousecode");
 
 		$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
@@ -337,7 +337,7 @@ class controller extends wc_controller
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$data["itemcodes"] 		= $this->so->getValue("items", $cc_entry_data,'',"itemcode");
 
-		$w_entry_data          = array("warehousecode ind","warehousecode val");
+		$w_entry_data          = array("warehousecode ind","description val");
 		$data["warehouses"] 	= $this->so->getValue("warehouse", $w_entry_data,'',"warehousecode");
 
 		$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
