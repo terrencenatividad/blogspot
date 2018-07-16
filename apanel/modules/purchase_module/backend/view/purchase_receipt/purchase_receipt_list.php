@@ -3,10 +3,10 @@
 			<div class="box-header pb-none">
 				<div class="row">
 					<div class="col-md-8">
-						<div class="form-group">
-							<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create Purchase Receipt</a>
-							<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Cancel<span></span></button>
-						</div>
+						<?
+							echo $ui->CreateNewButton('');
+						?>
+						<button type="button" id="item_multiple_cancel" class="btn btn-danger btn-flat">Cancel<span></span></button>
 					</div>
 					<div class="col-md-4">
 						<div class="form-group">
@@ -164,9 +164,9 @@
 			return "id[]=" + x.join("&id[]=");
 		}
 		$(function() {
-			linkButtonToTable('#item_multiple_delete', '#tableList');
+			linkButtonToTable('#item_multiple_cancel', '#tableList');
 			linkCancelToModal('#tableList .delete', 'ajaxCallback');
-			linkCancelMultipleToModal('#item_multiple_delete', '#tableList', 'ajaxCallback');
+			linkCancelMultipleToModal('#item_multiple_cancel', '#tableList', 'ajaxCallback');
 		});
 		$('#daterangefilter').on('change', function() {
 			ajax.daterangefilter = $(this).val();
