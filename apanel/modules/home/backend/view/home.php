@@ -101,7 +101,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-md-6">
+			<div class="col-md-12">
 				<div class="nav-tabs-custom">
 					<ul class="nav nav-tabs pull-right">
 						<li class="active"><a href="#current_year" data-toggle="tab" aria-expanded="true"><?php echo date('Y') ?></a></li>
@@ -152,9 +152,8 @@
 		});
 		
 		function showChart() {
-			new Morris.Area({
-				behaveLikeLine: true,
-				gridTextSize: 8,
+			new Morris.Bar({
+				gridTextSize: 12,
 				element: 'current_year',
 				data: revenue_expense.current,
 				xkey: 'month',
@@ -162,11 +161,7 @@
 				labels: ['Cost of Sales', 'Revenue'],
 				hideHover: true,
 				xLabelFormat: function (x){
-					var month = shortMonth[new Date(x).getMonth()];
-					return month;
-				},
-				dateFormat: function (x) { 
-					var month = fullMonth[new Date(x).getMonth()];
+					var month = shortMonth[new Date(x.label).getMonth()];
 					return month;
 				},
 				yLabelFormat: function(y) {
@@ -176,9 +171,8 @@
 			});
 			$('.previous_year').one('click', function() {
 				setTimeout(function(){
-					new Morris.Area({
-						behaveLikeLine: true,
-						gridTextSize: 8,
+					new Morris.Bar({
+						gridTextSize: 12,
 						element: 'previous_year',
 						data: revenue_expense.previous,
 						xkey: 'month',
@@ -186,11 +180,7 @@
 						labels: ['Cost of Sales', 'Revenue'],
 						hideHover: true,
 						xLabelFormat: function (x){
-							var month = shortMonth[new Date(x).getMonth()];
-							return month;
-						},
-						dateFormat: function (x) { 
-							var month = shortMonth[new Date(x).getMonth()];
+							var month = shortMonth[new Date(x.label).getMonth()];
 							return month;
 						},
 						yLabelFormat: function(y) {
@@ -200,18 +190,6 @@
 					});
 				}, 10);
 			});
-			// new Morris.Donut({
-			// 	element: 'accounts_payable',
-			// 	data: aging.ap,
-			// 	formatter: function(value, data) {
-			// 		let val = parseFloat(value);
-			// 		if (val == 0) {
-			// 			return '';
-			// 		} else {
-			// 			return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-			// 		}
-			// 	}
-			// });
 			new Morris.Bar({
 				element: 'accounts_payable',
 				data: aging.ap,
@@ -222,18 +200,6 @@
 			});
 			$('.accounts_receivable').one('click', function() {
 				setTimeout(function(){
-					// new Morris.Donut({
-					// 	element: 'accounts_receivable',
-					// 	data: aging.ar,
-					// 	formatter: function(value, data) {
-					// 		let val = parseFloat(value);
-					// 		if (val == 0) {
-					// 			return '';
-					// 		} else {
-					// 			return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-					// 		}
-					// 	}
-					// });
 					new Morris.Bar({
 						element: 'accounts_receivable',
 						data: aging.ar,
