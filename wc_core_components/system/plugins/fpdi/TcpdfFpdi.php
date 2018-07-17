@@ -8,18 +8,6 @@
  * @version   2.0.3
  */
 
-namespace setasign\Fpdi;
-
-use setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException;
-use setasign\Fpdi\PdfParser\Filter\AsciiHex;
-use setasign\Fpdi\PdfParser\Type\PdfHexString;
-use setasign\Fpdi\PdfParser\Type\PdfIndirectObject;
-use setasign\Fpdi\PdfParser\Type\PdfNull;
-use setasign\Fpdi\PdfParser\Type\PdfNumeric;
-use setasign\Fpdi\PdfParser\Type\PdfStream;
-use setasign\Fpdi\PdfParser\Type\PdfString;
-use setasign\Fpdi\PdfParser\Type\PdfType;
-
 /**
  * Class TcpdfFpdi
  *
@@ -27,12 +15,8 @@ use setasign\Fpdi\PdfParser\Type\PdfType;
  *
  * @package setasign\Fpdi
  */
-class TcpdfFpdi extends \TCPDF
+class TcpdfFpdi extends TCPDF
 {
-    use FpdiTrait {
-        writePdfType as fpdiWritePdfType;
-        useImportedPage as fpdiUseImportedPage;
-    }
 
     /**
      * FPDI version
@@ -156,11 +140,11 @@ class TcpdfFpdi extends \TCPDF
             $this->_put('endobj');
         }
 
-        foreach (\array_keys($this->readers) as $readerId) {
+        foreach (array_keys($this->readers) as $readerId) {
             $parser = $this->getPdfReader($readerId)->getParser();
             $this->currentReaderId = $readerId;
 
-            while (($objectNumber = \array_pop($this->objectsToCopy[$readerId])) !== null) {
+            while (($objectNumber = array_pop($this->objectsToCopy[$readerId])) !== null) {
                 try {
                     $object = $parser->getIndirectObject($objectNumber);
 
@@ -235,7 +219,7 @@ class TcpdfFpdi extends \TCPDF
         if ($value instanceof PdfString) {
             $string = PdfString::unescape($value->value);
             $string = $this->_encrypt_data($this->currentObjectNumber, $string);
-            $value->value = \TCPDF_STATIC::_escape($string);
+            $value->value = TCPDF_STATIC::_escape($string);
 
         } elseif ($value instanceof PdfHexString) {
             $filter = new AsciiHex();

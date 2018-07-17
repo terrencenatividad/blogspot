@@ -78,7 +78,7 @@ class PdfIndirectObject extends PdfType
      */
     public static function ensure($indirectObject)
     {
-        return PdfType::ensureType(self::class, $indirectObject, 'Indirect object expected.');
+        return PdfType::ensureType(__CLASS__, $indirectObject, 'Indirect object expected.');
     }
 
     /**

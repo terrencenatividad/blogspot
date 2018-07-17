@@ -87,7 +87,7 @@ class PdfStream extends PdfType
      */
     public static function ensure($stream)
     {
-        return PdfType::ensureType(self::class, $stream, 'Stream value expected.');
+        return PdfType::ensureType(__CLASS__, $stream, 'Stream value expected.');
     }
 
     /**
@@ -112,13 +112,13 @@ class PdfStream extends PdfType
      */
     public function getStream($cache = false)
     {
-        if (\is_int($this->stream)) {
+        if (is_int($this->stream)) {
             $length = PdfDictionary::get($this->value, 'Length');
             $this->reader->reset($this->stream, $length->value);
             if (!($length instanceof PdfNumeric) || $length->value === 0) {
                 while (true) {
                     $buffer = $this->reader->getBuffer(false);
-                    $length = \strpos($buffer, 'endstream');
+                    $length = strpos($buffer, 'endstream');
                     if (false === $length) {
                         if (!$this->reader->increaseLength(100000)) {
                             return false;
@@ -128,17 +128,17 @@ class PdfStream extends PdfType
                     break;
                 }
 
-                $buffer = \substr($buffer, 0, $length);
-                $lastByte = \substr($buffer, -1);
+                $buffer = substr($buffer, 0, $length);
+                $lastByte = substr($buffer, -1);
 
                 // Check for EOL
                 if ($lastByte === "\n") {
-                    $buffer = \substr($buffer, 0, -1);
+                    $buffer = substr($buffer, 0, -1);
                 }
 
-                $lastByte = \substr($buffer, -1);
+                $lastByte = substr($buffer, -1);
                 if ($lastByte === "\r") {
-                    $buffer = \substr($buffer, 0, -1);
+                    $buffer = substr($buffer, 0, -1);
                 }
 
             } else {
@@ -173,14 +173,14 @@ class PdfStream extends PdfType
         if ($filters instanceof PdfArray) {
             $filters = $filters->value;
         } else {
-            $filters = [$filters];
+            $filters = array($filters);
         }
 
         $decodeParams = PdfDictionary::get($this->value, 'DecodeParms');
         if ($decodeParams instanceof PdfArray) {
             $decodeParams = $decodeParams->value;
         } else {
-            $decodeParams = [$decodeParams];
+            $decodeParams = array($decodeParams);
         }
 
         foreach ($filters as $key => $filter) {
@@ -198,7 +198,7 @@ class PdfStream extends PdfType
                 case 'Fl':
                 case 'LZWDecode':
                 case 'LZW':
-                    if (\strpos($filter->value, 'LZW') === 0) {
+                    if (strpos($filter->value, 'LZW') === 0) {
                         $filterObject = new Lzw();
                     } else {
                         $filterObject = new Flate();
@@ -209,7 +209,7 @@ class PdfStream extends PdfType
                     if ($decodeParam instanceof PdfDictionary) {
                         $predictor = PdfDictionary::get($decodeParam, 'Predictor', PdfNumeric::create(1));
                         if ($predictor->value !== 1) {
-                            if (!\class_exists(Predictor::class)) {
+                            if (!class_exists(Predictor::class)) {
                                 throw new PdfParserException(
                                     'This PDF document makes use of features which are only implemented in the ' .
                                     'commercial "FPDI PDF-Parser" add-on (see https://www.setasign.com/fpdi-pdf-' .
@@ -253,7 +253,7 @@ class PdfStream extends PdfType
 
                 default:
                     throw new FilterException(
-                        \sprintf('Unsupported filter "%s".', $filter->value),
+                        sprintf('Unsupported filter "%s".', $filter->value),
                         FilterException::UNSUPPORTED_FILTER
                     );
             }

@@ -8,8 +8,6 @@
  * @version   2.0.3
  */
 
-namespace setasign\Fpdi\PdfParser\Filter;
-
 /**
  * Class for handling LZW encoded data
  *
@@ -25,7 +23,7 @@ class Lzw implements FilterInterface
     /**
      * @var array
      */
-    protected $sTable = [];
+    protected $sTable = array();
 
     /**
      * @var int
@@ -60,7 +58,7 @@ class Lzw implements FilterInterface
     /**
      * @var array
      */
-    protected $andTable = [511, 1023, 2047, 4095];
+    protected $andTable = array(511, 1023, 2047, 4095);
 
     /**
      * Method to decode LZW compressed data.
@@ -81,7 +79,7 @@ class Lzw implements FilterInterface
         $this->initsTable();
 
         $this->data = $data;
-        $this->dataLength = \strlen($data);
+        $this->dataLength = strlen($data);
 
         // Initialize pointers
         $this->bytePointer = 0;
@@ -131,10 +129,10 @@ class Lzw implements FilterInterface
      */
     protected function initsTable()
     {
-        $this->sTable = [];
+        $this->sTable = array();
 
         for ($i = 0; $i < 256; $i++) {
-            $this->sTable[$i] = \chr($i);
+            $this->sTable[$i] = chr($i);
         }
 
         $this->tIdx = 258;
@@ -174,11 +172,11 @@ class Lzw implements FilterInterface
             return 257;
         }
 
-        $this->nextData = ($this->nextData << 8) | (\ord($this->data[$this->bytePointer++]) & 0xff);
+        $this->nextData = ($this->nextData << 8) | (ord($this->data[$this->bytePointer++]) & 0xff);
         $this->nextBits += 8;
 
         if ($this->nextBits < $this->bitsToGet) {
-            $this->nextData = ($this->nextData << 8) | (\ord($this->data[$this->bytePointer++]) & 0xff);
+            $this->nextData = ($this->nextData << 8) | (ord($this->data[$this->bytePointer++]) & 0xff);
             $this->nextBits += 8;
         }
 

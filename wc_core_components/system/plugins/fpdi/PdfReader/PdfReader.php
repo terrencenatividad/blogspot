@@ -30,7 +30,7 @@ class PdfReader
      *
      * @var PdfIndirectObjectReference[]
      */
-    protected $pages = [];
+    protected $pages = array();
 
     /**
      * PdfReader constructor.
@@ -70,7 +70,7 @@ class PdfReader
      */
     public function getPdfVersion()
     {
-        return \implode('.', $this->parser->getPdfVersion());
+        return implode('.', $this->parser->getPdfVersion());
     }
 
     /**
@@ -100,15 +100,15 @@ class PdfReader
      */
     public function getPage($pageNumber)
     {
-        if (!\is_numeric($pageNumber)) {
-            throw new \InvalidArgumentException(
+        if (!is_numeric($pageNumber)) {
+            throw new InvalidArgumentException(
                 'Page number needs to be a number.'
             );
         }
 
         if ($pageNumber < 1 || $pageNumber > $this->getPageCount()) {
-            throw new \InvalidArgumentException(
-                \sprintf(
+            throw new InvalidArgumentException(
+                sprintf(
                     'Page number "%s" out of available page range (1 - %s)',
                     $pageNumber,
                     $this->getPageCount()
@@ -162,13 +162,13 @@ class PdfReader
      */
     protected function readPages()
     {
-        if (\count($this->pages) > 0) {
+        if (count($this->pages) > 0) {
             return;
         }
 
         $readPages = function ($kids, $count) use (&$readPages) {
             $kids = PdfArray::ensure($kids);
-            $isLeaf = $count->value === \count($kids->value);
+            $isLeaf = $count->value === count($kids->value);
 
             foreach ($kids->value as $reference) {
                 $reference = PdfIndirectObjectReference::ensure($reference);

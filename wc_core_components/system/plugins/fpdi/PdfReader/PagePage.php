@@ -88,15 +88,15 @@ class PagePage
             return $dict->value[$name];
         }
 
-        $inheritedKeys = ['Resources', 'MediaBox', 'CropBox', 'Rotate'];
-        if ($inherited && \in_array($name, $inheritedKeys, true)) {
+        $inheritedKeys = array('Resources', 'MediaBox', 'CropBox', 'Rotate');
+        if ($inherited && in_array($name, $inheritedKeys, true)) {
             if (null === $this->inheritedAttributes) {
-                $this->inheritedAttributes = [];
-                $inheritedKeys = \array_filter($inheritedKeys, function ($key) use ($dict) {
+                $this->inheritedAttributes = array();
+                $inheritedKeys = array_filter($inheritedKeys, function ($key) use ($dict) {
                     return !isset($dict->value[$key]);
                 });
 
-                if (\count($inheritedKeys) > 0) {
+                if (count($inheritedKeys) > 0) {
                     $parentDict = PdfType::resolve(PdfDictionary::get($dict, 'Parent'), $this->parser);
                     while ($parentDict instanceof PdfDictionary) {
                         foreach ($inheritedKeys as $index => $key) {
@@ -107,7 +107,7 @@ class PagePage
                         }
 
                         /** @noinspection NotOptimalIfConditionsInspection */
-                        if (isset($parentDict->value['Parent']) && \count($inheritedKeys) > 0) {
+                        if (isset($parentDict->value['Parent']) && count($inheritedKeys) > 0) {
                             $parentDict = PdfType::resolve(PdfDictionary::get($parentDict, 'Parent'), $this->parser);
                         } else {
                             break;
@@ -215,7 +215,7 @@ class PagePage
         }
 
         if ($contents instanceof PdfArray) {
-            $result = [];
+            $result = array();
             foreach ($contents->value as $content) {
                 $content = PdfType::resolve($content, $this->parser);
                 if (!($content instanceof PdfStream)) {
@@ -224,7 +224,7 @@ class PagePage
                 $result[] = $content->getUnfilteredStream();
             }
 
-            return \implode("\n", $result);
+            return implode("\n", $result);
         }
 
         if ($contents instanceof PdfStream) {

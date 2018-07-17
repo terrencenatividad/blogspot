@@ -37,6 +37,6 @@ class PdfNumeric extends PdfType
      */
     public static function ensure($value)
     {
-        return PdfType::ensureType(self::class, $value, 'Numeric value expected.');
+        return PdfType::ensureType(__CLASS__, $value, 'Numeric value expected.');
     }
 }

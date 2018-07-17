@@ -8,10 +8,6 @@
  * @version   2.0.3
  */
 
-namespace setasign\Fpdi\PdfParser\Type;
-
-use setasign\Fpdi\PdfParser\StreamReader;
-
 /**
  * Class representing a hexadecimal encoded PDF string object
  *
@@ -35,7 +31,7 @@ class PdfHexString extends PdfType
          */
         while (true) {
             $buffer = $streamReader->getBuffer(false);
-            $pos = \strpos($buffer, '>', $bufferOffset);
+            $pos = strpos($buffer, '>', $bufferOffset);
             if (false === $pos) {
                 if (!$streamReader->increaseLength()) {
                     return false;
@@ -46,7 +42,7 @@ class PdfHexString extends PdfType
             break;
         }
 
-        $result = \substr($buffer, $bufferOffset, $pos - $bufferOffset);
+        $result = substr($buffer, $bufferOffset, $pos - $bufferOffset);
         $streamReader->setOffset($pos + 1);
 
         $v = new self;
@@ -77,6 +73,6 @@ class PdfHexString extends PdfType
      */
     public static function ensure($hexString)
     {
-        return PdfType::ensureType(self::class, $hexString, 'Hex string value expected.');
+        return PdfType::ensureType(__CLASS__, $hexString, 'Hex string value expected.');
     }
 }

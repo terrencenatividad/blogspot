@@ -25,7 +25,7 @@ class PdfName extends PdfType
     public static function parse(Tokenizer $tokenizer, StreamReader $streamReader)
     {
         $v = new self;
-        if (\strspn($streamReader->getByte(), "\x00\x09\x0A\x0C\x0D\x20()<>[]{}/%") === 0) {
+        if (strspn($streamReader->getByte(), "\x00\x09\x0A\x0C\x0D\x20()<>[]{}/%") === 0) {
             $v->value = (string) $tokenizer->getNextToken();
             return $v;
         }
@@ -45,9 +45,11 @@ class PdfName extends PdfType
         if (false === strpos($value, '#'))
             return $value;
 
-        return preg_replace_callback('/#[a-fA-F\d]{2}/', function($matches) {
-            return chr(hexdec($matches[0]));
-        }, $value);
+        return preg_replace_callback('/#[a-fA-F\d]{2}/', 'self::check_matches', $value);
+    }
+
+    private static function check_matches($matches) {
+        return chr(hexdec($matches[0]));
     }
 
     /**
@@ -72,6 +74,6 @@ class PdfName extends PdfType
      */
     public static function ensure($name)
     {
-        return PdfType::ensureType(self::class, $name, 'Name value expected.');
+        return PdfType::ensureType(__CLASS__, $name, 'Name value expected.');
     }
 }

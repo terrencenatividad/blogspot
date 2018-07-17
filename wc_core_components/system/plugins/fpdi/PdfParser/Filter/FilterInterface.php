@@ -8,8 +8,6 @@
  * @version   2.0.3
  */
 
-namespace setasign\Fpdi\PdfParser\Filter;
-
 /**
  * Interface for filters
  *
