@@ -275,7 +275,8 @@ class controller extends wc_controller
 		$data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
 		// Header Data
-		$data["voucherno"]       	= $data["main"]->voucherno;
+		$voucherno 					= $data["main"]->voucherno;
+		$data["voucherno"]       	= $voucherno;
 		$data["referenceno"]     	= $data["main"]->referenceno;
 		$data["vendorcode"]      	= $data["main"]->vendor;
 		$data["exchangerate"]    	= $data["main"]->exchangerate;
@@ -310,6 +311,11 @@ class controller extends wc_controller
 
 		if (!empty($data_validate["vendor"]) && !empty($data_validate["document_date"])) 
 		{
+			$update_info['stat']		= 'open';
+			$update_condition			= "voucherno = '$voucherno'";
+			$updateTempRecord			= $this->payment_voucher->editData($update_info,"paymentvoucher",$update_condition);
+			$updateTempRecord			= $this->payment_voucher->editData($update_info,"pv_details",$update_condition);
+			// $updateTempRecord			= $this->payment_voucher->editData($update_info,"pv_application",$update_condition);
 
 			// For Admin Logs
 			$this->logs->saveActivity("Update Payment Voucher [$sid]");

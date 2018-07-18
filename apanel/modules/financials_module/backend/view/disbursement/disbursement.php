@@ -597,6 +597,7 @@
 															->setName("accountcode[".$row."]")
 															->setClass("accountcode")
 															->setId("accountcode[".$row."]")
+															->setAttribute(array($disable_code))
 															->setList($account_entry_list)
 															->setValue($accountcode)
 															->draw($show_input);
@@ -641,7 +642,7 @@
 
 											if( $show_input ){
 												$detail_row .= '<td class="text-center">';
-												$detail_row .= '	<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"><span class="glyphicon glyphicon-trash"></span></button>';
+												$detail_row .= '	<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"  '.$disable_code.'><span class="glyphicon glyphicon-trash"></span></button>';
 												$detail_row .= '</td>';
 											}
 
@@ -2336,7 +2337,7 @@
 			if(paymentmode == "cheque"){
 				// toggleCheckInfo(paymentmode);
 				// loadCheques();
-				// addAmounts();
+				addAmounts();
 			}
 
 			$("#paymentmode").removeAttr("disabled");
