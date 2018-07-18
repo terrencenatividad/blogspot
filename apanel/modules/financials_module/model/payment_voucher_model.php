@@ -461,7 +461,7 @@ class payment_voucher_model extends wc_model
 					->setGroupBy($groupby)
 					->runSelect($bool)
 					->getResult();
-		// echo $this->db->getQuery();
+
 		return $result;
 	}
 
@@ -655,7 +655,7 @@ class payment_voucher_model extends wc_model
 			}
 		}
 
-		$isExist						= $this->getValue($mainAppTable, array("stat"), "voucherno = '$voucherno' AND stat IN('posted','cancelled') ");
+		$isExist						= $this->getValue($mainAppTable, array("stat"), "voucherno = '$voucherno' AND stat IN ('posted','temporary','cancelled') ");
 		$status							= (!empty($isExist[0]->stat)) ? "open" : "temporary";
 		$valid 							= 0;
 
