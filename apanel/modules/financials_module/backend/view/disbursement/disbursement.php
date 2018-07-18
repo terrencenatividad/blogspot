@@ -478,7 +478,7 @@
 												->setSplit('', 'col-md-12')
 												->setName('debit['.$row.']')
 												->setId('debit['.$row.']')
-												->setClass("text-right  account_amount debit")
+												->setClass("text-right debit")
 												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($debit, 2))
 												->draw($show_input);
@@ -490,7 +490,7 @@
 												->setSplit('', 'col-md-12')
 												->setName('credit['.$row.']')
 												->setId('credit['.$row.']')
-												->setClass("text-right   credit")
+												->setClass("text-right account_amount  credit")
 												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($credit, 2))
 												->draw($show_input);
@@ -971,6 +971,7 @@
 				$(this).remove();
 			}
 		});
+		var total_payment = 0;
 		$('#entriesTable tbody tr select.accountcode').each(function() {
 			if (typeof checker['acc-' + $(this).val()] === 'undefined') {
 			} else {
@@ -979,10 +980,12 @@
 				if($(this).val() == ""){
 					ca = '0.00';
 				}
+				total_payment += ca;
 				$(this).closest('tr').find('.account_amount').val(addComma(ca));	
 				$(this).closest('tr').find('.h_accountcode').val($(this).val());	
 			}	
 		});
+		$('#total_payment').val(total_payment);
 	}
 
 	function recomputechequeamts(){
@@ -1809,7 +1812,7 @@
 				}
 			}
 		}
-			
+
 		if(valid > 0)
 		{
 			$("#payableForm #chequeAmountError").removeClass('hidden');
@@ -1840,6 +1843,9 @@
 		total_payment    	= total_payment.replace(/\,/g,'');
 		total_cheque    	= total_cheque.replace(/\,/g,'');
 
+		console.log("Total Payment = "+total_payment);
+		console.log("Total Cheque = "+total_cheque);
+
 		if(parseFloat(total_payment) == parseFloat(total_cheque))
 		{
 			$("#payableForm #paymentAmountError").addClass('hidden');
@@ -1868,7 +1874,7 @@
 		if(paymentmode == 'cheque')
 		{
 			valid	+= validateCheques();
-			valid	+= totalPaymentGreaterThanChequeAmount();
+			// valid	+= totalPaymentGreaterThanChequeAmount();
 		}
 
 		return valid;
@@ -2191,7 +2197,6 @@
 				
 				if(valid == 0){
 					var paymentmode = $('#paymentmode').val();
-					console.log(paymentmode);
 					if(paymentmode == 'cheque'){
 						valid 	+=	applySelected_();
 					}
