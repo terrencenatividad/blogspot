@@ -11,6 +11,7 @@ class controller extends wc_controller
 		$this->input            = new input();
 		$this->ui 			    = new ui();
 		$this->logs  			= new log;
+		$this->session			= new session();
 		$this->view->title      = 'Disbursement Voucher';
 		$this->show_input 	    = true;
 
@@ -1148,12 +1149,16 @@ class controller extends wc_controller
 				}else if($status == 'posted'){
 					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
 				}
-				
-				$show_btn 		= ($status == 'open' && $restrict_pv);
-				$show_edit 		= ($status == 'open' && $has_access[0]->mod_edit == 1 && $restrict_pv);
-				$show_dlt 		= ($status == 'open' && $has_access[0]->mod_delete == 1 && $restrict_pv);
-				$show_post 		= ($status == 'open' && $has_access[0]->mod_post == 1 && $restrict_pv);
-				$show_unpost 	= ($status == 'posted' && $has_access[0]->mod_unpost == 1 && $restrict_pv);
+
+				$login		= $this->session->get('login');
+				$groupname 	= $login['groupname'];
+				$has_access = $this->payment_voucher->retrieveAccess($groupname);
+
+				$show_btn 		= ($status == 'open' && $restrict_dv);
+				$show_edit 		= ($status == 'open' && $has_access[0]->mod_edit == 1 && $restrict_dv);
+				$show_dlt 		= ($status == 'open' && $has_access[0]->mod_delete == 1 && $restrict_dv);
+				$show_post 		= ($status == 'open' && $has_access[0]->mod_post == 1 && $restrict_dv);
+				$show_unpost 	= ($status == 'posted' && $has_access[0]->mod_unpost == 1 && $restrict_dv);
 
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()

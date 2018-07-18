@@ -478,7 +478,7 @@
 												->setSplit('', 'col-md-12')
 												->setName('debit['.$row.']')
 												->setId('debit['.$row.']')
-												->setClass("text-right debit")
+												->setClass("text-right  account_amount debit")
 												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($debit, 2))
 												->draw($show_input);
@@ -880,7 +880,6 @@
 			var accountcode = $(this).find('.accountcode').val();
 			var description = $(this).find('.description').val();
 			var debit		= $(this).find('.account_amount').val();
-			// console.log("ACCOUNTCODE = "+accountcode);
 			if(description!=""){
 				if (typeof acct_details[accountcode] === 'undefined') {
 					acct_details[accountcode] = "";
@@ -896,7 +895,6 @@
 				$(this).closest('tr').find('.description').val("");
 			} else {
 				var description = acct_details[$(this).val()] || "";
-				console.log("DESCRIPTION = "+description);
 				$(this).closest('tr').find('.description').val(description);	
 			}	
 		});
@@ -918,9 +916,6 @@
 				cheque_arr.push(account);
 			}
 		});
-
-		console.log(cheque_arr);
-
 		var row = 2;
 		cheque_arr.forEach(function(account) {
 			if( row == 2 ){
@@ -1002,7 +997,6 @@
 			checker['acc-' + account] += parseFloat(ca);
 		});
 	}
-
 	// Change event for chequeamount
 	$('#chequeTable .chequeamount').on('change', function() {
 		chequeamount = $(this).val();
@@ -1326,7 +1320,6 @@
 			{
 				if(task == 'create')
 				{
-					console.log("1");
 					$.post("<?=BASE_URL?>financials/disbursement/ajax/delete_row",{table:datatable,condition:condition})
 					.done(function( data ) 
 					{
@@ -1338,7 +1331,6 @@
 				}
 				else
 				{
-					console.log("2");
 					table.deleteRow(row);	
 					resetIds();
 					addAmountAll('debit');
@@ -1347,7 +1339,6 @@
 			}
 			else
 			{	
-				console.log("else");
 				resetIds();
 				
 				document.getElementById('accountcode['+row+']').value 			= '';
@@ -1361,7 +1352,6 @@
 		}
 		else
 		{
-			console.log("else 2");
 			if(rowCount > 2)
 			{
 				table.deleteRow(row);	
@@ -1720,7 +1710,7 @@
 
 		var table 	= document.getElementById('payable_list_container'); // app_payableList
 		var count	= table.rows.length;
-		// console.log(container);
+
 		var count_container = Object.keys(container).length;
 		amount = 0; 
 		discount = 0;
@@ -1880,6 +1870,8 @@
 			valid	+= validateCheques();
 			valid	+= totalPaymentGreaterThanChequeAmount();
 		}
+
+		return valid;
 	}
 
 	function getPayments(voucherno){
@@ -2077,15 +2069,9 @@
 			{	
 				if(data.msg == "success")
 				{
-					console.log("test");
 					table.deleteRow(row);
 					$('#deletePaymentModal').modal('hide');
 					location.reload();
-				}
-				else
-				{
-					console.log("else");
-					console.log(data.msg);
 				}
 			});
 		});
@@ -2155,15 +2141,9 @@
 			{	
 				if(data.msg == "success")
 				{
-					console.log("test");
 					table.deleteRow(row);
 					$('#deletePaymentModal').modal('hide');
 					location.reload();
-				}
-				else
-				{
-					console.log("else");
-					console.log(data.msg);
 				}
 			});
 		});
@@ -2211,7 +2191,7 @@
 				
 				if(valid == 0){
 					var paymentmode = $('#paymentmode').val();
-					/**validate accounts**/
+					console.log(paymentmode);
 					if(paymentmode == 'cheque'){
 						valid 	+=	applySelected_();
 					}
