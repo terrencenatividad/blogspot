@@ -119,12 +119,13 @@ class controller extends wc_controller
 			
 				$update_info				= array();
 				$update_info['voucherno']	= $generatedvoucher;
-				$update_info['stat']		= 'unposted';
+				$update_info['stat']		= 'open';
 				$update_condition			= "voucherno = '$voucherno'";
 				$updateTempRecord			= $this->payment_voucher->editData($update_info,"paymentvoucher",$update_condition);
 				$updateTempRecord			= $this->payment_voucher->editData($update_info,"pv_details",$update_condition);
-				$updateTempRecord			= $this->payment_voucher->editData($update_info,"pv_cheques",$update_condition);
-
+				
+				$update_cheque['voucherno']	= $generatedvoucher;
+				$updateTempRecord			= $this->payment_voucher->editData($update_cheque,"pv_cheques",$update_condition);
 			}
 			
 			if(empty($errmsg))
@@ -244,7 +245,7 @@ class controller extends wc_controller
 	{
 		$access				   	= $this->access->checkLockAccess('edit');
 		$data         		   	= $this->payment_voucher->retrieveEditData($sid);
-		
+	
 		$data["ui"]            	= $this->ui;
 		$data['show_input']    	= $this->show_input;
 		$data["task"] 		   	= "edit";
@@ -684,7 +685,7 @@ class controller extends wc_controller
 		$id 			= $this->input->post('id');
 		$type 			= $this->input->post('type');
 
-		$data['stat']	= ($type == 'yes') ? 'posted' : 'unposted';
+		$data['stat']	= ($type == 'yes') ? 'posted' : 'open';
 		$result 		= $this->payment_voucher->editData($data, "paymentvoucher", "voucherno = '$id'");
 		$type 			= ($type == 'yes') ? 'post' : 'unpost';
 
@@ -1059,7 +1060,8 @@ class controller extends wc_controller
 										->setList($account_entry_list)
 										->setValue($accountcode)
 										->draw($show_input).
-							'</td>';
+							'	<input type = "hidden" class="h_accountcode" name="h_accountcode['.$row.']" id="h_accountcode['.$row.']" value="'.$accountcode.'">
+							</td>';
 				$table .= 	'<td class = "remove-margin">'
 								.$ui->formField('text')
 									->setSplit('', 'col-md-12')
@@ -1141,35 +1143,39 @@ class controller extends wc_controller
 
 				$prevvno 		= $voucher;
 				$voucher_status = '<span class="label label-danger">'.strtoupper($status).'</span>';
-				if($status == 'unposted'){
+				if($status == 'open'){
 					$voucher_status = '<span class="label label-info">'.strtoupper($status).'</span>';
 				}else if($status == 'posted'){
 					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
 				}
 				
-				$show_edit 		= ($status == 'unposted');
+				$show_btn 		= ($status == 'open' && $restrict_pv);
+				$show_edit 		= ($status == 'open' && $has_access[0]->mod_edit == 1 && $restrict_pv);
+				$show_dlt 		= ($status == 'open' && $has_access[0]->mod_delete == 1 && $restrict_pv);
+				$show_post 		= ($status == 'open' && $has_access[0]->mod_post == 1 && $restrict_pv);
+				$show_unpost 	= ($status == 'posted' && $has_access[0]->mod_unpost == 1 && $restrict_pv);
 
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()
-							->addEdit($show_edit && $restrict_dv)
+							->addEdit($show_edit)
 							->addOtherTask(
 								'Post',
 								'thumbs-up',
-								$show_edit && $restrict_dv
+								$show_post
 							)
 							->addOtherTask(
 								'Unpost',
 								'thumbs-down',
-								($status == 'posted' && $restrict_dv)
+								$show_unpost
 							)
 							->addOtherTask(
 								'Cancel',
 								'ban-circle',
-								$show_edit && $restrict_dv
+								$show_btn
 							)
 							->addPrint()
-							->addDelete($show_edit && $restrict_dv)
-							->addCheckbox($show_edit && $restrict_dv)
+							->addDelete($show_dlt)
+							->addCheckbox($show_btn)
 							->setValue($voucher)
 							->draw();
 			
@@ -1291,4 +1297,17 @@ class controller extends wc_controller
 		return $csv;
 	}
 	
+	public function print_check($vno, $cno){
+		$print_chkdtl   = $this->payment_voucher->print_check($vno,$cno);
+		if ($print_chkdtl){
+			$this->logs->saveActivity("Print Check [$cno] on Voucherno  [$vno]");
+		}
+		$print_dtls = new print_check();
+
+		$print_dtls->setDocumentType('Payment Voucher')
+					->setDocumentInfo($print_chkdtl)
+					->drawPDF('pv_voucher_' . $vno);
+		
+		
+	}
 }
