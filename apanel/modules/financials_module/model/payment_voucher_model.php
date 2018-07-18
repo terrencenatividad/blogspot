@@ -658,7 +658,7 @@ class payment_voucher_model extends wc_model
 		$isExist						= $this->getValue($mainAppTable, array("stat"), "voucherno = '$voucherno' AND stat IN ('posted','temporary','cancelled') ");
 		$status							= (!empty($isExist[0]->stat)) ? "open" : "temporary";
 		$valid 							= 0;
-
+		
 		$transactiondate				= $this->date->dateDbFormat($transactiondate); 
 		$period							= date("n",strtotime($transactiondate));
 		$fiscalyear						= date("Y",strtotime($transactiondate));

@@ -381,7 +381,6 @@ class controller extends wc_controller
 			$updateTempRecord			= $this->payment_voucher->editData($update_info,"paymentvoucher",$update_condition);
 			$updateTempRecord			= $this->payment_voucher->editData($update_info,"pv_details",$update_condition);
 			$updateTempRecord			= $this->payment_voucher->editData($update_info,"pv_application",$update_condition);
-			$updateTempRecord			= $this->payment_voucher->editData($update_info,"pv_cheques",$update_condition);
 
 			$this->update_app($data_validate["h_check_rows_"]);
 
