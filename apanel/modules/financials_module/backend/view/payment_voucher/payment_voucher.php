@@ -3070,6 +3070,7 @@ $(document).ready(function() {
 
 			}
 		}
+		resetIds();
 		$('#deleteChequeModal').modal('hide');
 	});
 
@@ -3355,7 +3356,7 @@ $(document).ready(function() {
 				valid 	+=	applySelected_();
 			}
 			valid		+= validateDetails();
-				console.log("VALID = "+valid);
+			console.log("VALID = "+valid);
 			
 			if(valid == 0)
 			{
