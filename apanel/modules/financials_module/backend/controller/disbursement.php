@@ -674,28 +674,48 @@ class controller extends wc_controller
 		return $dataArray;
 	}
 
-	private function ajax_update()
-	{
+	private function ajax_post() {
 		$id 			= $this->input->post('id');
 		$type 			= $this->input->post('type');
 
-		$data['stat']	= ($type == 'yes') ? 'posted' : 'open';
+		$data['stat']	= "posted";
 		$result 		= $this->payment_voucher->editData($data, "paymentvoucher", "voucherno = '$id'");
-		$type 			= ($type == 'yes') ? 'post' : 'unpost';
+		$type 			= 'post';
 
 		if($result){
 			$this->payment_voucher->editData($data, "pv_details", "voucherno = '$id'");
 			$code 	= 1; 
-			$msg 	= "Successfully ".$type."ed voucher ".$id;
+			$msg 	= "Successfully Posted voucher ".$id;
 		}else{
 			$code 	= 0; 
-			$msg 	= "Sorry, the system was unable to ".$type." the voucher.";
+			$msg 	= "Sorry, the system was unable to Post the voucher.";
 		}
 
 		$dataArray = array("code" => $code,"msg"=> $msg );
 		return $dataArray;
 	}
 
+	private function ajax_unpost() {
+		$id 			= $this->input->post('id');
+		$type 			= $this->input->post('type');
+
+		$data['stat']	= "open";
+		$result 		= $this->payment_voucher->editData($data, "paymentvoucher", "voucherno = '$id'");
+		$type 			= 'unpost';
+
+		if($result){
+			$this->payment_voucher->editData($data, "pv_details", "voucherno = '$id'");
+			$code 	= 1; 
+			$msg 	= "Successfully Unposted voucher ".$id;
+		}else{
+			$code 	= 0; 
+			$msg 	= "Sorry, the system was unable to Unpost the voucher.";
+		}
+
+		$dataArray = array("code" => $code,"msg"=> $msg );
+		return $dataArray;
+	}
+	
 	private function get_value()
 	{
 		$data_cond = $this->input->post("event");
