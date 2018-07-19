@@ -82,7 +82,7 @@ class controller extends wc_controller {
 			    $invoicedate	= $pagination->result[$i]->invoicedate;
 			    $reference		= $pagination->result[$i]->reference;
 			
-				$paymentamount_fetch	= $this->ap_aging->getValue("pv_application","SUM(amount) as amount","apvoucherno = '$voucher' AND stat = 'posted' AND entereddate <= '$datefilter 11:59:59' "); 
+				$paymentamount_fetch	= $this->ap_aging->getValue("pv_application","SUM(amount) as amount","apvoucherno = '$voucher' AND stat = 'posted' AND entereddate <= '$datefilter 23:59:59' "); 
 			
 				$paymentamount 	= $paymentamount_fetch[0]->amount;
 				$paymentamount	= (!empty($paymentamount)) ? $paymentamount : 0;
@@ -200,7 +200,7 @@ class controller extends wc_controller {
 				$source			= $row->source;
 			    $invoicedate	= $row->invoicedate;
 				
-				$paymentamount_fetch= $this->ap_aging->getValue("pv_application","SUM(amount) as amount","apvoucherno = '$voucher' AND stat = 'posted' AND entereddate <= '$datefilter 11:59:59' "); 
+				$paymentamount_fetch= $this->ap_aging->getValue("pv_application","SUM(amount) as amount","apvoucherno = '$voucher' AND stat = 'posted' AND entereddate <= '$datefilter 23:59:59' "); 
 				
 				$paymentamount 		= $paymentamount_fetch[0]->amount;
 				$paymentamount		= (!empty($paymentamount)) ? $paymentamount : 0;

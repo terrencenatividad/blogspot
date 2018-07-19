@@ -34,8 +34,8 @@ class ap_aging extends wc_model {
 							  
 		$query_table    = "accountspayable as ap";
 		
-		$query_condition .= " AND ((select COALESCE(SUM(app.amount),0) from pv_application app where app.apvoucherno = ap.voucherno AND app.stat = 'posted' AND app.entereddate <= '$date 11:59:59' ) < ap.amount) "; 
-		$query_condition .= (!empty($startdate)) ? " AND  ap.transactiondate <= '$date'  " : "";
+		$query_condition .= " AND ((select COALESCE(SUM(app.amount),0) from pv_application app where app.apvoucherno = ap.voucherno AND app.stat = 'posted' AND app.entereddate <= '$date 23:59:59' ) < ap.amount) "; 
+		$query_condition .= (!empty($date)) ? " AND  ap.transactiondate <= '$date'  " : "";
 
 		$query_condition .= (!empty($partnerfilter) && $partnerfilter != 'none') ? " AND ap.vendor = '$partnerfilter' " : "";
 		
@@ -62,7 +62,7 @@ class ap_aging extends wc_model {
 							  
 		$query_table    = "accountspayable as ap";
 		
-		$query_condition .= " AND ((select COALESCE(SUM(app.amount),0) from pv_application app where app.apvoucherno = ap.voucherno AND app.stat = 'posted' AND app.entereddate <= '$date 11:59:59' ) < ap.amount) ";
+		$query_condition .= " AND ((select COALESCE(SUM(app.amount),0) from pv_application app where app.apvoucherno = ap.voucherno AND app.stat = 'posted' AND app.entereddate <= '$date 23:59:59' ) < ap.amount) ";
 		$query_condition .= (!empty($date)) ? " AND ap.transactiondate <= '$date' " : "";
 		
 		$query_condition .= (!empty($partnerfilter) && $partnerfilter != 'none') ? " AND ap.vendor = '$partnerfilter' " : "";
