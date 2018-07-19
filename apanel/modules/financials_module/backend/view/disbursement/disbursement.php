@@ -2091,16 +2091,23 @@
 			var valid		= 1;
 			var rowindex	= table.rows[row];
 
-			if($('#chequeaccount\\['+row+'\\]').val() != '')
-			{
-				if(rowCount > 1)
-				{
-					table.deleteRow(row);	
+			var account 	= $('#chequeaccount\\['+row+'\\]').val();
+			var acctamt 	= $('#chequeamount\\['+row+'\\]').val();
+
+			if($('#chequeaccount\\['+row+'\\]').val() != '') {
+				// console.log(checker);
+				if(rowCount > 1) {
+					table.deleteRow(row);
+					checker['acc-'+account] 	-=	acctamt;	
+					
+					storedescriptionstoarray();
+					recomputechequeamts();
+					acctdetailamtreset();
 					resetChequeIds();
 					addAmounts();
-				}
-				else
-				{	
+					addAmountAll('debit');
+					addAmountAll('credit');
+				} else {	
 					document.getElementById('chequeaccount['+row+']').value 	= '';
 
 					$('#chequeaccount\\['+row+'\\]').trigger("change.select2");
@@ -2109,19 +2116,26 @@
 					document.getElementById('chequedate['+row+']').value 		= '<?= $transactiondate ?>';//today();
 					document.getElementById('chequeamount['+row+']').value 		= '0.00';
 					
+					checker['acc-'+account] 	-=	acctamt;	
+					storedescriptionstoarray();
+					recomputechequeamts();
+					acctdetailamtreset();
 					addAmounts();
+					addAmountAll('debit');
+					addAmountAll('credit');
 				}
-			}
-			else
-			{
-				if(rowCount > 1)
-				{
+			} else {
+				if(rowCount > 1) {
 					table.deleteRow(row);	
+					checker['acc-'+account] 	-=	acctamt;	
+					storedescriptionstoarray();
+					recomputechequeamts();
+					acctdetailamtreset();
 					resetChequeIds();
 					addAmounts();
-				}
-				else
-				{
+					addAmountAll('debit');
+					addAmountAll('credit');
+				} else {
 					document.getElementById('chequeaccount['+row+']').value 	= '';
 					
 					$('#chequeaccount\\['+row+'\\]').trigger("change.select2");
@@ -2129,12 +2143,20 @@
 					document.getElementById('chequenumber['+row+']').value 		= '';
 					document.getElementById('chequedate['+row+']').value 		= '<?= $transactiondate ?>';//today();
 					document.getElementById('chequeamount['+row+']').value 		= '0.00';
+					
+					checker['acc-'+account] 	-=	acctamt;
+					storedescriptionstoarray();	
+					recomputechequeamts();
+					acctdetailamtreset();
 					addAmounts();
+					addAmountAll('debit');
+					addAmountAll('credit');
+
 				}
 			}
+			resetIds();
 			$('#deleteChequeModal').modal('hide');
 		});
-
 		/**DELETE RECEIVED PAYMENT : START**/
 		$('#deletePaymentModal #btnYes').click(function()  {
 			var invoice		= $("#invoiceno\\[1\\]").val();
