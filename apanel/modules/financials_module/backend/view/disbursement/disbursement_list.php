@@ -3,17 +3,6 @@
 		<div class="box-header">
 			<div class="row">
 				<div class = "col-md-8">
-					<!-- <div class="btn-group"> -->
-						<!-- <a href="<?= MODULE_URL ?>create" class="btn btn-primary">Create Disbursement Voucher</a>
-						<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							<span class="caret"></span>
-							<span class="sr-only">Toggle Dropdown</span>
-						</button> -->
-						<!-- <ul class="dropdown-menu"> -->
-							<!-- <li><a href="<?= MODULE_URL ?>get_export" id="export_table" download="Disbursement Voucher.csv"><i class="glyphicon glyphicon-open"></i>Export Voucher/s</a></li> -->
-							<!--<li><a href="#import-modal" data-toggle="modal"><i class="glyphicon glyphicon-save"></i>Import Voucher/s</a></li>-->
-						<!-- </ul> -->
-					<!-- </div> -->
 					<?
 						echo $ui->CreateNewButton('');
 						// echo $ui->OptionButton('');
@@ -80,7 +69,7 @@
 	<div class="nav-tabs-custom">
 		<ul id="filter_tabs" class="nav nav-tabs">
 			<li class="active"><a href="all" data-toggle="tab">All</a></li>
-			<li><a href="unposted" data-toggle="tab">Unposted</a></li>
+			<li><a href="open" data-toggle="tab">Unposted</a></li>
 			<li><a href="posted" data-toggle="tab">Posted</a></li>
 			<li><a href="cancelled" data-toggle="tab">Cancelled</a></li>
 		</ul>
