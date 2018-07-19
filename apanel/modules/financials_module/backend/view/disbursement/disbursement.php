@@ -1270,18 +1270,28 @@
 		{  
 			var inputs 		= document.getElementById(field+'['+i+']');
 			var disables 	= document.getElementById(notfield+'['+i+']');
-			
+			var is_cheque   = $("#"+field+"\\["+i+"\\]").hasClass("cheque");
 			if(document.getElementById(notfield+'['+i+']')!=null)
 			{          
 				if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
 				{                            
 					inData = inputs.value.replace(/,/g,'');
-					disables.readOnly = true;
+					if(is_cheque){
+						inputs.readOnly   = true;
+						disables.readOnly = true;
+					}else {
+						disables.readOnly = true;
+					}
 				}
 				else
 				{             
 					inData = 0;
-					disables.readOnly = false;
+					if(is_cheque){
+						inputs.readOnly   = true;
+						disables.readOnly = true;
+					}else {
+						disables.readOnly = false;
+					}
 				} 
 
 				sum = parseFloat(sum) + parseFloat(inData);
