@@ -35,7 +35,7 @@ class ar_aging extends wc_model {
 							  
 		$query_table    = "accountsreceivable as ar";
 
-		$query_condition .= " AND ((select COALESCE(SUM(app.amount),0) from rv_application app where app.arvoucherno = ar.voucherno AND app.stat = 'posted' AND app.entereddate <= '$date 11:59:59' ) < ar.amount) ";					 
+		$query_condition .= " AND ((select COALESCE(SUM(app.amount),0) from rv_application app where app.arvoucherno = ar.voucherno AND app.stat = 'posted' AND app.entereddate <= '$date 23:59:59' ) < ar.amount) ";					 
 		$query_condition .= (!empty($date)) ? " AND ar.transactiondate <= '$date'  " : "";
 	
 		$query_condition .= (!empty($partnerfilter) && $partnerfilter != 'none') ? " AND ar.customer = '$partnerfilter' " : "";
@@ -63,7 +63,7 @@ class ar_aging extends wc_model {
 							  
 		$query_table    = "accountsreceivable as ar";
 		
-		$query_condition .= " AND ((select COALESCE(SUM(app.amount),0) from rv_application app where app.arvoucherno = ar.voucherno AND app.stat = 'posted' AND app.entereddate <= '$date 11:59:59' ) < ar.amount) ";					 
+		$query_condition .= " AND ((select COALESCE(SUM(app.amount),0) from rv_application app where app.arvoucherno = ar.voucherno AND app.stat = 'posted' AND app.entereddate <= '$date 23:59:59' ) < ar.amount) ";					 
 		$query_condition .= (!empty($date)) ? " AND ar.transactiondate <= '$date' " : "";
 		
 		$query_condition .= (!empty($customer) && $customer != 'none') ? " AND ar.customer = '$customer' " : "";
