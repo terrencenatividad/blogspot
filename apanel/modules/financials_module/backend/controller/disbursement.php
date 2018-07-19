@@ -368,7 +368,7 @@ class controller extends wc_controller
 
 		// Retrieval of Voucher Status //
 		$pv_v 		  = "";
-		$pv_voucherno = $this->payment_voucher->getValue("pv_application", array("voucherno"), "voucherno = '$voucherno'");
+		// $pv_voucherno = $this->payment_voucher->getValue("pv_application", array("voucherno"), "voucherno = '$voucherno'");
 		$ap_voucher   = $this->payment_voucher->getValue("pv_details", array("apvoucherno"), "voucherno = '$voucherno'","","","apvoucherno" );
 		
 		foreach ($ap_voucher as $row) {
@@ -376,61 +376,48 @@ class controller extends wc_controller
 		}
 		$ap =  implode("','" , $apvoucher);
 		$ap_no = "('".$ap."')";
-		$ap_amount    = $this->payment_voucher->getValue("accountspayable", array("SUM(amount) total_amount"), "voucherno IN $ap_no" );
-		$total_amount = $ap_amount[0]->total_amount;
-		$amount = $paymentArray[0]->amount;
-		$balance = $total_amount - $amount;
-		
-		if($balance != $amount && $balance != 0)
-		{
-			$voucher_status = 'PARTIAL';
-		}
-		else if($balance != 0)
-		{
-			$voucher_status = 'UNPAID';
-		}
-		else
-		{
-			$voucher_status = 'PAID';
-		}
 
 		$chequeArray = "";
-		if(!empty($pv_voucherno))
+		if(!empty($ap_voucher))
 		{
-			for($p = 0; $p < count($pv_voucherno); $p++)
-			{
-				$pv_v .= "'".$pv_voucherno[$p]->voucherno."',";
-			}
+			// for($p = 0; $p < count($pv_voucherno); $p++)
+			// {
+			// 	$pv_v .= "'".$pv_voucherno[$p]->voucherno."',";
+			// }
 		
-			$pv_v = rtrim($pv_v, ", ");
+			// $pv_v = rtrim($pv_v, ", ");
+
+			// echo $pv_v;
 			
 			$cheque_table = "pv_cheques pvc";
 			$cheque_fields = array("pv.referenceno referenceno", "CONCAT(segment5, ' - ', accountname) AS accountname", "pvc.chequenumber AS chequenumber", "pvc.chequedate AS chequedate", "pvc.chequeamount AS chequeamount");
-			$cheque_cond = "pvc.voucherno IN($pv_v) " ;
+			$cheque_cond = "pvc.voucherno  = '$voucherno'" ;
 			$cheque_join = "chartaccount chart ON pvc.chequeaccount = chart.id LEFT JOIN paymentvoucher pv ON pv.voucherno = pvc.voucherno" ;
 			$cheque_group = "pvc.chequenumber";
 			$chequeArray = $this->payment_voucher->retrieveData($cheque_table, $cheque_fields, $cheque_cond, $cheque_join);
 			$chequeArray_2 = $this->payment_voucher->retrieveData($cheque_table, $cheque_fields, $cheque_cond, $cheque_join,"");
 		}
 
+		// var_dump($chequeArray);
+
 		// Retrieve Applied Payment //
-		$p_table = "pv_application pv";
-		$p_fields = array("apvoucherno voucherno", "pv.amount amount", "ap.referenceno si_no", "pv.discount discount") ;
-		$p_cond = "pv.voucherno IN($pv_v) " ;
-		$p_join = "accountspayable ap ON pv.apvoucherno = ap.voucherno" ;
-		$appliedpaymentArray = $this->payment_voucher->retrieveData($p_table, $p_fields, $p_cond, $p_join);
+		// $p_table = "pv_application pv";
+		// $p_fields = array("apvoucherno voucherno", "pv.amount amount", "ap.referenceno si_no", "pv.discount discount") ;
+		// $p_cond = "pv.voucherno IN($pv_v) " ;
+		// $p_join = "accountspayable ap ON pv.apvoucherno = ap.voucherno" ;
+		// $appliedpaymentArray = $this->payment_voucher->retrieveData($p_table, $p_fields, $p_cond, $p_join);
 		
 		// Setting for PDFs
 		$print = new print_voucher_model('P', 'mm', 'Letter');
-		$print->setDocumentType('Payment Voucher')
+		$print->setDocumentType('Disbursement Voucher')
 				->setDocumentInfo($documentinfo[0])
 				->setVendor($vendor)
-				->setVoucherStatus($voucher_status)
-				->setPayments($chequeArray_2)
+				// ->setVoucherStatus($voucher_status)
+				// ->setPayments($chequeArray_2)
 				->setDocumentDetails($documentdetails)
 				->setCheque($chequeArray)
-				->setAppliedPayment($appliedpaymentArray)
-				->drawPDF('pv_voucher_' . $voucherno);
+				// ->setAppliedPayment($appliedpaymentArray)
+				->drawPDF('dv_voucher_' . $voucherno);
 	}
 
 	public function ajax($task) {

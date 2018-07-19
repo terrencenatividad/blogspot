@@ -98,10 +98,10 @@ class print_voucher_model extends fpdf {
 		$documentinfo	= $this->documentinfo;
 		if ($documentinfo) {
 			$document_type	= $this->document_type;
-		$transactiondate	= isset($documentinfo->documentdate) ? 	date("M d, Y",strtotime($documentinfo->documentdate)) 	: "";
+			$transactiondate	= isset($documentinfo->documentdate) ? 	date("M d, Y",strtotime($documentinfo->documentdate)) 	: "";
 			$voucherno		= $documentinfo->voucherno;
 			$referenceno	= isset($documentinfo->referenceno) ? $documentinfo->referenceno : '';
-			$amount			= $documentinfo->amount;
+			$amount			= (isset($documentinfo->amount) && $documentinfo->amount!="") 	? 	$documentinfo->amount 	: 	$documentinfo->pvamount;
 		} else if (DEBUGGING) {
 			echo 'Please use setDocumentInfo() to set Header Information';
 			exit();
@@ -282,6 +282,8 @@ class print_voucher_model extends fpdf {
 			$this->Cell(50, 6, number_format($totalpayment, 2), 0, 0, 'R');
 			$this->Cell(50, 6, number_format($totaldiscount, 2), 0, 0, 'R');
 			$this->Ln(10);
+		} else {
+			//add total payment here. 
 		}
 
 		$this->SetFont('Arial', 'B', '9');
