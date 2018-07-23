@@ -218,7 +218,7 @@ class controller extends wc_controller
 		$login		= $this->session->get('login');
 		$groupname 	= $login['groupname'];
 		
-		$has_access = $this->payment_voucher->retrieveAccess($groupname);
+		$has_access = $this->payment_voucher->retrieveAccess($groupname, "Payment Voucher");
 		$data['has_access'] 		= $has_access[0]->mod_edit;
 		$data["ui"]   			   	= $this->ui;
 		$data['show_input'] 	   	= false;
@@ -1228,7 +1228,7 @@ class controller extends wc_controller
 		$login		= $this->session->get('login');
 		$groupname 	= $login['groupname'];
 		
-		$has_access = $this->payment_voucher->retrieveAccess($groupname);
+		$has_access = $this->payment_voucher->retrieveAccess($groupname, "Payment Voucher");
 		
 		$table  	= "";
 
