@@ -180,6 +180,12 @@ class controller extends wc_controller
 		$vendor_details 		   	= $this->payment_voucher->getValue("partners", "partnername"," partnertype = 'supplier' AND partnercode = '".$data["main"]->vendor."'", "");
 		$transactiondate 			= $data["main"]->transactiondate;
 		$restrict_dv 				= $this->restrict->setButtonRestriction($transactiondate);
+
+		$login						= $this->session->get('login');
+		$groupname 					= $login['groupname'];
+		$has_access 				= $this->payment_voucher->retrieveAccess($groupname, "Disbursement Voucher");
+		$data['has_access'] 		= $has_access[0]->mod_edit;
+
 		$data["voucherno"]         	= $data["main"]->voucherno;
 		$data["vendorcode"]        	= $vendor_details[0]->partnername;
 		$data["v_convertedamount"] 	= $data["main"]->convertedamount;
@@ -304,7 +310,8 @@ class controller extends wc_controller
 		$data['sum_discount'] 	= $sum_discount;
 		$data['payments'] 		= json_encode($payments);
 
-		$data['restrict_dv'] 	= false;
+		$data['restrict_dv'] 	= true;	
+		$data['has_access'] 	= 0;
 
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
@@ -1165,7 +1172,7 @@ class controller extends wc_controller
 
 				$login		= $this->session->get('login');
 				$groupname 	= $login['groupname'];
-				$has_access = $this->payment_voucher->retrieveAccess($groupname);
+				$has_access = $this->payment_voucher->retrieveAccess($groupname, "Disbursement Voucher");
 
 				$show_btn 		= ($status == 'open' && $restrict_dv);
 				$show_edit 		= ($status == 'open' && $has_access[0]->mod_edit == 1 && $restrict_dv);

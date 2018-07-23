@@ -212,6 +212,7 @@
 												->setClass("text-right chequeamount")
 												->setName('chequeamount[1]')
 												->setId('chequeamount[1]')
+												->setValidation('decimal')
 												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
 												->setValue("0.00")
 												->draw(true);
@@ -287,6 +288,7 @@
 													->setClass("chequeamount text-right")
 													->setName('chequeamount['.$row.']')
 													->setId('chequeamount['.$row.']')
+													->setValidation('decimal')
 													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
 													->setValue(number_format($chequeamount,2))
 													->draw($show_input);
@@ -417,6 +419,12 @@
 			<div class="panel panel-default" id="accounting_details">
 				<div class="panel-heading">
 					<strong>Accounting Details</strong>
+				</div>
+				<div class="has-error">
+					<span id="totalAmountError" class="help-block hidden small">
+						<i class="glyphicon glyphicon-exclamation-sign"></i> 
+						The total Debit Amount and Credit Amount must match.
+					</span>
 				</div>
 				<div class="table-responsive">
 					<table class="table table-hover table-condensed " id="entriesTable">
@@ -708,7 +716,7 @@
 					<?endif;?>
 					&nbsp;
 					<?
-					if($status == 'open' && !$show_input && $restrict_dv){
+					if(($status == 'open' && $has_access == 1) && $restrict_dv){
 						echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
 					}
 					?>
@@ -862,6 +870,8 @@
 		newid 		= parseFloat(newid);
 
 	var task 		= '<?= $task ?>';
+
+	var min_row 	=	2;
 	
 	// Get Initial Clone of First Row. In this case, disabled cheque entries. 
 	var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
@@ -1063,6 +1073,34 @@
 		}
 	}
 
+	function resetIds() {
+		var table 	= document.getElementById('entriesTable');
+		var count	= table.rows.length - 3;
+
+		x = 1;
+		for(var i = 1;i <= count;i++) {
+			var row = table.rows[i];
+			
+			row.cells[0].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
+			row.cells[0].getElementsByTagName("input")[0].id 	= 'h_accountcode['+x+']';
+			row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
+			row.cells[2].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
+			row.cells[3].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
+			
+			row.cells[0].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
+			row.cells[0].getElementsByTagName("input")[0].name 	= 'h_accountcode['+x+']';
+			row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
+			row.cells[2].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
+			row.cells[3].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
+			
+			row.cells[4].getElementsByTagName("button")[0].setAttribute('id',x);
+			row.cells[0].getElementsByTagName("select")[0].setAttribute('data-id',x);
+			row.cells[4].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
+
+			x++;
+		}
+	}
+
 	function resetChequeIds() {
 		var table 	= document.getElementById('chequeTable');
 		var count	= table.rows.length - 2;
@@ -1095,7 +1133,6 @@
 		}
 
 	}
-
 	/**SET TABLE ROWS TO DEFAULT VALUES**/
 	function setZero() {
 		resetIds();
@@ -1120,6 +1157,7 @@
 
 		var table 		= document.getElementById('chequeTable');
 		var newid 		= table.rows.length - 2;
+
 		var account		= document.getElementById('chequeaccount['+newid+']');
 
 		if(document.getElementById('chequeaccount['+newid+']')!=null)
@@ -1127,6 +1165,8 @@
 			document.getElementById('chequeaccount['+newid+']').value 	= '';
 			document.getElementById('chequenumber['+newid+']').value 	= '';
 			document.getElementById('chequeamount['+newid+']').value 	= '0.00';
+
+			$('#chequeaccount\\['+newid+'\\]').trigger("change.select2");
 		}
 	}
 
@@ -1445,12 +1485,13 @@
 			
 			if(parseFloat(total_debit) != parseFloat(total_credit))
 			{
-				$("#payableForm #detailTotalError").removeClass('hidden');
+				$("#accounting_details #totalAmountError").removeClass('hidden');
+				$('#entriesTable .clone').addClass('has-error');
 				valid1 = 1;
 			}
 			else
 			{
-				$("#payableForm #detailTotalError").addClass('hidden');
+				$("#payableForm #totalAmountError").addClass('hidden');
 
 				if(parseFloat(total_amount) > 0)
 				{
@@ -1546,10 +1587,19 @@
 		} else {
 			//For Reseting initial PV & Cheque Details
 			clearChequePayment();
-			getPVDetails();
+			storedescriptionstoarray();
+			recomputechequeamts();
+			acctdetailamtreset();
+			addAmounts();
+			clear_acct_input();
 			$("#payableForm #cheque_details").addClass('hidden');
-			$('#totalcheques').val(0);
-			formatNumber('totalcheques');
+
+			var curr_acctg_rows 	=	$('#entriesTable #ap_items>tr').length;
+
+			if(curr_acctg_rows < min_row){
+				$('.add-entry').click();
+			}
+
 		}
 	}
 
@@ -1570,6 +1620,7 @@
 	}
 
 	function clearChequePayment(){
+		checker 	= 	[];
 		$('#tbody_cheque .clone').each(function(index) {
 			accounts = accounts.splice(1,1);
 			if (index > 0) {
@@ -1770,8 +1821,6 @@
 
 		subtotal	= Math.round(1000*subtotal)/1000;
 		subdiscount	= Math.round(1000*subdiscount)/1000;
-		// document.getElementById('total_payment').value 		= addCommas(subtotal.toFixed(2));	
-		// document.getElementById('total_discount').value 	= addCommas(subdiscount.toFixed(2));	
 	}
 
 	function validateCheques(){
@@ -2127,6 +2176,7 @@
 					document.getElementById('chequeamount['+row+']').value 		= '0.00';
 					
 					checker['acc-'+account] 	-=	acctamt;	
+
 					storedescriptionstoarray();
 					recomputechequeamts();
 					acctdetailamtreset();
@@ -2558,7 +2608,6 @@
 				}
 			});
 			
-			setChequeZero()
 			clearChequePayment();
 
 			$('#change_vendor_modal').modal('hide');
@@ -2597,21 +2646,6 @@
 						}
 					});
 				} 
-				// else if( payable == "[]"){
-				// 	bootbox.dialog({
-				// 		message: "Please tag payables first.",
-				// 		title: "Oops!",
-				// 			buttons: {
-				// 			yes: {
-				// 			label: "OK",
-				// 			className: "btn-primary btn-flat",
-				// 			callback: function(result) {
-				// 					clear_acct_input();
-				// 				}
-				// 			}
-				// 		}
-				// 	});
-				// }
 			}
 		});
 	}); // end
