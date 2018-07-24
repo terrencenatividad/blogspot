@@ -124,6 +124,11 @@ class ui {
 		return $this;
 	}
 
+	public function setMaxLength($maxlength) {
+		$this->attribute['maxlength'] = $maxlength;
+		return $this;
+	}
+
 	public function draw($draw = true) {
 		$this->draw = $draw;
 		$label = $this->createLabel();
