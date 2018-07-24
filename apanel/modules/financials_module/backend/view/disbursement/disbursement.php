@@ -491,7 +491,7 @@
 								<td>
 									<?php
 										echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
+												->setSplit('', 'col-md-12 field_col')
 												->setName('debit['.$row.']')
 												->setId('debit['.$row.']')
 												->setClass("text-right debit")
@@ -503,7 +503,7 @@
 								<td>
 									<?php
 										echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
+												->setSplit('', 'col-md-12 field_col')
 												->setName('credit['.$row.']')
 												->setId('credit['.$row.']')
 												->setClass("text-right account_amount  credit")
@@ -551,7 +551,7 @@
 								<td>
 									<?php
 										echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
+												->setSplit('', 'col-md-12 field_col')
 												->setName('debit['.$row.']')
 												->setId('debit['.$row.']')
 												->setClass("text-right debit")
@@ -563,7 +563,7 @@
 								<td>
 									<?php
 										echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
+												->setSplit('', 'col-md-12 field_col')
 												->setName('credit['.$row.']')
 												->setClass("text-right account_amount credit")
 												->setId('credit['.$row.']')
@@ -634,7 +634,7 @@
 
 											$detail_row	.= '<td class="text-right">';
 											$detail_row .= $ui->formField('text')
-															->setSplit('', 'col-md-12')
+															->setSplit('', 'col-md-12 field_col')
 															->setName('debit['.$row.']')
 															->setClass("debit text-right $indicator")
 															->setId('debit['.$row.']')
@@ -646,7 +646,7 @@
 
 											$detail_row	.= '<td class="text-right">';
 											$detail_row .= $ui->formField('text')
-															->setSplit('', 'col-md-12')
+															->setSplit('', 'col-md-12 field_col')
 															->setName('credit['.$row.']')
 															->setValidation('decimal')
 															->setClass("account_amount credit text-right $indicator")
@@ -1188,7 +1188,7 @@
 			field	= $("#"+form+" #"+id2).val();
 		}
 
-		if($('#'+id)[0].type == 'select-one'){
+		if($('#'+id)[0].type != undefined && $('#'+id)[0].type == 'select-one'){
 			field	= $("#"+form+" #"+id2).val();
 		}
 
@@ -1496,11 +1496,19 @@
 				$("#payableForm #zeroTotalAmountError").addClass('hidden');
 			}
 			
-			if(parseFloat(total_debit) != parseFloat(total_credit))
-			{
+			if(parseFloat(total_debit) != parseFloat(total_credit)){
 				$("#accounting_details #totalAmountError").removeClass('hidden');
-				$('#entriesTable .debit').addClass('has-error');
-				$('#entriesTable .credit').addClass('has-error');
+				$('#accounting_details .accountcode').each(function(index){
+					var debit = $('#entriesTable #debit\\['+index+'\\]').val();
+					var credit = $('#entriesTable #credit\\['+index+'\\]').val();
+
+					if(debit != undefined && debit > 0){
+						$('#entriesTable #debit\\['+index+'\\]').parent().addClass('has-error');
+					}
+					if(credit != undefined && credit > 0){
+						$('#entriesTable #credit\\['+index+'\\]').parent().addClass('has-error');
+					}
+				});
 				valid1 = 1;
 			}
 			else
@@ -2347,7 +2355,7 @@
 				valid		+= validateField('payableForm','document_date', "document_date_help");
 				valid		+= validateField('payableForm','vendor', "vendor_help");
 				
-				valid		+= validateField('payableForm','due_date', "due_date_help");
+				// valid		+= validateField('payableForm','due_date', "due_date_help");
 				
 				/**validate items**/
 				valid		+= validateDetails();
@@ -2393,7 +2401,7 @@
 				valid		+= validateField('payableForm','document_date', "document_date_help");
 				valid		+= validateField('payableForm','vendor', "vendor_help");
 				
-				valid		+= validateField('payableForm','duedate', "due_date_help");
+				// valid		+= validateField('payableForm','duedate', "due_date_help");
 				
 				/**validate items**/
 				valid		+= validateDetails();
@@ -2452,7 +2460,7 @@
 				valid		+= validateField('payableForm','document_date', "document_date_help");
 				valid		+= validateField('payableForm','vendor', "vendor_help");
 				
-				valid		+= validateField('payableForm','due_date', "due_date_help");
+				// valid		+= validateField('payableForm','due_date', "due_date_help");
 				
 				/**validate items**/
 				var paymentmode = $('#paymentmode').val();
@@ -2502,7 +2510,7 @@
 				valid		+= validateField('payableForm','document_date', "document_date_help");
 				valid		+= validateField('payableForm','vendor', "vendor_help");
 				
-				valid		+= validateField('payableForm','due_date', "due_date_help");
+				// valid		+= validateField('payableForm','due_date', "due_date_help");
 				
 				/**validate items**/
 				valid		+= validateDetails();
@@ -2555,7 +2563,7 @@
 				valid		+= validateField('payableForm','document_date', "document_date_help");
 				valid		+= validateField('payableForm','vendor', "vendor_help");
 				
-				valid		+= validateField('payableForm','duedate', "due_date_help");
+				// valid		+= validateField('payableForm','duedate', "due_date_help");
 				
 				/**validate items**/
 				valid		+= validateDetails();
