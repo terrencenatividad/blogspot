@@ -206,7 +206,8 @@
 												->setId('chequenumber[1]')
 												->setClass('chequenumber')
 												->setValidation('required')
-												->setAttribute(array("maxlength" => "100", "onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+												->setMaxLength(30)
+												->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 												->setValue("")
 												->draw(true);
 									?>
@@ -280,7 +281,8 @@
 													->setName('chequenumber['.$row.']')
 													->setId('chequenumber['.$row.']')
 													->setClass('chequenumber')
-													->setAttribute(array("maxlength" => "100", "onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+													->setMaxLength(30)
+													->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 													->setValue($chequeno)
 													->draw($show_input);
 										?>
@@ -360,7 +362,8 @@
 												->setName('chequenumber[1]')
 												->setId('chequenumber[1]')
 												->setClass('chequenumber')
-												->setAttribute(array("maxlength" => "100", "onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+												->setMaxLength(30)
+												->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 												->setValue("")
 												->draw(true);
 									?>
@@ -1462,16 +1465,16 @@ function validateField(form,id,help_block) {
 		$("#"+form+" #"+id)
 			.closest('.field_col')
 			.addClass('has-error');
-		
+
 		$("#"+form+" #"+help_block)
-			.removeClass('hidden');
-
-
-		if($("#"+form+" .row-dense").next(".help-block")[0])
-		{
-			$("#"+form+" #"+help_block)
-			// .parent()
 			// .next(".help-block")
+			.removeClass('hidden');
+			
+		if($("#"+form+" #"+id).parent().next(".help-block")[0])
+		{
+			$("#"+form+" #"+id)
+			.parent()
+			.next(".help-block")
 			.removeClass('hidden');
 		}
 
@@ -1483,15 +1486,16 @@ function validateField(form,id,help_block) {
 			.closest('.field_col')
 			.removeClass('has-error');
 
-		$("#"+form+" #"+help_block)
-			.addClass('hidden');
-
-		if($("#"+form+" .row-dense").next(".help-block")[0])
-		{
-			$("#"+form+" #"+help_block)
-			// .parent()
+		$("#"+form+" #"+help_block) //$("#"+form+" #"+id)
 			// .next(".help-block")
-			.removeClass('hidden');
+			.addClass('hidden');
+			
+		if($("#"+form+" #"+id).parent().next(".help-block")[0])
+		{
+			$("#"+form+" #"+id)
+			.parent()
+			.next(".help-block")
+			.addClass('hidden');
 		}
 
 		return 0;
@@ -1997,8 +2001,6 @@ $('#pagination').on('click', 'a', function(e) {
 $('body').on('click' , '.print_check', function(){
 	var cno 	= $(this).closest('tr').find('.chequeno').val();
 	var vno  	= $('#h_voucher_no').val();
-	// window.location = '<?=MODULE_URL?>print_check/' + vno +  '/'+ cno  ;
-	// a.target="_blank";
 	window.open('<?=MODULE_URL?>print_check/' + vno +  '/'+ cno , '_blank');
 })
 
