@@ -153,7 +153,7 @@
 								<th class="col-md-3">Cheque Number</th>
 								<th class="col-md-2">Cheque Date</th>
 								<th class="col-md-2">Amount</th>
-								<?if($show_input):?><th class="col-md-1">Action</th><?endif;?>
+								<?if($task=='view'):?><th class="col-md-1">Action</th><?endif;?>
 							</tr>
 						</thead>
 						<tbody id="tbody_cheque">
@@ -261,6 +261,7 @@
 													->setValue($chequeno)
 													->draw($show_input);
 										?>
+										<input class="hidden chequeno" value= "<?=$chequeno?>">
 									</td>
 									<td>
 									<div class="input-group date remove-margin">
@@ -299,8 +300,12 @@
 									<td class="text-center">
 										<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
 									</td>
-								</tr>
-									<? endif; ?>	
+									<?php else : ?>
+									<td class="text-center">
+										<button type="button" class="btn btn-info btn-flat print_check"  style="outline:none;" ><span class="glyphicon glyphicon-download-alt"></span></button>
+									</td>	
+									<?php endif; ?>
+								</tr>	
 							<?
 								
 								$row++;
@@ -678,7 +683,7 @@
 								<td>
 									<a type="button" class="btn btn-link add-entry" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Entry</a>
 								</td>	
-							</tr>	
+							</tr>
 							<?endif;?>
 							<tr id="total">
 								<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
@@ -2675,6 +2680,12 @@
 				} 
 			}
 		});
+
+		$('body').on('click' , '.print_check', function(){
+			var cno 	= $(this).closest('tr').find('.chequeno').val();
+			var vno  	= $('#h_voucher_no').val();
+			window.open('<?=MODULE_URL?>print_check/' + vno +  '/'+ cno , '_blank');
+		})
 	}); // end
 
 </script>
