@@ -425,6 +425,14 @@
 						<i class="glyphicon glyphicon-exclamation-sign"></i> 
 						The total Debit Amount and Credit Amount must match.
 					</span>
+					<span id="zeroTotalAmountError" class="help-block hidden small">
+						<i class="glyphicon glyphicon-exclamation-sign"></i> 
+						Total Debit and Total Credit must have a value.
+					</span>
+					<span id="accountcodeError" class="help-block hidden small">
+						<i class="glyphicon glyphicon-exclamation-sign"></i> 
+						Account Code field must have a value.
+					</span>
 				</div>
 				<div class="table-responsive">
 					<table class="table table-hover table-condensed " id="entriesTable">
@@ -1173,10 +1181,14 @@
 	/**VALIDATE FIELD**/
 	function validateField(form,id,help_block) {
 		var field	= $("#"+form+" #"+id).val();
-
+		
 		if(id.indexOf('_chosen') != -1)
 		{
 			var id2	= id.replace("_chosen","");
+			field	= $("#"+form+" #"+id2).val();
+		}
+
+		if($('#'+id)[0].type == 'select-one'){
 			field	= $("#"+form+" #"+id2).val();
 		}
 
@@ -1185,16 +1197,16 @@
 			$("#"+form+" #"+id)
 				.closest('.field_col')
 				.addClass('has-error');
-			
+
 			$("#"+form+" #"+help_block)
-				.removeClass('hidden');
-
-
-			if($("#"+form+" .row-dense").next(".help-block")[0])
-			{
-				$("#"+form+" #"+help_block)
-				// .parent()
 				// .next(".help-block")
+				.removeClass('hidden');
+				
+			if($("#"+form+" #"+id).parent().next(".help-block")[0])
+			{
+				$("#"+form+" #"+id)
+				.parent()
+				.next(".help-block")
 				.removeClass('hidden');
 			}
 
@@ -1206,15 +1218,16 @@
 				.closest('.field_col')
 				.removeClass('has-error');
 
-			$("#"+form+" #"+help_block)
-				.addClass('hidden');
-
-			if($("#"+form+" .row-dense").next(".help-block")[0])
-			{
-				$("#"+form+" #"+help_block)
-				// .parent()
+			$("#"+form+" #"+help_block) //$("#"+form+" #"+id)
 				// .next(".help-block")
-				.removeClass('hidden');
+				.addClass('hidden');
+				
+			if($("#"+form+" #"+id).parent().next(".help-block")[0])
+			{
+				$("#"+form+" #"+id)
+				.parent()
+				.next(".help-block")
+				.addClass('hidden');
 			}
 
 			return 0;
@@ -1467,26 +1480,27 @@
 			
 			if(valid1 > 0)
 			{
-				$("#payableForm #detailAccountError").removeClass('hidden');
+				$("#payableForm #accountcodeError").removeClass('hidden');
 			}
 			else
 			{
-				$("#payableForm #detailAccountError").addClass('hidden');
+				$("#payableForm #accountcodeError").addClass('hidden');
 			}
 			
 			if(valid2 > 0)
 			{
-				$("#payableForm #detailAmountError").removeClass('hidden');
+				$("#payableForm #zeroTotalAmountError").removeClass('hidden');
 			}
 			else
 			{
-				$("#payableForm #detailAmountError").addClass('hidden');
+				$("#payableForm #zeroTotalAmountError").addClass('hidden');
 			}
 			
 			if(parseFloat(total_debit) != parseFloat(total_credit))
 			{
 				$("#accounting_details #totalAmountError").removeClass('hidden');
-				$('#entriesTable .clone').addClass('has-error');
+				$('#entriesTable .debit').addClass('has-error');
+				$('#entriesTable .credit').addClass('has-error');
 				valid1 = 1;
 			}
 			else
@@ -2284,38 +2298,43 @@
 						valid 	+=	applySelected_();
 					}
 					valid		+= validateDetails();
-				}
+			
+					if(valid == 0)
+					{
+						$("#payableForm #btnSave").addClass('disabled');
+						$("#payableForm #btnSave_toggle").addClass('disabled');
+						
+						$("#payableForm #btnSave").html('Saving...');
 
-				if(valid == 0)
-				{
-					$("#payableForm #btnSave").addClass('disabled');
-					$("#payableForm #btnSave_toggle").addClass('disabled');
-					
-					$("#payableForm #btnSave").html('Saving...');
+						$("#payableForm #h_save").val("h_save");
 
-					$("#payableForm #h_save").val("h_save");
-
-					$.post("<?=BASE_URL?>financials/disbursement/ajax/apply_payments",$("#payableForm").serialize())
-					.done(function(data)
-					{	
-						if(data.code == 1)
-						{
-							$("#payableForm #h_voucher_no").val(data.voucher);
-							$("#payableForm").submit();
-						}
-						else
-						{
-							var msg = "";
-
-							for(var i = 0; i < data.msg.length; i++)
+						$.post("<?=BASE_URL?>financials/disbursement/ajax/apply_payments",$("#payableForm").serialize())
+						.done(function(data)
+						{	
+							if(data.code == 1)
 							{
-								msg += data.msg[i];
+								$("#payableForm #h_voucher_no").val(data.voucher);
+								$("#payableForm").submit();
 							}
+							else
+							{
+								var msg = "";
 
-							$("#errordiv").removeClass("hidden");
-							$("#errordiv #msg_error ul").html(msg);
-						}
-					});
+								for(var i = 0; i < data.msg.length; i++)
+								{
+									msg += data.msg[i];
+								}
+
+								$("#errordiv").removeClass("hidden");
+								$("#errordiv #msg_error ul").html(msg);
+							}
+						});
+					} 
+				} else {
+					// $('#warning_modal').modal('show').find('#warning_message').html('Please make sure all required fields are filled out.');		
+					//$('#warning_modal').modal('show').find('#warning_message').html('Please Input Quantity > 0');
+					next = $('#payableForm').find(".has-error").first();
+					$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
 				}
 			});
 
