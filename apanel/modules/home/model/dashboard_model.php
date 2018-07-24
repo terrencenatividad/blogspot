@@ -12,7 +12,7 @@ class dashboard_model extends wc_model {
 		$months	= array();
 		$year	= $this->year - $y;
 		for ($x = 1; $x <= 12; $x++) {
-			$months[] = "SELECT '$x' month, '$year' year, '" . COMPANYCODE . "' companycode";
+			$months[] = "SELECT $x month, '$year' year, '" . COMPANYCODE . "' companycode";
 		}
 
 		return implode(' UNION ALL ', $months);
@@ -81,6 +81,7 @@ class dashboard_model extends wc_model {
 								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
 								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) revenue, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
+								->setOrderBy('m.month')
 								->runSelect()
 								->getResult();
 
@@ -89,6 +90,7 @@ class dashboard_model extends wc_model {
 								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
 								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) expense")
 								->setGroupBy('m.month')
+								->setOrderBy('m.month')
 								->runSelect()
 								->getResult();
 
@@ -97,6 +99,7 @@ class dashboard_model extends wc_model {
 								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
 								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) revenue, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
+								->setOrderBy('m.month')
 								->runSelect()
 								->getResult();
 
@@ -105,6 +108,7 @@ class dashboard_model extends wc_model {
 								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
 								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) expense, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
+								->setOrderBy('m.month')
 								->runSelect()
 								->getResult();
 
@@ -115,7 +119,7 @@ class dashboard_model extends wc_model {
 		foreach ($previous as $key => $row) {
 			$previous[$key]->expense = $previous2[$key]->expense;
 		}
-		// var_dump($current);
+
 		$rae = array(
 			'current'	=> $current,
 			'previous'	=> $previous
@@ -129,12 +133,13 @@ class dashboard_model extends wc_model {
 						->setFields("
 							ap.balance value,
 							CASE
+								WHEN DATEDIFF('$datefilter', ap.duedate) = 0 THEN 'Today'
 								WHEN DATEDIFF('$datefilter', ap.duedate) > 60 THEN '60 days over'
 								WHEN DATEDIFF('$datefilter', ap.duedate) > 30 THEN '31 to 60 days'
 								WHEN DATEDIFF('$datefilter', ap.duedate) > 0 THEN '1 to 30 days'
 							END label
 						")
-						->setWhere("ap.stat = 'posted' AND ap.duedate < '$datefilter' AND ap.balance > 0")
+						->setWhere("ap.stat = 'posted' AND ap.duedate <= '$datefilter' AND ap.balance > 0")
 						->buildSelect();
 
 
@@ -142,12 +147,13 @@ class dashboard_model extends wc_model {
 						->setFields("
 							ar.balance value,
 							CASE
+								WHEN DATEDIFF('$datefilter', ar.duedate) = 0 THEN 'Today'
 								WHEN DATEDIFF('$datefilter', ar.duedate) > 60 THEN '60 days over'
 								WHEN DATEDIFF('$datefilter', ar.duedate) > 30 THEN '31 to 60 days'
 								WHEN DATEDIFF('$datefilter', ar.duedate) > 0 THEN '1 to 30 days'
 							END label
 						")
-						->setWhere("ar.stat = 'posted' AND ar.duedate < '$datefilter' AND ar.balance > 0")
+						->setWhere("ar.stat = 'posted' AND ar.duedate <= '$datefilter' AND ar.balance > 0")
 						->buildSelect();
 
 		$aging = array(
@@ -165,25 +171,12 @@ class dashboard_model extends wc_model {
 							->getResult();
 
 		if ($result) {
-			foreach ($result as $content) {
-				$labelarr[] 	=	$content->label;
-			}
-			if(!in_array("1 to 30 days",$labelarr)){
-				$objects['label'] = "1 to 30 days";
-				$objects['value'] = 0;
-				$result[] 		  = $objects;
-			}
-			if(!in_array("31 to 60 days",$labelarr)){
-				$objects['label'] = "31 to 60 days";
-				$objects['value'] = 0;
-				$result[] 		  = $objects;
-			}
-			if(!in_array("60 days over",$labelarr)){
-				$objects['label'] = "60 days over";
-				$objects['value'] = 0;
-				$result[] 		  = $objects;
-			} 
-			return $result;
+			$data = array();
+			$data[] = $this->getVoucherApplicationValue('Today', $result);
+			$data[] = $this->getVoucherApplicationValue('1 to 30 days', $result);
+			$data[] = $this->getVoucherApplicationValue('31 to 60 days', $result);
+			$data[] = $this->getVoucherApplicationValue('60 days over', $result);
+			return $data;
 		} else {
 			return array(
 				array('label' => 'No Aging', 'value' => '0')
@@ -211,6 +204,25 @@ class dashboard_model extends wc_model {
 			'purchases'	=> $purchases
 		);
 		return $aging;
+	}
+
+	private function getVoucherApplicationValue($label, $result) {
+		$labelarr	= array();
+		$value		= array();
+		foreach ($result as $content) {
+			$labelarr[]	=	$content->label;
+			if ($label == $content->label) {
+				$value = $content;
+			}
+		}
+		if ( ! in_array($label,$labelarr)) {
+			$value['label']	= $label;
+			$value['value']	= 0;
+
+			$value = (object) $value;
+		}
+
+		return $value;
 	}
 
 }
