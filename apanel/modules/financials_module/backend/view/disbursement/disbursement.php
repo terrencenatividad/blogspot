@@ -182,7 +182,8 @@
 												->setName('chequenumber[1]')
 												->setId('chequenumber[1]')
 												->setClass('chequenumber')
-												->setAttribute(array("maxlength" => "100", "onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+												->setMaxLength(30)
+												->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 												->setValue("")
 												->draw(true);
 									?>
@@ -257,7 +258,8 @@
 													->setName('chequenumber['.$row.']')
 													->setId('chequenumber['.$row.']')
 													->setClass('chequenumber')
-													->setAttribute(array("maxlength" => "100", "onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+													->setMaxLength(30)
+													->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 													->setValue($chequeno)
 													->draw($show_input);
 										?>
@@ -337,7 +339,8 @@
 												->setName('chequenumber[1]')
 												->setId('chequenumber[1]')
 												->setClass('chequenumber')
-												->setAttribute(array("maxlength" => "100", "onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+												->setMaxLength(30)
+												->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 												->setValue("")
 												->draw(true);
 									?>
