@@ -43,8 +43,8 @@ class controller extends wc_controller
 
 	public function create()
 	{	
-		$cmp 	= $this->companycode;
-		$seq 	= new seqcontrol();
+		$cmp 						= $this->companycode;
+		$seq 						= new seqcontrol();
 
 		// Initialize variables
 		$data = $this->input->post(array(
@@ -152,6 +152,8 @@ class controller extends wc_controller
 	public function view($sid)
 	{
 		$cmp 					   	= $this->companycode;
+
+		$this->view->title			= 'View Disbursement Voucher';
 		// Retrieve data
 		$data         			   	= $this->payment_voucher->retrieveEditData($sid);
 
@@ -252,7 +254,8 @@ class controller extends wc_controller
 	{
 		$access				   	= $this->access->checkLockAccess('edit');
 		$data         		   	= $this->payment_voucher->retrieveEditData($sid);
-	
+		$this->view->title		= 'Edit Disbursement Voucher';
+
 		$data["ui"]            	= $this->ui;
 		$data['show_input']    	= $this->show_input;
 		$data["task"] 		   	= "edit";
