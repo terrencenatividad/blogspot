@@ -248,7 +248,7 @@ class payment_voucher_model extends wc_model
 		$vendfilter      	= isset($data['vendor']) ? htmlentities($data['vendor']) : ""; 
 		$filter         	= isset($data['filter']) ? htmlentities($data['filter']) : "";
 		$searchkey 		 	= isset($data['search']) ? htmlentities($data['search']) : "";
-		$sort 		 	 	= isset($data['sort']) ? htmlentities($data['sort']) : "main.transactiondate DESC";
+		$sort 		 	 	= isset($data['sort']) ? htmlentities($data['sort']) : "main.voucherno DESC,";
 		$voucher         	= isset($data['voucher']) ? htmlentities($data['voucher']) : "PV";
 
 		$datefilterArr		= explode(' - ',$daterangefilter);
