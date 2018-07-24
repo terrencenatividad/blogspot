@@ -2648,7 +2648,7 @@ function loadCheques(){
 function validateChequeNumber(id, value, n){
 	id = id.replace(/[a-z\[\]]/g, '');
 
-	$.post("<?=BASE_URL?>financials/payment/ajax/check", "chequevalue=" + value)
+	$.post("<?=BASE_URL?>financials/payment_voucher/ajax/check", "chequevalue=" + value)
 	.done(function(data)
 	{
 		if(data.success)
