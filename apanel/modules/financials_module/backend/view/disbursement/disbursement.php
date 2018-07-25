@@ -495,6 +495,7 @@
 												->setValue($detailparticulars)
 												->draw($show_input);
 									?>
+									<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
 								</td>
 								<td>
 									<?php
@@ -555,6 +556,7 @@
 												->setValue($detailparticulars)
 												->draw($show_input);
 									?>
+									<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
 								</td>
 								<td>
 									<?php
@@ -595,11 +597,12 @@
 											$detailparticulars 	= $aPvJournalDetails_Value->detailparticulars;
 											$debit 				= $aPvJournalDetails_Value->debit;
 											$credit 			= $aPvJournalDetails_Value->credit;
+											$ischeck 			= $aPvJournalDetails_Value->ischeck;
 
 											$disable_code 		= "";
 											$added_class 		= "";
 											$indicator 			= "";
-											if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque'){
+											if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque' && $ischeck == 'yes'){
 												$disable_debit		= 'readOnly';
 												$disable_credit		= 'readOnly';
 												$disable_code 		= 'disabled';
@@ -638,7 +641,8 @@
 															->setAttribute(array("maxlength" => "100"))
 															->setValue($detailparticulars)
 															->draw($show_input);
-											$detail_row	.= '</td>';
+											$detail_row	.= '	<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
+															</td>';
 
 											$detail_row	.= '<td class="text-right">';
 											$detail_row .= $ui->formField('text')
@@ -903,11 +907,13 @@
 
 	function storedescriptionstoarray(){
 		acct_details 	=	[];
-		$('#entriesTable tbody tr').each(function() {
+		$('#entriesTable tbody tr.added_row').each(function() {
 			var accountcode = $(this).find('.accountcode').val();
 			var description = $(this).find('.description').val();
+			var ischeck 	= $(this).find('.ischeck').val();
 			var debit		= $(this).find('.account_amount').val();
-			if(description!=""){
+
+			if(description!="" ){
 				if (typeof acct_details[accountcode] === 'undefined') {
 					acct_details[accountcode] = "";
 				}
@@ -917,13 +923,16 @@
 	}
 
 	function displaystoreddescription(){
-		$('#entriesTable tbody tr select.accountcode').each(function() {
-			if (typeof acct_details[$(this).val()] === 'undefined') {
-				$(this).closest('tr').find('.description').val("");
-			} else {
-				var description = acct_details[$(this).val()] || "";
-				$(this).closest('tr').find('.description').val(description);	
-			}	
+		$('#entriesTable tbody tr.added_row select.accountcode').each(function() {
+			var ischeck = $(this).closest('tr').find('.ischeck').val();
+			if(ischeck == 'yes'){
+				if (typeof acct_details[$(this).val()] === 'undefined') {
+					$(this).closest('tr').find('.description').val("");
+				} else {
+					var description = acct_details[$(this).val()] || "";
+					$(this).closest('tr').find('.description').val(description);	
+				}	
+			}
 		});
 	}
 
@@ -953,7 +962,8 @@
 				} else {
 					$('#entriesTable tbody tr.clone .accountcode').each(function(index) {
 						var account = $(this).val();
-						if(account == "" && index != 0){
+						var ischeck = $(this).closest('tr').find('.ischeck').val();
+						if(account == "" && index != 0 && ischeck == 'yes'){
 							$(this).closest('tr').remove();
 						}
 					});
@@ -968,11 +978,13 @@
 				var ParentRow = $("#entriesTable tbody tr.clone").first();
 				if($('#entriesTable tbody tr.added_row').length){
 					ParentRow = $("#entriesTable tbody tr.added_row").last();
+					$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 				}
 				ParentRow.after(clone_acct);
 			}
 			resetIds();
 			$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
+			$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 			disable_acct_fields(row);
 			row++;
@@ -997,19 +1009,24 @@
 			if(!checker.hasOwnProperty('acc-'+accountcode)){
 				$(this).remove();
 			}
+			$(this).closest('tr').find('.ischeck').val('yes');
 		});
 		var total_payment = 0;
 		$('#entriesTable tbody tr select.accountcode').each(function() {
 			if (typeof checker['acc-' + $(this).val()] === 'undefined') {
 			} else {
+				var ischeck 	=	$(this).closest('tr').find('.ischeck').val();
 				var ca = checker['acc-' + $(this).val()] || '0.00';
 					ca = removeComma(ca);
 				if($(this).val() == ""){
 					ca = '0.00';
 				}
-				total_payment += ca;
-				$(this).closest('tr').find('.account_amount').val(addComma(ca));	
-				$(this).closest('tr').find('.h_accountcode').val($(this).val());	
+				// console.log('ischeck = '+ischeck);
+				total_payment += ca;		
+				if(ischeck == 'yes'){
+					$(this).closest('tr').find('.account_amount').val(addComma(ca));
+				}
+				$(this).closest('tr').find('.h_accountcode').val($(this).val());
 			}	
 		});
 		$('#total_payment').val(total_payment);
@@ -1072,40 +1089,14 @@
 			row.cells[0].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
 			row.cells[0].getElementsByTagName("input")[0].id 	= 'h_accountcode['+x+']';
 			row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
+			row.cells[1].getElementsByTagName("input")[1].id 	= 'ischeck['+x+']';
 			row.cells[2].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
 			row.cells[3].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
 			
 			row.cells[0].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
 			row.cells[0].getElementsByTagName("input")[0].name 	= 'h_accountcode['+x+']';
 			row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
-			row.cells[2].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
-			row.cells[3].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
-			
-			row.cells[4].getElementsByTagName("button")[0].setAttribute('id',x);
-			row.cells[0].getElementsByTagName("select")[0].setAttribute('data-id',x);
-			row.cells[4].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
-
-			x++;
-		}
-	}
-
-	function resetIds() {
-		var table 	= document.getElementById('entriesTable');
-		var count	= table.rows.length - 3;
-
-		x = 1;
-		for(var i = 1;i <= count;i++) {
-			var row = table.rows[i];
-			
-			row.cells[0].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
-			row.cells[0].getElementsByTagName("input")[0].id 	= 'h_accountcode['+x+']';
-			row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
-			row.cells[2].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
-			row.cells[3].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
-			
-			row.cells[0].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
-			row.cells[0].getElementsByTagName("input")[0].name 	= 'h_accountcode['+x+']';
-			row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
+			row.cells[1].getElementsByTagName("input")[1].name 	= 'ischeck['+x+']';
 			row.cells[2].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
 			row.cells[3].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
 			
@@ -1331,13 +1322,13 @@
 		{  
 			var inputs 		= document.getElementById(field+'['+i+']');
 			var disables 	= document.getElementById(notfield+'['+i+']');
-			var is_cheque   = $("#"+field+"\\["+i+"\\]").hasClass("cheque");
+			var is_cheque   = $("#ischeck\\["+i+"\\]").val();
 			if(document.getElementById(notfield+'['+i+']')!=null)
 			{          
 				if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
 				{                            
 					inData = inputs.value.replace(/,/g,'');
-					if(is_cheque){
+					if(is_cheque == 'yes'){
 						inputs.readOnly   = true;
 						disables.readOnly = true;
 					}else {
@@ -1347,7 +1338,7 @@
 				else
 				{             
 					inData = 0;
-					if(is_cheque){
+					if(is_cheque == 'yes'){
 						inputs.readOnly   = true;
 						disables.readOnly = true;
 					}else {

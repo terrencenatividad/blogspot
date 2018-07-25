@@ -76,11 +76,11 @@ class payment_voucher_model extends wc_model
 		$temp["main"] = $retrieveArrayMain;
 
 		// Retrieve Details
-		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.debit, SUM(main.credit) credit";
+		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.ischeck, main.debit, SUM(main.credit) credit";
 		$detail_cond  = "main.voucherno = '$sid' AND main.stat != 'temporary'";
 		$orderby 	  = "main.linenum";	
 		$detailJoin   = "chartaccount as chart ON chart.id = main.accountcode AND chart.companycode = main.companycode";
-		$groupby      = "main.accountcode";
+		$groupby      = "main.linenum";
 
 		$retrieveArrayDetail = $this->db->setTable('pv_details as main')
 									->setFields($detailFields)
@@ -511,7 +511,7 @@ class payment_voucher_model extends wc_model
 
 		return $errmsg;
 	}
-
+	
 	public function savePayment($data)
 	{
 		$errmsg				   	= array();
@@ -527,8 +527,6 @@ class payment_voucher_model extends wc_model
 		$chequeTable		   	= "pv_cheques"; 
 		$applicableHeaderTable 	= "accountspayable"; 
 		$applicableDetailTable 	= "ap_details"; 
-
-		 
 
 		$insertResult		   	= 0;
 	
@@ -565,13 +563,13 @@ class payment_voucher_model extends wc_model
 		$temporary_voucher     	= (!empty($gen_value[0]->count)) ? $source.'_'.($gen_value[0]->count + 1) : $source.'_1';
 
 		$voucherno 				= (!empty($voucherno)) ? $voucherno : $temporary_voucher;
-		
+		// var_dump($data);
 		/**CLEAN PASSED DATA**/
 		$aJournalData 	= array();
 		$aChequeData 	= array();
 		foreach($data as $postIndex => $postValue)
 		{
-			if($postIndex=='accountcode' || $postIndex=='h_accountcode' || $postIndex=='detailparticulars' || $postIndex=='debit' || $postIndex=='credit')
+			if($postIndex=='h_accountcode' || $postIndex=='detailparticulars' || $postIndex=='ischeck' || $postIndex=='debit' || $postIndex=='credit')
 			{
 				$a		= '';
 				foreach($postValue as $postValueIndex => $postValueIndexValue){
@@ -608,7 +606,7 @@ class payment_voucher_model extends wc_model
 				}
 			}
 		}
-
+		// var_dump($tempArray);
 		/**CHEQUE DETAILS**/
 		if(!empty($aChequeData))
 		{
@@ -728,6 +726,7 @@ class payment_voucher_model extends wc_model
 			$detailparticulars					= $tempArrayValue['detailparticulars'];
 			$debit			    				= $tempArrayValue['debit'];
 			$credit			    				= $tempArrayValue['credit'];
+			$ischeck 							= $tempArrayValue['ischeck'];
 
 			$post_detail['voucherno']			= $voucherno;
 			$post_detail['linenum']				= $iDetailLineNum;
@@ -739,6 +738,7 @@ class payment_voucher_model extends wc_model
 			$post_detail['convertedcredit'] 	= $credit;
 			$post_detail['currencycode']		= 'PHP';
 			$post_detail['detailparticulars'] 	= $detailparticulars;
+			$post_detail['ischeck']				= $ischeck;
 			$post_detail['stat']				= $post_header['stat'];
 
 			$iDetailLineNum++;
