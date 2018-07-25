@@ -2628,7 +2628,7 @@ function clearChequePayment(){
 
 function clear_acct_input(){
 	$('.accountcode').val('').change();
-	$('.h_accountcode').val($(this).val());	
+	$('.h_accountcode').val('');	
 	$('.description').val('');
 	$('.debit').val('0.00');
 	$('.credit').val('0.00');

@@ -2683,6 +2683,7 @@ function clearChequePayment(){
 
 function clear_acct_input(){
 	$('.accountcode').val('').change();
+	$('.h_accountcode').val('');	
 	$('.description').val('');
 	$('.debit').val('0.00');
 	$('.credit').val('0.00');
@@ -3178,7 +3179,7 @@ $(document).ready(function() {
 			if(selected_rows == "[]")
 			{
 				bootbox.dialog({
-					message: "Please tag payables first.",
+					message: "Please tag Receivables first.",
 					title: "Oops!",
 						buttons: {
 						yes: {
