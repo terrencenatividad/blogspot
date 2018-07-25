@@ -92,8 +92,8 @@ class controller extends wc_controller
 
 					if(empty($vendorcode))
 					{
-						$errmsg[] 	= "Vendor [ <strong>".stripslashes($vendorcode)."</strong> ] on row $row does not exist.";
-						fwrite($filewrite, "Vendor [ ".stripslashes($vendorcode)." ] on row $row does not exist.\n");
+						$errmsg[] 	= "Supplier [ <strong>".stripslashes($vendorcode)."</strong> ] on row $row does not exist.";
+						fwrite($filewrite, "Supplier [ ".stripslashes($vendorcode)." ] on row $row does not exist.\n");
 					}
 					
 					/**CHECK IF AMOUNT IS EMPTY**/
@@ -627,6 +627,8 @@ class controller extends wc_controller
 			$this->get_account();
 		}else if ($task == 'get_tax'){
 			$this->get_tax();
+		}else if ($task == 'get_import'){
+			$this->get_import();
 		}else if ($task == 'save_import'){
 			$this->save_import();
 		}
@@ -813,7 +815,7 @@ class controller extends wc_controller
 		$data_get = $this->input->get(array("daterangefilter", "vendor", "filter", "search"));
 		$data_get['daterangefilter'] = str_replace(array('%2F', '+'), array('/', ' '), $data_get['daterangefilter']);
 		$result = $this->accounts_payable->fileExport($data_get);
-		$header = array("Document Date", "Voucher No", "Vendor", "Invoice No", "Amount", "Balance", "Notes"); 
+		$header = array("Document Date", "Voucher No", "Supplier", "Invoice No", "Amount", "Balance", "Notes"); 
 		$csv 	= '';
 
 		$filename = "export_accounts_payable.csv";
@@ -1103,7 +1105,7 @@ class controller extends wc_controller
 
 	public function get_import(){
 		header('Content-type: application/csv');
-		$header = array('Document Set','Transaction Date','Due Date','Vendor Code','Invoice No.','Reference No.','Notes','Account Name','Description','Debit','Credit');
+		$header = array('Document Set','Transaction Date','Due Date','Supplier Code','Invoice No.','Reference No.','Notes','Account Name','Description','Debit','Credit');
 		$return = "";
 		
 		$return .= '"' . implode('","',$header) . '"';
@@ -1169,6 +1171,7 @@ class controller extends wc_controller
 		if( empty($errmsg) ) {
 			$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
 			$error 	=	array();
+			$rowcnt	= 0;
 			for ($n = 0; $n < count($x); $n++) {
 				if($n==0 && empty($errmsg)) {
 					$layout = count($headerArr);
@@ -1189,8 +1192,12 @@ class controller extends wc_controller
 				if ( $n >= 1 ) {
 					$z[] = $x[$n];
 				}
+				$rowcnt++;
 			}
 			
+			if($rowcnt < 2){
+				$errmsg[]	= "Unable to upload a empty template. Please add at least one(1) data to proceed.<br/>";
+			}
 			$line 				=	2;
 			$post 				=	array();
 			$warning 			=	array();
@@ -1348,7 +1355,7 @@ class controller extends wc_controller
 								$vendor_exist 	=	$this->accounts_payable->check_if_exists('partnercode','partners'," partnercode = '$vendor' ");
 								$vendor_count 	=	$vendor_exist[0]->count;	
 								if( $vendor_count <= 0 ) {
-									$errmsg[]	= "Vendor Code [<strong>$vendor</strong>] on <strong>row $line</strong> does not exist.<br/>";
+									$errmsg[]	= "Supplier Code [<strong>$vendor</strong>] on <strong>row $line</strong> does not exist.<br/>";
 									$errmsg		= array_filter($errmsg);
 								}
 								//Check the Invoice #
