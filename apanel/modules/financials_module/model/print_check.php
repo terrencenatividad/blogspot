@@ -50,7 +50,7 @@ class print_check extends fpdf {
         $vendor = $dts[0]->partnername;
         $amount = $dts[0]->chequeconvertedamount;
         $date = $dts[0]->chequedate;
-        $date  = date('M j, Y', strtotime($date));
+        $date  = date('F j, Y', strtotime($date));
 
 
         /**AMOUNT IN WORDS**/

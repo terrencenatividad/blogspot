@@ -389,7 +389,7 @@ $('body').on('blur blur_validate', '[data-min]', function(e) {
 	}
 });
 $('body').on('blur blur_validate keyup keydown', '[data-validation~="code"]', function(e) {
-	var error_message = `Invalid Input <a href="#invalid_characters" class="glyphicon glyphicon-info-sign" data-toggle="modal"></a>`;
+	var error_message = `Invalid Input <a href="#invalid_characters" class="glyphicon glyphicon-info-sign" data-toggle="modal" data-error_message="<p><b>Allowed Characters:</b> a-z A-Z 0-9 - _</p><p>Letters, Numbers, Dash, and Underscore</p><p><b>Note:</b> Space is an Invalid Character</p>"></a>`;
 	var form_group = $(this).closest('.form-group');
 	var val = $(this).val() || '';
 	if ( ! (/^[a-zA-Z0-9-_]*$/.test(val))) {
@@ -401,8 +401,223 @@ $('body').on('blur blur_validate keyup keydown', '[data-validation~="code"]', fu
 		}
 	}
 });
+$('body').on('blur blur_validate keyup keydown', '[data-validation~="alpha"]', function(e) {
+	var error_message = `Invalid Input <a href="#invalid_characters" class="glyphicon glyphicon-info-sign" data-toggle="modal" data-error_message="<p><b>Allowed Characters:</b> a-z A-Z</p><p>Letters Only</p><p><b>Note:</b> Space is an Invalid Character</p>"></a>`;
+	var form_group = $(this).closest('.form-group');
+	var val = $(this).val() || '';
+	if ( ! (/^[a-zA-Z]*$/.test(val))) {
+		form_group.addClass('has-error');
+		form_group.find('p.help-block.m-none').html(error_message)
+	} else {
+		if (form_group.find('p.help-block.m-none').html() == error_message) {
+			form_group.removeClass('has-error').find('p.help-block.m-none').html('');
+		}
+	}
+});
+$('body').on('blur blur_validate keyup keydown', '[data-validation~="num"]', function(e) {
+	var error_message = `Invalid Input <a href="#invalid_characters" class="glyphicon glyphicon-info-sign" data-toggle="modal" data-error_message="<p><b>Allowed Characters:</b> 0-9</p><p>Numbers Only</p><p><b>Note:</b> Space is an Invalid Character</p>"></a>`;
+	var form_group = $(this).closest('.form-group');
+	var val = $(this).val() || '';
+	if ( ! (/^[0-9]*$/.test(val))) {
+		form_group.addClass('has-error');
+		form_group.find('p.help-block.m-none').html(error_message)
+	} else {
+		if (form_group.find('p.help-block.m-none').html() == error_message) {
+			form_group.removeClass('has-error').find('p.help-block.m-none').html('');
+		}
+	}
+});
+$('body').on('blur blur_validate keyup keydown', '[data-validation~="alpha_num"]', function(e) {
+	var error_message = `Invalid Input <a href="#invalid_characters" class="glyphicon glyphicon-info-sign" data-toggle="modal" data-error_message="<p><b>Allowed Characters:</b> a-z A-Z 0-9</p><p>Letters and Numbers Only</p><p><b>Note:</b> Space is an Invalid Character</p>"></a>`;
+	var form_group = $(this).closest('.form-group');
+	var val = $(this).val() || '';
+	if ( ! (/^[a-zA-Z0-9]*$/.test(val))) {
+		form_group.addClass('has-error');
+		form_group.find('p.help-block.m-none').html(error_message)
+	} else {
+		if (form_group.find('p.help-block.m-none').html() == error_message) {
+			form_group.removeClass('has-error').find('p.help-block.m-none').html('');
+		}
+	}
+});
+$('body').on('blur blur_validate keyup keydown', '[data-validation~="special"]', function(e) {
+	var error_message = `Invalid Input <a href="#invalid_characters" class="glyphicon glyphicon-info-sign" data-toggle="modal" data-error_message="<p><b>Allowed Characters:</b> a-z A-Z 0-9 . , [space] % & ( ) [ ] _ - + = / $ # @ ! ' &quot; : ;</p><p>Letters, Numbers, Period, Comma, Space, Percent, Ampersand, Left Parenthesis, Right Parenthesis, Left Bracket, Right Bracket, Underscore, Minus, Plus, Equal, Slash, Dollar Sign, Number Sign, At Sign, Exclamation, Single Quote, Double Quote, Colon, and Semicolon</p><p><b>Note:</b> Other Special Characters are Invalid Character</p>"></a>`;
+	var form_group = $(this).closest('.form-group');
+	var val = $(this).val() || '';
+	if ( ! (/^[a-zA-Z0-9., %&()\[\]_\-+=/$#@!'":;]*$/.test(val))) {
+		form_group.addClass('has-error');
+		form_group.find('p.help-block.m-none').html(error_message)
+	} else {
+		if (form_group.find('p.help-block.m-none').html().replace('amp;', '') == error_message) {
+			form_group.removeClass('has-error').find('p.help-block.m-none').html('');
+		}
+	}
+});
 // /\
 // || Input Validations
+
+$('body').on('show.bs.modal', '#invalid_characters.modal', function (e) {
+	var error_message = $(e.relatedTarget).attr('data-error_message') || '<p>Invalid Characters</p>';
+	$('#invalid_characters.modal .modal-body').html(error_message);
+});
+
+
+// || Populate Modals
+// \/
+$('#modal_div').html(`
+<div id="invalid_characters" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Invalid Characters</h4>
+			</div>
+			<div class="modal-body">
+				
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="delete_modal" class="modal modal-danger">
+	<div class="modal-dialog" style = "width: 300px;">
+		<div class="modal-content">
+			<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title">Confirmation</h4>
+			</div>
+			<div class="modal-body">
+				<p>Are you sure you want to delete this record?</p>
+			</div>
+			<div class="modal-footer text-center">
+				<button type="button" id="delete_yes" class="btn btn-outline btn-flat" onclick="">Yes</button>
+				<button type="button" class="btn btn-outline btn-flat" data-dismiss="modal">No</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="warning_modal" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title modal-danger"><span class="glyphicon glyphicon-warning-sign"></span> Oops!</h4>
+			</div>
+			<div class="modal-body">
+				<p id = "warning_message"></p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Ok</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="success_modal" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title modal-success"><span class="glyphicon glyphicon-ok"></span> Success!</h4>
+			</div>
+			<div class="modal-body">
+				<p id = "message"></p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-success" data-dismiss="modal">Ok</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="cancel_modal" class="modal modal-warning">
+	<div class="modal-dialog" style = "width: 300px;">
+		<div class="modal-content">
+			<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title">Confirmation</h4>
+			</div>
+			<div class="modal-body">
+				<p>Are you sure you want to cancel this record?</p>
+			</div>
+			<div class="modal-footer text-center">
+				<button type="button" id="cancel_yes" class="btn btn-outline btn-flat" onclick="">Yes</button>
+				<button type="button" class="btn btn-outline btn-flat" data-dismiss="modal">No</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="confimation_modal" class="modal">
+	<div class="modal-dialog" style = "width: 300px;">
+		<div class="modal-content">
+			<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title">Confirmation</h4>
+			</div>
+			<div class="modal-body">
+				<p id="confimation_question">Are you sure you want to delete this record?</p>
+			</div>
+			<div class="modal-footer text-center">
+				<button type="button" id="confirmation_yes" class="btn btn-primary btn-flat" onclick="">Yes</button>
+				<button type="button" id="confirmation_no" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal" id="locked_popup_modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+	<div class="modal-dialog modal-sm" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title text-center">System is Locked for the Moment</h4>
+			</div>
+			<div class="modal-body">
+				<p class="text-red text-center">Locked Time: <span id="locktime"></span></p>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal" id="login_popup_modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+	<div class="modal-dialog modal-sm" role="document">
+		<div class="modal-content">
+			<div class="form-group has-feedback">
+				<input type="text" id="login_form_username" name="login_form_username" class="form-control" placeholder="Username" value="<?php echo USERNAME ?>" readonly>
+				<span class="glyphicon glyphicon-user form-control-feedback"></span>
+			</div>
+			<div class="form-group has-feedback">
+				<input type="password" id="login_form_password" name="login_form_password" class="form-control" placeholder="Password">
+				<span class="glyphicon glyphicon-lock form-control-feedback"></span>
+			</div>
+			<div class="row">
+				<div class="col-xs-12">
+					<button type="button" id="login_form_button" class="btn btn-primary btn-block btn-flat">Sign In</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- two seconds delay modal : Added by Sabriella -->
+<div id="delay_modal" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title modal-success"><span class="glyphicon glyphicon-ok"></span> Success!</h4>
+			</div>
+			<div class="modal-body">
+				<p>Successfully Saved</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-success" data-dismiss="modal">Ok</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- End -->
+`);
+// /\
+// || Populate Modals
 
 $('[data-daterangefilter]').each(function() {
 	var type = $(this).attr('data-daterangefilter');
