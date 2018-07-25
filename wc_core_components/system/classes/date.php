@@ -31,7 +31,17 @@ class date {
 		return $date;
 	}
 
-	private function convertDate($date, $format, $offset) {
+	public function getMonthNumber($date = '') {
+		$date = $this->convertDate($date, 'm');
+		return $date;
+	}
+
+	public function getYear($date = '') {
+		$date = $this->convertDate($date, 'Y');
+		return $date;
+	}
+
+	private function convertDate($date, $format, $offset = '+0 day') {
 		if (empty($date)) {
 			return date($format, strtotime($offset));
 		} else if (strtotime($date) > 0) {
