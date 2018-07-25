@@ -64,12 +64,14 @@ class convert {
 				$str .= $this->decimal;
 				
 				if ($cents_fraction) {
-					$str .= "/100 Only";
+					$str .= "/100";
 				} else {
 					$str .= " Cents";
 				}
 			}
 		}
+		$str .= " Only";
+		
 		$this->amount_in_words = $str;
 	}
 
