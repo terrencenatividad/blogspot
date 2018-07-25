@@ -302,6 +302,8 @@ class controller extends wc_controller {
 		$data2						= $this->getItemDetails();
 		$data2						= $this->cleanData($data2);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
+		$data['period']				= $this->date->getMonthNumber($data['transactiondate']);
+		$data['fiscalyear']		= $this->date->getYear($data['transactiondate']);
 		$seq						= new seqcontrol();
 		$data['voucherno']			= $seq->getValue('PR');
 		$result						= $this->purchase_model->savePurchaseReceipt($data, $data2);
@@ -329,6 +331,8 @@ class controller extends wc_controller {
 		$data						= array_merge($this->input->post($this->fields), $this->input->post($this->fields_header));
 		unset($data['voucherno']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
+		$data['period']				= $this->date->getMonthNumber($data['transactiondate']);
+		$data['fiscalyear']		= $this->date->getYear($data['transactiondate']);
 		$voucherno					= $this->input->post('voucherno_ref');
 		$data2						= $this->getItemDetails();
 		$data2						= $this->cleanData($data2);
