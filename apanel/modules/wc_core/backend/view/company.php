@@ -139,7 +139,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Tax Year')
+								->setLabel('Accounting Period')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('taxyear')
 								->setId('taxyear')
