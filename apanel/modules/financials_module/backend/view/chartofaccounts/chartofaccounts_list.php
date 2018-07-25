@@ -360,15 +360,15 @@ var ajax = {};
     	if(tab == 'all'){
     		ajax.addCond	= '';
     	}else if(tab == 'asset'){
-    		ajax.addCond	= " chart.accountclasscode IN ('OTHCA','ACCREC','CASH','OTHNCA','PPE','PREPAID','VAT','INV') ";
+    		ajax.addCond	= " chart.accountclasscode IN ('OTHCA','CUASET','ACCREC','CASH','OTHNCA','NCASET','PPE','PREPAID','VAT','INPVAT','INV','NVNTRY') ";
     	}else if(tab == 'liability'){
-    		ajax.addCond	= " chart.accountclasscode IN ('OTHCL','ACCPAY','LTP','VAT') ";
+    		ajax.addCond	= " chart.accountclasscode IN ('OTHCL','CULIAB','NCLIAB','ACCPAY','LTP','VAT','OUTVAT','INCTAX') ";
     	}else if(tab == 'equity'){
-    		ajax.addCond	= " chart.accountclasscode='EQUITY' ";
+    		ajax.addCond	= " chart.accountclasscode IN('EQUITY') ";
     	}else if(tab == 'revenue'){
-    		ajax.addCond	= " chart.accountclasscode IN ('REV','OTHINC') ";
+    		ajax.addCond	= " chart.accountclasscode IN ('REV','REVENU','OTHINC','OTRINC','RETEAR') ";
     	}else if(tab == 'expense'){
-    		ajax.addCond	= " chart.accountclasscode IN ('EXP','COST') ";
+    		ajax.addCond	= " chart.accountclasscode IN ('EXP','OPSEXP','OTREXP','COST','COSTSA') ";
     	}
     	
     	showList();
