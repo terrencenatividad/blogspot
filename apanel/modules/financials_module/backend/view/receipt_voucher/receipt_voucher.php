@@ -59,6 +59,7 @@
 								->setId('customer')
 								->setList($customer_list)
 								->setValue($customercode)
+								->setMaxLength(100)
 								->setAttribute(array("onChange" => "getPartnerInfo(this.value);"))
 								->setValidation('required')
 								->addHidden(($task == 'view'))
@@ -116,7 +117,7 @@
 										->setSplit('col-md-4', 'col-md-8')
 										->setName('paymentreference')
 										->setId('paymentreference')
-										->setAttribute(array("maxlength" => "50"))
+										->setMaxLength(30)
 										->setValue($or_no)
 										->draw($show_input);
 							?>
@@ -130,6 +131,7 @@
 										->setSplit('col-md-2', 'col-md-10')
 										->setName('remarks')
 										->setId('remarks')
+										->setMaxLength(100)
 										->setValue($particulars)
 										->setAttribute(
 											array(
@@ -204,6 +206,7 @@
 												->setName('bank[1]')
 												->setId('bank[1]')
 												->setClass('bank')
+												->setMaxLength(99)
 												// ->setValue($bank)
 												->draw(true);
 									?>
@@ -248,7 +251,8 @@
 												->setClass("text-right chequeamount")
 												->setName('chequeamount[1]')
 												->setId('chequeamount[1]')
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
+												->setMaxLength(20)
+												->setAttribute(array("onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
 												->setValidation('decimal')
 												->setValue("0.00")
 												->draw(true);
@@ -294,6 +298,7 @@
 													->setName('bank['.$row.']')
 													->setId('bank['.$row.']')
 													->setClass('bank')
+													->setMaxLength(99)
 													->setValue($bank)
 													->draw($show_input);
 										?>
@@ -339,7 +344,8 @@
 													->setName('chequeamount['.$row.']')
 													->setId('chequeamount['.$row.']')
 													->setValidation('decimal')
-													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
+													->setMaxLength(20)
+													->setAttribute(array("onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
 													->setValue(number_format($chequeamount,2))
 													->draw($show_input);
 										?>
@@ -403,6 +409,20 @@
 				<div class="panel-heading">
 					<strong>Accounting Details</strong>
 				</div>
+				<div class="has-error">
+					<span id="totalAmountError" class="help-block hidden small">
+						<i class="glyphicon glyphicon-exclamation-sign"></i> 
+						The total Debit Amount and Credit Amount must match.
+					</span>
+					<span id="zeroTotalAmountError" class="help-block hidden small">
+						<i class="glyphicon glyphicon-exclamation-sign"></i> 
+						Total Debit and Total Credit must have a value.
+					</span>
+					<span id="accountcodeError" class="help-block hidden small">
+						<i class="glyphicon glyphicon-exclamation-sign"></i> 
+						Account Code field must have a value.
+					</span>
+				</div>
 				<div class="table-responsive">
 					<table class="table table-hover table-condensed " id="entriesTable">
 						<thead>
@@ -451,7 +471,7 @@
 												->setSplit('', 'col-md-12')
 												->setName('detailparticulars['.$row.']')
 												->setId('detailparticulars['.$row.']')
-												->setAttribute(array("maxlength" => "100"))
+												->setMaxLength(250)
 												->setClass('description')
 												->setValue($detailparticulars)
 												->draw($show_input);
@@ -466,7 +486,8 @@
 												->setId('debit['.$row.']')
 												->setClass("text-right account_amount debit ")
 												->setValidation('decimal')
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
+												->setMaxLength(20)
+												->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($debit, 2))
 												->draw($show_input);
 									?>
@@ -479,7 +500,8 @@
 												->setId('credit['.$row.']')
 												->setValidation('decimal')
 												->setClass("text-right credit")
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
+												->setMaxLength(20)
+												->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($credit, 2))
 												->draw($show_input);
 									?>
@@ -514,7 +536,7 @@
 												->setSplit('', 'col-md-12')
 												->setName('detailparticulars['.$row.']')
 												->setId('detailparticulars['.$row.']')
-												->setAttribute(array("maxlength" => "100"))
+												->setMaxLength(250)
 												->setClass('description')
 												->setValue($detailparticulars)
 												->draw($show_input);
@@ -529,7 +551,8 @@
 												->setId('debit['.$row.']')
 												->setValidation('decimal')
 												->setClass("text-right debit account_amount")
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
+												->setMaxLength(20)
+												->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($debit, 2))
 												->draw($show_input);
 									?>
@@ -542,7 +565,8 @@
 												->setClass("text-right  credit")
 												->setId('credit['.$row.']')
 												->setValidation('decimal')
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
+												->setMaxLength(20)
+												->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($credit, 2))
 												->draw($show_input);
 									?>
@@ -606,7 +630,7 @@
 															->setSplit('', 'col-md-12')
 															->setName('detailparticulars['.$row.']')
 															->setId('detailparticulars['.$row.']')
-															->setAttribute(array("maxlength" => "100"))
+															->setMaxLength(250)
 															->setClass('description')
 															->setValue($detailparticulars)
 															->draw($show_input);
@@ -620,7 +644,8 @@
 															->setId('debit['.$row.']')
 															->setClass("text-right account_amount $indicator")
 															->setValidation('decimal')
-															->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
+															->setMaxLength(20)
+															->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
 															->setValue(number_format($debit, 2))
 															->draw($show_input);
 											$detail_row	.= '</td>';
@@ -632,7 +657,8 @@
 															->setClass("text-right  credit $indicator")
 															->setId('credit['.$row.']')
 															->setValidation('decimal')
-															->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_credit))
+															->setMaxLength(20)
+															->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_credit))
 															->setValue(number_format($credit, 2))
 															->draw($show_input);
 											$detail_row	.= '</td>';
@@ -1042,9 +1068,10 @@ var clone_acct 	= $('#entriesTable tbody tr.clone:first')[0].outerHTML;
 
 function storedescriptionstoarray(){
 	acct_details 	=	[];
-	$('#entriesTable tbody tr').each(function() {
+	$('#entriesTable tbody tr.added_row').each(function() {
 		var accountcode = $(this).find('.accountcode').val();
 		var description = $(this).find('.description').val();
+		var ischeck 	= $(this).find('.ischeck').val();
 		var debit		= $(this).find('.account_amount').val();
 		// console.log("ACCOUNTCODE = "+accountcode);
 		if(description!=""){
@@ -1057,14 +1084,16 @@ function storedescriptionstoarray(){
 }
 
 function displaystoreddescription(){
-	$('#entriesTable tbody tr select.accountcode').each(function() {
-		if (typeof acct_details[$(this).val()] === 'undefined') {
-			$(this).closest('tr').find('.description').val("");
-		} else {
-			var description = acct_details[$(this).val()] || "";
-			console.log("DESCRIPTION = "+description);
-			$(this).closest('tr').find('.description').val(description);	
-		}	
+	$('#entriesTable tbody tr.added_row select.accountcode').each(function() {
+		var ischeck = $(this).closest('tr').find('.ischeck').val();
+		if(ischeck == 'yes'){
+			if (typeof acct_details[$(this).val()] === 'undefined') {
+				$(this).closest('tr').find('.description').val("");
+			} else {
+				var description = acct_details[$(this).val()] || "";
+				$(this).closest('tr').find('.description').val(description);	
+			}	
+		}
 	});
 }
 
@@ -1095,7 +1124,8 @@ $('#chequeTable .cheque_account').on('change', function()  {
 			} else {
 				$('#entriesTable tbody tr.clone .accountcode').each(function() {
 					var account = $(this).val();
-					if(account == ""){
+					var ischeck = $(this).closest('tr').find('.ischeck').val();
+					if(task == 'create' && account == "" || account == "" && ischeck == 'yes'){
 						$(this).closest('tr').remove();
 					}
 				});
@@ -1110,11 +1140,13 @@ $('#chequeTable .cheque_account').on('change', function()  {
 			var ParentRow = $("#entriesTable tbody tr.clone").first();
 			if($('#entriesTable tbody tr.added_row').length){
 				ParentRow = $("#entriesTable tbody tr.added_row").last();
+				$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 			}
 			ParentRow.after(clone_acct);
 		}
 		resetIds();
 		$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
+		$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 		$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 		disable_acct_fields(row);
 		row++;
@@ -1149,17 +1181,20 @@ function acctdetailamtreset(){
 				$(this).remove();
 			}
 		}
+		$(this).closest('tr').find('.ischeck').val('yes');
 	});
 	$('#entriesTable tbody tr select.accountcode').each(function() {
 		if (typeof checker['acc-' + $(this).val()] === 'undefined') {
 		} else {
+			var ischeck 	=	$(this).closest('tr').find('.ischeck').val();
 			var ca = checker['acc-' + $(this).val()] || '0.00';
 				ca = removeComma(ca);
 			if($(this).val() == ""){
 				ca = '0.00';
 			}
-			console.log("TEST CA = "+ca);
-			$(this).closest('tr').find('.account_amount').val(addComma(ca));	
+			if(ischeck == 'yes'){
+				$(this).closest('tr').find('.account_amount').val(addComma(ca));
+			}
 			$(this).closest('tr').find('.h_accountcode').val($(this).val());	
 		}	
 	});
@@ -1183,6 +1218,7 @@ function recomputechequeamts(){
 $('#chequeTable .chequeamount').on('change', function() {
 	chequeamount = $(this).val();
 	acc = $(this).closest('tr').find('.cheque_account').val();
+	storedescriptionstoarray();
 	recomputechequeamts();
 	acctdetailamtreset();
 	displaystoreddescription();
@@ -1312,12 +1348,14 @@ function resetIds() {
 		row.cells[0].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
 		row.cells[0].getElementsByTagName("input")[0].id 	= 'h_accountcode['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
+		row.cells[1].getElementsByTagName("input")[1].id 	= 'ischeck['+x+']';
 		row.cells[2].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
 		
 		row.cells[0].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
-		row.cells[0].getElementsByTagName("input")[0].name = 'h_accountcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].name  = 'h_accountcode['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
+		row.cells[1].getElementsByTagName("input")[1].name 	= 'ischeck['+x+']';
 		row.cells[2].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
 		
@@ -1703,30 +1741,40 @@ function validateDetails(){
 		
 		if(valid1 > 0)
 		{
-			$("#payableForm #detailAccountError").removeClass('hidden');
+			$("#payableForm #accountcodeError").removeClass('hidden');
 		}
 		else
 		{
-			$("#payableForm #detailAccountError").addClass('hidden');
+			$("#payableForm #accountcodeError").addClass('hidden');
 		}
 		
 		if(valid2 > 0)
 		{
-			$("#payableForm #detailAmountError").removeClass('hidden');
+			$("#payableForm #zeroTotalAmountError").removeClass('hidden');
 		}
 		else
 		{
-			$("#payableForm #detailAmountError").addClass('hidden');
+			$("#payableForm #zeroTotalAmountError").addClass('hidden');
 		}
 		
-		if(parseFloat(total_debit) != parseFloat(total_credit))
-		{
-			$("#payableForm #detailTotalError").removeClass('hidden');
+		if(parseFloat(total_debit) != parseFloat(total_credit)){
+			$("#accounting_details #totalAmountError").removeClass('hidden');
+			$('#accounting_details .accountcode').each(function(index){
+				var debit = $('#entriesTable #debit\\['+index+'\\]').val();
+				var credit = $('#entriesTable #credit\\['+index+'\\]').val();
+
+				if(debit != undefined && debit > 0){
+					$('#entriesTable #debit\\['+index+'\\]').parent().addClass('has-error');
+				}
+				if(credit != undefined && credit > 0){
+					$('#entriesTable #credit\\['+index+'\\]').parent().addClass('has-error');
+				}
+			});
 			valid1 = 1;
 		}
 		else
 		{
-			$("#payableForm #detailTotalError").addClass('hidden');
+			$("#payableForm #totalAmountError").addClass('hidden');
 
 			if(parseFloat(total_amount) > 0)
 			{
@@ -2490,7 +2538,7 @@ function applySelected_(){
 	if(paymentmode == 'cheque')
 	{
 		valid	+= validateCheques();
-		valid	+= totalPaymentGreaterThanChequeAmount();
+		// valid	+= totalPaymentGreaterThanChequeAmount();
 	}
 
 	return valid;
