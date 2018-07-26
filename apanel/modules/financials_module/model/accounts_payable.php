@@ -887,7 +887,7 @@ class accounts_payable extends wc_model
 				$post_header['referenceno']		= $referenceno;
 				$post_header['checkdate']		= $checkdate;
 				$post_header['checkstat']		= '';
-				$post_header['stat']			= 'posted';
+				$post_header['stat']			= 'open';
 				$post_header['postedby']		= USERNAME;
 				$post_header['postingdate']		= $datetime;
 				
