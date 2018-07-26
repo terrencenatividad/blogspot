@@ -153,7 +153,7 @@
 								<th class="col-md-3">Cheque Number</th>
 								<th class="col-md-2">Cheque Date</th>
 								<th class="col-md-2">Amount</th>
-								<?if($task=='view'):?><th class="col-md-1">Action</th><?endif;?>
+								<th class="col-md-1">Action</th>
 							</tr>
 						</thead>
 						<tbody id="tbody_cheque">
@@ -731,9 +731,10 @@
 			<div class="row">
 				<div class="col-md-12 col-sm-12 text-center">
 					<?if($show_input):?>
-					<?//echo $ui->addSavePreview()
-						//		->addSaveExit()
-							//  ->drawSaveOption(true);?>
+					<? //echo  $ui->addSavePreview()
+								//->addSaveNew()
+								//->addSaveExit()
+							    //->drawSaveOption(true);?>
 					<input type = "button" value = "Save" name = "save" id = "btnSave" class="btn btn-primary btn-flat"/>
 					<input class = "form_iput" value = "" name = "h_save" id = "h_save" type = "hidden">
 					<?endif;?>
@@ -964,7 +965,7 @@
 					$('#entriesTable tbody tr.clone .accountcode').each(function(index) {
 						var account = $(this).val();
 						var ischeck = $(this).closest('tr').find('.ischeck').val();
-						if(account == "" && index != 0 && ischeck == 'yes'){
+						if(task == 'create' && index != 0 && account == "" || account == "" && index != 0 && ischeck == 'yes'){
 							$(this).closest('tr').remove();
 						}
 					});
@@ -2375,6 +2376,7 @@
 					{
 						if(data.code == 1)
 						{
+							$("#payableForm #h_voucher_no").val(data.voucher);
 							$("#payableForm").submit();
 						}
 						else
@@ -2421,6 +2423,7 @@
 					{
 						if(data.code == 1)
 						{
+							$("#payableForm #h_voucher_no").val(data.voucher);
 							$("#payableForm").submit();
 						}
 						else
