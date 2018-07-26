@@ -281,7 +281,7 @@ class accounts_receivable extends wc_model
 		$main_fields = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount","main.balance as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS customer","main.lockkey as importchecker","main.stat as stat");
 		$main_join   = "partners p ON p.partnercode = main.customer"; //AND p.companycode
 		$main_table  = "accountsreceivable as main";
-		$main_cond   = "main.stat = 'posted' || main.stat = 'cancelled' $add_query";
+		$main_cond   = "main.stat IN('posted','cancelled') $add_query";
 		
 		$query 		 = $this->db->setTable($main_table)
 								->setFields($main_fields)
