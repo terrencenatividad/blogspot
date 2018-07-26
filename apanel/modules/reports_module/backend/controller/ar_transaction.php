@@ -12,7 +12,7 @@ class controller extends wc_controller {
 	}
 
 	public function view() {
-		$this->view->title = 'AR Transactions';
+		$this->view->title = 'AR Transactions Report';
 		$data['ui'] = $this->ui;
 		$data['show_input'] = true;
 		$data['datefilter'] = $this->date->datefilterMonth();

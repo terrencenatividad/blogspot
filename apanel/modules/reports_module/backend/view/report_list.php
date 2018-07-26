@@ -41,7 +41,7 @@
 								<p class="list-group-item-text">List of customers with unpaid invoices</p>
 							</a>
 							<a href="ar_transaction" class="list-group-item">
-								<h4 class="list-group-item-heading">AR Transactions</h4>
+								<h4 class="list-group-item-heading">AR Transactions Report</h4>
 								<p class="list-group-item-text">List of detailed customer's invoices</p>
 							</a>
 							<a href="ar_detailed" class="list-group-item">
@@ -53,7 +53,7 @@
 								<p class="list-group-item-text">List of unpaid invoices to vendors</p>
 							</a>
 							<a href="ap_transaction" class="list-group-item">
-								<h4 class="list-group-item-heading">AP Transactions</h4>
+								<h4 class="list-group-item-heading">AP Transactions Report</h4>
 								<p class="list-group-item-text">List of detailed vendors's invoices</p>
 							</a>
 							<a href="ap_detailed" class="list-group-item">

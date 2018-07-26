@@ -14,7 +14,7 @@ class controller extends wc_controller {
 
 	public function view() 
 	{
-		$this->view->title = 'AP Transactions';
+		$this->view->title = 'AP Transactions Report';
 		$data['ui'] = $this->ui;
 		$data['show_input'] = true;
 		$data['datefilter'] = $this->date->datefilterMonth();
