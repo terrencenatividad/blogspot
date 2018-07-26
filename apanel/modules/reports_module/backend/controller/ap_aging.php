@@ -1,257 +1,139 @@
 <?php
 class controller extends wc_controller {
 
-	public function __construct() 
-	{
+	public function __construct() {
 		parent::__construct();
-		$this->ui = new ui();
-		$this->view->header_active 	= 'report/';
-		$this->ap_aging 			= new ap_aging();
-		$this->input            	= new input();
-		$this->show_input 	    	= true;
-		$session                	= new session();
+		$this->ui					= new ui();
+		$this->input				= new input();
+		$this->ap_aging				= new ap_aging();
+		$this->view->header_active	= 'report/';
 	}
 
-	public function view() 
-	{
-		$this->view->title = 'Accounts Payable Aging';
-		$data['ui'] = $this->ui;
-		$data['show_input'] = true;
-		$data['datefilter'] = date("M d, Y");
-		$data['customer_list'] = $this->ap_aging->getCustomerList();
+	public function view() {
+		$this->view->title		= 'Accounts Payable Aging';
+		$data['ui']				= $this->ui;
+		$data['datefilter']		= date("M d, Y");
+		$data['supplier_list']	= $this->ap_aging->getSupplierList();
 		$this->view->load('ap_aging', $data);
 	}
 
-	public function ajax($task)
-	{
-		header('Content-type: application/json');
-		$result 	=	"";
-
-		if($task == 'list')
-		{
-			$result = $this->ajax_list();
-		}else if($task == 'export')
-		{
-			$result = $this->export();
+	public function ajax($task) {
+		$ajax = $this->{$task}();
+		if ($ajax) {
+			header('Content-type: application/json');
+			echo json_encode($ajax);
 		}
-		echo json_encode($result); 
 	}
 
-	private function ajax_list()
-	{
-		$data = $this->input->post(array('daterangefilter','customer'));
+	private function ajax_list() {
+		$datefilter			= $this->input->post('datefilter');
+		$datefilter			= $this->date->dateDbFormat($datefilter);
+		$supplier			= $this->input->post('supplier');
 
-		$daterangefilter	= isset($data['daterangefilter'])? $data['daterangefilter'] : "";
-		$partnerfilter		= isset($data['customer'])? $data['customer'] : "";
-		$sort				= isset($data['sort'])  ?  $data['sort']  : "";
-		$sortBy				= isset($data['sortBy'])  ? $data['sortBy']  : "";
-		//$default_datefilter = date("M d, Y",strtotime('first day of this month')).' - '.date("M d, Y",strtotime('last day of this month'));
+		$pagination		= $this->ap_aging->getArAging($datefilter, $supplier);
+		$total_aging	= $this->ap_aging->getArAgingTotal($datefilter, $supplier);
 
-		// $date_filter = explode('-', $daterangefilter);
-		// foreach ($date_filter as $date) {
-		//  	$dates[] = date('Y-m-d', strtotime($date));
-		// }
-
-		// $datefilterFrom = (!empty($dates[0]))? $dates[0] : "";
-		// $datefilterTo   = (!empty($dates[1]))? $dates[1] : "";
-		$datefilter     = date("Y-m-d",strtotime($daterangefilter));
-
-		$pagination = $this->ap_aging->getApAging($datefilter,$partnerfilter);
-
-		$tablerow = "";
-		$totalcurrent = 0;
-		$total30 	  = 0;
-		$total60 	  = 0;
-		$totalover	  = 0;
-		$totalbalance = 0;
-		$norecords 	  = 0;
-
-		if(!empty($pagination->result))
-		{
-			for($i=0;$i < count($pagination->result);$i++)
-			{	
-				$dateDelayed   	= 0;
-				$partner		= $pagination->result[$i]->partner;
-			    $invoiceno		= $pagination->result[$i]->invoiceno;
-			    $terms			= $pagination->result[$i]->terms;
-			    $duedate		= $pagination->result[$i]->duedate;
-			    $sourceno		= $pagination->result[$i]->sourceno;
-			    $amount			= $pagination->result[$i]->amount;
-				$voucher		= $pagination->result[$i]->voucher;
-				$source			= $pagination->result[$i]->source;
-			    $invoicedate	= $pagination->result[$i]->invoicedate;
-			    $reference		= $pagination->result[$i]->reference;
-			
-				$paymentamount_fetch	= $this->ap_aging->getValue("pv_application","SUM(amount) as amount","apvoucherno = '$voucher' AND stat = 'posted' AND entereddate <= '$datefilter 23:59:59' "); 
-			
-				$paymentamount 	= $paymentamount_fetch[0]->amount;
-				$paymentamount	= (!empty($paymentamount)) ? $paymentamount : 0;
-			
-				$balance		= $amount - $paymentamount;
-				$diff 			= $this->ap_aging->dateDiff($datefilter,$duedate);
-				$dateDelayed   	= $diff;
-			
-				//$viewlink		= BASE_URL."purchase/purchase_receipt/view/$reference";
-				$viewlink		= BASE_URL."financials/accounts_payable/view/$voucher";
-
-				// if($balance > 0)
-				// {
-					$tablerow	.= '<tr>';
-					$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$partner.'</td>';
-					$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;<a href="'.$viewlink.'" target="_blank" >'.$voucher.'</a></td>';
-					$tablerow	.= '<td class="center" style="vertical-align:middle;">'.$terms.'</td>';
-					$tablerow	.= '<td class="center" style="vertical-align:middle;">'.$this->date->dateFormat($duedate).'</td>';
-					$tablerow	.= ($dateDelayed < 1) ? '<td class="right" style="vertical-align:middle;">'.number_format($balance,2).'</td>' : '<td class="right" style="vertical-align:middle;"></td>';
-					$tablerow	.= ($dateDelayed > 0 && $dateDelayed < 31) ? '<td class="right" style="vertical-align:middle;">'.number_format($balance,2).'</td>' : '<td class="right" style="vertical-align:middle;"></td>';
-					$tablerow	.= ($dateDelayed > 30 && $dateDelayed < 61) ? '<td class="right" style="vertical-align:middle;">'.number_format($balance,2).'</td>' : '<td class="right" style="vertical-align:middle;"></td>';
-					$tablerow	.= ($dateDelayed > 60) ? '<td class="right" style="vertical-align:middle;">'.number_format($balance,2).'</td>' : '<td class="right" style="vertical-align:middle;"></td>';
-					$tablerow	.= '<td class="right" style="vertical-align:middle;" >'.number_format($balance,2).'</td>';
-					$tablerow	.= '</tr>';
-					
-					$totalcurrent 	+= ($dateDelayed < 1) ? $balance : 0;
-					$total30 		+= ($dateDelayed > 0 && $dateDelayed < 31) ? $balance : 0;
-					$total60 		+= ($dateDelayed > 30 && $dateDelayed < 61) ? $balance : 0;
-					$totalover		+= ($dateDelayed > 60) ? $balance : 0;
-					$totalbalance 	+= $balance;
-					$norecords 	= 0;
-				// } else {
-				// 	$norecords 	+= 1;
-				// }
-			}	
-
-			if( $norecords > 0 ){
-				$tablerow	.= '<tr>';
-				$tablerow	.= '<td colspan = "9" class="text-center" >No Records Found</td>';
-				$tablerow	.= '</tr>';
-			}
-
-			/**TOTAL AMOUNTS**/
-			$tablerow	.= '<tr style="background:#DDD">';
-			$tablerow	.= '<td class="right" style="vertical-align:middle;" colspan="4"><strong>Total</strong>&nbsp;</td>';
-			$tablerow	.= '<td class="right" style="vertical-align:middle;"><strong>'.number_format($totalcurrent,2).'</strong></td>';
-			$tablerow	.= '<td class="right" style="vertical-align:middle;"><strong>'.number_format($total30,2).'</strong></td>';
-			$tablerow	.= '<td class="right" style="vertical-align:middle;"><strong>'.number_format($total60,2).'</strong></td>';
-			$tablerow	.= '<td class="right" style="vertical-align:middle;"><strong>'.number_format($totalover,2).'</strong></td>';
-			$tablerow	.= '<td class="right" style="vertical-align:middle;"><strong>'.number_format($totalbalance,2).'</strong></td>';
-			$tablerow	.= '</tr>';
+		$table		= '';
+		if (empty($pagination->result)) {
+			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-		else
-		{
-			$tablerow	.= '<tr>';
-			$tablerow	.= '<td colspan = "9" class="text-center" >No Records Found</td>';
-			$tablerow	.= '</tr>';
+		foreach ($pagination->result as $key => $row) {
+			$table .= '<tr>';
+			$table .= '<td>' . $row->supplier . '</td>';
+			$table .= '<td>' . $row->voucherno . '</td>';
+			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
+			$table .= '<td>' . $row->terms . '</td>';
+			$table .= '<td>' . $this->date->dateFormat($row->duedate) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->current, 2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->thirty, 2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->sixty, 2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->oversixty, 2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->balance, 2) . '</td>';
+			$table .= '</tr>';
 		}
 
-		$pagination->table = $tablerow;
-		$pagination->csv   = $this->export();
+		$footer = '';
+
+		if ($pagination->page_limit > 1) {
+			$footer .= '<tr>';
+			$footer .= '<td colspan="9" class="text-center"><b>Page: ' . $pagination->page . ' of ' . $pagination->page_limit . '</b></td>';
+			$footer .= '</tr>';
+		}
+
+		$footer .= '<tr>';
+		$footer .= '<td colspan="5" class="text-right"><b>Totals: </b></td>';
+		$footer .= '<td class="text-right"><b>' . number_format($total_aging->current_total, 2) . '</b></td>';
+		$footer .= '<td class="text-right"><b>' . number_format($total_aging->thirty_total, 2) . '</b></td>';
+		$footer .= '<td class="text-right"><b>' . number_format($total_aging->sixty_total, 2) . '</b></td>';
+		$footer .= '<td class="text-right"><b>' . number_format($total_aging->oversixty_total, 2) . '</b></td>';
+		$footer .= '<td class="text-right"><b>' . number_format($total_aging->balance_total, 2) . '</b></td>';
+		$footer .= '</tr>';
+
+		$pagination->table	= $table;
+		$pagination->footer	= $footer;
+		$pagination->csv	= $this->get_export();
 		return $pagination;
 	}
 
-	private function export()
-	{
-		$data 		= $this->input->post(array('daterangefilter','customer'));
-		
-		$data['daterangefilter'] = str_replace(array('%2C', '+'), array(',', ' '), $data['daterangefilter']);
-		
-		$strdate	= $data['daterangefilter'];	
-		// $datefilter = explode('-', $datefilter);
-		// $dates		= array();
-		// foreach ($datefilter as $date) {
-		// 	$dates[] = date('Y-m-d', strtotime($date));
-		// }
-		
-		// $default_datefilter = date("M d, Y",strtotime('first day of this month')).' - '.date("M d, Y",strtotime('last day of this month'));		
-		// $datefilterFrom = (!empty($dates[0]))? $dates[0] : "";
-		// $datefilterTo   = (!empty($dates[1]))? $dates[1] : "";
+	private function get_export() {
+		$datefilter	= $this->input->post('datefilter');
+		$datefilter	= $this->date->dateDbFormat($datefilter);
+		$supplier	= $this->input->post('supplier');
 
-		$datefilter     = date("Y-m-d",strtotime($data['daterangefilter']));
-		$customer 	 	= isset($data['customer'])	? $data['customer'] : "";
+		$result			= $this->ap_aging->getArAgingExport($datefilter, $supplier);
+		$total_aging	= $this->ap_aging->getArAgingTotal($datefilter, $supplier);
 
-		$totalcurrent = 0;
-		$total30 	  = 0;
-		$total60 	  = 0;
-		$totalover	  = 0;
-		$totalbalance = 0;
+		$header = array(
+			'Supplier',
+			'Reference',
+			'Transaction Date',
+			'Terms',
+			'Due Date',
+			'Current',
+			'1 - 30',
+			'31 -60 Days',
+			'Over 60 Days',
+			'Balance'
+		);
 
-		$retrieved = $this->ap_aging->fileExport($datefilter,$customer);
-		
-		$header = array("Customer","Reference","Terms","Due Date","Current","1 - 30 Days","31 - 60 Days","Over 60 Days","Balance");
-		
-		$csv 	= '';
-		$csv 	.= 'Accounts Payable Aging';
-		$csv 	.= "\n\n";
-		$csv 	.= '"Date:","'.$strdate.'"';
-		$csv 	.= "\n\n";
-		$csv 	.= '"' . implode('","',$header).'"';
-		$csv 	.= "\n";
-
-		$filtered 	=	array_filter($retrieved);
-
-		if (!empty($filtered)){
-			foreach ($filtered as $key => $row){
-				$dateDelayed   	= 0;
-				$partner		= $row->partner;
-			    $invoiceno		= $row->invoiceno;
-			    $terms			= $row->terms;
-			    $duedate		= $row->duedate;
-			    $sourceno		= $row->sourceno;
-			    $amount			= $row->amount;
-				$voucher		= $row->voucher;
-				$source			= $row->source;
-			    $invoicedate	= $row->invoicedate;
-				
-				$paymentamount_fetch= $this->ap_aging->getValue("pv_application","SUM(amount) as amount","apvoucherno = '$voucher' AND stat = 'posted' AND entereddate <= '$datefilter 23:59:59' "); 
-				
-				$paymentamount 		= $paymentamount_fetch[0]->amount;
-				$paymentamount		= (!empty($paymentamount)) ? $paymentamount : 0;
-			
-				$balance			= $amount - $paymentamount;
-
-				$diff 			= $this->ap_aging->dateDiff($datefilter,$duedate);
-				$dateDelayed   		= $diff;
-
-				// if($balance > 0){
-					
-					$curr_	= ($dateDelayed < 1) ? number_format($balance,2) : 0;
-					$curr_1	= ($dateDelayed > 0 && $dateDelayed < 31) ? number_format($balance,2) : 0;
-					$curr_2	= ($dateDelayed > 30 && $dateDelayed < 61) ? number_format($balance,2) : 0;
-					$curr_3	= ($dateDelayed > 60) ? number_format($balance,2) : 0;
-					
-					$duedate =	date("M d, Y",strtotime($duedate));
-
-					$csv .= '"' . $partner 		. '",';
-					$csv .= '"' . $voucher 	. '",';
-					$csv .= '"' . $terms 		. '",';
-					$csv .= '"' . $duedate 		. '",';
-					$csv .= '"' . $curr_ 		. '",';
-					$csv .= '"' . $curr_1 		. '",';
-					$csv .= '"' . $curr_2 		. '",';
-					$csv .= '"' . $curr_3 		. '",';
-					$csv .= '"' . number_format($balance,2) . '"';
-					$csv .= "\n";
-
-					$totalcurrent 	+= ($dateDelayed < 1) ? $balance : 0;
-					$total30 		+= ($dateDelayed > 0 && $dateDelayed < 31) ? $balance : 0;
-					$total60 		+= ($dateDelayed > 30 && $dateDelayed < 61) ? $balance : 0;
-					$totalover		+= ($dateDelayed > 60) ? $balance : 0;
-					$totalbalance 	+= $balance;
-				// }
-			}
-
-			$csv .= '"",';
-			$csv .= '"",';
-			$csv .= '"",';
-			$csv .= '"Total",';
-			$csv .= '"' . number_format($totalcurrent,2) 	. '",';
-			$csv .= '"' . number_format($total30,2) 		. '",';
-			$csv .= '"' . number_format($total60,2) 		. '",';
-			$csv .= '"' . number_format($totalover,2) 		. '",';
-			$csv .= '"' . number_format($totalbalance,2) 		. '"';
-			$csv .= "\n";
+		$csv = '';
+		$csv .= 'Accounts Receivable Aging';
+		$csv .= "\n\n";
+		$csv .= '"Date:","' . $this->date->dateFormat($datefilter) . '"';
+		$csv .= "\n\n";
+		$csv .= '"' . implode('","', $header) . '"';
+		if (empty($result)) {
+			$csv .= 'No Records Found';
 		}
-
+		foreach ($result as $key => $row) {
+			$csv .= "\n";
+			$csv .= '"' . $row->supplier . '",';
+			$csv .= '"' . $row->voucherno . '",';
+			$csv .= '"' . $this->date->dateFormat($row->transactiondate) . '",';
+			$csv .= '"' . $row->terms . '",';
+			$csv .= '"' . $this->date->dateFormat($row->duedate) . '",';
+			$csv .= '"' . number_format($row->current, 2) . '",';
+			$csv .= '"' . number_format($row->thirty, 2) . '",';
+			$csv .= '"' . number_format($row->sixty, 2) . '",';
+			$csv .= '"' . number_format($row->oversixty, 2) . '",';
+			$csv .= '"' . number_format($row->balance, 2) . '"';
+		}
+		
+		$csv .= "\n";
+		$csv .= '"Totals:",';
+		$csv .= '"",';
+		$csv .= '"",';
+		$csv .= '"",';
+		$csv .= '"",';
+		$csv .= '"' . number_format($total_aging->current_total, 2) . '",';
+		$csv .= '"' . number_format($total_aging->thirty_total, 2) . '",';
+		$csv .= '"' . number_format($total_aging->sixty_total, 2) . '",';
+		$csv .= '"' . number_format($total_aging->oversixty_total, 2) . '",';
+		$csv .= '"' . number_format($total_aging->balance_total, 2) . '"';
+		
 		return $csv;
 	}
+
 
 }
 ?>
