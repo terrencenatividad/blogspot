@@ -76,7 +76,7 @@ class payment_voucher_model extends wc_model
 		$temp["main"] = $retrieveArrayMain;
 
 		// Retrieve Details
-		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.ischeck, main.debit, main.credit credit";
+		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.ischeck, main.debit, SUM(main.credit) credit";
 		$detail_cond  = "main.voucherno = '$sid' AND main.stat != 'temporary'";
 		$orderby 	  = "main.linenum";	
 		$detailJoin   = "chartaccount as chart ON chart.id = main.accountcode AND chart.companycode = main.companycode";
@@ -1347,45 +1347,45 @@ class payment_voucher_model extends wc_model
 				->setWhere("voucherno IN($payments)")
 				->runUpdate();
 
-		$count = $this->db->setTable($detailTable)
-				->setFields('*')
-				->setWhere("voucherno IN($payments)")
-				->runSelect()
-				->getResult();
+		// $count = $this->db->setTable($detailTable)
+		// 		->setFields('*')
+		// 		->setWhere("voucherno IN($payments)")
+		// 		->runSelect()
+		// 		->getResult();
 
-		if(!empty($count))
-		{
-			$ctr = count($count) + 1;
-			for($i = 0; $i < count($count); $i++)
-			{
-				$insert_info['voucherno']			= $count[$i]->voucherno;
-				$insert_info['slcode']				= $count[$i]->slcode;
-				$insert_info['linenum']				= $ctr;
-				$insert_info['apvoucherno']			= $count[$i]->apvoucherno;
-				$insert_info['transtype']			= $count[$i]->transtype;
-				$insert_info['costcentercode']		= $count[$i]->costcentercode;
-				$insert_info['accountcode']			= $count[$i]->accountcode;
-				$insert_info['debit']				= $count[$i]->credit;
-				$insert_info['credit']				= $count[$i]->debit;
-				$insert_info['currencycode']		= $count[$i]->currencycode;
-				$insert_info['exchangerate']		= $count[$i]->exchangerate;
-				$insert_info['converteddebit']		= $count[$i]->convertedcredit;
-				$insert_info['convertedcredit']		= $count[$i]->converteddebit;
-				$insert_info['taxcode']				= $count[$i]->taxcode;
-				$insert_info['taxacctflg']			= $count[$i]->taxacctflg;
-				$insert_info['taxline']				= $count[$i]->taxline;
-				$insert_info['vatflg']				= $count[$i]->vatflg;
-				$insert_info['detailparticulars']	= $count[$i]->detailparticulars;
-				$insert_info['stat']				= $count[$i]->stat;
-				$insert_info['checkstat']			= $count[$i]->checkstat;
-				$insert_info['checknumber']			= $count[$i]->checknumber;
+		// if(!empty($count))
+		// {
+		// 	$ctr = count($count) + 1;
+		// 	for($i = 0; $i < count($count); $i++)
+		// 	{
+		// 		$insert_info['voucherno']			= $count[$i]->voucherno;
+		// 		$insert_info['slcode']				= $count[$i]->slcode;
+		// 		$insert_info['linenum']				= $ctr;
+		// 		$insert_info['apvoucherno']			= $count[$i]->apvoucherno;
+		// 		$insert_info['transtype']			= $count[$i]->transtype;
+		// 		$insert_info['costcentercode']		= $count[$i]->costcentercode;
+		// 		$insert_info['accountcode']			= $count[$i]->accountcode;
+		// 		$insert_info['debit']				= $count[$i]->credit;
+		// 		$insert_info['credit']				= $count[$i]->debit;
+		// 		$insert_info['currencycode']		= $count[$i]->currencycode;
+		// 		$insert_info['exchangerate']		= $count[$i]->exchangerate;
+		// 		$insert_info['converteddebit']		= $count[$i]->convertedcredit;
+		// 		$insert_info['convertedcredit']		= $count[$i]->converteddebit;
+		// 		$insert_info['taxcode']				= $count[$i]->taxcode;
+		// 		$insert_info['taxacctflg']			= $count[$i]->taxacctflg;
+		// 		$insert_info['taxline']				= $count[$i]->taxline;
+		// 		$insert_info['vatflg']				= $count[$i]->vatflg;
+		// 		$insert_info['detailparticulars']	= $count[$i]->detailparticulars;
+		// 		$insert_info['stat']				= $count[$i]->stat;
+		// 		$insert_info['checkstat']			= $count[$i]->checkstat;
+		// 		$insert_info['checknumber']			= $count[$i]->checknumber;
 
-				$result = $this->db->setTable($detailTable)
-									->setValues($insert_info)
-									->runInsert();
-				$ctr++;
-			}
-		}
+		// 		$result = $this->db->setTable($detailTable)
+		// 							->setValues($insert_info)
+		// 							->runInsert();
+		// 		$ctr++;
+		// 	}
+		// }
 		
 		// Update paymentvoucher
 		$result = $this->db->setTable($mainTable)
