@@ -597,7 +597,7 @@
 											$detailparticulars 	= $aPvJournalDetails_Value->detailparticulars;
 											$debit 				= $aPvJournalDetails_Value->debit;
 											$credit 			= $aPvJournalDetails_Value->credit;
-											$ischeck 			= $aPvJournalDetails_Value->ischeck;
+											$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
 
 											$disable_code 		= "";
 											$added_class 		= "";
@@ -731,6 +731,9 @@
 			<div class="row">
 				<div class="col-md-12 col-sm-12 text-center">
 					<?if($show_input):?>
+					<?//echo $ui->addSavePreview()
+						//		->addSaveExit()
+							//  ->drawSaveOption(true);?>
 					<input type = "button" value = "Save" name = "save" id = "btnSave" class="btn btn-primary btn-flat"/>
 					<input class = "form_iput" value = "" name = "h_save" id = "h_save" type = "hidden">
 					<?endif;?>
@@ -957,8 +960,6 @@
 			if( row == 2 ){
 				if($("#entriesTable tbody tr.clone").length == 1){
 					$("#entriesTable tbody tr.clone").first().after(clone_acct);
-					
-					// $("#entriesTable tbody tr.clone").last().remove();
 				} else {
 					$('#entriesTable tbody tr.clone .accountcode').each(function(index) {
 						var account = $(this).val();
@@ -1021,7 +1022,6 @@
 				if($(this).val() == ""){
 					ca = '0.00';
 				}
-				// console.log('ischeck = '+ischeck);
 				total_payment += ca;		
 				if(ischeck == 'yes'){
 					$(this).closest('tr').find('.account_amount').val(addComma(ca));
@@ -1048,6 +1048,7 @@
 	$('#chequeTable .chequeamount').on('change', function() {
 		chequeamount = $(this).val();
 		acc = $(this).closest('tr').find('.cheque_account').val();
+		storedescriptionstoarray();
 		recomputechequeamts();
 		acctdetailamtreset();
 		displaystoreddescription();
@@ -2201,6 +2202,7 @@
 					storedescriptionstoarray();
 					recomputechequeamts();
 					acctdetailamtreset();
+					resetChequeIds();
 					addAmounts();
 					addAmountAll('debit');
 					addAmountAll('credit');
@@ -2226,9 +2228,10 @@
 					document.getElementById('chequeamount['+row+']').value 		= '0.00';
 					
 					checker['acc-'+account] 	-=	acctamt;
-					storedescriptionstoarray();	
+					storedescriptionstoarray();
 					recomputechequeamts();
 					acctdetailamtreset();
+					resetChequeIds();
 					addAmounts();
 					addAmountAll('debit');
 					addAmountAll('credit');
