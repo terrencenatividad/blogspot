@@ -259,11 +259,9 @@ class controller extends wc_controller
 		$data["tinno"] 		   	   	= $data["vend"]->tinno;
 		$data["address1"] 	       	= $data["vend"]->address1;
 		$data["terms"] 	   		   	= $data["vend"]->terms;
-
 		//For User Access
 		$login						= $this->session->get('login');
 		$groupname 					= $login['groupname'];
-
 		$has_access					= $this->receipt_voucher->retrieveAccess($groupname);
 		$data['has_access'] 		= $has_access[0]->mod_edit;
 		/**
@@ -1150,7 +1148,8 @@ class controller extends wc_controller
 			{
 				$accountcode       = (!empty($results[$i]->accountcode)) ? $results[$i]->accountcode : "";
 				$detailparticulars = (!empty($results[$i]->detailparticulars)) ? $results[$i]->detailparticulars : "";
-
+				$ischeck 			= (!empty($results[$i]->ischeck)) 				? $results[$i]->ischeck 			: "no";
+				
 				// Sum of credit will go to debit side on PV
 				// $debit         	= number_format($results[$i]->sumcredit, 2);
 				$debit 				= (isset($results[$i]->chequeamount)) ? $results[$i]->chequeamount : "0";
@@ -1182,7 +1181,8 @@ class controller extends wc_controller
 									->setClass('description')
 									->setValue($detailparticulars)
 									->draw($show_input).
-							'</td>';
+							'	<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
+							</td>';
 				$table  .=  '<td class = "remove-margin">'
 								.$ui->formField('text')
 									->setSplit('', 'col-md-12')

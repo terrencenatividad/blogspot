@@ -456,6 +456,7 @@
 												->setValue($detailparticulars)
 												->draw($show_input);
 									?>
+									<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
 								</td>
 								<td>
 									<?php
@@ -518,6 +519,7 @@
 												->setValue($detailparticulars)
 												->draw($show_input);
 									?>
+									<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
 								</td>
 								<td>
 									<?php
@@ -561,7 +563,8 @@
 											$detailparticulars 	= $aPvJournalDetails_Value->detailparticulars;
 											$debit 				= $aPvJournalDetails_Value->debit;
 											$credit 			= $aPvJournalDetails_Value->credit;
-											
+											$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
+
 											$total_debit 		+= $debit;
 											$total_credit 		+= $credit;
 
@@ -570,9 +573,8 @@
 											$added_function_db 	= "";
 											$added_function_cr	= "";
 											$indicator 			= "";
-											// $disable_credit 	= "";
-											// $disable_debit 		= "";
-											if($aPvJournalDetails_Index < ($count-1) && $paymenttype == 'cheque'){												$disable_debit		= 'readOnly';
+											
+											if($aPvJournalDetails_Index < ($count-1) && $paymenttype == 'cheque' && $ischeck == 'yes'){										$disable_debit		= 'readOnly';
 												$disable_credit		= 'readOnly';
 												$disable_dedit 		= "readOnly";
 												$disable_code 		= 'disabled';
@@ -608,7 +610,8 @@
 															->setClass('description')
 															->setValue($detailparticulars)
 															->draw($show_input);
-											$detail_row	.= '</td>';
+											$detail_row	.= '	<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
+															</td>';
 
 											$detail_row	.= '<td class="text-right">';
 											$detail_row .= $ui->formField('text')
