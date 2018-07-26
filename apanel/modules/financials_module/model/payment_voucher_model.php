@@ -86,7 +86,7 @@ class payment_voucher_model extends wc_model
 									->setFields($detailFields)
 									->leftJoin($detailJoin)
 									->setWhere($detail_cond)
-									// ->setGroupBy($groupby)
+									->setGroupBy($groupby)
 									->setOrderBy($orderby)
 									->runSelect()
 									->getResult();
