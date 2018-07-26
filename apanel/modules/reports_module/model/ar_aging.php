@@ -1,189 +1,67 @@
 <?php
 class ar_aging extends wc_model {
 
-	public function getCustomerList() 
-	{
+	public function getCustomerList() {
 		$result = $this->db->setTable('partners p')
-						->setFields("DISTINCT p.partnercode ind, p.partnername val")
-						->leftJoin("accountsreceivable ar ON p.partnercode = ar.customer")
-						->setWhere("p.partnercode != '' AND p.partnertype = 'customer' AND p.stat = 'active' AND ar.stat = 'posted'")
-						->setGroupBy("val")
-						->setOrderBy("val")
+							->setFields("DISTINCT p.partnercode ind, p.partnername val")
+							->leftJoin("accountsreceivable ar ON p.partnercode = ar.customer")
+							->setWhere("p.partnercode != '' AND p.partnertype = 'customer' AND p.stat = 'active' AND ar.stat = 'posted'")
+							->setGroupBy("val")
+							->setOrderBy("val")
+							->runSelect()
+							->getResult();
+
+		return $result;
+	}
+
+	public function getArAgingQuery($datefilter, $customer) {
+		$condition = ($customer && $customer != 'none') ? " AND customer = '$customer'" : '';
+
+		$payment_query = $this->db->setTable('rv_application rva')
+									->setFields('SUM(rva.amount) payments, rva.arvoucherno, rva.companycode')
+									->leftJoin('receiptvoucher rv ON rv.voucherno = rva.voucherno AND rv.companycode = rva.companycode')
+									->setWhere("rv.stat = 'posted' AND rv.transactiondate <= '$datefilter'")
+									->setGroupBy('rva.arvoucherno')
+									->buildSelect();
+
+		$query = $this->db->setTable('accountsreceivable ar')
+							->setFields("p.partnername customer, ar.voucherno, ar.transactiondate, ar.terms, ar.amount, ar.duedate, IF (ar.duedate < DATE_SUB('$datefilter', INTERVAL 60 DAY), ar.amount - IFNULL(rva.payments, 0), 0) oversixty,
+							IF (ar.duedate < DATE_SUB('$datefilter', INTERVAL 30 DAY) AND ar.duedate > DATE_SUB('$datefilter', INTERVAL 60 DAY), ar.amount - IFNULL(rva.payments, 0), 0) sixty,
+							IF (ar.duedate < '$datefilter' AND ar.duedate >= DATE_SUB('$datefilter', INTERVAL 30 DAY), ar.amount - IFNULL(rva.payments, 0), 0) thirty,
+							IF (ar.duedate >= '$datefilter', ar.amount - IFNULL(rva.payments, 0), 0) current, (ar.amount - IFNULL(rva.payments, 0)) balance, ar.companycode")
+							->leftJoin("($payment_query) rva ON rva.arvoucherno = ar.voucherno AND rva.companycode = ar.companycode")
+							->leftJoin('partners p ON p.partnercode = ar.customer AND p.companycode = ar.companycode')
+							->setWhere("ar.stat = 'posted' AND ar.transactiondate <= '$datefilter'" . $condition)
+							->setHaving('balance > 0');
+
+		return $query;
+	}
+
+	public function getArAging($datefilter, $customer) {
+		$result = $this->getArAgingQuery($datefilter, $customer)
+						->runPagination();
+
+		return $result;
+	}
+
+	public function getArAgingExport($datefilter, $customer) {
+		$result = $this->getArAgingQuery($datefilter, $customer)
 						->runSelect()
 						->getResult();
-				//var_dump($this->db->getQuery());
-		return $result;
-	}
-
-	function dateDiff($start, $end) 
-	{
-		$start_ts 	= strtotime($start);
-		$end_ts 	= strtotime($end);
-		$diff 		= $start_ts - $end_ts;
-		return floor($diff / (60*60*24));
-	}
-
-	public function getArAging($date, $partnerfilter)
-	{
-		$query_table     = "";
-		$query_condition = "";
-		$query_groupby   = "";
-		$query_sortby    = "";
-		$query_fields   = array("p.partnername partner", "ar.invoiceno as invoiceno",
-								"ar.terms as terms","ar.duedate as duedate","ar.transactiondate as invoicedate","ar.amount as amount","ar.sourceno as sourceno",
-							    "ar.voucherno as voucher","ar.source as source");
-							  
-		$query_table    = "accountsreceivable as ar";
-
-		$query_condition .= " AND ((select COALESCE(SUM(app.amount),0) from rv_application app where app.arvoucherno = ar.voucherno AND app.stat = 'posted' AND app.entereddate <= '$date 23:59:59' ) < ar.amount) ";					 
-		$query_condition .= (!empty($date)) ? " AND ar.transactiondate <= '$date'  " : "";
-	
-		$query_condition .= (!empty($partnerfilter) && $partnerfilter != 'none') ? " AND ar.customer = '$partnerfilter' " : "";
-		
-		$query_groupby	 .=  " ar.voucherno ";
-		$query_sortby    .= (!empty($sort) && !empty($sortBy))? " $sort $sortBy " : " partner, ar.invoiceno, ar.invoicedate ASC";
-		$pagination 	=	$this->db->setTable($query_table)
-									->setFields($query_fields)
-									->leftJoin("partners as p ON p.partnercode = ar.customer and p.companycode = '".COMPANYCODE."'")
-									->setWhere("ar.companycode = '".COMPANYCODE."' AND ar.stat='posted' $query_condition ")
-									->runPagination();
-		// echo $this->db->getQuery();
-		return $pagination;
-	}
-
-	public function fileExport($date,$customer)
-	{
-		$query_table     = "";
-		$query_condition = "";
-		$query_groupby   = "";
-		$query_sortby    = "";
-		$query_fields   = array(" p.partnername partner", "ar.invoiceno as invoiceno",
-								"ar.terms as terms","ar.duedate as duedate","ar.transactiondate as invoicedate","ar.amount as amount","ar.sourceno as sourceno",
-							    "ar.voucherno as voucher","ar.source as source");
-							  
-		$query_table    = "accountsreceivable as ar";
-		
-		$query_condition .= " AND ((select COALESCE(SUM(app.amount),0) from rv_application app where app.arvoucherno = ar.voucherno AND app.stat = 'posted' AND app.entereddate <= '$date 23:59:59' ) < ar.amount) ";					 
-		$query_condition .= (!empty($date)) ? " AND ar.transactiondate <= '$date' " : "";
-		
-		$query_condition .= (!empty($customer) && $customer != 'none') ? " AND ar.customer = '$customer' " : "";
-		
-		$query_groupby	 .=  " ar.voucherno ";
-		$query_sortby    .= (!empty($sort) && !empty($sortBy))? " $sort $sortBy " : " partner, ar.invoiceno, ar.invoicedate ASC";
-		$result =	$this->db->setTable($query_table)
-					->setFields($query_fields)
-					->leftJoin("partners as p ON p.partnercode = ar.customer and p.companycode = '".COMPANYCODE."'")
-					->setWhere("ar.companycode = '".COMPANYCODE."' AND ar.stat='posted' $query_condition")
-					->runSelect(false)
-					->getResult();
-					//->buildSelect(false);
-		// echo $this->db->getQuery();			
-		return $result;
-	}
-
-	public function getValue($table, $cols = array(), $cond, $orderby = "", $addon = true,$limit = false)
-	{
-		 $this->db->setTable($table)
-					->setFields($cols)
-					->setWhere($cond)
-					->setOrderBy($orderby);
-					if($limit){
-						$this->db->setLimit('1');
-					}
-		$result =   $this->db->runSelect($addon)
-					->getResult();
-					//->buildSelect();
 
 		return $result;
 	}
 
-	public function retrieveData($table, $fields = array(), $cond = "", $join = "", $orderby = "", $groupby = "")
-	{
-		$result = $this->db->setTable($table)
-					->setFields($fields)
-					->leftJoin($join)
-					->setGroupBy($groupby)
-					->setWhere($cond)
-					->setOrderBy($orderby)
-					->runSelect(false)
-					->getResult();
-		
-		//var_dump($this->db->getQuery());	
+	public function getArAgingTotal($datefilter, $customer) {
+		$aging_query = $this->getArAgingQuery($datefilter, $customer)
+							->buildSelect();
+
+		$result = $this->db->setTable("($aging_query) aq")
+							->setFields("customer, voucherno, transactiondate, terms, amount, duedate, SUM(oversixty) oversixty_total, SUM(sixty) sixty_total, SUM(thirty) thirty_total, SUM(current) current_total, SUM(balance) balance_total")
+							->runSelect()
+							->getRow();
 
 		return $result;
-	}
-
-	private function removeComma($data) 
-	{
-		if (is_array($data)) {
-			$temp = array();
-			foreach ($data as $val) {
-				$temp[] = $this->removeComma($val);
-			}
-			return $temp;
-		} else {
-			return str_replace(',', '', $data);
-		}
-	}
-
-	public function getOption($type, $orderby = "")
-	{
-		$result = $this->db->setTable('wc_option')
-					->setFields("code ind, value val")
-					->setWhere("type = '$type'")
-					->setOrderBy($orderby)
-					->runSelect(false)
-					->getResult();
-
-		return $result;
-	}
-
-	public function buildQuery($table, $fields = array(), $cond = "")
-	{	
-		$sub_select = $this->db->setTable($table)
-							   ->setFields($fields)
-							   ->setWhere($cond)
-							   ->buildSelect();
-		// var_dump($this->db->buildSelect());
-		return $sub_select;
-	}
-
-
-	private function getList($array, $id) {
-		$list = array();
-		foreach ($array as $key => $value) {
-			if ($key != $id) {
-				$list[] = (object) array('ind' => $key, 'val' => $value['label']);
-				if (isset($value['children'])) {
-					$list = array_merge($list, $this->getList($value['children'], $id));
-				}
-			}
-		}
-		return $list;
-	}
-
-	private function buildTree($list, $pid = 0) {
-		$op = array();
-		foreach($list as $item) {
-			if ($item->parentid == $pid) {
-				$op[$item->id] = array(
-					'label' => $item->label
-				);
-				$children = $this->buildTree($list, $item->id);
-				if ($children) {
-					$op[$item->id]['children'] = $children;
-				}
-			}
-		}
-		return $op;
-	}
-
-	private function generateSearch($search, $array) {
-		$temp = array();
-		foreach ($array as $arr) {
-			$temp[] = $arr . " LIKE '%" . str_replace(' ', '%', $search) . "%'";
-		}
-		return '(' . implode(' OR ', $temp) . ')';
 	}
 
 }
