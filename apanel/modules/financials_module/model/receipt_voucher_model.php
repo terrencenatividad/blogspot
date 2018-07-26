@@ -1336,47 +1336,47 @@ class receipt_voucher_model extends wc_model
 					->setWhere("voucherno IN($payments)")
 					->runUpdate();
 
-			// $count = $this->db->setTable($detailTable)
-			// 		->setFields('*')
-			// 		->setWhere("voucherno IN($payments)")
-			// 		->runSelect()
-			// 		->getResult();
+			$count = $this->db->setTable($detailTable)
+					->setFields('*')
+					->setWhere("voucherno IN($payments)")
+					->runSelect()
+					->getResult();
 	
-			// if(!empty($count))
-			// {
-			// 	$ctr = count($count) + 1;
-			// 	for($i = 0; $i < count($count); $i++)
-			// 	{
-			// 		$insert_info['voucherno']			= $count[$i]->voucherno;
-			// 		$insert_info['slcode']				= $count[$i]->slcode;
-			// 		$insert_info['bankrecon_id']		= $count[$i]->bankrecon_id;
-			// 		$insert_info['linenum']				= $ctr;
-			// 		$insert_info['arvoucherno']			= $count[$i]->arvoucherno;
-			// 		$insert_info['transtype']			= $count[$i]->transtype;
-			// 		$insert_info['costcentercode']		= $count[$i]->costcentercode;
-			// 		$insert_info['accountcode']			= $count[$i]->accountcode;
-			// 		$insert_info['debit']				= $count[$i]->credit;
-			// 		$insert_info['credit']				= $count[$i]->debit;
-			// 		$insert_info['currencycode']		= $count[$i]->currencycode;
-			// 		$insert_info['exchangerate']		= $count[$i]->exchangerate;
-			// 		$insert_info['converteddebit']		= $count[$i]->convertedcredit;
-			// 		$insert_info['convertedcredit']		= $count[$i]->converteddebit;
-			// 		$insert_info['taxcode']				= $count[$i]->taxcode;
-			// 		$insert_info['taxacctflg']			= $count[$i]->taxacctflg;
-			// 		$insert_info['taxline']				= $count[$i]->taxline;
-			// 		$insert_info['vatflg']				= $count[$i]->vatflg;
-			// 		$insert_info['detailparticulars']	= $count[$i]->detailparticulars;
-			// 		$insert_info['stat']				= $count[$i]->stat;
-			// 		$insert_info['checkstat']			= $count[$i]->checkstat;
-			// 		$insert_info['checknumber']			= $count[$i]->checknumber;
+			if(!empty($count))
+			{
+				$ctr = count($count) + 1;
+				for($i = 0; $i < count($count); $i++)
+				{
+					$insert_info['voucherno']			= $count[$i]->voucherno;
+					$insert_info['slcode']				= $count[$i]->slcode;
+					$insert_info['bankrecon_id']		= $count[$i]->bankrecon_id;
+					$insert_info['linenum']				= $ctr;
+					$insert_info['arvoucherno']			= $count[$i]->arvoucherno;
+					$insert_info['transtype']			= $count[$i]->transtype;
+					$insert_info['costcentercode']		= $count[$i]->costcentercode;
+					$insert_info['accountcode']			= $count[$i]->accountcode;
+					$insert_info['debit']				= $count[$i]->credit;
+					$insert_info['credit']				= $count[$i]->debit;
+					$insert_info['currencycode']		= $count[$i]->currencycode;
+					$insert_info['exchangerate']		= $count[$i]->exchangerate;
+					$insert_info['converteddebit']		= $count[$i]->convertedcredit;
+					$insert_info['convertedcredit']		= $count[$i]->converteddebit;
+					$insert_info['taxcode']				= $count[$i]->taxcode;
+					$insert_info['taxacctflg']			= $count[$i]->taxacctflg;
+					$insert_info['taxline']				= $count[$i]->taxline;
+					$insert_info['vatflg']				= $count[$i]->vatflg;
+					$insert_info['detailparticulars']	= $count[$i]->detailparticulars;
+					$insert_info['stat']				= $count[$i]->stat;
+					$insert_info['checkstat']			= $count[$i]->checkstat;
+					$insert_info['checknumber']			= $count[$i]->checknumber;
 	
-			// 		// var_dump($insert_info);
-			// 		$result = $this->db->setTable($detailTable)
-			// 							->setValues($insert_info)
-			// 							->runInsert();
-			// 		$ctr++;
-			// 	}
-			// }
+					// var_dump($insert_info);
+					$result = $this->db->setTable($detailTable)
+										->setValues($insert_info)
+										->runInsert();
+					$ctr++;
+				}
+			}
 			
 			// Update paymentvoucher
 			$result = $this->db->setTable($mainTable)
