@@ -1574,7 +1574,7 @@ class accounts_payable extends wc_model
 		
 		$paymentArray   = $this->db->setTable($appTable)
 							   ->setFields($paymentField)
-							   ->setWhere("voucherno = '$voucher' AND stat = 'posted'")
+							   ->setWhere(" voucherno = '$voucher' AND stat IN('open','posted') ")
 							   ->runSelect()
 							   ->getResult();
 
@@ -1605,12 +1605,12 @@ class accounts_payable extends wc_model
 				
 				if(!$result)
 					$errmsg[] = "The system has encountered an error in updating Accounts Payable [$mainvoucher]. Please contact admin to fix this issue.";
-				else
-					$this->log->saveActivity("Update Accounts Payable [$mainvoucher]");
+				//else
+					//$this->log->saveActivity("Update Accounts Payable [$mainvoucher]");
 			}
 
 			$update_info			= array();
-			$update_info['stat']	= 'cancelled';
+			$update_info['stat']	= 'deleted';
 			
 			// Update pv_application
 			$result = $this->db->setTable($appTable)
@@ -1621,7 +1621,7 @@ class accounts_payable extends wc_model
 			if(!$result)
 				$errmsg[] = "The system has encountered an error in updating PV Application [$voucher]. Please contact admin to fix this issue.";
 			else
-				$this->log->saveActivity("Update PV Application [$voucher]");
+				$this->log->saveActivity("Delete issued payment for [$voucher]");
 
 			// Update pv_details
 			$result = $this->db->setTable($detailTable)
@@ -1631,8 +1631,8 @@ class accounts_payable extends wc_model
 			
 			if(!$result)
 				$errmsg[] = "The system has encountered an error in updating Payment Voucher Details [$voucher]. Please contact admin to fix this issue.";
-			else
-				$this->log->saveActivity("Update Payment Voucher Details [$voucher]");
+			//else
+				//$this->log->saveActivity("Update Payment Voucher Details [$voucher]");
 			
 			// Update paymentvoucher
 			$result = $this->db->setTable($mainTable)
@@ -1642,8 +1642,8 @@ class accounts_payable extends wc_model
 			
 			if(!$result)
 				$errmsg[] = "The system has encountered an error in updating Payment Voucher [$voucher]. Please contact admin to fix this issue.";
-			else
-				$this->log->saveActivity("Update Payment Voucher [$voucher]");
+			//else
+				//$this->log->saveActivity("Update Payment Voucher [$voucher]");
 
 			return $errmsg;
 		}
