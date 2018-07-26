@@ -1148,9 +1148,9 @@ class controller extends wc_controller
 			$count       = count($results);
 			for($i = 0; $i < $count; $i++, $row++)
 			{
-				$accountcode       = (!empty($results[$i]->accountcode)) ? $results[$i]->accountcode : "";
-				$detailparticulars = (!empty($results[$i]->detailparticulars)) ? $results[$i]->detailparticulars : "";
-
+				$accountcode       	= (!empty($results[$i]->accountcode)) 			? $results[$i]->accountcode 		: "";
+				$detailparticulars 	= (!empty($results[$i]->detailparticulars)) 	? $results[$i]->detailparticulars 	: "";
+				$ischeck 			= (!empty($results[$i]->ischeck)) 				? $results[$i]->ischeck 			: "";
 				// Sum of credit will go to debit side on PV
 				// $debit         	   = number_format($results[$i]->sumcredit, 2);
 				$debit = (isset($account_total[$accountcode])) ? $account_total[$accountcode] : 0;
@@ -1179,7 +1179,8 @@ class controller extends wc_controller
 									->setClass('description')
 									->setValue($detailparticulars)
 									->draw($show_input).
-							'</td>';
+							'	<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
+							</td>';
 				$table  .=  '<td class = "remove-margin">'
 								.$ui->formField('text')
 									->setSplit('', 'col-md-12')

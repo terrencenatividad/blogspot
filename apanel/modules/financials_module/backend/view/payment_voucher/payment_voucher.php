@@ -451,6 +451,20 @@
 				<div class="panel-heading">
 					<strong>Accounting Details</strong>
 				</div>
+				<div class="has-error">
+					<span id="totalAmountError" class="help-block hidden small">
+						<i class="glyphicon glyphicon-exclamation-sign"></i> 
+						The total Debit Amount and Credit Amount must match.
+					</span>
+					<span id="zeroTotalAmountError" class="help-block hidden small">
+						<i class="glyphicon glyphicon-exclamation-sign"></i> 
+						Total Debit and Total Credit must have a value.
+					</span>
+					<span id="accountcodeError" class="help-block hidden small">
+						<i class="glyphicon glyphicon-exclamation-sign"></i> 
+						Account Code field must have a value.
+					</span>
+				</div>
 				<div class="table-responsive">
 					<table class="table table-hover table-condensed " id="entriesTable">
 						<thead>
@@ -503,7 +517,8 @@
 												->setAttribute(array("maxlength" => "100"))
 												->setValue($detailparticulars)
 												->draw($show_input);
-									?>
+									?>	
+									<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
 								</td>
 								<td>
 									<?php
@@ -566,6 +581,7 @@
 												->setValue($detailparticulars)
 												->draw($show_input);
 									?>
+									<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
 								</td>
 								<td>
 									<?php
@@ -608,11 +624,12 @@
 											$detailparticulars 	= $aPvJournalDetails_Value->detailparticulars;
 											$debit 				= $aPvJournalDetails_Value->debit;
 											$credit 			= $aPvJournalDetails_Value->credit;
-											
+											$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
+
 											$disable_code 		= "";
 											$added_class 		= "";
 											$indicator 			= "";
-											if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque'){
+											if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque' && $ischeck == 'yes'){
 												$disable_debit		= 'readOnly';
 												$disable_credit		= 'readOnly';
 												$disable_code 		= 'disabled';
@@ -650,7 +667,8 @@
 															->setAttribute(array("maxlength" => "100"))
 															->setValue($detailparticulars)
 															->draw($show_input);
-											$detail_row	.= '</td>';
+											$detail_row	.= '	<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
+															</td>';
 
 											$detail_row	.= '<td class="text-right">';
 											$detail_row .= $ui->formField('text')
@@ -889,14 +907,9 @@
 								</tr>
 							</thead>
 							<tbody id="payable_list_container">
-								<!-- <tr>
-									<td class="text-center" style="vertical-align:middle;" colspan="7">- No Records Found -</td>
-								</tr> -->
 							</tbody>
 							<tfoot>
-								<tr> <!-- class="info" -->
-									<!--<td class="col-md-3 center" id="app_page_info">&nbsp;</td>-->
-									<!--<td class="col-md-9 center" id="app_page_links"></td>-->
+								<tr>
 									<td class="center" colspan = "7" id="app_page_links"></td>
 								</tr>
 							</tfoot>
@@ -1112,11 +1125,12 @@ var clone_acct 	= $('#entriesTable tbody tr.clone:first')[0].outerHTML;
 
 function storedescriptionstoarray(){
 	acct_details 	=	[];
-	$('#entriesTable tbody tr').each(function() {
+	$('#entriesTable tbody tr.added_row').each(function() {
 		var accountcode = $(this).find('.accountcode').val();
 		var description = $(this).find('.description').val();
+		var ischeck 	= $(this).find('.ischeck').val();
 		var debit		= $(this).find('.account_amount').val();
-		// console.log("ACCOUNTCODE = "+accountcode);
+
 		if(description!=""){
 			if (typeof acct_details[accountcode] === 'undefined') {
 				acct_details[accountcode] = "";
@@ -1127,14 +1141,18 @@ function storedescriptionstoarray(){
 }
 
 function displaystoreddescription(){
-	$('#entriesTable tbody tr select.accountcode').each(function() {
-		if (typeof acct_details[$(this).val()] === 'undefined') {
-			$(this).closest('tr').find('.description').val("");
-		} else {
-			var description = acct_details[$(this).val()] || "";
-			console.log("DESCRIPTION = "+description);
-			$(this).closest('tr').find('.description').val(description);	
-		}	
+	console.log(acct_details);
+	$('#entriesTable tbody tr.added_row select.accountcode').each(function() {
+		var ischeck = $(this).closest('tr').find('.ischeck').val();
+		if(ischeck == 'yes'){
+			if (typeof acct_details[$(this).val()] === 'undefined') {
+				$(this).closest('tr').find('.description').val("");
+			} else {
+				var description = acct_details[$(this).val()] || "";
+				console.log("Description "+description);
+				$(this).closest('tr').find('.description').val(description);	
+			}	
+		}
 	});
 }
 
@@ -1163,7 +1181,8 @@ $('#chequeTable .cheque_account').on('change', function()  {
 			} else {
 				$('#entriesTable tbody tr.clone .accountcode').each(function() {
 					var account = $(this).val();
-					if(account == ""){
+					var ischeck = $(this).closest('tr').find('.ischeck').val();
+					if(account == "" && ischeck == 'yes'){
 						$(this).closest('tr').remove();
 					}
 				});
@@ -1178,11 +1197,13 @@ $('#chequeTable .cheque_account').on('change', function()  {
 			var ParentRow = $("#entriesTable tbody tr.clone").first();
 			if($('#entriesTable tbody tr.added_row').length){
 				ParentRow = $("#entriesTable tbody tr.added_row").last();
+				$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 			}
 			ParentRow.after(clone_acct);
 		}
 		resetIds();
 		$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
+		$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 		$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 		disable_acct_fields(row);
 		row++;
@@ -1207,16 +1228,21 @@ function acctdetailamtreset(){
 		if(!checker.hasOwnProperty('acc-'+accountcode)){
 			$(this).remove();
 		}
+		$(this).closest('tr').find('.ischeck').val('yes');
 	});
+	var total_payment = 0;
 	$('#entriesTable tbody tr select.accountcode').each(function() {
 		if (typeof checker['acc-' + $(this).val()] === 'undefined') {
 		} else {
+			var ischeck 	=	$(this).closest('tr').find('.ischeck').val();
 			var ca = checker['acc-' + $(this).val()] || '0.00';
 				ca = removeComma(ca);
 			if($(this).val() == ""){
 				ca = '0.00';
 			}
-			$(this).closest('tr').find('.account_amount').val(addComma(ca));	
+			if(ischeck == 'yes'){
+				$(this).closest('tr').find('.account_amount').val(addComma(ca));
+			}
 			$(this).closest('tr').find('.h_accountcode').val($(this).val());	
 		}	
 	});
@@ -1239,6 +1265,7 @@ function recomputechequeamts(){
 $('#chequeTable .chequeamount').on('change', function() {
 	chequeamount = $(this).val();
 	acc = $(this).closest('tr').find('.cheque_account').val();
+	storedescriptionstoarray();
 	recomputechequeamts();
 	acctdetailamtreset();
 	displaystoreddescription();
@@ -1366,12 +1393,14 @@ function resetIds() {
 		row.cells[0].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
 		row.cells[0].getElementsByTagName("input")[0].id 	= 'h_accountcode['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
+		row.cells[1].getElementsByTagName("input")[1].id 	= 'ischeck['+x+']';
 		row.cells[2].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
 		
 		row.cells[0].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
 		row.cells[0].getElementsByTagName("input")[0].name 	= 'h_accountcode['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
+		row.cells[1].getElementsByTagName("input")[1].name 	= 'ischeck['+x+']';
 		row.cells[2].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
 		
@@ -1754,30 +1783,40 @@ function validateDetails(){
 		
 		if(valid1 > 0)
 		{
-			$("#payableForm #detailAccountError").removeClass('hidden');
+			$("#payableForm #accountcodeError").removeClass('hidden');
 		}
 		else
 		{
-			$("#payableForm #detailAccountError").addClass('hidden');
+			$("#payableForm #accountcodeError").addClass('hidden');
 		}
 		
 		if(valid2 > 0)
 		{
-			$("#payableForm #detailAmountError").removeClass('hidden');
+			$("#payableForm #zeroTotalAmountError").removeClass('hidden');
 		}
 		else
 		{
-			$("#payableForm #detailAmountError").addClass('hidden');
+			$("#payableForm #zeroTotalAmountError").addClass('hidden');
 		}
 		
-		if(parseFloat(total_debit) != parseFloat(total_credit))
-		{
-			$("#payableForm #detailTotalError").removeClass('hidden');
+		if(parseFloat(total_debit) != parseFloat(total_credit)){
+			$("#accounting_details #totalAmountError").removeClass('hidden');
+			$('#accounting_details .accountcode').each(function(index){
+				var debit = $('#entriesTable #debit\\['+index+'\\]').val();
+				var credit = $('#entriesTable #credit\\['+index+'\\]').val();
+
+				if(debit != undefined && debit > 0){
+					$('#entriesTable #debit\\['+index+'\\]').parent().addClass('has-error');
+				}
+				if(credit != undefined && credit > 0){
+					$('#entriesTable #credit\\['+index+'\\]').parent().addClass('has-error');
+				}
+			});
 			valid1 = 1;
 		}
 		else
 		{
-			$("#payableForm #detailTotalError").addClass('hidden');
+			$("#payableForm #totalAmountError").addClass('hidden');
 
 			if(parseFloat(total_amount) > 0)
 			{
@@ -2540,7 +2579,7 @@ function applySelected_(){
 	if(paymentmode == 'cheque')
 	{
 		valid	+= validateCheques();
-		valid	+= totalPaymentGreaterThanChequeAmount();
+		// valid	+= totalPaymentGreaterThanChequeAmount();
 	}
 
 	return valid;
@@ -3039,6 +3078,7 @@ $(document).ready(function() {
 				storedescriptionstoarray();
 				recomputechequeamts();
 				acctdetailamtreset();
+				resetChequeIds();
 				addAmounts();
 				addAmountAll('debit');
 				addAmountAll('credit');
@@ -3064,9 +3104,10 @@ $(document).ready(function() {
 				document.getElementById('chequeamount['+row+']').value 		= '0.00';
 				
 				checker['acc-'+account] 	-=	acctamt;
-				storedescriptionstoarray();	
+				storedescriptionstoarray();
 				recomputechequeamts();
 				acctdetailamtreset();
+				resetChequeIds();
 				addAmounts();
 				addAmountAll('debit');
 				addAmountAll('credit');
