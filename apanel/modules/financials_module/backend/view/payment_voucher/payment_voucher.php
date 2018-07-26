@@ -628,7 +628,10 @@
 
 											$disable_code 		= "";
 											$added_class 		= "";
+											$added_function_db 	= "";
+											$added_function_cr	= "";
 											$indicator 			= "";
+											
 											if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque' && $ischeck == 'yes'){
 												$disable_debit		= 'readOnly';
 												$disable_credit		= 'readOnly';

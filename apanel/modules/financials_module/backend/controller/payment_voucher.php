@@ -1150,7 +1150,7 @@ class controller extends wc_controller
 			{
 				$accountcode       	= (!empty($results[$i]->accountcode)) 			? $results[$i]->accountcode 		: "";
 				$detailparticulars 	= (!empty($results[$i]->detailparticulars)) 	? $results[$i]->detailparticulars 	: "";
-				$ischeck 			= (!empty($results[$i]->ischeck)) 				? $results[$i]->ischeck 			: "";
+				$ischeck 			= (!empty($results[$i]->ischeck)) 				? $results[$i]->ischeck 			: "no";
 				// Sum of credit will go to debit side on PV
 				// $debit         	   = number_format($results[$i]->sumcredit, 2);
 				$debit = (isset($account_total[$accountcode])) ? $account_total[$accountcode] : 0;
