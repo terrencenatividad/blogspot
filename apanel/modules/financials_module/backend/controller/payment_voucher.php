@@ -133,7 +133,7 @@ class controller extends wc_controller
 
 		// Retrieve business type list
 		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond               = "accounttype != 'P'";
+		$acc_entry_cond               = "accounttype != ''";
 		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// Cash Account Options
@@ -236,7 +236,7 @@ class controller extends wc_controller
 		
 		// Retrieve business type list
 		$acc_entry_data             = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond             = "accounttype != 'P'";
+		$acc_entry_cond             = "accounttype != ''";
 		$data["account_entry_list"] = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		$data["vendor_list"]    	= array();
@@ -328,7 +328,7 @@ class controller extends wc_controller
 
 		// Retrieve business type list
 		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond               = "accounttype != 'P'";
+		$acc_entry_cond               = "accounttype != ''";
 		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// Cash Account Options
