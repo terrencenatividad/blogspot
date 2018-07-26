@@ -99,7 +99,7 @@ class accounts_payable extends wc_model
 		$appJoin_ca  = "chartaccount as chart ON chart.id = detail.accountcode AND chart.companycode = detail.companycode";
 		$appJoin_fin = "fintaxcode as ftax ON ftax.fstaxcode = main.wtaxcode AND ftax.companycode = main.companycode";
 
-		$app_cond 	 = "app.apvoucherno = '$sid' AND detail.linenum = '1' AND app.stat != 'cancelled'";
+		$app_cond 	 = "app.apvoucherno = '$sid' AND detail.linenum = '1' AND app.stat IN('open','posted') ";
 
 		$applicationArray = $this->db->setTable('pv_application as app')
 									->setFields($applicationFields)
@@ -1621,7 +1621,7 @@ class accounts_payable extends wc_model
 			if(!$result)
 				$errmsg[] = "The system has encountered an error in updating PV Application [$voucher]. Please contact admin to fix this issue.";
 			else
-				$this->log->saveActivity("Delete issued payment for [$voucher]");
+				$this->log->saveActivity("Delete issued payment [$voucher]");
 
 			// Update pv_details
 			$result = $this->db->setTable($detailTable)
