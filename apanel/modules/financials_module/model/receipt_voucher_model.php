@@ -76,7 +76,7 @@ class receipt_voucher_model extends wc_model
 		$temp["main"] = $retrieveArrayMain;
 
 		// Retrieve Details
-		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.ischeck, main.debit, main.credit credit";
+		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.ischeck, main.debit, SUM(main.credit) credit";
 		$detail_cond  = "main.voucherno = '$sid' AND main.stat != 'temporary'";
 		$orderby 	  = "main.linenum";	
 		$detailJoin   = "chartaccount as chart ON chart.id = main.accountcode AND chart.companycode = main.companycode";
