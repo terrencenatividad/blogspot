@@ -574,7 +574,7 @@ class receipt_voucher_model extends wc_model
 
 		foreach($data as $postIndex => $postValue)
 		{
-			if($postIndex=='accountcode' ||  $postIndex=='h_accountcode' ||	$postIndex=='detailparticulars' || $postIndex=='debit' || $postIndex=='credit')
+			if($postIndex=='h_accountcode' ||	$postIndex=='detailparticulars'  || $postIndex=='ischeck' || $postIndex=='debit' || $postIndex=='credit')
 			{
 				$a		= '';
 				foreach($postValue as $postValueIndex => $postValueIndexValue){
@@ -738,6 +738,7 @@ class receipt_voucher_model extends wc_model
 			$detailparticulars					= $tempArrayValue['detailparticulars'];
 			$debit			    				= $tempArrayValue['debit'];
 			$credit			    				= $tempArrayValue['credit'];
+			$ischeck 							= isset($tempArrayValue['ischeck']) && $tempArrayValue != "" 	?	$tempArrayValue['ischeck'] 	:	"no";
 
 			$post_detail['voucherno']			= $voucherno;
 			$post_detail['linenum']				= $iDetailLineNum;
@@ -749,6 +750,7 @@ class receipt_voucher_model extends wc_model
 			$post_detail['convertedcredit'] 	= $credit;
 			$post_detail['currencycode']		= 'PHP';
 			$post_detail['detailparticulars'] 	= $detailparticulars;
+			$post_detail['ischeck']				= $ischeck;
 			$post_detail['stat']				= $post_header['stat'];
 
 			$iDetailLineNum++;
@@ -816,7 +818,7 @@ class receipt_voucher_model extends wc_model
 								
 				if(!$insertResult){
 					$code 		= 0;
-					$errmsg[] 	= "<li>Error in Saving Payment Voucher Details.</li>";
+					$errmsg[] 	= "<li>Error in Saving Receipt Voucher Details.</li>";
 				}
 	
 				$this->db->setTable($applicationTable)
@@ -830,7 +832,7 @@ class receipt_voucher_model extends wc_model
 								
 				if(!$insertResult){
 					$code 		= 0;
-					$errmsg[] 	= "<li>Error in Updating Payment Voucher Application.</li>";
+					$errmsg[] 	= "<li>Error in Updating Receipt Voucher Application.</li>";
 				}
 			}else if(!empty($isAppDetailExist)){
 				$insertResult = $this->db->setTable($detailAppTable) 
@@ -839,7 +841,7 @@ class receipt_voucher_model extends wc_model
 									
 				if(!$insertResult){
 					$code 		= 0;
-					$errmsg[] 	= "<li>Error in Updating Payment Voucher Details.</li>";
+					$errmsg[] 	= "<li>Error in Updating Receipt Voucher Details.</li>";
 				}
 	
 				$insertResult = $this->db->setTable($applicationTable) 
@@ -848,7 +850,7 @@ class receipt_voucher_model extends wc_model
 	
 				if(!$insertResult){
 					$code 		= 0;
-					$errmsg[] 	= "<li>Error in Updating Payment Voucher Application.</li>";
+					$errmsg[] 	= "<li>Error in Updating Receipt Voucher Application.</li>";
 				}
 			}
 				
@@ -863,7 +865,7 @@ class receipt_voucher_model extends wc_model
 	
 			if(!$insertResult){
 				$code 		= 0;
-				$errmsg[] 	= "<li>Error in Updating Payment Voucher Header.</li>";
+				$errmsg[] 	= "<li>Error in Updating Receipt Voucher Header.</li>";
 			}	
 		}
 		
