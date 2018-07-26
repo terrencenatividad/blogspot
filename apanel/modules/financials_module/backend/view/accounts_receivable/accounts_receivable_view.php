@@ -549,12 +549,12 @@
                     &nbsp;
                     </div>
                     <div class="col-md-8 col-sm-8 col-xs-8 text-center">
-                        <?if($v_balance > 0 && $restrict_ar){?>
+                        <?if($v_balance > 0 && $restrict_ar && $stat != 'cancelled'){?>
                         <button type="button" class="btn btn-primary btn-md btn-flat" id="btnReceive">Receive Payment</button>
                         &nbsp;
                         <?}?>
                         
-                        <?if(empty($data["payments"]) && $data['checker'] != "import" && $restrict_ar){?>
+                        <?if(empty($data["payments"]) && $data['checker'] != "import" && $restrict_ar && $stat != 'cancelled'){?>
                         <a href="<?=BASE_URL?>financials/accounts_receivable/edit/<?=$sid?>" class="btn btn-primary btn-md btn-flat">Edit</a>
                         <?}?>
                     </div>

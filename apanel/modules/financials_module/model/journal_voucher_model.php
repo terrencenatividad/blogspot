@@ -39,6 +39,7 @@ class journal_voucher_model extends wc_model {
 		foreach ($debit as $entry) {
 			$total += $entry;
 		}
+		$data['stat']		= 'posted';
 		$data['period']		= date("n", strtotime($data['transactiondate']));
 		$data['fiscalyear']	= date("Y", strtotime($data['transactiondate']));
 		$data['amount']		= $total;
@@ -115,6 +116,51 @@ class journal_voucher_model extends wc_model {
 		return $result;
 	}
 
+	public function reverseEntries($delete_id)
+	{
+		$voucherno = "'" . implode("','", $delete_id) . "'";
+		$count = $this->db->setTable('journaldetails')
+				->setFields('*')
+				->setWhere("voucherno IN($voucherno)")
+				->runSelect()
+				->getResult();
+
+		if(!empty($count))
+		{
+			$ctr = count($count) + 1;
+			for($i = 0; $i < count($count); $i++)
+			{
+				$insert_info['voucherno']			= $count[$i]->voucherno;
+				$insert_info['checkno']				= $count[$i]->checkno;
+				$insert_info['transtype']			= $count[$i]->transtype;
+				$insert_info['linenum']				= $ctr;
+				$insert_info['slcode']				= $count[$i]->slcode;
+				$insert_info['source']				= $count[$i]->source;
+				$insert_info['costcentercode']		= $count[$i]->costcentercode;
+				$insert_info['accountcode']			= $count[$i]->accountcode;
+				$insert_info['debit']				= $count[$i]->credit;
+				$insert_info['credit']				= $count[$i]->debit;
+				$insert_info['currencycode']		= $count[$i]->currencycode;
+				$insert_info['exchangerate']		= $count[$i]->exchangerate;
+				$insert_info['converteddebit']		= $count[$i]->convertedcredit;
+				$insert_info['convertedcredit']		= $count[$i]->converteddebit;
+				$insert_info['taxcode']				= $count[$i]->taxcode;
+				$insert_info['taxacctflg']			= $count[$i]->taxacctflg;
+				$insert_info['taxline']				= $count[$i]->taxline;
+				$insert_info['vatflg']				= $count[$i]->vatflg;
+				$insert_info['detailparticulars']	= $count[$i]->detailparticulars;
+				$insert_info['stat']				= $count[$i]->stat;
+
+				$result = $this->db->setTable('journaldetails')
+									->setValues($insert_info)
+									->runInsert();
+				$ctr++;
+			}
+	}
+	return $count;
+		
+}
+
 	public function getJournalVoucherById($fields, $voucherno) {
 		return $this->db->setTable('journalvoucher')
 						->setFields($fields)
@@ -125,7 +171,7 @@ class journal_voucher_model extends wc_model {
 
 	public function getJournalVoucherPagination($fields, $search, $sort, $datefilter) {
 		$sort = ($sort) ? $sort : 'transactiondate desc';
-		$condition = "transtype = 'JV' and stat = 'posted' ";
+		$condition = "transtype = 'JV' and (stat = 'posted' or stat = 'cancelled')";
 		if ($search) {
 			$condition .= ' AND ' . $this->generateSearch($search, array('voucherno','transactiondate','referenceno','amount'));
 		}
@@ -137,7 +183,7 @@ class journal_voucher_model extends wc_model {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
 		}
 		$result = $this->db->setTable("journalvoucher")
-						->setFields("transactiondate, voucherno, referenceno, amount, source as checker")
+						->setFields("transactiondate, voucherno, referenceno, amount, source as checker, stat")
 						->setWhere($condition)
 						->setOrderBy($sort)
 						->runPagination();
@@ -145,14 +191,24 @@ class journal_voucher_model extends wc_model {
 		return $result;
 	}
 
-	public function getJournalVoucherDetails($fields, $voucherno) {
+	public function getJournalVoucherDetails($fields, $voucherno,$status) {
+		if($status != 'cancelled'){
+			$fields = array('voucherno','accountcode','detailparticulars','SUM(debit) debit','SUM(credit) credit','linenum');
+			$groupby = 'accountcode';
+		}else{
+			$fields = array('voucherno','accountcode','detailparticulars','debit','credit','linenum');
+			$groupby = '';
+		}
+
 		$result = $this->db->setTable('journaldetails')
 							->setFields($fields)
 							->setWhere("voucherno = '$voucherno'")
+							->setGroupBy($groupby)
 							->setOrderBy('linenum')
 							->runSelect()
 							->getResult();
 		return $result;
+		var_dump($fields);
 	}
 
 	public function getProformaList() {

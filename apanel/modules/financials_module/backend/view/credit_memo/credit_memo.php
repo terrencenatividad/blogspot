@@ -211,7 +211,7 @@
 					<div class="row">
 						<div class="col-md-12 text-center">
 							<?php 
-								if($restrict_cm){
+								if($restrict_cm && $status != 'cancelled'){
 									echo $ui->drawSubmit($show_input); 
 								}
 							?>

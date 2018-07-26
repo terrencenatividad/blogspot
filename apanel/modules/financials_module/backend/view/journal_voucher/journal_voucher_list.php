@@ -86,6 +86,7 @@
 								->addHeader('Voucher Number', array('class' => 'col-md-2'), 'sort', 'voucherno', 'desc')
 								->addHeader('Reference', array('class' => 'col-md-3'), 'sort', 'referenceno')
 								->addHeader('Total Amount', array('class' => 'col-md-3'), 'sort', 'amount')
+								->addHeader('Status', array('class' => 'col-md-3'), 'sort', 'status')
 								->draw();
 					?>
 					<tbody>

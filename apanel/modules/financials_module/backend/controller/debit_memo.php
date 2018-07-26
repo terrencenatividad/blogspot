@@ -18,7 +18,8 @@ class controller extends wc_controller {
 			'partner',
 			'amount',
 			'si_no',
-			'sr_amount'
+			'sr_amount',
+			'stat'
 		);
 		$this->fields2			= array(
 			'voucherno',
@@ -55,6 +56,7 @@ class controller extends wc_controller {
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
 		$data['restrict_dm'] 		= true;
+		$data['status'] 			= false;
 		$this->view->load('debit_memo/debit_memo', $data);
 	}
 
@@ -74,6 +76,7 @@ class controller extends wc_controller {
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
 		$data['restrict_dm'] 		= true;
+		$data['status'] 			= false;
 		$this->view->load('debit_memo/debit_memo', $data);
 	}
 
@@ -90,9 +93,11 @@ class controller extends wc_controller {
 		$data['partner_list']   	 = $this->dm_model->getVendorList();
 		$data['proforma_list']		= $this->dm_model->getProformaList();
 		$data['chartofaccounts']	= $this->dm_model->getChartOfAccountList();
+		$status						= $data['stat'];
 		$data['voucher_details']	= json_encode($this->dm_model->getJournalVoucherDetails($this->fields2, $voucherno));
 		$data['show_input']			= false;
 		$data['restrict_dm'] 		= $restrict_dm;
+		$data['status']				= $status;
 		$this->view->load('debit_memo/debit_memo', $data);
 	}
 
@@ -134,13 +139,22 @@ class controller extends wc_controller {
 		foreach ($pagination->result as $key => $row) {
 			$transactiondate 	=	$row->transactiondate; 
 			$restrict_dm 		= 	$this->restrict->setButtonRestriction($transactiondate);
+			$status				=   $row->stat;
+			$display_edit_delete=  	($status != 'cancelled') 	?	1	:	0;
+			$voucher_status = '<span class="label label-danger">'.strtoupper($status).'</span>';
+				if($status == 'open'){
+					$voucher_status = '<span class="label label-info">'.strtoupper($status).'</span>';
+				}else if($status == 'posted'){
+					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
+				}
+
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($restrict_dm)
-									->addDelete($restrict_dm)
+									->addEdit($restrict_dm && $display_edit_delete)
+									->addDelete($restrict_dm && $display_edit_delete)
 									->addPrint()
-									->addCheckbox($restrict_dm)
+									->addCheckbox($restrict_dm && $display_edit_delete)
 									->setLabels(array('delete'=>'Cancel'))
 									->setValue($row->voucherno)
 									->draw();
@@ -150,6 +164,7 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->partnername.'</td>';
 			$table .= '<td>' . $row->referenceno . '</td>';
 			$table .= '<td>' . $row->amount . '</td>';
+			$table .= '<td>' . $voucher_status . '</td>';
 			$table .= '</tr>';
 		}
 		$pagination->table = $table;
@@ -208,6 +223,9 @@ class controller extends wc_controller {
 		$delete_id = $this->input->post('delete_id');
 		if ($delete_id) {
 			$this->dm_model->deleteJournalVouchers($delete_id);
+		}
+		if ($delete_id) {
+			$this->dm_model->reverseEntries($delete_id);
 		}
 	}
 

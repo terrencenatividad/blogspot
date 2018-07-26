@@ -46,7 +46,7 @@ class accounts_receivable extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, customer, referenceno, particulars, duedate, amount, balance, exchangerate, convertedamount, invoiceno, lockkey as importchecker";
+		$setFields = "voucherno, transactiondate, customer, referenceno, particulars, duedate, amount, balance, exchangerate, convertedamount, invoiceno, lockkey as importchecker, stat";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -278,10 +278,10 @@ class accounts_receivable extends wc_model
 		$add_query .= (!empty($vendfilter) && $vendfilter != 'none') ? "AND p.partnercode = '$vendfilter' " : "";
 		$add_query .= $addCondition;
 
-		$main_fields = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount","main.balance as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS customer","main.lockkey as importchecker");
+		$main_fields = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount","main.balance as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS customer","main.lockkey as importchecker","main.stat as stat");
 		$main_join   = "partners p ON p.partnercode = main.customer"; //AND p.companycode
 		$main_table  = "accountsreceivable as main";
-		$main_cond   = "main.stat = 'posted' $add_query";
+		$main_cond   = "main.stat = 'posted' || main.stat = 'cancelled' $add_query";
 		
 		$query 		 = $this->db->setTable($main_table)
 								->setFields($main_fields)
@@ -1515,6 +1515,52 @@ class accounts_receivable extends wc_model
 		
 		return $result;
 	}
+
+	public function reverseEntries($invoices, $table, $cond)
+	{
+		$count = $this->db->setTable($table)
+				->setFields('*')
+				->setWhere("voucherno IN($invoices)")
+				->runSelect()
+				->getResult();
+
+		if(!empty($count))
+		{
+			$ctr = count($count) + 1;
+			for($i = 0; $i < count($count); $i++)
+			{
+				$insert_info['voucherno']			= $count[$i]->voucherno;
+				$insert_info['transtype']			= $count[$i]->transtype;
+				$insert_info['linenum']				= $ctr;
+				$insert_info['slcode']				= $count[$i]->slcode;
+				$insert_info['bankrecon_id']		= $count[$i]->bankrecon_id;
+				$insert_info['checkstat']			= $count[$i]->checkstat;
+				$insert_info['costcentercode']		= $count[$i]->costcentercode;
+				$insert_info['accountcode']			= $count[$i]->accountcode;
+				$insert_info['debit']				= $count[$i]->credit;
+				$insert_info['credit']				= $count[$i]->debit;
+				$insert_info['source']				= $count[$i]->source;
+				$insert_info['sourcecode']			= $count[$i]->sourcecode;
+				$insert_info['currencycode']		= $count[$i]->currencycode;
+				$insert_info['exchangerate']		= $count[$i]->exchangerate;
+				$insert_info['converteddebit']		= $count[$i]->convertedcredit;
+				$insert_info['convertedcredit']		= $count[$i]->converteddebit;
+				$insert_info['taxcode']				= $count[$i]->taxcode;
+				$insert_info['taxacctflg']			= $count[$i]->taxacctflg;
+				$insert_info['taxline']				= $count[$i]->taxline;
+				$insert_info['vatflg']				= $count[$i]->vatflg;
+				$insert_info['detailparticulars']	= $count[$i]->detailparticulars;
+				$insert_info['stat']				= $count[$i]->stat;
+
+				$result = $this->db->setTable($table)
+									->setValues($insert_info)
+									->runInsert();
+				$ctr++;
+			}
+	}
+	return $count;
+		
+}
 	
 	public function deletePayments($voucher)
 	{
