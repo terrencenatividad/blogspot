@@ -1144,7 +1144,6 @@ function storedescriptionstoarray(){
 }
 
 function displaystoreddescription(){
-	console.log(acct_details);
 	$('#entriesTable tbody tr.added_row select.accountcode').each(function() {
 		var ischeck = $(this).closest('tr').find('.ischeck').val();
 		if(ischeck == 'yes'){
@@ -1152,7 +1151,6 @@ function displaystoreddescription(){
 				$(this).closest('tr').find('.description').val("");
 			} else {
 				var description = acct_details[$(this).val()] || "";
-				console.log("Description "+description);
 				$(this).closest('tr').find('.description').val(description);	
 			}	
 		}
@@ -1185,7 +1183,7 @@ $('#chequeTable .cheque_account').on('change', function()  {
 				$('#entriesTable tbody tr.clone .accountcode').each(function() {
 					var account = $(this).val();
 					var ischeck = $(this).closest('tr').find('.ischeck').val();
-					if(account == "" && ischeck == 'yes'){
+					if(task == 'create' && account == "" || account == "" && ischeck == 'yes'){
 						$(this).closest('tr').remove();
 					}
 				});
