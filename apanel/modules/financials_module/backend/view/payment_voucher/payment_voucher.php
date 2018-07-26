@@ -631,7 +631,7 @@
 											$added_function_db 	= "";
 											$added_function_cr	= "";
 											$indicator 			= "";
-											
+
 											if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque' && $ischeck == 'yes'){
 												$disable_debit		= 'readOnly';
 												$disable_credit		= 'readOnly';
@@ -3223,7 +3223,7 @@ $(document).ready(function() {
 			if(selected_rows == "[]")
 			{
 				bootbox.dialog({
-					message: "Please tag Receivables first.",
+					message: "Please tag Payables first.",
 					title: "Oops!",
 						buttons: {
 						yes: {
