@@ -97,7 +97,7 @@ class controller extends wc_controller {
 		);
 
 		$csv = '';
-		$csv .= 'Accounts Receivable Aging';
+		$csv .= 'Accounts Payable Aging';
 		$csv .= "\n\n";
 		$csv .= '"Date:","' . $this->date->dateFormat($datefilter) . '"';
 		$csv .= "\n\n";
