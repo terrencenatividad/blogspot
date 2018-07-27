@@ -17,6 +17,7 @@
 								->setId('partnercode')
 								->addHidden((isset($task) && $task == 'update'))
 								->setValidation('required code')
+								->setMaxLength(20)
 								->setValue($partnercode)
 								->draw((isset($task) && $task == 'add'));
 						?>
@@ -34,6 +35,8 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('first_name')
 								->setId('first_name')
+								->setValidation('special')
+								->setMaxLength(50)
 								->setValue($first_name)
 								->draw($show_input);
 						?>
@@ -45,6 +48,8 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('last_name')
 								->setId('last_name')
+								->setValidation('special')
+								->setMaxLength(50)
 								->setValue($last_name)
 								->draw($show_input);
 						?>
@@ -59,7 +64,8 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('address1')
 								->setId('address1')
-								->setValidation('required')
+								->setMaxLength(105)
+								->setValidation('required special')
 								->setValue($address1)
 								->draw($show_input);
 						?>
@@ -99,6 +105,7 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('tinno')
 								->setId('tinno')
+								->setMaxLength(15)
 								->setAttribute(array('data-inputmask' => "'mask': '999-999-999-999'"))
 								->setPlaceholder('000-000-000-000')
 								->setValue($tinno)
@@ -113,6 +120,8 @@
 								->setName('mobile')
 								->setId('mobile')
 								->setValue($mobile)
+								->setValidation('integer')
+								->setMaxLength(20)
 								//->setAttribute(array('data-inputmask' => "'mask': '0999-9999-999'"))
 								->draw($show_input);
 						?>

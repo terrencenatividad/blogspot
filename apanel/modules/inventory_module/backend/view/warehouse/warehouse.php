@@ -19,8 +19,9 @@
 								->setName('warehousecode')
 								->setId('warehousecode')
 								->setValue($warehousecode)
+								->addHidden((isset($ajax_task) && $ajax_task == 'update'))
 								->setValidation('required code')
-								->draw($show_input);
+								->draw((isset($ajax_task) && $ajax_task == 'add'));
 						?>
 					</div>
 					<div class="col-md-6">
