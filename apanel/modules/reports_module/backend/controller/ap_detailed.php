@@ -1,8 +1,7 @@
 <?php
 class controller extends wc_controller {
 
-	public function __construct() 
-	{
+	public function __construct(){
 		parent::__construct();
 		$this->ui = new ui();
 		$this->view->header_active = 'report/';
@@ -12,12 +11,12 @@ class controller extends wc_controller {
 		$session                = new session();
 	}
 
-	public function view() 
-	{
+	public function view(){
 		$this->view->title = 'AP Detailed Report';
 		$data['ui'] = $this->ui;
-		$data['show_input'] = true;
-		$data['datefilter'] = $this->date->datefilterMonth();
+		$data['show_input'] 	= true;
+		$data['datefilter'] 	= date("M d, Y");
+		$data['supplier_list']	= $this->ap_detailed->getSuppliers();
 		$this->view->load('ap_detailed', $data);
 	}
 
@@ -26,104 +25,18 @@ class controller extends wc_controller {
 		header('Content-type: application/json');
 		$result 	=	"";
 
-		if($task == 'list')
-		{
+		if($task == 'list'){
 			$result = $this->ajax_list();
-		}
-		else if($task == 'load_supplier_list')
-		{
-			$result = $this->load_supplier_list();
-		}
-		else if($task == 'load_voucher_list')
-		{
-			$result = $this->load_voucher_list();
-		}
-		else if($task == 'export')
-		{
+		}else if($task == 'export'){
 			$result = $this->export();
 		}
 
 		echo json_encode($result); 
 	}
 
-	private function load_supplier_list(){
-		$data_post = $this->input->post(array('daterangefilter','supplier','voucher','status','limit', "search"));
-	
-		$pagination = $this->ap_detailed->getsupplierList($data_post);
-		$tablerow = "";
-		
-		if(!empty($pagination->result))
-		{
-			for($i=0;$i < count($pagination->result);$i++)
-			{	
-				
-				$suppliercode		= $pagination->result[$i]->suppliercode;
-			    $suppliername		= $pagination->result[$i]->suppliername;
-			    $supplieraddress	= $pagination->result[$i]->supplieraddress;
-			   
-				$tablerow	.= '<tr data-id = "'.$suppliercode.'">';
-				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$suppliercode.'</td>';
-				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$suppliername.'</td>';
-				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$supplieraddress.'</td>';
-				$tablerow	.= '</tr>';
-				
-				
-			}	
-		}else{
-			$tablerow	.= '<tr>';
-			$tablerow	.= '<td class="center" colspan="3">- No Records Found -</td>';
-			$tablerow	.= '</tr>';
-		}
-
-		$pagination->table = $tablerow;
-		return $pagination;					
-	}
-
-	private function load_voucher_list()
-	{
-		$data_post = $this->input->post(array('daterangefilter','supplier','voucher','status','limit', "search"));
-	
-		$pagination = $this->ap_detailed->getVoucherList($data_post);
-		$tablerow = "";
-	
-		if(!empty($pagination->result))
-		{
-			for($i=0;$i < count($pagination->result);$i++)
-			{	
-				$voucherno		    = $pagination->result[$i]->voucherno;
-			    $suppliercode		= $pagination->result[$i]->suppliercode;
-			    $suppliername		= $pagination->result[$i]->suppliername;
-				$referenceno        = $pagination->result[$i]->referenceno;
-			    $transactiondate	= $this->date->dateFormat($pagination->result[$i]->transactiondate); 
-				$invoiceno          = $pagination->result[$i]->invoiceno;
-				$invoicedate        = $this->date->dateFormat($pagination->result[$i]->invoicedate);
-			    $duedate            = $this->date->dateFormat($pagination->result[$i]->duedate); 
-
-				$tablerow	.= '<tr data-id = "'.$voucherno.'">';
-				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$voucherno.'</td>';
-				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$suppliername.'</td>';
-				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$referenceno.'</td>';
-				$tablerow	.= '<td class="text-center" class="left" style="vertical-align:middle;">&nbsp;'.$transactiondate.'</td>';
-				$tablerow	.= '<td class="text-center" style="vertical-align:middle;">&nbsp;'.$invoiceno.'</td>';
-				$tablerow	.= '<td class="text-center" style="vertical-align:middle;">&nbsp;'.$invoicedate.'</td>';
-				$tablerow	.= '<td class="text-center" style="vertical-align:middle;">&nbsp;'.$duedate.'</td>';
-				$tablerow	.= '</tr>';	
-			}	
-		}
-		else
-		{
-			$tablerow	.= '<tr>';
-			$tablerow	.= '<td class="text-center" colspan="7">- No Records Found -</td>';
-			$tablerow	.= '</tr>';
-		}
-
-		$pagination->table = $tablerow;
-		return $pagination;	
-	}
-
 	private function ajax_list()
 	{
-		$data_post = $this->input->post(array('daterangefilter','supplier','voucher','status'));
+		$data_post = $this->input->post(array('datefilter','supplier'));
 	
 		$pagination = $this->ap_detailed->getInvoiceList($data_post);
 		
@@ -144,11 +57,15 @@ class controller extends wc_controller {
 		{
 			foreach ($pagination->result as $key => $row) 
 			{
+				$suppliercode  		= $row->suppliercode;
+				$amount       		= $row->amount;
+				$voucherno    		= $row->voucherno;
+				$payment       		= $this->ap_detailed->getPayments($voucherno,$data_post['datefilter']);
+				$amountapplied 		= ($payment) ? $payment[0]->paymentamount : 0;
+				$discountapplied 	= ($payment) ? $payment[0]->paymentdiscount : 0;
+				$applied 			= ($amountapplied + $discountapplied);
+				$balance       		= $amount - $applied;
 				
-				$suppliercode  		=	$row->suppliercode;
-				$amount       		= 	$row->amount;
-				$applied       		= 	$row->amountpaid;
-				$balance       		= 	$row->balance;
 				$total 				+= 	$amount;
 				$total_applied 		+= 	$applied;
 				$total_balance 		+= 	$balance;
@@ -169,17 +86,16 @@ class controller extends wc_controller {
 				$suppliercode 		= $row->suppliercode;
 				$suppliername 		= $row->suppliername;
 				$voucherno    		= $row->voucherno;
-				$pvoucherno   		= $row->pvoucherno;
 				$transactiondate 	= date('M j, Y', strtotime($row->transactiondate));
 				$invoiceno    		= $row->invoiceno;
-				$amount       		= number_format($row->amount,2);
-				$amountpaid 		= number_format($row->amountpaid,2);
-				$balance      		= number_format($row->balance,2);
+				$amount       		= $row->amount;
+				$payment       		= $this->ap_detailed->getPayments($voucherno,$data_post['datefilter']);
+				$amountapplied 		= ($payment) ? $payment[0]->paymentamount : 0;
+				$discountapplied 	= ($payment) ? $payment[0]->paymentdiscount : 0;
+				$amountpaid 		= ($amountapplied + $discountapplied);
+				$balance 			= $amount - $amountpaid;
 				$particulars        = $row->particulars;
-				$terms              = $row->terms;
-				$status             = $row->stat;
 				$aplink      	 	= BASE_URL."financials/accounts_payable/view/".$voucherno;
-				// $rvlink				= (isset($rvoucherno)) 	? 	BASE_URL."financials/accounts_receivable/manage/view/".$voucherno 	: 	"";
 				$pvlink 			= "";
 				$prevcust 			= $suppliercode;
 
@@ -187,30 +103,26 @@ class controller extends wc_controller {
 					
 					if ($nextcust != "") {
 						$tablerow 	.= '<tr style="background:#fff;">';
-						$tablerow	.= '<td class="text-right" colspan="4" style="vertical-align:middle;">&nbsp;<b>Subtotal:</b></td>';
-						$tablerow	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;<b>'.number_format($subtotal,2)  .'</b></td>';
-						$tablerow	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;<b>'.number_format($sub_applied,2)  .'</b></td>';
-						$tablerow	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;<b>'.number_format($sub_balance,2)  .'</b></td>';
-						$tablerow	.= '<td colspan="3" style="vertical-align:middle;">&nbsp;</td>';
+						$tablerow	.= '<td class="text-right" colspan="4" >&nbsp;<b>Subtotal:</b></td>';
+						$tablerow	.= '<td class="text-right" >&nbsp;<b>'.number_format($subtotal,2)  .'</b></td>';
+						$tablerow	.= '<td class="text-right" >&nbsp;<b>'.number_format($sub_applied,2)  .'</b></td>';
+						$tablerow	.= '<td class="text-right" >&nbsp;<b>'.number_format($sub_balance,2)  .'</b></td>';
 						$tablerow 	.= '</tr>';
 					}
 					$tablerow 	.= '<tr style="background:#DDD;">';
-					$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$suppliercode.'</td>';
-					$tablerow	.= '<td class="left" colspan="9" style="vertical-align:middle;">&nbsp;<b>'.$suppliername.'</b></td>';
+					$tablerow	.= '<td class="text-left" style="vertical-align:middle;">&nbsp;'.$suppliercode.'</td>';
+					$tablerow	.= '<td class="text-left" colspan="6" style="vertical-align:middle;">&nbsp;<b>'.$suppliername.'</b></td>';
 					$tablerow 	.= '</tr>';
 				}
 				
 				$tablerow 	.= '<tr>';
-				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;<a href="'.$aplink.'" target="_blank" >'.$voucherno.'</a></td>';
-				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$pvoucherno.'</td>';
-				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$transactiondate.'</td>';
-				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$invoiceno .'</td>';
-				$tablerow	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.$amount  .'</td>';
-				$tablerow	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.$amountpaid  .'</td>';
-				$tablerow	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.$balance  .'</td>';
-				$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$particulars  .'</td>';
-				$tablerow	.= '<td class="text-center" style="vertical-align:middle;">&nbsp;'.$terms  .'</td>';
-				$tablerow	.= '<td class="text-center" style="vertical-align:middle;">&nbsp;'.$status  .'</td>';
+				$tablerow	.= '<td class="left">&nbsp;<a href="'.$aplink.'" target="_blank" >'.$voucherno.'</a></td>';
+				$tablerow	.= '<td class="left">&nbsp;'.$transactiondate.'</td>';
+				$tablerow	.= '<td class="left">&nbsp;'.$invoiceno .'</td>';
+				$tablerow	.= '<td class="text-left">&nbsp;'.$particulars  .'</td>';
+				$tablerow	.= '<td class="text-right" >&nbsp;'.number_format($amount,2)  .'</td>';
+				$tablerow	.= '<td class="text-right" >&nbsp;'.number_format($amountpaid,2)  .'</td>';
+				$tablerow	.= '<td class="text-right" >&nbsp;'.number_format($balance,2)  .'</td>';
 				$tablerow 	.= '</tr>';
 
 				$nextcust 	= $prevcust;
@@ -221,53 +133,44 @@ class controller extends wc_controller {
 			}	
 
 			$tablerow 	.= '<tr style="background:#fff;">';
-			$tablerow	.= '<td class="text-right" colspan="4" style="vertical-align:middle;">&nbsp;<b>Subtotal:</b></td>';
-			$tablerow	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;<b>'.number_format($subtotal,2)  .'</b></td>';
-			$tablerow	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;<b>'.number_format($sub_applied,2)  .'</b></td>';
-			$tablerow	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;<b>'.number_format($sub_balance,2)  .'</b></td>';
-			$tablerow	.= '<td colspan="3" style="vertical-align:middle;">&nbsp;</td>';
+			$tablerow	.= '<td class="text-right" colspan="4" >&nbsp;<b>Subtotal:</b></td>';
+			$tablerow	.= '<td class="text-right">&nbsp;<b>'.number_format($subtotal,2)  .'</b></td>';
+			$tablerow	.= '<td class="text-right">&nbsp;<b>'.number_format($sub_applied,2)  .'</b></td>';
+			$tablerow	.= '<td class="text-right">&nbsp;<b>'.number_format($sub_balance,2)  .'</b></td>';
 			$tablerow 	.= '</tr>';
 
 			/**TOTAL AMOUNTS**/
 			$tablerow 	.= '<tr style="background:#DDD;">';
-			$tablerow	.= '<td class="text-right" colspan="4" style="vertical-align:middle;">&nbsp;<b>Total:</b></td>';
-			$tablerow	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;<b>'.number_format($total,2)  .'</b></td>';
-			$tablerow	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;<b>'.number_format($total_applied,2)  .'</b></td>';
-			$tablerow	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;<b>'.number_format($total_balance,2)  .'</b></td>';
-			$tablerow	.= '<td colspan="3" style="vertical-align:middle;">&nbsp;</td>';
+			$tablerow	.= '<td class="text-right" colspan="4" >&nbsp;<b>Total:</b></td>';
+			$tablerow	.= '<td class="text-right" >&nbsp;<b>'.number_format($total,2)  .'</b></td>';
+			$tablerow	.= '<td class="text-right" >&nbsp;<b>'.number_format($total_applied,2)  .'</b></td>';
+			$tablerow	.= '<td class="text-right" >&nbsp;<b>'.number_format($total_balance,2)  .'</b></td>';
 			$tablerow 	.= '</tr>';
 		
 		} else {
 			$tablerow	.= '<tr>';
-			$tablerow	.= '<td class="text-center" colspan="10">- No Records Found -</td>';
+			$tablerow	.= '<td class="text-center" colspan="7">- No Records Found -</td>';
 			$tablerow	.= '</tr>';
 		}
 
 		$pagination->table 	= $tablerow;
 		$pagination->csv	= $this->export();
 		return $pagination;
-
 	}
 
 	private function export()
 	{
-		$data 		= $this->input->post(array('daterangefilter','supplier','voucher','status'));
-		$strdate	= $data['daterangefilter'];
-		$datefilter = explode('-', $data['daterangefilter']);
-		$dates		= array();
-		foreach ($datefilter as $date) {
-			$dates[] = date('Y-m-d', strtotime($date));
-		}
-
+		$data 		= $this->input->post(array('datefilter','supplier'));
+		$datefilter	= $data['datefilter'];
 		$retrieved = $this->ap_detailed->fileExport($data);
 		
-		$main 	= array("supplier Code","supplier Name"); 
-		$header = array("Voucher Number","Payment Voucher","Transaction Date","Invoice No","Amount","Amount Applied","Balance","Remarks","Terms","Status");
+		$main 	= array("Supplier Code","Supplier Name"); 
+		$header = array("Voucher Number","Transaction Date","Invoice No","Remarks","Amount","Amount Paid","Balance");
 		
 		$csv 	= '';
-		$csv 	.= 'Accounts Payable Detailed Aging';
-		$csv 	.= "\n\n";
-		$csv 	.= '"Date:","'.$strdate.'"';
+		$csv 	.= 'Accounts Payable Detailed Report';
+		$csv 	.= "\n";
+		$csv 	.= '"Date:","'.$datefilter.'"';
 		$csv 	.= "\n\n";
 		$csv 	.= '"' . implode('","',$main).'"';
 		$csv 	.= "\n";
@@ -292,11 +195,15 @@ class controller extends wc_controller {
 		if (!empty($filtered)){
 			foreach ($filtered as $key => $row) 
 			{
-				
-				$suppliercode  		=	$row->suppliercode;
-				$amount       		= 	$row->amount;
-				$applied       		= 	$row->amountpaid;
-				$balance       		= 	$row->balance;
+				$suppliercode  		= $row->suppliercode;
+				$amount       		= $row->amount;
+				$voucherno    		= $row->voucherno;
+				$payment       		= $this->ap_detailed->getPayments($voucherno,$datefilter);
+				$amountapplied 		= ($payment) ? $payment[0]->paymentamount : 0;
+				$discountapplied 	= ($payment) ? $payment[0]->paymentdiscount : 0;
+				$amountpaid 		= ($amountapplied + $discountapplied);
+				$applied       		= $amountpaid;
+				$balance 			= $amount - $amountpaid;
 				$total 				+= 	$amount;
 				$total_applied 		+= 	$applied;
 				$total_balance 		+= 	$balance;
@@ -316,15 +223,15 @@ class controller extends wc_controller {
 				$suppliercode 		= $row->suppliercode;
 				$suppliername 		= $row->suppliername;
 				$voucherno    		= $row->voucherno;
-				$pvoucherno   		= $row->pvoucherno;
 				$transactiondate 	= date('M j, Y', strtotime($row->transactiondate));
 				$invoiceno    		= $row->invoiceno;
-				$amount       		= number_format($row->amount,2);
-				$amountpaid 		= number_format($row->amountpaid,2);
-				$balance      		= number_format($row->balance,2);
+				$amount       		= $row->amount;
+				$payment       		= $this->ap_detailed->getPayments($voucherno,$datefilter);
+				$amountapplied 		= ($payment) ? $payment[0]->paymentamount : 0;
+				$discountapplied 	= ($payment) ? $payment[0]->paymentdiscount : 0;
+				$amountpaid 		= ($amountapplied + $discountapplied);
+				$balance      		= $amount - $amountpaid;
 				$particulars        = $row->particulars;
-				$terms              = $row->terms;
-				$status             = $row->stat;
 				$prevcust 			= $suppliercode;
 
 				if( $prevcust != $nextcust ) {
@@ -334,26 +241,19 @@ class controller extends wc_controller {
 						$csv .= "\n";
 	
 					}
-					$tablerow 	.= '<tr style="background:#DDD;">';
-					$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$suppliercode.'</td>';
-					$tablerow	.= '<td class="left" colspan="9" style="vertical-align:middle;">&nbsp;<b>'.$suppliername.'</b></td>';
-					$tablerow 	.= '</tr>';
-
 					$csv .= '"'.$suppliercode.'",';
 					$csv .= '"'.$suppliername.'"';
 					$csv .= "\n";
 				}
 				
 				$csv .= '"'	.	$voucherno			.	'",';
-				$csv .= '"'	. 	$pvoucherno 		. 	'",';
 				$csv .= '"'	. 	$transactiondate 	. 	'",';
 				$csv .= '"' . 	$invoiceno 			. 	'",';
-				$csv .= '"' .	$amount 	 		. 	'",';
-				$csv .= '"'	. 	$amountpaid 		. 	'",';
-				$csv .= '"'	. 	$balance 			. 	'",';
 				$csv .= '"'	. 	$particulars 		. 	'",';
-				$csv .= '"' . 	$terms 	 			. 	'",';
-				$csv .= '"' . 	$status 			. 	'"';
+				$csv .= '"' .	number_format($amount,2) 	 		. 	'",';
+				$csv .= '"'	. 	number_format($amountpaid,2) 		. 	'",';
+				$csv .= '"'	. 	number_format($balance,2)			. 	'"';
+				
 				$csv .= "\n";
 
 				$nextcust 	= $prevcust;
