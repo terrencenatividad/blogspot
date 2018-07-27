@@ -150,7 +150,7 @@ class dashboard_model extends wc_model {
 								->setFields("p.partnername customer, ar.voucherno, ar.transactiondate, ar.terms, ar.amount, ar.duedate, IF (ar.duedate < DATE_SUB(CURDATE(), INTERVAL 60 DAY), ar.amount - IFNULL(rva.payments, 0), 0) oversixty,
 								IF (ar.duedate < DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND ar.duedate > DATE_SUB(CURDATE(), INTERVAL 60 DAY), ar.amount - IFNULL(rva.payments, 0), 0) sixty,
 								IF (ar.duedate < CURDATE() AND ar.duedate >= DATE_SUB(CURDATE(), INTERVAL 30 DAY), ar.amount - IFNULL(rva.payments, 0), 0) thirty,
-								IF (ar.duedate >= CURDATE(), ar.amount - IFNULL(rva.payments, 0), 0) current, (ar.amount - IFNULL(rva.payments, 0)) balance, ar.companycode")
+								IF (ar.duedate = CURDATE(), ar.amount - IFNULL(rva.payments, 0), 0) today, (ar.amount - IFNULL(rva.payments, 0)) balance, ar.companycode")
 								->leftJoin("($payment_query) rva ON rva.arvoucherno = ar.voucherno AND rva.companycode = ar.companycode")
 								->leftJoin('partners p ON p.partnercode = ar.customer AND p.companycode = ar.companycode')
 								->setWhere("ar.stat = 'posted' AND ar.transactiondate <= CURDATE()")
@@ -158,7 +158,7 @@ class dashboard_model extends wc_model {
 								->buildSelect();
 
 		$result = $this->db->setTable("($aging_query) aq")
-							->setFields("customer, voucherno, transactiondate, terms, amount, duedate, SUM(oversixty) oversixty_total, SUM(sixty) sixty_total, SUM(thirty) thirty_total, SUM(current) current_total, SUM(balance) balance_total")
+							->setFields("customer, voucherno, transactiondate, terms, amount, duedate, SUM(oversixty) oversixty_total, SUM(sixty) sixty_total, SUM(thirty) thirty_total, SUM(today) today_total, SUM(balance) balance_total")
 							->runSelect()
 							->getRow();
 
@@ -177,7 +177,7 @@ class dashboard_model extends wc_model {
 								->setFields("p.partnername supplier, ap.voucherno, ap.transactiondate, ap.terms, ap.amount, ap.duedate, IF (ap.duedate < DATE_SUB(CURDATE(), INTERVAL 60 DAY), ap.amount - IFNULL(pva.payments, 0), 0) oversixty,
 								IF (ap.duedate < DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND ap.duedate > DATE_SUB(CURDATE(), INTERVAL 60 DAY), ap.amount - IFNULL(pva.payments, 0), 0) sixty,
 								IF (ap.duedate < CURDATE() AND ap.duedate >= DATE_SUB(CURDATE(), INTERVAL 30 DAY), ap.amount - IFNULL(pva.payments, 0), 0) thirty,
-								IF (ap.duedate >= CURDATE(), ap.amount - IFNULL(pva.payments, 0), 0) current, (ap.amount - IFNULL(pva.payments, 0)) balance, ap.companycode")
+								IF (ap.duedate = CURDATE(), ap.amount - IFNULL(pva.payments, 0), 0) today, (ap.amount - IFNULL(pva.payments, 0)) balance, ap.companycode")
 								->leftJoin("($payment_query) pva ON pva.apvoucherno = ap.voucherno AND pva.companycode = ap.companycode")
 								->leftJoin('partners p ON p.partnercode = ap.vendor AND p.companycode = ap.companycode')
 								->setWhere("ap.stat = 'posted' AND ap.transactiondate <= CURDATE()")
@@ -186,7 +186,7 @@ class dashboard_model extends wc_model {
 
 
 		$result = $this->db->setTable("($aging_query) aq")
-							->setFields("supplier, voucherno, transactiondate, terms, amount, duedate, SUM(oversixty) oversixty_total, SUM(sixty) sixty_total, SUM(thirty) thirty_total, SUM(current) current_total, SUM(balance) balance_total")
+							->setFields("supplier, voucherno, transactiondate, terms, amount, duedate, SUM(oversixty) oversixty_total, SUM(sixty) sixty_total, SUM(thirty) thirty_total, SUM(today) today_total, SUM(balance) balance_total")
 							->runSelect()
 							->getRow();
 
@@ -196,7 +196,7 @@ class dashboard_model extends wc_model {
 	private function getVoucherApplication($row) {
 		if ($row) {
 			$data = array();
-			$data[] = array('label' => 'Current', 'value' => $row->current_total);
+			$data[] = array('label' => 'Today', 'value' => $row->today_total);
 			$data[] = array('label' => '1 to 30 days', 'value' => $row->thirty_total);
 			$data[] = array('label' => '31 to 60 days', 'value' => $row->sixty_total);
 			$data[] = array('label' => '60 days over', 'value' => $row->oversixty_total);
