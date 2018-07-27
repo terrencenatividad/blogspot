@@ -114,7 +114,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-md-6">
+			<div class="col-md-12">
 				<div class="nav-tabs-custom">
 					<ul id="aging_nav" class="nav nav-tabs pull-right">
 						<li>

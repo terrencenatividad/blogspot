@@ -16,6 +16,7 @@
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('discountcode')
 									->setId('discountcode')
+									->setMaxLength(10)
 									->setValue($discountcode)
 									->setValidation('required code')
 									->draw($show_input);
@@ -29,8 +30,9 @@
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('discountname')
 									->setId('discountname')
+									->setMaxLength(60)
 									->setValue($discountname)
-									->setValidation('required')
+									->setValidation('required special')
 									->draw($show_input);
 						?>
 					
@@ -113,6 +115,7 @@
 											->setId($discount_id)
 											->setValue($$discount_name)
 											->setClass('discount_values')
+											->setValidation('decimal')
 											->setAttribute(array("disabled" => "disabled"))
 											->draw($show_input);
 								?>

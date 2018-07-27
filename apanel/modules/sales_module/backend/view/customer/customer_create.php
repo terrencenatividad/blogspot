@@ -16,6 +16,7 @@
 								->setName('partnercode')
 								->setId('partnercode')
 								->setValidation('required code')
+								->setMaxLength(20)
 								->addHidden((isset($task) && $task == 'update'))
 								->setValue($partnercode)
 								->draw((isset($task) && $task == 'add'));
@@ -31,7 +32,8 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('partnername')
 								->setId('partnername')
-								->setValidation('required')
+								->setMaxLength(255)
+								->setValidation('required special')
 								->setValue($partnername)
 								->draw($show_input);
 						?>
@@ -46,7 +48,8 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('address1')
 								->setId('address1')
-								->setValidation('required')
+								->setMaxLength(105)
+								->setValidation('required special')
 								->setValue($address1)
 								->draw($show_input);
 						?>
@@ -88,7 +91,9 @@
 								->setName('mobile')
 								->setId('mobile')
 								->setValue($mobile)
-								//->setAttribute(array('data-inputmask' => "'mask': '0999-9999-999'"))
+								->setValidation('integer')
+								->setMaxLength(20)
+								// ->setAttribute(array('data-inputmask' => "'mask': '0999-999-9999'"))
 								->draw($show_input);
 						?>
 					</div>
@@ -105,6 +110,8 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('first_name')
 								->setId('first_name')
+								->setValidation('special')
+								->setMaxLength(50)
 								->setValue($first_name)
 								->draw($show_input);
 						?>
@@ -116,6 +123,8 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('last_name')
 								->setId('last_name')
+								->setValidation('special')
+								->setMaxLength(50)
 								->setValue($last_name)
 								->draw($show_input);
 						?>
@@ -132,6 +141,7 @@
 								->setId('terms')
 								->setPlaceholder('30')
 								->setValue($terms)
+								->setMaxLength(5)
 								->setValidation('integer')
 								->draw($show_input);
 						?>
@@ -149,6 +159,7 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('tinno')
 								->setId('tinno')
+								->setMaxLength(15)
 								->setAttribute(array('data-inputmask' => "'mask': '999-999-999-999'"))
 								->setPlaceholder('000-000-000-000')
 								->setValue($tinno)
