@@ -731,12 +731,13 @@
 			<div class="row">
 				<div class="col-md-12 col-sm-12 text-center">
 					<?if($show_input):?>
-					<? //echo  $ui->addSavePreview()
-								//->addSaveNew()
-								//->addSaveExit()
-							    //->drawSaveOption(true);?>
-					<input type = "button" value = "Save" name = "save" id = "btnSave" class="btn btn-primary btn-flat"/>
-					<input class = "form_iput" value = "" name = "h_save" id = "h_save" type = "hidden">
+					<? echo  $ui->addSavePreview()
+								->addSaveNew()
+								->addSaveExit()
+							    ->drawSaveOption(true);?>
+						<input class = "form_iput" value = "" name = "h_save" id = "h_save" type = "hidden">
+					<!-- <input type = "button" value = "Save" name = "save" id = "btnSave" class="btn btn-primary btn-flat"/>
+					<input class = "form_iput" value = "" name = "h_save" id = "h_save" type = "hidden"> -->
 					<?endif;?>
 					&nbsp;
 					<?
@@ -956,35 +957,27 @@
 				cheque_arr.push(account);
 			}
 		});
-		var row = 2;
-		cheque_arr.forEach(function(account) {
-			if( row == 2 ){
-				if($("#entriesTable tbody tr.clone").length == 1){
-					$("#entriesTable tbody tr.clone").first().after(clone_acct);
-				} else {
-					$('#entriesTable tbody tr.clone .accountcode').each(function(index) {
-						var account = $(this).val();
-						var ischeck = $(this).closest('tr').find('.ischeck').val();
-						if(task == 'create' && index != 0 && account == "" || account == "" && index != 0 && ischeck == 'yes'){
-							$(this).closest('tr').remove();
-						}
-					});
-
-					$("#entriesTable tbody tr.clone").first().after(clone_acct);
-				}
-				resetIds();
-				$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
-				$("#entriesTable button#"+row).prop('disabled',true);
-				$("#entriesTable debit#"+row).prop('disabled',true);
-			} else {
-				var ParentRow = $("#entriesTable tbody tr.clone").first();
-				if($('#entriesTable tbody tr.added_row').length){
-					ParentRow = $("#entriesTable tbody tr.added_row").last();
-					$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
-				}
-				ParentRow.after(clone_acct);
+		var row = $("#entriesTable tbody tr.clone").length;
+		$('#entriesTable tbody tr.clone .accountcode').each(function(index) {
+			var account = $(this).val();
+			var ischeck = $(this).closest('tr').find('.ischeck').val();
+			if(task == 'create' && index != 0 && account == "" || account == "" && index != 0 && ischeck == 'yes'){
+				$(this).closest('tr').remove();
 			}
+		});
+
+		
+		row = $("#entriesTable tbody tr.clone").length + 1;
+		cheque_arr.forEach(function(account) {
+			var ParentRow = $("#entriesTable tbody tr.clone").last();
+			console.log($("#entriesTable tbody tr.clone"));
+			$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
+			// clone_acct(initial state of first row) will be placed on the last cloned row. 
+			ParentRow.after(clone_acct);
 			resetIds();
+			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
+			$("#entriesTable button#"+row).prop('disabled',true);
+			$("#entriesTable debit#"+row).prop('disabled',true);
 			$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
 			$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
@@ -1143,15 +1136,16 @@
 
 	}
 	/**SET TABLE ROWS TO DEFAULT VALUES**/
-	function setZero() {
+	function setZero(id="") {
 		resetIds();
 
 		var table 		= document.getElementById('entriesTable');
-		var newid 		= table.rows.length - 3;
+		var newid 		= table.rows.length - 2;
 		var account		= document.getElementById('accountcode['+newid+']');
 
 		if(document.getElementById('accountcode['+newid+']') != null) {
 			document.getElementById('accountcode['+newid+']').value 		= '';
+			document.getElementById('h_accountcode['+newid+']').value 		= '';
 			document.getElementById('detailparticulars['+newid+']').value 	= '';
 			document.getElementById('debit['+newid+']').value 				= '0.00';
 			document.getElementById('credit['+newid+']').value 				= '0.00';
@@ -1189,14 +1183,18 @@
 			field	= $("#"+form+" #"+id2).val();
 		}
 
-		if($('#'+id)[0].type != undefined && $('#'+id)[0].type == 'select-one'){
-			field	= $("#"+form+" #"+id2).val();
+		if($('#'+id)[0].type != undefined || $('#'+id)[0].type == 'select-one'){
+			field	= $("#"+form+" #"+id).val();
 		}
 
 		if((field == '' || parseFloat(field) == 0) || help_block == "exrateamount_help" || field == "none" )
 		{
 			$("#"+form+" #"+id)
 				.closest('.field_col')
+				.addClass('has-error');
+			
+			$("#"+form+" #"+id)
+				.find('.form-group')
 				.addClass('has-error');
 
 			$("#"+form+" #"+help_block)
@@ -1941,7 +1939,7 @@
 		}
 	}
 
-	function applySelected_(){
+	function validateHeaderDetails(){
 		var paymentvendor		= $("#payableForm #vendor").val();
 		var paymentdate			= document.getElementById('document_date').value;
 		var paymentmode			= document.getElementById('paymentmode').value;
@@ -1952,14 +1950,8 @@
 
 		valid	+= validateField('payableForm','vendor', "vendor_help");
 		valid	+= validateField('payableForm','document_date', "document_date_help");
-		valid	+= validateField('payableForm','paymentmode', "paymentmode_help");
-
-		if(paymentmode == 'cheque')
-		{
-			valid	+= validateCheques();
-			// valid	+= totalPaymentGreaterThanChequeAmount();
-		}
-
+		// valid	+= validateField('payableForm','paymentmode', "paymentmode_help");
+				
 		return valid;
 	}
 
@@ -2087,21 +2079,47 @@
 		});
 	}
 
+	function finalize_saving(valid, button_name){
+		if(valid == 0){
+			$("#payableForm #btnSave").addClass('disabled');
+			$("#payableForm #btnSave_toggle").addClass('disabled');
+			
+			$("#payableForm #btnSave").html('Saving...');
+
+			$("#payableForm #h_save").val(button_name);
+
+			$.post("<?=BASE_URL?>financials/disbursement/ajax/apply_payments",$("#payableForm").serialize())
+			.done(function(data)
+			{
+				if(data.code == 1) {
+					$("#payableForm #h_voucher_no").val(data.voucher);
+					$("#payableForm").submit();
+				} else {
+					next = $('#payableForm').find(".has-error").first();
+					$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
+				}
+			});
+		} else {
+			next = $('#payableForm').find(".has-error").first();
+			$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
+		}
+	}
+
 	$(document).ready(function() {
 		// For adding new rol
-		$('body').on('click', '.add-data', function() {	
-			$('#itemsTable tbody tr.clone select').select2('destroy');
+		// $('body').on('click', '.add-data', function() {	
+		// 	$('#itemsTable tbody tr.clone select').select2('destroy');
 			
-			var clone = $("#itemsTable tbody tr.clone:first").clone(true); 
+		// 	var clone = $("#itemsTable tbody tr.clone:first").clone(true); 
+		// 	var ParentRow = $("#itemsTable tbody tr.clone").last();
+		// 	var offset = 1;
 
-			var ParentRow = $("#itemsTable tbody tr.clone").last();
-
-			clone.clone(true).insertAfter(ParentRow);
+		// 	clone.clone(true).insertAfter(ParentRow);
 			
-			setZero();
+		// 	setZero();
 			
-			$('#itemsTable tbody tr.clone select').select2({width: "100%"});
-		});
+		// 	$('#itemsTable tbody tr.clone select').select2({width: "100%"});
+		// });
 		
 		/**ADD NEW BANK ROW**/
 		$('body').on('click', '.add-cheque', function() {
@@ -2119,8 +2137,8 @@
 			$('#chequeTable tbody tr.clone:last .input-group.date ').datepicker({ format: 'M dd, yyyy', autoclose: true });
 
 			// Trigger add new line .add-data
-			$(".add-data").trigger("click");
-
+			// $(".add-data").trigger("click");
+			setZero();
 		});
 
 		// Deletion of Row
@@ -2293,341 +2311,92 @@
 					});
 				}
 			});
-
-			/**FINALIZE TEMPORARY DATA AND REDIRECT TO LIST**/
-			$("#payableForm #btnSave").click(function()
-			{
-				var valid		= 0;
-				
-				/**validate vendor field**/
-				valid		+= validateField('payableForm','document_date', "document_date_help");
-				valid		+= validateField('payableForm','vendor', "vendor_help");
-				
-				if(valid == 0){
-					var paymentmode = $('#paymentmode').val();
-					if(paymentmode == 'cheque'){
-						valid 	+=	applySelected_();
-					}
-					valid		+= validateDetails();
-			
-					if(valid == 0)
-					{
-						$("#payableForm #btnSave").addClass('disabled');
-						$("#payableForm #btnSave_toggle").addClass('disabled');
-						
-						$("#payableForm #btnSave").html('Saving...');
-
-						$("#payableForm #h_save").val("h_save");
-
-						$.post("<?=BASE_URL?>financials/disbursement/ajax/apply_payments",$("#payableForm").serialize())
-						.done(function(data)
-						{	
-							if(data.code == 1)
-							{
-								$("#payableForm #h_voucher_no").val(data.voucher);
-								$("#payableForm").submit();
-							}
-							else
-							{
-								var msg = "";
-
-								for(var i = 0; i < data.msg.length; i++)
-								{
-									msg += data.msg[i];
-								}
-
-								$("#errordiv").removeClass("hidden");
-								$("#errordiv #msg_error ul").html(msg);
-							}
-						});
-					} 
-				} else {
-					// $('#warning_modal').modal('show').find('#warning_message').html('Please make sure all required fields are filled out.');		
-					//$('#warning_modal').modal('show').find('#warning_message').html('Please Input Quantity > 0');
-					next = $('#payableForm').find(".has-error").first();
-					$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
-				}
-			});
-
-			/**FINALIZE TEMPORARY DATA AND REDIRECT TO CREATE NEW INVOICE**/
-			$("#payableForm #save_new").click(function()
-			{
-				var valid	= 0;
-
-				/**validate vendor field**/
-				valid		+= validateField('payableForm','document_date', "document_date_help");
-				valid		+= validateField('payableForm','vendor', "vendor_help");
-				
-				// valid		+= validateField('payableForm','due_date', "due_date_help");
-				
-				/**validate items**/
-				valid		+= validateDetails();
-				var paymentmode = $('#paymentmode').val();
-				/**validate accounts**/
-				if(paymentmode == 'cheque'){
-					valid 	+=	applySelected_();
-				}
-
-				if(valid == 0){
-					$("#payableForm #h_save").val("h_save_new");
-
-					$.post("<?=BASE_URL?>financials/disbursement/ajax/apply_payments",$("#payableForm").serialize())
-					.done(function(data)
-					{
-						if(data.code == 1)
-						{
-							$("#payableForm #h_voucher_no").val(data.voucher);
-							$("#payableForm").submit();
-						}
-						else
-						{
-							var msg = "";
-
-							for(var i = 0; i < data.msg.length; i++)
-							{
-								msg += data.msg[i];
-							}
-
-							$("#errordiv").removeClass("hidden");
-							$("#errordiv #msg_error ul").html(msg);
-						}
-					});
-
-				}
-			});
-
-			/**FINALIZE TEMPORARY DATA AND REDIRECT TO PREVIEW INVOICE**/
-			$("#payableForm #save_preview").click(function()
-			{
-				var valid	= 0;
-				
-				/**validate vendor field**/
-				valid		+= validateField('payableForm','document_date', "document_date_help");
-				valid		+= validateField('payableForm','vendor', "vendor_help");
-				
-				// valid		+= validateField('payableForm','duedate', "due_date_help");
-				
-				/**validate items**/
-				valid		+= validateDetails();
-				var paymentmode = $('#paymentmode').val();
-				/**validate accounts**/
-				if(paymentmode == 'cheque'){
-					valid 	+=	applySelected_();
-				}
-				
-				if(valid == 0){
-					$("#payableForm #h_save").val("h_save_preview");
-
-					$.post("<?=BASE_URL?>financials/disbursement/ajax/apply_payments",$("#payableForm").serialize())
-					.done(function(data)
-					{
-						if(data.code == 1)
-						{
-							$("#payableForm #h_voucher_no").val(data.voucher);
-							$("#payableForm").submit();
-						}
-						else
-						{
-							var msg = "";
-
-							for(var i = 0; i < data.msg.length; i++)
-							{
-								msg += data.msg[i];
-							}
-
-							$("#errordiv").removeClass("hidden");
-							$("#errordiv #msg_error ul").html(msg);
-						}
-					});
-				}
-			});
-
 		} else if( task == "edit") {
 			var paymentmode = $("#paymentmode").val();
 
-			// var selected_rows 	= JSON.stringify(container);
-			// $('#selected_rows').html(selected_rows);
-
 			if(paymentmode == "cheque"){
-				// toggleCheckInfo(paymentmode);
-				// loadCheques();
 				addAmounts();
 			}
 
 			$("#paymentmode").removeAttr("disabled");
-
-			/**SAVE CHANGES AND REDIRECT TO LIST**/
-			$("#payableForm #btnSave").click(function(e)
-			{
-				var valid	= 0;
-
-				/**validate vendor field**/
-				valid		+= validateField('payableForm','document_date', "document_date_help");
-				valid		+= validateField('payableForm','vendor', "vendor_help");
-				
-				// valid		+= validateField('payableForm','due_date', "due_date_help");
-				
-				/**validate items**/
-				var paymentmode = $('#paymentmode').val();
-				/**validate accounts**/
-				if(paymentmode == 'cheque'){
-					valid 	+=	applySelected_();
-				}
-				valid		+= validateDetails();
-				
-				if(valid == 0) {
-					$("#payableForm #btnSave").addClass('disabled');
-					$("#payableForm #btnSave_toggle").addClass('disabled');
-					
-					$("#payableForm #btnSave").html('Saving...');
-
-					$("#payableForm #h_save").val("h_save");
-					
-					$.post("<?=BASE_URL?>financials/disbursement/ajax/apply_payments",$("#payableForm").serialize())
-					.done(function(data)
-					{
-						if(data.code == 1)
-						{
-							$("#payableForm").submit();
-						}
-						else
-						{
-							var msg = "";
-
-							for(var i = 0; i < data.msg.length; i++)
-							{
-								msg += data.msg[i];
-							}
-
-							$("#errordiv").removeClass("hidden");
-							$("#errordiv #msg_error ul").html(msg);
-						}
-					});
-				}
-			});
-				
-			/**SAVE CHANGES AND REDIRECT TO CREATE NEW INVOICE**/
-			$("#payableForm #save_new").click(function()
-			{
-				var valid	= 0;
-				
-				/**validate vendor field**/
-				valid		+= validateField('payableForm','document_date', "document_date_help");
-				valid		+= validateField('payableForm','vendor', "vendor_help");
-				
-				// valid		+= validateField('payableForm','due_date', "due_date_help");
-				
-				/**validate items**/
-				valid		+= validateDetails();
-				var paymentmode = $('#paymentmode').val();
-				/**validate accounts**/
-				if(paymentmode == 'cheque'){
-					valid 	+=	applySelected_();
-				}
-				
-				if(valid == 0)
-				{
-					// validate form
-					applySelected_();
-					
-					$("#payableForm #btnSave").addClass('disabled');
-					$("#payableForm #btnSave_toggle").addClass('disabled');
-					
-					$("#payableForm #btnSave").html('Saving...');
-
-					$("#payableForm #h_save").val("h_save_new");
-					
-					$.post("<?=BASE_URL?>financials/disbursement/ajax/apply_payments",$("#payableForm").serialize())
-					.done(function(data)
-					{
-						if(data.code == 1)
-						{
-							$("#payableForm").submit();
-						}
-						else
-						{
-							var msg = "";
-
-							for(var i = 0; i < data.msg.length; i++)
-							{
-								msg += data.msg[i];
-							}
-
-							$("#errordiv").removeClass("hidden");
-							$("#errordiv #msg_error ul").html(msg);
-						}
-					});
-				}
-			});
-				
-			$("#payableForm #save_preview").click(function()
-			{
-				var valid	= 0;
-				
-				/**validate vendor field**/
-				valid		+= validateField('payableForm','document_date', "document_date_help");
-				valid		+= validateField('payableForm','vendor', "vendor_help");
-				
-				// valid		+= validateField('payableForm','duedate', "due_date_help");
-				
-				/**validate items**/
-				valid		+= validateDetails();
-				var paymentmode = $('#paymentmode').val();
-				/**validate accounts**/
-				if(paymentmode == 'cheque'){
-					valid 	+=	applySelected_();
-				}
-				if(valid == 0){
-					/**validate accounts**/
-					valid		+= validateDetails();
-				}
-				
-				if(valid == 0) {
-					$("#payableForm #btnSave").addClass('disabled');
-					$("#payableForm #btnSave_toggle").addClass('disabled');
-					
-					$("#payableForm #btnSave").html('Saving...');
-
-					$("#payableForm #h_save").val("h_save_preview");
-					
-					$.post("<?=BASE_URL?>financials/disbursement/ajax/apply_payments",$("#payableForm").serialize())
-					.done(function( data ) 
-					{
-						if(data.code == 1)
-						{
-							$("#payableForm").submit();
-						}
-						else
-						{
-							var msg = "";
-
-							for(var i = 0; i < data.msg.length; i++)
-							{
-								msg += data.msg[i];
-							}
-
-							$("#errordiv").removeClass("hidden");
-							$("#errordiv #msg_error ul").html(msg);
-						}
-					});
-				}
-			});
 		}
+
+		$("#payableForm #save").click(function(){
+			var valid		= 0;
+			var button_name = $(this).attr('name');
+			var paymentmode = $('#paymentmode').val();
+			
+			var form_element = $(this).closest('form');
+				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+
+			valid		+= validateDetails();
+
+			if(paymentmode == 'cheque'){
+				valid 	+= validateCheques();
+			}
+			
+			finalize_saving(valid, button_name);
+		});
+
+		$("#payableForm #save_new").click(function(){
+			var valid		= 0;
+			var button_name = $(this).attr('name');
+			var paymentmode = $('#paymentmode').val();
+			
+			var form_element = $(this).closest('form');
+				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+
+			valid		+= validateDetails();
+
+			if(paymentmode == 'cheque'){
+				valid 	+= validateCheques();
+			}
+
+			finalize_saving(valid, button_name);
+		}); 
+
+		$("#payableForm #save_preview").click(function(){
+			var valid		= 0;
+			var button_name = $(this).attr('name');
+			var paymentmode = $('#paymentmode').val();
+			
+			var form_element = $(this).closest('form');
+				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+
+			valid		+= validateDetails();
+
+			if(paymentmode == 'cheque'){
+				valid 	+= validateCheques();
+			}
+
+			finalize_saving(valid, button_name);
+		});
+
+		$("#payableForm #save_exit").click(function(){
+			var valid		= 0;
+			var button_name = $(this).attr('name');
+			var paymentmode = $('#paymentmode').val();
+			
+			var form_element = $(this).closest('form');
+				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+
+			valid		+= validateDetails();
+
+			if(paymentmode == 'cheque'){
+				valid 	+= validateCheques();
+			}
+
+			finalize_saving(valid, button_name);
+		});
 
 		// Isabelle -  eto ung pag clone ng td sa may accounting details 
 		$('body').on('click', '.add-entry', function()  {	
-			if ($('#entriesTable tbody tr.clone select').data('select2')) {
-				$('#entriesTable tbody tr.clone select').select2('destroy');
-			}
-			var clone = $("#entriesTable tbody tr.clone:first").clone(true); 
-
-			var ParentRow = $("#entriesTable tbody tr.clone").last();
-
-			clone.clone(true).insertAfter(ParentRow);
-			
+			var ParentRow = $("#entriesTable tbody tr:not(.added_row)").last();
+			ParentRow.after(clone_acct);
 			setZero();
-			
-			$('#entriesTable tbody tr.clone select').select2({width: "100%"});
+			$("#entriesTable tbody tr:not(.added_row):last").find('.accountcode').val('').trigger('change');
+			$("#entriesTable tbody tr:not(.added_row):last").find('.credit').attr('readonly',false);
+			drawTemplate();
 		});
 
 		var cheque_detail 	=	$('#paymentmode').val();
@@ -2644,7 +2413,6 @@
 
 			$('#change_vendor_modal').modal('hide');
 			
-			// container = [];
 			clearPayment();
 		});
 
