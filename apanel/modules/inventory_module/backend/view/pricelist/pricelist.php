@@ -17,8 +17,10 @@
 									->setName('pricelistcode')
 									->setId('pricelistcode')
 									->setValue($itemPriceCode)
+									->setMaxLength(20)
+									->addHidden((isset($task) && $task == 'edit'))
 									->setValidation('required code')
-									->draw($show_input);
+									->draw((isset($task) && $task == 'create'));
 						?>
 						<input type = "hidden" id = "h_price_code" name = "h_price_code" value = "<?= $itemPriceCode ?>">
 					</div>
@@ -30,8 +32,9 @@
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('pricelistname')
 									->setId('pricelistname')
+									->setMaxLength('50')
 									->setValue($itemPriceName)
-									->setValidation('required')
+									->setValidation('required special')
 									->draw($show_input);
 						?>
 					
@@ -46,6 +49,7 @@
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('pricelistdesc')
 									->setId('pricelistdesc')
+									->setMaxLength(200)
 									->setValue($itemPriceDesc)
 									->setValidation('required')
 									->draw($show_input);
@@ -102,7 +106,8 @@
 											->setSplit('', 'col-md-12')
 											->setName('detailparticulars['.$row.']')
 											->setId('detailparticulars['.$row.']')
-											->setAttribute(array("maxlength" => "100","readonly"=>''))
+											->setMaxLength(100)
+											->setAttribute(array("readonly"=>''))
 											->setValue("")
 											->draw($show_input);
 								?>
@@ -112,8 +117,8 @@
                                     echo $ui->formField('text')
                                             ->setSplit('', 'col-md-12')
                                             ->setName('original_price['.$row.']')
-                                            ->setId('original_price['.$row.']')
-                                            ->setAttribute(array("maxlength" => "100","readonly"=>''))
+											->setId('original_price['.$row.']')
+                                            ->setAttribute(array("readonly"=>''))
                                             ->setValue("")
                                             ->draw($show_input);
                                 ?>
@@ -124,7 +129,7 @@
                                             ->setSplit('', 'col-md-12')
                                             ->setName('adjusted_price['.$row.']')
                                             ->setId('adjusted_price['.$row.']')
-                                            ->setAttribute(array("maxlength" => "100"))
+                                            ->setMaxLength(100)
                                         	->setValidation('decimal required')
                                             ->setValue("")
                                             ->draw($show_input);
@@ -136,7 +141,7 @@
 											->setSplit('', 'col-md-12')
 											->setName('uom['.$row.']')
 											->setId('uom['.$row.']')
-											->setAttribute(array("maxlength" => "100","readonly"=>''))
+											->setAttribute(array("readonly"=>''))
 											->setValue("")
 											->draw($show_input);
 								?>
@@ -181,7 +186,8 @@
 											->setSplit('', 'col-md-12')
 											->setName('detailparticulars['.$row.']')
 											->setId('detailparticulars['.$row.']')
-											->setAttribute(array("maxlength" => "100","readonly"=>''))
+											->setMaxLength(100)
+											->setAttribute(array("readonly"=>''))
 											->setValue($detailparticular)
 											->draw($show_input);
 								?>
@@ -192,7 +198,7 @@
                                             ->setSplit('', 'col-md-12')
                                             ->setName('original_price['.$row.']')
                                             ->setId('original_price['.$row.']')
-                                            ->setAttribute(array("maxlength" => "100","readonly"=>''))
+                                            ->setAttribute(array("readonly"=>''))
                                             ->setValue(number_format($original,2))
                                             ->draw($show_input);
                                 ?>
@@ -203,7 +209,7 @@
                                             ->setSplit('', 'col-md-12')
                                             ->setName('adjusted_price['.$row.']')
                                             ->setId('adjusted_price['.$row.']')
-                                            ->setAttribute(array("maxlength" => "100"))
+                                            ->setMaxLength(20)
                                         	->setValidation('decimal')
                                             ->setValue(number_format($adjusted,2))
                                             ->draw($show_input);
@@ -215,7 +221,7 @@
 											->setSplit('', 'col-md-12')
 											->setName('uom['.$row.']')
 											->setId('uom['.$row.']')
-											->setAttribute(array("maxlength" => "100","readonly"=>''))
+											->setAttribute(array("readonly"=>''))
 											->setValue($uom)
 											->draw($show_input);
 								?>
