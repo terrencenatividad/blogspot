@@ -128,54 +128,78 @@ class dashboard_model extends wc_model {
 	}
 
 	public function getAging() {
-		$datefilter = $this->date->dateDbFormat() . ' 00:00:00';
-		$ap	= $this->db->setTable('accountspayable ap')
-						->setFields("
-							ap.balance value,
-							CASE
-								WHEN DATEDIFF('$datefilter', ap.duedate) = 0 THEN 'Today'
-								WHEN DATEDIFF('$datefilter', ap.duedate) > 60 THEN '60 days over'
-								WHEN DATEDIFF('$datefilter', ap.duedate) > 30 THEN '31 to 60 days'
-								WHEN DATEDIFF('$datefilter', ap.duedate) > 0 THEN '1 to 30 days'
-							END label
-						")
-						->setWhere("ap.stat = 'posted' AND ap.duedate <= '$datefilter' AND ap.balance > 0")
-						->buildSelect();
-
-
-		$ar	= $this->db->setTable('accountsreceivable ar')
-						->setFields("
-							ar.balance value,
-							CASE
-								WHEN DATEDIFF('$datefilter', ar.duedate) = 0 THEN 'Today'
-								WHEN DATEDIFF('$datefilter', ar.duedate) > 60 THEN '60 days over'
-								WHEN DATEDIFF('$datefilter', ar.duedate) > 30 THEN '31 to 60 days'
-								WHEN DATEDIFF('$datefilter', ar.duedate) > 0 THEN '1 to 30 days'
-							END label
-						")
-						->setWhere("ar.stat = 'posted' AND ar.duedate <= '$datefilter' AND ar.balance > 0")
-						->buildSelect();
+		$ar_aging = $this->getReceivableAging();
+		$ap_aging = $this->getPayableAging();
 
 		$aging = array(
-			'ap' => $this->getVoucherApplication($ap),
-			'ar' => $this->getVoucherApplication($ar)
+			'ar' => $this->getVoucherApplication($ar_aging),
+			'ap' => $this->getVoucherApplication($ap_aging)
 		);
 		return $aging;
 	}
 
-	private function getVoucherApplication($query) {
-		$result = $this->db->setTable("($query) query")
-							->setFields('label, SUM(value) value')
-							->setGroupBy('label')
-							->runSelect(false)
-							->getResult();
+	private function getReceivableAging() {
+		$payment_query = $this->db->setTable('rv_application rva')
+									->setFields('SUM(rva.amount) payments, rva.arvoucherno, rva.companycode')
+									->leftJoin('receiptvoucher rv ON rv.voucherno = rva.voucherno AND rv.companycode = rva.companycode')
+									->setWhere("rv.stat = 'posted' AND rv.transactiondate <= CURDATE()")
+									->setGroupBy('rva.arvoucherno')
+									->buildSelect();
 
-		if ($result) {
+		$aging_query = $this->db->setTable('accountsreceivable ar')
+								->setFields("p.partnername customer, ar.voucherno, ar.transactiondate, ar.terms, ar.amount, ar.duedate, IF (ar.duedate < DATE_SUB(CURDATE(), INTERVAL 60 DAY), ar.amount - IFNULL(rva.payments, 0), 0) oversixty,
+								IF (ar.duedate < DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND ar.duedate > DATE_SUB(CURDATE(), INTERVAL 60 DAY), ar.amount - IFNULL(rva.payments, 0), 0) sixty,
+								IF (ar.duedate < CURDATE() AND ar.duedate >= DATE_SUB(CURDATE(), INTERVAL 30 DAY), ar.amount - IFNULL(rva.payments, 0), 0) thirty,
+								IF (ar.duedate = CURDATE(), ar.amount - IFNULL(rva.payments, 0), 0) today, (ar.amount - IFNULL(rva.payments, 0)) balance, ar.companycode")
+								->leftJoin("($payment_query) rva ON rva.arvoucherno = ar.voucherno AND rva.companycode = ar.companycode")
+								->leftJoin('partners p ON p.partnercode = ar.customer AND p.companycode = ar.companycode')
+								->setWhere("ar.stat = 'posted' AND ar.transactiondate <= CURDATE()")
+								->setHaving('balance > 0')
+								->buildSelect();
+
+		$result = $this->db->setTable("($aging_query) aq")
+							->setFields("customer, voucherno, transactiondate, terms, amount, duedate, SUM(oversixty) oversixty_total, SUM(sixty) sixty_total, SUM(thirty) thirty_total, SUM(today) today_total, SUM(balance) balance_total")
+							->runSelect()
+							->getRow();
+
+		return $result;
+	}
+
+	private function getPayableAging() {
+		$payment_query = $this->db->setTable('pv_application pva')
+									->setFields('SUM(pva.amount) payments, pva.apvoucherno, pva.companycode')
+									->leftJoin('paymentvoucher pv ON pv.voucherno = pva.voucherno AND pv.companycode = pva.companycode')
+									->setWhere("pv.stat = 'posted' AND pv.transactiondate <= CURDATE()")
+									->setGroupBy('pva.apvoucherno')
+									->buildSelect();
+
+		$aging_query = $this->db->setTable('accountspayable ap')
+								->setFields("p.partnername supplier, ap.voucherno, ap.transactiondate, ap.terms, ap.amount, ap.duedate, IF (ap.duedate < DATE_SUB(CURDATE(), INTERVAL 60 DAY), ap.amount - IFNULL(pva.payments, 0), 0) oversixty,
+								IF (ap.duedate < DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND ap.duedate > DATE_SUB(CURDATE(), INTERVAL 60 DAY), ap.amount - IFNULL(pva.payments, 0), 0) sixty,
+								IF (ap.duedate < CURDATE() AND ap.duedate >= DATE_SUB(CURDATE(), INTERVAL 30 DAY), ap.amount - IFNULL(pva.payments, 0), 0) thirty,
+								IF (ap.duedate = CURDATE(), ap.amount - IFNULL(pva.payments, 0), 0) today, (ap.amount - IFNULL(pva.payments, 0)) balance, ap.companycode")
+								->leftJoin("($payment_query) pva ON pva.apvoucherno = ap.voucherno AND pva.companycode = ap.companycode")
+								->leftJoin('partners p ON p.partnercode = ap.vendor AND p.companycode = ap.companycode')
+								->setWhere("ap.stat = 'posted' AND ap.transactiondate <= CURDATE()")
+								->setHaving('balance > 0')
+								->buildSelect();
+
+
+		$result = $this->db->setTable("($aging_query) aq")
+							->setFields("supplier, voucherno, transactiondate, terms, amount, duedate, SUM(oversixty) oversixty_total, SUM(sixty) sixty_total, SUM(thirty) thirty_total, SUM(today) today_total, SUM(balance) balance_total")
+							->runSelect()
+							->getRow();
+
+		return $result;
+	}
+
+	private function getVoucherApplication($row) {
+		if ($row) {
 			$data = array();
-			$data[] = $this->getVoucherApplicationValue('Today', $result);
-			$data[] = $this->getVoucherApplicationValue('1 to 30 days', $result);
-			$data[] = $this->getVoucherApplicationValue('31 to 60 days', $result);
-			$data[] = $this->getVoucherApplicationValue('60 days over', $result);
+			$data[] = array('label' => 'Today', 'value' => $row->today_total);
+			$data[] = array('label' => '1 to 30 days', 'value' => $row->thirty_total);
+			$data[] = array('label' => '31 to 60 days', 'value' => $row->sixty_total);
+			$data[] = array('label' => '60 days over', 'value' => $row->oversixty_total);
 			return $data;
 		} else {
 			return array(
@@ -204,25 +228,6 @@ class dashboard_model extends wc_model {
 			'purchases'	=> $purchases
 		);
 		return $aging;
-	}
-
-	private function getVoucherApplicationValue($label, $result) {
-		$labelarr	= array();
-		$value		= array();
-		foreach ($result as $content) {
-			$labelarr[]	=	$content->label;
-			if ($label == $content->label) {
-				$value = $content;
-			}
-		}
-		if ( ! in_array($label,$labelarr)) {
-			$value['label']	= $label;
-			$value['value']	= 0;
-
-			$value = (object) $value;
-		}
-
-		return $value;
 	}
 
 }
