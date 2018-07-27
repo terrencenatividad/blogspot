@@ -13,6 +13,7 @@ class ui {
 	private $draw = true;
 	private $class = array();
 	private $split = array();
+	private $buttons = array();
 	private $switch = false;
 	private $validation = false;
 	private $add_hidden = false;
@@ -366,7 +367,118 @@ class ui {
 			return '<a href="' . $url  . '" class="btn btn-primary">Edit</a>';
 		}
 	}
-	
+
+	public function addSave(){
+		$this->buttons[] 	=	"a_save";
+		return $this; 	
+	}
+
+	public function addSaveNew(){
+		$this->buttons[] 	= 	'b_new';
+		return $this;
+	}
+
+	public function addSavePreview(){
+		$this->buttons[] 	= 	'c_preview';
+		return $this;
+	}
+
+	public function addSaveEXit(){
+		$this->buttons[] 	=	'd_exit';
+		return $this;
+	}
+	public function addSavePrint(){
+		$this->buttons[] 	= 	'e_print';
+		return $this;
+	}
+	public function addButtonList($list_id="",$hidden_id="",$value="",$name="", $display=true){
+		$button_ 	=	"";
+		if($display){
+			$button_	=	"<li style='cursor:pointer;' name='".$name."' id='".$list_id."'>
+								<span style='padding-right:10px;'></span>$value
+							</li>";
+		}
+		// <input type = 'hidden' name = '".$name."' id = '".$hidden_id."'/>
+		return $button_;
+	}
+	public function drawSaveOption($draw = true) {
+		asort($this->buttons);
+		$opt_buttons 	=	"";
+		$temp_content 	=	"";
+		$content 		=	"";
+		if($draw){
+			$caret 		 = 	"<button type='button' class='btn btn-primary dropdown-toggle' data-toggle='dropdown'>
+								<span class='caret'></span>
+							</button>";
+			$divider 	=	"<li class='divider'></li>";
+			
+			$display 		=	$show_new	=	0;
+			$show_preview 	=	1;
+			$has_save		=	in_array('a_save',$this->buttons);
+			$btn_count 		=	count($this->buttons);
+
+			$opt_buttons .= "<div class = 'btn-group' id='save_options'>";
+
+			foreach($this->buttons as $index => $value){
+				if($has_save && $content == ""){
+					$content .=	"<input type = 'button' value = 'Save' name = 'save' id = 'save' class='btn btn-primary btn-flat'>"; 
+					$content .= $caret;
+					$content .= "<ul class='dropdown-menu left' role='menu'>";
+					$opt_buttons 	.=	$content;
+					$has_save 		=	false;
+				} else {
+					if($show_preview	&& 	$content == ""){
+						$content 		.= "<input type = 'button' value = 'Save & Preview' name = 'save_preview' id = 'save' class='btn btn-primary btn-flat'>";
+						$content 		.= $caret;
+						$content 		.= "<ul class='dropdown-menu left' role='menu'>";
+						$opt_buttons 	.=  $content;
+					}
+					$show_preview 	=	0;	
+				}
+				$btn_value 	=	$btn_name 	=	$btn_id		=	$h_btn_id 	=	"";
+				switch ($value) {
+					case "b_new":
+						$btn_value 	=	"Save & New";
+						$btn_name 	=	"save_new";
+						$btn_id		=	"save_new";
+						$h_btn_id 	=	"h_save_new";
+						$display 	=	1;
+						$opt_buttons 	.=	$this->addButtonList($btn_id, $h_btn_id, $btn_value, $btn_name, $display);
+						break;
+					case "c_preview":
+						$btn_value 	=	"Save & Preview";
+						$btn_name 	=	"save_preview";
+						$btn_id		=	"save_preview";
+						$h_btn_id 	=	"h_save_preview";
+						$display 	=	$show_preview;
+						$opt_buttons 	.=	$this->addButtonList($btn_id, $h_btn_id, $btn_value, $btn_name, $display);
+						break;
+					case "d_exit":
+						$btn_value 	=	"Save & Exit";
+						$btn_name 	=	"save_exit";
+						$btn_id		=	"save_exit";
+						$h_btn_id 	=	"h_save_exit";
+						$display	=	1;
+						$opt_buttons 	.=	$this->addButtonList($btn_id, $h_btn_id, $btn_value, $btn_name, $display);
+						break;
+					case "e_print":
+						$btn_value 	=	"Save & Print";
+						$btn_name 	=	"save_print";
+						$btn_id		=	"save_print";
+						$h_btn_id 	=	"h_save_print";
+						$display	=	1;
+						$opt_buttons 	.=	$this->addButtonList($btn_id, $h_btn_id, $btn_value, $btn_name, $display);
+						break;
+					default:
+						$display 	=	0;
+				}
+				$opt_buttons 	.=	($index < ($btn_count-1) && $display) ? 	$divider	:	"";
+			}
+			$opt_buttons 	.=	"	</ul>";
+			$opt_buttons 	.=	"</div>";
+		}
+		return $opt_buttons;
+	}
 	public function drawSubmitDropdown($draw, $ajax_task = 'ajax_create') {
 		if ($draw) {
 			if ($ajax_task == 'ajax_create') {
