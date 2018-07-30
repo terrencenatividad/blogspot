@@ -18,13 +18,10 @@
 								->setName('uomcode')
 								->setId('uomcode')
 								->setValue($uomcode)
-								->setAttribute(
-									array(
-										'maxlength' => 15
-									)
-								)
-								->setValidation('required')
-								->draw($show_input);
+								->setMaxLength(15)
+								->addHidden((isset($ajax_task) && $ajax_task == 'ajax_edit'))
+								->setValidation('required code')
+								->draw((isset($ajax_task) && $ajax_task == 'ajax_create'));
 						?>
 					</div>
 					<div class="col-md-5">
@@ -40,7 +37,7 @@
 										'maxlength' => 50
 									)
 								)
-								->setValidation('required')
+								->setValidation('required special')
 								->draw($show_input);
 						?>
 					</div>
@@ -56,7 +53,7 @@
 								->setId('uomtype')
 								->setList($type_list)
 								->setValue($uomtype)
-								->setValidation('required')
+								->setValidation('required special')
 								->draw($show_input);
 						?>
 					</div>
