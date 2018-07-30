@@ -14,8 +14,9 @@ class controller extends wc_controller {
 	public function view() {
 		$this->view->title = 'AR Transactions Report';
 		$data['ui'] = $this->ui;
-		$data['show_input'] = true;
-		$data['datefilter'] = $this->date->datefilterMonth();
+		$data['show_input'] 	= true;
+		$data['datefilter'] 	= $this->date->datefilterMonth();
+		$data['customer_list']	= $this->ar_transaction->getCustomers();
 		$this->view->load('ar_transaction', $data);
 	}
 

@@ -27,27 +27,6 @@
 							->draw(true);
 					?>
 				</div>
-				<!-- <div class="col-md-2">
-					<?php 
-						// echo $ui->formField('dropdown')
-						// 	->setPlaceholder('Select Voucher')
-						// 	->setName('voucherno')
-						// 	->setId('voucherno')
-						// 	->setNone('All')
-						// 	->setList($voucher_list)
-						// 	->draw(true);
-					?>
-				</div>
-				<div class="col-md-2">
-					<?php
-						// echo $ui->formField('dropdown')
-						// 		->setName('status')
-						// 		->setId('status')
-						// 		->setList(array("posted"=>"posted","open"=>"open"))
-						// 		->setAttribute(array("onChange" => "getList();"))
-						// 		->draw();
-					?>
-				</div> -->
 				<div class="col-md-1 col-md-offset-5">
 					<a href="" id="export_csv" download="AP_Detailed_Report.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 				</div>

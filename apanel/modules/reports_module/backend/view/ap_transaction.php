@@ -18,47 +18,19 @@
 				</div>
 
 				<div class="col-md-3">
-					<?php
-						echo $ui->formField('text')
-							->setPlaceholder('Filter Vendor')
+					<?php 
+						echo $ui->formField('dropdown')
+							->setPlaceholder('Filter Supplier')
 							->setName('supplier')
 							->setId('supplier')
-							->setAddon('search')
-							//->setValidation('required')
-							->setAttribute(array("readonly"))
-							->setValue("")
-							->draw($show_input);
+							->setNone('All')
+							->setList($supplier_list)
+							->draw(true);
 					?>
 				</div>
-
-				<div class="col-md-3">
-					<?php
-						echo $ui->formField('text')
-							->setPlaceholder('Filter Voucher No')
-							->setName('voucherno')
-							->setId('voucherno')
-							->setAddon('search')
-							->setAttribute(array("readonly"))
-							->setValue("")
-							->draw($show_input);
-					?>
-				</div>
-
-				<div class="col-md-2">
-					<?php
-						echo $ui->formField('dropdown')
-								->setName('status')
-								->setId('status')
-								->setList(array("posted"=>"posted","open"=>"open"))
-								->setAttribute(array("onChange" => "getList();"))
-								->draw();
-					?>
-				</div>
-
-				<div class="col-md-1">
+				<div class="col-md-1 col-md-offset-5">
 					<a href="" id="export_csv" download="AP_Transactions.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 				</div>
-			
 				</form>
 			</div>	
 		</div>
@@ -91,115 +63,16 @@
 		<div id="pagination"></div>	
 	</div>
 </section>
-
-<div id="supplier_list_modal" class="modal fade" tabindex="-1" role="dialog">
-	<div class="modal-dialog modal-lg" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">List of Vendors</h4>
-			</div>
-			<div class="modal-body">
-				<div class="row">
-					<div class="col-md-4 col-md-offset-8">
-						<div class="input-group">
-							<input type="text" id="supplier_list_search" class="form-control" placeholder="Search Vendor" name = "supplier_list_search" onKeyUp = "getsupplierList();">
-							<div class="input-group-addon">
-								<i class="glyphicon glyphicon-search"></i>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="modal-body no-padding">
-				<table id="supplier_tableList" class="table table-hover table-clickable">
-					<thead>
-						<tr class="info">
-							<th class="col-xs-3">Vendor Code</th>
-							<th class="col-xs-2">Name</th>
-							<th class="col-xs-2">Address</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td colspan="5" class="text-center">Loading List</td>
-						</tr>
-					</tbody>
-					<tfoot>
-						<tr>
-							<td colspan="8" class="text-center" id="pagination"></td>
-						</tr>
-					</tfoot>
-				</table>
-				<!--<div id="pagination"></div>-->
-			</div>
-		</div>
-	</div>
-</div>
-
-<div id="voucher_list_modal" class="modal fade" tabindex="-1" role="dialog">
-	<div class="modal-dialog modal-lg" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">List of Invoices</h4>
-			</div>
-			<div class="modal-body">
-				<div class="row">
-					<div class="col-md-4 col-md-offset-8">
-						<div class="input-group">
-							<input type="text" id="voucher_list_search" class="form-control" placeholder="Search Voucher" onKeyUp = "getVoucherList();">
-							<div class="input-group-addon">
-								<i class="glyphicon glyphicon-search"></i>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="modal-body no-padding">
-				<table id="voucher_tableList" class="table table-hover table-clickable">
-					<thead>
-						<tr class="info">
-							<th class="col-xs-1 text-center">Voucher No</th>
-							<th class="col-xs-2 text-center">Vendor</th>
-							<th class="col-xs-2 text-center">Reference No</th>
-							<th class="col-xs-1 text-center">Transaction Date</th>
-							<th class="col-xs-1 text-center">Invoice No</th>
-							<th class="col-xs-1 text-center">Invoice Date</th>
-							<th class="col-xs-1 text-center">Due Date</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td colspan="7" class="text-center">Loading List</td>
-						</tr>
-					</tbody>
-					<tfoot>
-						<tr>
-							<td colspan="8" class="text-center" id="pagination"></td>
-						</tr>
-					</tfoot>
-				</table>
-			</div>
-		</div>
-	</div>
-</div>
-
 <script type="text/javascript">
 	var ajax = {}
-		ajax.limit = 20;
 	var ajax_call = {};
-		
+	var ajax = filterFromURL();
+	ajax.limit 	= 50;
+	ajaxToFilter(ajax, { supplier : '#supplier', daterangefilter : '#daterangefilter' });	
+
 	function getList() 
 	{
-		var supplier    = document.getElementById('supplier').value;
-		var voucherno   = document.getElementById('voucherno').value;
-		var status      = document.getElementById('status').value;
-		
-		ajax.supplier = supplier;
-		ajax.voucher = voucherno;
-		ajax.status = status;
-		
+		filterToURL();
 		ajax_call = $.post('<?=MODULE_URL?>ajax/list',ajax, function(data) 
 		{
 			$('#ap_detailed_container').html(data.table);
@@ -208,86 +81,7 @@
 		});
 	}
 
-	function getsupplierList()
-	{
-		var supplier = $('#supplier').val();
-		var status      = document.getElementById('status').value;
-		ajax.supplier = supplier;
-		ajax.status = status;
-		ajax.search = $("#supplier_list_search").val();
-
-		$('#supplier_list_modal').modal('show');
-		
-		if (ajax_call != '') 
-		{
-			ajax_call.abort();
-		}
-		
-		ajax_call = $.post('<?=MODULE_URL?>ajax/load_supplier_list', ajax, function(data) 
-		{   
-			$('#supplier_tableList tbody').html(data.table);
-			$('#supplier_tableList #pagination').html(data.pagination);
-		});
-	}
-
-	function getVoucherList()
-	{
-		var supplier = $('#supplier').val();
-		var voucherno = $('#voucherno').val();
-		
-		ajax.supplier = supplier;
-		ajax.voucher  = voucherno;
-		ajax.status   = status;
-		ajax.search   = $("#voucher_list_search").val();
-		
-		$('#voucher_list_modal').modal('show');
-
-		if (ajax_call != '') 
-		{
-			ajax_call.abort();
-		}
-		
-		ajax_call = $.post('<?=MODULE_URL?>ajax/load_voucher_list', ajax, function(data) 
-		{   
-			$('#voucher_tableList tbody').html(data.table);
-			$('#voucher_tableList #pagination').html(data.pagination);
-		});
-	}
-
 	$(function(){
-		getList();
-	});
-
-	$('form').submit(function(e) 
-	{
-		e.preventDefault();
-		getList();
-	});
-
-	$('#supplier_tableList #pagination').on('click', 'a', function(e) 
-	{
-		e.preventDefault();
-		ajax.page = $(this).attr('data-page');
-		getList();
-	});
-
-	$('#supplier_tableList').on('click', 'tr[data-id]', function() 
-	{
-		var supplierid = $(this).attr('data-id');
-		$('#supplier').val(supplierid).trigger('blur');
-		$('#supplier_list_modal').modal('hide');
-		getList();	
-	});
-
-	$('#supplier').on('focus', function() 
-	{	$('#supplier').val("");
-		getsupplierList(); 
-		getList();
-	});
-
-	$('#voucherno').on('focus', function() 
-	{	$('#voucherno').val("");
-		getVoucherList();
 		getList();
 	});
 
@@ -296,23 +90,11 @@
 		ajax.page = 1;
 		getList();
 	}).trigger('change');
-
-	$('#voucher_tableList').on('click', 'tr[data-id]', function() 
-	{
-		var voucherno = $(this).attr('data-id');
-		$('#voucherno').val(voucherno).trigger('blur');
-		$('#voucher_list_modal').modal('hide');
-		getList();	
-	});
-
-	$('#daterangefilter').on('change', function() {
-		ajax.daterangefilter = $(this).val();
-		try {
-			ajax_call.abort();
-		} catch (e) {}
+	$("#supplier").on("change",function(){
+		ajax.supplier = $(this).val();
+		ajax.page = 1;
 		getList();
-	}).trigger('change');
-
+	});
 	tableSort('#tableList', function(value) {
 		ajax.sort = value;
 		ajax.page = 1;
