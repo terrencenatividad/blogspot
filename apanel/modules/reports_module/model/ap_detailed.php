@@ -50,7 +50,7 @@ class ap_detailed extends wc_model {
 		$addCondition .= (!empty($supplier) && $supplier != 'none')? " AND ap.vendor = '$supplier' ":"";
 		
 		$addCondition .= (!empty($datefilter) && !is_null($datefilter)) ? "AND ap.transactiondate <= '$datefilter' " : "";
-		$balanceCondition = " AND ((select (SUM(app.amount) + SUM(app.discount)) from pv_application app left join paymentvoucher pay ON pay.voucherno = app.voucherno where app.apvoucherno = ap.voucherno and pay.transactiondate <= '$datefilter') < ap.amount) ";
+		$balanceCondition = " AND (COALESCE((select (SUM(app.amount) + SUM(app.discount)) from pv_application app left join paymentvoucher pay ON pay.voucherno = app.voucherno where app.apvoucherno = ap.voucherno and pay.transactiondate <= '$datefilter'),0) < ap.amount) ";
 		$result = $this->db->setTable('partners p')
 							->setFields("
 								p.partnercode suppliercode, p.partnername suppliername, 
