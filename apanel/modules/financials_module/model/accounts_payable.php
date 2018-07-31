@@ -1002,15 +1002,13 @@ class accounts_payable extends wc_model
 						
 						if($insertResult != 1)
 						{
-							echo "error saving payment detail [$linenum] : ".$insertResult;
+							$errmsg[] 		= "error saving payment detail [$linenum] : ".$insertResult;
 						}
 
 					}
 				}else{
 					if($paymentdiscount > 0 && $convertedamount == 0)
 					{
-						// echo "\n 3 \n";
-						// ap_details
 						$accountcode = $this->getValue($applicableDetailTable, "accountcode", "voucherno = '$invoice' AND linenum = '1' LIMIT 1");
 						$accountcode = $accountcode[0]->accountcode;
 					}
@@ -1043,7 +1041,7 @@ class accounts_payable extends wc_model
 					
 					if($insertResult != 1)
 					{
-						echo "error saving payment detail [$linenum] : ". $insertResult;
+						$errmsg[] 		= "error saving payment detail [$linenum] : ". $insertResult;
 					}
 					
 					$linenum++;
@@ -1147,7 +1145,6 @@ class accounts_payable extends wc_model
 					$insertResult = $this->db->setTable($applicationTable) //pv_application
 										->setValues($post_application)
 										->setWhere("voucherno = '$voucherno' AND apvoucherno = '$invoice'")
-										// ->buildUpdate();
 										->runUpdate();
 				}
 				else
@@ -1158,14 +1155,14 @@ class accounts_payable extends wc_model
 				}
 
 				/**UPDATE MAIN INVOICE**/
-				$invoice_amount				= $this->getValue($applicableHeaderTable, array("amount as convertedamount"), "voucherno = '$invoice' AND stat = 'posted'");
+				$invoice_amount				= $this->getValue($applicableHeaderTable, array("amount as convertedamount"), "voucherno = '$invoice' AND stat IN('open','posted')");
 				$applied_discount			= 0;
 
-				$applied_sum				= $this->getValue($applicationTable, array("SUM(amount) AS convertedamount")," apvoucherno = '$invoice' AND stat = 'posted' ");
+				$applied_sum				= $this->getValue($applicationTable, array("SUM(amount) AS convertedamount")," apvoucherno = '$invoice' AND stat IN('open','posted') ");
 
-				$applied_discount			= $this->getValue($applicationTable, array("SUM(discount) AS discount"), "apvoucherno = '$invoice' AND stat = 'posted' ");
+				$applied_discount			= $this->getValue($applicationTable, array("SUM(discount) AS discount"), "apvoucherno = '$invoice' AND stat IN('open','posted') ");
 
-				$applied_forexamount		= $this->getValue($applicationTable, array("SUM(forexamount) AS forexamount"), "apvoucherno = '$invoice' AND stat = 'posted' ");
+				$applied_forexamount		= $this->getValue($applicationTable, array("SUM(forexamount) AS forexamount"), "apvoucherno = '$invoice' AND stat IN('open','posted') ");
 
 				$applied_sum				= $applied_sum[0]->convertedamount - $applied_forexamount[0]->forexamount;
 
@@ -1199,7 +1196,7 @@ class accounts_payable extends wc_model
 
 		$insertResult = $this->db->setTable($mainAppTable) //paymentvoucher
 						->setValues($update_info)
-						->setWhere("voucherno = '$voucherno' AND stat = 'posted'")
+						->setWhere("voucherno = '$voucherno' AND stat IN('open','posted')")
 						->runUpdate();
 
 		/**INSERT TO CHEQUES TABLE**/
@@ -1221,7 +1218,7 @@ class accounts_payable extends wc_model
 			
 			if($insertResult != 1)
 			{
-				echo "error saving cheque payments : ".$insertResult;
+				$errmsg[] 		= "error saving cheque payments : ".$insertResult;
 			}
 		}
 

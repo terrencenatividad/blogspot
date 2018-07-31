@@ -1100,14 +1100,14 @@ class accounts_receivable extends wc_model
 				}
 
 				/**UPDATE MAIN INVOICE**/
-				$invoice_amount				= $this->getValue($applicableHeaderTable, array("amount as convertedamount"), "voucherno = '$invoice' AND stat = 'posted'");
+				$invoice_amount				= $this->getValue($applicableHeaderTable, array("amount as convertedamount"), "voucherno = '$invoice' AND stat IN('open','posted')");
 				$applied_discount			= 0;
 
-				$applied_sum				= $this->getValue($applicationTable, array("SUM(amount) AS convertedamount")," arvoucherno = '$invoice' AND stat = 'posted' ");
+				$applied_sum				= $this->getValue($applicationTable, array("SUM(amount) AS convertedamount")," arvoucherno = '$invoice' AND stat IN('open','posted') ");
 
-				$applied_discount			= $this->getValue($applicationTable, array("SUM(discount) AS discount"), "arvoucherno = '$invoice' AND stat = 'posted' ");
+				$applied_discount			= $this->getValue($applicationTable, array("SUM(discount) AS discount"), "arvoucherno = '$invoice' AND stat IN('open','posted') ");
 
-				$applied_forexamount		= $this->getValue($applicationTable, array("SUM(forexamount) AS forexamount"), "arvoucherno = '$invoice' AND stat = 'posted' ");
+				$applied_forexamount		= $this->getValue($applicationTable, array("SUM(forexamount) AS forexamount"), "arvoucherno = '$invoice' AND stat IN('open','posted') ");
 
 				$applied_sum				= $applied_sum[0]->convertedamount - $applied_forexamount[0]->forexamount;
 
@@ -1140,7 +1140,7 @@ class accounts_receivable extends wc_model
 
 		$insertResult = $this->db->setTable($mainAppTable)
 						->setValues($update_info)
-						->setWhere("voucherno = '$voucherno' AND stat = 'posted'")
+						->setWhere("voucherno = '$voucherno' AND stat IN('open','posted') ")
 						->runUpdate();
 
 		/**INSERT TO CHEQUES TABLE**/
