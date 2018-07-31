@@ -159,11 +159,11 @@ class sales_invoice extends wc_model
 		$generatedvoucher	= ($tempvoucher[0]->count > 0) ? 'SI_TMP_'.($tempvoucher[0]->count+1) : 'SI_TMP_1';
 		$voucherno			= (isset($data['voucherno']) && (!empty($data['voucherno']))) ? htmlentities(addslashes(trim($data['voucherno']))) : $generatedvoucher;
 
-		$isExist			= $this->getValue($mainInvTable, array("stat"), "voucherno = '$voucherno' AND stat = 'open' ");
+		$isExist			= $this->getValue($mainInvTable, array("stat"), "voucherno = '$voucherno' AND stat = 'posted' ");
 		
 		$this->setInvoice($voucherno);
 		
-		$status				= (!empty($isExist)) ? "open" : "temporary";
+		$status				= (!empty($isExist)) ? "posted" : "temporary";
 		
 		$invoicedate		= (isset($data['transactiondate']) && (!empty($data['transactiondate']))) ? htmlentities(addslashes(trim($data['transactiondate']))) : "";
 		$drno				= (isset($data['drno']) && (!empty($data['drno']))) ? htmlentities(addslashes(trim($data['drno']))) : "";
@@ -666,7 +666,8 @@ class sales_invoice extends wc_model
 		$detail_info		= array();
 		$financial_header 	= array();
 		$result 			= 1;
-
+		$existing_ar		= $this->getValue("accountsreceivable", array('voucherno')," sourceno = '$invoice' AND stat = 'posted' ");
+		
 		/**
 		 * Get Total Invoice Amount
 		 **/
@@ -723,7 +724,7 @@ class sales_invoice extends wc_model
 												->runSelect()
 												->getResult();
 												
-				$financial_voucher  					= $seq->getValue('AR');
+				$financial_voucher  					= ($existing_ar && !empty($existing_ar[0]->voucherno)) ? $existing_ar[0]->voucherno : $seq->getValue('AR');
 				$financial_header['voucherno']			= $financial_voucher;
 				$financial_header['transactiondate']	= $retrieved_data['header']->transactiondate;
 				$financial_header['period']				= $retrieved_data['header']->period;
@@ -752,6 +753,10 @@ class sales_invoice extends wc_model
 				*/
 				if(!empty($retrieved_data['header']))
 				{
+					$this->db->setTable("accountsreceivable")
+							->setWhere("voucherno = '$financial_voucher'")
+							->runDelete();
+
 					$result	 = $this->db->setTable("accountsreceivable")
 									->setValues($financial_header)
 									->runInsert();
@@ -935,6 +940,10 @@ class sales_invoice extends wc_model
 							}
 							
 							if(!empty($detailArray)){
+								$this->db->setTable("ar_details")
+									->setWhere("voucherno = '$financial_voucher'")
+									->runDelete();
+
 								$result	 = $this->db->setTable("ar_details")
 													->setValues($detailArray)
 													->runInsert();				
