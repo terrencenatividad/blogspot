@@ -139,7 +139,7 @@ class controller extends wc_controller
 				}else if(!empty($data_validate['h_save']) && $data_validate['h_save'] == 'save_new'){
 					$this->url->redirect(BASE_URL . 'financials/disbursement/create');
 				}else{
-					$this->url->redirect(BASE_URL . 'financials/disbursement/create');
+					$this->url->redirect(BASE_URL . 'financials/disbursement/');
 				}
 			}else{
 				$data["errmsg"] = $errmsg;
@@ -330,18 +330,13 @@ class controller extends wc_controller
 			// For Admin Logs
 			$this->logs->saveActivity("Update Payment Voucher [$sid]");
 
-			if(!empty($data_validate['h_save']))
-			{
-				$this->url->redirect(BASE_URL . 'financials/disbursement');
-			}
-			else if(!empty($data_validate['h_save_preview']))
-			{
-				$this->url->redirect(BASE_URL . 'financials/disbursement/view/' . $sid);
-			}
-			else
-			{
+			if(!empty($data_validate['h_save']) && $data_validate['h_save'] == 'save_preview'){
+				$this->url->redirect(BASE_URL . 'financials/disbursement/view/' . $generatedvoucher);
+			}else if(!empty($data_validate['h_save']) && $data_validate['h_save'] == 'save_new'){
 				$this->url->redirect(BASE_URL . 'financials/disbursement/create');
-			}	 
+			}else{
+				$this->url->redirect(BASE_URL . 'financials/disbursement/');
+			}
 		}
 
 		$this->view->load('disbursement/disbursement', $data);
