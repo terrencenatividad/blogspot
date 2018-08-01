@@ -1849,7 +1849,7 @@ function toggleCheckInfo(val){
 			$("#payableForm #cheque_details").removeClass('hidden');
 		}else{
 			
-			var list 	= (customer != '') ? "<ul><li>Total Receipt</li></ul>" : "<ul><li>Vendor</li><li>Total Receipt</li></ul>";
+			var list 	= (customer != '') ? "<ul><li>Total Receivables</li></ul>" : "<ul><li>Vendor</li><li>Total Receivables</li></ul>";
 			var msg 	= "The following fields are required to process a '<strong>Cheque</strong>' payment."+list;
 			bootbox.dialog({
 				message: msg,

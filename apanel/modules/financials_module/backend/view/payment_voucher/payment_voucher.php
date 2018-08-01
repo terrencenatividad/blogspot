@@ -1174,35 +1174,24 @@ $('#chequeTable .cheque_account').on('change', function()  {
 		}
 	});
 
-	var row = 2;
-	cheque_arr.forEach(function(account) {
-		if( row == 2 ){
-			if($("#entriesTable tbody tr.clone").length == 1){
-				$("#entriesTable tbody tr.clone").first().after(clone_acct);
-			} else {
-				$('#entriesTable tbody tr.clone .accountcode').each(function() {
-					var account = $(this).val();
-					var ischeck = $(this).closest('tr').find('.ischeck').val();
-					if(task == 'create' && account == "" || account == "" && ischeck == 'yes'){
-						$(this).closest('tr').remove();
-					}
-				});
-
-				$("#entriesTable tbody tr.clone").first().after(clone_acct);
-			}
-			resetIds();
-			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
-			$("#entriesTable button#"+row).prop('disabled',true);
-			$("#entriesTable debit#"+row).prop('disabled',true);
-		} else {
-			var ParentRow = $("#entriesTable tbody tr.clone").first();
-			if($('#entriesTable tbody tr.added_row').length){
-				ParentRow = $("#entriesTable tbody tr.added_row").last();
-				$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
-			}
-			ParentRow.after(clone_acct);
+	var row = $("#entriesTable tbody tr.clone").length;
+	$('#entriesTable tbody tr.clone .accountcode').each(function(index) {
+		var account = $(this).val();
+		var ischeck = $(this).closest('tr').find('.ischeck').val();
+		if(task == 'create' && account == "" || account == "" && ischeck == 'yes'){
+			$(this).closest('tr').remove();
 		}
+	});
+	row = $("#entriesTable tbody tr.clone").length + 1;
+	cheque_arr.forEach(function(account) {
+		var ParentRow = $("#entriesTable tbody tr.clone").last();
+		$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
+		// clone_acct(initial state of first row) will be placed on the last cloned row. 
+		ParentRow.after(clone_acct);
 		resetIds();
+		$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
+		$("#entriesTable button#"+row).prop('disabled',true);
+		$("#entriesTable debit#"+row).prop('disabled',true);
 		$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
 		$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 		$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
@@ -1215,6 +1204,55 @@ $('#chequeTable .cheque_account').on('change', function()  {
 	displaystoreddescription();
 	drawTemplate();
 });
+
+// $('#chequeTable .cheque_account').on('change', function()  {
+// 	storedescriptionstoarray();
+// 	if ($('#entriesTable tbody tr.clone select').data('select2')) {
+// 		$('#entriesTable tbody tr.clone select').select2('destroy');
+// 	}
+// 	var val = $(this).val();
+	
+// 	cheque_arr = [];
+
+// 	$('#entriesTable tbody tr.added_row').remove();
+// 	$('#chequeTable tbody tr select.cheque_account').each(function() {
+// 		var account = $(this).val();
+// 		if(account!="" && jQuery.inArray(account,cheque_arr) == -1){
+// 			cheque_arr.push(account);
+// 		}
+// 	});
+// 	var row = $("#entriesTable tbody tr.clone").length;
+// 	$('#entriesTable tbody tr.clone .accountcode').each(function(index) {
+// 		var account = $(this).val();
+// 		var ischeck = $(this).closest('tr').find('.ischeck').val();
+// 		if(task == 'create' && account == "" || account == "" && ischeck == 'yes'){
+// 			$(this).closest('tr').remove();
+// 		}
+// 	});
+
+// 	row = $("#entriesTable tbody tr.clone").length + 1;
+	
+// 	cheque_arr.forEach(function(account) {
+// 		var ParentRow = $("#entriesTable tbody tr.clone").last();
+// 		$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
+// 		// clone_acct(initial state of first row) will be placed on the last cloned row. 
+// 		ParentRow.after(clone_acct);
+// 		resetIds();
+// 		$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
+// 		$("#entriesTable button#"+row).prop('disabled',true);
+// 		$("#entriesTable debit#"+row).prop('disabled',true);
+// 		$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
+// 		$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
+// 		$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
+// 		disable_acct_fields(row);
+// 		row++;
+// 	});
+// 	accounts.push(val);
+// 	recomputechequeamts();
+// 	acctdetailamtreset();
+// 	displaystoreddescription();
+// 	drawTemplate();
+// });
 
 function disable_acct_fields(row){
 	$("#accountcode\\["+ row +"\\]").prop("disabled", true);
@@ -1621,13 +1659,14 @@ function addAmountAll(field) {
 	{  
 		var inputs 		= document.getElementById(field+'['+i+']');
 		var disables 	= document.getElementById(notfield+'['+i+']');
-		var is_cheque   = $("#"+field+"\\["+i+"\\]").hasClass("cheque");
+		var is_cheque   = $("#ischeck\\["+i+"\\]").val();
+
 		if(document.getElementById(notfield+'['+i+']')!=null)
 		{          
 			if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
 			{                            
 				inData = inputs.value.replace(/,/g,'');
-				if(is_cheque){
+				if(is_cheque == 'yes'){
 					inputs.readOnly   = true;
 					disables.readOnly = true;
 				}else {
@@ -1637,7 +1676,7 @@ function addAmountAll(field) {
 			else
 			{             
 				inData = 0;
-				if(is_cheque){
+				if(is_cheque == 'yes'){
 					inputs.readOnly   = true;
 					disables.readOnly = true;
 				}else {
@@ -3581,20 +3620,37 @@ $(document).ready(function() {
 	});
 
 	// Isabelle -  eto ung pag clone ng td sa may accounting details 
+	// $('body').on('click', '.add-entry', function()  {	
+	// 	if ($('#entriesTable tbody tr.clone select').data('select2')) {
+	// 		$('#entriesTable tbody tr.clone select').select2('destroy');
+	// 	}
+	// 	var clone = $("#entriesTable tbody tr.clone:first").clone(true); 
+
+	// 	var ParentRow = $("#entriesTable tbody tr.clone").last();
+
+	// 	clone.clone(true).insertAfter(ParentRow);
+		
+	// 	setZero();
+		
+	// 	$('#entriesTable tbody tr.clone select').select2({width: "100%"});
+	// });
+
 	$('body').on('click', '.add-entry', function()  {	
-		if ($('#entriesTable tbody tr.clone select').data('select2')) {
-			$('#entriesTable tbody tr.clone select').select2('destroy');
-		}
-		var clone = $("#entriesTable tbody tr.clone:first").clone(true); 
 
-		var ParentRow = $("#entriesTable tbody tr.clone").last();
-
-		clone.clone(true).insertAfter(ParentRow);
-		
-		setZero();
-		
-		$('#entriesTable tbody tr.clone select').select2({width: "100%"});
+		var ParentRow = $("#entriesTable tbody tr:not(.added_row)").last();
+			ParentRow.after(clone_acct);
+		resetIds();
+		drawTemplate();
 	});
+
+	// $('body').on('click', '.add-entry', function()  {	
+	// 	var ParentRow = $("#entriesTable tbody tr:not(.added_row)").last();
+	// 	ParentRow.after(clone_acct);
+	// 	setZero();
+	// 	$("#entriesTable tbody tr:not(.added_row):last").find('.accountcode').val('').trigger('change');
+	// 	$("#entriesTable tbody tr:not(.added_row):last").find('.credit').attr('readonly',false);
+	// 	drawTemplate();
+	// });
 
 	var cheque_detail 	=	$('#paymentmode').val();
 
