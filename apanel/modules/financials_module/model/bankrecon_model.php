@@ -249,7 +249,7 @@ class bankrecon_model extends wc_model {
 		$system_query	= $system->buildSelect();
 
 		$match_query	= $this->db->setTable("($bank_query) b")
-									->innerJoin("($system_query) s ON b.checkno = s.chequenumber AND b.amount = s.amount")
+									->innerJoin("($system_query) s ON b.checkno = s.chequenumber AND b.amount = s.amount AND b.nature = s.nature")
 									->setFields("'" . COMPANYCODE . "', b.recon_id, b.id recdet_id, b.transactiondate r_transactiondate, checkno r_checkno, b.amount r_amount, s.voucherno, s.transactiondate, s.chequenumber, s.amount, s.updatedate, 'matched' stat")
 									->setWhere("b.recon_id = '$recon_id'")
 									->buildSelect(false);
