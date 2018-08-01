@@ -331,7 +331,7 @@ class controller extends wc_controller
 			$this->logs->saveActivity("Update Payment Voucher [$sid]");
 
 			if(!empty($data_validate['h_save']) && $data_validate['h_save'] == 'save_preview'){
-				$this->url->redirect(BASE_URL . 'financials/disbursement/view/' . $generatedvoucher);
+				$this->url->redirect(BASE_URL . 'financials/disbursement/view/' . $sid);
 			}else if(!empty($data_validate['h_save']) && $data_validate['h_save'] == 'save_new'){
 				$this->url->redirect(BASE_URL . 'financials/disbursement/create');
 			}else{

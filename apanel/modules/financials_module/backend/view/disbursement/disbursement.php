@@ -970,7 +970,6 @@
 		row = $("#entriesTable tbody tr.clone").length + 1;
 		cheque_arr.forEach(function(account) {
 			var ParentRow = $("#entriesTable tbody tr.clone").last();
-			console.log($("#entriesTable tbody tr.clone"));
 			$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 			// clone_acct(initial state of first row) will be placed on the last cloned row. 
 			ParentRow.after(clone_acct);
