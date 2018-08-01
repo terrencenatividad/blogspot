@@ -50,7 +50,7 @@ class ap_detailed extends wc_model {
 		$addCondition .= (!empty($supplier) && $supplier != 'none')? " AND ap.vendor = '$supplier' ":"";
 		
 		$addCondition .= (!empty($datefilter) && !is_null($datefilter)) ? "AND ap.transactiondate <= '$datefilter' " : "";
-		$balanceCondition = " AND (COALESCE((select (SUM(app.amount) + SUM(app.discount)) from pv_application app left join paymentvoucher pay ON pay.voucherno = app.voucherno where app.apvoucherno = ap.voucherno and pay.transactiondate <= '$datefilter'),0) < ap.amount) ";
+		$balanceCondition = " AND (COALESCE((select (SUM(app.amount) + SUM(app.discount)) from pv_application app left join paymentvoucher pay ON pay.voucherno = app.voucherno where app.apvoucherno = ap.voucherno and pay.transactiondate <= '$datefilter' and pay.stat IN('open','posted')),0) < ap.amount) ";
 		$result = $this->db->setTable('partners p')
 							->setFields("
 								p.partnercode suppliercode, p.partnername suppliername, 
@@ -58,7 +58,7 @@ class ap_detailed extends wc_model {
 								ap.amount, ap.particulars
 							")
 							->leftJoin("accountspayable ap ON p.partnercode = ap.vendor")
-							->setWhere("p.partnercode != '' AND p.partnertype = 'supplier' AND p.stat = 'active' AND ap.stat IN('open','posted') $addCondition $balanceCondition ")
+							->setWhere("p.partnercode != '' AND p.partnertype = 'supplier' AND ap.stat IN('open','posted') $addCondition $balanceCondition ")
 							->setOrderBy('p.partnercode')
 							->runPagination();
 		return $result;

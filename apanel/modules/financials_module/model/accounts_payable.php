@@ -1654,7 +1654,7 @@ class accounts_payable extends wc_model
 			}
 
 			$update_info			= array();
-			$update_info['stat']	= 'deleted';
+			$update_info['stat']	= 'cancelled';
 			
 			// Update pv_application
 			$result = $this->db->setTable($appTable)

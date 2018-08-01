@@ -1575,7 +1575,7 @@ class accounts_receivable extends wc_model
 		
 		$paymentArray   = $this->db->setTable($appTable)
 							   ->setFields($paymentField)
-							   ->setWhere("voucherno = '$voucher' AND stat = 'posted'")
+							   ->setWhere("voucherno = '$voucher' AND stat IN('open','posted')")
 							   ->runSelect()
 							   ->getResult();
 
@@ -1588,12 +1588,12 @@ class accounts_receivable extends wc_model
 				$wtaxamount		= $paymentArray[$i]->wtaxamount;
 				$discount		= 0;
 
-				$balance		= $this->getValue($table, array("balance"), "voucherno = '$mainvoucher' AND stat = 'posted'");
+				$balance		= $this->getValue($table, array("balance"), "voucherno = '$mainvoucher' AND stat IN('open','posted')");
 				$balance 		= $balance[0]->balance;
 
 				$update_info['balance']		= $balance + $amount + $discount;
 
-				$amountreceived 	= $this->getValue($table, array("amountreceived"), "voucherno = '$mainvoucher' AND stat = 'posted'");
+				$amountreceived 	= $this->getValue($table, array("amountreceived"), "voucherno = '$mainvoucher' AND stat IN('open','posted')");
 				$amountreceived 	= $amountreceived[0]->amountreceived;
 
 				$update_info['amountreceived']	= $amountreceived - $amount - $discount;
@@ -1619,10 +1619,11 @@ class accounts_receivable extends wc_model
 					->setWhere("voucherno = '$voucher'")
 					->runUpdate();
 			
-			if(!$result)
+			if(!$result){
 				$errmsg[] = "The system has encountered an error in updating RV Application [$voucher]. Please contact admin to fix this issue.";
-			else
-				$this->log->saveActivity("Update RV Application [$voucher]");
+			}
+			// else
+			// 	$this->log->saveActivity("Update RV Application [$voucher]");
 
 			// Update rv_details
 			$result = $this->db->setTable($detailTable)
@@ -1630,10 +1631,11 @@ class accounts_receivable extends wc_model
 					->setWhere("voucherno = '$voucher'")
 					->runUpdate();
 			
-			if(!$result)
+			if(!$result){
 				$errmsg[] = "The system has encountered an error in updating Receipt Voucher Details [$voucher]. Please contact admin to fix this issue.";
-			else
-				$this->log->saveActivity("Update Receipt Voucher Details [$voucher]");
+			}
+			//else
+				//$this->log->saveActivity("Update Receipt Voucher Details [$voucher]");
 			
 			// Update receiptvoucher
 			$result = $this->db->setTable($mainTable)
@@ -1644,7 +1646,7 @@ class accounts_receivable extends wc_model
 			if(!$result)
 				$errmsg[] = "The system has encountered an error in updating Receipt Voucher [$voucher]. Please contact admin to fix this issue.";
 			else
-				$this->log->saveActivity("Update Receipt Voucher [$voucher]");
+				$this->log->saveActivity("Cancel Receipt Voucher [$voucher]");
 
 			return $errmsg;
 		}

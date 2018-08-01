@@ -50,7 +50,7 @@ class ar_detailed extends wc_model {
 		$addCondition .= (!empty($customer) && $customer != 'none')? " AND ar.customer = '$customer' ":"";
 		
 		$addCondition .= (!empty($datefilter) && !is_null($datefilter)) ? "AND ar.transactiondate <= '$datefilter' " : "";
-		$balanceCondition = " AND (COALESCE((select (SUM(app.amount) + SUM(app.discount)) from rv_application app left join receiptvoucher pay ON pay.voucherno = app.voucherno where app.arvoucherno = ar.voucherno and pay.transactiondate <= '$datefilter'),0) < ar.amount) ";
+		$balanceCondition = " AND (COALESCE((select (SUM(app.amount) + SUM(app.discount)) from rv_application app left join receiptvoucher pay ON pay.voucherno = app.voucherno where app.arvoucherno = ar.voucherno and pay.transactiondate <= '$datefilter' and pay.stat IN('open','posted')),0) < ar.amount) ";
 		$result = $this->db->setTable('partners p')
 							->setFields("
 								p.partnercode customercode, p.partnername customername, 
@@ -58,7 +58,7 @@ class ar_detailed extends wc_model {
 								ar.amount, ar.particulars
 							")
 							->leftJoin("accountsreceivable ar ON p.partnercode = ar.customer")
-							->setWhere("p.partnercode != '' AND p.partnertype = 'customer' AND p.stat = 'active' AND ar.stat IN('open','posted') $addCondition $balanceCondition ")
+							->setWhere("p.partnercode != '' AND p.partnertype = 'customer' AND ar.stat IN('open','posted') $addCondition $balanceCondition ")
 							->setOrderBy('p.partnercode')
 							->runPagination();
 		return $result;
