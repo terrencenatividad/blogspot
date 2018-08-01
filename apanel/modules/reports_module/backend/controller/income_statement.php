@@ -34,9 +34,9 @@ class controller extends wc_controller {
 		$this->view->load('income_statement', $data);
 	}
 
-	private function monthly_view($year,$month) {
-		$list = $this->income_statement->getMonthly($year,$month);
-		$table = $this->generateTable($list, 2);
+	private function monthly_view($year) {
+		$list = $this->income_statement->getMonthly($year);
+		$table = $this->generateTable($list, 13);
 		return $table;
 	}
 
@@ -64,6 +64,7 @@ class controller extends wc_controller {
 			$total_gross 	= array();
 			$total_intax 	= array();
 			foreach ($list as $key => $row1) {
+				
 				$total_type 	= array();
 				$total_revenue 	= array();
 				$total_income 	= array();
@@ -111,7 +112,7 @@ class controller extends wc_controller {
 						$total_gross[$key4] 	-= ($key == 'Cost' && ($row4)) ? $row4 : 0;
 
 						$total_type[$key4] 		+= (($row4) ? $row4 : 0);
-						$table .= '<td>' . number_format($row4, 2) . '</td>';
+						$table .= '<td>' . (($row4 == 0) ? '-' : number_format($row4, 2)) . '</td>';
 						
 					}
 					$table .= '</tr>';
@@ -119,7 +120,7 @@ class controller extends wc_controller {
 				$table .= '<tr class="warning bold">';
 				$table .= '<td class="text-left">Total ' . $key . '</td>';
 				foreach ($total_type as $tot => $tol_val) {
-					$table .= '<td>' . number_format($tol_val, 2) . '</td>';
+					$table .= '<td>' . (($tol_val == 0) ? '-' : number_format($tol_val, 2)) . '</td>';
 				}
 				$table .= '</tr>';
 
@@ -142,7 +143,7 @@ class controller extends wc_controller {
 
 			foreach ($total_type as $tot => $tot_val) {
 				$total_net_income 	= (isset($total_gross[$tot])) ? $total_gross[$tot] - $total_expense[$tot] : - $total_expense[$tot];
-				$table 				.= '<td>' . number_format($total_net_income, 2) . '</td>';
+				$table 				.= '<td>' . (($total_net_income == 0) ? '-' : number_format($total_net_income, 2)) . '</td>';
 			}
 
 			$table .= '</tr>';
@@ -152,11 +153,11 @@ class controller extends wc_controller {
 			$table .= '<td class="text-left">Income Tax</td>';
 			if($total_intax){
 				foreach ($total_intax as $tot => $tot_val) {
-					$table 				.= '<td>' . number_format($tot_val, 2) . '</td>';
+					$table 				.= '<td>' . (($tot_val == 0) ? '-' : number_format($tot_val, 2)) . '</td>';
 				}
 			}else{
 				foreach ($total_type as $tot => $tot_val) {
-					$table 				.= '<td>' . number_format(0, 2) . '</td>';
+					$table 				.= '<td>' . '-' . '</td>';
 				}
 			}
 			
@@ -167,7 +168,7 @@ class controller extends wc_controller {
 			$table .= '<td class="text-left">Total Income/(Loss) After Income Tax</td>';
 			foreach ($total_type as $tot => $tot_val) {
 				$total_gross_income 	= (isset($total_gross[$tot])) ? $total_gross[$tot] - $total_expense[$tot] : - $total_expense[$tot];
-				$table 				.= '<td>' . number_format($total_gross_income, 2) . '</td>';
+				$table 				.= '<td>' . (($total_gross_income == 0) ? '-' : number_format($total_gross_income, 2)) . '</td>';
 			}
 			$table .= '</tr>';
 

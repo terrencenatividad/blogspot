@@ -62,11 +62,12 @@ class controller extends wc_controller {
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data['checker'] 			= 1;
+		$status						= $data['stat'];
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
 		$data['proforma_list'] 		= $this->jv_model->getProformaList();
 		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
-		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno));
+		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno, $status));
 		$data['ajax_task']			= 'ajax_edit';
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
