@@ -17,9 +17,10 @@
 									->setName('discountcode')
 									->setId('discountcode')
 									->setMaxLength(10)
+									->addHidden((isset($task) && $task == 'update'))
 									->setValue($discountcode)
 									->setValidation('required code')
-									->draw($show_input);
+									->draw((isset($task) && $task == 'add'));
 						?>
 					</div>
 

@@ -244,6 +244,7 @@
 			endif;
 
 			$list->table 	=	$table;
+		
 			$list->csv 		=	$this->export();
 
 			return $list;
