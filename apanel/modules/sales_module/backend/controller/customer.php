@@ -183,7 +183,7 @@
 						}
 
 						if(!is_numeric($terms)){
-							$errmsg[] 	= "Terms [ <strong>$terms</strong> ] on row $line is not a valid amount.<br/>";
+							$errmsg[] 	= "Payment terms on [ <strong>$terms</strong> ] on row $line is not a valid number.<br/>";
 							$errmsg		= array_filter($errmsg);
 						}
 
