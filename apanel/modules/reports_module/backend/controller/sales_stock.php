@@ -7,6 +7,7 @@ class controller extends wc_controller {
 		$this->input			= new input();
 		$this->sales_stock	    = new sales_stock();
 		$this->item_model		= new item_model();
+		$this->item_class_model	= new item_class_model();
 		$this->show_input 	    = true;
 		$this->session			= new session();
 		$this->data = array();
@@ -19,7 +20,8 @@ class controller extends wc_controller {
 		$data['show_input']  = $this->show_input;
 		$data['warehouse']   = "";
 		$data['datefilter']  = $this->date->datefilterMonth();
-		$data['warehouse_list'] = $this->sales_stock->getWarehouseList();
+		$data['category_list']	= $this->item_class_model->getParentClass('');
+		$data['warehouse_list'] 	= $this->sales_stock->getWarehouseList();
 		$this->view->load('sales_stock', $data);
 	}
 	
@@ -37,10 +39,18 @@ class controller extends wc_controller {
 		echo json_encode($result); 
 	}
 
-	private function ajax_list() 
-	{
-		$data_post = $this->input->post(array('daterangefilter','warehouse','items','sort'));
-		$pagination = $this->sales_stock->stockList($data_post);
+	public function ajax_list() {
+		$warehouse      =  	$this->input->post('warehouse');
+		$sort 		  	=  	$this->input->post('sort');
+		$category 		=  	$this->input->post('category');
+		$datefilter 	= 	$this->input->post('daterangefilter');
+		$datefilter 	= 	explode('-', $datefilter);
+		$dates			= 	array();
+		foreach ($datefilter as $date) {
+			$dates[] = $this->date->dateDbFormat($date);
+		}	
+
+		$pagination = $this->sales_stock->stockList($warehouse, $sort, $category, $dates[0], $dates[1]);
 		$totalqty = 0;
 		$table = "";
 		$grandtotal = 0;
@@ -49,87 +59,117 @@ class controller extends wc_controller {
 		}
 		$totalAmount = 0.00;
 		$total_unitprice  = 0.00;
-		foreach($pagination->result as $key => $row) {
-			$totalAmount += $row->amount;
-			$totalqty += $row->issueqty;
-			$total_unitprice += $row->unitprice;
-			$table .= '<tr>';
-			$table .= '<td>' . $row->itemcode . '</td>';
-			$table .= '<td>' . $row->label . '</td>';
-			$table .= '<td>' . $row->detailparticular . '</td>';
-			$table .= '<td>' . $row->warehouse . '</td>';
-			$table .= '<td>' . $row->issueqty . '</td>';
-			$table .= '<td>' . $row->unitprice . '</td>';
-			$table .= '<td>' . number_format($row->amount,2) . '</td>';
-			$table .= '</tr>';
+		if ($pagination->result) {
+			foreach($pagination->result as $key => $row) {
+				$totalAmount 		+= $row->amount;
+				$totalqty 			+= $row->issueqty;
+				$total_unitprice 	+= $row->unitprice;
+				$table .= '<tr>';
+				$table .= '<td>' . $row->itemcode . '</td>';
+				$table .= '<td>' . $row->label . '</td>';
+				$table .= '<td>' . $row->detailparticular . '</td>';
+				// $table .= '<td>' . $row->warehouse . '</td>';
+				$table .= '<td class="text-right">' . $row->issueqty . '</td>';
+				$table .= '<td class="text-right">' . number_format($row->unitprice,2) . '</td>';
+				$table .= '<td class="text-right">' . number_format($row->amount,2) . '</td>';
+				$table .= '</tr>';
+			}
+		}  else {
+			$table = '<tr><td colspan="6" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-		$table .= '<tr>	
-				<td colspan= "3"></td>
-				<td style="font-weight:bold">Total</td>
-				<td style="font-weight:bold"> ' . $totalqty .'</td>
-				<td style="font-weight:bold"> ' . $total_unitprice .'</td>
-				<td style="font-weight:bold"> '. number_format($totalAmount,2) .'</td></tr>';
+		
+		$details = $this->sales_stock->getSalesTotal($warehouse, $sort, $category, $dates[0], $dates[1]);
+		// var_dump($details);
+		$tabledetails = '';
+
+		if ($pagination->page_limit > 1) {
+			$tabledetails .= '<tr class="success">
+								<td colspan="6" class="text-center">Page ' . $pagination->page . ' of ' . $pagination->page_limit . '</td>
+							</tr>';
+		}
+
+		$tabledetails .= '<tr>
+							<th colspan="3">Grand Total: </th>
+							<th class="text-right">' . $details->issueqty . '</th>
+							<th class="text-right">' . number_format($details->unitprice,2) . '</th>
+							<th class="text-right">' . number_format($details->amount,2) . '</th>
+						</tr>';
 			
-		$pagination->table  = $table;
-		$pagination->csv 	= $this->export();
+		$pagination->table  		= $table;
+		$pagination->tabledetails	= $tabledetails;	
+
 		return $pagination;
 	}
 
-	private function export(){
-		$data_post = $this->input->post(array('daterangefilter','warehouse','items','sort'));
-		$daterangefilter= $data_post['daterangefilter'];
-		$warehouse 		= $data_post['warehouse'];
-		$limit 			= $data_post['items'];
-		$sort 			= $data_post['sort'];
-		
-		$daterangefilter = str_replace(array('%2C', '+'), array(',', ' '), $data_post['daterangefilter']);
-		$daterangefilter = explode('-', $daterangefilter);
+	public function export(){
+		header('Content-type: text/csv');
+		header('Content-Disposition: attachment; filename="' . MODULE_NAME . '.csv"');
+		$warehouse      =  	$this->input->get('warehouse');
+		$sort 		  	=  	$this->input->get('sort');
+		$category 		=  	$this->input->get('category');
+		$datefilter 	= 	$this->input->get('daterangefilter');
+		$datefilter 	= 	explode('-', $datefilter);
 		$dates		= array();
-		foreach ($daterangefilter as $date) {
-			$dates[] = date('Y-m-d', strtotime($date));
+		foreach ($datefilter as $date) {
+			$dates[] = $this->date->dateDbFormat(str_replace(array('+', '%2C'), array(' ', ','), $date));
 		}
+		$result = $this->sales_stock->fileExport($warehouse, $sort, $category, $dates[0], $dates[1]);
 
-		$start 	= $dates[0];
-		$end 	= $dates[1];
-		
-		$result = $this->sales_stock->fileExport($start, $end, $warehouse, $limit, $sort);
-		
 		$totalqty = 0;
-		$totalAmount = 0.00;
-		$total_unitprice = 0.00;
+		$totalAmount = 0;
+		$total_unitprice = 0;
 
-		$header = array("Item Code","Item Category","Stocks","Warehouse","Unit Price","Quantity","Amount");
-
-		$csv = '';
+		$header = array("QTY","STOCK","AMOUNT");
+		$csv = "";
 		$csv .= 'Sales Report Per Stock';
 		$csv .= "\n\n";
-		$csv .= '"Date:","'.$data_post['daterangefilter'].'"';
+		$csv .= '"Date","'.$this->date->dateFormat($dates[0]).' - '.$this->date->dateFormat($dates[1]).'"'; 
 		$csv .= "\n\n";
+		if( $warehouse != "" && !is_null($warehouse) ){
+		  $csv .= '"Warehouse","'.$warehouse.'"';
+		  $csv .= "\n\n";
+		}
 		$csv .= '"' . implode('","', $header) . '"';
 		$csv .= "\n";
-
+	  
+		$prev_cat = '';
+		$grandtotal 	=	0;
+		$grandQty 		=	0;
 		if(!empty($result)){
-			foreach ($result as $key => $row){
-
-				$totalAmount += $row->amount;
-				$totalqty 	 += $row->issueqty;
-				$total_unitprice += $row->unitprice;
-
-				$csv .= '"' . $row->itemcode			. '",';
-				$csv .= '"' . $row->label 				. '",';
-				$csv .= '"' . $row->detailparticular 	. '",';
-				$csv .= '"' . $row->warehouse 			. '",';
-				$csv .= '"' . $row->issueqty 			. '",';
-				$csv .= '"' . $row->unitprice 			. '",';
-				$csv .= '"' . number_format($row->amount,2) 				. '"';
-				$csv .= "\n";
+		  foreach ($result as $key => $row){
+	  
+			$totalAmount += $row->amount;
+			$totalqty    += $row->issueqty;
+			$total_unitprice += $row->unitprice;
+	  
+			if ($prev_cat != $row->label) {
+			  $csv .= '"' . $row->label . '"' . "\n";
+			  $prev_cat = $row->label;
 			}
+			
+			$csv .= '"' . $row->issueqty       . '",';
+			$csv .= '"' . $row->detailparticular   . '",';
+			$csv .= '"' . number_format($row->amount,2) . '"';
+			$csv .= "\n";
+	  
+			if ( ! isset($result[$key + 1]) || $result[$key + 1]->label != $row->label) {
+			  $csv .= '"'.number_format($totalqty,0).'","Total ' . $row->label . '","' .number_format($totalAmount,2). '"';
+			  $csv .= "\n";
+			  $grandtotal  	+= $totalAmount;
+			  $grandQty  	+= $totalqty;
+			  $totalqty 	= 	0;
+			  $totalAmount 	=	0;
+			}
+		  }
 		}
-
-		$csv .= '"","","","Total"," '.$totalqty.'","'.number_format($total_unitprice,2).'","'.number_format($totalAmount,2).'"';
-
 		$csv .= "\n";
-		return $csv;
+		$footer = array(
+			number_format($grandQty),
+			"Grand Total",
+			number_format($grandtotal, 2),
+		);
+		$csv .= '"' . implode('","', $footer) . '"';
+		echo $csv;
 	}
 
 

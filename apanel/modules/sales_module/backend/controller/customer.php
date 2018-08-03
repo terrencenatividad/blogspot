@@ -112,6 +112,8 @@
 	
 			$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
 
+			$proceed 	=	false;
+
 			/**VALIDATE FILE IF CORRUPT**/
 			if(!empty($_FILES['file']['error'])){
 				$errmsg[] = "File being uploaded is corrupted.<br/>";
@@ -210,8 +212,6 @@
 						$line++;
 					}
 				}
-
-				$proceed 	=	false;
 
 				if( empty($errmsg) )
 				{

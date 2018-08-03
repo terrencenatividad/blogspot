@@ -280,6 +280,8 @@
 			
 			$headerArr = array('Supplier Code','Company Name','First Name','Last Name','Address','Email','Business Type','Tin No.','Payment Terms','Contact Number');
 
+			$proceed 	=	false;
+
 			if( empty($errmsg) )
 			{
 				$row_start = 2;
@@ -367,8 +369,6 @@
 						$line++;
 					}
 				}
-
-				$proceed 	=	false;
 
 				if( empty($errmsg) )
 				{
