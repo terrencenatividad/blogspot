@@ -241,17 +241,49 @@ class bankrecon_model extends wc_model {
 	}
 
 	public function autoMatch($recon_id) {
+		$bank_fields = array(
+			'*',
+			"IF(@amount != amount, @linenum:=0, '')",
+			"IF(@checkno != checkno, @linenum:=0, '')",
+			"IF(@nature != nature, @linenum:=0, '')",
+			"@linenum := @linenum+1 linenum",
+			"IF(@amount != amount, @amount:=amount, '')",
+			"IF(@checkno != checkno, @checkno:=checkno, '')",
+			"IF(@nature != nature, @nature:=nature, '')"
+		);
+
+		$system_fields = array(
+			'*',
+			"IF(@amount != amount, @linenum:=0, '')",
+			"IF(@chequenumber != chequenumber, @linenum:=0, '')",
+			"IF(@nature != nature, @linenum:=0, '')",
+			"@linenum := @linenum+1 linenum",
+			"IF(@amount != amount, @amount:=amount, '')",
+			"IF(@chequenumber != chequenumber, @chequenumber:=chequenumber, '')",
+			"IF(@nature != nature, @nature:=nature, '')"
+		);
+
 		$bank			= $this->getBankListQuery($recon_id);
 		$bank_query 	= $bank->buildSelect();
+
+		$bank_query		= $this->db->setTable("($bank_query) b, (select @linenum:=0, @amount:='', @checkno:='', @nature:='') conf")
+									->setFields($bank_fields)
+									->setWhere("b.recon_id = '$recon_id'")
+									->setOrderBy('nature, amount DESC, checkno')
+									->buildSelect(false);
 
 		$config			= $this->getConfigHeader($recon_id);
 		$system			= $this->getSystemListQuery($config);
 		$system_query	= $system->buildSelect();
 
+		$system_query		= $this->db->setTable("($system_query) b, (select @linenum:=0, @amount:='', @checkno:='', @nature:='') conf")
+									->setFields($system_fields)
+									->setOrderBy('nature, amount DESC, chequenumber')
+									->buildSelect(false);
+
 		$match_query	= $this->db->setTable("($bank_query) b")
-									->innerJoin("($system_query) s ON b.checkno = s.chequenumber AND b.amount = s.amount")
+									->innerJoin("($system_query) s ON b.checkno = s.chequenumber AND b.amount = s.amount AND b.nature = s.nature AND b.linenum = s.linenum")
 									->setFields("'" . COMPANYCODE . "', b.recon_id, b.id recdet_id, b.transactiondate r_transactiondate, checkno r_checkno, b.amount r_amount, s.voucherno, s.transactiondate, s.chequenumber, s.amount, s.updatedate, 'matched' stat")
-									->setWhere("b.recon_id = '$recon_id'")
 									->buildSelect(false);
 
 		$result = $this->db->setTable('bankrecon_tagged')

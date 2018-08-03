@@ -244,6 +244,7 @@
 			endif;
 
 			$list->table 	=	$table;
+		
 			$list->csv 		=	$this->export();
 
 			return $list;
@@ -395,6 +396,8 @@
 			
 			$headerArr = array('Sales Person Code','First Name','Last Name','Address','Email','Business Type','Tin No.','Payment Terms','Contact Number');
 
+			$proceed 	=	false;
+
 			if( empty($errmsg) )
 			{
 				$row_start = 2;
@@ -480,8 +483,6 @@
 						$line++;
 					}
 				}
-
-				$proceed 	=	false;
 
 				if( empty($errmsg) )
 				{

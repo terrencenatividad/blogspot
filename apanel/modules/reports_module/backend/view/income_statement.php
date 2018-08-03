@@ -37,20 +37,21 @@
 			<div class="tab-content no-padding">
 				<div id="Monthly" class="tab-pane active table-responsive scroll">
 					<table id="tableListMonthly" class="table table-hover table-striped report_table text-right">
-						<thead>
+					<thead>
 							<tr class="info">
-								<th style="col-xs-9" >
-									<?php
-										echo $ui->formField('dropdown')
-											->setSplit('col-md-1','col-md-3')
-											->setName('month_filter')
-											->setId('month_filter')
-											->setList($month_list)
-											->setValue($month)
-											->draw();
-									?>
-								</th>
-								<th style="col-xs-3" ></th>
+								<th style="col-xs-4">Account</th>
+								<th class="text-right">Jan</th>
+								<th class="text-right">Feb</th>
+								<th class="text-right">Mar</th>
+								<th class="text-right">Apr</th>
+								<th class="text-right">May</th>
+								<th class="text-right">Jun</th>
+								<th class="text-right">Jul</th>
+								<th class="text-right">Aug</th>
+								<th class="text-right">Sep</th>
+								<th class="text-right">Oct</th>
+								<th class="text-right">Nov</th>
+								<th class="text-right">Dec</th>
 							</tr>
 						</thead>
 						<?php echo $monthly_view ?>

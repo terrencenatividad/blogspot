@@ -280,6 +280,8 @@
 			
 			$headerArr = array('Supplier Code','Company Name','First Name','Last Name','Address','Email','Business Type','Tin No.','Payment Terms','Contact Number');
 
+			$proceed 	=	false;
+
 			if( empty($errmsg) )
 			{
 				$row_start = 2;
@@ -340,7 +342,7 @@
 						}
 
 						if(!is_numeric($terms)){
-							$errmsg[] 	= "Terms [ <strong>$terms</strong> ] on row $line is not a valid amount.<br/>";
+							$errmsg[] 	= "Payment terms [ <strong>$terms</strong> ] on row $line is not a valid number.<br/>";
 							$errmsg		= array_filter($errmsg);
 						}
 
@@ -367,8 +369,6 @@
 						$line++;
 					}
 				}
-
-				$proceed 	=	false;
 
 				if( empty($errmsg) )
 				{

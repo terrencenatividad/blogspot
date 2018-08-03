@@ -1578,13 +1578,14 @@ function addAmountAll(field) {
 	{  
 		var inputs 		= document.getElementById(field+'['+i+']');
 		var disables 	= document.getElementById(notfield+'['+i+']');
-		var is_cheque   = $("#"+field+"\\["+i+"\\]").hasClass("cheque");
+		var is_cheque   = $("#ischeck\\["+i+"\\]").val();
+
 		if(document.getElementById(notfield+'['+i+']')!=null)
 		{          
 			if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
 			{                            
 				inData = inputs.value.replace(/,/g,'');
-				if(is_cheque){
+				if(is_cheque == 'yes'){
 					inputs.readOnly   = true;
 					disables.readOnly = true;
 				}else {
@@ -1594,7 +1595,7 @@ function addAmountAll(field) {
 			else
 			{             
 				inData = 0;
-				if(is_cheque){
+				if(is_cheque == 'yes'){
 					inputs.readOnly   = true;
 					disables.readOnly = true;
 				}else {
