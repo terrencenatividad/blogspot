@@ -3,24 +3,6 @@
         
         <div class="box-header">
             <div class="row">
-
-				<!-- <div class = "col-md-8">
-                    <a href="<?php echo BASE_URL; ?>maintenance/sales_person/create" class = "btn btn-primary danger">Create</a>
-					<div class="btn btn-group" id="option_buttons">
-						<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
-							Options <span class="caret"></span>
-						</button>
-						<ul class="dropdown-menu" role="menu">
-							<li>
-								<a href = "#" id="export" download="Sales Person.csv" ><span class="glyphicon glyphicon-open"></span> Export Sales Person</a>
-							</li>
-							<li>
-								<a href="javascript:void(0);" id="import"><span class="glyphicon glyphicon-save"></span> Import Sales Person</a>
-							</li>
-						</ul>
-					</div>
-			    </div> -->
-
 				<div class = "col-md-8">
 					<?= 
 						$ui->CreateNewButton('');
@@ -68,7 +50,7 @@
 			<div id = "errmsg"></div>
 		</div>
 
-       <div class="box-body table table-responsive">
+       <div class="box-body table table-responsive" id="sp_list" >
             <table class="table table-hover" id="sales_person_table">
                 <thead>
 					<?php
@@ -90,7 +72,7 @@
                <tbody id = "list_container">
                 </tbody>
             </table>
-			<div id = "pagintation"></div>
+			<div id = "pagination"></div>
         </div>   
 
     </div>
@@ -171,7 +153,7 @@
 						</div>
 					</div>
 
-					<div class="box-body table table-responsive hidden">
+					<div class="box-body table table-responsive hidden" id="cust_list">
 						<table id = "current_tagged_customers" class="table table-hover">
 							<thead>
 								<tr class = "info">
@@ -300,7 +282,7 @@ $( "#search" ).keyup(function() {
 	showList();
 });
 
-$('#pagination').on('click', 'a', function(e) {
+$('#sp_list #pagination').on('click', 'a', function(e) {
 	e.preventDefault();
 	ajax.page = $(this).attr('data-page');
 	showList();
@@ -329,7 +311,7 @@ function showList(pg){
 	}
 	ajax_call = $.post('<?=BASE_URL?>maintenance/sales_person/ajax/sales_person_list',ajax, function(data) {
 					$('#sales_person_table #list_container').html(data.table);
-					$('#pagination').html(data.pagination);
+					$('#sp_list #pagination').html(data.pagination);
 					$("#export_id").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 					if (ajax.page > data.page_limit && data.page_limit > 0) {
 						ajax.page = data.page_limit;
@@ -340,41 +322,7 @@ function showList(pg){
 
 showList();
 
-$(document).ready(function() 
-{
-	//alert('test');
-	// $( "#sales_person_table" ).on('click' , '.delete', function() 
-	// {
-	// 	//alert('test');
-	// 	var id = $( this ).attr("data-id");
-		
-	// 	if( id != "" )
-	// 	{
-	// 		$(".delete-modal > .modal").css("display", "inline");
-	// 		$(".delete-modal").modal("show");
-
-	// 		$( "#delete-yes" ).click(function() 
-	// 		{
-	// 			$.post('<?=BASE_URL?>maintenance/sales_person/ajax/delete', 'id=' + id, function(data) 
-	// 			{
-	// 				if( data.msg == "success" )	
-	// 				{
-	// 					$(".delete-modal").modal("hide");
-	// 					showList();
-	// 				}
-	// 				else
-	// 				{
-	// 					// show_error(data.msg);
-	// 					$('#warning_modal #warning_message').html(data.msg);
-	// 					$('#warning_modal #warning_message').append('<p>Customer Code: ' + id + '</p>');
-	// 					$('#warning_modal').modal('show');
-	// 				}	
-	// 			});
-	// 		});	
-	// 	}
-
-	// });
-
+$(document).ready(function()  {
 	$('#sales_person_table').on('click','.tag_customers',function(){
 
 		var code 	=	$(this).attr('data-id');
@@ -382,24 +330,20 @@ $(document).ready(function()
 		window.location = '<?php echo BASE_URL.'maintenance/sales_person/tag_customers/'; ?>'+code
 	});
 
+	function transfer_customer_list(code=""){
+		$.post('<?=BASE_URL?>maintenance/sales_person/ajax/retrieve_currsp_details', 'code=' + code, function(data) {
+			$('#curr_sp').val(data.code);
+			$('#curr_sp_static').text(data.curr_name);
+			$('#transferto').html(data.options);
+			// $('#cust_list #pagination').html(data.pagination);
+		});
+	}
+
 	$('#sales_person_table').on('click','.transfer_customers',function(){
 
 		var code 	=	$(this).attr('data-id');
-		//curr_sp
 
-		$.post('<?=BASE_URL?>maintenance/sales_person/ajax/retrieve_currsp_details', 'code=' + code, function(data) 
-		{
-			//get current sp code
-			$('#curr_sp').val(data.code);
-			//get current sp name 
-			$('#curr_sp_static').text(data.curr_name);
-			//get dropwodn list
-			$('#transferto').html(data.options);
-			//Table Content
-			//$('#current_tagged_customers #list_container').html(data.table);
-			//Pagination
-			$('#pagination').html(data.pagination);
-		});
+		transfer_customer_list(code);
 
 		$('#transferSPModal').modal('show');
 	});
@@ -506,11 +450,11 @@ $(document).ready(function()
 		$('#import-tagcust-modal').modal();
 	});
 
-	$('#pagination').on('click', 'a', function(e) {
-		e.preventDefault();
-		ajax.page = $(this).attr('data-page');
-		showList();
-	});
+	// $('#cust_list #pagination').on('click', 'a', function(e) {
+	// 	e.preventDefault();
+	// 	ajax.page = $(this).attr('data-page');
+	// 	transfer_customer_list(code);
+	// });
 	
 	$('#success_modal .btn-success').on('click', function(){
 		$('#success_modal').modal('hide');
