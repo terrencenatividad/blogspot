@@ -164,7 +164,7 @@
 					<div class="row">
 						<div class="col-md-3">
 							<div class="form-group">
-								<label class="control-label col-md-12">Date</label>
+								<label class="control-label col-md-12">Closing Period</label>
 							</div>
 						</div>
 						<div class="col-md-8" style="margin:0px;">
