@@ -6,15 +6,15 @@ class inventory_inquiry_model extends wc_model {
 		if ($itemcode && $itemcode != 'none') {
 			$condition = "inv.itemcode = '$itemcode'";
 		}
+		if ($warehouse && $warehouse != 'none') {
+			$condition .= (empty($condition) ? '' : ' AND ') . "inv.warehouse = '$warehouse'";
+		}
 		// if ($search){
 		// 	$condition = "(inv.itemcode LIKE '%$search%' OR w.description LIKE '%$search%'  OR SUM(inv.onhandQty) LIKE '%$search%')";
 		// }
 		// if ($startdate && $enddate) {
 		// 	$condition .= (empty($condition) ? '' : ' AND ') . "inv.entereddate >= '$startdate 00:00:00' AND inv.entereddate <= '$enddate 23:59:59'";
 		// }
-		if ($warehouse){
-			$condition .= (empty($condition) ? '' : ' AND ') . "inv.warehouse = '$warehouse'";
-		}
 		$result = $this->db->setTable("invfile as inv")
 							->innerJoin('items as items ON inv.itemcode = items.itemcode  ') 
 							->setFields("inv.itemcode as itemcode,w.description as des, SUM(inv.onhandQty) as OHQty, inv.warehouse as warehouse , SUM(inv.allocatedQty) as AllocQty, SUM(inv.orderedQty) as OrderQty,SUM(inv.availableQty) as avail,items.itemname as itemname")
@@ -108,7 +108,7 @@ class inventory_inquiry_model extends wc_model {
 		if ($itemcode && $itemcode != 'none') {
 			$condition = "inv.itemcode = '$itemcode'";
 		}
-		if ($warehouse){
+		if ($warehouse && $warehouse != 'none') {
 			$condition .= (empty($condition) ? '' : ' AND ') . "inv.warehouse = '$warehouse'";
 		}
 		// if ($startdate && $enddate) {
