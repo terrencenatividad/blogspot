@@ -90,9 +90,8 @@ class controller extends wc_controller {
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
 		// Closed Date
-		$close_date 				= $this->restrict->getClosedDate();
-		$data['close_date']			= $close_date;
-		$data['restrict_pr'] 	 	= false;
+		$data['close_date']			= $this->restrict->getClosedDate();
+		$data['restrict_pr']		= false;
 		$this->view->load('purchase_receipt/purchase_receipt', $data);
 	}
 
@@ -100,7 +99,8 @@ class controller extends wc_controller {
 		$this->view->title			= 'Edit Purchase Receipt';
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->purchase_model->getPurchaseReceiptById($this->fields, $voucherno);
-		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
+		$transactiondate			= $data['transactiondate'];
+		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui']					= $this->ui;
 		$data['vendor_list']		= $this->purchase_model->getVendorList();
 		$data['warehouse_list']		= $this->purchase_model->getWarehouseList();
@@ -114,9 +114,8 @@ class controller extends wc_controller {
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
 		// Closed Date
-		$close_date 				= $this->restrict->getClosedDate();
-		$data['close_date']			= $close_date;
-		$data['restrict_pr'] 	 	= false;
+		$data['close_date']			= $this->restrict->getClosedDate();
+		$data['restrict_pr']		= $this->restrict->setButtonRestriction($transactiondate);
 		$this->view->load('purchase_receipt/purchase_receipt', $data);
 	}
 
@@ -124,9 +123,8 @@ class controller extends wc_controller {
 		$this->view->title			= 'View Purchase Receipt';
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->purchase_model->getPurchaseReceiptById($this->fields, $voucherno);
-		$transactiondate 			= $data['transactiondate'];
+		$transactiondate			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
-		$data['ajax_task']			= '';
 		$data['ui']					= $this->ui;
 		$data['vendor_list']		= $this->purchase_model->getVendorList();
 		$data['warehouse_list']		= $this->purchase_model->getWarehouseList();
@@ -136,12 +134,11 @@ class controller extends wc_controller {
 		$data["taxrate_list"]		= $this->purchase_model->getTaxRateList();
 		$data["wtaxcode_list"]		= $this->purchase_model->getWTaxCodeList();
 		$data["taxrates"]			= $this->purchase_model->getTaxRates();
+		$data['ajax_task']			= '';
 		$data['show_input']			= false;
 		// Closed Date
-		$close_date 				= $this->restrict->getClosedDate();
-		$data['close_date']			= $close_date;
-		$restrict_pr 				= $this->restrict->setButtonRestriction($transactiondate);
-		$data['restrict_pr'] 	 	= $restrict_pr;
+		$data['close_date']			= $this->restrict->getClosedDate();
+		$data['restrict_pr']		= $this->restrict->setButtonRestriction($transactiondate);
 		$this->view->load('purchase_receipt/purchase_receipt', $data);
 	}
 
