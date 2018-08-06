@@ -89,6 +89,7 @@
 			ajax.date	   =  '<?php echo $daterange ?>';
 			ajax_call = $.post('<?=MODULE_URL?>ajax/getWarehouse', ajax, function(data) {
 				$('#tableList tbody').html(data.table);
+				$('#pagination').html(data.pagination);
 				$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 			});
 		}

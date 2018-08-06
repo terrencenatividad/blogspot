@@ -508,7 +508,7 @@ class receipt_voucher_model extends wc_model
 			// var_dump($insertResult);
 			
 			if(!$insertResult)
-				$errmsg = "<li>Saving Receipt Voucher Details.</li>";
+				$errmsg = "<li>Saving Official Receipt Details.</li>";
 				$errmsg = "<li>Saving Payment Voucher Details.</li>";
 		}
 
@@ -713,7 +713,7 @@ class receipt_voucher_model extends wc_model
 
 			if(!$insertResult){
 				$code 		= 0;
-				$errmsg[] 	= "<li>Error in Saving Receipt Voucher Header.</li>";
+				$errmsg[] 	= "<li>Error in Saving Official Receipt Header.</li>";
 			}	
 		}
 		else
@@ -725,7 +725,7 @@ class receipt_voucher_model extends wc_model
 
 			if(!$insertResult){
 				$code 		= 0;
-				$errmsg[] = "<li>Error in Updating Receipt Voucher Header.</li>";
+				$errmsg[] = "<li>Error in Updating Official Receipt Header.</li>";
 				}
 		}
 
@@ -818,7 +818,7 @@ class receipt_voucher_model extends wc_model
 								
 				if(!$insertResult){
 					$code 		= 0;
-					$errmsg[] 	= "<li>Error in Saving Receipt Voucher Details.</li>";
+					$errmsg[] 	= "<li>Error in Saving Official Receipt Details.</li>";
 				}
 	
 				$this->db->setTable($applicationTable)
@@ -832,7 +832,7 @@ class receipt_voucher_model extends wc_model
 								
 				if(!$insertResult){
 					$code 		= 0;
-					$errmsg[] 	= "<li>Error in Updating Receipt Voucher Application.</li>";
+					$errmsg[] 	= "<li>Error in Updating Official Receipt Application.</li>";
 				}
 			}else if(!empty($isAppDetailExist)){
 				$insertResult = $this->db->setTable($detailAppTable) 
@@ -841,7 +841,7 @@ class receipt_voucher_model extends wc_model
 									
 				if(!$insertResult){
 					$code 		= 0;
-					$errmsg[] 	= "<li>Error in Updating Receipt Voucher Details.</li>";
+					$errmsg[] 	= "<li>Error in Updating Official Receipt Details.</li>";
 				}
 	
 				$insertResult = $this->db->setTable($applicationTable) 
@@ -850,7 +850,7 @@ class receipt_voucher_model extends wc_model
 	
 				if(!$insertResult){
 					$code 		= 0;
-					$errmsg[] 	= "<li>Error in Updating Receipt Voucher Application.</li>";
+					$errmsg[] 	= "<li>Error in Updating Official Receipt Application.</li>";
 				}
 			}
 				
@@ -865,7 +865,7 @@ class receipt_voucher_model extends wc_model
 	
 			if(!$insertResult){
 				$code 		= 0;
-				$errmsg[] 	= "<li>Error in Updating Receipt Voucher Header.</li>";
+				$errmsg[] 	= "<li>Error in Updating Official Receipt Header.</li>";
 			}	
 		}
 		
@@ -1385,7 +1385,7 @@ class receipt_voucher_model extends wc_model
 					->runUpdate();
 			
 			if(!$result){
-				$errmsg[] = "The system has encountered an error in updating Receipt Voucher [$payments]. Please contact admin to fix this issue.";
+				$errmsg[] = "The system has encountered an error in updating Official Receipt [$payments]. Please contact admin to fix this issue.";
 			}else{
 				$this->log->saveActivity(ucfirst($type)." Payment Vouchers [".str_replace("'","",$payments)."]");
 			}
@@ -1461,7 +1461,7 @@ class receipt_voucher_model extends wc_model
 	public function retrieveAccess($groupname){
 		$result = $this->db->setTable("wc_module_access")
 					->setFields(array("mod_add","mod_view","mod_edit","mod_delete","mod_list","mod_print","mod_post","mod_unpost"))
-					->setWhere("groupname = '$groupname' AND companycode = 'CID' AND module_name = 'Receipt Voucher'")
+					->setWhere("groupname = '$groupname' AND companycode = 'CID' AND module_name = 'Official Receipt'")
 					->setLimit(1)
 					->runSelect()
 					->getResult();

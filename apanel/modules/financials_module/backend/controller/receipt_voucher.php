@@ -12,7 +12,7 @@ class controller extends wc_controller
 		$this->ui 			    = new ui();
 		$this->logs  			= new log;
 		$this->session			= new session();
-		$this->view->title      = 'Receipt Voucher';
+		$this->view->title      = 'Official Receipt';
 		$this->show_input 	    = true;
 
 		$this->companycode      = COMPANYCODE;
@@ -195,7 +195,7 @@ class controller extends wc_controller
 			if(empty($errmsg))
 			{
 				// For Admin Logs
-				$this->logs->saveActivity("Add New Receipt Voucher [$generatedvoucher]");
+				$this->logs->saveActivity("Add New Offical Receipt [$generatedvoucher]");
 
 				if(!empty($data_validate['h_save'])){
 					$this->url->redirect(BASE_URL . 'financials/receipt_voucher');
@@ -391,7 +391,7 @@ class controller extends wc_controller
 			$this->update_app($data_validate["h_check_rows_"]);
 
 			// For Admin Logs
-			$this->logs->saveActivity("Update Receipt Voucher [$sid]");
+			$this->logs->saveActivity("Update Official Receipt [$sid]");
 
 			if(!empty($data_validate['h_save']))
 			{
@@ -495,7 +495,7 @@ class controller extends wc_controller
 		
 		// Setting for PDFs
 		$print = new print_voucher_model('P', 'mm', 'Letter');
-		$print->setDocumentType('Receipt Voucher')
+		$print->setDocumentType('Official Receipt')
 				->setDocumentInfo($documentinfo[0])
 				->setCustomer($customer)
 				->setVoucherStatus($voucher_status)
@@ -1289,7 +1289,7 @@ class controller extends wc_controller
 								$show_btn
 							)
 							->addPrint()
-							->addDelete($show_dlt)
+							// ->addDelete($show_dlt)
 							->addCheckbox($show_btn)
 							->setValue($voucher)
 							->draw();

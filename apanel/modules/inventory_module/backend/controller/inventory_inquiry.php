@@ -132,6 +132,7 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 				$table .= '<td></td>' ;
 				$table .= '<td>' . $row->prcqty . '</td>' ;
+				$table .= '<td>' . $row->prcqty . '</td>' ;
 				$table .= '<td>' . $row->drqty . '</td>';
 				$table .= '<td>' . $row->srqty . '</td>';
 				$table .= '<td>' . $row->prtqty . '</td>';
@@ -154,7 +155,7 @@ class controller extends wc_controller {
 		if (!empty($result)){
 			foreach ($result as $key => $row){
 				$csv .= '"' . $row->itemname . '",';
-				$csv .= '"' . $row->warehouse . '",';
+				$csv .= '"' . $row->warehousename . '",';
 				$csv .= '"' . $row->OHQty . '",';
 				$csv .= '"' . $row->OrderQty . '",';
 				$csv .= '"' . $row->AllocQty . '",';
