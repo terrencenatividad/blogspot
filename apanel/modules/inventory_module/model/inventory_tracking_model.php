@@ -1,25 +1,37 @@
 <?php
 class inventory_tracking_model extends wc_model {
 
-	public function getInventoryTrackingPagination($itemcode, $datefilter) {
-		$result = $this->getInventoryTrackingQuery($itemcode, $datefilter)
+	public function getInventoryTrackingPagination($itemcode, $datefilter, $warehouse, $sort) {
+		$result = $this->getInventoryTrackingQuery($itemcode, $datefilter, $warehouse, $sort)
 						->runPagination();
-		
+
 		return $result;
 	}
 
-	public function getInventoryTracking($itemcode, $datefilter) {
-		$result = $this->getInventoryTrackingQuery($itemcode, $datefilter)
+	public function getInventoryTracking($itemcode, $datefilter, $warehouse, $sort) {
+		$result = $this->getInventoryTrackingQuery($itemcode, $datefilter, $warehouse, $sort)
 						->runSelect()
 						->getResult();
 		
 		return $result;
 	}
 
-	private function getInventoryTrackingQuery($itemcode, $datefilter) {
+	public function getWarehouseDropdownList() {
+		$result = $this->db->setTable('warehouse')
+							->setFields('warehousecode ind, description val')
+							->runSelect()
+							->getResult();
+
+		return $result;
+	}
+
+	private function getInventoryTrackingQuery($itemcode, $datefilter, $warehouse, $sort) {
 		$condition = '';
 		if ($itemcode && $itemcode != 'none') {
 			$condition = "il.itemcode = '$itemcode'";
+		}
+		if ($warehouse && $warehouse != 'none') {
+			$condition .= (empty($condition) ? '' : ' AND ') . "warehousecode = '$warehouse'";
 		}
 		$datefilter	= explode('-', $datefilter);
 		foreach ($datefilter as $key => $date) {
@@ -35,7 +47,7 @@ class inventory_tracking_model extends wc_model {
 							->leftJoin('wc_users u ON u.username = il.enteredby AND p.companycode = il.companycode')
 							->setFields("il.entereddate, itemname, description warehouse, reference, partnername, prevqty, quantity, currentqty, activity, CONCAT(firstname, ' ', lastname) name")
 							->setWhere($condition)
-							->setOrderBy('il.id DESC');
+							->setOrderBy($sort);
 
 		return $query;
 	}

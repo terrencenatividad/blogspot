@@ -25,6 +25,17 @@
 										->draw();
 								?>
 							</div>
+							<div class="col-md-6">
+								<?php
+									echo $ui->formField('dropdown')
+										->setPlaceholder('Filter Warehouse')
+										->setName('warehouse')
+										->setId('warehouse')
+										->setList($warehouse_list)
+										->setNone('Filter: All')
+										->draw();
+								?>
+							</div>
 						</div>
 					</div>
 					<div class="col-md-4 text-right">
@@ -60,20 +71,21 @@
 			</div>
 			<div class="box-body table-responsive no-padding">
 				<table id="tableList" class="table table-hover table-sidepad">
-					<thead>
-						<tr class="info">
-							<th>Date</th>
-							<th>Item Name</th>
-							<th>Warehouse</th>
-							<th>Reference No.</th>
-							<th>Particulars</th>
-							<th>In</th>
-							<th>Out</th>
-							<th>Current Onhand</th>
-							<th>Activity</th>
-							<th>User</th>
-						</tr>
-					</thead>
+					<?php
+						echo $ui->loadElement('table')
+								->setHeaderClass('info')
+								->addHeader('Date', array('class' => 'col-md-2'), 'sort', 'il.entereddate', 'desc')
+								->addHeader('Item Name', array('class' => 'col-md-2'), 'sort', 'itemname')
+								->addHeader('Warehouse', array('class' => 'col-md-1'), 'sort', 'description')
+								->addHeader('Reference No.', array('class' => 'col-md-1'), 'sort', 'reference')
+								->addHeader('Particulars', array('class' => 'col-md-1'), 'sort', 'partnername')
+								->addHeader('In', array('class' => 'col-md-1'), 'sort', 'prevqty')
+								->addHeader('Out', array('class' => 'col-md-1'), 'sort', 'quantity')
+								->addHeader('Current Onhand', array('class' => 'col-md-1'), 'sort', 'currentqty')
+								->addHeader('Activity', array('class' => 'col-md-1'), 'sort', 'activity')
+								->addHeader('User', array('class' => 'col-md-2'), 'sort', 'name')
+								->draw();
+					?>
 					<tbody>
 
 					</tbody>
@@ -83,8 +95,16 @@
 		<div id="pagination"></div>
 	</section>
 	<script>
-		var ajax = {}
+		var ajax = filterFromURL();
 		var ajax_call = '';
+		ajaxToFilter(ajax, { search : '#table_search', itemcode : '#itemcode' });
+		tableSort('#tableList', function(value, getlist) {
+			ajax.sort = value;
+			ajax.page = 1;
+			if (getlist) {
+				getList();
+			}
+		}, ajax);
 		$('#table_search').on('input', function () {
 			ajax.page = 1;
 			ajax.search = $(this).val();
@@ -98,6 +118,11 @@
 		$('#itemcode').on('change', function() {
 			ajax.page = 1;
 			ajax.itemcode = $(this).val();
+			getList();
+		});
+		$('#warehouse').on('change', function() {
+			ajax.page = 1;
+			ajax.warehouse = $(this).val();
 			getList();
 		});
 		$('#pagination').on('click', 'a', function(e) {
@@ -126,6 +151,6 @@
 		$('#export').click(function() {
 			var daterangefilter	= $('#daterangefilter').val();
 			var itemcode		= $('#itemcode').val();
-			window.location = '<?php echo MODULE_URL ?>list_export/' + btoa(daterangefilter) + '/' + btoa(itemcode);
+			window.location = '<?php echo MODULE_URL ?>list_export/' + btoa(daterangefilter) + '/' + btoa(itemcode) + '/' + btoa(ajax.sort);
 		});
 	</script>
