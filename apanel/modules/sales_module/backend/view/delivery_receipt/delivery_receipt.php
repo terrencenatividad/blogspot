@@ -164,7 +164,7 @@
 					<div class="row">
 						<div id="submit_container" class="col-md-12 text-center">
 							<?php
-								if (($stat == 'Delivered' || $stat == 'Prepared') && $restrict_dr || empty($stat)) {
+								if ($stat == 'Prepared' && $restrict_dr || empty($stat)) {
 									echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 								}
 								echo $ui->drawCancel();
