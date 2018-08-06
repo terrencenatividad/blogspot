@@ -51,7 +51,7 @@
 						<div class = "col-md-6">
 							<?php
 								echo $ui->formField('dropdown')
-										->setPlaceholder('Filter Vendor')
+										->setPlaceholder('Filter Supplier')
 										->setName('vendor')
 										->setId('vendor')
 										->setList($vendor_list)
@@ -98,7 +98,7 @@
 						)
 						->addHeader('Date', array('class' => 'col-md-1'), 'sort', 'main.transactiondate')
 						->addHeader('Voucher', array('class' => 'col-md-1'), 'sort', 'main.voucherno', 'desc')
-						->addHeader('Vendor', array('class' => 'col-md-3'), 'sort', 'p.partnername')
+						->addHeader('Supplier', array('class' => 'col-md-3'), 'sort', 'p.partnername')
 						->addHeader('Reference', array('class' => 'col-md-3'), 'sort', 'main.referenceno')
 						->addHeader('Payment Mode', array('class' => 'col-md-1'), 'sort', 'main.paymenttype')
 						->addHeader('Amount', array('class' => 'col-md-1'), 'sort', 'main.convertedamount')
