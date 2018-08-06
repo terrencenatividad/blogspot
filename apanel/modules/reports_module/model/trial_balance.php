@@ -386,7 +386,7 @@ class trial_balance extends wc_model {
 		$generatedvoucher 	=	isset($data['voucher']) 			?	$data['voucher'] 			: 	"";
 		$reference 			=	isset($data['reference']) 			?	$data['reference'] 			: 	"";
 		$warehouse 			=	isset($data['warehouse']) 			?	$data['warehouse'] 			: 	"";
-		$date 				=	isset($data['datefrom']) 			?	$data['datefrom'] 			: 	"";
+		$lastdayofdate 		=	isset($data['datefrom']) 			?	$data['datefrom'] 			: 	"";
 		$remarks 			=	isset($data['notes']) 				? 	$data['notes'] 				: 	"";
 		$actualaccount  	=	isset($data['closing_account']) 	? 	$data['closing_account'] 	: 	"";
 		$detailparticular 	=	isset($data['detailparticular']) 	? 	$data['detailparticular'] 	:	"";
@@ -395,12 +395,11 @@ class trial_balance extends wc_model {
 		$amount 			= 	0;
 
 		/**FORMAT DATES**/
-		$exploded_date		=	explode(' ',$date);
-		$month 				=	date('m', strtotime($exploded_date[0]));
-		$year 				=	date('Y', strtotime($exploded_date[1]));
+		$exploded_date		=	explode(' ',$lastdayofdate);
+		$month 				=	date('m', strtotime($lastdayofdate));
+		$year 				=	date('Y', strtotime($lastdayofdate));
 
 		$firstdayofdate 	=	date($year.'-'.$month.'-01');
-		$lastdayofdate 		= 	$this->get_last_day($month, $year);
 
 		$currentyear 		= 	date("Y",strtotime($lastdayofdate));
 		$prevyear 			= 	date("Y",strtotime($firstdayofdate." -1 year"));
@@ -698,6 +697,52 @@ class trial_balance extends wc_model {
 									->runSelect()
 									->getResult();
 		return $result;
+	}
+
+	public function getYearforClosing(){
+		//SELECT bt.fiscalyear, bt.period FROM balance_table bt LEFT JOIN ( SELECT jv.voucherno, jv.period, jv.fiscalyear FROM journalvoucher jv WHERE jv.source = 'closing' AND jv.stat = 'posted') closing ON closing.period = bt.period AND closing.fiscalyear = bt.fiscalyear GROUP BY bt.fiscalyear LIMIT 1
+		$inner_query 	= 	$this->db->setTable("journalvoucher jv")
+									 ->setFields("jv.voucherno, jv.period, jv.fiscalyear")
+									 ->setWhere("jv.source = 'closing' AND jv.stat = 'posted'")
+									 ->buildSelect();
+									 
+		$result 		=	$this->db->setTable("balance_table bt")
+								 	 ->setFields("bt.fiscalyear, bt.period")
+									 ->leftJoin("($inner_query) closing ON closing.period = bt.period AND closing.fiscalyear = bt.fiscalyear")
+									 ->setGroupBy("bt.fiscalyear")
+									 ->setOrderBy("bt.fiscalyear ASC")
+									 ->setLimit(1)
+									 ->runSelect()
+									 ->getResult();
+		return $result;
+	}
+
+	public function getClosingMonth($year = false) {
+		// SELECT for Month & Year
+		$year = ($year) ? $year : date('Y');
+		// $year =	2018;
+		$select 	=	array(); 
+		for($x=1;$x<=12;$x++){
+			$select[] 	=	"SELECT $year year, $x month";
+		}
+		$select_query 	= implode(" UNION ",$select);
+		
+		// SELECT JV w/o closing
+		$result 	=	$this->db->setTable("($select_query) period")
+								->setFields("period.month, period.year")
+								->leftJoin("journalvoucher jv ON jv.period = period.month AND jv.fiscalyear = period.year AND jv.source = 'closing' AND jv.stat = 'posted' ")
+								->setWhere("jv.voucherno IS NULL ")
+								->setGroupBy("period.year, period.month")
+								->setOrderBy("period.year ASC, period.month ASC")
+								->setLimit(1)
+								->runSelect(false)
+								->getRow();
+		// echo $this->db->getQuery();
+		return $result;
+	}
+
+	public function getMonthEnd($date) {
+		return date("Y-m-t", strtotime($date));
 	}
 
 	public function getfirstOpen(){

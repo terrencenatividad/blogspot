@@ -22,9 +22,17 @@ class controller extends wc_controller {
 		$data['is_account']			=	isset($account->salesAccount) 	?	$account->salesAccount 	:	"";
 		$data['chart_account_list'] =	$this->trial_balance->getChartAccountList();
 		$data['proforma_list'] 		= 	$this->trial_balance->getProformaList();
-		$data['openmonth_list']		= 	$this->trial_balance->getOpenList();
-		$month_result 				=	$this->trial_balance->getfirstOpen();
-		$data['datafrom'] 			=	($month_result) ? $month_result->val : "";
+
+		$year_result 				=  	$this->trial_balance->getYearforClosing();
+		$year_closing 				=	$year_result[0]->fiscalyear;
+		$period_result 				=	$this->trial_balance->getClosingMonth($year_closing);
+
+		$last_date 					= 	$period_result->year."-".$period_result->month."-1";
+		$complete_date 				= 	$this->trial_balance->getMonthEnd($last_date);
+		$complete_date 				=	$this->date->dateFormat($complete_date);
+
+		$data['datafrom'] 			=	$complete_date;
+
 		$data['ui'] 				= 	$this->ui;
 		$data['show_input'] 		= 	true;
 		$data['datefilter'] 		= 	$this->date->datefilterMonth();
@@ -288,6 +296,8 @@ class controller extends wc_controller {
 
 		$data 			= 	$this->input->post(array('datefrom','reference','notes','closing_account'));
 		$datefrom 		=	$data['datefrom'];
+		$datefrom 		=	date("Y-m-d", strtotime($datefrom));
+
 		$account 		=	isset($data['closing_account']) 	?	$data['closing_account'] 	:	"";
 
 		$result 		= 	0;
@@ -295,7 +305,7 @@ class controller extends wc_controller {
 		$gen_value      = $this->trial_balance->getValue("journalvoucher", "COUNT(*) as count", "voucherno != ''");
 		$temporary_id   = (!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
 
-		// $data['voucher'] 			=	$voucher;
+		$data['datefrom'] 			=	$datefrom;
 		$data['voucher'] 			=	$temporary_id; 
 		$data['closing_account'] 	=	$account;
 
@@ -355,7 +365,7 @@ class controller extends wc_controller {
 
 		$dataArray 	=	array( "table" 				=>	$table,
 							   "voucherno"			=>	$voucherno,	
-							   "transactiondate"	=>	date("Y",strtotime($header->transactiondate)),
+							   "transactiondate"	=>	date("M d, Y",strtotime($header->transactiondate)),
 							   "proformacode" 		=>	$header->proformacode,
 							   "reference" 			=>	$header->referenceno,
 							   "remarks" 			=>	$header->remarks,

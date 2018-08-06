@@ -79,7 +79,7 @@ class controller extends wc_controller {
 
 	private function ajax_list() {
 		$data = $this->input->post(array('daterangefilter','warehouse','sort'));
-		$datefilter	= $data['daterangefilter'];
+		$datefilter	= isset($data['daterangefilter']) ? $data['daterangefilter'] : "";
 		$warehouse = $data['warehouse'];
 		$sort      = $data['sort'];
 		$datefilter = explode('-', $datefilter);
