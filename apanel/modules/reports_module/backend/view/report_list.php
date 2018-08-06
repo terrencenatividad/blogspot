@@ -182,7 +182,7 @@
 							</a>
 							<a href="purchase_journal" class="list-group-item">
 								<h4 class="list-group-item-heading">Purchase Journal</h4>
-								<p class="list-group-item-text">Report for the recording of the purchase on credit from vendors (vendor payables)</p>
+								<p class="list-group-item-text">Report for the recording of the purchase on credit from suppliers (supplier payables)</p>
 							</a>
 							<!-- <a href="" class="list-group-item">
 								<h4 class="list-group-item-heading">Receipt Journal</h4>

@@ -40,8 +40,8 @@
 		<table id="tableList" class="table table-hover table-striped table-condensed table-bordered" cellpadding="0" cellspacing="0" border="0" width="100%">
 			<thead>
 				<tr class="">
-					<th class="col-md-1 text-left" style="background:#DDD">Vendor Code</th>
-					<th colspan="9" class="text-left" style="background:#DDD">Vendor Name</th>
+					<th class="col-md-1 text-left" style="background:#DDD">Supplier Code</th>
+					<th colspan="9" class="text-left" style="background:#DDD">Supplier Name</th>
 				</tr>
 				<tr class="info">
 					<th class="col-md-1 text-left">Voucher Number</th>
