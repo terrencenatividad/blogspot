@@ -12,6 +12,7 @@
 			<form method = "post" id = "companyForm" class="form-horizontal">
 				<h3>Basic Information</h3>
 				<hr/>
+			<div class="col-md-11">
 				<div class="row">
 					<label for = "companyimage" class = "control-label col-md-2" align = "right">
 						Company Logo
@@ -30,6 +31,7 @@
 					</div>
 				</div>
 				<br/>
+				
 				<div class="row">
 					<div class="col-md-6">
 						<?php
@@ -168,7 +170,7 @@
 						?>
 					</div>
 				</div>
-				<hr/>
+			</div>
 				<div class="row">
 					<div class="col-md-12 text-center">
 						<input type = "submit" name = "add" id="add" value = "Save" class = "btn btn-info btn-flat">
