@@ -132,6 +132,7 @@
 									<thead>
 										<tr class="info">
 											<th></th>
+											<th>Beginning Balance </th>
 											<th>Purchase Receipt </th>
 											<th>Delivered </th>
 											<th>Sales Return </th>

@@ -44,7 +44,7 @@ class inventory_inquiry_model extends wc_model {
 		}
 		$result  = $this->db->setTable("invdtlfile dtl")
 							->innerJoin('items i ON dtl.itemcode = i.itemcode')
-							->setFields('i.itemname itemname,dtl.warehouse  warehouse,dtl.purchasereceiptQty prcqty, dtl.deliveredQty drqty, dtl.salesreturnQty srqty, dtl.purchasereturnQty prtqty, dtl.transferedQty transqty,dtl.adjustmentsQty adqty ')
+							->setFields('beginningQty bqty,i.itemname itemname,dtl.warehouse  warehouse,dtl.purchasereceiptQty prcqty, dtl.deliveredQty drqty, dtl.salesreturnQty srqty, dtl.purchasereturnQty prtqty, dtl.transferedQty transqty,dtl.adjustmentsQty adqty ')
 							->setWhere($condition)
 							// ->setLimit($limit)
 							->runPagination();
@@ -103,22 +103,26 @@ class inventory_inquiry_model extends wc_model {
 		$limit 		= $data['limit'];
 		$itemcode 	= $data['itemcode'];
 		$sort 	 	= $data['sort'];
+		$warehouse 	= $data['warehouse'];
 		$condition = '';
 		if ($itemcode && $itemcode != 'none') {
 			$condition = "inv.itemcode = '$itemcode'";
+		}
+		if ($warehouse){
+			$condition .= (empty($condition) ? '' : ' AND ') . "inv.warehouse = '$warehouse'";
 		}
 		// if ($startdate && $enddate) {
 		// 	$condition .= (empty($condition) ? '' : ' AND ') . "inv.entereddate >= '$startdate 00:00:00' AND inv.entereddate <= '$enddate 23:59:59'";
 		// }
 		$result = $this->db->setTable("invfile as inv")
 							->innerJoin('items as items ON inv.itemcode = items.itemcode  ') 
-							->setFields("inv.itemcode as itemcode, SUM(inv.onhandQty) as OHQty, inv.warehouse as warehouse , SUM(inv.allocatedQty) as AllocQty, SUM(inv.orderedQty) as OrderQty,SUM(inv.availableQty) as avail,items.itemname as itemname")
+							->setFields("description warehousename,inv.itemcode as itemcode, SUM(inv.onhandQty) as OHQty, inv.warehouse as warehouse , SUM(inv.allocatedQty) as AllocQty, SUM(inv.orderedQty) as OrderQty,SUM(inv.availableQty) as avail,items.itemname as itemname")
+							->leftJoin("warehouse wh on inv.warehouse = wh.warehousecode")
 							->setWhere($condition)
 							->setGroupBy('inv.warehouse,inv.itemcode')
 							->setOrderBy($sort)
 							->runSelect()
 							->getResult();
-							// echo $this->db->getQuery();
 		return $result;
 	}
 }
