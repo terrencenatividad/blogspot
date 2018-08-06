@@ -1461,7 +1461,7 @@ class receipt_voucher_model extends wc_model
 	public function retrieveAccess($groupname){
 		$result = $this->db->setTable("wc_module_access")
 					->setFields(array("mod_add","mod_view","mod_edit","mod_delete","mod_list","mod_print","mod_post","mod_unpost"))
-					->setWhere("groupname = '$groupname' AND companycode = 'CID' AND module_name = 'Receipt Voucher'")
+					->setWhere("groupname = '$groupname' AND companycode = 'CID' AND module_name = 'Official Receipt'")
 					->setLimit(1)
 					->runSelect()
 					->getResult();

@@ -1632,7 +1632,7 @@ class accounts_receivable extends wc_model
 					->runUpdate();
 			
 			if(!$result){
-				$errmsg[] = "The system has encountered an error in updating Receipt Voucher Details [$voucher]. Please contact admin to fix this issue.";
+				$errmsg[] = "The system has encountered an error in updating Official Receipt Details [$voucher]. Please contact admin to fix this issue.";
 			}
 			//else
 				//$this->log->saveActivity("Update Receipt Voucher Details [$voucher]");
@@ -1644,9 +1644,9 @@ class accounts_receivable extends wc_model
 					->runUpdate();	
 			
 			if(!$result)
-				$errmsg[] = "The system has encountered an error in updating Receipt Voucher [$voucher]. Please contact admin to fix this issue.";
+				$errmsg[] = "The system has encountered an error in updating Official Receipt [$voucher]. Please contact admin to fix this issue.";
 			else
-				$this->log->saveActivity("Cancel Receipt Voucher [$voucher]");
+				$this->log->saveActivity("Cancel Official Receipt [$voucher]");
 
 			return $errmsg;
 		}
