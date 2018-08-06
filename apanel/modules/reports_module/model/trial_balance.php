@@ -384,7 +384,7 @@ class trial_balance extends wc_model {
 
 	public function save_journal_voucher($data){	
 		$generatedvoucher 	=	isset($data['voucher']) 			?	$data['voucher'] 			: 	"";
-		$reference 			=	isset($data['reference']) 			?	$data['reference'] 			: 	"";
+		// $reference 			=	isset($data['reference']) 			?	$data['reference'] 			: 	"";
 		$warehouse 			=	isset($data['warehouse']) 			?	$data['warehouse'] 			: 	"";
 		$lastdayofdate 		=	isset($data['datefrom']) 			?	$data['datefrom'] 			: 	"";
 		$remarks 			=	isset($data['notes']) 				? 	$data['notes'] 				: 	"";
@@ -420,6 +420,9 @@ class trial_balance extends wc_model {
 				$h_total_debit 		+=	$debit;
 			}
 		} 
+
+		$str_month 	=	date('F', strtotime($lastdayofdate));
+		$reference	=	"Closing for $str_month, $year";
 
 		$header['voucherno'] 		=	$generatedvoucher;
 		$header['transtype'] 		=	"JV";
