@@ -56,7 +56,7 @@
 								<?php
 									if($show_input){
 										echo $ui->formField('dropdown')
-											->setLabel('Vendor')
+											->setLabel('Suppplier')
 											->setPlaceholder('None')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('vendor')

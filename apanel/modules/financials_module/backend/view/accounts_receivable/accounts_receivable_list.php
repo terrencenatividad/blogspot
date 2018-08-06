@@ -91,6 +91,7 @@
 			<li><a href="unpaid" data-toggle="tab">Unpaid</a></li>
 			<li><a href="partial" data-toggle="tab">With Partial Payment</a></li>
 			<li><a href="paid" data-toggle="tab">Paid</a></li>
+			<li><a href="paid" data-toggle="tab">Cancelled</a></li>
 		</ul>
 		<div class="table-responsive">
 			<table id="tableList" class="table table-hover">

@@ -16,8 +16,9 @@ class controller extends wc_controller {
 	{
 		$this->view->title = 'AP Transactions Report';
 		$data['ui'] = $this->ui;
-		$data['show_input'] = true;
-		$data['datefilter'] = $this->date->datefilterMonth();
+		$data['show_input'] 	= true;
+		$data['datefilter'] 	= $this->date->datefilterMonth();
+		$data['supplier_list']	= $this->ap_transaction->getSuppliers();
 		$this->view->load('ap_transaction', $data);
 	}
 
@@ -47,7 +48,7 @@ class controller extends wc_controller {
 	}
 
 	private function load_supplier_list(){
-		$data_post = $this->input->post(array('daterangefilter','supplier','voucher','status','limit', "search"));
+		$data_post = $this->input->post(array('daterangefilter','supplier'));
 	
 		$pagination = $this->ap_transaction->getsupplierList($data_post);
 		$tablerow = "";

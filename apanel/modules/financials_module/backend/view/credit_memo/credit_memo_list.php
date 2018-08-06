@@ -94,6 +94,7 @@
 								->addHeader('Partner', array('class' => 'col-md-3'), 'sort', 'partner', '')
 								->addHeader('Reference', array('class' => 'col-md-2'), 'sort', 'referenceno')
 								->addHeader('Total Amount', array('class' => 'col-md-1 text-right'), 'sort', 'amount')
+								->addHeader('Status', array('class' => 'col-md-1 text-right'), 'sort', 'status')
 								->draw();
 					?>
 					<tbody>

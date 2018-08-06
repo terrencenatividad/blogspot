@@ -314,7 +314,7 @@ class controller extends wc_controller
 		$data["v_invoiceno"]       = $data["main"]->invoiceno;
 		$data["v_balance"]     	   = $data["main"]->balance;
 		$data['v_notes'] 		   = $data["main"]->particulars;
-
+		$data['stat'] 		   	   = $data["main"]->stat;
 		// Retrieve Closed Date
 		$close_date 			= $this->restrict->getClosedDate();
 		$data['close_date']		= $close_date;
@@ -361,7 +361,16 @@ class controller extends wc_controller
 		 */
 		$balance 	= $data["main"]->balance;
 		$amount 	= $data["main"]->amount;
-		if($balance != $amount && $balance != 0){
+		$stat 		= $data["main"]->stat;
+		if($balance != 0 && $stat == 'cancelled'){
+			$status 		= 'cancelled';
+			$status_class 	= 'danger';
+		}
+		else if($balance != $amount && $balance != 0 && $stat == 'cancelled'){
+			$status 		= 'cancelled';
+			$status_class 	= 'danger';
+		}
+		else if($balance != $amount && $balance != 0){
 			$status  		= 'partial';
 			$status_class 	= 'info';
 		}else if($balance != 0){
@@ -650,6 +659,11 @@ class controller extends wc_controller
 			$result 	= $this->accounts_payable->updateData($data, "ap_details", $cond);
 		}
 
+		if( $result )
+		{
+			$result 	= $this->accounts_payable->reverseEntries($invoices, "ap_details", $cond);
+		}
+
 		if($result){
 			$code 	= 1; 
 			$msg 	= "Successfully cancelled the vouchers.";
@@ -693,8 +707,17 @@ class controller extends wc_controller
 				$referenceno = $row->referenceno; 
 				$checker 	 = $row->importchecker;
 				$import 	 = ($checker == 'import') 	?	"Yes" 	:	"No";
+				$stat		 = $row->stat;
 
-				if($balance != $amount && $balance != 0)
+				if($balance != 0 && $stat == 'cancelled')
+				{
+					$voucher_status = '<span class="label label-danger">CANCELLED</span>';
+				}
+				else if($balance != $amount && $balance != 0 && $stat == 'cancelled')
+				{
+					$voucher_status = '<span class="label label-danger">CANCELLED</span>';
+				}
+				else if($balance != $amount && $balance != 0)
 				{
 					$voucher_status = '<span class="label label-info">PARTIAL</span>';
 				}
@@ -706,9 +729,9 @@ class controller extends wc_controller
 				{
 					$voucher_status = '<span class="label label-success">PAID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
 				}
-				$show_edit 		= ($balance == $amount);
-				$show_delete 	= ($balance == $amount);
-				$show_payment 	= ($balance != 0);
+				$show_edit 		= ($balance == $amount  && $stat != 'cancelled');
+				$show_delete 	= ($balance == $amount && $stat != 'cancelled');
+				$show_payment 	= ($balance != 0  && $stat != 'cancelled');
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()
 							->addEdit($show_edit && $checker != "import" && $restrict_ap)

@@ -46,7 +46,7 @@ class accounts_receivable extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, customer, referenceno, particulars, duedate, amount, balance, exchangerate, convertedamount, invoiceno, lockkey as importchecker";
+		$setFields = "voucherno, transactiondate, customer, referenceno, particulars, duedate, amount, balance, exchangerate, convertedamount, invoiceno, lockkey as importchecker, stat";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -278,10 +278,10 @@ class accounts_receivable extends wc_model
 		$add_query .= (!empty($vendfilter) && $vendfilter != 'none') ? "AND p.partnercode = '$vendfilter' " : "";
 		$add_query .= $addCondition;
 
-		$main_fields = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount","main.balance as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS customer","main.lockkey as importchecker");
+		$main_fields = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount","main.balance as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS customer","main.lockkey as importchecker","main.stat as stat");
 		$main_join   = "partners p ON p.partnercode = main.customer"; //AND p.companycode
 		$main_table  = "accountsreceivable as main";
-		$main_cond   = "main.stat = 'posted' $add_query";
+		$main_cond   = "main.stat IN('posted','cancelled') $add_query";
 		
 		$query 		 = $this->db->setTable($main_table)
 								->setFields($main_fields)
@@ -1100,14 +1100,14 @@ class accounts_receivable extends wc_model
 				}
 
 				/**UPDATE MAIN INVOICE**/
-				$invoice_amount				= $this->getValue($applicableHeaderTable, array("amount as convertedamount"), "voucherno = '$invoice' AND stat = 'posted'");
+				$invoice_amount				= $this->getValue($applicableHeaderTable, array("amount as convertedamount"), "voucherno = '$invoice' AND stat IN('open','posted')");
 				$applied_discount			= 0;
 
-				$applied_sum				= $this->getValue($applicationTable, array("SUM(amount) AS convertedamount")," arvoucherno = '$invoice' AND stat = 'posted' ");
+				$applied_sum				= $this->getValue($applicationTable, array("SUM(amount) AS convertedamount")," arvoucherno = '$invoice' AND stat IN('open','posted') ");
 
-				$applied_discount			= $this->getValue($applicationTable, array("SUM(discount) AS discount"), "arvoucherno = '$invoice' AND stat = 'posted' ");
+				$applied_discount			= $this->getValue($applicationTable, array("SUM(discount) AS discount"), "arvoucherno = '$invoice' AND stat IN('open','posted') ");
 
-				$applied_forexamount		= $this->getValue($applicationTable, array("SUM(forexamount) AS forexamount"), "arvoucherno = '$invoice' AND stat = 'posted' ");
+				$applied_forexamount		= $this->getValue($applicationTable, array("SUM(forexamount) AS forexamount"), "arvoucherno = '$invoice' AND stat IN('open','posted') ");
 
 				$applied_sum				= $applied_sum[0]->convertedamount - $applied_forexamount[0]->forexamount;
 
@@ -1140,7 +1140,7 @@ class accounts_receivable extends wc_model
 
 		$insertResult = $this->db->setTable($mainAppTable)
 						->setValues($update_info)
-						->setWhere("voucherno = '$voucherno' AND stat = 'posted'")
+						->setWhere("voucherno = '$voucherno' AND stat IN('open','posted') ")
 						->runUpdate();
 
 		/**INSERT TO CHEQUES TABLE**/
@@ -1515,6 +1515,52 @@ class accounts_receivable extends wc_model
 		
 		return $result;
 	}
+
+	public function reverseEntries($invoices, $table, $cond)
+	{
+		$count = $this->db->setTable($table)
+				->setFields('*')
+				->setWhere("voucherno IN($invoices)")
+				->runSelect()
+				->getResult();
+
+		if(!empty($count))
+		{
+			$ctr = count($count) + 1;
+			for($i = 0; $i < count($count); $i++)
+			{
+				$insert_info['voucherno']			= $count[$i]->voucherno;
+				$insert_info['transtype']			= $count[$i]->transtype;
+				$insert_info['linenum']				= $ctr;
+				$insert_info['slcode']				= $count[$i]->slcode;
+				$insert_info['bankrecon_id']		= $count[$i]->bankrecon_id;
+				$insert_info['checkstat']			= $count[$i]->checkstat;
+				$insert_info['costcentercode']		= $count[$i]->costcentercode;
+				$insert_info['accountcode']			= $count[$i]->accountcode;
+				$insert_info['debit']				= $count[$i]->credit;
+				$insert_info['credit']				= $count[$i]->debit;
+				$insert_info['source']				= $count[$i]->source;
+				$insert_info['sourcecode']			= $count[$i]->sourcecode;
+				$insert_info['currencycode']		= $count[$i]->currencycode;
+				$insert_info['exchangerate']		= $count[$i]->exchangerate;
+				$insert_info['converteddebit']		= $count[$i]->convertedcredit;
+				$insert_info['convertedcredit']		= $count[$i]->converteddebit;
+				$insert_info['taxcode']				= $count[$i]->taxcode;
+				$insert_info['taxacctflg']			= $count[$i]->taxacctflg;
+				$insert_info['taxline']				= $count[$i]->taxline;
+				$insert_info['vatflg']				= $count[$i]->vatflg;
+				$insert_info['detailparticulars']	= $count[$i]->detailparticulars;
+				$insert_info['stat']				= $count[$i]->stat;
+
+				$result = $this->db->setTable($table)
+									->setValues($insert_info)
+									->runInsert();
+				$ctr++;
+			}
+	}
+	return $count;
+		
+}
 	
 	public function deletePayments($voucher)
 	{
@@ -1529,7 +1575,7 @@ class accounts_receivable extends wc_model
 		
 		$paymentArray   = $this->db->setTable($appTable)
 							   ->setFields($paymentField)
-							   ->setWhere("voucherno = '$voucher' AND stat = 'posted'")
+							   ->setWhere("voucherno = '$voucher' AND stat IN('open','posted')")
 							   ->runSelect()
 							   ->getResult();
 
@@ -1542,12 +1588,12 @@ class accounts_receivable extends wc_model
 				$wtaxamount		= $paymentArray[$i]->wtaxamount;
 				$discount		= 0;
 
-				$balance		= $this->getValue($table, array("balance"), "voucherno = '$mainvoucher' AND stat = 'posted'");
+				$balance		= $this->getValue($table, array("balance"), "voucherno = '$mainvoucher' AND stat IN('open','posted')");
 				$balance 		= $balance[0]->balance;
 
 				$update_info['balance']		= $balance + $amount + $discount;
 
-				$amountreceived 	= $this->getValue($table, array("amountreceived"), "voucherno = '$mainvoucher' AND stat = 'posted'");
+				$amountreceived 	= $this->getValue($table, array("amountreceived"), "voucherno = '$mainvoucher' AND stat IN('open','posted')");
 				$amountreceived 	= $amountreceived[0]->amountreceived;
 
 				$update_info['amountreceived']	= $amountreceived - $amount - $discount;
@@ -1573,10 +1619,11 @@ class accounts_receivable extends wc_model
 					->setWhere("voucherno = '$voucher'")
 					->runUpdate();
 			
-			if(!$result)
+			if(!$result){
 				$errmsg[] = "The system has encountered an error in updating RV Application [$voucher]. Please contact admin to fix this issue.";
-			else
-				$this->log->saveActivity("Update RV Application [$voucher]");
+			}
+			// else
+			// 	$this->log->saveActivity("Update RV Application [$voucher]");
 
 			// Update rv_details
 			$result = $this->db->setTable($detailTable)
@@ -1584,10 +1631,11 @@ class accounts_receivable extends wc_model
 					->setWhere("voucherno = '$voucher'")
 					->runUpdate();
 			
-			if(!$result)
-				$errmsg[] = "The system has encountered an error in updating Receipt Voucher Details [$voucher]. Please contact admin to fix this issue.";
-			else
-				$this->log->saveActivity("Update Receipt Voucher Details [$voucher]");
+			if(!$result){
+				$errmsg[] = "The system has encountered an error in updating Official Receipt Details [$voucher]. Please contact admin to fix this issue.";
+			}
+			//else
+				//$this->log->saveActivity("Update Receipt Voucher Details [$voucher]");
 			
 			// Update receiptvoucher
 			$result = $this->db->setTable($mainTable)
@@ -1596,9 +1644,9 @@ class accounts_receivable extends wc_model
 					->runUpdate();	
 			
 			if(!$result)
-				$errmsg[] = "The system has encountered an error in updating Receipt Voucher [$voucher]. Please contact admin to fix this issue.";
+				$errmsg[] = "The system has encountered an error in updating Official Receipt [$voucher]. Please contact admin to fix this issue.";
 			else
-				$this->log->saveActivity("Update Receipt Voucher [$voucher]");
+				$this->log->saveActivity("Cancel Official Receipt [$voucher]");
 
 			return $errmsg;
 		}

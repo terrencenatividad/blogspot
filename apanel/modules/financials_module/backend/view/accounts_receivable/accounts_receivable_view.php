@@ -549,12 +549,12 @@
                     &nbsp;
                     </div>
                     <div class="col-md-8 col-sm-8 col-xs-8 text-center">
-                        <?if($v_balance > 0 && $restrict_ar){?>
+                        <?if($v_balance > 0 && $restrict_ar && $stat != 'cancelled'){?>
                         <button type="button" class="btn btn-primary btn-md btn-flat" id="btnReceive">Receive Payment</button>
                         &nbsp;
                         <?}?>
                         
-                        <?if(empty($data["payments"]) && $data['checker'] != "import" && $restrict_ar){?>
+                        <?if(empty($data["payments"]) && $data['checker'] != "import" && $restrict_ar && $stat != 'cancelled'){?>
                         <a href="<?=BASE_URL?>financials/accounts_receivable/edit/<?=$sid?>" class="btn btn-primary btn-md btn-flat">Edit</a>
                         <?}?>
                     </div>
@@ -698,7 +698,7 @@
                                                 //     <a role="button" class="btn btn-default btn-xs" target="_blank" href="'.BASE_URL.'financials/receipt_voucher/print_preview/'.$paymentnumber.'" title="Print Receipt Voucher"><span class="glyphicon glyphicon-print"></span></a>' : '<a role="button" class="btn btn-default btn-xs" href="'.BASE_URL.'financials/receipt_voucher/print_preview/'.$paymentnumber.'" title="Print Receipt Voucher" ><span class="glyphicon glyphicon-print"></span></a>';
                                                 echo '<button class="btn btn-default btn-xs" onClick="editPaymentRow(event,\'edit'.$row.'\');" title="Edit Payment" ><span class="glyphicon glyphicon-pencil"></span></button>
                                                     <button class="btn btn-default btn-xs" onClick="deletePaymentRow(event,\'delete'.$row.'\');" title="Delete Payment" ><span class="glyphicon glyphicon-trash"></span></button>
-                                                    <a role="button" class="btn btn-default btn-xs" target="_blank" href="'.BASE_URL.'financials/receipt_voucher/print_preview/'.$paymentnumber.'" title="Print Receipt Voucher"><span class="glyphicon glyphicon-print"></span></a>';
+                                                    <a role="button" class="btn btn-default btn-xs" target="_blank" href="'.BASE_URL.'financials/receipt_voucher/print_preview/'.$paymentnumber.'" title="Print Offical Receipt"><span class="glyphicon glyphicon-print"></span></a>';
                                                 echo '</td>';
 
                                         echo '</tr>';

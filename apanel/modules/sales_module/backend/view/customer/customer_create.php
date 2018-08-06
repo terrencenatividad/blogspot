@@ -6,7 +6,7 @@
             <form method = "post" id = "customerForm" class="form-horizontal">
 				<input type="hidden" name="h_customer_code" id="h_customer_code" value="<?=$partnercode?>">	
 				<div class = "col-md-12">&nbsp;</div>
-
+				<div class="col-md-11">
 				<div class="row">
 					<div class="col-md-6">
 						<?php
@@ -101,7 +101,10 @@
 
 				<div class="row">
 					<div class="col-md-12">	
-						<label for="first_name" class="control-label" style="margin:15px;"><span style="font-size:15px;">Contact Person:</span></label>
+						<!-- <label for="first_name" class="control-label" style="margin:15px;"><span style="font-size:15px;">Contact Person:</span></label> -->
+						<h4>Contact Person</h4>
+						
+						<hr>
 					</div>
 					<div class="col-md-6">
 						<?php
@@ -167,7 +170,7 @@
 						?>
 					</div>
 				</div>
-
+			</div>
 				<hr/>
 
 				<div class="row row-dense">

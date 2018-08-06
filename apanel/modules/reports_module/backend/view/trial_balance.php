@@ -164,7 +164,7 @@
 					<div class="row">
 						<div class="col-md-3">
 							<div class="form-group">
-								<label class="control-label col-md-12">Date</label>
+								<label class="control-label col-md-12">Closing Period</label>
 							</div>
 						</div>
 						<div class="col-md-8" style="margin:0px;">
@@ -294,15 +294,15 @@
 										->draw();
 								?>
 								<?php
-									echo $ui->formField('dropdown')
-										->setLabel('Proforma')
-										->setPlaceholder('Select Proforma')
-										->setSplit('col-md-4', 'col-md-8')
-										->setName('proformacode')
-										->setId('proformacode')
-										->addHidden('proformacode')
-										->setList($proforma_list)
-										->draw();
+									// echo $ui->formField('dropdown')
+									// 	->setLabel('Proforma')
+									// 	->setPlaceholder('Select Proforma')
+									// 	->setSplit('col-md-4', 'col-md-8')
+									// 	->setName('proformacode')
+									// 	->setId('proformacode')
+									// 	->addHidden('proformacode')
+									// 	->setList($proforma_list)
+									// 	->draw();
 								?>
 								<?php
 									echo $ui->formField('textarea')
@@ -450,7 +450,6 @@
 			$('#previewModal #voucherno').val(response.voucherno);
 			$("#previewModal #transactiondate_static").html(response.transactiondate);
 			$('#previewModal #referenceno_static').html(response.reference);
-			$("#previewModal #proformacode_static").html(response.proformacode);
 			$("#previewModal #remarks_static").html(response.remarks);
 
 			//Details

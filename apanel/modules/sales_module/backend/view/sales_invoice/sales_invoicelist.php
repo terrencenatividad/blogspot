@@ -211,4 +211,11 @@
 			ajax_call.abort();
 			getList();
 		})
+		$('#tableList').on('click', '.print_invoice',function(){
+			var voucher = $(this).attr('data-id');
+			//window.location = '<?=MODULE_URL?>print_invoice/' + voucher;
+			url = '<?=MODULE_URL?>print_invoice/' + voucher;
+			var win = window.open(url, '_blank');
+  			win.focus();
+		});
 	</script>

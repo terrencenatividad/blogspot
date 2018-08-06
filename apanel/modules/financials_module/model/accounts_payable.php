@@ -46,9 +46,8 @@ class accounts_payable extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, duedate, amount, balance, exchangerate, convertedamount, invoiceno,companycode, lockkey as importchecker ";
-		$cond = "voucherno = '$sid'";
-		
+		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, duedate, amount, balance, exchangerate, convertedamount, invoiceno,companycode, lockkey as importchecker, stat ";
+		$cond = "voucherno = '$sid'";	
 		$temp = array();
 
 		// Retrieve Header
@@ -325,10 +324,10 @@ class accounts_payable extends wc_model
 		$add_query .= (!empty($vendfilter) && $vendfilter != 'none') ? "AND p.partnercode = '$vendfilter' " : "";
 		$add_query .= $addCondition;
 
-		$main_fields = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount","main.balance as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS vendor","main.lockkey as importchecker");
+		$main_fields = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount","main.balance as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS vendor","main.lockkey as importchecker","main.stat as stat");
 		$main_join   = "partners p ON p.partnercode = main.vendor"; //AND p.companycode
 		$main_table  = "accountspayable as main";
-		$main_cond   = "main.stat = 'posted' $add_query";
+		$main_cond   = "main.stat IN('posted','cancelled') $add_query";
 		
 		$query 		 = $this->db->setTable($main_table)
 								->setFields($main_fields)
@@ -1003,15 +1002,13 @@ class accounts_payable extends wc_model
 						
 						if($insertResult != 1)
 						{
-							echo "error saving payment detail [$linenum] : ".$insertResult;
+							$errmsg[] 		= "error saving payment detail [$linenum] : ".$insertResult;
 						}
 
 					}
 				}else{
 					if($paymentdiscount > 0 && $convertedamount == 0)
 					{
-						// echo "\n 3 \n";
-						// ap_details
 						$accountcode = $this->getValue($applicableDetailTable, "accountcode", "voucherno = '$invoice' AND linenum = '1' LIMIT 1");
 						$accountcode = $accountcode[0]->accountcode;
 					}
@@ -1044,7 +1041,7 @@ class accounts_payable extends wc_model
 					
 					if($insertResult != 1)
 					{
-						echo "error saving payment detail [$linenum] : ". $insertResult;
+						$errmsg[] 		= "error saving payment detail [$linenum] : ". $insertResult;
 					}
 					
 					$linenum++;
@@ -1148,7 +1145,6 @@ class accounts_payable extends wc_model
 					$insertResult = $this->db->setTable($applicationTable) //pv_application
 										->setValues($post_application)
 										->setWhere("voucherno = '$voucherno' AND apvoucherno = '$invoice'")
-										// ->buildUpdate();
 										->runUpdate();
 				}
 				else
@@ -1159,14 +1155,14 @@ class accounts_payable extends wc_model
 				}
 
 				/**UPDATE MAIN INVOICE**/
-				$invoice_amount				= $this->getValue($applicableHeaderTable, array("amount as convertedamount"), "voucherno = '$invoice' AND stat = 'posted'");
+				$invoice_amount				= $this->getValue($applicableHeaderTable, array("amount as convertedamount"), "voucherno = '$invoice' AND stat IN('open','posted')");
 				$applied_discount			= 0;
 
-				$applied_sum				= $this->getValue($applicationTable, array("SUM(amount) AS convertedamount")," apvoucherno = '$invoice' AND stat = 'posted' ");
+				$applied_sum				= $this->getValue($applicationTable, array("SUM(amount) AS convertedamount")," apvoucherno = '$invoice' AND stat IN('open','posted') ");
 
-				$applied_discount			= $this->getValue($applicationTable, array("SUM(discount) AS discount"), "apvoucherno = '$invoice' AND stat = 'posted' ");
+				$applied_discount			= $this->getValue($applicationTable, array("SUM(discount) AS discount"), "apvoucherno = '$invoice' AND stat IN('open','posted') ");
 
-				$applied_forexamount		= $this->getValue($applicationTable, array("SUM(forexamount) AS forexamount"), "apvoucherno = '$invoice' AND stat = 'posted' ");
+				$applied_forexamount		= $this->getValue($applicationTable, array("SUM(forexamount) AS forexamount"), "apvoucherno = '$invoice' AND stat IN('open','posted') ");
 
 				$applied_sum				= $applied_sum[0]->convertedamount - $applied_forexamount[0]->forexamount;
 
@@ -1200,7 +1196,7 @@ class accounts_payable extends wc_model
 
 		$insertResult = $this->db->setTable($mainAppTable) //paymentvoucher
 						->setValues($update_info)
-						->setWhere("voucherno = '$voucherno' AND stat = 'posted'")
+						->setWhere("voucherno = '$voucherno' AND stat IN('open','posted')")
 						->runUpdate();
 
 		/**INSERT TO CHEQUES TABLE**/
@@ -1222,7 +1218,7 @@ class accounts_payable extends wc_model
 			
 			if($insertResult != 1)
 			{
-				echo "error saving cheque payments : ".$insertResult;
+				$errmsg[] 		= "error saving cheque payments : ".$insertResult;
 			}
 		}
 
@@ -1561,6 +1557,54 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
+	public function reverseEntries($invoices, $table, $cond)
+	{
+		$count = $this->db->setTable($table)
+				->setFields('*')
+				->setWhere("voucherno IN($invoices)")
+				->runSelect()
+				->getResult();
+
+		if(!empty($count))
+		{
+			$ctr = count($count) + 1;
+			for($i = 0; $i < count($count); $i++)
+			{
+				$insert_info['voucherno']			= $count[$i]->voucherno;
+				$insert_info['transtype']			= $count[$i]->transtype;
+				$insert_info['linenum']				= $ctr;
+				$insert_info['slcode']				= $count[$i]->slcode;
+				$insert_info['bankrecon_id']		= $count[$i]->bankrecon_id;
+				$insert_info['checkstat']			= $count[$i]->checkstat;
+				$insert_info['costcentercode']		= $count[$i]->costcentercode;
+				$insert_info['accountcode']			= $count[$i]->accountcode;
+				$insert_info['debit']				= $count[$i]->credit;
+				$insert_info['credit']				= $count[$i]->debit;
+				$insert_info['taxbase_amount']		= $count[$i]->taxbase_amount;
+				$insert_info['source']				= $count[$i]->source;
+				$insert_info['sourcecode']			= $count[$i]->sourcecode;
+				$insert_info['currencycode']		= $count[$i]->currencycode;
+				$insert_info['exchangerate']		= $count[$i]->exchangerate;
+				$insert_info['converteddebit']		= $count[$i]->convertedcredit;
+				$insert_info['convertedcredit']		= $count[$i]->converteddebit;
+				$insert_info['taxcode']				= $count[$i]->taxcode;
+				$insert_info['taxacctflg']			= $count[$i]->taxacctflg;
+				$insert_info['taxline']				= $count[$i]->taxline;
+				$insert_info['vatflg']				= $count[$i]->vatflg;
+				$insert_info['detailparticulars']	= $count[$i]->detailparticulars;
+				$insert_info['stat']				= $count[$i]->stat;
+
+				$result = $this->db->setTable($table)
+									->setValues($insert_info)
+									->runInsert();
+				$ctr++;
+			}
+			
+	}
+	return $count;
+		
+}
+
 	public function deletePayments($voucher)
 	{
 		$update_info 	= array();
@@ -1610,7 +1654,7 @@ class accounts_payable extends wc_model
 			}
 
 			$update_info			= array();
-			$update_info['stat']	= 'deleted';
+			$update_info['stat']	= 'cancelled';
 			
 			// Update pv_application
 			$result = $this->db->setTable($appTable)

@@ -44,22 +44,22 @@
 								<h4 class="list-group-item-heading">AR Transactions Report</h4>
 								<p class="list-group-item-text">List of detailed customer's invoices</p>
 							</a>
-							<!-- <a href="ar_detailed" class="list-group-item">
+							<a href="ar_detailed" class="list-group-item">
 								<h4 class="list-group-item-heading">AR Detailed Report</h4>
-								<p class="list-group-item-text">Sample description for AR Detailed Report</p>
-							</a> -->
+								<p class="list-group-item-text">List of detailed customer's unpaid invoices</p>
+							</a>
 							<a href="ap_aging" class="list-group-item">
 								<h4 class="list-group-item-heading">Accounts Payable Aging</h4>
-								<p class="list-group-item-text">List of unpaid invoices to vendors</p>
+								<p class="list-group-item-text">List of unpaid invoices to suppliers</p>
 							</a>
 							<a href="ap_transaction" class="list-group-item">
 								<h4 class="list-group-item-heading">AP Transactions Report</h4>
-								<p class="list-group-item-text">List of detailed vendors's invoices</p>
+								<p class="list-group-item-text">List of detailed supplier's invoices</p>
 							</a>
-							<!-- <a href="ap_detailed" class="list-group-item">
+							<a href="ap_detailed" class="list-group-item">
 								<h4 class="list-group-item-heading">AP Detailed Report</h4>
-								<p class="list-group-item-text">Sample description for AP Detailed Report</p>
-							</a> -->
+								<p class="list-group-item-text">List of detailed supplier's unpaid invoices</p>
+							</a>
 							<a href="cash_position" class="list-group-item">
 								<h4 class="list-group-item-heading">Cash Position</h4>
 								<p class="list-group-item-text">Cash Balance Details</p>
@@ -182,7 +182,7 @@
 							</a>
 							<a href="purchase_journal" class="list-group-item">
 								<h4 class="list-group-item-heading">Purchase Journal</h4>
-								<p class="list-group-item-text">Report for the recording of the purchase on credit from vendors (vendor payables)</p>
+								<p class="list-group-item-text">Report for the recording of the purchase on credit from suppliers (supplier payables)</p>
 							</a>
 							<!-- <a href="" class="list-group-item">
 								<h4 class="list-group-item-heading">Receipt Journal</h4>

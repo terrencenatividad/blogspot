@@ -120,7 +120,7 @@ class controller extends wc_controller
 			
 				$update_info				= array();
 				$update_info['voucherno']	= $generatedvoucher;
-				$update_info['stat']		= 'open';
+				$update_info['stat']		= 'posted';
 				$update_condition			= " voucherno = '$voucherno' AND stat = 'temporary' ";
 				$updateTempRecord			= $this->invoice->updateData($update_info,"salesinvoice",$update_condition);
 				$updateTempRecord			= $this->invoice->updateData($update_info,"salesinvoice_details",$update_condition);
@@ -137,6 +137,11 @@ class controller extends wc_controller
 					$updateDrRecord				= $this->invoice->updateData($dr_info,"deliveryreceipt",$dr_condition);
 					$updateDrRecord				= $this->invoice->updateData($dr_info,"deliveryreceipt_details",$dr_condition);
 				}
+
+				/**
+				 * Auto Post / Generate AR
+				 */
+				$this->generate_receivable('yes',$generatedvoucher);
 
 				if( $updateTempRecord && $save_status == 'final' )
 				{
@@ -354,98 +359,55 @@ class controller extends wc_controller
 			$customer  			= 	$row->customer;
 			$transactiondate 	=	$row->date;
 
-			if($row->amount == $row->balance && $row->stat == 'posted')
-			{
-				$status = '<span class="label label-info">UNPAID</span>';
-			}
-			else if($row->balance <= 0 && $row->stat == 'posted')
-			{
-				$status = '<span class="label label-success">PAID</span>';
-			}
-			else if($row->balance > 0 && $row->amount != $row->balance && $row->stat == 'posted')
-			{
-				$status = '<span class="label label-primary">PARTIAL</span>';
-			}
-			else if($row->stat == 'cancelled')
-			{
+			if($row->stat == 'posted'){
+				if($row->amount == $row->balance){
+					$status = '<span class="label label-info">UNPAID</span>';
+				}else if($row->balance <= 0){
+					$status = '<span class="label label-success">PAID</span>';
+				}else if($row->balance > 0 && $row->amount != $row->balance){
+					$status = '<span class="label label-primary">PARTIAL</span>';
+				}
+			}else if($row->stat == 'cancelled'){
 				$status = '<span class="label label-danger">CANCELLED</span>';
-			}
-			else if($row->stat == 'open')
-			{
+			}else if($row->stat == 'open'){
 				$status = '<span class="label label-warning">FOR APPROVAL</span>';
 				$row->balance = $row->amount;
 			}
 
-			$restrict_si =	$this->restrict->setButtonRestriction($transactiondate);
+			$restrict_si 	=	$this->restrict->setButtonRestriction($transactiondate);
+			$show_edit 		= ($row->balance == $row->amount  && $row->stat != 'cancelled');
+			$show_delete 	= ($row->balance == $row->amount && $row->stat != 'cancelled');
+
+			$dropdown = $this->ui->loadElement('check_task')
+							->addView()
+							->addEdit($show_edit && $restrict_si)
+							->addOtherTask(
+								'Print Invoice',
+								'print',
+								true
+							)
+							->addDelete($show_delete && $restrict_si)
+							->addCheckbox($show_delete && $restrict_si)
+							->setValue($row->voucherno)
+							->setLabels(array('delete' => 'Cancel'))
+							->draw();
 
 			$table .= '<tr>';
-			if($row->stat == 'open' && $restrict_si )
-			{
-				$table .= ' <td class = "text-center">
-							<div class="btn-group check_task full_task" name="task_buttons">
-								<label type="button" class="btn btn-default btn-flat btn-sm btn-checkbox">
-									<div class="icheckbox_square-blue" style="position: relative;" aria-checked="false" aria-disabled="false"><input class="checkbox item_checkbox" value="'.$row->voucherno.'" style="position: absolute; opacity: 0;" type="checkbox"><ins class="iCheck-helper" style="position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255) none repeat scroll 0% 0%; border: 0px none; opacity: 0;"></ins></div>
-								</label>
-								<button type="button" class="btn btn-default btn-flat btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									<span class="caret"></span>
-									<span class="sr-only">Toggle Dropdown</span>
-								</button>
-								<ul class="dropdown-menu left">
-									<li><a class="btn-sm" href="'.BASE_URL.'sales/sales_invoice/view/'.$row->voucherno.'"><span class="glyphicon glyphicon-eye-open"></span> View</a></li>';
-
-			
-					// Edit
-				$table .= '				<li><a 
-										class="btn-sm" href="'.BASE_URL.'sales/sales_invoice/edit/'.$row->voucherno.'"><span class="glyphicon glyphicon-pencil"></span> Edit</a></li>';	
-										
-				// Print
-				$table .= '				<li><a class="btn-sm" 	
-										href="'.MODULE_URL.'print_invoice/'.$row->voucherno.'" title="Print Sales Invoice" target="_blank"><span class="glyphicon glyphicon-print"></span> Print Invoice</a></li>';
-									
-				// Approve
-				$table .= '				<li class="divider"></li>
-										<li><a class="btn-sm approve link" data-id="'.$row->voucherno.'"><span class="glyphicon glyphicon-thumbs-up"></span> Approve</a></li>';
-				
-				// Delete
-				$table .= '				<li class="divider"></li>
-										<li><a class="btn-sm delete link" data-id="' . $row->voucherno . '"><span class="glyphicon glyphicon-trash"></span> Cancel</a></li>';
-
-			}else{
-				$table .= ' <td class = "text-center">
-							<div class="btn-group" name="task_buttons">
-								<button type="button" class="btn btn-default btn-flat btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									<span class="caret"></span>
-									<span class="sr-only">Toggle Dropdown</span>
-								</button>
-								<ul class="dropdown-menu left">
-									<li><a class="btn-sm" href="'.BASE_URL.'sales/sales_invoice/view/'.$row->voucherno.'"><span class="glyphicon glyphicon-eye-open"></span> View</a></li>';
-				// Print
-				$table .= '				<li><a class="btn-sm" 	
-										href="'.MODULE_URL.'print_invoice/'.$row->voucherno.'" title="Print Sales Invoice" target="_blank"><span class="glyphicon glyphicon-print"></span> Print Invoice</a></li>';
-				
-				// Disapprove
-				
-				$table .= ($row->stat == 'posted' && $restrict_si) ? '				<li class="divider"></li>
-										<li><a class="btn-sm disapprove link" data-id="'.$row->voucherno.'"><span class="glyphicon glyphicon-thumbs-up"></span> Disapprove</a></li>' : '';
-			}
-
-			$table .= '</ul>
-						</div>
-					</td>';
-			$table .= '<td>' . $this->date($row->date) . '</td>';
-			$table .= '<td>' . $row->voucherno . '</td>';
-			$table .= '<td>' . $customer . '</td>';
-			$table .= '<td class="text-right">' . $this->amount($row->amount) . '</td>';
-			$table .= '<td class="text-right">' . $this->amount($row->balance) . '</td>';
-			$table .= '<td>' . $status . '</td>';
-			$table .= '</tr>';
+			$table 	.= '<td class="text-center" >'.$dropdown.'</td>';
+			$table 	.= '<td>' . $this->date($row->date) . '</td>';
+			$table 	.= '<td>' . $row->voucherno . '</td>';
+			$table 	.= '<td>' . $customer . '</td>';
+			$table 	.= '<td class="text-right">' . $this->amount($row->amount) . '</td>';
+			$table 	.= '<td class="text-right">' . $this->amount($row->balance) . '</td>';
+			$table 	.= '<td>' . $status . '</td>';
+			$table 	.= '</tr>';
 		}
 		$pagination->table = $table;
 
 		return $pagination;
 	}
 
-	public function generate_receivable($trigger)
+	public function generate_receivable($trigger,$invoiceno='')
 	{
 		// Get Invoice Reference
 		$invoice_reference 	= $this->invoice->getReference("invoice_ar");
@@ -453,7 +415,7 @@ class controller extends wc_controller
 		
 		$auto_ar			= ($invoice_dr == 'yes') ? true : false;
 
-		$invoice 			= $this->input->post('voucherno');
+		$invoice 			= (!empty($invoiceno)) ? $invoiceno : $this->input->post('voucherno');
 		$result 			= $this->invoice->generateReceivable($invoice,$auto_ar,$trigger);
 
 		if($result){
@@ -927,6 +889,10 @@ class controller extends wc_controller
 		if($result){
 			$code 		= 1;
 			$msg 		= $save_status;
+			/**
+			 * Auto Post / Generate AR
+			 */
+			$this->generate_receivable('yes');
 		}else{
 			$code 		= 0;
 			$msg 		= "error";
@@ -962,7 +928,7 @@ class controller extends wc_controller
 	{
 		//$voucher 		= $this->input->post('voucherno');
 		$vouchers 		= $this->input->post('delete_id');
-		$invoices = "'" . implode("','", $vouchers) . "'";
+		$invoices 		= "'" . implode("','", $vouchers) . "'";
 		$data['stat'] 	= "cancelled";
 		
 		$cond 			= " voucherno IN ($invoices) ";
@@ -983,6 +949,12 @@ class controller extends wc_controller
 			$dr_condition				= " voucherno IN (select sls.drno from salesinvoice sls where sls.voucherno IN($invoices)) AND stat = 'With Invoice' ";
 			$updateDrRecord				= $this->invoice->updateData($dr_info,"deliveryreceipt",$dr_condition);
 			$updateDrRecord				= $this->invoice->updateData($dr_info,"deliveryreceipt_details",$dr_condition);
+
+			$ar_info 				 	= array();
+			$ar_info['stat']			= 'cancelled';
+			$ar_condition				= " vsourceno IN ($invoices) AND stat = 'posted' ";
+			$updateArRecord				= $this->invoice->updateData($ar_info,"accountsreceivable"," sourceno IN ($invoices) AND stat = 'posted' ");
+			$updateArRecord				= $this->invoice->updateData($ar_info,"ar_details"," voucherno IN(select ar.voucherno from accountsreceivable ar where ar.sourceno IN($invoices)) AND stat = 'posted' ");
 
 		}else{
 			$code 	= 0; 

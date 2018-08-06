@@ -17,14 +17,16 @@ class controller extends wc_controller {
 			'remarks',
 			'proformacode',
 			'amount',
-			'source'
+			'source',
+			'stat'
 		);
 		$this->fields2			= array(
 			'voucherno',
 			'accountcode',
 			'detailparticulars',
 			'debit',
-			'credit'
+			'credit',
+			'linenum'
 		);
 	}
 
@@ -60,11 +62,12 @@ class controller extends wc_controller {
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data['checker'] 			= 1;
+		$status						= $data['stat'];
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
 		$data['proforma_list'] 		= $this->jv_model->getProformaList();
 		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
-		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno));
+		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno, $status));
 		$data['ajax_task']			= 'ajax_edit';
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
@@ -79,17 +82,20 @@ class controller extends wc_controller {
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 		$checker 					= isset($data['source']) && !empty($data['source']) 	? 	$data['source'] 	:	"";
-		$display_edit				= ($checker!="import" && $checker!="beginning" && $checker!="closing") 	?	1	:	0;
+		$status						= $data['stat'];
+		$display_edit				= ($checker!="import" && $checker!="beginning" && $checker!="closing" && $status != 'cancelled') 	?	1	:	0;
 		$data['checker'] 			= $display_edit;
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui'] = $this->ui;
 		$data['proforma_list']		= $this->jv_model->getProformaList();
 		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
-		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno));
+		$status 					= $data['stat'];
+		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno,$status));
 		$data['show_input']			= false;
 		$restrict_jv 				= $this->restrict->setButtonRestriction($transactiondate);
 		$data['restrict_jv'] 		= $restrict_jv;
+		
 		$this->view->load('journal_voucher/journal_voucher', $data);
 	}
 
@@ -127,10 +133,10 @@ class controller extends wc_controller {
 		foreach ($pagination->result as $key => $row) {;
 			$voucherno			=	isset($row->voucherno) 			? 	$row->voucherno 									:	"";
 			$transactiondate 	=	isset($row->transactiondate) 	?	$this->date->DateDbFormat($row->transactiondate)	:	"";
-		
+			$status				=   $row->stat;
 			//Checker for Imported files or Closing
 			$checker 			=	isset($row->checker) && !empty($row->checker) 		? 	$row->checker 	:	"";
-			$display_edit_delete=  	($checker!="import" && $checker!="beginning" && $checker!="closing") 	?	1	:	0;
+			$display_edit_delete=  	($checker!="import" && $checker!="beginning" && $checker!="closing" && $status != 'cancelled') 	?	1	:	0;
 			
 			//Transaction Dates equivalent to the closing date / period should be deleted first
 			$latest_closed_date = 	$this->restrict->getClosedDate();
@@ -140,7 +146,12 @@ class controller extends wc_controller {
 			$restrict_jv 		= 	$this->restrict->setButtonRestriction($transactiondate);
 			
 			$import 			=	($checker!="" && ($row->checker == 'import'||$row->checker  == 'beginning'))	?	"Yes" 	:	"No";
-
+			$voucher_status = '<span class="label label-danger">'.strtoupper($status).'</span>';
+				if($status == 'open'){
+					$voucher_status = '<span class="label label-info">'.strtoupper($status).'</span>';
+				}else if($status == 'posted'){
+					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
+				}
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
@@ -157,6 +168,7 @@ class controller extends wc_controller {
 			$table .= '<td>' . $voucherno . '</td>';
 			$table .= '<td>' . $row->referenceno . '</td>';
 			$table .= '<td class="text-right">' . number_format($row->amount, 2) . '</td>';
+			$table .= '<td>' . $voucher_status . '</td>';
 			$table .= '</tr>';
 		}
 		$pagination->table = $table;
@@ -209,6 +221,9 @@ class controller extends wc_controller {
 		$delete_id = $this->input->post('delete_id');
 		if ($delete_id) {
 			$this->jv_model->deleteJournalVouchers($delete_id);
+		}
+		if ($delete_id) {
+			$this->jv_model->reverseEntries($delete_id);
 		}
 	}
 	

@@ -12,7 +12,7 @@ class controller extends wc_controller
 		$this->ui 			    = new ui();
 		$this->logs  			= new log;
 		$this->session			= new session();
-		$this->view->title      = 'Disbursement Voucher';
+		$this->view->title      = 'Add Disbursement Voucher';
 		$this->show_input 	    = true;
 
 		$this->companycode      = COMPANYCODE;

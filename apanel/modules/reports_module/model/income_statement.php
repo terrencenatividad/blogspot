@@ -1,13 +1,33 @@
 <?php
 class income_statement extends wc_model {
 
-	public function getMonthly($year, $month) {
-		$startdate 	= date('Y-m-1',strtotime($month.' '.$year));
-		$enddate 	= date('Y-m-t',strtotime($month.' '.$year));
+	// public function getMonthly($year, $month) {
+	// 	$startdate 	= date('Y-m-1',strtotime($month.' '.$year));
+	// 	$enddate 	= date('Y-m-t',strtotime($month.' '.$year));
 		
-		$result 	= $this->getRecords($startdate, $enddate);
+	// 	$result 	= $this->getRecords($startdate, $enddate);
 	
-		return $this->buildStructure(array($result));
+	// 	return $this->buildStructure(array($result));
+	// }
+
+	public function getMonthly($year = false) {
+		$year = ($year) ? $year : date('Y');
+		$monthly1	= $this->getRecords("{$year}-01-01", $this->getMonthEnd("{$year}-01-1"));
+		$monthly2	= $this->getRecords("{$year}-02-01", $this->getMonthEnd("{$year}-02-1"));
+		$monthly3	= $this->getRecords("{$year}-03-01", $this->getMonthEnd("{$year}-03-1"));
+		$monthly4	= $this->getRecords("{$year}-04-01", $this->getMonthEnd("{$year}-04-1"));
+		$monthly5	= $this->getRecords("{$year}-05-01", $this->getMonthEnd("{$year}-05-1"));
+		$monthly6	= $this->getRecords("{$year}-06-01", $this->getMonthEnd("{$year}-06-1"));
+		$monthly7	= $this->getRecords("{$year}-07-01", $this->getMonthEnd("{$year}-07-1"));
+		$monthly8	= $this->getRecords("{$year}-08-01", $this->getMonthEnd("{$year}-08-1"));
+		$monthly9	= $this->getRecords("{$year}-09-01", $this->getMonthEnd("{$year}-09-1"));
+		$monthly10	= $this->getRecords("{$year}-10-01", $this->getMonthEnd("{$year}-10-1"));
+		$monthly11	= $this->getRecords("{$year}-11-01", $this->getMonthEnd("{$year}-11-1"));
+		$monthly12	= $this->getRecords("{$year}-12-01", $this->getMonthEnd("{$year}-12-1"));
+
+		$return = $this->buildStructure(array($monthly1,$monthly2,$monthly3,$monthly4,$monthly5,$monthly6,$monthly7,$monthly8,$monthly9,$monthly10,$monthly11,$monthly12));
+		// var_dump($return);
+		return $return;
 	}
 
 	public function getQuarterly($year = false) {
@@ -16,6 +36,7 @@ class income_statement extends wc_model {
 		$quarter2 	= $this->getRecords("{$year}-04-01", "{$year}-06-31");
 		$quarter3 	= $this->getRecords("{$year}-07-01", "{$year}-09-30");
 		$quarter4 	= $this->getRecords("{$year}-10-01", "{$year}-12-31");
+		
 		return $this->buildStructure(array($quarter1, $quarter2, $quarter3, $quarter4));
 	}
 
@@ -64,7 +85,8 @@ class income_statement extends wc_model {
 							->setOrderBy("bt.accountcode")
 							->runSelect()
 							->getResult();
-
+							
+							
 		return array_merge($result, $result1, $result2, $result3);
 	}
 
@@ -96,20 +118,30 @@ class income_statement extends wc_model {
 		$otherinc_array = array('OTHINC','OTRINC');
 		$cost_array 	= array('COST','COSTSA');
 		$exp_array 		= array('EXP','OPSEXP','OTREXP');
+		$inc_array 		= array('INCTAX');
 		$maindata 		= array();
+
+		$data_key = 0;
 	
-		if(!empty($data[0])){
-			$maindata 	= $data[0];
+		for($i=0;$i<13;$i++){
+			if(!empty($data[$i])){
+				$maindata 	= $data[$i];
+			}
 		}
-		if(!empty($data[1])){
-			$maindata 	= $data[1];
-		}
-		if(!empty($data[2])){
-			$maindata 	= $data[2];
-		}
-		if(!empty($data[3])){
-			$maindata 	= $data[3];
-		}
+	
+		// if(!empty($data[0])){
+		// 	$maindata 	= $data[0];
+		// }
+		// if(!empty($data[1])){
+		// 	$maindata 	= $data[1];
+		// }
+		// if(!empty($data[2])){
+		// 	$maindata 	= $data[2];
+		// }
+		// if(!empty($data[3])){
+		// 	$maindata 	= $data[3];
+		// }
+		
 
 		if($maindata){
 
@@ -152,7 +184,9 @@ class income_statement extends wc_model {
 					$accounttype = 'Cost';
 				} else if (in_array($accountclasscode, $exp_array)) {
 					$accounttype = 'Expense';
-				} else {
+				} else if (in_array($accountclasscode, $inc_array)) {
+					$accounttype = 'Income Tax';
+				}else {
 					$total = 0;
 				}
 

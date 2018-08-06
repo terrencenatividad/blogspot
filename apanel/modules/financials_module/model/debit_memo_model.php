@@ -44,6 +44,7 @@ class debit_memo_model extends wc_model {
 		foreach ($debit as $entry) {
 			$total += $entry;
 		}
+		$data['stat']				= 'posted';
 		$data['period']				= date("n", strtotime($data['transactiondate']));
 		$data['fiscalyear']			= date("Y", strtotime($data['transactiondate']));
 		$data['amount']		= $total;
@@ -121,6 +122,8 @@ class debit_memo_model extends wc_model {
 		return $result;
 	}
 
+
+
 	public function getJournalVoucherById($fields, $voucherno) {
 		return $this->db->setTable('journalvoucher')
 						->setFields($fields)
@@ -129,8 +132,54 @@ class debit_memo_model extends wc_model {
 						->getRow();
 	}
 
+	public function reverseEntries($delete_id)
+	{
+		$voucherno = "'" . implode("','", $delete_id) . "'";
+		$count = $this->db->setTable('journaldetails')
+				->setFields('*')
+				->setWhere("voucherno IN($voucherno)")
+				->runSelect()
+				->getResult();
+
+		if(!empty($count))
+		{
+			$ctr = count($count) + 1;
+			for($i = 0; $i < count($count); $i++)
+			{
+				$insert_info['voucherno']			= $count[$i]->voucherno;
+				$insert_info['checkno']				= $count[$i]->checkno;
+				$insert_info['transtype']			= $count[$i]->transtype;
+				$insert_info['linenum']				= $ctr;
+				$insert_info['slcode']				= $count[$i]->slcode;
+				$insert_info['source']				= $count[$i]->source;
+				$insert_info['costcentercode']		= $count[$i]->costcentercode;
+				$insert_info['accountcode']			= $count[$i]->accountcode;
+				$insert_info['debit']				= $count[$i]->credit;
+				$insert_info['credit']				= $count[$i]->debit;
+				$insert_info['currencycode']		= $count[$i]->currencycode;
+				$insert_info['exchangerate']		= $count[$i]->exchangerate;
+				$insert_info['converteddebit']		= $count[$i]->convertedcredit;
+				$insert_info['convertedcredit']		= $count[$i]->converteddebit;
+				$insert_info['taxcode']				= $count[$i]->taxcode;
+				$insert_info['taxacctflg']			= $count[$i]->taxacctflg;
+				$insert_info['taxline']				= $count[$i]->taxline;
+				$insert_info['vatflg']				= $count[$i]->vatflg;
+				$insert_info['detailparticulars']	= $count[$i]->detailparticulars;
+				$insert_info['stat']				= $count[$i]->stat;
+
+				$result = $this->db->setTable('journaldetails')
+									->setValues($insert_info)
+									->runInsert();
+				$ctr++;
+				var_dump($count);
+			}
+	}
+	return $count;
+		
+}
+
 	public function getJournalVoucherPagination($fields, $search, $typeid, $classid, $datefilter ,$partner, $limit, $sort) {
-		$condition = "transtype = 'DM' and jv.stat = 'posted' ";
+		$condition = "transtype = 'DM' and (jv.stat = 'posted' OR jv.stat = 'cancelled') ";
 		if ($search) {
 			$condition .= ' AND ' . $this->generateSearch($search, array('voucherno','transactiondate','referenceno','amount','partner'));
 		}
@@ -149,7 +198,7 @@ class debit_memo_model extends wc_model {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
  		}
 		$result = $this->db->setTable("journalvoucher jv")
-						->setFields("pt.partnername, transactiondate,partner ,voucherno, referenceno, FORMAT(amount, 2) amount ")
+						->setFields("pt.partnername, transactiondate,partner ,voucherno, referenceno, FORMAT(amount, 2) amount, jv.stat as stat ")
 						->leftJoin("partners pt ON pt.partnercode = jv.partner")
 						->setWhere($condition)
 						->setOrderBy($sort)
