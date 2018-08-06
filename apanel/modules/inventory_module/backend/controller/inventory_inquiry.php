@@ -131,7 +131,7 @@ class controller extends wc_controller {
 		foreach ($pagination->result as $key => $row) {
 			$table .= '<tr>';
 				$table .= '<td></td>' ;
-				$table .= '<td>' . $row->prcqty . '</td>' ;
+				$table .= '<td>' . $row->bqty . '</td>' ;
 				$table .= '<td>' . $row->prcqty . '</td>' ;
 				$table .= '<td>' . $row->drqty . '</td>';
 				$table .= '<td>' . $row->srqty . '</td>';

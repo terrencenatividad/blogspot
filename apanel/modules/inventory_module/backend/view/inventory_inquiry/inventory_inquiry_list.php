@@ -33,6 +33,7 @@
 										->setName('warehouse')
 										->setId('warehouse')
 										->setList($warehouse_list)
+										->setNone('Filter: All')
 										->draw();
 								?>
 							</div>
