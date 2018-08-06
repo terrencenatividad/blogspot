@@ -59,7 +59,7 @@
 						<?php
 							echo $ui->loadElement('table')
 									->setHeaderClass('info')
-									->addHeader('Warehousecode',array('class'=>'col-md-4 text center'),'sort','warehousecode')
+									->addHeader('Warehouse Code',array('class'=>'col-md-4 text center'),'sort','warehousecode')
 									->addHeader('Warehouse',array('class'=>'col-md-4 text center'),'sort','warehouse')
 									->addHeader('Quantity', array('class'=>'col-md-4'),'sort','quantity')
 									->draw();
