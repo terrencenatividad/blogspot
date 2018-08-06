@@ -201,21 +201,22 @@
 						</div> -->
 					</div>
 					<?php
-						echo $ui->formField('text')
-								->setLabel('Reference')
-								->setSplit('col-md-3','col-md-8')
-								->setName('reference')
-								->setId('reference')
-								->setValidation('required')
-								->draw(true);
+						// echo $ui->formField('text')
+						// 		->setLabel('Reference')
+						// 		->setSplit('col-md-3','col-md-8')
+						// 		->setName('reference')
+						// 		->setId('reference')
+						// 		->setValidation('required')
+						// 		->draw(true);
 
 						echo $ui->formField('textarea')
 								->setLabel('Notes')
 								->setSplit('col-md-3','col-md-8')
 								->setName("notes")
 								->setId("notes")
-								->setValidation('required')
+								// ->setValidation('required')
 								->draw(true);
+								
 						echo $ui->formField('dropdown')
 								->setLabel('Closing Account')
 								->setPlaceholder('Select an Account')
