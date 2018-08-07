@@ -32,7 +32,9 @@ class controller extends wc_controller {
 
 	public function listing() {
 		$this->view->title	= 'Journal Voucher List';
-		$data['ui']			= $this->ui;
+		$data['ui']				= $this->ui;
+		$data['show_input']     = true;
+		$data['source_list']	= array("import"=>"Imported JV","manual"=>"Manual JV","closed"=>"Closed Books");
 		$this->view->load('journal_voucher/journal_voucher_list', $data);
 	}
 
@@ -118,14 +120,16 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_list() {
-		$data		= $this->input->post(array('search', 'typeid', 'classid', 'daterangefilter', 'sort'));
+		$data		= $this->input->post(array('search', 'typeid', 'classid', 'daterangefilter', 'sort','source','filter'));
 		$sort		= $data['sort'];
 		$search		= $data['search'];
 		$typeid		= $data['typeid'];
 		$classid	= $data['classid'];
 		$datefilter	= $data['daterangefilter'];
+		$source 	= $data['source'];
+		$filter 	= $data['filter'];
 
-		$pagination	= $this->jv_model->getJournalVoucherPagination($this->fields, $search, $sort, $datefilter);
+		$pagination	= $this->jv_model->getJournalVoucherPagination($this->fields, $search, $sort, $datefilter, $source, $filter);
 		$table		= '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';

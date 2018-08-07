@@ -151,6 +151,7 @@
 		$('#export').click(function() {
 			var daterangefilter	= $('#daterangefilter').val();
 			var itemcode		= $('#itemcode').val();
-			window.location = '<?php echo MODULE_URL ?>list_export/' + btoa(daterangefilter) + '/' + btoa(itemcode) + '/' + btoa(ajax.sort);
+			var warehouse		= $('#warehouse').val();
+			window.location		= '<?php echo MODULE_URL ?>list_export/' + btoa(daterangefilter) + '/' + btoa(itemcode) + '/' + btoa(warehouse) + '/' + btoa(ajax.sort);
 		});
 	</script>

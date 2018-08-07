@@ -376,13 +376,15 @@ class controller extends wc_controller {
 	}
 
 	private function update_jv_status(){
-		$voucherno 	=	$this->input->post('voucherno');
-		$ret_arr 	=	$this->trial_balance->getReference($voucherno);
-		$reference 	=	$ret_arr->referenceno;
+		$temp 		=	$this->input->post('voucherno');
+		$voucherno 	=	$this->seq->getValue("JV");
 		// var_dump($reference);
-		$result 	=	$this->trial_balance->update_jv_status($voucherno);
-		
+		$result 	=	$this->trial_balance->update_jv_status($temp,$voucherno);
+
 		if( $result ){
+			$ret_arr 	=	$this->trial_balance->getReference($voucherno);
+			$reference 	=	$ret_arr->referenceno;
+
 			$this->log->saveActivity("Closed Book [$voucherno - $reference] ");
 		}
 

@@ -631,10 +631,11 @@ class trial_balance extends wc_model {
 		return $result;
 	}
 
-	public function update_jv_status($voucherno) {
-		$data["stat"]   = "posted";
+	public function update_jv_status($temp, $voucherno) {
+		$data["stat"]   	= "posted";
+		$data['voucherno'] 	= $voucherno;
 
-		$condition 		= " voucherno = '$voucherno' ";
+		$condition 		= " voucherno = '$temp' ";
 
 		$result 		= $this->db->setTable('journalvoucher')
 									->setValues($data)
@@ -660,6 +661,7 @@ class trial_balance extends wc_model {
 									->setValues($data)
 									->setWhere($condition)
 									->runUpdate();
+									
 		return $result;
 	}
 
@@ -796,6 +798,7 @@ class trial_balance extends wc_model {
 									->setLimit(1)
 									->runSelect()
 									->getRow();
+									// echo $this->db->getQuery();
 		return $result;
 	}
 
