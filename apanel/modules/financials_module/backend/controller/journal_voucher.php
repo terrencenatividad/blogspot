@@ -42,9 +42,9 @@ class controller extends wc_controller {
 		$this->view->title	= 'Journal Voucher Create';
 		$data						= $this->input->post($this->fields);
 		// Retrieve Closed Date
-		$close_date 				= $this->restrict->getClosedDate();
-		$data['close_date']			= $close_date;
-		$data['checker'] 			= 1;
+		$data['close_date']			= $this->restrict->getClosedDate();
+		$data['checker']			= '';
+		$data['display_edit']		= 1;
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
 		$data['proforma_list']		= $this->jv_model->getProformaList();
@@ -53,7 +53,7 @@ class controller extends wc_controller {
 		$data['ajax_task']			= 'ajax_create';
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
-		$data['restrict_jv'] 		= true;
+		$data['restrict_jv']		= true;
 		$this->view->load('journal_voucher/journal_voucher', $data);
 	}
 
@@ -61,10 +61,11 @@ class controller extends wc_controller {
 		$this->view->title			= 'Journal Voucher  Edit';
 		$data						= (array) $this->jv_model->getJournalVoucherById($this->fields, $voucherno);
 		// Retrieve Closed Date
-		$close_date 				= $this->restrict->getClosedDate();
-		$data['close_date']			= $close_date;
-		$data['checker'] 			= 1;
+		$data['close_date']			= $this->restrict->getClosedDate();
+		$checker 					= isset($data['source']) && !empty($data['source']) ? $data['source'] : "";
+		$data['checker']			= $checker;
 		$status						= $data['stat'];
+		$data['display_edit']		= ($checker!="import" && $checker!="beginning" && $checker!="closing" && $status != 'cancelled') ? 1 : 0;
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
 		$data['proforma_list'] 		= $this->jv_model->getProformaList();
@@ -81,12 +82,11 @@ class controller extends wc_controller {
 		$this->view->title			= 'Journal Voucher View';
 		$data						= (array) $this->jv_model->getJournalVoucherById($this->fields, $voucherno);
 		// Retrieve Closed Date
-		$close_date 				= $this->restrict->getClosedDate();
-		$data['close_date']			= $close_date;
-		$checker 					= isset($data['source']) && !empty($data['source']) 	? 	$data['source'] 	:	"";
+		$data['close_date']			= $this->restrict->getClosedDate();
+		$checker 					= isset($data['source']) && !empty($data['source']) ? $data['source'] : "";
+		$data['checker']			= $checker;
 		$status						= $data['stat'];
-		$display_edit				= ($checker!="import" && $checker!="beginning" && $checker!="closing" && $status != 'cancelled') 	?	1	:	0;
-		$data['checker'] 			= $display_edit;
+		$data['display_edit']		= ($checker!="import" && $checker!="beginning" && $checker!="closing" && $status != 'cancelled') ? 1 : 0;
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui'] = $this->ui;
@@ -95,9 +95,7 @@ class controller extends wc_controller {
 		$status 					= $data['stat'];
 		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno,$status));
 		$data['show_input']			= false;
-		$restrict_jv 				= $this->restrict->setButtonRestriction($transactiondate);
-		$data['restrict_jv'] 		= $restrict_jv;
-		
+		$data['restrict_jv']		= $this->restrict->setButtonRestriction($transactiondate);
 		$this->view->load('journal_voucher/journal_voucher', $data);
 	}
 
