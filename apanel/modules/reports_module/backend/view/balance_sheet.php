@@ -38,18 +38,9 @@
 						<thead>
 							<tr class="info">
 								<th style="col-xs-4">Account</th>
-								<th class="text-right">Jan</th>
-								<th class="text-right">Feb</th>
-								<th class="text-right">Mar</th>
-								<th class="text-right">Apr</th>
-								<th class="text-right">May</th>
-								<th class="text-right">Jun</th>
-								<th class="text-right">Jul</th>
-								<th class="text-right">Aug</th>
-								<th class="text-right">Sep</th>
-								<th class="text-right">Oct</th>
-								<th class="text-right">Nov</th>
-								<th class="text-right">Dec</th>
+								<?php foreach ($header_monthly as $month): ?>
+									<th class="text-right"><?php echo $month ?></th>
+								<?php endforeach ?>
 							</tr>
 						</thead>
 						<?php echo $monthly_view ?>
@@ -60,10 +51,9 @@
 						<thead>
 							<tr class="info">
 								<th class="col-xs-3">Account</th>
-								<th class="text-right">1st Quarter (Jan - Mar)</th>
-								<th class="text-right">2nd Quarter (Apr - Jun)</th>
-								<th class="text-right">3rd Quarter (Jul - Sep)</th>
-								<th class="text-right">4th Quarter (Oct - Dec)</th>
+								<?php foreach ($header_quarterly as $quarter): ?>
+									<th class="text-right"><?php echo $quarter ?></th>
+								<?php endforeach ?>
 							</tr>
 						</thead>
 						<?php echo $quarterly_view ?>
@@ -74,8 +64,9 @@
 						<thead>
 							<tr class="info">
 								<th class="col-xs-4">Account</th>
-								<th class="text-right"><?php echo $year ?></th>
-								<th class="text-right"><?php echo $year - 1 ?></th>
+								<?php foreach ($header_yearly as $year): ?>
+									<th class="text-right"><?php echo $year ?></th>
+								<?php endforeach ?>
 							</tr>
 						</thead>
 						<?php echo $year_view ?>
