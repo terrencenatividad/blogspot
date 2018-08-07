@@ -31,7 +31,7 @@ class inventory_tracking_model extends wc_model {
 			$condition = "il.itemcode = '$itemcode'";
 		}
 		if ($warehouse && $warehouse != 'none') {
-			$condition .= (empty($condition) ? '' : ' AND ') . "warehousecode = '$warehouse'";
+			$condition .= (empty($condition) ? '' : ' AND ') . "w.warehousecode = '$warehouse'";
 		}
 		$datefilter	= explode('-', $datefilter);
 		foreach ($datefilter as $key => $date) {

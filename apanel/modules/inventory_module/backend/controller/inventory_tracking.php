@@ -37,7 +37,9 @@ class controller extends wc_controller {
 			'Particulars',
 			'In',
 			'Out',
-			'Current Stock'
+			'Current Stock',
+			'Activity',
+			'User'
 		);
 		$csv = '"' . implode('","', $header) . '"';
 		$totalin	= 0;
@@ -61,7 +63,9 @@ class controller extends wc_controller {
 			$csv .= '"' . $row->partnername . '",';
 			$csv .= '"' . $in . '",';
 			$csv .= '"' . $out . '",';
-			$csv .= '"' . number_format($row->currentqty) . '"';
+			$csv .= '"' . number_format($row->currentqty) . '",';
+			$csv .= '"' . $row->activity . '",';
+			$csv .= '"' . $row->name . '"';
 		}
 		$footer = array(
 			'',
