@@ -3,13 +3,13 @@ class warehouse_model extends wc_model {
 
 	public function retrieveListing($search, $sort)
 	{
-		$fields 			= array('warehousecode','description');
+		$fields 			= array('warehousecode','description','stat');
 
 		$addtl_cond 		= (!empty($search)) ? "AND (warehousecode LIKE '%$search%' OR description LIKE '%$search%'  ) " : "";
 
 		return $this->db->setTable('warehouse')
 						->setFields($fields)
-						->setWhere(" stat = 'active' $addtl_cond")
+						->setWhere("$addtl_cond")
 						->setOrderBy($sort)
 						->runPagination();
 
@@ -125,6 +125,19 @@ class warehouse_model extends wc_model {
 		$result = $this->db->setTable('warehouse')
 				->setValuesFromPost($data)
 				->runInsert();
+
+		return $result;
+	}
+
+	public function updateStat($data,$warehousecode)
+	{
+		$condition 			   = " warehousecode = '$warehousecode' ";
+
+		$result 			   = $this->db->setTable('warehouse')
+											->setValues($data)
+											->setWhere($condition)
+											->setLimit(1)
+											->runUpdate();
 
 		return $result;
 	}

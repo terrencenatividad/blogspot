@@ -108,10 +108,29 @@
 
 			if( !empty($pagination->result) ) :
 				foreach ($pagination->result as $key => $row) {
+					$stat = $row->stat;
+					if($stat == 'active'){
+						$status = '<span class="label label-success">ACTIVE</span>';								
+					}else{
+						$status = '<span class="label label-danger">INACTIVE</span>';
+					}
+
+					$show_activate 		= ($stat != 'inactive');
+					$show_deactivate 	= ($stat != 'active');
 
 					$dropdown = $this->ui->loadElement('check_task')
 										 ->addView()
 										 ->addEdit()
+										 ->addOtherTask(
+											'Activate',
+											'arrow-up',
+											$show_deactivate
+										)
+										->addOtherTask(
+											'Deactivate',
+											'arrow-down',
+											$show_activate
+										)	
 										 ->addDelete()
 										 ->addCheckbox()
 										 ->setValue($row->warehousecode)
@@ -121,6 +140,7 @@
 					$table .= '<td align = "center">' . $dropdown . '</td>';					
 					$table .= '<td>' . $row->warehousecode . '</td>';
 					$table .= '<td>' . $row->description. '</td>';
+					$table .= '<td>' . $status. '</td>';
 					$table .= '</tr>';
 				}
 			else:
@@ -347,6 +367,30 @@
 			$error_messages		= implode(' ', $errmsg);
 			
 			return array("proceed" => $proceed,"errmsg"=>$error_messages);
+		}
+
+		private function ajax_edit_activate()
+		{
+			$code = $this->input->post('code');
+			$data['stat'] = 'active';
+
+			$result = $this->warehouse->updateStat($data,$code);
+			return array(
+				'redirect'	=> MODULE_URL,
+				'success'	=> $result
+				);
+		}
+
+		private function ajax_edit_deactivate()
+		{
+			$code = $this->input->post('code');
+			$data['stat'] = 'inactive';
+
+			$result = $this->warehouse->updateStat($data,$code);
+			return array(
+				'redirect'	=> MODULE_URL,
+				'success'	=> $result
+				);
 		}
 	}
 ?>
