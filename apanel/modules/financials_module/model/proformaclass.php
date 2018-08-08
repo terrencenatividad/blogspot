@@ -325,4 +325,17 @@ class proformaclass extends wc_model
 
 		return $result;
 	}
+
+	public function updateStat($data,$code)
+	{
+		$condition 			   = " proformacode = '$id' ";
+
+		$result 			   = $this->db->setTable('proforma')
+											->setValues($data)
+											->setWhere($condition)
+											->setLimit(1)
+											->runUpdate();
+
+		return $result;
+	}
 }

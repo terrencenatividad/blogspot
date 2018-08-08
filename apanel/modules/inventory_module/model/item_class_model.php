@@ -74,6 +74,7 @@ class item_class_model extends wc_model {
 			'ia.accountname inventory_account',
 			'rt.value revenuetype',
 			'et.value expensetype',
+			'ic.stat stat'
 		);
 		$condition = '';
 		if ($search) {
@@ -228,5 +229,19 @@ class item_class_model extends wc_model {
 		}
 		return '(' . implode(' OR ', $temp) . ')';
 	}
+
+	public function updateStat($data,$id)
+	{
+		$condition 			   = " id = '$id' ";
+
+		$result 			   = $this->db->setTable('itemclass')
+											->setValues($data)
+											->setWhere($condition)
+											->setLimit(1)
+											->runUpdate();
+
+		return $result;
+	}
+
 
 }

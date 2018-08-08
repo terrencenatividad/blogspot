@@ -9,7 +9,8 @@ class controller extends wc_controller {
 		$this->session			= new session();
 		$this->fields			= array(
 			'id',
-			'label'
+			'label',
+			'stat'
 		);
 		$this->csv_header		= array(
 			'Item Type'
@@ -85,16 +86,37 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($item->result as $key => $row) {
+			$stat = $row->stat;
+			if($stat == 'active'){
+				$status = '<span class="label label-success">ACTIVE</span>';								
+			}else{
+				$status = '<span class="label label-danger">INACTIVE</span>';
+			}
+
+			$show_activate 		= ($stat != 'inactive');
+			$show_deactivate 	= ($stat != 'active');
+
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit()
+									->addOtherTask(
+										'Activate',
+										'arrow-up',
+										$show_deactivate
+									)
+									->addOtherTask(
+										'Deactivate',
+										'arrow-down',
+										$show_activate
+									)	
 									->addDelete()
 									->addCheckbox()
 									->setValue($row->id)
 									->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $row->label . '</td>';
+			$table .= '<td>' . $status . '</td>';
 			$table .= '</tr>';
 		}
 		$item->table = $table;
@@ -103,6 +125,7 @@ class controller extends wc_controller {
 
 	private function ajax_create() {
 		$data = $this->input->post($this->fields);
+		$data['stat'] = 'active';
 		$result = $this->item_type_model->saveItemType($data);
 		return array(
 			'redirect' => MODULE_URL,
@@ -112,6 +135,7 @@ class controller extends wc_controller {
 
 	private function ajax_edit() {
 		$data = $this->input->post($this->fields);
+		$data['stat'] = 'active';
 		$code = $this->input->post('id');
 		$result = $this->item_type_model->updateItemType($data, $code);
 		return array(
@@ -248,6 +272,30 @@ class controller extends wc_controller {
 
 	private function check_duplicate($array) {
 		return array_unique(array_diff_assoc($array, array_unique($array)));
+	}
+
+	private function ajax_edit_activate()
+	{
+		$id = $this->input->post('id');
+		$data['stat'] = 'active';
+
+		$result = $this->item_type_model->updateStat($data,$id);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
+	}
+
+	private function ajax_edit_deactivate()
+	{
+		$id = $this->input->post('id');
+		$data['stat'] = 'inactive';
+
+		$result = $this->item_type_model->updateStat($data,$id);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
 	}
 
 }

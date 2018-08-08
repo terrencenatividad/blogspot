@@ -24,6 +24,7 @@ class accounts_receivable extends wc_model
 		$result = $this->db->setTable('proforma')
 					->setFields("proformacode ind, proformadesc val")
 					->setOrderBy("val")
+					->setWhere("stat = 'active'")
 					->runSelect()
 					->getResult();
 		

@@ -111,6 +111,7 @@
 								->addHeader('Item Class', array('class' => 'col-md-2'), 'sort', 'ic.label')
 								->addHeader('Item Type', array('class' => 'col-md-2'), 'sort', 'it.label')
 								->addHeader('Weight', array('class' => 'col-md-1'), 'sort', 'weight')
+								->addHeader('Status', array('class' => 'col-md-1'), 'sort', 'status')
 								->draw();
 					?>
 					<tbody>
@@ -338,6 +339,20 @@
 		{
 			$("#import-modal > .modal").css("display", "inline");
 			$('#import-modal').modal();
+		});
+
+		$('#tableList').on('click', '.activate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&itemcode='+id ,function(data) {
+				window.location.href = '<?=MODULE_URL?>';
+			});
+		});
+
+		$('#tableList').on('click', '.deactivate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&itemcode='+id ,function(data) {
+				window.location.href = '<?=MODULE_URL?>';
+			});
 		});
 
 	</script>

@@ -191,10 +191,30 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($item->result as $key => $row) {
+			$stat = $row->stat;
+			if($stat == 'active'){
+				$status = '<span class="label label-success">ACTIVE</span>';								
+			}else{
+				$status = '<span class="label label-danger">INACTIVE</span>';
+			}
+
+			$show_activate 		= ($stat != 'inactive');
+			$show_deactivate 	= ($stat != 'active');
+
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit()
+									->addOtherTask(
+										'Activate',
+										'arrow-up',
+										$show_deactivate
+									)
+									->addOtherTask(
+										'Deactivate',
+										'arrow-down',
+										$show_activate
+									)	
 									->addDelete()
 									->addCheckbox()
 									->setValue($row->itemcode)
@@ -205,6 +225,7 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->itemclass . '</td>';
 			$table .= '<td>' . $row->itemtype . '</td>';
 			$table .= '<td>' . $row->weight . '</td>';
+			$table .= '<td>' . $status . '</td>';
 			$table .= '</tr>';
 		}
 		$item->table = $table;
@@ -401,4 +422,27 @@ class controller extends wc_controller {
 		return array_unique(array_diff_assoc($array, array_unique($array)));
 	}
 
+	private function ajax_edit_activate()
+	{
+		$id = $this->input->post('itemcode');
+		$data['stat'] = 'active';
+
+		$result = $this->item_model->updateStat($data,$id);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
+	}
+
+	private function ajax_edit_deactivate()
+	{
+		$id = $this->input->post('itemcode');
+		$data['stat'] = 'inactive';
+
+		$result = $this->item_model->updateStat($data,$id);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
+	}
 }

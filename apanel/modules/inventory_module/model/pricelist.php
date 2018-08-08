@@ -5,7 +5,7 @@ class pricelist extends wc_model
     {
         $add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (pl.itemPriceCode LIKE '%$search%' OR pl.itemPriceName LIKE '%$search%' OR pld.itemDtlCode LIKE '%$search%' OR i.itemdesc LIKE '%$search%' OR sect.partnername LIKE '%$search%' ) " 	: 	"";
 
-        $fields 	=	array("pl.itemPriceCode, pl.itemPriceName, pl.itemPriceDesc");
+        $fields 	=	array("pl.itemPriceCode, pl.itemPriceName, pl.itemPriceDesc, pl.stat");
 
         $result     =   $this->db->setTable('price_list pl')
                         ->leftJoin('price_list_details pld ON pl.itemPriceCode = pld.itemPriceCode AND pl.companycode = pld.companycode')
@@ -13,7 +13,7 @@ class pricelist extends wc_model
                         ->leftJoin('partners sect ON sect.partnercode = cpl.customerCode AND sect.companycode = cpl.companycode')
                         ->leftJOin('items i ON i.itemcode = pld.itemDtlCode AND i.companycode = pld.companycode')
                         ->setFields($fields)
-                        ->setWhere(" pl.stat = 'active' $add_cond ")
+                        ->setWhere($add_cond)
                         ->setOrderBy($sort)
                         ->setGroupBy('pl.itemPriceCode')
                         ->runPagination();
@@ -467,4 +467,17 @@ class pricelist extends wc_model
 
         return $result;
     }
+
+    public function updateStat($data,$id)
+	{
+		$condition 			   = " itemPriceCode = '$id' ";
+
+		$result 			   = $this->db->setTable('price_list')
+											->setValues($data)
+											->setWhere($condition)
+											->setLimit(1)
+											->runUpdate();
+
+		return $result;
+	}
 }

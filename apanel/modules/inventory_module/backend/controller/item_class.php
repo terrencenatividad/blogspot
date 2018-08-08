@@ -179,11 +179,31 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($data as $id => $row) {
+			$stat = 'active';
+			if($stat == 'active'){
+				$status = '<span class="label label-success">ACTIVE</span>';								
+			}else{
+				$status = '<span class="label label-danger">INACTIVE</span>';
+			}
+
+			$show_activate 		= ($stat != 'inactive');
+			$show_deactivate 	= ($stat != 'active');
+
 			$caret = (isset($row['children'])) ? '<small><a role="button" class="list-caret glyphicon glyphicon-triangle-bottom" data-target=\'[data-parent="' . $row['label'] . '"]\'></a></small>' : '' ;
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit()
+									->addOtherTask(
+										'Activate',
+										'arrow-up',
+										$show_deactivate
+									)
+									->addOtherTask(
+										'Deactivate',
+										'arrow-down',
+										$show_activate
+									)	
 									->addDelete()
 									->addCheckbox()
 									->setValue($id)
@@ -191,6 +211,7 @@ class controller extends wc_controller {
 			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . '<span class="category" style="margin-left:' . $indent * 20 . 'px">' . $caret . $row['label'] . '</span>' . '</td>';
 			$table .= '<td data-parent="' . $parent . '">' . $parent . '</td>';
+			$table .= '<td data-parent="' . $parent . '">' . $status . '</td>';
 			$table .= '</tr>';
 			if (isset($row['children'])) {
 				$table .= $this->createList($row['children'], $row['label'], $indent + 1);
@@ -350,6 +371,30 @@ class controller extends wc_controller {
 
 	private function check_duplicate($array) {
 		return array_unique(array_diff_assoc($array, array_unique($array)));
+	}
+
+	private function ajax_edit_activate()
+	{
+		$id = $this->input->post('id');
+		$data['stat'] = 'active';
+
+		$result = $this->item_class_model->updateStat($data,$id);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
+	}
+
+	private function ajax_edit_deactivate()
+	{
+		$id = $this->input->post('id');
+		$data['stat'] = 'inactive';
+
+		$result = $this->item_class_model->updateStat($data,$id);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
 	}
 
 }
