@@ -1264,11 +1264,16 @@ class controller extends wc_controller
 					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
 				}
 
+				$has_edit 		= isset($has_access[0]->mod_edit)		?	$has_access[0]->mod_edit	:	0;
+				$has_delete		= isset($has_access[0]->mod_delete)		?	$has_access[0]->mod_delete	:	0;
+				$has_post  		= isset($has_access[0]->mod_post)		?	$has_access[0]->mod_post	:	0;
+				$has_unpost 	= isset($has_access[0]->mod_unpost)		?	$has_access[0]->mod_unpost	:	0;
+
 				$show_btn 		= ($status == 'open' && $restrict_rv);
-				$show_edit 		= ($status == 'open' && $has_access[0]->mod_edit == 1 && $restrict_rv);
-				$show_dlt 		= ($status == 'open' && $has_access[0]->mod_delete == 1 && $restrict_rv);
-				$show_post 		= ($status == 'open' && $has_access[0]->mod_post == 1 && $restrict_rv);
-				$show_unpost 	= ($status == 'posted' && $has_access[0]->mod_unpost == 1 && $restrict_rv);
+				$show_edit 		= ($status == 'open' && $has_edit == 1 && $restrict_rv);
+				$show_dlt 		= ($status == 'open' && $has_delete == 1 && $restrict_rv);
+				$show_post 		= ($status == 'open' && $has_post == 1 && $restrict_rv);
+				$show_unpost 	= ($status == 'posted' && $has_unpost == 1 && $restrict_rv);
 
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()
