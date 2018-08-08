@@ -220,7 +220,7 @@ class controller extends wc_controller {
 				$period_index_start = 0;
 			}
 			if ($period_index_end > 11) {
-				$period_index_end = 0;
+				$period_index_end -= 12;
 			}
 			$this->header_quarterly[] = $quarterly[$x] . ' Quarter (' . $monthly[$period_index_start] . ' - ' . $monthly[$period_index_end] . ')';
 

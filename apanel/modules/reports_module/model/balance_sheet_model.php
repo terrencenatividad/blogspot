@@ -48,18 +48,18 @@ class balance_sheet_model extends wc_model {
 		$year	= ($year) ? $year : date('Y');
 		$period	= $this->period;
 
-		$period_start	= $period - 1;
+		$period_start	= $period;
 		$period_end		= $period_start + 2;
 		$year_start		= $year;
 		$year_end		= $year;
 
 		for ($x = 1; $x <= 4; $x++) {
 			if ($period_start > 11) {
-				$period_start = 0;
+				$period_start = 1;
 				$year_start++;
 			}
-			if ($period_end > 11) {
-				$period_end = 0;
+			if ($period_end > 12) {
+				$period_end -= 12;
 				$year_end++;
 			}
 			${"quarter{$x}"} = $this->getRecords("{$year_start}-{$period_start}-01", $this->getMonthEnd("{$year_end}-{$period_end}-01"));
@@ -71,9 +71,16 @@ class balance_sheet_model extends wc_model {
 	}
 
 	public function getYearly($year = false) {
-		$year	= ($year) ? $year : date('Y');
-		$year1	= $this->getRecords(($year - 1) . "-01-01", ($year - 1) . "-12-31");
-		$year2	= $this->getRecords("{$year}-01-01", "{$year}-12-31");
+		$period_start	= $this->period;
+		$period_end		= (($this->period - 1) < 1) ? 12 : $this->period - 1;
+		$year_start		= ($year) ? $year : date('Y');
+		$year_end		= $year_start;
+		if ($this->period > date('n')) {
+			$year_end++;
+		}
+
+		$year1	= $this->getRecords(($year_start - 1) . "-{$period_start}-01", ($year_end - 1) . "-{$period_end}-31");
+		$year2	= $this->getRecords("{$year_start}-{$period_start}-01", "{$year_end}-{$period_end}-31");
 		return $this->buildStructure(array($year1, $year2));
 	}
 
