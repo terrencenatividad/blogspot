@@ -179,7 +179,7 @@ class item_model extends wc_model {
 	}
 
 	public function getUOMList($search = '') {
-		$condition = '';
+		$condition = "stat = 'active'";
 		if ($search) {
 			$condition = "uomdesc = '$search'";
 		}
