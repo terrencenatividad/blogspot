@@ -6,6 +6,190 @@ class delivery_receipt_model extends wc_model {
 		$this->log = new log();
 	}
 
+	public function createClearingEntries($voucherno) {
+		$exist = $this->db->setTable('journalvoucher')
+							->setFields('voucherno')
+							->setWhere("referenceno = '$voucherno'")
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+
+		$jvvoucherno = ($exist) ? $exist->voucherno : '';
+
+		$header_fields = array(
+			'voucherno referenceno',
+			'customer partner',
+			'transactiondate',
+			'fiscalyear',
+			'period',
+			'stat'
+		);
+		$detail_fields = array(
+			'IF(i.inventory_account > 0, i.inventory_account, ic.inventory_account) accountcode',
+			'SUM(IFNULL(price_average, 0) * drd.issueqty) credit'
+		);
+
+		$data	= (array) $this->getDeliveryReceiptById($header_fields, $voucherno);
+
+		$average_query = $this->db->setTable('price_average p1')
+									->setFields('p1.*')
+									->leftJoin('price_average p2 ON p1.itemcode = p2.itemcode AND p1.linenum < p2.linenum')
+									->setWhere('p2.linenum IS NULL')
+									->buildSelect();
+		
+		$details = $this->db->setTable('deliveryreceipt_details drd')
+							->setFields($detail_fields)
+							->innerJoin('items i ON i.itemcode = drd.itemcode AND i.companycode = drd.companycode')
+							->leftJoin('itemclass ic ON ic.id = i.classid AND ic.companycode = i.companycode')
+							->leftJoin("($average_query) ac ON ac.itemcode = drd.itemcode")
+							->setWhere("drd.voucherno = '$voucherno'")
+							->setGroupBy('accountcode')
+							->runSelect()
+							->getResult();
+
+		$dr_stat = ($data) ? $data['stat'] : '';
+		$data['stat'] = 'posted';
+
+		if ($dr_stat == 'Cancelled') {
+			$cancel_data = array('stat' => 'cancelled');
+
+			$this->db->setTable('journalvoucher')
+						->setValues($cancel_data)
+						->setWhere("voucherno = '$jvvoucherno'")
+						->setLimit(1)
+						->runUpdate();
+
+			$fields = array(
+				'voucherno',
+				'transtype',
+				'accountcode',
+				'debit credit',
+				'credit debit',
+				'stat',
+				'converteddebit convertedcredit',
+				'convertedcredit converteddebit',
+				'detailparticulars'
+			);
+
+			$detail = $this->db->setTable('journaldetails')
+								->setFields($fields)
+								->setWhere("voucherno = '$jvvoucherno'")
+								->runSelect()
+								->getResult();
+
+			$linenum = count($detail);
+
+			foreach ($detail as $key => $row) {
+				$linenum++;
+				$detail[$key]->linenum = $linenum;
+
+				$detail[$key] = (array) $detail[$key];
+			}
+
+			$this->db->setTable('journaldetails')
+								->setValues($detail)
+								->runInsert();
+
+			$this->db->setTable('journaldetails')
+					->setValues($cancel_data)
+					->setWhere("voucherno = '$jvvoucherno'")
+					->runUpdate();
+
+			return true;
+		}
+
+		$result = false;
+		
+		$data['amount']				= 0;
+		$data['convertedamount']	= 0;
+
+		if ( ! $exist) {
+			$seq					= new seqcontrol();
+			$jvvoucherno			= $seq->getValue('JV');
+			$data['voucherno']		= $jvvoucherno;
+			$data['transtype']		= 'JV';
+			$data['currencycode']	= 'PHP';
+			$data['exchangerate']	= '1';
+		}
+
+		$header = $this->db->setTable('journalvoucher')
+							->setValues($data);
+
+		if ($exist) {
+			$result = $header->setWhere("voucherno = '$jvvoucherno'")
+							->setLimit(1)
+							->runUpdate();
+		} else {
+			$result = $header->runInsert();
+		}
+		
+		if ($result) {
+			$this->db->setTable('journaldetails')
+					->setWhere("voucherno = '$jvvoucherno'")
+					->runDelete();
+
+
+			$ftax = $this->db->setTable('fintaxcode')
+								->setFields('salesAccount account')
+								->setWhere("fstaxcode = 'IC'")
+								->setLimit(1)
+								->runSelect()
+								->getRow();
+
+			$clearing_account = ($ftax) ? $ftax->account : '';
+
+			if ($details && $clearing_account) {
+				$linenum		= array();
+				$total_amount	= 0;
+
+				foreach ($details as $key => $row) {
+					$details[$key]->linenum				= $key + 1;
+					$details[$key]->voucherno			= $jvvoucherno;
+					$details[$key]->transtype			= 'JV';
+					$details[$key]->debit				= 0;
+					$details[$key]->converteddebit		= 0;
+					$details[$key]->convertedcredit		= $row->credit;
+					$details[$key]->detailparticulars	= '';
+					$details[$key]->stat				= $data['stat'];
+
+					$details[$key]	= (array) $details[$key];
+					$total_amount	+= $row->credit;
+				}
+
+				$details[] = array(
+					'accountcode'		=> $clearing_account,
+					'credit'			=> 0,
+					'linenum'			=> $key + 2,
+					'voucherno'			=> $jvvoucherno,
+					'transtype'			=> 'JV',
+					'debit'				=> $total_amount,
+					'converteddebit'	=> $total_amount,
+					'convertedcredit'	=> 0,
+					'detailparticulars'	=> '',
+					'stat'				=> $data['stat']
+				);
+			}
+			$detail_insert = $this->db->setTable('journaldetails')
+										->setValues($details)
+										->runInsert();
+
+			if ($detail_insert) {
+				$data = array(
+					'amount'			=> $total_amount,
+					'convertedamount'	=> $total_amount
+				);
+				$result = $this->db->setTable('journalvoucher')
+									->setValues($data)
+									->setWhere("voucherno = '$jvvoucherno'")
+									->setLimit(1)
+									->runUpdate();
+
+			}
+		}
+
+		return $result;
+	}
+
 	public function saveDeliveryReceipt($data, $data2) {
 		$this->getAmounts($data, $data2);
 

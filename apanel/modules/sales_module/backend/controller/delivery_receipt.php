@@ -80,6 +80,7 @@ class controller extends wc_controller {
 		$data						= (array) $this->delivery_model->getDeliveryReceiptById($this->fields, $voucherno);
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
+		$data['deliverydate']		= $this->date->dateFormat($data['deliverydate']);
 		$data['ui']					= $this->ui;
 		$data['customer_list']		= $this->delivery_model->getCustomerList();
 		$data['warehouse_list']		= $this->delivery_model->getWarehouseList();
@@ -105,6 +106,7 @@ class controller extends wc_controller {
 		$data						= (array) $this->delivery_model->getDeliveryReceiptById($this->fields, $voucherno);
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
+		$data['deliverydate']		= $this->date->dateFormat($data['deliverydate']);
 		$data['ajax_task']			= '';
 		$data['ui']					= $this->ui;
 		$data['customer_list']		= $this->delivery_model->getCustomerList();
@@ -245,6 +247,8 @@ class controller extends wc_controller {
 		$data['voucherno']			= $seq->getValue('DR');
 		$result						= $this->delivery_model->saveDeliveryReceipt($data, $data2);
 
+		$this->delivery_model->createClearingEntries($data['voucherno']);
+
 		if ($result && $this->inventory_model) {
 			$this->inventory_model->setReference($data['voucherno'])
 									->setDetails($data['customer'])
@@ -272,6 +276,8 @@ class controller extends wc_controller {
 		$data2						= $this->cleanData($data2);
 		$result						= $this->delivery_model->updateDeliveryReceipt($data, $data2, $voucherno);
 
+		$this->delivery_model->createClearingEntries($voucherno);
+
 		if ($result && $this->inventory_model) {
 			$this->inventory_model->setReference($voucherno)
 									->setDetails($data['customer'])
@@ -291,6 +297,7 @@ class controller extends wc_controller {
 		if ($result && $this->inventory_model) {
 			foreach ($delete_id as $voucherno) {
 				$this->inventory_model->generateBalanceTable();
+				$this->delivery_model->createClearingEntries($voucherno);
 			}
 		}
 		return array(
