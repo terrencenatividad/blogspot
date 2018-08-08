@@ -229,7 +229,7 @@ class credit_memo_model extends wc_model {
 		$result = $this->db->setTable('partners')
 							->setFields("partnercode ind, partnername val")
 							->setOrderBy("partnername")
-							// ->setWhere("partnertype = 'supplier' ")
+							->setWhere("stat = 'active'")
 							->runSelect()
 							->getResult();
 		return $result;
