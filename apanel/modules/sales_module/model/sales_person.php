@@ -10,7 +10,7 @@
 
 			return $this->db->setTable('partners p')
 							->setFields($fields)
-							->setWhere(" p.partnertype = 'sales' AND p.stat = 'active' $add_cond ")
+							->setWhere(" p.partnertype = 'sales' AND p.stat != 'deleted' $add_cond ")
 							->setOrderBy($sort)
 							->runPagination();
 		}
@@ -295,6 +295,19 @@
 					->setValuesFromPost($data)
 					->runInsert();
 
+			return $result;
+		}
+
+		public function updateStat($data,$code)
+		{
+			$condition 			   = " partnercode = '$code' ";
+	
+			$result 			   = $this->db->setTable('partners')
+												->setValues($data)
+												->setWhere($condition)
+												->setLimit(1)
+												->runUpdate();
+	
 			return $result;
 		}
 	}
