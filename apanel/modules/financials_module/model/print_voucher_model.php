@@ -248,7 +248,7 @@ class print_voucher_model extends fpdf {
 
 		if ( ! empty($this->appliedpaymentArray) && !is_null($this->appliedpaymentArray)) {
 			$this->SetFont('Arial','B','9');
-			if( $this->document_type == "Official Receipt" ){
+			if( $this->document_type == "Receipt Voucher" ){
 				$this->Cell(200, 6, 'APPLIED RECEIVABLES :', 0, 0, 'L');
 				$this->Ln();
 				$this->Cell(50, 6, 'AR NO.', 1, 0, 'C', true);
