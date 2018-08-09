@@ -91,9 +91,29 @@
 			if( !empty($list->result) ) :
 				foreach ($list->result as $key => $row) {
 
+					$stat = $row->stat;
+					if($stat == 'active'){
+						$status = '<span class="label label-success">ACTIVE</span>';								
+					}else{
+						$status = '<span class="label label-warning">INACTIVE</span>';
+					}
+
+					$show_activate 		= ($stat != 'inactive');
+					$show_deactivate 	= ($stat != 'active');
+
 					$dropdown = $this->ui->loadElement('check_task')
 										->addView()
 										->addEdit()
+										->addOtherTask(
+											'Activate',
+											'arrow-up',
+											$show_deactivate
+										)
+										->addOtherTask(
+											'Deactivate',
+											'arrow-down',
+											$show_activate
+										)	
 										->addDelete()
 										->addCheckbox()
 										->setValue($row->currencycode)
@@ -103,6 +123,8 @@
 					$table .= ' <td align = "center">' .$dropdown. '</td>';
 					$table .= '<td>' . $row->currencycode . '</td>';
 					$table .= '<td>' . $row->currency. '</td>';
+					$table .= '<td>' . $status. '</td>';
+
 					$table .= '</tr>';
 				}
 			else:
@@ -196,6 +218,30 @@
 			}
 
 			return $dataArray = array("msg" => $msg);
+		}
+
+		private function ajax_edit_activate()
+		{
+			$code = $this->input->post('id');
+			$data['stat'] = 'active';
+
+			$result = $this->currency->updateStat($data,$code);
+			return array(
+				'redirect'	=> MODULE_URL,
+				'success'	=> $result
+				);
+		}
+		
+		private function ajax_edit_deactivate()
+		{
+			$code = $this->input->post('id');
+			$data['stat'] = 'inactive';
+
+			$result = $this->currency->updateStat($data,$code);
+			return array(
+				'redirect'	=> MODULE_URL,
+				'success'	=> $result
+				);
 		}
 	}
 ?>

@@ -197,6 +197,10 @@ class controller extends wc_controller
 			$result = $this->export();
 		elseif($task == 'import'):
 			$result = $this->import();
+		elseif($task == 'ajax_edit_activate'):
+			$result = $this->ajax_edit_activate();
+		elseif($task == 'ajax_edit_deactivate'):
+			$result = $this->ajax_edit_deactivate();
 		endif;
 		echo json_encode($result);
 	}
@@ -207,18 +211,37 @@ class controller extends wc_controller
 		$sort 	= $this->input->post("sort");
 		$limit 	= $this->input->post("limit");
 		$addCond = stripslashes($this->input->post("addCond"));
-		$fields = array("chart.id","chart.segment1","chart.segment2","chart.segment3","chart.segment4","chart.segment5","chart.accountname","chart.accountclasscode");
+		$fields = array("chart.id","chart.segment1","chart.segment2","chart.segment3","chart.segment4","chart.segment5","chart.accountname","chart.accountclasscode","chart.stat");
 		$table = "";
 		$list = $this->coaclass->retrieveData($fields,$search, $sort, $addCond, $limit); 
 	
 			if( !empty($list->result) ) :
 			foreach($list->result as $key => $row)
 			{
-				$sid = $row->id;
+				$sid  = $row->id;
+				$stat = $row->stat;
+				if($stat == 'active'){
+					$status = '<span class="label label-success">ACTIVE</span>';								
+				}else{
+					$status = '<span class="label label-warning">INACTIVE</span>';
+				}
+
+				$show_activate 		= ($stat != 'inactive');
+				$show_deactivate 	= ($stat != 'active');
 
 				$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit()
+									->addOtherTask(
+										'Activate',
+										'arrow-up',
+										$show_deactivate
+									)
+									->addOtherTask(
+										'Deactivate',
+										'arrow-down',
+										$show_activate
+									)	
 									->addDelete()
 									->addCheckbox()
 									->setValue($sid)
@@ -227,7 +250,8 @@ class controller extends wc_controller
 							<td align = "center">'.$dropdown.'</td>
 							<td>'.$row->segment5.'</td>
 							<td>'.$row->accountname.'</td>
-							<td>'.$row->accountclasscode.'</td>'; 
+							<td>'.$row->accountclasscode.'</td>
+							<td>'.$status.'</td>'; 
 						'</tr>';			
 			}
 		else:
@@ -506,6 +530,30 @@ class controller extends wc_controller
 		}
 
 		return $csv;
+	}
+
+	private function ajax_edit_activate()
+	{
+		$code = $this->input->post('id');
+		$data['stat'] = 'active';
+
+		$result = $this->coaclass->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
+	}
+	
+	private function ajax_edit_deactivate()
+	{
+		$code = $this->input->post('id');
+		$data['stat'] = 'inactive';
+
+		$result = $this->coaclass->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
 	}
 
 }

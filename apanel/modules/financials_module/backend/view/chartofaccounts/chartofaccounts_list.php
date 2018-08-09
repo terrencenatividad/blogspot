@@ -194,6 +194,8 @@
 											'sort', 'chart.accountname')
 								->addHeader('Account Class', array('class'=> 'col-md-4 text-center'),
 											'sort', 'chart.accountclasscode')
+								->addHeader('Status', array('class'=> 'col-md-4 text-center'),
+								'sort', 'chart.stat')
 								->draw();
 						?>		
 						<tbody id="list_container">
@@ -488,6 +490,21 @@ var ajax = {};
 		});
 
 	});
+
+
+	$('#tableList').on('click', '.activate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+				showList();
+			});
+		});
+
+		$('#tableList').on('click', '.deactivate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+				showList();
+			});
+		});
 
 	$('#export_id').prop('download','coa.csv');
 

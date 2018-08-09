@@ -186,4 +186,17 @@ class chartofaccountsclass extends wc_model
 
 		return $result;
 	}
+
+	public function updateStat($data,$code)
+	{
+		$condition 			   = " id = '$code' ";
+
+		$result 			   = $this->db->setTable('chartaccount')
+											->setValues($data)
+											->setWhere($condition)
+											->setLimit(1)
+											->runUpdate();
+
+		return $result;
+	}
 }

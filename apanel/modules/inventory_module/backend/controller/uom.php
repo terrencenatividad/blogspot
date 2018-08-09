@@ -84,7 +84,7 @@ class controller extends wc_controller {
 			if($stat == 'active'){
 				$status = '<span class="label label-success">ACTIVE</span>';								
 			}else{
-				$status = '<span class="label label-danger">INACTIVE</span>';
+				$status = '<span class="label label-warning">INACTIVE</span>';
 			}
 
 			$show_activate 		= ($stat != 'inactive');

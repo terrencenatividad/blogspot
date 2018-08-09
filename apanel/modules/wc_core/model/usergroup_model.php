@@ -110,7 +110,7 @@ class usergroup_model extends wc_model {
 	}
 
 	public function getGroupPagination($fields, $search, $sort) {
-		$condition	= '';
+		$condition	= "";
 		$sort		= ($sort) ? $sort : 'groupname';
 		if ($search) {
 			$condition = $this->generateSearch($search, $fields);
@@ -154,6 +154,19 @@ class usergroup_model extends wc_model {
 			$temp[] = $arr . " LIKE '%" . str_replace(' ', '%', $search) . "%'";
 		}
 		return '(' . implode(' OR ', $temp) . ')';
+	}
+
+	public function updateStat($data,$code)
+	{
+		$condition 			   = " groupname = '$code' ";
+
+		$result 			   = $this->db->setTable('wc_user_group')
+											->setValues($data)
+											->setWhere($condition)
+											->setLimit(1)
+											->runUpdate();
+
+		return $result;
 	}
 
 }

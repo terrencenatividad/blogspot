@@ -125,7 +125,7 @@ class user_model extends wc_model {
 	}
 
 	public function getGroupList($search = '') {
-		$condition = '';
+		$condition = "status = 'active'";
 		if ($search) {
 			$condition = " groupname = '$search'";
 		}
@@ -157,6 +157,19 @@ class user_model extends wc_model {
 			$temp[] = $arr . " LIKE '%" . str_replace(' ', '%', $search) . "%'";
 		}
 		return '(' . implode(' OR ', $temp) . ')';
+	}
+
+	public function updateStat($data,$code)
+	{
+		$condition 			   = " username = '$code' ";
+
+		$result 			   = $this->db->setTable('wc_users')
+											->setValues($data)
+											->setWhere($condition)
+											->setLimit(1)
+											->runUpdate();
+
+		return $result;
 	}
 
 }

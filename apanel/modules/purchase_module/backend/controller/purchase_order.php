@@ -79,7 +79,7 @@ class controller extends wc_controller
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
 
 		$w_entry_data          = array("warehousecode ind","description val");
-		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,'',"warehousecode");
+		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
 
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$data["itemcodes"] 		= $this->po->getValue("items", $cc_entry_data,'',"itemcode");
@@ -254,7 +254,7 @@ class controller extends wc_controller
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
 
 		$w_entry_data          = array("warehousecode ind","description val");
-		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,'',"warehousecode");
+		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
 
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$data["itemcodes"] 		= $this->po->getValue("items", $cc_entry_data,'',"itemcode");
@@ -332,7 +332,7 @@ class controller extends wc_controller
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
 
 		$w_entry_data          = array("warehousecode ind","description val");
-		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,'',"warehousecode");
+		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
 
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$data["itemcodes"] 		= $this->po->getValue("items", $cc_entry_data,'',"itemcode");

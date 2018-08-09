@@ -34,7 +34,7 @@ class controller extends wc_controller {
 		$data['chart_account_list'] = $this->adjustment->getChartAccountList();
 		$data['item_list'] 			= $this->item_model->getItemDropdownList();
 		$w_entry_data          		= array("warehousecode ind","description val");
-		$data["warehouses"] 		= $this->adjustment->getValue("warehouse", $w_entry_data,'',"warehousecode");
+		$data["warehouses"] 		= $this->adjustment->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
 
 		$this->view->load('inventory_adjustment/inventory_adjustment_list', $data);
 	}

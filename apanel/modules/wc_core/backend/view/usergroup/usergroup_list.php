@@ -62,6 +62,7 @@
 								)
 								->addHeader('Group Name', array('class' => 'col-md-4'), 'sort', 'groupname', 'asc')
 								->addHeader('Description', array('class' => 'col-md-8'), 'sort', 'description')
+								->addHeader('Status', array('class' => 'col-md-8'), 'sort', 'stat')
 								->draw();
 					?>
 					<tbody>
@@ -150,5 +151,20 @@
 			linkButtonToTable('#item_multiple_delete, #item_multiple_view', '#tableList');
 			linkDeleteToModal('#tableList .delete', 'ajaxCallback');
 			linkDeleteMultipleToModal('#item_multiple_delete', '#tableList', 'ajaxCallback');
+		});
+
+
+		$('#tableList').on('click', '.activate', function() { 
+			var id = $('#groupname').html();
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+				getList();
+			});
+		});
+
+		$('#tableList').on('click', '.deactivate', function() { 
+			var id = $('#groupname').html();
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+				getList();
+			});
 		});
 	</script>

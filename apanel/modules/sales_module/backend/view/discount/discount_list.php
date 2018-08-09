@@ -82,6 +82,7 @@
 								->addHeader('Discount Code',array('class'=>'col-md-3'),'sort','discountcode')
 								->addHeader('Discount Name', array('class'=>'col-md-3'),'sort','discountname')
 								->addHeader('Description',array('class'=>'col-md-3'),'sort','discountdesc')
+								->addHeader('Status',array('class'=>'col-md-3'),'sort','stat')
 								->draw();
 					?>
 				</thead>
@@ -431,6 +432,21 @@ $(document).ready(function()
 		showList();
 	});
 });
+
+
+		$('#discount_table').on('click', '.activate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+				showList();
+			});
+		});
+
+		$('#discount_table').on('click', '.deactivate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+				showList();
+			});
+		});
 
 $('#export_id').prop('download','discount.csv');
 

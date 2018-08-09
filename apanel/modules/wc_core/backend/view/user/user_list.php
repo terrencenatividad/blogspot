@@ -298,4 +298,18 @@
 			$('#import-modal').modal();
 		});
 
+
+		$('#tableList').on('click', '.activate', function() { 
+				var id = $(this).attr('data-id');
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+					getList();
+				});
+			});
+
+		$('#tableList').on('click', '.deactivate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+				getList();
+			});
+		});
 	</script>

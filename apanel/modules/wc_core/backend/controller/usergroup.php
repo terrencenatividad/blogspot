@@ -9,7 +9,8 @@ class controller extends wc_controller {
 		$this->session			= new session();
 		$this->fields 	= array(
 			'groupname',
-			'description'
+			'description',
+			'status'
 		);
 		$this->access_list = array(
 			'mod_add'		=> 'Create',
@@ -87,17 +88,39 @@ class controller extends wc_controller {
 		}
 		foreach ($pagination->result as $key => $row) {
 			$id = base64_encode($row->groupname);
+
+			$stat = $row->status;
+			if($stat == 'active'){
+				$status = '<span class="label label-success">ACTIVE</span>';								
+			}else{
+				$status = '<span class="label label-warning">INACTIVE</span>';
+			}
+
+			$show_activate 		= ($stat != 'inactive');
+			$show_deactivate 	= ($stat != 'active');
+			
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit()
+									->addOtherTask(
+										'Activate',
+										'arrow-up',
+										$show_deactivate
+									)
+									->addOtherTask(
+										'Deactivate',
+										'arrow-down',
+										$show_activate
+									)	
 									->addDelete()
 									->addCheckbox()
 									->setValue($id)
 									->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
-			$table .= '<td>' . $row->groupname . '</td>';
+			$table .= '<td id="groupname">' . $row->groupname . '</td>';
 			$table .= '<td>' . $row->description . '</td>';
+			$table .= '<td>' . $status . '</td>';
 			$table .= '</tr>';
 		}
 		$pagination->table = $table;
@@ -153,6 +176,30 @@ class controller extends wc_controller {
 		return array(
 			'available'	=> $result
 		);
+	}
+
+	private function ajax_edit_activate()
+	{
+		$code = $this->input->post('id');
+		$data['status'] = 'active';
+
+		$result = $this->usergroup_model->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
+	}
+	
+	private function ajax_edit_deactivate()
+	{
+		$code = $this->input->post('id');
+		$data['status'] = 'inactive';
+
+		$result = $this->usergroup_model->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
 	}
 
 }

@@ -326,6 +326,21 @@ $(function() {
 	linkDeleteMultipleToModal('#item_multiple_delete', '#customer_table', 'ajaxCallback');
 });
 
+
+	$('#customer_table').on('click', '.activate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+				showList();
+			});
+		});
+
+		$('#customer_table').on('click', '.deactivate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+				showList();
+			});
+		});
+
 $('#export_id').prop('download','customer.csv');
 
 </script>

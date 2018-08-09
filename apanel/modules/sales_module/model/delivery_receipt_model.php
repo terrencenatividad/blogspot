@@ -511,6 +511,7 @@ class delivery_receipt_model extends wc_model {
 	public function getWarehouseList() {
 		$result = $this->db->setTable('warehouse')
 						->setFields("warehousecode ind, description val")
+						->setWhere("stat = 'active'")
 						->setOrderBy("val")
 						->runSelect()
 						->getResult();
