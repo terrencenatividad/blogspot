@@ -2092,8 +2092,12 @@
 			.done(function(data)
 			{
 				if(data.code == 1) {
-					$("#payableForm #h_voucher_no").val(data.voucher);
-					$("#payableForm").submit();
+					$('#delay_modal').modal('show');
+							setTimeout(function() {							
+								$("#payableForm #h_voucher_no").val(data.voucher);
+								$("#payableForm").submit();									
+						}, 1000)	
+					
 				} else {
 					next = $('#payableForm').find(".has-error").first();
 					$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');

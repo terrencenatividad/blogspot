@@ -239,9 +239,13 @@
 				$('#companyForm #add').removeClass('disabled');
 
 				if(code == 1){
-					$("#companyAlert").removeClass('alert-warning');
-					$("#companyAlert").addClass('alert-info');
-					$("#companyAlert").html('<strong>Success!</strong> Changes has been saved.');
+					// $("#companyAlert").removeClass('alert-warning');
+					// $("#companyAlert").addClass('alert-info');
+					// $("#companyAlert").html('<strong>Success!</strong> Changes has been saved.');
+					$('#delay_modal').modal('show');
+					setTimeout(function() {							
+						window.location =  "<?=MODULE_URL?>";					
+					}, 1000)
 				}else{
 					$("#companyAlert").removeClass('alert-info');
 					$("#companyAlert").addClass('alert-warning');
@@ -250,9 +254,9 @@
 
 				$('html, body').animate({ scrollTop: 0 }, 'slow');
 				
-				$('#companyAlert').fadeTo(0, 500, function(){
-					$(this).removeClass('hidden');
-				});
+				// $('#companyAlert').fadeTo(0, 500, function(){
+				// 	$(this).removeClass('hidden');
+				// });
 			
 				window.setTimeout(function() { 
 					$('#companyAlert').fadeTo(500, 0).slideUp(500, function(){

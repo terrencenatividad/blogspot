@@ -3384,7 +3384,10 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#receivableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {			
+							$("#receivableForm").submit();										
+						}, 1000)
 					}
 					else
 					{
@@ -3432,7 +3435,10 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#receivableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {			
+							$("#receivableForm").submit();										
+						}, 1000)
 					}
 					else
 					{
@@ -3474,7 +3480,10 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#receivableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {			
+							$("#receivableForm").submit();										
+						}, 1000)
 					}
 					else
 					{

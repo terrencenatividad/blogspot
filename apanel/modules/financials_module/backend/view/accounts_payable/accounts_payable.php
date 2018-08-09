@@ -3588,7 +3588,11 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {							
+							$("#payableForm").submit();				
+						}, 1000)
+
 					}
 					else
 					{
@@ -3637,7 +3641,10 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {							
+							$("#payableForm").submit();				
+						}, 1000)
 					}
 					else
 					{
@@ -3687,7 +3694,10 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {												
+							$("#payableForm").submit();
+						}, 1000)
 					}
 					else
 					{

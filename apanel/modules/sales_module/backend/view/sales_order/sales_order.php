@@ -1160,44 +1160,11 @@ function finalizeTransaction(type)
 		$('#save').val(type);
 		computeAmount();
 
-		var btn 	=	$('#save').val();
 		if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
 		{
-			setTimeout(function() {
+				setTimeout(function() {
+					$('#sales_order_form').submit();
 
-				$.post("<?=BASE_URL?>sales/sales_order/ajax/<?=$task?>",$("#sales_order_form").serialize()+'<?=$ajax_post?>',function(data)
-				{	
-					if( data.msg == 'success' )
-					{
-						if( btn == 'final' )
-						{
-							$('#delay_modal').modal('show');
-							setTimeout(function() {
-								window.location = "<?=BASE_URL?>sales/sales_order";
-							}, 1000)
-						}
-						else if( btn == 'final_preview' )
-						{
-							$('#delay_modal').modal('show');
-							setTimeout(function() {
-								window.location = "<?=BASE_URL?>sales/sales_order/view/"+data.voucher;
-							}, 1000)
-						}
-						else if( btn == 'final_new' )
-						{
-							$('#delay_modal').modal('show');
-							setTimeout(function() {
-								window.location = "<?=BASE_URL?>sales/sales_order/create";
-							}, 1000)
-						}
-						
-					}
-					else
-					{
-						//insert error message / MOdal heree
-						
-					}
-				});
 				},1000);
 		}
 		
@@ -1246,10 +1213,7 @@ function finalizeEditTransaction()
 					{
 						if( btn == 'final' )
 						{
-							$('#delay_modal').modal('show');
-							setTimeout(function() {							
-								window.location = "<?=BASE_URL?>sales/sales_order";
-							}, 1000)
+							window.location 	=	"<?=BASE_URL?>sales/sales_order";
 						}
 						else if( btn == 'final_preview' )
 						{

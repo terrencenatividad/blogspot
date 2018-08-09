@@ -3241,8 +3241,11 @@ $(document).ready(function() {
 				{	
 					if(data.code == 1)
 					{
-						$("#payableForm #h_voucher_no").val(data.voucher);
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+							setTimeout(function() {													
+								$("#payableForm #h_voucher_no").val(data.voucher);
+								$("#payableForm").submit();
+						}, 1000)
 					}
 					else
 					{
@@ -3285,7 +3288,10 @@ $(document).ready(function() {
 				{
 					if(data.code == 1)
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+							setTimeout(function() {									
+								$("#payableForm").submit();
+						}, 1000)
 					}
 					else
 					{
@@ -3331,7 +3337,10 @@ $(document).ready(function() {
 				{
 					if(data.code == 1)
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+							setTimeout(function() {									
+								$("#payableForm").submit();
+						}, 1000)
 					}
 					else
 					{
@@ -3393,7 +3402,10 @@ $(document).ready(function() {
 				{
 					if(data.code == 1)
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+							setTimeout(function() {										
+								$("#payableForm").submit();
+						}, 1000)
 					}
 					else
 					{
@@ -3443,7 +3455,10 @@ $(document).ready(function() {
 				{
 					if(data.code == 1)
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+							setTimeout(function() {									
+								$("#payableForm").submit();
+						}, 1000)
 					}
 					else
 					{
@@ -3491,7 +3506,10 @@ $(document).ready(function() {
 				{
 					if(data.code == 1)
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+							setTimeout(function() {									
+								$("#payableForm").submit();
+						}, 1000)
 					}
 					else
 					{
