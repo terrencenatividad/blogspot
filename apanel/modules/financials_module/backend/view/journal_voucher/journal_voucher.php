@@ -131,7 +131,7 @@
 					<div class="row">
 						<div class="col-md-12 text-center">
 							<?php
-								if( $checker && $restrict_jv ){
+								if( $display_edit && $restrict_jv ){
 									echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 								}
 								echo $ui->drawCancel();
@@ -255,7 +255,12 @@
 			}
 			recomputeTotal();
 		}
-		displayDetails(voucher_details);
+		if (<?php echo ($amount) ? $amount : 0 ?> > 0 || '<?php echo $checker ?>' != 'closing') {
+			displayDetails(voucher_details);
+		} else {
+			$('#tableList tbody').append(`<tr><th colspan="4" class="text-center">No Entries for this Period</th></tr>`);
+			$('#tableList tfoot').html('');
+		}
 		function addTotal(id, amount) {
 			var old = parseFloat($(id).html().replace(/\,/g,'') || 0);
 			$(id).html((old + parseFloat(amount.replace(/\,/g,'') || 0)).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));

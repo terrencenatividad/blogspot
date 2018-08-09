@@ -13,19 +13,22 @@ class controller extends wc_controller {
 	}
 
 	public function listing() {
-		$this->view->title = 'Inventory Tracking List';
-		$data['ui'] = $this->ui;
-		$data['item_list'] = $this->item_model->getItemDropdownList();
+		$this->view->title 		= 'Inventory Tracking List';
+		$data['ui']				= $this->ui;
+		$data['item_list']		= $this->item_model->getItemDropdownList();
+		$data['warehouse_list']	= $this->inventory_model->getWarehouseDropdownList();
 		$this->view->load('inventory_tracking/inventory_tracking_list', $data);
 	}
 
-	public function list_export($datefilter = '', $itemcode = '') {
-		$datefilter		= base64_decode($datefilter);
-		$itemcode		= base64_decode($itemcode);
+	public function list_export($datefilter = '', $itemcode = '', $warehouse = '', $sort = '') {
+		$datefilter	= base64_decode($datefilter);
+		$itemcode	= base64_decode($itemcode);
+		$warehouse	= base64_decode($warehouse);
+		$sort		= base64_decode($sort);
 		$itemcode_label = ($itemcode) ? 'Item Code: ' . $itemcode : '';
 		header('Content-type: text/csv');
 		header('Content-Disposition: attachment; filename="Inventory Tracking - ' . $itemcode_label . ' - Date: ' . $datefilter . '.csv"');
-		$result = $this->inventory_model->getInventoryTracking($itemcode, $datefilter);
+		$result = $this->inventory_model->getInventoryTracking($itemcode, $datefilter, $warehouse, $sort);
 		$header = array(
 			'Date',
 			'Item Name',
@@ -34,7 +37,9 @@ class controller extends wc_controller {
 			'Particulars',
 			'In',
 			'Out',
-			'Current Stock'
+			'Current Stock',
+			'Activity',
+			'User'
 		);
 		$csv = '"' . implode('","', $header) . '"';
 		$totalin	= 0;
@@ -58,7 +63,9 @@ class controller extends wc_controller {
 			$csv .= '"' . $row->partnername . '",';
 			$csv .= '"' . $in . '",';
 			$csv .= '"' . $out . '",';
-			$csv .= '"' . number_format($row->currentqty) . '"';
+			$csv .= '"' . number_format($row->currentqty) . '",';
+			$csv .= '"' . $row->activity . '",';
+			$csv .= '"' . $row->name . '"';
 		}
 		$footer = array(
 			'',
@@ -84,11 +91,13 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_list() {
-		$data		= $this->input->post(array('itemcode', 'daterangefilter'));
+		$data		= $this->input->post(array('itemcode', 'daterangefilter', 'warehouse', 'sort'));
+		$sort		= $data['sort'];
 		$itemcode	= $data['itemcode'];
+		$warehouse	= $data['warehouse'];
 		$datefilter	= $data['daterangefilter'];
 
-		$pagination = $this->inventory_model->getInventoryTrackingPagination($itemcode, $datefilter);
+		$pagination = $this->inventory_model->getInventoryTrackingPagination($itemcode, $datefilter, $warehouse, $sort);
 		$table = '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';

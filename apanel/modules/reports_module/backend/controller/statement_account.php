@@ -6,7 +6,6 @@ class controller extends wc_controller
 		parent::__construct();
 		$this->url 			    = new url();
 		$this->soa 				= new statement_account();
-		$this->seq 				= new seqcontrol();
 		$this->input            = new input();
 		$this->ui 			    = new ui();
 		$this->view->title      = 'Statement of Account';
@@ -14,7 +13,6 @@ class controller extends wc_controller
 
 		$session                = new session();
 		$this->companycode      = $session->get('companycode');
-		
 	}
 
 	public function listing()
@@ -24,9 +22,8 @@ class controller extends wc_controller
 		$data['date_today'] 			= date("M d, Y");
 		$data['requestor_list'] 		= $this->soa->retrieveCustomerList();
 		$data['datefilter'] 			= $this->date->datefilterMonth();
-		$this->view->load('statement_account/statement_accountlist', $data);
+		$this->view->load('statement_account', $data);
 	}
-
 
 	public function ajax($task)
 	{
@@ -41,70 +38,77 @@ class controller extends wc_controller
 
 	private function soa_listing()
 	{
-		$posted_data 	= $this->input->post(array("daterangefilter", "custfilter", "search", "filter","sort"));
-		$search = $this->input->post("search");
-		$filter = $this->input->post("filter");
-		$cust = $this->input->post("custfilter");
-		$sort = $this->input->post("sort");
-		$pagination = $this->soa->retrieveListing($posted_data);
-		$cDetails = $this->soa->retrieveCustomerDetails($cust);
+		$posted_data 	= $this->input->post(array("daterangefilter", "custfilter"));
+		$cust 			= $this->input->post("custfilter");
+		$pagination 	= $this->soa->retrieveListing($posted_data);
+		$cDetails 		= $this->soa->retrieveCustomerDetails($cust);
+		$prevBal 		= $this->soa->getPreviousBalance($posted_data);
+		$grandBal 		= $this->soa->getGrandBalance($posted_data);
+
+		$prevbalance 	= 0;
+		if (!empty($prevBal)) {
+			$prevbalance = $prevBal[0]->amount - $prevBal[0]->payment;
+		}
+		$grandbalance 	= 0;
+		if (!empty($grandBal)) {
+			$grandbalance = $grandBal[0]->amount - $grandBal[0]->payment;
+			$grandbalance +=  $prevbalance;
+		}
 		if (empty($cDetails)) {
 			$cDetails = (object) array(
 							'name' => '',
 							'address1' => ''
 						);
 		}
-		
-		$date 	= $this->input->post('daterangefilter');
+		$date 				= $this->input->post('daterangefilter');
 		$datefilterArr		= explode(' - ',$date);
 		$datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
 		$datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
-		$table 	= '';
+		$table 				= '';
 		
 		if( !empty($pagination->result) ) :
 
-			$amount = 0.00;
-			$table .= '<tr>';						
-			$table .= '<td> As of '. date("M d, Y",strtotime($datefilterFrom)) .  '</td>
-			<td></td>
-			<td colspan="4" class ="text-center">Previous Balance (Forwarded)</td>
-			<td>' .number_format($amount,2,".","."). '</td></tr>';
+			$balance = 0;
+			if($pagination->page == 1){
+				$balance= $prevbalance;
+				$table .= '<tr>';						
+				$table .= '<td class="warning" colspan="2"> As of '. date("M d, Y",strtotime($datefilterFrom)) .  '</td>
+							<td colspan="4" class ="text-center warning">Previous Balance (Forwarded)</td>
+							<td class="text-right warning">' .number_format($prevbalance,2,".","."). '</td></tr>';
+			}
 			foreach ($pagination->result as $key => $row) {
 
-				$table .= '<tr>';				
-				$table .= '	
-										</ul>
-									</div>
-								</td>';
-			
+				$table .= '<tr>';
 				$table .= '<td>' . date("M d, Y",strtotime($row->invoicedate)) .  '</td>';
 				$table .= '<td>' . $row->invoiceno . '</td>';
-				if($row->transtype == 'RV'){
-					$table .= '<td>Payment</td>';
-				} else {
-					$table .= '<td>Invoice</td>';
-				}
-				$table .= '<td>' . $row->referenceno . '</td>';
+				$table .= '<td>' . $row->documenttype . '</td>';
+				$table .= '<td>' . $row->reference . '</td>';
 				$table .= '<td>' . $row->particulars . '</td>';
-				if($row->transtype == 'RV'){
-					 $row->invoiceamount *= -1;
+				if($row->documenttype == 'Payment' || $row->documenttype == 'Credit Memo'){
+					 $row->amount *= -1;
 				}
-				$table .= '<td>' .   $this->amount($row->invoiceamount) . '</td>';
-				$amount += $row->invoiceamount;
-				$table .= '<td>' .   $this->amount($amount) . '</td>';
+				$table .= '<td class="text-right">' .   $this->amount($row->amount) . '</td>';
+				$balance += $row->amount;
+				$table .= '<td class="text-right">' .   $this->amount($balance) . '</td>';
 				$table .= '</tr>';
 			}
 		$table .= '<tr>	
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td>Current Balance</td>
-			<td>' .number_format($amount,2,".",","). '</td></tr>';
+			<td class="text-right warning" colspan="6"><strong>Sub Total Balance</strong></td>
+			<td class="text-right warning"><strong>' .number_format($balance,2,".",","). '</strong></td></tr>';
+		$table .= '<tr>	
+			<td class="text-right warning" colspan="6"><strong>Grand Total Balance</strong></td>
+			<td class="text-right warning"><strong>' .number_format($grandbalance,2,".",","). '</strong></td></tr>';
+
 		else:
+			$table .= '<tr>';						
+			$table .= '<td class="warning" colspan="2"> As of '. date("M d, Y",strtotime($datefilterFrom)) .  '</td>
+						<td colspan="4" class ="text-center warning">Previous Balance (Forwarded)</td>
+						<td class="text-right warning">' .number_format($prevbalance,2,".","."). '</td></tr>';
 			$table .= "<tr>
-							<td colspan = '7' class = 'text-center'>No Records Found</td>
+							<td colspan = '7' class = 'text-center'>
+							Customer 
+							<strong>".$cDetails->name."</strong> has no transactions for the date <strong>". date("M d, Y",strtotime($datefilterFrom)) ." - ".date("M d, Y",strtotime($datefilterTo))."</strong>
+							</td>
 					  </tr>";
 		endif;
 		$pagination->table = $table;
@@ -122,8 +126,8 @@ class controller extends wc_controller
 		$cust 			= $this->input->post("custfilter");
 		$result 		= $this->soa->fileExport($posted_data);
 
-		$cDetails = $this->soa->retrieveCustomerDetails($cust);
-	
+		$cDetails 		= $this->soa->retrieveCustomerDetails($cust);
+		
 		
 		$date 	= $this->input->post('daterangefilter');
 		$datefilterArr		= explode(' - ',$date);

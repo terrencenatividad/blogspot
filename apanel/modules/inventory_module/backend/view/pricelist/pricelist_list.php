@@ -74,6 +74,7 @@
 											->addHeader('Template Code',array('class'=>'col-md-3'),'sort','pl.itemPriceCode')
 											->addHeader('Template Name', array('class'=>'col-md-3'),'sort','pl.itemPriceName')
 											->addHeader('Description',array('class'=>'col-md-3'),'sort','pl.itemPriceDesc')
+											->addHeader('Status',array('class'=>'col-md-3'),'sort','pl.status')
 											->draw();
 								?>
 							</thead>
@@ -339,5 +340,19 @@ tableSort('#pricelist_table', function(value, getlist) {
 		{
 			$("#import-modal > .modal").css("display", "inline");
 			$('#import-modal').modal();
+		});
+
+		$('#pricelist_table').on('click', '.activate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+				window.location.href = '<?=MODULE_URL?>';
+			});
+		});
+
+		$('#pricelist_table').on('click', '.deactivate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+				window.location.href = '<?=MODULE_URL?>';
+			});
 		});
 </script>

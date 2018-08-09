@@ -15,47 +15,36 @@ class controller extends wc_controller {
 			'transactiondate',
 			'customer',
 			'deliverydate',
-			'packing_no',
+			'source_no',
 			'remarks',
-			'warehouse'
+			'warehouse',
+			'amount',
+			'netamount'
 		);
 		$this->fields_header	= array(
-			'header_warehouse'		=> 'warehouse',
-			'header_term'			=> 'term',
-			'header_amount'			=> 'amount',
-			'header_discounttype'	=> 'discounttype',
-			'header_discountamount'	=> 'discountamount',
-			'header_netamount'		=> 'netamount',
-			'header_taxcode'		=> 'taxcode',
-			'header_taxamount'		=> 'taxamount',
-			'header_wtaxcode'		=> 'wtaxcode',
-			'header_wtaxamount'		=> 'wtaxamount',
-			'header_wtaxrate'		=> 'wtaxrate',
-			'header_vat_sales'		=> 'vat_sales',
-			'header_vat_exempt'		=> 'vat_exempt',
-			'header_vat_zerorated'	=> 'vat_zerorated'
+			'header_fiscalyear'		=> 'fiscalyear',
+			'header_period'			=> 'period',
 		);
 		$this->fields2			= array(
 			'itemcode',
 			'detailparticular',
+			'linenum',
 			'issueqty',
 			'issueuom',
-			'convuom',
-			'convissueqty',
-			'conversion',
 			'unitprice',
-			'taxcode',
-			'taxrate',
-			'taxamount',
-			'amount',
-			'discounttype',
-			'discountamount',
-			'detail_warehouse' => 'warehouse'
+			'detail_amount'			=> 'amount',
+			'convissueqty',
+			'convuom',
+			'conversion',
+			'detail_warehouse'		=> 'warehouse'
+		);
+		$this->clean_number		= array(
+			'issueqty'
 		);
 	}
 
 	public function listing() {
-		$this->view->title		= 'Delivery Receipt List';
+		$this->view->title		= 'Delivery Receipt';
 		$data['customer_list']	= $this->delivery_model->getCustomerList();
 		$data['ui']				= $this->ui;
 		$this->view->load('delivery_receipt/delivery_receipt_list', $data);
@@ -66,11 +55,13 @@ class controller extends wc_controller {
 		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
 		$data['ui']					= $this->ui;
-		$data['deliverydate']		= $this->date->dateFormat();
 		$data['transactiondate']	= $this->date->dateFormat();
 		$data['customer_list']		= $this->delivery_model->getCustomerList();
 		$data['warehouse_list']		= $this->delivery_model->getWarehouseList();
 		$data["item_list"]			= $this->delivery_model->getItemList();
+		$data["taxrate_list"]		= $this->delivery_model->getTaxRateList();
+		$data["wtaxcode_list"]		= $this->delivery_model->getWTaxCodeList();
+		$data["taxrates"]			= $this->delivery_model->getTaxRates();
 		$data['header_values']		= json_encode(array());
 		$data['voucher_details']	= json_encode(array());
 		$data['ajax_task']			= 'ajax_create';
@@ -87,21 +78,25 @@ class controller extends wc_controller {
 		$this->view->title			= 'Edit Delivery Receipt';
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->delivery_model->getDeliveryReceiptById($this->fields, $voucherno);
+		$transactiondate 			= $data['transactiondate'];
+		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['deliverydate']		= $this->date->dateFormat($data['deliverydate']);
-		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui']					= $this->ui;
 		$data['customer_list']		= $this->delivery_model->getCustomerList();
 		$data['warehouse_list']		= $this->delivery_model->getWarehouseList();
 		$data["item_list"]			= $this->delivery_model->getItemList();
 		$data['header_values']		= json_encode($this->delivery_model->getDeliveryReceiptById($this->fields_header, $voucherno));
-		$data['voucher_details']	= json_encode($this->delivery_model->getDeliveryReceiptDetails($this->fields2, $voucherno));
+		$data['voucher_details']	= json_encode($this->delivery_model->getDeliveryReceiptDetails($this->fields2, $voucherno, false));
+		$data["taxrate_list"]		= $this->delivery_model->getTaxRateList();
+		$data["wtaxcode_list"]		= $this->delivery_model->getWTaxCodeList();
+		$data["taxrates"]			= $this->delivery_model->getTaxRates();
 		$data['ajax_task']			= 'ajax_edit';
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
 		// Closed Date
-		$close_date 				= $this->restrict->getClosedDate();
-		$data['close_date']			= $close_date;
-		$data['restrict_dr'] 		= false;
+		// Closed Date
+		$data['close_date']			= $this->restrict->getClosedDate();;
+		$data['restrict_dr'] 		= $this->restrict->setButtonRestriction($transactiondate);
 		$this->view->load('delivery_receipt/delivery_receipt', $data);
 	}
 
@@ -110,8 +105,8 @@ class controller extends wc_controller {
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->delivery_model->getDeliveryReceiptById($this->fields, $voucherno);
 		$transactiondate 			= $data['transactiondate'];
-		$data['deliverydate']		= $this->date->dateFormat($data['deliverydate']);
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
+		$data['deliverydate']		= $this->date->dateFormat($data['deliverydate']);
 		$data['ajax_task']			= '';
 		$data['ui']					= $this->ui;
 		$data['customer_list']		= $this->delivery_model->getCustomerList();
@@ -119,12 +114,13 @@ class controller extends wc_controller {
 		$data["item_list"]			= $this->delivery_model->getItemList();
 		$data['header_values']		= json_encode($this->delivery_model->getDeliveryReceiptById($this->fields_header, $voucherno));
 		$data['voucher_details']	= json_encode($this->delivery_model->getDeliveryReceiptDetails($this->fields2, $voucherno));
+		$data["taxrate_list"]		= $this->delivery_model->getTaxRateList();
+		$data["wtaxcode_list"]		= $this->delivery_model->getWTaxCodeList();
+		$data["taxrates"]			= $this->delivery_model->getTaxRates();
 		$data['show_input']			= false;
 		// Closed Date
-		$close_date 				= $this->restrict->getClosedDate();
-		$data['close_date']			= $close_date;
-		$restrict_dr 			 	= $this->restrict->setButtonRestriction($transactiondate);
-		$data['restrict_dr'] 		= $restrict_dr;
+		$data['close_date']			= $this->restrict->getClosedDate();;
+		$data['restrict_dr'] 		= $this->restrict->setButtonRestriction($transactiondate);
 		$this->view->load('delivery_receipt/delivery_receipt', $data);
 	}
 
@@ -134,9 +130,7 @@ class controller extends wc_controller {
 		$documentdetails	= array(
 			'Date'	=> $this->date->dateFormat($documentinfo->documentdate),
 			'DR #'	=> $voucherno,
-			'PL #'	=> $documentinfo->packing_no,
-			'SO #'	=> $documentinfo->referenceno,
-			'TERMS'	=> $customerdetails->terms
+			'SO #'	=> $documentinfo->referenceno
 		);
 
 		$print = new sales_print_model();
@@ -162,7 +156,7 @@ class controller extends wc_controller {
 				$print->drawHeader();
 			}
 
-			$total_quantity += $row->Quantity;
+			$total_quantity	+= $row->Quantity;
 			$row->Quantity	= number_format($row->Quantity, 2);
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
@@ -173,6 +167,9 @@ class controller extends wc_controller {
 		$print->drawSummary(array('Total Quantity' => $total_quantity));
 
 		$print->drawPDF('Delivery Receipt - ' . $voucherno);
+	}
+
+	public function print_view($voucherno) {
 	}
 	
 	public function ajax($task) {
@@ -206,15 +203,15 @@ class controller extends wc_controller {
 									->addDelete($row->stat == 'Prepared' && $restrict_dr)
 									->addPrint()
 									->addOtherTask('Tag as Delivered', 'bookmark',($row->stat == 'Prepared' && $restrict_dr))
-									->addCheckbox($row->stat == 'Prepared'&& $restrict_dr)
+									->addCheckbox($row->stat == 'Prepared' && $restrict_dr)
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->voucherno)
 									->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
-			$table .= '<td>' . $this->date->dateFormat($transactiondate) . '</td>';
+			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->voucherno . '</td>';
 			$table .= '<td>' . $row->customer . '</td>';
-			$table .= '<td>' . $row->packing_no . '</td>';
+			$table .= '<td>' . $row->source_no . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->deliverydate) . '</td>';
 			$table .= '<td>' . $this->colorStat($row->stat) . '</td>';
 			$table .= '</tr>';
@@ -242,12 +239,15 @@ class controller extends wc_controller {
 	private function ajax_create() {
 		$data						= array_merge($this->input->post($this->fields), $this->input->post($this->fields_header));
 		$submit						= $this->input->post('submit');
-		$data2						= $this->input->post($this->fields2);
+		$data2						= $this->getItemDetails();
+		$data2						= $this->cleanData($data2);
 		$data['deliverydate']		= $this->date->dateDbFormat($data['deliverydate']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$seq						= new seqcontrol();
 		$data['voucherno']			= $seq->getValue('DR');
 		$result						= $this->delivery_model->saveDeliveryReceipt($data, $data2);
+
+		$this->delivery_model->createClearingEntries($data['voucherno']);
 
 		if ($result && $this->inventory_model) {
 			$this->inventory_model->setReference($data['voucherno'])
@@ -272,15 +272,17 @@ class controller extends wc_controller {
 		$data['deliverydate']		= $this->date->dateDbFormat($data['deliverydate']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$voucherno					= $this->input->post('voucherno_ref');
-		$data2						= $this->input->post($this->fields2);
+		$data2						= $this->getItemDetails();
+		$data2						= $this->cleanData($data2);
 		$result						= $this->delivery_model->updateDeliveryReceipt($data, $data2, $voucherno);
+
+		$this->delivery_model->createClearingEntries($voucherno);
 
 		if ($result && $this->inventory_model) {
 			$this->inventory_model->setReference($voucherno)
 									->setDetails($data['customer'])
 									->generateBalanceTable();
 		}
-
 		return array(
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
@@ -292,11 +294,12 @@ class controller extends wc_controller {
 		if ($delete_id) {
 			$result = $this->delivery_model->deleteDeliveryReceipt($delete_id);
 		}
-
 		if ($result && $this->inventory_model) {
-			$this->inventory_model->generateBalanceTable();
+			foreach ($delete_id as $voucherno) {
+				$this->inventory_model->generateBalanceTable();
+				$this->delivery_model->createClearingEntries($voucherno);
+			}
 		}
-
 		return array(
 			'success' => $result
 		);
@@ -323,10 +326,10 @@ class controller extends wc_controller {
 		}
 	}
 
-	private function ajax_load_packing_list() {
-		$customer	= $this->input->post('customer');
-		$search		= $this->input->post('search');
-		$pagination	= $this->delivery_model->getPackingPagination($customer, $search);
+	private function ajax_load_ordered_list() {
+		$customer		= $this->input->post('customer');
+		$search			= $this->input->post('search');
+		$pagination		= $this->delivery_model->getSalesOrderPagination($customer, $search);
 		$table		= '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
@@ -343,10 +346,11 @@ class controller extends wc_controller {
 		return $pagination;
 	}
 
-	private function ajax_load_packing_details() {
+	private function ajax_load_ordered_details() {
 		$voucherno	= $this->input->post('voucherno');
-		$details	= $this->delivery_model->getPackingDetails($voucherno);
-		$header		= $this->delivery_model->getPackingHeader($this->fields_header, $voucherno);
+		$warehouse	= $this->input->post('warehouse');
+		$details	= $this->delivery_model->getSalesOrderDetails($voucherno, $warehouse);
+		$header		= $this->delivery_model->getSalesOrderHeader($this->fields_header, $voucherno);
 		$table		= '';
 		$success	= true;
 		if (empty($details)) {
@@ -359,6 +363,28 @@ class controller extends wc_controller {
 			'header'	=> $header,
 			'success'	=> $success
 		);
+	}
+
+	private function getItemDetails() {
+		$data = array();
+		$temp = $this->input->post($this->fields2);
+		foreach ($temp['issueqty'] as $key => $quantity) {
+			if ($quantity < 1) {
+				foreach ($this->fields2 as $field) {
+					if (is_array($temp[$field])) {
+						unset($temp[$field][$key]);
+					}
+				}
+			}
+		}
+		foreach ($this->fields2 as $field) {
+			if (is_array($temp[$field])) {
+				$data[$field] = array_values($temp[$field]);
+			} else {
+				$data[$field] = $temp[$field];
+			}
+		}
+		return $data;
 	}
 
 }

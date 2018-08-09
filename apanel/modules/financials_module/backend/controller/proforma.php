@@ -169,7 +169,7 @@ class controller extends wc_controller
 		$search = $this->input->post("search");
 		$sort 	= $this->input->post("sort");
 		$addCond = stripslashes($this->input->post("addCond"));
-		$fields = array('proformacode','proformadesc','companycode');
+		$fields = array('proformacode','proformadesc','companycode,stat');
 		$table = "";
 		$list = $this->proformaclass->retrieveData($fields,$search, $sort, $addCond); 
 	
@@ -179,10 +179,29 @@ class controller extends wc_controller
 				$proformacode = $row->proformacode;
 				$proformadesc = $row->proformadesc;
 				$companycode  = $row->companycode;
+				$stat = $row->stat;
+				if($stat == 'active'){
+					$status = '<span class="label label-success">ACTIVE</span>';								
+				}else{
+					$status = '<span class="label label-danger">INACTIVE</span>';
+				}
+
+				$show_activate 		= ($stat != 'inactive');
+				$show_deactivate 	= ($stat != 'active');
 
 				$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit()
+									->addOtherTask(
+										'Activate',
+										'arrow-up',
+										$show_deactivate
+									)
+									->addOtherTask(
+										'Deactivate',
+										'arrow-down',
+										$show_activate
+									)	
 									->addDelete()
 									->addCheckbox()
 									->setValue($proformacode)
@@ -191,6 +210,7 @@ class controller extends wc_controller
 							<td align = "center">'.$dropdown.'</td>
 							<td>'.$proformacode.'</td>
 							<td>'.$proformadesc.'</td>
+							<td align = "center">'.$status.'</td>
 						</tr>';			
 			}
 		else:
@@ -412,7 +432,29 @@ class controller extends wc_controller
 		$dataArray = array( "msg" => $msg );
 		return $dataArray;
 	}
-	
 
+	private function ajax_edit_activate()
+	{
+		$code = $this->input->post('proformacode');
+		$data['stat'] = 'active';
+
+		$result = $this->proformaclass->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
+	}
+	
+	private function ajax_edit_deactivate()
+	{
+		$code = $this->input->post('proformacode');
+		$data['stat'] = 'inactive';
+
+		$result = $this->proformaclass->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
+	}
 
 }

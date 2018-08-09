@@ -169,11 +169,11 @@ class journal_voucher_model extends wc_model {
 						->getRow();
 	}
 
-	public function getJournalVoucherPagination($fields, $search, $sort, $datefilter) {
+	public function getJournalVoucherPagination($fields, $search, $sort, $datefilter, $source, $filter) {
 		$sort = ($sort) ? $sort : 'transactiondate desc';
 		$condition = "transtype = 'JV' and (stat = 'posted' or stat = 'cancelled')";
 		if ($search) {
-			$condition .= ' AND ' . $this->generateSearch($search, array('voucherno','transactiondate','referenceno','amount'));
+			$condition .= ' AND ' . $this->generateSearch($search, array('voucherno','transactiondate','referenceno','amount','source'));
 		}
 		$datefilter	= explode('-', $datefilter);
 		foreach ($datefilter as $key => $date) {
@@ -181,6 +181,20 @@ class journal_voucher_model extends wc_model {
 		}
 		if (isset($datefilter[1])) {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
+		}
+		if ($source && $source != "none") {
+			if($source=='closed'){
+				$condition .= " AND source = 'closing'";
+ 			} else if($source=='manual'){
+				$condition .= " AND source = ''";
+			} else if($source=='import'){
+				$condition .= " AND source = 'import'";
+			}
+		}
+		if ($filter && $filter != "all") {
+			if($filter=='cancelled'){
+				$condition .= " AND stat = 'cancelled'";
+ 			} 
 		}
 		$result = $this->db->setTable("journalvoucher")
 						->setFields("transactiondate, voucherno, referenceno, amount, source as checker, stat")
@@ -214,7 +228,7 @@ class journal_voucher_model extends wc_model {
 	public function getProformaList() {
 		$result = $this->db->setTable('proforma')
 							->setFields("proformacode ind, proformadesc val")
-							->setWhere("transactiontype = 'Journal Voucher'")
+							->setWhere("transactiontype = 'Journal Voucher' AND stat = 'active'")
 							->setOrderBy("proformadesc")
 							->runSelect()
 							->getResult();

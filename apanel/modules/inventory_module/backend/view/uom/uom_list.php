@@ -56,6 +56,7 @@
 						<th class="col-md-2">Unit Code</th>
 						<th class="col-md-8">Unit Description</th>
 						<th class="col-md-1">Unit Type</th>
+						<th class="col-md-1">Status</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -136,4 +137,18 @@
 		ajax.limit = $(this).val();
 		getList();
 	});
+
+	$('#tableList').on('click', '.activate', function() { 
+			var code = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&uomcode='+code ,function(data) {
+				window.location.href = '<?=MODULE_URL?>';
+			});
+		});
+
+		$('#tableList').on('click', '.deactivate', function() { 
+			var code = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&uomcode='+code ,function(data) {
+				window.location.href = '<?=MODULE_URL?>';
+			});
+		});
 </script>

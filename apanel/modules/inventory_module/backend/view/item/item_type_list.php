@@ -76,6 +76,7 @@
 									)
 								)
 								->addHeader('Item Type', array(), 'sort', 'label', 'asc')
+								->addHeader('Status', array(), 'sort', 'label', 'asc')								
 								->draw();
 					?>
 					<tbody>
@@ -190,6 +191,21 @@
 				$('#warning_modal .modal-body').append(error);
 			}
 		}
+
+		$('#tableList').on('click', '.activate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+				window.location.href = '<?=MODULE_URL?>';
+			});
+		});
+
+		$('#tableList').on('click', '.deactivate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+				window.location.href = '<?=MODULE_URL?>';
+			});
+		});
+
 		$('#importForm').submit(function(e) {
 			e.preventDefault();
 			var form_element = $(this);

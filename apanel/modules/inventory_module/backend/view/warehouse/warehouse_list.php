@@ -80,6 +80,7 @@
 								)
 								->addHeader('Warehouse Code',array('class'=>'col-md-3'),'sort','warehousecode')
 								->addHeader('Warehouse Name', array('class'=>'col-md-3'),'sort','description')
+								->addHeader('Status', array('class'=>'col-md-3'),'sort','status')								
 								->draw();
 					?>
 				</thead>
@@ -243,6 +244,20 @@
 									}
 								},
 							});
+		});
+
+		$('#tableList').on('click', '.activate', function() { 
+			var code = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&code='+code ,function(data) {
+				window.location.href = '<?=MODULE_URL?>';
+			});
+		});
+
+		$('#tableList').on('click', '.deactivate', function() { 
+			var code = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&code='+code ,function(data) {
+				window.location.href = '<?=MODULE_URL?>';
+			});
 		});
 
 		$('#importForm').on('change', '#import_csv', function() {

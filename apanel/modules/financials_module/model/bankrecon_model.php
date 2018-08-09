@@ -625,24 +625,13 @@ class bankrecon_model extends wc_model {
 		$config = $this->getConfigHeader($recon_id);
 		extract($config);
 
-		// $result = $this->db->setTable('balance_table')
-		// 					->setFields('(COALESCE(SUM(debit), 0, SUM(debit)) - COALESCE(SUM(credit), 0, SUM(credit))) as balance')
-		// 					->setWhere("accountcode = '$accountcode' AND transactiondate < '$periodfrom'")
-		// 					->runSelect()
-		// 					->getRow();
-
-		// $beg_balance = ($result) ? $result->balance : 0;
-
-		$prev_recon_id = $this->getPreviousRecon($accountcode);
-
-		$result = $this->db->setTable('bankrecon')
-							->setFields('adjusted_balance as balance')
-							->setWhere("id = '$prev_recon_id'")
-							->setLimit(1)
+		$result = $this->db->setTable('balance_table')
+							->setFields('(COALESCE(SUM(debit), 0, SUM(debit)) - COALESCE(SUM(credit), 0, SUM(credit))) as balance')
+							->setWhere("accountcode = '$accountcode' AND transactiondate < '$periodfrom'")
 							->runSelect()
 							->getRow();
 
-		$adjusted_balance = ($result) ? $result->balance : 0;
+		$beg_balance = ($result) ? $result->balance : 0;
 
 		$result = $this->db->setTable('balance_table')
 							->setFields('(COALESCE(SUM(debit), 0, SUM(debit)) - COALESCE(SUM(credit), 0, SUM(credit))) as balance')
@@ -652,8 +641,7 @@ class bankrecon_model extends wc_model {
 
 		$balance = ($result) ? $result->balance : 0;
 
-		// $balance += $beg_balance;
-		$balance += $adjusted_balance;
+		$balance += $beg_balance;
 
 		return $balance;
 	}

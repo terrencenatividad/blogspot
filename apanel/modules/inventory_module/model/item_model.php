@@ -82,6 +82,7 @@ class item_model extends wc_model {
 			'itemname',
 			'itemdesc',
 			'weight',
+			'i.stat stat'
 		);
 		$result = $this->getItemListQuery($fields, $search, $typeid, $classid, $sort)
 						->runPagination();
@@ -179,7 +180,7 @@ class item_model extends wc_model {
 	}
 
 	public function getUOMList($search = '') {
-		$condition = '';
+		$condition = "stat = 'active'";
 		if ($search) {
 			$condition = "uomdesc = '$search'";
 		}
@@ -339,6 +340,19 @@ class item_model extends wc_model {
 			$temp[] = $arr . " LIKE '%" . str_replace(' ', '%', $search) . "%'";
 		}
 		return '(' . implode(' OR ', $temp) . ')';
+	}
+
+	public function updateStat($data,$id)
+	{
+		$condition 			   = " itemcode = '$id' ";
+
+		$result 			   = $this->db->setTable('items')
+											->setValues($data)
+											->setWhere($condition)
+											->setLimit(1)
+											->runUpdate();
+
+		return $result;
 	}
 
 }

@@ -123,4 +123,17 @@ class item_type_model extends wc_model {
 		return '(' . implode(' OR ', $temp) . ')';
 	}
 
+	public function updateStat($data,$id)
+	{
+		$condition 			   = " id = '$id' ";
+
+		$result 			   = $this->db->setTable('itemtype')
+											->setValues($data)
+											->setWhere($condition)
+											->setLimit(1)
+											->runUpdate();
+
+		return $result;
+	}
+
 }

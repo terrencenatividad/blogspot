@@ -119,6 +119,8 @@
 											'sort', 'p.proformacode', 'asc')
 								->addHeader('Proforma Desc', array('class' => 'col-md-5 text-center'), 
 											'sort', 'p.proformadesc')
+								->addHeader('Status', array('class' => 'col-md-5 text-center'), 
+								'sort', 'p.status')
 								->draw();
 						?>
 						<tbody id="list_container">
@@ -385,6 +387,20 @@
 		});
 
 	});
+
+	$('#tableList').on('click', '.activate', function() { 
+			var code = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&proformacode='+code ,function(data) {
+				window.location.href = '<?=MODULE_URL?>';
+			});
+		});
+
+		$('#tableList').on('click', '.deactivate', function() { 
+			var code = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&proformacode='+code ,function(data) {
+				window.location.href = '<?=MODULE_URL?>';
+			});
+		});
 
 	$('#export_id').prop('download','proforma.csv');
 

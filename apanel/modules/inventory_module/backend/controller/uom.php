@@ -10,7 +10,8 @@ class controller extends wc_controller {
 		$this->fields 			= array(
 			'uomcode',
 			'uomdesc',
-			'uomtype'
+			'uomtype',
+			'stat'
 		);
 		$this->data = array();
 		$this->view->header_active = 'maintenance/uom/';
@@ -78,10 +79,30 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="3" class="text-center"><strong>No Records Found</strong></td></tr>';
 		}
 		foreach ($list as $key => $row) {
+			$stat = $row->stat;
+
+			if($stat == 'active'){
+				$status = '<span class="label label-success">ACTIVE</span>';								
+			}else{
+				$status = '<span class="label label-danger">INACTIVE</span>';
+			}
+
+			$show_activate 		= ($stat != 'inactive');
+			$show_deactivate 	= ($stat != 'active');
 
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit()
+									->addOtherTask(
+										'Activate',
+										'arrow-up',
+										$show_deactivate
+									)
+									->addOtherTask(
+										'Deactivate',
+										'arrow-down',
+										$show_activate
+									)
 									->addDelete()
 									->addCheckbox()
 									->setValue($row->uomcode)
@@ -93,6 +114,7 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->uomcode . '</td>';
 			$table .= '<td>' . $row->uomdesc . '</td>';
 			$table .= '<td>' . ucwords($row->uomtype) . '</td>';
+			$table .= '<td>' . $status . '</td>';
 			$table .= '</tr>';
 		}
 		return array(
@@ -124,6 +146,30 @@ class controller extends wc_controller {
 		if ($delete_id) {
 			$this->uom_model->deleteItems($delete_id);
 		}
+	}
+
+	private function ajax_edit_activate()
+	{
+		$code = $this->input->post('uomcode');
+		$data['stat'] = 'active';
+
+		$result = $this->uom_model->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
+	}
+
+	private function ajax_edit_deactivate()
+	{
+		$code = $this->input->post('uomcode');
+		$data['stat'] = 'inactive';
+
+		$result = $this->uom_model->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
 	}
 
 }

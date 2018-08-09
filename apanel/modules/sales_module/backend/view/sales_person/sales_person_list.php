@@ -487,6 +487,19 @@ $(function() {
 	linkDeleteMultipleToModal('#item_multiple_delete', '#sales_person_table', 'ajaxCallback');
 });
 
+$('#sales_person_table').on('click', '.activate', function() { 
+			var code = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&partnercode='+code ,function(data) {
+				window.location.href = '<?=MODULE_URL?>';
+			});
+		});
+
+		$('#sales_person_table').on('click', '.deactivate', function() { 
+			var code = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&partnercode='+code ,function(data) {
+				window.location.href = '<?=MODULE_URL?>';
+			});
+		});
 $('#export_id').prop('download','sales_person.csv');
 
 </script>

@@ -316,6 +316,20 @@ $(function() {
 	linkDeleteMultipleToModal('#item_multiple_delete', '#supplier_table', 'ajaxCallback');
 });
 
+		$('#supplier_table').on('click', '.activate', function() { 
+					var code = $(this).attr('data-id');
+					$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&partnercode='+code ,function(data) {
+						window.location.href = '<?=MODULE_URL?>';
+					});
+				});
+
+		$('#supplier_table').on('click', '.deactivate', function() { 
+			var code = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&partnercode='+code ,function(data) {
+				window.location.href = '<?=MODULE_URL?>';
+			});
+		});
+
 $('#export_id').prop('download','supplier.csv');
 
 </script>

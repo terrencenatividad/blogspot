@@ -4,15 +4,42 @@ class dashboard_model extends wc_model {
 	public function __construct() {
 		parent::__construct();
 		$this->year					= date('Y');
+		$this->period				= 1;
+		$this->getPeriodStart();
 		$this->current_month_query	= $this->getMonthly();
 		$this->previous_month_query	= $this->getMonthly(1);
+	}
+
+	public function getYear() {
+		return $this->year;
+	}
+
+	private function getPeriodStart() {
+		$result = $this->db->setTable('company')
+							->setFields(array('taxyear', "MONTH(STR_TO_DATE(periodstart,'%b')) periodstart"))
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+
+		if ($result->taxyear == 'fiscal') {
+			$this->period = $result->periodstart;
+			if ($this->period > date('n')) {
+				$this->year = date('Y') - 1;
+			}
+		}
 	}
 
 	private function getMonthly($y = 0) {
 		$months	= array();
 		$year	= $this->year - $y;
+		$period	= $this->period;
 		for ($x = 1; $x <= 12; $x++) {
-			$months[] = "SELECT $x month, '$year' year, '" . COMPANYCODE . "' companycode";
+			if ($period > 12) {
+				$period = 1;
+				$year++;
+			}
+			$months[] = "SELECT $period month, '$year' year, '" . COMPANYCODE . "' companycode";
+			$period++;
 		}
 
 		return implode(' UNION ALL ', $months);
@@ -81,7 +108,7 @@ class dashboard_model extends wc_model {
 								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
 								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) revenue, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
-								->setOrderBy('m.month')
+								->setOrderBy('m.year, m.month')
 								->runSelect()
 								->getResult();
 
@@ -90,7 +117,7 @@ class dashboard_model extends wc_model {
 								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
 								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) expense")
 								->setGroupBy('m.month')
-								->setOrderBy('m.month')
+								->setOrderBy('m.year, m.month')
 								->runSelect()
 								->getResult();
 
@@ -99,7 +126,7 @@ class dashboard_model extends wc_model {
 								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
 								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) revenue, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
-								->setOrderBy('m.month')
+								->setOrderBy('m.year, m.month')
 								->runSelect()
 								->getResult();
 
@@ -108,7 +135,7 @@ class dashboard_model extends wc_model {
 								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
 								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) expense, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
-								->setOrderBy('m.month')
+								->setOrderBy('m.year, m.month')
 								->runSelect()
 								->getResult();
 
@@ -213,6 +240,7 @@ class dashboard_model extends wc_model {
 								->leftJoin("salesinvoice si ON si.period = m.month AND si.companycode = m.companycode AND si.fiscalyear = m.year AND si.stat NOT IN ('temporary', 'cancelled')")
 								->setFields("IFNULL(SUM(amount), 0) value, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
+								->setOrderBy('m.year, m.month')
 								->runSelect()
 								->getResult();
 
@@ -220,6 +248,7 @@ class dashboard_model extends wc_model {
 								->leftJoin("purchasereceipt pr ON pr.period = m.month AND pr.companycode = m.companycode AND pr.fiscalyear = m.year AND pr.stat NOT IN ('temporary', 'Cancelled')")
 								->setFields("IFNULL(SUM(netamount), 0) value, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
+								->setOrderBy('m.year, m.month')
 								->runSelect()
 								->getResult();
 

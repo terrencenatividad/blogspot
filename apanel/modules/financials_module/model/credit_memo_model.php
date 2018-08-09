@@ -218,7 +218,7 @@ class credit_memo_model extends wc_model {
 	public function getProformaList() {
 		$result = $this->db->setTable('proforma')
 							->setFields("proformacode ind, proformadesc val")
-							->setWhere("transactiontype = 'Credit Memo'")
+							->setWhere("transactiontype = 'Credit Memo' AND stat = 'active'")
 							->setOrderBy("proformadesc")
 							->runSelect()
 							->getResult();
@@ -229,7 +229,7 @@ class credit_memo_model extends wc_model {
 		$result = $this->db->setTable('partners')
 							->setFields("partnercode ind, partnername val")
 							->setOrderBy("partnername")
-							// ->setWhere("partnertype = 'supplier' ")
+							->setWhere("stat = 'active'")
 							->runSelect()
 							->getResult();
 		return $result;
