@@ -212,6 +212,7 @@ class item_class_model extends wc_model {
 					'inventory_account'		=> $item->inventory_account,
 					'revenuetype'			=> $item->revenuetype,
 					'expensetype'			=> $item->expensetype,
+					'stat'					=> $item->stat,
 				);
 				$children = $this->buildTree($list, $item->id);
 				if ($children) {

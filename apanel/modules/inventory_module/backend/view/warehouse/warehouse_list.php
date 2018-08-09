@@ -249,14 +249,14 @@
 		$('#tableList').on('click', '.activate', function() { 
 			var code = $(this).attr('data-id');
 			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&code='+code ,function(data) {
-				window.location.href = '<?=MODULE_URL?>';
+				getList();
 			});
 		});
 
 		$('#tableList').on('click', '.deactivate', function() { 
 			var code = $(this).attr('data-id');
 			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&code='+code ,function(data) {
-				window.location.href = '<?=MODULE_URL?>';
+				getList();				
 			});
 		});
 

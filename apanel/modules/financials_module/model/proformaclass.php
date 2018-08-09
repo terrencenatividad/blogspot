@@ -328,7 +328,7 @@ class proformaclass extends wc_model
 
 	public function updateStat($data,$code)
 	{
-		$condition 			   = " proformacode = '$id' ";
+		$condition 			   = " proformacode = '$code' ";
 
 		$result 			   = $this->db->setTable('proforma')
 											->setValues($data)

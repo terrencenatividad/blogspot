@@ -178,8 +178,9 @@ class controller extends wc_controller {
 		if (empty($data)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
+		
 		foreach ($data as $id => $row) {
-			$stat = 'active';
+			$stat = $row['stat'];
 			if($stat == 'active'){
 				$status = '<span class="label label-success">ACTIVE</span>';								
 			}else{

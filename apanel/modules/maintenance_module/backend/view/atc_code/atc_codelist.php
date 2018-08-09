@@ -166,6 +166,8 @@
 								'sort', 'short_desc')
 								->addHeader('Tax Account', array('class'=> 'col-md-3 text-center'),
 								'sort', 'tax_account')
+								->addHeader('Status', array('class'=> 'col-md-3 text-center'),
+								'sort', 'status')
 								->draw();
 						?>		
 						<tbody id="list_container">
@@ -443,6 +445,20 @@ var ajax = {};
 		// $('#export_id').prop('href','');
 
 	});
+
+	$('#tableList').on('click', '.activate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+				showList();
+			});
+		});
+
+		$('#tableList').on('click', '.deactivate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+				showList();
+			});
+		});
 
 
 </script>

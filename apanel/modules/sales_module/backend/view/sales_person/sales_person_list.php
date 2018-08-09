@@ -220,7 +220,7 @@
 </div>
 
 <!-- Import Customers Modal -->
-<div class="import-modal" id="import-tagcust-modal" tabindex="-1" data-backdrop="static">>
+<div class="import-modal" id="import-tagcust-modal" tabindex="-1" data-backdrop="static">
 	<div class="modal">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -490,14 +490,14 @@ $(function() {
 $('#sales_person_table').on('click', '.activate', function() { 
 			var code = $(this).attr('data-id');
 			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&partnercode='+code ,function(data) {
-				window.location.href = '<?=MODULE_URL?>';
+				showList();
 			});
 		});
 
 		$('#sales_person_table').on('click', '.deactivate', function() { 
 			var code = $(this).attr('data-id');
 			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&partnercode='+code ,function(data) {
-				window.location.href = '<?=MODULE_URL?>';
+				showList();
 			});
 		});
 $('#export_id').prop('download','sales_person.csv');

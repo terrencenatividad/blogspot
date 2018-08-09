@@ -159,6 +159,10 @@ class controller extends wc_controller
 			$result = $this->export();
 		elseif($task == 'import'):
 			$result = $this->import();
+		elseif($task == 'ajax_edit_activate'):
+			$result = $this->ajax_edit_activate();
+		elseif($task == 'ajax_edit_deactivate'):
+			$result = $this->ajax_edit_deactivate();
 		endif;
 
 		echo json_encode($result);
@@ -435,7 +439,7 @@ class controller extends wc_controller
 
 	private function ajax_edit_activate()
 	{
-		$code = $this->input->post('proformacode');
+		$code = $this->input->post('id');
 		$data['stat'] = 'active';
 
 		$result = $this->proformaclass->updateStat($data,$code);
@@ -447,7 +451,8 @@ class controller extends wc_controller
 	
 	private function ajax_edit_deactivate()
 	{
-		$code = $this->input->post('proformacode');
+		$code = $this->input->post('id');
+
 		$data['stat'] = 'inactive';
 
 		$result = $this->proformaclass->updateStat($data,$code);

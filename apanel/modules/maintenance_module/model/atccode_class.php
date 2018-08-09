@@ -173,4 +173,17 @@ class atccode_class extends wc_model
 
 		return $result;
 	}
+
+	public function updateStat($data,$code)
+	{
+		$condition 			   = " atcId = '$code' ";
+
+		$result 			   = $this->db->setTable('atccode')
+											->setValues($data)
+											->setWhere($condition)
+											->setLimit(1)
+											->runUpdate();
+
+		return $result;
+	}
 }

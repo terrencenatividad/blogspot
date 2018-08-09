@@ -389,22 +389,19 @@
 	});
 
 	$('#tableList').on('click', '.activate', function() { 
-			var code = $(this).attr('data-id');
-			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&proformacode='+code ,function(data) {
-				window.location.href = '<?=MODULE_URL?>';
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+				showList();
 			});
 		});
 
 		$('#tableList').on('click', '.deactivate', function() { 
-			var code = $(this).attr('data-id');
-			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&proformacode='+code ,function(data) {
-				window.location.href = '<?=MODULE_URL?>';
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+				showList();
 			});
 		});
 
 	$('#export_id').prop('download','proforma.csv');
-
-
-
 
 </script>

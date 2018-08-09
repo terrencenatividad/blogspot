@@ -195,14 +195,14 @@
 		$('#tableList').on('click', '.activate', function() { 
 			var id = $(this).attr('data-id');
 			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
-				window.location.href = '<?=MODULE_URL?>';
+				getList();
 			});
 		});
 
 		$('#tableList').on('click', '.deactivate', function() { 
 			var id = $(this).attr('data-id');
 			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
-				window.location.href = '<?=MODULE_URL?>';
+				getList();
 			});
 		});
 

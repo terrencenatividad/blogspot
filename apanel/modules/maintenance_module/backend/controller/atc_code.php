@@ -126,6 +126,10 @@
 				$result = $this->export();
 			elseif($task == 'import'):
 				$result = $this->import();
+			elseif($task == 'ajax_edit_activate'):
+				$result = $this->ajax_edit_activate();
+			elseif($task == 'ajax_edit_deactivate'):
+				$result = $this->ajax_edit_deactivate();
 			endif;
 			echo json_encode($result);
 		}
@@ -136,7 +140,7 @@
 			$sort 	= $this->input->post("sort");
 			$limit 	= $this->input->post("limit");
 			$addCond = stripslashes($this->input->post("addCond"));
-			$fields = array("atcId","atc_code","tax_rate","wtaxcode","atc_type","short_desc","tax_account","accountname");
+			$fields = array("atcId","atc_code","tax_rate","wtaxcode","atc_type","short_desc","tax_account","accountname","stat");
 			$table = "";
 			$list = $this->atc_code->retrieveData($fields,$search, $sort, $addCond, $limit); 
 	
@@ -146,9 +150,29 @@
 					$sid = $row->atcId;
 					$rate = ($row->tax_rate * 100).'%';
 
+					$stat = $row->stat;
+					if($stat == 'active'){
+						$status = '<span class="label label-success">ACTIVE</span>';								
+					}else{
+						$status = '<span class="label label-danger">INACTIVE</span>';
+					}
+
+					$show_activate 		= ($stat != 'inactive');
+					$show_deactivate 	= ($stat != 'active');
+
 					$dropdown = $this->ui->loadElement('check_task')
 										->addView()
 										->addEdit()
+										->addOtherTask(
+											'Activate',
+											'arrow-up',
+											$show_deactivate
+										)
+										->addOtherTask(
+											'Deactivate',
+											'arrow-down',
+											$show_activate
+										)	
 										->addDelete()
 										->addCheckbox()
 										->setValue($sid)
@@ -159,7 +183,8 @@
 								<td>'.$rate.'</td>
 								<td>'.$row->wtaxcode.'</td> 
 								<td>'.$row->short_desc.'</td>
-								<td>'.$row->accountname.'</td>'; 
+								<td>'.$row->accountname.'</td>
+								<td>'.$status.'</td>'; 
 							'</tr>';			
 				}
 			else:
@@ -400,4 +425,28 @@
 			return $csv;
 		}
 
+	private function ajax_edit_activate()
+	{
+		$code = $this->input->post('id');
+		$data['stat'] = 'active';
+
+		$result = $this->atc_code->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
 	}
+	
+	private function ajax_edit_deactivate()
+	{
+		$code = $this->input->post('id');
+		$data['stat'] = 'inactive';
+
+		$result = $this->atc_code->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
+	}
+
+}

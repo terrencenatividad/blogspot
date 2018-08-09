@@ -319,15 +319,15 @@ $(function() {
 		$('#supplier_table').on('click', '.activate', function() { 
 					var code = $(this).attr('data-id');
 					$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&partnercode='+code ,function(data) {
-						window.location.href = '<?=MODULE_URL?>';
+						showList();
 					});
 				});
 
 		$('#supplier_table').on('click', '.deactivate', function() { 
-			var code = $(this).attr('data-id');
-			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&partnercode='+code ,function(data) {
-				window.location.href = '<?=MODULE_URL?>';
-			});
+					var code = $(this).attr('data-id');
+					$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&partnercode='+code ,function(data) {
+						showList();
+					});
 		});
 
 $('#export_id').prop('download','supplier.csv');

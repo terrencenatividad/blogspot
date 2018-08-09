@@ -141,14 +141,14 @@
 	$('#tableList').on('click', '.activate', function() { 
 			var code = $(this).attr('data-id');
 			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&uomcode='+code ,function(data) {
-				window.location.href = '<?=MODULE_URL?>';
+				getList();
 			});
 		});
 
 		$('#tableList').on('click', '.deactivate', function() { 
 			var code = $(this).attr('data-id');
 			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&uomcode='+code ,function(data) {
-				window.location.href = '<?=MODULE_URL?>';
+				getList();
 			});
 		});
 </script>
