@@ -286,7 +286,10 @@ $(document).ready(function(){
 			$.post('<?=BASE_URL?>maintenance/discount/ajax/<?=$task?>', $('#discount_template_form').serialize()+ '<?=$ajax_post?>', function(data) {
 				if( data.msg == 'success' )
 				{
-					window.location = '<?php echo BASE_URL . 'maintenance/discount'; ?>';
+					$('#delay_modal').modal('show');
+					setTimeout(function() {							
+							window.location = '<?php echo BASE_URL . 'maintenance/discount'; ?>';							
+						}, 1000)
 				}
 			});
 		}

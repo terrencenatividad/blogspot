@@ -332,7 +332,10 @@
 				if (form_element.closest('form').find('.form-group.has-error').length == 0) {
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' + '&finalized=finalized' + submit_data, function(data) {
 						if (data.success) {
-							window.location = data.redirect;
+							$('#delay_modal').modal('show');
+								setTimeout(function() {							
+									window.location = data.redirect;						
+								}, 1000)
 						}
 					});
 				} else {

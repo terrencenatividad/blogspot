@@ -553,7 +553,7 @@ class ui {
 
 	public function CreateNewButton($type) {
 		$url = MODULE_URL . 'create';
-		$mod_name = "Add New " . MODULE_NAME;
+		$mod_name = "Add " . MODULE_NAME;
 		return ' <a href="' . $url . '" class="btn btn-primary btn-flat" role="button">'.$mod_name.'</a>';
 	}
 

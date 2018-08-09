@@ -111,7 +111,12 @@ $('form').submit(function(e)
 			  function(data) 
 		{
 			if( data.msg == "success" )
-				window.location.href = "<?=MODULE_URL?>";
+			{
+				$('#delay_modal').modal('show');
+					setTimeout(function() {							
+						window.location =  "<?=MODULE_URL?>";					
+					}, 1000)
+			}
 			if(data.msg == "error_add")
 			{
 				$(".alert-warning").removeClass("hidden");

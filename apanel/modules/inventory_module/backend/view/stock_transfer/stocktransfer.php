@@ -688,7 +688,10 @@
 		if ($(this).find('.form-group.has-error').length == 0) {
 			$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + '<?=$ajax_post?>', function(data) {
 				if (data.success) {
-					window.location = data.redirect;
+					$('#delay_modal').modal('show');
+							setTimeout(function() {							
+								window.location = data.redirect;						
+							}, 1000)
 				}
 			});
 		} else {

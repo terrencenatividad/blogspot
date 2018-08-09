@@ -133,7 +133,10 @@ $('#rateForm #btnSave').on('click',function(){
 		$.post('<?=BASE_URL?>maintenance/exchange_rate/ajax/<?=$task?>', $('#rateForm').serialize()+ '<?=$ajax_post?>', function(data) {
 			if( data.msg == 'success' )
 			{
-				window.location = '<?php echo BASE_URL . 'maintenance/exchange_rate'; ?>';
+				$('#delay_modal').modal('show');
+					setTimeout(function() {							
+						window.location = '<?php echo BASE_URL . 'maintenance/exchange_rate'; ?>';											
+				}, 1000)
 			}
 		});
 	}

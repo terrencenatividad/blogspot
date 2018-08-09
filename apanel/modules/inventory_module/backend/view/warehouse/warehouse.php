@@ -82,9 +82,10 @@ $('#warehouseForm #btnSave').on('click',function(){
 		$.post('<?=BASE_URL?>maintenance/warehouse/ajax/<?=$ajax_task?>', $('#warehouseForm').serialize()+ '<?=$ajax_post?>', function(data) {
 			if( data.msg == 'success' )
 			{
-				setTimeout(function() {
-					window.location = '<?php echo BASE_URL . 'maintenance/warehouse'; ?>';
-				},500);
+					$('#delay_modal').modal('show');
+						setTimeout(function() {
+							window.location = '<?php echo BASE_URL . 'maintenance/warehouse'; ?>';
+					},1000);
 			}
 		});
 	}

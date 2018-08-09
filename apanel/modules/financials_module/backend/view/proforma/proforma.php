@@ -446,7 +446,10 @@ $(function(){
 		$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + ajax_post, function(response) 
 		{
 			if( response.msg == "success" )
-				window.location.href = "<?=MODULE_URL?>";
+			$('#delay_modal').modal('show');
+							setTimeout(function() {							
+								window.location = "<?= MODULE_URL ?>";
+						}, 1000)	
 			if(response.msg == "error_add")
 			{
 				$(".alert-warning").removeClass("hidden");

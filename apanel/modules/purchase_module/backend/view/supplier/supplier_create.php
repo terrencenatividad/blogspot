@@ -102,7 +102,11 @@
 				<div class="row">
 					<div class="col-md-12">	
 						<!-- <label for="first_name" class="control-label" style="margin:15px;"><span style="font-size:15px;">Contact Person:</span></label> -->
-						<h4>Contact Person</h4>
+						<?php if (MODAL): ?>
+							<h4>Contact Person</h4>
+						<?php else: ?>
+							<h3>Contact Person</h3>
+						<?php endif ?>
 						<hr>
 					</div>
 					<div class="col-md-6">
@@ -224,6 +228,7 @@ $('#supplierForm #btnSave').on('click',function(){
 				<?php if (MODAL): ?>
 					addVendorToDropdown();
 				<?php else: ?>
+					$('#delay_modal').modal('show');
 					setTimeout(function() {
 						window.location = '<?php echo BASE_URL . 'maintenance/supplier'; ?>';
 					},500);
