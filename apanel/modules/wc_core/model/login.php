@@ -6,7 +6,7 @@ class login extends wc_model {
 	public function getUserAccess($username, $password) {
 		$result = $this->db->setTable(PRE_TABLE . '_users')
 							->setFields("username, password, companycode, groupname, CONCAT(firstname, ' ', middleinitial, ' ', lastname) name")
-							->setWhere("username = '$username'")
+							->setWhere("username = '$username' AND stat ='active'")
 							->setLimit(1)
 							->runSelect(false)
 							->getRow();

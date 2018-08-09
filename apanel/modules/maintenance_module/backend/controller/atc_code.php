@@ -140,7 +140,7 @@
 			$sort 	= $this->input->post("sort");
 			$limit 	= $this->input->post("limit");
 			$addCond = stripslashes($this->input->post("addCond"));
-			$fields = array("atcId","atc_code","tax_rate","wtaxcode","atc_type","short_desc","tax_account","accountname","stat");
+			$fields = array("atcId","atc_code","tax_rate","wtaxcode","atc_type","short_desc","tax_account","accountname","a.stat stat");
 			$table = "";
 			$list = $this->atc_code->retrieveData($fields,$search, $sort, $addCond, $limit); 
 	

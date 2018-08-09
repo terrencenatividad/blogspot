@@ -117,8 +117,8 @@ class controller extends wc_controller {
 									->addCheckbox()
 									->setValue($id)
 									->draw();
-			$table .= '<td align = "center">' . $dropdown . '</td>';
-			$table .= '<td id="groupname">' . $row->groupname . '</td>';
+			$table .= '<td id="groupname" align = "center">' . $dropdown . '</td>';
+			$table .= '<td>' . $row->groupname . '</td>';
 			$table .= '<td>' . $row->description . '</td>';
 			$table .= '<td>' . $status . '</td>';
 			$table .= '</tr>';
@@ -193,6 +193,7 @@ class controller extends wc_controller {
 	private function ajax_edit_deactivate()
 	{
 		$code = $this->input->post('id');
+		
 		$data['status'] = 'inactive';
 
 		$result = $this->usergroup_model->updateStat($data,$code);

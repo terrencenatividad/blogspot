@@ -155,15 +155,17 @@
 
 
 		$('#tableList').on('click', '.activate', function() { 
-			var id = $('#groupname').html();
-			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+			var id = $(this).attr('data-id');
+			var decode = atob(id);
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+decode ,function(data) {
 				getList();
 			});
 		});
 
 		$('#tableList').on('click', '.deactivate', function() { 
-			var id = $('#groupname').html();
-			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+			var id = $(this).attr('data-id');			
+			var decode = atob(id);
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+decode ,function(data) {
 				getList();
 			});
 		});
