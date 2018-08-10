@@ -167,7 +167,13 @@
 										->addHidden()
 										->setValue("Php 0.00")
 										->draw();
-							?>							
+							?>	
+							<div class="col-md-offset-4 has-error">
+								<span id="excess_credit_error" class="help-block hidden small">
+									<i class="glyphicon glyphicon-exclamation-sign"></i> 
+									You cannot input a Credit greater than your available Credit amount.
+								</span>
+							</div>						
 						</div>
 					</div>
 				</div>
@@ -3266,7 +3272,9 @@ $(document).ready(function() {
 				valid		+= validateDetails();
 			}
 
-			if(valid == 0)
+			var form_element = $(this).closest('form');
+
+			if(valid == 0 && form_element.closest('form').find('.form-group.has-error').length == 0)
 			{
 				$("#payableForm #btnSave").addClass('disabled');
 				$("#payableForm #btnSave_toggle").addClass('disabled');
@@ -3296,6 +3304,9 @@ $(document).ready(function() {
 						$("#errordiv #msg_error ul").html(msg);
 					}
 				});
+			} else {
+				next = $('#payableForm').find(".has-error").first();
+				$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
 			}
 		});
 
@@ -3691,6 +3702,27 @@ $(document).ready(function() {
 			}
 		} 
 
+	});
+
+	//validation for Credit Amount
+	$('#credit_input').on('change',function(){
+		var available_credits =	$('#available_credits').val();
+		var input 	= $(this).val();
+
+		input 				=	removeComma(input);
+		available_credits 	=	removeComma(available_credits);
+
+		console.log("Available "+available_credits);
+		console.log("Input "+input);
+
+		if(input > available_credits){
+			$('#excess_credit_error').removeClass('hidden');
+			$(this).closest('.form-group').addClass('has-error');
+		} else {
+			$('#excess_credit_error').addClass('hidden');
+			$(this).closest('.form-group').removeClass('has-error');
+		}
+		
 	});
 }); // end
 
