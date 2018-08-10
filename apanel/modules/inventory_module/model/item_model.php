@@ -175,6 +175,7 @@ class item_model extends wc_model {
 	public function getItemDropdownList() {
 		return $this->db->setTable('items')
 						->setFields('itemcode ind, itemname val')
+						->setWhere("stat = 'active'")
 						->runSelect()
 						->getResult();
 	}

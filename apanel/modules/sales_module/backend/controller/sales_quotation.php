@@ -68,7 +68,7 @@ class controller extends wc_controller
 		$data["currency_codes"] = $this->sq->getValue("currency", $curr_type_data,'','currencycode');
 
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode, ' - ', itemname) val");
-		$data["itemcodes"] 		= $this->sq->getValue("items", $cc_entry_data,'',"itemcode");
+		$data["itemcodes"] 		= $this->sq->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
 
 		$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
 		$acc_entry_cond          = "accounttype != 'P'";
@@ -115,7 +115,7 @@ class controller extends wc_controller
 		$data['close_date']		= $close_date;
 		
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode, ' - ', itemname) val");
-		$data["itemcodes"] 		= $this->sq->getValue("items", $cc_entry_data,'',"itemcode");
+		$data["itemcodes"] 		= $this->sq->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
 
 		$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
 		$acc_entry_cond          = "accounttype != 'P'";

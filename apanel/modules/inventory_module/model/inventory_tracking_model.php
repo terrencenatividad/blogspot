@@ -19,6 +19,7 @@ class inventory_tracking_model extends wc_model {
 	public function getWarehouseDropdownList() {
 		$result = $this->db->setTable('warehouse')
 							->setFields('warehousecode ind, description val')
+							->setWhere("stat = 'active'")
 							->runSelect()
 							->getResult();
 

@@ -82,7 +82,7 @@ class controller extends wc_controller
 		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
 
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
-		$data["itemcodes"] 		= $this->po->getValue("items", $cc_entry_data,'',"itemcode");
+		$data["itemcodes"] 		= $this->po->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
 
 		$acc_entry_data         = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
 		$acc_entry_cond         = "accounttype != 'P'";
@@ -257,7 +257,7 @@ class controller extends wc_controller
 		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
 
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
-		$data["itemcodes"] 		= $this->po->getValue("items", $cc_entry_data,'',"itemcode");
+		$data["itemcodes"] 		= $this->po->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
 
 		$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
 		$acc_entry_cond          = "accounttype != 'P'";
