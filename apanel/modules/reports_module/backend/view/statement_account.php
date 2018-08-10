@@ -89,6 +89,7 @@
 			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 			$('#tip').hide();
 			$('#soa').show();
+			$("#export_csv").removeClass('hidden');
 			$('#pagination').show();
 		});
 	};

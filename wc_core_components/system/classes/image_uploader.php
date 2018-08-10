@@ -94,7 +94,8 @@ class image_uploader {
 	}
 
 	private function getImageFromFile($source, &$ext, &$image_function) {
-		$image = false;
+		$image	= false;
+		$ext	= strtolower($ext);
 		
 		if ($ext == 'jpg' || $ext == 'jpeg') {
 			$image			= imagecreatefromjpeg($source);
@@ -103,7 +104,7 @@ class image_uploader {
 		} else if ($ext == 'png') {
 			$image = imagecreatefrompng($source);
 			$image_function	= 'imagepng';
-		} else if ($ext == 'git') {
+		} else if ($ext == 'gif') {
 			$image = imagecreatefromgif($source);
 			$image_function	= 'imagegif';
 		}

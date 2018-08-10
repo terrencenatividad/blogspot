@@ -120,20 +120,23 @@ class controller extends wc_controller
 
 	private function export()
 	{
-		$posted_data 	= $this->input->post(array("daterangefilter", "custfilter", "search", "filter"));
-		$search 		= $this->input->post("search");
-		$filter 		= $this->input->post("filter");
+		$posted_data 	= $this->input->post(array("daterangefilter", "custfilter"));
 		$cust 			= $this->input->post("custfilter");
 		$result 		= $this->soa->fileExport($posted_data);
+		$prevBal 		= $this->soa->getPreviousBalance($posted_data);
 
+		$balance 		= 0;
+		$prevbalance 	= 0;
+		if (!empty($prevBal)) {
+			$prevbalance = $prevBal[0]->amount - $prevBal[0]->payment;
+		}
 		$cDetails 		= $this->soa->retrieveCustomerDetails($cust);
 		
-		
-		$date 	= $this->input->post('daterangefilter');
-		$datefilterArr		= explode(' - ',$date);
-		$datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
-		$datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
-		$header = array("Invoice Date","Invoice Number", "Document Type","Ref No.","Description","Amount","Balance");
+		$date 			= $this->input->post('daterangefilter');
+		$datefilterArr	= explode(' - ',$date);
+		$datefilterFrom	= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
+		$datefilterTo	= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
+		$header = array("Transaction Date","Invoice No.", "Type","Ref No.","Description","Amount","Balance");
 		$csv = '';
 		$csv = '"' . implode('", "', $header) . '"';
 		$csv .= "\n";
@@ -156,34 +159,36 @@ class controller extends wc_controller
 		$csv .= "\n";
 		$csv .= '"' . implode('","', $header) . '"';
 		$csv .= "\n";
-
+		$balance = $prevbalance;
 		if (!empty($result)){
+			$balance= $prevbalance;
 			
+			$csv .=  '"As of '.$this->date($datefilterFrom).'",';
+			$csv .=  '"",';
+			$csv .=  '"",';
+			$csv .=  '"Previous Balance (Forwarded)",';
+			$csv .=  '"",';
+			$csv .=  '"",';
+			$csv .=  '"'.$this->amount($prevbalance).'"';
+			$csv .= "\n";
 			foreach ($result as $key => $row){
 				$csv .=  '"'.$this->date($row->invoicedate).'",';
 				$csv .=  '"'.$row->invoiceno.'",';
-				if($row->transtype == 'RV'){
-					$csv .= '"Payment",';
-				} else {
-					$csv .= '"Invoice",';
-				}
-				$csv .=	 '"'.$row->referenceno.'",';
+				$csv .=  '"'.$row->documenttype.'",';
+				$csv .=	 '"'.$row->reference.'",';
 				$csv .=  '"'.$row->particulars.'",';
-				if($row->transtype == 'RV'){
-					 $row->invoiceamount *= -1;
+				if($row->documenttype == 'Payment' || $row->documenttype == 'Credit Memo'){
+					 $row->amount *= -1;
 				}
-				$csv .=  '"'.$this->amount($row->invoiceamount).'",';
-				$amount += $row->invoiceamount;
-				$csv .=  '"'.$this->amount($amount).'",';
+				$csv .=  '"'.$this->amount($row->amount).'",';
+				$balance += $row->amount;
+				$csv .=  '"'.$this->amount($balance).'"';
 				$csv .= "\n";
 			}
 			
 		}
-		$csv .= '"","","","","","Current Balance","'.$this->amount($amount).'"';
+		$csv .= '"","","","","","Grand Total Balance","'.$this->amount($balance).'"';
 		return $csv;
-		
-		
-		
 	}
 
 	private function amount($amount)
