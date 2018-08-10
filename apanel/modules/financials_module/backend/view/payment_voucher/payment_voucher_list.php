@@ -20,8 +20,8 @@
 						echo $ui->CreateNewButton('');
 						echo $ui->OptionButton('');
 					?>
-					<input type="button" id="item_multiple_delete" class="btn btn-danger btn-flat " value="Delete">
-					<input type="button" id="item_multiple_cancel" class="btn btn-warning btn-flat " value="Cancel">
+					<!--<input type="button" id="item_multiple_delete" class="btn btn-danger btn-flat " value="Delete">-->
+					<input type="button" id="item_multiple_cancel" class="btn btn-danger btn-flat " value="Cancel">
 				</div>
 
 				<div class = "col-md-4">
