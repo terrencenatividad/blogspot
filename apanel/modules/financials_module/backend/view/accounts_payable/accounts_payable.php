@@ -3993,7 +3993,7 @@ prev_account = '';
 
 function get_coa(account){
 	$.post("<?= BASE_URL ?>financials/accounts_payable/ajax/get_tax",{account:account}).done(function(data){
-		if(data.result === 'TAX'){
+		if(data.result === 'TAX' || 'CULIAB'){
 			if (prev_account != '' && account != prev_account) {
 				$('#tax_amount').val('');
 			}

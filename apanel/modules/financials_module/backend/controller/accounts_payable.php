@@ -1154,9 +1154,10 @@ class controller extends wc_controller
 		$result_class = $result[0]->accountclasscode;
 
 		$bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
-		$bus_type_cond                = "tax_account = '$account'";
+		$bus_type_cond                = "tax_account = '$account' AND atc.stat = 'active'";
 		$join 						  =  "chartaccount ca ON atc.tax_account = ca.id";
 		$tax_list  			 = $this->accounts_payable->getTax("atccode atc", $bus_type_data,$join ,$bus_type_cond, false);
+
 		$ret = '';
 		foreach ($tax_list as $key) {
 			$in  = $key->ind;
