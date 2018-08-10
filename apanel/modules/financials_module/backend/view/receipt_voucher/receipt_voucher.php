@@ -99,13 +99,14 @@
 
 									?>
 									<button type="button" id="apv" class="btn btn-block btn-success btn-flat">
-										<em class="pull-left"><small>Click to view tagged rec</small></em>
+										<em class="pull-left"><small>Click to view tagged receivables</small></em>
 										<strong id="pv_amount" class="pull-right"><?=number_format($sum_applied,2)?></strong>
 									</button>
 									<?php
 									}
 									?>
 								</div>
+								<input type = "hidden" id = "overpayment" name = "overpayment" value = "<?= $generated_id ?>">
 							</div>
 						</div>
 						<!-- Text Area for selected payables -->
@@ -124,11 +125,11 @@
 						</div>
 					</div>
 					<div class="row">
-						<div class = "col-md-12">
+						<div class = "col-md-6">
 							<?php
 								echo $ui->formField('textarea')
 										->setLabel('Notes:')
-										->setSplit('col-md-2', 'col-md-10')
+										->setSplit('col-md-4', 'col-md-8')
 										->setName('remarks')
 										->setId('remarks')
 										->setMaxLength(100)
@@ -141,8 +142,34 @@
 										->draw($show_input);
 							?>
 						</div>
+						<div class = "col-md-6">
+							<?php
+								echo $ui->formField('text')
+										->setLabel('Add Credit')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('credit_input')
+										->setId('credit_input')
+										->setClass('text-right')
+										->setMaxLength(20)
+										->setPlaceHolder("0.00")
+										->setValidation('decimal')
+										->setValue("0.00")
+										->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('text')
+										->setLabel('Available Credits')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('available_credits')
+										->setId('available_credits')
+										->setAttribute(array("style"=>"color:blue"))
+										->setMaxLength(30)
+										->addHidden()
+										->setValue("Php 0.00")
+										->draw();
+							?>							
+						</div>
 					</div>
-
 				</div>
 			</div>
 
@@ -2064,6 +2091,7 @@ function addPaymentAmount() {
 		discount = 0;
 	}
 	amount = addCommas(amount.toFixed(2));
+	console.log(amount);
 	$('#total_payment').val(amount);
 	discount = addCommas(discount.toFixed(2));
 	$('#total_discount').val(discount);
@@ -2241,23 +2269,27 @@ function init_storage(){
 function add_storage(id,balance,discount){
 	var amount 		= $('#paymentModal #paymentamount'+id).val();
 	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount};
+	
 	if(amount != ''){
 		var found = false;
 		for(var i=0; element=container[i]; i++) {
 			if(element.vno == newvalue.vno) {
-				var original_amount 	=	element.amt.replace(/\,/g,'');
-				var original_balance 	=	element.bal.replace(/\,/g,'');
+				var original_amount 	=	(element.amt > 0) ? element.amt.replace(/\,/g,'') : 0;
+				var original_balance 	=	(element.bal > 0) ? element.bal.replace(/\,/g,'') : 0;
 				var original_discount	=	((element.dis > 0) ? element.dis.replace(/\,/g,'') : 0);
 				
-				// console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount);
+				console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount);
 
-				var new_amount 			=	newvalue.amt.replace(/\,/g,'');
-				var new_balance 		=	newvalue.bal.replace(/\,/g,'');
-				var discount 			=	newvalue.dis.replace(/\,/g,'');
+				var new_amount 			=	(newvalue.amt > 0) ? newvalue.amt.replace(/\,/g,'') : 0;
+				var new_balance 		=	(newvalue.bal > 0) ? newvalue.bal.replace(/\,/g,'')	: 0;
+				var discount 			=	(newvalue.dis > 0) ? newvalue.dis.replace(/\,/g,'') : 0;
+				
+				console.log("New || "+new_amount+ " | " + new_balance + " | "+discount);
 
 				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount)) - new_amount;
 				available_balance 		=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
-			
+				console.log("available balance = "+available_balance);
+
 				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount)) - discount;
 				discounted_amount 		=	addCommas(discounted_amount.toFixed(2));
 
@@ -2285,6 +2317,7 @@ function add_storage(id,balance,discount){
 		}
 		
 	}else{
+		// balance 	=	(balance > 0) 	?	balance : 0;
 		$('#payable_list_container #payable_balance'+id).html(balance);;
 		container = container.filter(function( obj ) {
 			return obj.vno !== id;
@@ -2298,6 +2331,7 @@ function add_storage(id,balance,discount){
 /**CHECK BALANCE**/
 function checkBalance(val,id){
 	var table 			= document.getElementById('payable_list_container');
+	var total_amount 	= $('#payable_list_container #payable_amount'+id).attr('data-value');
 	var dueamount 		= $('#payable_list_container #payable_balance'+id).attr('data-value');
 	var discountamount 	= $('#payable_list_container #discountamount'+id).val();
 
@@ -2305,34 +2339,39 @@ function checkBalance(val,id){
 	discount			= discountamount.replace(/\,/g,'');
 
 	var newval			= val.replace(/,/g,'');
+	total_amount 		= total_amount.replace(/,/g,'');
 
 	var condition = "";
 	var input 	  = "";
 
 	condition 			= (parseFloat(newval) || parseFloat(discount)) > (parseFloat(dueamount) );
 
-	if(condition)
-	{
+	var excess_payment 	=	((newval 	-	total_amount) > 0) 	? newval - total_amount : 0;
+	console.log("Excess Payment = "+excess_payment);
+	
+	if(condition){
+		console.log('1');
+		$('#payableForm #overpayment').val(excess_payment);
 		$('#payable_list_container #paymentamount'+id).value = '';
 	}else{
+		console.log('2');
 		$('#payable_list_container #paymentamount'+id).value = val;
 	}
 
-	// console.log(parseFloat(val) + " " + parseFloat(totalamountval));
-
-	if(condition)
-	{
-		bootbox.alert("Payment amount is greater than the due amount of this Bill.", function() 
-		{
-			//add_storage(id);
-		});
-	}
-	else
-	{
-		add_storage(id,dueamount,discount);
-		// console.log(id);
-	}
-		
+	// if(condition)
+	// {
+	// 	bootbox.alert("Payment amount is greater than the due amount of this Bill.", function() 
+	// 	{
+	// 	});
+	// }
+	// else
+	// {
+	// 	add_storage(id,dueamount,discount);
+	// 	// console.log(id);
+	// }
+	dueamount 	=	(excess_payment > 0) 	?	 0	:	dueamount;
+	console.log("DUE AMOUNT " + dueamount);
+	add_storage(id,dueamount,discount);
 	addPaymentAmount();	
 }
 
@@ -2607,7 +2646,7 @@ function loadCheques(){
 		for(var x=0;x < arr_len;x++)
 		{	
 			var chequeaccount			= arr_from_json[x]['chequeaccount'];
-			var chequenumber			= arr_from_json[x]['chequenumber'];
+			var chequenumber			= arr_from_json[x]['chequenumber'];  
 			var chequedate				= arr_from_json[x]['chequedate'];
 			var chequeamount			= arr_from_json[x]['chequeamount'];
 			// var chequeconvertedamount	= arr_from_json[x]['chequeconvertedamount'];
@@ -3598,6 +3637,16 @@ $(document).ready(function() {
 		if ($('.accountcode').val()	 != '' || $('.cheque_account').val()	 != '' ) {
 			$('#change_customer_modal').modal('show');
 		} 
+		// Get Customer Credit
+		var customer = $(this).value;
+
+		$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_credits",$('#payableForm').serialize())
+		.done(function( response ) {
+			var excess_credits = addCommas(response.credits);
+			// console.log("EXCESS = "+excess_credits);
+			$('#available_credits').val(excess_credits);
+			$('#available_credits_static').html("Php "+excess_credits);
+		});
 	});
 
 	$('#entriesTable').on('change','.accountcode',function(){

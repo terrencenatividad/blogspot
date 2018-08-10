@@ -965,15 +965,19 @@ class controller extends wc_controller
 				$balance_2		= $balance;
 				
 				if (isset($amt_array[$voucher])) {
+					// echo " BAL + ".$amt_array[$voucher]['bal'];
 					$balance_2	= str_replace(',', '', $amt_array[$voucher]['bal']);
 					$balance_2 	= str_replace(',', '', $balance_2); 
 					$amount		= str_replace(',', '', $amt_array[$voucher]['amt']);
 					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0';
-					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount;
-
+					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance_2 + $amount + $discount;
+					// echo "... ".$balance_2."\n\n";
 					$balance_2 	= $balance_2 - $amount - $discount;
-					
+					// echo "?? = ".$balance_2."\n\n";
 				}
+
+				// echo "balance 1 = ".$balance."\n\n";
+				// echo "balance 2 = ".$balance_2."\n\n";
 
 				$disable_checkbox 	=	"";
 				$disable_onclick 	=	'onClick="selectPayable(\''.$voucher.'\',1);"';
@@ -989,7 +993,7 @@ class controller extends wc_controller
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$date.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$voucher.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
-				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_amount'.$voucher.'" '.$disable_onclick.'>'.number_format($totalamount,2).'</td>';
+				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_amount'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($totalamount,2).'">'.number_format($totalamount,2).'</td>';
 				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_balance'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance_2,2).'</td>';
 				if($voucher_checked == 'checked'){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
@@ -1420,4 +1424,13 @@ class controller extends wc_controller
 		return $csv;
 	}
 	
+	private function retrieve_credits(){
+		$customer 	=	$this->input->post("customer");
+
+		$ret_credit =	$this->receipt_voucher->retrieve_existing_credits($customer);
+		$credits 	= 	($ret_credit[0]->credits_amount > 0) ? $ret_credit[0]->credits_amount 	:	0;
+
+		$dataArray = array("credits"=>$credits);
+		return $dataArray;
+	}
 }

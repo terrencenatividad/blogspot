@@ -345,7 +345,7 @@ class receipt_voucher_model extends wc_model
 			// $addCondition 		= "AND ($sub_select) = 0 OR ($sub_select) > 0 AND main.convertedamount > ($sub_select)";
 			// $main_cond    		= "main.stat = 'posted'  AND main.vendor = '$vendorcode' $search_key $addCondition ";
 			// $query 				= $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
-			$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND main.balance > 0 ";
+			$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND main.balance != 0 ";
 			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $orderBy);
 			$tempArr["result"] = $query;
 		}
@@ -359,7 +359,7 @@ class receipt_voucher_model extends wc_model
 			// $main_cond    		= "main.stat = 'posted' AND main.vendor = '$vendorcode' $addCondition ";
 			// $query 				= $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
 			//$addCondition		= "AND main.convertedamount = ($sub_select AND pv.voucherno = '$voucherno') OR ($sub_select AND pv.voucherno = '$voucherno') > 0";
-			$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND ((main.balance - ($sub_select)) <= main.convertedamount) AND ( main.balance > 0 OR ($sub_select) > 0)";
+			$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND ((main.balance - ($sub_select)) <= main.convertedamount) AND ( main.balance != 0 OR ($sub_select) != 0)";
 			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $orderBy);
 			$tempArr["result"] = $query;
 		}
@@ -531,6 +531,7 @@ class receipt_voucher_model extends wc_model
 		$applicableHeaderTable 	= "accountsreceivable"; 
 		$applicableDetailTable 	= "ar_details"; 
 		$source				   	= "RV"; 
+		$customerTable 			= "partners";
 
 		$insertResult		   	= 0;
 	
@@ -544,7 +545,9 @@ class receipt_voucher_model extends wc_model
 		$total_debit			= (isset($data['total_debit']) && (!empty($data['total_debit']))) ? htmlentities(addslashes(trim($data['total_debit']))) : "";
 		$total_credit			= (isset($data['total_credit']) && (!empty($data['total_credit']))) ? htmlentities(addslashes(trim($data['total_credit']))) : "";
 		$total_payment			= (isset($data['total_payment']) && (!empty($data['total_payment']))) ? htmlentities(addslashes(trim($data['total_payment']))) : $total_debit;
+		$overpayment 			= (isset($data['overpayment']) && (!empty($data['overpayment']))) ? htmlentities(addslashes(trim($data['overpayment']))) : 	"";
 		$task 					= (isset($data['h_task']) && (!empty($data['h_task']))) ? htmlentities(addslashes(trim($data['h_task']))) : "";
+		$credit_used 			= (isset($data['credit_input']) && (!empty($data['credit_input']))) ? htmlentities(addslashes(trim($data['credit_input']))) 	:	"";
 		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
 		$invoice_data  			= str_replace('\\', '', $h_check_rows);
 		$invoice_data  			= html_entity_decode($invoice_data);
@@ -680,6 +683,7 @@ class receipt_voucher_model extends wc_model
 		$post_header['period']			= $period;
 		$post_header['fiscalyear']		= $fiscalyear;
 		$post_header['releaseby']		= USERNAME;
+		// $post_header['excessamount'] 	= $overpayment;
 		$post_header['currencycode']	= 'PHP';
 		$post_header['amount']			= $total_payment;
 		$post_header['exchangerate']	= $exchangerate;
@@ -925,13 +929,32 @@ class receipt_voucher_model extends wc_model
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
 
 				$balance_info['amountreceived']	= $applied_sum;
-
-				$balance_info['balance']	= $invoice_amount - $applied_sum;
+				$balance_info['excessamount'] 	= $overpayment;
+				$balance_amt 					= $invoice_amount - $applied_sum;
+				$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;
 				
 				$insertResult = $this->db->setTable($applicableHeaderTable)
 								->setValues($balance_info)
 								->setWhere("voucherno = '$payable'")
 								->runUpdate();
+					
+				if($insertResult){
+					$partner_dtl 	=$this->getValue(
+											$customerTable, 
+											"credits_amount", 
+											" partnercode = '$customer' "
+										);
+
+					$existing_credit	= ($partner_dtl[0]->credits_amount > 0) ? $partner_dtl[0]->credits_amount 	:	0;
+					
+					$existing_credit 	+=	$overpayment;
+					$partner_info['credits_amount'] 	=	$existing_credit;
+
+					$insertResult 	=	$this->db->setTable($customerTable)
+												 ->setValues($partner_info)
+												 ->setWhere("partnercode = '$customer'")
+												 ->runUpdate();
+				}
 			}
 		}
 
@@ -1466,5 +1489,15 @@ class receipt_voucher_model extends wc_model
 					->runSelect()
 					->getResult();
 		return $result;
+	}
+
+	public function retrieve_existing_credits($customer){
+		$credits 	=	$this->getValue(
+									"partners", 
+									"credits_amount", 
+									" partnercode = '$customer' "
+								);
+
+		return $credits;
 	}
 }
