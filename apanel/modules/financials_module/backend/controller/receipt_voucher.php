@@ -1089,6 +1089,8 @@ class controller extends wc_controller
 	{
 		$checkrows       = $this->input->post("checkrows");
 		$cheques       	 = $this->input->post("cheques");
+		$overpayment 	 = $this->input->post("overpayment");
+
 		$invoice_data 	= (isset($checkrows) && (!empty($checkrows))) ? trim($checkrows) : "";
 		$invoice_data  	= str_replace('\\', '', $invoice_data);
 		$decode_json    = json_decode($invoice_data, true);
@@ -1133,9 +1135,15 @@ class controller extends wc_controller
 		$table 				= "";
 		$row 				= 1;
 
+		if($overpayment > 0 || $overpayment != ""){
+			$data['excess'] 	= $overpayment;
+			$overpaymentacct 	=	$this->receipt_voucher->retrieveOPDetails();
+			$results 			=	array_merge($results,$overpaymentacct);
+		}
+
 		// Retrieve business type list
 		$acc_entry_data     = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond     = "accounttype != 'P'";
+		$acc_entry_cond     = "";
 		$account_entry_list = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		$ui 	            = $this->ui;
@@ -1153,13 +1161,18 @@ class controller extends wc_controller
 				$accountcode       = (!empty($results[$i]->accountcode)) ? $results[$i]->accountcode : "";
 				$detailparticulars = (!empty($results[$i]->detailparticulars)) ? $results[$i]->detailparticulars : "";
 				$ischeck 			= (!empty($results[$i]->ischeck)) 				? $results[$i]->ischeck 			: "no";
-				
+				$isoverpayment 		= (!empty($results[$i]->is_overpayment)) 	?	$results[$i]->is_overpayment 	:	"no";
 				// Sum of credit will go to debit side on PV
 				// $debit         	= number_format($results[$i]->sumcredit, 2);
 				$debit 				= (isset($results[$i]->chequeamount)) ? $results[$i]->chequeamount : "0";
-
-				$credit 			= (isset($account_total[$accountcode])) ? $account_total[$accountcode] : 0;
-				$credit 			= number_format($credit,2);
+	
+				if($isoverpayment == 'yes'){
+					$credit 			= number_format($overpayment,2);
+				} else {
+					$credit 			= (isset($account_total[$accountcode])) ? $account_total[$accountcode]	- $overpayment : 0;
+					$credit 			= number_format($credit,2);
+				}
+				// echo $credit."\n\n";
 
 				$totalcredit     	+= $debit; 
 

@@ -2149,8 +2149,9 @@ var container 		= (payments != '') ? payments : [];
 var selectedIndex 	= -1;
 function getRVDetails(){
 	var customercode   	= $("#customer").val();
-	var selected_rows 	= JSON.stringify(container);
+	var overpayment 	= $('#overpayment').val();
 
+	var selected_rows 	= JSON.stringify(container);
 	var cheques = [];
 	cheques_obj = getCheckAccounts();
 
@@ -2165,7 +2166,7 @@ function getRVDetails(){
 
 	$("#selected_rows").html(selected_rows);
 
-	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques;
+	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques + "&overpayment="+overpayment;
 	
 	if(selected_rows == "")
 	{

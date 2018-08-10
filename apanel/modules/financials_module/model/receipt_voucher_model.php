@@ -365,7 +365,7 @@ class receipt_voucher_model extends wc_model
 		}
 		return $query;
 	}
-
+	
 	public function retrieveRVDetails($data)
 	{
 		$cond  		= (isset($data["cond"]) && !empty($data["cond"])) ? $data["cond"]: "";
@@ -403,8 +403,7 @@ class receipt_voucher_model extends wc_model
 							->runSelect()
 							->getResult();
 							// echo $this->db->getQuery();
-							// ->buildSelect();
-		
+							// ->buildSelect();		
 
 		return $query;
 	}
@@ -549,6 +548,7 @@ class receipt_voucher_model extends wc_model
 		$task 					= (isset($data['h_task']) && (!empty($data['h_task']))) ? htmlentities(addslashes(trim($data['h_task']))) : "";
 		$credit_used 			= (isset($data['credit_input']) && (!empty($data['credit_input']))) ? htmlentities(addslashes(trim($data['credit_input']))) 	:	"";
 		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
+		$credit_input 			= (isset($data['credit_input']) && (!empty($data['credit_input']))) ? htmlentities(addslashes($data['credit_input'])) 	:	0;
 		$invoice_data  			= str_replace('\\', '', $h_check_rows);
 		$invoice_data  			= html_entity_decode($invoice_data);
 		$picked_payables		= json_decode($invoice_data, true);
@@ -683,7 +683,7 @@ class receipt_voucher_model extends wc_model
 		$post_header['period']			= $period;
 		$post_header['fiscalyear']		= $fiscalyear;
 		$post_header['releaseby']		= USERNAME;
-		// $post_header['excessamount'] 	= $overpayment;
+		$post_header['credits_used'] 	= $credit_input;
 		$post_header['currencycode']	= 'PHP';
 		$post_header['amount']			= $total_payment;
 		$post_header['exchangerate']	= $exchangerate;
@@ -948,7 +948,7 @@ class receipt_voucher_model extends wc_model
 					$existing_credit	= ($partner_dtl[0]->credits_amount > 0) ? $partner_dtl[0]->credits_amount 	:	0;
 					
 					$existing_credit 	+=	$overpayment;
-					$partner_info['credits_amount'] 	=	$existing_credit;
+					$partner_info['credits_amount'] 	=	( $existing_credit - $credit_used );
 
 					$insertResult 	=	$this->db->setTable($customerTable)
 												 ->setValues($partner_info)
@@ -1499,5 +1499,15 @@ class receipt_voucher_model extends wc_model
 								);
 
 		return $credits;
+	}
+
+	public function retrieveOPdetails(){
+		$query 	=	$this->db->setTable("fintaxcode")
+							 ->setFields("salesAccount accountcode, 'yes' is_overpayment")
+							 ->setWhere("fstaxcode = 'OP'")
+							 ->runSelect()
+							 ->getResult();
+
+		return $query;
 	}
 }
