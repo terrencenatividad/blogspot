@@ -146,9 +146,15 @@
 		});
 
 		$('#tableList').on('click', '.deactivate', function() { 
-			var code = $(this).attr('data-id');
-			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&uomcode='+code ,function(data) {
-				getList();
+			$('#deactivate_modal').modal('show');
+			var id = $(this).attr('data-id');
+			
+			$('#deactivate_modal').on('click', '#deactyes', function() {
+				$('#deactivate_modal').modal('hide');
+				
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&uomcode='+id ,function(data) {
+					getList();
+				});
 			});
 		});
 </script>

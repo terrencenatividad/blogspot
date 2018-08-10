@@ -335,9 +335,15 @@ $(function() {
 		});
 
 		$('#customer_table').on('click', '.deactivate', function() { 
+			$('#deactivate_modal').modal('show');
 			var id = $(this).attr('data-id');
-			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
-				showList();
+			
+			$('#deactivate_modal').on('click', '#deactyes', function() {
+				$('#deactivate_modal').modal('hide');
+				
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+					showList();
+				});
 			});
 		});
 

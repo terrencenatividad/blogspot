@@ -495,9 +495,15 @@ $('#sales_person_table').on('click', '.activate', function() {
 		});
 
 		$('#sales_person_table').on('click', '.deactivate', function() { 
-			var code = $(this).attr('data-id');
-			$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&partnercode='+code ,function(data) {
-				showList();
+			$('#deactivate_modal').modal('show');
+			var id = $(this).attr('data-id');
+			
+			$('#deactivate_modal').on('click', '#deactyes', function() {
+				$('#deactivate_modal').modal('hide');
+				
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&partnercode='+id ,function(data) {
+					showList();
+				});
 			});
 		});
 $('#export_id').prop('download','sales_person.csv');
