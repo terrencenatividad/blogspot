@@ -187,6 +187,9 @@ class controller extends wc_controller
 				$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_application",$update_condition);
 				$update_cheque['voucherno']	= $generatedvoucher;
 				$updateTempRecord			= $this->receipt_voucher->editData($update_cheque,"rv_cheques",$update_condition);
+				// Update TMP source of CM
+				// $update_source['']
+				// $updateTempRecord			= $this->receipt_voucher->editData($update_cheque,"rv_cheques",$update_condition);
 
 				/**UPDATE MAIN INVOICE**/
 				$this->update_app($data_validate['selected_rows']);
@@ -1448,7 +1451,7 @@ class controller extends wc_controller
 		return $dataArray;
 	}
 
-	private function retrieve_cred_acct(){
+	private function retrieve_op_acct(){
 		$overpaymentacct 	=	$this->receipt_voucher->retrieveOPDetails();
 		$op_acct 			=	isset($overpaymentacct[0]->accountcode) 	?	$overpaymentacct[0]->accountcode 	:	"";
 		$dataArray 	=	array("account"=>$op_acct);
