@@ -1445,7 +1445,7 @@ class controller extends wc_controller
 		$customer 	=	$this->input->post("customer");
 
 		$ret_credit =	$this->receipt_voucher->retrieve_existing_credits($customer);
-		$credits 	= 	($ret_credit[0]->credits_amount > 0) ? $ret_credit[0]->credits_amount 	:	0;
+		$credits 	= 	(isset($ret_credit[0]->curr_credit) && $ret_credit[0]->curr_credit > 0) ? $ret_credit[0]->curr_credit 	:	0;
 
 		$dataArray = array("credits"=>$credits);
 		return $dataArray;

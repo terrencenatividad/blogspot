@@ -1595,12 +1595,45 @@ class receipt_voucher_model extends wc_model
 	}
 
 	public function retrieve_existing_credits($customer){
-		$credits 	=	$this->getValue(
-									"partners", 
-									"credits_amount", 
-									" partnercode = '$customer' "
-								);
+		// OPTION 1
+		// 	SELECT ar.customer, SUM(ar.excessamount) overpayment, payment.applied, IF(SUM(ar.excessamount)-payment.applied > 0, SUM(ar.excessamount)-payment.applied, 0) curr_credit
+		// FROM `accountsreceivable` ar
+		// LEFT JOIN ( SELECT rv.customer, SUM(rv.credits_used) applied
+		//           	FROM receiptvoucher rv 
+		//             GROUP BY rv.customer) payment ON payment.customer = ar.customer
+		// GROUP BY ar.customer
+		// ORDER BY ar.customer ASC
 
+		// OPTION 2
+		// SELECT cm.customer, SUM(cm.amount) overpayment, payment.applied, IF(SUM(cm.amount)-payment.applied > 0, SUM(cm.amount)-payment.applied, 0) curr_credit
+		// FROM `journalvoucher` cm
+		// LEFT JOIN ( SELECT rv.customer, SUM(rv.credits_used) applied
+		// 			FROM receiptvoucher rv 
+		// 			GROUP BY rv.customer) payment ON payment.customer = cm.customer
+		// WHERE cm.source = "excess" AND cm.transtype = "CM"
+		// GROUP BY cm.customer
+		// ORDER BY cm.customer ASC
+
+		// $credits 	=	$this->getValue(
+		// 							"partners", 
+		// 							"credits_amount", 
+		// 							" partnercode = '$customer' "
+		// 						);
+		
+		$leftJoin 		= 	$this->db->setTable("receiptvoucher rv")
+									 ->setFields("rv.customer, SUM(rv.credits_used) applied")
+									 ->setWhere("rv.customer = '$customer'")
+									 ->setGroupBy("rv.customer")
+									 ->buildSelect();
+
+		$credits 		= 	$this->db->setTable("accountsreceivable ar")
+									 ->setFields("ar.customer, SUM(ar.excessamount) overpayment, payment.applied, IF(SUM(ar.excessamount)-payment.applied > 0, SUM(ar.excessamount)-payment.applied, 0) curr_credit")
+									 ->leftJoin("($leftJoin) payment ON payment.customer = ar.customer")
+									 ->setWhere("ar.customer = '$customer'")
+									 ->setGroupBy("ar.customer")
+									 ->setOrderBy("ar.customer ASC")
+									 ->runSelect()
+									 ->getResult();
 		return $credits;
 	}
 
