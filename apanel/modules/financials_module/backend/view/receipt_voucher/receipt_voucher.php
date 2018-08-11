@@ -106,7 +106,7 @@
 									}
 									?>
 								</div>
-								<input type = "hidden" id = "overpayment" name = "overpayment" value = "<?= $generated_id ?>">
+								<input type = "hidden" id = "overpayment" name = "overpayment" value = "0">
 							</div>
 						</div>
 						<!-- Text Area for selected payables -->
@@ -3291,6 +3291,8 @@ $(document).ready(function() {
 					{
 						$("#payableForm #h_voucher_no").val(data.voucher);
 						$("#payableForm").submit();
+
+						
 					}
 					else
 					{
@@ -3722,6 +3724,16 @@ $(document).ready(function() {
 		} else {
 			$('#excess_credit_error').addClass('hidden');
 			$(this).closest('.form-group').removeClass('has-error');
+			
+			// sabaw should have been for credit memo entry.
+
+			// $.post("<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_cred_acct",$('#payableForm').serialize())
+			// .done(function( response ) {
+			// 	var excess_acct = addCommas(response.account);
+			// 	$('#entriesTable tbody tr.clone:first').find('.account_amount').val(addComma(input));
+			// 	$('#entriesTable tbody tr.clone:first').find('.accountcode').val(excess_acct).trigger('change');
+			// 	addAmountAll('debit');
+			// });
 		}
 		
 	});

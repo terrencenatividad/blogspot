@@ -1108,7 +1108,7 @@ class controller extends wc_controller
 		{
 			$apvoucherno = $decode_json[$i]["vno"];
 			$accountcode = $this->receipt_voucher->getValue('ar_details apd LEFT JOIN chartaccount AS chart ON apd.accountcode = chart.id AND chart.companycode = apd.companycode','accountcode',"voucherno = '$apvoucherno' AND chart.accountclasscode = 'ACCREC'","","","apd.accountcode");
-			$accountcode = $accountcode[0]->accountcode;
+			$accountcode = isset($accountcode[0]->accountcode) 	?	$accountcode[0]->accountcode 	:	"";
 			if ( ! isset($account_amounts[$accountcode])) {
 				$account_amounts[$accountcode] = 0;
 			}
@@ -1135,11 +1135,11 @@ class controller extends wc_controller
 		$table 				= "";
 		$row 				= 1;
 
-		if($overpayment > 0 || $overpayment != ""){
-			$data['excess'] 	= $overpayment;
-			$overpaymentacct 	=	$this->receipt_voucher->retrieveOPDetails();
-			$results 			=	array_merge($results,$overpaymentacct);
-		}
+		// if($overpayment > 0 && isset($overpayment)){
+		// 	$data['excess'] 	= $overpayment;
+		// 	$overpaymentacct 	=	$this->receipt_voucher->retrieveOPDetails();
+		// 	$results 			=	array_merge($results,$overpaymentacct);
+		// }
 
 		// Retrieve business type list
 		$acc_entry_data     = array("id ind","CONCAT(segment5, ' - ', accountname) val");
@@ -1161,17 +1161,18 @@ class controller extends wc_controller
 				$accountcode       = (!empty($results[$i]->accountcode)) ? $results[$i]->accountcode : "";
 				$detailparticulars = (!empty($results[$i]->detailparticulars)) ? $results[$i]->detailparticulars : "";
 				$ischeck 			= (!empty($results[$i]->ischeck)) 				? $results[$i]->ischeck 			: "no";
-				$isoverpayment 		= (!empty($results[$i]->is_overpayment)) 	?	$results[$i]->is_overpayment 	:	"no";
+				// $isoverpayment 		= (!empty($results[$i]->is_overpayment)) 	?	$results[$i]->is_overpayment 	:	"no";
 				// Sum of credit will go to debit side on PV
 				// $debit         	= number_format($results[$i]->sumcredit, 2);
 				$debit 				= (isset($results[$i]->chequeamount)) ? $results[$i]->chequeamount : "0";
 	
-				if($isoverpayment == 'yes'){
-					$credit 			= number_format($overpayment,2);
-				} else {
-					$credit 			= (isset($account_total[$accountcode])) ? $account_total[$accountcode]	- $overpayment : 0;
-					$credit 			= number_format($credit,2);
-				}
+				// if($isoverpayment == 'yes'){
+				// 	$credit 			= number_format($overpayment,2);
+				// } else {
+					
+				// }
+				$credit 			= (isset($account_total[$accountcode])) ? $account_total[$accountcode] : 0;
+				$credit 			= number_format($credit,2);
 				// echo $credit."\n\n";
 
 				$totalcredit     	+= $debit; 
@@ -1444,6 +1445,13 @@ class controller extends wc_controller
 		$credits 	= 	($ret_credit[0]->credits_amount > 0) ? $ret_credit[0]->credits_amount 	:	0;
 
 		$dataArray = array("credits"=>$credits);
+		return $dataArray;
+	}
+
+	private function retrieve_cred_acct(){
+		$overpaymentacct 	=	$this->receipt_voucher->retrieveOPDetails();
+		$op_acct 			=	isset($overpaymentacct[0]->accountcode) 	?	$overpaymentacct[0]->accountcode 	:	"";
+		$dataArray 	=	array("account"=>$op_acct);
 		return $dataArray;
 	}
 }

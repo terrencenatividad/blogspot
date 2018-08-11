@@ -954,6 +954,11 @@ class receipt_voucher_model extends wc_model
 												 ->setValues($partner_info)
 												 ->setWhere("partnercode = '$customer'")
 												 ->runUpdate();
+					
+					// Insert Overpayment on Credit Memo
+					if($insertResult){
+						$op_result 	=	$this->generateCreditMemo($data);
+					}
 				}
 			}
 		}
@@ -963,6 +968,102 @@ class receipt_voucher_model extends wc_model
 			'voucher' 	=> $voucherno,
 			'errmsg' 	=> $errmsg
 		);
+	}
+
+	public function generateCreditMemo($data){
+		$voucherno				= (isset($data['h_voucher_no']) && (!empty($data['h_voucher_no']))) ? htmlentities(addslashes(trim($data['h_voucher_no']))) : "";
+		$customer				= (isset($data['customer']) && (!empty($data['customer']))) ? htmlentities(addslashes(trim($data['customer']))) : "";
+		$or_no					= (isset($data['paymentreference']) && (!empty($data['paymentreference']))) ? htmlentities(addslashes(trim($data['paymentreference']))) : "";
+		$transactiondate		= (isset($data['document_date']) && (!empty($data['document_date']))) ? htmlentities(addslashes(trim($data['document_date']))) : "";
+		$remarks				= (isset($data['remarks']) && (!empty($data['remarks']))) ? htmlentities(addslashes(trim($data['remarks']))) : "";
+		$overpayment 			= (isset($data['overpayment']) && (!empty($data['overpayment']))) ? htmlentities(addslashes(trim($data['overpayment']))) : 	"";
+		$task 					= (isset($data['h_task']) && (!empty($data['h_task']))) ? htmlentities(addslashes(trim($data['h_task']))) : "";
+		
+		$seq 			= new seqcontrol();
+		$cm_no 			= $seq->getValue("CM");
+		$exchangerate	= '1.00';
+		$datetime	  	= date("Y-m-d H:i:s");
+
+		$op_arr['voucherno'] 		= $cm_no;
+		$op_arr['transtype'] 		= "CM";
+		$op_arr['stat'] 			= "posted";
+		$op_arr['credit_stat'] 		= "unused";
+		$op_arr['transactiondate']	= $transactiondate;
+		$op_arr['fiscalyear'] 		= date("n", strtotime($transactiondate));
+		$op_arr['period'] 			= date("Y", strtotime($transactiondate));
+		$op_arr['customer']			= $customer;
+		$op_arr['partner']			= $customer;
+		$op_arr['currencycode']		= "PHP";
+		$op_arr['exchangerate']		= $exchangerate;
+		$op_arr['amount']			= $overpayment;
+		$op_arr['referenceno'] 		= $or_no;
+		$op_arr['source'] 			= "excess";
+		$op_arr['sourceno']			= $voucherno;
+		$op_arr['remarks'] 			= $remarks;
+
+		$result 	=	 $this->insertdata('journalvoucher',$op_arr);
+
+		if( $result ){
+			$data['cvoucher'] 	=	$cm_no;
+			$result 			=	$this->generateCMDetails($data);
+		}
+
+		return $result;
+	}
+
+	public function generateCMDetails($data){
+		$voucherno				= (isset($data['h_voucher_no']) && (!empty($data['h_voucher_no']))) ? htmlentities(addslashes(trim($data['h_voucher_no']))) : "";
+		$customer				= (isset($data['customer']) && (!empty($data['customer']))) ? htmlentities(addslashes(trim($data['customer']))) : "";
+		$or_no					= (isset($data['paymentreference']) && (!empty($data['paymentreference']))) ? htmlentities(addslashes(trim($data['paymentreference']))) : "";
+		$transactiondate		= (isset($data['transactiondate']) && (!empty($data['transactiondate']))) ? htmlentities(addslashes(trim($data['transactiondate']))) : "";
+		$remarks				= (isset($data['remarks']) && (!empty($data['remarks']))) ? htmlentities(addslashes(trim($data['remarks']))) : "";
+		$overpayment 			= (isset($data['overpayment']) && (!empty($data['overpayment']))) ? htmlentities(addslashes(trim($data['overpayment']))) : 	"";
+		$task 					= (isset($data['h_task']) && (!empty($data['h_task']))) ? htmlentities(addslashes(trim($data['h_task']))) : "";
+		$cm_no					= (isset($data['cvoucher']) && (!empty($data['cvoucher']))) ? htmlentities(addslashes(trim($data['cvoucher']))) : "";
+		
+		$transactiondate 		= 	$this->date->dateDBFormat();
+		$period					= 	date("n",strtotime($transactiondate));
+		$fiscalyear				= 	date("Y",strtotime($transactiondate));
+
+		$result 				=	0;
+
+		$ret_acct 				=	$this->retrieveOPDebitdetails();
+		$debit_acct 			=	isset($ret_acct[0]->accountcode) 	?	$ret_acct[0]->accountcode 	:	"";
+	
+		$details['voucherno'] 			=	$cm_no;
+		$details['transtype'] 			=	'CM';
+		$details['linenum'] 			=	1;
+		$details['accountcode'] 		= 	$debit_acct;
+		$details['debit'] 				=  	$overpayment;
+		$details['credit'] 				=	0;
+		$details['exchangerate'] 		= 	1;
+		$details['converteddebit'] 		= 	$overpayment;
+		$details['convertedcredit'] 	= 	0;
+		$details['detailparticulars'] 	= 	"";
+		$details['stat'] 				= 	"posted";
+
+		$result 	=	 $this->insertdata('journaldetails',$details);
+
+		if( $result ) {
+			$ret_acct 		=	$this->retrieveOPdetails();
+			$op_acct 			=	isset($ret_acct[0]->accountcode) 	?	$ret_acct[0]->accountcode 	:	"";
+		
+			$details['voucherno'] 			=	$cm_no;
+			$details['transtype'] 			=	'CM';
+			$details['linenum'] 			=	2;
+			$details['accountcode'] 		= 	$op_acct;
+			$details['debit'] 				=  	0;
+			$details['credit'] 				=	$overpayment;
+			$details['exchangerate'] 		= 	1;
+			$details['converteddebit'] 		= 	0;
+			$details['convertedcredit'] 	= 	$overpayment;
+			$details['detailparticulars'] 	= 	"";
+			$details['stat'] 				= 	"posted";
+
+			$result 	=	 $this->insertdata('journaldetails',$details);
+		}
+
+		return $result;
 	}
 
 	private function unique_multidim_array($array, $key) { 
@@ -979,6 +1080,7 @@ class receipt_voucher_model extends wc_model
 		} 
 		return $temp_array; 
 	}
+
 	public function saveDetails($table, $data, $form = "")
 	{
 		$result 				   = "";
@@ -1509,5 +1611,24 @@ class receipt_voucher_model extends wc_model
 							 ->getResult();
 
 		return $query;
+	}
+
+	public function retrieveOPDebitdetails(){
+		$query 	=	$this->db->setTable("fintaxcode")
+							 ->setFields("purchaseAccount accountcode, 'yes' is_overpayment")
+							 ->setWhere("fstaxcode = 'OP'")
+							 ->runSelect()
+							 ->getResult();
+
+		return $query;
+	}
+
+	public function insertData($table, $data){
+		$result 	=	$this->db->setTable($table)
+				 		->setValues($data)
+				 		->runInsert();
+		// echo $result;
+
+		return $result;
 	}
 }
