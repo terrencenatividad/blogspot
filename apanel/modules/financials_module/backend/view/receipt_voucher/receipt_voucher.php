@@ -2441,7 +2441,8 @@ function checkCredit(val,id){
 	} else {
 		payment_amt		=	current_payment -	input;
 		console.log("Current Payment = "+payment_amt);
-		// $('#paymentamount'+id).val(addComma(payment_amt));
+		$('#excess_credit_error').addClass('hidden');
+		$(this).closest('.form-group').removeClass('has-error');
 	}
 
 	// dueamount 	=	(input > 0) 		?	payment_amt	:	dueamount;
