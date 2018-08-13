@@ -540,7 +540,7 @@ class receipt_voucher_model extends wc_model
 		$overpayment 			= (isset($data['overpayment']) && (!empty($data['overpayment']))) ? htmlentities(addslashes(trim($data['overpayment']))) : 	"";
 		$task 					= (isset($data['h_task']) && (!empty($data['h_task']))) ? htmlentities(addslashes(trim($data['h_task']))) : "";
 		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
-		$credit_input 			= (isset($data['credit_input']) && (!empty($data['credit_input']))) ? htmlentities(addslashes($data['credit_input'])) 	:	0;
+		// $credit_input 			= (isset($data['credit_input']) && (!empty($data['credit_input']))) ? htmlentities(addslashes($data['credit_input'])) 	:	0;
 		$invoice_data  			= str_replace('\\', '', $h_check_rows);
 		$invoice_data  			= html_entity_decode($invoice_data);
 		$picked_payables		= json_decode($invoice_data, true);
@@ -557,7 +557,6 @@ class receipt_voucher_model extends wc_model
 		$convertedamount 		= str_replace(',','',$convertedamount);
 		$total_debit 			= str_replace(',','',$total_debit);
 		$total_credit 			= str_replace(',','',$total_credit);
-		$credit_input 			= str_replace(',','',$credit_input);
 
 		$gen_value              = $this->getValue("receiptvoucher", "COUNT(*) as count", " voucherno != ''");	
 		$temporary_voucher     	= (!empty($gen_value[0]->count)) ? 'RV_'.($gen_value[0]->count + 1) : 'RV_1';
@@ -1008,10 +1007,12 @@ class receipt_voucher_model extends wc_model
 		$op_arr['partner']			= $customer;
 		$op_arr['currencycode']		= "PHP";
 		$op_arr['exchangerate']		= $exchangerate;
+		$op_arr['invoiceno'] 		= $invoiceno;
 		$op_arr['amount']			= $overpayment;
+		$op_arr['convertedamount']	= $overpayment * $exchangerate;
 		$op_arr['referenceno'] 		= $invoiceno;
 		$op_arr['source'] 			= "excess";
-		$op_arr['sourceno']			= $invoiceno;
+		$op_arr['sourceno']			= $arvoucher;
 		$op_arr['remarks'] 			= $remarks;
 
 		$result 	=	 $this->insertdata('journalvoucher',$op_arr);
@@ -1040,6 +1041,8 @@ class receipt_voucher_model extends wc_model
 
 		$result 				=	0;
 
+		$exchangerate			= '1.00';
+
 		$ret_acct 				=	$this->retrieveOPDebitdetails();
 		$debit_acct 			=	isset($ret_acct[0]->accountcode) 	?	$ret_acct[0]->accountcode 	:	"";
 	
@@ -1049,8 +1052,8 @@ class receipt_voucher_model extends wc_model
 		$details['accountcode'] 		= 	$debit_acct;
 		$details['debit'] 				=  	$overpayment;
 		$details['credit'] 				=	0;
-		$details['exchangerate'] 		= 	1;
-		$details['converteddebit'] 		= 	$overpayment;
+		$details['exchangerate'] 		= 	$exchangerate;
+		$details['converteddebit'] 		= 	$overpayment * $exchangerate;
 		$details['convertedcredit'] 	= 	0;
 		$details['detailparticulars'] 	= 	"";
 		$details['stat'] 				= 	"posted";
@@ -1059,7 +1062,7 @@ class receipt_voucher_model extends wc_model
 
 		if( $result ) {
 			$ret_acct 		=	$this->retrieveOPdetails();
-			$op_acct 			=	isset($ret_acct[0]->accountcode) 	?	$ret_acct[0]->accountcode 	:	"";
+			$op_acct 		=	isset($ret_acct[0]->accountcode) 	?	$ret_acct[0]->accountcode 	:	"";
 		
 			$details['voucherno'] 			=	$cm_no;
 			$details['transtype'] 			=	'CM';
@@ -1067,9 +1070,9 @@ class receipt_voucher_model extends wc_model
 			$details['accountcode'] 		= 	$op_acct;
 			$details['debit'] 				=  	0;
 			$details['credit'] 				=	$overpayment;
-			$details['exchangerate'] 		= 	1;
+			$details['exchangerate'] 		= 	$exchangerate;
 			$details['converteddebit'] 		= 	0;
-			$details['convertedcredit'] 	= 	$overpayment;
+			$details['convertedcredit'] 	= 	$overpayment * $exchangerate;
 			$details['detailparticulars'] 	= 	"";
 			$details['stat'] 				= 	"posted";
 
