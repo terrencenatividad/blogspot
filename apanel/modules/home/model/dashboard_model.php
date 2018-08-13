@@ -48,7 +48,7 @@ class dashboard_model extends wc_model {
 	public function getInvoices() {
 		$result = $this->db->setTable('salesinvoice')
 							->setFields('COUNT(*) quantity')
-							->setWhere("stat NOT IN ('cancelled', 'temporary') AND fiscalyear = '{$this->year}'")
+							->setWhere("stat NOT IN ('cancelled', 'temporary')")
 							->runSelect()
 							->getRow();
 		
@@ -60,7 +60,7 @@ class dashboard_model extends wc_model {
 	public function getPurchases() {
 		$result = $this->db->setTable('purchasereceipt')
 							->setFields('COUNT(*) quantity')
-							->setWhere("stat NOT IN ('Cancelled', 'temporary') AND fiscalyear = '{$this->year}'")
+							->setWhere("stat NOT IN ('Cancelled', 'temporary')")
 							->runSelect()
 							->getRow();
 		
@@ -83,7 +83,7 @@ class dashboard_model extends wc_model {
 	public function getJournalVouchers() {
 		$result = $this->db->setTable('journalvoucher')
 							->setFields('COUNT(*) quantity')
-							->setWhere("stat = 'posted' AND transtype = 'JV' AND fiscalyear = '{$this->year}'")
+							->setWhere("stat = 'posted' AND transtype = 'JV'")
 							->runSelect()
 							->getRow();
 		
