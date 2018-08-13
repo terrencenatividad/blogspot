@@ -163,6 +163,7 @@ function show_success_msg(msg)
 {
 	$('#success_modal #message').html(msg);
 	$('#success_modal').modal('show');
+	showList();
 }
 
 function showList(pg){

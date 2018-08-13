@@ -185,7 +185,8 @@
 							<a class="approve btn btn-warning" data-id="<?=$transactionno?>">Approve</a>
 							<a class="reject btn btn-danger" data-id="<?=$transactionno?>">Reject</a>	
 						<? } ?>
-						<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
+						<!-- <a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a> -->
+						<?php echo $ui->drawCancel(); ?>
 					</div>
 				</div>
 			</div>
@@ -728,4 +729,12 @@
 	}
 
 <?endif;?>
+$('.cancel').click(function() 
+		{
+			$('#cancelModal').modal('show');
+			$('#cancelModal').on('click', '#btnYes', function() {
+				$('#cancelModal').modal('hide');
+				window.location =	"<?= MODULE_URL ?>";
+				});
+		});
 </script>

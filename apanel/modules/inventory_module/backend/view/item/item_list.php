@@ -256,6 +256,7 @@
 						if (data.success) {
 							getList();
 							$('#import-modal').modal('hide');
+							show_success_msg("Your data has been successfully imported!");
 						} else {
 							addError(`
 								<table class="table">
@@ -330,6 +331,13 @@
 			linkDeleteToModal('#tableList .delete', 'ajaxCallback');
 			linkDeleteMultipleToModal('#item_multiple_delete', '#tableList', 'ajaxCallback');
 		});
+
+		function show_success_msg(msg)
+		{
+			$('#success_modal #message').html(msg);
+			$('#success_modal').modal('show');
+			showList();
+		}
 
 		$('#export_id').prop('download','item_master.csv');
 		$('#export_id').prop('href','<?= MODULE_URL ?>get_export');

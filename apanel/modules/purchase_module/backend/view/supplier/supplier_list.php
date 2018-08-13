@@ -268,6 +268,7 @@ $(document).ready(function()
 									$(".alert-warning").addClass("hidden");
 									$("#errmsg").html('');
 									show_success_msg('Your Data has been imported successfully.');
+									showList();
 								}else{
 									$('#import-modal').modal('hide');
 									show_error(response.errmsg);

@@ -164,6 +164,7 @@
 	{
 		$('#success_modal #message').html('Your Data has been imported successfully.');
 		$('#success_modal').modal('show');
+		getList();
 	}
 	function getList() {
 		filterToURL();

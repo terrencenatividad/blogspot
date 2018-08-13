@@ -189,6 +189,7 @@
 						if (data.success) {
 							getList();
 							$('#import-modal').modal('hide');
+							show_success_msg("Your data has been successfully imported!");
 						} else {
 							addError('<p>' + data.error + '</p>', true);
 							try {
@@ -289,6 +290,13 @@
 				getList();
 			});
 		});
+
+		function show_success_msg(msg)
+		{
+			$('#success_modal #message').html(msg);
+			$('#success_modal').modal('show');
+			getList();
+		}
 
 		$('#tableList').on('click', '.deactivate', function() { 
 			$('#deactivate_modal').modal('show');

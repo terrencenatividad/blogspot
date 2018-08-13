@@ -215,7 +215,8 @@
 						echo $ui->drawSubmit($show_input); 
 					endif;
 				?>
-				<a href="<?=MODULE_URL?>"  data-toggle="back_page" class="btn btn-default">Cancel</a>
+				<!-- <a href="<?=MODULE_URL?>"  data-toggle="back_page" class="btn btn-default">Cancel</a> -->
+				<?php echo $ui->drawCancel(); ?>
 			</div>
 		</div>
 	</div>
@@ -671,5 +672,13 @@ e.preventDefault();
 ajax.page = $(this).attr('data-page');
 getList();
 });
+$('.cancel').click(function() 
+		{
+			$('#cancelModal').modal('show');
+			$('#cancelModal').on('click', '#btnYes', function() {
+				$('#cancelModal').modal('hide');
+				window.location =	"<?= MODULE_URL ?>";
+				});
+		});
 
 </script>
