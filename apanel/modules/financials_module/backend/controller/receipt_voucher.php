@@ -1073,7 +1073,9 @@ class controller extends wc_controller
 										->setValue(number_format(0, 2))
 										->draw($show_input).'</td>';
 				}
-				if($avl_credit > 0){
+				// echo $voucher_checked;
+				$avl_credit 	=	str_replace(',','',$avl_credit);
+				if($voucher_checked == 'checked' && $avl_credit > 0){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
 					$this->ui->formField('text')
 						->setSplit('', 'col-md-12')
@@ -1085,7 +1087,7 @@ class controller extends wc_controller
 								"maxlength" => "20", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
-								"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
+								"onChange" => ' checkCredit(this.value,\''.$voucher.'\'); '
 							)
 						)
 						->setValue(number_format($credit_used,2))
@@ -1105,7 +1107,7 @@ class controller extends wc_controller
 								"disabled" => "disabled", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
-								"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
+								"onChange" => ' checkCredit(this.value,\''.$voucher.'\'); '
 							)
 						)
 						->setValue(number_format(0, 2))
