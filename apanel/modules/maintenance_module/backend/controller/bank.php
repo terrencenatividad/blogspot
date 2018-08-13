@@ -58,17 +58,20 @@
 			$this->view->load('bank/bank', $data);
 		}
 
-		public function edit($code)
+		public function edit($id)
 		{
 			$this->view->title = $this->ui->EditLabel('');
 			
-			$data 			 	= (array) $this->bank->retrieveExistingCurrency($this->fields, $code);
+			// $data 			 	= (array) $this->bank->retrieveExistingCurrency($this->fields, $code);
+			$data 			 	= (array) $this->bank->retrieveExistingBank($this->fields, $id);
+			$data['currencylist']   = $this->bank->retrieveExchangeRateDropdown();
+			$data['gllist']   		= $this->bank->retrieveGLDropdown();
 			$data['ui'] 		= $this->ui;
 			$data['task'] 		= 'update';
 			$data['show_input'] = true;
-			$data['ajax_post'] 	= "&code=$code";
-
-			$this->view->load('currency/currency',  $data);
+			$data['id']			= $id;
+			$data['ajax_post'] 	= "&id=$id";
+			$this->view->load('bank/bank', $data);
 		}
 
 		public function view($code)
@@ -168,21 +171,20 @@
 		private function update()
 		{
 			$posted_data 	= $this->input->post($this->fields);
-			$code 		 	= $this->input->post('code');
-
-			$result 		= $this->bank->updateCurrency($posted_data, $code);
+			$id 		 	= $this->input->post('id');
+			$result 		= $this->bank->updateBank($posted_data, $id);
 
 			if( $result )
 			{
 				$msg = "success";
-				$this->log->saveActivity("Updated Currency [$code] ");
+				$this->log->saveActivity("Updated Bank [$id] ");
 			}
 			else
 			{
 				$msg = $result;
 			}
 
-			return $dataArray 		= array( "msg" => $msg, "currency_code" => $posted_data["currencycode"], "currency_name" => $posted_data["currency"] );
+			return $dataArray 		= array( "id" => $id, "msg" => $msg );
 		}
 
 		private function delete()

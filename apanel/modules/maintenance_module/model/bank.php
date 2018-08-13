@@ -94,12 +94,12 @@
 			return $result;
 		}
 
-		public function updateCurrency($data, $currencycode)
+		public function updateBank($data, $id)
 		{
 			
-			$condition 			   = " currencycode = '$currencycode' ";
+			$condition 			   = " id = '$id' ";
 
-			$result 			   = $this->db->setTable('currency')
+			$result 			   = $this->db->setTable('bank')
 											  ->setValues($data)
 											  ->setWhere($condition)
 											  ->setLimit(1)
