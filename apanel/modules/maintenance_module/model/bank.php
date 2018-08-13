@@ -180,5 +180,22 @@
 
 
 		}
+		public function checkListing($search="", $sort ,$limit, $id){
+			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (shortname LIKE '%$search%' OR bankcode LIKE '%$search%'  OR accountno LIKE '%$search%') " 	: 	"";
+
+			$fields 	=	array("b.accountno","bank_id","id","booknumber","CONCAT(firstchequeno, ' - ' ,lastchequeno) batch" ,"firstchequeno+1 nextchequeno");
+
+			$result = $this->db->setTable('bankdetail bd')
+							->setFields($fields)
+							->leftJoin("bank b ON b.id = bd.bank_id ")
+							->setWhere(" bd.stat = 'open' $add_cond ")
+							->setOrderBy($sort)
+							->runPagination();
+							// echo $this->db->getQuery();
+			return $result;
+			// echo $this->db->getQuery();
+		}
+
+		
 	}
 ?>
