@@ -546,7 +546,6 @@ class receipt_voucher_model extends wc_model
 		$total_payment			= (isset($data['total_payment']) && (!empty($data['total_payment']))) ? htmlentities(addslashes(trim($data['total_payment']))) : $total_debit;
 		$overpayment 			= (isset($data['overpayment']) && (!empty($data['overpayment']))) ? htmlentities(addslashes(trim($data['overpayment']))) : 	"";
 		$task 					= (isset($data['h_task']) && (!empty($data['h_task']))) ? htmlentities(addslashes(trim($data['h_task']))) : "";
-		$credit_used 			= (isset($data['credit_input']) && (!empty($data['credit_input']))) ? htmlentities(addslashes(trim($data['credit_input']))) 	:	"";
 		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
 		$credit_input 			= (isset($data['credit_input']) && (!empty($data['credit_input']))) ? htmlentities(addslashes($data['credit_input'])) 	:	0;
 		$invoice_data  			= str_replace('\\', '', $h_check_rows);
@@ -949,7 +948,7 @@ class receipt_voucher_model extends wc_model
 					$existing_credit	= ($partner_dtl[0]->credits_amount > 0) ? $partner_dtl[0]->credits_amount 	:	0;
 					
 					$existing_credit 	+=	$overpayment;
-					$partner_info['credits_amount'] 	=	( $existing_credit - $credit_used );
+					$partner_info['credits_amount'] 	=	( $existing_credit - $credit_input );
 
 					$insertResult 	=	$this->db->setTable($customerTable)
 												 ->setValues($partner_info)
@@ -957,7 +956,7 @@ class receipt_voucher_model extends wc_model
 												 ->runUpdate();
 					
 					// Insert Overpayment on Credit Memo
-					if($insertResult){
+					if($insertResult && $overpayment > 0){
 						$op_result 	=	$this->generateCreditMemo($data);
 					}
 				}
@@ -985,13 +984,17 @@ class receipt_voucher_model extends wc_model
 		$exchangerate	= '1.00';
 		$datetime	  	= date("Y-m-d H:i:s");
 
+		$transactiondate			= $this->date->dateDbFormat($transactiondate); 
+		$period						= date("n",strtotime($transactiondate));
+		$fiscalyear					= date("Y",strtotime($transactiondate));
+
 		$op_arr['voucherno'] 		= $cm_no;
 		$op_arr['transtype'] 		= "CM";
 		$op_arr['stat'] 			= "posted";
 		$op_arr['credit_stat'] 		= "unused";
 		$op_arr['transactiondate']	= $transactiondate;
-		$op_arr['fiscalyear'] 		= date("n", strtotime($transactiondate));
-		$op_arr['period'] 			= date("Y", strtotime($transactiondate));
+		$op_arr['fiscalyear'] 		= $fiscalyear;
+		$op_arr['period'] 			= $period;
 		$op_arr['customer']			= $customer;
 		$op_arr['partner']			= $customer;
 		$op_arr['currencycode']		= "PHP";
