@@ -505,8 +505,7 @@ class ui {
 	}
 
 	public function drawCancel() {
-		// return ' <a href="' . MODULE_URL . '" class="btn btn-default cancel" data-toggle="back_page">Cancel</a>';
-		return ' <button type="button" class="btn btn-default btn-default cancel" data-toggle="back_page">Cancel</button>';
+		return ' <a href="' . MODULE_URL . '" class="btn btn-default cancel" data-toggle="back_page">Cancel</a>';
 	}
 
 	private function reset() {
