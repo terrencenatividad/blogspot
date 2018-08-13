@@ -108,6 +108,7 @@
 								</div>
 								<input type = "hidden" id = "originalamt" name = "originalamt" value = "0">
 								<input type = "hidden" id = "overpayment" name = "overpayment" value = "0">
+								<input type = "hidden" id = "total_cred_used" name = "total_cred_used" value = "0">
 							</div>
 						</div>
 						<!-- Text Area for selected payables -->
@@ -2318,6 +2319,7 @@ function add_storage(id,balance,discount,credits){
 	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount,cred:credits};
 	// console.log("NEW VSLUE");
 	// console.log(newvalue);
+	var total_cred_used  = 0;
 	if(amount != ''){
 		// console.log("ADD STORAGE || AMOUNT = "+amount);
 		var found = false;
@@ -2438,20 +2440,35 @@ function checkCredit(val,id){
 		input 			=	removeComma(input);
 
 	var payment_amt 	= 	0;
+	var total_cred_used = 	$('#total_cred_used').val();
 	if(input > avail_credits){
 		$('#excess_credit_error').removeClass('hidden');
 		$(this).closest('.form-group').addClass('has-error');
 	} else {
 		payment_amt		=	current_payment -	input;
-		console.log("Current Payment = "+payment_amt);
 		$('#excess_credit_error').addClass('hidden');
 		$(this).closest('.form-group').removeClass('has-error');
-	}
 
-	// dueamount 	=	(input > 0) 		?	payment_amt	:	dueamount;
-	console.log("DUE 2 "+dueamount);
+		//loop
+		$('#payable_list_container tr').each(function(index) {
+			var credit_used = $(this).find('.credits_used').val();
+			total_cred_used = parseFloat(removeComma(total_cred_used)) + parseFloat(removeComma(credit_used));
+		});
+		console.log("cREDIT USED = "+total_cred_used);
+		console.log("Available Crdits = "+avail_credits);
+		if(total_cred_used > avail_credits){
+			console.log('1');
+			$('#excess_credit_error').addClass('hidden');
+			$(this).closest('.form-group').removeClass('has-error');
+			total_cred_used 	=	0;
+		} else {
+			$('#payableForm #total_cred_used').val(total_cred_used);
+		}
+
+	}
 	add_storage(id,dueamount,discount,input);
 	addPaymentAmount();	
+
 }
 
 function validateCheques(){
