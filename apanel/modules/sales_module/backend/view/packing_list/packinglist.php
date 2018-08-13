@@ -607,5 +607,13 @@
 				$('#submit_container [type="submit"]').attr('disabled', false);
 			}
 		});
+		$('.cancel').click(function() 
+		{
+			$('#cancelModal').modal('show');
+			$('#cancelModal').on('click', '#btnYes', function() {
+				$('#cancelModal').modal('hide');
+				window.location =	"<?= MODULE_URL ?>";
+				});
+		});
 	</script>
 	<?php endif ?>

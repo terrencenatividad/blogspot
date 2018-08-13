@@ -293,7 +293,7 @@ class controller extends wc_controller
 		$data["custfilter"]         = "";
 		$data['datefilter'] 		= $this->date->datefilterMonth();
 		$data["types"] 				= $this->stock_transfer->getValue("wc_option", array("code ind","value val")," type = 'transfer_type' ","value");	
-		$data["warehouses"] 		= $this->stock_transfer->getValue("warehouse", array("warehousecode ind","description val"),'',"warehousecode");
+		$data["warehouses"] 		= $this->stock_transfer->getValue("warehouse", array("warehousecode ind","description val"),"stat = 'active'","warehousecode");
 
 		$this->view->load('stock_transfer/stocktransfer_list', $data);
 	}

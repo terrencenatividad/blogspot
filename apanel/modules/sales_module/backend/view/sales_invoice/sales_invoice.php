@@ -846,7 +846,7 @@ echo $ui->loadElement('modal')
 				<div class="row row-dense">
 					<div class="col-md-12 center">
 						<div class="btn-group">
-							<button type="button" class="btn btn-info btn-flat" id="btnYes">Yes</button>
+							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
 						</div>
 							&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
