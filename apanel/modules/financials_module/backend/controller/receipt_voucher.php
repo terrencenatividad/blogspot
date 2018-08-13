@@ -153,6 +153,8 @@ class controller extends wc_controller
 		$data['sum_applied'] 	= 0;
 		$data['sum_discount']	= 0;
 		$data['payments'] 		= "''";
+		$data['available_credits'] = "0.00";
+		$data['credits_used'] 	= 0;
 
 		$data["listofcheques"]	= "";
 		$data["show_cheques"] 	= 'hidden';
@@ -347,15 +349,19 @@ class controller extends wc_controller
 
 		// Header Data
 		$voucherno 				 = $data["main"]->voucherno;
+		$customer 				 = $data['main']->customer;
 		$data["voucherno"]       = $voucherno;
 		$data["or_no"]    		 = $data["main"]->or_no;
-		$data["customercode"]    = $data["main"]->customer;
+		$data["customercode"]    = $customer;
 		$data["exchangerate"]    = $data["main"]->exchangerate;
 		$data["transactiondate"] = $this->date->dateFormat($data["main"]->transactiondate);
 		$data["particulars"]     = $data["main"]->particulars;
 		$data["paymenttype"]     = $data["main"]->paymenttype;
-		$data['status']				= $data["main"]->stat;
-		
+		$data["credits_used"]    = $data["main"]->credits_used;
+		$available_credits 		 = $this->receipt_voucher->retrieve_existing_credits($customer);
+		$data["available_credits"] = isset($available_credits[0]->curr_credit) 	?	$available_credits[0]->curr_credit	:	"0.00";
+		$data['status']			 = $data["main"]->stat;
+	 		
 		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
 		$data["show_cheques"] 	 = isset($data['rollArray'][$sid]) ? '' : 'hidden';
 		// Application Data

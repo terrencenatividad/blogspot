@@ -60,7 +60,7 @@ class receipt_voucher_model extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat";
+		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -900,6 +900,7 @@ class receipt_voucher_model extends wc_model
 			$iApplicationLineNum	= 1;
 			foreach ($combined_payables as $pickedKey => $pickedValue) {
 				$payable 					= $pickedValue['vno'];
+				$data['avoucherno'] 		= $payable;
 
 				$applied_sum				= 0;
 				$applied_discount			= 0;
@@ -957,6 +958,7 @@ class receipt_voucher_model extends wc_model
 					
 					// Insert Overpayment on Credit Memo
 					if($insertResult && $overpayment > 0){
+						$data['temp_voucher'] 	=	$voucherno;
 						$op_result 	=	$this->generateCreditMemo($data);
 					}
 				}
@@ -971,7 +973,7 @@ class receipt_voucher_model extends wc_model
 	}
 
 	public function generateCreditMemo($data){
-		$voucherno				= (isset($data['h_voucher_no']) && (!empty($data['h_voucher_no']))) ? htmlentities(addslashes(trim($data['h_voucher_no']))) : "";
+		$voucherno				= (isset($data['temp_voucher']) && (!empty($data['temp_voucher']))) ? htmlentities(addslashes(trim($data['temp_voucher']))) : "";
 		$customer				= (isset($data['customer']) && (!empty($data['customer']))) ? htmlentities(addslashes(trim($data['customer']))) : "";
 		$or_no					= (isset($data['paymentreference']) && (!empty($data['paymentreference']))) ? htmlentities(addslashes(trim($data['paymentreference']))) : "";
 		$transactiondate		= (isset($data['transactiondate']) && (!empty($data['transactiondate']))) ? htmlentities(addslashes(trim($data['transactiondate']))) : "";
@@ -1598,41 +1600,17 @@ class receipt_voucher_model extends wc_model
 	}
 
 	public function retrieve_existing_credits($customer){
-		// OPTION 1
-		// 	SELECT ar.customer, SUM(ar.excessamount) overpayment, payment.applied, IF(SUM(ar.excessamount)-payment.applied > 0, SUM(ar.excessamount)-payment.applied, 0) curr_credit
-		// FROM `accountsreceivable` ar
-		// LEFT JOIN ( SELECT rv.customer, SUM(rv.credits_used) applied
-		//           	FROM receiptvoucher rv 
-		//             GROUP BY rv.customer) payment ON payment.customer = ar.customer
-		// GROUP BY ar.customer
-		// ORDER BY ar.customer ASC
-
-		// OPTION 2
-		// SELECT cm.customer, SUM(cm.amount) overpayment, payment.applied, IF(SUM(cm.amount)-payment.applied > 0, SUM(cm.amount)-payment.applied, 0) curr_credit
-		// FROM `journalvoucher` cm
-		// LEFT JOIN ( SELECT rv.customer, SUM(rv.credits_used) applied
-		// 			FROM receiptvoucher rv 
-		// 			GROUP BY rv.customer) payment ON payment.customer = cm.customer
-		// WHERE cm.source = "excess" AND cm.transtype = "CM"
-		// GROUP BY cm.customer
-		// ORDER BY cm.customer ASC
-
-		// $credits 	=	$this->getValue(
-		// 							"partners", 
-		// 							"credits_amount", 
-		// 							" partnercode = '$customer' "
-		// 						);
 		
 		$leftJoin 		= 	$this->db->setTable("receiptvoucher rv")
 									 ->setFields("rv.customer, SUM(rv.credits_used) applied")
-									 ->setWhere("rv.customer = '$customer'")
+									 ->setWhere("rv.customer = '$customer' AND stat NOT IN ('cancelled','temporary')")
 									 ->setGroupBy("rv.customer")
 									 ->buildSelect();
 
 		$credits 		= 	$this->db->setTable("accountsreceivable ar")
 									 ->setFields("ar.customer, SUM(ar.excessamount) overpayment, payment.applied, IF(SUM(ar.excessamount)-payment.applied > 0, SUM(ar.excessamount)-payment.applied, 0) curr_credit")
 									 ->leftJoin("($leftJoin) payment ON payment.customer = ar.customer")
-									 ->setWhere("ar.customer = '$customer'")
+									 ->setWhere("ar.customer = '$customer' AND ar.stat NOT IN ('cancelled','temporary')")
 									 ->setGroupBy("ar.customer")
 									 ->setOrderBy("ar.customer ASC")
 									 ->runSelect()
