@@ -106,6 +106,7 @@
 									}
 									?>
 								</div>
+								<input type = "hidden" id = "originalamt" name = "originalamt" value = "0">
 								<input type = "hidden" id = "overpayment" name = "overpayment" value = "0">
 							</div>
 						</div>
@@ -125,11 +126,11 @@
 						</div>
 					</div>
 					<div class="row">
-						<div class = "col-md-6">
+						<div class = "col-md-12">
 							<?php
 								echo $ui->formField('textarea')
 										->setLabel('Notes:')
-										->setSplit('col-md-4', 'col-md-8')
+										->setSplit('col-md-2', 'col-md-10')
 										->setName('remarks')
 										->setId('remarks')
 										->setMaxLength(100)
@@ -142,31 +143,31 @@
 										->draw($show_input);
 							?>
 						</div>
-						<div class = "col-md-6">
+						<!-- <div class = "col-md-6">
 							<?php
-								echo $ui->formField('text')
-										->setLabel('Add Credit')
-										->setSplit('col-md-4', 'col-md-8')
-										->setName('credit_input')
-										->setId('credit_input')
-										->setClass('text-right')
-										->setMaxLength(20)
-										->setPlaceHolder("0.00")
-										->setValidation('decimal')
-										->setValue("0.00")
-										->draw($show_input);
+								// echo $ui->formField('text')
+								// 		->setLabel('Apply Credit')
+								// 		->setSplit('col-md-4', 'col-md-8')
+								// 		->setName('credit_input')
+								// 		->setId('credit_input')
+								// 		->setClass('text-right')
+								// 		->setMaxLength(20)
+								// 		->setPlaceHolder("0.00")
+								// 		->setValidation('decimal')
+								// 		->setValue($credits_used)
+								// 		->draw($show_input);
 							?>
 							<?php
-								echo $ui->formField('text')
-										->setLabel('Available Credits')
-										->setSplit('col-md-4', 'col-md-8')
-										->setName('available_credits')
-										->setId('available_credits')
-										->setAttribute(array("style"=>"color:blue"))
-										->setMaxLength(30)
-										->addHidden()
-										->setValue("Php 0.00")
-										->draw();
+								// echo $ui->formField('text')
+								// 		->setLabel('Available Credits')
+								// 		->setSplit('col-md-4', 'col-md-8')
+								// 		->setName('available_credits')
+								// 		->setId('available_credits')
+								// 		->setAttribute(array("style"=>"color:blue"))
+								// 		->setMaxLength(30)
+								// 		->addHidden()
+								// 		->setValue("Php ".$available_credits)
+								// 		->draw();
 							?>	
 							<div class="col-md-offset-4 has-error">
 								<span id="excess_credit_error" class="help-block hidden small">
@@ -174,7 +175,7 @@
 									You cannot input a Credit greater than your available Credit amount.
 								</span>
 							</div>						
-						</div>
+						</div> -->
 					</div>
 				</div>
 			</div>
@@ -796,17 +797,18 @@
 					</div>
 				</div>
 			</div>
-			<div class="modal-body no-padding">
+			<div class="modal-body">
 				<form class="form-horizontal" id="paymentForm">
 					<br/>
 					<div class="row">
-						<label class="control-label col-md-2">
+						<!-- <label class="control-label col-md-2">
 							Total Receivable
-						</label>
-						<div class="col-md-3">
+						</label> -->
+						<div class="col-md-4">
 						<?php
 							echo $ui->formField('text')
-									->setSplit('', 'col-md-12')
+									->setSplit('col-md-6', 'col-md-6')
+									->setLabel("Total Receivable")
 									->setClass("input-sm text-right")
 									->setName('total_payment')
 									->setId('total_payment')
@@ -821,13 +823,11 @@
 									->draw(true);
 						?>
 						</div>
-						<label class="control-label col-md-2">
-							Total Discount
-						</label>
-						<div class="col-md-3">
+						<div class="col-md-4">
 						<?php
 							echo $ui->formField('text')
-									->setSplit('', 'col-md-12')
+									->setSplit('col-md-6', 'col-md-6')
+									->setLabel("Total Discount")
 									->setClass("input-sm text-right")
 									->setName('total_discount')
 									->setId('total_discount')
@@ -842,6 +842,31 @@
 									->draw(true);
 						?>
 						</div>
+						<div class="col-md-4">
+						<?php
+							echo $ui->formField('text')
+									->setSplit('col-md-6', 'col-md-6')
+									->setLabel("Credits")
+									->setClass("input-sm text-right")
+									->setName('available_credits')
+									->setId('available_credits')
+									->setPlaceHolder("0.00")
+									->setAttribute(
+										array(
+											"maxlength" => "50", 
+											"readonly" => "readonly"
+										)
+									)
+									->setValue(number_format($available_credits,2))
+									->draw(true);
+						?>
+						</div>
+						<div class="col-md-offset-8 has-error">
+							<span id="excess_credit_error" class="help-block hidden  small">
+								<i class="glyphicon glyphicon-exclamation-sign"></i> 
+								You cannot input a Credit greater than your available Credit amount.
+							</span>
+						</div>					
 					</div>
 
 					<div class="has-error">
@@ -862,10 +887,11 @@
 									<th class="col-md-1 text-center">Date</th>
 									<th class="col-md-1 text-center">Voucher</th>
 									<th class="col-md-1 text-center">Reference</th>
-									<th class="col-md-2 text-center">Total Amount</th>
-									<th class="col-md-2 text-center">Balance</th>
-									<th class="col-md-2 text-center">Amount to Receive</th>
-									<th class="col-md-2 text-center">Discount</th>
+									<th class="col-md-1 text-center">Total Amount</th>
+									<th class="col-md-1 text-center">Balance</th>
+									<th class="col-md-1 text-center">Amount to Receive</th>
+									<th class="col-md-1 text-center">Discount</th>
+									<th class="col-md-1 text-center">Apply Credits</th>
 								</tr>
 							</thead>
 							<tbody id="payable_list_container">
@@ -1971,6 +1997,7 @@ function showList()
 	var vnose 		= JSON.stringify(container);
 	var	customer_code	= $('#payableForm #customer').val();
 	voucherno 		= $('#payableForm #h_voucher_no').val();
+	var available_cred 	= $('#paymentModal #available_credits').val();
 
 	var ajax_call	= '';
 	ajax.limit 		= 5;
@@ -1982,6 +2009,7 @@ function showList()
 	ajax.voucherno 	= voucherno;
 	ajax.vno 		= vnose;
 	ajax.task 		= task;
+	ajax.avl_cred 	= available_cred;
 	ajax_call 		= $.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/load_payables", ajax )
 					.done(function( data ) 
 						{
@@ -2097,7 +2125,7 @@ function addPaymentAmount() {
 		discount = 0;
 	}
 	amount = addCommas(amount.toFixed(2));
-	console.log(amount);
+	// console.log("Add Payment Amount || Amount = " + amount);
 	$('#total_payment').val(amount);
 	discount = addCommas(discount.toFixed(2));
 	$('#total_discount').val(discount);
@@ -2222,6 +2250,7 @@ function getRVDetails(){
 function selectPayable(id,toggle){
 	var check 			= $('#payable_list_container #check'+id);
 	var paymentamount 	= $('#payable_list_container #paymentamount'+id);
+	var credit_used 	= $('#payable_list_container #credits_used'+id);
 	var discountamount 	= $('#payable_list_container #discountamount'+id);
 	var balance 		= $('#payable_list_container #payable_balance'+id).attr('data-value');
 	var paymentamount_val 	= $('#payable_list_container #paymentamount'+id).attr('value');
@@ -2235,12 +2264,14 @@ function selectPayable(id,toggle){
 			paymentamount.prop('disabled',true);
 			paymentamount.val('');
 			discountamount.prop('disabled',true);
+			credit_used.prop('disabled',true);
 			// discountamount.val('');
 		}else{
 			check.prop('checked', true);
 			paymentamount.prop('disabled',false);
 			paymentamount.val(balance);
 			discountamount.prop('disabled',false);
+			credit_used.prop('disabled',false);
 			// discountamount.val(balance);
 		}
 	}else{
@@ -2249,12 +2280,14 @@ function selectPayable(id,toggle){
 			paymentamount.prop('disabled',false);
 			paymentamount.val(balance);
 			discountamount.prop('disabled',false);
+			credit_used.prop('disabled',false);
 			// discountamount.val(balance);
 		}else{
 			check.prop('checked', false);
 			paymentamount.prop('disabled',true);
 			paymentamount.val('');
 			discountamount.prop('disabled',true);
+			credit_used.prop('disabled',true);
 			// discountamount.val('0.00');
 		}
 	}
@@ -2262,7 +2295,7 @@ function selectPayable(id,toggle){
 	$('#payable_list_container #check'+id).iCheck('update');
 
 	// Get number of checkboxes and assign to textarea
-	add_storage(id,balance,0);
+	add_storage(id,balance,0,0);
 	addPaymentAmount();
 }
 
@@ -2273,37 +2306,47 @@ function init_storage(){
 	}
 }
 
-function add_storage(id,balance,discount){
+function add_storage(id,balance,discount,credits){
+	// console.log("ADD STORAGE || BALANCE = "+balance);	
 	var amount 		= $('#paymentModal #paymentamount'+id).val();
-	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount};
-	
+	var overpayment	= $('#payableForm #overpayment').val();
+		overpayment = parseFloat(removeComma(overpayment));
+	// var new_amt 	= parseFloat(removeComma(amount))-parseFloat(removeComma(overpayment));
+	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount,cred:credits};
+	// console.log("NEW VSLUE");
+	// console.log(newvalue);
 	if(amount != ''){
+		// console.log("ADD STORAGE || AMOUNT = "+amount);
 		var found = false;
 		for(var i=0; element=container[i]; i++) {
+			// console.log("CONTAINER");
+			// console.log(container[i]);
 			if(element.vno == newvalue.vno) {
-				var original_amount 	=	(element.amt > 0) ? element.amt.replace(/\,/g,'') : 0;
-				var original_balance 	=	(element.bal > 0) ? element.bal.replace(/\,/g,'') : 0;
-				var original_discount	=	((element.dis > 0) ? element.dis.replace(/\,/g,'') : 0);
+				var original_amount 	=	(removeComma(element.amt) > 0) ? removeComma(element.amt)  : 0;
+				var original_balance 	=	(removeComma(element.bal) > 0) ? removeComma(element.bal)  : 0;
+				var original_discount	=	(removeComma(element.dis) > 0) ? removeComma(element.dis)  : 0;
+				var original_credits	=	(removeComma(element.cred) > 0)? removeComma(element.cred) : 0;
 				
-				console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount);
+				// console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount);
 
-				var new_amount 			=	(newvalue.amt > 0) ? newvalue.amt.replace(/\,/g,'') : 0;
-				var new_balance 		=	(newvalue.bal > 0) ? newvalue.bal.replace(/\,/g,'')	: 0;
-				var discount 			=	(newvalue.dis > 0) ? newvalue.dis.replace(/\,/g,'') : 0;
+				var new_amount 			=	(removeComma(newvalue.amt) > 0) ? removeComma(newvalue.amt) : 0;
+				var new_balance 		=	(removeComma(newvalue.bal) > 0) ? removeComma(newvalue.bal)	: 0;
+				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
+				var credits 			=	(removeComma(newvalue.cred) > 0)? removeComma(newvalue.cred): 0;
 				
-				console.log("New || "+new_amount+ " | " + new_balance + " | "+discount);
-
+				console.log("OLD || "+original_amount+ " | " + original_balance + " | "+original_discount + " | " + original_credits);
+ 
 				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount)) - new_amount;
-				available_balance 		=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
-				console.log("available balance = "+available_balance);
-
-				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount)) - discount;
-				discounted_amount 		=	addCommas(discounted_amount.toFixed(2));
-
+					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
+				// console.log("available balance = "+available_balance);
+				console.log("AVAILABLE="+available_balance);
+				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount)) - discount - credits;
+					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
+				console.log("DISC="+discounted_amount);
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
 
-				// console.log("New || "+discounted_amount+ " | " + new_balance + " | "+discount);
+				console.log("New || "+new_amount+" || "+discounted_amount+ " | " + new_balance + " | "+discount+" | "+credits);
 
 				found = true;
 				if(parseFloat(new_amount) === 0) {
@@ -2311,8 +2354,9 @@ function add_storage(id,balance,discount){
 					
 				} else {
 					newvalue.amt 	=	discounted_amount;
-					container[i] = newvalue;
-				}            
+					container[i] 	=	newvalue;
+				}           
+				// console.log("TEST == "+discounted_amount); 
 				// console.log(newvalue);
 			}
 		}
@@ -2341,44 +2385,69 @@ function checkBalance(val,id){
 	var total_amount 	= $('#payable_list_container #payable_amount'+id).attr('data-value');
 	var dueamount 		= $('#payable_list_container #payable_balance'+id).attr('data-value');
 	var discountamount 	= $('#payable_list_container #discountamount'+id).val();
+	var credit_used 	= $('#payable_list_container #credits_used'+id).val();
+	var current_payment = $('#payable_list_container #paymentamount'+id).val();
 
-	dueamount			= dueamount.replace(/\,/g,'');
-	discount			= discountamount.replace(/\,/g,'');
-
-	var newval			= val.replace(/,/g,'');
-	total_amount 		= total_amount.replace(/,/g,'');
+	dueamount			= removeComma(dueamount);
+	discount			= removeComma(discountamount);
+	current_payment		= removeComma(current_payment);
+	var newval			= removeComma(val);
+	total_amount 		= removeComma(total_amount);
 
 	var condition = "";
 	var input 	  = "";
 
 	condition 			= (parseFloat(newval) || parseFloat(discount)) > (parseFloat(dueamount) );
 
-	var excess_payment 	=	((newval 	-	total_amount) > 0) 	? newval - total_amount : 0;
-	console.log("Excess Payment = "+excess_payment);
+	var excess_payment 	= ((newval 	-	total_amount) > 0) 	? newval - total_amount : 0
 	
 	if(condition){
-		console.log('1');
+		// console.log('1');
 		$('#payableForm #overpayment').val(excess_payment);
 		$('#payable_list_container #paymentamount'+id).value = '';
 	}else{
-		console.log('2');
+		// console.log('2');
 		$('#payable_list_container #paymentamount'+id).value = val;
 	}
 
-	// if(condition)
-	// {
-	// 	bootbox.alert("Payment amount is greater than the due amount of this Bill.", function() 
-	// 	{
-	// 	});
-	// }
-	// else
-	// {
-	// 	add_storage(id,dueamount,discount);
-	// 	// console.log(id);
-	// }
 	dueamount 	=	(excess_payment > 0) 	?	 0	:	dueamount;
+
+	// dueamount 	=	(credit_used > 0) 		?	dueamount-credit_used 	:	dueamount;
+	
 	console.log("DUE AMOUNT " + dueamount);
-	add_storage(id,dueamount,discount);
+	add_storage(id,dueamount,discount,credit_used);
+	addPaymentAmount();	
+}
+
+function checkCredit(val,id){
+	var total_amount 	= 	$('#payable_list_container #payable_amount'+id).attr('data-value');
+	var dueamount 		= 	$('#payable_list_container #payable_balance'+id).attr('data-value');
+	var avail_credits 	=	$('#paymentForm #available_credits').val();
+	var discountamount 	= 	$('#payable_list_container #discountamount'+id).val();
+	var current_payment = 	$('#payable_list_container #paymentamount'+id).val();
+
+	var input 			= 	val;
+		total_amount 	= 	removeComma(total_amount);
+		discount		= 	removeComma(discountamount);
+		dueamount 		=	removeComma(dueamount);
+		avail_credits 	=	removeComma(avail_credits);
+		current_payment = 	removeComma(current_payment);
+		input 			=	removeComma(input);
+
+	var payment_amt 	= 	0;
+	if(input > avail_credits){
+		$('#excess_credit_error').removeClass('hidden');
+		$(this).closest('.form-group').addClass('has-error');
+	} else {
+		payment_amt		=	current_payment -	input;
+		console.log("Current Payment = "+payment_amt);
+		$('#excess_credit_error').addClass('hidden');
+		$(this).closest('.form-group').removeClass('has-error');
+	}
+
+	// dueamount 	=	(input > 0) 		?	payment_amt	:	dueamount;
+	console.log("DUE 2 "+dueamount);
+	add_storage(id,dueamount,discount,input);
 	addPaymentAmount();	
 }
 
@@ -3658,8 +3727,8 @@ $(document).ready(function() {
 		.done(function( response ) {
 			var excess_credits = addCommas(response.credits);
 			// console.log("EXCESS = "+excess_credits);
-			$('#available_credits').val(excess_credits);
-			$('#available_credits_static').html("Php "+excess_credits);
+			$('#paymentModal #available_credits').val(excess_credits);
+			// $('#paymentModal #available_credits_static').html("Php "+excess_credits);
 		});
 	});
 
@@ -3708,44 +3777,46 @@ $(document).ready(function() {
 	});
 
 	//validation for Credit Amount
-	$('#credit_input').on('change',function(){
-		var available_credits =	$('#available_credits').val();
-		var input 	= $(this).val();
+	// $('#credit_input').on('change',function(){
+	// 	var available_credits =	$('#available_credits').val();
+	// 	var input 	= $(this).val();
 
-		input 				=	removeComma(input);
-		available_credits 	=	removeComma(available_credits);
+	// 	input 				=	removeComma(input);
+	// 	available_credits 	=	removeComma(available_credits);
 
-		console.log("Available "+available_credits);
-		console.log("Input "+input);
+	// 	console.log("Available "+available_credits);
+	// 	console.log("Input "+input);
 
-		if(input > available_credits){
-			$('#excess_credit_error').removeClass('hidden');
-			$(this).closest('.form-group').addClass('has-error');
-		} else {
-			if(input > 0){
-				$('#excess_credit_error').addClass('hidden');
-				$(this).closest('.form-group').removeClass('has-error');
+	// 	if(input > available_credits){
+	// 		$('#excess_credit_error').removeClass('hidden');
+	// 		$(this).closest('.form-group').addClass('has-error');
+	// 	} else {
+	// 		if(input > 0){
+	// 			$('#excess_credit_error').addClass('hidden');
+	// 			$(this).closest('.form-group').removeClass('has-error');
 
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_op_acct",$('#payableForm').serialize())
-				.done(function( response ) {
-					var excess_acct = addCommas(response.account);
-					var ParentRow = $("#entriesTable tbody tr.clone").last();
-					ParentRow.before(clone_acct);
-					resetIds();
-					var row 	  = $('#entriesTable tbody tr.clone').length - 1;
-					console.log("ROW "+row);
-					$("#accountcode\\["+ row +"\\]").val(excess_acct).trigger('change.select2');
-					$("#h_accountcode\\["+ row +"\\]").val(excess_acct);
-					$("#debit\\["+ row +"\\]").val(addComma(input));
-					disable_acct_fields(row);
-					// $('#entriesTable tbody tr.clone:first').find('.account_amount').val(addComma(input));
-					// $('#entriesTable tbody tr.clone:first').find('.accountcode').val(excess_acct).trigger('change');
-					addAmountAll('debit');
-				});
-			}
-		}
+	// 			$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_op_acct",$('#payableForm').serialize())
+	// 			.done(function( response ) {
+	// 				var excess_acct = addCommas(response.account);
+	// 				var ParentRow = $("#entriesTable tbody tr.clone").last();
+	// 				ParentRow.before(clone_acct);
+	// 				resetIds();
+	// 				var row 	  = $('#entriesTable tbody tr.clone').length - 1;
+	// 				console.log("ROW "+row);
+	// 				$("#accountcode\\["+ row +"\\]").val(excess_acct).trigger('change.select2');
+	// 				$("#h_accountcode\\["+ row +"\\]").val(excess_acct);
+	// 				$("#debit\\["+ row +"\\]").val(addComma(input));
+	// 				disable_acct_fields(row);
+	// 				// $('#entriesTable tbody tr.clone:first').find('.account_amount').val(addComma(input));
+	// 				// $('#entriesTable tbody tr.clone:first').find('.accountcode').val(excess_acct).trigger('change');
+	// 				addAmountAll('debit');
+	// 			});
+	// 		}
+	// 	}
 		
-	});
+	// });
+	
+	
 }); // end
 
 </script>

@@ -60,7 +60,7 @@ class receipt_voucher_model extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat";
+		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -317,9 +317,9 @@ class receipt_voucher_model extends wc_model
 		}
 
 		// Sub Select
-		$table_pv  = "rv_application AS pv";
-		$pv_fields = "COALESCE(SUM(pv.convertedamount),0) + COALESCE(SUM(pv.discount),0) - COALESCE(SUM(pv.forexamount),0)";
-		$pv_cond   = "pv.arvoucherno = main.voucherno AND pv.stat IN('posted') AND pv.voucherno = '$voucherno' ";
+		$table_rv  = "rv_application AS rv";
+		$rv_fields = "COALESCE(SUM(rv.convertedamount),0) + COALESCE(SUM(rv.discount),0) - COALESCE(SUM(rv.forexamount),0)";
+		$rv_cond   = "rv.arvoucherno = main.voucherno AND rv.stat IN('posted') AND rv.voucherno = '$voucherno' ";
 	
 		// Main Queries
 		$main_table   = "accountsreceivable as main";
@@ -338,27 +338,20 @@ class receipt_voucher_model extends wc_model
 
 		if($customercode && empty($voucherno))
 		{
-			$sub_select 		= $this->db->setTable($table_pv)
-							   ->setFields($pv_fields)
-							   ->setWhere($pv_cond)
+			$sub_select 		= $this->db->setTable($table_rv)
+							   ->setFields($rv_fields)
+							   ->setWhere($rv_cond)
 							   ->buildSelect();
-			// $addCondition 		= "AND ($sub_select) = 0 OR ($sub_select) > 0 AND main.convertedamount > ($sub_select)";
-			// $main_cond    		= "main.stat = 'posted'  AND main.vendor = '$vendorcode' $search_key $addCondition ";
-			// $query 				= $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
 			$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND main.balance != 0 ";
 			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $orderBy);
 			$tempArr["result"] = $query;
 		}
 		else if($voucherno)
 		{
-			$sub_select = $this->db->setTable($table_pv)
-								->setFields($pv_fields)
-								->setWhere($pv_cond)
+			$sub_select = $this->db->setTable($table_rv)
+								->setFields($rv_fields)
+								->setWhere($rv_cond)
 								->buildSelect();
-			// $addCondition		= "AND main.convertedamount = ($sub_select AND pv.voucherno = '$voucherno') OR ($sub_select AND pv.voucherno = '$voucherno') > 0";
-			// $main_cond    		= "main.stat = 'posted' AND main.vendor = '$vendorcode' $addCondition ";
-			// $query 				= $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
-			//$addCondition		= "AND main.convertedamount = ($sub_select AND pv.voucherno = '$voucherno') OR ($sub_select AND pv.voucherno = '$voucherno') > 0";
 			$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND ((main.balance - ($sub_select)) <= main.convertedamount) AND ( main.balance != 0 OR ($sub_select) != 0)";
 			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $orderBy);
 			$tempArr["result"] = $query;
@@ -762,17 +755,21 @@ class receipt_voucher_model extends wc_model
 		}
 
 		$aPvApplicationArray 	= array();
+		$total_credits_used 	= 0;
 		if(!empty($picked_payables)){
 			$iApplicationLineNum	= 1;
 			foreach ($picked_payables as $pickedKey => $pickedValue) {
 				$payable 	= $pickedValue['vno'];
 				$amount 	= $pickedValue['amt'];
 				$discount 	= $pickedValue['dis'];
+				$credits 	= $pickedValue['cred'];
 
 				$amount 	= str_replace(',','',$amount);
 				$discount 	= str_replace(',','',$discount);
+				$credits 	= str_replace(',','',$credits);
 				
 				$totalamount+=$amount;
+				$total_credits_used+=$credits;
 
 				$post_application['voucherno']			= $voucherno;
 				$post_application['transtype']			= 'RV';
@@ -900,6 +897,7 @@ class receipt_voucher_model extends wc_model
 			$iApplicationLineNum	= 1;
 			foreach ($combined_payables as $pickedKey => $pickedValue) {
 				$payable 					= $pickedValue['vno'];
+				$data['avoucherno'] 		= $payable;
 
 				$applied_sum				= 0;
 				$applied_discount			= 0;
@@ -956,7 +954,8 @@ class receipt_voucher_model extends wc_model
 												 ->runUpdate();
 					
 					// Insert Overpayment on Credit Memo
-					if($insertResult && $overpayment > 0){
+					if($insertResult && $total_credits_used > 0){
+						$data['temp_voucher'] 	=	$voucherno;
 						$op_result 	=	$this->generateCreditMemo($data);
 					}
 				}
@@ -971,14 +970,18 @@ class receipt_voucher_model extends wc_model
 	}
 
 	public function generateCreditMemo($data){
-		$voucherno				= (isset($data['h_voucher_no']) && (!empty($data['h_voucher_no']))) ? htmlentities(addslashes(trim($data['h_voucher_no']))) : "";
+		$voucherno				= (isset($data['temp_voucher']) && (!empty($data['temp_voucher']))) ? htmlentities(addslashes(trim($data['temp_voucher']))) : "";
 		$customer				= (isset($data['customer']) && (!empty($data['customer']))) ? htmlentities(addslashes(trim($data['customer']))) : "";
 		$or_no					= (isset($data['paymentreference']) && (!empty($data['paymentreference']))) ? htmlentities(addslashes(trim($data['paymentreference']))) : "";
 		$transactiondate		= (isset($data['transactiondate']) && (!empty($data['transactiondate']))) ? htmlentities(addslashes(trim($data['transactiondate']))) : "";
 		$remarks				= (isset($data['remarks']) && (!empty($data['remarks']))) ? htmlentities(addslashes(trim($data['remarks']))) : "";
 		$overpayment 			= (isset($data['overpayment']) && (!empty($data['overpayment']))) ? htmlentities(addslashes(trim($data['overpayment']))) : 	"";
 		$task 					= (isset($data['h_task']) && (!empty($data['h_task']))) ? htmlentities(addslashes(trim($data['h_task']))) : "";
-		
+		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
+		$invoice_data  			= str_replace('\\', '', $h_check_rows);
+		$invoice_data  			= html_entity_decode($invoice_data);
+		$picked_payables		= json_decode($invoice_data, true);
+
 		$seq 			= new seqcontrol();
 		$cm_no 			= $seq->getValue("CM");
 		$exchangerate	= '1.00';
@@ -987,6 +990,15 @@ class receipt_voucher_model extends wc_model
 		$transactiondate			= $this->date->dateDbFormat($transactiondate); 
 		$period						= date("n",strtotime($transactiondate));
 		$fiscalyear					= date("Y",strtotime($transactiondate));
+
+		$total_credits_used 	=	0;
+		foreach ($picked_payables as $pickedKey => $pickedValue) {
+			$credit_used 	= $pickedValue['cred'];
+
+			$credit_used 	= str_replace(',','',$credit_used);
+			
+			$total_credits_used+=$credit_used;
+		}
 
 		$op_arr['voucherno'] 		= $cm_no;
 		$op_arr['transtype'] 		= "CM";
@@ -999,7 +1011,7 @@ class receipt_voucher_model extends wc_model
 		$op_arr['partner']			= $customer;
 		$op_arr['currencycode']		= "PHP";
 		$op_arr['exchangerate']		= $exchangerate;
-		$op_arr['amount']			= $overpayment;
+		$op_arr['amount']			= $total_credits_used;
 		$op_arr['referenceno'] 		= $or_no;
 		$op_arr['source'] 			= "excess";
 		$op_arr['sourceno']			= $voucherno;
@@ -1009,6 +1021,7 @@ class receipt_voucher_model extends wc_model
 
 		if( $result ){
 			$data['cvoucher'] 	=	$cm_no;
+			$data['overpayment']= 	$total_credits_used;
 			$result 			=	$this->generateCMDetails($data);
 		}
 
@@ -1024,7 +1037,11 @@ class receipt_voucher_model extends wc_model
 		$overpayment 			= (isset($data['overpayment']) && (!empty($data['overpayment']))) ? htmlentities(addslashes(trim($data['overpayment']))) : 	"";
 		$task 					= (isset($data['h_task']) && (!empty($data['h_task']))) ? htmlentities(addslashes(trim($data['h_task']))) : "";
 		$cm_no					= (isset($data['cvoucher']) && (!empty($data['cvoucher']))) ? htmlentities(addslashes(trim($data['cvoucher']))) : "";
-		
+		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
+		$invoice_data  			= str_replace('\\', '', $h_check_rows);
+		$invoice_data  			= html_entity_decode($invoice_data);
+		$picked_payables		= json_decode($invoice_data, true);
+
 		$transactiondate 		= 	$this->date->dateDBFormat();
 		$period					= 	date("n",strtotime($transactiondate));
 		$fiscalyear				= 	date("Y",strtotime($transactiondate));
@@ -1598,41 +1615,17 @@ class receipt_voucher_model extends wc_model
 	}
 
 	public function retrieve_existing_credits($customer){
-		// OPTION 1
-		// 	SELECT ar.customer, SUM(ar.excessamount) overpayment, payment.applied, IF(SUM(ar.excessamount)-payment.applied > 0, SUM(ar.excessamount)-payment.applied, 0) curr_credit
-		// FROM `accountsreceivable` ar
-		// LEFT JOIN ( SELECT rv.customer, SUM(rv.credits_used) applied
-		//           	FROM receiptvoucher rv 
-		//             GROUP BY rv.customer) payment ON payment.customer = ar.customer
-		// GROUP BY ar.customer
-		// ORDER BY ar.customer ASC
-
-		// OPTION 2
-		// SELECT cm.customer, SUM(cm.amount) overpayment, payment.applied, IF(SUM(cm.amount)-payment.applied > 0, SUM(cm.amount)-payment.applied, 0) curr_credit
-		// FROM `journalvoucher` cm
-		// LEFT JOIN ( SELECT rv.customer, SUM(rv.credits_used) applied
-		// 			FROM receiptvoucher rv 
-		// 			GROUP BY rv.customer) payment ON payment.customer = cm.customer
-		// WHERE cm.source = "excess" AND cm.transtype = "CM"
-		// GROUP BY cm.customer
-		// ORDER BY cm.customer ASC
-
-		// $credits 	=	$this->getValue(
-		// 							"partners", 
-		// 							"credits_amount", 
-		// 							" partnercode = '$customer' "
-		// 						);
 		
 		$leftJoin 		= 	$this->db->setTable("receiptvoucher rv")
 									 ->setFields("rv.customer, SUM(rv.credits_used) applied")
-									 ->setWhere("rv.customer = '$customer'")
+									 ->setWhere("rv.customer = '$customer' AND stat NOT IN ('cancelled','temporary')")
 									 ->setGroupBy("rv.customer")
 									 ->buildSelect();
 
 		$credits 		= 	$this->db->setTable("accountsreceivable ar")
 									 ->setFields("ar.customer, SUM(ar.excessamount) overpayment, payment.applied, IF(SUM(ar.excessamount)-payment.applied > 0, SUM(ar.excessamount)-payment.applied, 0) curr_credit")
 									 ->leftJoin("($leftJoin) payment ON payment.customer = ar.customer")
-									 ->setWhere("ar.customer = '$customer'")
+									 ->setWhere("ar.customer = '$customer' AND ar.stat NOT IN ('cancelled','temporary')")
 									 ->setGroupBy("ar.customer")
 									 ->setOrderBy("ar.customer ASC")
 									 ->runSelect()
