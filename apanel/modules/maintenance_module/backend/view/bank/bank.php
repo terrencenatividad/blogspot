@@ -11,6 +11,7 @@
         <div class="box-body">
             <form method = "post" id = "bankForm" class="form-horizontal">
 				<input type="hidden" name="id" id="id" value="<?=$id?>">	
+				<input type="hidden" name="h_accountno" id="h_accountno" value="<?=$accountno?>">	
 				<div class = "col-md-12">&nbsp;</div>
 
 				<div class="row">
@@ -22,8 +23,7 @@
 									->setName('gl_code')
 									->setId('gl_code')
 									->setList($gllist)
-									->setNone('')
-									// ->setAttribute(array("disabled" => "disabled"))
+									->setPlaceholder('Select GL Code')
 									->setValue($gl_code)
 									->setValidation('required')
 									->draw($show_input);
@@ -82,7 +82,8 @@
 								->setName('currency')
 								->setId('currency')
 								->setList($currencylist)
-								->setValue('PHP')
+								// ->setValue('PHP')
+								->setPlaceholder('Select Currency')
 								->setValidation('required')
 								->draw($show_input);
 						?>
@@ -156,7 +157,9 @@ var ajax = {};
 
 $('#bankForm #btnSave').on('click',function(){
 
-	// $('#bankForm #bankcode').trigger('blur');
+	$('#bankForm #gl_code').trigger('blur');
+	$('#bankForm #currency').trigger('blur');
+	$('#bankForm #bankcode').trigger('blur');
 	$('#bankForm #bankname').trigger('blur');
 	$('#bankForm #accountcode').trigger('blur');
 	$('#bankForm #acccountno').trigger('blur');
@@ -174,7 +177,7 @@ $('#bankForm #btnSave').on('click',function(){
 
 $('#bankForm #accountno').on('blur',function(){
 	
-	ajax.old_code 	= 	$('#accountno').val();
+	ajax.old_code 	= 	$('#h_accountno').val();
 	
 	ajax.curr_code 	=	$(this).val();
 

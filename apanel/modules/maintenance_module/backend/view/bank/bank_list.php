@@ -132,7 +132,7 @@ $(document).ready(function()
 
 			$( "#delete-yes" ).click(function() 
 			{
-				$.post('<?=BASE_URL?>maintenance/currency/ajax/delete', 'id=' + id, function(data) 
+				$.post('<?=BASE_URL?>maintenance/bank/ajax/delete', 'id=' + id, function(data) 
 				{
 					if( data.msg == 'success' )	
 					{
@@ -142,7 +142,7 @@ $(document).ready(function()
 					else
 					{			
 						$(".delete-modal").modal("hide");
-						show_error("Unable to delete the Currency.");
+						show_error("Unable to delete the Bank.");
 					}
 				});
 			});	
@@ -196,7 +196,7 @@ $(document).ready(function()
 
 function ajaxCallback(id) {
 	var ids = getDeleteId(id);
-	$.post('<?=BASE_URL?>maintenance/currency/ajax/delete', 'id=' + id, function(data) 
+	$.post('<?=BASE_URL?>maintenance/bank/ajax/delete', 'id=' + id, function(data) 
 	{
 		if( data.msg == 'success' )	
 		{

@@ -192,12 +192,13 @@
 			$id_array 		= array('id');
 			$id       		= $this->input->post($id_array);
 			
-			$result 		= $this->bank->deleteCurrency($id);
+			$result 		= $this->bank->deleteBank($id);
+
 			
 			if( empty($result) )
 			{
 				$msg = "success";
-				$this->log->saveActivity("Deleted Currency [". implode($id, ', ') ."] ");
+				$this->log->saveActivity("Deleted Bank [". implode($id, ', ') ."] ");
 			}
 			else
 			{
@@ -211,11 +212,11 @@
 			$current = $this->input->post('curr_code');
 			$old 	 = $this->input->post('old_code');
 			$count 	 = 0;
-			// if( $current != '' && $current != $old )
-			// {
+			if( $current!='' && $current != $old )
+			{
 				$result = $this->bank->check_duplicate($current);
 				$count = $result[0]->count;
-			// }
+			}
 			
 			$msg   = "";
 

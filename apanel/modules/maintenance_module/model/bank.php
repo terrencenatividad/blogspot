@@ -108,7 +108,8 @@
 			return $result;
 		}
 
-		public function deleteCurrency($id)
+		public function deleteBank($id)
+		
 		{
 			$condition   = "";
 			$id_array 	 = explode(',', $id['id']);
@@ -116,19 +117,18 @@
 
 			for($i = 0; $i < count($id_array); $i++)
 			{
-				$currencycode    = $id_array[$i];
+				$id    = $id_array[$i];
 
-				$condition 		= " currencycode = '$currencycode'";
+				$condition 		= " id = '$id'";
 				
-				$result 		= $this->db->setTable('currency')
+				$result 		= $this->db->setTable('bank')
 										->setWhere($condition)
 										->runDelete();
-										// echo $this->db->getQuery();
 
 				$error 			= $this->db->getError();		
 
 				if ($error == 'locked') {
-					$errmsg[]  = "<p class = 'no-margin'>Deleting Currency: $currencycode</p>";
+					$errmsg[]  = "<p class = 'no-margin'>Deleting Bank: $id </p>";
 				}
 			
 			}
@@ -188,7 +188,7 @@
 			$result = $this->db->setTable('bankdetail bd')
 							->setFields($fields)
 							->leftJoin("bank b ON b.id = bd.bank_id ")
-							->setWhere(" bd.stat = 'open' $add_cond ")
+							->setWhere(" bd.stat = 'open' AND bank_id = '$id' $add_cond ")
 							->setOrderBy($sort)
 							->runPagination();
 							// echo $this->db->getQuery();
