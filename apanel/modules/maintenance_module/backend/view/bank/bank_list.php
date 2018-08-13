@@ -66,6 +66,7 @@
 								->addHeader('Bank Account Name',array('class'=>'col-md-3'),'sort','currencycode')
 								->addHeader('Bank Account Code',array('class'=>'col-md-3'),'sort','currencycode')
 								->addHeader('Bank Account Number', array('class'=>'col-md-3'),'sort','currency')
+								->addHeader('Status', array('class'=>'col-md-3'),'','')
 								->draw();
 					?>
 				</thead>

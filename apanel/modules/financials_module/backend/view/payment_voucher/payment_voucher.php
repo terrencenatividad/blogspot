@@ -145,20 +145,16 @@
 			</div>
 
 			<!--Cheque Details-->
-			<div class="panel panel-default <?php echo $show_cheques?>" id="cheque_details">
-				<div class="panel-heading">
-					<strong>Cheque Details</strong>
-				</div>
 				<div class="has-error">
-					<span id="chequeCountError" class="help-block hidden small col-md-offset-1">
+					<span id="chequeCountError" class="help-block hidden small">
 						<i class="glyphicon glyphicon-exclamation-sign"></i> 
 						Please specify at least one(1) cheque.
 					</span>
-					<span id="chequeAmountError" class="help-block hidden small col-md-offset-1">
+					<span id="chequeAmountError" class="help-block hidden small">
 						<i class="glyphicon glyphicon-exclamation-sign"></i> 
 						Please complete the fields on the highlighted row(s).
 					</span>
-					<span id="paymentAmountError" class="help-block hidden small col-md-offset-1">
+					<span id="paymentAmountError" class="help-block hidden small">
 						<i class="glyphicon glyphicon-exclamation-sign"></i> 
 						Please make sure that the total payment applied (<strong id="disp_tot_payment">0</strong>) should be equal to (<strong id="disp_tot_cheque">0</strong>).
 					</span>
@@ -166,6 +162,10 @@
 						<i class="glyphicon glyphicon-exclamation-sign"></i> 
 						The Cheque Number you entered has already been used
 					</span>
+				</div>
+			<div class="panel panel-default <?php echo $show_cheques?>" id="cheque_details">
+				<div class="panel-heading">
+					<strong>Cheque Details</strong>
 				</div>
 				<div class="table-responsive">
 					<table class="table table-condensed table-bordered table-hover" id="chequeTable">
@@ -438,6 +438,7 @@
 												->draw($show_input);
 									?>
 								</td>
+								<td></td>
 								<?endif;?>
 							</tr>	
 						</tfoot>
@@ -447,23 +448,23 @@
 			<!--End of Cheque Details-->
 			<hr/>
 			<!--Account Entries-->
+			<div class="has-error">
+				<span id="totalAmountError" class="help-block hidden small">
+					<i class="glyphicon glyphicon-exclamation-sign"></i> 
+					The total Debit Amount and Credit Amount must match.
+				</span>
+				<span id="zeroTotalAmountError" class="help-block hidden small">
+					<i class="glyphicon glyphicon-exclamation-sign"></i> 
+					Total Debit and Total Credit must have a value.
+				</span>
+				<span id="accountcodeError" class="help-block hidden small">
+					<i class="glyphicon glyphicon-exclamation-sign"></i> 
+					Account Code field must have a value.
+				</span>
+			</div>
 			<div class="panel panel-default" id="accounting_details">
 				<div class="panel-heading">
 					<strong>Accounting Details</strong>
-				</div>
-				<div class="has-error">
-					<span id="totalAmountError" class="help-block hidden small">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						The total Debit Amount and Credit Amount must match.
-					</span>
-					<span id="zeroTotalAmountError" class="help-block hidden small">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						Total Debit and Total Credit must have a value.
-					</span>
-					<span id="accountcodeError" class="help-block hidden small">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						Account Code field must have a value.
-					</span>
 				</div>
 				<div class="table-responsive">
 					<table class="table table-hover table-condensed " id="entriesTable">
@@ -539,8 +540,8 @@
 												->setSplit('', 'col-md-12')
 												->setName('credit['.$row.']')
 												->setId('credit['.$row.']')
+												->setClass("text-right account_amount credit")
 												->setValidation('decimal')
-												->setClass("text-right account_amount  credit")
 												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 												->setValue(number_format($credit, 2))
 												->draw($show_input);
@@ -750,6 +751,7 @@
 												->draw($show_input);
 									?>
 								</td>
+								<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 							</tr>	
 						</tfoot>
 					</table>
@@ -1119,8 +1121,8 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 	// enable them to allow a cloned row with enabled dropdown and input fields
 var initial_debit 		= initial_clone.find('.debit').val();
 var initial_credit 		= initial_clone.find('.crebit').val() || 0;
-	initial_clone.find('.debit').attr("value",0);
-	initial_clone.find('.credit').attr("value",0);
+	initial_clone.find('.debit').attr("value",'0.00');
+	initial_clone.find('.credit').attr("value",'0.00');
 var clone_acct 	= $('#entriesTable tbody tr.clone:first')[0].outerHTML;
 	// after cloning, set the first row to its initial state ( again, in this case, a disabled fields )
 	initial_clone.find('.debit').val(initial_debit);
@@ -1204,55 +1206,6 @@ $('#chequeTable .cheque_account').on('change', function()  {
 	displaystoreddescription();
 	drawTemplate();
 });
-
-// $('#chequeTable .cheque_account').on('change', function()  {
-// 	storedescriptionstoarray();
-// 	if ($('#entriesTable tbody tr.clone select').data('select2')) {
-// 		$('#entriesTable tbody tr.clone select').select2('destroy');
-// 	}
-// 	var val = $(this).val();
-	
-// 	cheque_arr = [];
-
-// 	$('#entriesTable tbody tr.added_row').remove();
-// 	$('#chequeTable tbody tr select.cheque_account').each(function() {
-// 		var account = $(this).val();
-// 		if(account!="" && jQuery.inArray(account,cheque_arr) == -1){
-// 			cheque_arr.push(account);
-// 		}
-// 	});
-// 	var row = $("#entriesTable tbody tr.clone").length;
-// 	$('#entriesTable tbody tr.clone .accountcode').each(function(index) {
-// 		var account = $(this).val();
-// 		var ischeck = $(this).closest('tr').find('.ischeck').val();
-// 		if(task == 'create' && account == "" || account == "" && ischeck == 'yes'){
-// 			$(this).closest('tr').remove();
-// 		}
-// 	});
-
-// 	row = $("#entriesTable tbody tr.clone").length + 1;
-	
-// 	cheque_arr.forEach(function(account) {
-// 		var ParentRow = $("#entriesTable tbody tr.clone").last();
-// 		$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
-// 		// clone_acct(initial state of first row) will be placed on the last cloned row. 
-// 		ParentRow.after(clone_acct);
-// 		resetIds();
-// 		$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
-// 		$("#entriesTable button#"+row).prop('disabled',true);
-// 		$("#entriesTable debit#"+row).prop('disabled',true);
-// 		$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
-// 		$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
-// 		$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
-// 		disable_acct_fields(row);
-// 		row++;
-// 	});
-// 	accounts.push(val);
-// 	recomputechequeamts();
-// 	acctdetailamtreset();
-// 	displaystoreddescription();
-// 	drawTemplate();
-// });
 
 function disable_acct_fields(row){
 	$("#accountcode\\["+ row +"\\]").prop("disabled", true);
@@ -2832,11 +2785,6 @@ $(document).ready(function() {
 		// Validation
 		$("#rateForm").find('.form-group').find('input, textarea, select').trigger('focus');
 		valid 	+= $("#rateForm").find('.form-group.has-error').length;
-		
-
-		// valid		+= validateField('rateForm','oldamount', "oldamount_help");
-		// valid		+= validateField('rateForm','rate', "rate_help");
-		// valid		+= validateField('rateForm','newamount', "newamount_help");
 
 		if(valid == 0)
 		{
@@ -3619,22 +3567,6 @@ $(document).ready(function() {
 		showIssuePayment();
 	});
 
-	// Isabelle -  eto ung pag clone ng td sa may accounting details 
-	// $('body').on('click', '.add-entry', function()  {	
-	// 	if ($('#entriesTable tbody tr.clone select').data('select2')) {
-	// 		$('#entriesTable tbody tr.clone select').select2('destroy');
-	// 	}
-	// 	var clone = $("#entriesTable tbody tr.clone:first").clone(true); 
-
-	// 	var ParentRow = $("#entriesTable tbody tr.clone").last();
-
-	// 	clone.clone(true).insertAfter(ParentRow);
-		
-	// 	setZero();
-		
-	// 	$('#entriesTable tbody tr.clone select').select2({width: "100%"});
-	// });
-
 	$('body').on('click', '.add-entry', function()  {	
 
 		var ParentRow = $("#entriesTable tbody tr:not(.added_row)").last();
@@ -3642,15 +3574,6 @@ $(document).ready(function() {
 		resetIds();
 		drawTemplate();
 	});
-
-	// $('body').on('click', '.add-entry', function()  {	
-	// 	var ParentRow = $("#entriesTable tbody tr:not(.added_row)").last();
-	// 	ParentRow.after(clone_acct);
-	// 	setZero();
-	// 	$("#entriesTable tbody tr:not(.added_row):last").find('.accountcode').val('').trigger('change');
-	// 	$("#entriesTable tbody tr:not(.added_row):last").find('.credit').attr('readonly',false);
-	// 	drawTemplate();
-	// });
 
 	var cheque_detail 	=	$('#paymentmode').val();
 

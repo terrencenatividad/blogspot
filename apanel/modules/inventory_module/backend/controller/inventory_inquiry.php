@@ -144,7 +144,7 @@ class controller extends wc_controller {
 	}
 
 	private function export_main($data){
-		$header = array("Itemname","Warehouse","On Hand Quantity","Order Quantity","Allocated Quanity","Available Quantity");
+		$header = array("Itemname","Warehouse","On Hand Quantity","Order Quantity","Allocated Quantity","Available Quantity");
 
 		$csv = '';
 		$csv .= '"' . implode('", "', $header) . '"';

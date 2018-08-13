@@ -58,17 +58,20 @@
 			$this->view->load('bank/bank', $data);
 		}
 
-		public function edit($code)
+		public function edit($id)
 		{
 			$this->view->title = $this->ui->EditLabel('');
 			
-			$data 			 	= (array) $this->bank->retrieveExistingCurrency($this->fields, $code);
+			// $data 			 	= (array) $this->bank->retrieveExistingCurrency($this->fields, $code);
+			$data 			 	= (array) $this->bank->retrieveExistingBank($this->fields, $id);
+			$data['currencylist']   = $this->bank->retrieveExchangeRateDropdown();
+			$data['gllist']   		= $this->bank->retrieveGLDropdown();
 			$data['ui'] 		= $this->ui;
 			$data['task'] 		= 'update';
 			$data['show_input'] = true;
-			$data['ajax_post'] 	= "&code=$code";
-
-			$this->view->load('currency/currency',  $data);
+			$data['id']			= $id;
+			$data['ajax_post'] 	= "&id=$id";
+			$this->view->load('bank/bank', $data);
 		}
 
 		public function view($code)
@@ -120,11 +123,18 @@
 										)
 										->draw();
 
+					if($row->stat == 'active'){
+						$bank_status = '<span class="label label-success">'.strtoupper($row->stat).'</span>';
+					}else if($row->stat == 'inactive'){
+						$bank_status = '<span class="label label-danger">'.strtoupper($row->stat).'</span>';
+					}
+
 					$table .= '<tr>';
 					$table .= ' <td align = "center">' .$dropdown. '</td>';
 					$table .= '<td>' . $row->shortname . '</td>';
 					$table .= '<td>' . $row->bankcode . '</td>';
 					$table .= '<td>' . $row->accountno. '</td>';
+					$table .= '<td>' . $bank_status. '</td>';
 					$table .= '</tr>';
 				}
 			else:
@@ -161,21 +171,20 @@
 		private function update()
 		{
 			$posted_data 	= $this->input->post($this->fields);
-			$code 		 	= $this->input->post('code');
-
-			$result 		= $this->bank->updateCurrency($posted_data, $code);
+			$id 		 	= $this->input->post('id');
+			$result 		= $this->bank->updateBank($posted_data, $id);
 
 			if( $result )
 			{
 				$msg = "success";
-				$this->log->saveActivity("Updated Currency [$code] ");
+				$this->log->saveActivity("Updated Bank [$id] ");
 			}
 			else
 			{
 				$msg = $result;
 			}
 
-			return $dataArray 		= array( "msg" => $msg, "currency_code" => $posted_data["currencycode"], "currency_name" => $posted_data["currency"] );
+			return $dataArray 		= array( "id" => $id, "msg" => $msg );
 		}
 
 		private function delete()
@@ -253,6 +262,51 @@
 			
 			return $dataArray 		= array( "msg" => $msg );
 
+		}
+
+		private function check_list() {
+
+			$search = $this->input->post("search");
+			$id 	= $this->input->post("id");
+			$sort 	= $this->input->post('sort');
+			$limit  = $this->input->post('limit');
+			$list 	= $this->bank->checkListing($search, $sort, $limit, $id);
+
+			$table 	= '';
+
+			if( !empty($list->result) ) :
+				foreach ($list->result as $key => $row) {
+
+					$dropdown = $this->ui->loadElement('check_task')
+										->addView()
+										->addEdit()
+										->addDelete()
+										->addCheckbox()
+										->setValue($row->id)
+										// ->addOtherTask(
+										// 	'Manage Check',
+										// 	'new-window',
+										// 	$row->checking_account == 'yes'
+										// )
+										->draw();
+
+					$table .= '<tr>';
+					$table .= ' <td align = "center">' .$dropdown. '</td>';
+					$table .= '<td>' . $row->accountno . '</td>';
+					$table .= '<td>' . $row->booknumber . '</td>';
+					$table .= '<td>' . $row->batch  . '</td>';
+					$table .= '<td>' . $row->nextchequeno. '</td>';
+					$table .= '</tr>';
+				}
+			else:
+				$table .= "<tr>
+								<td colspan = '5' class = 'text-center'>No Records Found</td>
+						</tr>";
+			endif;
+
+			$list->table 	=	$table;
+
+			return $list;
 		}
 
 

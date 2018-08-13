@@ -117,18 +117,7 @@
 						?>
 					</div>
 
-					<!-- <div class="col-md-6">
-						<?php
-							echo $ui->formField('textarea')
-								->setLabel('Bank Address:')
-								->setSplit('col-md-3', 'col-md-6')
-								->setName('accountname')
-								->setId('accountname')
-								->setValue($accountname)
-								->setValidation('required')
-								->draw($show_input);
-						?>
-					</div> -->
+					
 				</div>
 
 				<hr/>

@@ -180,27 +180,27 @@
 			</div>
 
 			<!--Cheque Details-->
+			<div class="has-error">
+				<span id="chequeCountError" class="help-block hidden small">
+					<i class="glyphicon glyphicon-exclamation-sign"></i> 
+					Please specify at least one(1) cheque.
+				</span>
+				<span id="chequeAmountError" class="help-block hidden small">
+					<i class="glyphicon glyphicon-exclamation-sign"></i> 
+					Please complete the fields on the highlighted row(s).
+				</span>
+				<span id="paymentAmountError" class="help-block hidden small">
+					<i class="glyphicon glyphicon-exclamation-sign"></i> 
+					Please make sure that the total payment applied (<strong id="disp_tot_payment">0</strong>) should be equal to (<strong id="disp_tot_cheque">0</strong>).
+				</span>
+				<span id="checkNumberError" class="help-block hidden">
+					<i class="glyphicon glyphicon-exclamation-sign"></i> 
+					The Cheque Number you entered has already been used
+				</span>
+			</div>
 			<div class="panel panel-default <?php echo $show_cheques?>" id="cheque_details">
 				<div class="panel-heading">
 					<strong>Cheque Details</strong>
-				</div>
-				<div class="has-error">
-					<span id="chequeCountError" class="help-block hidden small col-md-offset-1">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						Please specify at least one(1) cheque.
-					</span>
-					<span id="chequeAmountError" class="help-block hidden small col-md-offset-1">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						Please complete the fields on the highlighted row(s).
-					</span>
-					<span id="paymentAmountError" class="help-block hidden small col-md-offset-1">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						Please make sure that the total payment applied (<strong id="disp_tot_payment">0</strong>) should be equal to (<strong id="disp_tot_cheque">0</strong>).
-					</span>
-					<span id="checkNumberError" class="help-block hidden">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						The Cheque Number you entered has already been used
-					</span>
 				</div>
 				<div class="table-responsive">
 					<table class="table table-condensed table-bordered table-hover" id="chequeTable">
@@ -438,23 +438,23 @@
 			<!--End of Cheque Details-->
 			<hr/>
 			<!--Account Entries-->
+			<div class="has-error">
+				<span id="totalAmountError" class="help-block hidden small">
+					<i class="glyphicon glyphicon-exclamation-sign"></i> 
+					The total Debit Amount and Credit Amount must match.
+				</span>
+				<span id="zeroTotalAmountError" class="help-block hidden small">
+					<i class="glyphicon glyphicon-exclamation-sign"></i> 
+					Total Debit and Total Credit must have a value.
+				</span>
+				<span id="accountcodeError" class="help-block hidden small">
+					<i class="glyphicon glyphicon-exclamation-sign"></i> 
+					Account Code field must have a value.
+				</span>
+			</div>
 			<div class="panel panel-default" id="accounting_details">
 				<div class="panel-heading">
 					<strong>Accounting Details</strong>
-				</div>
-				<div class="has-error">
-					<span id="totalAmountError" class="help-block hidden small">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						The total Debit Amount and Credit Amount must match.
-					</span>
-					<span id="zeroTotalAmountError" class="help-block hidden small">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						Total Debit and Total Credit must have a value.
-					</span>
-					<span id="accountcodeError" class="help-block hidden small">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						Account Code field must have a value.
-					</span>
 				</div>
 				<div class="table-responsive">
 					<table class="table table-hover table-condensed " id="entriesTable">
