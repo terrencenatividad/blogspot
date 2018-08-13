@@ -190,8 +190,9 @@ class controller extends wc_controller
 				$update_cheque['voucherno']	= $generatedvoucher;
 				$updateTempRecord			= $this->receipt_voucher->editData($update_cheque,"rv_cheques",$update_condition);
 				// Update TMP source of CM
-				// $update_source['']
-				// $updateTempRecord			= $this->receipt_voucher->editData($update_cheque,"rv_cheques",$update_condition);
+				// $update_source['sourceno']  = $generatedvoucher;
+				// $source_cond 				= "sourceno = '$voucherno' AND transtype = 'CM'";
+				// $updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
 
 				/**UPDATE MAIN INVOICE**/
 				$this->update_app($data_validate['selected_rows']);

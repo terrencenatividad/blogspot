@@ -2255,9 +2255,8 @@ function selectPayable(id,toggle){
 	var balance 		= $('#payable_list_container #payable_balance'+id).attr('data-value');
 	var paymentamount_val 	= $('#payable_list_container #paymentamount'+id).attr('value');
 	var newbal  		= $('#payable_list_container #orig_bal'+id).attr('value');
-	
+	var available_credit= $('#paymentForm #available_credits').val();	
 
-	
 	if(check.prop('checked')){
 		if(toggle == 1){
 			check.prop('checked', false);
@@ -2271,7 +2270,9 @@ function selectPayable(id,toggle){
 			paymentamount.prop('disabled',false);
 			paymentamount.val(balance);
 			discountamount.prop('disabled',false);
-			credit_used.prop('disabled',false);
+			if(available_credit>0){
+				credit_used.prop('disabled',false);
+			}
 			// discountamount.val(balance);
 		}
 	}else{
@@ -2287,7 +2288,9 @@ function selectPayable(id,toggle){
 			paymentamount.prop('disabled',true);
 			paymentamount.val('');
 			discountamount.prop('disabled',true);
-			credit_used.prop('disabled',true);
+			if(available_credit>0){
+				credit_used.prop('disabled',true);
+			}
 			// discountamount.val('0.00');
 		}
 	}
