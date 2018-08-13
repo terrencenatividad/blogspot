@@ -137,6 +137,7 @@ class controller extends wc_controller {
 			$transactiondate 	=	$row->transactiondate;
 			$restrict_cm= $this->restrict->setButtonRestriction($transactiondate);
 			$status				=   $row->stat;
+			$source 			= 	isset($row->source) 	?	$row->source 	:	"";
 			$display_edit_delete=  	($status != 'cancelled') 	?	1	:	0;
 			$voucher_status = '<span class="label label-danger">'.strtoupper($status).'</span>';
 				if($status == 'open'){
@@ -148,10 +149,10 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($restrict_cm && $display_edit_delete)
-									->addDelete($restrict_cm && $display_edit_delete)
+									->addEdit($restrict_cm && $display_edit_delete && $source != "excess")
+									->addDelete($restrict_cm && $display_edit_delete && $source != "excess")
 									->addPrint()
-									->addCheckbox($restrict_cm  && $display_edit_delete)
+									->addCheckbox($restrict_cm  && $display_edit_delete && $source != "excess")
 									->setLabels(array('delete'=>'Cancel'))
 									->setValue($row->voucherno)
 									->draw();
