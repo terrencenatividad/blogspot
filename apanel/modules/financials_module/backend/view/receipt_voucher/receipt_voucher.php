@@ -145,7 +145,7 @@
 						<div class = "col-md-6">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Add Credit')
+										->setLabel('Apply Credit')
 										->setSplit('col-md-4', 'col-md-8')
 										->setName('credit_input')
 										->setId('credit_input')
@@ -153,7 +153,7 @@
 										->setMaxLength(20)
 										->setPlaceHolder("0.00")
 										->setValidation('decimal')
-										->setValue("0.00")
+										->setValue($credits_used)
 										->draw($show_input);
 							?>
 							<?php
@@ -165,7 +165,7 @@
 										->setAttribute(array("style"=>"color:blue"))
 										->setMaxLength(30)
 										->addHidden()
-										->setValue("Php 0.00")
+										->setValue("Php ".$available_credits)
 										->draw();
 							?>	
 							<div class="col-md-offset-4 has-error">
@@ -2097,7 +2097,7 @@ function addPaymentAmount() {
 		discount = 0;
 	}
 	amount = addCommas(amount.toFixed(2));
-	console.log(amount);
+	console.log("Add Payment Amount || Amount = " + amount);
 	$('#total_payment').val(amount);
 	discount = addCommas(discount.toFixed(2));
 	$('#total_discount').val(discount);
@@ -2274,22 +2274,26 @@ function init_storage(){
 }
 
 function add_storage(id,balance,discount){
+	console.log("ADD STORAGE || BALANCE = "+balance);	
 	var amount 		= $('#paymentModal #paymentamount'+id).val();
 	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount};
 	
 	if(amount != ''){
+		console.log("ADD STORAGE || AMOUNT = "+amount);
 		var found = false;
 		for(var i=0; element=container[i]; i++) {
+			console.log("CONTAINER");
+			console.log(container[i]);
 			if(element.vno == newvalue.vno) {
-				var original_amount 	=	(element.amt > 0) ? element.amt.replace(/\,/g,'') : 0;
-				var original_balance 	=	(element.bal > 0) ? element.bal.replace(/\,/g,'') : 0;
-				var original_discount	=	((element.dis > 0) ? element.dis.replace(/\,/g,'') : 0);
+				var original_amount 	=	(removeComma(element.amt) > 0) ? removeComma(element.amt) : 0;
+				var original_balance 	=	(removeComma(element.bal) > 0) ? removeComma(element.bal) : 0;
+				var original_discount	=	(removeComma(element.dis) > 0) ? removeComma(element.dis) : 0;
 				
 				console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount);
 
-				var new_amount 			=	(newvalue.amt > 0) ? newvalue.amt.replace(/\,/g,'') : 0;
-				var new_balance 		=	(newvalue.bal > 0) ? newvalue.bal.replace(/\,/g,'')	: 0;
-				var discount 			=	(newvalue.dis > 0) ? newvalue.dis.replace(/\,/g,'') : 0;
+				var new_amount 			=	(removeComma(newvalue.amt) > 0) ? removeComma(newvalue.amt) : 0;
+				var new_balance 		=	(removeComma(newvalue.bal) > 0) ? removeComma(newvalue.bal)	: 0;
+				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
 				
 				console.log("New || "+new_amount+ " | " + new_balance + " | "+discount);
 
@@ -2377,6 +2381,7 @@ function checkBalance(val,id){
 	// 	// console.log(id);
 	// }
 	dueamount 	=	(excess_payment > 0) 	?	 0	:	dueamount;
+	
 	console.log("DUE AMOUNT " + dueamount);
 	add_storage(id,dueamount,discount);
 	addPaymentAmount();	
