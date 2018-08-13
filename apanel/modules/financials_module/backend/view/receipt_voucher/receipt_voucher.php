@@ -2336,11 +2336,11 @@ function add_storage(id,balance,discount,credits){
 				
 				console.log("OLD || "+original_amount+ " | " + original_balance + " | "+original_discount + " | " + original_credits);
  
-				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount)  - parseFloat(original_credits)) - new_amount;
+				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount)) - new_amount;
 					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
 				// console.log("available balance = "+available_balance);
 				console.log("AVAILABLE="+available_balance);
-				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount)) - discount;
+				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount)) - discount - credits;
 					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
 				console.log("DISC="+discounted_amount);
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
