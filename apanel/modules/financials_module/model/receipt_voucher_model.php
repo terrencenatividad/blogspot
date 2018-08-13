@@ -317,9 +317,9 @@ class receipt_voucher_model extends wc_model
 		}
 
 		// Sub Select
-		$table_pv  = "rv_application AS pv";
-		$pv_fields = "COALESCE(SUM(pv.convertedamount),0) + COALESCE(SUM(pv.discount),0) - COALESCE(SUM(pv.forexamount),0)";
-		$pv_cond   = "pv.arvoucherno = main.voucherno AND pv.stat IN('posted') AND pv.voucherno = '$voucherno' ";
+		$table_rv  = "rv_application AS rv";
+		$rv_fields = "COALESCE(SUM(rv.convertedamount),0) + COALESCE(SUM(rv.discount),0) - COALESCE(SUM(rv.forexamount),0)";
+		$rv_cond   = "rv.arvoucherno = main.voucherno AND rv.stat IN('posted') AND rv.voucherno = '$voucherno' ";
 	
 		// Main Queries
 		$main_table   = "accountsreceivable as main";
@@ -338,27 +338,20 @@ class receipt_voucher_model extends wc_model
 
 		if($customercode && empty($voucherno))
 		{
-			$sub_select 		= $this->db->setTable($table_pv)
-							   ->setFields($pv_fields)
-							   ->setWhere($pv_cond)
+			$sub_select 		= $this->db->setTable($table_rv)
+							   ->setFields($rv_fields)
+							   ->setWhere($rv_cond)
 							   ->buildSelect();
-			// $addCondition 		= "AND ($sub_select) = 0 OR ($sub_select) > 0 AND main.convertedamount > ($sub_select)";
-			// $main_cond    		= "main.stat = 'posted'  AND main.vendor = '$vendorcode' $search_key $addCondition ";
-			// $query 				= $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
 			$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND main.balance != 0 ";
 			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $orderBy);
 			$tempArr["result"] = $query;
 		}
 		else if($voucherno)
 		{
-			$sub_select = $this->db->setTable($table_pv)
-								->setFields($pv_fields)
-								->setWhere($pv_cond)
+			$sub_select = $this->db->setTable($table_rv)
+								->setFields($rv_fields)
+								->setWhere($rv_cond)
 								->buildSelect();
-			// $addCondition		= "AND main.convertedamount = ($sub_select AND pv.voucherno = '$voucherno') OR ($sub_select AND pv.voucherno = '$voucherno') > 0";
-			// $main_cond    		= "main.stat = 'posted' AND main.vendor = '$vendorcode' $addCondition ";
-			// $query 				= $this->retrieveDataPagination($main_table, $main_fields, $main_cond, $main_join, $orderby);
-			//$addCondition		= "AND main.convertedamount = ($sub_select AND pv.voucherno = '$voucherno') OR ($sub_select AND pv.voucherno = '$voucherno') > 0";
 			$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND ((main.balance - ($sub_select)) <= main.convertedamount) AND ( main.balance != 0 OR ($sub_select) != 0)";
 			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $orderBy);
 			$tempArr["result"] = $query;
@@ -957,10 +950,10 @@ class receipt_voucher_model extends wc_model
 												 ->runUpdate();
 					
 					// Insert Overpayment on Credit Memo
-					if($insertResult && $overpayment > 0){
-						$data['temp_voucher'] 	=	$voucherno;
-						$op_result 	=	$this->generateCreditMemo($data);
-					}
+					// if($insertResult && $overpayment > 0){
+					// 	$data['temp_voucher'] 	=	$voucherno;
+					// 	$op_result 	=	$this->generateCreditMemo($data);
+					// }
 				}
 			}
 		}
