@@ -120,11 +120,18 @@
 										)
 										->draw();
 
+					if($row->stat == 'active'){
+						$bank_status = '<span class="label label-success">'.strtoupper($row->stat).'</span>';
+					}else if($row->stat == 'inactive'){
+						$bank_status = '<span class="label label-danger">'.strtoupper($row->stat).'</span>';
+					}
+
 					$table .= '<tr>';
 					$table .= ' <td align = "center">' .$dropdown. '</td>';
 					$table .= '<td>' . $row->shortname . '</td>';
 					$table .= '<td>' . $row->bankcode . '</td>';
 					$table .= '<td>' . $row->accountno. '</td>';
+					$table .= '<td>' . $bank_status. '</td>';
 					$table .= '</tr>';
 				}
 			else:
@@ -253,6 +260,51 @@
 			
 			return $dataArray 		= array( "msg" => $msg );
 
+		}
+
+		private function check_list() {
+
+			$search = $this->input->post("search");
+			$id 	= $this->input->post("id");
+			$sort 	= $this->input->post('sort');
+			$limit  = $this->input->post('limit');
+			$list 	= $this->bank->checkListing($search, $sort, $limit, $id);
+
+			$table 	= '';
+
+			if( !empty($list->result) ) :
+				foreach ($list->result as $key => $row) {
+
+					$dropdown = $this->ui->loadElement('check_task')
+										->addView()
+										->addEdit()
+										->addDelete()
+										->addCheckbox()
+										->setValue($row->id)
+										// ->addOtherTask(
+										// 	'Manage Check',
+										// 	'new-window',
+										// 	$row->checking_account == 'yes'
+										// )
+										->draw();
+
+					$table .= '<tr>';
+					$table .= ' <td align = "center">' .$dropdown. '</td>';
+					$table .= '<td>' . $row->accountno . '</td>';
+					$table .= '<td>' . $row->booknumber . '</td>';
+					$table .= '<td>' . $row->batch  . '</td>';
+					$table .= '<td>' . $row->nextchequeno. '</td>';
+					$table .= '</tr>';
+				}
+			else:
+				$table .= "<tr>
+								<td colspan = '5' class = 'text-center'>No Records Found</td>
+						</tr>";
+			endif;
+
+			$list->table 	=	$table;
+
+			return $list;
 		}
 
 
