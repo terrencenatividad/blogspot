@@ -11,6 +11,7 @@
 </div>
 
 <form method = "post" class="form-horizontal" id = "payableForm">
+	<input type="hidden" id="h_task" name="h_task" value="<?=$task?>">
 	<div class="box box-primary">
 		<div class="box-body">
 			<div class = "row">
@@ -108,7 +109,8 @@
 								</div>
 								<input type = "hidden" id = "originalamt" name = "originalamt" value = "0">
 								<input type = "hidden" id = "overpayment" name = "overpayment" value = "0">
-								<input type = "hidden" id = "total_cred_used" name = "total_cred_used" value = "0">
+								<input type = "hidden" id = "total_cred_used" name = "total_cred_used" value = "<?=$credits_used?>">
+								<input type = "hidden" id = "old_cred_used" name = "old_cred_used" value = "<?=$credits_used?>">
 							</div>
 						</div>
 						<!-- Text Area for selected payables -->
@@ -1987,9 +1989,22 @@ function confirmChequePrint(row){
 
 }
 
+function get_total_applied_credits(){
+	var total_cred_used = 0;
+	$('#payable_list_container tr').each(function(index) {
+		var credit_used = $(this).find('.credits_used').val();
+			console.log("Credits = "+credit_used);
+			credit_used = parseFloat(removeComma(credit_used));
+
+		total_cred_used = parseFloat(removeComma(total_cred_used)) + parseFloat(removeComma(credit_used));
+	});
+	return total_cred_used;
+}
+
 function showList()
 {
 	var vnose 		= JSON.stringify(container);
+	// console.log(vnose);
 	var	customer_code	= $('#payableForm #customer').val();
 	voucherno 		= $('#payableForm #h_voucher_no').val();
 	var available_cred 	= $('#paymentModal #available_credits').val();
@@ -2012,7 +2027,8 @@ function showList()
 							$('#pagination').html(data.pagination);
 							$('#paymentModal #payable_list_container').html(data.table);
 							
-							
+							var applied_cred 	=	get_total_applied_credits();
+							$('#payableForm #total_cred_used').val(applied_cred);
 						} else {
 							$('#pagination').html(data.pagination);
 							$('#paymentModal #payable_list_container').html(data.table);
@@ -2026,6 +2042,7 @@ function showList()
 						}
 						
 						if('<?= $task ?>' == "edit" && !edited) {
+			
 							$("#payableForm #selected_rows").html(data.json_encode);
 						}
 						
@@ -2109,7 +2126,7 @@ function addPaymentAmount() {
 	amount = 0; 
 	discount = 0;
 	for(i = 0; i < count_container; i++) {
-		amt_ = (container[i]['amt'] > 0)? removeComma(container[i]['amt']) 	:	0;
+		amt_ = removeComma(container[i]['amt']);
 		dis = parseFloat(0) || (container[i]['dis']) ;
 		amt = parseFloat(amt_);
 		dis = parseFloat(dis) ;
@@ -2163,7 +2180,7 @@ function getCheckAccounts() {
 		cheques_obj[chequeaccount] = (cheques_obj[chequeaccount] >= 0) ? cheques_obj[chequeaccount] + removeComma(chequeamount) : removeComma(chequeamount);
 	});
 
-	return cheques_obj
+	return cheques_obj;
 }
 
 var payments 		= <?=$payments;?>;
@@ -2252,7 +2269,7 @@ function selectPayable(id,toggle){
 	var newbal  		= $('#payable_list_container #orig_bal'+id).attr('value');
 	var available_credit= $('#paymentForm #available_credits').val();	
 
-	if(check.prop('checked')){
+	if(check.prop('checked' )){
 		if(toggle == 1){
 			check.prop('checked', false);
 			paymentamount.prop('disabled',true);
@@ -3722,9 +3739,8 @@ $(document).ready(function() {
 		$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_credits",$('#payableForm').serialize())
 		.done(function( response ) {
 			var excess_credits = addCommas(response.credits);
-			// console.log("EXCESS = "+excess_credits);
+
 			$('#paymentModal #available_credits').val(excess_credits);
-			// $('#paymentModal #available_credits_static').html("Php "+excess_credits);
 		});
 	});
 
@@ -3776,13 +3792,8 @@ $(document).ready(function() {
 		var avail_credits 	=	$('#paymentForm #available_credits').val();
 			avail_credits 	=	parseFloat(removeComma(avail_credits));
 		var total_cred_used = 	0;
-
-		$('#payable_list_container tr').each(function(index) {
-			var credit_used = $(this).find('.credits_used').val();
-				credit_used = parseFloat(removeComma(credit_used));
-			total_cred_used = parseFloat(removeComma(total_cred_used)) + parseFloat(removeComma(credit_used));
-		});
-
+			total_cred_used =	get_total_applied_credits();
+		console.log(get_total_applied_credits());
 		if(total_cred_used >= avail_credits){
 			$('#excess_credit_error').removeClass('hidden');
 			$('#payable_list_container tr').each(function(index) {

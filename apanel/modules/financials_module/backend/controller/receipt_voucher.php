@@ -190,9 +190,9 @@ class controller extends wc_controller
 				$update_cheque['voucherno']	= $generatedvoucher;
 				$updateTempRecord			= $this->receipt_voucher->editData($update_cheque,"rv_cheques",$update_condition);
 				// Update TMP source of CM
-				// $update_source['sourceno']  = $generatedvoucher;
-				// $source_cond 				= "sourceno = '$voucherno' AND transtype = 'CM'";
-				// $updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
+				$update_source['si_no']  	= $generatedvoucher;
+				$source_cond 				= "si_no = '$voucherno' AND transtype = 'CM'";
+				$updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
 
 				/**UPDATE MAIN INVOICE**/
 				$this->update_app($data_validate['selected_rows']);
@@ -358,9 +358,10 @@ class controller extends wc_controller
 		$data["transactiondate"] = $this->date->dateFormat($data["main"]->transactiondate);
 		$data["particulars"]     = $data["main"]->particulars;
 		$data["paymenttype"]     = $data["main"]->paymenttype;
-		$data["credits_used"]    = $data["main"]->credits_used;
+		$credits_used 			 = $data["main"]->credits_used;
+		$data["credits_used"]    = $credits_used;
 		$available_credits 		 = $this->receipt_voucher->retrieve_existing_credits($customer);
-		$data["available_credits"] = isset($available_credits[0]->curr_credit) 	?	$available_credits[0]->curr_credit	:	"0.00";
+		$data["available_credits"] = isset($available_credits[0]->curr_credit) 	?	$available_credits[0]->curr_credit 	+	$credits_used	:	"0.00";
 		$data['status']			 = $data["main"]->stat;
 	 		
 		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
@@ -385,6 +386,8 @@ class controller extends wc_controller
 		$data['restrict_rv'] 	= true;
 		$data['has_access'] 	= 0;
 
+		// print_r($data);
+
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
 
@@ -397,7 +400,11 @@ class controller extends wc_controller
 			$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_details",$update_condition);
 			$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_application",$update_condition);
 			$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_cheques",$update_condition);
-			
+			// Update TMP source of CM
+			// $update_source['si_no']  	= $generatedvoucher;
+			// $source_cond 				= "si_no = '$voucherno' AND transtype = 'CM'";
+			// $updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
+
 			$this->update_app($data_validate["h_check_rows_"]);
 
 			// For Admin Logs
@@ -898,7 +905,7 @@ class controller extends wc_controller
 
 	private function load_payables()
 	{
-		$data       	= $this->input->post(array("customer", "voucherno","avl_cred"));
+		$data       	= $this->input->post(array("customer", "voucherno", "avl_cred"));
 		$task       	= $this->input->post("task");
 		$search			= $this->input->post('search');
 		$avl_credit 	= $this->input->post("avl_cred");
@@ -933,13 +940,9 @@ class controller extends wc_controller
 			$checker = array();
 			
 			if(!empty($decode_json)) {
-				foreach($decode_json as $value => $row)
-				{	
-					
+				foreach($decode_json as $value => $row){	
 					array_push($voucher_array, $row['vno']);
 					$amt_array[$row['vno']] = $row;
-					
-					
 				}	
 			}
 
@@ -953,28 +956,28 @@ class controller extends wc_controller
 				$balance		= $pagination->result[$i]->balance; 
 				$totalamount	= $pagination->result[$i]->amount;
 				$referenceno	= $pagination->result[$i]->referenceno;
-				$credit_used	= 0;
+				$credit_used	= $pagination->result[$i]->credits_used;
 
-				$voucher_checked = (in_array($voucher , $voucher_array)) ? 'checked' : '';
-				$amt_checked = (in_array($voucher , $amt_array)) ? $amt_checked : '';
+				$voucher_checked= (in_array($voucher , $voucher_array)) ? 'checked' : '';
+				$amt_checked 	= (in_array($voucher , $amt_array)) ? $amt_checked : '';
 
 				$total_pay 		+= $totalamount;
 
 				$json_encode_array["row"]       = $i;
-				$json_encode_array["apvoucher"] = $voucher;
-				$json_encode_array["amount"]    = $totalamount;
-				$json_encode_array["balance"]   = $balance;
-				$json_encode_array["credit"]	= $credit_used;
+				$json_encode_array["vno"] 		= $voucher;
+				$json_encode_array["amt"]    	= $totalamount;
+				$json_encode_array["bal"]   	= $balance;
+				$json_encode_array["cred"]		= $credit_used;
 			
 				$json_data[] 					= $json_encode_array;
-
+			
 				$json_encode 					= json_encode($json_data);
 
 				$appliedamount	= $this->receipt_voucher->getValue("rv_application", array("SUM(amount) AS amount"),"arvoucherno = '$voucher' AND stat IN('posted', 'temporary')");
 				$appliedamount  = $appliedamount[0]->amount;
 
 				$balance_2		= $balance;
-				
+				// $credit_2 		= $credit_used;
 				if (isset($amt_array[$voucher])) {
 					$balance_2	= str_replace(',', '', $amt_array[$voucher]['bal']);
 					$balance_2 	= str_replace(',', '', $balance_2); 
@@ -982,8 +985,9 @@ class controller extends wc_controller
 					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0';
 					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance_2 + $amount + $discount;
 					$balance_2 	= $balance_2 - $amount - $discount;
+					// $credit_2   = ($task == 'edit') 	?	$credit_used + $credit_used		:	$credit_used; 
 				}
-
+				
 				$disable_checkbox 	=	"";
 				$disable_onclick 	=	'onClick="selectPayable(\''.$voucher.'\',1);"';
 
