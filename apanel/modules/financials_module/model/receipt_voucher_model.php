@@ -108,11 +108,10 @@ class receipt_voucher_model extends wc_model
 		$temp["vend"] = $retrieveArrayVendor;
 
 		// Retrieve Payments
-		$applicationFields = "app.arvoucherno as vno, app.amount as amt, '0.00' as bal, app.discount as dis, rv.credits_used as cred";
+		$applicationFields = "app.arvoucherno as vno, app.amount as amt, '0.00' as bal, app.discount as dis, app.credits_used as cred";
 		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 ";
-
+		// echo $sid;
 		$applicationArray = $this->db->setTable('rv_application as app')
-								->leftJoin('receiptvoucher rv ON rv.voucherno = app.voucherno')
 								->setFields($applicationFields)
 								->setWhere($app_cond)
 								->runSelect()
@@ -290,7 +289,6 @@ class receipt_voucher_model extends wc_model
 										"pvc.chequenumber as chequenumber",
 										"pvc.chequedate as chequedate",
 										"pvc.bank as bank",
-										
 										"pvc.chequeamount as chequeamount",
 										"pvc.stat as chequestat"
 									)
@@ -328,17 +326,16 @@ class receipt_voucher_model extends wc_model
 		$main_join 	  = "partners p ON p.partnercode = main.customer ";
 		$orderby  	  = "main.transactiondate DESC";
 		
+		$rva_cond 	=	($voucherno != "") ?	" AND app.voucherno = '$voucherno'"	:	"";
+
 		$mainTable	= "accountsreceivable as main";
 		$mainFields	= array(
 							"main.voucherno as voucherno", "main.transactiondate as transactiondate",
-							"main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0)) as balance", "main.referenceno as referenceno",
-							"SUM(app.convertedamount) as payment","COALESCE(rv.credits_used,0) credits_used"
+							"main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0) - COALESCE(SUM(app.credits_used),0)) as balance", "main.referenceno as referenceno",
+							"SUM(app.convertedamount) as payment","COALESCE(SUM(app.credits_used),0) credits_used"
 						);
-		$mainJoin	= "rv_application AS app ON app.arvoucherno = main.voucherno LEFT JOIN  ( SELECT SUM(rv.credits_used) credits_used, rv.voucherno, jv.sourceno
-						FROM receiptvoucher rv 
-						LEFT JOIN journalvoucher jv ON jv.si_no = rv.voucherno  AND jv.transtype = 'CM'
-						WHERE rv.stat NOT IN ('cancelled','temporary') GROUP BY rv.voucherno ) rv ON rv.voucherno = app.voucherno AND main.invoiceno = rv.sourceno ";
-		$orderBy 	= "main.voucherno";
+		$mainJoin	= "rv_application AS app ON app.arvoucherno = main.voucherno $rva_cond";
+		$orderBy 	= "main.voucherno, app.voucherno";
 
 		$sub_select 		= $this->db->setTable($table_rv)
 										->setFields($rv_fields)
@@ -780,6 +777,7 @@ class receipt_voucher_model extends wc_model
 				$post_application['arvoucherno']		= $payable;
 				$post_application['discount']			= $discount;
 				$post_application['amount']		 		= $amount;
+				$post_application['credits_used'] 		= $credits;
 				$post_application['currencycode']		= 'PHP';
 				$post_application['exchangerate']		= '1.00';
 				$post_application['convertedamount']	= $amount;
@@ -795,7 +793,7 @@ class receipt_voucher_model extends wc_model
 		 */
 		$aOldApplicationObj = $this->db->setTable('rv_application rv')
 									->leftJoin('receiptvoucher as main ON main.voucherno = rv.voucherno ')
-									->setFields("rv.arvoucherno as vno, '0.00' as amt, '0.00' as bal, '0.00' as dis, main.credits_used as cred")
+									->setFields("rv.arvoucherno as vno, '0.00' as amt, '0.00' as bal, '0.00' as dis, '0.00' as cred")
 									->setWhere(" rv.voucherno = '$voucherno' ")
 									->runSelect()
 									->getResult();
@@ -926,6 +924,7 @@ class receipt_voucher_model extends wc_model
 												array(
 													"COALESCE(SUM(amount),0) AS convertedamount",
 													"COALESCE(SUM(discount),0) AS discount",
+													"COALESCE(SUM(credits_used),0) AS credits",
 													"COALESCE(SUM(forexamount),0) AS forexamount"
 												), 
 												" arvoucherno = '$payable' "
@@ -1504,7 +1503,7 @@ class receipt_voucher_model extends wc_model
 		if($addCond	== 'paid')
 		{
 			$table_pv  = "rv_application AS pv";
-			$pv_fields = "COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0)";
+			$pv_fields = "COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0) + COALESCE(SUM(pv.credits_used),0)";
 			$pv_cond   = "pv.arvoucherno = main.voucherno and pv.stat = 'posted'";
 			$sub_select = $this->db->setTable($table_pv)
 							   ->setFields($pv_fields)
@@ -1519,7 +1518,7 @@ class receipt_voucher_model extends wc_model
 		else if($addCond == 'partial')
 		{
 			$table_pv  = "rv_application AS pv";
-			$pv_fields = "COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0)";
+			$pv_fields = "COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0) + COALESCE(SUM(pv.credits_used),0)";
 			$pv_cond   = "pv.arvoucherno = main.voucherno and pv.stat = 'posted'";
 			$sub_select = $this->db->setTable($table_pv)
 							   ->setFields($pv_fields)
@@ -1540,7 +1539,7 @@ class receipt_voucher_model extends wc_model
 		else if($addCond == 'unpaid')
 		{
 			$table_pv  = "rv_application AS pv";
-			$pv_fields = "COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0)";
+			$pv_fields = "COALESCE(SUM(pv.amount),0) + COALESCE(SUM(pv.discount),0) + COALESCE(SUM(pv.credits_used),0)";
 			$pv_cond   = "pv.arvoucherno = main.voucherno and pv.stat = 'posted'";
 			$sub_select = $this->db->setTable($table_pv)
 							   ->setFields($pv_fields)

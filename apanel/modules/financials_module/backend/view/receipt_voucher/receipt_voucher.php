@@ -1993,7 +1993,6 @@ function get_total_applied_credits(){
 	var total_cred_used = 0;
 	$('#payable_list_container tr').each(function(index) {
 		var credit_used = $(this).find('.credits_used').val();
-			console.log("Credits = "+credit_used);
 			credit_used = parseFloat(removeComma(credit_used));
 
 		total_cred_used = parseFloat(removeComma(total_cred_used)) + parseFloat(removeComma(credit_used));
@@ -2322,21 +2321,19 @@ function init_storage(){
 }
 
 function add_storage(id,balance,discount,credits){
-	// console.log("ADD STORAGE || BALANCE = "+balance);	
+	console.log("ADD STORAGE || BALANCE = "+balance);	
 	var amount 		= $('#paymentModal #paymentamount'+id).val();
 	var overpayment	= $('#payableForm #overpayment').val();
 		overpayment = parseFloat(removeComma(overpayment));
 	// var new_amt 	= parseFloat(removeComma(amount))-parseFloat(removeComma(overpayment));
 	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount,cred:credits};
-	// console.log("NEW VSLUE");
-	// console.log(newvalue);
+	console.log(newvalue);	
 	var total_cred_used  = 0;
 	if(amount != ''){
 		// console.log("ADD STORAGE || AMOUNT = "+amount);
 		var found = false;
 		for(var i=0; element=container[i]; i++) {
-			// console.log("CONTAINER");
-			// console.log(container[i]);
+			console.log(container[i]);
 			if(element.vno == newvalue.vno) {
 				var original_amount 	=	(removeComma(element.amt) > 0) ? removeComma(element.amt)  : 0;
 				var original_balance 	=	(removeComma(element.bal) > 0) ? removeComma(element.bal)  : 0;
@@ -2350,13 +2347,13 @@ function add_storage(id,balance,discount,credits){
 				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
 				var credits 			=	(removeComma(newvalue.cred) > 0)? removeComma(newvalue.cred): 0;
 				
-				// console.log("OLD || "+original_amount+ " | " + original_balance + " | "+original_discount + " | " + original_credits);
+				console.log("OLD || "+original_amount+ " | " + original_balance + " | "+original_discount + " | " + original_credits);
  
-				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount)) - new_amount;
+				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount)) - new_amount - credits;
 					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
-				// console.log("available balance = "+available_balance);
+				console.log("available balance = "+available_balance);
 				// console.log("AVAILABLE="+available_balance);
-				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount)) - discount - credits;
+				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount) + parseFloat(original_credits)) - discount - credits;
 					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
 				// console.log("DISC="+discounted_amount);
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
@@ -2376,6 +2373,8 @@ function add_storage(id,balance,discount,credits){
 				// console.log(newvalue);
 			}
 		}
+		console.log("TRUE/FALSE");
+		console.log(container);
 		if(found === false) {
 			var discount_val 	=	0;
 			container.push(newvalue);
@@ -2862,8 +2861,6 @@ $(document).ready(function() {
 	* Apply Exchange Rate and converted amount
 	*/
 	$('#rateForm #btnProceed').click(function(e){
-		console.log(e);
-
 		var valid 			= 0;
 		var oldamount 		= $('#rateForm #oldamount').val();
 		oldamount			= oldamount.replace(/,/g,'');
@@ -3793,7 +3790,6 @@ $(document).ready(function() {
 			avail_credits 	=	parseFloat(removeComma(avail_credits));
 		var total_cred_used = 	0;
 			total_cred_used =	get_total_applied_credits();
-		console.log(get_total_applied_credits());
 		if(total_cred_used >= avail_credits){
 			$('#excess_credit_error').removeClass('hidden');
 			$('#payable_list_container tr').each(function(index) {

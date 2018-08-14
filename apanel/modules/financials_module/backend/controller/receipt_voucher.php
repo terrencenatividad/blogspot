@@ -975,17 +975,14 @@ class controller extends wc_controller
 
 				$appliedamount	= $this->receipt_voucher->getValue("rv_application", array("SUM(amount) AS amount"),"arvoucherno = '$voucher' AND stat IN('posted', 'temporary')");
 				$appliedamount  = $appliedamount[0]->amount;
-
+	
 				$balance_2		= $balance;
-				// $credit_2 		= $credit_used;
 				if (isset($amt_array[$voucher])) {
-					$balance_2	= str_replace(',', '', $amt_array[$voucher]['bal']);
-					$balance_2 	= str_replace(',', '', $balance_2); 
-					$amount		= str_replace(',', '', $amt_array[$voucher]['amt']);
-					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0';
-					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance_2 + $amount + $discount;
-					$balance_2 	= $balance_2 - $amount - $discount;
-					// $credit_2   = ($task == 'edit') 	?	$credit_used + $credit_used		:	$credit_used; 
+					$balance_2	= str_replace(',','',$amt_array[$voucher]['bal']);
+					$amount		= str_replace(',','',$amt_array[$voucher]['amt']);
+					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0.00';
+					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance_2 + $amount + $discount + $credit_used;
+					$balance_2 	= $balance_2 - $amount - $discount	- $credit_used;
 				}
 				
 				$disable_checkbox 	=	"";
@@ -1003,7 +1000,7 @@ class controller extends wc_controller
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$voucher.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
 				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_amount'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($totalamount,2).'">'.number_format($totalamount,2).'</td>';
-				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_balance'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance_2,2).'</td>';
+				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_balance'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance,2).'</td>';
 				// $table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "credit_used'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($credits,2).'">'.number_format($credits,2).'</td>';
 				if($voucher_checked == 'checked'){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
