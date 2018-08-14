@@ -24,7 +24,6 @@ class inventory_model extends wc_model {
 			'warehouse',
 			'beginningQty',
 			'salesorderQty',
-			'packedQty',
 			'deliveredQty',
 			'salesinvoiceQty',
 			'salesreturnQty',
@@ -39,24 +38,18 @@ class inventory_model extends wc_model {
 						->setFields($this->createFields('bb', 'quantity'))
 						->buildSelect();
 		// Sales
-		$pl_inner = $this->db->setTable('packinglist a')
-							->innerJoin('packinglist_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-							->setFields($this->createFields('pl', 'linenum, source_no, SUM(convissueqty)'))
-							->setWhere("a.stat = 'Packed' OR a.stat = 'Delivered'")
+		$dr_inner = $this->db->setTable('deliveryreceipt a')
+							->innerJoin('deliveryreceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+							->setFields($this->createFields('dr', 'linenum, source_no, SUM(convissueqty)'))
+							->setWhere("a.stat = 'Prepared' OR a.stat = 'Delivered' OR a.stat = 'With Invoice'")
 							->setGroupBy('source_no, itemcode, linenum')
 							->buildSelect();
 
 		$so	= $this->db->setTable('salesorder a')
 						->innerJoin('salesorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->leftJoin("($pl_inner) pl ON pl.source_no = a.voucherno AND pl.companycode = a.companycode AND pl.linenum = b.linenum")
-						->setFields($this->createFields('so', "IF(a.stat != 'posted', b.convissueqty, pl.pl)"))
+						->leftJoin("($dr_inner) dr ON dr.source_no = a.voucherno AND dr.companycode = a.companycode AND dr.linenum = b.linenum")
+						->setFields($this->createFields('so', "IF(a.stat != 'posted', b.convissueqty, dr.dr)"))
 						->setWhere("a.stat = 'open' OR a.stat = 'partial' OR a.stat = 'posted' OR a.stat = 'closed'")
-						->buildSelect();
-						
-		$pl = $this->db->setTable('packinglist a')
-						->innerJoin('packinglist_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields($this->createFields('pl', 'convissueqty'))
-						->setWhere("a.stat = 'Packed' OR a.stat = 'Delivered'")
 						->buildSelect();
 						
 		$dr = $this->db->setTable('deliveryreceipt a')
@@ -132,20 +125,20 @@ class inventory_model extends wc_model {
 						->setFields('*')
 						->buildSelect();
 
-		$inner_query = $bb . ' UNION ALL ' . $so . ' UNION ALL ' . $pl . ' UNION ALL ' . $dr . ' UNION ALL ' . $si . ' UNION ALL ' . $sr . ' UNION ALL ' . $xr;
+		$inner_query = $bb . ' UNION ALL ' . $so . ' UNION ALL ' . $dr . ' UNION ALL ' . $si . ' UNION ALL ' . $sr . ' UNION ALL ' . $xr;
 		$inner_query .= ' UNION ALL ' . $po . ' UNION ALL ' . $pr . ' UNION ALL ' . $pt . ' UNION ALL ' . $ia . ' UNION ALL ' . $st;
 
 
 		$inner_query = $this->db->setTable("($inner_query) i")
-								->setFields('companycode, itemcode ic, warehouse wh, SUM(bb) bb, SUM(so) so, SUM(pl) pl, SUM(dr) dr, SUM(si) si, SUM(sr) sr, SUM(xr) xr, SUM(po) po, SUM(pr) pr, SUM(pt) pt, SUM(ia) ia, SUM(st) st')
+								->setFields('companycode, itemcode ic, warehouse wh, SUM(bb) bb, SUM(so) so, SUM(dr) dr, SUM(si) si, SUM(sr) sr, SUM(xr) xr, SUM(po) po, SUM(pr) pr, SUM(pt) pt, SUM(ia) ia, SUM(st) st')
 								->setWhere("warehouse != ''")
 								->setGroupBy('warehouse, itemcode')
 								->buildSelect();
 
 		$inv_check = $this->db->setTable("($inner_query) i")
 								->leftJoin('invdtlfile id ON i.ic = id.itemcode AND i.companycode = id.companycode AND i.wh = id.warehouse')
-								->setFields('i.ic itemcode, i.wh warehouse, beginningQty, IFNULL(bb, 0) - IFNULL(beginningQty, 0) bb, salesorderQty, IFNULL(so, 0) - IFNULL(salesorderQty, 0) so, packedQty, IFNULL(pl, 0) - IFNULL(packedQty, 0) pl, deliveredQty,  IFNULL(dr, 0) - IFNULL(deliveredQty, 0) dr, salesinvoiceQty, IFNULL(si, 0) - IFNULL(salesinvoiceQty, 0) si, salesreturnQty, IFNULL(sr, 0) - IFNULL(salesreturnQty, 0) sr, salesscrapQty, IFNULL(xr, 0) - IFNULL(salesscrapQty, 0) xr, purchaseorderQty, IFNULL(po, 0) - IFNULL(purchaseorderQty, 0) po, purchasereceiptQty,  IFNULL(pr, 0) - IFNULL(purchasereceiptQty, 0) pr, purchasereturnQty, IFNULL(pt, 0) - IFNULL(purchasereturnQty, 0) pt, adjustmentsQty, IFNULL(ia, 0) - IFNULL(adjustmentsQty, 0) ia, transferedQty, IFNULL(st, 0) - IFNULL(transferedQty, 0) st')
-								->setHaving('bb != 0 OR so != 0 OR pl != 0 OR dr != 0 OR si != 0 OR sr != 0 OR xr != 0 OR po != 0 OR pr != 0 OR pt != 0 OR ia != 0 OR st != 0')
+								->setFields('i.ic itemcode, i.wh warehouse, beginningQty, IFNULL(bb, 0) - IFNULL(beginningQty, 0) bb, salesorderQty, IFNULL(so, 0) - IFNULL(salesorderQty, 0) so, deliveredQty,  IFNULL(dr, 0) - IFNULL(deliveredQty, 0) dr, salesinvoiceQty, IFNULL(si, 0) - IFNULL(salesinvoiceQty, 0) si, salesreturnQty, IFNULL(sr, 0) - IFNULL(salesreturnQty, 0) sr, salesscrapQty, IFNULL(xr, 0) - IFNULL(salesscrapQty, 0) xr, purchaseorderQty, IFNULL(po, 0) - IFNULL(purchaseorderQty, 0) po, purchasereceiptQty,  IFNULL(pr, 0) - IFNULL(purchasereceiptQty, 0) pr, purchasereturnQty, IFNULL(pt, 0) - IFNULL(purchasereturnQty, 0) pt, adjustmentsQty, IFNULL(ia, 0) - IFNULL(adjustmentsQty, 0) ia, transferedQty, IFNULL(st, 0) - IFNULL(transferedQty, 0) st')
+								->setHaving('bb != 0 OR so != 0 OR dr != 0 OR si != 0 OR sr != 0 OR xr != 0 OR po != 0 OR pr != 0 OR pt != 0 OR ia != 0 OR st != 0')
 								->runSelect()
 								->getResult();
 
@@ -295,7 +288,6 @@ class inventory_model extends wc_model {
 				if ($quantity > 0 || $quantity < 0) {
 					$beginningQty		= $row->beginningQty;
 					$salesorderQty		= $row->salesorderQty;
-					$packedQty			= $row->packedQty;
 					$deliveredQty		= $row->deliveredQty;
 					$salesinvoiceQty	= $row->salesinvoiceQty;
 					$salesreturnQty		= $row->salesreturnQty;
@@ -315,10 +307,6 @@ class inventory_model extends wc_model {
 						case 'so':
 							$activity	= 'Sales Order';
 							$salesorderQty += $quantity;
-							break;
-						case 'pl':
-							$activity	= 'Packing List';
-							$packedQty += $quantity;
 							break;
 						case 'dr':
 							$activity	= 'Delivery Receipt';
