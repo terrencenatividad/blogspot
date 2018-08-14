@@ -364,7 +364,7 @@ class controller extends wc_controller
 		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
 		// $cash_account_cond 	 	  = "stat = 'active'";
 		// $cash_order_by 		 	  = "id";
-		$data["cash_account_list"] = $this->receipt_voucher->retrieveData("bank", $cash_account_fields, $cash_account_cond, '', $cash_order_by);
+		// $data["cash_account_list"] = $this->receipt_voucher->retrieveData("bank", $cash_account_fields, $cash_account_cond, '', $cash_order_by);
 		
 		// Header Data
 		$voucherno 				 = $data["main"]->voucherno;
