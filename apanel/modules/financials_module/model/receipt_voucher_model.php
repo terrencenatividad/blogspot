@@ -497,9 +497,9 @@ class receipt_voucher_model extends wc_model
 			
 			// var_dump($insertResult);
 			
-			if(!$insertResult)
+			if(!$insertResult){
 				$errmsg = "<li>Saving Receipt Voucher Details.</li>";
-				$errmsg = "<li>Saving Payment Voucher Details.</li>";
+			}
 		}
 
 		return $errmsg;
@@ -1743,7 +1743,7 @@ class receipt_voucher_model extends wc_model
 			if(!$result){
 				$errmsg[] = "The system has encountered an error in updating Receipt Voucher [$payments]. Please contact admin to fix this issue.";
 			}else{
-				$this->log->saveActivity(ucfirst($type)." Payment Vouchers [".str_replace("'","",$payments)."]");
+				$this->log->saveActivity(ucfirst($type)." Receipt Vouchers [".str_replace("'","",$payments)."]");
 			}
 			return $errmsg;
 		}

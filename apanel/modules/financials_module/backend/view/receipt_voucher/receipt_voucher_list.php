@@ -290,7 +290,11 @@
 	function cancelCallback(id) {
 		var ids = getDeleteId(id);
 		$.post('<?=MODULE_URL?>ajax/ajax_delete', ids+'&type=cancel', function(data) {
-			showList();
+			if(data.code == 1){
+				$.post('<?=MODULE_URL?>ajax/cancel_cm_entries', ids, function(data) {
+					showList();
+				});
+			}
 		});
 	}
 	function postCallback(id) {

@@ -773,6 +773,30 @@ class controller extends wc_controller
 			$msg 	= "Sorry, the system was unable to ".$type." the vouchers.";
 		}
 
+		$dataArray = array("code" => 1,"msg"=> "" );
+		return $dataArray;
+	}
+
+	private function cancel_cm_entries()
+	{
+		$vouchers 		= $this->input->post('delete_id');
+		$payments 		= "'" . implode("','", $vouchers) . "'";
+
+		$cm_vouchers 	= $this->receipt_voucher->getValue("journalvoucher", "voucherno", "transtype = 'CM' AND si_no IN ($payments)");
+
+		foreach($cm_vouchers as $key => $content){
+			$cm_no 			=  	$content->voucherno;
+			$result 		= 	$this->receipt_voucher->cancelCreditMemo($cm_no);
+		}
+
+		if($result){
+			$code 	= 1; 
+			$msg 	= "Successfully cancelled the vouchers.";
+		}else{
+			$code 	= 0; 
+			$msg 	= "Sorry, the system was unable to cancelled the vouchers.";
+		}
+
 		$dataArray = array("code" => $code,"msg"=> $msg );
 		return $dataArray;
 	}
