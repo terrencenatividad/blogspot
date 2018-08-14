@@ -984,13 +984,44 @@ class receipt_voucher_model extends wc_model
 												// echo " sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' ";
 
 						$cm_voucher			= 	isset($cm_existing[0]->voucherno) ? $cm_existing[0]->voucherno 	:	"";
-			
-						$del_result 		=	$this->deleteCreditMemoDetails($cm_voucher);
-						
-						if($del_result){
-							$op_result 		=	$this->generateCreditMemo($data, $cm_voucher);
+					
+						if($credits == 0){
+							$del_result 		=	$this->cancelCreditMemo($cm_voucher);
+						} else {
+							$del_result 		=	$this->deleteCreditMemoDetails($cm_voucher);
+
+							if($del_result){
+								$op_result 		=	$this->generateCreditMemo($data, $cm_voucher);
+							}
 						}
 					} 
+				} else {
+					$arvoucher 				= 	(isset($data['avoucherno']) && (!empty($data['avoucherno']))) ? htmlentities(addslashes(trim($data['avoucherno'])))	:	"";
+					
+					$reference_inv 			= 	$this->getValue("accountsreceivable", array("invoiceno as number"), "voucherno = '$arvoucher'");
+					$invoiceno 				= 	isset($reference_inv[0]->number) 	?	$reference_inv[0]->number	:	"";
+
+					if($old_cred_used != $total_credits_used && $task == 'edit'){	
+						// echo " si_no = '$voucherno' AND sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' ";
+						$cm_existing 		=	$this->getValue(
+													"journalvoucher", 
+													"voucherno", 
+													" si_no = '$voucherno' AND sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' "
+												);
+												// echo " sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' ";
+
+						$cm_voucher			= 	isset($cm_existing[0]->voucherno) ? $cm_existing[0]->voucherno 	:	"";
+					
+						if($credits == 0){
+							$del_result 		=	$this->cancelCreditMemo($cm_voucher);
+						} else {
+							$del_result 		=	$this->deleteCreditMemoDetails($cm_voucher);
+
+							if($del_result){
+								$op_result 		=	$this->generateCreditMemo($data, $cm_voucher);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -1005,7 +1036,7 @@ class receipt_voucher_model extends wc_model
 	public function cancelCreditMemo($voucherno) {
 		$result	= $this->db->setTable('journalvoucher')
 							->setValues(array('stat'=>'cancelled'))
-							->setWhere("voucherno = '$voucherno'")
+							->setWhere("voucherno = '$voucherno' AND transtype = 'CM'")
 							->setLimit(1)
 							->runUpdate();
 		if ($result) {
@@ -1021,7 +1052,7 @@ class receipt_voucher_model extends wc_model
 	public function cancelCreditMemoDetails($voucherno) {
 		$result	= $this->db->setTable('journaldetails')
 							->setValues(array('stat'=>'cancelled'))
-							->setWhere("voucherno = '$voucherno'")
+							->setWhere("voucherno = '$voucherno' AND transtype = 'CM'")
 							->runUpdate();
 		
 		if($result){
@@ -1112,7 +1143,7 @@ class receipt_voucher_model extends wc_model
 	public function reverseEntries($voucherno) {
 		$count = $this->db->setTable('journaldetails')
 				->setFields('*')
-				->setWhere("voucherno = '$voucherno'")
+				->setWhere("voucherno = '$voucherno' AND transtype = 'CM'")
 				->runSelect()
 				->getResult();
 				
