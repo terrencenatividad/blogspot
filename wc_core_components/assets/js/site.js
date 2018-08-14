@@ -241,14 +241,15 @@ $('table').on('ifToggled', 'tr [type="checkbox"].checkall', function() {
 
 // Cancel Button
 $('body').on('click', 'a[data-toggle="back_page"]', function(e) {
+	e.preventDefault();
+	$('#cancelModal').modal('show');
+	var url = '#';
 	if (document.referrer) {
-		e.preventDefault();
-		if (window.history.length > 1) {
-			window.history.back()
-		} else {
-			window.location = document.referrer;
-		}
+		url = document.referrer;
+	} else {
+		url = $(this).attr('href');
 	}
+	$('#cancelModal #btnYes').attr('href', url);
 });
 
 // || Input Validations
@@ -629,7 +630,7 @@ $('#modal_div').html(`
 			<div class="row row-dense">
 				<div class="col-md-12 center">
 					<div class="btn-group">
-						<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+						<a href="" class="btn btn-primary btn-flat" id="btnYes">Yes</a>
 					</div>
 						&nbsp;&nbsp;&nbsp;
 					<div class="btn-group">

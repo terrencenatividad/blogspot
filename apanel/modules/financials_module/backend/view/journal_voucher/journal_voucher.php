@@ -224,14 +224,6 @@
 			addTotal('#total_credit', details.credit);
 			addTotal('#total_debit', details.debit);
 		}
-		$('.cancel').click(function() 
-		{
-			$('#cancelModal').modal('show');
-			$('#cancelModal').on('click', '#btnYes', function() {
-				$('#cancelModal').modal('hide');
-				window.location =	"<?= MODULE_URL ?>";
-				});
-		});
 		function recomputeTotal() {
 			$('#total_debit').html('0.00');
 			$('#total_credit').html('0.00');

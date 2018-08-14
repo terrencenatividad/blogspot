@@ -672,13 +672,5 @@ e.preventDefault();
 ajax.page = $(this).attr('data-page');
 getList();
 });
-$('.cancel').click(function() 
-		{
-			$('#cancelModal').modal('show');
-			$('#cancelModal').on('click', '#btnYes', function() {
-				$('#cancelModal').modal('hide');
-				window.location =	"<?= MODULE_URL ?>";
-				});
-		});
 
 </script>
