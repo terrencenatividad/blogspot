@@ -38,6 +38,7 @@
 									->setName('shortname')
 									->setId('shortname')
 									->setValue($shortname)
+									->setMaxLength(50)
 									->setValidation('required')
 									->draw($show_input);
 						?>
@@ -53,7 +54,8 @@
 									->setName('bankcode')
 									->setId('bankcode')
 									->setValue($bankcode)
-									->setValidation('required')
+									->setValidation('required num')
+									->setMaxLength(10)
 									->draw($show_input);
 						?>
 					</div>
@@ -66,7 +68,8 @@
 									->setName('accountno')
 									->setId('accountno')
 									->setValue($accountno)
-									->setValidation('required')
+									->setMaxLength(10)
+									->setValidation('required num')
 									->draw($show_input);
 						?>
 					</div>

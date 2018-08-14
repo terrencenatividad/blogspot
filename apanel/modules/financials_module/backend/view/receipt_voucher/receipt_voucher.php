@@ -1815,8 +1815,8 @@ function validateDetails(){
 		}
 		
 		if(parseFloat(total_debit) != parseFloat(total_credit)){
-			$("#accounting_details #totalAmountError").removeClass('hidden');
-			$('#accounting_details .accountcode').each(function(index){
+			$("#payableForm #totalAmountError").removeClass('hidden');
+			$('#payableForm .accountcode').each(function(index){
 				var debit = $('#entriesTable #debit\\['+index+'\\]').val();
 				var credit = $('#entriesTable #credit\\['+index+'\\]').val();
 

@@ -254,13 +254,13 @@ class bankrecon_model extends wc_model {
 
 		$system_fields = array(
 			'*',
-			"IF(@amount != amount, @linenum:=0, '')",
-			"IF(@chequenumber != chequenumber, @linenum:=0, '')",
-			"IF(@nature != nature, @linenum:=0, '')",
-			"@linenum := @linenum+1 linenum",
-			"IF(@amount != amount, @amount:=amount, '')",
-			"IF(@chequenumber != chequenumber, @chequenumber:=chequenumber, '')",
-			"IF(@nature != nature, @nature:=nature, '')"
+			"IF(@amount_x != amount, @linenum_x:=0, '')",
+			"IF(@chequenumber_x != chequenumber, @linenum_x:=0, '')",
+			"IF(@nature_x != nature, @linenum_x:=0, '')",
+			"@linenum_x := @linenum_x+1 linenum",
+			"IF(@amount_x != amount, @amount_x:=amount, '')",
+			"IF(@chequenumber_x != chequenumber, @chequenumber_x:=chequenumber, '')",
+			"IF(@nature_x != nature, @nature_x:=nature, '')"
 		);
 
 		$bank			= $this->getBankListQuery($recon_id);
@@ -276,7 +276,7 @@ class bankrecon_model extends wc_model {
 		$system			= $this->getSystemListQuery($config);
 		$system_query	= $system->buildSelect();
 
-		$system_query		= $this->db->setTable("($system_query) b, (select @linenum:=0, @amount:='', @checkno:='', @nature:='') conf")
+		$system_query		= $this->db->setTable("($system_query) b, (select @linenum_x:=0, @amount_x:='', @chequenumber_x:='', @nature_x:='') conf")
 									->setFields($system_fields)
 									->setOrderBy('nature, amount DESC, chequenumber')
 									->buildSelect(false);
