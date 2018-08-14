@@ -276,7 +276,7 @@ class bankrecon_model extends wc_model {
 		$system			= $this->getSystemListQuery($config);
 		$system_query	= $system->buildSelect();
 
-		$system_query		= $this->db->setTable("($system_query) b, (select @linenum_x:=0, @amount_x:='', @checkno_x:='', @nature_x:='') conf")
+		$system_query		= $this->db->setTable("($system_query) b, (select @linenum_x:=0, @amount_x:='', @chequenumber_x:='', @nature_x:='') conf")
 									->setFields($system_fields)
 									->setOrderBy('nature, amount DESC, chequenumber')
 									->buildSelect(false);
