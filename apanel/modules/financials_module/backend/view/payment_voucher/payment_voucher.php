@@ -751,7 +751,6 @@
 												->draw($show_input);
 									?>
 								</td>
-								<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 							</tr>	
 						</tfoot>
 					</table>
@@ -1752,7 +1751,7 @@ function validateDetails(){
 			var accountcode = document.getElementById('accountcode['+i+']').value;
 			var debit 		= document.getElementById('debit['+i+']').value;
 			var credit 		= document.getElementById('credit['+i+']').value;
-		
+			
 			if(accountcode == '')
 			{
 				$("#payableForm #accountcode\\["+i+"\\]").closest('tr').addClass('danger');
@@ -1793,8 +1792,8 @@ function validateDetails(){
 		}
 		
 		if(parseFloat(total_debit) != parseFloat(total_credit)){
-			$("#accounting_details #totalAmountError").removeClass('hidden');
-			$('#accounting_details .accountcode').each(function(index){
+			$("#payableForm #totalAmountError").removeClass('hidden');
+			$('#payableForm .accountcode').each(function(index){
 				var debit = $('#entriesTable #debit\\['+index+'\\]').val();
 				var credit = $('#entriesTable #credit\\['+index+'\\]').val();
 
