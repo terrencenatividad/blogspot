@@ -22,7 +22,7 @@
 									->setName('booknumber')
 									->setId('booknumber')
 									->setValidation('required num')
-									->setMaxLength(10)
+									->setMaxLength(20)
 									->setValue($booknumber)
 									->draw($show_input);
 						?>
@@ -38,7 +38,7 @@
 									->setName('firstchequeno')
 									->setId('firstchequeno')
 									->setValidation('required num')
-									->setMaxLength(10)
+									->setMaxLength(20)
 									->setValue($firstchequeno)
 									->draw($show_input);
 						?>
@@ -52,7 +52,7 @@
 									->setName('lastchequeno')
 									->setId('lastchequeno')
 									->setValidation('required num')
-									->setMaxLength(10)
+									->setMaxLength(20)
 									->setValue($lastchequeno)
 									->draw($show_input);
 						?>
