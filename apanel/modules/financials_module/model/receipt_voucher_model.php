@@ -538,6 +538,7 @@ class receipt_voucher_model extends wc_model
 		$total_credit			= (isset($data['total_credit']) && (!empty($data['total_credit']))) ? htmlentities(addslashes(trim($data['total_credit']))) : "";
 		$total_payment			= (isset($data['total_payment']) && (!empty($data['total_payment']))) ? htmlentities(addslashes(trim($data['total_payment']))) : $total_debit;
 		$overpayment 			= (isset($data['overpayment']) && (!empty($data['overpayment']))) ? htmlentities(addslashes(trim($data['overpayment']))) : 	"";
+		$credits_applied 		= (isset($data['total_cred_used']) && (!empty($data['total_cred_used']))) ? htmlentities(addslashes(trim($data['total_cred_used']))) : 	"";
 		$task 					= (isset($data['h_task']) && (!empty($data['h_task']))) ? htmlentities(addslashes(trim($data['h_task']))) : "";
 		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
 		// $credit_input 			= (isset($data['credit_input']) && (!empty($data['credit_input']))) ? htmlentities(addslashes($data['credit_input'])) 	:	0;
@@ -675,7 +676,7 @@ class receipt_voucher_model extends wc_model
 		$post_header['period']			= $period;
 		$post_header['fiscalyear']		= $fiscalyear;
 		$post_header['releaseby']		= USERNAME;
-		$post_header['credits_used'] 	= $credit_input;
+		$post_header['credits_used'] 	= $credits_applied;
 		$post_header['currencycode']	= 'PHP';
 		$post_header['amount']			= $total_payment;
 		$post_header['exchangerate']	= $exchangerate;
@@ -948,7 +949,7 @@ class receipt_voucher_model extends wc_model
 					$existing_credit	= ($partner_dtl[0]->credits_amount > 0) ? $partner_dtl[0]->credits_amount 	:	0;
 					
 					$existing_credit 	+=	$overpayment;
-					$partner_info['credits_amount'] 	=	( $existing_credit - $credit_input );
+					$partner_info['credits_amount'] 	=	( $existing_credit - $credits_applied );
 
 					$insertResult 	=	$this->db->setTable($customerTable)
 												 ->setValues($partner_info)
