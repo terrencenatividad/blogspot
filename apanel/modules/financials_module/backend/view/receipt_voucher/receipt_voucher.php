@@ -1692,8 +1692,6 @@ function deleteItem(row){
 	var rowCount 	= table.rows.length - 2;
 	var valid		= 1;
 
-	console.log("row: " + rowCount);
-
 	var rowindex	= table.rows[row];
 	if(rowindex.cells[0].childNodes[1] != null)
 	{
@@ -1705,7 +1703,6 @@ function deleteItem(row){
 		{
 			if(task == 'create')
 			{
-				console.log("1");
 				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/delete_row",{table:datatable,condition:condition})
 				.done(function( data ) 
 				{
@@ -1717,7 +1714,6 @@ function deleteItem(row){
 			}
 			else
 			{
-				console.log("2");
 				table.deleteRow(row);	
 				resetIds();
 				addAmountAll('debit');
@@ -1726,7 +1722,6 @@ function deleteItem(row){
 		}
 		else
 		{	
-			console.log("else");
 			resetIds();
 			
 			document.getElementById('accountcode['+row+']').value 			= '';
@@ -1740,7 +1735,6 @@ function deleteItem(row){
 	}
 	else
 	{
-		console.log("else 2");
 		if(rowCount > 2)
 		{
 			table.deleteRow(row);	
@@ -2115,7 +2109,7 @@ function addPaymentAmount() {
 	amount = 0; 
 	discount = 0;
 	for(i = 0; i < count_container; i++) {
-		amt_ = (container[i]['amt']).replace(/,/g,'');
+		amt_ = (container[i]['amt'] > 0)? removeComma(container[i]['amt']) 	:	0;
 		dis = parseFloat(0) || (container[i]['dis']) ;
 		amt = parseFloat(amt_);
 		dis = parseFloat(dis) ;
@@ -2339,19 +2333,19 @@ function add_storage(id,balance,discount,credits){
 				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
 				var credits 			=	(removeComma(newvalue.cred) > 0)? removeComma(newvalue.cred): 0;
 				
-				console.log("OLD || "+original_amount+ " | " + original_balance + " | "+original_discount + " | " + original_credits);
+				// console.log("OLD || "+original_amount+ " | " + original_balance + " | "+original_discount + " | " + original_credits);
  
 				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount)) - new_amount;
 					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
 				// console.log("available balance = "+available_balance);
-				console.log("AVAILABLE="+available_balance);
+				// console.log("AVAILABLE="+available_balance);
 				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount)) - discount - credits;
 					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
-				console.log("DISC="+discounted_amount);
+				// console.log("DISC="+discounted_amount);
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
 
-				console.log("New || "+new_amount+" || "+discounted_amount+ " | " + new_balance + " | "+discount+" | "+credits);
+				// console.log("New || "+new_amount+" || "+discounted_amount+ " | " + new_balance + " | "+discount+" | "+credits);
 
 				found = true;
 				if(parseFloat(new_amount) === 0) {
@@ -2419,7 +2413,7 @@ function checkBalance(val,id){
 
 	// dueamount 	=	(credit_used > 0) 		?	dueamount-credit_used 	:	dueamount;
 	
-	console.log("DUE AMOUNT " + dueamount);
+	// console.log("DUE AMOUNT " + dueamount);
 	add_storage(id,dueamount,discount,credit_used);
 	addPaymentAmount();	
 }
@@ -2440,7 +2434,6 @@ function checkCredit(val,id){
 		input 			=	removeComma(input);
 
 	var payment_amt 	= 	0;
-	var total_cred_used = 	$('#total_cred_used').val();
 	if(input > avail_credits){
 		$('#excess_credit_error').removeClass('hidden');
 		$(this).closest('.form-group').addClass('has-error');
@@ -2448,23 +2441,6 @@ function checkCredit(val,id){
 		payment_amt		=	current_payment -	input;
 		$('#excess_credit_error').addClass('hidden');
 		$(this).closest('.form-group').removeClass('has-error');
-
-		//loop
-		$('#payable_list_container tr').each(function(index) {
-			var credit_used = $(this).find('.credits_used').val();
-			total_cred_used = parseFloat(removeComma(total_cred_used)) + parseFloat(removeComma(credit_used));
-		});
-		console.log("cREDIT USED = "+total_cred_used);
-		console.log("Available Crdits = "+avail_credits);
-		if(total_cred_used > avail_credits){
-			console.log('1');
-			$('#excess_credit_error').addClass('hidden');
-			$(this).closest('.form-group').removeClass('has-error');
-			total_cred_used 	=	0;
-		} else {
-			$('#payableForm #total_cred_used').val(total_cred_used);
-		}
-
 	}
 	add_storage(id,dueamount,discount,input);
 	addPaymentAmount();	
@@ -3122,15 +3098,15 @@ $(document).ready(function() {
 		{	
 			if(data.msg == "success")
 			{
-				console.log("test");
+				// console.log("test");
 				table.deleteRow(row);
 				$('#deletePaymentModal').modal('hide');
 				location.reload();
 			}
 			else
 			{
-				console.log("else");
-				console.log(data.msg);
+				// console.log("else");
+				// console.log(data.msg);
 			}
 		});
 	});
@@ -3250,15 +3226,15 @@ $(document).ready(function() {
 		{	
 			if(data.msg == "success")
 			{
-				console.log("test");
+				// console.log("test");
 				table.deleteRow(row);
 				$('#deletePaymentModal').modal('hide');
 				location.reload();
 			}
 			else
 			{
-				console.log("else");
-				console.log(data.msg);
+				// console.log("else");
+				// console.log(data.msg);
 			}
 		});
 	});
@@ -3355,7 +3331,7 @@ $(document).ready(function() {
 
 			if(valid == 0){
 				var paymentmode = $('#paymentmode').val();
-				console.log("PAYMENT MODE = "+paymentmode);
+				// console.log("PAYMENT MODE = "+paymentmode);
 				if(paymentmode == 'cheque'){
 					valid 	+=	applySelected_();
 				}
@@ -3794,6 +3770,36 @@ $(document).ready(function() {
 			}
 		} 
 
+	});
+
+	$('#paymentForm').on('change','.credits_used',function(){
+		var avail_credits 	=	$('#paymentForm #available_credits').val();
+			avail_credits 	=	parseFloat(removeComma(avail_credits));
+		var total_cred_used = 	0;
+
+		$('#payable_list_container tr').each(function(index) {
+			var credit_used = $(this).find('.credits_used').val();
+				credit_used = parseFloat(removeComma(credit_used));
+			total_cred_used = parseFloat(removeComma(total_cred_used)) + parseFloat(removeComma(credit_used));
+		});
+
+		if(total_cred_used >= avail_credits){
+			$('#excess_credit_error').removeClass('hidden');
+			$('#payable_list_container tr').each(function(index) {
+				var value = $(this).find('.credits_used').val();
+					value = parseFloat(removeComma(value));
+				if(value > 0){
+					$(this).find('.credits_used').closest('.form-group').addClass('has-error');
+				}
+			});
+			$('#payableForm #total_cred_used').val(0);
+		} else {
+			$('#payableForm #total_cred_used').val(total_cred_used);
+			$('#excess_credit_error').addClass('hidden');
+			$('#payable_list_container tr').each(function(index) {
+				$(this).find('.credits_used').closest('.form-group').removeClass('has-error');
+			});
+		}
 	});
 
 	//validation for Credit Amount
