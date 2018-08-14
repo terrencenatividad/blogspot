@@ -38,6 +38,7 @@
 									->setName('shortname')
 									->setId('shortname')
 									->setValue($shortname)
+									->setMaxLength(50)
 									->setValidation('required')
 									->draw($show_input);
 						?>
