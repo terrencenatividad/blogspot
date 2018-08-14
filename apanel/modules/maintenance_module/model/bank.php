@@ -6,6 +6,7 @@
 		{
 			$result = $this->db->setTable('currency')
 							->setFields('currencycode ind, currency val')
+							->setWhere("stat = 'active'")
 							->runSelect()
 							->getResult();
                            
