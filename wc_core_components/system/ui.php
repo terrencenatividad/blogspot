@@ -255,7 +255,8 @@ class ui {
 			if ($type == 'password') {
 				$this->value = '*********';
 			}
-			$input = $this->drawStaticInput();
+			$attributes = $this->getAttributes();
+			$input = $this->drawStaticInput($attributes);
 		}
 		return $input;
 	}
@@ -595,11 +596,11 @@ class ui {
 		return 'View ' . $mod_name;
 	}
 
-	private function drawStaticInput() {
+	private function drawStaticInput($attr="") {
 		$value = ($this->add_hidden !== true && $this->add_hidden !== false && ! $this->draw ) ? $this->add_hidden : $this->value;
 		$id = '';
 		$id = ($this->add_hidden && $this->draw && isset($this->attribute['id'])) ? ' id="' . $this->attribute['id'] . '_static"' : '';
-		return '<p class="form-control-static"' . $id . '>' . $value . '</p>';
+		return '<p class="form-control-static"' . $id .$attr. '>' . $value . '</p>';
 	}
 
 }

@@ -620,7 +620,7 @@ class controller extends wc_controller
 				$referenceno 			= $row->referenceno; 
 				$checker 	 			= $row->importchecker; 
 				$import 				= ($checker=='import') 	?	"Yes" 	:	"No";
-				$stat		 = $row->stat;
+				$stat					= $row->stat;
 
 				if($balance != 0 && $stat == 'cancelled')
 				{

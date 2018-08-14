@@ -35,31 +35,31 @@ class report_model extends wc_model {
 			$ap = $this->db->setTable('accountspayable a')
 							->innerJoin('ap_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
 							->setFields(array_merge($fields, array('vendor')))
-							->setWhere("a.stat = 'posted'")
+							->setWhere("a.stat IN('open','posted','cancelled')")
 							->buildSelect();
 							
 			$ar = $this->db->setTable('accountsreceivable a')
 							->innerJoin('ar_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
 							->setFields(array_merge($fields, array('customer')))
-							->setWhere("a.stat = 'posted'")
+							->setWhere("a.stat IN('open','posted','cancelled')")
 							->buildSelect();
 							
 			$pv = $this->db->setTable('paymentvoucher a')
 							->innerJoin('pv_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
 							->setFields(array_merge($fields, array('vendor')))
-							->setWhere("(a.stat = 'open' OR a.stat = 'posted')")
+							->setWhere("a.stat IN('open','posted','cancelled')")
 							->buildSelect();
 							
 			$rv = $this->db->setTable('receiptvoucher a')
 							->innerJoin('rv_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
 							->setFields(array_merge($fields, array('customer')))
-							->setWhere("(a.stat = 'open' OR a.stat = 'posted')")
+							->setWhere("a.stat IN('open','posted','cancelled')")
 							->buildSelect();
 							
 			$jv = $this->db->setTable('journalvoucher a')
 							->innerJoin('journaldetails b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
 							->setFields(array_merge($fields, array('partner')))
-							->setWhere("a.stat = 'posted'")
+							->setWhere("a.stat IN('open','posted','cancelled')")
 							->buildSelect();
 
 			$inner_query = $ap . ' UNION ALL ' . $ar . ' UNION ALL ' . $pv . ' UNION ALL ' .$rv . ' UNION ALL ' . $jv;
