@@ -50,7 +50,7 @@ class bankrecon_model extends wc_model {
 		$result = $this->db->setTable('bankrecon br')
 							->innerJoin('chartaccount ca ON ca.id = br.accountcode AND ca.companycode = br.companycode')
 							->setFields('periodfrom, periodto, accountname')
-							->setWhere("stat = 'closed' AND accountcode = '$accountcode'")
+							->setWhere("br.stat = 'closed' AND accountcode = '$accountcode'")
 							->setOrderBy('br.id DESC')
 							->setLimit(1)
 							->runSelect()
