@@ -1205,6 +1205,7 @@ function finalizeTransaction(type)
 
 		if($("#purchase_order_form #itemcode\\[1\\]").val() != '' && $("#purchase_order_form #warehouse\\[1\\]").val() != '' && $("#purchase_order_form #transaction_date").val() != '' && $("#purchase_order_form #due_date").val() != '' && $("#purchase_order_form #vendor").val() != '')
 		{
+			$('#delay_modal').modal('show');
 			setTimeout(function() {
 				$('#purchase_order_form').submit();
 			},1000);

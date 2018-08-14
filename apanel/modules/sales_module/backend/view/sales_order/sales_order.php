@@ -1162,10 +1162,10 @@ function finalizeTransaction(type)
 
 		if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
 		{
-				setTimeout(function() {
-					$('#sales_order_form').submit();
-
-				},1000);
+							$('#delay_modal').modal('show');
+							setTimeout(function() {									
+								$('#sales_order_form').submit();
+							}, 1000)
 		}
 		
 	}
