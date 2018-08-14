@@ -335,8 +335,9 @@ class receipt_voucher_model extends wc_model
 							"SUM(app.convertedamount) as payment","COALESCE(SUM(app.credits_used),0) credits_used"
 						);
 		$mainJoin	= "rv_application AS app ON app.arvoucherno = main.voucherno $rva_cond";
-		$orderBy 	= "main.voucherno, app.voucherno";
+		$groupBy 	= "main.voucherno";
 
+		$groupBy 	.=	($voucherno != "") 	?	", app.voucherno":"";
 		$sub_select 		= $this->db->setTable($table_rv)
 										->setFields($rv_fields)
 										->setWhere($rv_cond)
@@ -344,11 +345,11 @@ class receipt_voucher_model extends wc_model
 
 		if($customercode && empty($voucherno)){
 			$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND main.balance != 0 ";
-			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $orderBy);
+			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $groupBy);
 			$tempArr["result"] = $query;
 		} else if($voucherno) {
 			$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND ((main.balance - ($sub_select)) <= main.convertedamount) AND ( main.balance != 0 OR ($sub_select) != 0)";
-			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $orderBy);
+			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $groupBy);
 			$tempArr["result"] = $query;
 		}
 
