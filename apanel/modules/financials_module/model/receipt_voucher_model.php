@@ -108,10 +108,11 @@ class receipt_voucher_model extends wc_model
 		$temp["vend"] = $retrieveArrayVendor;
 
 		// Retrieve Payments
-		$applicationFields = "app.arvoucherno as vno, app.amount as amt, '0.00' as bal, app.discount as dis";
+		$applicationFields = "app.arvoucherno as vno, app.amount as amt, '0.00' as bal, app.discount as dis, rv.credits_used as cred";
 		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 ";
 
 		$applicationArray = $this->db->setTable('rv_application as app')
+								->leftJoin('receiptvoucher rv ON rv.voucherno = app.voucherno')
 								->setFields($applicationFields)
 								->setWhere($app_cond)
 								->runSelect()
@@ -331,31 +332,30 @@ class receipt_voucher_model extends wc_model
 		$mainFields	= array(
 							"main.voucherno as voucherno", "main.transactiondate as transactiondate",
 							"main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0)) as balance", "main.referenceno as referenceno",
-							"SUM(app.convertedamount) as payment"
+							"SUM(app.convertedamount) as payment","COALESCE(rv.credits_used,0) credits_used"
 						);
-		$mainJoin	= "rv_application AS app ON app.arvoucherno = main.voucherno";
+		$mainJoin	= "rv_application AS app ON app.arvoucherno = main.voucherno LEFT JOIN  ( SELECT SUM(rv.credits_used) credits_used, rv.voucherno, jv.sourceno
+						FROM receiptvoucher rv 
+						LEFT JOIN journalvoucher jv ON jv.si_no = rv.voucherno  AND jv.transtype = 'CM'
+						WHERE rv.stat NOT IN ('cancelled','temporary') GROUP BY rv.voucherno ) rv ON rv.voucherno = app.voucherno AND main.invoiceno = rv.sourceno ";
 		$orderBy 	= "main.voucherno";
 
-		if($customercode && empty($voucherno))
-		{
-			$sub_select 		= $this->db->setTable($table_rv)
-							   ->setFields($rv_fields)
-							   ->setWhere($rv_cond)
-							   ->buildSelect();
+		$sub_select 		= $this->db->setTable($table_rv)
+										->setFields($rv_fields)
+										->setWhere($rv_cond)
+										->buildSelect();
+
+		if($customercode && empty($voucherno)){
 			$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND main.balance != 0 ";
 			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $orderBy);
 			$tempArr["result"] = $query;
-		}
-		else if($voucherno)
-		{
-			$sub_select = $this->db->setTable($table_rv)
-								->setFields($rv_fields)
-								->setWhere($rv_cond)
-								->buildSelect();
+		} else if($voucherno) {
 			$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND ((main.balance - ($sub_select)) <= main.convertedamount) AND ( main.balance != 0 OR ($sub_select) != 0)";
 			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $orderBy);
 			$tempArr["result"] = $query;
 		}
+
+		// echo $this->db->getQuery();
 		return $query;
 	}
 	
@@ -526,6 +526,7 @@ class receipt_voucher_model extends wc_model
 		$customerTable 			= "partners";
 
 		$insertResult		   	= 0;
+		$op_result 				= 0;
 	
 		$voucherno				= (isset($data['h_voucher_no']) && (!empty($data['h_voucher_no']))) ? htmlentities(addslashes(trim($data['h_voucher_no']))) : "";
 		$customer				= (isset($data['customer']) && (!empty($data['customer']))) ? htmlentities(addslashes(trim($data['customer']))) : "";
@@ -539,13 +540,14 @@ class receipt_voucher_model extends wc_model
 		$total_payment			= (isset($data['total_payment']) && (!empty($data['total_payment']))) ? htmlentities(addslashes(trim($data['total_payment']))) : $total_debit;
 		$overpayment 			= (isset($data['overpayment']) && (!empty($data['overpayment']))) ? htmlentities(addslashes(trim($data['overpayment']))) : 	"";
 		$credits_applied 		= (isset($data['total_cred_used']) && (!empty($data['total_cred_used']))) ? htmlentities(addslashes(trim($data['total_cred_used']))) : 	"";
+		$old_cred_used 			= (isset($data['old_cred_used']) && (!empty($data['old_cred_used']))) ? htmlentities(addslashes(trim($data['old_cred_used']))) : 	"";
 		$task 					= (isset($data['h_task']) && (!empty($data['h_task']))) ? htmlentities(addslashes(trim($data['h_task']))) : "";
 		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
 		// $credit_input 			= (isset($data['credit_input']) && (!empty($data['credit_input']))) ? htmlentities(addslashes($data['credit_input'])) 	:	0;
 		$invoice_data  			= str_replace('\\', '', $h_check_rows);
 		$invoice_data  			= html_entity_decode($invoice_data);
 		$picked_payables		= json_decode($invoice_data, true);
-		
+		// var_dump($picked_payables);
 		// $source				   	= (!empty($picked_payables)) ? "RV" : "";
 
 		$exchangerate			= (!empty($data['paymentrate'])) ? $data['paymentrate'] : "1.00";
@@ -558,6 +560,7 @@ class receipt_voucher_model extends wc_model
 		$convertedamount 		= str_replace(',','',$convertedamount);
 		$total_debit 			= str_replace(',','',$total_debit);
 		$total_credit 			= str_replace(',','',$total_credit);
+		$old_cred_used 			= str_replace(',','',$old_cred_used);
 
 		$gen_value              = $this->getValue("receiptvoucher", "COUNT(*) as count", " voucherno != ''");	
 		$temporary_voucher     	= (!empty($gen_value[0]->count)) ? 'RV_'.($gen_value[0]->count + 1) : 'RV_1';
@@ -790,9 +793,10 @@ class receipt_voucher_model extends wc_model
 		/**
 		 * Get previous tagged payables
 		 */
-		$aOldApplicationObj = $this->db->setTable('rv_application')
-									->setFields("arvoucherno as vno, '0.00' as amt, '0.00' as bal, '0.00' as dis")
-									->setWhere(" voucherno = '$voucherno' ")
+		$aOldApplicationObj = $this->db->setTable('rv_application rv')
+									->leftJoin('receiptvoucher as main ON main.voucherno = rv.voucherno ')
+									->setFields("rv.arvoucherno as vno, '0.00' as amt, '0.00' as bal, '0.00' as dis, main.credits_used as cred")
+									->setWhere(" rv.voucherno = '$voucherno' ")
 									->runSelect()
 									->getResult();
 		if(!empty($aOldApplicationObj) && !is_null($aOldApplicationObj)){
@@ -801,6 +805,8 @@ class receipt_voucher_model extends wc_model
 		}else{
 			$combined_payables 		= $picked_payables;
 		}
+
+		// var_dump($combined_payables);
 
 		// details and pv_application
 		if(!empty($aPvApplicationArray) && !is_null($aPvApplicationArray)){
@@ -955,13 +961,37 @@ class receipt_voucher_model extends wc_model
 												 ->setValues($partner_info)
 												 ->setWhere("partnercode = '$customer'")
 												 ->runUpdate();
+				}
+
+				// Insert Overpayment on Credit Memo
+				if($insertResult && $total_credits_used > 0){
+					$data['temp_voucher'] 	=	$voucherno;
+					$data['overpayment'] 	= 	$credits;
+					// echo $credits;
+					$arvoucher 				= 	(isset($data['avoucherno']) && (!empty($data['avoucherno']))) ? htmlentities(addslashes(trim($data['avoucherno'])))	:	"";
 					
-					// Insert Overpayment on Credit Memo
-					if($insertResult && $total_credits_used > 0){
-						$data['temp_voucher'] 	=	$voucherno;
-						$data['overpayment'] 	= 	$credits;
-						$op_result 	=	$this->generateCreditMemo($data);
-					}
+					$reference_inv 			= 	$this->getValue("accountsreceivable", array("invoiceno as number"), "voucherno = '$arvoucher'");
+					$invoiceno 				= 	isset($reference_inv[0]->number) 	?	$reference_inv[0]->number	:	"";
+					// echo $old_cred_used; echo $total_credits_used;
+					if( $task == 'create'){
+						$op_result 			=	$this->generateCreditMemo($data);
+					} else if($old_cred_used != $total_credits_used && $task == 'edit'){	
+						// echo " si_no = '$voucherno' AND sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' ";
+						$cm_existing 		=	$this->getValue(
+													"journalvoucher", 
+													"voucherno", 
+													" si_no = '$voucherno' AND sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' "
+												);
+												// echo " sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' ";
+
+						$cm_voucher			= 	isset($cm_existing[0]->voucherno) ? $cm_existing[0]->voucherno 	:	"";
+			
+						$del_result 		=	$this->deleteCreditMemoDetails($cm_voucher);
+						
+						if($del_result){
+							$op_result 		=	$this->generateCreditMemo($data, $cm_voucher);
+						}
+					} 
 				}
 			}
 		}
@@ -973,7 +1003,159 @@ class receipt_voucher_model extends wc_model
 		);
 	}
 
-	public function generateCreditMemo($data){
+	public function cancelCreditMemo($voucherno) {
+		$result	= $this->db->setTable('journalvoucher')
+							->setValues(array('stat'=>'cancelled'))
+							->setWhere("voucherno = '$voucherno'")
+							->setLimit(1)
+							->runUpdate();
+		if ($result) {
+			if ($result) {
+				$this->log->saveActivity("Cancel Journal Voucher [$voucherno]");
+			}
+			$result = $this->cancelCreditMemoDetails($voucherno);
+		}
+
+		return $result;
+	}
+
+	public function cancelCreditMemoDetails($voucherno) {
+		$result	= $this->db->setTable('journaldetails')
+							->setValues(array('stat'=>'cancelled'))
+							->setWhere("voucherno = '$voucherno'")
+							->runUpdate();
+		
+		if($result){
+			$result = $this->reverseEntries($voucherno);
+		}
+		return $result;
+	}
+
+	public function deleteCreditMemo($voucherno) {
+		// echo $voucherno;
+		$result	= $this->db->setTable('journalvoucher')
+							->setWhere("voucherno = '$voucherno' AND transtype = 'CM'")
+							->setLimit(1)
+							->runDelete();
+		if ($result) {
+			$this->log->saveActivity("Delete Journal Voucher [$voucherno]");
+			// $result = $this->deleteCreditMemoDetails($voucherno);
+		}
+		return $result;
+	}
+
+	public function deleteCreditMemoDetails($voucherno) {
+		$result	= $this->db->setTable('journaldetails')
+							->setWhere("voucherno = '$voucherno' AND transtype = 'CM'")
+							->runDelete();
+		
+		if ($result) {
+			$result = $this->deleteCreditMemo($voucherno);
+		}
+							
+		return $result;
+	}
+
+	public function updateJournalVoucher($data, $data2, $voucherno, $log = false) {
+		$debit	= $this->removeComma($data2['debit']);
+		$total	= 0;
+		foreach ($debit as $entry) {
+			$total += $entry;
+		}
+		$data['stat']		= 'posted';
+		$data['period']		= date("n", strtotime($data['transactiondate']));
+		$data['fiscalyear']	= date("Y", strtotime($data['transactiondate']));
+		$data['amount']		= $total;
+		$data['transtype']	= 'JV';
+		
+		$result = $this->db->setTable('journalvoucher')
+							->setValues($data)
+							->setWhere("voucherno = '$voucherno'")
+							->setLimit(1)
+							->runUpdate();
+		if (isset($data['voucherno'])) {
+			$voucherno =  $data['voucherno'];
+		}
+		if ($result) {
+			if ($result && $log) {
+				$this->log->saveActivity("$log Journal Voucher [$voucherno}");
+			}
+			$result = $this->updateJournalVoucherDetails($data2, $voucherno);
+		}
+		return $result;
+	}
+
+	public function updateJournalVoucherDetails($data, $voucherno) {
+		$result = $this->db->setTable('journaldetails')
+							->setWhere("voucherno = '$voucherno'")
+							->runDelete();
+		
+		$linenum = array();
+		foreach ($data['debit'] as $key => $value) {
+			$linenum[] = $key + 1;
+		}
+		if ($result) {
+			$data['voucherno']			= $voucherno;
+			$data['transtype']			= 'JV';
+			$data['stat']				= 'posted';
+			$data['debit']				= $this->removeComma($data['debit']);
+			$data['credit']				= $this->removeComma($data['credit']);
+			$data['converteddebit']		= $this->removeComma($data['debit']);
+			$data['convertedcredit']	= $this->removeComma($data['credit']);
+			$data['linenum']			= $linenum;
+			$result = $this->db->setTable('journaldetails')
+								->setValuesFromPost($data)
+								->runInsert();
+		}
+		return $result;
+	}
+
+	public function reverseEntries($voucherno) {
+		$count = $this->db->setTable('journaldetails')
+				->setFields('*')
+				->setWhere("voucherno = '$voucherno'")
+				->runSelect()
+				->getResult();
+				
+		$result 	=	0;
+
+		if(!empty($count))
+		{
+			$ctr = count($count) + 1;
+			for($i = 0; $i < count($count); $i++)
+			{
+				$insert_info['voucherno']			= $count[$i]->voucherno;
+				$insert_info['checkno']				= $count[$i]->checkno;
+				$insert_info['transtype']			= $count[$i]->transtype;
+				$insert_info['linenum']				= $ctr;
+				$insert_info['slcode']				= $count[$i]->slcode;
+				$insert_info['source']				= $count[$i]->source;
+				$insert_info['costcentercode']		= $count[$i]->costcentercode;
+				$insert_info['accountcode']			= $count[$i]->accountcode;
+				$insert_info['debit']				= $count[$i]->credit;
+				$insert_info['credit']				= $count[$i]->debit;
+				$insert_info['currencycode']		= $count[$i]->currencycode;
+				$insert_info['exchangerate']		= $count[$i]->exchangerate;
+				$insert_info['converteddebit']		= $count[$i]->convertedcredit;
+				$insert_info['convertedcredit']		= $count[$i]->converteddebit;
+				$insert_info['taxcode']				= $count[$i]->taxcode;
+				$insert_info['taxacctflg']			= $count[$i]->taxacctflg;
+				$insert_info['taxline']				= $count[$i]->taxline;
+				$insert_info['vatflg']				= $count[$i]->vatflg;
+				$insert_info['detailparticulars']	= $count[$i]->detailparticulars;
+				$insert_info['stat']				= $count[$i]->stat;
+
+				$result = $this->db->setTable('journaldetails')
+									->setValues($insert_info)
+									->runInsert();
+				$ctr++;
+			}
+		}
+		return $result;
+			
+	}
+
+	public function generateCreditMemo($data, $cmvoucher=""){
 		$voucherno				= (isset($data['temp_voucher']) && (!empty($data['temp_voucher']))) ? htmlentities(addslashes(trim($data['temp_voucher']))) : "";
 		$customer				= (isset($data['customer']) && (!empty($data['customer']))) ? htmlentities(addslashes(trim($data['customer']))) : "";
 		$or_no					= (isset($data['paymentreference']) && (!empty($data['paymentreference']))) ? htmlentities(addslashes(trim($data['paymentreference']))) : "";
@@ -984,7 +1166,7 @@ class receipt_voucher_model extends wc_model
 		$arvoucher 				= (isset($data['avoucherno']) && (!empty($data['avoucherno']))) ? htmlentities(addslashes(trim($data['avoucherno'])))	:	"";
 		
 		$seq 					= new seqcontrol();
-		$cm_no 					= $seq->getValue("CM");
+		$cm_no 					= ($cmvoucher != "") ? $cmvoucher 	:	$seq->getValue("CM");
 		$exchangerate			= '1.00';
 		$datetime	  			= date("Y-m-d H:i:s");
 
@@ -1008,12 +1190,13 @@ class receipt_voucher_model extends wc_model
 		$op_arr['partner']			= $customer;
 		$op_arr['currencycode']		= "PHP";
 		$op_arr['exchangerate']		= $exchangerate;
-		$op_arr['invoiceno'] 		= $invoiceno;
+		$op_arr['invoiceno'] 		= $arvoucher;
 		$op_arr['amount']			= $overpayment;
 		$op_arr['convertedamount']	= $overpayment * $exchangerate;
 		$op_arr['referenceno'] 		= $invoiceno;
 		$op_arr['source'] 			= "excess";
-		$op_arr['sourceno']			= $arvoucher;
+		$op_arr['sourceno']			= $invoiceno;
+		$op_arr['si_no'] 			= $voucherno;
 		$op_arr['remarks'] 			= $remarks;
 
 		$result 	=	 $this->insertdata('journalvoucher',$op_arr);
