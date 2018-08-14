@@ -224,55 +224,33 @@ class accounts_receivable extends wc_model
 		$datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
 		$datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
 
-		if($addCond	== 'paid')
-		{
-			$table_pv  = "rv_application AS pv";
-			$pv_fields = "COALESCE(SUM(pv.convertedamount),0) + COALESCE(SUM(pv.discount),0) - COALESCE(SUM(pv.forexamount),0)";
-			$pv_cond   = "pv.arvoucherno = main.voucherno and pv.stat = 'posted'";
-			$sub_select = $this->db->setTable($table_pv)
-							   ->setFields($pv_fields)
-							   ->setWhere($pv_cond)
-							   ->buildSelect();
+		$table_cm 	= "journalvoucher cm";
+		$cm_fields 	= "COALESCE(SUM(cm.convertedamount),0) excessamount, cm.invoiceno, cm.sourceno, cm.customer";
+		$cm_cond 	= "cm.stat NOT IN ('cancelled','temporary')";
+		$cm_group 	= "cm.sourceno";
+		$sub_select2= $this->db->setTable($table_cm)
+								->setFields($cm_fields)
+								->setWhere($cm_cond)
+								->setGroupBy($cm_group)
+								->buildSelect();
 
+		$table_rv  = "rv_application AS rv";
+		$rv_fields = "COALESCE(SUM(rv.convertedamount),0) + COALESCE(SUM(rv.discount),0) - COALESCE(SUM(rv.forexamount), 0)";
+		$rv_cond   = "rv.arvoucherno = main.voucherno and rv.stat = 'posted'";
+		$sub_select = $this->db->setTable($table_rv)
+						   ->setFields($rv_fields)
+						   ->setWhere($rv_cond)
+						   ->buildSelect();
+
+		if($addCond	== 'paid'){
 			$addCondition	= "AND main.convertedamount = ($sub_select)";
-		}
-		else if($addCond == 'partial')
-		{
-			$table_pv  = "rv_application AS pv";
-			$pv_fields = "COALESCE(SUM(pv.convertedamount),0) + COALESCE(SUM(pv.discount),0) - COALESCE(SUM(pv.forexamount),0)";
-			$pv_cond   = "pv.arvoucherno = main.voucherno and pv.stat = 'posted'";
-			$sub_select = $this->db->setTable($table_pv)
-							   ->setFields($pv_fields)
-							   ->setWhere($pv_cond)
-							   ->buildSelect();
-
-			
-			$pv_cond_   = "pv.arvoucherno = main.voucherno and pv.stat = 'posted'";
-			$sub_select_ = $this->db->setTable($table_pv)
-							   ->setFields($pv_fields)
-							   ->setWhere($pv_cond_)
-							   ->buildSelect();
-			
+		} else if($addCond == 'partial'){
 			$addCondition = "AND ($sub_select) > 0 AND main.convertedamount > ($sub_select_)";
-		}
-		else if($addCond == 'unpaid')
-		{
-			$table_pv  = "rv_application AS pv";
-			$pv_fields = "COALESCE(SUM(pv.convertedamount),0) + COALESCE(SUM(pv.discount),0) - COALESCE(SUM(pv.forexamount),0)";
-			$pv_cond   = "pv.arvoucherno = main.voucherno and pv.stat = 'posted'";
-			$sub_select = $this->db->setTable($table_pv)
-							   ->setFields($pv_fields)
-							   ->setWhere($pv_cond)
-							   ->buildSelect();
-			
+		} else if($addCond == 'unpaid'){
 			$addCondition = "AND ($sub_select) = 0";
-		}
-		else
-		{
+		} else{
 			$addCondition	= '';
 		}
-
-		// OR p.first_name LIKE '%$searchkey%' OR p.last_name LIKE '%$searchkey%' 
 
 		$add_query 	= (!empty($searchkey)) ? "AND (main.voucherno LIKE '%$searchkey%' OR main.invoiceno LIKE '%$searchkey%' OR main.particulars LIKE '%$searchkey%' OR p.partnername LIKE '%$searchkey%' OR main.referenceno LIKE '%$searchkey%') " : "";
 		$add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND main.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
@@ -287,12 +265,14 @@ class accounts_receivable extends wc_model
 		$query 		 = $this->db->setTable($main_table)
 								->setFields($main_fields)
 								->leftJoin($main_join)
+								->leftJoin("($sub_select2) cm ON cm.customer = main.customer AND cm.sourceno = main.voucherno")
 								->setWhere($main_cond)
 								->setOrderBy($sort)
 								// ->buildSelect();
 								->runPagination();
 		
 		// var_dump($query);
+		// echo $this->db->getQuery();;
 
 		return $query;
 

@@ -1292,7 +1292,7 @@ class controller extends wc_controller
 								$show_btn
 							)
 							->addPrint()
-							->addDelete($show_dlt)
+							//->addDelete($show_dlt)
 							->addCheckbox($show_btn)
 							->setValue($voucher)
 							->draw();

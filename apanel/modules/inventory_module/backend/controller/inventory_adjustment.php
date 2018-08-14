@@ -453,7 +453,7 @@ class controller extends wc_controller {
 			}
 		}
 		$error_messages		= implode(' ', $errmsg);
-		$warning_messages	= implode(' ', $warning);
+		$warning_messages	= (!empty($warning_messages)) ? implode(' ', $warning) 	:	"";
 		
 		return array("proceed" => $proceed,"errmsg"=>$error_messages, "warning"=>$warning_messages);
 	}

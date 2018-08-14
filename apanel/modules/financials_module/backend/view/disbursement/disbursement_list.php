@@ -7,8 +7,8 @@
 						echo $ui->CreateNewButton('');
 						// echo $ui->OptionButton('');
 					?>
-					<button type="button" id="item_multiple_delete" class="btn btn-danger btn-flat">Delete<span></span></button>
-					<button type="button" id="item_multiple_cancel" class="btn btn-warning btn-flat">Cancel<span></span></button>
+					<!-- <button type="button" id="item_multiple_delete" class="btn btn-danger btn-flat">Delete<span></span></button> -->
+					<button type="button" id="item_multiple_cancel" class="btn btn-danger btn-flat">Cancel<span></span></button>
 				</div>
 
 				<div class = "col-md-4">
