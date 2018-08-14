@@ -238,6 +238,7 @@ class journal_voucher_model extends wc_model {
 	public function getChartOfAccountList() {
 		$result = $this->db->setTable('chartaccount')
 							->setFields("id ind, CONCAT(segment5, ' - ', accountname) val")
+							->setWhere("stat = 'active'")
 							->runSelect()
 							->getResult();
 		return $result;

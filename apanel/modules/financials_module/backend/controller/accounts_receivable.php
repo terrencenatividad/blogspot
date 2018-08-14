@@ -226,12 +226,12 @@ class controller extends wc_controller
 
 		// Retrieve business type list
 		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond               = "accounttype != 'P'";
+		$acc_entry_cond               = "accounttype != 'P' AND stat = 'active'";
 		$data["account_entry_list"]   = $this->accounts_receivable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// Retrieve Receivable account list
 		$pay_account_data 			  = array("id ind", "CONCAT(segment5, ' - ', accountname) val");
-		$pay_account_cond 			  = "accountclasscode = 'ACCREC' AND accounttype != 'P'";
+		$pay_account_cond 			  = "accountclasscode = 'ACCREC' AND accounttype != 'P' AND stat = 'active'";
 		$data["receivable_account_list"] = $this->accounts_receivable->getValue("chartaccount", $pay_account_data, $pay_account_cond, "accountname");
 
 		// Retrieve generated ID

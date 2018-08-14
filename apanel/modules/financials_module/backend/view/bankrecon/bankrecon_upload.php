@@ -185,7 +185,7 @@
 					type: 'POST',
 					success: function(data) {
 						if (data.success) {
-							window.location.href = data.redirect;
+							show_success_msg("Your data has been successfully imported!");
 						} else {
 							addError('<p>' + data.error + '</p>', true);
 							try {
@@ -228,6 +228,12 @@
 			} else {
 				$('#warning_modal .modal-body').append(error);
 			}
+		}
+		function show_success_msg(msg)
+		{
+		$('#success_modal #message').html(msg);
+		$('#success_modal').modal('show');
+		window.location.href = data.redirect;
 		}
 	</script>
 

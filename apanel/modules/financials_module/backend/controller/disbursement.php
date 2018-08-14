@@ -80,13 +80,13 @@ class controller extends wc_controller
 
 		// Retrieve business type list
 		$acc_entry_data             = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond             = "accounttype != ''";
+		$acc_entry_cond             = "accounttype != '' AND stat = 'active'";
 		$data["account_entry_list"] = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// Cash Account Options
 		$cash_account_fields 	  	= 'chart.id ind, chart.accountname val, class.accountclass';
 		$cash_account_join 	 	  	= "accountclass as class USING(accountclasscode)";
-		$cash_account_cond 	 	  	= "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
+		$cash_account_cond 	 	  	= "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P' AND stat = 'active'";
 		$cash_order_by 		 	  	= "class.accountclass";
 		$data["cash_account_list"] 	= $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 

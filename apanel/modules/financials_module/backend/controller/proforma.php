@@ -36,7 +36,7 @@ class controller extends wc_controller
 
 		/**ACCOUNT CODE OPTIONS **/
 		$account_code_options = $this->proformaclass->getValue("chartaccount", 
-								  array("id ind","accountname val"), "", "segment5");
+								  array("id ind","accountname val"), "stat = 'active'", "segment5");
 		$data['accountcodeoption_list'] = $account_code_options;
 
 		$data['ui'] = $this->ui;
