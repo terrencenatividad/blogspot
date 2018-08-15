@@ -1405,7 +1405,7 @@ class receipt_voucher_model extends wc_model
 			$data_header["fiscalyear"] 		= $fiscalyear;
 			$data_header["terms"] 			= "0";
 			$data_header["received"] 		= "0.00";
-			$data_header["amountforpayment"] = "0.00";
+			$data_header["amountforreceipt"]= "0.00";
 			$data_header["particulars"]  	= $docData[$i]['notes'];
 			$data_header["source"] 			= "AP";
 			$data_header["balance"]  		= $docData[$i]['amount'];
@@ -1655,10 +1655,11 @@ class receipt_voucher_model extends wc_model
 				$credits		= $paymentArray[$i]->credits_used;
 				$discount		= 0;
 
-				$balance		= $this->getValue($table, array("balance"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
-				$balance 		= $balance[0]->balance;
+				$ar_content		= $this->getValue($table, array("balance","excessamount"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
+				$balance 		= isset($ar_content[0]->balance) 		?	$ar_content[0]->balance			: 0;
+				$excessamount 	= isset($ar_content[0]->excessamount) 	?	$ar_content[0]->excessamount	: 0;
 
-				$update_info['balance']		= $balance + $amount + $discount + $credits;
+				$update_info['balance']		= ($balance + $amount + $discount + $credits) - $excessamount;
 
 				$amountpaid 	= $this->getValue($table, array("amountreceived"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
 				$amountpaid 	= $amountpaid[0]->amountreceived;
