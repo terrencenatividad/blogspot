@@ -318,8 +318,9 @@ class receipt_voucher_model extends wc_model
 		// Sub Select
 		$table_rv  = "rv_application AS rv";
 		$rv_fields = "COALESCE(SUM(rv.convertedamount),0) + COALESCE(SUM(rv.discount),0) + COALESCE(SUM(rv.credits_used),0) - COALESCE(SUM(rv.forexamount),0)";
+
 		$rv_cond   = "rv.arvoucherno = main.voucherno AND rv.stat IN('open','posted') AND rv.voucherno = '$voucherno' ";
-	
+
 		// Main Queries
 		$main_table   = "accountsreceivable as main";
 		$main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0)) as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno");
@@ -1636,11 +1637,11 @@ class receipt_voucher_model extends wc_model
 		$detailTable	= "rv_details";
 		$mainTable		= "receiptvoucher";
 		$table			= "accountsreceivable";
-		$paymentField	= array('arvoucherno','convertedamount','wtaxamount');
+		$paymentField	= array('arvoucherno','convertedamount','wtaxamount','credits_used');
 		
 		$paymentArray   = $this->db->setTable($appTable)
 							   ->setFields($paymentField)
-							   ->setWhere("voucherno IN($payments)")
+							   ->setWhere("voucherno IN($payments) AND stat NOT IN('cancelled','temporary')")
 							   ->runSelect()
 							   ->getResult();
 
@@ -1651,17 +1652,18 @@ class receipt_voucher_model extends wc_model
 				$mainvoucher	= $paymentArray[$i]->arvoucherno;
 				$amount			= $paymentArray[$i]->convertedamount;
 				$wtaxamount		= $paymentArray[$i]->wtaxamount;
+				$credits		= $paymentArray[$i]->credits_used;
 				$discount		= 0;
 
 				$balance		= $this->getValue($table, array("balance"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
 				$balance 		= $balance[0]->balance;
 
-				$update_info['balance']		= $balance + $amount + $discount;
+				$update_info['balance']		= $balance + $amount + $discount + $credits;
 
 				$amountpaid 	= $this->getValue($table, array("amountreceived"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
 				$amountpaid 	= $amountpaid[0]->amountreceived;
 
-				$update_info['amountreceived']	= $amountpaid - $amount - $discount;
+				$update_info['amountreceived']	= $amountpaid - $amount - $discount - $credits;
 
 				// Update accountspayable
 				$result = $this->db->setTable($table)
