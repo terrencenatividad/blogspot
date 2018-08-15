@@ -1038,7 +1038,6 @@ class receipt_voucher_model extends wc_model
 		$result	= $this->db->setTable('journalvoucher')
 							->setValues(array('stat'=>'cancelled'))
 							->setWhere("voucherno = '$voucherno' AND transtype = 'CM'")
-							->setLimit(1)
 							->runUpdate();
 		if ($result) {
 			if ($result) {
