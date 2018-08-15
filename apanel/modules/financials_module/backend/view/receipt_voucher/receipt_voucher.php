@@ -2321,19 +2321,19 @@ function init_storage(){
 }
 
 function add_storage(id,balance,discount,credits){
-	console.log("ADD STORAGE || BALANCE = "+balance);	
+	// console.log("ADD STORAGE || BALANCE = "+balance);	
 	var amount 		= $('#paymentModal #paymentamount'+id).val();
 	var overpayment	= $('#payableForm #overpayment').val();
 		overpayment = parseFloat(removeComma(overpayment));
 	// var new_amt 	= parseFloat(removeComma(amount))-parseFloat(removeComma(overpayment));
 	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount,cred:credits};
-	console.log(newvalue);	
+	// console.log(newvalue);	
 	var total_cred_used  = 0;
 	if(amount != ''){
 		// console.log("ADD STORAGE || AMOUNT = "+amount);
 		var found = false;
 		for(var i=0; element=container[i]; i++) {
-			console.log(container[i]);
+			// console.log(container[i]);
 			if(element.vno == newvalue.vno) {
 				var original_amount 	=	(removeComma(element.amt) > 0) ? removeComma(element.amt)  : 0;
 				var original_balance 	=	(removeComma(element.bal) > 0) ? removeComma(element.bal)  : 0;
@@ -2347,11 +2347,11 @@ function add_storage(id,balance,discount,credits){
 				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
 				var credits 			=	(removeComma(newvalue.cred) > 0)? removeComma(newvalue.cred): 0;
 				
-				console.log("OLD || "+original_amount+ " | " + original_balance + " | "+original_discount + " | " + original_credits);
+				// console.log("OLD || "+original_amount+ " | " + original_balance + " | "+original_discount + " | " + original_credits);
  
 				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount)) - new_amount - credits;
 					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
-				console.log("available balance = "+available_balance);
+				// console.log("available balance = "+available_balance);
 				// console.log("AVAILABLE="+available_balance);
 				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount) + parseFloat(original_credits)) - discount - credits;
 					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
@@ -2373,8 +2373,8 @@ function add_storage(id,balance,discount,credits){
 				// console.log(newvalue);
 			}
 		}
-		console.log("TRUE/FALSE");
-		console.log(container);
+		// console.log("TRUE/FALSE");
+		// console.log(container);
 		if(found === false) {
 			var discount_val 	=	0;
 			container.push(newvalue);
@@ -2441,23 +2441,24 @@ function checkCredit(val,id){
 	var discountamount 	= 	$('#payable_list_container #discountamount'+id).val();
 	var current_payment = 	$('#payable_list_container #paymentamount'+id).val();
 
-	var input 			= 	val;
+	var input 			= 	removeComma(val);
 		total_amount 	= 	removeComma(total_amount);
 		discount		= 	removeComma(discountamount);
 		dueamount 		=	removeComma(dueamount);
 		avail_credits 	=	removeComma(avail_credits);
 		current_payment = 	removeComma(current_payment);
-		input 			=	removeComma(input);
 
 	var payment_amt 	= 	0;
-	if(input > avail_credits){
-		$('#excess_credit_error').removeClass('hidden');
-		$(this).closest('.form-group').addClass('has-error');
-	} else {
-		payment_amt		=	current_payment -	input;
-		$('#excess_credit_error').addClass('hidden');
-		$(this).closest('.form-group').removeClass('has-error');
-	}
+	console.log(input);
+	console.log(avail_credits);
+	// if(input > avail_credits){
+	// 	$('#excess_credit_error').removeClass('hidden');
+	// 	$(this).closest('.form-group').addClass('has-error');
+	// } else {
+	// 	payment_amt		=	current_payment -	input;
+	// 	$('#excess_credit_error').addClass('hidden');
+	// 	$(this).closest('.form-group').removeClass('has-error');
+	// }
 	add_storage(id,dueamount,discount,input);
 	addPaymentAmount();	
 
@@ -3790,7 +3791,7 @@ $(document).ready(function() {
 			avail_credits 	=	parseFloat(removeComma(avail_credits));
 		var total_cred_used = 	0;
 			total_cred_used =	get_total_applied_credits();
-		if(total_cred_used >= avail_credits){
+		if(total_cred_used > avail_credits){
 			$('#excess_credit_error').removeClass('hidden');
 			$('#payable_list_container tr').each(function(index) {
 				var value = $(this).find('.credits_used').val();
