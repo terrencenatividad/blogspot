@@ -2117,6 +2117,7 @@ function addPaymentAmount() {
 
 	var subData 	= 0;
 	var subDis		= 0;
+	var subCred		= 0;
 
 	var table 	= document.getElementById('payable_list_container'); // app_payableList
 	var count	= table.rows.length;
@@ -2316,7 +2317,7 @@ function selectPayable(id,toggle){
 function init_storage(){
 	if (localStorage.selectedPayables) {
 		container = JSON.parse(localStorage.selectedPayables);
-		// console.log(container);
+		//console.log(container);
 	}
 }
 
@@ -2349,7 +2350,7 @@ function add_storage(id,balance,discount,credits){
 				
 				// console.log("OLD || "+original_amount+ " | " + original_balance + " | "+original_discount + " | " + original_credits);
  
-				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount)) - new_amount - credits;
+				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount) - parseFloat(original_credits)) - new_amount;
 					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
 				// console.log("available balance = "+available_balance);
 				// console.log("AVAILABLE="+available_balance);
@@ -2378,13 +2379,14 @@ function add_storage(id,balance,discount,credits){
 		if(found === false) {
 			var discount_val 	=	0;
 			container.push(newvalue);
-			$('#payable_list_container #payable_balance'+id).html(0);
+			$('#payable_list_container #payable_balance'+id).html('0.00');
 			$('#payable_list_container #discountamount'+id).val(addCommas(discount_val.toFixed(2)));
+			$('#payable_list_container #credits_used'+id).val('0.00');
 		}
 		
 	}else{
 		// balance 	=	(balance > 0) 	?	balance : 0;
-		$('#payable_list_container #payable_balance'+id).html(balance);;
+		$('#payable_list_container #payable_balance'+id).html(balance);
 		container = container.filter(function( obj ) {
 			return obj.vno !== id;
 		});
@@ -2449,19 +2451,9 @@ function checkCredit(val,id){
 		current_payment = 	removeComma(current_payment);
 
 	var payment_amt 	= 	0;
-	console.log(input);
-	console.log(avail_credits);
-	// if(input > avail_credits){
-	// 	$('#excess_credit_error').removeClass('hidden');
-	// 	$(this).closest('.form-group').addClass('has-error');
-	// } else {
-	// 	payment_amt		=	current_payment -	input;
-	// 	$('#excess_credit_error').addClass('hidden');
-	// 	$(this).closest('.form-group').removeClass('has-error');
-	// }
+
 	add_storage(id,dueamount,discount,input);
 	addPaymentAmount();	
-
 }
 
 function validateCheques(){

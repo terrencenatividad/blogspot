@@ -317,8 +317,8 @@ class receipt_voucher_model extends wc_model
 
 		// Sub Select
 		$table_rv  = "rv_application AS rv";
-		$rv_fields = "COALESCE(SUM(rv.convertedamount),0) + COALESCE(SUM(rv.discount),0) - COALESCE(SUM(rv.forexamount),0)";
-		$rv_cond   = "rv.arvoucherno = main.voucherno AND rv.stat IN('posted') AND rv.voucherno = '$voucherno' ";
+		$rv_fields = "COALESCE(SUM(rv.convertedamount),0) + COALESCE(SUM(rv.discount),0) + COALESCE(SUM(rv.credits_used),0) - COALESCE(SUM(rv.forexamount),0)";
+		$rv_cond   = "rv.arvoucherno = main.voucherno AND rv.stat IN('open','posted') AND rv.voucherno = '$voucherno' ";
 	
 		// Main Queries
 		$main_table   = "accountsreceivable as main";
@@ -334,7 +334,7 @@ class receipt_voucher_model extends wc_model
 							"main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0) - COALESCE(SUM(app.credits_used),0)) as balance", "main.referenceno as referenceno",
 							"SUM(app.convertedamount) as payment","COALESCE(SUM(app.credits_used),0) credits_used"
 						);
-		$mainJoin	= "rv_application AS app ON app.arvoucherno = main.voucherno $rva_cond";
+		$mainJoin	= "rv_application AS app ON app.arvoucherno = main.voucherno AND app.stat IN('open','posted') $rva_cond ";
 		$groupBy 	= "main.voucherno";
 
 		$groupBy 	.=	($voucherno != "") 	?	", app.voucherno":"";
@@ -782,7 +782,7 @@ class receipt_voucher_model extends wc_model
 				$post_application['currencycode']		= 'PHP';
 				$post_application['exchangerate']		= '1.00';
 				$post_application['convertedamount']	= $amount;
-				$post_application['stat']			 	= $post_header['stat'];
+				$post_application['stat']			 	= 'posted';
 
 				$iApplicationLineNum++;
 				$aPvApplicationArray[]					= $post_application;
@@ -805,12 +805,12 @@ class receipt_voucher_model extends wc_model
 			$combined_payables 		= $picked_payables;
 		}
 
-		// var_dump($combined_payables);
+		//var_dump($combined_payables);
 
 		// details and pv_application
 		if(!empty($aPvApplicationArray) && !is_null($aPvApplicationArray)){
 			$isAppDetailExist	= $this->getValue($applicationTable, array("COUNT(*) AS count"), " voucherno = '$voucherno'");
-		
+			
 			if($isAppDetailExist[0]->count > 0){
 	
 				$this->db->setTable($detailAppTable)
@@ -835,7 +835,7 @@ class receipt_voucher_model extends wc_model
 									->setValues($aPvApplicationArray)
 									->setWhere("voucherno = '$voucherno'")
 									->runInsert();
-								
+							
 				if(!$insertResult){
 					$code 		= 0;
 					$errmsg[] 	= "<li>Error in Updating Receipt Voucher Application.</li>";
@@ -917,22 +917,23 @@ class receipt_voucher_model extends wc_model
 												array(
 													"amount as convertedamount"
 												), 
-												" voucherno = '$payable' "
+												" voucherno = '$payable' AND stat IN('open','posted') "
 											);
 
 				$applied_amounts			= $this->getValue(
 												$applicationTable, 
 												array(
-													"COALESCE(SUM(amount),0) AS convertedamount",
-													"COALESCE(SUM(discount),0) AS discount",
-													"COALESCE(SUM(credits_used),0) AS credits",
-													"COALESCE(SUM(forexamount),0) AS forexamount"
+													"COALESCE(SUM(amount),0) convertedamount",
+													"COALESCE(SUM(discount),0) discount",
+													"COALESCE(SUM(credits_used),0) credits",
+													"COALESCE(SUM(forexamount),0) forexamount"
 												), 
-												" arvoucherno = '$payable' "
+												"  arvoucherno = '$payable' AND stat IN('open','posted') "
 											);
-
+				
 				$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
-				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount;
+				$applied_credits 			= (!empty($applied_amounts[0]->credits)) ? $applied_amounts[0]->credits : 0;
+				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount + $applied_credits;
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
 
 				$balance_info['amountreceived']	= $applied_sum;
