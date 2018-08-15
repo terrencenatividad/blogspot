@@ -219,7 +219,7 @@
 							</tr>
 						</thead>
 						<tbody id="tbody_cheque">
-							<?if($task=='create'):?>
+							<?if($task=='create' || $task == 'edit' && empty($listofcheques)):?>
 							<tr class="clone">
 								<td class="">
 									<?php
@@ -1110,7 +1110,8 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 var disabled_accountcode = initial_clone.find('.accountcode').attr('disabled');
 var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 	// enable them to allow a cloned row with enabled dropdown and input fields
-	initial_clone.find('.accountcode').attr('disabled', false);
+	initial_clone.find('.accountcode').attr('disabled', disabled_accountcode);	
+	initial_clone.find('.credit').val('0.00');
 	initial_clone.find('.confirm-delete').attr('disabled', false);
 	// remove 'cheque' class for checking purposes
 var cheque_checker 	=	initial_clone.find('.credit').hasClass('cheque');
@@ -2227,7 +2228,8 @@ function getRVDetails(){
 	{
 		$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/getRVDetails", data )
 		.done(function(data)
-		{
+		{	
+			var discount_code = data.discount_code;
 			var total_payment = $("#paymentModal #total_payment").val();
 			$("#paymentModal").modal("hide");
 
@@ -2235,24 +2237,37 @@ function getRVDetails(){
 				$("#paymentmode").removeAttr("disabled");
 
 			if('<?= $task ?>' == "create" || '<?= $task ?>' == "edit" ){
-				// load payables
-				$("#entriesTable tbody").html(data.table);
-				$("#pv_amount").html(total_payment);
-
-				// display total of debit
+				
+				if(task == 'create'){
+					// load payables
+					$("#entriesTable tbody").html(data.table);
+					$("#pv_amount").html(total_payment);
+				}
 				addAmountAll("credit");
-				addAmountAll("debit");
+				// display total of debit
 				var count_container = Object.keys(container).length;
 				var discount_amount = 0; 
 				for(i = 0; i < count_container; i++) {
 					discount_amount += parseFloat(0) || parseFloat(container[i]['dis']) ;
 				}
+				$('#entriesTable tbody tr.discount_row').remove();
+				var row = $("#entriesTable tbody tr.clone").length;
+				console.log("ROW "+ row);
 				if( parseFloat(discount_amount) != 0 ){
 					discount_amount 	=	addCommas(discount_amount.toFixed(2));
-					$('.add-entry').click();
-					$('#entriesTable tbody tr.clone').last().find('.accountcode').val(660);
-					$("#entriesTable tbody tr.clone").last().find('.account_amount').val(discount_amount).blur();
+					// $('.add-entry').click();
+					//
+					var ParentRow = $("#entriesTable tbody tr.clone").last();
+						ParentRow.before(clone_acct);
+					resetIds();
+					$("#accountcode\\["+ row +"\\]").closest('tr').addClass('discount_row');
+					$('#accountcode\\['+row+'\\]').val(discount_code).trigger('select2.change');
+					$('#debit\\['+row+'\\]').val(discount_amount);
+					disable_acct_fields(row);
 				}
+
+				addAmountAll("debit");
+	// drawTemplate();
 			}
 		});
 	}
@@ -2321,33 +2336,36 @@ function init_storage(){
 }
 
 function add_storage(id,balance,discount,credits){
-	// console.log("ADD STORAGE || BALANCE = "+balance);	
+
 	var amount 		= $('#paymentModal #paymentamount'+id).val();
 	var overpayment	= $('#payableForm #overpayment').val();
 		overpayment = parseFloat(removeComma(overpayment));
-	// var new_amt 	= parseFloat(removeComma(amount))-parseFloat(removeComma(overpayment));
+
 	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount,cred:credits};
-	// console.log(newvalue);	
+	var newcont 	= JSON.parse(JSON.stringify(container));
+	// console.log(JSON.stringify(container));
+	// console.log(newcont);
+	// console.log(newcont[0]);
+	// console.log(container['0']);
 	var total_cred_used  = 0;
 	if(amount != ''){
-		// console.log("ADD STORAGE || AMOUNT = "+amount);
 		var found = false;
 		for(var i=0; element=container[i]; i++) {
-			// console.log(container[i]);
 			if(element.vno == newvalue.vno) {
+				console.log(" balance... "+element.bal);
 				var original_amount 	=	(removeComma(element.amt) > 0) ? removeComma(element.amt)  : 0;
 				var original_balance 	=	(removeComma(element.bal) > 0) ? removeComma(element.bal)  : 0;
 				var original_discount	=	(removeComma(element.dis) > 0) ? removeComma(element.dis)  : 0;
 				var original_credits	=	(removeComma(element.cred) > 0)? removeComma(element.cred) : 0;
 				
-				// console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount);
+				console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount + " | "+original_credits);
 
 				var new_amount 			=	(removeComma(newvalue.amt) > 0) ? removeComma(newvalue.amt) : 0;
 				var new_balance 		=	(removeComma(newvalue.bal) > 0) ? removeComma(newvalue.bal)	: 0;
 				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
 				var credits 			=	(removeComma(newvalue.cred) > 0)? removeComma(newvalue.cred): 0;
 				
-				// console.log("OLD || "+original_amount+ " | " + original_balance + " | "+original_discount + " | " + original_credits);
+				console.log("NEW || "+new_amount+ " | " + new_balance + " | "+discount + " | " + credits);
  
 				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount)) - new_amount - credits;
 					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
@@ -2448,20 +2466,8 @@ function checkCredit(val,id){
 		avail_credits 	=	removeComma(avail_credits);
 		current_payment = 	removeComma(current_payment);
 
-	var payment_amt 	= 	0;
-	console.log(input);
-	console.log(avail_credits);
-	// if(input > avail_credits){
-	// 	$('#excess_credit_error').removeClass('hidden');
-	// 	$(this).closest('.form-group').addClass('has-error');
-	// } else {
-	// 	payment_amt		=	current_payment -	input;
-	// 	$('#excess_credit_error').addClass('hidden');
-	// 	$(this).closest('.form-group').removeClass('has-error');
-	// }
 	add_storage(id,dueamount,discount,input);
 	addPaymentAmount();	
-
 }
 
 function validateCheques(){

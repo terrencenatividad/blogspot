@@ -1209,6 +1209,7 @@ class controller extends wc_controller
 			
 			$arvoucher_[] = $apvoucherno;
 		}
+		// var_dump($arvoucher_);
 
 		$condi =  implode("','" , $arvoucher_);
 		$cond = "('".$condi."')";
@@ -1234,11 +1235,14 @@ class controller extends wc_controller
 		$acc_entry_cond     = "";
 		$account_entry_list = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
+		$dis_entry 			= $this->receipt_voucher->getValue("fintaxcode", array("salesAccount"), "fstaxcode = 'DC'");
+		$discount_code 		= isset($dis_entry[0]->salesAccount) ? $dis_entry[0]->salesAccount	: "";
+
 		$ui 	            = $this->ui;
 		$show_input         = $this->show_input;
 
 		$totalcredit = 0;
-
+		
 		if(!empty($results))
 		{
 			$credit      = '0.00';
@@ -1320,7 +1324,7 @@ class controller extends wc_controller
 			$table	.= 	'<td class="text-center" colspan="5">- No Records Found -</td>';
 			$table	.= '</tr>';
 		}
-		$dataArray = array( "table" => $table, "totaldebit" => number_format($totalcredit, 2) );
+		$dataArray = array( "table" => $table, "totaldebit" => number_format($totalcredit, 2),"discount_code"=>$discount_code );
 		return $dataArray;
 	}
 
