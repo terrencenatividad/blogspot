@@ -15,7 +15,7 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('partnercode')
 								->setId('partnercode')
-								->setValidation('required code')
+								->setValidation($code_required.' code')
 								->setMaxLength(20)
 								->addHidden((isset($task) && $task == 'update'))
 								->setValue($partnercode)
