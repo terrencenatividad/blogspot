@@ -576,22 +576,22 @@ class ui {
 	}
 
 
-	public function ListLabel($type){
+	public function ListLabel(){
 		$mod_name = MODULE_NAME;
 		return $mod_name ;
 	}
 
-	public function AddLabel($type){
+	public function AddLabel(){
 		$mod_name = MODULE_NAME;
 		return 'Add New ' . $mod_name;
 	}
 
-	public function EditLabel($type){
+	public function EditLabel(){
 		$mod_name = MODULE_NAME;
 		return 'Edit ' . $mod_name;
 	}
 
-	public function ViewLabel($type){
+	public function ViewLabel(){
 		$mod_name = MODULE_NAME;
 		return 'View ' . $mod_name;
 	}
