@@ -23,6 +23,7 @@
 									->setName('gl_code')
 									->setId('gl_code')
 									->setList($gllist)
+									->setMaxLength(20)
 									->setPlaceholder('Select GL Code')
 									->setValue($gl_code)
 									->setValidation('required')
@@ -38,7 +39,7 @@
 									->setName('shortname')
 									->setId('shortname')
 									->setValue($shortname)
-									->setMaxLength(99)
+									->setMaxLength(100)
 									->setValidation('required')
 									->draw($show_input);
 						?>
@@ -85,6 +86,7 @@
 								->setName('currency')
 								->setId('currency')
 								->setList($currencylist)
+								->setMaxLength(20)
 								// ->setValue('PHP')
 								->setPlaceholder('Select Currency')
 								->setValidation('required')
@@ -116,7 +118,7 @@
 								->setName('address1')
 								->setId('address1')
 								->setValue($address1)
-								->setMaxLength(99)
+								->setMaxLength(100)
 								->setValidation('required')
 								->draw($show_input);
 						?>
