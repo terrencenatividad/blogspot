@@ -23,7 +23,7 @@
 									->setName('gl_code')
 									->setId('gl_code')
 									->setList($gllist)
-									>setMaxLength(20)
+									->setMaxLength(20)
 									->setPlaceholder('Select GL Code')
 									->setValue($gl_code)
 									->setValidation('required')
