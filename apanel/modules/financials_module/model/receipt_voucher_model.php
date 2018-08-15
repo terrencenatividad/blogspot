@@ -1656,7 +1656,7 @@ class receipt_voucher_model extends wc_model
 				$balance		= $this->getValue($table, array("balance"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
 				$balance 		= $balance[0]->balance;
 
-				$update_info['balance']		= $balance + $amount + $discount;
+				$update_info['balance']		= $balance + $amount + $discount + $credits;
 
 				$amountpaid 	= $this->getValue($table, array("amountreceived"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
 				$amountpaid 	= $amountpaid[0]->amountreceived;
