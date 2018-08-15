@@ -1052,14 +1052,15 @@ class controller extends wc_controller
 						->setClass("input-sm text-right paymentamount")
 						->setId('paymentamount'.$voucher)
 						->setPlaceHolder("0.00")
+						->setMaxLength(20)
 						->setAttribute(
 							array(
-								"maxlength" => "20", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
 								"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
 							)
 						)
+						->setValidation('decimal')
 						->setValue(number_format($amount,2))
 						->draw($show_input).'</td>';
 				}
@@ -1070,15 +1071,16 @@ class controller extends wc_controller
 						->setClass("input-sm text-right paymentamount")
 						->setId('paymentamount'.$voucher)
 						->setPlaceHolder("0.00")
+						->setMaxLength(20)
 						->setAttribute(
 							array(
-								"maxlength" => "20", 
 								"disabled" => "disabled", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
 								"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
 							)
 						)
+						->setValidation('decimal')
 						->setValue(number_format(0, 2))
 						->draw($show_input).'</td>';
 				}
@@ -1089,14 +1091,15 @@ class controller extends wc_controller
 										->setClass("input-sm text-right discountamount")
 										->setId('discountamount'.$voucher)
 										->setPlaceHolder("0.00")
+										->setMaxLength(20)
 										->setAttribute(
 											array(
-												"maxlength" => "20", 
 												"onBlur" => ' formatNumber(this.id);', 
 												"onClick" => " SelectAll(this.id); ",
 												"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
 											)
 										)
+										->setValidation('decimal')
 										->setValue(number_format($discount, 2))
 										->draw($show_input).'</td>';
 				}else{
@@ -1106,15 +1109,16 @@ class controller extends wc_controller
 										->setClass("input-sm text-right discountamount")
 										->setId('discountamount'.$voucher)
 										->setPlaceHolder("0.00")
+										->setMaxLength(20)
 										->setAttribute(
 											array(
-												"maxlength" => "20", 
 												"disabled" => "disabled", 
 												"onBlur" => ' formatNumber(this.id);', 
 												"onClick" => " SelectAll(this.id); ",
 												"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
 											)
 										)
+										->setValidation('decimal')
 										->setValue(number_format(0, 2))
 										->draw($show_input).'</td>';
 				}
@@ -1128,14 +1132,15 @@ class controller extends wc_controller
 						->setClass("input-sm text-right credits_used")
 						->setId('credits_used'.$voucher)
 						->setPlaceHolder("0.00")
+						->setMaxLength(20)
 						->setAttribute(
 							array(
-								"maxlength" => "20", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
 								"onChange" => ' checkCredit(this.value,\''.$voucher.'\'); '
 							)
 						)
+						->setValidation('decimal')
 						->setValue(number_format($credit_used,2))
 						->draw($show_input).'</td>';
 					$table	.= '</tr>';
@@ -1147,15 +1152,16 @@ class controller extends wc_controller
 						->setClass("input-sm text-right credits_used")
 						->setId('credits_used'.$voucher)
 						->setPlaceHolder("0.00")
+						->setMaxLength(20)
 						->setAttribute(
 							array(
-								"maxlength" => "20", 
 								"disabled" => "disabled", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
 								"onChange" => ' checkCredit(this.value,\''.$voucher.'\'); '
 							)
 						)
+						->setValidation('decimal')
 						->setValue(number_format(0, 2))
 						->draw($show_input).'</td>';
 					$table	.= '</tr>';
