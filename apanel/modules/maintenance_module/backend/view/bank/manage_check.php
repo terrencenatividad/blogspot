@@ -13,32 +13,17 @@
 				<div class = "col-md-12">&nbsp;</div>
 
 				<div class="row">
-					<!-- <div class="col-md-6">
-						<?php
-							echo $ui->formField('dropdown')
-									->setLabel('Bank Account GL Code:')
-									->setSplit('col-md-3', 'col-md-6')
-									->setName('gl_code')
-									->setId('gl_code')
-									->setList($gllist)
-									->setNone('')
-									->setAttribute(array("disabled" => "disabled"))
-									// ->setValue($gl_code)
-									->setValidation('required')
-									->draw($show_input);
-						?>
-					</div> -->
 
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
 									->setLabel('Book Number:')
                                     ->setSplit('col-md-3', 'col-md-6')
-                                    // ->setAttribute(array("disabled" => "disabled"))
 									->setName('booknumber')
 									->setId('booknumber')
+									->setValidation('required num')
+									->setMaxLength(20)
 									->setValue($booknumber)
-									->setValidation('required')
 									->draw($show_input);
 						?>
 					</div>
@@ -52,8 +37,9 @@
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('firstchequeno')
 									->setId('firstchequeno')
+									->setValidation('required num')
+									->setMaxLength(20)
 									->setValue($firstchequeno)
-									->setValidation('required')
 									->draw($show_input);
 						?>
 					</div>
@@ -65,8 +51,9 @@
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('lastchequeno')
 									->setId('lastchequeno')
+									->setValidation('required num')
+									->setMaxLength(20)
 									->setValue($lastchequeno)
-									->setValidation('required')
 									->draw($show_input);
 						?>
 					</div>

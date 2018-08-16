@@ -39,33 +39,30 @@
 		{
 			$this->view->title = $this->ui->AddLabel('');
 			
-			// if ($this->input->isPost) 
-			// {
-			// 	$extracted_data = $this->input->post($data);
-			// 	extract($extracted_data);		
-			// }
 			$data 				= $this->input->post($this->fields);
 
-			$data['bt_select'] 	= $this->supplier->retrieveBusinessTypeDropdown();
-			$data['ui'] 		= $this->ui;
-			$data['task'] 		= 'add';
-			$data['show_input'] = true;
-			$data['ajax_post'] 	= '';
+			$data['bt_select'] 		= $this->supplier->retrieveBusinessTypeDropdown();
+			$data['ui'] 			= $this->ui;
+			$data['task'] 			= 'add';
+			$data['show_input'] 	= true;
+			$data['ajax_post'] 		= '';
+			$data['code_required'] 	= 'required';
 
 			$this->view->load('supplier/supplier_create',  $data);
 		}
 
 		public function edit($code)
 		{
-			$this->view->title = $this->ui->EditLabel('');
+			$this->view->title 		= $this->ui->EditLabel('');
 			
-			$data 			 	= (array) $this->supplier->retrieveExistingSupplier($this->fields, $code);
+			$data 			 		= (array) $this->supplier->retrieveExistingSupplier($this->fields, $code);
 
-			$data['bt_select'] 	= $this->supplier->retrieveBusinessTypeDropdown();
-			$data['ui'] 		= $this->ui;
-			$data['task'] 		= 'update';
-			$data['show_input'] = true;
-			$data['ajax_post'] 	= "&code=$code";
+			$data['bt_select'] 		= $this->supplier->retrieveBusinessTypeDropdown();
+			$data['ui'] 			= $this->ui;
+			$data['task'] 			= 'update';
+			$data['show_input'] 	= true;
+			$data['ajax_post'] 		= "&code=$code";
+			$data['code_required'] 	= '';
 
 			$this->view->load('supplier/supplier_create',  $data);
 		}
@@ -287,7 +284,7 @@
 
 			$filedir	= $_FILES["file"]["tmp_name"];
 	
-			$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
+			$file_types = array( "application/octet-stream","text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
 
 			/**VALIDATE FILE IF CORRUPT**/
 			if(!empty($_FILES['file']['error'])){

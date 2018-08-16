@@ -11,6 +11,7 @@
 </div>
 
 <form method = "post" class="form-horizontal" id = "payableForm">
+	<input type="hidden" id="h_task" name="h_task" value="<?=$task?>">
 	<div class="box box-primary">
 		<div class="box-body">
 			<div class = "row">
@@ -108,7 +109,8 @@
 								</div>
 								<input type = "hidden" id = "originalamt" name = "originalamt" value = "0">
 								<input type = "hidden" id = "overpayment" name = "overpayment" value = "0">
-								<input type = "hidden" id = "total_cred_used" name = "total_cred_used" value = "0">
+								<input type = "hidden" id = "total_cred_used" name = "total_cred_used" value = "<?=$credits_used?>">
+								<input type = "hidden" id = "old_cred_used" name = "old_cred_used" value = "<?=$credits_used?>">
 							</div>
 						</div>
 						<!-- Text Area for selected payables -->
@@ -217,7 +219,7 @@
 							</tr>
 						</thead>
 						<tbody id="tbody_cheque">
-							<?if($task=='create'):?>
+							<?if($task=='create' || $task == 'edit' && empty($listofcheques)):?>
 							<tr class="clone">
 								<td class="">
 									<?php
@@ -639,7 +641,11 @@
 												$disable_code 		= 'disabled';
 												$added_class 		= 'added_row';
 												$indicator 			= "cheque";
-
+											} else if($aPvJournalDetails_Index > 0 && $accountcode == $discount_code ){
+												$disable_debit		= 'readOnly';
+												$disable_credit		= 'readOnly';
+												$disable_code 		= 'disabled';
+												$added_class 		= 'discount_row';
 											} else {
 												$disable_debit		= ($debit > 0) ? '' : 'readOnly';
 												$disable_credit		= ($credit > 0) ? '' : 'readOnly';
@@ -1108,7 +1114,8 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 var disabled_accountcode = initial_clone.find('.accountcode').attr('disabled');
 var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 	// enable them to allow a cloned row with enabled dropdown and input fields
-	initial_clone.find('.accountcode').attr('disabled', false);
+	initial_clone.find('.accountcode').attr('disabled', disabled_accountcode);	
+	initial_clone.find('.credit').val('0.00');
 	initial_clone.find('.confirm-delete').attr('disabled', false);
 	// remove 'cheque' class for checking purposes
 var cheque_checker 	=	initial_clone.find('.credit').hasClass('cheque');
@@ -1987,9 +1994,21 @@ function confirmChequePrint(row){
 
 }
 
+function get_total_applied_credits(){
+	var total_cred_used = 0;
+	$('#payable_list_container tr').each(function(index) {
+		var credit_used = $(this).find('.credits_used').val();
+			credit_used = parseFloat(removeComma(credit_used));
+
+		total_cred_used = parseFloat(removeComma(total_cred_used)) + parseFloat(removeComma(credit_used));
+	});
+	return total_cred_used;
+}
+
 function showList()
 {
 	var vnose 		= JSON.stringify(container);
+	// console.log(vnose);
 	var	customer_code	= $('#payableForm #customer').val();
 	voucherno 		= $('#payableForm #h_voucher_no').val();
 	var available_cred 	= $('#paymentModal #available_credits').val();
@@ -2012,7 +2031,8 @@ function showList()
 							$('#pagination').html(data.pagination);
 							$('#paymentModal #payable_list_container').html(data.table);
 							
-							
+							var applied_cred 	=	get_total_applied_credits();
+							$('#payableForm #total_cred_used').val(applied_cred);
 						} else {
 							$('#pagination').html(data.pagination);
 							$('#paymentModal #payable_list_container').html(data.table);
@@ -2026,6 +2046,7 @@ function showList()
 						}
 						
 						if('<?= $task ?>' == "edit" && !edited) {
+			
 							$("#payableForm #selected_rows").html(data.json_encode);
 						}
 						
@@ -2101,6 +2122,7 @@ function addPaymentAmount() {
 
 	var subData 	= 0;
 	var subDis		= 0;
+	var subCred		= 0;
 
 	var table 	= document.getElementById('payable_list_container'); // app_payableList
 	var count	= table.rows.length;
@@ -2109,7 +2131,7 @@ function addPaymentAmount() {
 	amount = 0; 
 	discount = 0;
 	for(i = 0; i < count_container; i++) {
-		amt_ = (container[i]['amt'] > 0)? removeComma(container[i]['amt']) 	:	0;
+		amt_ = removeComma(container[i]['amt']);
 		dis = parseFloat(0) || (container[i]['dis']) ;
 		amt = parseFloat(amt_);
 		dis = parseFloat(dis) ;
@@ -2163,7 +2185,7 @@ function getCheckAccounts() {
 		cheques_obj[chequeaccount] = (cheques_obj[chequeaccount] >= 0) ? cheques_obj[chequeaccount] + removeComma(chequeamount) : removeComma(chequeamount);
 	});
 
-	return cheques_obj
+	return cheques_obj;
 }
 
 var payments 		= <?=$payments;?>;
@@ -2211,7 +2233,8 @@ function getRVDetails(){
 	{
 		$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/getRVDetails", data )
 		.done(function(data)
-		{
+		{	
+			var discount_code = data.discount_code;
 			var total_payment = $("#paymentModal #total_payment").val();
 			$("#paymentModal").modal("hide");
 
@@ -2219,24 +2242,38 @@ function getRVDetails(){
 				$("#paymentmode").removeAttr("disabled");
 
 			if('<?= $task ?>' == "create" || '<?= $task ?>' == "edit" ){
-				// load payables
-				$("#entriesTable tbody").html(data.table);
-				$("#pv_amount").html(total_payment);
-
-				// display total of debit
+				
+				if(task == 'create'){
+					// load payables
+					$("#entriesTable tbody").html(data.table);
+					$("#pv_amount").html(total_payment);
+				}
 				addAmountAll("credit");
-				addAmountAll("debit");
+				// display total of debit
 				var count_container = Object.keys(container).length;
 				var discount_amount = 0; 
 				for(i = 0; i < count_container; i++) {
 					discount_amount += parseFloat(0) || parseFloat(container[i]['dis']) ;
 				}
+				$('#entriesTable tbody tr.discount_row').remove();
+				var row = $("#entriesTable tbody tr.clone").length;
+				console.log("ROW "+ row);
 				if( parseFloat(discount_amount) != 0 ){
 					discount_amount 	=	addCommas(discount_amount.toFixed(2));
-					$('.add-entry').click();
-					$('#entriesTable tbody tr.clone').last().find('.accountcode').val(660);
-					$("#entriesTable tbody tr.clone").last().find('.account_amount').val(discount_amount).blur();
+					// $('.add-entry').click();
+					//
+					var ParentRow = $("#entriesTable tbody tr.clone").last();
+						ParentRow.before(clone_acct);
+					resetIds();
+					$("#accountcode\\["+ row +"\\]").closest('tr').addClass('discount_row');
+					$('#accountcode\\['+row+'\\]').val(discount_code).trigger('select2.change');
+					$('#h_accountcode\\['+row+'\\]').val(discount_code);
+					$('#debit\\['+row+'\\]').val(discount_amount);
+					disable_acct_fields(row);
 				}
+
+				addAmountAll("debit");
+	// drawTemplate();
 			}
 		});
 	}
@@ -2252,7 +2289,7 @@ function selectPayable(id,toggle){
 	var newbal  		= $('#payable_list_container #orig_bal'+id).attr('value');
 	var available_credit= $('#paymentForm #available_credits').val();	
 
-	if(check.prop('checked')){
+	if(check.prop('checked' )){
 		if(toggle == 1){
 			check.prop('checked', false);
 			paymentamount.prop('disabled',true);
@@ -2300,48 +2337,45 @@ function selectPayable(id,toggle){
 function init_storage(){
 	if (localStorage.selectedPayables) {
 		container = JSON.parse(localStorage.selectedPayables);
-		// console.log(container);
+		//console.log(container);
 	}
 }
 
 function add_storage(id,balance,discount,credits){
-	// console.log("ADD STORAGE || BALANCE = "+balance);	
+
 	var amount 		= $('#paymentModal #paymentamount'+id).val();
 	var overpayment	= $('#payableForm #overpayment').val();
 		overpayment = parseFloat(removeComma(overpayment));
-	// var new_amt 	= parseFloat(removeComma(amount))-parseFloat(removeComma(overpayment));
+
 	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount,cred:credits};
-	// console.log("NEW VSLUE");
-	// console.log(newvalue);
+	var newcont 	= JSON.parse(JSON.stringify(container));
+
 	var total_cred_used  = 0;
 	if(amount != ''){
-		// console.log("ADD STORAGE || AMOUNT = "+amount);
 		var found = false;
 		for(var i=0; element=container[i]; i++) {
-			// console.log("CONTAINER");
-			// console.log(container[i]);
 			if(element.vno == newvalue.vno) {
+				// console.log(" balance... "+element.bal);
 				var original_amount 	=	(removeComma(element.amt) > 0) ? removeComma(element.amt)  : 0;
 				var original_balance 	=	(removeComma(element.bal) > 0) ? removeComma(element.bal)  : 0;
 				var original_discount	=	(removeComma(element.dis) > 0) ? removeComma(element.dis)  : 0;
 				var original_credits	=	(removeComma(element.cred) > 0)? removeComma(element.cred) : 0;
 				
-				// console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount);
+				// console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount + " | "+original_credits);
 
 				var new_amount 			=	(removeComma(newvalue.amt) > 0) ? removeComma(newvalue.amt) : 0;
 				var new_balance 		=	(removeComma(newvalue.bal) > 0) ? removeComma(newvalue.bal)	: 0;
 				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
 				var credits 			=	(removeComma(newvalue.cred) > 0)? removeComma(newvalue.cred): 0;
 				
-				// console.log("OLD || "+original_amount+ " | " + original_balance + " | "+original_discount + " | " + original_credits);
+				// console.log("NEW || "+new_amount+ " | " + new_balance + " | "+discount + " | " + credits);
  
-				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount)) - new_amount;
+				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount) - parseFloat(original_credits)) - new_amount;
 					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
-				// console.log("available balance = "+available_balance);
-				// console.log("AVAILABLE="+available_balance);
-				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount)) - discount - credits;
+		
+				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount) + parseFloat(original_credits)) - discount - credits;
 					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
-				// console.log("DISC="+discounted_amount);
+	
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
 
@@ -2359,16 +2393,19 @@ function add_storage(id,balance,discount,credits){
 				// console.log(newvalue);
 			}
 		}
+		// console.log("TRUE/FALSE");
+		// console.log(container);
 		if(found === false) {
 			var discount_val 	=	0;
 			container.push(newvalue);
-			$('#payable_list_container #payable_balance'+id).html(0);
+			$('#payable_list_container #payable_balance'+id).html('0.00');
 			$('#payable_list_container #discountamount'+id).val(addCommas(discount_val.toFixed(2)));
+			$('#payable_list_container #credits_used'+id).val('0.00');
 		}
 		
 	}else{
 		// balance 	=	(balance > 0) 	?	balance : 0;
-		$('#payable_list_container #payable_balance'+id).html(balance);;
+		$('#payable_list_container #payable_balance'+id).html(balance);
 		container = container.filter(function( obj ) {
 			return obj.vno !== id;
 		});
@@ -2425,26 +2462,15 @@ function checkCredit(val,id){
 	var discountamount 	= 	$('#payable_list_container #discountamount'+id).val();
 	var current_payment = 	$('#payable_list_container #paymentamount'+id).val();
 
-	var input 			= 	val;
+	var input 			= 	removeComma(val);
 		total_amount 	= 	removeComma(total_amount);
 		discount		= 	removeComma(discountamount);
 		dueamount 		=	removeComma(dueamount);
 		avail_credits 	=	removeComma(avail_credits);
 		current_payment = 	removeComma(current_payment);
-		input 			=	removeComma(input);
 
-	var payment_amt 	= 	0;
-	if(input > avail_credits){
-		$('#excess_credit_error').removeClass('hidden');
-		$(this).closest('.form-group').addClass('has-error');
-	} else {
-		payment_amt		=	current_payment -	input;
-		$('#excess_credit_error').addClass('hidden');
-		$(this).closest('.form-group').removeClass('has-error');
-	}
 	add_storage(id,dueamount,discount,input);
 	addPaymentAmount();	
-
 }
 
 function validateCheques(){
@@ -2845,8 +2871,6 @@ $(document).ready(function() {
 	* Apply Exchange Rate and converted amount
 	*/
 	$('#rateForm #btnProceed').click(function(e){
-		console.log(e);
-
 		var valid 			= 0;
 		var oldamount 		= $('#rateForm #oldamount').val();
 		oldamount			= oldamount.replace(/,/g,'');
@@ -3738,9 +3762,8 @@ $(document).ready(function() {
 		$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_credits",$('#payableForm').serialize())
 		.done(function( response ) {
 			var excess_credits = addCommas(response.credits);
-			// console.log("EXCESS = "+excess_credits);
+
 			$('#paymentModal #available_credits').val(excess_credits);
-			// $('#paymentModal #available_credits_static').html("Php "+excess_credits);
 		});
 	});
 
@@ -3792,14 +3815,8 @@ $(document).ready(function() {
 		var avail_credits 	=	$('#paymentForm #available_credits').val();
 			avail_credits 	=	parseFloat(removeComma(avail_credits));
 		var total_cred_used = 	0;
-
-		$('#payable_list_container tr').each(function(index) {
-			var credit_used = $(this).find('.credits_used').val();
-				credit_used = parseFloat(removeComma(credit_used));
-			total_cred_used = parseFloat(removeComma(total_cred_used)) + parseFloat(removeComma(credit_used));
-		});
-
-		if(total_cred_used >= avail_credits){
+			total_cred_used =	get_total_applied_credits();
+		if(total_cred_used > avail_credits){
 			$('#excess_credit_error').removeClass('hidden');
 			$('#payable_list_container tr').each(function(index) {
 				var value = $(this).find('.credits_used').val();

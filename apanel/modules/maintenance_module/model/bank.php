@@ -163,6 +163,7 @@
 			$data_post_dtl['booknumber'] 		= $data2['booknumber'];
 			$data_post_dtl['firstchequeno'] 	= $data2['firstchequeno'];
 			$data_post_dtl['lastchequeno'] 		= $data2['lastchequeno'];
+			$data_post_dtl['nextchequeno'] 		= $data2['firstchequeno'] + 1;
 
 			$result = $this->db->setTable('bankdetail')
 					->setValues($data_post_dtl)
@@ -183,7 +184,7 @@
 		public function checkListing($search="", $sort ,$limit, $id){
 			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (shortname LIKE '%$search%' OR bankcode LIKE '%$search%'  OR accountno LIKE '%$search%') " 	: 	"";
 
-			$fields 	=	array("b.accountno","bank_id","id","booknumber","CONCAT(firstchequeno, ' - ' ,lastchequeno) batch" ,"firstchequeno+1 nextchequeno");
+			$fields 	=	array("b.accountno","bank_id","id","booknumber","CONCAT(firstchequeno, ' - ' ,lastchequeno) batch" ,"nextchequeno");
 
 			$result = $this->db->setTable('bankdetail bd')
 							->setFields($fields)
@@ -191,9 +192,7 @@
 							->setWhere(" bd.stat = 'open' AND bank_id = '$id' $add_cond ")
 							->setOrderBy($sort)
 							->runPagination();
-							// echo $this->db->getQuery();
 			return $result;
-			// echo $this->db->getQuery();
 		}
 
 		

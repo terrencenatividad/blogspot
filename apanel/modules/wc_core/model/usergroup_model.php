@@ -142,6 +142,7 @@ class usergroup_model extends wc_model {
 		$this->db->setTable(PRE_TABLE . '_modules wm')
 					->setFields('wm.module_name module_name, ug.mod_add mod_add, ug.mod_view mod_view, ug.mod_edit mod_edit, ug.mod_delete mod_delete, ug.mod_list mod_list, ug.mod_print mod_print, ug.mod_post mod_post, ug.mod_unpost mod_unpost, has_add, has_view, has_edit, has_delete, has_list, has_print, has_post, has_unpost')
 					->leftJoin("($left_select) ug ON ug.module_name = wm.module_name")
+					->setWhere("wm.active = 1")
 					->setGroupBy('wm.module_name');
 	
 		// echo $this->db->buildSelect(false);

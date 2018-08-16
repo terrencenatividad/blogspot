@@ -138,6 +138,12 @@ class controller extends wc_controller
 		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// Cash Account Options
+		// $cash_account_fields 	  = array("id ind", "CONCAT(shortname, ' - ', accountno ) val");
+		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
+		// $cash_account_cond 	 	  = "stat = 'active'";
+		// $cash_order_by 		 	  = "id";
+		// $data["cash_account_list"] = $this->receipt_voucher->retrieveData("bank", $cash_account_fields, $cash_account_cond, '', $cash_order_by);
+
 		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
 		$cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
 		$cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P' AND stat = 'active'";
@@ -190,9 +196,9 @@ class controller extends wc_controller
 				$update_cheque['voucherno']	= $generatedvoucher;
 				$updateTempRecord			= $this->receipt_voucher->editData($update_cheque,"rv_cheques",$update_condition);
 				// Update TMP source of CM
-				// $update_source['sourceno']  = $generatedvoucher;
-				// $source_cond 				= "sourceno = '$voucherno' AND transtype = 'CM'";
-				// $updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
+				$update_source['si_no']  	= $generatedvoucher;
+				$source_cond 				= "si_no = '$voucherno' AND transtype = 'CM'";
+				$updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
 
 				/**UPDATE MAIN INVOICE**/
 				$this->update_app($data_validate['selected_rows']);
@@ -278,12 +284,22 @@ class controller extends wc_controller
 
 		$data["forexamount"] 	  = $forexamount;
 
+		$dis_entry 					= $this->receipt_voucher->getValue("fintaxcode", array("salesAccount"), "fstaxcode = 'DC'");
+		$discount_code 				= isset($dis_entry[0]->salesAccount) ? $dis_entry[0]->salesAccount	: "";
+		$data['discount_code'] 		= $discount_code;
+
 		// Cash Account Options
 		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
 		$cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
 		$cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
 		$cash_order_by 		 	  = "class.accountclass";
 		$data["cash_account_list"] = $this->receipt_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
+		// $cash_account_fields 	  = array("id ind", "CONCAT(shortname, ' - ', accountno ) val");
+		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
+		// $cash_account_cond 	 	  = "stat = 'active'";
+		// $cash_order_by 		 	  = "id";
+		// $data["cash_account_list"] = $this->receipt_voucher->retrieveData("bank", $cash_account_fields, $cash_account_cond, '', $cash_order_by);
+
 		$data["noCashAccounts"]  = false;
 		
 		if(empty($data["cash_account_list"]))
@@ -341,6 +357,10 @@ class controller extends wc_controller
 		$acc_entry_cond               = "accounttype != ''";
 		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
+		$dis_entry 					= $this->receipt_voucher->getValue("fintaxcode", array("salesAccount"), "fstaxcode = 'DC'");
+		$discount_code 				= isset($dis_entry[0]->salesAccount) ? $dis_entry[0]->salesAccount	: "";
+		$data['discount_code'] 		= $discount_code;
+
 		// Cash Account Options
 		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
 		$cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
@@ -348,6 +368,12 @@ class controller extends wc_controller
 		$cash_order_by 		 	  = "class.accountclass";
 		$data["cash_account_list"] = $this->receipt_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
+		// $cash_account_fields 	  = array("id ind", "CONCAT(shortname, ' - ', accountno ) val");
+		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
+		// $cash_account_cond 	 	  = "stat = 'active'";
+		// $cash_order_by 		 	  = "id";
+		// $data["cash_account_list"] = $this->receipt_voucher->retrieveData("bank", $cash_account_fields, $cash_account_cond, '', $cash_order_by);
+		
 		// Header Data
 		$voucherno 				 = $data["main"]->voucherno;
 		$customer 				 = $data['main']->customer;
@@ -358,9 +384,10 @@ class controller extends wc_controller
 		$data["transactiondate"] = $this->date->dateFormat($data["main"]->transactiondate);
 		$data["particulars"]     = $data["main"]->particulars;
 		$data["paymenttype"]     = $data["main"]->paymenttype;
-		$data["credits_used"]    = $data["main"]->credits_used;
+		$credits_used 			 = $data["main"]->credits_used;
+		$data["credits_used"]    = $credits_used;
 		$available_credits 		 = $this->receipt_voucher->retrieve_existing_credits($customer);
-		$data["available_credits"] = isset($available_credits[0]->curr_credit) 	?	$available_credits[0]->curr_credit	:	"0.00";
+		$data["available_credits"] = isset($available_credits[0]->curr_credit) 	?	$available_credits[0]->curr_credit 	+	$credits_used	:	"0.00";
 		$data['status']			 = $data["main"]->stat;
 	 		
 		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
@@ -385,6 +412,8 @@ class controller extends wc_controller
 		$data['restrict_rv'] 	= true;
 		$data['has_access'] 	= 0;
 
+		// print_r($data);
+
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
 
@@ -397,7 +426,11 @@ class controller extends wc_controller
 			$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_details",$update_condition);
 			$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_application",$update_condition);
 			$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_cheques",$update_condition);
-			
+			// Update TMP source of CM
+			// $update_source['si_no']  	= $generatedvoucher;
+			// $source_cond 				= "si_no = '$voucherno' AND transtype = 'CM'";
+			// $updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
+
 			$this->update_app($data_validate["h_check_rows_"]);
 
 			// For Admin Logs
@@ -748,6 +781,30 @@ class controller extends wc_controller
 			$msg 	= "Sorry, the system was unable to ".$type." the vouchers.";
 		}
 
+		$dataArray = array("code" => 1,"msg"=> "" );
+		return $dataArray;
+	}
+
+	private function cancel_cm_entries()
+	{
+		$vouchers 		= $this->input->post('delete_id');
+		$payments 		= "'" . implode("','", $vouchers) . "'";
+
+		$cm_vouchers 	= $this->receipt_voucher->getValue("journalvoucher", "voucherno", "transtype = 'CM' AND si_no IN ($payments)");
+
+		foreach($cm_vouchers as $key => $content){
+			$cm_no 			=  	$content->voucherno;
+			$result 		= 	$this->receipt_voucher->cancelCreditMemo($cm_no);
+		}
+
+		if($result){
+			$code 	= 1; 
+			$msg 	= "Successfully cancelled the vouchers.";
+		}else{
+			$code 	= 0; 
+			$msg 	= "Sorry, the system was unable to cancelled the vouchers.";
+		}
+
 		$dataArray = array("code" => $code,"msg"=> $msg );
 		return $dataArray;
 	}
@@ -898,7 +955,7 @@ class controller extends wc_controller
 
 	private function load_payables()
 	{
-		$data       	= $this->input->post(array("customer", "voucherno","avl_cred"));
+		$data       	= $this->input->post(array("customer", "voucherno", "avl_cred"));
 		$task       	= $this->input->post("task");
 		$search			= $this->input->post('search');
 		$avl_credit 	= $this->input->post("avl_cred");
@@ -933,13 +990,9 @@ class controller extends wc_controller
 			$checker = array();
 			
 			if(!empty($decode_json)) {
-				foreach($decode_json as $value => $row)
-				{	
-					
+				foreach($decode_json as $value => $row){	
 					array_push($voucher_array, $row['vno']);
 					$amt_array[$row['vno']] = $row;
-					
-					
 				}	
 			}
 
@@ -953,37 +1006,36 @@ class controller extends wc_controller
 				$balance		= $pagination->result[$i]->balance; 
 				$totalamount	= $pagination->result[$i]->amount;
 				$referenceno	= $pagination->result[$i]->referenceno;
-				$credit_used	= 0;
+				$credit_used	= $pagination->result[$i]->credits_used;
 
-				$voucher_checked = (in_array($voucher , $voucher_array)) ? 'checked' : '';
-				$amt_checked = (in_array($voucher , $amt_array)) ? $amt_checked : '';
+				$voucher_checked= (in_array($voucher , $voucher_array)) ? 'checked' : '';
+				$amt_checked 	= (in_array($voucher , $amt_array)) ? $amt_checked : '';
 
 				$total_pay 		+= $totalamount;
 
 				$json_encode_array["row"]       = $i;
-				$json_encode_array["apvoucher"] = $voucher;
-				$json_encode_array["amount"]    = $totalamount;
-				$json_encode_array["balance"]   = $balance;
-				$json_encode_array["credit"]	= $credit_used;
+				$json_encode_array["vno"] 		= $voucher;
+				$json_encode_array["amt"]    	= $totalamount;
+				$json_encode_array["bal"]   	= $balance;
+				$json_encode_array["cred"]		= $credit_used;
 			
 				$json_data[] 					= $json_encode_array;
-
+			
 				$json_encode 					= json_encode($json_data);
 
 				$appliedamount	= $this->receipt_voucher->getValue("rv_application", array("SUM(amount) AS amount"),"arvoucherno = '$voucher' AND stat IN('posted', 'temporary')");
 				$appliedamount  = $appliedamount[0]->amount;
-
+	
 				$balance_2		= $balance;
-				
 				if (isset($amt_array[$voucher])) {
-					$balance_2	= str_replace(',', '', $amt_array[$voucher]['bal']);
-					$balance_2 	= str_replace(',', '', $balance_2); 
-					$amount		= str_replace(',', '', $amt_array[$voucher]['amt']);
-					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0';
-					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance_2 + $amount + $discount;
-					$balance_2 	= $balance_2 - $amount - $discount;
+					$balance_2	= str_replace(',','',$amt_array[$voucher]['bal']);
+					$amount		= str_replace(',','',$amt_array[$voucher]['amt']);
+					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0.00';
+					$credit_used= isset($amt_array[$voucher]['cred']) ? $amt_array[$voucher]['cred'] : '0.00';
+					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount + $credit_used;
+					$balance_2 	= $balance_2 - $amount - $discount	- $credit_used;
 				}
-
+				
 				$disable_checkbox 	=	"";
 				$disable_onclick 	=	'onClick="selectPayable(\''.$voucher.'\',1);"';
 
@@ -1008,14 +1060,15 @@ class controller extends wc_controller
 						->setClass("input-sm text-right paymentamount")
 						->setId('paymentamount'.$voucher)
 						->setPlaceHolder("0.00")
+						->setMaxLength(20)
 						->setAttribute(
 							array(
-								"maxlength" => "20", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
 								"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
 							)
 						)
+						->setValidation('decimal')
 						->setValue(number_format($amount,2))
 						->draw($show_input).'</td>';
 				}
@@ -1026,15 +1079,16 @@ class controller extends wc_controller
 						->setClass("input-sm text-right paymentamount")
 						->setId('paymentamount'.$voucher)
 						->setPlaceHolder("0.00")
+						->setMaxLength(20)
 						->setAttribute(
 							array(
-								"maxlength" => "20", 
 								"disabled" => "disabled", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
 								"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
 							)
 						)
+						->setValidation('decimal')
 						->setValue(number_format(0, 2))
 						->draw($show_input).'</td>';
 				}
@@ -1045,14 +1099,15 @@ class controller extends wc_controller
 										->setClass("input-sm text-right discountamount")
 										->setId('discountamount'.$voucher)
 										->setPlaceHolder("0.00")
+										->setMaxLength(20)
 										->setAttribute(
 											array(
-												"maxlength" => "20", 
 												"onBlur" => ' formatNumber(this.id);', 
 												"onClick" => " SelectAll(this.id); ",
 												"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
 											)
 										)
+										->setValidation('decimal')
 										->setValue(number_format($discount, 2))
 										->draw($show_input).'</td>';
 				}else{
@@ -1062,35 +1117,38 @@ class controller extends wc_controller
 										->setClass("input-sm text-right discountamount")
 										->setId('discountamount'.$voucher)
 										->setPlaceHolder("0.00")
+										->setMaxLength(20)
 										->setAttribute(
 											array(
-												"maxlength" => "20", 
 												"disabled" => "disabled", 
 												"onBlur" => ' formatNumber(this.id);', 
 												"onClick" => " SelectAll(this.id); ",
 												"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
 											)
 										)
+										->setValidation('decimal')
 										->setValue(number_format(0, 2))
 										->draw($show_input).'</td>';
 				}
 				// echo $voucher_checked;
 				$avl_credit 	=	str_replace(',','',$avl_credit);
-				if($voucher_checked == 'checked' && $avl_credit > 0){
+				//&& $avl_credit > 0
+				if($voucher_checked == 'checked'){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
 					$this->ui->formField('text')
 						->setSplit('', 'col-md-12')
 						->setClass("input-sm text-right credits_used")
 						->setId('credits_used'.$voucher)
 						->setPlaceHolder("0.00")
+						->setMaxLength(20)
 						->setAttribute(
 							array(
-								"maxlength" => "20", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
 								"onChange" => ' checkCredit(this.value,\''.$voucher.'\'); '
 							)
 						)
+						->setValidation('decimal')
 						->setValue(number_format($credit_used,2))
 						->draw($show_input).'</td>';
 					$table	.= '</tr>';
@@ -1102,15 +1160,16 @@ class controller extends wc_controller
 						->setClass("input-sm text-right credits_used")
 						->setId('credits_used'.$voucher)
 						->setPlaceHolder("0.00")
+						->setMaxLength(20)
 						->setAttribute(
 							array(
-								"maxlength" => "20", 
 								"disabled" => "disabled", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
 								"onChange" => ' checkCredit(this.value,\''.$voucher.'\'); '
 							)
 						)
+						->setValidation('decimal')
 						->setValue(number_format(0, 2))
 						->draw($show_input).'</td>';
 					$table	.= '</tr>';
@@ -1166,6 +1225,7 @@ class controller extends wc_controller
 			
 			$arvoucher_[] = $apvoucherno;
 		}
+		// var_dump($arvoucher_);
 
 		$condi =  implode("','" , $arvoucher_);
 		$cond = "('".$condi."')";
@@ -1191,11 +1251,14 @@ class controller extends wc_controller
 		$acc_entry_cond     = "";
 		$account_entry_list = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
+		$dis_entry 			= $this->receipt_voucher->getValue("fintaxcode", array("salesAccount"), "fstaxcode = 'DC'");
+		$discount_code 		= isset($dis_entry[0]->salesAccount) ? $dis_entry[0]->salesAccount	: "";
+
 		$ui 	            = $this->ui;
 		$show_input         = $this->show_input;
 
 		$totalcredit = 0;
-
+		
 		if(!empty($results))
 		{
 			$credit      = '0.00';
@@ -1277,7 +1340,7 @@ class controller extends wc_controller
 			$table	.= 	'<td class="text-center" colspan="5">- No Records Found -</td>';
 			$table	.= '</tr>';
 		}
-		$dataArray = array( "table" => $table, "totaldebit" => number_format($totalcredit, 2) );
+		$dataArray = array( "table" => $table, "totaldebit" => number_format($totalcredit, 2),"discount_code"=>$discount_code );
 		return $dataArray;
 	}
 
