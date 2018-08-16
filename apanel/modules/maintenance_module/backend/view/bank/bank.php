@@ -101,7 +101,7 @@
 								->setSplit('col-md-3', 'col-md-6')
 								->setName('checking_account')
 								->setId('checking_account')
-								->setDefault('1')
+								->setDefault('yes')
 								->setValue($checking_account)
 								->draw($show_input);
 						?>
