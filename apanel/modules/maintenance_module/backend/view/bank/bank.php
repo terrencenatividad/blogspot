@@ -23,7 +23,7 @@
 									->setName('gl_code')
 									->setId('gl_code')
 									->setList($gllist)
-									>setMaxLength(20)
+									->setMaxLength(20)
 									->setPlaceholder('Select GL Code')
 									->setValue($gl_code)
 									->setValidation('required')
@@ -87,7 +87,7 @@
 								->setId('currency')
 								->setList($currencylist)
 								->setMaxLength(20)
-								// ->setValue('PHP')
+								->setValue($currency)
 								->setPlaceholder('Select Currency')
 								->setValidation('required')
 								->draw($show_input);

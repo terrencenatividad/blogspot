@@ -77,7 +77,6 @@
 		public function view($code)
 		{
 			$this->view->title 	= $this->ui->ViewLabel('');
-			
 			$data 			 	= (array) $this->bank->retrieveExistingBank($this->fields, $code);
 			$data['currencylist']   = $this->bank->retrieveExchangeRateDropdown();
 			$data['gllist']   		= $this->bank->retrieveGLDropdown();
