@@ -9,7 +9,7 @@
     <div class="box box-primary">
         <div class="box-body">
             <form method = "post" id = "bankForm" class="form-horizontal">
-				<input type="hidden" name="id" id="id" value="<?=$id?>">	
+				<input type="hidden" name="bank_id" id="id" value="<?=$id?>">	
 				<div class = "col-md-12">&nbsp;</div>
 
 				<div class="row">
@@ -64,21 +64,13 @@
 
 				<div class="row">
 					<div class="col-md-12 text-center">
-						<? 	if( $show_input )
-							{
-						?>
+						
 							<div class="btn-group">
 								<button type="button" class="btn btn-primary btn-flat" id="btnSave">Save</button>
 							</div>
-						<? 	
-							}else{
-						?>
 							<div class="btn-group">
-								<a class="btn btn-primary btn-flat" role="button" href="<?=BASE_URL?>maintenance/currency/edit/<?=$currencycode?>" style="outline:none;">Edit</a>
+								<button type="button" class="btn btn-primary btn-flat" id="btnEdit">Save</button>
 							</div>
-						<?
-							}
-						?>
 							&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
 							<button type="button" class="btn btn-default btn-flat" id="btnCancel">Cancel</button>
@@ -133,7 +125,7 @@ $('#bankForm #btnSave').on('click',function(){
 		$.post('<?=BASE_URL?>maintenance/bank/ajax/<?=$task?>', $('#bankForm').serialize()+ '<?=$ajax_post?>', function(data) {
 			if( data.msg == 'success' )
 			{
-				window.location = self.location;
+				 window.location = self.location;
 			}
 		});
 	}
@@ -321,6 +313,41 @@ $('#list_container').on('click', '.manage_check', function(){
 	var id = $(this).attr('data-id');
 	window.location = '<?=MODULE_URL?>manage_check/' + id;
 });
+
+$('#btnEdit').hide();
+$('#list_container').on('click', '.edit_check', function(){
+	ajax.id     =  $('#id').val();
+	ajax.bookno =  $(this).closest('tr').find('#booknumber').html();
+	// window.location = '<?=MODULE_URL?>manage_check/' + id +'/' + bookno;
+		$.post('<?=BASE_URL?>maintenance/bank/ajax/edit_check', ajax ,  function(data){
+			if (data){
+				$('#booknumber').val(data.booknumber);
+				$('#firstchequeno').val(data.firstchequeno);
+				$('#lastchequeno').val(data.lastchequeno);
+				var task = data.task;
+				if (task == 'update_check'){
+					$('#btnSave').hide();
+					$('#btnEdit').show();
+					// $('#btnSave').attr('id', 'btnEdit');
+				}
+			}
+		});
+
+});
+
+$('#bankForm #btnEdit').on('click',function(){
+	if ($('#bankForm').find('.form-group.has-error').length == 0)
+	{	
+		$.post('<?=BASE_URL?>maintenance/bank/ajax/update_check', $('#bankForm').serialize()+ '<?=$ajax_post?>', function(data) {
+			if( data.msg == 'success' )
+			{
+				window.location = self.location;
+			}
+		});
+	}
+});
+
+
 
 
 </script>
