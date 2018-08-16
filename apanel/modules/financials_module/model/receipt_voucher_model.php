@@ -796,7 +796,7 @@ class receipt_voucher_model extends wc_model
 		$aOldApplicationObj = $this->db->setTable('rv_application rv')
 									->leftJoin('receiptvoucher as main ON main.voucherno = rv.voucherno ')
 									->setFields("rv.arvoucherno as vno, '0.00' as amt, '0.00' as bal, '0.00' as dis, '0.00' as cred")
-									->setWhere(" rv.voucherno = '$voucherno' ")
+									->setWhere(" rv.voucherno = '$voucherno' AND rv.stat NOT IN ('cancelled','temporary') ")
 									->runSelect()
 									->getResult();
 		if(!empty($aOldApplicationObj) && !is_null($aOldApplicationObj)){
