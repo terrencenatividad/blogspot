@@ -315,7 +315,7 @@ class payment_voucher_model extends wc_model
 		// Sub Select
 		$table_pv  = "pv_application AS pv";
 		$pv_fields = "COALESCE(SUM(pv.convertedamount),0) + COALESCE(SUM(pv.discount),0) - COALESCE(SUM(pv.forexamount),0)";
-		$pv_cond   = "pv.apvoucherno = main.voucherno AND pv.stat IN('posted') AND pv.voucherno = '$voucherno' ";
+		$pv_cond   = "pv.apvoucherno = main.voucherno AND pv.stat IN('open','posted') AND pv.voucherno = '$voucherno' ";
 	
 		// Main Queries
 		$main_table   = "accountspayable as main";
