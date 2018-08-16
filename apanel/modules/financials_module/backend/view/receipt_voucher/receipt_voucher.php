@@ -2263,6 +2263,7 @@ function getRVDetails(){
 					resetIds();
 					$("#accountcode\\["+ row +"\\]").closest('tr').addClass('discount_row');
 					$('#accountcode\\['+row+'\\]').val(discount_code).trigger('select2.change');
+					$('#h_accountcode\\['+row+'\\]').val(discount_code);
 					$('#debit\\['+row+'\\]').val(discount_amount);
 					disable_acct_fields(row);
 				}
