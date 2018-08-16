@@ -109,7 +109,7 @@ class receipt_voucher_model extends wc_model
 
 		// Retrieve Payments
 		$applicationFields = "app.arvoucherno as vno, app.amount as amt, '0.00' as bal, app.discount as dis, app.credits_used as cred";
-		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 ";
+		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 AND app.stat NOT IN ('cancelled','temporary' )";
 		// echo $sid;
 		$applicationArray = $this->db->setTable('rv_application as app')
 								->setFields($applicationFields)
