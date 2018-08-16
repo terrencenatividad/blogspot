@@ -760,7 +760,7 @@
 				<div class="row row-dense">
 					<div class="col-md-12 center">
 						<div class="btn-group">
-							<button type="button" class="btn btn-info btn-flat" id="btnYes">Yes</button>
+							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
 						</div>
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
@@ -1256,7 +1256,10 @@ function finalizeEditTransaction()
 					{
 						if( btn == 'final' )
 						{
-							window.location 	=	"<?=BASE_URL?>purchase/purchase_order";
+							$('#delay_modal').modal('show');
+							setTimeout(function() {
+								window.location 	=	"<?=BASE_URL?>purchase/purchase_order";								
+							},1000);
 						}
 						else if( btn == 'final_preview' )
 						{

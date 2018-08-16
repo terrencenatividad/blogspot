@@ -1459,15 +1459,18 @@ function finalizeEditTransaction()
 						{
 							if( result == 'final' )
 							{
-								window.location 	=	"<?=BASE_URL?>sales/sales_invoice";
+								$('#delay_modal').modal('show');
+								setTimeout(function() {							
+									window.location 	=	"<?=BASE_URL?>sales/sales_invoice";
+								}, 1000)
 							}
 							else if( result == 'final_preview' )
 							{
-								window.location 	=	"<?=BASE_URL?>sales/sales_invoice/view/"+voucher;
+								window.location 	=	"<?=BASE_URL?>sales/sales_invoice/view/"+voucher;								
 							}
 							else if( result == 'final_new' )
 							{
-								window.location 	=	"<?=BASE_URL?>sales/sales_invoice/create";
+								window.location 	=	"<?=BASE_URL?>sales/sales_invoice/create";								
 							}
 							
 						}

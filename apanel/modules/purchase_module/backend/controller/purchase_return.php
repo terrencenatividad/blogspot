@@ -90,6 +90,7 @@ class controller extends wc_controller {
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->purchase_model->getPurchaseReturnById($this->fields, $voucherno);
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
+		$transactiondate 			= $data['transactiondate'];
 		$data['ui']					= $this->ui;
 		$data['vendor_list']		= $this->purchase_model->getVendorList();
 		$data['warehouse_list']		= $this->purchase_model->getWarehouseList();
@@ -102,7 +103,8 @@ class controller extends wc_controller {
 		// Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
-		$data['restrict_ret'] 	 	= false;
+		$restrict_ret 				= $this->restrict->setButtonRestriction($transactiondate);
+		$data['restrict_ret'] 	 	= $restrict_ret;
 		$this->view->load('purchase_return/purchase_return', $data);
 	}
 

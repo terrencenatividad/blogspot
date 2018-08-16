@@ -1213,11 +1213,14 @@ function finalizeEditTransaction()
 					{
 						if( btn == 'final' )
 						{
-							window.location 	=	"<?=BASE_URL?>sales/sales_order";
+							$('#delay_modal').modal('show');
+							setTimeout(function() {									
+								window.location 	=	"<?=BASE_URL?>sales/sales_order";
+							}, 1000)
 						}
 						else if( btn == 'final_preview' )
 						{
-							window.location 	=	"<?=BASE_URL?>sales/sales_order/view/"+data.voucher;
+							window.location 	=	"<?=BASE_URL?>sales/sales_order/view/"+data.voucher;															
 						}
 						else if( btn == 'final_new' )
 						{
