@@ -1012,9 +1012,10 @@ class controller extends wc_controller
 						->setClass("input-sm text-right paymentamount")
 						->setId('paymentamount'.$voucher)
 						->setPlaceHolder("0.00")
+						->setMaxLength(20)
+						->setValidation('decimal')
 						->setAttribute(
 							array(
-								"maxlength" => "20", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
 								"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
@@ -1030,9 +1031,10 @@ class controller extends wc_controller
 						->setClass("input-sm text-right paymentamount")
 						->setId('paymentamount'.$voucher)
 						->setPlaceHolder("0.00")
+						->setMaxLength(20)
+						->setValidation('decimal')
 						->setAttribute(
 							array(
-								"maxlength" => "20", 
 								"disabled" => "disabled", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
@@ -1049,9 +1051,10 @@ class controller extends wc_controller
 									->setClass("input-sm text-right discountamount")
 									->setId('discountamount'.$voucher)
 									->setPlaceHolder("0.00")
+									->setMaxLength(20)
+									->setValidation('decimal')
 									->setAttribute(
 										array(
-											"maxlength" => "20", 
 											"onBlur" => ' formatNumber(this.id);', 
 											"onClick" => " SelectAll(this.id); ",
 											"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
@@ -1067,9 +1070,10 @@ class controller extends wc_controller
 					->setClass("input-sm text-right discountamount")
 					->setId('discountamount'.$voucher)
 					->setPlaceHolder("0.00")
+					->setMaxLength(20)
+					->setValidation('decimal')
 					->setAttribute(
 						array(
-							"maxlength" => "20", 
 							"disabled" => "disabled", 
 							"onBlur" => ' formatNumber(this.id);', 
 							"onClick" => " SelectAll(this.id); ",
