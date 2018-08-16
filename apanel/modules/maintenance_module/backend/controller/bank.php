@@ -24,7 +24,7 @@
 			);
 
 			$this->fields2 = array(
-				'id',
+				'bank_id',
 				'booknumber',
 				'firstchequeno',
 				'lastchequeno'
@@ -72,7 +72,6 @@
 			$data['id']			= $id;
 			$data['ajax_post'] 	= "&id=$id";
 			$this->view->load('bank/bank', $data);
-			var_dump($data);
 		}
 
 		public function view($code)
@@ -247,7 +246,7 @@
 			$result  		= $this->bank->insertCheck($posted_data);
 			$firstchequeno 	= $posted_data['firstchequeno'];
 			$lastchequeno	= $posted_data['lastchequeno'];
-			$id				= $posted_data['id'];
+			$id				= $posted_data['bank_id'];
 			$accntname 		= $this->bank->getAccountname($id);
 			$id = $accntname[0]->shortname;
 
@@ -321,16 +320,42 @@
 			$id 		= $this->input->post("id");
 			$bookno 	= $this->input->post("bookno");
 			$data2		= (array) $this->bank->retrieveCheck($id, $bookno);
-			// $booknumber 	= $data2[0]->booknumber; 
-			// $firstchequeno 	= $data2[0]->firstchequeno; 
-			// $lastchequeno 	= $data2[0]->lastchequeno; 
-			// $data = array("booknumber" => $booknumber,"firstchequeno" => $firstchequeno, 'lastchequeno' => $lastchequeno);
+			$booknumber 	= $data2[0]->booknumber; 
+			$firstchequeno 	= $data2[0]->firstchequeno; 
+			$lastchequeno 	= $data2[0]->lastchequeno; 
+			$data = array("booknumber" => $booknumber,"firstchequeno" => $firstchequeno, 'lastchequeno' => $lastchequeno , 'task' => 'update_check');
 			
-			$data['show_input'] 	= true;
-			$data['ajax_post'] 		= '';
-			$data['ui'] 			= $this->ui;
-			$this->view->load('bank/manage_check', $data);
-			var_dump($data);
+			
+			// $data['show_input'] 	= true;
+			// $data['ajax_post'] 		= '';
+			// $data['ui'] 			= $this->ui;
+			// $this->view->load('bank/manage_check', $data);
+			// var_dump($data);
+			return $data;
+		}
+
+		public function update_check(){
+			$posted_data 	= $this->input->post($this->fields2);
+			$result  		= $this->bank->insertCheck($posted_data);
+			$firstchequeno 	= $posted_data['firstchequeno'];
+			$lastchequeno	= $posted_data['lastchequeno'];
+			$bank_id		= $posted_data['bank_id'];
+			$accntname 		= $this->bank->update_check($bank_id, $posted_data);
+			// $id = $accntname[0]->shortname;
+
+			if( $accntname )
+			{
+				$msg = "success";
+				// $this->log->saveActivity("Added Check Series On Bank ($id) $firstchequeno -  $lastchequeno");
+			}
+			
+			else
+			{
+				$msg = $result;
+			}
+			
+			return $dataArray 		= array( "msg" => $msg );
+
 		}
 
 
