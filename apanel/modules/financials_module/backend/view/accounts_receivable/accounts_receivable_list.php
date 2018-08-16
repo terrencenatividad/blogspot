@@ -91,7 +91,7 @@
 			<li><a href="unpaid" data-toggle="tab">Unpaid</a></li>
 			<li><a href="partial" data-toggle="tab">With Partial Payment</a></li>
 			<li><a href="paid" data-toggle="tab">Paid</a></li>
-			<li><a href="paid" data-toggle="tab">Cancelled</a></li>
+			<li><a href="cancelled" data-toggle="tab">Cancelled</a></li>
 		</ul>
 		<div class="table-responsive">
 			<table id="tableList" class="table table-hover">
@@ -104,9 +104,9 @@
 									'class' => 'col-md-1 text-center'
 								)
 							)
-							->addHeader('Date', array('class' => 'col-md-1'), 'sort', 'main.transactiondate', 'desc')
+							->addHeader('Date', array('class' => 'col-md-1'), 'sort', 'main.transactiondate')
 							->addHeader('Imported', array('class' => 'col-md-1'),'sort','main.lockkey')
-							->addHeader('Voucher No', array('class' => 'col-md-1'), 'sort', 'main.voucherno')
+							->addHeader('Voucher No', array('class' => 'col-md-1'), 'sort', 'main.voucherno', 'desc')
 							->addHeader('Customer', array('class' => 'col-md-2'), 'sort', 'p.partnername')
 							->addHeader('Reference', array('class' => 'col-md-2'), 'sort', 'main.referenceno')
 							->addHeader('Amount', array('class' => 'col-md-2'), 'sort', 'main.convertedamount')
