@@ -269,6 +269,10 @@ class controller extends wc_controller
 		$forexamount			  = ($forex_result[0]->forexamount != '') ? $forex_result[0]->forexamount : 0;
 
 		$data["forexamount"] 	  = $forexamount;
+		
+		$dis_entry 					= $this->payment_voucher->getValue("fintaxcode", array("purchaseAccount"), "fstaxcode = 'DC'");
+		$discount_code 				= isset($dis_entry[0]->purchaseAccount) ? $dis_entry[0]->purchaseAccount	: "";
+		$data['discount_code'] 		= $discount_code;
 
 		// Cash Account Options
 		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
@@ -348,6 +352,10 @@ class controller extends wc_controller
 		$data["particulars"]     	= $data["main"]->particulars;
 		$data["paymenttype"]     	= $data["main"]->paymenttype;
 		$data['status']				= $data["main"]->stat;
+
+		$dis_entry 					= $this->payment_voucher->getValue("fintaxcode", array("purchaseAccount"), "fstaxcode = 'DC'");
+		$discount_code 				= isset($dis_entry[0]->purchaseAccount) ? $dis_entry[0]->purchaseAccount	: "";
+		$data['discount_code'] 		= $discount_code;
 
 		$data["listofcheques"]	 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
 		$data["show_cheques"] 	 	= isset($data['rollArray'][$sid]) ? '' : 'hidden';
@@ -1158,9 +1166,9 @@ class controller extends wc_controller
 				// $debit = ($paymenttype == 'cheque' && isset($account_total[$accountcode])) ?  $results[$i]->chequeamount : 0;
 				$totaldebit    	   += $credit;
 
-				$discount_class 	=	($discount_code == $accountcode) 	?	"discount_code" : "";
-
-				$table .= '<tr class="clone '.$discount_class.'" valign="middle">';
+				// $discount_class 	=	($discount_code == $accountcode) 	?	"discount_row" : "";
+				
+				$table .= '<tr class="clone" valign="middle">';
 				$table .= 	'<td class = "remove-margin">'	
 									.$ui->formField('dropdown')
 										->setPlaceholder('Select One')

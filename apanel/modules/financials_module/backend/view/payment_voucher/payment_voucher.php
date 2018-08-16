@@ -626,19 +626,24 @@
 											$debit 				= $aPvJournalDetails_Value->debit;
 											$credit 			= $aPvJournalDetails_Value->credit;
 											$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
-											
+
 											$disable_code 		= "";
 											$added_class 		= "";
 											$added_function_db 	= "";
 											$added_function_cr	= "";
 											$indicator 			= "";
 
-											if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque' && $ischeck == 'yes'){
+											if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque' && $ischeck == 'yes' ){
 												$disable_debit		= 'readOnly';
 												$disable_credit		= 'readOnly';
 												$disable_code 		= 'disabled';
 												$added_class 		= 'added_row';
 												$indicator 			= "cheque";
+											} else if($aPvJournalDetails_Index > 0 && $accountcode == $discount_code ){
+												$disable_debit		= 'readOnly';
+												$disable_credit		= 'readOnly';
+												$disable_code 		= 'disabled';
+												$added_class 		= 'discount_row';
 											} else {
 												$disable_debit		= ($debit > 0) ? '' : 'readOnly';
 												$disable_credit		= ($credit > 0) ? '' : 'readOnly';
@@ -2213,7 +2218,7 @@ function getPVDetails(){
 					discount_amount += parseFloat(0) || parseFloat(container[i]['dis']) ;
 				}
 				$('#entriesTable tbody tr.discount_row').remove();
-				var row = $("#entriesTable tbody tr.clone").length;
+				var row = $("#entriesTable tbody tr.clone").length +1;
 				if( parseFloat(discount_amount) != 0 ){
 					discount_amount 	=	addCommas(discount_amount.toFixed(2));
 					var ParentRow = $("#entriesTable tbody tr.clone").last();
@@ -3577,7 +3582,7 @@ $(document).ready(function() {
 
 		var ParentRow = $("#entriesTable tbody tr:not(.added_row)").last();
 			ParentRow.after(clone_acct);
-		resetIds();
+		setZero();
 		drawTemplate();
 	});
 

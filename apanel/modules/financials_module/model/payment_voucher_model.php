@@ -771,7 +771,7 @@ class payment_voucher_model extends wc_model
 		 */
 		$aOldApplicationObj = $this->db->setTable('pv_application')
 									->setFields("apvoucherno as vno, '0.00' as amt, '0.00' as bal, '0.00' as dis")
-									->setWhere(" voucherno = '$voucherno' ")
+									->setWhere(" voucherno = '$voucherno' AND stat NOT IN ('cancelled','temporary') ")
 									->runSelect()
 									->getResult();
 		if(!empty($aOldApplicationObj) && !is_null($aOldApplicationObj)){
@@ -914,7 +914,7 @@ class payment_voucher_model extends wc_model
 												array(
 													"amount as convertedamount"
 												), 
-												" voucherno = '$payable' "
+												" voucherno = '$payable' AND stat IN('open','posted') "
 											);
 
 				$applied_amounts			= $this->getValue(
@@ -924,10 +924,11 @@ class payment_voucher_model extends wc_model
 													"COALESCE(SUM(discount),0) AS discount",
 													"COALESCE(SUM(forexamount),0) AS forexamount"
 												), 
-												" apvoucherno = '$payable' "
+												" apvoucherno = '$payable' AND stat IN('open','posted')" 
 											);
 
-				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount;
+				$applied_disc 				= (!empty($applied_amounts[0]->discount)) ? $applied_amounts[0]->discount : 0;
+				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount  + $applied_disc;
 				
 				$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
