@@ -2190,19 +2190,20 @@ function getPVDetails(){
 		$.post("<?=BASE_URL?>financials/payment_voucher/ajax/getpvdetails", data )
 		.done(function(data)
 		{
+			var discount_code 	= data.discount_code;
 			var total_payment = $("#paymentModal #total_payment").val();
 			$("#paymentModal").modal("hide");
 
 			if(selected_rows != "")
 				$("#paymentmode").removeAttr("disabled");
 
-			if('<?= $task ?>' == "create" || '<?= $task ?>' == "edit")
-			{
-				// load payables
-				$("#entriesTable tbody").html(data.table);
-				$("#pv_amount").html(total_payment);
+			if('<?= $task ?>' == "create" || '<?= $task ?>' == "edit") {
+				if(task == 'create'){
+					// load payables
+					$("#entriesTable tbody").html(data.table);
+					$("#pv_amount").html(total_payment);
+				}
 				// display total of debit
-				addAmountAll("credit");
 				addAmountAll("debit");
 				
 				var count_container = Object.keys(container).length;
@@ -2211,12 +2212,25 @@ function getPVDetails(){
 				for(i = 0; i < count_container; i++) {
 					discount_amount += parseFloat(0) || parseFloat(container[i]['dis']) ;
 				}
+				$('#entriesTable tbody tr.discount_row').remove();
+				var row = $("#entriesTable tbody tr.clone").length;
+				// console.log("row "+row);
+				// console.log("code "+discount_code);
 				if( parseFloat(discount_amount) != 0 ){
 					discount_amount 	=	addCommas(discount_amount.toFixed(2));
-					$('.add-entry').click();
-					$('#entriesTable tbody tr.clone').last().find('.accountcode').val(660);
-					$("#entriesTable tbody tr.clone").last().find('.account_amount').val(discount_amount).blur();
+					// $('.add-entry').click();
+					// $('#entriesTable tbody tr.clone').last().find('.accountcode').val(660);
+					// $("#entriesTable tbody tr.clone").last().find('.account_amount').val(discount_amount).blur();
+					var ParentRow = $("#entriesTable tbody tr.clone").last();
+						ParentRow.after(clone_acct);
+					resetIds();
+					$("#accountcode\\["+ row +"\\]").closest('tr').addClass('discount_row');
+					$('#accountcode\\['+row+'\\]').val(discount_code).trigger('select2.change');
+					$('#h_accountcode\\['+row+'\\]').val(discount_code);
+					$('#credit\\['+row+'\\]').val(discount_amount);
+					disable_acct_fields(row);
 				}
+				addAmountAll("credit");
 			}
 		});
 	}

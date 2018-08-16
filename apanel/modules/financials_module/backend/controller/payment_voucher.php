@@ -1137,6 +1137,9 @@ class controller extends wc_controller
 		$acc_entry_cond     = "accounttype != 'P'";
 		$account_entry_list = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
+		$dis_entry 			= $this->payment_voucher->getValue("fintaxcode", array("purchaseAccount"), "fstaxcode = 'DC'");
+		$discount_code 		= isset($dis_entry[0]->purchaseAccount) ? $dis_entry[0]->purchaseAccount	: "";
+		// echo $discount_code;
 		$ui 	            = $this->ui;
 		$show_input         = $this->show_input;
 
@@ -1215,7 +1218,7 @@ class controller extends wc_controller
 			$table	.= '</tr>';
 		}
 		// var_dump($totaldebit);
-		$dataArray = array( "table" => $table, "totaldebit" => number_format($totaldebit, 2) );
+		$dataArray = array( "table" => $table, "totaldebit" => number_format($totaldebit, 2), "discount_code"=>$discount_code );
 		return $dataArray;
 
 	}
