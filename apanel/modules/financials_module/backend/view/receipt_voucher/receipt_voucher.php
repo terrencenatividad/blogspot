@@ -641,7 +641,11 @@
 												$disable_code 		= 'disabled';
 												$added_class 		= 'added_row';
 												$indicator 			= "cheque";
-
+											} else if($aPvJournalDetails_Index > 0 && $accountcode == $discount_code ){
+												$disable_debit		= 'readOnly';
+												$disable_credit		= 'readOnly';
+												$disable_code 		= 'disabled';
+												$added_class 		= 'discount_row';
 											} else {
 												$disable_debit		= ($debit > 0) ? '' : 'readOnly';
 												$disable_credit		= ($credit > 0) ? '' : 'readOnly';
@@ -2345,37 +2349,33 @@ function add_storage(id,balance,discount,credits){
 
 	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount,cred:credits};
 	var newcont 	= JSON.parse(JSON.stringify(container));
-	// console.log(JSON.stringify(container));
-	// console.log(newcont);
-	// console.log(newcont[0]);
-	// console.log(container['0']);
+
 	var total_cred_used  = 0;
 	if(amount != ''){
 		var found = false;
 		for(var i=0; element=container[i]; i++) {
 			if(element.vno == newvalue.vno) {
-				console.log(" balance... "+element.bal);
+				// console.log(" balance... "+element.bal);
 				var original_amount 	=	(removeComma(element.amt) > 0) ? removeComma(element.amt)  : 0;
 				var original_balance 	=	(removeComma(element.bal) > 0) ? removeComma(element.bal)  : 0;
 				var original_discount	=	(removeComma(element.dis) > 0) ? removeComma(element.dis)  : 0;
 				var original_credits	=	(removeComma(element.cred) > 0)? removeComma(element.cred) : 0;
 				
-				console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount + " | "+original_credits);
+				// console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount + " | "+original_credits);
 
 				var new_amount 			=	(removeComma(newvalue.amt) > 0) ? removeComma(newvalue.amt) : 0;
 				var new_balance 		=	(removeComma(newvalue.bal) > 0) ? removeComma(newvalue.bal)	: 0;
 				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
 				var credits 			=	(removeComma(newvalue.cred) > 0)? removeComma(newvalue.cred): 0;
 				
-				console.log("NEW || "+new_amount+ " | " + new_balance + " | "+discount + " | " + credits);
+				// console.log("NEW || "+new_amount+ " | " + new_balance + " | "+discount + " | " + credits);
  
 				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount) - parseFloat(original_credits)) - new_amount;
 					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
-				// console.log("available balance = "+available_balance);
-				// console.log("AVAILABLE="+available_balance);
+		
 				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount) + parseFloat(original_credits)) - discount - credits;
 					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
-				// console.log("DISC="+discounted_amount);
+	
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
 

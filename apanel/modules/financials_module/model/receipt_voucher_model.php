@@ -109,7 +109,7 @@ class receipt_voucher_model extends wc_model
 
 		// Retrieve Payments
 		$applicationFields = "app.arvoucherno as vno, app.amount as amt, '0.00' as bal, app.discount as dis, app.credits_used as cred";
-		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 ";
+		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 AND app.stat NOT IN ('cancelled','temporary' )";
 		// echo $sid;
 		$applicationArray = $this->db->setTable('rv_application as app')
 								->setFields($applicationFields)
@@ -796,7 +796,7 @@ class receipt_voucher_model extends wc_model
 		$aOldApplicationObj = $this->db->setTable('rv_application rv')
 									->leftJoin('receiptvoucher as main ON main.voucherno = rv.voucherno ')
 									->setFields("rv.arvoucherno as vno, '0.00' as amt, '0.00' as bal, '0.00' as dis, '0.00' as cred")
-									->setWhere(" rv.voucherno = '$voucherno' ")
+									->setWhere(" rv.voucherno = '$voucherno' AND rv.stat NOT IN ('cancelled','temporary') ")
 									->runSelect()
 									->getResult();
 		if(!empty($aOldApplicationObj) && !is_null($aOldApplicationObj)){

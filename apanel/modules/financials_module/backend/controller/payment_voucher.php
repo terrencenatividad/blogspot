@@ -269,6 +269,10 @@ class controller extends wc_controller
 		$forexamount			  = ($forex_result[0]->forexamount != '') ? $forex_result[0]->forexamount : 0;
 
 		$data["forexamount"] 	  = $forexamount;
+		
+		$dis_entry 					= $this->payment_voucher->getValue("fintaxcode", array("purchaseAccount"), "fstaxcode = 'DC'");
+		$discount_code 				= isset($dis_entry[0]->purchaseAccount) ? $dis_entry[0]->purchaseAccount	: "";
+		$data['discount_code'] 		= $discount_code;
 
 		// Cash Account Options
 		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
@@ -348,6 +352,10 @@ class controller extends wc_controller
 		$data["particulars"]     	= $data["main"]->particulars;
 		$data["paymenttype"]     	= $data["main"]->paymenttype;
 		$data['status']				= $data["main"]->stat;
+
+		$dis_entry 					= $this->payment_voucher->getValue("fintaxcode", array("purchaseAccount"), "fstaxcode = 'DC'");
+		$discount_code 				= isset($dis_entry[0]->purchaseAccount) ? $dis_entry[0]->purchaseAccount	: "";
+		$data['discount_code'] 		= $discount_code;
 
 		$data["listofcheques"]	 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
 		$data["show_cheques"] 	 	= isset($data['rollArray'][$sid]) ? '' : 'hidden';
@@ -960,8 +968,9 @@ class controller extends wc_controller
 				$total_pay 		+= $totalamount;
 
 				$json_encode_array["row"]       = $i;
-				$json_encode_array["apvoucher"] = $voucher;
-				$json_encode_array["amount"]    = $totalamount;
+				$json_encode_array["vno"] 		= $voucher;
+				$json_encode_array["amt"]    	= $totalamount;
+				$json_encode_array["bal"]    	= $balance;
 				$json_data[] 					= $json_encode_array;
 
 				$json_encode 					= json_encode($json_data);
@@ -972,14 +981,11 @@ class controller extends wc_controller
 				$balance_2		= $balance;
 				
 				if (isset($amt_array[$voucher])) {
-					$balance_2	= str_replace(',', '', $amt_array[$voucher]['bal']);
-					$balance_2 	= str_replace(',', '', $balance_2); 
-					$amount		= str_replace(',', '', $amt_array[$voucher]['amt']);
-					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0';
+					$balance_2	= str_replace(',','',$amt_array[$voucher]['bal']);
+					$amount		= str_replace(',','',$amt_array[$voucher]['amt']);
+					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0.00';
 					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount;
-
 					$balance_2 	= $balance_2 - $amount - $discount;
-					
 				}
 				// echo "RESTRICT = ".$restrict_pv;
 				$disable_checkbox 	=	"";
@@ -1006,9 +1012,10 @@ class controller extends wc_controller
 						->setClass("input-sm text-right paymentamount")
 						->setId('paymentamount'.$voucher)
 						->setPlaceHolder("0.00")
+						->setMaxLength(20)
+						->setValidation('decimal')
 						->setAttribute(
 							array(
-								"maxlength" => "20", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
 								"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
@@ -1024,9 +1031,10 @@ class controller extends wc_controller
 						->setClass("input-sm text-right paymentamount")
 						->setId('paymentamount'.$voucher)
 						->setPlaceHolder("0.00")
+						->setMaxLength(20)
+						->setValidation('decimal')
 						->setAttribute(
 							array(
-								"maxlength" => "20", 
 								"disabled" => "disabled", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
@@ -1043,9 +1051,10 @@ class controller extends wc_controller
 									->setClass("input-sm text-right discountamount")
 									->setId('discountamount'.$voucher)
 									->setPlaceHolder("0.00")
+									->setMaxLength(20)
+									->setValidation('decimal')
 									->setAttribute(
 										array(
-											"maxlength" => "20", 
 											"onBlur" => ' formatNumber(this.id);', 
 											"onClick" => " SelectAll(this.id); ",
 											"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
@@ -1061,9 +1070,10 @@ class controller extends wc_controller
 					->setClass("input-sm text-right discountamount")
 					->setId('discountamount'.$voucher)
 					->setPlaceHolder("0.00")
+					->setMaxLength(20)
+					->setValidation('decimal')
 					->setAttribute(
 						array(
-							"maxlength" => "20", 
 							"disabled" => "disabled", 
 							"onBlur" => ' formatNumber(this.id);', 
 							"onClick" => " SelectAll(this.id); ",
@@ -1160,6 +1170,8 @@ class controller extends wc_controller
 				// $debit = ($paymenttype == 'cheque' && isset($account_total[$accountcode])) ?  $results[$i]->chequeamount : 0;
 				$totaldebit    	   += $credit;
 
+				// $discount_class 	=	($discount_code == $accountcode) 	?	"discount_row" : "";
+				
 				$table .= '<tr class="clone" valign="middle">';
 				$table .= 	'<td class = "remove-margin">'	
 									.$ui->formField('dropdown')
