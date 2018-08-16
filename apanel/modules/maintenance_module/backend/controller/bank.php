@@ -72,6 +72,7 @@
 			$data['id']			= $id;
 			$data['ajax_post'] 	= "&id=$id";
 			$this->view->load('bank/bank', $data);
+			var_dump($data);
 		}
 
 		public function view($code)
@@ -279,21 +280,28 @@
 				foreach ($list->result as $key => $row) {
 
 					$dropdown = $this->ui->loadElement('check_task')
-										->addEdit()
-										->addDelete()
-										->addCheckbox()
-										->setValue($row->id)
-										// ->addOtherTask(
-										// 	'Manage Check',
-										// 	'new-window',
-										// 	$row->checking_account == 'yes'
-										// )
+								->addOtherTask(
+									'Edit Check',
+									'pencil',
+									'editcheck'
+								)
 										->draw();
+					// $viewlink		= BASE_URL . "financials/accounts_payable/view/";
+
+
+					// $dropdown = '<button type="button" class="btn btn-default btn-flat btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					// 				<span class="caret"></span>
+					// 				<span class="sr-only">Toggle Dropdown</span>
+					// 			</button>
+					// 			<ul class="dropdown-menu">
+					// 			<li><a href="http://localhost/prime/apanel/maintenance/bank/view/22" class="btn-sm">
+					// 			<i class="glyphicon glyphicon-eye-open"></i> View</a></li><li><a href="http://localhost/prime/apanel/maintenance/bank/edit/22" class="btn-sm"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li><li class="divider"></li><li><a class="btn-sm link manage_check " data-id="22"><i class="glyphicon glyphicon-new-window"></i> Manage Check</a></li>
+					// 			<li class="divider"></li><li><a class="btn-sm delete link" data-id="22"><i class="glyphicon glyphicon-trash"></i> Delete</a></li></ul></div>';
 
 					$table .= '<tr>';
 					$table .= ' <td align = "center">' .$dropdown. '</td>';
 					$table .= '<td>' . $row->accountno . '</td>';
-					$table .= '<td>' . $row->booknumber . '</td>';
+					$table .= '<td id="booknumber">' . $row->booknumber . '</td>';
 					$table .= '<td>' . $row->batch  . '</td>';
 					$table .= '<td>' . $row->nextchequeno. '</td>';
 					$table .= '</tr>';
@@ -307,6 +315,22 @@
 			$list->table 	=	$table;
 
 			return $list;
+		}
+
+		public function edit_check(){
+			$id 		= $this->input->post("id");
+			$bookno 	= $this->input->post("bookno");
+			$data2		= (array) $this->bank->retrieveCheck($id, $bookno);
+			// $booknumber 	= $data2[0]->booknumber; 
+			// $firstchequeno 	= $data2[0]->firstchequeno; 
+			// $lastchequeno 	= $data2[0]->lastchequeno; 
+			// $data = array("booknumber" => $booknumber,"firstchequeno" => $firstchequeno, 'lastchequeno' => $lastchequeno);
+			
+			$data['show_input'] 	= true;
+			$data['ajax_post'] 		= '';
+			$data['ui'] 			= $this->ui;
+			$this->view->load('bank/manage_check', $data);
+			var_dump($data);
 		}
 
 
