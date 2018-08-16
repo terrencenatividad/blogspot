@@ -109,7 +109,7 @@ class payment_voucher_model extends wc_model
 
 		// Retrieve Payments
 		$applicationFields = "app.apvoucherno as vno, app.amount as amt, '0.00' as bal, app.discount as dis";
-		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 ";
+		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 AND app.stat NOT IN ('cancelled','temporary')";
 
 		$applicationArray = $this->db->setTable('pv_application as app')
 									->setFields($applicationFields)
@@ -319,7 +319,7 @@ class payment_voucher_model extends wc_model
 	
 		// Main Queries
 		$main_table   = "accountspayable as main";
-		$main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0) ) as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno");
+		$main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0)) as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno");
 		$main_join 	  = "partners p ON p.partnercode = main.vendor ";
 		$orderby  	  = "main.transactiondate DESC";
 		

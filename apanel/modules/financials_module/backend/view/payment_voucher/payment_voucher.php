@@ -626,7 +626,7 @@
 											$debit 				= $aPvJournalDetails_Value->debit;
 											$credit 			= $aPvJournalDetails_Value->credit;
 											$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
-
+											
 											$disable_code 		= "";
 											$added_class 		= "";
 											$added_function_db 	= "";
@@ -2214,13 +2214,8 @@ function getPVDetails(){
 				}
 				$('#entriesTable tbody tr.discount_row').remove();
 				var row = $("#entriesTable tbody tr.clone").length;
-				// console.log("row "+row);
-				// console.log("code "+discount_code);
 				if( parseFloat(discount_amount) != 0 ){
 					discount_amount 	=	addCommas(discount_amount.toFixed(2));
-					// $('.add-entry').click();
-					// $('#entriesTable tbody tr.clone').last().find('.accountcode').val(660);
-					// $("#entriesTable tbody tr.clone").last().find('.account_amount').val(discount_amount).blur();
 					var ParentRow = $("#entriesTable tbody tr.clone").last();
 						ParentRow.after(clone_acct);
 					resetIds();
@@ -2293,15 +2288,15 @@ function add_storage(id,balance,discount){
 		var found = false;
 		for(var i=0; element=container[i]; i++) {
 			if(element.vno == newvalue.vno) {
-				var original_amount 	=	element.amt.replace(/\,/g,'');
-				var original_balance 	=	element.bal.replace(/\,/g,'');
-				var original_discount	=	((element.dis > 0) ? element.dis.replace(/\,/g,'') : 0);
+				var original_amount 	=	(removeComma(element.amt) > 0) ? removeComma(element.amt)  : 0;
+				var original_balance 	=	(removeComma(element.bal) > 0) ? removeComma(element.bal)  : 0;
+				var original_discount	=	(removeComma(element.dis) > 0) ? removeComma(element.dis)  : 0;
 				
-				// console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount);
+				console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount);
 
-				var new_amount 			=	newvalue.amt.replace(/\,/g,'');
-				var new_balance 		=	newvalue.bal.replace(/\,/g,'');
-				var discount 			=	newvalue.dis.replace(/\,/g,'');
+				var new_amount 			=	(removeComma(newvalue.amt) > 0) ? removeComma(newvalue.amt) : 0;
+				var new_balance 		=	(removeComma(newvalue.bal) > 0) ? removeComma(newvalue.bal)	: 0;
+				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
 
 				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount)) - new_amount;
 				available_balance 		=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
@@ -2312,7 +2307,7 @@ function add_storage(id,balance,discount){
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
 
-				// console.log("New || "+discounted_amount+ " | " + new_balance + " | "+discount);
+				console.log("New || "+discounted_amount+ " | " + new_balance + " | "+discount);
 
 				found = true;
 				if(parseFloat(new_amount) === 0) {
@@ -2328,7 +2323,7 @@ function add_storage(id,balance,discount){
 		if(found === false) {
 			var discount_val 	=	0;
 			container.push(newvalue);
-			$('#payable_list_container #payable_balance'+id).html(0);
+			$('#payable_list_container #payable_balance'+id).html('0.00');
 			$('#payable_list_container #discountamount'+id).val(addCommas(discount_val.toFixed(2)));
 		}
 		
@@ -2349,10 +2344,9 @@ function checkBalance(val,id){
 	var dueamount 		= $('#payable_list_container #payable_balance'+id).attr('data-value');
 	var discountamount 	= $('#payable_list_container #discountamount'+id).val();
 
-	dueamount			= dueamount.replace(/\,/g,'');
-	discount			= discountamount.replace(/\,/g,'');
-
-	var newval			= val.replace(/,/g,'');
+	dueamount			= removeComma(dueamount);
+	discount			= removeComma(discountamount);
+	var newval			= removeComma(val);
 
 	var condition = "";
 	var input 	  = "";
@@ -3401,7 +3395,6 @@ $(document).ready(function() {
 				valid 	+=	applySelected_();
 			}
 			valid		+= validateDetails();
-			console.log("VALID = "+valid);
 			
 			if(valid == 0)
 			{

@@ -960,8 +960,9 @@ class controller extends wc_controller
 				$total_pay 		+= $totalamount;
 
 				$json_encode_array["row"]       = $i;
-				$json_encode_array["apvoucher"] = $voucher;
-				$json_encode_array["amount"]    = $totalamount;
+				$json_encode_array["vno"] 		= $voucher;
+				$json_encode_array["amt"]    	= $totalamount;
+				$json_encode_array["bal"]    	= $balance;
 				$json_data[] 					= $json_encode_array;
 
 				$json_encode 					= json_encode($json_data);
@@ -972,14 +973,11 @@ class controller extends wc_controller
 				$balance_2		= $balance;
 				
 				if (isset($amt_array[$voucher])) {
-					$balance_2	= str_replace(',', '', $amt_array[$voucher]['bal']);
-					$balance_2 	= str_replace(',', '', $balance_2); 
-					$amount		= str_replace(',', '', $amt_array[$voucher]['amt']);
-					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0';
+					$balance_2	= str_replace(',','',$amt_array[$voucher]['bal']);
+					$amount		= str_replace(',','',$amt_array[$voucher]['amt']);
+					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0.00';
 					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount;
-
 					$balance_2 	= $balance_2 - $amount - $discount;
-					
 				}
 				// echo "RESTRICT = ".$restrict_pv;
 				$disable_checkbox 	=	"";
@@ -1160,7 +1158,9 @@ class controller extends wc_controller
 				// $debit = ($paymenttype == 'cheque' && isset($account_total[$accountcode])) ?  $results[$i]->chequeamount : 0;
 				$totaldebit    	   += $credit;
 
-				$table .= '<tr class="clone" valign="middle">';
+				$discount_class 	=	($discount_code == $accountcode) 	?	"discount_code" : "";
+
+				$table .= '<tr class="clone '.$discount_class.'" valign="middle">';
 				$table .= 	'<td class = "remove-margin">'	
 									.$ui->formField('dropdown')
 										->setPlaceholder('Select One')
