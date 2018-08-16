@@ -66,7 +66,7 @@
 		<div class="nav-tabs-custom">
 			<ul id="filter_tabs" class="nav nav-tabs">
 				<li class="active"><a href="all" data-toggle="tab">All</a></li>
-				<li><a href="approval" data-toggle="tab">For Approval</a></li>
+				<!-- <li><a href="approval" data-toggle="tab">For Approval</a></li> -->
 				<li><a href="unpaid" data-toggle="tab">Unpaid</a></li>
 				<li><a href="partial" data-toggle="tab">Partial</a></li>
 				<li><a href="paid" data-toggle="tab">Paid</a></li>
