@@ -229,6 +229,7 @@
 		}
 
 		public function manage_check($id){
+			$this->view->title 		= 'Manage Check';
 			$data2 			 		= (array) $this->bank->retrieveExistingBank($this->fields, $id);
 			$data2 					= $this->input->post($this->fields2);
 			$data2['id']			= $id;
@@ -279,7 +280,6 @@
 				foreach ($list->result as $key => $row) {
 
 					$dropdown = $this->ui->loadElement('check_task')
-										->addView()
 										->addEdit()
 										->addDelete()
 										->addCheckbox()
