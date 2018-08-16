@@ -63,9 +63,9 @@
 										'class' => 'col-md-1 text-center'
 									)
 								)
-								->addHeader('Bank Account Name',array('class'=>'col-md-3'),'sort','currencycode')
-								->addHeader('Bank Account Code',array('class'=>'col-md-3'),'sort','currencycode')
-								->addHeader('Bank Account Number', array('class'=>'col-md-3'),'sort','currency')
+								->addHeader('Bank Account Name',array('class'=>'col-md-3'),'sort','shortname')
+								->addHeader('Bank Account Code',array('class'=>'col-md-3'),'sort','bankcode')
+								->addHeader('Bank Account Number', array('class'=>'col-md-3'),'sort','accountno')
 								->addHeader('Status', array('class'=>'col-md-3'),'','')
 								->draw();
 					?>

@@ -126,13 +126,14 @@ $('#bankForm #btnSave').on('click',function(){
 	$('#bankForm #bankname').trigger('blur');
 	$('#bankForm #accountcode').trigger('blur');
 	$('#bankForm #acccountno').trigger('blur');
+	var bank_id = $('#id').val();
 
 	if ($('#bankForm').find('.form-group.has-error').length == 0)
 	{	
 		$.post('<?=BASE_URL?>maintenance/bank/ajax/<?=$task?>', $('#bankForm').serialize()+ '<?=$ajax_post?>', function(data) {
 			if( data.msg == 'success' )
 			{
-				window.location = '<?php echo BASE_URL . 'maintenance/bank'; ?>';
+				window.location = self.location;
 			}
 		});
 	}
