@@ -279,7 +279,7 @@ class debit_memo_model extends wc_model {
 	public function getProforma($proformacode) {
 		$result = $this->db->setTable('proforma_details')
 							->setFields("accountcodeid accountcode, accountname detailparticulars, '0.00' debit, '0.00' credit")
-							->setWhere("proformacode = '$proformacode'")
+							->setWhere("proformacode = '$proformacode' AND stat = 'active'")
 							->runSelect()
 							->getResult();
 
