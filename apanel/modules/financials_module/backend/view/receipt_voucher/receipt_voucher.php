@@ -641,7 +641,11 @@
 												$disable_code 		= 'disabled';
 												$added_class 		= 'added_row';
 												$indicator 			= "cheque";
-
+											} else if($aPvJournalDetails_Index > 0 && $accountcode == $discount_code ){
+												$disable_debit		= 'readOnly';
+												$disable_credit		= 'readOnly';
+												$disable_code 		= 'disabled';
+												$added_class 		= 'discount_row';
 											} else {
 												$disable_debit		= ($debit > 0) ? '' : 'readOnly';
 												$disable_credit		= ($credit > 0) ? '' : 'readOnly';
