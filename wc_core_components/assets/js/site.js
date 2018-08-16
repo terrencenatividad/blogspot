@@ -610,7 +610,7 @@ $('#modal_div').html(`
 				<p>Successfully Saved</p>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-success" data-dismiss="modal">Ok</button>
+			<!--	<button type="button" class="btn btn-success" data-dismiss="modal">Ok</button> -->
 			</div>
 		</div>
 	</div>

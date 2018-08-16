@@ -638,6 +638,7 @@ $(document).ready(function(){
 
 			if($("#pricelist_template_form").find('.form-group.has-error').length == 0 && result == 0 ){
 				$('#save').val("final");
+				$('#delay_modal').modal('show');
 				setTimeout(function() {
 					$('#pricelist_template_form').submit();
 				},1000);

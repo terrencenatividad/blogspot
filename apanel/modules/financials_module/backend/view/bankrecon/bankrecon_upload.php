@@ -185,7 +185,12 @@
 					type: 'POST',
 					success: function(data) {
 						if (data.success) {
+							$('#success_modal').modal('show');
 							show_success_msg("Your data has been successfully imported!");
+							setTimeout(function() {
+								window.location.href = data.redirect;					
+							}, 1000)
+							
 						} else {
 							addError('<p>' + data.error + '</p>', true);
 							try {
@@ -233,7 +238,6 @@
 		{
 		$('#success_modal #message').html(msg);
 		$('#success_modal').modal('show');
-		window.location.href = data.redirect;
 		}
 	</script>
 

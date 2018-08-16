@@ -840,7 +840,7 @@ echo $ui->loadElement('modal')
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 			<div class="modal-body">
-				Are you sure you want to cancel changes on this transaction?
+				Are you sure you want to Cancel this Transaction?
 			</div>
 			<div class="modal-footer">
 				<div class="row row-dense">
@@ -1408,9 +1408,10 @@ function finalizeTransaction()
 
 				if(code == 1)
 				{
-					setTimeout(function() {
-						$('#sales_invoice_form').submit();
-					},500);
+					$('#delay_modal').modal('show');
+						setTimeout(function() {									
+							$('#sales_invoice_form').submit();
+					}, 1000)
 
 					$('#sales_invoice_form #btnSave').removeClass('disabled');
 					$('#sales_invoice_form #btnSave_toggle').removeClass('disabled');
