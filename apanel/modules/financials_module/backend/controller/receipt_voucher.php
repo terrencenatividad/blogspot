@@ -284,6 +284,10 @@ class controller extends wc_controller
 
 		$data["forexamount"] 	  = $forexamount;
 
+		$dis_entry 					= $this->receipt_voucher->getValue("fintaxcode", array("salesAccount"), "fstaxcode = 'DC'");
+		$discount_code 				= isset($dis_entry[0]->salesAccount) ? $dis_entry[0]->salesAccount	: "";
+		$data['discount_code'] 		= $discount_code;
+
 		// Cash Account Options
 		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
 		$cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
@@ -352,6 +356,10 @@ class controller extends wc_controller
 		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
 		$acc_entry_cond               = "accounttype != ''";
 		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
+
+		$dis_entry 					= $this->receipt_voucher->getValue("fintaxcode", array("salesAccount"), "fstaxcode = 'DC'");
+		$discount_code 				= isset($dis_entry[0]->salesAccount) ? $dis_entry[0]->salesAccount	: "";
+		$data['discount_code'] 		= $discount_code;
 
 		// Cash Account Options
 		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
@@ -1052,14 +1060,15 @@ class controller extends wc_controller
 						->setClass("input-sm text-right paymentamount")
 						->setId('paymentamount'.$voucher)
 						->setPlaceHolder("0.00")
+						->setMaxLength(20)
 						->setAttribute(
 							array(
-								"maxlength" => "20", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
 								"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
 							)
 						)
+						->setValidation('decimal')
 						->setValue(number_format($amount,2))
 						->draw($show_input).'</td>';
 				}
@@ -1070,15 +1079,16 @@ class controller extends wc_controller
 						->setClass("input-sm text-right paymentamount")
 						->setId('paymentamount'.$voucher)
 						->setPlaceHolder("0.00")
+						->setMaxLength(20)
 						->setAttribute(
 							array(
-								"maxlength" => "20", 
 								"disabled" => "disabled", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
 								"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
 							)
 						)
+						->setValidation('decimal')
 						->setValue(number_format(0, 2))
 						->draw($show_input).'</td>';
 				}
@@ -1089,14 +1099,15 @@ class controller extends wc_controller
 										->setClass("input-sm text-right discountamount")
 										->setId('discountamount'.$voucher)
 										->setPlaceHolder("0.00")
+										->setMaxLength(20)
 										->setAttribute(
 											array(
-												"maxlength" => "20", 
 												"onBlur" => ' formatNumber(this.id);', 
 												"onClick" => " SelectAll(this.id); ",
 												"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
 											)
 										)
+										->setValidation('decimal')
 										->setValue(number_format($discount, 2))
 										->draw($show_input).'</td>';
 				}else{
@@ -1106,15 +1117,16 @@ class controller extends wc_controller
 										->setClass("input-sm text-right discountamount")
 										->setId('discountamount'.$voucher)
 										->setPlaceHolder("0.00")
+										->setMaxLength(20)
 										->setAttribute(
 											array(
-												"maxlength" => "20", 
 												"disabled" => "disabled", 
 												"onBlur" => ' formatNumber(this.id);', 
 												"onClick" => " SelectAll(this.id); ",
 												"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
 											)
 										)
+										->setValidation('decimal')
 										->setValue(number_format(0, 2))
 										->draw($show_input).'</td>';
 				}
@@ -1128,14 +1140,15 @@ class controller extends wc_controller
 						->setClass("input-sm text-right credits_used")
 						->setId('credits_used'.$voucher)
 						->setPlaceHolder("0.00")
+						->setMaxLength(20)
 						->setAttribute(
 							array(
-								"maxlength" => "20", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
 								"onChange" => ' checkCredit(this.value,\''.$voucher.'\'); '
 							)
 						)
+						->setValidation('decimal')
 						->setValue(number_format($credit_used,2))
 						->draw($show_input).'</td>';
 					$table	.= '</tr>';
@@ -1147,15 +1160,16 @@ class controller extends wc_controller
 						->setClass("input-sm text-right credits_used")
 						->setId('credits_used'.$voucher)
 						->setPlaceHolder("0.00")
+						->setMaxLength(20)
 						->setAttribute(
 							array(
-								"maxlength" => "20", 
 								"disabled" => "disabled", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
 								"onChange" => ' checkCredit(this.value,\''.$voucher.'\'); '
 							)
 						)
+						->setValidation('decimal')
 						->setValue(number_format(0, 2))
 						->draw($show_input).'</td>';
 					$table	.= '</tr>';
@@ -1211,6 +1225,7 @@ class controller extends wc_controller
 			
 			$arvoucher_[] = $apvoucherno;
 		}
+		// var_dump($arvoucher_);
 
 		$condi =  implode("','" , $arvoucher_);
 		$cond = "('".$condi."')";
@@ -1236,11 +1251,14 @@ class controller extends wc_controller
 		$acc_entry_cond     = "";
 		$account_entry_list = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
+		$dis_entry 			= $this->receipt_voucher->getValue("fintaxcode", array("salesAccount"), "fstaxcode = 'DC'");
+		$discount_code 		= isset($dis_entry[0]->salesAccount) ? $dis_entry[0]->salesAccount	: "";
+
 		$ui 	            = $this->ui;
 		$show_input         = $this->show_input;
 
 		$totalcredit = 0;
-
+		
 		if(!empty($results))
 		{
 			$credit      = '0.00';
@@ -1322,7 +1340,7 @@ class controller extends wc_controller
 			$table	.= 	'<td class="text-center" colspan="5">- No Records Found -</td>';
 			$table	.= '</tr>';
 		}
-		$dataArray = array( "table" => $table, "totaldebit" => number_format($totalcredit, 2) );
+		$dataArray = array( "table" => $table, "totaldebit" => number_format($totalcredit, 2),"discount_code"=>$discount_code );
 		return $dataArray;
 	}
 

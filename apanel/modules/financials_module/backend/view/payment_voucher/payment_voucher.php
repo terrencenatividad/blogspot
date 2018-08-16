@@ -633,12 +633,17 @@
 											$added_function_cr	= "";
 											$indicator 			= "";
 
-											if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque' && $ischeck == 'yes'){
+											if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque' && $ischeck == 'yes' ){
 												$disable_debit		= 'readOnly';
 												$disable_credit		= 'readOnly';
 												$disable_code 		= 'disabled';
 												$added_class 		= 'added_row';
 												$indicator 			= "cheque";
+											} else if($aPvJournalDetails_Index > 0 && $accountcode == $discount_code ){
+												$disable_debit		= 'readOnly';
+												$disable_credit		= 'readOnly';
+												$disable_code 		= 'disabled';
+												$added_class 		= 'discount_row';
 											} else {
 												$disable_debit		= ($debit > 0) ? '' : 'readOnly';
 												$disable_credit		= ($credit > 0) ? '' : 'readOnly';
@@ -2190,19 +2195,20 @@ function getPVDetails(){
 		$.post("<?=BASE_URL?>financials/payment_voucher/ajax/getpvdetails", data )
 		.done(function(data)
 		{
+			var discount_code 	= data.discount_code;
 			var total_payment = $("#paymentModal #total_payment").val();
 			$("#paymentModal").modal("hide");
 
 			if(selected_rows != "")
 				$("#paymentmode").removeAttr("disabled");
 
-			if('<?= $task ?>' == "create" || '<?= $task ?>' == "edit")
-			{
-				// load payables
-				$("#entriesTable tbody").html(data.table);
-				$("#pv_amount").html(total_payment);
+			if('<?= $task ?>' == "create" || '<?= $task ?>' == "edit") {
+				if(task == 'create'){
+					// load payables
+					$("#entriesTable tbody").html(data.table);
+					$("#pv_amount").html(total_payment);
+				}
 				// display total of debit
-				addAmountAll("credit");
 				addAmountAll("debit");
 				
 				var count_container = Object.keys(container).length;
@@ -2211,12 +2217,20 @@ function getPVDetails(){
 				for(i = 0; i < count_container; i++) {
 					discount_amount += parseFloat(0) || parseFloat(container[i]['dis']) ;
 				}
+				$('#entriesTable tbody tr.discount_row').remove();
+				var row = $("#entriesTable tbody tr.clone").length +1;
 				if( parseFloat(discount_amount) != 0 ){
 					discount_amount 	=	addCommas(discount_amount.toFixed(2));
-					$('.add-entry').click();
-					$('#entriesTable tbody tr.clone').last().find('.accountcode').val(660);
-					$("#entriesTable tbody tr.clone").last().find('.account_amount').val(discount_amount).blur();
+					var ParentRow = $("#entriesTable tbody tr.clone").last();
+						ParentRow.after(clone_acct);
+					resetIds();
+					$("#accountcode\\["+ row +"\\]").closest('tr').addClass('discount_row');
+					$('#accountcode\\['+row+'\\]').val(discount_code).trigger('select2.change');
+					$('#h_accountcode\\['+row+'\\]').val(discount_code);
+					$('#credit\\['+row+'\\]').val(discount_amount);
+					disable_acct_fields(row);
 				}
+				addAmountAll("credit");
 			}
 		});
 	}
@@ -2279,15 +2293,15 @@ function add_storage(id,balance,discount){
 		var found = false;
 		for(var i=0; element=container[i]; i++) {
 			if(element.vno == newvalue.vno) {
-				var original_amount 	=	element.amt.replace(/\,/g,'');
-				var original_balance 	=	element.bal.replace(/\,/g,'');
-				var original_discount	=	((element.dis > 0) ? element.dis.replace(/\,/g,'') : 0);
+				var original_amount 	=	(removeComma(element.amt) > 0) ? removeComma(element.amt)  : 0;
+				var original_balance 	=	(removeComma(element.bal) > 0) ? removeComma(element.bal)  : 0;
+				var original_discount	=	(removeComma(element.dis) > 0) ? removeComma(element.dis)  : 0;
 				
-				// console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount);
+				console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount);
 
-				var new_amount 			=	newvalue.amt.replace(/\,/g,'');
-				var new_balance 		=	newvalue.bal.replace(/\,/g,'');
-				var discount 			=	newvalue.dis.replace(/\,/g,'');
+				var new_amount 			=	(removeComma(newvalue.amt) > 0) ? removeComma(newvalue.amt) : 0;
+				var new_balance 		=	(removeComma(newvalue.bal) > 0) ? removeComma(newvalue.bal)	: 0;
+				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
 
 				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount)) - new_amount;
 				available_balance 		=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
@@ -2298,7 +2312,7 @@ function add_storage(id,balance,discount){
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
 
-				// console.log("New || "+discounted_amount+ " | " + new_balance + " | "+discount);
+				console.log("New || "+discounted_amount+ " | " + new_balance + " | "+discount);
 
 				found = true;
 				if(parseFloat(new_amount) === 0) {
@@ -2314,7 +2328,7 @@ function add_storage(id,balance,discount){
 		if(found === false) {
 			var discount_val 	=	0;
 			container.push(newvalue);
-			$('#payable_list_container #payable_balance'+id).html(0);
+			$('#payable_list_container #payable_balance'+id).html('0.00');
 			$('#payable_list_container #discountamount'+id).val(addCommas(discount_val.toFixed(2)));
 		}
 		
@@ -2335,10 +2349,9 @@ function checkBalance(val,id){
 	var dueamount 		= $('#payable_list_container #payable_balance'+id).attr('data-value');
 	var discountamount 	= $('#payable_list_container #discountamount'+id).val();
 
-	dueamount			= dueamount.replace(/\,/g,'');
-	discount			= discountamount.replace(/\,/g,'');
-
-	var newval			= val.replace(/,/g,'');
+	dueamount			= removeComma(dueamount);
+	discount			= removeComma(discountamount);
+	var newval			= removeComma(val);
 
 	var condition = "";
 	var input 	  = "";
@@ -3387,7 +3400,6 @@ $(document).ready(function() {
 				valid 	+=	applySelected_();
 			}
 			valid		+= validateDetails();
-			console.log("VALID = "+valid);
 			
 			if(valid == 0)
 			{
@@ -3570,7 +3582,7 @@ $(document).ready(function() {
 
 		var ParentRow = $("#entriesTable tbody tr:not(.added_row)").last();
 			ParentRow.after(clone_acct);
-		resetIds();
+		setZero();
 		drawTemplate();
 	});
 

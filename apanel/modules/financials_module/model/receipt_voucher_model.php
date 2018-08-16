@@ -109,7 +109,7 @@ class receipt_voucher_model extends wc_model
 
 		// Retrieve Payments
 		$applicationFields = "app.arvoucherno as vno, app.amount as amt, '0.00' as bal, app.discount as dis, app.credits_used as cred";
-		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 ";
+		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 AND app.stat NOT IN ('cancelled','temporary' )";
 		// echo $sid;
 		$applicationArray = $this->db->setTable('rv_application as app')
 								->setFields($applicationFields)
@@ -796,7 +796,7 @@ class receipt_voucher_model extends wc_model
 		$aOldApplicationObj = $this->db->setTable('rv_application rv')
 									->leftJoin('receiptvoucher as main ON main.voucherno = rv.voucherno ')
 									->setFields("rv.arvoucherno as vno, '0.00' as amt, '0.00' as bal, '0.00' as dis, '0.00' as cred")
-									->setWhere(" rv.voucherno = '$voucherno' ")
+									->setWhere(" rv.voucherno = '$voucherno' AND rv.stat NOT IN ('cancelled','temporary') ")
 									->runSelect()
 									->getResult();
 		if(!empty($aOldApplicationObj) && !is_null($aOldApplicationObj)){
@@ -934,7 +934,8 @@ class receipt_voucher_model extends wc_model
 				
 				$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
 				$applied_credits 			= (!empty($applied_amounts[0]->credits)) ? $applied_amounts[0]->credits : 0;
-				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount + $applied_credits;
+				$applied_disc 				= (!empty($applied_amounts[0]->discount)) ? $applied_amounts[0]->discount : 0;
+				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount + $applied_credits + $applied_disc;
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
 
 				$balance_info['amountreceived']	= $applied_sum;
@@ -1405,7 +1406,7 @@ class receipt_voucher_model extends wc_model
 			$data_header["fiscalyear"] 		= $fiscalyear;
 			$data_header["terms"] 			= "0";
 			$data_header["received"] 		= "0.00";
-			$data_header["amountforpayment"] = "0.00";
+			$data_header["amountforreceipt"]= "0.00";
 			$data_header["particulars"]  	= $docData[$i]['notes'];
 			$data_header["source"] 			= "AP";
 			$data_header["balance"]  		= $docData[$i]['amount'];
@@ -1655,10 +1656,11 @@ class receipt_voucher_model extends wc_model
 				$credits		= $paymentArray[$i]->credits_used;
 				$discount		= 0;
 
-				$balance		= $this->getValue($table, array("balance"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
-				$balance 		= $balance[0]->balance;
+				$ar_content		= $this->getValue($table, array("balance","excessamount"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
+				$balance 		= isset($ar_content[0]->balance) 		?	$ar_content[0]->balance			: 0;
+				$excessamount 	= isset($ar_content[0]->excessamount) 	?	$ar_content[0]->excessamount	: 0;
 
-				$update_info['balance']		= $balance + $amount + $discount + $credits;
+				$update_info['balance']		= ($balance + $amount + $discount + $credits) - $excessamount;
 
 				$amountpaid 	= $this->getValue($table, array("amountreceived"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
 				$amountpaid 	= $amountpaid[0]->amountreceived;
