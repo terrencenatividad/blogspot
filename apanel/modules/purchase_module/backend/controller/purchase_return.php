@@ -89,8 +89,8 @@ class controller extends wc_controller {
 		$this->view->title			= 'Edit Purchase Return';
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->purchase_model->getPurchaseReturnById($this->fields, $voucherno);
-		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$transactiondate 			= $data['transactiondate'];
+		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui']					= $this->ui;
 		$data['vendor_list']		= $this->purchase_model->getVendorList();
 		$data['warehouse_list']		= $this->purchase_model->getWarehouseList();

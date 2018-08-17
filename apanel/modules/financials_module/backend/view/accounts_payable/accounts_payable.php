@@ -44,12 +44,13 @@
 	<input type = "hidden" id = "noCashAccounts" name = "noCashAccounts" value = "<?= $noCashAccounts ?>"/>
 
 	<?php 
+	$toggle_wtax = ($wtax_option != 'AP') ? "hidden" : "";
 	if($task == "view") {
-			$applicationPannel = "hidden";
-			if(!is_null($data["payments"]) && !empty($data["payments"]))
-			{
-				$applicationPannel = "";
-			}
+		$applicationPannel = "hidden";
+		if(!is_null($data["payments"]) && !empty($data["payments"]))
+		{
+			$applicationPannel = "";
+		}
 	?>
 
 	<? }else { ?> 
@@ -302,7 +303,7 @@
 								<table class="table table-hover table-condensed " id="itemsTable">
 									<thead>
 										<tr class="info">
-											<th class="col-md-1 text-center">Withholding Tax</th>
+											<th class="col-md-1 text-center <?=$toggle_wtax?>" >Withholding Tax</th>
 											<th class="col-md-3 text-center">Account</th>
 											<th class="col-md-3 text-center">Description</th>
 											<th class="col-md-2 text-center">Debit</th>
@@ -328,7 +329,7 @@
 												$startnumber 	   = ($row_ctr == 0) ? 1: $row_ctr;
 										?>
 												<tr class="clone" valign="middle">
-													<td class = "checkbox-select remove-margin text-center">
+													<td class = "checkbox-select remove-margin text-center <?=$toggle_wtax?>">
 														<?php
 															echo $ui->formField('checkbox')
 																->setSplit('', 'col-md-12')
@@ -341,7 +342,7 @@
 																->draw($show_input);
 														?>
 													</td>
-													<td class="edit-button text-center" style="display: none">
+													<td class="edit-button text-center " style="display: none">
 														<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
 													</td>
 													<td class = "remove-margin hidden" >
@@ -423,7 +424,7 @@
 												$row++;
 										?>
 												<tr class="clone" valign="middle">
-													<td class = "checkbox-select remove-margin text-center">
+													<td class = "checkbox-select remove-margin text-center <?=$toggle_wtax?>">
 														<?php
 															echo $ui->formField('checkbox')
 																	->setSplit('', 'col-md-12')
@@ -543,7 +544,7 @@
 													}
 											?>	
 												<tr class="clone" valign="middle">
-														<td class = "checkbox-select remove-margin text-center">
+														<td class = "checkbox-select remove-margin text-center <?=$toggle_wtax?>">
 															<?php
 																echo $ui->formField('checkbox')
 																		->setSplit('', 'col-md-12')
@@ -652,7 +653,7 @@
 											</td>	
 										</tr>	
 										<tr id="total">
-											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+											<td style="border-top:1px solid #DDDDDD;" class="<?=$toggle_wtax?>">&nbsp;</td>
 											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 											<td class="right" style="border-top:1px solid #DDDDDD;">
 												<label class="control-label col-md-12">Total</label>
@@ -1119,8 +1120,6 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				Choose ATC Code
-				<!--<h4>Add a Vendor
-				<button type="button" class="close" data-dismiss="modal">&times;</button></h4>-->
 			</div>
 			<div class="modal-body">
 				<form class="form-horizontal" id="newVendor" autocomplete="off">
@@ -1133,7 +1132,6 @@
 										->setName('tax_account')
 										->setId('tax_account')
 										->setClass('tax_account')
-										// ->setList($tax_list)
 										->setValue($taxcode)
 										->draw($show_input);
 							?>
@@ -1472,14 +1470,6 @@ function validateField(form,id,help_block)
 		
 		$("#"+form+" #"+help_block)
 			.removeClass('hidden');
-			
-		// if($("#"+form+" #"+id).parent().next(".help-block")[0])
-		// {
-		// 	$("#"+form+" #"+id)
-		// 	.parent()
-		// 	.next(".help-block")
-		// 	.removeClass('hidden');
-		// }
 
 		if($("#"+form+" .row-dense").next(".help-block")[0])
 		{
@@ -1499,15 +1489,7 @@ function validateField(form,id,help_block)
 
 		$("#"+form+" #"+help_block)
 			.addClass('hidden');
-			
-		// if($("#"+form+" #"+id).parent().next(".help-block")[0])
-		// {
-		// 	$("#"+form+" #"+id)
-		// 	.parent()
-		// 	.next(".help-block")
-		// 	.addClass('hidden');
-		// }
-
+	
 		if($("#"+form+" .row-dense").next(".help-block")[0])
 		{
 			$("#"+form+" #"+help_block)
@@ -3992,8 +3974,9 @@ var row = '';
 prev_account = '';
 
 function get_coa(account){
+	var wtax_option = '<?=$wtax_option?>';
 	$.post("<?= BASE_URL ?>financials/accounts_payable/ajax/get_tax",{account:account}).done(function(data){
-		if(data.result === 'TAX' || 'CULIAB'){
+		if((data.result == 'TAX' || data.result == 'CULIAB') && wtax_option == 'AP'){
 			if (prev_account != '' && account != prev_account) {
 				$('#tax_amount').val('');
 			}
@@ -4053,16 +4036,11 @@ $('#itemsTable .taxcode').each(function(){
 		$(this).closest('tr').find('.edit-button').show().attr('data-amount', tax_amt);
 		$('#tax_account').val(acc);
 	}
-})
+});
 
 $('.tax_amount').on('change', function(){
 	var accs = $(this).val();
-	console.log(accs);
 	acc = addCommas(parseFloat(accs).toFixed(2));
 	$('.tax_amount').val(acc);
-})
-
-// addCommas(balance.toFixed(2));
-
-
+});
 </script>

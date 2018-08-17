@@ -240,7 +240,17 @@ class controller extends wc_controller
 		$data["generated_id"]         = (!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
 
 		$data["restrict_ap"] 		  = false;
-		
+
+		/**
+		 * Get Company Settings
+		 */
+		$company_setting = $this->accounts_payable->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 		  = $company_setting[0]->wtax_option;
+
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview"));
 
@@ -385,6 +395,16 @@ class controller extends wc_controller
 		$status_badge = '<span class="label label-'.$status_class.'">'.strtoupper($status).'</span>';
 		$data['status_badge'] 	= $status_badge;
 
+		/**
+		 * Get Company Settings
+		 */
+		$company_setting = $this->accounts_payable->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 		  = $company_setting[0]->wtax_option;
+
 		$this->view->load('accounts_payable/accounts_payable_view', $data);
 	}
 
@@ -448,6 +468,16 @@ class controller extends wc_controller
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview"));
 
+		/**
+		 * Get Company Settings
+		 */
+		$company_setting = $this->accounts_payable->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 		  = $company_setting[0]->wtax_option;
+		
 		if (!empty($data_validate["vendor"]) && !empty($data_validate["document_date"])) 
 		{
 			// For Admin Logs
@@ -701,34 +731,46 @@ class controller extends wc_controller
 					}
 				}
 				
-				$balance     = $row->balance; 
-				$amount	  	 = $row->amount; 
-				$vendor		 = $row->vendor; 
-				$referenceno = $row->referenceno; 
-				$checker 	 = $row->importchecker;
-				$import 	 = ($checker == 'import') 	?	"Yes" 	:	"No";
-				$stat		 = $row->stat;
+				$balance     		= $row->balance; 
+				$amount	  	 		= $row->amount; 
+				$vendor		 		= $row->vendor; 
+				$referenceno 		= $row->referenceno; 
+				$checker 	 		= $row->importchecker;
+				$import 	 		= ($checker == 'import') 	?	"Yes" 	:	"No";
+				$stat				= $row->stat;
+				$payment_status 	= $row->payment_status;
 
-				if($balance != 0 && $stat == 'cancelled')
-				{
+				// if($balance != 0 && $stat == 'cancelled')
+				// {
+				// 	$voucher_status = '<span class="label label-danger">CANCELLED</span>';
+				// }
+				// else if($balance != $amount && $balance != 0 && $stat == 'cancelled')
+				// {
+				// 	$voucher_status = '<span class="label label-danger">CANCELLED</span>';
+				// }
+				// else if($balance != $amount && $balance != 0)
+				// {
+				// 	$voucher_status = '<span class="label label-info">PARTIAL</span>';
+				// }
+				// else if($balance != 0)
+				// {
+				// 	$voucher_status = '<span class="label label-warning">UNPAID</span>';
+				// }
+				// else
+				// {
+				// 	$voucher_status = '<span class="label label-success">PAID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+				// }
+
+				if($payment_status == "paid") {
+					$voucher_status = '<span class="label label-success">PAID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+				} else if($payment_status == 'unpaid'){
+					$voucher_status = '<span class="label label-warning">UNPAID</span>';
+				} else if($payment_status == 'cancelled'){
 					$voucher_status = '<span class="label label-danger">CANCELLED</span>';
-				}
-				else if($balance != $amount && $balance != 0 && $stat == 'cancelled')
-				{
-					$voucher_status = '<span class="label label-danger">CANCELLED</span>';
-				}
-				else if($balance != $amount && $balance != 0)
-				{
+				} else if($payment_status == "partial"){
 					$voucher_status = '<span class="label label-info">PARTIAL</span>';
 				}
-				else if($balance != 0)
-				{
-					$voucher_status = '<span class="label label-warning">UNPAID</span>';
-				}
-				else
-				{
-					$voucher_status = '<span class="label label-success">PAID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
-				}
+
 				$show_edit 		= ($balance == $amount  && $stat != 'cancelled');
 				$show_delete 	= ($balance == $amount && $stat != 'cancelled');
 				$show_payment 	= ($balance != 0  && $stat != 'cancelled');

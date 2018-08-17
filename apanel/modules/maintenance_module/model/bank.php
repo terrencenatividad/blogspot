@@ -21,7 +21,7 @@
 
 			$result = $this->db->setTable('bank')
 							->setFields($fields)
-							->setWhere(" stat = 'active' $add_cond ")
+							->setWhere(" stat IN  ('active','inactive') $add_cond ")
 							->setOrderBy($sort)
 							->runPagination();
 			return $result;
@@ -160,7 +160,7 @@
 		}
 
 		public function insertCheck($data2){
-			$data_post_dtl['bank_id'] 			= $data2['id'];
+			$data_post_dtl['bank_id'] 			= $data2['bank_id'];
 			$data_post_dtl['booknumber'] 		= $data2['booknumber'];
 			$data_post_dtl['firstchequeno'] 	= $data2['firstchequeno'];
 			$data_post_dtl['lastchequeno'] 		= $data2['lastchequeno'];
@@ -194,6 +194,38 @@
 							->setOrderBy($sort)
 							->runPagination();
 			return $result;
+		}
+
+		public function retrieveCheck($id, $bookno){
+			$result = $this->db->setTable('bankdetail')
+					->setFields('booknumber, firstchequeno,lastchequeno ')
+					->setWhere(" bank_id = '$id' AND booknumber = '$bookno'")
+					->runSelect()
+					->getResult();
+			return $result;
+		}
+
+		public function update_check($id, $data){
+			$bno = $data['bank_id'];
+			$condition 			   = " booknumber = '$bno' ";
+
+			$result 			   = $this->db->setTable('bankdetail')
+											  ->setValues($data)
+											  ->setWhere($condition)
+											  ->setLimit(1)
+											  ->runUpdate();
+			return $result;
+		}
+
+		public function deactivateBank($id, $data){
+			$con			   	   = " id = '$id' ";
+			$result 			   = $this->db->setTable('bank')
+											  ->setValues($data)
+											  ->setWhere($con)
+											  ->setLimit(1)
+											  ->runUpdate();
+			return $result;
+
 		}
 
 		

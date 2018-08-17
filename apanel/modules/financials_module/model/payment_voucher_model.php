@@ -759,13 +759,12 @@ class payment_voucher_model extends wc_model
 				$post_application['currencycode']		= 'PHP';
 				$post_application['exchangerate']		= '1.00';
 				$post_application['convertedamount']	= $amount;
-				$post_application['stat']			 	= $post_header['stat'];
+				$post_application['stat']			 	= "posted";
 
 				$iApplicationLineNum++;
 				$aPvApplicationArray[]					= $post_application;
 			}
 		}
-
 		/**
 		 * Get previous tagged payables
 		 */
@@ -806,9 +805,9 @@ class payment_voucher_model extends wc_model
 						->runDelete();
 						
 				$insertResult = $this->db->setTable($applicationTable) 
-									->setValues($aPvApplicationArray)
-									->setWhere("voucherno = '$voucherno'")
-									->runInsert();
+										->setValues($aPvApplicationArray)
+										->setWhere("voucherno = '$voucherno'")
+										->runInsert();
 								
 				if(!$insertResult){
 					$code 		= 0;
@@ -878,8 +877,7 @@ class payment_voucher_model extends wc_model
 		}
 		
 		/**INSERT TO CHEQUES TABLE**/
-		if(strtolower($paymenttype) == 'cheque')
-		{
+		if(strtolower($paymenttype) == 'cheque') {
 			$insertResult = $this->db->setTable($chequeTable)
 								->setWhere("voucherno = '$voucherno'")
 								->runDelete();
@@ -904,7 +902,9 @@ class payment_voucher_model extends wc_model
 			$iApplicationLineNum	= 1;
 			foreach ($combined_payables as $pickedKey => $pickedValue) {
 				$payable 					= $pickedValue['vno'];
-
+				$amount 					= $pickedValue['amt'];
+				$discount 					= $pickedValue['dis'];
+				
 				$applied_sum				= 0;
 				$applied_discount			= 0;
 				$applied_forexamount		= 0;
@@ -932,7 +932,7 @@ class payment_voucher_model extends wc_model
 				
 				$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
-
+				
 				$balance_info['amountpaid']	= $applied_sum;
 
 				$balance_info['balance']	= $invoice_amount - $applied_sum;
