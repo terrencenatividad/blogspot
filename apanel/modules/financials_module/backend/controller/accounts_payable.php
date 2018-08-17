@@ -240,7 +240,17 @@ class controller extends wc_controller
 		$data["generated_id"]         = (!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
 
 		$data["restrict_ap"] 		  = false;
-		
+
+		/**
+		 * Get Company Settings
+		 */
+		$company_setting = $this->accounts_payable->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 		  = $company_setting[0]->wtax_option;
+
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview"));
 
@@ -385,6 +395,16 @@ class controller extends wc_controller
 		$status_badge = '<span class="label label-'.$status_class.'">'.strtoupper($status).'</span>';
 		$data['status_badge'] 	= $status_badge;
 
+		/**
+		 * Get Company Settings
+		 */
+		$company_setting = $this->accounts_payable->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 		  = $company_setting[0]->wtax_option;
+
 		$this->view->load('accounts_payable/accounts_payable_view', $data);
 	}
 
@@ -448,6 +468,16 @@ class controller extends wc_controller
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview"));
 
+		/**
+		 * Get Company Settings
+		 */
+		$company_setting = $this->accounts_payable->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 		  = $company_setting[0]->wtax_option;
+		
 		if (!empty($data_validate["vendor"]) && !empty($data_validate["document_date"])) 
 		{
 			// For Admin Logs

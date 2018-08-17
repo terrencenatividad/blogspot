@@ -1793,4 +1793,17 @@ class accounts_payable extends wc_model
 				->runInsert();
 		return $result;
 	}
+
+	public function companySettings($fields) {
+		$session	= new session();
+		$login		= $session->get('login');
+		$company	= isset($login['companycode']) ? $login['companycode'] : '';
+
+		$result = $this->db->setTable('company')
+							->setFields($fields)
+							->setWhere("companycode = '$company'")
+							->runSelect()
+							->getResult();
+		return $result;
+	}
 }
