@@ -759,7 +759,7 @@ class payment_voucher_model extends wc_model
 				$post_application['currencycode']		= 'PHP';
 				$post_application['exchangerate']		= '1.00';
 				$post_application['convertedamount']	= $amount;
-				$post_application['stat']			 	= $post_header['stat'];
+				$post_application['stat']			 	= "posted";
 
 				$iApplicationLineNum++;
 				$aPvApplicationArray[]					= $post_application;
@@ -924,7 +924,7 @@ class payment_voucher_model extends wc_model
 													"COALESCE(SUM(discount),0) AS discount",
 													"COALESCE(SUM(forexamount),0) AS forexamount"
 												), 
-												" apvoucherno = '$payable' AND stat IN('open','posted','temporary')" 
+												" apvoucherno = '$payable' AND stat IN('open','posted')" 
 											);
 
 				$applied_disc 				= (!empty($applied_amounts[0]->discount)) ? $applied_amounts[0]->discount : 0;

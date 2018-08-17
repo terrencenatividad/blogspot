@@ -929,7 +929,7 @@ class receipt_voucher_model extends wc_model
 													"COALESCE(SUM(credits_used),0) credits",
 													"COALESCE(SUM(forexamount),0) forexamount"
 												), 
-												"  arvoucherno = '$payable' AND stat IN('open','posted','temporary') "
+												"  arvoucherno = '$payable' AND stat IN('open','posted') "
 											);
 				
 				$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
