@@ -77,7 +77,8 @@ class controller extends wc_controller {
 		$this->view->title			= 'Edit Packing List';
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->packing_model->getPackingListById($this->fields, $voucherno);
-		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
+		$transactiondate 			= $data['transactiondate'];
+		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui']					= $this->ui;
 		$data['customer_list']		= $this->packing_model->getCustomerList();
 		$data['warehouse_list']		= $this->packing_model->getWarehouseList();
@@ -93,7 +94,8 @@ class controller extends wc_controller {
 		// Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
-		$data['restrict_pl'] 		= false;
+		$restrict_pl 			 	= $this->restrict->setButtonRestriction($transactiondate);
+		$data['restrict_pl'] 		= $restrict_pl;
 		$this->view->load('packing_list/packinglist', $data);
 	}
 

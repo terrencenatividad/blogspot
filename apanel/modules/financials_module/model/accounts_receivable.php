@@ -218,62 +218,131 @@ class accounts_receivable extends wc_model
 		$vendfilter      = isset($data['customer']) ? htmlentities($data['customer']) : ""; 
 		$addCond         = isset($data['filter']) ? htmlentities($data['filter']) : "";
 		$searchkey 		 = isset($data['search']) ? htmlentities($data['search']) : "";
-		$sort 		 	 = isset($data['sort']) ? htmlentities($data['sort']) : "main.transactiondate";
+		$sort 		 	 = isset($data['sort']) ? htmlentities($data['sort']) : "main.voucherno DESC";
 
 		$datefilterArr		= explode(' - ',$daterangefilter);
 		$datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
 		$datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
 
-		$table_cm 	= "journalvoucher cm";
-		$cm_fields 	= "COALESCE(SUM(cm.convertedamount),0) excessamount, cm.invoiceno, cm.sourceno, cm.customer";
-		$cm_cond 	= "cm.stat NOT IN ('cancelled','temporary')";
-		$cm_group 	= "cm.sourceno";
-		$sub_select2= $this->db->setTable($table_cm)
-								->setFields($cm_fields)
-								->setWhere($cm_cond)
-								->setGroupBy($cm_group)
-								->buildSelect();
+		// $table_cm 	= "journalvoucher cm";
+		// $cm_fields 	= "COALESCE(SUM(cm.convertedamount),0) excessamount, cm.invoiceno, cm.sourceno, cm.customer";
+		// $cm_cond 	= "cm.stat NOT IN ('cancelled','temporary')";
+		// $cm_group 	= "cm.sourceno";
+		// $sub_select2= $this->db->setTable($table_cm)
+		// 						->setFields($cm_fields)
+		// 						->setWhere($cm_cond)
+		// 						->setGroupBy($cm_group)
+		// 						->buildSelect();
 
-		$table_rv  = "rv_application AS rv";
-		$rv_fields = "COALESCE(SUM(rv.convertedamount),0) + COALESCE(SUM(rv.discount),0) - COALESCE(SUM(rv.forexamount), 0)";
-		$rv_cond   = "rv.arvoucherno = main.voucherno and rv.stat = 'posted'";
-		$sub_select = $this->db->setTable($table_rv)
-						   ->setFields($rv_fields)
-						   ->setWhere($rv_cond)
-						   ->buildSelect();
+		// $table_rv  = "rv_application AS rv";
+		// $rv_fields = "COALESCE(SUM(rv.convertedamount),0) + COALESCE(SUM(rv.discount),0) - COALESCE(SUM(rv.forexamount), 0)";
+		// $rv_cond   = "rv.arvoucherno = main.voucherno and rv.stat = 'posted'";
+		// $sub_select = $this->db->setTable($table_rv)
+		// 				   ->setFields($rv_fields)
+		// 				   ->setWhere($rv_cond)
+		// 				   ->buildSelect();
 
-		if($addCond	== 'paid'){
-			$addCondition	= "AND main.convertedamount = ($sub_select)";
+		// if($addCond	== 'unpaid'){
+		// 	$addCondition	= " AND main.convertedamount = ($sub_select)  AND main.stat != 'cancelled'";
+		// } else if($addCond == 'partial'){
+		// 	$sub_select_ = $this->db->setTable($table_rv)
+		// 					   ->setFields($rv_fields)
+		// 					   ->setWhere($rv_cond)
+		// 					   ->setGroupBy("rv.arvoucherno")
+		// 					   ->buildSelect();
+			// echo $this->db->getQuery();
+		// 	$addCondition = " AND ($sub_select) > 0 AND main.convertedamount > ($sub_select_)  AND main.stat != 'cancelled'";
+		// } else if($addCond == 'paid'){
+		// 	$addCondition = " AND ($sub_select) = 0 AND main.stat != 'cancelled'";
+		// } else if($addCond == 'cancelled'){
+		// 	$addCondition = " AND main.stat = 'cancelled'";
+		// }else{
+		// 	$addCondition	= '';
+		// }
+
+		// $add_query 	= (!empty($searchkey)) ? "AND (main.voucherno LIKE '%$searchkey%' OR main.invoiceno LIKE '%$searchkey%' OR main.particulars LIKE '%$searchkey%' OR p.partnername LIKE '%$searchkey%' OR main.referenceno LIKE '%$searchkey%') " : "";
+		// $add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND main.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
+		// $add_query .= (!empty($vendfilter) && $vendfilter != 'none') ? "AND p.partnercode = '$vendfilter' " : "";
+		// $add_query .= $addCondition;
+
+		// $main_fields = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount","main.balance as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS customer","main.lockkey as importchecker","main.stat as stat");
+		// $main_join   = "partners p ON p.partnercode = main.customer"; //AND p.companycode
+		// $main_table  = "accountsreceivable as main";
+		// $main_cond   = "main.stat IN('posted','cancelled') $add_query";
+		
+		// $query 		 = $this->db->setTable($main_table)
+		// 						->setFields($main_fields)
+		// 						->leftJoin($main_join)
+		// 						->leftJoin("($sub_select2) cm ON cm.customer = main.customer AND cm.sourceno = main.voucherno")
+		// 						->setWhere($main_cond)
+		// 						->setOrderBy($sort)
+								// ->buildSelect();
+								// ->runPagination();
+		
+		// var_dump($query);
+		// echo $this->db->getQuery();;
+
+		
+		if($addCond	== 'unpaid'){
+			$addCondition	= " payment_status = 'unpaid'";
 		} else if($addCond == 'partial'){
-			$addCondition = "AND ($sub_select) > 0 AND main.convertedamount > ($sub_select_)";
-		} else if($addCond == 'unpaid'){
-			$addCondition = "AND ($sub_select) = 0";
-		} else{
+			$addCondition = " payment_status = 'partial'";
+		} else if($addCond == 'paid'){
+			$addCondition = " payment_status = 'paid'";
+		} else if($addCond == 'cancelled'){
+			$addCondition = " payment_status = 'cancelled'";
+		}else{
 			$addCondition	= '';
 		}
 
 		$add_query 	= (!empty($searchkey)) ? "AND (main.voucherno LIKE '%$searchkey%' OR main.invoiceno LIKE '%$searchkey%' OR main.particulars LIKE '%$searchkey%' OR p.partnername LIKE '%$searchkey%' OR main.referenceno LIKE '%$searchkey%') " : "";
 		$add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND main.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 		$add_query .= (!empty($vendfilter) && $vendfilter != 'none') ? "AND p.partnercode = '$vendfilter' " : "";
-		$add_query .= $addCondition;
+		// $add_query .= $addCondition;
 
-		$main_fields = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount","main.balance as balance", "CONCAT( first_name, ' ', last_name )","main.referenceno as referenceno", "p.partnername AS customer","main.lockkey as importchecker","main.stat as stat");
-		$main_join   = "partners p ON p.partnercode = main.customer"; //AND p.companycode
-		$main_table  = "accountsreceivable as main";
-		$main_cond   = "main.stat IN('posted','cancelled') $add_query";
-		
-		$query 		 = $this->db->setTable($main_table)
-								->setFields($main_fields)
-								->leftJoin($main_join)
-								->leftJoin("($sub_select2) cm ON cm.customer = main.customer AND cm.sourceno = main.voucherno")
-								->setWhere($main_cond)
-								->setOrderBy($sort)
-								// ->buildSelect();
-								->runPagination();
-		
-		// var_dump($query);
-		// echo $this->db->getQuery();;
+		$rv_app_fields 	=	array("(COALESCE(SUM(rvapp.convertedamount),0) + COALESCE(SUM(rvapp.discount),0) + COALESCE(SUM(rvapp.credits_used),0) - COALESCE(SUM(rvapp.forexamount), 0)) amount",
+									"rvapp.voucherno rvoucher", "rvapp.arvoucherno arno");
+		$rv_table 		=	"rv_application rvapp";
+		$rv_cond 		=	"rvapp.stat NOT IN('cancelled','temporary')";
+		$rv_groupby 	=	"rvapp.arvoucherno";						
 
+		$sub_select = $this->db->setTable($rv_table)
+						   ->setFields($rv_app_fields)
+						   ->setWhere($rv_cond)
+						   ->setGroupBy($rv_groupby)
+						   ->buildSelect();
+						   
+		$ar_fields 	=	array(
+								"main.voucherno as voucherno", 
+								"main.companycode as companycode", 
+								"main.transactiondate as transactiondate",
+								"main.convertedamount as amount",
+								"main.balance as balance", 
+								"p.partnername AS customer",
+								"main.referenceno as referenceno",
+								"main.lockkey as importchecker",
+								"main.stat as stat",
+								"IF(
+									(main.convertedamount - payment.amount)>0 AND main.stat!='cancelled','partial',
+									IF((main.convertedamount - payment.amount)=0 AND main.stat!='cancelled','paid',
+										IF(main.stat!='cancelled','unpaid','cancelled')
+									)
+								) payment_status"
+						);
+		$ar_table 	=	"accountsreceivable as main";
+		$ar_cond 	=	"main.stat IN ('posted','cancelled') $add_query";
+		$ar_join 	=	"partners p ON p.partnercode = main.customer ";
+
+
+		$query 	=	$this->db->setTable($ar_table)
+							->setFields($ar_fields)
+							->leftJoin($ar_join)
+							->leftJoin("($sub_select) payment ON payment.arno = main.voucherno ")
+							->setWhere($ar_cond)
+							->setHaving($addCondition)
+							->setOrderBy($sort)
+							->runPagination();
+			
 		return $query;
 
 	}

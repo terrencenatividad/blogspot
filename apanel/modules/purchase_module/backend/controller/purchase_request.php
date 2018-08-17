@@ -213,12 +213,13 @@ class controller extends wc_controller
 		$data['cmp'] 			= $this->companycode;
 
 		// Header Data
+		$transactiondate 		 = $retrieved_data["header"]->transactiondate;
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["requestor"]       = $retrieved_data["header"]->requestor;
-		$data["remarks"]       = $retrieved_data["header"]->remarks;
+		$data["remarks"]       	 = $retrieved_data["header"]->remarks;
 		$data["department"]      = $retrieved_data["header"]->department;
 		$data["due_date"]    	 = date('M d,Y', strtotime($retrieved_data["header"]->duedate));
-		$data["transactiondate"] = date('M d,Y', strtotime($retrieved_data["header"]->transactiondate));
+		$data["transactiondate"] = date('M d,Y', strtotime($transactiondate));
 
 		$this->logs->saveActivity("Update Purchase Request [$voucherno] ");
 		
@@ -239,7 +240,8 @@ class controller extends wc_controller
 		
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
-		$data['restrict_req'] 	 = false;
+		$restrict_req 			 = $this->restrict->setButtonRestriction($transactiondate);
+		$data['restrict_req'] 	 = $restrict_req;
 		$this->view->load('purchase_request/purchase_request', $data);
 	}
 

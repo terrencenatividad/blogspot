@@ -287,10 +287,11 @@ class controller extends wc_controller
 		$data['cmp'] 			= $this->companycode;
 
 		// Header Data
+		$transactiondate 		 = $retrieved_data["header"]->transactiondate;
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["customer"]      	 = $retrieved_data["header"]->customer;
 		$data["due_date"]    	 = $this->date->dateFormat($retrieved_data["header"]->duedate);
-		$data["transactiondate"] = $this->date->dateFormat($retrieved_data["header"]->transactiondate);
+		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
 		$data['remarks'] 		 = $retrieved_data["header"]->remarks;
 		
 		//Footer Data
@@ -312,7 +313,8 @@ class controller extends wc_controller
 		
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
-		$data['restrict_so'] 	 = false;
+		$restrict_so 			= $this->restrict->setButtonRestriction($transactiondate);
+		$data['restrict_so'] 	= $restrict_so;
 
 		$this->view->load('sales_order/sales_order', $data);
 	}

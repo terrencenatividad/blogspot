@@ -90,7 +90,7 @@ class controller extends wc_controller {
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->sales_model->getSalesReturnById($this->fields, $voucherno);
 		$transactiondate 			= $data['transactiondate'];
-		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
+		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui']					= $this->ui;
 		$data['customer_list']		= $this->sales_model->getCustomerList();
 		$data['warehouse_list']		= $this->sales_model->getWarehouseList();
