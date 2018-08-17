@@ -82,7 +82,7 @@
     </div>
 
 	<div class="box-body table table-responsive">
-		<table id = "currency_table" class="table table-hover">
+		<table id = "bank_table" class="table table-hover">
 			<thead>
 				<?php
 					echo $ui->loadElement('table')
@@ -108,6 +108,25 @@
 		<div id="pagination"></div>
 	</div>   
 </section>
+
+<div id="delete_modal" class="modal modal-danger">
+	<div class="modal-dialog" style = "width: 300px;">
+		<div class="modal-content">
+			<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title">Confirmation</h4>
+			</div>
+			<div class="modal-body">
+				<p>Are you sure you want to delete this record?</p>
+			</div>
+			<div class="modal-footer text-center">
+				<button type="button" id="delete_yess" class="btn btn-outline btn-flat" onclick="">Yes</button>
+				<button type="button" class="btn btn-outline btn-flat" data-dismiss="modal">No</button>
+			</div>
+		</div>
+	</div>
+</div>
 
 <script>
 var ajax = {};
@@ -171,7 +190,7 @@ function showList(){
 	ajax.id = $('#id').val();
 	$.post('<?=BASE_URL?>maintenance/bank/ajax/check_list', ajax, function(data)
 	{
-		$('#currency_table #list_container').html(data.table);
+		$('#bank_table #list_container').html(data.table);
         $('#pagination').html(data.pagination);
         //$("#export").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 		if (ajax.page > data.page_limit && data.page_limit > 0) {
@@ -197,7 +216,7 @@ $(document).ready(function()
 {
 	showList();
 
-	$( "#currency_table" ).on('click' , '.delete', function() 
+	$( "#bank_table" ).on('click' , '.delete', function() 
 	{
 		var id = $( this ).attr("data-id");
 		
@@ -288,13 +307,13 @@ function ajaxCallback(id) {
 }
 
 $(function() {
-	linkButtonToTable('#item_multiple_delete', '#currency_table');
-	linkDeleteToModal('#currency_table .delete', 'ajaxCallback');
-	linkDeleteMultipleToModal('#item_multiple_delete', '#currency_table', 'ajaxCallback');
+	linkButtonToTable('#item_multiple_delete', '#bank_table');
+	linkDeleteToModal('#bank_table .delete_check_series', 'ajaxCallback');
+	linkDeleteMultipleToModal('#item_multiple_delete', '#bank_table', 'ajaxCallback');
 });
 
 // Sorting Script
-tableSort('#currency_table', function(value) {
+tableSort('#bank_table', function(value) {
   ajax.sort = value;
   ajax.page = 1;
   showList();
@@ -315,7 +334,7 @@ $('#list_container').on('click', '.manage_check', function(){
 });
 
 $('#btnEdit').hide();
-$('#list_container').on('click', '.edit_check', function(){
+$('#list_container').on('click', '.edit_check_series', function(){
 	ajax.id     =  $('#id').val();
 	ajax.bookno =  $(this).closest('tr').find('#booknumber').html();
 	// window.location = '<?=MODULE_URL?>manage_check/' + id +'/' + bookno;
@@ -346,6 +365,43 @@ $('#bankForm #btnEdit').on('click',function(){
 		});
 	}
 });
+
+$('#list_container').on('click', '.delete_check_series', function(){
+	var id     =  $('#id').val();
+	ajax.bookno =  $(this).closest('tr').find('#booknumber').html();
+		// $.post('<?=BASE_URL?>maintenance/bank/ajax/delete_check', ajax ,  function(data){
+			
+		// });
+
+		if( id != "" )
+		{
+			// $(".delete-modal > .modal").css("display", "inline");
+			$(".delete-modal").modal("show");
+
+			$( "#delete_yess" ).click(function() {
+				$.post('<?=BASE_URL?>maintenance/bank/ajax/delete_check', ajax ,  function(data){
+					// if( data.msg == 'success' )	
+					// {
+					// 	$(".delete-modal").modal("hide");
+					// 	showList();
+						window.location = self.location;
+					// }
+					// else
+					// {			
+					// 	$(".delete-modal").modal("hide");
+					// 	show_error("Unable to delete the Currency.");
+					// }
+				});
+			});
+		
+			
+		}
+
+});
+
+
+
+
 
 
 
