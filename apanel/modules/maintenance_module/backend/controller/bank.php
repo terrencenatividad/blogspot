@@ -120,6 +120,16 @@
 											'new-window',
 											$row->checking_account == 'yes'
 										)
+										->addOtherTask(
+											'Deactivate',
+											'glyphicon glyphicon-arrow-down',
+											$row->stat == 'active'
+										)
+										->addOtherTask(
+											'Activate',
+											'glyphicon glyphicon-arrow-up',
+											$row->stat == 'inactive'
+										)
 										->draw();
 
 					if($row->stat == 'active'){
@@ -356,6 +366,20 @@
 			
 			return $dataArray 		= array( "msg" => $msg );
 
+		}
+
+		public function ajax_edit_deactivate(){
+			$id 	= $this->input->post('id');
+			$data['stat'] = 'inactive';
+			$result = $this->bank->deactivateBank($id,$data);
+			return $result;
+		}
+
+		public function ajax_edit_activate(){
+			$id 	= $this->input->post('id');
+			$data['stat'] = 'active';
+			$result = $this->bank->deactivateBank($id,$data);
+			return $result;
 		}
 
 

@@ -21,7 +21,7 @@
 
 			$result = $this->db->setTable('bank')
 							->setFields($fields)
-							->setWhere(" stat = 'active' $add_cond ")
+							->setWhere(" stat IN  ('active','inactive') $add_cond ")
 							->setOrderBy($sort)
 							->runPagination();
 			return $result;
@@ -215,6 +215,17 @@
 											  ->setLimit(1)
 											  ->runUpdate();
 			return $result;
+		}
+
+		public function deactivateBank($id, $data){
+			$con			   	   = " id = '$id' ";
+			$result 			   = $this->db->setTable('bank')
+											  ->setValues($data)
+											  ->setWhere($con)
+											  ->setLimit(1)
+											  ->runUpdate();
+			return $result;
+
 		}
 
 		
