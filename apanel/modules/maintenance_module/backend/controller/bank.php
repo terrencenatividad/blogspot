@@ -61,8 +61,6 @@
 		public function edit($id)
 		{
 			$this->view->title = $this->ui->EditLabel('');
-			
-			// $data 			 	= (array) $this->bank->retrieveExistingCurrency($this->fields, $code);
 			$data 			 	= (array) $this->bank->retrieveExistingBank($this->fields, $id);
 			$data['currencylist']   = $this->bank->retrieveExchangeRateDropdown();
 			$data['gllist']   		= $this->bank->retrieveGLDropdown();
@@ -216,7 +214,6 @@
 
 			if( empty($result) ) {
 				$msg = "success";
-				// $this->log->saveActivity("Deleted Bank [". implode($id, ', ') ."] ");
 			}
 			else
 			{
@@ -310,18 +307,6 @@
 									'deletecheck'
 								)
 										->draw();
-					// $viewlink		= BASE_URL . "financials/accounts_payable/view/";
-
-
-					// $dropdown = '<button type="button" class="btn btn-default btn-flat btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					// 				<span class="caret"></span>
-					// 				<span class="sr-only">Toggle Dropdown</span>
-					// 			</button>
-					// 			<ul class="dropdown-menu">
-					// 			<li><a href="http://localhost/prime/apanel/maintenance/bank/view/22" class="btn-sm">
-					// 			<i class="glyphicon glyphicon-eye-open"></i> View</a></li><li><a href="http://localhost/prime/apanel/maintenance/bank/edit/22" class="btn-sm"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li><li class="divider"></li><li><a class="btn-sm link manage_check " data-id="22"><i class="glyphicon glyphicon-new-window"></i> Manage Check</a></li>
-					// 			<li class="divider"></li><li><a class="btn-sm delete link" data-id="22"><i class="glyphicon glyphicon-trash"></i> Delete</a></li></ul></div>';
-
 					$table .= '<tr>';
 					$table .= ' <td align = "center">' .$dropdown. '</td>';
 					$table .= '<td>' . $row->accountno . '</td>';
@@ -405,11 +390,18 @@
 
 		public function delete_check(){
 			$posted_data 	= $this->input->post('bookno');
+			$id 			= $this->input->post('id');
+			
+			$bankdesc 		= $this->bank->getAccountname($id);
+			$isname 		= $bankdesc[0]->shortname;
+			echo $firstchequeno 	= $bankdesc[0]->firstchequeno;
+			echo $lastchequeno 	= $bankdesc[0]->lastchequeno;
 			$accntname 		= $this->bank->deleteCheck($posted_data);
 
 			if( $accntname )
 			{
 				$msg = "success";
+				$this->log->saveActivity("Delete Check Series On Bank ($isname) [$firstchequeno -  $lastchequeno]");
 			}
 			
 			else
@@ -420,8 +412,6 @@
 			return $dataArray 		= array( "msg" => $msg );
 
 		}
-
-
 
 	}
 ?>

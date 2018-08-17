@@ -174,9 +174,10 @@
 
 		}
 		public function getAccountname($id){
-			$result = $this->db->setTable('bank')
-					->setFields('id, shortname ')
-					->setWhere(" id = '$id'")
+			$result = $this->db->setTable('bank b')
+					->setFields('id, shortname, firstchequeno, lastchequeno ')
+					->setWhere("id = '$id'")
+					->leftJoin("bankdetail bd ON b.id = bd.bank_id ")
 					->runSelect()
 					->getResult();
 			return $result;
