@@ -324,8 +324,14 @@ class accounts_receivable extends wc_model
 								"main.stat as stat",
 								"IF(
 									(main.convertedamount - payment.amount)>0 AND main.stat!='cancelled','partial',
-									IF((main.convertedamount - payment.amount)=0 AND main.stat!='cancelled','paid',
-										IF(main.stat!='cancelled','unpaid','cancelled')
+									IF(
+										(main.convertedamount - payment.amount)=0 AND main.stat!='cancelled','paid',
+										IF(
+											(main.convertedamount - payment.amount)<0 AND main.stat!='cancelled','paid',
+											IF(
+												main.stat!='cancelled','unpaid','cancelled'
+											)
+										)
 									)
 								) payment_status"
 						);
@@ -342,7 +348,7 @@ class accounts_receivable extends wc_model
 							->setHaving($addCondition)
 							->setOrderBy($sort)
 							->runPagination();
-			
+			// echo $this->db->getQuery();
 		return $query;
 
 	}

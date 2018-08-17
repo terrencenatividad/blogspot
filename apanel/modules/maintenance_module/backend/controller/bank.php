@@ -299,9 +299,15 @@
 
 					$dropdown = $this->ui->loadElement('check_task')
 								->addOtherTask(
-									'Edit Check',
+									'Edit Check Series',
 									'pencil',
 									'editcheck'
+								)
+
+								->addOtherTask(
+									'Delete Check Series',
+									'trash',
+									'deletecheck'
 								)
 										->draw();
 					// $viewlink		= BASE_URL . "financials/accounts_payable/view/";
@@ -396,6 +402,25 @@
 			}
 			return $result;
 		}
+
+		public function delete_check(){
+			$posted_data 	= $this->input->post('bookno');
+			$accntname 		= $this->bank->deleteCheck($posted_data);
+
+			if( $accntname )
+			{
+				$msg = "success";
+			}
+			
+			else
+			{
+				$msg = $result;
+			}
+			
+			return $dataArray 		= array( "msg" => $msg );
+
+		}
+
 
 
 	}

@@ -278,7 +278,14 @@
 							->runSelect()
 							->getResult();	
 			return $result;
+		}
 
+		public function deleteCheck($id){
+			$condition 		= "booknumber = '$id'";
+			$result 		= $this->db->setTable('bankdetail')
+								->setWhere($condition)
+								->runDelete();
+			return $result ;
 		}
 
 		
