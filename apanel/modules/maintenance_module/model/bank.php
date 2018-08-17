@@ -1,6 +1,7 @@
 <?php
 	class bank extends wc_model
 	{
+		
 
 		public function retrieveExchangeRateDropdown()
 		{
@@ -224,6 +225,58 @@
 											  ->setWhere($con)
 											  ->setLimit(1)
 											  ->runUpdate();
+			return $result;
+
+		}
+
+		public function getBank($id){
+			$condition   = "";
+			$id_array 	 = explode(',', $id['id']);
+			
+			// for($i = 0; $i < count($id_array); $i++)
+			// {
+			// 	$fields = array(
+			// 		'shortname',
+			// 		'bankcode',
+			// 	);
+	
+			// 	$id    = $id_array[$i];
+
+			
+			// 	return $result; 
+
+			
+			// }
+			foreach ($id_array as $id ) {
+				
+				$condition 		= " id = '$id'";
+				$fields = array(
+							'shortname',
+							'accountno',
+						);
+			
+				$result = $this->db->setTable('bank')
+							->setWhere($condition)
+							->setFields($fields)
+							->runSelect()
+							->getResult();	
+			}
+
+			return $result; 
+
+		}
+
+		public function getInfo($id){
+			$fields = array(
+				'shortname',
+				'accountno',
+			);
+			$condition 		= " id = '$id'";
+			$result = $this->db->setTable('bank')
+							->setWhere($condition)
+							->setFields($fields)
+							->runSelect()
+							->getResult();	
 			return $result;
 
 		}

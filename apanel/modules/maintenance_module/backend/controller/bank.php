@@ -167,7 +167,7 @@
 			if( $result )
 			{
 				$msg = "success";
-				$this->log->saveActivity("Added New Bank [$bankname] -  Accountno [$accountno]");
+				$this->log->saveActivity("Added New Bank [$bankname] -  Account Number [$accountno]");
 			}
 			else
 			{
@@ -182,11 +182,13 @@
 			$posted_data 	= $this->input->post($this->fields);
 			$id 		 	= $this->input->post('id');
 			$result 		= $this->bank->updateBank($posted_data, $id);
+			$bankname 		= $posted_data["shortname"];
+			$accountno 		= $posted_data["accountno"];
 
 			if( $result )
 			{
 				$msg = "success";
-				$this->log->saveActivity("Updated Bank [$id] ");
+				$this->log->saveActivity("Update Bank [$bankname] - Account Number [$accountno]");
 			}
 			else
 			{
@@ -200,14 +202,21 @@
 		{
 			$id_array 		= array('id');
 			$id       		= $this->input->post($id_array);
+			$info 			= $this->bank->getBank($id);
 			
-			$result 		= $this->bank->deleteBank($id);
 
+			foreach ($info as $key => $value) {
+				$sname = $value->shortname;
+				$code = $value->accountno;
+				$this->log->saveActivity("Deleted Bank [$sname] - Account Number [$code]");
+			}
+			$result 		= $this->bank->deleteBank($id);
 			
-			if( empty($result) )
-			{
+			
+
+			if( empty($result) ) {
 				$msg = "success";
-				$this->log->saveActivity("Deleted Bank [". implode($id, ', ') ."] ");
+				// $this->log->saveActivity("Deleted Bank [". implode($id, ', ') ."] ");
 			}
 			else
 			{
@@ -263,7 +272,7 @@
 			if( $result )
 			{
 				$msg = "success";
-				$this->log->saveActivity("Added Check Series On Bank ($id) $firstchequeno -  $lastchequeno");
+				$this->log->saveActivity("Added Check Series On Bank ($id) [$firstchequeno -  $lastchequeno]");
 			}
 			
 			else
@@ -334,13 +343,7 @@
 			$firstchequeno 	= $data2[0]->firstchequeno; 
 			$lastchequeno 	= $data2[0]->lastchequeno; 
 			$data = array("booknumber" => $booknumber,"firstchequeno" => $firstchequeno, 'lastchequeno' => $lastchequeno , 'task' => 'update_check');
-			
-			
-			// $data['show_input'] 	= true;
-			// $data['ajax_post'] 		= '';
-			// $data['ui'] 			= $this->ui;
-			// $this->view->load('bank/manage_check', $data);
-			// var_dump($data);
+
 			return $data;
 		}
 
@@ -351,19 +354,19 @@
 			$lastchequeno	= $posted_data['lastchequeno'];
 			$bank_id		= $posted_data['bank_id'];
 			$accntname 		= $this->bank->update_check($bank_id, $posted_data);
-			// $id = $accntname[0]->shortname;
-
+			$bankdesc 		= $this->bank->getAccountname($bank_id);
+			$isname = $bankdesc[0]->shortname;
+			
+			
 			if( $accntname )
 			{
 				$msg = "success";
-				// $this->log->saveActivity("Added Check Series On Bank ($id) $firstchequeno -  $lastchequeno");
+				$this->log->saveActivity("Update Check Series On Bank ($isname) [$firstchequeno -  $lastchequeno]");
 			}
-			
 			else
 			{
 				$msg = $result;
 			}
-			
 			return $dataArray 		= array( "msg" => $msg );
 
 		}
@@ -371,14 +374,26 @@
 		public function ajax_edit_deactivate(){
 			$id 	= $this->input->post('id');
 			$data['stat'] = 'inactive';
+			$info = $this->bank->getInfo($id);
 			$result = $this->bank->deactivateBank($id,$data);
+			$sname  = $info[0]->shortname;
+			$accountno  = $info[0]->accountno;
+			if ($result){
+				$this->log->saveActivity("Deactivated Bank [$sname] - Account Number [$accountno]");
+			}
 			return $result;
 		}
 
 		public function ajax_edit_activate(){
 			$id 	= $this->input->post('id');
+			$info = $this->bank->getInfo($id);
+			$sname  = $info[0]->shortname;
+			$accountno  = $info[0]->accountno;
 			$data['stat'] = 'active';
 			$result = $this->bank->deactivateBank($id,$data);
+			if ($result){
+				$this->log->saveActivity("Activated Bank [$sname] - Account Number [$accountno]");
+			}
 			return $result;
 		}
 
