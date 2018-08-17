@@ -144,6 +144,24 @@ class atccode_class extends wc_model
 		return $result;
 	}
 
+	public function check_duplicate($current)
+	{
+		return $this->db->setTable('atccode')
+						->setFields('COUNT(atc_code) count')
+						->setWhere(" atc_code = '$current'")
+						->runSelect()
+						->getResult();
+	}
+
+	public function importATC($data)
+	{
+		$result = $this->db->setTable('atccode')
+				->setValuesFromPost($data)
+				->runInsert();
+
+		return $result;
+	}
+
 	public function searchData($cond)
 	{
 

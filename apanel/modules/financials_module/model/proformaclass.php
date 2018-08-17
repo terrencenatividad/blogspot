@@ -202,6 +202,24 @@ class proformaclass extends wc_model
 		return $errmsg;
 	}
 
+	public function check_duplicate($current)
+	{
+		return $this->db->setTable('proforma')
+						->setFields('COUNT(proformacode) count')
+						->setWhere(" proformacode = '$current'")
+						->runSelect()
+						->getResult();
+	}
+
+	public function importProforma($data)
+	{
+		$result = $this->db->setTable('proforma')
+				->setValuesFromPost($data)
+				->runInsert();
+
+		return $result;
+	}
+
 	public function fileExport($data)
 	{
 		$search          = (isset($data['search']))? htmlentities($data['search']) : "";
