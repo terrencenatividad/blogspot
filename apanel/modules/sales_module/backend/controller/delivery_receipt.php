@@ -87,8 +87,9 @@ class controller extends wc_controller {
 		$this->view->title			= 'Edit Delivery Receipt';
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->delivery_model->getDeliveryReceiptById($this->fields, $voucherno);
+		$transactiondate 			= $data['transactiondate'];
 		$data['deliverydate']		= $this->date->dateFormat($data['deliverydate']);
-		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
+		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui']					= $this->ui;
 		$data['customer_list']		= $this->delivery_model->getCustomerList();
 		$data['warehouse_list']		= $this->delivery_model->getWarehouseList();
@@ -101,7 +102,8 @@ class controller extends wc_controller {
 		// Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
-		$data['restrict_dr'] 		= false;
+		$restrict_dr 			 	= $this->restrict->setButtonRestriction($transactiondate);
+		$data['restrict_dr'] 		= $restrict_dr;
 		$this->view->load('delivery_receipt/delivery_receipt', $data);
 	}
 

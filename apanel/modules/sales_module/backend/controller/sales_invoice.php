@@ -212,12 +212,13 @@ class controller extends wc_controller
 		$data['cmp'] 			= $this->companycode;
 
 		// Header Data
+		$transactiondate 		 = $retrieved_data["header"]->transactiondate;
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["referenceno"]     = $retrieved_data["header"]->referenceno;
 		$data["customercode"]    = $retrieved_data["header"]->customercode;
 		$data["customername"]    = $retrieved_data["header"]->customername;
 		$data["duedate"]    	 = date('M d, Y', strtotime($retrieved_data["header"]->duedate));
-		$data["transactiondate"] = date('M d, Y', strtotime($retrieved_data["header"]->transactiondate));
+		$data["transactiondate"] = date('M d, Y', strtotime($transactiondate));
 		$data["remarks"]      	 = $retrieved_data["header"]->remarks;
 		$data["status"]       	 = $retrieved_data["header"]->status;
 
@@ -244,7 +245,8 @@ class controller extends wc_controller
 		
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
-		$data['restrict_si'] 	 = false;
+		$restrict_si 			 = $this->restrict->setButtonRestriction($transactiondate);
+		$data['restrict_si'] 	 = $restrict_si;
 
 		$this->view->load('sales_invoice/sales_invoice', $data);
 	}

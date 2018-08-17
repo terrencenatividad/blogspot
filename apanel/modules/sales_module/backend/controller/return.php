@@ -89,7 +89,8 @@ class controller extends wc_controller {
 		$this->view->title			= 'Edit Return';
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->sales_model->getReturnById($this->fields, $voucherno);
-		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
+		$transactiondate 			= $data['transactiondate'];
+		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui']					= $this->ui;
 		$data['customer_list']		= $this->sales_model->getCustomerList();
 		$data['warehouse_list']		= $this->sales_model->getWarehouseList();
@@ -102,7 +103,8 @@ class controller extends wc_controller {
 		// Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
-		$data['restrict_ri'] 		= false;
+		$restrict_ri 			 	= $this->restrict->setButtonRestriction($transactiondate);
+		$data['restrict_ri'] 		= $restrict_ri;
 		$this->view->load('return/return', $data);
 	}
 

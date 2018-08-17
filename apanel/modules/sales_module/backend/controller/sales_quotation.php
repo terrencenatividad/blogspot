@@ -139,11 +139,12 @@ class controller extends wc_controller
 		$data['cmp'] 			= $this->companycode;
 
 		// Header Data
+		$transactiondate 		 = $retrieved_data["header"]->transactiondate;
 		$data["remarks"]         = $retrieved_data["header"]->remarks;
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["customer"]      	 = $retrieved_data["header"]->customer;
 		$data["due_date"]    	 = date('M d,Y', strtotime($retrieved_data["header"]->duedate));
-		$data["transactiondate"] = date('M d,Y', strtotime($retrieved_data["header"]->transactiondate));
+		$data["transactiondate"] = date('M d,Y', strtotime($transactiondate));
 
 		$this->logs->saveActivity("Update Quotation [$voucherno] ");
 		
@@ -166,7 +167,8 @@ class controller extends wc_controller
 		
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
-		$data['restrict_sq'] 	 = false;
+		$restrict_sq 			 = $this->restrict->setButtonRestriction($transactiondate);
+		$data['restrict_sq'] 	 = $restrict_sq;
 
 		$this->view->load('sales_quotation/sales_quotation', $data); 
 	}
