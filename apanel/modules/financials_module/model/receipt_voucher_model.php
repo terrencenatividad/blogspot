@@ -1260,7 +1260,7 @@ class receipt_voucher_model extends wc_model
 
 		$exchangerate			= '1.00';
 
-		$ret_acct 				=	$this->retrieveOPDebitdetails();
+		$ret_acct 				=	$this->retrieveOPdetails();
 		$debit_acct 			=	isset($ret_acct[0]->accountcode) 	?	$ret_acct[0]->accountcode 	:	"";
 	
 		$details['voucherno'] 			=	$cm_no;
@@ -1278,7 +1278,7 @@ class receipt_voucher_model extends wc_model
 		$result 	=	 $this->insertdata('journaldetails',$details);
 
 		if( $result ) {
-			$ret_acct 		=	$this->retrieveOPdetails();
+			$ret_acct 		=	$this->retrieveOPDebitdetails();
 			$op_acct 		=	isset($ret_acct[0]->accountcode) 	?	$ret_acct[0]->accountcode 	:	"";
 		
 			$details['voucherno'] 			=	$cm_no;
