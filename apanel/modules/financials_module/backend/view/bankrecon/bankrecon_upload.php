@@ -63,7 +63,7 @@
 										</div>
 										<div class="form-group">
 											<label for="import_csv" class="control-label col-md-5">Select file to import</label>
-											<div class="col-md-7">
+											<div class="col-md-7 import">
 												<?php
 													echo $ui->setElement('file')
 															->setId('import_csv')
@@ -128,7 +128,7 @@
 								<hr>
 								<input type="hidden" name="import" value="csv">
 								<input type="submit" name="submit" value="Import" class="btn btn-info">&nbsp;&nbsp;
-								<button class="btn btn-primary" id="cancel">Cancel</button>
+								<button class="btn btn-primary" type="button" id="cancel">Cancel</button>
 							</div>
 						</div>
 					</div>
@@ -158,6 +158,33 @@
 			$('#has_recon').modal('show');
 		</script>
 	<?php endif ?>
+	<!-- Cancel Modal -->
+	<div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					Confirmation
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to cancel?
+				</div>
+				<div class="modal-footer">
+					<div class="row row-dense">
+						<div class="col-md-12 center">
+							<div class="btn-group">
+								<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+							</div>
+								&nbsp;&nbsp;&nbsp;
+							<div class="btn-group">
+								<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<script>
 		var ajax_call = '';
 		$('#bankrecon').on('change', '#import_csv', function() {
@@ -229,6 +256,21 @@
 				$('#warning_modal .modal-body').append(error);
 			}
 		}
+		$('#cancel').click(function(){
+			$('#cancelModal').modal('show');
+		});
+
+		$('#cancelModal #btnYes').click(function() {
+			var id 		= $('#cancelModal').data('id');
+			
+			$('#cancelModal').modal('hide');
+			$('#bankrecon')[0].reset();
+			$('#step2').hide();
+			$('#accountcode').val("").trigger('change.select2');
+			var filename = $('.import').val().split("\\");
+			var form_csv = $('#import_csv').val('').closest('.form-group').find('.form-control').html('').closest('.form-group').html();
+			$('#import_csv').closest('.form-group').html(form_csv);
+		});
 	</script>
 
 
