@@ -1083,6 +1083,13 @@ class controller extends wc_controller
 		$code       = $this->input->post("code");
 		$ui         = $this->ui;
 		$show_input = $this->show_input;
+		$company_setting = $this->accounts_payable->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 		  = $company_setting[0]->wtax_option;
+		$wtax_option = $data["wtax_option"];
 		
 		// RETRIEVE ACCOUNT CODE
 		$acc_entry_data     = array("id ind","accountname val");
@@ -1110,6 +1117,18 @@ class controller extends wc_controller
 				$accountcode = ($code != '' && $code != 'none') ? $dataArray[$i]->accountcodeid : '';
 			
 				$table	.= '<tr class="clone">';
+
+				$table	.= '<td class = "checkbox-select remove-margin text-center '.$toggle_wtax.'">';
+				$table	.=  $ui->formField('checkbox')
+							->setSplit('', 'col-md-12')
+							// ->setName("wtax[".$row."]")
+							->setId("wtax[".$row."]")
+							->setClass("wtax")
+							->setDefault("")
+							->setValue(1)
+							->setAttribute(array("disabled" => "disabled"))
+							->draw($show_input);
+				$table	.= '</td>';
 				
 				$table	.= '<td class = "remove-margin">';
 				$table 	.= $ui->formField('dropdown')
