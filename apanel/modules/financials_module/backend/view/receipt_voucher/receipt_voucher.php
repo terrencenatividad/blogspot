@@ -1055,7 +1055,7 @@
 	</div>
 </div>
 
-<div id="success_save_modal" class="modal fade" role="dialog">
+<div id="success_save_modal" class="modal fade"  tabindex="-1" data-backdrop="static">
 	<div class="modal-dialog modal-sm" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -3398,10 +3398,7 @@ $(document).ready(function() {
 						var credit_used 	=	$('#total_cred_used').val();
 						if(credit_used > 0){
 							$('#success_save_modal p.hidden').removeClass('hidden');
-							$('#success_save_modal').modal('show');		
-							setTimeout(function() {
-								$("#payableForm").submit();		
-							},2500);
+							$('#success_save_modal').modal('show');	
 						} else {
 							$("#payableForm").submit();			
 						}	
@@ -3452,10 +3449,7 @@ $(document).ready(function() {
 						var credit_used 	=	$('#total_cred_used').val();
 						if(credit_used > 0){
 							$('#success_save_modal p.hidden').removeClass('hidden');
-							$('#success_save_modal').modal('show');		
-							setTimeout(function() {
-								$("#payableForm").submit();		
-							},2500);
+							$('#success_save_modal').modal('show');
 						} else {
 							$("#payableForm").submit();			
 						}						
@@ -3507,9 +3501,6 @@ $(document).ready(function() {
 						if(credit_used > 0){
 							$('#success_save_modal p.hidden').removeClass('hidden');
 							$('#success_save_modal').modal('show');		
-							setTimeout(function() {
-								$("#payableForm").submit();		
-							},2500);
 						} else {
 							$("#payableForm").submit();			
 						}						
@@ -3634,9 +3625,6 @@ $(document).ready(function() {
 						if(credit_used > 0){
 							$('#success_save_modal p.hidden').removeClass('hidden');
 							$('#success_save_modal').modal('show');		
-							setTimeout(function() {
-								$("#payableForm").submit();		
-							},2500);
 						} else {
 							$("#payableForm").submit();			
 						}						
@@ -3691,9 +3679,6 @@ $(document).ready(function() {
 						if(credit_used > 0){
 							$('#success_save_modal p.hidden').removeClass('hidden');
 							$('#success_save_modal').modal('show');		
-							setTimeout(function() {
-								$("#payableForm").submit();		
-							},2500);
 						} else {
 							$("#payableForm").submit();			
 						}						
@@ -3883,7 +3868,9 @@ $(document).ready(function() {
 	});
 
 	$('#save_okbtn').on('click',function(){
-		$('#success_save_modal').modal('hide');
+		setTimeout(function() {
+			$("#payableForm").submit();		
+		},2500);
 	});
 
 	//validation for Credit Amount
