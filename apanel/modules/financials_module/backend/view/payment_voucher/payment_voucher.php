@@ -2372,11 +2372,11 @@ function getPVDetails(){
 				$("#paymentmode").removeAttr("disabled");
 
 			if('<?= $task ?>' == "create" || '<?= $task ?>' == "edit") {
-				if(task == 'create'){
-					// load payables
-					$("#entriesTable tbody").html(data.table);
-					$("#pv_amount").html(total_payment);
-				}
+				// if(task == 'create'){
+				// }
+				// load payables
+				$("#entriesTable tbody").html(data.table);
+				$("#pv_amount").html(total_payment);
 				// display total of debit
 				addAmountAll("debit");
 				

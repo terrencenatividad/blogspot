@@ -238,4 +238,26 @@ $('#list_container').on('click', '.manage_check', function(){
 	window.location = '<?=MODULE_URL?>manage_check/' + id;
 });
 
+$('#list_container').on('click', '.activate', function(){
+	var id = $(this).attr('data-id');
+	$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+		showList();
+	});
+});
+
+$('#list_container').on('click', '.deactivate', function() { 
+	$('#deactivate_modal').modal('show');
+	var id = $(this).attr('data-id');
+	
+	$('#deactivate_modal').on('click', '#deactyes', function() {
+		$('#deactivate_modal').modal('hide');
+		
+		$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+			showList();
+		});
+	});
+});
+
+
+
 </script>
