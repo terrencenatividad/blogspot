@@ -47,7 +47,7 @@ class accounts_payable extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, duedate, amount, balance, exchangerate, convertedamount, invoiceno,companycode, lockkey as importchecker, stat ";
+		$setFields = "voucherno, transactiondate, vendor, referenceno, proformacode, particulars, duedate, amount, balance, exchangerate, convertedamount, invoiceno,companycode, lockkey as importchecker, stat ";
 		$cond = "voucherno = '$sid'";	
 		$temp = array();
 

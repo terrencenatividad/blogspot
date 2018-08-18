@@ -456,6 +456,7 @@ class controller extends wc_controller
 		$data["invoiceno"]       = $data["main"]->invoiceno;
 		$data["vendorcode"]      = $data["main"]->vendor;
 		$data["exchangerate"]    = $data["main"]->exchangerate;
+		$data["proformacode"]    = $data["main"]->proformacode;
 		$data["transactiondate"] = $this->date->dateFormat($data["main"]->transactiondate);
 		$data["particulars"]     = $data["main"]->particulars;
 
