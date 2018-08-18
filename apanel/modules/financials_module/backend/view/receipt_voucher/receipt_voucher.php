@@ -969,31 +969,31 @@
 
 <!-- Delete Cheque Confirmation Modal -->
 <div class="modal fade" id="deleteChequeModal" tabindex="-1" data-backdrop="static">
-<div class="modal-dialog modal-sm">
-	<div class="modal-content">
-		<div class="modal-header">
-			Confirmation
-			<button type="button" class="close" data-dismiss="modal">&times;</button>
-		</div>
-		<div class="modal-body">
-			Are you sure you want to delete this record?
-			<input type="hidden" id="recordId"/>
-		</div>
-		<div class="modal-footer">
-			<div class="row row-dense">
-				<div class="col-md-12 center">
-					<div class="btn-group">
-						<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
-					</div>
-					&nbsp;&nbsp;&nbsp;
-					<div class="btn-group">
-						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Confirmation
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				Are you sure you want to delete this record?
+				<input type="hidden" id="recordId"/>
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 center">
+						<div class="btn-group">
+							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+						</div>
+						&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
 </div>
 <!-- End Delete Record Confirmation Modal -->
 
@@ -1050,6 +1050,23 @@
 						</div>
 					</div>
 				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="success_save_modal" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title modal-success"><span class="glyphicon glyphicon-ok"></span> Success!</h4>
+			</div>
+			<div class="modal-body">
+				<p>Successfully Saved.</p>
+				<p class="hidden">A <a target="_blank" href="<?=BASE_URL?>financials/credit_memo">Credit Memo</a> has been generated for the overpayment.</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-success" data-dismiss="modal" id="save_okbtn">Ok</button>
 			</div>
 		</div>
 	</div>
@@ -3377,9 +3394,17 @@ $(document).ready(function() {
 					if(data.code == 1)
 					{
 						$("#payableForm #h_voucher_no").val(data.voucher);
-						$("#payableForm").submit();
-
 						
+						var credit_used 	=	$('#total_cred_used').val();
+						if(credit_used > 0){
+							$('#success_save_modal p.hidden').removeClass('hidden');
+							$('#success_save_modal').modal('show');		
+							setTimeout(function() {
+								$("#payableForm").submit();		
+							},2500);
+						} else {
+							$("#payableForm").submit();			
+						}	
 					}
 					else
 					{
@@ -3423,9 +3448,17 @@ $(document).ready(function() {
 				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{
-					if(data.code == 1)
-					{
-						$("#payableForm").submit();
+					if(data.code == 1){
+						var credit_used 	=	$('#total_cred_used').val();
+						if(credit_used > 0){
+							$('#success_save_modal p.hidden').removeClass('hidden');
+							$('#success_save_modal').modal('show');		
+							setTimeout(function() {
+								$("#payableForm").submit();		
+							},2500);
+						} else {
+							$("#payableForm").submit();			
+						}						
 					}
 					else
 					{
@@ -3469,9 +3502,17 @@ $(document).ready(function() {
 				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{
-					if(data.code == 1)
-					{
-						$("#payableForm").submit();
+					if(data.code == 1){
+						var credit_used 	=	$('#total_cred_used').val();
+						if(credit_used > 0){
+							$('#success_save_modal p.hidden').removeClass('hidden');
+							$('#success_save_modal').modal('show');		
+							setTimeout(function() {
+								$("#payableForm").submit();		
+							},2500);
+						} else {
+							$("#payableForm").submit();			
+						}						
 					}
 					else
 					{
@@ -3533,7 +3574,13 @@ $(document).ready(function() {
 				{
 					if(data.code == 1)
 					{
-						$("#payableForm").submit();
+						var credit_used 	=	$('#total_cred_used').val();
+						if(cred_used > 0){
+							setTimeout(function() {
+								$('#success_save_modal').modal('show');
+							},1000);
+						}			
+						$("#payableForm").submit();			
 					}
 					else
 					{
@@ -3583,7 +3630,16 @@ $(document).ready(function() {
 				{
 					if(data.code == 1)
 					{
-						$("#payableForm").submit();
+						var credit_used 	=	$('#total_cred_used').val();
+						if(credit_used > 0){
+							$('#success_save_modal p.hidden').removeClass('hidden');
+							$('#success_save_modal').modal('show');		
+							setTimeout(function() {
+								$("#payableForm").submit();		
+							},2500);
+						} else {
+							$("#payableForm").submit();			
+						}						
 					}
 					else
 					{
@@ -3631,7 +3687,16 @@ $(document).ready(function() {
 				{
 					if(data.code == 1)
 					{
-						$("#payableForm").submit();
+						var credit_used 	=	$('#total_cred_used').val();
+						if(credit_used > 0){
+							$('#success_save_modal p.hidden').removeClass('hidden');
+							$('#success_save_modal').modal('show');		
+							setTimeout(function() {
+								$("#payableForm").submit();		
+							},2500);
+						} else {
+							$("#payableForm").submit();			
+						}						
 					}
 					else
 					{
@@ -3815,6 +3880,10 @@ $(document).ready(function() {
 				$(this).find('.credits_used').closest('.form-group').removeClass('has-error');
 			});
 		}
+	});
+
+	$('#save_okbtn').on('click',function(){
+		$('#success_save_modal').modal('hide');
 	});
 
 	//validation for Credit Amount
