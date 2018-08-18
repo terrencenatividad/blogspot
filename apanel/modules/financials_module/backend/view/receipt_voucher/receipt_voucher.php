@@ -2296,15 +2296,14 @@ function selectPayable(id,toggle){
 			paymentamount.val('');
 			discountamount.prop('disabled',true);
 			credit_used.prop('disabled',true);
+			credit_used.val("0.00");
 			// discountamount.val('');
 		}else{
 			check.prop('checked', true);
 			paymentamount.prop('disabled',false);
 			paymentamount.val(balance);
 			discountamount.prop('disabled',false);
-			if(available_credit>0){
-				credit_used.prop('disabled',false);
-			}
+			credit_used.prop('disabled',false);
 			// discountamount.val(balance);
 		}
 	}else{
@@ -2320,9 +2319,8 @@ function selectPayable(id,toggle){
 			paymentamount.prop('disabled',true);
 			paymentamount.val('');
 			discountamount.prop('disabled',true);
-			if(available_credit>0){
-				credit_used.prop('disabled',true);
-			}
+			credit_used.prop('disabled',true);
+			credit_used.val("0.00");
 			// discountamount.val('0.00');
 		}
 	}
