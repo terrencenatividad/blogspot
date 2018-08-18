@@ -144,8 +144,6 @@ class controller extends wc_controller
 		$data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
 		// Retrieve generated ID
-		// $gen_value                    = $this->payment_voucher->getValue("paymentvoucher", "COUNT(*) as count", "voucherno != ''");	
-		// $data["generated_id"]         = (!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
 		$data["generated_id"]     = '';
 
 		// Application Data
@@ -160,7 +158,18 @@ class controller extends wc_controller
 
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
-		// echo "before";
+		
+		/**
+		 * Get Company Settings
+		 */
+		$company_setting = $this->payment_voucher->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 	= $company_setting[0]->wtax_option;
+		$data["toggle_wtax"]	= ($company_setting[0]->wtax_option != 'PV') ? "hidden" : "";
+		
 		if (!empty($data_validate["vendor"]) && !empty($data_validate["document_date"])) 
 		{
 			$errmsg = array();
@@ -307,6 +316,18 @@ class controller extends wc_controller
 		$data['sum_applied'] 	= $sum_applied;
 		$data['sum_discount'] 	= $sum_discount;
 		$data['restrict_pv'] 	= $restrict_pv;
+
+		/**
+		 * Get Company Settings
+		 */
+		$company_setting = $this->payment_voucher->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 	= $company_setting[0]->wtax_option;
+		$data["toggle_wtax"]	= ($company_setting[0]->wtax_option != 'PV') ? "hidden" : "";
+
 		$this->view->load('payment_voucher/payment_voucher', $data);
 	}
 
@@ -382,6 +403,17 @@ class controller extends wc_controller
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
 
+		/**
+		 * Get Company Settings
+		 */
+		$company_setting = $this->payment_voucher->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 	= $company_setting[0]->wtax_option;
+		$data["toggle_wtax"]	= ($company_setting[0]->wtax_option != 'PV') ? "hidden" : "";
+		
 		if (!empty($data_validate["vendor"]) && !empty($data_validate["document_date"])) 
 		{
 			$update_info['stat']		= 'open';
@@ -1093,6 +1125,37 @@ class controller extends wc_controller
 		return $dataArray;
 	}
 
+	public function get_tax(){
+		$account 		= $this->input->post("account");
+		$result 		= $this->payment_voucher->getValue("chartaccount",array("accountclasscode"),"id = '$account' ");
+		$result_class 	= $result[0]->accountclasscode;
+
+		$bus_type_data	= array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
+		$bus_type_cond  = "tax_account = '$account' AND atc.stat = 'active'";
+		$join 			= "chartaccount ca ON atc.tax_account = ca.id";
+		$tax_list  		= $this->payment_voucher->getTax("atccode atc", $bus_type_data,$join ,$bus_type_cond, false);
+
+		$ret = '';
+		foreach ($tax_list as $key) {
+			$in  = $key->ind;
+			$val = $key->val;
+			$ret .= "<option value=". $in.">" .$val. "</option>";
+		}
+		
+		$returnArray = array( "result" => $result_class, "ret" => $ret);
+		return $returnArray;
+	}
+
+	public function get_account(){
+		$tax_account 	= $this->input->post("tax_account");
+		$tax_amount 	= $this->input->post("tax_amount");
+		$result 		=  $this->payment_voucher->getAccount($tax_account);
+		$tax 			= $result[0]->tax_rate;
+		$account 		= $result[0]->tax_account;
+		$amount 		= ($tax_amount * $tax) ;
+		$returnArray 	= array( "tax_amount" => $tax_amount, "tax_account" => $account ,"amount" => $amount);
+		return $returnArray;
+	}
 
 	private function getpvdetails()
 	{
@@ -1110,6 +1173,17 @@ class controller extends wc_controller
 		$account_total 		= array();
 		$apvoucher_  		= array();
 		$dis_amount  		= array();
+
+		/**
+		 * Get Company Settings
+		 */
+		$company_setting = $this->payment_voucher->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$wtax_option 	= $company_setting[0]->wtax_option;
+		$toggle_wtax	= ($wtax_option != 'PV') ? "hidden" : "";
 
 		for($i = 0; $i < count($decode_json); $i++) {
 			$apvoucherno = $decode_json[$i]["vno"];
@@ -1144,7 +1218,7 @@ class controller extends wc_controller
 		// var_dump($results);
 		// Retrieve business type list
 		$acc_entry_data     = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond     = "accounttype != 'P'";
+		$acc_entry_cond     = "id != ''";
 		$account_entry_list = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		$dis_entry 			= $this->payment_voucher->getValue("fintaxcode", array("purchaseAccount"), "fstaxcode = 'DC'");
@@ -1173,6 +1247,37 @@ class controller extends wc_controller
 				// $discount_class 	=	($discount_code == $accountcode) 	?	"discount_row" : "";
 				
 				$table .= '<tr class="clone" valign="middle">';
+				$table .= 	'<td class = "checkbox-select remove-margin text-center '.$toggle_wtax.'">';
+				$table .= 	$ui->formField('checkbox')
+								->setSplit('', 'col-md-12')
+								->setId("wtax[".$row."]")
+								->setClass("wtax")
+								->setDefault("")
+								->setValue(1)
+								->setAttribute(array("disabled" => "disabled"))
+								->draw($show_input);
+				$table .= 	'</td>';
+				$table .= 	'<td class="edit-button text-center " style="display: none;">';
+				$table .= 	'<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>';
+				$table .= 	'</td>';
+				$table .= 	'<td class = "remove-margin hidden">';
+				$table .= 	$ui->formField('text')
+								->setSplit('', 'col-md-12')
+								->setName("taxcode[".$row."]")
+								->setId("taxcode[".$row."]")
+								->setClass('taxcode')
+								->setValue("")
+								->draw($show_input);
+				$table .= 	'</td>';
+				$table .= 	'<td class = "remove-margin hidden">';
+				$table .= 	$ui->formField('text')
+								->setSplit('', 'col-md-12')
+								->setName("taxbase_amount[".$row."]")
+								->setId("taxbase_amount[".$row."]")
+								->setClass('taxbase_amount')
+								->setValue("")
+								->draw($show_input);
+				$table .= 	'</td>';
 				$table .= 	'<td class = "remove-margin">'	
 									.$ui->formField('dropdown')
 										->setPlaceholder('Select One')
@@ -1201,7 +1306,7 @@ class controller extends wc_controller
 									->setSplit('', 'col-md-12')
 									->setName('debit['.$row.']')
 									->setId('debit['.$row.']')
-									->setClass('debit')
+									->setClass('debit text-right')
 									->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 									->setValue(number_format($debit,2))
 									->draw($show_input).			
@@ -1229,7 +1334,6 @@ class controller extends wc_controller
 			$table	.= 	'<td class="text-center" colspan="5">- No Records Found -</td>';
 			$table	.= '</tr>';
 		}
-		// var_dump($totaldebit);
 		$dataArray = array( "table" => $table, "totaldebit" => number_format($totaldebit, 2), "discount_code"=>$discount_code );
 		return $dataArray;
 
@@ -1442,5 +1546,4 @@ class controller extends wc_controller
 		
 		
 	}
-	
 }
