@@ -508,6 +508,7 @@ class accounts_payable extends wc_model
 		$invoiceno			= (isset($data['invoiceno']) && (!empty($data['invoiceno']))) ? htmlentities(addslashes(trim($data['invoiceno']))) : "";
 		$transactiondate	= (isset($data['document_date']) && (!empty($data['document_date']))) ? htmlentities(addslashes(trim($data['document_date']))) : "";
 		$duedate			= (isset($data['due_date']) && (!empty($data['due_date']))) ? htmlentities(addslashes(trim($data['due_date']))) : "";
+		$proformacode		= (isset($data['proformacode']) && (!empty($data['proformacode']))) ? htmlentities(addslashes(trim($data['proformacode']))) : "";
 		$remarks			= (isset($data['remarks']) && (!empty($data['remarks']))) ? htmlentities(addslashes(trim($data['remarks']))) : "";
 		$terms				= (isset($data['vendor_terms']) && (!empty($data['vendor_terms']))) ? htmlentities(addslashes(trim($data['vendor_terms']))) : 0;
 		$totalamount		= (isset($data['total_debit']) && (!empty($data['total_debit']))) ? htmlentities(addslashes(trim($data['total_debit']))) : "";
@@ -541,7 +542,7 @@ class accounts_payable extends wc_model
 		$post_header['referenceno']		= $referenceno;
 		$post_header['exchangerate']	= $exchangerate;
 		$post_header['stat']			= $status;
-		$post_header['proformacode']	= '';
+		$post_header['proformacode']	= $proformacode;
 		$post_header['transtype']		= 'AP';
 		$post_header['invoicedate']		= $transactiondate;
 		$post_header['duedate']			= $duedate;
