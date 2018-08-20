@@ -2462,7 +2462,9 @@ function checkBalance(val,id){
 			var balances = 	$(this).find('.balances').attr('data-value');
 				balances = parseFloat(removeComma(balances));
 			
-			excess_payment 	+=	(value - balances);
+			if(value > 0){
+				excess_payment 	+=	(value - balances);
+			}
 		});
 		$('#payableForm #overpayment').val(excess_payment);
 		$('#payable_list_container #paymentamount'+id).value = '';

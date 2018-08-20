@@ -678,6 +678,7 @@ class receipt_voucher_model extends wc_model
 		$post_header['period']			= $period;
 		$post_header['fiscalyear']		= $fiscalyear;
 		$post_header['releaseby']		= USERNAME;
+		$post_header['overpayment'] 	= $overpayment;
 		$post_header['credits_used'] 	= $credits_applied;
 		$post_header['currencycode']	= 'PHP';
 		$post_header['amount']			= $total_payment;
@@ -765,6 +766,9 @@ class receipt_voucher_model extends wc_model
 				$amount 	= $pickedValue['amt'];
 				$discount 	= $pickedValue['dis'];
 				$credits 	= $pickedValue['cred'];
+				
+				$ret_bal	= $this->getValue("accountsreceivable", array("balance"), "voucherno = '$payable' AND stat NOT IN ('temporary','cancelled') ");
+				$balance 	= isset($ret_bal[0]->balance) 	?	$ret_bal[0]->balance 	:	0;
 
 				$amount 	= str_replace(',','',$amount);
 				$discount 	= str_replace(',','',$discount);
@@ -780,6 +784,7 @@ class receipt_voucher_model extends wc_model
 				$post_application['discount']			= $discount;
 				$post_application['amount']		 		= $amount;
 				$post_application['credits_used'] 		= $credits;
+				$post_application['overpayment'] 		= $amount - $balance;
 				$post_application['currencycode']		= 'PHP';
 				$post_application['exchangerate']		= '1.00';
 				$post_application['convertedamount']	= $amount;
@@ -939,7 +944,7 @@ class receipt_voucher_model extends wc_model
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
 
 				$balance_info['amountreceived']	= $applied_sum;
-				$balance_info['excessamount'] 	= $overpayment;
+				$balance_info['excessamount'] 	= $applied_sum - $invoice_amount;
 				$balance_amt 					= $invoice_amount - $applied_sum;
 				$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;
 				
@@ -1639,14 +1644,14 @@ class receipt_voucher_model extends wc_model
 		$detailTable	= "rv_details";
 		$mainTable		= "receiptvoucher";
 		$table			= "accountsreceivable";
-		$paymentField	= array('arvoucherno','convertedamount','wtaxamount','credits_used');
+		$paymentField	= array('rvapp.arvoucherno','rvapp.convertedamount','rvapp.wtaxamount','rvapp.credits_used','rvapp.overpayment');
 		
-		$paymentArray   = $this->db->setTable($appTable)
+		$paymentArray   = $this->db->setTable("$appTable rvapp")
 							   ->setFields($paymentField)
-							   ->setWhere("voucherno IN($payments) AND stat NOT IN('cancelled','temporary')")
+							   ->setWhere("rvapp.voucherno IN($payments) AND rvapp.stat NOT IN('cancelled','temporary')")
 							   ->runSelect()
 							   ->getResult();
-
+	
 		if(!empty($paymentArray))
 		{
 			for($i = 0; $i < count($paymentArray); $i++)
@@ -1655,20 +1660,22 @@ class receipt_voucher_model extends wc_model
 				$amount			= $paymentArray[$i]->convertedamount;
 				$wtaxamount		= $paymentArray[$i]->wtaxamount;
 				$credits		= $paymentArray[$i]->credits_used;
+				$overpayment	= $paymentArray[$i]->overpayment;
 				$discount		= 0;
 
-				$ar_content		= $this->getValue($table, array("balance","excessamount"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
+				$ar_content		= $this->getValue($table, array("balance","excessamount","amountreceived"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
 				$balance 		= isset($ar_content[0]->balance) 		?	$ar_content[0]->balance			: 0;
 				$excessamount 	= isset($ar_content[0]->excessamount) 	?	$ar_content[0]->excessamount	: 0;
+				$amountpaid 	= isset($ar_content[0]->amountreceived) 	?	$ar_content[0]->amountreceived	: 0;
 
 				$update_info['balance']		= ($balance + $amount + $discount + $credits) - $excessamount;
 
-				$amountpaid 	= $this->getValue($table, array("amountreceived"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
-				$amountpaid 	= $amountpaid[0]->amountreceived;
+				// $amountpaid 	= $this->getValue($table, array("amountreceived"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
+				// $amountpaid 	= $amountpaid[0]->amountreceived;
 
 				$update_info['amountreceived']	= $amountpaid - $amount - $discount - $credits;
+				$update_info['excessamount']	= $excessamount - $overpayment; 
 
-				// Update accountspayable
 				$result = $this->db->setTable($table)
 							   ->setValues($update_info)
 							   ->setWhere("voucherno = '$mainvoucher'")
@@ -1845,6 +1852,8 @@ class receipt_voucher_model extends wc_model
 									 ->setOrderBy("ar.customer ASC")
 									 ->runSelect()
 									 ->getResult();
+
+									//  echo $this->db->getQuery();
 		return $credits;
 	}
 
