@@ -92,15 +92,9 @@
 							<td class="center" style="vertical-align:middle;" colspan="4">- No Records Found -</td>
 						</tr>
 					</tbody>
-					<!--<tfoot>
-						<tr class="">
-							<td class="center" id="page_info">&nbsp;</td>
-							<td class="center" id="page_links" colspan="3"></td>
-						</tr>
-					</tfoot>-->
 				</table>
+				<div id="pagination"></div>
 			</div>
-			
 			<div class="modal-footer">
 				<div class="row row-dense">
 					<div class="col-md-12 right">
@@ -363,36 +357,40 @@
 <script type="text/javascript">
 	var ajax = {};
 	var ajax2 = {};
+	var ajax3 = {};
 		ajax.limit 	= 20; 
 		ajax2.limit = 2;
+		ajax3.limit = 10;
 	var ajax_call 	= {};
 
 	/**JSON : RETRIEVE TRANSACTIONS**/
 	function openList(acct)
 	{
-		var x			= '<button type="button" class="close" data-dismiss="modal">&times;</button>';
-		var datefilter	= document.getElementById('daterangefilter').value;
-		var items 		= document.getElementById('items').value;
+		var x					= '<button type="button" class="close" data-dismiss="modal">&times;</button>';
+		var datefilter			= document.getElementById('daterangefilter').value;
+		var items 				= document.getElementById('items').value;
 		
-		var sortCol		= '';
-		var sortBy		= '';
-	
-		var data		= "daterangefilter="+datefilter+"&accountcode="+acct+"&items="+items;
-		$.post('<?=MODULE_URL?>ajax/load_account_transactions',data, function(response) {
+		ajax3.daterangefilter 	= datefilter;
+		ajax3.accountcode 		= acct;
+		ajax3.items 			= items;
+		
+		$.post('<?=MODULE_URL?>ajax/load_account_transactions',ajax3, function(response) {
 		var jsondata	= response;
 			$("#listModal .modal-header").html('<strong>'+jsondata.title+'</strong>'+x);
-			$('#list_container').html(jsondata.table);
+			$('#listModal #list_container').html(jsondata.table);
+			$('#listModal #pagination').html(jsondata.pagination);
 			$('#acct').val(acct);
-		
-			$("#listModal").modal('show');
+			if(!($("listModal").data('bs.modal') || {}).isShown){
+				$("#listModal").modal('show');
+			}
 		});
 	}
 
 	function getTrialBalance(){
 		ajax.daterangefilter = $("#daterangefilter").val();
 		ajax_call = $.post('<?=MODULE_URL?>ajax/list', ajax , function(data) {
-			$('#trial_container').html(data.table);
-			$("#pagination").html(data.pagination);
+			$('#report_content #trial_container').html(data.table);
+			$("#report_content #pagination").html(data.pagination);
 			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 		});
 	}
@@ -459,10 +457,20 @@
 			$("#previewModal").modal('show');
 		});
 	}
-	$('#pagination').on('click', 'a', function(e) {
+	$('#report_content #pagination').on('click', 'a', function(e) {
 		e.preventDefault();
 		ajax.page = $(this).attr('data-page');
 		getTrialBalance();
+	});
+	$('#listModal #pagination').on('click', 'a', function(e) {
+		e.preventDefault();
+		ajax3.page = $(this).attr('data-page');
+		openList(ajax3.accountcode);
+	});
+	$('#listModal #items').on('change', function(e) {
+		e.preventDefault();
+		ajax3.limit = $(this).val();
+		openList(ajax3.accountcode);
 	});
 	$('#daterangefilter').on('change', function() {
 		ajax.daterangefilter = $(this).val();
