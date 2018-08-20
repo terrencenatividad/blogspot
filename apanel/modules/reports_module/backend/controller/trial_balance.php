@@ -24,7 +24,7 @@ class controller extends wc_controller {
 		$data['proforma_list'] 		= 	$this->trial_balance->getProformaList();
 
 		$year_result 				=  	$this->trial_balance->getYearforClosing();
-		$year_closing 				=	$year_result[0]->fiscalyear;
+		$year_closing 				=	isset($year_result[0]->fiscalyear)	?	$year_result[0]->fiscalyear	:	"";
 		$period_result 				=	$this->trial_balance->getClosingMonth($year_closing);
 
 		$last_date 					= 	$period_result->year."-".$period_result->month."-1";
