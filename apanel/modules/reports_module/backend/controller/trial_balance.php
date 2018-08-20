@@ -221,10 +221,6 @@ class controller extends wc_controller {
 				$credit 			= ($amount < 0) ? abs($amount) : 0;
 				$periodbalance      = $amount;
 
-				// $debit 				= ($amount > 0) ? $amount : 0;
-				// $credit 			= ($amount < 0) ? $amount * -1 : 0;
-				// $periodbalance      = ($amount > 0) ? $debit : $credit;
-				// $periodbalance      = ($amount > 0) ? $periodbalance : $periodbalance * -1;
 				$accumulatedbalance = $prevcarry + $balcarry + $periodbalance;
 					
 				$totaldebit 				+= $debit;
@@ -268,11 +264,11 @@ class controller extends wc_controller {
 	private function load_account_transactions(){
 		$data = $this->input->post(array('accountcode', 'daterangefilter','items'));
 		$result = $this->trial_balance->load_account_transactions($data);
-		// var_dump($result["title"]);
 		return array(
 			'title' => $result["title"],
 			'qtr'   => $result["qtr"],
 			'table' => $result["table"],
+			'pagination' => $result["pagination"],
 			'accountfilter' => $result["accountfilter"]
 		);
 	}
