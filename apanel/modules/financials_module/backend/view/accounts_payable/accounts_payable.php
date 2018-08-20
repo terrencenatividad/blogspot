@@ -123,7 +123,7 @@
 									<div class = "col-md-6 vendor_div ">
 										<?php
 											echo $ui->formField('dropdown')
-												->setLabel('Supplier ')
+												->setLabel('Supplier <span class = "asterisk">*</span>')
 												->setPlaceholder('None')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('vendor')

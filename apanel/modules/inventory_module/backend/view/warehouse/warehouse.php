@@ -14,7 +14,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Warehouse Code')
+								->setLabel('Warehouse Code <span class = "asterisk">*</span>')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('warehousecode')
 								->setId('warehousecode')
@@ -27,7 +27,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Warehouse Description')
+								->setLabel('Warehouse Description <span class = "asterisk">*</span>')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('description')
 								->setId('description')

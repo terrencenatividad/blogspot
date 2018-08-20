@@ -9,7 +9,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('First Name')
+											->setLabel('First Name <span class = "asterisk">*</span>')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('firstname')
 											->setId('firstname')
@@ -34,7 +34,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('Last Name')
+											->setLabel('Last Name <span class = "asterisk">*</span>')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('lastname')
 											->setId('lastname')
@@ -46,7 +46,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('dropdown')
-											->setLabel('Group Access')
+											->setLabel('Group Access <span class = "asterisk">*</span>')
 											->setPlaceholder('Select Group')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('groupname')
@@ -62,7 +62,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('E-mail')
+											->setLabel('E-mail <span class = "asterisk">*</span>')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('email')
 											->setId('email')
@@ -76,7 +76,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('Phone')
+											->setLabel('Phone <span class = "asterisk">*</span>')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('phone')
 											->setId('phone')
@@ -88,7 +88,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('Mobile')
+											->setLabel('Mobile <span class = "asterisk">*</span>')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('mobile')
 											->setId('mobile')
@@ -102,7 +102,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('Username')
+											->setLabel('Username <span class = "asterisk">*</span>')
 											->setAttribute(array('autocomplete' => 'off'))
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('username')
@@ -116,7 +116,7 @@
 									<?php
 										if ($show_input) {
 											echo $ui->formField('text')
-												->setLabel('Password')
+												->setLabel('Password <span class = "asterisk">*</span>')
 												->setAttribute(array('autocomplete' => 'off'))
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('password')

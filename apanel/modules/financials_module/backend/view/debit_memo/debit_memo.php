@@ -70,7 +70,7 @@
 					?>-->
 					<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Partner')
+								->setLabel('Partner <span class = "asterisk">*</span>')
 								->setPlaceholder('None')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('partner')

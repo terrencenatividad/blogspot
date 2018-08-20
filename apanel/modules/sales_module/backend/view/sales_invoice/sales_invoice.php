@@ -56,7 +56,7 @@
 					<?php
 						if($ro_input){
 							echo $ui->formField('dropdown')
-								->setLabel('Customer')
+								->setLabel('Customer <span class = "asterisk">*</span>')
 								->setPlaceholder('None')
 								->setSplit('col-md-3', 'col-md-8')
 								->setName('customer')
@@ -112,7 +112,7 @@
 							// 		->setValidation('required')
 							// 		->draw($ro_input);
 							echo $ui->formField('text')
-									->setLabel('Delivery Receipt')
+									->setLabel('Delivery Receipt <span class = "asterisk">*</span>')
 									->setSplit('col-md-3', 'col-md-8')
 									->setName('drno')
 									->setId('drno')

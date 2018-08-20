@@ -7,7 +7,7 @@
 						<div class="col-md-12">
 							<?php
 								echo $ui->formField('text')
-									->setLabel('Group Name')
+									->setLabel('Group Name <span class = "asterisk">*</span>')
 									->setAttribute(array('autocomplete' => 'off'))
 									->setSplit('col-md-2', 'col-md-8')
 									->setName('groupname')
@@ -22,7 +22,7 @@
 						<div class="col-md-12">
 							<?php
 								echo $ui->formField('textarea')
-									->setLabel('Group Desc')
+									->setLabel('Group Desc <span class = "asterisk">*</span>')
 									->setSplit('col-md-2', 'col-md-8')
 									->setName('description')
 									->setId('description')

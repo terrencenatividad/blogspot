@@ -17,7 +17,7 @@
 					<div class="col-md-12">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Currency Code:')
+									->setLabel('Currency Code: <span class = "asterisk">*</span>')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('currencycode')
 									->setId('currencycode')
@@ -32,7 +32,7 @@
 					<div class="col-md-12">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Currency Name:')
+									->setLabel('Currency Name: <span class = "asterisk">*</span>')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('currency')
 									->setId('currency')

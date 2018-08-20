@@ -8,17 +8,18 @@
 	<div class="box box-primary">
 		<div class="panel panel-default">
 			
-		<form class="form-horizontal" method="POST" id="coaForm" autocomplete="off">
+		<form class="form-horizontal form-group" method="POST" id="coaForm" autocomplete="off">
 			<div class="panel-body">
 				<div class="row">
 					<div class="col-md-6">
 					<?
 							echo $ui->formField('text')
-									->setLabel('ATC Code')
+									->setLabel('ATC Code <span class = "asterisk">*</span>')
 									->setSplit('col-md-3', 'col-md-8')
 									->setName('atc_code')
 									->setId('atc_code')
 									->setValue($atc_code)
+									->setValidation('required')
 									->draw($task != "view");	
 
 					?>	
@@ -26,11 +27,12 @@
 					<div class="col-md-6">		
 					<?
 						echo $ui->formField('text')
-									->setLabel('Tax Rate(%)')
+									->setLabel('Tax Rate(%) <span class = "asterisk">*</span>')
 									->setSplit('col-md-3', 'col-md-8')
 									->setName('tax_rate')
 									->setId('tax_rate')
 									->setValue($tax_rate)
+									->setValidation('required')
 									->draw($task != "view");
 					?>
 					</div>				
@@ -51,12 +53,13 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-									->setLabel('Tax Account:')
+									->setLabel('Tax Account: <span class = "asterisk">*</span>')
 									->setSplit('col-md-3', 'col-md-8')
 									->setName('tax_account')
 									->setId('tax_account')
 									->setList($account_list)
 									->setValue($tax_account)
+									->setValidation('required')
 									->draw($task != "view");
 						?>
 					</div>
@@ -66,11 +69,12 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('textarea')
-									->setLabel('Description:')
+									->setLabel('Description: <span class = "asterisk">*</span>')
 									->setSplit('col-md-3', 'col-md-8')
 									->setName('short_desc')
 									->setId('short_desc')
 									->setValue($short_desc)
+									->setValidation('required')
 									->draw($task != "view");
 						?>
 					</div>

@@ -33,7 +33,7 @@
 								<div class="row">
 									<div class="col-md-6">	
 										<div class="form-group">
-											<label class="control-label col-md-5 left">Select daterange</label>
+											<label class="control-label col-md-5 left">Select daterange <span class = "asterisk">*</span></label>
 											<div class="col-md-7">
 												<div class="input-group monthrangefilter">
 													<input type="text" name="daterangefilter" id="daterangefilter" class="form-control" value="" data-daterangefilter="month" data-validation="required">
@@ -46,7 +46,7 @@
 										</div>
 										<?php
 											echo $ui->formField('dropdown')
-												->setLabel('Select Bank')
+												->setLabel('Select Bank <span class = "asterisk">*</span>')
 												->setPlaceholder('Filter Bank')
 												->setSplit('col-md-5','col-md-7')
 												->setName('accountcode')
@@ -62,7 +62,7 @@
 											</div>
 										</div>
 										<div class="form-group">
-											<label for="import_csv" class="control-label col-md-5">Select file to import</label>
+											<label for="import_csv" class="control-label col-md-5">Select file to import <span class = "asterisk">*</span></label>
 											<div class="col-md-7">
 												<?php
 													echo $ui->setElement('file')
@@ -103,7 +103,7 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('text')
-												->setLabel('Ending Balance')
+												->setLabel('Ending Balance <span class = "asterisk">*</span>')
 												->setPlaceholder('0.00')
 												->setSplit('col-md-5','col-md-7')
 												->setName('endbalance')

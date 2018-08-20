@@ -8,18 +8,19 @@
 	<div class="box box-primary">
 		<div class="panel panel-default">
 			
-		<form class="form-horizontal" method="POST" id="coaForm" autocomplete="off">
+		<form class="form-horizontal form-group" method="POST" id="coaForm" autocomplete="off">
 			<div class="panel-body">
 				<div class="row">
 					<div class="col-md-6">
 
 					<?
 							echo $ui->formField('text')
-									->setLabel('Account Code')
+									->setLabel('Account Code <span class = "asterisk">*</span>')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('accountcode')
 									->setId('accountcode')
 									->setValue($accountcode)
+									->setValidation('required')
 									->draw($task != "view");	
 
 					?>	
@@ -29,11 +30,12 @@
 					
 					<?
 						echo $ui->formField('text')
-									->setLabel('Account Name')
+									->setLabel('Account Name <span class = "asterisk">*</span>')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('accountname')
 									->setId('accountname')
 									->setValue($accountname)
+									->setValidation('required')
 									->draw($task != "view");
 					?>
 					</div>				
@@ -43,26 +45,28 @@
 					<div class = "col-md-6">
 					<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Account Class')
+									->setLabel('Account Class <span class = "asterisk">*</span>')
 									->setPlaceholder('Select Account Class Code')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('accountclasscode')
 									->setId('accountclasscode')
 									->setList($accountclasscode_list)
 									->setValue($accountclasscode)
+									->setValidation('required')
 									->draw($task != "view");
 					?>
 					</div>
 					<div class = "col-md-6">
 					<?php
 								echo $ui->formField('dropdown')
-									->setLabel('FS Presentation')
+									->setLabel('FS Presentation <span class = "asterisk">*</span>')
 									->setPlaceholder('Select FS Presentation')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('fspresentation')
 									->setId('fspresentation')
 									->setList($fspresentation_list)
 									->setValue($fspresentation)
+									->setValidation('required')
 									->draw($task != "view");
 					?>
 					</div>
@@ -72,13 +76,14 @@
 					<div class = "col-md-6">
 					<?
 								echo $ui->formField('dropdown')
-											->setLabel('Account Type')
+											->setLabel('Account Type <span class = "asterisk">*</span>')
 											->setPlaceholder('Select Account Type')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('accounttype')
 											->setId('accounttype')
 											->setList($accounttype_list)
 											->setValue($accounttype)
+											->setValidation('required')
 											->draw($task != "view");
 					?>
 					</div>
@@ -102,13 +107,14 @@
 					<div class = "col-md-6">
 					<?
 								echo $ui->formField('dropdown')
-												->setLabel('Account Nature')
+												->setLabel('Account Nature <span class = "asterisk">*</span>')
 												->setPlaceholder('Select Account Nature')
 												->setSplit('col-md-4','col-md-8')
 												->setName('accountnature')
 												->setId('accountnature')
 												->setList($accountnature_list)
 												->setValue($accountnature)
+												->setValidation('required')
 												->draw($task != "view");
 					?>
 					

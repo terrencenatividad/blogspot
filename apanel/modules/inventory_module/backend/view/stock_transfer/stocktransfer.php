@@ -23,7 +23,7 @@
 								<?php else: ?>
 									<?php
 										echo $ui->formField('text')
-											->setLabel('Transaction #')
+											->setLabel('Transaction # <span class = "asterisk">*</span>')
 											->setSplit('col-md-4', 'col-md-8 transaction_input')
 											->setName('transactionno')
 											->setId('transactionno')
@@ -50,7 +50,7 @@
 						<div class="col-md-6">
 						<?
 							echo $ui->formField('dropdown')
-									->setLabel('Request From Warehouse')
+									->setLabel('Request From Warehouse <span class = "asterisk">*</span>')
 									->setPlaceholder('Select Warehouse')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('site_source')
@@ -65,7 +65,7 @@
 						<div class="col-md-6">
 						<?
 							echo $ui->formField('text')
-									->setLabel('Transaction Date:')
+									->setLabel('Transaction Date: <span class = "asterisk">*</span>')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('transactiondate')
 									->setId('transactiondate')
@@ -82,7 +82,7 @@
 						<div class="col-md-6">
 							<?php
 							echo $ui->formField('dropdown')
-									->setLabel('Destination Warehouse')
+									->setLabel('Destination Warehouse <span class = "asterisk">*</span>')
 									->setPlaceholder('Select Destination Warehouse')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('site_destination')
@@ -99,7 +99,7 @@
 							<?php
 
 								echo $ui->formField('text')
-									->setLabel('Transfer Date:')
+									->setLabel('Transfer Date: <span class = "asterisk">*</span>')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('transferdate')
 									->setId('transferdate')
@@ -116,7 +116,7 @@
 						<div class="col-md-6">
 							<?php
 							echo $ui->formField('text')
-									->setLabel('Prepared By')
+									->setLabel('Prepared By <span class = "asterisk">*</span>')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('prepared_by')
 									->setId('prepared_by')
