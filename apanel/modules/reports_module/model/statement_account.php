@@ -233,7 +233,7 @@
 								UNION ALL
  
 								select rv.transactiondate as invoicedate, ar.sourceno as invoiceno, 'Payment' documenttype, 
-								app.voucherno reference, rv.particulars as particulars, (app.convertedamount + app.discount) as amount,
+								app.voucherno reference, rv.particulars as particulars, (app.convertedamount + app.discount - app.overpayment) as amount,
 								rv.companycode companycode, rv.entereddate entereddate
 								from rv_application as app 
 								left join accountsreceivable ar ON ar.voucherno = app.arvoucherno
