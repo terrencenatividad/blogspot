@@ -1236,6 +1236,7 @@ class receipt_voucher_model extends wc_model
 
 		if( $result ){
 			$data['cvoucher'] 	=	$cm_no;
+			$this->log->saveActivity("Added/Updated Credit Memo [$cm_no]");
 			$result 			=	$this->generateCMDetails($data);
 		}
 

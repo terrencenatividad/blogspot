@@ -940,31 +940,31 @@
 
 <!-- Delete Record Confirmation Modal -->
 <div class="modal fade" id="deleteItemModal" tabindex="-1" data-backdrop="static">
-<div class="modal-dialog modal-sm">
-	<div class="modal-content">
-		<div class="modal-header">
-			Confirmation
-			<button type="button" class="close" data-dismiss="modal">&times;</button>
-		</div>
-		<div class="modal-body">
-			Are you sure you want to delete this record?
-			<input type="hidden" id="recordId"/>
-		</div>
-		<div class="modal-footer">
-			<div class="row row-dense">
-				<div class="col-md-12 center">
-					<div class="btn-group">
-						<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
-					</div>
-					&nbsp;&nbsp;&nbsp;
-					<div class="btn-group">
-						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Confirmation
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				Are you sure you want to delete this record?
+				<input type="hidden" id="recordId"/>
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 center">
+						<div class="btn-group">
+							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+						</div>
+						&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
 </div>
 
 <!-- Delete Cheque Confirmation Modal -->
@@ -999,30 +999,30 @@
 
 <!--DELETE RECORD CONFIRMATION MODAL-->
 <div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
-<div class="modal-dialog modal-sm">
-	<div class="modal-content">
-		<div class="modal-header">
-			Confirmation
-			<button type="button" class="close" data-dismiss="modal">&times;</button>
-		</div>
-		<div class="modal-body">
-			Are you sure you want to cancel?
-		</div>
-		<div class="modal-footer">
-			<div class="row row-dense">
-				<div class="col-md-12 center">
-					<div class="btn-group">
-						<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
-					</div>
-						&nbsp;&nbsp;&nbsp;
-					<div class="btn-group">
-						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Confirmation
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				Are you sure you want to cancel?
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 center">
+						<div class="btn-group">
+							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+						</div>
+							&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
 </div>
 <!-- End DELETE RECORD CONFIRMATION MODAL-->
 
@@ -1063,7 +1063,7 @@
 			</div>
 			<div class="modal-body">
 				<p>Successfully Saved.</p>
-				<p class="hidden">A <a target="_blank" href="<?=BASE_URL?>financials/credit_memo">Credit Memo</a> has been generated for the overpayment.</p>
+				<p class="hidden">A <strong>Credit Memo</strong> has been generated for the overpayment.</p>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-success" data-dismiss="modal" id="save_okbtn">Ok</button>
@@ -3315,6 +3315,37 @@ $(document).ready(function() {
 			validateField('paymentForm', e.target.id, e.target.id + "_help");
 	});
 
+	function finalize_saving(){
+		$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/update_temporarily_saved_data",$("#payableForm").serialize())
+		.done(function(data)
+		{	
+			if(data.success == 1)
+			{
+				// $("#payableForm #h_voucher_no").val(data.voucher);
+				
+				var credit_used 	=	$('#total_cred_used').val();
+				if(credit_used > 0){
+					$('#success_save_modal p.hidden').removeClass('hidden');
+					$('#success_save_modal').modal('show');	
+				} else {
+					window.location.href = '<?=BASE_URL?>financials/receipt_voucher';
+				}	
+			}
+			else
+			{
+				var msg = "";
+
+				for(var i = 0; i < data.msg.length; i++)
+				{
+					msg += data.msg[i];
+				}
+
+				$("#errordiv").removeClass("hidden");
+				$("#errordiv #msg_error ul").html(msg);
+			}
+		});
+	}
+
 	// Process New Transaction
 	if('<?= $task ?>' == "create"){
 		/**SAVE TEMPORARY DATA THROUGH AJAX**/
@@ -3335,7 +3366,6 @@ $(document).ready(function() {
 						if(data.code == '1')
 						{
 							$("#payableForm #h_voucher_no").val(data.voucher);
-							// window.location.href = '<?=BASE_URL?>financials/receipt_voucher';
 						}
 					});
 				});
@@ -3347,7 +3377,7 @@ $(document).ready(function() {
 		{
 			var valid	= 0;
 			var selected_rows 	= JSON.stringify(container);
-			/**validate vendor field**/
+
 			valid		+= validateField('payableForm','document_date', "document_date_help");
 			valid		+= validateField('payableForm','customer', "customer_help");
 			
@@ -3391,24 +3421,13 @@ $(document).ready(function() {
 				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{	
-					if(data.code == 1)
-					{
+					if(data.code == 1){
 						$("#payableForm #h_voucher_no").val(data.voucher);
-						
-						var credit_used 	=	$('#total_cred_used').val();
-						if(credit_used > 0){
-							$('#success_save_modal p.hidden').removeClass('hidden');
-							$('#success_save_modal').modal('show');	
-						} else {
-							$("#payableForm").submit();			
-						}	
-					}
-					else
-					{
+						finalize_saving();
+					} else {
 						var msg = "";
 
-						for(var i = 0; i < data.msg.length; i++)
-						{
+						for(var i = 0; i < data.msg.length; i++) {
 							msg += data.msg[i];
 						}
 
@@ -3423,8 +3442,7 @@ $(document).ready(function() {
 		});
 
 		/**FINALIZE TEMPORARY DATA AND REDIRECT TO CREATE NEW INVOICE**/
-		$("#payableForm #save_new").click(function()
-		{
+		$("#payableForm #save_new").click(function(){
 			var valid	= 0;
 
 			/**validate vendor field**/
@@ -3446,16 +3464,9 @@ $(document).ready(function() {
 				.done(function(data)
 				{
 					if(data.code == 1){
-						var credit_used 	=	$('#total_cred_used').val();
-						if(credit_used > 0){
-							$('#success_save_modal p.hidden').removeClass('hidden');
-							$('#success_save_modal').modal('show');
-						} else {
-							$("#payableForm").submit();			
-						}						
-					}
-					else
-					{
+						$("#payableForm #h_voucher_no").val(data.voucher);
+						finalize_saving();				
+					} else {
 						var msg = "";
 
 						for(var i = 0; i < data.msg.length; i++)
@@ -3497,16 +3508,9 @@ $(document).ready(function() {
 				.done(function(data)
 				{
 					if(data.code == 1){
-						var credit_used 	=	$('#total_cred_used').val();
-						if(credit_used > 0){
-							$('#success_save_modal p.hidden').removeClass('hidden');
-							$('#success_save_modal').modal('show');		
-						} else {
-							$("#payableForm").submit();			
-						}						
-					}
-					else
-					{
+						$("#payableForm #h_voucher_no").val(data.voucher);
+						finalize_saving();									
+					} else {
 						var msg = "";
 
 						for(var i = 0; i < data.msg.length; i++)
@@ -3563,18 +3567,9 @@ $(document).ready(function() {
 				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{
-					if(data.code == 1)
-					{
-						var credit_used 	=	$('#total_cred_used').val();
-						if(cred_used > 0){
-							setTimeout(function() {
-								$('#success_save_modal').modal('show');
-							},1000);
-						}			
-						$("#payableForm").submit();			
-					}
-					else
-					{
+					if(data.code == 1) {
+						finalize_saving();					
+					} else {
 						var msg = "";
 
 						for(var i = 0; i < data.msg.length; i++)
@@ -3619,18 +3614,9 @@ $(document).ready(function() {
 				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{
-					if(data.code == 1)
-					{
-						var credit_used 	=	$('#total_cred_used').val();
-						if(credit_used > 0){
-							$('#success_save_modal p.hidden').removeClass('hidden');
-							$('#success_save_modal').modal('show');		
-						} else {
-							$("#payableForm").submit();			
-						}						
-					}
-					else
-					{
+					if(data.code == 1) {
+						finalize_saving();					
+					} else {
 						var msg = "";
 
 						for(var i = 0; i < data.msg.length; i++)
@@ -3673,18 +3659,9 @@ $(document).ready(function() {
 				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function( data ) 
 				{
-					if(data.code == 1)
-					{
-						var credit_used 	=	$('#total_cred_used').val();
-						if(credit_used > 0){
-							$('#success_save_modal p.hidden').removeClass('hidden');
-							$('#success_save_modal').modal('show');		
-						} else {
-							$("#payableForm").submit();			
-						}						
-					}
-					else
-					{
+					if(data.code == 1) {
+						finalize_saving();					
+					} else {
 						var msg = "";
 
 						for(var i = 0; i < data.msg.length; i++)
@@ -3869,8 +3846,8 @@ $(document).ready(function() {
 
 	$('#save_okbtn').on('click',function(){
 		setTimeout(function() {
-			$("#payableForm").submit();		
-		},2500);
+			window.location.href = '<?=BASE_URL?>financials/receipt_voucher';
+		},1500);
 	});
 
 	//validation for Credit Amount
@@ -3892,7 +3869,7 @@ $(document).ready(function() {
 	// 			$('#excess_credit_error').addClass('hidden');
 	// 			$(this).closest('.form-group').removeClass('has-error');
 
-	// 			$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_op_acct",$('#payableForm').serialize())
+	// 			$.post("<?//=BASE_URL?>financials/receipt_voucher/ajax/retrieve_op_acct",$('#payableForm').serialize())
 	// 			.done(function( response ) {
 	// 				var excess_acct = addCommas(response.account);
 	// 				var ParentRow = $("#entriesTable tbody tr.clone").last();
