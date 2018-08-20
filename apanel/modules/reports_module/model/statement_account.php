@@ -52,7 +52,7 @@
 			$dm_query .= (!empty($custfilter) && $custfilter != 'none') ? "AND dm.partner = '$custfilter' " : "";
 
 			return $this->db->setTable("(
-								select ar.transactiondate invoicedate, ar.sourceno invoiceno, 'Invoice' documenttype,
+								select ar.transactiondate invoicedate, ar.invoiceno invoiceno, 'Invoice' documenttype,
 								ar.voucherno reference, ar.particulars as particulars, ar.convertedamount as amount,
 								ar.companycode companycode, ar.entereddate entereddate
 								from accountsreceivable as ar  
@@ -224,7 +224,7 @@
 			$dm_query 			.= (!empty($custfilter) && $custfilter != 'none') ? "AND dm.partner = '$custfilter' " : "";
 
 			return $this->db->setTable("(
-								select ar.transactiondate invoicedate, ar.sourceno invoiceno, 'Invoice' documenttype,
+								select ar.transactiondate invoicedate, ar.invoiceno invoiceno, 'Invoice' documenttype,
 								ar.voucherno reference, ar.particulars as particulars, ar.convertedamount as amount,
 								ar.companycode companycode, ar.entereddate entereddate
 								from accountsreceivable as ar  
@@ -261,6 +261,18 @@
 							->setOrderBy("entereddate, invoicedate, invoiceno ASC")
 							->runSelect()
 							->getResult();
+		}
+
+		public function getInvoice($voucherno)
+		{
+			$result = $this->db->setTable("accountsreceivable")
+						->setFields("invoiceno")
+						->setWhere(" voucherno = '$voucherno' ")
+						->setLimit('1')
+						->runSelect()
+						->getRow();
+
+			return $result;
 		}
 	}
 ?>
