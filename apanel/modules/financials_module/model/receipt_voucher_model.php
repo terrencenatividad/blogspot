@@ -1226,11 +1226,11 @@ class receipt_voucher_model extends wc_model
 		$op_arr['invoiceno'] 		= $arvoucher;
 		$op_arr['amount']			= $overpayment;
 		$op_arr['convertedamount']	= $overpayment * $exchangerate;
-		$op_arr['referenceno'] 		= $invoiceno;
+		$op_arr['referenceno'] 		= $cm_no;
 		$op_arr['source'] 			= "excess";
 		$op_arr['sourceno']			= $invoiceno;
 		$op_arr['si_no'] 			= $voucherno;
-		$op_arr['remarks'] 			= $remarks;
+		$op_arr['remarks'] 			= "Reference : ".$invoiceno." - ".$arvoucher;
 
 		$result 	=	 $this->insertdata('journalvoucher',$op_arr);
 
