@@ -6,37 +6,37 @@
 	</div>
 	<!-- Success Message for File Import -->
 	<?php
-		$file_import_msg = ($file_import_result) ? "<strong>Success!</strong> CSV file has been uploaded." : "Selected file was not uploaded successfully.";
+		// $file_import_msg = ($file_import_result) ? "<strong>Success!</strong> CSV file has been uploaded." : "Selected file was not uploaded successfully.";
 
-		if($file_import_result)
-		{
-			echo '<div class="alert alert-success alert-dismissable" id="success_alert">
-					<button type="button" class="close" data-dismiss="alert" >&times;</button>';
-			echo 	'"'.$file_import_msg.'"';
-			echo '</div>';
-			header("Refresh:0");
-		}
+		// if($file_import_result)
+		// {
+		// 	echo '<div class="alert alert-success alert-dismissable" id="success_alert">
+		// 			<button type="button" class="close" data-dismiss="alert" >&times;</button>';
+		// 	echo 	'"'.$file_import_msg.'"';
+		// 	echo '</div>';
+		// 	header("Refresh:0");
+		// }
 	?>
 
 	<!-- Error Message for File Import -->
 	<?php
-		$errmsg		= array_filter($import_error_messages);
-		$errorcount	= count($errmsg);
+		// $errmsg		= array_filter($import_error_messages);
+		// $errorcount	= count($errmsg);
 
-		if($errorcount > 0)
-		{
-			echo '<div class="alert alert-warning alert-dismissable">
-					<button type="button" class="close" data-dismiss="alert" >&times;</button>';
-			echo 	"<strong>The system encountered the following error(s) in processing 
-						the file you've imported:</strong><hr/>";
-			echo	"<ul>";
-			foreach($errmsg as $errmsgIndex => $errmsgVal)
-			{
-				echo '<li>'.$errmsgVal.'</li>';
-			}		
-			echo	"</ul>";
-			echo '</div>';
-		}
+		// if($errorcount > 0)
+		// {
+		// 	echo '<div class="alert alert-warning alert-dismissable">
+		// 			<button type="button" class="close" data-dismiss="alert" >&times;</button>';
+		// 	echo 	"<strong>The system encountered the following error(s) in processing 
+		// 				the file you've imported:</strong><hr/>";
+		// 	echo	"<ul>";
+		// 	foreach($errmsg as $errmsgIndex => $errmsgVal)
+		// 	{
+		// 		echo '<li>'.$errmsgVal.'</li>';
+		// 	}		
+		// 	echo	"</ul>";
+		// 	echo '</div>';
+		// }
 	?>
 
 	<div class="box box-primary">
@@ -239,7 +239,7 @@
 </div>
 
 <!-- Import Modal -->
-<div class="import-modal">
+<div class="import-modal" id="import-modal">
 	<div class="modal">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -416,9 +416,34 @@ var ajax = {};
 		});
 
 
+		// $("#importForm #btnImport").click(function() 
+		// {
+		// 	$("#importForm").submit();
+		// });
+
 		$("#importForm #btnImport").click(function() 
 		{
-			$("#importForm").submit();
+			var formData =	new FormData();
+			formData.append('file',$('#import_csv')[0].files[0]);
+			ajax_call 	=	$.ajax({
+								url : '<?=MODULE_URL?>ajax/save_import',
+								data:	formData,
+								cache: 	false,
+								processData: false, 
+								contentType: false,
+								type: 	'POST',
+								success: function(response){
+									if(response && response.errmsg == ""){
+										$('#import-modal').modal('hide');
+										show_success_msg("Your data has been successfully imported!");										
+										$(".alert-warning").addClass("hidden");
+										$("#errmsg").html('');
+									}else{
+										$('#import-modal').modal('hide');
+										show_error(response.errmsg);
+									}
+								},
+							});
 		});
 
 		// $("#export").click(function() 
@@ -445,6 +470,12 @@ var ajax = {};
 		// $('#export_id').prop('href','');
 
 	});
+
+	function show_success_msg(msg)
+	{
+		$('#success_modal #message').html(msg);
+		$('#success_modal').modal('show');
+	}
 
 	$('#tableList').on('click', '.activate', function() { 
 			var id = $(this).attr('data-id');

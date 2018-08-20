@@ -56,7 +56,7 @@
 								<?php
 									if($show_input){
 										echo $ui->formField('dropdown')
-											->setLabel('Suppplier')
+											->setLabel('Supplier <span class = "asterisk">*</span>')
 											->setPlaceholder('None')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('vendor')
@@ -68,7 +68,7 @@
 											->draw($show_input);
 									}else{
 										echo $ui->formField('text')
-											->setLabel('Supplier')
+											->setLabel('Supplier <span class = "asterisk">*</span>')
 											->setSplit('col-md-4', 'col-md-8')
 											->setValue($vendor)
 											->draw($show_input);
@@ -775,7 +775,7 @@
 <!-- End Delete Record Confirmation Modal -->
 
 <!--DELETE RECORD CONFIRMATION MODAL-->
-<div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
+<!-- <div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
 	<div class="modal-dialog modal-sm">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -800,7 +800,7 @@
 			</div>
 		</div>
 	</div>
-</div>
+</div> -->
 <!-- End DELETE RECORD CONFIRMATION MODAL-->
 
 

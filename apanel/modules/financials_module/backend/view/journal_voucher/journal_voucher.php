@@ -51,7 +51,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('Reference')
+											->setLabel('Reference <span class = "asterisk">*</span>')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('referenceno')
 											->setId('referenceno')

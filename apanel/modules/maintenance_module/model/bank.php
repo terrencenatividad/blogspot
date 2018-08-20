@@ -1,6 +1,7 @@
 <?php
 	class bank extends wc_model
 	{
+		
 
 		public function retrieveExchangeRateDropdown()
 		{
@@ -21,7 +22,7 @@
 
 			$result = $this->db->setTable('bank')
 							->setFields($fields)
-							->setWhere(" stat = 'active' $add_cond ")
+							->setWhere(" stat IN  ('active','inactive') $add_cond ")
 							->setOrderBy($sort)
 							->runPagination();
 			return $result;
@@ -173,9 +174,10 @@
 
 		}
 		public function getAccountname($id){
-			$result = $this->db->setTable('bank')
-					->setFields('id, shortname ')
-					->setWhere(" id = '$id'")
+			$result = $this->db->setTable('bank b')
+					->setFields('id, shortname, firstchequeno, lastchequeno ')
+					->setWhere("id = '$id'")
+					->leftJoin("bankdetail bd ON b.id = bd.bank_id ")
 					->runSelect()
 					->getResult();
 			return $result;
@@ -214,6 +216,68 @@
 											  ->setWhere($condition)
 											  ->setLimit(1)
 											  ->runUpdate();
+			return $result;
+		}
+
+		public function deactivateBank($id, $data){
+			$con			   	   = " id = '$id' ";
+			$result 			   = $this->db->setTable('bank')
+											  ->setValues($data)
+											  ->setWhere($con)
+											  ->setLimit(1)
+											  ->runUpdate();
+			return $result;
+
+		}
+
+		public function getBank($id){
+			$condition   = "";
+			$id_array 	 = explode(',', $id['id']);
+			
+			// for($i = 0; $i < count($id_array); $i++)
+			// {
+			// 	$fields = array(
+			// 		'shortname',
+			// 		'bankcode',
+			// 	);
+	
+			// 	$id    = $id_array[$i];
+
+			
+			// 	return $result; 
+
+			
+			// }
+			foreach ($id_array as $id ) {
+				
+				$condition 		= " id = '$id'";
+				$fields = array(
+							'shortname',
+							'accountno',
+						);
+			
+				$result = $this->db->setTable('bank')
+							->setWhere($condition)
+							->setFields($fields)
+							->runSelect()
+							->getResult();	
+			}
+
+			return $result; 
+
+		}
+
+		public function getInfo($id){
+			$fields = array(
+				'shortname',
+				'accountno',
+			);
+			$condition 		= " id = '$id'";
+			$result = $this->db->setTable('bank')
+							->setWhere($condition)
+							->setFields($fields)
+							->runSelect()
+							->getResult();	
 			return $result;
 		}
 

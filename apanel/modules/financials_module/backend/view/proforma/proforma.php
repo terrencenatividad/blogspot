@@ -15,7 +15,7 @@
 							<?
 								if($task=='create'){
 									echo $ui->formField('text')
-											->setLabel('Proforma Code')
+											->setLabel('Proforma Code <span class = "asterisk">*</span>')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('proformacode')
 											->setId('proformacode')
@@ -23,7 +23,7 @@
 											->draw($task != "view");
 								}else{
 									echo $ui->formField('text')
-											->setLabel('Proforma Code')
+											->setLabel('Proforma Code <span class = "asterisk">*</span>')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('proformacode')
 											->setId('proformacode')
@@ -39,7 +39,7 @@
 							<div class="col-md-6">		
 							<?
 									echo $ui->formField('dropdown')
-												->setLabel('Transaction Type')
+												->setLabel('Transaction Type <span class = "asterisk">*</span>')
 												->setPlaceholder('Select Transaction Type')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('financialtype')
@@ -73,7 +73,7 @@
 									<table class="table table-hover table-condensed " id="itemsTable">
 									<thead>
 										<tr class="info">
-											<th class="col-md-3 left">Account code</th>
+											<th class="col-md-3 left">Account code <span class = "asterisk">*</span></th>
 											<th class="col-md-8 left"> &nbsp; </th>
 											<?if($task!='view'){?>
 											<th class="col-md-1 center"></th>
@@ -91,7 +91,7 @@
 									<td style="width: 50%;">
 										<?
 										echo $ui->formField('dropdown')
-												->setPlaceholder('Select Account Code')
+												->setPlaceholder('Select Account Code ')
 												->setSplit('col-md-4', 'col-md-12')
 												->setName('accountcodeid['.$row.']')
 												->setId('accountcodeid['.$row.']')

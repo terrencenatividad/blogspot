@@ -50,6 +50,7 @@ class controller extends wc_controller
 
 	public function create()
 	{
+		$this->view->title      = 'Create Quotation';
 		$data 					= $this->input->post($this->fields);
 
 		$data['customer_list'] 	= $this->sq->retrieveCustomerList();
@@ -100,6 +101,7 @@ class controller extends wc_controller
 
 	public function edit($voucherno)
 	{
+		$this->view->title      = 'Edit Quotation';
 		$retrieved_data 		= $this->sq->retrieveExistingSQ($voucherno);
 		$data['customer_list'] 	= $this->sq->retrieveCustomerList();
 		$data['proforma_list'] 	= $this->sq->retrieveProformaList();
@@ -175,6 +177,7 @@ class controller extends wc_controller
 
 	public function view($voucherno)
 	{
+		$this->view->title      = 'View Quotation';
 		$retrieved_data 		= $this->sq->retrieveExistingSQ($voucherno);
 
 		// Closed Date

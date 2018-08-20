@@ -52,7 +52,7 @@
 						<div class = "col-md-6">
 							<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Supplier')
+									->setLabel('Supplier <span class = "asterisk">*</span>')
 									->setPlaceholder('Select Supplier')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('vendor')
@@ -89,7 +89,7 @@
 					<div class = "row">
 						<div class = "col-md-6">
 							<div class="form-group">
-								<label for="apv" class="control-label col-md-4">Total Payment</label>
+								<label for="apv" class="control-label col-md-4">Total Payment <span class = "asterisk">*</span></label>
 								<div class="col-md-8">
 									<?php
 									if(!$show_input){
@@ -176,7 +176,6 @@
 								<th class="col-md-2">Cheque Date</th>
 								<th class="col-md-2">Amount</th>
 								<th class="col-md-1">Action</th>
-								<!-- <?if($show_input):?><th class="col-md-1">Action</th><?endif;?> -->
 							</tr>
 						</thead>
 						<tbody id="tbody_cheque">
@@ -470,7 +469,8 @@
 					<table class="table table-hover table-condensed " id="entriesTable">
 						<thead>
 							<tr class="info">
-								<th class="col-md-4">Account</th>
+								<th class="col-md-1 <?=$toggle_wtax?>">Withholding Tax</th>
+								<th class="col-md-3">Account</th>
 								<th class="col-md-3">Description</th>
 								<th class="col-md-2">Debit</th>
 								<th class="col-md-2">Credit</th>
@@ -494,6 +494,43 @@
 							?>
 
 							<tr class="clone">
+								<td class = "checkbox-select remove-margin text-center <?=$toggle_wtax?>">
+									<?php
+										echo $ui->formField('checkbox')
+											->setSplit('', 'col-md-12')
+											->setId("wtax[".$row."]")
+											->setClass("wtax")
+											->setDefault("")
+											->setValue(1)
+											->setAttribute(array("disabled" => "disabled"))
+											->draw($show_input);
+									?>
+								</td>
+								<td class="edit-button text-center " style="display: none">
+									<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
+								</td>
+								<td class = "remove-margin hidden" >
+									<?php
+										echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName("taxcode[".$row."]")
+											->setId("taxcode[".$row."]")
+											->setClass('taxcode')
+											->setValue("")
+											->draw($show_input);
+									?>
+								</td>
+								<td class = "remove-margin hidden" >
+									<?php
+										echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName("taxbase_amount[".$row."]")
+											->setId("taxbase_amount[".$row."]")
+											->setClass('taxbase_amount')
+											->setValue("")
+											->draw($show_input);
+									?>
+								</td>
 								<td>
 									<?php
 										echo $ui->formField('dropdown')
@@ -557,6 +594,43 @@
 							?>
 
 							<tr class="clone">
+								<td class = "checkbox-select remove-margin text-center <?=$toggle_wtax?>">
+									<?php
+										echo $ui->formField('checkbox')
+											->setSplit('', 'col-md-12')
+											->setId("wtax[".$row."]")
+											->setClass("wtax")
+											->setDefault("")
+											->setValue(1)
+											->setAttribute(array("disabled" => "disabled"))
+											->draw($show_input);
+									?>
+								</td>
+								<td class="edit-button text-center " style="display: none">
+									<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
+								</td>
+								<td class = "remove-margin hidden" >
+									<?php
+										echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName("taxcode[".$row."]")
+											->setId("taxcode[".$row."]")
+											->setClass('taxcode')
+											->setValue("")
+											->draw($show_input);
+									?>
+								</td>
+								<td class = "remove-margin hidden" >
+									<?php
+										echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName("taxbase_amount[".$row."]")
+											->setId("taxbase_amount[".$row."]")
+											->setClass('taxbase_amount')
+											->setValue("")
+											->draw($show_input);
+									?>
+								</td>
 								<td>
 									<?php
 										echo $ui->formField('dropdown')
@@ -626,6 +700,9 @@
 											$debit 				= $aPvJournalDetails_Value->debit;
 											$credit 			= $aPvJournalDetails_Value->credit;
 											$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
+											$taxcode 			= $aPvJournalDetails_Value->taxcode;
+											$taxbase_amount 	= $aPvJournalDetails_Value->taxbase_amount;
+											$taxbase_amount		= number_format($taxbase_amount,2);
 
 											$disable_code 		= "";
 											$added_class 		= "";
@@ -653,6 +730,36 @@
 											$total_credit 		+= $credit;
 											$detail_row	.= '<tr class="clone '.$added_class.'">';
 
+											$detail_row	.= '<td class="checkbox-select remove-margin text-center '.$toggle_wtax.'">';
+											$detail_row	.= $ui->formField('checkbox')
+															->setSplit('', 'col-md-12')
+															->setId("wtax[".$row."]")
+															->setClass("wtax")
+															->setDefault("1")
+															->setValue(($taxcode) ? 1 : 0)
+															->setAttribute(array("disabled" => "disabled"))
+															->draw($show_input);
+											$detail_row	.= '</td>';
+											$detail_row	.= '<td class="edit-button text-center" style="display: none;">';
+											$detail_row	.= '<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>';
+											$detail_row	.= '</td>';
+											$detail_row	.= '<td class="hidden">';
+											$detail_row	.= $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName("taxcode[".$row."]")
+															->setId("taxcode[".$row."]")
+															->setClass('taxcode')
+															->setValue($taxcode)
+															->draw($show_input);
+											$detail_row	.= '</td>';
+											$detail_row	.= '<td class="hidden">';
+											$detail_row	.= $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName("taxbase_amount[".$row."]")
+															->setId("taxbase_amount[".$row."]")
+															->setClass('taxbase_amount')
+															->setValue($taxbase_amount)
+															->draw($show_input);
 											$detail_row	.= '<td>';
 											$detail_row .= $ui->formField('dropdown')
 															->setPlaceholder('Select One')
@@ -728,6 +835,7 @@
 							</tr>	
 							<?endif;?>
 							<tr id="total">
+								<td style="border-top:1px solid #DDDDDD;" class="<?=$toggle_wtax?>">&nbsp;</td>
 								<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 								<td class="right" style="border-top:1px solid #DDDDDD;">
 									<label class="control-label col-md-12">Total</label>
@@ -949,31 +1057,87 @@
 
 <!-- Delete Record Confirmation Modal -->
 <div class="modal fade" id="deleteItemModal" tabindex="-1" data-backdrop="static">
-<div class="modal-dialog modal-sm">
-	<div class="modal-content">
-		<div class="modal-header">
-			Confirmation
-			<button type="button" class="close" data-dismiss="modal">&times;</button>
-		</div>
-		<div class="modal-body">
-			Are you sure you want to delete this record?
-			<input type="hidden" id="recordId"/>
-		</div>
-		<div class="modal-footer">
-			<div class="row row-dense">
-				<div class="col-md-12 center">
-					<div class="btn-group">
-						<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
-					</div>
-					&nbsp;&nbsp;&nbsp;
-					<div class="btn-group">
-						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Confirmation
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				Are you sure you want to delete this record?
+				<input type="hidden" id="recordId"/>
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 center">
+						<div class="btn-group">
+							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+						</div>
+						&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
+
+<!--ATC Code Modal-->
+<div class="modal fade" id="atcModal" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				Choose ATC Code
+			</div>
+			<div class="modal-body">
+				<form class="form-horizontal" id="newVendor" autocomplete="off">
+					<div class = "row">
+						<div class = "col-md-10">
+							<?php
+								echo $ui->formField('dropdown')
+										->setLabel('ATC Code')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('tax_account')
+										->setId('tax_account')
+										->setClass('tax_account')
+										->setValue('')
+										->draw($show_input);
+							?>
+							</div>
+
+						<div class = "col-md-10">
+							<?php
+								echo $ui->formField('text')
+										->setLabel('Tax Base Amount')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('tax_amount')
+										->setId('tax_amount')
+										->setClass('text-right tax_amount')
+										->setValue('0.00')
+										->setValidation('required')
+										->draw($show_input);
+							?>
+						</div>
+					</div>
+					<div class="modal-footer">
+							<div class="row row-dense">
+								<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+									<div class="btn-group">
+										<button type="button" class="btn btn-primary btn-flat" id="tax_apply">Apply</button>
+									</div>
+										&nbsp;&nbsp;&nbsp;
+									<div class="btn-group">
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
+									</div>
+								</div>
+							</div>
+						</div>
+				</form>
+			</div>
+		</div>
+	</div>
 </div>
 
 <!-- Delete Cheque Confirmation Modal -->
@@ -1179,7 +1343,7 @@ $('#chequeTable .cheque_account').on('change', function()  {
 			cheque_arr.push(account);
 		}
 	});
-
+	
 	var row = $("#entriesTable tbody tr.clone").length;
 	$('#entriesTable tbody tr.clone .accountcode').each(function(index) {
 		var account = $(this).val();
@@ -1208,7 +1372,9 @@ $('#chequeTable .cheque_account').on('change', function()  {
 	recomputechequeamts();
 	acctdetailamtreset();
 	displaystoreddescription();
-	drawTemplate();
+	setTimeout(function () {
+		drawTemplate();
+	});
 });
 
 function disable_acct_fields(row){
@@ -1386,23 +1552,29 @@ function resetIds() {
 	for(var i = 1;i <= count;i++) {
 		var row = table.rows[i];
 		
-		row.cells[0].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
-		row.cells[0].getElementsByTagName("input")[0].id 	= 'h_accountcode['+x+']';
-		row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
-		row.cells[1].getElementsByTagName("input")[1].id 	= 'ischeck['+x+']';
-		row.cells[2].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
-		row.cells[3].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].id 	= 'wtax['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].id 	= 'taxcode['+x+']';
+		row.cells[3].getElementsByTagName("input")[0].id 	= 'taxbase_amount['+x+']';
+		row.cells[4].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
+		row.cells[4].getElementsByTagName("input")[0].id 	= 'h_accountcode['+x+']';
+		row.cells[5].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
+		row.cells[5].getElementsByTagName("input")[1].id 	= 'ischeck['+x+']';
+		row.cells[6].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
+		row.cells[7].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
 		
-		row.cells[0].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
-		row.cells[0].getElementsByTagName("input")[0].name 	= 'h_accountcode['+x+']';
-		row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
-		row.cells[1].getElementsByTagName("input")[1].name 	= 'ischeck['+x+']';
-		row.cells[2].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
-		row.cells[3].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].name 	= 'wtax['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].name 	= 'taxcode['+x+']';
+		row.cells[3].getElementsByTagName("input")[0].name 	= 'taxbase_amount['+x+']';
+		row.cells[4].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
+		row.cells[4].getElementsByTagName("input")[0].name 	= 'h_accountcode['+x+']';
+		row.cells[5].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
+		row.cells[5].getElementsByTagName("input")[1].name 	= 'ischeck['+x+']';
+		row.cells[6].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
+		row.cells[7].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
 		
-		row.cells[4].getElementsByTagName("button")[0].setAttribute('id',x);
-		row.cells[0].getElementsByTagName("select")[0].setAttribute('data-id',x);
-		row.cells[4].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
+		row.cells[8].getElementsByTagName("button")[0].setAttribute('id',x);
+		row.cells[4].getElementsByTagName("select")[0].setAttribute('data-id',x);
+		row.cells[8].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
 
 		x++;
 	}
@@ -1445,11 +1617,14 @@ function resetChequeIds() {
 function setZero() {
 	resetIds();
 
-	var table 		= document.getElementById('entriesTable');
-	var newid 		= table.rows.length - 3;
+	var table 		= $('table#entriesTable > tbody > tr').not('.added_row');
+	var newid 		= table.length - 3;
 	var account		= document.getElementById('accountcode['+newid+']');
-
+	
 	if(document.getElementById('accountcode['+newid+']') != null) {
+		document.getElementById('wtax['+newid+']').value 				= '';
+		document.getElementById('taxcode['+newid+']').value 			= '';
+		document.getElementById('taxbase_amount['+newid+']').value 		= '';
 		document.getElementById('accountcode['+newid+']').value 		= '';
 		document.getElementById('detailparticulars['+newid+']').value 	= '';
 		document.getElementById('debit['+newid+']').value 				= '0.00';
@@ -1670,8 +1845,6 @@ function deleteItem(row){
 	var rowCount 	= table.rows.length - 2;
 	var valid		= 1;
 
-	console.log("row: " + rowCount);
-
 	var rowindex	= table.rows[row];
 	if(rowindex.cells[0].childNodes[1] != null)
 	{
@@ -1683,7 +1856,6 @@ function deleteItem(row){
 		{
 			if(task == 'create')
 			{
-				console.log("1");
 				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/delete_row",{table:datatable,condition:condition})
 				.done(function( data ) 
 				{
@@ -1695,7 +1867,6 @@ function deleteItem(row){
 			}
 			else
 			{
-				console.log("2");
 				table.deleteRow(row);	
 				resetIds();
 				addAmountAll('debit');
@@ -1704,7 +1875,6 @@ function deleteItem(row){
 		}
 		else
 		{	
-			console.log("else");
 			resetIds();
 			
 			document.getElementById('accountcode['+row+']').value 			= '';
@@ -1718,7 +1888,6 @@ function deleteItem(row){
 	}
 	else
 	{
-		console.log("else 2");
 		if(rowCount > 2)
 		{
 			table.deleteRow(row);	
@@ -2297,8 +2466,6 @@ function add_storage(id,balance,discount){
 				var original_balance 	=	(removeComma(element.bal) > 0) ? removeComma(element.bal)  : 0;
 				var original_discount	=	(removeComma(element.dis) > 0) ? removeComma(element.dis)  : 0;
 				
-				console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount);
-
 				var new_amount 			=	(removeComma(newvalue.amt) > 0) ? removeComma(newvalue.amt) : 0;
 				var new_balance 		=	(removeComma(newvalue.bal) > 0) ? removeComma(newvalue.bal)	: 0;
 				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
@@ -2311,8 +2478,6 @@ function add_storage(id,balance,discount){
 
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
-
-				console.log("New || "+discounted_amount+ " | " + new_balance + " | "+discount);
 
 				found = true;
 				if(parseFloat(new_amount) === 0) {
@@ -2716,13 +2881,16 @@ function validateChequeNumber(id, value, n){
 
 function clearChequePayment(){
 	$('#tbody_cheque .clone').each(function(index) {
-		accounts = accounts.splice(1,1);
 		if (index > 0) {
 			$(this).remove();
 		}
 	});
-	
+	//$('#entriesTable tr[class=added_row]').remove();
+	$( "#entriesTable tr.added_row" ).remove();
 	setChequeZero();
+	addAmountAll('debit');
+	addAmountAll('credit');
+	addAmounts();
 }
 
 function clear_acct_input(){
@@ -2748,11 +2916,10 @@ $(document).ready(function() {
 		var clone = $("#itemsTable tbody tr.clone:first").clone(true); 
 
 		var ParentRow = $("#itemsTable tbody tr.clone").last();
-
+		
 		clone.clone(true).insertAfter(ParentRow);
 		
 		setZero();
-		
 		$('#itemsTable tbody tr.clone select').select2({width: "100%"});
 	});
 	
@@ -3028,14 +3195,12 @@ $(document).ready(function() {
 		{	
 			if(data.msg == "success")
 			{
-				console.log("test");
 				table.deleteRow(row);
 				$('#deletePaymentModal').modal('hide');
 				location.reload();
 			}
 			else
 			{
-				console.log("else");
 				console.log(data.msg);
 			}
 		});
@@ -3131,14 +3296,12 @@ $(document).ready(function() {
 		{	
 			if(data.msg == "success")
 			{
-				console.log("test");
 				table.deleteRow(row);
 				$('#deletePaymentModal').modal('hide');
 				location.reload();
 			}
 			else
 			{
-				console.log("else");
 				console.log(data.msg);
 			}
 		});
@@ -3670,6 +3833,85 @@ $(document).ready(function() {
 			}
 		}
 	});
-}); // end
 
+
+	var row = '';
+	prev_account = '';
+
+	function get_coa(account){
+		var wtax_option = '<?=$wtax_option?>';
+		if(wtax_option == 'PV'){
+			$.post("<?= MODULE_URL ?>ajax/get_tax",{account:account}).done(function(data){
+				if((data.result == 'TAX' || data.result == 'CULIAB')){
+					// if (prev_account != '' && account != prev_account) {
+					// 	$('#tax_amount').val('');
+					// }
+					prev_account = account;
+					
+					$('#atcModal').modal('show');
+					$('#tax_account').html(data.ret);
+				} else {
+					row.find('.checkbox-select').show();
+					row.find('.edit-button').hide();
+				}
+			});
+		}
+	}
+
+	$("#entriesTable").on('ifToggled','.wtax',function() {
+		$('#tax_amount').val('0.00');
+		row = $(this).closest('tr');
+	});
+
+	$("#entriesTable").on('click', '.edit-button', function() {
+		row = $(this).closest('tr');
+		var accountcode = row.find('.accountcode').val();
+		get_coa(accountcode);
+		$('#atcModal #tax_amount').val($(this).attr('data-amount'));
+		
+		$('#atcModal').modal('show');
+	});
+
+	$('#tax_apply').click(function(){
+		var tax_account = $('#tax_account').val();
+		var tax_amount 	= $('#tax_amount').val();
+		tax_amount = tax_amount.replace(/,/g,'');
+		$.post("<?= MODULE_URL ?>ajax/get_account",{tax_account:tax_account,tax_amount:tax_amount})
+		.done(function(data) {
+			var credit = data.amount ;
+			var taxcode = data.tax_account;
+			row.find('.credit').val(addCommas(credit.toFixed(2)));
+			row.find('.taxbase_amount').val(tax_amount);
+			row.find('.taxcode').val(tax_account);
+			addAmountAll('credit');
+		});
+		
+		$('#atcModal').modal('hide');
+		row.find('.checkbox-select').hide();
+		row.find('.edit-button').show().attr('data-amount', tax_amount);
+	});
+
+	$('#entriesTable').on('change', '.accountcode', function(){
+		row = $(this).closest('tr')
+		var account = $(this).val();
+		get_coa(account);
+	})
+
+	$('#entriesTable .taxcode').each(function(){
+		var acc = $(this).val();
+		var tax_amt = $(this).closest('tr').find('.taxbase_amount').val();
+		if (acc != '' ){
+			$(this).closest('tr').find('.checkbox-select').hide();
+			$(this).closest('tr').find('.edit-button').show().attr('data-amount', tax_amt);
+			$('#tax_account').val(acc);
+		}
+	});
+
+	$('.tax_amount').on('change', function(){
+		var accs = $(this).val();
+		acc = addCommas(parseFloat(accs).toFixed(2));
+		$('.tax_amount').val(acc);
+	});
+
+}); // end
 </script>

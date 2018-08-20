@@ -141,7 +141,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Accounting Period')
+								->setLabel('Accounting Period <span class = "asterisk">*</span>')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('taxyear')
 								->setId('taxyear')
@@ -154,7 +154,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Period Start')
+								->setLabel('Period Start <span class = "asterisk">*</span>')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('periodstart')
 								->setId('periodstart')
@@ -170,14 +170,32 @@
 						?>
 					</div>
 				</div>
-			</div>
 				<div class="row">
-					<div class="col-md-12 text-center">
-						<input type = "submit" name = "add" id="add" value = "Save" class = "btn btn-info btn-flat">
-						&nbsp;
-						<input type = "submit" name = "cancel" id="cancel" value = "Cancel" class = "btn btn-default btn-flat">
-					</div>	
+					<div class="col-md-6">
+						<?php
+							echo $ui->formField('dropdown')
+								->setLabel('Apply Withholding Tax On <span class = "asterisk">*</span>')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('wtax_option')
+								->setId('wtax_option')
+								->setList($wtax_option_list)
+								->setValue($wtax_option)
+								->setValidation('required')
+								->draw();
+						?>
+					</div>
 				</div>
+			</div>	
+			<div class="row">
+				<div class="col-md-12 text-center">
+					<hr/>
+				</div>						
+				<div class="col-md-12 text-center">
+					<input type = "submit" name = "add" id="add" value = "Save" class = "btn btn-info btn-flat">
+					&nbsp;
+					<input type = "submit" name = "cancel" id="cancel" value = "Cancel" class = "btn btn-default btn-flat">
+				</div>	
+			</div>
 			</form>
 		</div>
 		<!--UPLOAD MODAL-->

@@ -76,7 +76,7 @@ class payment_voucher_model extends wc_model
 		$temp["main"] = $retrieveArrayMain;
 
 		// Retrieve Details
-		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.ischeck, main.debit, SUM(main.credit) credit";
+		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.ischeck, main.debit, main.credit credit, main.taxcode, main.taxbase_amount";
 		$detail_cond  = "main.voucherno = '$sid' AND main.stat != 'temporary'";
 		$orderby 	  = "main.linenum";	
 		$detailJoin   = "chartaccount as chart ON chart.id = main.accountcode AND chart.companycode = main.companycode";
@@ -457,6 +457,28 @@ class payment_voucher_model extends wc_model
 		return $result;
 	}
 
+	public function getTax($table, $cols = array(), $join = "" ,$cond = "", $orderby = "", $bool = "" )
+	{
+		$result = $this->db->setTable($table)
+					->setFields($cols)
+					->innerJoin($join)
+					->setWhere($cond)
+					->setOrderBy($orderby)
+					->runSelect($bool)
+					->getResult();
+		return $result;
+	}
+
+	public function getAccount($tax_account){
+		$result = $this->db->setTable('atccode a')
+					->setFields("tax_rate,tax_account")
+					->leftJoin("chartaccount c ON c.id = a.tax_account ")
+					->setWhere("atcId = '$tax_account'")
+					->runSelect()
+					->getResult();
+		return $result;
+	}
+
 	public function insert_detail_entry($voucherno, $post_detail)
 	{
 		$accountcode    = $post_detail["accountcode"];
@@ -561,11 +583,11 @@ class payment_voucher_model extends wc_model
 		$aChequeData 	= array();
 		foreach($data as $postIndex => $postValue)
 		{
-			if($postIndex=='h_accountcode' || $postIndex=='detailparticulars' || $postIndex=='ischeck' || $postIndex=='debit' || $postIndex=='credit')
+			if($postIndex=='h_accountcode' || $postIndex=='detailparticulars' || $postIndex=='ischeck' || $postIndex=='debit' || $postIndex=='credit' || $postIndex=='taxcode' || $postIndex=='taxbase_amount')
 			{
 				$a		= '';
 				foreach($postValue as $postValueIndex => $postValueIndexValue){
-					if($postIndex == 'debit' || $postIndex == 'credit'){
+					if($postIndex == 'debit' || $postIndex == 'credit' || $postIndex == 'taxbase_amount'){
 						$a = str_replace(',', '', $postValueIndexValue);
 					}
 					else{
@@ -598,8 +620,6 @@ class payment_voucher_model extends wc_model
 				}
 			}
 		}
-		// var_dump($tempArray);
-		/**CHEQUE DETAILS**/
 		if(!empty($aChequeData))
 		{
 			foreach($aChequeData as $chequeDataIndex => $chequeDataValue){
@@ -714,24 +734,29 @@ class payment_voucher_model extends wc_model
 
 		foreach($tempArray as $tempArrayIndex => $tempArrayValue)
 		{
-			$accountcode 						= isset($tempArrayValue['h_accountcode']) 	? 	$tempArrayValue['h_accountcode'] 	:	$tempArrayValue['accountcode'];
-			$detailparticulars					= $tempArrayValue['detailparticulars'];
-			$debit			    				= $tempArrayValue['debit'];
-			$credit			    				= $tempArrayValue['credit'];
-			$ischeck 							= isset($tempArrayValue['ischeck']) && $tempArrayValue != "" 	?	$tempArrayValue['ischeck'] 	:	"no";
+			$accountcode 							= isset($tempArrayValue['h_accountcode']) 	? 	$tempArrayValue['h_accountcode'] 	:	$tempArrayValue['accountcode'];
+			$detailparticulars						= $tempArrayValue['detailparticulars'];
+			$debit			    					= $tempArrayValue['debit'];
+			$credit			    					= $tempArrayValue['credit'];
+			$taxbase_amount			    			= $tempArrayValue['taxbase_amount'];
+			$taxcode			    				= $tempArrayValue['taxcode'];
+			$ischeck 								= isset($tempArrayValue['ischeck']) && $tempArrayValue != "" 	?	$tempArrayValue['ischeck'] 	:	"no";
  
-			$post_detail['voucherno']			= $voucherno;
-			$post_detail['linenum']				= $iDetailLineNum;
-			$post_detail['transtype']			= $source;
-			$post_detail['accountcode']			= $accountcode;
-			$post_detail['debit']				= $debit;
-			$post_detail['credit']				= $credit;
-			$post_detail['converteddebit']		= $debit;
-			$post_detail['convertedcredit'] 	= $credit;
-			$post_detail['currencycode']		= 'PHP';
-			$post_detail['detailparticulars'] 	= $detailparticulars;
-			$post_detail['ischeck']				= $ischeck;
-			$post_detail['stat']				= $post_header['stat'];
+			$post_detail['voucherno']				= $voucherno;
+			$post_detail['linenum']					= $iDetailLineNum;
+			$post_detail['transtype']				= $source;
+			$post_detail['accountcode']				= $accountcode;
+			$post_detail['debit']					= $debit;
+			$post_detail['credit']					= $credit;
+			$post_detail['taxbase_amount']			= $taxbase_amount;
+			$post_detail['converteddebit']			= $debit;
+			$post_detail['convertedcredit'] 		= $credit;
+			$post_detail['convertedtaxbase_amount']	= $taxbase_amount;
+			$post_detail['currencycode']			= 'PHP';
+			$post_detail['detailparticulars'] 		= $detailparticulars;
+			$post_detail['ischeck']					= $ischeck;
+			$post_detail['taxcode']					= $taxcode;
+			$post_detail['stat']					= $post_header['stat'];
 
 			$iDetailLineNum++;
 			$aPvDetailArray[]					= $post_detail;
@@ -976,20 +1001,6 @@ class payment_voucher_model extends wc_model
 			$data_insert["tinno"]      = $data["h_tinno"];
 			$data_insert["address1"]   = $data["h_address1"];
 		}
-		// else if($form == "newVendor")
-		// {
-		// 	$data_insert["stat"]          = "active";
-		// 	$data_insert["partnercode"]   = $data["partnercode"];
-		// 	$data_insert["first_name"]    = $data["vendor_name"];
-		// 	$data_insert["email"] 		  = $data["email"];
-		// 	$data_insert["address1"]      = $data["address"];
-		// 	$data_insert["businesstype"]  = $data["businesstype"];
-		// 	$data_insert["tinno"]         = $data["tinno"];
-		// 	$data_insert["terms"]  		  = $data["terms"];
-		// 	$data_insert["partnertype"]   = "supplier";
-		// 	$data_insert["autoap"]   	  = "Y";
-		// 	$data_insert["currencycode"]  = "PHP";
-		// }
 
 		if($data["h_querytype"] == "insert")
 		{
@@ -1483,5 +1494,18 @@ class payment_voucher_model extends wc_model
 					->getResult();
 
 		return $res;
+	}
+
+	public function companySettings($fields) {
+		$session	= new session();
+		$login		= $session->get('login');
+		$company	= isset($login['companycode']) ? $login['companycode'] : '';
+
+		$result = $this->db->setTable('company')
+							->setFields($fields)
+							->setWhere("companycode = '$company'")
+							->runSelect()
+							->getResult();
+		return $result;
 	}
 }

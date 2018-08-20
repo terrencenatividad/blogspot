@@ -12,7 +12,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('text')	
-									->setLabel('Price List Code')
+									->setLabel('Price List Code <span class = "asterisk">*</span>')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('pricelistcode')
 									->setId('pricelistcode')
@@ -28,7 +28,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('text')	
-									->setLabel('Price List Name')
+									->setLabel('Price List Name <span class = "asterisk">*</span>')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('pricelistname')
 									->setId('pricelistname')
@@ -45,7 +45,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('textarea')	
-									->setLabel('Description')
+									->setLabel('Description <span class = "asterisk">*</span>')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('pricelistdesc')
 									->setId('pricelistdesc')

@@ -83,6 +83,24 @@ class chartofaccountsclass extends wc_model
 
 		return $result;
 	}
+
+	public function check_duplicate($current)
+	{
+		return $this->db->setTable('chartaccount')
+						->setFields('COUNT(segment5) count')
+						->setWhere(" segment5 = '$current'")
+						->runSelect()
+						->getResult();
+	}
+
+	public function importCOA($data)
+	{
+		$result = $this->db->setTable('chartaccount')
+				->setValuesFromPost($data)
+				->runInsert();
+
+		return $result;
+	}
 	
 	public function fileExport($data)
 	{

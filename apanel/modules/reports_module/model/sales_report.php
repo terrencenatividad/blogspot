@@ -2,6 +2,22 @@
 
     class sales_report extends wc_model
     {        
+		public function getCompany()
+		{
+			$fields = "taxyear, periodstart";
+			//$code = COMPANYCODE;
+
+			$result = $this->db->setTable('company')
+								->setFields($fields)
+								//->setWhere("companycode = '$code'")
+								->setWhere(1)
+								->setLimit('1')
+								->runSelect()
+								->getRow();
+
+			return $result;
+		}
+
         public function retrieveCustomerDetails($vendor_code)
 		{
 			$fields = "address1, tinno, terms, email, partnername AS name";
