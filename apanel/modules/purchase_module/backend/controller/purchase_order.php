@@ -494,7 +494,7 @@ class controller extends wc_controller
 				$print->drawHeader();
 			}
 
-			$total_amount	+= $row->price;
+			$total_amount	+= $row->amount;
 			$row->quantity	= number_format($row->quantity);
 			$row->price		= number_format($row->price, 2);
 			$row->amount	= number_format($row->amount, 2);
