@@ -18,7 +18,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-									->setLabel('Bank Account GL Code:')
+									->setLabel('Bank Account GL Code: <span class = "asterisk">*</span>')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('gl_code')
 									->setId('gl_code')
@@ -34,7 +34,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Bank Account Name:')
+									->setLabel('Bank Account Name: <span class = "asterisk">*</span>')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('shortname')
 									->setId('shortname')
@@ -50,7 +50,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Bank Account Code')
+									->setLabel('Bank Account Code <span class = "asterisk">*</span>')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('bankcode')
 									->setId('bankcode')
@@ -64,7 +64,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Bank Account Number:')
+									->setLabel('Bank Account Number: <span class = "asterisk">*</span>')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('accountno')
 									->setId('accountno')
@@ -80,7 +80,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Currency')
+								->setLabel('Currency <span class = "asterisk">*</span>')
 								->setPlaceholder('Filter Currency')
 								->setSplit('col-md-3', 'col-md-6')
 								->setName('currency')

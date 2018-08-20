@@ -12,7 +12,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('text')	
-									->setLabel('Discount Code')
+									->setLabel('Discount Code <span class = "asterisk">*</span>')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('discountcode')
 									->setId('discountcode')
@@ -27,7 +27,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('text')	
-									->setLabel('Discount Name')
+									->setLabel('Discount Name <span class = "asterisk">*</span>')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('discountname')
 									->setId('discountname')
@@ -44,7 +44,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('dropdown')	
-									->setLabel('Discount Type')
+									->setLabel('Discount Type <span class = "asterisk">*</span>')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('discounttype')
 									->setId('discounttype')
@@ -61,7 +61,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('textarea')	
-									->setLabel('Discount Description')
+									->setLabel('Discount Description <span class = "asterisk">*</span>')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('discountdesc')
 									->setId('discountdesc')

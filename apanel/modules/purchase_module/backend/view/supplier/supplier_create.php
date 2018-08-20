@@ -12,7 +12,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Code')
+								->setLabel('Code <span class = "asterisk">*</span>')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('partnercode')
 								->setId('partnercode')
@@ -29,7 +29,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Company Name')
+								->setLabel('Company Name <span class = "asterisk">*</span>')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('partnername')
 								->setId('partnername')
@@ -45,7 +45,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('textarea')
-								->setLabel('Address')
+								->setLabel('Address <span class = "asterisk">*</span>')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('address1')
 								->setId('address1')
@@ -73,7 +73,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Business Type')
+								->setLabel('Business Type <span class = "asterisk">*</span>')
 								->setPlaceholder('Filter Business Type')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('businesstype')
