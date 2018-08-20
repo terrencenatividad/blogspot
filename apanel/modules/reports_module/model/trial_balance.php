@@ -206,6 +206,10 @@ class trial_balance extends wc_model {
 					$link		= '<a href="' . BASE_URL. 'financials/payment/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
 				}else if($transtype == 'JV'){
 					$link		= '<a href="' . BASE_URL .'financials/journal_voucher/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
+				}else if($transtype == 'IT'){
+					$source		= $this->getValue("journalvoucher",array("referenceno"),"voucherno = '$voucher'");
+					$source     = ($source) ? $source[0]->referenceno : $voucher;
+					$link		= '<a href="' . BASE_URL .'sales/delivery_receipt/view/'.$source .'" target="_blank">'.$source.'</a>';
 				}else if($transtype == 'DM'){
 					$documentno = $this->getValue("journalvoucher",array("sourceno")," voucherno = '$voucher'");
 					$documentno = $documentno[0]->sourceno;
