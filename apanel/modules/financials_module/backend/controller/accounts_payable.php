@@ -201,7 +201,7 @@ class controller extends wc_controller
 			"taxbase_amount"
 		));
 
-		$this->view->title			= 'Crete Accounts Payable';
+		$this->view->title			= 'Create Accounts Payable';
 		$data["ui"]                 = $this->ui;
 		$data['show_input']         = $this->show_input;
 		$data['button_name']        = "Save";
