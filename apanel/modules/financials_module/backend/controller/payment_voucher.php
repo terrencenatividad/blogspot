@@ -112,7 +112,7 @@ class controller extends wc_controller
 			"date",
 			"paymenttype"
 		));
-
+		$this->view->title      	  = 'Create Payment Voucher';
 		$data["ui"]                   = $this->ui;
 		$data['show_input']           = $this->show_input;
 		$data['button_name']          = "Save";
@@ -219,6 +219,7 @@ class controller extends wc_controller
 
 	public function view($sid)
 	{
+		$this->view->title			= 'View Payment Voucher';
 		$cmp 					   	= $this->companycode;
 		// Retrieve data
 		$data         			   	= $this->payment_voucher->retrieveEditData($sid);
@@ -336,6 +337,7 @@ class controller extends wc_controller
 		$access				   	= $this->access->checkLockAccess('edit');
 		$data         		   	= $this->payment_voucher->retrieveEditData($sid);
 
+		$this->view->title      = 'Edit Payment Voucher';
 		$data["ui"]            	= $this->ui;
 		$data['show_input']    	= $this->show_input;
 		$data["task"] 		   	= "edit";

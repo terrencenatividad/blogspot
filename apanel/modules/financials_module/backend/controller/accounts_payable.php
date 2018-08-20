@@ -190,6 +190,7 @@ class controller extends wc_controller
 			"vendorcode",
 			"transactiondate",
 			"tinno",
+			"proformacode",
 			"address1",
 			"duedate",
 			"particulars",
@@ -200,6 +201,7 @@ class controller extends wc_controller
 			"taxbase_amount"
 		));
 
+		$this->view->title			= 'Crete Accounts Payable';
 		$data["ui"]                 = $this->ui;
 		$data['show_input']         = $this->show_input;
 		$data['button_name']        = "Save";
@@ -300,7 +302,8 @@ class controller extends wc_controller
 	
 		// Retrieve data
 		$data         			   = $this->accounts_payable->retrieveEditData($sid);
-	
+
+		$this->view->title         = 'View Accounts Payable';
 		$data["ui"]   			   = $this->ui;
 		$data['show_input'] 	   = false;
 		$data["button_name"] 	   = "Edit";
@@ -412,6 +415,7 @@ class controller extends wc_controller
 	{
 		$cmp 		   		   = $this->companycode;
 		$data         		   = $this->accounts_payable->retrieveEditData($sid);
+		$this->view->title     = 'Edit Accounts Payable';
 		$data["ui"]            = $this->ui;
 		$data['show_input']    = $this->show_input;
 		$data["task"] 		   = "edit";

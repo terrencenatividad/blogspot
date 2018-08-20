@@ -54,6 +54,7 @@ class controller extends wc_controller
 
 	public function create($quotation_no = '')
 	{
+		$this->view->title			  = 'Create Sales Order';
 		$data 					= $this->input->post($this->fields);
 	
 		// Item Limit
@@ -238,6 +239,7 @@ class controller extends wc_controller
 
 	public function edit($voucherno)
 	{
+		$this->view->title		= 'Edit Sales Order';		
 		$retrieved_data 		= $this->so->retrieveExistingSO($voucherno);
 
 		// Item Limit
@@ -321,6 +323,7 @@ class controller extends wc_controller
 
 	public function view($voucherno)
 	{
+		$this->view->title		= 'View Sales Order';
 		$retrieved_data 		= $this->so->retrieveExistingSO($voucherno);
 
 		// Closed Date

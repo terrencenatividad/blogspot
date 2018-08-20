@@ -775,7 +775,7 @@
 <!-- End Delete Record Confirmation Modal -->
 
 <!--DELETE RECORD CONFIRMATION MODAL-->
-<div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
+<!-- <div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
 	<div class="modal-dialog modal-sm">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -800,7 +800,7 @@
 			</div>
 		</div>
 	</div>
-</div>
+</div> -->
 <!-- End DELETE RECORD CONFIRMATION MODAL-->
 
 
