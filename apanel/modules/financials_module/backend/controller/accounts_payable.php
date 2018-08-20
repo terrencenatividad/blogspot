@@ -190,6 +190,7 @@ class controller extends wc_controller
 			"vendorcode",
 			"transactiondate",
 			"tinno",
+			"proformacode",
 			"address1",
 			"duedate",
 			"particulars",
@@ -200,6 +201,7 @@ class controller extends wc_controller
 			"taxbase_amount"
 		));
 
+		$this->view->title			= 'Crete Accounts Payable';
 		$data["ui"]                 = $this->ui;
 		$data['show_input']         = $this->show_input;
 		$data['button_name']        = "Save";
@@ -300,7 +302,8 @@ class controller extends wc_controller
 	
 		// Retrieve data
 		$data         			   = $this->accounts_payable->retrieveEditData($sid);
-	
+
+		$this->view->title         = 'View Accounts Payable';
 		$data["ui"]   			   = $this->ui;
 		$data['show_input'] 	   = false;
 		$data["button_name"] 	   = "Edit";
@@ -412,6 +415,7 @@ class controller extends wc_controller
 	{
 		$cmp 		   		   = $this->companycode;
 		$data         		   = $this->accounts_payable->retrieveEditData($sid);
+		$this->view->title     = 'Edit Accounts Payable';
 		$data["ui"]            = $this->ui;
 		$data['show_input']    = $this->show_input;
 		$data["task"] 		   = "edit";
@@ -456,6 +460,7 @@ class controller extends wc_controller
 		$data["invoiceno"]       = $data["main"]->invoiceno;
 		$data["vendorcode"]      = $data["main"]->vendor;
 		$data["exchangerate"]    = $data["main"]->exchangerate;
+		$data["proformacode"]    = $data["main"]->proformacode;
 		$data["transactiondate"] = $this->date->dateFormat($data["main"]->transactiondate);
 		$data["particulars"]     = $data["main"]->particulars;
 
@@ -1083,6 +1088,13 @@ class controller extends wc_controller
 		$code       = $this->input->post("code");
 		$ui         = $this->ui;
 		$show_input = $this->show_input;
+		$company_setting = $this->accounts_payable->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 		  = $company_setting[0]->wtax_option;
+		$wtax_option = $data["wtax_option"];
 		
 		// RETRIEVE ACCOUNT CODE
 		$acc_entry_data     = array("id ind","accountname val");
@@ -1110,6 +1122,18 @@ class controller extends wc_controller
 				$accountcode = ($code != '' && $code != 'none') ? $dataArray[$i]->accountcodeid : '';
 			
 				$table	.= '<tr class="clone">';
+
+				$table	.= '<td class = "checkbox-select remove-margin text-center '.$toggle_wtax.'">';
+				$table	.=  $ui->formField('checkbox')
+							->setSplit('', 'col-md-12')
+							// ->setName("wtax[".$row."]")
+							->setId("wtax[".$row."]")
+							->setClass("wtax")
+							->setDefault("")
+							->setValue(1)
+							->setAttribute(array("disabled" => "disabled"))
+							->draw($show_input);
+				$table	.= '</td>';
 				
 				$table	.= '<td class = "remove-margin">';
 				$table 	.= $ui->formField('dropdown')

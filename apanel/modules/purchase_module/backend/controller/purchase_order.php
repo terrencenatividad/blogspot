@@ -53,6 +53,7 @@ class controller extends wc_controller
 
 	public function create($request_no="")
 	{
+		$this->view->title      = 'Create Purchase Order';
 		$data 					= $this->input->post($this->fields);
 
 		// Item Limit
@@ -233,6 +234,7 @@ class controller extends wc_controller
 
 	public function edit($voucherno)
 	{
+		$this->view->title      = 'Edit Purchase Order';
 		$retrieved_data 		= $this->po->retrieveExistingPO($voucherno);
 
 		// Item Limit
@@ -318,6 +320,7 @@ class controller extends wc_controller
 
 	public function view($voucherno)
 	{
+		$this->view->title      = 'View Purchase Order';
 		$retrieved_data 		= $this->po->retrieveExistingPO($voucherno);
 
 		$close_date 			= $this->restrict->getClosedDate();

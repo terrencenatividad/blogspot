@@ -192,6 +192,10 @@ class proformaclass extends wc_model
 				->setWhere($cond)
 				->runDelete();
 			
+			$result = $this->db->setTable('proforma_details')
+				->setWhere($cond)
+				->runDelete();
+			
 			if(!$result)
 				$errmsg[] = "<p class = 'no-margin'>Deleting Proforma Code: $proformacode</p>";
 			else
@@ -211,11 +215,21 @@ class proformaclass extends wc_model
 						->getResult();
 	}
 
-	public function importProforma($data)
+	public function importProforma($data,$post_details)
 	{
+		$data['stat'] = 'active';
+		$post_details['stat'] = 'active';
+
+		$accountcodeid = $post_details['accountcodeid'];
+
 		$result = $this->db->setTable('proforma')
 				->setValuesFromPost($data)
 				->runInsert();
+
+		$result = $this->db->setTable('proforma_details')
+				->setValuesFromPost($post_details)
+				->runInsert();	
+
 
 		return $result;
 	}
@@ -245,7 +259,6 @@ class proformaclass extends wc_model
 	}
 
 	public function saveImport($data) {
-
 		foreach ($data as $arr) {
 			foreach($arr as $subArr){
 				

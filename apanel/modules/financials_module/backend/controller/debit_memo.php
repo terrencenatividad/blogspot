@@ -32,7 +32,7 @@ class controller extends wc_controller {
 	}
 
 	public function listing() {
-		$this->view->title = 'Debit Memo List';
+		$this->view->title = 'Debit Memo';
 		$this->show_input = false;
 		$data['ui'] = $this->ui;
 		$data['partner_list']    	= $this->dm_model->getVendorList();
@@ -40,7 +40,7 @@ class controller extends wc_controller {
 	}
 
 	public function create() {
-		$this->view->title	= 'Debit Memo Create';
+		$this->view->title			= 'Create Debit Memo';
 		$data						= $this->input->post($this->fields);
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		// Retrieve Closed Date
@@ -61,7 +61,7 @@ class controller extends wc_controller {
 	}
 
 	public function edit($voucherno) {
-		$this->view->title			= 'Debit Memo  Edit';
+		$this->view->title			= 'Edit Debit Memo ';
 		$data						= (array) $this->dm_model->getJournalVoucherById($this->fields, $voucherno);
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		// Retrieve Closed Date
@@ -81,7 +81,7 @@ class controller extends wc_controller {
 	}
 
 	public function view($voucherno) {
-		$this->view->title			= 'Debit Memo View';
+		$this->view->title			= 'View Debit Memo';
 		$data						= (array) $this->dm_model->getJournalVoucherById($this->fields, $voucherno);
 		$transactiondate 			= $data['transactiondate'];
 		$restrict_dm 				= $this->restrict->setButtonRestriction($transactiondate);

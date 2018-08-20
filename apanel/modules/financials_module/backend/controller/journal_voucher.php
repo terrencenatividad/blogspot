@@ -31,7 +31,7 @@ class controller extends wc_controller {
 	}
 
 	public function listing() {
-		$this->view->title	= 'Journal Voucher List';
+		$this->view->title	= 'Journal Voucher';
 		$data['ui']				= $this->ui;
 		$data['show_input']     = true;
 		$data['source_list']	= array("import"=>"Imported JV","manual"=>"Manual JV","closed"=>"Closed Books");
@@ -39,7 +39,7 @@ class controller extends wc_controller {
 	}
 
 	public function create() {
-		$this->view->title	= 'Journal Voucher Create';
+		$this->view->title			= 'Create Journal Voucher';
 		$data						= $this->input->post($this->fields);
 		// Retrieve Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
@@ -58,7 +58,7 @@ class controller extends wc_controller {
 	}
 
 	public function edit($voucherno) {
-		$this->view->title			= 'Journal Voucher  Edit';
+		$this->view->title			= 'Edit Journal Voucher';
 		$data						= (array) $this->jv_model->getJournalVoucherById($this->fields, $voucherno);
 		// Retrieve Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
@@ -79,7 +79,7 @@ class controller extends wc_controller {
 	}
 
 	public function view($voucherno) {
-		$this->view->title			= 'Journal Voucher View';
+		$this->view->title			= 'View Journal Voucher';
 		$data						= (array) $this->jv_model->getJournalVoucherById($this->fields, $voucherno);
 		// Retrieve Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();

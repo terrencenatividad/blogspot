@@ -58,7 +58,7 @@ class controller extends wc_controller {
 	}
 
 	public function listing() {
-		$this->view->title		= 'Purchase Return List';
+		$this->view->title		= 'Purchase Return';
 		$data['vendor_list']	= $this->purchase_model->getVendorList();
 		$data['ui']				= $this->ui;
 		$this->view->load('purchase_return/purchase_return_list', $data);

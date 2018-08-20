@@ -44,7 +44,7 @@ class controller extends wc_controller
 	public function create()
 	{	
 		$cmp 						= $this->companycode;
-		$this->view->title      	= 'Add Disbursement Voucher';
+		$this->view->title      	= 'Create Disbursement Voucher';
 		$seq 						= new seqcontrol();
 
 		// Initialize variables

@@ -281,9 +281,14 @@ class controller extends wc_controller
 					'proformadesc'			=> $description_,
 					'transactiontype'		=> $transtype_
 				);
+				$post_details = array(
+					'proformacode'			=> $proformacode_,
+					'accountcodeid'			=> $accountcodeid_,
+					'accountname'			=> $accountname_
+				);
 				
-				$proceed  				= $this->proformaclass->importProforma($post);
-
+				$proceed  				= $this->proformaclass->importProforma($post,$post_details);
+				
 				if( $proceed )
 				{
 					$this->logs->saveActivity("Imported Proforma.");
