@@ -12,6 +12,7 @@ class controller extends wc_controller
 		$this->ui 			    = new ui();
 		$this->logs  			= new log;
 		$this->session			= new session();
+		$this->seq 				= new seqcontrol();
 		$this->view->title      = 'Receipt Voucher';
 		$this->show_input 	    = true;
 
@@ -52,12 +53,14 @@ class controller extends wc_controller
 		$invoice_data  = str_replace('\\', '', $invoice_data);
 		$decode_json   = json_decode($invoice_data, true);
 
+		$insertResult 	= 0;
+		$errmsg 	= array();
 		if(!empty($decode_json))
 		{
 			for($i = 0; $i < count($decode_json); $i++)
 			{
-				$invoice = $decode_json[$i]["arvoucher"];
-			    $amount  = $decode_json[$i]["amount"];
+				$invoice = $decode_json[$i]["vno"];
+			    $amount  = $decode_json[$i]["amt"];
 
 				// accountspayable
 				$invoice_amount				= $this->receipt_voucher->getValue($applicableHeaderTable, array("convertedamount"), "voucherno = '$invoice' AND stat = 'posted'");
@@ -89,6 +92,9 @@ class controller extends wc_controller
 					$errmsg["error"][] = "The system has encountered an error in updating Account Payable [$invoice]. Please contact admin to fix this issue.<br/>";
 			}
 		}
+
+		$dataArray 	=	array("success"=>$insertResult,"error"=>$errmsg);
+		return $dataArray;
 	}
 
 	public function create()
@@ -98,7 +104,6 @@ class controller extends wc_controller
 		 */
 		$access	= $this->access->checkLockAccess('create');
 		$cmp 	= $this->companycode;
-		$seq 	= new seqcontrol();
 
 		// Initialize variables
 		$data = $this->input->post(array(
@@ -166,25 +171,28 @@ class controller extends wc_controller
 		$data["show_cheques"] 	= 'hidden';
 
 		$data['restrict_rv'] 		= true;
+		
+		$this->view->load('receipt_voucher/receipt_voucher', $data);
+	}
 
-		// Process form when form is submitted
-		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
-		// echo "before";
-		if (!empty($data_validate["customer"]) && !empty($data_validate["document_date"])) 
-		{
-			$errmsg = array();
-			$temp 	= array();
-			// echo "HERE";
-			// echo $data_validate['h_save'];
+	public function update_temporarily_saved_data(){
+		$data_validate 	= $this->input->post(array('referenceno',"h_task","h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_","selected_rows"));
+		$btn_type 		= $data_validate['h_save'];
 
+		$errmsg 			= array();
+		$temp 				= array();
+		$updateTempRecord 	= 0;
+		$generatedvoucher 	= "";
+		$task 			= $data_validate['h_task'];
+
+		if (!empty($data_validate["customer"]) && !empty($data_validate["document_date"])) {
 			$voucherno = (isset($data_validate['h_voucher_no']) && (!empty($data_validate['h_voucher_no']))) ? htmlentities(trim($data_validate['h_voucher_no'])) : "";
 
 			$isExist = $this->receipt_voucher->getValue("receiptvoucher", array("voucherno"), "voucherno = '$voucherno'");
 
-			if($isExist[0]->voucherno)
-			{
+			if($isExist[0]->voucherno){
 				/**UPDATE MAIN TABLES**/
-				$generatedvoucher			= $seq->getValue('RV'); 
+				$generatedvoucher			= ($task == 'create') ? $this->seq->getValue('RV')	: $data_validate['h_voucher_no']; 
 			
 				$update_info				= array();
 				$update_info['voucherno']	= $generatedvoucher;
@@ -201,27 +209,37 @@ class controller extends wc_controller
 				$updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
 
 				/**UPDATE MAIN INVOICE**/
-				$this->update_app($data_validate['selected_rows']);
+				// $updateTempRecord 			= $this->update_app($data_validate['selected_rows']);
 			}
 			
-			if(empty($errmsg))
-			{
-				// For Admin Logs
-				$this->logs->saveActivity("Add New Receipt Voucher [$generatedvoucher]");
+			// if(empty($errmsg))
+			// {
+			// 	// For Admin Logs
+			// 	$this->logs->saveActivity("Add New Receipt Voucher [$generatedvoucher]");
 
-				if(!empty($data_validate['h_save'])){
-					$this->url->redirect(BASE_URL . 'financials/receipt_voucher');
-				}else if(!empty($data_validate['h_save']) && $data_validate['h_save'] == 'h_save_preview'){
-					$this->url->redirect(BASE_URL . 'financials/receipt_voucher/view/' . $generatedvoucher);
-				}else{
-					$this->url->redirect(BASE_URL . 'financials/receipt_voucher/create');
-				}
-			}else{
-				$data["errmsg"] = $errmsg;
+			// 	if(!empty($data_validate['h_save'])){
+			// 		$this->url->redirect(BASE_URL . 'financials/receipt_voucher');
+			// 	}else if(!empty($data_validate['h_save']) && $data_validate['h_save'] == 'h_save_preview'){
+			// 		$this->url->redirect(BASE_URL . 'financials/receipt_voucher/view/' . $generatedvoucher);
+			// 	}else{
+			// 		$this->url->redirect(BASE_URL . 'financials/receipt_voucher/create');
+			// 	}
+			// }else{
+			// 	$data["errmsg"] = $errmsg;
+			// }
+		}
+
+		if($updateTempRecord){
+			if($task == 'create'){
+				$this->logs->saveActivity("Add New Receipt Voucher [$generatedvoucher]");
+			} else if($task == 'edit'){
+				$voucherno 	=	$data_validate['h_voucher_no'];
+				$this->logs->saveActivity("Update Receipt Voucher [$voucherno]");
 			}
 		}
-		
-		$this->view->load('receipt_voucher/receipt_voucher', $data);
+
+		$dataArray = array("success"=>$updateTempRecord,"error"=>$errmsg, "btn_type"=>$btn_type);
+		return $dataArray;
 	}
 
 	public function view($sid)
@@ -415,40 +433,40 @@ class controller extends wc_controller
 		// print_r($data);
 
 		// Process form when form is submitted
-		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
+		// $data_validate = $this->input->post(array('referenceno', "h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
 
-		if (!empty($data_validate["customer"]) && !empty($data_validate["document_date"])) 
-		{
-			$update_info				= array();
-			$update_info['stat']		= 'open';
-			$update_condition			= "voucherno = '$voucherno'";
-			$updateTempRecord			= $this->receipt_voucher->editData($update_info,"receiptvoucher",$update_condition);
-			$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_details",$update_condition);
-			$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_application",$update_condition);
-			$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_cheques",$update_condition);
-			// Update TMP source of CM
-			// $update_source['si_no']  	= $generatedvoucher;
-			// $source_cond 				= "si_no = '$voucherno' AND transtype = 'CM'";
-			// $updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
+		// if (!empty($data_validate["customer"]) && !empty($data_validate["document_date"])) 
+		// {
+		// 	$update_info				= array();
+		// 	$update_info['stat']		= 'open';
+		// 	$update_condition			= "voucherno = '$voucherno'";
+		// 	$updateTempRecord			= $this->receipt_voucher->editData($update_info,"receiptvoucher",$update_condition);
+		// 	$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_details",$update_condition);
+		// 	$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_application",$update_condition);
+		// 	$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_cheques",$update_condition);
+		// 	// Update TMP source of CM
+		// 	// $update_source['si_no']  	= $generatedvoucher;
+		// 	// $source_cond 				= "si_no = '$voucherno' AND transtype = 'CM'";
+		// 	// $updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
 
-			$this->update_app($data_validate["h_check_rows_"]);
+		// 	$this->update_app($data_validate["h_check_rows_"]);
 
-			// For Admin Logs
-			$this->logs->saveActivity("Update Receipt Voucher [$sid]");
+		// 	// For Admin Logs
+		// 	$this->logs->saveActivity("Update Receipt Voucher [$sid]");
 
-			if(!empty($data_validate['h_save']))
-			{
-				$this->url->redirect(BASE_URL . 'financials/receipt_voucher');
-			}
-			else if(!empty($data_validate['h_save_preview']))
-			{
-				$this->url->redirect(BASE_URL . 'financials/receipt_voucher/view/' . $sid);
-			}
-			else
-			{
-				$this->url->redirect(BASE_URL . 'financials/receipt_voucher/create');
-			}	 
-		}
+		// 	if(!empty($data_validate['h_save']))
+		// 	{
+		// 		$this->url->redirect(BASE_URL . 'financials/receipt_voucher');
+		// 	}
+		// 	else if(!empty($data_validate['h_save_preview']))
+		// 	{
+		// 		$this->url->redirect(BASE_URL . 'financials/receipt_voucher/view/' . $sid);
+		// 	}
+		// 	else
+		// 	{
+		// 		$this->url->redirect(BASE_URL . 'financials/receipt_voucher/create');
+		// 	}	 
+		// }
 
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
@@ -1051,7 +1069,7 @@ class controller extends wc_controller
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$voucher.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
 				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_amount'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($totalamount,2).'">'.number_format($totalamount,2).'</td>';
-				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_balance'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance_2,2).'</td>';
+				$table	.= 	'<td class="text-right balances" style="vertical-align:middle;" id = "payable_balance'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance_2,2).'</td>';
 				// $table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "credit_used'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($credits,2).'">'.number_format($credits,2).'</td>';
 				if($voucher_checked == 'checked'){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
