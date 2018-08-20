@@ -118,7 +118,7 @@ class trial_balance extends wc_model {
 	}
 
 	public function load_account_transactions($data){
-		$daterangefilter			= isset($data['daterangefilter'])  ?  $data['daterangefilter']  : "";
+		$daterangefilter	= isset($data['daterangefilter'])  ?  $data['daterangefilter']  : "";
 		$acctfilter		    = isset($data['accountcode'])  ?  $data['accountcode']  : "";
 		$items				= isset($data['items'])  ?  $data['items']  : "";
 		$qtr				= isset($data['qtr'])  ? $data['qtr']  : 0;
@@ -142,7 +142,6 @@ class trial_balance extends wc_model {
 		// For Account
 		if ( $acctfilter && $acctfilter != "none" ) 
 		{
-			//$accounts 	= implode( "','" ,$acctfilter );
 			$condition .= " AND bal.accountcode IN ( '$acctfilter' ) ";
 		}
 
@@ -159,46 +158,40 @@ class trial_balance extends wc_model {
 								 AND bal.transactiondate <= '$transactdateTo' $condition ")
 						->setGroupBy("bal.accountcode, bal.voucherno")
 						->setOrderBy($sort)
-						->runSelect(false)
-						->getResult();
-						
-		 if(!empty($fetch_result))
+						->runPagination();
+						//->runSelect(false)
+						//->getResult();
+		if($fetch_result->result)
 		{
-		 	for($i=0;$i < count($fetch_result);$i++)
+		 	for($i=0;$i < count($fetch_result->result);$i++)
 			{	
-				$accountcode        = $fetch_result[$i]->accountcode;
-				$segment5           = $fetch_result[$i]->segment5;
-				$accountname        = $fetch_result[$i]->accountname;
+				$accountcode        = $fetch_result->result[$i]->accountcode;
+				$segment5           = $fetch_result->result[$i]->segment5;
+				$accountname        = $fetch_result->result[$i]->accountname;
 	
-		 		$voucher			= $fetch_result[$i]->voucherno;
-		 		$transactiondate	= $fetch_result[$i]->transactiondate;
+		 		$voucher			= $fetch_result->result[$i]->voucherno;
+		 		$transactiondate	= $fetch_result->result[$i]->transactiondate;
 		 		$transactiondate	= date("M d, Y",strtotime($transactiondate));
-				$period             = $fetch_result[$i]->period;
-				$fiscalyear         = $fetch_result[$i]->fiscalyear;
-				$partnername        = $fetch_result[$i]->partner;
-				$transtype          = $fetch_result[$i]->transtype;
-		 		$debit				= $fetch_result[$i]->debit;
-		 		$credit				= $fetch_result[$i]->credit;
+				$period             = $fetch_result->result[$i]->period;
+				$fiscalyear         = $fetch_result->result[$i]->fiscalyear;
+				$partnername        = $fetch_result->result[$i]->partner;
+				$transtype          = $fetch_result->result[$i]->transtype;
+		 		$debit				= $fetch_result->result[$i]->debit;
+		 		$credit				= $fetch_result->result[$i]->credit;
 		 	
-				
-		 		$documentno = '';
-		 		$source     = '';
+		 		$documentno 		= '';
+		 		$source     		= '';
 
 				if($transtype == 'AP'){
-			
 					$documentno	= $this->getValue("accountspayable",array("sourceno"),"voucherno = '$voucher'");
 					$documentno = $documentno[0]->sourceno;
 					$source		= $this->getValue("accountspayable",array("source"),"voucherno = '$voucher'");
 					$source     = $source[0]->source;
-
 					$voucherno_ = (empty($documentno)) 	?  	$voucher 	: 	$documentno;
 
-					//$modtype	= ($source == 'EXP') ? "bills" : "purchase_voucher";
-					$link		= '<a href="'.BASE_URL.'financials/accounts_payable/print_preview/'.$voucher.'" target="_blank">'.$voucherno_.'</a>';
-
+					$link		= '<a href="'.BASE_URL.'financials/accounts_payable/view/'.$voucher.'" target="_blank">'.$voucher.'</a>';
 				}else if($transtype == 'PV'){
-					// $link		= '<a href="' .BASE_URL.'modules/purchase/csv/payment_voucher.php?sid='.$voucher) .'" target="_blank">'.$voucher.'</a>';
-					$link		= '<a href="' . BASE_URL. 'financials/payment_voucher/print_preview/'.$voucher .'" target="_blank">'.$voucher.'</a>';
+					$link		= '<a href="' . BASE_URL. 'financials/payment_voucher/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
 				}else if($transtype == 'AR'){
 					$documentno = $this->getValue("accountsreceivable",array("sourceno")," voucherno = '$voucher'");
 					$documentno = $documentno[0]->sourceno;
@@ -206,29 +199,29 @@ class trial_balance extends wc_model {
 					$source     = $source[0]->source;
 
 					$voucherno_ = (empty($documentno)) 	?  	$voucher 	: 	$documentno;
-					// if( $transtype  )
-					$link		= '<a href="' .BASE_URL.'financials/accounts_receivable/print_preview/'.$voucher .'" target="_blank">'.$voucherno_.'</a>';
+					$link		= '<a href="' .BASE_URL.'financials/accounts_receivable/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
 				}else if($transtype == 'RV'){
-					$link		= '<a href="' . BASE_URL. 'financials/receipt_voucher/print_preview/'.$voucher .'" target="_blank">'.$voucher.'</a>';
+					$link		= '<a href="' . BASE_URL. 'financials/receipt_voucher/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
 				}else if($transtype == 'DV'){
-					$link		= '<a href="' . BASE_URL. 'financials/payment/print_preview/'.$voucher .'" target="_blank">'.$voucher.'</a>';
+					$link		= '<a href="' . BASE_URL. 'financials/payment/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
 				}else if($transtype == 'JV'){
-					$link		= '<a href="' . BASE_URL .'financials/journal_voucher/print_preview/'.$voucher .'" target="_blank">'.$voucher.'</a>';
+					$link		= '<a href="' . BASE_URL .'financials/journal_voucher/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
+				}else if($transtype == 'IT'){
+					$source		= $this->getValue("journalvoucher",array("referenceno"),"voucherno = '$voucher'");
+					$source     = ($source) ? $source[0]->referenceno : $voucher;
+					$link		= '<a href="' . BASE_URL .'sales/delivery_receipt/view/'.$source .'" target="_blank">'.$source.'</a>';
 				}else if($transtype == 'DM'){
 					$documentno = $this->getValue("journalvoucher",array("sourceno")," voucherno = '$voucher'");
 					$documentno = $documentno[0]->sourceno;
 					$source 	= $this->getValue("journalvoucher",array("source")," voucherno = '$voucher'");
 					$source     = $source[0]->source;
-
-					$voucherno_ = (empty($documentno)) 	?  	$voucher 	: 	$documentno;
-					$link		= '<a href="' . BASE_URL. 'financials/debit_memo/print_preview/'.$voucher .'" target="_blank">'.$voucherno_.'</a>';
+					$link		= '<a href="' . BASE_URL. 'financials/debit_memo/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
 				}else if($transtype == 'CM'){
 					$documentno = $this->getValue("journalvoucher",array("sourceno")," voucherno = '$voucher'");
 					$documentno = $documentno[0]->sourceno;
 					$source 	= $this->getValue("journalvoucher",array("source")," voucherno = '$voucher'");
 					$source     = $source[0]->source;
-					$voucherno_ = (empty($documentno)) 	?  	$voucher 	: 	$documentno;
-					$link		= '<a href="' . BASE_URL. 'financials/credit_memo/print_preview/'.$voucher .'" target="_blank">'.$voucherno_.'</a>';
+					$link		= '<a href="' . BASE_URL. 'financials/credit_memo/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
 				}else if($transtype == 'BEG'){
 					$link		= $documentno;
 				}else if($transtype == 'BEG'){
@@ -238,8 +231,8 @@ class trial_balance extends wc_model {
 				$tablerow	.= '<tr>';
 				$tablerow	.= '<td style="vertical-align:middle;" >&nbsp;'.$link.'</td>';
 				$tablerow	.= '<td class=" center" style="vertical-align:middle;" >&nbsp;'.$transactiondate.'</td>';
-				$tablerow	.= '<td class=" right" style="vertical-align:middle;" >'.number_format($debit,2).'</td>';
-				$tablerow	.= '<td class=" right" style="vertical-align:middle;" >'.number_format($credit,2).'</td>';
+				$tablerow	.= '<td class=" text-right" style="vertical-align:middle;" >'.number_format($debit,2).'</td>';
+				$tablerow	.= '<td class=" text-right" style="vertical-align:middle;" >'.number_format($credit,2).'</td>';
 				$tablerow	.= '</tr>';
 			
 			}
@@ -249,16 +242,16 @@ class trial_balance extends wc_model {
 			$tablerow	.= '</tr>';
 		}
 		
-
-		//echo $this->db->getQuery();
-		
 		$accountname		= $this->getValue("chartaccount",array("accountname")," id = '$acctfilter'","",true,true);
-
+		
+		$fetch_result->table = $tablerow;
+		
 		$result	= array(
 				'title'=>$accountname[0]->accountname,
 				'qtr'=>$qtr,
-				'table'=>$tablerow,
-				'accountfilter'=>$acctfilter,
+				'table'=>$fetch_result->table,
+				'pagination'=>$fetch_result->pagination,
+				'accountfilter'=>$acctfilter
 			);
 		return $result;
 
