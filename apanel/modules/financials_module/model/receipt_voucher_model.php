@@ -932,6 +932,7 @@ class receipt_voucher_model extends wc_model
 													"COALESCE(SUM(amount),0) convertedamount",
 													"COALESCE(SUM(discount),0) discount",
 													"COALESCE(SUM(credits_used),0) credits",
+													"COALESCE(SUM(overpayment),0) overpayment",
 													"COALESCE(SUM(forexamount),0) forexamount"
 												), 
 												"  arvoucherno = '$payable' AND stat IN('open','posted') "
@@ -944,7 +945,7 @@ class receipt_voucher_model extends wc_model
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
 
 				$balance_info['amountreceived']	= $applied_sum;
-				$balance_info['excessamount'] 	= $applied_sum - $invoice_amount;
+				$balance_info['excessamount'] 	= $overpayment;
 				$balance_amt 					= $invoice_amount - $applied_sum;
 				$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;
 				
@@ -1217,6 +1218,9 @@ class receipt_voucher_model extends wc_model
 		$reference_inv 				= $this->getValue("accountsreceivable", array("invoiceno as number"), "voucherno = '$arvoucher'");
 		$invoiceno 					= isset($reference_inv[0]->number) 	?	$reference_inv[0]->number	:	"";
 
+		$s_ret 						= $this->getValue("salesinvoice", array("voucherno"), "voucherno = '$invoiceno'");
+		$invoiceno 					= isset($s_ret[0]->voucherno) 	?	$s_ret[0]->voucherno	:	"";
+
 		$op_arr['voucherno'] 		= $cm_no;
 		$op_arr['transtype'] 		= "CM";
 		$op_arr['stat'] 			= "posted";
@@ -1231,7 +1235,7 @@ class receipt_voucher_model extends wc_model
 		$op_arr['invoiceno'] 		= $arvoucher;
 		$op_arr['amount']			= $overpayment;
 		$op_arr['convertedamount']	= $overpayment * $exchangerate;
-		$op_arr['referenceno'] 		= $cm_no;
+		$op_arr['referenceno'] 		= ($invoiceno!="") ? $invoiceno 	:	$arvoucher;
 		$op_arr['source'] 			= "excess";
 		$op_arr['sourceno']			= $invoiceno;
 		$op_arr['si_no'] 			= $voucherno;
