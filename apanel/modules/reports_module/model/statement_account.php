@@ -54,7 +54,7 @@
 			return $this->db->setTable("(
 								select ar.transactiondate invoicedate, ar.sourceno invoiceno, 'Invoice' documenttype,
 								ar.voucherno reference, ar.particulars as particulars, ar.convertedamount as amount,
-								ar.companycode companycode
+								ar.companycode companycode, ar.entereddate entereddate
 								from accountsreceivable as ar  
 								where ar.stat = 'posted' $ar_query
 
@@ -62,7 +62,7 @@
  
 								select rv.transactiondate as invoicedate, ar.sourceno as invoiceno, 'Payment' documenttype, 
 								app.voucherno reference, rv.particulars as particulars, (app.convertedamount + app.discount) as amount,
-								rv.companycode companycode
+								rv.companycode companycode, rv.entereddate entereddate
 								from rv_application as app 
 								left join accountsreceivable ar ON ar.voucherno = app.arvoucherno
 								left join receiptvoucher rv ON rv.voucherno = app.voucherno
@@ -72,7 +72,7 @@
  
 								select cm.transactiondate invoicedate, cm.sourceno invoiceno, 'Credit Memo' documenttype,
 								cm.voucherno reference, cm.remarks as particulars, cm.convertedamount as amount,
-								cm.companycode companycode
+								cm.companycode companycode, cm.entereddate entereddate
 								from journalvoucher as cm  
 								where cm.stat IN('open','posted') AND cm.transtype = 'CM' $cm_query
 
@@ -80,13 +80,13 @@
  
 								select dm.transactiondate invoicedate, dm.sourceno invoiceno, 'Debit Memo' documenttype,
 								dm.voucherno reference, dm.remarks as particulars, dm.convertedamount as amount,
-								dm.companycode companycode
+								dm.companycode companycode, dm.entereddate entereddate
 								from journalvoucher as dm  
 								where dm.stat IN('open','posted') AND dm.transtype = 'DM' $dm_query
 
 							) as soa_details") 
 							->setFields($fields)
-							->setOrderBy("invoicedate, invoiceno ASC")
+							->setOrderBy("entereddate, invoicedate, invoiceno ASC")
 							->runPagination();
 		}
 
@@ -113,7 +113,7 @@
 			$dm_query .= (!empty($custfilter) && $custfilter != 'none') ? "AND dm.partner = '$custfilter' " : "";
 
 			return $this->db->setTable("(
-								select COALESCE(SUM(ar.convertedamount),0) amount, '0' payment, ar.companycode companycode
+								select COALESCE(SUM(ar.convertedamount + ar.excessamount),0) amount, '0' payment, ar.companycode companycode
 								from accountsreceivable as ar  
 								where ar.stat = 'posted' $ar_query
 
@@ -168,7 +168,7 @@
 			$dm_query .= (!empty($custfilter) && $custfilter != 'none') ? "AND dm.partner = '$custfilter' " : "";
 
 			return $this->db->setTable("(
-								select COALESCE(SUM(ar.convertedamount),0) amount, '0' payment, ar.companycode companycode
+								select COALESCE(SUM(ar.convertedamount + ar.excessamount),0) amount, '0' payment, ar.companycode companycode
 								from accountsreceivable as ar  
 								where ar.stat = 'posted' $ar_query
 
@@ -226,7 +226,7 @@
 			return $this->db->setTable("(
 								select ar.transactiondate invoicedate, ar.sourceno invoiceno, 'Invoice' documenttype,
 								ar.voucherno reference, ar.particulars as particulars, ar.convertedamount as amount,
-								ar.companycode companycode
+								ar.companycode companycode, ar.entereddate entereddate
 								from accountsreceivable as ar  
 								where ar.stat = 'posted' $ar_query
 
@@ -234,7 +234,7 @@
  
 								select rv.transactiondate as invoicedate, ar.sourceno as invoiceno, 'Payment' documenttype, 
 								app.voucherno reference, rv.particulars as particulars, (app.convertedamount + app.discount) as amount,
-								rv.companycode companycode
+								rv.companycode companycode, rv.entereddate entereddate
 								from rv_application as app 
 								left join accountsreceivable ar ON ar.voucherno = app.arvoucherno
 								left join receiptvoucher rv ON rv.voucherno = app.voucherno
@@ -244,7 +244,7 @@
  
 								select cm.transactiondate invoicedate, cm.sourceno invoiceno, 'Credit Memo' documenttype,
 								cm.voucherno reference, cm.remarks as particulars, cm.convertedamount as amount,
-								cm.companycode companycode
+								cm.companycode companycode, cm.entereddate entereddate
 								from journalvoucher as cm  
 								where cm.stat IN('open','posted') AND cm.transtype = 'CM' $cm_query
 
@@ -252,13 +252,13 @@
  
 								select dm.transactiondate invoicedate, dm.sourceno invoiceno, 'Debit Memo' documenttype,
 								dm.voucherno reference, dm.remarks as particulars, dm.convertedamount as amount,
-								dm.companycode companycode
+								dm.companycode companycode, dm.entereddate entereddate
 								from journalvoucher as dm  
 								where dm.stat IN('open','posted') AND dm.transtype = 'DM' $dm_query
 
 							) as soa_details") 
 							->setFields($fields)
-							->setOrderBy("invoicedate, invoiceno ASC")
+							->setOrderBy("entereddate, invoicedate, invoiceno ASC")
 							->runSelect()
 							->getResult();
 		}

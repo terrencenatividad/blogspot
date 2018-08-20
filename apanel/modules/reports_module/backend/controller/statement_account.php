@@ -89,7 +89,8 @@ class controller extends wc_controller
 				}
 				$table .= '<td class="text-right">' .   $this->amount($row->amount) . '</td>';
 				$balance += $row->amount;
-				$table .= '<td class="text-right">' .   $this->amount($balance) . '</td>';
+				$balance = ($balance >= 0) ? $balance : 0;
+				$table .= '<td class="text-right">' .   $this->amount($balance). '</td>';
 				$table .= '</tr>';
 			}
 		$table .= '<tr>	
@@ -182,6 +183,7 @@ class controller extends wc_controller
 				}
 				$csv .=  '"'.$this->amount($row->amount).'",';
 				$balance += $row->amount;
+				$balance = ($balance >= 0) ? $balance : 0;
 				$csv .=  '"'.$this->amount($balance).'"';
 				$csv .= "\n";
 			}
