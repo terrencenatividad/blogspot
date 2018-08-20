@@ -231,8 +231,8 @@ class trial_balance extends wc_model {
 				$tablerow	.= '<tr>';
 				$tablerow	.= '<td style="vertical-align:middle;" >&nbsp;'.$link.'</td>';
 				$tablerow	.= '<td class=" center" style="vertical-align:middle;" >&nbsp;'.$transactiondate.'</td>';
-				$tablerow	.= '<td class=" right" style="vertical-align:middle;" >'.number_format($debit,2).'</td>';
-				$tablerow	.= '<td class=" right" style="vertical-align:middle;" >'.number_format($credit,2).'</td>';
+				$tablerow	.= '<td class=" text-right" style="vertical-align:middle;" >'.number_format($debit,2).'</td>';
+				$tablerow	.= '<td class=" text-right" style="vertical-align:middle;" >'.number_format($credit,2).'</td>';
 				$tablerow	.= '</tr>';
 			
 			}
