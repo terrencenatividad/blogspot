@@ -810,6 +810,7 @@ class controller extends wc_controller
 
 		$cm_vouchers 	= $this->receipt_voucher->getValue("journalvoucher", "voucherno", "transtype = 'CM' AND si_no IN ($payments)");
 
+		$result 		= 0;
 		foreach($cm_vouchers as $key => $content){
 			$cm_no 			=  	$content->voucherno;
 			$result 		= 	$this->receipt_voucher->cancelCreditMemo($cm_no);
@@ -1298,8 +1299,6 @@ class controller extends wc_controller
 					$credit 			= (isset($account_total[$accountcode])) ? $account_total[$accountcode] - $overpayment : 0;
 					$credit 			= number_format($credit,2);
 				}
-				// echo $credit."\n\n";
-
 				$totalcredit     	+= $debit; 
 
 				$table .= '<tr class="clone" valign="middle">';
