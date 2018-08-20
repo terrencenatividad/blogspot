@@ -61,7 +61,7 @@
 								UNION ALL
  
 								select rv.transactiondate as invoicedate, ar.sourceno as invoiceno, 'Payment' documenttype, 
-								app.voucherno reference, rv.particulars as particulars, (app.convertedamount + app.discount) as amount,
+								app.voucherno reference, rv.particulars as particulars, (app.convertedamount + app.discount - app.overpayment) as amount,
 								rv.companycode companycode, rv.entereddate entereddate
 								from rv_application as app 
 								left join accountsreceivable ar ON ar.voucherno = app.arvoucherno
@@ -113,7 +113,7 @@
 			$dm_query .= (!empty($custfilter) && $custfilter != 'none') ? "AND dm.partner = '$custfilter' " : "";
 
 			return $this->db->setTable("(
-								select COALESCE(SUM(ar.convertedamount + ar.excessamount),0) amount, '0' payment, ar.companycode companycode
+								select COALESCE(SUM(ar.convertedamount),0) amount, '0' payment, ar.companycode companycode
 								from accountsreceivable as ar  
 								where ar.stat = 'posted' $ar_query
 
