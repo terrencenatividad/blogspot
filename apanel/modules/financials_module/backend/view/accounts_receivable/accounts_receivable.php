@@ -176,7 +176,9 @@
 													->setSplit('col-md-4', 'col-md-8')
 													->setName('invoiceno')
 													->setId('invoiceno')
+													->setAttribute(array("maxlength" => "20"))
 													->setValue($invoiceno)
+													->setValidation('alpha_num')
 													->draw($show_input);
 										?>
 									</div>
@@ -205,7 +207,9 @@
 													->setSplit('col-md-4', 'col-md-8')
 													->setName('referenceno')
 													->setId('referenceno')
+													->setAttribute(array("maxlength" => "20"))
 													->setValue($referenceno)
+													->setValidation('alpha_num')
 													->draw($show_input);
 										?>
 									</div>

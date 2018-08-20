@@ -1,4 +1,4 @@
-	<section class="content">
+<section class="content">
 		<div class="row">
 			<div class="col-md-4 text-center col-md-offset-4" align="center">
 				<div class="form-steps steps-2">
@@ -33,7 +33,7 @@
 								<div class="row">
 									<div class="col-md-6">	
 										<div class="form-group">
-											<label class="control-label col-md-5 left">Select daterange <span class = "asterisk">*</span></label>
+											<label class="control-label col-md-5 left">Select daterange</label>
 											<div class="col-md-7">
 												<div class="input-group monthrangefilter">
 													<input type="text" name="daterangefilter" id="daterangefilter" class="form-control" value="" data-daterangefilter="month" data-validation="required">
@@ -46,7 +46,7 @@
 										</div>
 										<?php
 											echo $ui->formField('dropdown')
-												->setLabel('Select Bank <span class = "asterisk">*</span>')
+												->setLabel('Select Bank')
 												->setPlaceholder('Filter Bank')
 												->setSplit('col-md-5','col-md-7')
 												->setName('accountcode')
@@ -62,8 +62,8 @@
 											</div>
 										</div>
 										<div class="form-group">
-											<label for="import_csv" class="control-label col-md-5">Select file to import <span class = "asterisk">*</span></label>
-											<div class="col-md-7">
+											<label for="import_csv" class="control-label col-md-5">Select file to import</label>
+											<div class="col-md-7 import">
 												<?php
 													echo $ui->setElement('file')
 															->setId('import_csv')
@@ -103,7 +103,7 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('text')
-												->setLabel('Ending Balance <span class = "asterisk">*</span>')
+												->setLabel('Ending Balance')
 												->setPlaceholder('0.00')
 												->setSplit('col-md-5','col-md-7')
 												->setName('endbalance')
@@ -128,7 +128,7 @@
 								<hr>
 								<input type="hidden" name="import" value="csv">
 								<input type="submit" name="submit" value="Import" class="btn btn-info">&nbsp;&nbsp;
-								<button class="btn btn-primary" id="cancel">Cancel</button>
+								<button class="btn btn-primary" type="button" id="cancel">Cancel</button>
 							</div>
 						</div>
 					</div>
@@ -158,6 +158,33 @@
 			$('#has_recon').modal('show');
 		</script>
 	<?php endif ?>
+	<!-- Cancel Modal -->
+	<div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					Confirmation
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to cancel?
+				</div>
+				<div class="modal-footer">
+					<div class="row row-dense">
+						<div class="col-md-12 center">
+							<div class="btn-group">
+								<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+							</div>
+								&nbsp;&nbsp;&nbsp;
+							<div class="btn-group">
+								<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<script>
 		var ajax_call = '';
 		$('#bankrecon').on('change', '#import_csv', function() {
@@ -185,12 +212,7 @@
 					type: 'POST',
 					success: function(data) {
 						if (data.success) {
-							$('#success_modal').modal('show');
-							show_success_msg("Your data has been successfully imported!");
-							setTimeout(function() {
-								window.location.href = data.redirect;					
-							}, 1000)
-							
+							window.location.href = data.redirect;
 						} else {
 							addError('<p>' + data.error + '</p>', true);
 							try {
@@ -234,11 +256,21 @@
 				$('#warning_modal .modal-body').append(error);
 			}
 		}
-		function show_success_msg(msg)
-		{
-		$('#success_modal #message').html(msg);
-		$('#success_modal').modal('show');
-		}
+		$('#cancel').click(function(){
+			$('#cancelModal').modal('show');
+		});
+
+		$('#cancelModal #btnYes').click(function() {
+			var id 		= $('#cancelModal').data('id');
+			
+			$('#cancelModal').modal('hide');
+			$('#bankrecon')[0].reset();
+			$('#step2').hide();
+			$('#accountcode').val("").trigger('change.select2');
+			var filename = $('.import').val().split("\\");
+			var form_csv = $('#import_csv').val('').closest('.form-group').find('.form-control').html('').closest('.form-group').html();
+			$('#import_csv').closest('.form-group').html(form_csv);
+		});
 	</script>
 
 
