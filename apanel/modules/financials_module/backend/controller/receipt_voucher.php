@@ -1069,7 +1069,7 @@ class controller extends wc_controller
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$voucher.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
 				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_amount'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($totalamount,2).'">'.number_format($totalamount,2).'</td>';
-				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_balance'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance_2,2).'</td>';
+				$table	.= 	'<td class="text-right balances" style="vertical-align:middle;" id = "payable_balance'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance_2,2).'</td>';
 				// $table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "credit_used'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($credits,2).'">'.number_format($credits,2).'</td>';
 				if($voucher_checked == 'checked'){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
