@@ -570,7 +570,7 @@
 							</div>
 						</div>
 
-						<div class="row">
+						<!-- <div class="row">
 							<div class="col-md-12 col-sm-12 text-center">
 								<?php
 									$save		= ($task == 'create') ? 'name="save"' : '';
@@ -588,13 +588,11 @@
 									
 									<ul class="dropdown-menu left" role="menu">
 										<li id = "save_new" style="cursor:pointer;">
-											<!--<input type = "button" value = "Save & New" name = "save_new" id = "save_new" class = "btn btn-default btn-sm btn-flat no-bg"/>-->
 											Save & New
 											<input type = "hidden" value = "" name = "h_save_new" id = "h_save_new"/>
 										</li>
 										<li class="divider"></li>
 										<li id = "save_preview" style="cursor:pointer;">
-											<!--<input type = "button" value = "Save & Preview" name = "save_preview" id = "save_preview" class = "btn btn-default btn-sm btn-flat no-bg"/>-->
 											Save & Preview
 											<input type = "hidden" value = "" name = "h_save_preview" id = "h_save_preview"/>
 										</li>
@@ -606,6 +604,28 @@
 									<button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel">Cancel</button>
 								</div>
 							</div>
+						</div> -->
+
+						<div class="row">
+								<div class="col-md-12 col-sm-12 text-center">
+									<?if($show_input):?>
+									<? echo  $ui->addSavePreview()
+												->addSaveNew()
+												->addSaveExit()
+												->drawSaveOption(true);
+									?>
+										<input class = "form_iput" value = "" name = "h_save" id = "h_save" type = "hidden">
+									<!-- <input type = "button" value = "Save" name = "save" id = "btnSave" class="btn btn-primary btn-flat"/>
+									<input class = "form_iput" value = "" name = "h_save" id = "h_save" type = "hidden"> -->
+									<?endif;?>
+									&nbsp;
+									<?
+									if($task == 'edit'){
+										echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
+									}
+									?>
+									<button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel">Cancel</button>
+								</div>
 						</div>
 						<div class = "col-md-12">&nbsp;</div>
 					</div>	
@@ -3361,7 +3381,7 @@ $(document).ready(function()
 		});
 
 		/**FINALIZE TEMPORARY DATA AND REDIRECT TO LIST**/
-		$("#receivableForm #btnSave").click(function()
+		$("#receivableForm #save_exit").click(function()
 		{
 			var valid	= 0;
 		
@@ -3462,7 +3482,7 @@ $(document).ready(function()
 		});
 
 		/**FINALIZE TEMPORARY DATA AND REDIRECT TO PREVIEW INVOICE**/
-		$("#receivableForm #save_preview").click(function()
+		$("#receivableForm #save").click(function()
 		{
 			var valid	= 0;
 			
