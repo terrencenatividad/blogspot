@@ -450,11 +450,11 @@ class controller extends wc_controller
 			// For Admin Logs
 			$this->logs->saveActivity("Updated Accounts Receivable [$sid]");
 
-			if(!empty($data_validate['h_save']))
+			if(!empty($data_validate['save_exit']))
 			{
 				$this->url->redirect(BASE_URL . 'financials/accounts_receivable');
 			}
-			else if(!empty($data_validate['h_save_preview']))
+			else if(!empty($data_validate['save']))
 			{
 				$this->url->redirect(BASE_URL . 'financials/accounts_receivable/view/' . $sid);
 			}
