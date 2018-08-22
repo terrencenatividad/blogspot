@@ -90,6 +90,7 @@ class controller extends wc_controller {
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui'] = $this->ui;
+		$data['ajax_task']			= 'ajax_view';
 		$data['proforma_list']		= $this->jv_model->getProformaList();
 		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
 		$status 					= $data['stat'];
@@ -196,8 +197,10 @@ class controller extends wc_controller {
 		$redirect_url = MODULE_URL;
 		if ($submit == 'save_new') {
 			$redirect_url = MODULE_URL . 'create';
-		} else if ($submit == 'save_preview') {
+		} else if ($submit == 'save') {
 			$redirect_url = MODULE_URL . 'view/' . $data['voucherno'];
+		} else if ($submit == 'save_exit') {
+			$redirect_url = MODULE_URL;
 		}
 		return array(
 			'redirect'	=> $redirect_url,
