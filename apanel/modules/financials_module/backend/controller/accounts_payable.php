@@ -278,9 +278,9 @@ class controller extends wc_controller
 			// For Admin Logs
 			$this->logs->saveActivity("Add New Accounts Payable [$generatedvoucher]");
 
-			if(!empty($data_validate['h_save']))
+			if(!empty($data_validate['h_save_new']))
 			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_payable');
+				$this->url->redirect(BASE_URL . 'financials/accounts_payable/create');
 			}
 			else if(!empty($data_validate['h_save_preview']))
 			{
@@ -288,7 +288,7 @@ class controller extends wc_controller
 			}
 			else
 			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_payable/create');
+				$this->url->redirect(BASE_URL . 'financials/accounts_payable');
 			}
 		
 		}
