@@ -445,17 +445,19 @@ $(function(){
 		var ajax_post = "<?=$ajax_post?>";
 		$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + ajax_post, function(response) 
 		{
-			if( response.msg == "success" )
+			if( response.msg == "success" ){
+				$(".alert-warning").addClass("hidden");
 			$('#delay_modal').modal('show');
 							setTimeout(function() {							
 								window.location = "<?= MODULE_URL ?>";
-						}, 1000)	
+						}, 1000)
+			}
 			if(response.msg == "error_add")
 			{
 				$(".alert-warning").removeClass("hidden");
 				$("#errmsg").html("Error Inserting " + 
-									response.proform_code + " " + 
-									response.proforma_desc);
+									response.proforma_code + " - " + 
+									response.proforma_desc+ ". Proforma Code already exists.");
 			}
 		});
 	});

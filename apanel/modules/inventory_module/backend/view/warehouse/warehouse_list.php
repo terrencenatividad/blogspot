@@ -260,7 +260,6 @@
 			
 			$('#deactivate_modal').on('click', '#deactyes', function() {
 				$('#deactivate_modal').modal('hide');
-				alert(id);
 				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&code='+id ,function(data) {
 					getList();
 				});
