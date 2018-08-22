@@ -56,7 +56,7 @@
 								<?php
 									if($show_input){
 										echo $ui->formField('dropdown')
-											->setLabel('Supplier <span class = "asterisk">*</span>')
+											->setLabel('Supplier ')
 											->setPlaceholder('None')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('vendor')
@@ -68,7 +68,7 @@
 											->draw($show_input);
 									}else{
 										echo $ui->formField('text')
-											->setLabel('Supplier <span class = "asterisk">*</span>')
+											->setLabel('Supplier ')
 											->setSplit('col-md-4', 'col-md-8')
 											->setValue($vendor)
 											->draw($show_input);

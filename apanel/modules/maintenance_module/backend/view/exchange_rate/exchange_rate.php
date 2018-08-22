@@ -29,7 +29,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Effectivity Date <span class = "asterisk">*</span>')
+								->setLabel('Effectivity Date ')
 								->setSplit('col-md-3', 'col-md-8')
 								->setName('effectivedate')
 								->setId('effectivedate')
@@ -44,7 +44,7 @@
                     <div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Exchange Rate <span class = "asterisk">*</span>')
+									->setLabel('Exchange Rate ')
 									->setSplit('col-md-3', 'col-md-8')
 									->setName('exchangerate')
 									->setId('exchangerate')
@@ -59,7 +59,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Base Currency <span class = "asterisk">*</span>')
+								->setLabel('Base Currency ')
 								->setPlaceholder('Filter Currency')
 								->setSplit('col-md-3', 'col-md-8')
 								->setName('basecurrencycode')
@@ -73,7 +73,7 @@
                     <div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Exchange Currency <span class = "asterisk">*</span>')
+								->setLabel('Exchange Currency ')
 								->setPlaceholder('Filter Currency')
 								->setSplit('col-md-3', 'col-md-8')
 								->setName('exchangecurrencycode')

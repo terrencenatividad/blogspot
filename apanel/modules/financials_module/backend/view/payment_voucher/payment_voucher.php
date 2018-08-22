@@ -89,7 +89,7 @@
 					<div class = "row">
 						<div class = "col-md-6">
 							<div class="form-group">
-								<label for="apv" class="control-label col-md-4">Total Payment <span class = "asterisk">*</span></label>
+								<label for="apv" class="control-label col-md-4">Total Payment </label>
 								<div class="col-md-8">
 									<?php
 									if(!$show_input){

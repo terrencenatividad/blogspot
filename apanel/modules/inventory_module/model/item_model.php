@@ -144,6 +144,18 @@ class item_model extends wc_model {
 						->getResult();
 	}
 
+	public function getEditItemTypeList($search = '', $itemtype) {
+		$condition = "stat = 'active' OR id = '$itemtype'";
+		if ($search) {
+			$condition = "label = '$search'";
+		}
+		return $this->db->setTable('itemtype')
+						->setFields('id ind, label val')
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
+	}
+
 	public function getItemClassList($search = '', $parent = '') {
 		$condition = "stat = 'active'";
 		if ($search) {

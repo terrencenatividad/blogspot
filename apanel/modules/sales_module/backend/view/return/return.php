@@ -67,7 +67,7 @@
 						<div class="col-md-6">
 							<?php
 								echo $ui->formField('text')
-									->setLabel('Sales Return No. <span class = "asterisk">*</span>')
+									->setLabel('Sales Return No. ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('source_no')
 									->setId('source_no')
@@ -83,7 +83,7 @@
 						<div class="col-md-6">
 							<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Return Type <span class = "asterisk">*</span>')
+									->setLabel('Return Type ')
 									->setPlaceholder('Select Return Type')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('stat')

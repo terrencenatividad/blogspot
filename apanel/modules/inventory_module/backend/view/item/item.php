@@ -14,7 +14,7 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('text')
-												->setLabel('Item Code <span class = "asterisk">*</span>')
+												->setLabel('Item Code ')
 												->setAttribute(array('autocomplete' => 'off'))
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('itemcode')
@@ -28,7 +28,7 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('text')
-												->setLabel('Item Name <span class = "asterisk">*</span>')
+												->setLabel('Item Name ')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('itemname')
 												->setId('itemname')
@@ -42,7 +42,7 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('textarea')
-												->setLabel('Item Desc <span class = "asterisk">*</span>')
+												->setLabel('Item Desc ')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('itemdesc')
 												->setId('itemdesc')
@@ -56,7 +56,7 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('dropdown')
-												->setLabel('Item Type <span class = "asterisk">*</span>')
+												->setLabel('Item Type ')
 												->setPlaceholder('Select Item Type')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('typeid')
@@ -70,7 +70,7 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('dropdown')
-												->setLabel('Item Class <span class = "asterisk">*</span>')
+												->setLabel('Item Class ')
 												->setPlaceholder('Select Item Class')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('classid')
@@ -125,7 +125,7 @@
 							<tbody>
 								<tr>
 									<td class="text-right">
-										<label class="form-control-static">Base UOM <span class = "asterisk">*</span></label>
+										<label class="form-control-static">Base UOM </label>
 									</td>
 									<td class="text-center uom_base_td">
 										<?php
@@ -149,7 +149,7 @@
 								</tr>
 								<tr>
 									<td class="text-right">
-										<label class="form-control-static">Selling UOM <span class = "asterisk">*</span></label>
+										<label class="form-control-static">Selling UOM </label>
 									</td>
 									<td class="text-center">
 										<?php
@@ -181,7 +181,7 @@
 								</tr>
 								<tr>
 									<td class="text-right">
-										<label class="form-control-static">Purchasing UOM <span class = "asterisk">*</span></label>
+										<label class="form-control-static">Purchasing UOM </label>
 									</td>
 									<td class="text-center">
 										<?php

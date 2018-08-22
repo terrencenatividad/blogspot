@@ -13,7 +13,7 @@
 					<div class="col-md-5">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Unit Code <span class = "asterisk">*</span>')
+								->setLabel('Unit Code ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('uomcode')
 								->setId('uomcode')
@@ -27,7 +27,7 @@
 					<div class="col-md-5">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Unit Description <span class = "asterisk">*</span>')
+								->setLabel('Unit Description ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('uomdesc')
 								->setId('uomdesc')
@@ -46,7 +46,7 @@
 					<div class="col-md-5">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Unit Type <span class = "asterisk">*</span>')
+								->setLabel('Unit Type ')
 								->setPlaceholder('None')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('uomtype')

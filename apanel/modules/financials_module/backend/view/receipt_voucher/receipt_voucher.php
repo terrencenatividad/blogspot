@@ -53,7 +53,7 @@
 						<div class = "col-md-6">
 							<?php
 								echo $ui->formField('dropdown')
-								->setLabel('Customer <span class = "asterisk">*</span>')
+								->setLabel('Customer ')
 								->setPlaceholder('Select Customer')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('customer')
@@ -91,7 +91,7 @@
 					<div class = "row">
 						<div class = "col-md-6">
 							<div class="form-group">
-								<label for="apv" class="control-label col-md-4">Total Receivables <span class = "asterisk">*</span></label>
+								<label for="apv" class="control-label col-md-4">Total Receivables </label>
 								<div class="col-md-8">
 									<?php
 									if(!$show_input){

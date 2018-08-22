@@ -54,7 +54,7 @@
 				<div class = "col-md-6 customer_div">
 					<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Customer <span class = "asterisk">*</span>')
+								->setLabel('Customer ')
 								->setPlaceholder('None')
 								->setSplit('col-md-3', 'col-md-8')
 								->setName('customer')
@@ -70,7 +70,7 @@
 				<div class = "col-md-6">
 					<?php
 						echo $ui->formField('text')
-							->setLabel('Expiration Date <span class = "asterisk">*</span>')
+							->setLabel('Expiration Date ')
 							->setSplit('col-md-3', 'col-md-8')
 							->setName('due_date')
 							->setId('due_date')
@@ -559,7 +559,7 @@ $(document).ready(function(){
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('textarea')
-										->setLabel('Address: <span class = "asterisk">*</span>')
+										->setLabel('Address:')
 										->setSplit('col-md-3', 'col-md-8 field_col')
 										->setName('address1')
 										->setId('address1')
