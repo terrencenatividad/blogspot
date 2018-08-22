@@ -13,7 +13,7 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('text')
-												->setLabel('Item Class <span class = "asterisk">*</span>')
+												->setLabel('Item Class ')
 												->setAttribute(array('autocomplete' => 'off'))
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('label')
@@ -26,7 +26,7 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('dropdown')
-												->setLabel('Parent Class <span class = "asterisk">*</span>')
+												->setLabel('Parent Class ')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('parentid')
 												->setId('parentid')
@@ -49,7 +49,7 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('dropdown')
-												->setLabel('Debit Account <span class = "asterisk">*</span>')
+												->setLabel('Debit Account ')
 												->setPlaceholder('Select Account')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('receivable_account')
@@ -62,7 +62,7 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('dropdown')
-												->setLabel('Credit Account <span class = "asterisk">*</span>')
+												->setLabel('Credit Account ')
 												->setPlaceholder('Select Account')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('revenue_account')
@@ -83,7 +83,7 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('dropdown')
-												->setLabel('Debit Account <span class = "asterisk">*</span>')
+												->setLabel('Debit Account ')
 												->setPlaceholder('Select Account')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('expense_account')
@@ -96,7 +96,7 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('dropdown')
-												->setLabel('Credit Account <span class = "asterisk">*</span>')
+												->setLabel('Credit Account ')
 												->setPlaceholder('Select Account')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('payable_account')
@@ -117,7 +117,7 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('dropdown')
-												->setLabel('Inventory Account <span class = "asterisk">*</span>')
+												->setLabel('Inventory Account ')
 												->setPlaceholder('Select Account')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('inventory_account')

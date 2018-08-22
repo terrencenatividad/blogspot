@@ -52,7 +52,7 @@
 						<div class = "col-md-6">
 							<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Supplier <span class = "asterisk">*</span>')
+									->setLabel('Supplier')
 									->setPlaceholder('Select Supplier')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('vendor')
@@ -89,7 +89,7 @@
 					<div class = "row">
 						<div class = "col-md-6">
 							<div class="form-group">
-								<label for="apv" class="control-label col-md-4">Total Payment <span class = "asterisk">*</span></label>
+								<label for="apv" class="control-label col-md-4">Total Payment </label>
 								<div class="col-md-8">
 									<?php
 									if(!$show_input){
@@ -1288,7 +1288,7 @@ var task 		= '<?= $task ?>';
 var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 	// enable them to allow a cloned row with enabled dropdown and input fields
 var initial_debit 		= initial_clone.find('.debit').val();
-var initial_credit 		= initial_clone.find('.crebit').val() || 0;
+var initial_credit 		= initial_clone.find('.crebit').val() || '0.00';
 	initial_clone.find('.debit').attr("value",'0.00');
 	initial_clone.find('.credit').attr("value",'0.00');
 var clone_acct 	= $('#entriesTable tbody tr.clone:first')[0].outerHTML;

@@ -1379,7 +1379,7 @@
 						<div class="row row-dense">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Amount: <span class = "asterisk">*</span>')
+										->setLabel('Currency Amount: ')
 										->setSplit('col-md-4', 'col-md-7')
 										->setName('oldamount')
 										->setId('oldamount')
@@ -1398,7 +1398,7 @@
 						<div class="row row-dense">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Rate: <span class = "asterisk">*</span>')
+										->setLabel('Currency Rate: ')
 										->setSplit('col-md-4', 'col-md-7')
 										->setName('rate')
 										->setId('rate')
@@ -1416,7 +1416,7 @@
 						<div class="row row-dense">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Amount: <span class = "asterisk">*</span>')
+										->setLabel('Amount: ')
 										->setSplit('col-md-4', 'col-md-7')
 										->setName('newamount')
 										->setId('newamount')
@@ -1546,7 +1546,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Amount: <span class = "asterisk">*</span>')
+										->setLabel('Currency Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('paymentoldamount')
 										->setId('paymentoldamount')
@@ -1563,7 +1563,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Rate: <span class = "asterisk">*</span>')
+										->setLabel('Currency Rate: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('paymentrate')
 										->setId('paymentrate')
@@ -1581,7 +1581,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Amount: <span class = "asterisk">*</span>')
+										->setLabel('Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('paymentnewamount')
 										->setId('paymentnewamount')

@@ -15,7 +15,7 @@
 
 					<?
 							echo $ui->formField('text')
-									->setLabel('Account Code <span class = "asterisk">*</span>')
+									->setLabel('Account Code ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('accountcode')
 									->setId('accountcode')
@@ -30,7 +30,7 @@
 					
 					<?
 						echo $ui->formField('text')
-									->setLabel('Account Name <span class = "asterisk">*</span>')
+									->setLabel('Account Name ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('accountname')
 									->setId('accountname')
@@ -45,7 +45,7 @@
 					<div class = "col-md-6">
 					<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Account Class <span class = "asterisk">*</span>')
+									->setLabel('Account Class ')
 									->setPlaceholder('Select Account Class Code')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('accountclasscode')
@@ -59,7 +59,7 @@
 					<div class = "col-md-6">
 					<?php
 								echo $ui->formField('dropdown')
-									->setLabel('FS Presentation <span class = "asterisk">*</span>')
+									->setLabel('FS Presentation ')
 									->setPlaceholder('Select FS Presentation')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('fspresentation')
@@ -76,7 +76,7 @@
 					<div class = "col-md-6">
 					<?
 								echo $ui->formField('dropdown')
-											->setLabel('Account Type <span class = "asterisk">*</span>')
+											->setLabel('Account Type ')
 											->setPlaceholder('Select Account Type')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('accounttype')
@@ -107,7 +107,7 @@
 					<div class = "col-md-6">
 					<?
 								echo $ui->formField('dropdown')
-												->setLabel('Account Nature <span class = "asterisk">*</span>')
+												->setLabel('Account Nature ')
 												->setPlaceholder('Select Account Nature')
 												->setSplit('col-md-4','col-md-8')
 												->setName('accountnature')

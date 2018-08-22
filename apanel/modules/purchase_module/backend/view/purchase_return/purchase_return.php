@@ -50,7 +50,7 @@
 						<div class="col-md-6">
 							<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Supplier <span class = "asterisk">*</span>')
+									->setLabel('Supplier ')
 									->setPlaceholder('Select Supplier')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('vendor')
@@ -67,7 +67,7 @@
 						<div class="col-md-6">
 							<?php
 								echo $ui->formField('text')
-									->setLabel('Receipt No. <span class = "asterisk">*</span>')
+									->setLabel('Receipt No. ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('source_no')
 									->setId('source_no')

@@ -19,7 +19,7 @@ class warehouse_model extends wc_model {
 
 	public function retrieveExistingWarehouse($data, $warehousecode)
 	{
-		$condition 		=	" stat = 'active' AND warehousecode = '$warehousecode' ";
+		$condition 		=	" warehousecode = '$warehousecode' ";
 		return $this->db->setTable('warehouse')
 						->setFields($data)
 						->setWhere($condition)

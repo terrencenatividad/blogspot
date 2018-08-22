@@ -57,7 +57,7 @@
 								<?php
 									if($show_input){
 										echo $ui->formField('dropdown')
-											->setLabel('Customer <span class = "asterisk">*</span>')
+											->setLabel('Customer ')
 											->setPlaceholder('None')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('customer')

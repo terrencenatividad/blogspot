@@ -123,7 +123,7 @@
 									<div class = "col-md-6 vendor_div ">
 										<?php
 											echo $ui->formField('dropdown')
-												->setLabel('Supplier <span class = "asterisk">*</span>')
+												->setLabel('Supplier ')
 												->setPlaceholder('None')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('vendor')
@@ -816,7 +816,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('textarea')
-										->setLabel('Address: <span class = "asterisk">*</span>')
+										->setLabel('Address: ')
 										->setSplit('col-md-3', 'col-md-8 field_col')
 										->setName('address')
 										->setId('address')
@@ -830,7 +830,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Business Type: <span class="asterisk"> * </span>')
+									->setLabel('Business Type: ')
 									->setPlaceholder('Filter Business Type')
 									->setSplit('col-md-3', 'col-md-8 field_col')
 									->setName('businesstype')
@@ -907,7 +907,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Amount: <span class = "asterisk">*</span>')
+										->setLabel('Currency Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('oldamount')
 										->setId('oldamount')
@@ -924,7 +924,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Rate: <span class = "asterisk">*</span>')
+										->setLabel('Currency Rate: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('rate')
 										->setId('rate')
@@ -940,7 +940,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Amount: <span class = "asterisk">*</span>')
+										->setLabel('Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('newamount')
 										->setId('newamount')
@@ -1063,7 +1063,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Amount: <span class = "asterisk">*</span>')
+										->setLabel('Currency Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('paymentoldamount')
 										->setId('paymentoldamount')
@@ -1079,7 +1079,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Rate: <span class = "asterisk">*</span>')
+										->setLabel('Currency Rate:  ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('paymentrate')
 										->setId('paymentrate')
@@ -1096,7 +1096,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Amount: <span class = "asterisk">*</span>')
+										->setLabel('Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('paymentnewamount')
 										->setId('paymentnewamount')
