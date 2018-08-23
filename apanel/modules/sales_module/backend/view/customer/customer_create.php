@@ -15,9 +15,10 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('partnercode')
 								->setId('partnercode')
-								->setValidation($code_required.' code')
+								->setValidation('required code')
 								->setMaxLength(20)
 								->addHidden((isset($task) && $task == 'update'))
+								->setAttribute(array('autocomplete' => 'off'))
 								->setValue($partnercode)
 								->draw((isset($task) && $task == 'add'));
 						?>
@@ -206,21 +207,14 @@
 
     </div>
 </section>
-
+<?php if ($show_input): ?>
 <script>
 
 var ajax = {};
 
 $('#customerForm #btnSave').on('click',function(){
 
-	$('#customerForm #partnercode').trigger('blur');
-	$('#customerForm #partnername').trigger('blur');
-	$('#customerForm #first_name').trigger('blur');
-	$('#customerForm #last_name').trigger('blur');
-	$('#customerForm #address1').trigger('blur');
-	$('#customerForm #businesstype').trigger('blur');
-	//$('#customerForm #email').trigger('blur');
-	//$('#customerForm #tinno').trigger('blur');
+	$('#customerForm').find('.form-group').find('input, textarea, select').trigger('blur');
 
 	if ($('#customerForm').find('.form-group.has-error').length == 0)
 	{	
@@ -270,4 +264,5 @@ $('#customerForm #btnCancel').on('click',function(){
 	<?php endif ?>
 });
 
-</script>
+</script>	
+<?php endif ?>
