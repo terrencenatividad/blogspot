@@ -246,10 +246,12 @@ $(document).ready(function(){
 
 	$('#discount_template_form #btnSave').on('click',function(){
 
-		$('#discount_template_form #discountcode').trigger('blur');
-		$('#discount_template_form #discountname').trigger('blur');
-		$('#discount_template_form #discounttype').trigger('blur');
-		$('#discount_template_form #discountdesc').trigger('blur');
+		// $('#discount_template_form #discountcode').trigger('blur');
+		// $('#discount_template_form #discountname').trigger('blur');
+		// $('#discount_template_form #discounttype').trigger('blur');
+		// $('#discount_template_form #discountdesc').trigger('blur');
+
+		$('#discount_template_form').find('.form-group').find('input, textarea, select').trigger('blur');
 
 		var discount 	=	$('#discount_value_table input[type="checkbox"]:checked').length;
 		var value 		=	0;
