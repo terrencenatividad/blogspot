@@ -1287,6 +1287,7 @@ class payment_voucher_model extends wc_model
 
 		$appTable		= "pv_application";
 		$detailTable	= "pv_details";
+		$chequeTable 	= "pv_cheques";
 		$mainTable		= "paymentvoucher";
 		$table			= "accountspayable";
 		$paymentField	= array('apvoucherno','amount','wtaxamount');
@@ -1330,6 +1331,12 @@ class payment_voucher_model extends wc_model
 			
 		// Update pv_application
 		$result = $this->db->setTable($appTable)
+				->setValues($update_info)
+				->setWhere("voucherno IN($payments)")
+				->runUpdate();
+
+		// Update pv_cheques
+		$result = $this->db->setTable($chequeTable)
 				->setValues($update_info)
 				->setWhere("voucherno IN($payments)")
 				->runUpdate();
