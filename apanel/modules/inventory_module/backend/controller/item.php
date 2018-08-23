@@ -99,8 +99,9 @@ class controller extends wc_controller {
 		$base = $result->uom_base;
 		$selling = $result->selling;
 		$purchasing = $result->purchasing;
+		$classid = $data['classid'];
 		$data['uom_list']					= $this->item_model->getEditUOMList('', $base, $selling, $purchasing);
-		$data['itemclass_list']				= $this->item_class_model->getParentClass('');
+		$data['itemclass_list']				= $this->item_model->getEditItemClassList('',$classid);
 		$data['itemtype_list']				= $this->item_model->getEditItemtypeList($search = '', $itemtype);
 		$data['weight_type_list']			= $this->item_model->getWeightTypeList();
 		$data['receivable_account_list']	= $this->item_model->getReceivableAccountList();
@@ -119,10 +120,16 @@ class controller extends wc_controller {
 	public function view($itemcode) {
 		$this->view->title = $this->ui->ViewLabel('');
 		$data = (array) $this->item_model->getItemById($this->fields, $itemcode);
+		$itemtype = $data['typeid'];
 		$data['ui']							= $this->ui;
-		$data['uom_list']					= $this->item_model->getUOMList();
-		$data['itemclass_list']				= $this->item_class_model->getParentClass('');
-		$data['itemtype_list']				= $this->item_model->getItemtypeList();
+		$result = $this->item_model->getUOMCode($itemcode);
+		$base = $result->uom_base;
+		$selling = $result->selling;
+		$purchasing = $result->purchasing;
+		$classid = $data['classid'];
+		$data['uom_list']					= $this->item_model->getEditUOMList('', $base, $selling, $purchasing);
+		$data['itemclass_list']				= $this->item_model->getEditItemClassList('',$classid);
+		$data['itemtype_list']				= $this->item_model->getEditItemtypeList($search = '', $itemtype);
 		$data['weight_type_list']			= $this->item_model->getWeightTypeList();
 		$data['receivable_account_list']	= $this->item_model->getReceivableAccountList();
 		$data['revenue_account_list']		= $this->item_model->getRevenueAccountList();

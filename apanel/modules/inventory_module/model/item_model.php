@@ -216,6 +216,18 @@ class item_model extends wc_model {
 						->getResult();
 	}
 
+	public function getEditItemClassList($search = '',$classid) {
+		$condition = "stat = 'active' OR id = '$classid'";
+		if ($search) {
+			$condition = "label = '$search'";
+		}
+		return $this->db->setTable('itemclass')
+						->setFields('id ind, label val')
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
+	}
+
 	public function getUOMCode($itemcode) {
 		return $this->db->setTable('items as items')
 						->setFields('items.uom_base as uom_base, items.uom_selling as selling, items.uom_purchasing as purchasing')
