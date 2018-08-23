@@ -133,7 +133,7 @@
 			$data_post_dtl['booknumber'] 		= $data2['booknumber'];
 			$data_post_dtl['firstchequeno'] 	= $data2['firstchequeno'];
 			$data_post_dtl['lastchequeno'] 		= $data2['lastchequeno'];
-			$data_post_dtl['nextchequeno'] 		= $data2['firstchequeno'] + 1;
+			$data_post_dtl['nextchequeno'] 		= $data2['firstchequeno'];
 
 			$result = $this->db->setTable('bankdetail')
 					->setValues($data_post_dtl)
