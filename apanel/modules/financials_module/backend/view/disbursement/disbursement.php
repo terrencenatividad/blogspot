@@ -183,6 +183,7 @@
 												->setId('chequenumber[1]')
 												->setClass('chequenumber')
 												->setMaxLength(30)
+												->setValidation('required alpha_num')
 												->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 												->setValue("")
 												->draw(true);
@@ -199,7 +200,7 @@
 												->setClass("datepicker-input")
 												->setName('chequedate[1]')
 												->setId('chequedate[1]')
-												->setAttribute(array("maxlength" => "50"))
+												->setMaxLength(50)
 												->setValue($transactiondate)
 												// ->setAddOn("calendar")
 												->draw(true);
@@ -214,7 +215,8 @@
 												->setName('chequeamount[1]')
 												->setId('chequeamount[1]')
 												->setValidation('decimal')
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
+												->setMaxLength(20)
+												->setAttribute(array("onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
 												->setValue("0.00")
 												->draw(true);
 									?>
@@ -259,6 +261,7 @@
 													->setId('chequenumber['.$row.']')
 													->setClass('chequenumber')
 													->setMaxLength(30)
+													->setValidation('required alpha_num')
 													->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 													->setValue($chequeno)
 													->draw($show_input);
@@ -278,7 +281,7 @@
 													->setClass("datepicker-input")
 													->setName('chequedate['.$row.']')
 													->setId('chequedate['.$row.']')
-													->setAttribute(array("maxlength" => "50"))
+													->setMaxLength(50)
 													->setValue($chequedate)
 													->draw($show_input);
 										?>
@@ -292,7 +295,8 @@
 													->setName('chequeamount['.$row.']')
 													->setId('chequeamount['.$row.']')
 													->setValidation('decimal')
-													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
+													->setMaxLength(20)
+													->setAttribute(array("onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
 													->setValue(number_format($chequeamount,2))
 													->draw($show_input);
 										?>
@@ -2110,21 +2114,6 @@
 	}
 
 	$(document).ready(function() {
-		// For adding new rol
-		// $('body').on('click', '.add-data', function() {	
-		// 	$('#itemsTable tbody tr.clone select').select2('destroy');
-			
-		// 	var clone = $("#itemsTable tbody tr.clone:first").clone(true); 
-		// 	var ParentRow = $("#itemsTable tbody tr.clone").last();
-		// 	var offset = 1;
-
-		// 	clone.clone(true).insertAfter(ParentRow);
-			
-		// 	setZero();
-			
-		// 	$('#itemsTable tbody tr.clone select').select2({width: "100%"});
-		// });
-		
 		/**ADD NEW BANK ROW**/
 		$('body').on('click', '.add-cheque', function() {
 			$('#chequeTable tbody tr.clone select').select2('destroy');
