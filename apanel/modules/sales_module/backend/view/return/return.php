@@ -110,13 +110,16 @@
 						</div>
 						<div class="col-md-6">
 							<?php
-								echo $ui->formField('text')
+								echo $ui->formField('dropdown')
 								->setLabel('Reason ')
+								->setPlaceholder('Select Reason')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('reason')
 								->setId('reason')
+								->setList(array('1' => 'Defective goods - no replacement', '2' => 'Defective goods - for replacement', '3' => 'Not Defective - Item For Replacement (exact item)', '4' => 'Not defective - Item For Replacement (different item)', '5' => 'Not Defective - Items Returned but not to be replaced"'))
 								->setValue($reason)
 								->setValidation('required')
+								// ->addHidden(($ajax_task != 'ajax_create'))
 								->draw($show_input);
 							?>
 						</div>
