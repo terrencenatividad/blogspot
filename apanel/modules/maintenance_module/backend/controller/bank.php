@@ -394,8 +394,8 @@
 			
 			$bankdesc 		= $this->bank->getAccountname($id);
 			$isname 		= $bankdesc[0]->shortname;
-			echo $firstchequeno 	= $bankdesc[0]->firstchequeno;
-			echo $lastchequeno 	= $bankdesc[0]->lastchequeno;
+			$firstchequeno 	= $bankdesc[0]->firstchequeno;
+			$lastchequeno 	= $bankdesc[0]->lastchequeno;
 			$accntname 		= $this->bank->deleteCheck($posted_data);
 
 			if( $accntname )
@@ -410,6 +410,25 @@
 			}
 			
 			return $dataArray 		= array( "msg" => $msg );
+
+		}
+
+		public function check_duplicate_booknumber(){
+			$current = $this->input->post('curr_code');
+			$old 	 = $this->input->post('old_code');
+			$count 	 = 0;
+			if( $current!='' && $current != $old )
+			{
+				$result = $this->bank->check_duplicate_booknums($current);
+				$count = $result[0]->count;
+			}
+			$msg   = "";
+			if( $count > 0 )
+			{	
+				$msg = "exists";
+			}
+
+			return $dataArray = array("msg" => $msg);
 
 		}
 

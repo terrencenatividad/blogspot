@@ -76,7 +76,8 @@ class item_class_model extends wc_model {
 			'et.value expensetype',
 			'ic.stat stat'
 		);
-		$condition = '';
+		
+		$condition = "";
 		if ($search) {
 			$condition = $this->generateSearch($search, array('ic.label', 'p.label', 'p2.label', 'c.label', 'c2.label'));
 		}

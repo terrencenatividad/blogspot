@@ -26,7 +26,6 @@
 							->setOrderBy($sort)
 							->runPagination();
 			return $result;
-			// echo $this->db->getQuery();
 		}
 
 		public function retrieveExistingBank($data, $id)
@@ -48,51 +47,22 @@
 						->setOrderBy($orderby)
 						->runSelect($bool)
 						->getResult();
-						// echo $this->db->getQuery();
 			return $result;
 		}
 
 		public function insertBank($data)
 		{
-			// $bankname 	= $data['shortname'];
-			// $accountno 	= $data['accountno'];
-		
-			// $cashAccount	= $this->GetValue("chartaccount","segment5","(id != '' AND id != '-')  AND accountclasscode = 'CASH' AND accounttype = 'B' LIMIT 1 ");
-			// $cashAccount   	= $cashAccount[0]->segment5;
-			// $cashAccount_Arr= explode('-',$cashAccount);
-			// $cashLevel		= $this->GetValue("chartaccount","id","(id != '' AND id != '-')  AND accountclasscode = 'CASH'  AND accounttype = 'B' LIMIT 1 ");
-			// $childCount		= $this->GetValue("chartaccount","COUNT(segment5) seg5"," parentaccountcode = '$cashAccount' AND accountclasscode = 'CASH' AND accounttype = 'C'  ");
-			// $childCount     = $childCount[0]->seg5;
-			// $childCount		= $childCount + 1;
-			
-			// $accountinfo['segment5']			= $cashAccount_Arr[0].'-'.str_pad($cashAccount_Arr[1] + $childCount, 3, 0, STR_PAD_LEFT);
-			// $accountinfo['accountname']			= "Cash in Bank - ".$bankname." (".$accountno.")";
-			// $accountinfo['accounttype']			= 'C';
-			// $accountinfo['accountnature']		= 'Debit';
-			// $accountinfo['fspresentation']		= 'BS';
-			// $accountinfo['accountclasscode']	= 'CASH';
-			// $accountinfo['parentaccountcode']	= $cashAccount;
-
-			// $result = $this->db->setTable('chartaccount')
-			// 		->setValues($accountinfo)
-			// 		->runInsert();
-
-			// $accountlevel = $this->db->getInsertId();
-
-			// if ($result) {
 			$data_post_dtl['gl_code'] 		= $data['gl_code'];
 			$data_post_dtl['shortname'] 	= $data['shortname'];
 			$data_post_dtl['bankcode'] 		= $data['bankcode'];
 			$data_post_dtl['accountno'] 	= $data['accountno'];
 			$data_post_dtl['address1'] 		= $data['address1'];
 			$data_post_dtl['currency'] 		= $data['currency'];
-			// $data_post_dtl['accountlevel'] 	= $accountlevel;
 			$data_post_dtl['checking_account'] 	= $data['checking_account'];
 
 			$result = $this->db->setTable('bank')
 					->setValues($data_post_dtl)
 					->runInsert();
-			// }
 			return $result;
 		}
 
@@ -100,7 +70,6 @@
 		{
 			
 			$condition 			   = " id = '$id' ";
-
 			$result 			   = $this->db->setTable('bank')
 											  ->setValues($data)
 											  ->setWhere($condition)
@@ -145,7 +114,6 @@
 							->setWhere(" accountno = '$current'")
 							->runSelect()
 							->getResult();
-							// echo $this->db->getQuery();
 			return $result;
 		}
 
@@ -233,21 +201,6 @@
 		public function getBank($id){
 			$condition   = "";
 			$id_array 	 = explode(',', $id['id']);
-			
-			// for($i = 0; $i < count($id_array); $i++)
-			// {
-			// 	$fields = array(
-			// 		'shortname',
-			// 		'bankcode',
-			// 	);
-	
-			// 	$id    = $id_array[$i];
-
-			
-			// 	return $result; 
-
-			
-			// }
 			foreach ($id_array as $id ) {
 				
 				$condition 		= " id = '$id'";
@@ -287,6 +240,16 @@
 								->setWhere($condition)
 								->runDelete();
 			return $result ;
+		}
+
+		public function check_duplicate_booknums($current){
+			$result = $this->db->setTable('bankdetail')
+							->setFields('COUNT(booknumber) count')
+							->setWhere("booknumber = '$current'")
+							->runSelect()
+							->getResult();
+			return $result;
+
 		}
 
 		

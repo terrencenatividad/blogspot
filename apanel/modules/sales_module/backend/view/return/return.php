@@ -97,18 +97,31 @@
 						</div>
 					</div>
 					<div class="row">
-						<div class="col-md-12">
+						<div class="col-md-6">
 							<?php
 								echo $ui->formField('textarea')
-									->setLabel('Notes')
-									->setSplit('col-md-2', 'col-md-10')
-									->setName('remarks')
-									->setId('remarks')
-									->setValue($remarks)
-									->draw($show_input);
+								->setLabel('Notes')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('remarks')
+								->setId('remarks')
+								->setValue($remarks)
+								->draw($show_input);
+							?>
+						</div>
+						<div class="col-md-6">
+							<?php
+								echo $ui->formField('text')
+								->setLabel('Reason ')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('reason')
+								->setId('reason')
+								->setValue($reason)
+								->setValidation('required')
+								->draw($show_input);
 							?>
 						</div>
 					</div>
+					
 				</div>
 			</div>
 		</div>
