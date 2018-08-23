@@ -1308,6 +1308,7 @@ class payment_voucher_model extends wc_model
 
 		$appTable		= "pv_application";
 		$detailTable	= "pv_details";
+		$chequeTable 	= "pv_cheques";
 		$mainTable		= "paymentvoucher";
 		$table			= "accountspayable";
 		$paymentField	= array('apvoucherno','amount','wtaxamount');
@@ -1329,12 +1330,12 @@ class payment_voucher_model extends wc_model
 				$discount		= 0;
 
 				$balance		= $this->getValue($table, array("balance"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
-				$balance 		= $balance[0]->balance;
+				$balance 		= isset($balance[0]->balance) 	?	$balance[0]->balance	:	0;
 
 				$update_info['balance']		= $balance + $amount + $discount;
 				
 				$amountpaid 	= $this->getValue($table, array("amountpaid"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
-				$amountpaid 	= $amountpaid[0]->amountpaid;
+				$amountpaid 	= isset($amountpaid[0]->amountpaid) 	?	$amountpaid[0]->amountpaid	: 0;
 				
 				$update_info['amountpaid']	= $amountpaid - $amount - $discount;
 				
@@ -1351,6 +1352,12 @@ class payment_voucher_model extends wc_model
 			
 		// Update pv_application
 		$result = $this->db->setTable($appTable)
+				->setValues($update_info)
+				->setWhere("voucherno IN($payments)")
+				->runUpdate();
+
+		// Update pv_cheques
+		$result = $this->db->setTable($chequeTable)
 				->setValues($update_info)
 				->setWhere("voucherno IN($payments)")
 				->runUpdate();
