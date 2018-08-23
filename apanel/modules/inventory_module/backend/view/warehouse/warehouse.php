@@ -74,8 +74,10 @@ var ajax = {};
 
 $('#warehouseForm #btnSave').on('click',function(){
 
-	$('#warehouseForm #warehousecode').trigger('blur');
-	$('#warehouseForm #description').trigger('blur');
+	// $('#warehouseForm #warehousecode').trigger('blur');
+	// $('#warehouseForm #description').trigger('blur');
+
+	$('#warehouseForm').find('.form-group').find('input, textarea, select').trigger('blur');
 
 	if ($('#warehouseForm').find('.form-group.has-error').length == 0)
 	{	
