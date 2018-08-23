@@ -538,6 +538,8 @@ class payment_voucher_model extends wc_model
 	
 	public function savePayment($data)
 	{
+		// var_dump($data);
+		// exit();
 		$errmsg				   	= array();
 		$seq 				   	= new seqcontrol();
 		$datetime			   	= date("Y-m-d H:i:s");
@@ -745,11 +747,11 @@ class payment_voucher_model extends wc_model
 		foreach($tempArray as $tempArrayIndex => $tempArrayValue)
 		{
 			$accountcode 							= isset($tempArrayValue['h_accountcode']) 	? 	$tempArrayValue['h_accountcode'] 	:	$tempArrayValue['accountcode'];
-			$detailparticulars						= $tempArrayValue['detailparticulars'];
-			$debit			    					= $tempArrayValue['debit'];
-			$credit			    					= $tempArrayValue['credit'];
-			$taxbase_amount			    			= $tempArrayValue['taxbase_amount'];
-			$taxcode			    				= $tempArrayValue['taxcode'];
+			$detailparticulars						= isset($tempArrayValue['detailparticulars']) ?	$tempArrayValue['detailparticulars'] 	:	"";
+			$debit			    					= isset($tempArrayValue['debit']) ?	$tempArrayValue['debit'] 	:	0;
+			$credit			    					= isset($tempArrayValue['credit']) ?	$tempArrayValue['credit'] 	:	0;
+			$taxbase_amount			    			= isset($tempArrayValue['taxbase_amount']) ?	$tempArrayValue['taxbase_amount'] 	:	0;
+			$taxcode			    				= isset($tempArrayValue['taxcode']) ?	$tempArrayValue['taxcode'] 	:	"";
 			$ischeck 								= isset($tempArrayValue['ischeck']) && $tempArrayValue != "" 	?	$tempArrayValue['ischeck'] 	:	"no";
  
 			$post_detail['voucherno']				= $voucherno;
@@ -824,7 +826,6 @@ class payment_voucher_model extends wc_model
 				$this->db->setTable($detailAppTable)
 						->setWhere("voucherno = '$voucherno'")
 						->runDelete();
-	
 				$insertResult = $this->db->setTable($detailAppTable) 
 									->setValues($aPvDetailArray)
 									->setWhere("voucherno = '$voucherno'")
