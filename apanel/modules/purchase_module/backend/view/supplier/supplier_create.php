@@ -16,7 +16,7 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('partnercode')
 								->setId('partnercode')
-								->setValidation($code_required.' code')
+								->setValidation('required code')
 								->setMaxLength(20)
 								->addHidden((isset($task) && $task == 'update'))
 								->setValue($partnercode)
@@ -209,12 +209,14 @@
 var ajax = {};
 
 $('#supplierForm #btnSave').on('click',function(){
-	$('#supplierForm #partnercode').trigger('blur');
-	$('#supplierForm #partnername').trigger('blur');
-	$('#supplierForm #first_name').trigger('blur');
-	$('#supplierForm #last_name').trigger('blur');
-	$('#supplierForm #address1').trigger('blur');
-	$('#supplierForm #businesstype').trigger('blur');
+	// $('#supplierForm #partnercode').trigger('blur');
+	// $('#supplierForm #partnername').trigger('blur');
+	// $('#supplierForm #first_name').trigger('blur');
+	// $('#supplierForm #last_name').trigger('blur');
+	// $('#supplierForm #address1').trigger('blur');
+	// $('#supplierForm #businesstype').trigger('blur');
+
+	$('#supplierForm').find('.form-group').find('input, textarea, select').trigger('blur');
 
 	if ($('#supplierForm').find('.form-group.has-error').length == 0)
 	{	

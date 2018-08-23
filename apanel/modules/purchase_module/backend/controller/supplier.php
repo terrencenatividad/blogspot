@@ -46,7 +46,6 @@
 			$data['task'] 			= 'add';
 			$data['show_input'] 	= true;
 			$data['ajax_post'] 		= '';
-			$data['code_required'] 	= 'required';
 
 			$this->view->load('supplier/supplier_create',  $data);
 		}
@@ -62,8 +61,7 @@
 			$data['task'] 			= 'update';
 			$data['show_input'] 	= true;
 			$data['ajax_post'] 		= "&code=$code";
-			$data['code_required'] 	= '';
-
+			
 			$this->view->load('supplier/supplier_create',  $data);
 		}
 
