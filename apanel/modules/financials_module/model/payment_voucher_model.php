@@ -40,9 +40,19 @@ class payment_voucher_model extends wc_model
 					->setOrderBy($orderby)
 					->runSelect()
 					->getResult();
-		
-		// var_dump($this->db->buildSelect());
+		return $result;
+	}
 
+	public function retrievebank($table, $fields = array(), $cond = "", $ijoin = "", $orderby = "", $groupby = "")
+	{
+		$result = $this->db->setTable($table)
+					->setFields($fields)
+					->innerJoin($ijoin)
+					->setGroupBy($groupby)
+					->setWhere($cond)
+					->setOrderBy($orderby)
+					->runSelect()
+					->getResult();
 		return $result;
 	}
 
