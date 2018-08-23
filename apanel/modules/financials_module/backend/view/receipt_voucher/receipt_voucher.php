@@ -3340,7 +3340,11 @@ $(document).ready(function() {
 					$('#success_save_modal p.hidden').removeClass('hidden');
 					$('#success_save_modal').modal('show');	
 				} else {
-					window.location.href = '<?=BASE_URL?>financials/receipt_voucher';
+					$('#delay_modal').modal('show');
+								setTimeout(function() {							
+									window.location.href = '<?=BASE_URL?>financials/receipt_voucher';					
+							}, 1000)
+					
 				}	
 			}
 			else
