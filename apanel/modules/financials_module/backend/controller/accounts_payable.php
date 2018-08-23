@@ -494,7 +494,7 @@ class controller extends wc_controller
 			}
 			else if(!empty($data_validate['h_save_preview']))
 			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_payable/view/' . $generatedvoucher);
+				$this->url->redirect(BASE_URL . 'financials/accounts_payable/view/' . $sid);
 			}
 			else
 			{

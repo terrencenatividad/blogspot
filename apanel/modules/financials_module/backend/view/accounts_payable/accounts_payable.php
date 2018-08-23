@@ -3762,7 +3762,10 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {							
+							$("#payableForm").submit();				
+						}, 1000)
 					}
 					else
 					{
@@ -3816,7 +3819,10 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {							
+							$("#payableForm").submit();				
+						}, 1000)
 					}
 					else
 					{
@@ -3870,7 +3876,10 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {							
+							$("#payableForm").submit();				
+						}, 1000)
 					}
 					else
 					{
@@ -3973,7 +3982,6 @@ $(document).ready(function()
 						className: "btn-default btn-flat",
 						callback: function(result) {
 								$('#payableForm #proformacode').val('').trigger("change");
-								// $('#payableForm #proformacode').chosen().trigger('chosen:updated');
 							}
 						}
 					}
