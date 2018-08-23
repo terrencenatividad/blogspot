@@ -939,6 +939,7 @@ class controller extends wc_controller
 
 	private function create_payments(){
 		$data_post 	= $this->input->post();
+		$submit = $data_post['submit'];
 
 		$result    	= array_filter($this->receipt_voucher->savePayment($data_post));
 
@@ -953,7 +954,16 @@ class controller extends wc_controller
 			$errmsg 	= $result['errmsg'];
 		}
 
-		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);
+		$redirect_url = MODULE_URL;
+		if ($submit == 'save_new') {
+			$redirect_url = MODULE_URL . 'create';
+		} else if ($submit == 'save') {
+			$redirect_url = MODULE_URL . 'view/' . $voucher;
+		} else if ($submit == 'save_exit') {
+			$redirect_url = MODULE_URL;
+		}
+
+		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg, "redirect" => $redirect_url);
 		return $dataArray;
 	}
 
