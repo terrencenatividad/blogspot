@@ -3562,7 +3562,10 @@ function loadCheques(i)
 				{
 					if(data.msg == "success")
 					{
-						$("#receivableForm").submit();
+						$('#delay_modal').modal('show');
+								setTimeout(function() {							
+									$("#receivableForm").submit();				
+							}, 1000)
 					}
 					else
 					{
@@ -3608,7 +3611,10 @@ function loadCheques(i)
 				{
 					if(data.msg == "success")
 					{
-						$("#receivableForm").submit();
+						$('#delay_modal').modal('show');
+								setTimeout(function() {							
+									$("#receivableForm").submit();				
+							}, 1000)
 					}
 					else
 					{
@@ -3653,7 +3659,10 @@ function loadCheques(i)
 				{
 					if(data.msg == "success")
 					{
-						$("#receivableForm").submit();
+						$('#delay_modal').modal('show');
+								setTimeout(function() {							
+									$("#receivableForm").submit();				
+							}, 1000)
 					}
 					else
 					{
