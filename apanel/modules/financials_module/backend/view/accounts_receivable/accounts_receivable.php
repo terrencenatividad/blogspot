@@ -1,39 +1,39 @@
 <style>
-	#vendorDetails2 .col-md-3 > .form-group,
-	#vendorDetails2 .col-md-2 > .form-group  {
-		margin: 0;
-	}
+#vendorDetails2 .col-md-3 > .form-group,
+#vendorDetails2 .col-md-2 > .form-group  {
+	margin: 0;
+}
 
-	.text-right {
-		text-align: right;
-	}
+.text-right {
+	text-align: right;
+}
 
-	.text-bold {
-		font-weight: bold;
-		color: #fff;
-	}
+.text-bold {
+	font-weight: bold;
+	color: #fff;
+}
 
-	.remove-margin > .form-group,
-	.remove-margin .form-group {
-		margin-bottom: 0;
-	}
+.remove-margin > .form-group,
+.remove-margin .form-group {
+	margin-bottom: 0;
+}
 
-	.vendor_div > .form-group {
-		margin-bottom: 5px;
-	}
+.vendor_div > .form-group {
+	margin-bottom: 5px;
+}
 
-	.width35 {
-		width: 35%;
-	}
+.width35 {
+	width: 35%;
+}
 
-	.width27 {
-		width: 27%;
-	}
+.width27 {
+	width: 27%;
+}
 
-	.no-bg {
-		border: 0px solid transparent;
-		background-color: transparent !important;
-	}
+.no-bg {
+	border: 0px solid transparent;
+	background-color: transparent !important;
+}
 
 </style>
 
@@ -45,12 +45,12 @@
 
 	<?php 
 	if($task == "view") {
-			$applicationPannel = "hidden";
-			if(!is_null($data["payments"]) && !empty($data["payments"]))
-			{
-				$applicationPannel = "";
-			}
-	?>
+		$applicationPannel = "hidden";
+		if(!is_null($data["payments"]) && !empty($data["payments"]))
+		{
+			$applicationPannel = "";
+		}
+		?>
 
 	<? }else { ?> 
 		<div id = "diverror" class = "alert alert-warning alert-dismissable hidden">
@@ -89,32 +89,32 @@
 								<div class = "row">
 									<div class = "col-md-6">
 										<?php
-											echo $ui->formField('text')
-													->setLabel('Voucher No')
-													->setSplit('col-md-4', 'col-md-8')
-													->setName('voucher_no')
-													->setId('voucher_no')
-													->setAttribute(array("disabled" => "disabled"))
-													->setPlaceholder("- auto generate -")
-													->setValue($voucherno)
-													->draw($show_input);
+										echo $ui->formField('text')
+										->setLabel('Voucher No')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('voucher_no')
+										->setId('voucher_no')
+										->setAttribute(array("disabled" => "disabled"))
+										->setPlaceholder("- auto generate -")
+										->setValue($voucherno)
+										->draw($show_input);
 										?>
 										<input type = "hidden" id = "h_voucher_no" name = "h_voucher_no" value = "<?= $generated_id ?>">
 									</div>
 
 									<div class = "col-md-6">
 										<?php
-											echo $ui->formField('text')
-													->setLabel('Transaction Date')
-													->setSplit('col-md-4', 'col-md-8')
-													->setName('document_date')
-													->setId('document_date')
-													->setClass('datepicker-input')
-													->setAttribute(array('readonly' => '', 'data-date-start-date' => $close_date))
-													->setAddon('calendar')
-													->setValue($transactiondate)
-													->setValidation('required')
-													->draw($show_input);
+										echo $ui->formField('text')
+										->setLabel('Transaction Date')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('document_date')
+										->setId('document_date')
+										->setClass('datepicker-input')
+										->setAttribute(array('readonly' => '', 'data-date-start-date' => $close_date))
+										->setAddon('calendar')
+										->setValue($transactiondate)
+										->setValidation('required')
+										->draw($show_input);
 										?>
 									</div>
 								</div>
@@ -122,33 +122,33 @@
 								<div class = "row">
 									<div class = "col-md-6 vendor_div ">
 										<?php
-											echo $ui->formField('dropdown')
-												->setLabel('Customer ')
-												->setPlaceholder('None')
-												->setSplit('col-md-4', 'col-md-8')
-												->setName('customer')
-												->setId('customer')
-												->setList($customer_list)
-												->setValue($customercode)
-												->setValidation('required')
-												->setButtonAddon('plus')
-												->draw($show_input);
+										echo $ui->formField('dropdown')
+										->setLabel('Customer ')
+										->setPlaceholder('None')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('customer')
+										->setId('customer')
+										->setList($customer_list)
+										->setValue($customercode)
+										->setValidation('required')
+										->setButtonAddon('plus')
+										->draw($show_input);
 										?>
 									</div>
 
 									<div class = "col-md-6">
 										<?php
-											echo $ui->formField('text')
-													->setLabel('Due Date')
-													->setSplit('col-md-4', 'col-md-8')
-													->setName('due_date')
-													->setId('due_date')
-													->setClass('datepicker-input')
-													->setAttribute(array('readonly' => '', 'data-date-start-date' => $close_date))
-													->setAddon('calendar')
-													->setValue($duedate)
-													->setValidation('required')
-													->draw($show_input);
+										echo $ui->formField('text')
+										->setLabel('Due Date')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('due_date')
+										->setId('due_date')
+										->setClass('datepicker-input')
+										->setAttribute(array('readonly' => '', 'data-date-start-date' => $close_date))
+										->setAddon('calendar')
+										->setValue($duedate)
+										->setValidation('required')
+										->draw($show_input);
 										?>
 									</div>
 								</div>
@@ -156,30 +156,30 @@
 								<div class="row">
 									<div class="col-md-6 remove-margin">
 										<?php
-											echo $ui->formField('text')
-													->setLabel('<i>Tin</i>')
-													->setSplit('col-md-4', 'col-md-8')
-													->setName('customer_tin')
-													->setId('customer_tin')
-													->setAttribute(array("maxlength" => "15", "rows" => "1"))
-													->setPlaceholder("000-000-000-000")
-													->setClass("input_label")
-													->setValue($tinno)
-													->draw($show_input);
+										echo $ui->formField('text')
+										->setLabel('<i>Tin</i>')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('customer_tin')
+										->setId('customer_tin')
+										->setAttribute(array("maxlength" => "15", "rows" => "1"))
+										->setPlaceholder("000-000-000-000")
+										->setClass("input_label")
+										->setValue($tinno)
+										->draw($show_input);
 										?>
 									</div>
 
 									<div class = "col-md-6">
 										<?php
-											echo $ui->formField('text')
-													->setLabel('Invoice No')
-													->setSplit('col-md-4', 'col-md-8')
-													->setName('invoiceno')
-													->setId('invoiceno')
-													->setAttribute(array("maxlength" => "20"))
-													->setValue($invoiceno)
-													->setValidation('alpha_num')
-													->draw($show_input);
+										echo $ui->formField('text')
+										->setLabel('Invoice No')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('invoiceno')
+										->setId('invoiceno')
+										->setAttribute(array("maxlength" => "20"))
+										->setValue($invoiceno)
+										->setValidation('alpha_num')
+										->draw($show_input);
 										?>
 									</div>
 								</div>
@@ -187,30 +187,30 @@
 								<div class="row">
 									<div class="col-md-6 remove-margin">
 										<?php
-											echo $ui->formField('text')
-													->setLabel('<i>Terms</i>')
-													->setSplit('col-md-4', 'col-md-8')
-													->setName('customer_terms')
-													->setId('customer_terms')
-													->setAttribute(array("readonly" => "", "maxlength" => "15"))
-													->setPlaceholder("0")
-													->setClass("input_label")
-													->setValue($terms)
-													->draw($show_input);
+										echo $ui->formField('text')
+										->setLabel('<i>Terms</i>')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('customer_terms')
+										->setId('customer_terms')
+										->setAttribute(array("readonly" => "", "maxlength" => "15"))
+										->setPlaceholder("0")
+										->setClass("input_label")
+										->setValue($terms)
+										->draw($show_input);
 										?>
 									</div>
 
 									<div class = "col-md-6">
 										<?php
-											echo $ui->formField('text')
-													->setLabel('Reference No')
-													->setSplit('col-md-4', 'col-md-8')
-													->setName('referenceno')
-													->setId('referenceno')
-													->setAttribute(array("maxlength" => "20"))
-													->setValue($referenceno)
-													->setValidation('alpha_num')
-													->draw($show_input);
+										echo $ui->formField('text')
+										->setLabel('Reference No')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('referenceno')
+										->setId('referenceno')
+										->setAttribute(array("maxlength" => "20"))
+										->setValue($referenceno)
+										->setValidation('alpha_num')
+										->draw($show_input);
 										?>
 									</div>
 								</div>
@@ -218,15 +218,15 @@
 								<div class="row">
 									<div class="col-md-6 remove-margin">
 										<?php
-											echo $ui->formField('textarea')
-													->setLabel('<i>Address</i>')
-													->setSplit('col-md-4', 'col-md-8')
-													->setName('customer_address')
-													->setId('customer_address')
-													->setClass("input_label")
-													->setAttribute(array("readonly" => "", "rows" => "1"))
-													->setValue($address1)
-													->draw($show_input);
+										echo $ui->formField('textarea')
+										->setLabel('<i>Address</i>')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('customer_address')
+										->setId('customer_address')
+										->setClass("input_label")
+										->setAttribute(array("readonly" => "", "rows" => "1"))
+										->setValue($address1)
+										->draw($show_input);
 										?>
 									</div>
 								</div>
@@ -234,48 +234,48 @@
 								<div class="row">
 									<div class = "col-md-6">
 										<?php
-											echo $ui->formField('dropdown')
-												->setLabel('Proforma')
-												->setPlaceholder('Select Proforma')
-												->setSplit('col-md-4', 'col-md-8')
-												->setName('proformacode')
-												->setId('proformacode')
-												->setList($proforma_list)
-												->setValue("")
-												->setNone('None')
-												->draw($show_input);
+										echo $ui->formField('dropdown')
+										->setLabel('Proforma')
+										->setPlaceholder('Select Proforma')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('proformacode')
+										->setId('proformacode')
+										->setList($proforma_list)
+										->setValue("")
+										->setNone('None')
+										->draw($show_input);
 										?>
 									</div>
 
 									<div class="col-md-6 hidden">
 										<?php
-											echo $ui->formField('text')
-													->setLabel('Exchange Rate')
-													->setSplit('col-md-4', 'col-md-8')
-													->setName('exchange_rate')
-													->setId('exchange_rate')
-													->setClass('text-right')
-													->setValue($exchangerate)
-													->draw($show_input);
+										echo $ui->formField('text')
+										->setLabel('Exchange Rate')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('exchange_rate')
+										->setId('exchange_rate')
+										->setClass('text-right')
+										->setValue($exchangerate)
+										->draw($show_input);
 										?>
 									</div>
 								</div>
-							
+
 								<div class = "row">
 									<div class = "col-md-12">
 										<?php
-											echo $ui->formField('textarea')
-													->setLabel('Notes')
-													->setSplit('col-md-2', 'col-md-10')
-													->setName('remarks')
-													->setId('remarks')
-													->setAttribute(
-														array(
-															'rows' => 4
-														)
-													)
-													->setValue($particulars)
-													->draw($show_input);
+										echo $ui->formField('textarea')
+										->setLabel('Notes')
+										->setSplit('col-md-2', 'col-md-10')
+										->setName('remarks')
+										->setId('remarks')
+										->setAttribute(
+											array(
+												'rows' => 4
+											)
+										)
+										->setValue($particulars)
+										->draw($show_input);
 										?>
 									</div>
 								</div>
@@ -313,11 +313,11 @@
 											<th class="col-md-2 text-center">Credit</th>
 											<?if($task != 'view'){?>
 												<th class="col-md-1 center"></th>
-											<?}?>
-										</tr>
-									</thead>
-									<tbody>
-										<?php
+												<?}?>
+											</tr>
+										</thead>
+										<tbody>
+											<?php
 											if($task == 'create')
 											{
 												$accountcode 	   = '';
@@ -325,120 +325,120 @@
 												$foreignamount	   = '0.00';
 												$debit 			   = '0.00';
 												$credit 		   = '0.00';
-											
+
 												$row 			   = 1;
 												$total_debit 	   = 0;
 												$total_credit 	   = 0;
 												$startnumber 	   = ($row_ctr == 0) ? 1: $row_ctr;
-										?>
+												?>
 												<tr class="clone" valign="middle">
 													<td class = "remove-margin">
 														<?php
-															echo $ui->formField('dropdown')
-																->setPlaceholder('Select One')
-																->setSplit('', 'col-md-12')
-																->setName("accountcode[".$row."]")
-																->setId("accountcode[".$row."]")
-																->setList($account_entry_list)
-																->setValue("")
-																->draw($show_input);
+														echo $ui->formField('dropdown')
+														->setPlaceholder('Select One')
+														->setSplit('', 'col-md-12')
+														->setName("accountcode[".$row."]")
+														->setId("accountcode[".$row."]")
+														->setList($account_entry_list)
+														->setValue("")
+														->draw($show_input);
 														?>
 													</td>
 													<td class = "remove-margin">
 														<?php
-															echo $ui->formField('text')
-																	->setSplit('', 'col-md-12')
-																	->setName('detailparticulars['.$row.']')
-																	->setId('detailparticulars['.$row.']')
-																	->setAttribute(array("maxlength" => "100"))
-																	->setValue("")
-																	->draw($show_input);
+														echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setName('detailparticulars['.$row.']')
+														->setId('detailparticulars['.$row.']')
+														->setAttribute(array("maxlength" => "100"))
+														->setValue("")
+														->draw($show_input);
 														?>
 													</td>
 													<td class = "remove-margin">
 														<?php
-															echo $ui->formField('text')
-																	->setSplit('', 'col-md-12')
-																	->setName('debit['.$row.']')
-																	->setId('debit['.$row.']')
-																	->setAttribute(array("maxlength" => "20"))
-																	->setClass("format_values_db format_values text-right")
-																	->setValue($debit)
-																	->draw($show_input);
+														echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setName('debit['.$row.']')
+														->setId('debit['.$row.']')
+														->setAttribute(array("maxlength" => "20"))
+														->setClass("format_values_db format_values text-right")
+														->setValue($debit)
+														->draw($show_input);
 														?>
 													</td>
 													<td class = "remove-margin">
 														<?php
-															echo $ui->formField('text')
-																	->setSplit('', 'col-md-12')
-																	->setName('credit['.$row.']')
-																	->setId('credit['.$row.']')
-																	->setAttribute(array("maxlength" => "20"))
-																	->setClass("format_values_cr format_values text-right")
-																	->setValue($credit)
-																	->draw($show_input);
+														echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setName('credit['.$row.']')
+														->setId('credit['.$row.']')
+														->setAttribute(array("maxlength" => "20"))
+														->setClass("format_values_cr format_values text-right")
+														->setValue($credit)
+														->draw($show_input);
 														?>
 													</td>
 													<td class="text-center">
 														<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
 													</td>			
 												</tr>
-										<?
+												<?
 												$row++;
-										?>
+												?>
 												<tr class="clone" valign="middle">
 													<td class = "remove-margin">
 														<?php
-															echo $ui->formField('dropdown')
-																	->setPlaceholder('Select One')
-																	->setSplit('', 'col-md-12')
-																	->setName("accountcode[".$row."]")
-																	->setId("accountcode[".$row."]")
-																	->setList($account_entry_list)
-																	->setValue("")
-																	->draw($show_input);
+														echo $ui->formField('dropdown')
+														->setPlaceholder('Select One')
+														->setSplit('', 'col-md-12')
+														->setName("accountcode[".$row."]")
+														->setId("accountcode[".$row."]")
+														->setList($account_entry_list)
+														->setValue("")
+														->draw($show_input);
 														?>
 													</td>
 													<td class = "remove-margin">
 														<?php
-															echo $ui->formField('text')
-																	->setSplit('', 'col-md-12')
-																	->setName('detailparticulars['.$row.']')
-																	->setId('detailparticulars['.$row.']')
-																	->setAttribute(array("maxlength" => "100"))
-																	->setValue("")
-																	->draw($show_input);
+														echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setName('detailparticulars['.$row.']')
+														->setId('detailparticulars['.$row.']')
+														->setAttribute(array("maxlength" => "100"))
+														->setValue("")
+														->draw($show_input);
 														?>
 													</td>
 													<td class = "remove-margin">
 														<?php
-															echo $ui->formField('text')
-																	->setSplit('', 'col-md-12')
-																	->setName('debit['.$row.']')
-																	->setId('debit['.$row.']')
-																	->setAttribute(array("maxlength" => "20"))
-																	->setClass("format_values_db format_values text-right")
-																	->setValue($debit)
-																	->draw($show_input);
+														echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setName('debit['.$row.']')
+														->setId('debit['.$row.']')
+														->setAttribute(array("maxlength" => "20"))
+														->setClass("format_values_db format_values text-right")
+														->setValue($debit)
+														->draw($show_input);
 														?>
 													</td>
 													<td class = "remove-margin">
 														<?php
-															echo $ui->formField('text')
-																	->setSplit('', 'col-md-12')
-																	->setName('credit['.$row.']')
-																	->setId('credit['.$row.']')
-																	->setAttribute(array("maxlength" => "20"))
-																	->setClass("format_values_cr format_values text-right")
-																	->setValue($credit)
-																	->draw($show_input);
+														echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setName('credit['.$row.']')
+														->setId('credit['.$row.']')
+														->setAttribute(array("maxlength" => "20"))
+														->setClass("format_values_cr format_values text-right")
+														->setValue($credit)
+														->draw($show_input);
 														?>
 													</td>
 													<td class="text-center">
 														<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
 													</td>			
 												</tr>
-										<?
+												<?
 											}else if(!empty($sid) && $task!='create'){
 												$row 			= 1;
 												$total_debit 	= 0;
@@ -463,112 +463,112 @@
 													}else if($debit > 0 && $credit == 0){
 														$credit_attr['readOnly'] 	= "readOnly";
 													}
-											?>	
+													?>	
 													<tr class="clone" valign="middle">
 														<td class = "remove-margin">
 															<?php
-																echo $ui->formField('dropdown')
-																		->setPlaceholder('Select One')
-																		->setSplit('', 'col-md-12')
-																		->setName("accountcode[".$row."]")
-																		->setId("accountcode[".$row."]")
-																		->setList($account_entry_list)
-																		->setValue($accountcode)
-																		->draw($show_input);
+															echo $ui->formField('dropdown')
+															->setPlaceholder('Select One')
+															->setSplit('', 'col-md-12')
+															->setName("accountcode[".$row."]")
+															->setId("accountcode[".$row."]")
+															->setList($account_entry_list)
+															->setValue($accountcode)
+															->draw($show_input);
 															?>
 														</td>
 														<td class = "remove-margin">
 															<?php
-																echo $ui->formField('text')
-																		->setSplit('', 'col-md-12')
-																		->setName('detailparticulars['.$row.']')
-																		->setId('detailparticulars['.$row.']')
-																		->setAttribute(array("maxlength" => "100"))
-																		->setValue($detailparticulars)
-																		->draw($show_input);
+															echo $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName('detailparticulars['.$row.']')
+															->setId('detailparticulars['.$row.']')
+															->setAttribute(array("maxlength" => "100"))
+															->setValue($detailparticulars)
+															->draw($show_input);
 															?>
 														</td>
 														<td class = "remove-margin">
 															<?php
-																echo $ui->formField('text')
-																		->setSplit('', 'col-md-12')
-																		->setName('debit['.$row.']')
-																		->setId('debit['.$row.']')
-																		->setAttribute($debit_attr)
-																		->setClass("format_values_db format_values text-right")
-																		->setValue(number_format($debit,2))
-																		->draw($show_input);
+															echo $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName('debit['.$row.']')
+															->setId('debit['.$row.']')
+															->setAttribute($debit_attr)
+															->setClass("format_values_db format_values text-right")
+															->setValue(number_format($debit,2))
+															->draw($show_input);
 															?>
 														</td>
 														<td class = "remove-margin">
 															<?php
-																echo $ui->formField('text')
-																		->setSplit('', 'col-md-12')
-																		->setName('credit['.$row.']')
-																		->setId('credit['.$row.']')
-																		->setAttribute($credit_attr)
-																		->setClass("format_values_cr format_values text-right")
-																		->setValue(number_format($credit,2))
-																		->draw($show_input);
+															echo $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName('credit['.$row.']')
+															->setId('credit['.$row.']')
+															->setAttribute($credit_attr)
+															->setClass("format_values_cr format_values text-right")
+															->setValue(number_format($credit,2))
+															->draw($show_input);
 															?>
 														</td>
 														<?if($task!='view'){ ?>
-														<td class="text-center">
-															<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
-														</td>
-														<?}?>		
-													</tr>
-											<?	
-													$total_debit += $debit;
-													$total_credit += $credit;
-													$row++;	
+															<td class="text-center">
+																<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+															</td>
+															<?}?>		
+														</tr>
+														<?	
+														$total_debit += $debit;
+														$total_credit += $credit;
+														$row++;	
+													}
 												}
-											}
-										?>
-									</tbody>
-									<tfoot>
-										<tr>
-											<td>
-												<? if($task != 'view') { ?>
-													<a type="button" class="btn btn-link add-data" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Line</a>
-												<? } ?>
-											</td>	
-										</tr>	
-										<tr id="total">
-											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
-											<td class="right" style="border-top:1px solid #DDDDDD;">
-												<label class="control-label col-md-12">Total</label>
-											</td>
-											<td class="right" style="border-top:1px solid #DDDDDD;">
-												<?php
-													echo $ui->formField('text')
-															->setSplit('', 'col-md-12')
-															->setName('total_debit')
-															->setId('total_debit')
-															->setClass("input_label text-right")
-															->setAttribute(array("maxlength" => "40", "readonly" => "readonly"))
-															->setValue(number_format($total_debit,2))
-															->draw($show_input);
 												?>
-											</td>
-											<td class="right" style="border-top:1px solid #DDDDDD;">
-												<?php
-													echo $ui->formField('text')
-															->setSplit('', 'col-md-12')
-															->setName('total_credit')
-															->setId('total_credit')
-															->setClass("input_label text-right")
-															->setAttribute(array("maxlength" => "40", "readonly" => "readonly"))
-															->setValue(number_format($total_credit,2))
-															->draw($show_input);
-												?>
-											</td>
-											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
-										</tr>	
-									</tfoot>
-								</table>
-							</div>
-						</div>
+											</tbody>
+											<tfoot>
+												<tr>
+													<td>
+														<? if($task != 'view') { ?>
+															<a type="button" class="btn btn-link add-data" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Line</a>
+														<? } ?>
+													</td>	
+												</tr>	
+												<tr id="total">
+													<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+													<td class="right" style="border-top:1px solid #DDDDDD;">
+														<label class="control-label col-md-12">Total</label>
+													</td>
+													<td class="right" style="border-top:1px solid #DDDDDD;">
+														<?php
+														echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setName('total_debit')
+														->setId('total_debit')
+														->setClass("input_label text-right")
+														->setAttribute(array("maxlength" => "40", "readonly" => "readonly"))
+														->setValue(number_format($total_debit,2))
+														->draw($show_input);
+														?>
+													</td>
+													<td class="right" style="border-top:1px solid #DDDDDD;">
+														<?php
+														echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setName('total_credit')
+														->setId('total_credit')
+														->setClass("input_label text-right")
+														->setAttribute(array("maxlength" => "40", "readonly" => "readonly"))
+														->setValue(number_format($total_credit,2))
+														->draw($show_input);
+														?>
+													</td>
+													<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+												</tr>	
+											</tfoot>
+										</table>
+									</div>
+								</div>
 
 						<!-- <div class="row">
 							<div class="col-md-12 col-sm-12 text-center">
@@ -607,25 +607,25 @@
 						</div> -->
 
 						<div class="row">
-								<div class="col-md-12 col-sm-12 text-center">
-									<?if($show_input):?>
-									<? echo  $ui->addSavePreview()
-												->addSaveNew()
-												->addSaveExit()
-												->drawSaveOption(true);
-									?>
-										<input class = "form_iput" value = "" name = "h_save" id = "h_save" type = "hidden">
-									<!-- <input type = "button" value = "Save" name = "save" id = "btnSave" class="btn btn-primary btn-flat"/>
-									<input class = "form_iput" value = "" name = "h_save" id = "h_save" type = "hidden"> -->
-									<?endif;?>
-									&nbsp;
-									<?
-									if($task == 'edit'){
-										echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
-									}
-									?>
-									<button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel">Cancel</button>
-								</div>
+							<div class="col-md-12 col-sm-12 text-center">
+								<?if($show_input):?>
+								<?php
+								if($task == 'create') {
+									echo $ui->addSavePreview()
+									->addSaveNew()
+									->addSaveExit()
+									->drawSaveOption();
+								}
+
+								if($task == 'view') {
+									echo $ui->drawSubmit($show_input);
+								} else if($task == 'edit') { ?>
+									<input type = "button" value = "Save" name = "save" id = "btnSave" class="btn btn-primary btn-sm btn-flat"/>
+								<?php }
+								?>
+								<?endif;?>
+								<button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel">Cancel</button>
+							</div>
 						</div>
 						<div class = "col-md-12">&nbsp;</div>
 					</div>	
@@ -633,7 +633,7 @@
 			</div>
 		</div>
 	<? } ?>
-    
+
 </section>
 
 <!-- Customer Modal -->
@@ -643,480 +643,480 @@
 			<div class="modal-header">
 				Add a Customer
 				<!--<h4>Add a Customer
-				<button type="button" class="close" data-dismiss="modal">&times;</button></h4>-->
-			</div>
-			<div class="modal-body">
-				<form class="form-horizontal" id="newCustomer" autocomplete="off">
-					<input class = "form_iput" value = "newCustomer" name = "h_form" id = "h_form" type="hidden">
-					<input class = "form_iput" value = "insert" name = "h_querytype" id="h_querytype" type="hidden">
-					<div class="alert alert-warning alert-dismissable hidden" id="vendorAlert">
-						<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-						<p>&nbsp;</p>
-					</div>
-					<div class = "well well-md">
-						<div class="row row-dense remove-margin">
-							<?php
-								echo $ui->formField('text')
-										->setLabel('Customer Code: <span class="asterisk"> * </span>')
-										->setSplit('col-md-3', 'col-md-8 field_col')
-										->setName('partnercode')
-										->setId('partnercode')
-										->setAttribute(array("maxlength" => "20"))
-										->setValue("")
-										->draw($show_input);
-							?>
-							<div class="width27 col-md-3">&nbsp;</div>
-							<span class="help-block hidden small req-color" id = "partnercode_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
+					<button type="button" class="close" data-dismiss="modal">&times;</button></h4>-->
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal" id="newCustomer" autocomplete="off">
+						<input class = "form_iput" value = "newCustomer" name = "h_form" id = "h_form" type="hidden">
+						<input class = "form_iput" value = "insert" name = "h_querytype" id="h_querytype" type="hidden">
+						<div class="alert alert-warning alert-dismissable hidden" id="vendorAlert">
+							<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+							<p>&nbsp;</p>
 						</div>
-						<div class="row row-dense remove-margin">
-							<?php
+						<div class = "well well-md">
+							<div class="row row-dense remove-margin">
+								<?php
 								echo $ui->formField('text')
-										->setLabel('Customer Name: <span class="asterisk"> * </span>')
-										->setSplit('col-md-3', 'col-md-8 field_col')
-										->setName('customer_name')
-										->setId('customer_name')
-										->setAttribute(array("maxlength" => "255"))
-										->setValue("")
-										->draw($show_input);
-							?>
-							<div class="width27 col-md-3">&nbsp;</div>
-							<span class="help-block hidden small req-color" id = "vendor_name_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
-						</div>
-						<div class="row row-dense">
-							<?php
+								->setLabel('Customer Code: <span class="asterisk"> * </span>')
+								->setSplit('col-md-3', 'col-md-8 field_col')
+								->setName('partnercode')
+								->setId('partnercode')
+								->setAttribute(array("maxlength" => "20"))
+								->setValue("")
+								->draw($show_input);
+								?>
+								<div class="width27 col-md-3">&nbsp;</div>
+								<span class="help-block hidden small req-color" id = "partnercode_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
+							</div>
+							<div class="row row-dense remove-margin">
+								<?php
 								echo $ui->formField('text')
-										->setLabel('Email:')
-										->setSplit('col-md-3', 'col-md-8')
-										->setName('email')
-										->setId('email')
-										->setAttribute(array("maxlength" => "150"))
-										->setPlaceHolder("email@oojeema.com")
-										->setValue("")
-										->draw($show_input);
-							?>
-						</div>
-						<div class="row row-dense remove-margin">
-							<?php
+								->setLabel('Customer Name: <span class="asterisk"> * </span>')
+								->setSplit('col-md-3', 'col-md-8 field_col')
+								->setName('customer_name')
+								->setId('customer_name')
+								->setAttribute(array("maxlength" => "255"))
+								->setValue("")
+								->draw($show_input);
+								?>
+								<div class="width27 col-md-3">&nbsp;</div>
+								<span class="help-block hidden small req-color" id = "vendor_name_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
+							</div>
+							<div class="row row-dense">
+								<?php
+								echo $ui->formField('text')
+								->setLabel('Email:')
+								->setSplit('col-md-3', 'col-md-8')
+								->setName('email')
+								->setId('email')
+								->setAttribute(array("maxlength" => "150"))
+								->setPlaceHolder("email@oojeema.com")
+								->setValue("")
+								->draw($show_input);
+								?>
+							</div>
+							<div class="row row-dense remove-margin">
+								<?php
 								echo $ui->formField('textarea')
-										->setLabel('Address: ')
-										->setSplit('col-md-3', 'col-md-8 field_col')
-										->setName('address')
-										->setId('address')
-										->setAttribute(array("rows" => "1"))
-										->setValue("")
-										->draw($show_input);
-							?>
-							<div class="width27 col-md-3">&nbsp;</div>
-							<span class="help-block hidden small req-color" id = "address_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
-						</div>
-						<div class="row row-dense remove-margin">
-							<?php
+								->setLabel('Address: ')
+								->setSplit('col-md-3', 'col-md-8 field_col')
+								->setName('address')
+								->setId('address')
+								->setAttribute(array("rows" => "1"))
+								->setValue("")
+								->draw($show_input);
+								?>
+								<div class="width27 col-md-3">&nbsp;</div>
+								<span class="help-block hidden small req-color" id = "address_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
+							</div>
+							<div class="row row-dense remove-margin">
+								<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Business Type: ')
-									->setPlaceholder('Filter Business Type')
-									->setSplit('col-md-3', 'col-md-8 field_col')
-									->setName('businesstype')
-									->setId('businesstype')
-									->setList($business_type_list)
-									->setValue("")
-									->draw($show_input);
+								->setLabel('Business Type: ')
+								->setPlaceholder('Filter Business Type')
+								->setSplit('col-md-3', 'col-md-8 field_col')
+								->setName('businesstype')
+								->setId('businesstype')
+								->setList($business_type_list)
+								->setValue("")
+								->draw($show_input);
 
-							?>
-							<div class="width27 col-md-3">&nbsp;</div>
-							<span class="help-block hidden small req-color" id = "businesstype_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
-						</div>
-						<div class="row row-dense">
-							<?php
+								?>
+								<div class="width27 col-md-3">&nbsp;</div>
+								<span class="help-block hidden small req-color" id = "businesstype_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
+							</div>
+							<div class="row row-dense">
+								<?php
 								echo $ui->formField('text')
-										->setLabel('TIN:')
-										->setSplit('col-md-3', 'col-md-8')
-										->setName('tinno')
-										->setId('tinno')
-										->setAttribute(array("maxlength" => "15"))
-										->setPlaceHolder("000-000-000-000")
-										->setValue("")
-										->draw($show_input);
+								->setLabel('TIN:')
+								->setSplit('col-md-3', 'col-md-8')
+								->setName('tinno')
+								->setId('tinno')
+								->setAttribute(array("maxlength" => "15"))
+								->setPlaceHolder("000-000-000-000")
+								->setValue("")
+								->draw($show_input);
 								// <input class="form-control tin-input" maxlength="15" value="" name="tinno" id="tinno" placeholder="000-000-000-000" onkeyup="validateTIN('newCustomer','tinno',this.value);" onblur="validateTIN('newCustomer','tinno',this.value);" onkeypress="return isNumberKey(event,45);" type="text">
-							?>
-						</div>
-						<div class="row row-dense">
-							<?php
+								?>
+							</div>
+							<div class="row row-dense">
+								<?php
 								echo $ui->formField('text')
-										->setLabel('Terms:')
-										->setSplit('col-md-3', 'col-md-8')
-										->setName('terms')
-										->setId('terms')
-										->setAttribute(array("maxlength" => "5"))
-										->setValue("30")
-										->draw($show_input);
-							?>
+								->setLabel('Terms:')
+								->setSplit('col-md-3', 'col-md-8')
+								->setName('terms')
+								->setId('terms')
+								->setAttribute(array("maxlength" => "5"))
+								->setValue("30")
+								->draw($show_input);
+								?>
+							</div>
 						</div>
-					</div>
-					<div class="modal-footer">
+						<div class="modal-footer">
 							<div class="row row-dense">
 								<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 									<div class="btn-group">
 										<button type="button" class="btn btn-primary btn-flat" id="customerBtnSave">Save</button>
 									</div>
-										&nbsp;&nbsp;&nbsp;
+									&nbsp;&nbsp;&nbsp;
 									<div class="btn-group">
 										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
 									</div>
 								</div>
 							</div>
 						</div>
-				</form>
+					</form>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<!-- End Customer Modal -->
+	<!-- End Customer Modal -->
 
-<!-- Exchange Rate Modal -->
-<div class="modal fade" id="rateModal" tabindex="-1" data-backdrop="static">
-	<div class="modal-dialog modal-md">
-		<div class="modal-content">
-			<div class="modal-header">
-				Exchange Rate
-			</div>
-			<div class="modal-body">
-				<form class="form-horizontal" id="rateForm">
-					<div class="alert alert-warning alert-dismissable hidden" id="sequenceAlert">
-						<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-						<p>&nbsp;</p>
-					</div>
-					<div class="well well-md">
-						<div class="row row-dense remove-margin">
-							<?php
-								echo $ui->formField('text')
-										->setLabel('Currency Amount: ')
-										->setSplit('col-md-4', 'col-md-7 field_col')
-										->setName('oldamount')
-										->setId('oldamount')
-										->setClass("text-right")
-										->setAttribute(array("maxlength" => "20"))
-										->setPlaceHolder("0.00")
-										->setValue("")
-										->draw($show_input);
-							?>
-							<div class="width35 col-md-4">&nbsp;</div>
-							<span class="help-block hidden small req-color" id = "oldamount_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
-							
+	<!-- Exchange Rate Modal -->
+	<div class="modal fade" id="rateModal" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-md">
+			<div class="modal-content">
+				<div class="modal-header">
+					Exchange Rate
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal" id="rateForm">
+						<div class="alert alert-warning alert-dismissable hidden" id="sequenceAlert">
+							<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+							<p>&nbsp;</p>
 						</div>
-						<div class="row row-dense remove-margin">
-							<?php
+						<div class="well well-md">
+							<div class="row row-dense remove-margin">
+								<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Rate: ')
-										->setSplit('col-md-4', 'col-md-7 field_col')
-										->setName('rate')
-										->setId('rate')
-										->setClass("text-right")
-										->setAttribute(array("maxlength" => "9"))
-										->setPlaceHolder("0.00")
-										->setValue("")
-										->draw($show_input);
-							?>
-							<div class="width35 col-md-4">&nbsp;</div>
-							<span class="help-block hidden small req-color" id = "rate_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
-						</div>
-						<div class="row row-dense remove-margin">
-							<?php
+								->setLabel('Currency Amount: ')
+								->setSplit('col-md-4', 'col-md-7 field_col')
+								->setName('oldamount')
+								->setId('oldamount')
+								->setClass("text-right")
+								->setAttribute(array("maxlength" => "20"))
+								->setPlaceHolder("0.00")
+								->setValue("")
+								->draw($show_input);
+								?>
+								<div class="width35 col-md-4">&nbsp;</div>
+								<span class="help-block hidden small req-color" id = "oldamount_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
+
+							</div>
+							<div class="row row-dense remove-margin">
+								<?php
 								echo $ui->formField('text')
-										->setLabel('Amount: ')
-										->setSplit('col-md-4', 'col-md-7 field_col')
-										->setName('newamount')
-										->setId('newamount')
-										->setClass("text-right")
-										->setAttribute(array("maxlength" => "20"))
-										->setPlaceHolder("0.00")
-										->setValue("")
-										->draw($show_input);
-							?>
-							<div class="width35 col-md-4">&nbsp;</div>
-							<span class="help-block hidden small req-color" id = "newamount_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
-						</div>
-						<div class="row row-dense remove-margin">
-							<?php
+								->setLabel('Currency Rate: ')
+								->setSplit('col-md-4', 'col-md-7 field_col')
+								->setName('rate')
+								->setId('rate')
+								->setClass("text-right")
+								->setAttribute(array("maxlength" => "9"))
+								->setPlaceHolder("0.00")
+								->setValue("")
+								->draw($show_input);
+								?>
+								<div class="width35 col-md-4">&nbsp;</div>
+								<span class="help-block hidden small req-color" id = "rate_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
+							</div>
+							<div class="row row-dense remove-margin">
+								<?php
+								echo $ui->formField('text')
+								->setLabel('Amount: ')
+								->setSplit('col-md-4', 'col-md-7 field_col')
+								->setName('newamount')
+								->setId('newamount')
+								->setClass("text-right")
+								->setAttribute(array("maxlength" => "20"))
+								->setPlaceHolder("0.00")
+								->setValue("")
+								->draw($show_input);
+								?>
+								<div class="width35 col-md-4">&nbsp;</div>
+								<span class="help-block hidden small req-color" id = "newamount_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
+							</div>
+							<div class="row row-dense remove-margin">
+								<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Accounting Entry:')
-									->setPlaceholder('Filter Accounting Entry')
-									->setSplit('col-md-4', 'col-md-7')
-									->setName('defaultaccount')
-									->setId('defaultaccount')
-									->setList($account_entry_list)
-									->setValue("")
-									->draw($show_input);
-							?>
-						</div>
-					</div>
-					<div class="row row-dense">
-						<div class="col-md-12 text-center">
-							<div class="btn-group">
-								<button type="button" class="btn btn-primary btn-flat" id="btnProceed" >Apply</button>
-							</div>
-							&nbsp;&nbsp;&nbsp;
-							<div class="btn-group">
-								<a href="javascript:void(0);" class="btn btn-small btn-default btn-flat" role="button" data-dismiss="modal" style="outline:none;">
-									Cancel
-								</a>
+								->setLabel('Accounting Entry:')
+								->setPlaceholder('Filter Accounting Entry')
+								->setSplit('col-md-4', 'col-md-7')
+								->setName('defaultaccount')
+								->setId('defaultaccount')
+								->setList($account_entry_list)
+								->setValue("")
+								->draw($show_input);
+								?>
 							</div>
 						</div>
-					</div>
-				</form>
+						<div class="row row-dense">
+							<div class="col-md-12 text-center">
+								<div class="btn-group">
+									<button type="button" class="btn btn-primary btn-flat" id="btnProceed" >Apply</button>
+								</div>
+								&nbsp;&nbsp;&nbsp;
+								<div class="btn-group">
+									<a href="javascript:void(0);" class="btn btn-small btn-default btn-flat" role="button" data-dismiss="modal" style="outline:none;">
+										Cancel
+									</a>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<!-- End Exchange Rate Modal -->
+	<!-- End Exchange Rate Modal -->
 
-<!-- Delete Record Confirmation Modal -->
-<div class="modal fade" id="deleteItemModal" tabindex="-1" data-backdrop="static">
-	<div class="modal-dialog modal-sm">
-		<div class="modal-content">
-			<div class="modal-header">
-				Confirmation
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-			</div>
-			<div class="modal-body">
-				Are you sure you want to delete this line?
-				<input type="hidden" id="recordId"/>
-			</div>
-			<div class="modal-footer">
-				<div class="row row-dense">
-					<div class="col-md-12 center">
-						<div class="btn-group">
-							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
-						</div>
-						&nbsp;&nbsp;&nbsp;
-						<div class="btn-group">
-							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+	<!-- Delete Record Confirmation Modal -->
+	<div class="modal fade" id="deleteItemModal" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					Confirmation
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to delete this line?
+					<input type="hidden" id="recordId"/>
+				</div>
+				<div class="modal-footer">
+					<div class="row row-dense">
+						<div class="col-md-12 center">
+							<div class="btn-group">
+								<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+							</div>
+							&nbsp;&nbsp;&nbsp;
+							<div class="btn-group">
+								<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<!-- End Delete Record Confirmation Modal -->
+	<!-- End Delete Record Confirmation Modal -->
 
-<!--DELETE RECORD CONFIRMATION MODAL-->
-<div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
-	<div class="modal-dialog modal-sm">
-		<div class="modal-content">
-			<div class="modal-header">
-				Confirmation
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-			</div>
-			<div class="modal-body">
-				Are you sure you want to cancel?
-			</div>
-			<div class="modal-footer">
-				<div class="row row-dense">
-					<div class="col-md-12 center">
-						<div class="btn-group">
-							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
-						</div>
+	<!--DELETE RECORD CONFIRMATION MODAL-->
+	<div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					Confirmation
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to cancel?
+				</div>
+				<div class="modal-footer">
+					<div class="row row-dense">
+						<div class="col-md-12 center">
+							<div class="btn-group">
+								<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+							</div>
 							&nbsp;&nbsp;&nbsp;
-						<div class="btn-group">
-							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+							<div class="btn-group">
+								<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<!-- End DELETE RECORD CONFIRMATION MODAL-->
+	<!-- End DELETE RECORD CONFIRMATION MODAL-->
 
-<!--PAYMENT EXCHANGE RATE MODAL-->
-<div class="modal fade" id="paymentRateModal" tabindex="-1" data-backdrop="static">
-	<div class="modal-dialog modal-md">
-		<div class="modal-content">
-			<div class="modal-header">
-				Exchange Rate
-			</div>
-			<div class="modal-body">
-				<form class="form-horizontal" id="paymentRateForm">
-					<div class="alert alert-warning alert-dismissable hidden" id="sequenceAlert">
-						<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-						<p>&nbsp;</p>
-					</div>
-					<div class="well well-md">
-						<div class="row row-dense remove-margin">
-							<?php
-								echo $ui->formField('text')
-										->setLabel('Currency Amount: ')
-										->setSplit('col-md-4', 'col-md-7 field_col')
-										->setName('paymentoldamount')
-										->setId('paymentoldamount')
-										->setClass("text-right")
-										->setAttribute(array("maxlength" => "20"))
-										->setPlaceHolder("0.00")
-										->setValue(number_format(0,2))
-										->draw(true);
-							?>
-							<div class="width35 col-md-4">&nbsp;</div>
-							<span class="help-block hidden small req-color" id = "paymentoldamount_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
+	<!--PAYMENT EXCHANGE RATE MODAL-->
+	<div class="modal fade" id="paymentRateModal" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-md">
+			<div class="modal-content">
+				<div class="modal-header">
+					Exchange Rate
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal" id="paymentRateForm">
+						<div class="alert alert-warning alert-dismissable hidden" id="sequenceAlert">
+							<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+							<p>&nbsp;</p>
 						</div>
-						<div class="row row-dense remove-margin">
-							<?php
+						<div class="well well-md">
+							<div class="row row-dense remove-margin">
+								<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Rate: ')
-										->setSplit('col-md-4', 'col-md-7 field_col')
-										->setName('paymentrate')
-										->setId('paymentrate')
-										->setClass("text-right")
-										->setAttribute(array("maxlength" => "9"))
-										->setPlaceHolder("0.00")
-										->setValue(number_format($v_exchangerate, 2))
-										->draw(true);
-							?>
-							<div class="width35 col-md-4">&nbsp;</div>
-							<span class="help-block hidden small req-color" id = "paymentrate_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
-						</div>
-						
-						<div class="row row-dense remove-margin">
-							<?php
-								echo $ui->formField('text')
-										->setLabel('Amount: ')
-										->setSplit('col-md-4', 'col-md-7 field_col')
-										->setName('paymentnewamount')
-										->setId('paymentnewamount')
-										->setClass("text-right")
-										->setAttribute(array("maxlength" => "20"))
-										->setPlaceHolder("0.00")
-										->setValue(number_format(0,2))
-										->draw(true);
-							?>
-							<div class="width35 col-md-4">&nbsp;</div>
-							<span class="help-block hidden small req-color" id = "paymentnewamount_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
-
-							<span class="help-block hidden small req-color" id = "exrateamount_help"><i class="glyphicon glyphicon-exclamation-sign"></i>Amount Exceeded Total Balance</span>
-
-						</div>
-					</div>
-
-					<div class="row row-dense">
-						<div class="col-md-12 text-center">
-							<div class="btn-group">
-								<button type="button" class="btn btn-primary btn-flat" id="btnProceed" >Apply</button>
+								->setLabel('Currency Amount: ')
+								->setSplit('col-md-4', 'col-md-7 field_col')
+								->setName('paymentoldamount')
+								->setId('paymentoldamount')
+								->setClass("text-right")
+								->setAttribute(array("maxlength" => "20"))
+								->setPlaceHolder("0.00")
+								->setValue(number_format(0,2))
+								->draw(true);
+								?>
+								<div class="width35 col-md-4">&nbsp;</div>
+								<span class="help-block hidden small req-color" id = "paymentoldamount_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
 							</div>
-							&nbsp;&nbsp;&nbsp;
-							<div class="btn-group">
-								<a href="javascript:void(0);" class="btn btn-small btn-default btn-flat" role="button" data-dismiss="modal" style="outline:none;">
-									Cancel
-								</a>
+							<div class="row row-dense remove-margin">
+								<?php
+								echo $ui->formField('text')
+								->setLabel('Currency Rate: ')
+								->setSplit('col-md-4', 'col-md-7 field_col')
+								->setName('paymentrate')
+								->setId('paymentrate')
+								->setClass("text-right")
+								->setAttribute(array("maxlength" => "9"))
+								->setPlaceHolder("0.00")
+								->setValue(number_format($v_exchangerate, 2))
+								->draw(true);
+								?>
+								<div class="width35 col-md-4">&nbsp;</div>
+								<span class="help-block hidden small req-color" id = "paymentrate_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
+							</div>
+
+							<div class="row row-dense remove-margin">
+								<?php
+								echo $ui->formField('text')
+								->setLabel('Amount: ')
+								->setSplit('col-md-4', 'col-md-7 field_col')
+								->setName('paymentnewamount')
+								->setId('paymentnewamount')
+								->setClass("text-right")
+								->setAttribute(array("maxlength" => "20"))
+								->setPlaceHolder("0.00")
+								->setValue(number_format(0,2))
+								->draw(true);
+								?>
+								<div class="width35 col-md-4">&nbsp;</div>
+								<span class="help-block hidden small req-color" id = "paymentnewamount_help"><i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.</span>
+
+								<span class="help-block hidden small req-color" id = "exrateamount_help"><i class="glyphicon glyphicon-exclamation-sign"></i>Amount Exceeded Total Balance</span>
+
 							</div>
 						</div>
-					</div>
-				</form>
+
+						<div class="row row-dense">
+							<div class="col-md-12 text-center">
+								<div class="btn-group">
+									<button type="button" class="btn btn-primary btn-flat" id="btnProceed" >Apply</button>
+								</div>
+								&nbsp;&nbsp;&nbsp;
+								<div class="btn-group">
+									<a href="javascript:void(0);" class="btn btn-small btn-default btn-flat" role="button" data-dismiss="modal" style="outline:none;">
+										Cancel
+									</a>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<!-- End PAYMENT EXCHANGE RATE MODAL-->
+	<!-- End PAYMENT EXCHANGE RATE MODAL-->
 
-<script>
-function addCustomerToDropdown() 
-{
-	var optionvalue = $("#customer_modal #customerForm #partnercode").val();
-	var optiondesc 	= $("#customer_modal #customerForm #partnername").val();
-
-	$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#receivableForm #customer option");
-	$('#receivableForm #customer').val(optionvalue);
-	
-	getPartnerInfo(optionvalue);
-
-	$('#customer_modal').modal('hide');
-	$('#customer_modal').find("input[type=text], textarea, select").val("");
-}
-
-function closeModal()
-{
-	$('#customer_modal').modal('hide');
-}
-$('#customer_button').click(function() 
-{
-	$('#customer_modal').modal('show');
-});
-</script>
-<?php
-	echo $ui->loadElement('modal')
-		->setId('customer_modal')
-		->setContent('maintenance/customer/create')
-		->setHeader('Add a Customer')
-		->draw();
-?>
-
-<script>
-var ajax = {};
-
-function computeDueDate()
-{
-	var invoice = $("#document_date").val();
-	
-	var terms 	= $("#customer_terms").val();
-	
-	if(invoice != '')
-	{
-		var newDate	= moment(invoice).add(terms, 'days').format("MMM DD, YYYY");
-		$("#due_date").val(newDate);
-	}
-}
-
-function getPartnerInfo(code)
-{
-	if(code == '' || code == 'add')
-	{
-		$("#customer_tin").val("");
-		$("#customer_terms").val("");
-		$("#customer_address").val("");
-
-		computeDueDate();
-	}
-	else
-	{
-		$.post('<?=BASE_URL?>financials/accounts_receivable/ajax/get_value', "code=" + code + "&event=getPartnerInfo", function(data) 
+	<script>
+		function addCustomerToDropdown() 
 		{
-			var address		= data.address.trim();
-			var tinno		= (data.tinno != null ) ? data.tinno.trim() : "000-000-000-000";
-			var terms		= data.terms.trim();
-			
-			$("#customer_tin").val(tinno);
-			$("#customer_terms").val(terms);
-			$("#customer_address").val(address);
+			var optionvalue = $("#customer_modal #customerForm #partnercode").val();
+			var optiondesc 	= $("#customer_modal #customerForm #partnername").val();
 
-			computeDueDate();
-		});
-	}
-}
+			$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#receivableForm #customer option");
+			$('#receivableForm #customer').val(optionvalue);
 
-function addNewModal(type,val,row)
-{
-	row 		= row.replace(/[a-z]/g, '');
-	
-	if(val == 'add')
-	{
-		if(type == 'Customer')
-		{
-			$('#customerModal').modal();
-			$('#customer').val('');
+			getPartnerInfo(optionvalue);
+
+			$('#customer_modal').modal('hide');
+			$('#customer_modal').find("input[type=text], textarea, select").val("");
 		}
-	}
-}
 
-function addCommas(nStr)
-{
-	nStr += '';
-	x = nStr.split('.');
-	x1 = x[0];
-	x2 = x.length > 1 ? '.' + x[1] : '';
-	var rgx = /(\d+)(\d{3})/;
-	while (rgx.test(x1)) {
-		x1 = x1.replace(rgx, '$1' + ',' + '$2');
-	}
-	return x1 + x2;
-}
+		function closeModal()
+		{
+			$('#customer_modal').modal('hide');
+		}
+		$('#customer_button').click(function() 
+		{
+			$('#customer_modal').modal('show');
+		});
+	</script>
+	<?php
+	echo $ui->loadElement('modal')
+	->setId('customer_modal')
+	->setContent('maintenance/customer/create')
+	->setHeader('Add a Customer')
+	->draw();
+	?>
+
+	<script>
+		var ajax = {};
+
+		function computeDueDate()
+		{
+			var invoice = $("#document_date").val();
+
+			var terms 	= $("#customer_terms").val();
+
+			if(invoice != '')
+			{
+				var newDate	= moment(invoice).add(terms, 'days').format("MMM DD, YYYY");
+				$("#due_date").val(newDate);
+			}
+		}
+
+		function getPartnerInfo(code)
+		{
+			if(code == '' || code == 'add')
+			{
+				$("#customer_tin").val("");
+				$("#customer_terms").val("");
+				$("#customer_address").val("");
+
+				computeDueDate();
+			}
+			else
+			{
+				$.post('<?=BASE_URL?>financials/accounts_receivable/ajax/get_value', "code=" + code + "&event=getPartnerInfo", function(data) 
+				{
+					var address		= data.address.trim();
+					var tinno		= (data.tinno != null ) ? data.tinno.trim() : "000-000-000-000";
+					var terms		= data.terms.trim();
+
+					$("#customer_tin").val(tinno);
+					$("#customer_terms").val(terms);
+					$("#customer_address").val(address);
+
+					computeDueDate();
+				});
+			}
+		}
+
+		function addNewModal(type,val,row)
+		{
+			row 		= row.replace(/[a-z]/g, '');
+
+			if(val == 'add')
+			{
+				if(type == 'Customer')
+				{
+					$('#customerModal').modal();
+					$('#customer').val('');
+				}
+			}
+		}
+
+		function addCommas(nStr)
+		{
+			nStr += '';
+			x = nStr.split('.');
+			x1 = x[0];
+			x2 = x.length > 1 ? '.' + x[1] : '';
+			var rgx = /(\d+)(\d{3})/;
+			while (rgx.test(x1)) {
+				x1 = x1.replace(rgx, '$1' + ',' + '$2');
+			}
+			return x1 + x2;
+		}
 
 /**
 * This function toggles the field for getting the foreign amount
@@ -1253,7 +1253,7 @@ function setZero()
 		document.getElementById('detailparticulars['+newid+']').value 	= '';
 		document.getElementById('debit['+newid+']').value 				= '0.00';
 		document.getElementById('credit['+newid+']').value 				= '0.00';
-	
+
 		document.getElementById('debit['+newid+']').readOnly 			= false;
 		document.getElementById('credit['+newid+']').readOnly 			= false;
 	}
@@ -1290,12 +1290,12 @@ function validateField(form,id,help_block)
 	if((field == '' || parseFloat(field) == 0) || help_block == "exrateamount_help" )
 	{
 		$("#"+form+" #"+id)
-			.closest('.field_col')
-			.addClass('has-error');
+		.closest('.field_col')
+		.addClass('has-error');
 		
 		$("#"+form+" #"+help_block)
-			.removeClass('hidden');
-			
+		.removeClass('hidden');
+
 		// if($("#"+form+" #"+id).parent().next(".help-block")[0])
 		// {
 		// 	$("#"+form+" #"+id)
@@ -1317,12 +1317,12 @@ function validateField(form,id,help_block)
 	else
 	{
 		$("#"+form+" #"+id)
-			.closest('.field_col')
-			.removeClass('has-error');
+		.closest('.field_col')
+		.removeClass('has-error');
 
 		$("#"+form+" #"+help_block)
-			.addClass('hidden');
-			
+		.addClass('hidden');
+
 		// if($("#"+form+" #"+id).parent().next(".help-block")[0])
 		// {
 		// 	$("#"+form+" #"+id)
@@ -1351,7 +1351,7 @@ function isNumberKey(evt,exemptChar)
 		var charCode = (evt.which) ? evt.which : event.keyCode 
 		if(charCode == exemptChar) return true; 
 		if (charCode > 31 && (charCode < 48 || charCode > 57)) 
-		return false; 
+			return false; 
 		return true;
 	}
 }
@@ -1364,7 +1364,7 @@ function isNumberKey2(evt)
 		var charCode = (evt.which) ? evt.which : evt.keyCode 
 		if(charCode == 46) return true; 
 		if (charCode > 31 && (charCode < 48 || charCode > 57)) 
-		return false; 
+			return false; 
 		return true;
 	}
 }
@@ -1708,7 +1708,7 @@ function addAmountAll(field)
 			sum = parseFloat(sum) + parseFloat(inData);
 		}	
 	}
-			
+
 	if(field == 'debit')
 	{
 		document.getElementById('total_debit').value = addCommas(sum.toFixed(2));
@@ -1875,7 +1875,7 @@ function validateDetails()
 			var accountcode = document.getElementById('accountcode['+i+']').value;
 			var debit 		= document.getElementById('debit['+i+']').value;
 			var credit 		= document.getElementById('credit['+i+']').value;
-		
+
 			if(accountcode == '')
 			{
 				$("#receivableForm #accountcode\\["+i+"\\]").closest('tr').addClass('danger');
@@ -1940,7 +1940,7 @@ function validateDetails()
 			}
 		}
 	}
- 
+
 	if(valid1 > 0 || valid2 > 0)
 	{
 		return 1;
@@ -1975,7 +1975,7 @@ function cancelTransaction(vno)
 				$.post("<?=BASE_URL?>financials/accounts_receivable/ajax/delete_row",data2)
 				.done(function(data2) 
 				{
-	
+
 					if(data2.msg == "success")
 					{
 						window.location.href = '<?=BASE_URL?>financials/accounts_receivable';
@@ -2029,21 +2029,21 @@ function validateCheck()
 	// 	{
 	// 		var resp	= data.split('|');
 	// 		var code	= resp[0].trim();
-		
+
 	// 		if(code == 1)
 	// 		{
 	// 			$("#receiptForm #paymentreference\\[1\\]")
 	// 				.closest('.field_col')
 	// 				.addClass('has-error');
-		
+
 	// 			$("#receiptForm #paymentreference\\[1\\]")
 	// 				.next(".help-block")
 	// 				.html('<i class="glyphicon glyphicon-exclamation-sign"></i> Cheque number <b>['+checknum+']</b> already exists.');
-			
+
 	// 			$("#receiptForm #paymentreference\\[1\\]")
 	// 				.next(".help-block")
 	// 				.removeClass('hidden');
-					
+
 	// 			$("#valid").val(1);
 	// 		}
 	// 		else if(code == 0)
@@ -2051,15 +2051,15 @@ function validateCheck()
 	// 			$("#receiptForm #paymentreference\\[1\\]")
 	// 				.closest('.field_col')
 	// 				.removeClass('has-error');
-		
+
 	// 			$("#receiptForm #paymentreference\\[1\\]")
 	// 				.next(".help-block")
 	// 				.html('<i class="glyphicon glyphicon-exclamation-sign"></i> Field is required.');
-			
+
 	// 			$("#receiptForm #paymentreference\\[1\\]")
 	// 				.next(".help-block")
 	// 				.addClass('hidden');
-					
+
 	// 			$("#valid").val(0);
 	// 		}
 	// 	});
@@ -2203,7 +2203,7 @@ function computeDiscount()
 			if(new_amount >= 0)
 			{
 				new_amount		= addCommas(new_amount.toFixed(2));
-		
+
 				$('#receiptForm #convertedamount\\[1\\]').val(new_amount);
 				$('#receiptForm	#paymentamountfield').val(new_amount);		
 			}
@@ -2355,7 +2355,7 @@ function savePaymentRow(e,id)
 				selectedchequeconvamount.push(chequeconvertedamount);
 			}
 		}
-	
+
 		$.post("<?= BASE_URL ?>financials/accounts_receivable/ajax/apply_payments",
 		{
 			"invoiceno[]": selected, 
@@ -2450,7 +2450,7 @@ function validateCheques()
 			}
 		}
 	}
-		
+
 	if(valid > 0)
 	{
 		$("#receiptForm #chequeAmountError").removeClass('hidden');
@@ -2494,7 +2494,7 @@ function totalPaymentGreaterThanChequeAmount()
 	}
 }
 
- /**LOAD CHEQUES**/
+/**LOAD CHEQUES**/
 function loadCheques(i)
 {
 	var cheques 		= $('#paymentsTable #chequeInput'+i).val();
@@ -2541,274 +2541,274 @@ function loadCheques(i)
 
 	if(count > arr_len)
 
-	for(j=count;j > arr_len;j--)
-	{
-		table.deleteRow(j);	
+		for(j=count;j > arr_len;j--)
+		{
+			table.deleteRow(j);	
+		}
 	}
-}
 
-/**EDIT RECIEVED PAYMENTS**/
-function editPaymentRow(e,id)
-{
-	e.preventDefault();
-	
-	$("#receiptForm").removeClass('hidden');
-	row 			= id.replace(/[a-z]/g, '');
-	
-	var paymentmode			= document.getElementById('paymentmode'+row).value;
-	var paymentdate			= document.getElementById('paymentdate'+row).value;
-	var paymentreference	= document.getElementById('paymentreference'+row).value;
-	var paymentcheckdate	= document.getElementById('paymentcheckdate'+row).value;
-	var paymentamount		= document.getElementById('paymentamount'+row).value;
-	var paymentconverted	= document.getElementById('paymentconverted'+row).value;
-	var paymentrate			= document.getElementById('paymentrate'+row).value;
-	var paymentnumber		= document.getElementById('paymentnumber'+row).value;
-	var paymentaccount		= document.getElementById('paymentaccount'+row).value;
-	var paymentnotes		= document.getElementById('paymentnotes'+row).value;
-	var paymentdiscount		= document.getElementById('paymentdiscount'+row).value;
+	/**EDIT RECIEVED PAYMENTS**/
+	function editPaymentRow(e,id)
+	{
+		e.preventDefault();
 
-	document.getElementById('paymentdate[1]').value			= paymentdate;
-	$("#paymentmode\\[1\\]").val(paymentmode).trigger("change");
-	document.getElementById('paymentreference[1]').value	= paymentreference;
-	document.getElementById("convertedamount[1]").value		= paymentconverted;
-	
-	document.getElementById('exchangerate[1]').value		= paymentrate;
-	document.getElementById('paymentamount[1]').value		= paymentamount;
-	document.getElementById('paymentamountfield').value		= paymentconverted;
-	
-	document.getElementById('prevpayment').value			= paymentconverted;
-	document.getElementById('paymentnumber[1]').value		= paymentnumber;
-	
-	$("#paymentaccount\\[1\\]").val(paymentaccount).trigger("change");
-	document.getElementById('paymentnotes[1]').value		= paymentnotes;
-	document.getElementById('paymentdiscount[1]').value		= paymentdiscount;
-	
-	document.getElementById('paymentrow').value				= id;
-	
-	$('#receiptForm #paymentexchangerate\\[1\\]').val(paymentrate);
+		$("#receiptForm").removeClass('hidden');
+		row 			= id.replace(/[a-z]/g, '');
 
-	loadCheques(row);
-	
-	toggleCheckInfo(paymentmode);
-	
-	$('html, body').animate({ scrollTop: 0 }, 'slow');
-}
+		var paymentmode			= document.getElementById('paymentmode'+row).value;
+		var paymentdate			= document.getElementById('paymentdate'+row).value;
+		var paymentreference	= document.getElementById('paymentreference'+row).value;
+		var paymentcheckdate	= document.getElementById('paymentcheckdate'+row).value;
+		var paymentamount		= document.getElementById('paymentamount'+row).value;
+		var paymentconverted	= document.getElementById('paymentconverted'+row).value;
+		var paymentrate			= document.getElementById('paymentrate'+row).value;
+		var paymentnumber		= document.getElementById('paymentnumber'+row).value;
+		var paymentaccount		= document.getElementById('paymentaccount'+row).value;
+		var paymentnotes		= document.getElementById('paymentnotes'+row).value;
+		var paymentdiscount		= document.getElementById('paymentdiscount'+row).value;
 
-/**COMPUTE TOTAL PAYMENTS**/
-function addPayments() 
-{
-	var sum 		= 0;
-	var total 		= 0;
-	var inData 		= 0;
-	
-	var table 	= document.getElementById('paymentsTable');
-	var count	= table.rows.length - 1;
-	
-	for(i = 1; i < count; i++) 
-	{  
-		var inputamt	= document.getElementById('paymentamount'+i);
+		document.getElementById('paymentdate[1]').value			= paymentdate;
+		$("#paymentmode\\[1\\]").val(paymentmode).trigger("change");
+		document.getElementById('paymentreference[1]').value	= paymentreference;
+		document.getElementById("convertedamount[1]").value		= paymentconverted;
 
-		if(document.getElementById('paymentamount'+i)!=null)
-		{          
-			if(inputamt.value && inputamt != '0' && inputamt.value != '0.00')
-			{                            
-				inData = inputamt.value.replace(/,/g,'');
+		document.getElementById('exchangerate[1]').value		= paymentrate;
+		document.getElementById('paymentamount[1]').value		= paymentamount;
+		document.getElementById('paymentamountfield').value		= paymentconverted;
+
+		document.getElementById('prevpayment').value			= paymentconverted;
+		document.getElementById('paymentnumber[1]').value		= paymentnumber;
+
+		$("#paymentaccount\\[1\\]").val(paymentaccount).trigger("change");
+		document.getElementById('paymentnotes[1]').value		= paymentnotes;
+		document.getElementById('paymentdiscount[1]').value		= paymentdiscount;
+
+		document.getElementById('paymentrow').value				= id;
+
+		$('#receiptForm #paymentexchangerate\\[1\\]').val(paymentrate);
+
+		loadCheques(row);
+
+		toggleCheckInfo(paymentmode);
+
+		$('html, body').animate({ scrollTop: 0 }, 'slow');
+	}
+
+	/**COMPUTE TOTAL PAYMENTS**/
+	function addPayments() 
+	{
+		var sum 		= 0;
+		var total 		= 0;
+		var inData 		= 0;
+
+		var table 	= document.getElementById('paymentsTable');
+		var count	= table.rows.length - 1;
+
+		for(i = 1; i < count; i++) 
+		{  
+			var inputamt	= document.getElementById('paymentamount'+i);
+
+			if(document.getElementById('paymentamount'+i)!=null)
+			{          
+				if(inputamt.value && inputamt != '0' && inputamt.value != '0.00')
+				{                            
+					inData = inputamt.value.replace(/,/g,'');
+				}
+				else
+				{             
+					inData = 0;
+				}
+
+				total = parseFloat(total) + parseFloat(inData);
+			}	
+		}
+
+		total		= Math.round(1000*total)/1000;
+
+		document.getElementById('totalPaymentCaption').innerHTML 	= addCommas(total.toFixed(2));
+		document.getElementById('totalPayment').value 				= addCommas(total.toFixed(2));
+	}
+
+	/**RESET GENERATED ID OF PAYMENT ROWS**/
+	function resetPaymentRow()
+	{
+		var table 	= document.getElementById('paymentsTable');
+		var wtax 	= 'wtax';
+		var count	= table.rows.length - 2;
+
+		for(var x = 1; x <= count; x++)
+		{
+			var row = table.rows[x];
+
+			row.cells[0].getElementsByTagName("input")[0].id 	= 'paymentdate'+x;
+			row.cells[0].getElementsByTagName("input")[1].id 	= 'paymentnumber'+x;
+
+			row.cells[1].getElementsByTagName("select")[0].id 	= 'paymentmode'+x;
+			row.cells[2].getElementsByTagName("input")[0].id 	= 'paymentreference'+x;
+			row.cells[2].getElementsByTagName("input")[1].id 	= 'paymentcheckdate'+x;
+			
+			if(wtax != '')
+			{
+				row.cells[3].getElementsByTagName("select")[0].id 	= 'paymentaccount'+x;
+
+				row.cells[4].getElementsByTagName("input")[0].id 	= 'paymentamount'+x;
+				row.cells[4].getElementsByTagName("input")[1].id 	= 'paymentrate'+x;
+				row.cells[4].getElementsByTagName("input")[2].id 	= 'paymentconverted'+x;	
 			}
 			else
-			{             
-				inData = 0;
+			{
+				row.cells[3].getElementsByTagName("select")[0].id 	= 'paymentaccount'+x;
+
+				row.cells[4].getElementsByTagName("select")[0].id 	= 'paymenttaxcode'+x;
+				row.cells[5].getElementsByTagName("input")[0].id 	= 'paymentamount'+x;
+				row.cells[5].getElementsByTagName("input")[1].id 	= 'paymentrate'+x;
+				row.cells[5].getElementsByTagName("input")[2].id 	= 'paymentconverted'+x;
 			}
 
-			total = parseFloat(total) + parseFloat(inData);
-		}	
+			row.cells[0].getElementsByTagName("input")[0].name 	= '';
+			row.cells[0].getElementsByTagName("input")[1].name 	= '';
+			row.cells[1].getElementsByTagName("select")[0].name = '';
+			row.cells[2].getElementsByTagName("input")[0].name 	= '';
+			row.cells[2].getElementsByTagName("input")[1].name 	= '';
+
+			if(wtax != '')
+			{
+				row.cells[3].getElementsByTagName("select")[0].name = '';
+				row.cells[4].getElementsByTagName("input")[0].name 	= '';
+				row.cells[4].getElementsByTagName("input")[1].name 	= '';
+				row.cells[4].getElementsByTagName("input")[2].name 	= '';
+			}
+			else
+			{
+				row.cells[3].getElementsByTagName("select")[0].name = '';
+				row.cells[4].getElementsByTagName("select")[0].name = '';
+				row.cells[5].getElementsByTagName("input")[0].name 	= '';
+				row.cells[5].getElementsByTagName("input")[1].name 	= '';
+				row.cells[5].getElementsByTagName("input")[2].name 	= '';
+			}
+		}
 	}
 
-	total		= Math.round(1000*total)/1000;
-	
-	document.getElementById('totalPaymentCaption').innerHTML 	= addCommas(total.toFixed(2));
-	document.getElementById('totalPayment').value 				= addCommas(total.toFixed(2));
-}
+	/**CANCEL PAYMENT ROW**/
+	function deletePaymentRow(e,id)
+	{	
+		e.preventDefault();
+		row 			= id.replace(/[a-z]/g, '');
+		var table 		= document.getElementById('paymentsTable');
+		var count		= table.rows.length - 2;
 
-/**RESET GENERATED ID OF PAYMENT ROWS**/
-function resetPaymentRow()
-{
-	var table 	= document.getElementById('paymentsTable');
-	var wtax 	= 'wtax';
-	var count	= table.rows.length - 2;
+		if(document.getElementById('paymentnumber'+row)!=null)
+		{
+			if(document.getElementById('paymentnumber'+row).value != '')
+			{
+				var voucher	= document.getElementById('paymentnumber'+row).value;
+				var amount	= document.getElementById('paymentamount'+row).value;
 
-	for(var x = 1; x <= count; x++)
+				$('#deletePaymentModal').data('id', voucher);
+				$('#deletePaymentModal').data('row', row);
+				$('#deletePaymentModal').data('amount', amount);
+				$('#deletePaymentModal').modal('show');
+			}
+			else
+			{
+				table.deleteRow(row);
+			}
+		}
+		addPayments();
+		resetPaymentRow();
+	}
+
+	/**CLEAR PAYMENT ROW**/
+	function clearPaymentRow(e)
+	{	
+		e.preventDefault();
+
+		clearInput('paymentmode[1]');
+		clearInput('paymentreference[1]');
+		clearInput('convertedamount[1]');
+		clearInput('exchangerate[1]');
+		clearInput('paymentamount[1]');
+		clearInput('prevpayment');
+		clearInput('paymentnumber[1]');
+		clearInput('paymentaccount[1]');
+		clearInput('paymentnotes[1]');
+		clearInput('paymentdiscount[1]');
+		toggleCheckInfo('');
+	}
+
+
+	function confirmChequePrint(row)
 	{
-		var row = table.rows[x];
-		
-		row.cells[0].getElementsByTagName("input")[0].id 	= 'paymentdate'+x;
-		row.cells[0].getElementsByTagName("input")[1].id 	= 'paymentnumber'+x;
-		
-		row.cells[1].getElementsByTagName("select")[0].id 	= 'paymentmode'+x;
-		row.cells[2].getElementsByTagName("input")[0].id 	= 'paymentreference'+x;
-		row.cells[2].getElementsByTagName("input")[1].id 	= 'paymentcheckdate'+x;
-			
-		if(wtax != '')
-		{
-			row.cells[3].getElementsByTagName("select")[0].id 	= 'paymentaccount'+x;
-			
-			row.cells[4].getElementsByTagName("input")[0].id 	= 'paymentamount'+x;
-			row.cells[4].getElementsByTagName("input")[1].id 	= 'paymentrate'+x;
-			row.cells[4].getElementsByTagName("input")[2].id 	= 'paymentconverted'+x;	
-		}
-		else
-		{
-			row.cells[3].getElementsByTagName("select")[0].id 	= 'paymentaccount'+x;
-			
-			row.cells[4].getElementsByTagName("select")[0].id 	= 'paymenttaxcode'+x;
-			row.cells[5].getElementsByTagName("input")[0].id 	= 'paymentamount'+x;
-			row.cells[5].getElementsByTagName("input")[1].id 	= 'paymentrate'+x;
-			row.cells[5].getElementsByTagName("input")[2].id 	= 'paymentconverted'+x;
-		}
-		
-		row.cells[0].getElementsByTagName("input")[0].name 	= '';
-		row.cells[0].getElementsByTagName("input")[1].name 	= '';
-		row.cells[1].getElementsByTagName("select")[0].name = '';
-		row.cells[2].getElementsByTagName("input")[0].name 	= '';
-		row.cells[2].getElementsByTagName("input")[1].name 	= '';
-		
-		if(wtax != '')
-		{
-			row.cells[3].getElementsByTagName("select")[0].name = '';
-			row.cells[4].getElementsByTagName("input")[0].name 	= '';
-			row.cells[4].getElementsByTagName("input")[1].name 	= '';
-			row.cells[4].getElementsByTagName("input")[2].name 	= '';
-		}
-		else
-		{
-			row.cells[3].getElementsByTagName("select")[0].name = '';
-			row.cells[4].getElementsByTagName("select")[0].name = '';
-			row.cells[5].getElementsByTagName("input")[0].name 	= '';
-			row.cells[5].getElementsByTagName("input")[1].name 	= '';
-			row.cells[5].getElementsByTagName("input")[2].name 	= '';
-		}
-	}
-}
+		var paymentvoucher 	= $('#receiptForm #paymentnumber\\[1\\]').val();
+		var chequeno 		= $('#receiptForm #chequenumber\\['+row+'\\]').val();
 
-/**CANCEL PAYMENT ROW**/
-function deletePaymentRow(e,id)
-{	
-	e.preventDefault();
-	row 			= id.replace(/[a-z]/g, '');
-	var table 		= document.getElementById('paymentsTable');
-	var count		= table.rows.length - 2;
-	
-	if(document.getElementById('paymentnumber'+row)!=null)
-	{
-		if(document.getElementById('paymentnumber'+row).value != '')
-		{
-			var voucher	= document.getElementById('paymentnumber'+row).value;
-			var amount	= document.getElementById('paymentamount'+row).value;
-			
-			$('#deletePaymentModal').data('id', voucher);
-			$('#deletePaymentModal').data('row', row);
-			$('#deletePaymentModal').data('amount', amount);
-			$('#deletePaymentModal').modal('show');
-		}
-		else
-		{
-			table.deleteRow(row);
-		}
-	}
-	addPayments();
-	resetPaymentRow();
-}
-
-/**CLEAR PAYMENT ROW**/
-function clearPaymentRow(e)
-{	
-	e.preventDefault();
-	
-	clearInput('paymentmode[1]');
-	clearInput('paymentreference[1]');
-	clearInput('convertedamount[1]');
-	clearInput('exchangerate[1]');
-	clearInput('paymentamount[1]');
-	clearInput('prevpayment');
-	clearInput('paymentnumber[1]');
-	clearInput('paymentaccount[1]');
-	clearInput('paymentnotes[1]');
-	clearInput('paymentdiscount[1]');
-	toggleCheckInfo('');
-}
-
-
-function confirmChequePrint(row)
-{
-	var paymentvoucher 	= $('#receiptForm #paymentnumber\\[1\\]').val();
-	var chequeno 		= $('#receiptForm #chequenumber\\['+row+'\\]').val();
-	
-	bootbox.dialog({
-		message: "Please select one of the option to proceed.",
-		title: "Print Cheque",
+		bootbox.dialog({
+			message: "Please select one of the option to proceed.",
+			title: "Print Cheque",
 			buttons: {
-			check: {
-			label: "Cheque Only",
-			className: "btn-primary btn-flat",
-			callback: function(result) {
-					var link 	 		= '<?= BASE_URL ?>financials/accounts_receivable/generateCheck/'+paymentvoucher+'/'+chequeno;
+				check: {
+					label: "Cheque Only",
+					className: "btn-primary btn-flat",
+					callback: function(result) {
+						var link 	 		= '<?= BASE_URL ?>financials/accounts_receivable/generateCheck/'+paymentvoucher+'/'+chequeno;
 					// 'popups/generateCheck.php?sid='+paymentvoucher+'&cn='+chequeno;
 					window.open(link);
 				}
 			},
 			voucher: {
-			label: "Cheque with Voucher",
-			className: "btn-success btn-flat",
-			callback: function(result) {
+				label: "Cheque with Voucher",
+				className: "btn-success btn-flat",
+				callback: function(result) {
 					var link 	 		= '<?= BASE_URL ?>financials/accounts_receivable/generateCheckVoucher/'+paymentvoucher+'/'+chequeno+'/rv';
 					// 'popups/generateCheckVoucher.php?sid='+paymentvoucher+'&cn='+chequeno+'&type=rv';
 					window.open(link);
 				}
 			},
 			no: {
-			label: "Cancel",
-			className: "btn-default btn-flat",
-			callback: function(result) {
+				label: "Cancel",
+				className: "btn-default btn-flat",
+				callback: function(result) {
 					//alert(result);
 				}
 			}
 		}
 	});
 
-}
+	}
 
-function validateChequeNumber(id, value, n)
-{
-	id = id.replace(/[a-z\[\]]/g, '');
-	
-	$.post("<?=BASE_URL?>financials/payment/ajax/check", "chequevalue=" + value)
-	.done(function(data)
+	function validateChequeNumber(id, value, n)
 	{
-		if(data.success)
-		{
-			$(n).closest('.form-group').addClass('has-error');
-			$("#chequeTable #chequenumber\\["+ id +"\\]").val("");
+		id = id.replace(/[a-z\[\]]/g, '');
 
-			$("#checkNumberError").removeClass("hidden");
-		}
-		else
+		$.post("<?=BASE_URL?>financials/payment/ajax/check", "chequevalue=" + value)
+		.done(function(data)
 		{
-			$(n).closest('.form-group').removeClass('has-error');
+			if(data.success)
+			{
+				$(n).closest('.form-group').addClass('has-error');
+				$("#chequeTable #chequenumber\\["+ id +"\\]").val("");
 
-			$("#checkNumberError").addClass("hidden");
-		}
+				$("#checkNumberError").removeClass("hidden");
+			}
+			else
+			{
+				$(n).closest('.form-group').removeClass('has-error');
+
+				$("#checkNumberError").addClass("hidden");
+			}
 			
-	});
-}
+		});
+	}
 
-$(document).ready(function() 
-{
+	$(document).ready(function() 
+	{
 	// Get getPartnerInfo
 	$( "#customer" ).change(function() 
 	{
 		$vendor_id = $("#customer").val();
 
 		if( $vendor_id != "" )
-  			getPartnerInfo($vendor_id);
+			getPartnerInfo($vendor_id);
 	});
 
 	// Call toggleExchangeRate
@@ -2863,7 +2863,7 @@ $(document).ready(function()
 		var clone = $("#itemsTable tbody tr.clone:first").clone(true); 
 
 		var ParentRow = $("#itemsTable tbody tr.clone").last();
-	
+
 		clone.clone(true).insertAfter(ParentRow);
 		
 		setZero();
@@ -2893,7 +2893,7 @@ $(document).ready(function()
 	{
 		if(e.type == "keypress")
 			return isNumberKey(e,45);
-    	if(e.type == "blur")
+		if(e.type == "blur")
 			saveField(e.target.id);
 		if(e.type == "click")
 			editField(e.target.id);
@@ -2901,7 +2901,7 @@ $(document).ready(function()
 
 	$('#customer_address').on('blur click', function(e) 
 	{
-    	if(e.type == "blur")
+		if(e.type == "blur")
 			saveField(e.target.id);
 		if(e.type == "click")
 			editField(e.target.id);
@@ -2954,20 +2954,20 @@ $(document).ready(function()
 			if( parseFloat(totalInvoice) < parseFloat(newamount) )
 			{
 				$("#paymentRateForm #paymentnewamount")
-					.closest('.field_col')
-					.addClass('has-error');
+				.closest('.field_col')
+				.addClass('has-error');
 				
 				$("#paymentRateForm #exrateamount_help")
-					.removeClass('hidden');
+				.removeClass('hidden');
 			}
 			else
 			{
 				$("#paymentRateForm #paymentnewamount")
-					.closest('.field_col')
-					.removeClass('has-error');
+				.closest('.field_col')
+				.removeClass('has-error');
 
 				$("#paymentRateForm #exrateamount_help")
-					.addClass('hidden');
+				.addClass('hidden');
 			}
 
 		}
@@ -3082,57 +3082,57 @@ $(document).ready(function()
 						message: "Are you sure you want to apply this exchange rate? <br/><br/>"
 						+"Applying this would overwrite the first entry you've added.",
 						title: "Confirmation",
-							buttons: {
+						buttons: {
 							yes: {
-							label: "Yes",
-							className: "btn-primary btn-flat",
-							callback: function(result) 
-							{	
-								var data = "account=" + account + "&event=exchange_rate";
-								$.post("<?=BASE_URL?>financials/accounts_receivable/ajax/get_value", data)
-								.done(function(data) 
-								{
-									var accountnature		= data.accountnature;
-
-									$('#btnRate').html(exchangerate+'&nbsp;&nbsp;');
-
-									$('#receivableForm #h_amount').val(oldamount);
-									$('#receivableForm #h_exchangerate').val(exchangerate);
-									$('#receivableForm #h_convertedamount').val(newamount);
-
-									$('#receivableForm #accountcode\\[1\\]').val(account);
-
-									if(accountnature == 'Debit' || accountnature == 'debit')
+								label: "Yes",
+								className: "btn-primary btn-flat",
+								callback: function(result) 
+								{	
+									var data = "account=" + account + "&event=exchange_rate";
+									$.post("<?=BASE_URL?>financials/accounts_receivable/ajax/get_value", data)
+									.done(function(data) 
 									{
-										$('#receivableForm #debit\\[1\\]').val($('#rateForm #newamount').val());
-										$('#receivableForm #credit\\[1\\]').prop('readOnly',true);
+										var accountnature		= data.accountnature;
 
-										$('#receivableForm #credit\\[1\\]').val('0.00');
-										$('#receivableForm #debit\\[1\\]').prop('readOnly',false);
-										addAmountAll("debit");
-									}
-									else
-									{
-										$('#receivableForm #credit\\[1\\]').val($('#rateForm #newamount').val());
-										$('#receivableForm #debit\\[1\\]').prop('readOnly',true);
+										$('#btnRate').html(exchangerate+'&nbsp;&nbsp;');
 
-										$('#receivableForm #debit\\[1\\]').val('0.00');
-										$('#receivableForm #credit\\[1\\]').prop('readOnly',false);
-										addAmountAll("credit");
-									}
+										$('#receivableForm #h_amount').val(oldamount);
+										$('#receivableForm #h_exchangerate').val(exchangerate);
+										$('#receivableForm #h_convertedamount').val(newamount);
 
-									$('#receivableForm #accountcode\\[1\\]').trigger("change");
-									$('#rateForm #defaultaccount').prop('disabled',true);
-									$('#rateForm #defaultaccount').trigger("change");
+										$('#receivableForm #accountcode\\[1\\]').val(account);
 
-									$('#rateModal').modal('hide');
-								});
-							}
-						},
+										if(accountnature == 'Debit' || accountnature == 'debit')
+										{
+											$('#receivableForm #debit\\[1\\]').val($('#rateForm #newamount').val());
+											$('#receivableForm #credit\\[1\\]').prop('readOnly',true);
+
+											$('#receivableForm #credit\\[1\\]').val('0.00');
+											$('#receivableForm #debit\\[1\\]').prop('readOnly',false);
+											addAmountAll("debit");
+										}
+										else
+										{
+											$('#receivableForm #credit\\[1\\]').val($('#rateForm #newamount').val());
+											$('#receivableForm #debit\\[1\\]').prop('readOnly',true);
+
+											$('#receivableForm #debit\\[1\\]').val('0.00');
+											$('#receivableForm #credit\\[1\\]').prop('readOnly',false);
+											addAmountAll("credit");
+										}
+
+										$('#receivableForm #accountcode\\[1\\]').trigger("change");
+										$('#rateForm #defaultaccount').prop('disabled',true);
+										$('#rateForm #defaultaccount').trigger("change");
+
+										$('#rateModal').modal('hide');
+									});
+								}
+							},
 							no: {
-							label: "No",
-							className: "btn-default btn-flat",
-							callback: function(result) {
+								label: "No",
+								className: "btn-default btn-flat",
+								callback: function(result) {
 									
 								}
 							}
@@ -3195,7 +3195,7 @@ $(document).ready(function()
 
 		if( parseFloat(totalInvoice) < parseFloat(newamount_) )
 			valid		+= validateField('paymentRateForm','paymentnewamount', "exrateamount_help");
-			
+
 
 		if(valid == 0)
 		{
@@ -3297,9 +3297,9 @@ $(document).ready(function()
 			var totalForex 		= document.getElementById('totalForex').value;
 			totalForex 			= totalForex.replace(/,/g,'');
 			var balance		 	= parseFloat(totalInvoice) - parseFloat(totalPayment) - parseFloat(totalDiscount) + parseFloat(totalForex);
-	
+
 			var result 			= addCommas(balance.toFixed(2));
-		
+
 			$("#receiptForm").removeClass('hidden');
 			$("#receiptForm #convertedamount\\[1\\]").val(result);
 
@@ -3361,7 +3361,7 @@ $(document).ready(function()
 					{
 						// $("#receivableForm #btnSave").removeClass('disabled');
 						// $("#receivableForm #btnSave_toggle").removeClass('disabled');
-				
+
 						// $("#receivableForm #btnSave").html('Save');
 						$(".alert.alert-warning ").removeClass("hidden");
 						$(".alert #errmsg").append(data.msg);
@@ -3373,7 +3373,7 @@ $(document).ready(function()
 
 						$("#receivableForm #btnSave").removeClass('disabled');
 						$("#receivableForm #btnSave_toggle").removeClass('disabled');
-				
+
 						$("#receivableForm #btnSave").html('Save');
 					}
 				});
@@ -3384,7 +3384,7 @@ $(document).ready(function()
 		$("#receivableForm #save_exit").click(function()
 		{
 			var valid	= 0;
-		
+
 			//$("#receivableForm").find('.form-group').find('input, textarea, select').trigger('blur');
 			$("#receivableForm #customer").trigger('blur');
 			$("#receivableForm #document_date").trigger('blur');
@@ -3579,7 +3579,7 @@ $(document).ready(function()
 				});
 			}
 		});
-			
+
 		/**SAVE CHANGES AND REDIRECT TO CREATE NEW INVOICE**/
 		$("#receivableForm #save_new").click(function()
 		{
@@ -3625,7 +3625,7 @@ $(document).ready(function()
 				});
 			}
 		});
-			
+
 		$("#receivableForm #save_preview").click(function()
 		{
 			var valid	= 0;
@@ -3688,7 +3688,7 @@ $(document).ready(function()
 
 		totalForex
 		var balance		 	= parseFloat(totalInvoice) - parseFloat(totalPayment) - parseFloat(totalDiscount) + parseFloat(totalForex);
-	
+
 		var result 			= addCommas(balance.toFixed(2));
 		
 		$("#receiptForm").removeClass('hidden');
@@ -3727,11 +3727,11 @@ $(document).ready(function()
 					message: "Are you sure you want to apply this proforma? <br/><br/>"
 					+"Applying this would overwrite the existing entries you've added.",
 					title: "Confirmation",
-						buttons: {
+					buttons: {
 						yes: {
-						label: "Yes",
-						className: "btn-primary btn-flat",
-						callback: function(result) {
+							label: "Yes",
+							className: "btn-primary btn-flat",
+							callback: function(result) {
 								$('#itemsTable tbody').html(tablerow);
 
 								resetIds();
@@ -3740,9 +3740,9 @@ $(document).ready(function()
 							}
 						},
 						no: {
-						label: "No",
-						className: "btn-default btn-flat",
-						callback: function(result) {
+							label: "No",
+							className: "btn-default btn-flat",
+							callback: function(result) {
 								$('#receivableForm #proformacode').val('').trigger("change");
 								// $('#receivableForm #proformacode').chosen().trigger('chosen:updated');
 							}
@@ -3758,7 +3758,7 @@ $(document).ready(function()
 
 				$('#itemsTable tbody tr.clone select').select2({width: "100%",allow_single_deselect: true,placeholder_text_single:'Select an Account'});
 			}
-				
+
 		});
 
 	});
