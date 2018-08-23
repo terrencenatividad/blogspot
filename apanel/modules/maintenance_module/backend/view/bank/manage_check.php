@@ -134,9 +134,9 @@ var ajax = {};
 
 $('#bankForm #btnSave').on('click',function(){
 
-	$('#bankForm #bankname').trigger('blur');
-	$('#bankForm #accountcode').trigger('blur');
-	$('#bankForm #acccountno').trigger('blur');
+	$('#bankForm #booknumber').trigger('blur');
+	$('#bankForm #firstchequeno').trigger('blur');
+	$('#bankForm #lastchequeno').trigger('blur');
 	var bank_id = $('#id').val();
 
 	if ($('#bankForm').find('.form-group.has-error').length == 0)
