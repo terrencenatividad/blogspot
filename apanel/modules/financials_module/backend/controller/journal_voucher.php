@@ -93,7 +93,8 @@ class controller extends wc_controller {
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui'] = $this->ui;
 		$data['ajax_task']			= 'ajax_view';
-		$data['proforma_list']		= $this->jv_model->getProformaList();
+		$profcode = $data['proformacode'];
+		$data['proforma_list']		= $this->jv_model->getProformaList($profcode);
 		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
 		$status 					= $data['stat'];
 		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno,$status));

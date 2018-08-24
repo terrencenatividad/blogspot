@@ -90,6 +90,7 @@ class controller extends wc_controller {
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data['ui'] = $this->ui;
+		$data['ajax_task']			= 'ajax_view';
 		$data['partner_list']   	 = $this->dm_model->getVendorList();
 		$data['proforma_list']		= $this->dm_model->getProformaList();
 		$data['chartofaccounts']	= $this->dm_model->getChartOfAccountList();
@@ -107,10 +108,10 @@ class controller extends wc_controller {
 		$documentvendor   	= $this->dm_model->getVendor($voucherno);
 		$print = new print_voucher_model('P', 'mm', 'Letter');
 		$print->setDocumentType('Debit Memo')
-				->setDocumentInfo($documentinfo)
-				->setDocumentDetails($documentdetails)
-				->setVendor($documentvendor[0]->partnername)
-				->drawPDF('dm_voucher_' . $voucherno);
+		->setDocumentInfo($documentinfo)
+		->setDocumentDetails($documentdetails)
+		->setVendor($documentvendor[0]->partnername)
+		->drawPDF('dm_voucher_' . $voucherno);
 	}
 	
 	public function ajax($task) {
@@ -142,22 +143,22 @@ class controller extends wc_controller {
 			$status				=   $row->stat;
 			$display_edit_delete=  	($status != 'cancelled') 	?	1	:	0;
 			$voucher_status = '<span class="label label-danger">'.strtoupper($status).'</span>';
-				if($status == 'open'){
-					$voucher_status = '<span class="label label-info">'.strtoupper($status).'</span>';
-				}else if($status == 'posted'){
-					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
-				}
+			if($status == 'open'){
+				$voucher_status = '<span class="label label-info">'.strtoupper($status).'</span>';
+			}else if($status == 'posted'){
+				$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
+			}
 
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
-									->addView()
-									->addEdit($restrict_dm && $display_edit_delete)
-									->addDelete($restrict_dm && $display_edit_delete)
-									->addPrint()
-									->addCheckbox($restrict_dm && $display_edit_delete)
-									->setLabels(array('delete'=>'Cancel'))
-									->setValue($row->voucherno)
-									->draw();
+			->addView()
+			->addEdit($restrict_dm && $display_edit_delete)
+			->addDelete($restrict_dm && $display_edit_delete)
+			->addPrint()
+			->addCheckbox($restrict_dm && $display_edit_delete)
+			->setLabels(array('delete'=>'Cancel'))
+			->setValue($row->voucherno)
+			->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->voucherno . '</td>';
@@ -198,8 +199,17 @@ class controller extends wc_controller {
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		// $result					= $this->cm_model->updateJournalVoucher($data, $data2, $this->temp, (($finalized) ? 'Create' : false));
 		$result						= $this->dm_model->saveJournalVoucher($data, $data2);
+
+		$redirect_url = MODULE_URL;
+		if ($submit == 'save_new') {
+			$redirect_url = MODULE_URL . 'create';
+		} else if ($submit == 'save') {
+			$redirect_url = MODULE_URL . 'view/' . $data['voucherno'];
+		} else if ($submit == 'save_exit') {
+			$redirect_url = MODULE_URL;
+		}
 		return array(
-			'redirect'	=> MODULE_URL,
+			'redirect'	=> $redirect_url,
 			'success'	=> $result
 		);
 	}
