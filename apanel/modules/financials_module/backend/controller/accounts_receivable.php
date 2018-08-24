@@ -194,6 +194,7 @@ class controller extends wc_controller
 			"address1",
 			"duedate",
 			"particulars",
+			"proformacode",
 			"terms",
 			"date",
 			"invoiceno"
@@ -308,6 +309,7 @@ class controller extends wc_controller
 		$data["v_customercode"]    = $data["main"]->customer;
 		$data["v_convertedamount"] = $data["main"]->convertedamount;
 		$data["v_exchangerate"]    = $data["main"]->exchangerate;
+		$data["proformacode"]      = $data["main"]->proformacode;
 		$data["v_transactiondate"] = $this->date->dateFormat($data["main"]->transactiondate); 
 		$data["v_duedate"]         = $this->date->dateFormat($data["main"]->duedate);
 		$data["v_referenceno"]     = $data["main"]->referenceno;
@@ -419,12 +421,12 @@ class controller extends wc_controller
 
 		// Retrieve business type list
 		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond               = "accounttype != 'P'";
+		$acc_entry_cond               = "accounttype != 'P' AND stat = 'active'";
 		$data["account_entry_list"]   = $this->accounts_receivable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// Retrieve Receivable account list
 		$pay_account_data 			  = array("id ind", "CONCAT(segment5, ' - ', accountname) val");
-		$pay_account_cond 			  = "accountclasscode = 'ACCREC' AND accounttype != 'P'";
+		$pay_account_cond 			  = "accountclasscode = 'ACCREC' AND accounttype != 'P' AND stat = 'active'";
 		$data["receivable_account_list"] = $this->accounts_receivable->getValue("chartaccount", $pay_account_data, $pay_account_cond, "accountname");
 		
 		// Header Data
@@ -433,6 +435,7 @@ class controller extends wc_controller
 		$data["invoiceno"]       = $data["main"]->invoiceno;
 		$data["customercode"]    = $data["main"]->customer;
 		$data["exchangerate"]    = $data["main"]->exchangerate;
+		$data["proformacode"]    = $data["main"]->proformacode;
 		$data["transactiondate"] = $this->date->dateFormat($data["main"]->transactiondate);
 		$data["particulars"]     = $data["main"]->particulars;
 

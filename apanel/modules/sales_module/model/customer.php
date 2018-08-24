@@ -5,7 +5,7 @@
 		{
 			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND ( p.partnercode LIKE '%$search%' OR p.partnername LIKE '%$search%' OR p.first_name LIKE '%$search%' OR p.last_name LIKE '%$search%' OR p.email LIKE '%$search%' ) " 	: 	"";
 
-			$fields 	=	array("p.partnercode","p.partnername","CONCAT(p.first_name,' ', p.last_name) as contact_person", "p.email","p.stat");
+			$fields 	=	array("p.partnercode","p.partnername","CONCAT(p.first_name,' ', p.last_name) as contact_person", "p.email","p.stat","p.credit_limit");
 
 			return $this->db->setTable('partners p')
 							->setFields($fields)
@@ -39,6 +39,7 @@
 
 			$data["stat"]     	   = "active";
 			$data['partnertype']   = "customer";
+			$data['credit_limit']  = str_replace(",","",$data['credit_limit']);
 			//var_dump($data);
 
 			$result = $this->db->setTable('partners')
@@ -53,6 +54,7 @@
 
 			$data["stat"]     	   = "active";
 			$data['partnertype']   = "customer";
+			$data['credit_limit']  = str_replace(",","",$data['credit_limit']);
 			//var_dump($data);
 
 			$result = $this->db->setTable('partners')
@@ -65,6 +67,7 @@
 		public function updateCustomer($data, $partnercode)
 		{
 			$data["stat"]     	   = "active";
+			$data['credit_limit']  = str_replace(",","",$data['credit_limit']);
 
 			$condition 			   = " partnercode = '$partnercode' AND partnertype = 'customer' ";
 

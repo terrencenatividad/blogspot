@@ -175,15 +175,22 @@
 			return $result;
 		}
 
-		public function update_check($id, $data){
+		public function update_check($id, $data, $old){
 			$bno = $data['bank_id'];
-			$condition 			   = " booknumber = '$bno' ";
+			$new = $data['booknumber'];
+			$data['nextchequeno'] = $data['firstchequeno'];
+			
+			$condition 	= "booknumber = '$old'";
+			$result 	= $this->db->setTable('bankdetail')
+							->setWhere($condition)
+							->runDelete();
 
-			$result 			   = $this->db->setTable('bankdetail')
-											  ->setValues($data)
-											  ->setWhere($condition)
-											  ->setLimit(1)
-											  ->runUpdate();
+			if($result){
+				$result  = $this->db->setTable('bankdetail')
+						->setValues($data)
+						->runInsert();
+			}
+	
 			return $result;
 		}
 
