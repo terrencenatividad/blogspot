@@ -149,21 +149,21 @@ $('#checkForm #btnSave').on('click',function(){
 	}
 });
 
-$('#booknumber').on('blur',function(){
+$('#checkForm #booknumber').on('blur',function(){
 	
-	ajax.old_code 	= 	$('#booknumber').val();
+	ajax.old_code 	= 	$('#checkForm #booknumber').val();
 	
 	ajax.curr_code 	=	$(this).val();
 
 	var task 		=	'<?=$task?>';
 	var error_message 	=	'';	
-	var form_group	 	= 	$('#booknumber').closest('.form-group');
+	var form_group	 	= 	$('#checkForm #booknumber').closest('.form-group');
 
 	$.post('<?=BASE_URL?>maintenance/bank/ajax/check_duplicate_booknumber',ajax, function(data) {
 		if( data.msg == 'exists' )
 		{
 			error_message 	=	"<b>The Book Number you entered already exists!</b>";
-			$('#booknumber').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+			$('#checkForm #booknumber').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
 		}
 		else if( ( ajax.curr_code != "" && data.msg == "") || (data.msg == '' && task == 'edit'))
 		{
