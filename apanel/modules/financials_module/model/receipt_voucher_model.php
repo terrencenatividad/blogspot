@@ -1889,4 +1889,17 @@ class receipt_voucher_model extends wc_model
 
 		return $result;
 	}
+
+	public function retrievebank($table, $fields = array(), $cond = "", $ijoin = "", $orderby = "", $groupby = "")
+	{
+		$result = $this->db->setTable($table)
+					->setFields($fields)
+					->innerJoin($ijoin)
+					->setGroupBy($groupby)
+					->setWhere($cond)
+					->setOrderBy($orderby)
+					->runSelect()
+					->getResult();
+		return $result;
+	}
 }

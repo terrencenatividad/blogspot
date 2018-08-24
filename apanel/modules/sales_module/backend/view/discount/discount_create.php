@@ -12,7 +12,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('text')	
-									->setLabel('Discount Code <span class = "asterisk">*</span>')
+									->setLabel('Discount Code ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('discountcode')
 									->setId('discountcode')
@@ -27,7 +27,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('text')	
-									->setLabel('Discount Name <span class = "asterisk">*</span>')
+									->setLabel('Discount Name ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('discountname')
 									->setId('discountname')
@@ -44,7 +44,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('dropdown')	
-									->setLabel('Discount Type <span class = "asterisk">*</span>')
+									->setLabel('Discount Type ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('discounttype')
 									->setId('discounttype')
@@ -61,7 +61,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('textarea')	
-									->setLabel('Discount Description <span class = "asterisk">*</span>')
+									->setLabel('Discount Description ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('discountdesc')
 									->setId('discountdesc')
@@ -246,10 +246,12 @@ $(document).ready(function(){
 
 	$('#discount_template_form #btnSave').on('click',function(){
 
-		$('#discount_template_form #discountcode').trigger('blur');
-		$('#discount_template_form #discountname').trigger('blur');
-		$('#discount_template_form #discounttype').trigger('blur');
-		$('#discount_template_form #discountdesc').trigger('blur');
+		// $('#discount_template_form #discountcode').trigger('blur');
+		// $('#discount_template_form #discountname').trigger('blur');
+		// $('#discount_template_form #discounttype').trigger('blur');
+		// $('#discount_template_form #discountdesc').trigger('blur');
+
+		$('#discount_template_form').find('.form-group').find('input, textarea, select').trigger('blur');
 
 		var discount 	=	$('#discount_value_table input[type="checkbox"]:checked').length;
 		var value 		=	0;

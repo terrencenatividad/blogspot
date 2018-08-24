@@ -278,9 +278,9 @@ class controller extends wc_controller
 			// For Admin Logs
 			$this->logs->saveActivity("Add New Accounts Payable [$generatedvoucher]");
 
-			if(!empty($data_validate['h_save']))
+			if(!empty($data_validate['h_save_new']))
 			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_payable');
+				$this->url->redirect(BASE_URL . 'financials/accounts_payable/create');
 			}
 			else if(!empty($data_validate['h_save_preview']))
 			{
@@ -288,7 +288,7 @@ class controller extends wc_controller
 			}
 			else
 			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_payable/create');
+				$this->url->redirect(BASE_URL . 'financials/accounts_payable');
 			}
 		
 		}
@@ -441,12 +441,12 @@ class controller extends wc_controller
 
 		// Retrieve business type list
 		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond               = "accounttype != ''";
+		$acc_entry_cond               = "accounttype != '' AND stat = 'active'";
 		$data["account_entry_list"]   = $this->accounts_payable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// Retrieve payable account list
 		$pay_account_data 			  = array("id ind", "CONCAT(segment5, ' - ', accountname) val");
-		$pay_account_cond 			  = "accountclasscode = 'ACCPAY' AND accounttype != ''";
+		$pay_account_cond 			  = "accountclasscode = 'ACCPAY' AND accounttype != '' AND stat = 'active'";
 		$data["payable_account_list"] = $this->accounts_payable->getValue("chartaccount", $pay_account_data, $pay_account_cond, "accountname");
 		
 		// // Retrieve tax list
@@ -488,9 +488,9 @@ class controller extends wc_controller
 			// For Admin Logs
 			$this->logs->saveActivity("Updated Accounts Payable [$sid]");
 
-			if(!empty($data_validate['h_save']))
+			if(!empty($data_validate['h_save_new']))
 			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_payable');
+				$this->url->redirect(BASE_URL . 'financials/accounts_payable/create');
 			}
 			else if(!empty($data_validate['h_save_preview']))
 			{
@@ -498,8 +498,8 @@ class controller extends wc_controller
 			}
 			else
 			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_payable/create');
-			}	 
+				$this->url->redirect(BASE_URL . 'financials/accounts_payable');
+			} 
 		}
 
 		$this->view->load('accounts_payable/accounts_payable', $data);

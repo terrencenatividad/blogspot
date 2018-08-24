@@ -653,7 +653,7 @@ $('#modal_div').html(`
 				<p>Are you sure you want to Deactivate this Entry</p>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-danger" id="deactyes" data-dismiss="modal">Yes</button>
+				<button type="button" class="btn btn-primary" id="deactyes" data-dismiss="modal">Yes</button>
 				<button type="button" class="btn btn-default" id="deactno" data-dismiss="modal">No</button>
 			</div>
 		</div>

@@ -160,11 +160,13 @@
 		$(".alert-warning").removeClass("hidden");
 		$("#errmsg").html(msg);
 	}
-	function show_success_msg()
+	function show_success_msg(msg)
 	{
-		$('#success_modal #message').html('Your Data has been imported successfully.');
+		$('#success_modal #message').html(msg);
 		$('#success_modal').modal('show');
-		getList();
+		setTimeout(function() {												
+			window.location = '<?= MODULE_URL ?>';		
+		}, 1000)
 	}
 	function getList() {
 		filterToURL();
@@ -238,7 +240,7 @@
 										$('#import-modal').modal('hide');
 										$(".alert-warning").addClass("hidden");
 										$("#errmsg").html('');
-										show_success_msg();
+										show_success_msg('Your data has been successfully imported!');
 									}else{
 										$('#import-modal').modal('hide');
 										show_error(response.errmsg);
@@ -260,7 +262,6 @@
 			
 			$('#deactivate_modal').on('click', '#deactyes', function() {
 				$('#deactivate_modal').modal('hide');
-				alert(id);
 				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&code='+id ,function(data) {
 					getList();
 				});

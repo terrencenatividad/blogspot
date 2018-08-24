@@ -12,11 +12,11 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Code <span class = "asterisk">*</span>')
+								->setLabel('Code ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('partnercode')
 								->setId('partnercode')
-								->setValidation($code_required.' code')
+								->setValidation('required code')
 								->setMaxLength(20)
 								->addHidden((isset($task) && $task == 'update'))
 								->setValue($partnercode)
@@ -29,7 +29,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Company Name <span class = "asterisk">*</span>')
+								->setLabel('Company Name ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('partnername')
 								->setId('partnername')
@@ -45,7 +45,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('textarea')
-								->setLabel('Address <span class = "asterisk">*</span>')
+								->setLabel('Address ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('address1')
 								->setId('address1')
@@ -73,7 +73,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Business Type <span class = "asterisk">*</span>')
+								->setLabel('Business Type ')
 								->setPlaceholder('Filter Business Type')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('businesstype')
@@ -213,12 +213,14 @@
 var ajax = {};
 
 $('#supplierForm #btnSave').on('click',function(){
-	$('#supplierForm #partnercode').trigger('blur');
-	$('#supplierForm #partnername').trigger('blur');
-	$('#supplierForm #first_name').trigger('blur');
-	$('#supplierForm #last_name').trigger('blur');
-	$('#supplierForm #address1').trigger('blur');
-	$('#supplierForm #businesstype').trigger('blur');
+	// $('#supplierForm #partnercode').trigger('blur');
+	// $('#supplierForm #partnername').trigger('blur');
+	// $('#supplierForm #first_name').trigger('blur');
+	// $('#supplierForm #last_name').trigger('blur');
+	// $('#supplierForm #address1').trigger('blur');
+	// $('#supplierForm #businesstype').trigger('blur');
+
+	$('#supplierForm').find('.form-group').find('input, textarea, select').trigger('blur');
 
 	if ($('#supplierForm').find('.form-group.has-error').length == 0)
 	{	

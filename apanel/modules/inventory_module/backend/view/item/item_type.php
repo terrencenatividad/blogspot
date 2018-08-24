@@ -7,7 +7,7 @@
 						<div class="col-md-8 col-md-offset-2">
 							<?php
 								echo $ui->formField('text')
-									->setLabel('Item Type <span class = "asterisk">*</span>')
+									->setLabel('Item Type ')
 									->setAttribute(array('autocomplete' => 'off'))
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('label')

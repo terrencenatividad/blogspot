@@ -67,7 +67,7 @@
 						<div class="col-md-6">
 							<?php
 								echo $ui->formField('text')
-									->setLabel('Sales Return No. <span class = "asterisk">*</span>')
+									->setLabel('Sales Return No. ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('source_no')
 									->setId('source_no')
@@ -83,7 +83,7 @@
 						<div class="col-md-6">
 							<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Return Type <span class = "asterisk">*</span>')
+									->setLabel('Return Type ')
 									->setPlaceholder('Select Return Type')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('stat')
@@ -97,18 +97,34 @@
 						</div>
 					</div>
 					<div class="row">
-						<div class="col-md-12">
+						<div class="col-md-6">
 							<?php
 								echo $ui->formField('textarea')
-									->setLabel('Notes')
-									->setSplit('col-md-2', 'col-md-10')
-									->setName('remarks')
-									->setId('remarks')
-									->setValue($remarks)
-									->draw($show_input);
+								->setLabel('Notes')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('remarks')
+								->setId('remarks')
+								->setValue($remarks)
+								->draw($show_input);
+							?>
+						</div>
+						<div class="col-md-6">
+							<?php
+								echo $ui->formField('dropdown')
+								->setLabel('Reason ')
+								->setPlaceholder('Select Reason')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('reason')
+								->setId('reason')
+								->setList(array('1' => 'Defective goods - no replacement', '2' => 'Defective goods - for replacement', '3' => 'Not Defective - Item For Replacement (exact item)', '4' => 'Not defective - Item For Replacement (different item)', '5' => 'Not Defective - Items Returned but not to be replaced"'))
+								->setValue($reason)
+								->setValidation('required')
+								// ->addHidden(($ajax_task != 'ajax_create'))
+								->draw($show_input);
 							?>
 						</div>
 					</div>
+					
 				</div>
 			</div>
 		</div>

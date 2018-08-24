@@ -202,8 +202,12 @@ class ui {
 		$for = ((isset($this->attribute['id']) && ! empty($this->attribute['id'])) ? ' for="' . $this->attribute['id'] . '"' : '');
 		$class = (!empty($this->split)) ? ' class="control-label ' . $this->split[0] . '"' : '';
 		if ( ! empty($this->label)) {
-			$label = '<label' . $for . $class . '>' . $this->label . '</label>';
+			$label .= '<label' . $for . $class . '>' . $this->label;
+			if((isset($this->attribute['data-validation']) && ! empty($this->attribute['data-validation'])) && (strpos( $this->attribute['data-validation'], "required" ) !== false)){
+				$label .= ' <span class = "asterisk">*</span>';
+			}
 		}
+		$label .= '</label>';
 		return $label;
 	}
 

@@ -433,12 +433,14 @@
 			});
 		});
 	
-	function show_success_msg(msg)
-	{
-		$('#success_modal #message').html(msg);
-		$('#success_modal').modal('show');
-		showList();
-	}
+function show_success_msg(msg)
+{
+	$('#success_modal #message').html(msg);
+	$('#success_modal').modal('show');
+	setTimeout(function() {												
+		window.location = '<?= MODULE_URL ?>';		
+	}, 1000)
+}
 
 	$('#export_id').prop('download','proforma.csv');
 

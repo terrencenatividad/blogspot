@@ -143,18 +143,19 @@ class controller extends wc_controller
 		$acc_entry_cond               = "accounttype != '' AND stat = 'active'";
 		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
-		// Cash Account Options
-		// $cash_account_fields 	  = array("id ind", "CONCAT(shortname, ' - ', accountno ) val");
+		// $cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
 		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		// $cash_account_cond 	 	  = "stat = 'active'";
-		// $cash_order_by 		 	  = "id";
-		// $data["cash_account_list"] = $this->receipt_voucher->retrieveData("bank", $cash_account_fields, $cash_account_cond, '', $cash_order_by);
+		// $cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P' AND stat = 'active'";
+		// $cash_order_by 		 	  = "class.accountclass";
+		// $data["cash_account_list"] = $this->receipt_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
-		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
-		$cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		$cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P' AND stat = 'active'";
-		$cash_order_by 		 	  = "class.accountclass";
-		$data["cash_account_list"] = $this->receipt_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
+		// Cash Account Options
+		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
+		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
+		$cash_order_by 		 	  	= "id desc";
+		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
+		$data["cash_account_list"] 	= $this->receipt_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
+
 
 		// Retrieve generated ID
 		// $gen_value                    = $this->receipt_voucher->getValue("paymentvoucher", "COUNT(*) as count", "voucherno != ''");	
@@ -185,6 +186,7 @@ class controller extends wc_controller
 		$updateTempRecord 	= 0;
 		$generatedvoucher 	= "";
 		$task 			= $data_validate['h_task'];
+		$generatedvoucher = '';
 
 		if (!empty($data_validate["customer"]) && !empty($data_validate["document_date"])) {
 			$voucherno = (isset($data_validate['h_voucher_no']) && (!empty($data_validate['h_voucher_no']))) ? htmlentities(trim($data_validate['h_voucher_no'])) : "";
@@ -239,7 +241,7 @@ class controller extends wc_controller
 			}
 		}
 
-		$dataArray = array("success"=>$updateTempRecord,"error"=>$errmsg, "btn_type"=>$btn_type);
+		$dataArray = array("success"=>$updateTempRecord,"error"=>$errmsg, "btn_type"=>$btn_type , 'voucher' => $generatedvoucher);
 		return $dataArray;
 	}
 
@@ -309,17 +311,20 @@ class controller extends wc_controller
 		$data['discount_code'] 		= $discount_code;
 
 		// Cash Account Options
-		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
-		$cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		$cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
-		$cash_order_by 		 	  = "class.accountclass";
-		$data["cash_account_list"] = $this->receipt_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
-		// $cash_account_fields 	  = array("id ind", "CONCAT(shortname, ' - ', accountno ) val");
+		// $cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
 		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		// $cash_account_cond 	 	  = "stat = 'active'";
-		// $cash_order_by 		 	  = "id";
-		// $data["cash_account_list"] = $this->receipt_voucher->retrieveData("bank", $cash_account_fields, $cash_account_cond, '', $cash_order_by);
+		// $cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
+		// $cash_order_by 		 	  = "class.accountclass";
+		// $data["cash_account_list"] = $this->receipt_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
+		// Cash Account Options
+		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
+		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
+		$cash_order_by 		 	  	= "id desc";
+		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
+		$data["cash_account_list"] 	= $this->receipt_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
+
+		
 		$data["noCashAccounts"]  = false;
 		
 		if(empty($data["cash_account_list"]))
@@ -382,19 +387,22 @@ class controller extends wc_controller
 		$discount_code 				= isset($dis_entry[0]->salesAccount) ? $dis_entry[0]->salesAccount	: "";
 		$data['discount_code'] 		= $discount_code;
 
-		// Cash Account Options
-		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
-		$cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		$cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
-		$cash_order_by 		 	  = "class.accountclass";
-		$data["cash_account_list"] = $this->receipt_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
-
-		// $cash_account_fields 	  = array("id ind", "CONCAT(shortname, ' - ', accountno ) val");
+		// // Cash Account Options
+		// $cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
 		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		// $cash_account_cond 	 	  = "stat = 'active'";
-		// $cash_order_by 		 	  = "id";
-		// $data["cash_account_list"] = $this->receipt_voucher->retrieveData("bank", $cash_account_fields, $cash_account_cond, '', $cash_order_by);
-		
+		// $cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
+		// $cash_order_by 		 	  = "class.accountclass";
+		// $data["cash_account_list"] = $this->receipt_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
+
+		// Cash Account Options
+		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
+		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
+		$cash_order_by 		 	  	= "id desc";
+		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
+		$data["cash_account_list"] 	= $this->receipt_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
+
+
+	
 		// Header Data
 		$voucherno 				 = $data["main"]->voucherno;
 		$customer 				 = $data['main']->customer;
@@ -939,6 +947,7 @@ class controller extends wc_controller
 
 	private function create_payments(){
 		$data_post 	= $this->input->post();
+		$submit = $data_post['submit'];
 
 		$result    	= array_filter($this->receipt_voucher->savePayment($data_post));
 
@@ -951,6 +960,15 @@ class controller extends wc_controller
 			$code 		= $result['code'];
 			$voucher 	= $result['voucher'];
 			$errmsg 	= $result['errmsg'];
+		}
+
+		$redirect_url = MODULE_URL;
+		if ($submit == 'save_new') {
+			$redirect_url = MODULE_URL . 'create';
+		} else if ($submit == 'save') {
+			$redirect_url = MODULE_URL . 'view/' . $voucher;
+		} else if ($submit == 'save_exit') {
+			$redirect_url = MODULE_URL;
 		}
 
 		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);

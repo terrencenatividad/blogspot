@@ -47,7 +47,7 @@ class controller extends wc_controller {
 		$data['display_edit']		= 1;
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
-		$data['proforma_list']		= $this->jv_model->getProformaList();
+		$data['proforma_list'] 		= $this->jv_model->getProformaList();
 		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
 		$data['voucher_details']	= json_encode(array());
 		$data['ajax_task']			= 'ajax_create';
@@ -90,7 +90,9 @@ class controller extends wc_controller {
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui'] = $this->ui;
-		$data['proforma_list']		= $this->jv_model->getProformaList();
+		$data['ajax_task']			= 'ajax_view';
+		$profcode = $data['proformacode'];
+		$data['proforma_list']		= $this->jv_model->getProformaList($profcode);
 		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
 		$status 					= $data['stat'];
 		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno,$status));
@@ -196,8 +198,10 @@ class controller extends wc_controller {
 		$redirect_url = MODULE_URL;
 		if ($submit == 'save_new') {
 			$redirect_url = MODULE_URL . 'create';
-		} else if ($submit == 'save_preview') {
+		} else if ($submit == 'save') {
 			$redirect_url = MODULE_URL . 'view/' . $data['voucherno'];
+		} else if ($submit == 'save_exit') {
+			$redirect_url = MODULE_URL;
 		}
 		return array(
 			'redirect'	=> $redirect_url,

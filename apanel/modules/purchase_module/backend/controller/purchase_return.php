@@ -18,7 +18,8 @@ class controller extends wc_controller {
 			'source_no',
 			'remarks',
 			'warehouse',
-			'amount'
+			'amount',
+			'reason'
 		);
 		$this->fields_header	= array(
 			'header_warehouse'		=> 'warehouse',

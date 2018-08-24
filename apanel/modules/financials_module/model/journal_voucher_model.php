@@ -222,7 +222,6 @@ class journal_voucher_model extends wc_model {
 							->runSelect()
 							->getResult();
 		return $result;
-		var_dump($fields);
 	}
 
 	public function getProformaList() {

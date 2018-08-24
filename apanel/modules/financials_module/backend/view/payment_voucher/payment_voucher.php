@@ -52,7 +52,7 @@
 						<div class = "col-md-6">
 							<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Supplier <span class = "asterisk">*</span>')
+									->setLabel('Supplier')
 									->setPlaceholder('Select Supplier')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('vendor')
@@ -89,7 +89,7 @@
 					<div class = "row">
 						<div class = "col-md-6">
 							<div class="form-group">
-								<label for="apv" class="control-label col-md-4">Total Payment <span class = "asterisk">*</span></label>
+								<label for="apv" class="control-label col-md-4">Total Payment </label>
 								<div class="col-md-8">
 									<?php
 									if(!$show_input){
@@ -204,7 +204,7 @@
 												->setName('chequenumber[1]')
 												->setId('chequenumber[1]')
 												->setClass('chequenumber')
-												->setValidation('required')
+												->setValidation('required alpha_num')
 												->setMaxLength(30)
 												->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 												->setValue("")
@@ -222,7 +222,7 @@
 												->setClass("datepicker-input")
 												->setName('chequedate[1]')
 												->setId('chequedate[1]')
-												->setAttribute(array("maxlength" => "50"))
+												->setMaxLength(50)
 												->setValue($transactiondate)
 												// ->setAddOn("calendar")
 												->draw(true);
@@ -236,7 +236,8 @@
 												->setClass("text-right chequeamount")
 												->setName('chequeamount[1]')
 												->setId('chequeamount[1]')
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
+												->setMaxLength(20)
+												->setAttribute(array("onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
 												->setValue("0.00")
 												->draw(true);
 									?>
@@ -281,6 +282,7 @@
 													->setId('chequenumber['.$row.']')
 													->setClass('chequenumber')
 													->setMaxLength(30)
+													->setValidation('required alpha_num')
 													->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 													->setValue($chequeno)
 													->draw($show_input);
@@ -300,7 +302,7 @@
 													->setClass("datepicker-input")
 													->setName('chequedate['.$row.']')
 													->setId('chequedate['.$row.']')
-													->setAttribute(array("maxlength" => "50"))
+													->setMaxLength(50)
 													->setValue($chequedate)
 													->draw($show_input);
 										?>
@@ -314,7 +316,8 @@
 													->setName('chequeamount['.$row.']')
 													->setId('chequeamount['.$row.']')
 													->setValidation('decimal')
-													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
+													->setMaxLength(20)
+													->setAttribute(array("onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
 													->setValue(number_format($chequeamount,2))
 													->draw($show_input);
 										?>
@@ -1288,7 +1291,7 @@ var task 		= '<?= $task ?>';
 var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 	// enable them to allow a cloned row with enabled dropdown and input fields
 var initial_debit 		= initial_clone.find('.debit').val();
-var initial_credit 		= initial_clone.find('.crebit').val() || 0;
+var initial_credit 		= initial_clone.find('.crebit').val() || '0.00';
 	initial_clone.find('.debit').attr("value",'0.00');
 	initial_clone.find('.credit').attr("value",'0.00');
 var clone_acct 	= $('#entriesTable tbody tr.clone:first')[0].outerHTML;

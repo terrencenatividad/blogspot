@@ -40,9 +40,19 @@ class payment_voucher_model extends wc_model
 					->setOrderBy($orderby)
 					->runSelect()
 					->getResult();
-		
-		// var_dump($this->db->buildSelect());
+		return $result;
+	}
 
+	public function retrievebank($table, $fields = array(), $cond = "", $ijoin = "", $orderby = "", $groupby = "")
+	{
+		$result = $this->db->setTable($table)
+					->setFields($fields)
+					->innerJoin($ijoin)
+					->setGroupBy($groupby)
+					->setWhere($cond)
+					->setOrderBy($orderby)
+					->runSelect()
+					->getResult();
 		return $result;
 	}
 
@@ -528,6 +538,8 @@ class payment_voucher_model extends wc_model
 	
 	public function savePayment($data)
 	{
+		// var_dump($data);
+		// exit();
 		$errmsg				   	= array();
 		$seq 				   	= new seqcontrol();
 		$datetime			   	= date("Y-m-d H:i:s");
@@ -735,11 +747,11 @@ class payment_voucher_model extends wc_model
 		foreach($tempArray as $tempArrayIndex => $tempArrayValue)
 		{
 			$accountcode 							= isset($tempArrayValue['h_accountcode']) 	? 	$tempArrayValue['h_accountcode'] 	:	$tempArrayValue['accountcode'];
-			$detailparticulars						= $tempArrayValue['detailparticulars'];
-			$debit			    					= $tempArrayValue['debit'];
-			$credit			    					= $tempArrayValue['credit'];
-			$taxbase_amount			    			= $tempArrayValue['taxbase_amount'];
-			$taxcode			    				= $tempArrayValue['taxcode'];
+			$detailparticulars						= isset($tempArrayValue['detailparticulars']) ?	$tempArrayValue['detailparticulars'] 	:	"";
+			$debit			    					= isset($tempArrayValue['debit']) ?	$tempArrayValue['debit'] 	:	0;
+			$credit			    					= isset($tempArrayValue['credit']) ?	$tempArrayValue['credit'] 	:	0;
+			$taxbase_amount			    			= isset($tempArrayValue['taxbase_amount']) ?	$tempArrayValue['taxbase_amount'] 	:	0;
+			$taxcode			    				= isset($tempArrayValue['taxcode']) ?	$tempArrayValue['taxcode'] 	:	"";
 			$ischeck 								= isset($tempArrayValue['ischeck']) && $tempArrayValue != "" 	?	$tempArrayValue['ischeck'] 	:	"no";
  
 			$post_detail['voucherno']				= $voucherno;
@@ -814,7 +826,6 @@ class payment_voucher_model extends wc_model
 				$this->db->setTable($detailAppTable)
 						->setWhere("voucherno = '$voucherno'")
 						->runDelete();
-	
 				$insertResult = $this->db->setTable($detailAppTable) 
 									->setValues($aPvDetailArray)
 									->setWhere("voucherno = '$voucherno'")
@@ -1298,6 +1309,7 @@ class payment_voucher_model extends wc_model
 
 		$appTable		= "pv_application";
 		$detailTable	= "pv_details";
+		$chequeTable 	= "pv_cheques";
 		$mainTable		= "paymentvoucher";
 		$table			= "accountspayable";
 		$paymentField	= array('apvoucherno','amount','wtaxamount');
@@ -1319,12 +1331,12 @@ class payment_voucher_model extends wc_model
 				$discount		= 0;
 
 				$balance		= $this->getValue($table, array("balance"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
-				$balance 		= $balance[0]->balance;
+				$balance 		= isset($balance[0]->balance) 	?	$balance[0]->balance	:	0;
 
 				$update_info['balance']		= $balance + $amount + $discount;
 				
 				$amountpaid 	= $this->getValue($table, array("amountpaid"), "voucherno = '$mainvoucher' AND stat = 'posted' ");
-				$amountpaid 	= $amountpaid[0]->amountpaid;
+				$amountpaid 	= isset($amountpaid[0]->amountpaid) 	?	$amountpaid[0]->amountpaid	: 0;
 				
 				$update_info['amountpaid']	= $amountpaid - $amount - $discount;
 				
@@ -1341,6 +1353,12 @@ class payment_voucher_model extends wc_model
 			
 		// Update pv_application
 		$result = $this->db->setTable($appTable)
+				->setValues($update_info)
+				->setWhere("voucherno IN($payments)")
+				->runUpdate();
+
+		// Update pv_cheques
+		$result = $this->db->setTable($chequeTable)
 				->setValues($update_info)
 				->setWhere("voucherno IN($payments)")
 				->runUpdate();
