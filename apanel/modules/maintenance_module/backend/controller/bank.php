@@ -133,7 +133,7 @@
 					if($row->stat == 'active'){
 						$bank_status = '<span class="label label-success">'.strtoupper($row->stat).'</span>';
 					}else if($row->stat == 'inactive'){
-						$bank_status = '<span class="label label-danger">'.strtoupper($row->stat).'</span>';
+						$bank_status = '<span class="label label-warning">'.strtoupper($row->stat).'</span>';
 					}
 
 					$table .= '<tr>';

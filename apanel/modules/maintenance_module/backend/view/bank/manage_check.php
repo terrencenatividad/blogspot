@@ -158,7 +158,7 @@ $('#bankForm #booknumber').on('blur',function(){
 
 	var task 		=	'<?=$task?>';
 	var error_message 	=	'';	
-	var form_group	 	= 	$('#booknumber').closest('.form-group');
+	var form_group	 	= 	$('#bankForm #booknumber').closest('.form-group');
 
 	$.post('<?=BASE_URL?>maintenance/bank/ajax/check_duplicate_booknumber',ajax, function(data) {
 		if( data.msg == 'exists' )
