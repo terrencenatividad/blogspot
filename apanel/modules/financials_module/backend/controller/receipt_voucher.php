@@ -186,6 +186,7 @@ class controller extends wc_controller
 		$updateTempRecord 	= 0;
 		$generatedvoucher 	= "";
 		$task 			= $data_validate['h_task'];
+		$generatedvoucher = '';
 
 		if (!empty($data_validate["customer"]) && !empty($data_validate["document_date"])) {
 			$voucherno = (isset($data_validate['h_voucher_no']) && (!empty($data_validate['h_voucher_no']))) ? htmlentities(trim($data_validate['h_voucher_no'])) : "";
@@ -240,7 +241,7 @@ class controller extends wc_controller
 			}
 		}
 
-		$dataArray = array("success"=>$updateTempRecord,"error"=>$errmsg, "btn_type"=>$btn_type);
+		$dataArray = array("success"=>$updateTempRecord,"error"=>$errmsg, "btn_type"=>$btn_type , 'voucher' => $generatedvoucher);
 		return $dataArray;
 	}
 
@@ -970,7 +971,7 @@ class controller extends wc_controller
 			$redirect_url = MODULE_URL;
 		}
 
-		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg, "redirect" => $redirect_url);
+		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);
 		return $dataArray;
 	}
 

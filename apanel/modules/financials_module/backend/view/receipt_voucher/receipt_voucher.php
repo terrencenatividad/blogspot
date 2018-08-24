@@ -3341,7 +3341,7 @@ $(document).ready(function() {
 			validateField('paymentForm', e.target.id, e.target.id + "_help");
 	});
 
-	function finalize_saving(){
+	function finalize_saving(button_name){
 		$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/update_temporarily_saved_data",$("#payableForm").serialize())
 		.done(function(data)
 		{	
@@ -3355,9 +3355,15 @@ $(document).ready(function() {
 					$('#success_save_modal').modal('show');	
 				} else {
 					$('#delay_modal').modal('show');
-								setTimeout(function() {							
-									window.location.href = '<?=BASE_URL?>financials/receipt_voucher';					
-							}, 1000)
+					setTimeout(function() {
+						if(button_name == 'save') {
+							window.location.href = '<?=MODULE_URL?>view/'+ data.voucher;	
+						} else if(button_name == 'save_new') {
+							window.location.href = '<?=MODULE_URL?>create';
+						} else if(button_name == 'save_exit') {
+							window.location.href = '<?=MODULE_URL?>';	
+						}							
+					}, 1000)
 					
 				}	
 			}
@@ -3474,6 +3480,7 @@ $(document).ready(function() {
 		/**FINALIZE TEMPORARY DATA AND REDIRECT TO CREATE NEW INVOICE**/
 		$("#payableForm #save_new").click(function(){
 			var valid	= 0;
+			var button_name = 'save_new';
 
 			/**validate vendor field**/
 			valid		+= validateField('payableForm','document_date', "document_date_help");
@@ -3495,7 +3502,7 @@ $(document).ready(function() {
 				{
 					if(data.code == 1){
 						$("#payableForm #h_voucher_no").val(data.voucher);
-						window.location = data.redirect;			
+						finalize_saving(button_name);		
 					} else {
 						var msg = "";
 
@@ -3516,6 +3523,7 @@ $(document).ready(function() {
 		$("#payableForm #save").click(function()
 		{
 			var valid	= 0;
+			var button_name = "save";
 			
 			/**validate vendor field**/
 			valid		+= validateField('payableForm','document_date', "document_date_help");
@@ -3539,7 +3547,7 @@ $(document).ready(function() {
 				{
 					if(data.code == 1){
 						$("#payableForm #h_voucher_no").val(data.voucher);
-						window.location = data.redirect;									
+						finalize_saving(button_name);									
 					} else {
 						var msg = "";
 
@@ -3558,6 +3566,7 @@ $(document).ready(function() {
 		$("#payableForm #save_exit").click(function()
 		{
 			var valid	= 0;
+			var button_name = "save_exit";
 			
 			/**validate vendor field**/
 			valid		+= validateField('payableForm','document_date', "document_date_help");
@@ -3581,7 +3590,7 @@ $(document).ready(function() {
 				{
 					if(data.code == 1){
 						$("#payableForm #h_voucher_no").val(data.voucher);
-						window.location = data.redirect;									
+						finalize_saving(button_name);									
 					} else {
 						var msg = "";
 

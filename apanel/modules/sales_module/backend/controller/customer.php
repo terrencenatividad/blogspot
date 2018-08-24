@@ -46,7 +46,7 @@
 			$data['task'] 		= 'add';
 			$data['show_input'] = true;
 			$data['ajax_post'] 	= '';
-			$data['code_required'] 	= 'required';
+			// $data['code_required'] 	= 'required';
 
 			$this->view->load('customer/customer_create',  $data);
 		}
@@ -62,7 +62,7 @@
 			$data['task'] 			= 'update';
 			$data['show_input'] 	= true;
 			$data['ajax_post'] 		= "&code=$code";
-			$data['code_required'] 	= '';
+			// $data['code_required'] 	= '';
 
 			$this->view->load('customer/customer_create',  $data);
 		}
@@ -77,6 +77,7 @@
 			$data['show_input'] = false;
 			$data['task'] 		= 'view';
 			$data['ajax_post'] 	= "";
+			// $data['code_required'] 	= '';
 
 			$this->view->load('customer/customer_create',  $data);
 		}
