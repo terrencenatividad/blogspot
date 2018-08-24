@@ -149,9 +149,9 @@ function show_success_msg(msg)
 {
 	$('#success_modal #message').html(msg);
 	$('#success_modal').modal('show');
-						setTimeout(function() {												
-	window.location = '<?= MODULE_URL ?>';		
-						}, 1000)
+		setTimeout(function() {												
+			window.location = '<?= MODULE_URL ?>';		
+	}, 1000)
 }
 
 tableSort('#customer_table', function(value, getlist) {
