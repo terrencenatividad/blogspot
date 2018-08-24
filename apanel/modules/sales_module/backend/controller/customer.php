@@ -24,7 +24,8 @@
 				'tinno',
 				'terms'	,
 				'mobile',
-				'stat'
+				'stat',
+				'credit_limit'
 			);
 		}
 
@@ -46,7 +47,6 @@
 			$data['task'] 		= 'add';
 			$data['show_input'] = true;
 			$data['ajax_post'] 	= '';
-			// $data['code_required'] 	= 'required';
 
 			$this->view->load('customer/customer_create',  $data);
 		}
@@ -62,7 +62,6 @@
 			$data['task'] 			= 'update';
 			$data['show_input'] 	= true;
 			$data['ajax_post'] 		= "&code=$code";
-			// $data['code_required'] 	= '';
 
 			$this->view->load('customer/customer_create',  $data);
 		}
@@ -71,13 +70,13 @@
 		{
 			$this->view->title = $this->ui->ViewLabel('');
 			
-			$data 			 	= (array) $this->customer->retrieveExistingCustomer($this->fields, $code);
-			$data['bt_select'] 	= $this->customer->retrieveBusinessTypeDropdown();
-			$data['ui'] 		= $this->ui;
-			$data['show_input'] = false;
-			$data['task'] 		= 'view';
-			$data['ajax_post'] 	= "";
-			// $data['code_required'] 	= '';
+			$data 			 		= (array) $this->customer->retrieveExistingCustomer($this->fields, $code);
+			$data['bt_select'] 		= $this->customer->retrieveBusinessTypeDropdown();
+			$data['ui'] 			= $this->ui;
+			$data['show_input'] 	= false;
+			$data['task'] 			= 'view';
+			$data['ajax_post'] 		= "";
+			$data['credit_limit'] 	= number_format($data['credit_limit'],2);
 
 			$this->view->load('customer/customer_create',  $data);
 		}
