@@ -79,7 +79,8 @@ class controller extends wc_controller
 		$data['h_disctype'] 	= "perc";
 
 		$item_entry_data        = array("itemcode ind","itemname val");
-		$data["itemcodes"] 		= $this->invoice->getValue("items", $item_entry_data,'',"itemcode");
+		$item_condition     	= " stat = 'active' ";
+		$data["itemcodes"] 		= $this->invoice->getValue("items", $item_entry_data,$item_condition,"itemcode");
 
 		$uom_data          		= array("uomcode ind","uomdesc val");
 		$uom_condition     		= " uomcode != 'P' AND stat = 'active' ";
@@ -626,7 +627,7 @@ class controller extends wc_controller
 		$notes 		= $deliveries['header']->remarks;
 
 		$item_entry_data    = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
-		$itemcodes 			= $this->invoice->getValue("items", $item_entry_data,'',"itemcode");
+		$itemcodes 			= $this->invoice->getValue("items", $item_entry_data,"stat = 'active'","itemcode");
 
 		$tax_codes 			= $this->invoice->getTaxCode('VAT');
 		

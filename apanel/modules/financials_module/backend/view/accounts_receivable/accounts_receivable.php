@@ -241,7 +241,7 @@
 										->setName('proformacode')
 										->setId('proformacode')
 										->setList($proforma_list)
-										->setValue("")
+										->setValue($proformacode)
 										->setNone('None')
 										->draw($show_input);
 										?>
