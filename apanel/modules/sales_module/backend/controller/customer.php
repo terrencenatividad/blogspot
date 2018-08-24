@@ -489,10 +489,10 @@
 			
 			//echo $sort;
 
-			$header = array("Customer Code","Company Name","First Name","Last Name","Address","E-mail Address","Business Type","Tin No.","Payment Terms","Contact No.");
-			
+			$header = array('Customer Code','Company Name','Address','Email','Business Type','Contact Number','First Name','Last Name','Payment Terms','Tin No.','Credit Limit');
+
 			$csv = '';
-			$csv .= '"' . implode('", "', $header) . '"';
+			$csv .= '"' . implode('","', $header) . '"';
 			$csv .= "\n";
 			
 			$result = $this->customer->export($search, $sort);
@@ -502,14 +502,15 @@
 
 					$csv .= '"' . $row->partnercode . '",';
 					$csv .= '"' . $row->partnername . '",';
-					$csv .= '"' . $row->first_name . '",';
-					$csv .= '"' . $row->last_name . '",';
 					$csv .= '"' . $row->address1 . '",';
 					$csv .= '"' . $row->email . '",';
 					$csv .= '"' . $row->businesstype . '",';
-					$csv .= '"' . $row->tinno . '",';
+					$csv .= '"' . $row->mobile . '",';
+					$csv .= '"' . $row->first_name . '",';
+					$csv .= '"' . $row->last_name . '",';
 					$csv .= '"' . $row->terms . '",';
-					$csv .= '"' . $row->mobile . '"';
+					$csv .= '"' . $row->tinno . '",';
+					$csv .= '"' . $row->credit_limit . '"';
 					$csv .= "\n";
 				}
 			}

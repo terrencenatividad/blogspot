@@ -119,7 +119,7 @@
 		{
 			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND ( p.partnercode LIKE '%$search%' OR p.partnername LIKE '%$search%' OR p.first_name LIKE '%$search%' OR p.last_name LIKE '%$search%' OR p.email LIKE '%$search%' ) " 	: 	"";
 
-			$fields 	=	array("p.partnercode","p.partnername","p.first_name","p.last_name","p.address1","p.email","p.businesstype","p.tinno","p.terms","p.mobile");
+			$fields 	=	array("p.partnercode","p.partnername","p.first_name","p.last_name","p.address1","p.email","p.businesstype","p.tinno","p.terms","p.mobile","p.credit_limit");
 
 			return $this->db->setTable('partners p')
 							->setFields($fields)
