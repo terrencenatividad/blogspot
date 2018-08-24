@@ -39,6 +39,7 @@
 
 			$data["stat"]     	   = "active";
 			$data['partnertype']   = "customer";
+			$data['credit_limit']  = str_replace(",","",$data['credit_limit']);
 			//var_dump($data);
 
 			$result = $this->db->setTable('partners')
@@ -53,6 +54,7 @@
 
 			$data["stat"]     	   = "active";
 			$data['partnertype']   = "customer";
+			$data['credit_limit']  = str_replace(",","",$data['credit_limit']);
 			//var_dump($data);
 
 			$result = $this->db->setTable('partners')
@@ -65,6 +67,7 @@
 		public function updateCustomer($data, $partnercode)
 		{
 			$data["stat"]     	   = "active";
+			$data['credit_limit']  = str_replace(",","",$data['credit_limit']);
 
 			$condition 			   = " partnercode = '$partnercode' AND partnertype = 'customer' ";
 
