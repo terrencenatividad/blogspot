@@ -665,7 +665,10 @@ $(document).ready(function(){
 					$.post("<?=BASE_URL?>maintenance/pricelist/ajax/save_temp_data",parameter,function(data)
 					{	
 						if(data.msg == 'success'){
-							window.location.href = '<?=BASE_URL?>maintenance/pricelist';
+							$('#delay_modal').modal('show');
+							setTimeout(function() {									
+								window.location.href = '<?=BASE_URL?>maintenance/pricelist';							
+							}, 1000)
 						}
 					});
 				},1000);

@@ -212,11 +212,13 @@ function show_error(msg)
 }
 
 function show_success_msg(msg)
-{
-	$('#success_modal #message').html(msg);
-	$('#success_modal').modal('show');
-	showList();
-}
+	{
+		$('#success_modal #message').html(msg);
+		$('#success_modal').modal('show');
+		setTimeout(function() {												
+			window.location = '<?= MODULE_URL ?>';		
+		}, 1000)
+	}
 
 tableSort('#discount_table', function(value, getlist) {
   	ajax.sort = value;

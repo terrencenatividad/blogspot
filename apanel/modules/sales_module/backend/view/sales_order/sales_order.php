@@ -858,8 +858,9 @@ function getItemDetails(id)
 				document.getElementById('detailparticulars'+row).value 		=	data.itemdesc;
 				document.getElementById('uom'+row).value 					=	data.uomcode;
 				
-				if( data.c_price != null )
+				if( data.c_price != null && data.stat == 'active' )
 				{
+				
 					document.getElementById('itemprice'+row).value 			= 	addComma(data.c_price);
 				}
 				else

@@ -63,7 +63,7 @@ class controller extends wc_controller {
 		$this->view->title = $this->ui->ListLabel('');
 		$data['ui'] = $this->ui;
 		$all = (object) array('ind' => 'null', 'val' => 'Filter: All');
-		$data['itemclass_list'] = array_merge(array($all),  $this->item_class_model->getParentClass(''));
+		$data['itemclass_list']				= $this->item_model->getItemClassList('');
 		$data['itemtype_list'] = array_merge(array($all), $this->item_model->getItemtypeList());
 		$this->view->load('item/item_list', $data);
 	}
@@ -73,7 +73,7 @@ class controller extends wc_controller {
 		$data = $this->input->post($this->fields);
 		$data['ui']							= $this->ui;
 		$data['uom_list']					= $this->item_model->getUOMList();
-		$data['itemclass_list']				= $this->item_class_model->getParentClass('');
+		$data['itemclass_list']				= $this->item_model->getItemClassList('');
 		$data['itemtype_list']				= $this->item_model->getItemtypeList();
 		$data['weight_type_list']			= $this->item_model->getWeightTypeList();
 		$data['receivable_account_list']	= $this->item_model->getReceivableAccountList();
@@ -93,16 +93,11 @@ class controller extends wc_controller {
 		$this->view->title = $this->ui->EditLabel('');
 		$data = (array) $this->item_model->getItemById($this->fields, $itemcode);
 
-		$itemtype = $data['typeid'];
 		$data['ui']							= $this->ui;
-		$result = $this->item_model->getUOMCode($itemcode);
-		$base = $result->uom_base;
-		$selling = $result->selling;
-		$purchasing = $result->purchasing;
-		$classid = $data['classid'];
-		$data['uom_list']					= $this->item_model->getEditUOMList('', $base, $selling, $purchasing);
-		$data['itemclass_list']				= $this->item_model->getEditItemClassList('',$classid);
-		$data['itemtype_list']				= $this->item_model->getEditItemtypeList($search = '', $itemtype);
+		$data['uom_list']					= $this->item_model->getUOMList('');
+		$data['itemclass_list']				= $this->item_model->getItemClassList('');
+		// $data['itemclass_list']				= $this->item_class_model->getParentClass('');
+		$data['itemtype_list']				= $this->item_model->getItemtypeList($search = '');
 		$data['weight_type_list']			= $this->item_model->getWeightTypeList();
 		$data['receivable_account_list']	= $this->item_model->getReceivableAccountList();
 		$data['revenue_account_list']		= $this->item_model->getRevenueAccountList();
@@ -129,7 +124,7 @@ class controller extends wc_controller {
 		$classid = $data['classid'];
 		$data['uom_list']					= $this->item_model->getEditUOMList('', $base, $selling, $purchasing);
 		$data['itemclass_list']				= $this->item_model->getEditItemClassList('',$classid);
-		$data['itemtype_list']				= $this->item_model->getEditItemtypeList($search = '', $itemtype);
+		$data['itemtype_list']				= $this->item_model->getEditItemtypeList($search = '', $itemtype);	
 		$data['weight_type_list']			= $this->item_model->getWeightTypeList();
 		$data['receivable_account_list']	= $this->item_model->getReceivableAccountList();
 		$data['revenue_account_list']		= $this->item_model->getRevenueAccountList();

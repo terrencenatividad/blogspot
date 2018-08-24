@@ -304,7 +304,9 @@
 		{
 			$('#success_modal #message').html(msg);
 			$('#success_modal').modal('show');
-			getList();
+			setTimeout(function() {												
+				window.location = '<?= MODULE_URL ?>';		
+			}, 1000)
 		}
 
 		$('#export_id').prop('download','item_type.csv');
