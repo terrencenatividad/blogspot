@@ -133,7 +133,7 @@
 					if($row->stat == 'active'){
 						$bank_status = '<span class="label label-success">'.strtoupper($row->stat).'</span>';
 					}else if($row->stat == 'inactive'){
-						$bank_status = '<span class="label label-danger">'.strtoupper($row->stat).'</span>';
+						$bank_status = '<span class="label label-warning">'.strtoupper($row->stat).'</span>';
 					}
 
 					$table .= '<tr>';
@@ -334,21 +334,19 @@
 			$firstchequeno 	= $data2[0]->firstchequeno; 
 			$lastchequeno 	= $data2[0]->lastchequeno; 
 			$data = array("booknumber" => $booknumber,"firstchequeno" => $firstchequeno, 'lastchequeno' => $lastchequeno , 'task' => 'update_check');
-
 			return $data;
 		}
 
 		public function update_check(){
 			$posted_data 	= $this->input->post($this->fields2);
+			$old 			= $this->input->post('oldbooknumber');
 			$result  		= $this->bank->insertCheck($posted_data);
 			$firstchequeno 	= $posted_data['firstchequeno'];
 			$lastchequeno	= $posted_data['lastchequeno'];
 			$bank_id		= $posted_data['bank_id'];
-			$accntname 		= $this->bank->update_check($bank_id, $posted_data);
+			$accntname 		= $this->bank->update_check($bank_id, $posted_data, $old);
 			$bankdesc 		= $this->bank->getAccountname($bank_id);
 			$isname = $bankdesc[0]->shortname;
-			
-			
 			if( $accntname )
 			{
 				$msg = "success";
