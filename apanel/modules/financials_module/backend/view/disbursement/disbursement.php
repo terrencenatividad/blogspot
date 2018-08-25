@@ -897,6 +897,7 @@
 				var id_array 		= [];
 				var accounts 		= [];
 				var acct_details 	= [];
+				var cheque 			= [];
 
 				var checker 	= new Array();
 				var cheque_arr 	= [];
@@ -950,13 +951,47 @@
 				}
 			});
 		}
+		
+		// Check Array //
+		function storechequetobank(){
+			cheque 	=	[];
+			$('#chequeTable tbody tr').each(function() {
+				var cheque_account 	= $(this).find('.cheque_account').val();
+				var chequenumber 	= $(this).find('.chequenumber').val();
+
+				if(chequenumber!="" ){
+					cheque['bank-'+cheque_account] = chequenumber;
+				}
+			});
+		}
 
 		$('#chequeTable .cheque_account').on('change', function()  {
 			storedescriptionstoarray();
+			storechequetobank();
+			
 			if ($('#entriesTable tbody tr.clone select').data('select2')) {
 				$('#entriesTable tbody tr.clone select').select2('destroy');
 			}
+
 			var val = $(this).val();
+
+			// Check Array //
+
+			$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank =' + val).done(function(data){
+				if (data){
+					next = parseFloat(data.nno);
+					last = parseFloat(data.last);
+
+					var row = $("#chequeTable tbody tr").length;
+					if (typeof cheque["bank-"+val] === 'undefined') {
+						$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
+					} else {
+						var next = parseFloat(cheque["bank-"+val]) + 1;
+						$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
+					}	
+				}
+			})
+
 
 			cheque_arr = [];
 
@@ -976,29 +1011,34 @@
 				}
 			});
 
-
 			row = $("#entriesTable tbody tr.clone").length + 1;
 			cheque_arr.forEach(function(account) {
 				var ParentRow = $("#entriesTable tbody tr.clone").last();
 				$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
-			// clone_acct(initial state of first row) will be placed on the last cloned row. 
-			ParentRow.after(clone_acct);
-			resetIds();
-			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
-			$("#entriesTable button#"+row).prop('disabled',true);
-			$("#entriesTable debit#"+row).prop('disabled',true);
-			$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
-			$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
-			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
-			disable_acct_fields(row);
-			row++;
-		});
+				// clone_acct(initial state of first row) will be placed on the last cloned row. 
+				ParentRow.after(clone_acct);
+				resetIds();
+				$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
+				$("#entriesTable button#"+row).prop('disabled',true);
+				$("#entriesTable debit#"+row).prop('disabled',true);
+				$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
+				$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
+				$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
+				disable_acct_fields(row);
+				row++;
+				
+			});
+
 			accounts.push(val);
 			recomputechequeamts();
 			acctdetailamtreset();
 			displaystoreddescription();
-			drawTemplate();
+			drawTemplate(); 
 		});
+
+		// function getcheckDtl(account){
+			
+		// }
 
 		function disable_acct_fields(row){
 			$("#accountcode\\["+ row +"\\]").prop("disabled", true);

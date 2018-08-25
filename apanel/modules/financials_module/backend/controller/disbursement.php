@@ -1344,7 +1344,16 @@ class controller extends wc_controller
 		$print_dtls->setDocumentType('Payment Voucher')
 		->setDocumentInfo($print_chkdtl)
 		->drawPDF('pv_voucher_' . $vno);
-		
-		
+	}
+
+	public function getCheckdtl(){
+		$bank_no = $this->input->post('bank_');
+		$result = $this->payment_voucher->getcheck($bank_no);
+		$nextcheckno  = $result[0]->nextchequeno;
+		$lastcheckno  = $result[0]->lastchequeno;
+		$fno 		  = $result[0]->firstchequeno;
+		$data = array('nno' => $nextcheckno, 'last' => $lastcheckno);
+		return $data; 
+
 	}
 }

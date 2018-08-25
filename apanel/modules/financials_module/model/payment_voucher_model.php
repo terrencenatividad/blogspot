@@ -1526,4 +1526,15 @@ class payment_voucher_model extends wc_model
 							->getResult();
 		return $result;
 	}
+
+	public function getcheck($bank){
+		$result = $this->db->setTable('bankdetail bd')
+							->setFields("nextchequeno, firstchequeno, lastchequeno")
+							->innerJoin("(SELECT b.id, b.gl_code FROM bank b INNER JOIN chartaccount c ON b.gl_code = c.segment5 where c.id = '$bank') bc ON bc.id = bd.bank_id")
+							->setOrderBy('nextchequeno ASC')
+							->setLimit(1)	
+							->runSelect()
+							->getResult();
+		return $result;
+	}
 }
