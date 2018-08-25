@@ -612,5 +612,14 @@
 							->runSelect()
 							->getResult();
 		}
+
+		public function retrieve_credit_limit($code){
+			$result =  $this->db->setTable('partners')
+							 ->setFields('credit_limit')
+							 ->setWhere(" partnercode = '$code' AND stat = 'active'")
+							 ->runSelect()
+							 ->getResult();
+			return $result;
+		}
 	}
 ?>

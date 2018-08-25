@@ -13,6 +13,11 @@
 		</form>
 
 		<form method = "post" class="form-horizontal" id = "sales_order_form">
+
+			<input class = "form_iput" value = "" name = "h_curr_limit" id = "h_curr_limit" type="hidden">
+			<input class = "form_iput" value = "" name = "h_overdue" id = "h_overdue" type="hidden">
+			<input class = "form_iput" value = "" name = "h_incurred" id = "h_incurred" type="hidden">
+			<input class = "form_iput" value = "" name = "h_balance" id = "h_balance" type="hidden">
 			
 			<div class="box-body">
 				<br>
@@ -711,7 +716,11 @@
 	// 	});
 	// }
 
-	// function retrieveCreditLimit()
+	function retrieveCreditLimit(customercode){
+		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_credit_limit', "customercode=" + customercode, function(data) {
+			$('#h_curr_limit').val(data.credit_limit);
+		});
+	}
 
 	function addCustomerToDropdown() {
 		var optionvalue = $("#customer_modal #customerForm #partnercode").val();
@@ -825,26 +834,24 @@ var ajax = {};
 var close_date 	=	$('#h_close_date').val();
 
 /**RETRIEVES CUSTOMER INFORMATION**/
-function getPartnerInfo(code)
-{
+function getPartnerInfo(code) {
 	var cmp = '<?= $cmp ?>';
 
-	if(code == '' || code == 'add')
-	{
+	if(code == '' || code == 'add') {
 		$("#customer_tin").val("");
 		$("#customer_terms").val("");
 		$("#customer_address").val("");
 
 		computeDueDate();
-	}
-	else
-	{
+	} else {
+		retrieveCreditLimit(code);
+
 		$.post('<?=BASE_URL?>sales/sales_order/ajax/get_value', "code=" + code + "&event=getPartnerInfo", function(data) 
 		{
 			var address		= data.address.trim();
 			var tinno		= data.tinno.trim();
 			var terms		= data.terms.trim();
-			
+
 			$("#customer_tin").val(tinno);
 			$("#customer_terms").val(terms);
 			$("#customer_address").val(address);
