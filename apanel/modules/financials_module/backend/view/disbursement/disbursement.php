@@ -183,8 +183,8 @@
 										->setId('chequenumber[1]')
 										->setClass('chequenumber')
 										->setMaxLength(30)
-										->setValidation('required alpha_num')
-										->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+										// ->setValidation('required alpha_num')
+										->setAttribute(array("readOnly"=>"","onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 										->setValue("")
 										->draw(true);
 										?>
@@ -2453,6 +2453,10 @@
 			var vno  	= $('#h_voucher_no').val();
 			window.open('<?=MODULE_URL?>print_check/' + vno +  '/'+ cno , '_blank');
 		})
+
+		$('.chequenumber').focus(function() {
+			$(this).blur();
+		});
 	}); // end
 
 </script>
