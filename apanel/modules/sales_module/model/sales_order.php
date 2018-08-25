@@ -619,6 +619,7 @@
 							 ->setWhere(" partnercode = '$code' AND stat = 'active'")
 							 ->runSelect()
 							 ->getResult();
+							//  echo $this->db->getQuery();
 			return $result;
 		}
 

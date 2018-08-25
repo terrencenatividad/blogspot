@@ -691,6 +691,7 @@
 	function retrieveCurrentIncurredReceivables(customercode){
 		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_incurred_receivables', "customercode=" + customercode, function(data) {
 			$('#h_incurred').val(data.incurred_receivables);
+			computeforremainingcredit();
 		});
 	}
 
@@ -698,6 +699,15 @@
 		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_credit_limit', "customercode=" + customercode, function(data) {
 			$('#h_curr_limit').val(data.credit_limit);
 		});
+	}
+
+	function computeforremainingcredit(){
+		var credit_limit 			=	$('#h_curr_limit').val();
+		var incurred_receivables 	=	$('#h_incurred').val();
+
+		var balance 				=	parseFloat(credit_limit) 	-	parseFloat(incurred_receivables);
+		
+		$('#h_balance').val(balance);
 	}
 
 	function addCustomerToDropdown() {
@@ -822,9 +832,6 @@ function getPartnerInfo(code) {
 
 		computeDueDate();
 	} else {
-		retrieveCreditLimit(code);
-		retrieveCurrentIncurredReceivables(code);
-
 		$.post('<?=BASE_URL?>sales/sales_order/ajax/get_value', "code=" + code + "&event=getPartnerInfo", function(data) 
 		{
 			var address		= data.address.trim();
@@ -1364,11 +1371,16 @@ $(document).ready(function(){
 		// Get getPartnerInfo
 		$( "#customer" ).change(function() 
 		{
-			$customer_id = $("#customer").val();
+			customer_id = $("#customer").val();
 
-			if( $customer_id != "" )
+			if( customer_id != "" )
 			{
-				getPartnerInfo($customer_id);
+				console.log("Customer = "+customer_id);
+				retrieveCreditLimit(customer_id);
+				retrieveCurrentIncurredReceivables(customer_id);
+				
+
+				getPartnerInfo(customer_id);
 				if( $('#itemcode\\[1\\]').val() != "" ){
 					$('.itemcode').trigger('change');
 				}
