@@ -2356,26 +2356,27 @@
 				addAmounts();
 			}
 
-			$("#paymentmode").removeAttr("disabled");
+		}
+		$("#paymentmode").removeAttr("disabled");
 
-			$("#payableForm #save").click(function(){
-				var valid		= 0;
-				var button_name = $(this).attr('name');
-				var paymentmode = $('#paymentmode').val();
+		$("#payableForm #save").click(function(){
+			var valid		= 0;
+			var button_name = $(this).attr('name');
+			var paymentmode = $('#paymentmode').val();
 
-				var form_element = $(this).closest('form');
-				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+			var form_element = $(this).closest('form');
+			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
-				valid		+= validateDetails();
+			valid		+= validateDetails();
 
-				if(paymentmode == 'cheque'){
-					valid 	+= validateCheques();
-				}
+			if(paymentmode == 'cheque'){
+				valid 	+= validateCheques();
+			}
 
-				finalize_saving(valid, button_name);
-			});
+			finalize_saving(valid, button_name);
+		});
 
-			$("#payableForm #save_new").click(function(){
+		$("#payableForm #save_new").click(function(){
 				var valid		= 0;
 				var button_name = $(this).attr('name');
 				var paymentmode = $('#paymentmode').val();
@@ -2393,40 +2394,39 @@
 			finalize_saving(valid, button_name);
 		}); 
 
-			$("#payableForm #save_preview").click(function(){
-				var valid		= 0;
-				var button_name = $(this).attr('name');
-				var paymentmode = $('#paymentmode').val();
+		$("#payableForm #save_preview").click(function(){
+			var valid		= 0;
+			var button_name = $(this).attr('name');
+			var paymentmode = $('#paymentmode').val();
 
-				var form_element = $(this).closest('form');
-				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+			var form_element = $(this).closest('form');
+			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
-				valid		+= validateDetails();
+			valid		+= validateDetails();
 
-				if(paymentmode == 'cheque'){
-					valid 	+= validateCheques();
-				}
+			if(paymentmode == 'cheque'){
+				valid 	+= validateCheques();
+			}
 
-				finalize_saving(valid, button_name);
-			});
+			finalize_saving(valid, button_name);
+		});
 
-			$("#payableForm #save_exit").click(function(){
-				var valid		= 0;
-				var button_name = $(this).attr('name');
-				var paymentmode = $('#paymentmode').val();
+		$("#payableForm #save_exit").click(function(){
+			var valid		= 0;
+			var button_name = $(this).attr('name');
+			var paymentmode = $('#paymentmode').val();
 
-				var form_element = $(this).closest('form');
-				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+			var form_element = $(this).closest('form');
+			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
-				valid		+= validateDetails();
+			valid		+= validateDetails();
 
-				if(paymentmode == 'cheque'){
-					valid 	+= validateCheques();
-				}
+			if(paymentmode == 'cheque'){
+				valid 	+= validateCheques();
+			}
 
-				finalize_saving(valid, button_name);
-			});
-		}
+			finalize_saving(valid, button_name);
+		});
 
 		// Isabelle -  eto ung pag clone ng td sa may accounting details 
 		$('body').on('click', '.add-entry', function()  {	
