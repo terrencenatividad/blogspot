@@ -706,8 +706,17 @@
 		var incurred_receivables 	=	$('#h_incurred').val();
 
 		var balance 				=	parseFloat(credit_limit) 	-	parseFloat(incurred_receivables);
-		
+
 		$('#h_balance').val(balance);
+	}
+
+	function checkIfExceededCreditLimit(){
+		var current_total 		=	$('#t_total').val();
+		var current_balance 	=	$('#h_balance').val();
+
+		if(removeComma(current_total) > removeComma(current_balance)){
+			$('#creditLimitModal').modal('show');	
+		}
 	}
 
 	function addCustomerToDropdown() {
@@ -994,9 +1003,6 @@ function addAmounts() {
 	var table				= document.getElementById('itemsTable');
 	var count				= table.tBodies[0].rows.length;
 
-	//var discount			= parseFloat(document.getElementById('t_discount').value || 0.00);
-	
-	//var discount_type 		= document.getElementById('h_disctype').value;
 
 	for (var i = 1; i <= count; i++) {
 		var row = '[' + i + ']';
@@ -1014,52 +1020,16 @@ function addAmounts() {
 		var taxrate			= parseFloat(x_taxrate.value);
 		var quantity 		= x_quantity.value.replace(/[,]+/g,'');
 
-		// var tax_amount		= ( quantity * unitprice ) * taxrate;
-		// var amount			= ( quantity * unitprice ) / (taxrate + 1);
-
 		var amount			= ( quantity * unitprice );
-
-		// var net_of_vat		= 0;
-		// var vat_ex			= 0;
-		// var vat				= 0;
-		// var temp_amount 	= 0;
 		
 		x_amount.value		= addCommas(amount.toFixed(2));
 		h_amount.value		= amount.toFixed(2);
-		//x_taxamount.value	= tax_amount.toFixed(2);
-	
-		// if( taxrate > 0.00 || taxrate > 0 )	
-		// {
-		// 	net_of_vat 		= amount;
-		// }
-		
-		// vat_ex				= amount - net_of_vat;
-		// vat					= net_of_vat * taxrate;
-	
-		// total_h_vatable		+= net_of_vat;
-		// total_h_vatex		+= vat_ex;
-		// total_h_vat			+= vat;
 
-		total_amount 	 		+= amount;
+		total_amount 	 	+= amount;
 	}
 
-	// subtotal 				= total_h_vatable + total_h_vatex;
-
-	// if( discount_type == 'perc' )
-	// {
-	// 	total_discount 		= subtotal * ( discount / 100 );
-	// }
-	// else if( discount_type == 'amt' )
-	// {
-	// 	total_discount 		= discount;
-	// }
-	
-	// document.getElementById('t_vatsales').value				= total_h_vatable.toFixed(2);
-	// document.getElementById('t_vatexempt').value			= total_h_vatex.toFixed(2);
-	// document.getElementById('t_subtotal').value 			= subtotal.toFixed(2);
-	// document.getElementById('t_vat').value					= total_h_vat.toFixed(2);
 	document.getElementById('t_total').value 				= addCommas(total_amount.toFixed(2));
-
+	checkIfExceededCreditLimit();
 }
 
 /**FORMAT NUMBERS TO DECIMAL**/
@@ -1638,6 +1608,15 @@ $(document).ready(function(){
 			window.history.back();
 		});
 	// -- Back Button -- End
+
+	$('#creditLimitModal').on('click','#btnProceed',function(){
+		$('#creditLimitModal').modal('hide');
+	});
+	
+	$('#creditLimitModal').on('click','#btnNo',function(){
+		window.location.href = '<?=BASE_URL?>sales/sales_order/create';
+	});
+	
 });
 
 </script>
