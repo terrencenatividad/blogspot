@@ -70,13 +70,15 @@
 		{
 			$this->view->title = $this->ui->ViewLabel('');
 			
-			$data 			 		= (array) $this->customer->retrieveExistingCustomer($this->fields, $code);
-			$data['bt_select'] 		= $this->customer->retrieveBusinessTypeDropdown();
-			$data['ui'] 			= $this->ui;
-			$data['show_input'] 	= false;
-			$data['task'] 			= 'view';
-			$data['ajax_post'] 		= "";
-			$data['credit_limit'] 	= number_format($data['credit_limit'],2);
+			$this->fields[] 				= "COALESCE(incurred.receivables,0) receivables";
+			$data 			 				= (array) $this->customer->retrieveExistingCustomer($this->fields, $code);
+			$data['bt_select'] 				= $this->customer->retrieveBusinessTypeDropdown();
+			$data['ui'] 					= $this->ui;
+			$data['show_input'] 			= false;
+			$data['task'] 					= 'view';
+			$data['ajax_post'] 				= "";
+			$data['credit_limit'] 			= number_format($data['credit_limit'],2);
+			$data['incurred_receivables']	= number_format($data['receivables'],2);
 
 			$this->view->load('customer/customer_create',  $data);
 		}

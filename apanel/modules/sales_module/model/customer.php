@@ -17,12 +17,23 @@
 
 		public function retrieveExistingCustomer($data, $partnercode)
 		{
+			$receivables 	=	$this->db->setTable('accountsreceivable')
+										->setFields('SUM(amountreceived) receivables, customer')
+										->setWhere(" stat NOT IN ('cancelled','temporary') AND customer = '$partnercode'")
+										->setGroupBy('customer')
+										->buildSelect();
+
 			$condition 		=	" partnertype = 'customer' AND stat = 'active' AND partnercode = '$partnercode' ";
-			return $this->db->setTable('partners')
-							->setFields($data)
-							->setWhere($condition)
-							->runSelect()
-							->getRow();
+			
+			$result 		= 	$this->db->setTable('partners p')
+										->leftJoin("($receivables) as incurred ON incurred.customer = p.partnercode")
+										->setFields($data)
+										->setWhere($condition)
+										->runSelect()
+										->getRow();
+										// echo $this->db->getQuery();
+
+			return $result;
 		}
 
 		public function retrieveBusinessTypeDropdown()
@@ -142,5 +153,15 @@
 			return $result;
 		}
 
+		public function retrieve_incurred_receivables($code){
+			$result =  $this->db->setTable('accountsreceivable')
+							 ->setFields('SUM(amountreceived) receivables')
+							 ->setWhere(" stat NOT IN ('cancelled','temporary') AND customer = '$code'")
+							 ->setGroupBy('customer')
+							 ->runSelect()
+							 ->getResult();
+							 
+			return $result;
+		}
 	}
 ?>
