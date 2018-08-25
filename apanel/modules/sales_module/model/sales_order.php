@@ -621,5 +621,16 @@
 							 ->getResult();
 			return $result;
 		}
+
+		public function retrieve_incurred_receivables($code){
+			$result =  $this->db->setTable('accountsreceivable')
+							 ->setFields('SUM(amountreceived) receivables')
+							 ->setWhere(" stat NOT IN ('cancelled','temporary') AND customer = '$code'")
+							 ->setGroupBy('customer')
+							 ->runSelect()
+							 ->getResult();
+							 
+			return $result;
+		}
 	}
 ?>

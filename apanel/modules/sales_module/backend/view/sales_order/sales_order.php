@@ -688,33 +688,11 @@
 </div>
 
 <script>
-	// function checkCreditLimit(code){
-	// 	$.post('<?php echo BASE_URL?>sales/sales_order/ajax/get_value', "code=" + code + "&event=credit_limit", function(data) {
-	// 		var limit	= data.credit_limit.trim();
-			
-	// 		$("#h_credit_limit").val(limit);
-
-	// 		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/get_value', "code=" + code + "&event=c_total_sales", function(data2) {
-	// 			var sales 	=	data2.total;
-
-	// 			$("#h_current_total_sales").val(sales);
-
-	// 			var balance 		=	limit - sales;
-	// 			var current_total 	=	$('#t_subtotal').val();
-
-	// 			if( balance > 0 ){
-	// 				if( current_total > balance ){
-	// 					// You are about to exceed your balance
-	// 					$('#creditLimitModal').modal('show');
-	// 				}
-	// 			} else {
-	// 				// You are about to exceed your balance
-	// 				$('#creditLimitModal').modal('show');
-	// 			} 
-
-	// 		});
-	// 	});
-	// }
+	function retrieveCurrentIncurredReceivables(customercode){
+		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_incurred_receivables', "customercode=" + customercode, function(data) {
+			$('#h_incurred').val(data.incurred_receivables);
+		});
+	}
 
 	function retrieveCreditLimit(customercode){
 		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_credit_limit', "customercode=" + customercode, function(data) {
@@ -845,6 +823,7 @@ function getPartnerInfo(code) {
 		computeDueDate();
 	} else {
 		retrieveCreditLimit(code);
+		retrieveCurrentIncurredReceivables(code);
 
 		$.post('<?=BASE_URL?>sales/sales_order/ajax/get_value', "code=" + code + "&event=getPartnerInfo", function(data) 
 		{
