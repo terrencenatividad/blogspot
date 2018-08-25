@@ -410,6 +410,7 @@
 					$table .= '<td>' . $row->contact_person. '</td>';
 					$table .= '<td>' . $row->email . '</td>';
 					$table .= '<td>' . number_format($row->credit_limit,2) . '</td>';
+					$table .= '<td>' . number_format($row->receivables,2) . '</td>';
 					$table .= '<td>' . $status . '</td>';
 					$table .= '</tr>';
 				}
