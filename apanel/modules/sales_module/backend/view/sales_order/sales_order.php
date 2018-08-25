@@ -655,7 +655,64 @@
 	</div>
 
 </section>
+
+<div class="modal fade" id="creditLimitModal" tabindex="-1"  data-backdrop="static" data-keyboard="false" >
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Oops!
+			</div>
+			<div class="modal-body">
+				This customer is about to exceed their Credit Limit. Do you wish to Proceed?
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 center">
+						<div class="btn-group">
+							<button type="button" class="btn btn-info btn-flat" id="btnProceed" data-dismiss='modal'>Proceed</button>
+						</div>
+							&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-flat" id="btnNo" >No</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script>
+	// function checkCreditLimit(code){
+	// 	$.post('<?php echo BASE_URL?>sales/sales_order/ajax/get_value', "code=" + code + "&event=credit_limit", function(data) {
+	// 		var limit	= data.credit_limit.trim();
+			
+	// 		$("#h_credit_limit").val(limit);
+
+	// 		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/get_value', "code=" + code + "&event=c_total_sales", function(data2) {
+	// 			var sales 	=	data2.total;
+
+	// 			$("#h_current_total_sales").val(sales);
+
+	// 			var balance 		=	limit - sales;
+	// 			var current_total 	=	$('#t_subtotal').val();
+
+	// 			if( balance > 0 ){
+	// 				if( current_total > balance ){
+	// 					// You are about to exceed your balance
+	// 					$('#creditLimitModal').modal('show');
+	// 				}
+	// 			} else {
+	// 				// You are about to exceed your balance
+	// 				$('#creditLimitModal').modal('show');
+	// 			} 
+
+	// 		});
+	// 	});
+	// }
+
+	// function retrieveCreditLimit()
+
 	function addCustomerToDropdown() {
 		var optionvalue = $("#customer_modal #customerForm #partnercode").val();
 		var optiondesc 	= $("#customer_modal #customerForm #partnername").val();
@@ -858,8 +915,9 @@ function getItemDetails(id)
 				document.getElementById('detailparticulars'+row).value 		=	data.itemdesc;
 				document.getElementById('uom'+row).value 					=	data.uomcode;
 				
-				if( data.c_price != null )
+				if( data.c_price != null && data.stat == 'active' )
 				{
+				
 					document.getElementById('itemprice'+row).value 			= 	addComma(data.c_price);
 				}
 				else

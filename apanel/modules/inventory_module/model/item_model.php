@@ -157,7 +157,7 @@ class item_model extends wc_model {
 	}
 
 	public function getItemClassList($search = '', $parent = '') {
-		$condition = "stat = 'active'";
+		$condition = "ic.stat = 'active'";
 		if ($search) {
 			$condition = "ic.label = '$search'";
 			if ($parent) {
