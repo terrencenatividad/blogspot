@@ -184,7 +184,7 @@
 										->setClass('chequenumber')
 										->setMaxLength(30)
 										// ->setValidation('required alpha_num')
-										->setAttribute(array("readOnly"=>"","onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+										->setAttribute(array("readOnly"=>""))
 										->setValue("")
 										->draw(true);
 										?>
