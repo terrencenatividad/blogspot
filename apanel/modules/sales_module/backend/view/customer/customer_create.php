@@ -202,19 +202,21 @@
 									->draw($show_input);
 							?>
 						</div>
-						<!-- <div class="col-md-6">
+						<?if($task == 'view'):?>
+						<div class="col-md-6">
 							<?php
-								// echo $ui->formField('text')
-								// 	->setLabel('Last Name')
-								// 	->setSplit('col-md-4', 'col-md-8')
-								// 	->setName('last_name')
-								// 	->setId('last_name')
-								// 	->setValidation('special')
-								// 	->setMaxLength(50)
-								// 	->setValue($last_name)
-								// 	->draw($show_input);
+								echo $ui->formField('text')
+									->setLabel('Incurred Receivables')
+									->setSplit('col-md-4', 'col-md-8')
+									->setName('incurred_receivables')
+									->setId('incurred_receivables')
+									// ->setValidation('special')
+									->setMaxLength(20)
+									->setValue($incurred_receivables)
+									->draw($show_input);
 							?>
-						</div> -->
+						</div> 
+						<?endif;?>
 					</div>
 					<hr/>
 
