@@ -175,7 +175,10 @@ $('#bankForm #btnSave').on('click',function(){
 		$.post('<?=BASE_URL?>maintenance/bank/ajax/<?=$task?>', $('#bankForm').serialize()+ '<?=$ajax_post?>', function(data) {
 			if( data.msg == 'success' )
 			{
-				window.location = '<?php echo BASE_URL . 'maintenance/bank'; ?>';
+				$('#delay_modal').modal('show');
+						setTimeout(function() {							
+							window.location = '<?php echo BASE_URL . 'maintenance/bank'; ?>';
+						}, 1000)
 			}
 		});
 	}
