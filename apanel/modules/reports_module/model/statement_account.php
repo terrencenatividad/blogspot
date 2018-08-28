@@ -35,7 +35,7 @@
 			$cm_query 			= "";
 			$dm_query 			= "";
 
-			$fields 			= array('invoicedate, invoiceno, documenttype, reference, particulars, amount');
+			$fields 			= array('invoicedate, invoiceno, documenttype, reference, particulars, amount, status');
 			$daterangefilter 	= isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
 			$custfilter      	= isset($data['custfilter']) ? htmlentities($data['custfilter']) : ""; 	
 			$datefilterArr		= explode(' - ',$daterangefilter);
@@ -54,7 +54,7 @@
 			return $this->db->setTable("(
 								select ar.transactiondate invoicedate, ar.invoiceno invoiceno, 'Invoice' documenttype,
 								ar.voucherno reference, ar.particulars as particulars, ar.convertedamount as amount,
-								ar.companycode companycode, ar.entereddate entereddate
+								ar.companycode companycode, ar.entereddate entereddate, ar.stat status
 								from accountsreceivable as ar  
 								where ar.stat = 'posted' $ar_query
 
@@ -62,17 +62,27 @@
  
 								select rv.transactiondate as invoicedate, ar.sourceno as invoiceno, 'Payment' documenttype, 
 								app.voucherno reference, rv.particulars as particulars, (app.convertedamount + app.discount - app.overpayment) as amount,
-								rv.companycode companycode, rv.entereddate entereddate
+								rv.companycode companycode, rv.entereddate entereddate, app.stat status
 								from rv_application as app 
 								left join accountsreceivable ar ON ar.voucherno = app.arvoucherno
 								left join receiptvoucher rv ON rv.voucherno = app.voucherno
-								where  app.stat IN('open','posted') $rv_query
+								where  app.stat IN('open','posted','cancelled') $rv_query
+
+								UNION ALL
+ 
+								select rv.transactiondate as invoicedate, ar.sourceno as invoiceno, 'Over Payment' documenttype, 
+								app.voucherno reference, rv.particulars as particulars, app.overpayment as amount,
+								rv.companycode companycode, rv.entereddate entereddate, app.stat status
+								from rv_application as app 
+								left join accountsreceivable ar ON ar.voucherno = app.arvoucherno
+								left join receiptvoucher rv ON rv.voucherno = app.voucherno
+								where  app.stat IN('open','posted','cancelled') AND app.overpayment > 0 $rv_query
 
 								UNION ALL
  
 								select cm.transactiondate invoicedate, cm.sourceno invoiceno, 'Credit Memo' documenttype,
 								cm.voucherno reference, cm.remarks as particulars, cm.convertedamount as amount,
-								cm.companycode companycode, cm.entereddate entereddate
+								cm.companycode companycode, cm.entereddate entereddate, cm.stat status
 								from journalvoucher as cm  
 								where cm.stat IN('open','posted') AND cm.transtype = 'CM' $cm_query
 
@@ -80,7 +90,7 @@
  
 								select dm.transactiondate invoicedate, dm.sourceno invoiceno, 'Debit Memo' documenttype,
 								dm.voucherno reference, dm.remarks as particulars, dm.convertedamount as amount,
-								dm.companycode companycode, dm.entereddate entereddate
+								dm.companycode companycode, dm.entereddate entereddate, dm.stat status
 								from journalvoucher as dm  
 								where dm.stat IN('open','posted') AND dm.transtype = 'DM' $dm_query
 
@@ -207,7 +217,7 @@
 			$cm_query 			= "";
 			$dm_query 			= "";
 
-			$fields 			= array('invoicedate, invoiceno, documenttype, reference, particulars, amount');
+			$fields 			= array('invoicedate, invoiceno, documenttype, reference, particulars, amount, status');
 			$daterangefilter 	= isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
 			$custfilter      	= isset($data['custfilter']) ? htmlentities($data['custfilter']) : ""; 	
 			$datefilterArr		= explode(' - ',$daterangefilter);
@@ -226,7 +236,7 @@
 			return $this->db->setTable("(
 								select ar.transactiondate invoicedate, ar.invoiceno invoiceno, 'Invoice' documenttype,
 								ar.voucherno reference, ar.particulars as particulars, ar.convertedamount as amount,
-								ar.companycode companycode, ar.entereddate entereddate
+								ar.companycode companycode, ar.entereddate entereddate, ar.stat status
 								from accountsreceivable as ar  
 								where ar.stat = 'posted' $ar_query
 
@@ -234,17 +244,27 @@
  
 								select rv.transactiondate as invoicedate, ar.sourceno as invoiceno, 'Payment' documenttype, 
 								app.voucherno reference, rv.particulars as particulars, (app.convertedamount + app.discount - app.overpayment) as amount,
-								rv.companycode companycode, rv.entereddate entereddate
+								rv.companycode companycode, rv.entereddate entereddate, app.stat status
 								from rv_application as app 
 								left join accountsreceivable ar ON ar.voucherno = app.arvoucherno
 								left join receiptvoucher rv ON rv.voucherno = app.voucherno
-								where  app.stat IN('open','posted') $rv_query
+								where  app.stat IN('open','posted','cancelled') $rv_query
+
+								UNION ALL
+ 
+								select rv.transactiondate as invoicedate, ar.sourceno as invoiceno, 'Over Payment' documenttype, 
+								app.voucherno reference, rv.particulars as particulars, app.overpayment as amount,
+								rv.companycode companycode, rv.entereddate entereddate, app.stat status
+								from rv_application as app 
+								left join accountsreceivable ar ON ar.voucherno = app.arvoucherno
+								left join receiptvoucher rv ON rv.voucherno = app.voucherno
+								where  app.stat IN('open','posted','cancelled') AND app.overpayment > 0 $rv_query
 
 								UNION ALL
  
 								select cm.transactiondate invoicedate, cm.sourceno invoiceno, 'Credit Memo' documenttype,
 								cm.voucherno reference, cm.remarks as particulars, cm.convertedamount as amount,
-								cm.companycode companycode, cm.entereddate entereddate
+								cm.companycode companycode, cm.entereddate entereddate, cm.stat status
 								from journalvoucher as cm  
 								where cm.stat IN('open','posted') AND cm.transtype = 'CM' $cm_query
 
@@ -252,7 +272,7 @@
  
 								select dm.transactiondate invoicedate, dm.sourceno invoiceno, 'Debit Memo' documenttype,
 								dm.voucherno reference, dm.remarks as particulars, dm.convertedamount as amount,
-								dm.companycode companycode, dm.entereddate entereddate
+								dm.companycode companycode, dm.entereddate entereddate, dm.stat status
 								from journalvoucher as dm  
 								where dm.stat IN('open','posted') AND dm.transtype = 'DM' $dm_query
 

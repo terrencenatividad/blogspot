@@ -77,8 +77,10 @@ class controller extends wc_controller
 							<td class="text-right warning">' .number_format($prevbalance,2,".","."). '</td></tr>';
 			}
 			foreach ($pagination->result as $key => $row) {
+				$highlight		= ($row->status == 'cancelled' && ($row->documenttype == 'Payment' || $row->documenttype == 'Over Payment')) ? "danger" : "";
+				$status 		= (empty($highlight)) ? "" : ' <span class="label label-'.$highlight.'">' . strtoupper($row->status) . '</span>';
 				$reference		= $row->reference;
-				if($row->documenttype == 'Payment' || $row->documenttype == 'Credit Memo'){
+				if($row->documenttype == 'Payment' || $row->documenttype == 'Credit Memo' || $row->documenttype == 'Over Payment'){
 					$row->amount *= -1;
 					$invoice_data	= $this->soa->getInvoice($reference);
 					$invoice 		= ($invoice_data) ? $invoice_data->sourceno : $reference;
@@ -86,15 +88,14 @@ class controller extends wc_controller
 					$invoice 		= ($row->invoiceno) ? $row->invoiceno : $reference;
 				}
 				
-				$table .= '<tr>';
-				$table .= '<td>' . date("M d, Y",strtotime($row->invoicedate)) .  '</td>';
+				$table .= '<tr class="'.$highlight.'">';
+				$table .= '<td>' . date("M d, Y",strtotime($row->invoicedate)) .  $status . '</td>';
 				$table .= '<td>' . $invoice . '</td>';
 				$table .= '<td>' . $row->documenttype . '</td>';
 				$table .= '<td>' . $row->reference . '</td>';
 				$table .= '<td>' . $row->particulars . '</td>';
-				
 				$table .= '<td class="text-right">' .   $this->amount($row->amount) . '</td>';
-				$balance += $row->amount;
+				$balance += (empty($highlight)) ? $row->amount : 0;
 				$balance = ($balance >= 0) ? $balance : 0;
 				$table .= '<td class="text-right">' .   $this->amount($balance). '</td>';
 				$table .= '</tr>';
@@ -179,8 +180,10 @@ class controller extends wc_controller
 			$csv .=  '"'.$this->amount($prevbalance).'"';
 			$csv .= "\n";
 			foreach ($result as $key => $row){
+				$highlight		= ($row->status == 'cancelled' && ($row->documenttype == 'Payment' || $row->documenttype == 'Over Payment')) ? "danger" : "";
+				$status 		= (empty($highlight)) ? "" : "(".strtoupper($row->status).")";
 				$reference		= $row->reference;
-				if($row->documenttype == 'Payment' || $row->documenttype == 'Credit Memo'){
+				if($row->documenttype == 'Payment' || $row->documenttype == 'Credit Memo' || $row->documenttype == 'Over Payment'){
 					$row->amount *= -1;
 					$invoice_data	= $this->soa->getInvoice($reference);
 					$invoice 		= ($invoice_data) ? $invoice_data->sourceno : $reference;
@@ -188,16 +191,13 @@ class controller extends wc_controller
 					$invoice 		= ($row->invoiceno) ? $row->invoiceno : $reference;
 				}
 
-				$csv .=  '"'.$this->date($row->invoicedate).'",';
+				$csv .=  '"'.$this->date($row->invoicedate).' '.$status.'",';
 				$csv .=  '"'.$invoice.'",';
 				$csv .=  '"'.$row->documenttype.'",';
 				$csv .=	 '"'.$row->reference.'",';
 				$csv .=  '"'.$row->particulars.'",';
-				if($row->documenttype == 'Payment' || $row->documenttype == 'Credit Memo'){
-					 $row->amount *= -1;
-				}
 				$csv .=  '"'.$this->amount($row->amount).'",';
-				$balance += $row->amount;
+				$balance += (empty($highlight)) ? $row->amount : 0;
 				$balance = ($balance >= 0) ? $balance : 0;
 				$csv .=  '"'.$this->amount($balance).'"';
 				$csv .= "\n";
