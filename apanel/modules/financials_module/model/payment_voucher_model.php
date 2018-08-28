@@ -1589,6 +1589,15 @@ class payment_voucher_model extends wc_model
 
 	}
 
+	public function UpdateCheckStatus($bank, $cno){
+		$data1['stat'] = 'closed';
+		$result = $this->db->setTable("bankdetail") 
+							->setValues($data1)
+							->setWhere("bank_id = '$bank' AND ($cno > lastchequeno)")
+							->runUpdate();
+		return $result ;
+	}
+
 	// public function getBookNoid($bank){
 	// 	$result = $this->db->setTable("bankdetail")
 	// 							->setValues("booknumber")

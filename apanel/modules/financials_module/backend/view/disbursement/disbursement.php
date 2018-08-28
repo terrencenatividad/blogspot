@@ -887,8 +887,36 @@
 			<div class="modal fade" id="checkModal" tabindex="-1" data-backdrop="static">
 				<div class="modal-dialog modal-sm">
 					<div class="modal-content">
+						<div class="modal-header ">
+							<strong>Confirmation</strong>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<div class="modal-body">
+							There are no available check number for the system to use. Do you wish to continue to next book number?
+							<input type="hidden" id="recordId"/>
+						</div>
+						<div class="modal-footer">
+							<div class="row row-dense">
+								<div class="col-md-12 center">
+									<div class="btn-group">
+										<button type="button" class="btn btn-primary btn-flat" id="check_yes">Yes</button>
+									</div>
+									&nbsp;&nbsp;&nbsp;
+									<div class="btn-group">
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal fade" id="nocheckModal" tabindex="-1" data-backdrop="static">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content">
 						<div class="modal-header">
-							Confirmation
+						<strong>Confirmation</strong>
 							<button type="button" class="close" data-dismiss="modal">&times;</button>
 						</div>
 						<div class="modal-body">
@@ -899,7 +927,7 @@
 							<div class="row row-dense">
 								<!-- <div class="col-md-12 center">
 									<div class="btn-group">
-										<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+										<button type="button" class="btn btn-primary btn-flat" id="check_yes">Yes</button>
 									</div>
 									&nbsp;&nbsp;&nbsp;
 									<div class="btn-group">
@@ -1012,12 +1040,11 @@
 				if (data){
 					next = parseFloat(data.nno) || 0;
 					last = parseFloat(data.last) || 0;
-					console.log(next);
 
 					var row = $("#chequeTable tbody tr").length;
 					if (typeof cheque["bank-"+val] === 'undefined') {
 						if (next == 0){
-							$('#checkModal').modal('show');
+							$('#nocheckModal').modal('show');
 						} else {
 							$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
 						}
@@ -1025,6 +1052,16 @@
 						var next = parseFloat(cheque["bank-"+val]) + 1;
 						if (next > last){
 							$('#checkModal').modal('show');
+
+							// $('#checkModal #check_yes').on('click', function(){
+							// 	$.post("<?=BASE_URL?>/financials/disbursement/ajax/UpdateCheckStat", 'val='+val, 'cno'+next ).done(function(data){
+							// 		$('#checkModal').modal('hide');
+							// 	})
+
+								
+							// })
+							getnum(val,next);
+
 						} else {
 							$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
 						}
@@ -1076,6 +1113,14 @@
 			displaystoreddescription();
 			drawTemplate(); 
 		});
+
+		function getnum(val, next){
+			$('#checkModal #check_yes').on('click', function(){
+				$.post("<?=BASE_URL?>financials/disbursement/ajax/UpdateCheckStat", 'val='+val, 'cno'+next ).done(function(data){
+					$('#checkModal').modal('hide');
+				})
+			})
+		}
 
 		// function getcheckDtl(account){
 			
@@ -2538,6 +2583,8 @@
 		$('.chequenumber').focus(function() {
 			$(this).blur();
 		});
+
+
 	}); // end
 
 </script>

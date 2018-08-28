@@ -1369,4 +1369,13 @@ class controller extends wc_controller
 		return $data; 
 	}
 
+	public function UpdateCheckStat(){
+		echo "sd";
+		$val = $this->input_post->post('val');
+		$cno = $this->input_post->post('cno');
+		$result = $this->payment_voucher->UpdateCheckStatus($val, $cno);
+		var_dump($result);
+		return $result ;
+	}
+
 }
