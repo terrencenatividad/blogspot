@@ -1575,8 +1575,16 @@ class payment_voucher_model extends wc_model
 
 		$result = $this->db->setTable("bankdetail") 
 								->setValues($data)
-								->setWhere("bank_id = '$getBank' AND ($cno BETWEEN firstchequeno AND lastchequeno) OR ($cno > lastchequeno)")
+								->setWhere("bank_id = '$getBank' AND ($cno BETWEEN firstchequeno AND lastchequeno)")
 								->runUpdate();
+		if ($result){
+			$data1['stat'] = 'closed';
+			$result = $this->db->setTable("bankdetail") 
+								->setValues($data1)
+								->setWhere("bank_id = '$getBank' AND ($cno > lastchequeno)")
+								->runUpdate();
+		}
+			
 		return $result;
 
 	}
