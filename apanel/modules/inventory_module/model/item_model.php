@@ -150,7 +150,7 @@ class item_model extends wc_model {
 			$condition = "label = '$search'";
 		}
 		return $this->db->setTable('itemtype')
-						->setFields('id ind, label val')
+						->setFields('id ind, label val, stat stat')
 						->setWhere($condition)
 						->runSelect()
 						->getResult();
@@ -198,7 +198,7 @@ class item_model extends wc_model {
 			$condition = "uomdesc = '$search'";
 		}
 		return $this->db->setTable('uom')
-						->setFields('uomcode ind, uomdesc val')
+						->setFields('uomcode ind, uomdesc val, stat stat')
 						->setWhere($condition)
 						->runSelect()
 						->getResult();
