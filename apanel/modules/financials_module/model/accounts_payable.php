@@ -7,11 +7,19 @@ class accounts_payable extends wc_model
 		$this->log = new log();
 	}
 
-	public function retrieveVendorList()
+	public function retrieveVendorList($data)
 	{
+		if($data['task'] == 'edit'){
+			$vendorcode = $data['vendorcode'];
+				$cond = " partnercode != '' AND partnertype = 'supplier' AND stat = 'active' OR partnercode = '$vendorcode'";
+			}
+			else{
+				$cond = " partnercode != '' AND partnertype = 'supplier' AND stat = 'active'";
+			}
+
 		$result = $this->db->setTable('partners')
-					->setFields("partnercode ind, companycode, CONCAT( first_name, ' ', last_name ), partnername val")
-					->setWhere("partnercode != '' AND partnertype = 'supplier' AND stat = 'active'")
+					->setFields("partnercode ind, companycode, CONCAT( first_name, ' ', last_name ), partnername val, stat stat")
+					->setWhere($cond)
 					->setOrderBy("val")
 					->runSelect()
 					->getResult();

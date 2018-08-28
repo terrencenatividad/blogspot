@@ -27,9 +27,9 @@ class controller extends wc_controller
 		$data["file_import_result"]    = "";
 		$cmp 						   = $this->companycode;
 		$data["date"] 			   	   = date("M d, Y");
-
+		$data["task"] 			   	   = "";
 		// Retrieve vendor list
-		$data["vendor_list"]  = $this->payment_voucher->retrieveVendorList();
+		$data["vendor_list"]  = $this->payment_voucher->retrieveVendorList($data);
 
 		// Cash Account Options
 		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
@@ -72,7 +72,7 @@ class controller extends wc_controller
 		$data["transactiondate"]    = $this->date->dateFormat();
 		$data["status"] 			= "";
 		// Retrieve vendor list
-		$data["vendor_list"]        = $this->payment_voucher->retrieveVendorList();
+		$data["vendor_list"]        = $this->payment_voucher->retrieveVendorList($data);
 
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
@@ -293,9 +293,6 @@ class controller extends wc_controller
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 
-		// Retrieve vendor list
-		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList();
-
 		// Retrieve business type list
 		$acc_entry_data               = array("id ind","accountname val");
 		$acc_entry_cond               = "accounttype != ''  AND stat = 'active'";
@@ -346,6 +343,9 @@ class controller extends wc_controller
 
 		$data['restrict_dv'] 	= true;	
 		$data['has_access'] 	= 0;
+
+		// Retrieve vendor list
+		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList($data);
 
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));

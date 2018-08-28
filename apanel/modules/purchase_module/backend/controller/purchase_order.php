@@ -42,9 +42,9 @@ class controller extends wc_controller
 		$data['show_input'] 		= true;
 
 		$data['date_today'] 		= date("M d, Y");
-		
-		$data['vendor_list'] 		= $this->po->retrieveVendorList();
-		
+		$data['task'] 				= "list";
+		$data['vendor_list'] 		= $this->po->retrieveVendorList($data);
+
 		$data["payment_mode_list"] 	= $this->po->getOption("payment_type");
 		$data["cash_account_codes"] = $this->po->retrieveCashAccountClassList();
 
@@ -64,7 +64,6 @@ class controller extends wc_controller
 		$close_date 			= $this->restrict->getClosedDate();
 		$data['close_date']		= $close_date;
 
-		$data['vendor_list'] 	= $this->po->retrieveVendorList();
 		$data['proforma_list'] 	= $this->po->retrieveProformaList();
 
 		$data["business_type"] 	= $this->po->getOption("businesstype");
@@ -130,6 +129,7 @@ class controller extends wc_controller
 			$data["terms"] 		 	 = '';
 			$data["tinno"] 		 	 = '';
 			$data["address1"] 		 = '';
+
 			
 			//Details
 			$data['details'] 		 = $retrieved_data['details'];
@@ -148,6 +148,9 @@ class controller extends wc_controller
 		$data["row_ctr"] 		= 0;
 		$data['cmp'] 			= $this->companycode;
 		$data['restrict_po'] 	= false;
+
+		$data['vendor_list'] 	= $this->po->retrieveVendorList($data);
+		
 		//Finalize Saving	
 		$save_status 			= $this->input->post('save');
 		//echo $save_status;
@@ -245,7 +248,6 @@ class controller extends wc_controller
 		$close_date 			= $this->restrict->getClosedDate();
 		$data['close_date']		= $close_date;
 
-		$data['vendor_list'] 	= $this->po->retrieveVendorList();
 		$data['proforma_list'] 	= $this->po->retrieveProformaList();
 		$data["business_type"] 	= $this->po->getOption("businesstype");
 		$data["vat_type"] 		= $this->po->getOption("vat_type");
@@ -283,6 +285,7 @@ class controller extends wc_controller
 		$data['task'] 			= "edit";
 		$data["row_ctr"] 		= 0;
 		$data['cmp'] 			= $this->companycode;
+	
 
 		// Header Data
 		$transactiondate 		 = $retrieved_data["header"]->transactiondate;
@@ -311,6 +314,8 @@ class controller extends wc_controller
 		$data["tinno"] 		 	 = $retrieved_data["vendor"]->tinno;
 		$data["address1"] 		 = $retrieved_data["vendor"]->address1;
 		
+		$data['vendor_list'] 	= $this->po->retrieveVendorList($data);
+		
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
 		$restrict_po 			 =	$this->restrict->setButtonRestriction($transactiondate);
@@ -326,7 +331,6 @@ class controller extends wc_controller
 		$close_date 			= $this->restrict->getClosedDate();
 		$data['close_date']		= $close_date;
 		
-		$data['vendor_list'] 	= $this->po->retrieveVendorList();
 		$data['proforma_list'] 	= $this->po->retrieveProformaList();
 		$data["business_type"] 	= $this->po->getOption("businesstype");
 		$data["vat_type"] 		= $this->po->getOption("vat_type");
@@ -393,6 +397,8 @@ class controller extends wc_controller
 		$data["tinno"] 		 	 = $retrieved_data["vendor"]->tinno;
 		$data["address1"] 		 = $retrieved_data["vendor"]->address1;
 		
+		$data['vendor_list'] 	= $this->po->retrieveVendorList($data);
+
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
 
