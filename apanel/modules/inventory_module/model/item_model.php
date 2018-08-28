@@ -165,7 +165,7 @@ class item_model extends wc_model {
 			}
 		}
 		return $this->db->setTable('itemclass ic')
-						->setFields('ic.id ind, ic.label val')
+						->setFields('ic.id ind, ic.label val, ic.stat stat')
 						->leftJoin('itemclass ic2 ON ic2.id = ic.parentid AND ic2.companycode = ic.companycode')
 						->setWhere($condition)
 						->runSelect()
@@ -222,7 +222,7 @@ class item_model extends wc_model {
 			$condition = "label = '$search'";
 		}
 		return $this->db->setTable('itemclass')
-						->setFields('id ind, label val')
+						->setFields('id ind, label val, stat stat')
 						->setWhere($condition)
 						->runSelect()
 						->getResult();

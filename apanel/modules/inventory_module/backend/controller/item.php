@@ -132,6 +132,7 @@ class controller extends wc_controller {
 		$data['uom_list']					= $this->item_model->getEditUOMList('', $base, $selling, $purchasing);
 		$data['itemclass_list']				= $this->item_model->getEditItemClassList('',$classid);
 		$data['itemtype_list']				= $this->item_model->getEditItemtypeList($search = '', $itemtype);	
+		$weight = $data['weight_type'];
 		$data['weight_type_list']			= $this->item_model->getWeightTypeList($search= '', $weight);
 		$data['receivable_account_list']	= $this->item_model->getReceivableAccountList();
 		$data['revenue_account_list']		= $this->item_model->getRevenueAccountList();

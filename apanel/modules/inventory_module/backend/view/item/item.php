@@ -374,7 +374,7 @@
 			var uom = $(this).find('option:selected').html();
 			$('.uom_in span').html(uom);
 		});
-		$("select option:selected").attr('disabled','disabled');
+		// $("select option:selected").attr('disabled','disabled');
 
 		$('#classid').change(function() {
 			
