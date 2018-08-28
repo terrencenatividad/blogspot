@@ -91,6 +91,7 @@ class controller extends wc_controller {
 		$status						= $data['stat'];
 		$data['voucher_details']	= json_encode($this->cm_model->getJournalVoucherDetails($this->fields2, $voucherno));
 		$data['show_input']			= false;
+		$data['ajax_task']			= 'ajax_view';
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data['restrict_cm'] 		= $restrict_cm;

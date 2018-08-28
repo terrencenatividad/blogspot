@@ -1358,13 +1358,15 @@ class controller extends wc_controller
 
 	public function getCheckdtl(){
 		$bank_no = $this->input->post('bank_');
-		$result = $this->payment_voucher->getcheck($bank_no);
-		$nextcheckno  = $result[0]->nextchequeno;
-		$lastcheckno  = $result[0]->lastchequeno;
-		$fno 		  = $result[0]->firstchequeno;
-		$bno 		  = $result[0]->booknumber;
+		$result1 = $this->payment_voucher->getcheckfirst($bank_no);
+		$result2 = $this->payment_voucher->getchecklast($bank_no);
+		
+		$nextcheckno  = $result1[0]->nextchequeno;
+		$lastcheckno  = $result2[0]->lastchequeno;
+		$fno 		  = $result1[0]->firstchequeno;
+		// $bno 		  = $result[0]->booknumber;
 		$data = array('nno' => $nextcheckno, 'last' => $lastcheckno);
 		return $data; 
-
 	}
+
 }
