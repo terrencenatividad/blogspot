@@ -19,12 +19,18 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
-	public function retrieveProformaList()
+	public function retrieveProformaList($data)
 	{
+		$proformacode = $data['proformacode'];
+		if($data['task'] == 'edit'){
+			$cond = "transactiontype = 'Accounts Payable' AND stat = 'active' OR proformacode = '$proformacode'";
+		}else{
+			$cond = "transactiontype = 'Accounts Payable' AND stat = 'active'";
+		}
 		$result = $this->db->setTable('proforma')
-					->setFields("proformacode ind, proformadesc val")
+					->setFields("proformacode ind, proformadesc val, stat stat")
 					->setOrderBy("val")
-					->setWhere("transactiontype = 'Accounts Payable' AND stat = 'active'")
+					->setWhere($cond)
 					->runSelect()
 					->getResult();
 		
