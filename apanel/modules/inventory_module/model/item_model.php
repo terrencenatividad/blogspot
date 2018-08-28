@@ -172,8 +172,8 @@ class item_model extends wc_model {
 						->getResult();
 	}
 
-	public function getWeightTypeList($search = '') {
-		$condition = '';
+	public function getWeightTypeList($search = '', $weight) {
+		$condition = " AND stat = 'active' OR uomcode = '$weight'";
 		if ($search) {
 			$condition = " AND uomdesc = '$search'";
 		}
