@@ -1529,7 +1529,7 @@ class payment_voucher_model extends wc_model
 
 	public function getcheck($bank){
 		$result = $this->db->setTable('bankdetail bd')
-							->setFields("nextchequeno, firstchequeno, lastchequeno")
+							->setFields("nextchequeno, firstchequeno, lastchequeno, booknumber")
 							->innerJoin("(SELECT b.id, b.gl_code FROM bank b INNER JOIN chartaccount c ON b.gl_code = c.segment5 where c.id = '$bank') bc ON bc.id = bd.bank_id")
 							->setOrderBy('nextchequeno ASC')
 							->setLimit(1)	
@@ -1537,4 +1537,44 @@ class payment_voucher_model extends wc_model
 							->getResult();
 		return $result;
 	}
+
+	public function get_check_no($vno){
+		$result = $this->db->setTable('pv_cheques')
+							->setFields("max(chequenumber) checknum,chequeaccount")
+							->setWhere("voucherno = '$vno' ")
+							->setGroupBy("chequeaccount")
+							->runSelect()
+							->getResult();
+		return $result;
+
+	}
+
+	public function getbankid($ca){
+		$result = $this->db->setTable('bank b')
+							->setFields("b.id id")
+							->innerJoin("chartaccount c on c.segment5 = b.gl_code")
+							->setWhere("c.id = '$ca' ")
+							->runSelect()
+							->getResult();
+		return $result;
+	}
+
+	public function updateCheck($getBank, $cno){
+		$data['nextchequeno'] = $cno + 1;
+
+		$result = $this->db->setTable("bankdetail") 
+								->setValues($data)
+								->setWhere("bank_id = '$getBank' AND ($cno BETWEEN firstchequeno AND lastchequeno) OR ($cno > lastchequeno)")
+								->runUpdate();
+		return $result;
+
+	}
+
+	// public function getBookNoid($bank){
+	// 	$result = $this->db->setTable("bankdetail")
+	// 							->setValues("booknumber")
+	// 							->setWhere("bank_id = '$bank'")
+	// 							->runUpdate();
+	// 	return $result;
+	// }
 }
