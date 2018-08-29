@@ -144,8 +144,20 @@ class item_model extends wc_model {
 						->getResult();
 	}
 
+	public function getEditItemTypeList($search = '', $itemtype) {
+		$condition = "stat = 'active' OR id = '$itemtype'";
+		if ($search) {
+			$condition = "label = '$search'";
+		}
+		return $this->db->setTable('itemtype')
+						->setFields('id ind, label val, stat stat')
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
+	}
+
 	public function getItemClassList($search = '', $parent = '') {
-		$condition = "stat = 'active'";
+		$condition = "ic.stat = 'active'";
 		if ($search) {
 			$condition = "ic.label = '$search'";
 			if ($parent) {
@@ -153,15 +165,15 @@ class item_model extends wc_model {
 			}
 		}
 		return $this->db->setTable('itemclass ic')
-						->setFields('ic.id ind, ic.label val')
+						->setFields('ic.id ind, ic.label val, ic.stat stat')
 						->leftJoin('itemclass ic2 ON ic2.id = ic.parentid AND ic2.companycode = ic.companycode')
 						->setWhere($condition)
 						->runSelect()
 						->getResult();
 	}
 
-	public function getWeightTypeList($search = '') {
-		$condition = '';
+	public function getWeightTypeList($search = '', $weight) {
+		$condition = " AND stat = 'active' OR uomcode = '$weight'";
 		if ($search) {
 			$condition = " AND uomdesc = '$search'";
 		}
@@ -180,6 +192,18 @@ class item_model extends wc_model {
 						->getResult();
 	}
 
+	public function getEditUOMList($search = '', $base, $selling, $purchasing) {
+		$condition = "stat = 'active' OR uomcode = '$base' OR uomcode = '$selling' OR uomcode = '$purchasing'";
+		if ($search) {
+			$condition = "uomdesc = '$search'";
+		}
+		return $this->db->setTable('uom')
+						->setFields('uomcode ind, uomdesc val, stat stat')
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
+	}
+
 	public function getUOMList($search = '') {
 		$condition = "stat = 'active'";
 		if ($search) {
@@ -190,6 +214,27 @@ class item_model extends wc_model {
 						->setWhere($condition)
 						->runSelect()
 						->getResult();
+	}
+
+	public function getEditItemClassList($search = '',$classid) {
+		$condition = "stat = 'active' OR id = '$classid'";
+		if ($search) {
+			$condition = "label = '$search'";
+		}
+		return $this->db->setTable('itemclass')
+						->setFields('id ind, label val, stat stat')
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
+	}
+
+	public function getUOMCode($itemcode) {
+		return $this->db->setTable('items as items')
+						->setFields('items.uom_base as uom_base, items.uom_selling as selling, items.uom_purchasing as purchasing')
+						->leftJoin('uom as uom ON uom.uomcode = items.uom_base')
+						->setWhere("items.itemcode = '$itemcode'")
+						->runSelect()
+						->getRow();
 	}
 
 	public function getReceivableAccountList($search = '') {

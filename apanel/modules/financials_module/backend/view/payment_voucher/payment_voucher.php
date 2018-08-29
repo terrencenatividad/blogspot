@@ -89,7 +89,7 @@
 					<div class = "row">
 						<div class = "col-md-6">
 							<div class="form-group">
-								<label for="apv" class="control-label col-md-4">Total Payment <span class = "asterisk">*</span></label>
+								<label for="apv" class="control-label col-md-4">Total Payment </label>
 								<div class="col-md-8">
 									<?php
 									if(!$show_input){
@@ -204,7 +204,7 @@
 												->setName('chequenumber[1]')
 												->setId('chequenumber[1]')
 												->setClass('chequenumber')
-												->setValidation('required')
+												->setValidation('required alpha_num')
 												->setMaxLength(30)
 												->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 												->setValue("")
@@ -222,7 +222,7 @@
 												->setClass("datepicker-input")
 												->setName('chequedate[1]')
 												->setId('chequedate[1]')
-												->setAttribute(array("maxlength" => "50"))
+												->setMaxLength(50)
 												->setValue($transactiondate)
 												// ->setAddOn("calendar")
 												->draw(true);
@@ -236,7 +236,8 @@
 												->setClass("text-right chequeamount")
 												->setName('chequeamount[1]')
 												->setId('chequeamount[1]')
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
+												->setMaxLength(20)
+												->setAttribute(array("onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
 												->setValue("0.00")
 												->draw(true);
 									?>
@@ -281,6 +282,7 @@
 													->setId('chequenumber['.$row.']')
 													->setClass('chequenumber')
 													->setMaxLength(30)
+													->setValidation('required alpha_num')
 													->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 													->setValue($chequeno)
 													->draw($show_input);
@@ -300,7 +302,7 @@
 													->setClass("datepicker-input")
 													->setName('chequedate['.$row.']')
 													->setId('chequedate['.$row.']')
-													->setAttribute(array("maxlength" => "50"))
+													->setMaxLength(50)
 													->setValue($chequedate)
 													->draw($show_input);
 										?>
@@ -314,7 +316,8 @@
 													->setName('chequeamount['.$row.']')
 													->setId('chequeamount['.$row.']')
 													->setValidation('decimal')
-													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
+													->setMaxLength(20)
+													->setAttribute(array("onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
 													->setValue(number_format($chequeamount,2))
 													->draw($show_input);
 										?>
@@ -1228,6 +1231,34 @@
 	</div>
 </div>
 
+<div class="modal fade" id="checkModal" tabindex="-1" data-backdrop="static">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content">
+						<div class="modal-header">
+							Confirmation
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<div class="modal-body">
+							There are no available check number for the system to use. Please verify check number series in bank maintenance.
+							<input type="hidden" id="recordId"/>
+						</div>
+						<div class="modal-footer">
+							<div class="row row-dense">
+								<!-- <div class="col-md-12 center">
+									<div class="btn-group">
+										<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+									</div>
+									&nbsp;&nbsp;&nbsp;
+									<div class="btn-group">
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+									</div>
+								</div> -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 <script>
 <?php if ($task == 'create'):?>
 	getLockAccess('create');
@@ -1260,6 +1291,8 @@ function closeModal(){
 	{
 	$('#vendor_modal').modal('show');
 });
+
+
 </script>
 <?php
 	echo $ui->loadElement('modal')
@@ -1327,12 +1360,54 @@ function displaystoreddescription(){
 	});
 }
 
+// Check Array //
+function storechequetobank(){
+	cheque 	=	[];
+	console.log(cheque);
+	$('#chequeTable tbody tr').each(function() {
+		var cheque_account 	= $(this).find('.cheque_account').val();
+		var chequenumber 	= $(this).find('.chequenumber').val();
+
+		if(chequenumber!="" ){
+			cheque['bank-'+cheque_account] = chequenumber;
+		}
+	});
+}
+
 $('#chequeTable .cheque_account').on('change', function()  {
 	storedescriptionstoarray();
+	storechequetobank();
 	if ($('#entriesTable tbody tr.clone select').data('select2')) {
 		$('#entriesTable tbody tr.clone select').select2('destroy');
 	}
 	var val = $(this).val();
+
+	// Check Array //
+
+	$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank =' + val).done(function(data){
+		if (data){
+			next = parseFloat(data.nno) || 0;
+			last = parseFloat(data.last) || 0;
+			console.log(next);
+
+			var row = $("#chequeTable tbody tr").length;
+			if (typeof cheque["bank-"+val] === 'undefined') {
+				if (next == 0){
+					$('#checkModal').modal('show');
+				} else {
+					$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
+				}
+			} else {
+				var next = parseFloat(cheque["bank-"+val]) + 1;
+				if (next > last){
+					$('#checkModal').modal('show');
+				} else {
+					$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
+				}
+				
+			}	
+		}
+	})
 	
 	cheque_arr = [];
 
@@ -3911,6 +3986,10 @@ $(document).ready(function() {
 		var accs = $(this).val();
 		acc = addCommas(parseFloat(accs).toFixed(2));
 		$('.tax_amount').val(acc);
+	});
+
+	$('.chequenumber').focus(function() {
+		$(this).blur();
 	});
 
 }); // end

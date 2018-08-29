@@ -531,7 +531,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('textarea')
-										->setLabel('Address: <span class = "asterisk">*</span>')
+										->setLabel('Address: ')
 										->setSplit('col-md-3', 'col-md-8 field_col')
 										->setName('address1')
 										->setId('address1')

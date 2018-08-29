@@ -187,10 +187,17 @@ class purchase_return_model extends wc_model {
 		return $result;
 	}
 
-	public function getVendorList() {
+	public function getVendorList($data) {
+		if($data['ajax_task'] == 'ajax_edit'){
+			$vendorcode = $data['vendor'];
+				$cond = " partnercode != '' AND partnertype = 'supplier' AND stat = 'active' OR partnercode = '$vendorcode'";
+			}
+			else{
+				$cond = " partnercode != '' AND partnertype = 'supplier' AND stat = 'active'";
+			}
 		$result = $this->db->setTable('partners')
-						->setFields("partnercode ind,partnername val")
-						->setWhere("partnercode != '' AND partnertype = 'supplier' AND stat = 'active'")
+						->setFields("partnercode ind,partnername val, stat stat")
+						->setWhere($cond)
 						->setOrderBy("val")
 						->runSelect()
 						->getResult();

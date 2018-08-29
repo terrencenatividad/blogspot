@@ -141,7 +141,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Accounting Period <span class = "asterisk">*</span>')
+								->setLabel('Accounting Period ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('taxyear')
 								->setId('taxyear')
@@ -154,7 +154,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Period Start <span class = "asterisk">*</span>')
+								->setLabel('Period Start ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('periodstart')
 								->setId('periodstart')
@@ -174,7 +174,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Apply Withholding Tax On <span class = "asterisk">*</span>')
+								->setLabel('Apply Withholding Tax On ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('wtax_option')
 								->setId('wtax_option')

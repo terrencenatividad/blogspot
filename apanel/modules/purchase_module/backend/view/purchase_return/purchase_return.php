@@ -50,7 +50,7 @@
 						<div class="col-md-6">
 							<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Supplier <span class = "asterisk">*</span>')
+									->setLabel('Supplier ')
 									->setPlaceholder('Select Supplier')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('vendor')
@@ -62,12 +62,27 @@
 									->draw($show_input);
 							?>
 						</div>
+						<div class="col-md-6">
+							<?php
+								echo $ui->formField('dropdown')
+								->setLabel('Reason ')
+								->setPlaceholder('Select Reason')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('reason')
+								->setId('reason')
+								->setList(array('1' => 'Defective goods - no replacement', '2' => 'Defective goods - for replacement', '3' => 'Not Defective - Item For Replacement (exact item)', '4' => 'Not defective - Item For Replacement (different item)', '5' => 'Not Defective - Items Returned but not to be replaced"'))
+								->setValue($reason)
+								->setValidation('required')
+								// ->addHidden(($ajax_task != 'ajax_create'))
+								->draw($show_input);
+							?>
+						</div>
 					</div>
 					<div class="row">
 						<div class="col-md-6">
 							<?php
 								echo $ui->formField('text')
-									->setLabel('Receipt No. <span class = "asterisk">*</span>')
+									->setLabel('Receipt No. ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('source_no')
 									->setId('source_no')

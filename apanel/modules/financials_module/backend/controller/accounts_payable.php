@@ -26,9 +26,9 @@ class controller extends wc_controller
 		$data["file_import_result"]    = "";
 		$cmp 						   = $this->companycode;
 		$data["date"] 			   	   = date("M d, Y");
-
+		$data["task"] 			   	   = "";
 		// Retrieve vendor list
-		$data["vendor_list"]  = $this->accounts_payable->retrieveVendorList();
+		$data["vendor_list"]  = $this->accounts_payable->retrieveVendorList($data);
 
 		// Cash Account Options
 		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
@@ -217,10 +217,10 @@ class controller extends wc_controller
 		$data['close_date']			= $close_date;
 
 		// Retrieve vendor list
-		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
+		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList($data);
 
 		// Retrieve proforma list
-		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList();
+		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList($data);
 
 		// Retrieve business type list
 		$bus_type_data                = array("code ind", "value val");
@@ -278,9 +278,9 @@ class controller extends wc_controller
 			// For Admin Logs
 			$this->logs->saveActivity("Add New Accounts Payable [$generatedvoucher]");
 
-			if(!empty($data_validate['h_save']))
+			if(!empty($data_validate['h_save_new']))
 			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_payable');
+				$this->url->redirect(BASE_URL . 'financials/accounts_payable/create');
 			}
 			else if(!empty($data_validate['h_save_preview']))
 			{
@@ -288,7 +288,7 @@ class controller extends wc_controller
 			}
 			else
 			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_payable/create');
+				$this->url->redirect(BASE_URL . 'financials/accounts_payable');
 			}
 		
 		}
@@ -428,12 +428,6 @@ class controller extends wc_controller
 		$close_date 			= $this->restrict->getClosedDate();
 		$data['close_date']		= $close_date;
 
-		// Retrieve vendor list
-		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
-
-		// Retrieve proforma list
-		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList();
-
 		// Retrieve business type list
 		$bus_type_data                = array("code ind", "value val");
 		$bus_type_cond                = "type = 'businesstype'";
@@ -441,12 +435,12 @@ class controller extends wc_controller
 
 		// Retrieve business type list
 		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond               = "accounttype != ''";
+		$acc_entry_cond               = "accounttype != '' AND stat = 'active'";
 		$data["account_entry_list"]   = $this->accounts_payable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// Retrieve payable account list
 		$pay_account_data 			  = array("id ind", "CONCAT(segment5, ' - ', accountname) val");
-		$pay_account_cond 			  = "accountclasscode = 'ACCPAY' AND accounttype != ''";
+		$pay_account_cond 			  = "accountclasscode = 'ACCPAY' AND accounttype != '' AND stat = 'active'";
 		$data["payable_account_list"] = $this->accounts_payable->getValue("chartaccount", $pay_account_data, $pay_account_cond, "accountname");
 		
 		// // Retrieve tax list
@@ -473,6 +467,11 @@ class controller extends wc_controller
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview"));
 
+		// Retrieve vendor list
+		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList($data);
+
+		// Retrieve proforma list
+		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList($data);
 		/**
 		 * Get Company Settings
 		 */
@@ -488,9 +487,9 @@ class controller extends wc_controller
 			// For Admin Logs
 			$this->logs->saveActivity("Updated Accounts Payable [$sid]");
 
-			if(!empty($data_validate['h_save']))
+			if(!empty($data_validate['h_save_new']))
 			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_payable');
+				$this->url->redirect(BASE_URL . 'financials/accounts_payable/create');
 			}
 			else if(!empty($data_validate['h_save_preview']))
 			{
@@ -498,8 +497,8 @@ class controller extends wc_controller
 			}
 			else
 			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_payable/create');
-			}	 
+				$this->url->redirect(BASE_URL . 'financials/accounts_payable');
+			} 
 		}
 
 		$this->view->load('accounts_payable/accounts_payable', $data);

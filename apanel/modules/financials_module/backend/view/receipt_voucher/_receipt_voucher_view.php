@@ -447,7 +447,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Amount: <span class = "asterisk">*</span>')
+										->setLabel('Currency Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('oldamount')
 										->setId('oldamount')
@@ -463,7 +463,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Rate: <span class = "asterisk">*</span>')
+										->setLabel('Currency Rate: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('rate')
 										->setId('rate')
@@ -479,7 +479,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Amount: <span class = "asterisk">*</span>')
+										->setLabel('Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('newamount')
 										->setId('newamount')

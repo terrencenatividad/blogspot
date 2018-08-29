@@ -14,7 +14,7 @@
 					<div class="col-md-6">
 					<?
 							echo $ui->formField('text')
-									->setLabel('ATC Code <span class = "asterisk">*</span>')
+									->setLabel('ATC Code ')
 									->setSplit('col-md-3', 'col-md-8')
 									->setName('atc_code')
 									->setId('atc_code')
@@ -27,7 +27,7 @@
 					<div class="col-md-6">		
 					<?
 						echo $ui->formField('text')
-									->setLabel('Tax Rate(%) <span class = "asterisk">*</span>')
+									->setLabel('Tax Rate(%) ')
 									->setSplit('col-md-3', 'col-md-8')
 									->setName('tax_rate')
 									->setId('tax_rate')
@@ -53,7 +53,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-									->setLabel('Tax Account: <span class = "asterisk">*</span>')
+									->setLabel('Tax Account: ')
 									->setSplit('col-md-3', 'col-md-8')
 									->setName('tax_account')
 									->setId('tax_account')
@@ -69,7 +69,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('textarea')
-									->setLabel('Description: <span class = "asterisk">*</span>')
+									->setLabel('Description: ')
 									->setSplit('col-md-3', 'col-md-8')
 									->setName('short_desc')
 									->setId('short_desc')

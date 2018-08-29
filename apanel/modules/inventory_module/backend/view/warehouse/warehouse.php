@@ -14,7 +14,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Warehouse Code <span class = "asterisk">*</span>')
+								->setLabel('Warehouse Code ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('warehousecode')
 								->setId('warehousecode')
@@ -27,7 +27,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Warehouse Description <span class = "asterisk">*</span>')
+								->setLabel('Warehouse Description ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('description')
 								->setId('description')
@@ -74,8 +74,10 @@ var ajax = {};
 
 $('#warehouseForm #btnSave').on('click',function(){
 
-	$('#warehouseForm #warehousecode').trigger('blur');
-	$('#warehouseForm #description').trigger('blur');
+	// $('#warehouseForm #warehousecode').trigger('blur');
+	// $('#warehouseForm #description').trigger('blur');
+
+	$('#warehouseForm').find('.form-group').find('input, textarea, select').trigger('blur');
 
 	if ($('#warehouseForm').find('.form-group.has-error').length == 0)
 	{	

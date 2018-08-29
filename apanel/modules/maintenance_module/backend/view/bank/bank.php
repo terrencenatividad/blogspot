@@ -18,7 +18,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-									->setLabel('Bank Account GL Code: <span class = "asterisk">*</span>')
+									->setLabel('Bank Account GL Code: ')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('gl_code')
 									->setId('gl_code')
@@ -34,7 +34,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Bank Account Name: <span class = "asterisk">*</span>')
+									->setLabel('Bank Account Name: ')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('shortname')
 									->setId('shortname')
@@ -50,7 +50,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Bank Account Code <span class = "asterisk">*</span>')
+									->setLabel('Bank Account Code ')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('bankcode')
 									->setId('bankcode')
@@ -64,7 +64,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Bank Account Number: <span class = "asterisk">*</span>')
+									->setLabel('Bank Account Number: ')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('accountno')
 									->setId('accountno')
@@ -80,7 +80,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Currency <span class = "asterisk">*</span>')
+								->setLabel('Currency ')
 								->setPlaceholder('Filter Currency')
 								->setSplit('col-md-3', 'col-md-6')
 								->setName('currency')
@@ -175,7 +175,10 @@ $('#bankForm #btnSave').on('click',function(){
 		$.post('<?=BASE_URL?>maintenance/bank/ajax/<?=$task?>', $('#bankForm').serialize()+ '<?=$ajax_post?>', function(data) {
 			if( data.msg == 'success' )
 			{
-				window.location = '<?php echo BASE_URL . 'maintenance/bank'; ?>';
+				$('#delay_modal').modal('show');
+						setTimeout(function() {							
+							window.location = '<?php echo BASE_URL . 'maintenance/bank'; ?>';
+						}, 1000)
 			}
 		});
 	}

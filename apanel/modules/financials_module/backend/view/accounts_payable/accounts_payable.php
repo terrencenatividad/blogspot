@@ -123,7 +123,7 @@
 									<div class = "col-md-6 vendor_div ">
 										<?php
 											echo $ui->formField('dropdown')
-												->setLabel('Supplier <span class = "asterisk">*</span>')
+												->setLabel('Supplier ')
 												->setPlaceholder('None')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('vendor')
@@ -702,24 +702,39 @@
 								<input class = "form_iput" value = "" name = "save" id = "save" type = "hidden">
 								<div class="btn-group" id="save_group">
 									
-									<input type = "button" value = "Save" name = "save" id = "btnSave" class="btn btn-primary btn-sm btn-flat"/>
-									<input type = "hidden" value = "" name = "h_save" id = "h_save"/>
+									<!-- <input type = "button" value = "Save" name = "save" id = "btnSave" class="btn btn-primary btn-sm btn-flat"/>
+									<input type = "hidden" value = "" name = "h_save" id = "h_save"/> -->
+
+									<input type = "button" value = "Save & Preview" name = "save" id = "save_preview" class="btn btn-primary btn-sm btn-flat"/>
+									<input type = "hidden" value = "" name = "h_save_preview" id = "h_save_preview"/>
+									
 
 									<button type="button" id="btnSave_toggle" class="btn btn-primary dropdown-toggle btn-sm btn-flat" data-toggle="dropdown">
 										<span class="caret"></span>
 									</button>
 									
-									<ul class="dropdown-menu left" role="menu">
+									<!-- <ul class="dropdown-menu left" role="menu">
 										<li id = "save_new" style="cursor:pointer;">
-											<!--<input type = "button" value = "Save & New" name = "save_new" id = "save_new" class = "btn btn-default btn-sm btn-flat no-bg"/>-->
-											Save & New
+												Save & New
 											<input type = "hidden" value = "" name = "h_save_new" id = "h_save_new"/>
 										</li>
 										<li class="divider"></li>
 										<li id = "save_preview" style="cursor:pointer;">
-											<!--<input type = "button" value = "Save & Preview" name = "save_preview" id = "save_preview" class = "btn btn-default btn-sm btn-flat no-bg"/>-->
-											Save & Preview
+												Save & Preview
 											<input type = "hidden" value = "" name = "h_save_preview" id = "h_save_preview"/>
+										</li>
+									</ul> -->
+
+									<ul class="dropdown-menu left" role="menu">
+										<li id = "save_new" style="cursor:pointer;">
+												Save &amp; New
+											<input type = "hidden" value = "" name = "h_save_new" id = "h_save_new"/>
+										</li>
+										<li class="divider"></li>
+										<li id = "btnSave" style="cursor:pointer;">
+												Save &amp; Exit
+												<input type = "hidden" value = "" name = "h_save" id = "h_save"/>
+												
 										</li>
 									</ul>
 							
@@ -801,7 +816,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('textarea')
-										->setLabel('Address: <span class = "asterisk">*</span>')
+										->setLabel('Address: ')
 										->setSplit('col-md-3', 'col-md-8 field_col')
 										->setName('address')
 										->setId('address')
@@ -815,7 +830,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Business Type: <span class="asterisk"> * </span>')
+									->setLabel('Business Type: ')
 									->setPlaceholder('Filter Business Type')
 									->setSplit('col-md-3', 'col-md-8 field_col')
 									->setName('businesstype')
@@ -892,7 +907,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Amount: <span class = "asterisk">*</span>')
+										->setLabel('Currency Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('oldamount')
 										->setId('oldamount')
@@ -909,7 +924,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Rate: <span class = "asterisk">*</span>')
+										->setLabel('Currency Rate: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('rate')
 										->setId('rate')
@@ -925,7 +940,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Amount: <span class = "asterisk">*</span>')
+										->setLabel('Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('newamount')
 										->setId('newamount')
@@ -1048,7 +1063,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Amount: <span class = "asterisk">*</span>')
+										->setLabel('Currency Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('paymentoldamount')
 										->setId('paymentoldamount')
@@ -1064,7 +1079,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Rate: <span class = "asterisk">*</span>')
+										->setLabel('Currency Rate:  ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('paymentrate')
 										->setId('paymentrate')
@@ -1081,7 +1096,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Amount: <span class = "asterisk">*</span>')
+										->setLabel('Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('paymentnewamount')
 										->setId('paymentnewamount')
@@ -3542,7 +3557,8 @@ $(document).ready(function()
 						$("#payableForm #btnSave").removeClass('disabled');
 						$("#payableForm #btnSave_toggle").removeClass('disabled');
 				
-						$("#payableForm #btnSave").html('Save');
+						$("#payableForm #save_preview").html('Save & Preview');
+						// $("#payableForm #btnSave").html('Save');
 					}
 				});
 			}
@@ -3592,7 +3608,8 @@ $(document).ready(function()
 						$("#payableForm #btnSave").removeClass('disabled');
 						$("#payableForm #btnSave_toggle").removeClass('disabled');
 						
-						$("#payableForm #btnSave").html('Save');
+						// $("#payableForm #btnSave").html('Save');
+						$("#payableForm #save_preview").html('Save & Preview');
 
 						$("#diverror").removeClass("hidden");
 						$("#diverror #errmsg ul").html(msg);
@@ -3644,7 +3661,8 @@ $(document).ready(function()
 						$("#payableForm #btnSave").removeClass('disabled');
 						$("#payableForm #btnSave_toggle").removeClass('disabled');
 						
-						$("#payableForm #btnSave").html('Save');
+						// $("#payableForm #btnSave").html('Save');
+						$("#payableForm #save_preview").html('Save & Preview');
 
 						$("#diverror").removeClass("hidden");
 						$("#diverror #errmsg ul").html(msg);
@@ -3697,7 +3715,8 @@ $(document).ready(function()
 						$("#payableForm #btnSave").removeClass('disabled');
 						$("#payableForm #btnSave_toggle").removeClass('disabled');
 						
-						$("#payableForm #btnSave").html('Save');
+						// $("#payableForm #btnSave").html('Save');
+						$("#payableForm #save_preview").html('Save & Preview');
 						
 						$("#diverror").removeClass("hidden");
 						$("#diverror #errmsg ul").html(msg);
@@ -3743,7 +3762,10 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {							
+							$("#payableForm").submit();				
+						}, 1000)
 					}
 					else
 					{
@@ -3757,7 +3779,8 @@ $(document).ready(function()
 						$("#payableForm #btnSave").removeClass('disabled');
 						$("#payableForm #btnSave_toggle").removeClass('disabled');
 						
-						$("#payableForm #btnSave").html('Save');
+						// $("#payableForm #btnSave").html('Save');
+						$("#payableForm #save_preview").html('Save & Preview');
 
 						$("#diverror").removeClass("hidden");
 						$("#diverror #errmsg ul").html(msg);
@@ -3796,7 +3819,10 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {							
+							$("#payableForm").submit();				
+						}, 1000)
 					}
 					else
 					{
@@ -3810,7 +3836,8 @@ $(document).ready(function()
 						$("#payableForm #btnSave").removeClass('disabled');
 						$("#payableForm #btnSave_toggle").removeClass('disabled');
 						
-						$("#payableForm #btnSave").html('Save');
+						// $("#payableForm #btnSave").html('Save');
+						$("#payableForm #save_preview").html('Save & Preview');
 
 						$("#diverror").removeClass("hidden");
 						$("#diverror #errmsg ul").html(msg);
@@ -3849,7 +3876,10 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {							
+							$("#payableForm").submit();				
+						}, 1000)
 					}
 					else
 					{
@@ -3863,7 +3893,8 @@ $(document).ready(function()
 						$("#payableForm #btnSave").removeClass('disabled');
 						$("#payableForm #btnSave_toggle").removeClass('disabled');
 						
-						$("#payableForm #btnSave").html('Save');
+						// $("#payableForm #btnSave").html('Save');
+						$("#payableForm #save_preview").html('Save & Preview');
 
 						$("#diverror").removeClass("hidden");
 						$("#diverror #errmsg ul").html(msg);
@@ -3951,7 +3982,6 @@ $(document).ready(function()
 						className: "btn-default btn-flat",
 						callback: function(result) {
 								$('#payableForm #proformacode').val('').trigger("change");
-								// $('#payableForm #proformacode').chosen().trigger('chosen:updated');
 							}
 						}
 					}

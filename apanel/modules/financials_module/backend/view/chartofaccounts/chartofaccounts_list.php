@@ -516,11 +516,13 @@ var ajax = {};
 
 	});
 
-	function show_success_msg()
+	function show_success_msg(msg)
 	{
-		$('#success_modal #message').html('Your Data has been imported successfully.');
+		$('#success_modal #message').html(msg);
 		$('#success_modal').modal('show');
-		showList();
+		setTimeout(function() {												
+			window.location = '<?= MODULE_URL ?>';		
+		}, 1000)
 	}
 
 	$('#tableList').on('click', '.activate', function() { 

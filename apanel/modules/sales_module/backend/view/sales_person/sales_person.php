@@ -11,7 +11,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Sales Person Code <span class = "asterisk">*</span>')
+								->setLabel('Sales Person Code ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('partnercode')
 								->setId('partnercode')
@@ -62,7 +62,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('textarea')
-								->setLabel('Address <span class = "asterisk">*</span>')
+								->setLabel('Address ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('address1')
 								->setId('address1')
@@ -165,23 +165,16 @@
 
 <script>
 
-// $('form').submit(function(e) {
-// 	e.preventDefault();
-// 	$.post('<?=BASE_URL?>maintenance/sales_person/ajax/<?=$task?>', $(this).serialize()+ '<?=$ajax_post?>', function(data) {
-// 		if (data.msg == 'success') {
-// 			window.location = '<?php echo BASE_URL . 'maintenance/sales_person'; ?>';
-// 		}
-// 	});
-// });
-
 var ajax = {};
 
 $('#btnSave').on('click',function(){
 
-	$('#salespersonForm #partnercode').trigger('blur');
-	$('#salespersonForm #first_name').trigger('blur');
-	$('#salespersonForm #last_name').trigger('blur');
-	$('#salespersonForm #address1').trigger('blur');
+	// $('#salespersonForm #partnercode').trigger('blur');
+	// $('#salespersonForm #first_name').trigger('blur');
+	// $('#salespersonForm #last_name').trigger('blur');
+	// $('#salespersonForm #address1').trigger('blur');
+
+	$('#salespersonForm').find('.form-group').find('input, textarea, select').trigger('blur');
 
 	if ($('#salespersonForm').find('.form-group.has-error').length == 0)
 	{	

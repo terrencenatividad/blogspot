@@ -222,16 +222,23 @@ class journal_voucher_model extends wc_model {
 							->runSelect()
 							->getResult();
 		return $result;
-		var_dump($fields);
 	}
 
-	public function getProformaList() {
+	public function getProformaList($data)
+	{
+		$proformacode = $data['proformacode'];
+		if($data['ajax_task'] == 'ajax_edit'){
+			$cond = "transactiontype = 'Journal Voucher' AND stat = 'active' OR proformacode = '$proformacode'";
+		}else{
+			$cond = "transactiontype = 'Journal Voucher' AND stat = 'active'";
+		}
 		$result = $this->db->setTable('proforma')
-							->setFields("proformacode ind, proformadesc val")
-							->setWhere("transactiontype = 'Journal Voucher' AND stat = 'active'")
-							->setOrderBy("proformadesc")
-							->runSelect()
-							->getResult();
+					->setFields("proformacode ind, proformadesc val, stat stat")
+					->setOrderBy("proformadesc")
+					->setWhere($cond)
+					->runSelect()
+					->getResult();
+		
 		return $result;
 	}
 

@@ -10,220 +10,222 @@
 		<p class = "text-bold">Please contact admin to fix this issue.</p>
 	</div>
 
-<form method = "post" class="form-horizontal" id = "payableForm">
-	<div class="box box-primary">
-		<div class="box-body">
-			<div class = "row">
-				<div class = "col-md-12">&nbsp;</div>
-				<div class = "col-md-11">
-					<div class = "row">
-						<div class = "col-md-6">
-							<?php
+	<form method = "post" class="form-horizontal" id = "payableForm">
+		<div class="box box-primary">
+			<div class="box-body">
+				<div class = "row">
+					<div class = "col-md-12">&nbsp;</div>
+					<div class = "col-md-11">
+						<div class = "row">
+							<div class = "col-md-6">
+								<?php
 								echo $ui->formField('text')
-										->setLabel('Voucher No')
-										->setSplit('col-md-4', 'col-md-8')
-										->setName('voucher_no')
-										->setId('voucher_no')
-										->setAttribute(array("disabled" => "disabled"))
-										->setPlaceholder("- auto generate -")
-										->setValue($voucherno)
-										->draw($show_input);
-							?>
-							<input type = "hidden" id = "h_voucher_no" name = "h_voucher_no" value = "<?= $generated_id ?>">
-						</div>
-						<div class = "col-md-6">
-							<?php
+								->setLabel('Voucher No')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('voucher_no')
+								->setId('voucher_no')
+								->setAttribute(array("disabled" => "disabled"))
+								->setPlaceholder("- auto generate -")
+								->setValue($voucherno)
+								->draw($show_input);
+								?>
+								<input type = "hidden" id = "h_voucher_no" name = "h_voucher_no" value = "<?= $generated_id ?>">
+							</div>
+							<div class = "col-md-6">
+								<?php
 								echo $ui->formField('text')
-										->setLabel('Voucher Date')
-										->setSplit('col-md-4', 'col-md-8')
-										->setName('document_date')
-										->setId('document_date')
-										->setClass('datepicker-input')
-										->setAttribute(array('readonly' => '','data-date-start-date'=> $close_date))
-										->setAddon('calendar')
-										->setValue($transactiondate)
-										->setValidation('required')
-										->draw($show_input);
-							?>
+								->setLabel('Voucher Date')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('document_date')
+								->setId('document_date')
+								->setClass('datepicker-input')
+								->setAttribute(array('readonly' => '','data-date-start-date'=> $close_date))
+								->setAddon('calendar')
+								->setValue($transactiondate)
+								->setValidation('required')
+								->draw($show_input);
+								?>
+							</div>
 						</div>
-					</div>
 
-					<div class = "row">
-						<div class = "col-md-6">
-							<?php
+						<div class = "row">
+							<div class = "col-md-6">
+								<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Supplier <span class = "asterisk">*</span>')
-									->setPlaceholder('Select Supplier')
-									->setSplit('col-md-4', 'col-md-8')
-									->setName('vendor')
-									->setId('vendor')
-									->setList($vendor_list)
-									->setValue($vendorcode)
-									->setValidation('required')
-									->addHidden(($task == 'view'))
-									->draw($show_input);
-							?>
-						</div>
-						<div class = "col-md-6">
-							<?php
+								->setLabel('Supplier ')
+								->setPlaceholder('Select Supplier')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('vendor')
+								->setId('vendor')
+								->setList($vendor_list)
+								->setValue($vendorcode)
+								->setValidation('required')
+								->addHidden(($task == 'view'))
+								->draw($show_input);
+								?>
+							</div>
+							<div class = "col-md-6">
+								<?php
 								echo $ui->formField('dropdown')
-										->setLabel('Payment Mode')
-										->setSplit('col-md-4', 'col-md-8')
-										->setClass("payment_mode")
-										->setName('paymentmode')
-										->setId('paymentmode')
-										->addHidden(($task == 'view'))
-										->setList(array("cash" => "Cash", "cheque" => "Cheque"))
-										->setAttribute(
-											array(
-												"onChange" => "toggleCheckInfo(this.value);"
-											)
-										)
-										->setValue($paymenttype)
-										->draw($show_input);
-							?>
+								->setLabel('Payment Mode')
+								->setSplit('col-md-4', 'col-md-8')
+								->setClass("payment_mode")
+								->setName('paymentmode')
+								->setId('paymentmode')
+								->addHidden(($task == 'view'))
+								->setList(array("cash" => "Cash", "cheque" => "Cheque"))
+								->setAttribute(
+									array(
+										"onChange" => "toggleCheckInfo(this.value);"
+									)
+								)
+								->setValue($paymenttype)
+								->draw($show_input);
+								?>
+							</div>
 						</div>
-					</div>
-					
-					<div class = "row">
-						<div class = "col-md-6">
-							<?php
+
+						<div class = "row">
+							<div class = "col-md-6">
+								<?php
 								echo $ui->formField('text')
-										->setLabel('Reference No')
-										->setSplit('col-md-4', 'col-md-8')
-										->setName('paymentreference')
-										->setId('paymentreference')
-										->setAttribute(array("maxlength" => "50"))
-										->setValue($referenceno)
-										->draw($show_input);
-							?>
-							<input type="hidden" id="total_payment" name="total_payment"/>
+								->setLabel('Reference No')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('paymentreference')
+								->setId('paymentreference')
+								->setAttribute(array("maxlength" => "50"))
+								->setValue($referenceno)
+								->draw($show_input);
+								?>
+								<input type="hidden" id="total_payment" name="total_payment"/>
+							</div>
 						</div>
-					</div>
-					<div class="row">
-						<div class = "col-md-12">
-							<?php
+						<div class="row">
+							<div class = "col-md-12">
+								<?php
 								echo $ui->formField('textarea')
-										->setLabel('Notes:')
-										->setSplit('col-md-2', 'col-md-10')
-										->setName('remarks')
-										->setId('remarks')
-										->setValue($particulars)
-										->setAttribute(
-											array(
-												'rows' => 5
-											)
-										)
-										->draw($show_input);
-							?>
+								->setLabel('Notes:')
+								->setSplit('col-md-2', 'col-md-10')
+								->setName('remarks')
+								->setId('remarks')
+								->setValue($particulars)
+								->setAttribute(
+									array(
+										'rows' => 5
+									)
+								)
+								->draw($show_input);
+								?>
+							</div>
 						</div>
+
 					</div>
+				</div>
 
-				</div>
-			</div>
-
-			<!--Cheque Details-->
-			<div class="panel panel-default <?php echo $show_cheques?>" id="cheque_details">
-				<div class="panel-heading">
-					<strong>Cheque Details</strong>
-				</div>
-				<div class="has-error">
-					<span id="chequeCountError" class="help-block hidden small col-md-offset-1">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						Please specify at least one(1) cheque.
-					</span>
-					<span id="chequeAmountError" class="help-block hidden small col-md-offset-1">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						Please complete the fields on the highlighted row(s).
-					</span>
-					<span id="paymentAmountError" class="help-block hidden small col-md-offset-1">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						Please make sure that the total payment applied (<strong id="disp_tot_payment">0</strong>) should be equal to (<strong id="disp_tot_cheque">0</strong>).
-					</span>
-					<span id="checkNumberError" class="help-block hidden">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						The Cheque Number you entered has already been used
-					</span>
-				</div>
-				<div class="table-responsive">
-					<table class="table table-condensed table-bordered table-hover" id="chequeTable">
-						<thead>
-							<tr class="info">
-								<th class="col-md-4">Bank Account</th>
-								<th class="col-md-3">Cheque Number</th>
-								<th class="col-md-2">Cheque Date</th>
-								<th class="col-md-2">Amount</th>
-								<th class="col-md-1">Action</th>
-							</tr>
-						</thead>
-						<tbody id="tbody_cheque">
-							<?if($task=='create'):?>
-							<tr class="clone">
-								<td class="">
-									<?php
+				<!--Cheque Details-->
+				<div class="panel panel-default <?php echo $show_cheques?>" id="cheque_details">
+					<div class="panel-heading">
+						<strong>Cheque Details</strong>
+					</div>
+					<div class="has-error">
+						<span id="chequeCountError" class="help-block hidden small col-md-offset-1">
+							<i class="glyphicon glyphicon-exclamation-sign"></i> 
+							Please specify at least one(1) cheque.
+						</span>
+						<span id="chequeAmountError" class="help-block hidden small col-md-offset-1">
+							<i class="glyphicon glyphicon-exclamation-sign"></i> 
+							Please complete the fields on the highlighted row(s).
+						</span>
+						<span id="paymentAmountError" class="help-block hidden small col-md-offset-1">
+							<i class="glyphicon glyphicon-exclamation-sign"></i> 
+							Please make sure that the total payment applied (<strong id="disp_tot_payment">0</strong>) should be equal to (<strong id="disp_tot_cheque">0</strong>).
+						</span>
+						<span id="checkNumberError" class="help-block hidden">
+							<i class="glyphicon glyphicon-exclamation-sign"></i> 
+							The Cheque Number you entered has already been used
+						</span>
+					</div>
+					<div class="table-responsive">
+						<table class="table table-condensed table-bordered table-hover" id="chequeTable">
+							<thead>
+								<tr class="info">
+									<th class="col-md-4">Bank Account</th>
+									<th class="col-md-3">Cheque Number</th>
+									<th class="col-md-2">Cheque Date</th>
+									<th class="col-md-2">Amount</th>
+									<th class="col-md-1">Action</th>
+								</tr>
+							</thead>
+							<tbody id="tbody_cheque">
+								<?if($task=='create'):?>
+								<tr class="clone">
+									<td class="">
+										<?php
 										echo $ui->formField('dropdown')
-												->setSplit('', 'col-md-12 field_col')
-												->setPlaceholder('Select One')
-												->setClass("cheque_account")
-												->setName('chequeaccount[1]')
-												->setId('chequeaccount[1]')
-												->setName('chequeaccount[1]')
-												->setClass('chequeaccount')
-												->setList($cash_account_list)
-												->setValue("")
-												->draw(true);
-									?>
-								</td>
-								<td>
-									<?php
+										->setSplit('', 'col-md-12 field_col')
+										->setPlaceholder('Select One')
+										->setClass("cheque_account")
+										->setName('chequeaccount[1]')
+										->setId('chequeaccount[1]')
+										->setName('chequeaccount[1]')
+										->setClass('chequeaccount')
+										->setList($cash_account_list)
+										->setValue("")
+										->draw(true);
+										?>
+									</td>
+									<td>
+										<?php
 										echo $ui->formField('text')
-												->setSplit('', 'col-md-12 field_col')
-												->setClass("")
-												->setName('chequenumber[1]')
-												->setId('chequenumber[1]')
-												->setClass('chequenumber')
-												->setMaxLength(30)
-												->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
-												->setValue("")
-												->draw(true);
-									?>
-								</td>
-								<td>
-								<div class="input-group date remove-margin">
+										->setSplit('', 'col-md-12 field_col')
+										->setClass("")
+										->setName('chequenumber[1]')
+										->setId('chequenumber[1]')
+										->setClass('chequenumber')
+										->setMaxLength(30)
+										// ->setValidation('required alpha_num')
+										->setAttribute(array("readOnly"=>""))
+										->setValue("")
+										->draw(true);
+										?>
+									</td>
+									<td>
+										<div class="input-group date remove-margin">
 											<div class="input-group-addon">
 												<i class="fa fa-calendar"></i>
 											</div>
-									<?php
-										echo $ui->formField('text')
-												->setSplit('', 'col-md-12 field_col')
-												->setClass("datepicker-input")
-												->setName('chequedate[1]')
-												->setId('chequedate[1]')
-												->setAttribute(array("maxlength" => "50"))
-												->setValue($transactiondate)
+											<?php
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12 field_col')
+											->setClass("datepicker-input")
+											->setName('chequedate[1]')
+											->setId('chequedate[1]')
+											->setMaxLength(50)
+											->setValue($transactiondate)
 												// ->setAddOn("calendar")
-												->draw(true);
-									?>
-									</div>
-								</td>
-								<td>
-									<?php
+											->draw(true);
+											?>
+										</div>
+									</td>
+									<td>
+										<?php
 										echo $ui->formField('text')
-												->setSplit('', 'col-md-12 field_col')
-												->setClass("text-right chequeamount")
-												->setName('chequeamount[1]')
-												->setId('chequeamount[1]')
-												->setValidation('decimal')
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
-												->setValue("0.00")
-												->draw(true);
-									?>
-								</td>
-								<td class="text-center">
-									<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
-								</td>
-							</tr>
-							<?else:
+										->setSplit('', 'col-md-12 field_col')
+										->setClass("text-right chequeamount")
+										->setName('chequeamount[1]')
+										->setId('chequeamount[1]')
+										->setValidation('decimal')
+										->setMaxLength(20)
+										->setAttribute(array("onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
+										->setValue("0.00")
+										->draw(true);
+										?>
+									</td>
+									<td class="text-center">
+										<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+									</td>
+								</tr>
+								<?else:
 								$row 				=	1;
 								$totalchequeamt 	=	0;
 								if(!empty($listofcheques) && !is_null($listofcheques)):
@@ -233,92 +235,94 @@
 										$chequedate 	=	$cheque['chequedate'];
 										$chequeamount 	=	$cheque['chequeamount'];
 										$convertedamt 	=	$cheque['chequeconvertedamount'];
-							?>	
-								<tr class="clone">
-									<td>
-										<?php
-											echo $ui->formField('dropdown')
-													->setSplit('', 'col-md-12 field_col')
-													->setPlaceholder('Select One')
-													->setClass("cheque_account")
-													->setName('chequeaccount['.$row.']')
-													->setId('chequeaccount['.$row.']')
-													->setName('chequeaccount['.$row.']')
-													->setClass('chequeaccount')
-													->setList($cash_account_list)
-													->setValue($accountcode)
-													->draw($show_input);
-										?>
-									</td>
-									<td>
-										<?php
-											echo $ui->formField('text')
-													->setSplit('', 'col-md-12 field_col')
-													->setClass("")
-													->setName('chequenumber['.$row.']')
-													->setId('chequenumber['.$row.']')
-													->setClass('chequenumber')
-													->setMaxLength(30)
-													->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
-													->setValue($chequeno)
-													->draw($show_input);
-										?>
-										<input class="hidden chequeno" value= "<?=$chequeno?>">
-									</td>
-									<td>
-									<div class="input-group date remove-margin">
-										<?if($show_input):?>
-											<div class="input-group-addon">
-												<i class="fa fa-calendar"></i>
-											</div>
-										<?endif;?>
-										<?php
-											echo $ui->formField('text')
+										?>	
+										<tr class="clone">
+											<td>
+												<?php
+												echo $ui->formField('dropdown')
+												->setSplit('', 'col-md-12 field_col')
+												->setPlaceholder('Select One')
+												->setClass("cheque_account")
+												->setName('chequeaccount['.$row.']')
+												->setId('chequeaccount['.$row.']')
+												->setName('chequeaccount['.$row.']')
+												->setClass('chequeaccount')
+												->setList($cash_account_list)
+												->setValue($accountcode)
+												->draw($show_input);
+												?>
+											</td>
+											<td>
+												<?php
+												echo $ui->formField('text')
+												->setSplit('', 'col-md-12 field_col')
+												->setClass("")
+												->setName('chequenumber['.$row.']')
+												->setId('chequenumber['.$row.']')
+												->setClass('chequenumber')
+												->setMaxLength(30)
+												->setValidation('required alpha_num')
+												->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+												->setValue($chequeno)
+												->draw($show_input);
+												?>
+												<input class="hidden chequeno" value= "<?=$chequeno?>">
+											</td>
+											<td>
+												<div class="input-group date remove-margin">
+													<?if($show_input):?>
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<?endif;?>
+													<?php
+													echo $ui->formField('text')
 													->setSplit('', 'col-md-12 field_col')
 													->setClass("datepicker-input")
 													->setName('chequedate['.$row.']')
 													->setId('chequedate['.$row.']')
-													->setAttribute(array("maxlength" => "50"))
+													->setMaxLength(50)
 													->setValue($chequedate)
 													->draw($show_input);
+													?>
+												</div>
+											</td>
+											<td class="text-right"> 
+												<?php
+												echo $ui->formField('text')
+												->setSplit('', 'col-md-12 field_col')
+												->setClass("chequeamount text-right")
+												->setName('chequeamount['.$row.']')
+												->setId('chequeamount['.$row.']')
+												->setValidation('decimal')
+												->setMaxLength(20)
+												->setAttribute(array("onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
+												->setValue(number_format($chequeamount,2))
+												->draw($show_input);
+												?>
+											</td>	
+
+											<? if($show_input):?>
+												<td class="text-center">
+													<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+												</td>
+												<?php else : ?>
+													<td class="text-center">
+														<button type="button" class="btn btn-info btn-flat print_check"  style="outline:none;" ><span class="glyphicon glyphicon-download-alt"></span></button>
+													</td>	
+												<?php endif; ?>
+											</tr>	
+											<?
+
+											$row++;
+											$totalchequeamt 	+=	$chequeamount;
+										endforeach;
+									else:
 										?>
-										</div>
-									</td>
-									<td class="text-right"> 
-										<?php
-											echo $ui->formField('text')
-													->setSplit('', 'col-md-12 field_col')
-													->setClass("chequeamount text-right")
-													->setName('chequeamount['.$row.']')
-													->setId('chequeamount['.$row.']')
-													->setValidation('decimal')
-													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
-													->setValue(number_format($chequeamount,2))
-													->draw($show_input);
-										?>
-									</td>	
-								
-									<? if($show_input):?>
-									<td class="text-center">
-										<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
-									</td>
-									<?php else : ?>
-									<td class="text-center">
-										<button type="button" class="btn btn-info btn-flat print_check"  style="outline:none;" ><span class="glyphicon glyphicon-download-alt"></span></button>
-									</td>	
-									<?php endif; ?>
-								</tr>	
-							<?
-								
-								$row++;
-								$totalchequeamt 	+=	$chequeamount;
-									endforeach;
-								else:
-							?>
-							<tr class="clone">
-								<td class="">
-									<?php
-										echo $ui->formField('dropdown')
+										<tr class="clone">
+											<td class="">
+												<?php
+												echo $ui->formField('dropdown')
 												->setSplit('', 'col-md-12 field_col')
 												->setPlaceholder('Select One')
 												->setClass("cheque_account")
@@ -329,11 +333,11 @@
 												->setList($cash_account_list)
 												->setValue("")
 												->draw(true);
-									?>
-								</td>
-								<td>
-									<?php
-										echo $ui->formField('text')
+												?>
+											</td>
+											<td>
+												<?php
+												echo $ui->formField('text')
 												->setSplit('', 'col-md-12 field_col')
 												->setClass("")
 												->setName('chequenumber[1]')
@@ -343,29 +347,29 @@
 												->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 												->setValue("")
 												->draw(true);
-									?>
-								</td>
-								<td>
-								<div class="input-group date remove-margin">
-											<div class="input-group-addon">
-												<i class="fa fa-calendar"></i>
-											</div>
-									<?php
-										echo $ui->formField('text')
-												->setSplit('', 'col-md-12 field_col')
-												->setClass("datepicker-input")
-												->setName('chequedate[1]')
-												->setId('chequedate[1]')
-												->setAttribute(array("maxlength" => "50"))
-												->setValue($transactiondate)
+												?>
+											</td>
+											<td>
+												<div class="input-group date remove-margin">
+													<div class="input-group-addon">
+														<i class="fa fa-calendar"></i>
+													</div>
+													<?php
+													echo $ui->formField('text')
+													->setSplit('', 'col-md-12 field_col')
+													->setClass("datepicker-input")
+													->setName('chequedate[1]')
+													->setId('chequedate[1]')
+													->setAttribute(array("maxlength" => "50"))
+													->setValue($transactiondate)
 												// ->setAddOn("calendar")
-												->draw(true);
-									?>
-									</div>
-								</td>
-								<td>
-									<?php
-										echo $ui->formField('text')
+													->draw(true);
+													?>
+												</div>
+											</td>
+											<td>
+												<?php
+												echo $ui->formField('text')
 												->setSplit('', 'col-md-12 field_col')
 												->setClass("text-right chequeamount")
 												->setName('chequeamount[1]')
@@ -373,670 +377,757 @@
 												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
 												->setValue("0.00")
 												->draw(true);
-									?>
-								</td>
-								<td class="text-center">
-									<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
-								</td>
-							</tr>
-							<?
-								endif;
+												?>
+											</td>
+											<td class="text-center">
+												<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+											</td>
+										</tr>
+										<?
+									endif;
 
-							endif;?>
-						</tbody>
-						<tfoot>
-							<tr>
-								<? if($show_input):?>
-								<td colspan="2">
-									<a type="button" class="btn btn-link add-cheque"  style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Cheque</a>
-								</td>
-								<td class="text-right"><label class="control-label">Total</label></td>
-								<td class="text-right">
-									<?php
-										echo $ui->formField('text')
-												->setSplit('', 'col-md-12 field_col')
-												->setClass("text-right input_label")
-												->setId("totalcheques")
-												->setAttribute(array("readonly" => "readonly"))
-												->setValue(number_format(0, 2))
-												->draw($show_input);
-									?>
-								</td>
-								<? else:?>
-								<td class="text-right" colspan="3"><label class="control-label">Total</label></td>
-								<td class="text-right">
-									<?php
-										echo $ui->formField('text')
+								endif;?>
+							</tbody>
+							<tfoot>
+								<tr>
+									<? if($show_input):?>
+										<td colspan="2">
+											<a type="button" class="btn btn-link add-cheque"  style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Cheque</a>
+										</td>
+										<td class="text-right"><label class="control-label">Total</label></td>
+										<td class="text-right">
+											<?php
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12 field_col')
+											->setClass("text-right input_label")
+											->setId("totalcheques")
+											->setAttribute(array("readonly" => "readonly"))
+											->setValue(number_format(0, 2))
+											->draw($show_input);
+											?>
+										</td>
+										<? else:?>
+											<td class="text-right" colspan="3"><label class="control-label">Total</label></td>
+											<td class="text-right">
+												<?php
+												echo $ui->formField('text')
 												->setSplit('', 'col-md-12 field_col')
 												->setClass("text-right input_label")
 												->setId("totalcheques")
 												->setAttribute(array("readonly" => "readonly"))
 												->setValue(number_format($totalchequeamt, 2))
 												->draw($show_input);
-									?>
-								</td>
-								<?endif;?>
-							</tr>	
-						</tfoot>
-					</table>
-				</div>
-			</div>
-			<!--End of Cheque Details-->
-			<hr/>
-			<!--Account Entries-->
-			<div class="panel panel-default" id="accounting_details">
-				<div class="panel-heading">
-					<strong>Accounting Details</strong>
-				</div>
-				<div class="has-error">
-					<span id="totalAmountError" class="help-block hidden small">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						The total Debit Amount and Credit Amount must match.
-					</span>
-					<span id="zeroTotalAmountError" class="help-block hidden small">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						Total Debit and Total Credit must have a value.
-					</span>
-					<span id="accountcodeError" class="help-block hidden small">
-						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						Account Code field must have a value.
-					</span>
-				</div>
-				<div class="table-responsive">
-					<table class="table table-hover table-condensed " id="entriesTable">
-						<thead>
-							<tr class="info">
-								<th class="col-md-4">Account</th>
-								<th class="col-md-3">Description</th>
-								<th class="col-md-2">Debit</th>
-								<th class="col-md-2">Credit</th>
-								<?if($show_input){?><th class="col-md-1"></th><?}?>
-							</tr>
-						</thead>
-						<tbody id = "ap_items">
-							<?php
-								$row 				= 1;
+												?>
+											</td>
+											<?endif;?>
+										</tr>	
+									</tfoot>
+								</table>
+							</div>
+						</div>
+						<!--End of Cheque Details-->
+						<hr/>
+						<!--Account Entries-->
+						<div class="panel panel-default" id="accounting_details">
+							<div class="panel-heading">
+								<strong>Accounting Details</strong>
+							</div>
+							<div class="has-error">
+								<span id="totalAmountError" class="help-block hidden small">
+									<i class="glyphicon glyphicon-exclamation-sign"></i> 
+									The total Debit Amount and Credit Amount must match.
+								</span>
+								<span id="zeroTotalAmountError" class="help-block hidden small">
+									<i class="glyphicon glyphicon-exclamation-sign"></i> 
+									Total Debit and Total Credit must have a value.
+								</span>
+								<span id="accountcodeError" class="help-block hidden small">
+									<i class="glyphicon glyphicon-exclamation-sign"></i> 
+									Account Code field must have a value.
+								</span>
+							</div>
+							<div class="table-responsive">
+								<table class="table table-hover table-condensed " id="entriesTable">
+									<thead>
+										<tr class="info">
+											<th class="col-md-4">Account</th>
+											<th class="col-md-3">Description</th>
+											<th class="col-md-2">Debit</th>
+											<th class="col-md-2">Credit</th>
+											<?if($show_input){?><th class="col-md-1"></th><?}?>
+										</tr>
+									</thead>
+									<tbody id = "ap_items">
+										<?php
+										$row 				= 1;
 
-								$total_debit 		= 0;
-								$total_credit 		= 0;
+										$total_debit 		= 0;
+										$total_credit 		= 0;
 
-								if($task == 'create')
-								{
-									$accountcode 		= '';
-									$detailparticulars 	= '';
-									$debit 				= '0.00';
-									$credit 			= '0.00';
-		
-							?>
+										if($task == 'create')
+										{
+											$accountcode 		= '';
+											$detailparticulars 	= '';
+											$debit 				= '0.00';
+											$credit 			= '0.00';
 
-							<tr class="clone">
-								<td>
-									<?php
-										echo $ui->formField('dropdown')
-												->setPlaceholder('Select One')
-												->setSplit('', 'col-md-12')
-												->setName("accountcode[".$row."]")
-												->setClass("accountcode")
-												->setId("accountcode[".$row."]")
-												->setList($account_entry_list)
-												->setValue($accountcode)
-												->draw($show_input);
-									?>
-									<input type = "hidden" class="h_accountcode" name='h_accountcode[<?=$row?>]' id='h_accountcode[<?=$row?>]'>
-								</td>
-								<td>
-									<?php
-										echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
-												->setName('detailparticulars['.$row.']')
-												->setId('detailparticulars['.$row.']')
-												->setClass('description')
-												->setAttribute(array("maxlength" => "100"))
-												->setValue($detailparticulars)
-												->draw($show_input);
-									?>
-									<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
-								</td>
-								<td>
-									<?php
-										echo $ui->formField('text')
-												->setSplit('', 'col-md-12 field_col')
-												->setName('debit['.$row.']')
-												->setId('debit['.$row.']')
-												->setClass("text-right debit")
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
-												->setValue(number_format($debit, 2))
-												->draw($show_input);
-									?>
-								</td>
-								<td>
-									<?php
-										echo $ui->formField('text')
-												->setSplit('', 'col-md-12 field_col')
-												->setName('credit['.$row.']')
-												->setId('credit['.$row.']')
-												->setClass("text-right account_amount  credit")
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
-												->setValue(number_format($credit, 2))
-												->draw($show_input);
-									?>
-								</td>
-								<td class="text-center">
-									<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
-								</td>
-							</tr>
+											?>
 
-							<?
-									$row++;
-							?>
+											<tr class="clone">
+												<td>
+													<?php
+													echo $ui->formField('dropdown')
+													->setPlaceholder('Select One')
+													->setSplit('', 'col-md-12')
+													->setName("accountcode[".$row."]")
+													->setClass("accountcode")
+													->setId("accountcode[".$row."]")
+													->setList($account_entry_list)
+													->setValue($accountcode)
+													->draw($show_input);
+													?>
+													<input type = "hidden" class="h_accountcode" name='h_accountcode[<?=$row?>]' id='h_accountcode[<?=$row?>]'>
+												</td>
+												<td>
+													<?php
+													echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('detailparticulars['.$row.']')
+													->setId('detailparticulars['.$row.']')
+													->setClass('description')
+													->setAttribute(array("maxlength" => "100"))
+													->setValue($detailparticulars)
+													->draw($show_input);
+													?>
+													<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
+												</td>
+												<td>
+													<?php
+													echo $ui->formField('text')
+													->setSplit('', 'col-md-12 field_col')
+													->setName('debit['.$row.']')
+													->setId('debit['.$row.']')
+													->setClass("text-right debit")
+													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
+													->setValue(number_format($debit, 2))
+													->draw($show_input);
+													?>
+												</td>
+												<td>
+													<?php
+													echo $ui->formField('text')
+													->setSplit('', 'col-md-12 field_col')
+													->setName('credit['.$row.']')
+													->setId('credit['.$row.']')
+													->setClass("text-right account_amount  credit")
+													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
+													->setValue(number_format($credit, 2))
+													->draw($show_input);
+													?>
+												</td>
+												<td class="text-center">
+													<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+												</td>
+											</tr>
 
-							<tr class="clone">
-								<td>
-									<?php
-										echo $ui->formField('dropdown')
-												->setPlaceholder('Select One')
-												->setSplit('', 'col-md-12')
-												->setName("accountcode[".$row."]")
-												->setClass("accountcode")
-												->setId("accountcode[".$row."]")
-												->setList($account_entry_list)
-												->setValue($accountcode)
-												->draw($show_input);
-									?>
-									<input type = "hidden" class="h_accountcode" name='h_accountcode[<?=$row?>]' id='h_accountcode[<?=$row?>]'>
-								</td>
-								<td>
-									<?php
-										echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
-												->setName('detailparticulars['.$row.']')
-												->setId('detailparticulars['.$row.']')
-												->setClass('description')
-												->setAttribute(array("maxlength" => "100"))
-												->setValue($detailparticulars)
-												->draw($show_input);
-									?>
-									<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
-								</td>
-								<td>
-									<?php
-										echo $ui->formField('text')
-												->setSplit('', 'col-md-12 field_col')
-												->setName('debit['.$row.']')
-												->setId('debit['.$row.']')
-												->setClass("text-right debit")
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
-												->setValue(number_format($debit, 2))
-												->draw($show_input);
-									?>
-								</td>
-								<td>
-									<?php
-										echo $ui->formField('text')
-												->setSplit('', 'col-md-12 field_col')
-												->setName('credit['.$row.']')
-												->setClass("text-right account_amount credit")
-												->setId('credit['.$row.']')
-												->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
-												->setValue(number_format($credit, 2))
-												->draw($show_input);
-									?>
-								</td>
-								<td class="text-center">
-									<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
-								</td>
-							</tr>
-
-							<?php
-								}else{
-									$aPvJournalDetails 	= $data['details'];
-									$detail_row 		= '';
-									if(!empty($aPvJournalDetails)){
-										foreach ($aPvJournalDetails as $aPvJournalDetails_Index => $aPvJournalDetails_Value) {
-											$accountcode 		= $aPvJournalDetails_Value->accountcode;
-											$detailparticulars 	= $aPvJournalDetails_Value->detailparticulars;
-											$debit 				= $aPvJournalDetails_Value->debit;
-											$credit 			= $aPvJournalDetails_Value->credit;
-											$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
-
-											$disable_code 		= "";
-											$added_class 		= "";
-											$indicator 			= "";
-											if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque' && $ischeck == 'yes'){
-												$disable_debit		= 'readOnly';
-												$disable_credit		= 'readOnly';
-												$disable_code 		= 'disabled';
-												$added_class 		= 'added_row';
-												$indicator 			= "cheque";
-											} else {
-												$disable_debit		= ($debit > 0) ? '' : 'readOnly';
-												$disable_credit		= ($credit > 0) ? '' : 'readOnly';
-											}
-
-											$total_debit 		+= $debit;
-											$total_credit 		+= $credit;
-											$detail_row	.= '<tr class="clone '.$added_class.'">';
-
-											$detail_row	.= '<td>';
-											$detail_row .= $ui->formField('dropdown')
-															->setPlaceholder('Select One')
-															->setSplit('', 'col-md-12')
-															->setName("accountcode[".$row."]")
-															->setClass("accountcode")
-															->setId("accountcode[".$row."]")
-															->setAttribute(array($disable_code))
-															->setList($account_entry_list)
-															->setValue($accountcode)
-															->draw($show_input);
-															
-											$detail_row	.= '	<input type = "hidden" class="h_accountcode" value="'.$accountcode.'" name="h_accountcode['.$row.']" id="h_accountcode['.$row.']">
-															</td>';
-
-											$detail_row	.= '<td>';
-											$detail_row .= $ui->formField('text')
-															->setSplit('', 'col-md-12')
-															->setName('detailparticulars['.$row.']')
-															->setId('detailparticulars['.$row.']')
-															->setClass('description')
-															->setAttribute(array("maxlength" => "100"))
-															->setValue($detailparticulars)
-															->draw($show_input);
-											$detail_row	.= '	<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
-															</td>';
-
-											$detail_row	.= '<td class="text-right">';
-											$detail_row .= $ui->formField('text')
-															->setSplit('', 'col-md-12 field_col')
-															->setName('debit['.$row.']')
-															->setClass("debit text-right $indicator")
-															->setId('debit['.$row.']')
-															->setValidation('decimal')
-															->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
-															->setValue(number_format($debit, 2))
-															->draw($show_input);
-											$detail_row	.= '</td>';
-
-											$detail_row	.= '<td class="text-right">';
-											$detail_row .= $ui->formField('text')
-															->setSplit('', 'col-md-12 field_col')
-															->setName('credit['.$row.']')
-															->setValidation('decimal')
-															->setClass("account_amount credit text-right $indicator")
-															->setId('credit['.$row.']')
-															->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_credit))
-															->setValue(number_format($credit, 2))
-															->draw($show_input);
-											$detail_row	.= '</td>';
-
-											if( $show_input ){
-												$detail_row .= '<td class="text-center">';
-												$detail_row .= '	<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"  '.$disable_code.'><span class="glyphicon glyphicon-trash"></span></button>';
-												$detail_row .= '</td>';
-											}
-
-											$detail_row	.= '</tr>';
-
+											<?
 											$row++;
-										}
+											?>
 
-										echo $detail_row;
+											<tr class="clone">
+												<td>
+													<?php
+													echo $ui->formField('dropdown')
+													->setPlaceholder('Select One')
+													->setSplit('', 'col-md-12')
+													->setName("accountcode[".$row."]")
+													->setClass("accountcode")
+													->setId("accountcode[".$row."]")
+													->setList($account_entry_list)
+													->setValue($accountcode)
+													->draw($show_input);
+													?>
+													<input type = "hidden" class="h_accountcode" name='h_accountcode[<?=$row?>]' id='h_accountcode[<?=$row?>]'>
+												</td>
+												<td>
+													<?php
+													echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('detailparticulars['.$row.']')
+													->setId('detailparticulars['.$row.']')
+													->setClass('description')
+													->setAttribute(array("maxlength" => "100"))
+													->setValue($detailparticulars)
+													->draw($show_input);
+													?>
+													<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
+												</td>
+												<td>
+													<?php
+													echo $ui->formField('text')
+													->setSplit('', 'col-md-12 field_col')
+													->setName('debit['.$row.']')
+													->setId('debit['.$row.']')
+													->setClass("text-right debit")
+													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
+													->setValue(number_format($debit, 2))
+													->draw($show_input);
+													?>
+												</td>
+												<td>
+													<?php
+													echo $ui->formField('text')
+													->setSplit('', 'col-md-12 field_col')
+													->setName('credit['.$row.']')
+													->setClass("text-right account_amount credit")
+													->setId('credit['.$row.']')
+													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
+													->setValue(number_format($credit, 2))
+													->draw($show_input);
+													?>
+												</td>
+												<td class="text-center">
+													<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+												</td>
+											</tr>
+
+											<?php
+										}else{
+											$aPvJournalDetails 	= $data['details'];
+											$detail_row 		= '';
+											if(!empty($aPvJournalDetails)){
+												foreach ($aPvJournalDetails as $aPvJournalDetails_Index => $aPvJournalDetails_Value) {
+													$accountcode 		= $aPvJournalDetails_Value->accountcode;
+													$detailparticulars 	= $aPvJournalDetails_Value->detailparticulars;
+													$debit 				= $aPvJournalDetails_Value->debit;
+													$credit 			= $aPvJournalDetails_Value->credit;
+													$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
+
+													$disable_code 		= "";
+													$added_class 		= "";
+													$indicator 			= "";
+													if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque' && $ischeck == 'yes'){
+														$disable_debit		= 'readOnly';
+														$disable_credit		= 'readOnly';
+														$disable_code 		= 'disabled';
+														$added_class 		= 'added_row';
+														$indicator 			= "cheque";
+													} else {
+														$disable_debit		= ($debit > 0) ? '' : 'readOnly';
+														$disable_credit		= ($credit > 0) ? '' : 'readOnly';
+													}
+
+													$total_debit 		+= $debit;
+													$total_credit 		+= $credit;
+													$detail_row	.= '<tr class="clone '.$added_class.'">';
+
+													$detail_row	.= '<td>';
+													$detail_row .= $ui->formField('dropdown')
+													->setPlaceholder('Select One')
+													->setSplit('', 'col-md-12')
+													->setName("accountcode[".$row."]")
+													->setClass("accountcode")
+													->setId("accountcode[".$row."]")
+													->setAttribute(array($disable_code))
+													->setList($account_entry_list)
+													->setValue($accountcode)
+													->draw($show_input);
+
+													$detail_row	.= '	<input type = "hidden" class="h_accountcode" value="'.$accountcode.'" name="h_accountcode['.$row.']" id="h_accountcode['.$row.']">
+													</td>';
+
+													$detail_row	.= '<td>';
+													$detail_row .= $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('detailparticulars['.$row.']')
+													->setId('detailparticulars['.$row.']')
+													->setClass('description')
+													->setAttribute(array("maxlength" => "100"))
+													->setValue($detailparticulars)
+													->draw($show_input);
+													$detail_row	.= '	<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
+													</td>';
+
+													$detail_row	.= '<td class="text-right">';
+													$detail_row .= $ui->formField('text')
+													->setSplit('', 'col-md-12 field_col')
+													->setName('debit['.$row.']')
+													->setClass("debit text-right $indicator")
+													->setId('debit['.$row.']')
+													->setValidation('decimal')
+													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
+													->setValue(number_format($debit, 2))
+													->draw($show_input);
+													$detail_row	.= '</td>';
+
+													$detail_row	.= '<td class="text-right">';
+													$detail_row .= $ui->formField('text')
+													->setSplit('', 'col-md-12 field_col')
+													->setName('credit['.$row.']')
+													->setValidation('decimal')
+													->setClass("account_amount credit text-right $indicator")
+													->setId('credit['.$row.']')
+													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_credit))
+													->setValue(number_format($credit, 2))
+													->draw($show_input);
+													$detail_row	.= '</td>';
+
+													if( $show_input ){
+														$detail_row .= '<td class="text-center">';
+														$detail_row .= '	<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"  '.$disable_code.'><span class="glyphicon glyphicon-trash"></span></button>';
+														$detail_row .= '</td>';
+													}
+
+													$detail_row	.= '</tr>';
+
+													$row++;
+												}
+
+												echo $detail_row;
+											}
+										}
+										?>
+									</tbody>
+									<tfoot>
+										<? if($show_input): ?>
+											<tr>
+												<td>
+													<a type="button" class="btn btn-link add-entry" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Entry</a>
+												</td>	
+											</tr>
+											<?endif;?>
+											<tr id="total">
+												<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+												<td class="right" style="border-top:1px solid #DDDDDD;">
+													<label class="control-label col-md-12">Total</label>
+												</td>
+												<td class="text-right" style="border-top:1px solid #DDDDDD;">
+													<?php
+													echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('total_debit')
+													->setId('total_debit')
+													->setClass("input_label text-right")
+													->setAttribute(array("maxlength" => "40", "readonly" => "readonly"))
+													->setValue(number_format($total_debit,2))
+													->draw($show_input);
+													?>
+												</td>
+												<td class="text-right" style="border-top:1px solid #DDDDDD;">
+													<?php
+													echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('total_credit')
+													->setId('total_credit')
+													->setClass("input_label text-right")
+													->setAttribute(array("maxlength" => "40", "readonly" => "readonly"))
+													->setValue(number_format($total_credit,2))
+													->draw($show_input);
+													?>
+												</td>
+											</tr>	
+										</tfoot>
+									</table>
+								</div>
+							</div>
+							<!--End of Accounting Entries-->
+
+							<div class="row">
+								<div class="col-md-12 col-sm-12 text-center">
+									<?if($show_input):?>
+									<? if($task == 'create') {
+										echo $ui->addSavePreview()
+										->addSaveNew()
+										->addSaveExit()
+										->drawSaveOption();
 									}
-								}
-							?>
-						</tbody>
-						<tfoot>
-							<? if($show_input): ?>
-							<tr>
-								<td>
-									<a type="button" class="btn btn-link add-entry" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Entry</a>
-								</td>	
-							</tr>
-							<?endif;?>
-							<tr id="total">
-								<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
-								<td class="right" style="border-top:1px solid #DDDDDD;">
-									<label class="control-label col-md-12">Total</label>
-								</td>
-								<td class="text-right" style="border-top:1px solid #DDDDDD;">
-									<?php
-										echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
-												->setName('total_debit')
-												->setId('total_debit')
-												->setClass("input_label text-right")
-												->setAttribute(array("maxlength" => "40", "readonly" => "readonly"))
-												->setValue(number_format($total_debit,2))
-												->draw($show_input);
+
+									if($task == 'view') {
+										echo $ui->drawSubmit($show_input);
+									} else if($task == 'edit') { ?>
+										<input type = "button" value = "Save" name = "save" id = "save" class="btn btn-primary btn-sm btn-flat"/>
+									<?php }
 									?>
-								</td>
-								<td class="text-right" style="border-top:1px solid #DDDDDD;">
-									<?php
-										echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
-												->setName('total_credit')
-												->setId('total_credit')
-												->setClass("input_label text-right")
-												->setAttribute(array("maxlength" => "40", "readonly" => "readonly"))
-												->setValue(number_format($total_credit,2))
-												->draw($show_input);
+									<?endif;?>
+									&nbsp;
+									<?
+									if(($status == 'open' && $has_access == 1) && $restrict_dv){
+										echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
+									}
 									?>
-								</td>
-							</tr>	
-						</tfoot>
-					</table>
+									<button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel">Cancel</button>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</form>
+
+			</section>
+
+			<!-- Delete Record Confirmation Modal -->
+			<div class="modal fade" id="deleteItemModal" tabindex="-1" data-backdrop="static">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content">
+						<div class="modal-header">
+							Confirmation
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<div class="modal-body">
+							Are you sure you want to delete this record?
+							<input type="hidden" id="recordId"/>
+						</div>
+						<div class="modal-footer">
+							<div class="row row-dense">
+								<div class="col-md-12 center">
+									<div class="btn-group">
+										<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+									</div>
+									&nbsp;&nbsp;&nbsp;
+									<div class="btn-group">
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
-			<!--End of Accounting Entries-->
 
-			<div class="row">
-				<div class="col-md-12 col-sm-12 text-center">
-					<?if($show_input):?>
-					<? echo  $ui->addSavePreview()
-								->addSaveNew()
-								->addSaveExit()
-							    ->drawSaveOption(true);?>
-						<input class = "form_iput" value = "" name = "h_save" id = "h_save" type = "hidden">
-					<!-- <input type = "button" value = "Save" name = "save" id = "btnSave" class="btn btn-primary btn-flat"/>
-					<input class = "form_iput" value = "" name = "h_save" id = "h_save" type = "hidden"> -->
-					<?endif;?>
-					&nbsp;
-					<?
-					if(($status == 'open' && $has_access == 1) && $restrict_dv){
-						echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
-					}
-					?>
-					<button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel">Cancel</button>
+			<!-- Delete Cheque Confirmation Modal -->
+			<div class="modal fade" id="deleteChequeModal" tabindex="-1" data-backdrop="static">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content">
+						<div class="modal-header">
+							Confirmation
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<div class="modal-body">
+							Are you sure you want to delete this record?
+							<input type="hidden" id="recordId"/>
+						</div>
+						<div class="modal-footer">
+							<div class="row row-dense">
+								<div class="col-md-12 center">
+									<div class="btn-group">
+										<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+									</div>
+									&nbsp;&nbsp;&nbsp;
+									<div class="btn-group">
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- End Delete Record Confirmation Modal -->
+
+			<!--DELETE RECORD CONFIRMATION MODAL-->
+			<div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content">
+						<div class="modal-header">
+							Confirmation
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<div class="modal-body">
+							Are you sure you want to Cancel this Transaction?
+						</div>
+						<div class="modal-footer">
+							<div class="row row-dense">
+								<div class="col-md-12 center">
+									<div class="btn-group">
+										<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+									</div>
+									&nbsp;&nbsp;&nbsp;
+									<div class="btn-group">
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- End DELETE RECORD CONFIRMATION MODAL-->
+
+			<!-- ON CHANGING OF VENDOR MODAL -->
+			<div class="modal fade" id="change_vendor_modal" tabindex="-1" data-backdrop="static">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content">
+						<div class="modal-header">
+							Confirmation
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<div class="modal-body">
+							Are you sure you want to cancel this record?
+							<input type="hidden" id="recordId"/>
+						</div>
+						<div class="modal-footer">
+							<div class="row row-dense">
+								<div class="col-md-12 center">
+									<div class="btn-group">
+										<button type="button" class="btn btn-info btn-flat" id="yes_to_reset">Yes</button>
+									</div>
+									&nbsp;&nbsp;&nbsp;
+									<div class="btn-group">
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 			
-		</div>
-	</div>
-</form>
 
-</section>
-
-<!-- Delete Record Confirmation Modal -->
-<div class="modal fade" id="deleteItemModal" tabindex="-1" data-backdrop="static">
-<div class="modal-dialog modal-sm">
-	<div class="modal-content">
-		<div class="modal-header">
-			Confirmation
-			<button type="button" class="close" data-dismiss="modal">&times;</button>
-		</div>
-		<div class="modal-body">
-			Are you sure you want to delete this record?
-			<input type="hidden" id="recordId"/>
-		</div>
-		<div class="modal-footer">
-			<div class="row row-dense">
-				<div class="col-md-12 center">
-					<div class="btn-group">
-						<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
-					</div>
-					&nbsp;&nbsp;&nbsp;
-					<div class="btn-group">
-						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-</div>
-
-<!-- Delete Cheque Confirmation Modal -->
-<div class="modal fade" id="deleteChequeModal" tabindex="-1" data-backdrop="static">
-<div class="modal-dialog modal-sm">
-	<div class="modal-content">
-		<div class="modal-header">
-			Confirmation
-			<button type="button" class="close" data-dismiss="modal">&times;</button>
-		</div>
-		<div class="modal-body">
-			Are you sure you want to delete this record?
-			<input type="hidden" id="recordId"/>
-		</div>
-		<div class="modal-footer">
-			<div class="row row-dense">
-				<div class="col-md-12 center">
-					<div class="btn-group">
-						<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
-					</div>
-					&nbsp;&nbsp;&nbsp;
-					<div class="btn-group">
-						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-</div>
-<!-- End Delete Record Confirmation Modal -->
-
-<!--DELETE RECORD CONFIRMATION MODAL-->
-<div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
-<div class="modal-dialog modal-sm">
-	<div class="modal-content">
-		<div class="modal-header">
-			Confirmation
-			<button type="button" class="close" data-dismiss="modal">&times;</button>
-		</div>
-		<div class="modal-body">
-			Are you sure you want to Cancel this Transaction?
-		</div>
-		<div class="modal-footer">
-			<div class="row row-dense">
-				<div class="col-md-12 center">
-					<div class="btn-group">
-						<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
-					</div>
-						&nbsp;&nbsp;&nbsp;
-					<div class="btn-group">
-						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-</div>
-<!-- End DELETE RECORD CONFIRMATION MODAL-->
-
- <!-- ON CHANGING OF VENDOR MODAL -->
-<div class="modal fade" id="change_vendor_modal" tabindex="-1" data-backdrop="static">
-	<div class="modal-dialog modal-sm">
-		<div class="modal-content">
-			<div class="modal-header">
-				Confirmation
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-			</div>
-			<div class="modal-body">
-				Are you sure you want to cancel this record?
-				<input type="hidden" id="recordId"/>
-			</div>
-			<div class="modal-footer">
-				<div class="row row-dense">
-					<div class="col-md-12 center">
-						<div class="btn-group">
-							<button type="button" class="btn btn-info btn-flat" id="yes_to_reset">Yes</button>
+			<!-- Check Modal  -->
+			<div class="modal fade" id="checkModal" tabindex="-1" data-backdrop="static">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content">
+						<div class="modal-header">
+							Confirmation
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
 						</div>
-						&nbsp;&nbsp;&nbsp;
-						<div class="btn-group">
-							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+						<div class="modal-body">
+							There are no available check number for the system to use. Please verify check number series in bank maintenance.
+							<input type="hidden" id="recordId"/>
+						</div>
+						<div class="modal-footer">
+							<div class="row row-dense">
+								<!-- <div class="col-md-12 center">
+									<div class="btn-group">
+										<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+									</div>
+									&nbsp;&nbsp;&nbsp;
+									<div class="btn-group">
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+									</div>
+								</div> -->
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	</div>
-</div>
 
-<script>
+			<script>
 
-	var edited = false;
-	$('#paymentModal').on('blur', 'input', function() {
-		edited = true;
-	});
+				var edited = false;
+				$('#paymentModal').on('blur', 'input', function() {
+					edited = true;
+				});
 
-</script>
+			</script>
 
-<script>
-	var ajax 	 = {};
+			<script>
+				var ajax 	 = {};
 
-	var id_array 		= [];
-	var accounts 		= [];
-	var acct_details 	= [];
+				var id_array 		= [];
+				var accounts 		= [];
+				var acct_details 	= [];
+				var cheque 			= [];
 
-	var checker 	= new Array();
-	var cheque_arr 	= [];
-	var table 		= document.getElementById('ap_items');
-	var newid 		= table.rows.length;
-		newid 		= parseFloat(newid);
+				var checker 	= new Array();
+				var cheque_arr 	= [];
+				var table 		= document.getElementById('ap_items');
+				var newid 		= table.rows.length;
+				newid 		= parseFloat(newid);
 
-	var task 		= '<?= $task ?>';
+				var task 		= '<?= $task ?>';
 
-	var min_row 	=	2;
-	
+				var min_row 	=	2;
+
 	// Get Initial Clone of First Row. In this case, disabled cheque entries. 
 	var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 		// enable them to allow a cloned row with enabled dropdown and input fields
-	var initial_debit 		= initial_clone.find('.debit').val();
-	var initial_credit 		= initial_clone.find('.crebit').val() || 0;
+		var initial_debit 		= initial_clone.find('.debit').val();
+		var initial_credit 		= initial_clone.find('.crebit').val() || 0;
 		initial_clone.find('.debit').attr("value",0);
 		initial_clone.find('.credit').attr("value",0);
-	var clone_acct 	= $('#entriesTable tbody tr.clone:first')[0].outerHTML;
+		var clone_acct 	= $('#entriesTable tbody tr.clone:first')[0].outerHTML;
 		// after cloning, set the first row to its initial state ( again, in this case, a disabled fields )
 		initial_clone.find('.debit').val(initial_debit);
 		initial_clone.find('.credit').val(initial_credit);
 
-	function storedescriptionstoarray(){
-		acct_details 	=	[];
-		$('#entriesTable tbody tr.added_row').each(function() {
-			var accountcode = $(this).find('.accountcode').val();
-			var description = $(this).find('.description').val();
-			var ischeck 	= $(this).find('.ischeck').val();
-			var debit		= $(this).find('.account_amount').val();
+		function storedescriptionstoarray(){
+			acct_details 	=	[];
+			$('#entriesTable tbody tr.added_row').each(function() {
+				var accountcode = $(this).find('.accountcode').val();
+				var description = $(this).find('.description').val();
+				var ischeck 	= $(this).find('.ischeck').val();
+				var debit		= $(this).find('.account_amount').val();
 
-			if(description!="" ){
-				if (typeof acct_details[accountcode] === 'undefined') {
-					acct_details[accountcode] = "";
+				if(description!="" ){
+					if (typeof acct_details[accountcode] === 'undefined') {
+						acct_details[accountcode] = "";
+					}
+					acct_details[accountcode] = description;
 				}
-				acct_details[accountcode] = description;
-			}
-		});
-	}
-
-	function displaystoreddescription(){
-		$('#entriesTable tbody tr.added_row select.accountcode').each(function() {
-			var ischeck = $(this).closest('tr').find('.ischeck').val();
-			if(ischeck == 'yes'){
-				if (typeof acct_details[$(this).val()] === 'undefined') {
-					$(this).closest('tr').find('.description').val("");
-				} else {
-					var description = acct_details[$(this).val()] || "";
-					$(this).closest('tr').find('.description').val(description);	
-				}	
-			}
-		});
-	}
-
-	$('#chequeTable .cheque_account').on('change', function()  {
-		storedescriptionstoarray();
-		if ($('#entriesTable tbody tr.clone select').data('select2')) {
-			$('#entriesTable tbody tr.clone select').select2('destroy');
+			});
 		}
-		var val = $(this).val();
-		
-		cheque_arr = [];
 
-		$('#entriesTable tbody tr.added_row').remove();
-		$('#chequeTable tbody tr select.cheque_account').each(function() {
-			var account = $(this).val();
-			if(account!="" && jQuery.inArray(account,cheque_arr) == -1){
-				cheque_arr.push(account);
-			}
-		});
-		var row = $("#entriesTable tbody tr.clone").length;
-		$('#entriesTable tbody tr.clone .accountcode').each(function(index) {
-			var account = $(this).val();
-			var ischeck = $(this).closest('tr').find('.ischeck').val();
-			if(task == 'create' && index != 0 && account == "" || account == "" && index != 0 && ischeck == 'yes'){
-				$(this).closest('tr').remove();
-			}
-		});
-
-		
-		row = $("#entriesTable tbody tr.clone").length + 1;
-		cheque_arr.forEach(function(account) {
-			var ParentRow = $("#entriesTable tbody tr.clone").last();
-			$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
-			// clone_acct(initial state of first row) will be placed on the last cloned row. 
-			ParentRow.after(clone_acct);
-			resetIds();
-			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
-			$("#entriesTable button#"+row).prop('disabled',true);
-			$("#entriesTable debit#"+row).prop('disabled',true);
-			$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
-			$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
-			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
-			disable_acct_fields(row);
-			row++;
-		});
-		accounts.push(val);
-		recomputechequeamts();
-		acctdetailamtreset();
-		displaystoreddescription();
-		drawTemplate();
-	});
-
-	function disable_acct_fields(row){
-		$("#accountcode\\["+ row +"\\]").prop("disabled", true);
-		$("#debit\\["+ row +"\\]").prop("readonly", true);
-		$("#credit\\["+ row +"\\]").prop("readonly", true);
-		$("#entriesTable button#"+row).prop('disabled',true);
-	}
-
-	function acctdetailamtreset(){
-		$('#entriesTable tbody .added_row').each(function() {
-			var accountcode = $(this).find('.accountcode').val();
-			if(!checker.hasOwnProperty('acc-'+accountcode)){
-				$(this).remove();
-			}
-			$(this).closest('tr').find('.ischeck').val('yes');
-		});
-		var total_payment = 0;
-		$('#entriesTable tbody tr select.accountcode').each(function() {
-			if (typeof checker['acc-' + $(this).val()] === 'undefined') {
-			} else {
-				var ischeck 	=	$(this).closest('tr').find('.ischeck').val();
-				var ca = checker['acc-' + $(this).val()] || '0.00';
-					ca = removeComma(ca);
-				if($(this).val() == ""){
-					ca = '0.00';
-				}
-				total_payment += ca;		
+		function displaystoreddescription(){
+			$('#entriesTable tbody tr.added_row select.accountcode').each(function() {
+				var ischeck = $(this).closest('tr').find('.ischeck').val();
 				if(ischeck == 'yes'){
-					$(this).closest('tr').find('.account_amount').val(addComma(ca));
+					if (typeof acct_details[$(this).val()] === 'undefined') {
+						$(this).closest('tr').find('.description').val("");
+					} else {
+						var description = acct_details[$(this).val()] || "";
+						$(this).closest('tr').find('.description').val(description);	
+					}	
 				}
-				$(this).closest('tr').find('.h_accountcode').val($(this).val());
-			}	
-		});
-		$('#total_payment').val(total_payment);
-	}
+			});
+		}
+		
+		// Check Array //
+		function storechequetobank(){
+			cheque 	=	[];
+			console.log(cheque);
+			$('#chequeTable tbody tr').each(function() {
+				var cheque_account 	= $(this).find('.cheque_account').val();
+				var chequenumber 	= $(this).find('.chequenumber').val();
 
-	function recomputechequeamts(){
-		checker = [];
-		$('#chequeTable tbody tr select.cheque_account').each(function() {
-			var account = $(this).val();
-			var ca = $(this).closest('tr').find('.chequeamount').val();
-				ca = removeComma(ca);
-			if (typeof checker['acc-' + account] === 'undefined') {
-				checker['acc-' + account] = 0;
+				if(chequenumber!="" ){
+					cheque['bank-'+cheque_account] = chequenumber;
+				}
+			});
+		}
+
+		$('#chequeTable .cheque_account').on('change', function()  {
+			storedescriptionstoarray();
+			storechequetobank();
+			
+			if ($('#entriesTable tbody tr.clone select').data('select2')) {
+				$('#entriesTable tbody tr.clone select').select2('destroy');
 			}
-			checker['acc-' + account] += parseFloat(ca);
+
+			var val = $(this).val();
+
+			// Check Array //
+
+			$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank =' + val).done(function(data){
+				if (data){
+					next = parseFloat(data.nno) || 0;
+					last = parseFloat(data.last) || 0;
+					console.log(next);
+
+					var row = $("#chequeTable tbody tr").length;
+					if (typeof cheque["bank-"+val] === 'undefined') {
+						if (next == 0){
+							$('#checkModal').modal('show');
+						} else {
+							$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
+						}
+					} else {
+						var next = parseFloat(cheque["bank-"+val]) + 1;
+						if (next > last){
+							$('#checkModal').modal('show');
+						} else {
+							$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
+						}
+						
+					}	
+				}
+			})
+
+
+			cheque_arr = [];
+
+			$('#entriesTable tbody tr.added_row').remove();
+			$('#chequeTable tbody tr select.cheque_account').each(function() {
+				var account = $(this).val();
+				if(account!="" && jQuery.inArray(account,cheque_arr) == -1){
+					cheque_arr.push(account);
+				}
+			});
+			var row = $("#entriesTable tbody tr.clone").length;
+			$('#entriesTable tbody tr.clone .accountcode').each(function(index) {
+				var account = $(this).val();
+				var ischeck = $(this).closest('tr').find('.ischeck').val();
+				if(task == 'create' && index != 0 && account == "" || account == "" && index != 0 && ischeck == 'yes'){
+					$(this).closest('tr').remove();
+				}
+			});
+
+			row = $("#entriesTable tbody tr.clone").length + 1;
+			cheque_arr.forEach(function(account) {
+				var ParentRow = $("#entriesTable tbody tr.clone").last();
+				$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
+				// clone_acct(initial state of first row) will be placed on the last cloned row. 
+				ParentRow.after(clone_acct);
+				resetIds();
+				$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
+				$("#entriesTable button#"+row).prop('disabled',true);
+				$("#entriesTable debit#"+row).prop('disabled',true);
+				$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
+				$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
+				$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
+				disable_acct_fields(row);
+				row++;
+				
+			});
+
+			accounts.push(val);
+			recomputechequeamts();
+			acctdetailamtreset();
+			displaystoreddescription();
+			drawTemplate(); 
 		});
-	}
+
+		// function getcheckDtl(account){
+			
+		// }
+
+		function disable_acct_fields(row){
+			$("#accountcode\\["+ row +"\\]").prop("disabled", true);
+			$("#debit\\["+ row +"\\]").prop("readonly", true);
+			$("#credit\\["+ row +"\\]").prop("readonly", true);
+			$("#entriesTable button#"+row).prop('disabled',true);
+		}
+
+		function acctdetailamtreset(){
+			$('#entriesTable tbody .added_row').each(function() {
+				var accountcode = $(this).find('.accountcode').val();
+				if(!checker.hasOwnProperty('acc-'+accountcode)){
+					$(this).remove();
+				}
+				$(this).closest('tr').find('.ischeck').val('yes');
+			});
+			var total_payment = 0;
+			$('#entriesTable tbody tr select.accountcode').each(function() {
+				if (typeof checker['acc-' + $(this).val()] === 'undefined') {
+				} else {
+					var ischeck 	=	$(this).closest('tr').find('.ischeck').val();
+					var ca = checker['acc-' + $(this).val()] || '0.00';
+					ca = removeComma(ca);
+					if($(this).val() == ""){
+						ca = '0.00';
+					}
+					total_payment += ca;		
+					if(ischeck == 'yes'){
+						$(this).closest('tr').find('.account_amount').val(addComma(ca));
+					}
+					$(this).closest('tr').find('.h_accountcode').val($(this).val());
+				}	
+			});
+			$('#total_payment').val(total_payment);
+		}
+
+		function recomputechequeamts(){
+			checker = [];
+			$('#chequeTable tbody tr select.cheque_account').each(function() {
+				var account = $(this).val();
+				var ca = $(this).closest('tr').find('.chequeamount').val();
+				ca = removeComma(ca);
+				if (typeof checker['acc-' + account] === 'undefined') {
+					checker['acc-' + account] = 0;
+				}
+				checker['acc-' + account] += parseFloat(ca);
+			});
+		}
 	// Change event for chequeamount
 	$('#chequeTable .chequeamount').on('change', function() {
 		chequeamount = $(this).val();
@@ -1189,30 +1280,30 @@
 		if((field == '' || parseFloat(field) == 0) || help_block == "exrateamount_help" || field == "none" )
 		{
 			$("#"+form+" #"+id)
-				.closest('.field_col')
-				.addClass('has-error');
+			.closest('.field_col')
+			.addClass('has-error');
 			
 			$("#"+form+" #"+id)
-				.find('.form-group')
-				.addClass('has-error');
+			.find('.form-group')
+			.addClass('has-error');
 
 			$("#"+form+" #"+help_block)
 				// .next(".help-block")
 				.removeClass('hidden');
 				
-			if($("#"+form+" #"+id).parent().next(".help-block")[0])
+				if($("#"+form+" #"+id).parent().next(".help-block")[0])
+				{
+					$("#"+form+" #"+id)
+					.parent()
+					.next(".help-block")
+					.removeClass('hidden');
+				}
+
+				return 1;
+			}
+			else
 			{
 				$("#"+form+" #"+id)
-				.parent()
-				.next(".help-block")
-				.removeClass('hidden');
-			}
-
-			return 1;
-		}
-		else
-		{
-			$("#"+form+" #"+id)
 				.closest('.field_col')
 				.removeClass('has-error');
 
@@ -1220,181 +1311,204 @@
 				// .next(".help-block")
 				.addClass('hidden');
 				
-			if($("#"+form+" #"+id).parent().next(".help-block")[0])
+				if($("#"+form+" #"+id).parent().next(".help-block")[0])
+				{
+					$("#"+form+" #"+id)
+					.parent()
+					.next(".help-block")
+					.addClass('hidden');
+				}
+
+				return 0;
+			}
+		}
+
+		/**VALIDATION FOR NUMERIC FIELDS**/
+		function isNumberKey(evt,exemptChar)  {
+			if(evt.which != 0)
 			{
-				$("#"+form+" #"+id)
-				.parent()
-				.next(".help-block")
-				.addClass('hidden');
+				var charCode = (evt.which) ? evt.which : event.keyCode 
+				if(charCode == exemptChar) return true; 
+				if (charCode > 31 && (charCode < 48 || charCode > 57)) 
+					return false; 
+				return true;
+			}
+		}
+
+		/**LIMIT INPUT TO NUMBERS ONLY**/
+		function isNumberKey2(evt)  {
+			if(evt.which != 0){
+				var charCode = (evt.which) ? evt.which : evt.keyCode 
+				if(charCode == 46) return true; 
+				if (charCode > 31 && (charCode < 48 || charCode > 57)) 
+					return false; 
+				return true;
+			}
+		}
+
+		/**HIGHTLIGHT CONTENT OF INPUT**/
+		function SelectAll(id) {
+			document.getElementById(id).focus();
+			document.getElementById(id).select();
+		}
+
+		/**FORMAT NUMBERS TO DECIMAL**/
+		function formatNumber(id) {
+			var amount = document.getElementById(id).value;
+			amount     = amount.replace(/\,/g,'');
+			var result = amount * 1;
+			document.getElementById(id).value = addCommas(result.toFixed(2));
+		}
+
+		/**COMPUTE TOTAL CHEQUE AMOUNT**/
+		function addAmounts()  {
+			var sum 		= 0;
+			var subtotal 	= 0;
+
+			var subData 	= 0;
+
+			var table 	= document.getElementById('chequeTable');
+			var count	= table.rows.length - 2;
+
+			for(i = 1; i <= count; i++) 
+			{  
+				var inputamt	= document.getElementById('chequeamount['+i+']');
+
+				if(document.getElementById('chequeamount['+i+']') != null)
+				{          
+					if(inputamt.value && inputamt != '0' && inputamt.value != '0.00')
+					{                            
+						subData = inputamt.value.replace(/,/g,'');
+					}
+					else
+					{             
+						subData = 0;
+					}
+					subtotal = parseFloat(subtotal) + parseFloat(subData);
+				}	
+			}
+			subtotal	= Math.round(1000*subtotal) / 1000;
+
+			$("#chequeTable #totalcheques").val(addCommas(subtotal.toFixed(2)));
+		}
+
+		function addAmountAll(field) {
+			var sum    = 0;       
+			var valid  = true;
+			var inData = 0;
+
+			var chk	   = document.getElementsByName('chk[]');
+
+			if(field == 'debit')
+			{
+				notfield	= 'credit';
+			}
+			else
+			{
+				notfield	= 'debit';
 			}
 
-			return 0;
-		}
-	}
-
-	/**VALIDATION FOR NUMERIC FIELDS**/
-	function isNumberKey(evt,exemptChar)  {
-		if(evt.which != 0)
-		{
-			var charCode = (evt.which) ? evt.which : event.keyCode 
-			if(charCode == exemptChar) return true; 
-			if (charCode > 31 && (charCode < 48 || charCode > 57)) 
-			return false; 
-			return true;
-		}
-	}
-
-	/**LIMIT INPUT TO NUMBERS ONLY**/
-	function isNumberKey2(evt)  {
-		if(evt.which != 0){
-			var charCode = (evt.which) ? evt.which : evt.keyCode 
-			if(charCode == 46) return true; 
-			if (charCode > 31 && (charCode < 48 || charCode > 57)) 
-			return false; 
-			return true;
-		}
-	}
-
-	/**HIGHTLIGHT CONTENT OF INPUT**/
-	function SelectAll(id) {
-		document.getElementById(id).focus();
-		document.getElementById(id).select();
-	}
-
-	/**FORMAT NUMBERS TO DECIMAL**/
-	function formatNumber(id) {
-		var amount = document.getElementById(id).value;
-		amount     = amount.replace(/\,/g,'');
-		var result = amount * 1;
-		document.getElementById(id).value = addCommas(result.toFixed(2));
-	}
-
-	/**COMPUTE TOTAL CHEQUE AMOUNT**/
-	function addAmounts()  {
-		var sum 		= 0;
-		var subtotal 	= 0;
-
-		var subData 	= 0;
-
-		var table 	= document.getElementById('chequeTable');
-		var count	= table.rows.length - 2;
-
-		for(i = 1; i <= count; i++) 
-		{  
-			var inputamt	= document.getElementById('chequeamount['+i+']');
-			
-			if(document.getElementById('chequeamount['+i+']') != null)
-			{          
-				if(inputamt.value && inputamt != '0' && inputamt.value != '0.00')
-				{                            
-					subData = inputamt.value.replace(/,/g,'');
-				}
-				else
-				{             
-					subData = 0;
-				}
-				subtotal = parseFloat(subtotal) + parseFloat(subData);
-			}	
-		}
-		subtotal	= Math.round(1000*subtotal) / 1000;
-
-		$("#chequeTable #totalcheques").val(addCommas(subtotal.toFixed(2)));
-	}
-
-	function addAmountAll(field) {
-		var sum    = 0;       
-		var valid  = true;
-		var inData = 0;
-
-		var chk	   = document.getElementsByName('chk[]');
-
-		if(field == 'debit')
-		{
-			notfield	= 'credit';
-		}
-		else
-		{
-			notfield	= 'debit';
-		}
-
-		for(i = 0; i <= chk.length; i++) 
-		{  
-			var inputs 		= document.getElementById(field+'['+i+']');
-			var disables 	= document.getElementById(notfield+'['+i+']');
-			var is_cheque   = $("#ischeck\\["+i+"\\]").val();
-			if(document.getElementById(notfield+'['+i+']')!=null)
-			{          
-				if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
-				{                            
-					inData = inputs.value.replace(/,/g,'');
-					if(is_cheque == 'yes'){
-						inputs.readOnly   = true;
-						disables.readOnly = true;
-					}else {
-						disables.readOnly = true;
+			for(i = 0; i <= chk.length; i++) 
+			{  
+				var inputs 		= document.getElementById(field+'['+i+']');
+				var disables 	= document.getElementById(notfield+'['+i+']');
+				var is_cheque   = $("#ischeck\\["+i+"\\]").val();
+				if(document.getElementById(notfield+'['+i+']')!=null)
+				{          
+					if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
+					{                            
+						inData = inputs.value.replace(/,/g,'');
+						if(is_cheque == 'yes'){
+							inputs.readOnly   = true;
+							disables.readOnly = true;
+						}else {
+							disables.readOnly = true;
+						}
 					}
-				}
-				else
-				{             
-					inData = 0;
-					if(is_cheque == 'yes'){
-						inputs.readOnly   = true;
-						disables.readOnly = true;
-					}else {
-						disables.readOnly = false;
-					}
-				} 
+					else
+					{             
+						inData = 0;
+						if(is_cheque == 'yes'){
+							inputs.readOnly   = true;
+							disables.readOnly = true;
+						}else {
+							disables.readOnly = false;
+						}
+					} 
 
-				sum = parseFloat(sum) + parseFloat(inData);
-			}	
-		}
+					sum = parseFloat(sum) + parseFloat(inData);
+				}	
+			}
 			
-		if(field == 'debit')
-		{
-			document.getElementById('total_debit').value = addCommas(sum.toFixed(2));
-		}
-		else
-		{
-			document.getElementById('total_credit').value = addCommas(sum.toFixed(2));
-		}
-	}
-
-	function confirmDelete(id){
-		$('#deleteItemModal').data('id', id).modal('show');
-	}
-
-	function confirmChequeDelete(row){
-		$('#deleteChequeModal').data('row', row).modal('show');
-	}
-
-	function deleteItem(row){
-		var voucher		= document.getElementById('h_voucher_no').value;
-		var companycode	= '<?= COMPANYCODE ?>';
-		var table 		= document.getElementById('entriesTable');
-		var rowCount 	= table.rows.length - 2;
-		var valid		= 1;
-
-		var rowindex	= table.rows[row];
-		if(rowindex.cells[0].childNodes[1] != null)
-		{
-			var index		= rowindex.cells[0].childNodes[1].value;
-			var datatable	= 'ar_details';
-			var condition	= " linenum = '"+index+"' AND voucherno = '"+voucher+"'";
-
-			if(rowCount > 2)
+			if(field == 'debit')
 			{
-				if(task == 'create')
+				document.getElementById('total_debit').value = addCommas(sum.toFixed(2));
+			}
+			else
+			{
+				document.getElementById('total_credit').value = addCommas(sum.toFixed(2));
+			}
+		}
+
+		function confirmDelete(id){
+			$('#deleteItemModal').data('id', id).modal('show');
+		}
+
+		function confirmChequeDelete(row){
+			$('#deleteChequeModal').data('row', row).modal('show');
+		}
+
+		function deleteItem(row){
+			var voucher		= document.getElementById('h_voucher_no').value;
+			var companycode	= '<?= COMPANYCODE ?>';
+			var table 		= document.getElementById('entriesTable');
+			var rowCount 	= table.rows.length - 2;
+			var valid		= 1;
+
+			var rowindex	= table.rows[row];
+			if(rowindex.cells[0].childNodes[1] != null)
+			{
+				var index		= rowindex.cells[0].childNodes[1].value;
+				var datatable	= 'ar_details';
+				var condition	= " linenum = '"+index+"' AND voucherno = '"+voucher+"'";
+
+				if(rowCount > 2)
 				{
-					$.post("<?=BASE_URL?>financials/disbursement/ajax/delete_row",{table:datatable,condition:condition})
-					.done(function( data ) 
+					if(task == 'create')
+					{
+						$.post("<?=BASE_URL?>financials/disbursement/ajax/delete_row",{table:datatable,condition:condition})
+						.done(function( data ) 
+						{
+							table.deleteRow(row);	
+							resetIds();
+							addAmountAll('debit');
+							addAmountAll('credit');
+						});
+					}
+					else
 					{
 						table.deleteRow(row);	
 						resetIds();
 						addAmountAll('debit');
 						addAmountAll('credit');
-					});
+					}
 				}
 				else
+				{	
+					resetIds();
+
+					document.getElementById('accountcode['+row+']').value 			= '';
+					document.getElementById('detailparticulars['+row+']').value 	= '';
+					document.getElementById('debit['+row+']').value 				= '0.00';
+					document.getElementById('credit['+row+']').value 				= '0.00';
+
+					addAmountAll('debit');
+					addAmountAll('credit');
+				}
+			}
+			else
+			{
+				if(rowCount > 2)
 				{
 					table.deleteRow(row);	
 					resetIds();
@@ -1402,38 +1516,15 @@
 					addAmountAll('credit');
 				}
 			}
-			else
-			{	
-				resetIds();
-				
-				document.getElementById('accountcode['+row+']').value 			= '';
-				document.getElementById('detailparticulars['+row+']').value 	= '';
-				document.getElementById('debit['+row+']').value 				= '0.00';
-				document.getElementById('credit['+row+']').value 				= '0.00';
-			
-				addAmountAll('debit');
-				addAmountAll('credit');
-			}
 		}
-		else
-		{
-			if(rowCount > 2)
-			{
-				table.deleteRow(row);	
-				resetIds();
-				addAmountAll('debit');
-				addAmountAll('credit');
-			}
-		}
-	}
 
-	/**VALIDATE ACCOUNT ROWS**/
-	function validateDetails(){
-		var table 			= document.getElementById('entriesTable');
-		var total_debit 	= $('#total_debit').val();
-		var total_credit 	= $('#total_credit').val();
-		total_debit 		= total_debit.replace(/\,/g,'');
-		total_credit 		= total_credit.replace(/\,/g,'');
+		/**VALIDATE ACCOUNT ROWS**/
+		function validateDetails(){
+			var table 			= document.getElementById('entriesTable');
+			var total_debit 	= $('#total_debit').val();
+			var total_credit 	= $('#total_credit').val();
+			total_debit 		= total_debit.replace(/\,/g,'');
+			total_credit 		= total_credit.replace(/\,/g,'');
 
 		/**
 		* Validate if total debit / credit is equal to the total amount specified
@@ -1454,7 +1545,7 @@
 				var accountcode = document.getElementById('accountcode['+i+']').value;
 				var debit 		= document.getElementById('debit['+i+']').value;
 				var credit 		= document.getElementById('credit['+i+']').value;
-			
+
 				if(accountcode == '')
 				{
 					$("#payableForm #accountcode\\["+i+"\\]").closest('tr').addClass('danger');
@@ -1591,11 +1682,11 @@
 				bootbox.dialog({
 					message: msg,
 					title: "Oops!",
-						buttons: {
+					buttons: {
 						yes: {
-						label: "Ok",
-						className: "btn-primary btn-flat",
-						callback: function(result) {
+							label: "Ok",
+							className: "btn-primary btn-flat",
+							callback: function(result) {
 								$("#payableForm #paymentmode").val('cash');
 								$('#payableForm #paymentmode').select2('destroy');
 								$('#payableForm #paymentmode').select2({width: "100%"});
@@ -1667,29 +1758,29 @@
 		bootbox.dialog({
 			message: "Please select one of the option to proceed.",
 			title: "Print Cheque",
-				buttons: {
+			buttons: {
 				check: {
-				label: "Cheque Only",
-				className: "btn-primary btn-flat",
-				callback: function(result) {
+					label: "Cheque Only",
+					className: "btn-primary btn-flat",
+					callback: function(result) {
 						var link 	 		= '<?= BASE_URL ?>financials/disbursement/generateCheck/'+paymentvoucher+'/'+chequeno;
 						// 'popups/generateCheck.php?sid='+paymentvoucher+'&cn='+chequeno;
 						window.open(link);
 					}
 				},
 				voucher: {
-				label: "Cheque with Voucher",
-				className: "btn-success btn-flat",
-				callback: function(result) {
+					label: "Cheque with Voucher",
+					className: "btn-success btn-flat",
+					callback: function(result) {
 						var link 	 		= '<?= BASE_URL ?>financials/disbursement/generateCheckVoucher/'+paymentvoucher+'/'+chequeno+'/rv';
 						// 'popups/generateCheckVoucher.php?sid='+paymentvoucher+'&cn='+chequeno+'&type=rv';
 						window.open(link);
 					}
 				},
 				no: {
-				label: "Cancel",
-				className: "btn-default btn-flat",
-				callback: function(result) {
+					label: "Cancel",
+					className: "btn-default btn-flat",
+					callback: function(result) {
 						//alert(result);
 					}
 				}
@@ -1714,38 +1805,38 @@
 		ajax.vno 		= vnose;
 		ajax.task 		= task;
 		ajax_call 		= $.post("<?= BASE_URL ?>financials/disbursement/ajax/load_payables", ajax )
-							.done(function( data ) 
-							{
-							if ( ! edited) {
-								$('#pagination').html(data.pagination);
-								$('#paymentModal #payable_list_container').html(data.table);
-								
-								
-							} else {
-								$('#pagination').html(data.pagination);
-								$('#paymentModal #payable_list_container').html(data.table);
-							}
+		.done(function( data ) 
+		{
+			if ( ! edited) {
+				$('#pagination').html(data.pagination);
+				$('#paymentModal #payable_list_container').html(data.table);
 
-							if (ajax.page > data.page_limit && data.page_limit > 0) {
-								ajax.page = data.page_limit;
-								showList();
-							}
-							
-							if('<?= $task ?>' == "edit" && !edited)
-								$("#payableForm #selected_rows").html(data.json_encode);
 
-							if(!($("paymentModal").data('bs.modal') || {isShown: false}).isShown)
-							{
-								var check_rows = $('#payableForm #selected_rows').html();
-								var obj = (check_rows != "") ? JSON.parse(check_rows) : 0;
+			} else {
+				$('#pagination').html(data.pagination);
+				$('#paymentModal #payable_list_container').html(data.table);
+			}
 
-								for(var i = 0; i < obj.length; i++)
-								{
-									$('input#row_check' + obj[i]["row"]).iCheck('check');
-								} 
-								$('#paymentModal').modal('show');
-							};
-						});
+			if (ajax.page > data.page_limit && data.page_limit > 0) {
+				ajax.page = data.page_limit;
+				showList();
+			}
+
+			if('<?= $task ?>' == "edit" && !edited)
+				$("#payableForm #selected_rows").html(data.json_encode);
+
+			if(!($("paymentModal").data('bs.modal') || {isShown: false}).isShown)
+			{
+				var check_rows = $('#payableForm #selected_rows').html();
+				var obj = (check_rows != "") ? JSON.parse(check_rows) : 0;
+
+				for(var i = 0; i < obj.length; i++)
+				{
+					$('input#row_check' + obj[i]["row"]).iCheck('check');
+				} 
+				$('#paymentModal').modal('show');
+			};
+		});
 	}
 
 	function showIssuePayment(){
@@ -1761,7 +1852,7 @@
 			showList();
 			$('#payable_list_container tbody').html(`<tr>
 				<td colspan="4" class="text-center">Loading Items</td>
-			</tr>`);
+				</tr>`);
 			$('#pagination').html('');
 			// showList();
 		}
@@ -1770,12 +1861,12 @@
 			bootbox.dialog({
 				message: "Please select vendor first.",
 				title: "Oops!",
-					buttons: {
+				buttons: {
 					yes: {
-					label: "OK",
-					className: "btn-primary btn-flat",
-					callback: function(result) {
-						
+						label: "OK",
+						className: "btn-primary btn-flat",
+						callback: function(result) {
+
 						}
 					}
 				}
@@ -1950,7 +2041,7 @@
 		valid	+= validateField('payableForm','vendor', "vendor_help");
 		valid	+= validateField('payableForm','document_date', "document_date_help");
 		// valid	+= validateField('payableForm','paymentmode', "paymentmode_help");
-				
+
 		return valid;
 	}
 
@@ -2049,96 +2140,80 @@
 
 		if(count > arr_len)
 
-		for(j=count;j > arr_len;j--)
-		{
-			table.deleteRow(j);	
+			for(j=count;j > arr_len;j--)
+			{
+				table.deleteRow(j);	
+			}
 		}
-	}
 
-	function validateChequeNumber(id, value, n){
-		id = id.replace(/[a-z\[\]]/g, '');
+		function validateChequeNumber(id, value, n){
+			id = id.replace(/[a-z\[\]]/g, '');
 
-		$.post("<?=BASE_URL?>financials/disbursement/ajax/check", "chequevalue=" + value)
-		.done(function(data)
-		{
-			if(data.success)
-			{
-				$(n).closest('.form-group').addClass('has-error');
-				$("#chequeTable #chequenumber\\["+ id +"\\]").val("");
-
-				$("#checkNumberError").removeClass("hidden");
-			}
-			else
-			{
-				$(n).closest('.form-group').removeClass('has-error');
-
-				$("#checkNumberError").addClass("hidden");
-			}
-				
-		});
-	}
-
-	function finalize_saving(valid, button_name){
-		// console.log(button_name)
-		if(valid == 0){
-			$("#payableForm #btnSave").addClass('disabled');
-			$("#payableForm #btnSave_toggle").addClass('disabled');
-			
-			$("#payableForm #btnSave").html('Saving...');
-
-			$("#payableForm #h_save").val(button_name);
-
-			$.post("<?=BASE_URL?>financials/disbursement/ajax/apply_payments",$("#payableForm").serialize())
+			$.post("<?=BASE_URL?>financials/disbursement/ajax/check", "chequevalue=" + value)
 			.done(function(data)
 			{
-				if(data.code == 1) {
-					$('#delay_modal').modal('show');
-							setTimeout(function() {							
-								$("#payableForm #h_voucher_no").val(data.voucher);
-								$("#payableForm").submit();									
-						}, 1000)	
-					
-				} else {
-					next = $('#payableForm').find(".has-error").first();
-					$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
+				if(data.success)
+				{
+					$(n).closest('.form-group').addClass('has-error');
+					$("#chequeTable #chequenumber\\["+ id +"\\]").val("");
+
+					$("#checkNumberError").removeClass("hidden");
 				}
+				else
+				{
+					$(n).closest('.form-group').removeClass('has-error');
+
+					$("#checkNumberError").addClass("hidden");
+				}
+				
 			});
-		} else {
-			next = $('#payableForm').find(".has-error").first();
-			$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
 		}
-	}
 
-	$(document).ready(function() {
-		// For adding new rol
-		// $('body').on('click', '.add-data', function() {	
-		// 	$('#itemsTable tbody tr.clone select').select2('destroy');
-			
-		// 	var clone = $("#itemsTable tbody tr.clone:first").clone(true); 
-		// 	var ParentRow = $("#itemsTable tbody tr.clone").last();
-		// 	var offset = 1;
+		function finalize_saving(valid, button_name){
+			if(valid == 0){
+				$("#payableForm #btnSave").addClass('disabled');
+				$("#payableForm #btnSave_toggle").addClass('disabled');
 
-		// 	clone.clone(true).insertAfter(ParentRow);
-			
-		// 	setZero();
-			
-		// 	$('#itemsTable tbody tr.clone select').select2({width: "100%"});
-		// });
-		
-		/**ADD NEW BANK ROW**/
-		$('body').on('click', '.add-cheque', function() {
-			$('#chequeTable tbody tr.clone select').select2('destroy');
+				$("#payableForm #btnSave").html('Saving...');
 
-			var clone1 = $("#chequeTable tbody tr.clone:first").clone(true);
+				$("#payableForm #h_save").val(button_name);
 
-			var ParentRow = $("#chequeTable tbody tr.clone").last();
-			
-			clone1.clone(true).insertAfter(ParentRow);
-			
-			setChequeZero();
-			
-			$('#chequeTable tbody tr.clone select').select2({width: "100%"});
-			$('#chequeTable tbody tr.clone:last .input-group.date ').datepicker({ format: 'M dd, yyyy', autoclose: true });
+				$.post("<?=BASE_URL?>financials/disbursement/ajax/apply_payments",$("#payableForm").serialize())
+				.done(function(data)
+				{
+					if(data.code == 1) {
+						$('#delay_modal').modal('show');
+						setTimeout(function() {							
+							$("#payableForm #h_voucher_no").val(data.voucher);
+							$("#payableForm").submit();									
+						}, 1000)	
+
+					} else {
+						next = $('#payableForm').find(".has-error").first();
+						$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
+					}
+				});
+			} else {
+				next = $('#payableForm').find(".has-error").first();
+				$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
+			}
+		}
+
+		$(document).ready(function() {
+			/**ADD NEW BANK ROW**/
+			$('body').on('click', '.add-cheque', function() {
+				$('#chequeTable tbody tr.clone select').select2('destroy');
+
+				var clone1 = $("#chequeTable tbody tr.clone:first").clone(true);
+
+				var ParentRow = $("#chequeTable tbody tr.clone").last();
+
+				clone1.clone(true).insertAfter(ParentRow);
+
+				setChequeZero();
+
+				$('#chequeTable tbody tr.clone select').select2({width: "100%"});
+				$('#chequeTable tbody tr.clone:last .input-group.date ').datepicker({ format: 'M dd, yyyy', autoclose: true });
 
 			// Trigger add new line .add-data
 			// $(".add-data").trigger("click");
@@ -2322,34 +2397,34 @@
 				addAmounts();
 			}
 
-			$("#paymentmode").removeAttr("disabled");
 		}
+		$("#paymentmode").removeAttr("disabled");
 
 		$("#payableForm #save").click(function(){
 			var valid		= 0;
 			var button_name = $(this).attr('name');
 			var paymentmode = $('#paymentmode').val();
-			
+
 			var form_element = $(this).closest('form');
-				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
 			valid		+= validateDetails();
 
 			if(paymentmode == 'cheque'){
 				valid 	+= validateCheques();
 			}
-			
+
 			finalize_saving(valid, button_name);
 		});
 
 		$("#payableForm #save_new").click(function(){
-			var valid		= 0;
-			var button_name = $(this).attr('name');
-			var paymentmode = $('#paymentmode').val();
+				var valid		= 0;
+				var button_name = $(this).attr('name');
+				var paymentmode = $('#paymentmode').val();
 			// console.log('new = button_name ' + button_name );
 			
 			var form_element = $(this).closest('form');
-				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
 			valid		+= validateDetails();
 
@@ -2364,9 +2439,9 @@
 			var valid		= 0;
 			var button_name = $(this).attr('name');
 			var paymentmode = $('#paymentmode').val();
-			
+
 			var form_element = $(this).closest('form');
-				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
 			valid		+= validateDetails();
 
@@ -2381,9 +2456,9 @@
 			var valid		= 0;
 			var button_name = $(this).attr('name');
 			var paymentmode = $('#paymentmode').val();
-			
+
 			var form_element = $(this).closest('form');
-				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
 			valid		+= validateDetails();
 
@@ -2440,13 +2515,13 @@
 					bootbox.dialog({
 						message: "Please select a Vendor First",
 						title: "Oops!",
-							buttons: {
-								yes: {
-									label: "OK",
-									className: "btn-primary btn-flat",
-									callback: function(result) {
-										clear_acct_input();
-									}
+						buttons: {
+							yes: {
+								label: "OK",
+								className: "btn-primary btn-flat",
+								callback: function(result) {
+									clear_acct_input();
+								}
 							}
 						}
 					});
@@ -2459,6 +2534,10 @@
 			var vno  	= $('#h_voucher_no').val();
 			window.open('<?=MODULE_URL?>print_check/' + vno +  '/'+ cno , '_blank');
 		})
+
+		$('.chequenumber').focus(function() {
+			$(this).blur();
+		});
 	}); // end
 
 </script>

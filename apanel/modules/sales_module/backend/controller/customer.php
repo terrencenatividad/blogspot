@@ -24,7 +24,8 @@
 				'tinno',
 				'terms'	,
 				'mobile',
-				'stat'
+				'stat',
+				'credit_limit'
 			);
 		}
 
@@ -46,7 +47,6 @@
 			$data['task'] 		= 'add';
 			$data['show_input'] = true;
 			$data['ajax_post'] 	= '';
-			$data['code_required'] 	= 'required';
 
 			$this->view->load('customer/customer_create',  $data);
 		}
@@ -62,7 +62,6 @@
 			$data['task'] 			= 'update';
 			$data['show_input'] 	= true;
 			$data['ajax_post'] 		= "&code=$code";
-			$data['code_required'] 	= '';
 
 			$this->view->load('customer/customer_create',  $data);
 		}
@@ -71,12 +70,15 @@
 		{
 			$this->view->title = $this->ui->ViewLabel('');
 			
-			$data 			 	= (array) $this->customer->retrieveExistingCustomer($this->fields, $code);
-			$data['bt_select'] 	= $this->customer->retrieveBusinessTypeDropdown();
-			$data['ui'] 		= $this->ui;
-			$data['show_input'] = false;
-			$data['task'] 		= 'view';
-			$data['ajax_post'] 	= "";
+			$this->fields[] 				= "COALESCE(incurred.receivables,0) receivables";
+			$data 			 				= (array) $this->customer->retrieveExistingCustomer($this->fields, $code);
+			$data['bt_select'] 				= $this->customer->retrieveBusinessTypeDropdown();
+			$data['ui'] 					= $this->ui;
+			$data['show_input'] 			= false;
+			$data['task'] 					= 'view';
+			$data['ajax_post'] 				= "";
+			$data['credit_limit'] 			= number_format($data['credit_limit'],2);
+			$data['incurred_receivables']	= number_format($data['receivables'],2);
 
 			$this->view->load('customer/customer_create',  $data);
 		}
@@ -91,16 +93,86 @@
 
 		public function get_import(){
 			header('Content-type: application/csv');
-			$header = array('Customer Code','Company Name','First Name','Last Name','Address','Email','Business Type','Tin No.','Payment Terms','Contact Number');
+			$header = array('Customer Code','Company Name','Address','Email','Business Type','Contact Number','First Name','Last Name','Payment Terms','Tin No.',"Credit Limit");
 
 			$return = '';
 			$return .= '"' . implode('","',$header) . '"';
 			$return .= "\n";
-			$return .= '"CUS_232322","CID Systems","Lumeng","Lim","Makati Avenue, Makati, 1200 Metro Manila","lumeng.lim@cid-systems.com","Individual","000-000-000-000","30","123-4567"';
+			$return .= '"CUS_232322","CID Systems","Makati Avenue, Makati, 1200 Metro Manila","lumeng.lim@cid-systems.com","Individual","123-4567","Lumeng","Lim","30","000-000-000-000","0.00"';
 			
 			echo $return;
 		}
 		
+		private function check_character_length($field_name, $field_value, $line, $max_length, $input_length){
+			$error 	=	"";
+			
+			if($input_length > $max_length){
+				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line exceeded the Max Character Length of $max_length.<br/>";
+			}
+
+			return $error;
+		}
+
+		private function check_empty($field_name, $field_value, $line){
+			$error 	=	"";
+			
+			if($field_value  == ""){
+				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line is empty.<br/>";
+			}
+
+			return $error;
+		}
+
+		private function check_numeric($field_name, $field_value, $line){
+			$error 	=	"";
+			
+			if(!is_numeric($field_value)){
+				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line is not a valid number.<br/>";
+			}
+
+			return $error;
+		}
+
+		private function check_negative($field_name, $field_value, $line){
+			$error 	=	"";
+			
+			if($field_value < 0){
+				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line has a negative value.<br/>";
+			}
+
+			return $error;
+		}
+
+		private function check_email($field_name, $field_value, $line){
+			$error 	=	"";
+			if (!filter_var($field_value, FILTER_VALIDATE_EMAIL)) {
+				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line is not a valid E-mail.<br/>";
+			}
+			return $error;
+		}
+
+		private function check_business_type($field_name, $field_value, $line){
+			$business_type 	=	array('Corporation','Individual');
+			$error 			=	"";
+
+			if (!in_array($field_value, $business_type)) {
+				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line is not a valid Business Type.<br/>";
+			}
+			return $error;
+		}
+
+		private function check_duplicate_code($field_name,$field_value,$line){
+			$error 		=	"";
+
+			$exists 	= 	$this->customer->check_duplicate($field_value);
+			$count  	=	isset($exists[0]->count) 	?	$exists[0]->count 	:	0;
+
+			if($count > 0){
+				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line already exists.<br/>";
+			}
+			return $error;
+		}
+
 		private function save_import(){
 			$file		= fopen($_FILES['file']['tmp_name'],'r') or exit ("File Unable to upload") ;
 
@@ -109,6 +181,7 @@
 			$file_types = array( "application/octet-stream","text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
 
 			$proceed 	=	false;
+			$errmsg 	= 	array();
 
 			/**VALIDATE FILE IF CORRUPT**/
 			if(!empty($_FILES['file']['error'])){
@@ -119,8 +192,8 @@
 			if(!in_array($_FILES['file']['type'],$file_types)){
 				$errmsg[]= "Invalid file type, file must be .csv.<br/>";
 			}
-			
-			$headerArr = array('Customer Code','Company Name','First Name','Last Name','Address','Email','Business Type','Tin No.','Payment Terms','Contact Number');
+		
+			$headerArr = array('Customer Code','Company Name','Address','Email','Business Type','Contact Number','First Name','Last Name','Payment Terms','Tin No.','Credit Limit');
 
 			if( empty($errmsg) )
 			{
@@ -154,63 +227,93 @@
 					}
 				}
 				
-				$line 	=	1;
+				$line 	=	2;
 				$list 	= 	array();
-				foreach ($z as $b) 
-				{
-					if ( ! empty($b)) 
-					{	
-						$customercode 	   	= isset($b[0]) ? htmlspecialchars(addslashes(trim($b[0])))	: 	"";
-						$companyname        = isset($b[1]) ? htmlspecialchars(addslashes(trim($b[1])))	: 	"";
-						$firstname        	= isset($b[2]) ? htmlspecialchars(addslashes(trim($b[2])))	: 	"";
-						$lastname           = isset($b[3]) ? htmlspecialchars(addslashes(trim($b[3])))	: 	"";
-						$address            = isset($b[4]) ? htmlspecialchars(addslashes(trim($b[4])))	: 	"";
-						$email 				= isset($b[5]) ? htmlspecialchars(addslashes(trim($b[5])))	: 	"";
-						$business 			= isset($b[6]) ? htmlspecialchars(addslashes(trim($b[6])))	: 	"";
-						$tinno 				= isset($b[7]) ? htmlspecialchars(addslashes(trim($b[7])))	: 	"";
-						$terms 				= isset($b[8]) ? htmlspecialchars(addslashes(trim($b[8])))	: 	"0";
-						$contact 			= isset($b[9]) ? htmlspecialchars(addslashes(trim($b[9])))	: 	"";
+				
+				if(!empty($z)){
+					foreach ($z as $key => $b) {
+						if( ! empty($b)) {	
+							$customercode 	   	= isset($b[0]) ? htmlspecialchars(addslashes(trim($b[0])))	: 	"";
+							$companyname        = isset($b[1]) ? addslashes(trim($b[1]))	: 	"";
+							$address            = isset($b[2]) ? htmlspecialchars(addslashes(trim($b[2])))	: 	"";
+							$email 				= isset($b[3]) ? htmlspecialchars(addslashes(trim($b[3])))	: 	"";
+							$business 			= isset($b[4]) ? htmlspecialchars(addslashes(trim($b[4])))	: 	"";
+							$contact 			= isset($b[5]) ? htmlspecialchars(addslashes(trim($b[5])))	: 	"";
+							$firstname        	= isset($b[6]) ? htmlspecialchars(addslashes(trim($b[6])))	: 	"";
+							$lastname           = isset($b[7]) ? htmlspecialchars(addslashes(trim($b[7])))	: 	"";
+							$terms 				= isset($b[8]) ? htmlspecialchars(addslashes(trim($b[8])))	: 	0;
+							$tinno 				= isset($b[9]) ? htmlspecialchars(addslashes(trim($b[9])))	: 	"";
+							$credit_limit 		= isset($b[10])? htmlspecialchars(addslashes(trim($b[10])))	: 	0;
 
-						$exists = $this->customer->check_duplicate($customercode);
-						$count = $exists[0]->count;
+							$headerArr = array('Customer Code','Company Name','Address','Email','Business Type','Contact Number','First Name','Last Name','Payment Terms','Tin No.','Credit Limit');
 
-						if( $count > 0 )
-						{
-							$errmsg[]	= "Customer Code [<strong>$customercode</strong>] on row $line already exists.<br/>";
-							$errmsg		= array_filter($errmsg);
+							// *********Validation Starts here**************
+							
+							// Check for Empty on first line
+							$errmsg[] 	=	$this->check_empty("Customer Code", $customercode, $line);
+							$errmsg[] 	=	$this->check_empty("Company Name", $companyname, $line);
+							$errmsg[] 	=	$this->check_empty("Address", $address, $line);
+							$errmsg[] 	=	$this->check_empty("Business Type", $business, $line);
+						
+							// Check for Max Length 
+							$errmsg[] 	=	$this->check_character_length("Customer Code", $customercode, $line, "20", strlen($customercode));
+							$errmsg[] 	=	$this->check_character_length("Company Name", $companyname, $line, "30", strlen($companyname));
+							$errmsg[] 	=	$this->check_character_length("Address", $address, $line, "105", strlen($address));
+							$errmsg[] 	=	$this->check_character_length("Email", $email, $line, "150", strlen($email));
+							$errmsg[] 	=	$this->check_character_length("Contact Number", $contact, $line, "20", strlen($contact));
+							$errmsg[] 	=	$this->check_character_length("First Name", $firstname, $line, "20", strlen($firstname));
+							$errmsg[] 	=	$this->check_character_length("Last Name", $lastname, $line, "20", strlen($lastname));
+							$errmsg[] 	=	$this->check_character_length("Payment Terms", $terms, $line, "5", strlen($terms));
+							$errmsg[] 	=	$this->check_character_length("Tin No", $tinno, $line, "15", strlen($tinno));
+							$errmsg[] 	=	$this->check_character_length("Credit Limit", $credit_limit, $line, "20", strlen($credit_limit));
+
+							// Check for Duplicates
+							$errmsg[] 	=	$this->check_duplicate_code("Customer Code",$customercode,$line);
+
+							// Check for Numerical Values
+							$errmsg[] 	=	$this->check_numeric("Payment Terms", $terms, $line);
+							$errmsg[] 	=	$this->check_numeric("Credit Limit", $credit_limit, $line);
+
+							// Check for Negative Values
+							$errmsg[] 	=	$this->check_negative("Payment Terms", $terms, $line);
+							$errmsg[] 	=	$this->check_negative("Credit Limit", $credit_limit, $line);
+
+							// Check for E-mail Format
+							$errmsg[] 	=	$this->check_email("Email", $email, $line);
+
+							// Check for Business Content ( Individual or Corporation )
+							$errmsg[] 	=	$this->check_business_type("Business Type", $business, $line);
+
+							// Check for Duplicate Customer
+							if( !in_array($customercode, $list) ){
+								$list[] 	=	$customercode;
+							} else {
+								$errmsg[]	= "Customer Code [<strong>$customercode</strong>] on row $line has a duplicate within the document.<br/>";
+							}
+
+							$errmsg		= 	array_filter($errmsg);
+
+							$customercode_[] 	= $customercode;
+							$companyname_[]		= $companyname;
+							$firstname_[]		= $firstname;
+							$lastname_[]		= $lastname;
+							$address_[]			= $address;
+							$email_[]			= $email;
+							$business_[] 		= $business;
+							$tinno_[] 			= $tinno;
+							$terms_[] 			= $terms;
+							$contact_[] 		= $contact;
+							$credit_limit_[] 	= $credit_limit;
+
+							$line++;
 						}
-
-						if(!is_numeric($terms)){
-							$errmsg[] 	= "Payment terms on [ <strong>$terms</strong> ] on row $line is not a valid number.<br/>";
-							$errmsg		= array_filter($errmsg);
-						}
-
-						if( !in_array($customercode, $list) ){
-							$list[] 	=	$customercode;
-						}
-						else
-						{
-							$errmsg[]	= "Customer Code [<strong>$customercode</strong>] on row $line has a duplicate within the document.<br/>";
-							$errmsg		= array_filter($errmsg);
-						}
-
-						$customercode_[] 	= $customercode;
-						$companyname_[]		= $companyname;
-						$firstname_[]		= $firstname;
-						$lastname_[]		= $lastname;
-						$address_[]			= $address;
-						$email_[]			= $email;
-						$business_[] 		= $business;
-						$tinno_[] 			= $tinno;
-						$terms_[] 			= $terms;
-						$contact_[] 		= $contact;
-
-						$line++;
 					}
+				} else {
+					$errmsg[] 	= "You are importing an empty template.";
+					$errmsg		= array_filter($errmsg);
 				}
 
-				if( empty($errmsg) )
-				{
+				if( empty($errmsg) ){
 					$post = array(
 						'partnercode'		=> $customercode_,
 						'partnername'		=> $companyname_,
@@ -221,13 +324,13 @@
 						'businesstype'	 	=> $business_,
 						'tinno' 			=> $tinno_,
 						'terms' 			=> $terms_,
-						'mobile' 			=> $contact_
+						'mobile' 			=> $contact_,
+						'credit_limit'		=> $credit_limit_
 					);
 					
 					$proceed  				= $this->customer->importCustomers($post);
 
-					if( $proceed )
-					{
+					if( $proceed ) {
 						$this->log->saveActivity("Imported Customers.");
 					}
 				}
@@ -306,6 +409,8 @@
 					$table .= '<td>' . $row->partnername . '</td>';
 					$table .= '<td>' . $row->contact_person. '</td>';
 					$table .= '<td>' . $row->email . '</td>';
+					$table .= '<td>' . number_format($row->credit_limit,2) . '</td>';
+					$table .= '<td>' . number_format($row->receivables,2) . '</td>';
 					$table .= '<td>' . $status . '</td>';
 					$table .= '</tr>';
 				}
@@ -387,10 +492,10 @@
 			
 			//echo $sort;
 
-			$header = array("Customer Code","Company Name","First Name","Last Name","Address","E-mail Address","Business Type","Tin No.","Payment Terms","Contact No.");
-			
+			$header = array('Customer Code','Company Name','Address','Email','Business Type','Contact Number','First Name','Last Name','Payment Terms','Tin No.','Credit Limit');
+
 			$csv = '';
-			$csv .= '"' . implode('", "', $header) . '"';
+			$csv .= '"' . implode('","', $header) . '"';
 			$csv .= "\n";
 			
 			$result = $this->customer->export($search, $sort);
@@ -400,14 +505,15 @@
 
 					$csv .= '"' . $row->partnercode . '",';
 					$csv .= '"' . $row->partnername . '",';
-					$csv .= '"' . $row->first_name . '",';
-					$csv .= '"' . $row->last_name . '",';
 					$csv .= '"' . $row->address1 . '",';
 					$csv .= '"' . $row->email . '",';
 					$csv .= '"' . $row->businesstype . '",';
-					$csv .= '"' . $row->tinno . '",';
+					$csv .= '"' . $row->mobile . '",';
+					$csv .= '"' . $row->first_name . '",';
+					$csv .= '"' . $row->last_name . '",';
 					$csv .= '"' . $row->terms . '",';
-					$csv .= '"' . $row->mobile . '"';
+					$csv .= '"' . $row->tinno . '",';
+					$csv .= '"' . $row->credit_limit . '"';
 					$csv .= "\n";
 				}
 			}

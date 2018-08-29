@@ -1,15 +1,23 @@
 <?php
 	class purchase_order extends wc_model
 	{
-		public function retrieveVendorList()
+		public function retrieveVendorList($data)
 		{
+			if($data['task'] == 'edit'){
+			$vendorcode = $data['vendor'];
+				$cond = " partnercode != '' AND partnertype = 'supplier' AND stat = 'active' OR partnercode = '$vendorcode'";
+			}
+			else{
+				$cond = " partnercode != '' AND partnertype = 'supplier' AND stat = 'active'";
+			}
+
 			$result = $this->db->setTable('partners')
-						->setFields("partnercode ind, partnername val")
-						->setWhere("partnercode != '' AND partnertype = 'supplier' AND stat = 'active'")
+						->setFields("partnercode ind, partnername val, stat stat")
+						->setWhere($cond)
 						->setOrderBy("val")
 						->runSelect()
 						->getResult();
-			
+						
 			return $result;
 		}
 

@@ -8,8 +8,9 @@
 
     <div class="box box-primary">
         <div class="box-body">
-            <form method = "post" id = "bankForm" class="form-horizontal">
-				<input type="hidden" name="bank_id" id="id" value="<?=$id?>">	
+            <form method = "post" id = "checkForm" class="form-horizontal">
+				<input type="hidden" name="bank_id" id="id" value="<?=$id?>">
+				<input type="hidden" name="oldbooknumber" id="booknumber" value="<?=$booknumber?>">		
 				<div class = "col-md-12">&nbsp;</div>
 
 				<div class="row">
@@ -33,7 +34,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Start Number')
+									->setLabel('First Check Number')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('firstchequeno')
 									->setId('firstchequeno')
@@ -47,7 +48,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('End Number')
+									->setLabel('Last Check Number')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('lastchequeno')
 									->setId('lastchequeno')
@@ -95,7 +96,7 @@
 							)
 							->addHeader('Account Number.',array('class'=>'col-md-3'),'sort','currencycode')
 							->addHeader('Book Number',array('class'=>'col-md-3'),'sort','currencycode')
-							->addHeader('Check Batch', array('class'=>'col-md-3'),'sort','currency')
+							->addHeader('Check Number', array('class'=>'col-md-3'),'sort','currency')
 							->addHeader('Next Check No', array('class'=>'col-md-3'),'sort','currency')
 							->draw();
 				?>
@@ -131,17 +132,15 @@
 <script>
 var ajax = {};
 
-$('#bankForm #btnSave').on('click',function(){
-
-	// $('#bankForm #bankcode').trigger('blur');
-	$('#bankForm #bankname').trigger('blur');
-	$('#bankForm #accountcode').trigger('blur');
-	$('#bankForm #acccountno').trigger('blur');
+$('#checkForm #btnSave').on('click',function(){
+	$('#checkForm #booknumber').trigger('blur');
+	$('#checkForm #firstchequeno').trigger('blur');
+	$('#checkForm #lastchequeno').trigger('blur');
 	var bank_id = $('#id').val();
 
-	if ($('#bankForm').find('.form-group.has-error').length == 0)
+	if ($('#checkForm').find('.form-group.has-error').length == 0)
 	{	
-		$.post('<?=BASE_URL?>maintenance/bank/ajax/<?=$task?>', $('#bankForm').serialize()+ '<?=$ajax_post?>', function(data) {
+		$.post('<?=BASE_URL?>maintenance/bank/ajax/<?=$task?>', $('#checkForm').serialize()+ '<?=$ajax_post?>', function(data) {
 			if( data.msg == 'success' )
 			{
 				 window.location = self.location;
@@ -150,21 +149,21 @@ $('#bankForm #btnSave').on('click',function(){
 	}
 });
 
-$('#bankForm #accountno').on('blur',function(){
+$('#checkForm #booknumber').on('blur',function(){
 	
-	ajax.old_code 	= 	$('#accountno').val();
+	ajax.old_code 	= 	$('#checkForm #booknumber').val();
 	
 	ajax.curr_code 	=	$(this).val();
 
 	var task 		=	'<?=$task?>';
 	var error_message 	=	'';	
-	var form_group	 	= 	$('#accountno').closest('.form-group');
+	var form_group	 	= 	$('#checkForm #booknumber').closest('.form-group');
 
-	$.post('<?=BASE_URL?>maintenance/bank/ajax/check_duplicate',ajax, function(data) {
+	$.post('<?=BASE_URL?>maintenance/bank/ajax/check_duplicate_booknumber',ajax, function(data) {
 		if( data.msg == 'exists' )
 		{
-			error_message 	=	"<b>The Account Number you entered already exists!</b>";
-			$('#bankForm #accountno').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+			error_message 	=	"<b>The Book Number you entered already exists!</b>";
+			$('#checkForm #booknumber').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
 		}
 		else if( ( ajax.curr_code != "" && data.msg == "") || (data.msg == '' && task == 'edit'))
 		{
@@ -175,7 +174,7 @@ $('#bankForm #accountno').on('blur',function(){
 	});
 });
 
-$('#bankForm #btnCancel').on('click',function(){
+$('#checkForm #btnCancel').on('click',function(){
 	window.location = '<?php echo BASE_URL . 'maintenance/bank'; ?>';
 });
 
@@ -192,7 +191,6 @@ function showList(){
 	{
 		$('#bank_table #list_container').html(data.table);
         $('#pagination').html(data.pagination);
-        //$("#export").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 		if (ajax.page > data.page_limit && data.page_limit > 0) {
 			ajax.page = data.page_limit;
 			getList();
@@ -300,7 +298,6 @@ function ajaxCallback(id) {
 		}
 		else
 		{
-			// Call function to display error_get_last
 			show_error(data.msg);
 		}
 	});
@@ -337,28 +334,25 @@ $('#btnEdit').hide();
 $('#list_container').on('click', '.edit_check_series', function(){
 	ajax.id     =  $('#id').val();
 	ajax.bookno =  $(this).closest('tr').find('#booknumber').html();
-	// window.location = '<?=MODULE_URL?>manage_check/' + id +'/' + bookno;
 		$.post('<?=BASE_URL?>maintenance/bank/ajax/edit_check', ajax ,  function(data){
 			if (data){
-				$('#booknumber').val(data.booknumber);
+				$('#checkForm #booknumber').val(data.booknumber);
 				$('#firstchequeno').val(data.firstchequeno);
 				$('#lastchequeno').val(data.lastchequeno);
 				var task = data.task;
 				if (task == 'update_check'){
 					$('#btnSave').hide();
 					$('#btnEdit').show();
-					// $('#btnSave').attr('id', 'btnEdit');
 				}
 			}
 		});
-
 });
 
-$('#bankForm #btnEdit').on('click',function(){
-	if ($('#bankForm').find('.form-group.has-error').length == 0)
+$('#checkForm #btnEdit').on('click',function(){
+	if ($('#checkForm').find('.form-group.has-error').length == 0)
 	{	
-		$.post('<?=BASE_URL?>maintenance/bank/ajax/update_check', $('#bankForm').serialize()+ '<?=$ajax_post?>', function(data) {
-			if( data.msg == 'success' )
+		$.post('<?=BASE_URL?>maintenance/bank/ajax/update_check', $('#checkForm').serialize()+ '<?=$ajax_post?>', function(data) {
+			if( data.msg == 'success' || data.msg == true)
 			{
 				window.location = self.location;
 			}
@@ -369,34 +363,15 @@ $('#bankForm #btnEdit').on('click',function(){
 $('#list_container').on('click', '.delete_check_series', function(){
 	var id     =  $('#id').val();
 	ajax.bookno =  $(this).closest('tr').find('#booknumber').html();
-		// $.post('<?=BASE_URL?>maintenance/bank/ajax/delete_check', ajax ,  function(data){
-			
-		// });
-
 		if( id != "" )
 		{
-			// $(".delete-modal > .modal").css("display", "inline");
 			$(".delete-modal").modal("show");
-
 			$( "#delete_yess" ).click(function() {
 				$.post('<?=BASE_URL?>maintenance/bank/ajax/delete_check', ajax ,  function(data){
-					// if( data.msg == 'success' )	
-					// {
-					// 	$(".delete-modal").modal("hide");
-					// 	showList();
 						window.location = self.location;
-					// }
-					// else
-					// {			
-					// 	$(".delete-modal").modal("hide");
-					// 	show_error("Unable to delete the Currency.");
-					// }
 				});
 			});
-		
-			
 		}
-
 });
 
 

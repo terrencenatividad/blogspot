@@ -48,7 +48,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('dropdown')
-											->setLabel('Supplier <span class = "asterisk">*</span>')
+											->setLabel('Supplier ')
 											->setPlaceholder('Select Supplier')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('vendor')
@@ -63,7 +63,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('Invoice No. <span class = "asterisk">*</span>')
+											->setLabel('Invoice No. ')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('invoiceno')
 											->setId('invoiceno')
@@ -77,7 +77,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('PO No. <span class = "asterisk">*</span>')
+											->setLabel('PO No. ')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('source_no')
 											->setId('source_no')
@@ -93,7 +93,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('dropdown')
-											->setLabel('Warehouse <span class = "asterisk">*</span>')
+											->setLabel('Warehouse ')
 											->setPlaceholder('Select Warehouse')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('warehouse')

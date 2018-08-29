@@ -295,9 +295,11 @@
 		{
 			$('#success_modal #message').html(msg);
 			$('#success_modal').modal('show');
-			getList();
+			setTimeout(function() {												
+				window.location = '<?= MODULE_URL ?>';		
+			}, 1000)
 		}
-
+		
 		$('#tableList').on('click', '.deactivate', function() { 
 			$('#deactivate_modal').modal('show');
 			var id = $(this).attr('data-id');

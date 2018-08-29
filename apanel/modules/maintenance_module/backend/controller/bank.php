@@ -133,7 +133,7 @@
 					if($row->stat == 'active'){
 						$bank_status = '<span class="label label-success">'.strtoupper($row->stat).'</span>';
 					}else if($row->stat == 'inactive'){
-						$bank_status = '<span class="label label-danger">'.strtoupper($row->stat).'</span>';
+						$bank_status = '<span class="label label-warning">'.strtoupper($row->stat).'</span>';
 					}
 
 					$table .= '<tr>';
@@ -334,21 +334,19 @@
 			$firstchequeno 	= $data2[0]->firstchequeno; 
 			$lastchequeno 	= $data2[0]->lastchequeno; 
 			$data = array("booknumber" => $booknumber,"firstchequeno" => $firstchequeno, 'lastchequeno' => $lastchequeno , 'task' => 'update_check');
-
 			return $data;
 		}
 
 		public function update_check(){
 			$posted_data 	= $this->input->post($this->fields2);
+			$old 			= $this->input->post('oldbooknumber');
 			$result  		= $this->bank->insertCheck($posted_data);
 			$firstchequeno 	= $posted_data['firstchequeno'];
 			$lastchequeno	= $posted_data['lastchequeno'];
 			$bank_id		= $posted_data['bank_id'];
-			$accntname 		= $this->bank->update_check($bank_id, $posted_data);
+			$accntname 		= $this->bank->update_check($bank_id, $posted_data, $old);
 			$bankdesc 		= $this->bank->getAccountname($bank_id);
 			$isname = $bankdesc[0]->shortname;
-			
-			
 			if( $accntname )
 			{
 				$msg = "success";
@@ -394,8 +392,8 @@
 			
 			$bankdesc 		= $this->bank->getAccountname($id);
 			$isname 		= $bankdesc[0]->shortname;
-			echo $firstchequeno 	= $bankdesc[0]->firstchequeno;
-			echo $lastchequeno 	= $bankdesc[0]->lastchequeno;
+			$firstchequeno 	= $bankdesc[0]->firstchequeno;
+			$lastchequeno 	= $bankdesc[0]->lastchequeno;
 			$accntname 		= $this->bank->deleteCheck($posted_data);
 
 			if( $accntname )
@@ -410,6 +408,25 @@
 			}
 			
 			return $dataArray 		= array( "msg" => $msg );
+
+		}
+
+		public function check_duplicate_booknumber(){
+			$current = $this->input->post('curr_code');
+			$old 	 = $this->input->post('old_code');
+			$count 	 = 0;
+			if( $current!='' && $current != $old )
+			{
+				$result = $this->bank->check_duplicate_booknums($current);
+				$count = $result[0]->count;
+			}
+			$msg   = "";
+			if( $count > 0 )
+			{	
+				$msg = "exists";
+			}
+
+			return $dataArray = array("msg" => $msg);
 
 		}
 

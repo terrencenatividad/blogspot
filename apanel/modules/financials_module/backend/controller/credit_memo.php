@@ -47,10 +47,10 @@ class controller extends wc_controller {
 		$data['close_date']			= $close_date;
 		$data['ui'] = $this->ui;
 		$data['partner_list']    	= $this->cm_model->getVendorList();
-		$data['proforma_list']		= $this->cm_model->getProformaList();
 		$data['chartofaccounts']	= $this->cm_model->getChartOfAccountList();
 		$data['voucher_details']	= json_encode(array());
 		$data['ajax_task']			= 'ajax_create';
+		$data['proforma_list']		= $this->cm_model->getProformaList($data);
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
 		$data['restrict_cm'] 		= true;
@@ -66,11 +66,11 @@ class controller extends wc_controller {
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data['ui'] = $this->ui;
-		$data['proforma_list']	 	= $this->cm_model->getProformaList();
 		$data['partner_list']    	= $this->cm_model->getVendorList();
 		$data['chartofaccounts']	= $this->cm_model->getChartOfAccountList();
 		$data['voucher_details']	= json_encode($this->cm_model->getJournalVoucherDetails($this->fields2, $voucherno));
 		$data['ajax_task']			= 'ajax_edit';
+		$data['proforma_list']	 	= $this->cm_model->getProformaList($data);
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
 		$data['restrict_cm'] 		= true;
@@ -86,11 +86,12 @@ class controller extends wc_controller {
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
 		$data['partner_list']   	 = $this->cm_model->getVendorList();
-		$data['proforma_list']		= $this->cm_model->getProformaList();
 		$data['chartofaccounts']	= $this->cm_model->getChartOfAccountList();
 		$status						= $data['stat'];
 		$data['voucher_details']	= json_encode($this->cm_model->getJournalVoucherDetails($this->fields2, $voucherno));
 		$data['show_input']			= false;
+		$data['ajax_task']			= 'ajax_view';
+		$data['proforma_list']		= $this->cm_model->getProformaList($data);
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data['restrict_cm'] 		= $restrict_cm;
@@ -196,8 +197,18 @@ class controller extends wc_controller {
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		// $result					= $this->cm_model->updateJournalVoucher($data, $data2, $this->temp, (($finalized) ? 'Create' : false));
 		$result						= $this->cm_model->saveJournalVoucher($data, $data2);
+
+		$redirect_url = MODULE_URL;
+		if ($submit == 'save_new') {
+			$redirect_url = MODULE_URL . 'create';
+		} else if ($submit == 'save') {
+			$redirect_url = MODULE_URL . 'view/' . $data['voucherno'];
+		} else if ($submit == 'save_exit') {
+			$redirect_url = MODULE_URL;
+		}
+		
 		return array(
-			'redirect'	=> MODULE_URL,
+			'redirect'	=> $redirect_url,
 			'success'	=> $result
 		);
 	}

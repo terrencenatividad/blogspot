@@ -27,9 +27,9 @@ class controller extends wc_controller
 		$data["file_import_result"]    = "";
 		$cmp 						   = $this->companycode;
 		$data["date"] 			   	   = date("M d, Y");
-
+		$data["task"] 			   	   = "";
 		// Retrieve vendor list
-		$data["vendor_list"]  = $this->payment_voucher->retrieveVendorList();
+		$data["vendor_list"]  = $this->payment_voucher->retrieveVendorList($data);
 
 		// Cash Account Options
 		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
@@ -72,7 +72,7 @@ class controller extends wc_controller
 		$data["transactiondate"]    = $this->date->dateFormat();
 		$data["status"] 			= "";
 		// Retrieve vendor list
-		$data["vendor_list"]        = $this->payment_voucher->retrieveVendorList();
+		$data["vendor_list"]        = $this->payment_voucher->retrieveVendorList($data);
 
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
@@ -84,11 +84,18 @@ class controller extends wc_controller
 		$data["account_entry_list"] = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// Cash Account Options
-		$cash_account_fields 	  	= 'chart.id ind, chart.accountname val, class.accountclass';
-		$cash_account_join 	 	  	= "accountclass as class USING(accountclasscode)";
-		$cash_account_cond 	 	  	= "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P' AND stat = 'active'";
-		$cash_order_by 		 	  	= "class.accountclass";
-		$data["cash_account_list"] 	= $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
+		// $cash_account_fields 	  	= 'chart.id ind, chart.accountname val, class.accountclass';
+		// $cash_account_join 	 	  	= "accountclass as class USING(accountclasscode)";
+		// $cash_account_cond 	 	  	= "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P' AND stat = 'active'";
+		// $cash_order_by 		 	  	= "class.accountclass";
+		// $data["cash_account_list"] 	= $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
+
+		// Cash Account Options
+		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
+		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
+		$cash_order_by 		 	  	= "id desc";
+		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
+		$data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
 
 		$data["generated_id"]     	= '';
 
@@ -118,7 +125,7 @@ class controller extends wc_controller
 			{
 				/**UPDATE MAIN TABLES**/
 				$generatedvoucher			= $seq->getValue('DV');
-			
+
 				$update_info				= array();
 				$update_info['voucherno']	= $generatedvoucher;
 				$update_info['stat']		= 'open';
@@ -128,6 +135,16 @@ class controller extends wc_controller
 				
 				$update_cheque['voucherno']	= $generatedvoucher;
 				$updateTempRecord			= $this->payment_voucher->editData($update_cheque,"pv_cheques",$update_condition);
+
+				$getnextCheckno 			= $this->payment_voucher->get_check_no($generatedvoucher);
+				foreach ($getnextCheckno as $value) {
+					$cno = $value->checknum;
+					$ca = $value->chequeaccount;
+					$getBank = $this->payment_voucher->getbankid($ca);
+					$bank_id = $getBank[0]->id;
+					$updateCheckNo = $this->payment_voucher->updateCheck($bank_id, $cno);
+				}
+
 			}
 			
 			if(empty($errmsg))
@@ -214,11 +231,18 @@ class controller extends wc_controller
 		$data["forexamount"] 	  = $forexamount;
 
 		// Cash Account Options
-		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
-		$cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		$cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
-		$cash_order_by 		 	  = "class.accountclass";
-		$data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
+		// $cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
+		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
+		// $cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
+		// $cash_order_by 		 	  = "class.accountclass";
+		// $data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
+
+		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
+		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
+		$cash_order_by 		 	  	= "id desc";
+		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
+		$data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
+
 		$data["noCashAccounts"]  = false;
 		
 		if(empty($data["cash_account_list"]))
@@ -269,20 +293,23 @@ class controller extends wc_controller
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 
-		// Retrieve vendor list
-		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList();
-
 		// Retrieve business type list
 		$acc_entry_data               = array("id ind","accountname val");
-		$acc_entry_cond               = "accounttype != ''";
+		$acc_entry_cond               = "accounttype != ''  AND stat = 'active'";
 		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
-		// Cash Account Options
-		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
-		$cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		$cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
-		$cash_order_by 		 	  = "class.accountclass";
-		$data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
+		// // Cash Account Options
+		// $cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
+		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
+		// $cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
+		// $cash_order_by 		 	  = "class.accountclass";
+		// $data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
+
+		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
+		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
+		$cash_order_by 		 	  	= "id desc";
+		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
+		$data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
 
 		// Header Data
 		$voucherno 					= $data["main"]->voucherno;
@@ -317,6 +344,9 @@ class controller extends wc_controller
 		$data['restrict_dv'] 	= true;	
 		$data['has_access'] 	= 0;
 
+		// Retrieve vendor list
+		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList($data);
+
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
 
@@ -330,14 +360,7 @@ class controller extends wc_controller
 
 			// For Admin Logs
 			$this->logs->saveActivity("Update Payment Voucher [$sid]");
-
-			if(!empty($data_validate['h_save']) && $data_validate['h_save'] == 'save_preview'){
-				$this->url->redirect(BASE_URL . 'financials/disbursement/view/' . $sid);
-			}else if(!empty($data_validate['h_save']) && $data_validate['h_save'] == 'save_new'){
-				$this->url->redirect(BASE_URL . 'financials/disbursement/create');
-			}else{
-				$this->url->redirect(BASE_URL . 'financials/disbursement/');
-			}
+			$this->url->redirect(BASE_URL . 'financials/disbursement/');
 		}
 
 		$this->view->load('disbursement/disbursement', $data);
@@ -390,7 +413,7 @@ class controller extends wc_controller
 			// {
 			// 	$pv_v .= "'".$pv_voucherno[$p]->voucherno."',";
 			// }
-		
+
 			// $pv_v = rtrim($pv_v, ", ");
 
 			// echo $pv_v;
@@ -416,14 +439,14 @@ class controller extends wc_controller
 		// Setting for PDFs
 		$print = new print_voucher_model('P', 'mm', 'Letter');
 		$print->setDocumentType('Disbursement Voucher')
-				->setDocumentInfo($documentinfo[0])
-				->setVendor($vendor)
+		->setDocumentInfo($documentinfo[0])
+		->setVendor($vendor)
 				// ->setVoucherStatus($voucher_status)
 				// ->setPayments($chequeArray_2)
-				->setDocumentDetails($documentdetails)
-				->setCheque($chequeArray)
+		->setDocumentDetails($documentdetails)
+		->setCheque($chequeArray)
 				// ->setAppliedPayment($appliedpaymentArray)
-				->drawPDF('dv_voucher_' . $voucherno);
+		->drawPDF('dv_voucher_' . $voucherno);
 	}
 
 	public function ajax($task) {
@@ -480,106 +503,106 @@ class controller extends wc_controller
 				$cheque_values		= "";
 
 				$table .= '<tr>
-							<td>'
-						 		.$ui->formField('text')
-								->setSplit('', 'col-md-12 no-pad')
-								->setClass("input_label")
-								->setName('paymentdate'.$row_count)
-								->setId('paymentdate'.$row_count)
-								->setValue($paymentdate)
-								->setAttribute(array("readonly" => "readonly"))
-								->draw(true).
-								'<input value="'.$paymentnumber.'" name = "paymentnumber'.$row_count.'" id = "paymentnumber'.$row_count.'" type = "hidden">
-							</td>';
+				<td>'
+				.$ui->formField('text')
+				->setSplit('', 'col-md-12 no-pad')
+				->setClass("input_label")
+				->setName('paymentdate'.$row_count)
+				->setId('paymentdate'.$row_count)
+				->setValue($paymentdate)
+				->setAttribute(array("readonly" => "readonly"))
+				->draw(true).
+				'<input value="'.$paymentnumber.'" name = "paymentnumber'.$row_count.'" id = "paymentnumber'.$row_count.'" type = "hidden">
+				</td>';
 
 				$table .= 	'<td>'
-								.$ui->formField('text')
-									->setSplit('', 'col-md-12 no-pad')
-									->setClass("input_label")
-									->setName("pmode".$row_count)
-									->setId("pmode".$row_count)
-									->setAttribute(array("disabled" => "disabled"))
-									->setValue(ucwords($paymentmode))
-									->draw(true).
-						
-								$ui->formField('dropdown')
-									->setSplit('', 'col-md-12 no-pad')
-									->setClass("input-sm hidden")
-									->setPlaceholder('None')
-									->setName('paymentmode'.$row_count)
-									->setId('paymentmode'.$row_count)
-									->setList(array("cash" => "Cash", "cheque" => "Cheque"))
-									->setValue($paymentmode)
-									->draw(true).
-							'</td>';
+				.$ui->formField('text')
+				->setSplit('', 'col-md-12 no-pad')
+				->setClass("input_label")
+				->setName("pmode".$row_count)
+				->setId("pmode".$row_count)
+				->setAttribute(array("disabled" => "disabled"))
+				->setValue(ucwords($paymentmode))
+				->draw(true).
+
+				$ui->formField('dropdown')
+				->setSplit('', 'col-md-12 no-pad')
+				->setClass("input-sm hidden")
+				->setPlaceholder('None')
+				->setName('paymentmode'.$row_count)
+				->setId('paymentmode'.$row_count)
+				->setList(array("cash" => "Cash", "cheque" => "Cheque"))
+				->setValue($paymentmode)
+				->draw(true).
+				'</td>';
 
 				$table .= 	'<td>'
-								.$ui->formField('text')
-									->setSplit('', 'col-md-12 no-pad')
-									->setClass("input_label")
-									->setName("paymentreference".$row_count)
-									->setId("paymentreference".$row_count)
-									->setAttribute(array("readonly" => "readonly"))
-									->setValue($reference)
-									->draw(true).
-								'<input value="'.$paymentcheckdate.'" name = "paymentcheckdate'.$row_count.'" id = "paymentcheckdate'.$row_count.'" type = "hidden">
-								<input value="'.$paymentnotes.'" name = "paymentnotes'.$row_count.'" id = "paymentnotes'.$row_count.'" type = "hidden">
-							</td>';
+				.$ui->formField('text')
+				->setSplit('', 'col-md-12 no-pad')
+				->setClass("input_label")
+				->setName("paymentreference".$row_count)
+				->setId("paymentreference".$row_count)
+				->setAttribute(array("readonly" => "readonly"))
+				->setValue($reference)
+				->draw(true).
+				'<input value="'.$paymentcheckdate.'" name = "paymentcheckdate'.$row_count.'" id = "paymentcheckdate'.$row_count.'" type = "hidden">
+				<input value="'.$paymentnotes.'" name = "paymentnotes'.$row_count.'" id = "paymentnotes'.$row_count.'" type = "hidden">
+				</td>';
 
 				$table .= '<td>'
-								.$ui->formField('text')
-									->setSplit('', 'col-md-12 no-pad')
-									->setClass("input_label")
-									->setName("pacct".$row_count)
-									->setId("pacct".$row_count)
-									->setValue($paymentaccount)
-									->setAttribute(array("readonly" => "readonly"))
-									->draw(true).
+				.$ui->formField('text')
+				->setSplit('', 'col-md-12 no-pad')
+				->setClass("input_label")
+				->setName("pacct".$row_count)
+				->setId("pacct".$row_count)
+				->setValue($paymentaccount)
+				->setAttribute(array("readonly" => "readonly"))
+				->draw(true).
 
-								$ui->formField('dropdown')
-									->setSplit('', 'col-md-12 no-pad')
-									->setClass("input-sm hidden")
-									->setPlaceholder('None')
-									->setName('paymentaccount'.$row_count)
-									->setId('paymentaccount'.$row_count)
-									->setList($data["cash_account_list"])
-									->setValue($paymentaccountcode)
-									->draw(true).
-							'</td>';
+				$ui->formField('dropdown')
+				->setSplit('', 'col-md-12 no-pad')
+				->setClass("input-sm hidden")
+				->setPlaceholder('None')
+				->setName('paymentaccount'.$row_count)
+				->setId('paymentaccount'.$row_count)
+				->setList($data["cash_account_list"])
+				->setValue($paymentaccountcode)
+				->draw(true).
+				'</td>';
 
 				$table .= '<td>
-							<input value="'.number_format($paymentamount,2).'" name = "paymentamount'.$row_count.'" id = "paymentamount'.$row_count.'" type = "hidden">
-							<input value="'.number_format($paymentrate,2).'" name = "paymentrate'.$row_count.'" id = "paymentrate'.$row_count.'" type = "hidden">'
-						
-							.$ui->formField('text')
-								->setSplit('', 'col-md-12 no-pad')
-								->setClass("input_label text-right")
-								->setName("paymentconverted".$row_count)
-								->setId("paymentconverted".$row_count)
-								->setAttribute(array("readonly" => "readonly"))
-								->setValue(number_format($paymentconverted,2))
-								->draw(true).
+				<input value="'.number_format($paymentamount,2).'" name = "paymentamount'.$row_count.'" id = "paymentamount'.$row_count.'" type = "hidden">
+				<input value="'.number_format($paymentrate,2).'" name = "paymentrate'.$row_count.'" id = "paymentrate'.$row_count.'" type = "hidden">'
 
-							$ui->formField('textarea')
-								->setSplit('', 'col-md-12 no-pad')
-								->setClass("hidden")
-								->setName("chequeInput".$row_count)
-								->setId("chequeInput".$row_count)
-								->setValue($cheque_values)
-								->draw(true).
-						'</td>';
+				.$ui->formField('text')
+				->setSplit('', 'col-md-12 no-pad')
+				->setClass("input_label text-right")
+				->setName("paymentconverted".$row_count)
+				->setId("paymentconverted".$row_count)
+				->setAttribute(array("readonly" => "readonly"))
+				->setValue(number_format($paymentconverted,2))
+				->draw(true).
+
+				$ui->formField('textarea')
+				->setSplit('', 'col-md-12 no-pad')
+				->setClass("hidden")
+				->setName("chequeInput".$row_count)
+				->setId("chequeInput".$row_count)
+				->setValue($cheque_values)
+				->draw(true).
+				'</td>';
 
 				$table .= '<td>'
-							.$ui->formField('text')
-								->setSplit('', 'col-md-12 no-pad')
-								->setClass("input_label text-right")
-								->setName("paymentdiscount".$row_count)
-								->setId("paymentdiscount".$row_count)
-								->setAttribute(array("readonly" => "readonly"))
-								->setValue(number_format($paymentdiscount,2))
-								->draw(true).
-							'</td>';
-								
+				.$ui->formField('text')
+				->setSplit('', 'col-md-12 no-pad')
+				->setClass("input_label text-right")
+				->setName("paymentdiscount".$row_count)
+				->setId("paymentdiscount".$row_count)
+				->setAttribute(array("readonly" => "readonly"))
+				->setValue(number_format($paymentdiscount,2))
+				->draw(true).
+				'</td>';
+
 				$button = (strtolower($checkstat) != 'cleared') ? '<button class="btn btn-default btn-xs" onClick="editPaymentRow(event,\'edit'.$row_count.'\', \''.$apvoucherno.'\', \''.$sid.'\');" title="Edit Payment"><span class="glyphicon glyphicon-pencil"></span></button>
 				<button class="btn btn-default btn-xs" onClick="deletePaymentRow(event,\'delete'.$row_count.'\');" title="Delete Payment" ><span class="glyphicon glyphicon-trash"></span></button>
 				<a role="button" class="btn btn-default btn-xs" href="'.BASE_URL.'financials/accounts_payable/print_preview/'.$sid.'" title="Print Payment Voucher" onClick = "print(\''.$paymentnumber.'\');"><span class="glyphicon glyphicon-print"></span></a>' : '<a role="button" class="btn btn-default btn-xs" href="'.BASE_URL.'financials/accounts_payable/print_preview/'.$sid.'" onClick = "print(\''.$paymentnumber.'\');" title="Print Payment Voucher" ><span class="glyphicon glyphicon-print"></span></a>';
@@ -595,8 +618,8 @@ class controller extends wc_controller
 			}
 		else:
 			$table .= "<tr>
-							<td colspan = '7' class = 'text-center'>No payments issued for this payable</td>
-					  </tr>";
+			<td colspan = '7' class = 'text-center'>No payments issued for this payable</td>
+			</tr>";
 		endif;
 
 		$dataArray = array( "list" => $table, "pagination" => $list["payments"]->pagination, "totalPayment" => $totalPayment, "totaldiscount" => $totaldiscount );
@@ -732,7 +755,7 @@ class controller extends wc_controller
 			$code 	  = $this->input->post("code");
 
 			$cond 	  = "partnercode = '$code'";
-		
+
 			/**
 			* Get Value
 			*/
@@ -746,7 +769,7 @@ class controller extends wc_controller
 			$account  = $this->input->post("account");
 
 			$cond 	  = "id = '$account'";
-		
+
 			/**
 			* Get Value
 			*/
@@ -783,7 +806,7 @@ class controller extends wc_controller
 
 		$dataArray = array( "msg" => $msg );
 		return $dataArray;
-	
+
 	}
 
 	private function apply_payments()
@@ -849,7 +872,7 @@ class controller extends wc_controller
 		$edited_amount 	   = 0;
 
 		$show_input 	   = ($task != "view") 	? 	1	:	0;
-	
+
 		if (empty($pagination->result)) {
 			$table = '<tr><td class="text-center" colspan="8"><b>No Records Found</b></td></tr>';
 		}
@@ -921,61 +944,61 @@ class controller extends wc_controller
 				if($voucher_checked == 'checked'){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
 					$this->ui->formField('text')
-						->setSplit('', 'col-md-12')
-						->setClass("input-sm text-right paymentamount")
-						->setId('paymentamount'.$voucher)
-						->setPlaceHolder("0.00")
-						->setAttribute(
-							array(
-								"maxlength" => "20", 
-								"onBlur" => ' formatNumber(this.id);', 
-								"onClick" => " SelectAll(this.id); ",
-								"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
-							)
+					->setSplit('', 'col-md-12')
+					->setClass("input-sm text-right paymentamount")
+					->setId('paymentamount'.$voucher)
+					->setPlaceHolder("0.00")
+					->setAttribute(
+						array(
+							"maxlength" => "20", 
+							"onBlur" => ' formatNumber(this.id);', 
+							"onClick" => " SelectAll(this.id); ",
+							"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
 						)
-						->setValue(number_format($amount,2))
-						->draw($show_input).'</td>';
+					)
+					->setValue(number_format($amount,2))
+					->draw($show_input).'</td>';
 				}
 				else{
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
 					$this->ui->formField('text')
-						->setSplit('', 'col-md-12')
-						->setClass("input-sm text-right paymentamount")
-						->setId('paymentamount'.$voucher)
-						->setPlaceHolder("0.00")
-						->setAttribute(
-							array(
-								"maxlength" => "20", 
-								"disabled" => "disabled", 
-								"onBlur" => ' formatNumber(this.id);', 
-								"onClick" => " SelectAll(this.id); ",
-								"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
-							)
+					->setSplit('', 'col-md-12')
+					->setClass("input-sm text-right paymentamount")
+					->setId('paymentamount'.$voucher)
+					->setPlaceHolder("0.00")
+					->setAttribute(
+						array(
+							"maxlength" => "20", 
+							"disabled" => "disabled", 
+							"onBlur" => ' formatNumber(this.id);', 
+							"onClick" => " SelectAll(this.id); ",
+							"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
 						)
-						->setValue(number_format(0, 2))
-						->draw($show_input).'</td>';
+					)
+					->setValue(number_format(0, 2))
+					->draw($show_input).'</td>';
 				}
 				if($voucher_checked == 'checked'){
-				$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
-								$this->ui->formField('text')
-									->setSplit('', 'col-md-12')
-									->setClass("input-sm text-right discountamount")
-									->setId('discountamount'.$voucher)
-									->setPlaceHolder("0.00")
-									->setAttribute(
-										array(
-											"maxlength" => "20", 
-											"onBlur" => ' formatNumber(this.id);', 
-											"onClick" => " SelectAll(this.id); ",
-											"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
-										)
-									)
-									->setValue(number_format($discount, 2))
-									->draw($show_input).'</td>';
-				$table	.= '</tr>';
-			}else{
-				$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
-				$this->ui->formField('text')
+					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
+					$this->ui->formField('text')
+					->setSplit('', 'col-md-12')
+					->setClass("input-sm text-right discountamount")
+					->setId('discountamount'.$voucher)
+					->setPlaceHolder("0.00")
+					->setAttribute(
+						array(
+							"maxlength" => "20", 
+							"onBlur" => ' formatNumber(this.id);', 
+							"onClick" => " SelectAll(this.id); ",
+							"onChange" => ' checkBalance(this.value,\''.$voucher.'\'); '
+						)
+					)
+					->setValue(number_format($discount, 2))
+					->draw($show_input).'</td>';
+					$table	.= '</tr>';
+				}else{
+					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
+					$this->ui->formField('text')
 					->setSplit('', 'col-md-12')
 					->setClass("input-sm text-right discountamount")
 					->setId('discountamount'.$voucher)
@@ -991,9 +1014,9 @@ class controller extends wc_controller
 					)
 					->setValue(number_format(0, 2))
 					->draw($show_input).'</td>';
-	$table	.= '</tr>';
+					$table	.= '</tr>';
+				}
 			}
-		}
 		}
 		else
 		{
@@ -1071,49 +1094,49 @@ class controller extends wc_controller
 
 				$table .= '<tr class="clone" valign="middle">';
 				$table .= 	'<td class = "remove-margin">'	
-									.$ui->formField('dropdown')
-										->setPlaceholder('Select One')
-										->setSplit('', 'col-md-12')
-										->setName("accountcode[".$row."]")
-										->setClass("accountcode")
-										->setId("accountcode[".$row."]")
-										->setList($account_entry_list)
-										->setValue($accountcode)
-										->draw($show_input).
-							'	<input type = "hidden" class="h_accountcode" name="h_accountcode['.$row.']" id="h_accountcode['.$row.']" value="'.$accountcode.'">
-							</td>';
+				.$ui->formField('dropdown')
+				->setPlaceholder('Select One')
+				->setSplit('', 'col-md-12')
+				->setName("accountcode[".$row."]")
+				->setClass("accountcode")
+				->setId("accountcode[".$row."]")
+				->setList($account_entry_list)
+				->setValue($accountcode)
+				->draw($show_input).
+				'	<input type = "hidden" class="h_accountcode" name="h_accountcode['.$row.']" id="h_accountcode['.$row.']" value="'.$accountcode.'">
+				</td>';
 				$table .= 	'<td class = "remove-margin">'
-								.$ui->formField('text')
-									->setSplit('', 'col-md-12')
-									->setName('detailparticulars['.$row.']')
-									->setId('detailparticulars['.$row.']')
-									->setAttribute(array("maxlength" => "100"))
-									->setValue($detailparticulars)
-									->draw($show_input).
-							'</td>';
+				.$ui->formField('text')
+				->setSplit('', 'col-md-12')
+				->setName('detailparticulars['.$row.']')
+				->setId('detailparticulars['.$row.']')
+				->setAttribute(array("maxlength" => "100"))
+				->setValue($detailparticulars)
+				->draw($show_input).
+				'</td>';
 				$table  .=  '<td class = "remove-margin">'
-								.$ui->formField('text')
-									->setSplit('', 'col-md-12')
-									->setName('debit['.$row.']')
-									->setId('debit['.$row.']')
-									->setClass('debit')
-									->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
-									->setValue(number_format($debit,2))
-									->draw($show_input).			
-								'</td>';
+				.$ui->formField('text')
+				->setSplit('', 'col-md-12')
+				->setName('debit['.$row.']')
+				->setId('debit['.$row.']')
+				->setClass('debit')
+				->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
+				->setValue(number_format($debit,2))
+				->draw($show_input).			
+				'</td>';
 				$table 	.= '<td class = "remove-margin">'
-								.$ui->formField('text')
-									->setSplit('', 'col-md-12')
-									->setName('credit['.$row.']')
-									->setClass("text-right account_amount credit")
-									->setId('credit['.$row.']')
-									->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", "readonly" => ""))
-									->setValue($credit)
-									->draw($show_input).
-							'</td>';
+				.$ui->formField('text')
+				->setSplit('', 'col-md-12')
+				->setName('credit['.$row.']')
+				->setClass("text-right account_amount credit")
+				->setId('credit['.$row.']')
+				->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", "readonly" => ""))
+				->setValue($credit)
+				->draw($show_input).
+				'</td>';
 				$table  .= '<td class="text-center">
-								<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id='.$row.' name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"><span class="glyphicon glyphicon-trash"></span></button>
-							</td>';
+				<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id='.$row.' name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"><span class="glyphicon glyphicon-trash"></span></button>
+				</td>';
 
 				$table .= '</tr>';
 			}
@@ -1180,29 +1203,29 @@ class controller extends wc_controller
 				$show_unpost 	= ($status == 'posted' && $has_access[0]->mod_unpost == 1 && $restrict_dv);
 
 				$dropdown = $this->ui->loadElement('check_task')
-							->addView()
-							->addEdit($show_edit)
-							->addOtherTask(
-								'Post',
-								'thumbs-up',
-								$show_post
-							)
-							->addOtherTask(
-								'Unpost',
-								'thumbs-down',
-								$show_unpost
-							)
-							->addOtherTask(
-								'Cancel',
-								'ban-circle',
-								$show_btn
-							)
-							->addPrint()
+				->addView()
+				->addEdit($show_edit)
+				->addOtherTask(
+					'Post',
+					'thumbs-up',
+					$show_post
+				)
+				->addOtherTask(
+					'Unpost',
+					'thumbs-down',
+					$show_unpost
+				)
+				->addOtherTask(
+					'Cancel',
+					'ban-circle',
+					$show_btn
+				)
+				->addPrint()
 							//->addDelete($show_dlt)
-							->addCheckbox($show_btn)
-							->setValue($voucher)
-							->draw();
-			
+				->addCheckbox($show_btn)
+				->setValue($voucher)
+				->draw();
+
 
 				if($nextvno != $prevvno){
 					$table	.= '<tr>';
@@ -1244,8 +1267,8 @@ class controller extends wc_controller
 			}
 		else:
 			$table .= "<tr>
-							<td colspan = '8' class = 'text-center'>No Records Found</td>
-					  </tr>";
+			<td colspan = '8' class = 'text-center'>No Records Found</td>
+			</tr>";
 		endif;
 
 		$dataArray = array( "list" => $table, "pagination" => $list->pagination , "csv" => $this->export() );
@@ -1329,9 +1352,21 @@ class controller extends wc_controller
 		$print_dtls = new print_check();
 
 		$print_dtls->setDocumentType('Payment Voucher')
-					->setDocumentInfo($print_chkdtl)
-					->drawPDF('pv_voucher_' . $vno);
-		
-		
+		->setDocumentInfo($print_chkdtl)
+		->drawPDF('pv_voucher_' . $vno);
 	}
+
+	public function getCheckdtl(){
+		$bank_no = $this->input->post('bank_');
+		$result1 = $this->payment_voucher->getcheckfirst($bank_no);
+		$result2 = $this->payment_voucher->getchecklast($bank_no);
+		
+		$nextcheckno  = $result1[0]->nextchequeno;
+		$lastcheckno  = $result2[0]->lastchequeno;
+		$fno 		  = $result1[0]->firstchequeno;
+		// $bno 		  = $result[0]->booknumber;
+		$data = array('nno' => $nextcheckno, 'last' => $lastcheckno);
+		return $data; 
+	}
+
 }
