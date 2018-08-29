@@ -5,7 +5,7 @@
 		{
 			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND ( p.partnercode LIKE '%$search%' OR p.partnername LIKE '%$search%' OR p.first_name LIKE '%$search%' OR p.last_name LIKE '%$search%' OR p.email LIKE '%$search%' ) " 	: 	"";
 
-			$fields 	=	array("p.partnercode","p.partnername","CONCAT(p.first_name,' ', p.last_name) as contact_person", "p.email","p.stat","p.credit_limit","COALESCE(incurred.receivables,0) receivables");
+			$fields 	=	array("p.partnercode","p.partnername","CONCAT(p.first_name,' ', p.last_name) as contact_person", "p.email","p.stat","p.credit_limit","COALESCE(incurred.receivables,0) receivables","COALESCE(outstanding.receivables,0) outstanding");
 
 			$receivables 	=	$this->db->setTable('accountsreceivable')
 										->setFields('SUM(amountreceived) receivables, customer')
@@ -13,9 +13,16 @@
 										->setGroupBy('customer')
 										->buildSelect();
 
+			$outstanding 	=	$this->db->setTable('accountsreceivable')
+										->setFields('SUM(balance) receivables, customer')
+										->setWhere(" stat NOT IN ('cancelled','temporary')")
+										->setGroupBy('customer')
+										->buildSelect();
+
 			return $this->db->setTable('partners p')
 							->setFields($fields)
 							->leftJoin("($receivables) as incurred ON incurred.customer = p.partnercode")
+							->leftJoin("($outstanding) as outstanding ON outstanding.customer = p.partnercode")
 							->setWhere(" p.partnertype = 'customer' AND p.stat != 'deleted' $add_cond ")
 							->setOrderBy($sort)
 							->runPagination();
@@ -30,10 +37,17 @@
 										->setGroupBy('customer')
 										->buildSelect();
 
+			$outstanding 	=	$this->db->setTable('accountsreceivable')
+										->setFields('SUM(balance) receivables, customer')
+										->setWhere(" stat NOT IN ('cancelled','temporary')")
+										->setGroupBy('customer')
+										->buildSelect();
+
 			$condition 		=	" partnertype = 'customer' AND stat = 'active' AND partnercode = '$partnercode' ";
 			
 			$result 		= 	$this->db->setTable('partners p')
 										->leftJoin("($receivables) as incurred ON incurred.customer = p.partnercode")
+										->leftJoin("($outstanding) as outstanding ON outstanding.customer = p.partnercode")
 										->setFields($data)
 										->setWhere($condition)
 										->runSelect()
@@ -157,17 +171,6 @@
 												->setLimit(1)
 												->runUpdate();
 
-			return $result;
-		}
-
-		public function retrieve_incurred_receivables($code){
-			$result =  $this->db->setTable('accountsreceivable')
-							 ->setFields('SUM(amountreceived) receivables')
-							 ->setWhere(" stat NOT IN ('cancelled','temporary') AND customer = '$code'")
-							 ->setGroupBy('customer')
-							 ->runSelect()
-							 ->getResult();
-							 
 			return $result;
 		}
 	}

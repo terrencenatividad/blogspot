@@ -70,7 +70,7 @@
 		{
 			$this->view->title = $this->ui->ViewLabel('');
 			
-			$this->fields[] 				= "COALESCE(incurred.receivables,0) receivables";
+			$this->fields[] 				= "COALESCE(incurred.receivables,0) receivables, COALESCE(outstanding.receivables,0) outstanding";
 			$data 			 				= (array) $this->customer->retrieveExistingCustomer($this->fields, $code);
 			$data['bt_select'] 				= $this->customer->retrieveBusinessTypeDropdown();
 			$data['ui'] 					= $this->ui;
@@ -79,6 +79,7 @@
 			$data['ajax_post'] 				= "";
 			$data['credit_limit'] 			= number_format($data['credit_limit'],2);
 			$data['incurred_receivables']	= number_format($data['receivables'],2);
+			$data['outstanding_receivables']= number_format($data['outstanding'],2);
 
 			$this->view->load('customer/customer_create',  $data);
 		}
@@ -411,6 +412,7 @@
 					$table .= '<td>' . $row->email . '</td>';
 					$table .= '<td>' . number_format($row->credit_limit,2) . '</td>';
 					$table .= '<td>' . number_format($row->receivables,2) . '</td>';
+					$table .= '<td>' . number_format($row->outstanding,2) . '</td>';
 					$table .= '<td>' . $status . '</td>';
 					$table .= '</tr>';
 				}
