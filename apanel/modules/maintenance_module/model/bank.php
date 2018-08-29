@@ -161,7 +161,7 @@
 							->setFields($fields)
 							->leftJoin("bank b ON b.id = bd.bank_id ")
 							->setWhere(" bd.stat = 'open' AND bank_id = '$id' $add_cond ")
-							->setOrderBy($sort)
+							->setOrderBy("nextchequeno + 0 ASC")
 							->runPagination();
 			return $result;
 		}
