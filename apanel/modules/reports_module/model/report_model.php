@@ -17,7 +17,8 @@ class report_model extends wc_model {
 				'debit',
 				'credit',
 				'transactiondate',
-				'a.companycode'
+				'a.companycode',
+				'a.source'
 			);
 			$fields2 = array(
 				'voucherno',
@@ -30,7 +31,8 @@ class report_model extends wc_model {
 				'credit',
 				'transactiondate',
 				'companycode',
-				'partnercode'
+				'source',
+				'partnercode',
 			);
 			$ap = $this->db->setTable('accountspayable a')
 							->innerJoin('ap_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')

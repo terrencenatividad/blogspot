@@ -89,7 +89,7 @@ class income_statement extends wc_model {
 		$result =  $this->db->setTable('balance_table as bt')
 							->setFields("ca.accountnature parentnature, ca.accountclasscode as accountclasscode, bt.accountcode as accountcode, ca.accountname as accountname, bt.transactiondate as transactiondate, SUM(bt.debit) as debit, SUM(bt.credit) as credit, ca.parentaccountcode as parent, ca.accountnature as accountnature")
 							->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
-							->setWhere("ca.fspresentation = 'IS' AND ca.accountclasscode IN('REV','REVENU') $filter")
+							->setWhere("ca.fspresentation = 'IS' AND ca.accountclasscode IN('REV','REVENU') AND bt.source != 'closing' $filter")
 							->setGroupBy('bt.accountcode')
 							->setOrderBy("bt.accountcode")
 							->runSelect()
@@ -98,7 +98,7 @@ class income_statement extends wc_model {
 		$result1 =  $this->db->setTable('balance_table bt')
 							->setFields("ca.accountnature parentnature, ca.accountclasscode as accountclasscode, bt.accountcode as accountcode,ca.accountname as accountname, bt.transactiondate as transactiondate, SUM(bt.debit) as debit, SUM(bt.credit) as credit, ca.parentaccountcode as parent, ca.accountnature as accountnature")
 							->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
-							->setWhere("ca.fspresentation = 'IS' AND ca.accountclasscode IN('OTHINC','OTRINC') $filter")
+							->setWhere("ca.fspresentation = 'IS' AND ca.accountclasscode IN('OTHINC','OTRINC') AND bt.source != 'closing' $filter")
 							->setGroupBy('bt.accountcode')
 							->setOrderBy("bt.accountcode")
 							->runSelect()
@@ -107,7 +107,7 @@ class income_statement extends wc_model {
 		$result2 =  $this->db->setTable('balance_table bt')
 							->setFields("ca.accountnature parentnature, ca.accountclasscode as accountclasscode, bt.accountcode as accountcode,ca.accountname as accountname, bt.transactiondate as transactiondate, SUM(bt.debit) as debit, SUM(bt.credit) as credit, ca.parentaccountcode as parent, ca.accountnature as accountnature")
 							->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
-							->setWhere("ca.fspresentation = 'IS' AND ca.accountclasscode IN('COST','COSTSA') $filter")
+							->setWhere("ca.fspresentation = 'IS' AND ca.accountclasscode IN('COST','COSTSA') AND bt.source != 'closing' $filter")
 							->setGroupBy('bt.accountcode')
 							->setOrderBy("bt.accountcode")
 							->runSelect()
@@ -162,7 +162,6 @@ class income_statement extends wc_model {
 			$accountname		= $accounts->accountname;
 			$accountclasscode	= $accounts->accountclasscode;
 			$parentaccount		= ($accounts->parentnature) ? $accounts->parentnature : $accounts->accountnature;
-			//var_dump($accountname, $parentaccount, $accounts->parentnature, $accounts->accountnature);
 			$accounttype		= '';
 			$accountclass		= '';
 
@@ -170,11 +169,9 @@ class income_statement extends wc_model {
 				if (isset($x[$key])) {
 					$account	= $x[$key];
 					$tot = ($accounts->accountnature == 'Debit') ? $account->debit - $account->credit : $account->credit - $account->debit;
-					//var_dump('Account Name:'.$accountname .'| Parent Account:'. $parentaccount .'| Account Nature:'. $accounts->accountnature);
 					if ($accounts->accountnature != $parentaccount) {
 						$tot = $tot * -1;
 					}
-					//var_dump('| Debit:'.$account->debit .'| Credit:'. $account->credit .'| Total:'. $tot);
 					$total	+= $tot;
 					$col[]	= $tot;
 				} else {
