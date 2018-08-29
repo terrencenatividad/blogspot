@@ -15,7 +15,7 @@
 		<form method = "post" class="form-horizontal" id = "sales_order_form">
 
 			<input class = "form_iput" value = "" name = "h_curr_limit" id = "h_curr_limit" type="hidden">
-			<input class = "form_iput" value = "" name = "h_overdue" id = "h_overdue" type="hidden">
+			<input class = "form_iput" value = "" name = "h_outstanding" id = "h_outstanding" type="hidden">
 			<input class = "form_iput" value = "" name = "h_incurred" id = "h_incurred" type="hidden">
 			<input class = "form_iput" value = "" name = "h_balance" id = "h_balance" type="hidden">
 			
@@ -667,19 +667,19 @@
 			<div class="modal-header">
 				Oops!
 			</div>
-			<div class="modal-body">
+			<div class="modal-body" id="message">
 				This customer is about to exceed their Credit Limit. Do you wish to Proceed?
 			</div>
 			<div class="modal-footer">
 				<div class="row row-dense">
-					<div class="col-md-12 center">
-						<div class="btn-group">
-							<button type="button" class="btn btn-info btn-flat" id="btnProceed" data-dismiss='modal'>Proceed</button>
+					<div class="col-md-12 ">
+						<div class="text-center">
+							<button type="button" class="btn btn-info btn-flat" id="btnOk" data-dismiss='modal'>OK</button>
 						</div>
-							&nbsp;&nbsp;&nbsp;
+							<!-- &nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
 							<button type="button" class="btn btn-default btn-flat" id="btnNo" >No</button>
-						</div>
+						</div> -->
 					</div>
 				</div>
 			</div>
@@ -688,10 +688,17 @@
 </div>
 
 <script>
+	function retrieveCurrentOutstandingReceivables(customercode){
+		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_outstanding_receivables', "customercode=" + customercode, function(data) {
+			$('#h_outstanding').val(data.outstanding_receivables);
+			computeforremainingcredit();
+		});
+	}
+
 	function retrieveCurrentIncurredReceivables(customercode){
 		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_incurred_receivables', "customercode=" + customercode, function(data) {
 			$('#h_incurred').val(data.incurred_receivables);
-			computeforremainingcredit();
+			// computeforremainingcredit();
 		});
 	}
 
@@ -703,9 +710,10 @@
 
 	function computeforremainingcredit(){
 		var credit_limit 			=	$('#h_curr_limit').val();
-		var incurred_receivables 	=	$('#h_incurred').val();
+		var outstanding_receivables = 	$('#h_outstanding').val();
+		// var incurred_receivables 	=	$('#h_incurred').val();
 
-		var balance 				=	parseFloat(credit_limit) 	-	parseFloat(incurred_receivables);
+		var balance 				=	parseFloat(credit_limit) 	-	parseFloat(outstanding_receivables);
 
 		$('#h_balance').val(balance);
 	}
@@ -713,10 +721,17 @@
 	function checkIfExceededCreditLimit(){
 		var current_total 		=	$('#t_total').val();
 		var current_balance 	=	$('#h_balance').val();
+		var current_outstanding	=	$('#h_outstanding').val();
+		var current_limit		=	$('#h_curr_limit').val();
 
+		var flag 	=	0; 
 		if(removeComma(current_total) > removeComma(current_balance)){
-			$('#creditLimitModal').modal('show');	
+			$('#creditLimitModal #message').html("This customer is about to exceed their Credit Limit of "+addComma(current_limit)+".<br><br>Their current accumulated credit is "+addComma(current_outstanding)+". <br><br>Do you wish to Proceed?");
+			// $('#creditLimitModal').modal('show');	
+			flag 	=	1;
 		}
+
+		return flag;
 	}
 
 	function addCustomerToDropdown() {
@@ -1029,7 +1044,7 @@ function addAmounts() {
 	}
 
 	document.getElementById('t_total').value 				= addCommas(total_amount.toFixed(2));
-	checkIfExceededCreditLimit();
+
 }
 
 /**FORMAT NUMBERS TO DECIMAL**/
@@ -1176,6 +1191,12 @@ function finalizeTransaction(type)
 		}
 	});
 
+	var credit_limit_exceed =	checkIfExceededCreditLimit();
+	if(credit_limit_exceed == 1){
+		// $('#creditLimitModal').modal('show');
+		no_error = false;
+	}
+
 	if($("#sales_order_form").find('.form-group.has-error').length == 0 && no_error)
 	{	
 		$('#save').val(type);
@@ -1183,18 +1204,23 @@ function finalizeTransaction(type)
 
 		if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
 		{
-							$('#delay_modal').modal('show');
-							setTimeout(function() {									
-								$('#sales_order_form').submit();
-							}, 1000)
+			$('#delay_modal').modal('show');
+			setTimeout(function() {									
+				$('#sales_order_form').submit();
+			}, 1000)
 		}
 		
 	}
 	else{
-		$('#warning_modal').modal('show').find('#warning_message').html('Please make sure all required fields are filled out.');		
-		//$('#warning_modal').modal('show').find('#warning_message').html('Please Input Quantity > 0');
-		next = $('#sales_order_form').find(".has-error").first();
-		$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
+		if(credit_limit_exceed != 1){
+			$('#warning_modal').modal('show').find('#warning_message').html('Please make sure all required fields are filled out.');		
+			//$('#warning_modal').modal('show').find('#warning_message').html('Please Input Quantity > 0');
+			next = $('#sales_order_form').find(".has-error").first();
+			$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
+		} else {
+			$('#creditLimitModal').modal('show');
+		}
+		 
 	}
 }
 
@@ -1345,10 +1371,9 @@ $(document).ready(function(){
 
 			if( customer_id != "" )
 			{
-				console.log("Customer = "+customer_id);
 				retrieveCreditLimit(customer_id);
 				retrieveCurrentIncurredReceivables(customer_id);
-				
+				retrieveCurrentOutstandingReceivables(customer_id);
 
 				getPartnerInfo(customer_id);
 				if( $('#itemcode\\[1\\]').val() != "" ){
@@ -1609,13 +1634,13 @@ $(document).ready(function(){
 		});
 	// -- Back Button -- End
 
-	$('#creditLimitModal').on('click','#btnProceed',function(){
+	$('#creditLimitModal').on('click','#btnOk',function(){
 		$('#creditLimitModal').modal('hide');
 	});
 	
-	$('#creditLimitModal').on('click','#btnNo',function(){
-		window.location.href = '<?=BASE_URL?>sales/sales_order/create';
-	});
+	// $('#creditLimitModal').on('click','#btnNo',function(){
+	// 	window.location.href = '<?=BASE_URL?>sales/sales_order/create';
+	// });
 	
 });
 

@@ -633,5 +633,16 @@
 							 
 			return $result;
 		}
+
+		public function retrieve_outstanding_receivables($code){
+			$result =  $this->db->setTable('accountsreceivable')
+							 ->setFields('SUM(balance) receivables')
+							 ->setWhere(" stat NOT IN ('cancelled','temporary') AND customer = '$code'")
+							 ->setGroupBy('customer')
+							 ->runSelect()
+							 ->getResult();
+							 
+			return $result;
+		}
 	}
 ?>
