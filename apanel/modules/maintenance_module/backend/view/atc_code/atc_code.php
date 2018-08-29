@@ -109,25 +109,31 @@
 $('form').submit(function(e) 
 {
 		e.preventDefault();
+		var form_group	 	= 	$('#coaForm #coaForm').closest('.form-group');
+		$('#coaForm').find('.form-group').find('input, textarea, select').trigger('blur');
 
-		$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', 
-			  $(this).serialize() + '<?=$ajax_post?>', 
-			  function(data) 
-		{
-			if( data.msg == "success" )
-			{
-				$('#delay_modal').modal('show');
-					setTimeout(function() {							
+		if ($('#coaForm').find('.form-group.has-error').length == 0)
+		{	
+			$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + '<?=$ajax_post?>', function(data) {
+				if( data.msg == 'success' )
+				{
+					$('#delay_modal').modal('show');
+						setTimeout(function() {							
 						window.location =  "<?=MODULE_URL?>";					
 					}, 1000)
-			}
-			if(data.msg == "error_add")
-			{
-				$(".alert-warning").removeClass("hidden");
-				$("#errmsg").html("Duplicate Entry for ATC Code : " + 
-									data.atc_code + " Tax account was already used : " + data.tax_account  );
-			}
-		});
+				}
+				if(data.msg == "error_add")
+				{
+					$(".alert-warning").removeClass("hidden");
+					$("#errmsg").html("Duplicate Entry for ATC Code : " + 
+										data.atc_code + " Tax account was already used : " + data.tax_account  );
+				}
+			});
+			
+		}else{
+				if (form_group.find('p.help-block').html() != "") {
+					form_group.removeClass('has-error').find('p.help-block').html('');
+				}
+		}
 });
-
 </script>
