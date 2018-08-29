@@ -84,7 +84,7 @@
 								cm.voucherno reference, cm.remarks as particulars, cm.convertedamount as amount,
 								cm.companycode companycode, cm.entereddate entereddate, cm.stat status
 								from journalvoucher as cm  
-								where cm.stat IN('open','posted') AND cm.transtype = 'CM' $cm_query
+								where cm.stat IN('open','posted','cancelled') AND cm.transtype = 'CM' $cm_query
 
 								UNION ALL
  
@@ -92,7 +92,7 @@
 								dm.voucherno reference, dm.remarks as particulars, dm.convertedamount as amount,
 								dm.companycode companycode, dm.entereddate entereddate, dm.stat status
 								from journalvoucher as dm  
-								where dm.stat IN('open','posted') AND dm.transtype = 'DM' $dm_query
+								where dm.stat IN('open','posted','cancelled') AND dm.transtype = 'DM' $dm_query
 
 							) as soa_details") 
 							->setFields($fields)
@@ -129,7 +129,7 @@
 
 								UNION ALL
  
-								select '0' amount, COALESCE(SUM((app.convertedamount + app.discount)),0) payment,
+								select '0' amount, COALESCE(SUM((app.convertedamount + app.discount - app.overpayment)),0) payment,
 								rv.companycode companycode
 								from rv_application as app 
 								left join accountsreceivable ar ON ar.voucherno = app.arvoucherno
@@ -178,13 +178,13 @@
 			$dm_query .= (!empty($custfilter) && $custfilter != 'none') ? "AND dm.partner = '$custfilter' " : "";
 
 			return $this->db->setTable("(
-								select COALESCE(SUM(ar.convertedamount + ar.excessamount),0) amount, '0' payment, ar.companycode companycode
+								select COALESCE(SUM(ar.convertedamount),0) amount, '0' payment, ar.companycode companycode
 								from accountsreceivable as ar  
 								where ar.stat = 'posted' $ar_query
 
 								UNION ALL
  
-								select '0' amount, COALESCE(SUM((app.convertedamount + app.discount)),0) payment,
+								select '0' amount, COALESCE(SUM((app.convertedamount + app.discount - app.overpayment)),0) payment,
 								rv.companycode companycode
 								from rv_application as app 
 								left join accountsreceivable ar ON ar.voucherno = app.arvoucherno
@@ -266,7 +266,7 @@
 								cm.voucherno reference, cm.remarks as particulars, cm.convertedamount as amount,
 								cm.companycode companycode, cm.entereddate entereddate, cm.stat status
 								from journalvoucher as cm  
-								where cm.stat IN('open','posted') AND cm.transtype = 'CM' $cm_query
+								where cm.stat IN('open','posted','cancelled') AND cm.transtype = 'CM' $cm_query
 
 								UNION ALL
  
@@ -274,7 +274,7 @@
 								dm.voucherno reference, dm.remarks as particulars, dm.convertedamount as amount,
 								dm.companycode companycode, dm.entereddate entereddate, dm.stat status
 								from journalvoucher as dm  
-								where dm.stat IN('open','posted') AND dm.transtype = 'DM' $dm_query
+								where dm.stat IN('open','posted','cancelled') AND dm.transtype = 'DM' $dm_query
 
 							) as soa_details") 
 							->setFields($fields)
