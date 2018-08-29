@@ -1180,7 +1180,6 @@ function finalizeTransaction(type)
 	{	
 		$('#save').val(type);
 		computeAmount();
-
 		if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
 		{
 							$('#delay_modal').modal('show');
@@ -1554,9 +1553,10 @@ $(document).ready(function(){
 		{
 			//Final Saving
 			$('#sales_order_form .save').click(function(){
-				
+				$('#itemsTable tbody tr td').find('.warehouse').find('option[disabled]').prop('disabled', false)
 				$('#save').val("final");
-
+				
+				
 				finalizeEditTransaction();
 			});
 		}

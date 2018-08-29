@@ -255,9 +255,6 @@ class controller extends wc_controller
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
 
-		$w_entry_data          = array("warehousecode ind","description val");
-		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
-
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$data["itemcodes"] 		= $this->po->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
 
@@ -313,6 +310,17 @@ class controller extends wc_controller
 		
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
+
+		$wr_array	= array();
+		foreach ($data['details'] as $index => $dtl){
+			$wh			= $dtl->warehouse;
+			$wr_array[]	= $wh;
+		}
+		$wr_cond = ($wr_array) ? " OR warehousecode IN ('".implode("','",$wr_array)."')" : "";
+		
+		$w_entry_data          = array("warehousecode ind","description val, w.stat stat");
+		$data["warehouses"] 	= $this->po->getValue("warehouse w", $w_entry_data,"stat = 'active' $wr_cond","warehousecode");
+
 		$restrict_po 			 =	$this->restrict->setButtonRestriction($transactiondate);
 		$data['restrict_po'] 	 = $restrict_po;
 		$this->view->load('purchase_order/purchase_order', $data);

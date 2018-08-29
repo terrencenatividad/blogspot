@@ -117,7 +117,6 @@ class controller extends wc_controller
 		$data['transactiondate'] = date('M j, Y', strtotime($data['transactiondate']));
 		$data['transferdate']    = date('M j, Y', strtotime($data['transferdate']));
 		$data['ui'] = $this->ui;
-		$data['warehouse_list']		= $this->stock_transfer->getWarehouseList();
 		$data["item_list"] 			= $this->stock_transfer->getItemList();
 		$data['row_details'] = json_encode($this->stock_transfer->getStockTransferDetailsRequest($stocktransferno));
 		$data['ajax_task'] = 'edit';
@@ -125,6 +124,7 @@ class controller extends wc_controller
 		$data['show_input'] = true;
 		$data["task"] 		= "edit";
 		$data['h_site_source'] 	=	$data['source'];
+		$data['warehouse_list']		= $this->stock_transfer->getWarehouseList('',$data);
 		
 		$current_stat 		=	$this->stock_transfer->getStat($sid,'stock_transfer');
 		$data['stat'] 		=	$current_stat->stat;

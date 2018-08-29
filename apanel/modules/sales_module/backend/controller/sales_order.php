@@ -262,9 +262,7 @@ class controller extends wc_controller
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$data["itemcodes"] 		= $this->so->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
 
-		$w_entry_data          = array("warehousecode ind","description val");
-		$data["warehouses"] 	= $this->so->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
-
+		
 		$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
 		$acc_entry_cond          = "accounttype != 'P'";
 		$data["account_entries"] = $this->so->getValue("chartaccount", $acc_entry_data,$acc_entry_cond, "segment5");
@@ -315,6 +313,16 @@ class controller extends wc_controller
 		
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
+		
+		$wr_array	= array();
+		foreach ($data['details'] as $index => $dtl){
+			$wh			= $dtl->warehouse;
+			$wr_array[]	= $wh;
+		}
+		$wr_cond = ($wr_array) ? " OR warehousecode IN ('".implode("','",$wr_array)."')" : "";
+		
+		$w_entry_data          = array("warehousecode ind","description val, w.stat stat");
+		$data["warehouses"] 	= $this->so->getValue("warehouse w", $w_entry_data,"stat = 'active' $wr_cond","warehousecode");
 		$restrict_so 			= $this->restrict->setButtonRestriction($transactiondate);
 		$data['restrict_so'] 	= $restrict_so;
 

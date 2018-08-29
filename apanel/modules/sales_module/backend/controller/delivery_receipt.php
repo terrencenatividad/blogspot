@@ -57,7 +57,6 @@ class controller extends wc_controller {
 		$data['ui']					= $this->ui;
 		$data['transactiondate']	= $this->date->dateFormat();
 		$data['customer_list']		= $this->delivery_model->getCustomerList();
-		$data['warehouse_list']		= $this->delivery_model->getWarehouseList();
 		$data["item_list"]			= $this->delivery_model->getItemList();
 		$data["taxrate_list"]		= $this->delivery_model->getTaxRateList();
 		$data["wtaxcode_list"]		= $this->delivery_model->getWTaxCodeList();
@@ -67,6 +66,7 @@ class controller extends wc_controller {
 		$data['ajax_task']			= 'ajax_create';
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
+		$data['warehouse_list']		= $this->delivery_model->getWarehouseList($data);		
 		// Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
@@ -83,7 +83,7 @@ class controller extends wc_controller {
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui']					= $this->ui;
 		$data['customer_list']		= $this->delivery_model->getCustomerList();
-		$data['warehouse_list']		= $this->delivery_model->getWarehouseList();
+		$data['warehouse_list']		= $this->delivery_model->getWarehouseList($data);
 		$data["item_list"]			= $this->delivery_model->getItemList();
 		$data['header_values']		= json_encode($this->delivery_model->getDeliveryReceiptById($this->fields_header, $voucherno));
 		$data['voucher_details']	= json_encode($this->delivery_model->getDeliveryReceiptDetails($this->fields2, $voucherno, false));
@@ -111,7 +111,6 @@ class controller extends wc_controller {
 		$data['ajax_task']			= '';
 		$data['ui']					= $this->ui;
 		$data['customer_list']		= $this->delivery_model->getCustomerList();
-		$data['warehouse_list']		= $this->delivery_model->getWarehouseList();
 		$data["item_list"]			= $this->delivery_model->getItemList();
 		$data['header_values']		= json_encode($this->delivery_model->getDeliveryReceiptById($this->fields_header, $voucherno));
 		$data['voucher_details']	= json_encode($this->delivery_model->getDeliveryReceiptDetails($this->fields2, $voucherno));
@@ -119,6 +118,7 @@ class controller extends wc_controller {
 		$data["wtaxcode_list"]		= $this->delivery_model->getWTaxCodeList();
 		$data["taxrates"]			= $this->delivery_model->getTaxRates();
 		$data['show_input']			= false;
+		$data['warehouse_list']		= $this->delivery_model->getWarehouseList($data);		
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();;
 		$data['restrict_dr'] 		= $this->restrict->setButtonRestriction($transactiondate);
