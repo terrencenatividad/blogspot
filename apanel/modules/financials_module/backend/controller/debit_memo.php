@@ -48,11 +48,11 @@ class controller extends wc_controller {
 		$data['close_date']			= $close_date;
 		$data['ui'] = $this->ui;
 		$data['partner_list']    	= $this->dm_model->getVendorList();
-		$data['proforma_list']		= $this->dm_model->getProformaList();
 		$data['chartofaccounts']	= $this->dm_model->getChartOfAccountList();
 		// $data['voucher_details']	= json_encode($this->dm_model->getJournalVoucherDetails($this->fields2, $this->temp));
 		$data['voucher_details']	= json_encode(array());
 		$data['ajax_task']			= 'ajax_create';
+		$data['proforma_list']		= $this->dm_model->getProformaList($data);
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
 		$data['restrict_dm'] 		= true;
@@ -68,11 +68,11 @@ class controller extends wc_controller {
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data['ui'] = $this->ui;
-		$data['proforma_list'] = $this->dm_model->getProformaList();
 		$data['partner_list']    = $this->dm_model->getVendorList();
 		$data['chartofaccounts']	= $this->dm_model->getChartOfAccountList();
 		$data['voucher_details']	= json_encode($this->dm_model->getJournalVoucherDetails($this->fields2, $voucherno));
 		$data['ajax_task']			= 'ajax_edit';
+		$data['proforma_list']		= $this->dm_model->getProformaList($data);
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
 		$data['restrict_dm'] 		= true;
@@ -91,8 +91,8 @@ class controller extends wc_controller {
 		$data['close_date']			= $close_date;
 		$data['ui'] = $this->ui;
 		$data['ajax_task']			= 'ajax_view';
+		$data['proforma_list']		= $this->dm_model->getProformaList($data);
 		$data['partner_list']   	 = $this->dm_model->getVendorList();
-		$data['proforma_list']		= $this->dm_model->getProformaList();
 		$data['chartofaccounts']	= $this->dm_model->getChartOfAccountList();
 		$status						= $data['stat'];
 		$data['voucher_details']	= json_encode($this->dm_model->getJournalVoucherDetails($this->fields2, $voucherno));

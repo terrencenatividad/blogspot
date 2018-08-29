@@ -215,7 +215,7 @@ class controller extends wc_controller
 		$data["customer_list"]          = $this->accounts_receivable->retrieveCustomerList();
 
 		// Retrieve proforma list
-		$data["proforma_list"]        = $this->accounts_receivable->retrieveProformaList();
+		$data["proforma_list"]        = $this->accounts_receivable->retrieveProformaList($data);
 
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
@@ -407,9 +407,6 @@ class controller extends wc_controller
 		// Retrieve vendor list
 		$data["customer_list"]          = $this->accounts_receivable->retrieveCustomerList();
 
-		// Retrieve proforma list
-		$data["proforma_list"]        = $this->accounts_receivable->retrieveProformaList();
-
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
@@ -444,6 +441,9 @@ class controller extends wc_controller
 		$data["address1"] 	 = $data["cust"]->address1;
 		$data["duedate"]     = $this->date->dateFormat($data["main"]->duedate); 
 		
+		// Retrieve proforma list
+		$data["proforma_list"]        = $this->accounts_receivable->retrieveProformaList($data);
+
 		$data['restrict_ar'] = false;
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview"));

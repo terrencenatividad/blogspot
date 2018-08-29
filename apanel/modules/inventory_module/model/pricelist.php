@@ -13,7 +13,7 @@ class pricelist extends wc_model
                         ->leftJoin('partners sect ON sect.partnercode = cpl.customerCode AND sect.companycode = cpl.companycode')
                         ->leftJOin('items i ON i.itemcode = pld.itemDtlCode AND i.companycode = pld.companycode')
                         ->setFields($fields)
-                        ->setWhere($add_cond)
+                        ->setWhere("pl.stat != 'deleted' ".$add_cond)
                         ->setOrderBy($sort)
                         ->setGroupBy('pl.itemPriceCode')
                         ->runPagination();

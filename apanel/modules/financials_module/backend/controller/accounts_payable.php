@@ -220,7 +220,7 @@ class controller extends wc_controller
 		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
 
 		// Retrieve proforma list
-		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList();
+		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList($data);
 
 		// Retrieve business type list
 		$bus_type_data                = array("code ind", "value val");
@@ -431,8 +431,6 @@ class controller extends wc_controller
 		// Retrieve vendor list
 		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
 
-		// Retrieve proforma list
-		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList();
 
 		// Retrieve business type list
 		$bus_type_data                = array("code ind", "value val");
@@ -473,6 +471,8 @@ class controller extends wc_controller
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview"));
 
+		// Retrieve proforma list
+		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList($data);
 		/**
 		 * Get Company Settings
 		 */

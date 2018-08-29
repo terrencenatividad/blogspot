@@ -34,7 +34,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Start Number')
+									->setLabel('First Check Number')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('firstchequeno')
 									->setId('firstchequeno')
@@ -48,7 +48,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('End Number')
+									->setLabel('Last Check Number')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('lastchequeno')
 									->setId('lastchequeno')
@@ -96,7 +96,7 @@
 							)
 							->addHeader('Account Number.',array('class'=>'col-md-3'),'sort','currencycode')
 							->addHeader('Book Number',array('class'=>'col-md-3'),'sort','currencycode')
-							->addHeader('Check Batch', array('class'=>'col-md-3'),'sort','currency')
+							->addHeader('Check Number', array('class'=>'col-md-3'),'sort','currency')
 							->addHeader('Next Check No', array('class'=>'col-md-3'),'sort','currency')
 							->draw();
 				?>

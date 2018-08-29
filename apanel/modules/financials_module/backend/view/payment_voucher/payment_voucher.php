@@ -1231,6 +1231,34 @@
 	</div>
 </div>
 
+<div class="modal fade" id="checkModal" tabindex="-1" data-backdrop="static">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content">
+						<div class="modal-header">
+							Confirmation
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<div class="modal-body">
+							There are no available check number for the system to use. Please verify check number series in bank maintenance.
+							<input type="hidden" id="recordId"/>
+						</div>
+						<div class="modal-footer">
+							<div class="row row-dense">
+								<!-- <div class="col-md-12 center">
+									<div class="btn-group">
+										<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+									</div>
+									&nbsp;&nbsp;&nbsp;
+									<div class="btn-group">
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+									</div>
+								</div> -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 <script>
 <?php if ($task == 'create'):?>
 	getLockAccess('create');
@@ -1263,6 +1291,8 @@ function closeModal(){
 	{
 	$('#vendor_modal').modal('show');
 });
+
+
 </script>
 <?php
 	echo $ui->loadElement('modal')
@@ -1330,12 +1360,54 @@ function displaystoreddescription(){
 	});
 }
 
+// Check Array //
+function storechequetobank(){
+	cheque 	=	[];
+	console.log(cheque);
+	$('#chequeTable tbody tr').each(function() {
+		var cheque_account 	= $(this).find('.cheque_account').val();
+		var chequenumber 	= $(this).find('.chequenumber').val();
+
+		if(chequenumber!="" ){
+			cheque['bank-'+cheque_account] = chequenumber;
+		}
+	});
+}
+
 $('#chequeTable .cheque_account').on('change', function()  {
 	storedescriptionstoarray();
+	storechequetobank();
 	if ($('#entriesTable tbody tr.clone select').data('select2')) {
 		$('#entriesTable tbody tr.clone select').select2('destroy');
 	}
 	var val = $(this).val();
+
+	// Check Array //
+
+	$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank =' + val).done(function(data){
+		if (data){
+			next = parseFloat(data.nno) || 0;
+			last = parseFloat(data.last) || 0;
+			console.log(next);
+
+			var row = $("#chequeTable tbody tr").length;
+			if (typeof cheque["bank-"+val] === 'undefined') {
+				if (next == 0){
+					$('#checkModal').modal('show');
+				} else {
+					$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
+				}
+			} else {
+				var next = parseFloat(cheque["bank-"+val]) + 1;
+				if (next > last){
+					$('#checkModal').modal('show');
+				} else {
+					$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
+				}
+				
+			}	
+		}
+	})
 	
 	cheque_arr = [];
 
@@ -3914,6 +3986,10 @@ $(document).ready(function() {
 		var accs = $(this).val();
 		acc = addCommas(parseFloat(accs).toFixed(2));
 		$('.tax_amount').val(acc);
+	});
+
+	$('.chequenumber').focus(function() {
+		$(this).blur();
 	});
 
 }); // end

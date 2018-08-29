@@ -217,13 +217,21 @@ class debit_memo_model extends wc_model {
 		return $result;
 	}
 
-	public function getProformaList() {
+	public function getProformaList($data)
+	{
+		$proformacode = $data['proformacode'];
+		if($data['ajax_task'] == 'ajax_edit'){
+			$cond = "transactiontype = 'Debit Memo' AND stat = 'active' OR proformacode = '$proformacode'";
+		}else{
+			$cond = "transactiontype = 'Debit Memo' AND stat = 'active'";
+		}
 		$result = $this->db->setTable('proforma')
-							->setFields("proformacode ind, proformadesc val")
-							->setWhere("transactiontype = 'Debit Memo' and stat = 'active'")
-							->setOrderBy("proformadesc")
-							->runSelect()
-							->getResult();
+					->setFields("proformacode ind, proformadesc val, stat stat")
+					->setOrderBy("proformadesc")
+					->setWhere($cond)
+					->runSelect()
+					->getResult();
+		
 		return $result;
 	}
 

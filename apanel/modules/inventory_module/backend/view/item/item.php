@@ -374,8 +374,89 @@
 			var uom = $(this).find('option:selected').html();
 			$('.uom_in span').html(uom);
 		});
+		// $("select option:selected").attr('disabled','disabled');
+
+		$('#classid').change(function() {
+			
+			var id = $('#classid').val();
+			$('#h_classid').val(id);
+		});
+
+		// var classid = '';
+		// var itemtype = '';
+		// $(document).ready(function() {
+		// 	classid  		= $('#classid').val();
+		// 	itemtype 		= $('#typeid').val();
+		// 	weighttype 		= $('#weight_type').val();
+		// 	uom_base 		= $('#uom_base').val();
+		// 	uom_selling 	= $('#uom_selling').val();
+		// 	uom_purchase 	= $('#uom_purchasing').val();
+		// });
+
+		// $('#classid').on('select2:open', function (e) {
+		// 	$('select#classid option').each(function(index, value) {
+		// 	var selected = value.value
+		// 	if(classid == selected) {
+		// 		var option = $("option[value='" + selected + "']");
+		// 		option.remove().trigger('chosen:updated');
+		// 	}
+		// 	});
+		// });
+
+		// $('#typeid').on('select2:open', function (e) {
+		// 	$('select#typeid option').each(function(index, value) {
+		// 	var selected = value.value
+		// 	if(itemtype == selected) {
+		// 		var option = $("option[value='" + selected + "']");
+		// 		option.remove().trigger('chosen:updated');
+		// 	}
+		// 	});
+		// });
+
+		// $('#weight_type').on('select2:open', function (e) {
+		// 	$('select#weight_type option').each(function(index, value) {
+		// 	var selected = value.value
+		// 	if(weighttype == selected) {
+		// 		var option = $("option[value='" + selected + "']");
+		// 		option.remove().trigger('chosen:updated');
+		// 	}
+		// 	});
+		// });
+
+		// $('#uom_base').on('select2:open', function (e) {
+		// 	$('select#uom_base option').each(function(index, value) {
+		// 	var selected = value.value
+		// 	if(uom_base == selected) {
+		// 		var option = $("option[value='" + selected + "']");
+		// 		option.remove().trigger('chosen:updated');
+		// 	}
+		// 	});
+		// });
+
+		// $('#uom_selling').on('select2:open', function (e) {
+		// 	$('select#uom_selling option').each(function(index, value) {
+		// 	var selected = value.value
+		// 	if(uom_selling == selected) {
+		// 		var option = $("option[value='" + selected + "']");
+		// 		option.remove().trigger('chosen:updated');
+		// 	}
+		// 	});
+		// });
+
+		// $('#uom_purchasing').on('select2:open', function (e) {
+		// 	$('select#uom_purchasing option').each(function(index, value) {
+		// 	var selected = value.value
+		// 	if(uom_purchase == selected) {
+		// 		var option = $("option[value='" + selected + "']");
+		// 		option.remove().trigger('chosen:updated');
+		// 	}
+		// 	});
+		// });
+		
+
 		$('form').submit(function(e) {
 			e.preventDefault();
+			$(this).find('.form-group').find("select option:selected").prop('disabled',false);
 			$(this).find('.form-group').find('input, textarea, select').trigger('blur');
 			if ($(this).find('.form-group.has-error').length == 0) {
 				$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + '<?=$ajax_post?>', function(data) {
@@ -391,6 +472,7 @@
 				$('.nav.nav-tabs').find('a[href="#' + first.closest('.tab-pane').attr('id') + '"]').trigger('click');
 				first.focus();
 			}
+			$(this).find('.form-group').find("select option:selected").prop('disabled',true);
 		});
 	</script>
 	<?php else: ?>

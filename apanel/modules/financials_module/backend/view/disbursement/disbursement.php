@@ -183,8 +183,8 @@
 										->setId('chequenumber[1]')
 										->setClass('chequenumber')
 										->setMaxLength(30)
-										->setValidation('required alpha_num')
-										->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+										// ->setValidation('required alpha_num')
+										->setAttribute(array("readOnly"=>""))
 										->setValue("")
 										->draw(true);
 										?>
@@ -882,6 +882,64 @@
 					</div>
 				</div>
 			</div>
+			
+
+			<!-- Check Modal  -->
+			<div class="modal fade" id="checkModal" tabindex="-1" data-backdrop="static">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content">
+						<div class="modal-header ">
+							<strong>Confirmation</strong>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<div class="modal-body">
+							There are no available check number for the system to use. Do you wish to continue to next book number?
+							<input type="hidden" id="recordId"/>
+						</div>
+						<div class="modal-footer">
+							<div class="row row-dense">
+								<div class="col-md-12 center">
+									<div class="btn-group">
+										<button type="button" class="btn btn-primary btn-flat" id="check_yes">Yes</button>
+									</div>
+									&nbsp;&nbsp;&nbsp;
+									<div class="btn-group">
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal fade" id="nocheckModal" tabindex="-1" data-backdrop="static">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content">
+						<div class="modal-header">
+						<strong>Confirmation</strong>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<div class="modal-body">
+							There are no available check number for the system to use. Please verify check number series in bank maintenance.
+							<input type="hidden" id="recordId"/>
+						</div>
+						<div class="modal-footer">
+							<div class="row row-dense">
+								<!-- <div class="col-md-12 center">
+									<div class="btn-group">
+										<button type="button" class="btn btn-primary btn-flat" id="check_yes">Yes</button>
+									</div>
+									&nbsp;&nbsp;&nbsp;
+									<div class="btn-group">
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+									</div>
+								</div> -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
 			<script>
 
@@ -898,6 +956,7 @@
 				var id_array 		= [];
 				var accounts 		= [];
 				var acct_details 	= [];
+				var cheque 			= [];
 
 				var checker 	= new Array();
 				var cheque_arr 	= [];
@@ -951,13 +1010,67 @@
 				}
 			});
 		}
+		
+		// Check Array //
+		function storechequetobank(){
+			cheque 	=	[];
+			console.log(cheque);
+			$('#chequeTable tbody tr').each(function() {
+				var cheque_account 	= $(this).find('.cheque_account').val();
+				var chequenumber 	= $(this).find('.chequenumber').val();
+
+				if(chequenumber!="" ){
+					cheque['bank-'+cheque_account] = chequenumber;
+				}
+			});
+		}
 
 		$('#chequeTable .cheque_account').on('change', function()  {
 			storedescriptionstoarray();
+			storechequetobank();
+			
 			if ($('#entriesTable tbody tr.clone select').data('select2')) {
 				$('#entriesTable tbody tr.clone select').select2('destroy');
 			}
+
 			var val = $(this).val();
+
+			// Check Array //
+
+			$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank =' + val).done(function(data){
+				if (data){
+					next = parseFloat(data.nno) || 0;
+					last = parseFloat(data.last) || 0;
+
+					var row = $("#chequeTable tbody tr").length;
+					if (typeof cheque["bank-"+val] === 'undefined') {
+						if (next == 0){
+							$('#nocheckModal').modal('show');
+						} else {
+							$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
+						}
+					} else {
+						var next = parseFloat(cheque["bank-"+val]) + 1;
+						if (next > last){
+							$('#checkModal').modal('show');
+
+							// $('#checkModal #check_yes').on('click', function(){
+							// 	$.post("<?=BASE_URL?>/financials/disbursement/ajax/UpdateCheckStat", 'val='+val, 'cno'+next ).done(function(data){
+							// 		$('#checkModal').modal('hide');
+							// 	})
+
+								
+							// })
+							getnum(val,next);
+
+						} else {
+							$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
+						}
+						
+					}	
+				}
+			})
+
 
 			cheque_arr = [];
 
@@ -977,29 +1090,42 @@
 				}
 			});
 
-
 			row = $("#entriesTable tbody tr.clone").length + 1;
 			cheque_arr.forEach(function(account) {
 				var ParentRow = $("#entriesTable tbody tr.clone").last();
 				$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
-			// clone_acct(initial state of first row) will be placed on the last cloned row. 
-			ParentRow.after(clone_acct);
-			resetIds();
-			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
-			$("#entriesTable button#"+row).prop('disabled',true);
-			$("#entriesTable debit#"+row).prop('disabled',true);
-			$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
-			$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
-			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
-			disable_acct_fields(row);
-			row++;
-		});
+				// clone_acct(initial state of first row) will be placed on the last cloned row. 
+				ParentRow.after(clone_acct);
+				resetIds();
+				$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
+				$("#entriesTable button#"+row).prop('disabled',true);
+				$("#entriesTable debit#"+row).prop('disabled',true);
+				$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
+				$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
+				$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
+				disable_acct_fields(row);
+				row++;
+				
+			});
+
 			accounts.push(val);
 			recomputechequeamts();
 			acctdetailamtreset();
 			displaystoreddescription();
-			drawTemplate();
+			drawTemplate(); 
 		});
+
+		function getnum(val, next){
+			$('#checkModal #check_yes').on('click', function(){
+				$.post("<?=BASE_URL?>financials/disbursement/ajax/UpdateCheckStat", 'val='+val, 'cno'+next ).done(function(data){
+					$('#checkModal').modal('hide');
+				})
+			})
+		}
+
+		// function getcheckDtl(account){
+			
+		// }
 
 		function disable_acct_fields(row){
 			$("#accountcode\\["+ row +"\\]").prop("disabled", true);
@@ -2370,26 +2496,27 @@
 				addAmounts();
 			}
 
-			$("#paymentmode").removeAttr("disabled");
+		}
+		$("#paymentmode").removeAttr("disabled");
 
-			$("#payableForm #save").click(function(){
-				var valid		= 0;
-				var button_name = $(this).attr('name');
-				var paymentmode = $('#paymentmode').val();
+		$("#payableForm #save").click(function(){
+			var valid		= 0;
+			var button_name = $(this).attr('name');
+			var paymentmode = $('#paymentmode').val();
 
-				var form_element = $(this).closest('form');
-				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+			var form_element = $(this).closest('form');
+			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
-				valid		+= validateDetails();
+			valid		+= validateDetails();
 
-				if(paymentmode == 'cheque'){
-					valid 	+= validateCheques();
-				}
+			if(paymentmode == 'cheque'){
+				valid 	+= validateCheques();
+			}
 
-				finalize_saving(valid, button_name);
-			});
+			finalize_saving(valid, button_name);
+		});
 
-			$("#payableForm #save_new").click(function(){
+		$("#payableForm #save_new").click(function(){
 				var valid		= 0;
 				var button_name = $(this).attr('name');
 				var paymentmode = $('#paymentmode').val();
@@ -2407,40 +2534,39 @@
 			finalize_saving(valid, button_name);
 		}); 
 
-			$("#payableForm #save_preview").click(function(){
-				var valid		= 0;
-				var button_name = $(this).attr('name');
-				var paymentmode = $('#paymentmode').val();
+		$("#payableForm #save_preview").click(function(){
+			var valid		= 0;
+			var button_name = $(this).attr('name');
+			var paymentmode = $('#paymentmode').val();
 
-				var form_element = $(this).closest('form');
-				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+			var form_element = $(this).closest('form');
+			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
-				valid		+= validateDetails();
+			valid		+= validateDetails();
 
-				if(paymentmode == 'cheque'){
-					valid 	+= validateCheques();
-				}
+			if(paymentmode == 'cheque'){
+				valid 	+= validateCheques();
+			}
 
-				finalize_saving(valid, button_name);
-			});
+			finalize_saving(valid, button_name);
+		});
 
-			$("#payableForm #save_exit").click(function(){
-				var valid		= 0;
-				var button_name = $(this).attr('name');
-				var paymentmode = $('#paymentmode').val();
+		$("#payableForm #save_exit").click(function(){
+			var valid		= 0;
+			var button_name = $(this).attr('name');
+			var paymentmode = $('#paymentmode').val();
 
-				var form_element = $(this).closest('form');
-				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+			var form_element = $(this).closest('form');
+			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
-				valid		+= validateDetails();
+			valid		+= validateDetails();
 
-				if(paymentmode == 'cheque'){
-					valid 	+= validateCheques();
-				}
+			if(paymentmode == 'cheque'){
+				valid 	+= validateCheques();
+			}
 
-				finalize_saving(valid, button_name);
-			});
-		}
+			finalize_saving(valid, button_name);
+		});
 
 		// Isabelle -  eto ung pag clone ng td sa may accounting details 
 		$('body').on('click', '.add-entry', function()  {	
@@ -2507,6 +2633,12 @@
 			var vno  	= $('#h_voucher_no').val();
 			window.open('<?=MODULE_URL?>print_check/' + vno +  '/'+ cno , '_blank');
 		})
+
+		$('.chequenumber').focus(function() {
+			$(this).blur();
+		});
+
+
 	}); // end
 
 </script>

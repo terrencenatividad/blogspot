@@ -47,10 +47,10 @@ class controller extends wc_controller {
 		$data['display_edit']		= 1;
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
-		$data['proforma_list'] 		= $this->jv_model->getProformaList();
 		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
 		$data['voucher_details']	= json_encode(array());
 		$data['ajax_task']			= 'ajax_create';
+		$data['proforma_list']		= $this->jv_model->getProformaList($data);
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
 		$data['restrict_jv']		= true;
@@ -68,10 +68,10 @@ class controller extends wc_controller {
 		$data['display_edit']		= ($checker!="import" && $checker!="beginning" && $checker!="closing" && $status != 'cancelled') ? 1 : 0;
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
-		$data['proforma_list'] 		= $this->jv_model->getProformaList();
 		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
 		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno, $status));
 		$data['ajax_task']			= 'ajax_edit';
+		$data['proforma_list']		= $this->jv_model->getProformaList($data);
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
 		$data['restrict_jv'] 		= true;
@@ -91,8 +91,7 @@ class controller extends wc_controller {
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui'] = $this->ui;
 		$data['ajax_task']			= 'ajax_view';
-		$profcode = $data['proformacode'];
-		$data['proforma_list']		= $this->jv_model->getProformaList($profcode);
+		$data['proforma_list']		= $this->jv_model->getProformaList($data);
 		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
 		$status 					= $data['stat'];
 		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno,$status));

@@ -76,7 +76,8 @@
 								->addHeader('Company Name', array('class'=>'col-md-3'),'sort','p.partnername')
 								->addHeader('Contact Person',array('class'=>'col-md-2'),'sort','p.first_name, p.last_name')
 								->addHeader('E-mail Address',array('class'=>'col-md-2'),'sort','p.email')
-								->addHeader('Credit Limit',array('class'=>'col-md-2'),'sort','p.credit_limit')
+								->addHeader('Credit Limit',array('class'=>'col-md-1'),'sort','p.credit_limit')
+								->addHeader('Incurred Receivables',array('class'=>'col-md-1'),'sort','receivables')
 								->addHeader('Status',array('class'=>'col-md-2'))
 								->draw();
 					?>
@@ -149,9 +150,9 @@ function show_success_msg(msg)
 {
 	$('#success_modal #message').html(msg);
 	$('#success_modal').modal('show');
-						setTimeout(function() {												
-	window.location = '<?= MODULE_URL ?>';		
-						}, 1000)
+		setTimeout(function() {												
+			window.location = '<?= MODULE_URL ?>';		
+	}, 1000)
 }
 
 tableSort('#customer_table', function(value, getlist) {

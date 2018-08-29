@@ -564,6 +564,13 @@ class controller extends wc_controller
 		{
 			$result = $this->get_duplicate();
 		}
+		else if( $task == 'retrieve_credit_limit' )
+		{
+			$result = $this->retrieve_credit_limit();
+		}
+		else if( $task == 'retrieve_incurred_receivables' ){
+			$result = $this->retrieve_incurred_receivables();
+		}
 
 		echo json_encode($result); 
 	}
@@ -871,6 +878,26 @@ class controller extends wc_controller
 		
 		$csv .= '"","","","Total ","'. number_format($totalamount,2) .'"';
 		return $csv;
+	}
+
+	public function retrieve_credit_limit(){
+		$customercode 	=	$this->input->post('customercode');
+
+		$result 		=	$this->so->retrieve_credit_limit($customercode);
+
+		$credit_limit 	=	(isset($result[0]->credit_limit) && $result[0]->credit_limit != "") 	?	$result[0]->credit_limit 	:	0;
+
+		return  $dataArray = array( "credit_limit" => $credit_limit );
+	}
+
+	public function retrieve_incurred_receivables(){
+		$customercode 	=	$this->input->post('customercode');
+
+		$result 		=	$this->so->retrieve_incurred_receivables($customercode);
+
+		$incurred_receivables 	=	(isset($result[0]->receivables) && $result[0]->receivables != "")	?	$result[0]->receivables 	:	0;
+
+		return  $dataArray = array( "incurred_receivables" => $incurred_receivables );
 	}
 }
 ?>

@@ -27,9 +27,9 @@ class controller extends wc_controller
 		$data["file_import_result"]    = "";
 		$cmp 						   = $this->companycode;
 		$data["date"] 			   	   = date("M d, Y");
-
+		$data["task"] 			   	   = "";
 		// Retrieve vendor list
-		$data["vendor_list"]  = $this->payment_voucher->retrieveVendorList();
+		$data["vendor_list"]  = $this->payment_voucher->retrieveVendorList($data);
 
 		// Cash Account Options
 		$cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
@@ -72,7 +72,7 @@ class controller extends wc_controller
 		$data["transactiondate"]    = $this->date->dateFormat();
 		$data["status"] 			= "";
 		// Retrieve vendor list
-		$data["vendor_list"]        = $this->payment_voucher->retrieveVendorList();
+		$data["vendor_list"]        = $this->payment_voucher->retrieveVendorList($data);
 
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
@@ -135,6 +135,16 @@ class controller extends wc_controller
 				
 				$update_cheque['voucherno']	= $generatedvoucher;
 				$updateTempRecord			= $this->payment_voucher->editData($update_cheque,"pv_cheques",$update_condition);
+
+				$getnextCheckno 			= $this->payment_voucher->get_check_no($generatedvoucher);
+				foreach ($getnextCheckno as $value) {
+					$cno = $value->checknum;
+					$ca = $value->chequeaccount;
+					$getBank = $this->payment_voucher->getbankid($ca);
+					$bank_id = $getBank[0]->id;
+					$updateCheckNo = $this->payment_voucher->updateCheck($bank_id, $cno);
+				}
+
 			}
 			
 			if(empty($errmsg))
@@ -243,6 +253,7 @@ class controller extends wc_controller
 		$payments 				= $data['payments'];
 
 		$data["listofcheques"] 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
+		
 		$data['payments'] 		=  json_encode($payments);
 		$data["show_cheques"] 	= isset($data['rollArray'][$sid]) ? '' : 'hidden';
 
@@ -269,6 +280,7 @@ class controller extends wc_controller
 	{
 		$access				   	= $this->access->checkLockAccess('edit');
 		$data         		   	= $this->payment_voucher->retrieveEditData($sid);
+		
 		$this->view->title		= 'Edit Disbursement Voucher';
 
 		$data["ui"]            	= $this->ui;
@@ -278,13 +290,20 @@ class controller extends wc_controller
 		$data["generated_id"]  	= $sid;
 		$data["sid"] 		   	= $sid;
 		$data["date"] 		   	= date("M d, Y");
+		// $check = ($data["rollArray"]['chequeaccount']);
+		// foreach ($ as $aPvJournalDetails_Index => $aPvJournalDetails_Value) {
+			
+		// }
+		// $check 	= $data['rollArray'];
+		// var_dump(array {$check['chequeaccount']});
+		// // var_dump($check["chequeaccount"]);
+		// foreach ($check as $value) {
+			
+		// }
 
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
-
-		// Retrieve vendor list
-		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList();
 
 		// Retrieve business type list
 		$acc_entry_data               = array("id ind","accountname val");
@@ -298,12 +317,9 @@ class controller extends wc_controller
 		// $cash_order_by 		 	  = "class.accountclass";
 		// $data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
-		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
-		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
-		$cash_order_by 		 	  	= "id desc";
-		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
-		$data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
 
+
+		
 		// Header Data
 		$voucherno 					= $data["main"]->voucherno;
 		$data["voucherno"]       	= $voucherno;
@@ -314,7 +330,7 @@ class controller extends wc_controller
 		$data["particulars"]     	= $data["main"]->particulars;
 		$data["paymenttype"]     	= $data["main"]->paymenttype;
 		$data["status"]     		= $data["main"]->stat;
-		
+
 		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
 		$data["show_cheques"] 	 = isset($data['rollArray'][$sid]) ? '' : 'hidden';
 		// Application Data
@@ -336,6 +352,19 @@ class controller extends wc_controller
 
 		$data['restrict_dv'] 	= true;	
 		$data['has_access'] 	= 0;
+
+
+		foreach ($data["listofcheques"] as $index => $cheque){
+			$accountcode 	=	$cheque['chequeaccount'];
+			$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val, b.stat stat";
+			$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes' OR c.id = $accountcode";
+			$cash_order_by 		 	  	= "id desc";
+			$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
+			$data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
+
+		}
+		// Retrieve vendor list
+		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList($data);
 
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
@@ -1344,7 +1373,28 @@ class controller extends wc_controller
 		$print_dtls->setDocumentType('Payment Voucher')
 		->setDocumentInfo($print_chkdtl)
 		->drawPDF('pv_voucher_' . $vno);
-		
-		
 	}
+
+	public function getCheckdtl(){
+		$bank_no = $this->input->post('bank_');
+		$result1 = $this->payment_voucher->getcheckfirst($bank_no);
+		$result2 = $this->payment_voucher->getchecklast($bank_no);
+		
+		$nextcheckno  = $result1[0]->nextchequeno;
+		$lastcheckno  = $result2[0]->lastchequeno;
+		$fno 		  = $result1[0]->firstchequeno;
+		// $bno 		  = $result[0]->booknumber;
+		$data = array('nno' => $nextcheckno, 'last' => $lastcheckno);
+		return $data; 
+	}
+
+	public function UpdateCheckStat(){
+		echo "sd";
+		$val = $this->input_post->post('val');
+		$cno = $this->input_post->post('cno');
+		$result = $this->payment_voucher->UpdateCheckStatus($val, $cno);
+		var_dump($result);
+		return $result ;
+	}
+
 }
