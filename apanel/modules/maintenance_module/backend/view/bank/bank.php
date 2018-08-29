@@ -141,7 +141,7 @@
 							}else{
 						?>
 							<div class="btn-group">
-								<a class="btn btn-primary btn-flat" role="button" href="<?=BASE_URL?>maintenance/currency/edit/<?=$currencycode?>" style="outline:none;">Edit</a>
+								<a class="btn btn-primary btn-flat" role="button" href="<?=BASE_URL?>maintenance/bank/edit/<?=$id?>" style="outline:none;">Edit</a>
 							</div>
 						<?
 							}

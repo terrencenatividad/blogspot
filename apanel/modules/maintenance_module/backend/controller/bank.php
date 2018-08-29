@@ -72,13 +72,13 @@
 			$this->view->load('bank/bank', $data);
 		}
 
-		public function view($code)
+		public function view($id)
 		{
 			$this->view->title 	= $this->ui->ViewLabel('');
-			$data 			 	= (array) $this->bank->retrieveExistingBank($this->fields, $code);
+			$data 			 	= (array) $this->bank->retrieveExistingBank($this->fields, $id);
 			$data['currencylist']   = $this->bank->retrieveExchangeRateDropdown();
 			$data['gllist']   		= $this->bank->retrieveGLDropdown();
-			
+			$data['id']			= $id;
 			$data['ui'] 		= $this->ui;
 			$data['show_input'] = false;
 			$data['task'] 		= "";
