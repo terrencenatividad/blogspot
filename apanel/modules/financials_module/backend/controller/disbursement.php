@@ -253,6 +253,7 @@ class controller extends wc_controller
 		$payments 				= $data['payments'];
 
 		$data["listofcheques"] 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
+		
 		$data['payments'] 		=  json_encode($payments);
 		$data["show_cheques"] 	= isset($data['rollArray'][$sid]) ? '' : 'hidden';
 
@@ -279,6 +280,7 @@ class controller extends wc_controller
 	{
 		$access				   	= $this->access->checkLockAccess('edit');
 		$data         		   	= $this->payment_voucher->retrieveEditData($sid);
+		
 		$this->view->title		= 'Edit Disbursement Voucher';
 
 		$data["ui"]            	= $this->ui;
@@ -288,6 +290,16 @@ class controller extends wc_controller
 		$data["generated_id"]  	= $sid;
 		$data["sid"] 		   	= $sid;
 		$data["date"] 		   	= date("M d, Y");
+		// $check = ($data["rollArray"]['chequeaccount']);
+		// foreach ($ as $aPvJournalDetails_Index => $aPvJournalDetails_Value) {
+			
+		// }
+		// $check 	= $data['rollArray'];
+		// var_dump(array {$check['chequeaccount']});
+		// // var_dump($check["chequeaccount"]);
+		// foreach ($check as $value) {
+			
+		// }
 
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
@@ -308,12 +320,9 @@ class controller extends wc_controller
 		// $cash_order_by 		 	  = "class.accountclass";
 		// $data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
-		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
-		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
-		$cash_order_by 		 	  	= "id desc";
-		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
-		$data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
 
+
+		
 		// Header Data
 		$voucherno 					= $data["main"]->voucherno;
 		$data["voucherno"]       	= $voucherno;
@@ -324,7 +333,7 @@ class controller extends wc_controller
 		$data["particulars"]     	= $data["main"]->particulars;
 		$data["paymenttype"]     	= $data["main"]->paymenttype;
 		$data["status"]     		= $data["main"]->stat;
-		
+
 		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
 		$data["show_cheques"] 	 = isset($data['rollArray'][$sid]) ? '' : 'hidden';
 		// Application Data
@@ -346,6 +355,17 @@ class controller extends wc_controller
 
 		$data['restrict_dv'] 	= true;	
 		$data['has_access'] 	= 0;
+
+
+		foreach ($data["listofcheques"] as $index => $cheque){
+			$accountcode 	=	$cheque['chequeaccount'];
+			$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val, b.stat stat";
+			$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes' OR c.id = $accountcode";
+			$cash_order_by 		 	  	= "id desc";
+			$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
+			$data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
+
+		}
 
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
