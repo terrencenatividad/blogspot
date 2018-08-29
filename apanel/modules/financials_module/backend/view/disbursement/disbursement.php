@@ -755,6 +755,7 @@
 										echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
 									}
 									?>
+									<input type = "hidden" value = "" name = "h_save" id = "h_save"/>
 									<button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel">Cancel</button>
 								</div>
 							</div>
@@ -2435,6 +2436,59 @@
 					});
 				}
 			});
+
+			$("#payableForm #save").click(function(){
+				var valid		= 0;
+				var button_name = $(this).attr('name');
+				var paymentmode = $('#paymentmode').val();
+
+				var form_element = $(this).closest('form');
+				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+
+				valid		+= validateDetails();
+
+				if(paymentmode == 'cheque'){
+					valid 	+= validateCheques();
+				}
+
+				finalize_saving(valid, button_name);
+			});
+
+			$("#payableForm #save_new").click(function(){
+				var valid		= 0;
+				var button_name = $(this).attr('name');
+				var paymentmode = $('#paymentmode').val();
+			// console.log('new = button_name ' + button_name );
+			
+			var form_element = $(this).closest('form');
+			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+
+			valid		+= validateDetails();
+
+			if(paymentmode == 'cheque'){
+				valid 	+= validateCheques();
+			}
+
+			finalize_saving(valid, button_name);
+		});
+
+			$("#payableForm #save_exit").click(function(){
+				var valid		= 0;
+				var button_name = $(this).attr('name');
+				var paymentmode = $('#paymentmode').val();
+
+				var form_element = $(this).closest('form');
+				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+
+				valid		+= validateDetails();
+
+				if(paymentmode == 'cheque'){
+					valid 	+= validateCheques();
+				}
+
+				finalize_saving(valid, button_name);
+			});
+
 		} else if( task == "edit") {
 			var paymentmode = $("#paymentmode").val();
 

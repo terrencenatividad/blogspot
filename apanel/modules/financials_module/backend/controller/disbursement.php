@@ -163,7 +163,7 @@ class controller extends wc_controller
 				$data["errmsg"] = $errmsg;
 			}
 		}
-		
+
 		$this->view->load('disbursement/disbursement', $data);
 	}
 
@@ -182,9 +182,9 @@ class controller extends wc_controller
 		$data["generated_id"]  	   	= $sid;
 		$data["sid"] 		   	   	= $sid;
 		$data["date"] 			   	= date("M d, Y");
-		
+
 		$data["business_type_list"]	= array();
-		
+
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
