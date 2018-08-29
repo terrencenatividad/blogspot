@@ -147,27 +147,33 @@
 
 $('form').submit(function(e) 
 {
-		e.preventDefault();
 
-		$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', 
-			  $(this).serialize() + '<?=$ajax_post?>', 
-			  function(data) 
-		{
-			if( data.msg == "success" )
+	e.preventDefault();
+		var form_group	 	= 	$('#coaForm #coaForm').closest('.form-group');
+		$('#coaForm').find('.form-group').find('input, textarea, select').trigger('blur');
+
+		if ($('#coaForm').find('.form-group.has-error').length == 0)
+		{	
+			$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + '<?=$ajax_post?>', function(data) {
+				if( data.msg == 'success' )
 				{
 					$('#delay_modal').modal('show');
-					setTimeout(function() {							
+						setTimeout(function() {							
 						window.location =  "<?=MODULE_URL?>";					
 					}, 1000)
 				}
-			if(data.msg == "error_add")
-			{
-				$(".alert-warning").removeClass("hidden");
-				$("#errmsg").html("Duplicate Entry for " + 
-									data.account_code + " " + 
-									data.account_name);
-			}
-		});
+				if(data.msg == "error_add")
+				{
+					$(".alert-warning").removeClass("hidden");
+				$("#errmsg").html("Duplicate Entry for " + data.account_code + " " + data.account_name);
+				}
+			});
+			
+		}else{
+				if (form_group.find('p.help-block').html() != "") {
+					form_group.removeClass('has-error').find('p.help-block').html('');
+				}
+		}
 });
 
 </script>

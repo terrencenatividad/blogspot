@@ -163,19 +163,23 @@ var ajax = {};
 
 $('#bankForm #btnSave').on('click',function(){
 
-	$('#bankForm #gl_code').trigger('blur');
-	$('#bankForm #currency').trigger('blur');
-	$('#bankForm #bankcode').trigger('blur');
-	$('#bankForm #bankname').trigger('blur');
-	$('#bankForm #accountcode').trigger('blur');
-	$('#bankForm #acccountno').trigger('blur');
-
+	// $('#bankForm #gl_code').trigger('blur');
+	// $('#bankForm #currency').trigger('blur');
+	// $('#bankForm #bankcode').trigger('blur');
+	// $('#bankForm #bankname').trigger('blur');
+	// $('#bankForm #accountcode').trigger('blur');
+	// $('#bankForm #acccountno').trigger('blur');
+	$('#bankForm').find('.form-group').find('input, textarea, select').trigger('blur');
+	
 	if ($('#bankForm').find('.form-group.has-error').length == 0)
 	{	
 		$.post('<?=BASE_URL?>maintenance/bank/ajax/<?=$task?>', $('#bankForm').serialize()+ '<?=$ajax_post?>', function(data) {
 			if( data.msg == 'success' )
 			{
-				window.location = '<?php echo BASE_URL . 'maintenance/bank'; ?>';
+				$('#delay_modal').modal('show');
+						setTimeout(function() {				
+							window.location = '<?php echo BASE_URL . 'maintenance/bank'; ?>';							
+						}, 1000)
 			}
 		});
 	}
