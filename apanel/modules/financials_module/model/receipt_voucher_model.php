@@ -784,7 +784,7 @@ class receipt_voucher_model extends wc_model
 				$post_application['discount']			= $discount;
 				$post_application['amount']		 		= $amount;
 				$post_application['credits_used'] 		= $credits;
-				$post_application['overpayment'] 		= $amount - $balance;
+				$post_application['overpayment'] 		= ($overpayment > 0) ? $amount - $balance : 0;
 				$post_application['currencycode']		= 'PHP';
 				$post_application['exchangerate']		= '1.00';
 				$post_application['convertedamount']	= $amount;
@@ -1691,8 +1691,8 @@ class receipt_voucher_model extends wc_model
 			$update_info['stat']	= ($type == 'delete') ? 'deleted' : 'cancelled';
 
 			$app_info['stat']	= ($type == 'delete') ? 'deleted' : 'cancelled';
-			$app_info['convertedamount']	= 0.00;
-			$app_info['discount']	= 0.00;
+			// $app_info['convertedamount']	= 0.00;
+			// $app_info['discount']			= 0.00;
 			
 			// Update pv_application
 			$result = $this->db->setTable($appTable)
