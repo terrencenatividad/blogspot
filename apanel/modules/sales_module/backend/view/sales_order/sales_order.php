@@ -726,8 +726,7 @@
 
 		var flag 	=	0; 
 		if(removeComma(current_total) > removeComma(current_balance)){
-			$('#creditLimitModal #message').html("This customer is about to exceed their Credit Limit of "+addComma(current_limit)+".<br><br>Their current accumulated credit is "+addComma(current_outstanding)+". <br><br>Do you wish to Proceed?");
-			// $('#creditLimitModal').modal('show');	
+			$('#creditLimitModal #message').html("Total sales order of "+addComma(current_total)+" exceeds your credit limit of "+addComma(current_limit)+". <br><br>Current Credit Balance: "+addComma(current_outstanding));	
 			flag 	=	1;
 		}
 
@@ -1209,12 +1208,10 @@ function finalizeTransaction(type)
 				$('#sales_order_form').submit();
 			}, 1000)
 		}
-		
 	}
 	else{
 		if(credit_limit_exceed != 1){
 			$('#warning_modal').modal('show').find('#warning_message').html('Please make sure all required fields are filled out.');		
-			//$('#warning_modal').modal('show').find('#warning_message').html('Please Input Quantity > 0');
 			next = $('#sales_order_form').find(".has-error").first();
 			$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
 		} else {
