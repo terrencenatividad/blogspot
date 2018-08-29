@@ -215,6 +215,21 @@
 									->setValue($incurred_receivables)
 									->draw($show_input);
 							?>
+						</div>
+						<div class="col-md-6">
+						</div> 
+						<div class="col-md-6">
+							<?php
+								echo $ui->formField('text')
+									->setLabel('Outstanding Receivables')
+									->setSplit('col-md-4', 'col-md-8')
+									->setName('outstanding_receivables')
+									->setId('outstanding_receivables')
+									// ->setValidation('special')
+									->setMaxLength(20)
+									->setValue($outstanding_receivables)
+									->draw($show_input);
+							?>
 						</div> 
 						<?endif;?>
 					</div>

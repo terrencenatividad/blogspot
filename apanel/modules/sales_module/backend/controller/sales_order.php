@@ -578,6 +578,9 @@ class controller extends wc_controller
 		}
 		else if( $task == 'retrieve_incurred_receivables' ){
 			$result = $this->retrieve_incurred_receivables();
+		} 
+		else if( $task == 'retrieve_outstanding_receivables' ){
+			$result = $this->retrieve_outstanding_receivables();
 		}
 
 		echo json_encode($result); 
@@ -906,6 +909,16 @@ class controller extends wc_controller
 		$incurred_receivables 	=	(isset($result[0]->receivables) && $result[0]->receivables != "")	?	$result[0]->receivables 	:	0;
 
 		return  $dataArray = array( "incurred_receivables" => $incurred_receivables );
+	}
+
+	public function retrieve_outstanding_receivables(){
+		$customercode 	=	$this->input->post('customercode');
+
+		$result 		=	$this->so->retrieve_outstanding_receivables($customercode);
+
+		$outstanding_receivables 	=	(isset($result[0]->receivables) && $result[0]->receivables != "")	?	$result[0]->receivables 	:	0;
+	
+		return  $dataArray = array( "outstanding_receivables" => $outstanding_receivables );
 	}
 }
 ?>
