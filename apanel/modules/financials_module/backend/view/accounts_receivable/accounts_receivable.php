@@ -624,6 +624,7 @@
 								<?php }
 								?>
 								<?endif;?>
+								<input type = "hidden" value = "" name = "h_save_preview" id = "h_save_preview"/>
 								<button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel">Cancel</button>
 							</div>
 						</div>
