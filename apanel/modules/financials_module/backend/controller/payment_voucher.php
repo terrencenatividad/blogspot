@@ -382,11 +382,11 @@ class controller extends wc_controller
 		// $data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
 		// Cash Account Options
-		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
-		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
-		$cash_order_by 		 	  	= "id desc";
-		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
-		$data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
+		// $cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
+		// $cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
+		// $cash_order_by 		 	  	= "id desc";
+		// $cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
+		// $data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
 
 		// Header Data
 		$voucherno 					= $data["main"]->voucherno;
@@ -405,6 +405,17 @@ class controller extends wc_controller
 
 		$data["listofcheques"]	 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
 		$data["show_cheques"] 	 	= isset($data['rollArray'][$sid]) ? '' : 'hidden';
+
+		foreach ($data["listofcheques"] as $index => $cheque){
+			$accountcode 	=	$cheque['chequeaccount'];
+			$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val, b.stat stat";
+			$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes' OR c.id = $accountcode";
+			$cash_order_by 		 	  	= "id desc";
+			$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
+			$data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
+
+		}
+
 		// Application Data
 		$payments 				= $data['payments'];
 		$sum_applied			= 0;
