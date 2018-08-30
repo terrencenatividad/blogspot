@@ -1027,7 +1027,9 @@
 			});
 		}
 
-		var currentcheck = 0;
+		var currentcheck = 0; 
+		var newnext = 0;
+		var newlast = 0;
 		
 		$('#chequeTable .cheque_account').on('change', function()  {
 			storedescriptionstoarray();
@@ -1053,7 +1055,6 @@
 				if (data){
 
 					next = parseFloat(data.nno) || 0;
-					console.log('old_next'+next);
 					last = parseFloat(data.last) || 0;
 
 
@@ -1065,32 +1066,24 @@
 							$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
 						}
 					} else {
-						// 	console.log(currentcheck);
-						// 	console.log(last);
-						// 	if (book_id != newbookid && parseFloat(last) != parseFloat(currentcheck)){
-						// 		$('#checkModal').modal('show');
-						// 	} 
-						// 	var newbookid = $('#book_id').val();
-						// 	console.log(newbookid);
 						currentcheck = parseFloat(currentcheck) +1;
 						if (parseFloat(last) != parseFloat(currentcheck)){
 							$('#checkModal').modal('show');
 						} 
-						// var next = (parseFloat(last) >= parseFloat(currentcheck)) ? parseFloat(cheque["bank-"+val]) + 1  : next;
 						if (parseFloat(last) >= parseFloat(currentcheck)){
 							next = parseFloat(cheque["bank-"+val]) + 1
 						} else {
 							next = next;
 						}
-						console.log('next'+next);
 
 						$('#chequeTable #chequenumber\\['+row+'\\]').val(next);
 					}	
 					currentcheck = $('#chequeTable #chequenumber\\['+row+'\\]').val();
-					console.log('oldcur'+ currentcheck);
+					console.log('cur'+currentcheck);
 				}
 
 			})
+
 
 			cheque_arr = [];
 
@@ -1114,7 +1107,6 @@
 			cheque_arr.forEach(function(account) {
 				var ParentRow = $("#entriesTable tbody tr.clone").last();
 				$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
-				// clone_acct(initial state of first row) will be placed on the last cloned row. 
 				ParentRow.after(clone_acct);
 				resetIds();
 				$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
@@ -1140,19 +1132,20 @@
 			var booknum = $('#checkModal #booknum_list').val();
 			$('#book_id').val(booknum);
 			var val = $('#current_bank').val();
-			$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank='+val+'&bookno='+booknum ).done(function(data){
+			$.post("<?=BASE_URL?>financials/disbursement/ajax/get_next_booknum", 'bank='+val+'&bookno='+booknum ).done(function(data){
 				if (data){
-					next = parseFloat(data.nno) || 0;
-					last = parseFloat(data.last) || 0;
+					newnext = parseFloat(data.nno) || 0;
+					newlast = parseFloat(data.last) || 0;
 
 					var row = $("#chequeTable tbody tr").length;
 					if (typeof cheque["bank-"+val] === 'undefined') {
 						$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
 					}
 					currentcheck = $('#chequeTable #chequenumber\\['+row+'\\]').val();
-					console.log('currentcheck'+currentcheck);
 				}
+				$('#chequeTable #chequenumber\\['+row+'\\]').val(newnext);	
 			});
+			
 			$('#checkModal').modal('hide');
 		});
 

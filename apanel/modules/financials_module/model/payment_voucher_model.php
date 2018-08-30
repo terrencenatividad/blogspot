@@ -1527,27 +1527,34 @@ class payment_voucher_model extends wc_model
 		return $result;
 	}
 
-	public function getcheckfirst($bank){
+	public function getcheckfirst($bank , $cno, $bno){
+		if ($bno != ''){
+			$where = " OR firstchequeno = '$bno' ";
+		} else {
+			$where = '';
+		}
 		$result = $this->db->setTable('bankdetail bd')
-							->setFields("nextchequeno, min(firstchequeno) firstchequeno, lastchequeno, booknumber")
+							->setFields("nextchequeno, firstchequeno, lastchequeno, booknumber")
 							->innerJoin("(SELECT b.id, b.gl_code FROM bank b INNER JOIN chartaccount c ON b.gl_code = c.segment5 where c.id = '$bank') bc ON bc.id = bd.bank_id")
-							->setOrderBy('nextchequeno ASC')
+							->setWhere("stat = 'open'")
+							->setOrderBy('nextchequeno + 0 ASC')
 							->setLimit(1)	
 							->runSelect()
 							->getResult();
+							// echo $this->db->getQuery();
 		return $result;
 	}
 
-	public function getchecklast($bank){
-		$result = $this->db->setTable('bankdetail bd')
-							->setFields("nextchequeno, firstchequeno , max(lastchequeno) lastchequeno, booknumber")
-							->innerJoin("(SELECT b.id, b.gl_code FROM bank b INNER JOIN chartaccount c ON b.gl_code = c.segment5 where c.id = '$bank') bc ON bc.id = bd.bank_id")
-							->setOrderBy('nextchequeno ASC')
-							->setLimit(1)	
-							->runSelect()
-							->getResult();
-		return $result;
-	}
+	// public function getchecklast($bank){
+	// 	$result = $this->db->setTable('bankdetail bd')
+	// 						->setFields("nextchequeno, firstchequeno , max(lastchequeno) lastchequeno, booknumber")
+	// 						->innerJoin("(SELECT b.id, b.gl_code FROM bank b INNER JOIN chartaccount c ON b.gl_code = c.segment5 where c.id = '$bank') bc ON bc.id = bd.bank_id")
+	// 						->setOrderBy('nextchequeno ASC')
+	// 						->setLimit(1)	
+	// 						->runSelect()
+	// 						->getResult();
+	// 	return $result;
+	// }
 
 	public function get_check_no($vno){
 		$result = $this->db->setTable('pv_cheques')
@@ -1589,7 +1596,7 @@ class payment_voucher_model extends wc_model
 
 	}
 
-	public function UpdateCheckStatus($bank, $cno){
+	public function update_check_status($bank, $cno){
 		$data1['stat'] = 'closed';
 		$result = $this->db->setTable("bankdetail") 
 							->setValues($data1)
@@ -1598,11 +1605,21 @@ class payment_voucher_model extends wc_model
 		return $result ;
 	}
 
-	// public function getBookNoid($bank){
-	// 	$result = $this->db->setTable("bankdetail")
-	// 							->setValues("booknumber")
-	// 							->setWhere("bank_id = '$bank'")
-	// 							->runUpdate();
-	// 	return $result;
-	// }
+	public function getbankbook($bank){
+		$result = $this->db->setTable("bankdetail")
+								->setFields("booknumber, firstchequeno, lastchequeno, nextchequeno")
+								->setWhere("bank_id = '$bank' AND stat = 'closed' ")
+								->runSelect()
+								->getResult(); 
+		return $result;
+	}
+
+	public function get_next_booknum($bank_no, $current = 0, $firstchequenum){
+		$result = $this->db->setTable("bankdetail")
+								->setFields("booknumber, firstchequeno, lastchequeno, nextchequeno")
+								->setWhere("bank_id = '$bank_no' AND firstchequeno = '$firstchequenum' ")
+								->runSelect()
+								->getResult(); 
+		return $result; 
+	}
 }
