@@ -61,14 +61,14 @@ class controller extends wc_controller {
 			$result = $this->export();
 		}else if($task == 'check_existing_jv'){
 			$result = $this->check_existing_jv();
-		}else if($task == "temporary_jv_save"){
-			$result = $this->temporary_jv_save();
+		}else if($task == "temporary_jv_close"){
+			$result = $this->temporary_jv_close();
 		}else if($task == "preview_listing" ){
 			$result = $this->preview_listing();
-		}else if($task == "update_jv_status"){
-			$result = $this->update_jv_status();
-		}else if($task == "delete_temporary_jv"){
-			$result = $this->delete_temporary_jv();
+		}else if($task == "close_jv_status"){
+			$result = $this->close_jv_status();
+		}else if($task == "eradicate_temporary_jv"){
+			$result = $this->eradicate_temporary_jv();
 		}
 
 		echo json_encode($result); 
@@ -294,7 +294,7 @@ class controller extends wc_controller {
 		);
 	}
 
-	private function temporary_jv_save(){
+	private function temporary_jv_close(){
 
 		$data 			= 	$this->input->post(array('datefrom','reference','notes','closing_account'));
 		$datefrom 		=	$data['datefrom'];
@@ -377,7 +377,7 @@ class controller extends wc_controller {
 		return $dataArray;
 	}
 
-	private function update_jv_status(){
+	private function close_jv_status(){
 		$temp 		=	$this->input->post('voucherno');
 		$voucherno 	=	$this->seq->getValue("JV");
 		// var_dump($reference);
@@ -393,7 +393,7 @@ class controller extends wc_controller {
 		return $result;
 	}
 
-	public function delete_temporary_jv(){
+	public function eradicate_temporary_jv(){
 		$voucherno 	=	$this->input->post('voucherno');
 		
 		$result 	=	$this->trial_balance->delete_temporary_jv($voucherno);
