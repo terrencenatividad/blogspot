@@ -214,6 +214,7 @@ $('#bankForm #btnCancel').on('click',function(){
 	window.location = '<?php echo BASE_URL . 'maintenance/bank'; ?>';
 });
 
+
 // $('#pricelist_table').on('click','.tag_customers',function(){
 // 	var code	=	$(this).attr('data-id');
 // 	window.location = '<?=MODULE_URL?>tag_customers/'+code;
