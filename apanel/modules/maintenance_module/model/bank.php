@@ -130,6 +130,7 @@
 
 		public function insertCheck($data2){
 			$data_post_dtl['bank_id'] 			= $data2['bank_id'];
+			$data_post_dtl['stat'] 				= 'closed';
 			$data_post_dtl['booknumber'] 		= $data2['booknumber'];
 			$data_post_dtl['firstchequeno'] 	= $data2['firstchequeno'];
 			$data_post_dtl['lastchequeno'] 		= $data2['lastchequeno'];
@@ -155,12 +156,12 @@
 		public function checkListing($search="", $sort ,$limit, $id){
 			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (shortname LIKE '%$search%' OR bankcode LIKE '%$search%'  OR accountno LIKE '%$search%') " 	: 	"";
 
-			$fields 	=	array("b.accountno","bank_id","id","booknumber","CONCAT(firstchequeno, ' - ' ,lastchequeno) batch" ,"nextchequeno");
+			$fields 	=	array("b.accountno","bank_id","id","booknumber","firstchequeno","lastchequeno" ,"nextchequeno");
 
 			$result = $this->db->setTable('bankdetail bd')
 							->setFields($fields)
 							->leftJoin("bank b ON b.id = bd.bank_id ")
-							->setWhere(" bd.stat = 'open' AND bank_id = '$id' $add_cond ")
+							->setWhere("bank_id = '$id' $add_cond ")
 							->setOrderBy("nextchequeno + 0 ASC")
 							->runPagination();
 			return $result;
@@ -256,7 +257,17 @@
 							->runSelect()
 							->getResult();
 			return $result;
+		}
 
+		public function set_check($bank, $first){
+			$con			   	   = " bank_id = '$bank' AND firstchequeno = '$first' ";
+			$data['stat']          = 'open';
+			$result 			   = $this->db->setTable('bankdetail')
+											  ->setValues($data)
+											  ->setWhere($con)
+											  ->setLimit(1)
+											  ->runUpdate();
+			return $result;
 		}
 
 		

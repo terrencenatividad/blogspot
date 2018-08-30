@@ -10,7 +10,7 @@ class controller extends wc_controller {
 		$this->log 				= new log();
 		$this->seq				= new seqcontrol();
 		$this->show_input 	    = true;
-		$session                = new session();
+		$this->session          = new session();
 	}
 
 	public function view() {
@@ -36,8 +36,14 @@ class controller extends wc_controller {
 		$data['ui'] 				= 	$this->ui;
 		$data['show_input'] 		= 	true;
 		$data['datefilter'] 		= 	$this->date->datefilterMonth();
+
+		$login						= 	$this->session->get('login');
+		$groupname 					= 	$login['groupname'];
+		$has_access 				= 	$this->trial_balance->retrieveAccess($groupname);
+		$has_close 					=	isset($has_access[0]->mod_close) 	?	$has_access[0]->mod_close	:	0;
+
 		$balance_table 				= 	$this->trial_balance->getBalanceTableCount();
-		$display_button 			=	($balance_table->count > 0) 	? 	1	:	0;
+		$display_button 			=	($balance_table->count > 0 && $has_close) 	? 	1	:	0;
 		$data['display_btn'] 		=	$display_button;
 		$this->view->load('trial_balance', $data);
 	}

@@ -20,7 +20,8 @@ class controller extends wc_controller {
 			'mod_list'		=> 'List',
 			'mod_print'		=> 'Print',
 			'mod_post'		=> 'Post',
-			'mod_unpost'	=> 'Unpost'
+			'mod_unpost'	=> 'Unpost',
+			'mod_close' 	=> 'Close'
 		);
 		$this->data = array();
 		$this->view->header_active = 'maintenance/usergroup/';
