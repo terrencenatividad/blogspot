@@ -1621,7 +1621,7 @@ $(document).ready(function(){
 		{
 			//Final Saving
 			$('#purchase_order_form .save').click(function(){
-				
+				$('#itemsTable tbody tr td').find('.warehouse').find('option[disabled]').prop('disabled', false)
 				$('#save').val("final");
 
 				finalizeEditTransaction();

@@ -45,7 +45,9 @@ class backend {
 		$url		= new url();
 		$function = ($this->getPage()) ? $this->getPage() : $default_function;
 	
-		if ($this->checkAccessType(array('add', 'create', 'insert', 'save'), $function)) {
+		if ($this->checkAccessType(array('close','save','update','delete'), $function)) {
+			$type = 'mod_close';
+		} else if ($this->checkAccessType(array('add', 'create', 'insert', 'save'), $function)) {
 			$type = 'mod_add';
 		} else if ($this->checkAccessType(array('view', 'get', 'load', 'retrieve', 'check'), $function)) {
 			$type = 'mod_view';
@@ -63,7 +65,7 @@ class backend {
 			$type = 'mod_post';
 		} 
 		$result		= $db->setTable(PRE_TABLE . '_module_access')
-							->setFields('mod_add, mod_view, mod_edit, mod_delete, mod_list, mod_print, mod_post, mod_unpost')
+							->setFields('mod_add, mod_view, mod_edit, mod_delete, mod_list, mod_print, mod_post, mod_unpost, mod_close')
 							->setWhere("groupname = '" . GROUPNAME . "' AND module_name = '$module_name'")
 							->runSelect()
 							->getRow();
@@ -92,6 +94,7 @@ class backend {
 			define('MOD_PRINT', ($result->mod_print === '1'));
 			define('MOD_POST', ($result->mod_post === '1'));
 			define('MOD_UNPOST', ($result->mod_unpost === '1'));
+			define('MOD_CLOSE', ($result->mod_unpost === '1'));
 		}
 		if (isset($type)) {
 			define('MODULE_NAME', $module_name);

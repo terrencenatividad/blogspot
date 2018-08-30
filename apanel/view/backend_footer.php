@@ -6,7 +6,7 @@
 			</div>
 			<footer class="main-footer">
 				<div class="pull-right hidden-xs">
-					<b>Version</b> 0.9.1
+					<b>Version</b> 1.0.0
 				</div>
 				<?php
 					$startyear		= 2017;

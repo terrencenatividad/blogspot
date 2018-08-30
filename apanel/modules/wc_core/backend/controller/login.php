@@ -29,7 +29,11 @@ class controller extends wc_controller {
 				$locktime = $login_model->checkLockedAccount($username);
 				if ($locktime) {
 					$data['locktime'] = $this->date->datetimeFormat($locktime->locktime);
-				} else {
+				} 
+				if($result['stat'] == 'inactive'){
+					$data['error_msg'] = 'User is deactivated';
+				}
+				else {
 					$session->set('login', $result);
 					$access->loginUser();
 					$log->saveActivity('Login');

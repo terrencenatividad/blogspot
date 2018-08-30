@@ -289,15 +289,15 @@ class ui {
 			$parent = '';
 			$input = '<select ' . $attributes . '>' . $placeholder;
 			foreach ($this->list as $key => $value) {
-				
 				$optvalue 	= (is_object($value)) ? $value->ind : $key;
 				$optlabel 	= (is_object($value)) ? $value->val : $value;
 				$optstat	= (is_object($value) && isset($value->stat) && $value->stat == 'inactive') ? "disabled" : "";
-				$selected = ($optvalue == $this->value) ? ' selected' : '';
+				$selected 	= ($optvalue == $this->value) ? ' selected' : '';
 				if (isset($value->parent) && $parent != $value->parent) {
 					$input .= '<optgroup label="' . $value->parent . '">';
 					$parent = $value->parent;
 				}
+				
 				$input .= '<option value="' . $optvalue . '"' . $selected . ' '. $optstat .'>' . $optlabel . '</option>';
 				$n = $key + 1;
 				if ( ! isset($this->list[$n]) || ! isset($this->list[$n]->parent) || (isset($this->list[$n]->parent) && $this->list[$n]->parent != $parent)) {

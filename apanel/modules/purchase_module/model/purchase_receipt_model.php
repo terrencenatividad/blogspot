@@ -301,10 +301,17 @@ class purchase_receipt_model extends wc_model {
 		return $result;
 	}
 
-	public function getWarehouseList() {
+	public function getWarehouseList($data) {
+		// var_dump($data);
+		if($data['ajax_task'] == 'ajax_edit'){
+			$warehouse = $data['warehouse'];			
+			$cond = "stat = 'active' OR warehousecode = '$warehouse'";
+		}else{
+			$cond = "stat = 'active'";
+		}
 		$result = $this->db->setTable('warehouse')
-						->setFields("warehousecode ind, description val")
-						->setWhere("stat = 'active'")
+						->setFields("warehousecode ind, description val, stat stat")
+						->setWhere($cond)
 						->setOrderBy("val")
 						->runSelect()
 						->getResult();
