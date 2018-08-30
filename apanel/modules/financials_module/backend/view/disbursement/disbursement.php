@@ -11,6 +11,7 @@
 	</div>
 
 	<form method = "post" class="form-horizontal" id = "payableForm">
+		<input type = "hidden" id = "book_id" name = "book_id" >
 		<div class="box box-primary">
 			<div class="box-body">
 				<div class = "row">
@@ -893,18 +894,20 @@
 							<button type="button" class="close" data-dismiss="modal">&times;</button>
 						</div>
 						<div class="modal-body">
-							There are no available check number for the system to use. Do you wish to continue to next book number?
-							<input type="hidden" id="recordId"/>
+							<select id="booknum_list" class=""> 
+
+							</select>
+							<input type="hidden" id="current_bank" value=""/>
 						</div>
 						<div class="modal-footer">
 							<div class="row row-dense">
 								<div class="col-md-12 center">
 									<div class="btn-group">
-										<button type="button" class="btn btn-primary btn-flat" id="check_yes">Yes</button>
+										<button type="button" class="btn btn-primary btn-flat" id="check_yes">Select</button>
 									</div>
 									&nbsp;&nbsp;&nbsp;
 									<div class="btn-group">
-										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
 									</div>
 								</div>
 							</div>
@@ -1014,7 +1017,6 @@
 		// Check Array //
 		function storechequetobank(){
 			cheque 	=	[];
-			console.log(cheque);
 			$('#chequeTable tbody tr').each(function() {
 				var cheque_account 	= $(this).find('.cheque_account').val();
 				var chequenumber 	= $(this).find('.chequenumber').val();
@@ -1025,52 +1027,70 @@
 			});
 		}
 
+		var currentcheck = 0;
+		
 		$('#chequeTable .cheque_account').on('change', function()  {
 			storedescriptionstoarray();
 			storechequetobank();
-			
 			if ($('#entriesTable tbody tr.clone select').data('select2')) {
 				$('#entriesTable tbody tr.clone select').select2('destroy');
 			}
 
 			var val = $(this).val();
+			$('#current_bank').val(val);
+			
+			$.post("<?=BASE_URL?>financials/disbursement/ajax/getbooknumber" , 'bank='+val).done(function(data){
+				$('#checkModal #booknum_list').html(data.opt);
+					
+			})
 
 			// Check Array //
+			
+			var book_id = $('#book_id').val();
+			var old_last  = 0;
 
-			$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank =' + val).done(function(data){
+			$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank='+val+'&bookno='+book_id ).done(function(data){
 				if (data){
+
 					next = parseFloat(data.nno) || 0;
+					console.log('old_next'+next);
 					last = parseFloat(data.last) || 0;
+
 
 					var row = $("#chequeTable tbody tr").length;
 					if (typeof cheque["bank-"+val] === 'undefined') {
 						if (next == 0){
-							$('#nocheckModal').modal('show');
+							$('#checkModal').modal('show');
 						} else {
 							$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
 						}
 					} else {
-						var next = parseFloat(cheque["bank-"+val]) + 1;
-						if (next > last){
+						// 	console.log(currentcheck);
+						// 	console.log(last);
+						// 	if (book_id != newbookid && parseFloat(last) != parseFloat(currentcheck)){
+						// 		$('#checkModal').modal('show');
+						// 	} 
+						// 	var newbookid = $('#book_id').val();
+						// 	console.log(newbookid);
+						currentcheck = parseFloat(currentcheck) +1;
+						if (parseFloat(last) != parseFloat(currentcheck)){
 							$('#checkModal').modal('show');
-
-							// $('#checkModal #check_yes').on('click', function(){
-							// 	$.post("<?=BASE_URL?>/financials/disbursement/ajax/UpdateCheckStat", 'val='+val, 'cno'+next ).done(function(data){
-							// 		$('#checkModal').modal('hide');
-							// 	})
-
-								
-							// })
-							getnum(val,next);
-
+						} 
+						// var next = (parseFloat(last) >= parseFloat(currentcheck)) ? parseFloat(cheque["bank-"+val]) + 1  : next;
+						if (parseFloat(last) >= parseFloat(currentcheck)){
+							next = parseFloat(cheque["bank-"+val]) + 1
 						} else {
-							$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
+							next = next;
 						}
-						
-					}	
-				}
-			})
+						console.log('next'+next);
 
+						$('#chequeTable #chequenumber\\['+row+'\\]').val(next);
+					}	
+					currentcheck = $('#chequeTable #chequenumber\\['+row+'\\]').val();
+					console.log('oldcur'+ currentcheck);
+				}
+
+			})
 
 			cheque_arr = [];
 
@@ -1115,17 +1135,38 @@
 			drawTemplate(); 
 		});
 
-		function getnum(val, next){
-			$('#checkModal #check_yes').on('click', function(){
-				$.post("<?=BASE_URL?>financials/disbursement/ajax/UpdateCheckStat", 'val='+val, 'cno'+next ).done(function(data){
-					$('#checkModal').modal('hide');
-				})
-			})
-		}
+		$('#check_yes').on('click', function(){
+			storechequetobank();
+			var booknum = $('#checkModal #booknum_list').val();
+			$('#book_id').val(booknum);
+			var val = $('#current_bank').val();
+			$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank='+val+'&bookno='+booknum ).done(function(data){
+				if (data){
+					next = parseFloat(data.nno) || 0;
+					last = parseFloat(data.last) || 0;
 
-		// function getcheckDtl(account){
-			
-		// }
+					var row = $("#chequeTable tbody tr").length;
+					if (typeof cheque["bank-"+val] === 'undefined') {
+						$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
+					}
+					currentcheck = $('#chequeTable #chequenumber\\['+row+'\\]').val();
+					console.log('currentcheck'+currentcheck);
+				}
+			});
+			$('#checkModal').modal('hide');
+		});
+
+		function getnum(val, next){ 
+			$('#check_yes').on('click', function(){
+				$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank='+val+'&current_check='+next ).done(function(data){
+					ajax.val = val;
+					ajax.next = next;
+					// $.post("<?=BASE_URL?>financials/disbursement/ajax/update_check_status", ajax ).done(function(data){
+						$('#checkModal').modal('hide');
+					// 	})
+				})
+			})       
+		}
 
 		function disable_acct_fields(row){
 			$("#accountcode\\["+ row +"\\]").prop("disabled", true);

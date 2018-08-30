@@ -1579,7 +1579,6 @@ class controller extends wc_controller
 		$print_dtls->setDocumentType('Payment Voucher')
 					->setDocumentInfo($print_chkdtl)
 					->drawPDF('pv_voucher_' . $vno);
-		
-		
 	}
+
 }
