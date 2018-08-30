@@ -422,7 +422,9 @@ class controller extends wc_controller
 	 		
 		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
 
-		foreach ($data["listofcheques"] as $index => $cheque){
+		$checks = isset($data["listofcheques"]) ? $data["listofcheques"] : '';
+
+		foreach ($checks as $index => $cheque){
 			$accountcode 	=	$cheque['chequeaccount'];
 			$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val, b.stat stat";
 			$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes' OR c.id = $accountcode";
