@@ -158,6 +158,15 @@ class usergroup_model extends wc_model {
 		return '(' . implode(' OR ', $temp) . ')';
 	}
 
+	public function getStat($fields, $groupname) {
+		return $this->db->setTable(PRE_TABLE . '_user_group')
+						->setFields($fields)
+						->setWhere("groupname = '$groupname'")
+						->setLimit(1)
+						->runSelect()
+						->getRow();
+	}
+
 	public function updateStat($data,$code)
 	{
 		$condition 			   = " groupname = '$code' ";

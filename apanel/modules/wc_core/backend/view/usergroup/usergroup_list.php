@@ -170,8 +170,30 @@
 			$('#deactivate_modal').on('click', '#deactyes', function() {
 				$('#deactivate_modal').modal('hide');
 				
-				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+decode ,function(data) {
-					getList();
+				$.post('<?=MODULE_URL?>ajax/check_stat', '&id='+decode ,function(data) {
+					if(data.success == true){
+							bootbox.dialog({
+							message: "Can't deactivate. User Group in use.",
+							title: "Warning",
+							buttons: {
+								success: {
+									label: "Ok",
+									className: "btn-info btn-flat",
+									callback: function() {
+
+									}
+								}
+							}
+						});
+						$('.btn').on('click', function(){
+								window.location = data.redirect;
+							});
+				}else{
+					$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+decode ,function(data) {
+						window.location = data.redirect;
+					});
+				}
+				
 				});
 			});
 		});

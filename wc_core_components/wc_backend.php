@@ -64,10 +64,10 @@ class backend {
 		} else if ($this->checkAccessType(array('close','eradicate'), $function)) {
 			$type = 'mod_close';
 		} 
-
-		$result		= $db->setTable(PRE_TABLE . '_module_access')
-							->setFields('mod_add, mod_view, mod_edit, mod_delete, mod_list, mod_print, mod_post, mod_unpost, mod_close')
-							->setWhere("groupname = '" . GROUPNAME . "' AND module_name = '$module_name'")
+		$result		= $db->setTable(PRE_TABLE . '_module_access wma')
+							->setFields('mod_add, mod_view, mod_edit, mod_delete, mod_list, mod_print, mod_post, mod_unpost')
+							->leftJoin(PRE_TABLE . '_user_group wug ON wug.groupname = wma.groupname')
+							->setWhere("wma.groupname = '" . GROUPNAME . "' AND wma.module_name = '$module_name' AND wug.status = 'active'")
 							->runSelect()
 							->getRow();
 
