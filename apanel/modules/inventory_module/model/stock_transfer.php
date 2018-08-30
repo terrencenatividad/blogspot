@@ -6,15 +6,13 @@
 			$this->log = new log();
 		}
 
-		public function getWarehouseList($current="", $data) {
-		$source 	 = $data['source'];
-		$destination = $data['destination'];
+		public function getWarehouseList($current="") {
 		
 			$add_cond 	=	(isset($current) && $current != "") ? " AND warehousecode != '$current' " 	: 	"";
 
 			$result = $this->db->setTable('warehouse')
 							->setFields("warehousecode ind, description val, stat stat")
-							->setWhere("stat = 'active' $add_cond OR (warehousecode = '$source' AND warehousecode != '$current') OR (warehousecode = '$destination' AND warehousecode != '$current')")
+							->setWhere("stat = 'active' $add_cond")
 							->runSelect()
 							->getResult();
 
