@@ -3737,6 +3737,7 @@ $(document).ready(function()
 		/**SAVE CHANGES AND REDIRECT TO LIST**/
 		$("#payableForm #btnSave").click(function(e)
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)			
 			var valid	= 0;
 
 			//$("#payableForm").find('.form-group').find('input, textarea, select').trigger('blur');
@@ -3798,6 +3799,7 @@ $(document).ready(function()
 		/**SAVE CHANGES AND REDIRECT TO CREATE NEW INVOICE**/
 		$("#payableForm #save_new").click(function()
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)			
 			var valid	= 0;
 			
 			/**validate vendor field**/
@@ -3854,6 +3856,7 @@ $(document).ready(function()
 			
 		$("#payableForm #save_preview").click(function()
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)			
 			var valid	= 0;
 			
 			$("#payableForm").find('.form-group').find('input, textarea, select').trigger('blur');

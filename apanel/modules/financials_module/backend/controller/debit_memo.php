@@ -68,9 +68,15 @@ class controller extends wc_controller {
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data['ui'] = $this->ui;
-		$data['partner_list']    = $this->dm_model->getVendorList();
-		$data['chartofaccounts']	= $this->dm_model->getChartOfAccountList();
+		$data['partner_list']    = $this->dm_model->getVendorList();$coa_array	= array();
 		$data['voucher_details']	= json_encode($this->dm_model->getJournalVoucherDetails($this->fields2, $voucherno));
+		$coa_array	= array();
+		$hey = json_decode($data['voucher_details']);
+			foreach ($hey as $index => $dtl){
+				$coa			= $dtl->accountcode;
+				$coa_array[]	= $coa;
+			}
+		$data['chartofaccounts']	= $this->dm_model->getEditChartOfAccountList($data,$coa_array);		
 		$data['ajax_task']			= 'ajax_edit';
 		$data['proforma_list']		= $this->dm_model->getProformaList($data);
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
@@ -93,9 +99,16 @@ class controller extends wc_controller {
 		$data['ajax_task']			= 'ajax_view';
 		$data['proforma_list']		= $this->dm_model->getProformaList($data);
 		$data['partner_list']   	 = $this->dm_model->getVendorList();
-		$data['chartofaccounts']	= $this->dm_model->getChartOfAccountList();
-		$status						= $data['stat'];
+		$coa_array	= array();
 		$data['voucher_details']	= json_encode($this->dm_model->getJournalVoucherDetails($this->fields2, $voucherno));
+		$coa_array	= array();
+		$hey = json_decode($data['voucher_details']);
+			foreach ($hey as $index => $dtl){
+				$coa			= $dtl->accountcode;
+				$coa_array[]	= $coa;
+			}
+		$data['chartofaccounts']	= $this->dm_model->getEditChartOfAccountList($data,$coa_array);		
+		$status						= $data['stat'];
 		$data['show_input']			= false;
 		$data['restrict_dm'] 		= $restrict_dm;
 		$data['status']				= $status;

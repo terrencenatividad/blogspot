@@ -377,6 +377,7 @@ echo $ui->loadElement('modal')
 		->setPlaceholder('Select Account')
 		->setSplit('', 'col-md-12')
 		->setName('accountcode[]')
+		->setClass('accountcode')
 		->setList($chartofaccounts)
 		->setValidation('required')
 		->setValue($value)
@@ -542,6 +543,7 @@ echo $ui->loadElement('modal')
 
 			$('form').on('click', '[id="save"]', function(e) {
 				e.preventDefault();
+				$('#tableList tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)							
 				var form_element = $(this).closest('form');
 				var submit_data = '&submit=' + $(this).attr('id');
 				var total_debit = parseFloat($('#total_debit').html().replace(/\,/g,'') || 0);
@@ -568,6 +570,7 @@ echo $ui->loadElement('modal')
 			});
 			$('form').on('click', '[id="save_new"]', function(e) {
 				e.preventDefault();
+				$('#tableList tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)											
 				var form_element = $(this).closest('form');
 				var submit_data = '&submit=' + $(this).attr('id');
 				var total_debit = parseFloat($('#total_debit').html().replace(/\,/g,'') || 0);
@@ -594,6 +597,7 @@ echo $ui->loadElement('modal')
 			});
 			$('form').on('click', '[id="save_exit"]', function(e) {
 				e.preventDefault();
+				$('#tableList tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)							
 				var form_element = $(this).closest('form');
 				var submit_data = '&submit=' + $(this).attr('id');
 				var total_debit = parseFloat($('#total_debit').html().replace(/\,/g,'') || 0);
@@ -621,6 +625,7 @@ echo $ui->loadElement('modal')
 
 			$('form').on('click', '[type="submit"]', function(e) {
 				e.preventDefault();
+				$('#tableList tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)							
 				var form_element = $(this).closest('form');
 				var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
 				var total_debit = parseFloat($('#total_debit').html().replace(/\,/g,'') || 0);

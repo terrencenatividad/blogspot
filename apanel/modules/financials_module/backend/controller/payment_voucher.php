@@ -369,10 +369,17 @@ class controller extends wc_controller
 		// Retrieve vendor list
 		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList();
 
+		$coa_array	= array();
+		foreach ($data['details'] as $index => $dtl){
+			$coa			= $dtl->accountcode;
+			$coa_array[]	= $coa;
+		}
+		
+		$condition = ($coa_array) ? " OR id IN ('".implode("','",$coa_array)."')" : "";
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
+		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val, stat stat");
 		$acc_entry_cond               = "accounttype != ''";
-		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
+		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond. $condition, "segment5");
 
 		// Cash Account Options
 		// $cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';

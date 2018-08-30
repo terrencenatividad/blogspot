@@ -305,10 +305,17 @@ class controller extends wc_controller
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 
+		$coa_array	= array();
+		foreach ($data['details'] as $index => $dtl){
+			$coa			= $dtl->accountcode;
+			$coa_array[]	= $coa;
+		}
+		
+		$condition = ($coa_array) ? " OR id IN ('".implode("','",$coa_array)."')" : "";
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","accountname val");
+		$acc_entry_data               = array("id ind","accountname val, stat stat");
 		$acc_entry_cond               = "accounttype != ''  AND stat = 'active'";
-		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
+		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond. $condition, "segment5");
 
 		// // Cash Account Options
 		// $cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';

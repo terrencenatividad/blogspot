@@ -251,6 +251,16 @@ class journal_voucher_model extends wc_model {
 		return $result;
 	}
 
+	public function getEditChartOfAccountList($coa_array) {
+		$condition = ($coa_array) ? " OR id IN ('".implode("','",$coa_array)."')" : "";	
+		$result = $this->db->setTable('chartaccount')
+							->setFields("id ind, CONCAT(segment5, ' - ', accountname) val")
+							->setWhere("stat = 'active' $condition")
+							->runSelect()
+							->getResult();
+		return $result;
+	}
+
 	public function getJournalVoucherTypeList() {
 		return $this->db->setTable('wc_option')
 						->setFields('code ind, value val')
