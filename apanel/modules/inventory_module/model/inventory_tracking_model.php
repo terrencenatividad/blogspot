@@ -4,7 +4,6 @@ class inventory_tracking_model extends wc_model {
 	public function getInventoryTrackingPagination($itemcode, $datefilter, $warehouse, $sort) {
 		$result = $this->getInventoryTrackingQuery($itemcode, $datefilter, $warehouse, $sort)
 						->runPagination();
-
 		return $result;
 	}
 
@@ -45,11 +44,10 @@ class inventory_tracking_model extends wc_model {
 							->innerJoin('items i ON i.itemcode = il.itemcode AND i.companycode = il.companycode')
 							->innerJoin('warehouse w ON w.warehousecode = il.warehouse AND w.companycode = il.companycode')
 							->leftJoin('partners p ON p.partnercode = il.details AND p.companycode = il.companycode')
-							->leftJoin('wc_users u ON u.username = il.enteredby AND p.companycode = il.companycode')
+							->leftJoin('wc_users u ON u.username = il.enteredby AND u.companycode = il.companycode')
 							->setFields("il.entereddate, itemname, description warehouse, reference, partnername, prevqty, quantity, currentqty, activity, CONCAT(firstname, ' ', lastname) name")
 							->setWhere($condition)
 							->setOrderBy($sort);
-
 		return $query;
 	}
 
