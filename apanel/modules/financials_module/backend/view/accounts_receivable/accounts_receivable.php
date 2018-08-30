@@ -339,6 +339,7 @@
 														->setSplit('', 'col-md-12')
 														->setName("accountcode[".$row."]")
 														->setId("accountcode[".$row."]")
+														->setClass('accountcode')
 														->setList($account_entry_list)
 														->setValue("")
 														->draw($show_input);
@@ -394,6 +395,7 @@
 														->setSplit('', 'col-md-12')
 														->setName("accountcode[".$row."]")
 														->setId("accountcode[".$row."]")
+														->setClass('accountcode')
 														->setList($account_entry_list)
 														->setValue("")
 														->draw($show_input);
@@ -472,6 +474,7 @@
 															->setSplit('', 'col-md-12')
 															->setName("accountcode[".$row."]")
 															->setId("accountcode[".$row."]")
+															->setClass('accountcode')
 															->setList($account_entry_list)
 															->setValue($accountcode)
 															->draw($show_input);
@@ -3538,6 +3541,7 @@ function loadCheques(i)
 		/**SAVE CHANGES AND REDIRECT TO LIST**/
 		$("#receivableForm #btnSave").click(function(e)
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)						
 			var valid	= 0;
 
 			//$("#receivableForm").find('.form-group').find('input, textarea, select').trigger('blur');
@@ -3587,6 +3591,7 @@ function loadCheques(i)
 		/**SAVE CHANGES AND REDIRECT TO CREATE NEW INVOICE**/
 		$("#receivableForm #save_new").click(function()
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)						
 			var valid	= 0;
 			
 			/**validate Customer field**/
@@ -3635,6 +3640,7 @@ function loadCheques(i)
 
 		$("#receivableForm #save_preview").click(function()
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)						
 			var valid	= 0;
 			
 			//$("#receivableForm").find('.form-group').find('input, textarea, select').trigger('blur');

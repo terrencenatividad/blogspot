@@ -68,8 +68,14 @@ class controller extends wc_controller {
 		$data['display_edit']		= ($checker!="import" && $checker!="beginning" && $checker!="closing" && $status != 'cancelled') ? 1 : 0;
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
-		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
 		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno, $status));
+		$coa_array	= array();
+		$hey = json_decode($data['voucher_details']);
+			foreach ($hey as $index => $dtl){
+				$coa			= $dtl->accountcode;
+				$coa_array[]	= $coa;
+			}
+		$data['chartofaccounts']	= $this->jv_model->getEditChartOfAccountList($coa_array);			
 		$data['ajax_task']			= 'ajax_edit';
 		$data['proforma_list']		= $this->jv_model->getProformaList($data);
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
@@ -92,9 +98,15 @@ class controller extends wc_controller {
 		$data['ui'] = $this->ui;
 		$data['ajax_task']			= 'ajax_view';
 		$data['proforma_list']		= $this->jv_model->getProformaList($data);
-		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
 		$status 					= $data['stat'];
 		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno,$status));
+		$coa_array	= array();
+		$hey = json_decode($data['voucher_details']);
+			foreach ($hey as $index => $dtl){
+				$coa			= $dtl->accountcode;
+				$coa_array[]	= $coa;
+			}
+		$data['chartofaccounts']	= $this->jv_model->getEditChartOfAccountList($coa_array);		
 		$data['show_input']			= false;
 		$data['restrict_jv']		= $this->restrict->setButtonRestriction($transactiondate);
 		$this->view->load('journal_voucher/journal_voucher', $data);

@@ -416,10 +416,18 @@ class controller extends wc_controller
 		$bus_type_cond                = "type = 'businesstype'";
 		$data["business_type_list"]   = $this->accounts_receivable->getValue("wc_option", $bus_type_data, $bus_type_cond, false);
 
+		$coa_array	= array();
+		foreach ($data['details'] as $index => $dtl){
+			$coa			= $dtl->accountcode;
+			$coa_array[]	= $coa;
+		}
+		
+		$condition = ($coa_array) ? " OR id IN ('".implode("','",$coa_array)."')" : "";
+		
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
+		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val, stat stat");
 		$acc_entry_cond               = "accounttype != 'P' AND stat = 'active'";
-		$data["account_entry_list"]   = $this->accounts_receivable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
+		$data["account_entry_list"]   = $this->accounts_receivable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond. $condition, "segment5");
 
 		// Retrieve Receivable account list
 		$pay_account_data 			  = array("id ind", "CONCAT(segment5, ' - ', accountname) val");
