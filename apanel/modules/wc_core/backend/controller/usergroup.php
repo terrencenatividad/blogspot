@@ -130,6 +130,7 @@ class controller extends wc_controller {
 	private function ajax_create() {
 		$fields = $this->fields;
 		$data = $this->input->post($fields);
+		$data['status'] = 'active';
 		$module_access = $this->input->post('module_access');
 		$result = $this->usergroup_model->saveGroup($data, $module_access);
 		if ($result) {
@@ -189,18 +190,40 @@ class controller extends wc_controller {
 			'success'	=> $result
 			);
 	}
+
+	private function check_stat()
+	{
+		$code = $this->input->post('id');
+		$login		= $this->session->get('login');
+		$groupname 	= $login['groupname'];
+		$data['status'] = 'status';
+
+		$result = $this->usergroup_model->getStat($data,$code);
+		if($result->status == 'active' && $code == $groupname){
+			return array(
+				'redirect'	=> MODULE_URL,
+				'success'	=> true
+				);
+		}
+		else{
+			return array(
+				'redirect'	=> MODULE_URL,
+				'success'	=> false
+				);
+		}
+		
+		
+	}
 	
 	private function ajax_edit_deactivate()
 	{
 		$code = $this->input->post('id');
-		
 		$data['status'] = 'inactive';
 
 		$result = $this->usergroup_model->updateStat($data,$code);
 		return array(
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
-			);
+			);		
 	}
-
 }
