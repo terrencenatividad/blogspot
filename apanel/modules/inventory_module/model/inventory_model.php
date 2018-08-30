@@ -346,7 +346,7 @@ class inventory_model extends wc_model {
 							$purchasereturnQty += $quantity;
 							$quantity = $quantity * -1;
 							break;
-						case 'ai':
+						case 'ia':
 							$activity	= 'Inventory Adjustment';
 							$adjustmentsQty += $quantity;
 							break;
