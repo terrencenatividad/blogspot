@@ -129,6 +129,35 @@
 	</div>
 </div>
 
+<div class="modal fade" id="set_modal" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+			Confirmation
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				Are you sure you want to set this as your default check book?
+
+				<input type="hidden" id=""/>
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 center">
+						<div class="btn-group">
+							<button type="button" class="btn btn-primary btn-flat" id="set_yes">Yes</button>
+						</div>
+						&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script>
 var ajax = {};
 
@@ -373,6 +402,23 @@ $('#list_container').on('click', '.delete_check_series', function(){
 			});
 		}
 });
+
+$('#list_container').on('click', '.set_as_default_check', function(){
+	var id     =  $('#id').val();
+
+	ajax.firstcheck =  $(this).closest('tr').find('#firstcheck').html();
+		if( id != "" )
+		{
+			$("#set_modal").modal("show");
+			$( "#set_yes" ).click(function() {
+				$.post('<?=BASE_URL?>maintenance/bank/ajax/set_check', ajax ,  function(data){
+						window.location = self.location;
+				});
+			});
+		}
+});
+
+
 
 
 

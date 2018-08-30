@@ -306,12 +306,17 @@
 									'trash',
 									'deletecheck'
 								)
-										->draw();
+								->addOtherTask(
+									'Set as Default Check',
+									'check',
+									'set_default'
+								)
+								->draw();
 					$table .= '<tr>';
 					$table .= ' <td align = "center">' .$dropdown. '</td>';
 					$table .= '<td>' . $row->accountno . '</td>';
 					$table .= '<td id="booknumber">' . $row->booknumber . '</td>';
-					$table .= '<td>' . $row->batch  . '</td>';
+					$table .= '<td id="firstcheck">' . $row->firstchequeno. '-' .$row->lastchequeno. '</td>';
 					$table .= '<td>' . $row->nextchequeno. '</td>';
 					$table .= '</tr>';
 				}
@@ -429,6 +434,20 @@
 			return $dataArray = array("msg" => $msg);
 
 		}
+
+		public function set_check(){
+			$fno = $this->input->post('firstcheck');
+			$fno = explode('-',$fno);
+			$first = $fno[0];
+			$bank = $this->input->post('id');
+			$result = $this->bank->set_check($bank, $first);
+			if ($result){
+				$msg = 'success';
+			}
+
+			return $msg;
+		}
+		 
 
 	}
 ?>
