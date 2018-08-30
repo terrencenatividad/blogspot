@@ -574,6 +574,23 @@ class trial_balance extends wc_model {
 		return $result;
 	}
 
+	private function getPeriodStart() {
+		$result = $this->db->setTable('company')
+							->setFields(array('taxyear', "MONTH(STR_TO_DATE(periodstart,'%b')) periodstart"))
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+
+		// if ($result->taxyear == 'fiscal') {
+		// 	$this->period = $result->periodstart;
+		// 	if ($this->period > date('n')) {
+		// 		$this->year = date('Y') - 1;
+		// 	}
+		// }
+
+		return $result;
+	}
+
 	public function getChartAccountList() {
 		// $cond 	=	(!empty($cond_value)) 	?	" accountname LIKE '%$cond_value%' " 	:	"";
 		return $this->db->setTable('chartaccount c')
@@ -816,6 +833,16 @@ class trial_balance extends wc_model {
 									->setWhere("companycode = 'CID'")
 									->runSelect()
 									->getRow();
+		return $result;
+	}
+
+	public function retrieveAccess($groupname){
+		$result = $this->db->setTable("wc_module_access")
+					->setFields(array("mod_add","mod_view","mod_edit","mod_delete","mod_list","mod_print","mod_post","mod_unpost","mod_close"))
+					->setWhere("groupname = '$groupname' AND companycode = 'CID' AND module_name = 'Trial Balance'")
+					->setLimit(1)
+					->runSelect()
+					->getResult();
 		return $result;
 	}
 }	
