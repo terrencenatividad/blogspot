@@ -1249,7 +1249,7 @@ class controller extends wc_controller
 
 		$filedir	= $_FILES["file"]["tmp_name"];
 
-		$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
+		$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext", "application/octet-stream");
 
 		$errmsg 	=	array();
 		$proceed 	=	false;
@@ -1266,6 +1266,7 @@ class controller extends wc_controller
 		
 		$headerArr = array('Document Set','Transaction Date','Due Date','Supplier Code','Invoice No.','Reference No.','Notes','Account Name','Description','Debit','Credit');
 
+		$warning 			=	array();
 		if( empty($errmsg) ) {
 			$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
 			$error 	=	array();
@@ -1298,7 +1299,6 @@ class controller extends wc_controller
 			}
 			$line 				=	2;
 			$post 				=	array();
-			$warning 			=	array();
 			$vouchlist 			= 	array();
 			$h_vouchlist 		=	array();
 			$datelist 			= 	array();

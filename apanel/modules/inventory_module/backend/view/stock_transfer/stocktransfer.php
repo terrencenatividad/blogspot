@@ -497,11 +497,12 @@
 		var length 	=	$('#tableList tbody tr').length;
 		var rowlimit 	= '<?echo $item_limit?>';
 
-		if(rowlimit == 0 || length < rowlimit){
-			addRowDetails();
-		} else {
-			$('#row_limit').modal('show');
-		}
+		// if(rowlimit == 0 || length < rowlimit){
+		// 	addRowDetails();
+		// } else {
+		// 	$('#row_limit').modal('show');
+		// }
+		addRowDetails();
 	});
 
 	function addAmounts() 
