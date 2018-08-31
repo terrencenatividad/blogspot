@@ -202,6 +202,16 @@ class controller extends wc_controller
 				$updateTempRecord			= $this->payment_voucher->editData($update_cheque,"pv_cheques",$update_condition);
 				/**UPDATE MAIN INVOICE**/
 				$this->update_app($data_validate['selected_rows']);
+
+				// update checks
+				$getnextCheckno 			= $this->payment_voucher->get_check_no($generatedvoucher);
+				foreach ($getnextCheckno as $value) {
+					$cno = $value->checknum;
+					$ca = $value->chequeaccount;
+					$getBank = $this->payment_voucher->getbankid($ca);
+					$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
+					$updateCheckNo = $this->payment_voucher->updateCheck($bank_id, $cno);
+				}
 			}
 			
 			if(empty($errmsg))

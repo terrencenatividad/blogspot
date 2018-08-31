@@ -11,6 +11,7 @@
 </div>
 
 <form method = "post" class="form-horizontal" id = "payableForm">
+<input type = "hidden" id = "book_id" name = "book_id" >
 	<div class="box box-primary">
 		<div class="box-body">
 			<div class = "row">
@@ -1231,28 +1232,59 @@
 	</div>
 </div>
 
+	<!-- <div class="modal fade" id="checkModal" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					Confirmation
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					There are no available check number for the system to use. Please verify check number series in bank maintenance.
+					<input type="hidden" id="recordId"/>
+				</div>
+				<div class="modal-footer">
+					<div class="row row-dense">
+						<!-- <div class="col-md-12 center">
+							<div class="btn-group">
+								<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+							</div>
+							&nbsp;&nbsp;&nbsp;
+							<div class="btn-group">
+								<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+							</div>
+						</div> -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div> -->
+
+<!-- Check Modal  -->
 <div class="modal fade" id="checkModal" tabindex="-1" data-backdrop="static">
 				<div class="modal-dialog modal-sm">
 					<div class="modal-content">
-						<div class="modal-header">
-							Confirmation
+						<div class="modal-header ">
+							<strong>Select Book Number</strong>
 							<button type="button" class="close" data-dismiss="modal">&times;</button>
 						</div>
 						<div class="modal-body">
-							There are no available check number for the system to use. Please verify check number series in bank maintenance.
-							<input type="hidden" id="recordId"/>
+							<select id="booknum_list" class=""> 
+
+							</select>
+							<input type="hidden" id="current_bank" value=""/>
 						</div>
 						<div class="modal-footer">
 							<div class="row row-dense">
-								<!-- <div class="col-md-12 center">
+								<div class="col-md-12 center">
 									<div class="btn-group">
-										<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+										<button type="button" class="btn btn-primary btn-flat" id="check_yes">Select</button>
 									</div>
 									&nbsp;&nbsp;&nbsp;
 									<div class="btn-group">
-										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
 									</div>
-								</div> -->
+								</div>
 							</div>
 						</div>
 					</div>
@@ -1380,15 +1412,24 @@ $('#chequeTable .cheque_account').on('change', function()  {
 	if ($('#entriesTable tbody tr.clone select').data('select2')) {
 		$('#entriesTable tbody tr.clone select').select2('destroy');
 	}
+
 	var val = $(this).val();
+	$('#current_bank').val(val);
+	
+	$.post("<?=BASE_URL?>financials/disbursement/ajax/getbooknumber" , 'bank='+val).done(function(data){
+		$('#checkModal #booknum_list').html(data.opt);
+			
+	})
+
+	
 
 	// Check Array //
 
-	$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank =' + val).done(function(data){
+	$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank='+val+'&bookno='+book_id ).done(function(data){
 		if (data){
+
 			next = parseFloat(data.nno) || 0;
 			last = parseFloat(data.last) || 0;
-			console.log(next);
 
 			var row = $("#chequeTable tbody tr").length;
 			if (typeof cheque["bank-"+val] === 'undefined') {
@@ -1398,15 +1439,22 @@ $('#chequeTable .cheque_account').on('change', function()  {
 					$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
 				}
 			} else {
-				var next = parseFloat(cheque["bank-"+val]) + 1;
-				if (next > last){
+				currentcheck = parseFloat(currentcheck) +1;
+				$('#chequeTable #chequenumber\\['+row+'\\]').val('');
+				if (parseFloat(last) != parseFloat(currentcheck)){
 					$('#checkModal').modal('show');
-				} else {
-					$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
-				}
-				
+					console.log('df');
+					// $('#chequeTable #chequenumber\\['+row+'\\]').val('');
+					$next = '';
+				} else if (parseFloat(last) == parseFloat(currentcheck)){
+					next = parseFloat(cheque["bank-"+val]) + 1;
+					$('#chequeTable #chequenumber\\['+row+'\\]').val(next);
+				} 
+				$('#chequeTable #chequenumber\\['+row+'\\]').val(next);
 			}	
+			currentcheck = $('#chequeTable #chequenumber\\['+row+'\\]').val();
 		}
+
 	})
 	
 	cheque_arr = [];
@@ -1450,6 +1498,28 @@ $('#chequeTable .cheque_account').on('change', function()  {
 	setTimeout(function () {
 		drawTemplate();
 	});
+});
+
+$('#check_yes').on('click', function(){
+	storechequetobank();
+	var booknum = $('#checkModal #booknum_list').val();
+	$('#book_id').val(booknum);
+	var val = $('#current_bank').val();
+	$.post("<?=BASE_URL?>financials/disbursement/ajax/get_next_booknum", 'bank='+val+'&bookno='+booknum ).done(function(data){
+		if (data){
+			newnext = parseFloat(data.nno) || 0;
+			newlast = parseFloat(data.last) || 0;
+
+			var row = $("#chequeTable tbody tr").length;
+			if (typeof cheque["bank-"+val] === 'undefined') {
+				$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
+			}
+			currentcheck = $('#chequeTable #chequenumber\\['+row+'\\]').val();
+		}
+		$('#chequeTable #chequenumber\\['+row+'\\]').val(newnext);	
+	});
+	
+	$('#checkModal').modal('hide');
 });
 
 function disable_acct_fields(row){
