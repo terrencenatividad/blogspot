@@ -207,7 +207,7 @@
 												->setClass('chequenumber')
 												->setValidation('required alpha_num')
 												->setMaxLength(30)
-												->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+												// ->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 												->setValue("")
 												->draw(true);
 									?>
@@ -284,7 +284,8 @@
 													->setClass('chequenumber')
 													->setMaxLength(30)
 													->setValidation('required alpha_num')
-													->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+													->setAttribute(array("readonly" => "readonly"))
+													// ->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 													->setValue($chequeno)
 													->draw($show_input);
 										?>
