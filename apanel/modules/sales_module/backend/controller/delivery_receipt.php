@@ -306,10 +306,18 @@ class controller extends wc_controller {
 
 	private function ajax_update_tagdelivered() {
 		$id = $this->input->post('id');
+
 		if ($id) {
 			$result = $this->delivery_model->tagAsDelivered($id);
-			if ($result && $this->inventory_model) {
-				$this->inventory_model->generateBalanceTable();
+			foreach($id as $index => $voucherno){
+				$retrieve_details 	=	$this->delivery_model->getDeliveryReceiptById(array('voucherno','customer'), $voucherno);
+				$customer 			= 	isset($retrieve_details->customer) 	?	$retrieve_details->customer 	:	"";
+
+				if ($result && $this->inventory_model) {
+					$this->inventory_model->setReference($voucherno)
+										->setDetails($customer)
+										->generateBalanceTable();
+				}
 			}
 		}
 	}
