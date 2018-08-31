@@ -141,7 +141,7 @@ class controller extends wc_controller
 					$cno = $value->checknum;
 					$ca = $value->chequeaccount;
 					$getBank = $this->payment_voucher->getbankid($ca);
-					$bank_id = $getBank[0]->id;
+					$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
 					$updateCheckNo = $this->payment_voucher->updateCheck($bank_id, $cno);
 				}
 
@@ -305,17 +305,10 @@ class controller extends wc_controller
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 
-		$coa_array	= array();
-		foreach ($data['details'] as $index => $dtl){
-			$coa			= $dtl->accountcode;
-			$coa_array[]	= $coa;
-		}
-		
-		$condition = ($coa_array) ? " OR id IN ('".implode("','",$coa_array)."')" : "";
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","accountname val, stat stat");
+		$acc_entry_data               = array("id ind","accountname val");
 		$acc_entry_cond               = "accounttype != ''  AND stat = 'active'";
-		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond. $condition, "segment5");
+		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
 
 		// // Cash Account Options
 		// $cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
@@ -1289,7 +1282,6 @@ class controller extends wc_controller
 				}
 
 				$nextvno     	= $prevvno;
-				
 			}
 		else:
 			$table .= "<tr>
@@ -1405,7 +1397,7 @@ class controller extends wc_controller
 		$val = $this->input->post('val');
 		$cno = $this->input->post('next');
 		$getBank = $this->payment_voucher->getbankid($val);
-		$bank_id = $getBank[0]->id;
+		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
 		$result = $this->payment_voucher->update_check_status($bank_id, $cno);
 		if ($result){
 			$msg = 'success';
@@ -1416,7 +1408,7 @@ class controller extends wc_controller
 	public function getbooknumber(){
 		$bank = $this->input->post('bank');
 		$getBank = $this->payment_voucher->getbankid($bank);
-		$bank_id = $getBank[0]->id;
+		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
 		$result = $this->payment_voucher->getbankbook($bank_id);
 		$options = '<option id="0" value="0">None</option>';
 		foreach ($result as $key => $row) {
@@ -1433,7 +1425,7 @@ class controller extends wc_controller
 	public function get_next_booknum(){
 		$bank = $this->input->post('bank');
 		$getBank = $this->payment_voucher->getbankid($bank);
-		$bank_id = $getBank[0]->id;
+		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
 		$firstchequenum = $this->input->post('bookno');
 		$result1 = $this->payment_voucher->get_next_booknum($bank_id, $current = 0, $firstchequenum);
 		if ($result1){
