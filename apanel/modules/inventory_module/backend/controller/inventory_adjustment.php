@@ -11,7 +11,7 @@ class controller extends wc_controller {
 		$this->log 				= new log();
 		$this->seq 				= new seqcontrol();
 		$this->data 			= array();
-		$this->username 		= USERNAME;
+		$this->name 			= NAME;
 		$this->view->header_active = 'inventory/adjustment/';
 
 		$this->inventory_model  = $this->checkOutModel('inventory_module/inventory_model');
@@ -111,7 +111,7 @@ class controller extends wc_controller {
 			$this->log->saveActivity("Adjusted [$itemcode] with $value ");
 			if ( $this->inventory_model ) {
 				$this->inventory_model->setReference($voucher)
-										->setDetails($this->username)
+										->setDetails($this->name)
 										->generateBalanceTable();
 			}
 		}
@@ -450,7 +450,7 @@ class controller extends wc_controller {
 
 						if ( $this->inventory_model ) {
 							$this->inventory_model->setReference($voucherno)
-													->setDetails($this->username)
+													->setDetails($this->name)
 													->generateBalanceTable();
 						}
 					}
