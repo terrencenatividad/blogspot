@@ -971,8 +971,8 @@
 
 				var min_row 	=	2;
 
-	// Get Initial Clone of First Row. In this case, disabled cheque entries. 
-	var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
+		// Get Initial Clone of First Row. In this case, disabled cheque entries. 
+		var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 		// enable them to allow a cloned row with enabled dropdown and input fields
 		var initial_debit 		= initial_clone.find('.debit').val();
 		var initial_credit 		= initial_clone.find('.crebit').val() || 0;
@@ -1049,6 +1049,7 @@
 			// Check Array //
 			
 			var book_id = $('#book_id').val();
+			console.log('bookid'+book_id);
 			var old_last  = 0;
 
 			$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank='+val+'&bookno='+book_id ).done(function(data){
@@ -1056,7 +1057,6 @@
 
 					next = parseFloat(data.nno) || 0;
 					last = parseFloat(data.last) || 0;
-
 
 					var row = $("#chequeTable tbody tr").length;
 					if (typeof cheque["bank-"+val] === 'undefined') {
@@ -1067,19 +1067,19 @@
 						}
 					} else {
 						currentcheck = parseFloat(currentcheck) +1;
+						$('#chequeTable #chequenumber\\['+row+'\\]').val('');
 						if (parseFloat(last) != parseFloat(currentcheck)){
 							$('#checkModal').modal('show');
+							console.log('df');
+							// $('#chequeTable #chequenumber\\['+row+'\\]').val('');
+							$next = '';
+						} else if (parseFloat(last) == parseFloat(currentcheck)){
+							next = parseFloat(cheque["bank-"+val]) + 1;
+							$('#chequeTable #chequenumber\\['+row+'\\]').val(next);
 						} 
-						if (parseFloat(last) >= parseFloat(currentcheck)){
-							next = parseFloat(cheque["bank-"+val]) + 1
-						} else {
-							next = next;
-						}
-
 						$('#chequeTable #chequenumber\\['+row+'\\]').val(next);
 					}	
 					currentcheck = $('#chequeTable #chequenumber\\['+row+'\\]').val();
-					console.log('cur'+currentcheck);
 				}
 
 			})

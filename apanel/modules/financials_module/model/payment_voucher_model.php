@@ -1536,8 +1536,8 @@ class payment_voucher_model extends wc_model
 		$result = $this->db->setTable('bankdetail bd')
 							->setFields("nextchequeno, firstchequeno, lastchequeno, booknumber")
 							->innerJoin("(SELECT b.id, b.gl_code FROM bank b INNER JOIN chartaccount c ON b.gl_code = c.segment5 where c.id = '$bank') bc ON bc.id = bd.bank_id")
-							->setWhere("stat = 'open'")
-							->setOrderBy('nextchequeno + 0 ASC')
+							->setWhere("stat = 'open' $where")
+							// ->setOrderBy('nextchequeno + 0 ASC')
 							->setLimit(1)	
 							->runSelect()
 							->getResult();
@@ -1578,19 +1578,33 @@ class payment_voucher_model extends wc_model
 	}
 
 	public function updateCheck($getBank, $cno){
-		$data['nextchequeno'] = $cno + 1;
 
+		$data['stat'] 		=  'closed'; 
 		$result = $this->db->setTable("bankdetail") 
 								->setValues($data)
+								->setWhere("bank_id = '$getBank'")
+								->runUpdate();
+		
+		if ($result){
+		
+		$data2['stat'] 		=  'open'; 
+		$data2['nextchequeno'] = $cno + 1;
+		$result = $this->db->setTable("bankdetail") 
+								->setValues($data2)
 								->setWhere("bank_id = '$getBank' AND ($cno BETWEEN firstchequeno AND lastchequeno)")
 								->runUpdate();
-		if ($result){
-			$data1['stat'] = 'closed';
-			$result = $this->db->setTable("bankdetail") 
-								->setValues($data1)
-								->setWhere("bank_id = '$getBank' AND ($cno > lastchequeno)")
-								->runUpdate();
+
 		}
+		
+
+		// if ($result){
+		// 	$data1['stat'] = 'open';
+		// 	$$data['nextchequeno'] = $cno + 1;
+		// 	$result = $this->db->setTable("bankdetail") 
+		// 						->setValues($data1)
+		// 						->setWhere("bank_id = '$getBank' AND ($cno > lastchequeno)")
+		// 						->runUpdate();
+		// }
 			
 		return $result;
 
@@ -1620,6 +1634,7 @@ class payment_voucher_model extends wc_model
 								->setWhere("bank_id = '$bank_no' AND firstchequeno = '$firstchequenum' ")
 								->runSelect()
 								->getResult(); 
+								// echo $this->db->getQuery();
 		return $result; 
 	}
 }
