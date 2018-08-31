@@ -5,11 +5,23 @@
 				<div class="row">
 					<div class="col-md-12">
 						<div class="row">
-							<div class = "col-md-2 form-group">
+							<div class = "col-md-11 form-group">
 								<?php echo $ui->setElement("button")
 										->setId("release")
 										->setClass("btn btn-primary ")
 										->setPlaceholder('<i class="glyphicon glyphicon-send"></i>  Release <span></span>')
+										->draw();
+								?>
+								<?php echo $ui->setElement("button")
+										->setId("void")
+										->setClass("btn btn-danger ")
+										->setPlaceholder('<i class="glyphicon glyphicon-remove"></i>  Void <span></span>')
+										->draw();
+								?>
+								<?php echo $ui->setElement("button")
+										->setId("cancel")
+										->setClass("btn btn-warning ")
+										->setPlaceholder('<i class="glyphicon glyphicon-ban-circle"></i>  Cancel <span></span>')
 										->draw();
 								?>
 							</div>
@@ -78,12 +90,17 @@
 	
 			<ul class="nav nav-tabs">
 				<li class="active"><a href="#" data-toggle="tab" style="outline:none;" onClick="filterList('all');">All</a></li>
+				
+				<li><a href="#" data-toggle="tab" style="outline:none;" 
+						onClick="filterList('uncleared');">Prepared</a></li>
+				<li><a href="#" data-toggle="tab" style="outline:none;" 
+						onClick="filterList('void');">Void</a></li>
+				<li><a href="#" data-toggle="tab" style="outline:none;" 
+						onClick="filterList('cancelled');">Cancelled</a></li>
 				<li><a href="#" data-toggle="tab" style="outline:none;" 
 						onClick="filterList('released');">Released</a></li>
 				<li><a href="#" data-toggle="tab" style="outline:none;" 
-						onClick="filterList('uncleared');">Unreleased</a></li>
-				<li><a href="#" data-toggle="tab" style="outline:none;" 
-						onClick="filterList('cleared');">Cleared</a></li>
+						
 			</ul>
 			
 			<table id="tableList" class="table table-hover">
@@ -113,6 +130,58 @@
 		</div>
 	</div>
 </section>
+<div class="modal fade" id="voidModal" tabindex="-1" data-backdrop="static">
+<div class="modal-dialog modal-sm">
+	<div class="modal-content">
+		<div class="modal-header">
+			Confirmation
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+		</div>
+		<div class="modal-body">
+			Are you sure you want to void this transaction?
+		</div>
+		<div class="modal-footer">
+			<div class="row row-dense">
+				<div class="col-md-12 center">
+					<div class="btn-group">
+							<button type="button" class="btn btn-info btn-flat" id="btnVoid">Yes</button>
+					</div>
+						&nbsp;&nbsp;&nbsp;
+					<div class="btn-group">
+						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+<div class="modal fade" id="cancelmodal" tabindex="-1" data-backdrop="static">
+<div class="modal-dialog modal-sm">
+	<div class="modal-content">
+		<div class="modal-header">
+			Confirmation
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+		</div>
+		<div class="modal-body">
+			Are you sure you want to cancel this transaction?
+		</div>
+		<div class="modal-footer">
+			<div class="row row-dense">
+				<div class="col-md-12 center">
+					<div class="btn-group">
+							<button type="button" class="btn btn-info btn-flat" id="btnYes">Yes</button>
+					</div>
+						&nbsp;&nbsp;&nbsp;
+					<div class="btn-group">
+						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
 <!-- Customer Modal -->
 <div class="modal fade" id="release_modal" tabindex="-1" data-backdrop="static">
 	<div class="modal-dialog modal-md">
@@ -170,6 +239,7 @@
 	</div>
 </div>
 <!-- End Vendor Modal -->
+
 <script>
 	var ajax = {}
 	var ajax_call = {};
@@ -250,12 +320,45 @@
 			} 
 		});
 	});
+
+	$("#void").click(function() 
+	{
+		$('#voidModal').modal('show');
+	});
+	$('#btnVoid').on('click',function(){
+		ids 	=	getSelectedIds();
+		$.post('<?=MODULE_URL?>ajax/update_void', "&ids="+ids ,function(data) {
+			if( data.msg == 'success' )
+			{
+				getList();
+				$('#voidModal').modal('hide');
+			} 
+		});
+	});
+	$("#cancel").click(function() 
+	{
+		$('#cancelmodal').modal('show');
+	});
+	$('#btnYes').on('click',function(){
+		ids 	=	getSelectedIds();
+		$.post('<?=MODULE_URL?>ajax/update_cancel', "&ids="+ids, function(data) {
+			if( data.msg == 'success' )
+			{
+				getList();
+				$('#cancelmodal').modal('hide');
+			} 
+		});
+	});
+	
 	$(function() {
 		linkButtonToTable('#release', '#tableList');
+		linkButtonToTable('#void', '#tableList');
+		linkButtonToTable('#cancel', '#tableList');
 	});
 	tableSort('#tableList', function(value) {
 		ajax.sort = value;
 		ajax.page = 1;
 		getList();
 	});
+
 </script>
