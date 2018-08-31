@@ -44,7 +44,7 @@ class inventory_tracking_model extends wc_model {
 							->innerJoin('warehouse w ON w.warehousecode = il.warehouse AND w.companycode = il.companycode')
 							->leftJoin('partners p ON p.partnercode = il.details AND p.companycode = il.companycode')
 							->leftJoin('wc_users u ON u.username = il.enteredby AND u.companycode = il.companycode')
-							->setFields("il.entereddate, itemname, description warehouse, reference, partnername, prevqty, quantity, currentqty, activity, CONCAT(firstname, ' ', lastname) name")
+							->setFields("il.entereddate, itemname, description warehouse, reference, IF(p.partnername!='',p.partnername, il.details) partnername, prevqty, quantity, currentqty, activity, CONCAT(firstname, ' ', lastname) name")
 							->setWhere($condition)
 							->setOrderBy($sort);
 		return $query;
