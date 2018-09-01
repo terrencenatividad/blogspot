@@ -293,6 +293,9 @@
 
 			if( !empty($list->result) ) :
 				foreach ($list->result as $key => $row) {
+					$entereddate = explode(' ',$row->entereddate);
+					$date = $entereddate[0];
+					$book_date = str_replace('-', '', $date);
 
 					$dropdown = $this->ui->loadElement('check_task')
 								->addOtherTask(
@@ -315,7 +318,7 @@
 					$table .= '<tr>';
 					$table .= ' <td align = "center">' .$dropdown. '</td>';
 					$table .= '<td>' . $row->accountno . '</td>';
-					$table .= '<td id="booknumber">' . $row->booknumber . '</td>';
+					$table .= '<td id="booknumber">' . $book_date. ' - ' .$row->booknumber . '</td>';
 					$table .= '<td id="firstcheck">' . $row->firstchequeno. '-' .$row->lastchequeno. '</td>';
 					$table .= '<td>' . $row->nextchequeno. '</td>';
 					$table .= '</tr>';
