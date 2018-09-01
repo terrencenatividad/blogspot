@@ -89,7 +89,7 @@
 					echo $ui->loadElement('table')
 							->setHeaderClass('info')
 							->addHeader(
-								'<input type="checkbox" class="checkall">',
+								'',
 								array(
 									'class' => 'col-md-1 text-center'
 								)
