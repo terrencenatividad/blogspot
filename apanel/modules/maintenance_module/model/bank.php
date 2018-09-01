@@ -270,6 +270,16 @@
 			return $result;
 		}
 
+		public function check_duplicate_glcode($current){
+			$result = $this->db->setTable('bank')
+							->setFields('COUNT(accountno) count')
+							->setWhere(" gl_code = '$current'")
+							->runSelect()
+							->getResult();
+			return $result;
+		}
+
+
 		
 	}
 ?>

@@ -447,6 +447,46 @@
 
 			return $msg;
 		}
+
+		public function check_duplicate_gl_code(){
+			$old 	 = $this->input->post('old_gl_code');
+			$current 	 = $this->input->post('curr_gl_code');
+			$count 	 = 0;
+			if( $current!='' && $current != $old )
+			{
+				$result = $this->bank->check_duplicate_glcode($current);
+				$count = $result[0]->count;
+			}
+			
+			$msg   = "";
+
+			if( $count > 0 )
+			{	
+				$msg = "exists";
+			}
+
+			return $dataArray = array("msg" => $msg);
+		}
+
+		// private function check_duplicate(){
+		// 	$current = $this->input->post('curr_gl_code');
+		// 	$old 	 = $this->input->post('old_gl_code');
+		// 	$count 	 = 0;
+		// 	if( $current!='' && $current != $old )
+		// 	{
+		// 		$result = $this->bank->check_duplicate_glcode($current);
+		// 		$count = $result[0]->count;
+		// 	}
+			
+		// 	$msg   = "";
+
+		// 	if( $count > 0 )
+		// 	{	
+		// 		$msg = "exists";
+		// 	}
+
+		// 	return $dataArray = array("msg" => $msg);
+		// }
 		 
 
 	}

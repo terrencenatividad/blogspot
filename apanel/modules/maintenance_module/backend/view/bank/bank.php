@@ -12,6 +12,7 @@
             <form method = "post" id = "bankForm" class="form-horizontal">
 				<input type="hidden" name="id" id="id" value="<?=$id?>">	
 				<input type="hidden" name="h_accountno" id="h_accountno" value="<?=$accountno?>">	
+				<input type="hidden" name="old_gl_code" id="old_gl_code" value="<?=$old_gl_code?>">	
 				<div class = "col-md-12">&nbsp;</div>
 
 				<div class="row">
@@ -200,6 +201,31 @@ $('#bankForm #accountno').on('blur',function(){
 		{
 			error_message 	=	"<b>The Account Number you entered already exists!</b>";
 			$('#bankForm #accountno').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+		}
+		else if( ( ajax.curr_code != "" && data.msg == "") || (data.msg == '' && task == 'edit'))
+		{
+			if (form_group.find('p.help-block').html() != "") {
+				form_group.removeClass('has-error').find('p.help-block').html('');
+			}
+		}
+	});
+});
+
+$('#bankForm #gl_code').on('blur',function(){
+	
+	ajax.old_gl_code 	= 	$('#old_gl_code').val();
+	
+	ajax.curr_gl_code 	=	$(this).val();
+
+	var task 		=	'<?=$task?>';
+	var error_message 	=	'';	
+	var form_group	 	= 	$('#gl_code').closest('.form-group');
+
+	$.post('<?=BASE_URL?>maintenance/bank/ajax/check_duplicate_gl_code',ajax, function(data) {
+		if( data.msg == 'exists' )
+		{
+			error_message 	=	"<b>The GL Code you chose was being used by another bank</b>";
+			$('#bankForm #gl_code').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
 		}
 		else if( ( ajax.curr_code != "" && data.msg == "") || (data.msg == '' && task == 'edit'))
 		{
