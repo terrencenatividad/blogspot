@@ -94,10 +94,11 @@
 									'class' => 'col-md-1 text-center'
 								)
 							)
-							->addHeader('Account Number.',array('class'=>'col-md-3'),'sort','currencycode')
-							->addHeader('Book Number',array('class'=>'col-md-3'),'sort','currencycode')
-							->addHeader('Check Number', array('class'=>'col-md-3'),'sort','currency')
-							->addHeader('Next Check No', array('class'=>'col-md-3'),'sort','currency')
+							->addHeader('Account Number.',array(),'','currencycode')
+							->addHeader('Book Number',array(),'','currencycode')
+							->addHeader('Check Number', array(),'','currency')
+							->addHeader('Next Check No', array(),'','currency')
+							->addHeader('Status', array(),'','currency')
 							->draw();
 				?>
 			</thead>

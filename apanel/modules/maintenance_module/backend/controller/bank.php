@@ -297,6 +297,14 @@
 					$date = $entereddate[0];
 					$book_date = str_replace('-', '', $date);
 
+					if($row->stat == 'open'){
+						$check_stat = '<span class="label label-success">'.strtoupper('IN USE').'</span>';
+					}else if($row->stat == 'closed'){
+						$check_stat = '<span class="label label-default">'."CLOSED".'</span>';
+					} else {
+						$check_stat = '<span class="label label-warning">'."USED".'</span>';
+					}
+
 					$dropdown = $this->ui->loadElement('check_task')
 								->addOtherTask(
 									'Edit Check Series',
@@ -321,6 +329,7 @@
 					$table .= '<td id="booknumber">' . $book_date. ' - ' .$row->booknumber . '</td>';
 					$table .= '<td id="firstcheck">' . $row->firstchequeno. '-' .$row->lastchequeno. '</td>';
 					$table .= '<td>' . $row->nextchequeno. '</td>';
+					$table .= '<td>' . $check_stat. '</td>';
 					$table .= '</tr>';
 				}
 			else:
