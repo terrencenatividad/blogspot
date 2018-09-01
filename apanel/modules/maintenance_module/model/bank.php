@@ -156,7 +156,7 @@
 		public function checkListing($search="", $sort ,$limit, $id){
 			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (shortname LIKE '%$search%' OR bankcode LIKE '%$search%'  OR accountno LIKE '%$search%') " 	: 	"";
 
-			$fields 	=	array("b.accountno","bank_id","id","booknumber","firstchequeno","lastchequeno" ,"nextchequeno", "bd.entereddate", "bd.stat");
+			$fields 	=	array("b.accountno","bank_id","id","booknumber","firstchequeno","lastchequeno" ,"nextchequeno", "bd.entereddate", "bd.stat","shortname");
 
 			$result = $this->db->setTable('bankdetail bd')
 							->setFields($fields)

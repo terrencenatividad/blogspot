@@ -94,7 +94,8 @@
 									'class' => 'col-md-1 text-center'
 								)
 							)
-							->addHeader('Account Number.',array(),'','currencycode')
+							->addHeader('Bank Name',array(),'','currencycode')
+							->addHeader('Account Number',array(),'','currencycode')
 							->addHeader('Book Number',array(),'','currencycode')
 							->addHeader('Check Number', array(),'','currency')
 							->addHeader('Next Check No', array(),'','currency')

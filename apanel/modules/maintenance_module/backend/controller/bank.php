@@ -325,6 +325,7 @@
 								->draw();
 					$table .= '<tr>';
 					$table .= ' <td align = "center">' .$dropdown. '</td>';
+					$table .= '<td>' . $row->shortname . '</td>';
 					$table .= '<td>' . $row->accountno . '</td>';
 					$table .= '<td id="booknumber">' . $book_date. ' - ' .$row->booknumber . '</td>';
 					$table .= '<td id="firstcheck">' . $row->firstchequeno. '-' .$row->lastchequeno. '</td>';
