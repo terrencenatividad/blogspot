@@ -36,6 +36,20 @@
 				<div id="Monthly" class="tab-pane table-responsive scroll">
 					<table id="tableListMonthly" class="table table-hover table-striped table-sidepad report_table text-right">
 						<thead>
+							<tr>
+								<th style="col-xs-4"></th>
+								<?php if($period_start == '1'){ ?>
+
+								<?php } else { ?>
+									<th class="text-right"><?php echo $year - 1; ?></th>
+								<?php } ?>
+								
+								<?php foreach ($header_year as $year): ?>
+									<th class="text-right"><?php echo $year ?></th>
+								<?php endforeach ?>
+							</tr>
+						</thead>
+						<thead>
 							<tr class="info">
 								<th style="col-xs-4">Account</th>
 								<?php foreach ($header_monthly as $month): ?>

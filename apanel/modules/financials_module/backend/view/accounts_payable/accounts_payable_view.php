@@ -81,7 +81,7 @@
                                                 ->setList(
                                                     array(
                                                         "cash" => "Cash", 
-                                                        "cheque" => "Cheque",
+                                                        "cheque" => "Check",
                                                         "transfer" => "Bank Transfer"
                                                     ))
                                                 ->setValidation('required')
@@ -243,20 +243,20 @@
                             </span>
                             <span id="checkNumberError" class="text-danger hidden small">
                                 <i class="glyphicon glyphicon-exclamation-sign"></i> 
-                                The Cheque Number you entered has already been used<br/>
+                                The Check Number you entered has already been used<br/>
                             </span>
 
                             <div class="panel panel-default hidden" id="check_details">
                                 <div class="panel-heading">
-                                    <strong>Cheque Details</strong>
+                                    <strong>Check Details</strong>
                                 </div>
                                 <div class="table-responsive">
                                     <table class="table table-condensed table-bordered table-hover" id="chequeTable">
                                         <thead>
                                             <tr class="info">
                                                 <th class="col-md-3 text-center">Bank Account</th>
-                                                <th class="col-md-3 text-center">Cheque Number</th>
-                                                <th class="col-md-2 text-center">Cheque Date</th>
+                                                <th class="col-md-3 text-center">Check Number</th>
+                                                <th class="col-md-2 text-center">Check Date</th>
                                                 <th class="col-md-2 text-center">Currency Amount</th>
                                                 <!-- <th class="col-md-2 text-center">Converted Amount</th> -->
                                                 <th class="col-md-1 text-center">Action</th>

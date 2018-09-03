@@ -2748,10 +2748,10 @@ function loadCheques(i)
 
 		bootbox.dialog({
 			message: "Please select one of the option to proceed.",
-			title: "Print Cheque",
+			title: "Print Check",
 			buttons: {
 				check: {
-					label: "Cheque Only",
+					label: "Check Only",
 					className: "btn-primary btn-flat",
 					callback: function(result) {
 						var link 	 		= '<?= BASE_URL ?>financials/accounts_receivable/generateCheck/'+paymentvoucher+'/'+chequeno;
@@ -2760,7 +2760,7 @@ function loadCheques(i)
 				}
 			},
 			voucher: {
-				label: "Cheque with Voucher",
+				label: "Check with Voucher",
 				className: "btn-success btn-flat",
 				callback: function(result) {
 					var link 	 		= '<?= BASE_URL ?>financials/accounts_receivable/generateCheckVoucher/'+paymentvoucher+'/'+chequeno+'/rv';

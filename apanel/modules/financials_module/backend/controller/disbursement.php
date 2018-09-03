@@ -550,7 +550,7 @@ class controller extends wc_controller
 				->setPlaceholder('None')
 				->setName('paymentmode'.$row_count)
 				->setId('paymentmode'.$row_count)
-				->setList(array("cash" => "Cash", "cheque" => "Cheque"))
+				->setList(array("cash" => "Cash", "cheque" => "Check"))
 				->setValue($paymentmode)
 				->draw(true).
 				'</td>';
@@ -1264,9 +1264,9 @@ class controller extends wc_controller
 						$table	.= '<tr>';
 						$table	.= '<td></td>';
 						$table	.= '<td colspan="2" class="warning" ><strong>Bank Account</strong></td>';
-						$table	.= '<td class="warning" ><strong>Cheque Number</strong></td>';
-						$table	.= '<td class="warning" ><strong>Cheque Date</strong></td>';
-						$table	.= '<td class="warning" ><strong>Cheque Amount</strong></td>';
+						$table	.= '<td class="warning" ><strong>Check Number</strong></td>';
+						$table	.= '<td class="warning" ><strong>Check Date</strong></td>';
+						$table	.= '<td class="warning" ><strong>Check Amount</strong></td>';
 						$table	.= '</tr>';
 
 
@@ -1343,9 +1343,9 @@ class controller extends wc_controller
 					if($nextvno != $prevvno){
 						$csv .= '"",';
 						$csv .= '"Bank Account",';
-						$csv .= '"Cheque Number",';
-						$csv .= '"Cheque Date",';
-						$csv .= '"Cheque Amount",';
+						$csv .= '"Check Number",';
+						$csv .= '"Check Date",';
+						$csv .= '"Check Amount",';
 						$csv .= "\n";
 					}
 					$csv .= '"",';

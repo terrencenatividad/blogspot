@@ -201,14 +201,6 @@ class controller extends wc_controller {
 				
 				$dropdown = $this->ui->loadElement('check_task')
 									 ->addCheckbox($stat!='released')
-									 ->addOtherTask(
-										'Void',
-										'remove'
-									)
-									->addOtherTask(
-										'Cancel',
-										'ban-circle'
-									)
 									 ->setValue($transtype."-".$chequenumber)
 									 ->draw();
 				
