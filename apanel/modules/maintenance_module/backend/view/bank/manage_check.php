@@ -452,7 +452,10 @@ $('#check_container').on('click', '.manage_check', function(){
 $('#btnEdit').hide();
 $('#check_container').on('click', '.edit_check_series', function(){
 	ajax.id     =  $('#id').val();
-	ajax.bookno =  $(this).closest('tr').find('#booknumber').html();
+	bookno =  $(this).closest('tr').find('#start_check').html();
+	var result = bookno.split('-');
+	ajax.booknumber = result[0];
+	console
 		$.post('<?=BASE_URL?>maintenance/bank/ajax/edit_check', ajax ,  function(data){
 			if (data){
 				$('#checkForm #booknumber').val(data.booknumber);

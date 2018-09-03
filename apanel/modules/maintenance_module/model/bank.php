@@ -170,7 +170,7 @@
 		public function retrieveCheck($id, $bookno){
 			$result = $this->db->setTable('bankdetail')
 					->setFields('booknumber, firstchequeno,lastchequeno ')
-					->setWhere(" bank_id = '$id' AND booknumber = '$bookno'")
+					->setWhere(" bank_id = '$id' AND firstchequeno = '$bookno'")
 					->runSelect()
 					->getResult();
 			return $result;

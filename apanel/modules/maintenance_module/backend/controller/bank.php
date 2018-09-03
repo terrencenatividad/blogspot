@@ -346,7 +346,7 @@
 
 		public function edit_check(){
 			$id 		= $this->input->post("id");
-			$bookno 	= $this->input->post("bookno");
+			$bookno 	= $this->input->post("booknumber");
 			$data2		= (array) $this->bank->retrieveCheck($id, $bookno);
 			$booknumber 	= $data2[0]->booknumber; 
 			$firstchequeno 	= $data2[0]->firstchequeno; 
