@@ -20,6 +20,7 @@
 											->setName('proformacode')
 											->setId('proformacode')
 											->setValue($proformacode)
+											->setValidation('required')
 											->draw($task != "view");
 								}else{
 									echo $ui->formField('text')
@@ -46,6 +47,7 @@
 												->setId('financialtype')
 												->setList($financialtype_list)
 												->setValue($transactiontype)
+												->setValidation('required')
 												->draw($task != "view");
 							?>
 							</div>				
@@ -96,6 +98,7 @@
 												->setName('accountcodeid['.$row.']')
 												->setId('accountcodeid['.$row.']')
 												->setList($accountcodeoption_list)
+												->setValidation('required')
 												->draw($task != "view");
 										?>
 									</td>
@@ -441,8 +444,12 @@ function SelectAll(id)
 $(function(){
 	$('#proformaForm').submit(function(e) 
 	{
+		$('#proformaForm').find('.form-group').find('input, textarea, select').trigger('blur');
 		e.preventDefault();
 		var ajax_post = "<?=$ajax_post?>";
+		var form_group	 	= 	$('#proformaForm #proformaForm').closest('.form-group');
+		if ($('#proformaForm').find('.form-group.has-error').length == 0)
+		{
 		$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + ajax_post, function(response) 
 		{
 			if( response.msg == "success" ){
@@ -460,6 +467,11 @@ $(function(){
 									response.proforma_desc+ ". Proforma Code already exists.");
 			}
 		});
+		}else{
+			if (form_group.find('p.help-block').html() != "") {
+				form_group.removeClass('has-error').find('p.help-block').html('');
+				}
+		}
 	});
 
 	$('#btnExit').click(function() {
