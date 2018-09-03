@@ -300,7 +300,7 @@
 					if($row->stat == 'open'){
 						$check_stat = '<span class="label label-success">'.strtoupper('IN USE').'</span>';
 					}else if($row->stat == 'closed'){
-						$check_stat = '<span class="label label-default">'."CLOSED".'</span>';
+						$check_stat = '<span class="label label-default">'."NOT USED".'</span>';
 					} else {
 						$check_stat = '<span class="label label-warning">'."USED".'</span>';
 					}
@@ -449,7 +449,7 @@
 		}
 
 		public function set_check(){
-			$fno = $this->input->post('firstcheck');
+			$fno = $this->input->post('booknumber');
 			$fno = explode('-',$fno);
 			$first = $fno[0];
 			$bank = $this->input->post('id');

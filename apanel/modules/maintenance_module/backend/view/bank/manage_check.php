@@ -498,9 +498,11 @@ $('#check_container').on('click', '.delete_check_series', function(){
 });
 
 $('#check_container').on('click', '.set_as_default_check', function(){
-	var id     =  $('#id').val();
-
-	ajax.firstcheck =  $(this).closest('tr').find('#firstcheck').html();
+	// var id     =  $('#id').val();
+	ajax.id     =  $('#id').val();
+	bookno =  $(this).closest('tr').find('#start_check').html();
+	var result = bookno.split('-');
+	ajax.booknumber = result[0];
 		if( id != "" )
 		{
 			$("#set_modal").modal("show");
