@@ -203,6 +203,34 @@
 	</div>
 </div>
 
+<div id="modal_checker_on_range" class="modal">
+	<div class="modal-dialog" style = "width: 300px;">
+		<div class="modal-content">
+			<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title">Confirmation</h4>
+			</div>
+			<div class="modal-body">
+				<p>First check number cannot be greater than last check number!</p>
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 center">
+						<!-- <div class="btn-group">
+							<button type="button" class="btn btn-primary btn-flat" id="set_yes">Yes</button>
+						</div> -->
+						&nbsp;&nbsp;&nbsp;
+						<div class="btn-group text-center">
+							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Ok</button>
+						</div>
+					</div>
+				</div>
+			</div>	
+		</div>
+	</div>
+</div>
+
 
 <script>
 var ajax = {};
@@ -481,31 +509,22 @@ $('#check_container').on('click', '.set_as_default_check', function(){
 });
 
 $('#checkForm #firstchequeno, #lastchequeno').on('change' ,function(){
-	var first_number = $(this).val();
+	var first_number = $('#firstchequeno').val();
+	var end_number = $('#lastchequeno').val();
+	if (first_number != "" && end_number !="" ){
+		if (end_number < first_number){
+			$('#modal_checker_on_range').modal('show');
+		}
+	}
 	jQuery.each(bank_checks,function(ind,val){
 		var result = val.split('-');
 		var start = result[0];
 		var end = result[1];
-		if ( (start <= first_number && end >= first_number) || (start <= first_number && end >= first_number)){
+		if ( (start <= first_number && end >= first_number) || (start <= end_number && end >= end_number)){
 			$('#modal_checker').modal('show');
-		} 
+		}  
+		
 	});
 
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+})
 </script>
