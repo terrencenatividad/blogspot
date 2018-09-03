@@ -455,7 +455,6 @@ $('#check_container').on('click', '.edit_check_series', function(){
 	bookno =  $(this).closest('tr').find('#start_check').html();
 	var result = bookno.split('-');
 	ajax.booknumber = result[0];
-	console
 		$.post('<?=BASE_URL?>maintenance/bank/ajax/edit_check', ajax ,  function(data){
 			if (data){
 				$('#checkForm #booknumber').val(data.booknumber);
@@ -483,8 +482,10 @@ $('#checkForm #btnEdit').on('click',function(){
 });
 
 $('#check_container').on('click', '.delete_check_series', function(){
-	var id     =  $('#id').val();
-	ajax.bookno =  $(this).closest('tr').find('#booknumber').html();
+	ajax.id     =  $('#id').val();
+	bookno =  $(this).closest('tr').find('#start_check').html();
+	var result = bookno.split('-');
+	ajax.booknumber = result[0];
 		if( id != "" )
 		{
 			$(".delete-modal").modal("show");

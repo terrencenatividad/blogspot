@@ -242,8 +242,8 @@
 			return $result;
 		}
 
-		public function deleteCheck($id){
-			$condition 		= "booknumber = '$id'";
+		public function deleteCheck($posted_data, $id){
+			$condition 		= "firstchequeno = '$posted_data' AND bank_id = '$id'";
 			$result 		= $this->db->setTable('bankdetail')
 								->setWhere($condition)
 								->runDelete();

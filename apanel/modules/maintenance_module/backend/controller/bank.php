@@ -405,14 +405,14 @@
 		}
 
 		public function delete_check(){
-			$posted_data 	= $this->input->post('bookno');
+			$posted_data 	= $this->input->post('booknumber');
 			$id 			= $this->input->post('id');
 			
 			$bankdesc 		= $this->bank->getAccountname($id);
 			$isname 		= $bankdesc[0]->shortname;
 			$firstchequeno 	= $bankdesc[0]->firstchequeno;
 			$lastchequeno 	= $bankdesc[0]->lastchequeno;
-			$accntname 		= $this->bank->deleteCheck($posted_data);
+			$accntname 		= $this->bank->deleteCheck($posted_data, $id);
 
 			if( $accntname )
 			{
