@@ -328,7 +328,7 @@
 					$table .= '<td>' . $row->shortname . '</td>';
 					$table .= '<td>' . $row->accountno . '</td>';
 					$table .= '<td id="booknumber">' . $book_date. ' - ' .$row->booknumber . '</td>';
-					$table .= '<td id="firstcheck">' . $row->firstchequeno. '-' .$row->lastchequeno. '</td>';
+					$table .= '<td id="start_check" class="start_check" value="' . $row->firstchequeno. '-' .$row->lastchequeno. '">' . $row->firstchequeno. '-' .$row->lastchequeno. '</td>';
 					$table .= '<td>' . $row->nextchequeno. '</td>';
 					$table .= '<td>' . $check_stat. '</td>';
 					$table .= '</tr>';

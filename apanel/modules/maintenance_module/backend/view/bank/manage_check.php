@@ -37,6 +37,7 @@
 									->setLabel('First Check Number')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('firstchequeno')
+									->setClass('firstchequeno')
 									->setId('firstchequeno')
 									->setValidation('required num')
 									->setMaxLength(20)
@@ -51,6 +52,7 @@
 									->setLabel('Last Check Number')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('lastchequeno')
+									->setClass('lastchequeno')
 									->setId('lastchequeno')
 									->setValidation('required num')
 									->setMaxLength(20)
@@ -83,28 +85,41 @@
     </div>
 
 	<div class="box-body table table-responsive">
-		<table id = "bank_table" class="table table-hover">
+		<table id = "bank_check" class="table table-hover">
 			<thead>
 				<?php
-					echo $ui->loadElement('table')
-							->setHeaderClass('info')
-							->addHeader(
-								'',
-								array(
-									'class' => 'col-md-1 text-center'
-								)
-							)
-							->addHeader('Bank Name',array(),'','currencycode')
-							->addHeader('Account Number',array(),'','currencycode')
-							->addHeader('Book Number',array(),'','currencycode')
-							->addHeader('Check Number', array(),'','currency')
-							->addHeader('Next Check No', array(),'','currency')
-							->addHeader('Status', array(),'','currency')
-							->draw();
+					// echo $ui->loadElement('table')
+					// 		->setHeaderClass('info')
+					// 		->addHeader(
+					// 			'',
+					// 			array(
+					// 				'class' => 'col-md-1 text-center'
+					// 			)
+					// 		)
+					// 		->addHeader('Bank Name',array(),'','currencycode')
+					// 		->addHeader('Account Number',array(),'','currencycode')
+					// 		->addHeader('Book Number',array(),'','currencycode')
+					// 		->addHeader('Check Number', array(),'','currency')
+					// 		->addHeader('Next Check No', array(),'','currency')
+					// 		->addHeader('Status', array(),'','currency')
+					// 		->draw();
 				?>
+
+				<thead>
+					<tr class="info">
+						<th ></th>
+						<th >Bank Name</th>
+						<th >Account Number</th>
+						<th >Book Number</th>
+						<th >Check Number</th>
+						<th >Next Check No</th>
+						<th >Status</th>
+					</tr>
+				</thead>
 			</thead>
 			
-			<tbody id = "list_container">
+			<tbody id = "check_container">
+
 			</tbody>
 
 		</table>
@@ -159,6 +174,35 @@
 		</div>
 	</div>
 </div>
+
+<div id="modal_checker" class="modal">
+	<div class="modal-dialog" style = "width: 300px;">
+		<div class="modal-content">
+			<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title">Confirmation</h4>
+			</div>
+			<div class="modal-body">
+				<p>Number entered is within the series of existing checks</p>
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 center">
+						<!-- <div class="btn-group">
+							<button type="button" class="btn btn-primary btn-flat" id="set_yes">Yes</button>
+						</div> -->
+						&nbsp;&nbsp;&nbsp;
+						<div class="btn-group text-center">
+							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Ok</button>
+						</div>
+					</div>
+				</div>
+			</div>	
+		</div>
+	</div>
+</div>
+
 
 <script>
 var ajax = {};
@@ -216,16 +260,33 @@ function show_error(msg)
 	$("#errmsg").html(msg);
 }
 
+var bank_checks = [];
+
 function showList(){
 	ajax.id = $('#id').val();
 	$.post('<?=BASE_URL?>maintenance/bank/ajax/check_list', ajax, function(data)
 	{
-		$('#bank_table #list_container').html(data.table);
+		$('#bank_check #check_container').html(data.table);
         $('#pagination').html(data.pagination);
 		if (ajax.page > data.page_limit && data.page_limit > 0) {
 			ajax.page = data.page_limit;
 			getList();
 		}
+
+
+		$('#bank_check tbody tr').each(function() {
+			// console.log($(this));
+			var start_check 	= $(this).find('.start_check').html();
+			bank_checks.push(start_check);
+ 			// var result = $(row).text().split('|');
+			// alert( result[2] );
+			// alert('start_check');
+			// var start_check 	= $(this).find('. ').html();
+			// console.log(start_check);
+		});
+
+		
+
 	});
 };
 
@@ -243,9 +304,8 @@ $('#pagination').on('click', 'a', function(e) {
 
 $(document).ready(function() 
 {
-	showList();
 
-	$( "#bank_table" ).on('click' , '.delete', function() 
+	$( "#bank_check" ).on('click' , '.delete', function() 
 	{
 		var id = $( this ).attr("data-id");
 		
@@ -335,13 +395,13 @@ function ajaxCallback(id) {
 }
 
 $(function() {
-	linkButtonToTable('#item_multiple_delete', '#bank_table');
-	linkDeleteToModal('#bank_table .delete_check_series', 'ajaxCallback');
-	linkDeleteMultipleToModal('#item_multiple_delete', '#bank_table', 'ajaxCallback');
+	linkButtonToTable('#item_multiple_delete', '#bank_check');
+	linkDeleteToModal('#bank_check .delete_check_series', 'ajaxCallback');
+	linkDeleteMultipleToModal('#item_multiple_delete', '#bank_check', 'ajaxCallback');
 });
 
 // Sorting Script
-tableSort('#bank_table', function(value) {
+tableSort('#bank_check', function(value) {
   ajax.sort = value;
   ajax.page = 1;
   showList();
@@ -356,13 +416,13 @@ $('#items').on('change', function(){
 	showList();
 });
 
-$('#list_container').on('click', '.manage_check', function(){
+$('#check_container').on('click', '.manage_check', function(){
 	var id = $(this).attr('data-id');
 	window.location = '<?=MODULE_URL?>manage_check/' + id;
 });
 
 $('#btnEdit').hide();
-$('#list_container').on('click', '.edit_check_series', function(){
+$('#check_container').on('click', '.edit_check_series', function(){
 	ajax.id     =  $('#id').val();
 	ajax.bookno =  $(this).closest('tr').find('#booknumber').html();
 		$.post('<?=BASE_URL?>maintenance/bank/ajax/edit_check', ajax ,  function(data){
@@ -391,7 +451,7 @@ $('#checkForm #btnEdit').on('click',function(){
 	}
 });
 
-$('#list_container').on('click', '.delete_check_series', function(){
+$('#check_container').on('click', '.delete_check_series', function(){
 	var id     =  $('#id').val();
 	ajax.bookno =  $(this).closest('tr').find('#booknumber').html();
 		if( id != "" )
@@ -405,7 +465,7 @@ $('#list_container').on('click', '.delete_check_series', function(){
 		}
 });
 
-$('#list_container').on('click', '.set_as_default_check', function(){
+$('#check_container').on('click', '.set_as_default_check', function(){
 	var id     =  $('#id').val();
 
 	ajax.firstcheck =  $(this).closest('tr').find('#firstcheck').html();
@@ -419,6 +479,25 @@ $('#list_container').on('click', '.set_as_default_check', function(){
 			});
 		}
 });
+
+$('#checkForm #firstchequeno, #lastchequeno').on('change' ,function(){
+	var first_number = $(this).val();
+	jQuery.each(bank_checks,function(ind,val){
+		var result = val.split('-');
+		var start = result[0];
+		var end = result[1];
+		if ( (start <= first_number && end >= first_number) || (start <= first_number && end >= first_number)){
+			$('#modal_checker').modal('show');
+		} 
+	});
+
+});
+
+
+
+
+
+
 
 
 
