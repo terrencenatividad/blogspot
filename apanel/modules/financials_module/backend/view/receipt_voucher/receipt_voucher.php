@@ -76,7 +76,7 @@
 								->setName('paymentmode')
 								->setId('paymentmode')
 								->addHidden(($task == 'view'))
-								->setList(array("cash" => "Cash", "cheque" => "Cheque"))
+								->setList(array("cash" => "Cash", "cheque" => "Check"))
 								->setAttribute(
 									array(
 										"onChange" => "toggleCheckInfo(this.value); validateField('payableForm',this.id, 'paymentmode_help');"
@@ -187,7 +187,7 @@
 			<div class="has-error">
 				<span id="chequeCountError" class="help-block hidden small">
 					<i class="glyphicon glyphicon-exclamation-sign"></i> 
-					Please specify at least one(1) cheque.
+					Please specify at least one(1) check.
 				</span>
 				<span id="chequeAmountError" class="help-block hidden small">
 					<i class="glyphicon glyphicon-exclamation-sign"></i> 
@@ -199,12 +199,12 @@
 				</span>
 				<span id="checkNumberError" class="help-block hidden">
 					<i class="glyphicon glyphicon-exclamation-sign"></i> 
-					The Cheque Number you entered has already been used
+					The Check Number you entered has already been used
 				</span>
 			</div>
 			<div class="panel panel-default <?php echo $show_cheques?>" id="cheque_details">
 				<div class="panel-heading">
-					<strong>Cheque Details</strong>
+					<strong>Check Details</strong>
 				</div>
 				<div class="table-responsive">
 					<table class="table table-condensed table-bordered table-hover" id="chequeTable">
@@ -212,8 +212,8 @@
 							<tr class="info">
 								<th class="col-md-2">Deposit To</th>
 								<th class="col-md-2">Bank</th>
-								<th class="col-md-2">Cheque Number</th>
-								<th class="col-md-2">Cheque Date</th>
+								<th class="col-md-2">Check Number</th>
+								<th class="col-md-2">Check Date</th>
 								<th class="col-md-2">Amount</th>
 								<?if($show_input):?><th class="col-md-1">Action</th><?endif;?>
 							</tr>
@@ -406,7 +406,7 @@
 						<tr>
 							<? if($show_input):?>
 								<td colspan="3">
-									<a type="button" class="btn btn-link add-cheque"  style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Cheque</a>
+									<a type="button" class="btn btn-link add-cheque"  style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Check</a>
 								</td>
 								<td class="text-right"><label class="control-label">Total</label></td>
 								<td class="text-right">
@@ -1943,7 +1943,7 @@ function toggleCheckInfo(val){
 		}else{
 			
 			var list 	= (customer != '') ? "<ul><li>Total Receivables</li></ul>" : "<ul><li>Vendor</li><li>Total Receivables</li></ul>";
-			var msg 	= "The following fields are required to process a '<strong>Cheque</strong>' payment."+list;
+			var msg 	= "The following fields are required to process a '<strong>Check</strong>' payment."+list;
 			bootbox.dialog({
 				message: msg,
 				title: "Oops!",
@@ -1993,10 +1993,10 @@ function confirmChequePrint(row){
 
 	bootbox.dialog({
 		message: "Please select one of the option to proceed.",
-		title: "Print Cheque",
+		title: "Print Check",
 		buttons: {
 			check: {
-				label: "Cheque Only",
+				label: "Check Only",
 				className: "btn-primary btn-flat",
 				callback: function(result) {
 					var link 	 		= '<?= BASE_URL ?>financials/receipt_voucher/generateCheck/'+paymentvoucher+'/'+chequeno;
@@ -2005,7 +2005,7 @@ function confirmChequePrint(row){
 				}
 			},
 			voucher: {
-				label: "Cheque with Voucher",
+				label: "Check with Voucher",
 				className: "btn-success btn-flat",
 				callback: function(result) {
 					var link 	 		= '<?= BASE_URL ?>financials/receipt_voucher/generateCheckVoucher/'+paymentvoucher+'/'+chequeno+'/rv';

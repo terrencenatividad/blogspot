@@ -12,7 +12,7 @@ class controller extends wc_controller {
 	}
 
 	public function view() {
-		$this->view->title = 'Cheque for Deposit List';
+		$this->view->title = 'Check for Deposit List';
 		$data['ui'] = $this->ui;
 		
 		$this->report_model = new report_model;
@@ -198,7 +198,7 @@ class controller extends wc_controller {
 		$header = array("Check Date","Customer","Bank","Check Number","Amount"); 
 	
 		$csv 	= '';
-		$csv 	.= 'Cheque for Deposit List';
+		$csv 	.= 'Check for Deposit List';
 		$csv 	.= "\n\n";
 		$csv 	.= '"Date:","'.$strdate.'"';
 		$csv 	.= "\n\n";

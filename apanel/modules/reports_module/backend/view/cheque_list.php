@@ -27,7 +27,7 @@
 							</div>
 							<div class = "col-md-9"></div>
 							<div clss = "col-md-1">
-								<a href="" id="export_csv" download="Cheque List.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
+								<a href="" id="export_csv" download="Check List.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 							</div>
 						</div>
 					</div>

@@ -169,9 +169,9 @@
 						<?php
 							echo $ui->loadElement('table')
 									->setHeaderClass('info')
-									->addHeader('Cheque Date', array('class' => 'col-md-4'))
+									->addHeader('Check Date', array('class' => 'col-md-4'))
 									->addHeader('Account Nature', array('class' => 'col-md-4'))
-									->addHeader('Cheque Number', array('class' => 'col-md-2'))
+									->addHeader('Check Number', array('class' => 'col-md-2'))
 									->addHeader('Amount', array('class' => 'col-md-2 text-right'))
 									->addHeader('', array('style' => 'width: 15px'))
 									->draw();
@@ -189,7 +189,7 @@
 									->addHeader('Document Date', array('class' => 'col-md-3'))
 									->addHeader('Voucher Number', array('class' => 'col-md-3'))
 									->addHeader('Account Nature', array('class' => 'col-md-3'))
-									->addHeader('Cheque Number', array('class' => 'col-md-2'))
+									->addHeader('Check Number', array('class' => 'col-md-2'))
 									->addHeader('Amount', array('class' => 'col-md-2 text-right'))
 									->addHeader('', array('style' => 'width: 15px'))
 									->draw();
@@ -211,12 +211,12 @@
 							echo $ui->loadElement('table')
 									->setHeaderClass('info')
 									->addHeader('Transaction Date', array('class' => 'col-md-2 bg-teal-active'))
-									->addHeader('Cheque Number', array('class' => 'col-md-2 bg-teal-active'))
+									->addHeader('Check Number', array('class' => 'col-md-2 bg-teal-active'))
 									->addHeader('Amount', array('class' => 'col-md-2 bg-teal-active text-right'))
 									->addHeader('', array('class' => 'bg-teal-active'))
 									->addHeader('', array('class' => 'bg-gray-active'))
 									->addHeader('Transaction Date', array('class' => 'col-md-2 bg-gray-active'))
-									->addHeader('Cheque Number', array('class' => 'col-md-2 bg-gray-active'))
+									->addHeader('Check Number', array('class' => 'col-md-2 bg-gray-active'))
 									->addHeader('Amount', array('class' => 'col-md-2 bg-gray-active text-right'))
 									->draw();
 						?>
@@ -245,12 +245,12 @@
 						echo $ui->loadElement('table')
 								->setHeaderClass('info')
 								->addHeader('Transaction Date', array('class' => 'col-md-2 bg-teal-active'))
-								->addHeader('Cheque Number', array('class' => 'col-md-2 bg-teal-active'))
+								->addHeader('Check Number', array('class' => 'col-md-2 bg-teal-active'))
 								->addHeader('Amount', array('class' => 'col-md-2 bg-teal-active text-right'))
 								->addHeader('', array('class' => 'bg-teal-active'))
 								->addHeader('', array('class' => 'bg-gray-active'))
 								->addHeader('Transaction Date', array('class' => 'col-md-2 bg-gray-active'))
-								->addHeader('Cheque Number', array('class' => 'col-md-2 bg-gray-active'))
+								->addHeader('Check Number', array('class' => 'col-md-2 bg-gray-active'))
 								->addHeader('Amount', array('class' => 'col-md-2 bg-gray-active text-right'))
 								->draw();
 					?>
@@ -276,7 +276,7 @@
 									->setHeaderClass('info')
 									->addHeader('Document Date', array('class' => 'col-md-3'))
 									->addHeader('Voucher Number', array('class' => 'col-md-4'))
-									->addHeader('Cheque Number', array('class' => 'col-md-3'))
+									->addHeader('Check Number', array('class' => 'col-md-3'))
 									->addHeader('Amount', array('class' => 'col-md-2 text-right'))
 									->addHeader('', array('style' => 'width: 15px'))
 									->draw();
@@ -306,7 +306,7 @@
 									->setHeaderClass('info')
 									->addHeader('Document Date', array('class' => 'col-md-3'))
 									->addHeader('Voucher Number', array('class' => 'col-md-4'))
-									->addHeader('Cheque Number', array('class' => 'col-md-3'))
+									->addHeader('Check Number', array('class' => 'col-md-3'))
 									->addHeader('Amount', array('class' => 'col-md-2 text-right'))
 									->addHeader('', array('style' => 'width: 15px'))
 									->draw();
@@ -335,7 +335,7 @@
 							echo $ui->loadElement('table')
 									->setHeaderClass('info')
 									->addHeader('Transaction Date', array('class' => 'col-md-4'))
-									->addHeader('Cheque Number', array('class' => 'col-md-3'))
+									->addHeader('Check Number', array('class' => 'col-md-3'))
 									->addHeader('Voucherno', array('class' => 'col-md-2'))
 									->addHeader('Amount', array('class' => 'col-md-3 text-right'))
 									->addHeader('', array('style' => 'width: 15px'))
@@ -551,7 +551,7 @@
 			if (nature == 'Income') {
 				button = '<button type="button" class="btn btn-primary btn-sm system_income" data-id="' + voucherno + '">Tag as Deposit in Transit</button>';
 			} else if (nature == 'Expense') {
-				button = '<button type="button" class="btn btn-primary btn-sm system_expense" data-id="' + voucherno + '">Tag as Outstanding Cheque</button>';
+				button = '<button type="button" class="btn btn-primary btn-sm system_expense" data-id="' + voucherno + '">Tag as Outstanding Check</button>';
 			}
 			$('#system_match_modal #tag_button').html('');
 			$.post('<?php echo MODULE_URL ?>ajax/ajax_get_formatching2', { voucherno: voucherno, recon_id: '<?php echo $recon_id ?>' }, function(data) {
