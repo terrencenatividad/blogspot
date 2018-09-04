@@ -200,26 +200,26 @@ class controller extends wc_controller {
 				$prev_date			=	$chequedate;
 				
 				$dropdown = $this->ui->loadElement('check_task')
-									 ->addCheckbox($stat!='released')
+									 ->addCheckbox($stat!='released' && $stat!='cancelled' && $stat!='void')
 									 ->setValue($transtype."-".$chequenumber)
 									 ->draw();
 				
 				$status_display 	=	"";
 
 				if( $stat == 'uncleared' ){
-					$status_display =	'<span class="label label-warning">'.strtoupper("prepared").'</span>';
+					$status_display =	'<span class="label label-primary">'.strtoupper("prepared").'</span>';
 				}
 				else if( $stat == 'released' ){
 					$status_display =	'<span class="label label-info">'.strtoupper($stat).'</span>';
 				}
 				else if( $stat == 'cleared' ){
-					$status_display =	'<span class="label label-info">'.strtoupper($stat).'</span>';
+					$status_display =	'<span class="label label-success">'.strtoupper($stat).'</span>';
 				}
 				else if( $stat == 'void' ){
-					$status_display =	'<span class="label label-danger">'.strtoupper($stat).'</span>';
+					$status_display =	'<span class="label label-warning">'.strtoupper($stat).'</span>';
 				}
 				else if( $stat == 'cancelled' ){
-					$status_display =	'<span class="label label-warning">'.strtoupper($stat).'</span>';
+					$status_display =	'<span class="label label-danger">'.strtoupper($stat).'</span>';
 				}
 				
 				$table .= '<tr>';

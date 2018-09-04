@@ -132,15 +132,15 @@
 						<strong>Check Details</strong>
 					</div>
 					<div class="has-error">
-						<span id="chequeCountError" class="help-block hidden small col-md-offset-1">
+						<span id="chequeCountError" class="help-block hidden small">
 							<i class="glyphicon glyphicon-exclamation-sign"></i> 
 							Please specify at least one(1) cheque.
 						</span>
-						<span id="chequeAmountError" class="help-block hidden small col-md-offset-1">
+						<span id="chequeAmountError" class="help-block hidden small">
 							<i class="glyphicon glyphicon-exclamation-sign"></i> 
 							Please complete the fields on the highlighted row(s).
 						</span>
-						<span id="paymentAmountError" class="help-block hidden small col-md-offset-1">
+						<span id="paymentAmountError" class="help-block hidden small">
 							<i class="glyphicon glyphicon-exclamation-sign"></i> 
 							Please make sure that the total payment applied (<strong id="disp_tot_payment">0</strong>) should be equal to (<strong id="disp_tot_cheque">0</strong>).
 						</span>

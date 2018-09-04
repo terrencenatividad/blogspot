@@ -244,7 +244,7 @@ $('body').on('click', 'a[data-toggle="back_page"]', function(e) {
 	e.preventDefault();
 	$('#cancelModal').modal('show');
 	var url = '#';
-	if (document.referrer) {
+	if (document.referrer && document.referrer != ($(this).attr('href') + 'create')) {
 		url = document.referrer;
 	} else {
 		url = $(this).attr('href');
