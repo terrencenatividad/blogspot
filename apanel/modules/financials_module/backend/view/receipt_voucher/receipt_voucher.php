@@ -1297,6 +1297,17 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 			}	
 		});
 	}
+	function computefortotalaccounts(){
+		var count 	=	0;
+		$('#entriesTable tbody tr select.accountcode').each(function() {
+			var accountcode = $(this).val();
+			console.log(" ACCOUNTS = "+accountcode);
+			if(accountcode != "" && accountcode != undefined){
+				count++;
+			} 
+		});
+		return count;
+	}
 	function recomputechequeamts(){
 		checker = [];
 		$('#chequeTable .cheque_account').each(function() {
@@ -1979,6 +1990,7 @@ function clearPayment(){
 	var today	= moment().format("MMM D, YYYY");
 
 	clearInput("total_payment");
+	clearInput("total_discount");
 
 	$("#payableForm #paymentdate").val('<?= $transactiondate ?>');
 	$("#payableForm #paymentmode").val('cash');
@@ -3892,9 +3904,13 @@ $(document).ready(function() {
 	});
 
 	$('#customer').on('change',function(){
-		if ($('.accountcode').val()	 != '' || $('.cheque_account').val()	 != '' ) {
+		var accounts_selected 	= computefortotalaccounts();
+		var total_payment 		= $('#total_payment').val();
+		var total_discount 		= $('#total_discount').val();
+
+		if(accounts_selected > 0){
 			$('#change_customer_modal').modal('show');
-		} 
+		}
 		// Get Customer Credit
 		var customer = $(this).value;
 
