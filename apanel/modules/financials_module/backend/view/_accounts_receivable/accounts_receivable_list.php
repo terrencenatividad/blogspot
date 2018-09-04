@@ -325,7 +325,7 @@
 											->setClass("input-sm payment_mode")
 											->setName('paymentmode')
 											->setId('paymentmode')
-											->setList(array("cash" => "Cash", "cheque" => "Cheque"))
+											->setList(array("cash" => "Cash", "cheque" => "Check"))
 											->setValue("")
 											->draw(true);
 								?>
@@ -378,7 +378,7 @@
 											->setClass("input-sm")
 											->setName('paymentreference')
 											->setId('paymentreference')
-											->setPlaceHolder("Cheque/Reference No")
+											->setPlaceHolder("Check/Reference No")
 											->setAttribute(array("maxlength" => "50"))
 											->setValue("")
 											->draw(true);
@@ -432,8 +432,8 @@
 									<thead>
 										<tr class="info">
 											<th class="col-md-2 text-center">Bank Account</th>
-											<th class="col-md-2 text-center">Cheque Number</th>
-											<th class="col-md-2 text-center">Cheque Date</th>
+											<th class="col-md-2 text-center">Check Number</th>
+											<th class="col-md-2 text-center">Check Date</th>
 											<th class="col-md-2 text-center">Amount</th>
 											<th class="col-md-1 text-center"></th>
 										</tr>

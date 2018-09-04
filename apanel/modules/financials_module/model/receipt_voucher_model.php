@@ -895,7 +895,7 @@ class receipt_voucher_model extends wc_model
 
 				if(!$insertResult){
 					$code 		= 0;
-					$errmsg[] = "<li>Error in Saving in Cheque Details.</li>";
+					$errmsg[] = "<li>Error in Saving in Check Details.</li>";
 				}
 			}
 		}

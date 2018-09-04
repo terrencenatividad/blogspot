@@ -156,7 +156,7 @@
 		public function checkListing($search="", $sort ,$limit, $id){
 			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (shortname LIKE '%$search%' OR bankcode LIKE '%$search%'  OR accountno LIKE '%$search%') " 	: 	"";
 
-			$fields 	=	array("b.accountno","bank_id","id","booknumber","firstchequeno","lastchequeno" ,"nextchequeno");
+			$fields 	=	array("b.accountno","bank_id","id","booknumber","firstchequeno","lastchequeno" ,"nextchequeno", "bd.entereddate", "bd.stat","shortname");
 
 			$result = $this->db->setTable('bankdetail bd')
 							->setFields($fields)
@@ -170,7 +170,7 @@
 		public function retrieveCheck($id, $bookno){
 			$result = $this->db->setTable('bankdetail')
 					->setFields('booknumber, firstchequeno,lastchequeno ')
-					->setWhere(" bank_id = '$id' AND booknumber = '$bookno'")
+					->setWhere(" bank_id = '$id' AND firstchequeno = '$bookno'")
 					->runSelect()
 					->getResult();
 			return $result;
@@ -242,8 +242,8 @@
 			return $result;
 		}
 
-		public function deleteCheck($id){
-			$condition 		= "booknumber = '$id'";
+		public function deleteCheck($posted_data, $id){
+			$condition 		= "firstchequeno = '$posted_data' AND bank_id = '$id'";
 			$result 		= $this->db->setTable('bankdetail')
 								->setWhere($condition)
 								->runDelete();
@@ -269,6 +269,16 @@
 											  ->runUpdate();
 			return $result;
 		}
+
+		public function check_duplicate_glcode($current){
+			$result = $this->db->setTable('bank')
+							->setFields('COUNT(accountno) count')
+							->setWhere(" gl_code = '$current'")
+							->runSelect()
+							->getResult();
+			return $result;
+		}
+
 
 		
 	}
