@@ -14,13 +14,13 @@
 								?>
 								<?php echo $ui->setElement("button")
 										->setId("void")
-										->setClass("btn btn-danger ")
+										->setClass("btn btn-warning ")
 										->setPlaceholder('<i class="glyphicon glyphicon-remove"></i>  Void <span></span>')
 										->draw();
 								?>
 								<?php echo $ui->setElement("button")
 										->setId("cancel")
-										->setClass("btn btn-warning ")
+										->setClass("btn btn-danger ")
 										->setPlaceholder('<i class="glyphicon glyphicon-ban-circle"></i>  Cancel <span></span>')
 										->draw();
 								?>
