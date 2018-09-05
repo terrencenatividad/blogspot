@@ -65,7 +65,7 @@ class backend {
 			$type = 'mod_close';
 		} 
 		$result		= $db->setTable(PRE_TABLE . '_module_access wma')
-							->setFields('mod_add, mod_view, mod_edit, mod_delete, mod_list, mod_print, mod_post, mod_unpost')
+							->setFields('mod_add, mod_view, mod_edit, mod_delete, mod_list, mod_print, mod_post, mod_unpost, mod_close')
 							->leftJoin(PRE_TABLE . '_user_group wug ON wug.groupname = wma.groupname')
 							->setWhere("wma.groupname = '" . GROUPNAME . "' AND wma.module_name = '$module_name' AND wug.status = 'active'")
 							->runSelect()
