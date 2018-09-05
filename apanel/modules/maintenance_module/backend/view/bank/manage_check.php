@@ -217,13 +217,13 @@
 			<div class="modal-footer">
 				<div class="row row-dense">
 					<div class="col-md-12 center">
-						<!-- <div class="btn-group">
-							<button type="button" class="btn btn-primary btn-flat" id="set_yes">Yes</button>
-						</div> -->
-						&nbsp;&nbsp;&nbsp;
-						<div class="btn-group text-center">
-							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Ok</button>
+						<div class="btn-group">
+							<button type="button" class="btn btn-primary btn-flat" id="clear_checks" data-dismiss="modal">Ok</button>
 						</div>
+						&nbsp;&nbsp;&nbsp;
+						<!-- <div class="btn-group text-center">
+							<button type="button"  class="btn btn-default btn-flat" data-dismiss="modal">Ok</button>
+						</div> -->
 					</div>
 				</div>
 			</div>	
@@ -514,7 +514,7 @@ $('#check_container').on('click', '.set_as_default_check', function(){
 		}
 });
 
-$('#checkForm #firstchequeno, #lastchequeno').on('change' ,function(){
+$('#checkForm #firstchequeno, #lastchequeno').on('blur' ,function(){
 	var first_number = $('#firstchequeno').val();
 	var end_number = $('#lastchequeno').val();
 	if (first_number != "" && end_number !="" ){
@@ -533,4 +533,8 @@ $('#checkForm #firstchequeno, #lastchequeno').on('change' ,function(){
 	});
 
 })
+
+$('#clear_checks').on('click', function(){
+	$('#checkForm').trigger("reset");
+}) 
 </script>
