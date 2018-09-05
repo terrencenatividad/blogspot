@@ -300,17 +300,11 @@ function showList(){
 			ajax.page = data.page_limit;
 			getList();
 		}
-
-
 		$('#bank_check tbody tr').each(function() {
-			// console.log($(this));
 			var start_check 	= $(this).find('.start_check').html();
-			bank_checks.push(start_check);
- 			// var result = $(row).text().split('|');
-			// alert( result[2] );
-			// alert('start_check');
-			// var start_check 	= $(this).find('. ').html();
-			// console.log(start_check);
+			if (start_check) {
+				bank_checks.push(start_check);
+			}
 		});
 
 		
@@ -522,6 +516,8 @@ $('#checkForm #firstchequeno, #lastchequeno').on('blur' ,function(){
 			$('#modal_checker_on_range').modal('show');
 		}
 	}
+
+	
 	jQuery.each(bank_checks,function(ind,val){
 		var result = val.split('-');
 		var start = result[0];
@@ -529,9 +525,12 @@ $('#checkForm #firstchequeno, #lastchequeno').on('blur' ,function(){
 		if ( (start <= first_number && end >= first_number) || (start <= end_number && end >= end_number)){
 			$('#modal_checker').modal('show');
 		}  
-		
-	});
+    })
+	
+	
 
+
+	
 })
 
 $('#clear_checks').on('click', function(){
