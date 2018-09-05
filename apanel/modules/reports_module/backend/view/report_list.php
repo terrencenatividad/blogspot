@@ -184,6 +184,10 @@
 								<h4 class="list-group-item-heading">Purchase Journal</h4>
 								<p class="list-group-item-text">Report for the recording of the purchase on credit from suppliers (supplier payables)</p>
 							</a>
+							<a href="vat_summary" class="list-group-item">
+								<h4 class="list-group-item-heading">VAT Summary</h4>
+								<p class="list-group-item-text">Summary of sales and purchase taxes</p>
+							</a>
 							<!-- <a href="" class="list-group-item">
 								<h4 class="list-group-item-heading">Receipt Journal</h4>
 								<p class="list-group-item-text">Report for the recording of sales and/or receivables</p>
@@ -194,37 +198,41 @@
 							</a> -->
 						</div>
 						<div class="list-group">
-							<!-- <a href="&amp;form_type=2550M" class="list-group-item">
+							<!-- <a href="0605" class="list-group-item">
+								<h4 class="list-group-item-heading">BIR Form 0605</h4>
+								<p class="list-group-item-text">Payment Form </p>
+							</a> -->
+							<a href="2550M" class="list-group-item">
 								<h4 class="list-group-item-heading">BIR Form 2550M</h4>
 								<p class="list-group-item-text">Monthly Value Added Tax (VAT) Declaration </p>
 							</a>
-							<a href="&amp;form_type=2550Q" class="list-group-item">
+							<a href="2550Q" class="list-group-item">
 								<h4 class="list-group-item-heading">BIR Form 2550Q</h4>
 								<p class="list-group-item-text">Quarterly Value Added Tax (VAT) Declaration </p>
 							</a>
-							<a href="&amp;form_type=2551M" class="list-group-item">
+							<!-- <a href="2551M" class="list-group-item">
 								<h4 class="list-group-item-heading">BIR Form 2551M</h4>
 								<p class="list-group-item-text">Monthly Percentage Tax Return</p>
-							</a>
-							<a href="&amp;form_type=2551Q" class="list-group-item">
+							</a> -->
+							<a href="2551Q" class="list-group-item">
 								<h4 class="list-group-item-heading">BIR Form 2551Q</h4>
 								<p class="list-group-item-text">Quarterly Percentage Tax Return</p>
 							</a>
-							<a href="&amp;form_type=1601E" class="list-group-item">
-								<h4 class="list-group-item-heading">BIR Form 1601E</h4>
-								<p class="list-group-item-text">Monthly Remittance Return of Creditable Income Taxes Withheld Expanded</p>
-							</a> -->
-							<!-- <a href="" class="list-group-item">
+							<a href="1601E" class="list-group-item">
+								<h4 class="list-group-item-heading">BIR Form 0619-E</h4>
+								<p class="list-group-item-text">Monthly Remittance Return of Creditable Income Taxes Withheld (Expanded)</p>
+							</a>
+							<a href="1601EQ" class="list-group-item">
+								<h4 class="list-group-item-heading">BIR Form 1601-EQ</h4>
+								<p class="list-group-item-text">Quarterly Remittance Return of Creditable Income Taxes Withheld (Expanded)</p>
+							</a>
+							<a href="sales_relief" class="list-group-item">
 								<h4 class="list-group-item-heading">Sales Relief</h4>
 								<p class="list-group-item-text">Summary list of sales</p>
 							</a>
-							<a href="" class="list-group-item">
+							<a href="purchase_relief" class="list-group-item">
 								<h4 class="list-group-item-heading">Purchase Relief</h4>
 								<p class="list-group-item-text">Summary list of purchases</p>
-							</a> -->
-							<a href="vat_summary" class="list-group-item">
-								<h4 class="list-group-item-heading">VAT Summary</h4>
-								<p class="list-group-item-text">Summary of sales and purchase taxes</p>
 							</a>
 						</div>
 					</div>
@@ -246,8 +254,6 @@
 						</div>
 					</div>
 				</div>
-
-							
 			</div>
 		</div>
 	</section>

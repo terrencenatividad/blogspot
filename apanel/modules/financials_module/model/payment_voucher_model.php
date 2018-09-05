@@ -1619,10 +1619,10 @@ class payment_voucher_model extends wc_model
 		return $result ;
 	}
 
-	public function getbankbook($bank){
+	public function getbankbook($bank, $book_ids){
 		$result = $this->db->setTable("bankdetail")
 								->setFields("booknumber, firstchequeno, lastchequeno, nextchequeno")
-								->setWhere("bank_id = '$bank' AND stat = 'closed' ")
+								->setWhere("bank_id = '$bank' AND stat = 'closed' AND firstchequeno NOT IN($book_ids)")
 								->runSelect()
 								->getResult(); 
 		return $result;
@@ -1637,4 +1637,22 @@ class payment_voucher_model extends wc_model
 								// echo $this->db->getQuery();
 		return $result; 
 	}
+
+	public function update_checks($book_last_num, $book_id, $bank, $book_end){
+		$getBank = $this->getbankid($bank);
+		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
+		$data1['stat'] = ($book_last_num == $book_end) ? 'used' : 'open';
+		$data1['nextchequeno'] = ($book_last_num + 1);
+		
+		$result = $this->db->setTable("bankdetail") 
+							->setValues($data1)
+							->setWhere("bank_id = '$bank_id' AND firstchequeno = '$book_id'")
+							->setLimit(1)
+							->runUpdate();
+							// echo $this->db->getQuery();
+		return $result ;
+	}
+
+
+
 }

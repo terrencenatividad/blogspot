@@ -136,14 +136,14 @@ class controller extends wc_controller
 				$update_cheque['voucherno']	= $generatedvoucher;
 				$updateTempRecord			= $this->payment_voucher->editData($update_cheque,"pv_cheques",$update_condition);
 
-				$getnextCheckno 			= $this->payment_voucher->get_check_no($generatedvoucher);
-				foreach ($getnextCheckno as $value) {
-					$cno = $value->checknum;
-					$ca = $value->chequeaccount;
-					$getBank = $this->payment_voucher->getbankid($ca);
-					$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
-					$updateCheckNo = $this->payment_voucher->updateCheck($bank_id, $cno);
-				}
+				// $getnextCheckno 			= $this->payment_voucher->get_check_no($generatedvoucher);
+				// foreach ($getnextCheckno as $value) {
+				// 	$cno = $value->checknum;
+				// 	$ca = $value->chequeaccount;
+				// 	$getBank = $this->payment_voucher->getbankid($ca);
+				// 	$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
+				// 	$updateCheckNo = $this->payment_voucher->updateCheck($bank_id, $cno);
+				// }
 
 			}
 			
@@ -834,7 +834,7 @@ class controller extends wc_controller
 		$data_post 	= $this->input->post();
 
 		$result    	= array_filter($this->payment_voucher->savePayment($data_post));
-
+		
 		$code 		= 0;
 		$voucher 	= '';
 		$errmsg 	= array();
@@ -844,6 +844,17 @@ class controller extends wc_controller
 			$code 		= $result['code'];
 			$voucher 	= $result['voucher'];
 			$errmsg 	= $result['errmsg'];
+		}
+
+		$book_ids	=json_decode(stripcslashes($data_post['book_ids']));
+		$book_end	=json_decode(stripcslashes($data_post['book_end']));
+		$book_last	= json_decode(stripcslashes($data_post['book_last']));
+
+		foreach ($book_ids as $bank => $book_id) {
+			foreach ($book_id as $key => $id) {
+				$book_last_num = isset($book_last->$bank->$id) ? $book_last->$bank->$id : $id;
+				$result = $this->payment_voucher->update_checks($book_last_num, $id, $bank, $book_end->{$bank}[$key]);
+			} 
 		}
 
 		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);
@@ -1389,7 +1400,7 @@ class controller extends wc_controller
 			$fno 		  = 0;
 		}
 		// $bno 		  = $result[0]->booknumber;
-		$data = array('nno' => $nextcheckno, 'last' => $lastcheckno);
+		$data = array('nno' => $nextcheckno, 'last' => $lastcheckno, 'fno' => $fno);
 		return $data; 
 	}
 
@@ -1407,9 +1418,14 @@ class controller extends wc_controller
 
 	public function getbooknumber(){
 		$bank = $this->input->post('bank');
+		$book_ids = $this->input->post('book_ids');
+		if (empty($book_ids)) {
+			$book_ids = array();
+		}
+		$book_ids = "'" . implode("','", $book_ids) . "'";
 		$getBank = $this->payment_voucher->getbankid($bank);
 		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
-		$result = $this->payment_voucher->getbankbook($bank_id);
+		$result = $this->payment_voucher->getbankbook($bank_id, $book_ids);
 		$options = '<option id="0" value="0">None</option>';
 		foreach ($result as $key => $row) {
 			$booknum = $row->booknumber;

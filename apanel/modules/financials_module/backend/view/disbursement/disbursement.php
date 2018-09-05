@@ -11,7 +11,10 @@
 	</div>
 
 	<form method = "post" class="form-horizontal" id = "payableForm">
-		<input type = "hidden" id = "book_id" name = "book_id" >
+		<input type = "hidden" id = "book_id" >
+		<input type = "hidden" id = "book_ids" name = "book_ids" >
+		<input type = "hidden" id = "book_last" name = "book_last" >
+		<input type = "hidden" id = "book_end" name = "book_end" >
 		<div class="box box-primary">
 			<div class="box-body">
 				<div class = "row">
@@ -916,6 +919,37 @@
 				</div>
 			</div>
 
+			<!-- Check Modal  -->
+			<div class="modal fade" id="set_check_modal" tabindex="-1" data-backdrop="static">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content">
+						<div class="modal-header ">
+							<strong>Select Book Number</strong>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<div class="modal-body">
+							<!-- <select id="booknum_list" class=""> 
+
+							</select> -->
+							Please set default check book on Bank Maintenance!
+						</div>
+						<div class="modal-footer">
+							<div class="row row-dense">
+								<div class="col-md-12 center">
+									<!-- <div class="btn-group">
+										<button type="button" class="btn btn-primary btn-flat" id="check_yes">Select</button>
+									</div> -->
+									&nbsp;&nbsp;&nbsp;
+									<div class="btn-group">
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Ok</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<div class="modal fade" id="nocheckModal" tabindex="-1" data-backdrop="static">
 				<div class="modal-dialog modal-sm">
 					<div class="modal-content">
@@ -1027,9 +1061,12 @@
 			});
 		}
 
-		var currentcheck = 0; 
-		var newnext = 0;
-		var newlast = 0;
+		var currentcheck = {}; 
+		var newnext = [];
+		var newlast = [];
+		var book_ids = {};
+		var book_last = {};
+		var book_end = {};
 		
 		$('#chequeTable .cheque_account').on('change', function()  {
 			storedescriptionstoarray();
@@ -1041,7 +1078,7 @@
 			var val = $(this).val();
 			$('#current_bank').val(val);
 			
-			$.post("<?=BASE_URL?>financials/disbursement/ajax/getbooknumber" , 'bank='+val).done(function(data){
+			$.post("<?=BASE_URL?>financials/disbursement/ajax/getbooknumber" , { bank: val, book_ids: book_ids[val] } ).done(function(data){
 				$('#checkModal #booknum_list').html(data.opt);
 					
 			})
@@ -1049,8 +1086,8 @@
 			// Check Array //
 			
 			var book_id = $('#book_id').val();
-			console.log('bookid'+book_id);
 			var old_last  = 0;
+
 
 			$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank='+val+'&bookno='+book_id ).done(function(data){
 				if (data){
@@ -1058,28 +1095,49 @@
 					next = parseFloat(data.nno) || 0;
 					last = parseFloat(data.last) || 0;
 
+					if (typeof newlast[val] === 'undefined') {
+						newlast[val] = last;
+					}
+					if (typeof newnext[val] === 'undefined') {
+						newnext[val] = next;
+						if (typeof book_ids[val] === 'undefined') {
+							book_ids[val] = [];
+						}
+						book_ids[val].push(data.fno);
+						$('#book_ids').val(JSON.stringify(book_ids));
+
+						if (typeof book_end[val] === 'undefined') {
+							book_end[val] = [];
+						}
+						book_end[val].push(data.last);
+						$('#book_end').val(JSON.stringify(book_end));
+
+					}
+
 					var row = $("#chequeTable tbody tr").length;
 					if (typeof cheque["bank-"+val] === 'undefined') {
-						if (next == 0){
-							$('#checkModal').modal('show');
+						if (newnext[val] == 0){
+							$('#set_check_modal').modal('show');
 						} else {
-							$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
+							$('#chequeTable #chequenumber\\['+row+'\\]').val(newnext[val]);	
 						}
 					} else {
-						currentcheck = parseFloat(currentcheck) +1;
 						$('#chequeTable #chequenumber\\['+row+'\\]').val('');
-						if (parseFloat(last) != parseFloat(currentcheck)){
+						if (parseFloat(newlast[val]) > parseFloat(currentcheck[val])){
+							newnext[val] = parseFloat(cheque["bank-"+val]) + 1;
+							currentcheck[val] = parseFloat(currentcheck[val]) +1;
+							$('#chequeTable #chequenumber\\['+row+'\\]').val(newnext[val]);
+						} else {
 							$('#checkModal').modal('show');
-							console.log('df');
-							// $('#chequeTable #chequenumber\\['+row+'\\]').val('');
-							$next = '';
-						} else if (parseFloat(last) == parseFloat(currentcheck)){
-							next = parseFloat(cheque["bank-"+val]) + 1;
-							$('#chequeTable #chequenumber\\['+row+'\\]').val(next);
+							if (typeof book_last[val] === 'undefined') {
+								book_last[val] = {};
+							}
+							book_last[val][data.fno] = currentcheck[val];
+							$('#book_last').val(JSON.stringify(book_last));
 						} 
-						$('#chequeTable #chequenumber\\['+row+'\\]').val(next);
+						// $('#chequeTable #chequenumber\\['+row+'\\]').val(next);
 					}	
-					currentcheck = $('#chequeTable #chequenumber\\['+row+'\\]').val();
+					currentcheck[val] = $('#chequeTable #chequenumber\\['+row+'\\]').val();
 				}
 
 			})
@@ -1130,20 +1188,32 @@
 		$('#check_yes').on('click', function(){
 			storechequetobank();
 			var booknum = $('#checkModal #booknum_list').val();
-			$('#book_id').val(booknum);
 			var val = $('#current_bank').val();
+			if (typeof book_ids[val] === 'undefined') {
+				book_ids[val] = [];
+			}
+			book_ids[val].push(booknum);
+			$('#book_ids').val(JSON.stringify(book_ids));
+
+
 			$.post("<?=BASE_URL?>financials/disbursement/ajax/get_next_booknum", 'bank='+val+'&bookno='+booknum ).done(function(data){
 				if (data){
-					newnext = parseFloat(data.nno) || 0;
-					newlast = parseFloat(data.last) || 0;
+					newnext[val] = parseFloat(data.nno) || 0;
+					newlast[val] = parseFloat(data.last) || 0;
+
+					if (typeof book_end[val] === 'undefined') {
+						book_end[val] = [];
+					}
+					book_end[val].push(data.last);
+					$('#book_end').val(JSON.stringify(book_end));
 
 					var row = $("#chequeTable tbody tr").length;
 					if (typeof cheque["bank-"+val] === 'undefined') {
-						$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
+						$('#chequeTable #chequenumber\\['+row+'\\]').val(newnext[val]);
 					}
-					currentcheck = $('#chequeTable #chequenumber\\['+row+'\\]').val();
+					currentcheck[val] = newnext[val];
 				}
-				$('#chequeTable #chequenumber\\['+row+'\\]').val(newnext);	
+				$('#chequeTable #chequenumber\\['+row+'\\]').val(newnext[val]);	
 			});
 			
 			$('#checkModal').modal('hide');
