@@ -14,9 +14,11 @@ class controller extends wc_controller {
 		$this->report_model->generateBalanceTable();
 		$year_now					= $this->balance_sheet_model->getYear();
 		$year						= ($year) ? $year : $year_now;
+		$period_start				= $this->balance_sheet_model->getPeriod();		
 		$this->view->title			= 'Balance Sheet';
 		$data['ui']					= $this->ui;
 		$data['year']				= $year;
+		$data['period_start']		= $period_start;
 		$data['year_list']			= $this->balance_sheet_model->getYearList($year_now);
 		$data['monthly_view']		= $this->monthly_view($year);
 		$data['quarterly_view']		= $this->quarterly_view($year);
@@ -24,6 +26,7 @@ class controller extends wc_controller {
 		$data['header_monthly']		= $this->header_monthly;
 		$data['header_quarterly']	= $this->header_quarterly;
 		$data['header_yearly']		= $this->header_yearly;
+		$data['header_year']		= $this->header_year;
 		$this->view->load('balance_sheet', $data);
 	}
 
@@ -178,6 +181,7 @@ class controller extends wc_controller {
 		$this->header_monthly	= array();
 		$this->header_quarterly	= array();
 		$this->header_yearly	= array();
+		$this->header_year	= array();
 
 		$period_start	= $this->balance_sheet_model->getPeriod();
 		$period_index	= $period_start - 1;
@@ -202,6 +206,18 @@ class controller extends wc_controller {
 			'3rd',
 			'4th'
 		);
+		$years = array(
+			$year,
+			'',
+			'',
+			'',
+			'',
+			'',
+			'',
+			'',
+			'',
+			'',
+			'');
 
 		for ($x = 1; $x <= 12; $x++) {
 			if ($period_index > 11) {
@@ -232,6 +248,18 @@ class controller extends wc_controller {
 			$year - 1,
 			$year
 		);
+		if($period_start > 1){
+			for ($x = 1; $x <= 11; $x++) {
+				if ($period_index > 10) {
+					$period_index = 0;
+				}
+				$this->header_year[] = $years[$period_index];
+	
+				$period_index++;
+			}
+		}
+	
+		
 	}
 
 }

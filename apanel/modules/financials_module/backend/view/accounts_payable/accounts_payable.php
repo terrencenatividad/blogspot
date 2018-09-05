@@ -2922,10 +2922,10 @@ function confirmChequePrint(row)
 	
 	bootbox.dialog({
 		message: "Please select one of the option to proceed.",
-		title: "Print Cheque",
+		title: "Print Check",
 			buttons: {
 			check: {
-			label: "Cheque Only",
+			label: "Check Only",
 			className: "btn-primary btn-flat",
 			callback: function(result) {
 					var link 	 		= '<?= BASE_URL ?>financials/accounts_payable/generateCheck/'+paymentvoucher+'/'+chequeno;
@@ -2934,7 +2934,7 @@ function confirmChequePrint(row)
 				}
 			},
 			voucher: {
-			label: "Cheque with Voucher",
+			label: "Check with Voucher",
 			className: "btn-success btn-flat",
 			callback: function(result) {
 					var link 	 		= '<?= BASE_URL ?>financials/accounts_payable/generateCheckVoucher/'+paymentvoucher+'/'+chequeno+'/rv';
@@ -3737,6 +3737,7 @@ $(document).ready(function()
 		/**SAVE CHANGES AND REDIRECT TO LIST**/
 		$("#payableForm #btnSave").click(function(e)
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)			
 			var valid	= 0;
 
 			//$("#payableForm").find('.form-group').find('input, textarea, select').trigger('blur');
@@ -3798,6 +3799,7 @@ $(document).ready(function()
 		/**SAVE CHANGES AND REDIRECT TO CREATE NEW INVOICE**/
 		$("#payableForm #save_new").click(function()
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)			
 			var valid	= 0;
 			
 			/**validate vendor field**/
@@ -3854,6 +3856,7 @@ $(document).ready(function()
 			
 		$("#payableForm #save_preview").click(function()
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)			
 			var valid	= 0;
 			
 			$("#payableForm").find('.form-group').find('input, textarea, select').trigger('blur');

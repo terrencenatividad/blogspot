@@ -437,16 +437,24 @@ class controller extends wc_controller
 		$bus_type_cond                = "type = 'businesstype'";
 		$data["business_type_list"]   = $this->accounts_payable->getValue("wc_option", $bus_type_data, $bus_type_cond, false);
 
+		$coa_array	= array();
+		foreach ($data['details'] as $index => $dtl){
+			$coa			= $dtl->accountcode;
+			$coa_array[]	= $coa;
+		}
+		
+		$condition = ($coa_array) ? " OR id IN ('".implode("','",$coa_array)."')" : "";
+		
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
+		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val, stat stat");
 		$acc_entry_cond               = "accounttype != '' AND stat = 'active'";
-		$data["account_entry_list"]   = $this->accounts_payable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
+		$data["account_entry_list"]   = $this->accounts_payable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond. $condition, "segment5");
 
 		// Retrieve payable account list
 		$pay_account_data 			  = array("id ind", "CONCAT(segment5, ' - ', accountname) val");
 		$pay_account_cond 			  = "accountclasscode = 'ACCPAY' AND accounttype != '' AND stat = 'active'";
 		$data["payable_account_list"] = $this->accounts_payable->getValue("chartaccount", $pay_account_data, $pay_account_cond, "accountname");
-		
+
 		// // Retrieve tax list
 		// $bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
 		// $bus_type_cond                = "tax_account != ''";
@@ -1241,7 +1249,7 @@ class controller extends wc_controller
 
 		$filedir	= $_FILES["file"]["tmp_name"];
 
-		$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
+		$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext", "application/octet-stream");
 
 		$errmsg 	=	array();
 		$proceed 	=	false;
@@ -1258,6 +1266,7 @@ class controller extends wc_controller
 		
 		$headerArr = array('Document Set','Transaction Date','Due Date','Supplier Code','Invoice No.','Reference No.','Notes','Account Name','Description','Debit','Credit');
 
+		$warning 			=	array();
 		if( empty($errmsg) ) {
 			$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
 			$error 	=	array();
@@ -1290,7 +1299,6 @@ class controller extends wc_controller
 			}
 			$line 				=	2;
 			$post 				=	array();
-			$warning 			=	array();
 			$vouchlist 			= 	array();
 			$h_vouchlist 		=	array();
 			$datelist 			= 	array();

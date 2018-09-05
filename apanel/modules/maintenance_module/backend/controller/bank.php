@@ -293,6 +293,17 @@
 
 			if( !empty($list->result) ) :
 				foreach ($list->result as $key => $row) {
+					$entereddate = explode(' ',$row->entereddate);
+					$date = $entereddate[0];
+					$book_date = str_replace('-', '', $date);
+
+					if($row->stat == 'open'){
+						$check_stat = '<span class="label label-success">'.strtoupper('IN USE').'</span>';
+					}else if($row->stat == 'closed'){
+						$check_stat = '<span class="label label-default">'."NOT USED".'</span>';
+					} else {
+						$check_stat = '<span class="label label-warning">'."USED".'</span>';
+					}
 
 					$dropdown = $this->ui->loadElement('check_task')
 								->addOtherTask(
@@ -306,18 +317,25 @@
 									'trash',
 									'deletecheck'
 								)
-										->draw();
+								->addOtherTask(
+									'Set as Default Check',
+									'check',
+									'set_default'
+								)
+								->draw();
 					$table .= '<tr>';
 					$table .= ' <td align = "center">' .$dropdown. '</td>';
+					$table .= '<td>' . $row->shortname . '</td>';
 					$table .= '<td>' . $row->accountno . '</td>';
-					$table .= '<td id="booknumber">' . $row->booknumber . '</td>';
-					$table .= '<td>' . $row->batch  . '</td>';
+					$table .= '<td id="booknumber">' . $book_date. ' - ' .$row->booknumber . '</td>';
+					$table .= '<td id="start_check" class="start_check" value="' . $row->firstchequeno. '-' .$row->lastchequeno. '">' . $row->firstchequeno. '-' .$row->lastchequeno. '</td>';
 					$table .= '<td>' . $row->nextchequeno. '</td>';
+					$table .= '<td>' . $check_stat. '</td>';
 					$table .= '</tr>';
 				}
 			else:
 				$table .= "<tr>
-								<td colspan = '5' class = 'text-center'>No Records Found</td>
+								<td colspan = '6' class = 'text-center'>No Records Found</td>
 						</tr>";
 			endif;
 
@@ -328,7 +346,7 @@
 
 		public function edit_check(){
 			$id 		= $this->input->post("id");
-			$bookno 	= $this->input->post("bookno");
+			$bookno 	= $this->input->post("booknumber");
 			$data2		= (array) $this->bank->retrieveCheck($id, $bookno);
 			$booknumber 	= $data2[0]->booknumber; 
 			$firstchequeno 	= $data2[0]->firstchequeno; 
@@ -387,14 +405,14 @@
 		}
 
 		public function delete_check(){
-			$posted_data 	= $this->input->post('bookno');
+			$posted_data 	= $this->input->post('booknumber');
 			$id 			= $this->input->post('id');
 			
 			$bankdesc 		= $this->bank->getAccountname($id);
 			$isname 		= $bankdesc[0]->shortname;
 			$firstchequeno 	= $bankdesc[0]->firstchequeno;
 			$lastchequeno 	= $bankdesc[0]->lastchequeno;
-			$accntname 		= $this->bank->deleteCheck($posted_data);
+			$accntname 		= $this->bank->deleteCheck($posted_data, $id);
 
 			if( $accntname )
 			{
@@ -429,6 +447,60 @@
 			return $dataArray = array("msg" => $msg);
 
 		}
+
+		public function set_check(){
+			$fno = $this->input->post('booknumber');
+			$fno = explode('-',$fno);
+			$first = $fno[0];
+			$bank = $this->input->post('id');
+			$result = $this->bank->set_check($bank, $first);
+			if ($result){
+				$msg = 'success';
+			}
+
+			return $msg;
+		}
+
+		public function check_duplicate_gl_code(){
+			$old 	 = $this->input->post('old_gl_code');
+			$current 	 = $this->input->post('curr_gl_code');
+			$count 	 = 0;
+			if( $current!='' && $current != $old )
+			{
+				$result = $this->bank->check_duplicate_glcode($current);
+				$count = $result[0]->count;
+			}
+			
+			$msg   = "";
+
+			if( $count > 0 )
+			{	
+				$msg = "exists";
+			}
+
+			return $dataArray = array("msg" => $msg);
+		}
+
+		// private function check_duplicate(){
+		// 	$current = $this->input->post('curr_gl_code');
+		// 	$old 	 = $this->input->post('old_gl_code');
+		// 	$count 	 = 0;
+		// 	if( $current!='' && $current != $old )
+		// 	{
+		// 		$result = $this->bank->check_duplicate_glcode($current);
+		// 		$count = $result[0]->count;
+		// 	}
+			
+		// 	$msg   = "";
+
+		// 	if( $count > 0 )
+		// 	{	
+		// 		$msg = "exists";
+		// 	}
+
+		// 	return $dataArray = array("msg" => $msg);
+		// }
+		 
 
 	}
 ?>

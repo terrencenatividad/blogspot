@@ -68,8 +68,14 @@ class controller extends wc_controller {
 		$data['display_edit']		= ($checker!="import" && $checker!="beginning" && $checker!="closing" && $status != 'cancelled') ? 1 : 0;
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
-		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
 		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno, $status));
+		$coa_array	= array();
+		$hey = json_decode($data['voucher_details']);
+			foreach ($hey as $index => $dtl){
+				$coa			= $dtl->accountcode;
+				$coa_array[]	= $coa;
+			}
+		$data['chartofaccounts']	= $this->jv_model->getEditChartOfAccountList($coa_array);			
 		$data['ajax_task']			= 'ajax_edit';
 		$data['proforma_list']		= $this->jv_model->getProformaList($data);
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
@@ -92,9 +98,15 @@ class controller extends wc_controller {
 		$data['ui'] = $this->ui;
 		$data['ajax_task']			= 'ajax_view';
 		$data['proforma_list']		= $this->jv_model->getProformaList($data);
-		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
 		$status 					= $data['stat'];
 		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno,$status));
+		$coa_array	= array();
+		$hey = json_decode($data['voucher_details']);
+			foreach ($hey as $index => $dtl){
+				$coa			= $dtl->accountcode;
+				$coa_array[]	= $coa;
+			}
+		$data['chartofaccounts']	= $this->jv_model->getEditChartOfAccountList($coa_array);		
 		$data['show_input']			= false;
 		$data['restrict_jv']		= $this->restrict->setButtonRestriction($transactiondate);
 		$this->view->load('journal_voucher/journal_voucher', $data);
@@ -248,7 +260,7 @@ class controller extends wc_controller {
 
 		$filedir	= $_FILES["file"]["tmp_name"];
 
-		$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
+		$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext", "application/octet-stream");
 
 		$errmsg 	=	array();
 		$proceed 	=	false;
@@ -264,7 +276,8 @@ class controller extends wc_controller {
 		}
 		
 		$headerArr = array('Document Set','Transaction Date','Reference','Notes','Account Name','Description','Debit','Credit');
- 
+		
+		$warning 			=	array();
 		if( empty($errmsg) ) {
 			$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
 			$error 	=	array();
@@ -292,7 +305,6 @@ class controller extends wc_controller {
 			
 			$line 				=	2;
 			$post 				=	array();
-			$warning 			=	array();
 			$vouchlist 			= 	array();
 			$h_vouchlist 		=	array();
 			$datelist 			= 	array();

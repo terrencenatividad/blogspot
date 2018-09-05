@@ -8,7 +8,7 @@ class balance_sheet_model extends wc_model {
 	}
 
 	public function getYear() {
-		return $this->year;
+		return $this->year = date('Y');
 	}
 
 	private function getPeriodStart() {

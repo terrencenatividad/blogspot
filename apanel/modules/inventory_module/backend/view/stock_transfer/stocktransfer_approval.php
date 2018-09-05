@@ -404,6 +404,7 @@
 	
 	$(document.body).on('click','#btnReceive',function(){
 		ajax.transaction_no 	=	$('#transaction_no').val();
+		ajax.approved_by 		=	$('#approved_by').val();
 		$.post('<?=MODULE_URL?>ajax/set_received', ajax, 
 		function(data) {
 			if (data.msg =='success') {

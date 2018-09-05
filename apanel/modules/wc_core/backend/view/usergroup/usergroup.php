@@ -32,6 +32,7 @@
 							?>
 						</div>
 					</div>
+					<input type="hidden" name="status" value="<?php echo $status; ?>" >
 					<!-- <div class="row">
 						<div class="col-md-12">
 							<?php

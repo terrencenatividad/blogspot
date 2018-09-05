@@ -65,12 +65,12 @@
 								<p class="list-group-item-text">Cash Balance Details</p>
 							</a>
 							<a href="cheque_list" class="list-group-item">
-								<h4 class="list-group-item-heading">Cheque List</h4>
-								<p class="list-group-item-text">List of Issued Cheques in a given period of time.</p>
+								<h4 class="list-group-item-heading">Check List</h4>
+								<p class="list-group-item-text">List of Issued Checks in a given period of time.</p>
 							</a>
 							<a href="deposit_list" class="list-group-item">
-								<h4 class="list-group-item-heading">Cheque for Deposit List</h4>
-								<p class="list-group-item-text">List of Issued Cheques in a given period of time.</p>
+								<h4 class="list-group-item-heading">Check for Deposit List</h4>
+								<p class="list-group-item-text">List of Issued Checks in a given period of time.</p>
 							</a>
 							<a href="collection_register" class="list-group-item">
 								<h4 class="list-group-item-heading">Collection Register</h4>

@@ -136,14 +136,14 @@ class controller extends wc_controller
 				$update_cheque['voucherno']	= $generatedvoucher;
 				$updateTempRecord			= $this->payment_voucher->editData($update_cheque,"pv_cheques",$update_condition);
 
-				$getnextCheckno 			= $this->payment_voucher->get_check_no($generatedvoucher);
-				foreach ($getnextCheckno as $value) {
-					$cno = $value->checknum;
-					$ca = $value->chequeaccount;
-					$getBank = $this->payment_voucher->getbankid($ca);
-					$bank_id = $getBank[0]->id;
-					$updateCheckNo = $this->payment_voucher->updateCheck($bank_id, $cno);
-				}
+				// $getnextCheckno 			= $this->payment_voucher->get_check_no($generatedvoucher);
+				// foreach ($getnextCheckno as $value) {
+				// 	$cno = $value->checknum;
+				// 	$ca = $value->chequeaccount;
+				// 	$getBank = $this->payment_voucher->getbankid($ca);
+				// 	$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
+				// 	$updateCheckNo = $this->payment_voucher->updateCheck($bank_id, $cno);
+				// }
 
 			}
 			
@@ -550,7 +550,7 @@ class controller extends wc_controller
 				->setPlaceholder('None')
 				->setName('paymentmode'.$row_count)
 				->setId('paymentmode'.$row_count)
-				->setList(array("cash" => "Cash", "cheque" => "Cheque"))
+				->setList(array("cash" => "Cash", "cheque" => "Check"))
 				->setValue($paymentmode)
 				->draw(true).
 				'</td>';
@@ -834,7 +834,7 @@ class controller extends wc_controller
 		$data_post 	= $this->input->post();
 
 		$result    	= array_filter($this->payment_voucher->savePayment($data_post));
-
+		
 		$code 		= 0;
 		$voucher 	= '';
 		$errmsg 	= array();
@@ -844,6 +844,17 @@ class controller extends wc_controller
 			$code 		= $result['code'];
 			$voucher 	= $result['voucher'];
 			$errmsg 	= $result['errmsg'];
+		}
+
+		$book_ids	=json_decode(stripcslashes($data_post['book_ids']));
+		$book_end	=json_decode(stripcslashes($data_post['book_end']));
+		$book_last	= json_decode(stripcslashes($data_post['book_last']));
+
+		foreach ($book_ids as $bank => $book_id) {
+			foreach ($book_id as $key => $id) {
+				$book_last_num = isset($book_last->$bank->$id) ? $book_last->$bank->$id : $id;
+				$result = $this->payment_voucher->update_checks($book_last_num, $id, $bank, $book_end->{$bank}[$key]);
+			} 
 		}
 
 		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);
@@ -1264,9 +1275,9 @@ class controller extends wc_controller
 						$table	.= '<tr>';
 						$table	.= '<td></td>';
 						$table	.= '<td colspan="2" class="warning" ><strong>Bank Account</strong></td>';
-						$table	.= '<td class="warning" ><strong>Cheque Number</strong></td>';
-						$table	.= '<td class="warning" ><strong>Cheque Date</strong></td>';
-						$table	.= '<td class="warning" ><strong>Cheque Amount</strong></td>';
+						$table	.= '<td class="warning" ><strong>Check Number</strong></td>';
+						$table	.= '<td class="warning" ><strong>Check Date</strong></td>';
+						$table	.= '<td class="warning" ><strong>Check Amount</strong></td>';
 						$table	.= '</tr>';
 
 
@@ -1282,7 +1293,6 @@ class controller extends wc_controller
 				}
 
 				$nextvno     	= $prevvno;
-				
 			}
 		else:
 			$table .= "<tr>
@@ -1344,9 +1354,9 @@ class controller extends wc_controller
 					if($nextvno != $prevvno){
 						$csv .= '"",';
 						$csv .= '"Bank Account",';
-						$csv .= '"Cheque Number",';
-						$csv .= '"Cheque Date",';
-						$csv .= '"Cheque Amount",';
+						$csv .= '"Check Number",';
+						$csv .= '"Check Date",';
+						$csv .= '"Check Amount",';
 						$csv .= "\n";
 					}
 					$csv .= '"",';
@@ -1376,25 +1386,76 @@ class controller extends wc_controller
 	}
 
 	public function getCheckdtl(){
-		$bank_no = $this->input->post('bank_');
-		$result1 = $this->payment_voucher->getcheckfirst($bank_no);
-		$result2 = $this->payment_voucher->getchecklast($bank_no);
-		
-		$nextcheckno  = $result1[0]->nextchequeno;
-		$lastcheckno  = $result2[0]->lastchequeno;
-		$fno 		  = $result1[0]->firstchequeno;
+		$bank_no = $this->input->post('bank');
+		$current = $this->input->post('current_check');
+		$bno = $this->input->post('bookno');
+		$result1 = $this->payment_voucher->getcheckfirst($bank_no, $current, $bno);
+		if ($result1){
+			$nextcheckno  = $result1[0]->nextchequeno;
+			$lastcheckno  = $result1[0]->lastchequeno;
+			$fno 		  = $result1[0]->firstchequeno;
+		} else {
+			$nextcheckno  = 0;
+			$lastcheckno  = 0;
+			$fno 		  = 0;
+		}
 		// $bno 		  = $result[0]->booknumber;
-		$data = array('nno' => $nextcheckno, 'last' => $lastcheckno);
+		$data = array('nno' => $nextcheckno, 'last' => $lastcheckno, 'fno' => $fno);
 		return $data; 
 	}
 
-	public function UpdateCheckStat(){
-		echo "sd";
-		$val = $this->input_post->post('val');
-		$cno = $this->input_post->post('cno');
-		$result = $this->payment_voucher->UpdateCheckStatus($val, $cno);
-		var_dump($result);
-		return $result ;
+	public function update_check_status(){
+		$val = $this->input->post('val');
+		$cno = $this->input->post('next');
+		$getBank = $this->payment_voucher->getbankid($val);
+		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
+		$result = $this->payment_voucher->update_check_status($bank_id, $cno);
+		if ($result){
+			$msg = 'success';
+		}
+		return $msg  ;
+	}
+
+	public function getbooknumber(){
+		$bank = $this->input->post('bank');
+		$book_ids = $this->input->post('book_ids');
+		if (empty($book_ids)) {
+			$book_ids = array();
+		}
+		$book_ids = "'" . implode("','", $book_ids) . "'";
+		$getBank = $this->payment_voucher->getbankid($bank);
+		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
+		$result = $this->payment_voucher->getbankbook($bank_id, $book_ids);
+		$options = '<option id="0" value="0">None</option>';
+		foreach ($result as $key => $row) {
+			$booknum = $row->booknumber;
+			$checknum = $row->firstchequeno.' - '.$row->lastchequeno;
+			$firstchequenum = $row->firstchequeno;
+			$options .= "<option value='$firstchequenum' id='$firstchequenum'>". $checknum ."</option>" ;
+		}
+
+		$data = array('opt' => $options );
+		return $data;
+	}
+
+	public function get_next_booknum(){
+		$bank = $this->input->post('bank');
+		$getBank = $this->payment_voucher->getbankid($bank);
+		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
+		$firstchequenum = $this->input->post('bookno');
+		$result1 = $this->payment_voucher->get_next_booknum($bank_id, $current = 0, $firstchequenum);
+		if ($result1){
+			$nextcheckno  = $result1[0]->nextchequeno;
+			$lastcheckno  = $result1[0]->lastchequeno;
+			$fno 		  = $result1[0]->firstchequeno;
+		} else {
+			$nextcheckno  = 0;
+			$lastcheckno  = 0;
+			$fno 		  = 0;
+		}
+		// $bno 		  = $result[0]->booknumber;
+		$data = array('nno' => $nextcheckno, 'last' => $lastcheckno);
+		return $data; 
 	}
 
 }

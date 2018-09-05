@@ -11,6 +11,7 @@
 </div>
 
 <form method = "post" class="form-horizontal" id = "payableForm">
+<input type = "hidden" id = "book_id" name = "book_id" >
 	<div class="box box-primary">
 		<div class="box-body">
 			<div class = "row">
@@ -74,7 +75,7 @@
 										->setName('paymentmode')
 										->setId('paymentmode')
 										->addHidden(($task == 'view'))
-										->setList(array("cash" => "Cash", "cheque" => "Cheque"))
+										->setList(array("cash" => "Cash", "cheque" => "Check"))
 										->setAttribute(
 											array(
 												"onChange" => "toggleCheckInfo(this.value); validateField('payableForm',this.id, 'paymentmode_help');"
@@ -160,20 +161,20 @@
 					</span>
 					<span id="checkNumberError" class="help-block hidden">
 						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						The Cheque Number you entered has already been used
+						The Check Number you entered has already been used
 					</span>
 				</div>
 			<div class="panel panel-default <?php echo $show_cheques?>" id="cheque_details">
 				<div class="panel-heading">
-					<strong>Cheque Details</strong>
+					<strong>Check Details</strong>
 				</div>
 				<div class="table-responsive">
 					<table class="table table-condensed table-bordered table-hover" id="chequeTable">
 						<thead>
 							<tr class="info">
 								<th class="col-md-4">Bank Account</th>
-								<th class="col-md-3">Cheque Number</th>
-								<th class="col-md-2">Cheque Date</th>
+								<th class="col-md-3">Check Number</th>
+								<th class="col-md-2">Check Date</th>
 								<th class="col-md-2">Amount</th>
 								<th class="col-md-1">Action</th>
 							</tr>
@@ -206,7 +207,7 @@
 												->setClass('chequenumber')
 												->setValidation('required alpha_num')
 												->setMaxLength(30)
-												->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+												// ->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 												->setValue("")
 												->draw(true);
 									?>
@@ -283,7 +284,8 @@
 													->setClass('chequenumber')
 													->setMaxLength(30)
 													->setValidation('required alpha_num')
-													->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+													->setAttribute(array("readonly" => "readonly"))
+													// ->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 													->setValue($chequeno)
 													->draw($show_input);
 										?>
@@ -329,12 +331,14 @@
 									</td>
 									<?php else : ?>
 										<td class="text-center">
+										<? if($status == 'posted'):?>
 										<button type="button" class="btn btn-info btn-flat print_check"  style="outline:none;" ><span class="glyphicon glyphicon-download-alt"></span></button>
-									</td>
+										<?php else : ?>
+										<? endif; ?>
+										</td>
 								</tr>
 									<? endif; ?>	
 							<?
-								
 								$row++;
 								$totalchequeamt 	+=	$chequeamount;
 									endforeach;
@@ -413,7 +417,7 @@
 							<tr>
 								<? if($show_input):?>
 								<td colspan="2">
-									<a type="button" class="btn btn-link add-cheque"  style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Cheque</a>
+									<a type="button" class="btn btn-link add-cheque"  style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Check</a>
 								</td>
 								<td class="text-right"><label class="control-label">Total</label></td>
 								<td class="text-right">
@@ -1231,28 +1235,59 @@
 	</div>
 </div>
 
+	<!-- <div class="modal fade" id="checkModal" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					Confirmation
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					There are no available check number for the system to use. Please verify check number series in bank maintenance.
+					<input type="hidden" id="recordId"/>
+				</div>
+				<div class="modal-footer">
+					<div class="row row-dense">
+						<!-- <div class="col-md-12 center">
+							<div class="btn-group">
+								<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+							</div>
+							&nbsp;&nbsp;&nbsp;
+							<div class="btn-group">
+								<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+							</div>
+						</div> -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div> -->
+
+<!-- Check Modal  -->
 <div class="modal fade" id="checkModal" tabindex="-1" data-backdrop="static">
 				<div class="modal-dialog modal-sm">
 					<div class="modal-content">
-						<div class="modal-header">
-							Confirmation
+						<div class="modal-header ">
+							<strong>Select Book Number</strong>
 							<button type="button" class="close" data-dismiss="modal">&times;</button>
 						</div>
 						<div class="modal-body">
-							There are no available check number for the system to use. Please verify check number series in bank maintenance.
-							<input type="hidden" id="recordId"/>
+							<select id="booknum_list" class=""> 
+
+							</select>
+							<input type="hidden" id="current_bank" value=""/>
 						</div>
 						<div class="modal-footer">
 							<div class="row row-dense">
-								<!-- <div class="col-md-12 center">
+								<div class="col-md-12 center">
 									<div class="btn-group">
-										<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+										<button type="button" class="btn btn-primary btn-flat" id="check_yes">Select</button>
 									</div>
 									&nbsp;&nbsp;&nbsp;
 									<div class="btn-group">
-										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
 									</div>
-								</div> -->
+								</div>
 							</div>
 						</div>
 					</div>
@@ -1380,15 +1415,24 @@ $('#chequeTable .cheque_account').on('change', function()  {
 	if ($('#entriesTable tbody tr.clone select').data('select2')) {
 		$('#entriesTable tbody tr.clone select').select2('destroy');
 	}
+
 	var val = $(this).val();
+	$('#current_bank').val(val);
+	
+	$.post("<?=BASE_URL?>financials/disbursement/ajax/getbooknumber" , 'bank='+val).done(function(data){
+		$('#checkModal #booknum_list').html(data.opt);
+			
+	})
+
+	
 
 	// Check Array //
 
-	$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank =' + val).done(function(data){
+	$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank='+val+'&bookno='+book_id ).done(function(data){
 		if (data){
+
 			next = parseFloat(data.nno) || 0;
 			last = parseFloat(data.last) || 0;
-			console.log(next);
 
 			var row = $("#chequeTable tbody tr").length;
 			if (typeof cheque["bank-"+val] === 'undefined') {
@@ -1398,15 +1442,22 @@ $('#chequeTable .cheque_account').on('change', function()  {
 					$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
 				}
 			} else {
-				var next = parseFloat(cheque["bank-"+val]) + 1;
-				if (next > last){
+				currentcheck = parseFloat(currentcheck) +1;
+				$('#chequeTable #chequenumber\\['+row+'\\]').val('');
+				if (parseFloat(last) != parseFloat(currentcheck)){
 					$('#checkModal').modal('show');
-				} else {
-					$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
-				}
-				
+					console.log('df');
+					// $('#chequeTable #chequenumber\\['+row+'\\]').val('');
+					$next = '';
+				} else if (parseFloat(last) == parseFloat(currentcheck)){
+					next = parseFloat(cheque["bank-"+val]) + 1;
+					$('#chequeTable #chequenumber\\['+row+'\\]').val(next);
+				} 
+				$('#chequeTable #chequenumber\\['+row+'\\]').val(next);
 			}	
+			currentcheck = $('#chequeTable #chequenumber\\['+row+'\\]').val();
 		}
+
 	})
 	
 	cheque_arr = [];
@@ -1450,6 +1501,28 @@ $('#chequeTable .cheque_account').on('change', function()  {
 	setTimeout(function () {
 		drawTemplate();
 	});
+});
+
+$('#check_yes').on('click', function(){
+	storechequetobank();
+	var booknum = $('#checkModal #booknum_list').val();
+	$('#book_id').val(booknum);
+	var val = $('#current_bank').val();
+	$.post("<?=BASE_URL?>financials/disbursement/ajax/get_next_booknum", 'bank='+val+'&bookno='+booknum ).done(function(data){
+		if (data){
+			newnext = parseFloat(data.nno) || 0;
+			newlast = parseFloat(data.last) || 0;
+
+			var row = $("#chequeTable tbody tr").length;
+			if (typeof cheque["bank-"+val] === 'undefined') {
+				$('#chequeTable #chequenumber\\['+row+'\\]').val(next);	
+			}
+			currentcheck = $('#chequeTable #chequenumber\\['+row+'\\]').val();
+		}
+		$('#chequeTable #chequenumber\\['+row+'\\]').val(newnext);	
+	});
+	
+	$('#checkModal').modal('hide');
 });
 
 function disable_acct_fields(row){
@@ -2133,7 +2206,7 @@ function toggleCheckInfo(val){
 		}else{
 			
 			var list 	= (vendor != '') ? "<ul><li>Total Payment</li></ul>" : "<ul><li>Vendor</li><li>Total Payment</li></ul>";
-			var msg 	= "The following fields are required to process a '<strong>Cheque</strong>' payment."+list;
+			var msg 	= "The following fields are required to process a '<strong>Check</strong>' payment."+list;
 			bootbox.dialog({
 				message: msg,
 				title: "Oops!",
@@ -2183,10 +2256,10 @@ function confirmChequePrint(row){
 
 	bootbox.dialog({
 		message: "Please select one of the option to proceed.",
-		title: "Print Cheque",
+		title: "Print Check",
 			buttons: {
 			check: {
-			label: "Cheque Only",
+			label: "Check Only",
 			className: "btn-primary btn-flat",
 			callback: function(result) {
 					var link 	 		= '<?= BASE_URL ?>financials/payment_voucher/generateCheck/'+paymentvoucher+'/'+chequeno;
@@ -2195,7 +2268,7 @@ function confirmChequePrint(row){
 				}
 			},
 			voucher: {
-			label: "Cheque with Voucher",
+			label: "Check with Voucher",
 			className: "btn-success btn-flat",
 			callback: function(result) {
 					var link 	 		= '<?= BASE_URL ?>financials/payment_voucher/generateCheckVoucher/'+paymentvoucher+'/'+chequeno+'/rv';
@@ -3634,6 +3707,7 @@ $(document).ready(function() {
 		/**SAVE CHANGES AND REDIRECT TO LIST**/
 		$("#payableForm #btnSave").click(function(e)
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)									
 			var valid			= 0;
 			/**validate vendor field**/
 			valid		+= validateField('payableForm','document_date', "document_date_help");
@@ -3687,6 +3761,7 @@ $(document).ready(function() {
 		/**SAVE CHANGES AND REDIRECT TO CREATE NEW INVOICE**/
 		$("#payableForm #save_new").click(function()
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)									
 			var valid	= 0;
 			
 			/**validate vendor field**/
@@ -3739,6 +3814,7 @@ $(document).ready(function() {
 			
 		$("#payableForm #save_preview").click(function()
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)						
 			var valid	= 0;
 			
 			/**validate vendor field**/

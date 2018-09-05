@@ -80,7 +80,6 @@ class controller extends wc_controller
 		$data["cmp"]  		          = COMPANYCODE;
 			
 		$this->view->title 			= 'Stock Transfer Request';
-		$data['warehouse_list']		= $this->stock_transfer->getWarehouseList();
 		$data["item_list"] 			= $this->stock_transfer->getItemList();
 		$data['ajax_task'] 			= 'create';
 		$data['ajax_post']          = '';
@@ -94,6 +93,7 @@ class controller extends wc_controller
 		$data['source']      		= "";
 		$data['stat'] 				= "";
 		$data['row_details'] 		= json_encode(array($this->fields2));
+		$data['warehouse_list']		= $this->stock_transfer->getWarehouseList();		
 
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
@@ -124,7 +124,7 @@ class controller extends wc_controller
 		$data['show_input'] = true;
 		$data["task"] 		= "edit";
 		$data['h_site_source'] 	=	$data['source'];
-		$data['warehouse_list']		= $this->stock_transfer->getWarehouseList('',$data);
+		$data['warehouse_list']		= $this->stock_transfer->getWarehouseList();
 		
 		$current_stat 		=	$this->stock_transfer->getStat($sid,'stock_transfer');
 		$data['stat'] 		=	$current_stat->stat;
@@ -631,10 +631,13 @@ class controller extends wc_controller
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$data['transferdate']		= $this->date->dateDbFormat($data['transferdate']);
 		$seq						= new seqcontrol();
-		$data['stocktransferno']	= $seq->getValue('STA');
+		$sta_no 					= $seq->getValue('STA');
+		$data['stocktransferno']	= $sta_no;
 		$result						= $this->stock_transfer->saveStockTransferApproval($data, $data2);
 		if ($result && $this->inventory_model) {
-			$this->inventory_model->generateBalanceTable();
+			$this->inventory_model->setReference($sta_no)
+								->setDetails($data['approved_by'])
+								->generateBalanceTable();
 		}
 		$redirect_url = MODULE_URL;
 		
@@ -657,7 +660,9 @@ class controller extends wc_controller
 		$result						= $this->stock_transfer->updateStockApproval($data, $data2, $voucherno);
 	
 		if ($result && $this->inventory_model) {
-			$this->inventory_model->generateBalanceTable();
+			$this->inventory_model->setReference($voucherno)
+								->setDetails($data['approved_by'])
+								->generateBalanceTable();
 		}
 		return array(
 			'redirect'	=> MODULE_URL,
@@ -704,6 +709,7 @@ class controller extends wc_controller
 
 	private function set_received(){
 		$stocktransferno 	= $this->input->post('transaction_no');
+		$approved_by 		= $this->input->post('approved_by');
 
 		$data['stat'] 	=	'received';
 		$result 	= $this->stock_transfer->updateStatus($data, 'stock_transfer', $stocktransferno);
@@ -713,7 +719,9 @@ class controller extends wc_controller
 			$msg = "success";
 			$this->logs->saveActivity("Received Stock Transfer [$stocktransferno] ");
 			if ( $this->inventory_model ) {
-				$this->inventory_model->generateBalanceTable();
+				$this->inventory_model->setReference($stocktransferno)
+								->setDetails($approved_by)
+								->generateBalanceTable();
 			}
 		}
 		else
@@ -834,11 +842,16 @@ class controller extends wc_controller
 
 	private function delete_approval() 
 	{
-		
 		$delete_id = $this->input->post('voucherno');
+
+		$retrieve_details =	$this->stock_transfer->getStockTransferApproval(array('approved_by'),$delete_id);
+		$approved_by 	  = isset($retrieve_details->approved_by)	?	$retrieve_details->approved_by 	:	"";
+	
 		if ($delete_id) {
 			$this->stock_transfer->deleteStockTransferApproval($delete_id);
-			$this->inventory_model->generateBalanceTable();
+			$this->inventory_model->setReference($delete_id)
+								->setDetails($approved_by)
+								->generateBalanceTable();
 		}
 		
 		return array(

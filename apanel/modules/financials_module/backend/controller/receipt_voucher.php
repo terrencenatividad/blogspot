@@ -378,10 +378,17 @@ class controller extends wc_controller
 		// Retrieve vendor list
 		$data["customer_list"]          = $this->receipt_voucher->retrieveCustomerList();
 
+		$coa_array	= array();
+		foreach ($data['details'] as $index => $dtl){
+			$coa			= $dtl->accountcode;
+			$coa_array[]	= $coa;
+		}
+		
+		$condition = ($coa_array) ? " OR id IN ('".implode("','",$coa_array)."')" : "";
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
+		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val, stat stat");
 		$acc_entry_cond               = "accounttype != ''";
-		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
+		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond. $condition, "segment5");
 
 		$dis_entry 					= $this->receipt_voucher->getValue("fintaxcode", array("salesAccount"), "fstaxcode = 'DC'");
 		$discount_code 				= isset($dis_entry[0]->salesAccount) ? $dis_entry[0]->salesAccount	: "";
@@ -422,7 +429,9 @@ class controller extends wc_controller
 	 		
 		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
 
-		foreach ($data["listofcheques"] as $index => $cheque){
+		$checks = isset($data["listofcheques"]) ? $data["listofcheques"] : '';
+
+		foreach ($checks as $index => $cheque){
 			$accountcode 	=	$cheque['chequeaccount'];
 			$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val, b.stat stat";
 			$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes' OR c.id = $accountcode";
@@ -674,7 +683,7 @@ class controller extends wc_controller
 									->setPlaceholder('None')
 									->setName('paymentmode'.$row_count)
 									->setId('paymentmode'.$row_count)
-									->setList(array("cash" => "Cash", "cheque" => "Cheque"))
+									->setList(array("cash" => "Cash", "cheque" => "Check"))
 									->setValue($paymentmode)
 									->draw(true).
 							'</td>';
@@ -1495,9 +1504,9 @@ class controller extends wc_controller
 						$table	.= '<td colspan="2" class="warning" ><strong>Bank Account</strong></td>';
 						$table	.= '<td class="warning" ><strong>Bank</strong></td>';
 						
-						$table	.= '<td class="warning" ><strong>Cheque Number</strong></td>';
-						$table	.= '<td class="warning" ><strong>Cheque Date</strong></td>';
-						$table	.= '<td class="warning" ><strong>Cheque Amount</strong></td>';
+						$table	.= '<td class="warning" ><strong>Check Number</strong></td>';
+						$table	.= '<td class="warning" ><strong>Check Date</strong></td>';
+						$table	.= '<td class="warning" ><strong>Check Amount</strong></td>';
 						$table	.= '</tr>';
 
 
@@ -1576,9 +1585,9 @@ class controller extends wc_controller
 					if($nextvno != $prevvno){
 						$csv .= '"",';
 						$csv .= '"Bank Account",';
-						$csv .= '"Cheque Number",';
-						$csv .= '"Cheque Date",';
-						$csv .= '"Cheque Amount",';
+						$csv .= '"Check Number",';
+						$csv .= '"Check Date",';
+						$csv .= '"Check Amount",';
 						$csv .= "\n";
 					}
 					$csv .= '"",';

@@ -202,6 +202,16 @@ class controller extends wc_controller
 				$updateTempRecord			= $this->payment_voucher->editData($update_cheque,"pv_cheques",$update_condition);
 				/**UPDATE MAIN INVOICE**/
 				$this->update_app($data_validate['selected_rows']);
+
+				// update checks
+				$getnextCheckno 			= $this->payment_voucher->get_check_no($generatedvoucher);
+				foreach ($getnextCheckno as $value) {
+					$cno = $value->checknum;
+					$ca = $value->chequeaccount;
+					$getBank = $this->payment_voucher->getbankid($ca);
+					$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
+					$updateCheckNo = $this->payment_voucher->updateCheck($bank_id, $cno);
+				}
 			}
 			
 			if(empty($errmsg))
@@ -369,10 +379,17 @@ class controller extends wc_controller
 		// Retrieve vendor list
 		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList();
 
+		$coa_array	= array();
+		foreach ($data['details'] as $index => $dtl){
+			$coa			= $dtl->accountcode;
+			$coa_array[]	= $coa;
+		}
+		
+		$condition = ($coa_array) ? " OR id IN ('".implode("','",$coa_array)."')" : "";
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
+		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val, stat stat");
 		$acc_entry_cond               = "accounttype != ''";
-		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
+		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond. $condition, "segment5");
 
 		// Cash Account Options
 		// $cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
@@ -406,15 +423,19 @@ class controller extends wc_controller
 		$data["listofcheques"]	 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
 		$data["show_cheques"] 	 	= isset($data['rollArray'][$sid]) ? '' : 'hidden';
 
-		foreach ($data["listofcheques"] as $index => $cheque){
-			$accountcode 	=	$cheque['chequeaccount'];
+		
+		$show_checks 	 			= isset($data['rollArray'][$sid]) ? '' : 'hidden';
+
+		// foreach ($show_checks as $index => $cheque){
+			// $accountcode 	=	$cheque['chequeaccount'];
+			// $con = "OR c.id = $accountcode";
 			$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val, b.stat stat";
-			$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes' OR c.id = $accountcode";
+			// $cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes' $con";
+			$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
 			$cash_order_by 		 	  	= "id desc";
 			$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
-			$data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
-
-		}
+			$data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join , '');
+		// }
 
 		// Application Data
 		$payments 				= $data['payments'];
@@ -677,7 +698,7 @@ class controller extends wc_controller
 									->setPlaceholder('None')
 									->setName('paymentmode'.$row_count)
 									->setId('paymentmode'.$row_count)
-									->setList(array("cash" => "Cash", "cheque" => "Cheque"))
+									->setList(array("cash" => "Cash", "cheque" => "Check"))
 									->setValue($paymentmode)
 									->draw(true).
 							'</td>';
@@ -1471,9 +1492,9 @@ class controller extends wc_controller
 						$table	.= '<tr>';
 						$table	.= '<td></td>';
 						$table	.= '<td colspan="2" class="warning" ><strong>Bank Account</strong></td>';
-						$table	.= '<td class="warning" ><strong>Cheque Number</strong></td>';
-						$table	.= '<td class="warning" ><strong>Cheque Date</strong></td>';
-						$table	.= '<td class="warning" ><strong>Cheque Amount</strong></td>';
+						$table	.= '<td class="warning" ><strong>Check Number</strong></td>';
+						$table	.= '<td class="warning" ><strong>Check Date</strong></td>';
+						$table	.= '<td class="warning" ><strong>Check Amount</strong></td>';
 						$table	.= '</tr>';
 
 
@@ -1550,9 +1571,9 @@ class controller extends wc_controller
 					if($nextvno != $prevvno){
 						$csv .= '"",';
 						$csv .= '"Bank Account",';
-						$csv .= '"Cheque Number",';
-						$csv .= '"Cheque Date",';
-						$csv .= '"Cheque Amount",';
+						$csv .= '"Check Number",';
+						$csv .= '"Check Date",';
+						$csv .= '"Check Amount",';
 						$csv .= "\n";
 					}
 					$csv .= '"",';
@@ -1579,7 +1600,6 @@ class controller extends wc_controller
 		$print_dtls->setDocumentType('Payment Voucher')
 					->setDocumentInfo($print_chkdtl)
 					->drawPDF('pv_voucher_' . $vno);
-		
-		
 	}
+
 }

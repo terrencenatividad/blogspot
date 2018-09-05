@@ -549,7 +549,7 @@
 		var has_error 	=	validate_date(current_date);
 
 		if(!has_error){
-			$.post('<?=MODULE_URL?>ajax/temporary_jv_save', ajax2 , function(response) {
+			$.post('<?=MODULE_URL?>ajax/temporary_jv_close', ajax2 , function(response) {
 				if( response.result ){
 					$("#jvModal").modal('hide');
 					preview_jv(response.voucherno);
@@ -561,7 +561,7 @@
 
 	$('#previewModal').on('click','#confirmbtn',function(){
 		ajax2.voucherno 	=	$('#previewModal #voucherno').val();
-		$.post('<?=MODULE_URL?>ajax/update_jv_status', ajax2 , function(response) {
+		$.post('<?=MODULE_URL?>ajax/close_jv_status', ajax2 , function(response) {
 			if( response.result ){
 				$('#previewModal').modal('hide');
 				$('#redirectionModal').modal('show');
@@ -602,7 +602,7 @@
 	$('#closing_cancel').on('click',function(e){
 		ajax2.voucherno 	=	$('#previewModal #voucherno').val();
 		//delete temporary saved jv... 
-		$.post('<?=MODULE_URL?>ajax/delete_temporary_jv', ajax2 , function(response) {
+		$.post('<?=MODULE_URL?>ajax/eradicate_temporary_jv', ajax2 , function(response) {
 			if( response.result ){
 				$('#previewModal').modal('hide');
 				getTrialBalance();

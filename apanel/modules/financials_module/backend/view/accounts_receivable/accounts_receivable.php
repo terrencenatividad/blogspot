@@ -283,20 +283,20 @@
 						</div>
 						<!--VOUCHER DETAILS : START-->
 						<div class = "row">
-							<div class="has-error col-md-12">
-								<span id="detailAccountError" class="help-block hidden col-md-offset-1">
+							<div id="details_error " class="col-md-12 has-error">
+								<span id="detailAccountError" class="help-block hidden">
 									<i class="glyphicon glyphicon-exclamation-sign"></i> 
 									Please specify an account for the highlighted row(s).
 								</span>
-								<span id="detailAmountError" class="help-block hidden col-md-offset-1">
+								<span id="detailAmountError" class="help-block hidden">
 									<i class="glyphicon glyphicon-exclamation-sign"></i> 
 									Please specify a debit or credit amount for the highlighted row(s). 
 								</span>
-								<span id="detailTotalError" class="help-block hidden col-md-offset-1">
+								<span id="detailTotalError" class="help-block hidden">
 									<i class="glyphicon glyphicon-exclamation-sign"></i> 
 									Please make sure total debit and total credit are equal. 
 								</span>
-								<span id="detailEqualError" class="help-block hidden col-md-offset-1">
+								<span id="detailEqualError" class="help-block hidden">
 									<i class="glyphicon glyphicon-exclamation-sign"></i> 
 									Please make sure that the total amount (<strong></strong>) is equal to both total debit or total credit. 
 								</span>
@@ -339,6 +339,7 @@
 														->setSplit('', 'col-md-12')
 														->setName("accountcode[".$row."]")
 														->setId("accountcode[".$row."]")
+														->setClass('accountcode')
 														->setList($account_entry_list)
 														->setValue("")
 														->draw($show_input);
@@ -394,6 +395,7 @@
 														->setSplit('', 'col-md-12')
 														->setName("accountcode[".$row."]")
 														->setId("accountcode[".$row."]")
+														->setClass('accountcode')
 														->setList($account_entry_list)
 														->setValue("")
 														->draw($show_input);
@@ -472,6 +474,7 @@
 															->setSplit('', 'col-md-12')
 															->setName("accountcode[".$row."]")
 															->setId("accountcode[".$row."]")
+															->setClass('accountcode')
 															->setList($account_entry_list)
 															->setValue($accountcode)
 															->draw($show_input);
@@ -2745,10 +2748,10 @@ function loadCheques(i)
 
 		bootbox.dialog({
 			message: "Please select one of the option to proceed.",
-			title: "Print Cheque",
+			title: "Print Check",
 			buttons: {
 				check: {
-					label: "Cheque Only",
+					label: "Check Only",
 					className: "btn-primary btn-flat",
 					callback: function(result) {
 						var link 	 		= '<?= BASE_URL ?>financials/accounts_receivable/generateCheck/'+paymentvoucher+'/'+chequeno;
@@ -2757,7 +2760,7 @@ function loadCheques(i)
 				}
 			},
 			voucher: {
-				label: "Cheque with Voucher",
+				label: "Check with Voucher",
 				className: "btn-success btn-flat",
 				callback: function(result) {
 					var link 	 		= '<?= BASE_URL ?>financials/accounts_receivable/generateCheckVoucher/'+paymentvoucher+'/'+chequeno+'/rv';
@@ -3538,6 +3541,7 @@ function loadCheques(i)
 		/**SAVE CHANGES AND REDIRECT TO LIST**/
 		$("#receivableForm #btnSave").click(function(e)
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)						
 			var valid	= 0;
 
 			//$("#receivableForm").find('.form-group').find('input, textarea, select').trigger('blur');
@@ -3587,6 +3591,7 @@ function loadCheques(i)
 		/**SAVE CHANGES AND REDIRECT TO CREATE NEW INVOICE**/
 		$("#receivableForm #save_new").click(function()
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)						
 			var valid	= 0;
 			
 			/**validate Customer field**/
@@ -3635,6 +3640,7 @@ function loadCheques(i)
 
 		$("#receivableForm #save_preview").click(function()
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)						
 			var valid	= 0;
 			
 			//$("#receivableForm").find('.form-group').find('input, textarea, select').trigger('blur');

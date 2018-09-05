@@ -76,7 +76,7 @@
 								->setName('paymentmode')
 								->setId('paymentmode')
 								->addHidden(($task == 'view'))
-								->setList(array("cash" => "Cash", "cheque" => "Cheque"))
+								->setList(array("cash" => "Cash", "cheque" => "Check"))
 								->setAttribute(
 									array(
 										"onChange" => "toggleCheckInfo(this.value); validateField('payableForm',this.id, 'paymentmode_help');"
@@ -187,7 +187,7 @@
 			<div class="has-error">
 				<span id="chequeCountError" class="help-block hidden small">
 					<i class="glyphicon glyphicon-exclamation-sign"></i> 
-					Please specify at least one(1) cheque.
+					Please specify at least one(1) check.
 				</span>
 				<span id="chequeAmountError" class="help-block hidden small">
 					<i class="glyphicon glyphicon-exclamation-sign"></i> 
@@ -199,12 +199,12 @@
 				</span>
 				<span id="checkNumberError" class="help-block hidden">
 					<i class="glyphicon glyphicon-exclamation-sign"></i> 
-					The Cheque Number you entered has already been used
+					The Check Number you entered has already been used
 				</span>
 			</div>
 			<div class="panel panel-default <?php echo $show_cheques?>" id="cheque_details">
 				<div class="panel-heading">
-					<strong>Cheque Details</strong>
+					<strong>Check Details</strong>
 				</div>
 				<div class="table-responsive">
 					<table class="table table-condensed table-bordered table-hover" id="chequeTable">
@@ -212,8 +212,8 @@
 							<tr class="info">
 								<th class="col-md-2">Deposit To</th>
 								<th class="col-md-2">Bank</th>
-								<th class="col-md-2">Cheque Number</th>
-								<th class="col-md-2">Cheque Date</th>
+								<th class="col-md-2">Check Number</th>
+								<th class="col-md-2">Check Date</th>
 								<th class="col-md-2">Amount</th>
 								<?if($show_input):?><th class="col-md-1">Action</th><?endif;?>
 							</tr>
@@ -406,7 +406,7 @@
 						<tr>
 							<? if($show_input):?>
 								<td colspan="3">
-									<a type="button" class="btn btn-link add-cheque"  style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Cheque</a>
+									<a type="button" class="btn btn-link add-cheque"  style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Check</a>
 								</td>
 								<td class="text-right"><label class="control-label">Total</label></td>
 								<td class="text-right">
@@ -899,6 +899,14 @@
 							<i class="glyphicon glyphicon-exclamation-sign"></i> 
 							Please make sure that the amount paid for the payable(s) below are greater than zero(0).
 						</span>
+						<span id="discountAmtError" class="help-block hidden small has-error">
+							<i class="glyphicon glyphicon-exclamation-sign"></i> 
+							You cannot input a <strong>Discount</strong> greater than the <strong>Amount to Receive</strong>.
+						</span>
+						<span id="receiveAmtError" class="help-block hidden small has-error">
+							<i class="glyphicon glyphicon-exclamation-sign"></i> 
+							You cannot enter a negative amount.
+						</span>
 					</div>
 					<div class="table-responsive">
 						<table class="table table-condensed table-bordered table-hover" id="app_payableList">
@@ -934,7 +942,7 @@
 						<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 							<?if($show_input):?>
 							<div class="btn-group">
-								<button type = "button" class = "btn btn-primary btn-sm btn-flat" onClick = "getRVDetails();">Tag</button>
+								<button type = "button" id="TagReceivablesBtn" class = "btn btn-primary btn-sm btn-flat" onClick = "getRVDetails();">Tag</button>
 							</div>
 							&nbsp;&nbsp;&nbsp;
 							<?endif;?>
@@ -1296,6 +1304,17 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 				$(this).closest('tr').find('.h_accountcode').val($(this).val());	
 			}	
 		});
+	}
+	function computefortotalaccounts(){
+		var count 	=	0;
+		$('#entriesTable tbody tr select.accountcode').each(function() {
+			var accountcode = $(this).val();
+			console.log(" ACCOUNTS = "+accountcode);
+			if(accountcode != "" && accountcode != undefined){
+				count++;
+			} 
+		});
+		return count;
 	}
 	function recomputechequeamts(){
 		checker = [];
@@ -1943,7 +1962,7 @@ function toggleCheckInfo(val){
 		}else{
 			
 			var list 	= (customer != '') ? "<ul><li>Total Receivables</li></ul>" : "<ul><li>Vendor</li><li>Total Receivables</li></ul>";
-			var msg 	= "The following fields are required to process a '<strong>Cheque</strong>' payment."+list;
+			var msg 	= "The following fields are required to process a '<strong>Check</strong>' payment."+list;
 			bootbox.dialog({
 				message: msg,
 				title: "Oops!",
@@ -1979,6 +1998,7 @@ function clearPayment(){
 	var today	= moment().format("MMM D, YYYY");
 
 	clearInput("total_payment");
+	clearInput("total_discount");
 
 	$("#payableForm #paymentdate").val('<?= $transactiondate ?>');
 	$("#payableForm #paymentmode").val('cash');
@@ -1993,10 +2013,10 @@ function confirmChequePrint(row){
 
 	bootbox.dialog({
 		message: "Please select one of the option to proceed.",
-		title: "Print Cheque",
+		title: "Print Check",
 		buttons: {
 			check: {
-				label: "Cheque Only",
+				label: "Check Only",
 				className: "btn-primary btn-flat",
 				callback: function(result) {
 					var link 	 		= '<?= BASE_URL ?>financials/receipt_voucher/generateCheck/'+paymentvoucher+'/'+chequeno;
@@ -2005,7 +2025,7 @@ function confirmChequePrint(row){
 				}
 			},
 			voucher: {
-				label: "Cheque with Voucher",
+				label: "Check with Voucher",
 				className: "btn-success btn-flat",
 				callback: function(result) {
 					var link 	 		= '<?= BASE_URL ?>financials/receipt_voucher/generateCheckVoucher/'+paymentvoucher+'/'+chequeno+'/rv';
@@ -2371,16 +2391,17 @@ function init_storage(){
 }
 
 function add_storage(id,balance,discount,credits){
-
+	// console.log("PARAMETERS : ");
+	// console.log("ID "+id+"\nBALANCE "+balance+"\nDISCOUNT "+discount+"\nCREDITS "+credits);
 	var amount 		= $('#paymentModal #paymentamount'+id).val();
 	var overpayment	= $('#payableForm #overpayment').val();
-	overpayment = parseFloat(removeComma(overpayment));
+		overpayment = parseFloat(removeComma(overpayment));
 
 	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount,cred:credits};
 	var newcont 	= JSON.parse(JSON.stringify(container));
 
 	var total_cred_used  = 0;
-	if(amount != ''){
+	if(amount != 0){
 		var found = false;
 		for(var i=0; element=container[i]; i++) {
 			if(element.vno == newvalue.vno) {
@@ -2389,7 +2410,8 @@ function add_storage(id,balance,discount,credits){
 				var original_balance 	=	(removeComma(element.bal) > 0) ? removeComma(element.bal)  : 0;
 				var original_discount	=	(removeComma(element.dis) > 0) ? removeComma(element.dis)  : 0;
 				var original_credits	=	(removeComma(element.cred) > 0)? removeComma(element.cred) : 0;
-				
+				// console.log("ORIGINAL");
+				// console.log("AMOUNT="+original_amount+"\nBALANCE="+original_balance+"\nDISCOUNT="+original_discount+"\nCREDITS="+original_credits);
 				// console.log("Original || "+original_amount+ " | " + original_balance + " | "+original_discount + " | "+original_credits);
 
 				var new_amount 			=	(removeComma(newvalue.amt) > 0) ? removeComma(newvalue.amt) : 0;
@@ -2400,11 +2422,11 @@ function add_storage(id,balance,discount,credits){
 				// console.log("NEW || "+new_amount+ " | " + new_balance + " | "+discount + " | " + credits);
 
 				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount) - parseFloat(original_credits)) - new_amount;
-				available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
+					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
 
 				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount) + parseFloat(original_credits)) - discount - credits;
-				discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
-
+					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
+				// console.log("AVAILABLE BALANCE = "+available_balance);
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
 
@@ -2434,7 +2456,7 @@ function add_storage(id,balance,discount,credits){
 		
 	}else{
 		// balance 	=	(balance > 0) 	?	balance : 0;
-		$('#payable_list_container #payable_balance'+id).html(balance);
+		$('#payable_list_container #payable_balance'+id).html(addComma(balance));
 		container = container.filter(function( obj ) {
 			return obj.vno !== id;
 		});
@@ -2461,39 +2483,61 @@ function checkBalance(val,id){
 
 	var condition = "";
 	var input 	  = "";
+	var error 	  = 0;
 
-	condition 			= (parseFloat(newval) || parseFloat(discount)) > (parseFloat(dueamount) );
-
-	// var excess_payment 	= ((newval 	-	total_amount) > 0) 	? newval - total_amount : 0
+	condition 			= (parseFloat(newval) || parseFloat(discount) == 0 || (parseFloat(discount) > parseFloat(dueamount) || parseFloat(discount) > parseFloat(current_payment) ) ) ;
 	
 	var excess_payment 	=	0;
-
+	// console.log("New Value "+newval+" Discount "+discount + " Due Amount = "+dueamount+" Current Payment =  "+current_payment);
 	if(condition){
-		// console.log('1');
 		$('#payable_list_container tr').each(function(index) {
 			var value = $(this).find('.paymentamount').val();
-			value = parseFloat(removeComma(value));
+				value = parseFloat(removeComma(value));
 			var balances = 	$(this).find('.balances').attr('data-value');
-			balances = parseFloat(removeComma(balances));
-			
-			if(value > 0){
+				balances = parseFloat(removeComma(balances));
+			var ind_disc = $(this).find('.discountamount').val();
+				ind_disc = removeComma(ind_disc);
+
+			if(value >= 0){
 				excess_payment 	+=	(value - balances);
+				$('#receiveAmtError').addClass('hidden');
+			} else {
+				$('#receiveAmtError').removeClass('hidden');
+				error++;
+			}
+			if(value >= 0 && ind_disc > value) {
+				$("#discountAmtError").removeClass('hidden');
+				$(this).find('.discountamount').closest('div').addClass('has-error');
+				$(this).find('.paymentamount').closest('div').addClass('has-error');
+				$('#total_payment').val('');
+				$('#total_discount').val('');
+				$('#TagReceivablesBtn').prop('disabled',true);
+				error++;
+			} else {
+				$("#discountAmtError").addClass('hidden');
+				$(this).find('.discountamount').closest('div').removeClass('has-error');
+				$(this).find('.paymentamount').closest('div').removeClass('has-error');
+				$('#TagReceivablesBtn').prop('disabled',false);
+			}
+			if(ind_disc == 0){
+				$("#discountAmtError").addClass('hidden');
+				$(this).find('.discountamount').closest('div').removeClass('has-error');
+				$(this).find('.paymentamount').closest('div').removeClass('has-error');
+				$('#TagReceivablesBtn').prop('disabled',false);
 			}
 		});
 		$('#payableForm #overpayment').val(excess_payment);
 		$('#payable_list_container #paymentamount'+id).value = '';
 	}else{
-		// console.log('2');
 		$('#payable_list_container #paymentamount'+id).value = val;
 	}
 
-	dueamount 	=	(excess_payment > 0) 	?	 0	:	dueamount;
+	if(error == 0){
+		dueamount 	=	(excess_payment > 0) 	?	 0	:	dueamount;
 
-	// dueamount 	=	(credit_used > 0) 		?	dueamount-credit_used 	:	dueamount;
-	
-	// console.log("DUE AMOUNT " + dueamount);
-	add_storage(id,dueamount,discount,credit_used);
-	addPaymentAmount();	
+		add_storage(id,dueamount,discount,credit_used);
+		addPaymentAmount();	
+	}
 }
 
 function checkCredit(val,id){
@@ -3621,6 +3665,7 @@ $(document).ready(function() {
 		/**SAVE CHANGES AND REDIRECT TO LIST**/
 		$("#payableForm #btnSave").click(function(e)
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)						
 			var valid	= 0;
 
 			/**validate vendor field**/
@@ -3668,6 +3713,7 @@ $(document).ready(function() {
 		/**SAVE CHANGES AND REDIRECT TO CREATE NEW INVOICE**/
 		$("#payableForm #save_new").click(function()
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)						
 			var valid	= 0;
 			
 			/**validate vendor field**/
@@ -3714,6 +3760,7 @@ $(document).ready(function() {
 
 		$("#payableForm #save").click(function()
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)						
 			var valid	= 0;
 			
 			/**validate vendor field**/
@@ -3759,6 +3806,7 @@ $(document).ready(function() {
 
 		$("#payableForm #save_exit").click(function()
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)						
 			var valid	= 0;
 			
 			/**validate vendor field**/
@@ -3888,9 +3936,13 @@ $(document).ready(function() {
 	});
 
 	$('#customer').on('change',function(){
-		if ($('.accountcode').val()	 != '' || $('.cheque_account').val()	 != '' ) {
+		var accounts_selected 	= computefortotalaccounts();
+		var total_payment 		= $('#total_payment').val();
+		var total_discount 		= $('#total_discount').val();
+
+		if(accounts_selected > 0){
 			$('#change_customer_modal').modal('show');
-		} 
+		}
 		// Get Customer Credit
 		var customer = $(this).value;
 
