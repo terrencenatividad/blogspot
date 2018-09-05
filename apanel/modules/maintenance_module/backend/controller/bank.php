@@ -317,11 +317,11 @@
 									'trash',
 									'deletecheck'
 								)
-								->addOtherTask(
-									'Set as Default Check',
-									'check',
-									'set_default'
-								)
+								// ->addOtherTask(
+								// 	'Set as Default Check',
+								// 	'check',
+								// 	'set_default'
+								// )
 								->draw();
 					$table .= '<tr>';
 					$table .= ' <td align = "center">' .$dropdown. '</td>';
