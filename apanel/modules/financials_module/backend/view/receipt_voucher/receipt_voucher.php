@@ -2381,8 +2381,6 @@ function init_storage(){
 }
 
 function add_storage(id,balance,discount,credits){
-	// console.log("PARAMETERS : ");
-	// console.log("ID "+id+"\nBALANCE "+balance+"\nDISCOUNT "+discount+"\nCREDITS "+credits);
 	var amount 		= $('#paymentModal #paymentamount'+id).val();
 	var overpayment	= $('#payableForm #overpayment').val();
 		overpayment = parseFloat(removeComma(overpayment));
@@ -2466,52 +2464,42 @@ function checkBalance(val,id){
 	var condition = "";
 	var input 	  = "";
 	var error 	  = 0;
-
 		condition 		= (parseFloat(newval) || parseFloat(discount) == 0 || (parseFloat(discount) > parseFloat(dueamount) || parseFloat(discount) > parseFloat(current_payment) ) ) ;
 	
 	var excess_payment 	= 0;
 
 	if(condition){
-		$('#payable_list_container tr').each(function(index) {
-			var value = $(this).find('.paymentamount').val();
-				value = parseFloat(removeComma(value));
-			var balances = 	$(this).find('.balances').attr('data-value');
-				balances = parseFloat(removeComma(balances));
-			var ind_disc = $(this).find('.discountamount').val();
-				ind_disc = removeComma(ind_disc);
-
-			if(value >= 0){
-				excess_payment 	+=	(value - balances);
-				$('#receiveAmtError').addClass('hidden');
-			} else {
-				$('#receiveAmtError').removeClass('hidden');
-				error++;
-			}
-			if(value >= 0 && ind_disc > value) {
-				$("#discountAmtError").removeClass('hidden');
-				$(this).find('.discountamount').closest('div').addClass('has-error');
-				$(this).find('.paymentamount').closest('div').addClass('has-error');
-				$('#total_payment').val('');
-				$('#total_discount').val('');
-				$('#TagReceivablesBtn').prop('disabled',true);
-				error++;
-			} else {
-				$("#discountAmtError").addClass('hidden');
-				$(this).find('.discountamount').closest('div').removeClass('has-error');
-				$(this).find('.paymentamount').closest('div').removeClass('has-error');
-				$('#TagReceivablesBtn').prop('disabled',false);
-			}
-			if(ind_disc == 0){
-				$("#discountAmtError").addClass('hidden');
-				$(this).find('.discountamount').closest('div').removeClass('has-error');
-				$(this).find('.paymentamount').closest('div').removeClass('has-error');
-				$('#TagReceivablesBtn').prop('disabled',false);
-			}
-		});
+		if(current_payment >= 0){
+			excess_payment 	+=	(current_payment - dueamount);
+			$('#receiveAmtError').addClass('hidden');
+		} else {
+			$('#receiveAmtError').removeClass('hidden');
+			error++;
+		}
+		if(current_payment >= 0 && discount > current_payment) {
+			$("#discountAmtError").removeClass('hidden');
+			$(this).find('.discountamount').closest('div').addClass('has-error');
+			$(this).find('.paymentamount').closest('div').addClass('has-error');
+			$('#total_payment').val('');
+			$('#total_discount').val('');
+			$('#TagReceivablesBtn').prop('disabled',true);
+			error++;
+		} else {
+			$("#discountAmtError").addClass('hidden');
+			$(this).find('.discountamount').closest('div').removeClass('has-error');
+			$(this).find('.paymentamount').closest('div').removeClass('has-error');
+			$('#TagReceivablesBtn').prop('disabled',false);
+		}
+		if(discount == 0){
+			$("#discountAmtError").addClass('hidden');
+			$(this).find('.discountamount').closest('div').removeClass('has-error');
+			$(this).find('.paymentamount').closest('div').removeClass('has-error');
+			$('#TagReceivablesBtn').prop('disabled',false);
+		}
 		$('#payableForm #overpayment').val(excess_payment);
 		$('#payable_list_container #paymentamount'+id).value = '';
 	}else{
-		$('#payable_list_container #paymentamount'+id).value = val;
+		$('#payable_list_container #paymentamount'+id).value = newval;
 	}
 
 	if(error == 0){
