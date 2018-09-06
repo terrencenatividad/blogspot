@@ -377,7 +377,7 @@
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12 field_col')
-											->setClass("chequeamount")
+											->setClass("chequeamount text-right")
 											->setName('chequeamount['.$row.']')
 											->setId('chequeamount['.$row.']')
 											->setValidation('decimal')
@@ -768,19 +768,18 @@
 					<div class="col-md-12 col-sm-12 text-center">
 						<?if($show_input):?>
 						<?php
-						if($task == 'create') {
+						
 							echo $ui->addSavePreview()
-							->addSaveNew()
-							->addSaveExit()
-							->drawSaveOption();
-						}
+									->addSaveNew()
+									->addSaveExit()
+									->drawSaveOption();
 
 						if($task == 'view') {
 							echo $ui->drawSubmit($show_input);
-						} else if($task == 'edit') { ?>
-							<input type = "button" value = "Save" name = "save" id = "btnSave" class="btn btn-primary btn-sm btn-flat"/>
-						<?php }
+						}
 						?>
+							<!-- <input type = "button" value = "Save" name = "save" id = "btnSave" class="btn btn-primary btn-sm btn-flat"/> -->
+	
 
 						<input class = "form_iput" value = "" name = "submit" id = "submit" type = "hidden">
 						<?endif;?>
@@ -3450,6 +3449,7 @@ $(document).ready(function() {
 		$("#payableForm #btnSave").click(function()
 		{
 			var valid	= 0;
+			var button_name 	= "save";
 			var selected_rows 	= JSON.stringify(container);
 
 			valid		+= validateField('payableForm','document_date', "document_date_help");
@@ -3497,7 +3497,7 @@ $(document).ready(function() {
 				{	
 					if(data.code == 1){
 						$("#payableForm #h_voucher_no").val(data.voucher);
-						window.location = data.redirect;
+						finalize_saving(button_name);		
 					} else {
 						var msg = "";
 
@@ -3601,8 +3601,7 @@ $(document).ready(function() {
 			}
 		});
 
-		$("#payableForm #save_exit").click(function()
-		{
+		$("#payableForm #save_exit").click(function(){
 			var valid	= 0;
 			var button_name = "save_exit";
 			
@@ -3659,8 +3658,9 @@ $(document).ready(function() {
 		/**SAVE CHANGES AND REDIRECT TO LIST**/
 		$("#payableForm #btnSave").click(function(e)
 		{
-		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)						
+			$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false);						
 			var valid	= 0;
+			var button_name = "save";
 
 			/**validate vendor field**/
 			valid		+= validateField('payableForm','document_date', "document_date_help");
@@ -3688,7 +3688,7 @@ $(document).ready(function() {
 				.done(function(data)
 				{
 					if(data.code == 1) {
-						finalize_saving();					
+						finalize_saving(button_name);					
 					} else {
 						var msg = "";
 
@@ -3705,10 +3705,10 @@ $(document).ready(function() {
 		});
 
 		/**SAVE CHANGES AND REDIRECT TO CREATE NEW INVOICE**/
-		$("#payableForm #save_new").click(function()
-		{
-		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)						
+		$("#payableForm #save_new").click(function(){
+			$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false);				
 			var valid	= 0;
+			var button_name = "save_new";
 			
 			/**validate vendor field**/
 			valid		+= validateField('payableForm','document_date', "document_date_help");
@@ -3736,7 +3736,7 @@ $(document).ready(function() {
 				.done(function(data)
 				{
 					if(data.code == 1) {
-						window.location = data.redirect;					
+						finalize_saving(button_name);		
 					} else {
 						var msg = "";
 
@@ -3752,10 +3752,10 @@ $(document).ready(function() {
 			}
 		});
 
-		$("#payableForm #save").click(function()
-		{
-		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)						
+		$("#payableForm #save").click(function(){
+			$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false);					
 			var valid	= 0;
+			var button_name = "save";
 			
 			/**validate vendor field**/
 			valid		+= validateField('payableForm','document_date', "document_date_help");
@@ -3779,10 +3779,9 @@ $(document).ready(function() {
 				$("#payableForm #submit").val("save");
 				
 				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
-				.done(function( data ) 
-				{
+				.done(function( data ) {
 					if(data.code == 1) {
-						window.location = data.redirect;				
+						finalize_saving(button_name);				
 					} else {
 						var msg = "";
 
@@ -3798,10 +3797,10 @@ $(document).ready(function() {
 			}
 		});
 
-		$("#payableForm #save_exit").click(function()
-		{
-		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)						
+		$("#payableForm #save_exit").click(function(){
+			$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false);					
 			var valid	= 0;
+			var button_name = "save_exit";
 			
 			/**validate vendor field**/
 			valid		+= validateField('payableForm','document_date', "document_date_help");
@@ -3828,7 +3827,7 @@ $(document).ready(function() {
 				.done(function( data ) 
 				{
 					if(data.code == 1) {
-						window.location = data.redirect;				
+						finalize_saving(button_name);				
 					} else {
 						var msg = "";
 
