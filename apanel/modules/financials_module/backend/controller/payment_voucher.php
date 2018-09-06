@@ -978,12 +978,14 @@ class controller extends wc_controller
 		$book_ids	=json_decode(stripcslashes($data_post['book_ids']));
 		$book_end	=json_decode(stripcslashes($data_post['book_end']));
 		$book_last	= json_decode(stripcslashes($data_post['book_last']));
-
-		foreach ($book_ids as $bank => $book_id) {
-			foreach ($book_id as $key => $id) {
-				$book_last_num = isset($book_last->$bank->$id) ? $book_last->$bank->$id : $id;
-				$result = $this->payment_voucher->update_checks($book_last_num, $id, $bank, $book_end->{$bank}[$key]);
-			} 
+		
+		if ($data_post['paymentmode'] == 'cheque'){
+			foreach ($book_ids as $bank => $book_id) {
+				foreach ($book_id as $key => $id) {
+					$book_last_num = isset($book_last->$bank->$id) ? $book_last->$bank->$id : $id;
+					$result = $this->payment_voucher->update_checks($book_last_num, $id, $bank, $book_end->{$bank}[$key]);
+				} 
+			}
 		}
 		
 		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);
