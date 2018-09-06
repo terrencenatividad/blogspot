@@ -331,7 +331,7 @@ class controller extends wc_controller
 		$data["paymenttype"]     	= $data["main"]->paymenttype;
 		$data["status"]     		= $data["main"]->stat;
 
-		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
+		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array();
 		$data["show_cheques"] 	 = isset($data['rollArray'][$sid]) ? '' : 'hidden';
 		// Application Data
 		$payments 			= $data['payments'];

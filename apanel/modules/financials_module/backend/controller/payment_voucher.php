@@ -420,7 +420,7 @@ class controller extends wc_controller
 		$discount_code 				= isset($dis_entry[0]->purchaseAccount) ? $dis_entry[0]->purchaseAccount	: "";
 		$data['discount_code'] 		= $discount_code;
 
-		$data["listofcheques"]	 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
+		$data["listofcheques"]	 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array();
 		
 		$account_array	= array();
 		foreach ($data['listofcheques'] as $index => $dtl){
