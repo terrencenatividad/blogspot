@@ -35,7 +35,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Bank Account Name: ')
+									->setLabel('Bank Name: ')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('shortname')
 									->setId('shortname')

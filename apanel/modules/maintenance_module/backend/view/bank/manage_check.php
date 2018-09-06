@@ -217,13 +217,13 @@
 			<div class="modal-footer">
 				<div class="row row-dense">
 					<div class="col-md-12 center">
-						<!-- <div class="btn-group">
-							<button type="button" class="btn btn-primary btn-flat" id="set_yes">Yes</button>
-						</div> -->
-						&nbsp;&nbsp;&nbsp;
-						<div class="btn-group text-center">
-							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Ok</button>
+						<div class="btn-group">
+							<button type="button" class="btn btn-primary btn-flat" id="clear_checks" data-dismiss="modal">Ok</button>
 						</div>
+						&nbsp;&nbsp;&nbsp;
+						<!-- <div class="btn-group text-center">
+							<button type="button"  class="btn btn-default btn-flat" data-dismiss="modal">Ok</button>
+						</div> -->
 					</div>
 				</div>
 			</div>	
@@ -300,17 +300,11 @@ function showList(){
 			ajax.page = data.page_limit;
 			getList();
 		}
-
-
 		$('#bank_check tbody tr').each(function() {
-			// console.log($(this));
 			var start_check 	= $(this).find('.start_check').html();
-			bank_checks.push(start_check);
- 			// var result = $(row).text().split('|');
-			// alert( result[2] );
-			// alert('start_check');
-			// var start_check 	= $(this).find('. ').html();
-			// console.log(start_check);
+			if (start_check) {
+				bank_checks.push(start_check);
+			}
 		});
 
 		
@@ -514,7 +508,7 @@ $('#check_container').on('click', '.set_as_default_check', function(){
 		}
 });
 
-$('#checkForm #firstchequeno, #lastchequeno').on('change' ,function(){
+$('#checkForm #firstchequeno, #lastchequeno').on('blur' ,function(){
 	var first_number = $('#firstchequeno').val();
 	var end_number = $('#lastchequeno').val();
 	if (first_number != "" && end_number !="" ){
@@ -522,6 +516,8 @@ $('#checkForm #firstchequeno, #lastchequeno').on('change' ,function(){
 			$('#modal_checker_on_range').modal('show');
 		}
 	}
+
+	
 	jQuery.each(bank_checks,function(ind,val){
 		var result = val.split('-');
 		var start = result[0];
@@ -529,8 +525,15 @@ $('#checkForm #firstchequeno, #lastchequeno').on('change' ,function(){
 		if ( (start <= first_number && end >= first_number) || (start <= end_number && end >= end_number)){
 			$('#modal_checker').modal('show');
 		}  
-		
-	});
+    })
+	
+	
 
+
+	
 })
+
+$('#clear_checks').on('click', function(){
+	$('#checkForm').trigger("reset");
+}) 
 </script>
