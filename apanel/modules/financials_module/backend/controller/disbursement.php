@@ -851,11 +851,11 @@ class controller extends wc_controller
 			$errmsg 	= $result['errmsg'];
 		}
 
-		$book_ids	=json_decode(stripcslashes($data_post['book_ids']));
-		$book_end	=json_decode(stripcslashes($data_post['book_end']));
-		$book_last	= json_decode(stripcslashes($data_post['book_last']));
-
 		if ($data_post['paymentmode'] == 'cheque'){
+			
+		$book_ids	= isset($data_post['book_ids']) && $data_post['book_ids'] != "" ? json_decode(stripcslashes($data_post['book_ids'])) : array();
+		$book_end	= isset($data_post['book_end']) && $data_post['book_end'] != "" ? json_decode(stripcslashes($data_post['book_end'])) : array();
+		$book_last	= isset($data_post['book_last'])&& $data_post['book_last'] != "" ? json_decode(stripcslashes($data_post['book_last'])) : array();
 			foreach ($book_ids as $bank => $book_id) {
 				foreach ($book_id as $key => $id) {
 					$book_last_num = isset($book_last->$bank->$id) ? $book_last->$bank->$id : $id;
@@ -863,6 +863,7 @@ class controller extends wc_controller
 				} 
 			}
 		}
+		
 		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);
 		return $dataArray;
 	}
