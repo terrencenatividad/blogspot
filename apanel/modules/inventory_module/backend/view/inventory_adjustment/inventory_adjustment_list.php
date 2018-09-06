@@ -499,6 +499,17 @@
 
 	getList();
 
+	function displayBtn(){
+		if (ajax_call != '') {
+			ajax_call.abort();
+		}
+		ajax_call = $.post('<?=MODULE_URL?>ajax/view_import_button', ajax, function(data) {
+			if(data.display == 0){
+				$('#import').addClass('hidden');
+			}
+		});
+	}
+
 	//Hide the table by default
 	$('.w_selected').hide();
 
@@ -533,6 +544,7 @@
 						
 						if( data.msg == 'success' ){
 							getList();
+							displayBtn();
 							hide_error();
 							$("#adjModal").modal('hide');
 						}
