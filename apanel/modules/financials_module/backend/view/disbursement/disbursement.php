@@ -134,7 +134,7 @@
 					<div class="has-error">
 						<span id="chequeCountError" class="help-block hidden small">
 							<i class="glyphicon glyphicon-exclamation-sign"></i> 
-							Please specify at least one(1) cheque.
+							Please specify at least one(1) check.
 						</span>
 						<span id="chequeAmountError" class="help-block hidden small">
 							<i class="glyphicon glyphicon-exclamation-sign"></i> 
@@ -2540,67 +2540,14 @@
 					});
 				}
 			});
-
-			$("#payableForm #save").click(function(){
-				var valid		= 0;
-				var button_name = $(this).attr('name');
-				var paymentmode = $('#paymentmode').val();
-
-				var form_element = $(this).closest('form');
-				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
-
-				valid		+= validateDetails();
-
-				if(paymentmode == 'cheque'){
-					valid 	+= validateCheques();
-				}
-
-				finalize_saving(valid, button_name);
-			});
-
-			$("#payableForm #save_new").click(function(){
-				var valid		= 0;
-				var button_name = $(this).attr('name');
-				var paymentmode = $('#paymentmode').val();
-			// console.log('new = button_name ' + button_name );
-			
-			var form_element = $(this).closest('form');
-			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
-
-			valid		+= validateDetails();
-
-			if(paymentmode == 'cheque'){
-				valid 	+= validateCheques();
-			}
-
-			finalize_saving(valid, button_name);
-		});
-
-			$("#payableForm #save_exit").click(function(){
-				var valid		= 0;
-				var button_name = $(this).attr('name');
-				var paymentmode = $('#paymentmode').val();
-
-				var form_element = $(this).closest('form');
-				form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
-
-				valid		+= validateDetails();
-
-				if(paymentmode == 'cheque'){
-					valid 	+= validateCheques();
-				}
-
-				finalize_saving(valid, button_name);
-			});
-
 		} else if( task == "edit") {
 			var paymentmode = $("#paymentmode").val();
 
 			if(paymentmode == "cheque"){
 				addAmounts();
 			}
-
 		}
+		
 		$("#paymentmode").removeAttr("disabled");
 
 		$("#payableForm #save").click(function(){

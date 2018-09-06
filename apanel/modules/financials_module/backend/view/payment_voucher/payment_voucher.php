@@ -152,7 +152,7 @@
 				<div class="has-error">
 					<span id="chequeCountError" class="help-block hidden small">
 						<i class="glyphicon glyphicon-exclamation-sign"></i> 
-						Please specify at least one(1) cheque.
+						Please specify at least one(1) check.
 					</span>
 					<span id="chequeAmountError" class="help-block hidden small">
 						<i class="glyphicon glyphicon-exclamation-sign"></i> 
