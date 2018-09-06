@@ -2469,15 +2469,14 @@ function checkBalance(val,id){
 	var excess_payment 	= 0;
 
 	if(condition){
-		if(newval > 0){
-			excess_payment 	+=	(newval - dueamount);
+		if(current_payment >= 0){
+			excess_payment 	+=	(current_payment - dueamount);
 			$('#receiveAmtError').addClass('hidden');
 		} else {
 			$('#receiveAmtError').removeClass('hidden');
 			error++;
 		}
-		if(newval > 0 && discount > newval) {
-			console.log('2');
+		if(current_payment >= 0 && discount > current_payment) {
 			$("#discountAmtError").removeClass('hidden');
 			$(this).find('.discountamount').closest('div').addClass('has-error');
 			$(this).find('.paymentamount').closest('div').addClass('has-error');
