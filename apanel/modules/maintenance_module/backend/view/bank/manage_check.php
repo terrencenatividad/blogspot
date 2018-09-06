@@ -461,7 +461,7 @@ $(document).ready(function()
 							success: function(response){
 								if(response && response.errmsg == ""){
 									$('#import-modal').modal('hide');
-									$(".alert-warning").addClass("hidden");
+									 
 									$("#errmsg").html('');
 									showList();
 								}else{
@@ -651,21 +651,36 @@ $('#save_cancelled').on('click',function(){
 	}
 })
 
-$('#cancelled_checks #firstcancelled, #lastcancelled').on('blur',function(){
+$('#cancelled_checks #firstcancelled').on('blur',function(){
 	var first_number= $('#firstcancelled').val();
 	var end_number 	= $('#lastcancelled').val();
 	var range 		= 	$('#range').html();
-	if (first_number != "" && end_number !="" ){
-		if (end_number < first_number){
-			$('#modal_checker_on_range').modal('show');
-		}
-	}
 	var range = range.split('-');
 	var start = range[0];
 	var end = range[1];
-	if ( (start <= first_number && end >= first_number) || (start <= end_number && end >= end_number)){
-		
-	}  
+	if ( (start > first_number && first_number < end) ){
+		error_message 	=	"<b>The number you entered is not within the check range</b>";
+		$('#cancel_checks #firstcancelled').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+	}  else {
+		$('#cancel_checks #firstcancelled').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+	}
+
+})
+
+$('#cancelled_checks #lastcancelled').on('blur',function(){
+	var first_number= $('#firstcancelled').val();
+	var end_number 	= $('#lastcancelled').val();
+	var range 		= $('#range').html();
+	var range = range.split('-');
+	var start = range[0];
+	var end = range[1];
+	if (start > end_number && end_number < end){
+		error_message 	=	"<b>The number you entered is not within the check range</b>";
+		$('#cancel_checks #lastcancelled').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+	}  else {
+		$('#cancel_checks #lastcancelled').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+	}
+
 })
 
 
