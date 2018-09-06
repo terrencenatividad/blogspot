@@ -269,7 +269,7 @@ class debit_memo_model extends wc_model {
 		$result = $this->db->setTable('journaldetails jd')
 							->innerJoin('chartaccount ca ON jd.accountcode = ca.id AND ca.companycode = jd.companycode')
 							->setFields("CONCAT(segment5, ' - ',accountname) accountname, debit, credit")
-							->setWhere("voucherno = '$voucherno' AND stat = 'posted'")
+							->setWhere("jd.voucherno = '$voucherno' AND jd.stat = 'posted'")
 							->runSelect()
 							->getResult();
 		return $result;
