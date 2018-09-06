@@ -1287,7 +1287,6 @@ class controller extends wc_controller
 			
 			$arvoucher_[] = $apvoucherno;
 		}
-		// var_dump($arvoucher_);
 
 		$condi =  implode("','" , $arvoucher_);
 		$cond = "('".$condi."')";
@@ -1301,9 +1300,8 @@ class controller extends wc_controller
 		$results			= array_merge($results, $result);
 		$table 				= "";
 		$row 				= 1;
-
+		
 		if($overpayment > 0 && isset($overpayment)){
-			// $data['excess'] 	= 	$overpayment;
 			$overpaymentacct 	=	$this->receipt_voucher->retrieveOPDetails();
 			$results 			=	array_merge($results,$overpaymentacct);
 		}
@@ -1320,7 +1318,7 @@ class controller extends wc_controller
 		$show_input         = $this->show_input;
 
 		$totalcredit = 0;
-		
+		// var_dump($results);
 		if(!empty($results))
 		{
 			$credit      = '0.00';
@@ -1332,14 +1330,13 @@ class controller extends wc_controller
 				$detailparticulars = (!empty($results[$i]->detailparticulars)) ? $results[$i]->detailparticulars : "";
 				$ischeck 			= (!empty($results[$i]->ischeck)) 				? $results[$i]->ischeck 			: "no";
 				$isoverpayment 		= (!empty($results[$i]->is_overpayment)) 	?	$results[$i]->is_overpayment 	:	"no";
-				// Sum of credit will go to debit side on PV
-				// $debit         	= number_format($results[$i]->sumcredit, 2);
 				$debit 				= (isset($results[$i]->chequeamount)) ? $results[$i]->chequeamount : "0";
 	
 				if($isoverpayment == 'yes'){
 					$credit 			= number_format($overpayment,2);
 				} else {
-					$credit 			= (isset($account_total[$accountcode])) ? $account_total[$accountcode] - $overpayment : 0;
+					$credit 			= (isset($account_total[$accountcode])) ? $account_total[$accountcode] : 0;
+					$credit 			= ($overpayment > 0) ? $credit - $overpayment 	:	$credit;
 					$credit 			= number_format($credit,2);
 				}
 				$totalcredit     	+= $debit; 
