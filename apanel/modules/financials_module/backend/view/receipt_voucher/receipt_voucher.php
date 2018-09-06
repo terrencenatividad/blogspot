@@ -948,7 +948,7 @@
 							<?endif;?>
 							<div class="btn-group">
 								<!-- noted by Sir Mark to remove this onclick function upon cancel. onClick="clearPayment();"-->
-								<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal" >Cancel</button>
+								<button type="button" class="btn btn-default btn-sm btn-flat" id="TagReceivablesBtn" data-dismiss="modal" >Cancel</button>
 							</div>
 						</div>
 					</div>
@@ -2485,10 +2485,10 @@ function checkBalance(val,id){
 	var input 	  = "";
 	var error 	  = 0;
 
-	condition 			= (parseFloat(newval) || parseFloat(discount) == 0 || (parseFloat(discount) > parseFloat(dueamount) || parseFloat(discount) > parseFloat(current_payment) ) ) ;
+		condition 		= (parseFloat(newval) || parseFloat(discount) == 0 || (parseFloat(discount) > parseFloat(dueamount) || parseFloat(discount) > parseFloat(current_payment) ) ) ;
 	
-	var excess_payment 	=	0;
-	// console.log("New Value "+newval+" Discount "+discount + " Due Amount = "+dueamount+" Current Payment =  "+current_payment);
+	var excess_payment 	= 0;
+
 	if(condition){
 		$('#payable_list_container tr').each(function(index) {
 			var value = $(this).find('.paymentamount').val();
@@ -2908,6 +2908,17 @@ function clear_acct_input(){
 	$('.credit').val('0.00');
 	addAmountAll('debit');
 	addAmountAll('credit');
+}
+
+function computefortotalaccounts(){
+	var count 	=	0;
+	$('#entriesTable tbody tr select.accountcode').each(function() {
+		var accountcode = $(this).val();
+		if(accountcode != "" && accountcode != undefined){
+			count++;
+		} 
+	});
+	return count;
 }
 
 $(document).ready(function() {

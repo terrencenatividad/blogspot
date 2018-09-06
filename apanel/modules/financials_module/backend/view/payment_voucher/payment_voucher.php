@@ -961,7 +961,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="modal-body no-padding">
+			<div class="modal-body">
 				<form class="form-horizontal" id="paymentForm">
 					<br/>
 					<div class="row">
@@ -1018,6 +1018,14 @@
 							<i class="glyphicon glyphicon-exclamation-sign"></i> 
 							Please make sure that the amount paid for the payable(s) below are greater than zero(0).
 						</span>
+						<span id="discountAmtError" class="help-block hidden small">
+							<i class="glyphicon glyphicon-exclamation-sign"></i> 
+							You cannot input a <strong>Discount</strong> greater than the <strong>Amount to Receive</strong>.
+						</span>
+						<span id="receiveAmtError" class="help-block hidden small">
+							<i class="glyphicon glyphicon-exclamation-sign"></i> 
+							You cannot enter a negative amount.
+						</span>
 					</div>
 					<div class="table-responsive">
 						<table class="table table-condensed table-bordered table-hover" id="app_payableList">
@@ -1047,7 +1055,7 @@
 						<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 							<?if($show_input):?>
 								<div class="btn-group">
-									<button type = "button" class = "btn btn-primary btn-sm btn-flat" onClick = "getPVDetails();">Tag</button>
+									<button type = "button" class = "btn btn-primary btn-sm btn-flat" id="TagPayablesBtn"  onClick = "getPVDetails();">Tag</button>
 								</div>
 								&nbsp;&nbsp;&nbsp;
 							<?endif;?>
@@ -2415,6 +2423,17 @@ function showList()
 					});
 }
 
+function computefortotalaccounts(){
+	var count 	=	0;
+	$('#entriesTable tbody tr select.accountcode').each(function() {
+		var accountcode = $(this).val();
+		if(accountcode != "" && accountcode != undefined){
+			count++;
+		} 
+	});
+	return count;
+}
+
 $('#table_search').on('input', function() {
 	ajax.page = 1;
 	ajax.search = $(this).val();
@@ -2682,7 +2701,7 @@ function init_storage(){
 function add_storage(id,balance,discount){
 	var amount 		= $('#paymentModal #paymentamount'+id).val();
 	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount};
-	if(amount != ''){
+	if(amount != 0){
 		var found = false;
 		for(var i=0; element=container[i]; i++) {
 			if(element.vno == newvalue.vno) {
@@ -2695,10 +2714,10 @@ function add_storage(id,balance,discount){
 				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
 
 				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount)) - new_amount;
-				available_balance 		=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
+					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
 			
 				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount)) - discount;
-				discounted_amount 		=	addCommas(discounted_amount.toFixed(2));
+					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
 
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
@@ -2722,7 +2741,7 @@ function add_storage(id,balance,discount){
 		}
 		
 	}else{
-		$('#payable_list_container #payable_balance'+id).html(balance);;
+		$('#payable_list_container #payable_balance'+id).html(addComma(balance));
 		container = container.filter(function( obj ) {
 			return obj.vno !== id;
 		});
@@ -2744,11 +2763,46 @@ function checkBalance(val,id){
 
 	var condition = "";
 	var input 	  = "";
+	var error 	  = 0;
 
-	condition 			= (parseFloat(newval) || parseFloat(discount)) > (parseFloat(dueamount) );
+	condition 			= (parseFloat(newval) || parseFloat(discount) == 0 || (parseFloat(discount) > parseFloat(dueamount) || parseFloat(discount) > parseFloat(current_payment) ) );
+	
+	if(condition) {
+		$('#payable_list_container tr').each(function(index) {
+			var value = $(this).find('.paymentamount').val();
+				value = parseFloat(removeComma(value));
+			var balances = 	$(this).find('.balances').attr('data-value');
+				balances = parseFloat(removeComma(balances));
+			var ind_disc = $(this).find('.discountamount').val();
+				ind_disc = removeComma(ind_disc);
 
-	if(condition)
-	{
+			if(value >= 0){
+				$('#receiveAmtError').addClass('hidden');
+			} else {
+				$('#receiveAmtError').removeClass('hidden');
+				error++;
+			}
+			if(value >= 0 && ind_disc > value) {
+				$("#discountAmtError").removeClass('hidden');
+				$(this).find('.discountamount').closest('div').addClass('has-error');
+				$(this).find('.paymentamount').closest('div').addClass('has-error');
+				$('#total_payment').val('');
+				$('#total_discount').val('');
+				$('#TagPayablesBtn').prop('disabled',true);
+				error++;
+			} else {
+				$("#discountAmtError").addClass('hidden');
+				$(this).find('.discountamount').closest('div').removeClass('has-error');
+				$(this).find('.paymentamount').closest('div').removeClass('has-error');
+				$('#TagPayablesBtn').prop('disabled',false);
+			}
+			if(ind_disc == 0){
+				$("#discountAmtError").addClass('hidden');
+				$(this).find('.discountamount').closest('div').removeClass('has-error');
+				$(this).find('.paymentamount').closest('div').removeClass('has-error');
+				$('#TagPayablesBtn').prop('disabled',false);
+			}
+		});
 		$('#payable_list_container #paymentamount'+id).value = '';
 	}else{
 		$('#payable_list_container #paymentamount'+id).value = val;
@@ -2756,19 +2810,10 @@ function checkBalance(val,id){
 
 	// console.log(parseFloat(val) + " " + parseFloat(totalamountval));
 
-	if(condition)
-	{
-		bootbox.alert("Payment amount is greater than the due amount of this Bill.", function() 
-		{
-			//add_storage(id);
-		});
-	}
-	else
-	{
+	if(error == 0) {
 		add_storage(id,dueamount,discount);
+		addPaymentAmount();	
 	}
-		
-	addPaymentAmount();	
 }
 
 function validateCheques(){
@@ -4015,9 +4060,13 @@ $(document).ready(function() {
 	});
 
 	$('#vendor').on('change',function(){
-		if ($('.accountcode').val()	 != '' || $('.chequeaccount').val()	 != '' ) {
+		var accounts_selected 	= computefortotalaccounts();
+		var total_payment 		= $('#total_payment').val();
+		var total_discount 		= $('#total_discount').val();
+
+		if(accounts_selected > 0){
 			$('#change_vendor_modal').modal('show');
-		} 
+		}
 	});
 
 	$('#entriesTable').on('change','.accountcode',function(){
