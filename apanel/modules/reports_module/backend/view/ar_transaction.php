@@ -69,6 +69,7 @@
 	var ajax_call = {};
 	var ajax = filterFromURL();
 	ajax.limit 	= 50;
+	ajax.page 	= 1;
 	ajaxToFilter(ajax, { customer : '#customer', daterangefilter : '#daterangefilter' });
 
 	function getList() {
@@ -91,6 +92,11 @@
 	$("#customer").on("change",function(){
 		ajax.customer = $(this).val();
 		ajax.page = 1;
+		getList();
+	});
+	$('#pagination').on('click', 'a', function(e) {
+		e.preventDefault();
+		ajax.page = $(this).attr('data-page');
 		getList();
 	});
 	tableSort('#tableList', function(value) {
