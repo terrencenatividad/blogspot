@@ -157,7 +157,7 @@
 									)
 								)
 								->addHeader('ATC Code', array('class' => 'col-md-2 text-center'), 
-											'sort', 'atc_code', 'desc')
+											'sort', 'atcId', 'DESC')
 								->addHeader('Tax Rate', array('class' => 'col-md-1 text-center'), 
 											'sort', 'tax_rate')
 								->addHeader('Tax Code', array('class'=> 'col-md-2 text-center'),

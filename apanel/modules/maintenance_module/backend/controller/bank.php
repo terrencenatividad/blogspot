@@ -297,13 +297,13 @@
 					$date = $entereddate[0];
 					$book_date = str_replace('-', '', $date);
 
-					if($row->stat == 'open'){
-						$check_stat = '<span class="label label-success">'.strtoupper('IN USE').'</span>';
-					}else if($row->stat == 'closed'){
-						$check_stat = '<span class="label label-default">'."NOT USED".'</span>';
-					} else {
-						$check_stat = '<span class="label label-warning">'."USED".'</span>';
-					}
+					// if($row->stat == 'open'){
+					// 	$check_stat = '<span class="label label-success">'.strtoupper('AVAILABLE').'</span>';
+					// }else if($row->stat == 'closed'){
+					// 	$check_stat = '<span class="label label-default">'."NOT USED".'</span>';
+					// } else {
+					// 	$check_stat = '<span class="label label-warning">'."USED".'</span>';
+					// }
 
 					$dropdown = $this->ui->loadElement('check_task')
 								->addOtherTask(
@@ -322,6 +322,11 @@
 								// 	'check',
 								// 	'set_default'
 								// )
+								->addOtherTask(
+									'Cancel Check Range',
+									'remove-circle',
+									'cancel'
+								)
 								->draw();
 					$table .= '<tr>';
 					$table .= ' <td align = "center">' .$dropdown. '</td>';
@@ -330,8 +335,35 @@
 					$table .= '<td id="booknumber">' . $book_date. ' - ' .$row->booknumber . '</td>';
 					$table .= '<td id="start_check" class="start_check" value="' . $row->firstchequeno. '-' .$row->lastchequeno. '">' . $row->firstchequeno. '-' .$row->lastchequeno. '</td>';
 					$table .= '<td>' . $row->nextchequeno. '</td>';
-					$table .= '<td>' . $check_stat. '</td>';
+					// $table .= '<td>' . $check_stat. '</td>';
 					$table .= '</tr>';
+
+					if ($row->has_cancelled){
+						$cancel_list = $this->bank->cancel_list($row->bank_id,$row->firstchequeno);
+						
+						foreach ($cancel_list as $key => $value) {
+							$entereddate = explode(' ',$value->entereddate);
+							$date = $entereddate[0];
+							$book_date = str_replace('-', '', $date);
+						$table	.= '<tr>';
+						$table	.= '<td></td>';
+						$table	.= '<td class="warning" ><strong>First Number</strong></td>';
+						$table	.= '<td class="warning" ><strong>Last Number</strong></td>';
+						$table	.= '<td class="warning" ><strong>Date</strong></td>';
+						$table	.= '<td class="warning" ><strong>Reason</strong></td>';
+						$table	.= '</tr>';
+
+						$table .= '<tr>';
+						$table	.= '<td class="text-center"><span class="label label-warning ">CANCELLED</span></td>';
+						$table .= '<td>' . $value->firstcancelled . '</td>';
+						$table .= '<td>' . $value->lastcancelled . '</td>';
+						$table .= '<td>' . $book_date . '</td>';
+						$table .= '<td colspan="2">' . $value->remarks. '</td>';
+						$table .= '</tr>';
+
+
+						}
+					}
 				}
 			else:
 				$table .= "<tr>
@@ -481,26 +513,24 @@
 			return $dataArray = array("msg" => $msg);
 		}
 
-		// private function check_duplicate(){
-		// 	$current = $this->input->post('curr_gl_code');
-		// 	$old 	 = $this->input->post('old_gl_code');
-		// 	$count 	 = 0;
-		// 	if( $current!='' && $current != $old )
-		// 	{
-		// 		$result = $this->bank->check_duplicate_glcode($current);
-		// 		$count = $result[0]->count;
-		// 	}
-			
-		// 	$msg   = "";
-
-		// 	if( $count > 0 )
-		// 	{	
-		// 		$msg = "exists";
-		// 	}
-
-		// 	return $dataArray = array("msg" => $msg);
-		// }
-		 
+		public function save_cancelled(){
+			$data_array = array(
+				'id',
+				'start',
+				'end',
+				'firstcancelled',
+				'lastcancelled',
+				'remarks'
+			);
+			$data = $this->input->post($data_array);
+			$result = $this->bank->insertCancelledChecks($data);
+			if ($result){
+				$msg = 'yes';
+			} else {
+				$msg = '';
+			}
+			return $dataArray = array("msg" => $msg);
+		}
 
 	}
 ?>
