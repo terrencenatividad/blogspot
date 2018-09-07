@@ -202,7 +202,7 @@
 					</div>
 				</div>
 				<br/>
-				<h3>Tax Signatory</h3>
+				<h3>Authorized Signatory</h3>
 				<hr/>
 				<div class="row">
 					<div class="col-md-6">
