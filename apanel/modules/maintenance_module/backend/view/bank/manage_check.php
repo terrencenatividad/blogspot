@@ -1,10 +1,10 @@
 <section class="content">
 
-	<div class = "alert alert-warning alert-dismissable hidden">
+	<!-- <div class = "alert alert-warning alert-dismissable hidden">
 		<button type="button" class="close" data-dismiss="alert">×</button>
 		<h4><strong>Error!<strong></h4>
 		<div id = "errmsg"></div>
-	</div>
+	</div> -->
 
     <div class="box box-primary">
         <div class="box-body">
@@ -84,27 +84,9 @@
         </div>
     </div>
 
-	<div class="box-body table table-responsive">
+	<div class="table table-condensed table-bordered table-hover">
 		<table id = "bank_check" class="table table-hover">
 			<thead>
-				<?php
-					// echo $ui->loadElement('table')
-					// 		->setHeaderClass('info')
-					// 		->addHeader(
-					// 			'',
-					// 			array(
-					// 				'class' => 'col-md-1 text-center'
-					// 			)
-					// 		)
-					// 		->addHeader('Bank Name',array(),'','currencycode')
-					// 		->addHeader('Account Number',array(),'','currencycode')
-					// 		->addHeader('Book Number',array(),'','currencycode')
-					// 		->addHeader('Check Number', array(),'','currency')
-					// 		->addHeader('Next Check No', array(),'','currency')
-					// 		->addHeader('Status', array(),'','currency')
-					// 		->draw();
-				?>
-
 				<thead>
 					<tr class="info">
 						<th ></th>

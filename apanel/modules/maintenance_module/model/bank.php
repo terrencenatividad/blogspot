@@ -156,7 +156,7 @@
 		public function checkListing($search="", $sort ,$limit, $id){
 			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (shortname LIKE '%$search%' OR bankcode LIKE '%$search%'  OR accountno LIKE '%$search%') " 	: 	"";
 
-			$fields 	=	array("b.accountno","bank_id","id","booknumber","firstchequeno","lastchequeno" ,"nextchequeno", "bd.entereddate", "bd.stat","shortname");
+			$fields 	=	array("b.accountno","bank_id","id","booknumber","firstchequeno","lastchequeno" ,"nextchequeno", "bd.entereddate", "bd.stat","shortname","has_cancelled");
 
 			$result = $this->db->setTable('bankdetail bd')
 							->setFields($fields)
@@ -283,11 +283,32 @@
 			$data['bank_id'] 			= $data1['id'];
 			$data['firstchequeno'] 		= $data1['start'];
 			$data['lastchequeno'] 		= $data1['end'];
+			$data['firstcancelled'] 	= $data1['firstcancelled'];
+			$data['lastcancelled'] 		= $data1['lastcancelled'];
+			$data['remarks'] 			= $data1['remarks'];
+			$data['stat']				= 'cancelled';
 			$result = $this->db->setTable('cancelled_checks')
 							->setValues($data)
 							->runInsert();
+			if ($result){
+				$data_check['has_cancelled']          = 'yes';
+				$result 			   = $this->db->setTable('bankdetail')
+											  ->setValues($data_check)
+											  ->setWhere("bank_id = {$data1['id']} AND firstchequeno={$data1['start']}")
+											  ->setLimit(1)
+											  ->runUpdate();
+			}
 			return $result;
 
+		}
+
+		public function cancel_list($bank, $firstcheckno){
+			$result = $this->db->setTable('cancelled_checks')
+							->setFields('firstcancelled,lastcancelled,remarks,entereddate')
+							->setWhere("bank_id = '$bank' AND firstchequeno = $firstcheckno ")
+							->runSelect()
+							->getResult();
+			return $result;
 		}
 
 
