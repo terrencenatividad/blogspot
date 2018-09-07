@@ -298,7 +298,7 @@
 					$book_date = str_replace('-', '', $date);
 
 					if($row->stat == 'open'){
-						$check_stat = '<span class="label label-success">'.strtoupper('IN USE').'</span>';
+						$check_stat = '<span class="label label-success">'.strtoupper('AVAILABLE').'</span>';
 					}else if($row->stat == 'closed'){
 						$check_stat = '<span class="label label-default">'."NOT USED".'</span>';
 					} else {
@@ -337,6 +337,33 @@
 					$table .= '<td>' . $row->nextchequeno. '</td>';
 					$table .= '<td>' . $check_stat. '</td>';
 					$table .= '</tr>';
+
+					if ($row->has_cancelled){
+						$cancel_list = $this->bank->cancel_list($row->bank_id,$row->firstchequeno);
+						
+						foreach ($cancel_list as $key => $value) {
+							$entereddate = explode(' ',$value->entereddate);
+							$date = $entereddate[0];
+							$book_date = str_replace('-', '', $date);
+						$table	.= '<tr>';
+						$table	.= '<td></td>';
+						$table	.= '<td class="warning" ><strong>First Number</strong></td>';
+						$table	.= '<td class="warning" ><strong>Last Number</strong></td>';
+						$table	.= '<td class="warning" ><strong>Date</strong></td>';
+						$table	.= '<td class="warning" ><strong>Reason</strong></td>';
+						$table	.= '</tr>';
+
+						$table .= '<tr>';
+						$table	.= '<td class="text-center"><span class="label label-warning ">CANCELLED</span></td>';
+						$table .= '<td>' . $value->firstcancelled . '</td>';
+						$table .= '<td>' . $value->lastcancelled . '</td>';
+						$table .= '<td>' . $book_date . '</td>';
+						$table .= '<td colspan="2">' . $value->remarks. '</td>';
+						$table .= '</tr>';
+
+
+						}
+					}
 				}
 			else:
 				$table .= "<tr>
@@ -499,6 +526,8 @@
 			$result = $this->bank->insertCancelledChecks($data);
 			if ($result){
 				$msg = 'yes';
+			} else {
+				$msg = '';
 			}
 			return $dataArray = array("msg" => $msg);
 		}
