@@ -1324,7 +1324,7 @@ $(document).ready(function(){
 		});
 
 
-		$('.price').on('input', function(e){
+		$('.price').on('change', function(e){
 			
 			var id 		= 	$(this).attr("id");
 			var row 	=	id.replace(/[a-z]/g, '');
