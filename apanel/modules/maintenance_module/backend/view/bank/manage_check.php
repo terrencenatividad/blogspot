@@ -95,7 +95,7 @@
 						<th >Book Number</th>
 						<th >Check Number</th>
 						<th >Next Check No</th>
-						<th >Status</th>
+						<!-- <th >Status</th> -->
 					</tr>
 				</thead>
 			</thead>
