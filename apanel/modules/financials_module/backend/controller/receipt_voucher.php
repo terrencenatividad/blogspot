@@ -138,16 +138,11 @@ class controller extends wc_controller
 		// Retrieve customer list
 		$data["customer_list"]          = $this->receipt_voucher->retrieveCustomerList();
 		
-		// Retrieve business type list
-		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond               = "accounttype != '' AND stat = 'active'";
-		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
-
-		// $cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
-		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		// $cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P' AND stat = 'active'";
-		// $cash_order_by 		 	  = "class.accountclass";
-		// $data["cash_account_list"] = $this->receipt_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
+		$acc_entry_data               = array("coa.id ind","CONCAT(coa.segment5, ' - ', coa.accountname) val");
+		$acc_entry_cond               = "coa.accounttype != '' AND coa.stat = 'active'";
+		$acc_entry_join 			  = "chartaccount coa2 ON coa2.parentaccountcode = coa.id";
+		$acc_entry_order 			  = "coa.segment5, coa2.segment5";
+		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
 
 		// Cash Account Options
 		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
@@ -156,10 +151,6 @@ class controller extends wc_controller
 		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
 		$data["cash_account_list"] 	= $this->receipt_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
 
-
-		// Retrieve generated ID
-		// $gen_value                    = $this->receipt_voucher->getValue("paymentvoucher", "COUNT(*) as count", "voucherno != ''");	
-		// $data["generated_id"]         = (!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
 		$data["generated_id"]     = '';
 
 		// Application Data
@@ -210,26 +201,7 @@ class controller extends wc_controller
 				$update_source['si_no']  	= $generatedvoucher;
 				$source_cond 				= "si_no = '$voucherno' AND transtype = 'CM'";
 				$updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
-
-				/**UPDATE MAIN INVOICE**/
-				// $updateTempRecord 			= $this->update_app($data_validate['selected_rows']);
 			}
-			
-			// if(empty($errmsg))
-			// {
-			// 	// For Admin Logs
-			// 	$this->logs->saveActivity("Add New Receipt Voucher [$generatedvoucher]");
-
-			// 	if(!empty($data_validate['h_save'])){
-			// 		$this->url->redirect(BASE_URL . 'financials/receipt_voucher');
-			// 	}else if(!empty($data_validate['h_save']) && $data_validate['h_save'] == 'h_save_preview'){
-			// 		$this->url->redirect(BASE_URL . 'financials/receipt_voucher/view/' . $generatedvoucher);
-			// 	}else{
-			// 		$this->url->redirect(BASE_URL . 'financials/receipt_voucher/create');
-			// 	}
-			// }else{
-			// 	$data["errmsg"] = $errmsg;
-			// }
 		}
 
 		if($updateTempRecord){
@@ -266,10 +238,11 @@ class controller extends wc_controller
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 
-		// Retrieve business type list
-		$acc_entry_data             = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond             = "accounttype != ''";
-		$data["account_entry_list"] = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
+		$acc_entry_data               = array("coa.id ind","CONCAT(coa.segment5, ' - ', coa.accountname) val");
+		$acc_entry_cond               = "coa.accounttype != '' AND coa.stat = 'active'";
+		$acc_entry_join 			  = "chartaccount coa2 ON coa2.parentaccountcode = coa.id";
+		$acc_entry_order 			  = "coa.segment5, coa2.segment5";
+		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
 
 		$data["customer_list"]    	= array();
 
@@ -309,13 +282,6 @@ class controller extends wc_controller
 		$dis_entry 					= $this->receipt_voucher->getValue("fintaxcode", array("salesAccount"), "fstaxcode = 'DC'");
 		$discount_code 				= isset($dis_entry[0]->salesAccount) ? $dis_entry[0]->salesAccount	: "";
 		$data['discount_code'] 		= $discount_code;
-
-		// Cash Account Options
-		// $cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
-		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		// $cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
-		// $cash_order_by 		 	  = "class.accountclass";
-		// $data["cash_account_list"] = $this->receipt_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
 		// Cash Account Options
 		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
@@ -385,32 +351,17 @@ class controller extends wc_controller
 		}
 		
 		$condition = ($coa_array) ? " OR id IN ('".implode("','",$coa_array)."')" : "";
-		// Retrieve business type list
-		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val, stat stat");
-		$acc_entry_cond               = "accounttype != ''";
-		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond. $condition, "segment5");
+		
+		$acc_entry_data               = array("coa.id ind","CONCAT(coa.segment5, ' - ', coa.accountname) val");
+		$acc_entry_cond               = "coa.accounttype != '' AND coa.stat = 'active'";
+		$acc_entry_join 			  = "chartaccount coa2 ON coa2.parentaccountcode = coa.id";
+		$acc_entry_order 			  = "coa.segment5, coa2.segment5";
+		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
 
 		$dis_entry 					= $this->receipt_voucher->getValue("fintaxcode", array("salesAccount"), "fstaxcode = 'DC'");
 		$discount_code 				= isset($dis_entry[0]->salesAccount) ? $dis_entry[0]->salesAccount	: "";
 		$data['discount_code'] 		= $discount_code;
 
-		// // Cash Account Options
-		// $cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
-		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		// $cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
-		// $cash_order_by 		 	  = "class.accountclass";
-		// $data["cash_account_list"] = $this->receipt_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
-
-		
-		// // Cash Account Options
-		// $cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
-		// $cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
-		// $cash_order_by 		 	  	= "id desc";
-		// $cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
-		// $data["cash_account_list"] 	= $this->receipt_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
-
-
-	
 		// Header Data
 		$voucherno 				 = $data["main"]->voucherno;
 		$customer 				 = $data['main']->customer;
@@ -427,20 +378,20 @@ class controller extends wc_controller
 		$data["available_credits"] = isset($available_credits[0]->curr_credit) 	?	$available_credits[0]->curr_credit 	+	$credits_used	:	"0.00";
 		$data['status']			 = $data["main"]->stat;
 	 		
-		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
+		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array();
 
-		$checks = isset($data["listofcheques"]) ? $data["listofcheques"] : '';
-
-		foreach ($checks as $index => $cheque){
-			$accountcode 	=	$cheque['chequeaccount'];
-			$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val, b.stat stat";
-			$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes' OR c.id = $accountcode";
-			$cash_order_by 		 	  	= "id desc";
-			$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
-			$data["cash_account_list"] 	= $this->receipt_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
-
+		$account_array	= array();
+		foreach ($data['listofcheques'] as $index => $dtl){
+			$accountcode 	=	$dtl['chequeaccount'];
+			$account_array[] = $accountcode;
 		}
+		$account_array = ($account_array) ? " OR c.id IN ('".implode("','",$account_array)."')" : "";
 
+		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val, b.stat stat";
+		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes' $account_array" ;
+		$cash_order_by 		 	  	= "id desc";
+		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
+		$data["cash_account_list"] 	= $this->receipt_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
 
 		$data["show_cheques"] 	 = isset($data['rollArray'][$sid]) ? '' : 'hidden';
 		// Application Data
@@ -462,44 +413,6 @@ class controller extends wc_controller
 
 		$data['restrict_rv'] 	= true;
 		$data['has_access'] 	= 0;
-
-		// print_r($data);
-
-		// Process form when form is submitted
-		// $data_validate = $this->input->post(array('referenceno', "h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
-
-		// if (!empty($data_validate["customer"]) && !empty($data_validate["document_date"])) 
-		// {
-		// 	$update_info				= array();
-		// 	$update_info['stat']		= 'open';
-		// 	$update_condition			= "voucherno = '$voucherno'";
-		// 	$updateTempRecord			= $this->receipt_voucher->editData($update_info,"receiptvoucher",$update_condition);
-		// 	$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_details",$update_condition);
-		// 	$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_application",$update_condition);
-		// 	$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_cheques",$update_condition);
-		// 	// Update TMP source of CM
-		// 	// $update_source['si_no']  	= $generatedvoucher;
-		// 	// $source_cond 				= "si_no = '$voucherno' AND transtype = 'CM'";
-		// 	// $updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
-
-		// 	$this->update_app($data_validate["h_check_rows_"]);
-
-		// 	// For Admin Logs
-		// 	$this->logs->saveActivity("Update Receipt Voucher [$sid]");
-
-		// 	if(!empty($data_validate['h_save']))
-		// 	{
-		// 		$this->url->redirect(BASE_URL . 'financials/receipt_voucher');
-		// 	}
-		// 	else if(!empty($data_validate['h_save_preview']))
-		// 	{
-		// 		$this->url->redirect(BASE_URL . 'financials/receipt_voucher/view/' . $sid);
-		// 	}
-		// 	else
-		// 	{
-		// 		$this->url->redirect(BASE_URL . 'financials/receipt_voucher/create');
-		// 	}	 
-		// }
 
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
@@ -1287,7 +1200,6 @@ class controller extends wc_controller
 			
 			$arvoucher_[] = $apvoucherno;
 		}
-		// var_dump($arvoucher_);
 
 		$condi =  implode("','" , $arvoucher_);
 		$cond = "('".$condi."')";
@@ -1301,9 +1213,8 @@ class controller extends wc_controller
 		$results			= array_merge($results, $result);
 		$table 				= "";
 		$row 				= 1;
-
+		
 		if($overpayment > 0 && isset($overpayment)){
-			// $data['excess'] 	= 	$overpayment;
 			$overpaymentacct 	=	$this->receipt_voucher->retrieveOPDetails();
 			$results 			=	array_merge($results,$overpaymentacct);
 		}
@@ -1320,7 +1231,7 @@ class controller extends wc_controller
 		$show_input         = $this->show_input;
 
 		$totalcredit = 0;
-		
+		// var_dump($results);
 		if(!empty($results))
 		{
 			$credit      = '0.00';
@@ -1332,14 +1243,13 @@ class controller extends wc_controller
 				$detailparticulars = (!empty($results[$i]->detailparticulars)) ? $results[$i]->detailparticulars : "";
 				$ischeck 			= (!empty($results[$i]->ischeck)) 				? $results[$i]->ischeck 			: "no";
 				$isoverpayment 		= (!empty($results[$i]->is_overpayment)) 	?	$results[$i]->is_overpayment 	:	"no";
-				// Sum of credit will go to debit side on PV
-				// $debit         	= number_format($results[$i]->sumcredit, 2);
 				$debit 				= (isset($results[$i]->chequeamount)) ? $results[$i]->chequeamount : "0";
 	
 				if($isoverpayment == 'yes'){
 					$credit 			= number_format($overpayment,2);
 				} else {
-					$credit 			= (isset($account_total[$accountcode])) ? $account_total[$accountcode] - $overpayment : 0;
+					$credit 			= (isset($account_total[$accountcode])) ? $account_total[$accountcode] : 0;
+					$credit 			= ($overpayment > 0) ? $credit - $overpayment 	:	$credit;
 					$credit 			= number_format($credit,2);
 				}
 				$totalcredit     	+= $debit; 

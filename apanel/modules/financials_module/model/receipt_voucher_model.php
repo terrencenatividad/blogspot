@@ -363,17 +363,6 @@ class receipt_voucher_model extends wc_model
 		$cond  		= (isset($data["cond"]) && !empty($data["cond"])) ? $data["cond"]: "";
 		$customercode = (isset($data["customer"]) && !empty($data["customer"])) ? $data["customer"]: "";
 
-		/*
-			SELECT main.voucherno as voucherno, main.transactiondate as transactiondate, main.convertedamount as amount, main.balance as balance, p.partnername AS vendor_name, main.referenceno as referenceno, apd.accountcode, chart.accountclasscode, SUM(apd.credit), apd.debit, apd.detailparticulars 
-			FROM accountspayable as main 
-			LEFT JOIN ap_details AS apd ON main.voucherno = apd.voucherno AND main.companycode = apd.companycode
-			LEFT JOIN chartaccount AS chart ON apd.accountcode = chart.id AND chart.companycode = apd.companycode
-			LEFT JOIN partners p ON p.partnercode = main.vendor 
-			WHERE main.stat = 'posted' AND main.vendor = 'SUP_003' AND main.companycode = 'CID' AND chart.accountclasscode = "ACCPAY" AND apd.voucherno IN("AP0000000002", "AP0000000003")
-			GROUP BY apd.accountcode
-			ORDER BY main.transactiondate DESC
-		*/
-
 		// Main Queries
 		$main_table   = "accountsreceivable as main";
 		$main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "main.balance as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno", "apd.accountcode", "chart.accountclasscode", "SUM(apd.credit) AS sumcredit", "apd.detailparticulars");
@@ -445,16 +434,17 @@ class receipt_voucher_model extends wc_model
 		return $result;
 	}
 
-	public function getValue($table, $cols = array(), $cond = "", $orderby = "", $bool = "", $groupby = "")
+	public function getValue($table, $cols = array(), $cond = "", $orderby = "", $bool = "", $groupby = "", $join="")
 	{
 		$result = $this->db->setTable($table)
 					->setFields($cols)
 					->setWhere($cond)
+					->leftJoin($join)
 					->setOrderBy($orderby)
 					->setGroupBy($groupby)
 					->runSelect($bool)
 					->getResult();
-
+		// echo $this->db->getQuery();
 		return $result;
 	}
 

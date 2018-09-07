@@ -331,7 +331,7 @@ class controller extends wc_controller
 		$data["paymenttype"]     	= $data["main"]->paymenttype;
 		$data["status"]     		= $data["main"]->stat;
 
-		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
+		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array();
 		$data["show_cheques"] 	 = isset($data['rollArray'][$sid]) ? '' : 'hidden';
 		// Application Data
 		$payments 			= $data['payments'];
@@ -354,15 +354,20 @@ class controller extends wc_controller
 		$data['has_access'] 	= 0;
 
 
-		foreach ($data["listofcheques"] as $index => $cheque){
-			$accountcode 	=	$cheque['chequeaccount'];
-			$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val, b.stat stat";
-			$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes' OR c.id = $accountcode";
-			$cash_order_by 		 	  	= "id desc";
-			$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
-			$data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
-
+		$account_array	= array();
+		foreach ($data['listofcheques'] as $index => $dtl){
+			$accountcode 	=	$dtl['chequeaccount'];
+			$account_array[] = $accountcode;
 		}
+		$account_array = ($account_array) ? " OR c.id IN ('".implode("','",$account_array)."')" : "";
+
+		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val, b.stat stat";
+		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes' $account_array" ;
+		$cash_order_by 		 	  	= "id desc";
+		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
+		$data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
+
+
 		// Retrieve vendor list
 		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList($data);
 
@@ -846,17 +851,19 @@ class controller extends wc_controller
 			$errmsg 	= $result['errmsg'];
 		}
 
-		$book_ids	=json_decode(stripcslashes($data_post['book_ids']));
-		$book_end	=json_decode(stripcslashes($data_post['book_end']));
-		$book_last	= json_decode(stripcslashes($data_post['book_last']));
-
-		foreach ($book_ids as $bank => $book_id) {
-			foreach ($book_id as $key => $id) {
-				$book_last_num = isset($book_last->$bank->$id) ? $book_last->$bank->$id : $id;
-				$result = $this->payment_voucher->update_checks($book_last_num, $id, $bank, $book_end->{$bank}[$key]);
-			} 
+		if ($data_post['paymentmode'] == 'cheque'){
+			
+		$book_ids	= isset($data_post['book_ids']) && $data_post['book_ids'] != "" ? json_decode(stripcslashes($data_post['book_ids'])) : array();
+		$book_end	= isset($data_post['book_end']) && $data_post['book_end'] != "" ? json_decode(stripcslashes($data_post['book_end'])) : array();
+		$book_last	= isset($data_post['book_last'])&& $data_post['book_last'] != "" ? json_decode(stripcslashes($data_post['book_last'])) : array();
+			foreach ($book_ids as $bank => $book_id) {
+				foreach ($book_id as $key => $id) {
+					$book_last_num = isset($book_last->$bank->$id) ? $book_last->$bank->$id : $id;
+					$result = $this->payment_voucher->update_checks($book_last_num, $id, $bank, $book_end->{$bank}[$key]);
+				} 
+			}
 		}
-
+		
 		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);
 		return $dataArray;
 	}

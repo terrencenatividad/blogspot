@@ -131,17 +131,12 @@ class controller extends wc_controller
 		// Retrieve vendor list
 		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList();
 
-		// Retrieve business type list
-		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond               = "accounttype != '' AND stat = 'active'";
-		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
-
-		// // Cash Account Options
-		// $cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
-		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		// $cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P' AND stat = 'active'";
-		// $cash_order_by 		 	  = "class.accountclass";
-		// $data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
+		// Retrieve Accounts list
+		$acc_entry_data               = array("coa.id ind","CONCAT(coa.segment5, ' - ', coa.accountname) val");
+		$acc_entry_cond               = "coa.accounttype != '' AND coa.stat = 'active'";
+		$acc_entry_join 			  = "chartaccount coa2 ON coa2.parentaccountcode = coa.id";
+		$acc_entry_order 			  = "coa.segment5, coa2.segment5";
+		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
 
 		// Cash Account Options
 		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
@@ -261,11 +256,13 @@ class controller extends wc_controller
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 		
-		// Retrieve business type list
-		$acc_entry_data             = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond             = "accounttype != ''";
-		$data["account_entry_list"] = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
-
+		// Retrieve Accounts list
+		$acc_entry_data               = array("coa.id ind","CONCAT(coa.segment5, ' - ', coa.accountname) val");
+		$acc_entry_cond               = "coa.accounttype != '' AND coa.stat = 'active'";
+		$acc_entry_join 			  = "chartaccount coa2 ON coa2.parentaccountcode = coa.id";
+		$acc_entry_order 			  = "coa.segment5, coa2.segment5";
+		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
+		
 		$data["vendor_list"]    	= array();
 
 		// Main
@@ -386,25 +383,14 @@ class controller extends wc_controller
 		}
 		
 		$condition = ($coa_array) ? " OR id IN ('".implode("','",$coa_array)."')" : "";
-		// Retrieve business type list
-		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val, stat stat");
-		$acc_entry_cond               = "accounttype != ''";
-		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond. $condition, "segment5");
-
-		// Cash Account Options
-		// $cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
-		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		// $cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
-		// $cash_order_by 		 	  = "class.accountclass";
-		// $data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
-
-		// Cash Account Options
-		// $cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
-		// $cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
-		// $cash_order_by 		 	  	= "id desc";
-		// $cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
-		// $data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
-
+		
+		// Retrieve Accounts list
+		$acc_entry_data               = array("coa.id ind","CONCAT(coa.segment5, ' - ', coa.accountname) val");
+		$acc_entry_cond               = "coa.accounttype != '' AND coa.stat = 'active'";
+		$acc_entry_join 			  = "chartaccount coa2 ON coa2.parentaccountcode = coa.id";
+		$acc_entry_order 			  = "coa.segment5, coa2.segment5";
+		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
+		
 		// Header Data
 		$voucherno 					= $data["main"]->voucherno;
 		$data["voucherno"]       	= $voucherno;
@@ -420,22 +406,21 @@ class controller extends wc_controller
 		$discount_code 				= isset($dis_entry[0]->purchaseAccount) ? $dis_entry[0]->purchaseAccount	: "";
 		$data['discount_code'] 		= $discount_code;
 
-		$data["listofcheques"]	 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : '';
-		$data["show_cheques"] 	 	= isset($data['rollArray'][$sid]) ? '' : 'hidden';
-
+		$data["listofcheques"]	 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array();
 		
-		$show_checks 	 			= isset($data['rollArray'][$sid]) ? '' : 'hidden';
+		$account_array	= array();
+		foreach ($data['listofcheques'] as $index => $dtl){
+			$accountcode 	=	$dtl['chequeaccount'];
+			$account_array[] = $accountcode;
+		}
+		$account_array = ($account_array) ? " OR c.id IN ('".implode("','",$account_array)."')" : "";
 
-		// foreach ($show_checks as $index => $cheque){
-			// $accountcode 	=	$cheque['chequeaccount'];
-			// $con = "OR c.id = $accountcode";
-			$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val, b.stat stat";
-			// $cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes' $con";
-			$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
-			$cash_order_by 		 	  	= "id desc";
-			$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
-			$data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join , '');
-		// }
+		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val, b.stat stat";
+		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes' $account_array" ;
+		$cash_order_by 		 	  	= "id desc";
+		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
+		$data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
+
 
 		// Application Data
 		$payments 				= $data['payments'];
@@ -975,15 +960,17 @@ class controller extends wc_controller
 			$errmsg 	= $result['errmsg'];
 		}
 
-		$book_ids	=json_decode(stripcslashes($data_post['book_ids']));
-		$book_end	=json_decode(stripcslashes($data_post['book_end']));
-		$book_last	= json_decode(stripcslashes($data_post['book_last']));
-
-		foreach ($book_ids as $bank => $book_id) {
-			foreach ($book_id as $key => $id) {
-				$book_last_num = isset($book_last->$bank->$id) ? $book_last->$bank->$id : $id;
-				$result = $this->payment_voucher->update_checks($book_last_num, $id, $bank, $book_end->{$bank}[$key]);
-			} 
+		if ($data_post['paymentmode'] == 'cheque'){
+			
+		$book_ids	= isset($data_post['book_ids']) && $data_post['book_ids'] != "" ? json_decode(stripcslashes($data_post['book_ids'])) : array();
+		$book_end	= isset($data_post['book_end']) && $data_post['book_end'] != "" ? json_decode(stripcslashes($data_post['book_end'])) : array();
+		$book_last	= isset($data_post['book_last'])&& $data_post['book_last'] != "" ? json_decode(stripcslashes($data_post['book_last'])) : array();
+			foreach ($book_ids as $bank => $book_id) {
+				foreach ($book_id as $key => $id) {
+					$book_last_num = isset($book_last->$bank->$id) ? $book_last->$bank->$id : $id;
+					$result = $this->payment_voucher->update_checks($book_last_num, $id, $bank, $book_end->{$bank}[$key]);
+				} 
+			}
 		}
 		
 		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);

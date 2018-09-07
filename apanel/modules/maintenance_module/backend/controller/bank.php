@@ -322,6 +322,11 @@
 								// 	'check',
 								// 	'set_default'
 								// )
+								->addOtherTask(
+									'Cancel a Check Range',
+									'remove-circle',
+									'cancel'
+								)
 								->draw();
 					$table .= '<tr>';
 					$table .= ' <td align = "center">' .$dropdown. '</td>';
@@ -481,26 +486,22 @@
 			return $dataArray = array("msg" => $msg);
 		}
 
-		// private function check_duplicate(){
-		// 	$current = $this->input->post('curr_gl_code');
-		// 	$old 	 = $this->input->post('old_gl_code');
-		// 	$count 	 = 0;
-		// 	if( $current!='' && $current != $old )
-		// 	{
-		// 		$result = $this->bank->check_duplicate_glcode($current);
-		// 		$count = $result[0]->count;
-		// 	}
-			
-		// 	$msg   = "";
-
-		// 	if( $count > 0 )
-		// 	{	
-		// 		$msg = "exists";
-		// 	}
-
-		// 	return $dataArray = array("msg" => $msg);
-		// }
-		 
+		public function save_cancelled(){
+			$data_array = array(
+				'id',
+				'start',
+				'end',
+				'firstcancelled',
+				'lastcancelled',
+				'remarks'
+			);
+			$data = $this->input->post($data_array);
+			$result = $this->bank->insertCancelledChecks($data);
+			if ($result){
+				$msg = 'yes';
+			}
+			return $dataArray = array("msg" => $msg);
+		}
 
 	}
 ?>
