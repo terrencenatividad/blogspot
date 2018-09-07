@@ -36,9 +36,9 @@ class controller extends wc_controller {
 		$data['quarter']		= $this->getDate('quarter');
 
 		$company_info 			= $this->bir->getCompanyInfo(
-										array('businessline','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','email')
+										array('businesstype','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','email')
 									);
-		$businessline			= $company_info->businessline;
+		$businesstype			= $company_info->businesstype;
 		$data['tin']			= $company_info->tin;
 		$data['rdo_code']		= $company_info->rdo_code;
 		$lastname				= $company_info->lastname;
@@ -49,7 +49,7 @@ class controller extends wc_controller {
 		$postalcode				= $company_info->postalcode;
 		$contact				= $company_info->phone;
 		$email					= $company_info->email;
-		$agentname				= (strtolower($businessline) == 'individual') ? $lastname.', '.$firstname.', '.$middlename : $companyname;
+		$agentname				= (strtolower($businesstype) == 'individual') ? $lastname.', '.$firstname.', '.$middlename : $companyname;
 		$data['agentname']		= $agentname;
 		$firstaddress			= substr($address, 0, 40);
 		$secondaddress			= (strlen($address) > 40) ? substr($address, 40, 30) : "";
@@ -265,7 +265,7 @@ class controller extends wc_controller {
 	}
 
 	public function print_1601EQ() {
-		$company_signatory = $this->bir->getCompanyInfo(array('businessline','signatory_name','signatory_role','signatory_tin'));
+		$company_signatory = $this->bir->getCompanyInfo(array('businesstype','signatory_name','signatory_role','signatory_tin'));
 		$print = new print_bir_1601EQ('P', 'mm', array(216,330.2));
 		$print->setPreviewTitle(MODULE_NAME)
 				->setDocumentDetails($this->input->get())
