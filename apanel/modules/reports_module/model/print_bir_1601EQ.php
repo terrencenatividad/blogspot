@@ -169,7 +169,7 @@ class print_bir_1601EQ extends fpdf {
 		}
 
 		$signatory_arr		= $this->signatory;
-		$businessline		= $signatory_arr->businessline;
+		$businesstype		= $signatory_arr->businesstype;
 		$signatory_name		= $signatory_arr->signatory_name;
 		/**	
 		 * For the Year
@@ -450,7 +450,7 @@ class print_bir_1601EQ extends fpdf {
 		 */
 		$this->SetY(245.5);
 		$this->SetX(7);
-		if(strtolower($businessline) == 'individual'){
+		if(strtolower($businesstype) == 'individual'){
 			$this->Cell(100.5, 5, $signatory_name, 0, 0, 'C');
 			$this->Cell(102, 5, '', 0, 0, 'C');
 		}else{
