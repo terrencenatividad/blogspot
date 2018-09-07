@@ -72,6 +72,7 @@
 													echo $ui->setElement('radio')
 															->setName('quarter')
 															->setValue($quarter)
+															->setClass('quarter')
 															->setDefault(1)
 															->draw(true);
 												?>
@@ -82,6 +83,7 @@
 													echo $ui->setElement('radio')
 															->setName('quarter')
 															->setValue($quarter)
+															->setClass('quarter')
 															->setDefault(2)
 															->draw(true);
 												?>
@@ -92,6 +94,7 @@
 													echo $ui->setElement('radio')
 															->setName('quarter')
 															->setValue($quarter)
+															->setClass('quarter')
 															->setDefault(3)
 															->draw(true);
 												?>
@@ -102,6 +105,7 @@
 													echo $ui->setElement('radio')
 															->setName('quarter')
 															->setValue($quarter)
+															->setClass('quarter')
 															->setDefault(4)
 															->draw(true);
 												?>
@@ -394,6 +398,7 @@
 											Tax Withheld (Consolidated for the Quarter)
 										</td>
 									</tr>
+									<tbody id="atc_container">
 									<?php
 									$line = 13;
 									for ($i=0; $i < 6; $i++):
@@ -407,7 +412,7 @@
 												echo $ui->formField('text')
 														->setName('atc'.$i)
 														->setClass('text-right')
-														->setValue('ATC'.$line)
+														->setValue('')
 														->setAttribute(
 															array(
 																'readOnly' => 'readOnly'
@@ -421,7 +426,7 @@
 												echo $ui->formField('text')
 														->setName('taxbase'.$i)
 														->setClass('text-right')
-														->setValue(number_format(1000+$line+.55,2))
+														->setValue('')
 														->setPlaceholder('0.00')
 														->setAttribute(
 															array(
@@ -437,7 +442,7 @@
 														->setName('taxrate'.$i)
 														->setClass('text-right')
 														->setPlaceholder('0%')
-														->setValue($line.'%')
+														->setValue('')
 														->setAttribute(
 															array(
 																'readOnly' => 'readOnly'
@@ -450,9 +455,9 @@
 											<?php
 												echo $ui->formField('text')
 														->setName('taxwithheld'.$i)
-														->setClass('text-right')
+														->setClass('text-right amount')
 														->setPlaceholder('0.00')
-														->setValue(number_format(1000+$line,2))
+														->setValue('')
 														->setAttribute(
 															array(
 																'readOnly' => 'readOnly'
@@ -466,6 +471,7 @@
 									$line++;
 									endfor;
 									?>
+									</tbody>
 									<tr>
 										<td><strong>19</strong></td>
 										<td colspan="3">
@@ -475,8 +481,9 @@
 											<?php
 												echo $ui->formField('text')
 														->setName('totalwithheld')
-														->setClass('text-right')
-														->setValue(number_format('1500.50',2))
+														->setId('totalwithheld')
+														->setClass('text-right amount')
+														->setValue('')
 														->setPlaceholder('0.00')
 														->setAttribute(
 															array(
@@ -497,9 +504,15 @@
 											<?php
 												echo $ui->formField('text')
 														->setName('firstremittance')
-														->setClass('text-right')
-														->setValue(number_format('1600.50',2))
+														->setId('firstremittance')
+														->setClass('text-right amount')
+														->setValue('')
 														->setPlaceholder('0.00')
+														->setAttribute(
+															array(
+																'readOnly' => 'readOnly'
+															)
+														)
 														->draw(true);
 											?>
 										</td>
@@ -514,9 +527,15 @@
 											<?php
 												echo $ui->formField('text')
 														->setName('secondremittance')
+														->setId('secondremittance')
 														->setClass('text-right')
-														->setValue(number_format('1700.50',2))
+														->setValue('')
 														->setPlaceholder('0.00')
+														->setAttribute(
+															array(
+																'readOnly' => 'readOnly'
+															)
+														)
 														->draw(true);
 											?>
 										</td>
@@ -530,9 +549,11 @@
 											<?php
 												echo $ui->formField('text')
 														->setName('previouslyfiled')
+														->setId('previouslyfiled')
 														->setClass('text-right')
-														->setValue(number_format('1800.50',2))
+														->setValue('')
 														->setPlaceholder('0.00')
+														->setValidation('decimal')
 														->draw(true);
 											?>
 										</td>
@@ -546,9 +567,11 @@
 											<?php
 												echo $ui->formField('text')
 														->setName('overremittance')
+														->setId('overremittance')
 														->setClass('text-right')
-														->setValue(number_format('1900.50',2))
+														->setValue('')
 														->setPlaceholder('0.00')
+														->setValidation('decimal')
 														->draw(true);
 											?>
 										</td>
@@ -562,8 +585,9 @@
 											<?php
 												echo $ui->formField('text')
 														->setName('totalremittance')
+														->setId('totalremittance')
 														->setClass('text-right')
-														->setValue(number_format('2000.50',2))
+														->setValue('')
 														->setPlaceholder('0.00')
 														->setAttribute(
 															array(
@@ -583,8 +607,9 @@
 											<?php
 												echo $ui->formField('text')
 														->setName('taxdue')
+														->setId('taxdue')
 														->setClass('text-right')
-														->setValue(number_format('2100.50',2))
+														->setValue('')
 														->setPlaceholder('0.00')
 														->setAttribute(
 															array(
@@ -605,9 +630,11 @@
 											<?php
 												echo $ui->formField('text')
 														->setName('surcharge')
+														->setId('surcharge')
 														->setClass('text-right')
-														->setValue(number_format('2200.50',2))
+														->setValue('')
 														->setPlaceholder('0.00')
+														->setValidation('decimal')
 														->draw(true);
 											?>
 										</td>
@@ -622,9 +649,11 @@
 											<?php
 												echo $ui->formField('text')
 														->setName('interest')
+														->setId('interest')
 														->setClass('text-right')
-														->setValue(number_format('2300.50',2))
+														->setValue('')
 														->setPlaceholder('0.00')
+														->setValidation('decimal')
 														->draw(true);
 											?>
 										</td>
@@ -639,9 +668,11 @@
 											<?php
 												echo $ui->formField('text')
 														->setName('compromise')
+														->setId('compromise')
 														->setClass('text-right')
-														->setValue(number_format('2400.50',2))
+														->setValue('')
 														->setPlaceholder('0.00')
+														->setValidation('decimal')
 														->draw(true);
 											?>
 										</td>
@@ -656,9 +687,11 @@
 											<?php
 												echo $ui->formField('text')
 														->setName('penalties')
+														->setId('penalties')
 														->setClass('text-right')
-														->setValue(number_format('2500.50',2))
+														->setValue('')
 														->setPlaceholder('0.00')
+														->setValidation('decimal')
 														->draw(true);
 											?>
 										</td>
@@ -672,8 +705,9 @@
 											<?php
 												echo $ui->formField('text')
 														->setName('amountdue')
+														->setId('amountdue')
 														->setClass('text-right')
-														->setValue(number_format('2600.50',2))
+														->setValue('')
 														->setPlaceholder('0.00')
 														->setAttribute(
 															array(
@@ -744,14 +778,118 @@
 </section>
 
 <script>
-$('#birForm #generate').on('click',function(){
-	$.post("<?=MODULE_URL?>ajax/print_form/<?=$bir_form?>",$('#birForm').serialize())
-	.done(function( data ) 
-	{	
-		var url = data.url;
-		var win = window.open(url, '_blank');
-		win.focus();
+	$('#birForm #generate').on('click',function(){
+		$.post("<?=MODULE_URL?>ajax/print_form/<?=$bir_form?>",$('#birForm').serialize())
+		.done(function( data ) 
+		{	
+			var url = data.url;
+			var win = window.open(url, '_blank');
+			win.focus();
+		});
+		
 	});
-	
-});
+
+	var ajax = {}
+	var ajax_call = '';
+	ajax.year 		= $('#birForm #yearfilter').val();
+	ajax.quarter 	= $('#birForm input[name=quarter]:checked').val();
+
+	$('#birForm #yearfilter').on('change',function(){
+		ajax.year = this.value;
+		getList();	
+	});
+
+	$('body').on('ifChecked','.quarter', function() {
+		ajax.quarter = this.value;
+		getList();
+	});
+
+	$('body').on('blur', '[data-validation~="decimal"]', function(e) {
+		compute();
+	});
+
+	function getList() {
+		if (ajax_call != '') {
+			ajax_call.abort();
+		}
+		ajax_call = $.post("<?=MODULE_URL?>ajax/load_list/<?=$bir_form?>", ajax, function(data) {
+			$('#birForm #atc_container').html(data.atc_table);
+			$('#birForm #totalwithheld').val(data.quartertotal);
+			$('#birForm #firstremittance').val(data.firstmonth);
+			$('#birForm #secondremittance').val(data.secondmonth);
+			compute();
+		});
+	}
+	getList();
+
+	function compute(){
+		var totalwithheld 		= 0;
+		var firstremittance 	= 0;
+		var secondremittance 	= 0;
+
+		var previouslyfiled 	= 0;
+		var overremittance 		= 0;
+		var totalremittance 	= 0;
+
+		var taxdue 		= 0;
+		var surcharge 	= 0;
+		var interest 	= 0;
+		var compromise 	= 0;
+		var penalties 	= 0;
+
+		var amountdue 	= 0;
+
+		totalwithheld 		= $('#totalwithheld').val() || '0';
+		totalwithheld 		= totalwithheld.replace(/,/g,'');
+		firstremittance 	= $('#firstremittance').val() || '0';
+		firstremittance 	= firstremittance.replace(/,/g,'');
+		secondremittance 	= $('#secondremittance').val() || '0';
+		secondremittance 	= secondremittance.replace(/,/g,'');
+
+		previouslyfiled 	= $('#previouslyfiled').val() || '0';
+		previouslyfiled 	= previouslyfiled.replace(/,/g,'');
+		overremittance 		= $('#overremittance').val() || '0';
+		overremittance 		= overremittance.replace(/,/g,'');
+		
+		/**
+		 * Compute Total Remittances Made
+		 */
+		var total_remittance	= parseFloat(totalwithheld) - (parseFloat(firstremittance) + parseFloat(secondremittance) + parseFloat(previouslyfiled) + parseFloat(overremittance));
+		$('#totalremittance').val(addCommas(total_remittance.toFixed(2)));
+
+		/**
+		 * Compute Tax Still Due
+		 */
+		var taxdue				= parseFloat(totalwithheld) - parseFloat(total_remittance);
+		$('#taxdue').val(addCommas(taxdue.toFixed(2)));
+
+		surcharge 	= $('#surcharge').val() || '0';
+		surcharge 	= surcharge.replace(/,/g,'');
+		interest 	= $('#interest').val() || '0';
+		interest 	= interest.replace(/,/g,'');
+		compromise 	= $('#compromise').val() || '0';
+		compromise 	= compromise.replace(/,/g,'');
+		penalties 	= $('#penalties').val() || '0';
+		penalties 	= penalties.replace(/,/g,'');
+		
+		/**
+		 * Compute Total Amount Still Due
+		 */
+		var amountdue				= parseFloat(taxdue) + parseFloat(surcharge) + parseFloat(interest) + parseFloat(compromise) + parseFloat(penalties);
+		$('#amountdue').val(addCommas(amountdue.toFixed(2)));
+
+	}
+
+	function addCommas(nStr)
+	{
+		nStr += '';
+		x = nStr.split('.');
+		x1 = x[0];
+		x2 = x.length > 1 ? '.' + x[1] : '';
+		var rgx = /(\d+)(\d{3})/;
+		while (rgx.test(x1)) {
+			x1 = x1.replace(rgx, '$1' + ',' + '$2');
+		}
+		return x1 + x2;
+	}
 </script>

@@ -70,6 +70,192 @@ class controller extends wc_controller {
 		}
 	}
 
+	public function load_list($form){
+		$data			= $this->input->post();
+		if($form == '1601EQ'){
+			$atc 		= $this->bir->getQuarterlyRemittance($data);
+			$table 		= '';
+			$line 		= 13;
+			$length 	= 6;
+			$i			= 0;
+			$firstperiod	= 0;
+			$secondperiod 	= 0;
+			$quartertotal 	= 0;
+			if($atc){
+				$atc_arr = array();
+				foreach ($atc as $key => $val) {
+					$period 		= $val->period;
+					$atccode 		= $val->atccode;
+					$taxbase 		= $val->taxbase;
+					$taxrate 		= $val->taxrate;
+					// $taxwithheld 	= $val->taxwithheld;
+					$taxwithheld 	= $taxbase * $taxrate;
+					$atc_arr[$atccode]['taxbase'][] 	= $taxbase;
+					$atc_arr[$atccode]['taxrate'][] 	= $taxrate;
+					if(in_array($period,array(1,4,7,10))){
+						$firstperiod	+= $taxwithheld;
+					}
+					if(in_array($period,array(2,5,8,11))){
+						$secondperiod	+= $taxwithheld;
+					}
+					$quartertotal	+= $taxwithheld;
+				}
+				foreach ($atc_arr as $atc_key => $atc_val) {
+					$atc_code 		= $atc_key;
+					$taxbase 		= array_sum($atc_val['taxbase']);
+					$taxrate 		= $atc_val['taxrate'][0];
+					$taxwithheld 	= $taxbase * $taxrate;
+					$taxrate		= $taxrate * 100;
+
+					$table .= '<tr>';
+					$table .= '<td>';
+					$table .= '<strong>'.$line.'</strong>';
+					$table .= '</td>';
+
+					$table .= '<td>';
+					$table .= $this->ui->formField('text')
+								->setName('atc'.$i)
+								->setClass('text-right')
+								->setValue($atc_code)
+								->setAttribute(
+									array(
+										'readOnly' => 'readOnly'
+									)
+								)
+								->draw(true);
+					$table .= '</td>';
+
+					$table .= '<td>';
+					$table .= $this->ui->formField('text')
+								->setName('taxbase'.$i)
+								->setClass('text-right')
+								->setValue(number_format($taxbase,2))
+								->setPlaceholder('0.00')
+								->setAttribute(
+									array(
+										'readOnly' => 'readOnly'
+									)
+								)
+								->draw(true);
+					$table .= '</td>';
+
+					$table .= '<td>';
+					$table .= $this->ui->formField('text')
+								->setName('taxrate'.$i)
+								->setClass('text-right')
+								->setPlaceholder('0%')
+								->setValue(number_format($taxrate,0).'%')
+								->setAttribute(
+									array(
+										'readOnly' => 'readOnly'
+									)
+								)
+								->draw(true);
+					$table .= '</td>';
+
+					$table .= '<td>';
+					$table .= $this->ui->formField('text')
+								->setName('taxwithheld'.$i)
+								->setClass('text-right')
+								->setPlaceholder('0.00')
+								->setValue(number_format($taxwithheld,2))
+								->setAttribute(
+									array(
+										'readOnly' => 'readOnly'
+									)
+								)
+								->draw(true);
+					$table .= '</td>';
+
+					$table .= '</tr>';
+
+					$length--;
+					$line++;
+					$i++;
+				}
+			}
+
+			/**	
+			 * Add Blank rows
+			 */
+			for ($x=0; $x < $length; $x++) { 
+				$atc_code = '';
+				$table .= '<tr>';
+				$table .= '<td>';
+				$table .= '<strong>'.$line.'</strong>';
+				$table .= '</td>';
+
+				$table .= '<td>';
+				$table .= $this->ui->formField('text')
+							->setName('atc'.$i)
+							->setClass('text-right')
+							->setValue('')
+							->setAttribute(
+								array(
+									'readOnly' => 'readOnly'
+								)
+							)
+							->draw(true);
+				$table .= '</td>';
+
+				$table .= '<td>';
+				$table .= $this->ui->formField('text')
+							->setName('taxbase'.$i)
+							->setClass('text-right')
+							->setValue('')
+							->setPlaceholder('0.00')
+							->setAttribute(
+								array(
+									'readOnly' => 'readOnly'
+								)
+							)
+							->draw(true);
+				$table .= '</td>';
+
+				$table .= '<td>';
+				$table .= $this->ui->formField('text')
+							->setName('taxrate'.$i)
+							->setClass('text-right')
+							->setPlaceholder('0%')
+							->setValue('')
+							->setAttribute(
+								array(
+									'readOnly' => 'readOnly'
+								)
+							)
+							->draw(true);
+				$table .= '</td>';
+
+				$table .= '<td>';
+				$table .= $this->ui->formField('text')
+							->setName('taxwithheld'.$i)
+							->setClass('text-right')
+							->setPlaceholder('0.00')
+							->setValue('')
+							->setAttribute(
+								array(
+									'readOnly' => 'readOnly'
+								)
+							)
+							->draw(true);
+				$table .= '</td>';
+
+				$table .= '</tr>';
+				$line++;
+				$i++;
+			}
+			$result = array(
+				'atc_table' 	=> $table,
+				'quartertotal'	=> number_format($quartertotal,2),
+				'firstmonth'	=> number_format($firstperiod,2),
+				'secondmonth'	=> number_format($secondperiod,2)
+			);
+		}
+		
+		
+		return $result;
+	}
+
 	public function print_form($form) {
 		$query = http_build_query($this->input->post());
 		$url = MODULE_URL.'print_'.$form.'/?'.$query;
