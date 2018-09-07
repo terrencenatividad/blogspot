@@ -597,7 +597,7 @@ $('#clear_checks').on('click', function(){
 	$('#checkForm').trigger("reset");
 }) 
 
-$('#check_container').on('click', '.cancel_a_check_range', function(){
+$('#check_container').on('click', '.cancel_check_range', function(){
 	ajax.id     =  $('#id').val();
 	check_range =  $(this).closest('tr').find('#start_check').html();
 	var result = check_range.split('-');
