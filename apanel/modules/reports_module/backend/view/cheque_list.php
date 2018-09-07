@@ -99,7 +99,6 @@
 						onClick="filterList('cancelled');">Cancelled</a></li>
 				<li><a href="#" data-toggle="tab" style="outline:none;" 
 						onClick="filterList('released');">Released</a></li>
-				<li><a href="#" data-toggle="tab" style="outline:none;" 
 						
 			</ul>
 			
