@@ -9,9 +9,74 @@ class bir extends wc_model {
                 ->getRow();
     }
 
-    public function getWithheld($data){
-        $year       = $data['year'];
-        $quarter    = $data['quarter'];
+    public function getQuarterlyRemittance($data){
+        $year           = $data['year'];
+        $quarter        = $data['quarter'];
+        $months         = '';
+        switch ($quarter) {
+            case 1:
+                $months = "period IN(1,2,3)";
+                break;
+            
+            case 2:
+                $months = "period IN(4,5,6)";
+                break;
+
+            case 3:
+                $months = "period IN(7,8,9)";
+                break;
+
+            case 4:
+                $months = "period IN(10,11,12)";
+                break;
+
+            default:
+                $months = "";
+                break;
+        }
+
+        $company_info   = $this->getCompanyInfo('wtax_option');
+        $wtax_option    = $company_info->wtax_option;
+
+        if($wtax_option == 'AP'){
+            $result = $this->db->setTable("ap_details apd")
+					->setFields(
+                        array(
+                            'apv.period period',
+                            'atc.atc_code atccode',
+                            'SUM(apd.taxbase_amount) taxbase',
+                            'atc.tax_rate taxrate',
+                            'apd.credit taxwithheld'
+                        )
+                    )
+                    ->leftJoin("atccode atc ON atc.atcId = apd.taxcode")
+                    ->leftJoin("accountspayable apv ON apv.voucherno = apd.voucherno")
+					->setGroupBy("apv.period, atc.atc_code")
+					->setWhere(" (apd.taxcode IS NOT NULL AND apd.taxcode != '') AND apv.fiscalyear = '$year' AND apv.$months ")
+					->setOrderBy("atc.tax_rate")
+					->runSelect()
+					->getResult();
+        }else if($wtax_option == 'PV'){
+            $result = $this->db->setTable("pv_details apd")
+					->setFields(
+                        array(
+                            'apv.period period',
+                            'atc.atc_code atccode',
+                            'SUM(apd.taxbase_amount) taxbase',
+                            'atc.tax_rate taxrate',
+                            'apd.credit taxwithheld'
+                        )
+                    )
+                    ->leftJoin("atccode atc ON atc.atcId = apd.taxcode")
+                    ->leftJoin("paymentvoucher apv ON apv.voucherno = apd.voucherno")
+					->setGroupBy("apv.period, atc.atc_code")
+					->setWhere(" (apd.taxcode IS NOT NULL AND apd.taxcode != '') AND apv.fiscalyear = '$year' AND apv.$months ")
+					->setOrderBy("atc.tax_rate")
+					->runSelect()
+					->getResult();
+        }
+
+        return $result;
         
     }
 }	

@@ -31,7 +31,15 @@ class controller extends wc_controller
 			'email'			=> '',
 			'taxyear' 		=> '',
 			'periodstart' 	=> '',
-			'wtax_option' 	=> ''
+			'wtax_option' 	=> '',
+			'lastname'		=> '',
+			'firstname'		=> '',
+			'middlename'	=> '',
+			'businessline'	=> '',
+			'signatory_name'=> '',
+			'signatory_role'=> '',
+			'signatory_tin'	=> '',
+			'tin'			=> ''
 		);
 
 		/**
@@ -54,6 +62,7 @@ class controller extends wc_controller
 		$data_var['wtax_option_list']	= $this->companyclass->getOption("wtax_option");
 		$data_var['period_list']		= $this->companyclass->getPeriods();
 		$data_var['taxyear_lock']   	= ($data_var['taxyear'] == 'calendar') ? "disabled" : "";
+		$data_var['businesstype_list']	= $this->companyclass->getOption("businesstype");
 		$this->view->load('company', $data_var);
 	}
 
@@ -94,7 +103,15 @@ class controller extends wc_controller
 			'email',
 			'taxyear',
 			'periodstart',
-			'wtax_option'
+			'wtax_option',
+			'lastname',
+			'firstname',
+			'middlename',
+			'businessline',
+			'signatory_name',
+			'signatory_role',
+			'signatory_tin',
+			'tin'
 		);
 		
 		/**
@@ -136,7 +153,15 @@ class controller extends wc_controller
 			'email',
 			'taxyear',
 			'periodstart',
-			'wtax_option'
+			'wtax_option',
+			'lastname',
+			'firstname',
+			'middlename',
+			'businessline',
+			'signatory_name',
+			'signatory_role',
+			'signatory_tin',
+			'tin'
 		);
 
 		/**

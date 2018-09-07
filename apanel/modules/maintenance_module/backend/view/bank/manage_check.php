@@ -231,6 +231,90 @@
 	</div>
 </div>
 
+<div class="modal fade" id="cancel_checks" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog modal-md">
+
+		<div class="modal-content">
+			<form method = "POST" id="cancelled_checks">
+				<div class="modal-header ">
+					<div class="row">
+						<div class="col-md-11">
+							<h4 class = 'bold'>Cancel Check</h4>
+						</div>
+						<div class="col-md-1 right">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="modal-body">
+					<div class = 'row'>
+						<input type='hidden' name='bank' id='bank' value=''>
+
+						<div class = 'panel panel-default'>
+							<div class = 'panel-heading'>
+								<h3 class="panel-title">Please enter a number within <span id="range"></span></h3>
+							</div>
+							<div class = 'panel-body'>
+								<div class = 'col-md-12 no-padding'>
+									<?php
+										echo $ui->formField('text')
+												->setLabel('First Number')
+												->setSplit('col-md-4', 'col-md-8')
+												->setName('firstcancelled')
+												->setId('firstcancelled')
+												->setValidation('required num')
+												->setValue("")
+												->draw();
+									?>
+								</div>
+								<br><br><br>
+								<div class = 'col-md-12 no-padding'>
+									<?php
+										echo $ui->formField('text')
+												->setLabel('Last Number')
+												->setSplit('col-md-4', 'col-md-8')
+												->setName('lastcancelled')
+												->setId('lastcancelled')
+												->setValidation('required num')
+												->setValue("")
+												->draw();
+									?>
+								</div>
+								<br><br><br>
+								<div class = 'col-md-12 no-padding'>
+									<?php
+										echo $ui->formField('textarea')
+												->setLabel('Reason')
+												->setSplit('col-md-4', 'col-md-8')
+												->setName('remarks')
+												->setId('remarks')
+												->setValidation('required')
+												->setValue("")
+												->draw();
+									?>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="modal-footer">
+					<div class="row row-dense">
+						<div class="col-md-12 right">
+							<div class="btn-group">
+								<button type="button" class="btn btn-success" id="save_cancelled" >Save</button>
+								<button type="button" data-dismiss="modal" class="btn btn-default" >Cancel</button> 
+							</div>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
 
 <script>
 var ajax = {};
@@ -377,7 +461,7 @@ $(document).ready(function()
 							success: function(response){
 								if(response && response.errmsg == ""){
 									$('#import-modal').modal('hide');
-									$(".alert-warning").addClass("hidden");
+									 
 									$("#errmsg").html('');
 									showList();
 								}else{
@@ -492,7 +576,6 @@ $('#check_container').on('click', '.delete_check_series', function(){
 });
 
 $('#check_container').on('click', '.set_as_default_check', function(){
-	// var id     =  $('#id').val();
 	ajax.id     =  $('#id').val();
 	bookno =  $(this).closest('tr').find('#start_check').html();
 	var result = bookno.split('-');
@@ -517,7 +600,6 @@ $('#checkForm #firstchequeno, #lastchequeno').on('blur' ,function(){
 		}
 	}
 
-	
 	jQuery.each(bank_checks,function(ind,val){
 		var result = val.split('-');
 		var start = result[0];
@@ -527,13 +609,75 @@ $('#checkForm #firstchequeno, #lastchequeno').on('blur' ,function(){
 		}  
     })
 	
-	
-
-
-	
 })
 
 $('#clear_checks').on('click', function(){
 	$('#checkForm').trigger("reset");
 }) 
+
+$('#check_container').on('click', '.cancel_a_check_range', function(){
+	ajax.id     =  $('#id').val();
+	check_range =  $(this).closest('tr').find('#start_check').html();
+	var result = check_range.split('-');
+	ajax.start = result[0];
+	ajax.end = result[1];
+	$('#range').html(check_range);
+	if( id != "" )
+	{
+		$("#cancel_checks").modal("show");
+		$( "#set_yes" ).click(function() {
+			$.post('<?=BASE_URL?>maintenance/bank/ajax/set_check', ajax ,  function(data){
+					window.location = self.location;
+			});
+		});
+	}
+});
+
+$('#save_cancelled').on('click',function(){
+	$('#cancelled_checks #firstcancelled').trigger('blur');
+	$('#cancelled_checks #lastcancelled').trigger('blur');
+	$('#cancelled_checks #remarks').trigger('blur');
+	ajax.firstcancelled = $('#firstcancelled').val();
+	ajax.lastcancelled = $('#lastcancelled').val();
+	ajax.remarks = $('#remarks').val();
+	if ($('#cancelled_checks').find('.form-group.has-error').length == 0)
+	{	
+		$.post('<?=BASE_URL?>maintenance/bank/ajax/save_cancelled', ajax, function(data) {
+			if( data.msg == 'yes' )
+			{
+				window.location = self.location;
+			}
+		});
+	}
+})
+
+$('#cancelled_checks #firstcancelled, #lastcancelled').on('blur',function(){
+	var first_number= $('#firstcancelled').val();
+	var end_number 	= $('#lastcancelled').val();
+	var range 		= $('#range').html();
+	var range = range.split('-');
+	var start = parseFloat(range[0]);
+	var end = parseFloat(range[1]);
+	if (first_number){
+		if ( (start > first_number && first_number < end) ){
+			console.log('in');
+			error_message 	=	"<b>The number you entered is not within the check range</b>";
+			$('#cancel_checks #firstcancelled').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+		}  else {
+			$('#cancel_checks #firstcancelled').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+		}
+	}
+
+	if (end_number){
+		if (start > end_number && end_number < end){
+			error_message 	=	"<b>The number you entered is not within the check range</b>";
+			$('#cancel_checks #lastcancelled').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+		}  else {
+			$('#cancel_checks #lastcancelled').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+		}
+	}
+
+})
+
+
 </script>

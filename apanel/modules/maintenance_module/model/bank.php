@@ -279,6 +279,17 @@
 			return $result;
 		}
 
+		public function insertCancelledChecks($data1){
+			$data['bank_id'] 			= $data1['id'];
+			$data['firstchequeno'] 		= $data1['start'];
+			$data['lastchequeno'] 		= $data1['end'];
+			$result = $this->db->setTable('cancelled_checks')
+							->setValues($data)
+							->runInsert();
+			return $result;
+
+		}
+
 
 		
 	}
