@@ -270,6 +270,16 @@ class credit_memo_model extends wc_model {
 						->getResult();
 	}
 
+	public function getSource($voucher){
+		$cond 	=	($voucher!="") ? "voucherno = '$voucher'" : "";
+		$result	= $this->db->setTable('journalvoucher')
+						->setFields('source')
+						->setWhere($cond)
+						->runSelect()
+						->getResult();
+		return $result;
+	}
+
 	public function getDocumentInfo($voucherno) {
 		$result = $this->db->setTable('journalvoucher jv')
 							->setFields('voucherno, transactiondate documentdate, amount, referenceno, remarks, partner')
