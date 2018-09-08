@@ -2192,7 +2192,7 @@ function addPaymentAmount() {
 		discount = 0;
 	}
 	amount = addCommas(amount.toFixed(2));
-	console.log("Add Payment Amount || Amount = " + amount);
+	// console.log("Add Payment Amount || Amount = " + amount);
 	$('#total_payment').val(amount);
 	discount = addCommas(discount.toFixed(2));
 	$('#total_discount').val(discount);
@@ -2326,9 +2326,11 @@ function selectPayable(id,toggle){
 	var credit_used 	= $('#payable_list_container #credits_used'+id);
 	var discountamount 	= $('#payable_list_container #discountamount'+id);
 	var balance 		= $('#payable_list_container #payable_balance'+id).attr('data-value');
-	var paymentamount_val 	= $('#payable_list_container #paymentamount'+id).attr('value');
+	var paymentamount_val = $('#payable_list_container #paymentamount'+id).attr('value');
 	var newbal  		= $('#payable_list_container #orig_bal'+id).attr('value');
 	var available_credit= $('#paymentForm #available_credits').val();	
+
+	balance 	=	removeComma(balance);
 
 	if(check.prop('checked' )){
 		if(toggle == 1){
@@ -2403,18 +2405,18 @@ function add_storage(id,balance,discount,credits){
 				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
 				var credits 			=	(removeComma(newvalue.cred) > 0)? removeComma(newvalue.cred): 0;
 				
-				console.log("NEW || "+new_amount+ " | " + new_balance + " | "+discount + " | " + credits);
+				// console.log("NEW || "+original_amount+ " | " + original_balance + " | "+original_discount + " | " + original_credits);
 
-				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount) - parseFloat(original_credits)) - new_amount;
+				var available_balance 	=	(parseFloat(balance) - parseFloat(original_discount) - parseFloat(original_credits)) - new_amount;
 					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
-
+				// console.log("AVAILABLE = "+available_balance);
 				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount) + parseFloat(original_credits)) - discount - credits;
 					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
 				// console.log("AVAILABLE BALANCE = "+available_balance);
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
 
-				console.log("New || "+new_amount+" || "+discounted_amount+ " | " + new_balance + " | "+discount+" | "+credits);
+				// console.log("New || "+new_amount+" || "+discounted_amount+ " | " + new_balance + " | "+discount+" | "+credits);
 
 				found = true;
 				if(parseFloat(new_amount) === 0) {
@@ -2441,6 +2443,7 @@ function add_storage(id,balance,discount,credits){
 			return obj.vno !== id;
 		});
 	}
+	// console.log(container);
 	localStorage.selectedPayables = JSON.stringify(container);
 	init_storage();
 	//console.log(JSON.parse(localStorage.getItem('selectedPayables')));
