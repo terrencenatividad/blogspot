@@ -2556,7 +2556,7 @@ function checkCredit(val,id){
 	}
 
 	add_storage(id,dueamount,discount,input);
-	// addPaymentAmount();	
+	addPaymentAmount();	
 }
 
 function validateCheques(){
