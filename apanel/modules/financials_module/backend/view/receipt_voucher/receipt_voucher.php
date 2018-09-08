@@ -3966,7 +3966,6 @@ $(document).ready(function() {
 		container = [];
 		clearPayment();
 	});
-	var customer = $('#customer').val();
 
 	$('#customer').on('change',function(){
 		var total_payment 		= $('#total_payment').val();
