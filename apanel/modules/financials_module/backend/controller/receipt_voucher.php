@@ -1231,9 +1231,8 @@ class controller extends wc_controller
 		$show_input         = $this->show_input;
 
 		$totalcredit = 0;
-		// var_dump($results);
-		if(!empty($results))
-		{
+
+		if(!empty($results)){
 			$credit      = '0.00';
 			$count       = count($results);
 			
@@ -1249,14 +1248,10 @@ class controller extends wc_controller
 					$credit 			= number_format($overpayment,2);
 				} else {
 					$credit 			= (isset($account_total[$accountcode])) ? $account_total[$accountcode] : 0;
-					// echo $overpayment;
 					$credit 			= ($overpayment > 0 && $credit > 0) ? $credit - $overpayment 	:	$credit;
 					$credit 			= number_format($credit,2);
 				}
 				$totalcredit     	+= $debit; 
-
-				// echo $isoverpayment."\n\n";
-				// echo $credit."\n\n";
 
 				$table .= '<tr class="clone" valign="middle">';
 				$table .= 	'<td class = "remove-margin">'	

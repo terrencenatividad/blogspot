@@ -66,6 +66,7 @@
 								->addHidden(($task == 'view'))
 								->draw($show_input);
 								?>
+								<input id="old_customer" type="hidden">
 							</div>
 							<div class = "col-md-6">
 								<?php
@@ -1067,7 +1068,7 @@
 						</div>
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
-							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+							<button type="button" class="btn btn-default btn-flat" id="no_to_reset">No</button>
 						</div>
 					</div>
 				</div>
@@ -2055,12 +2056,11 @@ function get_total_applied_credits(){
 	return total_cred_used;
 }
 
-function showList()
-{
+function showList(){
 	var vnose 		= JSON.stringify(container);
 	// console.log(vnose);
 	var	customer_code	= $('#payableForm #customer').val();
-	voucherno 		= $('#payableForm #h_voucher_no').val();
+		voucherno 		= $('#payableForm #h_voucher_no').val();
 	var available_cred 	= $('#paymentModal #available_credits').val();
 
 	var ajax_call	= '';
@@ -2075,44 +2075,38 @@ function showList()
 	ajax.task 		= task;
 	ajax.avl_cred 	= available_cred;
 	ajax_call 		= $.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/load_payables", ajax )
-	.done(function( data ) 
-	{
-		if ( ! edited) {
-			$('#pagination').html(data.pagination);
-			$('#paymentModal #payable_list_container').html(data.table);
-
-			var applied_cred 	=	get_total_applied_credits();
-			$('#payableForm #total_cred_used').val(applied_cred);
-		} else {
-			$('#pagination').html(data.pagination);
-			$('#paymentModal #payable_list_container').html(data.table);
-
-						// selectPayable(); 
-					}
-
-					if (ajax.page > data.page_limit && data.page_limit > 0) {
-						ajax.page = data.page_limit;
-						showList();
-					}
-
-					if('<?= $task ?>' == "edit" && !edited) {
-
-						$("#payableForm #selected_rows").html(data.json_encode);
-					}
-
-
-					if(!($("paymentModal").data('bs.modal') || {isShown: false}).isShown)
-					{
-						var check_rows = $('#payableForm #selected_rows').html();
-						var obj = (check_rows != "") ? JSON.parse(check_rows) : 0;
-
-						for(var i = 0; i < obj.length; i++)
+						.done(function( data ) 
 						{
-							$('input#row_check' + obj[i]["row"]).iCheck('check');
-						} 
-						$('#paymentModal').modal('show');
-					};
-				});
+							if ( ! edited) {
+								$('#pagination').html(data.pagination);
+								$('#paymentModal #payable_list_container').html(data.table);
+
+								var applied_cred 	=	get_total_applied_credits();
+								$('#payableForm #total_cred_used').val(applied_cred);
+							} else {
+								$('#pagination').html(data.pagination);
+								$('#paymentModal #payable_list_container').html(data.table);
+							}
+
+							if (ajax.page > data.page_limit && data.page_limit > 0) {
+								ajax.page = data.page_limit;
+								showList();
+							}
+
+							if('<?= $task ?>' == "edit" && !edited) {
+								$("#payableForm #selected_rows").html(data.json_encode);
+							}
+
+							if(!($("paymentModal").data('bs.modal') || {isShown: false}).isShown){
+								var check_rows = $('#payableForm #selected_rows').html();
+								var obj = (check_rows != "") ? JSON.parse(check_rows) : 0;
+
+								for(var i = 0; i < obj.length; i++){
+									$('input#row_check' + obj[i]["row"]).iCheck('check');
+								} 
+								$('#paymentModal').modal('show');
+							};
+						});
 }
 
 $('#table_search').on('input', function() {
@@ -2125,7 +2119,27 @@ $('#pagination').on('click', 'a', function(e) {
 	e.preventDefault();
 	ajax.page = $(this).attr('data-page');
 	showList();
-	
+});
+
+$('#paymentModal').on('show.bs.modal', function () {
+  	$('#payable_list_container tr').each(function(index,value){
+		var amt_to_receive 	= $(this).find('.paymentamount').val();
+			amt_to_receive  = (amt_to_receive == undefined) ? 0 : amt_to_receive;
+		var discount 		= $(this).find('.discountamount').val();
+			discount  		= (discount == undefined) ? 0 : discount;
+		var credits_used 	= $(this).find('.credits_used').val();
+			credits_used  	= (credits_used == undefined) ? 0 : credits_used;
+		
+		// console.log("Amount = "+amt_to_receive);
+		if(credits_used == 0) {
+			$('#excess_credit_error').addClass('hidden');
+			$('#TagReceivablesBtn').prop('disabled',false);
+		}
+		if(amt_to_receive < 0){
+			$('#TagReceivablesBtn').prop('disabled',true);
+
+		}
+  	});
 });
 
 function showIssuePayment(){
@@ -2239,7 +2253,7 @@ function getCheckAccounts() {
 
 var payments 		= <?=$payments;?>;
 var container 		= (payments != '') ? payments : [];
-console.log(container);
+
 var selectedIndex 	= -1;
 function getRVDetails(){
 	var customercode   	= $("#customer").val();
@@ -2330,8 +2344,6 @@ function selectPayable(id,toggle){
 	var newbal  		= $('#payable_list_container #orig_bal'+id).attr('value');
 	var available_credit= $('#paymentForm #available_credits').val();	
 
-	balance 	=	removeComma(balance);
-
 	if(check.prop('checked' )){
 		if(toggle == 1){
 			check.prop('checked', false);
@@ -2341,6 +2353,7 @@ function selectPayable(id,toggle){
 			credit_used.prop('disabled',true);
 			credit_used.val("0.00");
 			// discountamount.val('');
+			console.log('1');
 		}else{
 			check.prop('checked', true);
 			paymentamount.prop('disabled',false);
@@ -2348,6 +2361,7 @@ function selectPayable(id,toggle){
 			discountamount.prop('disabled',false);
 			credit_used.prop('disabled',false);
 			// discountamount.val(balance);
+			console.log('2');
 		}
 	}else{
 		if(toggle == 1){
@@ -2357,6 +2371,8 @@ function selectPayable(id,toggle){
 			discountamount.prop('disabled',false);
 			credit_used.prop('disabled',false);
 			// discountamount.val(balance);
+			console.log('3');
+			// if(credit_used.val() > available_credit)
 		}else{
 			check.prop('checked', false);
 			paymentamount.prop('disabled',true);
@@ -2365,12 +2381,14 @@ function selectPayable(id,toggle){
 			credit_used.prop('disabled',true);
 			credit_used.val("0.00");
 			// discountamount.val('0.00');
+			console.log('4');
 		}
 	}
 
 	$('#payable_list_container #check'+id).iCheck('update');
 
 	// Get number of checkboxes and assign to textarea
+	balance 	=	removeComma(balance);
 	add_storage(id,balance,0,0);
 	addPaymentAmount();
 }
@@ -2403,15 +2421,21 @@ function add_storage(id,balance,discount,credits){
 				var new_amount 			=	(removeComma(newvalue.amt) > 0) ? removeComma(newvalue.amt) : 0;
 				var new_balance 		=	(removeComma(newvalue.bal) > 0) ? removeComma(newvalue.bal)	: 0;
 				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
-				var credits 			=	(removeComma(newvalue.cred) > 0)? removeComma(newvalue.cred): 0;
+				var new_credit 			=	(removeComma(newvalue.cred) > 0)? removeComma(newvalue.cred): 0;
 				
-				// console.log("NEW || "+original_amount+ " | " + original_balance + " | "+original_discount + " | " + original_credits);
+				console.log("NEW || "+original_amount+ " | " + original_balance + " | "+original_discount + " | " + original_credits);
 
 				var available_balance 	=	(parseFloat(balance) - parseFloat(original_discount) - parseFloat(original_credits)) - new_amount;
 					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
 				// console.log("AVAILABLE = "+available_balance);
 				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount) + parseFloat(original_credits)) - discount - credits;
 					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
+
+					console.log('new amount = '+new_amount);
+					console.log('discount = '+original_discount);
+					console.log('credits = '+original_credits);
+					console.log('new disc = '+discount);
+					console.log('new credits = '+credits);
 				// console.log("AVAILABLE BALANCE = "+available_balance);
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
@@ -2521,14 +2545,18 @@ function checkCredit(val,id){
 	var current_payment = 	$('#payable_list_container #paymentamount'+id).val();
 
 	var input 			= 	removeComma(val);
-	total_amount 	= 	removeComma(total_amount);
-	discount		= 	removeComma(discountamount);
-	dueamount 		=	removeComma(dueamount);
-	avail_credits 	=	removeComma(avail_credits);
-	current_payment = 	removeComma(current_payment);
+		total_amount 	= 	removeComma(total_amount);
+		discount		= 	removeComma(discountamount);
+		dueamount 		=	removeComma(dueamount);
+		avail_credits 	=	removeComma(avail_credits);
+		current_payment = 	removeComma(current_payment);
+
+	if(input > avail_credits){
+		input = 0;
+	}
 
 	add_storage(id,dueamount,discount,input);
-	addPaymentAmount();	
+	// addPaymentAmount();	
 }
 
 function validateCheques(){
@@ -3873,7 +3901,7 @@ $(document).ready(function() {
 		var selectid = $(this).attr('row');
 		var selecttoggleid = $(this).attr('toggleid');
 		
-		selectPayable(selectid,selecttoggleid);
+		selectPayable(selectid,selecttoggleid);	
 	});
 
 	$('body').on('click','#apv',function(e){
@@ -3895,6 +3923,11 @@ $(document).ready(function() {
 		setZero(offset);
 		drawTemplate();
 	});
+
+	$('#change_customer_modal').on('click','#no_to_reset',function(){
+		
+		$(this).modal('hide');
+	});
 	
 	$('#change_customer_modal').on('click','#yes_to_reset',function(){
 		
@@ -3914,10 +3947,12 @@ $(document).ready(function() {
 		clearChequePayment();
 
 		$('#change_customer_modal').modal('hide');
+		$('#excess_credit_error').addClass('hidden');
 		
 		container = [];
 		clearPayment();
 	});
+	var customer = $('#customer').val();
 
 	$('#customer').on('change',function(){
 		var accounts_selected 	= computefortotalaccounts();
@@ -3984,9 +4019,9 @@ $(document).ready(function() {
 
 	$('#paymentForm').on('change','.credits_used',function(){
 		var avail_credits 	=	$('#paymentForm #available_credits').val();
-		avail_credits 	=	parseFloat(removeComma(avail_credits));
+			avail_credits 	=	parseFloat(removeComma(avail_credits));
 		var total_cred_used = 	0;
-		total_cred_used =	get_total_applied_credits();
+			total_cred_used =	get_total_applied_credits();
 		if(total_cred_used > avail_credits){
 			$('#excess_credit_error').removeClass('hidden');
 			$('#payable_list_container tr').each(function(index) {
@@ -3996,6 +4031,7 @@ $(document).ready(function() {
 					$(this).find('.credits_used').closest('.form-group').addClass('has-error');
 				}
 			});
+			$('#TagReceivablesBtn').prop('disabled',true);
 			$('#payableForm #total_cred_used').val(0);
 		} else {
 			$('#payableForm #total_cred_used').val(total_cred_used);
@@ -4003,6 +4039,7 @@ $(document).ready(function() {
 			$('#payable_list_container tr').each(function(index) {
 				$(this).find('.credits_used').closest('.form-group').removeClass('has-error');
 			});
+			$('#TagReceivablesBtn').prop('disabled',false);
 		}
 	});
 
