@@ -790,7 +790,8 @@
 							echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
 						}
 						?>
-						<button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel">Cancel</button>
+						<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
+						<!-- <button type="button" class="btn btn-default btn-flat" data-id="<?//=$generated_id?>" id="btnCancel">Cancel</button> -->
 					</div>
 				</div>
 
@@ -3198,13 +3199,13 @@ $(document).ready(function() {
 	});
 
 	/**SCRIPT FOR HANDLING DELETE RECORD CONFIRMATION**/
-	$('#payableForm').on('click','#btnCancel', function() {
-		if(task != 'view'){
-			$('#cancelModal').modal('show');
-		} else {
-			window.location.href	= "<?=BASE_URL?>financials/receipt_voucher";
-		}
-	});
+	// $('#payableForm').on('click','#btnCancel', function() {
+	// 	if(task != 'view'){
+	// 		$('#cancelModal').modal('show');
+	// 	} else {
+	// 		window.location.href	= "<?//=BASE_URL?>financials/receipt_voucher";
+	// 	}
+	// });
 
 	/**DELETE RECEIVED PAYMENT : START**/
 	$('#deletePaymentModal #btnYes').click(function()  {
