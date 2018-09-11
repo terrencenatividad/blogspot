@@ -939,7 +939,7 @@ class controller extends wc_controller
 		$check_rows 	= (isset($vno) && (!empty($vno))) ? trim($vno) : "";
 		$check_rows  	= str_replace('\\', '', $check_rows);
 		$decode_json    = json_decode($check_rows,true);	
-
+		// var_dump($decode_json);
 		$pagination     = $this->receipt_voucher->retrieveAPList($data,$search);
 
 		$table             = "";
@@ -971,9 +971,7 @@ class controller extends wc_controller
 				}	
 			}
 
-			for($i = 0; $i < count($pagination->result); $i++, $j++)
-			{
-
+			for($i = 0; $i < count($pagination->result); $i++, $j++){
 				$date			= $pagination->result[$i]->transactiondate;
 				$restrict_rv 	= $this->restrict->setButtonRestriction($date);
 				$date			= $this->date->dateFormat($date);
@@ -999,18 +997,20 @@ class controller extends wc_controller
 				$json_encode 					= json_encode($json_data);
 
 				$appliedamount	= $this->receipt_voucher->getValue("rv_application", array("SUM(amount) AS amount"),"arvoucherno = '$voucher' AND stat IN('posted', 'temporary')");
-				$appliedamount  = $appliedamount[0]->amount;
+				$appliedamount  = isset($appliedamount[0]->amount) 	?	$appliedamount[0]->amount	:	0;
 	
 				$balance_2		= $balance;
+
 				if (isset($amt_array[$voucher])) {
 					$balance_2	= str_replace(',','',$amt_array[$voucher]['bal']);
 					$amount		= str_replace(',','',$amt_array[$voucher]['amt']);
 					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0.00';
 					$credit_used= isset($amt_array[$voucher]['cred']) ? $amt_array[$voucher]['cred'] : '0.00';
+
 					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount + $credit_used;
-					$balance_2 	= $balance_2 - $amount - $discount	- $credit_used;
+					$balance_2 	= $balance_2 - $amount - $discount - $credit_used;
+					$balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
 				}
-				
 				$disable_checkbox 	=	"";
 				$disable_onclick 	=	'onClick="selectPayable(\''.$voucher.'\',1);"';
 
@@ -1231,9 +1231,8 @@ class controller extends wc_controller
 		$show_input         = $this->show_input;
 
 		$totalcredit = 0;
-		// var_dump($results);
-		if(!empty($results))
-		{
+
+		if(!empty($results)){
 			$credit      = '0.00';
 			$count       = count($results);
 			
@@ -1249,7 +1248,7 @@ class controller extends wc_controller
 					$credit 			= number_format($overpayment,2);
 				} else {
 					$credit 			= (isset($account_total[$accountcode])) ? $account_total[$accountcode] : 0;
-					$credit 			= ($overpayment > 0) ? $credit - $overpayment 	:	$credit;
+					$credit 			= ($overpayment > 0 && $credit > 0) ? $credit - $overpayment 	:	$credit;
 					$credit 			= number_format($credit,2);
 				}
 				$totalcredit     	+= $debit; 

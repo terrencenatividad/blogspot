@@ -299,7 +299,6 @@
 											  ->runUpdate();
 			}
 			return $result;
-
 		}
 
 		public function cancel_list($bank, $firstcheckno){

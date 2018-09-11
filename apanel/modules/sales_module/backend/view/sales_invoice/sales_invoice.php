@@ -840,7 +840,7 @@ echo $ui->loadElement('modal')
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 			<div class="modal-body">
-				Are you sure you want to Cancel this Transaction?
+				Are you sure you want to cancel this transaction?
 			</div>
 			<div class="modal-footer">
 				<div class="row row-dense">

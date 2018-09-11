@@ -20,9 +20,9 @@ class trial_balance extends wc_model {
 		$credit 	= 0;
 		$currentyear= date("Y",strtotime($fromdate));
 
-		$fetch_debit  = $this->getValue("balance_table","SUM(debit) as debit"," accountcode = '$account' AND YEAR(transactiondate) = $currentyear AND transactiondate <= '$fromdate'");
+		$fetch_debit  = $this->getValue("balance_table","SUM(debit) as debit"," accountcode = '$account' AND YEAR(transactiondate) = $currentyear AND transactiondate < '$fromdate'");
 		$debit		  = $fetch_debit[0]->debit;
-		$fetch_credit = $this->getValue("balance_table","SUM(credit) as credit"," accountcode = '$account' AND YEAR(transactiondate) = $currentyear AND transactiondate <= '$fromdate'");
+		$fetch_credit = $this->getValue("balance_table","SUM(credit) as credit"," accountcode = '$account' AND YEAR(transactiondate) = $currentyear AND transactiondate < '$fromdate'");
 		$credit       = $fetch_credit[0]->credit;
 		return ($debit > $credit) ? $debit - $credit : -($credit - $debit);
 	}

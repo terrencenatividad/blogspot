@@ -19,6 +19,15 @@ class controller extends wc_controller
 		$this->username 		= USERNAME;
 	}
 
+	public function getNumbers() {
+		$data = $this->input->post(array('bank', 'curr_seq'));
+		$getBank = $this->payment_voucher->getbankid($data['bank']);
+		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
+		$nums = $this->payment_voucher->getNextCheckNum($bank_id, $data['curr_seq']);
+		$ret_nums = array('nums' => $nums);
+		return $ret_nums;
+	}
+
 	public function listing()
 	{
 		$data["ui"]                    = $this->ui;
@@ -78,18 +87,13 @@ class controller extends wc_controller
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 
-		// Retrieve business type list
-		$acc_entry_data             = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond             = "accounttype != '' AND stat = 'active'";
-		$data["account_entry_list"] = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
-
-		// Cash Account Options
-		// $cash_account_fields 	  	= 'chart.id ind, chart.accountname val, class.accountclass';
-		// $cash_account_join 	 	  	= "accountclass as class USING(accountclasscode)";
-		// $cash_account_cond 	 	  	= "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P' AND stat = 'active'";
-		// $cash_order_by 		 	  	= "class.accountclass";
-		// $data["cash_account_list"] 	= $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
-
+		// Retrieve Accounts list
+		$acc_entry_data               = array("coa.id ind","CONCAT(coa.segment5, ' - ', coa.accountname) val");
+		$acc_entry_cond               = "coa.accounttype != '' AND coa.stat = 'active'";
+		$acc_entry_join 			  = "chartaccount coa2 ON coa2.parentaccountcode = coa.id";
+		$acc_entry_order 			  = "coa.segment5, coa2.segment5";
+		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
+	
 		// Cash Account Options
 		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
 		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
@@ -135,16 +139,6 @@ class controller extends wc_controller
 				
 				$update_cheque['voucherno']	= $generatedvoucher;
 				$updateTempRecord			= $this->payment_voucher->editData($update_cheque,"pv_cheques",$update_condition);
-
-				// $getnextCheckno 			= $this->payment_voucher->get_check_no($generatedvoucher);
-				// foreach ($getnextCheckno as $value) {
-				// 	$cno = $value->checknum;
-				// 	$ca = $value->chequeaccount;
-				// 	$getBank = $this->payment_voucher->getbankid($ca);
-				// 	$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
-				// 	$updateCheckNo = $this->payment_voucher->updateCheck($bank_id, $cno);
-				// }
-
 			}
 			
 			if(empty($errmsg))
@@ -189,10 +183,12 @@ class controller extends wc_controller
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 
-		// Retrieve business type list
-		$acc_entry_data             = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond             = "accounttype != ''";
-		$data["account_entry_list"] = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
+		// Retrieve Accounts list
+		$acc_entry_data               = array("coa.id ind","CONCAT(coa.segment5, ' - ', coa.accountname) val");
+		$acc_entry_cond               = "coa.accounttype != '' AND coa.stat = 'active'";
+		$acc_entry_join 			  = "chartaccount coa2 ON coa2.parentaccountcode = coa.id";
+		$acc_entry_order 			  = "coa.segment5, coa2.segment5";
+		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
 
 		$data["vendor_list"]    	= array();
 
@@ -229,13 +225,6 @@ class controller extends wc_controller
 		$forexamount			  = ($forex_result[0]->forexamount != '') ? $forex_result[0]->forexamount : 0;
 
 		$data["forexamount"] 	  = $forexamount;
-
-		// Cash Account Options
-		// $cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
-		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		// $cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
-		// $cash_order_by 		 	  = "class.accountclass";
-		// $data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
 		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
 		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
@@ -290,35 +279,17 @@ class controller extends wc_controller
 		$data["generated_id"]  	= $sid;
 		$data["sid"] 		   	= $sid;
 		$data["date"] 		   	= date("M d, Y");
-		// $check = ($data["rollArray"]['chequeaccount']);
-		// foreach ($ as $aPvJournalDetails_Index => $aPvJournalDetails_Value) {
-			
-		// }
-		// $check 	= $data['rollArray'];
-		// var_dump(array {$check['chequeaccount']});
-		// // var_dump($check["chequeaccount"]);
-		// foreach ($check as $value) {
-			
-		// }
 
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 
-		// Retrieve business type list
-		$acc_entry_data               = array("id ind","accountname val");
-		$acc_entry_cond               = "accounttype != ''  AND stat = 'active'";
-		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
-
-		// // Cash Account Options
-		// $cash_account_fields 	  = 'chart.id ind, chart.accountname val, class.accountclass';
-		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
-		// $cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
-		// $cash_order_by 		 	  = "class.accountclass";
-		// $data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
-
-
-
+		// Retrieve Accounts list
+		$acc_entry_data               = array("coa.id ind","CONCAT(coa.segment5, ' - ', coa.accountname) val");
+		$acc_entry_cond               = "coa.accounttype != '' AND coa.stat = 'active'";
+		$acc_entry_join 			  = "chartaccount coa2 ON coa2.parentaccountcode = coa.id";
+		$acc_entry_order 			  = "coa.segment5, coa2.segment5";
+		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
 		
 		// Header Data
 		$voucherno 					= $data["main"]->voucherno;

@@ -95,7 +95,7 @@
 						<th >Book Number</th>
 						<th >Check Number</th>
 						<th >Next Check No</th>
-						<th >Status</th>
+						<!-- <th >Status</th> -->
 					</tr>
 				</thead>
 			</thead>
@@ -574,8 +574,8 @@ $('#check_container').on('click', '.set_as_default_check', function(){
 });
 
 $('#checkForm #firstchequeno, #lastchequeno').on('blur' ,function(){
-	var first_number = $('#firstchequeno').val();
-	var end_number = $('#lastchequeno').val();
+	var first_number = parseFloat($('#firstchequeno').val()) || 0;
+	var end_number = parseFloat($('#lastchequeno').val()) || 0;
 	if (first_number != "" && end_number !="" ){
 		if (end_number < first_number){
 			$('#modal_checker_on_range').modal('show');
@@ -597,7 +597,7 @@ $('#clear_checks').on('click', function(){
 	$('#checkForm').trigger("reset");
 }) 
 
-$('#check_container').on('click', '.cancel_a_check_range', function(){
+$('#check_container').on('click', '.cancel_check_range', function(){
 	ajax.id     =  $('#id').val();
 	check_range =  $(this).closest('tr').find('#start_check').html();
 	var result = check_range.split('-');

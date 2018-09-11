@@ -222,7 +222,7 @@
 												echo $ui->drawSubmit(true);
 											}
 										}
-										if($ajax_task == 'ajax_view') {
+										if($ajax_task == 'ajax_view' && $display_edit) {
 											echo $ui->drawSubmit($show_input);
 										}
 										?>

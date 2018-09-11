@@ -68,6 +68,7 @@
 									->addHidden(($task == 'view'))
 									->draw($show_input);
 							?>
+							<input type="hidden" id="new_vendor">
 						</div>
 						<div class = "col-md-6">
 							<?php
@@ -1197,7 +1198,7 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 			<div class="modal-body">
-				Are you sure you want to Cancel this Transaction?
+				Are you sure you want to cancel this transaction?
 			</div>
 			<div class="modal-footer">
 				<div class="row row-dense">
@@ -1363,12 +1364,12 @@ function addVendorToDropdown() {
 
 function closeModal(){
 	$('#vendor_modal').modal('hide');
-	}
-	$('#vendor_button').click(function() 
+}
+
+$('#vendor_button').click(function() 
 	{
 	$('#vendor_modal').modal('show');
 });
-
 
 </script>
 <?php
@@ -4059,15 +4060,47 @@ $(document).ready(function() {
 		clearPayment();
 	});
 
-	$('#vendor').on('change',function(){
-		var accounts_selected 	= computefortotalaccounts();
-		var total_payment 		= $('#total_payment').val();
-		var total_discount 		= $('#total_discount').val();
+	$('#change_vendor_modal').on('click','#yes_to_reset',function(){
+		var vendor = $('#new_vendor').val();
+		$('#vendor').val(vendor).trigger('change');
 
-		if(accounts_selected > 0){
-			$('#change_vendor_modal').modal('show');
-		}
+		$('#ap_items .clone').each(function(index) {
+			if (index > 0) {
+				$(this).remove();
+			}
+		});
+		
+		clearChequePayment();
+
+		$('#change_vendor_modal').modal('hide');
+		
+		clearPayment();
 	});
+
+	$('#change_vendor_modal').on('click','#no_to_reset',function(){
+		$('#change_vendor_modal').modal('hide');
+	});
+
+	$('#vendor').on('select2:selecting', function(e){
+		var accounts_selected 	= computefortotalaccounts();
+		if(accounts_selected > 0){
+			e.preventDefault();
+			$('#change_vendor_modal').modal('show');
+			$(this).select2('close');
+		}
+		var new_vendor = e.params.args.data.id;
+		$('#new_vendor').val(new_vendor);
+	});	
+
+	// $('#vendor').on('change',function(){
+	// 	var accounts_selected 	= computefortotalaccounts();
+	// 	var total_payment 		= $('#total_payment').val();
+	// 	var total_discount 		= $('#total_discount').val();
+
+	// 	if(accounts_selected > 0){
+	// 		$('#change_vendor_modal').modal('show');
+	// 	}
+	// });
 
 	$('#entriesTable').on('change','.accountcode',function(){
 		var vendor 	= $('#vendor').val();

@@ -90,6 +90,8 @@ class controller extends wc_controller {
 		$data						= (array) $this->cm_model->getJournalVoucherById($this->fields, $voucherno);
 		$transactiondate 			= $data['transactiondate'];
 		$restrict_cm 				= $this->restrict->setButtonRestriction($data['transactiondate']);
+		$display_edit 				= $this->cm_model->getSource($voucherno);
+		$display_edit 				= ($display_edit[0]->source == "excess") ? 0 : 1;
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
 		$data['partner_list']   	 = $this->cm_model->getVendorList();
@@ -109,6 +111,7 @@ class controller extends wc_controller {
 		$data['close_date']			= $close_date;
 		$data['restrict_cm'] 		= $restrict_cm;
 		$data['status']				= $status;
+		$data['display_edit'] 		= $display_edit;
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
 

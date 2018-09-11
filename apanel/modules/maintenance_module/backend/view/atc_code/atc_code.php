@@ -46,6 +46,7 @@
 									->setSplit('col-md-3', 'col-md-8')
 									->setName('wtaxcode')
 									->setId('wtaxcode')
+									->setValidation('required')
 									->setValue($wtaxcode)
 									->draw($task != "view");
 					?>

@@ -67,6 +67,7 @@
 								->addHidden(($task == 'view'))
 								->draw($show_input);
 								?>
+								<input type="hidden" id="new_vendor">
 							</div>
 							<div class = "col-md-6">
 								<?php
@@ -838,7 +839,7 @@
 							<button type="button" class="close" data-dismiss="modal">&times;</button>
 						</div>
 						<div class="modal-body">
-							Are you sure you want to Cancel this Transaction?
+							Are you sure you want to cancel this transaction?
 						</div>
 						<div class="modal-footer">
 							<div class="row row-dense">
@@ -878,7 +879,7 @@
 									</div>
 									&nbsp;&nbsp;&nbsp;
 									<div class="btn-group">
-										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+										<button type="button" class="btn btn-default btn-flat" id="no_to_reset" data-dismiss="modal">No</button>
 									</div>
 								</div>
 							</div>
@@ -958,7 +959,7 @@
 							<button type="button" class="close" data-dismiss="modal">&times;</button>
 						</div>
 						<div class="modal-body">
-							There are no available check number for the system to use. Please verify check number series in bank maintenance.
+							There are no available checks on this bank. Please verify check number series in bank maintenance.
 							<input type="hidden" id="recordId"/>
 						</div>
 						<div class="modal-footer">
@@ -1047,19 +1048,6 @@
 				}
 			});
 		}
-		
-		// Check Array //
-		function storechequetobank(){
-			cheque 	=	[];
-			$('#chequeTable tbody tr').each(function() {
-				var cheque_account 	= $(this).find('.cheque_account').val();
-				var chequenumber 	= $(this).find('.chequenumber').val();
-
-				if(chequenumber!="" ){
-					cheque['bank-'+cheque_account] = chequenumber;
-				}
-			});
-		}
 
 		var currentcheck = {}; 
 		var newnext = [];
@@ -1067,81 +1055,28 @@
 		var book_ids = {};
 		var book_last = {};
 		var book_end = {};
+		var curr_bank_seq = [];
 		
 		$('#chequeTable .cheque_account').on('change', function()  {
 			storedescriptionstoarray();
-			storechequetobank();
 			if ($('#entriesTable tbody tr.clone select').data('select2')) {
 				$('#entriesTable tbody tr.clone select').select2('destroy');
 			}
 
 			var val = $(this).val();
 			$('#current_bank').val(val);
-			
-			$.post("<?=BASE_URL?>financials/disbursement/ajax/getbooknumber" , { bank: val, book_ids: book_ids[val] } ).done(function(data){
-				$('#checkModal #booknum_list').html(data.opt);
-					
-			})
+			var num = curr_bank_seq[val] || 0;
 
-			// Check Array //
-			
-			var book_id = $('#book_id').val();
-			var old_last  = 0;
-
-
-			$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank='+val+'&bookno='+book_id ).done(function(data){
-				if (data){
-
-					next = parseFloat(data.nno) || 0;
-					last = parseFloat(data.last) || 0;
-
-					if (typeof newlast[val] === 'undefined') {
-						newlast[val] = last;
-					}
-					if (typeof newnext[val] === 'undefined') {
-						newnext[val] = next;
-						if (typeof book_ids[val] === 'undefined') {
-							book_ids[val] = [];
-						}
-						book_ids[val].push(data.fno);
-						$('#book_ids').val(JSON.stringify(book_ids));
-
-						if (typeof book_end[val] === 'undefined') {
-							book_end[val] = [];
-						}
-						book_end[val].push(data.last);
-						$('#book_end').val(JSON.stringify(book_end));
-
-					}
-
-					var row = $("#chequeTable tbody tr").length;
-					if (typeof cheque["bank-"+val] === 'undefined') {
-						if (newnext[val] == 0){
-							$('#set_check_modal').modal('show');
-						} else {
-							$('#chequeTable #chequenumber\\['+row+'\\]').val(newnext[val]);	
-						}
-					} else {
-						$('#chequeTable #chequenumber\\['+row+'\\]').val('');
-						if (parseFloat(newlast[val]) > parseFloat(currentcheck[val])){
-							newnext[val] = parseFloat(cheque["bank-"+val]) + 1;
-							currentcheck[val] = parseFloat(currentcheck[val]) +1;
-							$('#chequeTable #chequenumber\\['+row+'\\]').val(newnext[val]);
-						} else {
-							$('#checkModal').modal('show');
-							if (typeof book_last[val] === 'undefined') {
-								book_last[val] = {};
-							}
-							book_last[val][data.fno] = currentcheck[val];
-							$('#book_last').val(JSON.stringify(book_last));
-						} 
-						// $('#chequeTable #chequenumber\\['+row+'\\]').val(next);
-					}	
-					currentcheck[val] = $('#chequeTable #chequenumber\\['+row+'\\]').val();
+			$.post("<?=BASE_URL?>financials/disbursement/ajax/getNumbers" , { bank: val, curr_seq: num } ).done(function(data){
+				if (data.nums != false){
+				curr_bank_seq[val] = data.nums;
+				var row = $("#chequeTable tbody tr").length;
+				$('#chequeTable #chequenumber\\['+row+'\\]').val(data.nums);
+				} else {
+					$('#nocheckModal').modal('show');
+					$('#chequeTable #accountcode\\['+row+'\\]').val('');
 				}
-
 			})
-
 
 			cheque_arr = [];
 
@@ -1175,7 +1110,6 @@
 				$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 				disable_acct_fields(row);
 				row++;
-				
 			});
 
 			accounts.push(val);
@@ -2349,6 +2283,18 @@
 			}
 		}
 
+		function computefortotalaccounts(){
+			var count 	=	0;
+			$('#entriesTable tbody tr select.accountcode').each(function() {
+				var accountcode = $(this).val();
+				console.log(" ACCOUNTS = "+accountcode);
+				if(accountcode != "" && accountcode != undefined){
+					count++;
+				} 
+			});
+			return count;
+		}
+		
 		$(document).ready(function() {
 			/**ADD NEW BANK ROW**/
 			$('body').on('click', '.add-cheque', function() {
@@ -2632,7 +2578,9 @@
 		var cheque_detail 	=	$('#paymentmode').val();
 
 		$('#change_vendor_modal').on('click','#yes_to_reset',function(){
-			
+			var vendor = $('#new_vendor').val();
+			$('#vendor').val(vendor).trigger('change');
+
 			$('#ap_items .clone').each(function(index) {
 				if (index > 0) {
 					$(this).remove();
@@ -2646,11 +2594,28 @@
 			clearPayment();
 		});
 
-		$('#vendor').on('change',function(){
-			if ($('.accountcode').val()	 != '' || $('.chequeaccount').val()	 != '' ) {
-				$('#change_vendor_modal').modal('show');
-			} 
+		$('#change_vendor_modal').on('click','#no_to_reset',function(){
+			
+			$('#change_vendor_modal').modal('hide');
 		});
+		
+
+		// $('#vendor').on('change',function(){
+		// 	if ($('.accountcode').val()	 != '' || $('.chequeaccount').val()	 != '' ) {
+		// 		$('#change_vendor_modal').modal('show');
+		// 	} 
+		// });
+
+		$('#vendor').on('select2:selecting', function(e){
+			var accounts_selected 	= computefortotalaccounts();
+			if(accounts_selected > 0){
+				e.preventDefault();
+				$('#change_vendor_modal').modal('show');
+				$(this).select2('close');
+			}
+			var new_vendor = e.params.args.data.id;
+			$('#new_vendor').val(new_vendor);
+		});	
 
 		$('#entriesTable').on('change','.accountcode',function(){
 			var vendor 	= $('#vendor').val();
