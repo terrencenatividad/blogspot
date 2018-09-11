@@ -73,17 +73,12 @@ class print_bir_1601EQ extends fpdf {
 			$rdo 			= isset($documentInfo['rdo']) ? $documentInfo['rdo'] : 0;
 			$rdo 			= implode('   ',str_split($rdo));
 			$agentname 		= isset($documentInfo['agentname']) ? $documentInfo['agentname'] : "";
-			$agentname 		= strtoupper(urldecode($agentname));
 			$firstaddress 	= isset($documentInfo['firstaddress']) ? $documentInfo['firstaddress'] : "";
-			$firstaddress 	= strtoupper(urldecode($firstaddress));
 			$secondaddress 	= isset($documentInfo['secondaddress']) ? $documentInfo['secondaddress'] : "";
-			$secondaddress 	= strtoupper(urldecode($secondaddress));
 			$zipcode 		= isset($documentInfo['zipcode']) ? $documentInfo['zipcode'] : "";
 			$contact 		= isset($documentInfo['contact']) ? $documentInfo['contact'] : "";
-			$contact 		= strtoupper(urldecode($contact));
 			$category		= isset($documentInfo['category']) ? $documentInfo['category'] : "yes";
 			$email 			= isset($documentInfo['email']) ? $documentInfo['email'] : "";
-			$email 			= strtoupper(urldecode($email));
 
 			/**
 			 * ATC Entries
@@ -151,7 +146,7 @@ class print_bir_1601EQ extends fpdf {
 			$overremittance		= isset($documentInfo['overremittance']) ? urldecode($documentInfo['overremittance']) : "0.00";
 			$overremittance		= ($overremittance > 0) ? $overremittance : '';
 			$totalremittance	= isset($documentInfo['totalremittance']) ? urldecode($documentInfo['totalremittance']) : "0.00";
-			$totalremittance	= ($totalremittance > 0) ? $totalwithheld : '';
+			$totalremittance	= ($totalremittance > 0) ? $totalremittance : '';
 
 			$taxdue				= isset($documentInfo['taxdue']) ? urldecode($documentInfo['taxdue']) : "0.00";
 			$taxdue				= ($taxdue > 0) ? $taxdue : '';
