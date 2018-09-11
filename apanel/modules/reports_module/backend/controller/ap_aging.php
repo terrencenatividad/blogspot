@@ -56,7 +56,7 @@ class controller extends wc_controller {
 
 		if ($pagination->page_limit > 1) {
 			$footer .= '<tr>';
-			$footer .= '<td colspan="9" class="text-center"><b>Page: ' . $pagination->page . ' of ' . $pagination->page_limit . '</b></td>';
+			$footer .= '<td colspan="10" class="text-center"><b>Page: ' . $pagination->page . ' of ' . $pagination->page_limit . '</b></td>';
 			$footer .= '</tr>';
 		}
 
