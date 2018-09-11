@@ -34,7 +34,7 @@
 								->setName('partnername')
 								->setId('partnername')
 								->setValidation('required special')
-								->setMaxLength(255)
+								->setMaxLength(30)
 								->setValue($partnername)
 								->draw($show_input);
 						?>
@@ -62,6 +62,7 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('email')
 								->setId('email')
+								->setMaxLength(150)
 								->setValue($email)
 								->setAttribute(array('data-inputmask' => "'alias': 'email'"))
 								->draw($show_input);
@@ -91,7 +92,7 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('mobile')
 								->setId('mobile')
-								// ->setMaxLength(20)
+								->setMaxLength(20)
 								->setValue($mobile)
 								->setAttribute(array('data-inputmask' => "'mask': '0999-999-9999'"))
 								->draw($show_input);
@@ -116,7 +117,7 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('first_name')
 								->setId('first_name')
-								->setMaxLength(50)
+								->setMaxLength(20)
 								->setValidation('special')
 								->setValue($first_name)
 								->draw($show_input);
@@ -129,7 +130,7 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('last_name')
 								->setId('last_name')
-								->setMaxLength(50)
+								->setMaxLength(20)
 								->setValidation('special')
 								->setValue($last_name)
 								->draw($show_input);
