@@ -959,7 +959,7 @@
 							<button type="button" class="close" data-dismiss="modal">&times;</button>
 						</div>
 						<div class="modal-body">
-							There are no available check number for the system to use. Please verify check number series in bank maintenance.
+							There are no available checks on this bank. Please verify check number series in bank maintenance.
 							<input type="hidden" id="recordId"/>
 						</div>
 						<div class="modal-footer">
@@ -1074,6 +1074,7 @@
 				$('#chequeTable #chequenumber\\['+row+'\\]').val(data.nums);
 				} else {
 					$('#nocheckModal').modal('show');
+					$('#chequeTable #accountcode\\['+row+'\\]').val('');
 				}
 			})
 
