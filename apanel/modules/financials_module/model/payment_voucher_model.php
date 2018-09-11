@@ -1640,19 +1640,15 @@ class payment_voucher_model extends wc_model
 	}
 
 	public function getNextCheckNum($bank_id, $curr_seq) {
-		$result = $this->db->setTable("bankdetail")
-								->setFields("has_cancelled")
-								->setWhere("bank_id = '$bank_id'")
-								->runSelect()
-								->getResult();
 
-		$result = $this->db->setTable('bankdetail bd')
+			$result = $this->db->setTable('bankdetail bd')
 							->setFields(array('bd.firstchequeno', 'bd.lastchequeno', 'bd.nextchequeno', 'cc.firstcancelled', 'cc.lastcancelled'))
 							->leftJoin('cancelled_checks cc ON cc.firstchequeno = bd.firstchequeno AND cc.lastchequeno = bd.lastchequeno')
-							->setWhere("bd.lastchequeno > bd.nextchequeno AND bd.bank_id = '$bank_id'")
+							->setWhere("bd.bank_id = '$bank_id'")
 							->setOrderBy('firstchequeno')
 							->runSelect()
 							->getResult();
+
 		
 		$last_num	= $curr_seq;
 		$curr		= 0;
