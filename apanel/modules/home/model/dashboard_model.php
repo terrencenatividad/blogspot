@@ -105,7 +105,7 @@ class dashboard_model extends wc_model {
 
 		$current 	=	$this->db->setTable("({$this->current_month_query}) m")
 								->leftJoin("($coa_rev) n ON 1 = 1")
-								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
+								->leftJoin("balance_table pr ON MONTH(pr.transactiondate) = m.month AND YEAR(pr.transactiondate) = m.year AND pr.accountcode = n.id ")
 								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) revenue, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
 								->setOrderBy('m.year, m.month')
@@ -114,7 +114,7 @@ class dashboard_model extends wc_model {
 
 		$current2 	=	$this->db->setTable("({$this->current_month_query}) m")
 								->leftJoin("($coa_cost) n ON 1 = 1")
-								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
+								->leftJoin("balance_table pr ON MONTH(pr.transactiondate) = m.month AND YEAR(pr.transactiondate) = m.year AND pr.accountcode = n.id ")
 								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) expense")
 								->setGroupBy('m.month')
 								->setOrderBy('m.year, m.month')
@@ -123,7 +123,7 @@ class dashboard_model extends wc_model {
 
 		$previous 	=	$this->db->setTable("({$this->previous_month_query}) m")
 								->leftJoin("($coa_rev) n ON 1 = 1")
-								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
+								->leftJoin("balance_table pr ON MONTH(pr.transactiondate) = m.month AND YEAR(pr.transactiondate) = m.year AND pr.accountcode = n.id ")
 								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) revenue, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
 								->setOrderBy('m.year, m.month')
@@ -132,7 +132,7 @@ class dashboard_model extends wc_model {
 
 		$previous2 	=	$this->db->setTable("({$this->previous_month_query}) m")
 								->leftJoin("($coa_cost) n ON 1 = 1")
-								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
+								->leftJoin("balance_table pr ON MONTH(pr.transactiondate) = m.month AND YEAR(pr.transactiondate) = m.year AND pr.accountcode = n.id ")
 								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) expense, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
 								->setOrderBy('m.year, m.month')
@@ -237,7 +237,7 @@ class dashboard_model extends wc_model {
 
 	public function getSalesAndPurchases() {
 		$sales		= $this->db->setTable("({$this->current_month_query}) m")
-								->leftJoin("salesinvoice si ON si.period = m.month AND si.companycode = m.companycode AND si.fiscalyear = m.year AND si.stat NOT IN ('temporary', 'cancelled')")
+								->leftJoin("salesinvoice si ON MONTH(si.transactiondate) = m.month AND si.companycode = m.companycode AND YEAR(si.transactiondate) = m.year AND si.stat NOT IN ('temporary', 'cancelled')")
 								->setFields("IFNULL(SUM(amount), 0) value, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
 								->setOrderBy('m.year, m.month')
@@ -245,7 +245,7 @@ class dashboard_model extends wc_model {
 								->getResult();
 
 		$purchases	= $this->db->setTable("({$this->current_month_query}) m")
-								->leftJoin("purchasereceipt pr ON pr.period = m.month AND pr.companycode = m.companycode AND pr.fiscalyear = m.year AND pr.stat NOT IN ('temporary', 'Cancelled')")
+								->leftJoin("purchasereceipt pr ON MONTH(pr.transactiondate) = m.month AND pr.companycode = m.companycode AND YEAR(pr.transactiondate) = m.year AND pr.stat NOT IN ('temporary', 'Cancelled')")
 								->setFields("IFNULL(SUM(netamount), 0) value, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
 								->setOrderBy('m.year, m.month')
