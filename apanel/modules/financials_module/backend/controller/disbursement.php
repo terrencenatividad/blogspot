@@ -19,9 +19,13 @@ class controller extends wc_controller
 		$this->username 		= USERNAME;
 	}
 
-	public function test() {
-		$nums = $this->payment_voucher->getNextCheckNum(40);
-		var_dump($nums);
+	public function getNumbers() {
+		$data = $this->input->post(array('bank', 'curr_seq'));
+		$getBank = $this->payment_voucher->getbankid($data['bank']);
+		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
+		$nums = $this->payment_voucher->getNextCheckNum($bank_id, $data['curr_seq']);
+		$ret_nums = array('nums' => $nums);
+		return $ret_nums;
 	}
 
 	public function listing()

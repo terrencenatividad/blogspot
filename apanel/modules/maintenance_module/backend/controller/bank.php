@@ -335,16 +335,9 @@
 					$table .= '<td id="booknumber">' . $book_date. ' - ' .$row->booknumber . '</td>';
 					$table .= '<td id="start_check" class="start_check" value="' . $row->firstchequeno. '-' .$row->lastchequeno. '">' . $row->firstchequeno. '-' .$row->lastchequeno. '</td>';
 					$table .= '<td>' . $row->nextchequeno. '</td>';
-					// $table .= '<td>' . $check_stat. '</td>';
 					$table .= '</tr>';
 
-					if ($row->has_cancelled){
-						$cancel_list = $this->bank->cancel_list($row->bank_id,$row->firstchequeno);
-						
-						foreach ($cancel_list as $key => $value) {
-							$entereddate = explode(' ',$value->entereddate);
-							$date = $entereddate[0];
-							$book_date = str_replace('-', '', $date);
+					if ($row->has_cancelled == 'yes'){
 						$table	.= '<tr>';
 						$table	.= '<td></td>';
 						$table	.= '<td class="warning" ><strong>First Number</strong></td>';
@@ -353,17 +346,23 @@
 						$table	.= '<td class="warning" ><strong>Reason</strong></td>';
 						$table	.= '</tr>';
 
-						$table .= '<tr>';
-						$table	.= '<td class="text-center"><span class="label label-warning ">CANCELLED</span></td>';
-						$table .= '<td>' . $value->firstcancelled . '</td>';
-						$table .= '<td>' . $value->lastcancelled . '</td>';
-						$table .= '<td>' . $book_date . '</td>';
-						$table .= '<td colspan="2">' . $value->remarks. '</td>';
-						$table .= '</tr>';
-
-
+						$cancel_list = $this->bank->cancel_list($row->bank_id,$row->firstchequeno);
+						
+						if ($cancel_list != ""){
+							foreach ($cancel_list as $key => $value) {
+								$entereddate = explode(' ',$value->entereddate);
+								$date = $entereddate[0];
+								$book_date = str_replace('-', '', $date);
+							$table .= '<tr>';
+							$table	.= '<td class="text-center"><span class="label label-danger ">CANCELLED CHECKS</span></td>';
+							$table .= '<td>' . $value->firstcancelled . '</td>';
+							$table .= '<td>' . $value->lastcancelled . '</td>';
+							$table .= '<td>' . $book_date . '</td>';
+							$table .= '<td colspan="2">' . $value->remarks. '</td>';
+							$table .= '</tr>';
+							}
 						}
-					}
+					} 
 				}
 			else:
 				$table .= "<tr>

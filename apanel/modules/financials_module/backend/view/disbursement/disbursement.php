@@ -1048,19 +1048,6 @@
 				}
 			});
 		}
-		
-		// Check Array //
-		function storechequetobank(){
-			cheque 	=	[];
-			$('#chequeTable tbody tr').each(function() {
-				var cheque_account 	= $(this).find('.cheque_account').val();
-				var chequenumber 	= $(this).find('.chequenumber').val();
-
-				if(chequenumber!="" ){
-					cheque['bank-'+cheque_account] = chequenumber;
-				}
-			});
-		}
 
 		var currentcheck = {}; 
 		var newnext = [];
@@ -1068,81 +1055,23 @@
 		var book_ids = {};
 		var book_last = {};
 		var book_end = {};
+		var curr_bank_seq = [];
 		
 		$('#chequeTable .cheque_account').on('change', function()  {
 			storedescriptionstoarray();
-			storechequetobank();
 			if ($('#entriesTable tbody tr.clone select').data('select2')) {
 				$('#entriesTable tbody tr.clone select').select2('destroy');
 			}
 
 			var val = $(this).val();
 			$('#current_bank').val(val);
-			
-			$.post("<?=BASE_URL?>financials/disbursement/ajax/getbooknumber" , { bank: val, book_ids: book_ids[val] } ).done(function(data){
-				$('#checkModal #booknum_list').html(data.opt);
-					
+			var num = curr_bank_seq[val] || 0;
+
+			$.post("<?=BASE_URL?>financials/disbursement/ajax/getNumbers" , { bank: val, curr_seq: num } ).done(function(data){
+				curr_bank_seq[val] = data.nums;
+				var row = $("#chequeTable tbody tr").length;
+				$('#chequeTable #chequenumber\\['+row+'\\]').val(data.nums);
 			})
-
-			// Check Array //
-			
-			var book_id = $('#book_id').val();
-			var old_last  = 0;
-
-
-			$.post("<?=BASE_URL?>financials/disbursement/ajax/getCheckdtl", 'bank='+val+'&bookno='+book_id ).done(function(data){
-				if (data){
-
-					next = parseFloat(data.nno) || 0;
-					last = parseFloat(data.last) || 0;
-
-					if (typeof newlast[val] === 'undefined') {
-						newlast[val] = last;
-					}
-					if (typeof newnext[val] === 'undefined') {
-						newnext[val] = next;
-						if (typeof book_ids[val] === 'undefined') {
-							book_ids[val] = [];
-						}
-						book_ids[val].push(data.fno);
-						$('#book_ids').val(JSON.stringify(book_ids));
-
-						if (typeof book_end[val] === 'undefined') {
-							book_end[val] = [];
-						}
-						book_end[val].push(data.last);
-						$('#book_end').val(JSON.stringify(book_end));
-
-					}
-
-					var row = $("#chequeTable tbody tr").length;
-					if (typeof cheque["bank-"+val] === 'undefined') {
-						if (newnext[val] == 0){
-							$('#set_check_modal').modal('show');
-						} else {
-							$('#chequeTable #chequenumber\\['+row+'\\]').val(newnext[val]);	
-						}
-					} else {
-						$('#chequeTable #chequenumber\\['+row+'\\]').val('');
-						if (parseFloat(newlast[val]) > parseFloat(currentcheck[val])){
-							newnext[val] = parseFloat(cheque["bank-"+val]) + 1;
-							currentcheck[val] = parseFloat(currentcheck[val]) +1;
-							$('#chequeTable #chequenumber\\['+row+'\\]').val(newnext[val]);
-						} else {
-							$('#checkModal').modal('show');
-							if (typeof book_last[val] === 'undefined') {
-								book_last[val] = {};
-							}
-							book_last[val][data.fno] = currentcheck[val];
-							$('#book_last').val(JSON.stringify(book_last));
-						} 
-						// $('#chequeTable #chequenumber\\['+row+'\\]').val(next);
-					}	
-					currentcheck[val] = $('#chequeTable #chequenumber\\['+row+'\\]').val();
-				}
-
-			})
-
 
 			cheque_arr = [];
 
@@ -1176,7 +1105,6 @@
 				$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 				disable_acct_fields(row);
 				row++;
-				
 			});
 
 			accounts.push(val);

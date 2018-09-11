@@ -1639,13 +1639,12 @@ class payment_voucher_model extends wc_model
 		return $result; 
 	}
 
-	public function getNextCheckNum($bank_id) {
+	public function getNextCheckNum($bank_id, $curr_seq) {
 		$result = $this->db->setTable("bankdetail")
 								->setFields("has_cancelled")
 								->setWhere("bank_id = '$bank_id'")
 								->runSelect()
 								->getResult();
-								var_dump($result);
 
 		$result = $this->db->setTable('bankdetail bd')
 							->setFields(array('bd.firstchequeno', 'bd.lastchequeno', 'bd.nextchequeno', 'cc.firstcancelled', 'cc.lastcancelled'))
@@ -1655,14 +1654,15 @@ class payment_voucher_model extends wc_model
 							->runSelect()
 							->getResult();
 		
-		$last_num	= 0;
+		$last_num	= $curr_seq;
 		$curr		= 0;
 		$nums		= array();
 		$real_nums	= array();
-
+		
 		foreach ($result as $check) {
 			if ($curr != $check->firstchequeno) {
 				$curr = $check->firstchequeno;
+
 				for ($x = $check->nextchequeno; $x <= $check->lastchequeno; $x++) {
 					$nums[$x] = true;
 				}
@@ -1677,11 +1677,10 @@ class payment_voucher_model extends wc_model
 
 		foreach ($nums as $key => $val) {
 			if ($key > $last_num) {
-				$real_nums[] = $key;
+				return $key;
 			}
 		}
-
-		return $real_nums;
+		return false;
 	}
 
 	public function update_checks($book_last_num, $book_id, $bank, $book_end){
