@@ -67,6 +67,7 @@
 								->addHidden(($task == 'view'))
 								->draw($show_input);
 								?>
+								<input type="hidden" id="new_vendor">
 							</div>
 							<div class = "col-md-6">
 								<?php
@@ -878,7 +879,7 @@
 									</div>
 									&nbsp;&nbsp;&nbsp;
 									<div class="btn-group">
-										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+										<button type="button" class="btn btn-default btn-flat" id="no_to_reset" data-dismiss="modal">No</button>
 									</div>
 								</div>
 							</div>
@@ -2349,6 +2350,18 @@
 			}
 		}
 
+		function computefortotalaccounts(){
+			var count 	=	0;
+			$('#entriesTable tbody tr select.accountcode').each(function() {
+				var accountcode = $(this).val();
+				console.log(" ACCOUNTS = "+accountcode);
+				if(accountcode != "" && accountcode != undefined){
+					count++;
+				} 
+			});
+			return count;
+		}
+		
 		$(document).ready(function() {
 			/**ADD NEW BANK ROW**/
 			$('body').on('click', '.add-cheque', function() {
@@ -2632,7 +2645,9 @@
 		var cheque_detail 	=	$('#paymentmode').val();
 
 		$('#change_vendor_modal').on('click','#yes_to_reset',function(){
-			
+			var vendor = $('#new_vendor').val();
+			$('#vendor').val(vendor).trigger('change');
+
 			$('#ap_items .clone').each(function(index) {
 				if (index > 0) {
 					$(this).remove();
@@ -2646,11 +2661,28 @@
 			clearPayment();
 		});
 
-		$('#vendor').on('change',function(){
-			if ($('.accountcode').val()	 != '' || $('.chequeaccount').val()	 != '' ) {
-				$('#change_vendor_modal').modal('show');
-			} 
+		$('#change_vendor_modal').on('click','#no_to_reset',function(){
+			
+			$('#change_vendor_modal').modal('hide');
 		});
+		
+
+		// $('#vendor').on('change',function(){
+		// 	if ($('.accountcode').val()	 != '' || $('.chequeaccount').val()	 != '' ) {
+		// 		$('#change_vendor_modal').modal('show');
+		// 	} 
+		// });
+
+		$('#vendor').on('select2:selecting', function(e){
+			var accounts_selected 	= computefortotalaccounts();
+			if(accounts_selected > 0){
+				e.preventDefault();
+				$('#change_vendor_modal').modal('show');
+				$(this).select2('close');
+			}
+			var new_vendor = e.params.args.data.id;
+			$('#new_vendor').val(new_vendor);
+		});	
 
 		$('#entriesTable').on('change','.accountcode',function(){
 			var vendor 	= $('#vendor').val();
