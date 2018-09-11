@@ -1639,6 +1639,51 @@ class payment_voucher_model extends wc_model
 		return $result; 
 	}
 
+	public function getNextCheckNum($bank_id) {
+		$result = $this->db->setTable("bankdetail")
+								->setFields("has_cancelled")
+								->setWhere("bank_id = '$bank_id'")
+								->runSelect()
+								->getResult();
+								var_dump($result);
+
+		$result = $this->db->setTable('bankdetail bd')
+							->setFields(array('bd.firstchequeno', 'bd.lastchequeno', 'bd.nextchequeno', 'cc.firstcancelled', 'cc.lastcancelled'))
+							->leftJoin('cancelled_checks cc ON cc.firstchequeno = bd.firstchequeno AND cc.lastchequeno = bd.lastchequeno')
+							->setWhere("bd.lastchequeno > bd.nextchequeno AND bd.bank_id = '$bank_id'")
+							->setOrderBy('firstchequeno')
+							->runSelect()
+							->getResult();
+		
+		$last_num	= 0;
+		$curr		= 0;
+		$nums		= array();
+		$real_nums	= array();
+
+		foreach ($result as $check) {
+			if ($curr != $check->firstchequeno) {
+				$curr = $check->firstchequeno;
+				for ($x = $check->nextchequeno; $x <= $check->lastchequeno; $x++) {
+					$nums[$x] = true;
+				}
+			}
+			for ($x = $check->firstcancelled; $x <= $check->lastcancelled; $x++) {
+				unset($nums[$x]);
+			}
+			if ($curr != $check->firstchequeno && $last_num > 0) {
+				break;
+			}
+		}
+
+		foreach ($nums as $key => $val) {
+			if ($key > $last_num) {
+				$real_nums[] = $key;
+			}
+		}
+
+		return $real_nums;
+	}
+
 	public function update_checks($book_last_num, $book_id, $bank, $book_end){
 		$getBank = $this->getbankid($bank);
 		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';

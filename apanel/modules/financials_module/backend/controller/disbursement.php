@@ -19,6 +19,11 @@ class controller extends wc_controller
 		$this->username 		= USERNAME;
 	}
 
+	public function test() {
+		$nums = $this->payment_voucher->getNextCheckNum(40);
+		var_dump($nums);
+	}
+
 	public function listing()
 	{
 		$data["ui"]                    = $this->ui;
