@@ -1068,9 +1068,13 @@
 			var num = curr_bank_seq[val] || 0;
 
 			$.post("<?=BASE_URL?>financials/disbursement/ajax/getNumbers" , { bank: val, curr_seq: num } ).done(function(data){
+				if (data.nums != false){
 				curr_bank_seq[val] = data.nums;
 				var row = $("#chequeTable tbody tr").length;
 				$('#chequeTable #chequenumber\\['+row+'\\]').val(data.nums);
+				} else {
+					$('#nocheckModal').modal('show');
+				}
 			})
 
 			cheque_arr = [];
