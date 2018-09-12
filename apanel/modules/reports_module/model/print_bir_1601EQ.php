@@ -70,15 +70,15 @@ class print_bir_1601EQ extends fpdf {
 			$tin4			= ($tin_arr[3]) ? $tin_arr[3] : '000';
 			$tin4 			= implode('   ',str_split($tin4));
 
-			$rdo 			= isset($documentInfo['rdo']) ? $documentInfo['rdo'] : 0;
+			$rdo 			= isset($documentInfo['rdo']) ? urldecode($documentInfo['rdo']) : 0;
 			$rdo 			= implode('   ',str_split($rdo));
-			$agentname 		= isset($documentInfo['agentname']) ? $documentInfo['agentname'] : "";
-			$firstaddress 	= isset($documentInfo['firstaddress']) ? $documentInfo['firstaddress'] : "";
-			$secondaddress 	= isset($documentInfo['secondaddress']) ? $documentInfo['secondaddress'] : "";
-			$zipcode 		= isset($documentInfo['zipcode']) ? $documentInfo['zipcode'] : "";
-			$contact 		= isset($documentInfo['contact']) ? $documentInfo['contact'] : "";
-			$category		= isset($documentInfo['category']) ? $documentInfo['category'] : "yes";
-			$email 			= isset($documentInfo['email']) ? $documentInfo['email'] : "";
+			$agentname 		= isset($documentInfo['agentname']) ? urldecode($documentInfo['agentname']) : "";
+			$firstaddress 	= isset($documentInfo['firstaddress']) ? urldecode($documentInfo['firstaddress']) : "";
+			$secondaddress 	= isset($documentInfo['secondaddress']) ? urldecode($documentInfo['secondaddress']) : "";
+			$zipcode 		= isset($documentInfo['zipcode']) ? urldecode($documentInfo['zipcode']) : "";
+			$contact 		= isset($documentInfo['contact']) ? urldecode($documentInfo['contact']) : "";
+			$category		= isset($documentInfo['category']) ? urldecode($documentInfo['category']) : "yes";
+			$email 			= isset($documentInfo['email']) ? urldecode($documentInfo['email']) : "";
 
 			/**
 			 * ATC Entries
