@@ -1,7 +1,7 @@
 <section class="content">
 
 	<!-- <div class = "alert alert-warning alert-dismissable hidden">
-		<button type="button" class="close" data-dismiss="alert">×</button>
+		<button type="button" class="close" data-dismiss="alert">Ã—</button>
 		<h4><strong>Error!<strong></h4>
 		<div id = "errmsg"></div>
 	</div> -->
@@ -574,8 +574,8 @@ $('#check_container').on('click', '.set_as_default_check', function(){
 });
 
 $('#checkForm #firstchequeno, #lastchequeno').on('blur' ,function(){
-	var first_number = parseFloat($('#firstchequeno').val()) || 0;
-	var end_number = parseFloat($('#lastchequeno').val()) || 0;
+	var first_number = $('#firstchequeno').val();
+	var end_number = $('#lastchequeno').val();
 	if (first_number != "" && end_number !="" ){
 		if (end_number < first_number){
 			$('#modal_checker_on_range').modal('show');

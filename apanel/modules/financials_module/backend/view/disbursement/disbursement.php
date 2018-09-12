@@ -227,7 +227,8 @@
 										?>
 									</td>
 									<td class="text-center">
-										<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+										<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+										<input type="hidden" id="not_cancelled[1]" value="no" name="not_cancelled[1]" class="not_cancelled">
 									</td>
 								</tr>
 								<?else:
@@ -309,7 +310,8 @@
 
 											<? if($show_input):?>
 												<td class="text-center">
-													<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+													<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+													<input type="hidden" id="not_cancelled" value="no" name="not_cancelled[]" class="not_cancelled">
 												</td>
 												<?php else : ?>
 													<td class="text-center">
@@ -385,7 +387,9 @@
 												?>
 											</td>
 											<td class="text-center">
-												<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+												<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+												<input type="hidden" id="not_cancelled[1]" value="no" name="not_cancelled[1]" class="not_cancelled">
+
 											</td>
 										</tr>
 										<?
@@ -531,7 +535,8 @@
 													?>
 												</td>
 												<td class="text-center">
-													<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+													<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+													<!-- <input type="hidden" id="not_cancelled" value="no" name="not_cancelled[]" class="not_cancelled"> -->
 												</td>
 											</tr>
 
@@ -592,7 +597,9 @@
 													?>
 												</td>
 												<td class="text-center">
-													<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+													<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+													<!-- <input type="hidden" id="not_cancelled" value="no" name="not_cancelled[]" class="not_cancelled"> -->
+
 												</td>
 											</tr>
 
@@ -679,7 +686,8 @@
 
 													if( $show_input ){
 														$detail_row .= '<td class="text-center">';
-														$detail_row .= '	<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"  '.$disable_code.'><span class="glyphicon glyphicon-trash"></span></button>';
+														$detail_row .= '<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"  '.$disable_code.'><span class="glyphicon glyphicon-trash"></span></button>';
+														// $detail_row .= '<input type="hidden" id="not_cancelled" value="no" name="not_cancelled[]" class="not_cancelled">';
 														$detail_row .= '</td>';
 													}
 
@@ -839,7 +847,7 @@
 							<button type="button" class="close" data-dismiss="modal">&times;</button>
 						</div>
 						<div class="modal-body">
-							Are you sure you want to cancel this transaction?
+							Are you sure you want to Cancel this Transaction?
 						</div>
 						<div class="modal-footer">
 							<div class="row row-dense">
@@ -1045,6 +1053,19 @@
 						var description = acct_details[$(this).val()] || "";
 						$(this).closest('tr').find('.description').val(description);	
 					}	
+				}
+			});
+		}
+
+		// Check Array //
+		function storechequetobank(){
+			cheque 	=	[];
+			$('#chequeTable tbody tr').each(function() {
+				var cheque_account 	= $(this).find('.cheque_account').val();
+				var chequenumber 	= $(this).find('.chequenumber').val();
+
+				if(chequenumber!="" ){
+					cheque['bank-'+cheque_account] = chequenumber;
 				}
 			});
 		}
@@ -1290,11 +1311,13 @@
 			row.cells[1].getElementsByTagName("input")[0].id 	= 'chequenumber['+x+']';
 			row.cells[2].getElementsByTagName("input")[0].id 	= 'chequedate['+x+']';
 			row.cells[3].getElementsByTagName("input")[0].id 	= 'chequeamount['+x+']';
+			row.cells[4].getElementsByTagName("input")[0].id 	= 'not_cancelled['+x+']';
 			
 			row.cells[0].getElementsByTagName("select")[0].name = 'chequeaccount['+x+']';
 			row.cells[1].getElementsByTagName("input")[0].name 	= 'chequenumber['+x+']';
 			row.cells[2].getElementsByTagName("input")[0].name 	= 'chequedate['+x+']';
 			row.cells[3].getElementsByTagName("input")[0].name 	= 'chequeamount['+x+']';
+			row.cells[4].getElementsByTagName("input")[0].name 	= 'not_cancelled['+x+']';
 			
 			row.cells[4].getElementsByTagName("button")[0].setAttribute('id',x);
 			row.cells[0].getElementsByTagName("select")[0].setAttribute('data-id',x);
@@ -1342,6 +1365,7 @@
 			document.getElementById('chequeaccount['+newid+']').value 	= '';
 			document.getElementById('chequenumber['+newid+']').value 	= '';
 			document.getElementById('chequeamount['+newid+']').value 	= '0.00';
+			document.getElementById('not_cancelled['+newid+']').value 	= 'no';
 
 			$('#chequeaccount\\['+newid+'\\]').trigger("change.select2");
 		}
@@ -2194,6 +2218,8 @@
 				var chequenumber			= arr_from_json[x]['chequenumber'];
 				var chequedate				= arr_from_json[x]['chequedate'];
 				var chequeamount			= arr_from_json[x]['chequeamount'];
+				var not_cancelled			= arr_from_json[x]['not_cancelled'];
+
 				// var chequeconvertedamount	= arr_from_json[x]['chequeconvertedamount'];
 
 				$('#payableForm #chequeaccount\\['+row+'\\]').val(chequeaccount).trigger("change");
@@ -2201,6 +2227,7 @@
 				$('#payableForm #chequenumber\\['+row+'\\]').val(chequenumber);
 				$('#payableForm #chequedate\\['+row+'\\]').val(chequedate);
 				$('#payableForm #chequeamount\\['+row+'\\]').val(chequeamount);
+				$('#payableForm #not_cancelled\\['+row+'\\]').val(not_cancelled);
 				// $('#receiptForm #chequeconvertedamount\\['+row+'\\]').val(chequeconvertedamount);
 
 				/**Add new row based on number of rolls**/
@@ -2372,9 +2399,10 @@
 			if($('#chequeaccount\\['+row+'\\]').val() != '') {
 				// console.log(checker);
 				if(rowCount > 1) {
-					table.deleteRow(row);
+					// table.deleteRow(row);
+					$('#chequeaccount\\['+row+'\\]').closest('tr').find('.glyphicon-trash').replaceWith("<span class='glyphicon glyphicon-ban-circle'></span>")
+					$('#chequeaccount\\['+row+'\\]').closest('tr').find('.not_cancelled').val('yes');
 					checker['acc-'+account] 	-=	acctamt;	
-					
 					storedescriptionstoarray();
 					recomputechequeamts();
 					acctdetailamtreset();
@@ -2390,6 +2418,8 @@
 					document.getElementById('chequenumber['+row+']').value 		= '';
 					document.getElementById('chequedate['+row+']').value 		= '<?= $transactiondate ?>';//today();
 					document.getElementById('chequeamount['+row+']').value 		= '0.00';
+					document.getElementById('not_cancelled['+row+']').value 		= '';
+
 					
 					checker['acc-'+account] 	-=	acctamt;	
 
@@ -2403,7 +2433,9 @@
 				}
 			} else {
 				if(rowCount > 1) {
-					table.deleteRow(row);	
+					// table.deleteRow(row);
+					$('#chequeaccount\\['+row+'\\]').closest('tr').find('.glyphicon-trash').replaceWith("<span class='glyphicon glyphicon-ban-circle'></span>")
+					$('#chequeaccount\\['+row+'\\]').closest('tr').find('.not_cancelled').val('yes');
 					checker['acc-'+account] 	-=	acctamt;	
 					storedescriptionstoarray();
 					recomputechequeamts();
@@ -2420,6 +2452,7 @@
 					document.getElementById('chequenumber['+row+']').value 		= '';
 					document.getElementById('chequedate['+row+']').value 		= '<?= $transactiondate ?>';//today();
 					document.getElementById('chequeamount['+row+']').value 		= '0.00';
+					document.getElementById('not_cancelled['+row+']').value 		= '';
 					
 					checker['acc-'+account] 	-=	acctamt;
 					storedescriptionstoarray();
