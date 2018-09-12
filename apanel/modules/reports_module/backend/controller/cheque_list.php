@@ -58,7 +58,7 @@ class controller extends wc_controller {
 			$cond 				=	" chequenumber = '$check_number' ";
 			
 			$result 			=	0;
-			if( $transtype == 'PV' )
+			if( $transtype == 'PV' || $transtype == 'DV' )
 			{
 				$result 			= 	$this->report->updateData($data, "pv_cheques", $cond);
 			}
@@ -95,7 +95,7 @@ class controller extends wc_controller {
 			$cond 				=	" chequenumber = '$check_number' ";
 
 			$result 			=	0;
-			if( $transtype == 'PV' )
+			if( $transtype == 'PV' || $transtype == 'DV' )
 			{
 				$result 			= 	$this->report->updateData($data, "pv_cheques", $cond);
 			}
@@ -133,7 +133,8 @@ class controller extends wc_controller {
 			$cond 				=	" chequenumber = '$check_number' ";
 
 			$result 			=	0;
-			if( $transtype == 'PV' )
+			if( $transtype == 'PV' || $transtype == 'DV' )
+			
 			{
 				$result 			= 	$this->report->updateData($data, "pv_cheques", $cond);
 			}
