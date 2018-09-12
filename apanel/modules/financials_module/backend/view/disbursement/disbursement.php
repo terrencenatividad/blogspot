@@ -242,6 +242,7 @@
 										$chequeamount 	=	$cheque['chequeamount'];
 										$convertedamt 	=	$cheque['chequeconvertedamount'];
 										$stat 			=	$cheque['stat'];
+										$status 		=  ($stat == 'cancelled') ? 'disabled' : ''; 
 										?>	
 										<tr class="clone">
 											<td>
@@ -256,6 +257,7 @@
 												->setClass('chequeaccount')
 												->setList($cash_account_list)
 												->setValue($accountcode)
+												->setAttribute(array($status))
 												->draw($show_input);
 												?>
 											</td>
@@ -269,7 +271,8 @@
 												->setClass('chequenumber')
 												->setMaxLength(30)
 												->setValidation('required alpha_num')
-												->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+												// ->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+												->setAttribute(array($status))
 												->setValue($chequeno)
 												->draw($show_input);
 												?>
@@ -290,6 +293,7 @@
 													->setId('chequedate['.$row.']')
 													->setMaxLength(50)
 													->setValue($chequedate)
+													->setAttribute(array($status))
 													->draw($show_input);
 													?>
 												</div>
@@ -304,6 +308,7 @@
 												->setValidation('decimal')
 												->setMaxLength(20)
 												->setAttribute(array("onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
+												->setAttribute(array($status))
 												->setValue(number_format($chequeamount,2))
 												->draw($show_input);
 												?>
@@ -1102,6 +1107,7 @@
 				curr_bank_seq[val] = data.nums;
 				var row = $("#chequeTable tbody tr").length;
 				$('#chequeTable #chequenumber\\['+row+'\\]').val(data.nums);
+
 				} else {
 					$('#nocheckModal').modal('show');
 					$('#chequeTable #accountcode\\['+row+'\\]').val('');
@@ -1213,7 +1219,7 @@
 			var total_payment = 0;
 			$('#entriesTable tbody tr select.accountcode').each(function() {
 				if (typeof checker['acc-' + $(this).val()] === 'undefined') {
-				} else {
+				} else {10.00
 					var ischeck 	=	$(this).closest('tr').find('.ischeck').val();
 					var ca = checker['acc-' + $(this).val()] || '0.00';
 					ca = removeComma(ca);
