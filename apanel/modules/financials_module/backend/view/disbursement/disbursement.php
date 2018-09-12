@@ -241,6 +241,7 @@
 										$chequedate 	=	$cheque['chequedate'];
 										$chequeamount 	=	$cheque['chequeamount'];
 										$convertedamt 	=	$cheque['chequeconvertedamount'];
+										$stat 			=	$cheque['stat'];
 										?>	
 										<tr class="clone">
 											<td>
@@ -309,10 +310,18 @@
 											</td>	
 
 											<? if($show_input):?>
+												<? if($stat != 'cancelled'):?>
 												<td class="text-center">
 													<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
 													<input type="hidden" id="not_cancelled" value="no" name="not_cancelled[]" class="not_cancelled">
 												</td>
+												<?php else : ?>
+												<td class="text-center">
+													<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-ban-circle"></span></button>
+													<input type="hidden" id="not_cancelled" value="yes" name="not_cancelled[]" class="not_cancelled">
+												</td>
+												<?php endif; ?>
+
 												<?php else : ?>
 													<td class="text-center">
 														<button type="button" class="btn btn-info btn-flat print_check"  style="outline:none;" ><span class="glyphicon glyphicon-download-alt"></span></button>
