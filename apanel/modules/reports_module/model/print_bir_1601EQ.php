@@ -99,67 +99,67 @@ class print_bir_1601EQ extends fpdf {
 			$taxbase0		= isset($documentInfo['taxbase0']) ? urldecode($documentInfo['taxbase0']) : "0.00";
 			$taxbase0		= ($taxbase0 > 0) ? $taxbase0 : '';
 			$taxbase1		= isset($documentInfo['taxbase1']) ? urldecode($documentInfo['taxbase1']) : "0.00";
-			$taxbase1		= ($taxbase1 > 0) ? $taxbase1 : '';
+			$taxbase1		= ($taxbase1 != 0) ? $taxbase1 : '';
 			$taxbase2		= isset($documentInfo['taxbase2']) ? urldecode($documentInfo['taxbase2']) : "0.00";
-			$taxbase2		= ($taxbase2 > 0) ? $taxbase2 : '';
+			$taxbase2		= ($taxbase2 != 0) ? $taxbase2 : '';
 			$taxbase3		= isset($documentInfo['taxbase3']) ? urldecode($documentInfo['taxbase3']) : "0.00";
-			$taxbase3		= ($taxbase3 > 0) ? $taxbase3 : '';
+			$taxbase3		= ($taxbase3 != 0) ? $taxbase3 : '';
 			$taxbase4		= isset($documentInfo['taxbase4']) ? urldecode($documentInfo['taxbase4']) : "0.00";
-			$taxbase4		= ($taxbase4 > 0) ? $taxbase4 : '';
+			$taxbase4		= ($taxbase4 != 0) ? $taxbase4 : '';
 			$taxbase5		= isset($documentInfo['taxbase5']) ? urldecode($documentInfo['taxbase5']) : "0.00";
-			$taxbase5		= ($taxbase5 > 0) ? $taxbase5 : '';
+			$taxbase5		= ($taxbase5 != 0) ? $taxbase5 : '';
 
 			$taxrate0		= isset($documentInfo['taxrate0']) ? urldecode($documentInfo['taxrate0']) : "";
-			$taxrate0		= ($taxrate0 > 0) ? $taxrate0 : '';
+			$taxrate0		= ($taxrate0 != 0) ? $taxrate0 : '';
 			$taxrate1		= isset($documentInfo['taxrate1']) ? urldecode($documentInfo['taxrate1']) : "";
-			$taxrate1		= ($taxrate1 > 0) ? $taxrate1 : '';
+			$taxrate1		= ($taxrate1 != 0) ? $taxrate1 : '';
 			$taxrate2		= isset($documentInfo['taxrate2']) ? urldecode($documentInfo['taxrate2']) : "";
-			$taxrate2		= ($taxrate2 > 0) ? $taxrate2 : '';
+			$taxrate2		= ($taxrate2 != 0) ? $taxrate2 : '';
 			$taxrate3		= isset($documentInfo['taxrate3']) ? urldecode($documentInfo['taxrate3']) : "";
-			$taxrate3		= ($taxrate3 > 0) ? $taxrate3 : '';
+			$taxrate3		= ($taxrate3 != 0) ? $taxrate3 : '';
 			$taxrate4		= isset($documentInfo['taxrate4']) ? urldecode($documentInfo['taxrate4']) : "";
-			$taxrate4		= ($taxrate4 > 0) ? $taxrate4 : '';
+			$taxrate4		= ($taxrate4 != 0) ? $taxrate4 : '';
 			$taxrate5		= isset($documentInfo['taxrate5']) ? urldecode($documentInfo['taxrate5']) : "";
-			$taxrate5		= ($taxrate5 > 0) ? $taxrate5 : '';
+			$taxrate5		= ($taxrate5 != 0) ? $taxrate5 : '';
 
 			$taxwithheld0		= isset($documentInfo['taxwithheld0']) ? urldecode($documentInfo['taxwithheld0']) : "0.00";
-			$taxwithheld0		= ($taxwithheld0 > 0) ? $taxwithheld0 : '';
+			$taxwithheld0		= ($taxwithheld0 != 0) ? $taxwithheld0 : '';
 			$taxwithheld1		= isset($documentInfo['taxwithheld1']) ? urldecode($documentInfo['taxwithheld1']) : "0.00";
-			$taxwithheld1		= ($taxwithheld1 > 0) ? $taxwithheld1 : '';
+			$taxwithheld1		= ($taxwithheld1 != 0) ? $taxwithheld1 : '';
 			$taxwithheld2		= isset($documentInfo['taxwithheld2']) ? urldecode($documentInfo['taxwithheld2']) : "0.00";
-			$taxwithheld2		= ($taxwithheld2 > 0) ? $taxwithheld2 : '';
+			$taxwithheld2		= ($taxwithheld2 != 0) ? $taxwithheld2 : '';
 			$taxwithheld3		= isset($documentInfo['taxwithheld3']) ? urldecode($documentInfo['taxwithheld3']) : "0.00";
-			$taxwithheld3		= ($taxwithheld3 > 0) ? $taxwithheld3 : '';
+			$taxwithheld3		= ($taxwithheld3 != 0) ? $taxwithheld3 : '';
 			$taxwithheld4		= isset($documentInfo['taxwithheld4']) ? urldecode($documentInfo['taxwithheld4']) : "0.00";
-			$taxwithheld4		= ($taxwithheld4 > 0) ? $taxwithheld4 : '';
+			$taxwithheld4		= ($taxwithheld4 != 0) ? $taxwithheld4 : '';
 			$taxwithheld5		= isset($documentInfo['taxwithheld5']) ? urldecode($documentInfo['taxwithheld5']) : "0.00";
-			$taxwithheld5		= ($taxwithheld5 > 0) ? $taxwithheld5 : '';
+			$taxwithheld5		= ($taxwithheld5 != 0) ? $taxwithheld5 : '';
 
 			$totalwithheld		= isset($documentInfo['totalwithheld']) ? urldecode($documentInfo['totalwithheld']) : "0.00";
-			$totalwithheld		= ($totalwithheld > 0) ? $totalwithheld : '';
+			$totalwithheld		= ($totalwithheld != '') ? $totalwithheld : '';
 			$firstremittance	= isset($documentInfo['firstremittance']) ? urldecode($documentInfo['firstremittance']) : "0.00";
-			$firstremittance	= ($firstremittance > 0) ? $firstremittance : '';
+			$firstremittance	= ($firstremittance != 0) ? $firstremittance : '';
 			$secondremittance	= isset($documentInfo['secondremittance']) ? urldecode($documentInfo['secondremittance']) : "0.00";
-			$secondremittance	= ($secondremittance > 0) ? $secondremittance : '';
+			$secondremittance	= ($secondremittance != 0) ? $secondremittance : '';
 			$previouslyfiled	= isset($documentInfo['previouslyfiled']) ? urldecode($documentInfo['previouslyfiled']) : "0.00";
-			$previouslyfiled	= ($previouslyfiled > 0) ? $previouslyfiled : '';
+			$previouslyfiled	= ($previouslyfiled != 0) ? $previouslyfiled : '';
 			$overremittance		= isset($documentInfo['overremittance']) ? urldecode($documentInfo['overremittance']) : "0.00";
-			$overremittance		= ($overremittance > 0) ? $overremittance : '';
+			$overremittance		= ($overremittance != 0) ? $overremittance : '';
 			$totalremittance	= isset($documentInfo['totalremittance']) ? urldecode($documentInfo['totalremittance']) : "0.00";
-			$totalremittance	= ($totalremittance > 0) ? $totalremittance : '';
+			$totalremittance	= ($totalremittance != '') ? $totalremittance : '';
 
 			$taxdue				= isset($documentInfo['taxdue']) ? urldecode($documentInfo['taxdue']) : "0.00";
-			$taxdue				= ($taxdue > 0) ? $taxdue : '';
+			$taxdue				= ($taxdue != '') ? $taxdue : '';
 			$surcharge			= isset($documentInfo['surcharge']) ? urldecode($documentInfo['surcharge']) : "0.00";
-			$surcharge			= ($surcharge > 0) ? $surcharge : '';
+			$surcharge			= ($surcharge != 0) ? $surcharge : '';
 			$interest			= isset($documentInfo['interest']) ? urldecode($documentInfo['interest']) : "0.00";
-			$interest			= ($interest > 0) ? $interest : '';
+			$interest			= ($interest != 0) ? $interest : '';
 			$compromise			= isset($documentInfo['compromise']) ? urldecode($documentInfo['compromise']) : "0.00";
-			$compromise			= ($compromise > 0) ? $compromise : '';
+			$compromise			= ($compromise != 0) ? $compromise : '';
 			$penalties			= isset($documentInfo['penalties']) ? urldecode($documentInfo['penalties']) : "0.00";
-			$penalties			= ($penalties > 0) ? $penalties : '';
+			$penalties			= ($penalties != 0) ? $penalties : '';
 			$amountdue			= isset($documentInfo['amountdue']) ? urldecode($documentInfo['amountdue']) : "0.00";
-			$amountdue			= ($amountdue > 0) ? $amountdue : '';
+			$amountdue			= ($amountdue != '') ? $amountdue : '';
 			$remittance			= isset($documentInfo['remittance']) ? urldecode($documentInfo['remittance']) : "0.00";
 		}
 
@@ -498,7 +498,7 @@ class print_bir_1601EQ extends fpdf {
 		}
 		$this->cellSpacing($array);
 
-		if(empty($amount_decimal_arr[0])){
+		if($amount_decimal_arr[0] == ''){
 			$array = str_split('   ');
 		}else{
 			$array = str_split(str_pad($amount_decimal_arr[0],3," ",STR_PAD_LEFT));
