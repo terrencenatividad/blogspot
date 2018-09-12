@@ -61,12 +61,22 @@
 								UNION ALL
  
 								select rv.transactiondate as invoicedate, ar.sourceno as invoiceno, 'Payment' documenttype, 
-								app.voucherno reference, rv.particulars as particulars, (app.convertedamount + app.discount - app.overpayment) as amount,
+								app.voucherno reference, rv.particulars as particulars, (app.convertedamount - app.overpayment) as amount,
 								rv.companycode companycode, rv.entereddate entereddate, app.stat status
 								from rv_application as app 
 								left join accountsreceivable ar ON ar.voucherno = app.arvoucherno
 								left join receiptvoucher rv ON rv.voucherno = app.voucherno
 								where  app.stat IN('open','posted','cancelled') $rv_query
+
+								UNION ALL
+ 
+								select rv.transactiondate as invoicedate, ar.sourceno as invoiceno, 'Discount' documenttype, 
+								app.voucherno reference, rv.particulars as particulars, (app.discount) as amount,
+								rv.companycode companycode, rv.entereddate entereddate, app.stat status
+								from rv_application as app 
+								left join accountsreceivable ar ON ar.voucherno = app.arvoucherno
+								left join receiptvoucher rv ON rv.voucherno = app.voucherno
+								where  app.stat IN('open','posted','cancelled') AND app.discount > 0 $rv_query
 
 								UNION ALL
  
@@ -243,12 +253,22 @@
 								UNION ALL
  
 								select rv.transactiondate as invoicedate, ar.sourceno as invoiceno, 'Payment' documenttype, 
-								app.voucherno reference, rv.particulars as particulars, (app.convertedamount + app.discount - app.overpayment) as amount,
+								app.voucherno reference, rv.particulars as particulars, (app.convertedamount - app.overpayment) as amount,
 								rv.companycode companycode, rv.entereddate entereddate, app.stat status
 								from rv_application as app 
 								left join accountsreceivable ar ON ar.voucherno = app.arvoucherno
 								left join receiptvoucher rv ON rv.voucherno = app.voucherno
 								where  app.stat IN('open','posted','cancelled') $rv_query
+
+								UNION ALL
+ 
+								select rv.transactiondate as invoicedate, ar.sourceno as invoiceno, 'Discount' documenttype, 
+								app.voucherno reference, rv.particulars as particulars, (app.discount) as amount,
+								rv.companycode companycode, rv.entereddate entereddate, app.stat status
+								from rv_application as app 
+								left join accountsreceivable ar ON ar.voucherno = app.arvoucherno
+								left join receiptvoucher rv ON rv.voucherno = app.voucherno
+								where  app.stat IN('open','posted','cancelled') AND app.discount > 0 $rv_query
 
 								UNION ALL
  

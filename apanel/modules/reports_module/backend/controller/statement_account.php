@@ -77,10 +77,10 @@ class controller extends wc_controller
 							<td class="text-right warning">' .number_format($prevbalance,2,".","."). '</td></tr>';
 			}
 			foreach ($pagination->result as $key => $row) {
-				$highlight		= ($row->status == 'cancelled' && ($row->documenttype == 'Payment' || $row->documenttype == 'Over Payment' || $row->documenttype == 'Credit Memo')) ? "danger" : "";
+				$highlight		= ($row->status == 'cancelled' && ($row->documenttype == 'Payment' || $row->documenttype == 'Over Payment' || $row->documenttype == 'Credit Memo' || $row->documenttype == 'Discount')) ? "danger" : "";
 				$status 		= (empty($highlight)) ? "" : ' <span class="label label-'.$highlight.'">' . strtoupper($row->status) . '</span>';
 				$reference		= $row->reference;
-				if($row->documenttype == 'Payment' || $row->documenttype == 'Credit Memo' || $row->documenttype == 'Over Payment'){
+				if($row->documenttype == 'Payment' || $row->documenttype == 'Credit Memo' || $row->documenttype == 'Over Payment' || $row->documenttype == 'Discount'){
 					$row->amount 	*= -1;
 					$invoice_data	= $this->soa->getInvoice($reference);
 					$invoice 		= ($invoice_data) ? $invoice_data->sourceno : $reference;
@@ -180,10 +180,10 @@ class controller extends wc_controller
 			$csv .=  '"'.$this->amount($prevbalance).'"';
 			$csv .= "\n";
 			foreach ($result as $key => $row){
-				$highlight		= ($row->status == 'cancelled' && ($row->documenttype == 'Payment' || $row->documenttype == 'Over Payment' || $row->documenttype == 'Credit Memo')) ? "danger" : "";
+				$highlight		= ($row->status == 'cancelled' && ($row->documenttype == 'Payment' || $row->documenttype == 'Over Payment' || $row->documenttype == 'Credit Memo' || $row->documenttype == 'Discount')) ? "danger" : "";
 				$status 		= (empty($highlight)) ? "" : "(".strtoupper($row->status).")";
 				$reference		= $row->reference;
-				if($row->documenttype == 'Payment' || $row->documenttype == 'Credit Memo' || $row->documenttype == 'Over Payment'){
+				if($row->documenttype == 'Payment' || $row->documenttype == 'Credit Memo' || $row->documenttype == 'Over Payment' || $row->documenttype == 'Discount'){
 					$row->amount 	*= -1;
 					$invoice_data	= $this->soa->getInvoice($reference);
 					$invoice 		= ($invoice_data) ? $invoice_data->sourceno : $reference;
