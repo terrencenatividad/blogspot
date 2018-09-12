@@ -79,4 +79,32 @@ class bir extends wc_model {
         return $result;
         
     }
+
+    public function getATCCode(){
+        return $this->db->setTable('atccode')
+                ->setFields('atc_code ind,atc_code val, stat stat')
+                ->setWhere("tax_type = 'PT'")
+                ->runSelect()
+                ->getResult();
+    }
+
+    public function retrieveATCDetails($atc_code,$month){
+        if($month=='1'){
+            $monthlist	= " AND period IN('1','2','3')";
+        }else if($month=='2'){
+            $monthlist	= " AND period IN('4','5','6') ";
+        }else if($month=='3'){
+            $monthlist	= " AND period IN('7','8','9') ";
+        }else if($month=='4'){
+            $monthlist	= " AND period IN('10','11','12') ";
+        }
+        return $this->db->setTable('atccode a')
+                ->setFields('atc_code, tax_rate, SUM(s.amount) taxamount')
+                ->leftJoin('salesinvoice_details s ON s.companycode = a.companycode')
+                ->leftJoin('salesinvoice si ON si.companycode = s.companycode AND si.voucherno = s.voucherno')
+                ->setWhere("tax_type = 'PT' AND atc_code = '$atc_code' $monthlist")
+                ->runSelect()
+                ->getRow();
+                
+    }
 }	
