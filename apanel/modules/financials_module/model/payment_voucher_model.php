@@ -130,7 +130,7 @@ class payment_voucher_model extends wc_model
 		$temp["payments"] = $applicationArray;
 
 		// Received Cheques for View
-		$chequeFields = 'pvc.voucherno, pvc.chequeaccount, chart.accountname, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount';
+		$chequeFields = 'pvc.voucherno, pvc.chequeaccount, chart.accountname, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount, pvc.stat';
 		$cheque_cond  = "pvc.voucherno = '$sid'";
 		$cheque_join  = "chartaccount chart ON chart.id = pvc.chequeaccount AND chart.companycode = pvc.companycode";
 		
@@ -155,6 +155,7 @@ class payment_voucher_model extends wc_model
 				$chequedate				= $this->date->dateFormat($chequedate);
 				$chequeamount			= $chequeArray[$c]->chequeamount;
 				$chequeconvertedamount	= $chequeArray[$c]->chequeconvertedamount;
+				$stat					= $chequeArray[$c]->stat;
 
 				$rollArray['accountname']			= $accountname;
 				$rollArray['chequeaccount']			= $chequeaccount;
@@ -162,6 +163,7 @@ class payment_voucher_model extends wc_model
 				$rollArray['chequedate']			= $chequedate;
 				$rollArray['chequeamount']			= $chequeamount;
 				$rollArray['chequeconvertedamount'] = $chequeconvertedamount;
+				$rollArray['stat'] 					= $stat;
 				
 				$rollArray[$pvno][]					= $rollArray;
 			}
@@ -610,7 +612,7 @@ class payment_voucher_model extends wc_model
 				}	
 			}
 			
-			if(($postIndex == 'chequeaccount' || $postIndex == 'chequenumber' || $postIndex == 'chequedate' || $postIndex == 'chequeamount' || $postIndex == 'chequeconvertedamount') && !empty($postValue) )
+			if(($postIndex == 'chequeaccount' || $postIndex == 'chequenumber' || $postIndex == 'chequedate' || $postIndex == 'chequeamount' || $postIndex == 'chequeconvertedamount' || $postIndex == 'not_cancelled') && !empty($postValue) )
 			{
 				$b		= '';
 				foreach($postValue as $postValueIndex => $postValueIndexValue){
@@ -659,6 +661,7 @@ class payment_voucher_model extends wc_model
 				$chequenumber			= (!empty($newArrayValue['chequenumber'])) ? $newArrayValue['chequenumber'] : "";
 				$chequedate				= (!empty($newArrayValue['chequedate'])) ? $newArrayValue['chequedate'] : "";
 				$chequeamount			= (!empty($newArrayValue['chequeamount'])) ? $newArrayValue['chequeamount'] : "";
+				$not_cancelled			= (!empty($newArrayValue['not_cancelled'])) ? $newArrayValue['not_cancelled'] : "";
 				$chequedate				= $this->date->dateDbFormat($chequedate);
 
 				if(!empty($chequedate) && !empty($chequeaccount) && !empty($chequenumber) && !empty($chequeamount)){
@@ -670,7 +673,7 @@ class payment_voucher_model extends wc_model
 					$cheque_header['chequedate']			= $chequedate;
 					$cheque_header['chequeamount']			= $chequeamount;
 					$cheque_header['chequeconvertedamount']	= $chequeamount;
-					$cheque_header['stat']					= 'uncleared';
+					$cheque_header['stat']					= ($not_cancelled == 'yes') ? 'cancelled' : 'uncleared';
 				
 					$linecount++;
 					$tempCheque[] 							= $cheque_header;
