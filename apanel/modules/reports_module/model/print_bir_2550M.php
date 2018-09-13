@@ -67,13 +67,6 @@ class print_bir_2550M extends fpdf {
 			$monthfilter 	= implode('   ',str_split($monthfilter));
 			$monthfilter 	= $monthfilter >= 1 && $monthfilter <= 9 ? '0'. ' '. ' '. ' ' .$monthfilter : $monthfilter;
 			$yearfilter 	= implode('   ',str_split($yearfilter));
-			$quarter 		= $documentInfo['quarter'];
-			$from 			= $documentInfo['from'];
-			$to 			= $documentInfo['to'];
-			$from_date 		= date('mdy', strtotime(urldecode($from)));
-			$to_date 		= date('mdy', strtotime(urldecode($to)));
-			$from_date 		= implode('  ',str_split($from_date));
-			$to_date 		= implode('  ',str_split($to_date));
 			$amendreturn 	= isset($documentInfo['amendreturn']) ? $documentInfo['amendreturn'] : "yes";
 			$shortperiod 	= isset($documentInfo['shortperiod']) ? $documentInfo['shortperiod'] : "yes";
 			$attachments	= isset($documentInfo['attachments']) ? $documentInfo['attachments'] : 0;
