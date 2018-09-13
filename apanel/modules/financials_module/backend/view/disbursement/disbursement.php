@@ -242,7 +242,7 @@
 										$chequeamount 	=	$cheque['chequeamount'];
 										$convertedamt 	=	$cheque['chequeconvertedamount'];
 										$stat 			=	$cheque['stat'];
-										$status 		=  	($stat == 'cancelled') ? "readOnly" : ''; 
+										$status 		=  	($stat == 'cancelled') ? "cancelled" : ''; 
 										?>	
 										<tr class="clone">
 											<td>
@@ -254,10 +254,10 @@
 												->setName('chequeaccount['.$row.']')
 												->setId('chequeaccount['.$row.']')
 												->setName('chequeaccount['.$row.']')
-												->setClass('chequeaccount')
+												->setClass('chequeaccount '.$status.'')
 												->setList($cash_account_list)
 												->setValue($accountcode)
-												->setAttribute(array($status))
+												// ->setAttribute(array($status))
 												->draw($show_input);
 												?>
 											</td>
@@ -268,11 +268,11 @@
 												->setClass("")
 												->setName('chequenumber['.$row.']')
 												->setId('chequenumber['.$row.']')
-												->setClass('chequenumber')
+												->setClass('chequenumber '.$status.' ' )
 												->setMaxLength(30)
 												->setValidation('required alpha_num')
 												// ->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
-												->setAttribute(array($status))
+												// ->setAttribute(array($status))
 												->setValue($chequeno)
 												->draw($show_input);
 												?>
@@ -288,12 +288,12 @@
 													<?php
 													echo $ui->formField('text')
 													->setSplit('', 'col-md-12 field_col')
-													->setClass("datepicker-input")
+													->setClass("datepicker-input ".$status."")
 													->setName('chequedate['.$row.']')
-													->setId('chequedate['.$row.']')
+													->setId('chequedate_' . $row)
 													->setMaxLength(50)
 													->setValue($chequedate)
-													->setAttribute(array($status))
+													// ->setAttribute(array($status))
 													->draw($show_input);
 													?>
 												</div>
@@ -302,13 +302,13 @@
 												<?php
 												echo $ui->formField('text')
 												->setSplit('', 'col-md-12 field_col')
-												->setClass("chequeamount text-right")
+												->setClass("chequeamount text-right ".$status."")
 												->setName('chequeamount['.$row.']')
 												->setId('chequeamount['.$row.']')
 												->setValidation('decimal')
 												->setMaxLength(20)
 												->setAttribute(array("onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
-												->setAttribute(array($status))
+												// ->setAttribute(array($status))
 												->setValue(number_format($chequeamount,2))
 												->draw($show_input);
 												?>
@@ -2299,7 +2299,7 @@
 			if(valid == 0){
 				$("#payableForm #btnSave").addClass('disabled');
 				$("#payableForm #btnSave_toggle").addClass('disabled');
-
+				$('select.cancelled').prop("disabled",false)
 				$("#payableForm #btnSave").html('Saving...');
 
 				$("#payableForm #h_save").val(button_name);
@@ -2698,9 +2698,26 @@
 			window.open('<?=MODULE_URL?>print_check/' + vno +  '/'+ cno , '_blank');
 		})
 
-		$('.chequenumber').focus(function() {
-			$(this).blur();
+		$('.cancelled, .chequenumber').focus(function() {
+			$(this).trigger('blur');
 		});
+
+		$(function() {
+			// $('select.cancelled').select2("enable",false);
+			$('select.cancelled').prop("disabled",true);
+			$('select.cancelled').attr("style", "pointer-events: none;");
+			$('.cancelled.datepicker-input').removeClass('datepicker-input').datepicker('remove');
+		});
+
+		
+
+		// $('.cancelled').focus(function() {
+		// 	$(this).attr('readonly', true);
+		// });
+
+		// $('.cancelled').bind('click dblclick focus').function(event){
+		// 	if ($(this).hasClass('cancelled')) event.preventDefault();
+		// });
 
 
 	}); // end
