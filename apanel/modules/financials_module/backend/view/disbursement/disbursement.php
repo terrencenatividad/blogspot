@@ -242,7 +242,7 @@
 										$chequeamount 	=	$cheque['chequeamount'];
 										$convertedamt 	=	$cheque['chequeconvertedamount'];
 										$stat 			=	$cheque['stat'];
-										$status 		=  ($stat == 'cancelled') ? 'disabled' : ''; 
+										$status 		=  	($stat == 'cancelled') ? "readOnly" : ''; 
 										?>	
 										<tr class="clone">
 											<td>
@@ -318,12 +318,12 @@
 												<? if($stat != 'cancelled'):?>
 												<td class="text-center">
 													<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
-													<input type="hidden" id="not_cancelled" value="no" name="not_cancelled[]" class="not_cancelled">
+													<input type="hidden" id="not_cancelled" value="no" name="not_cancelled[<?=$row?>]" class="not_cancelled">
 												</td>
 												<?php else : ?>
 												<td class="text-center">
 													<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-ban-circle"></span></button>
-													<input type="hidden" id="not_cancelled" value="yes" name="not_cancelled[]" class="not_cancelled">
+													<input type="hidden" id="not_cancelled" value="yes" name="not_cancelled[<?=$row?>]" class="not_cancelled">
 												</td>
 												<?php endif; ?>
 
