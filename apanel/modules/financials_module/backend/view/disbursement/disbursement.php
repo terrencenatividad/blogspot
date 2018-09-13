@@ -1097,7 +1097,7 @@
 			if ($('#entriesTable tbody tr.clone select').data('select2')) {
 				$('#entriesTable tbody tr.clone select').select2('destroy');
 			}
-
+			var cheque_element = $(this);
 			var val = $(this).val();
 			$('#current_bank').val(val);
 			var num = curr_bank_seq[val] || 0;
@@ -1106,7 +1106,7 @@
 				if (data.nums != false){
 				curr_bank_seq[val] = data.nums;
 				var row = $("#chequeTable tbody tr").length;
-				$('#chequeTable #chequenumber\\['+row+'\\]').val(data.nums);
+				cheque_element.closest('tr').find('.chequenumber').val(data.nums);
 
 				} else {
 					$('#nocheckModal').modal('show');
