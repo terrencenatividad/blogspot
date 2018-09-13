@@ -2415,8 +2415,9 @@
 				// console.log(checker);
 				if(rowCount > 1) {
 					// table.deleteRow(row);
-					$('#chequeaccount\\['+row+'\\]').closest('tr').find('.glyphicon-trash').replaceWith("<span class='glyphicon glyphicon-ban-circle'></span>")
+					$('#chequeaccount\\['+row+'\\]').closest('tr').find('.glyphicon-trash').replaceWith("<span class='glyphicon glyphicon-ban-circle disabled'></span>")
 					$('#chequeaccount\\['+row+'\\]').closest('tr').find('.not_cancelled').val('yes');
+					$('#chequeaccount\\['+row+'\\]').closest('tr').find('.delete').prop('disabled',true);
 					checker['acc-'+account] 	-=	acctamt;	
 					storedescriptionstoarray();
 					recomputechequeamts();
