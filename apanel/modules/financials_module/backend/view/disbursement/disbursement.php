@@ -322,14 +322,14 @@
 												</td>
 												<?php else : ?>
 												<td class="text-center">
-													<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-ban-circle"></span></button>
+													<button type="button" class="btn btn-danger btn-flat confirm-delete delete <?=$status?>" data-id="<?=$row?>" name="chk_[]"  style="outline:none;"><span class="glyphicon glyphicon-ban-circle"></span></button>
 													<input type="hidden" id="not_cancelled" value="yes" name="not_cancelled[<?=$row?>]" class="not_cancelled">
 												</td>
 												<?php endif; ?>
 
 												<?php else : ?>
 													<td class="text-center">
-														<button type="button" class="btn btn-info btn-flat print_check"  style="outline:none;" ><span class="glyphicon glyphicon-download-alt"></span></button>
+														<button type="button" class="btn btn-info btn-flat print_check <?=$status?>"  style="outline:none;" ><span class="glyphicon glyphicon-download-alt"></span></button>
 													</td>	
 												<?php endif; ?>
 											</tr>	
@@ -2299,7 +2299,7 @@
 			if(valid == 0){
 				$("#payableForm #btnSave").addClass('disabled');
 				$("#payableForm #btnSave_toggle").addClass('disabled');
-				$('select.cancelled').prop("disabled",false)
+				$('.cancelled').prop("disabled",false)
 				$("#payableForm #btnSave").html('Saving...');
 
 				$("#payableForm #h_save").val(button_name);
@@ -2704,6 +2704,7 @@
 
 		$(function() {
 			// $('select.cancelled').select2("enable",false);
+			$('.cancelled').prop("disabled",true);
 			$('select.cancelled').prop("disabled",true);
 			$('select.cancelled').attr("style", "pointer-events: none;");
 			$('.cancelled.datepicker-input').removeClass('datepicker-input').datepicker('remove');
