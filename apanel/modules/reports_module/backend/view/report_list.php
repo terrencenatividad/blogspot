@@ -226,6 +226,10 @@
 								<h4 class="list-group-item-heading">BIR Form 1601-EQ</h4>
 								<p class="list-group-item-text">Quarterly Remittance Return of Creditable Income Taxes Withheld (Expanded)</p>
 							</a>
+							<a href="1604E" class="list-group-item">
+								<h4 class="list-group-item-heading">BIR Form 1604-E</h4>
+								<p class="list-group-item-text">Annual Information Return of Creditable Income Taxes Withheld (Expanded)/Income Payments Exempt from Withholding Tax</p>
+							</a>
 							<a href="sales_relief" class="list-group-item">
 								<h4 class="list-group-item-heading">Sales Relief</h4>
 								<p class="list-group-item-text">Summary list of sales</p>

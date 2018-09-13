@@ -17,6 +17,7 @@ class controller extends wc_controller {
 			'2551Q' => 'Form 2551Q',
 			'0619E' => 'Form 0619-E',
 			'1601EQ' => 'Form 1601-EE',
+			'1604E' => 'Form 1604-E',
 			'sales_relief' => 'Sales Relief',
 			'purchase_relief' => 'Purchase Relief'
 		);
@@ -115,6 +116,50 @@ class controller extends wc_controller {
 		$result 	= $this->bir->retrieveATCDetails($atc_code,$quarter);
 		
 		return $result;
+	}
+
+	public function view_1604E() {
+		$data['ui'] 			= $this->ui;
+		$data['bir_form'] 		= "1604E";
+		$data['bir_forms'] 		= $this->bir_forms;
+		$data['months'] 		= $this->months;
+		$data['years'] 			= $this->years;
+
+		$data['year'] 			= $this->getDate('year');
+		$data['quarter']		= $this->getDate('quarter');
+		$data['month'] 			= $this->getDate('month');
+
+		$company_info 			= $this->bir->getCompanyInfo(
+										array('businessline','businesstype','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','mobile','email')
+									);
+		$data['atc_list']		= $this->bir->getATCCode();
+		
+		$businessline			= $company_info->businessline;
+		$data['businessline']	= $company_info->businessline;
+		$data['businesstype']	= $company_info->businesstype;
+		$data['tin']			= $company_info->tin;
+		$data['rdo_code']		= $company_info->rdo_code;
+		$lastname				= $company_info->lastname;
+		$firstname				= $company_info->firstname;
+		$middlename				= $company_info->middlename;
+		$companyname			= $company_info->companyname;
+		$address				= $company_info->address;
+		$postalcode				= $company_info->postalcode;
+		$contact				= $company_info->phone;
+		$mobile					= $company_info->mobile;
+		$email					= $company_info->email;
+		$agentname				= (strtolower($businessline) == 'individual') ? $lastname.', '.$firstname.', '.$middlename : $companyname;
+		$data['agentname']		= $agentname;
+		$data['agentname1']		= substr($agentname, 0, 26);
+		$firstaddress			= substr($address, 0, 40);
+		$secondaddress			= (strlen($address) > 40) ? substr($address, 40, 30) : "";
+		$data['address']		= $address;
+		$data['zipcode']		= $postalcode;
+		$data['contact']		= $contact;
+		$data['mobile']			= $mobile;
+		$data['email']			= $email;
+		
+		$this->view->load('bir/1604E', $data);
 	}
 
 	public function view_2550q() {
