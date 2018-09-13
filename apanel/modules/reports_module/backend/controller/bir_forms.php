@@ -98,7 +98,8 @@ class controller extends wc_controller {
 		$data['agentname1']		= substr($agentname, 0, 26);
 		$firstaddress			= substr($address, 0, 40);
 		$secondaddress			= (strlen($address) > 40) ? substr($address, 40, 30) : "";
-		$data['address']		= $address;
+		$data['firstaddress']	= $firstaddress;
+		$data['secondaddress']	= $secondaddress;
 		$data['zipcode']		= $postalcode;
 		$data['contact']		= $contact;
 		$data['mobile']			= $mobile;
