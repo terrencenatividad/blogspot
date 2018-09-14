@@ -44,9 +44,9 @@
 			$fields 	= 	array('COUNT(*) count, 
 								   rv.transactiondate transactiondate,
 								   pt.partnername partnername,
-								   SUM(rv.amount) totalamount,
+								   SUM(IFNULL(chq.chequeconvertedamount,app.amount)) totalamount,
 								   IF(rv.paymenttype = "cash","CASH",
-									IF(rv.paymenttype = "cheque", CONCAT(coa.accountname," : ",chq.chequenumber),"BANK TRANSFER")) payment,
+								   IF(rv.paymenttype = "cheque", CONCAT(coa.accountname," : ",chq.chequenumber),"BANK TRANSFER")) payment,
 								   IFNULL(chq.chequedate, rv.transactiondate) paymentdate,
 								   rv.paymenttype type');
 
@@ -57,10 +57,10 @@
 						->setFields($fields);
 
 			if ( (!empty($startdate) && !empty($enddate)) && $type != 'pdc' ) {
-				$having_cond .= " transactiondate >= '$startdate' AND transactiondate <= '$enddate' ";
+				$having_cond .= " ( transactiondate >= '$startdate' AND transactiondate <= '$enddate' ) ";
 			} 
 			if ( (!empty($startdate) && !empty($enddate)) && $type == 'dated' ) {
-				$this->condition .= " AND (IFNULL(chq.chequedate, rv.transactiondate) <= rv.transactiondate)";
+				$this->condition .= " AND (IFNULL(chq.chequedate, rv.transactiondate) <= IF(date(rv.entereddate) <  IFNULL(chq.chequedate, rv.transactiondate), date(rv.entereddate), rv.transactiondate))";
 			} 
 			if ( (!empty($startdate) && !empty($enddate)) && $type == 'pdc' ) {
 				$this->condition .= " AND (IFNULL(chq.chequedate, rv.transactiondate) > IF(date(rv.entereddate) <  IFNULL(chq.chequedate, rv.transactiondate), date(rv.entereddate), rv.transactiondate) )";
@@ -85,7 +85,6 @@
 
 			$result = $db->runSelect()
 							->getRow();
-
 			return $result;
 		}
 	
@@ -98,7 +97,7 @@
 
         public function getQueryDetails($search, $startdate, $enddate, $partner, $filter, $bank, $sort, $mode) {
 		
-			$condition = "(rv.voucherno != '' )  AND  rv.stat != 'cancelled'  "; 
+			$condition = "(rv.voucherno != '' )  AND  rv.stat NOT IN ('cancelled','temporary')  "; 
 			
 			// For Date
 			if ( $startdate && $enddate ) {
@@ -134,11 +133,17 @@
 									IF(rv.paymenttype = "cash", "CASH",
 									IF(rv.paymenttype = "cheque", CONCAT(coa.accountname," : ",chq.chequenumber),"BANK TRANSFER")) payment,
 									IFNULL(chq.chequedate, rv.transactiondate) paymentdate,
-									rv.amount');
+									IFNULL(chq.chequeconvertedamount,app.amount) amount');
+
+			$rv_app 	=	$this->db->setTable('rv_application')
+									->setFields(array('companycode','voucherno','arvoucherno','SUM(convertedamount) amount'))
+									->setWhere('stat!="cancelled"')
+									->setGroupBy('voucherno')
+									->buildSelect();
 
 			$query     =   $this->db->setTable("receiptvoucher as rv")
 									->leftJoin("rv_cheques as chq ON rv.voucherno = chq.voucherno AND rv.companycode = chq.companycode  AND rv.paymenttype = 'cheque'")
-                                    ->leftJoin("rv_application as app ON app.voucherno = rv.voucherno AND app.companycode = rv.companycode ")
+                                    ->leftJoin("($rv_app) as app ON app.voucherno = rv.voucherno AND app.companycode = rv.companycode")
 									->leftJoin("accountsreceivable as ar ON ar.voucherno = app.arvoucherno AND ar.companycode = app.companycode ")
 									->leftJoin("chartaccount as coa ON coa.id = chq.chequeaccount AND coa.companycode = chq.companycode ")
                                     ->leftJoin("partners as pt ON pt.partnercode = ar.customer AND pt.partnertype = 'customer' AND ar.companycode = pt.companycode ")
