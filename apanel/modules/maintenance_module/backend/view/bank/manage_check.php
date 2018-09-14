@@ -574,8 +574,8 @@ $('#check_container').on('click', '.set_as_default_check', function(){
 });
 
 $('#checkForm #firstchequeno, #lastchequeno').on('blur' ,function(){
-	var first_number = $('#firstchequeno').val();
-	var end_number = $('#lastchequeno').val();
+	var first_number = parseFloat($('#firstchequeno').val());
+	var end_number = parseFloat($('#lastchequeno').val());
 	if (first_number != "" && end_number !="" ){
 		if (end_number < first_number){
 			$('#modal_checker_on_range').modal('show');
@@ -584,9 +584,9 @@ $('#checkForm #firstchequeno, #lastchequeno').on('blur' ,function(){
 
 	jQuery.each(bank_checks,function(ind,val){
 		var result = val.split('-');
-		var start = result[0];
-		var end = result[1];
-		if ( (start <= first_number && end >= first_number) || (start <= end_number && end >= end_number)){
+		var start = parseFloat(result[0]);
+		var end = parseFloat(result[1]);
+		if ( (start <= first_number && end >= first_number) || (start <= end_number && end >= end_number) ){
 			$('#modal_checker').modal('show');
 		}  
     })
