@@ -130,7 +130,7 @@
 
 		public function insertCheck($data2){
 			$data_post_dtl['bank_id'] 			= $data2['bank_id'];
-			$data_post_dtl['stat'] 				= 'closed';
+			$data_post_dtl['stat'] 				= 'open';
 			$data_post_dtl['booknumber'] 		= $data2['booknumber'];
 			$data_post_dtl['firstchequeno'] 	= $data2['firstchequeno'];
 			$data_post_dtl['lastchequeno'] 		= $data2['lastchequeno'];

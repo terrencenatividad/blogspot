@@ -12,7 +12,7 @@
             <form method = "post" id = "bankForm" class="form-horizontal">
 				<input type="hidden" name="id" id="id" value="<?=$id?>">	
 				<input type="hidden" name="h_accountno" id="h_accountno" value="<?=$accountno?>">	
-				<input type="hidden" name="old_gl_code" id="old_gl_code" value="<?=$old_gl_code?>">	
+				<input type="hidden" name="old_gl_code" id="old_gl_code" value="<?=$gl_code?>">	
 				<div class = "col-md-12">&nbsp;</div>
 
 				<div class="row">
@@ -212,10 +212,10 @@ $('#bankForm #accountno').on('blur',function(){
 });
 
 $('#bankForm #gl_code').on('blur',function(){
+
 	
 	ajax.old_gl_code 	= 	$('#old_gl_code').val();
-	
-	ajax.curr_gl_code 	=	$(this).val();
+	ajax.curr_gl_code 	=	$('#bankForm #gl_code').val()
 
 	var task 		=	'<?=$task?>';
 	var error_message 	=	'';	

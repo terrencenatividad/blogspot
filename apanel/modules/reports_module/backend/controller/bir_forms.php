@@ -118,6 +118,13 @@ class controller extends wc_controller {
 		return $result;
 	}
 
+	private function get_tax_details()
+	{
+		$result 	= $this->bir->retrieveWTAX();
+		
+		return $result;
+	}
+
 	public function view_1604E() {
 		$data['ui'] 			= $this->ui;
 		$data['bir_form'] 		= "1604E";
@@ -427,9 +434,81 @@ class controller extends wc_controller {
 				'secondmonth'	=> number_format($secondperiod,2)
 			);
 		}
+		else if($form == '1604E'){
+			for($i=1; $i<13;$i++){
+				$atc 		= $this->bir->retrieveWTAX($data,$i);	
+					
+				
+			}
+			for ($x=0; $x < $length; $x++) { 
+				$atc_code = '';
+				$table .= '<tr>';
+				$table .= '<td>';
+				$table .= '<strong>'.$month.'</strong>';
+				$table .= '</td>';
+
+				$table .= '<td>';
+				$table .= $this->ui->formField('text')
+				->setName('atc'.$i)
+				->setClass('text-right')
+				->setValue('')
+				->setAttribute(
+					array(
+						'readOnly' => 'readOnly'
+					)
+				)
+				->draw(true);
+				$table .= '</td>';
+
+				$table .= '<td>';
+				$table .= $this->ui->formField('text')
+				->setName('taxbase'.$i)
+				->setClass('text-right')
+				->setValue('')
+				->setPlaceholder('0.00')
+				->setAttribute(
+					array(
+						'readOnly' => 'readOnly'
+					)
+				)
+				->draw(true);
+				$table .= '</td>';
+
+				$table .= '<td>';
+				$table .= $this->ui->formField('text')
+				->setName('taxrate'.$i)
+				->setClass('text-right')
+				->setPlaceholder('0%')
+				->setValue('')
+				->setAttribute(
+					array(
+						'readOnly' => 'readOnly'
+					)
+				)
+				->draw(true);
+				$table .= '</td>';
+
+				$table .= '<td>';
+				$table .= $this->ui->formField('text')
+				->setName('taxwithheld'.$i)
+				->setClass('text-right')
+				->setPlaceholder('0.00')
+				->setValue('')
+				->setAttribute(
+					array(
+						'readOnly' => 'readOnly'
+					)
+				)
+				->draw(true);
+				$table .= '</td>';
+
+				$table .= '</tr>';
+				$line++;
+				$i++;
+			}
+			}
 		
-		
-		return $result;
+		// return $result;
 	}
 
 	public function print_form($form) {
@@ -441,6 +520,15 @@ class controller extends wc_controller {
 	}
 
 	public function print_1601EQ() {
+		$company_signatory = $this->bir->getCompanyInfo(array('businesstype','signatory_name','signatory_role','signatory_tin'));
+		$print = new print_bir_1601EQ('P', 'mm', array(216,330.2));
+		$print->setPreviewTitle(MODULE_NAME)
+		->setDocumentDetails($this->input->get())
+		->setSignatory($company_signatory)
+		->drawPDF(MODULE_NAME);
+	}
+
+	public function print_1604E() {
 		$company_signatory = $this->bir->getCompanyInfo(array('businesstype','signatory_name','signatory_role','signatory_tin'));
 		$print = new print_bir_1601EQ('P', 'mm', array(216,330.2));
 		$print->setPreviewTitle(MODULE_NAME)

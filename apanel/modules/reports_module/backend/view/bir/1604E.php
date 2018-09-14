@@ -476,16 +476,11 @@
 	var ajax = {}
 	var ajax_call = '';
 	ajax.year 		= $('#birForm #yearfilter').val();
-	ajax.quarter 	= $('#birForm input[name=quarter]:checked').val();
+	
 
 	$('#birForm #yearfilter').on('change',function(){
 		ajax.year = this.value;
 		getList();	
-	});
-
-	$('body').on('ifChecked','.quarter', function() {
-		ajax.quarter = this.value;
-		getList();
 	});
 
 	$('body').on('blur', '[data-validation~="decimal"]', function(e) {
@@ -498,71 +493,11 @@
 		}
 		ajax_call = $.post("<?=MODULE_URL?>ajax/load_list/<?=$bir_form?>", ajax, function(data) {
 			$('#birForm #atc_container').html(data.atc_table);
-			$('#birForm #totalwithheld').val(data.quartertotal);
-			$('#birForm #firstremittance').val(data.firstmonth);
-			$('#birForm #secondremittance').val(data.secondmonth);
-			compute();
 		});
 	}
 	getList();
 
-	function compute(){
-		var totalwithheld 		= 0;
-		var firstremittance 	= 0;
-		var secondremittance 	= 0;
-
-		var previouslyfiled 	= 0;
-		var overremittance 		= 0;
-		var totalremittance 	= 0;
-
-		var taxdue 		= 0;
-		var surcharge 	= 0;
-		var interest 	= 0;
-		var compromise 	= 0;
-		var penalties 	= 0;
-
-		var amountdue 	= 0;
-
-		totalwithheld 		= $('#totalwithheld').val() || '0';
-		totalwithheld 		= totalwithheld.replace(/,/g,'');
-		firstremittance 	= $('#firstremittance').val() || '0';
-		firstremittance 	= firstremittance.replace(/,/g,'');
-		secondremittance 	= $('#secondremittance').val() || '0';
-		secondremittance 	= secondremittance.replace(/,/g,'');
-
-		previouslyfiled 	= $('#previouslyfiled').val() || '0';
-		previouslyfiled 	= previouslyfiled.replace(/,/g,'');
-		overremittance 		= $('#overremittance').val() || '0';
-		overremittance 		= overremittance.replace(/,/g,'');
-		
-		/**
-		 * Compute Total Remittances Made
-		 */
-		var total_remittance	= parseFloat(totalwithheld) - (parseFloat(firstremittance) + parseFloat(secondremittance) + parseFloat(previouslyfiled) + parseFloat(overremittance));
-		$('#totalremittance').val(addCommas(total_remittance.toFixed(2)));
-
-		/**
-		 * Compute Tax Still Due
-		 */
-		var taxdue				= parseFloat(totalwithheld) - parseFloat(total_remittance);
-		$('#taxdue').val(addCommas(taxdue.toFixed(2)));
-
-		surcharge 	= $('#surcharge').val() || '0';
-		surcharge 	= surcharge.replace(/,/g,'');
-		interest 	= $('#interest').val() || '0';
-		interest 	= interest.replace(/,/g,'');
-		compromise 	= $('#compromise').val() || '0';
-		compromise 	= compromise.replace(/,/g,'');
-		penalties 	= $('#penalties').val() || '0';
-		penalties 	= penalties.replace(/,/g,'');
-		
-		/**
-		 * Compute Total Amount Still Due
-		 */
-		var amountdue				= parseFloat(taxdue) + parseFloat(surcharge) + parseFloat(interest) + parseFloat(compromise) + parseFloat(penalties);
-		$('#amountdue').val(addCommas(amountdue.toFixed(2)));
-
-	}
+	
 
 	function addCommas(nStr)
 	{

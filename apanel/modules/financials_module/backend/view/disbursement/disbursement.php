@@ -1107,7 +1107,6 @@
 				curr_bank_seq[val] = data.nums;
 				var row = $("#chequeTable tbody tr").length;
 				cheque_element.closest('tr').find('.chequenumber').val(data.nums);
-
 				} else {
 					$('#nocheckModal').modal('show');
 					$('#chequeTable #accountcode\\['+row+'\\]').val('');
