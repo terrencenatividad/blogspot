@@ -642,7 +642,6 @@ $('#cancelled_checks #firstcancelled, #lastcancelled').on('blur',function(){
 	var end = parseFloat(range[1]);
 	if (first_number){
 		if ( (start > first_number && first_number < end) ){
-			console.log('in');
 			error_message 	=	"<b>The number you entered is not within the check range</b>";
 			$('#cancel_checks #firstcancelled').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
 		}  else {
