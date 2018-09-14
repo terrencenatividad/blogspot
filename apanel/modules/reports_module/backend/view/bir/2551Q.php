@@ -20,7 +20,7 @@
 			</form> -->
 		</div>
 		
-		<div class="box-body">
+		<div class="box-body" id="div">
 			<form method="post" id="birForm">
 				<div class="col-md-10 col-md-offset-1">
 					<p class="text-info">
@@ -227,23 +227,6 @@
 														->draw(true);
 											?>
 										</td>
-										<!-- <td class="col-md-1">
-											<p><strong>8</strong> Line of Business/Occupation</p>
-										</td>
-										<td class="col-md-3">
-											<?php
-												// echo $ui->formField('text')
-												// 		->setName('businessline')
-												// 		->setId('businessline')
-												// 		->setValue($businessline)
-												// 		->setAttribute(
-												// 			array(
-												// 				'readOnly' => 'readOnly'
-												// 			)
-												// 		)
-												// 		->draw(true);
-											?>
-										</td> -->
 									</tr>
 									<tr>
 										<td colspan="8">
@@ -497,6 +480,7 @@
 														->setPlaceholder('0.00')
 														->setValue("")														
 														->setValidation('decimal')
+														// ->setMaxLength(14)
 														->setAttribute(array("onBlur" => "computeTaxPayments();"))
 														->draw(true);
 											?>
@@ -970,15 +954,10 @@ $('#birForm #generate').on('click',function(){
 });
 
 $('.atc').on('change', function(e){
-	var atc_code 		= 	$(this).val();
-	var id 		= 	$(this).attr("id");
-	var row 	=	id.replace(/[a-z]/g, '');
-	var quarter = 	$('input[name=quarter]:checked').val()
-
-var $radios = $('input[name=quarter]').change(function () {
-    var value = $radios.filter(':checked').val();
-    alert(value);
-});
+	var atc_code 	= 	$(this).val();
+	var id 			= 	$(this).attr("id");
+	var row 		=	id.replace(/[a-z]/g, '');
+	var quarter 	= 	$('input[name=quarter]:checked').val();
 
 	$.post('<?=MODULE_URL?>ajax/get_atc_details',"atc_code="+atc_code+"&quarter="+quarter, function(data) 
 	{	
@@ -986,23 +965,49 @@ var $radios = $('input[name=quarter]').change(function () {
 		$('#taxamount'+row).val(data.taxamount);
 		$('#taxdue'+row).val(data.taxamount * data.tax_rate);
 		taxdue();
+		taxamount();
 	});
 });
+
+$('#div').on('ifToggled', '.quarter', function(e) {
+    var period = $('input[name=quarter]:checked').val();
+    if($(this).is(':checked')) {
+	
+
+	}
+      });
+
+$('.taxamount').on('change', function(e){
+	var atc_code 	= 	$(this).val();
+	var id 			= 	$(this).attr("id");
+	var row 		=	id.replace(/[a-z]/g, '');
+	var quarter 	= 	$('input[name=quarter]:checked').val();
+
+	var taxrate = $('#taxrate'+row).val();
+	var taxamount = $('#taxamount'+row).val();
+	$('#taxdue'+row).val(taxamount*(taxrate/100));
+	taxdue();
+});
+    
 
 function taxdue() {
 	var sum = 0;
 	$('.tax_due').each(function() {
 		var balyu = $(this).val();
 		sum += +balyu;
-		$('#tax_due').val(sum);
-		$('#totalpayable').val(sum);
-		$('#totalamountpayable').val(sum);
-		$('#totaltaxdue6').val(sum);	
-		formatNumber('tax_due');	
-		formatNumber('totaltax');	
-		formatNumber('totalpayable');	
-		formatNumber('penalties');	
-		formatNumber('totalamountpayable');	
+		$('#tax_due').val(addComma(sum));
+		$('#totalpayable').val(addComma(sum));
+		$('#totalamountpayable').val(addComma(sum));
+		$('#totaltaxdue6').val(addComma(sum));	
+	});
+}
+
+function taxamount() {
+	$('.taxamount').each(function() {
+		$(this).val(addComma($(this).val()));
+	});
+	$('.tax_due').each(function() {
+		$(this).val(addComma($(this).val()));
 	});
 }
 
@@ -1029,10 +1034,10 @@ function computeTaxPayments(){
 		totalpayable 	= totaltax.replace(/,/g,'');
 
 		var totaltax				= parseFloat(creditable) + parseFloat(taxpaid) + parseFloat(othertax);
-		$('#totaltax').val(totaltax);
+		$('#totaltax').val(addComma(totaltax));
 		
 		var totalpayable			= parseFloat(taxdue) - parseFloat(totaltax);
-		$('#totalpayable').val(totalpayable);
+		$('#totalpayable').val(addComma(totalpayable));
 
 		computePenalties();
 }
@@ -1061,10 +1066,10 @@ function computePenalties()
 		total 		= total.replace(/,/g,'');
 	
 		var penalties				= parseFloat(surcharge) + parseFloat(interest) + parseFloat(compromise);
-		$('#penalties').val(penalties);
+		$('#penalties').val(addComma(penalties));
 		
 		var total				= parseFloat(totalpayable) + parseFloat(penalties);
-		$('#totalamountpayable').val(total);
+		$('#totalamountpayable').val(addComma(total));
 		
 
 	}

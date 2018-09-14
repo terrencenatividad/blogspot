@@ -1400,7 +1400,7 @@ class controller extends wc_controller
 					$table	.= '<td >'.$voucher.'</td>';
 					$table	.= '<td >'.$customer.'</td>';
 					$table	.= '<td >'.$or_no.'</td>';
-					$table	.= '<td >'.ucwords($paymentmode).'</td>';
+					$table	.= '<td >'.ucwords(($paymentmode == 'cheque') ? $paymentmode = 'check' : 'cash').'</td>';
 					$table	.= '<td class="text-right" >'.number_format($amount,2).'</td>';
 					$table	.= '<td >'.$voucher_status.'</td>';
 					$table	.= '</tr>';

@@ -194,13 +194,13 @@ class print_bir_2551Q extends fpdf {
 			$totaltax			= isset($documentInfo['totaltax']) ? urldecode($documentInfo['totaltax']) : "0.00";
 			$totaltax			= ($totaltax > 0) ? $totaltax : '';
 			$totalpayable		= isset($documentInfo['totalpayable']) ? urldecode($documentInfo['totalpayable']) : "0.00";
-			$totalpayable		= ($totalpayable > 0) ? $totalpayable : '';
+			$totalpayable		= ($totalpayable > 0) ? $totalpayable : $totalpayable;
 			$surcharge			= isset($documentInfo['surcharge']) ? urldecode($documentInfo['surcharge']) : "0.00";
 			$interest			= isset($documentInfo['interest']) ? urldecode($documentInfo['interest']) : "0.00";
 			$compromise			= isset($documentInfo['compromise']) ? urldecode($documentInfo['compromise']) : "0.00";
 			$penalties			= isset($documentInfo['penalties']) ? urldecode($documentInfo['penalties']) : "0.00";
 			$amountdue			= isset($documentInfo['totalamountpayable']) ? urldecode($documentInfo['totalamountpayable']) : "0.00";
-			$amountdue			= ($amountdue > 0) ? $amountdue : '';
+			$amountdue			= ($amountdue > 0) ? $amountdue : $amountdue;
 			$remittance			= isset($documentInfo['remittance']) ? urldecode($documentInfo['remittance']) : "0.00";
 		}
 

@@ -1471,7 +1471,7 @@ class controller extends wc_controller
 							->setValue($voucher)
 							->draw();
 			
-
+				
 				if($nextvno != $prevvno){
 					$table	.= '<tr>';
 					$table	.= '<td class="text-center">'.$dropdown.'</td>';
@@ -1479,7 +1479,7 @@ class controller extends wc_controller
 					$table	.= '<td >'.$voucher.'</td>';
 					$table	.= '<td >'.$vendor.'</td>';
 					$table	.= '<td >'.$reference.'</td>';
-					$table	.= '<td >'.ucwords($paymentmode).'</td>';
+					$table	.= '<td >'. ucwords(($paymentmode == 'cheque') ? $paymentmode = 'check' : 'cash').'</td>';
 					$table	.= '<td class="text-right" >'.number_format($amount,2).'</td>';
 					$table	.= '<td >'.$voucher_status.'</td>';
 					$table	.= '</tr>';
