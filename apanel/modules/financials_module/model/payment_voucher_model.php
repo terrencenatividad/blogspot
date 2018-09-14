@@ -130,7 +130,7 @@ class payment_voucher_model extends wc_model
 		$temp["payments"] = $applicationArray;
 
 		// Received Cheques for View
-		$chequeFields = 'pvc.voucherno, pvc.chequeaccount, chart.accountname, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount';
+		$chequeFields = 'pvc.voucherno, pvc.chequeaccount, chart.accountname, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount, pvc.stat';
 		$cheque_cond  = "pvc.voucherno = '$sid'";
 		$cheque_join  = "chartaccount chart ON chart.id = pvc.chequeaccount AND chart.companycode = pvc.companycode";
 		
@@ -155,6 +155,7 @@ class payment_voucher_model extends wc_model
 				$chequedate				= $this->date->dateFormat($chequedate);
 				$chequeamount			= $chequeArray[$c]->chequeamount;
 				$chequeconvertedamount	= $chequeArray[$c]->chequeconvertedamount;
+				$stat					= $chequeArray[$c]->stat;
 
 				$rollArray['accountname']			= $accountname;
 				$rollArray['chequeaccount']			= $chequeaccount;
@@ -162,6 +163,7 @@ class payment_voucher_model extends wc_model
 				$rollArray['chequedate']			= $chequedate;
 				$rollArray['chequeamount']			= $chequeamount;
 				$rollArray['chequeconvertedamount'] = $chequeconvertedamount;
+				$rollArray['stat'] 					= $stat;
 				
 				$rollArray[$pvno][]					= $rollArray;
 			}

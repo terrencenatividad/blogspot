@@ -17,6 +17,7 @@ class controller extends wc_controller {
 			'2551Q' => 'Form 2551Q',
 			'0619E' => 'Form 0619-E',
 			'1601EQ' => 'Form 1601-EE',
+			'1604E' => 'Form 1604-E',
 			'sales_relief' => 'Sales Relief',
 			'purchase_relief' => 'Purchase Relief'
 		);
@@ -36,8 +37,8 @@ class controller extends wc_controller {
 		$data['quarter']		= $this->getDate('quarter');
 
 		$company_info 			= $this->bir->getCompanyInfo(
-										array('businesstype','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','email')
-									);
+			array('businesstype','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','email')
+		);
 		$businesstype			= $company_info->businesstype;
 		$data['tin']			= $company_info->tin;
 		$data['rdo_code']		= $company_info->rdo_code;
@@ -74,10 +75,107 @@ class controller extends wc_controller {
 		$data['month'] 			= $this->getDate('month');
 
 		$company_info 			= $this->bir->getCompanyInfo(
-										array('businessline','businesstype','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','email')
+										array('businessline','businesstype','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','mobile','email')
 									);
+		$data['atc_list']		= $this->bir->getATCCode();
+		
 		$businessline			= $company_info->businessline;
+		$data['businessline']	= $company_info->businessline;
 		$data['businesstype']	= $company_info->businesstype;
+		$data['tin']			= $company_info->tin;
+		$data['rdo_code']		= $company_info->rdo_code;
+		$lastname				= $company_info->lastname;
+		$firstname				= $company_info->firstname;
+		$middlename				= $company_info->middlename;
+		$companyname			= $company_info->companyname;
+		$address				= $company_info->address;
+		$postalcode				= $company_info->postalcode;
+		$contact				= $company_info->phone;
+		$mobile					= $company_info->mobile;
+		$email					= $company_info->email;
+		$agentname				= (strtolower($businessline) == 'individual') ? $lastname.', '.$firstname.', '.$middlename : $companyname;
+		$data['agentname']		= $agentname;
+		$data['agentname1']		= substr($agentname, 0, 26);
+		$firstaddress			= substr($address, 0, 40);
+		$secondaddress			= (strlen($address) > 40) ? substr($address, 40, 30) : "";
+		$data['firstaddress']	= $firstaddress;
+		$data['secondaddress']	= $secondaddress;
+		$data['zipcode']		= $postalcode;
+		$data['contact']		= $contact;
+		$data['mobile']			= $mobile;
+		$data['email']			= $email;
+		
+		$this->view->load('bir/2551Q', $data);
+	}
+
+	private function get_atc_details()
+	{
+		$atc_code 	= $this->input->post('atc_code');
+		$quarter 	= $this->input->post('quarter');
+		
+		$result 	= $this->bir->retrieveATCDetails($atc_code,$quarter);
+		
+		return $result;
+	}
+
+	public function view_1604E() {
+		$data['ui'] 			= $this->ui;
+		$data['bir_form'] 		= "1604E";
+		$data['bir_forms'] 		= $this->bir_forms;
+		$data['months'] 		= $this->months;
+		$data['years'] 			= $this->years;
+
+		$data['year'] 			= $this->getDate('year');
+		$data['quarter']		= $this->getDate('quarter');
+		$data['month'] 			= $this->getDate('month');
+
+		$company_info 			= $this->bir->getCompanyInfo(
+										array('businessline','businesstype','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','mobile','email')
+									);
+		$data['atc_list']		= $this->bir->getATCCode();
+		
+		$businessline			= $company_info->businessline;
+		$data['businessline']	= $company_info->businessline;
+		$data['businesstype']	= $company_info->businesstype;
+		$data['tin']			= $company_info->tin;
+		$data['rdo_code']		= $company_info->rdo_code;
+		$lastname				= $company_info->lastname;
+		$firstname				= $company_info->firstname;
+		$middlename				= $company_info->middlename;
+		$companyname			= $company_info->companyname;
+		$address				= $company_info->address;
+		$postalcode				= $company_info->postalcode;
+		$contact				= $company_info->phone;
+		$mobile					= $company_info->mobile;
+		$email					= $company_info->email;
+		$agentname				= (strtolower($businessline) == 'individual') ? $lastname.', '.$firstname.', '.$middlename : $companyname;
+		$data['agentname']		= $agentname;
+		$data['agentname1']		= substr($agentname, 0, 26);
+		$firstaddress			= substr($address, 0, 40);
+		$secondaddress			= (strlen($address) > 40) ? substr($address, 40, 30) : "";
+		$data['address']		= $address;
+		$data['zipcode']		= $postalcode;
+		$data['contact']		= $contact;
+		$data['mobile']			= $mobile;
+		$data['email']			= $email;
+		
+		$this->view->load('bir/1604E', $data);
+	}
+
+	public function view_2550q() {
+		$data['ui'] 			= $this->ui;
+		$data['bir_form'] 		= "2550Q";
+		$data['bir_forms'] 		= $this->bir_forms;
+		$data['months'] 		= $this->months;
+		$data['years'] 			= $this->years;
+
+		$data['year'] 			= $this->getDate('year');
+		$data['quarter']		= $this->getDate('quarter');
+
+		$company_info 			= $this->bir->getCompanyInfo(
+			array('businessline','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','email')
+		);
+		$businessline			= $company_info->businessline;
 		$data['tin']			= $company_info->tin;
 		$data['rdo_code']		= $company_info->rdo_code;
 		$lastname				= $company_info->lastname;
@@ -97,8 +195,47 @@ class controller extends wc_controller {
 		$data['zipcode']		= $postalcode;
 		$data['contact']		= $contact;
 		$data['email']			= $email;
+		$data['businessline']	= $businessline;
 		
-		$this->view->load('bir/2551Q', $data);
+		$this->view->load('bir/2550Q', $data);
+	}
+
+	public function view_2550m() {
+		$data['ui'] 			= $this->ui;
+		$data['bir_form'] 		= "2550M";
+		$data['bir_forms'] 		= $this->bir_forms;
+		$data['months'] 		= $this->months;
+		$data['years'] 			= $this->years;
+
+		$data['year'] 			= $this->getDate('year');
+		$data['quarter']		= $this->getDate('quarter');
+
+		$company_info 			= $this->bir->getCompanyInfo(
+			array('businessline','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','email')
+		);
+		$businessline			= $company_info->businessline;
+		$data['tin']			= $company_info->tin;
+		$data['rdo_code']		= $company_info->rdo_code;
+		$lastname				= $company_info->lastname;
+		$firstname				= $company_info->firstname;
+		$middlename				= $company_info->middlename;
+		$companyname			= $company_info->companyname;
+		$address				= $company_info->address;
+		$postalcode				= $company_info->postalcode;
+		$contact				= $company_info->phone;
+		$email					= $company_info->email;
+		$agentname				= (strtolower($businessline) == 'individual') ? $lastname.', '.$firstname.', '.$middlename : $companyname;
+		$data['agentname']		= $agentname;
+		$firstaddress			= substr($address, 0, 40);
+		$secondaddress			= (strlen($address) > 40) ? substr($address, 40, 30) : "";
+		$data['firstaddress']	= $firstaddress;
+		$data['secondaddress']	= $secondaddress;
+		$data['zipcode']		= $postalcode;
+		$data['contact']		= $contact;
+		$data['email']			= $email;
+		$data['businessline']	= $businessline;
+		
+		$this->view->load('bir/2550M', $data);
 	}
 
 	public function ajax($task, $form = '') {
@@ -153,57 +290,57 @@ class controller extends wc_controller {
 
 					$table .= '<td>';
 					$table .= $this->ui->formField('text')
-								->setName('atc'.$i)
-								->setClass('text-right')
-								->setValue($atc_code)
-								->setAttribute(
-									array(
-										'readOnly' => 'readOnly'
-									)
-								)
-								->draw(true);
+					->setName('atc'.$i)
+					->setClass('text-right')
+					->setValue($atc_code)
+					->setAttribute(
+						array(
+							'readOnly' => 'readOnly'
+						)
+					)
+					->draw(true);
 					$table .= '</td>';
 
 					$table .= '<td>';
 					$table .= $this->ui->formField('text')
-								->setName('taxbase'.$i)
-								->setClass('text-right')
-								->setValue(number_format($taxbase,2))
-								->setPlaceholder('0.00')
-								->setAttribute(
-									array(
-										'readOnly' => 'readOnly'
-									)
-								)
-								->draw(true);
+					->setName('taxbase'.$i)
+					->setClass('text-right')
+					->setValue(number_format($taxbase,2))
+					->setPlaceholder('0.00')
+					->setAttribute(
+						array(
+							'readOnly' => 'readOnly'
+						)
+					)
+					->draw(true);
 					$table .= '</td>';
 
 					$table .= '<td>';
 					$table .= $this->ui->formField('text')
-								->setName('taxrate'.$i)
-								->setClass('text-right')
-								->setPlaceholder('0%')
-								->setValue(number_format($taxrate,0).'%')
-								->setAttribute(
-									array(
-										'readOnly' => 'readOnly'
-									)
-								)
-								->draw(true);
+					->setName('taxrate'.$i)
+					->setClass('text-right')
+					->setPlaceholder('0%')
+					->setValue(number_format($taxrate,0).'%')
+					->setAttribute(
+						array(
+							'readOnly' => 'readOnly'
+						)
+					)
+					->draw(true);
 					$table .= '</td>';
 
 					$table .= '<td>';
 					$table .= $this->ui->formField('text')
-								->setName('taxwithheld'.$i)
-								->setClass('text-right')
-								->setPlaceholder('0.00')
-								->setValue(number_format($taxwithheld,2))
-								->setAttribute(
-									array(
-										'readOnly' => 'readOnly'
-									)
-								)
-								->draw(true);
+					->setName('taxwithheld'.$i)
+					->setClass('text-right')
+					->setPlaceholder('0.00')
+					->setValue(number_format($taxwithheld,2))
+					->setAttribute(
+						array(
+							'readOnly' => 'readOnly'
+						)
+					)
+					->draw(true);
 					$table .= '</td>';
 
 					$table .= '</tr>';
@@ -226,57 +363,57 @@ class controller extends wc_controller {
 
 				$table .= '<td>';
 				$table .= $this->ui->formField('text')
-							->setName('atc'.$i)
-							->setClass('text-right')
-							->setValue('')
-							->setAttribute(
-								array(
-									'readOnly' => 'readOnly'
-								)
-							)
-							->draw(true);
+				->setName('atc'.$i)
+				->setClass('text-right')
+				->setValue('')
+				->setAttribute(
+					array(
+						'readOnly' => 'readOnly'
+					)
+				)
+				->draw(true);
 				$table .= '</td>';
 
 				$table .= '<td>';
 				$table .= $this->ui->formField('text')
-							->setName('taxbase'.$i)
-							->setClass('text-right')
-							->setValue('')
-							->setPlaceholder('0.00')
-							->setAttribute(
-								array(
-									'readOnly' => 'readOnly'
-								)
-							)
-							->draw(true);
+				->setName('taxbase'.$i)
+				->setClass('text-right')
+				->setValue('')
+				->setPlaceholder('0.00')
+				->setAttribute(
+					array(
+						'readOnly' => 'readOnly'
+					)
+				)
+				->draw(true);
 				$table .= '</td>';
 
 				$table .= '<td>';
 				$table .= $this->ui->formField('text')
-							->setName('taxrate'.$i)
-							->setClass('text-right')
-							->setPlaceholder('0%')
-							->setValue('')
-							->setAttribute(
-								array(
-									'readOnly' => 'readOnly'
-								)
-							)
-							->draw(true);
+				->setName('taxrate'.$i)
+				->setClass('text-right')
+				->setPlaceholder('0%')
+				->setValue('')
+				->setAttribute(
+					array(
+						'readOnly' => 'readOnly'
+					)
+				)
+				->draw(true);
 				$table .= '</td>';
 
 				$table .= '<td>';
 				$table .= $this->ui->formField('text')
-							->setName('taxwithheld'.$i)
-							->setClass('text-right')
-							->setPlaceholder('0.00')
-							->setValue('')
-							->setAttribute(
-								array(
-									'readOnly' => 'readOnly'
-								)
-							)
-							->draw(true);
+				->setName('taxwithheld'.$i)
+				->setClass('text-right')
+				->setPlaceholder('0.00')
+				->setValue('')
+				->setAttribute(
+					array(
+						'readOnly' => 'readOnly'
+					)
+				)
+				->draw(true);
 				$table .= '</td>';
 
 				$table .= '</tr>';
@@ -307,18 +444,36 @@ class controller extends wc_controller {
 		$company_signatory = $this->bir->getCompanyInfo(array('businesstype','signatory_name','signatory_role','signatory_tin'));
 		$print = new print_bir_1601EQ('P', 'mm', array(216,330.2));
 		$print->setPreviewTitle(MODULE_NAME)
-				->setDocumentDetails($this->input->get())
-				->setSignatory($company_signatory)
-				->drawPDF(MODULE_NAME);
+		->setDocumentDetails($this->input->get())
+		->setSignatory($company_signatory)
+		->drawPDF(MODULE_NAME);
+	}
+
+	public function print_2550Q() {
+		$company_signatory = $this->bir->getCompanyInfo(array('businessline','signatory_name','signatory_role','signatory_tin'));
+		$print = new print_bir_2550Q('P', 'mm', array(216,330.2));
+		$print->setPreviewTitle(MODULE_NAME)
+		->setDocumentDetails($this->input->get())
+		->setSignatory($company_signatory)
+		->drawPDF(MODULE_NAME);
+	}
+
+	public function print_2550M() {
+		$company_signatory = $this->bir->getCompanyInfo(array('businessline','signatory_name','signatory_role','signatory_tin'));
+		$print = new print_bir_2550M('P', 'mm', array(216,330.2));
+		$print->setPreviewTitle(MODULE_NAME)
+		->setDocumentDetails($this->input->get())
+		->setSignatory($company_signatory)
+		->drawPDF(MODULE_NAME);
 	}
 
 	public function print_2551Q() {
-		$company_signatory = $this->bir->getCompanyInfo(array('businessline','signatory_name','signatory_role','signatory_tin'));
+		$company_signatory = $this->bir->getCompanyInfo(array('businesstype','businessline','signatory_name','signatory_role','signatory_tin'));
 		$print = new print_bir_2551Q('P', 'mm', array(216,330.2));
 		$print->setPreviewTitle(MODULE_NAME)
-				->setDocumentDetails($this->input->get())
-				->setSignatory($company_signatory)
-				->drawPDF(MODULE_NAME);
+		->setDocumentDetails($this->input->get())
+		->setSignatory($company_signatory)
+		->drawPDF(MODULE_NAME);
 	}
 
 	private function monthOptions(){
@@ -344,21 +499,47 @@ class controller extends wc_controller {
 		if(!empty($type)){
 			switch ($type) {
 				case 'month':
-					$date 		= date("m");
-					break;
+				$date 		= date("m");
+				break;
 				case 'quarter':
-					$curMonth 	= date("m", time());
-					$date 		= ceil($curMonth/3);
-					break;
+				$curMonth 	= date("m", time());
+				$date 		= ceil($curMonth/3);
+				break;
 				case 'year':
-					$date 		= date("Y");
-					break;
+				$date 		= date("Y");
+				break;
 				default:
-					$date = date("Y-m-d");
-					break;
+				$date = date("Y-m-d");
+				break;
 			}
 		}
 		return $date;
+	}
+
+	private function getPrivate() {
+		$period = $this->input->post('period');
+		$result = $this->bir->getPeriod($period);
+		return $result;
+	}
+
+	private function getGov() {
+		$period = $this->input->post('period');
+
+		$result = $this->bir->getGov($period);
+		return $result;
+	}
+
+	private function getZero() {
+		$period = $this->input->post('period');
+
+		$result = $this->bir->getZero($period);
+		return $result;
+	}
+
+	private function getExempt() {
+		$period = $this->input->post('period');
+		$result = $this->bir->getExempt($period);
+		return $result;
 	}
 }
 ?>

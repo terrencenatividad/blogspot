@@ -241,6 +241,8 @@
 										$chequedate 	=	$cheque['chequedate'];
 										$chequeamount 	=	$cheque['chequeamount'];
 										$convertedamt 	=	$cheque['chequeconvertedamount'];
+										$stat 			=	$cheque['stat'];
+										$status 		=  	($stat == 'cancelled') ? "cancelled" : ''; 
 										?>	
 										<tr class="clone">
 											<td>
@@ -252,9 +254,10 @@
 												->setName('chequeaccount['.$row.']')
 												->setId('chequeaccount['.$row.']')
 												->setName('chequeaccount['.$row.']')
-												->setClass('chequeaccount')
+												->setClass('chequeaccount '.$status.'')
 												->setList($cash_account_list)
 												->setValue($accountcode)
+												// ->setAttribute(array($status))
 												->draw($show_input);
 												?>
 											</td>
@@ -265,10 +268,11 @@
 												->setClass("")
 												->setName('chequenumber['.$row.']')
 												->setId('chequenumber['.$row.']')
-												->setClass('chequenumber')
+												->setClass('chequenumber '.$status.' ' )
 												->setMaxLength(30)
 												->setValidation('required alpha_num')
-												->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+												// ->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+												// ->setAttribute(array($status))
 												->setValue($chequeno)
 												->draw($show_input);
 												?>
@@ -284,11 +288,12 @@
 													<?php
 													echo $ui->formField('text')
 													->setSplit('', 'col-md-12 field_col')
-													->setClass("datepicker-input")
+													->setClass("datepicker-input ".$status."")
 													->setName('chequedate['.$row.']')
-													->setId('chequedate['.$row.']')
+													->setId('chequedate_' . $row)
 													->setMaxLength(50)
 													->setValue($chequedate)
+													// ->setAttribute(array($status))
 													->draw($show_input);
 													?>
 												</div>
@@ -297,25 +302,34 @@
 												<?php
 												echo $ui->formField('text')
 												->setSplit('', 'col-md-12 field_col')
-												->setClass("chequeamount text-right")
+												->setClass("chequeamount text-right ".$status."")
 												->setName('chequeamount['.$row.']')
 												->setId('chequeamount['.$row.']')
 												->setValidation('decimal')
 												->setMaxLength(20)
 												->setAttribute(array("onBlur" => "formatNumber(this.id); addAmounts();", "onClick" => "SelectAll(this.id);"))
+												// ->setAttribute(array($status))
 												->setValue(number_format($chequeamount,2))
 												->draw($show_input);
 												?>
 											</td>	
 
 											<? if($show_input):?>
+												<? if($stat != 'cancelled'):?>
 												<td class="text-center">
 													<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="<?=$row?>" name="chk_[]" style="outline:none;" onClick="confirmChequeDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
-													<input type="hidden" id="not_cancelled" value="no" name="not_cancelled[]" class="not_cancelled">
+													<input type="hidden" id="not_cancelled" value="no" name="not_cancelled[<?=$row?>]" class="not_cancelled">
 												</td>
 												<?php else : ?>
+												<td class="text-center">
+													<button type="button" class="btn btn-danger btn-flat confirm-delete delete <?=$status?>" data-id="<?=$row?>" name="chk_[]"  style="outline:none;"><span class="glyphicon glyphicon-ban-circle"></span></button>
+													<input type="hidden" id="not_cancelled" value="yes" name="not_cancelled[<?=$row?>]" class="not_cancelled">
+												</td>
+												<?php endif; ?>
+
+												<?php else : ?>
 													<td class="text-center">
-														<button type="button" class="btn btn-info btn-flat print_check"  style="outline:none;" ><span class="glyphicon glyphicon-download-alt"></span></button>
+														<button type="button" class="btn btn-info btn-flat print_check <?=$status?>"  style="outline:none;" ><span class="glyphicon glyphicon-download-alt"></span></button>
 													</td>	
 												<?php endif; ?>
 											</tr>	
@@ -1083,7 +1097,7 @@
 			if ($('#entriesTable tbody tr.clone select').data('select2')) {
 				$('#entriesTable tbody tr.clone select').select2('destroy');
 			}
-
+			var cheque_element = $(this);
 			var val = $(this).val();
 			$('#current_bank').val(val);
 			var num = curr_bank_seq[val] || 0;
@@ -1092,7 +1106,8 @@
 				if (data.nums != false){
 				curr_bank_seq[val] = data.nums;
 				var row = $("#chequeTable tbody tr").length;
-				$('#chequeTable #chequenumber\\['+row+'\\]').val(data.nums);
+				cheque_element.closest('tr').find('.chequenumber').val(data.nums);
+
 				} else {
 					$('#nocheckModal').modal('show');
 					$('#chequeTable #accountcode\\['+row+'\\]').val('');
@@ -1204,7 +1219,7 @@
 			var total_payment = 0;
 			$('#entriesTable tbody tr select.accountcode').each(function() {
 				if (typeof checker['acc-' + $(this).val()] === 'undefined') {
-				} else {
+				} else {10.00
 					var ischeck 	=	$(this).closest('tr').find('.ischeck').val();
 					var ca = checker['acc-' + $(this).val()] || '0.00';
 					ca = removeComma(ca);
@@ -2284,7 +2299,7 @@
 			if(valid == 0){
 				$("#payableForm #btnSave").addClass('disabled');
 				$("#payableForm #btnSave_toggle").addClass('disabled');
-
+				$('.cancelled').prop("disabled",false)
 				$("#payableForm #btnSave").html('Saving...');
 
 				$("#payableForm #h_save").val(button_name);
@@ -2400,8 +2415,9 @@
 				// console.log(checker);
 				if(rowCount > 1) {
 					// table.deleteRow(row);
-					$('#chequeaccount\\['+row+'\\]').closest('tr').find('.glyphicon-trash').replaceWith("<span class='glyphicon glyphicon-ban-circle'></span>")
+					$('#chequeaccount\\['+row+'\\]').closest('tr').find('.glyphicon-trash').replaceWith("<span class='glyphicon glyphicon-ban-circle disabled'></span>")
 					$('#chequeaccount\\['+row+'\\]').closest('tr').find('.not_cancelled').val('yes');
+					$('#chequeaccount\\['+row+'\\]').closest('tr').find('.delete').prop('disabled',true);
 					checker['acc-'+account] 	-=	acctamt;	
 					storedescriptionstoarray();
 					recomputechequeamts();
@@ -2683,9 +2699,27 @@
 			window.open('<?=MODULE_URL?>print_check/' + vno +  '/'+ cno , '_blank');
 		})
 
-		$('.chequenumber').focus(function() {
-			$(this).blur();
+		$('.cancelled, .chequenumber').focus(function() {
+			$(this).trigger('blur');
 		});
+
+		$(function() {
+			// $('select.cancelled').select2("enable",false);
+			$('.cancelled').prop("disabled",true);
+			$('select.cancelled').prop("disabled",true);
+			$('select.cancelled').attr("style", "pointer-events: none;");
+			$('.cancelled.datepicker-input').removeClass('datepicker-input').datepicker('remove');
+		});
+
+		
+
+		// $('.cancelled').focus(function() {
+		// 	$(this).attr('readonly', true);
+		// });
+
+		// $('.cancelled').bind('click dblclick focus').function(event){
+		// 	if ($(this).hasClass('cancelled')) event.preventDefault();
+		// });
 
 
 	}); // end
