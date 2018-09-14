@@ -635,8 +635,8 @@
 											$added_function_db 	= "";
 											$added_function_cr	= "";
 											$indicator 			= "";
-
-											if($aPvJournalDetails_Index < ($count-1) && $paymenttype == 'cheque' && $ischeck == 'yes'){										$disable_debit		= 'readOnly';
+											
+										if($aPvJournalDetails_Index < ($count-1) && $paymenttype == 'cheque' && $ischeck == 'yes'){					$disable_debit		= 'readOnly';
 											$disable_credit		= 'readOnly';
 											$disable_dedit 		= "readOnly";
 											$disable_code 		= 'disabled';
@@ -1222,17 +1222,18 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 				cheque_arr.push(account);
 			}
 		});
-
+		console.log(" ... ");
+		console.log(cheque_arr);
 		var row = 1;
 		cheque_arr.forEach(function(account) {
+			console.log("row111 = "+row);
 			if( row == 1 ){
 				if($("#entriesTable tbody tr.clone").length == 1){
-					$("#entriesTable tbody tr.clone").last().before(clone_acct);
+					$("#entriesTable tbody tr.clone:not(.added_row)").first().before(clone_acct);
 				} else {
 					$('#entriesTable tbody tr.clone .accountcode').each(function() {
 						var account = $(this).val();
-						var ischeck = $(this).closest('tr').find('.ischeck').val();
-						if(task == 'create' && account == "" || account == "" && ischeck == 'yes'){
+						if(account == "" ){
 							$(this).closest('tr').remove();
 						}
 					});
@@ -1252,7 +1253,7 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 				ParentRow.after(clone_acct);
 			}
 			resetIds();
-			$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
+			// $("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
 			$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 			disable_acct_fields(row);
