@@ -150,4 +150,15 @@ public function getWithheld($data) {
                 ->runSelect()
                 ->getRow();
     }
+
+    public function retrieveWTAX($data,$i){
+        $year = $data['year'];
+        
+        return $this->db->setTable('ap_details a')
+                ->setFields('SUM(a.taxbase_amount) tax')
+                ->leftJoin('accountspayable ap ON ap.voucherno = a.voucherno')
+                ->setWhere("MONTH(transactiondate) = '$i' and YEAR(transactiondate) = '$year'")
+                ->runSelect()
+                ->getResult();
+    }
 }	
