@@ -324,80 +324,8 @@
 											TOTAL AMOUNT REMITTED
 										</td>
 									</tr>
-									<tbody id="atc_container">
-									<?php
-									$month = 1;
-									for ($i=1; $i < 13; $i++):
-										if($i == '1'){$month = 'JAN';}
-										else if($i == '2'){$month = 'FEB';}
-										else if($i == '3'){$month = 'MAR';}
-										else if($i == '4'){$month = 'APR';}
-										else if($i == '5'){$month = 'MAY';}
-										else if($i == '6'){$month = 'JUN';}
-										else if($i == '7'){$month = 'JUL';}
-										else if($i == '8'){$month = 'AUG';}
-										else if($i == '9'){$month = 'SEP';}
-										else if($i == '10'){$month = 'OCT';}
-										else if($i == '11'){$month = 'NOV';}
-										else if($i == '12'){$month = 'DEC';}
-									?>
-									<tr>
-									<td><strong><?php echo $month;?></strong></td>
-										<td>
-											<?php
-												echo $ui->formField('text')
-														->setName('date'.$i)
-														->setClass('text-right')
-														->setValue('')
-														->draw(true);
-											?>
-										</td>
-										<td>
-											<?php
-												echo $ui->formField('text')
-														->setName('bank'.$i)
-														->setClass('text-right')
-														->setValue('')
-														->draw(true);
-											?>
-										</td>
-										<td>
-											<?php
-												echo $ui->formField('text')
-														->setName('taxwithheld'.$i)
-														->setClass('text-right')
-														->setPlaceholder('0.00')
-														->setValue('')
-														->setAttribute(array('readOnly' => 'readOnly'))
-														->draw(true);
-											?>
-										</td>
-										<td>
-											<?php
-												echo $ui->formField('text')
-														->setName('penalties'.$i)
-														->setClass('text-right amount')
-														->setPlaceholder('0.00')
-														->setValue('')
-														->draw(true);
-											?>
-										</td>
-										<td>
-											<?php
-												echo $ui->formField('text')
-														->setName('totalamount'.$i)
-														->setClass('text-right amount')
-														->setPlaceholder('0.00')
-														->setValue('')
-														->setAttribute(array('readOnly' => 'readOnly'))
-														->draw(true);
-											?>
-										</td>
-									</tr>
-									<?php
-									$month++;
-									endfor;
-									?>
+									<tbody id="tax_container">
+									
 									</tbody>
 									<tr>
 										<td><strong>Total</strong></td>
@@ -439,7 +367,7 @@
 											?>
 										</td>
 									</tr>
-							
+								
 								</table>
 							</div>
 						</div>
@@ -484,7 +412,7 @@
 	});
 
 	$('body').on('blur', '[data-validation~="decimal"]', function(e) {
-		compute();
+		computeTotal();
 	});
 
 	function getList() {
@@ -492,13 +420,32 @@
 			ajax_call.abort();
 		}
 		ajax_call = $.post("<?=MODULE_URL?>ajax/load_list/<?=$bir_form?>", ajax, function(data) {
-			$('#birForm #atc_container').html(data.atc_table);
+			$('#birForm #tax_container').html(data.tax_table);
+
+			$('.penalties').on('change', function(e){
+				var penalties 	= 	$(this).val();
+				var id 			= 	$(this).attr("id");
+				var row 		=	id.replace(/[a-z]/g, '');
+				
+				var wtax 		= $('#taxwithheld'+row).val();
+				var penalty 	= $('#penalties'+row).val();
+				
+				var totalamount			= parseFloat(wtax) + parseFloat(penalty);
+				$('#totalamount'+row).val(addComma(totalamount));
+				computeTotal();
+			});
 		});
 	}
 	getList();
-
 	
-
+	function computeTotal() {
+		var sum = 0;
+		$('.totalamount').each(function() {
+			var value = $(this).val();
+			sum += +value;
+			$('#total').val(addComma(sum));
+		});
+	}
 	function addCommas(nStr)
 	{
 		nStr += '';

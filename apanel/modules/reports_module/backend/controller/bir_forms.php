@@ -435,78 +435,88 @@ class controller extends wc_controller {
 			);
 		}
 		else if($form == '1604E'){
+			$table='';
 			for($i=1; $i<13;$i++){
 				$atc 		= $this->bir->retrieveWTAX($data,$i);	
+				foreach ($atc as $atc_key => $row) {
+					$month = 1;
+						if($i == '1'){$month = 'JAN';}
+						else if($i == '2'){$month = 'FEB';}
+						else if($i == '3'){$month = 'MAR';}
+						else if($i == '4'){$month = 'APR';}
+						else if($i == '5'){$month = 'MAY';}
+						else if($i == '6'){$month = 'JUN';}
+						else if($i == '7'){$month = 'JUL';}
+						else if($i == '8'){$month = 'AUG';}
+						else if($i == '9'){$month = 'SEP';}
+						else if($i == '10'){$month = 'OCT';}
+						else if($i == '11'){$month = 'NOV';}
+						else if($i == '12'){$month = 'DEC';}
+					$table .= '<tr>';
+					$table .= '<td>';
+					$table .= '<strong>'.$month.'</strong>';
+					$table .= '</td>';
+
+					$table .= '<td>';
+					$table .= $this->ui->formField('text')
+										->setName('date'.$i)
+										->setClass('text-right date')
+										->setValue('')
+										->draw(true);
+					$table .= '</td>';
+
+					$table .= '<td>';
+					$table .= $this->ui->formField('text')
+										->setName('bank'.$i)
+										->setClass('text-right bank')
+										->setValue('')
+										->draw(true);
+					$table .= '</td>';
+
+					$table .= '<td>';
+					$table .= $this->ui->formField('text')
+										->setName('taxwithheld'.$i)
+										->setId('taxwithheld'.$i)
+										->setClass('text-right tax')
+										->setPlaceholder('0.00')
+										->setValue($row->tax)					
+										->setValidation('decimal')
+										->setAttribute(array('readOnly' => 'readOnly'))
+										->draw(true);
+					$table .= '</td>';
+
+					$table .= '<td>';
+					$table .= $this->ui->formField('text')
+										->setName('penalties'.$i)
+										->setId('penalties'.$i)
+										->setClass('text-right penalties')
+										->setPlaceholder('0.00')
+										->setValue('')
+										->setValidation('decimal')
+										->draw(true);
+					$table .= '</td>';
+
+					$table .= '<td>';
+					$table .= $this->ui->formField('text')
+										->setName('totalamount'.$i)
+										->setId('totalamount'.$i)
+										->setClass('text-right totalamount')
+										->setPlaceholder('0.00')
+										->setValue('')
+										->setAttribute(array('readOnly' => 'readOnly'))
+										->draw(true);
+					$table .= '</td>';
 					
-				
+					$table .= '</tr>';
+
+					
+				}
+				$result = array(
+					'tax_table' 	=> $table
+				);
 			}
-			for ($x=0; $x < $length; $x++) { 
-				$atc_code = '';
-				$table .= '<tr>';
-				$table .= '<td>';
-				$table .= '<strong>'.$month.'</strong>';
-				$table .= '</td>';
-
-				$table .= '<td>';
-				$table .= $this->ui->formField('text')
-				->setName('atc'.$i)
-				->setClass('text-right')
-				->setValue('')
-				->setAttribute(
-					array(
-						'readOnly' => 'readOnly'
-					)
-				)
-				->draw(true);
-				$table .= '</td>';
-
-				$table .= '<td>';
-				$table .= $this->ui->formField('text')
-				->setName('taxbase'.$i)
-				->setClass('text-right')
-				->setValue('')
-				->setPlaceholder('0.00')
-				->setAttribute(
-					array(
-						'readOnly' => 'readOnly'
-					)
-				)
-				->draw(true);
-				$table .= '</td>';
-
-				$table .= '<td>';
-				$table .= $this->ui->formField('text')
-				->setName('taxrate'.$i)
-				->setClass('text-right')
-				->setPlaceholder('0%')
-				->setValue('')
-				->setAttribute(
-					array(
-						'readOnly' => 'readOnly'
-					)
-				)
-				->draw(true);
-				$table .= '</td>';
-
-				$table .= '<td>';
-				$table .= $this->ui->formField('text')
-				->setName('taxwithheld'.$i)
-				->setClass('text-right')
-				->setPlaceholder('0.00')
-				->setValue('')
-				->setAttribute(
-					array(
-						'readOnly' => 'readOnly'
-					)
-				)
-				->draw(true);
-				$table .= '</td>';
-
-				$table .= '</tr>';
-				$line++;
-				$i++;
-			}
-			}
+			return $result;
+		}
 		
 		// return $result;
 	}
