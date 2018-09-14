@@ -297,10 +297,13 @@
 					$date = $entereddate[0];
 					$book_date = str_replace('-', '', $date);
 
-					// if($row->stat == 'open'){
-					// 	$check_stat = '<span class="label label-success">'.strtoupper('AVAILABLE').'</span>';
-					// }else if($row->stat == 'closed'){
-					// 	$check_stat = '<span class="label label-default">'."NOT USED".'</span>';
+					if($row->stat == 'open'){
+						$next = $row->nextchequeno;
+						$check_stat = '<span class="label label-success">'.strtoupper('AVAILABLE').'</span>';
+					}else if($row->stat == 'closed'){
+						$next = '';
+						$check_stat = '<span class="label label-info">'."USED".'</span>';
+					}
 					// } else {
 					// 	$check_stat = '<span class="label label-warning">'."USED".'</span>';
 					// }
@@ -334,7 +337,8 @@
 					$table .= '<td>' . $row->accountno . '</td>';
 					$table .= '<td id="booknumber">' . $book_date. ' - ' .$row->booknumber . '</td>';
 					$table .= '<td id="start_check" class="start_check" value="' . $row->firstchequeno. '-' .$row->lastchequeno. '">' . $row->firstchequeno. '-' .$row->lastchequeno. '</td>';
-					$table .= '<td>' . $row->nextchequeno. '</td>';
+					$table .= '<td>' . $next. '</td>';
+					$table .= '<td>' . $check_stat. '</td>';
 					$table .= '</tr>';
 
 					

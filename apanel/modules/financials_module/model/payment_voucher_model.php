@@ -1678,15 +1678,17 @@ class payment_voucher_model extends wc_model
 			if ( ($first <= $cno && $cno >= $first)  &&  ($last <= $cno && $cno >= $last)){
 				$data['stat'] 		=  'closed'; 
 				$data['nextchequeno'] = $cno + 1;
+				$con = "AND $cno NOT BETWEEN firstchequeno AND lastchequeno";
 			} else {
 				$data['stat'] 		=  'open'; 
+				$con = "AND $cno BETWEEN firstchequeno AND lastchequeno";
 			}
 
 			if ($first && $last){
 					$data['nextchequeno'] = $cno + 1;
 					$result = $this->db->setTable("bankdetail") 
 										->setValues($data)
-										->setWhere("bank_id = '$getBank' ")
+										->setWhere("bank_id = '$getBank' $con")
 										->runUpdate();
 			}
 		}
