@@ -1581,39 +1581,6 @@ class payment_voucher_model extends wc_model
 		return $result;
 	}
 
-	public function updateCheck($getBank, $cno){
-
-		$data['stat'] 		=  'closed'; 
-		$result = $this->db->setTable("bankdetail") 
-								->setValues($data)
-								->setWhere("bank_id = '$getBank'")
-								->runUpdate();
-		
-		if ($result){
-		
-		$data2['stat'] 		=  'open'; 
-		$data2['nextchequeno'] = $cno + 1;
-		$result = $this->db->setTable("bankdetail") 
-								->setValues($data2)
-								->setWhere("bank_id = '$getBank' AND ($cno BETWEEN firstchequeno AND lastchequeno)")
-								->runUpdate();
-
-		}
-		
-
-		// if ($result){
-		// 	$data1['stat'] = 'open';
-		// 	$$data['nextchequeno'] = $cno + 1;
-		// 	$result = $this->db->setTable("bankdetail") 
-		// 						->setValues($data1)
-		// 						->setWhere("bank_id = '$getBank' AND ($cno > lastchequeno)")
-		// 						->runUpdate();
-		// }
-			
-		return $result;
-
-	}
-
 	public function update_check_status($bank, $cno){
 		$data1['stat'] = 'closed';
 		$result = $this->db->setTable("bankdetail") 
@@ -1651,7 +1618,6 @@ class payment_voucher_model extends wc_model
 							->setOrderBy('firstchequeno')
 							->runSelect()
 							->getResult();
-
 		
 		$last_num	= $curr_seq;
 		$curr		= 0;
@@ -1695,6 +1661,37 @@ class payment_voucher_model extends wc_model
 							->runUpdate();
 							// echo $this->db->getQuery();
 		return $result ;
+	}
+
+	public function updateCheck($getBank, $cno){
+
+		$result = $this->db->setTable("bankdetail")
+								->setFields("booknumber, firstchequeno, lastchequeno, nextchequeno")
+								->setWhere("bank_id = '$getBank' ")
+								->runSelect()
+								->getResult();
+								
+
+		foreach ($result as $value) {
+			$first = $value->firstchequeno;
+			$last = $value->lastchequeno;
+			if ( ($first <= $cno && $cno >= $first)  &&  ($last <= $cno && $cno >= $last)){
+				$data['stat'] 		=  'closed'; 
+				$data['nextchequeno'] = $cno + 1;
+			} else {
+				$data['stat'] 		=  'open'; 
+			}
+
+			if ($first && $last){
+					$data['nextchequeno'] = $cno + 1;
+					$result = $this->db->setTable("bankdetail") 
+										->setValues($data)
+										->setWhere("bank_id = '$getBank' ")
+										->runUpdate();
+			}
+		}
+			
+
 	}
 
 

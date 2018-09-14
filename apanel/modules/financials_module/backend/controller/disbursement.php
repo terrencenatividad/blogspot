@@ -136,14 +136,14 @@ class controller extends wc_controller
 				$update_cheque['voucherno']	= $generatedvoucher;
 				$updateTempRecord			= $this->payment_voucher->editData($update_cheque,"pv_cheques",$update_condition);
 
-				// $getnextCheckno 			= $this->payment_voucher->get_check_no($generatedvoucher);
-				// foreach ($getnextCheckno as $value) {
-				// 	$cno = $value->checknum;
-				// 	$ca = $value->chequeaccount;
-				// 	$getBank = $this->payment_voucher->getbankid($ca);
-				// 	$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
-				// 	$updateCheckNo = $this->payment_voucher->updateCheck($bank_id, $cno);
-				// }
+				$getnextCheckno 			= $this->payment_voucher->get_check_no($generatedvoucher);
+				foreach ($getnextCheckno as $value) {
+					$cno = $value->checknum;
+					$ca = $value->chequeaccount;
+					$getBank = $this->payment_voucher->getbankid($ca);
+					$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
+					$updateCheckNo = $this->payment_voucher->updateCheck($bank_id, $cno);
+				}
 
 			}
 			
@@ -1464,7 +1464,6 @@ class controller extends wc_controller
 		$nums = $this->payment_voucher->getNextCheckNum($bank_id, $data['curr_seq']);
 		$ret_nums = array('nums' => $nums);
 		return $ret_nums;
-		
 	}
 
 }
