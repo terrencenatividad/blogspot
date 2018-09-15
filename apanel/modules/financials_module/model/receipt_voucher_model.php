@@ -60,7 +60,7 @@ class receipt_voucher_model extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used";
+		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used, overpayment";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -766,7 +766,7 @@ class receipt_voucher_model extends wc_model
 				
 				$totalamount+=$amount;
 				$total_credits_used+=$credits;
-
+				
 				$post_application['voucherno']			= $voucherno;
 				$post_application['transtype']			= 'RV';
 				$post_application['linenum']			= $iApplicationLineNum;

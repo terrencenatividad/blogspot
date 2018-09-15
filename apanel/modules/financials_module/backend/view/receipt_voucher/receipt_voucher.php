@@ -109,7 +109,7 @@
 										?>
 									</div>
 									<input type = "hidden" id = "originalamt" name = "originalamt" value = "0">
-									<input type = "hidden" id = "overpayment" name = "overpayment" value = "0">
+									<input type = "hidden" id = "overpayment" name = "overpayment" value = "<?=$overpayment?>">
 									<input type = "hidden" id = "total_cred_used" name = "total_cred_used" value = "<?=$credits_used?>">
 									<input type = "hidden" id = "old_cred_used" name = "old_cred_used" value = "<?=$credits_used?>">
 								</div>
@@ -636,7 +636,8 @@
 											$added_function_cr	= "";
 											$indicator 			= "";
 											
-										if($aPvJournalDetails_Index < ($count-1) && $paymenttype == 'cheque' && $ischeck == 'yes'){					$disable_debit		= 'readOnly';
+										if($aPvJournalDetails_Index < ($count-1) && $paymenttype == 'cheque' && $ischeck == 'yes'){					
+											$disable_debit		= 'readOnly';
 											$disable_credit		= 'readOnly';
 											$disable_dedit 		= "readOnly";
 											$disable_code 		= 'disabled';
@@ -1222,11 +1223,9 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 				cheque_arr.push(account);
 			}
 		});
-		console.log(" ... ");
-		console.log(cheque_arr);
+
 		var row = 1;
 		cheque_arr.forEach(function(account) {
-			console.log("row111 = "+row);
 			if( row == 1 ){
 				if($("#entriesTable tbody tr.clone").length == 1){
 					$("#entriesTable tbody tr.clone:not(.added_row)").first().before(clone_acct);
@@ -1253,7 +1252,7 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 				ParentRow.after(clone_acct);
 			}
 			resetIds();
-			// $("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
+			$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
 			$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 			disable_acct_fields(row);
@@ -1331,6 +1330,7 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 				checker['acc-' + account] += parseFloat(ca);
 			}
 		});
+		console.log(checker);
 	}
 
 // Change event for chequeamount
@@ -2260,11 +2260,10 @@ var selectedIndex 	= -1;
 function getRVDetails(){
 	var customercode   	= $("#customer").val();
 	var overpayment 	= $('#overpayment').val();
-
+	console.log("RECEIVED OVERPAYMENT EDIT = "+overpayment);
 	var selected_rows 	= JSON.stringify(container);
 	var cheques = [];
 	cheques_obj = getCheckAccounts();
-
 
 	for (var chequeaccount in cheques_obj) {
 		if (cheques_obj.hasOwnProperty(chequeaccount)) {
@@ -2303,14 +2302,13 @@ function getRVDetails(){
 			var total_payment = $("#paymentModal #total_payment").val();
 			$("#paymentModal").modal("hide");
 
-			if(selected_rows != "")
+			if(selected_rows != ""){
 				$("#paymentmode").removeAttr("disabled");
+			}
 
 			if('<?= $task ?>' == "create" || '<?= $task ?>' == "edit" ){
-				
 				$("#entriesTable tbody").html(data.table);
 				$("#pv_amount").html(total_payment);
-				console.log('total '+total_payment);
 				var count_container = Object.keys(container).length;
 				var discount_amount = 0; 
 				for(i = 0; i < count_container; i++) {
@@ -2329,8 +2327,10 @@ function getRVDetails(){
 					$('#debit\\['+row+'\\]').val(discount_amount);
 					disable_acct_fields(row);
 				}
+				$('#entriesTable tbody tr.clone').removeClass('added_row');
 				addAmountAll("credit");
 				addAmountAll("debit");
+				addAmounts();
 			}	
 		});
 	}
@@ -2495,11 +2495,12 @@ function checkBalance(val,id){
 	var error 	  = 0;
 		condition 		= (parseFloat(newval) || parseFloat(discount) == 0 || (parseFloat(discount) > parseFloat(dueamount) || parseFloat(discount) > parseFloat(current_payment) ) ) ;
 	
-	var excess_payment 	= 0;
-
+	var excess_payment 	= $('#overpayment').val();
+		excess_payment 	= parseFloat(excess_payment) || 0;
+		console.log('E || '+excess_payment);
 	if(condition){
 		if(current_payment >= 0){
-			excess_payment 	+=	(current_payment - dueamount);
+			excess_payment 	+=	(current_payment - total_amount);
 			$('#receiveAmtError').addClass('hidden');
 		} else {
 			$('#receiveAmtError').removeClass('hidden');

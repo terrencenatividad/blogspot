@@ -373,6 +373,7 @@ class controller extends wc_controller
 		$data["particulars"]     = $data["main"]->particulars;
 		$data["paymenttype"]     = $data["main"]->paymenttype;
 		$credits_used 			 = $data["main"]->credits_used;
+		$data['overpayment'] 	 = $data["main"]->overpayment;
 		$data["credits_used"]    = $credits_used;
 		$available_credits 		 = $this->receipt_voucher->retrieve_existing_credits($customer);
 		$data["available_credits"] = isset($available_credits[0]->curr_credit) 	?	$available_credits[0]->curr_credit 	+	$credits_used	:	"0.00";
@@ -407,6 +408,7 @@ class controller extends wc_controller
 					$sum_discount += $value->dis;
 			}
 		}
+
 		$data['sum_applied'] 	= $sum_applied;
 		$data['sum_discount'] 	= $sum_discount;
 		$data['payments'] 		= json_encode($payments);
