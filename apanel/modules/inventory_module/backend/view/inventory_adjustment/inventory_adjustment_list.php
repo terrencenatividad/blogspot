@@ -172,7 +172,7 @@
 											->setName('issueqty')
 											->setId('issueqty')
 											->setValue('0')
-											->setValidation('required')
+											->setValidation('required integer')
 											->draw();
 								?>
 								<div class='col-md-12'><hr/></div>
@@ -543,7 +543,6 @@
 						$("#adjustForm #btnSave").html('Save');
 						
 						if( data.msg == 'success' ){
-							getList();
 							displayBtn();
 							hide_error();
 							$("#adjModal").modal('hide');
@@ -742,6 +741,10 @@
 		getList();
 	});
 
+	$(document).on('hidden.bs.modal','#adjModal', function () {
+		getList();
+	});
+	
 	function checkSecond(sec) {
 		if (sec < 10 && sec >= 0) {sec = "0" + sec}; // add zero in front of numbers < 10
 		if (sec < 0) {sec = "59"};
