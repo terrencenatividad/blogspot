@@ -61,11 +61,13 @@ class inventory_adjustment_model extends wc_model {
 
 	public function check_if_exists($column, $table, $condition)
 	{
-		return $this->db->setTable($table)
+		$result= $this->db->setTable($table)
 						->setFields("COUNT(".$column.") count")
 						->setWhere($condition)
 						->runSelect()
 						->getResult();
+
+		return $result;
 	}
 
 	private function generateSearch($search, $array) 
