@@ -452,6 +452,10 @@ class controller extends wc_controller {
 						else if($i == '10'){$month = 'OCT';}
 						else if($i == '11'){$month = 'NOV';}
 						else if($i == '12'){$month = 'DEC';}
+
+						if($row->tax == NULL){
+							$row->tax = 0;
+						}
 					$table .= '<tr>';
 					$table .= '<td>';
 					$table .= '<strong>'.$month.'</strong>';
@@ -479,7 +483,7 @@ class controller extends wc_controller {
 										->setId('taxwithheld'.$i)
 										->setClass('text-right tax')
 										->setPlaceholder('0.00')
-										->setValue($row->tax)					
+										->setValue(number_format($row->tax,'2'))					
 										->setValidation('decimal')
 										->setAttribute(array('readOnly' => 'readOnly'))
 										->draw(true);
@@ -502,7 +506,8 @@ class controller extends wc_controller {
 										->setId('totalamount'.$i)
 										->setClass('text-right totalamount')
 										->setPlaceholder('0.00')
-										->setValue('')
+										->setValue(number_format($row->tax,'2'))				
+										->setValidation('decimal')
 										->setAttribute(array('readOnly' => 'readOnly'))
 										->draw(true);
 					$table .= '</td>';
@@ -539,8 +544,8 @@ class controller extends wc_controller {
 	}
 
 	public function print_1604E() {
-		$company_signatory = $this->bir->getCompanyInfo(array('businesstype','signatory_name','signatory_role','signatory_tin'));
-		$print = new print_bir_1601EQ('P', 'mm', array(216,330.2));
+		$company_signatory = $this->bir->getCompanyInfo(array('businesstype','businessline','signatory_name','signatory_role','signatory_tin'));
+		$print = new print_bir_1604E('P', 'mm', array(216,330.2));
 		$print->setPreviewTitle(MODULE_NAME)
 		->setDocumentDetails($this->input->get())
 		->setSignatory($company_signatory)
