@@ -1330,7 +1330,7 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 				checker['acc-' + account] += parseFloat(ca);
 			}
 		});
-		console.log(checker);
+		// console.log(checker);
 	}
 
 // Change event for chequeamount
@@ -2260,7 +2260,6 @@ var selectedIndex 	= -1;
 function getRVDetails(){
 	var customercode   	= $("#customer").val();
 	var overpayment 	= $('#overpayment').val();
-	console.log("RECEIVED OVERPAYMENT EDIT = "+overpayment);
 	var selected_rows 	= JSON.stringify(container);
 	var cheques = [];
 	cheques_obj = getCheckAccounts();
@@ -2345,6 +2344,7 @@ function selectPayable(id,toggle){
 	var paymentamount_val = $('#payable_list_container #paymentamount'+id).attr('value');
 	var newbal  		= $('#payable_list_container #orig_bal'+id).attr('value');
 	var available_credit= $('#paymentForm #available_credits').val();	
+	var overpayment 	= $('#payable_list_container #overpayment'+id);
 
 	if(check.prop('checked' )){
 		if(toggle == 1){
@@ -2391,7 +2391,7 @@ function selectPayable(id,toggle){
 
 	// Get number of checkboxes and assign to textarea
 	balance 	=	removeComma(balance);
-	add_storage(id,balance,0,0);
+	add_storage(id,balance,0,0,overpayment);
 	addPaymentAmount();
 }
 
@@ -2402,12 +2402,12 @@ function init_storage(){
 	}
 }
 
-function add_storage(id,balance,discount,credits){
+function add_storage(id,balance,discount,credits,excess){
 	var amount 		= $('#paymentModal #paymentamount'+id).val();
 	var overpayment	= $('#payableForm #overpayment').val();
 		overpayment = parseFloat(removeComma(overpayment));
 
-	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount,cred:credits};
+	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount,cred:credits,over:excess};
 	var newcont 	= JSON.parse(JSON.stringify(container));
 
 	var total_cred_used  = 0;
@@ -2424,25 +2424,16 @@ function add_storage(id,balance,discount,credits){
 				var new_balance 		=	(removeComma(newvalue.bal) > 0) ? removeComma(newvalue.bal)	: 0;
 				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
 				var new_credit 			=	(removeComma(newvalue.cred) > 0)? removeComma(newvalue.cred): 0;
-				
-				console.log("NEW || "+original_amount+ " | " + original_balance + " | "+original_discount + " | " + original_credits);
+				var new_excess 			=	(removeComma(newvalue.over) > 0)? removeComma(newvalue.over): 0;
 
 				var available_balance 	=	(parseFloat(balance) - parseFloat(original_discount) - parseFloat(original_credits)) - new_amount;
 					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
-				// console.log("AVAILABLE = "+available_balance);
+
 				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount) + parseFloat(original_credits)) - discount - credits;
 					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
 
-					console.log('new amount = '+new_amount);
-					console.log('discount = '+original_discount);
-					console.log('credits = '+original_credits);
-					console.log('new disc = '+discount);
-					console.log('new credits = '+credits);
-				// console.log("AVAILABLE BALANCE = "+available_balance);
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
-
-				// console.log("New || "+new_amount+" || "+discounted_amount+ " | " + new_balance + " | "+discount+" | "+credits);
 
 				found = true;
 				if(parseFloat(new_amount) === 0) {
@@ -2483,24 +2474,32 @@ function checkBalance(val,id){
 	var discountamount 	= $('#payable_list_container #discountamount'+id).val();
 	var credit_used 	= $('#payable_list_container #credits_used'+id).val();
 	var current_payment = $('#payable_list_container #paymentamount'+id).val();
+	// var curr_overpayment= $('#payable_list_container #overpayment'+id).val();
 
 	dueamount			= removeComma(dueamount);
 	discount			= removeComma(discountamount);
 	current_payment		= removeComma(current_payment);
 	var newval			= removeComma(val);
 	total_amount 		= removeComma(total_amount);
+	// curr_overpayment 	= removeComma(curr_overpayment);
 
 	var condition = "";
 	var input 	  = "";
 	var error 	  = 0;
 		condition 		= (parseFloat(newval) || parseFloat(discount) == 0 || (parseFloat(discount) > parseFloat(dueamount) || parseFloat(discount) > parseFloat(current_payment) ) ) ;
 	
+	// $('#app_payableList tr').each(function(e){
+	// 	var  
+	// });
+	// var excess_payment 	= $('#overpayment').val();
 	var excess_payment 	= $('#overpayment').val();
 		excess_payment 	= parseFloat(excess_payment) || 0;
-		console.log('E || '+excess_payment);
+	
+	var ind_excess 		= 0;
 	if(condition){
 		if(current_payment >= 0){
 			excess_payment 	+=	(current_payment - total_amount);
+			ind_excess 		=	current_payment - total_amount;
 			$('#receiveAmtError').addClass('hidden');
 		} else {
 			$('#receiveAmtError').removeClass('hidden');
@@ -2527,6 +2526,7 @@ function checkBalance(val,id){
 			$('#TagReceivablesBtn').prop('disabled',false);
 		}
 		$('#payableForm #overpayment').val(excess_payment);
+		$('#payable_list_container #overpayment'+id).val(ind_excess);
 		$('#payable_list_container #paymentamount'+id).value = '';
 	}else{
 		$('#payable_list_container #paymentamount'+id).value = newval;
@@ -2535,7 +2535,7 @@ function checkBalance(val,id){
 	if(error == 0){
 		dueamount 	=	(excess_payment > 0) 	?	 0	:	dueamount;
 
-		add_storage(id,dueamount,discount,credit_used);
+		add_storage(id,dueamount,discount,credit_used,ind_excess);
 		addPaymentAmount();	
 	}
 }
@@ -2546,6 +2546,7 @@ function checkCredit(val,id){
 	var avail_credits 	=	$('#paymentForm #available_credits').val();
 	var discountamount 	= 	$('#payable_list_container #discountamount'+id).val();
 	var current_payment = 	$('#payable_list_container #paymentamount'+id).val();
+	var overpayment 	=	$('#payable_list_container #overpayment'+id).val();
 
 	var input 			= 	removeComma(val);
 		total_amount 	= 	removeComma(total_amount);
@@ -2553,12 +2554,13 @@ function checkCredit(val,id){
 		dueamount 		=	removeComma(dueamount);
 		avail_credits 	=	removeComma(avail_credits);
 		current_payment = 	removeComma(current_payment);
+		overpayment 	= 	removeComma(overpayment);
 
 	if(input > avail_credits){
 		input = 0;
 	}
 
-	add_storage(id,dueamount,discount,input);
+	add_storage(id,dueamount,discount,input,overpayment);
 	addPaymentAmount();	
 }
 
@@ -3667,7 +3669,7 @@ $(document).ready(function() {
 
 	} else if( task == "edit") {
 		var paymentmode = $("#paymentmode").val();
-
+		console.log(container);
 		var selected_rows 	= JSON.stringify(container);
 		$('#selected_rows').html(selected_rows);
 
