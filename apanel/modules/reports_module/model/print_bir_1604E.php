@@ -52,7 +52,7 @@ class print_bir_1604E extends fpdf {
 		$documentInfo = $this->documentinfo;
 		if($documentInfo){
 			$yearfilter 	= $documentInfo['yearfilter'];
-			$yearfilter 	= implode('   ',str_split($yearfilter));
+			$yearfilter 	= implode('  ',str_split($yearfilter));
 			$amendreturn 	= isset($documentInfo['amendreturn']) ? $documentInfo['amendreturn'] : "yes";
 			$anytaxwithheld	= isset($documentInfo['anytaxwithheld']) ? $documentInfo['anytaxwithheld'] : "yes";
 			$attachments	= isset($documentInfo['attachments']) ? $documentInfo['attachments'] : 0;
@@ -61,116 +61,191 @@ class print_bir_1604E extends fpdf {
 			$tin 			= (isset($documentInfo['tin']) && !empty($documentInfo['tin'])) ? $documentInfo['tin'] : '000-000-000-000';
 			$tin_arr		= explode('-',$tin);
 			$tin1			= ($tin_arr[0]) ? $tin_arr[0] : '000';
-			$tin1 			= implode('   ',str_split($tin1));
+			$tin1 			= implode('  ',str_split($tin1));
 			$tin2			= ($tin_arr[1]) ? $tin_arr[1] : '000';
-			$tin2 			= implode('   ',str_split($tin2));
+			$tin2 			= implode('  ',str_split($tin2));
 			$tin3			= ($tin_arr[2]) ? $tin_arr[2] : '000';
-			$tin3 			= implode('   ',str_split($tin3));
+			$tin3 			= implode('  ',str_split($tin3));
 			$tin4			= ($tin_arr[3]) ? $tin_arr[3] : '000';
-			$tin4 			= implode('   ',str_split($tin4));
+			$tin4 			= implode('  ',str_split($tin4));
 
 			$rdo 			= isset($documentInfo['rdo']) ? urldecode($documentInfo['rdo']) : 0;
-			$rdo 			= implode('   ',str_split($rdo));
+			$rdo 			= implode('  ',str_split($rdo));
 			$agentname 		= isset($documentInfo['agentname']) ? urldecode($documentInfo['agentname']) : "";
 			$firstaddress 	= isset($documentInfo['firstaddress']) ? urldecode($documentInfo['firstaddress']) : "";
 			$secondaddress 	= isset($documentInfo['secondaddress']) ? urldecode($documentInfo['secondaddress']) : "";
 			$zipcode 		= isset($documentInfo['zipcode']) ? urldecode($documentInfo['zipcode']) : "";
+			$zipcode 		= implode('   ',str_split($zipcode));
 			$contact 		= isset($documentInfo['contact']) ? urldecode($documentInfo['contact']) : "";
+			$contact 		= implode('  ',str_split($contact));
 			$category		= isset($documentInfo['category']) ? urldecode($documentInfo['category']) : "yes";
 			$email 			= isset($documentInfo['email']) ? urldecode($documentInfo['email']) : "";
 
 			/**
-			 * ATC Entries
+			 * Schedule
 			 */
-			$atc0			= isset($documentInfo['atc0']) ? urldecode($documentInfo['atc0']) : "";
-			$atc0 			= str_replace(' ','',$atc0);
-			$atc1			= isset($documentInfo['atc1']) ? urldecode($documentInfo['atc1']) : "";
-			$atc1 			= str_replace(' ','',$atc1);
-			$atc2			= isset($documentInfo['atc2']) ? urldecode($documentInfo['atc2']) : "";
-			$atc2 			= str_replace(' ','',$atc2);
-			$atc3			= isset($documentInfo['atc3']) ? urldecode($documentInfo['atc3']) : "";
-			$atc3 			= str_replace(' ','',$atc3);
-			$atc4			= isset($documentInfo['atc4']) ? urldecode($documentInfo['atc4']) : "";
-			$atc4 			= str_replace(' ','',$atc4);
-			$atc5			= isset($documentInfo['atc5']) ? urldecode($documentInfo['atc5']) : "";
-			$atc5 			= str_replace(' ','',$atc5);
+			$date0			= isset($documentInfo['date0']) ? urldecode($documentInfo['date0']) : "";
+			$date1			= isset($documentInfo['date1']) ? urldecode($documentInfo['date1']) : "";
+			$date2			= isset($documentInfo['date2']) ? urldecode($documentInfo['date2']) : "";
+			$date3			= isset($documentInfo['date3']) ? urldecode($documentInfo['date3']) : "";
+			$date4			= isset($documentInfo['date4']) ? urldecode($documentInfo['date4']) : "";
+			$date5			= isset($documentInfo['date5']) ? urldecode($documentInfo['date5']) : "";
+			$date6			= isset($documentInfo['date6']) ? urldecode($documentInfo['date6']) : "";
+			$date7			= isset($documentInfo['date7']) ? urldecode($documentInfo['date7']) : "";
+			$date8			= isset($documentInfo['date8']) ? urldecode($documentInfo['date8']) : "";
+			$date9			= isset($documentInfo['date9']) ? urldecode($documentInfo['date9']) : "";
+			$date10			= isset($documentInfo['date10']) ? urldecode($documentInfo['date10']) : "";
+			$date11			= isset($documentInfo['date11']) ? urldecode($documentInfo['date11']) : "";
+			$date12			= isset($documentInfo['date12']) ? urldecode($documentInfo['date12']) : "";
 
-			$taxbase0		= isset($documentInfo['taxbase0']) ? urldecode($documentInfo['taxbase0']) : "0.00";
-			$taxbase0		= ($taxbase0 > 0) ? $taxbase0 : '';
-			$taxbase1		= isset($documentInfo['taxbase1']) ? urldecode($documentInfo['taxbase1']) : "0.00";
-			$taxbase1		= ($taxbase1 != 0) ? $taxbase1 : '';
-			$taxbase2		= isset($documentInfo['taxbase2']) ? urldecode($documentInfo['taxbase2']) : "0.00";
-			$taxbase2		= ($taxbase2 != 0) ? $taxbase2 : '';
-			$taxbase3		= isset($documentInfo['taxbase3']) ? urldecode($documentInfo['taxbase3']) : "0.00";
-			$taxbase3		= ($taxbase3 != 0) ? $taxbase3 : '';
-			$taxbase4		= isset($documentInfo['taxbase4']) ? urldecode($documentInfo['taxbase4']) : "0.00";
-			$taxbase4		= ($taxbase4 != 0) ? $taxbase4 : '';
-			$taxbase5		= isset($documentInfo['taxbase5']) ? urldecode($documentInfo['taxbase5']) : "0.00";
-			$taxbase5		= ($taxbase5 != 0) ? $taxbase5 : '';
+			$bank0			= isset($documentInfo['bank0']) ? urldecode($documentInfo['bank0']) : "";
+			$bank1			= isset($documentInfo['bank1']) ? urldecode($documentInfo['bank1']) : "";
+			$bank2			= isset($documentInfo['bank2']) ? urldecode($documentInfo['bank2']) : "";
+			$bank3			= isset($documentInfo['bank3']) ? urldecode($documentInfo['bank3']) : "";
+			$bank4			= isset($documentInfo['bank4']) ? urldecode($documentInfo['bank4']) : "";
+			$bank5			= isset($documentInfo['bank5']) ? urldecode($documentInfo['bank5']) : "";
+			$bank6			= isset($documentInfo['bank6']) ? urldecode($documentInfo['bank6']) : "";
+			$bank7			= isset($documentInfo['bank7']) ? urldecode($documentInfo['bank7']) : "";
+			$bank8			= isset($documentInfo['bank8']) ? urldecode($documentInfo['bank8']) : "";
+			$bank9			= isset($documentInfo['bank9']) ? urldecode($documentInfo['bank9']) : "";
+			$bank10			= isset($documentInfo['bank10']) ? urldecode($documentInfo['bank10']) : "";
+			$bank11			= isset($documentInfo['bank11']) ? urldecode($documentInfo['bank11']) : "";
+			$bank12			= isset($documentInfo['bank12']) ? urldecode($documentInfo['bank12']) : "";
 
-			$taxrate0		= isset($documentInfo['taxrate0']) ? urldecode($documentInfo['taxrate0']) : "";
-			$taxrate0		= ($taxrate0 != 0) ? $taxrate0 : '';
-			$taxrate1		= isset($documentInfo['taxrate1']) ? urldecode($documentInfo['taxrate1']) : "";
-			$taxrate1		= ($taxrate1 != 0) ? $taxrate1 : '';
-			$taxrate2		= isset($documentInfo['taxrate2']) ? urldecode($documentInfo['taxrate2']) : "";
-			$taxrate2		= ($taxrate2 != 0) ? $taxrate2 : '';
-			$taxrate3		= isset($documentInfo['taxrate3']) ? urldecode($documentInfo['taxrate3']) : "";
-			$taxrate3		= ($taxrate3 != 0) ? $taxrate3 : '';
-			$taxrate4		= isset($documentInfo['taxrate4']) ? urldecode($documentInfo['taxrate4']) : "";
-			$taxrate4		= ($taxrate4 != 0) ? $taxrate4 : '';
-			$taxrate5		= isset($documentInfo['taxrate5']) ? urldecode($documentInfo['taxrate5']) : "";
-			$taxrate5		= ($taxrate5 != 0) ? $taxrate5 : '';
-
-			$taxwithheld0		= isset($documentInfo['taxwithheld0']) ? urldecode($documentInfo['taxwithheld0']) : "0.00";
-			$taxwithheld0		= ($taxwithheld0 != 0) ? $taxwithheld0 : '';
 			$taxwithheld1		= isset($documentInfo['taxwithheld1']) ? urldecode($documentInfo['taxwithheld1']) : "0.00";
 			$taxwithheld1		= ($taxwithheld1 != 0) ? $taxwithheld1 : '';
+			$taxwithheld1		= str_replace('.','  ',$taxwithheld1);
 			$taxwithheld2		= isset($documentInfo['taxwithheld2']) ? urldecode($documentInfo['taxwithheld2']) : "0.00";
 			$taxwithheld2		= ($taxwithheld2 != 0) ? $taxwithheld2 : '';
+			$taxwithheld2		= str_replace('.','  ',$taxwithheld2);
 			$taxwithheld3		= isset($documentInfo['taxwithheld3']) ? urldecode($documentInfo['taxwithheld3']) : "0.00";
 			$taxwithheld3		= ($taxwithheld3 != 0) ? $taxwithheld3 : '';
+			$taxwithheld3		= str_replace('.','  ',$taxwithheld3);
 			$taxwithheld4		= isset($documentInfo['taxwithheld4']) ? urldecode($documentInfo['taxwithheld4']) : "0.00";
 			$taxwithheld4		= ($taxwithheld4 != 0) ? $taxwithheld4 : '';
+			$taxwithheld4		= str_replace('.','  ',$taxwithheld4);
 			$taxwithheld5		= isset($documentInfo['taxwithheld5']) ? urldecode($documentInfo['taxwithheld5']) : "0.00";
 			$taxwithheld5		= ($taxwithheld5 != 0) ? $taxwithheld5 : '';
+			$taxwithheld5		= str_replace('.','  ',$taxwithheld5);
+			$taxwithheld6		= isset($documentInfo['taxwithheld6']) ? urldecode($documentInfo['taxwithheld6']) : "0.00";
+			$taxwithheld6		= ($taxwithheld6 != 0) ? $taxwithheld6 : '';
+			$taxwithheld6		= str_replace('.','  ',$taxwithheld6);
+			$taxwithheld7		= isset($documentInfo['taxwithheld7']) ? urldecode($documentInfo['taxwithheld7']) : "0.00";
+			$taxwithheld7		= ($taxwithheld7 != 0) ? $taxwithheld5 : '';
+			$taxwithheld7		= str_replace('.','  ',$taxwithheld7);
+			$taxwithheld8		= isset($documentInfo['taxwithheld8']) ? urldecode($documentInfo['taxwithheld8']) : "0.00";
+			$taxwithheld8		= ($taxwithheld8 != 0) ? $taxwithheld8 : '';
+			$taxwithheld8		= str_replace('.','  ',$taxwithheld8);
+			$taxwithheld9		= isset($documentInfo['taxwithheld9']) ? urldecode($documentInfo['taxwithheld9']) : "0.00";
+			$taxwithheld9		= ($taxwithheld9 != 0) ? $taxwithheld9 : '';
+			$taxwithheld9		= str_replace('.','  ',$taxwithheld9);
+			$taxwithheld10		= isset($documentInfo['taxwithheld10']) ? urldecode($documentInfo['taxwithheld10']) : "0.00";
+			$taxwithheld10		= ($taxwithheld10 != 0) ? $taxwithheld10 : '';
+			$taxwithheld10		= str_replace('.','  ',$taxwithheld10);
+			$taxwithheld11		= isset($documentInfo['taxwithheld11']) ? urldecode($documentInfo['taxwithheld11']) : "0.00";
+			$taxwithheld11		= ($taxwithheld11 != 0) ? $taxwithheld11 : '';
+			$taxwithheld11		= str_replace('.','  ',$taxwithheld11);
+			$taxwithheld12		= isset($documentInfo['taxwithheld12']) ? urldecode($documentInfo['taxwithheld12']) : "0.00";
+			$taxwithheld12		= ($taxwithheld12 != 0) ? $taxwithheld12 : '';
+			$taxwithheld12		= str_replace('.','  ',$taxwithheld12);
+
+			$penalties1			= isset($documentInfo['penalties1']) ? urldecode($documentInfo['penalties1']) : "0.00";
+			$penalties1			= ($penalties1 != 0) ? $penalties1 : '';
+			$penalties1			= str_replace('.','  ',$penalties1);
+			$penalties2			= isset($documentInfo['penalties2']) ? urldecode($documentInfo['penalties2']) : "0.00";
+			$penalties2			= ($penalties2 != 0) ? $penalties2 : '';
+			$penalties2			= str_replace('.','  ',$penalties2);
+			$penalties3			= isset($documentInfo['penalties3']) ? urldecode($documentInfo['penalties3']) : "0.00";
+			$penalties3			= ($penalties3 != 0) ? $penalties3 : '';
+			$penalties3			= str_replace('.','  ',$penalties3);
+			$penalties4			= isset($documentInfo['penalties4']) ? urldecode($documentInfo['penalties4']) : "0.00";
+			$penalties4			= ($penalties4 != 0) ? $penalties4 : '';
+			$penalties4			= str_replace('.','  ',$penalties4);
+			$penalties5			= isset($documentInfo['penalties5']) ? urldecode($documentInfo['penalties5']) : "0.00";
+			$penalties5			= ($penalties5 != 0) ? $penalties5 : '';
+			$penalties5			= str_replace('.','  ',$penalties5);
+			$penalties6			= isset($documentInfo['penalties6']) ? urldecode($documentInfo['penalties6']) : "0.00";
+			$penalties6			= ($penalties6 != 0) ? $penalties6 : '';
+			$penalties6			= str_replace('.','  ',$penalties6);
+			$penalties7			= isset($documentInfo['penalties7']) ? urldecode($documentInfo['penalties7']) : "0.00";
+			$penalties7			= ($penalties7 != 0) ? $penalties7 : '';
+			$penalties7			= str_replace('.','  ',$penalties7);
+			$penalties8			= isset($documentInfo['penalties8']) ? urldecode($documentInfo['penalties8']) : "0.00";
+			$penalties8			= ($penalties8 != 0) ? $penalties8 : '';
+			$penalties8			= str_replace('.','  ',$penalties8);
+			$penalties9			= isset($documentInfo['penalties9']) ? urldecode($documentInfo['penalties9']) : "0.00";
+			$penalties9			= ($penalties9 != 0) ? $penalties9 : '';
+			$penalties9			= str_replace('.','  ',$penalties9);
+			$penalties10		= isset($documentInfo['penalties10']) ? urldecode($documentInfo['penalties10']) : "0.00";
+			$penalties10		= ($penalties10 != 0) ? $penalties10 : '';
+			$penalties10		= str_replace('.','  ',$penalties10);
+			$penalties11		= isset($documentInfo['penalties11']) ? urldecode($documentInfo['penalties11']) : "0.00";
+			$penalties11		= ($penalties11 != 0) ? $penalties11 : '';
+			$penalties11		= str_replace('.','  ',$penalties11);
+			$penalties12		= isset($documentInfo['penalties12']) ? urldecode($documentInfo['penalties12']) : "0.00";
+			$penalties12		= ($penalties12 != 0) ? $penalties12 : '';
+			$penalties12		= str_replace('.','  ',$penalties12);
+
+			$totalamount1		= isset($documentInfo['totalamount1']) ? urldecode($documentInfo['totalamount1']) : "0.00";
+			$totalamount1		= ($totalamount1 != 0) ? $totalamount1 : '';
+			$totalamount1		= str_replace('.','  ',$totalamount1);
+			$totalamount2		= isset($documentInfo['totalamount2']) ? urldecode($documentInfo['totalamount2']) : "0.00";
+			$totalamount2		= ($totalamount2 != 0) ? $totalamount2 : '';
+			$totalamount2		= str_replace('.','  ',$totalamount2);
+			$totalamount3		= isset($documentInfo['totalamount3']) ? urldecode($documentInfo['totalamount3']) : "0.00";
+			$totalamount3		= ($totalamount3 != 0) ? $totalamount3 : '';
+			$totalamount3		= str_replace('.','  ',$totalamount3);
+			$totalamount4		= isset($documentInfo['totalamount4']) ? urldecode($documentInfo['totalamount4']) : "0.00";
+			$totalamount4		= ($totalamount4 != 0) ? $totalamount4 : '';
+			$totalamount4		= str_replace('.','  ',$totalamount4);
+			$totalamount5		= isset($documentInfo['totalamount5']) ? urldecode($documentInfo['totalamount5']) : "0.00";
+			$totalamount5		= ($totalamount5 != 0) ? $totalamount5 : '';
+			$totalamount5		= str_replace('.','  ',$totalamount5);
+			$totalamount6		= isset($documentInfo['totalamount6']) ? urldecode($documentInfo['totalamount6']) : "0.00";
+			$totalamount6		= ($totalamount6 != 0) ? $totalamount6 : '';
+			$totalamount6		= str_replace('.','  ',$totalamount6);
+			$totalamount7		= isset($documentInfo['totalamount7']) ? urldecode($documentInfo['totalamount7']) : "0.00";
+			$totalamount7		= ($totalamount7 != 0) ? $totalamount7 : '';
+			$totalamount7		= str_replace('.','  ',$totalamount7);
+			$totalamount8		= isset($documentInfo['totalamount8']) ? urldecode($documentInfo['totalamount8']) : "0.00";
+			$totalamount8		= ($totalamount8 != 0) ? $totalamount8 : '';
+			$totalamount8		= str_replace('.','  ',$totalamount8);
+			$totalamount9		= isset($documentInfo['totalamount9']) ? urldecode($documentInfo['totalamount9']) : "0.00";
+			$totalamount9		= ($totalamount9 != 0) ? $totalamount9 : '';
+			$totalamount9		= str_replace('.','  ',$totalamount9);
+			$totalamount10		= isset($documentInfo['totalamount10']) ? urldecode($documentInfo['totalamount10']) : "0.00";
+			$totalamount10		= ($totalamount10 != 0) ? $totalamount10 : '';
+			$totalamount10		= str_replace('.','  ',$totalamount10);
+			$totalamount11		= isset($documentInfo['totalamount11']) ? urldecode($documentInfo['totalamount11']) : "0.00";
+			$totalamount11		= ($totalamount11 != 0) ? $totalamount11 : '';
+			$totalamount11		= str_replace('.','  ',$totalamount11);
+			$totalamount12		= isset($documentInfo['totalamount12']) ? urldecode($documentInfo['totalamount12']) : "0.00";
+			$totalamount12		= ($totalamount12 != 0) ? $totalamount12 : '';
+			$totalamount12		= str_replace('.','  ',$totalamount12);
 
 			$totalwithheld		= isset($documentInfo['totalwithheld']) ? urldecode($documentInfo['totalwithheld']) : "0.00";
 			$totalwithheld		= ($totalwithheld != '') ? $totalwithheld : '';
-			$firstremittance	= isset($documentInfo['firstremittance']) ? urldecode($documentInfo['firstremittance']) : "0.00";
-			$firstremittance	= ($firstremittance != 0) ? $firstremittance : '';
-			$secondremittance	= isset($documentInfo['secondremittance']) ? urldecode($documentInfo['secondremittance']) : "0.00";
-			$secondremittance	= ($secondremittance != 0) ? $secondremittance : '';
-			$previouslyfiled	= isset($documentInfo['previouslyfiled']) ? urldecode($documentInfo['previouslyfiled']) : "0.00";
-			$previouslyfiled	= ($previouslyfiled != 0) ? $previouslyfiled : '';
-			$overremittance		= isset($documentInfo['overremittance']) ? urldecode($documentInfo['overremittance']) : "0.00";
-			$overremittance		= ($overremittance != 0) ? $overremittance : '';
-			$totalremittance	= isset($documentInfo['totalremittance']) ? urldecode($documentInfo['totalremittance']) : "0.00";
-			$totalremittance	= ($totalremittance != '') ? $totalremittance : '';
+			$totalwithheld		= str_replace('.','  ',$totalwithheld);
+			$totalpenalties		= isset($documentInfo['totalpenalties']) ? urldecode($documentInfo['totalpenalties']) : "0.00";
+			$totalpenalties		= ($totalpenalties != '') ? $totalpenalties : '';
+			$totalpenalties		= str_replace('.','  ',$totalpenalties);
+			$total				= isset($documentInfo['total']) ? urldecode($documentInfo['total']) : "0.00";
+			$total				= ($total != '') ? $total : '';
+			$total				= str_replace('.','  ',$total);
 
-			$taxdue				= isset($documentInfo['taxdue']) ? urldecode($documentInfo['taxdue']) : "0.00";
-			$taxdue				= ($taxdue != '') ? $taxdue : '';
-			$surcharge			= isset($documentInfo['surcharge']) ? urldecode($documentInfo['surcharge']) : "0.00";
-			$surcharge			= ($surcharge != 0) ? $surcharge : '';
-			$interest			= isset($documentInfo['interest']) ? urldecode($documentInfo['interest']) : "0.00";
-			$interest			= ($interest != 0) ? $interest : '';
-			$compromise			= isset($documentInfo['compromise']) ? urldecode($documentInfo['compromise']) : "0.00";
-			$compromise			= ($compromise != 0) ? $compromise : '';
-			$penalties			= isset($documentInfo['penalties']) ? urldecode($documentInfo['penalties']) : "0.00";
-			$penalties			= ($penalties != 0) ? $penalties : '';
-			$amountdue			= isset($documentInfo['amountdue']) ? urldecode($documentInfo['amountdue']) : "0.00";
-			$amountdue			= ($amountdue != '') ? $amountdue : '';
-			$remittance			= isset($documentInfo['remittance']) ? urldecode($documentInfo['remittance']) : "0.00";
+		
 		}
 
 		$signatory_arr		= $this->signatory;
 		$businesstype		= $signatory_arr->businesstype;
+		$businessline		= $signatory_arr->businessline;
 		$signatory_name		= $signatory_arr->signatory_name;
 		/**	
 		 * For the Year
 		 */
-		$this->SetFont('Arial', 'B', '10');
-		$this->SetY(42.8);
-		$this->SetX(11.5);
+		$this->SetFont('Arial', 'B', '12');
+		$this->SetY(35.9);
+		$this->SetX(43.5);
 		$this->Cell(20, 5, $yearfilter, 0, 0, 'C');
 
 	
@@ -180,107 +255,87 @@ class print_bir_1604E extends fpdf {
 		 */
 		$this->SetFont('Arial', 'B', '12');
 		if($amendreturn == "yes"){
-			$this->SetX(107.7);
+			$this->SetX(99);
 			$this->Cell(5, 5, 'X', 0, 0, 'C');
 		}else{
-			$this->SetX(123.2);
-			$this->Cell(5, 5, 'X', 0, 0, 'C');
-		}
-
-		/**
-		 * Taxes Withheld
-		 */
-		$this->SetFont('Arial', 'B', '12');
-		if($anytaxwithheld == "yes"){
-			$this->SetX(143.3);
-			$this->Cell(5, 5, 'X', 0, 0, 'C');
-		}else{
-			$this->SetX(158.5);
+			$this->SetX(114);
 			$this->Cell(5, 5, 'X', 0, 0, 'C');
 		}
 
 		/**
 		 * Sheets Attached
 		 */
-		$this->SetFont('Arial', 'B', '11');
-		$this->SetX(184.5);
+		$this->SetFont('Arial', 'B', '13');
+		$this->SetX(187.5);
 		$this->Cell(10, 5, $attachments, 0, 0, 'C');
 
-		$this->SetY(54.5);
+		$this->SetY(45);
 
 		/**
 		 * Taxpayer Identification Number (TIN)
 		 */
+		$this->SetFont('Arial', 'B', '12');
 		
-		$this->SetX(80);
+		$this->SetX(14);
 		$this->Cell(20, 5, $tin1, 0, 0, 'C');
 
-		$this->SetX(100.5);
+		$this->SetX(32);
 		$this->Cell(20, 5, $tin2, 0, 0, 'C');
 
-		$this->SetX(120.5);
+		$this->SetX(49.5);
 		$this->Cell(20, 5, $tin3, 0, 0, 'C');
 
-		$this->SetX(140.5);
+		$this->SetX(68);
 		$this->Cell(20, 5, $tin4, 0, 0, 'C');
 
 		/**
 		 * RDO Code
 		 */
-		$this->SetX(194.5);
+		$this->SetX(109);
 		$this->Cell(15, 5, $rdo, 0, 0, 'R');
-
-		$this->SetY(64.5);
-
+	
+		$this->SetY(53.5);
 		/**
 		 * Agent's Name
 		 */
-		$this->SetFont('Arial', 'B', '12');
-		$this->SetX(6.4);
-		$array = str_split($agentname);
-		$this->cellSpacing($array);
-
-		/**
-		 * First Address Line
-		 */
-		$this->SetY(75);
-		$this->SetX(6.4);
-		$array = str_split($firstaddress);
-		$this->cellSpacing($array);
-
-		/**
-		 * Second Address Line
-		 */
-		$this->SetY(81.5);
-		$this->SetX(6.4);
-		$array = str_split($secondaddress);
-		$this->cellSpacing($array);
-
-		/**
-		 * ZIP Code
-		 */
-		$this->SetX(189);
-		$array = str_split($zipcode);
-		$this->cellSpacing($array);
+		$this->SetFont('Arial', 'B', '11');
+		$this->SetX(17);
+		$this->Cell(15, 5, $agentname, 0, 0, 'L');
 
 		/**
 		 * Contact number
 		 */
-		$this->SetY(87.3);
-		$this->SetX(37);
-		$array = str_split($contact);
-		$this->cellSpacing($array);
+		$this->SetX(170);
+		$this->Cell(15, 5, $contact, 0, 0, 'L');
+
+		$this->SetY(62);		
+		/**
+		 * First Address Line
+		 */
+		$this->SetFont('Arial', 'B', '9');
+		$this->SetX(17);
+		$this->Cell(15, 5, $firstaddress, 0, 0, 'L');
+
+		/**
+		 * ZIP Code
+		 */
+		$this->SetFont('Arial', 'B', '12');		
+		$this->SetTextColor(0,0,0);
+		$this->SetY(62);		
+		$this->SetX(178);
+		$this->Cell(15, 5, $zipcode, 0, 0, 'L');
+
 
 		/**
 		 * Category of Withholding Tax
 		 */
 		$this->SetFont('Arial', 'B', '11');
-		$this->SetY(87.4);
+		$this->SetY(67);
 		if($category == "private"){
-			$this->SetX(158);
+			$this->SetX(59);
 			$this->Cell(5, 5, 'X', 0, 0, 'C');
 		}else{
-			$this->SetX(183.21);
+			$this->SetX(78);			
 			$this->Cell(5, 5, 'X', 0, 0, 'C');
 		}
 
@@ -292,141 +347,70 @@ class print_bir_1604E extends fpdf {
 		$array = str_split($email);
 		$this->cellSpacing($array);
 
-		$line = 0;
-		for ($x=0; $x <=5 ; $x++){
+		$line = 1;
+		for ($x=1; $x <=12 ; $x++){
 			
 			/**
-			 * ATC Code
+			 * Date
 			 */
-			$this->SetY(110+$line);
-			$this->SetX(11.7);
-			$array = str_split(${'atc' . $x});
-			$this->cellSpacing($array);
+			$this->SetFont('Arial', 'B', '9');
+			$this->SetTextColor(0,0,0);
+			$this->SetY(88+$line);
+			$this->SetX(22.5);
+			$this->Cell(20, 4, ${'date' . $x}, 0, 0, 'C');
 
 			/**
 			 * Tax Base
 			 */
-			$this->cellAmount(${'taxbase' . $x});
-
-			/**
-			 * Tax Rates
-			 */
-			$this->SetX(112.5);
-			$this->Cell(25.5, 5, ${'taxrate' . $x}, 0, 0, 'R');
+			$this->SetX(42);
+			$this->Cell(43, 4, ${'bank' . $x}, 0, 0, 'C');
 
 			/**
 			 * Tax Withheld
 			 */
-			$this->cellAmount(${'taxwithheld' . $x},11);
+			$this->SetX(83.5);
+			$this->Cell(42, 4, ${'taxwithheld' . $x}, 0, 0, 'R');
 
-			$line += 6.5;
+			/**
+			 * Penalties
+			 */
+			$this->SetX(130.2);
+			$this->Cell(31, 4, ${'penalties' . $x}, 0, 0, 'R');
+
+			/**
+			 * Total Amount Remitted
+			 */
+			$this->SetX(166);
+			$this->Cell(40, 4, ${'totalamount' . $x}, 0, 0, 'R');
+
+			$line += 3.9;
 		}
 
 		/**	
 		 * Total Taxes Withheld
 		 */
-		$this->SetY(148.5);
-		$this->SetX(138);
-		$this->cellAmount($totalwithheld,11);
-
-		/**	
-		 * Less : Remittances Made > 1st Month
-		 */
-		$this->SetY(155);
-		$this->SetX(138);
-		$this->cellAmount($firstremittance,11);
-		
-		/**	
-		 * Less : Remittances Made > 2nd Month
-		 */
-		$this->SetY(161.5);
-		$this->SetX(138);
-		$this->cellAmount($secondremittance,11);
-
-		/**	
-		 * Tax Remitted in Return Previously Filed
-		 */
-		$this->SetY(168);
-		$this->SetX(138);
-		$this->cellAmount($previouslyfiled,11);
-
-		/**	
-		 * Over-remittance from previous quarter
-		 */
-		$this->SetY(174.5);
-		$this->SetX(138);
-		$this->cellAmount($overremittance,11);
-
-		/**	
-		 * Total Remittances
-		 */
-		$this->SetY(181);
-		$this->SetX(138);
-		$this->cellAmount($totalremittance,11);
-
-		/**	
-		 * Tax Still Due
-		 */
-		$this->SetY(187.5);
-		$this->SetX(138);
-		$this->cellAmount($taxdue,11);
-
-		/**	
-		 * Surcharge
-		 */
-		$this->SetY(194);
-		$this->SetX(138);
-		$this->cellAmount($surcharge,11);
-
-		/**	
-		 * Interest
-		 */
-		$this->SetY(200.5);
-		$this->SetX(138);
-		$this->cellAmount($interest,11);
-
-		/**	
-		 * Compromise
-		 */
-		$this->SetY(207);
-		$this->SetX(138);
-		$this->cellAmount($compromise,11);
-
+		$this->SetY(138.5);
+		$this->SetX(83.5);
+		$this->Cell(42, 4, $totalwithheld, 0, 0, 'R');
 
 		/**	
 		 * Total Penalties
 		 */
-		$this->SetY(213.5);
-		$this->SetX(138);
-		$this->cellAmount($penalties,11);
+		$this->SetY(139);
+		$this->SetX(119.4);
+		$this->Cell(42, 4, $totalpenalties, 0, 0, 'R');
 
 		/**	
-		 * Total Amount Due
+		 * Total Amount
 		 */
-		$this->SetY(220);
-		$this->SetX(138);
-		$this->cellAmount($amountdue,11);
-
-		/**
-		 * Over-Remittance options
-		 */
-		$this->SetFont('Arial', 'B', '11');
-		$this->SetY(225.7);
-		if($remittance == "refunded"){
-			$this->SetX(67.4);
-			$this->Cell(5, 5, 'X', 0, 0, 'C');
-		}else if($remittance == "taxcredit"){
-			$this->SetX(94.2);
-			$this->Cell(5, 5, 'X', 0, 0, 'C');
-		}else if($remittance == "carriedover"){
-			$this->SetX(145.6);
-			$this->Cell(5, 5, 'X', 0, 0, 'C');
-		}
+		$this->SetY(139);
+		$this->SetX(164);
+		$this->Cell(42, 4, $total, 0, 0, 'R');
 
 		/**
 		 * Signatory
 		 */
-		$this->SetY(245.5);
+		$this->SetY(285);
 		$this->SetX(7);
 		if(strtolower($businesstype) == 'individual'){
 			$this->Cell(100.5, 5, $signatory_name, 0, 0, 'C');

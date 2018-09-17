@@ -421,18 +421,24 @@
 		}
 		ajax_call = $.post("<?=MODULE_URL?>ajax/load_list/<?=$bir_form?>", ajax, function(data) {
 			$('#birForm #tax_container').html(data.tax_table);
-
+				computeTotal();
+				computePenalties();
+				computeTotalTax();
 			$('.penalties').on('change', function(e){
 				var penalties 	= 	$(this).val();
 				var id 			= 	$(this).attr("id");
 				var row 		=	id.replace(/[a-z]/g, '');
 				
 				var wtax 		= $('#taxwithheld'+row).val();
+				var w 			=	wtax.replace(/,/g, '');
 				var penalty 	= $('#penalties'+row).val();
+				var p 			=	penalty.replace(/,/g, '');
 				
-				var totalamount			= parseFloat(wtax) + parseFloat(penalty);
+				var totalamount			= parseFloat(w) + parseFloat(p);
 				$('#totalamount'+row).val(addComma(totalamount));
 				computeTotal();
+				computePenalties();
+				computeTotalTax();
 			});
 		});
 	}
@@ -442,10 +448,32 @@
 		var sum = 0;
 		$('.totalamount').each(function() {
 			var value = $(this).val();
-			sum += +value;
+			var v = value.replace(/,/g, '');
+			sum += +v;
 			$('#total').val(addComma(sum));
 		});
 	}
+
+	function computeTotalTax() {
+		var sum = 0;
+		$('.tax').each(function() {
+			var value = $(this).val();
+			var v = value.replace(/,/g, '');
+			sum += +v;
+			$('#totalwithheld').val(addComma(sum));
+		});
+	}
+
+	function computePenalties() {
+		var sum = 0;
+		$('.penalties').each(function() {
+			var value = $(this).val();
+			var v = value.replace(/,/g, '');
+			sum += +v;
+			$('#totalpenalties').val(addComma(sum));
+		});
+	}
+
 	function addCommas(nStr)
 	{
 		nStr += '';
