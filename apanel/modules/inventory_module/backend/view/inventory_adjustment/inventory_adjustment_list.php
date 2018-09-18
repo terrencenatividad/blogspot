@@ -500,10 +500,7 @@
 	getList();
 
 	function displayBtn(){
-		if (ajax_call != '') {
-			ajax_call.abort();
-		}
-		ajax_call = $.post('<?=MODULE_URL?>ajax/view_import_button', ajax, function(data) {
+		$.post('<?=MODULE_URL?>ajax/view_import_button', ajax, function(data) {
 			if(data.display == 0){
 				$('#import').addClass('hidden');
 			}
