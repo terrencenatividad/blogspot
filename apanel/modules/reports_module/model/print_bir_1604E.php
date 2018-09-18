@@ -240,6 +240,7 @@ class print_bir_1604E extends fpdf {
 		$businesstype		= $signatory_arr->businesstype;
 		$businessline		= $signatory_arr->businessline;
 		$signatory_name		= $signatory_arr->signatory_name;
+		$signatory_role		= $signatory_arr->signatory_role;
 		/**	
 		 * For the Year
 		 */
@@ -419,6 +420,9 @@ class print_bir_1604E extends fpdf {
 			$this->Cell(100.5, 5,'', 0, 0, 'C');
 			$this->Cell(102, 5, $signatory_name, 0, 0, 'C');
 		}
+		$this->SetX(8);
+		$this->Cell(100.5, 5,'', 0, 0, 'C');
+		$this->Cell(50, 5, $signatory_role, 1, 0, 'C');
 
 		/**
 		 * Second Page
