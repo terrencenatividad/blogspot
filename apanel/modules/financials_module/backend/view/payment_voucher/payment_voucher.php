@@ -1476,17 +1476,7 @@ function displaystoreddescription(){
 	});
 }
 
-function storechequetobank(){
-	cheque 	=	[];
-	$('#chequeTable tbody tr').each(function() {
-		var cheque_account 	= $(this).find('.cheque_account').val();
-		var chequenumber 	= $(this).find('.chequenumber').val();
 
-		if(chequenumber!="" ){
-			cheque['bank-'+cheque_account] = chequenumber;
-		}
-	});
-}
 
 var currentcheck = {}; 
 var newnext = [];
@@ -1495,6 +1485,23 @@ var book_ids = {};
 var book_last = {};
 var book_end = {};
 var curr_bank_seq = [];
+
+function storechequetobank(){
+	var new_cheque 	=	[];
+	$('#chequeTable tbody tr').each(function() {
+		var val 	= $(this).find('.cheque_account').val();
+		var check_num 	= $(this).find('.chequenumber').val();
+		new_cheque.push(val);
+		if(check_num!="" ){
+			curr_bank_seq[val] = check_num;
+		}
+	});
+	curr_bank_seq.forEach(function(val, index) {
+		if (new_cheque.indexOf(index.toString()) < 0) {
+			curr_bank_seq[index] = 0;
+		}
+	});
+}
 
 $('#chequeTable .cheque_account').on('change', function()  {
 	storedescriptionstoarray();
@@ -3535,6 +3542,7 @@ $(document).ready(function() {
 		var rowCount 	= table.rows.length - 2;
 		var valid		= 1;
 		var rowindex	= table.rows[row];
+		var rowlength = $("#chequeTable tbody tr").length;
 
 		var account 	= $('#chequeaccount\\['+row+'\\]').val();
 		var acctamt 	= $('#chequeamount\\['+row+'\\]').val();
@@ -3556,6 +3564,12 @@ $(document).ready(function() {
 				addAmounts();
 				addAmountAll('debit');
 				addAmountAll('credit');
+
+
+				if (rowlength == row){
+					table.deleteRow(row);
+				}
+
 			} else {	
 				document.getElementById('chequeaccount['+row+']').value 	= '';
 
@@ -3589,6 +3603,12 @@ $(document).ready(function() {
 				addAmounts();
 				addAmountAll('debit');
 				addAmountAll('credit');
+
+
+				if (rowlength == row){
+					table.deleteRow(row);
+				}
+				
 			} else {
 				document.getElementById('chequeaccount['+row+']').value 	= '';
 				
@@ -3610,6 +3630,7 @@ $(document).ready(function() {
 			}
 		}
 		resetIds();
+		storechequetobank();
 		$('#deleteChequeModal').modal('hide');
 	});
 
