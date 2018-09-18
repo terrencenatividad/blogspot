@@ -244,14 +244,16 @@ class credit_memo_model extends wc_model {
 	}
 
 	public function getChartOfAccountList() {
-		$result = $this->db->setTable('chartaccount')
-							->setFields("id ind, CONCAT(segment5, ' - ', accountname) val")
-							->setWhere("stat = 'active'")
+		$result = $this->db->setTable('chartaccount coa')
+							->setFields("coa.id ind, CONCAT(coa.segment5, ' - ', coa.accountname) val")
+							->leftJoin('chartaccount coa2 ON coa2.parentaccountcode = coa.id')
+							->setWhere("coa.accounttype != '' AND coa.stat = 'active'")
+							->setOrderBy('coa.segment5, coa2.segment5')
 							->runSelect()
 							->getResult();
 		return $result;
 	}
-
+	
 	public function getEditChartOfAccountList($data,$coa_array) {
 		$condition = ($coa_array) ? " OR id IN ('".implode("','",$coa_array)."')" : "";		
 		$result = $this->db->setTable('chartaccount')
