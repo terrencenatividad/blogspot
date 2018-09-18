@@ -1007,8 +1007,8 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
-											->setId('others2O')
-											->setName('others2O')
+											->setId('others21O')
+											->setName('others21O')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
 											->setAttribute(
@@ -1051,6 +1051,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('total22')
 											->setName('total22')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -1080,7 +1081,7 @@
 											echo $ui->formField('text')
 											->setName('totalavailableinputtax23A')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1101,7 +1102,7 @@
 											echo $ui->formField('text')
 											->setName('totalavailableinputtax23B')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1122,7 +1123,7 @@
 											echo $ui->formField('text')
 											->setName('taxallocable23C')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1143,7 +1144,7 @@
 											echo $ui->formField('text')
 											->setName('vatrefund23D')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1164,7 +1165,7 @@
 											echo $ui->formField('text')
 											->setName('other23E')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1185,7 +1186,7 @@
 											echo $ui->formField('text')
 											->setName('total23F')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1206,7 +1207,7 @@
 											echo $ui->formField('text')
 											->setName('totalallowableinputtax24')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1227,7 +1228,7 @@
 											echo $ui->formField('text')
 											->setName('netpayable25')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1254,7 +1255,7 @@
 											echo $ui->formField('text')
 											->setName('monthlyvat26A')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1275,7 +1276,7 @@
 											echo $ui->formField('text')
 											->setName('creditablevat26B')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1296,7 +1297,7 @@
 											echo $ui->formField('text')
 											->setName('sugarandflour26C')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1317,7 +1318,7 @@
 											echo $ui->formField('text')
 											->setName('inputtaxsale26D')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1338,7 +1339,7 @@
 											echo $ui->formField('text')
 											->setName('vatpaid26E')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1359,7 +1360,7 @@
 											echo $ui->formField('text')
 											->setName('advpaymentsmade26F')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1380,7 +1381,7 @@
 											echo $ui->formField('text')
 											->setName('otherstaxcredits26G')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1401,7 +1402,7 @@
 											echo $ui->formField('text')
 											->setName('totaltaxcredits26H')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1422,7 +1423,7 @@
 											echo $ui->formField('text')
 											->setName('taxstillpayable27')
 											->setClass('text-right')
-											->setPlaceholder('0.00')
+											->setValue('0.00')
 											->setAttribute(
 												array(
 													'readOnly' => 'readOnly'
@@ -1717,10 +1718,9 @@
 		$('#totalsales19B').val('0.00');
 		$('#others21N').val('0.00');
 		$('#others21O').val('0.00');
-		$('#others21N').val('0.00');
-		$('#others21O').val('0.00');
 		makeZero();
 		allowableInputTax20F();
+		totalpurchases21P();
 		var period = 0;
 		$('.tableList tbody tr td .quarter').each(function() {
 			if($(this).is(':checked')) {
@@ -1811,10 +1811,10 @@
 					var taxamount = data.sum_taxamount;
 					if(sum == null || taxamount == null) {
 						$('#importation21G').val('0.00');
-						$('#importation21F').val('0.00');
+						$('#importation21H').val('0.00');
 					} else {
 						$('#importation21G').val(sum);
-						$('#importation21F').val(sum);
+						$('#importation21H').val(sum);
 					}
 				});
 
@@ -1859,6 +1859,7 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 	var period = 0;
 	makeZero();
 	allowableInputTax20F();
+	totalpurchases21P();
 	if($(this).is(':checked')) {
 		period = $(this).val();
 		$.post("<?=MODULE_URL?>ajax/getPrivate", { period : period }, function(data) {
@@ -1947,10 +1948,10 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
 				$('#importation21G').val('0.00');
-				$('#importation21F').val('0.00');
+				$('#importation21H').val('0.00');
 			} else {
 				$('#importation21G').val(sum);
-				$('#importation21F').val(sum);
+				$('#importation21H').val(sum);
 			}
 		});
 
@@ -2014,7 +2015,7 @@ function allowableInputTax20F() {
 	$('#allowableInputTax20F').val(allowableInputTax20F.toFixed(2));
 }
 
-function allowableInputTax20F() {
+function totalpurchases21P() {
 	var cgnotexceed21A = Math.round($('#cgnotexceed21A').val());
 	var cgnotexceed21B = Math.round($('#cgnotexceed21B').val());
 	var cgexceed21C = Math.round($('#cgexceed21C').val());
@@ -2022,15 +2023,17 @@ function allowableInputTax20F() {
 	var dompurchase21E = Math.round($('#dompurchase21E').val());
 	var dompurchase21F = Math.round($('#dompurchase21F').val());
 	var importation21G = Math.round($('#importation21G').val());
-	var importation21F = Math.round($('#importation21F').val());
+	var importation21H = Math.round($('#importation21H').val());
 	var dompurchaseserv21I = Math.round($('#dompurchaseserv21I').val());
 	var dompurchaseserv21J = Math.round($('#dompurchaseserv21J').val());
 	var servicerenderedK = Math.round($('#servicerenderedK').val());
 	var servicerenderedL = Math.round($('#servicerenderedL').val());
 	var purchasenotqualified21M = Math.round($('#purchasenotqualified21M').val());
-	var totalpurchases21P = cgnotexceed21A + cgnotexceed21B + cgexceed21C + cgexceed21D + dompurchase21E + dompurchase21F + importation21G + importation21F + dompurchaseserv21I + dompurchaseserv21J + servicerenderedK + servicerenderedL + purchasenotqualified21M;
+	var others21O = Math.round($('#others21O').val());
+	var totalpurchases21P = cgnotexceed21A + cgnotexceed21B + cgexceed21C + cgexceed21D + dompurchase21E + dompurchase21F + importation21G + importation21H + dompurchaseserv21I + dompurchaseserv21J + servicerenderedK + servicerenderedL + purchasenotqualified21M;
 	$('#totalpurchases21P').val(totalpurchases21P.toFixed(2));
-
+	var total22  = totalpurchases21P + cgnotexceed21B + cgexceed21D + dompurchase21F + importation21H + dompurchaseserv21J + servicerenderedL + others21O;
+	$('#total22').val(total22.toFixed(2));
 }
 
 function makeZero() {
