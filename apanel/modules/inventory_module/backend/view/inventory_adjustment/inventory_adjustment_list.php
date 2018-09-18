@@ -543,8 +543,6 @@
 						$("#adjustForm #btnSave").html('Save');
 						
 						if( data.msg == 'success' ){
-							displayBtn();
-							hide_error();
 							$("#adjModal").modal('hide');
 						}
 					});
@@ -743,6 +741,8 @@
 
 	$(document).on('hidden.bs.modal','#adjModal', function () {
 		getList();
+		displayBtn();
+		hide_error();
 	});
 	
 	function checkSecond(sec) {
