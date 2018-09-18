@@ -422,7 +422,7 @@ class print_bir_1604E extends fpdf {
 		}
 		$this->SetX(8);
 		$this->Cell(100.5, 5,'', 0, 0, 'C');
-		$this->Cell(50, 5, $signatory_role, 1, 0, 'C');
+		$this->Cell(50, 5, $signatory_role, 0, 0, 'C');
 
 		/**
 		 * Second Page
