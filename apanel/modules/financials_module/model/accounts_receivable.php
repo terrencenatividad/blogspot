@@ -403,17 +403,17 @@ class accounts_receivable extends wc_model
 		return $result;
 	}
 
-	public function getValue($table, $cols = array(), $cond = "", $orderby = "", $bool = "")
+	public function getValue($table, $cols = array(), $cond = "", $orderby = "", $bool = "", $groupby = "", $join="")
 	{
 		$result = $this->db->setTable($table)
 					->setFields($cols)
 					->setWhere($cond)
+					->leftJoin($join)
 					->setOrderBy($orderby)
+					->setGroupBy($groupby)
 					->runSelect($bool)
 					->getResult();
-
-		// var_dump($this->db->buildSelect());
-
+		// echo $this->db->getQuery();
 		return $result;
 	}
 
