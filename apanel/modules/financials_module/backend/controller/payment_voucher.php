@@ -407,6 +407,7 @@ class controller extends wc_controller
 		$data['discount_code'] 		= $discount_code;
 
 		$data["listofcheques"]	 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array();
+		$data["show_cheques"] 	= isset($data['rollArray'][$sid]) ? '' : 'hidden';
 		
 		$account_array	= array();
 		foreach ($data['listofcheques'] as $index => $dtl){
@@ -471,11 +472,11 @@ class controller extends wc_controller
 
 			if(!empty($data_validate['h_save']))
 			{
-				$this->url->redirect(BASE_URL . 'financials/payment_voucher');
+				$this->url->redirect(BASE_URL . 'financials/payment_voucher/view/'. $sid);
 			}
 			else if(!empty($data_validate['h_save_preview']))
 			{
-				$this->url->redirect(BASE_URL . 'financials/payment_voucher/view/' . $sid);
+				$this->url->redirect(BASE_URL . 'financials/payment_voucher');
 			}
 			else
 			{

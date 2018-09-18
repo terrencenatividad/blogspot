@@ -152,15 +152,15 @@ class controller extends wc_controller
 			if(empty($errmsg))
 			{
 				// For Admin Logs
-				// $this->logs->saveActivity("Add New Disbursement Voucher [$generatedvoucher]");
+				$this->logs->saveActivity("Add New Disbursement Voucher [$generatedvoucher]");
 
-				// if(!empty($data_validate['h_save']) && $data_validate['h_save'] == 'save_preview'){
-				// 	$this->url->redirect(BASE_URL . 'financials/disbursement/view/' . $generatedvoucher);
-				// }else if(!empty($data_validate['h_save']) && $data_validate['h_save'] == 'save_new'){
-				// 	$this->url->redirect(BASE_URL . 'financials/disbursement/create');
-				// }else{
-				// 	$this->url->redirect(BASE_URL . 'financials/disbursement/');
-				// }
+				if(!empty($data_validate['h_save']) && $data_validate['h_save'] == 'save_preview'){
+					$this->url->redirect(BASE_URL . 'financials/disbursement/view/' . $generatedvoucher);
+				}else if(!empty($data_validate['h_save']) && $data_validate['h_save'] == 'save_new'){
+					$this->url->redirect(BASE_URL . 'financials/disbursement/create');
+				}else{
+					$this->url->redirect(BASE_URL . 'financials/disbursement/');
+				}
 			}else{
 				$data["errmsg"] = $errmsg;
 			}
