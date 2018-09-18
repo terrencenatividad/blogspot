@@ -1679,10 +1679,12 @@ class payment_voucher_model extends wc_model
 				$data['stat'] 		=  'closed'; 
 				$data['nextchequeno'] = $cno + 1;
 				$con = "AND $cno > lastchequeno";
-			} else if($last = $cno){
+			} 
+			if($last == $cno){
 				$data['stat'] 		=  'closed'; 
 				$con = "AND $cno = lastchequeno";
-			} else if ($cno < $last){
+			} 
+			if($cno < $last){
 				$data['stat'] 		=  'open'; 
 				$data['nextchequeno'] = $cno + 1;
 				$con = "AND $cno < lastchequeno";
