@@ -1107,17 +1107,11 @@
 			if ($('#entriesTable tbody tr.clone select').data('select2')) {
 				$('#entriesTable tbody tr.clone select').select2('destroy');
 			}
-			// storechequetobank();
 
 			var cheque_element = $(this);
 			var val = $(this).val();
 			$('#current_bank').val(val);
 			var num = curr_bank_seq[val] || 0;
-			// console.log(num);
-			// console.log(curr_bank_seq);
-			// var num = storechequetobank() || 0;
-			// console.log(num);
-
 			
 			$.post("<?=BASE_URL?>financials/disbursement/ajax/getNumbers" , { bank: val, curr_seq: num } ).done(function(data){
 				if (data.nums != false){
