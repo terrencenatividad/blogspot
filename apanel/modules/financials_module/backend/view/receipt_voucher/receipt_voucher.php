@@ -2344,7 +2344,7 @@ function selectPayable(id,toggle){
 	var paymentamount_val = $('#payable_list_container #paymentamount'+id).attr('value');
 	var newbal  		= $('#payable_list_container #orig_bal'+id).attr('value');
 	var available_credit= $('#paymentForm #available_credits').val();	
-	var overpayment 	= $('#payable_list_container #overpayment'+id);
+	var overpayment 	= $('#payable_list_container #overpayment'+id).val();
 
 	if(check.prop('checked' )){
 		if(toggle == 1){
