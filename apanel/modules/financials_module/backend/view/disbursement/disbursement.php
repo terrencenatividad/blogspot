@@ -1072,17 +1072,7 @@
 		}
 
 		// Check Array //
-		function storechequetobank(){
-			cheque 	=	[];
-			$('#chequeTable tbody tr').each(function() {
-				var cheque_account 	= $(this).find('.cheque_account').val();
-				var chequenumber 	= $(this).find('.chequenumber').val();
-
-				if(chequenumber!="" ){
-					cheque['bank-'+cheque_account] = chequenumber;
-				}
-			});
-		}
+		
 
 		var currentcheck = {}; 
 		var newnext = [];
@@ -1091,19 +1081,47 @@
 		var book_last = {};
 		var book_end = {};
 		var curr_bank_seq = [];
+		var curr_bank = [];
+
+		function storechequetobank(){
+			var new_cheque 	=	[];
+			$('#chequeTable tbody tr').each(function() {
+				var val 	= $(this).find('.cheque_account').val();
+				var check_num 	= $(this).find('.chequenumber').val();
+				new_cheque.push(val);
+				if(check_num!="" ){
+					curr_bank_seq[val] = check_num;
+				}
+			});
+			curr_bank_seq.forEach(function(val, index) {
+				if (new_cheque.indexOf(index.toString()) < 0) {
+					curr_bank_seq[index] = 0;
+				}
+			});
+		}
+		// console.log(new_cheque);
 		
 		$('#chequeTable .cheque_account').on('change', function()  {
 			storedescriptionstoarray();
+			storechequetobank();
 			if ($('#entriesTable tbody tr.clone select').data('select2')) {
 				$('#entriesTable tbody tr.clone select').select2('destroy');
 			}
+			// storechequetobank();
+
 			var cheque_element = $(this);
 			var val = $(this).val();
 			$('#current_bank').val(val);
 			var num = curr_bank_seq[val] || 0;
+			// console.log(num);
+			// console.log(curr_bank_seq);
+			// var num = storechequetobank() || 0;
+			// console.log(num);
 
+			
 			$.post("<?=BASE_URL?>financials/disbursement/ajax/getNumbers" , { bank: val, curr_seq: num } ).done(function(data){
 				if (data.nums != false){
+				// storechequetobank();
 				curr_bank_seq[val] = data.nums;
 				var row = $("#chequeTable tbody tr").length;
 				cheque_element.closest('tr').find('.chequenumber').val(data.nums);
@@ -2328,7 +2346,6 @@
 			var count 	=	0;
 			$('#entriesTable tbody tr select.accountcode').each(function() {
 				var accountcode = $(this).val();
-				console.log(" ACCOUNTS = "+accountcode);
 				if(accountcode != "" && accountcode != undefined){
 					count++;
 				} 
@@ -2406,14 +2423,13 @@
 			var rowCount 	= table.rows.length - 2;
 			var valid		= 1;
 			var rowindex	= table.rows[row];
+			var rowlength = $("#chequeTable tbody tr").length;
 
 			var account 	= $('#chequeaccount\\['+row+'\\]').val();
 			var acctamt 	= $('#chequeamount\\['+row+'\\]').val();
 
 			if($('#chequeaccount\\['+row+'\\]').val() != '') {
-				// console.log(checker);
 				if(rowCount > 1) {
-					// table.deleteRow(row);
 					$('#chequeaccount\\['+row+'\\]').closest('tr').find('.glyphicon-trash').replaceWith("<span class='glyphicon glyphicon-ban-circle disabled'></span>")
 					$('#chequeaccount\\['+row+'\\]').closest('tr').find('.not_cancelled').val('yes');
 					$('#chequeaccount\\['+row+'\\]').closest('tr').find('.delete').prop('disabled',true);
@@ -2425,6 +2441,12 @@
 					addAmounts();
 					addAmountAll('debit');
 					addAmountAll('credit');
+
+					if (rowlength == row){
+						table.deleteRow(row);
+					}
+
+
 				} else {	
 					document.getElementById('chequeaccount['+row+']').value 	= '';
 
@@ -2445,6 +2467,7 @@
 					addAmounts();
 					addAmountAll('debit');
 					addAmountAll('credit');
+					
 				}
 			} else {
 				if(rowCount > 1) {
@@ -2459,6 +2482,11 @@
 					addAmounts();
 					addAmountAll('debit');
 					addAmountAll('credit');
+
+					if (rowlength == row){
+						table.deleteRow(row);
+					}
+
 				} else {
 					document.getElementById('chequeaccount['+row+']').value 	= '';
 					
@@ -2481,6 +2509,7 @@
 				}
 			}
 			resetIds();
+			storechequetobank();
 			$('#deleteChequeModal').modal('hide');
 		});
 		/**DELETE RECEIVED PAYMENT : START**/
