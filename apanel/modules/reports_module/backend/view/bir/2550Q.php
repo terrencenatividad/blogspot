@@ -748,6 +748,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('cgnotexceed21A')
 											->setName('cgnotexceed21A')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -762,6 +763,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('cgnotexceed21B')
 											->setName('cgnotexceed21B')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -783,6 +785,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('cgexceed21C')
 											->setName('cgexceed21C')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -797,6 +800,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('cgexceed21D')
 											->setName('cgexceed21D')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -818,6 +822,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('dompurchase21E')
 											->setName('dompurchase21E')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -832,6 +837,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('dompurchase21F')
 											->setName('dompurchase21F')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -853,6 +859,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('importation21G')
 											->setName('importation21G')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -867,6 +874,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('importation21H')
 											->setName('importation21H')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -888,6 +896,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('dompurchaseserv21I')
 											->setName('dompurchaseserv21I')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -902,6 +911,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('dompurchaseserv21J')
 											->setName('dompurchaseserv21J')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -923,6 +933,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('servicerenderedK')
 											->setName('servicerenderedK')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -937,6 +948,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('servicerenderedL')
 											->setName('servicerenderedL')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -958,6 +970,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('purchasenotqualified21M')
 											->setName('purchasenotqualified21M')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -979,6 +992,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('others21N')
 											->setName('others21N')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -993,6 +1007,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('others2O')
 											->setName('others2O')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -1014,6 +1029,7 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('totalpurchases21P')
 											->setName('totalpurchases21P')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
@@ -1435,7 +1451,7 @@
 											->setClass('text-right')
 											->setId('surcharge')
 											->setName('surcharge')
-											->setMaxLength(5)
+											->setMaxLength(15)
 											->draw(true);
 											?>
 										</div>
@@ -1445,7 +1461,7 @@
 											->setSplit('', 'col-md-12')
 											->setPlaceholder('0.00')
 											->setClass('text-right')
-											->setMaxLength(10)
+											->setMaxLength(15)
 											->setId('interest')
 											->setName('interest')
 											->draw(true);
@@ -1457,7 +1473,7 @@
 											->setSplit('', 'col-md-12')
 											->setPlaceholder('0.00')
 											->setClass('text-right')
-											->setMaxLength(10)
+											->setMaxLength(15)
 											->setId('compromise')
 											->setName('compromise')
 											->draw(true);
@@ -1699,7 +1715,12 @@
 		$('#vat_exempt').val('0.00');
 		$('#totalsales19A').val('0.00');
 		$('#totalsales19B').val('0.00');
+		$('#others21N').val('0.00');
+		$('#others21O').val('0.00');
+		$('#others21N').val('0.00');
+		$('#others21O').val('0.00');
 		makeZero();
+		allowableInputTax20F();
 		var period = 0;
 		$('.tableList tbody tr td .quarter').each(function() {
 			if($(this).is(':checked')) {
@@ -1729,7 +1750,17 @@
 					}
 				});
 
-				$.post("<?=MODULE_URL?>ajax/getGov", { period : period }, function(data) {
+				$.post("<?=MODULE_URL?>ajax/getZero", { period : period }, function(data) {
+					var sum = data.sum_amount;
+					var taxamount = data.sum_taxamount;
+					if(sum == null || taxamount == null) {
+						$('#vat_exempt').val('0.00');
+					} else {
+						$('#vat_exempt').val(sum);
+					}
+				});
+
+				$.post("<?=MODULE_URL?>ajax/getExempt", { period : period }, function(data) {
 					var sum = data.sum_amount;
 					var taxamount = data.sum_taxamount;
 					if(sum == null || taxamount == null) {
@@ -1739,86 +1770,270 @@
 					}
 				});
 
-				$.post("<?=MODULE_URL?>ajax/getGov", { period : period }, function(data) {
+				$.post("<?=MODULE_URL?>ajax/getNotPurchasesExceeded", { period : period }, function(data) {
 					var sum = data.sum_amount;
 					var taxamount = data.sum_taxamount;
 					if(sum == null || taxamount == null) {
-						$('#vat_exempt').val('0.00');
+						$('#cgnotexceed21A').val('0.00');
+						$('#cgnotexceed21B').val('0.00');
 					} else {
-						$('#vat_exempt').val(sum);
+						$('#cgnotexceed21A').val(sum);
+						$('#cgnotexceed21B').val(sum);
+					}
+				});
+
+				$.post("<?=MODULE_URL?>ajax/getPurchasesExceeded", { period : period }, function(data) {
+					var sum = data.sum_amount;
+					var taxamount = data.sum_taxamount;
+					if(sum == null || taxamount == null) {
+						$('#cgexceed21C').val('0.00');
+						$('#cgexceed21D').val('0.00');
+					} else {
+						$('#cgexceed21C').val(sum);
+						$('#cgexceed21D').val(sum);
+					}
+				});
+
+				$.post("<?=MODULE_URL?>ajax/getPurchaseGoods", { period : period }, function(data) {
+					var sum = data.sum_amount;
+					var taxamount = data.sum_taxamount;
+					if(sum == null || taxamount == null) {
+						$('#dompurchase21E').val('0.00');
+						$('#dompurchase21F').val('0.00');
+					} else {
+						$('#dompurchase21E').val(sum);
+						$('#dompurchase21F').val(sum);
+					}
+				});
+
+				$.post("<?=MODULE_URL?>ajax/getPurchaseImport", { period : period }, function(data) {
+					var sum = data.sum_amount;
+					var taxamount = data.sum_taxamount;
+					if(sum == null || taxamount == null) {
+						$('#importation21G').val('0.00');
+						$('#importation21F').val('0.00');
+					} else {
+						$('#importation21G').val(sum);
+						$('#importation21F').val(sum);
+					}
+				});
+
+				$.post("<?=MODULE_URL?>ajax/getPurchaseServices", { period : period }, function(data) {
+					var sum = data.sum_amount;
+					var taxamount = data.sum_taxamount;
+					if(sum == null || taxamount == null) {
+						$('#dompurchaseserv21I').val('0.00');
+						$('#dompurchaseserv21J').val('0.00');
+					} else {
+						$('#dompurchaseserv21I').val(sum);
+						$('#dompurchaseserv21J').val(sum);
+					}
+				});
+
+				$.post("<?=MODULE_URL?>ajax/getPurchaseNonResident", { period : period }, function(data) {
+					var sum = data.sum_amount;
+					var taxamount = data.sum_taxamount;
+					if(sum == null || taxamount == null) {
+						$('#servicerenderedK').val('0.00');
+						$('#servicerenderedL').val('0.00');
+					} else {
+						$('#servicerenderedK').val(sum);
+						$('#servicerenderedL').val(sum);
+					}
+				});
+
+				$.post("<?=MODULE_URL?>ajax/getPurchaseNotTax", { period : period }, function(data) {
+					var sum = data.sum_amount;
+					var taxamount = data.sum_taxamount;
+					if(sum == null || taxamount == null) {
+						$('#purchasenotqualified21M').val('0.00');
+					} else {
+						$('#purchasenotqualified21M').val(sum);
 					}
 				});
 			}
 		});
-	});
+});
 
-	$('.tableList').on('ifToggled', '.quarter', function() {
-		var period = 0;
-		makeZero();
-		if($(this).is(':checked')) {
-			period = $(this).val();
-			$.post("<?=MODULE_URL?>ajax/getPrivate", { period : period }, function(data) {
-				var sum = data.sum_amount;
-				var taxamount = data.sum_taxamount;
-				if(sum == null || taxamount == null) {
-					$('#vat_privateA').val('0.00');
-					$('#vat_privateB').val('0.00');
-				} else {
-					$('#vat_privateA').val(sum);
-					$('#vat_privateB').val(taxamount);
-				}
-				sumSales();
-			});
+$('.tableList').on('ifToggled', '.quarter', function() {
+	var period = 0;
+	makeZero();
+	allowableInputTax20F();
+	if($(this).is(':checked')) {
+		period = $(this).val();
+		$.post("<?=MODULE_URL?>ajax/getPrivate", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#vat_privateA').val('0.00');
+				$('#vat_privateB').val('0.00');
+			} else {
+				$('#vat_privateA').val(sum);
+				$('#vat_privateB').val(taxamount);
+			}
+			sumSales();
+		});
 
-			$.post("<?=MODULE_URL?>ajax/getGov", { period : period }, function(data) {
-				var sum = data.sum_amount;
-				var taxamount = data.sum_taxamount;
-				if(sum == null || taxamount == null) {
-					$('#vat_govA').val('0.00');
-					$('#vat_govB').val('0.00');
-				} else {
-					$('#vat_govA').val(sum);
-					$('#vat_govB').val(taxamount);
-				}
-			});
+		$.post("<?=MODULE_URL?>ajax/getGov", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#vat_govA').val('0.00');
+				$('#vat_govB').val('0.00');
+			} else {
+				$('#vat_govA').val(sum);
+				$('#vat_govB').val(taxamount);
+			}
+		});
 
-			$.post("<?=MODULE_URL?>ajax/getGov", { period : period }, function(data) {
-				var sum = data.sum_amount;
-				var taxamount = data.sum_taxamount;
-				if(sum == null || taxamount == null) {
-					$('#vat_zero').val('0.00');
-				} else {
-					$('#vat_zero').val(sum);
-				}
-			});
+		$.post("<?=MODULE_URL?>ajax/getZero", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#vat_zero').val('0.00');
+			} else {
+				$('#vat_zero').val(sum);
+			}
+		});
 
-			$.post("<?=MODULE_URL?>ajax/getGov", { period : period }, function(data) {
-				var sum = data.sum_amount;
-				var taxamount = data.sum_taxamount;
-				if(sum == null || taxamount == null) {
-					$('#vat_exempt').val('0.00');
-				} else {
-					$('#vat_exempt').val(sum);
-				}
-			});
-		}
-	});
+		$.post("<?=MODULE_URL?>ajax/getExempt", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#vat_exempt').val('0.00');
+			} else {
+				$('#vat_exempt').val(sum);
+			}
+		});
 
-	function sumSales() {
-		var privateA = Math.round($('#vat_privateA').val());
-		var privateB = Math.round($('#vat_privateB').val());
-		var govA = Math.round($('#vat_govA').val());
-		var govB = Math.round($('#vat_govB').val());
-		var exempt = Math.round($('#vat_exempt').val());
-		var zero = Math.round($('#vat_zero').val());
-		var sumA = privateA + govA + exempt + zero;
-		var sumB =  privateB + govB;
-		$('#totalsales19A').val(sumA.toFixed(2));
-		$('#totalsales19B').val(sumB.toFixed(2));
+		$.post("<?=MODULE_URL?>ajax/getNotPurchasesExceeded", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#cgnotexceed21A').val('0.00');
+				$('#cgnotexceed21B').val('0.00');
+			} else {
+				$('#cgnotexceed21A').val(sum);
+				$('#cgnotexceed21B').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchasesExceeded", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#cgexceed21C').val('0.00');
+				$('#cgexceed21D').val('0.00');
+			} else {
+				$('#cgexceed21C').val(sum);
+				$('#cgexceed21D').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchaseGoods", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#dompurchase21E').val('0.00');
+				$('#dompurchase21F').val('0.00');
+			} else {
+				$('#dompurchase21E').val(sum);
+				$('#dompurchase21F').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchaseImport", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#importation21G').val('0.00');
+				$('#importation21F').val('0.00');
+			} else {
+				$('#importation21G').val(sum);
+				$('#importation21F').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchaseServices", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#dompurchaseserv21I').val('0.00');
+				$('#dompurchaseserv21J').val('0.00');
+			} else {
+				$('#dompurchaseserv21I').val(sum);
+				$('#dompurchaseserv21J').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchaseNonResident", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#servicerenderedK').val('0.00');
+				$('#servicerenderedL').val('0.00');
+			} else {
+				$('#servicerenderedK').val(sum);
+				$('#servicerenderedL').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchaseNotTax", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#purchasenotqualified21M').val('0.00');
+			} else {
+				$('#purchasenotqualified21M').val(sum);
+			}
+		});
 	}
+});
 
-	function makeZero() {
-		$('.makezero tbody tr td').find('input[type=text]').val('0.00');
-		$('.penalties .row').find('input[type=text]').val('0.00');
-	}
+function sumSales() {
+	var privateA = Math.round($('#vat_privateA').val());
+	var privateB = Math.round($('#vat_privateB').val());
+	var govA = Math.round($('#vat_govA').val());
+	var govB = Math.round($('#vat_govB').val());
+	var exempt = Math.round($('#vat_exempt').val());
+	var zero = Math.round($('#vat_zero').val());
+	var sumA = privateA + govA + exempt + zero;
+	var sumB =  privateB + govB;
+	$('#totalsales19A').val(sumA.toFixed(2));
+	$('#totalsales19B').val(sumB.toFixed(2));
+}
+
+function allowableInputTax20F() {
+	var allowableInputTax20A = Math.round($('#vat_privateA').val());
+	var allowableInputTax20B = Math.round($('#vat_privateB').val());
+	var allowableInputTax20C = Math.round($('#vat_govA').val());
+	var allowableInputTax20D = Math.round($('#vat_govB').val());
+	var allowableInputTax20E = Math.round($('#vat_exempt').val());
+	var zero = Math.round($('#vat_zero').val());
+	var allowableInputTax20F = allowableInputTax20A + allowableInputTax20B + allowableInputTax20C + allowableInputTax20D + allowableInputTax20E;
+	$('#allowableInputTax20F').val(allowableInputTax20F.toFixed(2));
+}
+
+function allowableInputTax20F() {
+	var cgnotexceed21A = Math.round($('#cgnotexceed21A').val());
+	var cgnotexceed21B = Math.round($('#cgnotexceed21B').val());
+	var cgexceed21C = Math.round($('#cgexceed21C').val());
+	var cgexceed21D = Math.round($('#cgexceed21D').val());
+	var dompurchase21E = Math.round($('#dompurchase21E').val());
+	var dompurchase21F = Math.round($('#dompurchase21F').val());
+	var importation21G = Math.round($('#importation21G').val());
+	var importation21F = Math.round($('#importation21F').val());
+	var dompurchaseserv21I = Math.round($('#dompurchaseserv21I').val());
+	var dompurchaseserv21J = Math.round($('#dompurchaseserv21J').val());
+	var servicerenderedK = Math.round($('#servicerenderedK').val());
+	var servicerenderedL = Math.round($('#servicerenderedL').val());
+	var purchasenotqualified21M = Math.round($('#purchasenotqualified21M').val());
+	var totalpurchases21P = cgnotexceed21A + cgnotexceed21B + cgexceed21C + cgexceed21D + dompurchase21E + dompurchase21F + importation21G + importation21F + dompurchaseserv21I + dompurchaseserv21J + servicerenderedK + servicerenderedL + purchasenotqualified21M;
+	$('#totalpurchases21P').val(totalpurchases21P.toFixed(2));
+
+}
+
+function makeZero() {
+	$('.penalties .row').find('input[type=text]').val('0.00');
+}
 </script>

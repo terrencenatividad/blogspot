@@ -325,10 +325,10 @@
 									<td class="col-md-2 text-center">
 									</td>
 									<td class="col-md-4 text-center">
-										Sales Receipts for the Quarter (Exclusive of VAT)
+										Sales Receipts for the Month (Exclusive of VAT)
 									</td>
 									<td class="col-md-5 text-center">
-										Output Tax Due for the Quarter
+										Output Tax Due for the Month
 									</td>
 								</tr>
 								<tr>
@@ -336,7 +336,7 @@
 									<td colspan="2">
 										<p>Vatable Sales/Receipt-Private (Sch.1)</p>
 									</td>
-									<td class = "text-right"><b>15A</b></td>
+									<td class = "text-right"><b>12A</b></td>
 									<td>
 										<?php
 										echo $ui->formField('text')
@@ -373,7 +373,7 @@
 									<td colspan="2">
 										<p>Sale to Government</p>
 									</td>
-									<td class = "text-right"><b>16A</b></td>
+									<td class = "text-right"><b>13A</b></td>
 									<td>
 										<?php
 										echo $ui->formField('text')
@@ -410,7 +410,7 @@
 									<td colspan="2">
 										<p>Zero Rated Sales/Receipts</p>
 									</td>
-									<td class = "text-right"><b>17</b></td>
+									<td class = "text-right"><b>14</b></td>
 									<td>
 										<?php
 										echo $ui->formField('text')
@@ -432,7 +432,7 @@
 									<td colspan="2">
 										<p>Exempt Sales/Receipts</p>
 									</td>
-									<td class = "text-right"><b>18</b></td>
+									<td class = "text-right"><b>15</b></td>
 									<td>
 										<?php
 										echo $ui->formField('text')
@@ -454,7 +454,7 @@
 									<td colspan="2">
 										<p>Total Sales/Receipts and Output Tax Due</p>
 									</td>
-									<td class = "text-right"><b>19A</b></td>
+									<td class = "text-right"><b>16A</b></td>
 									<td>
 										<?php
 										echo $ui->formField('text')
@@ -1322,7 +1322,7 @@
 										->setClass('text-right')
 										->setId('surcharge')
 										->setName('surcharge')
-										->setMaxLength(5)
+										->setMaxLength(15)
 										->draw(true);
 										?>
 									</div>
@@ -1332,7 +1332,7 @@
 										->setSplit('', 'col-md-12')
 										->setPlaceholder('0.00')
 										->setClass('text-right')
-										->setMaxLength(10)
+										->setMaxLength(15)
 										->setId('interest')
 										->setName('interest')
 										->draw(true);
@@ -1344,7 +1344,7 @@
 										->setSplit('', 'col-md-12')
 										->setPlaceholder('0.00')
 										->setClass('text-right')
-										->setMaxLength(10)
+										->setMaxLength(15)
 										->setId('compromise')
 										->setName('compromise')
 										->draw(true);
@@ -1593,7 +1593,7 @@
 		var period = $(this).val();
 		makeZero();
 		
-		$.post("<?=MODULE_URL?>ajax/getPrivate", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getPrivateMonthly", { period : period }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1606,7 +1606,7 @@
 			sumSales();
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getGov", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getGovMonthly", { period : period }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1618,7 +1618,7 @@
 			}
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getGov", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getZeroMonthly", { period : period }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1628,13 +1628,95 @@
 			}
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getGov", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getExemptMonthly", { period : period }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
 				$('#vat_exempt').val('0.00');
 			} else {
 				$('#vat_exempt').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getNotPurchasesExceededMonthly", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#cgnotexceed21A').val('0.00');
+				$('#cgnotexceed21B').val('0.00');
+			} else {
+				$('#cgnotexceed21A').val(sum);
+				$('#cgnotexceed21B').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchasesExceededMonthly", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#cgexceed21C').val('0.00');
+				$('#cgexceed21D').val('0.00');
+			} else {
+				$('#cgexceed21C').val(sum);
+				$('#cgexceed21D').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchaseGoodsMonthly", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#dompurchase21E').val('0.00');
+				$('#dompurchase21F').val('0.00');
+			} else {
+				$('#dompurchase21E').val(sum);
+				$('#dompurchase21F').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchaseImportMonthly", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#importation21G').val('0.00');
+				$('#importation21F').val('0.00');
+			} else {
+				$('#importation21G').val(sum);
+				$('#importation21F').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchaseServicesMonthly", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#dompurchaseserv21I').val('0.00');
+				$('#dompurchaseserv21J').val('0.00');
+			} else {
+				$('#dompurchaseserv21I').val(sum);
+				$('#dompurchaseserv21J').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchaseNonResidentMonthly", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#servicerenderedK').val('0.00');
+				$('#servicerenderedL').val('0.00');
+			} else {
+				$('#servicerenderedK').val(sum);
+				$('#servicerenderedL').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchaseNotTaxMonthly", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#purchasenotqualified21M').val('0.00');
+			} else {
+				$('#purchasenotqualified21M').val(sum);
 			}
 		});
 	});
@@ -1653,7 +1735,6 @@
 	}
 
 	function makeZero() {
-		$('.makezero tbody tr td').find('input[type=text]').val('0.00');
 		$('.penalties .row').find('input[type=text]').val('0.00');
 	}
 </script>
