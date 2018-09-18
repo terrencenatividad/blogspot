@@ -187,6 +187,21 @@
 										</td>
 									</tr>
 									<tr>
+										<td colspan="3">
+											<?php
+											echo $ui->formField('text')
+											->setName('agentname')
+											->setId('agentname')
+											->setValue($agentname)
+											->setMaxLength(11)
+											->setAttribute(
+												array(
+													'readOnly' => 'readOnly'
+												)
+											)
+											->draw(true);
+											?>
+										</td>
 										<td colspan="2">
 											<?php
 											echo $ui->formField('text')
