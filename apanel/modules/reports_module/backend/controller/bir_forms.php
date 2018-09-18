@@ -75,8 +75,8 @@ class controller extends wc_controller {
 		$data['month'] 			= $this->getDate('month');
 
 		$company_info 			= $this->bir->getCompanyInfo(
-										array('businessline','businesstype','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','mobile','email')
-									);
+			array('businessline','businesstype','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','mobile','email')
+		);
 		$data['atc_list']		= $this->bir->getATCCode();
 		
 		$businessline			= $company_info->businessline;
@@ -137,8 +137,8 @@ class controller extends wc_controller {
 		$data['month'] 			= $this->getDate('month');
 
 		$company_info 			= $this->bir->getCompanyInfo(
-										array('businessline','businesstype','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','mobile','email')
-									);
+			array('businessline','businesstype','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','mobile','email')
+		);
 		$data['atc_list']		= $this->bir->getATCCode();
 		
 		$businessline			= $company_info->businessline;
@@ -621,27 +621,194 @@ class controller extends wc_controller {
 
 	private function getPrivate() {
 		$period = $this->input->post('period');
-		$result = $this->bir->getPeriod($period);
+
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+
+		$result = $this->bir->getPrivate($period);
 		return $result;
 	}
 
 	private function getGov() {
 		$period = $this->input->post('period');
-
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
 		$result = $this->bir->getGov($period);
 		return $result;
 	}
 
 	private function getZero() {
 		$period = $this->input->post('period');
-
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= "('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9')";
+		}else if($period=='4'){
+			$period	= "('10','11','12')";
+		}
 		$result = $this->bir->getZero($period);
 		return $result;
 	}
 
 	private function getExempt() {
 		$period = $this->input->post('period');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= "('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9')";
+		}else if($period=='4'){
+			$period	= "('10','11','12')";
+		}
 		$result = $this->bir->getExempt($period);
+		return $result;
+	}
+
+	private function getNotPurchasesExceeded() {
+		$period = $this->input->post('period');
+
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+
+		$result = $this->bir->getNotPurchasesExceeded($period);
+		return $result;
+	}
+
+	private function getPurchasesExceeded() {
+		$period = $this->input->post('period');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+		$result = $this->bir->getPurchasesExceeded($period);
+		return $result;
+	}
+
+	private function getPurchaseGoods() {
+		$period = $this->input->post('period');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+		$result = $this->bir->getPurchaseGoods($period);
+		return $result;
+	}
+
+	private function getPurchaseImport() {
+		$period = $this->input->post('period');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+		$result = $this->bir->getPurchaseImport($period);
+		return $result;
+	}
+
+	private function getPurchaseServices() {
+		$period = $this->input->post('period');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+		$result = $this->bir->getPurchaseServices($period);
+		return $result;
+	}
+
+	private function getPurchaseNonResident() {
+		$period = $this->input->post('period');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+		$result = $this->bir->getPurchaseNonResident($period);
+		return $result;
+	}
+
+	private function getPurchaseNotTax() {
+		$period = $this->input->post('period');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+		$result = $this->bir->getPurchaseNotTax($period);
+		return $result;
+	}
+
+	private function getPrivateMonthly() {
+		$period = $this->input->post('period');
+		$result = $this->bir->getPrivateMonthly($period);
+		return $result;
+	}
+
+	private function getGovMonthly() {
+		$period = $this->input->post('period');
+		$result = $this->bir->getGovMonthly($period);
+		return $result;
+	}
+
+	private function getZeroMonthly() {
+		$period = $this->input->post('period');
+		$result = $this->bir->getZeroMonthly($period);
+		return $result;
+	}
+
+	private function getExemptMonthly() {
+		$period = $this->input->post('period');
+		$result = $this->bir->getExemptMonthly($period);
 		return $result;
 	}
 }

@@ -1095,7 +1095,60 @@
 		</div>
 	</div>
 </div>
+<div class="modal fade" id="atcModal" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				Choose ATC Code
+			</div>
+			<div class="modal-body">
+				<form class="form-horizontal" id="newVendor" autocomplete="off">
+					<div class = "row">
+						<div class = "col-md-10">
+							<?php
+								echo $ui->formField('dropdown')
+										->setLabel('ATC Code')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('tax_account')
+										->setId('tax_account')
+										->setClass('tax_account')
+										->setValue('')
+										->draw($show_input);
+							?>
+							</div>
 
+						<div class = "col-md-10">
+							<?php
+								echo $ui->formField('text')
+										->setLabel('Tax Base Amount')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('tax_amount')
+										->setId('tax_amount')
+										->setClass('text-right tax_amount')
+										->setValue('')
+										->setValidation('required')
+										->draw($show_input);
+							?>
+						</div>
+					</div>
+					<div class="modal-footer">
+							<div class="row row-dense">
+								<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+									<div class="btn-group">
+										<button type="button" class="btn btn-primary btn-flat" id="tax_apply">Apply</button>
+									</div>
+										&nbsp;&nbsp;&nbsp;
+									<div class="btn-group">
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
+									</div>
+								</div>
+							</div>
+						</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
 <script>
 	<?php if ($task == 'create'):?>
 		getLockAccess('create');
@@ -1107,6 +1160,52 @@
 	var edited = false;
 	$('#paymentModal').on('blur', 'input', function() {
 		edited = true;
+	});
+
+	var row = '';
+	prev_account = '';
+	
+	function get_coa(account){
+	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_tax",{account:account}).done(function(data){
+		if((data.result == '1401005')){
+			if (prev_account != '' && account != prev_account) {
+				$('#tax_amount').val('');
+			}
+			prev_account = account;
+			$('#atcModal').modal('show');
+			$('#tax_account').html(data.ret);
+		} else {
+			row.find('.checkbox-select').show();
+			row.find('.edit-button').hide();
+		}
+	});
+
+	
+}
+	$('#entriesTable').on('change', '.accountcode', function(){
+		row = $(this).closest('tr')
+		var account = $(this).val();
+		get_coa(account);
+	})
+
+	$('#tax_apply').click(function(){
+		var tax_account = $('#tax_account').val();
+		var tax_amount = $('#tax_amount').val();
+		tax_amount = tax_amount.replace(/,/g,'');
+		$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_account",{tax_account:tax_account,tax_amount:tax_amount})
+		.done(function(data) {
+			var credit = data.amount ;
+			console.log(credit);
+			var taxcode = data.tax_account;
+			row.find('.credit').val(addCommas(credit));
+			row.find('.taxbase_amount').val(tax_amount);
+			row.find('.taxcode').val(tax_account);
+			addAmountAll('credit');
+		});
+		
+		$('#atcModal').modal('hide');
+		row.find('.checkbox-select').hide();
+		row.find('.edit-button').show().attr('data-amount', tax_amount);
 	});
 
 	function addcustomerToDropdown() {

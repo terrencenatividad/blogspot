@@ -187,6 +187,21 @@
 										</td>
 									</tr>
 									<tr>
+										<td colspan="3">
+											<?php
+											echo $ui->formField('text')
+											->setName('agentname')
+											->setId('agentname')
+											->setValue($agentname)
+											->setMaxLength(11)
+											->setAttribute(
+												array(
+													'readOnly' => 'readOnly'
+												)
+											)
+											->draw(true);
+											?>
+										</td>
 										<td colspan="2">
 											<?php
 											echo $ui->formField('text')
@@ -325,10 +340,10 @@
 									<td class="col-md-2 text-center">
 									</td>
 									<td class="col-md-4 text-center">
-										Sales Receipts for the Quarter (Exclusive of VAT)
+										Sales Receipts for the Month (Exclusive of VAT)
 									</td>
 									<td class="col-md-5 text-center">
-										Output Tax Due for the Quarter
+										Output Tax Due for the Month
 									</td>
 								</tr>
 								<tr>
@@ -336,7 +351,7 @@
 									<td colspan="2">
 										<p>Vatable Sales/Receipt-Private (Sch.1)</p>
 									</td>
-									<td class = "text-right"><b>15A</b></td>
+									<td class = "text-right"><b>12A</b></td>
 									<td>
 										<?php
 										echo $ui->formField('text')
@@ -373,7 +388,7 @@
 									<td colspan="2">
 										<p>Sale to Government</p>
 									</td>
-									<td class = "text-right"><b>16A</b></td>
+									<td class = "text-right"><b>13A</b></td>
 									<td>
 										<?php
 										echo $ui->formField('text')
@@ -410,7 +425,7 @@
 									<td colspan="2">
 										<p>Zero Rated Sales/Receipts</p>
 									</td>
-									<td class = "text-right"><b>17</b></td>
+									<td class = "text-right"><b>14</b></td>
 									<td>
 										<?php
 										echo $ui->formField('text')
@@ -432,7 +447,7 @@
 									<td colspan="2">
 										<p>Exempt Sales/Receipts</p>
 									</td>
-									<td class = "text-right"><b>18</b></td>
+									<td class = "text-right"><b>15</b></td>
 									<td>
 										<?php
 										echo $ui->formField('text')
@@ -454,7 +469,7 @@
 									<td colspan="2">
 										<p>Total Sales/Receipts and Output Tax Due</p>
 									</td>
-									<td class = "text-right"><b>19A</b></td>
+									<td class = "text-right"><b>16A</b></td>
 									<td>
 										<?php
 										echo $ui->formField('text')
@@ -505,7 +520,7 @@
 										echo $ui->formField('text')
 										->setName('carriedover20A')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -526,7 +541,7 @@
 										echo $ui->formField('text')
 										->setName('deferred20B')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -547,7 +562,7 @@
 										echo $ui->formField('text')
 										->setName('transitionalinputtax20C')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -568,7 +583,7 @@
 										echo $ui->formField('text')
 										->setName('presumptiveinputtax26D')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -589,7 +604,7 @@
 										echo $ui->formField('text')
 										->setName('others20E')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -610,7 +625,7 @@
 										echo $ui->formField('text')
 										->setName('totalsum20F')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -635,9 +650,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
+										->setId('cgnotexceed21A')
 										->setName('cgnotexceed21A')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -649,9 +665,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
+										->setId('cgnotexceed21B')
 										->setName('cgnotexceed21B')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -670,9 +687,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
+										->setId('cgexceed21C')
 										->setName('cgexceed21C')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -684,9 +702,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
+										->setId('cgexceed21D')
 										->setName('cgexceed21D')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -705,9 +724,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
+										->setId('dompurchase21E')
 										->setName('dompurchase21E')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -719,9 +739,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
+										->setId('dompurchase21F')
 										->setName('dompurchase21F')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -740,9 +761,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
+										->setId('importation21G')
 										->setName('importation21G')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -754,9 +776,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
+										->setId('importation21H')
 										->setName('importation21H')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -775,9 +798,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
+										->setId('dompurchaseserv21I')
 										->setName('dompurchaseserv21I')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -789,9 +813,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
+										->setId('dompurchaseserv21J')
 										->setName('dompurchaseserv21J')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -810,9 +835,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
+										->setId('servicerenderedK')
 										->setName('servicerenderedK')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -824,9 +850,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
+										->setId('servicerenderedL')
 										->setName('servicerenderedL')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -845,9 +872,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
+										->setId('purchasenotqualified21M')
 										->setName('purchasenotqualified21M')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -866,9 +894,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
+										->setId('others21N')
 										->setName('others21N')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -880,9 +909,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
-										->setName('others2O')
+										->setId('others21O')
+										->setName('others21O')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -901,9 +931,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
+										->setId('totalpurchases21P')
 										->setName('totalpurchases21P')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -922,9 +953,10 @@
 									<td>
 										<?php
 										echo $ui->formField('text')
+										->setId('total22')
 										->setName('total22')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -951,7 +983,7 @@
 										echo $ui->formField('text')
 										->setName('totalavailableinputtax23A')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -972,7 +1004,7 @@
 										echo $ui->formField('text')
 										->setName('totalavailableinputtax23B')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -993,7 +1025,7 @@
 										echo $ui->formField('text')
 										->setName('taxallocable23C')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -1014,7 +1046,7 @@
 										echo $ui->formField('text')
 										->setName('vatrefund23D')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -1035,7 +1067,7 @@
 										echo $ui->formField('text')
 										->setName('other23E')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -1056,7 +1088,7 @@
 										echo $ui->formField('text')
 										->setName('total23F')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -1077,7 +1109,7 @@
 										echo $ui->formField('text')
 										->setName('totalallowableinputtax24')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -1098,7 +1130,7 @@
 										echo $ui->formField('text')
 										->setName('netpayable25')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -1125,7 +1157,7 @@
 										echo $ui->formField('text')
 										->setName('monthlyvat26A')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -1146,7 +1178,7 @@
 										echo $ui->formField('text')
 										->setName('creditablevat26B')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -1167,7 +1199,7 @@
 										echo $ui->formField('text')
 										->setName('sugarandflour26C')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -1188,7 +1220,7 @@
 										echo $ui->formField('text')
 										->setName('inputtaxsale26D')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -1209,7 +1241,7 @@
 										echo $ui->formField('text')
 										->setName('vatpaid26E')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -1230,7 +1262,7 @@
 										echo $ui->formField('text')
 										->setName('advpaymentsmade26F')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -1251,7 +1283,7 @@
 										echo $ui->formField('text')
 										->setName('otherstaxcredits26G')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -1272,7 +1304,7 @@
 										echo $ui->formField('text')
 										->setName('totaltaxcredits26H')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -1293,7 +1325,7 @@
 										echo $ui->formField('text')
 										->setName('taxstillpayable27')
 										->setClass('text-right')
-										->setPlaceholder('0.00')
+										->setValue('0.00')
 										->setAttribute(
 											array(
 												'readOnly' => 'readOnly'
@@ -1322,7 +1354,7 @@
 										->setClass('text-right')
 										->setId('surcharge')
 										->setName('surcharge')
-										->setMaxLength(5)
+										->setMaxLength(15)
 										->draw(true);
 										?>
 									</div>
@@ -1332,7 +1364,7 @@
 										->setSplit('', 'col-md-12')
 										->setPlaceholder('0.00')
 										->setClass('text-right')
-										->setMaxLength(10)
+										->setMaxLength(15)
 										->setId('interest')
 										->setName('interest')
 										->draw(true);
@@ -1344,7 +1376,7 @@
 										->setSplit('', 'col-md-12')
 										->setPlaceholder('0.00')
 										->setClass('text-right')
-										->setMaxLength(10)
+										->setMaxLength(15)
 										->setId('compromise')
 										->setName('compromise')
 										->draw(true);
@@ -1591,9 +1623,12 @@
 
 	$('#monthfilter').on('change', function() {
 		var period = $(this).val();
+		$('#others21N').val('0.00');
+		$('#others21O').val('0.00');
 		makeZero();
-		
-		$.post("<?=MODULE_URL?>ajax/getPrivate", { period : period }, function(data) {
+		allowableInputTax20F();
+		totalpurchases21P();
+		$.post("<?=MODULE_URL?>ajax/getPrivateMonthly", { period : period }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1606,7 +1641,7 @@
 			sumSales();
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getGov", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getGovMonthly", { period : period }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1618,7 +1653,7 @@
 			}
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getGov", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getZeroMonthly", { period : period }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1628,7 +1663,7 @@
 			}
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getGov", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getExemptMonthly", { period : period }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1637,23 +1672,136 @@
 				$('#vat_exempt').val(sum);
 			}
 		});
+
+		$.post("<?=MODULE_URL?>ajax/getNotPurchasesExceededMonthly", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#cgnotexceed21A').val('0.00');
+				$('#cgnotexceed21B').val('0.00');
+			} else {
+				$('#cgnotexceed21A').val(sum);
+				$('#cgnotexceed21B').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchasesExceededMonthly", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#cgexceed21C').val('0.00');
+				$('#cgexceed21D').val('0.00');
+			} else {
+				$('#cgexceed21C').val(sum);
+				$('#cgexceed21D').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchaseGoodsMonthly", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#dompurchase21E').val('0.00');
+				$('#dompurchase21F').val('0.00');
+			} else {
+				$('#dompurchase21E').val(sum);
+				$('#dompurchase21F').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchaseImportMonthly", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#importation21G').val('0.00');
+				$('#importation21H').val('0.00');
+			} else {
+				$('#importation21G').val(sum);
+				$('#importation21H').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchaseServicesMonthly", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#dompurchaseserv21I').val('0.00');
+				$('#dompurchaseserv21J').val('0.00');
+			} else {
+				$('#dompurchaseserv21I').val(sum);
+				$('#dompurchaseserv21J').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchaseNonResidentMonthly", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#servicerenderedK').val('0.00');
+				$('#servicerenderedL').val('0.00');
+			} else {
+				$('#servicerenderedK').val(sum);
+				$('#servicerenderedL').val(sum);
+			}
+		});
+
+		$.post("<?=MODULE_URL?>ajax/getPurchaseNotTaxMonthly", { period : period }, function(data) {
+			var sum = data.sum_amount;
+			var taxamount = data.sum_taxamount;
+			if(sum == null || taxamount == null) {
+				$('#purchasenotqualified21M').val('0.00');
+			} else {
+				$('#purchasenotqualified21M').val(sum);
+			}
+		});
 	});
 
-	function sumSales() {
-		var privateA = Math.round($('#vat_privateA').val());
-		var privateB = Math.round($('#vat_privateB').val());
-		var govA = Math.round($('#vat_govA').val());
-		var govB = Math.round($('#vat_govB').val());
-		var exempt = Math.round($('#vat_exempt').val());
-		var zero = Math.round($('#vat_zero').val());
-		var sumA = privateA + govA + exempt + zero;
-		var sumB =  privateB + govB;
-		$('#totalsales19A').val(sumA.toFixed(2));
-		$('#totalsales19B').val(sumB.toFixed(2));
-	}
+function sumSales() {
+	var privateA = Math.round($('#vat_privateA').val());
+	var privateB = Math.round($('#vat_privateB').val());
+	var govA = Math.round($('#vat_govA').val());
+	var govB = Math.round($('#vat_govB').val());
+	var exempt = Math.round($('#vat_exempt').val());
+	var zero = Math.round($('#vat_zero').val());
+	var sumA = privateA + govA + exempt + zero;
+	var sumB =  privateB + govB;
+	$('#totalsales19A').val(sumA.toFixed(2));
+	$('#totalsales19B').val(sumB.toFixed(2));
+}
 
-	function makeZero() {
-		$('.makezero tbody tr td').find('input[type=text]').val('0.00');
-		$('.penalties .row').find('input[type=text]').val('0.00');
-	}
+function allowableInputTax20F() {
+	var allowableInputTax20A = Math.round($('#vat_privateA').val());
+	var allowableInputTax20B = Math.round($('#vat_privateB').val());
+	var allowableInputTax20C = Math.round($('#vat_govA').val());
+	var allowableInputTax20D = Math.round($('#vat_govB').val());
+	var allowableInputTax20E = Math.round($('#vat_exempt').val());
+	var zero = Math.round($('#vat_zero').val());
+	var allowableInputTax20F = allowableInputTax20A + allowableInputTax20B + allowableInputTax20C + allowableInputTax20D + allowableInputTax20E;
+	$('#allowableInputTax20F').val(allowableInputTax20F.toFixed(2));
+}
+
+function totalpurchases21P() {
+	var cgnotexceed21A = Math.round($('#cgnotexceed21A').val());
+	var cgnotexceed21B = Math.round($('#cgnotexceed21B').val());
+	var cgexceed21C = Math.round($('#cgexceed21C').val());
+	var cgexceed21D = Math.round($('#cgexceed21D').val());
+	var dompurchase21E = Math.round($('#dompurchase21E').val());
+	var dompurchase21F = Math.round($('#dompurchase21F').val());
+	var importation21G = Math.round($('#importation21G').val());
+	var importation21H = Math.round($('#importation21H').val());
+	var dompurchaseserv21I = Math.round($('#dompurchaseserv21I').val());
+	var dompurchaseserv21J = Math.round($('#dompurchaseserv21J').val());
+	var servicerenderedK = Math.round($('#servicerenderedK').val());
+	var servicerenderedL = Math.round($('#servicerenderedL').val());
+	var purchasenotqualified21M = Math.round($('#purchasenotqualified21M').val());
+	var others21O = Math.round($('#others21O').val());
+	var totalpurchases21P = cgnotexceed21A + cgnotexceed21B + cgexceed21C + cgexceed21D + dompurchase21E + dompurchase21F + importation21G + importation21H + dompurchaseserv21I + dompurchaseserv21J + servicerenderedK + servicerenderedL + purchasenotqualified21M;
+	$('#totalpurchases21P').val(totalpurchases21P.toFixed(2));
+	var total22  = totalpurchases21P + cgnotexceed21B + cgexceed21D + dompurchase21F + importation21H + dompurchaseserv21J + servicerenderedL + others21O;
+	$('#total22').val(total22.toFixed(2));
+}
+
+function makeZero() {
+	$('.penalties .row').find('input[type=text]').val('0.00');
+}
 </script>

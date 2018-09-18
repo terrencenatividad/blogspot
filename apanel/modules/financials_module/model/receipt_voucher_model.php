@@ -1894,4 +1894,41 @@ class receipt_voucher_model extends wc_model
 					->getResult();
 		return $result;
 	}
+
+	public function getValues($table, $cols = array(), $cond = "", $orderby = "", $bool = "" )
+	{
+		$result = $this->db->setTable($table)
+					->setFields($cols)
+					->setWhere($cond)
+					->setOrderBy($orderby)
+					->runSelect($bool)
+					->getResult();
+					
+		return $result;
+	}
+
+	public function getTax($table, $cols = array(), $join = "" ,$cond = "", $orderby = "", $bool = "" )
+	{
+		$result = $this->db->setTable($table)
+					->setFields($cols)
+					->innerJoin($join)
+					->setWhere($cond)
+					->setOrderBy($orderby)
+					->runSelect($bool)
+					->getResult();
+					
+		return $result;
+	}
+
+	public function getAccount($tax_account){
+		$result = $this->db->setTable('atccode a')
+					->setFields("tax_rate,tax_account")
+					->leftJoin("chartaccount c ON c.id = a.tax_account ")
+					->setWhere("atcId = '$tax_account'")
+					->runSelect()
+					->getResult();
+		return $result;
+
+
+	}
 }
