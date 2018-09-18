@@ -1535,4 +1535,36 @@ class controller extends wc_controller
 		$dataArray 	=	array("account"=>$op_acct);
 		return $dataArray;
 	}
+
+	public function get_account(){
+		$tax_account = $this->input->post("tax_account");
+		$tax_amount = $this->input->post("tax_amount");
+		$result 	=  $this->receipt_voucher->getAccount($tax_account);
+		$tax = $result[0]->tax_rate;
+		$account = $result[0]->tax_account;
+		$amount = ($tax_amount * $tax) ;
+		$returnArray = array( "tax_amount" => $tax_amount, "tax_account" => $account ,"amount" => $amount);
+		return $returnArray;
+	}
+
+	public function get_tax(){
+		$account = $this->input->post("account");
+		$result = $this->receipt_voucher->getValues("chartaccount",array("segment5"),"id = '$account' ");
+		$result_class = $result[0]->segment5;
+
+		$bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
+		$bus_type_cond                = "tax_account = '$account' AND atc.stat = 'active'";
+		$join 						  =  "chartaccount ca ON atc.tax_account = ca.id";
+		$tax_list  			 		  = $this->receipt_voucher->getTax("atccode atc", $bus_type_data,$join ,$bus_type_cond, false);
+
+		$ret = '';
+		foreach ($tax_list as $key) {
+			$in  = $key->ind;
+			$val = $key->val;
+			$ret .= "<option value=". $in.">" .$val. "</option>";
+		}
+		
+		$returnArray = array( "result" => $result_class, "ret" => $ret);
+		return $returnArray;
+	}
 }
