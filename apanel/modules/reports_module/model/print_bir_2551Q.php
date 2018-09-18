@@ -96,7 +96,7 @@ class print_bir_2551Q extends fpdf {
 			$contact 		= strtoupper(urldecode($contact));
 			// $category		= isset($documentInfo['category']) ? $documentInfo['category'] : "yes";
 			$email 			= isset($documentInfo['email']) ? $documentInfo['email'] : "";
-			$email 			= strtoupper(urldecode($email));
+			$email			= str_replace('%','@',$email);
 			$taxrelief		= isset($documentInfo['taxrelief']) ? $documentInfo['taxrelief'] : "yes";
 			$incometax		= isset($documentInfo['incometax']) ? $documentInfo['incometax'] : "yes";
 			$specify		= isset($documentInfo['specify']) ? $documentInfo['specify'] : "";
@@ -361,7 +361,7 @@ class print_bir_2551Q extends fpdf {
 		 * Email
 		 */
 		$this->SetY(95);
-		$this->SetX(67.3);
+		$this->SetX(67.5);
 		$array = str_split($email);
 		$this->cellSpacing($array);
 

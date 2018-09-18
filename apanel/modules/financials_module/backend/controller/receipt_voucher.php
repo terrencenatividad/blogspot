@@ -955,7 +955,7 @@ class controller extends wc_controller
 		$show_input 	   = ($task != "view") 	? 	1	:	0;
 	
 		if (empty($pagination->result)) {
-			$table = '<tr><td class="text-center" colspan="8"><b>No Records Found</b></td></tr>';
+			$table = '<tr><td class="text-center" colspan="10"><b>No Records Found</b></td></tr>';
 		}
 
 		if($pagination->result)
@@ -982,6 +982,7 @@ class controller extends wc_controller
 				$totalamount	= $pagination->result[$i]->amount;
 				$referenceno	= $pagination->result[$i]->referenceno;
 				$credit_used	= $pagination->result[$i]->credits_used;
+				$overpayment	= $pagination->result[$i]->overpayment;
 
 				$voucher_checked= (in_array($voucher , $voucher_array)) ? 'checked' : '';
 				$amt_checked 	= (in_array($voucher , $amt_array)) ? $amt_checked : '';
@@ -993,6 +994,7 @@ class controller extends wc_controller
 				$json_encode_array["amt"]    	= $totalamount;
 				$json_encode_array["bal"]   	= $balance;
 				$json_encode_array["cred"]		= $credit_used;
+				$json_encode_array['over']  	= $overpayment;
 			
 				$json_data[] 					= $json_encode_array;
 			
@@ -1013,6 +1015,7 @@ class controller extends wc_controller
 					$balance_2 	= $balance_2 - $amount - $discount - $credit_used;
 					$balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
 				}
+				// echo $balance."\n\n";
 				$disable_checkbox 	=	"";
 				$disable_onclick 	=	'onClick="selectPayable(\''.$voucher.'\',1);"';
 
@@ -1029,6 +1032,7 @@ class controller extends wc_controller
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
 				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_amount'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($totalamount,2).'">'.number_format($totalamount,2).'</td>';
 				$table	.= 	'<td class="text-right balances" style="vertical-align:middle;" id = "payable_balance'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance_2,2).'</td>';
+				$table	.= 	'<td class="text-right over hidden" style="vertical-align:middle;" id = "overpayment_'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($overpayment,2).'">'.number_format($overpayment,2).'</td>';
 				// $table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "credit_used'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($credits,2).'">'.number_format($credits,2).'</td>';
 				if($voucher_checked == 'checked'){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
