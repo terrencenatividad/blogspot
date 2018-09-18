@@ -1188,7 +1188,7 @@ class controller extends wc_controller
 		$account_total = array();
 		$arvoucher_  = array();
 		$dis_amount  = array();
-
+		
 		for($i = 0; $i < count($decode_json); $i++)
 		{
 			$apvoucherno = $decode_json[$i]["vno"];

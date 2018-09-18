@@ -500,10 +500,7 @@
 	getList();
 
 	function displayBtn(){
-		if (ajax_call != '') {
-			ajax_call.abort();
-		}
-		ajax_call = $.post('<?=MODULE_URL?>ajax/view_import_button', ajax, function(data) {
+		$.post('<?=MODULE_URL?>ajax/view_import_button', ajax, function(data) {
 			if(data.display == 0){
 				$('#import').addClass('hidden');
 			}
@@ -543,8 +540,6 @@
 						$("#adjustForm #btnSave").html('Save');
 						
 						if( data.msg == 'success' ){
-							displayBtn();
-							hide_error();
 							$("#adjModal").modal('hide');
 						}
 					});
@@ -743,6 +738,8 @@
 
 	$(document).on('hidden.bs.modal','#adjModal', function () {
 		getList();
+		displayBtn();
+		hide_error();
 	});
 	
 	function checkSecond(sec) {
