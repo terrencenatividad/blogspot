@@ -476,7 +476,11 @@ class print_bir_1601EQ extends fpdf {
 		$amount_arr			= explode('.',$amount);
 		$amount_decimal_arr	= explode(',',$amount_arr[0]);
 		$amount_decimal_arr	= array_reverse($amount_decimal_arr);
-		
+		if($amount < 0 && (strlen($amount) > 5 && (strlen($amount) % 2 != 0))){
+			$curX 	= $this->GetX();
+			$newX	= $curX - 4.9;
+			$this->SetX($newX);
+		}
 		if(empty($amount_decimal_arr[3])){
 			$array = ($char_limit == 12) ? str_split('   ') : str_split('  ');
 		}else{

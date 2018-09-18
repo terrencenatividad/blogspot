@@ -96,7 +96,7 @@ class print_bir_2551Q extends fpdf {
 			$contact 		= strtoupper(urldecode($contact));
 			// $category		= isset($documentInfo['category']) ? $documentInfo['category'] : "yes";
 			$email 			= isset($documentInfo['email']) ? $documentInfo['email'] : "";
-			$email 			= strtoupper(urldecode($email));
+			$email			= str_replace('%','@',$email);
 			$taxrelief		= isset($documentInfo['taxrelief']) ? $documentInfo['taxrelief'] : "yes";
 			$incometax		= isset($documentInfo['incometax']) ? $documentInfo['incometax'] : "yes";
 			$specify		= isset($documentInfo['specify']) ? $documentInfo['specify'] : "";
@@ -361,7 +361,7 @@ class print_bir_2551Q extends fpdf {
 		 * Email
 		 */
 		$this->SetY(95);
-		$this->SetX(67.3);
+		$this->SetX(67.5);
 		$array = str_split($email);
 		$this->cellSpacing($array);
 
@@ -689,7 +689,11 @@ class print_bir_2551Q extends fpdf {
 		$amount_arr			= explode('.',$amount);
 		$amount_decimal_arr	= explode(',',$amount_arr[0]);
 		$amount_decimal_arr	= array_reverse($amount_decimal_arr);
-		
+		if($amount < 0 && (strlen($amount) > 5 && (strlen($amount) % 2 != 0))){
+			$curX 	= $this->GetX();
+			$newX	= $curX - 4.9;
+			$this->SetX($newX);
+		}
 		if(empty($amount_decimal_arr[3])){
 			$array = ($char_limit == 12) ? str_split('   ') : str_split('  ');
 		}else{

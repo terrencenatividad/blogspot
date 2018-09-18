@@ -118,6 +118,13 @@ class controller extends wc_controller {
 		return $result;
 	}
 
+	private function get_tax_details()
+	{
+		$result 	= $this->bir->retrieveWTAX();
+		
+		return $result;
+	}
+
 	public function view_1604E() {
 		$data['ui'] 			= $this->ui;
 		$data['bir_form'] 		= "1604E";
@@ -427,9 +434,96 @@ class controller extends wc_controller {
 				'secondmonth'	=> number_format($secondperiod,2)
 			);
 		}
+		else if($form == '1604E'){
+			$table='';
+			for($i=1; $i<13;$i++){
+				$atc 		= $this->bir->retrieveWTAX($data,$i);	
+				foreach ($atc as $atc_key => $row) {
+					$month = 1;
+						if($i == '1'){$month = 'JAN';}
+						else if($i == '2'){$month = 'FEB';}
+						else if($i == '3'){$month = 'MAR';}
+						else if($i == '4'){$month = 'APR';}
+						else if($i == '5'){$month = 'MAY';}
+						else if($i == '6'){$month = 'JUN';}
+						else if($i == '7'){$month = 'JUL';}
+						else if($i == '8'){$month = 'AUG';}
+						else if($i == '9'){$month = 'SEP';}
+						else if($i == '10'){$month = 'OCT';}
+						else if($i == '11'){$month = 'NOV';}
+						else if($i == '12'){$month = 'DEC';}
+
+						if($row->tax == NULL){
+							$row->tax = 0;
+						}
+					$table .= '<tr>';
+					$table .= '<td>';
+					$table .= '<strong>'.$month.'</strong>';
+					$table .= '</td>';
+
+					$table .= '<td>';
+					$table .= $this->ui->formField('text')
+										->setName('date'.$i)
+										->setClass('text-right date')
+										->setValue('')
+										->draw(true);
+					$table .= '</td>';
+
+					$table .= '<td>';
+					$table .= $this->ui->formField('text')
+										->setName('bank'.$i)
+										->setClass('text-right bank')
+										->setValue('')
+										->draw(true);
+					$table .= '</td>';
+
+					$table .= '<td>';
+					$table .= $this->ui->formField('text')
+										->setName('taxwithheld'.$i)
+										->setId('taxwithheld'.$i)
+										->setClass('text-right tax')
+										->setPlaceholder('0.00')
+										->setValue(number_format($row->tax,'2'))					
+										->setValidation('decimal')
+										->setAttribute(array('readOnly' => 'readOnly'))
+										->draw(true);
+					$table .= '</td>';
+
+					$table .= '<td>';
+					$table .= $this->ui->formField('text')
+										->setName('penalties'.$i)
+										->setId('penalties'.$i)
+										->setClass('text-right penalties')
+										->setPlaceholder('0.00')
+										->setValue('')
+										->setValidation('decimal')
+										->draw(true);
+					$table .= '</td>';
+
+					$table .= '<td>';
+					$table .= $this->ui->formField('text')
+										->setName('totalamount'.$i)
+										->setId('totalamount'.$i)
+										->setClass('text-right totalamount')
+										->setPlaceholder('0.00')
+										->setValue(number_format($row->tax,'2'))				
+										->setValidation('decimal')
+										->setAttribute(array('readOnly' => 'readOnly'))
+										->draw(true);
+					$table .= '</td>';
+					
+					$table .= '</tr>';
+
+					
+				}
+				$result = array(
+					'tax_table' 	=> $table
+				);
+			}
+			return $result;
+		}
 		
-		
-		return $result;
+		// return $result;
 	}
 
 	public function print_form($form) {
@@ -443,6 +537,15 @@ class controller extends wc_controller {
 	public function print_1601EQ() {
 		$company_signatory = $this->bir->getCompanyInfo(array('businesstype','signatory_name','signatory_role','signatory_tin'));
 		$print = new print_bir_1601EQ('P', 'mm', array(216,330.2));
+		$print->setPreviewTitle(MODULE_NAME)
+		->setDocumentDetails($this->input->get())
+		->setSignatory($company_signatory)
+		->drawPDF(MODULE_NAME);
+	}
+
+	public function print_1604E() {
+		$company_signatory = $this->bir->getCompanyInfo(array('businesstype','businessline','signatory_name','signatory_role','signatory_tin'));
+		$print = new print_bir_1604E('P', 'mm', array(216,330.2));
 		$print->setPreviewTitle(MODULE_NAME)
 		->setDocumentDetails($this->input->get())
 		->setSignatory($company_signatory)

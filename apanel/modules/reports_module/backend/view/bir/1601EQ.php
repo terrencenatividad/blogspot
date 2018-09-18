@@ -854,13 +854,13 @@
 		/**
 		 * Compute Total Remittances Made
 		 */
-		var total_remittance	= parseFloat(totalwithheld) - (parseFloat(firstremittance) + parseFloat(secondremittance) + parseFloat(previouslyfiled) + parseFloat(overremittance));
+		var total_remittance	= (parseFloat(firstremittance) + parseFloat(secondremittance) + parseFloat(previouslyfiled) + parseFloat(overremittance));
 		$('#totalremittance').val(addCommas(total_remittance.toFixed(2)));
 
 		/**
 		 * Compute Tax Still Due
 		 */
-		var taxdue				= parseFloat(totalwithheld) - parseFloat(total_remittance);
+		var taxdue				= parseFloat(totalwithheld) - (parseFloat(firstremittance) + parseFloat(secondremittance) + parseFloat(previouslyfiled) + parseFloat(overremittance));
 		$('#taxdue').val(addCommas(taxdue.toFixed(2)));
 
 		surcharge 	= $('#surcharge').val() || '0';

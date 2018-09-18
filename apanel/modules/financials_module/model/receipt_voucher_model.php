@@ -60,7 +60,7 @@ class receipt_voucher_model extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used";
+		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used, overpayment";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -108,7 +108,7 @@ class receipt_voucher_model extends wc_model
 		$temp["vend"] = $retrieveArrayVendor;
 
 		// Retrieve Payments
-		$applicationFields = "app.arvoucherno as vno, app.amount as amt, '0.00' as bal, app.discount as dis, app.credits_used as cred";
+		$applicationFields = "app.arvoucherno as vno, app.amount as amt, '0.00' as bal, app.discount as dis, app.credits_used as cred, app.overpayment as over";
 		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 AND app.stat NOT IN ('cancelled','temporary' )";
 		// echo $sid;
 		$applicationArray = $this->db->setTable('rv_application as app')
@@ -322,18 +322,18 @@ class receipt_voucher_model extends wc_model
 		$rv_cond   = "rv.arvoucherno = main.voucherno AND rv.stat IN('open','posted') AND rv.voucherno = '$voucherno' ";
 
 		// Main Queries
-		$main_table   = "accountsreceivable as main";
-		$main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0)) as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno");
-		$main_join 	  = "partners p ON p.partnercode = main.customer ";
-		$orderby  	  = "main.transactiondate DESC";
+		// $main_table   = "accountsreceivable as main";
+		// $main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0)) as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno");
+		// $main_join 	  = "partners p ON p.partnercode = main.customer ";
+		// $orderby  	  = "main.transactiondate DESC";
 		
 		$rva_cond 	=	($voucherno != "") ?	" AND app.voucherno = '$voucherno'"	:	"";
 
 		$mainTable	= "accountsreceivable as main";
 		$mainFields	= array(
 							"main.voucherno as voucherno", "main.transactiondate as transactiondate",
-							"main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0) - COALESCE(SUM(app.credits_used),0)) as balance", "main.referenceno as referenceno",
-							"SUM(app.convertedamount) as payment","COALESCE(SUM(app.credits_used),0) credits_used"
+							"main.convertedamount as amount", "IF((main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0) - COALESCE(SUM(app.credits_used),0))>0, (main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0) - COALESCE(SUM(app.credits_used),0)),0) as balance", "main.referenceno as referenceno",
+							"SUM(app.convertedamount) as payment","COALESCE(SUM(app.credits_used),0) credits_used","app.overpayment as overpayment"
 						);
 		$mainJoin	= "rv_application AS app ON app.arvoucherno = main.voucherno AND app.stat IN('open','posted') $rva_cond ";
 		$groupBy 	= "main.voucherno";
@@ -343,7 +343,6 @@ class receipt_voucher_model extends wc_model
 										->setFields($rv_fields)
 										->setWhere($rv_cond)
 										->buildSelect();
-
 		if($customercode && empty($voucherno)){
 			$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND main.balance != 0 ";
 			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $groupBy);
@@ -756,6 +755,7 @@ class receipt_voucher_model extends wc_model
 				$amount 	= $pickedValue['amt'];
 				$discount 	= $pickedValue['dis'];
 				$credits 	= $pickedValue['cred'];
+				$excess 	= $pickedValue['over'];
 				
 				$ret_bal	= $this->getValue("accountsreceivable", array("balance"), "voucherno = '$payable' AND stat NOT IN ('temporary','cancelled') ");
 				$balance 	= isset($ret_bal[0]->balance) 	?	$ret_bal[0]->balance 	:	0;
@@ -763,10 +763,11 @@ class receipt_voucher_model extends wc_model
 				$amount 	= str_replace(',','',$amount);
 				$discount 	= str_replace(',','',$discount);
 				$credits 	= str_replace(',','',$credits);
+				$excess 	= str_replace(',','',$excess);
 				
 				$totalamount+=$amount;
 				$total_credits_used+=$credits;
-
+				
 				$post_application['voucherno']			= $voucherno;
 				$post_application['transtype']			= 'RV';
 				$post_application['linenum']			= $iApplicationLineNum;
@@ -774,7 +775,7 @@ class receipt_voucher_model extends wc_model
 				$post_application['discount']			= $discount;
 				$post_application['amount']		 		= $amount;
 				$post_application['credits_used'] 		= $credits;
-				$post_application['overpayment'] 		= ($overpayment > 0) ? $amount - $balance : 0;
+				$post_application['overpayment'] 		= ($overpayment > 0) ? $excess : 0;
 				$post_application['currencycode']		= 'PHP';
 				$post_application['exchangerate']		= '1.00';
 				$post_application['convertedamount']	= $amount;
@@ -901,6 +902,7 @@ class receipt_voucher_model extends wc_model
 				$amount 					= $pickedValue['amt'];
 				$discount 					= $pickedValue['dis'];
 				$credits 					= $pickedValue['cred'];
+				$excess 					= $pickedValue['over'];
 
 				$data['avoucherno'] 		= $payable;
 
@@ -935,7 +937,7 @@ class receipt_voucher_model extends wc_model
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
 
 				$balance_info['amountreceived']	= $applied_sum;
-				$balance_info['excessamount'] 	= $overpayment;
+				$balance_info['excessamount'] 	= $excess;
 				$balance_amt 					= $invoice_amount - $applied_sum;
 				$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;
 				
@@ -1891,5 +1893,42 @@ class receipt_voucher_model extends wc_model
 					->runSelect()
 					->getResult();
 		return $result;
+	}
+
+	public function getValues($table, $cols = array(), $cond = "", $orderby = "", $bool = "" )
+	{
+		$result = $this->db->setTable($table)
+					->setFields($cols)
+					->setWhere($cond)
+					->setOrderBy($orderby)
+					->runSelect($bool)
+					->getResult();
+					
+		return $result;
+	}
+
+	public function getTax($table, $cols = array(), $join = "" ,$cond = "", $orderby = "", $bool = "" )
+	{
+		$result = $this->db->setTable($table)
+					->setFields($cols)
+					->innerJoin($join)
+					->setWhere($cond)
+					->setOrderBy($orderby)
+					->runSelect($bool)
+					->getResult();
+					
+		return $result;
+	}
+
+	public function getAccount($tax_account){
+		$result = $this->db->setTable('atccode a')
+					->setFields("tax_rate,tax_account")
+					->leftJoin("chartaccount c ON c.id = a.tax_account ")
+					->setWhere("atcId = '$tax_account'")
+					->runSelect()
+					->getResult();
+		return $result;
+
+
 	}
 }

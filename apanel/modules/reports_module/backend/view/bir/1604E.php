@@ -324,80 +324,8 @@
 											TOTAL AMOUNT REMITTED
 										</td>
 									</tr>
-									<tbody id="atc_container">
-									<?php
-									$month = 1;
-									for ($i=1; $i < 13; $i++):
-										if($i == '1'){$month = 'JAN';}
-										else if($i == '2'){$month = 'FEB';}
-										else if($i == '3'){$month = 'MAR';}
-										else if($i == '4'){$month = 'APR';}
-										else if($i == '5'){$month = 'MAY';}
-										else if($i == '6'){$month = 'JUN';}
-										else if($i == '7'){$month = 'JUL';}
-										else if($i == '8'){$month = 'AUG';}
-										else if($i == '9'){$month = 'SEP';}
-										else if($i == '10'){$month = 'OCT';}
-										else if($i == '11'){$month = 'NOV';}
-										else if($i == '12'){$month = 'DEC';}
-									?>
-									<tr>
-									<td><strong><?php echo $month;?></strong></td>
-										<td>
-											<?php
-												echo $ui->formField('text')
-														->setName('date'.$i)
-														->setClass('text-right')
-														->setValue('')
-														->draw(true);
-											?>
-										</td>
-										<td>
-											<?php
-												echo $ui->formField('text')
-														->setName('bank'.$i)
-														->setClass('text-right')
-														->setValue('')
-														->draw(true);
-											?>
-										</td>
-										<td>
-											<?php
-												echo $ui->formField('text')
-														->setName('taxwithheld'.$i)
-														->setClass('text-right')
-														->setPlaceholder('0.00')
-														->setValue('')
-														->setAttribute(array('readOnly' => 'readOnly'))
-														->draw(true);
-											?>
-										</td>
-										<td>
-											<?php
-												echo $ui->formField('text')
-														->setName('penalties'.$i)
-														->setClass('text-right amount')
-														->setPlaceholder('0.00')
-														->setValue('')
-														->draw(true);
-											?>
-										</td>
-										<td>
-											<?php
-												echo $ui->formField('text')
-														->setName('totalamount'.$i)
-														->setClass('text-right amount')
-														->setPlaceholder('0.00')
-														->setValue('')
-														->setAttribute(array('readOnly' => 'readOnly'))
-														->draw(true);
-											?>
-										</td>
-									</tr>
-									<?php
-									$month++;
-									endfor;
-									?>
+									<tbody id="tax_container">
+									
 									</tbody>
 									<tr>
 										<td><strong>Total</strong></td>
@@ -439,7 +367,7 @@
 											?>
 										</td>
 									</tr>
-							
+								
 								</table>
 							</div>
 						</div>
@@ -476,20 +404,15 @@
 	var ajax = {}
 	var ajax_call = '';
 	ajax.year 		= $('#birForm #yearfilter').val();
-	ajax.quarter 	= $('#birForm input[name=quarter]:checked').val();
+	
 
 	$('#birForm #yearfilter').on('change',function(){
 		ajax.year = this.value;
 		getList();	
 	});
 
-	$('body').on('ifChecked','.quarter', function() {
-		ajax.quarter = this.value;
-		getList();
-	});
-
 	$('body').on('blur', '[data-validation~="decimal"]', function(e) {
-		compute();
+		computeTotal();
 	});
 
 	function getList() {
@@ -497,71 +420,58 @@
 			ajax_call.abort();
 		}
 		ajax_call = $.post("<?=MODULE_URL?>ajax/load_list/<?=$bir_form?>", ajax, function(data) {
-			$('#birForm #atc_container').html(data.atc_table);
-			$('#birForm #totalwithheld').val(data.quartertotal);
-			$('#birForm #firstremittance').val(data.firstmonth);
-			$('#birForm #secondremittance').val(data.secondmonth);
-			compute();
+			$('#birForm #tax_container').html(data.tax_table);
+				computeTotal();
+				computePenalties();
+				computeTotalTax();
+			$('.penalties').on('change', function(e){
+				var penalties 	= 	$(this).val();
+				var id 			= 	$(this).attr("id");
+				var row 		=	id.replace(/[a-z]/g, '');
+				
+				var wtax 		= $('#taxwithheld'+row).val();
+				var w 			=	wtax.replace(/,/g, '');
+				var penalty 	= $('#penalties'+row).val();
+				var p 			=	penalty.replace(/,/g, '');
+				
+				var totalamount			= parseFloat(w) + parseFloat(p);
+				$('#totalamount'+row).val(addComma(totalamount));
+				computeTotal();
+				computePenalties();
+				computeTotalTax();
+			});
 		});
 	}
 	getList();
+	
+	function computeTotal() {
+		var sum = 0;
+		$('.totalamount').each(function() {
+			var value = $(this).val();
+			var v = value.replace(/,/g, '');
+			sum += +v;
+			$('#total').val(addComma(sum));
+		});
+	}
 
-	function compute(){
-		var totalwithheld 		= 0;
-		var firstremittance 	= 0;
-		var secondremittance 	= 0;
+	function computeTotalTax() {
+		var sum = 0;
+		$('.tax').each(function() {
+			var value = $(this).val();
+			var v = value.replace(/,/g, '');
+			sum += +v;
+			$('#totalwithheld').val(addComma(sum));
+		});
+	}
 
-		var previouslyfiled 	= 0;
-		var overremittance 		= 0;
-		var totalremittance 	= 0;
-
-		var taxdue 		= 0;
-		var surcharge 	= 0;
-		var interest 	= 0;
-		var compromise 	= 0;
-		var penalties 	= 0;
-
-		var amountdue 	= 0;
-
-		totalwithheld 		= $('#totalwithheld').val() || '0';
-		totalwithheld 		= totalwithheld.replace(/,/g,'');
-		firstremittance 	= $('#firstremittance').val() || '0';
-		firstremittance 	= firstremittance.replace(/,/g,'');
-		secondremittance 	= $('#secondremittance').val() || '0';
-		secondremittance 	= secondremittance.replace(/,/g,'');
-
-		previouslyfiled 	= $('#previouslyfiled').val() || '0';
-		previouslyfiled 	= previouslyfiled.replace(/,/g,'');
-		overremittance 		= $('#overremittance').val() || '0';
-		overremittance 		= overremittance.replace(/,/g,'');
-		
-		/**
-		 * Compute Total Remittances Made
-		 */
-		var total_remittance	= parseFloat(totalwithheld) - (parseFloat(firstremittance) + parseFloat(secondremittance) + parseFloat(previouslyfiled) + parseFloat(overremittance));
-		$('#totalremittance').val(addCommas(total_remittance.toFixed(2)));
-
-		/**
-		 * Compute Tax Still Due
-		 */
-		var taxdue				= parseFloat(totalwithheld) - parseFloat(total_remittance);
-		$('#taxdue').val(addCommas(taxdue.toFixed(2)));
-
-		surcharge 	= $('#surcharge').val() || '0';
-		surcharge 	= surcharge.replace(/,/g,'');
-		interest 	= $('#interest').val() || '0';
-		interest 	= interest.replace(/,/g,'');
-		compromise 	= $('#compromise').val() || '0';
-		compromise 	= compromise.replace(/,/g,'');
-		penalties 	= $('#penalties').val() || '0';
-		penalties 	= penalties.replace(/,/g,'');
-		
-		/**
-		 * Compute Total Amount Still Due
-		 */
-		var amountdue				= parseFloat(taxdue) + parseFloat(surcharge) + parseFloat(interest) + parseFloat(compromise) + parseFloat(penalties);
-		$('#amountdue').val(addCommas(amountdue.toFixed(2)));
-
+	function computePenalties() {
+		var sum = 0;
+		$('.penalties').each(function() {
+			var value = $(this).val();
+			var v = value.replace(/,/g, '');
+			sum += +v;
+			$('#totalpenalties').val(addComma(sum));
+		});
 	}
 
 	function addCommas(nStr)

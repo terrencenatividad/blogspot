@@ -373,6 +373,7 @@ class controller extends wc_controller
 		$data["particulars"]     = $data["main"]->particulars;
 		$data["paymenttype"]     = $data["main"]->paymenttype;
 		$credits_used 			 = $data["main"]->credits_used;
+		$data['overpayment'] 	 = $data["main"]->overpayment;
 		$data["credits_used"]    = $credits_used;
 		$available_credits 		 = $this->receipt_voucher->retrieve_existing_credits($customer);
 		$data["available_credits"] = isset($available_credits[0]->curr_credit) 	?	$available_credits[0]->curr_credit 	+	$credits_used	:	"0.00";
@@ -407,6 +408,7 @@ class controller extends wc_controller
 					$sum_discount += $value->dis;
 			}
 		}
+
 		$data['sum_applied'] 	= $sum_applied;
 		$data['sum_discount'] 	= $sum_discount;
 		$data['payments'] 		= json_encode($payments);
@@ -953,7 +955,7 @@ class controller extends wc_controller
 		$show_input 	   = ($task != "view") 	? 	1	:	0;
 	
 		if (empty($pagination->result)) {
-			$table = '<tr><td class="text-center" colspan="8"><b>No Records Found</b></td></tr>';
+			$table = '<tr><td class="text-center" colspan="10"><b>No Records Found</b></td></tr>';
 		}
 
 		if($pagination->result)
@@ -980,6 +982,7 @@ class controller extends wc_controller
 				$totalamount	= $pagination->result[$i]->amount;
 				$referenceno	= $pagination->result[$i]->referenceno;
 				$credit_used	= $pagination->result[$i]->credits_used;
+				$overpayment	= $pagination->result[$i]->overpayment;
 
 				$voucher_checked= (in_array($voucher , $voucher_array)) ? 'checked' : '';
 				$amt_checked 	= (in_array($voucher , $amt_array)) ? $amt_checked : '';
@@ -991,6 +994,7 @@ class controller extends wc_controller
 				$json_encode_array["amt"]    	= $totalamount;
 				$json_encode_array["bal"]   	= $balance;
 				$json_encode_array["cred"]		= $credit_used;
+				$json_encode_array['over']  	= $overpayment;
 			
 				$json_data[] 					= $json_encode_array;
 			
@@ -1011,6 +1015,7 @@ class controller extends wc_controller
 					$balance_2 	= $balance_2 - $amount - $discount - $credit_used;
 					$balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
 				}
+				// echo $balance."\n\n";
 				$disable_checkbox 	=	"";
 				$disable_onclick 	=	'onClick="selectPayable(\''.$voucher.'\',1);"';
 
@@ -1027,6 +1032,7 @@ class controller extends wc_controller
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
 				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_amount'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($totalamount,2).'">'.number_format($totalamount,2).'</td>';
 				$table	.= 	'<td class="text-right balances" style="vertical-align:middle;" id = "payable_balance'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance_2,2).'</td>';
+				$table	.= 	'<td class="text-right over hidden" style="vertical-align:middle;" id = "overpayment_'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($overpayment,2).'">'.number_format($overpayment,2).'</td>';
 				// $table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "credit_used'.$voucher.'" '.$disable_onclick.' data-value="'.number_format($credits,2).'">'.number_format($credits,2).'</td>';
 				if($voucher_checked == 'checked'){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
@@ -1182,7 +1188,7 @@ class controller extends wc_controller
 		$account_total = array();
 		$arvoucher_  = array();
 		$dis_amount  = array();
-
+		
 		for($i = 0; $i < count($decode_json); $i++)
 		{
 			$apvoucherno = $decode_json[$i]["vno"];
@@ -1528,5 +1534,37 @@ class controller extends wc_controller
 		$op_acct 			=	isset($overpaymentacct[0]->accountcode) 	?	$overpaymentacct[0]->accountcode 	:	"";
 		$dataArray 	=	array("account"=>$op_acct);
 		return $dataArray;
+	}
+
+	public function get_account(){
+		$tax_account = $this->input->post("tax_account");
+		$tax_amount = $this->input->post("tax_amount");
+		$result 	=  $this->receipt_voucher->getAccount($tax_account);
+		$tax = $result[0]->tax_rate;
+		$account = $result[0]->tax_account;
+		$amount = ($tax_amount * $tax) ;
+		$returnArray = array( "tax_amount" => $tax_amount, "tax_account" => $account ,"amount" => $amount);
+		return $returnArray;
+	}
+
+	public function get_tax(){
+		$account = $this->input->post("account");
+		$result = $this->receipt_voucher->getValues("chartaccount",array("segment5"),"id = '$account' ");
+		$result_class = $result[0]->segment5;
+
+		$bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
+		$bus_type_cond                = "tax_account = '$account' AND atc.stat = 'active'";
+		$join 						  =  "chartaccount ca ON atc.tax_account = ca.id";
+		$tax_list  			 		  = $this->receipt_voucher->getTax("atccode atc", $bus_type_data,$join ,$bus_type_cond, false);
+
+		$ret = '';
+		foreach ($tax_list as $key) {
+			$in  = $key->ind;
+			$val = $key->val;
+			$ret .= "<option value=". $in.">" .$val. "</option>";
+		}
+		
+		$returnArray = array( "result" => $result_class, "ret" => $ret);
+		return $returnArray;
 	}
 }

@@ -109,7 +109,7 @@
 										?>
 									</div>
 									<input type = "hidden" id = "originalamt" name = "originalamt" value = "0">
-									<input type = "hidden" id = "overpayment" name = "overpayment" value = "0">
+									<input type = "hidden" id = "overpayment" name = "overpayment" value = "<?=$overpayment?>">
 									<input type = "hidden" id = "total_cred_used" name = "total_cred_used" value = "<?=$credits_used?>">
 									<input type = "hidden" id = "old_cred_used" name = "old_cred_used" value = "<?=$credits_used?>">
 								</div>
@@ -635,8 +635,9 @@
 											$added_function_db 	= "";
 											$added_function_cr	= "";
 											$indicator 			= "";
-
-											if($aPvJournalDetails_Index < ($count-1) && $paymenttype == 'cheque' && $ischeck == 'yes'){										$disable_debit		= 'readOnly';
+											
+										if($aPvJournalDetails_Index < ($count-1) && $paymenttype == 'cheque' && $ischeck == 'yes'){					
+											$disable_debit		= 'readOnly';
 											$disable_credit		= 'readOnly';
 											$disable_dedit 		= "readOnly";
 											$disable_code 		= 'disabled';
@@ -1094,7 +1095,60 @@
 		</div>
 	</div>
 </div>
+<div class="modal fade" id="atcModal" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				Choose ATC Code
+			</div>
+			<div class="modal-body">
+				<form class="form-horizontal" id="newVendor" autocomplete="off">
+					<div class = "row">
+						<div class = "col-md-10">
+							<?php
+								echo $ui->formField('dropdown')
+										->setLabel('ATC Code')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('tax_account')
+										->setId('tax_account')
+										->setClass('tax_account')
+										->setValue('')
+										->draw($show_input);
+							?>
+							</div>
 
+						<div class = "col-md-10">
+							<?php
+								echo $ui->formField('text')
+										->setLabel('Tax Base Amount')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('tax_amount')
+										->setId('tax_amount')
+										->setClass('text-right tax_amount')
+										->setValue('')
+										->setValidation('required')
+										->draw($show_input);
+							?>
+						</div>
+					</div>
+					<div class="modal-footer">
+							<div class="row row-dense">
+								<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+									<div class="btn-group">
+										<button type="button" class="btn btn-primary btn-flat" id="tax_apply">Apply</button>
+									</div>
+										&nbsp;&nbsp;&nbsp;
+									<div class="btn-group">
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
+									</div>
+								</div>
+							</div>
+						</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
 <script>
 	<?php if ($task == 'create'):?>
 		getLockAccess('create');
@@ -1106,6 +1160,52 @@
 	var edited = false;
 	$('#paymentModal').on('blur', 'input', function() {
 		edited = true;
+	});
+
+	var row = '';
+	prev_account = '';
+	
+	function get_coa(account){
+	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_tax",{account:account}).done(function(data){
+		if((data.result == '1401005')){
+			if (prev_account != '' && account != prev_account) {
+				$('#tax_amount').val('');
+			}
+			prev_account = account;
+			$('#atcModal').modal('show');
+			$('#tax_account').html(data.ret);
+		} else {
+			row.find('.checkbox-select').show();
+			row.find('.edit-button').hide();
+		}
+	});
+
+	
+}
+	$('#entriesTable').on('change', '.accountcode', function(){
+		row = $(this).closest('tr')
+		var account = $(this).val();
+		get_coa(account);
+	})
+
+	$('#tax_apply').click(function(){
+		var tax_account = $('#tax_account').val();
+		var tax_amount = $('#tax_amount').val();
+		tax_amount = tax_amount.replace(/,/g,'');
+		$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_account",{tax_account:tax_account,tax_amount:tax_amount})
+		.done(function(data) {
+			var credit = data.amount ;
+			console.log(credit);
+			var taxcode = data.tax_account;
+			row.find('.credit').val(addCommas(credit));
+			row.find('.taxbase_amount').val(tax_amount);
+			row.find('.taxcode').val(tax_account);
+			addAmountAll('credit');
+		});
+		
+		$('#atcModal').modal('hide');
+		row.find('.checkbox-select').hide();
+		row.find('.edit-button').show().attr('data-amount', tax_amount);
 	});
 
 	function addcustomerToDropdown() {
@@ -1227,12 +1327,11 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 		cheque_arr.forEach(function(account) {
 			if( row == 1 ){
 				if($("#entriesTable tbody tr.clone").length == 1){
-					$("#entriesTable tbody tr.clone").last().before(clone_acct);
+					$("#entriesTable tbody tr.clone:not(.added_row)").first().before(clone_acct);
 				} else {
 					$('#entriesTable tbody tr.clone .accountcode').each(function() {
 						var account = $(this).val();
-						var ischeck = $(this).closest('tr').find('.ischeck').val();
-						if(task == 'create' && account == "" || account == "" && ischeck == 'yes'){
+						if(account == "" ){
 							$(this).closest('tr').remove();
 						}
 					});
@@ -1330,6 +1429,7 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 				checker['acc-' + account] += parseFloat(ca);
 			}
 		});
+		// console.log(checker);
 	}
 
 // Change event for chequeamount
@@ -2259,11 +2359,9 @@ var selectedIndex 	= -1;
 function getRVDetails(){
 	var customercode   	= $("#customer").val();
 	var overpayment 	= $('#overpayment').val();
-
 	var selected_rows 	= JSON.stringify(container);
 	var cheques = [];
 	cheques_obj = getCheckAccounts();
-
 
 	for (var chequeaccount in cheques_obj) {
 		if (cheques_obj.hasOwnProperty(chequeaccount)) {
@@ -2302,14 +2400,13 @@ function getRVDetails(){
 			var total_payment = $("#paymentModal #total_payment").val();
 			$("#paymentModal").modal("hide");
 
-			if(selected_rows != "")
+			if(selected_rows != ""){
 				$("#paymentmode").removeAttr("disabled");
+			}
 
 			if('<?= $task ?>' == "create" || '<?= $task ?>' == "edit" ){
-				
 				$("#entriesTable tbody").html(data.table);
 				$("#pv_amount").html(total_payment);
-				console.log('total '+total_payment);
 				var count_container = Object.keys(container).length;
 				var discount_amount = 0; 
 				for(i = 0; i < count_container; i++) {
@@ -2328,8 +2425,10 @@ function getRVDetails(){
 					$('#debit\\['+row+'\\]').val(discount_amount);
 					disable_acct_fields(row);
 				}
+				$('#entriesTable tbody tr.clone').removeClass('added_row');
 				addAmountAll("credit");
 				addAmountAll("debit");
+				addAmounts();
 			}	
 		});
 	}
@@ -2344,6 +2443,7 @@ function selectPayable(id,toggle){
 	var paymentamount_val = $('#payable_list_container #paymentamount'+id).attr('value');
 	var newbal  		= $('#payable_list_container #orig_bal'+id).attr('value');
 	var available_credit= $('#paymentForm #available_credits').val();	
+	var overpayment 	= $('#payable_list_container #overpayment'+id).val();
 
 	if(check.prop('checked' )){
 		if(toggle == 1){
@@ -2390,7 +2490,7 @@ function selectPayable(id,toggle){
 
 	// Get number of checkboxes and assign to textarea
 	balance 	=	removeComma(balance);
-	add_storage(id,balance,0,0);
+	add_storage(id,balance,0,0,overpayment);
 	addPaymentAmount();
 }
 
@@ -2401,12 +2501,12 @@ function init_storage(){
 	}
 }
 
-function add_storage(id,balance,discount,credits){
+function add_storage(id,balance,discount,credits,excess){
 	var amount 		= $('#paymentModal #paymentamount'+id).val();
 	var overpayment	= $('#payableForm #overpayment').val();
 		overpayment = parseFloat(removeComma(overpayment));
 
-	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount,cred:credits};
+	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount,cred:credits,over:excess};
 	var newcont 	= JSON.parse(JSON.stringify(container));
 
 	var total_cred_used  = 0;
@@ -2423,25 +2523,16 @@ function add_storage(id,balance,discount,credits){
 				var new_balance 		=	(removeComma(newvalue.bal) > 0) ? removeComma(newvalue.bal)	: 0;
 				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
 				var new_credit 			=	(removeComma(newvalue.cred) > 0)? removeComma(newvalue.cred): 0;
-				
-				console.log("NEW || "+original_amount+ " | " + original_balance + " | "+original_discount + " | " + original_credits);
+				var new_excess 			=	(removeComma(newvalue.over) > 0)? removeComma(newvalue.over): 0;
 
 				var available_balance 	=	(parseFloat(balance) - parseFloat(original_discount) - parseFloat(original_credits)) - new_amount;
 					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
-				// console.log("AVAILABLE = "+available_balance);
+
 				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount) + parseFloat(original_credits)) - discount - credits;
 					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
 
-					console.log('new amount = '+new_amount);
-					console.log('discount = '+original_discount);
-					console.log('credits = '+original_credits);
-					console.log('new disc = '+discount);
-					console.log('new credits = '+credits);
-				// console.log("AVAILABLE BALANCE = "+available_balance);
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
-
-				// console.log("New || "+new_amount+" || "+discounted_amount+ " | " + new_balance + " | "+discount+" | "+credits);
 
 				found = true;
 				if(parseFloat(new_amount) === 0) {
@@ -2482,23 +2573,32 @@ function checkBalance(val,id){
 	var discountamount 	= $('#payable_list_container #discountamount'+id).val();
 	var credit_used 	= $('#payable_list_container #credits_used'+id).val();
 	var current_payment = $('#payable_list_container #paymentamount'+id).val();
+	// var curr_overpayment= $('#payable_list_container #overpayment'+id).val();
 
 	dueamount			= removeComma(dueamount);
 	discount			= removeComma(discountamount);
 	current_payment		= removeComma(current_payment);
 	var newval			= removeComma(val);
 	total_amount 		= removeComma(total_amount);
+	// curr_overpayment 	= removeComma(curr_overpayment);
 
 	var condition = "";
 	var input 	  = "";
 	var error 	  = 0;
 		condition 		= (parseFloat(newval) || parseFloat(discount) == 0 || (parseFloat(discount) > parseFloat(dueamount) || parseFloat(discount) > parseFloat(current_payment) ) ) ;
 	
-	var excess_payment 	= 0;
-
+	// $('#app_payableList tr').each(function(e){
+	// 	var  
+	// });
+	// var excess_payment 	= $('#overpayment').val();
+	var excess_payment 	= $('#overpayment').val();
+		excess_payment 	= parseFloat(excess_payment) || 0;
+	
+	var ind_excess 		= 0;
 	if(condition){
 		if(current_payment >= 0){
-			excess_payment 	+=	(current_payment - dueamount);
+			excess_payment 	+=	(current_payment - total_amount);
+			ind_excess 		=	current_payment - total_amount;
 			$('#receiveAmtError').addClass('hidden');
 		} else {
 			$('#receiveAmtError').removeClass('hidden');
@@ -2525,6 +2625,7 @@ function checkBalance(val,id){
 			$('#TagReceivablesBtn').prop('disabled',false);
 		}
 		$('#payableForm #overpayment').val(excess_payment);
+		$('#payable_list_container #overpayment'+id).val(ind_excess);
 		$('#payable_list_container #paymentamount'+id).value = '';
 	}else{
 		$('#payable_list_container #paymentamount'+id).value = newval;
@@ -2533,7 +2634,7 @@ function checkBalance(val,id){
 	if(error == 0){
 		dueamount 	=	(excess_payment > 0) 	?	 0	:	dueamount;
 
-		add_storage(id,dueamount,discount,credit_used);
+		add_storage(id,dueamount,discount,credit_used,ind_excess);
 		addPaymentAmount();	
 	}
 }
@@ -2544,6 +2645,7 @@ function checkCredit(val,id){
 	var avail_credits 	=	$('#paymentForm #available_credits').val();
 	var discountamount 	= 	$('#payable_list_container #discountamount'+id).val();
 	var current_payment = 	$('#payable_list_container #paymentamount'+id).val();
+	var overpayment 	=	$('#payable_list_container #overpayment'+id).val();
 
 	var input 			= 	removeComma(val);
 		total_amount 	= 	removeComma(total_amount);
@@ -2551,12 +2653,13 @@ function checkCredit(val,id){
 		dueamount 		=	removeComma(dueamount);
 		avail_credits 	=	removeComma(avail_credits);
 		current_payment = 	removeComma(current_payment);
+		overpayment 	= 	removeComma(overpayment);
 
 	if(input > avail_credits){
 		input = 0;
 	}
 
-	add_storage(id,dueamount,discount,input);
+	add_storage(id,dueamount,discount,input,overpayment);
 	addPaymentAmount();	
 }
 
@@ -3665,7 +3768,7 @@ $(document).ready(function() {
 
 	} else if( task == "edit") {
 		var paymentmode = $("#paymentmode").val();
-
+		console.log(container);
 		var selected_rows 	= JSON.stringify(container);
 		$('#selected_rows').html(selected_rows);
 

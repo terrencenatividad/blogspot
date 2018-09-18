@@ -61,11 +61,13 @@ class inventory_adjustment_model extends wc_model {
 
 	public function check_if_exists($column, $table, $condition)
 	{
-		return $this->db->setTable($table)
+		$result= $this->db->setTable($table)
 						->setFields("COUNT(".$column.") count")
 						->setWhere($condition)
 						->runSelect()
 						->getResult();
+
+		return $result;
 	}
 
 	private function generateSearch($search, $array) 
@@ -97,6 +99,7 @@ class inventory_adjustment_model extends wc_model {
 		$itemname 	 		= (isset($data['itemname']) && (!empty($data['itemname']))) ? htmlentities(addslashes(trim($data['itemname']))) : "";
 
 		$issueqty 			= (isset($data['issueqty']) && (!empty($data['issueqty']))) ? htmlentities(addslashes(trim($data['issueqty']))) : "";
+		$issueqty 			= str_replace(',','',$issueqty);
 
 		$warehouse 			= (isset($data['h_warehouse']) && (!empty($data['h_warehouse']))) ? htmlentities(addslashes(trim($data['h_warehouse']))) : "";
 
@@ -107,8 +110,7 @@ class inventory_adjustment_model extends wc_model {
 	
 		$increase 			= $decrease 		= 0;
 		
-
-		$retrieval 			=  $this->db->setTable("invfile")
+		$retrieval 			=  	$this->db->setTable("invfile")
 													->setFields("onhandQty")
 													->setWhere(" itemcode = '$itemcode' ")
 													->runSelect()
