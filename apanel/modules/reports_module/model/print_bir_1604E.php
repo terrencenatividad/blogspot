@@ -412,17 +412,14 @@ class print_bir_1604E extends fpdf {
 		 * Signatory
 		 */
 		$this->SetY(285);
-		$this->SetX(7);
+		$this->SetX(20);
 		if(strtolower($businesstype) == 'individual'){
-			$this->Cell(100.5, 5, $signatory_name, 0, 0, 'C');
-			$this->Cell(102, 5, '', 0, 0, 'C');
+			$this->Cell(80, 5, $signatory_name, 0, 0, 'C');
 		}else{
-			$this->Cell(100.5, 5,'', 0, 0, 'C');
-			$this->Cell(102, 5, $signatory_name, 0, 0, 'C');
+			$this->Cell(80, 5, $signatory_name, 0, 0, 'C');
 		}
-		$this->SetX(8);
-		$this->Cell(100.5, 5,'', 0, 0, 'C');
-		$this->Cell(50, 5, $signatory_role, 0, 0, 'C');
+		$this->SetX(110);
+		$this->Cell(40, 5, $signatory_role, 0, 0, 'C');
 
 		/**
 		 * Second Page
