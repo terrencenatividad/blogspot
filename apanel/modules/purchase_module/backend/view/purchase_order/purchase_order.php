@@ -349,7 +349,7 @@
 								for($i = 0; $i < count($details); $i++)
 								{
 									$itemcode 	 		= $details[$i]->itemcode;
-									$detailparticular	= $details[$i]->detailparticular;
+									$detailparticular	= stripslashes($details[$i]->detailparticular);
 									$quantity 			= number_format($details[$i]->receiptqty,0);
 									$itemprice 			= $details[$i]->unitprice;
 									$taxcode 			= $details[$i]->taxcode;
