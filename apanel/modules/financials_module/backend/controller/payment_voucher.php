@@ -1242,9 +1242,10 @@ class controller extends wc_controller
 		$toggle_wtax	= ($wtax_option != 'PV') ? "hidden" : "";
 
 		for($i = 0; $i < count($decode_json); $i++) {
+			
 			$apvoucherno = $decode_json[$i]["vno"];
 			$accountcode = $this->payment_voucher->getValue('ap_details apd LEFT JOIN chartaccount AS chart ON apd.accountcode = chart.id AND chart.companycode = apd.companycode','accountcode',"voucherno = '$apvoucherno' AND chart.accountclasscode = 'ACCPAY'","","","apd.accountcode");
-			$accountcode = $accountcode[0]->accountcode;
+			$accountcode = isset($accountcode[0]->accountcode)   ?  $accountcode[0]->accountcode   :  "";
 			if ( ! isset($account_amounts[$accountcode])) {
 				$account_amounts[$accountcode] = 0;
 			}
