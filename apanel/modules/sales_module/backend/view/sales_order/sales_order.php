@@ -13,6 +13,11 @@
 		</form>
 
 		<form method = "post" class="form-horizontal" id = "sales_order_form">
+
+			<input class = "form_iput" value = "" name = "h_curr_limit" id = "h_curr_limit" type="hidden">
+			<input class = "form_iput" value = "" name = "h_outstanding" id = "h_outstanding" type="hidden">
+			<input class = "form_iput" value = "" name = "h_incurred" id = "h_incurred" type="hidden">
+			<input class = "form_iput" value = "" name = "h_balance" id = "h_balance" type="hidden">
 			
 			<div class="box-body">
 				<br>
@@ -57,7 +62,7 @@
 								<?php
 									if($show_input){
 										echo $ui->formField('dropdown')
-											->setLabel('Customer')
+											->setLabel('Customer ')
 											->setPlaceholder('None')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('customer')
@@ -655,7 +660,79 @@
 	</div>
 
 </section>
+
+<div class="modal fade" id="creditLimitModal" tabindex="-1"  data-backdrop="static" data-keyboard="false" >
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Oops!
+			</div>
+			<div class="modal-body" id="message">
+				This customer is about to exceed their Credit Limit. Do you wish to Proceed?
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 ">
+						<div class="text-center">
+							<button type="button" class="btn btn-info btn-flat" id="btnOk" data-dismiss='modal'>OK</button>
+						</div>
+							<!-- &nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-flat" id="btnNo" >No</button>
+						</div> -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script>
+	function retrieveCurrentOutstandingReceivables(customercode){
+		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_outstanding_receivables', "customercode=" + customercode, function(data) {
+			$('#h_outstanding').val(data.outstanding_receivables);
+			computeforremainingcredit();
+		});
+	}
+
+	function retrieveCurrentIncurredReceivables(customercode){
+		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_incurred_receivables', "customercode=" + customercode, function(data) {
+			$('#h_incurred').val(data.incurred_receivables);
+			// computeforremainingcredit();
+		});
+	}
+
+	function retrieveCreditLimit(customercode){
+		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_credit_limit', "customercode=" + customercode, function(data) {
+			$('#h_curr_limit').val(data.credit_limit);
+		});
+	}
+
+	function computeforremainingcredit(){
+		var credit_limit 			=	$('#h_curr_limit').val();
+		var outstanding_receivables = 	$('#h_outstanding').val();
+		// var incurred_receivables 	=	$('#h_incurred').val();
+
+		var balance 				=	parseFloat(credit_limit) 	-	parseFloat(outstanding_receivables);
+
+		$('#h_balance').val(balance);
+	}
+
+	function checkIfExceededCreditLimit(){
+		var current_total 		=	$('#t_total').val();
+		var current_balance 	=	$('#h_balance').val();
+		var current_outstanding	=	$('#h_outstanding').val();
+		var current_limit		=	$('#h_curr_limit').val();
+
+		var flag 	=	0; 
+		if(removeComma(current_total) > removeComma(current_balance)){
+			$('#creditLimitModal #message').html("Total sales order of "+addComma(current_total)+" exceeds your credit limit of "+addComma(current_limit)+". <br><br>Current Credit Balance: "+addComma(current_outstanding));	
+			flag 	=	1;
+		}
+
+		return flag;
+	}
+
 	function addCustomerToDropdown() {
 		var optionvalue = $("#customer_modal #customerForm #partnercode").val();
 		var optiondesc 	= $("#customer_modal #customerForm #partnername").val();
@@ -731,7 +808,7 @@
 				<div class="row row-dense">
 					<div class="col-md-12 center">
 						<div class="btn-group">
-							<button type="button" class="btn btn-info btn-flat" id="btnYes">Yes</button>
+							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
 						</div>
 							&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
@@ -768,26 +845,22 @@ var ajax = {};
 var close_date 	=	$('#h_close_date').val();
 
 /**RETRIEVES CUSTOMER INFORMATION**/
-function getPartnerInfo(code)
-{
+function getPartnerInfo(code) {
 	var cmp = '<?= $cmp ?>';
 
-	if(code == '' || code == 'add')
-	{
+	if(code == '' || code == 'add') {
 		$("#customer_tin").val("");
 		$("#customer_terms").val("");
 		$("#customer_address").val("");
 
 		computeDueDate();
-	}
-	else
-	{
+	} else {
 		$.post('<?=BASE_URL?>sales/sales_order/ajax/get_value', "code=" + code + "&event=getPartnerInfo", function(data) 
 		{
 			var address		= data.address.trim();
 			var tinno		= data.tinno.trim();
 			var terms		= data.terms.trim();
-			
+
 			$("#customer_tin").val(tinno);
 			$("#customer_terms").val(terms);
 			$("#customer_address").val(address);
@@ -858,8 +931,9 @@ function getItemDetails(id)
 				document.getElementById('detailparticulars'+row).value 		=	data.itemdesc;
 				document.getElementById('uom'+row).value 					=	data.uomcode;
 				
-				if( data.c_price != null )
+				if( data.c_price != null && data.stat == 'active' )
 				{
+				
 					document.getElementById('itemprice'+row).value 			= 	addComma(data.c_price);
 				}
 				else
@@ -943,9 +1017,6 @@ function addAmounts() {
 	var table				= document.getElementById('itemsTable');
 	var count				= table.tBodies[0].rows.length;
 
-	//var discount			= parseFloat(document.getElementById('t_discount').value || 0.00);
-	
-	//var discount_type 		= document.getElementById('h_disctype').value;
 
 	for (var i = 1; i <= count; i++) {
 		var row = '[' + i + ']';
@@ -963,50 +1034,14 @@ function addAmounts() {
 		var taxrate			= parseFloat(x_taxrate.value);
 		var quantity 		= x_quantity.value.replace(/[,]+/g,'');
 
-		// var tax_amount		= ( quantity * unitprice ) * taxrate;
-		// var amount			= ( quantity * unitprice ) / (taxrate + 1);
-
 		var amount			= ( quantity * unitprice );
-
-		// var net_of_vat		= 0;
-		// var vat_ex			= 0;
-		// var vat				= 0;
-		// var temp_amount 	= 0;
 		
 		x_amount.value		= addCommas(amount.toFixed(2));
 		h_amount.value		= amount.toFixed(2);
-		//x_taxamount.value	= tax_amount.toFixed(2);
-	
-		// if( taxrate > 0.00 || taxrate > 0 )	
-		// {
-		// 	net_of_vat 		= amount;
-		// }
-		
-		// vat_ex				= amount - net_of_vat;
-		// vat					= net_of_vat * taxrate;
-	
-		// total_h_vatable		+= net_of_vat;
-		// total_h_vatex		+= vat_ex;
-		// total_h_vat			+= vat;
 
-		total_amount 	 		+= amount;
+		total_amount 	 	+= amount;
 	}
 
-	// subtotal 				= total_h_vatable + total_h_vatex;
-
-	// if( discount_type == 'perc' )
-	// {
-	// 	total_discount 		= subtotal * ( discount / 100 );
-	// }
-	// else if( discount_type == 'amt' )
-	// {
-	// 	total_discount 		= discount;
-	// }
-	
-	// document.getElementById('t_vatsales').value				= total_h_vatable.toFixed(2);
-	// document.getElementById('t_vatexempt').value			= total_h_vatex.toFixed(2);
-	// document.getElementById('t_subtotal').value 			= subtotal.toFixed(2);
-	// document.getElementById('t_vat').value					= total_h_vat.toFixed(2);
 	document.getElementById('t_total').value 				= addCommas(total_amount.toFixed(2));
 
 }
@@ -1155,24 +1190,33 @@ function finalizeTransaction(type)
 		}
 	});
 
+	var credit_limit_exceed =	checkIfExceededCreditLimit();
+	if(credit_limit_exceed == 1){
+		// $('#creditLimitModal').modal('show');
+		no_error = false;
+	}
+
 	if($("#sales_order_form").find('.form-group.has-error').length == 0 && no_error)
 	{	
 		$('#save').val(type);
 		computeAmount();
-
 		if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
 		{
-			setTimeout(function() {
+			$('#delay_modal').modal('show');
+			setTimeout(function() {									
 				$('#sales_order_form').submit();
-			},1000);
+			}, 1000)
 		}
-		
 	}
 	else{
-		$('#warning_modal').modal('show').find('#warning_message').html('Please make sure all required fields are filled out.');		
-		//$('#warning_modal').modal('show').find('#warning_message').html('Please Input Quantity > 0');
-		next = $('#sales_order_form').find(".has-error").first();
-		$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
+		if(credit_limit_exceed != 1){
+			$('#warning_modal').modal('show').find('#warning_message').html('Please make sure all required fields are filled out.');		
+			next = $('#sales_order_form').find(".has-error").first();
+			$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
+		} else {
+			$('#creditLimitModal').modal('show');
+		}
+		 
 	}
 }
 
@@ -1212,11 +1256,14 @@ function finalizeEditTransaction()
 					{
 						if( btn == 'final' )
 						{
-							window.location 	=	"<?=BASE_URL?>sales/sales_order";
+							$('#delay_modal').modal('show');
+							setTimeout(function() {									
+								window.location 	=	"<?=BASE_URL?>sales/sales_order";
+							}, 1000)
 						}
 						else if( btn == 'final_preview' )
 						{
-							window.location 	=	"<?=BASE_URL?>sales/sales_order/view/"+data.voucher;
+							window.location 	=	"<?=BASE_URL?>sales/sales_order/view/"+data.voucher;															
 						}
 						else if( btn == 'final_new' )
 						{
@@ -1316,11 +1363,15 @@ $(document).ready(function(){
 		// Get getPartnerInfo
 		$( "#customer" ).change(function() 
 		{
-			$customer_id = $("#customer").val();
+			customer_id = $("#customer").val();
 
-			if( $customer_id != "" )
+			if( customer_id != "" )
 			{
-				getPartnerInfo($customer_id);
+				retrieveCreditLimit(customer_id);
+				retrieveCurrentIncurredReceivables(customer_id);
+				retrieveCurrentOutstandingReceivables(customer_id);
+
+				getPartnerInfo(customer_id);
 				if( $('#itemcode\\[1\\]').val() != "" ){
 					$('.itemcode').trigger('change');
 				}
@@ -1524,9 +1575,10 @@ $(document).ready(function(){
 		{
 			//Final Saving
 			$('#sales_order_form .save').click(function(){
-				
+				$('#itemsTable tbody tr td').find('.warehouse').find('option[disabled]').prop('disabled', false)
 				$('#save').val("final");
-
+				
+				
 				finalizeEditTransaction();
 			});
 		}
@@ -1578,6 +1630,15 @@ $(document).ready(function(){
 			window.history.back();
 		});
 	// -- Back Button -- End
+
+	$('#creditLimitModal').on('click','#btnOk',function(){
+		$('#creditLimitModal').modal('hide');
+	});
+	
+	// $('#creditLimitModal').on('click','#btnNo',function(){
+	// 	window.location.href = '<?=BASE_URL?>sales/sales_order/create';
+	// });
+	
 });
 
 </script>

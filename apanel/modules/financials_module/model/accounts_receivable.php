@@ -19,11 +19,18 @@ class accounts_receivable extends wc_model
 		return $result;
 	}
 
-	public function retrieveProformaList()
+	public function retrieveProformaList($data)
 	{
+		$proformacode = $data['proformacode'];
+		if($data['task'] == 'edit'){
+			$cond = "transactiontype = 'Accounts Receivable' AND stat = 'active' OR proformacode = '$proformacode'";
+		}else{
+			$cond = "transactiontype = 'Accounts Receivable' AND stat = 'active'";
+		}
 		$result = $this->db->setTable('proforma')
-					->setFields("proformacode ind, proformadesc val")
+					->setFields("proformacode ind, proformadesc val, stat stat")
 					->setOrderBy("val")
+					->setWhere($cond)
 					->runSelect()
 					->getResult();
 		
@@ -46,7 +53,7 @@ class accounts_receivable extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, customer, referenceno, particulars, duedate, amount, balance, exchangerate, convertedamount, invoiceno, lockkey as importchecker, stat";
+		$setFields = "voucherno, transactiondate, customer, referenceno, particulars, proformacode, duedate, amount, balance, exchangerate, convertedamount, invoiceno, lockkey as importchecker, stat";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -396,17 +403,17 @@ class accounts_receivable extends wc_model
 		return $result;
 	}
 
-	public function getValue($table, $cols = array(), $cond = "", $orderby = "", $bool = "")
+	public function getValue($table, $cols = array(), $cond = "", $orderby = "", $bool = "", $groupby = "", $join="")
 	{
 		$result = $this->db->setTable($table)
 					->setFields($cols)
 					->setWhere($cond)
+					->leftJoin($join)
 					->setOrderBy($orderby)
+					->setGroupBy($groupby)
 					->runSelect($bool)
 					->getResult();
-
-		// var_dump($this->db->buildSelect());
-
+		// echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -445,6 +452,7 @@ class accounts_receivable extends wc_model
 		$invoiceno			= (isset($data['invoiceno']) && (!empty($data['invoiceno']))) ? htmlentities(addslashes(trim($data['invoiceno']))) : "";
 		$transactiondate	= (isset($data['document_date']) && (!empty($data['document_date']))) ? htmlentities(addslashes(trim($data['document_date']))) : "";
 		$duedate			= (isset($data['due_date']) && (!empty($data['due_date']))) ? htmlentities(addslashes(trim($data['due_date']))) : "";
+		$proformacode		= (isset($data['proformacode']) && (!empty($data['proformacode']))) ? htmlentities(addslashes(trim($data['proformacode']))) : "";
 		$remarks			= (isset($data['remarks']) && (!empty($data['remarks']))) ? htmlentities(addslashes(trim($data['remarks']))) : "";
 		$terms				= (isset($data['customer_terms']) && (!empty($data['customer_terms']))) ? htmlentities(addslashes(trim($data['customer_terms']))) : 0;
 		$totalamount		= (isset($data['total_debit']) && (!empty($data['total_debit']))) ? htmlentities(addslashes(trim($data['total_debit']))) : "";
@@ -478,7 +486,7 @@ class accounts_receivable extends wc_model
 		$post_header['referenceno']		= $referenceno;
 		$post_header['exchangerate']	= $exchangerate;
 		$post_header['stat']			= $status;
-		$post_header['proformacode']	= '';
+		$post_header['proformacode']	= $proformacode;
 		$post_header['transtype']		= 'AR';
 		$post_header['invoicedate']		= $transactiondate;
 		$post_header['duedate']			= $duedate;

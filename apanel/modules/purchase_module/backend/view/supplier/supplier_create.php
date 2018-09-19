@@ -12,7 +12,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Code')
+								->setLabel('Code ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('partnercode')
 								->setId('partnercode')
@@ -29,12 +29,12 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Company Name')
+								->setLabel('Company Name ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('partnername')
 								->setId('partnername')
 								->setValidation('required special')
-								->setMaxLength(255)
+								->setMaxLength(30)
 								->setValue($partnername)
 								->draw($show_input);
 						?>
@@ -45,7 +45,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('textarea')
-								->setLabel('Address')
+								->setLabel('Address ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('address1')
 								->setId('address1')
@@ -62,6 +62,7 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('email')
 								->setId('email')
+								->setMaxLength(150)
 								->setValue($email)
 								->setAttribute(array('data-inputmask' => "'alias': 'email'"))
 								->draw($show_input);
@@ -73,7 +74,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Business Type')
+								->setLabel('Business Type ')
 								->setPlaceholder('Filter Business Type')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('businesstype')
@@ -91,7 +92,7 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('mobile')
 								->setId('mobile')
-								// ->setMaxLength(20)
+								->setMaxLength(20)
 								->setValue($mobile)
 								->setAttribute(array('data-inputmask' => "'mask': '0999-999-9999'"))
 								->draw($show_input);
@@ -102,7 +103,11 @@
 				<div class="row">
 					<div class="col-md-12">	
 						<!-- <label for="first_name" class="control-label" style="margin:15px;"><span style="font-size:15px;">Contact Person:</span></label> -->
-						<h4>Contact Person</h4>
+						<?php if (MODAL): ?>
+							<h4>Contact Person</h4>
+						<?php else: ?>
+							<h3>Contact Person</h3>
+						<?php endif ?>
 						<hr>
 					</div>
 					<div class="col-md-6">
@@ -112,7 +117,7 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('first_name')
 								->setId('first_name')
-								->setMaxLength(50)
+								->setMaxLength(20)
 								->setValidation('special')
 								->setValue($first_name)
 								->draw($show_input);
@@ -125,7 +130,7 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('last_name')
 								->setId('last_name')
-								->setMaxLength(50)
+								->setMaxLength(20)
 								->setValidation('special')
 								->setValue($last_name)
 								->draw($show_input);
@@ -226,6 +231,7 @@ $('#supplierForm #btnSave').on('click',function(){
 				<?php if (MODAL): ?>
 					addVendorToDropdown();
 				<?php else: ?>
+					$('#delay_modal').modal('show');
 					setTimeout(function() {
 						window.location = '<?php echo BASE_URL . 'maintenance/supplier'; ?>';
 					},500);

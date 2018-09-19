@@ -220,7 +220,7 @@
 </div>
 
 <!-- Import Customers Modal -->
-<div class="import-modal" id="import-tagcust-modal" tabindex="-1" data-backdrop="static">>
+<div class="import-modal" id="import-tagcust-modal" tabindex="-1" data-backdrop="static">
 	<div class="modal">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -275,6 +275,9 @@ function show_success_msg(msg)
 {
 	$('#success_modal #message').html(msg);
 	$('#success_modal').modal('show');
+	setTimeout(function() {												
+		window.location = '<?= MODULE_URL ?>';		
+	}, 1000)
 }
 
 $( "#search" ).keyup(function() {
@@ -381,6 +384,7 @@ $(document).ready(function()  {
 									$('#import-modal').modal('hide');
 									$(".alert-warning").addClass("hidden");
 									$("#errmsg").html('');
+									show_success_msg("Your data has been successfully imported!");
 									showList();
 								}else{
 									$('#import-modal').modal('hide');
@@ -487,6 +491,25 @@ $(function() {
 	linkDeleteMultipleToModal('#item_multiple_delete', '#sales_person_table', 'ajaxCallback');
 });
 
+$('#sales_person_table').on('click', '.activate', function() { 
+			var code = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&partnercode='+code ,function(data) {
+				showList();
+			});
+		});
+
+		$('#sales_person_table').on('click', '.deactivate', function() { 
+			$('#deactivate_modal').modal('show');
+			var id = $(this).attr('data-id');
+			
+			$('#deactivate_modal').on('click', '#deactyes', function() {
+				$('#deactivate_modal').modal('hide');
+				
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&partnercode='+id ,function(data) {
+					showList();
+				});
+			});
+		});
 $('#export_id').prop('download','sales_person.csv');
 
 </script>

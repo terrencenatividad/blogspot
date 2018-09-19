@@ -12,13 +12,14 @@
             <form method = "post" id = "bankForm" class="form-horizontal">
 				<input type="hidden" name="id" id="id" value="<?=$id?>">	
 				<input type="hidden" name="h_accountno" id="h_accountno" value="<?=$accountno?>">	
+				<input type="hidden" name="old_gl_code" id="old_gl_code" value="<?=$gl_code?>">	
 				<div class = "col-md-12">&nbsp;</div>
 
 				<div class="row">
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-									->setLabel('Bank Account GL Code:')
+									->setLabel('Bank Account GL Code: ')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('gl_code')
 									->setId('gl_code')
@@ -34,7 +35,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Bank Account Name:')
+									->setLabel('Bank Name: ')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('shortname')
 									->setId('shortname')
@@ -50,7 +51,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Bank Account Code')
+									->setLabel('Bank Account Code ')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('bankcode')
 									->setId('bankcode')
@@ -64,7 +65,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Bank Account Number:')
+									->setLabel('Bank Account Number: ')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('accountno')
 									->setId('accountno')
@@ -80,7 +81,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Currency')
+								->setLabel('Currency ')
 								->setPlaceholder('Filter Currency')
 								->setSplit('col-md-3', 'col-md-6')
 								->setName('currency')
@@ -141,7 +142,7 @@
 							}else{
 						?>
 							<div class="btn-group">
-								<a class="btn btn-primary btn-flat" role="button" href="<?=BASE_URL?>maintenance/currency/edit/<?=$currencycode?>" style="outline:none;">Edit</a>
+								<a class="btn btn-primary btn-flat" role="button" href="<?=BASE_URL?>maintenance/bank/edit/<?=$id?>" style="outline:none;">Edit</a>
 							</div>
 						<?
 							}
@@ -163,19 +164,23 @@ var ajax = {};
 
 $('#bankForm #btnSave').on('click',function(){
 
-	$('#bankForm #gl_code').trigger('blur');
-	$('#bankForm #currency').trigger('blur');
-	$('#bankForm #bankcode').trigger('blur');
-	$('#bankForm #bankname').trigger('blur');
-	$('#bankForm #accountcode').trigger('blur');
-	$('#bankForm #acccountno').trigger('blur');
-
+	// $('#bankForm #gl_code').trigger('blur');
+	// $('#bankForm #currency').trigger('blur');
+	// $('#bankForm #bankcode').trigger('blur');
+	// $('#bankForm #bankname').trigger('blur');
+	// $('#bankForm #accountcode').trigger('blur');
+	// $('#bankForm #acccountno').trigger('blur');
+	$('#bankForm').find('.form-group').find('input, textarea, select').trigger('blur');
+	
 	if ($('#bankForm').find('.form-group.has-error').length == 0)
 	{	
 		$.post('<?=BASE_URL?>maintenance/bank/ajax/<?=$task?>', $('#bankForm').serialize()+ '<?=$ajax_post?>', function(data) {
 			if( data.msg == 'success' )
 			{
-				window.location = '<?php echo BASE_URL . 'maintenance/bank'; ?>';
+				$('#delay_modal').modal('show');
+						setTimeout(function() {				
+							window.location = '<?php echo BASE_URL . 'maintenance/bank'; ?>';							
+						}, 1000)
 			}
 		});
 	}
@@ -206,14 +211,36 @@ $('#bankForm #accountno').on('blur',function(){
 	});
 });
 
+$('#bankForm #gl_code').on('blur',function(){
+
+	
+	ajax.old_gl_code 	= 	$('#old_gl_code').val();
+	ajax.curr_gl_code 	=	$('#bankForm #gl_code').val()
+
+	var task 		=	'<?=$task?>';
+	var error_message 	=	'';	
+	var form_group	 	= 	$('#gl_code').closest('.form-group');
+
+	$.post('<?=BASE_URL?>maintenance/bank/ajax/check_duplicate_gl_code',ajax, function(data) {
+		if( data.msg == 'exists' )
+		{
+			error_message 	=	"<b>The GL Code you chose was being used by another bank</b>";
+			$('#bankForm #gl_code').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+		}
+		else if( ( ajax.curr_code != "" && data.msg == "") || (data.msg == '' && task == 'edit'))
+		{
+			if (form_group.find('p.help-block').html() != "") {
+				form_group.removeClass('has-error').find('p.help-block').html('');
+			}
+		}
+	});
+});
+
 $('#bankForm #btnCancel').on('click',function(){
 	window.location = '<?php echo BASE_URL . 'maintenance/bank'; ?>';
 });
 
-// $('#pricelist_table').on('click','.tag_customers',function(){
-// 	var code	=	$(this).attr('data-id');
-// 	window.location = '<?=MODULE_URL?>tag_customers/'+code;
-// });
+
 
 
 </script>

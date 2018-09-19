@@ -2,12 +2,14 @@
 class uom_model extends wc_model {
 
 	public function saveItem($data) {
+		$data['stat'] = 'active';
 		return $this->db->setTable('uom')
 			->setValues($data)
 			->runInsert();
 	}
 
 	public function updateItem($data, $dataid) {
+		$data['stat'] = 'active';
 		return $this->db->setTable('uom')
 				->setValues($data)
 				->setWhere("uomcode = '$dataid'")
@@ -33,7 +35,6 @@ class uom_model extends wc_model {
 	}
 
 	public function getItemList($fields, $search) {
-		
 		$condition = '';
 		if ($search) {
 			$condition .= $this->generateSearch($search, array('uomcode','uomdesc','uomtype'));
@@ -64,6 +65,19 @@ class uom_model extends wc_model {
 			$temp[] = $arr . " LIKE '%" . str_replace(' ', '%', $search) . "%'";
 		}
 		return '(' . implode(' OR ', $temp) . ')';
+	}
+
+	public function updateStat($data,$code)
+	{
+		$condition 			   = " uomcode = '$code' ";
+
+		$result 			   = $this->db->setTable('uom')
+											->setValues($data)
+											->setWhere($condition)
+											->setLimit(1)
+											->runUpdate();
+
+		return $result;
 	}
 
 }

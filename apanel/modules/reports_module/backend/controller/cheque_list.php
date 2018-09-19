@@ -12,7 +12,7 @@ class controller extends wc_controller {
 	}
 
 	public function view() {
-		$this->view->title = 'Cheque List';
+		$this->view->title = 'Check List';
 		$data['ui'] = $this->ui;
 		
 		$this->report_model = new report_model;
@@ -34,7 +34,7 @@ class controller extends wc_controller {
 
 	private function update_cheques(){
 		$posted_data 			=	$this->input->post(array('ids','release_remarks','release_date'));
-		
+
 		$releasedate			= 	(isset($posted_data['release_date']) && (!empty($posted_data['release_date']))) ? htmlentities(addslashes(trim($posted_data['release_date']))) : "";
 		$remarks  				= 	(isset($posted_data['release_remarks']) && (!empty($posted_data['release_remarks']))) ? htmlentities(addslashes(trim($posted_data['release_remarks']))) : "";
 		
@@ -56,9 +56,46 @@ class controller extends wc_controller {
 			$check_number 		=	$exp_ids[1];
 		
 			$cond 				=	" chequenumber = '$check_number' ";
+			
+			$result 			=	0;
+			if( $transtype == 'PV' || $transtype == 'DV' )
+			{
+				$result 			= 	$this->report->updateData($data, "pv_cheques", $cond);
+			}
+			else if( $transtype == "RV" )
+			{
+				$result 			= 	$this->report->updateData($data, "rv_cheques", $cond);
+			}
+		}
+
+		if($result)
+		{
+			$msg = "success";
+		} else {
+			$msg = "Failed to Update.";
+		}
+
+		return $dataArray = array( "msg" => $msg );
+	}
+
+	private function update_void(){
+		$posted_data 			=	$this->input->post(array('ids'));
+
+		$data['stat'] 			=	'void';
+		
+		$posted_ids 			=	$posted_data['ids'];
+		$id_arr 				=	explode(',',$posted_ids);
+
+		foreach($id_arr as $key => $value)
+		{
+			$exp_ids 	 		=	explode('-',$value);
+			$transtype 			=	$exp_ids[0];
+			$check_number 		=	$exp_ids[1];
+			
+			$cond 				=	" chequenumber = '$check_number' ";
 
 			$result 			=	0;
-			if( $transtype == 'PV' )
+			if( $transtype == 'PV' || $transtype == 'DV' )
 			{
 				$result 			= 	$this->report->updateData($data, "pv_cheques", $cond);
 			}
@@ -66,6 +103,46 @@ class controller extends wc_controller {
 			{
 				$result 			= 	$this->report->updateData($data, "rv_cheques", $cond);
 			}	
+			
+		}
+
+		if($result)
+		{
+			$msg = "success";
+		} else {
+			$msg = "Failed to Update.";
+		}
+
+		return $dataArray = array( "msg" => $msg );
+	}
+
+	private function update_cancel(){
+		$posted_data 			=	$this->input->post(array('ids'));
+
+		$data['stat'] 			=	'cancelled';
+		
+		$posted_ids 			=	$posted_data['ids'];
+		$id_arr 				=	explode(',',$posted_ids);
+
+		foreach($id_arr as $key => $value)
+		{
+			$exp_ids 	 		=	explode('-',$value);
+			$transtype 			=	$exp_ids[0];
+			$check_number 		=	$exp_ids[1];
+			
+			$cond 				=	" chequenumber = '$check_number' ";
+
+			$result 			=	0;
+			if( $transtype == 'PV' || $transtype == 'DV' )
+			
+			{
+				$result 			= 	$this->report->updateData($data, "pv_cheques", $cond);
+			}
+			else if( $transtype == "RV" )
+			{
+				$result 			= 	$this->report->updateData($data, "rv_cheques", $cond);
+			}	
+			
 		}
 
 		if($result)
@@ -86,7 +163,7 @@ class controller extends wc_controller {
 		$search 	= $data['search'];
 		$sort 		= $data['sort'];
 		$datefilter	= $data['daterangefilter'];	
-
+		
 		$datefilter = explode('-', $datefilter);
 		$dates		= array();
 		foreach ($datefilter as $date) {
@@ -124,20 +201,26 @@ class controller extends wc_controller {
 				$prev_date			=	$chequedate;
 				
 				$dropdown = $this->ui->loadElement('check_task')
-									 ->addCheckbox($stat!='released')
+									 ->addCheckbox($stat!='released' && $stat!='cancelled' && $stat!='void')
 									 ->setValue($transtype."-".$chequenumber)
 									 ->draw();
 				
 				$status_display 	=	"";
 
 				if( $stat == 'uncleared' ){
-					$status_display =	'<span class="label label-warning">'.strtoupper("unreleased").'</span>';
+					$status_display =	'<span class="label label-primary">'.strtoupper("prepared").'</span>';
 				}
 				else if( $stat == 'released' ){
 					$status_display =	'<span class="label label-info">'.strtoupper($stat).'</span>';
 				}
 				else if( $stat == 'cleared' ){
-					$status_display =	'<span class="label label-info">'.strtoupper($stat).'</span>';
+					$status_display =	'<span class="label label-success">'.strtoupper($stat).'</span>';
+				}
+				else if( $stat == 'void' ){
+					$status_display =	'<span class="label label-warning">'.strtoupper($stat).'</span>';
+				}
+				else if( $stat == 'cancelled' ){
+					$status_display =	'<span class="label label-danger">'.strtoupper($stat).'</span>';
 				}
 				
 				$table .= '<tr>';
@@ -145,6 +228,7 @@ class controller extends wc_controller {
 				$table .= '<td>' . $this->date->dateFormat($chequedate) 	. '</td>';
 				$table .= '<td>' . $chequenumber 	. '</td>';
 				$table .= '<td>' . $invoiceno 		. '</td>';
+				$table .= '<td>' . $voucherno 		. '</td>';
 				$table .= '<td>' . $bankname 		. '</td>';
 				$table .= '<td>' . $partnername 	. '</td>';
 				$table .= '<td class="text-right">' . number_format($chequeamount,2) . '</td>';
@@ -195,7 +279,7 @@ class controller extends wc_controller {
 		$header = array("Check Date","Check Number","Invoice No.","Bank","Partner","Release Date","Cleared Date","Amount","Check Status"); 
 	
 		$csv 	= '';
-		$csv 	.= 'Cheque List';
+		$csv 	.= 'Check List';
 		$csv 	.= "\n\n";
 		$csv 	.= '"Date:","'.$strdate.'"';
 		$csv 	.= "\n\n";

@@ -258,15 +258,15 @@
 		showList();
 	});
 	$('#import_id').addClass('hidden')
-	$('#export_id').prop('download','Receipt Voucher.csv');
+	$('#export_id').prop('download','Official Receipt.csv');
 	$(function() {
 		linkButtonToTable('#item_multiple_delete', '#tableList');
 		linkButtonToTable('#item_multiple_cancel', '#tableList');
 		linkDeleteToModal('#tableList .delete', 'deleteCallback');
 		linkCancelToModal('#tableList .cancel', 'cancelCallback');
 
-		createConfimationLink('#tableList .post', 'postCallback', 'Are you sure you want to post this receipt voucher?');
-		createConfimationLink('#tableList .unpost', 'unpostCallback', 'Are you sure you want to unpost this receipt voucher?');
+		createConfimationLink('#tableList .post', 'postCallback', 'Are you sure you want to post this official receipt?');
+		createConfimationLink('#tableList .unpost', 'unpostCallback', 'Are you sure you want to unpost this official receipt?');
 
 		linkDeleteMultipleToModal('#item_multiple_delete', '#tableList', 'deleteCallback');
 		linkCancelMultipleToModal('#item_multiple_cancel', '#tableList', 'cancelCallback');

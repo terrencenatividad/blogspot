@@ -40,9 +40,19 @@ class payment_voucher_model extends wc_model
 					->setOrderBy($orderby)
 					->runSelect()
 					->getResult();
-		
-		// var_dump($this->db->buildSelect());
+		return $result;
+	}
 
+	public function retrievebank($table, $fields = array(), $cond = "", $ijoin = "", $orderby = "", $groupby = "")
+	{
+		$result = $this->db->setTable($table)
+					->setFields($fields)
+					->innerJoin($ijoin)
+					->setGroupBy($groupby)
+					->setWhere($cond)
+					->setOrderBy($orderby)
+					->runSelect()
+					->getResult();
 		return $result;
 	}
 
@@ -76,7 +86,7 @@ class payment_voucher_model extends wc_model
 		$temp["main"] = $retrieveArrayMain;
 
 		// Retrieve Details
-		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.ischeck, main.debit, SUM(main.credit) credit";
+		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.ischeck, main.debit, main.credit credit, main.taxcode, main.taxbase_amount";
 		$detail_cond  = "main.voucherno = '$sid' AND main.stat != 'temporary'";
 		$orderby 	  = "main.linenum";	
 		$detailJoin   = "chartaccount as chart ON chart.id = main.accountcode AND chart.companycode = main.companycode";
@@ -120,7 +130,7 @@ class payment_voucher_model extends wc_model
 		$temp["payments"] = $applicationArray;
 
 		// Received Cheques for View
-		$chequeFields = 'pvc.voucherno, pvc.chequeaccount, chart.accountname, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount';
+		$chequeFields = 'pvc.voucherno, pvc.chequeaccount, chart.accountname, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount, pvc.stat';
 		$cheque_cond  = "pvc.voucherno = '$sid'";
 		$cheque_join  = "chartaccount chart ON chart.id = pvc.chequeaccount AND chart.companycode = pvc.companycode";
 		
@@ -145,6 +155,7 @@ class payment_voucher_model extends wc_model
 				$chequedate				= $this->date->dateFormat($chequedate);
 				$chequeamount			= $chequeArray[$c]->chequeamount;
 				$chequeconvertedamount	= $chequeArray[$c]->chequeconvertedamount;
+				$stat					= $chequeArray[$c]->stat;
 
 				$rollArray['accountname']			= $accountname;
 				$rollArray['chequeaccount']			= $chequeaccount;
@@ -152,6 +163,7 @@ class payment_voucher_model extends wc_model
 				$rollArray['chequedate']			= $chequedate;
 				$rollArray['chequeamount']			= $chequeamount;
 				$rollArray['chequeconvertedamount'] = $chequeconvertedamount;
+				$rollArray['stat'] 					= $stat;
 				
 				$rollArray[$pvno][]					= $rollArray;
 			}
@@ -444,16 +456,39 @@ class payment_voucher_model extends wc_model
 		return $result;
 	}
 
-	public function getValue($table, $cols = array(), $cond = "", $orderby = "", $bool = "", $groupby = "")
+	public function getValue($table, $cols = array(), $cond = "", $orderby = "", $bool = "", $groupby = "", $join="")
 	{
 		$result = $this->db->setTable($table)
 					->setFields($cols)
 					->setWhere($cond)
+					->leftJoin($join)
 					->setOrderBy($orderby)
 					->setGroupBy($groupby)
 					->runSelect($bool)
 					->getResult();
+		// echo $this->db->getQuery();
+		return $result;
+	}
 
+	public function getTax($table, $cols = array(), $join = "" ,$cond = "", $orderby = "", $bool = "" )
+	{
+		$result = $this->db->setTable($table)
+					->setFields($cols)
+					->innerJoin($join)
+					->setWhere($cond)
+					->setOrderBy($orderby)
+					->runSelect($bool)
+					->getResult();
+		return $result;
+	}
+
+	public function getAccount($tax_account){
+		$result = $this->db->setTable('atccode a')
+					->setFields("tax_rate,tax_account")
+					->leftJoin("chartaccount c ON c.id = a.tax_account ")
+					->setWhere("atcId = '$tax_account'")
+					->runSelect()
+					->getResult();
 		return $result;
 	}
 
@@ -506,6 +541,8 @@ class payment_voucher_model extends wc_model
 	
 	public function savePayment($data)
 	{
+		// var_dump($data);
+		// exit();
 		$errmsg				   	= array();
 		$seq 				   	= new seqcontrol();
 		$datetime			   	= date("Y-m-d H:i:s");
@@ -561,11 +598,11 @@ class payment_voucher_model extends wc_model
 		$aChequeData 	= array();
 		foreach($data as $postIndex => $postValue)
 		{
-			if($postIndex=='h_accountcode' || $postIndex=='detailparticulars' || $postIndex=='ischeck' || $postIndex=='debit' || $postIndex=='credit')
+			if($postIndex=='h_accountcode' || $postIndex=='detailparticulars' || $postIndex=='ischeck' || $postIndex=='debit' || $postIndex=='credit' || $postIndex=='taxcode' || $postIndex=='taxbase_amount')
 			{
 				$a		= '';
 				foreach($postValue as $postValueIndex => $postValueIndexValue){
-					if($postIndex == 'debit' || $postIndex == 'credit'){
+					if($postIndex == 'debit' || $postIndex == 'credit' || $postIndex == 'taxbase_amount'){
 						$a = str_replace(',', '', $postValueIndexValue);
 					}
 					else{
@@ -575,7 +612,7 @@ class payment_voucher_model extends wc_model
 				}	
 			}
 			
-			if(($postIndex == 'chequeaccount' || $postIndex == 'chequenumber' || $postIndex == 'chequedate' || $postIndex == 'chequeamount' || $postIndex == 'chequeconvertedamount') && !empty($postValue) )
+			if(($postIndex == 'chequeaccount' || $postIndex == 'chequenumber' || $postIndex == 'chequedate' || $postIndex == 'chequeamount' || $postIndex == 'chequeconvertedamount' || $postIndex == 'not_cancelled') && !empty($postValue) )
 			{
 				$b		= '';
 				foreach($postValue as $postValueIndex => $postValueIndexValue){
@@ -598,8 +635,6 @@ class payment_voucher_model extends wc_model
 				}
 			}
 		}
-		// var_dump($tempArray);
-		/**CHEQUE DETAILS**/
 		if(!empty($aChequeData))
 		{
 			foreach($aChequeData as $chequeDataIndex => $chequeDataValue){
@@ -626,6 +661,7 @@ class payment_voucher_model extends wc_model
 				$chequenumber			= (!empty($newArrayValue['chequenumber'])) ? $newArrayValue['chequenumber'] : "";
 				$chequedate				= (!empty($newArrayValue['chequedate'])) ? $newArrayValue['chequedate'] : "";
 				$chequeamount			= (!empty($newArrayValue['chequeamount'])) ? $newArrayValue['chequeamount'] : "";
+				$not_cancelled			= (!empty($newArrayValue['not_cancelled'])) ? $newArrayValue['not_cancelled'] : "";
 				$chequedate				= $this->date->dateDbFormat($chequedate);
 
 				if(!empty($chequedate) && !empty($chequeaccount) && !empty($chequenumber) && !empty($chequeamount)){
@@ -637,7 +673,7 @@ class payment_voucher_model extends wc_model
 					$cheque_header['chequedate']			= $chequedate;
 					$cheque_header['chequeamount']			= $chequeamount;
 					$cheque_header['chequeconvertedamount']	= $chequeamount;
-					$cheque_header['stat']					= 'uncleared';
+					$cheque_header['stat']					= ($not_cancelled == 'yes') ? 'cancelled' : 'uncleared';
 				
 					$linecount++;
 					$tempCheque[] 							= $cheque_header;
@@ -714,24 +750,29 @@ class payment_voucher_model extends wc_model
 
 		foreach($tempArray as $tempArrayIndex => $tempArrayValue)
 		{
-			$accountcode 						= isset($tempArrayValue['h_accountcode']) 	? 	$tempArrayValue['h_accountcode'] 	:	$tempArrayValue['accountcode'];
-			$detailparticulars					= $tempArrayValue['detailparticulars'];
-			$debit			    				= $tempArrayValue['debit'];
-			$credit			    				= $tempArrayValue['credit'];
-			$ischeck 							= isset($tempArrayValue['ischeck']) && $tempArrayValue != "" 	?	$tempArrayValue['ischeck'] 	:	"no";
+			$accountcode 							= isset($tempArrayValue['h_accountcode']) 	? 	$tempArrayValue['h_accountcode'] 	:	$tempArrayValue['accountcode'];
+			$detailparticulars						= isset($tempArrayValue['detailparticulars']) ?	$tempArrayValue['detailparticulars'] 	:	"";
+			$debit			    					= isset($tempArrayValue['debit']) ?	$tempArrayValue['debit'] 	:	0;
+			$credit			    					= isset($tempArrayValue['credit']) ?	$tempArrayValue['credit'] 	:	0;
+			$taxbase_amount			    			= isset($tempArrayValue['taxbase_amount']) ?	$tempArrayValue['taxbase_amount'] 	:	0;
+			$taxcode			    				= isset($tempArrayValue['taxcode']) ?	$tempArrayValue['taxcode'] 	:	"";
+			$ischeck 								= isset($tempArrayValue['ischeck']) && $tempArrayValue != "" 	?	$tempArrayValue['ischeck'] 	:	"no";
  
-			$post_detail['voucherno']			= $voucherno;
-			$post_detail['linenum']				= $iDetailLineNum;
-			$post_detail['transtype']			= $source;
-			$post_detail['accountcode']			= $accountcode;
-			$post_detail['debit']				= $debit;
-			$post_detail['credit']				= $credit;
-			$post_detail['converteddebit']		= $debit;
-			$post_detail['convertedcredit'] 	= $credit;
-			$post_detail['currencycode']		= 'PHP';
-			$post_detail['detailparticulars'] 	= $detailparticulars;
-			$post_detail['ischeck']				= $ischeck;
-			$post_detail['stat']				= $post_header['stat'];
+			$post_detail['voucherno']				= $voucherno;
+			$post_detail['linenum']					= $iDetailLineNum;
+			$post_detail['transtype']				= $source;
+			$post_detail['accountcode']				= $accountcode;
+			$post_detail['debit']					= $debit;
+			$post_detail['credit']					= $credit;
+			$post_detail['taxbase_amount']			= $taxbase_amount;
+			$post_detail['converteddebit']			= $debit;
+			$post_detail['convertedcredit'] 		= $credit;
+			$post_detail['convertedtaxbase_amount']	= $taxbase_amount;
+			$post_detail['currencycode']			= 'PHP';
+			$post_detail['detailparticulars'] 		= $detailparticulars;
+			$post_detail['ischeck']					= $ischeck;
+			$post_detail['taxcode']					= $taxcode;
+			$post_detail['stat']					= $post_header['stat'];
 
 			$iDetailLineNum++;
 			$aPvDetailArray[]					= $post_detail;
@@ -789,7 +830,6 @@ class payment_voucher_model extends wc_model
 				$this->db->setTable($detailAppTable)
 						->setWhere("voucherno = '$voucherno'")
 						->runDelete();
-	
 				$insertResult = $this->db->setTable($detailAppTable) 
 									->setValues($aPvDetailArray)
 									->setWhere("voucherno = '$voucherno'")
@@ -889,7 +929,7 @@ class payment_voucher_model extends wc_model
 
 				if(!$insertResult){
 					$code 		= 0;
-					$errmsg[] = "<li>Error in Saving in Cheque Details.</li>";
+					$errmsg[] = "<li>Error in Saving in Check Details.</li>";
 				}
 			}
 		}
@@ -976,20 +1016,6 @@ class payment_voucher_model extends wc_model
 			$data_insert["tinno"]      = $data["h_tinno"];
 			$data_insert["address1"]   = $data["h_address1"];
 		}
-		// else if($form == "newVendor")
-		// {
-		// 	$data_insert["stat"]          = "active";
-		// 	$data_insert["partnercode"]   = $data["partnercode"];
-		// 	$data_insert["first_name"]    = $data["vendor_name"];
-		// 	$data_insert["email"] 		  = $data["email"];
-		// 	$data_insert["address1"]      = $data["address"];
-		// 	$data_insert["businesstype"]  = $data["businesstype"];
-		// 	$data_insert["tinno"]         = $data["tinno"];
-		// 	$data_insert["terms"]  		  = $data["terms"];
-		// 	$data_insert["partnertype"]   = "supplier";
-		// 	$data_insert["autoap"]   	  = "Y";
-		// 	$data_insert["currencycode"]  = "PHP";
-		// }
 
 		if($data["h_querytype"] == "insert")
 		{
@@ -1491,4 +1517,190 @@ class payment_voucher_model extends wc_model
 
 		return $res;
 	}
+
+	public function companySettings($fields) {
+		$session	= new session();
+		$login		= $session->get('login');
+		$company	= isset($login['companycode']) ? $login['companycode'] : '';
+
+		$result = $this->db->setTable('company')
+							->setFields($fields)
+							->setWhere("companycode = '$company'")
+							->runSelect()
+							->getResult();
+		return $result;
+	}
+
+	public function getcheckfirst($bank , $cno, $bno){
+		if ($bno != ''){
+			$where = " OR firstchequeno = '$bno' ";
+		} else {
+			$where = '';
+		}
+		$result = $this->db->setTable('bankdetail bd')
+							->setFields("nextchequeno, firstchequeno, lastchequeno, booknumber")
+							->innerJoin("(SELECT b.id, b.gl_code FROM bank b INNER JOIN chartaccount c ON b.gl_code = c.segment5 where c.id = '$bank') bc ON bc.id = bd.bank_id")
+							->setWhere("stat = 'open' $where")
+							// ->setOrderBy('nextchequeno + 0 ASC')
+							->setLimit(1)	
+							->runSelect()
+							->getResult();
+							// echo $this->db->getQuery();
+		return $result;
+	}
+
+	// public function getchecklast($bank){
+	// 	$result = $this->db->setTable('bankdetail bd')
+	// 						->setFields("nextchequeno, firstchequeno , max(lastchequeno) lastchequeno, booknumber")
+	// 						->innerJoin("(SELECT b.id, b.gl_code FROM bank b INNER JOIN chartaccount c ON b.gl_code = c.segment5 where c.id = '$bank') bc ON bc.id = bd.bank_id")
+	// 						->setOrderBy('nextchequeno ASC')
+	// 						->setLimit(1)	
+	// 						->runSelect()
+	// 						->getResult();
+	// 	return $result;
+	// }
+
+	public function get_check_no($vno){
+		$result = $this->db->setTable('pv_cheques')
+							->setFields("max(chequenumber) checknum,chequeaccount")
+							->setWhere("voucherno = '$vno' ")
+							->setGroupBy("chequeaccount")
+							->runSelect()
+							->getResult();
+		return $result;
+
+	}
+
+	public function getbankid($ca){
+		$result = $this->db->setTable('bank b')
+							->setFields("b.id id")
+							->innerJoin("chartaccount c on c.segment5 = b.gl_code")
+							->setWhere("c.id = '$ca' ")
+							->runSelect()
+							->getResult();
+		return $result;
+	}
+
+	public function update_check_status($bank, $cno){
+		$data1['stat'] = 'closed';
+		$result = $this->db->setTable("bankdetail") 
+							->setValues($data1)
+							->setWhere("bank_id = '$bank' AND ($cno > lastchequeno)")
+							->runUpdate();
+		return $result ;
+	}
+
+	public function getbankbook($bank, $book_ids){
+		$result = $this->db->setTable("bankdetail")
+								->setFields("booknumber, firstchequeno, lastchequeno, nextchequeno")
+								->setWhere("bank_id = '$bank' AND stat = 'closed' AND firstchequeno NOT IN($book_ids)")
+								->runSelect()
+								->getResult(); 
+		return $result;
+	}
+
+	public function get_next_booknum($bank_no, $current = 0, $firstchequenum){
+		$result = $this->db->setTable("bankdetail")
+								->setFields("booknumber, firstchequeno, lastchequeno, nextchequeno")
+								->setWhere("bank_id = '$bank_no' AND firstchequeno = '$firstchequenum' ")
+								->runSelect()
+								->getResult(); 
+								// echo $this->db->getQuery();
+		return $result; 
+	}
+
+	public function getNextCheckNum($bank_id, $curr_seq) {
+
+			$result = $this->db->setTable('bankdetail bd')
+							->setFields(array('bd.firstchequeno', 'bd.lastchequeno', 'bd.nextchequeno', 'cc.firstcancelled', 'cc.lastcancelled'))
+							->leftJoin('cancelled_checks cc ON cc.firstchequeno = bd.firstchequeno AND cc.lastchequeno = bd.lastchequeno')
+							->setWhere("bd.bank_id = '$bank_id' and bd.stat = 'open' ")
+							->setOrderBy('firstchequeno')
+							->runSelect()
+							->getResult();
+		
+		$last_num	= $curr_seq;
+		$curr		= 0;
+		$nums		= array();
+		$real_nums	= array();
+		
+		foreach ($result as $check) {
+			if ($curr != $check->firstchequeno) {
+				$curr = $check->firstchequeno;
+
+				for ($x = $check->nextchequeno; $x <= $check->lastchequeno; $x++) {
+					$nums[$x] = true;
+				}
+			}
+			for ($x = $check->firstcancelled; $x <= $check->lastcancelled; $x++) {
+				unset($nums[$x]);
+			}
+			if ($curr != $check->firstchequeno && $last_num > 0) {
+				break;
+			}
+		}
+
+		foreach ($nums as $key => $val) {
+			if ($key > $last_num) {
+				return $key;
+			}
+		}
+		return false;
+	}
+
+	public function update_checks($book_last_num, $book_id, $bank, $book_end){
+		$getBank = $this->getbankid($bank);
+		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
+		$data1['stat'] = ($book_last_num == $book_end) ? 'used' : 'open';
+		$data1['nextchequeno'] = ($book_last_num + 1);
+		
+		$result = $this->db->setTable("bankdetail") 
+							->setValues($data1)
+							->setWhere("bank_id = '$bank_id' AND firstchequeno = '$book_id'")
+							->setLimit(1)
+							->runUpdate();
+							// echo $this->db->getQuery();
+		return $result ;
+	}
+
+	public function updateCheck($getBank, $cno){
+
+		$result = $this->db->setTable("bankdetail")
+								->setFields("booknumber, firstchequeno, lastchequeno, nextchequeno")
+								->setWhere("bank_id = '$getBank' ")
+								->runSelect()
+								->getResult();
+								
+
+		foreach ($result as $value) {
+			$first = $value->firstchequeno;
+			$last = $value->lastchequeno;
+			if (($cno > $last)){
+				$data['stat'] 		=  'closed'; 
+				$data['nextchequeno'] = $cno + 1;
+				$con = "AND $cno > lastchequeno";
+			} 
+			if($last == $cno){
+				$data['stat'] 		=  'closed'; 
+				$con = "AND $cno = lastchequeno";
+			} 
+			if($cno < $last){
+				$data['stat'] 		=  'open'; 
+				$data['nextchequeno'] = $cno + 1;
+				$con = "AND $cno < lastchequeno";
+			}
+
+			if ($first && $last){
+					$result = $this->db->setTable("bankdetail") 
+										->setValues($data)
+										->setWhere("bank_id = '$getBank' $con")
+										->runUpdate();
+			}
+		}
+			
+
+	}
+
+
+
 }

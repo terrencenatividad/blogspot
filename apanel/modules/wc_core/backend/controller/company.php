@@ -30,7 +30,16 @@ class controller extends wc_controller
 			'address'		=> '',
 			'email'			=> '',
 			'taxyear' 		=> '',
-			'periodstart' 	=> ''
+			'periodstart' 	=> '',
+			'wtax_option' 	=> '',
+			'lastname'		=> '',
+			'firstname'		=> '',
+			'middlename'	=> '',
+			'businessline'	=> '',
+			'signatory_name'=> '',
+			'signatory_role'=> '',
+			'signatory_tin'	=> '',
+			'tin'			=> ''
 		);
 
 		/**
@@ -48,10 +57,12 @@ class controller extends wc_controller
 		/**
 		* Pass ui class object to be tagged 
 		*/
-		$data_var['ui'] 			= $ui;
-		$data_var['taxyear_list']	= $this->companyclass->getOption("tax_year");
-		$data_var['period_list']	= $this->companyclass->getPeriods();
-		$data_var['taxyear_lock']   = ($data_var['taxyear'] == 'calendar') ? "disabled" : "";
+		$data_var['ui'] 				= $ui;
+		$data_var['taxyear_list']		= $this->companyclass->getOption("tax_year");
+		$data_var['wtax_option_list']	= $this->companyclass->getOption("wtax_option");
+		$data_var['period_list']		= $this->companyclass->getPeriods();
+		$data_var['taxyear_lock']   	= ($data_var['taxyear'] == 'calendar') ? "disabled" : "";
+		$data_var['businesstype_list']	= $this->companyclass->getOption("businesstype");
 		$this->view->load('company', $data_var);
 	}
 
@@ -91,7 +102,16 @@ class controller extends wc_controller
 			'address',
 			'email',
 			'taxyear',
-			'periodstart'
+			'periodstart',
+			'wtax_option',
+			'lastname',
+			'firstname',
+			'middlename',
+			'businessline',
+			'signatory_name',
+			'signatory_role',
+			'signatory_tin',
+			'tin'
 		);
 		
 		/**
@@ -132,7 +152,16 @@ class controller extends wc_controller
 			'address',
 			'email',
 			'taxyear',
-			'periodstart'
+			'periodstart',
+			'wtax_option',
+			'lastname',
+			'firstname',
+			'middlename',
+			'businessline',
+			'signatory_name',
+			'signatory_role',
+			'signatory_tin',
+			'tin'
 		);
 
 		/**
@@ -245,34 +274,6 @@ class controller extends wc_controller
 			//Resize image to Specified Size by calling resizeImage function.
 			if($this->resizeImage($CurWidth,$CurHeight,$BigImageMaxSize,$DestRandImageName,$CreatedImage,$Quality,$ImageType))
 			{
-				/*Create a square Thumbnail right after, this time we are using cropImage() function
-				if(!cropImage($CurWidth,$CurHeight,$ThumbSquareSize,$thumb_DestRandImageName,$CreatedImage,$Quality,$ImageType))
-					{
-						echo 'Error Creating thumbnail';
-					}*/
-				/*
-				We have succesfully resized and created thumbnail image
-				We can now output image to user's browser or store information in the database
-				
-				echo '<table width="100%" border="0" cellpadding="4" cellspacing="0">';
-				echo '<tr>';
-				//echo '<td align="center"><img src="./ajax/uploads/company_logo/'.$ThumbPrefix.$NewImageName.'" alt="Thumbnail"></td>';
-				//echo '</tr><tr>';
-				echo '<td align="center"><img src="./ajax/uploads/company_logo/'.$NewImageName.'" alt="Resized Image"></td>';
-				echo '</tr>';
-				echo '</table>';*/
-				
-				// echo '<div class="alert alert-info alert-dismissable" id="uploadAlert">
-				// 		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-				// 		<p><strong>Success!</strong> Invoice logo has been updated.</p>
-				// 	</div>';
-
-				/*
-				// Insert info into database table!
-				mysqli_query("INSERT INTO myImageTable (ImageName, ThumbName, ImgPath)
-				VALUES ($DestRandImageName, $thumb_DestRandImageName, 'uploads/')");
-				*/
-				
 				/**UPDATE COMPANY**/
 				$update_info['companyimage']  	= $NewImageName;
 				$result = $this->companyclass->updateData('update',$update_info," stat = 'active' ");

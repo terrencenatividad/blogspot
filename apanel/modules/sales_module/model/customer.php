@@ -5,11 +5,25 @@
 		{
 			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND ( p.partnercode LIKE '%$search%' OR p.partnername LIKE '%$search%' OR p.first_name LIKE '%$search%' OR p.last_name LIKE '%$search%' OR p.email LIKE '%$search%' ) " 	: 	"";
 
-			$fields 	=	array("p.partnercode","p.partnername","CONCAT(p.first_name,' ', p.last_name) as contact_person", "p.email","p.stat");
+			$fields 	=	array("p.partnercode","p.partnername","CONCAT(p.first_name,' ', p.last_name) as contact_person", "p.email","p.stat","p.credit_limit","COALESCE(incurred.receivables,0) receivables","COALESCE(outstanding.receivables,0) outstanding");
+
+			$receivables 	=	$this->db->setTable('accountsreceivable')
+										->setFields('SUM(amountreceived) receivables, customer')
+										->setWhere(" stat NOT IN ('cancelled','temporary')")
+										->setGroupBy('customer')
+										->buildSelect();
+
+			$outstanding 	=	$this->db->setTable('accountsreceivable')
+										->setFields('SUM(balance) receivables, customer')
+										->setWhere(" stat NOT IN ('cancelled','temporary')")
+										->setGroupBy('customer')
+										->buildSelect();
 
 			return $this->db->setTable('partners p')
 							->setFields($fields)
-							->setWhere(" p.partnertype = 'customer' AND p.stat = 'active' $add_cond ")
+							->leftJoin("($receivables) as incurred ON incurred.customer = p.partnercode")
+							->leftJoin("($outstanding) as outstanding ON outstanding.customer = p.partnercode")
+							->setWhere(" p.partnertype = 'customer' AND p.stat != 'deleted' $add_cond ")
 							->setOrderBy($sort)
 							->runPagination();
 							
@@ -17,12 +31,30 @@
 
 		public function retrieveExistingCustomer($data, $partnercode)
 		{
+			$receivables 	=	$this->db->setTable('accountsreceivable')
+										->setFields('SUM(amountreceived) receivables, customer')
+										->setWhere(" stat NOT IN ('cancelled','temporary') AND customer = '$partnercode'")
+										->setGroupBy('customer')
+										->buildSelect();
+
+			$outstanding 	=	$this->db->setTable('accountsreceivable')
+										->setFields('SUM(balance) receivables, customer')
+										->setWhere(" stat NOT IN ('cancelled','temporary')")
+										->setGroupBy('customer')
+										->buildSelect();
+
 			$condition 		=	" partnertype = 'customer' AND stat = 'active' AND partnercode = '$partnercode' ";
-			return $this->db->setTable('partners')
-							->setFields($data)
-							->setWhere($condition)
-							->runSelect()
-							->getRow();
+			
+			$result 		= 	$this->db->setTable('partners p')
+										->leftJoin("($receivables) as incurred ON incurred.customer = p.partnercode")
+										->leftJoin("($outstanding) as outstanding ON outstanding.customer = p.partnercode")
+										->setFields($data)
+										->setWhere($condition)
+										->runSelect()
+										->getRow();
+										// echo $this->db->getQuery();
+
+			return $result;
 		}
 
 		public function retrieveBusinessTypeDropdown()
@@ -39,6 +71,7 @@
 
 			$data["stat"]     	   = "active";
 			$data['partnertype']   = "customer";
+			$data['credit_limit']  = str_replace(",","",$data['credit_limit']);
 			//var_dump($data);
 
 			$result = $this->db->setTable('partners')
@@ -53,6 +86,7 @@
 
 			$data["stat"]     	   = "active";
 			$data['partnertype']   = "customer";
+			$data['credit_limit']  = str_replace(",","",$data['credit_limit']);
 			//var_dump($data);
 
 			$result = $this->db->setTable('partners')
@@ -65,6 +99,7 @@
 		public function updateCustomer($data, $partnercode)
 		{
 			$data["stat"]     	   = "active";
+			$data['credit_limit']  = str_replace(",","",$data['credit_limit']);
 
 			$condition 			   = " partnercode = '$partnercode' AND partnertype = 'customer' ";
 
@@ -116,7 +151,7 @@
 		{
 			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND ( p.partnercode LIKE '%$search%' OR p.partnername LIKE '%$search%' OR p.first_name LIKE '%$search%' OR p.last_name LIKE '%$search%' OR p.email LIKE '%$search%' ) " 	: 	"";
 
-			$fields 	=	array("p.partnercode","p.partnername","p.first_name","p.last_name","p.address1","p.email","p.businesstype","p.tinno","p.terms","p.mobile");
+			$fields 	=	array("p.partnercode","p.partnername","p.first_name","p.last_name","p.address1","p.email","p.businesstype","p.tinno","p.terms","p.mobile","p.credit_limit");
 
 			return $this->db->setTable('partners p')
 							->setFields($fields)
@@ -124,6 +159,19 @@
 							->setOrderBy($sort)
 							->runSelect()
 							->getResult();
+		}
+
+		public function updateStat($data,$code)
+		{
+			$condition 			   = " partnercode = '$code' ";
+
+			$result 			   = $this->db->setTable('partners')
+												->setValues($data)
+												->setWhere($condition)
+												->setLimit(1)
+												->runUpdate();
+
+			return $result;
 		}
 	}
 ?>

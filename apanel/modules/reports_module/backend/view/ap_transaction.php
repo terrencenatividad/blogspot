@@ -68,6 +68,7 @@
 	var ajax_call = {};
 	var ajax = filterFromURL();
 	ajax.limit 	= 50;
+	ajax.page 	= 1;
 	ajaxToFilter(ajax, { supplier : '#supplier', daterangefilter : '#daterangefilter' });	
 
 	function getList() 
@@ -93,6 +94,11 @@
 	$("#supplier").on("change",function(){
 		ajax.supplier = $(this).val();
 		ajax.page = 1;
+		getList();
+	});
+	$('#pagination').on('click', 'a', function(e) {
+		e.preventDefault();
+		ajax.page = $(this).attr('data-page');
 		getList();
 	});
 	tableSort('#tableList', function(value) {

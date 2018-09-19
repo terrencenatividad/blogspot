@@ -11,11 +11,6 @@
 			<div class="box-header pb-none">
 				<div class="row">
 					<div class="col-md-8">
-						<!-- <div class="form-group">
-							<a href="<?//= MODULE_URL ?>create" class="btn btn-primary">Create New Journal Voucher</a>
-							<button type="button" id="import_jv" class="btn btn-info delete_button">Import<span></span></button>
-							<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Cancel<span></span></button>
-						</div> -->
 						<?
 							echo $ui->CreateNewButton('');
 							echo $ui->OptionButton('');
@@ -44,7 +39,22 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-md-4 col-md-offset-5">
+					<div class = "col-md-5">
+						<div class = "row">
+							<div class = "col-md-6">
+								<?php
+									echo $ui->formField('dropdown')
+											->setPlaceholder('Filter Source')
+											->setName('source')
+											->setId('source')
+											->setList($source_list)
+											->setNone('All')
+											->draw($show_input);
+								?>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4">
 						<div class="row">
 							<div class="col-sm-8 col-xs-6 text-right">
 								<label for="" class="padded">Items: </label>
@@ -69,7 +79,11 @@
 				<div id = "errmsg"></div>
 				<div id = "warningmsg"></div>
 			</div>
-			<div class="box-body table-responsive no-padding">
+			<div class="nav-tabs-custom">
+				<ul id="filter_tabs" class="nav nav-tabs">
+					<li class="active"><a href="all" data-toggle="tab">All</a></li>
+					<li><a href="cancelled" data-toggle="tab">Cancelled</a></li>
+				</ul>
 				<table id="tableList" class="table table-hover table-sidepad">
 					<?php
 						echo $ui->loadElement('table')
@@ -291,9 +305,20 @@
 		function show_success_msg(msg){
 			$('#success_modal #message').html(msg);
 			$('#success_modal').modal('show');
+			setTimeout(function() {												
+				window.location = '<?= MODULE_URL ?>';		
+		}, 1000)
 		}
 		$('body').on('click','#success_modal .btn-success', function(){
 			$('#success_modal').modal('hide');
+		});
+		$('#source').on('change',function(){
+			ajax.source = $(this).val();
+			getList();
+		});
+		$('#filter_tabs li').on('click', function() {
+			ajax.page = 1;
+			ajax.filter = $(this).find('a').attr('href');
 			getList();
 		});
 	</script>

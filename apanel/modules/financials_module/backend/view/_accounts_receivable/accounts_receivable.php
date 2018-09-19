@@ -123,7 +123,7 @@
 											->setClass("input-sm payment_mode")
 											->setName('paymentmode[1]')
 											->setId('paymentmode[1]')
-											->setList(array("cash" => "Cash", "cheque" => "Cheque"))
+											->setList(array("cash" => "Cash", "cheque" => "Check"))
 											->setValue("")
 											->draw(true);
 								?>
@@ -257,15 +257,15 @@
 						</span>
 						<div class="panel panel-default hidden" id="check_details">
 							<div class="panel-heading">
-								<strong>Cheque Details</strong>
+								<strong>Check Details</strong>
 							</div>
 							<div class="table-responsive">
 								<table class="table table-condensed table-bordered table-hover" id="chequeTable">
 									<thead>
 										<tr class="info">
 											<th class="col-md-3 text-center">Bank Account</th>
-											<th class="col-md-2 text-center">Cheque Number</th>
-											<th class="col-md-2 text-center">Cheque Date</th>
+											<th class="col-md-2 text-center">Check Number</th>
+											<th class="col-md-2 text-center">Check Date</th>
 											<th class="col-md-2 text-center">Currency Amount</th>
 											<th class="col-md-2 text-center">Converted Amount</th>
 											<th class="col-md-2 text-center">Action</th>
@@ -343,7 +343,7 @@
 											
 											</td>
 											<td class="text-center">
-												<button type="button" class="btn btn-sm btn-success btn-flat hidden" id="checkprint[1]" style="outline:none;" onClick="confirmChequePrint(1);" title="Print Cheque"><span class="glyphicon glyphicon-print"></span></button>
+												<button type="button" class="btn btn-sm btn-success btn-flat hidden" id="checkprint[1]" style="outline:none;" onClick="confirmChequePrint(1);" title="Print Check"><span class="glyphicon glyphicon-print"></span></button>
 												&nbsp;
 												<button type="button" class="btn btn-sm btn-danger btn-flat confirm-delete" name="chk[]" style="outline:none;" onClick="confirmChequeDelete(1);"><span class="glyphicon glyphicon-trash"></span></button>
 											</td>
@@ -613,7 +613,7 @@
 															->setPlaceholder('None')
 															->setName('paymentmode'.$row)
 															->setId('paymentmode'.$row)
-															->setList(array("cash" => "Cash", "cheque" => "Cheque"))
+															->setList(array("cash" => "Cash", "cheque" => "Check"))
 															->setValue($paymentmode)
 															->draw(true);
 													echo '</td>';
@@ -1335,7 +1335,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('textarea')
-										->setLabel('Address: <span class = "asterisk">*</span>')
+										->setLabel('Address: ')
 										->setSplit('col-md-3', 'col-md-8 field_col')
 										->setName('address')
 										->setId('address')
@@ -1349,7 +1349,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Business Type: <span class="asterisk"> * </span>')
+									->setLabel('Business Type: ')
 									->setPlaceholder('Filter Business Type')
 									->setSplit('col-md-3', 'col-md-8 field_col')
 									->setName('businesstype')
@@ -1426,7 +1426,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Amount: <span class = "asterisk">*</span>')
+										->setLabel('Currency Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('oldamount')
 										->setId('oldamount')
@@ -1443,7 +1443,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Rate: <span class = "asterisk">*</span>')
+										->setLabel('Currency Rate: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('rate')
 										->setId('rate')
@@ -1459,7 +1459,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Amount: <span class = "asterisk">*</span>')
+										->setLabel('Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('newamount')
 										->setId('newamount')
@@ -1582,7 +1582,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Amount: <span class = "asterisk">*</span>')
+										->setLabel('Currency Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('paymentoldamount')
 										->setId('paymentoldamount')
@@ -1598,7 +1598,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Rate: <span class = "asterisk">*</span>')
+										->setLabel('Currency Rate: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('paymentrate')
 										->setId('paymentrate')
@@ -1615,7 +1615,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Amount: <span class = "asterisk">*</span>')
+										->setLabel('Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('paymentnewamount')
 										->setId('paymentnewamount')
@@ -3341,10 +3341,10 @@ function confirmChequePrint(row)
 	
 	bootbox.dialog({
 		message: "Please select one of the option to proceed.",
-		title: "Print Cheque",
+		title: "Print Check",
 			buttons: {
 			check: {
-			label: "Cheque Only",
+			label: "Check Only",
 			className: "btn-info btn-flat",
 			callback: function(result) {
 					var link 	 		= '<?= BASE_URL ?>financials/accounts_receivable/generateCheck/'+paymentvoucher+'/'+chequeno;
@@ -3353,7 +3353,7 @@ function confirmChequePrint(row)
 				}
 			},
 			voucher: {
-			label: "Cheque with Voucher",
+			label: "Check with Voucher",
 			className: "btn-success btn-flat",
 			callback: function(result) {
 					var link 	 		= '<?= BASE_URL ?>financials/accounts_receivable/generateCheckVoucher/'+paymentvoucher+'/'+chequeno+'/rv';

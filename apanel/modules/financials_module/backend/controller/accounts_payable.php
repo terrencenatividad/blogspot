@@ -190,6 +190,7 @@ class controller extends wc_controller
 			"vendorcode",
 			"transactiondate",
 			"tinno",
+			"proformacode",
 			"address1",
 			"duedate",
 			"particulars",
@@ -200,6 +201,7 @@ class controller extends wc_controller
 			"taxbase_amount"
 		));
 
+		$this->view->title			= 'Create Accounts Payable';
 		$data["ui"]                 = $this->ui;
 		$data['show_input']         = $this->show_input;
 		$data['button_name']        = "Save";
@@ -218,7 +220,7 @@ class controller extends wc_controller
 		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
 
 		// Retrieve proforma list
-		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList();
+		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList($data);
 
 		// Retrieve business type list
 		$bus_type_data                = array("code ind", "value val");
@@ -226,13 +228,15 @@ class controller extends wc_controller
 		$data["business_type_list"]   = $this->accounts_payable->getValue("wc_option", $bus_type_data, $bus_type_cond, false);
 
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond               = "accounttype != ''";
-		$data["account_entry_list"]   = $this->accounts_payable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
+		$acc_entry_data               = array("coa.id ind","CONCAT(coa.segment5, ' - ', coa.accountname) val");
+		$acc_entry_cond               = "coa.accounttype != '' AND coa.stat = 'active'";
+		$acc_entry_join 			  = "chartaccount coa2 ON coa2.parentaccountcode = coa.id";
+		$acc_entry_order 			  = "coa.segment5, coa2.segment5";
+		$data["account_entry_list"]   = $this->accounts_payable->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
 
 		// Retrieve payable account list
 		$pay_account_data 			  = array("id ind", "CONCAT(segment5, ' - ', accountname) val");
-		$pay_account_cond 			  = "accountclasscode = 'ACCPAY' AND accounttype != ''";
+		$pay_account_cond 			  = "accountclasscode = 'ACCPAY' AND accounttype != '' AND stat = 'active'";
 		$data["payable_account_list"] = $this->accounts_payable->getValue("chartaccount", $pay_account_data, $pay_account_cond, "accountname");
 
 		// Retrieve generated ID
@@ -240,7 +244,17 @@ class controller extends wc_controller
 		$data["generated_id"]         = (!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
 
 		$data["restrict_ap"] 		  = false;
-		
+
+		/**
+		 * Get Company Settings
+		 */
+		$company_setting = $this->accounts_payable->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 		  = $company_setting[0]->wtax_option;
+
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview"));
 
@@ -266,9 +280,9 @@ class controller extends wc_controller
 			// For Admin Logs
 			$this->logs->saveActivity("Add New Accounts Payable [$generatedvoucher]");
 
-			if(!empty($data_validate['h_save']))
+			if(!empty($data_validate['h_save_new']))
 			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_payable');
+				$this->url->redirect(BASE_URL . 'financials/accounts_payable/create');
 			}
 			else if(!empty($data_validate['h_save_preview']))
 			{
@@ -276,7 +290,7 @@ class controller extends wc_controller
 			}
 			else
 			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_payable/create');
+				$this->url->redirect(BASE_URL . 'financials/accounts_payable');
 			}
 		
 		}
@@ -290,7 +304,8 @@ class controller extends wc_controller
 	
 		// Retrieve data
 		$data         			   = $this->accounts_payable->retrieveEditData($sid);
-	
+
+		$this->view->title         = 'View Accounts Payable';
 		$data["ui"]   			   = $this->ui;
 		$data['show_input'] 	   = false;
 		$data["button_name"] 	   = "Edit";
@@ -385,6 +400,16 @@ class controller extends wc_controller
 		$status_badge = '<span class="label label-'.$status_class.'">'.strtoupper($status).'</span>';
 		$data['status_badge'] 	= $status_badge;
 
+		/**
+		 * Get Company Settings
+		 */
+		$company_setting = $this->accounts_payable->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 		  = $company_setting[0]->wtax_option;
+
 		$this->view->load('accounts_payable/accounts_payable_view', $data);
 	}
 
@@ -392,6 +417,7 @@ class controller extends wc_controller
 	{
 		$cmp 		   		   = $this->companycode;
 		$data         		   = $this->accounts_payable->retrieveEditData($sid);
+		$this->view->title     = 'Edit Accounts Payable';
 		$data["ui"]            = $this->ui;
 		$data['show_input']    = $this->show_input;
 		$data["task"] 		   = "edit";
@@ -407,24 +433,32 @@ class controller extends wc_controller
 		// Retrieve vendor list
 		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
 
-		// Retrieve proforma list
-		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList();
 
 		// Retrieve business type list
 		$bus_type_data                = array("code ind", "value val");
 		$bus_type_cond                = "type = 'businesstype'";
 		$data["business_type_list"]   = $this->accounts_payable->getValue("wc_option", $bus_type_data, $bus_type_cond, false);
 
+		$coa_array	= array();
+		foreach ($data['details'] as $index => $dtl){
+			$coa			= $dtl->accountcode;
+			$coa_array[]	= $coa;
+		}
+		
+		$condition = ($coa_array) ? " OR id IN ('".implode("','",$coa_array)."')" : "";
+		
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond               = "accounttype != ''";
-		$data["account_entry_list"]   = $this->accounts_payable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
+		$acc_entry_data               = array("coa.id ind","CONCAT(coa.segment5, ' - ', coa.accountname) val");
+		$acc_entry_cond               = "coa.accounttype != '' AND coa.stat = 'active'";
+		$acc_entry_join 			  = "chartaccount coa2 ON coa2.parentaccountcode = coa.id";
+		$acc_entry_order 			  = "coa.segment5, coa2.segment5";
+		$data["account_entry_list"]   = $this->accounts_payable->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
 
 		// Retrieve payable account list
 		$pay_account_data 			  = array("id ind", "CONCAT(segment5, ' - ', accountname) val");
-		$pay_account_cond 			  = "accountclasscode = 'ACCPAY' AND accounttype != ''";
+		$pay_account_cond 			  = "accountclasscode = 'ACCPAY' AND accounttype != '' AND stat = 'active'";
 		$data["payable_account_list"] = $this->accounts_payable->getValue("chartaccount", $pay_account_data, $pay_account_cond, "accountname");
-		
+
 		// // Retrieve tax list
 		// $bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
 		// $bus_type_cond                = "tax_account != ''";
@@ -436,6 +470,7 @@ class controller extends wc_controller
 		$data["invoiceno"]       = $data["main"]->invoiceno;
 		$data["vendorcode"]      = $data["main"]->vendor;
 		$data["exchangerate"]    = $data["main"]->exchangerate;
+		$data["proformacode"]    = $data["main"]->proformacode;
 		$data["transactiondate"] = $this->date->dateFormat($data["main"]->transactiondate);
 		$data["particulars"]     = $data["main"]->particulars;
 
@@ -448,14 +483,26 @@ class controller extends wc_controller
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview"));
 
+		// Retrieve proforma list
+		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList($data);
+		/**
+		 * Get Company Settings
+		 */
+		$company_setting = $this->accounts_payable->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 		  = $company_setting[0]->wtax_option;
+		
 		if (!empty($data_validate["vendor"]) && !empty($data_validate["document_date"])) 
 		{
 			// For Admin Logs
 			$this->logs->saveActivity("Updated Accounts Payable [$sid]");
 
-			if(!empty($data_validate['h_save']))
+			if(!empty($data_validate['h_save_new']))
 			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_payable');
+				$this->url->redirect(BASE_URL . 'financials/accounts_payable/create');
 			}
 			else if(!empty($data_validate['h_save_preview']))
 			{
@@ -463,8 +510,8 @@ class controller extends wc_controller
 			}
 			else
 			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_payable/create');
-			}	 
+				$this->url->redirect(BASE_URL . 'financials/accounts_payable');
+			} 
 		}
 
 		$this->view->load('accounts_payable/accounts_payable', $data);
@@ -1053,6 +1100,13 @@ class controller extends wc_controller
 		$code       = $this->input->post("code");
 		$ui         = $this->ui;
 		$show_input = $this->show_input;
+		$company_setting = $this->accounts_payable->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 		  = $company_setting[0]->wtax_option;
+		$wtax_option = $data["wtax_option"];
 		
 		// RETRIEVE ACCOUNT CODE
 		$acc_entry_data     = array("id ind","accountname val");
@@ -1080,6 +1134,18 @@ class controller extends wc_controller
 				$accountcode = ($code != '' && $code != 'none') ? $dataArray[$i]->accountcodeid : '';
 			
 				$table	.= '<tr class="clone">';
+
+				$table	.= '<td class = "checkbox-select remove-margin text-center '.$toggle_wtax.'">';
+				$table	.=  $ui->formField('checkbox')
+							->setSplit('', 'col-md-12')
+							// ->setName("wtax[".$row."]")
+							->setId("wtax[".$row."]")
+							->setClass("wtax")
+							->setDefault("")
+							->setValue(1)
+							->setAttribute(array("disabled" => "disabled"))
+							->draw($show_input);
+				$table	.= '</td>';
 				
 				$table	.= '<td class = "remove-margin">';
 				$table 	.= $ui->formField('dropdown')
@@ -1166,9 +1232,10 @@ class controller extends wc_controller
 		$result_class = $result[0]->accountclasscode;
 
 		$bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
-		$bus_type_cond                = "tax_account = '$account'";
+		$bus_type_cond                = "tax_account = '$account' AND atc.stat = 'active'";
 		$join 						  =  "chartaccount ca ON atc.tax_account = ca.id";
 		$tax_list  			 = $this->accounts_payable->getTax("atccode atc", $bus_type_data,$join ,$bus_type_cond, false);
+
 		$ret = '';
 		foreach ($tax_list as $key) {
 			$in  = $key->ind;

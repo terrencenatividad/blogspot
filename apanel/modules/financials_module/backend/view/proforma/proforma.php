@@ -15,15 +15,16 @@
 							<?
 								if($task=='create'){
 									echo $ui->formField('text')
-											->setLabel('Proforma Code')
+											->setLabel('Proforma Code ')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('proformacode')
 											->setId('proformacode')
 											->setValue($proformacode)
+											->setValidation('required')
 											->draw($task != "view");
 								}else{
 									echo $ui->formField('text')
-											->setLabel('Proforma Code')
+											->setLabel('Proforma Code ')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('proformacode')
 											->setId('proformacode')
@@ -39,13 +40,14 @@
 							<div class="col-md-6">		
 							<?
 									echo $ui->formField('dropdown')
-												->setLabel('Transaction Type')
+												->setLabel('Transaction Type ')
 												->setPlaceholder('Select Transaction Type')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('financialtype')
 												->setId('financialtype')
 												->setList($financialtype_list)
 												->setValue($transactiontype)
+												->setValidation('required')
 												->draw($task != "view");
 							?>
 							</div>				
@@ -73,7 +75,7 @@
 									<table class="table table-hover table-condensed " id="itemsTable">
 									<thead>
 										<tr class="info">
-											<th class="col-md-3 left">Account code</th>
+											<th class="col-md-3 left">Account code </th>
 											<th class="col-md-8 left"> &nbsp; </th>
 											<?if($task!='view'){?>
 											<th class="col-md-1 center"></th>
@@ -91,11 +93,12 @@
 									<td style="width: 50%;">
 										<?
 										echo $ui->formField('dropdown')
-												->setPlaceholder('Select Account Code')
+												->setPlaceholder('Select Account Code ')
 												->setSplit('col-md-4', 'col-md-12')
 												->setName('accountcodeid['.$row.']')
 												->setId('accountcodeid['.$row.']')
 												->setList($accountcodeoption_list)
+												->setValidation('required')
 												->draw($task != "view");
 										?>
 									</td>
@@ -441,20 +444,34 @@ function SelectAll(id)
 $(function(){
 	$('#proformaForm').submit(function(e) 
 	{
+		$('#proformaForm').find('.form-group').find('input, textarea, select').trigger('blur');
 		e.preventDefault();
 		var ajax_post = "<?=$ajax_post?>";
+		var form_group	 	= 	$('#proformaForm #proformaForm').closest('.form-group');
+		if ($('#proformaForm').find('.form-group.has-error').length == 0)
+		{
 		$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + ajax_post, function(response) 
 		{
-			if( response.msg == "success" )
-				window.location.href = "<?=MODULE_URL?>";
+			if( response.msg == "success" ){
+				$(".alert-warning").addClass("hidden");
+			$('#delay_modal').modal('show');
+							setTimeout(function() {							
+								window.location = "<?= MODULE_URL ?>";
+						}, 1000)
+			}
 			if(response.msg == "error_add")
 			{
 				$(".alert-warning").removeClass("hidden");
 				$("#errmsg").html("Error Inserting " + 
-									response.proform_code + " " + 
-									response.proforma_desc);
+									response.proforma_code + " - " + 
+									response.proforma_desc+ ". Proforma Code already exists.");
 			}
 		});
+		}else{
+			if (form_group.find('p.help-block').html() != "") {
+				form_group.removeClass('has-error').find('p.help-block').html('');
+				}
+		}
 	});
 
 	$('#btnExit').click(function() {

@@ -26,16 +26,13 @@ class controller extends wc_controller {
 		$data['voucherno'] 			= "- auto generated -";
  		$data['adjustmentdate'] 	= $adjustmentdate;
 		$data['importdate'] 		= $transactiondate;
-		
 		$display 					= $this->adjustment->getDisplayPermission();
-		// $transactions_count 		= isset($transactions->count) 	? 	$transactions->count 	:	0;
 		$data['display_import_btn'] = $display;
-
 		$data['ui'] 				= $this->ui;
 		$data['chart_account_list'] = $this->adjustment->getChartAccountList();
 		$data['item_list'] 			= $this->item_model->getItemDropdownList();
 		$w_entry_data          		= array("warehousecode ind","description val");
-		$data["warehouses"] 		= $this->adjustment->getValue("warehouse", $w_entry_data,'',"warehousecode");
+		$data["warehouses"] 		= $this->adjustment->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
 
 		$this->view->load('inventory_adjustment/inventory_adjustment_list', $data);
 	}
@@ -46,6 +43,12 @@ class controller extends wc_controller {
 			header('Content-type: application/json');
 			echo json_encode($ajax);
 		}
+	}
+
+	private function view_import_button(){
+		$display 			= $this->adjustment->getDisplayPermission();
+
+		return $dataArray 	=	array('display'=>$display);
 	}
 
 	private function create_jv()
@@ -225,7 +228,7 @@ class controller extends wc_controller {
 
 		$filedir	= $_FILES["file"]["tmp_name"];
 
-		$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
+		$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext", "application/octet-stream");
 
 		$errmsg 	=	array();
 		$proceed 	=	false;

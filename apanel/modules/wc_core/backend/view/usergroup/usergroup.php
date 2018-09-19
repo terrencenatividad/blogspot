@@ -7,7 +7,7 @@
 						<div class="col-md-12">
 							<?php
 								echo $ui->formField('text')
-									->setLabel('Group Name')
+									->setLabel('Group Name ')
 									->setAttribute(array('autocomplete' => 'off'))
 									->setSplit('col-md-2', 'col-md-8')
 									->setName('groupname')
@@ -22,7 +22,7 @@
 						<div class="col-md-12">
 							<?php
 								echo $ui->formField('textarea')
-									->setLabel('Group Desc')
+									->setLabel('Group Desc ')
 									->setSplit('col-md-2', 'col-md-8')
 									->setName('description')
 									->setId('description')
@@ -32,6 +32,7 @@
 							?>
 						</div>
 					</div>
+					<input type="hidden" name="status" value="<?php echo $status; ?>" >
 					<!-- <div class="row">
 						<div class="col-md-12">
 							<?php
@@ -131,7 +132,10 @@
 			if ($(this).find('.form-group.has-error').length == 0) {
 				$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + '<?=$ajax_post?>', function(data) {
 					if (data.success) {
-						window.location = data.redirect;
+						$('#delay_modal').modal('show');
+							setTimeout(function() {
+								window.location = data.redirect;		
+						},1000);
 					}
 				});
 			} else {

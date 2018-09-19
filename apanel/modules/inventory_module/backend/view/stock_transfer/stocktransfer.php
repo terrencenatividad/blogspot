@@ -23,7 +23,7 @@
 								<?php else: ?>
 									<?php
 										echo $ui->formField('text')
-											->setLabel('Transaction #')
+											->setLabel('Transaction # ')
 											->setSplit('col-md-4', 'col-md-8 transaction_input')
 											->setName('transactionno')
 											->setId('transactionno')
@@ -50,7 +50,7 @@
 						<div class="col-md-6">
 						<?
 							echo $ui->formField('dropdown')
-									->setLabel('Request From Warehouse')
+									->setLabel('Request From Warehouse ')
 									->setPlaceholder('Select Warehouse')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('site_source')
@@ -65,7 +65,7 @@
 						<div class="col-md-6">
 						<?
 							echo $ui->formField('text')
-									->setLabel('Transaction Date:')
+									->setLabel('Transaction Date: ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('transactiondate')
 									->setId('transactiondate')
@@ -82,7 +82,7 @@
 						<div class="col-md-6">
 							<?php
 							echo $ui->formField('dropdown')
-									->setLabel('Destination Warehouse')
+									->setLabel('Destination Warehouse ')
 									->setPlaceholder('Select Destination Warehouse')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('site_destination')
@@ -99,7 +99,7 @@
 							<?php
 
 								echo $ui->formField('text')
-									->setLabel('Transfer Date:')
+									->setLabel('Transfer Date: ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('transferdate')
 									->setId('transferdate')
@@ -116,7 +116,7 @@
 						<div class="col-md-6">
 							<?php
 							echo $ui->formField('text')
-									->setLabel('Prepared By')
+									->setLabel('Prepared By ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('prepared_by')
 									->setId('prepared_by')
@@ -185,7 +185,8 @@
 							<a class="approve btn btn-warning" data-id="<?=$transactionno?>">Approve</a>
 							<a class="reject btn btn-danger" data-id="<?=$transactionno?>">Reject</a>	
 						<? } ?>
-						<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
+						<!-- <a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a> -->
+						<?php echo $ui->drawCancel(); ?>
 					</div>
 				</div>
 			</div>
@@ -689,7 +690,10 @@
 		if ($(this).find('.form-group.has-error').length == 0) {
 			$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + '<?=$ajax_post?>', function(data) {
 				if (data.success) {
-					window.location = data.redirect;
+					$('#delay_modal').modal('show');
+							setTimeout(function() {							
+								window.location = data.redirect;						
+							}, 1000)
 				}
 			});
 		} else {

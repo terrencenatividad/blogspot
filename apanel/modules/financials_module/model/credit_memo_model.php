@@ -215,13 +215,21 @@ class credit_memo_model extends wc_model {
 		return $result;
 	}
 
-	public function getProformaList() {
+	public function getProformaList($data)
+	{
+		$proformacode = $data['proformacode'];
+		if($data['ajax_task'] == 'ajax_edit'){
+			$cond = "transactiontype = 'Credit Memo' AND stat = 'active' OR proformacode = '$proformacode'";
+		}else{
+			$cond = "transactiontype = 'Credit Memo' AND stat = 'active'";
+		}
 		$result = $this->db->setTable('proforma')
-							->setFields("proformacode ind, proformadesc val")
-							->setWhere("transactiontype = 'Credit Memo'")
-							->setOrderBy("proformadesc")
-							->runSelect()
-							->getResult();
+					->setFields("proformacode ind, proformadesc val, stat stat")
+					->setOrderBy("proformadesc")
+					->setWhere($cond)
+					->runSelect()
+					->getResult();
+		
 		return $result;
 	}
 
@@ -229,15 +237,28 @@ class credit_memo_model extends wc_model {
 		$result = $this->db->setTable('partners')
 							->setFields("partnercode ind, partnername val")
 							->setOrderBy("partnername")
-							// ->setWhere("partnertype = 'supplier' ")
+							->setWhere("stat = 'active'")
 							->runSelect()
 							->getResult();
 		return $result;
 	}
 
 	public function getChartOfAccountList() {
+		$result = $this->db->setTable('chartaccount coa')
+							->setFields("coa.id ind, CONCAT(coa.segment5, ' - ', coa.accountname) val")
+							->leftJoin('chartaccount coa2 ON coa2.parentaccountcode = coa.id')
+							->setWhere("coa.accounttype != '' AND coa.stat = 'active'")
+							->setOrderBy('coa.segment5, coa2.segment5')
+							->runSelect()
+							->getResult();
+		return $result;
+	}
+	
+	public function getEditChartOfAccountList($data,$coa_array) {
+		$condition = ($coa_array) ? " OR id IN ('".implode("','",$coa_array)."')" : "";		
 		$result = $this->db->setTable('chartaccount')
-							->setFields("id ind, CONCAT(segment5, ' - ', accountname) val")
+							->setFields("id ind, CONCAT(segment5, ' - ', accountname) val, stat stat")
+							->setWhere("stat = 'active' $condition")
 							->runSelect()
 							->getResult();
 		return $result;
@@ -249,6 +270,16 @@ class credit_memo_model extends wc_model {
 						->setWhere("type = 'item_type'")
 						->runSelect(false)
 						->getResult();
+	}
+
+	public function getSource($voucher){
+		$cond 	=	($voucher!="") ? "voucherno = '$voucher'" : "";
+		$result	= $this->db->setTable('journalvoucher')
+						->setFields('source')
+						->setWhere($cond)
+						->runSelect()
+						->getResult();
+		return $result;
 	}
 
 	public function getDocumentInfo($voucherno) {
@@ -276,7 +307,7 @@ class credit_memo_model extends wc_model {
 	public function getProforma($proformacode) {
 		$result = $this->db->setTable('proforma_details')
 							->setFields("accountcodeid accountcode, accountname detailparticulars, '0.00' debit, '0.00' credit")
-							->setWhere("proformacode = '$proformacode'")
+							->setWhere("proformacode = '$proformacode' AND stat = 'active'")
 							->runSelect()
 							->getResult();
 

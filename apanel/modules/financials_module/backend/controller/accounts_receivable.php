@@ -82,7 +82,7 @@ class controller extends wc_controller
 					$notes			= addslashes(htmlentities(trim($file_data[5])));
 					
 					$amount			= str_replace(',','',$amount);
-			
+					
 					$datecheck 		= date_parse($documentdate);
 					$datecheck1 	= date_parse($duedate);
 
@@ -194,11 +194,13 @@ class controller extends wc_controller
 			"address1",
 			"duedate",
 			"particulars",
+			"proformacode",
 			"terms",
 			"date",
 			"invoiceno"
 		));
 
+		$this->view->title      	= 'Create Accounts Receivable';		
 		$data["ui"]                 = $this->ui;
 		$data['show_input']         = $this->show_input;
 		$data['button_name']        = "Save";
@@ -213,7 +215,7 @@ class controller extends wc_controller
 		$data["customer_list"]          = $this->accounts_receivable->retrieveCustomerList();
 
 		// Retrieve proforma list
-		$data["proforma_list"]        = $this->accounts_receivable->retrieveProformaList();
+		$data["proforma_list"]        = $this->accounts_receivable->retrieveProformaList($data);
 
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
@@ -225,13 +227,15 @@ class controller extends wc_controller
 		$data["business_type_list"]   = $this->accounts_receivable->getValue("wc_option", $bus_type_data, $bus_type_cond, false);
 
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond               = "accounttype != 'P'";
-		$data["account_entry_list"]   = $this->accounts_receivable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
+		$acc_entry_data               = array("coa.id ind","CONCAT(coa.segment5, ' - ', coa.accountname) val");
+		$acc_entry_cond               = "coa.accounttype != '' AND coa.stat = 'active'";
+		$acc_entry_join 			  = "chartaccount coa2 ON coa2.parentaccountcode = coa.id";
+		$acc_entry_order 			  = "coa.segment5, coa2.segment5";
+		$data["account_entry_list"]   = $this->accounts_receivable->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
 
 		// Retrieve Receivable account list
 		$pay_account_data 			  = array("id ind", "CONCAT(segment5, ' - ', accountname) val");
-		$pay_account_cond 			  = "accountclasscode = 'ACCREC' AND accounttype != 'P'";
+		$pay_account_cond 			  = "accountclasscode = 'ACCREC' AND accounttype != 'P' AND stat = 'active'";
 		$data["receivable_account_list"] = $this->accounts_receivable->getValue("chartaccount", $pay_account_data, $pay_account_cond, "accountname");
 
 		// Retrieve generated ID
@@ -252,7 +256,7 @@ class controller extends wc_controller
 			{
 				/**UPDATE MAIN TABLES**/
 				$generatedvoucher			= $seq->getValue('AR'); 
-			
+				
 				$update_info				= array();
 				$update_info['voucherno']	= $generatedvoucher;
 				$update_info['stat']		= 'posted';
@@ -276,7 +280,7 @@ class controller extends wc_controller
 			{
 				$this->url->redirect(BASE_URL . 'financials/accounts_receivable/create');
 			}
-		
+			
 		}
 		
 		$this->view->load('accounts_receivable/accounts_receivable', $data);
@@ -285,10 +289,11 @@ class controller extends wc_controller
 	public function view($sid)
 	{
 		$cmp 					   = $this->companycode;
-	
+		
 		// Retrieve data
 		$data         			   = $this->accounts_receivable->retrieveEditData($sid);
-	
+		
+		$this->view->title         = 'View Accounts Receivable';		
 		$data["ui"]   			   = $this->ui;
 		$data['show_input'] 	   = false;
 		$data["button_name"] 	   = "Edit";
@@ -306,6 +311,7 @@ class controller extends wc_controller
 		$data["v_customercode"]    = $data["main"]->customer;
 		$data["v_convertedamount"] = $data["main"]->convertedamount;
 		$data["v_exchangerate"]    = $data["main"]->exchangerate;
+		$data["proformacode"]      = $data["main"]->proformacode;
 		$data["v_transactiondate"] = $this->date->dateFormat($data["main"]->transactiondate); 
 		$data["v_duedate"]         = $this->date->dateFormat($data["main"]->duedate);
 		$data["v_referenceno"]     = $data["main"]->referenceno;
@@ -391,6 +397,7 @@ class controller extends wc_controller
 		$cmp 		   		   = $this->companycode;
 		$data         		   = $this->accounts_receivable->retrieveEditData($sid);
 
+		$this->view->title     = 'Edit Accounts Receivable';
 		$data["ui"]            = $this->ui;
 		$data['show_input']    = $this->show_input;
 		$data["task"] 		   = "edit";
@@ -402,9 +409,6 @@ class controller extends wc_controller
 		// Retrieve vendor list
 		$data["customer_list"]          = $this->accounts_receivable->retrieveCustomerList();
 
-		// Retrieve proforma list
-		$data["proforma_list"]        = $this->accounts_receivable->retrieveProformaList();
-
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
@@ -414,14 +418,24 @@ class controller extends wc_controller
 		$bus_type_cond                = "type = 'businesstype'";
 		$data["business_type_list"]   = $this->accounts_receivable->getValue("wc_option", $bus_type_data, $bus_type_cond, false);
 
+		$coa_array	= array();
+		foreach ($data['details'] as $index => $dtl){
+			$coa			= $dtl->accountcode;
+			$coa_array[]	= $coa;
+		}
+		
+		$condition = ($coa_array) ? " OR id IN ('".implode("','",$coa_array)."')" : "";
+		
 		// Retrieve business type list
-		$acc_entry_data               = array("id ind","CONCAT(segment5, ' - ', accountname) val");
-		$acc_entry_cond               = "accounttype != 'P'";
-		$data["account_entry_list"]   = $this->accounts_receivable->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
+		$acc_entry_data               = array("coa.id ind","CONCAT(coa.segment5, ' - ', coa.accountname) val");
+		$acc_entry_cond               = "coa.accounttype != '' AND coa.stat = 'active'";
+		$acc_entry_join 			  = "chartaccount coa2 ON coa2.parentaccountcode = coa.id";
+		$acc_entry_order 			  = "coa.segment5, coa2.segment5";
+		$data["account_entry_list"]   = $this->accounts_receivable->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
 
 		// Retrieve Receivable account list
 		$pay_account_data 			  = array("id ind", "CONCAT(segment5, ' - ', accountname) val");
-		$pay_account_cond 			  = "accountclasscode = 'ACCREC' AND accounttype != 'P'";
+		$pay_account_cond 			  = "accountclasscode = 'ACCREC' AND accounttype != 'P' AND stat = 'active'";
 		$data["receivable_account_list"] = $this->accounts_receivable->getValue("chartaccount", $pay_account_data, $pay_account_cond, "accountname");
 		
 		// Header Data
@@ -430,6 +444,7 @@ class controller extends wc_controller
 		$data["invoiceno"]       = $data["main"]->invoiceno;
 		$data["customercode"]    = $data["main"]->customer;
 		$data["exchangerate"]    = $data["main"]->exchangerate;
+		$data["proformacode"]    = $data["main"]->proformacode;
 		$data["transactiondate"] = $this->date->dateFormat($data["main"]->transactiondate);
 		$data["particulars"]     = $data["main"]->particulars;
 
@@ -438,6 +453,9 @@ class controller extends wc_controller
 		$data["address1"] 	 = $data["cust"]->address1;
 		$data["duedate"]     = $this->date->dateFormat($data["main"]->duedate); 
 		
+		// Retrieve proforma list
+		$data["proforma_list"]        = $this->accounts_receivable->retrieveProformaList($data);
+
 		$data['restrict_ar'] = false;
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview"));
@@ -447,18 +465,7 @@ class controller extends wc_controller
 			// For Admin Logs
 			$this->logs->saveActivity("Updated Accounts Receivable [$sid]");
 
-			if(!empty($data_validate['h_save']))
-			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_receivable');
-			}
-			else if(!empty($data_validate['h_save_preview']))
-			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_receivable/view/' . $sid);
-			}
-			else
-			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_receivable/create');
-			}	 
+			$this->url->redirect(BASE_URL . 'financials/accounts_receivable');	 
 		}
 
 		$this->view->load('accounts_receivable/accounts_receivable', $data);
@@ -511,7 +518,7 @@ class controller extends wc_controller
 			{
 				$pv_v .= "'".$pv_voucherno[$p]->voucherno."',";
 			}
-		
+			
 			$pv_v = rtrim($pv_v, ", ");
 			
 			$cheque_table = "rv_cheques rvc";
@@ -524,12 +531,12 @@ class controller extends wc_controller
 		// Setting for PDFs
 		$print = new print_voucher_model('P', 'mm', 'Letter');
 		$print->setDocumentType('Accounts Receivable')
-				->setDocumentInfo($documentinfo[0])
-				->setVendor($customer)
-				->setPayments($paymentArray)
-				->setDocumentDetails($documentdetails)
-				->setCheque($chequeArray)
-				->drawPDF('ar_voucher_' . $voucherno);
+		->setDocumentInfo($documentinfo[0])
+		->setVendor($customer)
+		->setPayments($paymentArray)
+		->setDocumentDetails($documentdetails)
+		->setCheque($chequeArray)
+		->drawPDF('ar_voucher_' . $voucherno);
 	}
 
 	public function ajax($task)
@@ -658,23 +665,23 @@ class controller extends wc_controller
 				$show_delete 	= ($balance == $amount && $stat != 'cancelled');
 				$show_payment 	= ($balance != 0  && $stat != 'cancelled');
 				$dropdown = $this->ui->loadElement('check_task')
-							->addView()
-							->addEdit($show_edit && $checker != "import" && $restrict_ar)
-							->addOtherTask(
-								'Receive Payment',
-								'credit-card',
-								$show_payment  && $restrict_ar
-							)
-							->addDelete($show_delete && $checker != "import"  && $restrict_ar)
-							->addCheckbox($show_delete && $checker != "import"  && $restrict_ar)
-							->setValue($voucher)
-							->setLabels(array('delete' => 'Cancel'))
-							->draw();
+				->addView()
+				->addEdit($show_edit && $checker != "import" && $restrict_ar)
+				->addOtherTask(
+					'Receive Payment',
+					'credit-card',
+					$show_payment  && $restrict_ar
+				)
+				->addDelete($show_delete && $checker != "import"  && $restrict_ar)
+				->addCheckbox($show_delete && $checker != "import"  && $restrict_ar)
+				->setValue($voucher)
+				->setLabels(array('delete' => 'Cancel'))
+				->draw();
 				$viewlink		= BASE_URL . "financials/accounts_receivable/view/$voucher";
 				$editlink		= BASE_URL . "financials/accounts_receivable/edit/$voucher";
 				$voucherlink	= MODULE_URL . "print_preview/$voucher";
 				$paymentlink	= BASE_URL . "financials/accounts_receivable/view/$voucher#payment";
-			
+				
 				$table	.= '<tr>';
 				$table	.= '<td class="text-center" style="vertical-align:middle;">'.$dropdown.'</td>';
 				$table	.= '<td style="vertical-align:middle;">'.$date.'</td>';
@@ -689,8 +696,8 @@ class controller extends wc_controller
 			}
 		else:
 			$table .= "<tr>
-							<td colspan = '8' class = 'text-center'><strong>No Records Found</strong></td>
-					  </tr>";
+			<td colspan = '8' class = 'text-center'><strong>No Records Found</strong></td>
+			</tr>";
 		endif;
 
 		$dataArray = array( "list" => $table, "pagination" => $list->pagination );
@@ -709,7 +716,7 @@ class controller extends wc_controller
 			$msg = $result;
 		else
 			$msg = "success";
-			
+		
 		$dataArray = array("msg" => $msg);
 		echo json_encode($dataArray);
 	}
@@ -781,7 +788,7 @@ class controller extends wc_controller
 
 		foreach ($a as $fields) 
 		{
-    		fputcsv($fp, $fields);
+			fputcsv($fp, $fields);
 		}
 
 		exit;
@@ -797,7 +804,7 @@ class controller extends wc_controller
 			$code 	  = $this->input->post("code");
 
 			$cond 	  = "partnercode = '$code'";
-		
+			
 			/**
 			* Get Value
 			*/
@@ -811,7 +818,7 @@ class controller extends wc_controller
 			$account  = $this->input->post("account");
 
 			$cond 	  = "id = '$account'";
-		
+			
 			/**
 			* Get Value
 			*/
@@ -858,7 +865,7 @@ class controller extends wc_controller
 
 		$dataArray = array( "msg" => $msg );
 		echo json_encode($dataArray);
-	
+		
 	}
 
 	private function apply_payments()
@@ -929,16 +936,16 @@ class controller extends wc_controller
 				$table	.= '<td class="col-md-2 text-right" style="vertical-align:middle;" onClick="selectPayable('.$i.',1);">'.number_format($balance,2).'</td>';
 				
 				$table	.= '<td class="col-md-3 text-center pay" style="vertical-align:middle;">'
-								.$this->ui->formField('text')
-											->setSplit('', 'col-md-12')
-											->setClass("input-sm text-right paymentamount")
-											->setName('paymentamount['.$i.']')
-											->setId('paymentamount['.$i.']')
-											->setPlaceHolder("0.00")
-											->setAttribute(array("maxlength" => "50", "disabled" => "disabled", "onBlur" => 'checkBalance(this.value,'.$i.'); formatNumber(this.id);', "onClick" => "SelectAll(this.id);"))
-											->setValue("")
-											->draw(true).
-							'</td>';
+				.$this->ui->formField('text')
+				->setSplit('', 'col-md-12')
+				->setClass("input-sm text-right paymentamount")
+				->setName('paymentamount['.$i.']')
+				->setId('paymentamount['.$i.']')
+				->setPlaceHolder("0.00")
+				->setAttribute(array("maxlength" => "50", "disabled" => "disabled", "onBlur" => 'checkBalance(this.value,'.$i.'); formatNumber(this.id);', "onClick" => "SelectAll(this.id);"))
+				->setValue("")
+				->draw(true).
+				'</td>';
 				
 				$table	.= '</tr>';
 
@@ -969,11 +976,11 @@ class controller extends wc_controller
 
 		$dataArray		= $this->accounts_receivable->retrieveData("proforma_details",array('accountcodeid'),"proformacode = '$code'");
 		$tempObj 		= array(
-							'0'=>array("accountcodeid"=>"0")
-								,
-							'1'=>
-								array("accountcodeid"=>"0")
-							);
+			'0'=>array("accountcodeid"=>"0")
+			,
+			'1'=>
+			array("accountcodeid"=>"0")
+		);
 		
 		$dataArray		= ($dataArray) ? $dataArray : $tempObj ;
 		
@@ -985,50 +992,50 @@ class controller extends wc_controller
 			for($i = 0; $i < count($dataArray); $i++)
 			{
 				$accountcode = ($code != '' && $code != 'none') ? $dataArray[$i]->accountcodeid : '';
-			
+				
 				$table	.= '<tr class="clone">';
 				
 				$table	.= '<td class = "remove-margin">';
 				$table 	.= $ui->formField('dropdown')
-							->setPlaceholder('Select One')
-							->setSplit('', 'col-md-12')
-							->setName("accountcode[".$row."]")
-							->setId("accountcode[".$row."]")
-							->setList($account_entry_list)
-							->setValue($accountcode)
-							->draw($show_input);
+				->setPlaceholder('Select One')
+				->setSplit('', 'col-md-12')
+				->setName("accountcode[".$row."]")
+				->setId("accountcode[".$row."]")
+				->setList($account_entry_list)
+				->setValue($accountcode)
+				->draw($show_input);
 				$table	.= '</td>';
 				
 				$table	.= '<td class = "remove-margin">';
 				$table  .= $ui->formField('text')
-							->setSplit('', 'col-md-12')
-							->setName('detailparticulars['.$row.']')
-							->setId('detailparticulars['.$row.']')
-							->setAttribute(array("maxlength" => "100"))
-							->setValue("")
-							->draw($show_input);
+				->setSplit('', 'col-md-12')
+				->setName('detailparticulars['.$row.']')
+				->setId('detailparticulars['.$row.']')
+				->setAttribute(array("maxlength" => "100"))
+				->setValue("")
+				->draw($show_input);
 				$table	.= '</td>';
 				
 				$table	.= '<td class = "remove-margin">';
 				$table  .= $ui->formField('text')
-							->setSplit('', 'col-md-12')
-							->setName('debit['.$row.']')
-							->setId('debit['.$row.']')
-							->setAttribute(array("maxlength" => "20", "onBlur" => "addAmountAll('debit'); formatNumber(this.id);", "onClick" => "SelectAll(this.id);", "onKeyPress" => "return isNumberKey2(e);"))
-							->setClass("format_values_db format_values text-right")
-							->setValue("0.00")
-							->draw($show_input);
+				->setSplit('', 'col-md-12')
+				->setName('debit['.$row.']')
+				->setId('debit['.$row.']')
+				->setAttribute(array("maxlength" => "20", "onBlur" => "addAmountAll('debit'); formatNumber(this.id);", "onClick" => "SelectAll(this.id);", "onKeyPress" => "return isNumberKey2(e);"))
+				->setClass("format_values_db format_values text-right")
+				->setValue("0.00")
+				->draw($show_input);
 				$table	.= '</td>';
 				
 				$table	.= '<td class = "remove-margin">';
 				$table 	.= $ui->formField('text')
-							->setSplit('', 'col-md-12')
-							->setName('credit['.$row.']')
-							->setId('credit['.$row.']')
-							->setAttribute(array("maxlength" => "20", "onBlur" => "addAmountAll('credit'); formatNumber(this.id);", "onClick" => "SelectAll(this.id);", "onKeyPress" => "return isNumberKey2(e);"))
-							->setClass("format_values_cr format_values text-right")
-							->setValue("0.00")
-							->draw($show_input);
+				->setSplit('', 'col-md-12')
+				->setName('credit['.$row.']')
+				->setId('credit['.$row.']')
+				->setAttribute(array("maxlength" => "20", "onBlur" => "addAmountAll('credit'); formatNumber(this.id);", "onClick" => "SelectAll(this.id);", "onKeyPress" => "return isNumberKey2(e);"))
+				->setClass("format_values_cr format_values text-right")
+				->setValue("0.00")
+				->draw($show_input);
 				$table	.= '</td>';
 				
 				$table	.= '<td class=" text-center">';
@@ -1148,7 +1155,7 @@ class controller extends wc_controller
 						//Check if account Name exists
 						$acct_exists 	=	$this->accounts_receivable->check_if_exists('id','chartaccount'," accountname = '$account' ");
 						$acct_count 	=	$acct_exists[0]->count;
-					
+						
 						if(!empty($account)){
 							if( $acct_count <= 0 ) {
 								$errmsg[]	= "Account Name [<strong>$account</strong>] on <strong>row $line</strong> does not exist.<br/>";
@@ -1336,7 +1343,7 @@ class controller extends wc_controller
 								$noteslist[] 		= $notes;
 								$referencelist[] 	= $reference;
 							}
- 						}
+						}
 
 						$prev_no 		= $jvno;
 						$prev_date		= $transdate;

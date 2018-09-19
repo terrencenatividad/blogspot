@@ -206,6 +206,7 @@ function show_success_msg(msg)
 {
 	$('#success_modal #message').html(msg);
 	$('#success_modal').modal('show');
+	showList();	
 }
 
 $('#sales #table_search').on('input', function () {
@@ -295,7 +296,7 @@ $(document).ready(function()
                                     $('#import-modal').modal('hide');
                                     $(".alert-warning").addClass("hidden");
                                     $("#errmsg").html('');
-                                    show_success_msg('Your Data has been imported successfully.');
+									show_success_msg('Your Data has been imported successfully.');
                                 }else{
                                     $('#import-modal').modal('hide');
                                     show_error(response.errmsg);

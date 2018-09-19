@@ -54,7 +54,7 @@
 				<div class = "col-md-6 customer_div">
 					<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Customer')
+								->setLabel('Customer ')
 								->setPlaceholder('None')
 								->setSplit('col-md-3', 'col-md-8')
 								->setName('customer')
@@ -67,10 +67,10 @@
 					?>
 				</div>
 
-				<div class = "col-md-6">
+				<div class = "col-md-6 judith">
 					<?php
 						echo $ui->formField('text')
-							->setLabel('Expiration Date')
+							->setLabel('Expiration Date ')
 							->setSplit('col-md-3', 'col-md-8')
 							->setName('due_date')
 							->setId('due_date')
@@ -161,7 +161,6 @@
 														->setId('detailparticulars['.$row.']')
 														->setAttribute(array("maxlength" => "100"))
 														->setValue("")
-														->setValidation('required')
 														->draw($show_input);
 											?>
 										</td>
@@ -174,14 +173,13 @@
 														->setClass("text-right issueuom")
 														->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
 														->setValue($issueuom)
-														->setValidation('required')
 														->draw($show_input);
 											?>
 										</td>	
 										<td class = "remove-margin">
 											<?php
 												echo $ui->formField('text')
-														->setSplit('', 'col-md-12')
+														->setSplit('', 'col-md-12 pricey')
 														->setName('itemprice['.$row.']')
 														->setId('itemprice['.$row.']')
 														->setClass("text-right price")
@@ -232,6 +230,7 @@
 														->setClass("price text-right")
 														->setAttribute(array("maxlength" => "20"))
 														->setValue($price)
+														->setValidation('required')
 														->draw($show_input);
 											?>
 										</td>
@@ -559,7 +558,7 @@ $(document).ready(function(){
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('textarea')
-										->setLabel('Address: <span class = "asterisk">*</span>')
+										->setLabel('Address:')
 										->setSplit('col-md-3', 'col-md-8 field_col')
 										->setName('address1')
 										->setId('address1')
@@ -677,7 +676,7 @@ $(document).ready(function(){
 				<div class="row row-dense">
 					<div class="col-md-12 center">
 						<div class="btn-group">
-							<button type="button" class="btn btn-info btn-flat" id="btnYes">Yes</button>
+							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
 						</div>
 							&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
@@ -963,6 +962,7 @@ function cancelTransaction(vno)
 	});
 }
 
+
 /** FINALIZE SAVING **/
 function finalizeTransaction(type)
 {
@@ -981,7 +981,7 @@ function finalizeTransaction(type)
 		if( $(this).val() <= 0 )
 		{
 			no_error = false;
-			$(this).closest('div').addClass('has-error');
+			$(this).closest('div').addClass('has-error'); 
 		}
 	});
 
@@ -997,6 +997,7 @@ function finalizeTransaction(type)
 				
 		// 	// },1000);
 		// }
+		
 		var btn 	=	$('#save').val();
 		if($("#sales_quotation_form #itemcode\\[1\\]").val() != '' && $("#sales_quotation_form #transaction_date").val() != '' && $("#sales_quotation_form #due_date").val() != '' && $("#sales_quotation_form #customer").val() != '')
 		{
@@ -1011,7 +1012,7 @@ function finalizeTransaction(type)
 							$('#delay_modal').modal('show');
 							setTimeout(function() {
 								window.location = "<?=BASE_URL?>sales/sales_quotation";
-							}, 1000)
+							}, 1000)								
 						}
 						else if( btn == 'final_preview' )
 						{
@@ -1060,7 +1061,7 @@ function finalizeEditTransaction()
 		if( $(this).val() <= 0 )
 		{
 			no_error = false;
-			$(this).closest('div').addClass('has-error');
+			 $(this).closest('div').addClass('has-error');
 		}
 	});
 
@@ -1304,6 +1305,19 @@ $(document).ready(function(){
 			}
 			else
 			{
+			bootbox.dialog({
+			message: "Please select customer first.",
+			title: "Oops!",
+			buttons: {
+				yes: {
+					label: "OK",
+					className: "btn-primary btn-flat",
+					callback: function(result) {
+
+					}
+				}
+			}
+		});
 				$(this).val('');
 				$('#customer').focus();
 			}
@@ -1314,6 +1328,10 @@ $(document).ready(function(){
 			
 			var id 		= 	$(this).attr("id");
 			var row 	=	id.replace(/[a-z]/g, '');
+			
+			if($('#'+id) != 0){
+				$(this).closest('.form-group').find('.pricey').removeClass('has-error');
+			}
 
 			formatNumber(id);
 		});
@@ -1456,8 +1474,10 @@ $('.price').on('change', function(e){
 });
 
 $('#customer').on('change', function(){
+	$('#sales_quotation_form .row').find('.form-group').removeClass('has-error');
+	$('.m-none').addClass('hidden');
 	computeAmount();
-})
+});
 
 //**COMPUTE ROW AMOUNT**/
  function computeAmount(){

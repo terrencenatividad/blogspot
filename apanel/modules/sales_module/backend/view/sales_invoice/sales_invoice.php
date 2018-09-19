@@ -56,7 +56,7 @@
 					<?php
 						if($ro_input){
 							echo $ui->formField('dropdown')
-								->setLabel('Customer')
+								->setLabel('Customer ')
 								->setPlaceholder('None')
 								->setSplit('col-md-3', 'col-md-8')
 								->setName('customer')
@@ -112,7 +112,7 @@
 							// 		->setValidation('required')
 							// 		->draw($ro_input);
 							echo $ui->formField('text')
-									->setLabel('Delivery Receipt')
+									->setLabel('Delivery Receipt ')
 									->setSplit('col-md-3', 'col-md-8')
 									->setName('drno')
 									->setId('drno')
@@ -840,13 +840,13 @@ echo $ui->loadElement('modal')
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 			<div class="modal-body">
-				Are you sure you want to cancel changes on this transaction?
+				Are you sure you want to cancel this transaction?
 			</div>
 			<div class="modal-footer">
 				<div class="row row-dense">
 					<div class="col-md-12 center">
 						<div class="btn-group">
-							<button type="button" class="btn btn-info btn-flat" id="btnYes">Yes</button>
+							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
 						</div>
 							&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
@@ -1408,9 +1408,10 @@ function finalizeTransaction()
 
 				if(code == 1)
 				{
-					setTimeout(function() {
-						$('#sales_invoice_form').submit();
-					},500);
+					$('#delay_modal').modal('show');
+						setTimeout(function() {									
+							$('#sales_invoice_form').submit();
+					}, 1000)
 
 					$('#sales_invoice_form #btnSave').removeClass('disabled');
 					$('#sales_invoice_form #btnSave_toggle').removeClass('disabled');
@@ -1458,15 +1459,18 @@ function finalizeEditTransaction()
 						{
 							if( result == 'final' )
 							{
-								window.location 	=	"<?=BASE_URL?>sales/sales_invoice";
+								$('#delay_modal').modal('show');
+								setTimeout(function() {							
+									window.location 	=	"<?=BASE_URL?>sales/sales_invoice";
+								}, 1000)
 							}
 							else if( result == 'final_preview' )
 							{
-								window.location 	=	"<?=BASE_URL?>sales/sales_invoice/view/"+voucher;
+								window.location 	=	"<?=BASE_URL?>sales/sales_invoice/view/"+voucher;								
 							}
 							else if( result == 'final_new' )
 							{
-								window.location 	=	"<?=BASE_URL?>sales/sales_invoice/create";
+								window.location 	=	"<?=BASE_URL?>sales/sales_invoice/create";								
 							}
 							
 						}

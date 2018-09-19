@@ -61,8 +61,6 @@
 		public function edit($id)
 		{
 			$this->view->title = $this->ui->EditLabel('');
-			
-			// $data 			 	= (array) $this->bank->retrieveExistingCurrency($this->fields, $code);
 			$data 			 	= (array) $this->bank->retrieveExistingBank($this->fields, $id);
 			$data['currencylist']   = $this->bank->retrieveExchangeRateDropdown();
 			$data['gllist']   		= $this->bank->retrieveGLDropdown();
@@ -74,13 +72,13 @@
 			$this->view->load('bank/bank', $data);
 		}
 
-		public function view($code)
+		public function view($id)
 		{
 			$this->view->title 	= $this->ui->ViewLabel('');
-			$data 			 	= (array) $this->bank->retrieveExistingBank($this->fields, $code);
+			$data 			 	= (array) $this->bank->retrieveExistingBank($this->fields, $id);
 			$data['currencylist']   = $this->bank->retrieveExchangeRateDropdown();
 			$data['gllist']   		= $this->bank->retrieveGLDropdown();
-			
+			$data['id']			= $id;
 			$data['ui'] 		= $this->ui;
 			$data['show_input'] = false;
 			$data['task'] 		= "";
@@ -120,12 +118,22 @@
 											'new-window',
 											$row->checking_account == 'yes'
 										)
+										->addOtherTask(
+											'Deactivate',
+											'glyphicon glyphicon-arrow-down',
+											$row->stat == 'active'
+										)
+										->addOtherTask(
+											'Activate',
+											'glyphicon glyphicon-arrow-up',
+											$row->stat == 'inactive'
+										)
 										->draw();
 
 					if($row->stat == 'active'){
 						$bank_status = '<span class="label label-success">'.strtoupper($row->stat).'</span>';
 					}else if($row->stat == 'inactive'){
-						$bank_status = '<span class="label label-danger">'.strtoupper($row->stat).'</span>';
+						$bank_status = '<span class="label label-warning">'.strtoupper($row->stat).'</span>';
 					}
 
 					$table .= '<tr>';
@@ -157,7 +165,7 @@
 			if( $result )
 			{
 				$msg = "success";
-				$this->log->saveActivity("Added New Bank [$bankname] -  Accountno [$accountno]");
+				$this->log->saveActivity("Added New Bank [$bankname] -  Account Number [$accountno]");
 			}
 			else
 			{
@@ -172,11 +180,13 @@
 			$posted_data 	= $this->input->post($this->fields);
 			$id 		 	= $this->input->post('id');
 			$result 		= $this->bank->updateBank($posted_data, $id);
+			$bankname 		= $posted_data["shortname"];
+			$accountno 		= $posted_data["accountno"];
 
 			if( $result )
 			{
 				$msg = "success";
-				$this->log->saveActivity("Updated Bank [$id] ");
+				$this->log->saveActivity("Update Bank [$bankname] - Account Number [$accountno]");
 			}
 			else
 			{
@@ -190,14 +200,20 @@
 		{
 			$id_array 		= array('id');
 			$id       		= $this->input->post($id_array);
+			$info 			= $this->bank->getBank($id);
 			
-			$result 		= $this->bank->deleteBank($id);
 
+			foreach ($info as $key => $value) {
+				$sname = $value->shortname;
+				$code = $value->accountno;
+				$this->log->saveActivity("Deleted Bank [$sname] - Account Number [$code]");
+			}
+			$result 		= $this->bank->deleteBank($id);
 			
-			if( empty($result) )
-			{
+			
+
+			if( empty($result) ) {
 				$msg = "success";
-				$this->log->saveActivity("Deleted Bank [". implode($id, ', ') ."] ");
 			}
 			else
 			{
@@ -253,7 +269,7 @@
 			if( $result )
 			{
 				$msg = "success";
-				$this->log->saveActivity("Added Check Series On Bank ($id) $firstchequeno -  $lastchequeno");
+				$this->log->saveActivity("Added Check Series On Bank ($id) [$firstchequeno -  $lastchequeno]");
 			}
 			
 			else
@@ -277,6 +293,20 @@
 
 			if( !empty($list->result) ) :
 				foreach ($list->result as $key => $row) {
+					$entereddate = explode(' ',$row->entereddate);
+					$date = $entereddate[0];
+					$book_date = str_replace('-', '', $date);
+
+					if($row->stat == 'open'){
+						$next = $row->nextchequeno;
+						$check_stat = '<span class="label label-success">'.strtoupper('AVAILABLE').'</span>';
+					}else if($row->stat == 'closed'){
+						$next = '';
+						$check_stat = '<span class="label label-info">'."USED".'</span>';
+					}
+					// } else {
+					// 	$check_stat = '<span class="label label-warning">'."USED".'</span>';
+					// }
 
 					$dropdown = $this->ui->loadElement('check_task')
 								->addOtherTask(
@@ -290,30 +320,62 @@
 									'trash',
 									'deletecheck'
 								)
-										->draw();
-					// $viewlink		= BASE_URL . "financials/accounts_payable/view/";
-
-
-					// $dropdown = '<button type="button" class="btn btn-default btn-flat btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					// 				<span class="caret"></span>
-					// 				<span class="sr-only">Toggle Dropdown</span>
-					// 			</button>
-					// 			<ul class="dropdown-menu">
-					// 			<li><a href="http://localhost/prime/apanel/maintenance/bank/view/22" class="btn-sm">
-					// 			<i class="glyphicon glyphicon-eye-open"></i> View</a></li><li><a href="http://localhost/prime/apanel/maintenance/bank/edit/22" class="btn-sm"><i class="glyphicon glyphicon-pencil"></i> Edit</a></li><li class="divider"></li><li><a class="btn-sm link manage_check " data-id="22"><i class="glyphicon glyphicon-new-window"></i> Manage Check</a></li>
-					// 			<li class="divider"></li><li><a class="btn-sm delete link" data-id="22"><i class="glyphicon glyphicon-trash"></i> Delete</a></li></ul></div>';
-
+								// ->addOtherTask(
+								// 	'Set as Default Check',
+								// 	'check',
+								// 	'set_default'
+								// )
+								->addOtherTask(
+									'Cancel Check Range',
+									'remove-circle',
+									'cancel'
+								)
+								->draw();
 					$table .= '<tr>';
 					$table .= ' <td align = "center">' .$dropdown. '</td>';
+					$table .= '<td>' . $row->shortname . '</td>';
 					$table .= '<td>' . $row->accountno . '</td>';
-					$table .= '<td id="booknumber">' . $row->booknumber . '</td>';
-					$table .= '<td>' . $row->batch  . '</td>';
-					$table .= '<td>' . $row->nextchequeno. '</td>';
+					$table .= '<td id="booknumber">' . $book_date. ' - ' .$row->booknumber . '</td>';
+					$table .= '<td id="start_check" class="start_check" value="' . $row->firstchequeno. '-' .$row->lastchequeno. '">' . $row->firstchequeno. '-' .$row->lastchequeno. '</td>';
+					$table .= '<td>' . $next. '</td>';
+					$table .= '<td>' . $check_stat. '</td>';
 					$table .= '</tr>';
+
+					
+					$cancel_list = $this->bank->cancel_list($row->bank_id,$row->firstchequeno);
+					
+					if ($cancel_list){
+					$table	.= '<tr>';
+					$table	.= '<td></td>';
+					$table	.= '<td class="warning" ><strong>First Number</strong></td>';
+					$table	.= '<td class="warning" ><strong>Last Number</strong></td>';
+					$table	.= '<td class="warning" ><strong>Date</strong></td>';
+					$table	.= '<td class="warning" ><strong>Reason</strong></td>';
+					$table	.= '</tr>';
+
+						foreach ($cancel_list as $key => $value) {
+							$entereddate = explode(' ',$value->entereddate);
+							$date = $entereddate[0];
+							$book_date = str_replace('-', '', $date);
+
+						$table .= '<tr>';
+						$table	.= '<td class="text-center"><span class="label label-danger ">CANCELLED</span></td>';
+						$table .= '<td>' . $value->firstcancelled . '</td>';
+						$table .= '<td>' . $value->lastcancelled . '</td>';
+						$table .= '<td>' . $book_date . '</td>';
+						$table .= '<td colspan="2">' . $value->remarks. '</td>';
+						$table .= '</tr>';
+						}
+					} 
+
+
+						
+					
+					
 				}
 			else:
 				$table .= "<tr>
-								<td colspan = '5' class = 'text-center'>No Records Found</td>
+								<td colspan = '6' class = 'text-center'>No Records Found</td>
 						</tr>";
 			endif;
 
@@ -324,53 +386,78 @@
 
 		public function edit_check(){
 			$id 		= $this->input->post("id");
-			$bookno 	= $this->input->post("bookno");
+			$bookno 	= $this->input->post("booknumber");
 			$data2		= (array) $this->bank->retrieveCheck($id, $bookno);
 			$booknumber 	= $data2[0]->booknumber; 
 			$firstchequeno 	= $data2[0]->firstchequeno; 
 			$lastchequeno 	= $data2[0]->lastchequeno; 
 			$data = array("booknumber" => $booknumber,"firstchequeno" => $firstchequeno, 'lastchequeno' => $lastchequeno , 'task' => 'update_check');
-			
-			
-			// $data['show_input'] 	= true;
-			// $data['ajax_post'] 		= '';
-			// $data['ui'] 			= $this->ui;
-			// $this->view->load('bank/manage_check', $data);
-			// var_dump($data);
 			return $data;
 		}
 
 		public function update_check(){
 			$posted_data 	= $this->input->post($this->fields2);
+			$old 			= $this->input->post('oldbooknumber');
 			$result  		= $this->bank->insertCheck($posted_data);
 			$firstchequeno 	= $posted_data['firstchequeno'];
 			$lastchequeno	= $posted_data['lastchequeno'];
 			$bank_id		= $posted_data['bank_id'];
-			$accntname 		= $this->bank->update_check($bank_id, $posted_data);
-			// $id = $accntname[0]->shortname;
-
+			$accntname 		= $this->bank->update_check($bank_id, $posted_data, $old);
+			$bankdesc 		= $this->bank->getAccountname($bank_id);
+			$isname = $bankdesc[0]->shortname;
 			if( $accntname )
 			{
 				$msg = "success";
-				// $this->log->saveActivity("Added Check Series On Bank ($id) $firstchequeno -  $lastchequeno");
+				$this->log->saveActivity("Update Check Series On Bank ($isname) [$firstchequeno -  $lastchequeno]");
 			}
-			
 			else
 			{
 				$msg = $result;
 			}
-			
 			return $dataArray 		= array( "msg" => $msg );
 
+		}
+
+		public function ajax_edit_deactivate(){
+			$id 	= $this->input->post('id');
+			$data['stat'] = 'inactive';
+			$info = $this->bank->getInfo($id);
+			$result = $this->bank->deactivateBank($id,$data);
+			$sname  = $info[0]->shortname;
+			$accountno  = $info[0]->accountno;
+			if ($result){
+				$this->log->saveActivity("Deactivated Bank [$sname] - Account Number [$accountno]");
+			}
+			return $result;
+		}
+
+		public function ajax_edit_activate(){
+			$id 	= $this->input->post('id');
+			$info = $this->bank->getInfo($id);
+			$sname  = $info[0]->shortname;
+			$accountno  = $info[0]->accountno;
+			$data['stat'] = 'active';
+			$result = $this->bank->deactivateBank($id,$data);
+			if ($result){
+				$this->log->saveActivity("Activated Bank [$sname] - Account Number [$accountno]");
+			}
+			return $result;
 		}
 
 		public function delete_check(){
-			$posted_data 	= $this->input->post('bookno');
-			$accntname 		= $this->bank->deleteCheck($posted_data);
+			$posted_data 	= $this->input->post('booknumber');
+			$id 			= $this->input->post('id');
+			
+			$bankdesc 		= $this->bank->getAccountname($id);
+			$isname 		= $bankdesc[0]->shortname;
+			$firstchequeno 	= $bankdesc[0]->firstchequeno;
+			$lastchequeno 	= $bankdesc[0]->lastchequeno;
+			$accntname 		= $this->bank->deleteCheck($posted_data, $id);
 
 			if( $accntname )
 			{
 				$msg = "success";
+				$this->log->saveActivity("Delete Check Series On Bank ($isname) [$firstchequeno -  $lastchequeno]");
 			}
 			
 			else
@@ -382,7 +469,76 @@
 
 		}
 
+		public function check_duplicate_booknumber(){
+			$current = $this->input->post('curr_code');
+			$old 	 = $this->input->post('old_code');
+			$count 	 = 0;
+			if( $current!='' && $current != $old )
+			{
+				$result = $this->bank->check_duplicate_booknums($current);
+				$count = $result[0]->count;
+			}
+			$msg   = "";
+			if( $count > 0 )
+			{	
+				$msg = "exists";
+			}
 
+			return $dataArray = array("msg" => $msg);
+
+		}
+
+		public function set_check(){
+			$fno = $this->input->post('booknumber');
+			$fno = explode('-',$fno);
+			$first = $fno[0];
+			$bank = $this->input->post('id');
+			$result = $this->bank->set_check($bank, $first);
+			if ($result){
+				$msg = 'success';
+			}
+
+			return $msg;
+		}
+
+		public function check_duplicate_gl_code(){
+			$old 	 = $this->input->post('old_gl_code');
+			$current 	 = $this->input->post('curr_gl_code');
+			$count 	 = 0;
+			if( $current!='' && $current != $old )
+			{
+				$result = $this->bank->check_duplicate_glcode($current);
+				$count = $result[0]->count;
+			}
+			
+			$msg   = "";
+
+			if( $count > 0 )
+			{	
+				$msg = "exists";
+			}
+
+			return $dataArray = array("msg" => $msg);
+		}
+
+		public function save_cancelled(){
+			$data_array = array(
+				'id',
+				'start',
+				'end',
+				'firstcancelled',
+				'lastcancelled',
+				'remarks'
+			);
+			$data = $this->input->post($data_array);
+			$result = $this->bank->insertCancelledChecks($data);
+			if ($result){
+				$msg = 'yes';
+			} else {
+				$msg = '';
+			}
+			return $dataArray = array("msg" => $msg);
+		}
 
 	}
 ?>

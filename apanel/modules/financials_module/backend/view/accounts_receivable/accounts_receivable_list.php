@@ -312,6 +312,9 @@
 	function show_success_msg(msg){
 		$('#success_modal #message').html(msg);
 		$('#success_modal').modal('show');
+		setTimeout(function() {												
+			window.location = '<?= MODULE_URL ?>';		
+		}, 1000)
 	}
 	$('body').on('click','#success_modal .btn-success', function(){
 		$('#success_modal').modal('hide');

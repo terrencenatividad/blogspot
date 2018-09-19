@@ -54,6 +54,7 @@ class controller extends wc_controller
 
 	public function create($quotation_no = '')
 	{
+		$this->view->title			  = 'Create Sales Order';
 		$data 					= $this->input->post($this->fields);
 	
 		// Item Limit
@@ -78,10 +79,10 @@ class controller extends wc_controller
 			$data["currency_codes"] = $this->so->getValue("currency", $curr_type_data,'','currencycode');
 
 			$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
-			$data["itemcodes"] 		= $this->so->getValue("items", $cc_entry_data,'',"itemcode");
+			$data["itemcodes"] 		= $this->so->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
 
 			$w_entry_data          = array("warehousecode ind","description val");
-			$data["warehouses"] 	= $this->so->getValue("warehouse", $w_entry_data,'',"warehousecode");
+			$data["warehouses"] 	= $this->so->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
 
 			$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
 			$acc_entry_cond          = "accounttype != 'P'";
@@ -238,6 +239,7 @@ class controller extends wc_controller
 
 	public function edit($voucherno)
 	{
+		$this->view->title		= 'Edit Sales Order';		
 		$retrieved_data 		= $this->so->retrieveExistingSO($voucherno);
 
 		// Item Limit
@@ -258,11 +260,9 @@ class controller extends wc_controller
 		$data["currency_codes"] = $this->so->getValue("currency", $curr_type_data,'','currencycode');
 
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
-		$data["itemcodes"] 		= $this->so->getValue("items", $cc_entry_data,'',"itemcode");
+		$data["itemcodes"] 		= $this->so->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
 
-		$w_entry_data          = array("warehousecode ind","description val");
-		$data["warehouses"] 	= $this->so->getValue("warehouse", $w_entry_data,'',"warehousecode");
-
+		
 		$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
 		$acc_entry_cond          = "accounttype != 'P'";
 		$data["account_entries"] = $this->so->getValue("chartaccount", $acc_entry_data,$acc_entry_cond, "segment5");
@@ -313,6 +313,16 @@ class controller extends wc_controller
 		
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
+		
+		$wr_array	= array();
+		foreach ($data['details'] as $index => $dtl){
+			$wh			= $dtl->warehouse;
+			$wr_array[]	= $wh;
+		}
+		$wr_cond = ($wr_array) ? " OR warehousecode IN ('".implode("','",$wr_array)."')" : "";
+		
+		$w_entry_data          = array("warehousecode ind","description val, w.stat stat");
+		$data["warehouses"] 	= $this->so->getValue("warehouse w", $w_entry_data,"stat = 'active' $wr_cond","warehousecode");
 		$restrict_so 			= $this->restrict->setButtonRestriction($transactiondate);
 		$data['restrict_so'] 	= $restrict_so;
 
@@ -321,6 +331,7 @@ class controller extends wc_controller
 
 	public function view($voucherno)
 	{
+		$this->view->title		= 'View Sales Order';
 		$retrieved_data 		= $this->so->retrieveExistingSO($voucherno);
 
 		// Closed Date
@@ -560,6 +571,16 @@ class controller extends wc_controller
 		else if( $task == 'get_duplicate' )
 		{
 			$result = $this->get_duplicate();
+		}
+		else if( $task == 'retrieve_credit_limit' )
+		{
+			$result = $this->retrieve_credit_limit();
+		}
+		else if( $task == 'retrieve_incurred_receivables' ){
+			$result = $this->retrieve_incurred_receivables();
+		} 
+		else if( $task == 'retrieve_outstanding_receivables' ){
+			$result = $this->retrieve_outstanding_receivables();
 		}
 
 		echo json_encode($result); 
@@ -868,6 +889,36 @@ class controller extends wc_controller
 		
 		$csv .= '"","","","Total ","'. number_format($totalamount,2) .'"';
 		return $csv;
+	}
+
+	public function retrieve_credit_limit(){
+		$customercode 	=	$this->input->post('customercode');
+
+		$result 		=	$this->so->retrieve_credit_limit($customercode);
+
+		$credit_limit 	=	(isset($result[0]->credit_limit) && $result[0]->credit_limit != "") 	?	$result[0]->credit_limit 	:	0;
+
+		return  $dataArray = array( "credit_limit" => $credit_limit );
+	}
+
+	public function retrieve_incurred_receivables(){
+		$customercode 	=	$this->input->post('customercode');
+
+		$result 		=	$this->so->retrieve_incurred_receivables($customercode);
+
+		$incurred_receivables 	=	(isset($result[0]->receivables) && $result[0]->receivables != "")	?	$result[0]->receivables 	:	0;
+
+		return  $dataArray = array( "incurred_receivables" => $incurred_receivables );
+	}
+
+	public function retrieve_outstanding_receivables(){
+		$customercode 	=	$this->input->post('customercode');
+
+		$result 		=	$this->so->retrieve_outstanding_receivables($customercode);
+
+		$outstanding_receivables 	=	(isset($result[0]->receivables) && $result[0]->receivables != "")	?	$result[0]->receivables 	:	0;
+	
+		return  $dataArray = array( "outstanding_receivables" => $outstanding_receivables );
 	}
 }
 ?>

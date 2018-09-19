@@ -14,7 +14,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Warehouse Code')
+								->setLabel('Warehouse Code ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('warehousecode')
 								->setId('warehousecode')
@@ -27,7 +27,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Warehouse Description')
+								->setLabel('Warehouse Description ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('description')
 								->setId('description')
@@ -84,9 +84,10 @@ $('#warehouseForm #btnSave').on('click',function(){
 		$.post('<?=BASE_URL?>maintenance/warehouse/ajax/<?=$ajax_task?>', $('#warehouseForm').serialize()+ '<?=$ajax_post?>', function(data) {
 			if( data.msg == 'success' )
 			{
-				setTimeout(function() {
-					window.location = '<?php echo BASE_URL . 'maintenance/warehouse'; ?>';
-				},500);
+					$('#delay_modal').modal('show');
+						setTimeout(function() {
+							window.location = '<?php echo BASE_URL . 'maintenance/warehouse'; ?>';
+					},1000);
 			}
 		});
 	}

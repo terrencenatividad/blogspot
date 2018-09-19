@@ -56,7 +56,7 @@
 								<?php
 									if($show_input){
 										echo $ui->formField('dropdown')
-											->setLabel('Suppplier')
+											->setLabel('Supplier ')
 											->setPlaceholder('None')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('vendor')
@@ -68,7 +68,7 @@
 											->draw($show_input);
 									}else{
 										echo $ui->formField('text')
-											->setLabel('Supplier')
+											->setLabel('Supplier ')
 											->setSplit('col-md-4', 'col-md-8')
 											->setValue($vendor)
 											->draw($show_input);
@@ -760,7 +760,7 @@
 				<div class="row row-dense">
 					<div class="col-md-12 center">
 						<div class="btn-group">
-							<button type="button" class="btn btn-info btn-flat" id="btnYes">Yes</button>
+							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
 						</div>
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
@@ -775,7 +775,7 @@
 <!-- End Delete Record Confirmation Modal -->
 
 <!--DELETE RECORD CONFIRMATION MODAL-->
-<div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
+<!-- <div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
 	<div class="modal-dialog modal-sm">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -800,7 +800,7 @@
 			</div>
 		</div>
 	</div>
-</div>
+</div> -->
 <!-- End DELETE RECORD CONFIRMATION MODAL-->
 
 
@@ -1205,6 +1205,7 @@ function finalizeTransaction(type)
 
 		if($("#purchase_order_form #itemcode\\[1\\]").val() != '' && $("#purchase_order_form #warehouse\\[1\\]").val() != '' && $("#purchase_order_form #transaction_date").val() != '' && $("#purchase_order_form #due_date").val() != '' && $("#purchase_order_form #vendor").val() != '')
 		{
+			$('#delay_modal').modal('show');
 			setTimeout(function() {
 				$('#purchase_order_form').submit();
 			},1000);
@@ -1255,7 +1256,10 @@ function finalizeEditTransaction()
 					{
 						if( btn == 'final' )
 						{
-							window.location 	=	"<?=BASE_URL?>purchase/purchase_order";
+							$('#delay_modal').modal('show');
+							setTimeout(function() {
+								window.location 	=	"<?=BASE_URL?>purchase/purchase_order";								
+							},1000);
 						}
 						else if( btn == 'final_preview' )
 						{
@@ -1617,7 +1621,7 @@ $(document).ready(function(){
 		{
 			//Final Saving
 			$('#purchase_order_form .save').click(function(){
-				
+				$('#itemsTable tbody tr td').find('.warehouse').find('option[disabled]').prop('disabled', false)
 				$('#save').val("final");
 
 				finalizeEditTransaction();

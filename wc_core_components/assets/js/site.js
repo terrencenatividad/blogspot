@@ -241,14 +241,15 @@ $('table').on('ifToggled', 'tr [type="checkbox"].checkall', function() {
 
 // Cancel Button
 $('body').on('click', 'a[data-toggle="back_page"]', function(e) {
-	if (document.referrer) {
-		e.preventDefault();
-		if (window.history.length > 1) {
-			window.history.back()
-		} else {
-			window.location = document.referrer;
-		}
+	e.preventDefault();
+	$('#cancelModal').modal('show');
+	var url = '#';
+	if (document.referrer && document.referrer != ($(this).attr('href') + 'create')) {
+		url = document.referrer;
+	} else {
+		url = $(this).attr('href');
 	}
+	$('#cancelModal #btnYes').attr('href', url);
 });
 
 // || Input Validations
@@ -525,7 +526,7 @@ $('#modal_div').html(`
 				<p id = "message"></p>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-success" data-dismiss="modal">Ok</button>
+				<!-- <button type="button" class="btn btn-success" data-dismiss="modal">Ok</button> -->
 			</div>
 		</div>
 	</div>
@@ -609,7 +610,51 @@ $('#modal_div').html(`
 				<p>Successfully Saved</p>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-success" data-dismiss="modal">Ok</button>
+			<!--	<button type="button" class="btn btn-success" data-dismiss="modal">Ok</button> -->
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
+<div class="modal-dialog modal-sm">
+	<div class="modal-content">
+		<div class="modal-header">
+			Confirmation
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+		</div>
+		<div class="modal-body">
+			Are you sure you want to cancel this transaction?
+		</div>
+		<div class="modal-footer">
+			<div class="row row-dense">
+				<div class="col-md-12 center">
+					<div class="btn-group">
+						<a href="" class="btn btn-primary btn-flat" id="btnYes">Yes</a>
+					</div>
+						&nbsp;&nbsp;&nbsp;
+					<div class="btn-group">
+						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+
+<div id="deactivate_modal" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title modal-success">Deactivate!</h4>
+			</div>
+			<div class="modal-body">
+				<p>Are you sure you want to Deactivate this Entry</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" id="deactyes" data-dismiss="modal">Yes</button>
+				<button type="button" class="btn btn-default" id="deactno" data-dismiss="modal">No</button>
 			</div>
 		</div>
 	</div>

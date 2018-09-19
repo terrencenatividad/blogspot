@@ -10,55 +10,37 @@ class controller extends wc_controller {
 	}
 
 	public function view($year = false) {
+		$this->getHeaders($year);
 		$this->report_model->generateBalanceTable();
-		$year					= ($year) ? $year : date('Y');
-		$this->view->title		= 'Balance Sheet';
-		$data['ui']				= $this->ui;
-		$data['year']			= $year;
-		$data['year_list']		= $this->balance_sheet_model->getYearList();
-		$data['monthly_view']	= $this->monthly_view($year);
-		$data['quarterly_view']	= $this->quarterly_view($year);
-		$data['year_view']		= $this->year_view($year);
+		$year_now					= $this->balance_sheet_model->getYear();
+		$year						= ($year) ? $year : $year_now;
+		$period_start				= $this->balance_sheet_model->getPeriod();		
+		$this->view->title			= 'Balance Sheet';
+		$data['ui']					= $this->ui;
+		$data['year']				= $year;
+		$data['period_start']		= $period_start;
+		$data['year_list']			= $this->balance_sheet_model->getYearList($year_now);
+		$data['monthly_view']		= $this->monthly_view($year);
+		$data['quarterly_view']		= $this->quarterly_view($year);
+		$data['year_view']			= $this->year_view($year);
+		$data['header_monthly']		= $this->header_monthly;
+		$data['header_quarterly']	= $this->header_quarterly;
+		$data['header_yearly']		= $this->header_yearly;
+		$data['header_year']		= $this->header_year;
 		$this->view->load('balance_sheet', $data);
 	}
 
 	public function view_export($year, $tab) {
+		$this->getHeaders($year);
 		if ($tab == 'Monthly') {
-			$header = array(
-				'Account',
-				'Jan',
-				'Feb',
-				'Mar',
-				'Apr',
-				'May',
-				'Jun',
-				'Jul',
-				'Aug',
-				'Sep',
-				'Oct',
-				'Nov',
-				'Dec'
-			);
 			$list = $this->balance_sheet_model->getMonthly($year);
-			$this->generateCSV($list, $header, 'Monthly');
+			$this->generateCSV($list, array_merge(array('Account'), $this->header_monthly), 'Monthly');
 		} else if ($tab == 'Quarterly') {
-			$header = array(
-				'Account',
-				'1st Quarter (Jan - Mar)',
-				'2nd Quarter (Apr - Jun)',
-				'3rd Quarter (Jul - Sep)',
-				'4th Quarter (Oct - Dec)'
-			);
 			$list = $this->balance_sheet_model->getQuarterly($year);
-			$this->generateCSV($list, $header, 'Quarterly');
+			$this->generateCSV($list, array_merge(array('Account'), $this->header_quarterly), 'Quarterly');
 		} else if ($tab == 'Yearly') {
-			$header = array(
-				'Account',
-				$year,
-				$year - 1
-			);
 			$list = $this->balance_sheet_model->getYearly($year);
-			$this->generateCSV($list, $header, 'Yearly');
+			$this->generateCSV($list, array_merge(array('Account'), $this->header_yearly), 'Yearly');
 		}
 	}
 
@@ -191,6 +173,93 @@ class controller extends wc_controller {
 		}
 
 		echo $table;
+	}
+
+	private function getHeaders($year) {
+		$year = ($year) ? $year : $this->balance_sheet_model->getYear();
+
+		$this->header_monthly	= array();
+		$this->header_quarterly	= array();
+		$this->header_yearly	= array();
+		$this->header_year	= array();
+
+		$period_start	= $this->balance_sheet_model->getPeriod();
+		$period_index	= $period_start - 1;
+
+		$monthly = array(
+			'Jan',
+			'Feb',
+			'Mar',
+			'Apr',
+			'May',
+			'Jun',
+			'Jul',
+			'Aug',
+			'Sep',
+			'Oct',
+			'Nov',
+			'Dec'
+		);
+		$quarterly = array(
+			'1st',
+			'2nd',
+			'3rd',
+			'4th'
+		);
+		$years = array(
+			$year,
+			'',
+			'',
+			'',
+			'',
+			'',
+			'',
+			'',
+			'',
+			'',
+			'');
+
+		for ($x = 1; $x <= 12; $x++) {
+			if ($period_index > 11) {
+				$period_index = 0;
+			}
+			$this->header_monthly[] = $monthly[$period_index];
+
+			$period_index++;
+		}
+
+		$period_index_start	= $period_start - 1;
+		$period_index_end	= $period_index_start + 2;
+
+		for ($x = 0; $x < 4; $x++) {
+			if ($period_index_start > 11) {
+				$period_index_start = 0;
+			}
+			if ($period_index_end > 11) {
+				$period_index_end -= 12;
+			}
+			$this->header_quarterly[] = $quarterly[$x] . ' Quarter (' . $monthly[$period_index_start] . ' - ' . $monthly[$period_index_end] . ')';
+
+			$period_index_start += 3;
+			$period_index_end += 3;
+		}
+
+		$this->header_yearly = array(
+			$year - 1,
+			$year
+		);
+		if($period_start > 1){
+			for ($x = 1; $x <= 11; $x++) {
+				if ($period_index > 10) {
+					$period_index = 0;
+				}
+				$this->header_year[] = $years[$period_index];
+	
+				$period_index++;
+			}
+		}
+	
+		
 	}
 
 }

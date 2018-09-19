@@ -19,11 +19,18 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
-	public function retrieveProformaList()
+	public function retrieveProformaList($data)
 	{
+		$proformacode = $data['proformacode'];
+		if($data['task'] == 'edit'){
+			$cond = "transactiontype = 'Accounts Payable' AND stat = 'active' OR proformacode = '$proformacode'";
+		}else{
+			$cond = "transactiontype = 'Accounts Payable' AND stat = 'active'";
+		}
 		$result = $this->db->setTable('proforma')
-					->setFields("proformacode ind, proformadesc val")
+					->setFields("proformacode ind, proformadesc val, stat stat")
 					->setOrderBy("val")
+					->setWhere($cond)
 					->runSelect()
 					->getResult();
 		
@@ -46,7 +53,7 @@ class accounts_payable extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, duedate, amount, balance, exchangerate, convertedamount, invoiceno,companycode, lockkey as importchecker, stat ";
+		$setFields = "voucherno, transactiondate, vendor, referenceno, proformacode, particulars, duedate, amount, balance, exchangerate, convertedamount, invoiceno,companycode, lockkey as importchecker, stat ";
 		$cond = "voucherno = '$sid'";	
 		$temp = array();
 
@@ -449,14 +456,17 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
-	public function getValue($table, $cols = array(), $cond = "", $orderby = "", $bool = "" )
+	public function getValue($table, $cols = array(), $cond = "", $orderby = "", $bool = "", $groupby = "", $join="")
 	{
 		$result = $this->db->setTable($table)
 					->setFields($cols)
 					->setWhere($cond)
+					->leftJoin($join)
 					->setOrderBy($orderby)
+					->setGroupBy($groupby)
 					->runSelect($bool)
 					->getResult();
+		// echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -507,6 +517,7 @@ class accounts_payable extends wc_model
 		$invoiceno			= (isset($data['invoiceno']) && (!empty($data['invoiceno']))) ? htmlentities(addslashes(trim($data['invoiceno']))) : "";
 		$transactiondate	= (isset($data['document_date']) && (!empty($data['document_date']))) ? htmlentities(addslashes(trim($data['document_date']))) : "";
 		$duedate			= (isset($data['due_date']) && (!empty($data['due_date']))) ? htmlentities(addslashes(trim($data['due_date']))) : "";
+		$proformacode		= (isset($data['proformacode']) && (!empty($data['proformacode']))) ? htmlentities(addslashes(trim($data['proformacode']))) : "";
 		$remarks			= (isset($data['remarks']) && (!empty($data['remarks']))) ? htmlentities(addslashes(trim($data['remarks']))) : "";
 		$terms				= (isset($data['vendor_terms']) && (!empty($data['vendor_terms']))) ? htmlentities(addslashes(trim($data['vendor_terms']))) : 0;
 		$totalamount		= (isset($data['total_debit']) && (!empty($data['total_debit']))) ? htmlentities(addslashes(trim($data['total_debit']))) : "";
@@ -540,7 +551,7 @@ class accounts_payable extends wc_model
 		$post_header['referenceno']		= $referenceno;
 		$post_header['exchangerate']	= $exchangerate;
 		$post_header['stat']			= $status;
-		$post_header['proformacode']	= '';
+		$post_header['proformacode']	= $proformacode;
 		$post_header['transtype']		= 'AP';
 		$post_header['invoicedate']		= $transactiondate;
 		$post_header['duedate']			= $duedate;
@@ -1790,6 +1801,19 @@ class accounts_payable extends wc_model
 		$result = $this->db->setTable($table)
 				->setValuesFromPost($posted_data)
 				->runInsert();
+		return $result;
+	}
+
+	public function companySettings($fields) {
+		$session	= new session();
+		$login		= $session->get('login');
+		$company	= isset($login['companycode']) ? $login['companycode'] : '';
+
+		$result = $this->db->setTable('company')
+							->setFields($fields)
+							->setWhere("companycode = '$company'")
+							->runSelect()
+							->getResult();
 		return $result;
 	}
 }

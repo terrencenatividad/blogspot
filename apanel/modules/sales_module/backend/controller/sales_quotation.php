@@ -50,6 +50,7 @@ class controller extends wc_controller
 
 	public function create()
 	{
+		$this->view->title      = 'Create Quotation';
 		$data 					= $this->input->post($this->fields);
 
 		$data['customer_list'] 	= $this->sq->retrieveCustomerList();
@@ -68,7 +69,7 @@ class controller extends wc_controller
 		$data["currency_codes"] = $this->sq->getValue("currency", $curr_type_data,'','currencycode');
 
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode, ' - ', itemname) val");
-		$data["itemcodes"] 		= $this->sq->getValue("items", $cc_entry_data,'',"itemcode");
+		$data["itemcodes"] 		= $this->sq->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
 
 		$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
 		$acc_entry_cond          = "accounttype != 'P'";
@@ -100,6 +101,7 @@ class controller extends wc_controller
 
 	public function edit($voucherno)
 	{
+		$this->view->title      = 'Edit Quotation';
 		$retrieved_data 		= $this->sq->retrieveExistingSQ($voucherno);
 		$data['customer_list'] 	= $this->sq->retrieveCustomerList();
 		$data['proforma_list'] 	= $this->sq->retrieveProformaList();
@@ -115,7 +117,7 @@ class controller extends wc_controller
 		$data['close_date']		= $close_date;
 		
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode, ' - ', itemname) val");
-		$data["itemcodes"] 		= $this->sq->getValue("items", $cc_entry_data,'',"itemcode");
+		$data["itemcodes"] 		= $this->sq->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
 
 		$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
 		$acc_entry_cond          = "accounttype != 'P'";
@@ -175,6 +177,7 @@ class controller extends wc_controller
 
 	public function view($voucherno)
 	{
+		$this->view->title      = 'View Quotation';
 		$retrieved_data 		= $this->sq->retrieveExistingSQ($voucherno);
 
 		// Closed Date

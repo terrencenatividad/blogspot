@@ -1,11 +1,13 @@
 <?php
 	class bank extends wc_model
 	{
+		
 
 		public function retrieveExchangeRateDropdown()
 		{
 			$result = $this->db->setTable('currency')
 							->setFields('currencycode ind, currency val')
+							->setWhere("stat = 'active'")
 							->runSelect()
 							->getResult();
                            
@@ -20,11 +22,10 @@
 
 			$result = $this->db->setTable('bank')
 							->setFields($fields)
-							->setWhere(" stat = 'active' $add_cond ")
+							->setWhere(" stat IN  ('active','inactive') $add_cond ")
 							->setOrderBy($sort)
 							->runPagination();
 			return $result;
-			// echo $this->db->getQuery();
 		}
 
 		public function retrieveExistingBank($data, $id)
@@ -46,51 +47,22 @@
 						->setOrderBy($orderby)
 						->runSelect($bool)
 						->getResult();
-						// echo $this->db->getQuery();
 			return $result;
 		}
 
 		public function insertBank($data)
 		{
-			// $bankname 	= $data['shortname'];
-			// $accountno 	= $data['accountno'];
-		
-			// $cashAccount	= $this->GetValue("chartaccount","segment5","(id != '' AND id != '-')  AND accountclasscode = 'CASH' AND accounttype = 'B' LIMIT 1 ");
-			// $cashAccount   	= $cashAccount[0]->segment5;
-			// $cashAccount_Arr= explode('-',$cashAccount);
-			// $cashLevel		= $this->GetValue("chartaccount","id","(id != '' AND id != '-')  AND accountclasscode = 'CASH'  AND accounttype = 'B' LIMIT 1 ");
-			// $childCount		= $this->GetValue("chartaccount","COUNT(segment5) seg5"," parentaccountcode = '$cashAccount' AND accountclasscode = 'CASH' AND accounttype = 'C'  ");
-			// $childCount     = $childCount[0]->seg5;
-			// $childCount		= $childCount + 1;
-			
-			// $accountinfo['segment5']			= $cashAccount_Arr[0].'-'.str_pad($cashAccount_Arr[1] + $childCount, 3, 0, STR_PAD_LEFT);
-			// $accountinfo['accountname']			= "Cash in Bank - ".$bankname." (".$accountno.")";
-			// $accountinfo['accounttype']			= 'C';
-			// $accountinfo['accountnature']		= 'Debit';
-			// $accountinfo['fspresentation']		= 'BS';
-			// $accountinfo['accountclasscode']	= 'CASH';
-			// $accountinfo['parentaccountcode']	= $cashAccount;
-
-			// $result = $this->db->setTable('chartaccount')
-			// 		->setValues($accountinfo)
-			// 		->runInsert();
-
-			// $accountlevel = $this->db->getInsertId();
-
-			// if ($result) {
 			$data_post_dtl['gl_code'] 		= $data['gl_code'];
 			$data_post_dtl['shortname'] 	= $data['shortname'];
 			$data_post_dtl['bankcode'] 		= $data['bankcode'];
 			$data_post_dtl['accountno'] 	= $data['accountno'];
 			$data_post_dtl['address1'] 		= $data['address1'];
 			$data_post_dtl['currency'] 		= $data['currency'];
-			// $data_post_dtl['accountlevel'] 	= $accountlevel;
 			$data_post_dtl['checking_account'] 	= $data['checking_account'];
 
 			$result = $this->db->setTable('bank')
 					->setValues($data_post_dtl)
 					->runInsert();
-			// }
 			return $result;
 		}
 
@@ -98,7 +70,6 @@
 		{
 			
 			$condition 			   = " id = '$id' ";
-
 			$result 			   = $this->db->setTable('bank')
 											  ->setValues($data)
 											  ->setWhere($condition)
@@ -143,7 +114,6 @@
 							->setWhere(" accountno = '$current'")
 							->runSelect()
 							->getResult();
-							// echo $this->db->getQuery();
 			return $result;
 		}
 
@@ -160,10 +130,11 @@
 
 		public function insertCheck($data2){
 			$data_post_dtl['bank_id'] 			= $data2['bank_id'];
+			$data_post_dtl['stat'] 				= 'open';
 			$data_post_dtl['booknumber'] 		= $data2['booknumber'];
 			$data_post_dtl['firstchequeno'] 	= $data2['firstchequeno'];
 			$data_post_dtl['lastchequeno'] 		= $data2['lastchequeno'];
-			$data_post_dtl['nextchequeno'] 		= $data2['firstchequeno'] + 1;
+			$data_post_dtl['nextchequeno'] 		= $data2['firstchequeno'];
 
 			$result = $this->db->setTable('bankdetail')
 					->setValues($data_post_dtl)
@@ -172,9 +143,10 @@
 
 		}
 		public function getAccountname($id){
-			$result = $this->db->setTable('bank')
-					->setFields('id, shortname ')
-					->setWhere(" id = '$id'")
+			$result = $this->db->setTable('bank b')
+					->setFields('id, shortname, firstchequeno, lastchequeno ')
+					->setWhere("id = '$id'")
+					->leftJoin("bankdetail bd ON b.id = bd.bank_id ")
 					->runSelect()
 					->getResult();
 			return $result;
@@ -184,13 +156,13 @@
 		public function checkListing($search="", $sort ,$limit, $id){
 			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (shortname LIKE '%$search%' OR bankcode LIKE '%$search%'  OR accountno LIKE '%$search%') " 	: 	"";
 
-			$fields 	=	array("b.accountno","bank_id","id","booknumber","CONCAT(firstchequeno, ' - ' ,lastchequeno) batch" ,"nextchequeno");
+			$fields 	=	array("b.accountno","bank_id","id","booknumber","firstchequeno","lastchequeno" ,"nextchequeno", "bd.entereddate", "bd.stat","shortname","has_cancelled");
 
 			$result = $this->db->setTable('bankdetail bd')
 							->setFields($fields)
 							->leftJoin("bank b ON b.id = bd.bank_id ")
-							->setWhere(" bd.stat = 'open' AND bank_id = '$id' $add_cond ")
-							->setOrderBy($sort)
+							->setWhere("bank_id = '$id' $add_cond ")
+							->setOrderBy("nextchequeno + 0 ASC")
 							->runPagination();
 			return $result;
 		}
@@ -198,31 +170,146 @@
 		public function retrieveCheck($id, $bookno){
 			$result = $this->db->setTable('bankdetail')
 					->setFields('booknumber, firstchequeno,lastchequeno ')
-					->setWhere(" bank_id = '$id' AND booknumber = '$bookno'")
+					->setWhere(" bank_id = '$id' AND firstchequeno = '$bookno'")
 					->runSelect()
 					->getResult();
 			return $result;
 		}
 
-		public function update_check($id, $data){
+		public function update_check($id, $data, $old){
 			$bno = $data['bank_id'];
-			$condition 			   = " booknumber = '$bno' ";
+			$new = $data['booknumber'];
+			$data['nextchequeno'] = $data['firstchequeno'];
+			
+			$condition 	= "booknumber = '$old'";
+			$result 	= $this->db->setTable('bankdetail')
+							->setWhere($condition)
+							->runDelete();
 
-			$result 			   = $this->db->setTable('bankdetail')
-											  ->setValues($data)
-											  ->setWhere($condition)
-											  ->setLimit(1)
-											  ->runUpdate();
+			if($result){
+				$result  = $this->db->setTable('bankdetail')
+						->setValues($data)
+						->runInsert();
+			}
+	
 			return $result;
 		}
 
-		public function deleteCheck($id){
-			$condition 		= "booknumber = '$id'";
+		public function deactivateBank($id, $data){
+			$con			   	   = " id = '$id' ";
+			$result 			   = $this->db->setTable('bank')
+											  ->setValues($data)
+											  ->setWhere($con)
+											  ->setLimit(1)
+											  ->runUpdate();
+			return $result;
+
+		}
+
+		public function getBank($id){
+			$condition   = "";
+			$id_array 	 = explode(',', $id['id']);
+			foreach ($id_array as $id ) {
+				
+				$condition 		= " id = '$id'";
+				$fields = array(
+							'shortname',
+							'accountno',
+						);
+			
+				$result = $this->db->setTable('bank')
+							->setWhere($condition)
+							->setFields($fields)
+							->runSelect()
+							->getResult();	
+			}
+
+			return $result; 
+
+		}
+
+		public function getInfo($id){
+			$fields = array(
+				'shortname',
+				'accountno',
+			);
+			$condition 		= " id = '$id'";
+			$result = $this->db->setTable('bank')
+							->setWhere($condition)
+							->setFields($fields)
+							->runSelect()
+							->getResult();	
+			return $result;
+		}
+
+		public function deleteCheck($posted_data, $id){
+			$condition 		= "firstchequeno = '$posted_data' AND bank_id = '$id'";
 			$result 		= $this->db->setTable('bankdetail')
 								->setWhere($condition)
 								->runDelete();
 			return $result ;
 		}
+
+		public function check_duplicate_booknums($current){
+			$result = $this->db->setTable('bankdetail')
+							->setFields('COUNT(booknumber) count')
+							->setWhere("booknumber = '$current'")
+							->runSelect()
+							->getResult();
+			return $result;
+		}
+
+		public function set_check($bank, $first){
+			$con			   	   = " bank_id = '$bank' AND firstchequeno = '$first' ";
+			$data['stat']          = 'open';
+			$result 			   = $this->db->setTable('bankdetail')
+											  ->setValues($data)
+											  ->setWhere($con)
+											  ->setLimit(1)
+											  ->runUpdate();
+			return $result;
+		}
+
+		public function check_duplicate_glcode($current){
+			$result = $this->db->setTable('bank')
+							->setFields('COUNT(accountno) count')
+							->setWhere(" gl_code = '$current'")
+							->runSelect()
+							->getResult();
+			return $result;
+		}
+
+		public function insertCancelledChecks($data1){
+			$data['bank_id'] 			= $data1['id'];
+			$data['firstchequeno'] 		= $data1['start'];
+			$data['lastchequeno'] 		= $data1['end'];
+			$data['firstcancelled'] 	= $data1['firstcancelled'];
+			$data['lastcancelled'] 		= $data1['lastcancelled'];
+			$data['remarks'] 			= $data1['remarks'];
+			$data['stat']				= 'cancelled';
+			$result = $this->db->setTable('cancelled_checks')
+							->setValues($data)
+							->runInsert();
+			if ($result){
+				$data_check['has_cancelled']          = 'yes';
+				$result 			   = $this->db->setTable('bankdetail')
+											  ->setValues($data_check)
+											  ->setWhere("bank_id = {$data1['id']} AND firstchequeno={$data1['start']}")
+											  ->setLimit(1)
+											  ->runUpdate();
+			}
+			return $result;
+		}
+
+		public function cancel_list($bank, $firstcheckno){
+			$result = $this->db->setTable('cancelled_checks')
+							->setFields('firstcancelled,lastcancelled,remarks,entereddate')
+							->setWhere("bank_id = '$bank' AND firstchequeno = $firstcheckno ")
+							->runSelect()
+							->getResult();
+			return $result;
+		}
+
 
 		
 	}

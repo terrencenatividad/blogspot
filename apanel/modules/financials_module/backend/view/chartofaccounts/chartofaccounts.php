@@ -8,18 +8,19 @@
 	<div class="box box-primary">
 		<div class="panel panel-default">
 			
-		<form class="form-horizontal" method="POST" id="coaForm" autocomplete="off">
+		<form class="form-horizontal form-group" method="POST" id="coaForm" autocomplete="off">
 			<div class="panel-body">
 				<div class="row">
 					<div class="col-md-6">
 
 					<?
 							echo $ui->formField('text')
-									->setLabel('Account Code')
+									->setLabel('Account Code ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('accountcode')
 									->setId('accountcode')
 									->setValue($accountcode)
+									->setValidation('required')
 									->draw($task != "view");	
 
 					?>	
@@ -29,11 +30,12 @@
 					
 					<?
 						echo $ui->formField('text')
-									->setLabel('Account Name')
+									->setLabel('Account Name ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('accountname')
 									->setId('accountname')
 									->setValue($accountname)
+									->setValidation('required')
 									->draw($task != "view");
 					?>
 					</div>				
@@ -43,26 +45,28 @@
 					<div class = "col-md-6">
 					<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Account Class')
+									->setLabel('Account Class ')
 									->setPlaceholder('Select Account Class Code')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('accountclasscode')
 									->setId('accountclasscode')
 									->setList($accountclasscode_list)
 									->setValue($accountclasscode)
+									->setValidation('required')
 									->draw($task != "view");
 					?>
 					</div>
 					<div class = "col-md-6">
 					<?php
 								echo $ui->formField('dropdown')
-									->setLabel('FS Presentation')
+									->setLabel('FS Presentation ')
 									->setPlaceholder('Select FS Presentation')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('fspresentation')
 									->setId('fspresentation')
 									->setList($fspresentation_list)
 									->setValue($fspresentation)
+									->setValidation('required')
 									->draw($task != "view");
 					?>
 					</div>
@@ -72,13 +76,14 @@
 					<div class = "col-md-6">
 					<?
 								echo $ui->formField('dropdown')
-											->setLabel('Account Type')
+											->setLabel('Account Type ')
 											->setPlaceholder('Select Account Type')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('accounttype')
 											->setId('accounttype')
 											->setList($accounttype_list)
 											->setValue($accounttype)
+											->setValidation('required')
 											->draw($task != "view");
 					?>
 					</div>
@@ -102,13 +107,14 @@
 					<div class = "col-md-6">
 					<?
 								echo $ui->formField('dropdown')
-												->setLabel('Account Nature')
+												->setLabel('Account Nature ')
 												->setPlaceholder('Select Account Nature')
 												->setSplit('col-md-4','col-md-8')
 												->setName('accountnature')
 												->setId('accountnature')
 												->setList($accountnature_list)
 												->setValue($accountnature)
+												->setValidation('required')
 												->draw($task != "view");
 					?>
 					
@@ -141,22 +147,33 @@
 
 $('form').submit(function(e) 
 {
-		e.preventDefault();
 
-		$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', 
-			  $(this).serialize() + '<?=$ajax_post?>', 
-			  function(data) 
-		{
-			if( data.msg == "success" )
-				window.location.href = "<?=MODULE_URL?>";
-			if(data.msg == "error_add")
-			{
-				$(".alert-warning").removeClass("hidden");
-				$("#errmsg").html("Duplicate Entry for " + 
-									data.account_code + " " + 
-									data.account_name);
-			}
-		});
+	e.preventDefault();
+		var form_group	 	= 	$('#coaForm #coaForm').closest('.form-group');
+		$('#coaForm').find('.form-group').find('input, textarea, select').trigger('blur');
+
+		if ($('#coaForm').find('.form-group.has-error').length == 0)
+		{	
+			$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + '<?=$ajax_post?>', function(data) {
+				if( data.msg == 'success' )
+				{
+					$('#delay_modal').modal('show');
+						setTimeout(function() {							
+						window.location =  "<?=MODULE_URL?>";					
+					}, 1000)
+				}
+				if(data.msg == "error_add")
+				{
+					$(".alert-warning").removeClass("hidden");
+				$("#errmsg").html("Duplicate Entry for " + data.account_code + " " + data.account_name);
+				}
+			});
+			
+		}else{
+				if (form_group.find('p.help-block').html() != "") {
+					form_group.removeClass('has-error').find('p.help-block').html('');
+				}
+		}
 });
 
 </script>

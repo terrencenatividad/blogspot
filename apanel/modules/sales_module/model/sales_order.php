@@ -33,14 +33,15 @@
 			$fields = "i.itemname as itemname, i.itemdesc as itemdesc, i.uom_base, p.itemprice as price, template.adjusted_price as c_price, 
 						i.receivable_account item_receivable, i.revenue_account item_revenue, i.expense_account item_expense, i.payable_account item_payable, 
 						i.inventory_account item_inventory, class.receivable_account class_receivable, class.revenue_account class_revenue, class.expense_account class_expense, 
-						class.payable_account class_payable, class.inventory_account class_inventory, u.uomcode uomcode";
+						class.payable_account class_payable, class.inventory_account class_inventory, u.uomcode uomcode, template.stat as stat";
 			$cond 	= "i.itemcode = '$itemcode'";
 
 			$subquery 		=	"SELECT  pld.sellPrice as adjusted_price,
 											pld.itemDtlCode as itemcode,
 											cp.companycode as companycode,
 											cp.itemPriceCode as template_code,
-											cp.customerCode as customer
+											cp.customerCode as customer,
+											cp.stat as stat
 									FROM customer_price_list cp 
 									LEFT JOIN price_list_details pld ON pld.itemPriceCode = cp.itemPriceCode 
 															AND cp.companycode = pld.companycode
@@ -610,6 +611,38 @@
 							->setLimit($limit)
 							->runSelect()
 							->getResult();
+		}
+
+		public function retrieve_credit_limit($code){
+			$result =  $this->db->setTable('partners')
+							 ->setFields('credit_limit')
+							 ->setWhere(" partnercode = '$code' AND stat = 'active'")
+							 ->runSelect()
+							 ->getResult();
+							//  echo $this->db->getQuery();
+			return $result;
+		}
+
+		public function retrieve_incurred_receivables($code){
+			$result =  $this->db->setTable('accountsreceivable')
+							 ->setFields('SUM(amountreceived) receivables')
+							 ->setWhere(" stat NOT IN ('cancelled','temporary') AND customer = '$code'")
+							 ->setGroupBy('customer')
+							 ->runSelect()
+							 ->getResult();
+							 
+			return $result;
+		}
+
+		public function retrieve_outstanding_receivables($code){
+			$result =  $this->db->setTable('accountsreceivable')
+							 ->setFields('SUM(balance) receivables')
+							 ->setWhere(" stat NOT IN ('cancelled','temporary') AND customer = '$code'")
+							 ->setGroupBy('customer')
+							 ->runSelect()
+							 ->getResult();
+							 
+			return $result;
 		}
 	}
 ?>

@@ -50,7 +50,7 @@
 						<div class="col-md-6">
 							<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Supplier')
+									->setLabel('Supplier ')
 									->setPlaceholder('Select Supplier')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('vendor')
@@ -62,12 +62,27 @@
 									->draw($show_input);
 							?>
 						</div>
+						<div class="col-md-6">
+							<?php
+								echo $ui->formField('dropdown')
+								->setLabel('Reason ')
+								->setPlaceholder('Select Reason')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('reason')
+								->setId('reason')
+								->setList(array('1' => 'Defective goods - no replacement', '2' => 'Defective goods - for replacement', '3' => 'Not Defective - Item For Replacement (exact item)', '4' => 'Not defective - Item For Replacement (different item)', '5' => 'Not Defective - Items Returned but not to be replaced"'))
+								->setValue($reason)
+								->setValidation('required')
+								// ->addHidden(($ajax_task != 'ajax_create'))
+								->draw($show_input);
+							?>
+						</div>
 					</div>
 					<div class="row">
 						<div class="col-md-6">
 							<?php
 								echo $ui->formField('text')
-									->setLabel('Receipt No.')
+									->setLabel('Receipt No. ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('source_no')
 									->setId('source_no')
@@ -543,7 +558,10 @@ $('form').on('click', '[type="submit"]', function(e) {
 		if ($('.receiptqty:not([readonly])').length > 0 && items > 0) {
 			$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data, function(data) {
 				if (data.success) {
-					window.location = data.redirect;
+					$('#delay_modal').modal('show');
+							setTimeout(function() {							
+								window.location = data.redirect;						
+							}, 1000)
 				} else {
 					$('#submit_container [type="submit"]').attr('disabled', false);
 				}

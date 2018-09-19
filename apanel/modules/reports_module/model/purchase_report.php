@@ -2,6 +2,20 @@
 
     class purchase_report extends wc_model
     {        
+		public function getCompany()
+		{
+			$fields = "taxyear, periodstart";
+
+			$result = $this->db->setTable('company')
+								->setFields($fields)
+								->setWhere(1)
+								->setLimit('1')
+								->runSelect()
+								->getRow();
+
+			return $result;
+		}
+
         public function getVendorDetails($vendor_code)
 		{
 			$fields = "address1, tinno, terms, email, partnername AS name";

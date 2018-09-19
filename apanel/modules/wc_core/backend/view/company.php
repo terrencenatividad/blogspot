@@ -41,17 +41,50 @@
 								->setName('companyname')
 								->setId('companyname')
 								->setValue($companyname)
+								->setMaxLength(40)
+								->setValidation('special required')
 								->draw();
 						?>
 					</div>
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
+								->setLabel('Line of Business')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('businessline')
+								->setId('businessline')
+								->setValue($businessline)
+								->setMaxLength(30)
+								->draw();
+						?>
+					</div>
+				</div>
+				<br/>
+				<div class="row">
+					<div class="col-md-6">
+						<?php
+							echo $ui->formField('dropdown')
 								->setLabel('Business Type')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('businesstype')
 								->setId('businesstype')
+								->setList($businesstype_list)
 								->setValue($businesstype)
+								->setMaxLength(50)
+								->draw();
+						?>
+					</div>
+					<div class="col-md-6">
+						<?php
+							echo $ui->formField('text')
+								->setLabel('Company TIN')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('tin')
+								->setId('tin')
+								->setValue($tin)
+								->setAttribute(array('data-inputmask' => "'mask': '999-999-999-999'"))
+								->setPlaceholder('000-000-000-000')
+								->setMaxLength(15)
 								->draw();
 						?>
 					</div>
@@ -63,11 +96,12 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Contact Person')
+								->setLabel('First Name')
 								->setSplit('col-md-4', 'col-md-8')
-								->setName('contactname')
-								->setId('contactname')
-								->setValue($contactname)
+								->setName('firstname')
+								->setId('firstname')
+								->setValue($firstname)
+								->setMaxLength(15)
 								->draw();
 						?>
 					</div>
@@ -75,11 +109,40 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Contact Person Role')
+								->setLabel('Middle Name')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('middlename')
+								->setId('middlename')
+								->setValue($middlename)
+								->setMaxLength(10)
+								->draw();
+						?>
+					</div>
+				</div>
+				<br>
+				<div class="row">
+					<div class="col-md-6">
+						<?php
+							echo $ui->formField('text')
+								->setLabel('Last Name')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('lastname')
+								->setId('lastname')
+								->setValue($lastname)
+								->setMaxLength(15)
+								->draw();
+						?>
+					</div>
+
+					<div class="col-md-6">
+						<?php
+							echo $ui->formField('text')
+								->setLabel('Contact Role')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('contactrole')
 								->setId('contactrole')
 								->setValue($contactrole)
+								->setMaxLength(25)
 								->draw();
 						?>
 					</div>
@@ -94,6 +157,7 @@
 								->setName('phone')
 								->setId('phone')
 								->setValue($phone)
+								->setMaxLength(12)
 								->draw();
 						?>
 					</div>
@@ -105,6 +169,7 @@
 								->setName('mobile')
 								->setId('mobile')
 								->setValue($mobile)
+								->setMaxLength(15)
 								->draw();
 						?>
 					</div>
@@ -119,6 +184,7 @@
 								->setName('address')
 								->setId('address')
 								->setValue($address)
+								->setMaxLength(70)
 								->draw();
 						?>
 					</div>
@@ -130,6 +196,53 @@
 								->setName('email')
 								->setId('email')
 								->setValue($email)
+								->setMaxLength(36)
+								->draw();
+						?>
+					</div>
+				</div>
+				<br/>
+				<h3>Authorized Signatory</h3>
+				<hr/>
+				<div class="row">
+					<div class="col-md-6">
+						<?php
+							echo $ui->formField('text')
+								->setLabel('Signatory Name')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('signatory_name')
+								->setId('signatory_name')
+								->setValue($signatory_name)
+								->setMaxLength(50)
+								->draw();
+						?>
+					</div>
+					<div class="col-md-6">
+						<?php
+							echo $ui->formField('text')
+								->setLabel('Signatory Role')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('signatory_role')
+								->setId('signatory_role')
+								->setValue($signatory_role)
+								->setMaxLength(50)
+								->draw();
+						?>
+					</div>
+				</div>
+				<br/>
+				<div class="row">
+					<div class="col-md-6">
+						<?php
+							echo $ui->formField('text')
+								->setLabel('Signatory TIN')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('signatory_tin')
+								->setId('signatory_tin')
+								->setValue($signatory_tin)
+								->setAttribute(array('data-inputmask' => "'mask': '999-999-999-999'"))
+								->setPlaceholder('000-000-000-000')
+								->setMaxLength(15)
 								->draw();
 						?>
 					</div>
@@ -141,7 +254,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Accounting Period')
+								->setLabel('Accounting Period ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('taxyear')
 								->setId('taxyear')
@@ -154,7 +267,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Period Start')
+								->setLabel('Period Start ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('periodstart')
 								->setId('periodstart')
@@ -170,14 +283,32 @@
 						?>
 					</div>
 				</div>
-			</div>
 				<div class="row">
-					<div class="col-md-12 text-center">
-						<input type = "submit" name = "add" id="add" value = "Save" class = "btn btn-info btn-flat">
-						&nbsp;
-						<input type = "submit" name = "cancel" id="cancel" value = "Cancel" class = "btn btn-default btn-flat">
-					</div>	
+					<div class="col-md-6">
+						<?php
+							echo $ui->formField('dropdown')
+								->setLabel('Apply Withholding Tax On ')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('wtax_option')
+								->setId('wtax_option')
+								->setList($wtax_option_list)
+								->setValue($wtax_option)
+								->setValidation('required')
+								->draw();
+						?>
+					</div>
 				</div>
+			</div>	
+			<div class="row">
+				<div class="col-md-12 text-center">
+					<hr/>
+				</div>						
+				<div class="col-md-12 text-center">
+					<input type = "submit" name = "add" id="add" value = "Save" class = "btn btn-info btn-flat">
+					&nbsp;
+					<input type = "submit" name = "cancel" id="cancel" value = "Cancel" class = "btn btn-default btn-flat">
+				</div>	
+			</div>
 			</form>
 		</div>
 		<!--UPLOAD MODAL-->
@@ -239,9 +370,13 @@
 				$('#companyForm #add').removeClass('disabled');
 
 				if(code == 1){
-					$("#companyAlert").removeClass('alert-warning');
-					$("#companyAlert").addClass('alert-info');
-					$("#companyAlert").html('<strong>Success!</strong> Changes has been saved.');
+					// $("#companyAlert").removeClass('alert-warning');
+					// $("#companyAlert").addClass('alert-info');
+					// $("#companyAlert").html('<strong>Success!</strong> Changes has been saved.');
+					$('#delay_modal').modal('show');
+					setTimeout(function() {							
+						window.location =  "<?=MODULE_URL?>";					
+					}, 1000)
 				}else{
 					$("#companyAlert").removeClass('alert-info');
 					$("#companyAlert").addClass('alert-warning');
@@ -250,9 +385,9 @@
 
 				$('html, body').animate({ scrollTop: 0 }, 'slow');
 				
-				$('#companyAlert').fadeTo(0, 500, function(){
-					$(this).removeClass('hidden');
-				});
+				// $('#companyAlert').fadeTo(0, 500, function(){
+				// 	$(this).removeClass('hidden');
+				// });
 			
 				window.setTimeout(function() { 
 					$('#companyAlert').fadeTo(500, 0).slideUp(500, function(){

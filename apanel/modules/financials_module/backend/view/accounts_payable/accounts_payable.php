@@ -44,12 +44,13 @@
 	<input type = "hidden" id = "noCashAccounts" name = "noCashAccounts" value = "<?= $noCashAccounts ?>"/>
 
 	<?php 
+	$toggle_wtax = ($wtax_option != 'AP') ? "hidden" : "";
 	if($task == "view") {
-			$applicationPannel = "hidden";
-			if(!is_null($data["payments"]) && !empty($data["payments"]))
-			{
-				$applicationPannel = "";
-			}
+		$applicationPannel = "hidden";
+		if(!is_null($data["payments"]) && !empty($data["payments"]))
+		{
+			$applicationPannel = "";
+		}
 	?>
 
 	<? }else { ?> 
@@ -175,7 +176,9 @@
 													->setSplit('col-md-4', 'col-md-8')
 													->setName('invoiceno')
 													->setId('invoiceno')
+													->setAttribute(array("maxlength" => "20"))
 													->setValue($invoiceno)
+													->setValidation('alpha_num')
 													->draw($show_input);
 										?>
 									</div>
@@ -204,7 +207,9 @@
 													->setSplit('col-md-4', 'col-md-8')
 													->setName('referenceno')
 													->setId('referenceno')
+													->setAttribute(array("maxlength" => "20"))
 													->setValue($referenceno)
+													->setValidation('alpha_num')
 													->draw($show_input);
 										?>
 									</div>
@@ -236,7 +241,7 @@
 												->setName('proformacode')
 												->setId('proformacode')
 												->setList($proforma_list)
-												->setValue("")
+												->setValue($proformacode)
 												->setNone('None')
 												->draw($show_input);
 										?>
@@ -302,7 +307,7 @@
 								<table class="table table-hover table-condensed " id="itemsTable">
 									<thead>
 										<tr class="info">
-											<th class="col-md-1 text-center">Withholding Tax</th>
+											<th class="col-md-1 text-center <?=$toggle_wtax?>" >Withholding Tax</th>
 											<th class="col-md-3 text-center">Account</th>
 											<th class="col-md-3 text-center">Description</th>
 											<th class="col-md-2 text-center">Debit</th>
@@ -328,7 +333,7 @@
 												$startnumber 	   = ($row_ctr == 0) ? 1: $row_ctr;
 										?>
 												<tr class="clone" valign="middle">
-													<td class = "checkbox-select remove-margin text-center">
+													<td class = "checkbox-select remove-margin text-center <?=$toggle_wtax?>">
 														<?php
 															echo $ui->formField('checkbox')
 																->setSplit('', 'col-md-12')
@@ -341,7 +346,7 @@
 																->draw($show_input);
 														?>
 													</td>
-													<td class="edit-button text-center" style="display: none">
+													<td class="edit-button text-center " style="display: none">
 														<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
 													</td>
 													<td class = "remove-margin hidden" >
@@ -423,7 +428,7 @@
 												$row++;
 										?>
 												<tr class="clone" valign="middle">
-													<td class = "checkbox-select remove-margin text-center">
+													<td class = "checkbox-select remove-margin text-center <?=$toggle_wtax?>">
 														<?php
 															echo $ui->formField('checkbox')
 																	->setSplit('', 'col-md-12')
@@ -543,7 +548,7 @@
 													}
 											?>	
 												<tr class="clone" valign="middle">
-														<td class = "checkbox-select remove-margin text-center">
+														<td class = "checkbox-select remove-margin text-center <?=$toggle_wtax?>">
 															<?php
 																echo $ui->formField('checkbox')
 																		->setSplit('', 'col-md-12')
@@ -652,7 +657,7 @@
 											</td>	
 										</tr>	
 										<tr id="total">
-											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+											<td style="border-top:1px solid #DDDDDD;" class="<?=$toggle_wtax?>">&nbsp;</td>
 											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 											<td class="right" style="border-top:1px solid #DDDDDD;">
 												<label class="control-label col-md-12">Total</label>
@@ -697,24 +702,39 @@
 								<input class = "form_iput" value = "" name = "save" id = "save" type = "hidden">
 								<div class="btn-group" id="save_group">
 									
-									<input type = "button" value = "Save" name = "save" id = "btnSave" class="btn btn-primary btn-sm btn-flat"/>
-									<input type = "hidden" value = "" name = "h_save" id = "h_save"/>
+									<!-- <input type = "button" value = "Save" name = "save" id = "btnSave" class="btn btn-primary btn-sm btn-flat"/>
+									<input type = "hidden" value = "" name = "h_save" id = "h_save"/> -->
+
+									<input type = "button" value = "Save & Preview" name = "save" id = "save_preview" class="btn btn-primary btn-sm btn-flat"/>
+									<input type = "hidden" value = "" name = "h_save_preview" id = "h_save_preview"/>
+									
 
 									<button type="button" id="btnSave_toggle" class="btn btn-primary dropdown-toggle btn-sm btn-flat" data-toggle="dropdown">
 										<span class="caret"></span>
 									</button>
 									
-									<ul class="dropdown-menu left" role="menu">
+									<!-- <ul class="dropdown-menu left" role="menu">
 										<li id = "save_new" style="cursor:pointer;">
-											<!--<input type = "button" value = "Save & New" name = "save_new" id = "save_new" class = "btn btn-default btn-sm btn-flat no-bg"/>-->
-											Save & New
+												Save & New
 											<input type = "hidden" value = "" name = "h_save_new" id = "h_save_new"/>
 										</li>
 										<li class="divider"></li>
 										<li id = "save_preview" style="cursor:pointer;">
-											<!--<input type = "button" value = "Save & Preview" name = "save_preview" id = "save_preview" class = "btn btn-default btn-sm btn-flat no-bg"/>-->
-											Save & Preview
+												Save & Preview
 											<input type = "hidden" value = "" name = "h_save_preview" id = "h_save_preview"/>
+										</li>
+									</ul> -->
+
+									<ul class="dropdown-menu left" role="menu">
+										<li id = "save_new" style="cursor:pointer;">
+												Save &amp; New
+											<input type = "hidden" value = "" name = "h_save_new" id = "h_save_new"/>
+										</li>
+										<li class="divider"></li>
+										<li id = "btnSave" style="cursor:pointer;">
+												Save &amp; Exit
+												<input type = "hidden" value = "" name = "h_save" id = "h_save"/>
+												
 										</li>
 									</ul>
 							
@@ -796,7 +816,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('textarea')
-										->setLabel('Address: <span class = "asterisk">*</span>')
+										->setLabel('Address: ')
 										->setSplit('col-md-3', 'col-md-8 field_col')
 										->setName('address')
 										->setId('address')
@@ -810,7 +830,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('dropdown')
-									->setLabel('Business Type: <span class="asterisk"> * </span>')
+									->setLabel('Business Type: ')
 									->setPlaceholder('Filter Business Type')
 									->setSplit('col-md-3', 'col-md-8 field_col')
 									->setName('businesstype')
@@ -887,7 +907,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Amount: <span class = "asterisk">*</span>')
+										->setLabel('Currency Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('oldamount')
 										->setId('oldamount')
@@ -904,7 +924,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Rate: <span class = "asterisk">*</span>')
+										->setLabel('Currency Rate: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('rate')
 										->setId('rate')
@@ -920,7 +940,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Amount: <span class = "asterisk">*</span>')
+										->setLabel('Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('newamount')
 										->setId('newamount')
@@ -1006,7 +1026,7 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 			<div class="modal-body">
-				Are you sure you want to cancel?
+				Are you sure you want to cancel this transaction?
 			</div>
 			<div class="modal-footer">
 				<div class="row row-dense">
@@ -1043,7 +1063,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Amount: <span class = "asterisk">*</span>')
+										->setLabel('Currency Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('paymentoldamount')
 										->setId('paymentoldamount')
@@ -1059,7 +1079,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Currency Rate: <span class = "asterisk">*</span>')
+										->setLabel('Currency Rate:  ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('paymentrate')
 										->setId('paymentrate')
@@ -1076,7 +1096,7 @@
 						<div class="row row-dense remove-margin">
 							<?php
 								echo $ui->formField('text')
-										->setLabel('Amount: <span class = "asterisk">*</span>')
+										->setLabel('Amount: ')
 										->setSplit('col-md-4', 'col-md-7 field_col')
 										->setName('paymentnewamount')
 										->setId('paymentnewamount')
@@ -1119,8 +1139,6 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				Choose ATC Code
-				<!--<h4>Add a Vendor
-				<button type="button" class="close" data-dismiss="modal">&times;</button></h4>-->
 			</div>
 			<div class="modal-body">
 				<form class="form-horizontal" id="newVendor" autocomplete="off">
@@ -1133,7 +1151,6 @@
 										->setName('tax_account')
 										->setId('tax_account')
 										->setClass('tax_account')
-										// ->setList($tax_list)
 										->setValue($taxcode)
 										->draw($show_input);
 							?>
@@ -1472,14 +1489,6 @@ function validateField(form,id,help_block)
 		
 		$("#"+form+" #"+help_block)
 			.removeClass('hidden');
-			
-		// if($("#"+form+" #"+id).parent().next(".help-block")[0])
-		// {
-		// 	$("#"+form+" #"+id)
-		// 	.parent()
-		// 	.next(".help-block")
-		// 	.removeClass('hidden');
-		// }
 
 		if($("#"+form+" .row-dense").next(".help-block")[0])
 		{
@@ -1499,15 +1508,7 @@ function validateField(form,id,help_block)
 
 		$("#"+form+" #"+help_block)
 			.addClass('hidden');
-			
-		// if($("#"+form+" #"+id).parent().next(".help-block")[0])
-		// {
-		// 	$("#"+form+" #"+id)
-		// 	.parent()
-		// 	.next(".help-block")
-		// 	.addClass('hidden');
-		// }
-
+	
 		if($("#"+form+" .row-dense").next(".help-block")[0])
 		{
 			$("#"+form+" #"+help_block)
@@ -2921,10 +2922,10 @@ function confirmChequePrint(row)
 	
 	bootbox.dialog({
 		message: "Please select one of the option to proceed.",
-		title: "Print Cheque",
+		title: "Print Check",
 			buttons: {
 			check: {
-			label: "Cheque Only",
+			label: "Check Only",
 			className: "btn-primary btn-flat",
 			callback: function(result) {
 					var link 	 		= '<?= BASE_URL ?>financials/accounts_payable/generateCheck/'+paymentvoucher+'/'+chequeno;
@@ -2933,7 +2934,7 @@ function confirmChequePrint(row)
 				}
 			},
 			voucher: {
-			label: "Cheque with Voucher",
+			label: "Check with Voucher",
 			className: "btn-success btn-flat",
 			callback: function(result) {
 					var link 	 		= '<?= BASE_URL ?>financials/accounts_payable/generateCheckVoucher/'+paymentvoucher+'/'+chequeno+'/rv';
@@ -3556,7 +3557,8 @@ $(document).ready(function()
 						$("#payableForm #btnSave").removeClass('disabled');
 						$("#payableForm #btnSave_toggle").removeClass('disabled');
 				
-						$("#payableForm #btnSave").html('Save');
+						$("#payableForm #save_preview").html('Save & Preview');
+						// $("#payableForm #btnSave").html('Save');
 					}
 				});
 			}
@@ -3588,7 +3590,11 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {							
+							$("#payableForm").submit();				
+						}, 1000)
+
 					}
 					else
 					{
@@ -3602,7 +3608,8 @@ $(document).ready(function()
 						$("#payableForm #btnSave").removeClass('disabled');
 						$("#payableForm #btnSave_toggle").removeClass('disabled');
 						
-						$("#payableForm #btnSave").html('Save');
+						// $("#payableForm #btnSave").html('Save');
+						$("#payableForm #save_preview").html('Save & Preview');
 
 						$("#diverror").removeClass("hidden");
 						$("#diverror #errmsg ul").html(msg);
@@ -3637,7 +3644,10 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {							
+							$("#payableForm").submit();				
+						}, 1000)
 					}
 					else
 					{
@@ -3651,7 +3661,8 @@ $(document).ready(function()
 						$("#payableForm #btnSave").removeClass('disabled');
 						$("#payableForm #btnSave_toggle").removeClass('disabled');
 						
-						$("#payableForm #btnSave").html('Save');
+						// $("#payableForm #btnSave").html('Save');
+						$("#payableForm #save_preview").html('Save & Preview');
 
 						$("#diverror").removeClass("hidden");
 						$("#diverror #errmsg ul").html(msg);
@@ -3687,7 +3698,10 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {												
+							$("#payableForm").submit();
+						}, 1000)
 					}
 					else
 					{
@@ -3701,7 +3715,8 @@ $(document).ready(function()
 						$("#payableForm #btnSave").removeClass('disabled');
 						$("#payableForm #btnSave_toggle").removeClass('disabled');
 						
-						$("#payableForm #btnSave").html('Save');
+						// $("#payableForm #btnSave").html('Save');
+						$("#payableForm #save_preview").html('Save & Preview');
 						
 						$("#diverror").removeClass("hidden");
 						$("#diverror #errmsg ul").html(msg);
@@ -3722,6 +3737,7 @@ $(document).ready(function()
 		/**SAVE CHANGES AND REDIRECT TO LIST**/
 		$("#payableForm #btnSave").click(function(e)
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)			
 			var valid	= 0;
 
 			//$("#payableForm").find('.form-group').find('input, textarea, select').trigger('blur');
@@ -3747,7 +3763,10 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {							
+							$("#payableForm").submit();				
+						}, 1000)
 					}
 					else
 					{
@@ -3761,7 +3780,8 @@ $(document).ready(function()
 						$("#payableForm #btnSave").removeClass('disabled');
 						$("#payableForm #btnSave_toggle").removeClass('disabled');
 						
-						$("#payableForm #btnSave").html('Save');
+						// $("#payableForm #btnSave").html('Save');
+						$("#payableForm #save_preview").html('Save & Preview');
 
 						$("#diverror").removeClass("hidden");
 						$("#diverror #errmsg ul").html(msg);
@@ -3779,6 +3799,7 @@ $(document).ready(function()
 		/**SAVE CHANGES AND REDIRECT TO CREATE NEW INVOICE**/
 		$("#payableForm #save_new").click(function()
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)			
 			var valid	= 0;
 			
 			/**validate vendor field**/
@@ -3800,7 +3821,10 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {							
+							$("#payableForm").submit();				
+						}, 1000)
 					}
 					else
 					{
@@ -3814,7 +3838,8 @@ $(document).ready(function()
 						$("#payableForm #btnSave").removeClass('disabled');
 						$("#payableForm #btnSave_toggle").removeClass('disabled');
 						
-						$("#payableForm #btnSave").html('Save');
+						// $("#payableForm #btnSave").html('Save');
+						$("#payableForm #save_preview").html('Save & Preview');
 
 						$("#diverror").removeClass("hidden");
 						$("#diverror #errmsg ul").html(msg);
@@ -3831,6 +3856,7 @@ $(document).ready(function()
 			
 		$("#payableForm #save_preview").click(function()
 		{
+		$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)			
 			var valid	= 0;
 			
 			$("#payableForm").find('.form-group').find('input, textarea, select').trigger('blur');
@@ -3853,7 +3879,10 @@ $(document).ready(function()
 				{
 					if(data.msg == "success")
 					{
-						$("#payableForm").submit();
+						$('#delay_modal').modal('show');
+						setTimeout(function() {							
+							$("#payableForm").submit();				
+						}, 1000)
 					}
 					else
 					{
@@ -3867,7 +3896,8 @@ $(document).ready(function()
 						$("#payableForm #btnSave").removeClass('disabled');
 						$("#payableForm #btnSave_toggle").removeClass('disabled');
 						
-						$("#payableForm #btnSave").html('Save');
+						// $("#payableForm #btnSave").html('Save');
+						$("#payableForm #save_preview").html('Save & Preview');
 
 						$("#diverror").removeClass("hidden");
 						$("#diverror #errmsg ul").html(msg);
@@ -3955,7 +3985,6 @@ $(document).ready(function()
 						className: "btn-default btn-flat",
 						callback: function(result) {
 								$('#payableForm #proformacode').val('').trigger("change");
-								// $('#payableForm #proformacode').chosen().trigger('chosen:updated');
 							}
 						}
 					}
@@ -3982,8 +4011,9 @@ var row = '';
 prev_account = '';
 
 function get_coa(account){
+	var wtax_option = '<?=$wtax_option?>';
 	$.post("<?= BASE_URL ?>financials/accounts_payable/ajax/get_tax",{account:account}).done(function(data){
-		if(data.result === 'TAX'){
+		if((data.result == 'TAX' || data.result == 'CULIAB') && wtax_option == 'AP'){
 			if (prev_account != '' && account != prev_account) {
 				$('#tax_amount').val('');
 			}
@@ -4043,16 +4073,11 @@ $('#itemsTable .taxcode').each(function(){
 		$(this).closest('tr').find('.edit-button').show().attr('data-amount', tax_amt);
 		$('#tax_account').val(acc);
 	}
-})
+});
 
 $('.tax_amount').on('change', function(){
 	var accs = $(this).val();
-	console.log(accs);
 	acc = addCommas(parseFloat(accs).toFixed(2));
 	$('.tax_amount').val(acc);
-})
-
-// addCommas(balance.toFixed(2));
-
-
+});
 </script>

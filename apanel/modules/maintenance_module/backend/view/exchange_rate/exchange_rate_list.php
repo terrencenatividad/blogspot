@@ -102,6 +102,7 @@
 								->addHeader('Base Currency Code', array('class'=>'col-md-3'),'sort','basecurrencycode')
 								->addHeader('Exchange Currency Code', array('class'=>'col-md-3'),'sort','exchangecurrencycode')
 								->addHeader('Exchange Rate', array('class'=>'col-md-3'),'sort','exchangerate')
+								->addHeader('Status', array('class'=>'col-md-3'),'sort','stat')
 								->draw();
 					?>
 				</thead>
@@ -267,5 +268,26 @@ $('#items').on('change', function(){
 	ajax.limit = $(this).val();
 	showList();
 });
+
+
+		$('#exchangerate_table').on('click', '.activate', function() { 
+				var id = $(this).attr('data-id');
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+					showList();
+				});
+			});
+
+		$('#exchangerate_table').on('click', '.deactivate', function() { 
+			$('#deactivate_modal').modal('show');
+			var id = $(this).attr('data-id');
+			
+			$('#deactivate_modal').on('click', '#deactyes', function() {
+				$('#deactivate_modal').modal('hide');
+				
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+					showList();
+				});
+			});
+		});
 
 </script>

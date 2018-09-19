@@ -98,9 +98,30 @@
 
 			if( !empty($list->result) ) :
 				foreach ($list->result as $key => $row) {
+
+					$stat = $row->stat;
+					if($stat == 'active'){
+						$status = '<span class="label label-success">ACTIVE</span>';								
+					}else{
+						$status = '<span class="label label-warning">INACTIVE</span>';
+					}
+
+					$show_activate 		= ($stat != 'inactive');
+					$show_deactivate 	= ($stat != 'active');
+
 					$dropdown = $this->ui->loadElement('check_task')
 										 ->addView()
 										 ->addEdit()
+										 ->addOtherTask(
+											'Activate',
+											'arrow-up',
+											$show_deactivate
+										)
+										->addOtherTask(
+											'Deactivate',
+											'arrow-down',
+											$show_activate
+										)	
 										 ->addDelete()
 										 ->addCheckbox()
 										 ->setValue($row->partnercode)
@@ -111,7 +132,7 @@
 					$table .= '<td>' . $row->partnername . '</td>';
 					$table .= '<td>' . $row->contact_person. '</td>';
 					$table .= '<td>' . $row->email . '</td>';
-					$table .= '<td>' . $row->stat . '</td>';
+					$table .= '<td>' . $status . '</td>';
 					$table .= '</tr>';
 				}
 			else:
@@ -392,6 +413,30 @@
 			$error_messages		= implode(' ', $errmsg);
 			
 			return array("proceed" => $proceed,"errmsg"=>$error_messages);
+		}
+
+		private function ajax_edit_activate()
+		{
+			$code = $this->input->post('partnercode');
+			$data['stat'] = 'active';
+
+			$result = $this->supplier->updateStat($data,$code);
+			return array(
+				'redirect'	=> MODULE_URL,
+				'success'	=> $result
+				);
+		}
+
+		private function ajax_edit_deactivate()
+		{
+			$code = $this->input->post('partnercode');
+			$data['stat'] = 'inactive';
+
+			$result = $this->supplier->updateStat($data,$code);
+			return array(
+				'redirect'	=> MODULE_URL,
+				'success'	=> $result
+				);
 		}
 	}
 ?>

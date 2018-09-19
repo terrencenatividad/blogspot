@@ -17,7 +17,7 @@
 					<div class="col-md-12">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Currency Code:')
+									->setLabel('Currency Code: ')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('currencycode')
 									->setId('currencycode')
@@ -32,7 +32,7 @@
 					<div class="col-md-12">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Currency Name:')
+									->setLabel('Currency Name: ')
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('currency')
 									->setId('currency')
@@ -87,7 +87,11 @@ $('#currencyForm #btnSave').on('click',function(){
 		$.post('<?=BASE_URL?>maintenance/currency/ajax/<?=$task?>', $('#currencyForm').serialize()+ '<?=$ajax_post?>', function(data) {
 			if( data.msg == 'success' )
 			{
-				window.location = '<?php echo BASE_URL . 'maintenance/currency'; ?>';
+				$('#delay_modal').modal('show');
+					setTimeout(function() {							
+						window.location = '<?php echo BASE_URL . 'maintenance/currency'; ?>';
+					}, 1000)
+				
 			}
 		});
 	}

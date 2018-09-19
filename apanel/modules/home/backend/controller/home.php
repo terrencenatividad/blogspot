@@ -9,6 +9,7 @@ class controller extends wc_controller {
 	public function index() {
 		$this->view->title			= ('Dashboard');
 		$data						= array();
+		$data['year']				= $this->dashboard->getYear();
 		$data['invoices']			= $this->dashboard->getInvoices();
 		$data['purchases']			= $this->dashboard->getPurchases();
 		$data['items']				= $this->dashboard->getItems();

@@ -83,6 +83,24 @@ class chartofaccountsclass extends wc_model
 
 		return $result;
 	}
+
+	public function check_duplicate($current)
+	{
+		return $this->db->setTable('chartaccount')
+						->setFields('COUNT(segment5) count')
+						->setWhere(" segment5 = '$current'")
+						->runSelect()
+						->getResult();
+	}
+
+	public function importCOA($data)
+	{
+		$result = $this->db->setTable('chartaccount')
+				->setValuesFromPost($data)
+				->runInsert();
+
+		return $result;
+	}
 	
 	public function fileExport($data)
 	{
@@ -183,6 +201,19 @@ class chartofaccountsclass extends wc_model
 		$result =   $this->db->runSelect($addon)
 					->getResult();
 					//->buildSelect();
+
+		return $result;
+	}
+
+	public function updateStat($data,$code)
+	{
+		$condition 			   = " id = '$code' ";
+
+		$result 			   = $this->db->setTable('chartaccount')
+											->setValues($data)
+											->setWhere($condition)
+											->setLimit(1)
+											->runUpdate();
 
 		return $result;
 	}

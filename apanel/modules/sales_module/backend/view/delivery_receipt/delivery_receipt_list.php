@@ -1,4 +1,4 @@
-	<section class="content">
+<section class="content">
 		<div class="box box-primary">
 			<div class="box-header pb-none">
 				<div class="row">
@@ -23,7 +23,7 @@
 					<div class="col-md-3">
 						<div class="form-group">
 							<div class="input-group">
-								<input type="text" name="daterangefilter" id="daterangefilter" class="form-control" value = "" readonly data-daterangefilter="month" data-class="testingclass">
+								<input type="text" name="daterangefilter" id="daterangefilter" class="form-control" value = "" readonly data-daterangefilter="month">
 								<span class="input-group-addon">
 									<i class="glyphicon glyphicon-calendar"></i>
 								</span>
@@ -87,10 +87,10 @@
 								)
 								->addHeader('Transaction Date', array('class' => 'col-md-2'), 'sort', 'transactiondate')
 								->addHeader('Delivery Receipt No.', array('class' => 'col-md-3'), 'sort', 'voucherno', 'desc')
-								->addHeader('Customer', array('class' => 'col-md-3'), 'sort', 'customer')
-								->addHeader('Packing No.', array('class' => 'col-md-2'), 'sort', 'packing_no')
+								->addHeader('Customer', array('class' => 'col-md-2'), 'sort', 'customer')
+								->addHeader('Sales Order No.', array('class' => 'col-md-3'), 'sort', 'source_no')
 								->addHeader('Delivery Date', array('class' => 'col-md-2'), 'sort', 'deliverydate')
-								->addHeader('Status', array('style' => 'width: 15px'), 'sort', 'dr.stat')
+								->addHeader('Status', array('style' => 'width: 15px'), 'sort', 'pr.stat')
 								->draw();
 					?>
 					<tbody>
@@ -101,34 +101,13 @@
 		</div>
 		<div id="pagination"></div>
 	</section>
-	<div class="delete-modal">
-		<div class="modal modal-danger">
-			<div class="modal-dialog" style = "width: 300px;">
-				<div class="modal-content">
-					<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title">Confirmation</h4>
-					</div>
-					<div class="modal-body">
-					<p>Are you sure you want to cancel this record?</p>
-					</div>
-					<div class="modal-footer text-center">
-						<button type="button" class="btn btn-outline btn-flat" id = "delete-yes">Yes</button>
-						<button type="button" class="btn btn-outline btn-flat" data-dismiss="modal">No</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
 	<script>
-		var ajax = {}
-		var ajax_call = '';
 		var ajax = filterFromURL();
+		var ajax_call = '';
 		ajax.filter = ajax.filter || $('#filter_tabs .active a').attr('href');
 		ajaxToFilter(ajax, { search : '#table_search', limit : '#items', customer : '#customer', daterangefilter : '#daterangefilter' });
 		ajaxToFilterTab(ajax, '#filter_tabs', 'filter');
-
+	
 		ajax.filter = $('#filter_tabs .active a').attr('href');
 		tableSort('#tableList', function(value, getlist) {
 			ajax.sort = value;

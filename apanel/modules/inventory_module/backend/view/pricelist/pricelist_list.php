@@ -74,6 +74,7 @@
 											->addHeader('Template Code',array('class'=>'col-md-3'),'sort','pl.itemPriceCode')
 											->addHeader('Template Name', array('class'=>'col-md-3'),'sort','pl.itemPriceName')
 											->addHeader('Description',array('class'=>'col-md-3'),'sort','pl.itemPriceDesc')
+											->addHeader('Status',array('class'=>'col-md-3'),'sort','pl.status')
 											->draw();
 								?>
 							</thead>
@@ -162,6 +163,9 @@ function show_success_msg(msg)
 {
 	$('#success_modal #message').html(msg);
 	$('#success_modal').modal('show');
+	setTimeout(function() {												
+		window.location = '<?= MODULE_URL ?>';		
+	}, 1000)
 }
 
 function showList(pg){
@@ -339,5 +343,25 @@ tableSort('#pricelist_table', function(value, getlist) {
 		{
 			$("#import-modal > .modal").css("display", "inline");
 			$('#import-modal').modal();
+		});
+
+		$('#pricelist_table').on('click', '.activate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+				showList();
+			});
+		});
+
+		$('#pricelist_table').on('click', '.deactivate', function() { 
+			$('#deactivate_modal').modal('show');
+			var id = $(this).attr('data-id');
+			
+			$('#deactivate_modal').on('click', '#deactyes', function() {
+				$('#deactivate_modal').modal('hide');
+				
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+					showList();
+				});
+			});
 		});
 </script>

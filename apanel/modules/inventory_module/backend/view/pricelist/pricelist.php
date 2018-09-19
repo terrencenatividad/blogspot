@@ -12,7 +12,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('text')	
-									->setLabel('Price List Code')
+									->setLabel('Price List Code ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('pricelistcode')
 									->setId('pricelistcode')
@@ -28,7 +28,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('text')	
-									->setLabel('Price List Name')
+									->setLabel('Price List Name ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('pricelistname')
 									->setId('pricelistname')
@@ -45,7 +45,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('textarea')	
-									->setLabel('Description')
+									->setLabel('Description ')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('pricelistdesc')
 									->setId('pricelistdesc')
@@ -638,6 +638,7 @@ $(document).ready(function(){
 
 			if($("#pricelist_template_form").find('.form-group.has-error').length == 0 && result == 0 ){
 				$('#save').val("final");
+				$('#delay_modal').modal('show');
 				setTimeout(function() {
 					$('#pricelist_template_form').submit();
 				},1000);
@@ -664,7 +665,10 @@ $(document).ready(function(){
 					$.post("<?=BASE_URL?>maintenance/pricelist/ajax/save_temp_data",parameter,function(data)
 					{	
 						if(data.msg == 'success'){
-							window.location.href = '<?=BASE_URL?>maintenance/pricelist';
+							$('#delay_modal').modal('show');
+							setTimeout(function() {									
+								window.location.href = '<?=BASE_URL?>maintenance/pricelist';							
+							}, 1000)
 						}
 					});
 				},1000);

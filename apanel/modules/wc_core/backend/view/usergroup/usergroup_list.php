@@ -62,6 +62,7 @@
 								)
 								->addHeader('Group Name', array('class' => 'col-md-4'), 'sort', 'groupname', 'asc')
 								->addHeader('Description', array('class' => 'col-md-8'), 'sort', 'description')
+								->addHeader('Status', array('class' => 'col-md-8'), 'sort', 'stat')
 								->draw();
 					?>
 					<tbody>
@@ -150,5 +151,50 @@
 			linkButtonToTable('#item_multiple_delete, #item_multiple_view', '#tableList');
 			linkDeleteToModal('#tableList .delete', 'ajaxCallback');
 			linkDeleteMultipleToModal('#item_multiple_delete', '#tableList', 'ajaxCallback');
+		});
+
+
+		$('#tableList').on('click', '.activate', function() { 
+			var id = $(this).attr('data-id');
+			var decode = atob(id);
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+decode ,function(data) {
+				getList();
+			});
+		});
+
+		$('#tableList').on('click', '.deactivate', function() { 
+			$('#deactivate_modal').modal('show');
+			var id = $(this).attr('data-id');			
+			var decode = atob(id);
+			
+			$('#deactivate_modal').on('click', '#deactyes', function() {
+				$('#deactivate_modal').modal('hide');
+				
+				$.post('<?=MODULE_URL?>ajax/check_stat', '&id='+decode ,function(data) {
+					if(data.success == true){
+							bootbox.dialog({
+							message: "Can't deactivate. User Group in use.",
+							title: "Warning",
+							buttons: {
+								success: {
+									label: "Ok",
+									className: "btn-info btn-flat",
+									callback: function() {
+
+									}
+								}
+							}
+						});
+						$('.btn').on('click', function(){
+								window.location = data.redirect;
+							});
+				}else{
+					$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+decode ,function(data) {
+						window.location = data.redirect;
+					});
+				}
+				
+				});
+			});
 		});
 	</script>

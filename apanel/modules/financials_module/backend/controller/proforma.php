@@ -36,7 +36,7 @@ class controller extends wc_controller
 
 		/**ACCOUNT CODE OPTIONS **/
 		$account_code_options = $this->proformaclass->getValue("chartaccount", 
-								  array("id ind","accountname val"), "", "segment5");
+								  array("id ind","accountname val"), "stat = 'active'", "segment5");
 		$data['accountcodeoption_list'] = $account_code_options;
 
 		$data['ui'] = $this->ui;
@@ -159,9 +159,146 @@ class controller extends wc_controller
 			$result = $this->export();
 		elseif($task == 'import'):
 			$result = $this->import();
+		elseif($task == 'save_import'):
+			$result = $this->save_import();
+		elseif($task == 'ajax_edit_activate'):
+			$result = $this->ajax_edit_activate();
+		elseif($task == 'ajax_edit_deactivate'):
+			$result = $this->ajax_edit_deactivate();
 		endif;
 
 		echo json_encode($result);
+	}
+
+	private function save_import(){
+
+		$file		= fopen($_FILES['file']['tmp_name'],'r') or exit ("File Unable to upload") ;
+
+		$filedir	= $_FILES["file"]["tmp_name"];
+
+		$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
+
+		/**VALIDATE FILE IF CORRUPT**/
+		if(!empty($_FILES['file']['error'])){
+			$errmsg[] = "File being uploaded is corrupted.<br/>";
+		}
+
+		/**VALIDATE FILE TYPE**/
+		if(!in_array($_FILES['file']['type'],$file_types)){
+			$errmsg[]= "Invalid file type, file must be .csv.<br/>";
+		}
+
+		$headerArr = array('Proforma Code','Description', 'Transaction Type', 'Account Name', 'Account Code Id');
+		
+		if( empty($errmsg) )
+		{
+			$row_start = 2;
+			//$x = file_get_contents($_FILES['file']['tmp_name']);
+			$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
+
+			for ($n = 0; $n < count($x); $n++) {
+				if($n==0)
+				{
+					$layout = count($headerArr);
+					$template = count($x);
+					$header = $x[$n];
+					
+					for ($m=0; $m< $layout; $m++)
+					{
+						$template_header = $header[$m];
+
+						$error = (empty($template_header) && !in_array($template_header,$headerArr)) ? "error" : "";
+					}	
+
+					$errmsg[]	= (!empty($error) || $error != "" ) ? "Invalid template. Please download template from the system first.<br/>" : "";
+					
+					$errmsg		= array_filter($errmsg);
+
+				}
+
+				if ($n > 0) 
+				{
+					$z[] = $x[$n];
+				}
+			}
+			$line 	=	1;
+			$list 	=	array();
+
+			foreach ($z as $b) 
+			{
+				if ( !empty($b)) 
+				{	
+					$proformacode 	   	= $b[0];
+					$description 	   	= $b[1];
+					$transtype 	   		= $b[2];
+					$accountname   		= $b[3];
+					$accountcodeid		= $b[4];
+
+					$exists = $this->proformaclass->check_duplicate($proformacode);
+					$count = $exists[0]->count;
+					
+					if( $count > 0 )
+						{
+							$errmsg[]	= "Proforma Code [<strong>$proformacode</strong>] on row $line already exists.<br/>";
+							$errmsg		= array_filter($errmsg);
+						}
+					if( !in_array($proformacode, $list) ){
+						$list[] 	=	$proformacode;
+					}
+					
+					if(empty($proformacode)){
+						$errmsg[] 	= "Proforma Code is required. Row $line should not be empty.<br>";
+					}
+				
+					if(empty($description)){
+						$errmsg[] 	= "Description is required. Row $line should not be empty.<br>";
+					}
+	
+					if(empty($accountname)){
+						$errmsg[] 	= "Account Name is required. Row $line should not be empty.<br>";
+					}
+					
+					if(empty($accountcodeid)){
+						$errmsg[] 	= "Account Code Id is required. Row $line should not be empty.<br>";
+					}
+				
+					
+					$proformacode_[] 	= $proformacode;
+					$description_[] 	= $description;
+					$transtype_[]		= $transtype;
+					$accountname_[]		= $accountname;
+					$accountcodeid_[] 	= $accountcodeid;
+
+					$line++;
+			}
+		}
+		$proceed 	=	false;
+
+		if( empty($errmsg) )
+			{
+				$post = array(
+					'proformacode'			=> $proformacode_,
+					'proformadesc'			=> $description_,
+					'transactiontype'		=> $transtype_
+				);
+				$post_details = array(
+					'proformacode'			=> $proformacode_,
+					'accountcodeid'			=> $accountcodeid_,
+					'accountname'			=> $accountname_
+				);
+				
+				$proceed  				= $this->proformaclass->importProforma($post,$post_details);
+				
+				if( $proceed )
+				{
+					$this->logs->saveActivity("Imported Proforma.");
+				}
+			}
+		}
+
+		$error_messages		= implode(' ', $errmsg);
+	
+		return array("proceed" => $proceed,"errmsg"=>$error_messages);
 	}
 
 	private function load_list()
@@ -169,7 +306,7 @@ class controller extends wc_controller
 		$search = $this->input->post("search");
 		$sort 	= $this->input->post("sort");
 		$addCond = stripslashes($this->input->post("addCond"));
-		$fields = array('proformacode','proformadesc','companycode');
+		$fields = array('proformacode','proformadesc','companycode,stat');
 		$table = "";
 		$list = $this->proformaclass->retrieveData($fields,$search, $sort, $addCond); 
 	
@@ -179,10 +316,29 @@ class controller extends wc_controller
 				$proformacode = $row->proformacode;
 				$proformadesc = $row->proformadesc;
 				$companycode  = $row->companycode;
+				$stat = $row->stat;
+				if($stat == 'active'){
+					$status = '<span class="label label-success">ACTIVE</span>';								
+				}else{
+					$status = '<span class="label label-warning">INACTIVE</span>';
+				}
+
+				$show_activate 		= ($stat != 'inactive');
+				$show_deactivate 	= ($stat != 'active');
 
 				$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit()
+									->addOtherTask(
+										'Activate',
+										'arrow-up',
+										$show_deactivate
+									)
+									->addOtherTask(
+										'Deactivate',
+										'arrow-down',
+										$show_activate
+									)	
 									->addDelete()
 									->addCheckbox()
 									->setValue($proformacode)
@@ -191,6 +347,7 @@ class controller extends wc_controller
 							<td align = "center">'.$dropdown.'</td>
 							<td>'.$proformacode.'</td>
 							<td>'.$proformadesc.'</td>
+							<td align = "center">'.$status.'</td>
 						</tr>';			
 			}
 		else:
@@ -206,89 +363,87 @@ class controller extends wc_controller
 
 	public function listing()
 	{
-		$data['import_error_messages'] = array();
-		$data["file_import_result"]    = "";
 		$data['ui'] = $this->ui;
 		$this->view->title  = $this->ui->ListLabel('');
 
-		// For Import
-		$errmsg 			= array();
-		if(isset($_FILES['import_csv']))
-		{
-			$headerArray	= array('Proforma Code','Description','Transaction Type','Account Name','Account Code Id');
+		// // For Import
+		// $errmsg 			= array();
+		// if(isset($_FILES['import_csv']))
+		// {
+		// 	$headerArray	= array('Proforma Code','Description','Transaction Type','Account Name','Account Code Id');
 		
-			$file_types = array( "text/comma-separated-values", "text/csv", "application/csv", 
-							"application/excel", "application/vnd.ms-excel", 
-							"application/vnd.msexcel", "text/anytext");
+		// 	$file_types = array( "text/comma-separated-values", "text/csv", "application/csv", 
+		// 					"application/excel", "application/vnd.ms-excel", 
+		// 					"application/vnd.msexcel", "text/anytext");
 
-			// Validate File Type
-			if(!in_array($_FILES['import_csv']['type'],$file_types))
-			{
-				$errmsg[]	= "Invalid file type, file must be CSV(Comma Separated Values) File.<br/>";
-			}
+		// 	// Validate File Type
+		// 	if(!in_array($_FILES['import_csv']['type'],$file_types))
+		// 	{
+		// 		$errmsg[]	= "Invalid file type, file must be CSV(Comma Separated Values) File.<br/>";
+		// 	}
 
-			/**VALIDATE FILE IF CORRUPT**/
-			if(!empty($_FILES['import_csv']['error']))
-			{
-				$errmsg[] = "File being uploaded is corrupted.<br/>";
-			}
+		// 	/**VALIDATE FILE IF CORRUPT**/
+		// 	if(!empty($_FILES['import_csv']['error']))
+		// 	{
+		// 		$errmsg[] = "File being uploaded is corrupted.<br/>";
+		// 	}
 
-			$file		= fopen($_FILES['import_csv']['tmp_name'],"r");
+		// 	$file		= fopen($_FILES['import_csv']['tmp_name'],"r");
 
-			// Validate File Contents
-			$docData	= array();
-			$i			= 0;
-			$row		= 2;
+		// 	// Validate File Contents
+		// 	$docData	= array();
+		// 	$i			= 0;
+		// 	$row		= 2;
 
-			while (($file_data = fgetcsv($file, 1000, ",")) !== FALSE) 
-			{
-				if(!array_intersect($file_data, $headerArray))
-				{
-					$proformaCode	= addslashes(htmlentities(trim($file_data[0])));
-					$proformaDesc	= addslashes(htmlentities(trim($file_data[1])));
-					$transactionType= addslashes(htmlentities(trim($file_data[2])));
-					$accountName	= addslashes(htmlentities(trim($file_data[3])));
-					$accountCodeid	= addslashes(htmlentities(trim($file_data[4])));
+		// 	while (($file_data = fgetcsv($file, 1000, ",")) !== FALSE) 
+		// 	{
+		// 		if(!array_intersect($file_data, $headerArray))
+		// 		{
+		// 			$proformaCode	= addslashes(htmlentities(trim($file_data[0])));
+		// 			$proformaDesc	= addslashes(htmlentities(trim($file_data[1])));
+		// 			$transactionType= addslashes(htmlentities(trim($file_data[2])));
+		// 			$accountName	= addslashes(htmlentities(trim($file_data[3])));
+		// 			$accountCodeid	= addslashes(htmlentities(trim($file_data[4])));
 
 					
-					/**CHECK IF DOCUMENT SET IS EMPTY**/
-					if(empty($proformaCode)){
-						$errmsg[] 	= "Document Set on row $row should not be empty.";
-					}
+		// 			/**CHECK IF DOCUMENT SET IS EMPTY**/
+		// 			if(empty($proformaCode)){
+		// 				$errmsg[] 	= "Document Set on row $row should not be empty.";
+		// 			}
 		
 
-					/**VALIDATE ITEM**/
-					$proformaCodes	= $this->proformaclass->getValue("proforma",array("proformacode"),
-						" proformacode = '$proformaCode' AND stat='active' ");
+		// 			/**VALIDATE ITEM**/
+		// 			$proformaCodes	= $this->proformaclass->getValue("proforma",array("proformacode"),
+		// 				" proformacode = '$proformaCode' AND stat='active' ");
 
-					if(isset($proformaCodes[0]->proformacode) && !empty($proformaCodes[0]->proformacode) ){
-						$errmsg[] 	= "Proforma Code [ <strong>".stripslashes($proformaCode)."</strong> ] 
-									  on row $row does already exist.";
-					}
+		// 			if(isset($proformaCodes[0]->proformacode) && !empty($proformaCodes[0]->proformacode) ){
+		// 				$errmsg[] 	= "Proforma Code [ <strong>".stripslashes($proformaCode)."</strong> ] 
+		// 							  on row $row does already exist.";
+		// 			}
 
-					/**ASSIGN TO NEW ARRAY**/
-					$docData[$proformaCode][$i]["proformacode"]    = $proformaCode;
-					$docData[$proformaCode][$i]["proformadesc"]    = $proformaDesc;
-					$docData[$proformaCode][$i]["transactiontype"] = $transactionType;
-					$docData[$proformaCode][$i]["accountname"] 	   = $accountName;
-					$docData[$proformaCode][$i]["accountcodeid"]   = $accountCodeid;
+		// 			/**ASSIGN TO NEW ARRAY**/
+		// 			$docData[$proformaCode][$i]["proformacode"]    = $proformaCode;
+		// 			$docData[$proformaCode][$i]["proformadesc"]    = $proformaDesc;
+		// 			$docData[$proformaCode][$i]["transactiontype"] = $transactionType;
+		// 			$docData[$proformaCode][$i]["accountname"] 	   = $accountName;
+		// 			$docData[$proformaCode][$i]["accountcodeid"]   = $accountCodeid;
 
-					$i++;
-					$row++;
-				}
-			}
+		// 			$i++;
+		// 			$row++;
+		// 		}
+		// 	}
 
-			$errmsg				           = array_filter($errmsg);
-			$data['import_error_messages'] = $errmsg;
+		// 	$errmsg				           = array_filter($errmsg);
+		// 	$data['import_error_messages'] = $errmsg;
 
-			// Insert File Data
-			if(!empty($docData) && empty($errmsg))
-			{
-				 $file_import_result = $this->proformaclass->saveImport($docData);
-				 $data["file_import_result"] = $file_import_result;
-			}
-		}
-		// End Import
+		// 	// Insert File Data
+		// 	if(!empty($docData) && empty($errmsg))
+		// 	{
+		// 		 $file_import_result = $this->proformaclass->saveImport($docData);
+		// 		 $data["file_import_result"] = $file_import_result;
+		// 	}
+		// }
+		// // End Import
 
 		$this->view->load('proforma/proforma_list',$data);
 	}
@@ -412,7 +567,30 @@ class controller extends wc_controller
 		$dataArray = array( "msg" => $msg );
 		return $dataArray;
 	}
-	
 
+	private function ajax_edit_activate()
+	{
+		$code = $this->input->post('id');
+		$data['stat'] = 'active';
+
+		$result = $this->proformaclass->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
+	}
+	
+	private function ajax_edit_deactivate()
+	{
+		$code = $this->input->post('id');
+
+		$data['stat'] = 'inactive';
+
+		$result = $this->proformaclass->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
+	}
 
 }

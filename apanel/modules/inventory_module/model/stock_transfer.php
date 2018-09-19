@@ -11,8 +11,8 @@
 			$add_cond 	=	(isset($current) && $current != "") ? " AND warehousecode != '$current' " 	: 	"";
 
 			$result = $this->db->setTable('warehouse')
-							->setFields("warehousecode ind, description val")
-							->setWhere("stat = 'active' $add_cond ")
+							->setFields("warehousecode ind, description val, stat stat")
+							->setWhere("stat = 'active' $add_cond")
 							->runSelect()
 							->getResult();
 
@@ -22,6 +22,7 @@
 		public function getItemList() {
 			$result = $this->db->setTable('items i')
 							->setFields("i.itemcode ind, i.itemcode val")
+							->setWhere("i.stat = 'active'")
 							->runSelect()
 							->getResult();
 

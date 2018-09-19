@@ -202,8 +202,12 @@ class ui {
 		$for = ((isset($this->attribute['id']) && ! empty($this->attribute['id'])) ? ' for="' . $this->attribute['id'] . '"' : '');
 		$class = (!empty($this->split)) ? ' class="control-label ' . $this->split[0] . '"' : '';
 		if ( ! empty($this->label)) {
-			$label = '<label' . $for . $class . '>' . $this->label . '</label>';
+			$label .= '<label' . $for . $class . '>' . $this->label;
+			if((isset($this->attribute['data-validation']) && ! empty($this->attribute['data-validation'])) && (strpos( $this->attribute['data-validation'], "required" ) !== false)){
+				$label .= ' <span class = "asterisk">*</span>';
+			}
 		}
+		$label .= '</label>';
 		return $label;
 	}
 
@@ -280,19 +284,21 @@ class ui {
 			$attributes = $this->getAttributes();
 			$placeholder = (isset($this->attribute['data-placeholder']) && ! in_array('multiple', $this->attribute)) ? '<option></option>' : '';
 			if ($this->none) {
-				$this->list = array_merge(array((object) array('ind' => 'none', 'val' => $this->none)), $this->list);
+				$this->list = array_merge(array((object) array('ind' => 'none', 'val' => $this->none, 'stat' => '')), $this->list);
 			}
 			$parent = '';
 			$input = '<select ' . $attributes . '>' . $placeholder;
 			foreach ($this->list as $key => $value) {
-				$optvalue = (is_object($value)) ? $value->ind : $key;
-				$optlabel = (is_object($value)) ? $value->val : $value;
-				$selected = ($optvalue == $this->value) ? ' selected' : '';
+				$optvalue 	= (is_object($value)) ? $value->ind : $key;
+				$optlabel 	= (is_object($value)) ? $value->val : $value;
+				$optstat	= (is_object($value) && isset($value->stat) && $value->stat == 'inactive') ? "disabled" : "";
+				$selected 	= ($optvalue == $this->value) ? ' selected' : '';
 				if (isset($value->parent) && $parent != $value->parent) {
 					$input .= '<optgroup label="' . $value->parent . '">';
 					$parent = $value->parent;
 				}
-				$input .= '<option value="' . $optvalue . '"' . $selected . '>' . $optlabel . '</option>';
+				
+				$input .= '<option value="' . $optvalue . '"' . $selected . ' '. $optstat .'>' . $optlabel . '</option>';
 				$n = $key + 1;
 				if ( ! isset($this->list[$n]) || ! isset($this->list[$n]->parent) || (isset($this->list[$n]->parent) && $this->list[$n]->parent != $parent)) {
 					$input .= '</optgroup>';
@@ -506,7 +512,7 @@ class ui {
 	}
 
 	public function drawCancel() {
-		return ' <a href="' . MODULE_URL . '" class="btn btn-default" data-toggle="back_page">Cancel</a>';
+		return ' <a href="' . MODULE_URL . '" class="btn btn-default cancel" data-toggle="back_page">Cancel</a>';
 	}
 
 	private function reset() {
@@ -554,7 +560,7 @@ class ui {
 
 	public function CreateNewButton($type) {
 		$url = MODULE_URL . 'create';
-		$mod_name = "Add New " . MODULE_NAME;
+		$mod_name = "Add " . MODULE_NAME;
 		return ' <a href="' . $url . '" class="btn btn-primary btn-flat" role="button">'.$mod_name.'</a>';
 	}
 

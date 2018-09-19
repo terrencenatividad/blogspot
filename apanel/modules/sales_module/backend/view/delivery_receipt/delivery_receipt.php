@@ -1,4 +1,4 @@
-	<section class="content">
+<section class="content">
 		<div class="box box-primary">
 			<form action="" method="post" class="form-horizontal">
 				<div class="box-body">
@@ -7,9 +7,9 @@
 						<div class="col-md-11">
 							<div class="row">
 								<div class="col-md-6">
-									<?php if (($show_input && $ajax_task != 'ajax_edit')): ?>
+									<?php if ($show_input && $ajax_task != 'ajax_edit'): ?>
 										<div class="form-group">
-											<label for="voucherno" class="control-label col-md-4">Invoice</label>
+											<label for="voucherno" class="control-label col-md-4">Delivery No.</label>
 											<div class="col-md-8">
 												<input type="text" class="form-control" readonly value="<?= (empty($voucherno)) ? ' - Auto Generated -' : $voucherno ?>">
 											</div>
@@ -17,7 +17,7 @@
 									<?php else: ?>
 										<?php
 											echo $ui->formField('text')
-												->setLabel('Invoice')
+												->setLabel('Delivery No.')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('voucherno')
 												->setId('voucherno')
@@ -48,7 +48,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('dropdown')
-											->setLabel('Customer')
+											->setLabel('Customer ')
 											->setPlaceholder('Select Customer')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('customer')
@@ -56,13 +56,14 @@
 											->setList($customer_list)
 											->setValue($customer)
 											->setValidation('required')
+											// ->addHidden(($ajax_task != 'ajax_create'))
 											->draw($show_input);
 									?>
 								</div>
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('Target Shipping Date')
+											->setLabel('Target Shipping Date ')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('deliverydate')
 											->setId('deliverydate')
@@ -79,14 +80,31 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('Packing No.')
+											->setLabel('Sales Order No. ')
 											->setSplit('col-md-4', 'col-md-8')
-											->setName('packing_no')
-											->setId('packing_no')
+											->setName('source_no')
+											->setId('source_no')
 											->setAttribute(array('readonly'))
 											->setAddon('search')
-											->setValue($packing_no)
+											->setValue($source_no)
+											// ->addHidden($source_no)
 											->setValidation('required')
+											->draw($show_input);
+											// ->draw($show_input && $ajax_task != 'ajax_edit');
+									?>
+								</div>
+								<div class="col-md-6">
+									<?php
+										echo $ui->formField('dropdown')
+											->setLabel('Warehouse ')
+											->setPlaceholder('Select Warehouse')
+											->setSplit('col-md-4', 'col-md-8')
+											->setName('warehouse')
+											->setId('warehouse')
+											->setList($warehouse_list)
+											->setValue($warehouse)
+											->setValidation('required')
+											// ->addHidden(($ajax_task != 'ajax_create'))
 											->draw($show_input);
 									?>
 								</div>
@@ -108,14 +126,21 @@
 					</div>
 				</div>
 				<div class="box-body table-responsive no-padding">
-					<table id="tableList" class="table table-hover table-sidepad">
+					<table id="tableList" class="table table-hover table-sidepad only-checkbox full-form">
 						<thead>
 							<tr class="info">
-								<th class="col-xs-3">Item</th>
-								<th class="col-xs-3">Description</th>
-								<th class="col-xs-3">Warehouse</th>
+								<?php if ($show_input): ?>
+								<th class="text-center" style="width: 20px"><input type="checkbox" class="checkall"></th>
+								<?php endif ?>
+								<th class="col-xs-2">Item</th>
+								<th class="col-xs-<?php echo ($show_input) ? 3 : 6 ?>">Description</th>
+								<th class="col-xs-2">Warehouse</th>
+								<?php if ($show_input): ?>
+								<th class="col-xs-2 text-right">Available On Hand</th>
+								<th class="col-xs-1 text-right">Qty Left</th>
+								<?php endif ?>
 								<th class="col-xs-2 text-right">Qty</th>
-								<th class="col-xs-1">UOM</th>
+								<th style="width: 50px;">UOM</th>
 								<?php if (false): ?>
 								<th style="width: 50px;"></th>
 								<?php endif ?>
@@ -126,7 +151,7 @@
 						</tbody>
 						<?php if (false): ?>
 							<tfoot>
-								<td colspan="6">
+								<td colspan="9">
 									<button type="button" id="addNewItem" class="btn btn-link">Add a New Line</button>
 								</td>
 							</tfoot>
@@ -139,7 +164,7 @@
 					<div class="row">
 						<div id="submit_container" class="col-md-12 text-center">
 							<?php
-								if (($stat == 'Delivered' || $stat == 'Prepared') && $restrict_dr || empty($stat)) {
+								if ($stat == 'Prepared' && $restrict_dr || empty($stat)) {
 									echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 								}
 								echo $ui->drawCancel();
@@ -150,12 +175,12 @@
 			</form>
 		</div>
 	</section>
-	<div id="packing_list_modal" class="modal fade" tabindex="-1" role="dialog">
+	<div id="ordered_list_modal" class="modal fade" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title">Packing List</h4>
+					<h4 class="modal-title">Order List</h4>
 				</div>
 				<div class="modal-body">
 					<div class="row">
@@ -170,10 +195,10 @@
 					</div>
 				</div>
 				<div class="modal-body no-padding">
-					<table id="packing_tableList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
+					<table id="ordered_tableList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
 						<thead>
 							<tr class="info">
-								<th class="col-xs-3">PL No.</th>
+								<th class="col-xs-3">Sales Order No.</th>
 								<th class="col-xs-3">Transaction Date</th>
 								<th class="col-xs-4">Notes</th>
 								<th class="col-xs-2 text-right">Amount</th>
@@ -186,22 +211,6 @@
 						</tbody>
 					</table>
 					<div id="pagination"></div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div id="warning_modal" class="modal fade" tabindex="-1" role="dialog">
-		<div class="modal-dialog modal-sm" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title">Oops!</h4>
-				</div>
-				<div class="modal-body">
-					<p>Please select a customer.</p>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 				</div>
 			</div>
 		</div>
@@ -231,6 +240,16 @@
 			}
 			var row = `
 				<tr>
+					<?php if ($show_input): ?>
+					<td>
+						<?php
+							echo $ui->loadElement('check_task')
+									->addCheckbox()
+									->setValue('` + details.itemcode + `')
+									->draw();
+						?>
+					</td>
+					<?php endif ?>
 					<td>
 						<?php
 							$value = "<span id='temp_view_` + index + `'></span>";
@@ -269,14 +288,35 @@
 								->draw($show_input);
 						?>
 					</td>
+					<?php if ($show_input): ?>
+					<td class="text-right">
+						<?php
+							echo $ui->formField('text')
+								->setSplit('', 'col-md-12')
+								->setValue('` + addComma(details.available, 0) + `')
+								->addHidden()
+								->draw($show_input);
+						?>
+					</td>
+					<td class="text-right">
+						<?php
+							echo $ui->formField('text')
+								->setSplit('', 'col-md-12')
+								->setValue('` + addComma(details.qtyleft, 0) + `')
+								->addHidden()
+								->draw($show_input);
+						?>
+					</td>
+					<?php endif ?>
 					<td class="text-right">
 						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
 								->setName('issueqty[]')
+								->setClass('issueqty text-right')
+								->setAttribute(array('data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.issueqty) || 0) + `'))
 								->setValidation('required integer')
-								->setValue('` + (addComma(details.issueqty) || 0) + `')
-								->addHidden()
+								->setValue('` + (addComma(details.issueqty, 0) || 0) + `')
 								->draw($show_input);
 						?>
 						` + otherdetails + `
@@ -305,6 +345,9 @@
 			if (details.warehouse != '') {
 				$('#tableList tbody').find('tr:last .warehouse').val(details.warehouse);
 			}
+			if (details.taxcode != '') {
+				$('#tableList tbody').find('tr:last .taxcode').val(details.taxcode);
+			}
 			try {
 				drawTemplate();
 			} catch(e) {};
@@ -320,9 +363,31 @@
 					$('#temp_view_warehouse_' + index).html(warehouse.val);
 				}
 			});
+			var taxrate_list = <?= json_encode($taxrate_list) ?>;
+			taxrate_list.forEach(function(tax) {
+				if (tax.ind == details.taxcode) {
+					$('#temp_view_taxrate_' + index).html(tax.val);
+				}
+			});
+			var warehouse = $('#warehouse').val();
+			if (warehouse == details.warehouse) {
+				$('#tableList tbody').find('tr:last .issueqty').each(function() {
+					if (details.issueqty > 0) {
+						$(this).removeAttr('readonly').val($(this).attr('data-value'));
+						$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
+					} else {
+						$('#tableList tbody').find('tr:last .issueqty').attr('readonly', '').val(0);
+						$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('enable');
+					}
+				});
+			} else {
+				$('#tableList tbody').find('tr:last .issueqty').attr('readonly', '').val(0);
+				$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('disable');
+			}
 		}
 		var voucher_details = <?php echo $voucher_details ?>;
 		function displayDetails(details) {
+			$('#tableList tfoot.summary').hide();
 			if (details.length < min_row) {
 				for (var x = details.length; x < min_row; x++) {
 					addVoucherDetails('', x);
@@ -332,12 +397,16 @@
 				details.forEach(function(details, index) {
 					addVoucherDetails(details, index);
 				});
+				$('#tableList tfoot.summary').show();
 			} else if (min_row == 0) {
 				$('#tableList tbody').append(`
 					<tr>
-						<td colspan="5" class="text-center"><b>Select Packing No.</b></td>
+						<td colspan="9" class="text-center"><b>Select Sales Order No.</b></td>
 					</tr>
 				`);
+			}
+			if (<?php echo ($show_input) ? 'true' : 'false' ?>) {
+				recomputeAll();
 			}
 		}
 		displayDetails(voucher_details);
@@ -357,21 +426,76 @@
 			$('#header_values').html(inputs);
 		}
 		displayHeader(header_values);
+		function recomputeAll() {
+			var taxrates = <?php echo $taxrates ?>;
+			if ($('#tableList tbody tr .unitprice').length) {
+				var total_amount = 0;
+				var total_tax = 0;
+				$('#tableList tbody tr').each(function() {
+					var price = removeComma($(this).find('.unitprice').val());
+					var quantity = removeComma($(this).find('.issueqty').val());
+					var tax = $(this).find('.taxcode').val();
+					var taxrate = taxrates[tax] || 0;
+
+					var amount = (price * quantity);
+					var taxamount = (amount * taxrate);
+					amount = amount - taxamount;
+					total_amount += amount;
+					total_tax += taxamount;
+					
+					$(this).find('.taxrate').val(taxrate);
+					$(this).find('.taxamount').val(taxamount);
+
+					$(this).find('.amount').val(addComma(amount));
+				});
+				var discounttype = $('#tableList tfoot .discounttype:checked').val();
+				var discount_rate = $('#tableList tfoot #discountrate').val();
+				var discount_amount = $('#tableList tfoot #discountamount').val();
+				if (discounttype == 'perc') {
+					discount_amount = total_amount * discount_rate / 100;
+					$('#tableList tfoot #discountamount').val(addComma(discount_amount));
+				}
+				var wtaxcode = $('#tableList tfoot .wtaxcode').val();
+				var wtaxrate = taxrates[wtaxcode] || 0;
+				var withholding_tax = total_amount * wtaxrate;
+
+				var total_amount_due = total_amount + total_tax - discount_amount - withholding_tax;
+				$('#tableList tfoot .total_amount').val(total_amount).closest('.form-group').find('.form-control-static').html(addComma(total_amount));
+				$('#tableList tfoot .total_tax').val(total_tax).closest('.form-group').find('.form-control-static').html(addComma(total_tax));
+				$('#tableList tfoot .wtaxrate').val(wtaxrate);
+				$('#tableList tfoot .wtaxamount').val(withholding_tax).closest('.form-group').find('.form-control-static').html(addComma(withholding_tax));
+				$('#tableList tfoot .total_amount_due').val(total_amount_due).closest('.form-group').find('.form-control-static').html(addComma(total_amount_due));
+			}
+		}
+		$('#tableList tbody').on('input change blur', '.taxcode, .unitprice, .issueqty', function() {
+			recomputeAll();
+		});
+		$('#tableList tfoot').on('input change blur', '.wtaxcode', function() {
+			recomputeAll();
+		});
+		$('#tableList tfoot .discount_entry').on('input blur', function() {
+			$(this).closest('tr').find('.discounttype').iCheck('uncheck');
+			$(this).closest('.input-group').find('.discounttype').iCheck('check');
+		});
+		$('#tableList tfoot').on('ifChecked', '.discounttype', function() {
+			$(this).closest('tr').find('.discounttype:not(:checked)').closest('.input-group').find('.discount_entry.rate').val('0.00');
+			recomputeAll();
+		});
 	</script>
 	<?php if ($show_input): ?>
 	<script>
 		$('#addNewItem').on('click', function() {
 			addVoucherDetails();
 		});
-		<?php //if ($ajax_task == 'ajax_create'): ?>
-		$('#packing_no').on('focus', function() {
+		<?php // if ($ajax_task == 'ajax_create'): ?>
+		$('#source_no').on('focus', function() {
 			var customer = $('#customer').val();
 			ajax.customer = customer;
 			if (customer == '') {
-				$('#warning_modal').modal('show');
+				$('#warning_modal').modal('show').find('#warning_message').html('Please Select a Customer');
 				$('#customer').trigger('blur');
 			} else {
-				$('#packing_tableList tbody').html(`<tr>
+				$('#ordered_tableList tbody').html(`<tr>
 					<td colspan="4" class="text-center">Loading Items</td>
 				</tr>`);
 				$('#pagination').html('');
@@ -380,12 +504,12 @@
 		});
 		function getList() {
 			ajax.limit = 5;
-			$('#packing_list_modal').modal('show');
+			$('#ordered_list_modal').modal('show');
 			if (ajax_call != '') {
 				ajax_call.abort();
 			}
-			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_packing_list', ajax, function(data) {
-				$('#packing_tableList tbody').html(data.table);
+			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_ordered_list', ajax, function(data) {
+				$('#ordered_tableList tbody').html(data.table);
 				$('#pagination').html(data.pagination);
 				if (ajax.page > data.page_limit && data.page_limit > 0) {
 					ajax.page = data.page_limit;
@@ -403,26 +527,47 @@
 			ajax.page = $(this).attr('data-page');
 			getList();
 		});
-		<?php //endif ?>
+		<?php // endif ?>
 		$('#customer').on('change', function() {
 			ajax.customer = $(this).val();
-			$('#packing_no').val('');
+			$('#source_no').val('');
 			$('#tableList tbody').html(`
 				<tr>
 					<td colspan="9" class="text-center"><b>Select Sales Order No.</b></td>
 				</tr>
 			`);
 		});
-		$('#packing_tableList').on('click', 'tr[data-id]', function() {
-			var so = $(this).attr('data-id');
-			$('#packing_no').val(so).trigger('blur');
-			$('#packing_list_modal').modal('hide');
-			loadPackingDetails();
+		$('#warehouse').on('change', function() {
+			var warehouse = $(this).val();
+			$('#tableList tbody .issueqty').each(function() {
+				var warehouse_row = $(this).closest('tr').find('.warehouse').val();
+				if (warehouse == warehouse_row) {
+					$(this).removeAttr('readonly').val($(this).attr('data-value'));
+					$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('check').iCheck('enable');
+				} else {
+					$(this).attr('readonly', '').val(0);
+					$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('uncheck').iCheck('disable');
+				}
+			});
+			recomputeAll();
 		});
-		function loadPackingDetails() {
-			var voucherno = $('#packing_no').val();
+		$('tbody').on('ifUnchecked', '.check_task input[type="checkbox"]', function() {
+			$(this).closest('tr').find('.issueqty').attr('readonly', '').val(0).trigger('blur');
+		});
+		$('tbody').on('ifChecked', '.check_task input[type="checkbox"]', function() {
+			var n = $(this).closest('tr').find('.issueqty');
+			n.removeAttr('readonly', '').val(n.attr('data-value')).trigger('blur');
+		});
+		$('#ordered_tableList').on('click', 'tr[data-id]', function() {
+			var so = $(this).attr('data-id');
+			$('#source_no').val(so).trigger('blur');
+			$('#ordered_list_modal').modal('hide');
+			loadPackingListDetails();
+		});
+		function loadPackingListDetails() {
+			var voucherno = $('#source_no').val();
 			if (voucherno) {
-				ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_packing_details', { voucherno: voucherno }, function(data) {
+				ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_ordered_details', { voucherno: voucherno }, function(data) {
 					if ( ! data.success) {
 						$('#tableList tbody').html(data.table);
 					} else {
@@ -449,16 +594,29 @@
 			e.preventDefault();
 			var form_element = $(this).closest('form');
 			var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
+			recomputeAll();
 			$('#submit_container [type="submit"]').attr('disabled', true);
-			form_element.find('.form-group').find('input, textarea, select').trigger('blur');
+			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
 			if (form_element.find('.form-group.has-error').length == 0) {
-				$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data, function(data) {
-					if (data.success) {
-						window.location = data.redirect;
-					} else {
-						$('#submit_container [type="submit"]').attr('disabled', false);
-					}
+				var items = 0;
+				$('.issueqty:not([readonly])').each(function() {
+					items += removeComma($(this).val());
 				});
+				if ($('.issueqty:not([readonly])').length > 0 && items > 0) {
+					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
+						if (data.success) {
+							$('#delay_modal').modal('show');
+							setTimeout(function() {							
+								window.location = data.redirect;						
+							}, 1000)
+						} else {
+							$('#submit_container [type="submit"]').attr('disabled', false);
+						}
+					});
+				} else {
+					$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');
+					$('#submit_container [type="submit"]').attr('disabled', false);
+				}
 			} else {
 				form_element.find('.form-group.has-error').first().find('input, textarea, select').focus();
 				$('#submit_container [type="submit"]').attr('disabled', false);

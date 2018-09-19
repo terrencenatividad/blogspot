@@ -80,6 +80,7 @@
 								)
 								->addHeader('Warehouse Code',array('class'=>'col-md-3'),'sort','warehousecode')
 								->addHeader('Warehouse Name', array('class'=>'col-md-3'),'sort','description')
+								->addHeader('Status', array('class'=>'col-md-3'),'sort','status')								
 								->draw();
 					?>
 				</thead>
@@ -159,10 +160,13 @@
 		$(".alert-warning").removeClass("hidden");
 		$("#errmsg").html(msg);
 	}
-	function show_success_msg()
+	function show_success_msg(msg)
 	{
-		$('#success_modal #message').html('Your Data has been imported successfully.');
+		$('#success_modal #message').html(msg);
 		$('#success_modal').modal('show');
+		setTimeout(function() {												
+			window.location = '<?= MODULE_URL ?>';		
+		}, 1000)
 	}
 	function getList() {
 		filterToURL();
@@ -236,13 +240,32 @@
 										$('#import-modal').modal('hide');
 										$(".alert-warning").addClass("hidden");
 										$("#errmsg").html('');
-										show_success_msg();
+										show_success_msg('Your data has been successfully imported!');
 									}else{
 										$('#import-modal').modal('hide');
 										show_error(response.errmsg);
 									}
 								},
 							});
+		});
+
+		$('#tableList').on('click', '.activate', function() { 
+			var code = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&code='+code ,function(data) {
+				getList();
+			});
+		});
+
+		$('#tableList').on('click', '.deactivate', function() { 
+			$('#deactivate_modal').modal('show');
+			var id = $(this).attr('data-id');
+			
+			$('#deactivate_modal').on('click', '#deactyes', function() {
+				$('#deactivate_modal').modal('hide');
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&code='+id ,function(data) {
+					getList();
+				});
+			});
 		});
 
 		$('#importForm').on('change', '#import_csv', function() {

@@ -53,6 +53,7 @@ class controller extends wc_controller
 
 	public function create($request_no="")
 	{
+		$this->view->title      = 'Create Purchase Order';
 		$data 					= $this->input->post($this->fields);
 
 		// Item Limit
@@ -79,10 +80,10 @@ class controller extends wc_controller
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
 
 		$w_entry_data          = array("warehousecode ind","description val");
-		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,'',"warehousecode");
+		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
 
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
-		$data["itemcodes"] 		= $this->po->getValue("items", $cc_entry_data,'',"itemcode");
+		$data["itemcodes"] 		= $this->po->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
 
 		$acc_entry_data         = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
 		$acc_entry_cond         = "accounttype != 'P'";
@@ -233,6 +234,7 @@ class controller extends wc_controller
 
 	public function edit($voucherno)
 	{
+		$this->view->title      = 'Edit Purchase Order';
 		$retrieved_data 		= $this->po->retrieveExistingPO($voucherno);
 
 		// Item Limit
@@ -253,11 +255,8 @@ class controller extends wc_controller
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
 
-		$w_entry_data          = array("warehousecode ind","description val");
-		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,'',"warehousecode");
-
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
-		$data["itemcodes"] 		= $this->po->getValue("items", $cc_entry_data,'',"itemcode");
+		$data["itemcodes"] 		= $this->po->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
 
 		$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
 		$acc_entry_cond          = "accounttype != 'P'";
@@ -311,6 +310,17 @@ class controller extends wc_controller
 		
 		//Details
 		$data['details'] 		 = $retrieved_data['details'];
+
+		$wr_array	= array();
+		foreach ($data['details'] as $index => $dtl){
+			$wh			= $dtl->warehouse;
+			$wr_array[]	= $wh;
+		}
+		$wr_cond = ($wr_array) ? " OR warehousecode IN ('".implode("','",$wr_array)."')" : "";
+		
+		$w_entry_data          = array("warehousecode ind","description val, w.stat stat");
+		$data["warehouses"] 	= $this->po->getValue("warehouse w", $w_entry_data,"stat = 'active' $wr_cond","warehousecode");
+
 		$restrict_po 			 =	$this->restrict->setButtonRestriction($transactiondate);
 		$data['restrict_po'] 	 = $restrict_po;
 		$this->view->load('purchase_order/purchase_order', $data);
@@ -318,6 +328,7 @@ class controller extends wc_controller
 
 	public function view($voucherno)
 	{
+		$this->view->title      = 'View Purchase Order';
 		$retrieved_data 		= $this->po->retrieveExistingPO($voucherno);
 
 		$close_date 			= $this->restrict->getClosedDate();
@@ -334,7 +345,7 @@ class controller extends wc_controller
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
 
 		$w_entry_data          = array("warehousecode ind","description val");
-		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,'',"warehousecode");
+		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
 
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$data["itemcodes"] 		= $this->po->getValue("items", $cc_entry_data,'',"itemcode");

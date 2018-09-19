@@ -24,7 +24,9 @@ class controller extends wc_controller {
 		
 		$data['year_list']			= $this->report->getYearList();
 		$data['supplier_list']		= $this->report->retrieveSupplierList();
-
+		$getCompany 				= $this->report->getCompany();
+		$data['taxyear']			= $getCompany->taxyear;
+		$data['periodstart']		= $getCompany->periodstart;
 		$this->view->load('purchase_report', $data);
 	}
 	
@@ -42,6 +44,10 @@ class controller extends wc_controller {
 	}
 
 	public function main_listing(){
+		$getCompany = $this->report->getCompany();
+		$taxyear	= $getCompany->taxyear;
+		$periodstart = $getCompany->periodstart;
+		
 		$data 		= $this->input->post(array('month','supplier','year'));
 		$year 		= $data['year'];
 		$supplier 	= $data['supplier'];
@@ -81,38 +87,438 @@ class controller extends wc_controller {
 			$total_nov 			+=	str_replace(',','',$november);
 			$total_decm 		+=	str_replace(',','',$december);
 
-			$table 			.=	"<tr>";
-			$table 			.=	"<td class='text-left'>".$vendor."</td>";
-			$table 			.=  ($january > 0) 		?  "<td>".$this->display_amount(1, $partnercode, $vendor, $january) 	. "</td>" : 	"<td>".number_format($january, 2)	."</td>";
-			$table 			.=  ($february > 0) 	?  "<td>".$this->display_amount(2, $partnercode, $vendor, $february) 	. "</td>" : 	"<td>".number_format($february, 2)	."</td>";
-			$table 			.=  ($march > 0) 		?  "<td>".$this->display_amount(3, $partnercode, $vendor, $march) 	. "</td>" : 	"<td>".number_format($march, 2)		."</td>";
-			$table 			.=  ($april > 0) 		?  "<td>".$this->display_amount(4, $partnercode, $vendor, $april) 	. "</td>" : 	"<td>".number_format($april, 2)		."</td>";			
-			$table 			.=  ($may > 0) 			?  "<td>".$this->display_amount(5, $partnercode, $vendor, $may) 		. "</td>" : 	"<td>".number_format($may, 2)		."</td>";
-			$table 			.=  ($june > 0) 		?  "<td>".$this->display_amount(6, $partnercode, $vendor, $june) 		. "</td>" : 	"<td>".number_format($june, 2)		."</td>";
-			$table 			.=  ($july > 0) 		?  "<td>".$this->display_amount(7, $partnercode, $vendor, $july) 		. "</td>" : 	"<td>".number_format($july, 2)		."</td>";
-			$table 			.=  ($august > 0) 		?  "<td>".$this->display_amount(8, $partnercode, $vendor, $august) 	. "</td>" : 	"<td>".number_format($august, 2)	."</td>";
-			$table 			.=  ($september > 0) 	?  "<td>".$this->display_amount(9, $partnercode, $vendor, $september) . "</td>" : 	"<td>".number_format($september, 2)	."</td>";
-			$table 			.=  ($october > 0) 		?  "<td>".$this->display_amount(10, $partnercode, $vendor, $october) 	. "</td>" : 	"<td>".number_format($october, 2)	."</td>";
-			$table 			.=  ($november > 0) 	?  "<td>".$this->display_amount(11, $partnercode, $vendor, $november) . "</td>" : 	"<td>".number_format($november, 2)	."</td>";
-			$table 			.=  ($december > 0) 	?  "<td>".$this->display_amount(12, $partnercode, $vendor, $december) . "</td>" : 	"<td>".number_format($december, 2)	."</td>";
-			$table 			.= '</tr>';	
+			if (($taxyear == 'fiscal' && $periodstart == 'Jan') || ($taxyear == 'calendar')) {
+				$table 			.=	"<tr>";
+				$table 			.=	"<td class='text-left'>".$vendor."</td>";
+				$table 			.=  ($january > 0) 		?  "<td>".$this->display_amount(1, $partnercode, $vendor, $january) 	. "</td>" : 	"<td>".number_format($january, 2)	."</td>";
+				$table 			.=  ($february > 0) 	?  "<td>".$this->display_amount(2, $partnercode, $vendor, $february) 	. "</td>" : 	"<td>".number_format($february, 2)	."</td>";
+				$table 			.=  ($march > 0) 		?  "<td>".$this->display_amount(3, $partnercode, $vendor, $march) 	. "</td>" : 	"<td>".number_format($march, 2)		."</td>";
+				$table 			.=  ($april > 0) 		?  "<td>".$this->display_amount(4, $partnercode, $vendor, $april) 	. "</td>" : 	"<td>".number_format($april, 2)		."</td>";			
+				$table 			.=  ($may > 0) 			?  "<td>".$this->display_amount(5, $partnercode, $vendor, $may) 		. "</td>" : 	"<td>".number_format($may, 2)		."</td>";
+				$table 			.=  ($june > 0) 		?  "<td>".$this->display_amount(6, $partnercode, $vendor, $june) 		. "</td>" : 	"<td>".number_format($june, 2)		."</td>";
+				$table 			.=  ($july > 0) 		?  "<td>".$this->display_amount(7, $partnercode, $vendor, $july) 		. "</td>" : 	"<td>".number_format($july, 2)		."</td>";
+				$table 			.=  ($august > 0) 		?  "<td>".$this->display_amount(8, $partnercode, $vendor, $august) 	. "</td>" : 	"<td>".number_format($august, 2)	."</td>";
+				$table 			.=  ($september > 0) 	?  "<td>".$this->display_amount(9, $partnercode, $vendor, $september) . "</td>" : 	"<td>".number_format($september, 2)	."</td>";
+				$table 			.=  ($october > 0) 		?  "<td>".$this->display_amount(10, $partnercode, $vendor, $october) 	. "</td>" : 	"<td>".number_format($october, 2)	."</td>";
+				$table 			.=  ($november > 0) 	?  "<td>".$this->display_amount(11, $partnercode, $vendor, $november) . "</td>" : 	"<td>".number_format($november, 2)	."</td>";
+				$table 			.=  ($december > 0) 	?  "<td>".$this->display_amount(12, $partnercode, $vendor, $december) . "</td>" : 	"<td>".number_format($december, 2)	."</td>";
+				$table 			.= '</tr>';	
+			}
+			
+			else if ($taxyear == 'fiscal' && $periodstart == 'Feb'){
+				$table 			.=	"<tr>";
+				$table 			.=	"<td class='text-left'>".$vendor."</td>";
+				$table 			.=  ($february > 0) 	?  "<td>".$this->display_amount(2, $partnercode, $vendor, $february) 	. "</td>" : 	"<td>".number_format($february, 2)	."</td>";
+				$table 			.=  ($march > 0) 		?  "<td>".$this->display_amount(3, $partnercode, $vendor, $march) 	. "</td>" : 	"<td>".number_format($march, 2)		."</td>";
+				$table 			.=  ($april > 0) 		?  "<td>".$this->display_amount(4, $partnercode, $vendor, $april) 	. "</td>" : 	"<td>".number_format($april, 2)		."</td>";			
+				$table 			.=  ($may > 0) 			?  "<td>".$this->display_amount(5, $partnercode, $vendor, $may) 		. "</td>" : 	"<td>".number_format($may, 2)		."</td>";
+				$table 			.=  ($june > 0) 		?  "<td>".$this->display_amount(6, $partnercode, $vendor, $june) 		. "</td>" : 	"<td>".number_format($june, 2)		."</td>";
+				$table 			.=  ($july > 0) 		?  "<td>".$this->display_amount(7, $partnercode, $vendor, $july) 		. "</td>" : 	"<td>".number_format($july, 2)		."</td>";
+				$table 			.=  ($august > 0) 		?  "<td>".$this->display_amount(8, $partnercode, $vendor, $august) 	. "</td>" : 	"<td>".number_format($august, 2)	."</td>";
+				$table 			.=  ($september > 0) 	?  "<td>".$this->display_amount(9, $partnercode, $vendor, $september) . "</td>" : 	"<td>".number_format($september, 2)	."</td>";
+				$table 			.=  ($october > 0) 		?  "<td>".$this->display_amount(10, $partnercode, $vendor, $october) 	. "</td>" : 	"<td>".number_format($october, 2)	."</td>";
+				$table 			.=  ($november > 0) 	?  "<td>".$this->display_amount(11, $partnercode, $vendor, $november) . "</td>" : 	"<td>".number_format($november, 2)	."</td>";
+				$table 			.=  ($december > 0) 	?  "<td>".$this->display_amount(12, $partnercode, $vendor, $december) . "</td>" : 	"<td>".number_format($december, 2)	."</td>";
+				$table 			.=  ($january > 0) 		?  "<td>".$this->display_amount(1, $partnercode, $vendor, $january) 	. "</td>" : 	"<td>".number_format($january, 2)	."</td>";
+				$table 			.= '</tr>';	
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Mar'){
+				$table 			.=	"<tr>";
+				$table 			.=	"<td class='text-left'>".$vendor."</td>";
+				$table 			.=  ($march > 0) 		?  "<td>".$this->display_amount(3, $partnercode, $vendor, $march) 	. "</td>" : 	"<td>".number_format($march, 2)		."</td>";
+				$table 			.=  ($april > 0) 		?  "<td>".$this->display_amount(4, $partnercode, $vendor, $april) 	. "</td>" : 	"<td>".number_format($april, 2)		."</td>";			
+				$table 			.=  ($may > 0) 			?  "<td>".$this->display_amount(5, $partnercode, $vendor, $may) 		. "</td>" : 	"<td>".number_format($may, 2)		."</td>";
+				$table 			.=  ($june > 0) 		?  "<td>".$this->display_amount(6, $partnercode, $vendor, $june) 		. "</td>" : 	"<td>".number_format($june, 2)		."</td>";
+				$table 			.=  ($july > 0) 		?  "<td>".$this->display_amount(7, $partnercode, $vendor, $july) 		. "</td>" : 	"<td>".number_format($july, 2)		."</td>";
+				$table 			.=  ($august > 0) 		?  "<td>".$this->display_amount(8, $partnercode, $vendor, $august) 	. "</td>" : 	"<td>".number_format($august, 2)	."</td>";
+				$table 			.=  ($september > 0) 	?  "<td>".$this->display_amount(9, $partnercode, $vendor, $september) . "</td>" : 	"<td>".number_format($september, 2)	."</td>";
+				$table 			.=  ($october > 0) 		?  "<td>".$this->display_amount(10, $partnercode, $vendor, $october) 	. "</td>" : 	"<td>".number_format($october, 2)	."</td>";
+				$table 			.=  ($november > 0) 	?  "<td>".$this->display_amount(11, $partnercode, $vendor, $november) . "</td>" : 	"<td>".number_format($november, 2)	."</td>";
+				$table 			.=  ($december > 0) 	?  "<td>".$this->display_amount(12, $partnercode, $vendor, $december) . "</td>" : 	"<td>".number_format($december, 2)	."</td>";
+				$table 			.=  ($january > 0) 		?  "<td>".$this->display_amount(1, $partnercode, $vendor, $january) 	. "</td>" : 	"<td>".number_format($january, 2)	."</td>";
+				$table 			.=  ($february > 0) 	?  "<td>".$this->display_amount(2, $partnercode, $vendor, $february) 	. "</td>" : 	"<td>".number_format($february, 2)	."</td>";
+				$table 			.= '</tr>';	
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Apr'){
+				$table 			.=	"<tr>";
+				$table 			.=	"<td class='text-left'>".$vendor."</td>";
+				$table 			.=  ($april > 0) 		?  "<td>".$this->display_amount(4, $partnercode, $vendor, $april) 	. "</td>" : 	"<td>".number_format($april, 2)		."</td>";			
+				$table 			.=  ($may > 0) 			?  "<td>".$this->display_amount(5, $partnercode, $vendor, $may) 		. "</td>" : 	"<td>".number_format($may, 2)		."</td>";
+				$table 			.=  ($june > 0) 		?  "<td>".$this->display_amount(6, $partnercode, $vendor, $june) 		. "</td>" : 	"<td>".number_format($june, 2)		."</td>";
+				$table 			.=  ($july > 0) 		?  "<td>".$this->display_amount(7, $partnercode, $vendor, $july) 		. "</td>" : 	"<td>".number_format($july, 2)		."</td>";
+				$table 			.=  ($august > 0) 		?  "<td>".$this->display_amount(8, $partnercode, $vendor, $august) 	. "</td>" : 	"<td>".number_format($august, 2)	."</td>";
+				$table 			.=  ($september > 0) 	?  "<td>".$this->display_amount(9, $partnercode, $vendor, $september) . "</td>" : 	"<td>".number_format($september, 2)	."</td>";
+				$table 			.=  ($october > 0) 		?  "<td>".$this->display_amount(10, $partnercode, $vendor, $october) 	. "</td>" : 	"<td>".number_format($october, 2)	."</td>";
+				$table 			.=  ($november > 0) 	?  "<td>".$this->display_amount(11, $partnercode, $vendor, $november) . "</td>" : 	"<td>".number_format($november, 2)	."</td>";
+				$table 			.=  ($december > 0) 	?  "<td>".$this->display_amount(12, $partnercode, $vendor, $december) . "</td>" : 	"<td>".number_format($december, 2)	."</td>";
+				$table 			.=  ($january > 0) 		?  "<td>".$this->display_amount(1, $partnercode, $vendor, $january) 	. "</td>" : 	"<td>".number_format($january, 2)	."</td>";
+				$table 			.=  ($february > 0) 	?  "<td>".$this->display_amount(2, $partnercode, $vendor, $february) 	. "</td>" : 	"<td>".number_format($february, 2)	."</td>";
+				$table 			.=  ($march > 0) 		?  "<td>".$this->display_amount(3, $partnercode, $vendor, $march) 	. "</td>" : 	"<td>".number_format($march, 2)		."</td>";
+				$table 			.= '</tr>';	
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'May'){
+				$table 			.=	"<tr>";
+				$table 			.=	"<td class='text-left'>".$vendor."</td>";
+				$table 			.=  ($may > 0) 			?  "<td>".$this->display_amount(5, $partnercode, $vendor, $may) 		. "</td>" : 	"<td>".number_format($may, 2)		."</td>";
+				$table 			.=  ($june > 0) 		?  "<td>".$this->display_amount(6, $partnercode, $vendor, $june) 		. "</td>" : 	"<td>".number_format($june, 2)		."</td>";
+				$table 			.=  ($july > 0) 		?  "<td>".$this->display_amount(7, $partnercode, $vendor, $july) 		. "</td>" : 	"<td>".number_format($july, 2)		."</td>";
+				$table 			.=  ($august > 0) 		?  "<td>".$this->display_amount(8, $partnercode, $vendor, $august) 	. "</td>" : 	"<td>".number_format($august, 2)	."</td>";
+				$table 			.=  ($september > 0) 	?  "<td>".$this->display_amount(9, $partnercode, $vendor, $september) . "</td>" : 	"<td>".number_format($september, 2)	."</td>";
+				$table 			.=  ($october > 0) 		?  "<td>".$this->display_amount(10, $partnercode, $vendor, $october) 	. "</td>" : 	"<td>".number_format($october, 2)	."</td>";
+				$table 			.=  ($november > 0) 	?  "<td>".$this->display_amount(11, $partnercode, $vendor, $november) . "</td>" : 	"<td>".number_format($november, 2)	."</td>";
+				$table 			.=  ($december > 0) 	?  "<td>".$this->display_amount(12, $partnercode, $vendor, $december) . "</td>" : 	"<td>".number_format($december, 2)	."</td>";
+				$table 			.=  ($january > 0) 		?  "<td>".$this->display_amount(1, $partnercode, $vendor, $january) 	. "</td>" : 	"<td>".number_format($january, 2)	."</td>";
+				$table 			.=  ($february > 0) 	?  "<td>".$this->display_amount(2, $partnercode, $vendor, $february) 	. "</td>" : 	"<td>".number_format($february, 2)	."</td>";
+				$table 			.=  ($march > 0) 		?  "<td>".$this->display_amount(3, $partnercode, $vendor, $march) 	. "</td>" : 	"<td>".number_format($march, 2)		."</td>";
+				$table 			.=  ($april > 0) 		?  "<td>".$this->display_amount(4, $partnercode, $vendor, $april) 	. "</td>" : 	"<td>".number_format($april, 2)		."</td>";			
+				$table 			.= '</tr>';	
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Jun'){
+				$table 			.=	"<tr>";
+				$table 			.=	"<td class='text-left'>".$vendor."</td>";
+				$table 			.=  ($june > 0) 		?  "<td>".$this->display_amount(6, $partnercode, $vendor, $june) 		. "</td>" : 	"<td>".number_format($june, 2)		."</td>";
+				$table 			.=  ($july > 0) 		?  "<td>".$this->display_amount(7, $partnercode, $vendor, $july) 		. "</td>" : 	"<td>".number_format($july, 2)		."</td>";
+				$table 			.=  ($august > 0) 		?  "<td>".$this->display_amount(8, $partnercode, $vendor, $august) 	. "</td>" : 	"<td>".number_format($august, 2)	."</td>";
+				$table 			.=  ($september > 0) 	?  "<td>".$this->display_amount(9, $partnercode, $vendor, $september) . "</td>" : 	"<td>".number_format($september, 2)	."</td>";
+				$table 			.=  ($october > 0) 		?  "<td>".$this->display_amount(10, $partnercode, $vendor, $october) 	. "</td>" : 	"<td>".number_format($october, 2)	."</td>";
+				$table 			.=  ($november > 0) 	?  "<td>".$this->display_amount(11, $partnercode, $vendor, $november) . "</td>" : 	"<td>".number_format($november, 2)	."</td>";
+				$table 			.=  ($december > 0) 	?  "<td>".$this->display_amount(12, $partnercode, $vendor, $december) . "</td>" : 	"<td>".number_format($december, 2)	."</td>";
+				$table 			.=  ($january > 0) 		?  "<td>".$this->display_amount(1, $partnercode, $vendor, $january) 	. "</td>" : 	"<td>".number_format($january, 2)	."</td>";
+				$table 			.=  ($february > 0) 	?  "<td>".$this->display_amount(2, $partnercode, $vendor, $february) 	. "</td>" : 	"<td>".number_format($february, 2)	."</td>";
+				$table 			.=  ($march > 0) 		?  "<td>".$this->display_amount(3, $partnercode, $vendor, $march) 	. "</td>" : 	"<td>".number_format($march, 2)		."</td>";
+				$table 			.=  ($april > 0) 		?  "<td>".$this->display_amount(4, $partnercode, $vendor, $april) 	. "</td>" : 	"<td>".number_format($april, 2)		."</td>";			
+				$table 			.=  ($may > 0) 			?  "<td>".$this->display_amount(5, $partnercode, $vendor, $may) 		. "</td>" : 	"<td>".number_format($may, 2)		."</td>";
+				$table 			.= '</tr>';	
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Jul'){
+				$table 			.=	"<tr>";
+				$table 			.=	"<td class='text-left'>".$vendor."</td>";
+				$table 			.=  ($july > 0) 		?  "<td>".$this->display_amount(7, $partnercode, $vendor, $july) 		. "</td>" : 	"<td>".number_format($july, 2)		."</td>";
+				$table 			.=  ($august > 0) 		?  "<td>".$this->display_amount(8, $partnercode, $vendor, $august) 	. "</td>" : 	"<td>".number_format($august, 2)	."</td>";
+				$table 			.=  ($september > 0) 	?  "<td>".$this->display_amount(9, $partnercode, $vendor, $september) . "</td>" : 	"<td>".number_format($september, 2)	."</td>";
+				$table 			.=  ($october > 0) 		?  "<td>".$this->display_amount(10, $partnercode, $vendor, $october) 	. "</td>" : 	"<td>".number_format($october, 2)	."</td>";
+				$table 			.=  ($november > 0) 	?  "<td>".$this->display_amount(11, $partnercode, $vendor, $november) . "</td>" : 	"<td>".number_format($november, 2)	."</td>";
+				$table 			.=  ($december > 0) 	?  "<td>".$this->display_amount(12, $partnercode, $vendor, $december) . "</td>" : 	"<td>".number_format($december, 2)	."</td>";
+				$table 			.=  ($january > 0) 		?  "<td>".$this->display_amount(1, $partnercode, $vendor, $january) 	. "</td>" : 	"<td>".number_format($january, 2)	."</td>";
+				$table 			.=  ($february > 0) 	?  "<td>".$this->display_amount(2, $partnercode, $vendor, $february) 	. "</td>" : 	"<td>".number_format($february, 2)	."</td>";
+				$table 			.=  ($march > 0) 		?  "<td>".$this->display_amount(3, $partnercode, $vendor, $march) 	. "</td>" : 	"<td>".number_format($march, 2)		."</td>";
+				$table 			.=  ($april > 0) 		?  "<td>".$this->display_amount(4, $partnercode, $vendor, $april) 	. "</td>" : 	"<td>".number_format($april, 2)		."</td>";			
+				$table 			.=  ($may > 0) 			?  "<td>".$this->display_amount(5, $partnercode, $vendor, $may) 		. "</td>" : 	"<td>".number_format($may, 2)		."</td>";
+				$table 			.=  ($june > 0) 		?  "<td>".$this->display_amount(6, $partnercode, $vendor, $june) 		. "</td>" : 	"<td>".number_format($june, 2)		."</td>";
+				$table 			.= '</tr>';	
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Aug'){
+				$table 			.=	"<tr>";
+				$table 			.=	"<td class='text-left'>".$vendor."</td>";
+				$table 			.=  ($august > 0) 		?  "<td>".$this->display_amount(8, $partnercode, $vendor, $august) 	. "</td>" : 	"<td>".number_format($august, 2)	."</td>";
+				$table 			.=  ($september > 0) 	?  "<td>".$this->display_amount(9, $partnercode, $vendor, $september) . "</td>" : 	"<td>".number_format($september, 2)	."</td>";
+				$table 			.=  ($october > 0) 		?  "<td>".$this->display_amount(10, $partnercode, $vendor, $october) 	. "</td>" : 	"<td>".number_format($october, 2)	."</td>";
+				$table 			.=  ($november > 0) 	?  "<td>".$this->display_amount(11, $partnercode, $vendor, $november) . "</td>" : 	"<td>".number_format($november, 2)	."</td>";
+				$table 			.=  ($december > 0) 	?  "<td>".$this->display_amount(12, $partnercode, $vendor, $december) . "</td>" : 	"<td>".number_format($december, 2)	."</td>";
+				$table 			.=  ($january > 0) 		?  "<td>".$this->display_amount(1, $partnercode, $vendor, $january) 	. "</td>" : 	"<td>".number_format($january, 2)	."</td>";
+				$table 			.=  ($february > 0) 	?  "<td>".$this->display_amount(2, $partnercode, $vendor, $february) 	. "</td>" : 	"<td>".number_format($february, 2)	."</td>";
+				$table 			.=  ($march > 0) 		?  "<td>".$this->display_amount(3, $partnercode, $vendor, $march) 	. "</td>" : 	"<td>".number_format($march, 2)		."</td>";
+				$table 			.=  ($april > 0) 		?  "<td>".$this->display_amount(4, $partnercode, $vendor, $april) 	. "</td>" : 	"<td>".number_format($april, 2)		."</td>";			
+				$table 			.=  ($may > 0) 			?  "<td>".$this->display_amount(5, $partnercode, $vendor, $may) 		. "</td>" : 	"<td>".number_format($may, 2)		."</td>";
+				$table 			.=  ($june > 0) 		?  "<td>".$this->display_amount(6, $partnercode, $vendor, $june) 		. "</td>" : 	"<td>".number_format($june, 2)		."</td>";
+				$table 			.=  ($july > 0) 		?  "<td>".$this->display_amount(7, $partnercode, $vendor, $july) 		. "</td>" : 	"<td>".number_format($july, 2)		."</td>";
+				$table 			.= '</tr>';	
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Sep'){
+				$table 			.=	"<tr>";
+				$table 			.=	"<td class='text-left'>".$vendor."</td>";
+				$table 			.=  ($september > 0) 	?  "<td>".$this->display_amount(9, $partnercode, $vendor, $september) . "</td>" : 	"<td>".number_format($september, 2)	."</td>";
+				$table 			.=  ($october > 0) 		?  "<td>".$this->display_amount(10, $partnercode, $vendor, $october) 	. "</td>" : 	"<td>".number_format($october, 2)	."</td>";
+				$table 			.=  ($november > 0) 	?  "<td>".$this->display_amount(11, $partnercode, $vendor, $november) . "</td>" : 	"<td>".number_format($november, 2)	."</td>";
+				$table 			.=  ($december > 0) 	?  "<td>".$this->display_amount(12, $partnercode, $vendor, $december) . "</td>" : 	"<td>".number_format($december, 2)	."</td>";
+				$table 			.=  ($january > 0) 		?  "<td>".$this->display_amount(1, $partnercode, $vendor, $january) 	. "</td>" : 	"<td>".number_format($january, 2)	."</td>";
+				$table 			.=  ($february > 0) 	?  "<td>".$this->display_amount(2, $partnercode, $vendor, $february) 	. "</td>" : 	"<td>".number_format($february, 2)	."</td>";
+				$table 			.=  ($march > 0) 		?  "<td>".$this->display_amount(3, $partnercode, $vendor, $march) 	. "</td>" : 	"<td>".number_format($march, 2)		."</td>";
+				$table 			.=  ($april > 0) 		?  "<td>".$this->display_amount(4, $partnercode, $vendor, $april) 	. "</td>" : 	"<td>".number_format($april, 2)		."</td>";			
+				$table 			.=  ($may > 0) 			?  "<td>".$this->display_amount(5, $partnercode, $vendor, $may) 		. "</td>" : 	"<td>".number_format($may, 2)		."</td>";
+				$table 			.=  ($june > 0) 		?  "<td>".$this->display_amount(6, $partnercode, $vendor, $june) 		. "</td>" : 	"<td>".number_format($june, 2)		."</td>";
+				$table 			.=  ($july > 0) 		?  "<td>".$this->display_amount(7, $partnercode, $vendor, $july) 		. "</td>" : 	"<td>".number_format($july, 2)		."</td>";
+				$table 			.=  ($august > 0) 		?  "<td>".$this->display_amount(8, $partnercode, $vendor, $august) 	. "</td>" : 	"<td>".number_format($august, 2)	."</td>";
+				$table 			.= '</tr>';	
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Oct'){
+				$table 			.=	"<tr>";
+				$table 			.=	"<td class='text-left'>".$customer."</td>";
+				$table 			.=  ($october > 0) 		?  "<td>".$this->display_amount(10, $partnercode, $vendor, $october) 	. "</td>" : 	"<td>".number_format($october, 2)	."</td>";
+				$table 			.=  ($november > 0) 	?  "<td>".$this->display_amount(11, $partnercode, $vendor, $november) . "</td>" : 	"<td>".number_format($november, 2)	."</td>";
+				$table 			.=  ($december > 0) 	?  "<td>".$this->display_amount(12, $partnercode, $vendor, $december) . "</td>" : 	"<td>".number_format($december, 2)	."</td>";
+				$table 			.=  ($january > 0) 		?  "<td>".$this->display_amount(1, $partnercode, $vendor, $january) 	. "</td>" : 	"<td>".number_format($january, 2)	."</td>";
+				$table 			.=  ($february > 0) 	?  "<td>".$this->display_amount(2, $partnercode, $vendor, $february) 	. "</td>" : 	"<td>".number_format($february, 2)	."</td>";
+				$table 			.=  ($march > 0) 		?  "<td>".$this->display_amount(3, $partnercode, $vendor, $march) 	. "</td>" : 	"<td>".number_format($march, 2)		."</td>";
+				$table 			.=  ($april > 0) 		?  "<td>".$this->display_amount(4, $partnercode, $vendor, $april) 	. "</td>" : 	"<td>".number_format($april, 2)		."</td>";			
+				$table 			.=  ($may > 0) 			?  "<td>".$this->display_amount(5, $partnercode, $vendor, $may) 		. "</td>" : 	"<td>".number_format($may, 2)		."</td>";
+				$table 			.=  ($june > 0) 		?  "<td>".$this->display_amount(6, $partnercode, $vendor, $june) 		. "</td>" : 	"<td>".number_format($june, 2)		."</td>";
+				$table 			.=  ($july > 0) 		?  "<td>".$this->display_amount(7, $partnercode, $vendor, $july) 		. "</td>" : 	"<td>".number_format($july, 2)		."</td>";
+				$table 			.=  ($august > 0) 		?  "<td>".$this->display_amount(8, $partnercode, $vendor, $august) 	. "</td>" : 	"<td>".number_format($august, 2)	."</td>";
+				$table 			.=  ($september > 0) 	?  "<td>".$this->display_amount(9, $partnercode, $vendor, $september) . "</td>" : 	"<td>".number_format($september, 2)	."</td>";
+				$table 			.= '</tr>';	
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Nov'){
+				$table 			.=	"<tr>";
+				$table 			.=	"<td class='text-left'>".$customer."</td>";
+				$table 			.=  ($november > 0) 	?  "<td>".$this->display_amount(11, $partnercode, $vendor, $november) . "</td>" : 	"<td>".number_format($november, 2)	."</td>";
+				$table 			.=  ($december > 0) 	?  "<td>".$this->display_amount(12, $partnercode, $vendor, $december) . "</td>" : 	"<td>".number_format($december, 2)	."</td>";
+				$table 			.=  ($january > 0) 		?  "<td>".$this->display_amount(1, $partnercode, $vendor, $january) 	. "</td>" : 	"<td>".number_format($january, 2)	."</td>";
+				$table 			.=  ($february > 0) 	?  "<td>".$this->display_amount(2, $partnercode, $vendor, $february) 	. "</td>" : 	"<td>".number_format($february, 2)	."</td>";
+				$table 			.=  ($march > 0) 		?  "<td>".$this->display_amount(3, $partnercode, $vendor, $march) 	. "</td>" : 	"<td>".number_format($march, 2)		."</td>";
+				$table 			.=  ($april > 0) 		?  "<td>".$this->display_amount(4, $partnercode, $vendor, $april) 	. "</td>" : 	"<td>".number_format($april, 2)		."</td>";			
+				$table 			.=  ($may > 0) 			?  "<td>".$this->display_amount(5, $partnercode, $vendor, $may) 		. "</td>" : 	"<td>".number_format($may, 2)		."</td>";
+				$table 			.=  ($june > 0) 		?  "<td>".$this->display_amount(6, $partnercode, $vendor, $june) 		. "</td>" : 	"<td>".number_format($june, 2)		."</td>";
+				$table 			.=  ($july > 0) 		?  "<td>".$this->display_amount(7, $partnercode, $vendor, $july) 		. "</td>" : 	"<td>".number_format($july, 2)		."</td>";
+				$table 			.=  ($august > 0) 		?  "<td>".$this->display_amount(8, $partnercode, $vendor, $august) 	. "</td>" : 	"<td>".number_format($august, 2)	."</td>";
+				$table 			.=  ($september > 0) 	?  "<td>".$this->display_amount(9, $partnercode, $vendor, $september) . "</td>" : 	"<td>".number_format($september, 2)	."</td>";
+				$table 			.=  ($october > 0) 		?  "<td>".$this->display_amount(10, $partnercode, $vendor, $october) 	. "</td>" : 	"<td>".number_format($october, 2)	."</td>";
+				$table 			.= '</tr>';	
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Dec'){
+				$table 			.=	"<tr>";
+				$table 			.=	"<td class='text-left'>".$vendor."</td>";
+				$table 			.=  ($december > 0) 	?  "<td>".$this->display_amount(12, $partnercode, $vendor, $december) . "</td>" : 	"<td>".number_format($december, 2)	."</td>";
+				$table 			.=  ($january > 0) 		?  "<td>".$this->display_amount(1, $partnercode, $vendor, $january) 	. "</td>" : 	"<td>".number_format($january, 2)	."</td>";
+				$table 			.=  ($february > 0) 	?  "<td>".$this->display_amount(2, $partnercode, $vendor, $february) 	. "</td>" : 	"<td>".number_format($february, 2)	."</td>";
+				$table 			.=  ($march > 0) 		?  "<td>".$this->display_amount(3, $partnercode, $vendor, $march) 	. "</td>" : 	"<td>".number_format($march, 2)		."</td>";
+				$table 			.=  ($april > 0) 		?  "<td>".$this->display_amount(4, $partnercode, $vendor, $april) 	. "</td>" : 	"<td>".number_format($april, 2)		."</td>";			
+				$table 			.=  ($may > 0) 			?  "<td>".$this->display_amount(5, $partnercode, $vendor, $may) 		. "</td>" : 	"<td>".number_format($may, 2)		."</td>";
+				$table 			.=  ($june > 0) 		?  "<td>".$this->display_amount(6, $partnercode, $vendor, $june) 		. "</td>" : 	"<td>".number_format($june, 2)		."</td>";
+				$table 			.=  ($july > 0) 		?  "<td>".$this->display_amount(7, $partnercode, $vendor, $july) 		. "</td>" : 	"<td>".number_format($july, 2)		."</td>";
+				$table 			.=  ($august > 0) 		?  "<td>".$this->display_amount(8, $partnercode, $vendor, $august) 	. "</td>" : 	"<td>".number_format($august, 2)	."</td>";
+				$table 			.=  ($september > 0) 	?  "<td>".$this->display_amount(9, $partnercode, $vendor, $september) . "</td>" : 	"<td>".number_format($september, 2)	."</td>";
+				$table 			.=  ($october > 0) 		?  "<td>".$this->display_amount(10, $partnercode, $vendor, $october) 	. "</td>" : 	"<td>".number_format($october, 2)	."</td>";
+				$table 			.=  ($november > 0) 	?  "<td>".$this->display_amount(11, $partnercode, $vendor, $november) . "</td>" : 	"<td>".number_format($november, 2)	."</td>";
+				$table 			.= '</tr>';	
+			}
 		}
 
-		$table 	.= 	"<tr>";
-		$table 	.= 	"<td  class='text-left'><strong>Total</strong></td>";
-		$table 	.= 	"<td><strong>".number_format($total_jan,2)."</strong></td>";
-		$table 	.= 	"<td><strong>".number_format($total_feb,2)."</strong></td>";
-		$table 	.= 	"<td><strong>".number_format($total_march,2)."</strong></td>";
-		$table 	.= 	"<td><strong>".number_format($total_april,2)."</strong></td>";
-		$table 	.= 	"<td><strong>".number_format($total_may,2)."</strong></td>";
-		$table 	.= 	"<td><strong>".number_format($total_june,2)."</strong></td>";
-		$table 	.= 	"<td><strong>".number_format($total_july,2)."</strong></td>";
-		$table 	.= 	"<td><strong>".number_format($total_aug,2)."</strong></td>";
-		$table 	.= 	"<td><strong>".number_format($total_sept,2)."</strong></td>";
-		$table 	.= 	"<td><strong>".number_format($total_oct,2)."</strong></td>";
-		$table 	.= 	"<td><strong>".number_format($total_nov,2)."</strong></td>";
-		$table 	.= 	"<td><strong>".number_format($total_decm,2)."</strong></td>";
-		$table 	.= 	"</tr>";
+		if (($taxyear == 'fiscal' && $periodstart == 'Jan') || ($taxyear == 'calendar')) {
+			$table 	.= 	"<tr>";
+			$table 	.= 	"<td  class='text-left'><strong>Total</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_jan,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_feb,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_march,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_april,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_may,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_june,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_july,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_aug,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_sept,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_oct,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_nov,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_decm,2)."</strong></td>";
+			$table 	.= 	"</tr>";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Feb') {
+			$table 	.= 	"<tr>";
+			$table 	.= 	"<td  class='text-left'><strong>Total</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_feb,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_march,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_april,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_may,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_june,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_july,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_aug,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_sept,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_oct,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_nov,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_decm,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_jan,2)."</strong></td>";
+			$table 	.= 	"</tr>";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Mar') {
+			$table 	.= 	"<tr>";
+			$table 	.= 	"<td  class='text-left'><strong>Total</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_march,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_april,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_may,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_june,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_july,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_aug,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_sept,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_oct,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_nov,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_decm,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_jan,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_feb,2)."</strong></td>";
+			$table 	.= 	"</tr>";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Apr') {
+			$table 	.= 	"<tr>";
+			$table 	.= 	"<td  class='text-left'><strong>Total</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_april,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_may,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_june,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_july,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_aug,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_sept,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_oct,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_nov,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_decm,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_jan,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_feb,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_march,2)."</strong></td>";
+			$table 	.= 	"</tr>";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'May') {
+			$table 	.= 	"<tr>";
+			$table 	.= 	"<td  class='text-left'><strong>Total</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_may,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_june,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_july,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_aug,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_sept,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_oct,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_nov,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_decm,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_jan,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_feb,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_march,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_april,2)."</strong></td>";
+			$table 	.= 	"</tr>";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Jun') {
+			$table 	.= 	"<tr>";
+			$table 	.= 	"<td  class='text-left'><strong>Total</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_june,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_july,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_aug,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_sept,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_oct,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_nov,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_decm,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_jan,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_feb,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_march,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_april,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_may,2)."</strong></td>";
+			$table 	.= 	"</tr>";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Jul') {
+			$table 	.= 	"<tr>";
+			$table 	.= 	"<td  class='text-left'><strong>Total</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_july,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_aug,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_sept,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_oct,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_nov,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_decm,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_jan,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_feb,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_march,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_april,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_may,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_june,2)."</strong></td>";
+			$table 	.= 	"</tr>";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Aug') {
+			$table 	.= 	"<tr>";
+			$table 	.= 	"<td  class='text-left'><strong>Total</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_aug,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_sept,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_oct,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_nov,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_decm,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_jan,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_feb,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_march,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_april,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_may,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_june,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_july,2)."</strong></td>";
+			$table 	.= 	"</tr>";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Sep') {
+			$table 	.= 	"<tr>";
+			$table 	.= 	"<td  class='text-left'><strong>Total</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_sept,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_oct,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_nov,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_decm,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_jan,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_feb,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_march,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_april,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_may,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_june,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_july,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_aug,2)."</strong></td>";
+			$table 	.= 	"</tr>";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Oct') {
+			$table 	.= 	"<tr>";
+			$table 	.= 	"<td  class='text-left'><strong>Total</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_oct,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_nov,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_decm,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_jan,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_feb,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_march,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_april,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_may,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_june,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_july,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_aug,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_sept,2)."</strong></td>";
+			$table 	.= 	"</tr>";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Nov') {
+			$table 	.= 	"<tr>";
+			$table 	.= 	"<td  class='text-left'><strong>Total</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_nov,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_decm,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_jan,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_feb,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_march,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_april,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_may,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_june,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_july,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_aug,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_sept,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_oct,2)."</strong></td>";
+			$table 	.= 	"</tr>";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Dec') {
+			$table 	.= 	"<tr>";
+			$table 	.= 	"<td  class='text-left'><strong>Total</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_decm,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_jan,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_feb,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_march,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_april,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_may,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_june,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_july,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_aug,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_sept,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_oct,2)."</strong></td>";
+			$table 	.= 	"<td><strong>".number_format($total_nov,2)."</strong></td>";
+			$table 	.= 	"</tr>";
+		}
 
 		$pagination->table 	= $table;
 		$pagination->csv 	= $this->generateCSV($year, $supplier);
@@ -121,21 +527,225 @@ class controller extends wc_controller {
 
 	private function generateCSV($year, $vendor) {
 
-		$header = array(
-			'Supplier',
-			'January',
-			'February',
-			'March',
-			'April',
-			'May',
-			'June',
-			'July',
-			'August',
-			'September',
-			'October',
-			'November',
-			'December'
-		);
+		$getCompany = $this->report->getCompany();
+		$taxyear	= $getCompany->taxyear;
+		$periodstart = $getCompany->periodstart;
+
+		if (($taxyear == 'fiscal' && $periodstart == 'Jan') || ($taxyear == 'calendar')) {
+			$header = array(
+				'Supplier',
+				'January',
+				'February',
+				'March',
+				'April',
+				'May',
+				'June',
+				'July',
+				'August',
+				'September',
+				'October',
+				'November',
+				'December'
+			);
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Feb') {
+			$header = array(
+				'Supplier',
+				'February',
+				'March',
+				'April',
+				'May',
+				'June',
+				'July',
+				'August',
+				'September',
+				'October',
+				'November',
+				'December',
+				'January'
+			);
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Mar') {
+			$header = array(
+				'Supplier',
+				'March',
+				'April',
+				'May',
+				'June',
+				'July',
+				'August',
+				'September',
+				'October',
+				'November',
+				'December',
+				'January',
+				'February'
+			);
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Apr') {
+			$header = array(
+				'Supplier',
+				'April',
+				'May',
+				'June',
+				'July',
+				'August',
+				'September',
+				'October',
+				'November',
+				'December',
+				'January',
+				'February',
+				'March'
+			);
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'May') {
+			$header = array(
+				'Supplier',
+				'May',
+				'June',
+				'July',
+				'August',
+				'September',
+				'October',
+				'November',
+				'December',
+				'January',
+				'February',
+				'March',
+				'April'
+			);
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Jun') {
+			$header = array(
+				'Supplier',
+				'June',
+				'July',
+				'August',
+				'September',
+				'October',
+				'November',
+				'December',
+				'January',
+				'February',
+				'March',
+				'April',
+				'May'
+			);
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Jul') {
+			$header = array(
+				'Supplier',
+				'July',
+				'August',
+				'September',
+				'October',
+				'November',
+				'December',
+				'January',
+				'February',
+				'March',
+				'April',
+				'May',
+				'June'
+			);
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Aug') {
+			$header = array(
+				'Supplier',
+				'August',
+				'September',
+				'October',
+				'November',
+				'December',
+				'January',
+				'February',
+				'March',
+				'April',
+				'May',
+				'June',
+				'July'
+			);
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Sep') {
+			$header = array(
+				'Supplier',
+				'September',
+				'October',
+				'November',
+				'December',
+				'January',
+				'February',
+				'March',
+				'April',
+				'May',
+				'June',
+				'July',
+				'August'
+			);
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Oct') {
+			$header = array(
+				'Supplier',
+				'October',
+				'November',
+				'December',
+				'January',
+				'February',
+				'March',
+				'April',
+				'May',
+				'June',
+				'July',
+				'August',
+				'September'
+			);
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Nov') {
+			$header = array(
+				'Supplier',
+				'November',
+				'December',
+				'January',
+				'February',
+				'March',
+				'April',
+				'May',
+				'June',
+				'July',
+				'August',
+				'September',
+				'October'
+			);
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Dec') {
+			$header = array(
+				'Supplier',
+				'December',
+				'January',
+				'February',
+				'March',
+				'April',
+				'May',
+				'June',
+				'July',
+				'August',
+				'September',
+				'October',
+				'November'
+			);
+		}
 
 		$total_jan 	=	$total_feb 	=	$total_march 	=	$total_april 	=	$total_may 		=	$total_june  	=	0;
 		$total_july =	$total_aug 	=	$total_sept =	$total_oct 		=	$total_nov 		=	$total_decm 	=	0;
@@ -176,36 +786,414 @@ class controller extends wc_controller {
 			$total_nov 			+=	str_replace(',','',$november);
 			$total_decm 		+=	str_replace(',','',$december);
 
-			$table 			.=	'"'.$vendor	.'",';
-			$table 			.=  ($january > 0) 	? '"'.	$january 	.'",'	: 	'"'.number_format($january,2) 		.'",';
-			$table 			.=  ($february > 0) ? '"'.	$february 	.'",' 	:  	'"'.number_format($february,2) 		.'",';
-			$table 			.=  ($march > 0) 	? '"'.	$march 		.'",' 	:	'"'.number_format($march,2) 		.'",';
-			$table 			.=  ($april > 0) 	? '"'.	$april 		.'",' 	:	'"'.number_format($april,2) 		.'",';			
-			$table 			.=  ($may > 0) 	 	? '"'.	$may 		.'",' 	: 	'"'.number_format($may,2) 			.'",';
-			$table 			.=  ($june > 0) 	? '"'. 	$june 		.'",' 	: 	'"'.number_format($june,2) 			.'",';
-			$table 			.=  ($july > 0 ) 	? '"'.	$july 		.'",' 	: 	'"'.number_format($july,2) 			.'",';
-			$table 			.=  ($august > 0) 	? '"'.	$august 	.'",' 	: 	'"'.number_format($august,2) 		.'",';
-			$table 			.=  ($september > 0)? '"'.	$september 	.'",' 	: 	'"'.number_format($september,2) 	.'",';
-			$table 			.=  ($october > 0) 	? '"'.	$october 	.'",' 	: 	'"'.number_format($october,2) 		.'",';
-			$table 			.=  ($november > 0) ? '"'.	$november 	.'",' 	: 	'"'.number_format($november,2) 		.'",';
-			$table 			.=  ($december > 0) ? '"'.	$december 	.'",' 	: 	'"'.number_format($december,2) 		.'",';
-			$table 			.= "\n";	
+			if (($taxyear == 'fiscal' && $periodstart == 'Jan') || ($taxyear == 'calendar')) {
+				$table 			.=	'"'.$vendor	.'",';
+				$table 			.=  ($january > 0) 	? '"'.	$january 	.'",'	: 	'"'.number_format($january,2) 		.'",';
+				$table 			.=  ($february > 0) ? '"'.	$february 	.'",' 	:  	'"'.number_format($february,2) 		.'",';
+				$table 			.=  ($march > 0) 	? '"'.	$march 		.'",' 	:	'"'.number_format($march,2) 		.'",';
+				$table 			.=  ($april > 0) 	? '"'.	$april 		.'",' 	:	'"'.number_format($april,2) 		.'",';			
+				$table 			.=  ($may > 0) 	 	? '"'.	$may 		.'",' 	: 	'"'.number_format($may,2) 			.'",';
+				$table 			.=  ($june > 0) 	? '"'. 	$june 		.'",' 	: 	'"'.number_format($june,2) 			.'",';
+				$table 			.=  ($july > 0 ) 	? '"'.	$july 		.'",' 	: 	'"'.number_format($july,2) 			.'",';
+				$table 			.=  ($august > 0) 	? '"'.	$august 	.'",' 	: 	'"'.number_format($august,2) 		.'",';
+				$table 			.=  ($september > 0)? '"'.	$september 	.'",' 	: 	'"'.number_format($september,2) 	.'",';
+				$table 			.=  ($october > 0) 	? '"'.	$october 	.'",' 	: 	'"'.number_format($october,2) 		.'",';
+				$table 			.=  ($november > 0) ? '"'.	$november 	.'",' 	: 	'"'.number_format($november,2) 		.'",';
+				$table 			.=  ($december > 0) ? '"'.	$december 	.'",' 	: 	'"'.number_format($december,2) 		.'",';
+				$table 			.= "\n";
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Feb') {
+				$table 			.=	'"'.$vendor	.'",';
+				$table 			.=  ($february > 0) ? '"'.	$february 	.'",' 	:  	'"'.number_format($february,2) 		.'",';
+				$table 			.=  ($march > 0) 	? '"'.	$march 		.'",' 	:	'"'.number_format($march,2) 		.'",';
+				$table 			.=  ($april > 0) 	? '"'.	$april 		.'",' 	:	'"'.number_format($april,2) 		.'",';			
+				$table 			.=  ($may > 0) 	 	? '"'.	$may 		.'",' 	: 	'"'.number_format($may,2) 			.'",';
+				$table 			.=  ($june > 0) 	? '"'. 	$june 		.'",' 	: 	'"'.number_format($june,2) 			.'",';
+				$table 			.=  ($july > 0 ) 	? '"'.	$july 		.'",' 	: 	'"'.number_format($july,2) 			.'",';
+				$table 			.=  ($august > 0) 	? '"'.	$august 	.'",' 	: 	'"'.number_format($august,2) 		.'",';
+				$table 			.=  ($september > 0)? '"'.	$september 	.'",' 	: 	'"'.number_format($september,2) 	.'",';
+				$table 			.=  ($october > 0) 	? '"'.	$october 	.'",' 	: 	'"'.number_format($october,2) 		.'",';
+				$table 			.=  ($november > 0) ? '"'.	$november 	.'",' 	: 	'"'.number_format($november,2) 		.'",';
+				$table 			.=  ($december > 0) ? '"'.	$december 	.'",' 	: 	'"'.number_format($december,2) 		.'",';
+				$table 			.=  ($january > 0) 	? '"'.	$january 	.'",'	: 	'"'.number_format($january,2) 		.'",';
+				$table 			.= "\n";
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Mar') {
+				$table 			.=	'"'.$vendor	.'",';
+				$table 			.=  ($march > 0) 	? '"'.	$march 		.'",' 	:	'"'.number_format($march,2) 		.'",';
+				$table 			.=  ($april > 0) 	? '"'.	$april 		.'",' 	:	'"'.number_format($april,2) 		.'",';			
+				$table 			.=  ($may > 0) 	 	? '"'.	$may 		.'",' 	: 	'"'.number_format($may,2) 			.'",';
+				$table 			.=  ($june > 0) 	? '"'. 	$june 		.'",' 	: 	'"'.number_format($june,2) 			.'",';
+				$table 			.=  ($july > 0 ) 	? '"'.	$july 		.'",' 	: 	'"'.number_format($july,2) 			.'",';
+				$table 			.=  ($august > 0) 	? '"'.	$august 	.'",' 	: 	'"'.number_format($august,2) 		.'",';
+				$table 			.=  ($september > 0)? '"'.	$september 	.'",' 	: 	'"'.number_format($september,2) 	.'",';
+				$table 			.=  ($october > 0) 	? '"'.	$october 	.'",' 	: 	'"'.number_format($october,2) 		.'",';
+				$table 			.=  ($november > 0) ? '"'.	$november 	.'",' 	: 	'"'.number_format($november,2) 		.'",';
+				$table 			.=  ($december > 0) ? '"'.	$december 	.'",' 	: 	'"'.number_format($december,2) 		.'",';
+				$table 			.=  ($january > 0) 	? '"'.	$january 	.'",'	: 	'"'.number_format($january,2) 		.'",';
+				$table 			.=  ($february > 0) ? '"'.	$february 	.'",' 	:  	'"'.number_format($february,2) 		.'",';
+				$table 			.= "\n";
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Apr') {
+				$table 			.=	'"'.$vendor	.'",';
+				$table 			.=  ($april > 0) 	? '"'.	$april 		.'",' 	:	'"'.number_format($april,2) 		.'",';			
+				$table 			.=  ($may > 0) 	 	? '"'.	$may 		.'",' 	: 	'"'.number_format($may,2) 			.'",';
+				$table 			.=  ($june > 0) 	? '"'. 	$june 		.'",' 	: 	'"'.number_format($june,2) 			.'",';
+				$table 			.=  ($july > 0 ) 	? '"'.	$july 		.'",' 	: 	'"'.number_format($july,2) 			.'",';
+				$table 			.=  ($august > 0) 	? '"'.	$august 	.'",' 	: 	'"'.number_format($august,2) 		.'",';
+				$table 			.=  ($september > 0)? '"'.	$september 	.'",' 	: 	'"'.number_format($september,2) 	.'",';
+				$table 			.=  ($october > 0) 	? '"'.	$october 	.'",' 	: 	'"'.number_format($october,2) 		.'",';
+				$table 			.=  ($november > 0) ? '"'.	$november 	.'",' 	: 	'"'.number_format($november,2) 		.'",';
+				$table 			.=  ($december > 0) ? '"'.	$december 	.'",' 	: 	'"'.number_format($december,2) 		.'",';
+				$table 			.=  ($january > 0) 	? '"'.	$january 	.'",'	: 	'"'.number_format($january,2) 		.'",';
+				$table 			.=  ($february > 0) ? '"'.	$february 	.'",' 	:  	'"'.number_format($february,2) 		.'",';
+				$table 			.=  ($march > 0) 	? '"'.	$march 		.'",' 	:	'"'.number_format($march,2) 		.'",';
+				$table 			.= "\n";
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'May') {
+				$table 			.=	'"'.$vendor	.'",';		
+				$table 			.=  ($may > 0) 	 	? '"'.	$may 		.'",' 	: 	'"'.number_format($may,2) 			.'",';
+				$table 			.=  ($june > 0) 	? '"'. 	$june 		.'",' 	: 	'"'.number_format($june,2) 			.'",';
+				$table 			.=  ($july > 0 ) 	? '"'.	$july 		.'",' 	: 	'"'.number_format($july,2) 			.'",';
+				$table 			.=  ($august > 0) 	? '"'.	$august 	.'",' 	: 	'"'.number_format($august,2) 		.'",';
+				$table 			.=  ($september > 0)? '"'.	$september 	.'",' 	: 	'"'.number_format($september,2) 	.'",';
+				$table 			.=  ($october > 0) 	? '"'.	$october 	.'",' 	: 	'"'.number_format($october,2) 		.'",';
+				$table 			.=  ($november > 0) ? '"'.	$november 	.'",' 	: 	'"'.number_format($november,2) 		.'",';
+				$table 			.=  ($december > 0) ? '"'.	$december 	.'",' 	: 	'"'.number_format($december,2) 		.'",';
+				$table 			.=  ($january > 0) 	? '"'.	$january 	.'",'	: 	'"'.number_format($january,2) 		.'",';
+				$table 			.=  ($february > 0) ? '"'.	$february 	.'",' 	:  	'"'.number_format($february,2) 		.'",';
+				$table 			.=  ($march > 0) 	? '"'.	$march 		.'",' 	:	'"'.number_format($march,2) 		.'",';
+				$table 			.=  ($april > 0) 	? '"'.	$april 		.'",' 	:	'"'.number_format($april,2) 		.'",';	
+				$table 			.= "\n";
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Jun') {
+				$table 			.=	'"'.$vendor	.'",';		
+				$table 			.=  ($june > 0) 	? '"'. 	$june 		.'",' 	: 	'"'.number_format($june,2) 			.'",';
+				$table 			.=  ($july > 0 ) 	? '"'.	$july 		.'",' 	: 	'"'.number_format($july,2) 			.'",';
+				$table 			.=  ($august > 0) 	? '"'.	$august 	.'",' 	: 	'"'.number_format($august,2) 		.'",';
+				$table 			.=  ($september > 0)? '"'.	$september 	.'",' 	: 	'"'.number_format($september,2) 	.'",';
+				$table 			.=  ($october > 0) 	? '"'.	$october 	.'",' 	: 	'"'.number_format($october,2) 		.'",';
+				$table 			.=  ($november > 0) ? '"'.	$november 	.'",' 	: 	'"'.number_format($november,2) 		.'",';
+				$table 			.=  ($december > 0) ? '"'.	$december 	.'",' 	: 	'"'.number_format($december,2) 		.'",';
+				$table 			.=  ($january > 0) 	? '"'.	$january 	.'",'	: 	'"'.number_format($january,2) 		.'",';
+				$table 			.=  ($february > 0) ? '"'.	$february 	.'",' 	:  	'"'.number_format($february,2) 		.'",';
+				$table 			.=  ($march > 0) 	? '"'.	$march 		.'",' 	:	'"'.number_format($march,2) 		.'",';
+				$table 			.=  ($april > 0) 	? '"'.	$april 		.'",' 	:	'"'.number_format($april,2) 		.'",';	
+				$table 			.=  ($may > 0) 	 	? '"'.	$may 		.'",' 	: 	'"'.number_format($may,2) 			.'",';
+				$table 			.= "\n";
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Jul') {
+				$table 			.=	'"'.$vendor	.'",';		
+				$table 			.=  ($july > 0 ) 	? '"'.	$july 		.'",' 	: 	'"'.number_format($july,2) 			.'",';
+				$table 			.=  ($august > 0) 	? '"'.	$august 	.'",' 	: 	'"'.number_format($august,2) 		.'",';
+				$table 			.=  ($september > 0)? '"'.	$september 	.'",' 	: 	'"'.number_format($september,2) 	.'",';
+				$table 			.=  ($october > 0) 	? '"'.	$october 	.'",' 	: 	'"'.number_format($october,2) 		.'",';
+				$table 			.=  ($november > 0) ? '"'.	$november 	.'",' 	: 	'"'.number_format($november,2) 		.'",';
+				$table 			.=  ($december > 0) ? '"'.	$december 	.'",' 	: 	'"'.number_format($december,2) 		.'",';
+				$table 			.=  ($january > 0) 	? '"'.	$january 	.'",'	: 	'"'.number_format($january,2) 		.'",';
+				$table 			.=  ($february > 0) ? '"'.	$february 	.'",' 	:  	'"'.number_format($february,2) 		.'",';
+				$table 			.=  ($march > 0) 	? '"'.	$march 		.'",' 	:	'"'.number_format($march,2) 		.'",';
+				$table 			.=  ($april > 0) 	? '"'.	$april 		.'",' 	:	'"'.number_format($april,2) 		.'",';	
+				$table 			.=  ($may > 0) 	 	? '"'.	$may 		.'",' 	: 	'"'.number_format($may,2) 			.'",';
+				$table 			.=  ($june > 0) 	? '"'. 	$june 		.'",' 	: 	'"'.number_format($june,2) 			.'",';
+				$table 			.= "\n";
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Aug') {
+				$table 			.=	'"'.$vendor	.'",';		
+				$table 			.=  ($august > 0) 	? '"'.	$august 	.'",' 	: 	'"'.number_format($august,2) 		.'",';
+				$table 			.=  ($september > 0)? '"'.	$september 	.'",' 	: 	'"'.number_format($september,2) 	.'",';
+				$table 			.=  ($october > 0) 	? '"'.	$october 	.'",' 	: 	'"'.number_format($october,2) 		.'",';
+				$table 			.=  ($november > 0) ? '"'.	$november 	.'",' 	: 	'"'.number_format($november,2) 		.'",';
+				$table 			.=  ($december > 0) ? '"'.	$december 	.'",' 	: 	'"'.number_format($december,2) 		.'",';
+				$table 			.=  ($january > 0) 	? '"'.	$january 	.'",'	: 	'"'.number_format($january,2) 		.'",';
+				$table 			.=  ($february > 0) ? '"'.	$february 	.'",' 	:  	'"'.number_format($february,2) 		.'",';
+				$table 			.=  ($march > 0) 	? '"'.	$march 		.'",' 	:	'"'.number_format($march,2) 		.'",';
+				$table 			.=  ($april > 0) 	? '"'.	$april 		.'",' 	:	'"'.number_format($april,2) 		.'",';	
+				$table 			.=  ($may > 0) 	 	? '"'.	$may 		.'",' 	: 	'"'.number_format($may,2) 			.'",';
+				$table 			.=  ($june > 0) 	? '"'. 	$june 		.'",' 	: 	'"'.number_format($june,2) 			.'",';
+				$table 			.=  ($july > 0 ) 	? '"'.	$july 		.'",' 	: 	'"'.number_format($july,2) 			.'",';
+				$table 			.= "\n";
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Sep') {
+				$table 			.=	'"'.$vendor	.'",';		
+				$table 			.=  ($september > 0)? '"'.	$september 	.'",' 	: 	'"'.number_format($september,2) 	.'",';
+				$table 			.=  ($october > 0) 	? '"'.	$october 	.'",' 	: 	'"'.number_format($october,2) 		.'",';
+				$table 			.=  ($november > 0) ? '"'.	$november 	.'",' 	: 	'"'.number_format($november,2) 		.'",';
+				$table 			.=  ($december > 0) ? '"'.	$december 	.'",' 	: 	'"'.number_format($december,2) 		.'",';
+				$table 			.=  ($january > 0) 	? '"'.	$january 	.'",'	: 	'"'.number_format($january,2) 		.'",';
+				$table 			.=  ($february > 0) ? '"'.	$february 	.'",' 	:  	'"'.number_format($february,2) 		.'",';
+				$table 			.=  ($march > 0) 	? '"'.	$march 		.'",' 	:	'"'.number_format($march,2) 		.'",';
+				$table 			.=  ($april > 0) 	? '"'.	$april 		.'",' 	:	'"'.number_format($april,2) 		.'",';	
+				$table 			.=  ($may > 0) 	 	? '"'.	$may 		.'",' 	: 	'"'.number_format($may,2) 			.'",';
+				$table 			.=  ($june > 0) 	? '"'. 	$june 		.'",' 	: 	'"'.number_format($june,2) 			.'",';
+				$table 			.=  ($july > 0 ) 	? '"'.	$july 		.'",' 	: 	'"'.number_format($july,2) 			.'",';
+				$table 			.=  ($august > 0) 	? '"'.	$august 	.'",' 	: 	'"'.number_format($august,2) 		.'",';
+				$table 			.= "\n";
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Oct') {
+				$table 			.=	'"'.$vendor	.'",';		
+				$table 			.=  ($october > 0) 	? '"'.	$october 	.'",' 	: 	'"'.number_format($october,2) 		.'",';
+				$table 			.=  ($november > 0) ? '"'.	$november 	.'",' 	: 	'"'.number_format($november,2) 		.'",';
+				$table 			.=  ($december > 0) ? '"'.	$december 	.'",' 	: 	'"'.number_format($december,2) 		.'",';
+				$table 			.=  ($january > 0) 	? '"'.	$january 	.'",'	: 	'"'.number_format($january,2) 		.'",';
+				$table 			.=  ($february > 0) ? '"'.	$february 	.'",' 	:  	'"'.number_format($february,2) 		.'",';
+				$table 			.=  ($march > 0) 	? '"'.	$march 		.'",' 	:	'"'.number_format($march,2) 		.'",';
+				$table 			.=  ($april > 0) 	? '"'.	$april 		.'",' 	:	'"'.number_format($april,2) 		.'",';	
+				$table 			.=  ($may > 0) 	 	? '"'.	$may 		.'",' 	: 	'"'.number_format($may,2) 			.'",';
+				$table 			.=  ($june > 0) 	? '"'. 	$june 		.'",' 	: 	'"'.number_format($june,2) 			.'",';
+				$table 			.=  ($july > 0 ) 	? '"'.	$july 		.'",' 	: 	'"'.number_format($july,2) 			.'",';
+				$table 			.=  ($august > 0) 	? '"'.	$august 	.'",' 	: 	'"'.number_format($august,2) 		.'",';
+				$table 			.=  ($september > 0)? '"'.	$september 	.'",' 	: 	'"'.number_format($september,2) 	.'",';
+				$table 			.= "\n";
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Nov') {
+				$table 			.=	'"'.$vendor	.'",';		
+				$table 			.=  ($november > 0) ? '"'.	$november 	.'",' 	: 	'"'.number_format($november,2) 		.'",';
+				$table 			.=  ($december > 0) ? '"'.	$december 	.'",' 	: 	'"'.number_format($december,2) 		.'",';
+				$table 			.=  ($january > 0) 	? '"'.	$january 	.'",'	: 	'"'.number_format($january,2) 		.'",';
+				$table 			.=  ($february > 0) ? '"'.	$february 	.'",' 	:  	'"'.number_format($february,2) 		.'",';
+				$table 			.=  ($march > 0) 	? '"'.	$march 		.'",' 	:	'"'.number_format($march,2) 		.'",';
+				$table 			.=  ($april > 0) 	? '"'.	$april 		.'",' 	:	'"'.number_format($april,2) 		.'",';	
+				$table 			.=  ($may > 0) 	 	? '"'.	$may 		.'",' 	: 	'"'.number_format($may,2) 			.'",';
+				$table 			.=  ($june > 0) 	? '"'. 	$june 		.'",' 	: 	'"'.number_format($june,2) 			.'",';
+				$table 			.=  ($july > 0 ) 	? '"'.	$july 		.'",' 	: 	'"'.number_format($july,2) 			.'",';
+				$table 			.=  ($august > 0) 	? '"'.	$august 	.'",' 	: 	'"'.number_format($august,2) 		.'",';
+				$table 			.=  ($september > 0)? '"'.	$september 	.'",' 	: 	'"'.number_format($september,2) 	.'",';
+				$table 			.=  ($october > 0) 	? '"'.	$october 	.'",' 	: 	'"'.number_format($october,2) 		.'",';
+				$table 			.= "\n";
+			}
+
+			else if ($taxyear == 'fiscal' && $periodstart == 'Dec') {
+				$table 			.=	'"'.$vendor	.'",';		
+				$table 			.=  ($december > 0) ? '"'.	$december 	.'",' 	: 	'"'.number_format($december,2) 		.'",';
+				$table 			.=  ($january > 0) 	? '"'.	$january 	.'",'	: 	'"'.number_format($january,2) 		.'",';
+				$table 			.=  ($february > 0) ? '"'.	$february 	.'",' 	:  	'"'.number_format($february,2) 		.'",';
+				$table 			.=  ($march > 0) 	? '"'.	$march 		.'",' 	:	'"'.number_format($march,2) 		.'",';
+				$table 			.=  ($april > 0) 	? '"'.	$april 		.'",' 	:	'"'.number_format($april,2) 		.'",';	
+				$table 			.=  ($may > 0) 	 	? '"'.	$may 		.'",' 	: 	'"'.number_format($may,2) 			.'",';
+				$table 			.=  ($june > 0) 	? '"'. 	$june 		.'",' 	: 	'"'.number_format($june,2) 			.'",';
+				$table 			.=  ($july > 0 ) 	? '"'.	$july 		.'",' 	: 	'"'.number_format($july,2) 			.'",';
+				$table 			.=  ($august > 0) 	? '"'.	$august 	.'",' 	: 	'"'.number_format($august,2) 		.'",';
+				$table 			.=  ($september > 0)? '"'.	$september 	.'",' 	: 	'"'.number_format($september,2) 	.'",';
+				$table 			.=  ($october > 0) 	? '"'.	$october 	.'",' 	: 	'"'.number_format($october,2) 		.'",';
+				$table 			.=  ($november > 0) ? '"'.	$november 	.'",' 	: 	'"'.number_format($november,2) 		.'",';
+				$table 			.= "\n";
+			}
 		}
 
-		$table 			.=	'"Total",';
-		$table 			.=  '"'.number_format($total_jan,2) 	.'",';
-		$table 			.=  '"'.number_format($total_feb,2) 	.'",';
-		$table 			.=  '"'.number_format($total_march,2)	.'",';
-		$table 			.=  '"'.number_format($total_april,2)	.'",';			
-		$table 			.=  '"'.number_format($total_may,2) 	.'",';
-		$table 			.=  '"'.number_format($total_june,2) 	.'",';
-		$table 			.=  '"'.number_format($total_july,2) 	.'",';
-		$table 			.=  '"'.number_format($total_aug,2) 	.'",';
-		$table 			.=  '"'.number_format($total_sept,2) 	.'",';
-		$table 			.=  '"'.number_format($total_oct,2) 	.'",';
-		$table 			.=  '"'.number_format($total_nov,2) 	.'",';
-		$table 			.=  '"'.number_format($total_decm,2)	.'"';
-		$table 			.= "\n";	
+		if (($taxyear == 'fiscal' && $periodstart == 'Jan') || ($taxyear == 'calendar')) {
+			$table 			.=	'"Total",';
+			$table 			.=  '"'.number_format($total_jan,2)		.'",';
+			$table 			.=  '"'.number_format($total_feb,2)		.'",';
+			$table 			.=  '"'.number_format($total_march,2)	.'",';
+			$table 			.=  '"'.number_format($total_april,2)	.'",';			
+			$table 			.=  '"'.number_format($total_may,2)		.'",';
+			$table 			.=  '"'.number_format($total_june,2)	.'",';
+			$table 			.=  '"'.number_format($total_july,2)	.'",';
+			$table 			.=  '"'.number_format($total_aug,2)		.'",';
+			$table 			.=  '"'.number_format($total_sept,2)	.'",';
+			$table 			.=  '"'.number_format($total_oct,2)		.'",';
+			$table 			.=  '"'.number_format($total_nov,2)		.'",';
+			$table 			.=  '"'.number_format($total_decm,2) 	.'"';
+			$table 			.= "\n";
+		}	
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Feb') {
+			$table 			.=	'"Total",';
+			$table 			.=  '"'.number_format($total_feb,2)		.'",';
+			$table 			.=  '"'.number_format($total_march,2)	.'",';
+			$table 			.=  '"'.number_format($total_april,2)	.'",';			
+			$table 			.=  '"'.number_format($total_may,2)		.'",';
+			$table 			.=  '"'.number_format($total_june,2)	.'",';
+			$table 			.=  '"'.number_format($total_july,2)	.'",';
+			$table 			.=  '"'.number_format($total_aug,2)		.'",';
+			$table 			.=  '"'.number_format($total_sept,2)	.'",';
+			$table 			.=  '"'.number_format($total_oct,2)		.'",';
+			$table 			.=  '"'.number_format($total_nov,2)		.'",';
+			$table 			.=  '"'.number_format($total_decm,2) 	.'",';
+			$table 			.=  '"'.number_format($total_jan,2)		.'"';
+			$table 			.= "\n";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Mar') {
+			$table 			.=	'"Total",';
+			$table 			.=  '"'.number_format($total_march,2)	.'",';
+			$table 			.=  '"'.number_format($total_april,2)	.'",';			
+			$table 			.=  '"'.number_format($total_may,2)		.'",';
+			$table 			.=  '"'.number_format($total_june,2)	.'",';
+			$table 			.=  '"'.number_format($total_july,2)	.'",';
+			$table 			.=  '"'.number_format($total_aug,2)		.'",';
+			$table 			.=  '"'.number_format($total_sept,2)	.'",';
+			$table 			.=  '"'.number_format($total_oct,2)		.'",';
+			$table 			.=  '"'.number_format($total_nov,2)		.'",';
+			$table 			.=  '"'.number_format($total_decm,2) 	.'",';
+			$table 			.=  '"'.number_format($total_jan,2)		.'",';
+			$table 			.=  '"'.number_format($total_feb,2)		.'"';
+			$table 			.= "\n";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Apr') {
+			$table 			.=	'"Total",';
+			$table 			.=  '"'.number_format($total_april,2)	.'",';			
+			$table 			.=  '"'.number_format($total_may,2)		.'",';
+			$table 			.=  '"'.number_format($total_june,2)	.'",';
+			$table 			.=  '"'.number_format($total_july,2)	.'",';
+			$table 			.=  '"'.number_format($total_aug,2)		.'",';
+			$table 			.=  '"'.number_format($total_sept,2)	.'",';
+			$table 			.=  '"'.number_format($total_oct,2)		.'",';
+			$table 			.=  '"'.number_format($total_nov,2)		.'",';
+			$table 			.=  '"'.number_format($total_decm,2) 	.'",';
+			$table 			.=  '"'.number_format($total_jan,2)		.'",';
+			$table 			.=  '"'.number_format($total_feb,2)		.'",';
+			$table 			.=  '"'.number_format($total_march,2)	.'"';
+			$table 			.= "\n";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'May') {
+			$table 			.=	'"Total",';			
+			$table 			.=  '"'.number_format($total_may,2)		.'",';
+			$table 			.=  '"'.number_format($total_june,2)	.'",';
+			$table 			.=  '"'.number_format($total_july,2)	.'",';
+			$table 			.=  '"'.number_format($total_aug,2)		.'",';
+			$table 			.=  '"'.number_format($total_sept,2)	.'",';
+			$table 			.=  '"'.number_format($total_oct,2)		.'",';
+			$table 			.=  '"'.number_format($total_nov,2)		.'",';
+			$table 			.=  '"'.number_format($total_decm,2) 	.'",';
+			$table 			.=  '"'.number_format($total_jan,2)		.'",';
+			$table 			.=  '"'.number_format($total_feb,2)		.'",';
+			$table 			.=  '"'.number_format($total_march,2)	.'",';
+			$table 			.=  '"'.number_format($total_april,2)	.'"';
+			$table 			.= "\n";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Jun') {
+			$table 			.=	'"Total",';			
+			$table 			.=  '"'.number_format($total_june,2)	.'",';
+			$table 			.=  '"'.number_format($total_july,2)	.'",';
+			$table 			.=  '"'.number_format($total_aug,2)		.'",';
+			$table 			.=  '"'.number_format($total_sept,2)	.'",';
+			$table 			.=  '"'.number_format($total_oct,2)		.'",';
+			$table 			.=  '"'.number_format($total_nov,2)		.'",';
+			$table 			.=  '"'.number_format($total_decm,2) 	.'",';
+			$table 			.=  '"'.number_format($total_jan,2)		.'",';
+			$table 			.=  '"'.number_format($total_feb,2)		.'",';
+			$table 			.=  '"'.number_format($total_march,2)	.'",';
+			$table 			.=  '"'.number_format($total_april,2)	.'",';
+			$table 			.=  '"'.number_format($total_may,2)		.'"';
+			$table 			.= "\n";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Jul') {
+			$table 			.=	'"Total",';			
+			$table 			.=  '"'.number_format($total_july,2)	.'",';
+			$table 			.=  '"'.number_format($total_aug,2)		.'",';
+			$table 			.=  '"'.number_format($total_sept,2)	.'",';
+			$table 			.=  '"'.number_format($total_oct,2)		.'",';
+			$table 			.=  '"'.number_format($total_nov,2)		.'",';
+			$table 			.=  '"'.number_format($total_decm,2) 	.'",';
+			$table 			.=  '"'.number_format($total_jan,2)		.'",';
+			$table 			.=  '"'.number_format($total_feb,2)		.'",';
+			$table 			.=  '"'.number_format($total_march,2)	.'",';
+			$table 			.=  '"'.number_format($total_april,2)	.'",';
+			$table 			.=  '"'.number_format($total_may,2)		.'",';
+			$table 			.=  '"'.number_format($total_june,2)	.'"';
+			$table 			.= "\n";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Aug') {
+			$table 			.=	'"Total",';			
+			$table 			.=  '"'.number_format($total_aug,2)		.'",';
+			$table 			.=  '"'.number_format($total_sept,2)	.'",';
+			$table 			.=  '"'.number_format($total_oct,2)		.'",';
+			$table 			.=  '"'.number_format($total_nov,2)		.'",';
+			$table 			.=  '"'.number_format($total_decm,2) 	.'",';
+			$table 			.=  '"'.number_format($total_jan,2)		.'",';
+			$table 			.=  '"'.number_format($total_feb,2)		.'",';
+			$table 			.=  '"'.number_format($total_march,2)	.'",';
+			$table 			.=  '"'.number_format($total_april,2)	.'",';
+			$table 			.=  '"'.number_format($total_may,2)		.'",';
+			$table 			.=  '"'.number_format($total_june,2)	.'",';
+			$table 			.=  '"'.number_format($total_july,2)	.'"';
+			$table 			.= "\n";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Sep') {
+			$table 			.=	'"Total",';			
+			$table 			.=  '"'.number_format($total_sept,2)	.'",';
+			$table 			.=  '"'.number_format($total_oct,2)		.'",';
+			$table 			.=  '"'.number_format($total_nov,2)		.'",';
+			$table 			.=  '"'.number_format($total_decm,2) 	.'",';
+			$table 			.=  '"'.number_format($total_jan,2)		.'",';
+			$table 			.=  '"'.number_format($total_feb,2)		.'",';
+			$table 			.=  '"'.number_format($total_march,2)	.'",';
+			$table 			.=  '"'.number_format($total_april,2)	.'",';
+			$table 			.=  '"'.number_format($total_may,2)		.'",';
+			$table 			.=  '"'.number_format($total_june,2)	.'",';
+			$table 			.=  '"'.number_format($total_july,2)	.'",';
+			$table 			.=  '"'.number_format($total_aug,2)		.'"';
+			$table 			.= "\n";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Oct') {
+			$table 			.=	'"Total",';			
+			$table 			.=  '"'.number_format($total_oct,2)		.'",';
+			$table 			.=  '"'.number_format($total_nov,2)		.'",';
+			$table 			.=  '"'.number_format($total_decm,2) 	.'",';
+			$table 			.=  '"'.number_format($total_jan,2)		.'",';
+			$table 			.=  '"'.number_format($total_feb,2)		.'",';
+			$table 			.=  '"'.number_format($total_march,2)	.'",';
+			$table 			.=  '"'.number_format($total_april,2)	.'",';
+			$table 			.=  '"'.number_format($total_may,2)		.'",';
+			$table 			.=  '"'.number_format($total_june,2)	.'",';
+			$table 			.=  '"'.number_format($total_july,2)	.'",';
+			$table 			.=  '"'.number_format($total_aug,2)		.'",';
+			$table 			.=  '"'.number_format($total_sept,2)	.'"';
+			$table 			.= "\n";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Nov') {
+			$table 			.=	'"Total",';			
+			$table 			.=  '"'.number_format($total_nov,2)		.'",';
+			$table 			.=  '"'.number_format($total_decm,2) 	.'",';
+			$table 			.=  '"'.number_format($total_jan,2)		.'",';
+			$table 			.=  '"'.number_format($total_feb,2)		.'",';
+			$table 			.=  '"'.number_format($total_march,2)	.'",';
+			$table 			.=  '"'.number_format($total_april,2)	.'",';
+			$table 			.=  '"'.number_format($total_may,2)		.'",';
+			$table 			.=  '"'.number_format($total_june,2)	.'",';
+			$table 			.=  '"'.number_format($total_july,2)	.'",';
+			$table 			.=  '"'.number_format($total_aug,2)		.'",';
+			$table 			.=  '"'.number_format($total_sept,2)	.'",';
+			$table 			.=  '"'.number_format($total_oct,2)		.'"';
+			$table 			.= "\n";
+		}
+
+		else if ($taxyear == 'fiscal' && $periodstart == 'Dec') {
+			$table 			.=	'"Total",';			
+			$table 			.=  '"'.number_format($total_decm,2) 	.'",';
+			$table 			.=  '"'.number_format($total_jan,2)		.'",';
+			$table 			.=  '"'.number_format($total_feb,2)		.'",';
+			$table 			.=  '"'.number_format($total_march,2)	.'",';
+			$table 			.=  '"'.number_format($total_april,2)	.'",';
+			$table 			.=  '"'.number_format($total_may,2)		.'",';
+			$table 			.=  '"'.number_format($total_june,2)	.'",';
+			$table 			.=  '"'.number_format($total_july,2)	.'",';
+			$table 			.=  '"'.number_format($total_aug,2)		.'",';
+			$table 			.=  '"'.number_format($total_sept,2)	.'",';
+			$table 			.=  '"'.number_format($total_oct,2)		.'",';
+			$table 			.=  '"'.number_format($total_nov,2)		.'"';
+			$table 			.= "\n";
+		}
 
 		return $table;
 	}

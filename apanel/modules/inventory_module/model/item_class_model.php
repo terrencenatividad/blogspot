@@ -74,8 +74,10 @@ class item_class_model extends wc_model {
 			'ia.accountname inventory_account',
 			'rt.value revenuetype',
 			'et.value expensetype',
+			'ic.stat stat'
 		);
-		$condition = '';
+		
+		$condition = "";
 		if ($search) {
 			$condition = $this->generateSearch($search, array('ic.label', 'p.label', 'p2.label', 'c.label', 'c2.label'));
 		}
@@ -211,6 +213,7 @@ class item_class_model extends wc_model {
 					'inventory_account'		=> $item->inventory_account,
 					'revenuetype'			=> $item->revenuetype,
 					'expensetype'			=> $item->expensetype,
+					'stat'					=> $item->stat,
 				);
 				$children = $this->buildTree($list, $item->id);
 				if ($children) {
@@ -228,5 +231,19 @@ class item_class_model extends wc_model {
 		}
 		return '(' . implode(' OR ', $temp) . ')';
 	}
+
+	public function updateStat($data,$id)
+	{
+		$condition 			   = " id = '$id' ";
+
+		$result 			   = $this->db->setTable('itemclass')
+											->setValues($data)
+											->setWhere($condition)
+											->setLimit(1)
+											->runUpdate();
+
+		return $result;
+	}
+
 
 }

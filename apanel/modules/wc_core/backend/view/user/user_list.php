@@ -211,6 +211,7 @@
 						if (data.success) {
 							getList();
 							$('#import-modal').modal('hide');
+							show_success_msg("Your data has been successfully imported!");
 						} else {
 							addError('<p>' + data.error + '</p>', true);
 							try {
@@ -298,4 +299,32 @@
 			$('#import-modal').modal();
 		});
 
+		function show_success_msg(msg)
+		{
+			$('#success_modal #message').html(msg);
+			$('#success_modal').modal('show');
+			setTimeout(function() {												
+				window.location = '<?= MODULE_URL ?>';		
+			}, 1000)
+		}
+
+		$('#tableList').on('click', '.activate', function() { 
+				var id = $(this).attr('data-id');
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+					getList();
+				});
+			});
+
+		$('#tableList').on('click', '.deactivate', function() { 
+			$('#deactivate_modal').modal('show');
+			var id = $(this).attr('data-id');
+			
+			$('#deactivate_modal').on('click', '#deactyes', function() {
+				$('#deactivate_modal').modal('hide');
+				
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+					getList();
+				});
+			});
+		});
 	</script>

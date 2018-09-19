@@ -195,21 +195,22 @@
 						</div> -->
 					</div>
 					<?php
-						echo $ui->formField('text')
-								->setLabel('Reference')
-								->setSplit('col-md-3','col-md-8')
-								->setName('reference')
-								->setId('reference')
-								->setValidation('required')
-								->draw(true);
+						// echo $ui->formField('text')
+						// 		->setLabel('Reference')
+						// 		->setSplit('col-md-3','col-md-8')
+						// 		->setName('reference')
+						// 		->setId('reference')
+						// 		->setValidation('required')
+						// 		->draw(true);
 
 						echo $ui->formField('textarea')
 								->setLabel('Notes')
 								->setSplit('col-md-3','col-md-8')
 								->setName("notes")
 								->setId("notes")
-								->setValidation('required')
+								// ->setValidation('required')
 								->draw(true);
+								
 						echo $ui->formField('dropdown')
 								->setLabel('Closing Account')
 								->setPlaceholder('Select an Account')
@@ -347,6 +348,28 @@
 								<button type="button" class="btn btn-default"  id="closing_cancel">Close</button>
 							</div>
 						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="redirectionModal" tabindex="-1" data-backdrop="static" data-keyboard="false" >
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<strong>Confirmation</strong>
+			</div>
+			<div class="modal-header"></div>
+			<div class="modal-body">	
+				<p><b>Successfully Saved.</b> Would you like to view the Journal Voucher?</p>
+			</div>
+			<div class="modal-footer">
+				<div class="row">
+					<div class="col-md-12 text-center">
+						<button class="btn btn-success" id="btnYes">Yes</button>
+						<button type="button" class="btn btn-default"  id="btnNo">No</button>
 					</div>
 				</div>
 			</div>
@@ -526,7 +549,7 @@
 		var has_error 	=	validate_date(current_date);
 
 		if(!has_error){
-			$.post('<?=MODULE_URL?>ajax/temporary_jv_save', ajax2 , function(response) {
+			$.post('<?=MODULE_URL?>ajax/temporary_jv_close', ajax2 , function(response) {
 				if( response.result ){
 					$("#jvModal").modal('hide');
 					preview_jv(response.voucherno);
@@ -538,13 +561,20 @@
 
 	$('#previewModal').on('click','#confirmbtn',function(){
 		ajax2.voucherno 	=	$('#previewModal #voucherno').val();
-		$.post('<?=MODULE_URL?>ajax/update_jv_status', ajax2 , function(response) {
+		$.post('<?=MODULE_URL?>ajax/close_jv_status', ajax2 , function(response) {
 			if( response.result ){
 				$('#previewModal').modal('hide');
-				//window.location 	=	'<?//=MODULE_URL?>';
-				getTrialBalance();
+				$('#redirectionModal').modal('show');
 			}
 		});
+	});
+
+	$('#redirectionModal').on('click','#btnYes',function(){
+		window.location 	=	'<?=BASE_URL?>financials/journal_voucher/';
+	});
+
+	$('#redirectionModal').on('click','#btnNo',function(){
+		window.location 	=	'<?=BASE_URL?>report/trial_balance';
 	});
 
 	$('#previewModal').on('input','#table_search', function () {
@@ -572,7 +602,7 @@
 	$('#closing_cancel').on('click',function(e){
 		ajax2.voucherno 	=	$('#previewModal #voucherno').val();
 		//delete temporary saved jv... 
-		$.post('<?=MODULE_URL?>ajax/delete_temporary_jv', ajax2 , function(response) {
+		$.post('<?=MODULE_URL?>ajax/eradicate_temporary_jv', ajax2 , function(response) {
 			if( response.result ){
 				$('#previewModal').modal('hide');
 				getTrialBalance();

@@ -98,11 +98,27 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
+
+			$stat = $row->stat;
+			
+			$show_activate 		= ($stat != 'inactive');
+			$show_deactivate 	= ($stat != 'active');
+
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit()
 									->addPrint()
+									->addOtherTask(
+										'Activate',
+										'arrow-up',
+										$show_deactivate
+									)
+									->addOtherTask(
+										'Deactivate',
+										'arrow-down',
+										$show_activate
+									)	
 									->addDelete()
 									->addCheckbox()
 									->setValue($row->username)
@@ -304,6 +320,30 @@ class controller extends wc_controller {
 
 	private function check_duplicate($array) {
 		return array_unique(array_diff_assoc($array, array_unique($array)));
+	}
+
+	private function ajax_edit_activate()
+	{
+		$code = $this->input->post('id');
+		$data['stat'] = 'active';
+
+		$result = $this->user_model->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
+	}
+	
+	private function ajax_edit_deactivate()
+	{
+		$code = $this->input->post('id');
+		$data['stat'] = 'inactive';
+
+		$result = $this->user_model->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
 	}
 
 }

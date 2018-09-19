@@ -42,7 +42,7 @@
 		}
 
 		public function getQueryDetails($search, $startdate, $enddate, $partner, $filter, $bank, $sort) {
-			$condition = "(chq.voucherno != '' )  AND  chq.stat != 'cancelled'  "; 
+			$condition = "(chq.voucherno != '' ) "; 
 			
 			// For Check Date
 			if ( $startdate && $enddate ) {
@@ -55,7 +55,11 @@
 				$condition .= " AND chq.stat = 'released' ";
 			} else if (  !empty($filter) && $filter == 'cleared' ) {
 				$condition .= " AND chq.stat = 'cleared' ";
-			}
+			}else if (  !empty($filter) && $filter == 'cancelled' ) {
+				$condition .= " AND chq.stat = 'cancelled' ";
+			}else if (  !empty($filter) && $filter == 'void' ) {
+				$condition .= " AND chq.stat = 'void' ";
+			}		
 			// For Partner
 			if( !empty($partner) ){
 				if( !in_array('none', $partner) ){
@@ -92,7 +96,7 @@
 		
         public function retrieveChequeList($search, $startdate, $enddate, $partner, $filter, $bank, $sort) {
 			$result	= $this->getQueryDetails($search, $startdate, $enddate, $partner, $filter, $bank, $sort)
-							->runPagination();		
+							->runPagination();
 
 			return $result;			
         }
@@ -132,6 +136,6 @@
 					
 			return $result;
 		}
-	}
+	}	
 
 ?>

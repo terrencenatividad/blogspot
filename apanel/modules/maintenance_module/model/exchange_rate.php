@@ -5,11 +5,11 @@
 		{
 			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND ( basecurrencycode LIKE '%$search%' OR exchangecurrencycode LIKE '%$search%'  ) " 	: 	"";
 
-			$fields 	=	array('basecurrencycode','exchangecurrencycode','exchangerate','effectivedate','code');
+			$fields 	=	array('basecurrencycode','exchangecurrencycode','exchangerate','effectivedate','code','stat');
 
 			$result = $this->db->setTable('exchangerate')
 							->setFields($fields)
-							->setWhere(" stat = 'active' $add_cond ")
+							->setWhere(" stat != 'deleted' $add_cond ")
 							->setOrderBy($sort)
 							->runPagination();
 			return $result;
@@ -88,5 +88,19 @@
 			
 			return $errmsg;
 		}
+
+		public function updateStat($data,$code)
+		{
+			$condition 			   = " code = '$code' ";
+
+			$result 			   = $this->db->setTable('exchangerate')
+												->setValues($data)
+												->setWhere($condition)
+												->setLimit(1)
+												->runUpdate();
+
+			return $result;
+		}
+
 	}
 ?>

@@ -11,7 +11,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Sales Person Code')
+								->setLabel('Sales Person Code ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('partnercode')
 								->setId('partnercode')
@@ -27,7 +27,7 @@
 				<div class="row">
 					<div class="col-md-12">	
 						<!-- <label for="first_name" class="control-label" style="margin:15px;"><span style="font-size:15px;">Contact Person:</span></label> -->
-						<h4>Contact Person</h4>
+						<h3>Contact Person</h3>
 						<hr>
 					</div>
 					<div class="col-md-6">
@@ -62,7 +62,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('textarea')
-								->setLabel('Address')
+								->setLabel('Address ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('address1')
 								->setId('address1')
@@ -181,9 +181,10 @@ $('#btnSave').on('click',function(){
 		$.post('<?=BASE_URL?>maintenance/sales_person/ajax/<?=$task?>', $('#salespersonForm').serialize()+ '<?=$ajax_post?>', function(data) {
 			if( data.msg == 'success' )
 			{
+				$('#delay_modal').modal('show');
 				setTimeout(function() {
 					window.location = '<?php echo BASE_URL . 'maintenance/sales_person'; ?>';
-				},500);
+				},1000);
 			}
 		});
 	}

@@ -9,7 +9,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('First Name')
+											->setLabel('First Name ')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('firstname')
 											->setId('firstname')
@@ -34,7 +34,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('Last Name')
+											->setLabel('Last Name ')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('lastname')
 											->setId('lastname')
@@ -46,7 +46,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('dropdown')
-											->setLabel('Group Access')
+											->setLabel('Group Access ')
 											->setPlaceholder('Select Group')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('groupname')
@@ -62,7 +62,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('E-mail')
+											->setLabel('E-mail ')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('email')
 											->setId('email')
@@ -76,7 +76,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('Phone')
+											->setLabel('Phone ')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('phone')
 											->setId('phone')
@@ -88,7 +88,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('Mobile')
+											->setLabel('Mobile ')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('mobile')
 											->setId('mobile')
@@ -102,7 +102,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('Username')
+											->setLabel('Username ')
 											->setAttribute(array('autocomplete' => 'off'))
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('username')
@@ -169,7 +169,10 @@
 			if ($(this).find('.form-group.has-error').length == 0) {
 				$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + '<?=$ajax_post?>', function(data) {
 					if (data.success) {
-						window.location = data.redirect;
+						$('#delay_modal').modal('show');
+						setTimeout(function() {
+							window.location = data.redirect;		
+						},1000);
 					}
 				});
 			} else {

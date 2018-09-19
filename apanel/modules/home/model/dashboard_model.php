@@ -4,15 +4,42 @@ class dashboard_model extends wc_model {
 	public function __construct() {
 		parent::__construct();
 		$this->year					= date('Y');
+		$this->period				= 1;
+		$this->getPeriodStart();
 		$this->current_month_query	= $this->getMonthly();
 		$this->previous_month_query	= $this->getMonthly(1);
+	}
+
+	public function getYear() {
+		return $this->year;
+	}
+
+	private function getPeriodStart() {
+		$result = $this->db->setTable('company')
+							->setFields(array('taxyear', "MONTH(STR_TO_DATE(periodstart,'%b')) periodstart"))
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+
+		if ($result->taxyear == 'fiscal') {
+			$this->period = $result->periodstart;
+			if ($this->period > date('n')) {
+				$this->year = date('Y') - 1;
+			}
+		}
 	}
 
 	private function getMonthly($y = 0) {
 		$months	= array();
 		$year	= $this->year - $y;
+		$period	= $this->period;
 		for ($x = 1; $x <= 12; $x++) {
-			$months[] = "SELECT $x month, '$year' year, '" . COMPANYCODE . "' companycode";
+			if ($period > 12) {
+				$period = 1;
+				$year++;
+			}
+			$months[] = "SELECT $period month, '$year' year, '" . COMPANYCODE . "' companycode";
+			$period++;
 		}
 
 		return implode(' UNION ALL ', $months);
@@ -21,7 +48,7 @@ class dashboard_model extends wc_model {
 	public function getInvoices() {
 		$result = $this->db->setTable('salesinvoice')
 							->setFields('COUNT(*) quantity')
-							->setWhere("stat NOT IN ('cancelled', 'temporary') AND fiscalyear = '{$this->year}'")
+							->setWhere("stat NOT IN ('cancelled', 'temporary')")
 							->runSelect()
 							->getRow();
 		
@@ -33,7 +60,7 @@ class dashboard_model extends wc_model {
 	public function getPurchases() {
 		$result = $this->db->setTable('purchasereceipt')
 							->setFields('COUNT(*) quantity')
-							->setWhere("stat NOT IN ('Cancelled', 'temporary') AND fiscalyear = '{$this->year}'")
+							->setWhere("stat NOT IN ('Cancelled', 'temporary')")
 							->runSelect()
 							->getRow();
 		
@@ -56,7 +83,7 @@ class dashboard_model extends wc_model {
 	public function getJournalVouchers() {
 		$result = $this->db->setTable('journalvoucher')
 							->setFields('COUNT(*) quantity')
-							->setWhere("stat = 'posted' AND transtype = 'JV' AND fiscalyear = '{$this->year}'")
+							->setWhere("stat = 'posted' AND transtype = 'JV'")
 							->runSelect()
 							->getRow();
 		
@@ -78,37 +105,37 @@ class dashboard_model extends wc_model {
 
 		$current 	=	$this->db->setTable("({$this->current_month_query}) m")
 								->leftJoin("($coa_rev) n ON 1 = 1")
-								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
+								->leftJoin("balance_table pr ON MONTH(pr.transactiondate) = m.month AND YEAR(pr.transactiondate) = m.year AND pr.accountcode = n.id ")
 								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) revenue, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
-								->setOrderBy('m.month')
+								->setOrderBy('m.year, m.month')
 								->runSelect()
 								->getResult();
 
 		$current2 	=	$this->db->setTable("({$this->current_month_query}) m")
 								->leftJoin("($coa_cost) n ON 1 = 1")
-								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
+								->leftJoin("balance_table pr ON MONTH(pr.transactiondate) = m.month AND YEAR(pr.transactiondate) = m.year AND pr.accountcode = n.id ")
 								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) expense")
 								->setGroupBy('m.month')
-								->setOrderBy('m.month')
+								->setOrderBy('m.year, m.month')
 								->runSelect()
 								->getResult();
 
 		$previous 	=	$this->db->setTable("({$this->previous_month_query}) m")
 								->leftJoin("($coa_rev) n ON 1 = 1")
-								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
+								->leftJoin("balance_table pr ON MONTH(pr.transactiondate) = m.month AND YEAR(pr.transactiondate) = m.year AND pr.accountcode = n.id ")
 								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) revenue, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
-								->setOrderBy('m.month')
+								->setOrderBy('m.year, m.month')
 								->runSelect()
 								->getResult();
 
 		$previous2 	=	$this->db->setTable("({$this->previous_month_query}) m")
 								->leftJoin("($coa_cost) n ON 1 = 1")
-								->leftJoin("balance_table pr ON pr.period = m.month AND pr.fiscalyear = m.year AND pr.accountcode = n.id ")
+								->leftJoin("balance_table pr ON MONTH(pr.transactiondate) = m.month AND YEAR(pr.transactiondate) = m.year AND pr.accountcode = n.id ")
 								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) expense, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
-								->setOrderBy('m.month')
+								->setOrderBy('m.year, m.month')
 								->runSelect()
 								->getResult();
 
@@ -210,16 +237,18 @@ class dashboard_model extends wc_model {
 
 	public function getSalesAndPurchases() {
 		$sales		= $this->db->setTable("({$this->current_month_query}) m")
-								->leftJoin("salesinvoice si ON si.period = m.month AND si.companycode = m.companycode AND si.fiscalyear = m.year AND si.stat NOT IN ('temporary', 'cancelled')")
+								->leftJoin("salesinvoice si ON MONTH(si.transactiondate) = m.month AND si.companycode = m.companycode AND YEAR(si.transactiondate) = m.year AND si.stat NOT IN ('temporary', 'cancelled')")
 								->setFields("IFNULL(SUM(amount), 0) value, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
+								->setOrderBy('m.year, m.month')
 								->runSelect()
 								->getResult();
 
 		$purchases	= $this->db->setTable("({$this->current_month_query}) m")
-								->leftJoin("purchasereceipt pr ON pr.period = m.month AND pr.companycode = m.companycode AND pr.fiscalyear = m.year AND pr.stat NOT IN ('temporary', 'Cancelled')")
+								->leftJoin("purchasereceipt pr ON MONTH(pr.transactiondate) = m.month AND pr.companycode = m.companycode AND YEAR(pr.transactiondate) = m.year AND pr.stat NOT IN ('temporary', 'Cancelled')")
 								->setFields("IFNULL(SUM(netamount), 0) value, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
+								->setOrderBy('m.year, m.month')
 								->runSelect()
 								->getResult();
 

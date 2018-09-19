@@ -76,6 +76,7 @@
 									)
 								)
 								->addHeader('Item Type', array(), 'sort', 'label', 'asc')
+								->addHeader('Status', array(), 'sort', 'label', 'asc')								
 								->draw();
 					?>
 					<tbody>
@@ -190,6 +191,27 @@
 				$('#warning_modal .modal-body').append(error);
 			}
 		}
+
+		$('#tableList').on('click', '.activate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+				getList();
+			});
+		});
+
+		$('#tableList').on('click', '.deactivate', function() { 
+			$('#deactivate_modal').modal('show');
+			var id = $(this).attr('data-id');
+			
+			$('#deactivate_modal').on('click', '#deactyes', function() {
+				$('#deactivate_modal').modal('hide');
+				
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+					getList();
+				});
+			});
+		});
+
 		$('#importForm').submit(function(e) {
 			e.preventDefault();
 			var form_element = $(this);
@@ -211,6 +233,7 @@
 						if (data.success) {
 							getList();
 							$('#import-modal').modal('hide');
+							show_success_msg("Your data has been successfully imported!");
 						} else {
 							addError('<p>' + data.error + '</p>', true);
 							try {
@@ -277,6 +300,14 @@
 			linkDeleteMultipleToModal('#item_multiple_delete', '#tableList', 'ajaxCallback');
 		});
 
+		function show_success_msg(msg)
+		{
+			$('#success_modal #message').html(msg);
+			$('#success_modal').modal('show');
+			setTimeout(function() {												
+				window.location = '<?= MODULE_URL ?>';		
+			}, 1000)
+		}
 
 		$('#export_id').prop('download','item_type.csv');
 		$('#export_id').prop('href','<?= MODULE_URL ?>get_export');

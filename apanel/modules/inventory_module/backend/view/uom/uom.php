@@ -13,7 +13,7 @@
 					<div class="col-md-5">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Unit Code')
+								->setLabel('Unit Code ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('uomcode')
 								->setId('uomcode')
@@ -27,7 +27,7 @@
 					<div class="col-md-5">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Unit Description')
+								->setLabel('Unit Description ')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('uomdesc')
 								->setId('uomdesc')
@@ -46,7 +46,7 @@
 					<div class="col-md-5">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Unit Type')
+								->setLabel('Unit Type ')
 								->setPlaceholder('None')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('uomtype')
@@ -82,7 +82,10 @@
 		if ($(this).find('.form-group.has-error').length == 0) {
 			$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + '<?=$ajax_post?>', function(data) {
 				if (data.success) {
-					window.location = data.redirect;
+					$('#delay_modal').modal('show');
+						setTimeout(function() {
+							window.location = data.redirect;		
+					},1000);
 				}else{
 					$("#pageAlert").removeClass('hidden');
 					$("#pageAlert p").html('Unit of Measure already exist. Please specify another and try again.');

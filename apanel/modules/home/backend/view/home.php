@@ -83,7 +83,7 @@
 				<div class="box box-solid bg-teal-gradient">
 					<div class="box-header">
 						<i class="fa fa-th"></i>
-						<h3 class="box-title">Sales Graph <?php echo date('Y') ?></h3>
+						<h3 class="box-title">Sales Graph <?php echo $year ?></h3>
 					</div>
 					<div class="box-body border-radius-none no-padding">
 						<div class="chart" id="sales" style="height: 250px;"></div>
@@ -94,7 +94,7 @@
 				<div class="box box-solid bg-yellow-gradient">
 					<div class="box-header">
 						<i class="fa fa-th"></i>
-						<h3 class="box-title">Purchases Graph <?php echo date('Y') ?></h3>
+						<h3 class="box-title">Purchases Graph <?php echo $year ?></h3>
 					</div>
 					<div class="box-body border-radius-none no-padding">
 						<div class="chart" id="purchases" style="height: 250px;"></div>
@@ -104,8 +104,8 @@
 			<div class="col-md-12">
 				<div class="nav-tabs-custom">
 					<ul class="nav nav-tabs pull-right">
-						<li class="active"><a href="#current_year" data-toggle="tab" aria-expanded="true"><?php echo date('Y') ?></a></li>
-						<li class=""><a href="#previous_year" class="previous_year" data-toggle="tab" aria-expanded="false"><?php echo date('Y') - 1 ?></a></li>
+						<li class="active"><a href="#current_year" data-toggle="tab" aria-expanded="true"><?php echo $year ?></a></li>
+						<li class=""><a href="#previous_year" class="previous_year" data-toggle="tab" aria-expanded="false"><?php echo $year - 1 ?></a></li>
 						<li class="pull-left header">Revenue vs Cost of Sales</li>
 					</ul>
 					<div class="tab-content no-padding">

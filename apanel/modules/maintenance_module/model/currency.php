@@ -5,11 +5,11 @@
 		{
 			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (currencycode LIKE '%$search%' OR currency LIKE '%$search%' ) " 	: 	"";
 
-			$fields 	=	array('currencycode','currency');
+			$fields 	=	array('currencycode','currency','stat');
 
 			$result = $this->db->setTable('currency')
 							->setFields($fields)
-							->setWhere(" stat = 'active' $add_cond ")
+							->setWhere(" stat != 'deleted' $add_cond ")
 							->setOrderBy($sort)
 							->runPagination();
 			return $result;
@@ -86,5 +86,18 @@
 							->runSelect()
 							->getResult();
 		}
+
+		public function updateStat($data,$code)
+	{
+		$condition 			   = " currencycode = '$code' ";
+
+		$result 			   = $this->db->setTable('currency')
+											->setValues($data)
+											->setWhere($condition)
+											->setLimit(1)
+											->runUpdate();
+
+		return $result;
+	}
 	}
 ?>

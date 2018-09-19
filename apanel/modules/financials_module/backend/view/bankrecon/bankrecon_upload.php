@@ -1,4 +1,4 @@
-	<section class="content">
+<section class="content">
 		<div class="row">
 			<div class="col-md-4 text-center col-md-offset-4" align="center">
 				<div class="form-steps steps-2">

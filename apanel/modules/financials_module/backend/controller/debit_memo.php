@@ -32,7 +32,7 @@ class controller extends wc_controller {
 	}
 
 	public function listing() {
-		$this->view->title = 'Debit Memo List';
+		$this->view->title = 'Debit Memo';
 		$this->show_input = false;
 		$data['ui'] = $this->ui;
 		$data['partner_list']    	= $this->dm_model->getVendorList();
@@ -40,7 +40,7 @@ class controller extends wc_controller {
 	}
 
 	public function create() {
-		$this->view->title	= 'Debit Memo Create';
+		$this->view->title			= 'Create Debit Memo';
 		$data						= $this->input->post($this->fields);
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		// Retrieve Closed Date
@@ -48,11 +48,11 @@ class controller extends wc_controller {
 		$data['close_date']			= $close_date;
 		$data['ui'] = $this->ui;
 		$data['partner_list']    	= $this->dm_model->getVendorList();
-		$data['proforma_list']		= $this->dm_model->getProformaList();
 		$data['chartofaccounts']	= $this->dm_model->getChartOfAccountList();
 		// $data['voucher_details']	= json_encode($this->dm_model->getJournalVoucherDetails($this->fields2, $this->temp));
 		$data['voucher_details']	= json_encode(array());
 		$data['ajax_task']			= 'ajax_create';
+		$data['proforma_list']		= $this->dm_model->getProformaList($data);
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
 		$data['restrict_dm'] 		= true;
@@ -61,18 +61,24 @@ class controller extends wc_controller {
 	}
 
 	public function edit($voucherno) {
-		$this->view->title			= 'Debit Memo  Edit';
+		$this->view->title			= 'Edit Debit Memo ';
 		$data						= (array) $this->dm_model->getJournalVoucherById($this->fields, $voucherno);
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data['ui'] = $this->ui;
-		$data['proforma_list'] = $this->dm_model->getProformaList();
-		$data['partner_list']    = $this->dm_model->getVendorList();
-		$data['chartofaccounts']	= $this->dm_model->getChartOfAccountList();
+		$data['partner_list']    = $this->dm_model->getVendorList();$coa_array	= array();
 		$data['voucher_details']	= json_encode($this->dm_model->getJournalVoucherDetails($this->fields2, $voucherno));
+		$coa_array	= array();
+		$hey = json_decode($data['voucher_details']);
+			foreach ($hey as $index => $dtl){
+				$coa			= $dtl->accountcode;
+				$coa_array[]	= $coa;
+			}
+		$data['chartofaccounts']	= $this->dm_model->getEditChartOfAccountList($data,$coa_array);		
 		$data['ajax_task']			= 'ajax_edit';
+		$data['proforma_list']		= $this->dm_model->getProformaList($data);
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
 		$data['restrict_dm'] 		= true;
@@ -81,7 +87,7 @@ class controller extends wc_controller {
 	}
 
 	public function view($voucherno) {
-		$this->view->title			= 'Debit Memo View';
+		$this->view->title			= 'View Debit Memo';
 		$data						= (array) $this->dm_model->getJournalVoucherById($this->fields, $voucherno);
 		$transactiondate 			= $data['transactiondate'];
 		$restrict_dm 				= $this->restrict->setButtonRestriction($transactiondate);
@@ -90,11 +96,19 @@ class controller extends wc_controller {
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data['ui'] = $this->ui;
+		$data['ajax_task']			= 'ajax_view';
+		$data['proforma_list']		= $this->dm_model->getProformaList($data);
 		$data['partner_list']   	 = $this->dm_model->getVendorList();
-		$data['proforma_list']		= $this->dm_model->getProformaList();
-		$data['chartofaccounts']	= $this->dm_model->getChartOfAccountList();
-		$status						= $data['stat'];
+		$coa_array	= array();
 		$data['voucher_details']	= json_encode($this->dm_model->getJournalVoucherDetails($this->fields2, $voucherno));
+		$coa_array	= array();
+		$hey = json_decode($data['voucher_details']);
+			foreach ($hey as $index => $dtl){
+				$coa			= $dtl->accountcode;
+				$coa_array[]	= $coa;
+			}
+		$data['chartofaccounts']	= $this->dm_model->getEditChartOfAccountList($data,$coa_array);		
+		$status						= $data['stat'];
 		$data['show_input']			= false;
 		$data['restrict_dm'] 		= $restrict_dm;
 		$data['status']				= $status;
@@ -107,10 +121,10 @@ class controller extends wc_controller {
 		$documentvendor   	= $this->dm_model->getVendor($voucherno);
 		$print = new print_voucher_model('P', 'mm', 'Letter');
 		$print->setDocumentType('Debit Memo')
-				->setDocumentInfo($documentinfo)
-				->setDocumentDetails($documentdetails)
-				->setVendor($documentvendor[0]->partnername)
-				->drawPDF('dm_voucher_' . $voucherno);
+		->setDocumentInfo($documentinfo)
+		->setDocumentDetails($documentdetails)
+		->setVendor($documentvendor[0]->partnername)
+		->drawPDF('dm_voucher_' . $voucherno);
 	}
 	
 	public function ajax($task) {
@@ -142,22 +156,22 @@ class controller extends wc_controller {
 			$status				=   $row->stat;
 			$display_edit_delete=  	($status != 'cancelled') 	?	1	:	0;
 			$voucher_status = '<span class="label label-danger">'.strtoupper($status).'</span>';
-				if($status == 'open'){
-					$voucher_status = '<span class="label label-info">'.strtoupper($status).'</span>';
-				}else if($status == 'posted'){
-					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
-				}
+			if($status == 'open'){
+				$voucher_status = '<span class="label label-info">'.strtoupper($status).'</span>';
+			}else if($status == 'posted'){
+				$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
+			}
 
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
-									->addView()
-									->addEdit($restrict_dm && $display_edit_delete)
-									->addDelete($restrict_dm && $display_edit_delete)
-									->addPrint()
-									->addCheckbox($restrict_dm && $display_edit_delete)
-									->setLabels(array('delete'=>'Cancel'))
-									->setValue($row->voucherno)
-									->draw();
+			->addView()
+			->addEdit($restrict_dm && $display_edit_delete)
+			->addDelete($restrict_dm && $display_edit_delete)
+			->addPrint()
+			->addCheckbox($restrict_dm && $display_edit_delete)
+			->setLabels(array('delete'=>'Cancel'))
+			->setValue($row->voucherno)
+			->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->voucherno . '</td>';
@@ -198,8 +212,17 @@ class controller extends wc_controller {
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		// $result					= $this->cm_model->updateJournalVoucher($data, $data2, $this->temp, (($finalized) ? 'Create' : false));
 		$result						= $this->dm_model->saveJournalVoucher($data, $data2);
+
+		$redirect_url = MODULE_URL;
+		if ($submit == 'save_new') {
+			$redirect_url = MODULE_URL . 'create';
+		} else if ($submit == 'save') {
+			$redirect_url = MODULE_URL . 'view/' . $data['voucherno'];
+		} else if ($submit == 'save_exit') {
+			$redirect_url = MODULE_URL;
+		}
 		return array(
-			'redirect'	=> MODULE_URL,
+			'redirect'	=> $redirect_url,
 			'success'	=> $result
 		);
 	}

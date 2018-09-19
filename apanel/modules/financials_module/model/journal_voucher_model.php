@@ -169,11 +169,11 @@ class journal_voucher_model extends wc_model {
 						->getRow();
 	}
 
-	public function getJournalVoucherPagination($fields, $search, $sort, $datefilter) {
+	public function getJournalVoucherPagination($fields, $search, $sort, $datefilter, $source, $filter) {
 		$sort = ($sort) ? $sort : 'transactiondate desc';
 		$condition = "transtype = 'JV' and (stat = 'posted' or stat = 'cancelled')";
 		if ($search) {
-			$condition .= ' AND ' . $this->generateSearch($search, array('voucherno','transactiondate','referenceno','amount'));
+			$condition .= ' AND ' . $this->generateSearch($search, array('voucherno','transactiondate','referenceno','amount','source'));
 		}
 		$datefilter	= explode('-', $datefilter);
 		foreach ($datefilter as $key => $date) {
@@ -181,6 +181,20 @@ class journal_voucher_model extends wc_model {
 		}
 		if (isset($datefilter[1])) {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
+		}
+		if ($source && $source != "none") {
+			if($source=='closed'){
+				$condition .= " AND source = 'closing'";
+ 			} else if($source=='manual'){
+				$condition .= " AND source = ''";
+			} else if($source=='import'){
+				$condition .= " AND source = 'import'";
+			}
+		}
+		if ($filter && $filter != "all") {
+			if($filter=='cancelled'){
+				$condition .= " AND stat = 'cancelled'";
+ 			} 
 		}
 		$result = $this->db->setTable("journalvoucher")
 						->setFields("transactiondate, voucherno, referenceno, amount, source as checker, stat")
@@ -208,22 +222,42 @@ class journal_voucher_model extends wc_model {
 							->runSelect()
 							->getResult();
 		return $result;
-		var_dump($fields);
 	}
 
-	public function getProformaList() {
+	public function getProformaList($data)
+	{
+		$proformacode = $data['proformacode'];
+		if($data['ajax_task'] == 'ajax_edit'){
+			$cond = "transactiontype = 'Journal Voucher' AND stat = 'active' OR proformacode = '$proformacode'";
+		}else{
+			$cond = "transactiontype = 'Journal Voucher' AND stat = 'active'";
+		}
 		$result = $this->db->setTable('proforma')
-							->setFields("proformacode ind, proformadesc val")
-							->setWhere("transactiontype = 'Journal Voucher'")
-							->setOrderBy("proformadesc")
+					->setFields("proformacode ind, proformadesc val, stat stat")
+					->setOrderBy("proformadesc")
+					->setWhere($cond)
+					->runSelect()
+					->getResult();
+		
+		return $result;
+	}
+
+	public function getChartOfAccountList() {
+		$result = $this->db->setTable('chartaccount coa')
+							->setFields("coa.id ind, CONCAT(coa.segment5, ' - ', coa.accountname) val")
+							->leftJoin('chartaccount coa2 ON coa2.parentaccountcode = coa.id')
+							->setWhere("coa.accounttype != '' AND coa.stat = 'active'")
+							->setOrderBy('coa.segment5, coa2.segment5')
 							->runSelect()
 							->getResult();
 		return $result;
 	}
 
-	public function getChartOfAccountList() {
+	public function getEditChartOfAccountList($coa_array) {
+		$condition = ($coa_array) ? " OR id IN ('".implode("','",$coa_array)."')" : "";	
 		$result = $this->db->setTable('chartaccount')
 							->setFields("id ind, CONCAT(segment5, ' - ', accountname) val")
+							->setWhere("stat = 'active' $condition")
 							->runSelect()
 							->getResult();
 		return $result;

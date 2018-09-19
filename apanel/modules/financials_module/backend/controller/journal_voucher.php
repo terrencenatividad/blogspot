@@ -31,44 +31,53 @@ class controller extends wc_controller {
 	}
 
 	public function listing() {
-		$this->view->title	= 'Journal Voucher List';
-		$data['ui']			= $this->ui;
+		$this->view->title	= 'Journal Voucher';
+		$data['ui']				= $this->ui;
+		$data['show_input']     = true;
+		$data['source_list']	= array("import"=>"Imported JV","manual"=>"Manual JV","closed"=>"Closed Books");
 		$this->view->load('journal_voucher/journal_voucher_list', $data);
 	}
 
 	public function create() {
-		$this->view->title	= 'Journal Voucher Create';
+		$this->view->title			= 'Create Journal Voucher';
 		$data						= $this->input->post($this->fields);
 		// Retrieve Closed Date
-		$close_date 				= $this->restrict->getClosedDate();
-		$data['close_date']			= $close_date;
-		$data['checker'] 			= 1;
+		$data['close_date']			= $this->restrict->getClosedDate();
+		$data['checker']			= '';
+		$data['display_edit']		= 1;
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
-		$data['proforma_list']		= $this->jv_model->getProformaList();
 		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
 		$data['voucher_details']	= json_encode(array());
 		$data['ajax_task']			= 'ajax_create';
+		$data['proforma_list']		= $this->jv_model->getProformaList($data);
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
-		$data['restrict_jv'] 		= true;
+		$data['restrict_jv']		= true;
 		$this->view->load('journal_voucher/journal_voucher', $data);
 	}
 
 	public function edit($voucherno) {
-		$this->view->title			= 'Journal Voucher  Edit';
+		$this->view->title			= 'Edit Journal Voucher';
 		$data						= (array) $this->jv_model->getJournalVoucherById($this->fields, $voucherno);
 		// Retrieve Closed Date
-		$close_date 				= $this->restrict->getClosedDate();
-		$data['close_date']			= $close_date;
-		$data['checker'] 			= 1;
+		$data['close_date']			= $this->restrict->getClosedDate();
+		$checker 					= isset($data['source']) && !empty($data['source']) ? $data['source'] : "";
+		$data['checker']			= $checker;
 		$status						= $data['stat'];
+		$data['display_edit']		= ($checker!="import" && $checker!="beginning" && $checker!="closing" && $status != 'cancelled') ? 1 : 0;
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui'] = $this->ui;
-		$data['proforma_list'] 		= $this->jv_model->getProformaList();
-		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
 		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno, $status));
+		$coa_array	= array();
+		$hey = json_decode($data['voucher_details']);
+			foreach ($hey as $index => $dtl){
+				$coa			= $dtl->accountcode;
+				$coa_array[]	= $coa;
+			}
+		$data['chartofaccounts']	= $this->jv_model->getEditChartOfAccountList($coa_array);			
 		$data['ajax_task']			= 'ajax_edit';
+		$data['proforma_list']		= $this->jv_model->getProformaList($data);
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
 		$data['restrict_jv'] 		= true;
@@ -76,26 +85,30 @@ class controller extends wc_controller {
 	}
 
 	public function view($voucherno) {
-		$this->view->title			= 'Journal Voucher View';
+		$this->view->title			= 'View Journal Voucher';
 		$data						= (array) $this->jv_model->getJournalVoucherById($this->fields, $voucherno);
 		// Retrieve Closed Date
-		$close_date 				= $this->restrict->getClosedDate();
-		$data['close_date']			= $close_date;
-		$checker 					= isset($data['source']) && !empty($data['source']) 	? 	$data['source'] 	:	"";
+		$data['close_date']			= $this->restrict->getClosedDate();
+		$checker 					= isset($data['source']) && !empty($data['source']) ? $data['source'] : "";
+		$data['checker']			= $checker;
 		$status						= $data['stat'];
-		$display_edit				= ($checker!="import" && $checker!="beginning" && $checker!="closing" && $status != 'cancelled') 	?	1	:	0;
-		$data['checker'] 			= $display_edit;
+		$data['display_edit']		= ($checker!="import" && $checker!="beginning" && $checker!="closing" && $status != 'cancelled') ? 1 : 0;
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui'] = $this->ui;
-		$data['proforma_list']		= $this->jv_model->getProformaList();
-		$data['chartofaccounts']	= $this->jv_model->getChartOfAccountList();
+		$data['ajax_task']			= 'ajax_view';
+		$data['proforma_list']		= $this->jv_model->getProformaList($data);
 		$status 					= $data['stat'];
 		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno,$status));
+		$coa_array	= array();
+		$hey = json_decode($data['voucher_details']);
+			foreach ($hey as $index => $dtl){
+				$coa			= $dtl->accountcode;
+				$coa_array[]	= $coa;
+			}
+		$data['chartofaccounts']	= $this->jv_model->getEditChartOfAccountList($coa_array);		
 		$data['show_input']			= false;
-		$restrict_jv 				= $this->restrict->setButtonRestriction($transactiondate);
-		$data['restrict_jv'] 		= $restrict_jv;
-		
+		$data['restrict_jv']		= $this->restrict->setButtonRestriction($transactiondate);
 		$this->view->load('journal_voucher/journal_voucher', $data);
 	}
 
@@ -118,14 +131,16 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_list() {
-		$data		= $this->input->post(array('search', 'typeid', 'classid', 'daterangefilter', 'sort'));
+		$data		= $this->input->post(array('search', 'typeid', 'classid', 'daterangefilter', 'sort','source','filter'));
 		$sort		= $data['sort'];
 		$search		= $data['search'];
 		$typeid		= $data['typeid'];
 		$classid	= $data['classid'];
 		$datefilter	= $data['daterangefilter'];
+		$source 	= $data['source'];
+		$filter 	= $data['filter'];
 
-		$pagination	= $this->jv_model->getJournalVoucherPagination($this->fields, $search, $sort, $datefilter);
+		$pagination	= $this->jv_model->getJournalVoucherPagination($this->fields, $search, $sort, $datefilter, $source, $filter);
 		$table		= '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
@@ -136,10 +151,12 @@ class controller extends wc_controller {
 			$status				=   $row->stat;
 			//Checker for Imported files or Closing
 			$checker 			=	isset($row->checker) && !empty($row->checker) 		? 	$row->checker 	:	"";
-			$display_edit_delete=  	($checker!="import" && $checker!="beginning" && $checker!="closing" && $status != 'cancelled') 	?	1	:	0;
+			// echo $checker;
+			$display_edit_delete=  	($checker!="import" || $checker!="beginning" || $checker!="closing" ) 	?	1	:	0;
 			
 			//Transaction Dates equivalent to the closing date / period should be deleted first
 			$latest_closed_date = 	$this->restrict->getClosedDate();
+		
 			$date_compare 		= 	($transactiondate == $latest_closed_date) 	?	1	:	0;
 
 			//Checker for restricting for Closing on Edit / Delete [ 0 = within closing period ]
@@ -153,12 +170,16 @@ class controller extends wc_controller {
 					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
 				}
 			$table .= '<tr>';
+				// echo $date_compare."\n\n";
+				// echo $restrict_jv."\n\n";
+				// echo $display_edit_delete."\n\n\n";
+				// echo $status;
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($display_edit_delete && $restrict_jv)
-									->addDelete($date_compare || ($restrict_jv && $display_edit_delete))
+									->addEdit($status != "cancelled" && $display_edit_delete && ($restrict_jv || $date_compare))
+									->addDelete($status != "cancelled" && $display_edit_delete && ($restrict_jv || $date_compare))
 									->addPrint()
-									->addCheckbox($date_compare || ($restrict_jv && $display_edit_delete))
+									->addCheckbox($status != "cancelled" && $display_edit_delete && ($restrict_jv || $date_compare))
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($voucherno)
 									->draw();
@@ -194,8 +215,10 @@ class controller extends wc_controller {
 		$redirect_url = MODULE_URL;
 		if ($submit == 'save_new') {
 			$redirect_url = MODULE_URL . 'create';
-		} else if ($submit == 'save_preview') {
+		} else if ($submit == 'save') {
 			$redirect_url = MODULE_URL . 'view/' . $data['voucherno'];
+		} else if ($submit == 'save_exit') {
+			$redirect_url = MODULE_URL;
 		}
 		return array(
 			'redirect'	=> $redirect_url,

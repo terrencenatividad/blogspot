@@ -9,7 +9,8 @@ class controller extends wc_controller {
 		$this->session			= new session();
 		$this->fields 	= array(
 			'groupname',
-			'description'
+			'description',
+			'status'
 		);
 		$this->access_list = array(
 			'mod_add'		=> 'Create',
@@ -19,7 +20,8 @@ class controller extends wc_controller {
 			'mod_list'		=> 'List',
 			'mod_print'		=> 'Print',
 			'mod_post'		=> 'Post',
-			'mod_unpost'	=> 'Unpost'
+			'mod_unpost'	=> 'Unpost',
+			'mod_close' 	=> 'Close'
 		);
 		$this->data = array();
 		$this->view->header_active = 'maintenance/usergroup/';
@@ -87,17 +89,39 @@ class controller extends wc_controller {
 		}
 		foreach ($pagination->result as $key => $row) {
 			$id = base64_encode($row->groupname);
+
+			$stat = $row->status;
+			if($stat == 'active'){
+				$status = '<span class="label label-success">ACTIVE</span>';								
+			}else{
+				$status = '<span class="label label-warning">INACTIVE</span>';
+			}
+
+			$show_activate 		= ($stat != 'inactive');
+			$show_deactivate 	= ($stat != 'active');
+			
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit()
+									->addOtherTask(
+										'Activate',
+										'arrow-up',
+										$show_deactivate
+									)
+									->addOtherTask(
+										'Deactivate',
+										'arrow-down',
+										$show_activate
+									)	
 									->addDelete()
 									->addCheckbox()
 									->setValue($id)
 									->draw();
-			$table .= '<td align = "center">' . $dropdown . '</td>';
+			$table .= '<td id="groupname" align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $row->groupname . '</td>';
 			$table .= '<td>' . $row->description . '</td>';
+			$table .= '<td>' . $status . '</td>';
 			$table .= '</tr>';
 		}
 		$pagination->table = $table;
@@ -107,6 +131,7 @@ class controller extends wc_controller {
 	private function ajax_create() {
 		$fields = $this->fields;
 		$data = $this->input->post($fields);
+		$data['status'] = 'active';
 		$module_access = $this->input->post('module_access');
 		$result = $this->usergroup_model->saveGroup($data, $module_access);
 		if ($result) {
@@ -155,4 +180,51 @@ class controller extends wc_controller {
 		);
 	}
 
+	private function ajax_edit_activate()
+	{
+		$code = $this->input->post('id');
+		$data['status'] = 'active';
+
+		$result = $this->usergroup_model->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);
+	}
+
+	private function check_stat()
+	{
+		$code = $this->input->post('id');
+		$login		= $this->session->get('login');
+		$groupname 	= $login['groupname'];
+		$data['status'] = 'status';
+
+		$result = $this->usergroup_model->getStat($data,$code);
+		if($result->status == 'active' && $code == $groupname){
+			return array(
+				'redirect'	=> MODULE_URL,
+				'success'	=> true
+				);
+		}
+		else{
+			return array(
+				'redirect'	=> MODULE_URL,
+				'success'	=> false
+				);
+		}
+		
+		
+	}
+	
+	private function ajax_edit_deactivate()
+	{
+		$code = $this->input->post('id');
+		$data['status'] = 'inactive';
+
+		$result = $this->usergroup_model->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+			);		
+	}
 }

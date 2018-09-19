@@ -167,6 +167,9 @@ function show_success_msg(msg)
 {
 	$('#success_modal #message').html(msg);
 	$('#success_modal').modal('show');
+	setTimeout(function() {												
+		window.location = '<?= MODULE_URL ?>';		
+	}, 1000)
 }
 
 $( "#search" ).keyup(function() {
@@ -268,6 +271,7 @@ $(document).ready(function()
 									$(".alert-warning").addClass("hidden");
 									$("#errmsg").html('');
 									show_success_msg('Your Data has been imported successfully.');
+									showList();
 								}else{
 									$('#import-modal').modal('hide');
 									show_error(response.errmsg);
@@ -315,6 +319,26 @@ $(function() {
 	linkDeleteToModal('#supplier_table .delete', 'ajaxCallback');
 	linkDeleteMultipleToModal('#item_multiple_delete', '#supplier_table', 'ajaxCallback');
 });
+
+		$('#supplier_table').on('click', '.activate', function() { 
+					var code = $(this).attr('data-id');
+					$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&partnercode='+code ,function(data) {
+						showList();
+					});
+				});
+
+		$('#supplier_table').on('click', '.deactivate', function() { 
+			$('#deactivate_modal').modal('show');
+			var id = $(this).attr('data-id');
+			
+			$('#deactivate_modal').on('click', '#deactyes', function() {
+				$('#deactivate_modal').modal('hide');
+				
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&partnercode='+id ,function(data) {
+					showList();
+				});
+			});
+		});
 
 $('#export_id').prop('download','supplier.csv');
 

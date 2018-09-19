@@ -172,7 +172,7 @@
 											->setName('issueqty')
 											->setId('issueqty')
 											->setValue('0')
-											->setValidation('required')
+											->setValidation('required integer')
 											->draw();
 								?>
 								<div class='col-md-12'><hr/></div>
@@ -499,6 +499,14 @@
 
 	getList();
 
+	function displayBtn(){
+		$.post('<?=MODULE_URL?>ajax/view_import_button', ajax, function(data) {
+			if(data.display == 0){
+				$('#import').addClass('hidden');
+			}
+		});
+	}
+
 	//Hide the table by default
 	$('.w_selected').hide();
 
@@ -532,8 +540,6 @@
 						$("#adjustForm #btnSave").html('Save');
 						
 						if( data.msg == 'success' ){
-							getList();
-							hide_error();
 							$("#adjModal").modal('hide');
 						}
 					});
@@ -723,6 +729,19 @@
 		getList();
 	});
 
+	$(document).on("shown.bs.modal","#success_modal", function () { 
+		setTimeout(function() {
+			$('#success_modal').modal('hide');
+		},1500);
+		getList();
+	});
+
+	$(document).on('hidden.bs.modal','#adjModal', function () {
+		getList();
+		displayBtn();
+		hide_error();
+	});
+	
 	function checkSecond(sec) {
 		if (sec < 10 && sec >= 0) {sec = "0" + sec}; // add zero in front of numbers < 10
 		if (sec < 0) {sec = "59"};

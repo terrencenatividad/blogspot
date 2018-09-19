@@ -1,36 +1,86 @@
 <?php
 class balance_sheet_model extends wc_model {
 
+	public function __construct() {
+		parent::__construct();
+		$this->period = 1;
+		$this->getPeriodStart();
+	}
+
+	public function getYear() {
+		return $this->year = date('Y');
+	}
+
+	private function getPeriodStart() {
+		$result = $this->db->setTable('company')
+							->setFields(array('taxyear', "MONTH(STR_TO_DATE(periodstart,'%b')) periodstart"))
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+
+		if ($result->taxyear == 'fiscal') {
+			$this->period = $result->periodstart;
+			if ($this->period > date('n')) {
+				$this->year = date('Y') - 1;
+			}
+		}
+	}
+
+	public function getPeriod() {
+		return $this->period;
+	}
+
 	public function getMonthly($year = false) {
-		$year = ($year) ? $year : date('Y');
-		$monthly1	= $this->getRecords("{$year}-01-01", $this->getMonthEnd("{$year}-01-1"));
-		$monthly2	= $this->getRecords("{$year}-02-01", $this->getMonthEnd("{$year}-02-1"));
-		$monthly3	= $this->getRecords("{$year}-03-01", $this->getMonthEnd("{$year}-03-1"));
-		$monthly4	= $this->getRecords("{$year}-04-01", $this->getMonthEnd("{$year}-04-1"));
-		$monthly5	= $this->getRecords("{$year}-05-01", $this->getMonthEnd("{$year}-05-1"));
-		$monthly6	= $this->getRecords("{$year}-06-01", $this->getMonthEnd("{$year}-06-1"));
-		$monthly7	= $this->getRecords("{$year}-07-01", $this->getMonthEnd("{$year}-07-1"));
-		$monthly8	= $this->getRecords("{$year}-08-01", $this->getMonthEnd("{$year}-08-1"));
-		$monthly9	= $this->getRecords("{$year}-09-01", $this->getMonthEnd("{$year}-09-1"));
-		$monthly10	= $this->getRecords("{$year}-10-01", $this->getMonthEnd("{$year}-10-1"));
-		$monthly11	= $this->getRecords("{$year}-11-01", $this->getMonthEnd("{$year}-11-1"));
-		$monthly12	= $this->getRecords("{$year}-12-01", $this->getMonthEnd("{$year}-12-1"));
+		$year	= ($year) ? $year : date('Y');
+		$period	= $this->period;
+		for ($x = 1; $x <= 12; $x++) {
+			if ($period > 12) {
+				$period = 1;
+				$year++;
+			}
+			${"monthly{$x}"} = $this->getRecords("{$year}-{$period}-01", $this->getMonthEnd("{$year}-{$period}-01"));
+			$period++;
+		}
 		return $this->buildStructure(array($monthly1, $monthly2, $monthly3, $monthly4, $monthly5, $monthly6, $monthly7, $monthly8, $monthly9, $monthly10, $monthly11, $monthly12));
 	}
 
 	public function getQuarterly($year = false) {
-		$year		= ($year) ? $year : date('Y');
-		$quarter1	= $this->getRecords("{$year}-01-01", "{$year}-03-31");
-		$quarter2	= $this->getRecords("{$year}-04-01", "{$year}-06-31");
-		$quarter3	= $this->getRecords("{$year}-07-01", "{$year}-09-30");
-		$quarter4	= $this->getRecords("{$year}-10-01", "{$year}-12-31");
+		$year	= ($year) ? $year : date('Y');
+		$period	= $this->period;
+
+		$period_start	= $period;
+		$period_end		= $period_start + 2;
+		$year_start		= $year;
+		$year_end		= $year;
+
+		for ($x = 1; $x <= 4; $x++) {
+			if ($period_start > 11) {
+				$period_start = 1;
+				$year_start++;
+			}
+			if ($period_end > 12) {
+				$period_end -= 12;
+				$year_end++;
+			}
+			${"quarter{$x}"} = $this->getRecords("{$year_start}-{$period_start}-01", $this->getMonthEnd("{$year_end}-{$period_end}-01"));
+
+			$period_start += 3;
+			$period_end += 3;
+		}
 		return $this->buildStructure(array($quarter1, $quarter2, $quarter3, $quarter4));
 	}
 
 	public function getYearly($year = false) {
-		$year	= ($year) ? $year : date('Y');
-		$year1	= $this->getRecords("{$year}-01-01", "{$year}-12-31");
-		$year2	= $this->getRecords(($year - 1) . "-01-01", ($year - 1) . "-12-31");
+		$period_start	= $this->period;
+		$period_end		= (($this->period - 1) < 1) ? 12 : $this->period - 1;
+		$year_start		= ($year) ? $year : date('Y');
+		$year_end		= $year_start;
+		if ($this->period > date('n')) {
+			$year_end++;
+		}
+
+		$year1	= $this->getRecords(($year_start - 1) . "-{$period_start}-01", ($year_end - 1) . "-{$period_end}-31");
+		$year2	= $this->getRecords("{$year_start}-{$period_start}-01", "{$year_end}-{$period_end}-31");
 		return $this->buildStructure(array($year1, $year2));
 	}
 
@@ -113,7 +163,7 @@ class balance_sheet_model extends wc_model {
 		return array($current_earnings, $previous_earnings);
 	}
 
-	public function getYearList() {
+	public function getYearList($year_now) {
 		$year_list	= array();
 		$year_now	= date('Y');
 		for ($year = $year_now; $year > $year_now - 5; $year--) {

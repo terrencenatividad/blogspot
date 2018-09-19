@@ -14,11 +14,11 @@
 		{
 			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (discountcode LIKE '%$search%' OR discountname LIKE '%$search%') " 	: 	"";
 
-			$fields 	=	array("discountcode, discountname, discountdesc");
+			$fields 	=	array("discountcode, discountname, discountdesc,stat");
 
 			return $this->db->setTable('discount')
 							->setFields($fields)
-							->setWhere(" stat = 'active' $add_cond ")
+							->setWhere(" stat != 'deleted' $add_cond ")
 							->setOrderBy($sort)
 							->runPagination();
 		}
@@ -235,5 +235,18 @@
 							//echo $this->db->getQuery();
 			return $result;
 		}
+
+		public function updateStat($data,$code)
+	{
+		$condition 			   = " discountcode = '$code' ";
+
+		$result 			   = $this->db->setTable('discount')
+											->setValues($data)
+											->setWhere($condition)
+											->setLimit(1)
+											->runUpdate();
+
+		return $result;
+	}
 	}
 ?>

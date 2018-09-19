@@ -82,6 +82,7 @@
 								->addHeader('Discount Code',array('class'=>'col-md-3'),'sort','discountcode')
 								->addHeader('Discount Name', array('class'=>'col-md-3'),'sort','discountname')
 								->addHeader('Description',array('class'=>'col-md-3'),'sort','discountdesc')
+								->addHeader('Status',array('class'=>'col-md-3'),'sort','stat')
 								->draw();
 					?>
 				</thead>
@@ -211,10 +212,13 @@ function show_error(msg)
 }
 
 function show_success_msg(msg)
-{
-	$('#success_modal #message').html(msg);
-	$('#success_modal').modal('show');
-}
+	{
+		$('#success_modal #message').html(msg);
+		$('#success_modal').modal('show');
+		setTimeout(function() {												
+			window.location = '<?= MODULE_URL ?>';		
+		}, 1000)
+	}
 
 tableSort('#discount_table', function(value, getlist) {
   	ajax.sort = value;
@@ -431,6 +435,27 @@ $(document).ready(function()
 		showList();
 	});
 });
+
+
+		$('#discount_table').on('click', '.activate', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+				showList();
+			});
+		});
+
+		$('#discount_table').on('click', '.deactivate', function() { 
+			$('#deactivate_modal').modal('show');
+			var id = $(this).attr('data-id');
+			
+			$('#deactivate_modal').on('click', '#deactyes', function() {
+				$('#deactivate_modal').modal('hide');
+				
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+					showList();
+				});
+			});
+		});
 
 $('#export_id').prop('download','discount.csv');
 

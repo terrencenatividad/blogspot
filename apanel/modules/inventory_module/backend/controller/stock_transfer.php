@@ -80,7 +80,6 @@ class controller extends wc_controller
 		$data["cmp"]  		          = COMPANYCODE;
 			
 		$this->view->title 			= 'Stock Transfer Request';
-		$data['warehouse_list']		= $this->stock_transfer->getWarehouseList();
 		$data["item_list"] 			= $this->stock_transfer->getItemList();
 		$data['ajax_task'] 			= 'create';
 		$data['ajax_post']          = '';
@@ -94,6 +93,7 @@ class controller extends wc_controller
 		$data['source']      		= "";
 		$data['stat'] 				= "";
 		$data['row_details'] 		= json_encode(array($this->fields2));
+		$data['warehouse_list']		= $this->stock_transfer->getWarehouseList();		
 
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
@@ -117,7 +117,6 @@ class controller extends wc_controller
 		$data['transactiondate'] = date('M j, Y', strtotime($data['transactiondate']));
 		$data['transferdate']    = date('M j, Y', strtotime($data['transferdate']));
 		$data['ui'] = $this->ui;
-		$data['warehouse_list']		= $this->stock_transfer->getWarehouseList();
 		$data["item_list"] 			= $this->stock_transfer->getItemList();
 		$data['row_details'] = json_encode($this->stock_transfer->getStockTransferDetailsRequest($stocktransferno));
 		$data['ajax_task'] = 'edit';
@@ -125,6 +124,7 @@ class controller extends wc_controller
 		$data['show_input'] = true;
 		$data["task"] 		= "edit";
 		$data['h_site_source'] 	=	$data['source'];
+		$data['warehouse_list']		= $this->stock_transfer->getWarehouseList();
 		
 		$current_stat 		=	$this->stock_transfer->getStat($sid,'stock_transfer');
 		$data['stat'] 		=	$current_stat->stat;
@@ -293,7 +293,7 @@ class controller extends wc_controller
 		$data["custfilter"]         = "";
 		$data['datefilter'] 		= $this->date->datefilterMonth();
 		$data["types"] 				= $this->stock_transfer->getValue("wc_option", array("code ind","value val")," type = 'transfer_type' ","value");	
-		$data["warehouses"] 		= $this->stock_transfer->getValue("warehouse", array("warehousecode ind","description val"),'',"warehousecode");
+		$data["warehouses"] 		= $this->stock_transfer->getValue("warehouse", array("warehousecode ind","description val"),"stat = 'active'","warehousecode");
 
 		$this->view->load('stock_transfer/stocktransfer_list', $data);
 	}

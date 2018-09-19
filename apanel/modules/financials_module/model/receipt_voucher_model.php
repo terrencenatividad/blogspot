@@ -60,7 +60,7 @@ class receipt_voucher_model extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used";
+		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used, overpayment";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -108,7 +108,7 @@ class receipt_voucher_model extends wc_model
 		$temp["vend"] = $retrieveArrayVendor;
 
 		// Retrieve Payments
-		$applicationFields = "app.arvoucherno as vno, app.amount as amt, '0.00' as bal, app.discount as dis, app.credits_used as cred";
+		$applicationFields = "app.arvoucherno as vno, app.amount as amt, '0.00' as bal, app.discount as dis, app.credits_used as cred, app.overpayment as over";
 		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 AND app.stat NOT IN ('cancelled','temporary' )";
 		// echo $sid;
 		$applicationArray = $this->db->setTable('rv_application as app')
@@ -322,18 +322,18 @@ class receipt_voucher_model extends wc_model
 		$rv_cond   = "rv.arvoucherno = main.voucherno AND rv.stat IN('open','posted') AND rv.voucherno = '$voucherno' ";
 
 		// Main Queries
-		$main_table   = "accountsreceivable as main";
-		$main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0)) as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno");
-		$main_join 	  = "partners p ON p.partnercode = main.customer ";
-		$orderby  	  = "main.transactiondate DESC";
+		// $main_table   = "accountsreceivable as main";
+		// $main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0)) as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno");
+		// $main_join 	  = "partners p ON p.partnercode = main.customer ";
+		// $orderby  	  = "main.transactiondate DESC";
 		
 		$rva_cond 	=	($voucherno != "") ?	" AND app.voucherno = '$voucherno'"	:	"";
 
 		$mainTable	= "accountsreceivable as main";
 		$mainFields	= array(
 							"main.voucherno as voucherno", "main.transactiondate as transactiondate",
-							"main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0) - COALESCE(SUM(app.credits_used),0)) as balance", "main.referenceno as referenceno",
-							"SUM(app.convertedamount) as payment","COALESCE(SUM(app.credits_used),0) credits_used"
+							"main.convertedamount as amount", "IF((main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0) - COALESCE(SUM(app.credits_used),0))>0, (main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0) - COALESCE(SUM(app.credits_used),0)),0) as balance", "main.referenceno as referenceno",
+							"SUM(app.convertedamount) as payment","COALESCE(SUM(app.credits_used),0) credits_used","app.overpayment as overpayment"
 						);
 		$mainJoin	= "rv_application AS app ON app.arvoucherno = main.voucherno AND app.stat IN('open','posted') $rva_cond ";
 		$groupBy 	= "main.voucherno";
@@ -343,7 +343,6 @@ class receipt_voucher_model extends wc_model
 										->setFields($rv_fields)
 										->setWhere($rv_cond)
 										->buildSelect();
-
 		if($customercode && empty($voucherno)){
 			$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND main.balance != 0 ";
 			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $groupBy);
@@ -362,17 +361,6 @@ class receipt_voucher_model extends wc_model
 	{
 		$cond  		= (isset($data["cond"]) && !empty($data["cond"])) ? $data["cond"]: "";
 		$customercode = (isset($data["customer"]) && !empty($data["customer"])) ? $data["customer"]: "";
-
-		/*
-			SELECT main.voucherno as voucherno, main.transactiondate as transactiondate, main.convertedamount as amount, main.balance as balance, p.partnername AS vendor_name, main.referenceno as referenceno, apd.accountcode, chart.accountclasscode, SUM(apd.credit), apd.debit, apd.detailparticulars 
-			FROM accountspayable as main 
-			LEFT JOIN ap_details AS apd ON main.voucherno = apd.voucherno AND main.companycode = apd.companycode
-			LEFT JOIN chartaccount AS chart ON apd.accountcode = chart.id AND chart.companycode = apd.companycode
-			LEFT JOIN partners p ON p.partnercode = main.vendor 
-			WHERE main.stat = 'posted' AND main.vendor = 'SUP_003' AND main.companycode = 'CID' AND chart.accountclasscode = "ACCPAY" AND apd.voucherno IN("AP0000000002", "AP0000000003")
-			GROUP BY apd.accountcode
-			ORDER BY main.transactiondate DESC
-		*/
 
 		// Main Queries
 		$main_table   = "accountsreceivable as main";
@@ -445,16 +433,17 @@ class receipt_voucher_model extends wc_model
 		return $result;
 	}
 
-	public function getValue($table, $cols = array(), $cond = "", $orderby = "", $bool = "", $groupby = "")
+	public function getValue($table, $cols = array(), $cond = "", $orderby = "", $bool = "", $groupby = "", $join="")
 	{
 		$result = $this->db->setTable($table)
 					->setFields($cols)
 					->setWhere($cond)
+					->leftJoin($join)
 					->setOrderBy($orderby)
 					->setGroupBy($groupby)
 					->runSelect($bool)
 					->getResult();
-
+		// echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -713,7 +702,7 @@ class receipt_voucher_model extends wc_model
 
 			if(!$insertResult){
 				$code 		= 0;
-				$errmsg[] 	= "<li>Error in Saving Receipt Voucher Header.</li>";
+				$errmsg[] 	= "<li>Error in Saving Official Receipt Header.</li>";
 			}	
 		}
 		else
@@ -725,7 +714,7 @@ class receipt_voucher_model extends wc_model
 
 			if(!$insertResult){
 				$code 		= 0;
-				$errmsg[] = "<li>Error in Updating Receipt Voucher Header.</li>";
+				$errmsg[] = "<li>Error in Updating Official Receipt Header.</li>";
 				}
 		}
 
@@ -766,6 +755,7 @@ class receipt_voucher_model extends wc_model
 				$amount 	= $pickedValue['amt'];
 				$discount 	= $pickedValue['dis'];
 				$credits 	= $pickedValue['cred'];
+				$excess 	= $pickedValue['over'];
 				
 				$ret_bal	= $this->getValue("accountsreceivable", array("balance"), "voucherno = '$payable' AND stat NOT IN ('temporary','cancelled') ");
 				$balance 	= isset($ret_bal[0]->balance) 	?	$ret_bal[0]->balance 	:	0;
@@ -773,10 +763,11 @@ class receipt_voucher_model extends wc_model
 				$amount 	= str_replace(',','',$amount);
 				$discount 	= str_replace(',','',$discount);
 				$credits 	= str_replace(',','',$credits);
+				$excess 	= str_replace(',','',$excess);
 				
 				$totalamount+=$amount;
 				$total_credits_used+=$credits;
-
+				
 				$post_application['voucherno']			= $voucherno;
 				$post_application['transtype']			= 'RV';
 				$post_application['linenum']			= $iApplicationLineNum;
@@ -784,7 +775,7 @@ class receipt_voucher_model extends wc_model
 				$post_application['discount']			= $discount;
 				$post_application['amount']		 		= $amount;
 				$post_application['credits_used'] 		= $credits;
-				$post_application['overpayment'] 		= ($overpayment > 0) ? $amount - $balance : 0;
+				$post_application['overpayment'] 		= ($overpayment > 0) ? $excess : 0;
 				$post_application['currencycode']		= 'PHP';
 				$post_application['exchangerate']		= '1.00';
 				$post_application['convertedamount']	= $amount;
@@ -830,7 +821,7 @@ class receipt_voucher_model extends wc_model
 								
 				if(!$insertResult){
 					$code 		= 0;
-					$errmsg[] 	= "<li>Error in Saving Receipt Voucher Details.</li>";
+					$errmsg[] 	= "<li>Error in Saving Official Receipt Details.</li>";
 				}
 	
 				$this->db->setTable($applicationTable)
@@ -844,7 +835,7 @@ class receipt_voucher_model extends wc_model
 							
 				if(!$insertResult){
 					$code 		= 0;
-					$errmsg[] 	= "<li>Error in Updating Receipt Voucher Application.</li>";
+					$errmsg[] 	= "<li>Error in Updating Official Receipt Application.</li>";
 				}
 			}else if(!empty($isAppDetailExist)){
 				$insertResult = $this->db->setTable($detailAppTable) 
@@ -853,7 +844,7 @@ class receipt_voucher_model extends wc_model
 									
 				if(!$insertResult){
 					$code 		= 0;
-					$errmsg[] 	= "<li>Error in Updating Receipt Voucher Details.</li>";
+					$errmsg[] 	= "<li>Error in Updating Official Receipt Details.</li>";
 				}
 	
 				$insertResult = $this->db->setTable($applicationTable) 
@@ -862,7 +853,7 @@ class receipt_voucher_model extends wc_model
 	
 				if(!$insertResult){
 					$code 		= 0;
-					$errmsg[] 	= "<li>Error in Updating Receipt Voucher Application.</li>";
+					$errmsg[] 	= "<li>Error in Updating Official Receipt Application.</li>";
 				}
 			}
 				
@@ -877,7 +868,7 @@ class receipt_voucher_model extends wc_model
 	
 			if(!$insertResult){
 				$code 		= 0;
-				$errmsg[] 	= "<li>Error in Updating Receipt Voucher Header.</li>";
+				$errmsg[] 	= "<li>Error in Updating Official Receipt Header.</li>";
 			}	
 		}
 		
@@ -895,7 +886,7 @@ class receipt_voucher_model extends wc_model
 
 				if(!$insertResult){
 					$code 		= 0;
-					$errmsg[] = "<li>Error in Saving in Cheque Details.</li>";
+					$errmsg[] = "<li>Error in Saving in Check Details.</li>";
 				}
 			}
 		}
@@ -911,6 +902,7 @@ class receipt_voucher_model extends wc_model
 				$amount 					= $pickedValue['amt'];
 				$discount 					= $pickedValue['dis'];
 				$credits 					= $pickedValue['cred'];
+				$excess 					= $pickedValue['over'];
 
 				$data['avoucherno'] 		= $payable;
 
@@ -945,7 +937,7 @@ class receipt_voucher_model extends wc_model
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
 
 				$balance_info['amountreceived']	= $applied_sum;
-				$balance_info['excessamount'] 	= $overpayment;
+				$balance_info['excessamount'] 	= $excess;
 				$balance_amt 					= $invoice_amount - $applied_sum;
 				$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;
 				
@@ -1757,7 +1749,7 @@ class receipt_voucher_model extends wc_model
 					->runUpdate();
 			
 			if(!$result){
-				$errmsg[] = "The system has encountered an error in updating Receipt Voucher [$payments]. Please contact admin to fix this issue.";
+				$errmsg[] = "The system has encountered an error in updating Official Receipt [$payments]. Please contact admin to fix this issue.";
 			}else{
 				$this->log->saveActivity(ucfirst($type)." Receipt Vouchers [".str_replace("'","",$payments)."]");
 			}
@@ -1888,5 +1880,55 @@ class receipt_voucher_model extends wc_model
 		// echo $result;
 
 		return $result;
+	}
+
+	public function retrievebank($table, $fields = array(), $cond = "", $ijoin = "", $orderby = "", $groupby = "")
+	{
+		$result = $this->db->setTable($table)
+					->setFields($fields)
+					->innerJoin($ijoin)
+					->setGroupBy($groupby)
+					->setWhere($cond)
+					->setOrderBy($orderby)
+					->runSelect()
+					->getResult();
+		return $result;
+	}
+
+	public function getValues($table, $cols = array(), $cond = "", $orderby = "", $bool = "" )
+	{
+		$result = $this->db->setTable($table)
+					->setFields($cols)
+					->setWhere($cond)
+					->setOrderBy($orderby)
+					->runSelect($bool)
+					->getResult();
+					
+		return $result;
+	}
+
+	public function getTax($table, $cols = array(), $join = "" ,$cond = "", $orderby = "", $bool = "" )
+	{
+		$result = $this->db->setTable($table)
+					->setFields($cols)
+					->innerJoin($join)
+					->setWhere($cond)
+					->setOrderBy($orderby)
+					->runSelect($bool)
+					->getResult();
+					
+		return $result;
+	}
+
+	public function getAccount($tax_account){
+		$result = $this->db->setTable('atccode a')
+					->setFields("tax_rate,tax_account")
+					->leftJoin("chartaccount c ON c.id = a.tax_account ")
+					->setWhere("atcId = '$tax_account'")
+					->runSelect()
+					->getResult();
+		return $result;
+
+
 	}
 }

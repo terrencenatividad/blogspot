@@ -29,7 +29,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Effectivity Date')
+								->setLabel('Effectivity Date ')
 								->setSplit('col-md-3', 'col-md-8')
 								->setName('effectivedate')
 								->setId('effectivedate')
@@ -44,7 +44,7 @@
                     <div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-									->setLabel('Exchange Rate')
+									->setLabel('Exchange Rate ')
 									->setSplit('col-md-3', 'col-md-8')
 									->setName('exchangerate')
 									->setId('exchangerate')
@@ -59,7 +59,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Base Currency')
+								->setLabel('Base Currency ')
 								->setPlaceholder('Filter Currency')
 								->setSplit('col-md-3', 'col-md-8')
 								->setName('basecurrencycode')
@@ -73,7 +73,7 @@
                     <div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Exchange Currency')
+								->setLabel('Exchange Currency ')
 								->setPlaceholder('Filter Currency')
 								->setSplit('col-md-3', 'col-md-8')
 								->setName('exchangecurrencycode')
@@ -133,7 +133,10 @@ $('#rateForm #btnSave').on('click',function(){
 		$.post('<?=BASE_URL?>maintenance/exchange_rate/ajax/<?=$task?>', $('#rateForm').serialize()+ '<?=$ajax_post?>', function(data) {
 			if( data.msg == 'success' )
 			{
-				window.location = '<?php echo BASE_URL . 'maintenance/exchange_rate'; ?>';
+				$('#delay_modal').modal('show');
+					setTimeout(function() {							
+						window.location = '<?php echo BASE_URL . 'maintenance/exchange_rate'; ?>';											
+				}, 1000)
 			}
 		});
 	}

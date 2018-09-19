@@ -62,7 +62,7 @@ class atccode_class extends wc_model
 											OR short_desc LIKE '%$search%') " : "";
 		$add_query .= (!empty($addCond)) ? ((!empty($search))? "AND ".$addCond: $addCond) : "";
 
-		$sort 	   = (!empty($sort)) ? $sort : "atcId desc";
+		$sort 	   = (!empty($sort)) ? $sort : "atcId DESC";
 		$leftJoin  = "chartaccount c ON a.tax_account = c.id";
 
 		$result = $this->db->setTable('atccode a')
@@ -136,10 +136,27 @@ class atccode_class extends wc_model
 		$result = $this->db->setTable('atccode')
 		 					->setValues($value)
 							 ->runInsert();
-							 echo $this->db->getQuery();
 		if ($result) {
 		 	$this->log->saveActivity("Import ATC Codes");
 		 }
+
+		return $result;
+	}
+
+	public function check_duplicate($current)
+	{
+		return $this->db->setTable('atccode')
+						->setFields('COUNT(atc_code) count')
+						->setWhere(" atc_code = '$current'")
+						->runSelect()
+						->getResult();
+	}
+
+	public function importATC($data)
+	{
+		$result = $this->db->setTable('atccode')
+				->setValuesFromPost($data)
+				->runInsert();
 
 		return $result;
 	}
@@ -170,6 +187,19 @@ class atccode_class extends wc_model
 		$result =   $this->db->runSelect($addon)
 					->getResult();
 					//->buildSelect();
+
+		return $result;
+	}
+
+	public function updateStat($data,$code)
+	{
+		$condition 			   = " atcId = '$code' ";
+
+		$result 			   = $this->db->setTable('atccode')
+											->setValues($data)
+											->setWhere($condition)
+											->setLimit(1)
+											->runUpdate();
 
 		return $result;
 	}

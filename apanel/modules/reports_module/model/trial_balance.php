@@ -20,9 +20,9 @@ class trial_balance extends wc_model {
 		$credit 	= 0;
 		$currentyear= date("Y",strtotime($fromdate));
 
-		$fetch_debit  = $this->getValue("balance_table","SUM(debit) as debit"," accountcode = '$account' AND YEAR(transactiondate) = $currentyear AND transactiondate <= '$fromdate'");
+		$fetch_debit  = $this->getValue("balance_table","SUM(debit) as debit"," accountcode = '$account' AND YEAR(transactiondate) = $currentyear AND transactiondate < '$fromdate'");
 		$debit		  = $fetch_debit[0]->debit;
-		$fetch_credit = $this->getValue("balance_table","SUM(credit) as credit"," accountcode = '$account' AND YEAR(transactiondate) = $currentyear AND transactiondate <= '$fromdate'");
+		$fetch_credit = $this->getValue("balance_table","SUM(credit) as credit"," accountcode = '$account' AND YEAR(transactiondate) = $currentyear AND transactiondate < '$fromdate'");
 		$credit       = $fetch_credit[0]->credit;
 		return ($debit > $credit) ? $debit - $credit : -($credit - $debit);
 	}
@@ -206,6 +206,10 @@ class trial_balance extends wc_model {
 					$link		= '<a href="' . BASE_URL. 'financials/payment/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
 				}else if($transtype == 'JV'){
 					$link		= '<a href="' . BASE_URL .'financials/journal_voucher/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
+				}else if($transtype == 'IT'){
+					$source		= $this->getValue("journalvoucher",array("referenceno"),"voucherno = '$voucher'");
+					$source     = ($source) ? $source[0]->referenceno : $voucher;
+					$link		= '<a href="' . BASE_URL .'sales/delivery_receipt/view/'.$source .'" target="_blank">'.$source.'</a>';
 				}else if($transtype == 'DM'){
 					$documentno = $this->getValue("journalvoucher",array("sourceno")," voucherno = '$voucher'");
 					$documentno = $documentno[0]->sourceno;
@@ -227,8 +231,8 @@ class trial_balance extends wc_model {
 				$tablerow	.= '<tr>';
 				$tablerow	.= '<td style="vertical-align:middle;" >&nbsp;'.$link.'</td>';
 				$tablerow	.= '<td class=" center" style="vertical-align:middle;" >&nbsp;'.$transactiondate.'</td>';
-				$tablerow	.= '<td class=" right" style="vertical-align:middle;" >'.number_format($debit,2).'</td>';
-				$tablerow	.= '<td class=" right" style="vertical-align:middle;" >'.number_format($credit,2).'</td>';
+				$tablerow	.= '<td class=" text-right" style="vertical-align:middle;" >'.number_format($debit,2).'</td>';
+				$tablerow	.= '<td class=" text-right" style="vertical-align:middle;" >'.number_format($credit,2).'</td>';
 				$tablerow	.= '</tr>';
 			
 			}
@@ -373,7 +377,7 @@ class trial_balance extends wc_model {
 
 	public function save_journal_voucher($data){	
 		$generatedvoucher 	=	isset($data['voucher']) 			?	$data['voucher'] 			: 	"";
-		$reference 			=	isset($data['reference']) 			?	$data['reference'] 			: 	"";
+		// $reference 			=	isset($data['reference']) 			?	$data['reference'] 			: 	"";
 		$warehouse 			=	isset($data['warehouse']) 			?	$data['warehouse'] 			: 	"";
 		$lastdayofdate 		=	isset($data['datefrom']) 			?	$data['datefrom'] 			: 	"";
 		$remarks 			=	isset($data['notes']) 				? 	$data['notes'] 				: 	"";
@@ -409,6 +413,9 @@ class trial_balance extends wc_model {
 				$h_total_debit 		+=	$debit;
 			}
 		} 
+
+		$str_month 	=	date('F', strtotime($lastdayofdate));
+		$reference	=	"Closing for $str_month, $year";
 
 		$header['voucherno'] 		=	$generatedvoucher;
 		$header['transtype'] 		=	"JV";
@@ -567,6 +574,23 @@ class trial_balance extends wc_model {
 		return $result;
 	}
 
+	private function getPeriodStart() {
+		$result = $this->db->setTable('company')
+							->setFields(array('taxyear', "MONTH(STR_TO_DATE(periodstart,'%b')) periodstart"))
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+
+		// if ($result->taxyear == 'fiscal') {
+		// 	$this->period = $result->periodstart;
+		// 	if ($this->period > date('n')) {
+		// 		$this->year = date('Y') - 1;
+		// 	}
+		// }
+
+		return $result;
+	}
+
 	public function getChartAccountList() {
 		// $cond 	=	(!empty($cond_value)) 	?	" accountname LIKE '%$cond_value%' " 	:	"";
 		return $this->db->setTable('chartaccount c')
@@ -617,10 +641,11 @@ class trial_balance extends wc_model {
 		return $result;
 	}
 
-	public function update_jv_status($voucherno) {
-		$data["stat"]   = "posted";
+	public function update_jv_status($temp, $voucherno) {
+		$data["stat"]   	= "posted";
+		$data['voucherno'] 	= $voucherno;
 
-		$condition 		= " voucherno = '$voucherno' ";
+		$condition 		= " voucherno = '$temp' ";
 
 		$result 		= $this->db->setTable('journalvoucher')
 									->setValues($data)
@@ -646,6 +671,7 @@ class trial_balance extends wc_model {
 									->setValues($data)
 									->setWhere($condition)
 									->runUpdate();
+									
 		return $result;
 	}
 
@@ -782,6 +808,7 @@ class trial_balance extends wc_model {
 									->setLimit(1)
 									->runSelect()
 									->getRow();
+									// echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -806,6 +833,16 @@ class trial_balance extends wc_model {
 									->setWhere("companycode = 'CID'")
 									->runSelect()
 									->getRow();
+		return $result;
+	}
+
+	public function retrieveAccess($groupname){
+		$result = $this->db->setTable("wc_module_access")
+					->setFields(array("mod_add","mod_view","mod_edit","mod_delete","mod_list","mod_print","mod_post","mod_unpost","mod_close"))
+					->setWhere("groupname = '$groupname' AND companycode = 'CID' AND module_name = 'Trial Balance'")
+					->setLimit(1)
+					->runSelect()
+					->getResult();
 		return $result;
 	}
 }	
