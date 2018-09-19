@@ -1614,7 +1614,7 @@ class payment_voucher_model extends wc_model
 			$result = $this->db->setTable('bankdetail bd')
 							->setFields(array('bd.firstchequeno', 'bd.lastchequeno', 'bd.nextchequeno', 'cc.firstcancelled', 'cc.lastcancelled'))
 							->leftJoin('cancelled_checks cc ON cc.firstchequeno = bd.firstchequeno AND cc.lastchequeno = bd.lastchequeno')
-							->setWhere("bd.bank_id = '$bank_id'")
+							->setWhere("bd.bank_id = '$bank_id' and bd.stat = 'open' ")
 							->setOrderBy('firstchequeno')
 							->runSelect()
 							->getResult();
@@ -1675,17 +1675,22 @@ class payment_voucher_model extends wc_model
 		foreach ($result as $value) {
 			$first = $value->firstchequeno;
 			$last = $value->lastchequeno;
-			if ( ($first <= $cno && $cno >= $first)  &&  ($last <= $cno && $cno >= $last)){
+			if (($cno > $last)){
 				$data['stat'] 		=  'closed'; 
 				$data['nextchequeno'] = $cno + 1;
-				$con = "AND $cno NOT BETWEEN firstchequeno AND lastchequeno";
-			} else {
+				$con = "AND $cno > lastchequeno";
+			} 
+			if($last == $cno){
+				$data['stat'] 		=  'closed'; 
+				$con = "AND $cno = lastchequeno";
+			} 
+			if($cno < $last){
 				$data['stat'] 		=  'open'; 
-				$con = "AND $cno BETWEEN firstchequeno AND lastchequeno";
+				$data['nextchequeno'] = $cno + 1;
+				$con = "AND $cno < lastchequeno";
 			}
 
 			if ($first && $last){
-					$data['nextchequeno'] = $cno + 1;
 					$result = $this->db->setTable("bankdetail") 
 										->setValues($data)
 										->setWhere("bank_id = '$getBank' $con")

@@ -113,6 +113,7 @@
 								->addHeader('Check Date',array('class'=>'col-md-1 center'),'sort','chq.chequedate')
 								->addHeader('Check Number', array('class'=>'col-md-1 center'),'sort','chq.chequenumber')
 								->addHeader('Invoice No.',array('class'=>'col-md-1 center'),'sort','ap.invoiceno')
+								->addHeader('Voucher No.',array('class'=>'col-md-1 center'),'sort','chq.voucherno')
 								->addHeader('Bank',array('class'=>'col-md-2 center'),'sort','coa.accountname')
 								->addHeader('Partner',array('class'=>'col-md-1 center'),'sort','pt.partnername')
 								->addHeader('Amount',array('class'=>'col-md-1 center'),'sort','chq.chequeamount')

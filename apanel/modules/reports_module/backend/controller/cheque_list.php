@@ -188,7 +188,7 @@ class controller extends wc_controller {
 			foreach ($pagination->result as $key => $row) {
 				$releasedate 		=	isset($row->releasedate) ?	$this->date->dateFormat($row->releasedate) 	: 	"";
 				$chequenumber  		=	$row->chequenumber;
-				$invoiceno 			=	$row->voucherno;
+				$invoiceno 			=	$row->invoiceno;
 				$voucherno 			=	$row->voucherno;
 				$chequedate 		=	$row->chequedate;
 				$bankname 	 		=	$row->bank;
@@ -228,6 +228,7 @@ class controller extends wc_controller {
 				$table .= '<td>' . $this->date->dateFormat($chequedate) 	. '</td>';
 				$table .= '<td>' . $chequenumber 	. '</td>';
 				$table .= '<td>' . $invoiceno 		. '</td>';
+				$table .= '<td>' . $voucherno 		. '</td>';
 				$table .= '<td>' . $bankname 		. '</td>';
 				$table .= '<td>' . $partnername 	. '</td>';
 				$table .= '<td class="text-right">' . number_format($chequeamount,2) . '</td>';

@@ -2444,7 +2444,8 @@ function selectPayable(id,toggle){
 	var newbal  		= $('#payable_list_container #orig_bal'+id).attr('value');
 	var available_credit= $('#paymentForm #available_credits').val();	
 	var overpayment 	= $('#payable_list_container #overpayment'+id).val();
-
+		overpayment 	= parseFloat(overpayment) || 0;
+	// console.log("OVER = "+overpayment);
 	if(check.prop('checked' )){
 		if(toggle == 1){
 			check.prop('checked', false);
@@ -2633,7 +2634,7 @@ function checkBalance(val,id){
 
 	if(error == 0){
 		dueamount 	=	(excess_payment > 0) 	?	 0	:	dueamount;
-
+		// console.log("IND OVER = "+ind_excess);
 		add_storage(id,dueamount,discount,credit_used,ind_excess);
 		addPaymentAmount();	
 	}
