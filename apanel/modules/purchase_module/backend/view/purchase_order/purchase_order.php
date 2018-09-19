@@ -495,8 +495,8 @@
 						</tr>	
 
 						<tr id="total_purchase">
-							<td colspan = '5'></td>
-							<td class="right">
+							<td colspan = '4'></td>
+							<td colspan = '2' class="right">
 								<label class="control-label col-md-12">Total purchase</label>
 							</td>
 							<td class="text-right" style="border-top:1px solid #DDDDDD;">
