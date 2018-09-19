@@ -136,6 +136,18 @@
 					
 			return $result;
 		}
+
+		public function check_stat($type, $cno){
+
+			$result = $this->db->setTable('pv_cheques pvc')
+					->setFields("pv.voucherno voucherno,pv.stat stat,chequenumber,pv.transtype")
+					->leftJoin("paymentvoucher pv ON pv.voucherno = pvc.voucherno")
+					->setWhere("chequenumber = '$cno' AND pv.transtype = '$type'")
+					->runSelect()
+					->getResult();
+			return $result;
+
+		}
 	}	
 
 ?>
