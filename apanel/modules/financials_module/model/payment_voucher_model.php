@@ -1614,7 +1614,7 @@ class payment_voucher_model extends wc_model
 			$result = $this->db->setTable('bankdetail bd')
 							->setFields(array('bd.firstchequeno', 'bd.lastchequeno', 'bd.nextchequeno', 'cc.firstcancelled', 'cc.lastcancelled'))
 							->leftJoin('cancelled_checks cc ON cc.firstchequeno = bd.firstchequeno AND cc.lastchequeno = bd.lastchequeno')
-							->setWhere("bd.bank_id = '$bank_id'")
+							->setWhere("bd.bank_id = '$bank_id' and bd.stat = 'open' ")
 							->setOrderBy('firstchequeno')
 							->runSelect()
 							->getResult();
