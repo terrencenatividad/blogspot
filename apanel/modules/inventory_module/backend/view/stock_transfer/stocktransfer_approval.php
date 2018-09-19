@@ -170,7 +170,7 @@
 				<div class="row">
 					<div class="col-md-12 text-center" id="submit-box">
 					<?php if ($task == "release" || $task == 'edit_approval'): ?>
-						<button type="button" id="btnRelease" class="btn btn-info btn-sm btn-flat">Save</button>
+						<button type="button" id="btnRelease" class="btn btn-primary btn-sm btn-flat">Save</button>
 					<?php elseif ($task == "received"): ?>	
 							<button type="button" id="btnReceive" class="btn btn-success btn-sm btn-flat">Receive</button>
 					<? endif; ?>	

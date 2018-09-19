@@ -85,7 +85,7 @@
 		
 		public function retrieveListing($data)
 		{
-			$fields 			= array('po.voucherno', 'p.partnername as vendor', 'po.referenceno', 'po.request_no', 'po.transactiondate','po.stat','po.netamount','(po.netamount - (pr.netamount + pr.discountamount + pr.wtaxamount)) as balance');
+			$fields 			= array('po.voucherno', 'p.partnername as vendor', 'po.referenceno', 'po.request_no', 'po.transactiondate','po.stat','po.netamount','(po.netamount - IFNULL(pr.received_amount,0)) as balance');
 
 			$daterangefilter 	= isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
 			$vendfilter      	= isset($data['vendor']) ? htmlentities($data['vendor']) : ""; 
