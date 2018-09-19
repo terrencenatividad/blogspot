@@ -148,7 +148,7 @@
 						</div> -->
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
-							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
 						</div>
 					</div>
 				</div>
