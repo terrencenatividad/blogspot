@@ -209,7 +209,7 @@
 							<div class="box-body">
 								<hr>
 								<div class="row">
-									<div class="col-md-12 text-center">
+									<div class="col-md-12 text-center" id="saving_buttons">
 										<?php 
 										if($restrict_cm && $status != 'cancelled'){
 											if($ajax_task == 'ajax_create' ){
@@ -553,6 +553,9 @@ echo $ui->loadElement('modal')
 					if (form_element.closest('form').find('.form-group.has-error').length == 0) {
 						$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' + '&finalized=finalized' + submit_data, function(data) {
 							if (data.success) {
+								$('#save').prop('disabled',true);
+								$('#save_options').find('button').prop('disabled',true);
+								$('#saving_buttons').find('.cancel').addClass('disabled',true);
 								$('#delay_modal').modal('show');
 								setTimeout(function() {							
 									window.location = data.redirect;						
@@ -580,7 +583,9 @@ echo $ui->loadElement('modal')
 					if (form_element.closest('form').find('.form-group.has-error').length == 0) {
 						$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' + '&finalized=finalized' + submit_data, function(data) {
 							if (data.success) {
-								$('#delay_modal').modal('show');
+								$('#save').prop('disabled',true);
+								$('#save_options').find('button').prop('disabled',true);
+								$('#saving_buttons').find('.cancel').addClass('disabled',true);
 								setTimeout(function() {							
 									window.location = data.redirect;						
 								}, 1000)
@@ -607,6 +612,9 @@ echo $ui->loadElement('modal')
 					if (form_element.closest('form').find('.form-group.has-error').length == 0) {
 						$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' + '&finalized=finalized' + submit_data, function(data) {
 							if (data.success) {
+								$('#save').prop('disabled',true);
+								$('#save_options').find('button').prop('disabled',true);
+								$('#saving_buttons').find('.cancel').addClass('disabled',true);
 								$('#delay_modal').modal('show');
 								setTimeout(function() {							
 									window.location = data.redirect;						
@@ -635,6 +643,8 @@ echo $ui->loadElement('modal')
 					if (form_element.closest('form').find('.form-group.has-error').length == 0) {
 						$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' + '&finalized=finalized' + submit_data, function(data) {
 							if (data.success) {
+								$('#saving_buttons').find('button').prop('disabled',true);
+								$('#saving_buttons').find('.cancel').prop('disabled',true);
 								$('#delay_modal').modal('show');
 								setTimeout(function() {							
 									window.location = data.redirect;						
