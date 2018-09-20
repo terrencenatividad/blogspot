@@ -497,7 +497,7 @@
 						<tr id="total_purchase">
 							<td colspan = '4'></td>
 							<td colspan = '2' class="right">
-								<label class="control-label col-md-12">Total purchase</label>
+								<label class="control-label col-md-12">Total Purchase</label>
 							</td>
 							<td class="text-right" style="border-top:1px solid #DDDDDD;">
 								<?php
@@ -511,7 +511,7 @@
 											->draw($show_input);
 								?>
 							</td>
-							<td></td>
+							<?if($show_input):?><td></td><?endif;?>
 						</tr>
 
 						<tr id="discount" class='hidden'>
