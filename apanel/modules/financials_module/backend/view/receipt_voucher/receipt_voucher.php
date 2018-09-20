@@ -2071,29 +2071,34 @@ function cancelTransaction(vno){
 /**TOGGLE CHECK DATE FIELD**/
 function toggleCheckInfo(val){
 	var selected_rows = $("#selected_rows").html();
+	var is_ap 	= $('#ap_checker').is(':checked');
+		is_ap 	= (is_ap == true) ? "true" 	:	"false";
 
 	if(val == 'cheque'){
 		if(selected_rows != '[]'){
 			$("#payableForm #cheque_details").removeClass('hidden');
 		}else{
-			
-			var list 	= (customer != '') ? "<ul><li>Total Receivables</li></ul>" : "<ul><li>Vendor</li><li>Total Receivables</li></ul>";
-			var msg 	= "The following fields are required to process a '<strong>Check</strong>' payment."+list;
-			bootbox.dialog({
-				message: msg,
-				title: "Oops!",
-				buttons: {
-					yes: {
-						label: "Ok",
-						className: "btn-primary btn-flat",
-						callback: function(result) {
-							$("#payableForm #paymentmode").val('cash');
-							$('#payableForm #paymentmode').select2('destroy');
-							$('#payableForm #paymentmode').select2({width: "100%"});
+			if(is_ap == "false"){
+				var list 	= (customer != '') ? "<ul><li>Total Receivables</li></ul>" : "<ul><li>Vendor</li><li>Total Receivables</li></ul>";
+				var msg 	= "The following fields are required to process a '<strong>Check</strong>' payment."+list;
+				bootbox.dialog({
+					message: msg,
+					title: "Oops!",
+					buttons: {
+						yes: {
+							label: "Ok",
+							className: "btn-primary btn-flat",
+							callback: function(result) {
+								$("#payableForm #paymentmode").val('cash');
+								$('#payableForm #paymentmode').select2('destroy');
+								$('#payableForm #paymentmode').select2({width: "100%"});
+							}
 						}
 					}
-				}
-			});
+				});
+			} else {
+				$("#payableForm #cheque_details").removeClass('hidden');
+			}
 		}
 	} else {
 		//For Reseting initial PV & Cheque Details
@@ -4108,7 +4113,9 @@ $(document).ready(function() {
 		var flag 	= 1;
 		
 		var account = $(this).val();
-
+		//Advance Payment Checker
+		var is_ap 	= $('#ap_checker').is(':checked');
+			is_ap 	= (is_ap == true) ? "true" 	:	"false";
 		if( account != "" ){
 			$(this).closest('tr').find('.h_accountcode').val(account);
 			if( customer == "" ){
@@ -4125,7 +4132,7 @@ $(document).ready(function() {
 						}
 					}
 				});
-			} else if( payable == "[]"){
+			} else if( payable == "[]" && is_ap == "false" ){
 				bootbox.dialog({
 					message: "Please tag Receivables first.",
 					title: "Oops!",
@@ -4211,9 +4218,7 @@ $(document).ready(function() {
 		}
 
 	});
-	// $('#payableForm').on('ifChecked','#ap_checker', function(e){
 
-	// });	
 }); // end
 
 </script>
