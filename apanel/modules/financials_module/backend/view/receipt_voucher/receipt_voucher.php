@@ -130,6 +130,21 @@
 							</div>
 						</div>
 						<div class="row">
+							<div class="col-md-6"></div>
+							<div class="col-md-6">
+								<?php
+									echo $ui->formField('checkbox')
+											->setLabel('Advance Payment')
+											->setSplit('col-md-4', 'col-md-8')
+											->setName('ap_checker')
+											->setId('ap_checker')
+											->setDefault('advance')
+											->setValue('')
+											->draw($show_input);
+								?>
+							</div>
+						</div>
+						<div class="row">
 							<div class = "col-md-12">
 								<?php
 								echo $ui->formField('textarea')
@@ -4164,46 +4179,41 @@ $(document).ready(function() {
 	});
 
 	//validation for Credit Amount
-	// $('#credit_input').on('change',function(){
-	// 	var available_credits =	$('#available_credits').val();
-	// 	var input 	= $(this).val();
+	$('#credit_input').on('change',function(){
+		var available_credits =	$('#available_credits').val();
+		var input 	= $(this).val();
 
-	// 	input 				=	removeComma(input);
-	// 	available_credits 	=	removeComma(available_credits);
+		input 				=	removeComma(input);
+		available_credits 	=	removeComma(available_credits);
 
-	// 	console.log("Available "+available_credits);
-	// 	console.log("Input "+input);
+		if(input > available_credits){
+			$('#excess_credit_error').removeClass('hidden');
+			$(this).closest('.form-group').addClass('has-error');
+		} else {
+			if(input > 0){
+				$('#excess_credit_error').addClass('hidden');
+				$(this).closest('.form-group').removeClass('has-error');
 
-	// 	if(input > available_credits){
-	// 		$('#excess_credit_error').removeClass('hidden');
-	// 		$(this).closest('.form-group').addClass('has-error');
-	// 	} else {
-	// 		if(input > 0){
-	// 			$('#excess_credit_error').addClass('hidden');
-	// 			$(this).closest('.form-group').removeClass('has-error');
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_op_acct",$('#payableForm').serialize())
+				.done(function( response ) {
+					var excess_acct = addCommas(response.account);
+					var ParentRow = $("#entriesTable tbody tr.clone").last();
+					ParentRow.before(clone_acct);
+					resetIds();
+					var row 	  = $('#entriesTable tbody tr.clone').length - 1;
+					$("#accountcode\\["+ row +"\\]").val(excess_acct).trigger('change.select2');
+					$("#h_accountcode\\["+ row +"\\]").val(excess_acct);
+					$("#debit\\["+ row +"\\]").val(addComma(input));
+					disable_acct_fields(row);
+					addAmountAll('debit');
+				});
+			}
+		}
 
-	// 			$.post("<?//=BASE_URL?>financials/receipt_voucher/ajax/retrieve_op_acct",$('#payableForm').serialize())
-	// 			.done(function( response ) {
-	// 				var excess_acct = addCommas(response.account);
-	// 				var ParentRow = $("#entriesTable tbody tr.clone").last();
-	// 				ParentRow.before(clone_acct);
-	// 				resetIds();
-	// 				var row 	  = $('#entriesTable tbody tr.clone').length - 1;
-	// 				console.log("ROW "+row);
-	// 				$("#accountcode\\["+ row +"\\]").val(excess_acct).trigger('change.select2');
-	// 				$("#h_accountcode\\["+ row +"\\]").val(excess_acct);
-	// 				$("#debit\\["+ row +"\\]").val(addComma(input));
-	// 				disable_acct_fields(row);
-	// 				// $('#entriesTable tbody tr.clone:first').find('.account_amount').val(addComma(input));
-	// 				// $('#entriesTable tbody tr.clone:first').find('.accountcode').val(excess_acct).trigger('change');
-	// 				addAmountAll('debit');
-	// 			});
-	// 		}
-	// 	}
+	});
+	// $('#payableForm').on('ifChecked','#ap_checker', function(e){
 
-	// });
-	
-	
+	// });	
 }); // end
 
 </script>
