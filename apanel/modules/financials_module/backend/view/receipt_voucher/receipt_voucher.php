@@ -4219,6 +4219,14 @@ $(document).ready(function() {
 
 	});
 
+	$('#payableForm').on('ifChecked','#ap_checker',function(event){
+		$('#apv').prop('disabled',true);
+	});
+
+	$('#payableForm').on('ifUnchecked','#ap_checker',function(event){
+		$('#apv').prop('disabled',false);
+	});
+
 }); // end
 
 </script>
