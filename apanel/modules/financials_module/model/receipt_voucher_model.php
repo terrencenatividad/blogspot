@@ -512,6 +512,7 @@ class receipt_voucher_model extends wc_model
 		$applicableDetailTable 	= "ar_details"; 
 		$source				   	= "RV"; 
 		$customerTable 			= "partners";
+		$creditsTable 			= "creditvoucher";
 
 		$insertResult		   	= 0;
 		$op_result 				= 0;
@@ -883,6 +884,31 @@ class receipt_voucher_model extends wc_model
 								->setValues($aPvDetailArray)
 								->setWhere("voucherno = '$voucherno'")
 								->runInsert();
+
+			if($insertResult){
+				$seq 				= new seqcontrol();
+				$creditvoucherno 	= $seq->getValue("ADVP");
+
+				$post_credit_voucher['voucherno']			= $creditvoucherno;
+				$post_credit_voucher['transtype']			= 'ADVP';
+				$post_credit_voucher['stat']			 	= 'open';
+				$post_credit_voucher['transactiondate']		= $transactiondate;
+				$post_credit_voucher['fiscalyear']			= $fiscalyear;
+				$post_credit_voucher['period']		 		= $period;
+				$post_credit_voucher['partner'] 			= $customer;
+				$post_credit_voucher['currencycode']		= 'PHP';
+				$post_credit_voucher['exchangerate']		= '1.00';
+				$post_credit_voucher['amount'] 				= $total_payment;
+				$post_credit_voucher['balance'] 			= $total_payment;
+				$post_credit_voucher['convertedamount']		= $total_payment;
+				$post_credit_voucher['referenceno']			= $voucherno;
+ 
+				$creditsArray[]								= $post_credit_voucher;
+
+				$insertResult = $this->db->setTable($creditsTable) 
+										 ->setValues($creditsArray)
+										 ->runInsert();
+			}
 		}
 		
 		/**INSERT TO CHEQUES TABLE**/
