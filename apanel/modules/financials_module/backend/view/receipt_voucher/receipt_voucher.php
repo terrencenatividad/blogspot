@@ -2264,6 +2264,13 @@ $('#paymentModal').on('show.bs.modal', function () {
   	});
 });
 
+$('#paymentModal').on('hidden.bs.modal',function(){
+	$("#discountAmtError").addClass('hidden');
+	$('#receiveAmtError').addClass('hidden');
+	$(this).find('.discountamount').closest('div').removeClass('has-error');
+	$(this).find('.paymentamount').closest('div').removeClass('has-error');
+});
+
 function showIssuePayment(){
 	var valid		= 0;
 	var	customer_code	= $('#paymentForm #customer').val();
