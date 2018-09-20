@@ -1102,7 +1102,8 @@
 			</div>
 			<div class="modal-body">
 				<p>Successfully Saved.</p>
-				<p class="hidden">A <strong>Credit Memo</strong> has been generated for the overpayment.</p>
+				<p class="hidden" id="credit_memo">A <strong>Credit Memo</strong> has been generated for the Overpayment.</p>
+				<p class="hidden" id="credit_voucher">A <strong>Credit Voucher</strong> has been generated for the Advance Payment.</p>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-success" data-dismiss="modal" id="save_okbtn">Ok</button>
@@ -3529,11 +3530,15 @@ $(document).ready(function() {
 		{	
 			if(data.success == 1)
 			{
-				// $("#payableForm #h_voucher_no").val(data.voucher);
-				
 				var credit_used 	=	$('#total_cred_used').val();
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+
 				if(credit_used > 0){
-					$('#success_save_modal p.hidden').removeClass('hidden');
+					$('#success_save_modal p#credit_memo').removeClass('hidden');
+					$('#success_save_modal').modal('show');	
+				} else if(is_ap=="yes") {
+					$('#success_save_modal p#credit_voucher').removeClass('hidden');
 					$('#success_save_modal').modal('show');	
 				} else {
 					$('#delay_modal').modal('show');
