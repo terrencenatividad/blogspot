@@ -532,6 +532,8 @@ class receipt_voucher_model extends wc_model
 		$task 					= (isset($data['h_task']) && (!empty($data['h_task']))) ? htmlentities(addslashes(trim($data['h_task']))) : "";
 		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
 		// $credit_input 			= (isset($data['credit_input']) && (!empty($data['credit_input']))) ? htmlentities(addslashes($data['credit_input'])) 	:	0;
+		$ap_checker 			= (isset($data['advance_payment']) && (!empty($data['advance_payment']))) ? htmlentities(addslashes(trim($data['advance_payment']))) : 	"no";
+		
 		$invoice_data  			= str_replace('\\', '', $h_check_rows);
 		$invoice_data  			= html_entity_decode($invoice_data);
 		$picked_payables		= json_decode($invoice_data, true);
@@ -598,6 +600,7 @@ class receipt_voucher_model extends wc_model
 				}
 			}
 		}
+		// var_dump($tempArray);
 
 		/**CHEQUE DETAILS**/
 		if(!empty($aChequeData))
@@ -676,6 +679,7 @@ class receipt_voucher_model extends wc_model
 		$post_header['source']			= $source;
 		$post_header['paymenttype']		= $paymenttype;	
 		// $post_header['referenceno']		= $referenceno;
+		$post_header['advancepayment']  = $ap_checker;
 		$post_header['or_no']			= $or_no;
 		
 		$post_header['stat']			= $status;
@@ -837,7 +841,7 @@ class receipt_voucher_model extends wc_model
 					$code 		= 0;
 					$errmsg[] 	= "<li>Error in Updating Official Receipt Application.</li>";
 				}
-			}else if(!empty($isAppDetailExist)){
+			} else if(!empty($isAppDetailExist)){
 				$insertResult = $this->db->setTable($detailAppTable) 
 									->setValues($aPvDetailArray)
 									->runInsert();
@@ -870,6 +874,15 @@ class receipt_voucher_model extends wc_model
 				$code 		= 0;
 				$errmsg[] 	= "<li>Error in Updating Official Receipt Header.</li>";
 			}	
+		} else if($ap_checker == 'yes'){
+			$this->db->setTable($detailAppTable)
+						->setWhere("voucherno = '$voucherno'")
+						->runDelete();
+	
+			$insertResult = $this->db->setTable($detailAppTable) 
+								->setValues($aPvDetailArray)
+								->setWhere("voucherno = '$voucherno'")
+								->runInsert();
 		}
 		
 		/**INSERT TO CHEQUES TABLE**/
