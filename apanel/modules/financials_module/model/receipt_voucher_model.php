@@ -1902,6 +1902,16 @@ class receipt_voucher_model extends wc_model
 		return $query;
 	}
 
+	public function retrieveADVPdetails(){
+		$query 	=	$this->db->setTable("fintaxcode")
+							 ->setFields("salesAccount accountcode, 'yes' is_overpayment")
+							 ->setWhere("fstaxcode = 'ADV'")
+							 ->runSelect()
+							 ->getResult();
+
+		return $query;
+	}
+
 	public function retrieveOPDebitdetails(){
 		$query 	=	$this->db->setTable("fintaxcode")
 							 ->setFields("purchaseAccount accountcode, 'yes' is_overpayment")

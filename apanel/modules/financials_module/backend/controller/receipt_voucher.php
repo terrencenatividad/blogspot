@@ -1540,6 +1540,13 @@ class controller extends wc_controller
 		return $dataArray;
 	}
 
+	private function retrieve_advpayment_acct(){
+		$advpaymentacct 	=	$this->receipt_voucher->retrieveADVPdetails();
+		$advp_acct 			=	isset($advpaymentacct[0]->accountcode) 	?	$advpaymentacct[0]->accountcode 	:	"";
+		$dataArray 			=	array("account"=>$advp_acct);
+		return $dataArray;
+	}
+
 	public function get_account(){
 		$tax_account = $this->input->post("tax_account");
 		$tax_amount = $this->input->post("tax_amount");
