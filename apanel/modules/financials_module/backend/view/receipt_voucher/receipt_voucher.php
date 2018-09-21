@@ -834,7 +834,6 @@
 		</div>
 	</form>
 
-	<!-- Payment Modal -->
 	<div class="modal fade" id="paymentModal" tabindex="-1" data-backdrop="static">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
@@ -858,142 +857,227 @@
 					<form class="form-horizontal" id="paymentForm">
 						<br/>
 						<div class="row">
-						<!-- <label class="control-label col-md-2">
-							Total Receivable
-						</label> -->
-						<div class="col-md-4">
-							<?php
-							echo $ui->formField('text')
-							->setSplit('col-md-6', 'col-md-6')
-							->setLabel("Total Receivable")
-							->setClass("input-sm text-right")
-							->setName('total_payment')
-							->setId('total_payment')
-							->setPlaceHolder("0.00")
-							->setAttribute(
-								array(
-									"maxlength" => "50", 
-									"readonly" => "readonly"
+							<!-- <label class="control-label col-md-2">
+								Total Receivable
+							</label> -->
+							<div class="col-md-4">
+								<?php
+								echo $ui->formField('text')
+								->setSplit('col-md-6', 'col-md-6')
+								->setLabel("Total Receivable")
+								->setClass("input-sm text-right")
+								->setName('total_payment')
+								->setId('total_payment')
+								->setPlaceHolder("0.00")
+								->setAttribute(
+									array(
+										"maxlength" => "50", 
+										"readonly" => "readonly"
+									)
 								)
-							)
-							->setValue(number_format($sum_applied,2))
-							->draw(true);
-							?>
-						</div>
-						<div class="col-md-4">
-							<?php
-							echo $ui->formField('text')
-							->setSplit('col-md-6', 'col-md-6')
-							->setLabel("Total Discount")
-							->setClass("input-sm text-right")
-							->setName('total_discount')
-							->setId('total_discount')
-							->setPlaceHolder("0.00")
-							->setAttribute(
-								array(
-									"maxlength" => "50", 
-									"readonly" => "readonly"
+								->setValue(number_format($sum_applied,2))
+								->draw(true);
+								?>
+							</div>
+							<div class="col-md-4">
+								<?php
+								echo $ui->formField('text')
+								->setSplit('col-md-6', 'col-md-6')
+								->setLabel("Total Discount")
+								->setClass("input-sm text-right")
+								->setName('total_discount')
+								->setId('total_discount')
+								->setPlaceHolder("0.00")
+								->setAttribute(
+									array(
+										"maxlength" => "50", 
+										"readonly" => "readonly"
+									)
 								)
-							)
-							->setValue(number_format($sum_discount,2))
-							->draw(true);
-							?>
-						</div>
-						<div class="col-md-4">
-							<?php
-							echo $ui->formField('text')
-							->setSplit('col-md-6', 'col-md-6')
-							->setLabel("Credits")
-							->setClass("input-sm text-right")
-							->setName('available_credits')
-							->setId('available_credits')
-							->setPlaceHolder("0.00")
-							->setAttribute(
-								array(
-									"maxlength" => "50", 
-									"readonly" => "readonly"
+								->setValue(number_format($sum_discount,2))
+								->draw(true);
+								?>
+							</div>
+							<div class="col-md-4">
+								<?php
+								echo $ui->formField('text')
+								->setSplit('col-md-6', 'col-md-6')
+								->setLabel("Credits")
+								->setClass("input-sm text-right")
+								->setName('available_credits')
+								->setId('available_credits')
+								->setPlaceHolder("0.00")
+								->setAttribute(
+									array(
+										"maxlength" => "50", 
+										"readonly" => "readonly"
+									)
 								)
-							)
-							->setValue(number_format($available_credits,2))
-							->draw(true);
-							?>
+								->setValue(number_format($available_credits,2))
+								->draw(true);
+								?>
+							</div>
+							<div class="col-md-offset-8 has-error">
+								<span id="excess_credit_error" class="help-block hidden  small">
+									<i class="glyphicon glyphicon-exclamation-sign"></i> 
+									You cannot input a Credit greater than your available Credit amount.
+								</span>
+							</div>					
 						</div>
-						<div class="col-md-offset-8 has-error">
-							<span id="excess_credit_error" class="help-block hidden  small">
-								<i class="glyphicon glyphicon-exclamation-sign"></i> 
-								You cannot input a Credit greater than your available Credit amount.
-							</span>
-						</div>					
-					</div>
 
-					<div class="has-error">
-						<span id="appCountError" class="help-block hidden small">
-							<i class="glyphicon glyphicon-exclamation-sign"></i> 
-							Please select at least one(1) payable.
-						</span>
-						<span id="appAmountError" class="help-block hidden small">
-							<i class="glyphicon glyphicon-exclamation-sign"></i> 
-							Please make sure that the amount paid for the payable(s) below are greater than zero(0).
-						</span>
-						<span id="discountAmtError" class="help-block hidden small has-error">
-							<i class="glyphicon glyphicon-exclamation-sign"></i> 
-							You cannot input a <strong>Discount</strong> greater than the <strong>Amount to Receive</strong>.
-						</span>
-						<span id="receiveAmtError" class="help-block hidden small has-error">
-							<i class="glyphicon glyphicon-exclamation-sign"></i> 
-							You cannot enter a negative amount.
-						</span>
-					</div>
-					<div class="table-responsive">
-						<table class="table table-condensed table-bordered table-hover" id="app_payableList">
-							<thead>
-								<tr class="info">
-									<?if($show_input):?><th class="col-md-1 center"></th><?endif;?>
-									<th class="col-md-1 text-center">Date</th>
-									<th class="col-md-1 text-center">Voucher</th>
-									<th class="col-md-1 text-center">Reference</th>
-									<th class="col-md-1 text-center">Total Amount</th>
-									<th class="col-md-1 text-center">Balance</th>
-									<th class="col-md-1 text-center">Amount to Receive</th>
-									<th class="col-md-1 text-center">Discount</th>
-									<th class="col-md-1 text-center">Apply Credits</th>
-								</tr>
-							</thead>
-							<tbody id="payable_list_container">
-								<!-- <tr>
-									<td class="text-center" style="vertical-align:middle;" colspan="7">- No Records Found -</td>
-								</tr> -->
-							</tbody>
-							<tfoot>
-								<tr> <!-- class="info" -->
-									<!--<td class="col-md-3 center" id="app_page_info">&nbsp;</td>-->
-									<!--<td class="col-md-9 center" id="app_page_links"></td>-->
-									<td class="center" colspan = "7" id="app_page_links"></td>
-								</tr>
-							</tfoot>
-						</table>
-					</div>
-					<div id="pagination"></div>
-					<div class="modal-footer">
-						<div class="col-md-12 col-sm-12 col-xs-12 text-center">
-							<?if($show_input):?>
-							<div class="btn-group">
-								<button type = "button" id="TagReceivablesBtn" class = "btn btn-primary btn-sm btn-flat" onClick = "getRVDetails();">Tag</button>
-							</div>
-							&nbsp;&nbsp;&nbsp;
-							<?endif;?>
-							<div class="btn-group">
-								<!-- noted by Sir Mark to remove this onclick function upon cancel. onClick="clearPayment();"-->
-								<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal" >Cancel</button>
+						<div class="has-error">
+							<span id="appCountError" class="help-block hidden small">
+								<i class="glyphicon glyphicon-exclamation-sign"></i> 
+								Please select at least one(1) payable.
+							</span>
+							<span id="appAmountError" class="help-block hidden small">
+								<i class="glyphicon glyphicon-exclamation-sign"></i> 
+								Please make sure that the amount paid for the payable(s) below are greater than zero(0).
+							</span>
+							<span id="discountAmtError" class="help-block hidden small has-error">
+								<i class="glyphicon glyphicon-exclamation-sign"></i> 
+								You cannot input a <strong>Discount</strong> greater than the <strong>Amount to Receive</strong>.
+							</span>
+							<span id="receiveAmtError" class="help-block hidden small has-error">
+								<i class="glyphicon glyphicon-exclamation-sign"></i> 
+								You cannot enter a negative amount.
+							</span>
+						</div>
+						<div class="table-responsive">
+							<table class="table table-condensed table-bordered table-hover" id="app_payableList">
+								<thead>
+									<tr class="info">
+										<?if($show_input):?><th class="col-md-1 center"></th><?endif;?>
+										<th class="col-md-1 text-center">Date</th>
+										<th class="col-md-1 text-center">Voucher</th>
+										<th class="col-md-1 text-center">Reference</th>
+										<th class="col-md-1 text-center">Total Amount</th>
+										<th class="col-md-1 text-center">Balance</th>
+										<th class="col-md-1 text-center">Amount to Receive</th>
+										<th class="col-md-1 text-center">Discount</th>
+										<th class="col-md-1 text-center">Apply Credits</th>
+									</tr>
+								</thead>
+								<tbody id="payable_list_container">
+									<!-- <tr>
+										<td class="text-center" style="vertical-align:middle;" colspan="7">- No Records Found -</td>
+									</tr> -->
+								</tbody>
+								<tfoot>
+									<tr> <!-- class="info" -->
+										<!--<td class="col-md-3 center" id="app_page_info">&nbsp;</td>-->
+										<!--<td class="col-md-9 center" id="app_page_links"></td>-->
+										<td class="center" colspan = "7" id="app_page_links"></td>
+									</tr>
+								</tfoot>
+							</table>
+						</div>
+						<div id="pagination"></div>
+						<div class="modal-footer">
+							<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+								<?if($show_input):?>
+								<div class="btn-group">
+									<button type = "button" id="TagReceivablesBtn" class = "btn btn-primary btn-sm btn-flat" onClick = "getRVDetails();">Tag</button>
+								</div>
+								&nbsp;&nbsp;&nbsp;
+								<?endif;?>
+								<div class="btn-group">
+									<!-- noted by Sir Mark to remove this onclick function upon cancel. onClick="clearPayment();"-->
+									<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal" >Cancel</button>
+								</div>
 							</div>
 						</div>
-					</div>
 					
-				</form>
+					</form>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
+	
+	<div class="modal fade" id="creditvoucherModal">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Tag Credit Vouchers</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-4 col-md-offset-8">
+							<div class="input-group">
+								<input id="table_search" class="form-control pull-right" placeholder="Search" type="text">
+								<div class="input-group-addon">
+									<i class="fa fa-search"></i>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal" id="creditsForm">
+						<div class="row">
+							<div class="col-md-4">
+								<?php
+								echo $ui->formField('text')
+										->setSplit('col-md-6', 'col-md-6')
+										->setLabel("Total Credits")
+										->setClass("input-sm text-right")
+										->setName('total_credits_to_apply')
+										->setId('total_credits_to_apply')
+										->setPlaceHolder("0.00")
+										->setAttribute(
+											array(
+												"maxlength" => "20", 
+												"readonly" => "readonly"
+											)
+										)
+										->setValue(number_format($sum_applied,2))
+										->draw(true);
+								?>
+							</div>			
+						</div>
+
+						<div class="table-responsive">
+							<table class="table table-condensed table-bordered table-hover" id="creditVoucherLists">
+								<thead>
+									<tr class="info">
+										<?if($show_input):?><th class="col-md-1 center"></th><?endif;?>
+										<th class="col-md-1 text-center">Credit Voucher #</th>
+										<th class="col-md-1 text-center">Invoice #</th>
+										<th class="col-md-1 text-center">Reference #</th>
+										<th class="col-md-1 text-center">Total Amount</th>
+										<th class="col-md-1 text-center">Balance</th>
+										<th class="col-md-1 text-center">Amount to Apply</th>
+									</tr>
+								</thead>
+								<tbody id="payable_list_container">
+								</tbody>
+								<tfoot>
+									<tr>
+										<td class="center" colspan = "7" id="app_page_links"></td>
+									</tr>
+								</tfoot>
+							</table>
+						</div>
+						<div id="pagination"></div>
+						<div class="modal-footer">
+							<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+								<?if($show_input):?>
+								<div class="btn-group">
+									<button type = "button" id="TagCreditsBtn" class = "btn btn-primary btn-sm btn-flat">Tag</button>
+								</div>
+								&nbsp;&nbsp;&nbsp;
+								<?endif;?>
+								<div class="btn-group">
+									<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal" >Cancel</button>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
 </section>
 
 <!-- Delete Record Confirmation Modal -->
@@ -4272,6 +4356,7 @@ $(document).ready(function() {
 
 	});
 
+	// For Advance payment
 	$('#payableForm').on('ifChecked','#ap_checker',function(event){
 		$('#apv').prop('disabled',true);
 	});
@@ -4280,6 +4365,10 @@ $(document).ready(function() {
 		$('#apv').prop('disabled',false);
 	});
 
+	// For Credit Voucher
+	$('#payableForm').on('click','#crv',function(){
+		$('#creditvoucherModal').modal('show');
+	});
 }); // end
 
 </script>
