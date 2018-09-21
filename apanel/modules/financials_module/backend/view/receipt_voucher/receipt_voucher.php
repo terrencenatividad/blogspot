@@ -130,7 +130,26 @@
 							</div>
 						</div>
 						<div class="row">
-							<div class="col-md-6"></div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="crv" class="control-label col-md-4">Credits </label>
+									<div class="col-md-8">
+										<?php
+										if(!$show_input){
+											echo '<p class="form-control-static">'.number_format($sum_applied,2).'</p>';
+										}else{
+
+											?>
+											<button type="button" id="crv" class="btn btn-block btn-success btn-flat">
+												<em class="pull-left"><small>Click to view tagged credits</small></em>
+												<strong id="applied_cred_amt" class="pull-right"><?=number_format($sum_applied,2)?></strong>
+											</button>
+											<?php
+										}
+										?>
+									</div>
+								</div>
+							</div>
 							<div class="col-md-6">
 								<?php
 									echo $ui->formField('checkbox')
