@@ -1050,7 +1050,7 @@
 										<th class="col-md-1 text-center">Amount to Apply</th>
 									</tr>
 								</thead>
-								<tbody id="payable_list_container">
+								<tbody id="list_container">
 								</tbody>
 								<tfoot>
 									<tr>
@@ -2373,6 +2373,77 @@ $('#paymentModal').on('hidden.bs.modal',function(){
 	$(this).find('.discountamount').closest('div').removeClass('has-error');
 	$(this).find('.paymentamount').closest('div').removeClass('has-error');
 });
+
+function showCreditsList(){
+	var vnose 			= JSON.stringify(container);
+	var	customer_code	= $('#payableForm #customer').val();
+		voucherno 		= $('#payableForm #h_voucher_no').val();
+
+	var ajax_call		= '';
+		ajax.limit 		= 5;
+
+	if (ajax_call != '') {
+		ajax_call.abort();
+	}
+
+	ajax.customer 	= customer_code;
+	ajax.voucherno 	= voucherno;
+	ajax.vno 		= vnose;
+	ajax.task 		= task;
+	ajax_call 		= $.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/load_credit_vouchers", ajax )
+						.done(function( data ) 
+						{
+							$('#pagination').html(data.pagination);
+							$('#creditvoucherModal #list_container').html(data.table);
+
+							if(!($("paymentModal").data('bs.modal') || {isShown: false}).isShown){
+								var check_rows = $('#payableForm #selected_rows').html();
+								var obj = (check_rows != "") ? JSON.parse(check_rows) : 0;
+
+								for(var i = 0; i < obj.length; i++){
+									$('input#row_check' + obj[i]["row"]).iCheck('check');
+								} 
+								$('#creditvoucherModal').modal('show');
+							};
+						});
+}	
+
+function showCreditsVoucher(){
+	var valid		= 0;
+	var	customer_code	= $('#paymentForm #customer').val();
+	$('#paymentForm #customer').trigger('blur');
+	var h_voucher_no = ('<?= $task ?>' == "edit") ? $("#payableForm #h_voucher_no").val() : "";
+
+	valid			+= validateField('payableForm','customer', "customer_help");
+
+	if(valid == 0 && customer_code != ""){
+		// showList(h_voucher_no);
+		// setChequeZero();
+		// clearChequePayment();
+		// $('#payable_list_container tbody').html(`<tr>
+		// 	<td colspan="4" class="text-center">Loading Items</td>
+		// 	</tr>`);
+		// $('#pagination').html('');
+		// showList();
+		showCreditsList()
+	}
+	else
+	{
+		bootbox.dialog({
+			message: "Please select customer first.",
+			title: "Oops!",
+			buttons: {
+				yes: {
+					label: "OK",
+					className: "btn-primary btn-flat",
+					callback: function(result) {
+
+					}
+				}
+			}
+		});
+	}
+}
 
 function showIssuePayment(){
 	var valid		= 0;
@@ -4367,8 +4438,9 @@ $(document).ready(function() {
 
 	// For Credit Voucher
 	$('#payableForm').on('click','#crv',function(){
-		$('#creditvoucherModal').modal('show');
+		showCreditsVoucher();
 	});
+
 }); // end
 
 </script>

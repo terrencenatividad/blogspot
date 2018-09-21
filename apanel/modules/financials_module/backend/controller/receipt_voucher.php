@@ -527,6 +527,150 @@ class controller extends wc_controller
 		}
 	}
 
+	private function load_credit_vouchers(){
+		$data       	= $this->input->post(array("customer", "voucherno", "avl_cred"));
+		$task       	= $this->input->post("task");
+		$search			= $this->input->post('search');
+		$avl_credit 	= $this->input->post("avl_cred");
+		$vno 			= $this->input->post('vno');
+		$customer 		= $this->input->post('customer');
+		
+		$check_rows 	= (isset($vno) && (!empty($vno))) ? trim($vno) : "";
+		$check_rows  	= str_replace('\\', '', $check_rows);
+		$decode_json    = json_decode($check_rows,true);
+
+		$pagination     = $this->receipt_voucher->retrieveCreditsList($customer,$vno);
+		// var_dump($pagination);
+		$table             = "";
+		$j 	               = 1;
+		$json_encode_array = array();
+		$json_data         = array();
+		$total_pay         = 0;
+		$json_encode       = "";
+		$edited_amount 	   = 0;
+
+		$show_input 	   = ($task != "view") 	? 	1	:	0;
+	
+		if (empty($pagination->result)) {
+			$table = '<tr><td class="text-center" colspan="10"><b>No Records Found</b></td></tr>';
+		}
+
+		if($pagination->result)
+		{
+			$voucher_checked = '';
+			$amt_checked = '';
+			$voucher_array = array();
+			$amt_array = array();
+			$checker = array();
+			
+			if(!empty($decode_json)) {
+				foreach($decode_json as $value => $row){	
+					array_push($voucher_array, $row['vno']);
+					$amt_array[$row['vno']] = $row;
+				}	
+			}
+
+			for($i = 0; $i < count($pagination->result); $i++, $j++){
+				$voucherno 		=	isset($pagination->result[$i]->voucherno) 	? 	$pagination->result[$i]->voucherno 		: 	"";
+				$amount			=	isset($pagination->result[$i]->amount) 		? 	$pagination->result[$i]->amount 		:	0;
+				$balance 		=	isset($pagination->result[$i]->balance)		?	$pagination->result[$i]->balance 		: 	0;
+				$invoiceno		=	isset($pagination->result[$i]->invoiceno) 	? 	$pagination->result[$i]->invoiceno 		: 	0;
+				$referenceno 	=	isset($pagination->result[$i]->referenceno) ? 	$pagination->result[$i]->referenceno	: 	"";
+				$receivableno 	=	isset($pagination->result[$i]->receivableno)? 	$pagination->result[$i]->receivableno	:	"";
+
+				// $voucher_checked= (in_array($voucher , $voucher_array)) ? 'checked' : '';
+				// $amt_checked 	= (in_array($voucher , $amt_array)) ? $amt_checked : '';
+
+				// $total_pay 		+= $totalamount;
+
+				// $json_encode_array["row"]       = $i;
+				// $json_encode_array["vno"] 		= $voucher;
+				// $json_encode_array["amt"]    	= $totalamount;
+				// $json_encode_array["bal"]   	= $balance;
+				// $json_encode_array["cred"]		= $credit_used;
+				// $json_encode_array['over']  	= $overpayment;
+			
+				// $json_data[] 					= $json_encode_array;
+			
+				// $json_encode 					= json_encode($json_data);
+
+				// $appliedamount	= $this->receipt_voucher->getValue("rv_application", array("SUM(amount) AS amount"),"arvoucherno = '$voucher' AND stat IN('posted', 'temporary')");
+				// $appliedamount  = isset($appliedamount[0]->amount) 	?	$appliedamount[0]->amount	:	0;
+	
+				// $balance_2		= $balance;
+
+				// if (isset($amt_array[$voucher])) {
+				// 	$balance_2	= str_replace(',','',$amt_array[$voucher]['bal']);
+				// 	$amount		= str_replace(',','',$amt_array[$voucher]['amt']);
+				// 	$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0.00';
+				// 	$credit_used= isset($amt_array[$voucher]['cred']) ? $amt_array[$voucher]['cred'] : '0.00';
+
+				// 	$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount + $credit_used;
+				// 	$balance_2 	= $balance_2 - $amount - $discount - $credit_used;
+				// 	$balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
+				// }
+				// echo $balance."\n\n";
+				$disable_checkbox 	=	"";
+				// $disable_onclick 	=	'onClick="selectPayable(\''.$voucher.'\',1);"';
+
+				$table	.= '<tr>'; 
+				// if(!$restrict_rv){
+				// 	$disable_checkbox 	=	"disabled='disabled'";
+					$disable_onclick 	= 	'';
+				// }
+				$table	.= 	'<td class="text-center" style="vertical-align:middle;">';
+				$table	.= 		'<input type="checkbox" name="checkBox[]" id = "check'.$voucherno.'" class = "icheckbox" toggleid="0" row="'.$voucherno.'" '.$voucher_checked.' '.$disable_checkbox.'>'; 
+				$table	.= 	'</td>';
+				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$voucherno.'</td>';
+				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$invoiceno.'</td>';
+				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
+				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_amount'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($amount,2).'">'.number_format($amount,2).'</td>';
+				$table	.= 	'<td class="text-right balances" style="vertical-align:middle;" id = "payable_balance'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance,2).'</td>';
+				if($voucher_checked == 'checked'){
+					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
+					$this->ui->formField('text')
+						->setSplit('', 'col-md-12')
+						->setClass("input-sm text-right credittoapply")
+						->setId('credittoapply'.$voucherno)
+						->setPlaceHolder("0.00")
+						->setMaxLength(20)
+						->setAttribute(
+							array(
+								"onBlur" => ' formatNumber(this.id);', 
+								"onClick" => " SelectAll(this.id); ",
+							)
+						)
+						->setValidation('decimal')
+						->setValue(number_format($amount,2))
+						->draw($show_input).'</td>';
+				}
+				else{
+					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
+					$this->ui->formField('text')
+						->setSplit('', 'col-md-12')
+						->setClass("input-sm text-right credittoapply")
+						->setId('credittoapply'.$voucherno)
+						->setPlaceHolder("0.00")
+						->setMaxLength(20)
+						->setAttribute(
+							array(
+								"disabled" => "disabled", 
+								"onBlur" => ' formatNumber(this.id);', 
+								"onClick" => " SelectAll(this.id); ",
+							)
+						)
+						->setValidation('decimal')
+						->setValue(number_format(0, 2))
+						->draw($show_input).'</td>';
+				}
+			}
+		}
+		$pagination->table = $table;
+		$dataArray = array( "table" => $pagination->table, "json_encode" => $json_encode, "pagination" => $pagination->pagination, "page" => $pagination->page, "page_limit" => $pagination->page_limit );
+		
+		return $dataArray;
+	}
+
 	private function get_payments()
 	{
 		$data_post     = $this->input->post("voucherno");

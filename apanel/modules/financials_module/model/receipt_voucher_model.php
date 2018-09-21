@@ -1912,6 +1912,17 @@ class receipt_voucher_model extends wc_model
 		return $query;
 	}
 
+	public function retrieveCreditsList($customer, $arvoucher=""){
+
+		$result 	=	$this->db->setTable('creditvoucher crv')
+								 ->setFields("crv.voucherno, crv.partner, crv.convertedamount amount, crv.balance, crv.invoiceno, crv.referenceno, crv.receivableno")
+								 ->leftJoin('partners p ON p.partnercode = crv.partner')
+								 ->setWhere("crv.partner = '$customer'")
+								 ->runPagination();
+								//  echo $this->db->getQuery();
+		return $result;
+	}
+
 	public function retrieveOPDebitdetails(){
 		$query 	=	$this->db->setTable("fintaxcode")
 							 ->setFields("purchaseAccount accountcode, 'yes' is_overpayment")
