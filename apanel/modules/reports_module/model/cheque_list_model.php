@@ -76,7 +76,7 @@
 			}
 			// For Search
 			if ( !empty($search) ) {
-				$condition .= " AND (chq.chequenumber LIKE '%$search%' OR ap.invoiceno LIKE '%$search%' OR pt.partnername LIKE '%$search%') ";
+				$condition .= " AND (chq.chequenumber LIKE '%$search%' OR ap.invoiceno LIKE '%$search%' OR pt.partnername LIKE '%$search%' OR chq.voucherno LIKE '%$search%') ";
 			}
 			$sort 		=	($sort 	!=	"") 	? 	$sort 	:	"chq.chequedate ASC";
 
@@ -90,6 +90,7 @@
 									->setFields($fields)
 									->setWhere($condition)
 									->setOrderBy($sort);	
+
 									
             return $query;				
 		}
@@ -97,6 +98,7 @@
         public function retrieveChequeList($search, $startdate, $enddate, $partner, $filter, $bank, $sort) {
 			$result	= $this->getQueryDetails($search, $startdate, $enddate, $partner, $filter, $bank, $sort)
 							->runPagination();
+							// echo $this->db->getQuery();
 
 			return $result;			
         }
