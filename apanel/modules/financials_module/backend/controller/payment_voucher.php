@@ -407,6 +407,7 @@ class controller extends wc_controller
 		$data['discount_code'] 		= $discount_code;
 
 		$data["listofcheques"]	 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array();
+		$data["show_cheques"] 	= isset($data['rollArray'][$sid]) ? '' : 'hidden';
 		
 		$account_array	= array();
 		foreach ($data['listofcheques'] as $index => $dtl){
@@ -471,11 +472,11 @@ class controller extends wc_controller
 
 			if(!empty($data_validate['h_save']))
 			{
-				$this->url->redirect(BASE_URL . 'financials/payment_voucher');
+				$this->url->redirect(BASE_URL . 'financials/payment_voucher/view/'. $sid);
 			}
 			else if(!empty($data_validate['h_save_preview']))
 			{
-				$this->url->redirect(BASE_URL . 'financials/payment_voucher/view/' . $sid);
+				$this->url->redirect(BASE_URL . 'financials/payment_voucher');
 			}
 			else
 			{
@@ -1241,9 +1242,10 @@ class controller extends wc_controller
 		$toggle_wtax	= ($wtax_option != 'PV') ? "hidden" : "";
 
 		for($i = 0; $i < count($decode_json); $i++) {
+			
 			$apvoucherno = $decode_json[$i]["vno"];
 			$accountcode = $this->payment_voucher->getValue('ap_details apd LEFT JOIN chartaccount AS chart ON apd.accountcode = chart.id AND chart.companycode = apd.companycode','accountcode',"voucherno = '$apvoucherno' AND chart.accountclasscode = 'ACCPAY'","","","apd.accountcode");
-			$accountcode = $accountcode[0]->accountcode;
+			$accountcode = isset($accountcode[0]->accountcode)   ?  $accountcode[0]->accountcode   :  "";
 			if ( ! isset($account_amounts[$accountcode])) {
 				$account_amounts[$accountcode] = 0;
 			}

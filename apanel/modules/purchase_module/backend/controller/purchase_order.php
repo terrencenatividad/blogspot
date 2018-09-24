@@ -506,9 +506,10 @@ class controller extends wc_controller
 			}
 
 			$total_amount	+= $row->amount;
-			$row->quantity	= number_format($row->quantity);
-			$row->price		= number_format($row->price, 2);
-			$row->amount	= number_format($row->amount, 2);
+			$row->quantity		= number_format($row->quantity);
+			$row->price			= number_format($row->price, 2);
+			$row->amount		= number_format($row->amount, 2);
+			$row->description 	= html_entity_decode(stripslashes($row->description));
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
 				$print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));

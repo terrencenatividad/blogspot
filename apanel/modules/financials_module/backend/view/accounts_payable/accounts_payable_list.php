@@ -186,6 +186,13 @@
 			getList();
 		}
 	});
+	
+	$('#items').on('change', function() {
+		ajax.page = 1;
+		ajax.limit = $(this).val();
+		getList();
+	});
+
 	function getList() {
 		filterToURL();
 		ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {

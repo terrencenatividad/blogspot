@@ -203,6 +203,10 @@ class controller extends wc_controller
 				$update_source['si_no']  	= $generatedvoucher;
 				$source_cond 				= "si_no = '$voucherno' AND transtype = 'CM'";
 				$updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
+				// Update the Credit Voucher 
+				$update_ref['referenceno']  	= $generatedvoucher;
+				$ref_cond 						= "referenceno = '$voucherno' AND transtype = 'ADVP'";
+				$updateTempRecord				= $this->receipt_voucher->editData($update_ref,"creditvoucher",$ref_cond);
 			}
 		}
 

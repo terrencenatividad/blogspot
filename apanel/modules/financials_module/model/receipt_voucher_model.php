@@ -512,6 +512,7 @@ class receipt_voucher_model extends wc_model
 		$applicableDetailTable 	= "ar_details"; 
 		$source				   	= "RV"; 
 		$customerTable 			= "partners";
+		$creditsTable 			= "creditvoucher";
 
 		$insertResult		   	= 0;
 		$op_result 				= 0;
@@ -532,6 +533,8 @@ class receipt_voucher_model extends wc_model
 		$task 					= (isset($data['h_task']) && (!empty($data['h_task']))) ? htmlentities(addslashes(trim($data['h_task']))) : "";
 		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
 		// $credit_input 			= (isset($data['credit_input']) && (!empty($data['credit_input']))) ? htmlentities(addslashes($data['credit_input'])) 	:	0;
+		$ap_checker 			= (isset($data['advance_payment']) && (!empty($data['advance_payment']))) ? htmlentities(addslashes(trim($data['advance_payment']))) : 	"no";
+		
 		$invoice_data  			= str_replace('\\', '', $h_check_rows);
 		$invoice_data  			= html_entity_decode($invoice_data);
 		$picked_payables		= json_decode($invoice_data, true);
@@ -598,6 +601,7 @@ class receipt_voucher_model extends wc_model
 				}
 			}
 		}
+		// var_dump($tempArray);
 
 		/**CHEQUE DETAILS**/
 		if(!empty($aChequeData))
@@ -676,6 +680,7 @@ class receipt_voucher_model extends wc_model
 		$post_header['source']			= $source;
 		$post_header['paymenttype']		= $paymenttype;	
 		// $post_header['referenceno']		= $referenceno;
+		$post_header['advancepayment']  = $ap_checker;
 		$post_header['or_no']			= $or_no;
 		
 		$post_header['stat']			= $status;
@@ -840,7 +845,7 @@ class receipt_voucher_model extends wc_model
 					$code 		= 0;
 					$errmsg[] 	= "<li>Error in Updating Official Receipt Application.</li>";
 				}
-			}else if(!empty($isAppDetailExist)){
+			} else if(!empty($isAppDetailExist)){
 				$insertResult = $this->db->setTable($detailAppTable) 
 									->setValues($aPvDetailArray)
 									->runInsert();
@@ -873,6 +878,40 @@ class receipt_voucher_model extends wc_model
 				$code 		= 0;
 				$errmsg[] 	= "<li>Error in Updating Official Receipt Header.</li>";
 			}	
+		} else if($ap_checker == 'yes'){
+			$this->db->setTable($detailAppTable)
+						->setWhere("voucherno = '$voucherno'")
+						->runDelete();
+	
+			$insertResult = $this->db->setTable($detailAppTable) 
+								->setValues($aPvDetailArray)
+								->setWhere("voucherno = '$voucherno'")
+								->runInsert();
+
+			if($insertResult){
+				$seq 				= new seqcontrol();
+				$creditvoucherno 	= $seq->getValue("ADVP");
+
+				$post_credit_voucher['voucherno']			= $creditvoucherno;
+				$post_credit_voucher['transtype']			= 'ADVP';
+				$post_credit_voucher['stat']			 	= 'open';
+				$post_credit_voucher['transactiondate']		= $transactiondate;
+				$post_credit_voucher['fiscalyear']			= $fiscalyear;
+				$post_credit_voucher['period']		 		= $period;
+				$post_credit_voucher['partner'] 			= $customer;
+				$post_credit_voucher['currencycode']		= 'PHP';
+				$post_credit_voucher['exchangerate']		= '1.00';
+				$post_credit_voucher['amount'] 				= $total_payment;
+				$post_credit_voucher['balance'] 			= $total_payment;
+				$post_credit_voucher['convertedamount']		= $total_payment;
+				$post_credit_voucher['referenceno']			= $voucherno;
+ 
+				$creditsArray[]								= $post_credit_voucher;
+
+				$insertResult = $this->db->setTable($creditsTable) 
+										 ->setValues($creditsArray)
+										 ->runInsert();
+			}
 		}
 		
 		/**INSERT TO CHEQUES TABLE**/

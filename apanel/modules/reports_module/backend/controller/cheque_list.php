@@ -188,7 +188,7 @@ class controller extends wc_controller {
 			foreach ($pagination->result as $key => $row) {
 				$releasedate 		=	isset($row->releasedate) ?	$this->date->dateFormat($row->releasedate) 	: 	"";
 				$chequenumber  		=	$row->chequenumber;
-				$invoiceno 			=	$row->voucherno;
+				$invoiceno 			=	$row->invoiceno;
 				$voucherno 			=	$row->voucherno;
 				$chequedate 		=	$row->chequedate;
 				$bankname 	 		=	$row->bank;
@@ -228,6 +228,7 @@ class controller extends wc_controller {
 				$table .= '<td>' . $this->date->dateFormat($chequedate) 	. '</td>';
 				$table .= '<td>' . $chequenumber 	. '</td>';
 				$table .= '<td>' . $invoiceno 		. '</td>';
+				$table .= '<td>' . $voucherno 		. '</td>';
 				$table .= '<td>' . $bankname 		. '</td>';
 				$table .= '<td>' . $partnername 	. '</td>';
 				$table .= '<td class="text-right">' . number_format($chequeamount,2) . '</td>';
@@ -247,7 +248,7 @@ class controller extends wc_controller {
 			}
 
 			$tabledetails .= '<tr>
-								<th colspan="6">Grand Total: </th>
+								<th colspan="7">Grand Total: </th>
 								<th class="text-right">' . number_format($grandtotal,2) . '</th>
 							</tr>';
 		}
@@ -334,5 +335,45 @@ class controller extends wc_controller {
 		}
 
 		return $csv;
+	}
+
+	public function check_stat(){
+		$ids = $this->input->post('ids');
+		$id_arr =	explode(',',$ids);
+		$stat = array();
+		$vno = array();
+		$cno = array();
+		$msg = array();
+		foreach ($id_arr as $value) {
+			$exp_ids 	 		=	explode('-',$value);
+			$transtype 			=	$exp_ids[0];
+			$check_number 		=	$exp_ids[1];
+			$result = $this->report->check_stat($transtype, $check_number );
+			foreach ($result as $val) {
+				$stat = $val->stat;
+				if ($stat != 'posted'){
+					$vno = $val->voucherno;
+					$cno = $val->chequenumber;
+					$msg[] = "Check number $cno in Voucher Number $vno is not yet posted";
+				}
+			}
+		}
+
+		$error_msg = '';
+		if ($msg) {
+			$error_msg .= 'Unable to Release Cheques.';
+			$error_msg .= '<ul>';
+			foreach ($msg as $mes) {
+				$error_msg .= "<li>$mes</li>";
+			}
+			$error_msg .= '</ul>';
+		}
+
+		return array('msg' => $error_msg );
+
+		
+	
+		
+
 	}
 }

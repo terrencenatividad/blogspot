@@ -130,6 +130,21 @@
 							</div>
 						</div>
 						<div class="row">
+							<div class="col-md-6"></div>
+							<div class="col-md-6">
+								<?php
+									echo $ui->formField('checkbox')
+											->setLabel('Advance Payment')
+											->setSplit('col-md-4', 'col-md-8')
+											->setName('ap_checker')
+											->setId('ap_checker')
+											->setDefault('no')
+											->setValue('')
+											->draw($show_input);
+								?>
+							</div>
+						</div>
+						<div class="row">
 							<div class = "col-md-12">
 								<?php
 								echo $ui->formField('textarea')
@@ -1312,7 +1327,8 @@
 			</div>
 			<div class="modal-body">
 				<p>Successfully Saved.</p>
-				<p class="hidden">A <strong>Credit Memo</strong> has been generated for the overpayment.</p>
+				<p class="hidden" id="credit_memo">A <strong>Credit Memo</strong> has been generated for the Overpayment.</p>
+				<p class="hidden" id="credit_voucher">A <strong>Credit Voucher</strong> has been generated for the Advance Payment.</p>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-success" data-dismiss="modal" id="save_okbtn">Ok</button>
@@ -2243,29 +2259,34 @@ function cancelTransaction(vno){
 /**TOGGLE CHECK DATE FIELD**/
 function toggleCheckInfo(val){
 	var selected_rows = $("#selected_rows").html();
+	var is_ap 	= $('#ap_checker').is(':checked');
+		is_ap 	= (is_ap == true) ? "true" 	:	"false";
 
 	if(val == 'cheque'){
 		if(selected_rows != '[]'){
 			$("#payableForm #cheque_details").removeClass('hidden');
 		}else{
-			
-			var list 	= (customer != '') ? "<ul><li>Total Receivables</li></ul>" : "<ul><li>Vendor</li><li>Total Receivables</li></ul>";
-			var msg 	= "The following fields are required to process a '<strong>Check</strong>' payment."+list;
-			bootbox.dialog({
-				message: msg,
-				title: "Oops!",
-				buttons: {
-					yes: {
-						label: "Ok",
-						className: "btn-primary btn-flat",
-						callback: function(result) {
-							$("#payableForm #paymentmode").val('cash');
-							$('#payableForm #paymentmode').select2('destroy');
-							$('#payableForm #paymentmode').select2({width: "100%"});
+			if(is_ap == "false"){
+				var list 	= (customer != '') ? "<ul><li>Total Receivables</li></ul>" : "<ul><li>Vendor</li><li>Total Receivables</li></ul>";
+				var msg 	= "The following fields are required to process a '<strong>Check</strong>' payment."+list;
+				bootbox.dialog({
+					message: msg,
+					title: "Oops!",
+					buttons: {
+						yes: {
+							label: "Ok",
+							className: "btn-primary btn-flat",
+							callback: function(result) {
+								$("#payableForm #paymentmode").val('cash');
+								$('#payableForm #paymentmode').select2('destroy');
+								$('#payableForm #paymentmode').select2({width: "100%"});
+							}
 						}
 					}
-				}
-			});
+				});
+			} else {
+				$("#payableForm #cheque_details").removeClass('hidden');
+			}
 		}
 	} else {
 		//For Reseting initial PV & Cheque Details
@@ -2811,6 +2832,7 @@ function checkBalance(val,id){
 			$(this).find('.paymentamount').closest('div').removeClass('has-error');
 			$('#TagReceivablesBtn').prop('disabled',false);
 		}
+		excess_payment 	=	(excess_payment < 0) ? 0 : excess_payment;
 		$('#payableForm #overpayment').val(excess_payment);
 		$('#payable_list_container #overpayment'+id).val(ind_excess);
 		$('#payable_list_container #paymentamount'+id).value = '';
@@ -3694,11 +3716,15 @@ $(document).ready(function() {
 		{	
 			if(data.success == 1)
 			{
-				// $("#payableForm #h_voucher_no").val(data.voucher);
-				
 				var credit_used 	=	$('#total_cred_used').val();
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+
 				if(credit_used > 0){
-					$('#success_save_modal p.hidden').removeClass('hidden');
+					$('#success_save_modal p#credit_memo').removeClass('hidden');
+					$('#success_save_modal').modal('show');	
+				} else if(is_ap=="yes") {
+					$('#success_save_modal p#credit_voucher').removeClass('hidden');
 					$('#success_save_modal').modal('show');	
 				} else {
 					$('#delay_modal').modal('show');
@@ -3743,7 +3769,10 @@ $(document).ready(function() {
 					
 					$("#payableForm #btnSave").html('Saving...');
 					
-					$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+					var is_ap 	= $('#ap_checker').is(':checked');
+						is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+
+					$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 					.done(function(data)
 					{	
 						if(data.code == '1')
@@ -3802,7 +3831,10 @@ $(document).ready(function() {
 
 				$("#payableForm #submit").val("h_save");
 
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+					
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 				.done(function(data)
 				{	
 					if(data.code == 1){
@@ -3844,8 +3876,9 @@ $(document).ready(function() {
 			}
 			if(valid == 0){
 				$("#payableForm #submit").val("save_new");
-
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 				.done(function(data)
 				{
 					if(data.code == 1){
@@ -3889,8 +3922,9 @@ $(document).ready(function() {
 			if(valid == 0)
 			{
 				$("#payableForm #submit").val("save");
-
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 				.done(function(data)
 				{
 					if(data.code == 1){
@@ -3931,8 +3965,9 @@ $(document).ready(function() {
 			if(valid == 0)
 			{
 				$("#payableForm #submit").val("save_exit");
-
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 				.done(function(data)
 				{
 					if(data.code == 1){
@@ -3993,8 +4028,11 @@ $(document).ready(function() {
 				$("#payableForm #btnSave").html('Saving...');
 
 				$("#payableForm #h_save").val("h_save");
-				
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 				.done(function(data)
 				{
 					if(data.code == 1) {
@@ -4041,8 +4079,11 @@ $(document).ready(function() {
 				$("#payableForm #btnSave").html('Saving...');
 
 				$("#payableForm #submit").val("save_new");
-				
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 				.done(function(data)
 				{
 					if(data.code == 1) {
@@ -4088,7 +4129,10 @@ $(document).ready(function() {
 
 				$("#payableForm #submit").val("save");
 				
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 				.done(function( data ) {
 					if(data.code == 1) {
 						finalize_saving(button_name);				
@@ -4133,7 +4177,10 @@ $(document).ready(function() {
 
 				$("#payableForm #submit").val("save_exit");
 				
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 				.done(function( data ) 
 				{
 					if(data.code == 1) {
@@ -4279,7 +4326,9 @@ $(document).ready(function() {
 		var flag 	= 1;
 		
 		var account = $(this).val();
-
+		//Advance Payment Checker
+		var is_ap 	= $('#ap_checker').is(':checked');
+			is_ap 	= (is_ap == true) ? "true" 	:	"false";
 		if( account != "" ){
 			$(this).closest('tr').find('.h_accountcode').val(account);
 			if( customer == "" ){
@@ -4296,7 +4345,7 @@ $(document).ready(function() {
 						}
 					}
 				});
-			} else if( payable == "[]"){
+			} else if( payable == "[]" && is_ap == "false" ){
 				bootbox.dialog({
 					message: "Please tag Receivables first.",
 					title: "Oops!",
@@ -4350,46 +4399,47 @@ $(document).ready(function() {
 	});
 
 	//validation for Credit Amount
-	// $('#credit_input').on('change',function(){
-	// 	var available_credits =	$('#available_credits').val();
-	// 	var input 	= $(this).val();
+	$('#credit_input').on('change',function(){
+		var available_credits =	$('#available_credits').val();
+		var input 	= $(this).val();
 
-	// 	input 				=	removeComma(input);
-	// 	available_credits 	=	removeComma(available_credits);
+		input 				=	removeComma(input);
+		available_credits 	=	removeComma(available_credits);
 
-	// 	console.log("Available "+available_credits);
-	// 	console.log("Input "+input);
+		if(input > available_credits){
+			$('#excess_credit_error').removeClass('hidden');
+			$(this).closest('.form-group').addClass('has-error');
+		} else {
+			if(input > 0){
+				$('#excess_credit_error').addClass('hidden');
+				$(this).closest('.form-group').removeClass('has-error');
 
-	// 	if(input > available_credits){
-	// 		$('#excess_credit_error').removeClass('hidden');
-	// 		$(this).closest('.form-group').addClass('has-error');
-	// 	} else {
-	// 		if(input > 0){
-	// 			$('#excess_credit_error').addClass('hidden');
-	// 			$(this).closest('.form-group').removeClass('has-error');
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_op_acct",$('#payableForm').serialize())
+				.done(function( response ) {
+					var excess_acct = addCommas(response.account);
+					var ParentRow = $("#entriesTable tbody tr.clone").last();
+					ParentRow.before(clone_acct);
+					resetIds();
+					var row 	  = $('#entriesTable tbody tr.clone').length - 1;
+					$("#accountcode\\["+ row +"\\]").val(excess_acct).trigger('change.select2');
+					$("#h_accountcode\\["+ row +"\\]").val(excess_acct);
+					$("#debit\\["+ row +"\\]").val(addComma(input));
+					disable_acct_fields(row);
+					addAmountAll('debit');
+				});
+			}
+		}
 
-	// 			$.post("<?//=BASE_URL?>financials/receipt_voucher/ajax/retrieve_op_acct",$('#payableForm').serialize())
-	// 			.done(function( response ) {
-	// 				var excess_acct = addCommas(response.account);
-	// 				var ParentRow = $("#entriesTable tbody tr.clone").last();
-	// 				ParentRow.before(clone_acct);
-	// 				resetIds();
-	// 				var row 	  = $('#entriesTable tbody tr.clone').length - 1;
-	// 				console.log("ROW "+row);
-	// 				$("#accountcode\\["+ row +"\\]").val(excess_acct).trigger('change.select2');
-	// 				$("#h_accountcode\\["+ row +"\\]").val(excess_acct);
-	// 				$("#debit\\["+ row +"\\]").val(addComma(input));
-	// 				disable_acct_fields(row);
-	// 				// $('#entriesTable tbody tr.clone:first').find('.account_amount').val(addComma(input));
-	// 				// $('#entriesTable tbody tr.clone:first').find('.accountcode').val(excess_acct).trigger('change');
-	// 				addAmountAll('debit');
-	// 			});
-	// 		}
-	// 	}
+	});
 
-	// });
-	
-	
+	$('#payableForm').on('ifChecked','#ap_checker',function(event){
+		$('#apv').prop('disabled',true);
+	});
+
+	$('#payableForm').on('ifUnchecked','#ap_checker',function(event){
+		$('#apv').prop('disabled',false);
+	});
+
 }); // end
 
 	// // For adding new rol
