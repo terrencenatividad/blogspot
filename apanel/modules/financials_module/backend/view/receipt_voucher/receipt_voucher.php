@@ -465,6 +465,7 @@
 						<table class="table table-hover table-condensed " id="entriesTable">
 							<thead>
 								<tr class="info">
+									<?if($show_input){?><th class="col-md-1 text-center" >Withholding Tax</th><?}?>
 									<th class="col-md-4">Account</th>
 									<th class="col-md-3">Description</th>
 									<th class="col-md-2">Debit</th>
@@ -488,8 +489,46 @@
 
 									?>
 
-									<tr class="clone">
-										<td>
+									<tr class="clone" valign="middle">
+									<td class = "checkbox-select remove-margin text-center">
+											<?php
+												echo $ui->formField('checkbox')
+													->setSplit('', 'col-md-12')
+													// ->setName("wtax[".$row."]")
+													->setId("wtax[".$row."]")
+													->setClass("wtax")
+													->setDefault("")
+													->setValue(1)
+													->setAttribute(array("disabled" => "disabled"))
+													->draw($show_input);
+											?>
+										</td>
+										<td class="edit-button text-center " style="display: none">
+											<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
+										</td>
+										<td class = "remove-margin hidden" >
+											<?php
+												echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName("taxcode[".$row."]")
+													->setId("taxcode[".$row."]")
+													->setClass('taxcode')
+													->setValue("")
+													->draw($show_input);
+											?>
+										</td>
+										<td class = "remove-margin hidden" >
+											<?php
+												echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName("taxbase_amount[".$row."]")
+													->setId("taxbase_amount[".$row."]")
+													->setClass('taxbase_amount')
+													->setValue("")
+													->draw($show_input);
+											?>
+										</td>
+										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('dropdown')
 											->setPlaceholder('Select One')
@@ -503,7 +542,7 @@
 											?>
 											<input type = "hidden" class="h_accountcode" name='h_accountcode[<?=$row?>]' id='h_accountcode[<?=$row?>]'>
 										</td>
-										<td>
+										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
@@ -516,7 +555,7 @@
 											?>
 											<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
 										</td>
-										<td>
+										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
@@ -530,7 +569,7 @@
 											->draw($show_input);
 											?>
 										</td>
-										<td>
+										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
@@ -553,8 +592,45 @@
 									$row++;
 									?>
 
-									<tr class="clone">
-										<td>
+									<tr class="clone" valign="middle">
+									<td class = "checkbox-select remove-margin text-center">
+											<?php
+												echo $ui->formField('checkbox')
+														->setSplit('', 'col-md-12')
+														->setId("wtax[".$row."]")
+														->setClass("wtax")
+														->setDefault("")
+														->setValue(1)
+														->setAttribute(array("disabled" => "disabled"))
+														->draw($show_input);
+											?>
+										</td>
+										<td class="edit-button text-center" style="display: none">
+											<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
+										</td>
+										<td class = "remove-margin hidden">
+											<?php
+												echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName("taxcode[".$row."]")
+													->setId("taxcode[".$row."]")
+													->setClass('taxcode')
+													->setValue("")
+													->draw($show_input);
+											?>
+										</td>
+										<td class = "remove-margin hidden">
+											<?php
+												echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName("taxbase_amount[".$row."]")
+													->setId("taxbase_amount[".$row."]")
+													->setClass('taxbase_amount')
+													->setValue("")
+													->draw($show_input);
+											?>
+										</td>
+										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('dropdown')
 											->setPlaceholder('Select One')
@@ -568,7 +644,7 @@
 											?>
 											<input type = "hidden" class="h_accountcode" name='h_accountcode[<?=$row?>]' id='h_accountcode[<?=$row?>]'>
 										</td>
-										<td>
+										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
@@ -581,7 +657,7 @@
 											?>
 											<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
 										</td>
-										<td>
+										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
@@ -595,7 +671,7 @@
 											->draw($show_input);
 											?>
 										</td>
-										<td>
+										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
@@ -615,7 +691,7 @@
 									</tr>
 
 									<?php
-								}else{
+								}else if(!$show_input){
 									$aPvJournalDetails 	= $data['details'];
 									$detail_row 		= '';
 									if(!empty($aPvJournalDetails)){
@@ -654,7 +730,10 @@
 										}
 
 										$detail_row	.= '<tr class="clone '.$added_class.'">';
-										$detail_row	.= '<td>';
+										?>
+										
+										<?php
+										$detail_row	.= '<td class = "remove-margin">';
 										$detail_row .= $ui->formField('dropdown')
 										->setPlaceholder('Select One')
 										->setSplit('', 'col-md-12')
@@ -668,7 +747,7 @@
 										$detail_row	.= '<input type = "hidden" class="h_accountcode"  name="h_accountcode['.$row.']" id="h_accountcode['.$row.']" value="'.$accountcode.'" >
 										</td>';
 
-										$detail_row	.= '<td>';
+										$detail_row	.= '<td class = "remove-margin">';
 										$detail_row .= $ui->formField('text')
 										->setSplit('', 'col-md-12')
 										->setName('detailparticulars['.$row.']')
@@ -680,7 +759,7 @@
 										$detail_row	.= '	<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
 										</td>';
 
-										$detail_row	.= '<td class="text-right">';
+										$detail_row	.= '<td class="text-right class = "remove-margin"">';
 										$detail_row .= $ui->formField('text')
 										->setSplit('', 'col-md-12')
 										->setName('debit['.$row.']')
@@ -693,7 +772,153 @@
 										->draw($show_input);
 										$detail_row	.= '</td>';
 
-										$detail_row	.= '<td class="text-right">';
+										$detail_row	.= '<td class="text-right class = "remove-margin"">';
+										$detail_row .= $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setName('credit['.$row.']')
+										->setClass("text-right  credit $indicator")
+										->setId('credit['.$row.']')
+										->setValidation('decimal')
+										->setMaxLength(20)
+										->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_credit))
+										->setValue(number_format($credit, 2))
+										->draw($show_input);
+										$detail_row	.= '</td>';
+
+										if( $show_input ){
+											$detail_row .= '<td class="text-center">';
+											$detail_row .= '	<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="'.$row.'" id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');" '.$disable_code.'><span class="glyphicon glyphicon-trash"></span></button>';
+											$detail_row .= '</td>';
+										}
+
+										$detail_row	.= '</tr>';
+
+										$row++;
+									}
+
+									echo $detail_row;
+								}
+								}
+								
+								else{
+									$aPvJournalDetails 	= $data['details'];
+									$detail_row 		= '';
+									if(!empty($aPvJournalDetails)){
+										$count = count($aPvJournalDetails);
+										foreach ($aPvJournalDetails as $aPvJournalDetails_Index => $aPvJournalDetails_Value) {
+											$accountcode 		= $aPvJournalDetails_Value->accountcode;
+											$detailparticulars 	= $aPvJournalDetails_Value->detailparticulars;
+											$debit 				= $aPvJournalDetails_Value->debit;
+											$credit 			= $aPvJournalDetails_Value->credit;
+											$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
+
+											$total_debit 		+= $debit;
+											$total_credit 		+= $credit;
+
+											$disable_code 		= "";
+											$added_class 		= "";
+											$added_function_db 	= "";
+											$added_function_cr	= "";
+											$indicator 			= "";
+											
+										if($aPvJournalDetails_Index < ($count-1) && $paymenttype == 'cheque' && $ischeck == 'yes'){					
+											$disable_debit		= 'readOnly';
+											$disable_credit		= 'readOnly';
+											$disable_dedit 		= "readOnly";
+											$disable_code 		= 'disabled';
+											$added_class 		= 'added_row';
+											$indicator 			= "cheque";
+										} else if($aPvJournalDetails_Index > 0 && $accountcode == $discount_code ){
+											$disable_debit		= 'readOnly';
+											$disable_credit		= 'readOnly';
+											$disable_code 		= 'disabled';
+											$added_class 		= 'discount_row';
+										} else {
+											$disable_debit		= ($debit > 0) ? '' : 'readOnly';
+											$disable_credit		= ($credit > 0) ? '' : 'readOnly';
+										}
+
+										$detail_row	.= '<tr class="clone '.$added_class.'">';
+										?>
+										<td class = "checkbox-select remove-margin text-center">
+											<?php
+												echo $ui->formField('checkbox')
+														->setSplit('', 'col-md-12')
+														// ->setName("wtax[".$row."]")
+														->setId("wtax[".$row."]")
+														->setClass("wtax")
+														->setDefault("1")
+														// ->setValue(($taxcode) ? 1 : 0)
+														->setAttribute(array("disabled" => "disabled"))
+														->draw($show_input);
+											?>
+										</td>
+										<td class="edit-button text-center" style="display: none">
+											<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
+										</td>
+										<td class = "remove-margin hidden">
+											<?php
+												echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName("taxcode[".$row."]")
+													->setId("taxcode[".$row."]")
+													->setClass('taxcode')
+													// ->setValue($taxcode)
+													->draw($show_input);
+											?>
+										</td>
+										<td class = "remove-margin hidden">
+											<?php
+												echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName("taxbase_amount[".$row."]")
+													->setId("taxbase_amount[".$row."]")
+													->setClass('taxbase_amount')
+													// ->setValue($taxbase_amount)
+													->draw($show_input);
+											?>
+										</td>
+										<?php
+										$detail_row	.= '<td class = "remove-margin">';
+										$detail_row .= $ui->formField('dropdown')
+										->setPlaceholder('Select One')
+										->setSplit('', 'col-md-12')
+										->setName("accountcode[".$row."]")
+										->setClass("accountcode")
+										->setId("accountcode[".$row."]")
+										->setList($account_entry_list)
+										->setAttribute(array($disable_code))
+										->setValue($accountcode)
+										->draw($show_input);
+										$detail_row	.= '<input type = "hidden" class="h_accountcode"  name="h_accountcode['.$row.']" id="h_accountcode['.$row.']" value="'.$accountcode.'" >
+										</td>';
+
+										$detail_row	.= '<td class = "remove-margin">';
+										$detail_row .= $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setName('detailparticulars['.$row.']')
+										->setId('detailparticulars['.$row.']')
+										->setMaxLength(250)
+										->setClass('description')
+										->setValue($detailparticulars)
+										->draw($show_input);
+										$detail_row	.= '	<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
+										</td>';
+
+										$detail_row	.= '<td class="text-right class = "remove-margin"">';
+										$detail_row .= $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setName('debit['.$row.']')
+										->setId('debit['.$row.']')
+										->setClass("text-right account_amount $indicator")
+										->setValidation('decimal')
+										->setMaxLength(20)
+										->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
+										->setValue(number_format($debit, 2))
+										->draw($show_input);
+										$detail_row	.= '</td>';
+
+										$detail_row	.= '<td class="text-right class = "remove-margin"">';
 										$detail_row .= $ui->formField('text')
 										->setSplit('', 'col-md-12')
 										->setName('credit['.$row.']')
@@ -1162,52 +1387,6 @@
 		edited = true;
 	});
 
-	var row = '';
-	prev_account = '';
-	
-	function get_coa(account){
-	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_tax",{account:account}).done(function(data){
-		if((data.result == '1401005')){
-			if (prev_account != '' && account != prev_account) {
-				$('#tax_amount').val('');
-			}
-			prev_account = account;
-			$('#atcModal').modal('show');
-			$('#tax_account').html(data.ret);
-		} else {
-			row.find('.checkbox-select').show();
-			row.find('.edit-button').hide();
-		}
-	});
-
-	
-}
-	$('#entriesTable').on('change', '.accountcode', function(){
-		row = $(this).closest('tr')
-		var account = $(this).val();
-		get_coa(account);
-	})
-
-	$('#tax_apply').click(function(){
-		var tax_account = $('#tax_account').val();
-		var tax_amount = $('#tax_amount').val();
-		tax_amount = tax_amount.replace(/,/g,'');
-		$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_account",{tax_account:tax_account,tax_amount:tax_amount})
-		.done(function(data) {
-			var credit = data.amount ;
-			console.log(credit);
-			var taxcode = data.tax_account;
-			row.find('.credit').val(addCommas(credit));
-			row.find('.taxbase_amount').val(tax_amount);
-			row.find('.taxcode').val(tax_account);
-			addAmountAll('credit');
-		});
-		
-		$('#atcModal').modal('hide');
-		row.find('.checkbox-select').hide();
-		row.find('.edit-button').show().attr('data-amount', tax_amount);
-	});
-
 	function addcustomerToDropdown() {
 		var optionvalue = $("#customer_modal #supplierForm #partnercode").val();
 		var optiondesc 	= $("#customer_modal #supplierForm #partnername").val();
@@ -1558,28 +1737,33 @@ function toggleExchangeRate(tp) {
 function resetIds() {
 	var table 	= document.getElementById('entriesTable');
 	var count	= table.rows.length - 3;
-
 	x = 1;
 	for(var i = 1;i <= count;i++) {
 		var row = table.rows[i];
 		
-		row.cells[0].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
-		row.cells[0].getElementsByTagName("input")[0].id 	= 'h_accountcode['+x+']';
-		row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
-		row.cells[1].getElementsByTagName("input")[1].id 	= 'ischeck['+x+']';
-		row.cells[2].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
-		row.cells[3].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].id 	= 'wtax['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].id 	= 'taxcode['+x+']';
+		row.cells[3].getElementsByTagName("input")[0].id 	= 'taxbase_amount['+x+']';
+		row.cells[4].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
+		row.cells[4].getElementsByTagName("input")[0].id 	= 'h_accountcode['+x+']';
+		row.cells[5].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
+		row.cells[5].getElementsByTagName("input")[1].id 	= 'ischeck['+x+']';
+		row.cells[6].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
+		row.cells[7].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
 		
-		row.cells[0].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
-		row.cells[0].getElementsByTagName("input")[0].name  = 'h_accountcode['+x+']';
-		row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
-		row.cells[1].getElementsByTagName("input")[1].name 	= 'ischeck['+x+']';
-		row.cells[2].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
-		row.cells[3].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].name 	= 'wtax['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].name 	= 'taxcode['+x+']';
+		row.cells[3].getElementsByTagName("input")[0].name 	= 'taxbase_amount['+x+']';
+		row.cells[4].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
+		row.cells[4].getElementsByTagName("input")[0].name  = 'h_accountcode['+x+']';
+		row.cells[5].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
+		row.cells[5].getElementsByTagName("input")[1].name 	= 'ischeck['+x+']';
+		row.cells[6].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
+		row.cells[7].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
 		
-		row.cells[4].getElementsByTagName("button")[0].setAttribute('id',x);
-		row.cells[0].getElementsByTagName("select")[0].setAttribute('data-id',x);
-		row.cells[4].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
+		row.cells[8].getElementsByTagName("button")[0].setAttribute('id',x);
+		row.cells[4].getElementsByTagName("select")[0].setAttribute('data-id',x);
+		row.cells[8].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
 
 		x++;
 	}
@@ -1629,6 +1813,9 @@ function setZero(offset) {
 	var account		= document.getElementById('accountcode['+newid+']');
 
 	if(document.getElementById('accountcode['+newid+']') != null) {
+		document.getElementById('wtax['+newid+']').value 				= '';
+		document.getElementById('taxcode['+newid+']').value 			= '';
+		document.getElementById('taxbase_amount['+newid+']').value 		= '';
 		document.getElementById('accountcode['+newid+']').value 		= '';
 		document.getElementById('h_accountcode['+newid+']').value 		= '';
 		document.getElementById('detailparticulars['+newid+']').value 	= '';
@@ -2413,10 +2600,9 @@ function getRVDetails(){
 					discount_amount += parseFloat(0) || parseFloat(container[i]['dis']) ;
 				}
 				$('#entriesTable tbody tr.discount_row').remove();
-				var row = $("#entriesTable tbody tr.clone").length;
 				if( parseFloat(discount_amount) != 0 ){
 					discount_amount 	=	addCommas(discount_amount.toFixed(2));
-					var ParentRow = $("#entriesTable tbody tr.clone").last();
+					var ParentRow = $('#itemsTable tbody tr.clone select').select2({width: "100%",allow_single_deselect: true,placeholder_text_single:'Select an Account'});
 					ParentRow.before(clone_acct);
 					resetIds();
 					$("#accountcode\\["+ row +"\\]").closest('tr').addClass('discount_row');
@@ -2455,7 +2641,7 @@ function selectPayable(id,toggle){
 			credit_used.prop('disabled',true);
 			credit_used.val("0.00");
 			// discountamount.val('');
-			console.log('1');
+			// console.log('1');
 		}else{
 			check.prop('checked', true);
 			paymentamount.prop('disabled',false);
@@ -2463,7 +2649,7 @@ function selectPayable(id,toggle){
 			discountamount.prop('disabled',false);
 			credit_used.prop('disabled',false);
 			// discountamount.val(balance);
-			console.log('2');
+			// console.log('2');
 		}
 	}else{
 		if(toggle == 1){
@@ -2473,7 +2659,7 @@ function selectPayable(id,toggle){
 			discountamount.prop('disabled',false);
 			credit_used.prop('disabled',false);
 			// discountamount.val(balance);
-			console.log('3');
+			// console.log('3');
 			// if(credit_used.val() > available_credit)
 		}else{
 			check.prop('checked', false);
@@ -2483,7 +2669,7 @@ function selectPayable(id,toggle){
 			credit_used.prop('disabled',true);
 			credit_used.val("0.00");
 			// discountamount.val('0.00');
-			console.log('4');
+			// console.log('4');
 		}
 	}
 
@@ -3769,7 +3955,7 @@ $(document).ready(function() {
 
 	} else if( task == "edit") {
 		var paymentmode = $("#paymentmode").val();
-		console.log(container);
+		// console.log(container);
 		var selected_rows 	= JSON.stringify(container);
 		$('#selected_rows').html(selected_rows);
 
@@ -4030,7 +4216,7 @@ $(document).ready(function() {
 	});
 
 	$('#customer').on('select2:selecting', function(e){
-		console.log(e);
+		// console.log(e);
 		var accounts_selected 	= computefortotalaccounts();
 		if(accounts_selected > 0){
 			e.preventDefault();
@@ -4205,5 +4391,99 @@ $(document).ready(function() {
 	
 	
 }); // end
+
+	// // For adding new rol
+	// $('body').on('click', '.add-data', function() {	
+	// 	$('#entriesTable tbody tr.clone select').select2('destroy');
+		
+	// 	var clone = $("#entriesTable tbody tr.clone:first").clone(true); 
+
+	// 	var ParentRow = $("#entriesTable tbody tr.clone").last();
+
+	// 	clone.clone(true).insertAfter(ParentRow);
+		
+	// 	setZero();
+	// 	// $('.checkbox-select').show();
+	// 	// $('.edit-button').hide();
+
+	// 	// $('#itemsTable tr:last').attr('id');
+	// 	$(".checkbox-select:last").show();
+	// 	$(".edit-button:last").hide();
+		
+	// 	$('#entriesTable tbody tr.clone select').select2({width: "100%"});
+	// });
+
+var row = '';
+prev_account = '';
+	
+function get_coa(account){
+	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_tax",{account:account}).done(function(data){
+		if((data.result == '1401005')){
+			if (prev_account != '' && account != prev_account) {
+				$('#tax_amount').val('');
+			}
+			prev_account = account;
+			$('#atcModal').modal('show');
+			$('#tax_account').html(data.ret);
+		} else {
+			row.find('.checkbox-select').show();
+			row.find('.edit-button').hide();
+		}
+	});
+}
+
+$("#entriesTable").on('ifToggled','.wtax',function() {
+	$('#tax_amount').val('');
+	row = $(this).closest('tr');
+});
+
+$("#entriesTable").on('click', '.edit-button', function() {
+	$('#tax_amount').val($(this).attr('data-amount'));
+	$('#atcModal').modal('show');
+	var accountcode = $('.accountcode').val();
+	get_coa(accountcode);
+	row = $(this).closest('tr');
+});
+
+$('#tax_apply').click(function(){
+	var tax_account = $('#tax_account').val();
+	var tax_amount = $('#tax_amount').val();
+	tax_amount = tax_amount.replace(/,/g,'');
+	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_account",{tax_account:tax_account,tax_amount:tax_amount})
+	.done(function(data) {
+		var credit = data.amount ;
+		var taxcode = data.tax_account;
+		row.find('.credit').val(addCommas(credit.toFixed(2)));
+		row.find('.taxbase_amount').val(tax_amount);
+		row.find('.taxcode').val(tax_account);
+		addAmountAll('credit');
+	});
+	
+	$('#atcModal').modal('hide');
+	row.find('.checkbox-select').hide();
+	row.find('.edit-button').show().attr('data-amount', tax_amount);
+});
+
+$('#entriesTable').on('change', '.accountcode', function(){
+	row = $(this).closest('tr')
+	var account = $(this).val();
+	get_coa(account);
+})
+
+$('#entriesTable .taxcode').each(function(){
+	var acc = $(this).val();
+	var tax_amt = $(this).closest('tr').find('.taxbase_amount').val();
+	if (acc != '' ){
+		$(this).closest('tr').find('.checkbox-select').hide();
+		$(this).closest('tr').find('.edit-button').show().attr('data-amount', tax_amt);
+		$('#tax_account').val(acc);
+	}
+});
+
+$('.tax_amount').on('change', function(){
+	var accs = $(this).val();
+	acc = addCommas(parseFloat(accs).toFixed(2));
+	$('.tax_amount').val(acc);
+});
 
 </script>

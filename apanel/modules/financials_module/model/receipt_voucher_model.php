@@ -76,7 +76,7 @@ class receipt_voucher_model extends wc_model
 		$temp["main"] = $retrieveArrayMain;
 
 		// Retrieve Details
-		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.ischeck, main.debit, SUM(main.credit) credit";
+		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.ischeck, main.debit, SUM(main.credit) credit,main.taxcode,main.taxbase_amount";
 		$detail_cond  = "main.voucherno = '$sid' AND main.stat != 'temporary'";
 		$orderby 	  = "main.linenum";	
 		$detailJoin   = "chartaccount as chart ON chart.id = main.accountcode AND chart.companycode = main.companycode";
@@ -561,17 +561,17 @@ class receipt_voucher_model extends wc_model
 
 		foreach($data as $postIndex => $postValue)
 		{
-			if($postIndex=='h_accountcode' ||	$postIndex=='detailparticulars'  || $postIndex=='ischeck' || $postIndex=='debit' || $postIndex=='credit')
+			if($postIndex=='h_accountcode' ||	$postIndex=='detailparticulars'  || $postIndex=='ischeck' || $postIndex=='debit' || $postIndex=='credit' || $postIndex=='taxcode' || $postIndex=='taxbase_amount')
 			{
 				$a		= '';
 				foreach($postValue as $postValueIndex => $postValueIndexValue){
-					if($postIndex == 'debit' || $postIndex == 'credit'){
+					if($postIndex == 'debit' || $postIndex == 'credit' || $postIndex == 'taxbase_amount'){
 						$a = str_replace(',', '', $postValueIndexValue);
 					}
 					else{
 						$a = htmlentities(addslashes(trim($postValueIndexValue)));
 					}
-					$aJournalData[$postIndex][$postValueIndex] = $a;	
+					$aJournalData[$postIndex][$postValueIndex] = $a;
 				}	
 			}
 			
@@ -727,18 +727,21 @@ class receipt_voucher_model extends wc_model
 			$detailparticulars					= $tempArrayValue['detailparticulars'];
 			$debit			    				= $tempArrayValue['debit'];
 			$credit			    				= $tempArrayValue['credit'];
+			// $taxbase_amount			    		= $tempArrayValue['taxbase_amount'];
 			$ischeck 							= isset($tempArrayValue['ischeck']) && $tempArrayValue != "" 	?	$tempArrayValue['ischeck'] 	:	"no";
-
 			$post_detail['voucherno']			= $voucherno;
 			$post_detail['linenum']				= $iDetailLineNum;
 			$post_detail['transtype']			= $source;
 			$post_detail['accountcode']			= $accountcode;
 			$post_detail['debit']				= $debit;
 			$post_detail['credit']				= $credit;
+			// $post_detail['taxbase_amount']		= $taxbase_amount;
 			$post_detail['converteddebit']		= $debit;
 			$post_detail['convertedcredit'] 	= $credit;
 			$post_detail['currencycode']		= 'PHP';
 			$post_detail['detailparticulars'] 	= $detailparticulars;
+			$post_detail['taxcode']			  	= $tempArrayValue['taxcode'];
+			$post_detail['taxbase_amount']		= $tempArrayValue['taxbase_amount'];
 			$post_detail['ischeck']				= $ischeck;
 			$post_detail['stat']				= $post_header['stat'];
 
@@ -1165,6 +1168,7 @@ class receipt_voucher_model extends wc_model
 				$insert_info['accountcode']			= $count[$i]->accountcode;
 				$insert_info['debit']				= $count[$i]->credit;
 				$insert_info['credit']				= $count[$i]->debit;
+				$insert_info['taxbase_amount']		= $count[$i]->taxbase_amount;
 				$insert_info['currencycode']		= $count[$i]->currencycode;
 				$insert_info['exchangerate']		= $count[$i]->exchangerate;
 				$insert_info['converteddebit']		= $count[$i]->convertedcredit;
