@@ -223,7 +223,6 @@ class controller extends wc_controller
 		$cmp 					   	= $this->companycode;
 		// Retrieve data
 		$data         			   	= $this->receipt_voucher->retrieveEditData($sid);
-
 		$data["ui"]   			   	= $this->ui;
 		$data['show_input'] 	   	= false;
 		$data["button_name"] 	   	= "Edit";
@@ -266,6 +265,8 @@ class controller extends wc_controller
 		$data["tinno"] 		   	   	= $data["vend"]->tinno;
 		$data["address1"] 	       	= $data["vend"]->address1;
 		$data["terms"] 	   		   	= $data["vend"]->terms;
+		$data["businesstype"] 	   	= $data["vend"]->businesstype;
+		$data["partnercode"] 	   	= $data["vend"]->partnercode;
 		//For User Access
 		$login						= $this->session->get('login');
 		$groupname 					= $login['groupname'];
@@ -321,6 +322,198 @@ class controller extends wc_controller
 		$data['restrict_rv'] 	= $restrict_rv;
 
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
+	}
+
+	public function sawt_csv() {
+		$voucherno = $_GET['h_voucher_no'];
+		$partnercode = $_GET['partnercode'];
+		
+		$partner = $this->receipt_voucher->getPartnerDetails($partnercode);
+		$rv = $this->receipt_voucher->getRV($voucherno);
+		$rv_details = $this->receipt_voucher->getRVDetails($voucherno);
+
+		$date=date_create($rv->postingdate);
+		$date = date_format($date,"F, Y");
+
+		$businesstype = $partner->businesstype;
+
+		if ($businesstype == 'Individual') {
+			$filename = 'SAWT 1701';
+			$form = '1701';
+		}
+		else {
+			$filename = 'SAWT 1702';
+			$form = '1702';
+		}
+
+		$excel = new PHPExcel();
+		$excel->getProperties()
+				->setCreator('Cid')
+				->setLastModifiedBy('Cid')
+				->setTitle($filename)
+				->setSubject('SAWT')
+				->setDescription('SAWT')
+				->setKeywords('SAWT')
+				->setCategory('SAWT');
+
+		$excel->getActiveSheet()->setTitle('SAWT');
+		$excel->setActiveSheetIndex(0);
+		$sheet = $excel->getActiveSheet();
+
+		$sheet->getCell('A1')->setValue('BIR FORM '.$form);
+		$sheet->getCell('A2')->setValue('SUMMARY ALPHALIST OF WITHHOLDING TAXES (SAWT)');
+		$sheet->getCell('A3')->setValue('FOR THE MONTH OF '.strtoupper($date));
+
+
+		$sheet->getCell('A6')->setValue('TIN : '.$partner->tinno);
+		$sheet->getCell('A7')->setValue("PAYEE'S NAME: ".$partner->partnername);
+
+		$sheet->getCell('A11')->setValue('SEQ');
+		$sheet->getCell('A12')->setValue('NO');
+		$sheet->getCell('A14')->setValue('(1)');
+		$sheet->getCell('A15')->setValue('------------------------------');
+
+		$sheet->getCell('B11')->setValue('TAXPAYER');
+		$sheet->getCell('B12')->setValue('IDENTIFICATION');
+		$sheet->getCell('B13')->setValue('NO');
+		$sheet->getCell('B14')->setValue('(2)');
+		$sheet->getCell('B15')->setValue('------------------------------');
+
+		$sheet->getCell('C11')->setValue('CORPORATION');
+		$sheet->getCell('C12')->setValue('(Registered Name)');
+		$sheet->getCell('C14')->setValue('(3)');
+		$sheet->getCell('C15')->setValue('------------------------------');
+
+		$sheet->getCell('D11')->setValue('INDIVIDUAL');
+		$sheet->getCell('D12')->setValue('(Last Name, First Name, Middle Name)');
+		$sheet->getCell('D14')->setValue('(4)');
+		$sheet->getCell('D15')->setValue('------------------------------');
+
+		$sheet->getCell('E11')->setValue('ATC CODE');
+		$sheet->getCell('E14')->setValue('(5)');
+		$sheet->getCell('E15')->setValue('------------------------------');
+
+		$sheet->getCell('F11')->setValue('NATURE OF PAYMENT');
+		$sheet->getCell('F15')->setValue('------------------------------');
+
+		$sheet->getCell('G11')->setValue('AMOUNT OF');
+		$sheet->getCell('G12')->setValue('INCOME PAYMENT');
+		$sheet->getCell('G14')->setValue('(6)');
+		$sheet->getCell('G15')->setValue('------------------------------');
+
+		$sheet->getCell('H11')->setValue('TAX RATE');
+		$sheet->getCell('H14')->setValue('(7)');
+		$sheet->getCell('H15')->setValue('------------------------------');
+
+		$sheet->getCell('I11')->setValue('AMOUNT OF');
+		$sheet->getCell('I12')->setValue('TAX WITHHELD');
+		$sheet->getCell('I14')->setValue('(8)');
+		$sheet->getCell('I15')->setValue('------------------------------');
+
+		$count = 1;
+		$totalwtaxamount = '';
+		foreach ($rv_details as $row) {
+
+			$sheet->getCell('A16')->setValue($count);
+			$sheet->getCell('B16')->setValue($partner->tinno);
+			if ($businesstype != 'Individual') {
+				$sheet->getCell('C16')->setValue($partner->partnername);
+			}
+			else {
+				$sheet->getCell('D16')->setValue($partner->last_name.', '.$partner->first_name);
+			}
+			$sheet->getCell('E16')->setValue($row->atc_code);
+			$sheet->getCell('F16')->setValue(strtoupper($rv->paymenttype));
+			$sheet->getCell('G16')->setValue(number_format($row->taxbase_amount, 2));
+			$sheet->getCell('H16')->setValue(number_format($row->tax_rate, 4));
+			$sheet->getCell('I16')->setValue(number_format($row->credit, 2));
+
+			$count++;
+			$totalwtaxamount = $totalwtaxamount + $row->credit;
+		}
+
+		$sheet->getCell('A18')->setValue('Grand Total :');
+		$sheet->getCell('A20')->setValue('END OF REPORT');
+
+		$sheet->getCell('I17')->setValue('------------------');
+		$sheet->getCell('I18')->setValue(number_format($totalwtaxamount, 2));
+		// $sheet->getCell('I19')->setValue('==================');
+
+		$sheet->getStyle('G15:I18')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+		foreach ($excel->getAllSheets() as $sheet) {
+			for ($col = 0; $col <= PHPExcel_Cell::columnIndexFromString($sheet->getHighestDataColumn()); $col++) {
+				$sheet->getColumnDimensionByColumn($col)->setAutoSize(true);
+			}
+		}
+
+		$filename.= '.xlsx';
+
+		header('Content-type: application/vnd.ms-excel');
+		header("Content-Disposition: attachment; filename=\"$filename\"");
+		header("Pragma: no-cache");
+		header("Expires: 0");
+
+		flush();
+
+		$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel5');
+
+		$writer->save('php://output');
+	}
+
+	public function sawt_dat() {
+		$voucherno = $_GET['h_voucher_no'];
+		$partnercode = $_GET['partnercode'];
+		
+		$partner = $this->receipt_voucher->getPartnerDetails($partnercode);
+		$rv = $this->receipt_voucher->getRV($voucherno); 
+		$rv_details = $this->receipt_voucher->getRVDetails($voucherno);
+
+		$date=date_create($rv->postingdate);
+		$date = date_format($date,"F, Y");
+
+		$businesstype = $partner->businesstype;
+
+		$contactperson = $partner->first_name.' '.$partner->last_name;
+
+		if ($businesstype == 'Individual') {
+			$filename = 'SAWT 1701';
+			$form = '1701';
+		}
+		else {
+			$filename = 'SAWT 1702';
+			$form = '1702';
+		}
+
+		$header = array("BIR FORM ".$form);
+
+		$csv 		= new exportCSV($header);
+
+		$csv->addRow(array("SUMMARY ALPHALIST OF WITHHOLDING TAXES (SAWT)"));
+		$csv->addRow(array("FOR THE MONTH OF ".strtoupper($date)));
+
+		$csv->addRow(array('TIN : '.$partner->tinno));
+		$csv->addRow(array("PAYEE'S NAME: ".$partner->partnername));
+
+		$csv->addRow(array('SEQ NO', 'TAXPAYER IDENTIFICATION NUMBER', 'CORPORATION (Registered Name)', 'INDIVIDUAL (Last Name, First Name, Middle Name)', 'ATC CODE', 'NATURE OF PAYMENT', 'AMOUNT OF INCOME PAYMENT', 'TAX RATE', 'AMOUNT OF TAX WITHHELD'));
+
+		$count = 1;
+		$totalwtaxamount = '';
+		foreach ($rv_details as $row) {
+			if ($businesstype != 'Individual') {
+				$csv->addRow(array($count, $partner->tinno, strtoupper($partner->partnername), "", $row->atc_code, strtoupper($rv->paymenttype), number_format($row->taxbase_amount, 2), number_format($row->tax_rate, 4), number_format($row->credit, 2)));
+			}
+			else {
+				$csv->addRow(array($count, $partner->tinno, "", strtoupper($contactperson), $row->atc_code, strtoupper($rv->paymenttype), number_format($row->taxbase_amount, 2), number_format($row->tax_rate, 4), number_format($row->credit, 2)));
+			}
+			$count++;
+			$totalwtaxamount = $totalwtaxamount + $row->credit;
+		}
+
+		$csv->export($filename,'DAT');
+		
+		ob_end_flush();
+	
 	}
 
 	public function edit($sid)
@@ -521,6 +714,16 @@ class controller extends wc_controller
 			header('Content-type: application/json');
 			echo json_encode($ajax);
 		}
+	}
+
+	private function ajax_savebusinesstype() {
+		$businesstype = $_GET['type'];
+		$partnercode = $_GET['partnercode'];
+		$result = $this->receipt_voucher->updateBusinessType($businesstype, $partnercode);
+		return array(
+			// 'redirect'	=> MODULE_URL . 'sawt_csv?' . $client_id,
+			'success'	=> $result
+		);
 	}
 
 	private function get_payments()
