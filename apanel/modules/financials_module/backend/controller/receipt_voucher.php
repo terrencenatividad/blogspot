@@ -116,7 +116,9 @@ class controller extends wc_controller
 			"particulars",
 			"terms",
 			"date",
-			"paymenttype"
+			"paymenttype",
+			"taxcode",
+			"taxbase_amount"
 		));
 
 		$this->view->title			  = 'Create Receipt Voucher';
@@ -1408,6 +1410,36 @@ class controller extends wc_controller
 				$totalcredit     	+= $debit; 
 
 				$table .= '<tr class="clone" valign="middle">';
+				$table	.= '<td class = "checkbox-select remove-margin text-center ">';
+				$table	.=  $ui->formField('checkbox')
+								->setSplit('', 'col-md-12')
+								// ->setName("wtax[".$row."]")
+								->setId("wtax[".$row."]")
+								->setClass("wtax")
+								->setDefault("")
+								->setValue(1)
+								->setAttribute(array("disabled" => "disabled"))
+								->draw($show_input);
+				$table	.= '</td>';
+				$table .= 	'<td class="edit-button text-center" style="display: none"><button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button></td>';
+				$table	.= '<td class = "remove-margin hidden">';
+				$table	.=  $ui->formField('text')
+								->setSplit('', 'col-md-12')
+								->setName("taxcode[".$row."]")
+								->setId("taxcode[".$row."]")
+								->setClass('taxcode')
+								->setValue("")
+								->draw($show_input);
+				$table	.= '</td>';
+				$table	.= '<td class = "remove-margin hidden">';
+				$table	.=  $ui->formField('text')
+								->setSplit('', 'col-md-12')
+								->setName("taxbase_amount[".$row."]")
+								->setId("taxbase_amount[".$row."]")
+								->setClass('taxbase_amount')
+								->setValue("")
+								->draw($show_input);
+				$table	.= '</td>';
 				$table .= 	'<td class = "remove-margin">'	
 									.$ui->formField('dropdown')
 										->setPlaceholder('Select One')
