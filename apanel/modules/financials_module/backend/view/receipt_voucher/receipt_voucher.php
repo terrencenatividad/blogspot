@@ -2616,9 +2616,10 @@ function getRVDetails(){
 					discount_amount += parseFloat(0) || parseFloat(container[i]['dis']) ;
 				}
 				$('#entriesTable tbody tr.discount_row').remove();
+				var row = $("#entriesTable tbody tr.clone").length;
 				if( parseFloat(discount_amount) != 0 ){
 					discount_amount 	=	addCommas(discount_amount.toFixed(2));
-					var ParentRow = $('#itemsTable tbody tr.clone select').select2({width: "100%",allow_single_deselect: true,placeholder_text_single:'Select an Account'});
+					var ParentRow = $("#entriesTable tbody tr.clone").last();
 					ParentRow.before(clone_acct);
 					resetIds();
 					$("#accountcode\\["+ row +"\\]").closest('tr').addClass('discount_row');
