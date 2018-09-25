@@ -611,7 +611,7 @@ class controller extends wc_controller
 				// }
 				// echo $balance."\n\n";
 				$disable_checkbox 	=	"";
-				// $disable_onclick 	=	'onClick="selectPayable(\''.$voucher.'\',1);"';
+				$disable_onclick 	=	'onClick="selectCredits(\''.$voucherno.'\',1);"';
 
 				$table	.= '<tr>'; 
 				// if(!$restrict_rv){
@@ -624,8 +624,8 @@ class controller extends wc_controller
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$voucherno.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$invoiceno.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
-				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "payable_amount'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($amount,2).'">'.number_format($amount,2).'</td>';
-				$table	.= 	'<td class="text-right balances" style="vertical-align:middle;" id = "payable_balance'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance,2).'</td>';
+				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "credits_amount'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($amount,2).'">'.number_format($amount,2).'</td>';
+				$table	.= 	'<td class="text-right balances" style="vertical-align:middle;" id = "credits_balance'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance,2).'</td>';
 				if($voucher_checked == 'checked'){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
 					$this->ui->formField('text')

@@ -2697,6 +2697,33 @@ function selectPayable(id,toggle){
 	addPaymentAmount();
 }
 
+function selectCredits(id,toggle){
+	var check 		= $('#list_container #check'+id);
+	var balance 	= $('#list_container #credits_balance'+id).attr('data-value');
+	var amount 		= $('#list_container #credits_amount'+id).attr('data-value');
+	var toapply 	= $('#list_container #credittoapply'+id).val();
+
+	if(check.prop('checked')){
+		if(toggle == 1){
+			check.prop('checked', false);
+		}else{
+			check.prop('checked', true);
+		}
+	}else{
+		if(toggle == 1){
+			check.prop('checked', true);
+		}else{
+			check.prop('checked', false);
+		}
+	}
+	$('#list_container #check'+id).iCheck('update');
+
+	// Get number of checkboxes and assign to textarea
+	balance 	=	removeComma(balance);
+	add_storage(id,balance,0,0,overpayment);
+	addPaymentAmount();
+}
+
 function init_storage(){
 	if (localStorage.selectedPayables) {
 		container = JSON.parse(localStorage.selectedPayables);
@@ -4234,7 +4261,7 @@ $(document).ready(function() {
 		var selectid = $(this).attr('row');
 		var selecttoggleid = $(this).attr('toggleid');
 		
-		selectPayable(selectid,selecttoggleid);	
+		// selectPayable(selectid,selecttoggleid);	
 	});
 
 	$('body').on('click','#apv',function(e){
@@ -4439,6 +4466,14 @@ $(document).ready(function() {
 	// For Credit Voucher
 	$('#payableForm').on('click','#crv',function(){
 		showCreditsVoucher();
+	});
+
+	$('#creditVoucherLists').on('ifToggled', '.icheckbox', function(event){
+		event.type = "checked";
+		var selectid = $(this).attr('row');
+		var selecttoggleid = $(this).attr('toggleid');
+		
+		selectPayable(selectid,selecttoggleid);	
 	});
 
 }); // end
