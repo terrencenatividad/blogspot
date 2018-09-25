@@ -2350,15 +2350,26 @@
 		$(document).ready(function() {
 			/**ADD NEW BANK ROW**/
 			$('body').on('click', '.add-cheque', function() {
+				
 				$('#chequeTable tbody tr.clone select').select2('destroy');
 
 				var clone1 = $("#chequeTable tbody tr.clone:first").clone(true);
 
+				clone1.find('input, select, button').prop('disabled', false);
+				clone1.find('input, select, button').removeClass('cancelled');
+				clone1.find('input, select, button').find('.glyphicon-ban-circle').replaceWith("<span class='glyphicon glyphicon-trash'></span>")
+
+
 				var ParentRow = $("#chequeTable tbody tr.clone").last();
+				
+				// $("#chequeTable tbody tr.clone:first").removeClass('');
+
 
 				clone1.clone(true).insertAfter(ParentRow);
 
 				setChequeZero();
+
+
 
 				$('#chequeTable tbody tr.clone select').select2({width: "100%"});
 				$('#chequeTable tbody tr.clone:last .input-group.date ').datepicker({ format: 'M dd, yyyy', autoclose: true });

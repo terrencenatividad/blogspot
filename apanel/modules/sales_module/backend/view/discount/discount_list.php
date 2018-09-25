@@ -413,14 +413,10 @@ $(document).ready(function()
 
 	$('#discount_table').on('click','.import_customers',function(){
 		var code	=	$(this).attr('data-id');
+		$("#import-tagcust-modal > .modal").css("display", "inline");
 		$('#hidden_id').val(code);
 		$('.download_button').attr('download','Discount [ '+code+' ] - Customers.csv');
 		$('#import-tagcust-modal').modal('show');
-	});
-	
-	$('#discount_table').on('click','.import_customers',function(){
-		$(".import-modal > .modal").css("display", "inline");
-		$('.import-modal').modal();
 	});
 
 	$('#pagination').on('click', 'a', function(e) {

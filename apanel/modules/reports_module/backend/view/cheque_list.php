@@ -130,6 +130,33 @@
 		</div>
 	</div>
 </section>
+<div class="modal fade" id="stat_unclear" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				Confirmation
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<p id="message"></p>
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 center">
+						<!-- <div class="btn-group">
+							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+						</div> -->
+						&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div class="modal fade" id="voidModal" tabindex="-1" data-backdrop="static">
 <div class="modal-dialog modal-sm">
 	<div class="modal-content">
@@ -308,8 +335,23 @@
 	}
 	$("#release").click(function() 
 	{
-		$('#release_modal').modal('show');
+		ids 	=	getSelectedIds();
+
+		$.post('<?=MODULE_URL?>ajax/check_stat',"&ids="+ids, function(data) {
+			if(data.msg.length == 0)
+			{
+				
+				$('#release_modal').modal('show');
+
+				// $('#release_modal').modal('hide');
+			}  else {
+				$('#stat_unclear').modal('show');
+				$('#message').html(data.msg);
+			}
+		});
 	});
+
+	
 	$('#releaseForm #btnSave').on('click',function(){
 		ids 	=	getSelectedIds();
 		$.post('<?=MODULE_URL?>ajax/update_cheques', $('#releaseForm').serialize()+"&ids="+ids, function(data) {

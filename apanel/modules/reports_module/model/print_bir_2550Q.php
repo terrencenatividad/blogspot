@@ -490,39 +490,39 @@ class print_bir_2550Q extends fpdf {
 		$this->Cell(5, 19, $total_payable, 0, 0, 'R');
 
 		$this->SetY(222);
-		$this->SetX(60);
+		$this->SetX(90);
 		$this->Cell(5, 19, $agentname, 0, 0, 'R');
 
 		$this->SetY(222);
-		$this->SetX(160);
-		$this->Cell(5, 19, $signature, 0, 0, 'R');
+		$this->SetX(170);
+		$this->Cell(5, 20, $signature, 0, 0, 'R');
 
 		$this->SetY(235);
-		$this->SetX(30);
+		$this->SetX(48);
 		$this->Cell(5, 19, $position1, 0, 0, 'R');
 
 		$this->SetY(235);
-		$this->SetX(94);
-		$this->Cell(5, 19, $tin_signatory1, 0, 0, 'R');
+		$this->SetX(105);
+		$this->Cell(5, 20, $tin_signatory1, 0, 0, 'R');
 
 		$this->SetY(235);
 		$this->SetX(170);
 		$this->Cell(5, 19, $position2, 0, 0, 'R');
 
 		$this->SetY(243);
-		$this->SetX(30);
+		$this->SetX(40);
 		$this->Cell(5, 19, $taxagent, 0, 0, 'R');
 
 		$this->SetY(243);
-		$this->SetX(78);
+		$this->SetX(82);
 		$this->Cell(5, 19, $dateissuance, 0, 0, 'R');
 
 		$this->SetY(243);
-		$this->SetX(105);
+		$this->SetX(110);
 		$this->Cell(5, 19, $expiry, 0, 0, 'R');
 
 		$this->SetY(243);
-		$this->SetX(170);
+		$this->SetX(180);
 		$this->Cell(5, 19, $tin_signatory2, 0, 0, 'R');
 	}
 

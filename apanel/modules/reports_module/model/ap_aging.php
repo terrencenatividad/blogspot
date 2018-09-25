@@ -18,7 +18,7 @@ class ap_aging extends wc_model {
 		$condition = ($supplier && $supplier != 'none') ? " AND vendor = '$supplier'" : '';
 
 		$payment_query = $this->db->setTable('pv_application pva')
-									->setFields('SUM(pva.amount) payments, pva.apvoucherno, pva.companycode')
+									->setFields('(SUM(IFNULL(pva.amount,0))+SUM(IFNULL(pva.discount,0))) payments, pva.apvoucherno, pva.companycode')
 									->leftJoin('paymentvoucher pv ON pv.voucherno = pva.voucherno AND pv.companycode = pva.companycode')
 									->setWhere("pv.stat = 'posted' AND pv.transactiondate <= '$datefilter'")
 									->setGroupBy('pva.apvoucherno')

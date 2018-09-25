@@ -3568,6 +3568,13 @@ $(document).ready(function() {
 
 				if (rowlength == row){
 					table.deleteRow(row);
+					storedescriptionstoarray();
+					recomputechequeamts();
+					acctdetailamtreset();
+					resetChequeIds();
+					addAmounts();
+					addAmountAll('debit');
+					addAmountAll('credit');
 				}
 
 			} else {	
@@ -3607,6 +3614,13 @@ $(document).ready(function() {
 
 				if (rowlength == row){
 					table.deleteRow(row);
+					storedescriptionstoarray();
+					recomputechequeamts();
+					acctdetailamtreset();
+					resetChequeIds();
+					addAmounts();
+					addAmountAll('debit');
+					addAmountAll('credit');
 				}
 				
 			} else {
@@ -3897,6 +3911,7 @@ $(document).ready(function() {
 
 	} else if( task == "edit") {
 		var paymentmode = $("#paymentmode").val();
+		// console.log(paymentmode);
 
 		var selected_rows 	= JSON.stringify(container);
 		$('#selected_rows').html(selected_rows);
@@ -3906,6 +3921,13 @@ $(document).ready(function() {
 			// loadCheques();
 			addAmounts();
 		}
+
+		$('#paymentmode').on('change',function(){
+			var paymentmode = $("#paymentmode").val();
+			if (paymentmode == 'cash'){
+				$('#accounting_details .credit').attr("readonly", false); 
+			}
+		})	
 
 		$("#paymentmode").removeAttr("disabled");
 

@@ -85,7 +85,7 @@
 		
 		public function retrieveListing($data)
 		{
-			$fields 			= array('po.voucherno', 'p.partnername as vendor', 'po.referenceno', 'po.request_no', 'po.transactiondate','po.stat','po.netamount','(po.netamount - (pr.netamount + pr.discountamount + pr.wtaxamount)) as balance');
+			$fields 			= array('po.voucherno', 'p.partnername as vendor', 'po.referenceno', 'po.request_no', 'po.transactiondate','po.stat','po.netamount','(po.netamount - IFNULL(pr.received_amount,0)) as balance');
 
 			$daterangefilter 	= isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
 			$vendfilter      	= isset($data['vendor']) ? htmlentities($data['vendor']) : ""; 
@@ -122,10 +122,16 @@
 				$add_query 	.= 	" ";
 			}
 
+			$receipt 	=	$this->db->setTable('purchasereceipt pr')
+									 ->setFields(array('pr.source_no source_no','pr.vendor vendor','pr.stat stat','SUM((pr.netamount) + (pr.discountamount) + (pr.wtaxamount)) received_amount'))
+									 ->setWhere("(pr.stat NOT IN ('temporary', 'Cancelled' ) OR pr.stat IS NULL) ")
+									 ->setGroupBy('pr.source_no')
+									 ->buildSelect();
+
 			return $this->db->setTable('purchaseorder po')
 							->setFields($fields)
 							->leftJoin('partners p ON p.partnercode = po.vendor ')
-							->leftJoin("purchasereceipt pr ON pr.source_no = po.voucherno AND pr.vendor = p.partnercode AND (pr.stat NOT IN ( 'temporary', 'Cancelled' ) OR pr.stat IS NULL)")
+							->leftJoin("($receipt) pr ON pr.source_no = po.voucherno AND pr.vendor = p.partnercode")
 							->setWhere(" po.stat NOT IN ( 'temporary' )   $add_query")
 							->setOrderBy($sort)
 							->setGroupBy('po.voucherno')

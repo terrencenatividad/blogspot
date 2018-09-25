@@ -76,7 +76,7 @@ class receipt_voucher_model extends wc_model
 		$temp["main"] = $retrieveArrayMain;
 
 		// Retrieve Details
-		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.ischeck, main.debit, SUM(main.credit) credit";
+		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.ischeck, main.debit, SUM(main.credit) credit,main.taxcode,main.taxbase_amount";
 		$detail_cond  = "main.voucherno = '$sid' AND main.stat != 'temporary'";
 		$orderby 	  = "main.linenum";	
 		$detailJoin   = "chartaccount as chart ON chart.id = main.accountcode AND chart.companycode = main.companycode";
@@ -512,6 +512,7 @@ class receipt_voucher_model extends wc_model
 		$applicableDetailTable 	= "ar_details"; 
 		$source				   	= "RV"; 
 		$customerTable 			= "partners";
+		$creditsTable 			= "creditvoucher";
 
 		$insertResult		   	= 0;
 		$op_result 				= 0;
@@ -532,6 +533,8 @@ class receipt_voucher_model extends wc_model
 		$task 					= (isset($data['h_task']) && (!empty($data['h_task']))) ? htmlentities(addslashes(trim($data['h_task']))) : "";
 		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
 		// $credit_input 			= (isset($data['credit_input']) && (!empty($data['credit_input']))) ? htmlentities(addslashes($data['credit_input'])) 	:	0;
+		$ap_checker 			= (isset($data['advance_payment']) && (!empty($data['advance_payment']))) ? htmlentities(addslashes(trim($data['advance_payment']))) : 	"no";
+		
 		$invoice_data  			= str_replace('\\', '', $h_check_rows);
 		$invoice_data  			= html_entity_decode($invoice_data);
 		$picked_payables		= json_decode($invoice_data, true);
@@ -561,17 +564,17 @@ class receipt_voucher_model extends wc_model
 
 		foreach($data as $postIndex => $postValue)
 		{
-			if($postIndex=='h_accountcode' ||	$postIndex=='detailparticulars'  || $postIndex=='ischeck' || $postIndex=='debit' || $postIndex=='credit')
+			if($postIndex=='h_accountcode' ||	$postIndex=='detailparticulars'  || $postIndex=='ischeck' || $postIndex=='debit' || $postIndex=='credit' || $postIndex=='taxcode' || $postIndex=='taxbase_amount')
 			{
 				$a		= '';
 				foreach($postValue as $postValueIndex => $postValueIndexValue){
-					if($postIndex == 'debit' || $postIndex == 'credit'){
+					if($postIndex == 'debit' || $postIndex == 'credit' || $postIndex == 'taxbase_amount'){
 						$a = str_replace(',', '', $postValueIndexValue);
 					}
 					else{
 						$a = htmlentities(addslashes(trim($postValueIndexValue)));
 					}
-					$aJournalData[$postIndex][$postValueIndex] = $a;	
+					$aJournalData[$postIndex][$postValueIndex] = $a;
 				}	
 			}
 			
@@ -598,6 +601,7 @@ class receipt_voucher_model extends wc_model
 				}
 			}
 		}
+		// var_dump($tempArray);
 
 		/**CHEQUE DETAILS**/
 		if(!empty($aChequeData))
@@ -676,6 +680,7 @@ class receipt_voucher_model extends wc_model
 		$post_header['source']			= $source;
 		$post_header['paymenttype']		= $paymenttype;	
 		// $post_header['referenceno']		= $referenceno;
+		$post_header['advancepayment']  = $ap_checker;
 		$post_header['or_no']			= $or_no;
 		
 		$post_header['stat']			= $status;
@@ -727,18 +732,21 @@ class receipt_voucher_model extends wc_model
 			$detailparticulars					= $tempArrayValue['detailparticulars'];
 			$debit			    				= $tempArrayValue['debit'];
 			$credit			    				= $tempArrayValue['credit'];
+			// $taxbase_amount			    		= $tempArrayValue['taxbase_amount'];
 			$ischeck 							= isset($tempArrayValue['ischeck']) && $tempArrayValue != "" 	?	$tempArrayValue['ischeck'] 	:	"no";
-
 			$post_detail['voucherno']			= $voucherno;
 			$post_detail['linenum']				= $iDetailLineNum;
 			$post_detail['transtype']			= $source;
 			$post_detail['accountcode']			= $accountcode;
 			$post_detail['debit']				= $debit;
 			$post_detail['credit']				= $credit;
+			// $post_detail['taxbase_amount']		= $taxbase_amount;
 			$post_detail['converteddebit']		= $debit;
 			$post_detail['convertedcredit'] 	= $credit;
 			$post_detail['currencycode']		= 'PHP';
 			$post_detail['detailparticulars'] 	= $detailparticulars;
+			$post_detail['taxcode']			  	= $tempArrayValue['taxcode'];
+			$post_detail['taxbase_amount']		= $tempArrayValue['taxbase_amount'];
 			$post_detail['ischeck']				= $ischeck;
 			$post_detail['stat']				= $post_header['stat'];
 
@@ -837,7 +845,7 @@ class receipt_voucher_model extends wc_model
 					$code 		= 0;
 					$errmsg[] 	= "<li>Error in Updating Official Receipt Application.</li>";
 				}
-			}else if(!empty($isAppDetailExist)){
+			} else if(!empty($isAppDetailExist)){
 				$insertResult = $this->db->setTable($detailAppTable) 
 									->setValues($aPvDetailArray)
 									->runInsert();
@@ -870,6 +878,40 @@ class receipt_voucher_model extends wc_model
 				$code 		= 0;
 				$errmsg[] 	= "<li>Error in Updating Official Receipt Header.</li>";
 			}	
+		} else if($ap_checker == 'yes'){
+			$this->db->setTable($detailAppTable)
+						->setWhere("voucherno = '$voucherno'")
+						->runDelete();
+	
+			$insertResult = $this->db->setTable($detailAppTable) 
+								->setValues($aPvDetailArray)
+								->setWhere("voucherno = '$voucherno'")
+								->runInsert();
+
+			if($insertResult){
+				$seq 				= new seqcontrol();
+				$creditvoucherno 	= $seq->getValue("ADVP");
+
+				$post_credit_voucher['voucherno']			= $creditvoucherno;
+				$post_credit_voucher['transtype']			= 'ADVP';
+				$post_credit_voucher['stat']			 	= 'open';
+				$post_credit_voucher['transactiondate']		= $transactiondate;
+				$post_credit_voucher['fiscalyear']			= $fiscalyear;
+				$post_credit_voucher['period']		 		= $period;
+				$post_credit_voucher['partner'] 			= $customer;
+				$post_credit_voucher['currencycode']		= 'PHP';
+				$post_credit_voucher['exchangerate']		= '1.00';
+				$post_credit_voucher['amount'] 				= $total_payment;
+				$post_credit_voucher['balance'] 			= $total_payment;
+				$post_credit_voucher['convertedamount']		= $total_payment;
+				$post_credit_voucher['referenceno']			= $voucherno;
+ 
+				$creditsArray[]								= $post_credit_voucher;
+
+				$insertResult = $this->db->setTable($creditsTable) 
+										 ->setValues($creditsArray)
+										 ->runInsert();
+			}
 		}
 		
 		/**INSERT TO CHEQUES TABLE**/
@@ -1165,6 +1207,7 @@ class receipt_voucher_model extends wc_model
 				$insert_info['accountcode']			= $count[$i]->accountcode;
 				$insert_info['debit']				= $count[$i]->credit;
 				$insert_info['credit']				= $count[$i]->debit;
+				$insert_info['taxbase_amount']		= $count[$i]->taxbase_amount;
 				$insert_info['currencycode']		= $count[$i]->currencycode;
 				$insert_info['exchangerate']		= $count[$i]->exchangerate;
 				$insert_info['converteddebit']		= $count[$i]->convertedcredit;
@@ -1861,6 +1904,27 @@ class receipt_voucher_model extends wc_model
 							 ->getResult();
 
 		return $query;
+	}
+
+	public function retrieveADVPdetails(){
+		$query 	=	$this->db->setTable("fintaxcode")
+							 ->setFields("salesAccount accountcode, 'yes' is_overpayment")
+							 ->setWhere("fstaxcode = 'ADV'")
+							 ->runSelect()
+							 ->getResult();
+
+		return $query;
+	}
+
+	public function retrieveCreditsList($customer, $arvoucher=""){
+
+		$result 	=	$this->db->setTable('creditvoucher crv')
+								 ->setFields("crv.voucherno, crv.partner, crv.convertedamount amount, crv.balance, crv.invoiceno, crv.referenceno, crv.receivableno")
+								 ->leftJoin('partners p ON p.partnercode = crv.partner')
+								 ->setWhere("crv.partner = '$customer'")
+								 ->runPagination();
+								//  echo $this->db->getQuery();
+		return $result;
 	}
 
 	public function retrieveOPDebitdetails(){

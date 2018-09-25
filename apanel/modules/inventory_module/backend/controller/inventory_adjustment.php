@@ -223,6 +223,68 @@ class controller extends wc_controller {
 		echo $return;
 	}
 
+	private function check_character_length($field_name, $field_value, $line, $max_length, $input_length){
+		$error 	=	"";
+		
+		if($input_length > $max_length){
+			$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line exceeded the Max Character Length of $max_length.<br/>";
+		}
+		
+		return $error;
+	}
+
+	private function check_empty($field_name, $field_value, $line){
+		$error 	=	"";
+		
+		if($field_value  == ""){
+			$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line is empty.<br/>";
+		}
+
+		return $error;
+	}
+
+	private function check_numeric($field_name, $field_value, $line){
+		$error 	=	"";
+		
+		if(!is_numeric($field_value)){
+			$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line is not a valid number.<br/>";
+		}
+
+		return $error;
+	}
+
+	private function check_if_below_zero($field_name, $field_value, $line){
+		$error 	=	"";
+		
+		if($field_value <= 0){
+			$error 	= 	"$field_name on row $line is [<strong>$field_value</strong>]. Please input a Price greater than 0.<br/>";
+		}
+
+		return $error;
+	}
+
+	private function check_duplicate_code($field_name,$field_value,$line){
+		$error 		=	"";
+
+		$exists 	= 	$this->customer->check_duplicate($field_value);
+		$count  	=	isset($exists[0]->count) 	?	$exists[0]->count 	:	0;
+
+		if($count > 0){
+			$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line already exists.<br/>";
+		}
+		return $error;
+	}
+
+	private function check_if_exists($table_field, $table, $cond, $field_name, $field_value, $line){
+		$exists 	= $this->adjustment->check_if_exists($table_field,$table,$cond);
+		$count 		= isset($exists[0]->count) 	?	$exists[0]->count 	:	0;
+		$error 		= "";
+		if( $count <= 0 ){
+			$error	= "$field_name [<strong>$field_value</strong>] on row $line does not exists.<br/>";
+		}
+		return $error;
+	}
+
 	private function save_import(){
 		$file		= fopen($_FILES['file']['tmp_name'],'r') or exit ("File Unable to upload") ;
 
@@ -308,95 +370,40 @@ class controller extends wc_controller {
 			$total_amount 		=	0;
 
 			if( empty($errmsg)  && !empty($z) ){
-				foreach ($z as $b)  {
+				// var_dump($z);
+				foreach ($z as $key => $b)  {
 					if ( ! empty($b)) {	
-						$itemcode 	   		= $b[0];
-						$warehouse 	        = $b[2];
-						$quantity        	= $b[3];
-						$unitprice 			= $b[4];
-						//$account 	        = $b[5];
-	
-						// $item_account 		= $this->adjustment->getValue('items',array('classid','inventory_account')," itemcode = '$itemcode'");
-						// $classid 			= $item_account[0]->classid;
-						// $itemclass_account 	= $this->adjustment->getValue('itemclass',array('inventory_account')," id = '$classid'");
-	
-						// $account 			= ($item_account[0]->inventory_account != 0) 	? 	$item_account[0]->inventory_account 	: 	$itemclass_account[0]->inventory_account;
+						$itemcode 	   		= isset($b[0]) 						?	trim($b[0])	:	"";
+						$warehouse 	        = isset($b[2]) 						?	trim($b[2])	:	"";
+						$quantity        	= (isset($b[3]) && !empty($b[3])) 	?	trim($b[3])	:	0;
+						$unitprice 			= (isset($b[4]) && !empty($b[4])) 	?	trim($b[4])	:	0;
 						
-						// Check if item Code exists
-						$exists 			= $this->adjustment->check_if_exists('itemcode','items'," itemcode = '$itemcode' ");
-						$itemcode_count 	= $exists[0]->count;
-			
-						if( $itemcode_count <= 0 ){
-							$errmsg[]	= "Item Code [<strong>$itemcode</strong>] on row $line does not exists.<br/>";
-							$errmsg		= array_filter($errmsg);
-						}
-	
-						// Check if Warehouse Exists
-						$exists = $this->adjustment->check_if_exists('warehousecode','warehouse'," description = '$warehouse' ");
-						$warehouse_count 	= $exists[0]->count;
-	
-						if( $warehouse_count <= 0 )
-						{
-							$errmsg[]	= "Warehouse [<strong>$warehouse</strong>] on row $line does not exists.<br/>";
-							$errmsg		= array_filter($errmsg);
-						} else {
-							$retrieve 		=	$this->adjustment->getValue('warehouse', array('warehousecode'), " description = '$warehouse' ");
-							$warehousecode 	=	$retrieve[0]->warehousecode;
-						}
-	
-						// Check if Quantity is a number
-						if(!is_numeric($quantity)) {
-							$errmsg[] 	= "Quantity [ <strong>$quantity</strong> ] on row $line is not a valid amount.<br/>";
-							$errmsg		= array_filter($errmsg);
-						}
-	
-						// if($quantity <= 0)
-						// {
-						// 	$errmsg[] 	= "Quantity on row $line is [ <strong>$quantity</strong> ]. Please input a quantity greater than 0.<br/>";
-						// 	$errmsg		= array_filter($errmsg);
-						// } 
+						$errmsg[] 	=	$this->check_empty("Item Code", $itemcode, $line);
+						$errmsg[] 	=	$this->check_empty("Warehouse Name", $warehouse, $line);
 
-						if($quantity > 0) {
-							if($unitprice <= 0){
-								$errmsg[] 	= "Price on row $line is [ <strong>$unitprice</strong> ]. Please input a Price greater than 0.<br/>";
-								$errmsg		= array_filter($errmsg);
+						// Check for Character Length
+						$errmsg[] 	=	$this->check_character_length("Item Code", $itemcode, $line, "12", strlen($itemcode));
+						$errmsg[] 	=	$this->check_character_length("Warehouse Name", $warehouse, $line, "25", strlen($warehouse));
+
+						// Check for Numerical Values
+						$errmsg[] 	=	$this->check_numeric("Quantity", $quantity, $line);
+						$errmsg[] 	=	$this->check_numeric("Unit Price", $unitprice, $line);
+
+						// Check for Values less than or equal to Zero
+						if(is_numeric($quantity) && is_numeric($unitprice)) {
+ 							if($unitprice > 0 || $quantity > 0){
+								//  echo $line."\n";
+								$errmsg[] 	=	$this->check_if_below_zero("Quantity", $quantity, $line);
+								$errmsg[] 	=	$this->check_if_below_zero("Unit Price", $unitprice, $line);
 							}
 						}
-	
-						// Check if Price is a number
-						if(!is_numeric($unitprice)) {
-							$errmsg[] 	= "Price [ <strong>$unitprice</strong> ] on row $line is not a valid amount.<br/>";
-							$errmsg		= array_filter($errmsg);
-						}
 
-						if($unitprice > 0) {
-							if($quantity <= 0){
-								$errmsg[] 	= "Quantity on row $line is [ <strong>$quantity</strong> ]. Please input a Quantity greater than 0.<br/>";
-								$errmsg		= array_filter($errmsg);
-							}
-						}
-	
+						$errmsg[] 	=	$this->check_if_exists("itemcode", "items", "itemcode='$itemcode'", "Item Code", $itemcode, $line);
+						$errmsg[] 	=	$this->check_if_exists("warehousecode", "warehouse", "description='$warehouse'", "Warehouse", $warehouse, $line);
+
 						$amount 		=	$unitprice * $quantity;
 						$total_amount 	+=	$amount;
-						// Get Total per Account
-						// if( !isset($account_list[$account]) ){
-						// 	$account_list[$account] 	=	0;
-						// } else {
-						// 	$account_list[$account] 	+=	$amount;
-						// }
-	
-						// Check if Item Code Exists in the said warehouse
-						// $exists 				= $this->adjustment->getValue('invfile', array('onhandQty', "COUNT('itemcode') as count"), " itemcode = '$itemcode' AND warehouse = '$warehousecode' ");
-						// $item_warehouse_count 	= $exists[0]->count;
-						// $inv_onhand 			= $exists[0]->onhandQty;
-	
-						// Check if Itemcode & Warehouse Pair already have onhand quantity
-						// if( $item_warehouse_count > 0 && $inv_onhand > 0 )
-						// {
-						// 	$warning[] 	= "The Item Code [<strong>$itemcode</strong>] already have existing transactions. Current On Hand Quantity is retained.";
-						// 	$warning	= array_filter($warning);
-						// }
-	
+
 						// Insert the itemcode - warehouse pair into an array ( for validation )
 						$concat_itemnloc 	 		= $itemcode.'-'.$warehouse;
 					
@@ -409,18 +416,22 @@ class controller extends wc_controller {
 	
 						if( $quantity > 0 )
 						{
+							$retrieve 				= $this->adjustment->getValue('warehouse', array('warehousecode'), " description = '$warehouse' ");
+							$warehousecode 			= isset($retrieve[0]->warehousecode) 	?	$retrieve[0]->warehousecode 	:	"";
+
 							$itemcode_[] 			= $itemcode;
 							$warehouse_[] 			= $warehousecode;
 							$quantity_[] 			= $quantity;
 							$price_[] 				= $unitprice;
 							$amount_[] 				= $amount;
-							  //$account_[] 			= $accountid;
 						}
 						
 						$line++;
-					}
-				}
-			
+					} 
+				} 
+				
+				$errmsg 	=	array_filter($errmsg);
+		
 				if( empty($errmsg) ){
 					$voucherno 		=	$this->seq->getValue('BAL');
 					$importdate 	=	$this->date->dateDBFormat($importdate);	
@@ -458,6 +469,8 @@ class controller extends wc_controller {
 						}
 					}
 				}
+			} else {
+				$errmsg[] 	=	"Please fill up your template. You cannot import an empty template.";
 			}
 		}
 		$error_messages		= implode(' ', $errmsg);
