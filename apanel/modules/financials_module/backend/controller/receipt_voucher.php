@@ -429,10 +429,10 @@ class controller extends wc_controller
 				$sheet->getCell('D16')->setValue($partner->last_name.', '.$partner->first_name);
 			}
 			$sheet->getCell('E16')->setValue($row->atc_code);
-			$sheet->getCell('F16')->setValue(strtoupper($rv->paymenttype));
-			$sheet->getCell('G16')->setValue(number_format($row->taxbase_amount, 2));
-			$sheet->getCell('H16')->setValue(number_format($row->tax_rate, 4));
-			$sheet->getCell('I16')->setValue(number_format($row->credit, 2));
+			$sheet->getCell('F16')->setValue($rv->paymenttype);
+			$sheet->getCell('G16')->setValue($row->taxbase_amount);
+			$sheet->getCell('H16')->setValue($row->tax_rate);
+			$sheet->getCell('I16')->setValue($row->credit);
 
 			$count++;
 			$totalwtaxamount = $totalwtaxamount + $row->credit;
@@ -442,7 +442,7 @@ class controller extends wc_controller
 		$sheet->getCell('A20')->setValue('END OF REPORT');
 
 		$sheet->getCell('I17')->setValue('------------------');
-		$sheet->getCell('I18')->setValue(number_format($totalwtaxamount, 2));
+		$sheet->getCell('I18')->setValue($totalwtaxamount);
 		// $sheet->getCell('I19')->setValue('==================');
 
 		$sheet->getStyle('G15:I18')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
@@ -507,10 +507,10 @@ class controller extends wc_controller
 		$totalwtaxamount = '';
 		foreach ($rv_details as $row) {
 			if ($businesstype != 'Individual') {
-				$csv->addRow(array($count, $partner->tinno, strtoupper($partner->partnername), "", $row->atc_code, strtoupper($rv->paymenttype), number_format($row->taxbase_amount, 2), number_format($row->tax_rate, 4), number_format($row->credit, 2)));
+				$csv->addRow(array($count, $partner->tinno, strtoupper($partner->partnername), "", $row->atc_code, strtoupper($rv->paymenttype), $row->taxbase_amount, $row->tax_rate, $row->credit));
 			}
 			else {
-				$csv->addRow(array($count, $partner->tinno, "", strtoupper($contactperson), $row->atc_code, strtoupper($rv->paymenttype), number_format($row->taxbase_amount, 2), number_format($row->tax_rate, 4), number_format($row->credit, 2)));
+				$csv->addRow(array($count, $partner->tinno, "", strtoupper($contactperson), $row->atc_code, strtoupper($rv->paymenttype), $row->taxbase_amount, $row->tax_rate, $row->credit));
 			}
 			$count++;
 			$totalwtaxamount = $totalwtaxamount + $row->credit;
