@@ -150,7 +150,7 @@
 			</div>
 
 			<!--Cheque Details-->
-				<div class="has-error">
+				<div class="has-error" id="cheque_error">
 					<span id="chequeCountError" class="help-block hidden small">
 						<i class="glyphicon glyphicon-exclamation-sign"></i> 
 						Please specify at least one(1) check.
@@ -2374,6 +2374,7 @@ function toggleCheckInfo(val){
 		$("#payableForm #cheque_details").addClass('hidden');
 		$('#totalcheques').val(0);
 		formatNumber('totalcheques');
+		$("#payableForm #cheque_error").addClass('hidden');
 	}
 
 }
@@ -3568,6 +3569,13 @@ $(document).ready(function() {
 
 				if (rowlength == row){
 					table.deleteRow(row);
+					storedescriptionstoarray();
+					recomputechequeamts();
+					acctdetailamtreset();
+					resetChequeIds();
+					addAmounts();
+					addAmountAll('debit');
+					addAmountAll('credit');
 				}
 
 			} else {	
@@ -3607,6 +3615,13 @@ $(document).ready(function() {
 
 				if (rowlength == row){
 					table.deleteRow(row);
+					storedescriptionstoarray();
+					recomputechequeamts();
+					acctdetailamtreset();
+					resetChequeIds();
+					addAmounts();
+					addAmountAll('debit');
+					addAmountAll('credit');
 				}
 				
 			} else {
@@ -3897,6 +3912,7 @@ $(document).ready(function() {
 
 	} else if( task == "edit") {
 		var paymentmode = $("#paymentmode").val();
+		// console.log(paymentmode);
 
 		var selected_rows 	= JSON.stringify(container);
 		$('#selected_rows').html(selected_rows);
@@ -3906,6 +3922,13 @@ $(document).ready(function() {
 			// loadCheques();
 			addAmounts();
 		}
+
+		$('#paymentmode').on('change',function(){
+			var paymentmode = $("#paymentmode").val();
+			if (paymentmode == 'cash'){
+				$('#accounting_details .credit').attr("readonly", false); 
+			}
+		})	
 
 		$("#paymentmode").removeAttr("disabled");
 
