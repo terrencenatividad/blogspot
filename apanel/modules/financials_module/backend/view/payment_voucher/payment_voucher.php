@@ -150,7 +150,7 @@
 			</div>
 
 			<!--Cheque Details-->
-				<div class="has-error">
+				<div class="has-error" id="cheque_error">
 					<span id="chequeCountError" class="help-block hidden small">
 						<i class="glyphicon glyphicon-exclamation-sign"></i> 
 						Please specify at least one(1) check.
@@ -2374,6 +2374,7 @@ function toggleCheckInfo(val){
 		$("#payableForm #cheque_details").addClass('hidden');
 		$('#totalcheques').val(0);
 		formatNumber('totalcheques');
+		$("#payableForm #cheque_error").addClass('hidden');
 	}
 
 }
