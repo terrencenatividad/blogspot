@@ -71,8 +71,8 @@
 									echo $ui->loadElement('table')
 											->setHeaderClass('info')
 											->addHeader('',array('class'=>'col-md-1'))
-											->addHeader('Template Code',array('class'=>'col-md-3'),'sort','pl.itemPriceCode')
-											->addHeader('Template Name', array('class'=>'col-md-3'),'sort','pl.itemPriceName')
+											->addHeader('Price List Code',array('class'=>'col-md-3'),'sort','pl.itemPriceCode')
+											->addHeader('Price List Name', array('class'=>'col-md-3'),'sort','pl.itemPriceName')
 											->addHeader('Description',array('class'=>'col-md-3'),'sort','pl.itemPriceDesc')
 											->addHeader('Status',array('class'=>'col-md-3'),'sort','pl.status')
 											->draw();

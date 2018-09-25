@@ -243,13 +243,13 @@
 											'arrow-up',
 											$show_deactivate
 										)
-										->addOtherTask(
+										//  ->addDelete()
+										 ->addOtherTask('Tag Customers', 'bookmark')
+										 ->addOtherTask(
 											'Deactivate',
 											'arrow-down',
 											$show_activate
 										)	
-										 ->addDelete()
-										 ->addOtherTask('Tag Customers', 'bookmark')
 										 ->setValue($row->itemPriceCode)
 										 ->draw();
 
@@ -512,7 +512,7 @@
 		public function get_import(){
 			header('Content-type: application/csv');
 
-			$header = array('Template Code','Template Name','Description',"Item Code","Adjusted Price");
+			$header = array('Price List Code','Price List Name','Description',"Item Code","Adjusted Price");
 
 			$return = '';
 			$return .= '"' . implode('","',$header) . '"';
@@ -539,7 +539,7 @@
 				$errmsg[]= "Invalid file type, file must be .csv.<br/>";
 			}
 			
-			$headerArr = array('Template Code','Template Name','Description',"Item Code","Adjusted Price");
+			$headerArr = array('Price List Code','Price List Name','Description',"Item Code","Adjusted Price");
 
 			if( empty($errmsg) )
 			{
@@ -733,7 +733,7 @@
 			$search = $this->input->post("search");
 			$sort 	= $this->input->post('sort');
 
-			$header = array('Template Code','Template Name','Description',"Item Code","Adjusted Price");
+			$header = array('Price List Code','Price List Name','Description',"Item Code","Adjusted Price");
 
 			$prev 	= '';
 			$next 	= '';
