@@ -9,7 +9,7 @@
 		</div>
 		<p class = "text-bold">Please contact admin to fix this issue.</p>
 	</div>
-
+	
 	<form method = "post" class="form-horizontal" id = "payableForm">
 		<input type="hidden" id="h_task" name="h_task" value="<?=$task?>">
 		<div class="box box-primary">
@@ -481,10 +481,10 @@
 							<thead>
 								<tr class="info">
 									<?if($show_input){?><th class="col-md-1 text-center" >Withholding Tax</th><?}?>
-									<th class="col-md-4">Account</th>
-									<th class="col-md-3">Description</th>
-									<th class="col-md-2">Debit</th>
-									<th class="col-md-2">Credit</th>
+									<th class="col-md-3 text-center">Account</th>
+											<th class="col-md-3 text-center">Description</th>
+											<th class="col-md-2 text-center">Debit</th>
+											<th class="col-md-2 text-center">Credit</th>
 									<?if($show_input){?><th class="col-md-1"></th><?}?>
 								</tr>
 							</thead>
@@ -706,7 +706,7 @@
 									</tr>
 
 									<?php
-								}else if(!$show_input){
+								}else if($task == 'view'){
 									$aPvJournalDetails 	= $data['details'];
 									$detail_row 		= '';
 									if(!empty($aPvJournalDetails)){
@@ -745,9 +745,6 @@
 										}
 
 										$detail_row	.= '<tr class="clone '.$added_class.'">';
-										?>
-										
-										<?php
 										$detail_row	.= '<td class = "remove-margin">';
 										$detail_row .= $ui->formField('dropdown')
 										->setPlaceholder('Select One')
@@ -825,6 +822,9 @@
 											$detailparticulars 	= $aPvJournalDetails_Value->detailparticulars;
 											$debit 				= $aPvJournalDetails_Value->debit;
 											$credit 			= $aPvJournalDetails_Value->credit;
+											$taxcode 			= $aPvJournalDetails_Value->taxcode;
+											$taxbase_amount		= $aPvJournalDetails_Value->taxbase_amount;
+
 											$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
 
 											$total_debit 		+= $debit;
@@ -852,112 +852,104 @@
 											$disable_debit		= ($debit > 0) ? '' : 'readOnly';
 											$disable_credit		= ($credit > 0) ? '' : 'readOnly';
 										}
+										
+											$detail_row	.= '<tr class="clone '.$added_class.'">';
+											$detail_row	.= '<td class = "checkbox-select remove-margin text-center">';
+											$detail_row .= $ui->formField('checkbox')
+															->setSplit('', 'col-md-12')
+															->setName("wtax[".$row."]")
+															->setId("wtax[".$row."]")
+															->setClass("wtax")
+															->setDefault("1")
+															->setValue(($taxcode) ? 1 : 0)
+															->setAttribute(array("disabled" => "disabled"))
+															->draw($show_input);
+											$detail_row	.='</td>';
+											$detail_row	.= '<td class="edit-button text-center" style="display: none">';
+											$detail_row .= '<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button></td>';
+										
+											$detail_row	.= '<td class = "remove-margin hidden">';
+											$detail_row .= $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName("taxcode[".$row."]")
+															->setId("taxcode[".$row."]")
+															->setClass('taxcode')
+															->setValue($taxcode)
+															->draw($show_input);
+											$detail_row	.='</td>';
+											$detail_row	.= '<td class = "remove-margin hidden">';
+											$detail_row .= $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName("taxbase_amount[".$row."]")
+															->setId("taxbase_amount[".$row."]")
+															->setClass('taxbase_amount')
+															->setValue($taxbase_amount)
+															->draw($show_input);
+											$detail_row	.='</td>';
+											$detail_row	.= '<td class = "remove-margin">';
+											$detail_row .= $ui->formField('dropdown')
+															->setPlaceholder('Select One')
+															->setSplit('', 'col-md-12')
+															->setName("accountcode[".$row."]")
+															->setClass("accountcode")
+															->setId("accountcode[".$row."]")
+															->setList($account_entry_list)
+															->setAttribute(array($disable_code))
+															->setValue($accountcode)
+															->draw($show_input);
+											$detail_row	.= '<input type = "hidden" class="h_accountcode"  name="h_accountcode['.$row.']" id="h_accountcode['.$row.']" value="'.$accountcode.'">';
+											$detail_row	.= '</td>';
 
-										$detail_row	.= '<tr class="clone '.$added_class.'">';
-										?>
-										<td class = "checkbox-select remove-margin text-center">
-											<?php
-												echo $ui->formField('checkbox')
-														->setSplit('', 'col-md-12')
-														// ->setName("wtax[".$row."]")
-														->setId("wtax[".$row."]")
-														->setClass("wtax")
-														->setDefault("1")
-														// ->setValue(($taxcode) ? 1 : 0)
-														->setAttribute(array("disabled" => "disabled"))
-														->draw($show_input);
-											?>
-										</td>
-										<td class="edit-button text-center" style="display: none">
-											<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
-										</td>
-										<td class = "remove-margin hidden">
-											<?php
-												echo $ui->formField('text')
-													->setSplit('', 'col-md-12')
-													->setName("taxcode[".$row."]")
-													->setId("taxcode[".$row."]")
-													->setClass('taxcode')
-													// ->setValue($taxcode)
-													->draw($show_input);
-											?>
-										</td>
-										<td class = "remove-margin hidden">
-											<?php
-												echo $ui->formField('text')
-													->setSplit('', 'col-md-12')
-													->setName("taxbase_amount[".$row."]")
-													->setId("taxbase_amount[".$row."]")
-													->setClass('taxbase_amount')
-													// ->setValue($taxbase_amount)
-													->draw($show_input);
-											?>
-										</td>
-										<?php
-										$detail_row	.= '<td class = "remove-margin">';
-										$detail_row .= $ui->formField('dropdown')
-										->setPlaceholder('Select One')
-										->setSplit('', 'col-md-12')
-										->setName("accountcode[".$row."]")
-										->setClass("accountcode")
-										->setId("accountcode[".$row."]")
-										->setList($account_entry_list)
-										->setAttribute(array($disable_code))
-										->setValue($accountcode)
-										->draw($show_input);
-										$detail_row	.= '<input type = "hidden" class="h_accountcode"  name="h_accountcode['.$row.']" id="h_accountcode['.$row.']" value="'.$accountcode.'" >
-										</td>';
+											$detail_row	.= '<td class="remove-margin">';
+											$detail_row .= $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName('detailparticulars['.$row.']')
+															->setId('detailparticulars['.$row.']')
+															->setMaxLength(250)
+															->setClass('description')
+															->setValue($detailparticulars)
+															->draw($show_input);
+											$detail_row	.= '<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
+											</td>';
 
-										$detail_row	.= '<td class = "remove-margin">';
-										$detail_row .= $ui->formField('text')
-										->setSplit('', 'col-md-12')
-										->setName('detailparticulars['.$row.']')
-										->setId('detailparticulars['.$row.']')
-										->setMaxLength(250)
-										->setClass('description')
-										->setValue($detailparticulars)
-										->draw($show_input);
-										$detail_row	.= '	<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
-										</td>';
+											$detail_row	.= '<td class="text-right class="remove-margin">';
+											$detail_row .= $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName('debit['.$row.']')
+															->setId('debit['.$row.']')
+															->setClass("text-right account_amount $indicator")
+															->setValidation('decimal')
+															->setMaxLength(20)
+															->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
+															->setValue(number_format($debit, 2))
+															->draw($show_input);
+											$detail_row	.= '</td>';
 
-										$detail_row	.= '<td class="text-right class = "remove-margin"">';
-										$detail_row .= $ui->formField('text')
-										->setSplit('', 'col-md-12')
-										->setName('debit['.$row.']')
-										->setId('debit['.$row.']')
-										->setClass("text-right account_amount $indicator")
-										->setValidation('decimal')
-										->setMaxLength(20)
-										->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
-										->setValue(number_format($debit, 2))
-										->draw($show_input);
-										$detail_row	.= '</td>';
+											$detail_row	.= '<td class="text-right class="remove-margin">';
+											$detail_row .= $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName('credit['.$row.']')
+															->setClass("text-right  credit $indicator")
+															->setId('credit['.$row.']')
+															->setValidation('decimal')
+															->setMaxLength(20)
+															->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_credit))
+															->setValue(number_format($credit, 2))
+															->draw($show_input);
+											$detail_row	.= '</td>';
 
-										$detail_row	.= '<td class="text-right class = "remove-margin"">';
-										$detail_row .= $ui->formField('text')
-										->setSplit('', 'col-md-12')
-										->setName('credit['.$row.']')
-										->setClass("text-right  credit $indicator")
-										->setId('credit['.$row.']')
-										->setValidation('decimal')
-										->setMaxLength(20)
-										->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_credit))
-										->setValue(number_format($credit, 2))
-										->draw($show_input);
-										$detail_row	.= '</td>';
+											if( $show_input ){
+												$detail_row .= '<td class="text-center">';
+												$detail_row .= '	<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="'.$row.'" id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');" '.$disable_code.'><span class="glyphicon glyphicon-trash"></span></button>';
+												$detail_row .= '</td>';
+											}
 
-										if( $show_input ){
-											$detail_row .= '<td class="text-center">';
-											$detail_row .= '	<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="'.$row.'" id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');" '.$disable_code.'><span class="glyphicon glyphicon-trash"></span></button>';
-											$detail_row .= '</td>';
+											$detail_row	.= '</tr>';
+
+											$row++;
 										}
 
-										$detail_row	.= '</tr>';
-
-										$row++;
-									}
-
-									echo $detail_row;
+										echo $detail_row;
 								}
 							}
 							?>
@@ -973,6 +965,9 @@
 								<tr id="total">
 									<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 									<td class="right" style="border-top:1px solid #DDDDDD;">
+									<? if($show_input): ?>
+									<td class="right" style="border-top:1px solid #DDDDDD;">
+									<?endif;?>
 										<label class="control-label col-md-12">Total</label>
 									</td>
 									<td class="text-right" style="border-top:1px solid #DDDDDD;">
@@ -1353,7 +1348,7 @@
 										->setName('tax_account')
 										->setId('tax_account')
 										->setClass('tax_account')
-										->setValue('')
+										->setValue($taxcode)
 										->draw($show_input);
 							?>
 							</div>
@@ -1366,7 +1361,7 @@
 										->setName('tax_amount')
 										->setId('tax_amount')
 										->setClass('text-right tax_amount')
-										->setValue('')
+										->setValue($taxbase_amount)
 										->setValidation('required')
 										->draw($show_input);
 							?>
@@ -1670,7 +1665,7 @@ function getPartnerInfo(code)
 				}
 			}
 		});
-
+		
 		computeDueDate();
 	} else
 	{
@@ -4535,5 +4530,4 @@ $('.tax_amount').on('change', function(){
 	acc = addCommas(parseFloat(accs).toFixed(2));
 	$('.tax_amount').val(acc);
 });
-
 </script>
