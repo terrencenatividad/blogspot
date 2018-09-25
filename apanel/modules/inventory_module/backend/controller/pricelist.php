@@ -590,6 +590,8 @@
 						$description        = (!empty($b[2])) ? trim($b[2]) 	: 	$prev_desc; 
 						$itemcode 			= trim($b[3]);
 						$itemprice 			= trim($b[4]);
+						$name			    = trim($b[1]); 
+						$desc			    = trim($b[2]); 
 
 						$prev 				= $itempricecode;
 						$prev_name 			= $itempricename;
@@ -605,6 +607,13 @@
 							$errmsg		= array_filter($errmsg);
 						}
 
+						if(empty($name)){
+							$errmsg[] 	= "Price List Name is required. Row $line should not be empty.<br>";
+						}
+						if(empty($desc)){
+							$errmsg[] 	= "Description is required. Row $line should not be empty.<br>";
+						}
+						
 						// Check if Itemcode Exists
 						$item_exists 		= $this->pricelist->check_duplicate($itemcode,'items',"itemcode");
 						$item_count  		= $item_exists[0]->count;
@@ -624,6 +633,7 @@
 							$errmsg[] 	= "Adjusted Price [ <strong>$itemprice</strong> ] on row $line should not be empty.<br/>";
 							$errmsg		= array_filter($errmsg);
 						}
+
 						
 						// Check if Price List - Itemcode Pair already exists
 						// $tpl_code_exists 	= $this->pricelist->check_duplicate_pair('price_list_details', " itemPriceCode = '$itempricecode' AND itemDtlCode = '$itemcode' " );
