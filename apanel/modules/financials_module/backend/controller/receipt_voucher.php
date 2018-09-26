@@ -343,6 +343,8 @@ class controller extends wc_controller
 
 		$businesstype = $partner->businesstype;
 
+		$contact_person = $partner->last_name.', '.$partner->first_name;
+
 		if ($businesstype == 'Individual') {
 			$filename = 'SAWT 1701';
 			$form = '1701';
@@ -372,7 +374,7 @@ class controller extends wc_controller
 
 
 		$sheet->getCell('A6')->setValue('TIN : '.$partner->tinno);
-		$sheet->getCell('A7')->setValue("PAYEE'S NAME: ".$partner->partnername);
+		$sheet->getCell('A7')->setValue("PAYEE'S NAME: ".strtoupper($partner->partnername));
 
 		$sheet->getCell('A11')->setValue('SEQ');
 		$sheet->getCell('A12')->setValue('NO');
@@ -417,32 +419,47 @@ class controller extends wc_controller
 		$sheet->getCell('I15')->setValue('------------------------------');
 
 		$count = 1;
-		$totalwtaxamount = '';
-		foreach ($rv_details as $row) {
+		$totalwtaxamount = 0;
+		$cell_row = 16;
+		if ($rv_details) {
+			foreach ($rv_details as $row) {
 
-			$sheet->getCell('A16')->setValue($count);
-			$sheet->getCell('B16')->setValue($partner->tinno);
-			if ($businesstype != 'Individual') {
-				$sheet->getCell('C16')->setValue($partner->partnername);
-			}
-			else {
-				$sheet->getCell('D16')->setValue($partner->last_name.', '.$partner->first_name);
-			}
-			$sheet->getCell('E16')->setValue($row->atc_code);
-			$sheet->getCell('F16')->setValue($rv->paymenttype);
-			$sheet->getCell('G16')->setValue($row->taxbase_amount);
-			$sheet->getCell('H16')->setValue($row->tax_rate);
-			$sheet->getCell('I16')->setValue($row->credit);
+				$sheet->getCell('A'.$cell_row)->setValue($count);
+				$sheet->getCell('B'.$cell_row)->setValue($partner->tinno);
+				if ($businesstype != 'Individual') {
+					$sheet->getCell('C'.$cell_row)->setValue(strtoupper($partner->partnername));
+				}
+				else {
+					$sheet->getCell('D'.$cell_row)->setValue(strtoupper($contact_person));
+				}
+				$sheet->getCell('E'.$cell_row)->setValue($row->atc_code);
+				$sheet->getCell('F'.$cell_row)->setValue(strtoupper($rv->paymenttype));
+				$sheet->getCell('G'.$cell_row)->setValue($row->taxbase_amount);
+				$sheet->getCell('H'.$cell_row)->setValue($row->tax_rate);
+				$sheet->getCell('I'.$cell_row)->setValue($row->credit);
 
-			$count++;
-			$totalwtaxamount = $totalwtaxamount + $row->credit;
+				$count++;
+				$cell_row++;
+				$totalwtaxamount = $totalwtaxamount + $row->credit;
+			}
 		}
 
-		$sheet->getCell('A18')->setValue('Grand Total :');
-		$sheet->getCell('A20')->setValue('END OF REPORT');
+		else {
+			$sheet->mergeCells('A16:I16');
+			$sheet->getCell('A16')->setValue('NO CREDITABLE WITHHOLDING TAX');
+			$sheet->getStyle('A16')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+			$cell_row = $cell_row + 1;
+		}
 
-		$sheet->getCell('I17')->setValue('------------------');
-		$sheet->getCell('I18')->setValue($totalwtaxamount);
+		$fortotal_row = $cell_row + 1;
+		$forend_report = $cell_row + 3;
+		$fortotal_amount = $cell_row + 1;
+
+		$sheet->getCell('A'.$fortotal_row)->setValue('Grand Total :');
+		$sheet->getCell('A'.$forend_report)->setValue('END OF REPORT');
+
+		$sheet->getCell('I'.$cell_row)->setValue('------------------');
+		$sheet->getCell('I'.$fortotal_amount)->setValue($totalwtaxamount);
 		// $sheet->getCell('I19')->setValue('==================');
 
 		$sheet->getStyle('G15:I18')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
@@ -504,16 +521,22 @@ class controller extends wc_controller
 		$csv->addRow(array('SEQ NO', 'TAXPAYER IDENTIFICATION NUMBER', 'CORPORATION (Registered Name)', 'INDIVIDUAL (Last Name, First Name, Middle Name)', 'ATC CODE', 'NATURE OF PAYMENT', 'AMOUNT OF INCOME PAYMENT', 'TAX RATE', 'AMOUNT OF TAX WITHHELD'));
 
 		$count = 1;
-		$totalwtaxamount = '';
-		foreach ($rv_details as $row) {
-			if ($businesstype != 'Individual') {
-				$csv->addRow(array($count, $partner->tinno, strtoupper($partner->partnername), "", $row->atc_code, strtoupper($rv->paymenttype), $row->taxbase_amount, $row->tax_rate, $row->credit));
+		$totalwtaxamount = 0;
+		if ($rv_details) {
+			foreach ($rv_details as $row) {
+				if ($businesstype != 'Individual') {
+					$csv->addRow(array($count, $partner->tinno, strtoupper($partner->partnername), "", $row->atc_code, strtoupper($rv->paymenttype), $row->taxbase_amount, $row->tax_rate, $row->credit));
+				}
+				else {
+					$csv->addRow(array($count, $partner->tinno, "", strtoupper($contactperson), $row->atc_code, strtoupper($rv->paymenttype), $row->taxbase_amount, $row->tax_rate, $row->credit));
+				}
+				$count++;
+				$totalwtaxamount = $totalwtaxamount + $row->credit;
 			}
-			else {
-				$csv->addRow(array($count, $partner->tinno, "", strtoupper($contactperson), $row->atc_code, strtoupper($rv->paymenttype), $row->taxbase_amount, $row->tax_rate, $row->credit));
-			}
-			$count++;
-			$totalwtaxamount = $totalwtaxamount + $row->credit;
+		}
+
+		else {
+			$csv->addRow(array("NO CREDITABLE WITHHOLDING TAX"));
 		}
 
 		$csv->export($filename,'DAT');
