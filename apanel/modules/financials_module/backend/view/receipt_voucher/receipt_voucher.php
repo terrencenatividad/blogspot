@@ -1605,6 +1605,9 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 			$('#entriesTable tbody tr.clone select').select2('destroy');
 		}
 		var val = $(this).val();
+		
+		var is_ap 	= $('#ap_checker').is(':checked');
+			is_ap 	= (is_ap == true) ? "true" 	:	"false";
 
 		cheque_arr = [];
 
@@ -1623,8 +1626,9 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 					$("#entriesTable tbody tr.clone:not(.added_row)").first().before(clone_acct);
 				} else {
 					$('#entriesTable tbody tr.clone .accountcode').each(function() {
+						console.log($(this).closest('tbody').find('tr').length);
 						var account = $(this).val();
-						if(account == "" ){
+						if(account == "" && (is_ap == "false" || $(this).closest('tbody').find('tr').length >= 2)){
 							$(this).closest('tr').remove();
 						}
 					});
@@ -2098,7 +2102,7 @@ function addAmountAll(field) {
 		var inputs 		= document.getElementById(field+'['+i+']');
 		var disables 	= document.getElementById(notfield+'['+i+']');
 		var is_cheque   = $("#ischeck\\["+i+"\\]").val();
-
+		console.log("IS CHEQUE = "+is_cheque);
 		if(document.getElementById(notfield+'['+i+']')!=null)
 		{          
 			if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
@@ -2388,11 +2392,18 @@ function toggleCheckInfo(val){
 		}
 	} else {
 		//For Reseting initial PV & Cheque Details
+		setChequeZero();
 		clearChequePayment();
 		getRVDetails();
 		$("#payableForm #cheque_details").addClass('hidden');
 		$('#totalcheques').val(0);
 		formatNumber('totalcheques');
+		$('.ischeck').val('no');
+		clear_acct_input();
+		$('.debit').removeAttr('readonly');
+		$('.credit').removeAttr('readonly');
+		$('.accountcode').prop('disabled',false);
+		$('.confirm-delete').prop('disabled',false);
 	}
 
 }
@@ -2743,6 +2754,9 @@ var selectedIndex 	= -1;
 function getRVDetails(){
 	var customercode   	= $("#customer").val();
 	var overpayment 	= $('#overpayment').val();
+	var is_ap 			= $('#ap_checker').is(':checked');
+		is_ap 			= (is_ap == true) ? "yes" 	:	"no";
+
 	var selected_rows 	= JSON.stringify(container);
 	var cheques = [];
 	cheques_obj = getCheckAccounts();
@@ -2757,7 +2771,7 @@ function getRVDetails(){
 
 	$("#selected_rows").html(selected_rows);
 
-	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques + "&overpayment="+overpayment;
+	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques + "&overpayment="+overpayment + "&advance="+is_ap;
 	
 	if(selected_rows == "")
 	{
