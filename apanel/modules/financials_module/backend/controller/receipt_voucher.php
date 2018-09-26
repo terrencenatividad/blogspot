@@ -1551,6 +1551,7 @@ class controller extends wc_controller
 		$checkrows       = $this->input->post("checkrows");
 		$cheques       	 = $this->input->post("cheques");
 		$overpayment 	 = $this->input->post("overpayment");
+		$advance 		 = $this->input->post("advance");
 
 		$invoice_data 	= (isset($checkrows) && (!empty($checkrows))) ? trim($checkrows) : "";
 		$invoice_data  	= str_replace('\\', '', $invoice_data);
@@ -1617,8 +1618,8 @@ class controller extends wc_controller
 		if(!empty($results)){
 			$credit      = '0.00';
 			$count       = count($results);
-			
-			for($i = 0; $i < $count; $i++, $row++)
+			$cond 		 = ($advance == "yes") ? $i <= $count 	:	$i < $count;
+			for($i = 0; $cond; $i++, $row++)
 			{
 				$accountcode       = (!empty($results[$i]->accountcode)) ? $results[$i]->accountcode : "";
 				$detailparticulars = (!empty($results[$i]->detailparticulars)) ? $results[$i]->detailparticulars : "";
