@@ -1528,7 +1528,7 @@
 										->setName('tax_account')
 										->setId('tax_account')
 										->setClass('tax_account')
-										->setValue($taxcode)
+										->setValue('')
 										->draw($show_input);
 							?>
 							</div>
@@ -1542,7 +1542,7 @@
 										->setId('tax_amount')
 										->setClass('text-right tax_amount')
 										->setValue($taxbase_amount)
-										->setValidation('required')
+										->setValidation('required decimal')
 										->draw($show_input);
 							?>
 						</div>
@@ -1555,7 +1555,7 @@
 									</div>
 										&nbsp;&nbsp;&nbsp;
 									<div class="btn-group">
-										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
+										<button type="button" class="btn btn-default btn-flat" id="atc_cancel" data-dismiss="modal">Cancel</button>
 									</div>
 								</div>
 							</div>
@@ -4760,6 +4760,7 @@ $(document).ready(function() {
 
 var row = '';
 prev_account = '';
+var selected_tax_account = '';
 	
 function get_coa(account){
 	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_tax",{account:account}).done(function(data){
@@ -4770,6 +4771,9 @@ function get_coa(account){
 			prev_account = account;
 			$('#atcModal').modal('show');
 			$('#tax_account').html(data.ret);
+			if (selected_tax_account) {
+				$('#tax_account').val(selected_tax_account);
+			}
 		} else {
 			row.find('.checkbox-select').show();
 			row.find('.edit-button').hide();
@@ -4783,11 +4787,18 @@ $("#entriesTable").on('ifToggled','.wtax',function() {
 });
 
 $("#entriesTable").on('click', '.edit-button', function() {
+	// $('#tax_amount').val($(this).attr('data-amount'));
+	// $('#atcModal').modal('show');
+	// var accountcode = $('.accountcode').val();
+	// get_coa(accountcode);
+	// row = $(this).closest('tr');
+
 	$('#tax_amount').val($(this).attr('data-amount'));
-	$('#atcModal').modal('show');
-	var accountcode = $('.accountcode').val();
-	get_coa(accountcode);
+	var accountcode = $(this).closest('tr').find('.accountcode').val();
 	row = $(this).closest('tr');
+	var taxcode = $(this).closest('tr').find('.taxcode').val();
+	selected_tax_account = taxcode;
+	get_coa(accountcode);
 });
 
 $('#tax_apply').click(function(){
@@ -4805,6 +4816,15 @@ $('#tax_apply').click(function(){
 	});
 	
 	$('#atcModal').modal('hide');
+	row.find('.checkbox-select').hide();
+	row.find('.edit-button').show().attr('data-amount', tax_amount);
+
+});
+
+$('#atcModal #atc_cancel').on('click' ,function(){
+	var tax_account = $('#tax_account').val();
+	var tax_amount = $('#tax_amount').val();
+	tax_amount = tax_amount.replace(/,/g,'');
 	row.find('.checkbox-select').hide();
 	row.find('.edit-button').show().attr('data-amount', tax_amount);
 });
