@@ -644,5 +644,14 @@
 							 
 			return $result;
 		}
+
+		public function retrieve_item_quantity($itemcode){
+			$result =  $this->db->setTable('invfile')
+							 ->setFields('onhandQty')
+							 ->setWhere("itemcode = '$itemcode'")
+							 ->runSelect()
+							 ->getResult();
+			return $result;
+		}
 	}
 ?>

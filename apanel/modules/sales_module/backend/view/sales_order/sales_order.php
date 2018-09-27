@@ -687,6 +687,33 @@
 	</div>
 </div>
 
+<div class="modal fade" id="orderQtymodal" tabindex="-1"  data-backdrop="static" data-keyboard="false" >
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Oops!
+			</div>
+			<div class="modal-body" id="message">
+				Ordered quantity cannot be greater than on hand quantity. Please check the item in Inventory Inquiry List.
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 ">
+						<div class="text-center">
+							<button type="button" class="btn btn-default btn-flat" id="btnOk" data-dismiss='modal'>Cancel</button>
+						</div>
+							<!-- &nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-flat" id="btnNo" >No</button>
+						</div> -->
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script>
 	function retrieveCurrentOutstandingReceivables(customercode){
 		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_outstanding_receivables', "customercode=" + customercode, function(data) {
@@ -1640,5 +1667,30 @@ $(document).ready(function(){
 	// });
 	
 });
+
+
+$('.quantity').on('change',function() {
+	var element = $(this);
+	var items = [];
+	var itemcode = $(this).closest('tr').find('.itemcode').val();
+	$('.quantity').each(function() {
+		if( $(this).val() > 0 )
+		{
+			var qty = removeComma($(this).val());
+			if (typeof items[itemcode] == 'undefined') {
+				items[itemcode] = 0;
+			}
+			items[itemcode] += qty;
+		}
+		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_item_quantity', "itemcode="+itemcode , function(data) {
+			var x = data.qty.replace(/\.00$/,'');
+			if (items[itemcode] > x){
+				$('#orderQtymodal').modal('show');
+				element.val('');
+			}
+		});
+	});
+	
+})
 
 </script>
