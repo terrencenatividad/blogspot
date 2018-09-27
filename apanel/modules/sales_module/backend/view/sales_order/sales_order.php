@@ -1686,7 +1686,7 @@ $('.quantity').on('change',function() {
 			var x = data.qty.replace(/\.00$/,'');
 			if (items[itemcode] > x){
 				$('#orderQtymodal').modal('show');
-				element.val('');
+				element.val('0');
 			}
 		});
 	});
