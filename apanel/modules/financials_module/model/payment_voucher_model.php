@@ -1699,15 +1699,4 @@ class payment_voucher_model extends wc_model
 		}
 
 	}
-
-	public function check_bank(){
-		$result = $this->db->setTable("bank")
-							->setFields("count('id') id")
-							->setWhere("stat = 'posted'")
-							->runSelect()
-							->getResult();
-	}
-
-
-
 }

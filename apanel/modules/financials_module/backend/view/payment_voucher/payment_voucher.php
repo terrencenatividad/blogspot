@@ -4364,12 +4364,11 @@ $(document).ready(function() {
 	});
 
 	$('#chequeTable .chequeaccount').on('select2:open',function(){
-		$.post("<?= MODULE_URL ?>ajax/check_bank", function(data){
-			if (data.count == 0){
-				$('#noBankModal').modal('show')
-			}
-
-		})
+		var bank_count = $(this).find('option').length - 1;
+		if (bank_count == 0){
+			$('#noBankModal').modal('show');
+			$(this).select2('close');
+		}
 	})
 
 }); // end
