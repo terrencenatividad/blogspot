@@ -246,6 +246,7 @@
 												->setName('firstcancelled')
 												->setId('firstcancelled')
 												->setValidation('required num')
+												->setMaxLength(30)
 												->setValue("")
 												->draw();
 									?>
@@ -259,6 +260,7 @@
 												->setName('lastcancelled')
 												->setId('lastcancelled')
 												->setValidation('required num')
+												->setMaxLength(30)
 												->setValue("")
 												->draw();
 									?>
