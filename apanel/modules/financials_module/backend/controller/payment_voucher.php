@@ -1675,5 +1675,12 @@ class controller extends wc_controller
 		return $data; 
 	}
 
+	public function check_bank(){
+		$result = $this->payment_voucher->check_bank();
+		$result = ($result == NULL) ? 0 : $result;
+		$data = array('count' => $result);
+		return $data;
+	}
+
 }
 
