@@ -1451,7 +1451,7 @@
 										->setName('tax_account')
 										->setId('tax_account')
 										->setClass('tax_account')
-										->setValue($taxcode)
+										->setValue('')
 										->draw($show_input);
 							?>
 							</div>
@@ -1465,7 +1465,7 @@
 										->setId('tax_amount')
 										->setClass('text-right tax_amount')
 										->setValue($taxbase_amount)
-										->setValidation('required')
+										->setValidation('required decimal')
 										->draw($show_input);
 							?>
 						</div>
@@ -1478,7 +1478,7 @@
 									</div>
 										&nbsp;&nbsp;&nbsp;
 									<div class="btn-group">
-										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
+										<button type="button" class="btn btn-default btn-flat" id="atc_cancel" data-dismiss="modal">Cancel</button>
 									</div>
 								</div>
 							</div>
@@ -1605,6 +1605,9 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 			$('#entriesTable tbody tr.clone select').select2('destroy');
 		}
 		var val = $(this).val();
+		
+		var is_ap 	= $('#ap_checker').is(':checked');
+			is_ap 	= (is_ap == true) ? "true" 	:	"false";
 
 		cheque_arr = [];
 
@@ -1623,8 +1626,9 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 					$("#entriesTable tbody tr.clone:not(.added_row)").first().before(clone_acct);
 				} else {
 					$('#entriesTable tbody tr.clone .accountcode').each(function() {
+						console.log($(this).closest('tbody').find('tr').length);
 						var account = $(this).val();
-						if(account == "" ){
+						if(account == "" && (is_ap == "false" || $(this).closest('tbody').find('tr').length >= 2)){
 							$(this).closest('tr').remove();
 						}
 					});
@@ -2098,7 +2102,7 @@ function addAmountAll(field) {
 		var inputs 		= document.getElementById(field+'['+i+']');
 		var disables 	= document.getElementById(notfield+'['+i+']');
 		var is_cheque   = $("#ischeck\\["+i+"\\]").val();
-
+		console.log("IS CHEQUE = "+is_cheque);
 		if(document.getElementById(notfield+'['+i+']')!=null)
 		{          
 			if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
@@ -2388,11 +2392,18 @@ function toggleCheckInfo(val){
 		}
 	} else {
 		//For Reseting initial PV & Cheque Details
+		setChequeZero();
 		clearChequePayment();
 		getRVDetails();
 		$("#payableForm #cheque_details").addClass('hidden');
 		$('#totalcheques').val(0);
 		formatNumber('totalcheques');
+		$('.ischeck').val('no');
+		clear_acct_input();
+		$('.debit').removeAttr('readonly');
+		$('.credit').removeAttr('readonly');
+		$('.accountcode').prop('disabled',false);
+		$('.confirm-delete').prop('disabled',false);
 	}
 
 }
@@ -2743,6 +2754,9 @@ var selectedIndex 	= -1;
 function getRVDetails(){
 	var customercode   	= $("#customer").val();
 	var overpayment 	= $('#overpayment').val();
+	var is_ap 			= $('#ap_checker').is(':checked');
+		is_ap 			= (is_ap == true) ? "yes" 	:	"no";
+
 	var selected_rows 	= JSON.stringify(container);
 	var cheques = [];
 	cheques_obj = getCheckAccounts();
@@ -2757,7 +2771,7 @@ function getRVDetails(){
 
 	$("#selected_rows").html(selected_rows);
 
-	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques + "&overpayment="+overpayment;
+	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques + "&overpayment="+overpayment + "&advance="+is_ap;
 	
 	if(selected_rows == "")
 	{
@@ -4683,6 +4697,7 @@ $(document).ready(function() {
 
 var row = '';
 prev_account = '';
+var selected_tax_account = '';
 	
 function get_coa(account){
 	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_tax",{account:account}).done(function(data){
@@ -4693,6 +4708,9 @@ function get_coa(account){
 			prev_account = account;
 			$('#atcModal').modal('show');
 			$('#tax_account').html(data.ret);
+			if (selected_tax_account) {
+				$('#tax_account').val(selected_tax_account);
+			}
 		} else {
 			row.find('.checkbox-select').show();
 			row.find('.edit-button').hide();
@@ -4706,11 +4724,18 @@ $("#entriesTable").on('ifToggled','.wtax',function() {
 });
 
 $("#entriesTable").on('click', '.edit-button', function() {
+	// $('#tax_amount').val($(this).attr('data-amount'));
+	// $('#atcModal').modal('show');
+	// var accountcode = $('.accountcode').val();
+	// get_coa(accountcode);
+	// row = $(this).closest('tr');
+
 	$('#tax_amount').val($(this).attr('data-amount'));
-	$('#atcModal').modal('show');
-	var accountcode = $('.accountcode').val();
-	get_coa(accountcode);
+	var accountcode = $(this).closest('tr').find('.accountcode').val();
 	row = $(this).closest('tr');
+	var taxcode = $(this).closest('tr').find('.taxcode').val();
+	selected_tax_account = taxcode;
+	get_coa(accountcode);
 });
 
 $('#tax_apply').click(function(){
@@ -4728,6 +4753,15 @@ $('#tax_apply').click(function(){
 	});
 	
 	$('#atcModal').modal('hide');
+	row.find('.checkbox-select').hide();
+	row.find('.edit-button').show().attr('data-amount', tax_amount);
+
+});
+
+$('#atcModal #atc_cancel').on('click' ,function(){
+	var tax_account = $('#tax_account').val();
+	var tax_amount = $('#tax_amount').val();
+	tax_amount = tax_amount.replace(/,/g,'');
 	row.find('.checkbox-select').hide();
 	row.find('.edit-button').show().attr('data-amount', tax_amount);
 });

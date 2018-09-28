@@ -40,7 +40,7 @@
 									->setClass('firstchequeno')
 									->setId('firstchequeno')
 									->setValidation('required num')
-									->setMaxLength(20)
+									->setMaxLength(16)
 									->setValue($firstchequeno)
 									->draw($show_input);
 						?>
@@ -55,7 +55,7 @@
 									->setClass('lastchequeno')
 									->setId('lastchequeno')
 									->setValidation('required num')
-									->setMaxLength(20)
+									->setMaxLength(16)
 									->setValue($lastchequeno)
 									->draw($show_input);
 						?>
@@ -246,6 +246,7 @@
 												->setName('firstcancelled')
 												->setId('firstcancelled')
 												->setValidation('required num')
+												->setMaxLength(16)
 												->setValue("")
 												->draw();
 									?>
@@ -259,6 +260,7 @@
 												->setName('lastcancelled')
 												->setId('lastcancelled')
 												->setValidation('required num')
+												->setMaxLength(16)
 												->setValue("")
 												->draw();
 									?>
