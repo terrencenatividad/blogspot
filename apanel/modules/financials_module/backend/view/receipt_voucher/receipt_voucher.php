@@ -1044,11 +1044,6 @@
 						if(($status == 'open' && $has_access == 1) && $restrict_rv){
 							echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
 						}
-						if ($task == 'view' && $status == 'posted') {
-							echo '&nbsp;<button type="button" class="btn btn-success btn-flat" id = "sawtCsvBtn"><span class="glyphicon glyphicon-export"></span> SAWT (CSV)</button>';
-							echo '&nbsp;<button type="button" class="btn btn-success btn-flat" id = "sawtDatBtn"><span class="glyphicon glyphicon-export"></span> SAWT (DAT)</button>';
-							echo '<input type = "hidden" id = "businesstype" value = "'.$businesstype.'"><input type = "hidden" id = "partnercode" value = "'.$partnercode.'">';
-						}
 						?>
 						<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
 						<!-- <button type="button" class="btn btn-default btn-flat" data-id="<?//=$generated_id?>" id="btnCancel">Cancel</button> -->
@@ -1392,78 +1387,6 @@
 	</div>
 </div>
 <!-- End DELETE RECORD CONFIRMATION MODAL-->
-
-<!-- Modal that asks for customer's business type-->
-<div class="modal fade" id="businesstype_modal_csv" tabindex="-1" data-backdrop="static">
-	<div class="modal-dialog modal-sm">
-		<div class="modal-content">
-			<div class="modal-header">
-				<strong>Select Business Type</strong>
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-			</div>
-			<div class="modal-body" style = "margin-bottom:20px">
-				<?php
-				$show_input = 'true';
-				echo $ui->formField('dropdown')
-				->setSplit('', 'col-md-12')
-				->setName('business_type')
-				->setId('business_type')
-				->setList(array('Individual' => 'Individual', 'Corporation' => 'Corporation'))
-				->draw($show_input);
-				?>
-			</div>
-			<div class="modal-footer">
-				<div class="row row-dense">
-					<div class="col-md-12 center">
-						<div class="btn-group">
-							<button type="button" class="btn btn-primary btn-flat" id="saveBusinesstype_csv">Save</button>
-						</div>
-						&nbsp;&nbsp;&nbsp;
-						<div class="btn-group">
-							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<div class="modal fade" id="businesstype_modal_dat" tabindex="-1" data-backdrop="static">
-	<div class="modal-dialog modal-sm">
-		<div class="modal-content">
-			<div class="modal-header">
-				<strong>Select Business Type</strong>
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-			</div>
-			<div class="modal-body" style = "margin-bottom:20px">
-				<?php
-				$show_input = 'true';
-				echo $ui->formField('dropdown')
-				->setSplit('', 'col-md-12')
-				->setName('business_type')
-				->setId('business_type')
-				->setList(array('Individual' => 'Individual', 'Corporation' => 'Corporation'))
-				->draw($show_input);
-				?>
-			</div>
-			<div class="modal-footer">
-				<div class="row row-dense">
-					<div class="col-md-12 center">
-						<div class="btn-group">
-							<button type="button" class="btn btn-primary btn-flat" id="saveBusinesstype_dat">Save</button>
-						</div>
-						&nbsp;&nbsp;&nbsp;
-						<div class="btn-group">
-							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-<!--- End -->
 
 <!-- ON CHANGING OF VENDOR MODAL -->
 <div class="modal fade" id="change_customer_modal" tabindex="-1" data-backdrop="static">
@@ -4827,51 +4750,9 @@ $('#entriesTable .taxcode').each(function(){
 
 </script>
 <script>
-	$('#sawtCsvBtn').click(function(){
-		var businesstype = $('#businesstype').val();
-		var partnercode = $('#partnercode').val();
-		if (businesstype != '') {
-			window.open('<?php echo MODULE_URL ?>sawt_csv?' + $('#h_voucher_no').serialize() + '&partnercode=' + partnercode);
-		}
-		else {
-			$('#businesstype_modal_csv').modal('show');
-		}
+	$('.tax_amount').on('change', function(){
+		var accs = $(this).val();
+		acc = addCommas(parseFloat(accs).toFixed(2));
+		$('.tax_amount').val(acc);
 	});
-	$('#sawtDatBtn').click(function(){
-		var businesstype = $('#businesstype').val();
-		var partnercode = $('#partnercode').val();
-		if (businesstype != '') {
-			window.open('<?php echo MODULE_URL ?>sawt_dat?' + $('#h_voucher_no').serialize() + '&partnercode=' + partnercode);
-		}
-		else {
-			$('#businesstype_modal_dat').modal('show');
-		}
-	});
-	$('#saveBusinesstype_csv').click(function(){
-		var businesstype = $('#business_type').val();
-		var partnercode = $('#partnercode').val();
-		$.post('<?=MODULE_URL?>ajax/ajax_savebusinesstype?type=' + businesstype + '&partnercode=' + partnercode, function(data) {
-			if (data.success) {
-				$('#businesstype_modal_csv').modal('hide');
-				$('#delay_modal').modal('show');
-				window.open('<?php echo MODULE_URL ?>sawt_csv?' + $('#h_voucher_no').serialize() + '&partnercode=' + partnercode);
-			}
-		});
-	});
-	$('#saveBusinesstype_dat').click(function(){
-		var businesstype = $('#business_type').val();
-		var partnercode = $('#partnercode').val();
-		$.post('<?=MODULE_URL?>ajax/ajax_savebusinesstype?type=' + businesstype + '&partnercode=' + partnercode, function(data) {
-			if (data.success) {
-				$('#businesstype_modal_dat').modal('hide');
-				$('#delay_modal').modal('show');
-				window.open('<?php echo MODULE_URL ?>sawt_dat?' + $('#h_voucher_no').serialize() + '&partnercode=' + partnercode);
-			}
-		});
-	});
-$('.tax_amount').on('change', function(){
-	var accs = $(this).val();
-	acc = addCommas(parseFloat(accs).toFixed(2));
-	$('.tax_amount').val(acc);
-});
 </script>

@@ -484,67 +484,6 @@ class controller extends wc_controller
 		$writer->save('php://output');
 	}
 
-	public function sawt_dat() {
-		$voucherno = $_GET['h_voucher_no'];
-		$partnercode = $_GET['partnercode'];
-		
-		$partner = $this->receipt_voucher->getPartnerDetails($partnercode);
-		$rv = $this->receipt_voucher->getRV($voucherno); 
-		$rv_details = $this->receipt_voucher->getRVDetails($voucherno);
-
-		$date=date_create($rv->postingdate);
-		$date = date_format($date,"F, Y");
-
-		$businesstype = $partner->businesstype;
-
-		$contactperson = $partner->first_name.' '.$partner->last_name;
-
-		if ($businesstype == 'Individual') {
-			$filename = 'SAWT 1701';
-			$form = '1701';
-		}
-		else {
-			$filename = 'SAWT 1702';
-			$form = '1702';
-		}
-
-		$header = array("BIR FORM ".$form);
-
-		$csv 		= new exportCSV($header);
-
-		$csv->addRow(array("SUMMARY ALPHALIST OF WITHHOLDING TAXES (SAWT)"));
-		$csv->addRow(array("FOR THE MONTH OF ".strtoupper($date)));
-
-		$csv->addRow(array('TIN : '.$partner->tinno));
-		$csv->addRow(array("PAYEE'S NAME: ".$partner->partnername));
-
-		$csv->addRow(array('SEQ NO', 'TAXPAYER IDENTIFICATION NUMBER', 'CORPORATION (Registered Name)', 'INDIVIDUAL (Last Name, First Name, Middle Name)', 'ATC CODE', 'NATURE OF PAYMENT', 'AMOUNT OF INCOME PAYMENT', 'TAX RATE', 'AMOUNT OF TAX WITHHELD'));
-
-		$count = 1;
-		$totalwtaxamount = 0;
-		if ($rv_details) {
-			foreach ($rv_details as $row) {
-				if ($businesstype != 'Individual') {
-					$csv->addRow(array($count, $partner->tinno, strtoupper($partner->partnername), "", $row->atc_code, strtoupper($rv->paymenttype), $row->taxbase_amount, $row->tax_rate, $row->credit));
-				}
-				else {
-					$csv->addRow(array($count, $partner->tinno, "", strtoupper($contactperson), $row->atc_code, strtoupper($rv->paymenttype), $row->taxbase_amount, $row->tax_rate, $row->credit));
-				}
-				$count++;
-				$totalwtaxamount = $totalwtaxamount + $row->credit;
-			}
-		}
-
-		else {
-			$csv->addRow(array("NO CREDITABLE WITHHOLDING TAX"));
-		}
-
-		$csv->export($filename,'DAT');
-		
-		ob_end_flush();
-	
-	}
-
 	public function edit($sid)
 	{
 		$this->view->title		= 'Edit Receipt Voucher';
