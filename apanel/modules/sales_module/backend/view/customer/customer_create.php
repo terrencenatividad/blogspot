@@ -82,7 +82,7 @@
 									->setName('businesstype')
 									->setId('businesstype')
 									->setList($bt_select)
-									//->setValidation('required')
+									->setValidation('required')
 									->setValue($businesstype)
 									->draw($show_input);
 							?>
