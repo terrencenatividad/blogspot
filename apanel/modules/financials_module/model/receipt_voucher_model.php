@@ -7,8 +7,7 @@ class receipt_voucher_model extends wc_model
 		$this->log = new log();
 	}
 
-	public function retrieveCustomerList()
-	{
+	public function retrieveCustomerList(){
 		$result = $this->db->setTable('partners')
 					->setFields("partnercode ind, companycode, CONCAT( first_name, ' ', last_name ), partnername val")
 					->setWhere("partnercode != '' AND partnertype = 'customer' AND stat = 'active'")
@@ -18,6 +17,18 @@ class receipt_voucher_model extends wc_model
 		
 		return $result;
 	}
+
+	public function retrieveCredAccountsList(){
+		$result = $this->db->setTable('chartaccount')
+					->setFields("segment5 ind, accountname val")
+					->setWhere("accountclasscode = 'ACCPAY' AND stat = 'active'")
+					->setOrderBy("val")
+					->runSelect()
+					->getResult();
+		
+		return $result;
+	}
+
 
 	public function retrieveProformaList()
 	{
@@ -1925,6 +1936,17 @@ class receipt_voucher_model extends wc_model
 								 ->runPagination();
 								//  echo $this->db->getQuery();
 		return $result;
+	}
+
+	public function retrieve_existing_acct(){
+		$query 	=	$this->db->setTable("fintaxcode fx")
+							->leftJoin('chartaccount coa ON coa.id = fx.salesAccount')
+							->setFields("coa.id, CONCAT(segment5,' - ',accountname) account")
+							->setWhere("fstaxcode = 'AP'")
+							->runSelect()
+							->getResult();
+
+		return $query;
 	}
 
 	public function retrieveOPDebitdetails(){

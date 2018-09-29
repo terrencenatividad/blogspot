@@ -153,7 +153,11 @@ class controller extends wc_controller
 		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
 		$data["cash_account_list"] 	= $this->receipt_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
 
-		$data["generated_id"]     = '';
+		$data["generated_id"]     		= '';
+		$cred_acct						= $this->receipt_voucher->retrieve_existing_acct();
+		$data["existingcreditaccount"]	= isset($cred_acct[0]->account) ? $cred_acct[0]->account	:	"";
+		$data['cred_id'] 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
+		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
 
 		// Application Data
 		$data['sum_applied'] 	= 0;
