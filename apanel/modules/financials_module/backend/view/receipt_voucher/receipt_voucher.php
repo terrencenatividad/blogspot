@@ -1203,7 +1203,7 @@
 								<?endif;?>
 								<div class="btn-group">
 									<!-- noted by Sir Mark to remove this onclick function upon cancel. onClick="clearPayment();"-->
-									<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal" >Cancel</button>
+									<button type="button" class="btn btn-default btn-sm btn-flat" id="cancelPaymentModal" >Cancel</button>
 								</div>
 							</div>
 						</div>
@@ -2540,7 +2540,7 @@ $('#pagination').on('click', 'a', function(e) {
 });
 
 $('#paymentModal').on('show.bs.modal', function () {
-  	$('#payable_list_container tr').each(function(index,value){
+	$('#payable_list_container tr').each(function(index,value){
 		var amt_to_receive 	= $(this).find('.paymentamount').val();
 			amt_to_receive  = (amt_to_receive == undefined) ? 0 : amt_to_receive;
 		var discount 		= $(this).find('.discountamount').val();
@@ -2555,8 +2555,8 @@ $('#paymentModal').on('show.bs.modal', function () {
 		}
 		if(amt_to_receive < 0){
 			$('#TagReceivablesBtn').prop('disabled',true);
-
 		}
+
   	});
 });
 
@@ -2565,6 +2565,19 @@ $('#paymentModal').on('hidden.bs.modal',function(){
 	$('#receiveAmtError').addClass('hidden');
 	$(this).find('.discountamount').closest('div').removeClass('has-error');
 	$(this).find('.paymentamount').closest('div').removeClass('has-error');
+});
+
+$('#cancelPaymentModal').on('click',function(){
+	var selected_rows 	= [];
+	$('#selected_rows').html(selected_rows);
+	$('#paymentModal').modal('hide');
+	$('#payable_list_container tr').each(function(index,value){
+		if($(this).find('.icheckbox').prop('checked')){
+			var voucher = $(this).find('.icheckbox').attr('row');
+			selectPayable(voucher,1);
+		}
+	});
+	// selectPayable(id,toggle){
 });
 
 function showCreditsList(){
