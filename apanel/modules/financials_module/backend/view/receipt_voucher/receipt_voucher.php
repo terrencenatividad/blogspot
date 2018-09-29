@@ -154,13 +154,26 @@
 								<?php
 									echo $ui->formField('checkbox')
 											->setLabel('Advance Payment')
-											->setSplit('col-md-4', 'col-md-8')
+											->setSplit('col-md-4', 'col-md-2')
 											->setName('ap_checker')
 											->setId('ap_checker')
 											->setDefault('no')
 											->setValue('')
 											->draw($show_input);
 								?>
+								<div class="col-md-12" id="editlink"><label id="existingcreditaccount"><?=$existingcreditaccount?></label> <a href="#" id="editcredacct">Edit</a></div>
+								<div class="col-md-12" id="updateacctdropdown">
+									<?php
+										echo $ui->formField('dropdown')
+												->setSplit('col-md-4', 'col-md-8')
+												->setClass("payment_mode")
+												->setName('paymentmode')
+												->setId('paymentmode')
+												->setList($advcredacct)
+												->setValue($cred_id)
+												->draw($show_input);
+									?>
+								</div>
 							</div>
 						</div>
 						<div class="row">
@@ -2580,6 +2593,12 @@ $('#cancelPaymentModal').on('click',function(){
 	// selectPayable(id,toggle){
 });
 
+$('#editcredacct').on('click',function(e){
+	e.preventDefault();
+	$('#editlink').addClass('hidden');
+	$('#updateacctdropdown').removeClass('hidden');
+});
+
 function showCreditsList(){
 	var vnose 			= JSON.stringify(container);
 	var	customer_code	= $('#payableForm #customer').val();
@@ -4794,6 +4813,7 @@ $('#entriesTable .taxcode').each(function(){
 		$('#tax_account').val(acc);
 	}
 });
+
 
 </script>
 <script>
