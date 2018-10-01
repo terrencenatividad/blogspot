@@ -160,14 +160,14 @@ class controller extends wc_controller
 		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
 
 		// Application Data
-		$data['sum_applied'] 	= 0;
-		$data['sum_discount']	= 0;
-		$data['payments'] 		= "''";
-		$data['available_credits'] = "0.00";
-		$data['credits_used'] 	= 0;
+		$data['sum_applied'] 		= 0;
+		$data['sum_discount']		= 0;
+		$data['payments'] 			= "''";
+		$data['available_credits'] 	= "0.00";
+		$data['credits_used'] 		= 0;
 
-		$data["listofcheques"]	= "";
-		$data["show_cheques"] 	= 'hidden';
+		$data["listofcheques"]		= "";
+		$data["show_cheques"] 		= 'hidden';
 
 		$data['restrict_rv'] 		= true;
 		

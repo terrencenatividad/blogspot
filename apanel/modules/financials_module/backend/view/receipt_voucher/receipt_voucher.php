@@ -174,6 +174,7 @@
 																	->setValue($cred_id)
 																	->draw($show_input);
 														?>
+														<input id="hidden_cred_id" name="hidden_cred_id" value="<?=$cred_id?>">
 													</div>
 													<div class="col-md-2">
 														<button class="btn btn-primary btn-flat">Save</button>
@@ -1595,14 +1596,14 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 			var description = $(this).find('.description').val();
 			var ischeck 	= $(this).find('.ischeck').val();
 			var debit		= $(this).find('.account_amount').val();
-		// console.log("ACCOUNTCODE = "+accountcode);
-		if(description!=""){
-			if (typeof acct_details[accountcode] === 'undefined') {
-				acct_details[accountcode] = "";
+			// console.log("ACCOUNTCODE = "+accountcode);
+			if(description!=""){
+				if (typeof acct_details[accountcode] === 'undefined') {
+					acct_details[accountcode] = "";
+				}
+				acct_details[accountcode] = description;
 			}
-			acct_details[accountcode] = description;
-		}
-	});
+		});
 	}
 
 	function displaystoreddescription(){
@@ -1903,6 +1904,7 @@ function resetIds() {
 		
 		row.cells[8].getElementsByTagName("button")[0].setAttribute('id',x);
 		row.cells[4].getElementsByTagName("select")[0].setAttribute('data-id',x);
+		row.cells[8].getElementsByTagName("button")[0].setAttribute('data-id',x);
 		row.cells[8].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
 
 		x++;
@@ -4694,10 +4696,29 @@ $(document).ready(function() {
 	// For Advance payment
 	$('#payableForm').on('ifChecked','#ap_checker',function(event){
 		$('#apv').prop('disabled',true);
+		// $('#crv').prop('disabled',true);
+		// hidden_cred_id 
+		var cred_acct 	= $('#hidden_cred_id').val();
+		var row 	  	= $('#entriesTable tbody tr.clone').length;
+		$("#accountcode\\["+ row +"\\]").val(cred_acct).trigger('change.select2');
+		$("#h_accountcode\\["+ row +"\\]").val(cred_acct);
+		$("#accountcode\\["+ row +"\\]").prop('disabled',true);
+		$('.confirm-delete[data-id="'+row+'"]').prop('disabled',true);
+		$("#accountcode\\["+ row +"\\]").closest('tr').addClass('credit_account');
 	});
 
 	$('#payableForm').on('ifUnchecked','#ap_checker',function(event){
 		$('#apv').prop('disabled',false);
+		// $('#crv').prop('disabled',false);
+
+		$('#entriesTable tbody tr.credit_account').each(function() {
+			$(this).find('.accountcode').val('').trigger('change.select2');
+			$(this).find('.h_accountcode').val('');
+			$(this).find('.credit').val('0.00');
+			$(this).find('.accountcode').prop('disabled',false);
+			$(this).find('.confirm-delete').prop('disabled',false);
+			addAmountAll('credit');
+		});
 	});
 
 	// For Credit Voucher
