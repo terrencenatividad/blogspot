@@ -1564,7 +1564,7 @@ class controller extends wc_controller
 			$count       = count($results);
 	
 			// $loop_cond 	 = ($advance == "yes") ? "$i <= $count" 	:	"$i < $count";
-	
+			// echo $count;
 			for($i = 0; $i <= $count; $i++, $row++)
 			{
 				if($i==$count && $advance == 'no') {

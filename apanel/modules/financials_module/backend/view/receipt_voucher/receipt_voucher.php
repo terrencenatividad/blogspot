@@ -2416,15 +2416,15 @@ function toggleCheckInfo(val){
 		}
 	} else {
 		//For Reseting initial PV & Cheque Details
-		console.log("CASH");
 		setChequeZero();
 		clearChequePayment();
 		$("#payableForm #cheque_details").addClass('hidden');
 		$('#totalcheques').val(0);
 		formatNumber('totalcheques');
-		console.log("IS AP = "+is_ap);
 		if(is_ap == "false"){
-			getRVDetails();
+			if(container.length > 0){
+				getRVDetails();
+			}
 			clear_acct_input();
 			$('.ischeck').val('no');
 			$('.debit').removeAttr('readonly');
@@ -2432,7 +2432,7 @@ function toggleCheckInfo(val){
 			$('.accountcode').prop('disabled',false);
 			$('.confirm-delete').prop('disabled',false);
 		} else {
-
+			set_credit_account();
 		}
 	}
 
@@ -3489,6 +3489,25 @@ function clear_acct_input(){
 	$('.credit').val('0.00');
 	addAmountAll('debit');
 	addAmountAll('credit');
+}
+
+function reset_acct_fields(){
+	$('#ap_items .clone').each(function(index) {
+		if (index > 1) {
+			$(this).remove();
+		}
+	});
+
+	$('#ap_items .accountcode').val('').trigger('change');
+	$('#ap_items .h_accountcode').val('');	
+	$('#ap_items .debit').val('0.00');
+	$('#ap_items .account_amount').val('0.00');
+	$('#total_debit').val('0.00');
+
+	$('#ap_items .accountcode').prop('disabled',false);	
+	$('#ap_items .confirm-delete').prop('disabled',false);	
+	$('#ap_items .account_amount').removeAttr('readonly');
+	$('#ap_items .credit').removeAttr('readonly');	
 }
 
 function computefortotalaccounts(){
@@ -4565,20 +4584,8 @@ $(document).ready(function() {
 		var customer = $('#new_customer').val();
 		$('#customer').val(customer).trigger('change');
 
-		$('#ap_items .clone').each(function(index) {
-			if (index > 0) {
-				$(this).remove();
-			}
-		});
-
-		$('#ap_items .accountcode').val('').trigger('change');
-		$('#ap_items .h_accountcode').val('');	
-		$('#ap_items .debit').val('0.00');
-		$('#ap_items .account_amount').val('0.00');
-		$('#ap_items .account_amount').removeAttr('readonly');
-		$('#total_debit').val('0.00');
-		
 		clearChequePayment();
+		reset_acct_fields();
 
 		$('#change_customer_modal').modal('hide');
 		$('#excess_credit_error').addClass('hidden');
@@ -4718,6 +4725,12 @@ $(document).ready(function() {
 	$('#payableForm').on('ifChecked','#ap_checker',function(event){
 		$('#apv').prop('disabled',true);
 		// $('#crv').prop('disabled',true);
+		container 	=	[];
+		$('paymentmode').val('cash');
+		clearPayment();
+		setChequeZero();
+		reset_acct_fields();
+		clearChequePayment();
 		set_credit_account();
 	});
 
@@ -4730,6 +4743,7 @@ $(document).ready(function() {
 			$(this).find('.h_accountcode').val('');
 			$(this).find('.credit').val('0.00');
 			$(this).find('.accountcode').prop('disabled',false);
+			$(this).find('.debit').prop('disabled',false);
 			$(this).find('.confirm-delete').prop('disabled',false);
 			addAmountAll('credit');
 		});
