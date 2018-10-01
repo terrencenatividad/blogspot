@@ -165,6 +165,7 @@ class controller extends wc_controller
 		$data['payments'] 			= "''";
 		$data['available_credits'] 	= "0.00";
 		$data['credits_used'] 		= 0;
+		$data['overpayment'] 		= 0;
 
 		$data["listofcheques"]		= "";
 		$data["show_cheques"] 		= 'hidden';
@@ -1529,11 +1530,11 @@ class controller extends wc_controller
 
 		$condi =  implode("','" , $arvoucher_);
 		$cond = "('".$condi."')";
-
+		
 		$customer       	= $this->input->post("customer");
 		$data["customer"] 	= $customer;
 		$data["cond"]   	= $cond;
-
+		
 		$results			= ($cheques) ? $cheques : array(array());
 		$result 			= $this->receipt_voucher->retrieveRVDetails($data);
 		$results			= array_merge($results, $result);
@@ -1561,14 +1562,25 @@ class controller extends wc_controller
 		if(!empty($results)){
 			$credit      = '0.00';
 			$count       = count($results);
-			$cond 		 = ($advance == "yes") ? $i <= $count 	:	$i < $count;
-			for($i = 0; $cond; $i++, $row++)
+	
+			// $loop_cond 	 = ($advance == "yes") ? "$i <= $count" 	:	"$i < $count";
+	
+			for($i = 0; $i <= $count; $i++, $row++)
 			{
-				$accountcode       = (!empty($results[$i]->accountcode)) ? $results[$i]->accountcode : "";
-				$detailparticulars = (!empty($results[$i]->detailparticulars)) ? $results[$i]->detailparticulars : "";
-				$ischeck 			= (!empty($results[$i]->ischeck)) 				? $results[$i]->ischeck 			: "no";
-				$isoverpayment 		= (!empty($results[$i]->is_overpayment)) 	?	$results[$i]->is_overpayment 	:	"no";
-				$debit 				= (isset($results[$i]->chequeamount)) ? $results[$i]->chequeamount : "0";
+				if($i==$count && $advance == 'no') {
+					break;
+				}
+				$accountcode       = (!empty($results[$i]->accountcode))		? $results[$i]->accountcode : "";
+				$detailparticulars = (!empty($results[$i]->detailparticulars)) 	? $results[$i]->detailparticulars : "";
+				$ischeck 			= (!empty($results[$i]->ischeck)) 			? $results[$i]->ischeck 			: "no";
+				$isoverpayment 		= (!empty($results[$i]->is_overpayment)) 	? $results[$i]->is_overpayment 	:	"no";
+				$debit 				= (isset($results[$i]->chequeamount)) 		? $results[$i]->chequeamount : "0";
+
+				$accountcode       = (!empty($results[$i]->accountcode))		? $results[$i]->accountcode : "";
+				$detailparticulars = (!empty($results[$i]->detailparticulars)) 	? $results[$i]->detailparticulars : "";
+				$ischeck 			= (!empty($results[$i]->ischeck)) 			? $results[$i]->ischeck 			: "no";
+				$isoverpayment 		= (!empty($results[$i]->is_overpayment)) 	? $results[$i]->is_overpayment 	:	"no";
+				$debit 				= (isset($results[$i]->chequeamount)) 		? $results[$i]->chequeamount : "0";
 	
 				if($isoverpayment == 'yes'){
 					$credit 			= number_format($overpayment,2);
@@ -1658,13 +1670,13 @@ class controller extends wc_controller
 							</td>';
 				$table .= '</tr>';
 			}
-		}
-		else
-		{
+		} else {
 			$table	.= '<tr>';
 			$table	.= 	'<td class="text-center" colspan="5">- No Records Found -</td>';
 			$table	.= '</tr>';
 		}
+
+
 		$dataArray = array( "table" => $table, "totaldebit" => number_format($totalcredit, 2),"discount_code"=>$discount_code );
 		return $dataArray;
 	}

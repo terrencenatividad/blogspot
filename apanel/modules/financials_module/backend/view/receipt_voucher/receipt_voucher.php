@@ -2416,18 +2416,24 @@ function toggleCheckInfo(val){
 		}
 	} else {
 		//For Reseting initial PV & Cheque Details
+		console.log("CASH");
 		setChequeZero();
 		clearChequePayment();
-		getRVDetails();
 		$("#payableForm #cheque_details").addClass('hidden');
 		$('#totalcheques').val(0);
 		formatNumber('totalcheques');
-		$('.ischeck').val('no');
-		clear_acct_input();
-		$('.debit').removeAttr('readonly');
-		$('.credit').removeAttr('readonly');
-		$('.accountcode').prop('disabled',false);
-		$('.confirm-delete').prop('disabled',false);
+		console.log("IS AP = "+is_ap);
+		if(is_ap == "false"){
+			getRVDetails();
+			clear_acct_input();
+			$('.ischeck').val('no');
+			$('.debit').removeAttr('readonly');
+			$('.credit').removeAttr('readonly');
+			$('.accountcode').prop('disabled',false);
+			$('.confirm-delete').prop('disabled',false);
+		} else {
+
+		}
 	}
 
 }
@@ -3494,6 +3500,21 @@ function computefortotalaccounts(){
 		} 
 	});
 	return count;
+}
+
+function set_credit_account(){
+	var cred_acct 	= $('#hidden_cred_id').val();
+	var row 	  	= $('#entriesTable tbody tr.clone').length;
+	
+	$("#accountcode\\["+ row +"\\]").val(cred_acct).trigger('change.select2');
+	$("#h_accountcode\\["+ row +"\\]").val(cred_acct);
+	$('#credit\\['+row+'\\]').val('0.00');	
+
+	$("#accountcode\\["+ row +"\\]").closest('tr').addClass('credit_account');
+
+	$('#debit\\['+row+'\\]').prop('disabled',true);
+	$("#accountcode\\["+ row +"\\]").prop('disabled',true);
+	$('.confirm-delete[data-id="'+row+'"]').prop('disabled',true);
 }
 
 $(document).ready(function() {
@@ -4697,14 +4718,7 @@ $(document).ready(function() {
 	$('#payableForm').on('ifChecked','#ap_checker',function(event){
 		$('#apv').prop('disabled',true);
 		// $('#crv').prop('disabled',true);
-		// hidden_cred_id 
-		var cred_acct 	= $('#hidden_cred_id').val();
-		var row 	  	= $('#entriesTable tbody tr.clone').length;
-		$("#accountcode\\["+ row +"\\]").val(cred_acct).trigger('change.select2');
-		$("#h_accountcode\\["+ row +"\\]").val(cred_acct);
-		$("#accountcode\\["+ row +"\\]").prop('disabled',true);
-		$('.confirm-delete[data-id="'+row+'"]').prop('disabled',true);
-		$("#accountcode\\["+ row +"\\]").closest('tr').addClass('credit_account');
+		set_credit_account();
 	});
 
 	$('#payableForm').on('ifUnchecked','#ap_checker',function(event){
