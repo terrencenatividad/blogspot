@@ -4566,7 +4566,12 @@ $(document).ready(function() {
 	$('#customer').on('select2:selecting', function(e){
 		// console.log(e);
 		var accounts_selected 	= computefortotalaccounts();
-		if(accounts_selected > 0){
+		var is_ap 				= $('#ap_checker').is(':checked');
+			is_ap 				= (is_ap == true) ? "true" 	:	"false";
+		var curr_customer 		= $(this).val();
+		console.log("CURR _ "+curr_customer);
+
+		if(accounts_selected > 0 && curr_customer!="" ){
 			e.preventDefault();
 			$('#change_customer_modal').modal('show');
 			$(this).select2('close');
