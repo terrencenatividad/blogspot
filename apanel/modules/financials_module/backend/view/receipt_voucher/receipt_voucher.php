@@ -151,28 +151,37 @@
 								</div>
 							</div>
 							<div class="col-md-6">
-								<?php
-									echo $ui->formField('checkbox')
-											->setLabel('Advance Payment')
-											->setSplit('col-md-4', 'col-md-2')
-											->setName('ap_checker')
-											->setId('ap_checker')
-											->setDefault('no')
-											->setValue('')
-											->draw($show_input);
-								?>
-								<div class="col-md-12" id="editlink"><label id="existingcreditaccount"><?=$existingcreditaccount?></label> <a href="#" id="editcredacct">Edit</a></div>
-								<div class="col-md-12" id="updateacctdropdown">
-									<?php
-										echo $ui->formField('dropdown')
-												->setSplit('col-md-4', 'col-md-8')
-												->setClass("payment_mode")
-												->setName('paymentmode')
-												->setId('paymentmode')
-												->setList($advcredacct)
-												->setValue($cred_id)
-												->draw($show_input);
-									?>
+								<div class="form-group">
+									<label for="ap_checker" class="control-label col-md-4">Advance Payment</label>
+									<div class="col-md-1">
+										<input type="checkbox" name="ap_checker" id="ap_checker" class="" value="no" style="position: absolute; opacity: 0;">
+									</div>
+									<div class="col-md-7">
+										<div class="row">
+											<div class="col-md-12" id="editlink" style="margin-top:5px;">
+												<label id="existingcreditaccount"><?=$existingcreditaccount?></label> 
+												<a href="#" id="editcredacct" style="margin-left:10px;"><u>Edit</u></a></div>
+											</div>
+											<div class="col-md-12 hidden" id="updateacctdropdown">
+												<div class="row">
+													<div class="col-md-10" >
+														<?php
+															echo $ui->formField('dropdown')
+																	->setClass("payment_mode")
+																	->setName('paymentmode')
+																	->setId('paymentmode')
+																	->setList($advcredacct)
+																	->setValue($cred_id)
+																	->draw($show_input);
+														?>
+													</div>
+													<div class="col-md-2">
+														<button class="btn btn-primary btn-flat">Save</button>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>

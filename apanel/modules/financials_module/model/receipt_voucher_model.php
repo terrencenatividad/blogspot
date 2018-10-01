@@ -1942,7 +1942,7 @@ class receipt_voucher_model extends wc_model
 		$query 	=	$this->db->setTable("fintaxcode fx")
 							->leftJoin('chartaccount coa ON coa.id = fx.salesAccount')
 							->setFields("coa.id, CONCAT(segment5,' - ',accountname) account")
-							->setWhere("fstaxcode = 'AP'")
+							->setWhere("fstaxcode = 'ADV'")
 							->runSelect()
 							->getResult();
 
