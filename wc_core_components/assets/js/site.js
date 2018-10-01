@@ -55,7 +55,8 @@ var today = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(
 $('.datepicker-input').datepicker({
 	startDate: today,
 	format: 'M dd, yyyy',
-	autoclose: true
+	autoclose: true,
+	forceParse: false
 });
 
 $('.datepicker-input').each(function() {
