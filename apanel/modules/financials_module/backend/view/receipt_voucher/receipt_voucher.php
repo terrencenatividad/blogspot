@@ -167,17 +167,17 @@
 													<div class="col-md-10" >
 														<?php
 															echo $ui->formField('dropdown')
-																	->setClass("payment_mode")
-																	->setName('paymentmode')
-																	->setId('paymentmode')
+																	->setClass("adv_acct")
+																	->setName('adv_acct')
+																	->setId('adv_acct')
 																	->setList($advcredacct)
 																	->setValue($cred_id)
 																	->draw($show_input);
 														?>
-														<input id="hidden_cred_id" name="hidden_cred_id" value="<?=$cred_id?>">
+														<input id="hidden_cred_id" name="hidden_cred_id" type="hidden" value="<?=$cred_id?>">
 													</div>
 													<div class="col-md-2">
-														<button class="btn btn-primary btn-flat">Save</button>
+														<button class="btn btn-primary btn-flat" id="update_ap_acct">Save</button>
 													</div>
 												</div>
 											</div>
@@ -4736,27 +4736,6 @@ $(document).ready(function() {
 
 }); // end
 
-	// // For adding new rol
-	// $('body').on('click', '.add-data', function() {	
-	// 	$('#entriesTable tbody tr.clone select').select2('destroy');
-		
-	// 	var clone = $("#entriesTable tbody tr.clone:first").clone(true); 
-
-	// 	var ParentRow = $("#entriesTable tbody tr.clone").last();
-
-	// 	clone.clone(true).insertAfter(ParentRow);
-		
-	// 	setZero();
-	// 	// $('.checkbox-select').show();
-	// 	// $('.edit-button').hide();
-
-	// 	// $('#itemsTable tr:last').attr('id');
-	// 	$(".checkbox-select:last").show();
-	// 	$(".edit-button:last").hide();
-		
-	// 	$('#entriesTable tbody tr.clone select').select2({width: "100%"});
-	// });
-
 var row = '';
 prev_account = '';
 var selected_tax_account = '';
@@ -4842,6 +4821,33 @@ $('#entriesTable .taxcode').each(function(){
 		$(this).closest('tr').find('.edit-button').show().attr('data-amount', tax_amt);
 		$('#tax_account').val(acc);
 	}
+});
+
+$('#payableForm').on('click','#update_ap_acct',function(e){
+	e.preventDefault();
+
+	var new_credit_account = $('#adv_acct').val();
+	$.post('<?=BASE_URL?>financials/receipt_voucher/ajax/update_credit_account', "cred_account=" + new_credit_account, function(data) {
+		if(data.result){
+			$('#editlink').removeClass('hidden');
+			$('#updateacctdropdown').addClass('hidden');
+			$.post('<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_existing_acct', function(data) {
+				$('#existingcreditaccount').html(data.credit_account);
+				$('#hidden_cred_id').val(data.credit_id);
+
+				var count_cred_row 	=	$('#entriesTable tbody tr.credit_account').length;
+				if(count_cred_row > 0){
+					$('#entriesTable tbody tr.credit_account').each(function() {
+						$(this).find('.accountcode').val(new_credit_account).trigger('change.select2');
+						$(this).find('.h_accountcode').val(new_credit_account);
+						$(this).find('.accountcode').prop('disabled',true);
+						$(this).find('.confirm-delete').prop('disabled',true);
+						// $("#accountcode\\["+ row +"\\]").closest('tr').addClass('credit_account');
+					});
+				}
+			});
+		}
+	});
 });
 
 

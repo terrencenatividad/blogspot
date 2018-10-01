@@ -20,8 +20,8 @@ class receipt_voucher_model extends wc_model
 
 	public function retrieveCredAccountsList(){
 		$result = $this->db->setTable('chartaccount')
-					->setFields("segment5 ind, accountname val")
-					->setWhere("accountclasscode IN('ACCPAY','OTHCA') AND stat = 'active'")
+					->setFields("id ind, accountname val")
+					->setWhere("accountclasscode IN('ACCPAY','OTHCA','OTHCL') AND stat = 'active'")
 					->setOrderBy("val")
 					->runSelect()
 					->getResult();

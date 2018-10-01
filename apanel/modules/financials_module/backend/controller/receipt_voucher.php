@@ -1924,4 +1924,24 @@ class controller extends wc_controller
 		$returnArray = array( "result" => $result_class, "ret" => $ret);
 		return $returnArray;
 	}
+
+	public function update_credit_account(){
+		$credit_account 		=	$this->input->post('cred_account');
+		$data['salesAccount'] 	=	$credit_account;
+		$table 					= 	"fintaxcode";
+		$cond 					=	"fstaxcode = 'ADV' AND stat = 'active'";
+		$result = $this->receipt_voucher->editData($data, $table, $cond);
+
+		$return = array( "result" => $result);
+		return $return;
+	}
+
+	public function retrieve_existing_acct(){
+		$cred_acct				= $this->receipt_voucher->retrieve_existing_acct();
+		$existingcreditaccount	= isset($cred_acct[0]->account) ? $cred_acct[0]->account	:	"";
+		$cred_id 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
+
+		$return = array('credit_id'=>$cred_id, "credit_account"=>$existingcreditaccount);
+		return $return;
+	}
 }
