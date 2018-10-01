@@ -95,7 +95,7 @@
 			// For Search
 			if ( !empty($search) ) 
 			{
-				$condition .= " AND (ca.segment5 LIKE '%$search%' OR ca.accountname LIKE '%$search%' OR bal.voucherno LIKE '%$search%' OR ( p.first_name LIKE '%$search%' OR p.last_name LIKE '%$search%' ) ) ";
+				$condition .= " AND (ca.segment5 LIKE '%$search%' OR ca.accountname LIKE '%$search%' OR bal.voucherno LIKE '%$search%' OR p.partnername LIKE '%$search%' OR ( p.first_name LIKE '%$search%' OR p.last_name LIKE '%$search%' ) ) ";
 			}
 
 			$fields 	=	 array('bal.accountcode as accountcode, ca.segment5 as segment5, ca.accountname, bal.transactiondate, bal.period, bal.fiscalyear, bal.voucherno, p.partnername as partner , bal.transtype, SUM(bal.debit) as debit, SUM(bal.credit) as credit');
