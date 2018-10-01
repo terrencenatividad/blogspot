@@ -45,7 +45,7 @@
 								<div class="input-group" >
 									<input name="table_search" id = "search" class="form-control pull-right" placeholder="Search" type="text" style = "height: 34px;">
 									<div class="input-group-btn" style = "height: 34px;">
-										<button type="button" class="btn btn-default" id="daterange-btn" style = "height: 34px;"><i class="fa fa-search"></i></button>
+										<button type="button" class="btn btn-default" id="search-btn" style = "height: 34px;"><i class="fa fa-search"></i></button>
 									</div>
 								</div>
 							</div>
@@ -97,6 +97,7 @@
 		getList();
 	});
 	$('#accountcodefilter').on('change', function() {
+		ajax.page = 1;
 		ajax.accountcodefilter = $(this).val();
 		ajax_call.abort();
 		getList();
@@ -111,6 +112,13 @@
 		ajax.page = $(this).attr('data-page');
 		getList();
 	});
+	$('#search-btn').on('click', function(e) {
+		ajax.page = 1;
+		ajax.search = $('#search').val();
+		ajax_call.abort();
+		getList();
+	});
+	
 	function getList() {
 		ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
 			$('#tableList #list_container').html(data.table);
