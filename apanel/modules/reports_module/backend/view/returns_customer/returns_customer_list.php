@@ -107,7 +107,7 @@
 	
 	getList();
 
-	$('#tableList tbody').on('click', 'tr', function() 
+	$('#tableList tbody').on('click', 'tr.clickable', function() 
 	{
 		var id = $(this).attr('data-id');
 		window.location = '<?php echo MODULE_URL ?>view/' + id;
