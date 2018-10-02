@@ -715,6 +715,23 @@
 </div>
 
 <script>
+	function addCustomerToDropdown() {
+		var optionvalue = $("#customer_modal #customerForm #partnercode").val();
+		var optiondesc 	= $("#customer_modal #customerForm #partnername").val();
+
+		var credit_limit = $('#customer_modal #customerForm #credit_limit').val();
+		$('#h_curr_limit').val(credit_limit);
+		$('#h_balance').val(credit_limit);
+
+		$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#sales_order_form #customer option:last-child");
+		$('#sales_order_form #customer').val(optionvalue);
+		
+		getPartnerInfo(optionvalue);
+
+		$('#customer_modal').modal('hide');
+		$('#customer_modal').find("input[type=text], textarea, select").val("");
+	}
+
 	function retrieveCurrentOutstandingReceivables(customercode){
 		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_outstanding_receivables', "customercode=" + customercode, function(data) {
 			$('#h_outstanding').val(data.outstanding_receivables);
@@ -753,25 +770,14 @@
 
 		var flag 	=	0; 
 		if(removeComma(current_total) > removeComma(current_balance)){
-			$('#creditLimitModal #message').html("Total sales order of "+addComma(current_total)+" exceeds your credit limit of "+addComma(current_limit)+". <br><br>Current Credit Balance: "+addComma(current_outstanding));	
+			$('#creditLimitModal #message').html("Total sales order of "+addComma(current_total)+" exceeds your credit limit of "+addComma(current_limit)+". <br><br>Current Credit Balance: "+addComma(current_balance));	
 			flag 	=	1;
 		}
 
 		return flag;
 	}
 
-	function addCustomerToDropdown() {
-		var optionvalue = $("#customer_modal #customerForm #partnercode").val();
-		var optiondesc 	= $("#customer_modal #customerForm #partnername").val();
-
-		$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#sales_order_form #customer option:last-child");
-		$('#sales_order_form #customer').val(optionvalue);
-		
-		getPartnerInfo(optionvalue);
-
-		$('#customer_modal').modal('hide');
-		$('#customer_modal').find("input[type=text], textarea, select").val("");
-	}
+	
 	function closeModal(module){
 		var id = module + '_modal';
 		$('#'+id).modal('hide');
@@ -1581,9 +1587,9 @@ $(document).ready(function(){
 
 			//Final Saving
 			$('#sales_order_form #btnSave').click(function(){
-
+			
 				finalizeTransaction("final");
-
+				
 			});
 
 			//Save & Preview
@@ -1693,5 +1699,6 @@ $('.quantity').on('change',function() {
 	});
 	
 })
+
 
 </script>
