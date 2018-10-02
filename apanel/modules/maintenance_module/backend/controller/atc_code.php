@@ -32,7 +32,7 @@
 
 			/**TAX ACCOUNT**/
 			$data["account_list"] = $this->atc_code->getValue("chartaccount", 
-			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode IN('TAX','CULIAB') OR segment5 = '1401005'", "",false,false);
+			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode IN('TAX','CULIAB') OR accountname = 'Creditable Withholding Tax'", "",false,false);
 
 			$this->view->load('atc_code/atc_code',$data);
 		}
@@ -51,7 +51,7 @@
 
 			/**TAX ACCOUNT**/
 			$data["account_list"] = $this->atc_code->getValue("chartaccount", 
-			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode IN('TAX','CULIAB') OR segment5 = '1401005'", "",false,false);
+			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode IN('TAX','CULIAB') OR accountname = 'Creditable Withholding Tax'", "",false,false);
 
 			$list = $this->atc_code->retrieveData($retdata,"","",$condition);
 		

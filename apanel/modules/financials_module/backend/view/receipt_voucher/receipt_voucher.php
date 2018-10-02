@@ -4778,7 +4778,7 @@ var selected_tax_account = '';
 	
 function get_coa(account){
 	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_tax",{account:account}).done(function(data){
-		if((data.result == '1401005')){
+		if((data.result == 'Creditable Withholding Tax')){
 			if (prev_account != '' && account != prev_account) {
 				$('#tax_amount').val('');
 			}
@@ -4835,19 +4835,19 @@ $('#tax_apply').click(function(){
 
 });
 
-$('#atcModal #atc_cancel').on('click' ,function(){
-	var tax_account = $('#tax_account').val();
-	var tax_amount = $('#tax_amount').val();
-	tax_amount = tax_amount.replace(/,/g,'');
-	row.find('.checkbox-select').hide();
-	row.find('.edit-button').show().attr('data-amount', tax_amount);
-});
+// $('#atcModal #atc_cancel').on('click' ,function(){
+// 	var tax_account = $('#tax_account').val();
+// 	var tax_amount = $('#tax_amount').val();
+// 	tax_amount = tax_amount.replace(/,/g,'');
+// 	row.find('.checkbox-select').hide();
+// 	row.find('.edit-button').show().attr('data-amount', tax_amount);
+// });
 
 $('#entriesTable').on('change', '.accountcode', function(){
 	row = $(this).closest('tr')
 	var account = $(this).val();
 	get_coa(account);
-})
+});
 
 $('#entriesTable .taxcode').each(function(){
 	var acc = $(this).val();

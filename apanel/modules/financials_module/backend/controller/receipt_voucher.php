@@ -1963,8 +1963,8 @@ class controller extends wc_controller
 
 	public function get_tax(){
 		$account = $this->input->post("account");
-		$result = $this->receipt_voucher->getValues("chartaccount",array("segment5"),"id = '$account' ");
-		$result_class = $result[0]->segment5;
+		$result = $this->receipt_voucher->getValues("chartaccount",array("accountname"),"id = '$account' ");
+		$result_class = $result[0]->accountname;
 
 		$bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
 		$bus_type_cond                = "tax_account = '$account' AND atc.stat = 'active'";
