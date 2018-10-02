@@ -687,7 +687,51 @@
 	</div>
 </div>
 
+<div class="modal fade" id="orderQtymodal" tabindex="-1"  data-backdrop="static" data-keyboard="false" >
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Oops!
+			</div>
+			<div class="modal-body" id="message">
+				Ordered quantity cannot be greater than on hand quantity. Please check the item in Inventory Inquiry List.
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 ">
+						<div class="text-center">
+							<button type="button" class="btn btn-default btn-flat" id="btnOk" data-dismiss='modal'>Cancel</button>
+						</div>
+							<!-- &nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-flat" id="btnNo" >No</button>
+						</div> -->
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script>
+	function addCustomerToDropdown() {
+		var optionvalue = $("#customer_modal #customerForm #partnercode").val();
+		var optiondesc 	= $("#customer_modal #customerForm #partnername").val();
+
+		$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#sales_order_form #customer option:last-child");
+		$('#sales_order_form #customer').val(optionvalue);
+		
+		retrieveCreditLimit(optionvalue);
+		retrieveCurrentIncurredReceivables(optionvalue);
+		retrieveCurrentOutstandingReceivables(optionvalue);
+		
+		getPartnerInfo(optionvalue);
+
+		$('#customer_modal').modal('hide');
+		$('#customer_modal').find("input[type=text], textarea, select").val("");
+	}
+
 	function retrieveCurrentOutstandingReceivables(customercode){
 		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_outstanding_receivables', "customercode=" + customercode, function(data) {
 			$('#h_outstanding').val(data.outstanding_receivables);
@@ -711,8 +755,6 @@
 	function computeforremainingcredit(){
 		var credit_limit 			=	$('#h_curr_limit').val();
 		var outstanding_receivables = 	$('#h_outstanding').val();
-		// var incurred_receivables 	=	$('#h_incurred').val();
-
 		var balance 				=	parseFloat(credit_limit) 	-	parseFloat(outstanding_receivables);
 
 		$('#h_balance').val(balance);
@@ -726,25 +768,14 @@
 
 		var flag 	=	0; 
 		if(removeComma(current_total) > removeComma(current_balance)){
-			$('#creditLimitModal #message').html("Total sales order of "+addComma(current_total)+" exceeds your credit limit of "+addComma(current_limit)+". <br><br>Current Credit Balance: "+addComma(current_outstanding));	
+			$('#creditLimitModal #message').html("Total sales order of "+addComma(current_total)+" exceeds your credit limit of "+addComma(current_limit)+". <br><br>Current Credit Balance: "+addComma(current_balance));	
 			flag 	=	1;
 		}
 
 		return flag;
 	}
 
-	function addCustomerToDropdown() {
-		var optionvalue = $("#customer_modal #customerForm #partnercode").val();
-		var optiondesc 	= $("#customer_modal #customerForm #partnername").val();
-
-		$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#sales_order_form #customer option:last-child");
-		$('#sales_order_form #customer').val(optionvalue);
-		
-		getPartnerInfo(optionvalue);
-
-		$('#customer_modal').modal('hide');
-		$('#customer_modal').find("input[type=text], textarea, select").val("");
-	}
+	
 	function closeModal(module){
 		var id = module + '_modal';
 		$('#'+id).modal('hide');
@@ -1554,9 +1585,9 @@ $(document).ready(function(){
 
 			//Final Saving
 			$('#sales_order_form #btnSave').click(function(){
-
+			
 				finalizeTransaction("final");
-
+				
 			});
 
 			//Save & Preview
@@ -1577,7 +1608,6 @@ $(document).ready(function(){
 			$('#sales_order_form .save').click(function(){
 				$('#itemsTable tbody tr td').find('.warehouse').find('option[disabled]').prop('disabled', false)
 				$('#save').val("final");
-				
 				
 				finalizeEditTransaction();
 			});
@@ -1640,5 +1670,32 @@ $(document).ready(function(){
 	// });
 	
 });
+
+
+$('.quantity').on('change',function() {
+	var element = $(this);
+	var items = [];
+
+	$('.quantity').each(function() {
+		var itemcode = $(this).closest('tr').find('.itemcode').val();
+		var qty = removeComma($(this).val());
+		if(qty > 0 )
+		{
+			if (typeof items[itemcode] == 'undefined') {
+				items[itemcode] = 0;
+			}
+			items[itemcode] += qty;
+		}
+		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_item_quantity', "itemcode="+itemcode , function(data) {
+			var x = data.qty.replace(/\.00$/,'');
+			if (items[itemcode] > x){
+				$('#orderQtymodal').modal('show');
+				element.val('0');
+			}
+		});
+	});
+	
+})
+
 
 </script>

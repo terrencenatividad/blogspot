@@ -7,8 +7,7 @@ class receipt_voucher_model extends wc_model
 		$this->log = new log();
 	}
 
-	public function retrieveCustomerList()
-	{
+	public function retrieveCustomerList(){
 		$result = $this->db->setTable('partners')
 					->setFields("partnercode ind, companycode, CONCAT( first_name, ' ', last_name ), partnername val")
 					->setWhere("partnercode != '' AND partnertype = 'customer' AND stat = 'active'")
@@ -18,6 +17,18 @@ class receipt_voucher_model extends wc_model
 		
 		return $result;
 	}
+
+	public function retrieveCredAccountsList(){
+		$result = $this->db->setTable('chartaccount')
+					->setFields("id ind, accountname val")
+					->setWhere("accountclasscode IN('ACCPAY','OTHCA','OTHCL') AND stat = 'active'")
+					->setOrderBy("val")
+					->runSelect()
+					->getResult();
+		
+		return $result;
+	}
+
 
 	public function retrieveProformaList()
 	{
@@ -1927,6 +1938,17 @@ class receipt_voucher_model extends wc_model
 		return $result;
 	}
 
+	public function retrieve_existing_acct(){
+		$query 	=	$this->db->setTable("fintaxcode fx")
+							->leftJoin('chartaccount coa ON coa.id = fx.salesAccount')
+							->setFields("coa.id, CONCAT(segment5,' - ',accountname) account")
+							->setWhere("fstaxcode = 'ADV'")
+							->runSelect()
+							->getResult();
+
+		return $query;
+	}
+
 	public function retrieveOPDebitdetails(){
 		$query 	=	$this->db->setTable("fintaxcode")
 							 ->setFields("purchaseAccount accountcode, 'yes' is_overpayment")
@@ -1991,67 +2013,6 @@ class receipt_voucher_model extends wc_model
 					->setWhere("atcId = '$tax_account'")
 					->runSelect()
 					->getResult();
-
-		return $result;
-	}
-
-	public function updateBusinessType($businesstype, $partnercode) {
-		$fields['businesstype'] = $businesstype;
-		$result = $this->db->setTable('partners')
-							->setValues($fields)
-							->setWhere("partnercode = '$partnercode'")
-							->setLimit(1)
-							->runUpdate();
-
-		return $result;
-	}
-
-	public function getPartnerDetails($partnercode) {
-		$fields = array (
-			'partnername',
-			'last_name',
-			'first_name',
-			'businesstype',
-			'tinno'
-		);
-		$result = $this->db->setTable('partners')
-							->setFields($fields)
-							->setWhere("partnercode = '$partnercode'")
-							->runSelect()
-							->getRow();
-
-		return $result;
-	}
-
-	public function getRV($voucherno) {
-		$fields = array (
-			'postingdate',
-			'paymenttype'
-		);
-		$result = $this->db->setTable('receiptvoucher')
-							->setFields($fields)
-							->setWhere("voucherno = '$voucherno'")
-							->runSelect()
-							->getRow();
-
-		return $result;
-	}
-
-	public function getRVDetails($voucherno) {
-		$fields = array (
-			'taxbase_amount',
-			'taxcode',
-			'credit',
-			'atc_code',
-			'tax_rate'
-		);
-		$result = $this->db->setTable('rv_details rv')
-							->leftJoin('chartaccount c ON c.id = rv.accountcode')
-							->leftJoin('atccode a ON a.atcId = rv.taxcode')
-							->setFields($fields)
-							->setWhere("rv.voucherno = '$voucherno' AND c.segment5 = '1401005'")
-							->runSelect()
-							->getResult();
 
 		return $result;
 	}

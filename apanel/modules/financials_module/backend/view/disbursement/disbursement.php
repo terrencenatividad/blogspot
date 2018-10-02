@@ -881,6 +881,29 @@
 			</div>
 			<!-- End DELETE RECORD CONFIRMATION MODAL-->
 
+
+			<div class="modal fade" id="noBankModal" tabindex="-1" data-backdrop="static">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content">
+						<div class="modal-header">
+									<span class="glyphicon glyphicon-warning-sign"> Notice!
+						</div>
+						<div class="modal-body">
+							Please create bank on Bank Maintenance 
+							<input type="hidden" id="recordId"/>
+						</div>
+						<div class="modal-footer">
+							<div class="row row-dense">
+								<div class="col-md-12 center">
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div> 
+
+
 			<!-- ON CHANGING OF VENDOR MODAL -->
 			<div class="modal fade" id="change_vendor_modal" tabindex="-1" data-backdrop="static">
 				<div class="modal-dialog modal-sm">
@@ -2743,6 +2766,14 @@
 			$('select.cancelled').attr("style", "pointer-events: none;");
 			$('.cancelled.datepicker-input').removeClass('datepicker-input').datepicker('remove');
 		});
+
+		$('#chequeTable .chequeaccount').on('select2:open',function(){
+		var bank_count = $(this).find('option').length - 1;
+		if (bank_count == 0){
+			$('#noBankModal').modal('show');
+			$(this).select2('close');
+		}
+	})
 
 		
 

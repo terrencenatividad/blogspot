@@ -1697,10 +1697,6 @@ class payment_voucher_model extends wc_model
 										->runUpdate();
 			}
 		}
-			
 
 	}
-
-
-
 }

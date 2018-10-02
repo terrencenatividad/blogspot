@@ -151,16 +151,39 @@
 								</div>
 							</div>
 							<div class="col-md-6">
-								<?php
-									echo $ui->formField('checkbox')
-											->setLabel('Advance Payment')
-											->setSplit('col-md-4', 'col-md-8')
-											->setName('ap_checker')
-											->setId('ap_checker')
-											->setDefault('no')
-											->setValue('')
-											->draw($show_input);
-								?>
+								<div class="form-group">
+									<label for="ap_checker" class="control-label col-md-4">Advance Payment</label>
+									<div class="col-md-1">
+										<input type="checkbox" name="ap_checker" id="ap_checker" class="" value="no" style="position: absolute; opacity: 0;">
+									</div>
+									<div class="col-md-7">
+										<div class="row">
+											<div class="col-md-12" id="editlink" style="margin-top:5px;">
+												<label id="existingcreditaccount"><?=$existingcreditaccount?></label> 
+												<a href="#" id="editcredacct" style="margin-left:10px;"><u>Edit</u></a></div>
+											</div>
+											<div class="col-md-12 hidden" id="updateacctdropdown">
+												<div class="row">
+													<div class="col-md-10" >
+														<?php
+															echo $ui->formField('dropdown')
+																	->setClass("adv_acct")
+																	->setName('adv_acct')
+																	->setId('adv_acct')
+																	->setList($advcredacct)
+																	->setValue($cred_id)
+																	->draw($show_input);
+														?>
+														<input id="hidden_cred_id" name="hidden_cred_id" type="hidden" value="<?=$cred_id?>">
+													</div>
+													<div class="col-md-2">
+														<button class="btn btn-primary btn-flat" id="update_ap_acct">Save</button>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 						<div class="row">
@@ -1044,11 +1067,6 @@
 						if(($status == 'open' && $has_access == 1) && $restrict_rv){
 							echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
 						}
-						if ($task == 'view' && $status == 'posted') {
-							echo '&nbsp;<button type="button" class="btn btn-success btn-flat" id = "sawtCsvBtn"><span class="glyphicon glyphicon-export"></span> SAWT (CSV)</button>';
-							echo '&nbsp;<button type="button" class="btn btn-success btn-flat" id = "sawtDatBtn"><span class="glyphicon glyphicon-export"></span> SAWT (DAT)</button>';
-							echo '<input type = "hidden" id = "businesstype" value = "'.$businesstype.'"><input type = "hidden" id = "partnercode" value = "'.$partnercode.'">';
-						}
 						?>
 						<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
 						<!-- <button type="button" class="btn btn-default btn-flat" data-id="<?//=$generated_id?>" id="btnCancel">Cancel</button> -->
@@ -1208,7 +1226,7 @@
 								<?endif;?>
 								<div class="btn-group">
 									<!-- noted by Sir Mark to remove this onclick function upon cancel. onClick="clearPayment();"-->
-									<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal" >Cancel</button>
+									<button type="button" class="btn btn-default btn-sm btn-flat" id="cancelPaymentModal" >Cancel</button>
 								</div>
 							</div>
 						</div>
@@ -1392,78 +1410,6 @@
 	</div>
 </div>
 <!-- End DELETE RECORD CONFIRMATION MODAL-->
-
-<!-- Modal that asks for customer's business type-->
-<div class="modal fade" id="businesstype_modal_csv" tabindex="-1" data-backdrop="static">
-	<div class="modal-dialog modal-sm">
-		<div class="modal-content">
-			<div class="modal-header">
-				<strong>Select Business Type</strong>
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-			</div>
-			<div class="modal-body" style = "margin-bottom:20px">
-				<?php
-				$show_input = 'true';
-				echo $ui->formField('dropdown')
-				->setSplit('', 'col-md-12')
-				->setName('business_type')
-				->setId('business_type')
-				->setList(array('Individual' => 'Individual', 'Corporation' => 'Corporation'))
-				->draw($show_input);
-				?>
-			</div>
-			<div class="modal-footer">
-				<div class="row row-dense">
-					<div class="col-md-12 center">
-						<div class="btn-group">
-							<button type="button" class="btn btn-primary btn-flat" id="saveBusinesstype_csv">Save</button>
-						</div>
-						&nbsp;&nbsp;&nbsp;
-						<div class="btn-group">
-							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<div class="modal fade" id="businesstype_modal_dat" tabindex="-1" data-backdrop="static">
-	<div class="modal-dialog modal-sm">
-		<div class="modal-content">
-			<div class="modal-header">
-				<strong>Select Business Type</strong>
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-			</div>
-			<div class="modal-body" style = "margin-bottom:20px">
-				<?php
-				$show_input = 'true';
-				echo $ui->formField('dropdown')
-				->setSplit('', 'col-md-12')
-				->setName('business_type')
-				->setId('business_type')
-				->setList(array('Individual' => 'Individual', 'Corporation' => 'Corporation'))
-				->draw($show_input);
-				?>
-			</div>
-			<div class="modal-footer">
-				<div class="row row-dense">
-					<div class="col-md-12 center">
-						<div class="btn-group">
-							<button type="button" class="btn btn-primary btn-flat" id="saveBusinesstype_dat">Save</button>
-						</div>
-						&nbsp;&nbsp;&nbsp;
-						<div class="btn-group">
-							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-<!--- End -->
 
 <!-- ON CHANGING OF VENDOR MODAL -->
 <div class="modal fade" id="change_customer_modal" tabindex="-1" data-backdrop="static">
@@ -1650,14 +1596,14 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 			var description = $(this).find('.description').val();
 			var ischeck 	= $(this).find('.ischeck').val();
 			var debit		= $(this).find('.account_amount').val();
-		// console.log("ACCOUNTCODE = "+accountcode);
-		if(description!=""){
-			if (typeof acct_details[accountcode] === 'undefined') {
-				acct_details[accountcode] = "";
+			// console.log("ACCOUNTCODE = "+accountcode);
+			if(description!=""){
+				if (typeof acct_details[accountcode] === 'undefined') {
+					acct_details[accountcode] = "";
+				}
+				acct_details[accountcode] = description;
 			}
-			acct_details[accountcode] = description;
-		}
-	});
+		});
 	}
 
 	function displaystoreddescription(){
@@ -1958,6 +1904,7 @@ function resetIds() {
 		
 		row.cells[8].getElementsByTagName("button")[0].setAttribute('id',x);
 		row.cells[4].getElementsByTagName("select")[0].setAttribute('data-id',x);
+		row.cells[8].getElementsByTagName("button")[0].setAttribute('data-id',x);
 		row.cells[8].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
 
 		x++;
@@ -2471,16 +2418,22 @@ function toggleCheckInfo(val){
 		//For Reseting initial PV & Cheque Details
 		setChequeZero();
 		clearChequePayment();
-		getRVDetails();
 		$("#payableForm #cheque_details").addClass('hidden');
 		$('#totalcheques').val(0);
 		formatNumber('totalcheques');
-		$('.ischeck').val('no');
-		clear_acct_input();
-		$('.debit').removeAttr('readonly');
-		$('.credit').removeAttr('readonly');
-		$('.accountcode').prop('disabled',false);
-		$('.confirm-delete').prop('disabled',false);
+		if(is_ap == "false"){
+			if(container.length > 0){
+				getRVDetails();
+			}
+			clear_acct_input();
+			$('.ischeck').val('no');
+			$('.debit').removeAttr('readonly');
+			$('.credit').removeAttr('readonly');
+			$('.accountcode').prop('disabled',false);
+			$('.confirm-delete').prop('disabled',false);
+		} else {
+			set_credit_account();
+		}
 	}
 
 }
@@ -2617,7 +2570,7 @@ $('#pagination').on('click', 'a', function(e) {
 });
 
 $('#paymentModal').on('show.bs.modal', function () {
-  	$('#payable_list_container tr').each(function(index,value){
+	$('#payable_list_container tr').each(function(index,value){
 		var amt_to_receive 	= $(this).find('.paymentamount').val();
 			amt_to_receive  = (amt_to_receive == undefined) ? 0 : amt_to_receive;
 		var discount 		= $(this).find('.discountamount').val();
@@ -2632,8 +2585,8 @@ $('#paymentModal').on('show.bs.modal', function () {
 		}
 		if(amt_to_receive < 0){
 			$('#TagReceivablesBtn').prop('disabled',true);
-
 		}
+
   	});
 });
 
@@ -2642,6 +2595,25 @@ $('#paymentModal').on('hidden.bs.modal',function(){
 	$('#receiveAmtError').addClass('hidden');
 	$(this).find('.discountamount').closest('div').removeClass('has-error');
 	$(this).find('.paymentamount').closest('div').removeClass('has-error');
+});
+
+$('#cancelPaymentModal').on('click',function(){
+	var selected_rows 	= [];
+	$('#selected_rows').html(selected_rows);
+	$('#paymentModal').modal('hide');
+	$('#payable_list_container tr').each(function(index,value){
+		if($(this).find('.icheckbox').prop('checked')){
+			var voucher = $(this).find('.icheckbox').attr('row');
+			selectPayable(voucher,1);
+		}
+	});
+	// selectPayable(id,toggle){
+});
+
+$('#editcredacct').on('click',function(e){
+	e.preventDefault();
+	$('#editlink').addClass('hidden');
+	$('#updateacctdropdown').removeClass('hidden');
 });
 
 function showCreditsList(){
@@ -3519,6 +3491,25 @@ function clear_acct_input(){
 	addAmountAll('credit');
 }
 
+function reset_acct_fields(){
+	$('#ap_items .clone').each(function(index) {
+		if (index > 1) {
+			$(this).remove();
+		}
+	});
+
+	$('#ap_items .accountcode').val('').trigger('change');
+	$('#ap_items .h_accountcode').val('');	
+	$('#ap_items .debit').val('0.00');
+	$('#ap_items .account_amount').val('0.00');
+	$('#total_debit').val('0.00');
+
+	$('#ap_items .accountcode').prop('disabled',false);	
+	$('#ap_items .confirm-delete').prop('disabled',false);	
+	$('#ap_items .account_amount').removeAttr('readonly');
+	$('#ap_items .credit').removeAttr('readonly');	
+}
+
 function computefortotalaccounts(){
 	var count 	=	0;
 	$('#entriesTable tbody tr select.accountcode').each(function() {
@@ -3528,6 +3519,21 @@ function computefortotalaccounts(){
 		} 
 	});
 	return count;
+}
+
+function set_credit_account(){
+	var cred_acct 	= $('#hidden_cred_id').val();
+	var row 	  	= $('#entriesTable tbody tr.clone').length;
+	
+	$("#accountcode\\["+ row +"\\]").val(cred_acct).trigger('change.select2');
+	$("#h_accountcode\\["+ row +"\\]").val(cred_acct);
+	$('#credit\\['+row+'\\]').val('0.00');	
+
+	$("#accountcode\\["+ row +"\\]").closest('tr').addClass('credit_account');
+
+	$('#debit\\['+row+'\\]').prop('disabled',true);
+	$("#accountcode\\["+ row +"\\]").prop('disabled',true);
+	$('.confirm-delete[data-id="'+row+'"]').prop('disabled',true);
 }
 
 $(document).ready(function() {
@@ -4560,7 +4566,12 @@ $(document).ready(function() {
 	$('#customer').on('select2:selecting', function(e){
 		// console.log(e);
 		var accounts_selected 	= computefortotalaccounts();
-		if(accounts_selected > 0){
+		var is_ap 				= $('#ap_checker').is(':checked');
+			is_ap 				= (is_ap == true) ? "true" 	:	"false";
+		var curr_customer 		= $(this).val();
+		console.log("CURR _ "+curr_customer);
+
+		if(accounts_selected > 0 && curr_customer!="" ){
 			e.preventDefault();
 			$('#change_customer_modal').modal('show');
 			$(this).select2('close');
@@ -4578,20 +4589,8 @@ $(document).ready(function() {
 		var customer = $('#new_customer').val();
 		$('#customer').val(customer).trigger('change');
 
-		$('#ap_items .clone').each(function(index) {
-			if (index > 0) {
-				$(this).remove();
-			}
-		});
-
-		$('#ap_items .accountcode').val('').trigger('change');
-		$('#ap_items .h_accountcode').val('');	
-		$('#ap_items .debit').val('0.00');
-		$('#ap_items .account_amount').val('0.00');
-		$('#ap_items .account_amount').removeAttr('readonly');
-		$('#total_debit').val('0.00');
-		
 		clearChequePayment();
+		reset_acct_fields();
 
 		$('#change_customer_modal').modal('hide');
 		$('#excess_credit_error').addClass('hidden');
@@ -4730,10 +4729,29 @@ $(document).ready(function() {
 	// For Advance payment
 	$('#payableForm').on('ifChecked','#ap_checker',function(event){
 		$('#apv').prop('disabled',true);
+		// $('#crv').prop('disabled',true);
+		container 	=	[];
+		$('paymentmode').val('cash');
+		clearPayment();
+		setChequeZero();
+		reset_acct_fields();
+		clearChequePayment();
+		set_credit_account();
 	});
 
 	$('#payableForm').on('ifUnchecked','#ap_checker',function(event){
 		$('#apv').prop('disabled',false);
+		// $('#crv').prop('disabled',false);
+
+		$('#entriesTable tbody tr.credit_account').each(function() {
+			$(this).find('.accountcode').val('').trigger('change.select2');
+			$(this).find('.h_accountcode').val('');
+			$(this).find('.credit').val('0.00');
+			$(this).find('.accountcode').prop('disabled',false);
+			$(this).find('.debit').prop('disabled',false);
+			$(this).find('.confirm-delete').prop('disabled',false);
+			addAmountAll('credit');
+		});
 	});
 
 	// For Credit Voucher
@@ -4750,27 +4768,6 @@ $(document).ready(function() {
 	});
 
 }); // end
-
-	// // For adding new rol
-	// $('body').on('click', '.add-data', function() {	
-	// 	$('#entriesTable tbody tr.clone select').select2('destroy');
-		
-	// 	var clone = $("#entriesTable tbody tr.clone:first").clone(true); 
-
-	// 	var ParentRow = $("#entriesTable tbody tr.clone").last();
-
-	// 	clone.clone(true).insertAfter(ParentRow);
-		
-	// 	setZero();
-	// 	// $('.checkbox-select').show();
-	// 	// $('.edit-button').hide();
-
-	// 	// $('#itemsTable tr:last').attr('id');
-	// 	$(".checkbox-select:last").show();
-	// 	$(".edit-button:last").hide();
-		
-	// 	$('#entriesTable tbody tr.clone select').select2({width: "100%"});
-	// });
 
 var row = '';
 prev_account = '';
@@ -4859,53 +4856,39 @@ $('#entriesTable .taxcode').each(function(){
 	}
 });
 
+$('#payableForm').on('click','#update_ap_acct',function(e){
+	e.preventDefault();
+
+	var new_credit_account = $('#adv_acct').val();
+	$.post('<?=BASE_URL?>financials/receipt_voucher/ajax/update_credit_account', "cred_account=" + new_credit_account, function(data) {
+		if(data.result){
+			$('#editlink').removeClass('hidden');
+			$('#updateacctdropdown').addClass('hidden');
+			$.post('<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_existing_acct', function(data) {
+				$('#existingcreditaccount').html(data.credit_account);
+				$('#hidden_cred_id').val(data.credit_id);
+
+				var count_cred_row 	=	$('#entriesTable tbody tr.credit_account').length;
+				if(count_cred_row > 0){
+					$('#entriesTable tbody tr.credit_account').each(function() {
+						$(this).find('.accountcode').val(new_credit_account).trigger('change.select2');
+						$(this).find('.h_accountcode').val(new_credit_account);
+						$(this).find('.accountcode').prop('disabled',true);
+						$(this).find('.confirm-delete').prop('disabled',true);
+						// $("#accountcode\\["+ row +"\\]").closest('tr').addClass('credit_account');
+					});
+				}
+			});
+		}
+	});
+});
+
+
 </script>
 <script>
-	$('#sawtCsvBtn').click(function(){
-		var businesstype = $('#businesstype').val();
-		var partnercode = $('#partnercode').val();
-		if (businesstype != '') {
-			window.open('<?php echo MODULE_URL ?>sawt_csv?' + $('#h_voucher_no').serialize() + '&partnercode=' + partnercode);
-		}
-		else {
-			$('#businesstype_modal_csv').modal('show');
-		}
+	$('.tax_amount').on('change', function(){
+		var accs = $(this).val();
+		acc = addCommas(parseFloat(accs).toFixed(2));
+		$('.tax_amount').val(acc);
 	});
-	$('#sawtDatBtn').click(function(){
-		var businesstype = $('#businesstype').val();
-		var partnercode = $('#partnercode').val();
-		if (businesstype != '') {
-			window.open('<?php echo MODULE_URL ?>sawt_dat?' + $('#h_voucher_no').serialize() + '&partnercode=' + partnercode);
-		}
-		else {
-			$('#businesstype_modal_dat').modal('show');
-		}
-	});
-	$('#saveBusinesstype_csv').click(function(){
-		var businesstype = $('#business_type').val();
-		var partnercode = $('#partnercode').val();
-		$.post('<?=MODULE_URL?>ajax/ajax_savebusinesstype?type=' + businesstype + '&partnercode=' + partnercode, function(data) {
-			if (data.success) {
-				$('#businesstype_modal_csv').modal('hide');
-				$('#delay_modal').modal('show');
-				window.open('<?php echo MODULE_URL ?>sawt_csv?' + $('#h_voucher_no').serialize() + '&partnercode=' + partnercode);
-			}
-		});
-	});
-	$('#saveBusinesstype_dat').click(function(){
-		var businesstype = $('#business_type').val();
-		var partnercode = $('#partnercode').val();
-		$.post('<?=MODULE_URL?>ajax/ajax_savebusinesstype?type=' + businesstype + '&partnercode=' + partnercode, function(data) {
-			if (data.success) {
-				$('#businesstype_modal_dat').modal('hide');
-				$('#delay_modal').modal('show');
-				window.open('<?php echo MODULE_URL ?>sawt_dat?' + $('#h_voucher_no').serialize() + '&partnercode=' + partnercode);
-			}
-		});
-	});
-$('.tax_amount').on('change', function(){
-	var accs = $(this).val();
-	acc = addCommas(parseFloat(accs).toFixed(2));
-	$('.tax_amount').val(acc);
-});
 </script>

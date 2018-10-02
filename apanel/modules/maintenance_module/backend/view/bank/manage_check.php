@@ -40,7 +40,7 @@
 									->setClass('firstchequeno')
 									->setId('firstchequeno')
 									->setValidation('required num')
-									->setMaxLength(20)
+									->setMaxLength(16)
 									->setValue($firstchequeno)
 									->draw($show_input);
 						?>
@@ -55,7 +55,7 @@
 									->setClass('lastchequeno')
 									->setId('lastchequeno')
 									->setValidation('required num')
-									->setMaxLength(20)
+									->setMaxLength(16)
 									->setValue($lastchequeno)
 									->draw($show_input);
 						?>
@@ -246,6 +246,7 @@
 												->setName('firstcancelled')
 												->setId('firstcancelled')
 												->setValidation('required num')
+												->setMaxLength(16)
 												->setValue("")
 												->draw();
 									?>
@@ -259,6 +260,7 @@
 												->setName('lastcancelled')
 												->setId('lastcancelled')
 												->setValidation('required num')
+												->setMaxLength(16)
 												->setValue("")
 												->draw();
 									?>
@@ -287,7 +289,7 @@
 						<div class="col-md-12 right">
 							<div class="btn-group">
 								<button type="button" class="btn btn-success" id="save_cancelled" >Save</button>
-								<button type="button" data-dismiss="modal" class="btn btn-default" >Cancel</button> 
+								<button type="button" data-dismiss="modal" id="cancel_checks_modal" class="btn btn-default" >Cancel</button> 
 							</div>
 						</div>
 					</div>
@@ -574,6 +576,7 @@ $('#check_container').on('click', '.set_as_default_check', function(){
 });
 
 $('#checkForm #firstchequeno, #lastchequeno').on('blur' ,function(){
+	
 	var first_number = parseFloat($('#firstchequeno').val());
 	var end_number = parseFloat($('#lastchequeno').val());
 	if (first_number != "" && end_number !="" ){
@@ -634,31 +637,36 @@ $('#save_cancelled').on('click',function(){
 })
 
 $('#cancelled_checks #firstcancelled, #lastcancelled').on('blur',function(){
-	var first_number= $('#firstcancelled').val();
-	var end_number 	= $('#lastcancelled').val();
+	var first_number= parseFloat('0.' + $('#firstcancelled').val());
+	var end_number 	= parseFloat('0.' + $('#lastcancelled').val());
 	var range 		= $('#range').html();
 	var range = range.split('-');
-	var start = parseFloat(range[0]);
-	var end = parseFloat(range[1]);
+	var start = parseFloat('0.' + range[0]);
+	var end = parseFloat('0.' + range[1]);
 	if (first_number){
-		if ( (start > first_number && first_number < end) ){
+		if (start <= first_number && first_number <= end){ 
+			$('#cancel_checks #firstcancelled').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+		}  else {
 			error_message 	=	"<b>The number you entered is not within the check range</b>";
 			$('#cancel_checks #firstcancelled').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
-		}  else {
-			$('#cancel_checks #firstcancelled').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
 		}
 	}
 
 	if (end_number){
-		if (start > end_number && end_number < end){
+		if (end <= end_number && end_number <= end){ 
+			$('#cancel_checks #lastcancelled').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+		}  else {
 			error_message 	=	"<b>The number you entered is not within the check range</b>";
 			$('#cancel_checks #lastcancelled').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
-		}  else {
-			$('#cancel_checks #lastcancelled').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
 		}
 	}
 
 })
+
+$('#cancel_checks_modal').on('click', function(){
+	window.location = self.location;
+})
+
 
 
 </script>

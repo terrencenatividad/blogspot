@@ -16,14 +16,14 @@
 					</div>
 					<!--<div class="col-md-3">
 						<?php
-							echo $ui->formField('dropdown')
-								->setPlaceholder('Select Customer')
-								->setName('customer')
-								->setId('customer')
-								->setList($customer_list)
-								->setNone('All')
-								->setAttribute(array('multiple'))
-								->draw();
+							// echo $ui->formField('dropdown')
+							// 	->setPlaceholder('Select Customer')
+							// 	->setName('customer')
+							// 	->setId('customer')
+							// 	->setList($customer_list)
+							// 	->setNone('All')
+							// 	->setAttribute(array('multiple'))
+							// 	->draw();
 						?>
 					</div>-->
 					<div class="col-md-3">
@@ -126,7 +126,7 @@
 			});
 		}
 		getList();
-		$('#tableList tbody').on('click', 'tr', function() {
+		$('#tableList tbody').on('click', 'tr.clickable', function() {
 			var id = $(this).attr('data-id');
 			window.location = '<?php echo MODULE_URL ?>view/' + id;
 		});

@@ -6,8 +6,8 @@ protected $data;
 * @params array $columns
 * @returns void
 */
-public function __construct($columns) {
-$this->data = '"' . trim(implode('","', $columns)) . '"' . "\n";
+public function __construct() {
+//$this->data = '"' . trim(implode('","', $columns)) . '"' . "\n";
 }
 /*
 * @params array $row
