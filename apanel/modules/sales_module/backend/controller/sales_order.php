@@ -581,9 +581,10 @@ class controller extends wc_controller
 		} 
 		else if( $task == 'retrieve_item_quantity' ){
 			$result = $this->retrieve_item_quantity();
-		}
-		else if( $task == 'retrieve_item_quantity' ){
+		} else if( $task == 'retrieve_item_quantity' ){
 			$result = $this->retrieve_item_quantity();
+		} else if ( $task == 'retrieve_outstanding_receivables' ){
+			$result = $this->retrieve_outstanding_receivables();
 		}
 
 		echo json_encode($result); 

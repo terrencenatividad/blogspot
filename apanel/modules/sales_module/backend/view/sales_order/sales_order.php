@@ -719,12 +719,12 @@
 		var optionvalue = $("#customer_modal #customerForm #partnercode").val();
 		var optiondesc 	= $("#customer_modal #customerForm #partnername").val();
 
-		var credit_limit = $('#customer_modal #customerForm #credit_limit').val();
-		$('#h_curr_limit').val(credit_limit);
-		$('#h_balance').val(credit_limit);
-
 		$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#sales_order_form #customer option:last-child");
 		$('#sales_order_form #customer').val(optionvalue);
+		
+		retrieveCreditLimit(optionvalue);
+		retrieveCurrentIncurredReceivables(optionvalue);
+		retrieveCurrentOutstandingReceivables(optionvalue);
 		
 		getPartnerInfo(optionvalue);
 
@@ -755,8 +755,6 @@
 	function computeforremainingcredit(){
 		var credit_limit 			=	$('#h_curr_limit').val();
 		var outstanding_receivables = 	$('#h_outstanding').val();
-		// var incurred_receivables 	=	$('#h_incurred').val();
-
 		var balance 				=	parseFloat(credit_limit) 	-	parseFloat(outstanding_receivables);
 
 		$('#h_balance').val(balance);
@@ -1611,7 +1609,6 @@ $(document).ready(function(){
 				$('#itemsTable tbody tr td').find('.warehouse').find('option[disabled]').prop('disabled', false)
 				$('#save').val("final");
 				
-				
 				finalizeEditTransaction();
 			});
 		}
@@ -1678,7 +1675,7 @@ $(document).ready(function(){
 $('.quantity').on('change',function() {
 	var element = $(this);
 	var items = [];
-	console.log($('.quantity').length);
+
 	$('.quantity').each(function() {
 		var itemcode = $(this).closest('tr').find('.itemcode').val();
 		var qty = removeComma($(this).val());
