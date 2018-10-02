@@ -1678,11 +1678,12 @@ $(document).ready(function(){
 $('.quantity').on('change',function() {
 	var element = $(this);
 	var items = [];
-	var itemcode = $(this).closest('tr').find('.itemcode').val();
+	console.log($('.quantity').length);
 	$('.quantity').each(function() {
-		if( $(this).val() > 0 )
+		var itemcode = $(this).closest('tr').find('.itemcode').val();
+		var qty = removeComma($(this).val());
+		if(qty > 0 )
 		{
-			var qty = removeComma($(this).val());
 			if (typeof items[itemcode] == 'undefined') {
 				items[itemcode] = 0;
 			}
