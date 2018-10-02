@@ -330,7 +330,11 @@ class controller extends wc_controller
 		$data['sum_applied'] 	= $sum_applied;
 		$data['sum_discount'] 	= $sum_discount;
 
-		$data['restrict_rv'] 	= $restrict_rv;
+		$data['restrict_rv'] 			= $restrict_rv;
+		$cred_acct						= $this->receipt_voucher->retrieve_existing_acct();
+		$data["existingcreditaccount"]	= isset($cred_acct[0]->account) ? $cred_acct[0]->account	:	"";
+		$data['cred_id'] 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
+		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
 
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
@@ -575,12 +579,15 @@ class controller extends wc_controller
 			}
 		}
 
-		$data['sum_applied'] 	= $sum_applied;
-		$data['sum_discount'] 	= $sum_discount;
-		$data['payments'] 		= json_encode($payments);
-
-		$data['restrict_rv'] 	= true;
-		$data['has_access'] 	= 0;
+		$data['sum_applied'] 			= $sum_applied;
+		$data['sum_discount'] 			= $sum_discount;
+		$data['payments'] 				= json_encode($payments);
+		$data['restrict_rv'] 			= true;
+		$data['has_access'] 			= 0;
+		$cred_acct						= $this->receipt_voucher->retrieve_existing_acct();
+		$data["existingcreditaccount"]	= isset($cred_acct[0]->account) ? $cred_acct[0]->account	:	"";
+		$data['cred_id'] 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
+		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
 
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
