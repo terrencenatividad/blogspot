@@ -1,5 +1,5 @@
 <section class="content">
-
+ 
 	<div class="box box-primary">
 
 		<form id = "CustomerDetailForm">

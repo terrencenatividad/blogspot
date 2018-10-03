@@ -1,6 +1,6 @@
 <?php
 class controller extends wc_controller 
-{
+{ 
 	public function __construct()
 	{
 		parent::__construct();
