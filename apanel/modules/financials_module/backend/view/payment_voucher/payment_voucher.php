@@ -4280,7 +4280,7 @@ $(document).ready(function() {
 		var wtax_option = '<?=$wtax_option?>';
 		if(wtax_option == 'PV'){
 			$.post("<?= MODULE_URL ?>ajax/get_tax",{account:account}).done(function(data){
-				if((data.result == 'TAX' || data.result == 'CULIAB')){
+				if((data.result == 'OTHCL' || data.result == 'TAX' || data.result == 'CULIAB')){
 					// if (prev_account != '' && account != prev_account) {
 					// 	$('#tax_amount').val('');
 					// }
