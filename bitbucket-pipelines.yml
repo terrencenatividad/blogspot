@@ -12,4 +12,4 @@ pipelines:
                 #- apt-get update
                 #- apt-get -y install git-ftp
                 - git ftp push --user $FTP_USERNAME --passwd $FTP_PASSWORD $FTP_PATH
-                - git ftp catchup --user $FTP_USERNAME --passwd $FTP_PASSWORD ftp://ourwebprojects.com/public_html/scalelink
+                - git ftp push --user $FTP_USERNAME --passwd $FTP_PASSWORD ftp://ourwebprojects.com/public_html/scalelink
