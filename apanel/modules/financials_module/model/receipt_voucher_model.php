@@ -990,7 +990,7 @@ class receipt_voucher_model extends wc_model
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
 
 				$balance_info['amountreceived']	= $applied_sum;
-				$balance_info['excessamount'] 	= $excess;
+				$balance_info['excessamount'] 	= ($excess >= 0) 	?	$excess 	:	0;
 				$balance_amt 					= $invoice_amount - $applied_sum;
 				$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;
 				
