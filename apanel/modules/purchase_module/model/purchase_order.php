@@ -43,7 +43,7 @@
 
 		public function retrieveItemDetails($itemcode)
 		{
-			$fields = "i.itemname as itemname, i.itemdesc as itemdesc, i.weight as weight , i.uom_base, COALESCE(p.price_average,0) as price, u.uomcode as uomcode";
+			$fields = "i.itemname as itemname, i.itemdesc as itemdesc, i.weight as weight , i.uom_base, COALESCE(p.price_average,0) as price, u.uomcode as uomcode, u.uomdesc as uomdesc";
 			$cond 	= "i.itemcode = '$itemcode'";
 			// $order 	= "p.linenum DESC";
 
