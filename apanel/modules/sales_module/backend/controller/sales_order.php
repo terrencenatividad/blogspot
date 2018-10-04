@@ -965,7 +965,8 @@ class controller extends wc_controller
 
 	public function retrieve_item_quantity(){
 		$item = $this->input->post('itemcode');
-		$result = $this->so->retrieve_item_quantity($item);
+		$wh = $this->input->post('warehouse');
+		$result = $this->so->retrieve_item_quantity($item, $wh);
 		$qty =  isset($result[0]->onhandQty) ? $result[0]->onhandQty : 0;
 		return array ('qty' => $qty);
 	}
