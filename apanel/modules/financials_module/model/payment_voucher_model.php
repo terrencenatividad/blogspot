@@ -10,7 +10,7 @@ class payment_voucher_model extends wc_model
 	public function retrieveVendorList()
 	{
 		$result = $this->db->setTable('partners')
-					->setFields("partnercode ind, companycode, CONCAT( first_name, ' ', last_name ), partnername val")
+					->setFields("partnercode ind, companycode, CONCAT( first_name, ' ', last_name ),  CONCAT(partnercode,' - ',partnername) val")
 					->setWhere("partnercode != '' AND partnertype = 'supplier' AND stat = 'active'")
 					->setOrderBy("val")
 					->runSelect()
