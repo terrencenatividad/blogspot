@@ -758,7 +758,7 @@
 							}
 						?>
 							<div class="btn-group">
-								<a class="btn btn-default" role="button" href="<?=BASE_URL?>sales/sales_invoice" data-toggle="back_page" style="outline:none;   ">Exit</a>
+								<a class="btn btn-default" role="button" href="<?=BASE_URL?>sales/sales_invoice" data-toggle="back_page" style="outline:none;   ">Cancel</a>
 							</div>
 						<?
 						}
@@ -2019,11 +2019,14 @@ $(document).ready(function(){
 	$('#cancelModal #btnYes').click(function() 
 	{
 		var task = '<?= $task ?>';
-		
 		if(task != 'view')
 		{
 			var record = document.getElementById('voucherno').value;
 			cancelTransaction(record);
+		}
+		else
+		{
+			window.location =	"<?= BASE_URL ?>sales/sales_invoice/";
 		}
 	});
 
