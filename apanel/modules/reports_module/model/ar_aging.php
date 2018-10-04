@@ -18,7 +18,7 @@ class ar_aging extends wc_model {
 		$condition = ($customer && $customer != 'none') ? " AND customer = '$customer'" : '';
 
 		$payment_query = $this->db->setTable('rv_application rva')
-									->setFields('(SUM(IFNULL(rva.amount,0)) + SUM(IFNULL(rva.discount,0))) payments, rva.arvoucherno, rva.companycode')
+									->setFields('(SUM(IFNULL(rva.amount,0)) + SUM(IFNULL(rva.discount,0)) + SUM(IFNULL(rva.credits_used,0))) payments, rva.arvoucherno, rva.companycode')
 									->leftJoin('receiptvoucher rv ON rv.voucherno = rva.voucherno AND rv.companycode = rva.companycode')
 									->setWhere("rv.stat = 'posted' AND rv.transactiondate <= '$datefilter'")
 									->setGroupBy('rva.arvoucherno')
@@ -40,7 +40,7 @@ class ar_aging extends wc_model {
 	public function getArAging($datefilter, $customer) {
 		$result = $this->getArAgingQuery($datefilter, $customer)
 						->runPagination();
-
+		// echo $this->db->getQuery();
 		return $result;
 	}
 
