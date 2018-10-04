@@ -645,10 +645,10 @@
 			return $result;
 		}
 
-		public function retrieve_item_quantity($itemcode){
+		public function retrieve_item_quantity($itemcode, $wh){
 			$result =  $this->db->setTable('invfile')
 							 ->setFields('onhandQty')
-							 ->setWhere("itemcode = '$itemcode'")
+							 ->setWhere("itemcode = '$itemcode' AND warehouse = '$wh'")
 							 ->runSelect()
 							 ->getResult();
 			return $result;
