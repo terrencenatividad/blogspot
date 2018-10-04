@@ -14,10 +14,10 @@
 
 		<form method = "post" class="form-horizontal" id = "sales_order_form">
 
-			<input class = "form_iput" value = "" name = "h_curr_limit" id = "h_curr_limit" type="hidden">
-			<input class = "form_iput" value = "" name = "h_outstanding" id = "h_outstanding" type="hidden">
-			<input class = "form_iput" value = "" name = "h_incurred" id = "h_incurred" type="hidden">
-			<input class = "form_iput" value = "" name = "h_balance" id = "h_balance" type="hidden">
+			<input class = "form_iput" value = "<?=$h_curr_limit?>" name = "h_curr_limit" id = "h_curr_limit" type="hidden">
+			<input class = "form_iput" value = "<?=$h_outstanding?>" name = "h_outstanding" id = "h_outstanding" type="hidden">
+			<input class = "form_iput" value = "<?=$h_incurred?>" name = "h_incurred" id = "h_incurred" type="hidden">
+			<input class = "form_iput" value = "<?=$h_balance?>" name = "h_balance" id = "h_balance" type="hidden">
 			
 			<div class="box-body">
 				<br>

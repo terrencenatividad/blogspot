@@ -9,7 +9,7 @@ class receipt_voucher_model extends wc_model
 
 	public function retrieveCustomerList(){
 		$result = $this->db->setTable('partners')
-					->setFields("partnercode ind, companycode, CONCAT( first_name, ' ', last_name ), partnername val")
+					->setFields("partnercode ind, companycode, CONCAT( first_name, ' ', last_name ),  CONCAT(partnercode,' - ',partnername) val")
 					->setWhere("partnercode != '' AND partnertype = 'customer' AND stat = 'active'")
 					->setOrderBy("val")
 					->runSelect()
@@ -990,7 +990,7 @@ class receipt_voucher_model extends wc_model
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
 
 				$balance_info['amountreceived']	= $applied_sum;
-				$balance_info['excessamount'] 	= $excess;
+				$balance_info['excessamount'] 	= ($excess >= 0) 	?	$excess 	:	0;
 				$balance_amt 					= $invoice_amount - $applied_sum;
 				$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;
 				
