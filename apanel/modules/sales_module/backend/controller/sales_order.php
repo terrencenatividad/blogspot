@@ -115,7 +115,8 @@ class controller extends wc_controller
 			/** RETRIEVE DATA **/
 
 			//Header Data
-			$data["customer"]      	 = $retrieved_data["header"]->customer;
+			$customer 				 = $retrieved_data["header"]->customer;
+			$data["customer"]      	 = $customer;
 			$data["due_date"]    	 = $this->date->dateFormat($retrieved_data["header"]->duedate);
 			$data["transactiondate"] = $this->date->dateFormat($retrieved_data["header"]->transactiondate);
 			$data['remarks'] 		 = '';
@@ -136,6 +137,19 @@ class controller extends wc_controller
 			
 			//Details
 			$data['details'] 		 = $retrieved_data['details'];
+		
+			// For Credit Limit  
+			$result 				= $this->retrieve_credit_limit($customer);
+			$credit_limit 			= isset($result['credit_limit']) ? $result['credit_limit'] : 0;
+			$result2 				= $this->retrieve_outstanding_receivables($customer);
+			$outstanding 			= isset($result2['outstanding_receivables']) ? $result2['outstanding_receivables'] : 0;
+			$result3 				= $this->retrieve_incurred_receivables($customer);
+			$incurred 				= isset($result3['incurred_receivables']) ? $result3['incurred_receivables'] : 0;
+		
+			$data['h_curr_limit'] 	= $credit_limit;
+			$data['h_outstanding'] 	= $outstanding;
+			$data['h_incurred']  	= $incurred;
+			$data['h_balance'] 		= (($credit_limit - $outstanding) > 0) ? $credit_limit - $outstanding 	: 0;
 		}
 	
 		$data['ui'] 			= $this->ui;
@@ -288,8 +302,9 @@ class controller extends wc_controller
 
 		// Header Data
 		$transactiondate 		 = $retrieved_data["header"]->transactiondate;
+		$customer 				 = $retrieved_data["header"]->customer;
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
-		$data["customer"]      	 = $retrieved_data["header"]->customer;
+		$data["customer"]      	 = $customer;
 		$data["due_date"]    	 = $this->date->dateFormat($retrieved_data["header"]->duedate);
 		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
 		$data['remarks'] 		 = $retrieved_data["header"]->remarks;
@@ -305,6 +320,19 @@ class controller extends wc_controller
 		$discounttype 		 	 = $retrieved_data['header']->discounttype;
 		$data['percentage'] 	 = "";
 		$data['h_disctype'] 	 = $discounttype;
+
+		//Credit Limit 
+		$result 				= $this->retrieve_credit_limit($customer);
+		$credit_limit 			= isset($result['credit_limit']) ? $result['credit_limit'] : 0;
+		$result2 				= $this->retrieve_outstanding_receivables($customer);
+		$outstanding 			= isset($result2['outstanding_receivables']) ? $result2['outstanding_receivables'] : 0;
+		$result3 				= $this->retrieve_incurred_receivables($customer);
+		$incurred 				= isset($result3['incurred_receivables']) ? $result3['incurred_receivables'] : 0;
+	
+		$data['h_curr_limit'] 	= $credit_limit;
+		$data['h_outstanding'] 	= $outstanding;
+		$data['h_incurred']  	= $incurred;
+		$data['h_balance'] 		= (($credit_limit - $outstanding) > 0) ? $credit_limit - $outstanding 	: 0;
 
 		//Vendor Data
 		$data["terms"] 		 	 = $retrieved_data["customer"]->terms;
@@ -373,6 +401,7 @@ class controller extends wc_controller
 		$duedate 				= $retrieved_data["header"]->duedate;
 		
 		// Header Data
+		$customer 				 = $retrieved_data["header"]->customer;
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["customer"]      	 = $retrieved_data["header"]->partnername;
 		$data["due_date"]    	 = $this->date->dateFormat($duedate);
@@ -393,6 +422,19 @@ class controller extends wc_controller
 		$data['percentage'] 	 = ($discounttype == 'perc' && $discountamount > 0 ) 	? 	"%" 	: 	"";
 		$data['h_disctype'] 	 = $discounttype;
 
+		//Credit Limit 
+		$result 				= $this->retrieve_credit_limit($customer);
+		$credit_limit 			= isset($result['credit_limit']) ? $result['credit_limit'] : 0;
+		$result2 				= $this->retrieve_outstanding_receivables($customer);
+		$outstanding 			= isset($result2['outstanding_receivables']) ? $result2['outstanding_receivables'] : 0;
+		$result3 				= $this->retrieve_incurred_receivables($customer);
+		$incurred 				= isset($result3['incurred_receivables']) ? $result3['incurred_receivables'] : 0;
+	
+		$data['h_curr_limit'] 	= $credit_limit;
+		$data['h_outstanding'] 	= $outstanding;
+		$data['h_incurred']  	= $incurred;
+		$data['h_balance'] 		= (($credit_limit - $outstanding) > 0) ? $credit_limit - $outstanding 	: 0;
+		
 		//Vendor Data
 		$data["terms"] 		 	 = $retrieved_data["customer"]->terms;
 		$data["tinno"] 		 	 = $retrieved_data["customer"]->tinno;
@@ -578,9 +620,6 @@ class controller extends wc_controller
 		}
 		else if( $task == 'retrieve_incurred_receivables' ){
 			$result = $this->retrieve_incurred_receivables();
-		} 
-		else if( $task == 'retrieve_item_quantity' ){
-			$result = $this->retrieve_item_quantity();
 		} else if( $task == 'retrieve_item_quantity' ){
 			$result = $this->retrieve_item_quantity();
 		} else if ( $task == 'retrieve_outstanding_receivables' ){
@@ -895,8 +934,8 @@ class controller extends wc_controller
 		return $csv;
 	}
 
-	public function retrieve_credit_limit(){
-		$customercode 	=	$this->input->post('customercode');
+	public function retrieve_credit_limit($customercode=""){
+		$customercode 	=	($customercode!="") ? $customercode : $this->input->post('customercode');
 
 		$result 		=	$this->so->retrieve_credit_limit($customercode);
 
@@ -905,18 +944,17 @@ class controller extends wc_controller
 		return  $dataArray = array( "credit_limit" => $credit_limit );
 	}
 
-	public function retrieve_incurred_receivables(){
-		$customercode 	=	$this->input->post('customercode');
-
+	public function retrieve_incurred_receivables($customercode=""){
+		$customercode 	=	($customercode!="") ? $customercode : $this->input->post('customercode');
 		$result 		=	$this->so->retrieve_incurred_receivables($customercode);
 
 		$incurred_receivables 	=	(isset($result[0]->receivables) && $result[0]->receivables != "")	?	$result[0]->receivables 	:	0;
-
+		// var_dump($incurred_receivables);
 		return  $dataArray = array( "incurred_receivables" => $incurred_receivables );
 	}
 
-	public function retrieve_outstanding_receivables(){
-		$customercode 	=	$this->input->post('customercode');
+	public function retrieve_outstanding_receivables($customercode=""){
+		$customercode 	=	($customercode!="") ? $customercode : $this->input->post('customercode');
 
 		$result 		=	$this->so->retrieve_outstanding_receivables($customercode);
 
