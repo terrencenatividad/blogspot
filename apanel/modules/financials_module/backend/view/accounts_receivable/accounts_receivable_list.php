@@ -198,6 +198,11 @@
 		ajax.search = search;
 		getList();
 	});
+	$('#items').on('change', function() {
+		ajax.page = 1;
+		ajax.limit = $(this).val();
+		getList();
+	});
 	$('#daterangefilter').on('change', function() {
 		ajax.daterangefilter = $(this).val();
 		ajax_call.abort();
