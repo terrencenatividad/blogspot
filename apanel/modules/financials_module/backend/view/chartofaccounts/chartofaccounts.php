@@ -155,10 +155,18 @@ $('form').submit(function(e)
 		var form_group	= 	$('#coaForm #coaForm').closest('.form-group');
 		$('#coaForm').find('.form-group').find('input, textarea, select').trigger('blur');
 		var accounttype = $('#accounttype').val();
+		var parentaccountcode = $('#parentaccountcode').val();
 		if (accounttype == 'C') {
-			$('.mars').find('.form-group').addClass('has-error');
-			$('.error-checker').removeClass('hidden');
-			$('label[for="parentaccountcode"]').html('Parent Account Title *');
+			if (parentaccountcode == '') {
+				$('.mars').find('.form-group').addClass('has-error');
+				$('.error-checker').removeClass('hidden');
+				$('label[for="parentaccountcode"]').html('Parent Account Title *');
+			}
+			else {
+				$('.mars').find('.form-group').removeClass('has-error');
+				$('.error-checker').addClass('hidden');
+				$('label[for="parentaccountcode"]').html('Parent Account Title');
+			}
 		}
 		else {
 			$('.mars').find('.form-group').removeClass('has-error');
