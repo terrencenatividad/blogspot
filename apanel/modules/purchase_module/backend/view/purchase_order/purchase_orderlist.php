@@ -105,7 +105,7 @@
 							->addHeader('Reference No.',array('class'=>'col-md-1'),'sort','po.referenceno')
 							->addHeader('Supplier',array('class'=>'col-md-2'),'sort','p.partnername')
 							->addHeader('Amount',array('class'=>'col-md-2'),'sort','po.netamount')
-							->addHeader('Balance',array('class'=>'col-md-2'),'sort','(po.netamount - (pr.netamount + pr.discountamount + pr.wtaxamount))')
+							->addHeader('Balance',array('class'=>'col-md-2'),'sort','balance')
 							->addHeader('Status',array('class'=>'col-md-1'),'sort','po.stat')
 							->draw();
 				?>
