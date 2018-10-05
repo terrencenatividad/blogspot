@@ -27,7 +27,7 @@ class sawt_model extends wc_model {
 			'rv.paymenttype',
             'd.taxbase_amount',
 			'd.taxcode',
-			'd.credit',
+			'd.debit credit',
 			'a.atc_code',
 			'a.tax_rate'
 		);
