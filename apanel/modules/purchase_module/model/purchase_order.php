@@ -96,7 +96,7 @@ class purchase_order extends wc_model
 		$datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
 		$datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
 
-		$add_query 	= (!empty($searchkey)) ? "AND (po.voucherno LIKE '%$searchkey%' OR p.first_name LIKE '%$searchkey%' OR p.last_name LIKE '%$searchkey%') " : "";
+		$add_query   = (!empty($searchkey)) ? "AND (po.voucherno LIKE '%$searchkey%' OR p.first_name LIKE '%$searchkey%' OR p.last_name LIKE '%$searchkey%'  OR po.referenceno LIKE '%$searchkey%'  OR p.partnername LIKE '%$searchkey%' OR po.transactiondate LIKE '%$searchkey%') " : "";
 		$add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND po.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 		$add_query .= (!empty($vendfilter) && $vendfilter != 'none') ? "AND p.partnercode = '$vendfilter' " : "";
 
@@ -136,24 +136,24 @@ class purchase_order extends wc_model
 		->setGroupBy('po.voucherno')
 		->runPagination();
 	}
-
+		
 	public function retrieveExistingPO($voucherno)
 	{	 
 		$retrieved_data =	array();
-
+		
 		$header_fields 	= 	"po.voucherno, po.transactiondate, po.referenceno, po.vendor, p.partnername as companyname,CONCAT(p.first_name, ' ',p.last_name) as vendor_name, po.amount, po.discounttype, po.discountamount, po.netamount, po.taxamount, po.wtaxamount, po.wtaxrate, po.wtaxcode, po.atcCode, po.department, po.stat";
 
 		$condition 		=	" po.voucherno = '$voucherno' ";
-
+		
 		$retrieved_data['header'] 	= 	$this->db->setTable('purchaseorder po')
-		->leftJoin(' partners p ON p.partnercode = po.vendor AND p.partnertype = "supplier" ')
-		->setFields($header_fields)
-		->setWhere($condition)
-		->setLimit('1')
-		->runSelect()
-		->getRow();
-
-			// Retrieve Vendor Details
+														->leftJoin(' partners p ON p.partnercode = po.vendor AND p.partnertype = "supplier" ')
+														->setFields($header_fields)
+														->setWhere($condition)
+														->setLimit('1')
+														->runSelect()
+														->getRow();
+									
+		// Retrieve Vendor Details
 		$vendor_code 			 	 = 	$retrieved_data['header']->vendor;
 		$retrieved_data['vendor']    =	$this->retrievevendorDetails($vendor_code);
 
@@ -170,7 +170,7 @@ class purchase_order extends wc_model
 
 			//echo $this->db->getQuery();
 		return $retrieved_data;
-	}
+}
 
 	public function retrieveExistingPQ($request_no)
 	{	 

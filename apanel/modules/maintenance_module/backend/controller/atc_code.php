@@ -32,7 +32,10 @@
 
 			/**TAX ACCOUNT**/
 			$data["account_list"] = $this->atc_code->getValue("chartaccount", 
-			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode IN('TAX','CULIAB','OTHCL') OR accountname = 'Creditable Withholding Tax'", "",false,false);
+			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode IN('TAX','CULIAB','OTHCL') ", "",false,false);
+			
+			$data["s_account_list"] = $this->atc_code->getValue("chartaccount", 
+			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountname = 'Creditable Withholding Tax'", "",false,false);
 
 			$this->view->load('atc_code/atc_code',$data);
 		}
@@ -51,7 +54,10 @@
 
 			/**TAX ACCOUNT**/
 			$data["account_list"] = $this->atc_code->getValue("chartaccount", 
-			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode IN('TAX','CULIAB','OTHCL') OR accountname = 'Creditable Withholding Tax'", "",false,false);
+			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode IN('TAX','CULIAB','OTHCL') ", "",false,false);
+
+			$data["s_account_list"] = $this->atc_code->getValue("chartaccount", 
+			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountname = 'Creditable Withholding Tax'", "",false,false);
 
 			$list = $this->atc_code->retrieveData($retdata,"","",$condition);
 		
@@ -452,7 +458,8 @@
 						'tax_rate',
 						'wtaxcode',
 						'short_desc',
-						'tax_account'
+						'tax_account',
+						'cwt'
 					);
 
 			$data = $this->input->post($data_var);
@@ -464,7 +471,7 @@
 			else
 				$msg = "error_add";
 
-			$dataArray = array("msg" => $msg, "atc_code" => $data["atc_code"], "tax_account" => $data["tax_account"]);
+			$dataArray = array("msg" => $msg, "atc_code" => $data["atc_code"], "tax_account" => $data["tax_account"], "cwt" => $data["cwt"]);
 			return $dataArray;
 
 		}
