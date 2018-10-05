@@ -944,16 +944,12 @@ echo $ui->loadElement('modal')
 		{
 			if( data != false )
 			{
+				
 				document.getElementById('detailparticulars'+row).value 	=	data.itemdesc;
-				document.getElementById('uom'+row).value 	 			=	data.uomcode;
+				document.getElementById('uom'+row).value 	 			=	data.uomdesc;
 				document.getElementById('itemprice'+row).value 			= 	"0.00";
 				
 				computeAmount();
-			document.getElementById('detailparticulars'+row).value 	=	data.itemdesc;
-			document.getElementById('uom'+row).value 	 			=	data.uomdesc;
-			document.getElementById('itemprice'+row).value 			= 	"0.00";
-			
-			computeAmount();
 
 				$('#purchase_order_form').trigger('change');
 			}
