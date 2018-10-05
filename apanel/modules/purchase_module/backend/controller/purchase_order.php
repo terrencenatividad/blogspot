@@ -499,7 +499,7 @@ class controller extends wc_controller
 		$print->setHeaderWidth(array(40, 60, 20, 20, 30, 30))
 		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
 		->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price', 'Amount'))
-		->setRowAlign(array('R', 'R', 'R', 'R', 'R', 'R'))
+		->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R'))
 		->setSummaryWidth(array('170', '30'));
 
 		$detail_height = 37;
