@@ -88,7 +88,7 @@
 								->addHeader('Supplier Invoice No.', array('class' => 'col-md-2'), 'sort', 'invoiceno')
 								->addHeader('Supplier', array('class' => 'col-md-2'), 'sort', 'vendor')
 								->addHeader('Purchase Order No.', array('class' => 'col-md-2'), 'sort', 'source_no')
-								->addHeader('Amount', array('class' => 'col-md-2 text-right'), 'sort', 'netamount')
+								// ->addHeader('Amount', array('class' => 'col-md-2 text-right'), 'sort', 'netamount')
 								->addHeader('Status', array('style' => 'width: 15px'), 'sort', 'pr.stat')
 								->draw();
 					?>
