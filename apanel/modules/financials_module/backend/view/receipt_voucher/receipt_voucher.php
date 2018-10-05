@@ -818,7 +818,7 @@
 										->setSplit('', 'col-md-12')
 										->setName('debit['.$row.']')
 										->setId('debit['.$row.']')
-										->setClass("text-right account_amount $indicator")
+										->setClass("text-right debit account_amount $indicator")
 										->setValidation('decimal')
 										->setMaxLength(20)
 										->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
@@ -959,7 +959,7 @@
 															->setSplit('', 'col-md-12')
 															->setName('debit['.$row.']')
 															->setId('debit['.$row.']')
-															->setClass("text-right account_amount $indicator")
+															->setClass("text-right debit account_amount $indicator")
 															->setValidation('decimal')
 															->setMaxLength(20)
 															->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
@@ -2126,7 +2126,6 @@ function addAmountAll(field) {
 		var inputs 		= document.getElementById(field+'['+i+']');
 		var disables 	= document.getElementById(notfield+'['+i+']');
 		var is_cheque   = $("#ischeck\\["+i+"\\]").val();
-		console.log("IS CHEQUE = "+is_cheque);
 		if(document.getElementById(notfield+'['+i+']')!=null)
 		{          
 			if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
@@ -4818,12 +4817,12 @@ $('#tax_apply').click(function(){
 	tax_amount = tax_amount.replace(/,/g,'');
 	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_account",{tax_account:tax_account,tax_amount:tax_amount})
 	.done(function(data) {
-		var credit = data.amount ;
+		var debit = data.amount ;
 		var taxcode = data.tax_account;
-		row.find('.credit').val(addCommas(credit.toFixed(2)));
+		row.find('.debit').val(addCommas(debit.toFixed(2)));
 		row.find('.taxbase_amount').val(tax_amount);
 		row.find('.taxcode').val(tax_account);
-		addAmountAll('credit');
+		addAmountAll('debit');
 	});
 	
 	$('#atcModal').modal('hide');

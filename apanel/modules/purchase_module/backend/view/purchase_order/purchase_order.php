@@ -942,6 +942,7 @@ echo $ui->loadElement('modal')
 		
 		$.post('<?=BASE_URL?>purchase/purchase_order/ajax/get_item_details',"itemcode="+itemcode , function(data) 
 		{
+<<<<<<< HEAD
 			if( data != false )
 			{
 				document.getElementById('detailparticulars'+row).value 	=	data.itemdesc;
@@ -949,6 +950,13 @@ echo $ui->loadElement('modal')
 				document.getElementById('itemprice'+row).value 			= 	"0.00";
 				
 				computeAmount();
+=======
+			document.getElementById('detailparticulars'+row).value 	=	data.itemdesc;
+			document.getElementById('uom'+row).value 	 			=	data.uomdesc;
+			document.getElementById('itemprice'+row).value 			= 	"0.00";
+			
+			computeAmount();
+>>>>>>> b7deda9650a75d36cf5a3e70e393bdafdde804ac
 
 				$('#purchase_order_form').trigger('change');
 			}
