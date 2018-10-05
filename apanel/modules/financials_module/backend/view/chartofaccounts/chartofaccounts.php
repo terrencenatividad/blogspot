@@ -87,9 +87,10 @@
 											->draw($task != "view");
 					?>
 					</div>
-					<div class = "col-md-6"> 
+					<div class = "col-md-6 mars"> 
 					
 					<?
+
 								echo $ui->formField('dropdown')
 										->setLabel('Parent Account Title')
 										->setPlaceholder('Select Parent Account')
@@ -99,7 +100,10 @@
 										->setList($parentaccountcode_list)
 										->setValue($parentaccountcode)
 										->draw($task != "view");
+
 					?>
+					<div class="col-md-4"></div>
+					<div class = "col-md-4"><span class = "error-checker help-block m-none hidden"><font color = "#dd4b39">This field is required</font></span></div>
 					</div>
 				</div>
 				<br>
@@ -147,11 +151,28 @@
 
 $('form').submit(function(e) 
 {
-
 	e.preventDefault();
-		var form_group	 	= 	$('#coaForm #coaForm').closest('.form-group');
+		var form_group	= 	$('#coaForm #coaForm').closest('.form-group');
 		$('#coaForm').find('.form-group').find('input, textarea, select').trigger('blur');
-
+		var accounttype = $('#accounttype').val();
+		var parentaccountcode = $('#parentaccountcode').val();
+		if (accounttype == 'C') {
+			if (parentaccountcode == '') {
+				$('.mars').find('.form-group').addClass('has-error');
+				$('.error-checker').removeClass('hidden');
+				$('label[for="parentaccountcode"]').html('Parent Account Title *');
+			}
+			else {
+				$('.mars').find('.form-group').removeClass('has-error');
+				$('.error-checker').addClass('hidden');
+				$('label[for="parentaccountcode"]').html('Parent Account Title');
+			}
+		}
+		else {
+			$('.mars').find('.form-group').removeClass('has-error');
+			$('.error-checker').addClass('hidden');
+			$('label[for="parentaccountcode"]').html('Parent Account Title');
+		}
 		if ($('#coaForm').find('.form-group.has-error').length == 0)
 		{	
 			$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + '<?=$ajax_post?>', function(data) {

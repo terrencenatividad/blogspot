@@ -260,7 +260,7 @@ class controller extends wc_controller {
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit($row->stat == 'Received' && $restrict_pr)
-									->addDelete($row->stat == 'Received' && $restrict_pr)
+									// ->addDelete($row->stat == 'Received' && $restrict_pr)
 									->addPrint()
 									->addCheckbox($row->stat == 'Received' && $restrict_pr)
 									->setLabels(array('delete' => 'Cancel'))
@@ -272,7 +272,7 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->invoiceno . '</td>';
 			$table .= '<td>' . $row->vendor . '</td>';
 			$table .= '<td>' . $row->source_no . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->netamount, 2) . '</td>';
+			// $table .= '<td class="text-right">' . number_format($row->netamount, 2) . '</td>';
 			$table .= '<td>' . $this->colorStat($row->stat) . '</td>';
 			$table .= '</tr>';
 		}

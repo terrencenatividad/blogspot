@@ -5,13 +5,13 @@ class warehouse_model extends wc_model {
 	{
 		$fields 			= array('warehousecode','description','stat');
 
-		$addtl_cond 		= (!empty($search)) ? "AND (warehousecode LIKE '%$search%' OR description LIKE '%$search%'  ) " : "";
+		$addtl_cond 		= (!empty($search)) ? " (warehousecode LIKE '%$search%' OR description LIKE '%$search%'  ) " : "";
 
 		return $this->db->setTable('warehouse')
-						->setFields($fields)
-						->setWhere("$addtl_cond")
-						->setOrderBy($sort)
-						->runPagination();
+		->setFields($fields)
+		->setWhere($addtl_cond)
+		->setOrderBy($sort)
+		->runPagination();
 
 
 		//echo $this->db->getQuery();
@@ -21,19 +21,19 @@ class warehouse_model extends wc_model {
 	{
 		$condition 		=	" warehousecode = '$warehousecode' ";
 		return $this->db->setTable('warehouse')
-						->setFields($data)
-						->setWhere($condition)
-						->runSelect()
-						->getRow();
+		->setFields($data)
+		->setWhere($condition)
+		->runSelect()
+		->getRow();
 	}
 
 	public function checkifUsed($warehousecode)
 	{
 		return $this->db->setTable('invfile')
-						->setFields(array('itemcode'))
-						->setWhere("warehouse='$warehousecode'")
-						->runSelect()
-						->getRow();
+		->setFields(array('itemcode'))
+		->setWhere("warehouse='$warehousecode'")
+		->runSelect()
+		->getRow();
 	}
 
 	public function insertWarehouse($data)
@@ -41,8 +41,8 @@ class warehouse_model extends wc_model {
 		$data["stat"]     	   = "active";
 
 		$result = $this->db->setTable('warehouse')
-				->setValues($data)
-				->runInsert();
+		->setValues($data)
+		->runInsert();
 
 		return $result;
 	}
@@ -54,10 +54,10 @@ class warehouse_model extends wc_model {
 		$condition 			   = " warehousecode = '$warehousecode' ";
 
 		$result 			   = $this->db->setTable('warehouse')
-											->setValues($data)
-											->setWhere($condition)
-											->setLimit(1)
-											->runUpdate();
+		->setValues($data)
+		->setWhere($condition)
+		->setLimit(1)
+		->runUpdate();
 
 		return $result;
 	}
@@ -73,7 +73,7 @@ class warehouse_model extends wc_model {
 			$warehousecode  = $id_array[$i];
 
 			$ret_warehouse = $this->checkifUsed($warehousecode);
-	
+			
 			if( !empty($ret_warehouse) && count($ret_warehouse) > 0 )
 			{
 				$errmsg[]  = "<p class = 'no-margin'>Deleting Warehouse: $warehousecode Failed. This Warehouse is already being used. </p>";
@@ -83,8 +83,8 @@ class warehouse_model extends wc_model {
 				$condition 		= " warehousecode = '$warehousecode'";
 				
 				$result 		= $this->db->setTable('warehouse')
-										->setWhere($condition)
-										->runDelete();
+				->setWhere($condition)
+				->runDelete();
 
 				$error 			= $this->db->getError();		
 
@@ -104,27 +104,27 @@ class warehouse_model extends wc_model {
 		$addtl_cond 		= (!empty($search)) ? "AND (warehousecode LIKE '%$search%' OR description LIKE '%$search%'  ) " : "";
 
 		return $this->db->setTable('warehouse')
-						->setFields($fields)
-						->setWhere(" stat = 'active' $addtl_cond")
-						->setOrderBy($sort)
-						->runSelect()
-						->getResult();
+		->setFields($fields)
+		->setWhere(" stat = 'active' $addtl_cond")
+		->setOrderBy($sort)
+		->runSelect()
+		->getResult();
 	}
 
 	public function check_duplicate($current)
 	{
 		return $this->db->setTable('warehouse')
-						->setFields('COUNT(warehousecode) count')
-						->setWhere(" warehousecode = '$current'")
-						->runSelect()
-						->getResult();
+		->setFields('COUNT(warehousecode) count')
+		->setWhere(" warehousecode = '$current'")
+		->runSelect()
+		->getResult();
 	}
 
 	public function importCustomers($data)
 	{
 		$result = $this->db->setTable('warehouse')
-				->setValuesFromPost($data)
-				->runInsert();
+		->setValuesFromPost($data)
+		->runInsert();
 
 		return $result;
 	}
@@ -134,10 +134,10 @@ class warehouse_model extends wc_model {
 		$condition 			   = " warehousecode = '$warehousecode' ";
 
 		$result 			   = $this->db->setTable('warehouse')
-											->setValues($data)
-											->setWhere($condition)
-											->setLimit(1)
-											->runUpdate();
+		->setValues($data)
+		->setWhere($condition)
+		->setLimit(1)
+		->runUpdate();
 
 		return $result;
 	}

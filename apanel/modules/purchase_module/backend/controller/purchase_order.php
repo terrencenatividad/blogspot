@@ -22,15 +22,15 @@ class controller extends wc_controller
 		$this->view->header_active = 'purchase/purchase_order/';
 
 		$this->fields = array(
-				'voucherno',
-				'vendor',
-				'referenceno',
-				'tinno',
-				'address1',
-				'terms',
-				'transactiondate',
-				'department'
-			);
+			'voucherno',
+			'vendor',
+			'referenceno',
+			'tinno',
+			'address1',
+			'terms',
+			'transactiondate',
+			'department'
+		);
 		
 		$this->inventory_model  = $this->checkoutModel('inventory_module/inventory_model');
 	}
@@ -38,7 +38,7 @@ class controller extends wc_controller
 	public function listing()
 	{
 		$data['ui'] 				= $this->ui;
-	
+		
 		$data['show_input'] 		= true;
 
 		$data['date_today'] 		= date("M d, Y");
@@ -107,7 +107,7 @@ class controller extends wc_controller
 		if( $request_no != "" )
 		{
 			$retrieved_data 		= $this->po->retrieveExistingPQ($request_no);
-		
+			
 			$data["request_no"]  	= $retrieved_data["header"]->voucherno;
 			$data['department'] 	= $retrieved_data['header']->department;
 			$data["referenceno"]  	= $retrieved_data["header"]->voucherno;
@@ -160,7 +160,7 @@ class controller extends wc_controller
 			{
 				/** RETRIEVE DATA **/
 				$retrieved_data 		= $this->po->retrieveExistingPO($voucherno);
-					
+				
 				$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 				$data["vendor"]      	 = $retrieved_data["header"]->vendor;
 				$data['referenceno'] 	 = $retrieved_data['header']->referenceno;
@@ -192,7 +192,7 @@ class controller extends wc_controller
 
 				/**UPDATE TABLES FOR FINAL SAVING**/
 				$generatedvoucher			= $this->seq->getValue('PO', $this->companycode); 
-			
+				
 				$update_info				= array();
 				$update_info['voucherno']	= $generatedvoucher;
 				$update_info['stat']		= 'open';
@@ -211,6 +211,10 @@ class controller extends wc_controller
 					$updateTempRecord			= $this->po->updateData($update_info,"purchaserequest_details",$update_condition);
 
 					$this->log->saveActivity("Converted Purchase Request [$request_no] ");
+				}
+
+				if ( $this->inventory_model ) {
+					$this->inventory_model->generateBalanceTable();
 				}
 
 				if( $updateTempRecord && $save_status == 'final' )
@@ -363,7 +367,7 @@ class controller extends wc_controller
 		$data["sid"] 		    = $voucherno;
 
 		$data["request_no"]  	= ""; 
-	
+		
 		$data['ui'] 			= $this->ui;
 		$data['show_input'] 	= false;
 		$data['ajax_post'] 		= "";
@@ -444,37 +448,38 @@ class controller extends wc_controller
 		
 		/** HEADER INFO **/
 
-			$docinfo_table  = "purchaseorder as po";
-			$docinfo_fields = array('po.transactiondate AS documentdate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","'' AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate');
-			$docinfo_join   = "partners as p ON p.partnercode = po.vendor AND p.partnertype = 'supplier' AND p.companycode = po.companycode";
-			$docinfo_cond 	= "po.voucherno = '$voucherno'";
+		$docinfo_table  = "purchaseorder as po";
+		$docinfo_fields = array('po.transactiondate AS documentdate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","'' AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate');
+		$docinfo_join   = "partners as p ON p.partnercode = po.vendor AND p.partnertype = 'supplier' AND p.companycode = po.companycode";
+		$docinfo_cond 	= "po.voucherno = '$voucherno'";
 
-			$documentinfo  	= $this->po->retrieveData($docinfo_table, $docinfo_fields, $docinfo_cond, $docinfo_join);
-			$documentinfo	= $documentinfo[0]; 
-			$vendor 	    = $documentinfo->vendor;
+		$documentinfo  	= $this->po->retrieveData($docinfo_table, $docinfo_fields, $docinfo_cond, $docinfo_join);
+		$documentinfo	= $documentinfo[0]; 
+		$vendor 	    = $documentinfo->vendor;
 
 		/** HEADER INFO - END**/
 
 		/** DETAILS INFO **/
 
-			$docdet_table   = "purchaseorder_details as dtl";
-			$docdet_fields  = array("dtl.itemcode, detailparticular as description", "dtl.receiptqty as quantity","UPPER(dtl.receiptuom) as uom","unitprice as price","amount as amount");
-			$docdet_cond    = "dtl.voucherno = '$voucherno'";
-			$docdet_join 	= "items i ON i.itemcode = dtl.itemcode AND i.companycode = dtl.companycode";
-			$docdet_groupby = "";
-			$docdet_orderby = "dtl.linenum";
-			
-			$documentcontent = $this->po->retrieveData($docdet_table, $docdet_fields, $docdet_cond, $docdet_join, $docdet_orderby, $docdet_groupby);
+		$docdet_table   = "purchaseorder_details as dtl";
+		$docdet_fields  = array("dtl.itemcode, detailparticular as description", "dtl.receiptqty as quantity","uom.uomdesc as uom","unitprice as price","amount as amount");
+		$docdet_cond    = "dtl.voucherno = '$voucherno'";
+		$docdet_join 	= "items i ON i.itemcode = dtl.itemcode AND i.companycode = dtl.companycode";
+		$docdet_join2 	= "uom uom ON uom.uomcode = dtl.receiptuom";
+		$docdet_groupby = "";
+		$docdet_orderby = "dtl.linenum";
+		
+		$documentcontent = $this->po->retrieveData($docdet_table, $docdet_fields, $docdet_cond, $docdet_join, $docdet_join2, $docdet_orderby, $docdet_groupby);
 
 		/** DETAILS INFO --END**/
 		
 		/** VENDOR DETAILS **/
 
-			$vendorcode 		=	$this->po->getValue("purchaseorder", array('vendor')," voucherno = '$voucherno'");
+		$vendorcode 		=	$this->po->getValue("purchaseorder", array('vendor')," voucherno = '$voucherno'");
 
-			$custField			= array('partnername vendor', 'address1 address', 'tinno', 'terms', 'mobile contactno');
-			$vendordetails		= $this->po->retrieveData("partners",$custField," partnertype = 'supplier' AND partnercode = '".$vendorcode[0]->vendor."'");
-			$vendordetails	= $vendordetails[0];
+		$custField			= array('partnername vendor', 'address1 address', 'tinno', 'terms', 'mobile contactno');
+		$vendordetails		= $this->po->retrieveData("partners",$custField," partnertype = 'supplier' AND partnercode = '".$vendorcode[0]->vendor."'");
+		$vendordetails	= $vendordetails[0];
 
 		/** VENDOR DETAILS --END**/
 
@@ -485,17 +490,17 @@ class controller extends wc_controller
 
 		$print = new purchase_print_model();
 		$print->setDocumentType('Purchase Order')
-				->setFooterDetails(array('Approved By', 'Checked By'))
-				->setVendorDetails($vendordetails)
-				->setDocumentDetails($documentdetails)
+		->setFooterDetails(array('Approved By', 'Checked By'))
+		->setVendorDetails($vendordetails)
+		->setDocumentDetails($documentdetails)
 				// ->addTermsAndCondition()
-				->addReceived();
+		->addReceived();
 
 		$print->setHeaderWidth(array(40, 60, 20, 20, 30, 30))
-				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
-				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price', 'Amount'))
-				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R'))
-				->setSummaryWidth(array('170', '30'));
+		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
+		->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price', 'Amount'))
+		->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R'))
+		->setSummaryWidth(array('170', '30'));
 
 		$detail_height = 37;
 
@@ -613,14 +618,14 @@ class controller extends wc_controller
 				$restrict_po =	$this->restrict->setButtonRestriction($transactiondate);
 
 				$element = $this->ui->loadElement('check_task')
-									->addView()
-									->addEdit(($row->stat == 'open' && $restrict_po))
-									->addOtherTask('Tag as Complete', 'bookmark',($row->stat != 'closed' && $row->stat != 'posted' && $row->stat != 'open' && $row->stat != 'cancelled'))
-									->addPrint()
-									->addDelete(($row->stat == 'open' && $restrict_po))
-									->setValue($row->voucherno)
-									->addCheckbox($row->stat == 'open'&& $restrict_po)
-									->setLabels(array('delete'=>'Cancel'));
+				->addView()
+				->addEdit(($row->stat == 'open' && $restrict_po))
+				->addOtherTask('Tag as Complete', 'bookmark',($row->stat != 'closed' && $row->stat != 'posted' && $row->stat != 'open' && $row->stat != 'cancelled'))
+				->addPrint()
+				->addDelete(($row->stat == 'open' && $restrict_po))
+				->setValue($row->voucherno)
+				->addCheckbox($row->stat == 'open'&& $restrict_po)
+				->setLabels(array('delete'=>'Cancel'));
 
 				$dropdown = $element->draw();
 
@@ -638,8 +643,8 @@ class controller extends wc_controller
 			}
 		else:
 			$table .= "<tr>
-							<td colspan = '8' class = 'text-center'>No Records Found</td>
-					</tr>";
+			<td colspan = '8' class = 'text-center'>No Records Found</td>
+			</tr>";
 		endif;
 		
 		$pagination->table 	= $table;
@@ -734,7 +739,6 @@ class controller extends wc_controller
 			$result    = $this->po->processTransaction($data_post, "create" , $voucher);
 		else
 			$result    = $this->po->processTransaction($data_post, "create");
-
 		if(!empty($result))
 		{
 			$msg = $result;
@@ -756,7 +760,7 @@ class controller extends wc_controller
 		$data_post 	= $this->input->post();
 
 		$voucher 	= $this->input->post("voucher");
-	
+		
 		$result = $this->po->processTransaction($data_post, "edit", $voucher);
 		
 		if(!empty($result))
@@ -864,7 +868,7 @@ class controller extends wc_controller
 		}
 
 		return $dataArray = array( "msg" => $msg );
-	
+		
 	}
 
 	private function export_main(){

@@ -531,7 +531,7 @@ class db {
 			}
 			$pagination .= '<div class="text-center">
 								<ul class="pagination">
-									<li>
+									<li' . (($this->page == 1) ? ' class="disabled"' : '') . '>
 										<a href="#" data-page="' . ((($this->page - 1) > 0) ? $this->page - 1 : 1) . '">
 											<span aria-hidden="true">&laquo;</span>
 										</a>
@@ -570,7 +570,7 @@ class db {
 			}
 			$pagination .= '
 									<li ' . $active . '><a href="#" data-page="' . $this->page_limit . '">' . $this->page_limit . '</a></li>
-									<li>
+									<li' . (($this->page == $this->page_limit) ? ' class="disabled"' : '') . '>
 										<a href="#" data-page="' . ((($this->page + 1) <= $this->page_limit) ? $this->page + 1 : $this->page_limit) . '">
 											<span aria-hidden="true">&raquo;</span>
 										</a>
