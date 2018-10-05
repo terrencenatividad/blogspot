@@ -730,7 +730,7 @@
 					{
 						?>
 						<div class="btn-group">
-							<button type="button" class="btn btn-default btn-flat" data-id="<?php echo $generated_id?>" id="btnCancel">Cancel</button>
+							<button type="button" class="btn btn-default btn-flat" data-id="<?php echo $generated_id?>" data-toggle="back-page" id="btnCancel">Cancel</button>
 						</div>
 						<?
 					}

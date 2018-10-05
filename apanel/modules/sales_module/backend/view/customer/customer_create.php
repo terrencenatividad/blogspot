@@ -300,25 +300,26 @@ $('#customerForm #btnSave').on('click',function(){
 	}
 });
 
-$('#partnercode').on('blur',function(){
-	ajax.old_code 	= 	$('#h_customer_code').val();
-	ajax.curr_code 	=	$(this).val();
+$('body').on('blur', '#partnercode',function(){
+	ajax.old_code   =   $('#h_customer_code').val();
+	ajax.curr_code   =  $(this).val();
 
-	var task 			=	'<?=$task?>';
-	var error_message 	=	'';	
-	var form_group	 	= 	$('#partnercode').closest('.form-group');
+	var task       =  '<?=$task?>';
+	var error_message   =  '';  
+	var partner_element = $(this);
+	var form_group     =   partner_element.closest('.form-group');
 
 	$.post('<?=BASE_URL?>maintenance/customer/ajax/get_duplicate',ajax, function(data) {
 		if( data.msg == 'exists' )
 		{
-			error_message 	=	"<b>The Code you entered already exists!</b>";
-			$('#partnercode').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+		error_message   =  "<b>The Code you entered already exists!</b>";
+		partner_element.closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
 		}
 		else if( ( ajax.curr_code != "" && data.msg == "") || (data.msg == '' && task == 'edit'))
 		{
-			if (form_group.find('p.help-block').html() != "") {
-				form_group.removeClass('has-error').find('p.help-block').html('');
-			}
+		if (form_group.find('p.help-block').html() != "") {
+			form_group.removeClass('has-error').find('p.help-block').html('');
+		}
 		}
 	});
 });
