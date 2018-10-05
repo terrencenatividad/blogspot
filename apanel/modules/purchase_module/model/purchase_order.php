@@ -40,18 +40,10 @@ class purchase_order extends wc_model
 					//echo $this->db->getQuery();
 		return $result;
 	}
-
-<<<<<<< HEAD
 	public function retrieveItemDetails($itemcode)
 	{
-		$fields = "i.itemname as itemname, i.itemdesc as itemdesc, i.weight as weight , i.uom_base, COALESCE(p.price_average,0) as price, u.uomcode as uomcode";
+		$fields = "i.itemname as itemname, i.itemdesc as itemdesc, i.weight as weight , i.uom_base, COALESCE(p.price_average,0) as price, u.uomcode as uomcode, u.uomdesc as uomdesc";
 		$cond 	= "i.itemcode = '$itemcode'";
-=======
-		public function retrieveItemDetails($itemcode)
-		{
-			$fields = "i.itemname as itemname, i.itemdesc as itemdesc, i.weight as weight , i.uom_base, COALESCE(p.price_average,0) as price, u.uomcode as uomcode, u.uomdesc as uomdesc";
-			$cond 	= "i.itemcode = '$itemcode'";
->>>>>>> b7deda9650a75d36cf5a3e70e393bdafdde804ac
 			// $order 	= "p.linenum DESC";
 
 		$result = $this->db->setTable('items i')
