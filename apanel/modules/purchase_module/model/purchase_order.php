@@ -96,8 +96,9 @@
 			$datefilterArr		= explode(' - ',$daterangefilter);
 			$datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
 			$datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
+		
 
-			$add_query 	= (!empty($searchkey)) ? "AND (po.voucherno LIKE '%$searchkey%' OR p.first_name LIKE '%$searchkey%' OR p.last_name LIKE '%$searchkey%') " : "";
+			$add_query 	= (!empty($searchkey)) ? "AND (po.voucherno LIKE '%$searchkey%' OR p.first_name LIKE '%$searchkey%' OR p.last_name LIKE '%$searchkey%'  OR po.referenceno LIKE '%$searchkey%'  OR p.partnername LIKE '%$searchkey%' OR po.transactiondate LIKE '%$searchkey%') " : "";
 			$add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND po.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 			$add_query .= (!empty($vendfilter) && $vendfilter != 'none') ? "AND p.partnercode = '$vendfilter' " : "";
 
@@ -132,10 +133,11 @@
 							->setFields($fields)
 							->leftJoin('partners p ON p.partnercode = po.vendor ')
 							->leftJoin("($receipt) pr ON pr.source_no = po.voucherno AND pr.vendor = p.partnercode")
-							->setWhere(" po.stat NOT IN ( 'temporary' )   $add_query")
+							->setWhere(" po.stat NOT IN ( 'temporary' ) $add_query")
 							->setOrderBy($sort)
 							->setGroupBy('po.voucherno')
 							->runPagination();
+
 		}
 		
 		public function retrieveExistingPO($voucherno)
