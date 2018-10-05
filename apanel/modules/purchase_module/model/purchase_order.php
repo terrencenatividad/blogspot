@@ -137,23 +137,23 @@ class purchase_order extends wc_model
 		->runPagination();
 	}
 		
-		public function retrieveExistingPO($voucherno)
-		{	 
-			$retrieved_data =	array();
-			
-			$header_fields 	= 	"po.voucherno, po.transactiondate, po.referenceno, po.vendor, p.partnername as companyname,CONCAT(p.first_name, ' ',p.last_name) as vendor_name, po.amount, po.discounttype, po.discountamount, po.netamount, po.taxamount, po.wtaxamount, po.wtaxrate, po.wtaxcode, po.atcCode, po.department, po.stat";
+	public function retrieveExistingPO($voucherno)
+	{	 
+		$retrieved_data =	array();
+		
+		$header_fields 	= 	"po.voucherno, po.transactiondate, po.referenceno, po.vendor, p.partnername as companyname,CONCAT(p.first_name, ' ',p.last_name) as vendor_name, po.amount, po.discounttype, po.discountamount, po.netamount, po.taxamount, po.wtaxamount, po.wtaxrate, po.wtaxcode, po.atcCode, po.department, po.stat";
 
-			$condition 		=	" po.voucherno = '$voucherno' ";
-			
-			$retrieved_data['header'] 	= 	$this->db->setTable('purchaseorder po')
-															->leftJoin(' partners p ON p.partnercode = po.vendor AND p.partnertype = "supplier" ')
-															->setFields($header_fields)
-															->setWhere($condition)
-															->setLimit('1')
-															->runSelect()
-															->getRow();
-										
-			// Retrieve Vendor Details
+		$condition 		=	" po.voucherno = '$voucherno' ";
+		
+		$retrieved_data['header'] 	= 	$this->db->setTable('purchaseorder po')
+														->leftJoin(' partners p ON p.partnercode = po.vendor AND p.partnertype = "supplier" ')
+														->setFields($header_fields)
+														->setWhere($condition)
+														->setLimit('1')
+														->runSelect()
+														->getRow();
+									
+		// Retrieve Vendor Details
 		$vendor_code 			 	 = 	$retrieved_data['header']->vendor;
 		$retrieved_data['vendor']    =	$this->retrievevendorDetails($vendor_code);
 
@@ -170,7 +170,7 @@ class purchase_order extends wc_model
 
 			//echo $this->db->getQuery();
 		return $retrieved_data;
-	}
+}
 
 	public function retrieveExistingPQ($request_no)
 	{	 
