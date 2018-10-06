@@ -523,7 +523,7 @@ class controller extends wc_controller
 		/** DETAILS INFO **/
 
 			$docdet_table   = "salesorder_details as dtl";
-			$docdet_fields  = array("dtl.itemcode as itemcode", "dtl.detailparticular as description", "dtl.issueqty as quantity","UPPER(dtl.issueuom) uom","unitprice as price","amount as amount");
+			$docdet_fields  = array("dtl.itemcode as itemcode", "dtl.detailparticular as description", "dtl.issueqty as quantity","UPPER(dtl.issueuom) uom","unitprice as price","dtl.taxamount","amount as amount","dtl.taxrate","dtl.taxamount","dtl.taxcode","dtl.discountamount itemdiscount");
 			//$docdet_fields  = array("dtl.itemcode as itemcode","dtl.issueqty as quantity", "dtl.detailparticular as description", "unitprice as price","amount as amount");
 			$docdet_cond    = "dtl.voucherno = '$voucherno'";
 			$docdet_join 	= "";
@@ -557,31 +557,62 @@ class controller extends wc_controller
 				// ->addTermsAndCondition()
 				->addReceived();
 
-		$print->setHeaderWidth(array(40, 60, 20, 20, 30, 30))
-				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
-				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price', 'Amount'))
-				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R'))
+		$print->setHeaderWidth(array(30, 40, 20, 20, 30, 30,30))
+				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C','C'))
+				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price','Tax','Amount'))
+				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R','R'))
 				->setSummaryWidth(array('170', '30'));
 
 		$detail_height = 37;
 
-		$total_amount = 0;
+		$vatable_sales	= 0;
+		$vat_exempt		= 0;
+		$discount		= 0;
+		$tax			= 0;
+		$total_amount 	= 0;
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
 			}
-
-			$total_amount	+= $row->amount;
+			$vatable_sales	+= ($row->taxrate) ? $row->amount : 0;
+			$vat_exempt		+= ($row->taxrate) ? 0 : $row->amount;
+			$discount		+= $row->itemdiscount;
+			$tax			+= $row->taxamount;
+			// $total_amount	+= $row->amount;
 			$row->quantity	= number_format($row->quantity);
 			$row->price		= number_format($row->price, 2);
 			$row->amount	= number_format($row->amount, 2);
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
-				$total_amount = 0;
+				$total_amount = $vatable_sales + $vat_exempt - $discount + $tax;
+				$summary = array(
+					'VATable Sales'		=> number_format($vatable_sales, 2),
+					'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
+					'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
+					'Discount'			=> number_format($discount, 2),
+					'Tax'				=> number_format($tax, 2),
+					'Total Amount'		=> number_format($total_amount, 2)
+				);
+				$print->drawSummary($summary);
+				// $print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
+				$vatable_sales	= 0;
+				$vat_exempt		= 0;
+				$discount		= 0;
+				$tax			= 0;
+				$total_amount	= 0;
 			}
 		}
-		$print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
+		$total_amount = $vatable_sales + $vat_exempt - $discount + $tax;
+		$summary = array(
+			'VATable Sales'		=> number_format($vatable_sales, 2),
+			'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
+			'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
+			'Discount'			=> number_format($discount, 2),
+			'Tax'				=> number_format($tax, 2),
+			'Total Amount'		=> number_format($total_amount, 2)
+		);
+		$print->drawSummary($summary);
+		// $print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
 
 		$print->drawPDF('Sales Order - ' . $voucherno);
 	}
