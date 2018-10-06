@@ -441,9 +441,8 @@ class controller extends wc_controller
 		$data["address1"] 		 = $retrieved_data["customer"]->address1;
 		
 		//Details
-		$data['details'] 		 = $retrieved_data['details'];
-		
-		$restrict_so 			=	$this->restrict->setButtonRestriction($transactiondate);
+		$data['details'] 		= $retrieved_data['details'];
+		$restrict_so 			= $this->restrict->setButtonRestriction($transactiondate);
 		$data['restrict_so'] 	= $restrict_so;
 
 		// Retrieve business type list
