@@ -87,7 +87,7 @@
 									->setName('cwt')
 									->setId('cwt')
 									->setList($s_account_list)
-									->setValue('')
+									->setValue(($task == 'create' ? '' : $cwt))
 									->setValidation('required')
 									->draw($task != "view");
 						?>
