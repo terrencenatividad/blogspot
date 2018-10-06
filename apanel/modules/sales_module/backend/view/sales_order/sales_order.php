@@ -9,7 +9,7 @@
 			<input class = "form_iput" value = "update" name = "h_querytype" id="h_querytype" type="hidden">
 			<input class = "form_iput" value = "" name = "h_condition" id = "h_condition" type="hidden">
 			<input class = "form_iput" value = "<?=$close_date?>" name = "h_close_date" id = "h_close_date" type="hidden">
-			<input class = "form_iput" value = "<?=$h_disctype?>" name = "h_disctype" id = "h_disctype" type="hidden">
+			<!-- <input class = "form_iput" value = "<?//=$h_disctype?>" name = "h_disctype" id = "h_disctype" type="hidden"> -->
 		</form>
 
 		<form method = "post" class="form-horizontal" id = "sales_order_form">
@@ -571,7 +571,7 @@
 																		->setName('discounttype')
 																		->setClass('discounttype')
 																		->setDefault('perc')
-																		->setValue('')
+																		->setValue($discounttype)
 																		->draw($show_input);
 															?>
 														</div>
@@ -602,7 +602,7 @@
 																	->setName('discounttype')
 																	->setClass('discounttype')
 																	->setDefault('amt')
-																	// ->setValue($discounttype)
+																	->setValue($discounttype)
 																	->draw($show_input);
 															?>
 														</div>
@@ -1353,7 +1353,7 @@ function finalizeTransaction(type)
 			$(this).closest('div').addClass('has-error');
 		}
 	});
-	
+
 	computeforremainingcredit();
 
 	var credit_limit_exceed =	checkIfExceededCreditLimit();
@@ -1410,6 +1410,14 @@ function finalizeEditTransaction()
 		}
 	});
 
+	computeforremainingcredit();
+
+	var credit_limit_exceed =	checkIfExceededCreditLimit();
+	if(credit_limit_exceed == 1){
+		// $('#creditLimitModal').modal('show');
+		no_error = false;
+	}
+	
 	if($('#sales_order_form').find('.form-group.has-error').length == 0 && no_error)
 	{
 		if($("#sales_order_form #itemcode\\[1\\]").val() != ''  && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #due_date").val() != '' && $("#sales_order_form #customer").val() != '')
@@ -1703,39 +1711,39 @@ $(document).ready(function(){
 
 	// -- For Discount -- 
 
-		$('.d_opt').on('change',function(){
-			var disc_id =	$('input[type=radio][name=discounttype]:checked').attr('id');
+		// $('.d_opt').on('change',function(){
+		// 	var disc_id =	$('input[type=radio][name=discounttype]:checked').attr('id');
 
-			var type 	=	$(this).val();
-			$('#h_disctype').val(type);
+		// 	var type 	=	$(this).val();
+		// 	$('#h_disctype').val(type);
 			
 			//computeTotalAmount();
-		});
+		// });
 
-		$('#h_disctype').on('change',function(){
-			computeAmount();
-		});
+		// $('#h_disctype').on('change',function(){
+		// 	computeAmount();
+		// });
 
-		$('#t_discount').on('change',function(){
-			var disc_id =	$('input[type=radio][name=discounttype]:checked').attr('id');
-			if( disc_id != "" || disc_id != undefined )
-			{
-				var type 	=	$('#'+disc_id).val();
-				var value 	=	$(this).val();
+		// $('#t_discount').on('change',function(){
+		// 	var disc_id =	$('input[type=radio][name=discounttype]:checked').attr('id');
+		// 	if( disc_id != "" || disc_id != undefined )
+		// 	{
+		// 		var type 	=	$('#'+disc_id).val();
+		// 		var value 	=	$(this).val();
 
-				$('#h_disctype').val(type);	
+		// 		$('#h_disctype').val(type);	
 
-				if( value <= 100 )
-				{
-					computeAmount();
-				}
-				else
-				{
-					//Add Modal here
-					alert( " You cannot enter a value greater than 100 ! " );
-				}
-			}
-		});
+		// 		if( value <= 100 )
+		// 		{
+		// 			computeAmount();
+		// 		}
+		// 		else
+		// 		{
+		// 			//Add Modal here
+		// 			alert( " You cannot enter a value greater than 100 ! " );
+		// 		}
+		// 	}
+		// });
 
 	// -- For Discount -- End
 

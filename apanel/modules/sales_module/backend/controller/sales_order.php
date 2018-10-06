@@ -123,7 +123,8 @@ class controller extends wc_controller
 
 			//Footer Data
 			$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
-			$data['t_discount'] 	 = $retrieved_data['header']->discountamount;
+			$data['discounttype']  	 = $retrieved_data['header']->discounttype;
+			$data['discountamount']  = $retrieved_data['header']->discountamount;
 			$data['t_total'] 	 	 = $retrieved_data['header']->netamount;
 
 			$discounttype 		 	 = $retrieved_data['header']->discounttype;
@@ -181,7 +182,8 @@ class controller extends wc_controller
 
 			//Footer Data
 			$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
-			$data['t_discount'] 	 = $retrieved_data['header']->discountamount;
+			$data['discounttype']    = $retrieved_data['header']->discounttype;
+			$data['discountamount']  = $retrieved_data['header']->discountamount;
 			$data['t_total'] 	 	 = $retrieved_data['header']->netamount;
 
 			$discounttype 		 	 = $retrieved_data['header']->discounttype;
@@ -314,16 +316,27 @@ class controller extends wc_controller
 		$data['remarks'] 		 = $retrieved_data["header"]->remarks;
 		
 		//Footer Data
-		$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
-		$data['t_discount'] 	 = $retrieved_data['header']->discountamount;
-		$data['t_total'] 	 	 = $retrieved_data['header']->netamount;
-		$data['t_vat'] 			 = $retrieved_data['header']->taxamount;
+		$discountamount 		 = $retrieved_data['header']->discountamount;
+		$discounttype 			 = $retrieved_data['header']->discounttype;
+		$discountrate 			 = 0;
+		$totalamount 			 = $retrieved_data['header']->netamount;
+		$vat 					 = $retrieved_data['header']->taxamount;
+		$totalsales 			 = $retrieved_data['header']->amount;
+		$data['t_subtotal'] 	 = $totalsales;
+		$data['discounttype']    = $discounttype;
+		$data['discountamount']  = $discountamount;
+		$data['t_total'] 	 	 = $totalamount;
+		$data['t_vat'] 			 = $vat;
 		$data['t_vatsales'] 	 = $retrieved_data['header']->vat_sales;
 		$data['t_vatexempt'] 	 = $retrieved_data['header']->vat_exempt;
 
 		$discounttype 		 	 = $retrieved_data['header']->discounttype;
+		if ($discounttype == 'perc' && $discountamount) {
+			$discountrate = ($discountamount / ($totalsales + $vat)) * 100;
+			$discountrate = ceil($discountrate);
+		}
 		$data['percentage'] 	 = "";
-		$data['h_disctype'] 	 = $discounttype;
+		$data['discountrate'] 	 = $discountrate;
 
 		//Credit Limit 
 		$result 				= $this->retrieve_credit_limit($customer);
@@ -414,15 +427,16 @@ class controller extends wc_controller
 		$data['stat'] 			 = $retrieved_data['header']->stat;
 
 		//Footer Data
+		$discountamount 		 = $retrieved_data['header']->discountamount;
 		$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
-		$data['t_discount'] 	 = $retrieved_data['header']->discountamount;
+		$data['discountamount']  = $discountamount;
 		$data['t_total'] 	 	 = $retrieved_data['header']->netamount;
 		$data['t_vat'] 			 = $retrieved_data['header']->taxamount;
 		$data['t_vatsales'] 	 = $retrieved_data['header']->vat_sales;
 		$data['t_vatexempt'] 	 = $retrieved_data['header']->vat_exempt;
 		
-		$discountamount 		 = $retrieved_data['header']->discountamount;
 		$discounttype 		 	 = $retrieved_data['header']->discounttype;
+		$data['discounttype']  	 = $discounttype;
 		$data['percentage'] 	 = ($discounttype == 'perc' && $discountamount > 0 ) 	? 	"%" 	: 	"";
 		$data['h_disctype'] 	 = $discounttype;
 
