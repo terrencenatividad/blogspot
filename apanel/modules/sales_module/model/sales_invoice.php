@@ -587,7 +587,7 @@ class sales_invoice extends wc_model
 
 	public function retrieveDeliveries($code)
 	{
-		$header_fields 	= 	"customer, remarks";
+		$header_fields 	= 	"customer, remarks, taxamount, taxcode";
 		$condition 		=	" voucherno = '$code' ";
 		$retrieved_data['header'] 	= 	$this->db->setTable('deliveryreceipt')
 												->setFields($header_fields)

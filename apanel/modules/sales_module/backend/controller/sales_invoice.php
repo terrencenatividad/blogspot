@@ -727,10 +727,12 @@ class controller extends wc_controller
 										->setClass("taxcode")
 										->setAttribute(
 											array(
-												"maxlength" => "20"
+												"maxlength" => "20",
+												"disabled" => true
 											)
 										)
 										->setList($tax_codes)
+										// ->addHidden()
 										->setValue($taxcode)
 										->setNone("none")
 										->draw(true);

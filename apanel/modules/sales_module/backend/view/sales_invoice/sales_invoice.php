@@ -354,7 +354,8 @@
 															->setClass("taxcode")
 															->setAttribute(
 																array(
-																	"maxlength" => "20"
+																	"maxlength" => "20",
+																	"readonly" => true
 																)
 															)
 															->setList($tax_codes)
@@ -496,7 +497,7 @@
 															->setName('taxcode['.$row.']')
 															->setId('taxcode['.$row.']')
 															->setClass("taxcode")
-															->setAttribute(array("maxlength" => "20"))
+															->setAttribute(array("maxlength" => "20","readonly" => true))
 															->setList($tax_codes)
 															->setNone('none')
 															->setValue($taxcode)
@@ -623,14 +624,14 @@
 									<td class="text-right">
 										<div class = 'col-md-7'>
 										<? if($show_input) {?>
-											<div class="btn-group btn-group-xs" data-toggle="buttons">
+											<!-- <div class="btn-group btn-group-xs" data-toggle="buttons">
 												<label class="btn btn-default <?=$disc_radio_amt?>">
 													<input type="radio" class='d_opt' name="discounttype" id="discounttype1" autocomplete="off" value="amt" <?=$disc_amt?>>amt
 												</label>
 												<label class="btn btn-default <?=$disc_radio_perc?>">
 													<input type="radio" class='d_opt' name="discounttype" id="discounttype2" autocomplete="off" value="perc" <?=$disc_perc?>>%
 												</label>
-											</div>
+											</div> -->
 											<? } ?>
 										</div>
 										<div class = 'col-md-5' >
@@ -640,7 +641,7 @@
 														->setSplit('', '')
 														->setName('discountamount')
 														->setId('discountamount')
-														->setClass("text-right")
+														->setClass("input_label text-right")
 														->setValue(number_format($discountamount,2) . "" . $percentage )
 														->draw($show_input);
 											?>
