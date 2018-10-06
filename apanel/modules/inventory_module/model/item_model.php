@@ -42,7 +42,8 @@ class item_model extends wc_model {
 		
 			if ($result) {
 				$this->log->saveActivity("Delete Item [$id]");
-			} else {
+			} 
+			else {
 				if ($this->db->getError() == 'locked') {
 					$error_id[] = $id;
 				}

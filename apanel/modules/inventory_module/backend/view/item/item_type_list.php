@@ -173,8 +173,11 @@
 		});
 		$('#pagination').on('click', 'a', function(e) {
 			e.preventDefault();
-			ajax.page = $(this).attr('data-page');
-			getList();
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				ajax.page = $(this).attr('data-page');
+				getList();
+			}
 		});
 		$('#import-modal').on('show.bs.modal', function() {
 			var form_csv = $('#import_csv').val('').closest('.form-group').find('.form-control').html('').closest('.form-group').html();
