@@ -82,7 +82,7 @@ class atccode_class extends wc_model
 		$addCond 		= 	stripslashes($addCond);
 		$search          = (isset($data['search']))? htmlentities($data['search']) : "";
 		$fetch_sort      = (isset($data['sort']))? htmlentities($data['sort']) : "";
-		$fields 		 =  array("atc_code", "tax_rate","wtaxcode","short_desc","accountname");
+		$fields 		 =  array("atc_code", "tax_rate","wtaxcode","short_desc","accountname","cwt");
 
 		$addCondition = "";
 		$addCondition = (!empty($search)) ? " (atc_code LIKE '%$search%' 

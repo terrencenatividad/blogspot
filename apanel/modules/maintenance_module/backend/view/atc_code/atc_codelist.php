@@ -156,17 +156,19 @@
 										'class' => 'col-md-1 text-center'
 									)
 								)
-								->addHeader('ATC Code', array('class' => 'col-md-2 text-center'), 
+								->addHeader('ATC Code', array('class' => 'col-md-1 text-center'), 
 											'sort', 'atcId', 'DESC')
 								->addHeader('Tax Rate', array('class' => 'col-md-1 text-center'), 
 											'sort', 'tax_rate')
-								->addHeader('Tax Code', array('class'=> 'col-md-2 text-center'),
+								->addHeader('Tax Code', array('class'=> 'col-md-1 text-center'),
 											'sort', 'wtaxcode')
 								->addHeader('Description', array('class'=> 'col-md-3 text-center'),
 								'sort', 'short_desc')
-								->addHeader('Tax Account', array('class'=> 'col-md-3 text-center'),
+								->addHeader('EWT', array('class'=> 'col-md-3 text-center'),
 								'sort', 'tax_account')
-								->addHeader('Status', array('class'=> 'col-md-3 text-center'),
+								->addHeader('CWT', array('class'=> 'col-md-3 text-center'),
+								'sort', 'cwt')
+								->addHeader('Status', array('class'=> 'col-md-2 text-center'),
 								'sort', 'status')
 								->draw();
 						?>		

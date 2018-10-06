@@ -482,15 +482,16 @@
 							</td>	
 						</tr>	
 
-						<tr id="vatable_sales" class='hidden'>
-							<td colspan = '5'></td>
-							<td class="right">
+						<tr id="vatable_sales" >
+							<td colspan="4"></td>
+							<td colspan="2" class="right">
 								<label class="control-label col-md-12">VATable Sales</label>
 							</td>
 							<td class="text-right">
+								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
-											->setSplit('', 'col-md-12')
+											->setSplit('', 'col-md-5')
 											->setName('t_vatsales')
 											->setId('t_vatsales')
 											->setClass("input_label text-right remove-margin")
@@ -498,18 +499,19 @@
 											->draw($show_input);
 								?>
 							</td>
-							
+							<td></td>
 						</tr>
 						
-						<tr id="vat_exempt_sales" class='hidden'>
-							<td colspan = '5'></td>
-							<td class="right">
+						<tr id="vat_exempt_sales" >
+							<td colspan="4"></td>
+							<td colspan="2" class="right">
 								<label class="control-label col-md-12">VAT-Exempt Sales</label>
 							</td>
 							<td class="text-right">
+								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
-											->setSplit('', 'col-md-12')
+											->setSplit('', 'col-md-5')
 											->setName('t_vatexempt')
 											->setId('t_vatexempt')
 											->setClass("input_label text-right remove-margin")
@@ -517,17 +519,19 @@
 											->draw($show_input);
 								?>
 							</td>
+							<td></td>
 						</tr>
 
-						<tr id="total_sales" class='hidden'>
-							<td colspan = '5'></td>
-							<td class="right">
+						<tr id="total_sales" >
+							<td colspan="4"></td>
+							<td colspan="2" class="right">
 								<label class="control-label col-md-12">Total Sales</label>
 							</td>
-							<td class="text-right">
+							<td class="text-right" >
+								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
-											->setSplit('', 'col-md-12')
+											->setSplit('', 'col-md-5')
 											->setName('t_subtotal')
 											->setId('t_subtotal')
 											->setClass("input_label text-right")
@@ -536,50 +540,92 @@
 											->draw($show_input);
 								?>
 							</td>
+							<td></td>
 						</tr>
 
-						<tr id="discount" class='hidden'>
-							<td colspan = '5'></td>
-							<td class="right">
+						<tr id="discount" >
+							<td colspan="4"></td>
+							<td colspan="2" class="right">
 								<label class="control-label col-md-12">Discount</label>
 							</td>
 							<td class="text-right">
-								<div class = 'col-md-7'>
 								<?php if($show_input) {?>
-									<div class="btn-group btn-group-xs" data-toggle="buttons">
-										<label class="btn btn-default" onChange="computeAmount();">
-											<input type="radio" class='d_opt' name="discounttype" id="discounttype1" autocomplete="off" value="amt">amt
-										</label>
-										<label class="btn btn-default active" onChange="computeAmount();">
-											<input type="radio" class='d_opt' name="discounttype" id="discounttype2" autocomplete="off" value="perc"  checked="checked">%
-										</label>
+									<div class = 'row'>
+										<div class="col-md-6">
+											<div class="form-group">
+												<div class="col-md-12">
+													<div class="input-group">
+														<div class="input-group-addon with-checkbox">
+															<?php
+																echo $ui->setElement('radio')
+																		->setName('discounttype')
+																		->setClass('discounttype')
+																		->setDefault('perc')
+																		->setValue('')
+																		->draw($show_input);
+															?>
+														</div>
+														<?php
+															echo $ui->setElement('text')
+																	->setId('discountrate')
+																	->setName('discountrate')
+																	->setClass('discount_entry rate text-right')
+																	->setAttribute(array('data-max' => 99.99, 'data-min' => '0.00'))
+																	->setValidation('decimal')
+																	->setValue(((empty($discountrate)) ? '0.00' : number_format($discountrate, 2)))
+																	->draw($show_input);
+														?>
+														<div class="input-group-addon">
+															<strong>%</strong>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-6">
+											<div class="form-group">
+												<div class="col-md-12">
+													<div class="input-group">
+														<div class="input-group-addon with-checkbox">
+															<?php
+															echo $ui->setElement('radio')
+																	->setName('discounttype')
+																	->setClass('discounttype')
+																	->setDefault('amt')
+																	// ->setValue($discounttype)
+																	->draw($show_input);
+															?>
+														</div>
+														<?php
+														echo $ui->setElement('text')
+																->setId('discountamount')
+																->setName('discountamount')
+																->setClass('discount_entry text-right')
+																->setAttribute(array('data-min' => '0.00'))
+																->setValidation('decimal')
+																->setValue(((empty($discountamount)) ? '0.00' : number_format($discountamount, 2)))
+																->draw($show_input);
+														?>
+													</div>
+												</div>
+											</div>
+										</div>
 									</div>
-									<?php } ?>
-								</div>
-								<div class = 'col-md-5'>
-									<?php
-										echo $ui->formField('text')
-												->setSplit('', '')
-												->setName('t_discount')
-												->setId('t_discount')
-												->setClass("text-right")
-												->setValue(number_format($t_discount,2) . " " . $percentage )
-												->draw($show_input);
-									?>
-								</div>
-
+								<?php } ?>
 							</td>
+							<td></td>
 						</tr>
 
-						<tr id="total_sales" class='hidden'>
-							<td colspan = '5'></td>
-							<td class="right">
+						<tr id="total_sales" >
+							<td colspan="4"></td>
+							<td colspan="2" class="right">
 								<label class="control-label col-md-12">Add 12% VAT</label>
 							</td>
 							<td class="text-right">
+								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
-											->setSplit('', 'col-md-12')
+											->setSplit('', 'col-md-5')
 											->setName('t_vat')
 											->setId('t_vat')
 											->setClass("input_label text-right")
@@ -588,14 +634,16 @@
 											->draw($show_input);
 								?>
 							</td>
+							<td></td>
 						</tr>
 
 						<tr id="total_amount_due">
-							<td colspan = '5'></td>
-							<td class="right">
+							<td colspan="4"></td>
+							<td colspan="2" class="right">
 								<label class="control-label col-md-12">Total Amount</label>
 							</td>
 							<td class="text-right" style="border-top:1px solid #DDDDDD;">
+								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
