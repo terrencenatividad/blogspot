@@ -715,6 +715,7 @@ class controller extends wc_controller
 	private function get_ATC()
 	{
 		$wtaxcode 	=	$this->input->post('code');
+		// echo $wtaxcode;
 		
 		$fields 	= 	array('atc_code','short_desc','tax_rate');
 
@@ -728,6 +729,7 @@ class controller extends wc_controller
 		{
 			$selection 	.=	"<option value = '".$row->atc_code."'>". $row->atc_code . " - ".$row->short_desc."</option>"; 
 		}
+		// var_dump($result);
 		
 		return $dataArray = array("atc_codes" => $selection,"wtaxrate" => $result[0]->tax_rate);
 	}	

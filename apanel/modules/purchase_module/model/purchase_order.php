@@ -248,7 +248,7 @@ class purchase_order extends wc_model
 		->setFields($cols)
 		->setWhere($cond)
 		->setOrderBy($orderby)
-		->runSelect($bool)
+		->runSelect(false)
 		->getResult();
 
 		return $result;
