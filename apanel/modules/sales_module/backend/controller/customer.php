@@ -174,6 +174,29 @@
 			return $error;
 		}
 
+		function check_special_characters($field_name,$field_value,$line){
+			$error 	=	"";
+			
+			$value = str_replace(',', '', $field_value);
+			if ( ! preg_match('/^[\\a-zA-Z0-9-_ !@#$%^&*()\/<>?,.{}:;=+\r\n"\']*$/', $value)) {
+				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line contains invalid characters.<br/>";
+			}
+			echo $error."\n\n";
+			// echo "\n\n". utf8_encode($field_value)."\n\n";
+
+			return $error;
+		}
+
+		function check_alpha_num($field_name,$field_value,$line){
+			$error 	= "";
+
+			$value = str_replace(',','',$field_value);
+			if ( ! preg_match('/^[a-zA-Z0-9-_]*$/', $value)) {
+				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line contains invalid characters.<br/>";
+			}
+			return $error;
+		}
+
 		private function save_import(){
 			$file		= fopen($_FILES['file']['tmp_name'],'r') or exit ("File Unable to upload") ;
 
@@ -235,7 +258,7 @@
 					foreach ($z as $key => $b) {
 						if( ! empty($b)) {	
 							$customercode 	   	= isset($b[0]) ? htmlspecialchars(addslashes(trim($b[0])))	: 	"";
-							$companyname        = isset($b[1]) ? addslashes(trim($b[1]))	: 	"";
+							$companyname        = isset($b[1]) ? addslashes(trim($b[1]))		: 	"";
 							$address            = isset($b[2]) ? htmlspecialchars(addslashes(trim($b[2])))	: 	"";
 							$email 				= isset($b[3]) ? htmlspecialchars(addslashes(trim($b[3])))	: 	"";
 							$business 			= isset($b[4]) ? htmlspecialchars(addslashes(trim($b[4])))	: 	"";
@@ -285,13 +308,18 @@
 							// Check for Business Content ( Individual or Corporation )
 							$errmsg[] 	=	$this->check_business_type("Business Type", $business, $line);
 
+							//Check for Character Type
+							$errmsg[] 	=	$this->check_alpha_num("Customer Code",$customercode,$line);
+							$errmsg[] 	=	$this->check_special_characters("Company Name",$companyname,$line);
+							// $errmsg[] 	=	$this->check_special_characters("Company Name",$companyname,$line);
+
 							// Check for Duplicate Customer
 							if( !in_array($customercode, $list) ){
 								$list[] 	=	$customercode;
 							} else {
 								$errmsg[]	= "Customer Code [<strong>$customercode</strong>] on row $line has a duplicate within the document.<br/>";
 							}
-
+		
 							$errmsg		= 	array_filter($errmsg);
 
 							$customercode_[] 	= $customercode;
@@ -329,11 +357,12 @@
 						'credit_limit'		=> $credit_limit_
 					);
 					
-					$proceed  				= $this->customer->importCustomers($post);
+					// $proceed  				= $this->customer->importCustomers($post);
 
-					if( $proceed ) {
-						$this->log->saveActivity("Imported Customers.");
-					}
+					// if( $proceed ) {
+					// 	$this->log->saveActivity("Imported Customers.");
+					// }
+					$proceed = 0;
 				}
 			}
 
@@ -545,6 +574,29 @@
 				'redirect'	=> MODULE_URL,
 				'success'	=> $result
 				);
+		}
+
+		private function update_multiple_deactivate(){
+			$posted_data 			=	$this->input->post(array('ids'));
+	
+			$data['stat'] 			=	'inactive';
+			
+			$posted_ids 			=	$posted_data['ids'];
+			$id_arr 				=	explode(',',$posted_ids);
+			
+			foreach($id_arr as $key => $value)
+			{
+				$result 			= 	$this->customer->updateStat($data, $value);
+			}
+	
+			if($result)
+			{
+				$msg = "success";
+			} else {
+				$msg = "Failed to Update.";
+			}
+	
+			return $dataArray = array( "msg" => $msg );
 		}
 	}
 ?>

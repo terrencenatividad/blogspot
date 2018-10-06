@@ -113,8 +113,11 @@ $( "#search" ).keyup(function() {
 
 $('#pagination').on('click', 'a', function(e) {
 	e.preventDefault();
-	ajax.page = $(this).attr('data-page');
-	showList();
+	var li = $(this).closest('li');
+	if (li.not('.active').length && li.not('.disabled').length) {
+		ajax.page = $(this).attr('data-page');
+		showList();
+	}
 });
 
 $(document).ready(function() 

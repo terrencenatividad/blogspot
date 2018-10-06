@@ -778,7 +778,7 @@ function addCustomerToDropdown() {
 	var optionvalue = $("#customerModal #customerForm #partnercode").val();
 	var optiondesc 	= $("#customerModal #customerForm #partnername").val();
 
-	$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#sales_invoice_form #customer option:nth-child(4)");
+	$('<option value="'+optionvalue+'">'+optionvalue+" - "+optiondesc+'</option>').insertAfter("#sales_invoice_form #customer option:nth-child(4)");
 	$('#sales_invoice_form #customer').val(optionvalue);
 	
 	getPartnerInfo(optionvalue);

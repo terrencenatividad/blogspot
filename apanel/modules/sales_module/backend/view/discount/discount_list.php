@@ -28,6 +28,8 @@
 					<?= 
 						$ui->OptionButton('');
 					?>
+					<input id = "deactivateMultipleBtn" type = "button" name = "deactivate" 
+          				value = "Deactivate" class="btn btn-warning btn-flat ">
 				</div>
 
 				<!--<div class = "col-md-1">
@@ -421,8 +423,11 @@ $(document).ready(function()
 
 	$('#pagination').on('click', 'a', function(e) {
 		e.preventDefault();
-		ajax.page = $(this).attr('data-page');
-		showList();
+		var li = $(this).closest('li');
+		if (li.not('.active').length && li.not('.disabled').length) {
+			ajax.page = $(this).attr('data-page');
+			showList();
+		}
 	});
 	
 	$('#success_modal .btn-success').on('click', function(){
@@ -455,4 +460,27 @@ $(document).ready(function()
 
 $('#export_id').prop('download','discount.csv');
 
+$("#deactivateMultipleBtn").click(function() 
+	{
+		$('#multipleDeactivateModal').modal('show');
+		$( "#multipleDeactivateModal #btnDeac" ).click(function() {
+		ids 	=	getSelectedIds();
+		$.post('<?=MODULE_URL?>ajax/update_multiple_deactivate', "&ids="+ids ,function(data) {
+			
+			if( data.msg == 'success' )
+			{
+				showList();
+				$('#multipleDeactivateModal').modal('hide');
+			} 
+		});
+	});
+	});
+
+	function getSelectedIds(){
+		id 	=	[];
+		$('.checkbox:checked').each(function(){
+			id.push($(this).val());
+		});
+		return id;
+	}
 </script>

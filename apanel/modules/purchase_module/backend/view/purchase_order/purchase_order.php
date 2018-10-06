@@ -704,7 +704,7 @@
 		var optionvalue = $("#vendor_modal #supplierForm #partnercode").val();
 		var optiondesc 	= $("#vendor_modal #supplierForm #partnername").val();
 
-		$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#purchase_order_form #vendor option:last-child");
+		$('<option value="'+optionvalue+'">'+optionvalue+" - "+optiondesc+'</option>').insertAfter("#purchase_order_form #vendor option:last-child");
 		$('#purchase_order_form #vendor').val(optionvalue);
 
 		getPartnerInfo(optionvalue);

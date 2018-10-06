@@ -347,14 +347,20 @@ function geModaltList(){
 
 $('#Yearly #main_pagination').on('click', 'a', function(e) {
 	e.preventDefault();
-	ajax_main.page = $(this).attr('data-page');
-	getMainList();
+	var li = $(this).closest('li');
+	if (li.not('.active').length && li.not('.disabled').length) {
+		ajax_main.page = $(this).attr('data-page');
+		getMainList();
+	}
 })
 
 $('#daily_modal #pagination').on('click', 'a', function(e) {
 	e.preventDefault();
-	ajax.page = $(this).attr('data-page');
-	geModaltList();
+	var li = $(this).closest('li');
+	if (li.not('.active').length && li.not('.disabled').length) {
+		ajax.page = $(this).attr('data-page');
+		getModaltList();
+	}
 })
 
 $('#year_filter').on('change',function(){

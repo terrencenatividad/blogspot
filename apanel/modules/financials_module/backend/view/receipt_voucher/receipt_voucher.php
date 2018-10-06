@@ -1559,6 +1559,7 @@ echo $ui->loadElement('modal')
 	var acct_details 	= [];
 
 	var checker 	= new Array();
+	var credits_box = new Array();
 	var table 		= document.getElementById('ap_items');
 	var newid 		= table.rows.length;
 	newid 		= parseFloat(newid);
@@ -2564,8 +2565,11 @@ $('#table_search').on('input', function() {
 
 $('#pagination').on('click', 'a', function(e) {
 	e.preventDefault();
-	ajax.page = $(this).attr('data-page');
-	showList();
+	var li = $(this).closest('li');
+	if (li.not('.active').length && li.not('.disabled').length) {
+		ajax.page = $(this).attr('data-page');
+		showList();
+	}
 });
 
 $('#paymentModal').on('show.bs.modal', function () {
@@ -2941,37 +2945,72 @@ function selectPayable(id,toggle){
 	addPaymentAmount();
 }
 
+function computeCreditBalance(id){
+	var balance 	= $('#list_container #credits_balance'+id).attr('data-value');
+	var amount 		= $('#list_container #credits_amount'+id).attr('data-value');
+	var toapply 	= $('#list_container #credittoapply'+id);
+	
+	console.log("Balance = "+balance);
+
+	console.log(credits_box);
+	if (typeof credits_box[id].balance === 'undefined') {
+		credits_box[id].balance = 0;
+	}
+	if (typeof credits_box[id].amount === undefined) {
+		credits_box[id].amount = 0;
+	}
+	if (typeof credits_box[id].toapply === undefined) {
+		credits_box[id].toapply = 0;
+	}
+
+	// credits_box = [];
+	// credits_box[id]['balance'] = (typeof credits_box[id]['balance'] !== 'undefined') ? parseFloat(balance) : 0;
+	// credits_box[id]['amount']  = (typeof credits_box[id]['amount'] !== 'undefined') ? parseFloat(amount) : 0;
+	// credits_box[id]['toapply'] = (typeof credits_box[id]['toapply'] !== 'undefined') ? parseFloat(toapply) : 0;
+
+	console.log(credits_box);
+}
+
 function selectCredits(id,toggle){
 	var check 		= $('#list_container #check'+id);
 	var balance 	= $('#list_container #credits_balance'+id).attr('data-value');
 	var amount 		= $('#list_container #credits_amount'+id).attr('data-value');
-	var toapply 	= $('#list_container #credittoapply'+id).val();
+	var toapply 	= $('#list_container #credittoapply'+id);
 
+	// console.log(toapply);
 	if(check.prop('checked')){
 		if(toggle == 1){
+			console.log('1');
 			check.prop('checked', false);
+			toapply.prop('disabled',true);
 		}else{
+			console.log('2');
 			check.prop('checked', true);
+			toapply.prop('disabled',false);
 		}
 	}else{
 		if(toggle == 1){
+			console.log('3');
 			check.prop('checked', true);
+			toapply.prop('disabled',false);
 		}else{
+			console.log('4');
 			check.prop('checked', false);
+			toapply.prop('disabled',true);
 		}
 	}
 	$('#list_container #check'+id).iCheck('update');
 
 	// Get number of checkboxes and assign to textarea
-	balance 	=	removeComma(balance);
-	add_storage(id,balance,0,0,overpayment);
-	addPaymentAmount();
+	// balance 	=	removeComma(balance);
+	// add_storage(id,balance,0,0,overpayment);
+	// addPaymentAmount();
+	computeCreditBalance(id);
 }
 
 function init_storage(){
 	if (localStorage.selectedPayables) {
 		container = JSON.parse(localStorage.selectedPayables);
-		//console.log(container);
 	}
 }
 
@@ -3061,9 +3100,6 @@ function checkBalance(val,id){
 	var error 	  = 0;
 		condition 		= (parseFloat(newval) || parseFloat(discount) == 0 || (parseFloat(discount) > parseFloat(dueamount) || parseFloat(discount) > parseFloat(current_payment) ) ) ;
 	
-	// $('#app_payableList tr').each(function(e){
-	// 	var  
-	// });
 	// var excess_payment 	= $('#overpayment').val();
 	var excess_payment 	= $('#overpayment').val();
 		excess_payment 	= parseFloat(excess_payment) || 0;
@@ -3134,8 +3170,8 @@ function checkCredit(val,id){
 		input = 0;
 	}
 
-	add_storage(id,dueamount,discount,input,overpayment);
-	addPaymentAmount();	
+	// add_storage(id,dueamount,discount,input,overpayment);
+	// addPaymentAmount();	
 }
 
 function validateCheques(){
