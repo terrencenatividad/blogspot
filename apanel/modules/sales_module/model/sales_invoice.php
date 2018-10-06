@@ -7,7 +7,7 @@ class sales_invoice extends wc_model
 	{
 		if($drlink){
 			$result = $this->db->setTable('partners as part')
-					->setFields("part.partnercode ind, part.partnername val")
+					->setFields("part.partnercode ind, CONCAT(part.partnercode,' - ',part.partnername) val")
 					->leftJoin("deliveryreceipt as dr ON dr.customer = part.partnercode and dr.companycode = part.companycode")
 					->setWhere("part.partnercode != '' AND part.partnertype = 'customer' AND dr.stat = 'Delivered' ")
 					->setGroupBy("part.partnercode")
@@ -16,7 +16,7 @@ class sales_invoice extends wc_model
 					->getResult();
 		}else{
 			$result = $this->db->setTable('partners')
-					->setFields("partnercode ind, partnername val")
+					->setFields("partnercode ind, CONCAT(partnercode,' - ',partnername) val")
 					->setWhere("partnercode != '' AND partnertype = 'customer' AND stat = 'active'")
 					->setGroupBy("partnercode")
 					->setOrderBy("val")
