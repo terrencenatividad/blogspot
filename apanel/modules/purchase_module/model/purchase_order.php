@@ -25,6 +25,28 @@ class purchase_order extends wc_model
 		return $result;
 	}
 
+	public function getTaxRateList() {
+		$result = $this->db->setTable('fintaxcode')
+					->setFields('fstaxcode ind, shortname val')
+					->setWhere("taxtype = 'VAT'")
+					->setOrderBy('fstaxcode')
+					->runSelect()
+					->getResult();
+
+		return $result;
+	}
+
+	public function getWTaxCodeList() {
+		$result = $this->db->setTable('fintaxcode')
+					->setFields('fstaxcode ind, shortname val')
+					->setWhere("taxtype = 'WTX'")
+					->setOrderBy('taxrate')
+					->runSelect()
+					->getResult();
+
+		return $result;
+	}
+
 	public function retrieveVendorDetails($vendor_code)
 	{
 		$fields = "address1, tinno, terms, email, partnername as companyname, CONCAT( first_name, ' ', last_name ) AS name";

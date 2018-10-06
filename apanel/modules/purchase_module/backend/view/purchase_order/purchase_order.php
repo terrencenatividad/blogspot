@@ -193,8 +193,8 @@
 							<th class="col-md-2 text-center">Warehouse</th>
 							<th class="col-md-1 text-center">Quantity</th>
 							<th class="col-md-1 text-center">UOM</th>
+							<th class="col-md-2 text-center">Tax</th>
 							<th class="col-md-1 text-center">Price</th>
-							<th class="col-md-2 text-center hidden">Tax</th>
 							<th class="col-md-2 text-center">Amount</th>
 							<th class="taxt-center"></th>
 						</tr>
@@ -297,19 +297,6 @@
 								</td>
 								<td class = "remove-margin">
 									<?php
-									echo $ui->formField('text')
-									->setSplit('', 'col-md-12')
-									->setName('itemprice['.$row.']')
-									->setId('itemprice['.$row.']')
-									->setClass("text-right price")
-									->setValidation('required decimal')
-									->setAttribute(array("maxlength" => "20"))
-									->setValue($price)
-									->draw($show_input);
-									?>
-								</td>
-								<td class = "remove-margin hidden">
-									<?php
 									echo $ui->formField('dropdown')
 									->setSplit('', 'col-md-12')
 									->setName('taxcode['.$row.']')
@@ -326,6 +313,19 @@
 									?>
 									<input id = '<?php echo 'taxrate['.$row.']'; ?>' name = '<?php echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value='0.00' >
 									<input id = '<?php echo 'taxamount['.$row.']'; ?>' name = '<?php echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value='0.00'>
+								</td>
+								<td class = "remove-margin">
+									<?php
+									echo $ui->formField('text')
+									->setSplit('', 'col-md-12')
+									->setName('itemprice['.$row.']')
+									->setId('itemprice['.$row.']')
+									->setClass("text-right price")
+									->setValidation('required decimal')
+									->setAttribute(array("maxlength" => "20"))
+									->setValue($price)
+									->draw($show_input);
+									?>
 								</td>
 								<td class = "remove-margin">
 									<?php
@@ -508,7 +508,7 @@
 
 						<tr id="total_purchase">
 							<td colspan = '4'></td>
-							<td colspan = '2' class="right">
+							<td class="right">
 								<label class="control-label col-md-12">Total Purchase</label>
 							</td>
 							<td class="text-right" style="border-top:1px solid #DDDDDD;">
@@ -518,7 +518,7 @@
 								->setName('t_subtotal')
 								->setId('t_subtotal')
 								->setClass("input_label text-right")
-								->setAttribute(array("maxlength" => "40"))
+								->setAttribute(array("maxlength" => "40", 'readonly'))
 								->setValue(number_format($t_subtotal,2))
 								->draw($show_input);
 								?>
@@ -526,41 +526,80 @@
 							<?if($show_input):?><td></td><?endif;?>
 						</tr>
 
-						<tr id="discount" class='hidden'>
-							<td colspan = '5'></td>
+						<tr id="discount">
+							<td colspan = '4'></td>
 							<td class="right">
 								<label class="control-label col-md-12">Discount</label>
 							</td>
-							<td class="text-right">
-								<div class = 'col-md-7'>
-									<?php if($show_input) {?>
-										<div class="btn-group btn-group-xs" data-toggle="buttons">
-											<label class="btn btn-default" onChange="computeAmount();">
-												<input type="radio" class='d_opt' name="discounttype" id="discounttype1" autocomplete="off" value="amt">amt
-											</label>
-											<label class="btn btn-default active" onChange="computeAmount();">
-												<input type="radio" class='d_opt' name="discounttype" id="discounttype2" autocomplete="off" value="perc"  checked="checked">%
-											</label>
+							<td class="text-right" colspan = "2">
+								<?php if($show_input) {?>
+									<div class = 'row'>
+										<div class="col-md-6">
+											<div class="form-group">
+												<div class="col-md-12">
+													<div class="input-group">
+														<div class="input-group-addon with-checkbox">
+															<?php
+															echo $ui->setElement('radio')
+															->setName('discounttype')
+															->setClass('discounttype')
+															->setDefault('perc')
+															->setValue($discounttype)
+															->draw($show_input);
+															?>
+														</div>
+														<?php
+														echo $ui->setElement('text')
+														->setId('discountrate')
+														->setName('discountrate')
+														->setClass('discount_entry rate text-right')
+														->setAttribute(array('data-max' => 99.99, 'data-min' => '0.00'))
+														->setValidation('decimal')
+														->setValue(((empty($discountrate)) ? '0.00' : number_format($discountrate, 2)))
+														->draw($show_input);
+														?>
+														<div class="input-group-addon">
+															<strong>%</strong>
+														</div>
+													</div>
+												</div>
+											</div>
 										</div>
-									<?php } ?>
-								</div>
-								<div class = 'col-md-5'>
-									<?php
-									echo $ui->formField('text')
-									->setSplit('', '')
-									->setName('t_discount')
-									->setId('t_discount')
-									->setClass("text-right")
-									->setValue(number_format($t_discount,2) . " " . $percentage )
-									->draw($show_input);
-									?>
-								</div>
-
+										<div class="col-md-6">
+											<div class="form-group">
+												<div class="col-md-12">
+													<div class="input-group">
+														<div class="input-group-addon with-checkbox">
+															<?php
+															echo $ui->setElement('radio')
+															->setName('discounttype')
+															->setClass('discounttype')
+															->setDefault('amt')
+															// ->setValue($discounttype)
+															->draw($show_input);
+															?>
+														</div>
+														<?php
+														echo $ui->setElement('text')
+														->setId('discountamount')
+														->setName('discountamount')
+														->setClass('discount_entry text-right')
+														->setAttribute(array('data-min' => '0.00'))
+														->setValidation('decimal')
+														->setValue(((empty($discountamount)) ? '0.00' : number_format($discountamount, 2)))
+														->draw($show_input);
+														?>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								<?php } ?>
 							</td>
 						</tr>
 
-						<tr id="total_purchase" class='hidden'>
-							<td colspan = '5'></td>
+						<tr id="total_purchase">
+							<td colspan = '4'></td>
 							<td class="right">
 								<label class="control-label col-md-12">Total Purchases Tax</label>
 							</td>
@@ -571,15 +610,15 @@
 								->setName('t_vat')
 								->setId('t_vat')
 								->setClass("input_label text-right")
-								->setAttribute(array("maxlength" => "40"))
+								->setAttribute(array("maxlength" => "40", 'readonly'))
 								->setValue(number_format($t_vat,2))
 								->draw($show_input);
 								?>
 							</td>
 						</tr>
 
-						<tr id="total_purchase" class='hidden'>
-							<td colspan = '5'></td>
+						<tr id="total_purchase">
+							<td colspan = '4'></td>
 							<td class="right">
 								<label class="control-label col-md-12">Withholding Tax</label>
 							</td>
@@ -596,7 +635,7 @@
 									->setValue($t_wtaxcode)
 									->draw($show_input);
 									?>
-									<div class= 'hidden'>
+									<div class = "hidden">
 										<?php
 										echo $ui->formField('text')
 										->setSplit('', 'col-md-12')
@@ -637,6 +676,7 @@
 									->setSplit('', '')
 									->setName('t_wtax')
 									->setId('t_wtax')
+									->setAttribute(array("readonly"))
 									->setClass("input_label text-right")
 									->setValue(number_format($t_wtax,2))
 									->draw($show_input);
@@ -645,8 +685,8 @@
 							</td>
 						</tr>
 
-						<tr id="total_amount_due" class='hidden'>
-							<td colspan = '5'></td>
+						<tr id="total_amount_due">
+							<td colspan = '4'></td>
 							<td class="right">
 								<label class="control-label col-md-12">Total Amount Due</label>
 							</td>
@@ -657,7 +697,7 @@
 								->setName('t_total')
 								->setId('t_total')
 								->setClass("input_label text-right")
-								->setAttribute(array("maxlength" => "40"))
+								->setAttribute(array("maxlength" => "40",'readonly'))
 								->setValue(number_format($t_total,2))
 								->draw($show_input);
 								?>
@@ -1012,7 +1052,7 @@ echo $ui->loadElement('modal')
 		var table				= document.getElementById('itemsTable');
 		var count				= table.tBodies[0].rows.length;
 
-		var discount			= parseFloat(document.getElementById('t_discount').value || 0.00);
+		var discount			= parseFloat(document.getElementById('discountrate').value || 0.00);
 		
 		var discount_type 		= document.getElementById('h_disctype').value;
 		var wtax 	 			= document.getElementById('t_wtax').value;

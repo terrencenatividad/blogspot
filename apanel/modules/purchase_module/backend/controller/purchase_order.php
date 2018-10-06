@@ -63,6 +63,8 @@ class controller extends wc_controller
 		// Closed Date
 		$close_date 			= $this->restrict->getClosedDate();
 		$data['close_date']		= $close_date;
+		$data["taxrate_list"]		= $this->po->getTaxRateList();
+		$data["wtaxcode_list"]		= $this->po->getWTaxCodeList();
 
 		$data['vendor_list'] 	= $this->po->retrieveVendorList();
 		$data['proforma_list'] 	= $this->po->retrieveProformaList();
