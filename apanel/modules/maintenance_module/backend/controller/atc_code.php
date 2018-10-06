@@ -49,7 +49,7 @@
 		
 		
 			$data["ajax_post"] 	 = "&companycode=".COMPANYCODE."&atcId=".$atc_code;
-			$retdata = array('atcId','atc_code','tax_rate','wtaxcode','short_desc','tax_account');
+			$retdata = array('atcId','atc_code','tax_rate','wtaxcode','short_desc','tax_account','cwt');
 			$condition = "atcId = '".$atc_code."' ";
 
 			/**TAX ACCOUNT**/
@@ -70,6 +70,7 @@
 					$data["wtaxcode"] 		= $list->result[$i]->wtaxcode;
 					$data["short_desc"] 	= $list->result[$i]->short_desc;
 					$data["tax_account"] 	= $list->result[$i]->tax_account;
+					$data["cwt"] 			= $list->result[$i]->cwt;
 				}
 			endif;
 
@@ -87,7 +88,7 @@
 			$data['sid'] = $atc_code;
 
 			$data["ajax_post"] 	 = "&companycode=".COMPANYCODE."&atc_code=".$atc_code;
-			$retdata = array('atcId','atc_code','tax_rate','wtaxcode','short_desc','tax_account');
+			$retdata = array('atcId','atc_code','tax_rate','wtaxcode','short_desc','tax_account','cwt');
 			$condition = "atcId = '".$atc_code."' ";
 
 			/**TAX ACCOUNT**/
@@ -108,6 +109,7 @@
 					$data["wtaxcode"] 		= $list->result[$i]->wtaxcode;
 					$data["short_desc"] 	= $list->result[$i]->short_desc;
 					$data["tax_account"] 	= $list->result[$i]->tax_account;
+					$data["cwt"] 			= $list->result[$i]->cwt;
 				}
 
 			endif;
