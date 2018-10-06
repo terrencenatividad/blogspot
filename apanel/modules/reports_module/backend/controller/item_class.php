@@ -118,5 +118,6 @@ class controller extends wc_controller {
 		}
 		return $table;
 	}
+	
 
 }

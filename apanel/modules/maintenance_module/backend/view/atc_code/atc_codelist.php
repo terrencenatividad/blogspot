@@ -69,6 +69,8 @@
 						?>
 					<input id = "deleteMultipleBtn" type = "button" name = "delete" 
 						value = "Delete" class="btn btn-danger btn-flat ">
+					<input id = "deactivateMultipleBtn" type = "button" name = "deactivate" 
+					value = "Deactivate" class="btn btn-warning btn-flat ">
 				</div>
 				<div class="col-md-4">
 					<div class="form-group">
@@ -408,6 +410,29 @@ var ajax = {};
 			}
 		});
 
+$("#deactivateMultipleBtn").click(function() 
+	{
+		$('#multipleDeactivateModal').modal('show');
+		$( "#multipleDeactivateModal #btnDeac" ).click(function() {
+		ids 	=	getSelectedIds();
+		$.post('<?=MODULE_URL?>ajax/update_multiple_deactivate', "&ids="+ids ,function(data) {
+			
+			if( data.msg == 'success' )
+			{
+				showList();
+				$('#multipleDeactivateModal').modal('hide');
+			} 
+		});
+	});
+	});
+
+	function getSelectedIds(){
+		id 	=	[];
+		$('.checkbox:checked').each(function(){
+			id.push($(this).val());
+		});
+		return id;
+	}
 		/*
 		* For Import Modal
 		*/
@@ -458,8 +483,11 @@ var ajax = {};
 
 		$('#pagination').on('click', 'a', function(e) {
 			e.preventDefault();
-			ajax.page = $(this).attr('data-page');
-			showList();
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				ajax.page = $(this).attr('data-page');
+				showList();
+			}
 		});
 
 		$('#items').on('change', function() {

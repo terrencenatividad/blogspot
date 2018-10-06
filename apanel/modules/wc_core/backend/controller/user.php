@@ -346,4 +346,27 @@ class controller extends wc_controller {
 			);
 	}
 
+	private function update_multiple_deactivate(){
+		$posted_data 			=	$this->input->post(array('ids'));
+
+		$data['stat'] 			=	'inactive';
+		
+		$posted_ids 			=	$posted_data['ids'];
+		$id_arr 				=	explode(',',$posted_ids);
+		
+		foreach($id_arr as $key => $value)
+		{
+			$result 			= 	$this->user_model->updateStat($data, $value);
+		}
+
+		if($result)
+		{
+			$msg = "success";
+		} else {
+			$msg = "Failed to Update.";
+		}
+
+		return $dataArray = array( "msg" => $msg );
+	}
+
 }
