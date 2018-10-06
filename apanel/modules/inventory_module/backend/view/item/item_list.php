@@ -27,6 +27,7 @@
 					?>
 					<input id = "item_multiple_delete" type = "button" name = "delete" 
 						value = "Delete" class="btn btn-danger btn-flat ">
+						<input id = "deactivateMultipleBtn" type = "button" name = "deactivate" value = "Deactivate" class="btn btn-warning btn-flat ">
 					</div>
 					<div class="col-md-4">
 						<div class="form-group">
@@ -370,5 +371,29 @@
 				});
 			});
 		});
+
+		$("#deactivateMultipleBtn").click(function() 
+		{
+			$('#multipleDeactivateModal').modal('show');
+			$( "#multipleDeactivateModal #btnDeac" ).click(function() {
+			ids 	=	getSelectedIds();
+			$.post('<?=MODULE_URL?>ajax/update_multiple_deactivate', "&ids="+ids ,function(data) {
+				
+				if( data.msg == 'success' )
+				{
+					getList();
+					$('#multipleDeactivateModal').modal('hide');
+				} 
+			});
+		});
+		});
+
+	function getSelectedIds(){
+		id 	=	[];
+		$('.checkbox:checked').each(function(){
+			id.push($(this).val());
+		});
+		return id;
+	}
 
 	</script>
