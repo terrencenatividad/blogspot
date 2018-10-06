@@ -459,7 +459,7 @@ function addCustomerToDropdown() {
 	var optionvalue = $("#customer_modal #customerForm #partnercode").val();
 	var optiondesc 	= $("#customer_modal #customerForm #partnername").val();
 
-	$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#sales_quotation_form #customer option:last-child");
+	$('<option value="'+optionvalue+'">'+optionvalue+" - "+optiondesc+'</option>').insertAfter("#sales_quotation_form #customer option:last-child");
 	$('#sales_quotation_form #customer').val(optionvalue);
 
 	$('#customer_modal').modal('hide');

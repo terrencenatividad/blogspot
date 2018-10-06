@@ -620,6 +620,7 @@
 					$dropdown = $this->ui->loadElement('check_task')
 										 ->addView()
 										 ->addEdit()
+										 ->addCheckbox()
 										 ->addOtherTask(
 											'Activate',
 											'arrow-up',
@@ -739,6 +740,29 @@
 				'redirect'	=> MODULE_URL,
 				'success'	=> $result
 				);
+		}
+
+		private function update_multiple_deactivate(){
+			$posted_data 			=	$this->input->post(array('ids'));
+	
+			$data['stat'] 			=	'inactive';
+			
+			$posted_ids 			=	$posted_data['ids'];
+			$id_arr 				=	explode(',',$posted_ids);
+			
+			foreach($id_arr as $key => $value)
+			{
+				$result 			= 	$this->discount->updateStat($data, $value);
+			}
+	
+			if($result)
+			{
+				$msg = "success";
+			} else {
+				$msg = "Failed to Update.";
+			}
+	
+			return $dataArray = array( "msg" => $msg );
 		}
 	}
 ?>

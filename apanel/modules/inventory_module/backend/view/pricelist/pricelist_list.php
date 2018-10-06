@@ -23,6 +23,7 @@
 							$ui->OptionButton('');
 						?>
 						<a class="btn btn-info btn-flat" role="button" href="<?=MODULE_URL?>master" style="outline:none;">Master Price List</a>
+						<input id = "deactivateMultipleBtn" type = "button" name = "deactivate" value = "Deactivate" class="btn btn-warning btn-flat ">
 					</div>
 					<div class = "col-md-4">
 						<div class="form-group">
@@ -367,4 +368,28 @@ tableSort('#pricelist_table', function(value, getlist) {
 				});
 			});
 		});
+
+		$("#deactivateMultipleBtn").click(function() 
+		{
+			$('#multipleDeactivateModal').modal('show');
+			$( "#multipleDeactivateModal #btnDeac" ).click(function() {
+			ids 	=	getSelectedIds();
+			$.post('<?=MODULE_URL?>ajax/update_multiple_deactivate', "&ids="+ids ,function(data) {
+				
+				if( data.msg == 'success' )
+				{
+					showList();
+					$('#multipleDeactivateModal').modal('hide');
+				} 
+			});
+		});
+		});
+
+		function getSelectedIds(){
+			id 	=	[];
+			$('.checkbox:checked').each(function(){
+				id.push($(this).val());
+			});
+			return id;
+		}
 </script>

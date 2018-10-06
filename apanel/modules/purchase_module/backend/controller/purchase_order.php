@@ -63,6 +63,8 @@ class controller extends wc_controller
 		// Closed Date
 		$close_date 			= $this->restrict->getClosedDate();
 		$data['close_date']		= $close_date;
+		$data["taxrate_list"]		= $this->po->getTaxRateList();
+		$data["wtaxcode_list"]		= $this->po->getWTaxCodeList();
 
 		$data['vendor_list'] 	= $this->po->retrieveVendorList();
 		$data['proforma_list'] 	= $this->po->retrieveProformaList();
@@ -713,6 +715,7 @@ class controller extends wc_controller
 	private function get_ATC()
 	{
 		$wtaxcode 	=	$this->input->post('code');
+		// echo $wtaxcode;
 		
 		$fields 	= 	array('atc_code','short_desc','tax_rate');
 
@@ -726,6 +729,7 @@ class controller extends wc_controller
 		{
 			$selection 	.=	"<option value = '".$row->atc_code."'>". $row->atc_code . " - ".$row->short_desc."</option>"; 
 		}
+		// var_dump($result);
 		
 		return $dataArray = array("atc_codes" => $selection,"wtaxrate" => $result[0]->tax_rate);
 	}	

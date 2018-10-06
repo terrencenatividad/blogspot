@@ -10,6 +10,7 @@
 					?>
 					<input id = "item_multiple_delete" type = "button" name = "delete" 
 						value = "Delete" class="btn btn-danger btn-flat ">
+					<input id = "deactivateMultipleBtn" type = "button" name = "deactivate" value = "Deactivate" class="btn btn-warning btn-flat ">
 
                     <!-- <a href="<?php echo BASE_URL; ?>maintenance/exchange_rate/create" class = "btn btn-primary danger">Create</a>
 					<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete <span></span> </button> -->
@@ -292,5 +293,29 @@ $('#items').on('change', function(){
 				});
 			});
 		});
+
+	$("#deactivateMultipleBtn").click(function() 
+	{
+		$('#multipleDeactivateModal').modal('show');
+		$( "#multipleDeactivateModal #btnDeac" ).click(function() {
+		ids 	=	getSelectedIds();
+		$.post('<?=MODULE_URL?>ajax/update_multiple_deactivate', "&ids="+ids ,function(data) {
+			
+			if( data.msg == 'success' )
+			{
+				showList();
+				$('#multipleDeactivateModal').modal('hide');
+			} 
+		});
+	});
+	});
+
+	function getSelectedIds(){
+		id 	=	[];
+		$('.checkbox:checked').each(function(){
+			id.push($(this).val());
+		});
+		return id;
+	}
 
 </script>
