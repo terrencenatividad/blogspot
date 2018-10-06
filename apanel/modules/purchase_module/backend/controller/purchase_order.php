@@ -339,6 +339,8 @@ class controller extends wc_controller
 
 		$close_date 			= $this->restrict->getClosedDate();
 		$data['close_date']		= $close_date;
+		$item_limit 			= $this->po->getReference("po_limit");
+		$data['item_limit']		= ($item_limit[0]->value) 	? 	$item_limit[0]->value 	: 	50; 
 		
 		$data['vendor_list'] 	= $this->po->retrieveVendorList();
 		$data['proforma_list'] 	= $this->po->retrieveProformaList();

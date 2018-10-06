@@ -439,20 +439,7 @@
 										->draw($show_input);
 										?>
 									</td>
-									<td class = "remove-margin text-right">
-										<?php
-										echo $ui->formField('text')
-										->setSplit('', 'col-md-12')
-										->setName('itemprice['.$row.']')
-										->setId('itemprice['.$row.']')
-										->setClass("price")
-										->setAttribute(array("maxlength" => "20"))
-										->setValidation('required decimal')
-										->setValue($itemprice)
-										->draw($show_input);
-										?>
-									</td>
-									<td class = "remove-margin hidden">
+									<td class = "remove-margin">
 										<?php
 
 										echo $ui->formField('dropdown')
@@ -468,6 +455,19 @@
 										?>
 										<input id = '<?php echo 'taxrate['.$row.']'; ?>' name = '<?php echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value="<?php echo $taxrate;?>" >
 										<input id = '<?php echo 'taxamount['.$row.']'; ?>' name = '<?php echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' >
+									</td>
+									<td class = "remove-margin text-right">
+										<?php
+										echo $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setName('itemprice['.$row.']')
+										->setId('itemprice['.$row.']')
+										->setClass("price")
+										->setAttribute(array("maxlength" => "20"))
+										->setValidation('required decimal')
+										->setValue($itemprice)
+										->draw($show_input);
+										?>
 									</td>
 									<td class = "remove-margin text-right">
 										<?php
@@ -503,17 +503,17 @@
 									<a type="button" class="btn btn-link add-data" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Line</a>
 								<?php } ?>
 							</td>	
-						</tr>	
+						</tr>
 
 						<tr id="total_purchase">
 							<td colspan = '4'></td>
-							<td class="right">
-								<label class="control-label col-md-12">Total Purchase</label>
+							<td class="text-right">
+								<label class="control-label">Total Purchase</label>
 							</td>
 							<td class="text-right" style="border-top:1px solid #DDDDDD;">
 								<?php
 								echo $ui->formField('text')
-								->setSplit('', 'col-md-12')
+								->setSplit('', 'col-lg-12')
 								->setName('t_subtotal')
 								->setId('t_subtotal')
 								->setClass("input_label text-right")
@@ -525,87 +525,15 @@
 							<?if($show_input):?><td></td><?endif;?>
 						</tr>
 
-						<tr id="discount">
-							<td colspan = '4'></td>
-							<td class="right">
-								<label class="control-label col-md-12">Discount</label>
-							</td>
-							<td class="text-right" colspan = "2">
-								<?php if($show_input) {?>
-									<div class = 'row'>
-										<div class="col-md-6">
-											<div class="form-group">
-												<div class="col-md-12">
-													<div class="input-group">
-														<div class="input-group-addon with-checkbox">
-															<?php
-															echo $ui->setElement('radio')
-															->setName('discounttype')
-															->setClass('discounttype')
-															->setDefault('perc')
-															// ->setValue($discounttype)
-															->draw($show_input);
-															?>
-														</div>
-														<?php
-														echo $ui->setElement('text')
-														->setId('discountrate')
-														->setName('discountrate')
-														->setClass('discount_entry rate text-right')
-														->setAttribute(array('data-max' => 99.99, 'data-min' => '0.00'))
-														->setValidation('decimal')
-														->setValue(((empty($discountrate)) ? '0.00' : number_format($discountrate, 2)))
-														->draw($show_input);
-														?>
-														<div class="input-group-addon">
-															<strong>%</strong>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-										<div class="col-md-6">
-											<div class="form-group">
-												<div class="col-md-12">
-													<div class="input-group">
-														<div class="input-group-addon with-checkbox">
-															<?php
-															echo $ui->setElement('radio')
-															->setName('discounttype')
-															->setClass('discounttype')
-															->setDefault('amt')
-															// ->setValue($discounttype)
-															->draw($show_input);
-															?>
-														</div>
-														<?php
-														echo $ui->setElement('text')
-														->setId('discountamount')
-														->setName('discountamount')
-														->setClass('discount_entry text-right')
-														->setAttribute(array('data-min' => '0.00'))
-														->setValidation('decimal')
-														->setValue(((empty($discountamount)) ? '0.00' : number_format($discountamount, 2)))
-														->draw($show_input);
-														?>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-								<?php } ?>
-							</td>
-						</tr>
-
 						<tr id="total_purchase">
 							<td colspan = '4'></td>
-							<td class="right">
-								<label class="control-label col-md-12">Total Purchases Tax</label>
+							<td class="text-right">
+								<label class="control-label">Total Purchases Tax</label>
 							</td>
 							<td class="text-right">
 								<?php
 								echo $ui->formField('text')
-								->setSplit('', 'col-md-12')
+								->setSplit('', 'col-lg-12')
 								->setName('t_vat')
 								->setId('t_vat')
 								->setClass("input_label text-right")
@@ -618,8 +546,8 @@
 
 						<tr id="total_purchase">
 							<td colspan = '4'></td>
-							<td class="right">
-								<label class="control-label col-md-12">Withholding Tax</label>
+							<td class="text-right">
+								<label class="control-label">Withholding Tax</label>
 							</td>
 							<td class="text-right">
 								<div class = 'col-md-8'>
@@ -686,8 +614,8 @@
 
 						<tr id="total_amount_due">
 							<td colspan = '4'></td>
-							<td class="right">
-								<label class="control-label col-md-12">Total Amount Due</label>
+							<td class="text-right">
+								<label class="control-label">Total Amount Due</label>
 							</td>
 							<td class="text-right" style="border-top:1px solid #DDDDDD;">
 								<?php
@@ -896,7 +824,7 @@ echo $ui->loadElement('modal')
 		</div>
 	</div>
 </div>
-
+<?php if ($show_input): ?>
 <script>
 	var ajax = {};
 
@@ -1050,11 +978,6 @@ echo $ui->loadElement('modal')
 
 		var table				= document.getElementById('itemsTable');
 		var count				= table.tBodies[0].rows.length;
-
-		var discountrate			= parseFloat(document.getElementById('discountrate').value || 0.00);
-		var discountamount			= parseFloat(document.getElementById('discountamount').value || 0.00);
-		
-		var discount_type 		= $('#itemsTable tfoot .discounttype:checked').val();
 		var wtax 	 			= document.getElementById('t_wtax').value;
 
 		for (var i = 1; i <= count; i++) {
@@ -1092,23 +1015,14 @@ echo $ui->loadElement('modal')
 			total_h_vatable		+= net_of_vat;
 			total_h_vatex		+= vat_ex;
 			total_h_vat			+= vat;
-			console.log(total_h_vatable);
 		}
 
 		subtotal 				= total_h_vatable + total_h_vatex;
-
-		if( discount_type == 'perc' )
-		{
-			total_discount 		= subtotal * ( discountrate / 100 );
-		}
-		else if( discount_type == 'amt' )
-		{
-			total_discount 		= discountamount;
-		}
+		// }
 
 		document.getElementById('t_subtotal').value 			= addCommas(subtotal.toFixed(2));
 		document.getElementById('t_vat').value					= total_h_vat.toFixed(2);
-		document.getElementById('t_total').value 				= ( total_h_vatable + total_h_vatex - total_discount - wtax + total_h_vat ).toFixed(2);
+		document.getElementById('t_total').value 				= ( total_h_vatable + total_h_vatex - wtax + total_h_vat ).toFixed(2);
 
 	}
 
@@ -1498,7 +1412,6 @@ $(document).ready(function(){
 			$.post('<?=BASE_URL?>sales/sales_invoice/ajax/get_value', "taxcode=" + code + "&event=getTaxRate", function(data) 
 			{
 				document.getElementById('taxrate' + row).value = data.taxrate;
-
 				computeAmount();
 			});
 		});
@@ -1576,10 +1489,6 @@ $(document).ready(function(){
 		computeAmount();
 	});
 
-	$('#itemsTable tfoot').on('click', 'input[type="radio"]' ,function(){
-		computeAmount();
-	});
-
 	$('#t_discount').on('change',function(){
 		var disc_id =	$('input[type=radio][name=discounttype]:checked').attr('id');
 		if( disc_id != "" || disc_id != undefined )
@@ -1619,18 +1528,11 @@ $(document).ready(function(){
 				$('#purchase_order_form #wtaxrate').val(data.wtaxrate);	
 				
 				computeWTAX();
+				computeAmount();
 				
 				$('#atcModal').modal('show');
 			});
 		}
-	});
-
-	$('#discountamount').on('blur',function() {
-		computeAmount();
-	});
-
-	$('#discountrate').on('blur',function() {
-		computeAmount();
 	});
 
 	$('#atcModal #btnProceed').on('click',function(){
@@ -1749,3 +1651,4 @@ $(document).ready(function(){
 });
 
 </script>
+<?php endif; ?>
