@@ -1026,7 +1026,7 @@
 			var optionvalue = $("#customer_modal #customerForm #partnercode").val();
 			var optiondesc 	= $("#customer_modal #customerForm #partnername").val();
 
-			$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#receivableForm #customer option");
+			$('<option value="'+optionvalue+'">'+optionvalue+" - "+optiondesc+'</option>').insertAfter("#receivableForm #customer option");
 			$('#receivableForm #customer').val(optionvalue);
 
 			getPartnerInfo(optionvalue);

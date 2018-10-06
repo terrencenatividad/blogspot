@@ -4,7 +4,7 @@ class purchase_order extends wc_model
 	public function retrieveVendorList()
 	{
 		$result = $this->db->setTable('partners')
-		->setFields("partnercode ind, partnername val")
+		->setFields("partnercode ind, CONCAT(partnercode,' - ',partnername) val")
 		->setWhere("partnercode != '' AND partnertype = 'supplier' AND stat = 'active'")
 		->setOrderBy("val")
 		->runSelect()
@@ -248,7 +248,7 @@ class purchase_order extends wc_model
 		->setFields($cols)
 		->setWhere($cond)
 		->setOrderBy($orderby)
-		->runSelect($bool)
+		->runSelect(false)
 		->getResult();
 
 		return $result;

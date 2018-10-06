@@ -1197,7 +1197,7 @@ function addVendorToDropdown()
 	var optionvalue = $("#vendor_modal #supplierForm #partnercode").val();
 	var optiondesc 	= $("#vendor_modal #supplierForm #partnername").val();
 
-	$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#payableForm #vendor option");
+	$('<option value="'+optionvalue+'">'+optionvalue+" - "+optiondesc+'</option>').insertAfter("#payableForm #vendor option");
 	$('#payableForm #vendor').val(optionvalue);
 	
 	getPartnerInfo(optionvalue);

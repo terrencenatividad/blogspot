@@ -172,11 +172,12 @@
 					<thead>
 						<tr class="info">
 							<th class="col-md-2 text-center">Item</th>
-							<th class="col-md-3 text-center">Description</th>
+							<th class="col-md-2 text-center">Description</th>
 							<th class="col-md-2 text-center">Warehouse</th>
 							<th class="col-md-1 text-center">Quantity</th>
 							<th class="col-md-1 text-center">UOM</th>
 							<th class="col-md-1 text-center">Price</th>
+							<th class="col-md-1 text-center">Tax</th>
 							<th class="col-md-2 text-center">Amount</th>
 							<th class="text-center"></th>
 						</tr>
@@ -289,24 +290,25 @@
 													->draw($show_input);
 										?>
 									</td>
-									<!--<td class = "remove-margin">-->
+									<td class = "remove-margin">
 										<?php
-											// echo $ui->formField('dropdown')
-											// 		->setSplit('', 'col-md-12')
-											// 		->setName('taxcode['.$row.']')
-											// 		->setId('taxcode['.$row.']')
-											// 		->setClass("taxcode")
-											// 		->setAttribute(
-											// 			array(
-											// 				"maxlength" => "20"
-											// 			)
-											// 		)
-											// 		->setList($tax_codes)
-											// 		->draw($show_input);
+											echo $ui->formField('dropdown')
+													->setSplit('', 'col-md-12')
+													->setName('taxcode['.$row.']')
+													->setId('taxcode['.$row.']')
+													->setClass("taxcode")
+													->setAttribute(
+														array(
+															"maxlength" => "20"
+														)
+													)
+													->setList($tax_codes)
+													->setNone('none')
+													->draw($show_input);
 										?>
-										<!--<input id = '<?php //echo 'taxrate['.$row.']'; ?>' name = '<?php //echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value='0.00' >
-										<input id = '<?php //echo 'taxamount['.$row.']'; ?>' name = '<?php //echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value='0.00'>-->
-									<!--</td>-->
+										<input id = '<?php echo 'taxrate['.$row.']'; ?>' name = '<?php echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value='0.00' >
+										<input id = '<?php echo 'taxamount['.$row.']'; ?>' name = '<?php echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value='0.00'>
+									</td>
 									<td class = "remove-margin">
 										<?php
 											echo $ui->formField('text')
@@ -340,10 +342,10 @@
 									$quantity 			= isset($details[$i]->issueqty) ?	number_format($details[$i]->issueqty,0) 	: 	"1";
 									$itemprice 			= $details[$i]->unitprice;
 									$uom 				= $details[$i]->issueuom;
-									// $taxcode 			= $details[$i]->taxcode;
-									// $taxrate 			= $details[$i]->taxrate;
+									$taxcode 			= $details[$i]->taxcode;
+									$taxrate 			= $details[$i]->taxrate;
 									$amount  			= $details[$i]->amount;
-									// $uom  				= (empty($quotation_no)) ? $details[$i]->issueuom 	: 	$details[$i]->issueuom;
+									$uom  				= (empty($quotation_no)) ? $details[$i]->issueuom 	: 	$details[$i]->issueuom;
 									$warehouse_code		= (empty($quotation_no)) ? $details[$i]->warehouse 	: 	'';
 									$warehouse_name		= (empty($quotation_no)) ? $details[$i]->description: 	'';
 									
@@ -430,22 +432,22 @@
 													->draw($show_input);
 										?>
 									</td>
-									<!--<td class = "remove-margin">-->
+									<td class = "remove-margin">
 										<?php
-
-											// echo $ui->formField('dropdown')
-											// 		->setSplit('', 'col-md-12')
-											// 		->setName('taxcode['.$row.']')
-											// 		->setId('taxcode['.$row.']')
-											// 		->setClass("taxcode")
-											// 		->setAttribute(array("maxlength" => "20"))
-											// 		->setList($tax_codes)
-											// 		->setValue($taxcode)
-											// 		->draw($show_input);
+											echo $ui->formField('dropdown')
+													->setSplit('', 'col-md-12')
+													->setName('taxcode['.$row.']')
+													->setId('taxcode['.$row.']')
+													->setClass("taxcode")
+													->setAttribute(array("maxlength" => "20"))
+													->setList($tax_codes)
+													->setNone('none')
+													->setValue($taxcode)
+													->draw($show_input);
 										?>
-										<!--<input id = '<?php //echo 'taxrate['.$row.']'; ?>' name = '<?php //echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value="<?php echo $taxrate;?>" >
-										<input id = '<?php //echo 'taxamount['.$row.']'; ?>' name = '<?php //echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' >-->
-									<!--</td>-->
+										<input id = '<?php echo 'taxrate['.$row.']'; ?>' name = '<?php echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value="<?php echo $taxrate;?>" > 
+										<input id = '<?php echo 'taxamount['.$row.']'; ?>' name = '<?php echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' >
+									</td>
 									<td class = "remove-margin text-right">
 										<?php
 											echo $ui->formField('text')
@@ -483,7 +485,7 @@
 						</tr>	
 
 						<tr id="vatable_sales" >
-							<td colspan="4"></td>
+							<td colspan="5"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">VATable Sales</label>
 							</td>
@@ -503,7 +505,7 @@
 						</tr>
 						
 						<tr id="vat_exempt_sales" >
-							<td colspan="4"></td>
+							<td colspan="5"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">VAT-Exempt Sales</label>
 							</td>
@@ -523,7 +525,7 @@
 						</tr>
 
 						<tr id="total_sales" >
-							<td colspan="4"></td>
+							<td colspan="5"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">Total Sales</label>
 							</td>
@@ -544,7 +546,7 @@
 						</tr>
 
 						<tr id="discount" >
-							<td colspan="4"></td>
+							<td colspan="5"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">Discount</label>
 							</td>
@@ -617,7 +619,7 @@
 						</tr>
 
 						<tr id="total_sales" >
-							<td colspan="4"></td>
+							<td colspan="5"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">Add 12% VAT</label>
 							</td>
@@ -638,7 +640,7 @@
 						</tr>
 
 						<tr id="total_amount_due">
-							<td colspan="4"></td>
+							<td colspan="5"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">Total Amount</label>
 							</td>

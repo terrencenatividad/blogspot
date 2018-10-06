@@ -8,7 +8,6 @@
 			<input class = "form_iput" value = "" name = "h_address1" id="h_address1" type="hidden">
 			<input class = "form_iput" value = "update" name = "h_querytype" id="h_querytype" type="hidden">
 			<input class = "form_iput" value = "" name = "h_condition" id = "h_condition" type="hidden">
-			<input class = "form_iput" value = "<?=$h_disctype?>" name = "h_disctype" id = "h_disctype" type="hidden">
 		</form>
 
 		<form method = "post" class="form-horizontal" id = "purchase_order_form">
@@ -544,7 +543,7 @@
 															->setName('discounttype')
 															->setClass('discounttype')
 															->setDefault('perc')
-															->setValue($discounttype)
+															// ->setValue($discounttype)
 															->draw($show_input);
 															?>
 														</div>
@@ -777,7 +776,7 @@
 		var optionvalue = $("#vendor_modal #supplierForm #partnercode").val();
 		var optiondesc 	= $("#vendor_modal #supplierForm #partnername").val();
 
-		$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#purchase_order_form #vendor option:last-child");
+		$('<option value="'+optionvalue+'">'+optionvalue+" - "+optiondesc+'</option>').insertAfter("#purchase_order_form #vendor option:last-child");
 		$('#purchase_order_form #vendor').val(optionvalue);
 
 		getPartnerInfo(optionvalue);
@@ -1052,9 +1051,10 @@ echo $ui->loadElement('modal')
 		var table				= document.getElementById('itemsTable');
 		var count				= table.tBodies[0].rows.length;
 
-		var discount			= parseFloat(document.getElementById('discountrate').value || 0.00);
+		var discountrate			= parseFloat(document.getElementById('discountrate').value || 0.00);
+		var discountamount			= parseFloat(document.getElementById('discountamount').value || 0.00);
 		
-		var discount_type 		= document.getElementById('h_disctype').value;
+		var discount_type 		= $('#itemsTable tfoot .discounttype:checked').val();
 		var wtax 	 			= document.getElementById('t_wtax').value;
 
 		for (var i = 1; i <= count; i++) {
@@ -1092,17 +1092,18 @@ echo $ui->loadElement('modal')
 			total_h_vatable		+= net_of_vat;
 			total_h_vatex		+= vat_ex;
 			total_h_vat			+= vat;
+			console.log(total_h_vatable);
 		}
 
 		subtotal 				= total_h_vatable + total_h_vatex;
 
 		if( discount_type == 'perc' )
 		{
-			total_discount 		= subtotal * ( discount / 100 );
+			total_discount 		= subtotal * ( discountrate / 100 );
 		}
 		else if( discount_type == 'amt' )
 		{
-			total_discount 		= discount;
+			total_discount 		= discountamount;
 		}
 
 		document.getElementById('t_subtotal').value 			= addCommas(subtotal.toFixed(2));
@@ -1571,7 +1572,11 @@ $(document).ready(function(){
 			//computeTotalAmount();
 		});
 
-	$('#h_disctype').on('change',function(){
+	$('#discounttype').on('change',function(){
+		computeAmount();
+	});
+
+	$('#itemsTable tfoot').on('click', 'input[type="radio"]' ,function(){
 		computeAmount();
 	});
 
@@ -1618,6 +1623,14 @@ $(document).ready(function(){
 				$('#atcModal').modal('show');
 			});
 		}
+	});
+
+	$('#discountamount').on('blur',function() {
+		computeAmount();
+	});
+
+	$('#discountrate').on('blur',function() {
+		computeAmount();
 	});
 
 	$('#atcModal #btnProceed').on('click',function(){
