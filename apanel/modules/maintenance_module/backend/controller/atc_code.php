@@ -547,7 +547,7 @@
 
 			$result = $this->atc_code->fileExport($data_post);
 
-			$header = array("ATC Code","Tax Rate","Tax Code","Description","Tax Account");
+			$header = array("ATC Code","Tax Rate","Tax Code","Description","EWT","CWT");
 			
 		
 			$csv = '';
@@ -567,7 +567,8 @@
 					$csv .= '"' . $tax_rate 		. '",';
 					$csv .= '"' . $wtaxcode 		. '",';
 					$csv .= '"' . $short_desc 		. '",';
-					$csv .= '"' . $accountname 		. '"';
+					$csv .= '"' . $accountname 		. '",';
+					$csv .= '"' . 'Creditable Withholding Tax' 		. '"';
 					$csv .= "\n";
 				}
 			}
