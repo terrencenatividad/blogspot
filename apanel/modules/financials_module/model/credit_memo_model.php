@@ -8,7 +8,8 @@ class credit_memo_model extends wc_model {
 	
 	public function saveJournalVoucher($data, $data2) {
 		
-		$debit	= $this->removeComma($data2['debit']);
+		$debit		= $this->removeComma($data2['debit']);
+		$sr_amount	= $this->removeComma($data2['sr_amount']);
 		$total	= 0;
 		foreach ($debit as $entry) {
 			$total += $entry;
@@ -23,6 +24,7 @@ class credit_memo_model extends wc_model {
 		$data['currencycode']		= 'PHP';
 		$exchangerate				= '1.00';
 		$data['amount']				= $total;
+		$data['sr_amount']			= $sr_amount;
 		$data['convertedamount']	= $total * $exchangerate;
 
 		$result = $this->db->setTable('journalvoucher')
