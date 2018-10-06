@@ -1083,8 +1083,6 @@ function computeAmount()
 		var amount 		=	parseFloat(totalprice) / ( 1 + parseFloat(vat) );
 		var vat_amount 	=	parseFloat(amount)	*	parseFloat(vat);
 
-		amount			= 	(amount>0) 		?	Math.round(amount*1000) / 1000 	:	0;
-		vat_amount		= 	(vat_amount>0) 	?	Math.round(vat_amount*100) / 100:	0;
 
 		if(discount > 0){
 			var itemdiscount 		= parseFloat(discount) / parseFloat(itemqty);
@@ -1097,8 +1095,12 @@ function computeAmount()
 			document.getElementById('discountedamount['+row+']').value 	= addCommas(discountedamount.toFixed(2));
 		}
 
+		amount			= 	(amount>0) 		?	Math.round(amount*1000) / 1000 	:	0;
+		vat_amount		= 	(vat_amount>0) 	?	Math.round(vat_amount*100) / 100:	0;
+
 		document.getElementById('amount['+row+']').value 			=	addCommas(amount.toFixed(2));
 		document.getElementById('h_amount['+row+']').value 			=	addCommas(amount.toFixed(5));
+		document.getElementById('taxrate['+row+']').value 			= 	addCommas(vat.toFixed(2));
 		document.getElementById('taxamount['+row+']').value 		= 	addCommas(vat_amount.toFixed(5));
 		document.getElementById('discountedamount['+row+']').value 	= 	addCommas(amount.toFixed(5));
 
@@ -1353,8 +1355,7 @@ function finalizeTransaction(type)
 		no_error = false;
 	}
 
-	if($("#sales_order_form").find('.form-group.has-error').length == 0 && no_error)
-	{	
+	if($("#sales_order_form").find('.form-group.has-error').length == 0 && no_error){	
 		$('#save').val(type);
 		computeAmount();
 		if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
@@ -1406,7 +1407,7 @@ function finalizeEditTransaction()
 		if($("#sales_order_form #itemcode\\[1\\]").val() != ''  && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #due_date").val() != '' && $("#sales_order_form #customer").val() != '')
 		{
 			setTimeout(function() {
-
+				computeAmount();
 				$.post("<?=BASE_URL?>sales/sales_order/ajax/<?=$task?>",$("#sales_order_form").serialize()+'<?=$ajax_post?>',function(data)
 				{		
 					if( data.msg == 'success' )
@@ -1710,30 +1711,30 @@ $(document).ready(function(){
 			//computeTotalAmount();
 		});
 
-		$('#h_disctype').on('change',function(){
-			computeAmount();
-		});
+		// $('#h_disctype').on('change',function(){
+		// 	computeAmount();
+		// });
 
-		$('#t_discount').on('change',function(){
-			var disc_id =	$('input[type=radio][name=discounttype]:checked').attr('id');
-			if( disc_id != "" || disc_id != undefined )
-			{
-				var type 	=	$('#'+disc_id).val();
-				var value 	=	$(this).val();
+		// $('#t_discount').on('change',function(){
+		// 	var disc_id =	$('input[type=radio][name=discounttype]:checked').attr('id');
+		// 	if( disc_id != "" || disc_id != undefined )
+		// 	{
+		// 		var type 	=	$('#'+disc_id).val();
+		// 		var value 	=	$(this).val();
 
-				$('#h_disctype').val(type);	
+		// 		$('#h_disctype').val(type);	
 
-				if( value <= 100 )
-				{
-					computeAmount();
-				}
-				else
-				{
-					//Add Modal here
-					alert( " You cannot enter a value greater than 100 ! " );
-				}
-			}
-		});
+		// 		if( value <= 100 )
+		// 		{
+		// 			computeAmount();
+		// 		}
+		// 		else
+		// 		{
+		// 			//Add Modal here
+		// 			alert( " You cannot enter a value greater than 100 ! " );
+		// 		}
+		// 	}
+		// });
 
 	// -- For Discount -- End
 
@@ -1744,7 +1745,7 @@ $(document).ready(function(){
 		{
 			$("#sales_order_form").change(function()
 			{
-				if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #due_date").val() != '' && $("#sales_order_form #customer").val() != '')
+				if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
 				{
 					$.post("<?=BASE_URL?>sales/sales_order/ajax/save_temp_data",$("#sales_order_form").serialize())
 					.done(function(data)
