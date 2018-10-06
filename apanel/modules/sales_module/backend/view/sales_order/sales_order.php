@@ -783,7 +783,8 @@
 		retrieveCreditLimit(optionvalue);
 		retrieveCurrentIncurredReceivables(optionvalue);
 		retrieveCurrentOutstandingReceivables(optionvalue);
-		
+		computeforremainingcredit();
+
 		getPartnerInfo(optionvalue);
 
 		$('#customer_modal').modal('hide');
@@ -793,7 +794,6 @@
 	function retrieveCurrentOutstandingReceivables(customercode){
 		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_outstanding_receivables', "customercode=" + customercode, function(data) {
 			$('#h_outstanding').val(data.outstanding_receivables);
-			computeforremainingcredit();
 		});
 	}
 
@@ -811,10 +811,13 @@
 	}
 
 	function computeforremainingcredit(){
+		console.log("TEST");
 		var credit_limit 			=	$('#h_curr_limit').val();
 		var outstanding_receivables = 	$('#h_outstanding').val();
+		console.log("CREDIT LIMIT = "+credit_limit);
+		console.log("OUTSTANDING = "+outstanding_receivables);
 		var balance 				=	parseFloat(credit_limit) 	-	parseFloat(outstanding_receivables);
-
+		console.log("balance = "+balance);
 		$('#h_balance').val(balance);
 	}
 
@@ -1062,7 +1065,7 @@ function computeAmount()
 	var count	= table.tBodies[0].rows.length;
 
 	var discounttype = $('#itemsTable tfoot .discounttype:checked').val();
-	console.log('Discount Type = '+discounttype);
+	// console.log('Discount Type = '+discounttype);
 	var discount_rate = removeComma($('#itemsTable tfoot #discountrate').val());
 	var discount = removeComma($('#itemsTable tfoot #discountamount').val());
 	
@@ -1078,7 +1081,7 @@ function computeAmount()
 		vat 			= 	(vat == "" || vat == undefined) 	?	0 	:	vat;
 		itemprice 		=	removeComma(itemprice.value);
 		quantity 		=	removeComma(quantity.value);
-			console.log("VAT = "+vat);
+			// console.log("VAT = "+vat);
 		var totalprice 	=	parseFloat(itemprice) 	* 	parseFloat(quantity);
 		var amount 		=	parseFloat(totalprice) / ( 1 + parseFloat(vat) );
 		var vat_amount 	=	parseFloat(amount)	*	parseFloat(vat);
@@ -1087,11 +1090,11 @@ function computeAmount()
 		vat_amount		= 	(vat_amount>0) 	?	Math.round(vat_amount*100) / 100:	0;
 
 		if(discount > 0){
-			var itemdiscount 		= parseFloat(discount) / parseFloat(itemqty);
+			var itemdiscount 		= parseFloat(discount) / parseFloat(quantity);
 			var discountedamount 	= parseFloat(amount) - parseFloat(itemdiscount);
 
-			console.log("ITEM DISCOUNT = "+itemdiscount);
-			console.log("DISCOUNTED AMOUNT = "+discountedamount);
+			// console.log("ITEM DISCOUNT = "+itemdiscount);
+			// console.log("DISCOUNTED AMOUNT = "+discountedamount);
 
 			document.getElementById('itemdiscount['+row+']').value 	= addCommas(itemdiscount.toFixed(2));
 			document.getElementById('discountedamount['+row+']').value 	= addCommas(discountedamount.toFixed(2));
@@ -1110,7 +1113,11 @@ function computeAmount()
 	// var discount_type 	= $('input[type=radio][name=discounttype]:checked').val();
 	// discount_perc 		= (discount_type == 'perc') ? discount/100 : discount / total_amount;
 	if (discounttype == 'perc') {
-		discount = (total_amount + total_tax) * discount_rate / 100;
+		// console.log("DISCOUNT RATE - "+discount_rate);
+		// console.log("TOTAL AMOUNT - "+total_amount);
+		// console.log("TOTAL TAX - "+total_tax);
+
+		discount = total_amount * (discount_rate / 100);
 		$('#itemsTable tfoot #discountamount').val(addComma(discount));
 	}
 
@@ -1149,12 +1156,12 @@ function addAmounts() {
 		var taxrate				= removeComma(x_taxrate.value);
 		var quantity 			= removeComma(x_quantity.value);
 		var h_discountedamount	= removeComma(h_discountedamount.value);
-		console.log("Discount Amount = "+h_discountedamount);
+		// console.log("Discount Amount = "+h_discountedamount);
 
 		// unitprice 		= 	(unitprice == "" || unitprice == undefined) ?	0 	:	unitprice;
 		// taxrate 		= 	(taxrate == "" || taxrate == undefined) ?	0 	:	taxrate;
 
-		console.log("Tax Rate = "+taxrate);
+		// console.log("Tax Rate = "+taxrate);
 
 		var totalprice 	=	parseFloat(unitprice) 	* 	parseFloat(quantity);
 		var amount 		=	parseFloat(totalprice) / ( 1 + parseFloat(taxrate) );
@@ -1170,7 +1177,7 @@ function addAmounts() {
 		if( parseFloat(taxrate) > 0.00 || parseFloat(taxrate) > 0 )	{
 			net_of_vat 		= amount;
 		}
-		console.log("net of vat = "+net_of_vat);	
+		// console.log("net of vat = "+net_of_vat);	
 		// total_amount 	 	+= amount;
 
 		net_of_vat 			= net_of_vat * 1;
@@ -1187,7 +1194,7 @@ function addAmounts() {
 	}
 
 	subtotal 				= total_h_vatable + total_h_vatex;
-	console.log("SUBTOTAL = "+subtotal);
+	// console.log("SUBTOTAL = "+subtotal);
 
 	total_h_vatable	 	= Math.round(100*total_h_vatable)/100;
 	total_h_vatex	 	= Math.round(100*total_h_vatex)/100;
@@ -1346,6 +1353,8 @@ function finalizeTransaction(type)
 			$(this).closest('div').addClass('has-error');
 		}
 	});
+	
+	computeforremainingcredit();
 
 	var credit_limit_exceed =	checkIfExceededCreditLimit();
 	if(credit_limit_exceed == 1){
@@ -1527,6 +1536,7 @@ $(document).ready(function(){
 				retrieveCreditLimit(customer_id);
 				retrieveCurrentIncurredReceivables(customer_id);
 				retrieveCurrentOutstandingReceivables(customer_id);
+				computeforremainingcredit();
 
 				getPartnerInfo(customer_id);
 				if( $('#itemcode\\[1\\]').val() != "" ){
@@ -1682,14 +1692,6 @@ $(document).ready(function(){
 			
 			var table 		= document.getElementById('itemsTable');
 			var rows 		= table.tBodies[0].rows.length;
-			var rowlimit 	= '<?echo $item_limit?>';
-		
-			// if(rowlimit == 0 || rows < rowlimit){
-			// 	clone.clone(true).insertAfter(ParentRow);
-			// 	setZero();
-			// }else{
-			// 	$('#row_limit').modal('show');
-			// }
 
 			clone.clone(true).insertAfter(ParentRow);
 			setZero();

@@ -151,6 +151,10 @@ class controller extends wc_controller
 			$data['h_incurred']  	= $incurred;
 			$data['h_balance'] 		= (($credit_limit - $outstanding) > 0) ? $credit_limit - $outstanding 	: 0;
 		}
+		$data['h_curr_limit'] 	= 0;
+		$data['h_outstanding'] 	= 0;
+		$data['h_incurred']  	= 0;
+		$data['h_balance'] 		= 0;
 	
 		$data['ui'] 			= $this->ui;
 		$data['show_input'] 	= true;		

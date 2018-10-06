@@ -311,7 +311,7 @@
 			/**TRIM COMMAS FROM AMOUNTS**/
 			$subtotal			= str_replace(',','',$subtotal);
 			$totalamount		= str_replace(',','',$totalamount);
-			$totalamount		= str_replace(',','',$discount_amount);
+			$discount_amount		= str_replace(',','',$discount_amount);
 
 			/**FORMAT DATES**/
 			$transactiondate	= date("Y-m-d",strtotime($transactiondate));
