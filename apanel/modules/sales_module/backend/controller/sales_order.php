@@ -437,8 +437,8 @@ class controller extends wc_controller
 		
 		$discounttype 		 	 = $retrieved_data['header']->discounttype;
 		$data['discounttype']  	 = $discounttype;
-		$data['percentage'] 	 = ($discounttype == 'perc' && $discountamount > 0 ) 	? 	"%" 	: 	"";
-		$data['h_disctype'] 	 = $discounttype;
+		// $data['percentage'] 	 = ($discounttype == 'perc' && $discountamount > 0 ) 	? 	"%" 	: 	"";
+		// $data['h_disctype'] 	 = $discounttype;
 
 		//Credit Limit 
 		$result 				= $this->retrieve_credit_limit($customer);

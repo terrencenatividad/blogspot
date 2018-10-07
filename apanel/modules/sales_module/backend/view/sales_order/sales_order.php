@@ -189,6 +189,7 @@
 								$accountcode 	   	= '';
 								$detailparticulars 	= '';
 								$warehouse 			= '';
+								$discounttype 		= '';
 								$price	   			= '0.00';
 								$rowamount 			= '0.00';
 
@@ -559,7 +560,7 @@
 								<label class="control-label col-md-12">Discount</label>
 							</td>
 							<td class="text-right">
-								<?php if($show_input) {?>
+								<?php 	if($show_input) : ?>
 									<div class = 'row'>
 										<div class="col-md-6">
 											<div class="form-group">
@@ -621,7 +622,14 @@
 											</div>
 										</div>
 									</div>
-								<?php } ?>
+								<?php 	else:
+											echo $ui->setElement('text')
+													->setName('discountamount')
+													->setClass('total_discount')
+													->setValue(((empty($discountamount)) ? '0.00' : number_format($discountamount, 2)))
+													->draw(false);
+										endif 
+								?>
 							</td>
 							<td></td>
 						</tr>
