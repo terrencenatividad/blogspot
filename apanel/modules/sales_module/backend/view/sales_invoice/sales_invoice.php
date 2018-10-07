@@ -402,12 +402,12 @@
 										$disable_debit	= '';
 										$disable_credit	= '';
 										
-										$quantity_attr 	= (!empty($drno)) ? array(
-											"maxlength" => "20",
-											"readOnly" => "readOnly"
-										) : array(
-											"maxlength" => "20"
-										);
+										// $quantity_attr 	= (!empty($drno)) ? array(
+										// 	"maxlength" => "20",
+										// 	"readOnly" => "readOnly"
+										// ) : array(
+										// 	"maxlength" => "20"
+										// );
 
 
 										for($i = 0; $i < count($details); $i++)
@@ -440,6 +440,7 @@
 														->setValidation('required')
 														->draw($show_input);
 												?>
+												<input id = '<?php echo 'h_itemcode['.$row.']'; ?>' name = '<?php echo 'h_itemcode['.$row.']';?>' class = 'col-md-12' type = 'hidden' value = '<?php echo $itemcode;?>'>
 											</td>
 											<td class = "remove-margin">
 												<?php
@@ -447,7 +448,7 @@
 															->setSplit('', 'col-md-12')
 															->setName('detailparticulars['.$row.']')
 															->setId('detailparticulars['.$row.']')
-															->setAttribute(array("maxlength" => "100"))
+															->setAttribute(array("maxlength" => "100","readOnly"=>"readOnly"))
 															->setValue($detailparticular)
 															->draw($show_input);
 												?>
@@ -459,7 +460,7 @@
 															->setName('quantity['.$row.']')
 															->setId('quantity['.$row.']')
 															->setClass('text-right quantity')
-															->setAttribute($quantity_attr)
+															->setAttribute(array("maxlength" => "20","readOnly" => "readOnly"))
 															->setValue(number_format($quantity,0))
 															->draw($show_input);
 												?>
@@ -479,7 +480,7 @@
 															->setName('itemprice['.$row.']')
 															->setId('itemprice['.$row.']')
 															->setClass("text-right price")
-															->setAttribute(array("maxlength" => "20"))
+															->setAttribute(array("maxlength" => "20","readOnly"=>"readOnly"))
 															->setValue(number_format($itemprice,2))
 															->draw($show_input);
 												?>
@@ -514,7 +515,7 @@
 															->setName('amount['.$row.']')
 															->setId('amount['.$row.']')
 															->setClass("text-right amount")
-															->setAttribute(array("maxlength" => "20"))
+															->setAttribute(array("maxlength" => "20","readOnly"=>"readOnly"))
 															->setValue(number_format($amount,2))
 															->draw($show_input);
 												?>
