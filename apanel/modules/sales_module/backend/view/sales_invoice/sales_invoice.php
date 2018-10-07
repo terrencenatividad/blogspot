@@ -987,10 +987,16 @@ function getDeliveries(code)
 		$('#itemsTable tbody').html(items);
 
 		addAmounts();
-
+		
+		var disc_perc 	= data.discount;
+		var total_sales = $('#total_sales').val();
+		// console.log('total_sales '+total_sales);
+		var discountamt = parseFloat(total_sales) * parseFloat(disc_perc);
+		$('#sales_invoice_form #discountamount').val(discountamt.toFixed(2));
 		$('#sales_invoice_form #remarks').trigger('change');
-	});
 
+		addAmounts();
+	});
 }
 
 /**COMPUTES DUE DATE**/
@@ -1116,8 +1122,8 @@ function addAmounts() {
 
 	var discount			= parseFloat(document.getElementById('discountamount').value || 0.00);
 	
-	var discount_type 		= document.getElementById('disctype').value;
-	discount_perc 			= (discount_type == 'perc') ? discount : discount / 100;
+	// var discount_type 		= document.getElementById('disctype').value;
+	// discount_perc 			= (discount_type == 'perc') ? discount : discount / 100;
 	
 	for (var i = 1; i <= count; i++) {
 		var row = '[' + i + ']';
@@ -1144,7 +1150,7 @@ function addAmounts() {
 
 		x_amount.value		= addCommas(amount.toFixed(2));
 		h_amount.value		= amount.toFixed(2);
-		//x_taxamount.value	= tax_amount.toFixed(2);
+		// x_taxamount.value	= tax_amount.toFixed(2);
 
 		if( taxrate > 0.00 || taxrate > 0 )	
 		{
@@ -1153,8 +1159,9 @@ function addAmounts() {
 
 		net_of_vat 			= net_of_vat * 1;
 		vat_ex				= amount - net_of_vat;
-		vat					= h_discountedamount * taxrate;
-		
+		vat					= amount * taxrate;
+		x_taxamount.value	= amount * taxrate;
+
 		/**
 		 * Round off to 2 decimals before getting total
 		 */
@@ -1169,15 +1176,17 @@ function addAmounts() {
 	
 	subtotal 				= total_h_vatable + total_h_vatex;
 
-	if( discount_type == 'perc' )
-	{
-		total_discount 		= subtotal * ( discount / 100 );
-	}
-	else if( discount_type == 'amt' )
-	{
-		total_discount 		= discount;
-	}
-	
+	// if( discount_type == 'perc' )
+	// {
+	// 	total_discount 		= subtotal * ( discount / 100 );
+	// }
+	// else if( discount_type == 'amt' )
+	// {
+	// 	total_discount 		= discount;
+	// }
+
+	total_discount = discount;
+	console.log("TOTAL_DISCOUNT = "+total_discount);
 	/**
 	 * Round off to 2 decimals before getting total
 	 */
