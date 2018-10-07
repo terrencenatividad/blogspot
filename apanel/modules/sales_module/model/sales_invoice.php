@@ -256,7 +256,7 @@ class sales_invoice extends wc_model
 		/**INSERT DETAILS**/
 		foreach($data as $postIndex => $postValue)
 		{
-			if($postIndex == 'itemcode' ||  $postIndex=='detailparticulars' || $postIndex=='quantity' || $postIndex=='itemprice' || $postIndex=='taxrate' || $postIndex=='taxamount' || $postIndex=='amount' || $postIndex=='taxcode' || $postIndex=='itemdiscount' || $postIndex=='discountedamount')
+			if($postIndex == 'itemcode' ||  $postIndex=='detailparticulars' || $postIndex=='quantity' || $postIndex=='itemprice' || $postIndex=='taxrate' || $postIndex=='taxamount' || $postIndex=='amount' || $postIndex=='taxcode' || $postIndex=='h_taxcode' || $postIndex=='itemdiscount' || $postIndex=='discountedamount')
 			{
 				$a		= '';
 				
@@ -319,8 +319,8 @@ class sales_invoice extends wc_model
 			//$data_insert['discount']    	= $tempArrayValue['discount'];
 			$data_insert['itemdiscount']    = $tempArrayValue['itemdiscount'];
 			$data_insert['discountedamount']= $tempArrayValue['discountedamount'];
-			if(isset($tempArrayValue['taxcode']) && $tempArrayValue['taxcode'] != 'none'){
-				$taxcode 					= $tempArrayValue['taxcode'];
+			if(isset($tempArrayValue['h_taxcode']) && $tempArrayValue['h_taxcode'] != 'none'){
+				$taxcode 					= $tempArrayValue['h_taxcode'];
 				$data_insert['taxcode']    	= $taxcode;
 				$tax 						= $this->getValue("fintaxcode", array("taxrate"), " fstaxcode = '$taxcode' ");
 				$taxrate 					= ($tax) ? $tax[0]->taxrate : 0;

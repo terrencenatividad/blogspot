@@ -497,12 +497,13 @@
 															->setName('taxcode['.$row.']')
 															->setId('taxcode['.$row.']')
 															->setClass("taxcode")
-															->setAttribute(array("maxlength" => "20","readonly" => true))
+															->setAttribute(array("maxlength" => "20","disabled" => true))
 															->setList($tax_codes)
 															->setNone('none')
-															->setValue($taxcode)
+															->setValue($value)
 															->draw($show_input);
 												?>
+												<input id = '<?php echo 'h_taxcode['.$row.']'; ?>' name = '<?php echo 'h_taxcode['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value = '<?php echo $taxcode;?>'>
 												<input id = '<?php echo 'taxrate['.$row.']'; ?>' name = '<?php echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value = '<?php echo $taxrate;?>'>
 												<input id = '<?php echo 'taxamount['.$row.']'; ?>' name = '<?php echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value = '<?php echo $taxamount;?>'>	
 											</td>

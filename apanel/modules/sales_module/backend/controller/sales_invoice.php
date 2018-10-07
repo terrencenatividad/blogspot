@@ -737,6 +737,7 @@ class controller extends wc_controller
 										->setValue($taxcode)
 										->setNone("none")
 										->draw(true);
+				$result 	.= '<input id = "h_taxcode['.$row.']" name = "h_taxcode['.$row.']" type = "hidden" value="'.$taxcode.'">';						
 				$result 	.= '<input id = "taxrate['.$row.']" name = "taxrate['.$row.']" type = "hidden" value="'.$taxrate.'">';
 				$result 	.= '<input id = "taxamount['.$row.']" name = "taxamount['.$row.']" type = "hidden" value="'.$taxamount.'">';
 				$result     .= '</td>';
