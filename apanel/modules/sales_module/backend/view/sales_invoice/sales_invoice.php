@@ -437,6 +437,7 @@
 														->setList($itemcodes)
 														->setClass('itemcode')
 														->setValue($itemcode)
+														->setAttribute(array("disabled"=>true))
 														->setValidation('required')
 														->draw($show_input);
 												?>
