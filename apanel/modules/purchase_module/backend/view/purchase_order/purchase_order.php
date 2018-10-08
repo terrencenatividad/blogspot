@@ -435,7 +435,7 @@
 										->setId('uom['.$row.']')
 										->setClass("text-right")
 										->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
-										->setValue($uomcode)
+										->setValue($uom)
 										->draw($show_input);
 										?>
 									</td>
