@@ -123,7 +123,8 @@ class controller extends wc_controller
 
 			//Footer Data
 			$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
-			$data['t_discount'] 	 = $retrieved_data['header']->discountamount;
+			$data['discounttype']  	 = $retrieved_data['header']->discounttype;
+			$data['discountamount']  = $retrieved_data['header']->discountamount;
 			$data['t_total'] 	 	 = $retrieved_data['header']->netamount;
 
 			$discounttype 		 	 = $retrieved_data['header']->discounttype;
@@ -151,6 +152,10 @@ class controller extends wc_controller
 			$data['h_incurred']  	= $incurred;
 			$data['h_balance'] 		= (($credit_limit - $outstanding) > 0) ? $credit_limit - $outstanding 	: 0;
 		}
+		$data['h_curr_limit'] 	= 0;
+		$data['h_outstanding'] 	= 0;
+		$data['h_incurred']  	= 0;
+		$data['h_balance'] 		= 0;
 	
 		$data['ui'] 			= $this->ui;
 		$data['show_input'] 	= true;		
@@ -177,7 +182,8 @@ class controller extends wc_controller
 
 			//Footer Data
 			$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
-			$data['t_discount'] 	 = $retrieved_data['header']->discountamount;
+			$data['discounttype']    = $retrieved_data['header']->discounttype;
+			$data['discountamount']  = $retrieved_data['header']->discountamount;
 			$data['t_total'] 	 	 = $retrieved_data['header']->netamount;
 
 			$discounttype 		 	 = $retrieved_data['header']->discounttype;
@@ -310,16 +316,27 @@ class controller extends wc_controller
 		$data['remarks'] 		 = $retrieved_data["header"]->remarks;
 		
 		//Footer Data
-		$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
-		$data['t_discount'] 	 = $retrieved_data['header']->discountamount;
-		$data['t_total'] 	 	 = $retrieved_data['header']->netamount;
-		$data['t_vat'] 			 = $retrieved_data['header']->taxamount;
+		$discountamount 		 = $retrieved_data['header']->discountamount;
+		$discounttype 			 = $retrieved_data['header']->discounttype;
+		$discountrate 			 = 0;
+		$totalamount 			 = $retrieved_data['header']->netamount;
+		$vat 					 = $retrieved_data['header']->taxamount;
+		$totalsales 			 = $retrieved_data['header']->amount;
+		$data['t_subtotal'] 	 = $totalsales;
+		$data['discounttype']    = $discounttype;
+		$data['discountamount']  = $discountamount;
+		$data['t_total'] 	 	 = $totalamount;
+		$data['t_vat'] 			 = $vat;
 		$data['t_vatsales'] 	 = $retrieved_data['header']->vat_sales;
 		$data['t_vatexempt'] 	 = $retrieved_data['header']->vat_exempt;
 
 		$discounttype 		 	 = $retrieved_data['header']->discounttype;
+		if ($discounttype == 'perc' && $discountamount) {
+			$discountrate = ($discountamount / ($totalsales + $vat)) * 100;
+			$discountrate = ceil($discountrate);
+		}
 		$data['percentage'] 	 = "";
-		$data['h_disctype'] 	 = $discounttype;
+		$data['discountrate'] 	 = $discountrate;
 
 		//Credit Limit 
 		$result 				= $this->retrieve_credit_limit($customer);
@@ -410,17 +427,18 @@ class controller extends wc_controller
 		$data['stat'] 			 = $retrieved_data['header']->stat;
 
 		//Footer Data
+		$discountamount 		 = $retrieved_data['header']->discountamount;
 		$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
-		$data['t_discount'] 	 = $retrieved_data['header']->discountamount;
+		$data['discountamount']  = $discountamount;
 		$data['t_total'] 	 	 = $retrieved_data['header']->netamount;
 		$data['t_vat'] 			 = $retrieved_data['header']->taxamount;
 		$data['t_vatsales'] 	 = $retrieved_data['header']->vat_sales;
 		$data['t_vatexempt'] 	 = $retrieved_data['header']->vat_exempt;
 		
-		$discountamount 		 = $retrieved_data['header']->discountamount;
 		$discounttype 		 	 = $retrieved_data['header']->discounttype;
-		$data['percentage'] 	 = ($discounttype == 'perc' && $discountamount > 0 ) 	? 	"%" 	: 	"";
-		$data['h_disctype'] 	 = $discounttype;
+		$data['discounttype']  	 = $discounttype;
+		// $data['percentage'] 	 = ($discounttype == 'perc' && $discountamount > 0 ) 	? 	"%" 	: 	"";
+		// $data['h_disctype'] 	 = $discounttype;
 
 		//Credit Limit 
 		$result 				= $this->retrieve_credit_limit($customer);
@@ -505,7 +523,7 @@ class controller extends wc_controller
 		/** DETAILS INFO **/
 
 			$docdet_table   = "salesorder_details as dtl";
-			$docdet_fields  = array("dtl.itemcode as itemcode", "dtl.detailparticular as description", "dtl.issueqty as quantity","UPPER(dtl.issueuom) uom","unitprice as price","amount as amount");
+			$docdet_fields  = array("dtl.itemcode as itemcode", "dtl.detailparticular as description", "dtl.issueqty as quantity","UPPER(dtl.issueuom) uom","unitprice as price","dtl.taxamount","amount as amount","dtl.taxrate","dtl.taxamount","dtl.taxcode","dtl.discountamount itemdiscount");
 			//$docdet_fields  = array("dtl.itemcode as itemcode","dtl.issueqty as quantity", "dtl.detailparticular as description", "unitprice as price","amount as amount");
 			$docdet_cond    = "dtl.voucherno = '$voucherno'";
 			$docdet_join 	= "";
@@ -539,31 +557,62 @@ class controller extends wc_controller
 				// ->addTermsAndCondition()
 				->addReceived();
 
-		$print->setHeaderWidth(array(40, 60, 20, 20, 30, 30))
-				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
-				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price', 'Amount'))
-				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R'))
+		$print->setHeaderWidth(array(30, 40, 20, 20, 30, 30,30))
+				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C','C'))
+				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price','Tax','Amount'))
+				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R','R'))
 				->setSummaryWidth(array('170', '30'));
 
 		$detail_height = 37;
 
-		$total_amount = 0;
+		$vatable_sales	= 0;
+		$vat_exempt		= 0;
+		$discount		= 0;
+		$tax			= 0;
+		$total_amount 	= 0;
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
 			}
-
-			$total_amount	+= $row->amount;
+			$vatable_sales	+= ($row->taxrate) ? $row->amount : 0;
+			$vat_exempt		+= ($row->taxrate) ? 0 : $row->amount;
+			$discount		+= $row->itemdiscount;
+			$tax			+= $row->taxamount;
+			// $total_amount	+= $row->amount;
 			$row->quantity	= number_format($row->quantity);
 			$row->price		= number_format($row->price, 2);
 			$row->amount	= number_format($row->amount, 2);
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
-				$total_amount = 0;
+				$total_amount = $vatable_sales + $vat_exempt - $discount + $tax;
+				$summary = array(
+					'VATable Sales'		=> number_format($vatable_sales, 2),
+					'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
+					'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
+					'Discount'			=> number_format($discount, 2),
+					'Tax'				=> number_format($tax, 2),
+					'Total Amount'		=> number_format($total_amount, 2)
+				);
+				$print->drawSummary($summary);
+				// $print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
+				$vatable_sales	= 0;
+				$vat_exempt		= 0;
+				$discount		= 0;
+				$tax			= 0;
+				$total_amount	= 0;
 			}
 		}
-		$print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
+		$total_amount = $vatable_sales + $vat_exempt - $discount + $tax;
+		$summary = array(
+			'VATable Sales'		=> number_format($vatable_sales, 2),
+			'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
+			'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
+			'Discount'			=> number_format($discount, 2),
+			'Tax'				=> number_format($tax, 2),
+			'Total Amount'		=> number_format($total_amount, 2)
+		);
+		$print->drawSummary($summary);
+		// $print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
 
 		$print->drawPDF('Sales Order - ' . $voucherno);
 	}

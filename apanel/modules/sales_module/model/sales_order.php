@@ -302,7 +302,9 @@
 
 			$discounttype 		= (isset($data['discounttype']) && (!empty($data['discounttype']))) ? htmlentities(addslashes(trim($data['discounttype']))) : "";
 
-			$discount_amount 	= (isset($data['t_discount']) && (!empty($data['t_discount']))) ? htmlentities(addslashes(trim($data['t_discount']))) : "";
+			$discount_amount 	= (isset($data['discountamount']) && (!empty($data['discountamount']))) ? htmlentities(addslashes(trim($data['discountamount']))) : "";
+			
+			$discount_rate 		= (isset($data['discountrate']) && (!empty($data['discountrate']))) ? htmlentities(addslashes(trim($data['discountrate']))) : "";
 
 			$_final 			= (isset($data['save']) && (!empty($data['save']))) ? htmlentities(addslashes(trim($data['save']))) : "";	
 			
@@ -312,7 +314,6 @@
 			$subtotal			= str_replace(',','',$subtotal);
 			$totalamount		= str_replace(',','',$totalamount);
 			$discount_amount	= str_replace(',','',$discount_amount);
-
 			/**FORMAT DATES**/
 			$transactiondate	= date("Y-m-d",strtotime($transactiondate));
 			$duedate 			= date("Y-m-d",strtotime($duedate));
