@@ -3,25 +3,11 @@
 		<div class="box-header">
 			<div class="row">
 				<div class = "col-md-8">
-					<!-- <div class="btn-group">
-						<a href="<?//= MODULE_URL ?>create" class="btn btn-primary">Create Receipt Voucher</a>
-						<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							<span class="caret"></span>
-							<span class="sr-only">Toggle Dropdown</span>
-						</button>
-						<ul class="dropdown-menu">
-							<li><a href="<?//= MODULE_URL ?>export" id="export_table" download="Receipt Voucher.csv"><i class="glyphicon glyphicon-open"></i>Export Voucher/s</a></li> -->
-							<!--<li><a href="#import-modal" data-toggle="modal"><i class="glyphicon glyphicon-save"></i>Import Voucher/s</a></li>-->
-						<!-- </ul>
-					</div> -->
 					<?
 						echo $ui->CreateNewButton('');
 						echo $ui->OptionButton('');
 					?>
-					<!-- <input type="button" id="item_multiple_delete" class="btn btn-danger btn-flat " value="Delete"> -->
 					<input type="button" id="item_multiple_cancel" class="btn btn-danger btn-flat " value="Cancel">
-					<!-- <button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete<span></span></button>
-					<button type="button" id="item_multiple_cancel" class="btn btn-warning delete_button">Cancel<span></span></button> -->
 				</div>
 
 				<div class = "col-md-4">
@@ -254,8 +240,11 @@
 	});
 	$('#pagination').on('click', 'a', function(e) {
 		e.preventDefault();
-		ajax.page = $(this).attr('data-page');
-		showList();
+		var li = $(this).closest('li');
+		if (li.not('.active').length && li.not('.disabled').length) {
+			ajax.page = $(this).attr('data-page');
+			showList();
+		}
 	});
 	$('#import_id').addClass('hidden')
 	$('#export_id').prop('download','Official Receipt.csv');

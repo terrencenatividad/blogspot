@@ -169,7 +169,7 @@
 											'class' => 'col-md-1 text-center'
 										)
 									)
-									->addHeader('Date', array('class' => 'col-md-3 text-center'), 'sort', 'main.transactiondate', 'asc')
+									->addHeader('Datesss', array('class' => 'col-md-3 text-center'), 'sort', 'main.transactiondate', 'asc')
 									->addHeader('AR Voucher No', array('class' => 'col-md-3 text-center'), 'sort', 'main.voucherno')
 									->addHeader('Customer', array('class' => 'col-md-3 text-center'), 'sort', 'p.partnername')
 									->addHeader('Reference', array('class' => 'col-md-3 text-center'), 'sort', 'main.referenceno')

@@ -25,7 +25,7 @@ class controller extends wc_controller {
 			'First Name',
 			'Middle Initial',
 			'Last Name',
-			'User Group',
+			'Group Access',
 			'Email',
 			'Phone Number',
 			'Mobile',
@@ -223,7 +223,7 @@ class controller extends wc_controller {
 						'firstname'		=> $this->getValueCSV('First Name', $row, 'required', $validity),
 						'middleinitial'	=> $this->getValueCSV('Middle Initial', $row, 'required', $validity),
 						'lastname'		=> $this->getValueCSV('Last Name', $row, 'required', $validity),
-						'groupname'		=> $this->getValueCSV('User Group', $row, 'required', $validity, 'getGroupList', $invalid),
+						'groupname'		=> $this->getValueCSV('Group Access', $row, 'required', $validity, 'getGroupList', $invalid),
 						'email'			=> $this->getValueCSV('Email', $row, 'required', $validity),
 						'phone'			=> $this->getValueCSV('Phone Number', $row, 'required', $validity),
 						'mobile'		=> $this->getValueCSV('Mobile', $row, 'required', $validity),
@@ -344,6 +344,29 @@ class controller extends wc_controller {
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
 			);
+	}
+
+	private function update_multiple_deactivate(){
+		$posted_data 			=	$this->input->post(array('ids'));
+
+		$data['stat'] 			=	'inactive';
+		
+		$posted_ids 			=	$posted_data['ids'];
+		$id_arr 				=	explode(',',$posted_ids);
+		
+		foreach($id_arr as $key => $value)
+		{
+			$result 			= 	$this->user_model->updateStat($data, $value);
+		}
+
+		if($result)
+		{
+			$msg = "success";
+		} else {
+			$msg = "Failed to Update.";
+		}
+
+		return $dataArray = array( "msg" => $msg );
 	}
 
 }

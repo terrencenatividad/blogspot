@@ -116,7 +116,9 @@ class controller extends wc_controller
 			"particulars",
 			"terms",
 			"date",
-			"paymenttype"
+			"paymenttype",
+			"taxcode",
+			"taxbase_amount"
 		));
 
 		$this->view->title			  = 'Create Receipt Voucher';
@@ -151,17 +153,22 @@ class controller extends wc_controller
 		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
 		$data["cash_account_list"] 	= $this->receipt_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
 
-		$data["generated_id"]     = '';
+		$data["generated_id"]     		= '';
+		$cred_acct						= $this->receipt_voucher->retrieve_existing_acct();
+		$data["existingcreditaccount"]	= isset($cred_acct[0]->account) ? $cred_acct[0]->account	:	"";
+		$data['cred_id'] 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
+		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
 
 		// Application Data
-		$data['sum_applied'] 	= 0;
-		$data['sum_discount']	= 0;
-		$data['payments'] 		= "''";
-		$data['available_credits'] = "0.00";
-		$data['credits_used'] 	= 0;
+		$data['sum_applied'] 		= 0;
+		$data['sum_discount']		= 0;
+		$data['payments'] 			= "''";
+		$data['available_credits'] 	= "0.00";
+		$data['credits_used'] 		= 0;
+		$data['overpayment'] 		= 0;
 
-		$data["listofcheques"]	= "";
-		$data["show_cheques"] 	= 'hidden';
+		$data["listofcheques"]		= "";
+		$data["show_cheques"] 		= 'hidden';
 
 		$data['restrict_rv'] 		= true;
 		
@@ -201,6 +208,10 @@ class controller extends wc_controller
 				$update_source['si_no']  	= $generatedvoucher;
 				$source_cond 				= "si_no = '$voucherno' AND transtype = 'CM'";
 				$updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
+				// Update the Credit Voucher 
+				$update_ref['referenceno']  	= $generatedvoucher;
+				$ref_cond 						= "referenceno = '$voucherno' AND transtype = 'ADVP'";
+				$updateTempRecord				= $this->receipt_voucher->editData($update_ref,"creditvoucher",$ref_cond);
 			}
 		}
 
@@ -223,7 +234,6 @@ class controller extends wc_controller
 		$cmp 					   	= $this->companycode;
 		// Retrieve data
 		$data         			   	= $this->receipt_voucher->retrieveEditData($sid);
-
 		$data["ui"]   			   	= $this->ui;
 		$data['show_input'] 	   	= false;
 		$data["button_name"] 	   	= "Edit";
@@ -266,6 +276,8 @@ class controller extends wc_controller
 		$data["tinno"] 		   	   	= $data["vend"]->tinno;
 		$data["address1"] 	       	= $data["vend"]->address1;
 		$data["terms"] 	   		   	= $data["vend"]->terms;
+		$data["businesstype"] 	   	= $data["vend"]->businesstype;
+		$data["partnercode"] 	   	= $data["vend"]->partnercode;
 		//For User Access
 		$login						= $this->session->get('login');
 		$groupname 					= $login['groupname'];
@@ -318,9 +330,167 @@ class controller extends wc_controller
 		$data['sum_applied'] 	= $sum_applied;
 		$data['sum_discount'] 	= $sum_discount;
 
-		$data['restrict_rv'] 	= $restrict_rv;
+		$data['restrict_rv'] 			= $restrict_rv;
+		$cred_acct						= $this->receipt_voucher->retrieve_existing_acct();
+		$data["existingcreditaccount"]	= isset($cred_acct[0]->account) ? $cred_acct[0]->account	:	"";
+		$data['cred_id'] 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
+		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
 
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
+	}
+
+	public function sawt_csv() {
+		$voucherno = $_GET['h_voucher_no'];
+		$partnercode = $_GET['partnercode'];
+		
+		$partner = $this->receipt_voucher->getPartnerDetails($partnercode);
+		$rv = $this->receipt_voucher->getRV($voucherno);
+		$rv_details = $this->receipt_voucher->getRVDetails($voucherno);
+
+		$date=date_create($rv->postingdate);
+		$date = date_format($date,"F, Y");
+
+		$businesstype = $partner->businesstype;
+
+		$contact_person = $partner->last_name.', '.$partner->first_name;
+
+		if ($businesstype == 'Individual') {
+			$filename = 'SAWT 1701';
+			$form = '1701';
+		}
+		else {
+			$filename = 'SAWT 1702';
+			$form = '1702';
+		}
+
+		$excel = new PHPExcel();
+		$excel->getProperties()
+				->setCreator('Cid')
+				->setLastModifiedBy('Cid')
+				->setTitle($filename)
+				->setSubject('SAWT')
+				->setDescription('SAWT')
+				->setKeywords('SAWT')
+				->setCategory('SAWT');
+
+		$excel->getActiveSheet()->setTitle('SAWT');
+		$excel->setActiveSheetIndex(0);
+		$sheet = $excel->getActiveSheet();
+
+		$sheet->getCell('A1')->setValue('BIR FORM '.$form);
+		$sheet->getCell('A2')->setValue('SUMMARY ALPHALIST OF WITHHOLDING TAXES (SAWT)');
+		$sheet->getCell('A3')->setValue('FOR THE MONTH OF '.strtoupper($date));
+
+
+		$sheet->getCell('A6')->setValue('TIN : '.$partner->tinno);
+		$sheet->getCell('A7')->setValue("PAYEE'S NAME: ".strtoupper($partner->partnername));
+
+		$sheet->getCell('A11')->setValue('SEQ');
+		$sheet->getCell('A12')->setValue('NO');
+		$sheet->getCell('A14')->setValue('(1)');
+		$sheet->getCell('A15')->setValue('------------------------------');
+
+		$sheet->getCell('B11')->setValue('TAXPAYER');
+		$sheet->getCell('B12')->setValue('IDENTIFICATION');
+		$sheet->getCell('B13')->setValue('NO');
+		$sheet->getCell('B14')->setValue('(2)');
+		$sheet->getCell('B15')->setValue('------------------------------');
+
+		$sheet->getCell('C11')->setValue('CORPORATION');
+		$sheet->getCell('C12')->setValue('(Registered Name)');
+		$sheet->getCell('C14')->setValue('(3)');
+		$sheet->getCell('C15')->setValue('------------------------------');
+
+		$sheet->getCell('D11')->setValue('INDIVIDUAL');
+		$sheet->getCell('D12')->setValue('(Last Name, First Name, Middle Name)');
+		$sheet->getCell('D14')->setValue('(4)');
+		$sheet->getCell('D15')->setValue('------------------------------');
+
+		$sheet->getCell('E11')->setValue('ATC CODE');
+		$sheet->getCell('E14')->setValue('(5)');
+		$sheet->getCell('E15')->setValue('------------------------------');
+
+		$sheet->getCell('F11')->setValue('NATURE OF PAYMENT');
+		$sheet->getCell('F15')->setValue('------------------------------');
+
+		$sheet->getCell('G11')->setValue('AMOUNT OF');
+		$sheet->getCell('G12')->setValue('INCOME PAYMENT');
+		$sheet->getCell('G14')->setValue('(6)');
+		$sheet->getCell('G15')->setValue('------------------------------');
+
+		$sheet->getCell('H11')->setValue('TAX RATE');
+		$sheet->getCell('H14')->setValue('(7)');
+		$sheet->getCell('H15')->setValue('------------------------------');
+
+		$sheet->getCell('I11')->setValue('AMOUNT OF');
+		$sheet->getCell('I12')->setValue('TAX WITHHELD');
+		$sheet->getCell('I14')->setValue('(8)');
+		$sheet->getCell('I15')->setValue('------------------------------');
+
+		$count = 1;
+		$totalwtaxamount = 0;
+		$cell_row = 16;
+		if ($rv_details) {
+			foreach ($rv_details as $row) {
+
+				$sheet->getCell('A'.$cell_row)->setValue($count);
+				$sheet->getCell('B'.$cell_row)->setValue($partner->tinno);
+				if ($businesstype != 'Individual') {
+					$sheet->getCell('C'.$cell_row)->setValue(strtoupper($partner->partnername));
+				}
+				else {
+					$sheet->getCell('D'.$cell_row)->setValue(strtoupper($contact_person));
+				}
+				$sheet->getCell('E'.$cell_row)->setValue($row->atc_code);
+				$sheet->getCell('F'.$cell_row)->setValue(strtoupper($rv->paymenttype));
+				$sheet->getCell('G'.$cell_row)->setValue($row->taxbase_amount);
+				$sheet->getCell('H'.$cell_row)->setValue($row->tax_rate);
+				$sheet->getCell('I'.$cell_row)->setValue($row->credit);
+
+				$count++;
+				$cell_row++;
+				$totalwtaxamount = $totalwtaxamount + $row->credit;
+			}
+		}
+
+		else {
+			$sheet->mergeCells('A16:I16');
+			$sheet->getCell('A16')->setValue('NO CREDITABLE WITHHOLDING TAX');
+			$sheet->getStyle('A16')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+			$cell_row = $cell_row + 1;
+		}
+
+		$fortotal_row = $cell_row + 1;
+		$forend_report = $cell_row + 3;
+		$fortotal_amount = $cell_row + 1;
+
+		$sheet->getCell('A'.$fortotal_row)->setValue('Grand Total :');
+		$sheet->getCell('A'.$forend_report)->setValue('END OF REPORT');
+
+		$sheet->getCell('I'.$cell_row)->setValue('------------------');
+		$sheet->getCell('I'.$fortotal_amount)->setValue($totalwtaxamount);
+		// $sheet->getCell('I19')->setValue('==================');
+
+		$sheet->getStyle('G15:I18')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+		foreach ($excel->getAllSheets() as $sheet) {
+			for ($col = 0; $col <= PHPExcel_Cell::columnIndexFromString($sheet->getHighestDataColumn()); $col++) {
+				$sheet->getColumnDimensionByColumn($col)->setAutoSize(true);
+			}
+		}
+
+		$filename.= '.xlsx';
+
+		header('Content-type: application/vnd.ms-excel');
+		header("Content-Disposition: attachment; filename=\"$filename\"");
+		header("Pragma: no-cache");
+		header("Expires: 0");
+
+		flush();
+
+		$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel5');
+
+		$writer->save('php://output');
 	}
 
 	public function edit($sid)
@@ -409,12 +579,15 @@ class controller extends wc_controller
 			}
 		}
 
-		$data['sum_applied'] 	= $sum_applied;
-		$data['sum_discount'] 	= $sum_discount;
-		$data['payments'] 		= json_encode($payments);
-
-		$data['restrict_rv'] 	= true;
-		$data['has_access'] 	= 0;
+		$data['sum_applied'] 			= $sum_applied;
+		$data['sum_discount'] 			= $sum_discount;
+		$data['payments'] 				= json_encode($payments);
+		$data['restrict_rv'] 			= true;
+		$data['has_access'] 			= 0;
+		$cred_acct						= $this->receipt_voucher->retrieve_existing_acct();
+		$data["existingcreditaccount"]	= isset($cred_acct[0]->account) ? $cred_acct[0]->account	:	"";
+		$data['cred_id'] 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
+		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
 
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
@@ -521,6 +694,164 @@ class controller extends wc_controller
 			header('Content-type: application/json');
 			echo json_encode($ajax);
 		}
+	}
+
+	private function ajax_savebusinesstype() {
+		$businesstype = $_GET['type'];
+		$partnercode = $_GET['partnercode'];
+		$result = $this->receipt_voucher->updateBusinessType($businesstype, $partnercode);
+		return array(
+			// 'redirect'	=> MODULE_URL . 'sawt_csv?' . $client_id,
+			'success'	=> $result
+		);
+	}
+	
+	private function load_credit_vouchers(){
+		$data       	= $this->input->post(array("customer", "voucherno", "avl_cred"));
+		$task       	= $this->input->post("task");
+		$search			= $this->input->post('search');
+		$avl_credit 	= $this->input->post("avl_cred");
+		$vno 			= $this->input->post('vno');
+		$customer 		= $this->input->post('customer');
+		
+		$check_rows 	= (isset($vno) && (!empty($vno))) ? trim($vno) : "";
+		$check_rows  	= str_replace('\\', '', $check_rows);
+		$decode_json    = json_decode($check_rows,true);
+
+		$pagination     = $this->receipt_voucher->retrieveCreditsList($customer,$vno);
+		// var_dump($pagination);
+		$table             = "";
+		$j 	               = 1;
+		$json_encode_array = array();
+		$json_data         = array();
+		$total_pay         = 0;
+		$json_encode       = "";
+		$edited_amount 	   = 0;
+
+		$show_input 	   = ($task != "view") 	? 	1	:	0;
+	
+		if (empty($pagination->result)) {
+			$table = '<tr><td class="text-center" colspan="10"><b>No Records Found</b></td></tr>';
+		}
+
+		if($pagination->result)
+		{
+			$voucher_checked = '';
+			$amt_checked = '';
+			$voucher_array = array();
+			$amt_array = array();
+			$checker = array();
+			
+			if(!empty($decode_json)) {
+				foreach($decode_json as $value => $row){	
+					array_push($voucher_array, $row['vno']);
+					$amt_array[$row['vno']] = $row;
+				}	
+			}
+
+			for($i = 0; $i < count($pagination->result); $i++, $j++){
+
+				// $restrict_rv 	= $this->restrict->setButtonRestriction($date);
+				// $date			= $this->date->dateFormat($date);
+				$voucherno 		=	isset($pagination->result[$i]->voucherno) 	? 	$pagination->result[$i]->voucherno 		: 	"";
+				$amount			=	isset($pagination->result[$i]->amount) 		? 	$pagination->result[$i]->amount 		:	0;
+				$balance 		=	isset($pagination->result[$i]->balance)		?	$pagination->result[$i]->balance 		: 	0;
+				$invoiceno		=	isset($pagination->result[$i]->invoiceno) 	? 	$pagination->result[$i]->invoiceno 		: 	0;
+				$referenceno 	=	isset($pagination->result[$i]->referenceno) ? 	$pagination->result[$i]->referenceno	: 	"";
+				$receivableno 	=	isset($pagination->result[$i]->receivableno)? 	$pagination->result[$i]->receivableno	:	"";
+
+				$voucher_checked= (in_array($voucherno , $voucher_array)) ? 'checked' : '';
+				// $amt_checked 	= (in_array($voucher , $amt_array)) ? $amt_checked : '';
+
+				// $total_pay 		+= $totalamount;
+
+				// $json_encode_array["row"]       = $i;
+				// $json_encode_array["vno"] 		= $voucher;
+				// $json_encode_array["amt"]    	= $totalamount;
+				// $json_encode_array["bal"]   	= $balance;
+				// $json_encode_array["cred"]		= $credit_used;
+				// $json_encode_array['over']  	= $overpayment;
+			
+				// $json_data[] 					= $json_encode_array;
+			
+				// $json_encode 					= json_encode($json_data);
+
+				// $appliedamount	= $this->receipt_voucher->getValue("rv_application", array("SUM(amount) AS amount"),"arvoucherno = '$voucher' AND stat IN('posted', 'temporary')");
+				// $appliedamount  = isset($appliedamount[0]->amount) 	?	$appliedamount[0]->amount	:	0;
+	
+				// $balance_2		= $balance;
+
+				// if (isset($amt_array[$voucher])) {
+				// 	$balance_2	= str_replace(',','',$amt_array[$voucher]['bal']);
+				// 	$amount		= str_replace(',','',$amt_array[$voucher]['amt']);
+				// 	$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0.00';
+				// 	$credit_used= isset($amt_array[$voucher]['cred']) ? $amt_array[$voucher]['cred'] : '0.00';
+
+				// 	$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount + $credit_used;
+				// 	$balance_2 	= $balance_2 - $amount - $discount - $credit_used;
+				// 	$balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
+				// }
+				// echo $balance."\n\n";
+				$disable_checkbox 	=	"";
+				$disable_onclick 	=	'onClick="selectCredits(\''.$voucherno.'\',1);"';
+
+				$table	.= '<tr>'; 
+				// if(!$restrict_rv){
+					// $disable_checkbox 	=	"disabled='disabled'";
+					// $disable_onclick 	= 	'';
+				// }
+				$table	.= 	'<td class="text-center" style="vertical-align:middle;">';
+				$table	.= 		'<input type="checkbox" name="checkBox[]" id = "check'.$voucherno.'" class = "icheckbox" toggleid="0" row="'.$voucherno.'" '.$voucher_checked.' '.$disable_checkbox.'>'; 
+				$table	.= 	'</td>';
+				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$voucherno.'</td>';
+				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$invoiceno.'</td>';
+				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
+				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "credits_amount'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($amount,2).'">'.number_format($amount,2).'</td>';
+				$table	.= 	'<td class="text-right balances" style="vertical-align:middle;" id = "credits_balance'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance,2).'</td>';
+				
+				if($voucher_checked == 'checked'){
+					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
+					$this->ui->formField('text')
+						->setSplit('', 'col-md-12')
+						->setClass("input-sm text-right credittoapply")
+						->setId('credittoapply'.$voucherno)
+						->setPlaceHolder("0.00")
+						->setMaxLength(20)
+						->setAttribute(
+							array(
+								"onBlur" => ' formatNumber(this.id);', 
+								"onClick" => " SelectAll(this.id); ",
+							)
+						)
+						->setValidation('decimal')
+						->setValue(number_format($amount,2))
+						->draw($show_input).'</td>';
+				}
+				else{
+					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
+					$this->ui->formField('text')
+						->setSplit('', 'col-md-12')
+						->setClass("input-sm text-right credittoapply")
+						->setId('credittoapply'.$voucherno)
+						->setPlaceHolder("0.00")
+						->setMaxLength(20)
+						->setAttribute(
+							array(
+								"disabled" => "disabled", 
+								"onBlur" => ' formatNumber(this.id);', 
+								"onClick" => " SelectAll(this.id); ",
+							)
+						)
+						->setValidation('decimal')
+						->setValue(number_format(0, 2))
+						->draw($show_input).'</td>';
+				}
+			}
+		}
+		$pagination->table = $table;
+		$dataArray = array( "table" => $pagination->table, "json_encode" => $json_encode, "pagination" => $pagination->pagination, "page" => $pagination->page, "page_limit" => $pagination->page_limit );
+		
+		return $dataArray;
 	}
 
 	private function get_payments()
@@ -1175,6 +1506,7 @@ class controller extends wc_controller
 		$checkrows       = $this->input->post("checkrows");
 		$cheques       	 = $this->input->post("cheques");
 		$overpayment 	 = $this->input->post("overpayment");
+		$advance 		 = $this->input->post("advance");
 
 		$invoice_data 	= (isset($checkrows) && (!empty($checkrows))) ? trim($checkrows) : "";
 		$invoice_data  	= str_replace('\\', '', $invoice_data);
@@ -1209,11 +1541,11 @@ class controller extends wc_controller
 
 		$condi =  implode("','" , $arvoucher_);
 		$cond = "('".$condi."')";
-
+		
 		$customer       	= $this->input->post("customer");
 		$data["customer"] 	= $customer;
 		$data["cond"]   	= $cond;
-
+		
 		$results			= ($cheques) ? $cheques : array(array());
 		$result 			= $this->receipt_voucher->retrieveRVDetails($data);
 		$results			= array_merge($results, $result);
@@ -1241,14 +1573,25 @@ class controller extends wc_controller
 		if(!empty($results)){
 			$credit      = '0.00';
 			$count       = count($results);
-			
-			for($i = 0; $i < $count; $i++, $row++)
+	
+			// $loop_cond 	 = ($advance == "yes") ? "$i <= $count" 	:	"$i < $count";
+			// echo $count;
+			for($i = 0; $i <= $count; $i++, $row++)
 			{
-				$accountcode       = (!empty($results[$i]->accountcode)) ? $results[$i]->accountcode : "";
-				$detailparticulars = (!empty($results[$i]->detailparticulars)) ? $results[$i]->detailparticulars : "";
-				$ischeck 			= (!empty($results[$i]->ischeck)) 				? $results[$i]->ischeck 			: "no";
-				$isoverpayment 		= (!empty($results[$i]->is_overpayment)) 	?	$results[$i]->is_overpayment 	:	"no";
-				$debit 				= (isset($results[$i]->chequeamount)) ? $results[$i]->chequeamount : "0";
+				if($i==$count && $advance == 'no') {
+					break;
+				}
+				$accountcode       = (!empty($results[$i]->accountcode))		? $results[$i]->accountcode : "";
+				$detailparticulars = (!empty($results[$i]->detailparticulars)) 	? $results[$i]->detailparticulars : "";
+				$ischeck 			= (!empty($results[$i]->ischeck)) 			? $results[$i]->ischeck 			: "no";
+				$isoverpayment 		= (!empty($results[$i]->is_overpayment)) 	? $results[$i]->is_overpayment 	:	"no";
+				$debit 				= (isset($results[$i]->chequeamount)) 		? $results[$i]->chequeamount : "0";
+
+				$accountcode       = (!empty($results[$i]->accountcode))		? $results[$i]->accountcode : "";
+				$detailparticulars = (!empty($results[$i]->detailparticulars)) 	? $results[$i]->detailparticulars : "";
+				$ischeck 			= (!empty($results[$i]->ischeck)) 			? $results[$i]->ischeck 			: "no";
+				$isoverpayment 		= (!empty($results[$i]->is_overpayment)) 	? $results[$i]->is_overpayment 	:	"no";
+				$debit 				= (isset($results[$i]->chequeamount)) 		? $results[$i]->chequeamount : "0";
 	
 				if($isoverpayment == 'yes'){
 					$credit 			= number_format($overpayment,2);
@@ -1260,6 +1603,36 @@ class controller extends wc_controller
 				$totalcredit     	+= $debit; 
 
 				$table .= '<tr class="clone" valign="middle">';
+				$table	.= '<td class = "checkbox-select remove-margin text-center ">';
+				$table	.=  $ui->formField('checkbox')
+								->setSplit('', 'col-md-12')
+								// ->setName("wtax[".$row."]")
+								->setId("wtax[".$row."]")
+								->setClass("wtax")
+								->setDefault("")
+								->setValue(1)
+								->setAttribute(array("disabled" => "disabled"))
+								->draw($show_input);
+				$table	.= '</td>';
+				$table .= 	'<td class="edit-button text-center" style="display: none"><button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button></td>';
+				$table	.= '<td class = "remove-margin hidden">';
+				$table	.=  $ui->formField('text')
+								->setSplit('', 'col-md-12')
+								->setName("taxcode[".$row."]")
+								->setId("taxcode[".$row."]")
+								->setClass('taxcode')
+								->setValue("")
+								->draw($show_input);
+				$table	.= '</td>';
+				$table	.= '<td class = "remove-margin hidden">';
+				$table	.=  $ui->formField('text')
+								->setSplit('', 'col-md-12')
+								->setName("taxbase_amount[".$row."]")
+								->setId("taxbase_amount[".$row."]")
+								->setClass('taxbase_amount')
+								->setValue("")
+								->draw($show_input);
+				$table	.= '</td>';
 				$table .= 	'<td class = "remove-margin">'	
 									.$ui->formField('dropdown')
 										->setPlaceholder('Select One')
@@ -1308,13 +1681,13 @@ class controller extends wc_controller
 							</td>';
 				$table .= '</tr>';
 			}
-		}
-		else
-		{
+		} else {
 			$table	.= '<tr>';
 			$table	.= 	'<td class="text-center" colspan="5">- No Records Found -</td>';
 			$table	.= '</tr>';
 		}
+
+
 		$dataArray = array( "table" => $table, "totaldebit" => number_format($totalcredit, 2),"discount_code"=>$discount_code );
 		return $dataArray;
 	}
@@ -1536,6 +1909,13 @@ class controller extends wc_controller
 		return $dataArray;
 	}
 
+	private function retrieve_advpayment_acct(){
+		$advpaymentacct 	=	$this->receipt_voucher->retrieveADVPdetails();
+		$advp_acct 			=	isset($advpaymentacct[0]->accountcode) 	?	$advpaymentacct[0]->accountcode 	:	"";
+		$dataArray 			=	array("account"=>$advp_acct);
+		return $dataArray;
+	}
+
 	public function get_account(){
 		$tax_account = $this->input->post("tax_account");
 		$tax_amount = $this->input->post("tax_amount");
@@ -1549,8 +1929,8 @@ class controller extends wc_controller
 
 	public function get_tax(){
 		$account = $this->input->post("account");
-		$result = $this->receipt_voucher->getValues("chartaccount",array("segment5"),"id = '$account' ");
-		$result_class = $result[0]->segment5;
+		$result = $this->receipt_voucher->getValues("chartaccount",array("accountname"),"id = '$account' ");
+		$result_class = $result[0]->accountname;
 
 		$bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
 		$bus_type_cond                = "tax_account = '$account' AND atc.stat = 'active'";
@@ -1566,5 +1946,25 @@ class controller extends wc_controller
 		
 		$returnArray = array( "result" => $result_class, "ret" => $ret);
 		return $returnArray;
+	}
+
+	public function update_credit_account(){
+		$credit_account 		=	$this->input->post('cred_account');
+		$data['salesAccount'] 	=	$credit_account;
+		$table 					= 	"fintaxcode";
+		$cond 					=	"fstaxcode = 'ADV' AND stat = 'active'";
+		$result = $this->receipt_voucher->editData($data, $table, $cond);
+
+		$return = array( "result" => $result);
+		return $return;
+	}
+
+	public function retrieve_existing_acct(){
+		$cred_acct				= $this->receipt_voucher->retrieve_existing_acct();
+		$existingcreditaccount	= isset($cred_acct[0]->account) ? $cred_acct[0]->account	:	"";
+		$cred_id 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
+
+		$return = array('credit_id'=>$cred_id, "credit_account"=>$existingcreditaccount);
+		return $return;
 	}
 }

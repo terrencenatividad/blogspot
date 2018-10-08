@@ -42,14 +42,13 @@ class purchase_receipt_model extends wc_model {
 	}
 
 	private function getAmounts(&$data, &$data2) {
-		$this->cleanNumber($data, array('amount', 'netamount', 'discountamount', 'taxamount', 'wtaxamount'));
-		$this->cleanNumber($data2, array('receiptqty', 'unitprice', 'taxamount', 'amount'));
+		$this->cleanNumber($data2, array('receiptqty', 'unitprice'));
 		foreach ($data2['itemcode'] as $key => $value) {
 			$data2['convreceiptqty'][$key]	= $data2['receiptqty'][$key] * $data2['conversion'][$key];
 		}
-		$data['amount']		= array_sum($data2['amount']);
-		$data['taxamount']	= array_sum($data2['taxamount']);
-		$data['netamount']	= $data['amount'] + $data['taxamount'] - $data['discountamount'] - $data['wtaxamount'];
+		// $data['amount']		= array_sum($data2['amount']);
+		// $data['taxamount']	= array_sum($data2['taxamount']);
+		// $data['netamount']	= $data['amount'] + $data['taxamount'] - $data['discountamount'] - $data['wtaxamount'];
 	}
 
 	public function updatePurchaseReceiptDetails($data, $voucherno) {
@@ -292,7 +291,7 @@ class purchase_receipt_model extends wc_model {
 
 	public function getVendorList() {
 		$result = $this->db->setTable('partners')
-						->setFields("partnercode ind,partnername val")
+						->setFields("partnercode ind, CONCAT(partnercode,' - ',partnername) val")
 						->setWhere("partnercode != '' AND partnertype = 'supplier' AND stat = 'active'")
 						->setOrderBy("val")
 						->runSelect()

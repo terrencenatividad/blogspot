@@ -55,7 +55,8 @@ var today = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(
 $('.datepicker-input').datepicker({
 	startDate: today,
 	format: 'M dd, yyyy',
-	autoclose: true
+	autoclose: true,
+	forceParse: false
 });
 
 $('.datepicker-input').each(function() {
@@ -655,6 +656,34 @@ $('#modal_div').html(`
 			<div class="modal-footer">
 				<button type="button" class="btn btn-primary" id="deactyes" data-dismiss="modal">Yes</button>
 				<button type="button" class="btn btn-default" id="deactno" data-dismiss="modal">No</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--DEACTIVATE RECORDS CONFIRMATION MODAL-->
+<div class="modal fade" id="multipleDeactivateModal" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Confirmation
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				Are you sure you want to deactivated selected atc code(s)?
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 center">
+						<div class="btn-group">
+							<button type="button" class="btn btn-primary btn-flat" id="btnDeac">Yes</button>
+						</div>
+							&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

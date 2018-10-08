@@ -238,18 +238,19 @@
 					$dropdown = $this->ui->loadElement('check_task')
 										 ->addView()
 										 ->addEdit()
+										 ->addCheckbox()
 										 ->addOtherTask(
 											'Activate',
 											'arrow-up',
 											$show_deactivate
 										)
-										->addOtherTask(
+										//  ->addDelete()
+										 ->addOtherTask('Tag Customers', 'bookmark')
+										 ->addOtherTask(
 											'Deactivate',
 											'arrow-down',
 											$show_activate
 										)	
-										 ->addDelete()
-										 ->addOtherTask('Tag Customers', 'bookmark')
 										 ->setValue($row->itemPriceCode)
 										 ->draw();
 
@@ -382,7 +383,7 @@
 
 			$filedir	= $_FILES["file"]["tmp_name"];
 	
-			$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
+			$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext", "application/octet-stream");
 
 			/**VALIDATE FILE IF CORRUPT**/
 			if(!empty($_FILES['file']['error'])){
@@ -512,7 +513,7 @@
 		public function get_import(){
 			header('Content-type: application/csv');
 
-			$header = array('Template Code','Template Name','Description',"Item Code","Adjusted Price");
+			$header = array('Price List Code','Price List Name','Description',"Item Code","Adjusted Price");
 
 			$return = '';
 			$return .= '"' . implode('","',$header) . '"';
@@ -527,7 +528,7 @@
 
 			$filedir	= $_FILES["file"]["tmp_name"];
 	
-			$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
+			$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext", "application/octet-stream");
 
 			/**VALIDATE FILE IF CORRUPT**/
 			if(!empty($_FILES['file']['error'])){
@@ -539,7 +540,7 @@
 				$errmsg[]= "Invalid file type, file must be .csv.<br/>";
 			}
 			
-			$headerArr = array('Template Code','Template Name','Description',"Item Code","Adjusted Price");
+			$headerArr = array('Price List Code','Price List Name','Description',"Item Code","Adjusted Price");
 
 			if( empty($errmsg) )
 			{
@@ -590,6 +591,8 @@
 						$description        = (!empty($b[2])) ? trim($b[2]) 	: 	$prev_desc; 
 						$itemcode 			= trim($b[3]);
 						$itemprice 			= trim($b[4]);
+						$name			    = trim($b[1]); 
+						$desc			    = trim($b[2]); 
 
 						$prev 				= $itempricecode;
 						$prev_name 			= $itempricename;
@@ -605,6 +608,13 @@
 							$errmsg		= array_filter($errmsg);
 						}
 
+						if(empty($name)){
+							$errmsg[] 	= "Price List Name is required. Row $line should not be empty.<br>";
+						}
+						if(empty($desc)){
+							$errmsg[] 	= "Description is required. Row $line should not be empty.<br>";
+						}
+						
 						// Check if Itemcode Exists
 						$item_exists 		= $this->pricelist->check_duplicate($itemcode,'items',"itemcode");
 						$item_count  		= $item_exists[0]->count;
@@ -624,6 +634,7 @@
 							$errmsg[] 	= "Adjusted Price [ <strong>$itemprice</strong> ] on row $line should not be empty.<br/>";
 							$errmsg		= array_filter($errmsg);
 						}
+
 						
 						// Check if Price List - Itemcode Pair already exists
 						// $tpl_code_exists 	= $this->pricelist->check_duplicate_pair('price_list_details', " itemPriceCode = '$itempricecode' AND itemDtlCode = '$itemcode' " );
@@ -733,7 +744,7 @@
 			$search = $this->input->post("search");
 			$sort 	= $this->input->post('sort');
 
-			$header = array('Template Code','Template Name','Description',"Item Code","Adjusted Price");
+			$header = array('Price List Code','Price List Name','Description',"Item Code","Adjusted Price");
 
 			$prev 	= '';
 			$next 	= '';
@@ -996,6 +1007,29 @@
 				'redirect'	=> MODULE_URL,
 				'success'	=> $result
 				);
+		}
+
+		private function update_multiple_deactivate(){
+			$posted_data 			=	$this->input->post(array('ids'));
+	
+			$data['stat'] 			=	'inactive';
+			
+			$posted_ids 			=	$posted_data['ids'];
+			$id_arr 				=	explode(',',$posted_ids);
+			
+			foreach($id_arr as $key => $value)
+			{
+				$result 			= 	$this->pricelist->updateStat($data, $value);
+			}
+	
+			if($result)
+			{
+				$msg = "success";
+			} else {
+				$msg = "Failed to Update.";
+			}
+	
+			return $dataArray = array( "msg" => $msg );
 		}
 	}
 ?>

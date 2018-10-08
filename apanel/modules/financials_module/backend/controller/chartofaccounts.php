@@ -203,6 +203,8 @@ class controller extends wc_controller
 			$result = $this->ajax_edit_activate();
 		elseif($task == 'ajax_edit_deactivate'):
 			$result = $this->ajax_edit_deactivate();
+		elseif($task == 'update_multiple_deactivate'):
+			$result = $this->update_multiple_deactivate();
 		endif;
 		echo json_encode($result);
 	}
@@ -697,6 +699,29 @@ class controller extends wc_controller
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
 			);
+	}
+
+	private function update_multiple_deactivate(){
+		$posted_data 			=	$this->input->post(array('ids'));
+
+		$data['stat'] 			=	'inactive';
+		
+		$posted_ids 			=	$posted_data['ids'];
+		$id_arr 				=	explode(',',$posted_ids);
+		
+		foreach($id_arr as $key => $value)
+		{
+			$result 			= 	$this->coaclass->updateStat($data, $value);
+		}
+
+		if($result)
+		{
+			$msg = "success";
+		} else {
+			$msg = "Failed to Update.";
+		}
+
+		return $dataArray = array( "msg" => $msg );
 	}
 
 }

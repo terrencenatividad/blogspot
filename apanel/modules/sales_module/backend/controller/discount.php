@@ -138,7 +138,7 @@
 
 			$filedir	= $_FILES["file"]["tmp_name"];
 	
-			$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
+			$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext","application/octet-stream");
 
 			/**VALIDATE FILE IF CORRUPT**/
 			if(!empty($_FILES['file']['error'])){
@@ -298,7 +298,7 @@
 
 			$filedir	= $_FILES["file"]["tmp_name"];
 	
-			$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
+			$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext","application/octet-stream");
 
 			/**VALIDATE FILE IF CORRUPT**/
 			if(!empty($_FILES['file']['error'])){
@@ -620,6 +620,7 @@
 					$dropdown = $this->ui->loadElement('check_task')
 										 ->addView()
 										 ->addEdit()
+										 ->addCheckbox()
 										 ->addOtherTask(
 											'Activate',
 											'arrow-up',
@@ -739,6 +740,29 @@
 				'redirect'	=> MODULE_URL,
 				'success'	=> $result
 				);
+		}
+
+		private function update_multiple_deactivate(){
+			$posted_data 			=	$this->input->post(array('ids'));
+	
+			$data['stat'] 			=	'inactive';
+			
+			$posted_ids 			=	$posted_data['ids'];
+			$id_arr 				=	explode(',',$posted_ids);
+			
+			foreach($id_arr as $key => $value)
+			{
+				$result 			= 	$this->discount->updateStat($data, $value);
+			}
+	
+			if($result)
+			{
+				$msg = "success";
+			} else {
+				$msg = "Failed to Update.";
+			}
+	
+			return $dataArray = array( "msg" => $msg );
 		}
 	}
 ?>

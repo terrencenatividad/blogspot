@@ -16,14 +16,14 @@
 					</div>
 					<!--<div class="col-md-3">
 						<?php
-							echo $ui->formField('dropdown')
-								->setPlaceholder('Select Customer')
-								->setName('customer')
-								->setId('customer')
-								->setList($customer_list)
-								->setNone('All')
-								->setAttribute(array('multiple'))
-								->draw();
+							// echo $ui->formField('dropdown')
+							// 	->setPlaceholder('Select Customer')
+							// 	->setName('customer')
+							// 	->setId('customer')
+							// 	->setList($customer_list)
+							// 	->setNone('All')
+							// 	->setAttribute(array('multiple'))
+							// 	->draw();
 						?>
 					</div>-->
 					<div class="col-md-3">
@@ -115,8 +115,11 @@
 		});
 		$('#pagination').on('click', 'a', function(e) {
 			e.preventDefault();
-			ajax.page = $(this).attr('data-page');
-			getList();
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				ajax.page = $(this).attr('data-page');
+				getList();
+			}
 		})
 		function getList() {
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
@@ -126,7 +129,7 @@
 			});
 		}
 		getList();
-		$('#tableList tbody').on('click', 'tr', function() {
+		$('#tableList tbody').on('click', 'tr.clickable', function() {
 			var id = $(this).attr('data-id');
 			window.location = '<?php echo MODULE_URL ?>view/' + id;
 		});

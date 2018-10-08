@@ -170,7 +170,7 @@ class controller extends wc_controller
 
 		// Item Limit
 		$item_limit 			= $this->invoice->getReference("si_limit");
-		$data['item_limit']		= $item_limit[0]->value;;
+		$data['item_limit']		= $item_limit[0]->value;
 		
 		// Closed Date
 		$close_date 			= $this->restrict->getClosedDate();
@@ -264,6 +264,10 @@ class controller extends wc_controller
 
 		$item_entry_data        = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$data["itemcodes"] 		= $this->invoice->getValue("items", $item_entry_data,'',"itemcode");
+
+		// Item Limit
+		$item_limit 			= $this->invoice->getReference("si_limit");
+		$data['item_limit']		= $item_limit[0]->value;
 
 		// Closed Date
 		$close_date 			= $this->restrict->getClosedDate();
@@ -449,7 +453,7 @@ class controller extends wc_controller
 								'si.amount as net','si.vat_sales as vat_sales','si.vat_exempt as vat_exempt',
 								'si.taxamount as vat','si.vat_zerorated as zerorated',
 								'drno', 'pl.voucherno plno', 'pl.source_no sono');
-		$docinfo_join   = "partners as p ON p.partnercode = si.customer AND p.companycode = si.companycode LEFT JOIN deliveryreceipt dr ON dr.voucherno = si.drno AND dr.companycode = si.companycode LEFT JOIN packinglist pl ON pl.voucherno = dr.packing_no AND pl.companycode = dr.companycode";
+		$docinfo_join   = "partners as p ON p.partnercode = si.customer AND p.companycode = si.companycode LEFT JOIN deliveryreceipt dr ON dr.voucherno = si.drno AND dr.companycode = si.companycode LEFT JOIN packinglist pl ON pl.voucherno = dr.source_no AND pl.companycode = dr.companycode";
 		$docinfo_cond 	= "si.voucherno = '$voucherno'"; 
 
 		$documentinfo  	= $this->invoice->retrieveData($docinfo_table, $docinfo_fields, $docinfo_cond, $docinfo_join);
@@ -514,13 +518,14 @@ class controller extends wc_controller
 		$discount		= 0;
 		$tax			= 0;
 		$total_amount	= 0;
+		// var_dump($documentcontent);
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
 			}
-
-			$vatable_sales	+= ($row->taxrate) ? $row->amount : 0;
-			$vat_exempt		+= ($row->taxrate) ? 0 : $row->amount;
+			// echo $row->taxrate;
+			$vatable_sales	+= ($row->taxrate > 0) ? $row->amount : 0;
+			$vat_exempt		+= ($row->taxrate == 0) ? $row->amount : 0;
 			$discount		+= $row->itemdiscount;
 			$tax			+= $row->taxamount;
 			$total_amount	+= 0;
@@ -623,8 +628,9 @@ class controller extends wc_controller
 		$result 	= '';
 		$deliveries = $this->invoice->retrieveDeliveries($drno);
 
-		$customer 	= $deliveries['header']->customer;
-		$notes 		= $deliveries['header']->remarks;
+		$customer 		= $deliveries['header']->customer;
+		$notes 			= $deliveries['header']->remarks;
+		$discountamount	= $deliveries['header']->discount ? $deliveries['header']->discount : 0 ; 
 
 		$item_entry_data    = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$itemcodes 			= $this->invoice->getValue("items", $item_entry_data,"stat = 'active'","itemcode");
@@ -657,8 +663,14 @@ class controller extends wc_controller
 										->setId("itemcode[".$row."]")
 										->setList($itemcodes)
 										->setClass('itemcode')
+										->setAttribute(
+											array(
+												"disabled" => true
+											)
+										)
 										->setValue($itemcode)
 										->draw(true);
+				$result 	.= '<input id = "h_itemcode['.$row.']" name = "h_itemcode['.$row.']" type = "hidden" value="'.$itemcode.'">';						
 				$result     .= '</td>';
 
 				$result 	.= '<td>';
@@ -668,7 +680,8 @@ class controller extends wc_controller
 									->setId('detailparticulars['.$row.']')
 									->setAttribute(
 										array(
-											"maxlength" => "100"
+											"maxlength" => "100",
+											"readOnly" => "readOnly"
 										)
 									)
 									->setValue($detailparticular)
@@ -708,7 +721,8 @@ class controller extends wc_controller
 										->setClass("text-right price")
 										->setAttribute(
 											array(
-												"maxlength" => "20"
+												"maxlength" => "20",
+												"readOnly" => "readOnly"
 											)
 										)
 										->setValue(number_format($unitprice,2))
@@ -723,13 +737,16 @@ class controller extends wc_controller
 										->setClass("taxcode")
 										->setAttribute(
 											array(
-												"maxlength" => "20"
+												"maxlength" => "20",
+												"disabled" => true
 											)
 										)
 										->setList($tax_codes)
+										// ->addHidden()
 										->setValue($taxcode)
 										->setNone("none")
 										->draw(true);
+				$result 	.= '<input id = "h_taxcode['.$row.']" name = "h_taxcode['.$row.']" type = "hidden" value="'.$taxcode.'">';						
 				$result 	.= '<input id = "taxrate['.$row.']" name = "taxrate['.$row.']" type = "hidden" value="'.$taxrate.'">';
 				$result 	.= '<input id = "taxamount['.$row.']" name = "taxamount['.$row.']" type = "hidden" value="'.$taxamount.'">';
 				$result     .= '</td>';
@@ -742,7 +759,8 @@ class controller extends wc_controller
 									->setClass("text-right amount")
 									->setAttribute(
 										array(
-											"maxlength" => "20"
+											"maxlength" => "20",
+											"readOnly" => "readOnly"
 										)
 									)
 									->setValue(number_format($amount,2))
@@ -766,7 +784,8 @@ class controller extends wc_controller
 		return array(
 			'customer' 	=> $customer,
 			'notes' 	=> $notes,
-			'items'		=> $result
+			'discount'  => $discountamount,
+ 			'items'		=> $result
 		);
 	}
 

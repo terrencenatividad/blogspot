@@ -303,9 +303,11 @@ $(document).ready(function(){
 
 	$('#pagination').on('click', 'a', function(e) {
 		e.preventDefault();
-		ajax2.page = $(this).attr('data-page');
-
-		list_customers();
+		var li = $(this).closest('li');
+		if (li.not('.active').length && li.not('.disabled').length) {
+			ajax2.page = $(this).attr('data-page');
+			list_customers();
+		}
 	});
 
 	$( "#tag_search" ).keyup(function() 
@@ -317,8 +319,11 @@ $(document).ready(function(){
 
 	$('#item_modal #pagination').on('click', 'a', function(e) {
 		e.preventDefault();
-		ajax.page = $(this).attr('data-page');
-		list_items();
+		var li = $(this).closest('li');
+		if (li.not('.active').length && li.not('.disabled').length) {
+			ajax.page = $(this).attr('data-page');
+			list_items();
+		}
 	});
 
 	$('#tag_customer_table').on('ifChecked', 'input[type="checkbox"]', function() {

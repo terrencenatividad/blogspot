@@ -1197,7 +1197,7 @@ function addVendorToDropdown()
 	var optionvalue = $("#vendor_modal #supplierForm #partnercode").val();
 	var optiondesc 	= $("#vendor_modal #supplierForm #partnername").val();
 
-	$('<option value="'+optionvalue+'">'+optiondesc+'</option>').insertAfter("#payableForm #vendor option");
+	$('<option value="'+optionvalue+'">'+optionvalue+" - "+optiondesc+'</option>').insertAfter("#payableForm #vendor option");
 	$('#payableForm #vendor').val(optionvalue);
 	
 	getPartnerInfo(optionvalue);
@@ -4013,7 +4013,7 @@ prev_account = '';
 function get_coa(account){
 	var wtax_option = '<?=$wtax_option?>';
 	$.post("<?= BASE_URL ?>financials/accounts_payable/ajax/get_tax",{account:account}).done(function(data){
-		if((data.result == 'TAX' || data.result == 'CULIAB') && wtax_option == 'AP'){
+		if((data.result == 'OTHCL' || data.result == 'TAX' || data.result == 'CULIAB') && wtax_option == 'AP'){
 			if (prev_account != '' && account != prev_account) {
 				$('#tax_amount').val('');
 			}

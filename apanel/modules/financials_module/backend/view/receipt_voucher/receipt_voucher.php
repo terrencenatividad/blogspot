@@ -9,7 +9,7 @@
 		</div>
 		<p class = "text-bold">Please contact admin to fix this issue.</p>
 	</div>
-
+	
 	<form method = "post" class="form-horizontal" id = "payableForm">
 		<input type="hidden" id="h_task" name="h_task" value="<?=$task?>">
 		<div class="box box-primary">
@@ -127,6 +127,63 @@
 								->setValue($or_no)
 								->draw($show_input);
 								?>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="crv" class="control-label col-md-4">Credits </label>
+									<div class="col-md-8">
+										<?php
+										if(!$show_input){
+											echo '<p class="form-control-static">'.number_format($sum_applied,2).'</p>';
+										}else{
+
+											?>
+											<button type="button" id="crv" class="btn btn-block btn-success btn-flat">
+												<em class="pull-left"><small>Click to view tagged credits</small></em>
+												<strong id="applied_cred_amt" class="pull-right"><?=number_format($sum_applied,2)?></strong>
+											</button>
+											<?php
+										}
+										?>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="ap_checker" class="control-label col-md-4">Advance Payment</label>
+									<div class="col-md-1">
+										<input type="checkbox" name="ap_checker" id="ap_checker" class="" value="no" style="position: absolute; opacity: 0;">
+									</div>
+									<div class="col-md-7">
+										<div class="row">
+											<div class="col-md-12" id="editlink" style="margin-top:5px;">
+												<label id="existingcreditaccount"><?=$existingcreditaccount?></label> 
+												<a href="#" id="editcredacct" style="margin-left:10px;"><u>Edit</u></a></div>
+											</div>
+											<div class="col-md-12 hidden" id="updateacctdropdown">
+												<div class="row">
+													<div class="col-md-10" >
+														<?php
+															echo $ui->formField('dropdown')
+																	->setClass("adv_acct")
+																	->setName('adv_acct')
+																	->setId('adv_acct')
+																	->setList($advcredacct)
+																	->setValue($cred_id)
+																	->draw($show_input);
+														?>
+														<input id="hidden_cred_id" name="hidden_cred_id" type="hidden" value="<?=$cred_id?>">
+													</div>
+													<div class="col-md-2">
+														<button class="btn btn-primary btn-flat" id="update_ap_acct">Save</button>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 						<div class="row">
@@ -465,10 +522,11 @@
 						<table class="table table-hover table-condensed " id="entriesTable">
 							<thead>
 								<tr class="info">
-									<th class="col-md-4">Account</th>
-									<th class="col-md-3">Description</th>
-									<th class="col-md-2">Debit</th>
-									<th class="col-md-2">Credit</th>
+									<?if($show_input){?><th class="col-md-1 text-center" >Withholding Tax</th><?}?>
+									<th class="col-md-3 text-center">Account</th>
+											<th class="col-md-3 text-center">Description</th>
+											<th class="col-md-2 text-center">Debit</th>
+											<th class="col-md-2 text-center">Credit</th>
 									<?if($show_input){?><th class="col-md-1"></th><?}?>
 								</tr>
 							</thead>
@@ -488,8 +546,46 @@
 
 									?>
 
-									<tr class="clone">
-										<td>
+									<tr class="clone" valign="middle">
+									<td class = "checkbox-select remove-margin text-center">
+											<?php
+												echo $ui->formField('checkbox')
+													->setSplit('', 'col-md-12')
+													// ->setName("wtax[".$row."]")
+													->setId("wtax[".$row."]")
+													->setClass("wtax")
+													->setDefault("")
+													->setValue(1)
+													->setAttribute(array("disabled" => "disabled"))
+													->draw($show_input);
+											?>
+										</td>
+										<td class="edit-button text-center " style="display: none">
+											<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
+										</td>
+										<td class = "remove-margin hidden" >
+											<?php
+												echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName("taxcode[".$row."]")
+													->setId("taxcode[".$row."]")
+													->setClass('taxcode')
+													->setValue("")
+													->draw($show_input);
+											?>
+										</td>
+										<td class = "remove-margin hidden" >
+											<?php
+												echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName("taxbase_amount[".$row."]")
+													->setId("taxbase_amount[".$row."]")
+													->setClass('taxbase_amount')
+													->setValue("")
+													->draw($show_input);
+											?>
+										</td>
+										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('dropdown')
 											->setPlaceholder('Select One')
@@ -503,7 +599,7 @@
 											?>
 											<input type = "hidden" class="h_accountcode" name='h_accountcode[<?=$row?>]' id='h_accountcode[<?=$row?>]'>
 										</td>
-										<td>
+										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
@@ -516,7 +612,7 @@
 											?>
 											<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
 										</td>
-										<td>
+										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
@@ -530,7 +626,7 @@
 											->draw($show_input);
 											?>
 										</td>
-										<td>
+										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
@@ -553,8 +649,45 @@
 									$row++;
 									?>
 
-									<tr class="clone">
-										<td>
+									<tr class="clone" valign="middle">
+									<td class = "checkbox-select remove-margin text-center">
+											<?php
+												echo $ui->formField('checkbox')
+														->setSplit('', 'col-md-12')
+														->setId("wtax[".$row."]")
+														->setClass("wtax")
+														->setDefault("")
+														->setValue(1)
+														->setAttribute(array("disabled" => "disabled"))
+														->draw($show_input);
+											?>
+										</td>
+										<td class="edit-button text-center" style="display: none">
+											<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
+										</td>
+										<td class = "remove-margin hidden">
+											<?php
+												echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName("taxcode[".$row."]")
+													->setId("taxcode[".$row."]")
+													->setClass('taxcode')
+													->setValue("")
+													->draw($show_input);
+											?>
+										</td>
+										<td class = "remove-margin hidden">
+											<?php
+												echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName("taxbase_amount[".$row."]")
+													->setId("taxbase_amount[".$row."]")
+													->setClass('taxbase_amount')
+													->setValue("")
+													->draw($show_input);
+											?>
+										</td>
+										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('dropdown')
 											->setPlaceholder('Select One')
@@ -568,7 +701,7 @@
 											?>
 											<input type = "hidden" class="h_accountcode" name='h_accountcode[<?=$row?>]' id='h_accountcode[<?=$row?>]'>
 										</td>
-										<td>
+										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
@@ -581,7 +714,7 @@
 											?>
 											<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
 										</td>
-										<td>
+										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
@@ -595,7 +728,7 @@
 											->draw($show_input);
 											?>
 										</td>
-										<td>
+										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
@@ -615,7 +748,7 @@
 									</tr>
 
 									<?php
-								}else{
+								}else if($task == 'view'){
 									$aPvJournalDetails 	= $data['details'];
 									$detail_row 		= '';
 									if(!empty($aPvJournalDetails)){
@@ -654,7 +787,7 @@
 										}
 
 										$detail_row	.= '<tr class="clone '.$added_class.'">';
-										$detail_row	.= '<td>';
+										$detail_row	.= '<td class = "remove-margin">';
 										$detail_row .= $ui->formField('dropdown')
 										->setPlaceholder('Select One')
 										->setSplit('', 'col-md-12')
@@ -668,7 +801,7 @@
 										$detail_row	.= '<input type = "hidden" class="h_accountcode"  name="h_accountcode['.$row.']" id="h_accountcode['.$row.']" value="'.$accountcode.'" >
 										</td>';
 
-										$detail_row	.= '<td>';
+										$detail_row	.= '<td class = "remove-margin">';
 										$detail_row .= $ui->formField('text')
 										->setSplit('', 'col-md-12')
 										->setName('detailparticulars['.$row.']')
@@ -680,12 +813,12 @@
 										$detail_row	.= '	<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
 										</td>';
 
-										$detail_row	.= '<td class="text-right">';
+										$detail_row	.= '<td class="text-right class = "remove-margin"">';
 										$detail_row .= $ui->formField('text')
 										->setSplit('', 'col-md-12')
 										->setName('debit['.$row.']')
 										->setId('debit['.$row.']')
-										->setClass("text-right account_amount $indicator")
+										->setClass("text-right debit account_amount $indicator")
 										->setValidation('decimal')
 										->setMaxLength(20)
 										->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
@@ -693,7 +826,7 @@
 										->draw($show_input);
 										$detail_row	.= '</td>';
 
-										$detail_row	.= '<td class="text-right">';
+										$detail_row	.= '<td class="text-right class = "remove-margin"">';
 										$detail_row .= $ui->formField('text')
 										->setSplit('', 'col-md-12')
 										->setName('credit['.$row.']')
@@ -719,6 +852,147 @@
 
 									echo $detail_row;
 								}
+								}
+								
+								else{
+									$aPvJournalDetails 	= $data['details'];
+									$detail_row 		= '';
+									if(!empty($aPvJournalDetails)){
+										$count = count($aPvJournalDetails);
+										foreach ($aPvJournalDetails as $aPvJournalDetails_Index => $aPvJournalDetails_Value) {
+											$accountcode 		= $aPvJournalDetails_Value->accountcode;
+											$detailparticulars 	= $aPvJournalDetails_Value->detailparticulars;
+											$debit 				= $aPvJournalDetails_Value->debit;
+											$credit 			= $aPvJournalDetails_Value->credit;
+											$taxcode 			= $aPvJournalDetails_Value->taxcode;
+											$taxbase_amount		= $aPvJournalDetails_Value->taxbase_amount;
+
+											$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
+
+											$total_debit 		+= $debit;
+											$total_credit 		+= $credit;
+
+											$disable_code 		= "";
+											$added_class 		= "";
+											$added_function_db 	= "";
+											$added_function_cr	= "";
+											$indicator 			= "";
+											
+										if($aPvJournalDetails_Index < ($count-1) && $paymenttype == 'cheque' && $ischeck == 'yes'){					
+											$disable_debit		= 'readOnly';
+											$disable_credit		= 'readOnly';
+											$disable_dedit 		= "readOnly";
+											$disable_code 		= 'disabled';
+											$added_class 		= 'added_row';
+											$indicator 			= "cheque";
+										} else if($aPvJournalDetails_Index > 0 && $accountcode == $discount_code ){
+											$disable_debit		= 'readOnly';
+											$disable_credit		= 'readOnly';
+											$disable_code 		= 'disabled';
+											$added_class 		= 'discount_row';
+										} else {
+											$disable_debit		= ($debit > 0) ? '' : 'readOnly';
+											$disable_credit		= ($credit > 0) ? '' : 'readOnly';
+										}
+										
+											$detail_row	.= '<tr class="clone '.$added_class.'">';
+											$detail_row	.= '<td class = "checkbox-select remove-margin text-center">';
+											$detail_row .= $ui->formField('checkbox')
+															->setSplit('', 'col-md-12')
+															->setName("wtax[".$row."]")
+															->setId("wtax[".$row."]")
+															->setClass("wtax")
+															->setDefault("1")
+															->setValue(($taxcode) ? 1 : 0)
+															->setAttribute(array("disabled" => "disabled"))
+															->draw($show_input);
+											$detail_row	.='</td>';
+											$detail_row	.= '<td class="edit-button text-center" style="display: none">';
+											$detail_row .= '<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button></td>';
+										
+											$detail_row	.= '<td class = "remove-margin hidden">';
+											$detail_row .= $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName("taxcode[".$row."]")
+															->setId("taxcode[".$row."]")
+															->setClass('taxcode')
+															->setValue($taxcode)
+															->draw($show_input);
+											$detail_row	.='</td>';
+											$detail_row	.= '<td class = "remove-margin hidden">';
+											$detail_row .= $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName("taxbase_amount[".$row."]")
+															->setId("taxbase_amount[".$row."]")
+															->setClass('taxbase_amount')
+															->setValue($taxbase_amount)
+															->draw($show_input);
+											$detail_row	.='</td>';
+											$detail_row	.= '<td class = "remove-margin">';
+											$detail_row .= $ui->formField('dropdown')
+															->setPlaceholder('Select One')
+															->setSplit('', 'col-md-12')
+															->setName("accountcode[".$row."]")
+															->setClass("accountcode")
+															->setId("accountcode[".$row."]")
+															->setList($account_entry_list)
+															->setAttribute(array($disable_code))
+															->setValue($accountcode)
+															->draw($show_input);
+											$detail_row	.= '<input type = "hidden" class="h_accountcode"  name="h_accountcode['.$row.']" id="h_accountcode['.$row.']" value="'.$accountcode.'">';
+											$detail_row	.= '</td>';
+
+											$detail_row	.= '<td class="remove-margin">';
+											$detail_row .= $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName('detailparticulars['.$row.']')
+															->setId('detailparticulars['.$row.']')
+															->setMaxLength(250)
+															->setClass('description')
+															->setValue($detailparticulars)
+															->draw($show_input);
+											$detail_row	.= '<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
+											</td>';
+
+											$detail_row	.= '<td class="text-right class="remove-margin">';
+											$detail_row .= $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName('debit['.$row.']')
+															->setId('debit['.$row.']')
+															->setClass("text-right debit account_amount $indicator")
+															->setValidation('decimal')
+															->setMaxLength(20)
+															->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
+															->setValue(number_format($debit, 2))
+															->draw($show_input);
+											$detail_row	.= '</td>';
+
+											$detail_row	.= '<td class="text-right class="remove-margin">';
+											$detail_row .= $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName('credit['.$row.']')
+															->setClass("text-right  credit $indicator")
+															->setId('credit['.$row.']')
+															->setValidation('decimal')
+															->setMaxLength(20)
+															->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_credit))
+															->setValue(number_format($credit, 2))
+															->draw($show_input);
+											$detail_row	.= '</td>';
+
+											if( $show_input ){
+												$detail_row .= '<td class="text-center">';
+												$detail_row .= '	<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="'.$row.'" id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');" '.$disable_code.'><span class="glyphicon glyphicon-trash"></span></button>';
+												$detail_row .= '</td>';
+											}
+
+											$detail_row	.= '</tr>';
+
+											$row++;
+										}
+
+										echo $detail_row;
+								}
 							}
 							?>
 						</tbody>
@@ -733,6 +1007,9 @@
 								<tr id="total">
 									<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 									<td class="right" style="border-top:1px solid #DDDDDD;">
+									<? if($show_input): ?>
+									<td class="right" style="border-top:1px solid #DDDDDD;">
+									<?endif;?>
 										<label class="control-label col-md-12">Total</label>
 									</td>
 									<td class="text-right" style="border-top:1px solid #DDDDDD;">
@@ -800,7 +1077,6 @@
 		</div>
 	</form>
 
-	<!-- Payment Modal -->
 	<div class="modal fade" id="paymentModal" tabindex="-1" data-backdrop="static">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
@@ -824,142 +1100,227 @@
 					<form class="form-horizontal" id="paymentForm">
 						<br/>
 						<div class="row">
-						<!-- <label class="control-label col-md-2">
-							Total Receivable
-						</label> -->
-						<div class="col-md-4">
-							<?php
-							echo $ui->formField('text')
-							->setSplit('col-md-6', 'col-md-6')
-							->setLabel("Total Receivable")
-							->setClass("input-sm text-right")
-							->setName('total_payment')
-							->setId('total_payment')
-							->setPlaceHolder("0.00")
-							->setAttribute(
-								array(
-									"maxlength" => "50", 
-									"readonly" => "readonly"
+							<!-- <label class="control-label col-md-2">
+								Total Receivable
+							</label> -->
+							<div class="col-md-4">
+								<?php
+								echo $ui->formField('text')
+								->setSplit('col-md-6', 'col-md-6')
+								->setLabel("Total Receivable")
+								->setClass("input-sm text-right")
+								->setName('total_payment')
+								->setId('total_payment')
+								->setPlaceHolder("0.00")
+								->setAttribute(
+									array(
+										"maxlength" => "50", 
+										"readonly" => "readonly"
+									)
 								)
-							)
-							->setValue(number_format($sum_applied,2))
-							->draw(true);
-							?>
-						</div>
-						<div class="col-md-4">
-							<?php
-							echo $ui->formField('text')
-							->setSplit('col-md-6', 'col-md-6')
-							->setLabel("Total Discount")
-							->setClass("input-sm text-right")
-							->setName('total_discount')
-							->setId('total_discount')
-							->setPlaceHolder("0.00")
-							->setAttribute(
-								array(
-									"maxlength" => "50", 
-									"readonly" => "readonly"
+								->setValue(number_format($sum_applied,2))
+								->draw(true);
+								?>
+							</div>
+							<div class="col-md-4">
+								<?php
+								echo $ui->formField('text')
+								->setSplit('col-md-6', 'col-md-6')
+								->setLabel("Total Discount")
+								->setClass("input-sm text-right")
+								->setName('total_discount')
+								->setId('total_discount')
+								->setPlaceHolder("0.00")
+								->setAttribute(
+									array(
+										"maxlength" => "50", 
+										"readonly" => "readonly"
+									)
 								)
-							)
-							->setValue(number_format($sum_discount,2))
-							->draw(true);
-							?>
-						</div>
-						<div class="col-md-4">
-							<?php
-							echo $ui->formField('text')
-							->setSplit('col-md-6', 'col-md-6')
-							->setLabel("Credits")
-							->setClass("input-sm text-right")
-							->setName('available_credits')
-							->setId('available_credits')
-							->setPlaceHolder("0.00")
-							->setAttribute(
-								array(
-									"maxlength" => "50", 
-									"readonly" => "readonly"
+								->setValue(number_format($sum_discount,2))
+								->draw(true);
+								?>
+							</div>
+							<div class="col-md-4">
+								<?php
+								echo $ui->formField('text')
+								->setSplit('col-md-6', 'col-md-6')
+								->setLabel("Credits")
+								->setClass("input-sm text-right")
+								->setName('available_credits')
+								->setId('available_credits')
+								->setPlaceHolder("0.00")
+								->setAttribute(
+									array(
+										"maxlength" => "50", 
+										"readonly" => "readonly"
+									)
 								)
-							)
-							->setValue(number_format($available_credits,2))
-							->draw(true);
-							?>
+								->setValue(number_format($available_credits,2))
+								->draw(true);
+								?>
+							</div>
+							<div class="col-md-offset-8 has-error">
+								<span id="excess_credit_error" class="help-block hidden  small">
+									<i class="glyphicon glyphicon-exclamation-sign"></i> 
+									You cannot input a Credit greater than your available Credit amount.
+								</span>
+							</div>					
 						</div>
-						<div class="col-md-offset-8 has-error">
-							<span id="excess_credit_error" class="help-block hidden  small">
-								<i class="glyphicon glyphicon-exclamation-sign"></i> 
-								You cannot input a Credit greater than your available Credit amount.
-							</span>
-						</div>					
-					</div>
 
-					<div class="has-error">
-						<span id="appCountError" class="help-block hidden small">
-							<i class="glyphicon glyphicon-exclamation-sign"></i> 
-							Please select at least one(1) payable.
-						</span>
-						<span id="appAmountError" class="help-block hidden small">
-							<i class="glyphicon glyphicon-exclamation-sign"></i> 
-							Please make sure that the amount paid for the payable(s) below are greater than zero(0).
-						</span>
-						<span id="discountAmtError" class="help-block hidden small has-error">
-							<i class="glyphicon glyphicon-exclamation-sign"></i> 
-							You cannot input a <strong>Discount</strong> greater than the <strong>Amount to Receive</strong>.
-						</span>
-						<span id="receiveAmtError" class="help-block hidden small has-error">
-							<i class="glyphicon glyphicon-exclamation-sign"></i> 
-							You cannot enter a negative amount.
-						</span>
-					</div>
-					<div class="table-responsive">
-						<table class="table table-condensed table-bordered table-hover" id="app_payableList">
-							<thead>
-								<tr class="info">
-									<?if($show_input):?><th class="col-md-1 center"></th><?endif;?>
-									<th class="col-md-1 text-center">Date</th>
-									<th class="col-md-1 text-center">Voucher</th>
-									<th class="col-md-1 text-center">Reference</th>
-									<th class="col-md-1 text-center">Total Amount</th>
-									<th class="col-md-1 text-center">Balance</th>
-									<th class="col-md-1 text-center">Amount to Receive</th>
-									<th class="col-md-1 text-center">Discount</th>
-									<th class="col-md-1 text-center">Apply Credits</th>
-								</tr>
-							</thead>
-							<tbody id="payable_list_container">
-								<!-- <tr>
-									<td class="text-center" style="vertical-align:middle;" colspan="7">- No Records Found -</td>
-								</tr> -->
-							</tbody>
-							<tfoot>
-								<tr> <!-- class="info" -->
-									<!--<td class="col-md-3 center" id="app_page_info">&nbsp;</td>-->
-									<!--<td class="col-md-9 center" id="app_page_links"></td>-->
-									<td class="center" colspan = "7" id="app_page_links"></td>
-								</tr>
-							</tfoot>
-						</table>
-					</div>
-					<div id="pagination"></div>
-					<div class="modal-footer">
-						<div class="col-md-12 col-sm-12 col-xs-12 text-center">
-							<?if($show_input):?>
-							<div class="btn-group">
-								<button type = "button" id="TagReceivablesBtn" class = "btn btn-primary btn-sm btn-flat" onClick = "getRVDetails();">Tag</button>
-							</div>
-							&nbsp;&nbsp;&nbsp;
-							<?endif;?>
-							<div class="btn-group">
-								<!-- noted by Sir Mark to remove this onclick function upon cancel. onClick="clearPayment();"-->
-								<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal" >Cancel</button>
+						<div class="has-error">
+							<span id="appCountError" class="help-block hidden small">
+								<i class="glyphicon glyphicon-exclamation-sign"></i> 
+								Please select at least one(1) payable.
+							</span>
+							<span id="appAmountError" class="help-block hidden small">
+								<i class="glyphicon glyphicon-exclamation-sign"></i> 
+								Please make sure that the amount paid for the payable(s) below are greater than zero(0).
+							</span>
+							<span id="discountAmtError" class="help-block hidden small has-error">
+								<i class="glyphicon glyphicon-exclamation-sign"></i> 
+								You cannot input a <strong>Discount</strong> greater than the <strong>Amount to Receive</strong>.
+							</span>
+							<span id="receiveAmtError" class="help-block hidden small has-error">
+								<i class="glyphicon glyphicon-exclamation-sign"></i> 
+								You cannot enter a negative amount.
+							</span>
+						</div>
+						<div class="table-responsive">
+							<table class="table table-condensed table-bordered table-hover" id="app_payableList">
+								<thead>
+									<tr class="info">
+										<?if($show_input):?><th class="col-md-1 center"></th><?endif;?>
+										<th class="col-md-1 text-center">Date</th>
+										<th class="col-md-1 text-center">Voucher</th>
+										<th class="col-md-1 text-center">Reference</th>
+										<th class="col-md-1 text-center">Total Amount</th>
+										<th class="col-md-1 text-center">Balance</th>
+										<th class="col-md-1 text-center">Amount to Receive</th>
+										<th class="col-md-1 text-center">Discount</th>
+										<th class="col-md-1 text-center">Apply Credits</th>
+									</tr>
+								</thead>
+								<tbody id="payable_list_container">
+									<!-- <tr>
+										<td class="text-center" style="vertical-align:middle;" colspan="7">- No Records Found -</td>
+									</tr> -->
+								</tbody>
+								<tfoot>
+									<tr> <!-- class="info" -->
+										<!--<td class="col-md-3 center" id="app_page_info">&nbsp;</td>-->
+										<!--<td class="col-md-9 center" id="app_page_links"></td>-->
+										<td class="center" colspan = "7" id="app_page_links"></td>
+									</tr>
+								</tfoot>
+							</table>
+						</div>
+						<div id="pagination"></div>
+						<div class="modal-footer">
+							<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+								<?if($show_input):?>
+								<div class="btn-group">
+									<button type = "button" id="TagReceivablesBtn" class = "btn btn-primary btn-sm btn-flat" onClick = "getRVDetails();">Tag</button>
+								</div>
+								&nbsp;&nbsp;&nbsp;
+								<?endif;?>
+								<div class="btn-group">
+									<!-- noted by Sir Mark to remove this onclick function upon cancel. onClick="clearPayment();"-->
+									<button type="button" class="btn btn-default btn-sm btn-flat" id="cancelPaymentModal" >Cancel</button>
+								</div>
 							</div>
 						</div>
-					</div>
 					
-				</form>
+					</form>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
+	
+	<div class="modal fade" id="creditvoucherModal">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Tag Credit Vouchers</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-4 col-md-offset-8">
+							<div class="input-group">
+								<input id="table_search" class="form-control pull-right" placeholder="Search" type="text">
+								<div class="input-group-addon">
+									<i class="fa fa-search"></i>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal" id="creditsForm">
+						<div class="row">
+							<div class="col-md-4">
+								<?php
+								echo $ui->formField('text')
+										->setSplit('col-md-6', 'col-md-6')
+										->setLabel("Total Credits")
+										->setClass("input-sm text-right")
+										->setName('total_credits_to_apply')
+										->setId('total_credits_to_apply')
+										->setPlaceHolder("0.00")
+										->setAttribute(
+											array(
+												"maxlength" => "20", 
+												"readonly" => "readonly"
+											)
+										)
+										->setValue(number_format($sum_applied,2))
+										->draw(true);
+								?>
+							</div>			
+						</div>
+
+						<div class="table-responsive">
+							<table class="table table-condensed table-bordered table-hover" id="creditVoucherLists">
+								<thead>
+									<tr class="info">
+										<?if($show_input):?><th class="col-md-1 center"></th><?endif;?>
+										<th class="col-md-1 text-center">Credit Voucher #</th>
+										<th class="col-md-1 text-center">Invoice #</th>
+										<th class="col-md-1 text-center">Reference #</th>
+										<th class="col-md-1 text-center">Total Amount</th>
+										<th class="col-md-1 text-center">Balance</th>
+										<th class="col-md-1 text-center">Amount to Apply</th>
+									</tr>
+								</thead>
+								<tbody id="list_container">
+								</tbody>
+								<tfoot>
+									<tr>
+										<td class="center" colspan = "7" id="app_page_links"></td>
+									</tr>
+								</tfoot>
+							</table>
+						</div>
+						<div id="pagination"></div>
+						<div class="modal-footer">
+							<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+								<?if($show_input):?>
+								<div class="btn-group">
+									<button type = "button" id="TagCreditsBtn" class = "btn btn-primary btn-sm btn-flat">Tag</button>
+								</div>
+								&nbsp;&nbsp;&nbsp;
+								<?endif;?>
+								<div class="btn-group">
+									<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal" >Cancel</button>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
 </section>
 
 <!-- Delete Record Confirmation Modal -->
@@ -1087,7 +1448,8 @@
 			</div>
 			<div class="modal-body">
 				<p>Successfully Saved.</p>
-				<p class="hidden">A <strong>Credit Memo</strong> has been generated for the overpayment.</p>
+				<p class="hidden" id="credit_memo">A <strong>Credit Memo</strong> has been generated for the Overpayment.</p>
+				<p class="hidden" id="credit_voucher">A <strong>Credit Voucher</strong> has been generated for the Advance Payment.</p>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-success" data-dismiss="modal" id="save_okbtn">Ok</button>
@@ -1125,8 +1487,8 @@
 										->setName('tax_amount')
 										->setId('tax_amount')
 										->setClass('text-right tax_amount')
-										->setValue('')
-										->setValidation('required')
+										->setValue($taxbase_amount)
+										->setValidation('required decimal')
 										->draw($show_input);
 							?>
 						</div>
@@ -1139,7 +1501,7 @@
 									</div>
 										&nbsp;&nbsp;&nbsp;
 									<div class="btn-group">
-										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
+										<button type="button" class="btn btn-default btn-flat" id="atc_cancel" data-dismiss="modal">Cancel</button>
 									</div>
 								</div>
 							</div>
@@ -1160,52 +1522,6 @@
 	var edited = false;
 	$('#paymentModal').on('blur', 'input', function() {
 		edited = true;
-	});
-
-	var row = '';
-	prev_account = '';
-	
-	function get_coa(account){
-	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_tax",{account:account}).done(function(data){
-		if((data.result == '1401005')){
-			if (prev_account != '' && account != prev_account) {
-				$('#tax_amount').val('');
-			}
-			prev_account = account;
-			$('#atcModal').modal('show');
-			$('#tax_account').html(data.ret);
-		} else {
-			row.find('.checkbox-select').show();
-			row.find('.edit-button').hide();
-		}
-	});
-
-	
-}
-	$('#entriesTable').on('change', '.accountcode', function(){
-		row = $(this).closest('tr')
-		var account = $(this).val();
-		get_coa(account);
-	})
-
-	$('#tax_apply').click(function(){
-		var tax_account = $('#tax_account').val();
-		var tax_amount = $('#tax_amount').val();
-		tax_amount = tax_amount.replace(/,/g,'');
-		$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_account",{tax_account:tax_account,tax_amount:tax_amount})
-		.done(function(data) {
-			var credit = data.amount ;
-			console.log(credit);
-			var taxcode = data.tax_account;
-			row.find('.credit').val(addCommas(credit));
-			row.find('.taxbase_amount').val(tax_amount);
-			row.find('.taxcode').val(tax_account);
-			addAmountAll('credit');
-		});
-		
-		$('#atcModal').modal('hide');
-		row.find('.checkbox-select').hide();
-		row.find('.edit-button').show().attr('data-amount', tax_amount);
 	});
 
 	function addcustomerToDropdown() {
@@ -1243,6 +1559,7 @@ echo $ui->loadElement('modal')
 	var acct_details 	= [];
 
 	var checker 	= new Array();
+	var credits_box = new Array();
 	var table 		= document.getElementById('ap_items');
 	var newid 		= table.rows.length;
 	newid 		= parseFloat(newid);
@@ -1280,14 +1597,14 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 			var description = $(this).find('.description').val();
 			var ischeck 	= $(this).find('.ischeck').val();
 			var debit		= $(this).find('.account_amount').val();
-		// console.log("ACCOUNTCODE = "+accountcode);
-		if(description!=""){
-			if (typeof acct_details[accountcode] === 'undefined') {
-				acct_details[accountcode] = "";
+			// console.log("ACCOUNTCODE = "+accountcode);
+			if(description!=""){
+				if (typeof acct_details[accountcode] === 'undefined') {
+					acct_details[accountcode] = "";
+				}
+				acct_details[accountcode] = description;
 			}
-			acct_details[accountcode] = description;
-		}
-	});
+		});
 	}
 
 	function displaystoreddescription(){
@@ -1312,6 +1629,9 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 			$('#entriesTable tbody tr.clone select').select2('destroy');
 		}
 		var val = $(this).val();
+		
+		var is_ap 	= $('#ap_checker').is(':checked');
+			is_ap 	= (is_ap == true) ? "true" 	:	"false";
 
 		cheque_arr = [];
 
@@ -1330,8 +1650,9 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 					$("#entriesTable tbody tr.clone:not(.added_row)").first().before(clone_acct);
 				} else {
 					$('#entriesTable tbody tr.clone .accountcode').each(function() {
+						console.log($(this).closest('tbody').find('tr').length);
 						var account = $(this).val();
-						if(account == "" ){
+						if(account == "" && (is_ap == "false" || $(this).closest('tbody').find('tr').length >= 2)){
 							$(this).closest('tr').remove();
 						}
 					});
@@ -1475,7 +1796,7 @@ function getPartnerInfo(code)
 				}
 			}
 		});
-
+		
 		computeDueDate();
 	} else
 	{
@@ -1558,28 +1879,34 @@ function toggleExchangeRate(tp) {
 function resetIds() {
 	var table 	= document.getElementById('entriesTable');
 	var count	= table.rows.length - 3;
-
 	x = 1;
 	for(var i = 1;i <= count;i++) {
 		var row = table.rows[i];
 		
-		row.cells[0].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
-		row.cells[0].getElementsByTagName("input")[0].id 	= 'h_accountcode['+x+']';
-		row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
-		row.cells[1].getElementsByTagName("input")[1].id 	= 'ischeck['+x+']';
-		row.cells[2].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
-		row.cells[3].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].id 	= 'wtax['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].id 	= 'taxcode['+x+']';
+		row.cells[3].getElementsByTagName("input")[0].id 	= 'taxbase_amount['+x+']';
+		row.cells[4].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
+		row.cells[4].getElementsByTagName("input")[0].id 	= 'h_accountcode['+x+']';
+		row.cells[5].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
+		row.cells[5].getElementsByTagName("input")[1].id 	= 'ischeck['+x+']';
+		row.cells[6].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
+		row.cells[7].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
 		
-		row.cells[0].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
-		row.cells[0].getElementsByTagName("input")[0].name  = 'h_accountcode['+x+']';
-		row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
-		row.cells[1].getElementsByTagName("input")[1].name 	= 'ischeck['+x+']';
-		row.cells[2].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
-		row.cells[3].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].name 	= 'wtax['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].name 	= 'taxcode['+x+']';
+		row.cells[3].getElementsByTagName("input")[0].name 	= 'taxbase_amount['+x+']';
+		row.cells[4].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
+		row.cells[4].getElementsByTagName("input")[0].name  = 'h_accountcode['+x+']';
+		row.cells[5].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
+		row.cells[5].getElementsByTagName("input")[1].name 	= 'ischeck['+x+']';
+		row.cells[6].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
+		row.cells[7].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
 		
-		row.cells[4].getElementsByTagName("button")[0].setAttribute('id',x);
-		row.cells[0].getElementsByTagName("select")[0].setAttribute('data-id',x);
-		row.cells[4].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
+		row.cells[8].getElementsByTagName("button")[0].setAttribute('id',x);
+		row.cells[4].getElementsByTagName("select")[0].setAttribute('data-id',x);
+		row.cells[8].getElementsByTagName("button")[0].setAttribute('data-id',x);
+		row.cells[8].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
 
 		x++;
 	}
@@ -1629,6 +1956,9 @@ function setZero(offset) {
 	var account		= document.getElementById('accountcode['+newid+']');
 
 	if(document.getElementById('accountcode['+newid+']') != null) {
+		document.getElementById('wtax['+newid+']').value 				= '';
+		document.getElementById('taxcode['+newid+']').value 			= '';
+		document.getElementById('taxbase_amount['+newid+']').value 		= '';
 		document.getElementById('accountcode['+newid+']').value 		= '';
 		document.getElementById('h_accountcode['+newid+']').value 		= '';
 		document.getElementById('detailparticulars['+newid+']').value 	= '';
@@ -1797,7 +2127,6 @@ function addAmountAll(field) {
 		var inputs 		= document.getElementById(field+'['+i+']');
 		var disables 	= document.getElementById(notfield+'['+i+']');
 		var is_cheque   = $("#ischeck\\["+i+"\\]").val();
-
 		if(document.getElementById(notfield+'['+i+']')!=null)
 		{          
 			if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
@@ -2056,37 +2385,55 @@ function cancelTransaction(vno){
 /**TOGGLE CHECK DATE FIELD**/
 function toggleCheckInfo(val){
 	var selected_rows = $("#selected_rows").html();
+	var is_ap 	= $('#ap_checker').is(':checked');
+		is_ap 	= (is_ap == true) ? "true" 	:	"false";
 
 	if(val == 'cheque'){
 		if(selected_rows != '[]'){
 			$("#payableForm #cheque_details").removeClass('hidden');
 		}else{
-			
-			var list 	= (customer != '') ? "<ul><li>Total Receivables</li></ul>" : "<ul><li>Vendor</li><li>Total Receivables</li></ul>";
-			var msg 	= "The following fields are required to process a '<strong>Check</strong>' payment."+list;
-			bootbox.dialog({
-				message: msg,
-				title: "Oops!",
-				buttons: {
-					yes: {
-						label: "Ok",
-						className: "btn-primary btn-flat",
-						callback: function(result) {
-							$("#payableForm #paymentmode").val('cash');
-							$('#payableForm #paymentmode').select2('destroy');
-							$('#payableForm #paymentmode').select2({width: "100%"});
+			if(is_ap == "false"){
+				var list 	= (customer != '') ? "<ul><li>Total Receivables</li></ul>" : "<ul><li>Vendor</li><li>Total Receivables</li></ul>";
+				var msg 	= "The following fields are required to process a '<strong>Check</strong>' payment."+list;
+				bootbox.dialog({
+					message: msg,
+					title: "Oops!",
+					buttons: {
+						yes: {
+							label: "Ok",
+							className: "btn-primary btn-flat",
+							callback: function(result) {
+								$("#payableForm #paymentmode").val('cash');
+								$('#payableForm #paymentmode').select2('destroy');
+								$('#payableForm #paymentmode').select2({width: "100%"});
+							}
 						}
 					}
-				}
-			});
+				});
+			} else {
+				$("#payableForm #cheque_details").removeClass('hidden');
+			}
 		}
 	} else {
 		//For Reseting initial PV & Cheque Details
+		setChequeZero();
 		clearChequePayment();
-		getRVDetails();
 		$("#payableForm #cheque_details").addClass('hidden');
 		$('#totalcheques').val(0);
 		formatNumber('totalcheques');
+		if(is_ap == "false"){
+			if(container.length > 0){
+				getRVDetails();
+			}
+			clear_acct_input();
+			$('.ischeck').val('no');
+			$('.debit').removeAttr('readonly');
+			$('.credit').removeAttr('readonly');
+			$('.accountcode').prop('disabled',false);
+			$('.confirm-delete').prop('disabled',false);
+		} else {
+			set_credit_account();
+		}
 	}
 
 }
@@ -2218,12 +2565,15 @@ $('#table_search').on('input', function() {
 
 $('#pagination').on('click', 'a', function(e) {
 	e.preventDefault();
-	ajax.page = $(this).attr('data-page');
-	showList();
+	var li = $(this).closest('li');
+	if (li.not('.active').length && li.not('.disabled').length) {
+		ajax.page = $(this).attr('data-page');
+		showList();
+	}
 });
 
 $('#paymentModal').on('show.bs.modal', function () {
-  	$('#payable_list_container tr').each(function(index,value){
+	$('#payable_list_container tr').each(function(index,value){
 		var amt_to_receive 	= $(this).find('.paymentamount').val();
 			amt_to_receive  = (amt_to_receive == undefined) ? 0 : amt_to_receive;
 		var discount 		= $(this).find('.discountamount').val();
@@ -2238,10 +2588,107 @@ $('#paymentModal').on('show.bs.modal', function () {
 		}
 		if(amt_to_receive < 0){
 			$('#TagReceivablesBtn').prop('disabled',true);
-
 		}
+
   	});
 });
+
+$('#paymentModal').on('hidden.bs.modal',function(){
+	$("#discountAmtError").addClass('hidden');
+	$('#receiveAmtError').addClass('hidden');
+	$(this).find('.discountamount').closest('div').removeClass('has-error');
+	$(this).find('.paymentamount').closest('div').removeClass('has-error');
+});
+
+$('#cancelPaymentModal').on('click',function(){
+	var selected_rows 	= [];
+	$('#selected_rows').html(selected_rows);
+	$('#paymentModal').modal('hide');
+	$('#payable_list_container tr').each(function(index,value){
+		if($(this).find('.icheckbox').prop('checked')){
+			var voucher = $(this).find('.icheckbox').attr('row');
+			selectPayable(voucher,1);
+		}
+	});
+	// selectPayable(id,toggle){
+});
+
+$('#editcredacct').on('click',function(e){
+	e.preventDefault();
+	$('#editlink').addClass('hidden');
+	$('#updateacctdropdown').removeClass('hidden');
+});
+
+function showCreditsList(){
+	var vnose 			= JSON.stringify(container);
+	var	customer_code	= $('#payableForm #customer').val();
+		voucherno 		= $('#payableForm #h_voucher_no').val();
+
+	var ajax_call		= '';
+		ajax.limit 		= 5;
+
+	if (ajax_call != '') {
+		ajax_call.abort();
+	}
+
+	ajax.customer 	= customer_code;
+	ajax.voucherno 	= voucherno;
+	ajax.vno 		= vnose;
+	ajax.task 		= task;
+	ajax_call 		= $.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/load_credit_vouchers", ajax )
+						.done(function( data ) 
+						{
+							$('#pagination').html(data.pagination);
+							$('#creditvoucherModal #list_container').html(data.table);
+
+							if(!($("paymentModal").data('bs.modal') || {isShown: false}).isShown){
+								var check_rows = $('#payableForm #selected_rows').html();
+								var obj = (check_rows != "") ? JSON.parse(check_rows) : 0;
+
+								for(var i = 0; i < obj.length; i++){
+									$('input#row_check' + obj[i]["row"]).iCheck('check');
+								} 
+								$('#creditvoucherModal').modal('show');
+							};
+						});
+}	
+
+function showCreditsVoucher(){
+	var valid		= 0;
+	var	customer_code	= $('#paymentForm #customer').val();
+	$('#paymentForm #customer').trigger('blur');
+	var h_voucher_no = ('<?= $task ?>' == "edit") ? $("#payableForm #h_voucher_no").val() : "";
+
+	valid			+= validateField('payableForm','customer', "customer_help");
+
+	if(valid == 0 && customer_code != ""){
+		// showList(h_voucher_no);
+		// setChequeZero();
+		// clearChequePayment();
+		// $('#payable_list_container tbody').html(`<tr>
+		// 	<td colspan="4" class="text-center">Loading Items</td>
+		// 	</tr>`);
+		// $('#pagination').html('');
+		// showList();
+		showCreditsList()
+	}
+	else
+	{
+		bootbox.dialog({
+			message: "Please select customer first.",
+			title: "Oops!",
+			buttons: {
+				yes: {
+					label: "OK",
+					className: "btn-primary btn-flat",
+					callback: function(result) {
+
+					}
+				}
+			}
+		});
+	}
+}
 
 function showIssuePayment(){
 	var valid		= 0;
@@ -2359,6 +2806,9 @@ var selectedIndex 	= -1;
 function getRVDetails(){
 	var customercode   	= $("#customer").val();
 	var overpayment 	= $('#overpayment').val();
+	var is_ap 			= $('#ap_checker').is(':checked');
+		is_ap 			= (is_ap == true) ? "yes" 	:	"no";
+
 	var selected_rows 	= JSON.stringify(container);
 	var cheques = [];
 	cheques_obj = getCheckAccounts();
@@ -2373,7 +2823,7 @@ function getRVDetails(){
 
 	$("#selected_rows").html(selected_rows);
 
-	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques + "&overpayment="+overpayment;
+	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques + "&overpayment="+overpayment + "&advance="+is_ap;
 	
 	if(selected_rows == "")
 	{
@@ -2455,7 +2905,7 @@ function selectPayable(id,toggle){
 			credit_used.prop('disabled',true);
 			credit_used.val("0.00");
 			// discountamount.val('');
-			console.log('1');
+			// console.log('1');
 		}else{
 			check.prop('checked', true);
 			paymentamount.prop('disabled',false);
@@ -2463,7 +2913,7 @@ function selectPayable(id,toggle){
 			discountamount.prop('disabled',false);
 			credit_used.prop('disabled',false);
 			// discountamount.val(balance);
-			console.log('2');
+			// console.log('2');
 		}
 	}else{
 		if(toggle == 1){
@@ -2473,7 +2923,7 @@ function selectPayable(id,toggle){
 			discountamount.prop('disabled',false);
 			credit_used.prop('disabled',false);
 			// discountamount.val(balance);
-			console.log('3');
+			// console.log('3');
 			// if(credit_used.val() > available_credit)
 		}else{
 			check.prop('checked', false);
@@ -2483,7 +2933,7 @@ function selectPayable(id,toggle){
 			credit_used.prop('disabled',true);
 			credit_used.val("0.00");
 			// discountamount.val('0.00');
-			console.log('4');
+			// console.log('4');
 		}
 	}
 
@@ -2495,10 +2945,72 @@ function selectPayable(id,toggle){
 	addPaymentAmount();
 }
 
+function computeCreditBalance(id){
+	var balance 	= $('#list_container #credits_balance'+id).attr('data-value');
+	var amount 		= $('#list_container #credits_amount'+id).attr('data-value');
+	var toapply 	= $('#list_container #credittoapply'+id);
+	
+	console.log("Balance = "+balance);
+
+	console.log(credits_box);
+	if (typeof credits_box[id].balance === 'undefined') {
+		credits_box[id].balance = 0;
+	}
+	if (typeof credits_box[id].amount === undefined) {
+		credits_box[id].amount = 0;
+	}
+	if (typeof credits_box[id].toapply === undefined) {
+		credits_box[id].toapply = 0;
+	}
+
+	// credits_box = [];
+	// credits_box[id]['balance'] = (typeof credits_box[id]['balance'] !== 'undefined') ? parseFloat(balance) : 0;
+	// credits_box[id]['amount']  = (typeof credits_box[id]['amount'] !== 'undefined') ? parseFloat(amount) : 0;
+	// credits_box[id]['toapply'] = (typeof credits_box[id]['toapply'] !== 'undefined') ? parseFloat(toapply) : 0;
+
+	console.log(credits_box);
+}
+
+function selectCredits(id,toggle){
+	var check 		= $('#list_container #check'+id);
+	var balance 	= $('#list_container #credits_balance'+id).attr('data-value');
+	var amount 		= $('#list_container #credits_amount'+id).attr('data-value');
+	var toapply 	= $('#list_container #credittoapply'+id);
+
+	// console.log(toapply);
+	if(check.prop('checked')){
+		if(toggle == 1){
+			console.log('1');
+			check.prop('checked', false);
+			toapply.prop('disabled',true);
+		}else{
+			console.log('2');
+			check.prop('checked', true);
+			toapply.prop('disabled',false);
+		}
+	}else{
+		if(toggle == 1){
+			console.log('3');
+			check.prop('checked', true);
+			toapply.prop('disabled',false);
+		}else{
+			console.log('4');
+			check.prop('checked', false);
+			toapply.prop('disabled',true);
+		}
+	}
+	$('#list_container #check'+id).iCheck('update');
+
+	// Get number of checkboxes and assign to textarea
+	// balance 	=	removeComma(balance);
+	// add_storage(id,balance,0,0,overpayment);
+	// addPaymentAmount();
+	computeCreditBalance(id);
+}
+
 function init_storage(){
 	if (localStorage.selectedPayables) {
 		container = JSON.parse(localStorage.selectedPayables);
-		//console.log(container);
 	}
 }
 
@@ -2588,9 +3100,6 @@ function checkBalance(val,id){
 	var error 	  = 0;
 		condition 		= (parseFloat(newval) || parseFloat(discount) == 0 || (parseFloat(discount) > parseFloat(dueamount) || parseFloat(discount) > parseFloat(current_payment) ) ) ;
 	
-	// $('#app_payableList tr').each(function(e){
-	// 	var  
-	// });
 	// var excess_payment 	= $('#overpayment').val();
 	var excess_payment 	= $('#overpayment').val();
 		excess_payment 	= parseFloat(excess_payment) || 0;
@@ -2625,6 +3134,7 @@ function checkBalance(val,id){
 			$(this).find('.paymentamount').closest('div').removeClass('has-error');
 			$('#TagReceivablesBtn').prop('disabled',false);
 		}
+		excess_payment 	=	(excess_payment < 0) ? 0 : excess_payment;
 		$('#payableForm #overpayment').val(excess_payment);
 		$('#payable_list_container #overpayment'+id).val(ind_excess);
 		$('#payable_list_container #paymentamount'+id).value = '';
@@ -2660,8 +3170,8 @@ function checkCredit(val,id){
 		input = 0;
 	}
 
-	add_storage(id,dueamount,discount,input,overpayment);
-	addPaymentAmount();	
+	// add_storage(id,dueamount,discount,input,overpayment);
+	// addPaymentAmount();	
 }
 
 function validateCheques(){
@@ -3016,6 +3526,25 @@ function clear_acct_input(){
 	addAmountAll('credit');
 }
 
+function reset_acct_fields(){
+	$('#ap_items .clone').each(function(index) {
+		if (index > 1) {
+			$(this).remove();
+		}
+	});
+
+	$('#ap_items .accountcode').val('').trigger('change');
+	$('#ap_items .h_accountcode').val('');	
+	$('#ap_items .debit').val('0.00');
+	$('#ap_items .account_amount').val('0.00');
+	$('#total_debit').val('0.00');
+
+	$('#ap_items .accountcode').prop('disabled',false);	
+	$('#ap_items .confirm-delete').prop('disabled',false);	
+	$('#ap_items .account_amount').removeAttr('readonly');
+	$('#ap_items .credit').removeAttr('readonly');	
+}
+
 function computefortotalaccounts(){
 	var count 	=	0;
 	$('#entriesTable tbody tr select.accountcode').each(function() {
@@ -3025,6 +3554,21 @@ function computefortotalaccounts(){
 		} 
 	});
 	return count;
+}
+
+function set_credit_account(){
+	var cred_acct 	= $('#hidden_cred_id').val();
+	var row 	  	= $('#entriesTable tbody tr.clone').length;
+	
+	$("#accountcode\\["+ row +"\\]").val(cred_acct).trigger('change.select2');
+	$("#h_accountcode\\["+ row +"\\]").val(cred_acct);
+	$('#credit\\['+row+'\\]').val('0.00');	
+
+	$("#accountcode\\["+ row +"\\]").closest('tr').addClass('credit_account');
+
+	$('#debit\\['+row+'\\]').prop('disabled',true);
+	$("#accountcode\\["+ row +"\\]").prop('disabled',true);
+	$('.confirm-delete[data-id="'+row+'"]').prop('disabled',true);
 }
 
 $(document).ready(function() {
@@ -3508,11 +4052,15 @@ $(document).ready(function() {
 		{	
 			if(data.success == 1)
 			{
-				// $("#payableForm #h_voucher_no").val(data.voucher);
-				
 				var credit_used 	=	$('#total_cred_used').val();
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+
 				if(credit_used > 0){
-					$('#success_save_modal p.hidden').removeClass('hidden');
+					$('#success_save_modal p#credit_memo').removeClass('hidden');
+					$('#success_save_modal').modal('show');	
+				} else if(is_ap=="yes") {
+					$('#success_save_modal p#credit_voucher').removeClass('hidden');
 					$('#success_save_modal').modal('show');	
 				} else {
 					$('#delay_modal').modal('show');
@@ -3557,7 +4105,10 @@ $(document).ready(function() {
 					
 					$("#payableForm #btnSave").html('Saving...');
 					
-					$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+					var is_ap 	= $('#ap_checker').is(':checked');
+						is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+
+					$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 					.done(function(data)
 					{	
 						if(data.code == '1')
@@ -3616,7 +4167,10 @@ $(document).ready(function() {
 
 				$("#payableForm #submit").val("h_save");
 
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+					
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 				.done(function(data)
 				{	
 					if(data.code == 1){
@@ -3658,8 +4212,9 @@ $(document).ready(function() {
 			}
 			if(valid == 0){
 				$("#payableForm #submit").val("save_new");
-
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 				.done(function(data)
 				{
 					if(data.code == 1){
@@ -3703,8 +4258,9 @@ $(document).ready(function() {
 			if(valid == 0)
 			{
 				$("#payableForm #submit").val("save");
-
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 				.done(function(data)
 				{
 					if(data.code == 1){
@@ -3745,8 +4301,9 @@ $(document).ready(function() {
 			if(valid == 0)
 			{
 				$("#payableForm #submit").val("save_exit");
-
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 				.done(function(data)
 				{
 					if(data.code == 1){
@@ -3769,7 +4326,7 @@ $(document).ready(function() {
 
 	} else if( task == "edit") {
 		var paymentmode = $("#paymentmode").val();
-		console.log(container);
+		// console.log(container);
 		var selected_rows 	= JSON.stringify(container);
 		$('#selected_rows').html(selected_rows);
 
@@ -3807,8 +4364,11 @@ $(document).ready(function() {
 				$("#payableForm #btnSave").html('Saving...');
 
 				$("#payableForm #h_save").val("h_save");
-				
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 				.done(function(data)
 				{
 					if(data.code == 1) {
@@ -3855,8 +4415,11 @@ $(document).ready(function() {
 				$("#payableForm #btnSave").html('Saving...');
 
 				$("#payableForm #submit").val("save_new");
-				
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 				.done(function(data)
 				{
 					if(data.code == 1) {
@@ -3902,7 +4465,10 @@ $(document).ready(function() {
 
 				$("#payableForm #submit").val("save");
 				
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 				.done(function( data ) {
 					if(data.code == 1) {
 						finalize_saving(button_name);				
@@ -3947,7 +4513,10 @@ $(document).ready(function() {
 
 				$("#payableForm #submit").val("save_exit");
 				
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize())
+				var is_ap 	= $('#ap_checker').is(':checked');
+					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
 				.done(function( data ) 
 				{
 					if(data.code == 1) {
@@ -4030,9 +4599,14 @@ $(document).ready(function() {
 	});
 
 	$('#customer').on('select2:selecting', function(e){
-		console.log(e);
+		// console.log(e);
 		var accounts_selected 	= computefortotalaccounts();
-		if(accounts_selected > 0){
+		var is_ap 				= $('#ap_checker').is(':checked');
+			is_ap 				= (is_ap == true) ? "true" 	:	"false";
+		var curr_customer 		= $(this).val();
+		console.log("CURR _ "+curr_customer);
+
+		if(accounts_selected > 0 && curr_customer!="" ){
 			e.preventDefault();
 			$('#change_customer_modal').modal('show');
 			$(this).select2('close');
@@ -4050,20 +4624,8 @@ $(document).ready(function() {
 		var customer = $('#new_customer').val();
 		$('#customer').val(customer).trigger('change');
 
-		$('#ap_items .clone').each(function(index) {
-			if (index > 0) {
-				$(this).remove();
-			}
-		});
-
-		$('#ap_items .accountcode').val('').trigger('change');
-		$('#ap_items .h_accountcode').val('');	
-		$('#ap_items .debit').val('0.00');
-		$('#ap_items .account_amount').val('0.00');
-		$('#ap_items .account_amount').removeAttr('readonly');
-		$('#total_debit').val('0.00');
-		
 		clearChequePayment();
+		reset_acct_fields();
 
 		$('#change_customer_modal').modal('hide');
 		$('#excess_credit_error').addClass('hidden');
@@ -4093,7 +4655,9 @@ $(document).ready(function() {
 		var flag 	= 1;
 		
 		var account = $(this).val();
-
+		//Advance Payment Checker
+		var is_ap 	= $('#ap_checker').is(':checked');
+			is_ap 	= (is_ap == true) ? "true" 	:	"false";
 		if( account != "" ){
 			$(this).closest('tr').find('.h_accountcode').val(account);
 			if( customer == "" ){
@@ -4110,7 +4674,7 @@ $(document).ready(function() {
 						}
 					}
 				});
-			} else if( payable == "[]"){
+			} else if( payable == "[]" && is_ap == "false" ){
 				bootbox.dialog({
 					message: "Please tag Receivables first.",
 					title: "Oops!",
@@ -4164,46 +4728,202 @@ $(document).ready(function() {
 	});
 
 	//validation for Credit Amount
-	// $('#credit_input').on('change',function(){
-	// 	var available_credits =	$('#available_credits').val();
-	// 	var input 	= $(this).val();
+	$('#credit_input').on('change',function(){
+		var available_credits =	$('#available_credits').val();
+		var input 	= $(this).val();
 
-	// 	input 				=	removeComma(input);
-	// 	available_credits 	=	removeComma(available_credits);
+		input 				=	removeComma(input);
+		available_credits 	=	removeComma(available_credits);
 
-	// 	console.log("Available "+available_credits);
-	// 	console.log("Input "+input);
+		if(input > available_credits){
+			$('#excess_credit_error').removeClass('hidden');
+			$(this).closest('.form-group').addClass('has-error');
+		} else {
+			if(input > 0){
+				$('#excess_credit_error').addClass('hidden');
+				$(this).closest('.form-group').removeClass('has-error');
 
-	// 	if(input > available_credits){
-	// 		$('#excess_credit_error').removeClass('hidden');
-	// 		$(this).closest('.form-group').addClass('has-error');
-	// 	} else {
-	// 		if(input > 0){
-	// 			$('#excess_credit_error').addClass('hidden');
-	// 			$(this).closest('.form-group').removeClass('has-error');
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_op_acct",$('#payableForm').serialize())
+				.done(function( response ) {
+					var excess_acct = addCommas(response.account);
+					var ParentRow = $("#entriesTable tbody tr.clone").last();
+					ParentRow.before(clone_acct);
+					resetIds();
+					var row 	  = $('#entriesTable tbody tr.clone').length - 1;
+					$("#accountcode\\["+ row +"\\]").val(excess_acct).trigger('change.select2');
+					$("#h_accountcode\\["+ row +"\\]").val(excess_acct);
+					$("#debit\\["+ row +"\\]").val(addComma(input));
+					disable_acct_fields(row);
+					addAmountAll('debit');
+				});
+			}
+		}
 
-	// 			$.post("<?//=BASE_URL?>financials/receipt_voucher/ajax/retrieve_op_acct",$('#payableForm').serialize())
-	// 			.done(function( response ) {
-	// 				var excess_acct = addCommas(response.account);
-	// 				var ParentRow = $("#entriesTable tbody tr.clone").last();
-	// 				ParentRow.before(clone_acct);
-	// 				resetIds();
-	// 				var row 	  = $('#entriesTable tbody tr.clone').length - 1;
-	// 				console.log("ROW "+row);
-	// 				$("#accountcode\\["+ row +"\\]").val(excess_acct).trigger('change.select2');
-	// 				$("#h_accountcode\\["+ row +"\\]").val(excess_acct);
-	// 				$("#debit\\["+ row +"\\]").val(addComma(input));
-	// 				disable_acct_fields(row);
-	// 				// $('#entriesTable tbody tr.clone:first').find('.account_amount').val(addComma(input));
-	// 				// $('#entriesTable tbody tr.clone:first').find('.accountcode').val(excess_acct).trigger('change');
-	// 				addAmountAll('debit');
-	// 			});
-	// 		}
-	// 	}
+	});
 
-	// });
-	
-	
+	// For Advance payment
+	$('#payableForm').on('ifChecked','#ap_checker',function(event){
+		$('#apv').prop('disabled',true);
+		// $('#crv').prop('disabled',true);
+		container 	=	[];
+		$('paymentmode').val('cash');
+		clearPayment();
+		setChequeZero();
+		reset_acct_fields();
+		clearChequePayment();
+		set_credit_account();
+	});
+
+	$('#payableForm').on('ifUnchecked','#ap_checker',function(event){
+		$('#apv').prop('disabled',false);
+		// $('#crv').prop('disabled',false);
+
+		$('#entriesTable tbody tr.credit_account').each(function() {
+			$(this).find('.accountcode').val('').trigger('change.select2');
+			$(this).find('.h_accountcode').val('');
+			$(this).find('.credit').val('0.00');
+			$(this).find('.accountcode').prop('disabled',false);
+			$(this).find('.debit').prop('disabled',false);
+			$(this).find('.confirm-delete').prop('disabled',false);
+			addAmountAll('credit');
+		});
+	});
+
+	// For Credit Voucher
+	$('#payableForm').on('click','#crv',function(){
+		showCreditsVoucher();
+	});
+
+	$('#creditVoucherLists').on('ifToggled', '.icheckbox', function(event){
+		event.type = "checked";
+		var selectid = $(this).attr('row');
+		var selecttoggleid = $(this).attr('toggleid');
+		
+		selectPayable(selectid,selecttoggleid);	
+	});
+
 }); // end
 
+var row = '';
+prev_account = '';
+var selected_tax_account = '';
+	
+function get_coa(account){
+	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_tax",{account:account}).done(function(data){
+		if((data.result == 'Creditable Withholding Tax')){
+			if (prev_account != '' && account != prev_account) {
+				$('#tax_amount').val('');
+			}
+			prev_account = account;
+			$('#atcModal').modal('show');
+			$('#tax_account').html(data.ret);
+			if (selected_tax_account) {
+				$('#tax_account').val(selected_tax_account);
+			}
+		} else {
+			row.find('.checkbox-select').show();
+			row.find('.edit-button').hide();
+		}
+	});
+}
+
+$("#entriesTable").on('ifToggled','.wtax',function() {
+	$('#tax_amount').val('');
+	row = $(this).closest('tr');
+});
+
+$("#entriesTable").on('click', '.edit-button', function() {
+	// $('#tax_amount').val($(this).attr('data-amount'));
+	// $('#atcModal').modal('show');
+	// var accountcode = $('.accountcode').val();
+	// get_coa(accountcode);
+	// row = $(this).closest('tr');
+
+	$('#tax_amount').val($(this).attr('data-amount'));
+	var accountcode = $(this).closest('tr').find('.accountcode').val();
+	row = $(this).closest('tr');
+	var taxcode = $(this).closest('tr').find('.taxcode').val();
+	selected_tax_account = taxcode;
+	get_coa(accountcode);
+});
+
+$('#tax_apply').click(function(){
+	var tax_account = $('#tax_account').val();
+	var tax_amount = $('#tax_amount').val();
+	tax_amount = tax_amount.replace(/,/g,'');
+	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_account",{tax_account:tax_account,tax_amount:tax_amount})
+	.done(function(data) {
+		var debit = data.amount ;
+		var taxcode = data.tax_account;
+		row.find('.debit').val(addCommas(debit.toFixed(2)));
+		row.find('.taxbase_amount').val(tax_amount);
+		row.find('.taxcode').val(tax_account);
+		addAmountAll('debit');
+	});
+	
+	$('#atcModal').modal('hide');
+	row.find('.checkbox-select').hide();
+	row.find('.edit-button').show().attr('data-amount', tax_amount);
+
+});
+
+// $('#atcModal #atc_cancel').on('click' ,function(){
+// 	var tax_account = $('#tax_account').val();
+// 	var tax_amount = $('#tax_amount').val();
+// 	tax_amount = tax_amount.replace(/,/g,'');
+// 	row.find('.checkbox-select').hide();
+// 	row.find('.edit-button').show().attr('data-amount', tax_amount);
+// });
+
+$('#entriesTable').on('change', '.accountcode', function(){
+	row = $(this).closest('tr')
+	var account = $(this).val();
+	get_coa(account);
+});
+
+$('#entriesTable .taxcode').each(function(){
+	var acc = $(this).val();
+	var tax_amt = $(this).closest('tr').find('.taxbase_amount').val();
+	if (acc != '' ){
+		$(this).closest('tr').find('.checkbox-select').hide();
+		$(this).closest('tr').find('.edit-button').show().attr('data-amount', tax_amt);
+		$('#tax_account').val(acc);
+	}
+});
+
+$('#payableForm').on('click','#update_ap_acct',function(e){
+	e.preventDefault();
+
+	var new_credit_account = $('#adv_acct').val();
+	$.post('<?=BASE_URL?>financials/receipt_voucher/ajax/update_credit_account', "cred_account=" + new_credit_account, function(data) {
+		if(data.result){
+			$('#editlink').removeClass('hidden');
+			$('#updateacctdropdown').addClass('hidden');
+			$.post('<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_existing_acct', function(data) {
+				$('#existingcreditaccount').html(data.credit_account);
+				$('#hidden_cred_id').val(data.credit_id);
+
+				var count_cred_row 	=	$('#entriesTable tbody tr.credit_account').length;
+				if(count_cred_row > 0){
+					$('#entriesTable tbody tr.credit_account').each(function() {
+						$(this).find('.accountcode').val(new_credit_account).trigger('change.select2');
+						$(this).find('.h_accountcode').val(new_credit_account);
+						$(this).find('.accountcode').prop('disabled',true);
+						$(this).find('.confirm-delete').prop('disabled',true);
+						// $("#accountcode\\["+ row +"\\]").closest('tr').addClass('credit_account');
+					});
+				}
+			});
+		}
+	});
+});
+
+
+</script>
+<script>
+	$('.tax_amount').on('change', function(){
+		var accs = $(this).val();
+		acc = addCommas(parseFloat(accs).toFixed(2));
+		$('.tax_amount').val(acc);
+	});
 </script>

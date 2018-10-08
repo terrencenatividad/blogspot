@@ -150,7 +150,7 @@
 			</div>
 
 			<!--Cheque Details-->
-				<div class="has-error">
+				<div class="has-error" id="cheque_error">
 					<span id="chequeCountError" class="help-block hidden small">
 						<i class="glyphicon glyphicon-exclamation-sign"></i> 
 						Please specify at least one(1) check.
@@ -1256,6 +1256,27 @@
 		</div>
 	</div>
 </div>
+
+<div class="modal fade" id="noBankModal" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+						<span class="glyphicon glyphicon-warning-sign"> Notice!
+			</div>
+			<div class="modal-body">
+				Please create bank on Bank Maintenance 
+				<input type="hidden" id="recordId"/>
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 center">
+							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div> 
 
 	<!-- <div class="modal fade" id="checkModal" tabindex="-1" data-backdrop="static">
 		<div class="modal-dialog modal-sm">
@@ -2374,6 +2395,7 @@ function toggleCheckInfo(val){
 		$("#payableForm #cheque_details").addClass('hidden');
 		$('#totalcheques').val(0);
 		formatNumber('totalcheques');
+		$("#payableForm #cheque_error").addClass('hidden');
 	}
 
 }
@@ -2502,8 +2524,11 @@ $('#table_search').on('input', function() {
 
 $('#pagination').on('click', 'a', function(e) {
 	e.preventDefault();
-	ajax.page = $(this).attr('data-page');
-	showList();
+	var li = $(this).closest('li');
+	if (li.not('.active').length && li.not('.disabled').length) {
+		ajax.page = $(this).attr('data-page');
+		showList();
+	}
 });
 
 $('body').on('click' , '.print_check', function(){
@@ -3521,7 +3546,7 @@ $(document).ready(function() {
 
 		$.post("<?= BASE_URL?>financials/payment_voucher/ajax/delete_payments", "voucher=" + id)
 		.done(function( data ) 
-		{	
+		{	chequeaccount
 			if(data.msg == "success")
 			{
 				table.deleteRow(row);
@@ -3568,6 +3593,13 @@ $(document).ready(function() {
 
 				if (rowlength == row){
 					table.deleteRow(row);
+					storedescriptionstoarray();
+					recomputechequeamts();
+					acctdetailamtreset();
+					resetChequeIds();
+					addAmounts();
+					addAmountAll('debit');
+					addAmountAll('credit');
 				}
 
 			} else {	
@@ -3607,6 +3639,13 @@ $(document).ready(function() {
 
 				if (rowlength == row){
 					table.deleteRow(row);
+					storedescriptionstoarray();
+					recomputechequeamts();
+					acctdetailamtreset();
+					resetChequeIds();
+					addAmounts();
+					addAmountAll('debit');
+					addAmountAll('credit');
 				}
 				
 			} else {
@@ -3897,6 +3936,7 @@ $(document).ready(function() {
 
 	} else if( task == "edit") {
 		var paymentmode = $("#paymentmode").val();
+		// console.log(paymentmode);
 
 		var selected_rows 	= JSON.stringify(container);
 		$('#selected_rows').html(selected_rows);
@@ -3906,6 +3946,13 @@ $(document).ready(function() {
 			// loadCheques();
 			addAmounts();
 		}
+
+		$('#paymentmode').on('change',function(){
+			var paymentmode = $("#paymentmode").val();
+			if (paymentmode == 'cash'){
+				$('#accounting_details .credit').attr("readonly", false); 
+			}
+		})	
 
 		$("#paymentmode").removeAttr("disabled");
 
@@ -4236,7 +4283,7 @@ $(document).ready(function() {
 		var wtax_option = '<?=$wtax_option?>';
 		if(wtax_option == 'PV'){
 			$.post("<?= MODULE_URL ?>ajax/get_tax",{account:account}).done(function(data){
-				if((data.result == 'TAX' || data.result == 'CULIAB')){
+				if((data.result == 'OTHCL' || data.result == 'TAX' || data.result == 'CULIAB')){
 					// if (prev_account != '' && account != prev_account) {
 					// 	$('#tax_amount').val('');
 					// }
@@ -4318,6 +4365,14 @@ $(document).ready(function() {
 		$('select.cancelled').attr("style", "pointer-events: none;");
 		$('.cancelled.datepicker-input').removeClass('datepicker-input').datepicker('remove');
 	});
+
+	$('#chequeTable .chequeaccount').on('select2:open',function(){
+		var bank_count = $(this).find('option').length - 1;
+		if (bank_count == 0){
+			$('#noBankModal').modal('show');
+			$(this).select2('close');
+		}
+	})
 
 }); // end
 </script>

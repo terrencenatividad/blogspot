@@ -88,7 +88,7 @@
 								->addHeader('Supplier Invoice No.', array('class' => 'col-md-2'), 'sort', 'invoiceno')
 								->addHeader('Supplier', array('class' => 'col-md-2'), 'sort', 'vendor')
 								->addHeader('Purchase Order No.', array('class' => 'col-md-2'), 'sort', 'source_no')
-								->addHeader('Amount', array('class' => 'col-md-2 text-right'), 'sort', 'netamount')
+								// ->addHeader('Amount', array('class' => 'col-md-2 text-right'), 'sort', 'netamount')
 								->addHeader('Status', array('style' => 'width: 15px'), 'sort', 'pr.stat')
 								->draw();
 					?>
@@ -135,8 +135,11 @@
 		});
 		$('#pagination').on('click', 'a', function(e) {
 			e.preventDefault();
-			ajax.page = $(this).attr('data-page');
-			getList();
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				ajax.page = $(this).attr('data-page');
+				getList();
+			}
 		});
 		function getList() {
 			filterToURL();

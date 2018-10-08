@@ -198,6 +198,11 @@
 		ajax.search = search;
 		getList();
 	});
+	$('#items').on('change', function() {
+		ajax.page = 1;
+		ajax.limit = $(this).val();
+		getList();
+	});
 	$('#daterangefilter').on('change', function() {
 		ajax.daterangefilter = $(this).val();
 		ajax_call.abort();
@@ -231,8 +236,11 @@
 	}
 	$('#pagination').on('click', 'a', function(e) {
 		e.preventDefault();
-		ajax.page = $(this).attr('data-page');
-		getList();
+		var li = $(this).closest('li');
+		if (li.not('.active').length && li.not('.disabled').length) {
+			ajax.page = $(this).attr('data-page');
+			getList();
+		}
 	});
 	$(function() {
 		linkButtonToTable('#item_multiple_delete', '#tableList');

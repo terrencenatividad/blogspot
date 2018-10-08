@@ -54,7 +54,7 @@
 					<div class = "col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-									->setLabel('Tax Account: ')
+									->setLabel('EWT: ')
 									->setSplit('col-md-3', 'col-md-8')
 									->setName('tax_account')
 									->setId('tax_account')
@@ -75,6 +75,19 @@
 									->setName('short_desc')
 									->setId('short_desc')
 									->setValue($short_desc)
+									->setValidation('required')
+									->draw($task != "view");
+						?>
+					</div>
+					<div class = "col-md-6">
+						<?php
+							echo $ui->formField('dropdown')
+									->setLabel('CWT: ')
+									->setSplit('col-md-3', 'col-md-8')
+									->setName('cwt')
+									->setId('cwt')
+									->setList($s_account_list)
+									->setValue(($task == 'create' ? '' : $cwt))
 									->setValidation('required')
 									->draw($task != "view");
 						?>

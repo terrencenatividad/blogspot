@@ -32,7 +32,10 @@
 
 			/**TAX ACCOUNT**/
 			$data["account_list"] = $this->atc_code->getValue("chartaccount", 
-			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode IN('TAX','CULIAB') ", "",false,false);
+			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode IN('TAX','CULIAB','OTHCL') ", "",false,false);
+			
+			$data["s_account_list"] = $this->atc_code->getValue("chartaccount", 
+			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountname = 'Creditable Withholding Tax'", "",false,false);
 
 			$this->view->load('atc_code/atc_code',$data);
 		}
@@ -46,12 +49,15 @@
 		
 		
 			$data["ajax_post"] 	 = "&companycode=".COMPANYCODE."&atcId=".$atc_code;
-			$retdata = array('atcId','atc_code','tax_rate','wtaxcode','short_desc','tax_account');
+			$retdata = array('atcId','atc_code','tax_rate','wtaxcode','short_desc','tax_account','cwt');
 			$condition = "atcId = '".$atc_code."' ";
 
 			/**TAX ACCOUNT**/
 			$data["account_list"] = $this->atc_code->getValue("chartaccount", 
-			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode IN('TAX','CULIAB') ", "",false,false);
+			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode IN('TAX','CULIAB','OTHCL') ", "",false,false);
+
+			$data["s_account_list"] = $this->atc_code->getValue("chartaccount", 
+			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountname = 'Creditable Withholding Tax'", "",false,false);
 
 			$list = $this->atc_code->retrieveData($retdata,"","",$condition);
 		
@@ -64,6 +70,7 @@
 					$data["wtaxcode"] 		= $list->result[$i]->wtaxcode;
 					$data["short_desc"] 	= $list->result[$i]->short_desc;
 					$data["tax_account"] 	= $list->result[$i]->tax_account;
+					$data["cwt"] 			= $list->result[$i]->cwt;
 				}
 			endif;
 
@@ -81,13 +88,15 @@
 			$data['sid'] = $atc_code;
 
 			$data["ajax_post"] 	 = "&companycode=".COMPANYCODE."&atc_code=".$atc_code;
-			$retdata = array('atcId','atc_code','tax_rate','wtaxcode','short_desc','tax_account');
+			$retdata = array('atcId','atc_code','tax_rate','wtaxcode','short_desc','tax_account','cwt');
 			$condition = "atcId = '".$atc_code."' ";
 
 			/**TAX ACCOUNT**/
 			$data["account_list"] = $this->atc_code->getValue("chartaccount", 
 			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode = 'TAX' ", "",false,false);
 
+			$data["s_account_list"] = $this->atc_code->getValue("chartaccount", 
+			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountname = 'Creditable Withholding Tax'", "",false,false);
 
 			$list = $this->atc_code->retrieveData($retdata,"","",$condition);
 		
@@ -100,6 +109,7 @@
 					$data["wtaxcode"] 		= $list->result[$i]->wtaxcode;
 					$data["short_desc"] 	= $list->result[$i]->short_desc;
 					$data["tax_account"] 	= $list->result[$i]->tax_account;
+					$data["cwt"] 			= $list->result[$i]->cwt;
 				}
 
 			endif;
@@ -132,6 +142,8 @@
 				$result = $this->ajax_edit_activate();
 			elseif($task == 'ajax_edit_deactivate'):
 				$result = $this->ajax_edit_deactivate();
+			elseif($task == 'update_multiple_deactivate'):
+				$result = $this->update_multiple_deactivate();
 			endif;
 			echo json_encode($result);
 		}
@@ -154,7 +166,7 @@
 				$errmsg[]= "Invalid file type, file must be .csv.<br/>";
 			}
 
-			$headerArr = array('ATC Code','Tax Rate', 'Tax Code', 'Description', 'Tax Account');
+			$headerArr = array('ATC Code','Tax Rate', 'Tax Code', 'Description', 'EWT','CWT');
 			
 			if( empty($errmsg) )
 			{
@@ -198,7 +210,8 @@
 						$taxrate 	   	= $b[1];
 						$taxcode 	   	= $b[2];
 						$description   	= $b[3];
-						$taxaccount		= $b[4];
+						$ewt			= $b[4];
+						$cwt			= $b[5];
 
 						$exists = $this->atc_code->check_duplicate($atccode);
 						$count = $exists[0]->count;
@@ -213,19 +226,23 @@
 						}
 						
 						if(empty($atccode)){
-							$errmsg[] 	= "ATC Code is required. Row $line should not be empty.<br>";
+							$errmsg[] 	= "ATC Code on row $line should not be empty.<br>";
 						}
 					
 						if(empty($taxrate)){
-							$errmsg[] 	= "Tax rate is required. Row $line should not be empty.<br>";
+							$errmsg[] 	= "Tax rate on row $line should not be empty.<br>";
 						}
 		
-						if(empty($taxaccount)){
-							$errmsg[] 	= "Tax account is required. Row $line should not be empty.<br>";
+						if(empty($ewt)){
+							$errmsg[] 	= "EWT on row $line should not be empty.<br>";
+						}
+
+						if(empty($cwt)){
+							$errmsg[] 	= "CWT on row $line should not be empty.<br>";
 						}
 						
 						if(empty($description)){
-							$errmsg[] 	= "Tax description is required. Row $line should not be empty.<br>";
+							$errmsg[] 	= "Tax description on row $line should not be empty.<br>";
 						}
 					
 						
@@ -233,7 +250,8 @@
 						$taxrate_[] 	= $taxrate/100;
 						$taxcode_[] 	= $taxcode;
 						$description_[]	= $description;
-						$taxaccount_[] 	= $taxaccount;
+						$ewt_[] 		= $ewt;
+						$cwt_[] 		= $cwt;
 
 						$line++;
 				}
@@ -247,7 +265,8 @@
 						'tax_rate'			=> $taxrate_,
 						'wtaxcode'			=> $taxcode_,
 						'short_desc'		=> $description_,
-						'tax_account'		=> $taxaccount_
+						'tax_account'		=> $ewt_,
+						'cwt'				=> $cwt_,
 					);
 					
 					$proceed  				= $this->atc_code->importATC($post);
@@ -270,7 +289,7 @@
 			$sort 	= $this->input->post("sort");
 			$limit 	= $this->input->post("limit");
 			$addCond = stripslashes($this->input->post("addCond"));
-			$fields = array("atcId","atc_code","tax_rate","wtaxcode","atc_type","short_desc","tax_account","accountname","a.stat stat");
+			$fields = array("atcId","atc_code","tax_rate","wtaxcode","atc_type","short_desc","tax_account","cwt","accountname","a.stat stat");
 			$table = "";
 			$list = $this->atc_code->retrieveData($fields,$search, $sort, $addCond, $limit); 
 	
@@ -314,6 +333,7 @@
 								<td>'.$row->wtaxcode.'</td> 
 								<td>'.$row->short_desc.'</td>
 								<td>'.$row->accountname.'</td>
+								<td>'.'Creditable Withholding Tax'.'</td>
 								<td>'.$status.'</td>'; 
 							'</tr>';			
 				}
@@ -452,7 +472,8 @@
 						'tax_rate',
 						'wtaxcode',
 						'short_desc',
-						'tax_account'
+						'tax_account',
+						'cwt'
 					);
 
 			$data = $this->input->post($data_var);
@@ -464,7 +485,7 @@
 			else
 				$msg = "error_add";
 
-			$dataArray = array("msg" => $msg, "atc_code" => $data["atc_code"], "tax_account" => $data["tax_account"]);
+			$dataArray = array("msg" => $msg, "atc_code" => $data["atc_code"], "tax_account" => $data["tax_account"], "cwt" => $data["cwt"]);
 			return $dataArray;
 
 		}
@@ -528,7 +549,7 @@
 
 			$result = $this->atc_code->fileExport($data_post);
 
-			$header = array("ATC Code","Tax Rate","Tax Code","Description","Tax Account");
+			$header = array("ATC Code","Tax Rate","Tax Code","Description","EWT","CWT");
 			
 		
 			$csv = '';
@@ -548,7 +569,8 @@
 					$csv .= '"' . $tax_rate 		. '",';
 					$csv .= '"' . $wtaxcode 		. '",';
 					$csv .= '"' . $short_desc 		. '",';
-					$csv .= '"' . $accountname 		. '"';
+					$csv .= '"' . $accountname 		. '",';
+					$csv .= '"' . 'Creditable Withholding Tax' 		. '"';
 					$csv .= "\n";
 				}
 			}
@@ -577,6 +599,29 @@
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
 			);
+	}
+
+	private function update_multiple_deactivate(){
+		$posted_data 			=	$this->input->post(array('ids'));
+
+		$data['stat'] 			=	'inactive';
+		
+		$posted_ids 			=	$posted_data['ids'];
+		$id_arr 				=	explode(',',$posted_ids);
+		
+		foreach($id_arr as $key => $value)
+		{
+			$result 			= 	$this->atc_code->updateStat($data, $value);
+		}
+
+		if($result)
+		{
+			$msg = "success";
+		} else {
+			$msg = "Failed to Update.";
+		}
+
+		return $dataArray = array( "msg" => $msg );
 	}
 
 }

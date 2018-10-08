@@ -105,8 +105,8 @@
 							->addHeader('Reference No.',array('class'=>'col-md-1'),'sort','po.referenceno')
 							->addHeader('Supplier',array('class'=>'col-md-2'),'sort','p.partnername')
 							->addHeader('Amount',array('class'=>'col-md-2'),'sort','po.netamount')
-							->addHeader('Balance',array('class'=>'col-md-2'),'sort','(po.netamount - (pr.netamount + pr.discountamount + pr.wtaxamount))')
-							->addHeader('Status',array('class'=>'col-md-1'))
+							->addHeader('Balance',array('class'=>'col-md-2'),'sort','balance')
+							->addHeader('Status',array('class'=>'col-md-1'),'sort','po.stat')
 							->draw();
 				?>
 			</thead>
@@ -180,8 +180,11 @@
 	/** -- FOR PAGINATION **/
 		$('#pagination').on('click', 'a', function(e) {
 			e.preventDefault();
-			ajax.page = $(this).attr('data-page');
-			showList();
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				ajax.page = $(this).attr('data-page');
+				showList();
+			}
 		});
 	/** -- FOR PAGINATION -- end **/
 

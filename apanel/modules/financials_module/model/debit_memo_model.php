@@ -237,9 +237,9 @@ class debit_memo_model extends wc_model {
 
 	public function getVendorList() {
 		$result = $this->db->setTable('partners')
-							->setFields("partnercode ind, partnername val")
+							->setFields("partnercode ind,  CONCAT(partnercode,' - ',partnername) val")
 							->setOrderBy("partnername")
-							->setWhere("stat = 'active'")
+							->setWhere("stat = 'active' AND partnertype IN ('customer','supplier')")
 							->runSelect()
 							->getResult();
 		return $result;

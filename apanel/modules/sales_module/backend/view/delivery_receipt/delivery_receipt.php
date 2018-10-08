@@ -445,7 +445,6 @@
 					
 					$(this).find('.taxrate').val(taxrate);
 					$(this).find('.taxamount').val(taxamount);
-
 					$(this).find('.amount').val(addComma(amount));
 				});
 				var discounttype = $('#tableList tfoot .discounttype:checked').val();
@@ -524,8 +523,11 @@
 		});
 		$('#pagination').on('click', 'a', function(e) {
 			e.preventDefault();
-			ajax.page = $(this).attr('data-page');
-			getList();
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				ajax.page = $(this).attr('data-page');
+				getList();
+			}
 		});
 		<?php // endif ?>
 		$('#customer').on('change', function() {
