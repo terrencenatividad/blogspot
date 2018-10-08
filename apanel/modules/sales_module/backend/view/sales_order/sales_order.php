@@ -9,7 +9,7 @@
 			<input class = "form_iput" value = "update" name = "h_querytype" id="h_querytype" type="hidden">
 			<input class = "form_iput" value = "" name = "h_condition" id = "h_condition" type="hidden">
 			<input class = "form_iput" value = "<?=$close_date?>" name = "h_close_date" id = "h_close_date" type="hidden">
-			<input class = "form_iput" value = "<?=$h_disctype?>" name = "h_disctype" id = "h_disctype" type="hidden">
+			<!-- <input class = "form_iput" value = "<?//=$h_disctype?>" name = "h_disctype" id = "h_disctype" type="hidden"> -->
 		</form>
 
 		<form method = "post" class="form-horizontal" id = "sales_order_form">
@@ -189,6 +189,7 @@
 								$accountcode 	   	= '';
 								$detailparticulars 	= '';
 								$warehouse 			= '';
+								$discounttype 		= '';
 								$price	   			= '0.00';
 								$rowamount 			= '0.00';
 
@@ -493,15 +494,15 @@
 						</tr>	
 
 						<tr id="vatable_sales" >
-							<td colspan="5"></td>
+							<td colspan="4"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">VATable Sales</label>
 							</td>
-							<td class="text-right">
+							<td class="text-right" colspan="2" >
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
-											->setSplit('', 'col-md-5')
+											->setSplit('', 'col-md-5 col-sm-12')
 											->setName('t_vatsales')
 											->setId('t_vatsales')
 											->setClass("input_label text-right remove-margin")
@@ -513,11 +514,11 @@
 						</tr>
 						
 						<tr id="vat_exempt_sales" >
-							<td colspan="5"></td>
+							<td colspan="4"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">VAT-Exempt Sales</label>
 							</td>
-							<td class="text-right">
+							<td class="text-right" colspan="2" >
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
@@ -533,11 +534,11 @@
 						</tr>
 
 						<tr id="total_sales" >
-							<td colspan="5"></td>
+							<td colspan="4"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">Total Sales</label>
 							</td>
-							<td class="text-right" >
+							<td class="text-right" colspan="2" >
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
@@ -554,12 +555,12 @@
 						</tr>
 
 						<tr id="discount" >
-							<td colspan="5"></td>
+							<td colspan="4"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">Discount</label>
 							</td>
-							<td class="text-right">
-								<?php if($show_input) {?>
+							<td class="text-right" colspan="2" >
+								<?php 	if($show_input) : ?>
 									<div class = 'row'>
 										<div class="col-md-6">
 											<div class="form-group">
@@ -571,7 +572,7 @@
 																		->setName('discounttype')
 																		->setClass('discounttype')
 																		->setDefault('perc')
-																		->setValue('')
+																		->setValue($discounttype)
 																		->draw($show_input);
 															?>
 														</div>
@@ -602,7 +603,7 @@
 																	->setName('discounttype')
 																	->setClass('discounttype')
 																	->setDefault('amt')
-																	// ->setValue($discounttype)
+																	->setValue($discounttype)
 																	->draw($show_input);
 															?>
 														</div>
@@ -621,17 +622,24 @@
 											</div>
 										</div>
 									</div>
-								<?php } ?>
+								<?php 	else:
+											echo $ui->setElement('text')
+													->setName('discountamount')
+													->setClass('total_discount')
+													->setValue(((empty($discountamount)) ? '0.00' : number_format($discountamount, 2)))
+													->draw(false);
+										endif 
+								?>
 							</td>
 							<td></td>
 						</tr>
 
 						<tr id="total_sales" >
-							<td colspan="5"></td>
+							<td colspan="4"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">Add 12% VAT</label>
 							</td>
-							<td class="text-right">
+							<td class="text-right" colspan="2"> 
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
@@ -648,11 +656,11 @@
 						</tr>
 
 						<tr id="total_amount_due">
-							<td colspan="5"></td>
+							<td colspan="4"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">Total Amount</label>
 							</td>
-							<td class="text-right" style="border-top:1px solid #DDDDDD;">
+							<td class="text-right" colspan="2" style="border-top:1px solid #DDDDDD;">
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
@@ -783,7 +791,8 @@
 		retrieveCreditLimit(optionvalue);
 		retrieveCurrentIncurredReceivables(optionvalue);
 		retrieveCurrentOutstandingReceivables(optionvalue);
-		
+		computeforremainingcredit();
+
 		getPartnerInfo(optionvalue);
 
 		$('#customer_modal').modal('hide');
@@ -793,7 +802,6 @@
 	function retrieveCurrentOutstandingReceivables(customercode){
 		$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_outstanding_receivables', "customercode=" + customercode, function(data) {
 			$('#h_outstanding').val(data.outstanding_receivables);
-			computeforremainingcredit();
 		});
 	}
 
@@ -811,10 +819,13 @@
 	}
 
 	function computeforremainingcredit(){
+		console.log("TEST");
 		var credit_limit 			=	$('#h_curr_limit').val();
 		var outstanding_receivables = 	$('#h_outstanding').val();
+		console.log("CREDIT LIMIT = "+credit_limit);
+		console.log("OUTSTANDING = "+outstanding_receivables);
 		var balance 				=	parseFloat(credit_limit) 	-	parseFloat(outstanding_receivables);
-
+		console.log("balance = "+balance);
 		$('#h_balance').val(balance);
 	}
 
@@ -1062,7 +1073,7 @@ function computeAmount()
 	var count	= table.tBodies[0].rows.length;
 
 	var discounttype = $('#itemsTable tfoot .discounttype:checked').val();
-	console.log('Discount Type = '+discounttype);
+	// console.log('Discount Type = '+discounttype);
 	var discount_rate = removeComma($('#itemsTable tfoot #discountrate').val());
 	var discount = removeComma($('#itemsTable tfoot #discountamount').val());
 	
@@ -1078,27 +1089,29 @@ function computeAmount()
 		vat 			= 	(vat == "" || vat == undefined) 	?	0 	:	vat;
 		itemprice 		=	removeComma(itemprice.value);
 		quantity 		=	removeComma(quantity.value);
-			console.log("VAT = "+vat);
+			// console.log("VAT = "+vat);
 		var totalprice 	=	parseFloat(itemprice) 	* 	parseFloat(quantity);
 		var amount 		=	parseFloat(totalprice) / ( 1 + parseFloat(vat) );
 		var vat_amount 	=	parseFloat(amount)	*	parseFloat(vat);
 
-		amount			= 	(amount>0) 		?	Math.round(amount*1000) / 1000 	:	0;
-		vat_amount		= 	(vat_amount>0) 	?	Math.round(vat_amount*100) / 100:	0;
 
 		if(discount > 0){
-			var itemdiscount 		= parseFloat(discount) / parseFloat(itemqty);
+			var itemdiscount 		= parseFloat(discount) / parseFloat(quantity);
 			var discountedamount 	= parseFloat(amount) - parseFloat(itemdiscount);
 
-			console.log("ITEM DISCOUNT = "+itemdiscount);
-			console.log("DISCOUNTED AMOUNT = "+discountedamount);
+			// console.log("ITEM DISCOUNT = "+itemdiscount);
+			// console.log("DISCOUNTED AMOUNT = "+discountedamount);
 
 			document.getElementById('itemdiscount['+row+']').value 	= addCommas(itemdiscount.toFixed(2));
 			document.getElementById('discountedamount['+row+']').value 	= addCommas(discountedamount.toFixed(2));
 		}
 
+		amount			= 	(amount>0) 		?	Math.round(amount*1000) / 1000 	:	0;
+		vat_amount		= 	(vat_amount>0) 	?	Math.round(vat_amount*100) / 100:	0;
+
 		document.getElementById('amount['+row+']').value 			=	addCommas(amount.toFixed(2));
 		document.getElementById('h_amount['+row+']').value 			=	addCommas(amount.toFixed(5));
+		document.getElementById('taxrate['+row+']').value 			= 	addCommas(vat.toFixed(2));
 		document.getElementById('taxamount['+row+']').value 		= 	addCommas(vat_amount.toFixed(5));
 		document.getElementById('discountedamount['+row+']').value 	= 	addCommas(amount.toFixed(5));
 
@@ -1110,7 +1123,11 @@ function computeAmount()
 	// var discount_type 	= $('input[type=radio][name=discounttype]:checked').val();
 	// discount_perc 		= (discount_type == 'perc') ? discount/100 : discount / total_amount;
 	if (discounttype == 'perc') {
-		discount = (total_amount + total_tax) * discount_rate / 100;
+		// console.log("DISCOUNT RATE - "+discount_rate);
+		// console.log("TOTAL AMOUNT - "+total_amount);
+		// console.log("TOTAL TAX - "+total_tax);
+
+		discount = total_amount * (discount_rate / 100);
 		$('#itemsTable tfoot #discountamount').val(addComma(discount));
 	}
 
@@ -1149,12 +1166,12 @@ function addAmounts() {
 		var taxrate				= removeComma(x_taxrate.value);
 		var quantity 			= removeComma(x_quantity.value);
 		var h_discountedamount	= removeComma(h_discountedamount.value);
-		console.log("Discount Amount = "+h_discountedamount);
+		// console.log("Discount Amount = "+h_discountedamount);
 
 		// unitprice 		= 	(unitprice == "" || unitprice == undefined) ?	0 	:	unitprice;
 		// taxrate 		= 	(taxrate == "" || taxrate == undefined) ?	0 	:	taxrate;
 
-		console.log("Tax Rate = "+taxrate);
+		// console.log("Tax Rate = "+taxrate);
 
 		var totalprice 	=	parseFloat(unitprice) 	* 	parseFloat(quantity);
 		var amount 		=	parseFloat(totalprice) / ( 1 + parseFloat(taxrate) );
@@ -1170,7 +1187,7 @@ function addAmounts() {
 		if( parseFloat(taxrate) > 0.00 || parseFloat(taxrate) > 0 )	{
 			net_of_vat 		= amount;
 		}
-		console.log("net of vat = "+net_of_vat);	
+		// console.log("net of vat = "+net_of_vat);	
 		// total_amount 	 	+= amount;
 
 		net_of_vat 			= net_of_vat * 1;
@@ -1187,7 +1204,7 @@ function addAmounts() {
 	}
 
 	subtotal 				= total_h_vatable + total_h_vatex;
-	console.log("SUBTOTAL = "+subtotal);
+	// console.log("SUBTOTAL = "+subtotal);
 
 	total_h_vatable	 	= Math.round(100*total_h_vatable)/100;
 	total_h_vatex	 	= Math.round(100*total_h_vatex)/100;
@@ -1347,14 +1364,15 @@ function finalizeTransaction(type)
 		}
 	});
 
+	computeforremainingcredit();
+
 	var credit_limit_exceed =	checkIfExceededCreditLimit();
 	if(credit_limit_exceed == 1){
 		// $('#creditLimitModal').modal('show');
 		no_error = false;
 	}
 
-	if($("#sales_order_form").find('.form-group.has-error').length == 0 && no_error)
-	{	
+	if($("#sales_order_form").find('.form-group.has-error').length == 0 && no_error){	
 		$('#save').val(type);
 		computeAmount();
 		if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
@@ -1401,12 +1419,20 @@ function finalizeEditTransaction()
 		}
 	});
 
+	computeforremainingcredit();
+
+	var credit_limit_exceed =	checkIfExceededCreditLimit();
+	if(credit_limit_exceed == 1){
+		// $('#creditLimitModal').modal('show');
+		no_error = false;
+	}
+	
 	if($('#sales_order_form').find('.form-group.has-error').length == 0 && no_error)
 	{
 		if($("#sales_order_form #itemcode\\[1\\]").val() != ''  && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #due_date").val() != '' && $("#sales_order_form #customer").val() != '')
 		{
 			setTimeout(function() {
-
+				computeAmount();
 				$.post("<?=BASE_URL?>sales/sales_order/ajax/<?=$task?>",$("#sales_order_form").serialize()+'<?=$ajax_post?>',function(data)
 				{		
 					if( data.msg == 'success' )
@@ -1527,6 +1553,7 @@ $(document).ready(function(){
 				retrieveCreditLimit(customer_id);
 				retrieveCurrentIncurredReceivables(customer_id);
 				retrieveCurrentOutstandingReceivables(customer_id);
+				computeforremainingcredit();
 
 				getPartnerInfo(customer_id);
 				if( $('#itemcode\\[1\\]').val() != "" ){
@@ -1682,14 +1709,6 @@ $(document).ready(function(){
 			
 			var table 		= document.getElementById('itemsTable');
 			var rows 		= table.tBodies[0].rows.length;
-			var rowlimit 	= '<?echo $item_limit?>';
-		
-			// if(rowlimit == 0 || rows < rowlimit){
-			// 	clone.clone(true).insertAfter(ParentRow);
-			// 	setZero();
-			// }else{
-			// 	$('#row_limit').modal('show');
-			// }
 
 			clone.clone(true).insertAfter(ParentRow);
 			setZero();
@@ -1701,39 +1720,39 @@ $(document).ready(function(){
 
 	// -- For Discount -- 
 
-		$('.d_opt').on('change',function(){
-			var disc_id =	$('input[type=radio][name=discounttype]:checked').attr('id');
+		// $('.d_opt').on('change',function(){
+		// 	var disc_id =	$('input[type=radio][name=discounttype]:checked').attr('id');
 
-			var type 	=	$(this).val();
-			$('#h_disctype').val(type);
+		// 	var type 	=	$(this).val();
+		// 	$('#h_disctype').val(type);
 			
 			//computeTotalAmount();
-		});
+		// });
 
-		$('#h_disctype').on('change',function(){
-			computeAmount();
-		});
+		// $('#h_disctype').on('change',function(){
+		// 	computeAmount();
+		// });
 
-		$('#t_discount').on('change',function(){
-			var disc_id =	$('input[type=radio][name=discounttype]:checked').attr('id');
-			if( disc_id != "" || disc_id != undefined )
-			{
-				var type 	=	$('#'+disc_id).val();
-				var value 	=	$(this).val();
+		// $('#t_discount').on('change',function(){
+		// 	var disc_id =	$('input[type=radio][name=discounttype]:checked').attr('id');
+		// 	if( disc_id != "" || disc_id != undefined )
+		// 	{
+		// 		var type 	=	$('#'+disc_id).val();
+		// 		var value 	=	$(this).val();
 
-				$('#h_disctype').val(type);	
+		// 		$('#h_disctype').val(type);	
 
-				if( value <= 100 )
-				{
-					computeAmount();
-				}
-				else
-				{
-					//Add Modal here
-					alert( " You cannot enter a value greater than 100 ! " );
-				}
-			}
-		});
+		// 		if( value <= 100 )
+		// 		{
+		// 			computeAmount();
+		// 		}
+		// 		else
+		// 		{
+		// 			//Add Modal here
+		// 			alert( " You cannot enter a value greater than 100 ! " );
+		// 		}
+		// 	}
+		// });
 
 	// -- For Discount -- End
 
@@ -1744,7 +1763,7 @@ $(document).ready(function(){
 		{
 			$("#sales_order_form").change(function()
 			{
-				if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #due_date").val() != '' && $("#sales_order_form #customer").val() != '')
+				if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
 				{
 					$.post("<?=BASE_URL?>sales/sales_order/ajax/save_temp_data",$("#sales_order_form").serialize())
 					.done(function(data)

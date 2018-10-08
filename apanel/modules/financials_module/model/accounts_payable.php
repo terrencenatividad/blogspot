@@ -1651,8 +1651,8 @@ class accounts_payable extends wc_model
 				$insert_info['checkstat']			= $count[$i]->checkstat;
 				$insert_info['costcentercode']		= $count[$i]->costcentercode;
 				$insert_info['accountcode']			= $count[$i]->accountcode;
-				$insert_info['debit']				= (0 - ($count[$i]->credit));
-				$insert_info['credit']				= (0 - ($count[$i]->debit));
+				$insert_info['debit']				= $count[$i]->credit;
+				$insert_info['credit']				= $count[$i]->debit;
 				$insert_info['taxbase_amount']		= $count[$i]->taxbase_amount;
 				$insert_info['source']				= $count[$i]->source;
 				$insert_info['sourcecode']			= $count[$i]->sourcecode;
@@ -1670,6 +1670,12 @@ class accounts_payable extends wc_model
 				$result = $this->db->setTable($table)
 									->setValues($insert_info)
 									->runInsert();
+
+				$result = $this->db->setTable('accountspayable')
+				->setValues(array('balance' => '0'))
+				->setWhere("voucherno = $invoices AND stat = 'cancelled'")
+				->runUpdate();
+
 				$ctr++;
 			}
 			

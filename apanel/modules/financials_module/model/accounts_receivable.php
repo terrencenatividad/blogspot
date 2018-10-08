@@ -1618,6 +1618,11 @@ class accounts_receivable extends wc_model
 				$result = $this->db->setTable($table)
 									->setValues($insert_info)
 									->runInsert();
+
+				$result1 = $this->db->setTable('accountsreceivable')
+									->setValues(array('balance' => '0'))
+									->setWhere("voucherno = $invoices AND stat = 'cancelled'")
+									->runUpdate();
 				$ctr++;
 			}
 	}

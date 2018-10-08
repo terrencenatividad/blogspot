@@ -445,7 +445,6 @@
 					
 					$(this).find('.taxrate').val(taxrate);
 					$(this).find('.taxamount').val(taxamount);
-
 					$(this).find('.amount').val(addComma(amount));
 				});
 				var discounttype = $('#tableList tfoot .discounttype:checked').val();

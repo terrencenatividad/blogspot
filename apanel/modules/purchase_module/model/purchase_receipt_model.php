@@ -247,12 +247,15 @@ class purchase_receipt_model extends wc_model {
 
 	public function getPurchaseReceiptDetails($fields, $voucherno, $view = true) {
 		if ($view) {
-			$result = $this->db->setTable('purchasereceipt_details')
+			$result = $this->db->setTable('purchasereceipt_details pd')
 								->setFields($fields)
+								->leftJoin('uom u ON u.uomcode = pd.receiptuom')
 								->setWhere("voucherno = '$voucherno'")
 								->setOrderBy('linenum')
 								->runSelect()
 								->getResult();
+		return $result;
+			
 		} else {
 			$sourceno = $this->db->setTable('purchasereceipt')
 								->setFields('source_no')
@@ -262,13 +265,14 @@ class purchase_receipt_model extends wc_model {
 
 			$sourceno = ($sourceno) ? $sourceno->source_no : '';
 
-			$result1 = $this->db->setTable('purchasereceipt_details')
+			$result1 = $this->db->setTable('purchasereceipt_details pd')
 								->setFields($fields)
+								->leftJoin('uom u ON u.uomcode = pd.receiptuom')
 								->setWhere("voucherno = '$voucherno'")
 								->setOrderBy('linenum')
 								->runSelect()
 								->getResult();
-
+								
 			$result = $this->getPurchaseOrderDetails($sourceno, $voucherno);
 
 			$checker	= array();
@@ -285,8 +289,8 @@ class purchase_receipt_model extends wc_model {
 					$result[$key]->amount = $checker[$row->linenum]->amount;
 				}
 			}
+		return $result1;
 		}
-		return $result;
 	}
 
 	public function getVendorList() {
