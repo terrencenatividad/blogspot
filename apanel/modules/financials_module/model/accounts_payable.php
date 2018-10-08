@@ -1670,6 +1670,12 @@ class accounts_payable extends wc_model
 				$result = $this->db->setTable($table)
 									->setValues($insert_info)
 									->runInsert();
+
+				$result = $this->db->setTable('accountspayable')
+				->setValues(array('balance' => '0'))
+				->setWhere("voucherno = $invoices AND stat = 'cancelled'")
+				->runUpdate();
+
 				$ctr++;
 			}
 			

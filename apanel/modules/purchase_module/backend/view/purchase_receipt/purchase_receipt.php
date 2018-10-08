@@ -131,10 +131,10 @@
 								<?php endif ?>
 								<th class="col-xs-3">Item</th>
 								<th class="col-xs-3">Description</th>
-								<th class="col-xs-3">Warehouse</th>
+								<th class="col-xs-2">Warehouse</th>
 								<th class="col-xs-1 text-right"></th>
-								<th class="col-xs-2 text-right">Qty</th>
-								<th class="col-xs-1"></th>
+								<th class="col-xs-1 text-right">Qty</th>
+								<th class="col-xs-1 text-right">UOM</th>
 								<th class="col-xs-1"></th>
 								<th class="col-xs-3 text-right"></th>
 								<?php if (false): ?>
@@ -319,10 +319,10 @@
 					</td>
 					<td>
 						<?php
-							// echo $ui->formField('text')
-							// 	->setSplit('', 'col-md-12')
-							// 	->setValue('` + details.receiptuom.toUpperCase() + `')
-							// 	->draw(false);
+							echo $ui->formField('text')
+								->setSplit('', 'col-md-12 text-right')
+								->setValue('` + details.receiptuom.toUpperCase() + `')
+								->draw(false);
 						?>
 					</td>
 					<td>

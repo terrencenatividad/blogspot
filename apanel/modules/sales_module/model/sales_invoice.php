@@ -256,7 +256,7 @@ class sales_invoice extends wc_model
 		/**INSERT DETAILS**/
 		foreach($data as $postIndex => $postValue)
 		{
-			if($postIndex == 'itemcode' ||  $postIndex=='detailparticulars' || $postIndex=='quantity' || $postIndex=='itemprice' || $postIndex=='taxrate' || $postIndex=='taxamount' || $postIndex=='amount' || $postIndex=='taxcode' || $postIndex=='itemdiscount' || $postIndex=='discountedamount')
+			if($postIndex == 'itemcode' ||  $postIndex == 'h_itemcode' ||  $postIndex=='detailparticulars' || $postIndex=='quantity' || $postIndex=='itemprice' || $postIndex=='taxrate' || $postIndex=='taxamount' || $postIndex=='amount' || $postIndex=='taxcode' || $postIndex=='h_taxcode' || $postIndex=='itemdiscount' || $postIndex=='discountedamount')
 			{
 				$a		= '';
 				
@@ -305,7 +305,7 @@ class sales_invoice extends wc_model
 			$data_insert["voucherno"]       = $voucherno;
 			$data_insert['transtype']       = 'SI';
 			$data_insert['linenum']	        = $linenum;
-			$data_insert['itemcode']        = $tempArrayValue['itemcode'];
+			$data_insert['itemcode']        = $tempArrayValue['h_itemcode'];
 			$data_insert['detailparticular']= $tempArrayValue['detailparticulars'];
 			
 			$data_insert['issueqty']  		= $tempArrayValue['quantity'];
@@ -319,15 +319,15 @@ class sales_invoice extends wc_model
 			//$data_insert['discount']    	= $tempArrayValue['discount'];
 			$data_insert['itemdiscount']    = $tempArrayValue['itemdiscount'];
 			$data_insert['discountedamount']= $tempArrayValue['discountedamount'];
-			if(isset($tempArrayValue['taxcode']) && $tempArrayValue['taxcode'] != 'none'){
-				$taxcode 					= $tempArrayValue['taxcode'];
+			if(isset($tempArrayValue['h_taxcode']) && $tempArrayValue['h_taxcode'] != 'none'){
+				$taxcode 					= $tempArrayValue['h_taxcode'];
 				$data_insert['taxcode']    	= $taxcode;
 				$tax 						= $this->getValue("fintaxcode", array("taxrate"), " fstaxcode = '$taxcode' ");
 				$taxrate 					= ($tax) ? $tax[0]->taxrate : 0;
 				//$taxamount 					= $data_insert['amount'] * $taxrate;
-				$taxamount 					= $data_insert['discountedamount'] * $taxrate;
+				// $taxamount 					= $data_insert['discountedamount'] * $taxrate;
 				$data_insert['taxrate']    	= $taxrate;
-				$data_insert['taxamount']   = $taxamount;
+				$data_insert['taxamount']   = $tempArrayValue['taxamount'];
 			}else{
 				$data_insert['taxcode'] 	= '';
 				$data_insert['taxrate'] 	= '0.00';
@@ -587,9 +587,10 @@ class sales_invoice extends wc_model
 
 	public function retrieveDeliveries($code)
 	{
-		$header_fields 	= 	"customer, remarks";
-		$condition 		=	" voucherno = '$code' ";
-		$retrieved_data['header'] 	= 	$this->db->setTable('deliveryreceipt')
+		$header_fields 	= 	"dr.customer, dr.remarks, dr.taxamount, dr.taxcode, (dr.discountamount/so.amount) discount";
+		$condition 		=	" dr.voucherno = '$code' ";
+		$retrieved_data['header'] 	= 	$this->db->setTable('deliveryreceipt dr')
+												->leftJoin('salesorder so on so.voucherno = dr.source_no AND so.companycode = dr.companycode')
 												->setFields($header_fields)
 												->setWhere($condition)
 												->setLimit('1')

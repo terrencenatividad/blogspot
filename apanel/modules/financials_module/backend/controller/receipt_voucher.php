@@ -750,6 +750,9 @@ class controller extends wc_controller
 			}
 
 			for($i = 0; $i < count($pagination->result); $i++, $j++){
+
+				// $restrict_rv 	= $this->restrict->setButtonRestriction($date);
+				// $date			= $this->date->dateFormat($date);
 				$voucherno 		=	isset($pagination->result[$i]->voucherno) 	? 	$pagination->result[$i]->voucherno 		: 	"";
 				$amount			=	isset($pagination->result[$i]->amount) 		? 	$pagination->result[$i]->amount 		:	0;
 				$balance 		=	isset($pagination->result[$i]->balance)		?	$pagination->result[$i]->balance 		: 	0;
@@ -757,7 +760,7 @@ class controller extends wc_controller
 				$referenceno 	=	isset($pagination->result[$i]->referenceno) ? 	$pagination->result[$i]->referenceno	: 	"";
 				$receivableno 	=	isset($pagination->result[$i]->receivableno)? 	$pagination->result[$i]->receivableno	:	"";
 
-				// $voucher_checked= (in_array($voucher , $voucher_array)) ? 'checked' : '';
+				$voucher_checked= (in_array($voucherno , $voucher_array)) ? 'checked' : '';
 				// $amt_checked 	= (in_array($voucher , $amt_array)) ? $amt_checked : '';
 
 				// $total_pay 		+= $totalamount;
@@ -794,8 +797,8 @@ class controller extends wc_controller
 
 				$table	.= '<tr>'; 
 				// if(!$restrict_rv){
-				// 	$disable_checkbox 	=	"disabled='disabled'";
-					$disable_onclick 	= 	'';
+					// $disable_checkbox 	=	"disabled='disabled'";
+					// $disable_onclick 	= 	'';
 				// }
 				$table	.= 	'<td class="text-center" style="vertical-align:middle;">';
 				$table	.= 		'<input type="checkbox" name="checkBox[]" id = "check'.$voucherno.'" class = "icheckbox" toggleid="0" row="'.$voucherno.'" '.$voucher_checked.' '.$disable_checkbox.'>'; 
@@ -805,6 +808,7 @@ class controller extends wc_controller
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
 				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "credits_amount'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($amount,2).'">'.number_format($amount,2).'</td>';
 				$table	.= 	'<td class="text-right balances" style="vertical-align:middle;" id = "credits_balance'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance,2).'</td>';
+				
 				if($voucher_checked == 'checked'){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
 					$this->ui->formField('text')

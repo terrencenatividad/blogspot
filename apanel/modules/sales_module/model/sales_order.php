@@ -157,7 +157,7 @@
 			$retrieved_data['customer']  =	$this->retrieveCustomerDetails($customer_code);
 
 			// Retrieve Details
-			$detail_fields 			= "sd.itemcode, sd.detailparticular, sd.warehouse, w.description, sd.unitprice, sd.issueqty, u.uomdesc issueuom, sd.taxcode, sd.taxrate, sd.amount";
+			$detail_fields 			= "sd.itemcode, sd.detailparticular, sd.warehouse, w.description, sd.unitprice, sd.issueqty, u.uomdesc issueuom, sd.taxcode, sd.taxrate, sd.amount, sd.discountamount, sd.discountedamount, sd.discounttype";
 			$condition 				= " sd.voucherno = '$voucherno' ";
 			
 			$retrieved_data['details'] = 	$this->db->setTable('salesorder_details sd')
@@ -269,7 +269,7 @@
 
 		public function processTransaction($data, $task, $voucher = "")
 		{
-			//var_dump($data);
+			// var_dump($data);
 			$mainInvTable		= "salesorder";
 			$detailInvTable		= "salesorder_details";
 		
@@ -303,7 +303,9 @@
 
 			$discounttype 		= (isset($data['discounttype']) && (!empty($data['discounttype']))) ? htmlentities(addslashes(trim($data['discounttype']))) : "";
 
-			$discount_amount 	= (isset($data['t_discount']) && (!empty($data['t_discount']))) ? htmlentities(addslashes(trim($data['t_discount']))) : "";
+			$discount_amount 	= (isset($data['discountamount']) && (!empty($data['discountamount']))) ? htmlentities(addslashes(trim($data['discountamount']))) : "";
+			
+			$discount_rate 		= (isset($data['discountrate']) && (!empty($data['discountrate']))) ? htmlentities(addslashes(trim($data['discountrate']))) : "";
 
 			$_final 			= (isset($data['save']) && (!empty($data['save']))) ? htmlentities(addslashes(trim($data['save']))) : "";	
 			
@@ -312,7 +314,7 @@
 			/**TRIM COMMAS FROM AMOUNTS**/
 			$subtotal			= str_replace(',','',$subtotal);
 			$totalamount		= str_replace(',','',$totalamount);
-
+			$discount_amount	= str_replace(',','',$discount_amount);
 			/**FORMAT DATES**/
 			$transactiondate	= date("Y-m-d",strtotime($transactiondate));
 			$duedate 			= date("Y-m-d",strtotime($duedate));
@@ -384,13 +386,15 @@
 			{
 				if($postIndex == 'itemcode' || $postIndex=='detailparticulars' || $postIndex == 'warehouse' || 
 					$postIndex == 'quantity' ||  $postIndex == 'itemprice' || $postIndex == 'amount' || 
-					$postIndex == 'h_amount'|| $postIndex == 'uom') 
+					$postIndex == 'h_amount'|| $postIndex == 'uom' || $postIndex == 'taxamount' || $postIndex == 'taxcode' || 
+					$postIndex == 'taxrate' || $postIndex == 'itemdiscount' || $postIndex == 'discountedamount' ) 
 				{
 					$a		= '';
 					
 					foreach($postValue as $postValueIndex => $postValueIndexValue)
 					{
-						if($postIndex == 'quantity' || $postIndex == 'amount' || $postIndex == 'h_amount' || $postIndex == 'taxamount' || $postIndex == 'itemprice')
+						if($postIndex == 'quantity' || $postIndex == 'amount' || $postIndex == 'h_amount' || $postIndex == 'taxamount' || 
+							$postIndex == 'itemprice' || $postIndex == 'itemdiscount' || $postIndex == 'discountedamount')
 						{
 							$a = str_replace(',', '', $postValueIndexValue);
 						}
@@ -424,10 +428,12 @@
 				$quantity 			=	$tempArrayValue['quantity'];
 				$warehouse 			=  	$tempArrayValue['warehouse'];
 				$price 				= 	$tempArrayValue['itemprice'];
-				$amount 			=	$tempArrayValue['amount'];
-				// $taxcode 			=	$tempArrayValue['taxcode'];
-				// $taxrate 			=	$tempArrayValue['taxrate'];
-				// $taxamount 			=	$tempArrayValue['taxamount'];
+				$amount 			=	$tempArrayValue['h_amount'];
+				$taxcode 			=	$tempArrayValue['taxcode'];
+				$taxrate 			=	$tempArrayValue['taxrate'];
+				$taxamount 			=	$tempArrayValue['taxamount'];
+				$discountamt  		=	$tempArrayValue['itemdiscount'];
+				$discountedamt 		=	$tempArrayValue['discountedamount'];
 
 				$ret_conversion 	=	$this->getValue("items",array('uom_selling','selling_conv')," itemcode = '$itemcode' ");
 
@@ -452,12 +458,15 @@
 					$data_insert['unitprice']	  		= $price;
 					$data_insert['amount']	  			= $amount;
 					$data_insert['stat']	  			= $status;
-					// $data_insert['taxcode']			  	= $taxcode;
-					// $data_insert['taxrate']		  		= $taxrate;
-					// $data_insert['taxamount']			= $taxamount;
+					$data_insert['taxcode']			  	= $taxcode;
+					$data_insert['taxrate']		  		= $taxrate;
+					$data_insert['taxamount']			= $taxamount;
 					$data_insert['convissueqty']	  	= $convissueqty;
 					$data_insert['convuom']		  		= $convuom;
 				 	$data_insert['conversion']			= $conversion;
+					$data_insert['discounttype'] 		= $discounttype;
+					$data_insert['discountamount'] 		= $discountamt;
+					$data_insert['discountedamount'] 	= $discountedamt;
 
 					$linenum++;
 					

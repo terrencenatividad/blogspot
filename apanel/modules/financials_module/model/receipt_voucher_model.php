@@ -741,8 +741,8 @@ class receipt_voucher_model extends wc_model
 		{
 			$accountcode 						= $tempArrayValue['h_accountcode'];
 			$detailparticulars					= $tempArrayValue['detailparticulars'];
-			$debit			    				= $tempArrayValue['debit'];
-			$credit			    				= $tempArrayValue['credit'];
+			$debit			    				= isset($tempArrayValue['debit']) ? $tempArrayValue['debit'] : 0;
+			$credit			    				= isset($tempArrayValue['credit']) ? $tempArrayValue['credit'] : 0;
 			// $taxbase_amount			    		= $tempArrayValue['taxbase_amount'];
 			$ischeck 							= isset($tempArrayValue['ischeck']) && $tempArrayValue != "" 	?	$tempArrayValue['ischeck'] 	:	"no";
 			$post_detail['voucherno']			= $voucherno;

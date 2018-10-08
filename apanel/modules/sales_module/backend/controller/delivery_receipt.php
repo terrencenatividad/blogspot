@@ -24,6 +24,10 @@ class controller extends wc_controller {
 		$this->fields_header	= array(
 			'header_fiscalyear'		=> 'fiscalyear',
 			'header_period'			=> 'period',
+			'header_taxcode' 		=> 'taxcode', 
+			'header_taxamount' 		=> 'taxamount',
+			'header_discounttype'   => 'discounttype',
+			'header_discountamount' => 'discountamount'
 		);
 		$this->fields2			= array(
 			'itemcode',
@@ -36,7 +40,10 @@ class controller extends wc_controller {
 			'convissueqty',
 			'convuom',
 			'conversion',
-			'detail_warehouse'		=> 'warehouse'
+			'detail_warehouse'		=> 'warehouse',
+			'taxcode',
+			'taxamount',
+			'taxrate'
 		);
 		$this->clean_number		= array(
 			'issueqty'

@@ -354,7 +354,8 @@
 															->setClass("taxcode")
 															->setAttribute(
 																array(
-																	"maxlength" => "20"
+																	"maxlength" => "20",
+																	"readonly" => true
 																)
 															)
 															->setList($tax_codes)
@@ -401,12 +402,12 @@
 										$disable_debit	= '';
 										$disable_credit	= '';
 										
-										$quantity_attr 	= (!empty($drno)) ? array(
-											"maxlength" => "20",
-											"readOnly" => "readOnly"
-										) : array(
-											"maxlength" => "20"
-										);
+										// $quantity_attr 	= (!empty($drno)) ? array(
+										// 	"maxlength" => "20",
+										// 	"readOnly" => "readOnly"
+										// ) : array(
+										// 	"maxlength" => "20"
+										// );
 
 
 										for($i = 0; $i < count($details); $i++)
@@ -436,9 +437,11 @@
 														->setList($itemcodes)
 														->setClass('itemcode')
 														->setValue($itemcode)
+														->setAttribute(array("disabled"=>true))
 														->setValidation('required')
 														->draw($show_input);
 												?>
+												<input id = '<?php echo 'h_itemcode['.$row.']'; ?>' name = '<?php echo 'h_itemcode['.$row.']';?>' class = 'col-md-12' type = 'hidden' value = '<?php echo $itemcode;?>'>
 											</td>
 											<td class = "remove-margin">
 												<?php
@@ -446,7 +449,7 @@
 															->setSplit('', 'col-md-12')
 															->setName('detailparticulars['.$row.']')
 															->setId('detailparticulars['.$row.']')
-															->setAttribute(array("maxlength" => "100"))
+															->setAttribute(array("maxlength" => "100","readOnly"=>"readOnly"))
 															->setValue($detailparticular)
 															->draw($show_input);
 												?>
@@ -458,7 +461,7 @@
 															->setName('quantity['.$row.']')
 															->setId('quantity['.$row.']')
 															->setClass('text-right quantity')
-															->setAttribute($quantity_attr)
+															->setAttribute(array("maxlength" => "20","readOnly" => "readOnly"))
 															->setValue(number_format($quantity,0))
 															->draw($show_input);
 												?>
@@ -478,7 +481,7 @@
 															->setName('itemprice['.$row.']')
 															->setId('itemprice['.$row.']')
 															->setClass("text-right price")
-															->setAttribute(array("maxlength" => "20"))
+															->setAttribute(array("maxlength" => "20","readOnly"=>"readOnly"))
 															->setValue(number_format($itemprice,2))
 															->draw($show_input);
 												?>
@@ -496,12 +499,13 @@
 															->setName('taxcode['.$row.']')
 															->setId('taxcode['.$row.']')
 															->setClass("taxcode")
-															->setAttribute(array("maxlength" => "20"))
+															->setAttribute(array("maxlength" => "20","disabled" => true))
 															->setList($tax_codes)
 															->setNone('none')
-															->setValue($taxcode)
+															->setValue($value)
 															->draw($show_input);
 												?>
+												<input id = '<?php echo 'h_taxcode['.$row.']'; ?>' name = '<?php echo 'h_taxcode['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value = '<?php echo $taxcode;?>'>
 												<input id = '<?php echo 'taxrate['.$row.']'; ?>' name = '<?php echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value = '<?php echo $taxrate;?>'>
 												<input id = '<?php echo 'taxamount['.$row.']'; ?>' name = '<?php echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value = '<?php echo $taxamount;?>'>	
 											</td>
@@ -512,7 +516,7 @@
 															->setName('amount['.$row.']')
 															->setId('amount['.$row.']')
 															->setClass("text-right amount")
-															->setAttribute(array("maxlength" => "20"))
+															->setAttribute(array("maxlength" => "20","readOnly"=>"readOnly"))
 															->setValue(number_format($amount,2))
 															->draw($show_input);
 												?>
@@ -623,14 +627,14 @@
 									<td class="text-right">
 										<div class = 'col-md-7'>
 										<? if($show_input) {?>
-											<div class="btn-group btn-group-xs" data-toggle="buttons">
+											<!-- <div class="btn-group btn-group-xs" data-toggle="buttons">
 												<label class="btn btn-default <?=$disc_radio_amt?>">
 													<input type="radio" class='d_opt' name="discounttype" id="discounttype1" autocomplete="off" value="amt" <?=$disc_amt?>>amt
 												</label>
 												<label class="btn btn-default <?=$disc_radio_perc?>">
 													<input type="radio" class='d_opt' name="discounttype" id="discounttype2" autocomplete="off" value="perc" <?=$disc_perc?>>%
 												</label>
-											</div>
+											</div> -->
 											<? } ?>
 										</div>
 										<div class = 'col-md-5' >
@@ -640,7 +644,7 @@
 														->setSplit('', '')
 														->setName('discountamount')
 														->setId('discountamount')
-														->setClass("text-right")
+														->setClass("input_label text-right")
 														->setValue(number_format($discountamount,2) . "" . $percentage )
 														->draw($show_input);
 											?>
@@ -986,10 +990,16 @@ function getDeliveries(code)
 		$('#itemsTable tbody').html(items);
 
 		addAmounts();
-
+		
+		var disc_perc 	= data.discount;
+		var total_sales = $('#total_sales').val();
+		// console.log('total_sales '+total_sales);
+		var discountamt = parseFloat(total_sales) * parseFloat(disc_perc);
+		$('#sales_invoice_form #discountamount').val(discountamt.toFixed(2));
 		$('#sales_invoice_form #remarks').trigger('change');
-	});
 
+		addAmounts();
+	});
 }
 
 /**COMPUTES DUE DATE**/
@@ -1115,8 +1125,8 @@ function addAmounts() {
 
 	var discount			= parseFloat(document.getElementById('discountamount').value || 0.00);
 	
-	var discount_type 		= document.getElementById('disctype').value;
-	discount_perc 			= (discount_type == 'perc') ? discount : discount / 100;
+	// var discount_type 		= document.getElementById('disctype').value;
+	// discount_perc 			= (discount_type == 'perc') ? discount : discount / 100;
 	
 	for (var i = 1; i <= count; i++) {
 		var row = '[' + i + ']';
@@ -1143,7 +1153,7 @@ function addAmounts() {
 
 		x_amount.value		= addCommas(amount.toFixed(2));
 		h_amount.value		= amount.toFixed(2);
-		//x_taxamount.value	= tax_amount.toFixed(2);
+		// x_taxamount.value	= tax_amount.toFixed(2);
 
 		if( taxrate > 0.00 || taxrate > 0 )	
 		{
@@ -1152,8 +1162,9 @@ function addAmounts() {
 
 		net_of_vat 			= net_of_vat * 1;
 		vat_ex				= amount - net_of_vat;
-		vat					= h_discountedamount * taxrate;
-		
+		vat					= amount * taxrate;
+		x_taxamount.value	= amount * taxrate;
+
 		/**
 		 * Round off to 2 decimals before getting total
 		 */
@@ -1168,15 +1179,17 @@ function addAmounts() {
 	
 	subtotal 				= total_h_vatable + total_h_vatex;
 
-	if( discount_type == 'perc' )
-	{
-		total_discount 		= subtotal * ( discount / 100 );
-	}
-	else if( discount_type == 'amt' )
-	{
-		total_discount 		= discount;
-	}
-	
+	// if( discount_type == 'perc' )
+	// {
+	// 	total_discount 		= subtotal * ( discount / 100 );
+	// }
+	// else if( discount_type == 'amt' )
+	// {
+	// 	total_discount 		= discount;
+	// }
+
+	total_discount = discount;
+	console.log("TOTAL_DISCOUNT = "+total_discount);
 	/**
 	 * Round off to 2 decimals before getting total
 	 */
