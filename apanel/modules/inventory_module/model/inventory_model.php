@@ -170,7 +170,7 @@ class inventory_model extends wc_model {
 													warehouse,
 													beginningQty + purchasereceiptQty + salesreturnQty - deliveredQty - purchasereturnQty + adjustmentsQty + transferedQty,
 													purchaseorderQty - purchasereceiptQty + purchasereturnQty,
-													(beginningQty + purchasereceiptQty + salesreturnQty - deliveredQty - purchasereturnQty + adjustmentsQty + transferedQty) + (purchaseorderQty - purchasereceiptQty + purchasereturnQty) - (salesorderQty - deliveredQty),
+													(beginningQty + purchasereceiptQty + salesreturnQty - deliveredQty - purchasereturnQty + adjustmentsQty + transferedQty) - (salesorderQty - deliveredQty),
 													salesorderQty - deliveredQty')
 												->buildSelect();
 
