@@ -823,7 +823,7 @@ class controller extends wc_controller
 				$table	.= '<td style="vertical-align:middle;">&nbsp;'.$vendor.'</td>';
 				$table	.= '<td style="vertical-align:middle;">&nbsp;'.$referenceno.'</td>';
 				$table	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.number_format($amount,2).'</td>';
-				$table	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.(($stat == 'cancelled' ? '0.00' : number_format($balance,2))).'</td>';
+				$table	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.number_format($balance,2).'</td>';
 				$table	.= '<td class="text-center" style="vertical-align:middle;">&nbsp;'.$voucher_status.'</td>';
 				$table	.= '</tr>';
 			}
