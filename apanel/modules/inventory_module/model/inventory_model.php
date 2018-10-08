@@ -47,9 +47,8 @@ class inventory_model extends wc_model {
 
 		$so	= $this->db->setTable('salesorder a')
 						->innerJoin('salesorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->leftJoin("($dr_inner) dr ON dr.source_no = a.voucherno AND dr.companycode = a.companycode AND dr.linenum = b.linenum")
-						->setFields($this->createFields('so', "IF(a.stat != 'posted', b.convissueqty, dr.dr)"))
-						->setWhere("a.stat = 'open' OR a.stat = 'partial' OR a.stat = 'posted' OR a.stat = 'closed'")
+						->setFields($this->createFields('so', "convissueqty"))
+						->setWhere("a.stat IN('open', 'partial', 'posted', 'closed')")
 						->buildSelect();
 						
 		$dr = $this->db->setTable('deliveryreceipt a')
