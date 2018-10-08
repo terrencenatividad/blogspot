@@ -236,7 +236,6 @@ class purchase_order extends wc_model
 		->setOrderBy($orderby)
 		->runSelect()
 		->getResult();
-		echo $this->db->getQuery();
 			// var_dump($this->db->buildSelect());
 
 		return $result;
