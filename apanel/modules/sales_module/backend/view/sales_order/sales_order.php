@@ -494,15 +494,15 @@
 						</tr>	
 
 						<tr id="vatable_sales" >
-							<td colspan="5"></td>
+							<td colspan="4"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">VATable Sales</label>
 							</td>
-							<td class="text-right">
+							<td class="text-right" colspan="2" >
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
-											->setSplit('', 'col-md-5')
+											->setSplit('', 'col-md-5 col-sm-12')
 											->setName('t_vatsales')
 											->setId('t_vatsales')
 											->setClass("input_label text-right remove-margin")
@@ -514,11 +514,11 @@
 						</tr>
 						
 						<tr id="vat_exempt_sales" >
-							<td colspan="5"></td>
+							<td colspan="4"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">VAT-Exempt Sales</label>
 							</td>
-							<td class="text-right">
+							<td class="text-right" colspan="2" >
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
@@ -534,11 +534,11 @@
 						</tr>
 
 						<tr id="total_sales" >
-							<td colspan="5"></td>
+							<td colspan="4"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">Total Sales</label>
 							</td>
-							<td class="text-right" >
+							<td class="text-right" colspan="2" >
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
@@ -555,11 +555,11 @@
 						</tr>
 
 						<tr id="discount" >
-							<td colspan="5"></td>
+							<td colspan="4"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">Discount</label>
 							</td>
-							<td class="text-right">
+							<td class="text-right" colspan="2" >
 								<?php 	if($show_input) : ?>
 									<div class = 'row'>
 										<div class="col-md-6">
@@ -635,11 +635,11 @@
 						</tr>
 
 						<tr id="total_sales" >
-							<td colspan="5"></td>
+							<td colspan="4"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">Add 12% VAT</label>
 							</td>
-							<td class="text-right">
+							<td class="text-right" colspan="2"> 
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
@@ -656,11 +656,11 @@
 						</tr>
 
 						<tr id="total_amount_due">
-							<td colspan="5"></td>
+							<td colspan="4"></td>
 							<td colspan="2" class="right">
 								<label class="control-label col-md-12">Total Amount</label>
 							</td>
-							<td class="text-right" style="border-top:1px solid #DDDDDD;">
+							<td class="text-right" colspan="2" style="border-top:1px solid #DDDDDD;">
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
