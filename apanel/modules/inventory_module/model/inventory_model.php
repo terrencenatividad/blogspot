@@ -47,7 +47,8 @@ class inventory_model extends wc_model {
 
 		$so	= $this->db->setTable('salesorder a')
 						->innerJoin('salesorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields($this->createFields('so', "convissueqty"))
+						->leftJoin("($dr_inner) dr ON dr.source_no = a.voucherno AND dr.companycode = a.companycode AND dr.linenum = b.linenum")
+						->setFields($this->createFields('so', "IF(a.stat != 'posted', b.convissueqty, dr.dr)"))
 						->setWhere("a.stat IN('open', 'partial', 'posted', 'closed')")
 						->buildSelect();
 						
@@ -85,8 +86,9 @@ class inventory_model extends wc_model {
 
 		$po	= $this->db->setTable('purchaseorder a')
 						->innerJoin('purchaseorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields($this->createFields('po', "convreceiptqty"))
-						->setWhere("a.stat IN ('open', 'posted', 'partial')")
+						->leftJoin("($pr_inner) pr ON pr.source_no = a.voucherno AND pr.companycode = a.companycode AND pr.linenum = b.linenum")
+						->setFields($this->createFields('po', "IF(a.stat != 'posted', b.convreceiptqty, pr.pr)"))
+						->setWhere("a.stat IN('open', 'partial', 'posted')")
 						->buildSelect();
 						
 		$pr = $this->db->setTable('purchasereceipt a')
