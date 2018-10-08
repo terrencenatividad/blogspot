@@ -435,7 +435,7 @@
 										->setId('uom['.$row.']')
 										->setClass("text-right")
 										->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
-										->setValue($uom)
+										->setValue($uomcode)
 										->draw($show_input);
 										?>
 									</td>
@@ -825,199 +825,199 @@ echo $ui->loadElement('modal')
 	</div>
 </div>
 <?php if ($show_input): ?>
-<script>
-	var ajax = {};
+	<script>
+		var ajax = {};
 
-	/**RETRIEVES VENDOR INFORMATION**/
-	function getPartnerInfo(code)
-	{
-		var cmp = '<?= $cmp ?>';
-
-		if(code == '' || code == 'add')
+		/**RETRIEVES VENDOR INFORMATION**/
+		function getPartnerInfo(code)
 		{
-			$("#vendor_tin").val("");
-			$("#vendor_terms").val("");
-			$("#vendor_address").val("");
+			var cmp = '<?= $cmp ?>';
 
-			computeDueDate();
-		}
-		else
-		{
-			$.post('<?=BASE_URL?>purchase/purchase_order/ajax/get_value', "code=" + code + "&event=getPartnerInfo", function(data) 
+			if(code == '' || code == 'add')
 			{
-				var address		= data.address.trim();
-				var tinno		= data.tinno.trim();
-				var terms		= data.terms.trim();
-				
-				$("#vendor_tin").val(tinno);
-				$("#vendor_terms").val(terms);
-				$("#vendor_address").val(address);
+				$("#vendor_tin").val("");
+				$("#vendor_terms").val("");
+				$("#vendor_address").val("");
 
 				computeDueDate();
-			});
-		}
-	}
-
-	/**COMPUTES DUE DATE**/
-	function computeDueDate()
-	{
-		var invoice = $("#transaction_date").val();
-		var terms 	= $("#vendor_terms").val(); 
-		
-		if(invoice != '')
-		{
-			var newDate	= moment(invoice).add(terms, 'days').format("MMM DD, YYYY");
-			
-			$("#due_date").val(newDate);
-		}
-	}
-
-	/**FORMATS PRICES INPUT**/
-	function addCommas(nStr)
-	{
-		nStr += '';
-		x = nStr.split('.');
-		x1 = x[0];
-		x2 = x.length > 1 ? '.' + x[1] : '';
-		var rgx = /(\d+)(\d{3})/;
-		while (rgx.test(x1)) {
-			x1 = x1.replace(rgx, '$1' + ',' + '$2');
-		}
-		return x1 + x2;
-	}
-
-	/**FOR ADD NEW VENDOR TRANSACTION**/
-	function addNewModal(type,val,row)
-	{
-		row 		= row.replace(/[a-z]/g, '');
-		
-		if(val == 'add')
-		{
-			if(type == 'Vendor')
-			{
-				$('#vendor_modal').modal();
-				$('#Vendor').val('');
-			}
-		}
-	}
-
-	/**RETRIEVAL OF ITEM DETAILS**/
-	function getItemDetails(id)
-	{
-		var itemcode 	=	document.getElementById(id).value;
-		var row 		=	id.replace(/[a-z]/g, '');
-		
-		$.post('<?=BASE_URL?>purchase/purchase_order/ajax/get_item_details',"itemcode="+itemcode , function(data) 
-		{
-			if( data != false )
-			{
-				
-				document.getElementById('detailparticulars'+row).value 	=	data.itemdesc;
-				document.getElementById('uom'+row).value 	 			=	data.uomdesc;
-				document.getElementById('itemprice'+row).value 			= 	"0.00";
-				
-				computeAmount();
-
-				$('#purchase_order_form').trigger('change');
 			}
 			else
 			{
-				document.getElementById('detailparticulars'+row).value 		=	"";
-				document.getElementById('uom'+row).value 					=	"";	
-				document.getElementById('itemprice'+row).value 				= 	"0.00";
+				$.post('<?=BASE_URL?>purchase/purchase_order/ajax/get_value', "code=" + code + "&event=getPartnerInfo", function(data) 
+				{
+					var address		= data.address.trim();
+					var tinno		= data.tinno.trim();
+					var terms		= data.terms.trim();
 
-				$('#purchase_order_form').trigger('change');
+					$("#vendor_tin").val(tinno);
+					$("#vendor_terms").val(terms);
+					$("#vendor_address").val(address);
+
+					computeDueDate();
+				});
 			}
-		});
-
-	}
-
-	/**COMPUTE ROW AMOUNT**/
-	function computeAmount()
-	{
-		var table 	= document.getElementById('itemsTable');
-		var count	= table.tBodies[0].rows.length;
-
-		for(row = 1; row <= count; row++) 
-		{  
-			var vat 		=	document.getElementById('taxrate['+row+']');
-			var itemprice 	=	document.getElementById('itemprice['+row+']');
-			var quantity 	=	document.getElementById('quantity['+row+']');
-
-			vat 			=	vat.value.replace(/,/g,'');
-			itemprice 		=	itemprice.value.replace(/,/g,'');
-			quantity 		=	quantity.value.replace(/,/g,'');
-
-			var totalprice 	=	parseFloat(itemprice) 	* 	parseFloat(quantity);
-			var amount 		=	parseFloat(totalprice) / ( 1 + parseFloat(vat) );
-
-			var vat_amount 	=	parseFloat(amount)	*	parseFloat(vat);
-
-			amount			= 	Math.round(amount*1000) / 1000;
-			vat_amount		= 	Math.round(vat_amount*100) / 100;
-
-			document.getElementById('amount['+row+']').value 	=	addCommas(amount.toFixed(2));
-			document.getElementById('h_amount['+row+']').value 	=	addCommas(amount.toFixed(5));
-
-			document.getElementById('taxamount['+row+']').value = 	addCommas(vat_amount.toFixed(5));
-			
-			computeWTAX();
-			addAmounts(); 
 		}
-	}
 
-	/**COMPUTE TOTAL AMOUNTS**/
-	function addAmounts() {
-		var total_h_vatable		= 0;
-		var total_h_vatex		= 0;
-		var total_h_vat			= 0;
-		var total_discount		= 0;
-		var total_gross_disc	= 0;
-		var total_amount 		= 0;
-		var subtotal 			= 0;
+		/**COMPUTES DUE DATE**/
+		function computeDueDate()
+		{
+			var invoice = $("#transaction_date").val();
+			var terms 	= $("#vendor_terms").val(); 
 
-		var table				= document.getElementById('itemsTable');
-		var count				= table.tBodies[0].rows.length;
-		var wtax 	 			= document.getElementById('t_wtax').value;
-
-		for (var i = 1; i <= count; i++) {
-			var row = '[' + i + ']';
-			var x_unitprice		= document.getElementById('itemprice' + row);
-			var x_quantity		= document.getElementById('quantity' + row);
-			var x_taxrate		= document.getElementById('taxrate' + row);
-			var x_amount		= document.getElementById('amount' + row);
-			var x_taxamount		= document.getElementById('taxamount' + row);
-			var h_amount		= document.getElementById('h_amount' + row);
-
-			var unitprice		= x_unitprice.value.replace(/[,]+/g, '');
-			var taxrate			= parseFloat(x_taxrate.value);
-			var quantity 		= x_quantity.value.replace(/[,]+/g,'');
-			var tax_amount		= ( quantity * unitprice ) * taxrate;
-			var amount			= ( quantity * unitprice ) / (taxrate + 1);
-
-			var net_of_vat		= 0;
-			var vat_ex			= 0;
-			var vat				= 0;
-			var temp_amount 	= 0;
-			
-			x_amount.value		= addCommas(amount.toFixed(2));
-			h_amount.value		= amount.toFixed(2);
-			x_taxamount.value	= tax_amount.toFixed(2);
-
-			if( taxrate > 0.00 || taxrate > 0 )	
+			if(invoice != '')
 			{
-				net_of_vat 		= amount;
+				var newDate	= moment(invoice).add(terms, 'days').format("MMM DD, YYYY");
+
+				$("#due_date").val(newDate);
 			}
-			
-			vat_ex				= amount - net_of_vat;
-			vat					= net_of_vat * taxrate;
-			
-			total_h_vatable		+= net_of_vat;
-			total_h_vatex		+= vat_ex;
-			total_h_vat			+= vat;
 		}
 
-		subtotal 				= total_h_vatable + total_h_vatex;
+		/**FORMATS PRICES INPUT**/
+		function addCommas(nStr)
+		{
+			nStr += '';
+			x = nStr.split('.');
+			x1 = x[0];
+			x2 = x.length > 1 ? '.' + x[1] : '';
+			var rgx = /(\d+)(\d{3})/;
+			while (rgx.test(x1)) {
+				x1 = x1.replace(rgx, '$1' + ',' + '$2');
+			}
+			return x1 + x2;
+		}
+
+		/**FOR ADD NEW VENDOR TRANSACTION**/
+		function addNewModal(type,val,row)
+		{
+			row 		= row.replace(/[a-z]/g, '');
+
+			if(val == 'add')
+			{
+				if(type == 'Vendor')
+				{
+					$('#vendor_modal').modal();
+					$('#Vendor').val('');
+				}
+			}
+		}
+
+		/**RETRIEVAL OF ITEM DETAILS**/
+		function getItemDetails(id)
+		{
+			var itemcode 	=	document.getElementById(id).value;
+			var row 		=	id.replace(/[a-z]/g, '');
+
+			$.post('<?=BASE_URL?>purchase/purchase_order/ajax/get_item_details',"itemcode="+itemcode , function(data) 
+			{
+				if( data != false )
+				{
+
+					document.getElementById('detailparticulars'+row).value 	=	data.itemdesc;
+					document.getElementById('uom'+row).value 	 			=	data.uomcode;
+					document.getElementById('itemprice'+row).value 			= 	"0.00";
+
+					computeAmount();
+
+					$('#purchase_order_form').trigger('change');
+				}
+				else
+				{
+					document.getElementById('detailparticulars'+row).value 		=	"";
+					document.getElementById('uom'+row).value 					=	"";	
+					document.getElementById('itemprice'+row).value 				= 	"0.00";
+
+					$('#purchase_order_form').trigger('change');
+				}
+			});
+
+		}
+
+		/**COMPUTE ROW AMOUNT**/
+		function computeAmount()
+		{
+			var table 	= document.getElementById('itemsTable');
+			var count	= table.tBodies[0].rows.length;
+
+			for(row = 1; row <= count; row++) 
+			{  
+				var vat 		=	document.getElementById('taxrate['+row+']');
+				var itemprice 	=	document.getElementById('itemprice['+row+']');
+				var quantity 	=	document.getElementById('quantity['+row+']');
+
+				vat 			=	vat.value.replace(/,/g,'');
+				itemprice 		=	itemprice.value.replace(/,/g,'');
+				quantity 		=	quantity.value.replace(/,/g,'');
+
+				var totalprice 	=	parseFloat(itemprice) 	* 	parseFloat(quantity);
+				var amount 		=	parseFloat(totalprice) / ( 1 + parseFloat(vat) );
+
+				var vat_amount 	=	parseFloat(amount)	*	parseFloat(vat);
+
+				amount			= 	Math.round(amount*1000) / 1000;
+				vat_amount		= 	Math.round(vat_amount*100) / 100;
+
+				document.getElementById('amount['+row+']').value 	=	addCommas(amount.toFixed(2));
+				document.getElementById('h_amount['+row+']').value 	=	addCommas(amount.toFixed(5));
+
+				document.getElementById('taxamount['+row+']').value = 	addCommas(vat_amount.toFixed(5));
+
+				computeWTAX();
+				addAmounts(); 
+			}
+		}
+
+		/**COMPUTE TOTAL AMOUNTS**/
+		function addAmounts() {
+			var total_h_vatable		= 0;
+			var total_h_vatex		= 0;
+			var total_h_vat			= 0;
+			var total_discount		= 0;
+			var total_gross_disc	= 0;
+			var total_amount 		= 0;
+			var subtotal 			= 0;
+
+			var table				= document.getElementById('itemsTable');
+			var count				= table.tBodies[0].rows.length;
+			var wtax 	 			= document.getElementById('t_wtax').value;
+
+			for (var i = 1; i <= count; i++) {
+				var row = '[' + i + ']';
+				var x_unitprice		= document.getElementById('itemprice' + row);
+				var x_quantity		= document.getElementById('quantity' + row);
+				var x_taxrate		= document.getElementById('taxrate' + row);
+				var x_amount		= document.getElementById('amount' + row);
+				var x_taxamount		= document.getElementById('taxamount' + row);
+				var h_amount		= document.getElementById('h_amount' + row);
+
+				var unitprice		= x_unitprice.value.replace(/[,]+/g, '');
+				var taxrate			= parseFloat(x_taxrate.value);
+				var quantity 		= x_quantity.value.replace(/[,]+/g,'');
+				var tax_amount		= ( quantity * unitprice ) * taxrate;
+				var amount			= ( quantity * unitprice ) / (taxrate + 1);
+
+				var net_of_vat		= 0;
+				var vat_ex			= 0;
+				var vat				= 0;
+				var temp_amount 	= 0;
+
+				x_amount.value		= addCommas(amount.toFixed(2));
+				h_amount.value		= amount.toFixed(2);
+				x_taxamount.value	= tax_amount.toFixed(2);
+
+				if( taxrate > 0.00 || taxrate > 0 )	
+				{
+					net_of_vat 		= amount;
+				}
+
+				vat_ex				= amount - net_of_vat;
+				vat					= net_of_vat * taxrate;
+
+				total_h_vatable		+= net_of_vat;
+				total_h_vatex		+= vat_ex;
+				total_h_vat			+= vat;
+			}
+
+			subtotal 				= total_h_vatable + total_h_vatex;
 		// }
 
 		document.getElementById('t_subtotal').value 			= addCommas(subtotal.toFixed(2));
@@ -1071,16 +1071,15 @@ echo $ui->loadElement('modal')
 		for(var i = 1;i <= count;i++)
 		{
 			var row = table.rows[i];
-
 			row.cells[0].getElementsByTagName("select")[0].id 	= 'itemcode['+x+']';
 			row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
 			row.cells[2].getElementsByTagName("select")[0].id 	= 'warehouse['+x+']';
 			row.cells[3].getElementsByTagName("input")[0].id 	= 'quantity['+x+']';
 			row.cells[4].getElementsByTagName("input")[0].id 	= 'uom['+x+']';
-			row.cells[5].getElementsByTagName("input")[0].id 	= 'itemprice['+x+']';
-			row.cells[6].getElementsByTagName("select")[0].id 	= 'taxcode['+x+']';
-			row.cells[6].getElementsByTagName("input")[0].id 	= 'taxrate['+x+']';
-			row.cells[6].getElementsByTagName("input")[1].id 	= 'taxamount['+x+']';
+			row.cells[5].getElementsByTagName("select")[0].id 	= 'taxcode['+x+']';
+			row.cells[5].getElementsByTagName("input")[1].id 	= 'taxamount['+x+']';
+			row.cells[5].getElementsByTagName("input")[0].id 	= 'taxrate['+x+']';
+			row.cells[6].getElementsByTagName("input")[0].id 	= 'itemprice['+x+']';
 			row.cells[7].getElementsByTagName("input")[0].id 	= 'amount['+x+']';
 			row.cells[7].getElementsByTagName("input")[1].id 	= 'h_amount['+x+']';
 			
@@ -1089,10 +1088,10 @@ echo $ui->loadElement('modal')
 			row.cells[2].getElementsByTagName("select")[0].name = 'warehouse['+x+']';
 			row.cells[3].getElementsByTagName("input")[0].name 	= 'quantity['+x+']';
 			row.cells[4].getElementsByTagName("input")[0].name 	= 'uom['+x+']';
-			row.cells[5].getElementsByTagName("input")[0].name 	= 'itemprice['+x+']';
-			row.cells[6].getElementsByTagName("select")[0].name = 'taxcode['+x+']';
-			row.cells[6].getElementsByTagName("input")[0].name 	= 'taxrate['+x+']';
-			row.cells[6].getElementsByTagName("input")[1].name 	= 'taxamount['+x+']';
+			row.cells[5].getElementsByTagName("select")[0].name = 'taxcode['+x+']';
+			row.cells[5].getElementsByTagName("input")[1].name 	= 'taxamount['+x+']';
+			row.cells[5].getElementsByTagName("input")[0].name 	= 'taxrate['+x+']';
+			row.cells[6].getElementsByTagName("input")[0].name 	= 'itemprice['+x+']';
 			row.cells[7].getElementsByTagName("input")[0].name 	= 'amount['+x+']';
 			row.cells[7].getElementsByTagName("input")[1].name 	= 'h_amount['+x+']';
 			
@@ -1112,19 +1111,18 @@ echo $ui->loadElement('modal')
 		
 		var table 		= document.getElementById('itemsTable');
 		var newid 		= table.tBodies[0].rows.length;
-	//alert(newid);
 
-	document.getElementById('itemcode['+newid+']').value 			= '';
-	document.getElementById('detailparticulars['+newid+']').value 	= '';
-	document.getElementById('warehouse['+newid+']').value 			= '';
-	document.getElementById('quantity['+newid+']').value 			= '0';
-	document.getElementById('uom['+newid+']').value 				= '';
-	document.getElementById('itemprice['+newid+']').value 			= '0.00';
-	document.getElementById('taxcode['+newid+']').value 			= 'none';
-	document.getElementById('taxrate['+newid+']').value 			= '0.00';
-	document.getElementById('taxamount['+newid+']').value 			= '0.00';
-	document.getElementById('amount['+newid+']').value 				= '0.00';
-	document.getElementById('h_amount['+newid+']').value 			= '0.00';
+		document.getElementById('itemcode['+newid+']').value 			= '';
+		document.getElementById('detailparticulars['+newid+']').value 	= '';
+		document.getElementById('warehouse['+newid+']').value 			= '';
+		document.getElementById('quantity['+newid+']').value 			= '0';
+		document.getElementById('uom['+newid+']').value 				= '';
+		document.getElementById('taxcode['+newid+']').value 			= 'none';
+		document.getElementById('taxamount['+newid+']').value 			= '0.00';
+		document.getElementById('taxrate['+newid+']').value 			= '0.00';
+		document.getElementById('itemprice['+newid+']').value 			= '0.00';
+		document.getElementById('amount['+newid+']').value 				= '0.00';
+		document.getElementById('h_amount['+newid+']').value 			= '0.00';
 
 	// $('#itemcode\\['+newid+'\\]').trigger('change');
 }
