@@ -47,7 +47,6 @@ class controller extends wc_controller {
 			'linenum',
 			'receiptqty',
 			'receiptuom',
-			'u.uomdesc uomdesc',
 			'unitprice',
 			'taxcode',
 			'taxrate',
