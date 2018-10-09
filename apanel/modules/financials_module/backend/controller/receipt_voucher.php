@@ -821,6 +821,7 @@ class controller extends wc_controller
 							array(
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
+								"onChange" => ' computeCreditBalance(\''.$voucherno.'\',this.value); '
 							)
 						)
 						->setValidation('decimal')
@@ -840,6 +841,7 @@ class controller extends wc_controller
 								"disabled" => "disabled", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
+								"onChange" => ' computeCreditBalance(\''.$voucherno.'\',this.value); '
 							)
 						)
 						->setValidation('decimal')

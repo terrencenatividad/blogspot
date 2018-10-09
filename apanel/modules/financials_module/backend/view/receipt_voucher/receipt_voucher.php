@@ -185,58 +185,20 @@
 									</div>
 								</div>
 							</div>
-						</div>
-						<div class="row">
-							<div class = "col-md-12">
-								<?php
-								echo $ui->formField('textarea')
-								->setLabel('Notes:')
-								->setSplit('col-md-2', 'col-md-10')
-								->setName('remarks')
-								->setId('remarks')
-								->setMaxLength(100)
-								->setValue($particulars)
-								->setAttribute(
-									array(
-										'rows' => 5
-									)
-								)
-								->draw($show_input);
-								?>
+							<div class="row">
+							`	<div class = "col-md-12">
+									<?php
+										echo $ui->formField('textarea')
+												->setLabel('Notes:')
+												->setSplit('col-md-2', 'col-md-10')
+												->setName('remarks')
+												->setId('remarks')
+												->setValue($particulars)
+												->draw($show_input);
+									?>
+								</div>
 							</div>
-						<!-- <div class = "col-md-6">
-							<?php
-								// echo $ui->formField('text')
-								// 		->setLabel('Apply Credit')
-								// 		->setSplit('col-md-4', 'col-md-8')
-								// 		->setName('credit_input')
-								// 		->setId('credit_input')
-								// 		->setClass('text-right')
-								// 		->setMaxLength(20)
-								// 		->setPlaceHolder("0.00")
-								// 		->setValidation('decimal')
-								// 		->setValue($credits_used)
-								// 		->draw($show_input);
-							?>
-							<?php
-								// echo $ui->formField('text')
-								// 		->setLabel('Available Credits')
-								// 		->setSplit('col-md-4', 'col-md-8')
-								// 		->setName('available_credits')
-								// 		->setId('available_credits')
-								// 		->setAttribute(array("style"=>"color:blue"))
-								// 		->setMaxLength(30)
-								// 		->addHidden()
-								// 		->setValue("Php ".$available_credits)
-								// 		->draw();
-							?>	
-							<div class="col-md-offset-4 has-error">
-								<span id="excess_credit_error" class="help-block hidden small">
-									<i class="glyphicon glyphicon-exclamation-sign"></i> 
-									You cannot input a Credit greater than your available Credit amount.
-								</span>
-							</div>						
-						</div> -->
+						</div>
 					</div>
 				</div>
 			</div>
@@ -1278,6 +1240,13 @@
 										->draw(true);
 								?>
 							</div>			
+						</div>
+					
+						<div class="has-error">
+							<span id="appliedamounterror" class="help-block hidden small">
+								<i class="glyphicon glyphicon-exclamation-sign"></i> 
+								You cannot apply an Aount greater than the Balance. 
+							</span>
 						</div>
 
 						<div class="table-responsive">
@@ -2945,30 +2914,58 @@ function selectPayable(id,toggle){
 	addPaymentAmount();
 }
 
-function computeCreditBalance(id){
+function initialize_credit_box(id){
+	if (typeof credits_box[id] === 'undefined') {
+		credits_box[id] = [];
+	}
+	credits_box[id].balance = 0;
+	credits_box[id].amount = 0;
+	credits_box[id].toapply = 0;
+}
+
+function computeCreditBalance(id,toapply){
 	var balance 	= $('#list_container #credits_balance'+id).attr('data-value');
 	var amount 		= $('#list_container #credits_amount'+id).attr('data-value');
-	var toapply 	= $('#list_container #credittoapply'+id);
-	
-	console.log("Balance = "+balance);
+		amount 		= removeComma(amount);
+		toapply 	= removeComma(toapply);
+		balance  	= removeComma(balance);
+
+	initialize_credit_box(id);
+	console.log(credits_box);
+	var computed_balance 	= parseFloat(amount) - parseFloat(toapply);
+	var new_box 	= [];
+		new_box[id] = [];
+
+	console.log("APPLY = "+toapply);
+	console.log("BALANCE = "+computed_balance);
+
+	new_box[id]['amount']  = parseFloat(amount);
+	new_box[id]['toapply'] = parseFloat(toapply);
+	new_box[id]['balance'] = computed_balance;
+
+	$('#list_container #credits_balance'+id).html(addComma(computed_balance));       
+
+	if( toapply > balance ) {
+		$('#appliedamounterror').removeClass('hidden');
+	} else {
+		credits_box = new_box;  
+		$('#appliedamounterror').addClass('hidden');
+	}
+}
+
+function addCreditsAmount(){
+	var count_container = Object.keys(credits_box).length;
+	var	total_credits = 0; 	
+	console.log("TOTAL______________");
 
 	console.log(credits_box);
-	if (typeof credits_box[id].balance === 'undefined') {
-		credits_box[id].balance = 0;
+	for (var key in credits_box) {
+		credits 	= removeComma(credits_box[key]['toapply']);
+		credits  	= parseFloat(credits);
+		total_credits += credits;
 	}
-	if (typeof credits_box[id].amount === undefined) {
-		credits_box[id].amount = 0;
-	}
-	if (typeof credits_box[id].toapply === undefined) {
-		credits_box[id].toapply = 0;
-	}
-
-	// credits_box = [];
-	// credits_box[id]['balance'] = (typeof credits_box[id]['balance'] !== 'undefined') ? parseFloat(balance) : 0;
-	// credits_box[id]['amount']  = (typeof credits_box[id]['amount'] !== 'undefined') ? parseFloat(amount) : 0;
-	// credits_box[id]['toapply'] = (typeof credits_box[id]['toapply'] !== 'undefined') ? parseFloat(toapply) : 0;
-
-	console.log(credits_box);
+	total_credits = addCommas(total_credits.toFixed(2));
+	$('#total_credits_to_apply').val(total_credits);
 }
 
 function selectCredits(id,toggle){
@@ -2977,35 +2974,35 @@ function selectCredits(id,toggle){
 	var amount 		= $('#list_container #credits_amount'+id).attr('data-value');
 	var toapply 	= $('#list_container #credittoapply'+id);
 
-	// console.log(toapply);
 	if(check.prop('checked')){
 		if(toggle == 1){
-			console.log('1');
 			check.prop('checked', false);
+			toapply.val(0.00);
 			toapply.prop('disabled',true);
 		}else{
 			console.log('2');
 			check.prop('checked', true);
+			toapply.val(balance);
 			toapply.prop('disabled',false);
+			
 		}
 	}else{
 		if(toggle == 1){
-			console.log('3');
 			check.prop('checked', true);
 			toapply.prop('disabled',false);
+			toapply.val(balance);
 		}else{
-			console.log('4');
 			check.prop('checked', false);
 			toapply.prop('disabled',true);
+			toapply.val(0.00);
 		}
 	}
 	$('#list_container #check'+id).iCheck('update');
 
-	// Get number of checkboxes and assign to textarea
-	// balance 	=	removeComma(balance);
-	// add_storage(id,balance,0,0,overpayment);
-	// addPaymentAmount();
-	computeCreditBalance(id);
+	var toapply_value 	= removeComma(toapply.val());
+	// immediately set the Balance Amount to the To Apply Input Field for automation
+	computeCreditBalance(id,toapply_value);
+	addCreditsAmount();
 }
 
 function init_storage(){
@@ -3170,8 +3167,8 @@ function checkCredit(val,id){
 		input = 0;
 	}
 
-	// add_storage(id,dueamount,discount,input,overpayment);
-	// addPaymentAmount();	
+	add_storage(id,dueamount,discount,input,overpayment);
+	addPaymentAmount();	
 }
 
 function validateCheques(){
@@ -4799,7 +4796,7 @@ $(document).ready(function() {
 		var selectid = $(this).attr('row');
 		var selecttoggleid = $(this).attr('toggleid');
 		
-		selectPayable(selectid,selecttoggleid);	
+		selectCredits(selectid,selecttoggleid);	
 	});
 
 }); // end
@@ -4833,12 +4830,6 @@ $("#entriesTable").on('ifToggled','.wtax',function() {
 });
 
 $("#entriesTable").on('click', '.edit-button', function() {
-	// $('#tax_amount').val($(this).attr('data-amount'));
-	// $('#atcModal').modal('show');
-	// var accountcode = $('.accountcode').val();
-	// get_coa(accountcode);
-	// row = $(this).closest('tr');
-
 	$('#tax_amount').val($(this).attr('data-amount'));
 	var accountcode = $(this).closest('tr').find('.accountcode').val();
 	row = $(this).closest('tr');
@@ -4918,12 +4909,30 @@ $('#payableForm').on('click','#update_ap_acct',function(e){
 	});
 });
 
+$('#creditvoucherModal').on('bs.modal-shown',function(){
+	// $('#appliedamounterror').addClass('hidden');
+	computeCreditBalance();
+});
 
-</script>
-<script>
-	$('.tax_amount').on('change', function(){
-		var accs = $(this).val();
-		acc = addCommas(parseFloat(accs).toFixed(2));
-		$('.tax_amount').val(acc);
+$('#TagCreditsBtn').on('click',function(){
+	set_credit_account();
+	$('#creditvoucherModal').modal('hide');
+	var total = $('#creditvoucherModal #total_credits_to_apply').val();
+
+	var cred_acct 	= $('#hidden_cred_id').val();
+
+	$('#ap_items tr').each(function(){
+		var accountcode = $(this).find('.h_accountcode').val();
+		if(accountcode == cred_acct){
+			$(this).find('.credit').val(total);
+		}
 	});
+	$("#applied_cred_amt").html(total);
+});
+
+$('.tax_amount').on('change', function(){
+	var accs = $(this).val();
+	acc = addCommas(parseFloat(accs).toFixed(2));
+	$('.tax_amount').val(acc);
+});
 </script>
