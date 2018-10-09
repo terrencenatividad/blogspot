@@ -672,7 +672,7 @@ $('#modal_div').html(`
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 			<div class="modal-body">
-				Are you sure you want to deactivated selected atc code(s)?
+				Are you sure you want to deactivated selected data?
 			</div>
 			<div class="modal-footer">
 				<div class="row row-dense">
