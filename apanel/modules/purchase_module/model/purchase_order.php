@@ -623,5 +623,44 @@ class purchase_order extends wc_model
 
 		return $result;
 	}
+
+	public function getUnReceivedItems($voucherno) {
+		$pr_inner = $this->db->setTable('purchasereceipt a')
+							->innerJoin('purchasereceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+							->setFields('a.companycode, linenum, source_no, SUM(receiptqty) received_qty')
+							->setWhere("a.stat = 'Received'")
+							->setGroupBy('source_no, itemcode, linenum')
+							->buildSelect();
+
+		$result	= $this->db->setTable('purchaseorder a')
+							->innerJoin('purchaseorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+							->leftJoin("($pr_inner) pr ON pr.source_no = a.voucherno AND pr.companycode = a.companycode AND pr.linenum = b.linenum")
+							->setFields('b.itemcode, detailparticular, b.warehouse, (b.receiptqty - pr.received_qty) balance_qty, taxcode, taxrate, b.receiptuom, unitprice')
+							->setWhere("a.stat IN('open', 'partial', 'posted') AND a.voucherno = '$voucherno'")
+							->setHaving('balance_qty > 0')
+							->runSelect()
+							->getResult();
+
+		return $result;
+	}
+
+	public function getReceivedItems($voucherno) {
+		$pr_inner = $this->db->setTable('purchasereceipt a')
+							->innerJoin('purchasereceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+							->setFields('a.companycode, linenum, source_no, SUM(receiptqty) received_qty')
+							->setWhere("a.stat = 'Received'")
+							->setGroupBy('source_no, itemcode, linenum')
+							->buildSelect();
+
+		$result	= $this->db->setTable('purchaseorder a')
+							->innerJoin('purchaseorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+							->leftJoin("($pr_inner) pr ON pr.source_no = a.voucherno AND pr.companycode = a.companycode AND pr.linenum = b.linenum")
+							->setFields('b.itemcode, detailparticular, b.warehouse, pr.received_qty, taxcode, taxrate, b.receiptuom, unitprice, a.wtaxrate')
+							->setWhere("a.stat IN('open', 'partial', 'posted') AND a.voucherno = '$voucherno'")
+							->runSelect()
+							->getResult();
+
+		return $result;
+	}
 }
 ?>
