@@ -183,6 +183,16 @@
 				</div>
 			</div>
 
+			<?php if (isset($cancelled_items) && $cancelled_items): ?>
+				<ul class="nav nav-tabs" role="tablist">
+					<li role="presentation" class="active"><a href="#ordered" aria-controls="ordered" role="tab" data-toggle="tab">Ordered</a></li>
+					<li role="presentation"><a href="#received" aria-controls="received" role="tab" data-toggle="tab">Received</a></li>
+					<li role="presentation"><a href="#cancelled" aria-controls="cancelled" role="tab" data-toggle="tab">Cancelled</a></li>
+				</ul>
+				<div class="tab-content">
+					<div role="tabpanel" class="tab-pane active" id="ordered">
+			<?php endif ?>
+
 			<div class="box-body table-responsive no-padding">
 				<table class="table table-hover table-condensed table-sidepad" id="itemsTable">
 					<thead>
@@ -638,7 +648,250 @@
 					</tfoot>
 				</table>
 			</div>
+			<?php if (isset($cancelled_items) && $cancelled_items): ?>
+					</div>
+					<div role="tabpanel" class="tab-pane" id="received">
+						<table class="table table-hover table-condensed table-sidepad" id="itemsTable2">
+							<thead>
+								<tr class="info">
+									<th class="col-md-2 text-center">Item Name</th>
+									<th class="col-md-3 text-center">Description</th>
+									<th class="col-md-2 text-center">Warehouse</th>
+									<th class="col-md-1 text-center">Quantity</th>
+									<th class="col-md-1 text-center">UOM</th>
+									<th class="col-md-2 text-center">Tax</th>
+									<th class="col-md-1 text-center">Price</th>
+									<th class="col-md-2 text-center">Amount</th>
+									<th class="taxt-center"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php
+									$received_total_vatable = 0;
+									$received_total_tax = 0;
+								?>
+								<?php foreach ($received_items as $row): ?>
+									<tr>
+										<td>
+											<?php
+												echo $ui->formField('dropdown')
+														->setSplit('', 'col-md-12')
+														->setList($itemcodes)
+														->setClass('itemcode')
+														->setValue($row->itemcode)
+														->draw(false);
+											?>
+										</td>
+										<td>
+											<?php
+												echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setValue($row->detailparticular)
+														->draw(false);
+											?>
+										</td>
+										<td>
+											<?php
+												echo $ui->formField('dropdown')
+														->setSplit('	', 'col-md-12')
+														->setList($warehouses)
+														->setValue($row->warehouse)
+														->draw(false);
+											?>
+										</td>
+										<td class="text-right">
+											<?php
+												echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setClass('quantity text-right')
+														->setValue(number_format($row->received_qty, 0))
+														->draw(false);
+											?>
+										</td>
+										<td>
+											<?php
+												echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setValue($uom)
+														->draw(false);
+											?>
+										</td>
+										<td>
+											<?php
+												echo $ui->formField('dropdown')
+														->setSplit('', 'col-md-12')
+														->setClass("taxcode")
+														->setList($tax_codes)
+														->setValue($taxcode)
+														->draw(false);
+											?>
+										</td>
+										<td class="text-center">
+											<?php
+												echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setClass("price")
+														->setValue(number_format($row->unitprice, 2))
+														->draw(false);
+											?>
+										</td>
+										<td class="text-center">
+											<?php
+												$received_total = round(($row->unitprice * $row->received_qty) / (1 + $row->taxrate), 2);
+												echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setClass("amount")
+														->setValue(number_format($received_total, 2))
+														->draw(false);
 
+												$received_total_vatable += $received_total;
+												$received_total_tax += ($row->unitprice * $row->received_qty) - $received_total;
+												$received_wtaxrate = $row->wtaxrate;
+											?>
+										</td>
+										<td></td>
+									</tr>
+								<?php endforeach ?>
+							</tbody>
+							<tfoot class="summary">
+								<tr>
+									<td colspan="4"></td>
+									<td colspan="2" class="text-right">
+										<p class="form-control-static"><label>Total Purchase</label></p>
+									</td>
+									<td colspan="2" class="text-right">
+										<p class="form-control-static"><?php echo number_format($received_total_vatable, 2) ?></p>
+									</td>
+								</tr>
+								<tr>
+									<td colspan="4"></td>
+									<td colspan="2" class="text-right">
+										<p class="form-control-static"><label>Total Purchases Tax</label></p>
+									</td>
+									<td colspan="2" class="text-right">
+										<p class="form-control-static"><?php echo number_format($received_total_tax, 2) ?></p>
+									</td>
+								</tr>
+								<tr>
+									<td colspan="4"></td>
+									<td colspan="2" class="text-right">
+										<p class="form-control-static"><label>Withholding Tax</label></p>
+									</td>
+									<td colspan="2" class="text-right">
+										<p class="form-control-static"><?php echo number_format($received_withholding = $received_total_vatable * $received_wtaxrate, 2) ?></p>
+									</td>
+								</tr>
+								<tr>
+									<td colspan="4"></td>
+									<td colspan="2" class="text-right">
+										<p class="form-control-static"><label>Total Amount Due</label></p>
+									</td>
+									<td colspan="2" class="text-right">
+										<p class="form-control-static"><label><?php echo number_format($received_total_vatable + $received_total_tax - $received_withholding, 2) ?></label></p>
+									</td>
+								</tr>
+							</tfoot>
+						</table>
+					</div>
+					<div role="tabpanel" class="tab-pane" id="cancelled">
+						<table class="table table-hover table-condensed table-sidepad" id="itemsTable3">
+							<thead>
+								<tr class="info">
+									<th class="col-md-2 text-center">Item Name</th>
+									<th class="col-md-3 text-center">Description</th>
+									<th class="col-md-2 text-center">Warehouse</th>
+									<th class="col-md-1 text-center">Quantity</th>
+									<th class="col-md-1 text-center">UOM</th>
+									<th class="col-md-2 text-center">Tax</th>
+									<th class="col-md-1 text-center">Price</th>
+									<th class="col-md-2 text-center">Amount</th>
+									<th class="taxt-center"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ($cancelled_items as $row): ?>
+									<tr>
+										<td>
+											<?php
+												echo $ui->formField('dropdown')
+														->setSplit('', 'col-md-12')
+														->setList($itemcodes)
+														->setClass('itemcode')
+														->setValue($row->itemcode)
+														->draw(false);
+											?>
+										</td>
+										<td>
+											<?php
+												echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setValue($row->detailparticular)
+														->draw(false);
+											?>
+										</td>
+										<td>
+											<?php
+												echo $ui->formField('dropdown')
+														->setSplit('	', 'col-md-12')
+														->setList($warehouses)
+														->setValue($row->warehouse)
+														->draw(false);
+											?>
+										</td>
+										<td class="text-right">
+											<?php
+												echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setClass('quantity text-right')
+														->setValue(number_format($row->balance_qty, 0))
+														->draw(false);
+											?>
+										</td>
+										<td>
+											<?php
+												echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setValue($uom)
+														->draw(false);
+											?>
+										</td>
+										<td>
+											<?php
+												echo $ui->formField('dropdown')
+														->setSplit('', 'col-md-12')
+														->setClass("taxcode")
+														->setList($tax_codes)
+														->setValue($taxcode)
+														->draw(false);
+											?>
+										</td>
+										<td class="text-center">
+											<?php
+												echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setClass("price")
+														->setValue(number_format($row->unitprice, 2))
+														->draw(false);
+											?>
+										</td>
+										<td class="text-center">
+											<?php
+												echo $ui->formField('text')
+														->setSplit('', 'col-md-12')
+														->setClass("amount")
+														->setValue(number_format($row->unitprice * $row->balance_qty, 2))
+														->draw(false);
+											?>
+										</td>
+										<td></td>
+									</tr>
+								<?php endforeach ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			<?php endif ?>
+			<br>
 			<div class="row">
 				<div class="col-md-12 col-sm-12 text-center">
 					<?php
@@ -678,7 +931,7 @@
 			<div class="row">
 				<div class = "col-md-12">&nbsp;</div>
 			</div>
-
+	
 		</form>
 
 	</div>

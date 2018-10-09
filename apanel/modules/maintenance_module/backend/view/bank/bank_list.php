@@ -8,6 +8,7 @@
 				<div class = "col-md-8">
 					<?=$ui->CreateNewButton('');?>
 					<input type="button" id="item_multiple_delete" class="btn btn-danger  btn-flat"  value="Delete" >
+					<input id = "deactivateMultipleBtn" type = "button" name = "deactivate" value = "Deactivate" class="btn btn-warning btn-flat ">
 				</div>
 				<div class="input-group input-group-sm">
 					<input id="search" name="table_search" class="form-control pull-right" placeholder="Search" type="text">
@@ -260,6 +261,31 @@ $('#list_container').on('click', '.deactivate', function() {
 		});
 	});
 });
+
+$("#deactivateMultipleBtn").click(function() 
+  {
+    $('#multipleDeactivateModal').modal('show');
+    $( "#multipleDeactivateModal #btnDeac" ).click(function() {
+    ids   =  getSelectedIds();
+    $.post('<?=MODULE_URL?>ajax/update_multiple_deactivate', "&ids="+ids ,function(data) {
+      
+      if( data.msg == 'success' )
+      {
+        showList();
+        $('#multipleDeactivateModal').modal('hide');
+      } 
+    });
+  });
+  });
+  
+
+  function getSelectedIds(){
+    id   =  [];
+    $('.checkbox:checked').each(function(){
+      id.push($(this).val());
+    });
+    return id;
+  }
 
 
 
