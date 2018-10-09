@@ -477,7 +477,17 @@
 							$errmsg		= array_filter($errmsg);
 						}
 
-						if(!is_numeric($terms)){
+						if(empty($sp_code)){
+							$errmsg[] 	= "Supplier Code [ <strong>$terms</strong> ] on row $line should not be empty.<br/>";
+							$errmsg		= array_filter($errmsg);
+						}
+
+						if(empty($address)){
+							$errmsg[] 	= "Address [ <strong>$terms</strong> ] on row $line should not be empty.<br/>";
+							$errmsg		= array_filter($errmsg);
+						}
+						
+						if(!is_numeric($terms) && !empty($terms)){
 							$errmsg[] 	= "Terms [ <strong>$terms</strong> ] on row $line is not a valid amount.<br/>";
 							$errmsg		= array_filter($errmsg);
 						}
