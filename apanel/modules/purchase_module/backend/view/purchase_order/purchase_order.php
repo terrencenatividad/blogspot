@@ -21,7 +21,7 @@
 								<div class="row">
 									<div class="col-lg-2"></div>
 									<div class="col-lg-4">
-										<?php echo '<font size = "4em"><span class="label label-danger">CANCELLED</span></font>'; ?>
+										<?php echo '<font size = "5em"><span class="label label-danger">CANCELLED</span></font>'; ?>
 									</div>
 									<div class="col-lg-3"></div>
 								</div>
