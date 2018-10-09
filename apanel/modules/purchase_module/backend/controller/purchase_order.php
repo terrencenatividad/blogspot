@@ -466,14 +466,13 @@ class controller extends wc_controller
 		/** DETAILS INFO **/
 
 		$docdet_table   = "purchaseorder_details as dtl";
-		$docdet_fields  = array("dtl.itemcode, detailparticular as description", "dtl.receiptqty as quantity","uom.uomdesc as uom","unitprice as price","amount as amount");
+		$docdet_fields  = array("dtl.itemcode, detailparticular as description", "dtl.receiptqty as quantity","dtl.receiptuom as uom","unitprice as price","amount as amount");
 		$docdet_cond    = "dtl.voucherno = '$voucherno'";
 		$docdet_join 	= "items i ON i.itemcode = dtl.itemcode AND i.companycode = dtl.companycode";
-		$docdet_join2 	= "uom uom ON uom.uomcode = dtl.receiptuom";
 		$docdet_groupby = "";
 		$docdet_orderby = "dtl.linenum";
 		
-		$documentcontent = $this->po->retrieveData($docdet_table, $docdet_fields, $docdet_cond, $docdet_join, $docdet_join2, $docdet_orderby, $docdet_groupby);
+		$documentcontent = $this->po->retrieveData($docdet_table, $docdet_fields, $docdet_cond, $docdet_join, $docdet_orderby, $docdet_groupby);
 
 		/** DETAILS INFO --END**/
 		
