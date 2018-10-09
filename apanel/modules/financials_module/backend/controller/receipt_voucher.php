@@ -719,7 +719,7 @@ class controller extends wc_controller
 		$decode_json    = json_decode($check_rows,true);
 
 		$pagination     = $this->receipt_voucher->retrieveCreditsList($customer,$vno);
-		// var_dump($pagination);
+
 		$table             = "";
 		$j 	               = 1;
 		$json_encode_array = array();
@@ -750,9 +750,6 @@ class controller extends wc_controller
 			}
 
 			for($i = 0; $i < count($pagination->result); $i++, $j++){
-
-				// $restrict_rv 	= $this->restrict->setButtonRestriction($date);
-				// $date			= $this->date->dateFormat($date);
 				$voucherno 		=	isset($pagination->result[$i]->voucherno) 	? 	$pagination->result[$i]->voucherno 		: 	"";
 				$amount			=	isset($pagination->result[$i]->amount) 		? 	$pagination->result[$i]->amount 		:	0;
 				$balance 		=	isset($pagination->result[$i]->balance)		?	$pagination->result[$i]->balance 		: 	0;
@@ -761,45 +758,11 @@ class controller extends wc_controller
 				$receivableno 	=	isset($pagination->result[$i]->receivableno)? 	$pagination->result[$i]->receivableno	:	"";
 
 				$voucher_checked= (in_array($voucherno , $voucher_array)) ? 'checked' : '';
-				// $amt_checked 	= (in_array($voucher , $amt_array)) ? $amt_checked : '';
 
-				// $total_pay 		+= $totalamount;
-
-				// $json_encode_array["row"]       = $i;
-				// $json_encode_array["vno"] 		= $voucher;
-				// $json_encode_array["amt"]    	= $totalamount;
-				// $json_encode_array["bal"]   	= $balance;
-				// $json_encode_array["cred"]		= $credit_used;
-				// $json_encode_array['over']  	= $overpayment;
-			
-				// $json_data[] 					= $json_encode_array;
-			
-				// $json_encode 					= json_encode($json_data);
-
-				// $appliedamount	= $this->receipt_voucher->getValue("rv_application", array("SUM(amount) AS amount"),"arvoucherno = '$voucher' AND stat IN('posted', 'temporary')");
-				// $appliedamount  = isset($appliedamount[0]->amount) 	?	$appliedamount[0]->amount	:	0;
-	
-				// $balance_2		= $balance;
-
-				// if (isset($amt_array[$voucher])) {
-				// 	$balance_2	= str_replace(',','',$amt_array[$voucher]['bal']);
-				// 	$amount		= str_replace(',','',$amt_array[$voucher]['amt']);
-				// 	$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0.00';
-				// 	$credit_used= isset($amt_array[$voucher]['cred']) ? $amt_array[$voucher]['cred'] : '0.00';
-
-				// 	$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount + $credit_used;
-				// 	$balance_2 	= $balance_2 - $amount - $discount - $credit_used;
-				// 	$balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
-				// }
-				// echo $balance."\n\n";
 				$disable_checkbox 	=	"";
 				$disable_onclick 	=	'onClick="selectCredits(\''.$voucherno.'\',1);"';
 
 				$table	.= '<tr>'; 
-				// if(!$restrict_rv){
-					// $disable_checkbox 	=	"disabled='disabled'";
-					// $disable_onclick 	= 	'';
-				// }
 				$table	.= 	'<td class="text-center" style="vertical-align:middle;">';
 				$table	.= 		'<input type="checkbox" name="checkBox[]" id = "check'.$voucherno.'" class = "icheckbox" toggleid="0" row="'.$voucherno.'" '.$voucher_checked.' '.$disable_checkbox.'>'; 
 				$table	.= 	'</td>';
