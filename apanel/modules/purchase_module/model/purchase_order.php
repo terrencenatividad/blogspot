@@ -180,11 +180,12 @@ class purchase_order extends wc_model
 		$retrieved_data['vendor']    =	$this->retrievevendorDetails($vendor_code);
 
 			// Retrieve Details
-		$detail_fields 			= "pd.itemcode, pd.detailparticular, pd.warehouse, w.description, pd.unitprice, pd.receiptqty, pd.receiptuom, pd.taxcode, pd.taxrate, pd.amount";
+		$detail_fields 			= "pd.itemcode, pd.detailparticular, pd.warehouse, w.description, pd.unitprice, pd.receiptqty, u.uomdesc receiptuom, pd.taxcode, pd.taxrate, pd.amount";
 		$condition 				= " pd.voucherno = '$voucherno' ";
 
 		$retrieved_data['details'] = 	$this->db->setTable('purchaseorder_details pd')
 		->leftJoin('warehouse w ON w.warehousecode = pd.warehouse ')
+		->leftJoin("uom u ON u.uomcode = pd.receiptuom")
 		->setFields($detail_fields)
 		->setWhere($condition)
 		->runSelect()
