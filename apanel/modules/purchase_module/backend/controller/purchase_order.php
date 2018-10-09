@@ -414,6 +414,14 @@ class controller extends wc_controller
 		$restrict_po 			 =	$this->restrict->setButtonRestriction($transactiondate);
 		$data['restrict_po'] 	 = $restrict_po;
 
+		if ($data['stat'] == 'posted') {
+			$cancelled_items			= $this->po->getUnReceivedItems($data["voucherno"]);
+			$data['cancelled_items']	= $cancelled_items;
+			if ($cancelled_items) {
+				$data['received_items'] = $this->po->getReceivedItems($data["voucherno"]);
+			}
+		}
+
 		$this->view->load('purchase_order/purchase_order', $data);
 	}
 

@@ -74,6 +74,17 @@ class atccode_class extends wc_model
 
 		return $result;
 	}
+
+	public function getAtc($cwt) {
+		$result = $this->db->setTable('chartaccount')
+					->setFields('id, accountname')
+					->setWhere("id = '$cwt'")
+					->runSelect()
+					->getRow();
+
+		return $result;
+	}
+
 	
 	public function fileExport($data)
 	{
@@ -136,6 +147,7 @@ class atccode_class extends wc_model
 		$result = $this->db->setTable('atccode')
 		 					->setValues($value)
 							 ->runInsert();
+		
 		if ($result) {
 		 	$this->log->saveActivity("Import ATC Codes");
 		 }
@@ -152,12 +164,23 @@ class atccode_class extends wc_model
 						->getResult();
 	}
 
+	public function get_coa_id($ewt)
+	{
+		$result =  $this->db->setTable('chartaccount')
+						->setFields('id')
+						->setWhere(" segment5 = '$ewt'")
+						->runSelect()
+						->getResult();
+
+		return $result;
+	}
+
 	public function importATC($data)
 	{
 		$result = $this->db->setTable('atccode')
 				->setValuesFromPost($data)
 				->runInsert();
-
+				
 		return $result;
 	}
 
