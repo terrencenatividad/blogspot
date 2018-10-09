@@ -336,7 +336,6 @@ class controller extends wc_controller
 	{
 		$this->view->title      = 'View Purchase Order';
 		$retrieved_data 		= $this->po->retrieveExistingPO($voucherno);
-
 		$close_date 			= $this->restrict->getClosedDate();
 		$data['close_date']		= $close_date;
 		$item_limit 			= $this->po->getReference("po_limit");
@@ -477,7 +476,7 @@ class controller extends wc_controller
 		$docdet_fields  = array("dtl.itemcode, detailparticular as description", "dtl.receiptqty as quantity","uom.uomdesc as uom","unitprice as price","amount as amount");
 		$docdet_cond    = "dtl.voucherno = '$voucherno'";
 		$docdet_join 	= "items i ON i.itemcode = dtl.itemcode AND i.companycode = dtl.companycode";
-		$docdet_join2 	= "uom uom ON uom.uomcode = dtl.receiptuom";
+		$docdet_join2	= "uom uom ON dtl.receiptuom = uom.uomcode";
 		$docdet_groupby = "";
 		$docdet_orderby = "dtl.linenum";
 		

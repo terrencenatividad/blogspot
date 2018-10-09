@@ -366,6 +366,9 @@ class controller extends wc_controller
 		if($balance != 0 && $stat == 'cancelled'){
 			$status 		= 'cancelled';
 			$status_class 	= 'danger';
+		}else if($balance == 0 && $stat == 'cancelled'){
+			$status 		= 'cancelled';
+			$status_class 	= 'danger';
 		}
 		else if($balance != $amount && $balance != 0 && $stat == 'cancelled'){
 			$status 		= 'cancelled';

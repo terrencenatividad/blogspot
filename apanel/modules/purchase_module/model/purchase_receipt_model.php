@@ -289,7 +289,7 @@ class purchase_receipt_model extends wc_model {
 					$result[$key]->amount = $checker[$row->linenum]->amount;
 				}
 			}
-		return $result1;
+		return $result;
 		}
 	}
 

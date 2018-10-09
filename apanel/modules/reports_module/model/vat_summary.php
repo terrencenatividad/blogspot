@@ -45,6 +45,7 @@ class vat_summary extends wc_model {
 							->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
 							->leftJoin('partners as part ON part.partnercode = bt.partnercode AND part.companycode = bt.companycode ')
 							->setWhere("bt.transtype IN('AR','AP','PV','JV') AND ca.accountname LIKE '%$type%' $filter")
+							->setGroupBy("voucher")
 							->setOrderBy("bt.accountcode ASC")
 							->runPagination();
 		}else{
@@ -92,7 +93,7 @@ class vat_summary extends wc_model {
 					$table 		= 'journaldetails';
 				}
 
-				$gross 			= $this->getValue($table, array('SUM(debit) amount'), " voucherno = '$voucherno' ");
+				$gross 			= $this->getValue($table, array('SUM(debit) amount'), " voucherno = '$voucherno' AND stat != 'cancelled'");
 				$grossamount 	= ($gross) ? $gross[0]->amount : 0;
 				$vatamount 		= ($credit > $debit) ? $credit - $debit : $debit - $credit; 
 				

@@ -403,7 +403,7 @@
 
 			$filedir	= $_FILES["file"]["tmp_name"];
 	
-			$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
+			$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext", "application/octet-stream");
 
 			/**VALIDATE FILE IF CORRUPT**/
 			if(!empty($_FILES['file']['error'])){
@@ -477,7 +477,17 @@
 							$errmsg		= array_filter($errmsg);
 						}
 
-						if(!is_numeric($terms)){
+						if(empty($sp_code)){
+							$errmsg[] 	= "Supplier Code [ <strong>$terms</strong> ] on row $line should not be empty.<br/>";
+							$errmsg		= array_filter($errmsg);
+						}
+
+						if(empty($address)){
+							$errmsg[] 	= "Address [ <strong>$terms</strong> ] on row $line should not be empty.<br/>";
+							$errmsg		= array_filter($errmsg);
+						}
+						
+						if(!is_numeric($terms) && !empty($terms)){
 							$errmsg[] 	= "Terms [ <strong>$terms</strong> ] on row $line is not a valid amount.<br/>";
 							$errmsg		= array_filter($errmsg);
 						}

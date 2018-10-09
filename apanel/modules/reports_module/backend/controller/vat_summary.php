@@ -97,7 +97,7 @@ class controller extends wc_controller {
 					if($nextkey != '')
 					{
 						$table .= '<tr class="warning bold">';
-						$table .= '<td class="text-right" colspan="3">Total</td>';
+						$table .= '<td class="text-right" colspan="4">Total</td>';
 						$table .= '<td>' . number_format($total_gross,2) . '</td>';
 						$table .= '<td>' . number_format($total_net,2) . '</td>';
 						$table .= '<td>';

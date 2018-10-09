@@ -298,11 +298,12 @@
 									->setSplit('', 'col-md-12')
 									->setName('uom['.$row.']')
 									->setId('uom['.$row.']')
-									->setClass("text-right")
+									->setClass("text-left")
 									->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
 									->setValue($uom)
 									->draw($show_input);
 									?>
+									<input id = '<?php echo 'uom_hidden['.$row.']'; ?>' name = '<?php echo 'uom_hidden['.$row.']';?>' type = 'hidden' value="" >
 								</td>
 								<td class = "remove-margin">
 									<?php
@@ -377,6 +378,7 @@
 								$taxrate 			= $details[$i]->taxrate;
 								$amount  			= $details[$i]->amount;
 								$uom  				= $details[$i]->receiptuom;
+								$uomdesc			= $details[$i]->uomdesc;
 								$warehouse_code		= (empty($request_no)) ? $details[$i]->warehouse 	: 	'';
 								$warehouse_name		= (empty($request_no)) ? $details[$i]->description: 	'';
 
@@ -443,11 +445,13 @@
 										->setSplit('', 'col-md-12')
 										->setName('uom['.$row.']')
 										->setId('uom['.$row.']')
-										->setClass("text-right")
+										->setClass("text-left")
 										->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
-										->setValue($uom)
+										->setValue($uomdesc)
 										->draw($show_input);
+										
 										?>
+										<input id = '<?php echo 'uom_hidden['.$row.']'; ?>' name = '<?php echo 'uom_hidden['.$row.']';?>' type = 'hidden' value="<?php echo $uom ?>" >
 									</td>
 									<td class = "remove-margin">
 										<?php
@@ -1166,7 +1170,8 @@ echo $ui->loadElement('modal')
 				{
 
 					document.getElementById('detailparticulars'+row).value 	=	data.itemdesc;
-					document.getElementById('uom'+row).value 	 			=	data.uomcode;
+					document.getElementById('uom'+row).value 	 			=	data.uomdesc;
+					document.getElementById('uom_hidden'+row).value 	 	=	data.uomcode;
 					document.getElementById('itemprice'+row).value 			= 	"0.00";
 
 					computeAmount();
@@ -1329,6 +1334,7 @@ echo $ui->loadElement('modal')
 			row.cells[2].getElementsByTagName("select")[0].id 	= 'warehouse['+x+']';
 			row.cells[3].getElementsByTagName("input")[0].id 	= 'quantity['+x+']';
 			row.cells[4].getElementsByTagName("input")[0].id 	= 'uom['+x+']';
+			row.cells[4].getElementsByTagName("input")[1].id 	= 'uom_hidden['+x+']';
 			row.cells[5].getElementsByTagName("select")[0].id 	= 'taxcode['+x+']';
 			row.cells[5].getElementsByTagName("input")[1].id 	= 'taxamount['+x+']';
 			row.cells[5].getElementsByTagName("input")[0].id 	= 'taxrate['+x+']';
@@ -1341,6 +1347,7 @@ echo $ui->loadElement('modal')
 			row.cells[2].getElementsByTagName("select")[0].name = 'warehouse['+x+']';
 			row.cells[3].getElementsByTagName("input")[0].name 	= 'quantity['+x+']';
 			row.cells[4].getElementsByTagName("input")[0].name 	= 'uom['+x+']';
+			row.cells[4].getElementsByTagName("input")[1].name 	= 'uom_hidden['+x+']';
 			row.cells[5].getElementsByTagName("select")[0].name = 'taxcode['+x+']';
 			row.cells[5].getElementsByTagName("input")[1].name 	= 'taxamount['+x+']';
 			row.cells[5].getElementsByTagName("input")[0].name 	= 'taxrate['+x+']';
@@ -1370,6 +1377,7 @@ echo $ui->loadElement('modal')
 		document.getElementById('warehouse['+newid+']').value 			= '';
 		document.getElementById('quantity['+newid+']').value 			= '0';
 		document.getElementById('uom['+newid+']').value 				= '';
+		document.getElementById('uom_hidden['+newid+']').value 			= '';
 		document.getElementById('taxcode['+newid+']').value 			= 'none';
 		document.getElementById('taxamount['+newid+']').value 			= '0.00';
 		document.getElementById('taxrate['+newid+']').value 			= '0.00';
