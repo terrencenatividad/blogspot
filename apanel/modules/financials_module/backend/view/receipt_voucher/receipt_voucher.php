@@ -153,14 +153,16 @@
 							<div class="col-md-6">
 								<div class="form-group">
 									<label for="ap_checker" class="control-label col-md-4">Advance Payment</label>
+									<?if($show_input):?>
 									<div class="col-md-1">
 										<input type="checkbox" name="ap_checker" id="ap_checker" class="" value="no" style="position: absolute; opacity: 0;">
 									</div>
+									<?endif;?>
 									<div class="col-md-7">
 										<div class="row">
 											<div class="col-md-12" id="editlink" style="margin-top:5px;">
 												<label id="existingcreditaccount"><?=$existingcreditaccount?></label> 
-												<a href="#ap" id="editcredacct" style="margin-left:10px;"><u>Edit</u></a></div>
+									<?if($show_input):?><a href="#ap" id="editcredacct" style="margin-left:10px;"><u>Edit</u></a></div><?endif;?>
 											</div>
 											<div class="col-md-12 hidden" id="updateacctdropdown">
 												<div class="row">
@@ -3573,10 +3575,10 @@ function apply_credit_account(amount){
 		resetIds();
 		var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first().next('tr');
 			credit_row.find('.accountcode').val(cred_acct).prop('disabled',true);
-			credit_row.find('.h_accountcode').val(cred_acct).prop('disabled',true);
-			credit_row.find('.debit').val(addComma(amount)).prop('disabled',true);
+			credit_row.find('.h_accountcode').val(cred_acct);
+			credit_row.find('.debit').val(addComma(amount)).prop('readonly',true);
 			credit_row.find('.confirm-delete').prop('disabled',true);
-			credit_row.find('.credit').prop('disabled',true);
+			credit_row.find('.credit').prop('readonly',true);
 	}
 	drawTemplate();
 }
