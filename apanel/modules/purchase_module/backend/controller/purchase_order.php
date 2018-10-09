@@ -336,7 +336,6 @@ class controller extends wc_controller
 	{
 		$this->view->title      = 'View Purchase Order';
 		$retrieved_data 		= $this->po->retrieveExistingPO($voucherno);
-
 		$close_date 			= $this->restrict->getClosedDate();
 		$data['close_date']		= $close_date;
 		$item_limit 			= $this->po->getReference("po_limit");

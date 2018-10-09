@@ -180,7 +180,7 @@ class purchase_order extends wc_model
 		$retrieved_data['vendor']    =	$this->retrievevendorDetails($vendor_code);
 
 			// Retrieve Details
-		$detail_fields 			= "pd.itemcode, pd.detailparticular, pd.warehouse, w.description, pd.unitprice, pd.receiptqty, u.uomdesc receiptuom, pd.taxcode, pd.taxrate, pd.amount";
+		$detail_fields 			= "pd.itemcode, pd.detailparticular, pd.warehouse, w.description, pd.unitprice, pd.receiptqty,receiptuom, pd.taxcode, pd.taxrate, pd.amount, u.uomdesc";
 		$condition 				= " pd.voucherno = '$voucherno' ";
 
 		$retrieved_data['details'] = 	$this->db->setTable('purchaseorder_details pd')
@@ -397,7 +397,7 @@ class purchase_order extends wc_model
 			if($postIndex == 'itemcode' || $postIndex=='detailparticulars' || $postIndex == 'warehouse' ||  
 				$postIndex == 'quantity' || $postIndex == 'uom' || $postIndex == 'itemprice' || $postIndex=='taxcode' ||
 				$postIndex=='taxrate' || $postIndex == 'taxamount' || $postIndex == 'amount' || 
-				$postIndex == 'h_amount')
+				$postIndex == 'h_amount' || $postIndex == 'uom_hidden')
 			{
 				$a		= '';
 
@@ -437,7 +437,7 @@ class purchase_order extends wc_model
 			$detailparticular 	=	$tempArrayValue['detailparticulars'];
 			$warehouse 			=	$tempArrayValue['warehouse'];
 			$quantity 			=	$tempArrayValue['quantity'];
-			$uom 				=	$tempArrayValue['uom'];
+			$uom 				=	$tempArrayValue['uom_hidden'];
 			$price 				=	$tempArrayValue['itemprice'];
 			$amount 			=	$tempArrayValue['amount'];
 			$taxcode  			=	$tempArrayValue['taxcode'];
