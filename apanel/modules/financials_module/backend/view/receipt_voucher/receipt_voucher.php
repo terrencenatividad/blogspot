@@ -3575,6 +3575,7 @@ function apply_credit_account(amount){
 			credit_row.find('.accountcode').val(cred_acct).prop('disabled',true);
 			credit_row.find('.h_accountcode').val(cred_acct).prop('disabled',true);
 			credit_row.find('.debit').val(addComma(amount)).prop('disabled',true);
+			credit_row.find('.confirm-delete').prop('disabled',true);
 			credit_row.find('.credit').prop('disabled',true);
 	}
 	drawTemplate();
