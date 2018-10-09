@@ -73,7 +73,7 @@
 					$data["cwt"] 			= $list->result[$i]->cwt;
 				}
 			endif;
-
+			
 			$data["button_name"] = "Save";
 			$this->view->load('atc_code/atc_code',$data);
 
@@ -93,7 +93,7 @@
 
 			/**TAX ACCOUNT**/
 			$data["account_list"] = $this->atc_code->getValue("chartaccount", 
-			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode = 'TAX' ", "",false,false);
+			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode IN('TAX','CULIAB','OTHCL') ", "",false,false);
 
 			$data["s_account_list"] = $this->atc_code->getValue("chartaccount", 
 			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountname = 'Creditable Withholding Tax'", "",false,false);
@@ -254,10 +254,27 @@
 						$cwt_[] 		= $cwt;
 
 						$line++;
+
+						$coa_id_ewt = $this->atc_code->get_coa_id($ewt);
+						$coa_id_cwt = $this->atc_code->get_coa_id($cwt);
+						$ewt1_[] 		= $coa_id_ewt;
+						$cwt1_[] 		= $coa_id_cwt;
+						
+				}
+			}
+			$temp = array();
+			foreach ($ewt1_ as $x) {
+				foreach ($x as $row) {
+					$temp[] = $row->id;
+				}
+			}
+			$temp1 = array();
+			foreach ($cwt1_ as $x) {
+				foreach ($x as $row) {
+					$temp1[] = $row->id;
 				}
 			}
 			$proceed 	=	false;
-
 			if( empty($errmsg) )
 				{
 					$post = array(
@@ -265,8 +282,8 @@
 						'tax_rate'			=> $taxrate_,
 						'wtaxcode'			=> $taxcode_,
 						'short_desc'		=> $description_,
-						'tax_account'		=> $ewt_,
-						'cwt'				=> $cwt_,
+						'tax_account'		=> $temp,
+						'cwt'				=> $temp1,
 					);
 					
 					$proceed  				= $this->atc_code->importATC($post);
@@ -296,6 +313,13 @@
 				if( !empty($list->result) ) :
 				foreach($list->result as $key => $row)
 				{
+					$getCwt = $this->atc_code->getAtc($row->cwt);
+					if ($getCwt) {
+						$acctname = $getCwt->accountname;
+					}
+					else {
+						$acctname = '';
+					}
 					$sid = $row->atcId;
 					$rate = ($row->tax_rate * 100).'%';
 
@@ -333,9 +357,9 @@
 								<td>'.$row->wtaxcode.'</td> 
 								<td>'.$row->short_desc.'</td>
 								<td>'.$row->accountname.'</td>
-								<td>'.'Creditable Withholding Tax'.'</td>
+								<td>'.$acctname.'</td>
 								<td>'.$status.'</td>'; 
-							'</tr>';			
+							'</tr>';		
 				}
 			else:
 				$table .= "<tr>
@@ -499,7 +523,8 @@
 				'tax_rate',
 				'wtaxcode',
 				'short_desc',
-				'tax_account'
+				'tax_account',
+				'cwt'
 			);
 
 			$data_var2 = array(
@@ -515,7 +540,7 @@
 			// * Update Database
 			// */
 			$result = $this->atc_code->editData($data, $data2);
-
+			
 			 if($result)
 				$msg = "success";
 
