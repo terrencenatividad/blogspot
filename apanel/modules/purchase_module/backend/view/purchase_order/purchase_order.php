@@ -913,7 +913,7 @@ echo $ui->loadElement('modal')
 				{
 
 					document.getElementById('detailparticulars'+row).value 	=	data.itemdesc;
-					document.getElementById('uom'+row).value 	 			=	data.uomcode;
+					document.getElementById('uom'+row).value 	 			=	data.uomdesc;
 					document.getElementById('itemprice'+row).value 			= 	"0.00";
 
 					computeAmount();

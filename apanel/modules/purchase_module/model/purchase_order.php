@@ -225,12 +225,11 @@ class purchase_order extends wc_model
 		return $retrieved_data;
 	}
 
-	public function retrieveData($table, $fields = array(), $cond = "", $join = "", $join2 = "", $orderby = "", $groupby = "")
+	public function retrieveData($table, $fields = array(), $cond = "", $join = "", $orderby = "", $groupby = "")
 	{
 		$result = $this->db->setTable($table)
 		->setFields($fields)
 		->leftJoin($join)
-		->leftJoin($join2)
 		->setGroupBy($groupby)
 		->setWhere($cond)
 		->setOrderBy($orderby)
