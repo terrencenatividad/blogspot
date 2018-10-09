@@ -160,7 +160,7 @@
 										<div class="row">
 											<div class="col-md-12" id="editlink" style="margin-top:5px;">
 												<label id="existingcreditaccount"><?=$existingcreditaccount?></label> 
-												<a href="#" id="editcredacct" style="margin-left:10px;"><u>Edit</u></a></div>
+												<a href="#ap" id="editcredacct" style="margin-left:10px;"><u>Edit</u></a></div>
 											</div>
 											<div class="col-md-12 hidden" id="updateacctdropdown">
 												<div class="row">
@@ -2791,6 +2791,7 @@ function getRVDetails(){
 	cheques = JSON.stringify(cheques);
 
 	$("#selected_rows").html(selected_rows);
+	$('#crv').prop('disabled',false);
 
 	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques + "&overpayment="+overpayment + "&advance="+is_ap;
 	
@@ -2931,13 +2932,10 @@ function computeCreditBalance(id,toapply){
 		balance  	= removeComma(balance);
 
 	initialize_credit_box(id);
-	console.log(credits_box);
+
 	var computed_balance 	= parseFloat(amount) - parseFloat(toapply);
 	var new_box 	= [];
 		new_box[id] = [];
-
-	console.log("APPLY = "+toapply);
-	console.log("BALANCE = "+computed_balance);
 
 	new_box[id]['amount']  = parseFloat(amount);
 	new_box[id]['toapply'] = parseFloat(toapply);
@@ -2951,14 +2949,13 @@ function computeCreditBalance(id,toapply){
 		credits_box = new_box;  
 		$('#appliedamounterror').addClass('hidden');
 	}
+	addCreditsAmount();
 }
 
 function addCreditsAmount(){
 	var count_container = Object.keys(credits_box).length;
 	var	total_credits = 0; 	
-	console.log("TOTAL______________");
 
-	console.log(credits_box);
 	for (var key in credits_box) {
 		credits 	= removeComma(credits_box[key]['toapply']);
 		credits  	= parseFloat(credits);
@@ -2980,11 +2977,9 @@ function selectCredits(id,toggle){
 			toapply.val(0.00);
 			toapply.prop('disabled',true);
 		}else{
-			console.log('2');
 			check.prop('checked', true);
 			toapply.val(balance);
 			toapply.prop('disabled',false);
-			
 		}
 	}else{
 		if(toggle == 1){
@@ -3002,7 +2997,6 @@ function selectCredits(id,toggle){
 	var toapply_value 	= removeComma(toapply.val());
 	// immediately set the Balance Amount to the To Apply Input Field for automation
 	computeCreditBalance(id,toapply_value);
-	addCreditsAmount();
 }
 
 function init_storage(){
@@ -3568,27 +3562,30 @@ function set_credit_account(){
 	$('.confirm-delete[data-id="'+row+'"]').prop('disabled',true);
 }
 
+function apply_credit_account(amount){
+	var cred_acct 	= $('#hidden_cred_id').val();
+
+	$('#creditvoucherModal').modal('hide');
+
+	var cheque_rows = $('#entriesTable tbody tr.added_row').length;
+	if(cheque_rows == 0){
+		$("#entriesTable tbody tr.clone:not(.added_row)").first().after(clone_acct);
+		resetIds();
+		var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first().next('tr');
+			credit_row.find('.accountcode').val(cred_acct).prop('disabled',true);
+			credit_row.find('.h_accountcode').val(cred_acct).prop('disabled',true);
+			credit_row.find('.debit').val(addComma(amount)).prop('disabled',true);
+			credit_row.find('.credit').prop('disabled',true);
+	}
+	drawTemplate();
+}
+
 $(document).ready(function() {
 
 	// Call toggleExchangeRate
 	$( "#exchange_rate" ).click(function() {
 		toggleExchangeRate();
 	});
-
-	// For adding new rol
-	// $('body').on('click', '.add-data', function() {	
-	// 	$('#itemsTable tbody tr.clone select').select2('destroy');
-
-	// 	var clone = $("#itemsTable tbody tr.first_row.clone:first").clone(true); 
-
-	// 	var ParentRow = $("#itemsTable tbody tr.clone").last();
-
-	// 	clone.clone(true).insertAfter(ParentRow);
-
-	// 	setZero();
-
-	// 	$('#itemsTable tbody tr.clone select').select2({width: "100%"});
-	// });
 	
 	/**ADD NEW BANK ROW**/
 	$('body').on('click', '.add-cheque', function() {
@@ -4761,7 +4758,7 @@ $(document).ready(function() {
 	// For Advance payment
 	$('#payableForm').on('ifChecked','#ap_checker',function(event){
 		$('#apv').prop('disabled',true);
-		// $('#crv').prop('disabled',true);
+		$('#crv').prop('disabled',false);
 		container 	=	[];
 		$('paymentmode').val('cash');
 		clearPayment();
@@ -4773,7 +4770,7 @@ $(document).ready(function() {
 
 	$('#payableForm').on('ifUnchecked','#ap_checker',function(event){
 		$('#apv').prop('disabled',false);
-		// $('#crv').prop('disabled',false);
+		$('#crv').prop('disabled',true);
 
 		$('#entriesTable tbody tr.credit_account').each(function() {
 			$(this).find('.accountcode').val('').trigger('change.select2');
@@ -4915,18 +4912,9 @@ $('#creditvoucherModal').on('bs.modal-shown',function(){
 });
 
 $('#TagCreditsBtn').on('click',function(){
-	set_credit_account();
-	$('#creditvoucherModal').modal('hide');
 	var total = $('#creditvoucherModal #total_credits_to_apply').val();
-
-	var cred_acct 	= $('#hidden_cred_id').val();
-
-	$('#ap_items tr').each(function(){
-		var accountcode = $(this).find('.h_accountcode').val();
-		if(accountcode == cred_acct){
-			$(this).find('.credit').val(total);
-		}
-	});
+	apply_credit_account(total);
+	
 	$("#applied_cred_amt").html(total);
 });
 
@@ -4935,4 +4923,6 @@ $('.tax_amount').on('change', function(){
 	acc = addCommas(parseFloat(accs).toFixed(2));
 	$('.tax_amount').val(acc);
 });
+
+$('#crv').prop('disabled',true);
 </script>
