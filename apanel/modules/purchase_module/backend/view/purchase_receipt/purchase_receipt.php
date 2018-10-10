@@ -1,4 +1,4 @@
-	<section class="content">
+<section class="content">
 		<div class="box box-primary">
 			<form action="" method="post" class="form-horizontal">
 				<div class="box-body">
@@ -131,12 +131,12 @@
 								<?php endif ?>
 								<th class="col-xs-3">Item</th>
 								<th class="col-xs-3">Description</th>
-								<th class="col-xs-2">Warehouse</th>
+								<th class="col-xs-3">Warehouse</th>
 								<th class="col-xs-1 text-right"></th>
 								<th class="col-xs-1 text-right">Qty</th>
-								<th class="col-xs-1 text-right">UOM</th>
-								<th class="col-xs-1"></th>
-								<th class="col-xs-3 text-right"></th>
+								<th class="col-xs-2">UOM</th>
+								<th class="col-xs-2"></th>
+								<th class="col-xs-2 text-right"></th>
 								<?php if (false): ?>
 								<th style="width: 50px;"></th>
 								<?php endif ?>
@@ -153,7 +153,77 @@
 							</tfoot>
 						<?php endif ?>
 						<tfoot class="summary text-right" style="display: none">
-							
+							<tr>
+								<td colspan="7"><label class="control-label hidden">Total Amount</label></td>
+								<td colspan="2">
+									<?php
+										echo $ui->formField('text')
+												->setSplit('', 'col-md-12 hidden')
+												->setName('amount')
+												->setClass('total_amount')
+												->setValue(((empty($amount)) ? '0.00' : number_format($amount, 2)))
+												->addHidden()
+												->draw($show_input);
+									?>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="7"><label class="control-label hidden">Total Purchase Tax</label></td>
+								<td colspan="2">
+									<?php
+										echo $ui->formField('text')
+												->setSplit('', 'col-md-12 hidden')
+												->setName('taxamount')
+												->setClass('total_tax')
+												->setValue(((empty($taxamount)) ? '0.00' : number_format($taxamount, 2)))
+												->addHidden()
+												->draw($show_input);
+									?>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="7"><label class="control-label hidden">Discount</label></td>
+								<td colspan="2">
+									<?php if ($show_input): ?>
+										<div class="row">
+											<div class="col-md-6">
+												<div class="form-group">
+													<div class="col-md-12 hidden">
+														<div class="input-group">
+															<div class="input-group-addon with-checkbox">
+																<?php
+																	echo $ui->setElement('radio')
+																			->setName('discounttype')
+																			->setClass('discounttype')
+																			->setDefault('perc')
+																			->setValue($discounttype)
+																			->draw($show_input);
+											?>
+											</div>
+										<?php endif ?>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="6"></td>
+								<td colspan="3">
+									<hr style="margin: 0">
+								</td>
+							</tr>
+							<tr>
+								<td colspan="7"><label class="control-label hidden">Total Amount Due</label></td>
+								<td colspan="2">
+									<?php
+										echo $ui->formField('dropdown')
+												->setSplit('', 'col-md-12 hidden')
+												->setName('netamount')
+												->setClass('total_amount_due')
+												->setValue(((empty($netamount)) ? '0.00' : number_format($netamount, 2)))
+												->addHidden()
+												->draw($show_input);
+									?>
+								</td>
+							</tr>
 						</tfoot>
 					</table>
 					<div id="header_values"></div>
@@ -296,13 +366,13 @@
 					</td>
 					<td class="text-right">
 						<?php
-							// echo $ui->formField('text')
-							// 	->setSplit('', 'col-md-12')
-							// 	->setClass('unitprice')
-							// 	->setName('unitprice[]')
-							// 	->setValue('` + addComma(details.unitprice) + `')
-							// 	->addHidden()
-							// 	->draw($show_input);
+							echo $ui->formField('text')
+								->setSplit('', 'col-md-12 hidden')
+								->setClass('unitprice')
+								->setName('unitprice[]')
+								->setValue('` + addComma(details.unitprice) + `')
+								->addHidden()
+								->draw($show_input);
 						?>
 					</td>
 					<td class="text-right">
@@ -320,60 +390,60 @@
 					<td>
 						<?php
 							echo $ui->formField('text')
-								->setSplit('', 'col-md-12 text-right')
+								->setSplit('', 'col-md-12')
 								->setValue('` + details.receiptuom.toUpperCase() + `')
 								->draw(false);
 						?>
 					</td>
 					<td>
 						<?php
-							// $value = "<span id='temp_view_taxrate_` + index + `'></span>";
-							// echo $ui->formField('dropdown')
-							// 	->setSplit('', 'col-md-12')
-							// 	->setName('taxcode[]')
-							// 	->setClass('taxcode')
-							// 	->setList($taxrate_list)
-							// 	->setValue($value)
-							// 	->setNone('None')
-							// 	->draw($show_input);
+							$value = "<span id='temp_view_taxrate_` + index + `'></span>";
+							echo $ui->formField('dropdown')
+								->setSplit('', 'col-md-12 hidden')
+								->setName('taxcode[]')
+								->setClass('taxcode')
+								->setList($taxrate_list)
+								->setValue($value)
+								->setNone('None')
+								->draw($show_input);
 
-							// echo $ui->setElement('hidden')
-							// 		->setName('taxrate[]')
-							// 		->setClass('taxrate')	
-							// 		->setValue('` + (parseFloat(details.taxrate) || 0) + `')
-							// 		->draw();
+							echo $ui->setElement('hidden')
+									->setName('taxrate[]')
+									->setClass('taxrate')	
+									->setValue('` + (parseFloat(details.taxrate) || 0) + `')
+									->draw();
 
-							// echo $ui->setElement('hidden')
-							// 		->setName('detail_taxamount[]')
-							// 		->setClass('taxamount')	
-							// 		->setValue('` + (parseFloat(details.taxamount) || 0) + `')
-							// 		->draw();
+							echo $ui->setElement('hidden')
+									->setName('detail_taxamount[]')
+									->setClass('taxamount')	
+									->setValue('` + (parseFloat(details.taxamount) || 0) + `')
+									->draw();
 									
-							// echo $ui->setElement('hidden')
-							// 		->setName('detail_discountamount[]')
-							// 		->setClass('discountamount')	
-							// 		->setValue('` + (parseFloat(details.discountamount) || 0) + `')
-							// 		->draw();
+							echo $ui->setElement('hidden')
+									->setName('detail_discountamount[]')
+									->setClass('discountamount')	
+									->setValue('` + (parseFloat(details.discountamount) || 0) + `')
+									->draw();
 									
-							// echo $ui->setElement('hidden')
-							// 		->setName('detail_withholdingamount[]')
-							// 		->setClass('withholdingamount')	
-							// 		->setValue('` + (parseFloat(details.withholdingamount) || 0) + `')
-							// 		->draw();
+							echo $ui->setElement('hidden')
+									->setName('detail_withholdingamount[]')
+									->setClass('withholdingamount')	
+									->setValue('` + (parseFloat(details.withholdingamount) || 0) + `')
+									->draw();
 							
 						?>
 					</td>
 					<td class="text-right">
 						<?php
-							// echo $ui->formField('text')
-							// 	->setSplit('', 'col-md-12')
-							// 	->setName('detail_amount[]')
-							// 	->setClass('amount text-right')
-							// 	->setAttribute(array('readonly' => ''))
-							// 	->setValidation('required decimal')
-							// 	->setValue('` + (addComma(details.amount) || 0) + `')
-							// 	->addHidden()
-							// 	->draw($show_input);
+							echo $ui->formField('text')
+								->setSplit('', 'col-md-12 hidden')
+								->setName('detail_amount[]')
+								->setClass('amount text-right')
+								->setAttribute(array('readonly' => ''))
+								->setValidation('required decimal')
+								->setValue('` + (addComma(details.amount) || 0) + `')
+								->addHidden()
+								->draw($show_input);
 						?>
 						` + otherdetails + `
 					</td>
@@ -596,11 +666,8 @@
 		});
 		$('#pagination').on('click', 'a', function(e) {
 			e.preventDefault();
-			var li = $(this).closest('li');
-			if (li.not('.active').length && li.not('.disabled').length) {
-				ajax.page = $(this).attr('data-page');
-				getList();
-			}
+			ajax.page = $(this).attr('data-page');
+			getList();
 		});
 		<?php // endif ?>
 		$('#vendor').on('change', function() {
