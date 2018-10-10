@@ -1247,7 +1247,11 @@
 						<div class="has-error">
 							<span id="appliedamounterror" class="help-block hidden small">
 								<i class="glyphicon glyphicon-exclamation-sign"></i> 
-								You cannot apply an Aount greater than the Balance. 
+								You cannot apply an Amount greater than the Balance. 
+							</span>
+							<span id="totalpaymenterror" class="help-block hidden small">
+								<i class="glyphicon glyphicon-exclamation-sign"></i> 
+								You cannot apply an Credit greater than the Total Receivables Amount. 
 							</span>
 						</div>
 
@@ -2932,6 +2936,9 @@ function computeCreditBalance(id,toapply){
 		amount 		= removeComma(amount);
 		toapply 	= removeComma(toapply);
 		balance  	= removeComma(balance);
+	
+	var total_payment = $('#total_payment').val();
+		total_payment = removeComma(total_payment);
 
 	initialize_credit_box(id);
 
@@ -2947,9 +2954,13 @@ function computeCreditBalance(id,toapply){
 
 	if( toapply > balance ) {
 		$('#appliedamounterror').removeClass('hidden');
+	} else if( toapply > total_payment ) {
+		$('#totalpaymenterror').removeClass('hidden');
+		$('#TagCreditsBtn').prop('disabled',true);
 	} else {
 		credits_box = new_box;  
 		$('#appliedamounterror').addClass('hidden');
+		$('#totalpaymenterror').addClass('hidden');
 	}
 	addCreditsAmount();
 }
