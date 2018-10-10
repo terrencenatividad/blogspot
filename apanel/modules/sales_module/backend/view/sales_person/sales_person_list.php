@@ -58,9 +58,10 @@
 						echo $ui->loadElement('table')
 								->setHeaderClass('info')
 								->addHeader(
-									'',
+									'<input type="checkbox" class="checkall">',
 									array(
-										'class' => 'text-center col-md-1'
+										'class' => 'text-center col-md-1',
+										'style' => 'width:100px'
 									)
 								)
 								->addHeader('Sales Person Code',array('class'=>'col-md-2'),'sort','p.partnercode')
@@ -525,6 +526,7 @@ $("#deactivateMultipleBtn").click(function()
 			
 			if( data.msg == 'success' )
 			{
+				$('.checked').iCheck('uncheck');
 				showList();
 				$('#multipleDeactivateModal').modal('hide');
 			} 

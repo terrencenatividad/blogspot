@@ -71,7 +71,13 @@
 								<?php
 									echo $ui->loadElement('table')
 											->setHeaderClass('info')
-											->addHeader('',array('class'=>'col-md-1'))
+											->addHeader(
+												'<input type="checkbox" class="checkall">',
+												array(
+													'class' => 'text-center',
+													'style' => 'width: 100px'
+												)
+											)
 											->addHeader('Price List Code',array('class'=>'col-md-3'),'sort','pl.itemPriceCode')
 											->addHeader('Price List Name', array('class'=>'col-md-3'),'sort','pl.itemPriceName')
 											->addHeader('Description',array('class'=>'col-md-3'),'sort','pl.itemPriceDesc')
@@ -141,6 +147,7 @@ $('#table_search').on('input', function () {
 
 $('#pagination').on('click', 'a', function(e) {
 	e.preventDefault();
+	$('.checked').iCheck('uncheck');
 	var li = $(this).closest('li');
 	if (li.not('.active').length && li.not('.disabled').length) {
 		ajax.page = $(this).attr('data-page');
@@ -379,6 +386,7 @@ tableSort('#pricelist_table', function(value, getlist) {
 				if( data.msg == 'success' )
 				{
 					showList();
+					$('.checked').iCheck('uncheck');
 					$('#multipleDeactivateModal').modal('hide');
 				} 
 			});

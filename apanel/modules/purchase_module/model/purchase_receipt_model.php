@@ -42,13 +42,14 @@ class purchase_receipt_model extends wc_model {
 	}
 
 	private function getAmounts(&$data, &$data2) {
-		$this->cleanNumber($data2, array('receiptqty', 'unitprice'));
+		$this->cleanNumber($data, array('amount', 'netamount', 'discountamount', 'taxamount', 'wtaxamount'));
+		$this->cleanNumber($data2, array('receiptqty', 'unitprice', 'taxamount', 'amount'));
 		foreach ($data2['itemcode'] as $key => $value) {
 			$data2['convreceiptqty'][$key]	= $data2['receiptqty'][$key] * $data2['conversion'][$key];
 		}
-		// $data['amount']		= array_sum($data2['amount']);
-		// $data['taxamount']	= array_sum($data2['taxamount']);
-		// $data['netamount']	= $data['amount'] + $data['taxamount'] - $data['discountamount'] - $data['wtaxamount'];
+		$data['amount']		= array_sum($data2['amount']);
+		$data['taxamount']	= array_sum($data2['taxamount']);
+		$data['netamount']	= $data['amount'] + $data['taxamount'] - $data['discountamount'] - $data['wtaxamount'];
 	}
 
 	public function updatePurchaseReceiptDetails($data, $voucherno) {
@@ -247,15 +248,12 @@ class purchase_receipt_model extends wc_model {
 
 	public function getPurchaseReceiptDetails($fields, $voucherno, $view = true) {
 		if ($view) {
-			$result = $this->db->setTable('purchasereceipt_details pd')
+			$result = $this->db->setTable('purchasereceipt_details')
 								->setFields($fields)
-								->leftJoin('uom u ON u.uomcode = pd.receiptuom')
 								->setWhere("voucherno = '$voucherno'")
 								->setOrderBy('linenum')
 								->runSelect()
-								->getResult();
-		return $result;
-			
+								->getResult();			
 		} else {
 			$sourceno = $this->db->setTable('purchasereceipt')
 								->setFields('source_no')
@@ -265,9 +263,8 @@ class purchase_receipt_model extends wc_model {
 
 			$sourceno = ($sourceno) ? $sourceno->source_no : '';
 
-			$result1 = $this->db->setTable('purchasereceipt_details pd')
+			$result1 = $this->db->setTable('purchasereceipt_details')
 								->setFields($fields)
-								->leftJoin('uom u ON u.uomcode = pd.receiptuom')
 								->setWhere("voucherno = '$voucherno'")
 								->setOrderBy('linenum')
 								->runSelect()
@@ -289,8 +286,9 @@ class purchase_receipt_model extends wc_model {
 					$result[$key]->amount = $checker[$row->linenum]->amount;
 				}
 			}
-		return $result;
 		}
+		return $result;
+		
 	}
 
 	public function getVendorList() {
