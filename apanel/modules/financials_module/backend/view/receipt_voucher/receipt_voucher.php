@@ -2954,6 +2954,7 @@ function computeCreditBalance(id,toapply){
 
 	if( toapply > balance ) {
 		$('#appliedamounterror').removeClass('hidden');
+		$('#TagCreditsBtn').prop('disabled',true);
 	} else if( toapply > total_payment ) {
 		$('#totalpaymenterror').removeClass('hidden');
 		$('#TagCreditsBtn').prop('disabled',true);
@@ -2961,6 +2962,7 @@ function computeCreditBalance(id,toapply){
 		credits_box = new_box;  
 		$('#appliedamounterror').addClass('hidden');
 		$('#totalpaymenterror').addClass('hidden');
+		$('#TagCreditsBtn').prop('disabled',false);
 	}
 	addCreditsAmount();
 }
