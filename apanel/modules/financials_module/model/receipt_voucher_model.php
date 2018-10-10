@@ -1994,13 +1994,14 @@ class receipt_voucher_model extends wc_model
 
 	public function retrieveCreditsList($customer, $arvoucher=""){
 
-		// $sub_query 	=	$this->db->setTable('creditvoucher_applied cra')
-		// 						 ->setFields('SUM(cra.convertedamount) amount, cra.cr_voucher, cra.partner, cra.companycode, cra.rv_voucher')
-		// 						 ->setGroupBy('cra.cr_voucher');
+		$sub_query 	=	$this->db->setTable('creditvoucher_applied cra')
+								 ->setFields('SUM(cra.convertedamount) amount, cra.cr_voucher, cra.partner, cra.companycode, cra.rv_voucher')
+								 ->setGroupBy('cra.cr_voucher')
+								 ->buildSelect();
 
 		$result 	=	$this->db->setTable('creditvoucher crv')
-								 ->setFields("crv.voucherno, crv.partner, (crv.convertedamount - crva.convertedamount) amount, (crv.balance - crva.convertedamount) balance, crv.invoiceno, crv.referenceno, crv.receivableno")
-								 ->leftJoin('creditvoucher_applied crva ON crva.cr_voucher = crv.voucherno AND crva.companycode = crv.companycode AND crva.partner = crv.partner')
+								 ->setFields("crv.voucherno, crv.partner, (crv.convertedamount - crva.amount) amount, (crv.balance - crva.amount) balance, crv.invoiceno, crv.referenceno, crv.receivableno")
+								 ->leftJoin('('.$sub_query.') crva ON crva.cr_voucher = crv.voucherno AND crva.companycode = crv.companycode AND crva.partner = crv.partner')
 								 ->leftJoin('partners p ON p.partnercode = crv.partner')
 								 ->setWhere("crv.partner = '$customer'")
 								 ->runPagination();
