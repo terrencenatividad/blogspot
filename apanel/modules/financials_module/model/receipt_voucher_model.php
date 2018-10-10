@@ -524,6 +524,7 @@ class receipt_voucher_model extends wc_model
 		$source				   	= "RV"; 
 		$customerTable 			= "partners";
 		$creditsTable 			= "creditvoucher";
+		$creditsAppTable 		= "creditvoucher_applied";
 
 		$insertResult		   	= 0;
 		$op_result 				= 0;
@@ -545,11 +546,18 @@ class receipt_voucher_model extends wc_model
 		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
 		// $credit_input 			= (isset($data['credit_input']) && (!empty($data['credit_input']))) ? htmlentities(addslashes($data['credit_input'])) 	:	0;
 		$ap_checker 			= (isset($data['advance_payment']) && (!empty($data['advance_payment']))) ? htmlentities(addslashes(trim($data['advance_payment']))) : 	"no";
-		
+		$creditsamt_to_apply 	= (isset($data['total_credits_to_apply']) && (!empty($data['total_credits_to_apply']))) ? htmlentities(addslashes(trim($data['total_credits_to_apply']))) : 	0;
+		$credits_box 			= (isset($data['credits_box']) && (!empty($data['credits_box']))) ? htmlentities(addslashes(trim($data['credits_box']))) : 	[];
+
 		$invoice_data  			= str_replace('\\', '', $h_check_rows);
 		$invoice_data  			= html_entity_decode($invoice_data);
 		$picked_payables		= json_decode($invoice_data, true);
-		// var_dump($picked_payables);
+
+		$credits_data  			= str_replace('\\', '', $credits_box);
+		$credits_data  			= html_entity_decode($credits_data);
+		$picked_creditvoucher	= json_decode($credits_data, true);
+
+		// var_dump($picked_creditvoucher);
 		// $source				   	= (!empty($picked_payables)) ? "RV" : "";
 
 		$exchangerate			= (!empty($data['paymentrate'])) ? $data['paymentrate'] : "1.00";
@@ -804,7 +812,6 @@ class receipt_voucher_model extends wc_model
 				$aPvApplicationArray[]					= $post_application;
 			}
 		}
-
 		/**
 		 * Get previous tagged payables
 		 */
@@ -820,8 +827,6 @@ class receipt_voucher_model extends wc_model
 		}else{
 			$combined_payables 		= $picked_payables;
 		}
-
-		//var_dump($combined_payables);
 
 		// details and pv_application
 		if(!empty($aPvApplicationArray) && !is_null($aPvApplicationArray)){
@@ -888,6 +893,66 @@ class receipt_voucher_model extends wc_model
 			if(!$insertResult){
 				$code 		= 0;
 				$errmsg[] 	= "<li>Error in Updating Official Receipt Header.</li>";
+			} else {
+				$appliedCreditsArray 	= array();
+				if(!empty($picked_creditvoucher)){
+					$cr_linenum	= 1;
+					foreach ($picked_creditvoucher as $pickedKey => $pickedValue) {
+						$applied_cred_amt 	= $pickedValue['toapply'];
+						$applied_cred_amt 	= str_replace(',','',$applied_cred_amt);
+						
+						$totalamount+=$amount;
+						$total_credits_used+=$credits;
+						
+						$retrieve_dtl	= $this->getValue("rv_application", array("arvoucherno"), "voucherno = '$voucherno' ");
+						$arvoucherno 	= isset($retrieve_dtl[0]->arvoucherno) 	?	$retrieve_dtl[0]->arvoucherno 	:	0;
+
+						$cred_application['cr_voucher']			= $pickedKey;
+						$cred_application['rv_voucher']			= $voucherno;
+						$cred_application['ar_voucher']			= $arvoucherno;
+						$cred_application['currency']			= 'PHP';
+						$cred_application['exchangerate']		= '1.00';
+						$cred_application['amount']		 		= $applied_cred_amt;
+						$cred_application['convertedamount'] 	= $applied_cred_amt;
+						$cred_application['partner'] 			= $customer;
+						$cred_application['transactiondate']	= $transactiondate;
+						$cred_application['fiscalyear']			= $fiscalyear;
+						$cred_application['period']				= $period;
+						$cred_application['stat']			 	= 'active';
+
+						$cr_linenum++;
+						$appliedCreditsArray[]					= $cred_application;
+					}
+				}
+
+				$iscrvexisting	= $this->getValue($creditsAppTable, array("COUNT(*) AS count"), " cr_voucher = '$pickedKey' AND rv_voucher = '$voucherno'");
+			
+				if($iscrvexisting[0]->count > 0){
+		
+					$this->db->setTable($creditsAppTable)
+							->setWhere(" cr_voucher = '$pickedKey' AND rv_voucher = '$voucherno'")
+							->runDelete();
+		
+					$insertResult = $this->db->setTable($creditsAppTable) 
+										->setValues($appliedCreditsArray)
+										->setWhere(" cr_voucher = '$pickedKey' AND rv_voucher = '$voucherno'")
+										->runInsert();
+									
+					if(!$insertResult){
+						$code 		= 0;
+						$errmsg[] 	= "<li>Error in Saving Applied Credit Accounts Details.</li>";
+					}
+				} else {
+					$insertResult = $this->db->setTable($creditsAppTable) 
+										->setValues($appliedCreditsArray)
+										->setWhere(" cr_voucher = '$pickedKey' AND rv_voucher = '$voucherno'")
+										->runInsert();
+									
+					if(!$insertResult){
+						$code 		= 0;
+						$errmsg[] 	= "<li>Error in Saving Applied Credit Accounts Details.</li>";
+					}
+				}
 			}	
 		} else if($ap_checker == 'yes'){
 			$this->db->setTable($detailAppTable)

@@ -1530,7 +1530,7 @@ echo $ui->loadElement('modal')
 	var acct_details 	= [];
 
 	var checker 	= new Array();
-	var credits_box = new Array();
+	var credits_box = {};
 	var table 		= document.getElementById('ap_items');
 	var newid 		= table.rows.length;
 	newid 		= parseFloat(newid);
@@ -2919,7 +2919,7 @@ function selectPayable(id,toggle){
 
 function initialize_credit_box(id){
 	if (typeof credits_box[id] === 'undefined') {
-		credits_box[id] = [];
+		credits_box[id] = {};
 	}
 	credits_box[id].balance = 0;
 	credits_box[id].amount = 0;
@@ -2936,8 +2936,8 @@ function computeCreditBalance(id,toapply){
 	initialize_credit_box(id);
 
 	var computed_balance 	= parseFloat(amount) - parseFloat(toapply);
-	var new_box 	= [];
-		new_box[id] = [];
+	var new_box 	= {};
+		new_box[id] = {};
 
 	new_box[id]['amount']  = parseFloat(amount);
 	new_box[id]['toapply'] = parseFloat(toapply);
@@ -4093,7 +4093,7 @@ $(document).ready(function() {
 		/**SAVE TEMPORARY DATA THROUGH AJAX**/
 		$("#payableForm").on('change',function(e)
 		{
-			if( $("#entriesTable #accountcode\\[1\\]").val() != '' && $("#payableForm #document_date").val() != '' && (parseFloat($("#itemsTable #debit\\[1\\]").val()) > 0 || parseFloat($("#itemsTable #credit\\[1\\]").val()) > 0) && (parseFloat($("#itemsTable #debit\\[2\\]").val()) > 0 || parseFloat($("#itemsTable #credit\\[2\\]").val()) > 0) && $("#payableForm #customer").val() != '' )
+			if( $("#entriesTable #accountcode\\[1\\]").val() != '' && $("#payableForm #document_date").val() != '' && $("#payableForm #customer").val() != '' )
 			{
 				setTimeout(function() 
 				{
@@ -4104,8 +4104,10 @@ $(document).ready(function() {
 					
 					var is_ap 	= $('#ap_checker').is(':checked');
 						is_ap 	= (is_ap == true) ? "yes" 	:	"no";
-
-					$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+					
+					var string_box = JSON.stringify(credits_box);
+					
+					$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 					.done(function(data)
 					{	
 						if(data.code == '1')
@@ -4167,7 +4169,9 @@ $(document).ready(function() {
 				var is_ap 	= $('#ap_checker').is(':checked');
 					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
 					
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+				var string_box = JSON.stringify(credits_box);
+				
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 				.done(function(data)
 				{	
 					if(data.code == 1){
@@ -4209,9 +4213,13 @@ $(document).ready(function() {
 			}
 			if(valid == 0){
 				$("#payableForm #submit").val("save_new");
+
 				var is_ap 	= $('#ap_checker').is(':checked');
 					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+				
+				var string_box = JSON.stringify(credits_box);
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 				.done(function(data)
 				{
 					if(data.code == 1){
@@ -4255,9 +4263,13 @@ $(document).ready(function() {
 			if(valid == 0)
 			{
 				$("#payableForm #submit").val("save");
+
 				var is_ap 	= $('#ap_checker').is(':checked');
 					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+				
+				var string_box = JSON.stringify(credits_box);
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 				.done(function(data)
 				{
 					if(data.code == 1){
@@ -4298,9 +4310,13 @@ $(document).ready(function() {
 			if(valid == 0)
 			{
 				$("#payableForm #submit").val("save_exit");
+
 				var is_ap 	= $('#ap_checker').is(':checked');
 					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+
+				var string_box = JSON.stringify(credits_box);
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 				.done(function(data)
 				{
 					if(data.code == 1){
@@ -4365,7 +4381,9 @@ $(document).ready(function() {
 				var is_ap 	= $('#ap_checker').is(':checked');
 					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
 
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+				var string_box = JSON.stringify(credits_box);
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 				.done(function(data)
 				{
 					if(data.code == 1) {
@@ -4415,8 +4433,10 @@ $(document).ready(function() {
 
 				var is_ap 	= $('#ap_checker').is(':checked');
 					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+				
+				var string_box = JSON.stringify(credits_box);
 
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 				.done(function(data)
 				{
 					if(data.code == 1) {
@@ -4465,7 +4485,9 @@ $(document).ready(function() {
 				var is_ap 	= $('#ap_checker').is(':checked');
 					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
 
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+				var string_box = JSON.stringify(credits_box);
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 				.done(function( data ) {
 					if(data.code == 1) {
 						finalize_saving(button_name);				
@@ -4513,7 +4535,9 @@ $(document).ready(function() {
 				var is_ap 	= $('#ap_checker').is(':checked');
 					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
 
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+				var string_box = JSON.stringify(credits_box);
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 				.done(function( data ) 
 				{
 					if(data.code == 1) {
