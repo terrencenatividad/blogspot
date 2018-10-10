@@ -202,7 +202,7 @@
 							<th class="col-md-2 text-center">Warehouse</th>
 							<th class="col-md-1 text-center">Quantity</th>
 							<th class="col-md-1 text-center">UOM</th>
-							<th class="col-md-2 text-center">Tax</th>
+							<th class="col-md-1 text-center">Tax</th>
 							<th class="col-md-1 text-center">Price</th>
 							<th class="col-md-2 text-center">Amount</th>
 							<th class="taxt-center"></th>
@@ -659,7 +659,7 @@
 									<th class="col-md-2 text-center">Warehouse</th>
 									<th class="col-md-1 text-center">Quantity</th>
 									<th class="col-md-1 text-center">UOM</th>
-									<th class="col-md-2 text-center">Tax</th>
+									<th class="col-md-1 text-center">Tax</th>
 									<th class="col-md-1 text-center">Price</th>
 									<th class="col-md-2 text-center">Amount</th>
 									<th class="taxt-center"></th>
@@ -802,7 +802,7 @@
 									<th class="col-md-2 text-center">Warehouse</th>
 									<th class="col-md-1 text-center">Quantity</th>
 									<th class="col-md-1 text-center">UOM</th>
-									<th class="col-md-2 text-center">Tax</th>
+									<th class="col-md-1 text-center">Tax</th>
 									<th class="col-md-1 text-center">Price</th>
 									<th class="col-md-2 text-center">Amount</th>
 									<th class="taxt-center"></th>
