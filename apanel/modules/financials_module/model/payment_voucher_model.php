@@ -70,7 +70,7 @@ class payment_voucher_model extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat";
+		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat status";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();

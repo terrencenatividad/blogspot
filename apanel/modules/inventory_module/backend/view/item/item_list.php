@@ -218,6 +218,7 @@
 		});
 		$('#pagination').on('click', 'a', function(e) {
 			e.preventDefault();
+			$('.checked').iCheck('uncheck');
 			var li = $(this).closest('li');
 			if (li.not('.active').length && li.not('.disabled').length) {
 				ajax.page = $(this).attr('data-page');
@@ -384,6 +385,7 @@
 				
 				if( data.msg == 'success' )
 				{
+					$('.checked').iCheck('uncheck');
 					getList();
 					$('#multipleDeactivateModal').modal('hide');
 				} 

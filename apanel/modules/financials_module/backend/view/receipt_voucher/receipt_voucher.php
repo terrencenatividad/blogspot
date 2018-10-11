@@ -153,14 +153,16 @@
 							<div class="col-md-6">
 								<div class="form-group">
 									<label for="ap_checker" class="control-label col-md-4">Advance Payment</label>
+									<?if($show_input):?>
 									<div class="col-md-1">
 										<input type="checkbox" name="ap_checker" id="ap_checker" class="" value="no" style="position: absolute; opacity: 0;">
 									</div>
+									<?endif;?>
 									<div class="col-md-7">
 										<div class="row">
 											<div class="col-md-12" id="editlink" style="margin-top:5px;">
 												<label id="existingcreditaccount"><?=$existingcreditaccount?></label> 
-												<a href="#" id="editcredacct" style="margin-left:10px;"><u>Edit</u></a></div>
+									<?if($show_input):?><a href="#ap" id="editcredacct" style="margin-left:10px;"><u>Edit</u></a></div><?endif;?>
 											</div>
 											<div class="col-md-12 hidden" id="updateacctdropdown">
 												<div class="row">
@@ -185,58 +187,20 @@
 									</div>
 								</div>
 							</div>
-						</div>
-						<div class="row">
-							<div class = "col-md-12">
-								<?php
-								echo $ui->formField('textarea')
-								->setLabel('Notes:')
-								->setSplit('col-md-2', 'col-md-10')
-								->setName('remarks')
-								->setId('remarks')
-								->setMaxLength(100)
-								->setValue($particulars)
-								->setAttribute(
-									array(
-										'rows' => 5
-									)
-								)
-								->draw($show_input);
-								?>
+							<div class="row">
+							`	<div class = "col-md-12">
+									<?php
+										echo $ui->formField('textarea')
+												->setLabel('Notes:')
+												->setSplit('col-md-2', 'col-md-10')
+												->setName('remarks')
+												->setId('remarks')
+												->setValue($particulars)
+												->draw($show_input);
+									?>
+								</div>
 							</div>
-						<!-- <div class = "col-md-6">
-							<?php
-								// echo $ui->formField('text')
-								// 		->setLabel('Apply Credit')
-								// 		->setSplit('col-md-4', 'col-md-8')
-								// 		->setName('credit_input')
-								// 		->setId('credit_input')
-								// 		->setClass('text-right')
-								// 		->setMaxLength(20)
-								// 		->setPlaceHolder("0.00")
-								// 		->setValidation('decimal')
-								// 		->setValue($credits_used)
-								// 		->draw($show_input);
-							?>
-							<?php
-								// echo $ui->formField('text')
-								// 		->setLabel('Available Credits')
-								// 		->setSplit('col-md-4', 'col-md-8')
-								// 		->setName('available_credits')
-								// 		->setId('available_credits')
-								// 		->setAttribute(array("style"=>"color:blue"))
-								// 		->setMaxLength(30)
-								// 		->addHidden()
-								// 		->setValue("Php ".$available_credits)
-								// 		->draw();
-							?>	
-							<div class="col-md-offset-4 has-error">
-								<span id="excess_credit_error" class="help-block hidden small">
-									<i class="glyphicon glyphicon-exclamation-sign"></i> 
-									You cannot input a Credit greater than your available Credit amount.
-								</span>
-							</div>						
-						</div> -->
+						</div>
 					</div>
 				</div>
 			</div>
@@ -1279,6 +1243,13 @@
 								?>
 							</div>			
 						</div>
+					
+						<div class="has-error">
+							<span id="appliedamounterror" class="help-block hidden small">
+								<i class="glyphicon glyphicon-exclamation-sign"></i> 
+								You cannot apply an Aount greater than the Balance. 
+							</span>
+						</div>
 
 						<div class="table-responsive">
 							<table class="table table-condensed table-bordered table-hover" id="creditVoucherLists">
@@ -1559,7 +1530,7 @@ echo $ui->loadElement('modal')
 	var acct_details 	= [];
 
 	var checker 	= new Array();
-	var credits_box = new Array();
+	var credits_box = {};
 	var table 		= document.getElementById('ap_items');
 	var newid 		= table.rows.length;
 	newid 		= parseFloat(newid);
@@ -2822,6 +2793,7 @@ function getRVDetails(){
 	cheques = JSON.stringify(cheques);
 
 	$("#selected_rows").html(selected_rows);
+	$('#crv').prop('disabled',false);
 
 	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques + "&overpayment="+overpayment + "&advance="+is_ap;
 	
@@ -2945,30 +2917,54 @@ function selectPayable(id,toggle){
 	addPaymentAmount();
 }
 
-function computeCreditBalance(id){
+function initialize_credit_box(id){
+	if (typeof credits_box[id] === 'undefined') {
+		credits_box[id] = {};
+	}
+	credits_box[id].balance = 0;
+	credits_box[id].amount = 0;
+	credits_box[id].toapply = 0;
+}
+
+function computeCreditBalance(id,toapply){
 	var balance 	= $('#list_container #credits_balance'+id).attr('data-value');
 	var amount 		= $('#list_container #credits_amount'+id).attr('data-value');
-	var toapply 	= $('#list_container #credittoapply'+id);
-	
-	console.log("Balance = "+balance);
+		amount 		= removeComma(amount);
+		toapply 	= removeComma(toapply);
+		balance  	= removeComma(balance);
 
-	console.log(credits_box);
-	if (typeof credits_box[id].balance === 'undefined') {
-		credits_box[id].balance = 0;
-	}
-	if (typeof credits_box[id].amount === undefined) {
-		credits_box[id].amount = 0;
-	}
-	if (typeof credits_box[id].toapply === undefined) {
-		credits_box[id].toapply = 0;
-	}
+	initialize_credit_box(id);
 
-	// credits_box = [];
-	// credits_box[id]['balance'] = (typeof credits_box[id]['balance'] !== 'undefined') ? parseFloat(balance) : 0;
-	// credits_box[id]['amount']  = (typeof credits_box[id]['amount'] !== 'undefined') ? parseFloat(amount) : 0;
-	// credits_box[id]['toapply'] = (typeof credits_box[id]['toapply'] !== 'undefined') ? parseFloat(toapply) : 0;
+	var computed_balance 	= parseFloat(amount) - parseFloat(toapply);
+	var new_box 	= {};
+		new_box[id] = {};
 
-	console.log(credits_box);
+	new_box[id]['amount']  = parseFloat(amount);
+	new_box[id]['toapply'] = parseFloat(toapply);
+	new_box[id]['balance'] = computed_balance;
+
+	$('#list_container #credits_balance'+id).html(addComma(computed_balance));       
+
+	if( toapply > balance ) {
+		$('#appliedamounterror').removeClass('hidden');
+	} else {
+		credits_box = new_box;  
+		$('#appliedamounterror').addClass('hidden');
+	}
+	addCreditsAmount();
+}
+
+function addCreditsAmount(){
+	var count_container = Object.keys(credits_box).length;
+	var	total_credits = 0; 	
+
+	for (var key in credits_box) {
+		credits 	= removeComma(credits_box[key]['toapply']);
+		credits  	= parseFloat(credits);
+		total_credits += credits;
+	}
+	total_credits = addCommas(total_credits.toFixed(2));
+	$('#total_credits_to_apply').val(total_credits);
 }
 
 function selectCredits(id,toggle){
@@ -2977,35 +2973,32 @@ function selectCredits(id,toggle){
 	var amount 		= $('#list_container #credits_amount'+id).attr('data-value');
 	var toapply 	= $('#list_container #credittoapply'+id);
 
-	// console.log(toapply);
 	if(check.prop('checked')){
 		if(toggle == 1){
-			console.log('1');
 			check.prop('checked', false);
+			toapply.val(0.00);
 			toapply.prop('disabled',true);
 		}else{
-			console.log('2');
 			check.prop('checked', true);
+			toapply.val(balance);
 			toapply.prop('disabled',false);
 		}
 	}else{
 		if(toggle == 1){
-			console.log('3');
 			check.prop('checked', true);
 			toapply.prop('disabled',false);
+			toapply.val(balance);
 		}else{
-			console.log('4');
 			check.prop('checked', false);
 			toapply.prop('disabled',true);
+			toapply.val(0.00);
 		}
 	}
 	$('#list_container #check'+id).iCheck('update');
 
-	// Get number of checkboxes and assign to textarea
-	// balance 	=	removeComma(balance);
-	// add_storage(id,balance,0,0,overpayment);
-	// addPaymentAmount();
-	computeCreditBalance(id);
+	var toapply_value 	= removeComma(toapply.val());
+	// immediately set the Balance Amount to the To Apply Input Field for automation
+	computeCreditBalance(id,toapply_value);
 }
 
 function init_storage(){
@@ -3170,8 +3163,8 @@ function checkCredit(val,id){
 		input = 0;
 	}
 
-	// add_storage(id,dueamount,discount,input,overpayment);
-	// addPaymentAmount();	
+	add_storage(id,dueamount,discount,input,overpayment);
+	addPaymentAmount();	
 }
 
 function validateCheques(){
@@ -3571,27 +3564,31 @@ function set_credit_account(){
 	$('.confirm-delete[data-id="'+row+'"]').prop('disabled',true);
 }
 
+function apply_credit_account(amount){
+	var cred_acct 	= $('#hidden_cred_id').val();
+
+	$('#creditvoucherModal').modal('hide');
+
+	var cheque_rows = $('#entriesTable tbody tr.added_row').length;
+	if(cheque_rows == 0){
+		$("#entriesTable tbody tr.clone:not(.added_row)").first().after(clone_acct);
+		resetIds();
+		var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first().next('tr');
+			credit_row.find('.accountcode').val(cred_acct).prop('disabled',true);
+			credit_row.find('.h_accountcode').val(cred_acct);
+			credit_row.find('.debit').val(addComma(amount)).prop('readonly',true);
+			credit_row.find('.confirm-delete').prop('disabled',true);
+			credit_row.find('.credit').prop('readonly',true);
+	}
+	drawTemplate();
+}
+
 $(document).ready(function() {
 
 	// Call toggleExchangeRate
 	$( "#exchange_rate" ).click(function() {
 		toggleExchangeRate();
 	});
-
-	// For adding new rol
-	// $('body').on('click', '.add-data', function() {	
-	// 	$('#itemsTable tbody tr.clone select').select2('destroy');
-
-	// 	var clone = $("#itemsTable tbody tr.first_row.clone:first").clone(true); 
-
-	// 	var ParentRow = $("#itemsTable tbody tr.clone").last();
-
-	// 	clone.clone(true).insertAfter(ParentRow);
-
-	// 	setZero();
-
-	// 	$('#itemsTable tbody tr.clone select').select2({width: "100%"});
-	// });
 	
 	/**ADD NEW BANK ROW**/
 	$('body').on('click', '.add-cheque', function() {
@@ -4096,7 +4093,7 @@ $(document).ready(function() {
 		/**SAVE TEMPORARY DATA THROUGH AJAX**/
 		$("#payableForm").on('change',function(e)
 		{
-			if( $("#entriesTable #accountcode\\[1\\]").val() != '' && $("#payableForm #document_date").val() != '' && (parseFloat($("#itemsTable #debit\\[1\\]").val()) > 0 || parseFloat($("#itemsTable #credit\\[1\\]").val()) > 0) && (parseFloat($("#itemsTable #debit\\[2\\]").val()) > 0 || parseFloat($("#itemsTable #credit\\[2\\]").val()) > 0) && $("#payableForm #customer").val() != '' )
+			if( $("#entriesTable #accountcode\\[1\\]").val() != '' && $("#payableForm #document_date").val() != '' && $("#payableForm #customer").val() != '' )
 			{
 				setTimeout(function() 
 				{
@@ -4107,8 +4104,10 @@ $(document).ready(function() {
 					
 					var is_ap 	= $('#ap_checker').is(':checked');
 						is_ap 	= (is_ap == true) ? "yes" 	:	"no";
-
-					$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+					
+					var string_box = JSON.stringify(credits_box);
+					
+					$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 					.done(function(data)
 					{	
 						if(data.code == '1')
@@ -4170,7 +4169,9 @@ $(document).ready(function() {
 				var is_ap 	= $('#ap_checker').is(':checked');
 					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
 					
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+				var string_box = JSON.stringify(credits_box);
+				
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 				.done(function(data)
 				{	
 					if(data.code == 1){
@@ -4212,9 +4213,13 @@ $(document).ready(function() {
 			}
 			if(valid == 0){
 				$("#payableForm #submit").val("save_new");
+
 				var is_ap 	= $('#ap_checker').is(':checked');
 					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+				
+				var string_box = JSON.stringify(credits_box);
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 				.done(function(data)
 				{
 					if(data.code == 1){
@@ -4258,9 +4263,13 @@ $(document).ready(function() {
 			if(valid == 0)
 			{
 				$("#payableForm #submit").val("save");
+
 				var is_ap 	= $('#ap_checker').is(':checked');
 					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+				
+				var string_box = JSON.stringify(credits_box);
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 				.done(function(data)
 				{
 					if(data.code == 1){
@@ -4301,9 +4310,13 @@ $(document).ready(function() {
 			if(valid == 0)
 			{
 				$("#payableForm #submit").val("save_exit");
+
 				var is_ap 	= $('#ap_checker').is(':checked');
 					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+
+				var string_box = JSON.stringify(credits_box);
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 				.done(function(data)
 				{
 					if(data.code == 1){
@@ -4368,7 +4381,9 @@ $(document).ready(function() {
 				var is_ap 	= $('#ap_checker').is(':checked');
 					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
 
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+				var string_box = JSON.stringify(credits_box);
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 				.done(function(data)
 				{
 					if(data.code == 1) {
@@ -4418,8 +4433,10 @@ $(document).ready(function() {
 
 				var is_ap 	= $('#ap_checker').is(':checked');
 					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+				
+				var string_box = JSON.stringify(credits_box);
 
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 				.done(function(data)
 				{
 					if(data.code == 1) {
@@ -4468,7 +4485,9 @@ $(document).ready(function() {
 				var is_ap 	= $('#ap_checker').is(':checked');
 					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
 
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+				var string_box = JSON.stringify(credits_box);
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 				.done(function( data ) {
 					if(data.code == 1) {
 						finalize_saving(button_name);				
@@ -4516,7 +4535,9 @@ $(document).ready(function() {
 				var is_ap 	= $('#ap_checker').is(':checked');
 					is_ap 	= (is_ap == true) ? "yes" 	:	"no";
 
-				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap)
+				var string_box = JSON.stringify(credits_box);
+
+				$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/create_payments",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&credits_box="+string_box)
 				.done(function( data ) 
 				{
 					if(data.code == 1) {
@@ -4764,7 +4785,7 @@ $(document).ready(function() {
 	// For Advance payment
 	$('#payableForm').on('ifChecked','#ap_checker',function(event){
 		$('#apv').prop('disabled',true);
-		// $('#crv').prop('disabled',true);
+		$('#crv').prop('disabled',false);
 		container 	=	[];
 		$('paymentmode').val('cash');
 		clearPayment();
@@ -4776,7 +4797,7 @@ $(document).ready(function() {
 
 	$('#payableForm').on('ifUnchecked','#ap_checker',function(event){
 		$('#apv').prop('disabled',false);
-		// $('#crv').prop('disabled',false);
+		$('#crv').prop('disabled',true);
 
 		$('#entriesTable tbody tr.credit_account').each(function() {
 			$(this).find('.accountcode').val('').trigger('change.select2');
@@ -4799,7 +4820,7 @@ $(document).ready(function() {
 		var selectid = $(this).attr('row');
 		var selecttoggleid = $(this).attr('toggleid');
 		
-		selectPayable(selectid,selecttoggleid);	
+		selectCredits(selectid,selecttoggleid);	
 	});
 
 }); // end
@@ -4833,12 +4854,6 @@ $("#entriesTable").on('ifToggled','.wtax',function() {
 });
 
 $("#entriesTable").on('click', '.edit-button', function() {
-	// $('#tax_amount').val($(this).attr('data-amount'));
-	// $('#atcModal').modal('show');
-	// var accountcode = $('.accountcode').val();
-	// get_coa(accountcode);
-	// row = $(this).closest('tr');
-
 	$('#tax_amount').val($(this).attr('data-amount'));
 	var accountcode = $(this).closest('tr').find('.accountcode').val();
 	row = $(this).closest('tr');
@@ -4918,12 +4933,23 @@ $('#payableForm').on('click','#update_ap_acct',function(e){
 	});
 });
 
+$('#creditvoucherModal').on('bs.modal-shown',function(){
+	// $('#appliedamounterror').addClass('hidden');
+	computeCreditBalance();
+});
 
-</script>
-<script>
-	$('.tax_amount').on('change', function(){
-		var accs = $(this).val();
-		acc = addCommas(parseFloat(accs).toFixed(2));
-		$('.tax_amount').val(acc);
-	});
+$('#TagCreditsBtn').on('click',function(){
+	var total = $('#creditvoucherModal #total_credits_to_apply').val();
+	apply_credit_account(total);
+	
+	$("#applied_cred_amt").html(total);
+});
+
+$('.tax_amount').on('change', function(){
+	var accs = $(this).val();
+	acc = addCommas(parseFloat(accs).toFixed(2));
+	$('.tax_amount').val(acc);
+});
+
+$('#crv').prop('disabled',true);
 </script>

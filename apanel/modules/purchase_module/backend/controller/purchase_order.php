@@ -608,6 +608,7 @@ class controller extends wc_controller
 				
 				//$vendor_name 	=	$vendor[0]->first_name . " " . $vendor[0]->last_name;
 				$transactiondate 	=	$row->transactiondate;
+				$balance 			= 	$row->balance;
 
 				if($row->stat == 'open')
 				{
@@ -620,6 +621,7 @@ class controller extends wc_controller
 				else if($row->stat == 'posted')
 				{
 					$voucher_status = '<span class="label label-success">COMPLETE</span>';
+					$balance	 	= 0;
 				}
 				else if($row->stat == 'cancelled')
 				{
@@ -648,7 +650,7 @@ class controller extends wc_controller
 				$table .= '<td>' . $row->referenceno. '</td>';
 				$table .= '<td>' . $row->vendor . '</td>';
 				$table .= '<td class = "text-right" >' . number_format($row->netamount,2) . '</td>';
-				$table .= '<td class = "text-right" >' . number_format($row->balance,2) . '</td>';
+				$table .= '<td class = "text-right" >' . number_format($balance,2) . '</td>';
 				$table .= '<td>' . $voucher_status . '</td>';
 				$table .= '</tr>';
 			}
