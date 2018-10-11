@@ -2653,6 +2653,7 @@ var payments 		= <?=$payments;?>;
 var container 		= (payments != '') ? payments : [];
 var selectedIndex 	= -1;
 function getPVDetails(){
+	storechequetobank();
 	var vendorcode   	= $("#vendor").val();
 	var selected_rows 	= JSON.stringify(container);
 
