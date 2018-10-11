@@ -146,6 +146,10 @@ class controller extends wc_controller
 		$acc_entry_order 			  = "coa.segment5, coa2.segment5";
 		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
 
+		$atc_entry_data               = array("atcId ind","CONCAT(atc_code, ' - ', short_desc) val");
+		$atc_entry_cond               = "stat = 'active'";
+		$data["atc_list"]   		  = $this->receipt_voucher->getValue("atccode", $atc_entry_data, $atc_entry_cond, "","","","");
+
 		// Cash Account Options
 		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
 		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
@@ -212,6 +216,9 @@ class controller extends wc_controller
 				$update_ref['referenceno']  	= $generatedvoucher;
 				$ref_cond 						= "referenceno = '$voucherno' AND transtype = 'ADVP'";
 				$updateTempRecord				= $this->receipt_voucher->editData($update_ref,"creditvoucher",$ref_cond);
+				$update_cred['rv_voucher']  	= $generatedvoucher;
+				$cred_cond 						= "rv_voucher = '$voucherno'";
+				$updateTempRecord				= $this->receipt_voucher->editData($update_cred,"creditvoucher_applied",$cred_cond);
 			}
 		}
 
@@ -507,6 +514,10 @@ class controller extends wc_controller
 		$data["sid"] 		   	= $sid;
 		$data["date"] 		   	= date("M d, Y");
 
+		$atc_entry_data               = array("atcId ind","CONCAT(atc_code, ' - ', short_desc) val");
+		$atc_entry_cond               = "stat = 'active'";
+		$data["atc_list"]   		  = $this->receipt_voucher->getValue("atccode", $atc_entry_data, $atc_entry_cond, "","","","");
+
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
@@ -719,7 +730,7 @@ class controller extends wc_controller
 		$decode_json    = json_decode($check_rows,true);
 
 		$pagination     = $this->receipt_voucher->retrieveCreditsList($customer,$vno);
-		// var_dump($pagination);
+
 		$table             = "";
 		$j 	               = 1;
 		$json_encode_array = array();
@@ -750,9 +761,6 @@ class controller extends wc_controller
 			}
 
 			for($i = 0; $i < count($pagination->result); $i++, $j++){
-
-				// $restrict_rv 	= $this->restrict->setButtonRestriction($date);
-				// $date			= $this->date->dateFormat($date);
 				$voucherno 		=	isset($pagination->result[$i]->voucherno) 	? 	$pagination->result[$i]->voucherno 		: 	"";
 				$amount			=	isset($pagination->result[$i]->amount) 		? 	$pagination->result[$i]->amount 		:	0;
 				$balance 		=	isset($pagination->result[$i]->balance)		?	$pagination->result[$i]->balance 		: 	0;
@@ -761,45 +769,11 @@ class controller extends wc_controller
 				$receivableno 	=	isset($pagination->result[$i]->receivableno)? 	$pagination->result[$i]->receivableno	:	"";
 
 				$voucher_checked= (in_array($voucherno , $voucher_array)) ? 'checked' : '';
-				// $amt_checked 	= (in_array($voucher , $amt_array)) ? $amt_checked : '';
 
-				// $total_pay 		+= $totalamount;
-
-				// $json_encode_array["row"]       = $i;
-				// $json_encode_array["vno"] 		= $voucher;
-				// $json_encode_array["amt"]    	= $totalamount;
-				// $json_encode_array["bal"]   	= $balance;
-				// $json_encode_array["cred"]		= $credit_used;
-				// $json_encode_array['over']  	= $overpayment;
-			
-				// $json_data[] 					= $json_encode_array;
-			
-				// $json_encode 					= json_encode($json_data);
-
-				// $appliedamount	= $this->receipt_voucher->getValue("rv_application", array("SUM(amount) AS amount"),"arvoucherno = '$voucher' AND stat IN('posted', 'temporary')");
-				// $appliedamount  = isset($appliedamount[0]->amount) 	?	$appliedamount[0]->amount	:	0;
-	
-				// $balance_2		= $balance;
-
-				// if (isset($amt_array[$voucher])) {
-				// 	$balance_2	= str_replace(',','',$amt_array[$voucher]['bal']);
-				// 	$amount		= str_replace(',','',$amt_array[$voucher]['amt']);
-				// 	$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0.00';
-				// 	$credit_used= isset($amt_array[$voucher]['cred']) ? $amt_array[$voucher]['cred'] : '0.00';
-
-				// 	$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount + $credit_used;
-				// 	$balance_2 	= $balance_2 - $amount - $discount - $credit_used;
-				// 	$balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
-				// }
-				// echo $balance."\n\n";
 				$disable_checkbox 	=	"";
 				$disable_onclick 	=	'onClick="selectCredits(\''.$voucherno.'\',1);"';
 
 				$table	.= '<tr>'; 
-				// if(!$restrict_rv){
-					// $disable_checkbox 	=	"disabled='disabled'";
-					// $disable_onclick 	= 	'';
-				// }
 				$table	.= 	'<td class="text-center" style="vertical-align:middle;">';
 				$table	.= 		'<input type="checkbox" name="checkBox[]" id = "check'.$voucherno.'" class = "icheckbox" toggleid="0" row="'.$voucherno.'" '.$voucher_checked.' '.$disable_checkbox.'>'; 
 				$table	.= 	'</td>';
@@ -821,6 +795,7 @@ class controller extends wc_controller
 							array(
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
+								"onChange" => ' computeCreditBalance(\''.$voucherno.'\',this.value); '
 							)
 						)
 						->setValidation('decimal')
@@ -840,6 +815,7 @@ class controller extends wc_controller
 								"disabled" => "disabled", 
 								"onBlur" => ' formatNumber(this.id);', 
 								"onClick" => " SelectAll(this.id); ",
+								"onChange" => ' computeCreditBalance(\''.$voucherno.'\',this.value); '
 							)
 						)
 						->setValidation('decimal')
@@ -1603,18 +1579,18 @@ class controller extends wc_controller
 				$totalcredit     	+= $debit; 
 
 				$table .= '<tr class="clone" valign="middle">';
-				$table	.= '<td class = "checkbox-select remove-margin text-center ">';
-				$table	.=  $ui->formField('checkbox')
-								->setSplit('', 'col-md-12')
-								// ->setName("wtax[".$row."]")
-								->setId("wtax[".$row."]")
-								->setClass("wtax")
-								->setDefault("")
-								->setValue(1)
-								->setAttribute(array("disabled" => "disabled"))
-								->draw($show_input);
-				$table	.= '</td>';
-				$table .= 	'<td class="edit-button text-center" style="display: none"><button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button></td>';
+				// $table	.= '<td class = "checkbox-select remove-margin text-center ">';
+				// $table	.=  $ui->formField('checkbox')
+				// 				->setSplit('', 'col-md-12')
+				// 				// ->setName("wtax[".$row."]")
+				// 				->setId("wtax[".$row."]")
+				// 				->setClass("wtax")
+				// 				->setDefault("")
+				// 				->setValue(1)
+				// 				->setAttribute(array("disabled" => "disabled"))
+				// 				->draw($show_input);
+				// $table	.= '</td>';
+				// $table .= 	'<td class="edit-button text-center" style="display: none"><button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button></td>';
 				$table	.= '<td class = "remove-margin hidden">';
 				$table	.=  $ui->formField('text')
 								->setSplit('', 'col-md-12')
@@ -1922,8 +1898,9 @@ class controller extends wc_controller
 		$result 	=  $this->receipt_voucher->getAccount($tax_account);
 		$tax = $result[0]->tax_rate;
 		$account = $result[0]->tax_account;
-		$amount = ($tax_amount * $tax) ;
-		$returnArray = array( "tax_amount" => $tax_amount, "tax_account" => $account ,"amount" => $amount);
+		$amount = ($tax_amount * $tax);
+	
+		$returnArray = array("amount" => $amount);
 		return $returnArray;
 	}
 
@@ -1933,8 +1910,8 @@ class controller extends wc_controller
 		$result_class = $result[0]->accountname;
 
 		$bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
-		$bus_type_cond                = "tax_account = '$account' AND atc.stat = 'active'";
-		$join 						  =  "chartaccount ca ON atc.tax_account = ca.id";
+		$bus_type_cond                = "cwt = '$account' AND atc.stat = 'active'";
+		$join 						  =  "chartaccount ca ON atc.cwt = ca.id";
 		$tax_list  			 		  = $this->receipt_voucher->getTax("atccode atc", $bus_type_data,$join ,$bus_type_cond, false);
 
 		$ret = '';
@@ -1945,6 +1922,22 @@ class controller extends wc_controller
 		}
 		
 		$returnArray = array( "result" => $result_class, "ret" => $ret);
+		return $returnArray;
+	}
+
+	public function get_cwt(){
+		$result = $this->receipt_voucher->getValues("chartaccount",array("id,accountname"),"accountname = 'Creditable Withholding Tax' ");
+		$result_id = $result[0]->id;
+		$result_name = $result[0]->accountname;
+		
+		$tax_account = $this->input->post("tax_account");
+		$tax_amount = $this->input->post("tax_amount");
+		$result1 	=  $this->receipt_voucher->getAccount($tax_account);
+		$tax = $result1[0]->tax_rate;
+		$account = $result1[0]->tax_account;
+		$amount = ($tax_amount * $tax);
+	
+		$returnArray = array( "id" => $result_id, "accountname" => $result_name, "amount" => $amount);
 		return $returnArray;
 	}
 

@@ -187,6 +187,38 @@
 							</div>
 						</div>
 						<div class="row">
+						<div class="col-md-6">
+								<div class="form-group">
+									<label for="ap_checker" class="control-label col-md-4">CWT</label>
+									<div class="col-md-3" id="cwtdiv">
+											<?php
+											if($task != 'edit'){
+												echo $ui->formField('checkbox')
+														->setSplit('', 'col-md-12')
+														->setId("cwt")
+														->setName("cwt")
+														->setClass("cwt")
+														->setDefault("")
+														->setValue(1)
+														->draw($show_input);
+											}else{
+											?>
+											<button type="button" class="btn btn-primary btn-flat btn-xs edit-button">
+											<i class="glyphicon glyphicon-pencil"></i>
+											</button>
+									<?php } ?>			
+										<!-- <input type="checkbox" name="cwt" id="cwt" class="cwt" value="no" style="position: absolute; opacity: 0;"> -->
+									</div>
+									<div id="editdiv" class="col-md-3 hidden">	
+									<button type="button" class="btn btn-primary btn-flat btn-xs edit-button">
+											<i class="glyphicon glyphicon-pencil"></i>
+											</button>	</div>	
+									
+								</div>
+						</div>
+						
+						</div>
+						<div class="row">
 							<div class = "col-md-12">
 								<?php
 								echo $ui->formField('textarea')
@@ -522,7 +554,7 @@
 						<table class="table table-hover table-condensed " id="entriesTable">
 							<thead>
 								<tr class="info">
-									<?if($show_input){?><th class="col-md-1 text-center" >Withholding Tax</th><?}?>
+									<!-- <?if($show_input){?><th class="col-md-1 text-center" >Withholding Tax</th><?}?> -->
 									<th class="col-md-3 text-center">Account</th>
 											<th class="col-md-3 text-center">Description</th>
 											<th class="col-md-2 text-center">Debit</th>
@@ -547,22 +579,22 @@
 									?>
 
 									<tr class="clone" valign="middle">
-									<td class = "checkbox-select remove-margin text-center">
+									<!-- <td class = "checkbox-select remove-margin text-center">
 											<?php
-												echo $ui->formField('checkbox')
-													->setSplit('', 'col-md-12')
-													// ->setName("wtax[".$row."]")
-													->setId("wtax[".$row."]")
-													->setClass("wtax")
-													->setDefault("")
-													->setValue(1)
-													->setAttribute(array("disabled" => "disabled"))
-													->draw($show_input);
+												// echo $ui->formField('checkbox')
+												// 	->setSplit('', 'col-md-12')
+												// 	// ->setName("wtax[".$row."]")
+												// 	->setId("wtax[".$row."]")
+												// 	->setClass("wtax")
+												// 	->setDefault("")
+												// 	->setValue(1)
+												// 	->setAttribute(array("disabled" => "disabled"))
+												// 	->draw($show_input);
 											?>
-										</td>
-										<td class="edit-button text-center " style="display: none">
+										</td> -->
+										<!-- <td class="edit-button text-center " style="display: none">
 											<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
-										</td>
+										</td> -->
 										<td class = "remove-margin hidden" >
 											<?php
 												echo $ui->formField('text')
@@ -650,21 +682,21 @@
 									?>
 
 									<tr class="clone" valign="middle">
-									<td class = "checkbox-select remove-margin text-center">
+									<!-- <td class = "checkbox-select remove-margin text-center">
 											<?php
-												echo $ui->formField('checkbox')
-														->setSplit('', 'col-md-12')
-														->setId("wtax[".$row."]")
-														->setClass("wtax")
-														->setDefault("")
-														->setValue(1)
-														->setAttribute(array("disabled" => "disabled"))
-														->draw($show_input);
+												// echo $ui->formField('checkbox')
+												// 		->setSplit('', 'col-md-12')
+												// 		->setId("wtax[".$row."]")
+												// 		->setClass("wtax")
+												// 		->setDefault("")
+												// 		->setValue(1)
+												// 		->setAttribute(array("disabled" => "disabled"))
+												// 		->draw($show_input);
 											?>
 										</td>
 										<td class="edit-button text-center" style="display: none">
 											<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
-										</td>
+										</td> -->
 										<td class = "remove-margin hidden">
 											<?php
 												echo $ui->formField('text')
@@ -896,19 +928,19 @@
 										}
 										
 											$detail_row	.= '<tr class="clone '.$added_class.'">';
-											$detail_row	.= '<td class = "checkbox-select remove-margin text-center">';
-											$detail_row .= $ui->formField('checkbox')
-															->setSplit('', 'col-md-12')
-															->setName("wtax[".$row."]")
-															->setId("wtax[".$row."]")
-															->setClass("wtax")
-															->setDefault("1")
-															->setValue(($taxcode) ? 1 : 0)
-															->setAttribute(array("disabled" => "disabled"))
-															->draw($show_input);
-											$detail_row	.='</td>';
-											$detail_row	.= '<td class="edit-button text-center" style="display: none">';
-											$detail_row .= '<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button></td>';
+											// $detail_row	.= '<td class = "checkbox-select remove-margin text-center">';
+											// $detail_row .= $ui->formField('checkbox')
+											// 				->setSplit('', 'col-md-12')
+											// 				->setName("wtax[".$row."]")
+											// 				->setId("wtax[".$row."]")
+											// 				->setClass("wtax")
+											// 				->setDefault("1")
+											// 				->setValue(($taxcode) ? 1 : 0)
+											// 				->setAttribute(array("disabled" => "disabled"))
+											// 				->draw($show_input);
+											// $detail_row	.='</td>';
+											// $detail_row	.= '<td class="edit-button text-center" style="display: none">';
+											// $detail_row .= '<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button></td>';
 										
 											$detail_row	.= '<td class = "remove-margin hidden">';
 											$detail_row .= $ui->formField('text')
@@ -1007,9 +1039,9 @@
 								<tr id="total">
 									<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 									<td class="right" style="border-top:1px solid #DDDDDD;">
-									<? if($show_input): ?>
+									<!-- <? if($show_input): ?>
 									<td class="right" style="border-top:1px solid #DDDDDD;">
-									<?endif;?>
+									<?endif;?> -->
 										<label class="control-label col-md-12">Total</label>
 									</td>
 									<td class="text-right" style="border-top:1px solid #DDDDDD;">
@@ -1473,6 +1505,7 @@
 										->setSplit('col-md-4', 'col-md-8')
 										->setName('tax_account')
 										->setId('tax_account')
+										->setList($atc_list)
 										->setClass('tax_account')
 										->setValue('')
 										->draw($show_input);
@@ -1498,6 +1531,7 @@
 								<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 									<div class="btn-group">
 										<button type="button" class="btn btn-primary btn-flat" id="tax_apply">Apply</button>
+										<button type="button" class="btn btn-primary btn-flat hidden" id="tax_apply_edit">Apply</button>
 									</div>
 										&nbsp;&nbsp;&nbsp;
 									<div class="btn-group">
@@ -1883,30 +1917,30 @@ function resetIds() {
 	for(var i = 1;i <= count;i++) {
 		var row = table.rows[i];
 		
-		row.cells[0].getElementsByTagName("input")[0].id 	= 'wtax['+x+']';
-		row.cells[2].getElementsByTagName("input")[0].id 	= 'taxcode['+x+']';
-		row.cells[3].getElementsByTagName("input")[0].id 	= 'taxbase_amount['+x+']';
-		row.cells[4].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
-		row.cells[4].getElementsByTagName("input")[0].id 	= 'h_accountcode['+x+']';
-		row.cells[5].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
-		row.cells[5].getElementsByTagName("input")[1].id 	= 'ischeck['+x+']';
-		row.cells[6].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
-		row.cells[7].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
+		// row.cells[0].getElementsByTagName("input")[0].id 	= 'wtax['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].id 	= 'taxcode['+x+']';
+		row.cells[1].getElementsByTagName("input")[0].id 	= 'taxbase_amount['+x+']';
+		row.cells[2].getElementsByTagName("select")[0].id 	= 'accountcode['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].id 	= 'h_accountcode['+x+']';
+		row.cells[3].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
+		row.cells[3].getElementsByTagName("input")[1].id 	= 'ischeck['+x+']';
+		row.cells[4].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
+		row.cells[5].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
 		
-		row.cells[0].getElementsByTagName("input")[0].name 	= 'wtax['+x+']';
-		row.cells[2].getElementsByTagName("input")[0].name 	= 'taxcode['+x+']';
-		row.cells[3].getElementsByTagName("input")[0].name 	= 'taxbase_amount['+x+']';
-		row.cells[4].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
-		row.cells[4].getElementsByTagName("input")[0].name  = 'h_accountcode['+x+']';
-		row.cells[5].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
-		row.cells[5].getElementsByTagName("input")[1].name 	= 'ischeck['+x+']';
-		row.cells[6].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
-		row.cells[7].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
+		// row.cells[0].getElementsByTagName("input")[0].name 	= 'wtax['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].name 	= 'taxcode['+x+']';
+		row.cells[1].getElementsByTagName("input")[0].name 	= 'taxbase_amount['+x+']';
+		row.cells[2].getElementsByTagName("select")[0].name = 'accountcode['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].name  = 'h_accountcode['+x+']';
+		row.cells[3].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
+		row.cells[3].getElementsByTagName("input")[1].name 	= 'ischeck['+x+']';
+		row.cells[4].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
+		row.cells[5].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
 		
-		row.cells[8].getElementsByTagName("button")[0].setAttribute('id',x);
-		row.cells[4].getElementsByTagName("select")[0].setAttribute('data-id',x);
-		row.cells[8].getElementsByTagName("button")[0].setAttribute('data-id',x);
-		row.cells[8].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
+		row.cells[6].getElementsByTagName("button")[0].setAttribute('id',x);
+		row.cells[2].getElementsByTagName("select")[0].setAttribute('data-id',x);
+		row.cells[6].getElementsByTagName("button")[0].setAttribute('data-id',x);
+		row.cells[6].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
 
 		x++;
 	}
@@ -1956,7 +1990,7 @@ function setZero(offset) {
 	var account		= document.getElementById('accountcode['+newid+']');
 
 	if(document.getElementById('accountcode['+newid+']') != null) {
-		document.getElementById('wtax['+newid+']').value 				= '';
+		// document.getElementById('wtax['+newid+']').value 				= '';
 		document.getElementById('taxcode['+newid+']').value 			= '';
 		document.getElementById('taxbase_amount['+newid+']').value 		= '';
 		document.getElementById('accountcode['+newid+']').value 		= '';
@@ -4833,12 +4867,6 @@ $("#entriesTable").on('ifToggled','.wtax',function() {
 });
 
 $("#entriesTable").on('click', '.edit-button', function() {
-	// $('#tax_amount').val($(this).attr('data-amount'));
-	// $('#atcModal').modal('show');
-	// var accountcode = $('.accountcode').val();
-	// get_coa(accountcode);
-	// row = $(this).closest('tr');
-
 	$('#tax_amount').val($(this).attr('data-amount'));
 	var accountcode = $(this).closest('tr').find('.accountcode').val();
 	row = $(this).closest('tr');
@@ -4846,34 +4874,6 @@ $("#entriesTable").on('click', '.edit-button', function() {
 	selected_tax_account = taxcode;
 	get_coa(accountcode);
 });
-
-$('#tax_apply').click(function(){
-	var tax_account = $('#tax_account').val();
-	var tax_amount = $('#tax_amount').val();
-	tax_amount = tax_amount.replace(/,/g,'');
-	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_account",{tax_account:tax_account,tax_amount:tax_amount})
-	.done(function(data) {
-		var debit = data.amount ;
-		var taxcode = data.tax_account;
-		row.find('.debit').val(addCommas(debit.toFixed(2)));
-		row.find('.taxbase_amount').val(tax_amount);
-		row.find('.taxcode').val(tax_account);
-		addAmountAll('debit');
-	});
-	
-	$('#atcModal').modal('hide');
-	row.find('.checkbox-select').hide();
-	row.find('.edit-button').show().attr('data-amount', tax_amount);
-
-});
-
-// $('#atcModal #atc_cancel').on('click' ,function(){
-// 	var tax_account = $('#tax_account').val();
-// 	var tax_amount = $('#tax_amount').val();
-// 	tax_amount = tax_amount.replace(/,/g,'');
-// 	row.find('.checkbox-select').hide();
-// 	row.find('.edit-button').show().attr('data-amount', tax_amount);
-// });
 
 $('#entriesTable').on('change', '.accountcode', function(){
 	row = $(this).closest('tr')
@@ -4918,9 +4918,63 @@ $('#payableForm').on('click','#update_ap_acct',function(e){
 	});
 });
 
+$('#payableForm').on('ifChecked', '.cwt', function(){
+		$('#atcModal').modal('show');	
+});
 
-</script>
-<script>
+$('#payableForm').on('click', '.edit-button', function(){
+	var row 	  = $('#entriesTable tbody tr.clone').length - 1;
+	var atc = $("#taxcode\\["+ row +"\\]").val();
+	var amount = $("#taxbase_amount\\["+ row +"\\]").val();
+	$('#tax_account').val(atc);
+	$('#tax_amount').val(amount);
+	$('#atcModal').modal('show');
+
+	$('#tax_apply').addClass('hidden');
+	$('#tax_apply_edit').removeClass('hidden');
+});
+
+$('#tax_apply').click(function(){
+	var tax_account = $('#tax_account').val();
+	var tax_amount = $('#tax_amount').val();
+	tax_amount = tax_amount.replace(/,/g,'');
+
+	var clone = $("#entriesTable tbody tr.clone:last");
+		var ParentRow = $("#entriesTable tbody tr.clone").last();
+			ParentRow.before(clone_acct);
+			offset 	  = 4;
+		
+			setZero(offset);
+			drawTemplate();
+
+	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_cwt","tax_account=" + tax_account+"&tax_amount="+tax_amount).done(function(data){
+		var row 	= $('#entriesTable tbody tr.clone').length - 1;
+					$("#accountcode\\["+ row +"\\]").val(data.id).trigger('change.select2');
+					$("#h_accountcode\\["+ row +"\\]").val(data.id);
+					$("#debit\\["+ row +"\\]").val(addComma(data.amount));
+					$("#taxcode\\["+ row +"\\]").val(tax_account);
+					$("#taxbase_amount\\["+ row +"\\]").val(tax_amount);
+					addAmountAll('debit');
+	});
+
+	$('#cwtdiv').addClass('hidden');
+	$('#editdiv').removeClass('hidden');
+
+	
+	$('#atcModal').modal('hide');
+});
+
+$('#tax_apply_edit').click(function(){
+	var tax_account = $('#tax_account').val();
+	var tax_amount = $('#tax_amount').val();
+	tax_amount = tax_amount.replace(/,/g,'');
+	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_account","tax_account=" + tax_account+"&tax_amount="+tax_amount).done(function(data){
+		var row 	= $('#entriesTable tbody tr.clone').length - 1;
+					$("#debit\\["+ row +"\\]").val(addComma(data.amount));
+					addAmountAll('debit');
+		$('#atcModal').modal('hide');
+	});
+});
 	$('.tax_amount').on('change', function(){
 		var accs = $(this).val();
 		acc = addCommas(parseFloat(accs).toFixed(2));
