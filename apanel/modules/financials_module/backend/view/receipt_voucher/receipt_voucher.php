@@ -2964,6 +2964,8 @@ function computeCreditBalance(id,toapply){
 		$('#totalpaymenterror').addClass('hidden');
 		$('#TagCreditsBtn').prop('disabled',false);
 	}
+	console.log("ADDED | ");
+	console.log(credits_box);
 	addCreditsAmount();
 }
 
@@ -2980,11 +2982,13 @@ function addCreditsAmount(){
 	$('#total_credits_to_apply').val(total_credits);
 }
 
-function selectCredits(id,toggle){
+function selectCredits(id,toggle,toapply_value=""){
 	var check 		= $('#list_container #check'+id);
 	var balance 	= $('#list_container #credits_balance'+id).attr('data-value');
 	var amount 		= $('#list_container #credits_amount'+id).attr('data-value');
 	var toapply 	= $('#list_container #credittoapply'+id);
+
+	var new_to_apply_amt 	=	(toapply_value == "") ? addComma(balance) : addComma(toapply_value);
 
 	if(check.prop('checked')){
 		if(toggle == 1){
@@ -2993,14 +2997,14 @@ function selectCredits(id,toggle){
 			toapply.prop('disabled',true);
 		}else{
 			check.prop('checked', true);
-			toapply.val(balance);
+			toapply.val(new_to_apply_amt);
 			toapply.prop('disabled',false);
 		}
 	}else{
 		if(toggle == 1){
 			check.prop('checked', true);
 			toapply.prop('disabled',false);
-			toapply.val(balance);
+			toapply.val(new_to_apply_amt);
 		}else{
 			check.prop('checked', false);
 			toapply.prop('disabled',true);
@@ -3009,7 +3013,8 @@ function selectCredits(id,toggle){
 	}
 	$('#list_container #check'+id).iCheck('update');
 
-	var toapply_value 	= removeComma(toapply.val());
+	var toapply_value 	=	removeComma(toapply.val());
+
 	// immediately set the Balance Amount to the To Apply Input Field for automation
 	computeCreditBalance(id,toapply_value);
 }
@@ -4833,7 +4838,7 @@ $(document).ready(function() {
 		var selectid = $(this).attr('row');
 		var selecttoggleid = $(this).attr('toggleid');
 		
-		selectCredits(selectid,selecttoggleid);	
+		selectCredits(selectid,1);		
 	});
 
 }); // end
@@ -4859,6 +4864,19 @@ function get_coa(account){
 			row.find('.edit-button').hide();
 		}
 	});
+}
+
+function set_selected_cv(){
+	// var obj = (credits_box != "") ? JSON.parse(credits_box) : 0;
+	console.log(credits_box);
+	for(key in credits_box){
+		var credit_to_apply = credits_box[key]['toapply'];
+		$('#credittoapply'+key).val(addComma(credit_to_apply));
+		$('input#check' + key).iCheck('check');
+		// var toggleid = $('#credittoapply'+key).val();
+		selectCredits(key,1,credit_to_apply);
+	} 
+	// $('#paymentModal').modal('show');
 }
 
 $("#entriesTable").on('ifToggled','.wtax',function() {
@@ -4946,9 +4964,11 @@ $('#payableForm').on('click','#update_ap_acct',function(e){
 	});
 });
 
-$('#creditvoucherModal').on('bs.modal-shown',function(){
+$('#creditvoucherModal').on('shown.bs.modal',function(){
+	console.log(" OPEN ");
 	// $('#appliedamounterror').addClass('hidden');
-	computeCreditBalance();
+	// computeCreditBalance();
+	set_selected_cv();
 });
 
 $('#TagCreditsBtn').on('click',function(){
@@ -4965,4 +4985,6 @@ $('.tax_amount').on('change', function(){
 });
 
 $('#crv').prop('disabled',true);
+
+
 </script>
