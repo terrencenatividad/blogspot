@@ -218,7 +218,7 @@ class controller extends wc_controller
 		$data["referenceno"]       	= $data["main"]->referenceno;
 		$data["paymenttype"]       	= $data["main"]->paymenttype;
 		$data["particulars"]       	= $data["main"]->particulars;
-		$data['status']				= $data["main"]->stat;
+		$data['main_status']		= $data["main"]->status;
 		// Vendor/Customer Details
 		$data["v_vendor"] 		   	= $data["vend"]->name;
 		$data["v_email"] 		   	= $data["vend"]->email;
@@ -335,7 +335,7 @@ class controller extends wc_controller
 		$data["transactiondate"] 	= $this->date->dateFormat($data["main"]->transactiondate);
 		$data["particulars"]     	= $data["main"]->particulars;
 		$data["paymenttype"]     	= $data["main"]->paymenttype;
-		$data["status"]     		= $data["main"]->stat;
+		$data['main_status']		= $data["main"]->status;
 
 		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array() ;
 		$data["show_cheques"] 	 = isset($data['rollArray'][$sid]) ? '' : 'hidden';

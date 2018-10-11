@@ -345,7 +345,7 @@
 										</td>
 										<?php endif; ?>
 
-										<?php else : ?>
+										<?php elseif ($main_status == 'posted') : ?>
 											<td class="text-center">
 												<button type="button" class="btn btn-info btn-flat print_check <?=$status?>"  style="outline:none;" ><span class="glyphicon glyphicon-download-alt"></span></button>
 											</td>	
@@ -2653,6 +2653,7 @@ var payments 		= <?=$payments;?>;
 var container 		= (payments != '') ? payments : [];
 var selectedIndex 	= -1;
 function getPVDetails(){
+	storechequetobank();
 	var vendorcode   	= $("#vendor").val();
 	var selected_rows 	= JSON.stringify(container);
 

@@ -278,7 +278,7 @@ class controller extends wc_controller
 		$data["referenceno"]       	= $data["main"]->referenceno;
 		$data["paymenttype"]       	= $data["main"]->paymenttype;
 		$data["particulars"]       	= $data["main"]->particulars;
-		$data['status']				= $data["main"]->stat;
+		$data['main_status']		= $data["main"]->status;
 		// Vendor/Customer Details
 		$data["v_vendor"] 		   	= $data["vend"]->name;
 		$data["v_email"] 		   	= $data["vend"]->email;
@@ -400,7 +400,7 @@ class controller extends wc_controller
 		$data["transactiondate"] 	= $this->date->dateFormat();
 		$data["particulars"]     	= $data["main"]->particulars;
 		$data["paymenttype"]     	= $data["main"]->paymenttype;
-		$data['status']				= $data["main"]->stat;
+		$data['main_status']		= $data["main"]->status;
 
 		$dis_entry 					= $this->payment_voucher->getValue("fintaxcode", array("purchaseAccount"), "fstaxcode = 'DC'");
 		$discount_code 				= isset($dis_entry[0]->purchaseAccount) ? $dis_entry[0]->purchaseAccount	: "";
