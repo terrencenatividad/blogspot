@@ -121,8 +121,8 @@ class controller extends wc_controller
 		$data["row_ctr"] 			  = 0;
 		$data["exchangerate"]         = "1.00";
 		$data["row"] 			  		= 1;
-		$data["transactiondate"]      = $this->date->dateFormat();
-		$data["status"] 				= "";
+		$data["transactiondate"]      	= $this->date->dateFormat();
+		$data["main_status"] 			= "";
 
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();

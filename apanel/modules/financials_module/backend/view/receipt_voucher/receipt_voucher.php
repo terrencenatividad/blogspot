@@ -3625,6 +3625,12 @@ function apply_credit_account(amount){
 
 	var cheque_rows = $('#entriesTable tbody tr.added_row').length;
 	if(cheque_rows == 0){
+		$('#entriesTable tr').each(function(index) {
+			var account = $(this).find('.accountcode').val();
+			if(account == cred_acct){
+				$(this).remove();
+			}
+		});
 		$("#entriesTable tbody tr.clone:not(.added_row)").first().after(clone_acct);
 		resetIds();
 		var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first().next('tr');
@@ -3633,6 +3639,7 @@ function apply_credit_account(amount){
 			credit_row.find('.debit').val(addComma(amount)).prop('readonly',true);
 			credit_row.find('.confirm-delete').prop('disabled',true);
 			credit_row.find('.credit').prop('readonly',true);
+		addAmountAll("debit");
 	}
 	drawTemplate();
 }
