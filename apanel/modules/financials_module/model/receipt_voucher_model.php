@@ -751,7 +751,6 @@ class receipt_voucher_model extends wc_model
 			$detailparticulars					= $tempArrayValue['detailparticulars'];
 			$debit			    				= isset($tempArrayValue['debit']) ? $tempArrayValue['debit'] : 0;
 			$credit			    				= isset($tempArrayValue['credit']) ? $tempArrayValue['credit'] : 0;
-			// $taxbase_amount			    		= $tempArrayValue['taxbase_amount'];
 			$ischeck 							= isset($tempArrayValue['ischeck']) && $tempArrayValue != "" 	?	$tempArrayValue['ischeck'] 	:	"no";
 			$post_detail['voucherno']			= $voucherno;
 			$post_detail['linenum']				= $iDetailLineNum;
@@ -759,7 +758,6 @@ class receipt_voucher_model extends wc_model
 			$post_detail['accountcode']			= $accountcode;
 			$post_detail['debit']				= $debit;
 			$post_detail['credit']				= $credit;
-			// $post_detail['taxbase_amount']		= $taxbase_amount;
 			$post_detail['converteddebit']		= $debit;
 			$post_detail['convertedcredit'] 	= $credit;
 			$post_detail['currencycode']		= 'PHP';
