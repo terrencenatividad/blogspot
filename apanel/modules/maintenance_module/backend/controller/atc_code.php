@@ -584,6 +584,13 @@
 			$retrieved 	=	array_filter($result);
 			if(!empty($retrieved)){
 				foreach ($retrieved as $key => $row){
+					$getCwt = $this->atc_code->getAtc($row->cwt);
+					if ($getCwt) {
+						$acctname = $getCwt->accountname;
+					}
+					else {
+						$acctname = '';
+					}
 					$atc_code 			= $row->atc_code;
 					$tax_rate 			= $row->tax_rate * 100 .'%';
 					$wtaxcode       	= $row->wtaxcode;
@@ -595,7 +602,7 @@
 					$csv .= '"' . $wtaxcode 		. '",';
 					$csv .= '"' . $short_desc 		. '",';
 					$csv .= '"' . $accountname 		. '",';
-					$csv .= '"' . 'Creditable Withholding Tax' 		. '"';
+					$csv .= '"' . $acctname . '"';
 					$csv .= "\n";
 				}
 			}
