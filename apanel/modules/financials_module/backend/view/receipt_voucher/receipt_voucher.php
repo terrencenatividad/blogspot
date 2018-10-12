@@ -16,170 +16,172 @@
 			<div class="box-body">
 				<div class = "row">
 					<div class = "col-md-12">&nbsp;</div>
-					<div class = "col-md-11">
-						<div class = "row">
-							<div class = "col-md-6">
-								<?php
-								echo $ui->formField('text')
-								->setLabel('Voucher No')
-								->setSplit('col-md-4', 'col-md-8')
-								->setName('voucher_no')
-								->setId('voucher_no')
-								->setAttribute(array("disabled" => "disabled"))
-								->setPlaceholder("- auto generate -")
-								->setValue($voucherno)
-								->draw($show_input);
-								?>
-								<input type = "hidden" id = "h_voucher_no" name = "h_voucher_no" value = "<?= $generated_id ?>">
+						<div class = "col-md-11">
+							<div class = "row">
+								<div class = "col-md-6">
+									<?php
+									echo $ui->formField('text')
+									->setLabel('Voucher No')
+									->setSplit('col-md-4', 'col-md-8')
+									->setName('voucher_no')
+									->setId('voucher_no')
+									->setAttribute(array("disabled" => "disabled"))
+									->setPlaceholder("- auto generate -")
+									->setValue($voucherno)
+									->draw($show_input);
+									?>
+									<input type = "hidden" id = "h_voucher_no" name = "h_voucher_no" value = "<?= $generated_id ?>">
+								</div>
+								<div class = "col-md-6">
+									<?php
+									echo $ui->formField('text')
+									->setLabel('Voucher Date')
+									->setSplit('col-md-4', 'col-md-8')
+									->setName('document_date')
+									->setId('document_date')
+									->setClass('datepicker-input')
+									->setAttribute(array('readonly' => '','data-date-start-date'=>$close_date))
+									->setAddon('calendar')
+									->setValue($transactiondate)
+									->setValidation('required')
+									->draw($show_input);
+									?>
+								</div>
 							</div>
-							<div class = "col-md-6">
-								<?php
-								echo $ui->formField('text')
-								->setLabel('Voucher Date')
-								->setSplit('col-md-4', 'col-md-8')
-								->setName('document_date')
-								->setId('document_date')
-								->setClass('datepicker-input')
-								->setAttribute(array('readonly' => '','data-date-start-date'=>$close_date))
-								->setAddon('calendar')
-								->setValue($transactiondate)
-								->setValidation('required')
-								->draw($show_input);
-								?>
-							</div>
-						</div>
 
-						<div class = "row">
-							<div class = "col-md-6">
-								<?php
-								echo $ui->formField('dropdown')
-								->setLabel('Customer ')
-								->setPlaceholder('Select Customer')
-								->setSplit('col-md-4', 'col-md-8')
-								->setName('customer')
-								->setId('customer')
-								->setList($customer_list)
-								->setValue($customercode)
-								->setMaxLength(100)
-								->setAttribute(array("onChange" => "getPartnerInfo(this.value);"))
-								->setValidation('required')
-								->addHidden(($task == 'view'))
-								->draw($show_input);
-								?>
-								<input id="new_customer" type="hidden">
-							</div>
-							<div class = "col-md-6">
-								<?php
-								echo $ui->formField('dropdown')
-								->setLabel('Payment Mode')
-								->setSplit('col-md-4', 'col-md-8')
-								->setClass("payment_mode")
-								->setName('paymentmode')
-								->setId('paymentmode')
-								->addHidden(($task == 'view'))
-								->setList(array("cash" => "Cash", "cheque" => "Check"))
-								->setAttribute(
-									array(
-										"onChange" => "toggleCheckInfo(this.value); validateField('payableForm',this.id, 'paymentmode_help');"
+							<div class = "row">
+								<div class = "col-md-6">
+									<?php
+									echo $ui->formField('dropdown')
+									->setLabel('Customer ')
+									->setPlaceholder('Select Customer')
+									->setSplit('col-md-4', 'col-md-8')
+									->setName('customer')
+									->setId('customer')
+									->setList($customer_list)
+									->setValue($customercode)
+									->setMaxLength(100)
+									->setAttribute(array("onChange" => "getPartnerInfo(this.value);"))
+									->setValidation('required')
+									->addHidden(($task == 'view'))
+									->draw($show_input);
+									?>
+									<input id="new_customer" type="hidden">
+								</div>
+								<div class = "col-md-6">
+									<?php
+									echo $ui->formField('dropdown')
+									->setLabel('Payment Mode')
+									->setSplit('col-md-4', 'col-md-8')
+									->setClass("payment_mode")
+									->setName('paymentmode')
+									->setId('paymentmode')
+									->addHidden(($task == 'view'))
+									->setList(array("cash" => "Cash", "cheque" => "Check"))
+									->setAttribute(
+										array(
+											"onChange" => "toggleCheckInfo(this.value); validateField('payableForm',this.id, 'paymentmode_help');"
+										)
 									)
-								)
-								->setValue($paymenttype)
-								->draw($show_input);
-								?>
-							</div>
-						</div>
-
-						<div class = "row">
-							<div class = "col-md-6">
-								<div class="form-group">
-									<label for="apv" class="control-label col-md-4">Total Receivables </label>
-									<div class="col-md-8">
-										<?php
-										if(!$show_input){
-											echo '<p class="form-control-static">'.number_format($sum_applied,2).'</p>';
-										}else{
-
-											?>
-											<button type="button" id="apv" class="btn btn-block btn-success btn-flat">
-												<em class="pull-left"><small>Click to view tagged receivables</small></em>
-												<strong id="pv_amount" class="pull-right"><?=number_format($sum_applied,2)?></strong>
-											</button>
-											<?php
-										}
-										?>
-									</div>
-									<input type = "hidden" id = "originalamt" name = "originalamt" value = "0">
-									<input type = "hidden" id = "overpayment" name = "overpayment" value = "<?=$overpayment?>">
-									<input type = "hidden" id = "total_cred_used" name = "total_cred_used" value = "<?=$credits_used?>">
-									<input type = "hidden" id = "old_cred_used" name = "old_cred_used" value = "<?=$credits_used?>">
+									->setValue($paymenttype)
+									->draw($show_input);
+									?>
 								</div>
 							</div>
-							<!-- Text Area for selected payables -->
-							<textarea class = "hidden" id = "selected_rows" name = "selected_rows">[]</textarea>
-							<div class = "col-md-6">
-								<?php
-								echo $ui->formField('text')
-								->setLabel('OR No.')
-								->setSplit('col-md-4', 'col-md-8')
-								->setName('paymentreference')
-								->setId('paymentreference')
-								->setMaxLength(30)
-								->setValue($or_no)
-								->draw($show_input);
-								?>
-							</div>
-						</div>
-						<div class="row">
-							<div class="col-md-6">
-								<div class="form-group">
-									<label for="crv" class="control-label col-md-4">Credits </label>
-									<div class="col-md-8">
-										<?php
-										if(!$show_input){
-											echo '<p class="form-control-static">'.number_format($sum_applied,2).'</p>';
-										}else{
 
-											?>
-											<button type="button" id="crv" class="btn btn-block btn-success btn-flat">
-												<em class="pull-left"><small>Click to view tagged credits</small></em>
-												<strong id="applied_cred_amt" class="pull-right"><?=number_format($sum_applied,2)?></strong>
-											</button>
+							<div class = "row">
+								<div class = "col-md-6">
+									<div class="form-group">
+										<label for="apv" class="control-label col-md-4">Total Receivables </label>
+										<div class="col-md-8">
 											<?php
-										}
-										?>
+											if(!$show_input){
+												echo '<p class="form-control-static">'.number_format($sum_applied,2).'</p>';
+											}else{
+
+												?>
+												<button type="button" id="apv" class="btn btn-block btn-success btn-flat">
+													<em class="pull-left"><small>Click to view tagged receivables</small></em>
+													<strong id="pv_amount" class="pull-right"><?=number_format($sum_applied,2)?></strong>
+												</button>
+												<?php
+											}
+											?>
+										</div>
+										<input type = "hidden" id = "originalamt" name = "originalamt" value = "0">
+										<input type = "hidden" id = "overpayment" name = "overpayment" value = "<?=$overpayment?>">
+										<input type = "hidden" id = "total_cred_used" name = "total_cred_used" value = "<?=$credits_used?>">
+										<input type = "hidden" id = "old_cred_used" name = "old_cred_used" value = "<?=$credits_used?>">
 									</div>
 								</div>
+								<!-- Text Area for selected payables -->
+								<textarea class = "hidden" id = "selected_rows" name = "selected_rows">[]</textarea>
+								<div class = "col-md-6">
+									<?php
+									echo $ui->formField('text')
+									->setLabel('OR No.')
+									->setSplit('col-md-4', 'col-md-8')
+									->setName('paymentreference')
+									->setId('paymentreference')
+									->setMaxLength(30)
+									->setValue($or_no)
+									->draw($show_input);
+									?>
+								</div>
 							</div>
-							<div class="col-md-6">
-								<div class="form-group">
-									<label for="ap_checker" class="control-label col-md-4">Advance Payment</label>
-									<?if($show_input):?>
-									<div class="col-md-1">
-										<input type="checkbox" name="ap_checker" id="ap_checker" class="" value="no" style="position: absolute; opacity: 0;">
+
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label for="crv" class="control-label col-md-4">Credits </label>
+										<div class="col-md-8">
+											<?php
+											if(!$show_input){
+												echo '<p class="form-control-static">'.number_format($sum_applied,2).'</p>';
+											}else{
+
+												?>
+												<button type="button" id="crv" class="btn btn-block btn-success btn-flat">
+													<em class="pull-left"><small>Click to view tagged credits</small></em>
+													<strong id="applied_cred_amt" class="pull-right"><?=number_format($sum_applied,2)?></strong>
+												</button>
+												<?php
+											}
+											?>
+										</div>
 									</div>
-									<?endif;?>
-									<div class="col-md-7">
-										<div class="row">
-											<div class="col-md-12" id="editlink" style="margin-top:5px;">
-												<label id="existingcreditaccount"><?=$existingcreditaccount?></label> 
-									<?if($show_input):?><a href="#ap" id="editcredacct" style="margin-left:10px;"><u>Edit</u></a></div><?endif;?>
-											</div>
-											<div class="col-md-12 hidden" id="updateacctdropdown">
-												<div class="row">
-													<div class="col-md-10" >
-														<?php
-															echo $ui->formField('dropdown')
-																	->setClass("adv_acct")
-																	->setName('adv_acct')
-																	->setId('adv_acct')
-																	->setList($advcredacct)
-																	->setValue($cred_id)
-																	->draw($show_input);
-														?>
-														<input id="hidden_cred_id" name="hidden_cred_id" type="hidden" value="<?=$cred_id?>">
-													</div>
-													<div class="col-md-2">
-														<button class="btn btn-primary btn-flat" id="update_ap_acct">Save</button>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label for="ap_checker" class="control-label col-md-4">Advance Payment</label>
+										<?if($show_input):?>
+										<div class="col-md-1">
+											<input type="checkbox" name="ap_checker" id="ap_checker" class="" value="no" style="position: absolute; opacity: 0;">
+										</div>
+										<?endif;?>
+										<div class="col-md-7">
+											<div class="row">
+												<div class="col-md-12" id="editlink" style="margin-top:5px;">
+													<label id="existingcreditaccount"><?=$existingcreditaccount?></label> 
+													<?if($show_input):?><a href="#ap" id="editcredacct" style="margin-left:10px;"><u>Edit</u></a><?endif;?>
+												</div>
+												<div class="col-md-12 hidden" id="updateacctdropdown">
+													<div class="row">
+														<div class="col-md-10" >
+															<?php
+																echo $ui->formField('dropdown')
+																		->setClass("adv_acct")
+																		->setName('adv_acct')
+																		->setId('adv_acct')
+																		->setList($advcredacct)
+																		->setValue($cred_id)
+																		->draw($show_input);
+															?>
+															<input id="hidden_cred_id" name="hidden_cred_id" type="hidden" value="<?=$cred_id?>">
+														</div>
+														<div class="col-md-2">
+															<button class="btn btn-primary btn-flat" id="update_ap_acct">Save</button>
+														</div>
 													</div>
 												</div>
 											</div>
@@ -187,13 +189,12 @@
 									</div>
 								</div>
 							</div>
-						</div>
-						<div class="row">
-							<div class="col-md-6">
-								<div class="form-group">
-									<label for="ap_checker" class="control-label col-md-4">CWT</label>
-									<div class="col-md-3" id="cwtdiv">
-											<?php
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label for="cwt" class="control-label col-md-4">CWT</label>
+										<div class="col-md-3" id="cwtdiv">
+												<?php
 												if($task != 'edit'){
 													echo $ui->formField('checkbox')
 															->setSplit('', 'col-md-12')
@@ -201,7 +202,6 @@
 															->setName("cwt")
 															->setClass("cwt")
 															->setDefault("")
-															->setAttribute(array("disabled" => "disabled"))
 															->setValue(1)
 															->draw($show_input);
 												}else{
@@ -209,19 +209,19 @@
 												<button type="button" class="btn btn-primary btn-flat btn-xs edit-button">
 												<i class="glyphicon glyphicon-pencil"></i>
 												</button>
-										<?php } ?>			
-										<!-- <input type="checkbox" name="cwt" id="cwt" class="cwt" value="no" style="position: absolute; opacity: 0;"> -->
-									</div>
+												<?php } ?>	
+										</div>
 									<div id="editdiv" class="col-md-3 hidden">	
-									<button type="button" class="btn btn-primary btn-flat btn-xs edit-button">
+										<button type="button" class="btn btn-primary btn-flat btn-xs edit-button">
 											<i class="glyphicon glyphicon-pencil"></i>
-									</button>	
-								</div>	
+										</button>	
+									</div>	
+								</div>
 							</div>
-						</div>
 						
-						<div class="row">
-							<div class = "col-md-12">
+						</div>
+							<div class="row">
+								<div class = "col-md-12">
 									<?php
 										echo $ui->formField('textarea')
 												->setLabel('Notes:')
@@ -237,7 +237,7 @@
 					</div>
 				</div>
 			</div>
-
+		
 			<!--Cheque Details-->
 			<div class="has-error">
 				<span id="chequeCountError" class="help-block hidden small">
