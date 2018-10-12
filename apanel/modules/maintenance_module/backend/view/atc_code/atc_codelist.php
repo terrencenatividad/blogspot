@@ -153,7 +153,7 @@
 							echo $ui->loadElement('table')
 								->setHeaderClass('info')
 								->addHeader(
-									'<input type="checkbox" class="checkall">',
+									'<input type="checkbox" class="checkall" id="checkkk" value="1">',
 									array(
 										'class' => 'col-md-1 text-center'
 									)
@@ -532,5 +532,51 @@ $("#deactivateMultipleBtn").click(function()
 			});
 		});
 
+		$('#tableList').on('ifToggled', '.checkall', function() {
+			var row = $('#tableList >tbody >tr').length;
+			$('#tableList').on('ifToggled', 'input[type=checkbox]', function() {
+			var b = $('input[type=checkbox]');
+			var c =	b.filter(':checked').length-1;
+			if(c < row){
+				$('#tableList thead tr th').find('.icheckbox_square-blue').removeClass('checked');
+			}else if(c == row){
+				$('#tableList thead tr th').find('.icheckbox_square-blue').addClass('checked');
+			}
+			
+		});
+	});
+
+		$('#tableList').on('ifToggled', 'input[type=checkbox]', function() {
+			var b = $('input[type=checkbox]');
+			var row = $('#tableList >tbody >tr').length;
+			var c =	b.filter(':checked').length;
+			if(c == row){
+				$('#tableList thead tr th').find('.icheckbox_square-blue').addClass('checked');
+			}else{
+				$('#tableList thead tr th').find('.icheckbox_square-blue').removeClass('checked');
+			}
+		});
+
+	// $('#tableList').on('ifToggled', 'input[type=checkbox]', function() {
+	// 		var b = $('input[type=checkbox]');
+	// 		var row = $('#tableList >tbody >tr').length;
+	// 		if(b.filter(':checked').length == row){
+	// 		$('#tableList thead tr th').find('.icheckbox_square-blue').addClass('checked');
+	// 		}
+	// 	});
+
+	// $('#tableList').on('ifToggled', 'input[type=checkbox]', function() {
+	// 	getChecked();
+	// });
+
+	// function getChecked() {
+	// 	$('#tableList tbody tr td').find('label[type="button"] .icheckbox_square-blue').each(function(index, value){
+	// 		var b = $('input[type=checkbox]');
+	// 		// console.log($(this).attr('class').split(' ')[1] == 'checked');
+	// 		if(b.filter(':checked').length-1 < index) {
+	// 			console.log('aww');
+	// 		}
+	// 	});
+	// }
 
 </script>

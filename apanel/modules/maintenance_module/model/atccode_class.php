@@ -164,6 +164,24 @@ class atccode_class extends wc_model
 						->getResult();
 	}
 
+	public function check_accountclasscode($current)
+	{
+		return $this->db->setTable('chartaccount')
+						->setFields('accountclasscode')
+						->setWhere(" segment5 = '$current' AND accountclasscode IN('TAX','CULIAB','OTHCL')")
+						->runSelect()
+						->getResult();
+	}
+
+	public function check_cwt_accountclasscode($current)
+	{
+		return $this->db->setTable('chartaccount')
+						->setFields('segment5')
+						->setWhere(" segment5 = '$current' accountname = 'Creditable Withholding Tax'")
+						->runSelect()
+						->getResult();
+	}
+
 	public function get_coa_id($ewt)
 	{
 		$result =  $this->db->setTable('chartaccount')
