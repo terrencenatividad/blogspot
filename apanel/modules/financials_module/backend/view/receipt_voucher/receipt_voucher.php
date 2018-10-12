@@ -201,6 +201,7 @@
 															->setName("cwt")
 															->setClass("cwt")
 															->setDefault("")
+															->setAttribute(array("disabled" => "disabled"))
 															->setValue(1)
 															->draw($show_input);
 												}else{
@@ -2891,6 +2892,7 @@ function getRVDetails(){
 				addAmounts();
 			}	
 		});
+		$('.cwt').removeAttr('disabled');
 	}
 }
 
