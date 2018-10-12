@@ -778,7 +778,7 @@
 									<?endif;?>
 									&nbsp;
 									<?
-									if(($status == 'open' && $has_access == 1) && $restrict_dv){
+									if(($main_status == 'open' && $has_access == 1) && $restrict_dv){
 										echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
 									}
 									?>
