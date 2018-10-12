@@ -308,6 +308,11 @@ class controller extends wc_controller {
 			$this->financial_model->generateAP($data['voucherno']);
 		}
 		if ($result && $this->inventory_model) {
+			$this->inventory_model->prepareInventoryLog('Purchase Receipt', $data['voucherno'])
+									->setDetails($data['vendor'])
+									->computeValues()
+									->logChanges();
+
 			$this->inventory_model->setReference($data['voucherno'])
 									->setDetails($data['vendor'])
 									->generateBalanceTable();
@@ -329,18 +334,25 @@ class controller extends wc_controller {
 		unset($data['voucherno']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$data['period']				= $this->date->getMonthNumber($data['transactiondate']);
-		$data['fiscalyear']		= $this->date->getYear($data['transactiondate']);
+		$data['fiscalyear']			= $this->date->getYear($data['transactiondate']);
 		$voucherno					= $this->input->post('voucherno_ref');
 		$data2						= $this->getItemDetails();
 		$data2						= $this->cleanData($data2);
+
+		$this->inventory_model->prepareInventoryLog('Purchase Receipt', $voucherno)
+								->preparePreviousValues();
+
 		$result						= $this->purchase_model->updatePurchaseReceipt($data, $data2, $voucherno);
 		if ($result && $this->financial_model) {
 			$this->financial_model->generateAP($voucherno);
 		}
+
 		if ($result && $this->inventory_model) {
-			$this->inventory_model->setReference($voucherno)
+			$this->inventory_model->computeValues()
 									->setDetails($data['vendor'])
-									->generateBalanceTable();
+									->logChanges();
+
+			$this->inventory_model->generateBalanceTable();
 		}
 		return array(
 			'redirect'	=> MODULE_URL,
@@ -359,9 +371,13 @@ class controller extends wc_controller {
 			}
 		}
 		if ($result && $this->inventory_model) {
+
 			foreach ($delete_id as $voucherno) {
-				$this->inventory_model->generateBalanceTable();
+				$this->inventory_model->prepareInventoryLog('Purchase Receipt', $voucherno)
+										->computeValues()
+										->logChanges('Cancelled');
 			}
+			$this->inventory_model->generateBalanceTable();
 		}
 		return array(
 			'success' => $result
