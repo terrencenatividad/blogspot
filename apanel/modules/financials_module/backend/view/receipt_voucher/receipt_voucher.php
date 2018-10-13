@@ -3006,6 +3006,7 @@ function computeCreditBalance(id,toapply){
 }
 
 function addCreditsAmount(){
+	console.log(credits_box);
 	var count_container = Object.keys(credits_box).length;
 	var	total_credits = 0; 	
 
@@ -4848,9 +4849,12 @@ $(document).ready(function() {
 		$('#apv').prop('disabled',true);
 		$('#crv').prop('disabled',true);
 		container 	=	[];
+		credits_box = 	{};
 		$('paymentmode').val('cash');
 		clearPayment();
 		setChequeZero();
+		addCreditsAmount();
+		set_total_credits_amt();
 		reset_acct_fields();
 		clearChequePayment();
 		set_credit_account();
@@ -4920,6 +4924,13 @@ function set_selected_cv(){
 		selectCredits(key,1,credit_to_apply);
 	} 
 	// $('#paymentModal').modal('show');
+}
+
+function set_total_credits_amt(){
+	var total = $('#creditvoucherModal #total_credits_to_apply').val();
+	apply_credit_account(total);
+	
+	$("#applied_cred_amt").html(total);
 }
 
 $("#entriesTable").on('ifToggled','.wtax',function() {
@@ -5049,10 +5060,7 @@ $('#creditvoucherModal').on('shown.bs.modal',function(){
 });
 
 $('#TagCreditsBtn').on('click',function(){
-	var total = $('#creditvoucherModal #total_credits_to_apply').val();
-	apply_credit_account(total);
-	
-	$("#applied_cred_amt").html(total);
+	set_total_credits_amt();
 });
 
 $('.tax_amount').on('change', function(){
