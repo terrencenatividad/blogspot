@@ -3150,8 +3150,8 @@ function checkBalance(val,id){
 	var ind_excess 		= 0;
 	if(condition){
 		if(current_payment >= 0){
-			excess_payment 	+=	(current_payment - total_amount);
-			ind_excess 		=	current_payment - total_amount;
+			excess_payment 	+=	(current_payment - dueamount);
+			ind_excess 		=	current_payment - dueamount;
 			$('#receiveAmtError').addClass('hidden');
 		} else {
 			$('#receiveAmtError').removeClass('hidden');
@@ -4842,7 +4842,7 @@ $(document).ready(function() {
 	// For Advance payment
 	$('#payableForm').on('ifChecked','#ap_checker',function(event){
 		$('#apv').prop('disabled',true);
-		$('#crv').prop('disabled',false);
+		$('#crv').prop('disabled',true);
 		container 	=	[];
 		$('paymentmode').val('cash');
 		clearPayment();
@@ -4854,7 +4854,7 @@ $(document).ready(function() {
 
 	$('#payableForm').on('ifUnchecked','#ap_checker',function(event){
 		$('#apv').prop('disabled',false);
-		$('#crv').prop('disabled',true);
+		$('#crv').prop('disabled',false);
 
 		$('#entriesTable tbody tr.credit_account').each(function() {
 			$(this).find('.accountcode').val('').trigger('change.select2');
