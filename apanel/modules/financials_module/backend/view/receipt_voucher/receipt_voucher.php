@@ -1448,6 +1448,35 @@
 	</div>
 </div>
 
+<!-- Cancel Transaction with Current Transaction --> 
+<div class="modal fade" id="cancelTransactionModal" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Confirmation
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				Are you sure you want to cancel this transaction?
+				<input type="hidden" id="recordId"/>
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 center">
+						<div class="btn-group">
+							<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+						</div>
+						&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-flat" id="btnNo">No</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="success_save_modal" class="modal fade"  tabindex="-1" data-backdrop="static">
 	<div class="modal-dialog modal-sm" role="document">
 		<div class="modal-content">
@@ -3645,6 +3674,24 @@ function apply_credit_account(amount){
 	drawTemplate();
 }
 
+function clear_n_set_credit(){
+	$('#apv').prop('disabled',true);
+	$('#crv').prop('disabled',true);
+	container 	=	[];
+	credits_box = 	{};
+
+	setChequeZero();
+	addCreditsAmount();
+	set_total_credits_amt();
+
+	$('paymentmode').val('cash');
+	clearPayment();
+	reset_acct_fields();
+	clearChequePayment();
+
+	set_credit_account();
+}
+
 $(document).ready(function() {
 
 	// Call toggleExchangeRate
@@ -4846,18 +4893,14 @@ $(document).ready(function() {
 
 	// For Advance payment
 	$('#payableForm').on('ifChecked','#ap_checker',function(event){
-		$('#apv').prop('disabled',true);
-		$('#crv').prop('disabled',true);
-		container 	=	[];
-		credits_box = 	{};
-		$('paymentmode').val('cash');
-		clearPayment();
-		setChequeZero();
-		addCreditsAmount();
-		set_total_credits_amt();
-		reset_acct_fields();
-		clearChequePayment();
-		set_credit_account();
+		if(container!=[] || credits_box != {}){
+			$('#cancelTransactionModal').modal('show');
+		} 
+	});
+
+	$('#cancelTransactionModal').on('click','#btnYes',function(){
+		clear_n_set_credit();
+		$('#cancelTransactionModal').modal('hide');
 	});
 
 	$('#payableForm').on('ifUnchecked','#ap_checker',function(event){
@@ -4991,7 +5034,7 @@ $('#payableForm').on('click','#update_ap_acct',function(e){
 });
 
 $('#payableForm').on('ifChecked', '.cwt', function(){
-		$('#atcModal').modal('show');	
+	$('#atcModal').modal('show');	
 });
 
 $('#payableForm').on('click', '.edit-button', function(){
@@ -5053,9 +5096,6 @@ $('#tax_apply_edit').click(function(){
 		$('.tax_amount').val(acc);
 	});
 $('#creditvoucherModal').on('shown.bs.modal',function(){
-	console.log(" OPEN ");
-	// $('#appliedamounterror').addClass('hidden');
-	// computeCreditBalance();
 	set_selected_cv();
 });
 
