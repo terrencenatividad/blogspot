@@ -190,33 +190,36 @@
 								</div>
 							</div>
 							<div class="row">
-								<div class = "col-md-6">
-										<?php
-											if($task != 'edit'){
-												echo $ui->formField('checkbox')
-														->setLabel('CWT')
-														->setSplit('col-md-4', 'col-md-8')
-														->setId("cwt")
-														->setName("cwt")
-														->setClass("cwt")
-														->setDefault("")
-														->setValue(1)
-														->draw($show_input);
-											}else{
-										?>
-											<button type="button" class="btn btn-primary btn-flat btn-xs edit-button">
-												<i class="glyphicon glyphicon-pencil"></i>
-											</button>
-									<?php } ?>	
-										<div class="col-md-6">
-											<div id="editdiv" class="col-md-3 hidden">	
+								<div class="col-md-6">
+									<div class="form-group">
+										<label for="cwt" class="control-label col-md-4">CWT</label>
+										<div class="col-md-3" id="cwtdiv">
+												<?php
+												if($task != 'edit'){
+													echo $ui->formField('checkbox')
+															->setSplit('', 'col-md-12')
+															->setId("cwt")
+															->setName("cwt")
+															->setClass("cwt")
+															->setDefault("")
+															->setValue(1)
+															->draw($show_input);
+												}else{
+												?>
 												<button type="button" class="btn btn-primary btn-flat btn-xs edit-button">
-													<i class="glyphicon glyphicon-pencil"></i>
-												</button>	
-											</div>	
-										</div>	
+												<i class="glyphicon glyphicon-pencil"></i>
+												</button>
+												<?php } ?>	
+										</div>
+									<div id="editdiv" class="col-md-3 hidden">	
+										<button type="button" class="btn btn-primary btn-flat btn-xs edit-button">
+											<i class="glyphicon glyphicon-pencil"></i>
+										</button>	
+									</div>	
 								</div>
 							</div>
+						
+						</div>
 							<div class="row">
 								<div class = "col-md-12">
 									<?php
@@ -2889,6 +2892,7 @@ function getRVDetails(){
 				addAmounts();
 			}	
 		});
+		$('.cwt').removeAttr('disabled');
 	}
 }
 

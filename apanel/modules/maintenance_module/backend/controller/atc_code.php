@@ -215,7 +215,18 @@
 
 						$exists = $this->atc_code->check_duplicate($atccode);
 						$count = $exists[0]->count;
-						
+						$tax = $this->atc_code->check_accountclasscode($ewt);
+						$cwtclass = $this->atc_code->check_cwt_accountclasscode($cwt);
+						$code = array();
+						foreach ($tax as $m) {
+							$code[] = $m->accountclasscode;
+						}
+						if(in_array('CULIAB',$code) || in_array('TAX',$code) || in_array('OTHCL',$code) ){
+							
+						}else{
+							$errmsg[] 	= "EWT Code on row $line is not valid for EWT.<br>";
+						}
+							
 						if( $count > 0 )
 							{
 								$errmsg[]	= "ATC Code [<strong>$atccode</strong>] on row $line already exists.<br/>";
@@ -584,6 +595,13 @@
 			$retrieved 	=	array_filter($result);
 			if(!empty($retrieved)){
 				foreach ($retrieved as $key => $row){
+					$getCwt = $this->atc_code->getAtc($row->cwt);
+					if ($getCwt) {
+						$acctname = $getCwt->accountname;
+					}
+					else {
+						$acctname = '';
+					}
 					$atc_code 			= $row->atc_code;
 					$tax_rate 			= $row->tax_rate * 100 .'%';
 					$wtaxcode       	= $row->wtaxcode;
@@ -595,7 +613,7 @@
 					$csv .= '"' . $wtaxcode 		. '",';
 					$csv .= '"' . $short_desc 		. '",';
 					$csv .= '"' . $accountname 		. '",';
-					$csv .= '"' . 'Creditable Withholding Tax' 		. '"';
+					$csv .= '"' . $acctname . '"';
 					$csv .= "\n";
 				}
 			}

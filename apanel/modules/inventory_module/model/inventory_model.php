@@ -128,7 +128,6 @@ class inventory_model extends wc_model {
 		$inner_query = $bb . ' UNION ALL ' . $so . ' UNION ALL ' . $dr . ' UNION ALL ' . $si . ' UNION ALL ' . $sr . ' UNION ALL ' . $xr;
 		$inner_query .= ' UNION ALL ' . $po . ' UNION ALL ' . $pr . ' UNION ALL ' . $pt . ' UNION ALL ' . $ia . ' UNION ALL ' . $st;
 
-
 		$inner_query = $this->db->setTable("($inner_query) i")
 								->setFields('companycode, itemcode ic, warehouse wh, SUM(bb) bb, SUM(so) so, SUM(dr) dr, SUM(si) si, SUM(sr) sr, SUM(xr) xr, SUM(po) po, SUM(pr) pr, SUM(pt) pt, SUM(ia) ia, SUM(st) st')
 								->setWhere("warehouse != ''")
@@ -141,10 +140,6 @@ class inventory_model extends wc_model {
 								->setHaving('bb != 0 OR so != 0 OR dr != 0 OR si != 0 OR sr != 0 OR xr != 0 OR po != 0 OR pr != 0 OR pt != 0 OR ia != 0 OR st != 0')
 								->runSelect()
 								->getResult();
-
-		if ($inv_check) {
-			$this->log($inv_check);
-		}
 
 		if ($inv_check) {
 			$result = $this->db->setTable('invdtlfile')
@@ -278,94 +273,6 @@ class inventory_model extends wc_model {
 		}
 	}
 
-	private function log(array $data) {
-		foreach ($data as $row) {
-			$itemcode	= $row->itemcode;
-			$warehouse	= $row->warehouse;
-			foreach ($row as $key => $quantity) {
-				$activity	= '';
-				$prevqty	= 0;
-				if ($quantity > 0 || $quantity < 0) {
-					$beginningQty		= $row->beginningQty;
-					$salesorderQty		= $row->salesorderQty;
-					$deliveredQty		= $row->deliveredQty;
-					$salesinvoiceQty	= $row->salesinvoiceQty;
-					$salesreturnQty		= $row->salesreturnQty;
-					$purchaseorderQty	= $row->purchaseorderQty;
-					$purchasereceiptQty	= $row->purchasereceiptQty;
-					$purchasereturnQty	= $row->purchasereturnQty;
-					$adjustmentsQty		= $row->adjustmentsQty;
-					$transferedQty		= $row->transferedQty;
-
-					$prevqty = $beginningQty + $purchasereceiptQty + $salesreturnQty - $deliveredQty - $purchasereturnQty + $adjustmentsQty + $transferedQty;
-
-					switch ($key) {
-						case 'bb':
-							$activity	= 'Beginning Balance';
-							$beginningQty += $quantity;
-							break;
-						case 'so':
-							$activity	= 'Sales Order';
-							$salesorderQty += $quantity;
-							break;
-						case 'dr':
-							$activity	= 'Delivery Receipt';
-							$deliveredQty += $quantity;
-							$quantity = $quantity * -1;
-							break;
-						case 'si':
-							$activity	= 'Sales Invoice';
-							$salesinvoiceQty += $quantity;
-							break;
-						case 'sr':
-							$activity	= 'Sales Return';
-							$salesreturnQty += $quantity;
-							break;
-						case 'po':
-							$activity	= 'Purchase Order';
-							$purchaseorderQty += $quantity;
-							break;
-						case 'pr':
-							$activity	= 'Purchase Receipt';
-							$purchasereceiptQty += $quantity;
-							break;
-						case 'pt':
-							$activity	= 'Purchase Return';
-							$purchasereturnQty += $quantity;
-							$quantity = $quantity * -1;
-							break;
-						case 'ia':
-							$activity	= 'Inventory Adjustment';
-							$adjustmentsQty += $quantity;
-							break;
-						case 'st':
-							$activity	= 'Stock Transfer';
-							$transferedQty += $quantity;
-							break;
-					}
-					$currentqty = $beginningQty + $purchasereceiptQty + $salesreturnQty - $deliveredQty - $purchasereturnQty + $adjustmentsQty + $transferedQty;
-					if ($activity && ($prevqty - $currentqty) != 0) {
-						$values = array(
-							'itemcode'		=> $itemcode,
-							'warehouse'		=> $warehouse,
-							'activity'		=> $activity,
-							'prevqty'		=> $prevqty,
-							'quantity'		=> $quantity,
-							'currentqty'	=> $currentqty,
-							'reference'		=> $this->reference,
-							'details'		=> $this->details
-						);
-						$this->db->setTable('inventorylogs')
-									->setValues($values)
-									->runInsert();
-
-						$this->recomputePriceAverage();
-					}
-				}
-			}
-		}
-	}
-
 	private function createFields($search_field, $value, $fields_replacement = array()) {
 		$field_list = array(
 			'bb',
@@ -409,6 +316,142 @@ class inventory_model extends wc_model {
 		}
 
 		return array_merge($fields_others, $fields);
+	}
+
+	public function prepareInventoryLog($type, $voucherno = '') {
+		$this->log_type = $type;
+		$this->voucherno = $voucherno;
+		$this->fields = array('itemcode', 'warehouse');
+		$this->quantity_field = '';
+		if ($type == 'Delivery Receipt') {
+			$this->table = 'deliveryreceipt';
+			$this->table_detail = 'deliveryreceipt_details';
+			$this->quantity_field = 'convissueqty';
+			$this->inventory_movement = -1;
+		} else if ($type == 'Sales Return') {
+			$this->table = 'salesreturn';
+			$this->table_detail = 'salesreturn_details';
+			$this->quantity_field = 'convissueqty';
+			$this->inventory_movement = 1;
+		} else if ($type == 'Purchase Receipt') {
+			$this->table = 'purchasereceipt';
+			$this->table_detail = 'purchasereceipt_details';
+			$this->quantity_field = 'convreceiptqty';
+			$this->inventory_movement = 1;
+		} else if ($type == 'Purchase Return') {
+			$this->table = 'purchasereturn';
+			$this->table_detail = 'purchasereturn_details';
+			$this->quantity_field = 'convreceiptqty';
+			$this->inventory_movement = -1;
+		}
+		$this->inventory_log_previous = array();
+
+		if ($this->quantity_field) {
+			$this->fields[] = $this->quantity_field;
+		}
+
+		return $this;
+	}
+
+	public function preparePreviousValues() {
+		$result = $this->db->setTable($this->table_detail)
+							->setFields($this->fields)
+							->setWhere("voucherno = '{$this->voucherno}'")
+							->runSelect()
+							->getResult();
+
+		foreach ($result as $row) {
+			if ( ! isset($this->inventory_log_previous[$row->itemcode])) {
+				$this->inventory_log_previous[$row->itemcode][$row->warehouse] = 0;
+			} else if ( ! isset($this->inventory_log_previous[$row->itemcode][$row->warehouse])) {
+				$this->inventory_log_previous[$row->itemcode][$row->warehouse] = 0;
+			} 
+
+			$this->inventory_log_previous[$row->itemcode][$row->warehouse] += $row->{$this->quantity_field};
+		}
+
+		return $this;
+	}
+
+	public function computeValues() {
+		$result = $this->db->setTable($this->table_detail)
+							->setFields($this->fields)
+							->setWhere("voucherno = '{$this->voucherno}'")
+							->runSelect()
+							->getResult();
+
+		$current_values = array();
+
+		foreach ($result as $row) {
+			if ( ! isset($current_values[$row->itemcode])) {
+				$current_values[$row->itemcode][$row->warehouse] = 0;
+			} else if ( ! isset($current_values[$row->itemcode][$row->warehouse])) {
+				$current_values[$row->itemcode][$row->warehouse] = 0;
+			} 
+
+			$current_values[$row->itemcode][$row->warehouse] += $row->{$this->quantity_field};
+		}
+		$current_values;
+
+		foreach ($this->inventory_log_previous as $itemcode => $row) {
+			foreach ($row as $warehouse => $quantity) {
+				if ( ! isset($current_values[$itemcode][$warehouse])) {
+					$current_values[$itemcode][$warehouse] = 0;
+				}
+				$current_values[$itemcode][$warehouse] -= $quantity;
+			}
+		}
+
+		$this->current_values = $current_values;
+		
+		return $this;
+	}
+
+	public function logChanges($status = '') {
+		if ($status == 'Cancelled') {
+			$this->inventory_movement = $this->inventory_movement * -1;
+		}
+
+		$logs = array();
+
+		foreach ($this->current_values as $itemcode => $row) {
+			foreach ($row as $warehouse => $quantity) {
+				$quantity = $quantity * $this->inventory_movement;
+
+				$current_quantity = $this->getCurrentQuantity($itemcode, $warehouse);
+
+				if ($quantity != 0) {
+					$logs[] = array(
+						'itemcode'		=> $itemcode,
+						'warehouse'		=> $warehouse,
+						'quantity'		=> $quantity,
+						'prevqty'		=> $current_quantity,
+						'currentqty'	=> $current_quantity + $quantity,
+						'activity'		=> $this->log_type,
+						'reference'		=> $this->voucherno,
+						'details'		=> $this->details
+					);
+				}
+			}
+		}
+
+		if ($logs) {
+			$this->db->setTable('inventorylogs')
+						->setValues($logs)
+						->runInsert();
+		}
+	}
+
+	private function getCurrentQuantity($itemcode, $warehouse) {
+		$result = $this->db->setTable('inventorylogs')
+							->setFields('currentqty')
+							->setWhere("itemcode = '$itemcode' AND warehouse = '$warehouse'")
+							->setOrderBy('entereddate desc')
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+
+		return ($result) ? $result->currentqty : 0;
 	}
 
 }

@@ -70,7 +70,7 @@ class controller extends wc_controller
 		$data["exchangerate"]       = "1.00";
 		$data["row"] 			  	= 1;
 		$data["transactiondate"]    = $this->date->dateFormat();
-		$data["status"] 			= "";
+		$data["main_status"] 			= "";
 		// Retrieve vendor list
 		$data["vendor_list"]        = $this->payment_voucher->retrieveVendorList($data);
 
