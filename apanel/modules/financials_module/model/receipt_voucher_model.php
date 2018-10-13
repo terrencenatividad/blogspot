@@ -2005,7 +2005,7 @@ class receipt_voucher_model extends wc_model
 								 ->buildSelect();
 
 		$result 	=	$this->db->setTable('creditvoucher crv')
-								 ->setFields("crv.voucherno, crv.partner, (crv.convertedamount - crva.amount) amount, (crv.balance - crva.amount) balance, crv.invoiceno, crv.referenceno, crv.receivableno")
+								 ->setFields("crv.voucherno, crv.partner, (crv.convertedamount - IFNULL(crva.amount,0)) amount, (crv.balance - IFNULL(crva.amount,0)) balance, crv.invoiceno, crv.referenceno, crv.receivableno")
 								 ->leftJoin('('.$sub_query.') crva ON crva.cr_voucher = crv.voucherno AND crva.companycode = crv.companycode AND crva.partner = crv.partner')
 								 ->leftJoin('partners p ON p.partnercode = crv.partner')
 								 ->setWhere("crv.partner = '$customer'")
