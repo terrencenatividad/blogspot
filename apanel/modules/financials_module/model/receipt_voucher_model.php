@@ -952,7 +952,7 @@ class receipt_voucher_model extends wc_model
 					}
 				}
 			}	
-		} else if($ap_checker == 'yes'){
+		} if($ap_checker == 'yes'){
 			$this->db->setTable($detailAppTable)
 						->setWhere("voucherno = '$voucherno'")
 						->runDelete();
@@ -981,10 +981,17 @@ class receipt_voucher_model extends wc_model
 				$post_credit_voucher['referenceno']			= $voucherno;
  
 				$creditsArray[]								= $post_credit_voucher;
-				var_dump($creditsArray);
-				$insertResult = $this->db->setTable($creditsTable) 
+				// var_dump($creditsArray);
+				$insertResult 	=	$this->db->setTable($creditsTable)
+											->setWhere("referenceno = '$voucherno'")
+											->runDelete();
+
+				if($insertResult){
+					$insertResult = $this->db->setTable($creditsTable) 
 										 ->setValues($creditsArray)
 										 ->runInsert();
+				}
+				
 			}
 		}
 		
