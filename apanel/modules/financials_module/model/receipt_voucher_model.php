@@ -980,7 +980,7 @@ class receipt_voucher_model extends wc_model
 
 				$post_credit_voucher['voucherno']			= $creditvoucherno;
 				$post_credit_voucher['transtype']			= 'ADVP';
-				$post_credit_voucher['stat']			 	= 'open';
+				$post_credit_voucher['stat']			 	= 'temporary';
 				$post_credit_voucher['transactiondate']		= $transactiondate;
 				$post_credit_voucher['fiscalyear']			= $fiscalyear;
 				$post_credit_voucher['period']		 		= $period;
