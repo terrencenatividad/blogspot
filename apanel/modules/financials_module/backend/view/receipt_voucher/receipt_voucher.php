@@ -4194,8 +4194,11 @@ $(document).ready(function() {
 			var button_name 	= "save";
 			var selected_rows 	= JSON.stringify(container);
 
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','customer', "customer_help");
+			$("#payableForm #customer").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			$("#payableForm #due_date").trigger('blur');
+
+			valid 	+= $("#payableForm").find('.form-group.has-error').length;
 			
 			if(selected_rows == "[]")
 			{
@@ -4267,11 +4270,17 @@ $(document).ready(function() {
 			var button_name = 'save_new';
 
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','customer', "customer_help");
+			// valid		+= validateField('payableForm','document_date', "document_date_help");
+			// valid		+= validateField('payableForm','customer', "customer_help");
 
-			valid		+= validateField('payableForm','due_date', "due_date_help");
+			// valid		+= validateField('payableForm','due_date', "due_date_help");
 			
+			$("#payableForm #customer").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			$("#payableForm #due_date").trigger('blur');
+
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
+
 			/**validate items**/
 			valid		+= validateDetails();
 			var paymentmode = $('#paymentmode').val();
@@ -4315,10 +4324,11 @@ $(document).ready(function() {
 			var button_name = "save";
 			
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','customer', "customer_help");
+			$("#payableForm #customer").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			$("#payableForm #due_date").trigger('blur');
 
-			valid		+= validateField('payableForm','duedate', "due_date_help");
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
 			valid		+= validateDetails();
@@ -4362,10 +4372,11 @@ $(document).ready(function() {
 			var button_name = "save_exit";
 			
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','customer', "customer_help");
+			$("#payableForm #customer").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			$("#payableForm #due_date").trigger('blur');
 
-			valid		+= validateField('payableForm','duedate', "due_date_help");
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
 			valid		+= validateDetails();
@@ -4423,10 +4434,11 @@ $(document).ready(function() {
 			var button_name = "save";
 
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','customer', "customer_help");
-			
-			valid		+= validateField('payableForm','due_date', "due_date_help");
+			$("#payableForm #customer").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			$("#payableForm #due_date").trigger('blur');
+
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
 			valid		+= validateDetails();
@@ -4476,10 +4488,11 @@ $(document).ready(function() {
 			var button_name = "save_new";
 			
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','customer', "customer_help");
+			$("#payableForm #customer").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			$("#payableForm #due_date").trigger('blur');
 
-			valid		+= validateField('payableForm','due_date', "due_date_help");
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
 			valid		+= validateDetails();
@@ -4528,10 +4541,11 @@ $(document).ready(function() {
 			var button_name = "save";
 			
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','customer', "customer_help");
+			$("#payableForm #customer").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			$("#payableForm #due_date").trigger('blur');
 
-			valid		+= validateField('payableForm','duedate', "due_date_help");
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
 			valid		+= validateDetails();
@@ -4578,10 +4592,11 @@ $(document).ready(function() {
 			var button_name = "save_exit";
 			
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','customer', "customer_help");
+			$("#payableForm #customer").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			$("#payableForm #due_date").trigger('blur');
 
-			valid		+= validateField('payableForm','duedate', "due_date_help");
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
 			valid		+= validateDetails();
