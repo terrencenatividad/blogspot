@@ -167,7 +167,10 @@
 			}
 
 			$headerArr = array('ATC Code','Tax Rate', 'Tax Code', 'Description', 'EWT','CWT');
-			
+			$cwtclass = $this->atc_code->check_cwt_accountclasscode();
+			foreach ($cwtclass as $row) {
+				$cwt_code = $row->segment5;
+			}
 			if( empty($errmsg) )
 			{
 				$row_start = 2;
@@ -202,6 +205,7 @@
 				$line 	=	1;
 				$list 	=	array();
 
+				
 				foreach ($z as $b) 
 				{
 					if ( !empty($b)) 
@@ -216,7 +220,6 @@
 						$exists = $this->atc_code->check_duplicate($atccode);
 						$count = $exists[0]->count;
 						$tax = $this->atc_code->check_accountclasscode($ewt);
-						$cwtclass = $this->atc_code->check_cwt_accountclasscode($cwt);
 						$code = array();
 						foreach ($tax as $m) {
 							$code[] = $m->accountclasscode;
@@ -226,7 +229,9 @@
 						}else{
 							$errmsg[] 	= "EWT Code on row $line is not valid for EWT.<br>";
 						}
-							
+						if($cwt != $cwt_code){
+							$errmsg[] 	= "CWT Code on row $line is not a CWT code.<br>";
+						}
 						if( $count > 0 )
 							{
 								$errmsg[]	= "ATC Code [<strong>$atccode</strong>] on row $line already exists.<br/>";

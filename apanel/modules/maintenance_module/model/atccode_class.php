@@ -173,11 +173,11 @@ class atccode_class extends wc_model
 						->getResult();
 	}
 
-	public function check_cwt_accountclasscode($current)
+	public function check_cwt_accountclasscode()
 	{
 		return $this->db->setTable('chartaccount')
 						->setFields('segment5')
-						->setWhere(" segment5 = '$current' accountname = 'Creditable Withholding Tax'")
+						->setWhere(" accountname = 'Creditable Withholding Tax'")
 						->runSelect()
 						->getResult();
 	}
