@@ -203,6 +203,7 @@
 															->setClass("cwt")
 															->setDefault("")
 															->setValue(1)
+															->setAttribute(array("disabled" => "disabled"))
 															->draw($show_input);
 												}else{
 												?>
