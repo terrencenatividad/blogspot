@@ -2991,7 +2991,7 @@ function computeCreditBalance(id,toapply){
 	new_box[id]['balance'] = computed_balance;
 
 	$('#list_container #credits_balance'+id).html(addComma(computed_balance));  
-	$('#list_container #credits_balance'+id).attr('data-value',addComma(computed_balance));       
+	// $('#list_container #credits_balance'+id).attr('data-value',addComma(computed_balance));       
 
 	if( toapply > balance ) {
 		$('#appliedamounterror').removeClass('hidden');

@@ -804,6 +804,7 @@ class controller extends wc_controller
 				$invoiceno		=	isset($pagination->result[$i]->invoiceno) 	? 	$pagination->result[$i]->invoiceno 		: 	0;
 				$referenceno 	=	isset($pagination->result[$i]->referenceno) ? 	$pagination->result[$i]->referenceno	: 	"";
 				$receivableno 	=	isset($pagination->result[$i]->receivableno)? 	$pagination->result[$i]->receivableno	:	"";
+				$orig_balance 	=	isset($pagination->result[$i]->orig_balance)? 	$pagination->result[$i]->orig_balance 	:	0;
 
 				$voucher_checked= (in_array($voucherno , $voucher_array)) ? 'checked' : '';
 
@@ -818,7 +819,7 @@ class controller extends wc_controller
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$invoiceno.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
 				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "credits_amount'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($amount,2).'">'.number_format($amount,2).'</td>';
-				$table	.= 	'<td class="text-right balances" style="vertical-align:middle;" id = "credits_balance'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance,2).'</td>';
+				$table	.= 	'<td class="text-right balances" style="vertical-align:middle;" id = "credits_balance'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($orig_balance,2).'">'.number_format($balance,2).'</td>';
 				
 				if($voucher_checked == 'checked'){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
