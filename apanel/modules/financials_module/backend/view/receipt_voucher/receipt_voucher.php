@@ -4734,7 +4734,6 @@ $(document).ready(function() {
 		var is_ap 				= $('#ap_checker').is(':checked');
 			is_ap 				= (is_ap == true) ? "true" 	:	"false";
 		var curr_customer 		= $(this).val();
-		console.log("CURR _ "+curr_customer);
 
 		if(accounts_selected > 0 && curr_customer!="" ){
 			e.preventDefault();
@@ -4893,15 +4892,22 @@ $(document).ready(function() {
 
 	// For Advance payment
 	$('#payableForm').on('ifChecked','#ap_checker',function(event){
-		if(container!=[] || credits_box != {}){
+		if(container.length != 0 || credits_box.length != undefined){
 			$('#cancelTransactionModal').modal('show');
-		} 
+		} else {
+			clear_n_set_credit();
+		}
 	});
 
 	$('#cancelTransactionModal').on('click','#btnYes',function(){
 		clear_n_set_credit();
 		$('#cancelTransactionModal').modal('hide');
 	});
+
+	$('#cancelTransactionModal').on('click','#btnNo',function(){
+		$('#ap_checker').iCheck('uncheck');
+		$('#cancelTransactionModal').modal('hide');
+	})
 
 	$('#payableForm').on('ifUnchecked','#ap_checker',function(event){
 		$('#apv').prop('disabled',false);
