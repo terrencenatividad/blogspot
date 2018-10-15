@@ -1588,7 +1588,7 @@ echo $ui->loadElement('modal')
 	var checker 	= new Array();
 
 	var credits_box = <?=$credits_box;?>;
-	var credits_box = (credits_box != '') ? credits_box : {};
+	var credits_box = (credits_box != undefined) ? credits_box : {};
 	
 	var table 		= document.getElementById('ap_items');
 	var newid 		= table.rows.length;
@@ -3650,7 +3650,6 @@ function apply_credit_account(amount){
 function clear_n_set_credit(){
 	$('#apv').prop('disabled',true);
 	$('#crv').prop('disabled',true);
-
 	container 	=	[];
 	credits_box = 	{};
 
@@ -4762,7 +4761,6 @@ $(document).ready(function() {
 						}
 					}
 				});
-				$('#ap_checker').iCheck('uncheck');
 			} else if( payable == "[]" && is_ap == "false" ){
 				bootbox.dialog({
 					message: "Please tag Receivables first.",
@@ -5047,6 +5045,8 @@ $('#tax_apply_edit').click(function(){
 	tax_amount = tax_amount.replace(/,/g,'');
 	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_account","tax_account=" + tax_account+"&tax_amount="+tax_amount).done(function(data){
 		var row 	= $('#entriesTable tbody tr.clone').length - 1;
+					$("#taxcode\\["+ row +"\\]").val(tax_account);
+					$("#taxbase_amount\\["+ row +"\\]").val(tax_amount);
 					$("#debit\\["+ row +"\\]").val(addComma(data.amount));
 					addAmountAll('debit');
 		$('#atcModal').modal('hide');
