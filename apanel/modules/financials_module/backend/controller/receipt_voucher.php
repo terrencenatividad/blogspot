@@ -217,6 +217,7 @@ class controller extends wc_controller
 				$ref_cond 						= "referenceno = '$voucherno' AND transtype = 'ADVP'";
 				$updateTempRecord				= $this->receipt_voucher->editData($update_ref,"creditvoucher",$ref_cond);
 				$update_cred['rv_voucher']  	= $generatedvoucher;
+				$update_cred['stat'] 			= "active";
 				$cred_cond 						= "rv_voucher = '$voucherno'";
 				$updateTempRecord				= $this->receipt_voucher->editData($update_cred,"creditvoucher_applied",$cred_cond);
 			}

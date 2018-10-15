@@ -130,6 +130,17 @@ class receipt_voucher_model extends wc_model
 
 		$temp["payments"] = $applicationArray;
 
+		// Retrieve Credits Used
+		$applicationFields = "";
+		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 AND app.stat NOT IN ('cancelled','temporary' )";
+		$applicationArray = $this->db->setTable('creditvoucher_applied as crva')
+								->setFields($applicationFields)
+								->setWhere($app_cond)
+								->runSelect()
+								->getResult();
+
+		$temp["payments"] = $applicationArray;
+
 		// Received Cheques for View
 		$chequeFields = 'pvc.voucherno, pvc.chequeaccount, chart.accountname, pvc.bank, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount';
 		$cheque_cond  = "pvc.voucherno = '$sid'";
@@ -916,7 +927,7 @@ class receipt_voucher_model extends wc_model
 						$cred_application['transactiondate']	= $transactiondate;
 						$cred_application['fiscalyear']			= $fiscalyear;
 						$cred_application['period']				= $period;
-						$cred_application['stat']			 	= 'active';
+						$cred_application['stat']			 	= 'temporary';
 
 						$cr_linenum++;
 						$appliedCreditsArray[]					= $cred_application;
