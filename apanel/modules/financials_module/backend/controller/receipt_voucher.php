@@ -166,6 +166,7 @@ class controller extends wc_controller
 		// Application Data
 		$data['sum_applied'] 		= 0;
 		$data['sum_discount']		= 0;
+		$data['credits_applied'] 	= 0;
 		$data['payments'] 			= "''";
 		$data['available_credits'] 	= "0.00";
 		$data['credits_used'] 		= 0;
