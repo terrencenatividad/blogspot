@@ -203,6 +203,7 @@
 															->setClass("cwt")
 															->setDefault("")
 															->setValue(1)
+															->setAttribute(array("disabled" => "disabled"))
 															->draw($show_input);
 												}else{
 												?>
@@ -1588,7 +1589,7 @@ echo $ui->loadElement('modal')
 	var checker 	= new Array();
 
 	var credits_box = <?=$credits_box;?>;
-	var credits_box = (credits_box != '') ? credits_box : {};
+	var credits_box = (credits_box != undefined) ? credits_box : {};
 	
 	var table 		= document.getElementById('ap_items');
 	var newid 		= table.rows.length;
@@ -2991,7 +2992,7 @@ function computeCreditBalance(id,toapply){
 	new_box[id]['balance'] = computed_balance;
 
 	$('#list_container #credits_balance'+id).html(addComma(computed_balance));  
-	$('#list_container #credits_balance'+id).attr('data-value',addComma(computed_balance));       
+	// $('#list_container #credits_balance'+id).attr('data-value',addComma(computed_balance));       
 
 	if( toapply > balance ) {
 		$('#appliedamounterror').removeClass('hidden');
@@ -3650,7 +3651,6 @@ function apply_credit_account(amount){
 function clear_n_set_credit(){
 	$('#apv').prop('disabled',true);
 	$('#crv').prop('disabled',true);
-
 	container 	=	[];
 	credits_box = 	{};
 
@@ -4195,8 +4195,11 @@ $(document).ready(function() {
 			var button_name 	= "save";
 			var selected_rows 	= JSON.stringify(container);
 
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','customer', "customer_help");
+			$("#payableForm #customer").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			$("#payableForm #due_date").trigger('blur');
+
+			valid 	+= $("#payableForm").find('.form-group.has-error').length;
 			
 			if(selected_rows == "[]")
 			{
@@ -4268,11 +4271,17 @@ $(document).ready(function() {
 			var button_name = 'save_new';
 
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','customer', "customer_help");
+			// valid		+= validateField('payableForm','document_date', "document_date_help");
+			// valid		+= validateField('payableForm','customer', "customer_help");
 
-			valid		+= validateField('payableForm','due_date', "due_date_help");
+			// valid		+= validateField('payableForm','due_date', "due_date_help");
 			
+			$("#payableForm #customer").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			$("#payableForm #due_date").trigger('blur');
+
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
+
 			/**validate items**/
 			valid		+= validateDetails();
 			var paymentmode = $('#paymentmode').val();
@@ -4316,10 +4325,11 @@ $(document).ready(function() {
 			var button_name = "save";
 			
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','customer', "customer_help");
+			$("#payableForm #customer").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			$("#payableForm #due_date").trigger('blur');
 
-			valid		+= validateField('payableForm','duedate', "due_date_help");
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
 			valid		+= validateDetails();
@@ -4363,10 +4373,11 @@ $(document).ready(function() {
 			var button_name = "save_exit";
 			
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','customer', "customer_help");
+			$("#payableForm #customer").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			$("#payableForm #due_date").trigger('blur');
 
-			valid		+= validateField('payableForm','duedate', "due_date_help");
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
 			valid		+= validateDetails();
@@ -4424,10 +4435,11 @@ $(document).ready(function() {
 			var button_name = "save";
 
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','customer', "customer_help");
-			
-			valid		+= validateField('payableForm','due_date', "due_date_help");
+			$("#payableForm #customer").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			$("#payableForm #due_date").trigger('blur');
+
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
 			valid		+= validateDetails();
@@ -4477,10 +4489,11 @@ $(document).ready(function() {
 			var button_name = "save_new";
 			
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','customer', "customer_help");
+			$("#payableForm #customer").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			$("#payableForm #due_date").trigger('blur');
 
-			valid		+= validateField('payableForm','due_date', "due_date_help");
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
 			valid		+= validateDetails();
@@ -4529,10 +4542,11 @@ $(document).ready(function() {
 			var button_name = "save";
 			
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','customer', "customer_help");
+			$("#payableForm #customer").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			$("#payableForm #due_date").trigger('blur');
 
-			valid		+= validateField('payableForm','duedate', "due_date_help");
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
 			valid		+= validateDetails();
@@ -4579,10 +4593,11 @@ $(document).ready(function() {
 			var button_name = "save_exit";
 			
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','customer', "customer_help");
+			$("#payableForm #customer").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			$("#payableForm #due_date").trigger('blur');
 
-			valid		+= validateField('payableForm','duedate', "due_date_help");
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
 			valid		+= validateDetails();
@@ -4762,7 +4777,6 @@ $(document).ready(function() {
 						}
 					}
 				});
-				$('#ap_checker').iCheck('uncheck');
 			} else if( payable == "[]" && is_ap == "false" ){
 				bootbox.dialog({
 					message: "Please tag Receivables first.",
@@ -5047,6 +5061,8 @@ $('#tax_apply_edit').click(function(){
 	tax_amount = tax_amount.replace(/,/g,'');
 	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_account","tax_account=" + tax_account+"&tax_amount="+tax_amount).done(function(data){
 		var row 	= $('#entriesTable tbody tr.clone').length - 1;
+					$("#taxcode\\["+ row +"\\]").val(tax_account);
+					$("#taxbase_amount\\["+ row +"\\]").val(tax_amount);
 					$("#debit\\["+ row +"\\]").val(addComma(data.amount));
 					addAmountAll('debit');
 		$('#atcModal').modal('hide');
