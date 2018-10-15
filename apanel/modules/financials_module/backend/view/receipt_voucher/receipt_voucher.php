@@ -878,7 +878,6 @@
 										if($aPvJournalDetails_Index < ($count-1) && $paymenttype == 'cheque' && $ischeck == 'yes'){					
 											$disable_debit		= 'readOnly';
 											$disable_credit		= 'readOnly';
-											$disable_dedit 		= "readOnly";
 											$disable_code 		= 'disabled';
 											$added_class 		= 'added_row';
 											$indicator 			= "cheque";
@@ -887,26 +886,15 @@
 											$disable_credit		= 'readOnly';
 											$disable_code 		= 'disabled';
 											$added_class 		= 'discount_row';
+										} else if( $accountcode == $cred_id ) {
+											$disable_debit		= 'readOnly';
+											$disable_code 		= 'disabled';
 										} else {
 											$disable_debit		= ($debit > 0) ? '' : 'readOnly';
 											$disable_credit		= ($credit > 0) ? '' : 'readOnly';
 										}
 										
 											$detail_row	.= '<tr class="clone '.$added_class.'">';
-											// $detail_row	.= '<td class = "checkbox-select remove-margin text-center">';
-											// $detail_row .= $ui->formField('checkbox')
-											// 				->setSplit('', 'col-md-12')
-											// 				->setName("wtax[".$row."]")
-											// 				->setId("wtax[".$row."]")
-											// 				->setClass("wtax")
-											// 				->setDefault("1")
-											// 				->setValue(($taxcode) ? 1 : 0)
-											// 				->setAttribute(array("disabled" => "disabled"))
-											// 				->draw($show_input);
-											// $detail_row	.='</td>';
-											// $detail_row	.= '<td class="edit-button text-center" style="display: none">';
-											// $detail_row .= '<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button></td>';
-										
 											$detail_row	.= '<td class = "remove-margin hidden">';
 											$detail_row .= $ui->formField('text')
 															->setSplit('', 'col-md-12')
