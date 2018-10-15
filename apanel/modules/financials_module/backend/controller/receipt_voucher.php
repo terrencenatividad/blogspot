@@ -166,7 +166,9 @@ class controller extends wc_controller
 		// Application Data
 		$data['sum_applied'] 		= 0;
 		$data['sum_discount']		= 0;
+		$data['credits_applied'] 	= 0;
 		$data['payments'] 			= "''";
+		$data['credits_box'] 		= "''";
 		$data['available_credits'] 	= "0.00";
 		$data['credits_used'] 		= 0;
 		$data['overpayment'] 		= 0;
@@ -214,6 +216,7 @@ class controller extends wc_controller
 				$updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
 				// Update the Credit Voucher 
 				$update_ref['referenceno']  	= $generatedvoucher;
+				$update_ref['stat'] 			= "open";
 				$ref_cond 						= "referenceno = '$voucherno' AND transtype = 'ADVP'";
 				$updateTempRecord				= $this->receipt_voucher->editData($update_ref,"creditvoucher",$ref_cond);
 				$update_cred['rv_voucher']  	= $generatedvoucher;
