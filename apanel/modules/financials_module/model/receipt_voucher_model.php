@@ -130,6 +130,18 @@ class receipt_voucher_model extends wc_model
 
 		$temp["payments"] = $applicationArray;
 
+		// Retrieve Credits Used
+		$creditsFields 	= "cr_voucher as cvo, rv_voucher as rvo, ar_voucher as arv, crva.convertedamount as amount, crv.balance, crva.partner as customer";
+		$app_cond 		= "crva.rv_voucher = '$sid' AND crva.stat NOT IN ('cancelled','temporary' )";
+		$creditsArray 	= $this->db->setTable('creditvoucher_applied as crva')
+								->setFields($creditsFields)
+								->leftJoin('creditvoucher as crv ON crv.voucherno = crva.cr_voucher = crva.companycode = crv.companycode')
+								->setWhere($app_cond)
+								->runSelect()
+								->getResult();
+
+		$temp["credits"] = $creditsArray;
+
 		// Received Cheques for View
 		$chequeFields = 'pvc.voucherno, pvc.chequeaccount, chart.accountname, pvc.bank, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount';
 		$cheque_cond  = "pvc.voucherno = '$sid'";
@@ -916,43 +928,43 @@ class receipt_voucher_model extends wc_model
 						$cred_application['transactiondate']	= $transactiondate;
 						$cred_application['fiscalyear']			= $fiscalyear;
 						$cred_application['period']				= $period;
-						$cred_application['stat']			 	= 'active';
+						$cred_application['stat']			 	= 'temporary';
 
 						$cr_linenum++;
 						$appliedCreditsArray[]					= $cred_application;
 					}
-				}
 
-				$iscrvexisting	= $this->getValue($creditsAppTable, array("COUNT(*) AS count"), " cr_voucher = '$pickedKey' AND rv_voucher = '$voucherno'");
+					$iscrvexisting	= $this->getValue($creditsAppTable, array("COUNT(*) AS count"), " cr_voucher = '$pickedKey' AND rv_voucher = '$voucherno'");
+				
+					if($iscrvexisting[0]->count > 0){
 			
-				if($iscrvexisting[0]->count > 0){
-		
-					$this->db->setTable($creditsAppTable)
-							->setWhere(" cr_voucher = '$pickedKey' AND rv_voucher = '$voucherno'")
-							->runDelete();
-		
-					$insertResult = $this->db->setTable($creditsAppTable) 
-										->setValues($appliedCreditsArray)
-										->setWhere(" cr_voucher = '$pickedKey' AND rv_voucher = '$voucherno'")
-										->runInsert();
-									
-					if(!$insertResult){
-						$code 		= 0;
-						$errmsg[] 	= "<li>Error in Saving Applied Credit Accounts Details.</li>";
-					}
-				} else {
-					$insertResult = $this->db->setTable($creditsAppTable) 
-										->setValues($appliedCreditsArray)
-										->setWhere(" cr_voucher = '$pickedKey' AND rv_voucher = '$voucherno'")
-										->runInsert();
-									
-					if(!$insertResult){
-						$code 		= 0;
-						$errmsg[] 	= "<li>Error in Saving Applied Credit Accounts Details.</li>";
+						$this->db->setTable($creditsAppTable)
+								->setWhere(" cr_voucher = '$pickedKey' AND rv_voucher = '$voucherno'")
+								->runDelete();
+			
+						$insertResult = $this->db->setTable($creditsAppTable) 
+											->setValues($appliedCreditsArray)
+											->setWhere(" cr_voucher = '$pickedKey' AND rv_voucher = '$voucherno'")
+											->runInsert();
+										
+						if(!$insertResult){
+							$code 		= 0;
+							$errmsg[] 	= "<li>Error in Saving Applied Credit Accounts Details.</li>";
+						}
+					} else {
+						$insertResult = $this->db->setTable($creditsAppTable) 
+											->setValues($appliedCreditsArray)
+											->setWhere(" cr_voucher = '$pickedKey' AND rv_voucher = '$voucherno'")
+											->runInsert();
+										
+						if(!$insertResult){
+							$code 		= 0;
+							$errmsg[] 	= "<li>Error in Saving Applied Credit Accounts Details.</li>";
+						}
 					}
 				}
 			}	
-		} else if($ap_checker == 'yes'){
+		} if($ap_checker == 'yes'){
 			$this->db->setTable($detailAppTable)
 						->setWhere("voucherno = '$voucherno'")
 						->runDelete();
@@ -981,10 +993,17 @@ class receipt_voucher_model extends wc_model
 				$post_credit_voucher['referenceno']			= $voucherno;
  
 				$creditsArray[]								= $post_credit_voucher;
+				// var_dump($creditsArray);
+				$insertResult 	=	$this->db->setTable($creditsTable)
+											->setWhere("referenceno = '$voucherno'")
+											->runDelete();
 
-				$insertResult = $this->db->setTable($creditsTable) 
+				if($insertResult){
+					$insertResult = $this->db->setTable($creditsTable) 
 										 ->setValues($creditsArray)
 										 ->runInsert();
+				}
+				
 			}
 		}
 		
@@ -1998,7 +2017,7 @@ class receipt_voucher_model extends wc_model
 								 ->buildSelect();
 
 		$result 	=	$this->db->setTable('creditvoucher crv')
-								 ->setFields("crv.voucherno, crv.partner, (crv.convertedamount - crva.amount) amount, (crv.balance - crva.amount) balance, crv.invoiceno, crv.referenceno, crv.receivableno")
+								 ->setFields("crv.voucherno, crv.partner, crv.convertedamount amount, (crv.balance - IFNULL(crva.amount,0)) balance, crv.invoiceno, crv.referenceno, crv.receivableno")
 								 ->leftJoin('('.$sub_query.') crva ON crva.cr_voucher = crv.voucherno AND crva.companycode = crv.companycode AND crva.partner = crv.partner')
 								 ->leftJoin('partners p ON p.partnercode = crv.partner')
 								 ->setWhere("crv.partner = '$customer'")

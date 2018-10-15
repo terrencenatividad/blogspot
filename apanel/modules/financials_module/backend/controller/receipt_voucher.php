@@ -217,6 +217,7 @@ class controller extends wc_controller
 				$ref_cond 						= "referenceno = '$voucherno' AND transtype = 'ADVP'";
 				$updateTempRecord				= $this->receipt_voucher->editData($update_ref,"creditvoucher",$ref_cond);
 				$update_cred['rv_voucher']  	= $generatedvoucher;
+				$update_cred['stat'] 			= "active";
 				$cred_cond 						= "rv_voucher = '$voucherno'";
 				$updateTempRecord				= $this->receipt_voucher->editData($update_cred,"creditvoucher_applied",$cred_cond);
 			}
@@ -336,6 +337,19 @@ class controller extends wc_controller
 		}
 		$data['sum_applied'] 	= $sum_applied;
 		$data['sum_discount'] 	= $sum_discount;
+
+		//Credits
+		$credits_applied 		= $data['credits'];
+
+		$total_cr_applied		= 0;
+		if($credits_applied){
+			foreach($credits_applied as $key=>$row){
+				if(isset($row->amount)) {
+					$total_cr_applied += $row->amount;
+				}
+			}
+		}
+		$data['credits_applied'] 	= $total_cr_applied;
 
 		$data['restrict_rv'] 			= $restrict_rv;
 		$cred_acct						= $this->receipt_voucher->retrieve_existing_acct();
@@ -593,6 +607,26 @@ class controller extends wc_controller
 		$data['sum_applied'] 			= $sum_applied;
 		$data['sum_discount'] 			= $sum_discount;
 		$data['payments'] 				= json_encode($payments);
+
+		//Credits
+		$credits_applied 		= $data['credits'];
+		$total_cr_applied		= 0;
+		$applied 				= [];
+		if($credits_applied){
+			foreach($credits_applied as $key=>$row){
+				if(isset($row->amount)) {
+					$vno 	=	$row->cvo;
+					$total_cr_applied += $row->amount;
+					$applied[$vno]['amount'] = $row->balance;
+					$applied[$vno]['toapply'] = $row->amount;
+					$applied[$vno]['balance'] = $row->balance;
+				}
+			}
+		}
+		$data['credits_applied'] 	= $total_cr_applied;
+
+		$data['credits_box'] 		= json_encode($applied);
+
 		$data['restrict_rv'] 			= true;
 		$data['has_access'] 			= 0;
 		$cred_acct						= $this->receipt_voucher->retrieve_existing_acct();
