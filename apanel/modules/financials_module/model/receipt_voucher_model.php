@@ -991,6 +991,7 @@ class receipt_voucher_model extends wc_model
 				$post_credit_voucher['balance'] 			= $total_payment;
 				$post_credit_voucher['convertedamount']		= $total_payment;
 				$post_credit_voucher['referenceno']			= $voucherno;
+				$post_credit_voucher['source']			 	= 'RV';
  
 				$creditsArray[]								= $post_credit_voucher;
 				// var_dump($creditsArray);
