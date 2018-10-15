@@ -137,13 +137,13 @@
 										<div class="col-md-8">
 											<?php
 											if(!$show_input){
-												echo '<p class="form-control-static">'.number_format($sum_applied,2).'</p>';
+												echo '<p class="form-control-static">'.number_format($credits_applied,2).'</p>';
 											}else{
 
 												?>
 												<button type="button" id="crv" class="btn btn-block btn-success btn-flat">
 													<em class="pull-left"><small>Click to view tagged credits</small></em>
-													<strong id="applied_cred_amt" class="pull-right"><?=number_format($sum_applied,2)?></strong>
+													<strong id="applied_cred_amt" class="pull-right"><?=number_format($credits_applied,2)?></strong>
 												</button>
 												<?php
 											}
@@ -1598,10 +1598,13 @@ echo $ui->loadElement('modal')
 	var acct_details 	= [];
 
 	var checker 	= new Array();
-	var credits_box = {};
+
+	var credits_box = <?=$credits_box;?>;
+	var credits_box = (credits_box != undefined) ? credits_box : {};
+	
 	var table 		= document.getElementById('ap_items');
 	var newid 		= table.rows.length;
-	newid 		= parseFloat(newid);
+		newid 		= parseFloat(newid);
 
 	var task 		= '<?= $task ?>';
 
@@ -4665,6 +4668,8 @@ $(document).ready(function() {
 				});
 			}
 		});
+
+		// CREDITS 
 	}
 
 	/**APPLY PAYMENT LINK**/
@@ -5096,11 +5101,13 @@ $('#tax_apply_edit').click(function(){
 		$('#atcModal').modal('hide');
 	});
 });
-	$('.tax_amount').on('change', function(){
-		var accs = $(this).val();
-		acc = addCommas(parseFloat(accs).toFixed(2));
-		$('.tax_amount').val(acc);
-	});
+
+$('.tax_amount').on('change', function(){
+	var accs = $(this).val();
+	acc = addCommas(parseFloat(accs).toFixed(2));
+	$('.tax_amount').val(acc);
+});
+
 $('#creditvoucherModal').on('shown.bs.modal',function(){
 	set_selected_cv();
 });
@@ -5114,8 +5121,4 @@ $('.tax_amount').on('change', function(){
 	acc = addCommas(parseFloat(accs).toFixed(2));
 	$('.tax_amount').val(acc);
 });
-
-$('#crv').prop('disabled',true);
-
-
 </script>

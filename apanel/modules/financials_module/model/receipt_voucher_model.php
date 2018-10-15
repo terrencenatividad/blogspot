@@ -131,15 +131,16 @@ class receipt_voucher_model extends wc_model
 		$temp["payments"] = $applicationArray;
 
 		// Retrieve Credits Used
-		$applicationFields = "";
-		$app_cond 	 = "app.voucherno = '$sid' AND app.amount > 0 AND app.stat NOT IN ('cancelled','temporary' )";
-		$applicationArray = $this->db->setTable('creditvoucher_applied as crva')
-								->setFields($applicationFields)
+		$creditsFields 	= "cr_voucher as cvo, rv_voucher as rvo, ar_voucher as arv, crva.convertedamount as amount, crv.balance, crva.partner as customer";
+		$app_cond 		= "crva.rv_voucher = '$sid' AND crva.stat NOT IN ('cancelled','temporary' )";
+		$creditsArray 	= $this->db->setTable('creditvoucher_applied as crva')
+								->setFields($creditsFields)
+								->leftJoin('creditvoucher as crv ON crv.voucherno = crva.cr_voucher = crva.companycode = crv.companycode')
 								->setWhere($app_cond)
 								->runSelect()
 								->getResult();
 
-		$temp["payments"] = $applicationArray;
+		$temp["credits"] = $creditsArray;
 
 		// Received Cheques for View
 		$chequeFields = 'pvc.voucherno, pvc.chequeaccount, chart.accountname, pvc.bank, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount';
@@ -2016,7 +2017,7 @@ class receipt_voucher_model extends wc_model
 								 ->buildSelect();
 
 		$result 	=	$this->db->setTable('creditvoucher crv')
-								 ->setFields("crv.voucherno, crv.partner, (crv.convertedamount - IFNULL(crva.amount,0)) amount, (crv.balance - IFNULL(crva.amount,0)) balance, crv.invoiceno, crv.referenceno, crv.receivableno")
+								 ->setFields("crv.voucherno, crv.partner, crv.convertedamount amount, (crv.balance - IFNULL(crva.amount,0)) balance, crv.invoiceno, crv.referenceno, crv.receivableno")
 								 ->leftJoin('('.$sub_query.') crva ON crva.cr_voucher = crv.voucherno AND crva.companycode = crv.companycode AND crva.partner = crv.partner')
 								 ->leftJoin('partners p ON p.partnercode = crv.partner')
 								 ->setWhere("crv.partner = '$customer'")
