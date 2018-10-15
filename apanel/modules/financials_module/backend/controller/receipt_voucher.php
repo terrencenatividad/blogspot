@@ -345,7 +345,7 @@ class controller extends wc_controller
 		if($credits_applied){
 			foreach($credits_applied as $key=>$row){
 				if(isset($row->amount)) {
-					$total_cr_applied += $value->amount;
+					$total_cr_applied += $row->amount;
 				}
 			}
 		}
