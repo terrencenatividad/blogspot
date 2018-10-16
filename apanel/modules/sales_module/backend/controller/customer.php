@@ -357,12 +357,12 @@
 						'credit_limit'		=> $credit_limit_
 					);
 					
-					// $proceed  				= $this->customer->importCustomers($post);
+					$proceed  				= $this->customer->importCustomers($post);
 
-					// if( $proceed ) {
-					// 	$this->log->saveActivity("Imported Customers.");
-					// }
-					$proceed = 0;
+					if( $proceed ) {
+						$this->log->saveActivity("Imported Customers.");
+					}
+					//$proceed = 0;
 				}
 			}
 
@@ -447,7 +447,7 @@
 				}
 			else:
 				$table .= "<tr>
-								<td colspan = '6' class = 'text-center'>No Records Found</td>
+								<td colspan = '9' class = 'text-center'>No Records Found</td>
 						</tr>";
 			endif;
 
