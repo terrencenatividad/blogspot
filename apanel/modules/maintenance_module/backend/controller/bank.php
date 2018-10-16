@@ -307,19 +307,23 @@
 					// } else {
 					// 	$check_stat = '<span class="label label-warning">'."USED".'</span>';
 					// }
+					$show_edit = ($next == $row->firstchequeno) ? 'editcheck' : '';
+					$show_del = ($next == $row->firstchequeno) ? 'deletecheck' : '';
+				
 
 					$dropdown = $this->ui->loadElement('check_task')
 								->addOtherTask(
 									'Edit Check Series',
 									'pencil',
-									'editcheck'
+									$show_edit
 								)
 
 								->addOtherTask(
 									'Delete Check Series',
 									'trash',
-									'deletecheck'
+									$show_del
 								)
+					
 								// ->addOtherTask(
 								// 	'Set as Default Check',
 								// 	'check',

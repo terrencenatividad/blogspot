@@ -1589,7 +1589,7 @@ echo $ui->loadElement('modal')
 	var checker 	= new Array();
 
 	var credits_box = <?=$credits_box;?>;
-	var credits_box = (credits_box != undefined) ? credits_box : {};
+	 	credits_box = (credits_box != "") ? credits_box : {};
 	
 	var table 		= document.getElementById('ap_items');
 	var newid 		= table.rows.length;
