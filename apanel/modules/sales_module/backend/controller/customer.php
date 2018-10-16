@@ -447,12 +447,12 @@
 				}
 			else:
 				$table .= "<tr>
-								<td colspan = '6' class = 'text-center'>No Records Found</td>
+								<td colspan = '9' class = 'text-center'>No Records Found</td>
 						</tr>";
 			endif;
 
 			$list->table 	=	$table;
-			$list->csv 		= 	$this->export();
+			//$list->csv 		= 	$this->export();
 			
 			return $list;
 		}
