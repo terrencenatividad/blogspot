@@ -522,8 +522,8 @@ class controller extends wc_controller
 						$errmsg[] 	= "Account Nature is required. Row $line should not be empty.<br>";
 					}				
 					
-					$accountcode_[] 	= addslashes($accountcode);
-					$accountname_[] 	= $accountname;
+					$accountcode_[] 	= $accountcode;
+					$accountname_[] 	= addslashes($accountname);
 					$accountclass_[] 	= $accountclass;
 					$fspresentation_[]	= $fspresentation;
 					$accounttype_[] 	= $accounttype;
