@@ -495,7 +495,9 @@ class controller extends wc_controller
 						}
 					if( !in_array($accountcode, $list) ){
 						$list[] 	=	$accountcode;
-					}
+					} else {
+							$errmsg[]	= "Account Code [<strong>$accountcode</strong>] on row $line has a duplicate within the document.<br/>";
+						}
 					
 					if(empty($accountcode)){
 						$errmsg[] 	= "Account Code is required. Row $line should not be empty.<br>";
@@ -519,12 +521,13 @@ class controller extends wc_controller
 						$errmsg[] 	= "Account Nature is required. Row $line should not be empty.<br>";
 					}
 
-					// Check for Duplicate Customer
-					if( !in_array($accountcode, $list) ){
-						$list[] 	=	$customercode;
-					} else {
-						$errmsg[]	= "Account Code [<strong>$accountcode</strong>] on row $line has a duplicate within the document.<br/>";
-					}
+					// Check for Duplicate COA
+					// if( !in_array($accountcode, $list) ){
+					// 	$list[] 	=	$accountcode;
+					// 	var_dump($list);
+					// } else {
+					// 	$errmsg[]	= "Account Code [<strong>$accountcode</strong>] on row $line has a duplicate within the document.<br/>";
+					// }
 				
 					
 					$accountcode_[] 	= $accountcode;
