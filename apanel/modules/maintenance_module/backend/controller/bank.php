@@ -110,7 +110,12 @@
 					$dropdown = $this->ui->loadElement('check_task')
 										->addView()
 										->addEdit()
-										->addDelete()
+										// ->addDelete()
+										->addOtherTask(
+											'Delete',
+											'trash',
+											$row->nextchequeno == $row->firstchequeno
+										)
 										->addCheckbox()
 										->setValue($row->id)
 										->addOtherTask(
