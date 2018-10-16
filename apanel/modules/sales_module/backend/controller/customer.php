@@ -357,12 +357,12 @@
 						'credit_limit'		=> $credit_limit_
 					);
 					
-					// $proceed  				= $this->customer->importCustomers($post);
+					$proceed  				= $this->customer->importCustomers($post);
 
-					// if( $proceed ) {
-					// 	$this->log->saveActivity("Imported Customers.");
-					// }
-					$proceed = 0;
+					if( $proceed ) {
+						$this->log->saveActivity("Imported Customers.");
+					}
+					//$proceed = 0;
 				}
 			}
 
@@ -452,7 +452,7 @@
 			endif;
 
 			$list->table 	=	$table;
-			//$list->csv 		= 	$this->export();
+			$list->csv 		= 	$this->export();
 			
 			return $list;
 		}
