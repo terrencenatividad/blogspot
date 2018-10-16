@@ -401,4 +401,15 @@
 		return id;
 	}
 
+	$('#tableList').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
+			var b = $('input[type=checkbox]:not(.checkall)');
+			var row = $('#tableList >tbody >tr').length;
+			var c =	b.filter(':checked').length;
+			if(c == row){
+				$('#tableList thead tr th').find('.checkall').prop('checked', true).iCheck('update');
+			}else{
+				$('#tableList thead tr th').find('.checkall').prop('checked', false).iCheck('update');
+			}
+		});
+
 	</script>
