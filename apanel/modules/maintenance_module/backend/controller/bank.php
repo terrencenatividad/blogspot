@@ -314,9 +314,13 @@
 					// }
 					$show_edit = ($next == $row->firstchequeno) ? 'editcheck' : '';
 					$show_del = ($next == $row->firstchequeno) ? 'deletecheck' : '';
+					$show_cancel = ($row->stat == 'closed') ? '' : 'cancel';
 				
+					if ($show_cancel == ''){
+						$dropdown = '';
+					} else {
+						$dropdown = $this->ui->loadElement('check_task')
 
-					$dropdown = $this->ui->loadElement('check_task')
 								->addOtherTask(
 									'Edit Check Series',
 									'pencil',
@@ -337,9 +341,11 @@
 								->addOtherTask(
 									'Cancel Check Range',
 									'remove-circle',
-									'cancel'
+									$show_cancel
 								)
 								->draw();
+					}
+					
 					$table .= '<tr>';
 					$table .= ' <td align = "center">' .$dropdown. '</td>';
 					$table .= '<td>' . $row->shortname . '</td>';
