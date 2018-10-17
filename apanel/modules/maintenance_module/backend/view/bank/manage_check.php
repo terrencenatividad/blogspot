@@ -10,7 +10,11 @@
         <div class="box-body">
             <form method = "post" id = "checkForm" class="form-horizontal">
 				<input type="hidden" name="bank_id" id="id" value="<?=$id?>">
-				<input type="hidden" name="oldbooknumber" id="booknumber" value="<?=$booknumber?>">		
+				<input type="hidden" id="old_first" value="">
+				<input type="hidden" id="old_last" value="">
+				<input type="hidden" name="oldbooknumber" id="booknumber" value="<?=$booknumber?>">	
+				<input type="hidden" id="task" value="">
+
 				<div class = "col-md-12">&nbsp;</div>
 
 				<div class="row">
@@ -166,7 +170,7 @@
 			<h4 class="modal-title">Confirmation</h4>
 			</div>
 			<div class="modal-body">
-				<p>Number entered is within the series of existing checks</p>
+				
 			</div>
 			<div class="modal-footer">
 				<div class="row row-dense">
@@ -194,7 +198,8 @@
 			<h4 class="modal-title">Confirmation</h4>
 			</div>
 			<div class="modal-body">
-				<p>First check number cannot be greater than last check number!</p>
+				<p id="msg1"></p>
+				<p id="msg2"></p>
 			</div>
 			<div class="modal-footer">
 				<div class="row row-dense">
@@ -525,6 +530,9 @@ $('#check_container').on('click', '.edit_check_series', function(){
 				$('#checkForm #booknumber').val(data.booknumber);
 				$('#firstchequeno').val(data.firstchequeno);
 				$('#lastchequeno').val(data.lastchequeno);
+				$('#old_first').val(data.firstchequeno);
+				$('#old_last').val(data.lastchequeno);
+				$('#task').val(data.task);
 				var task = data.task;
 				if (task == 'update_check'){
 					$('#btnSave').hide();
@@ -579,22 +587,29 @@ $('#check_container').on('click', '.set_as_default_check', function(){
 });
 
 $('#checkForm #firstchequeno, #lastchequeno').on('blur' ,function(){
-	
 	var first_number = parseFloat($('#firstchequeno').val());
 	var end_number = parseFloat($('#lastchequeno').val());
-	if (first_number != "" && end_number !="" ){
-		if (end_number < first_number){
-			$('#modal_checker_on_range').modal('show');
-		}
-	}
+	var old_first = parseFloat($('#old_first').val());
+	var old_last = parseFloat($('#old_last').val());
+	var task 		=	$('#task').val();
+
+	
 
 	jQuery.each(bank_checks,function(ind,val){
 		var result = val.split('-');
 		var start = parseFloat(result[0]);
 		var end = parseFloat(result[1]);
-		if ( (start <= first_number && end >= first_number) || (start <= end_number && end >= end_number) ){
-			$('#modal_checker').modal('show');
-		}  
+		if (((start <= first_number && end >= first_number) || (start <= end_number && end >= end_number)) && ((start != old_first || end_number != old_last)) ){ 
+			$('#modal_checker_on_range').modal('show');
+			$('#msg1').html("Number entered is within the series of existing checks");
+		}  else if (first_number != "" && end_number !="" ){
+			if (end_number < first_number){
+				$('#modal_checker_on_range').modal('show');
+				$('#msg2').html("First check number cannot be greater than last check number");
+			} 
+		} else if (task == 'update_check'){
+
+		} 
     })
 	
 })
