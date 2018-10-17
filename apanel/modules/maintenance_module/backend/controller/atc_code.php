@@ -265,7 +265,7 @@
 						$atccode_[] 	= $atccode;
 						$taxrate_[] 	= $taxrate/100;
 						$taxcode_[] 	= $taxcode;
-						$description_[]	= $description;
+						$description_[]	= addslashes($description);
 						$ewt_[] 		= $ewt;
 						$cwt_[] 		= $cwt;
 

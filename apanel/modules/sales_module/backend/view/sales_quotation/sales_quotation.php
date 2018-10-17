@@ -340,7 +340,7 @@
 											->setName('amount')
 											->setId('amount')
 											->setClass("input_label text-right")
-											->setAttribute(array("maxlength" => "40"))
+											->setAttribute(array("maxlength" => "40","readOnly"=>"readOnly"))
 											->setValue(number_format($amount,2))
 											->draw($show_input);
 								?>

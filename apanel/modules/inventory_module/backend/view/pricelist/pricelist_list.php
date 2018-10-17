@@ -400,4 +400,15 @@ tableSort('#pricelist_table', function(value, getlist) {
 			});
 			return id;
 		}
+
+		$('#pricelist_table').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
+			var b = $('input[type=checkbox]:not(.checkall)');
+			var row = $('#pricelist_table >tbody >tr').length;
+			var c =	b.filter(':checked').length;
+			if(c == row){
+				$('#pricelist_table thead tr th').find('.checkall').prop('checked', true).iCheck('update');
+			}else{
+				$('#pricelist_table thead tr th').find('.checkall').prop('checked', false).iCheck('update');
+			}
+		});
 </script>

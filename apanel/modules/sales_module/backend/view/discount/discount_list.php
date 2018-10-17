@@ -80,7 +80,13 @@
 					<?php
 						echo $ui->loadElement('table')
 								->setHeaderClass('info')
-								->addHeader('',array('class' => 'col-md-1 text-center'))
+								->addHeader(
+									'<input type="checkbox" class="checkall">',
+									array(
+										'class' => 'text-center col-md-1',
+										'style' => 'width:100px'
+									)
+								)
 								->addHeader('Discount Code',array('class'=>'col-md-3'),'sort','discountcode')
 								->addHeader('Discount Name', array('class'=>'col-md-3'),'sort','discountname')
 								->addHeader('Description',array('class'=>'col-md-3'),'sort','discountdesc')
@@ -484,4 +490,15 @@ $("#deactivateMultipleBtn").click(function()
 		});
 		return id;
 	}
+
+	$('#discount_table').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
+			var b = $('input[type=checkbox]:not(.checkall)');
+			var row = $('#discount_table >tbody >tr').length;
+			var c =	b.filter(':checked').length;
+			if(c == row){
+				$('#discount_table thead tr th').find('.checkall').prop('checked', true).iCheck('update');
+			}else{
+				$('#discount_table thead tr th').find('.checkall').prop('checked', false).iCheck('update');
+			}
+		});
 </script>

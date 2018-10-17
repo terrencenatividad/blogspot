@@ -107,7 +107,11 @@ class controller extends wc_controller
 		/** RETRIEVAL FOR QUOTATION / SO **/
 
 		$data["quotation_no"]  = ""; 
-
+		$data['h_curr_limit'] 	= 0;
+		$data['h_outstanding'] 	= 0;
+		$data['h_incurred']  	= 0;
+		$data['h_balance'] 		= 0;
+		
 		if( $quotation_no != "" )
 		{
 			$retrieved_data 		= $this->so->retrieveExistingSQ($quotation_no);
@@ -136,6 +140,10 @@ class controller extends wc_controller
 			$data["tinno"] 		 	 = $retrieved_data["customer"]->tinno;
 			$data["address1"] 		 = $retrieved_data["customer"]->address1;
 			
+			$data['t_vat'] 			 = 0;
+			$data['t_vatsales'] 	 = 0;
+			$data['t_vatexempt'] 	 = 0;
+
 			//Details
 			$data['details'] 		 = $retrieved_data['details'];
 		
@@ -152,10 +160,6 @@ class controller extends wc_controller
 			$data['h_incurred']  	= $incurred;
 			$data['h_balance'] 		= (($credit_limit - $outstanding) > 0) ? $credit_limit - $outstanding 	: 0;
 		}
-		$data['h_curr_limit'] 	= 0;
-		$data['h_outstanding'] 	= 0;
-		$data['h_incurred']  	= 0;
-		$data['h_balance'] 		= 0;
 	
 		$data['ui'] 			= $this->ui;
 		$data['show_input'] 	= true;		

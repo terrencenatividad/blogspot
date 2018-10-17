@@ -302,6 +302,7 @@ var ajax = {};
 	{
 		$.post('<?=MODULE_URL?>ajax/load_list', ajax, function(data)
 		{
+			$('.checkall').iCheck('uncheck');
 			$('#list_container').html(data.table);
 			$('#pagination').html(data.pagination);
 			$("#export_id").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
@@ -346,10 +347,10 @@ var ajax = {};
 	$(function() {
 		showList();
 
-		$("#selectall").click(function() 
-		{
-			$('input:checkbox').not(this).prop('checked', this.checked);
-		});
+		// $("#selectall").click(function() 
+		// {
+		// 	$('input:checkbox').not(this).prop('checked', this.checked);
+		// });
 		/*
 		* For Single Delete
 		*/
@@ -532,51 +533,15 @@ $("#deactivateMultipleBtn").click(function()
 			});
 		});
 
-		$('#tableList').on('ifToggled', '.checkall', function() {
-			var row = $('#tableList >tbody >tr').length;
-			$('#tableList').on('ifToggled', 'input[type=checkbox]', function() {
-			var b = $('input[type=checkbox]');
-			var c =	b.filter(':checked').length-1;
-			if(c < row){
-				$('#tableList thead tr th').find('.icheckbox_square-blue').removeClass('checked');
-			}else if(c == row){
-				$('#tableList thead tr th').find('.icheckbox_square-blue').addClass('checked');
-			}
-			
-		});
-	});
-
-		$('#tableList').on('ifToggled', 'input[type=checkbox]', function() {
-			var b = $('input[type=checkbox]');
+		$('#tableList').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
+			var b = $('input[type=checkbox]:not(.checkall)');
 			var row = $('#tableList >tbody >tr').length;
 			var c =	b.filter(':checked').length;
 			if(c == row){
-				$('#tableList thead tr th').find('.icheckbox_square-blue').addClass('checked');
+				$('#tableList thead tr th').find('.checkall').prop('checked', true).iCheck('update');
 			}else{
-				$('#tableList thead tr th').find('.icheckbox_square-blue').removeClass('checked');
+				$('#tableList thead tr th').find('.checkall').prop('checked', false).iCheck('update');
 			}
 		});
-
-	// $('#tableList').on('ifToggled', 'input[type=checkbox]', function() {
-	// 		var b = $('input[type=checkbox]');
-	// 		var row = $('#tableList >tbody >tr').length;
-	// 		if(b.filter(':checked').length == row){
-	// 		$('#tableList thead tr th').find('.icheckbox_square-blue').addClass('checked');
-	// 		}
-	// 	});
-
-	// $('#tableList').on('ifToggled', 'input[type=checkbox]', function() {
-	// 	getChecked();
-	// });
-
-	// function getChecked() {
-	// 	$('#tableList tbody tr td').find('label[type="button"] .icheckbox_square-blue').each(function(index, value){
-	// 		var b = $('input[type=checkbox]');
-	// 		// console.log($(this).attr('class').split(' ')[1] == 'checked');
-	// 		if(b.filter(':checked').length-1 < index) {
-	// 			console.log('aww');
-	// 		}
-	// 	});
-	// }
 
 </script>

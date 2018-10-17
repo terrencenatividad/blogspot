@@ -353,8 +353,8 @@
 									$uom  				= (empty($quotation_no)) ? $details[$i]->issueuom 	: 	$details[$i]->issueuom;
 									$warehouse_code		= (empty($quotation_no)) ? $details[$i]->warehouse 	: 	'';
 									$warehouse_name		= (empty($quotation_no)) ? $details[$i]->description: 	'';
-									$itemdiscount  		= $details[$i]->discountamount;
-									$discountedamount 	= $details[$i]->discountedamount;
+									$itemdiscount  		= (isset($details[$i]->discountamount)) ? $details[$i]->discountamount : 0;
+									$discountedamount 	= (isset($details[$i]->discountedamount))? $details[$i]->discountedamount : 0;
 									
 									//itemcode, detailparticular, unitprice, issueqty, taxcode, taxrate, amount
 
@@ -506,6 +506,7 @@
 											->setName('t_vatsales')
 											->setId('t_vatsales')
 											->setClass("input_label text-right remove-margin")
+											->setAttribute(array("readOnly"=>"readOnly"))
 											->setValue(number_format($t_vatsales,2))
 											->draw($show_input);
 								?>
@@ -525,6 +526,7 @@
 											->setSplit('', 'col-md-5')
 											->setName('t_vatexempt')
 											->setId('t_vatexempt')
+											->setAttribute(array("readOnly"=>"readOnly"))
 											->setClass("input_label text-right remove-margin")
 											->setValue(number_format($t_vatexempt,2))
 											->draw($show_input);
@@ -546,6 +548,7 @@
 											->setName('t_subtotal')
 											->setId('t_subtotal')
 											->setClass("input_label text-right")
+											->setAttribute(array("readOnly"=>"readOnly"))
 											->setAttribute(array("maxlength" => "40"))
 											->setValue(number_format($t_subtotal,2))
 											->draw($show_input);
@@ -647,7 +650,7 @@
 											->setName('t_vat')
 											->setId('t_vat')
 											->setClass("input_label text-right")
-											->setAttribute(array("maxlength" => "40"))
+											->setAttribute(array("maxlength" => "40","readOnly"=>"readOnly"))
 											->setValue(number_format($t_vat,2))
 											->draw($show_input);
 								?>
@@ -668,7 +671,7 @@
 											->setName('t_total')
 											->setId('t_total')
 											->setClass("input_label text-right")
-											->setAttribute(array("maxlength" => "40"))
+											->setAttribute(array("maxlength" => "40","readOnly"=>"readOnly"))
 											->setValue(number_format($t_total,'2','.',','))
 											->draw($show_input);
 								?>
