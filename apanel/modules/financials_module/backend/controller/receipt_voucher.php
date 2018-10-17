@@ -360,6 +360,9 @@ class controller extends wc_controller
 		$data['cred_id'] 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
 		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
 
+		$op_acct  					= $this->receipt_voucher->retrieveOPDetails();
+		$data['op_acct'] 			= isset($op_acct[0]->accountcode) 	? 	$op_acct[0]->accountcode 	:	"";
+
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
 
@@ -636,6 +639,9 @@ class controller extends wc_controller
 		$data["existingcreditaccount"]	= isset($cred_acct[0]->account) ? $cred_acct[0]->account	:	"";
 		$data['cred_id'] 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
 		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
+
+		$op_acct  					= $this->receipt_voucher->retrieveOPDetails();
+		$data['op_acct'] 			= isset($op_acct[0]->accountcode) 	? 	$op_acct[0]->accountcode 	:	"";
 
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
@@ -1360,6 +1366,9 @@ class controller extends wc_controller
 					$balance_2 	= $balance_2 - $amount - $discount - $credit_used;
 					$balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
 				}
+				
+				$balance 		= ($overpayment>0) ? $totalamount : $balance;
+
 				// echo $balance."\n\n";
 				$disable_checkbox 	=	"";
 				$disable_onclick 	=	'onClick="selectPayable(\''.$voucher.'\',1);"';
@@ -1583,24 +1592,16 @@ class controller extends wc_controller
 		$show_input         = $this->show_input;
 
 		$totalcredit = 0;
-
+		// var_dump($results);
 		if(!empty($results)){
 			$credit      = '0.00';
 			$count       = count($results);
 	
-			// $loop_cond 	 = ($advance == "yes") ? "$i <= $count" 	:	"$i < $count";
-			// echo $count;
 			for($i = 0; $i <= $count; $i++, $row++)
 			{
 				if($i==$count && $advance == 'no') {
 					break;
 				}
-				$accountcode       = (!empty($results[$i]->accountcode))		? $results[$i]->accountcode : "";
-				$detailparticulars = (!empty($results[$i]->detailparticulars)) 	? $results[$i]->detailparticulars : "";
-				$ischeck 			= (!empty($results[$i]->ischeck)) 			? $results[$i]->ischeck 			: "no";
-				$isoverpayment 		= (!empty($results[$i]->is_overpayment)) 	? $results[$i]->is_overpayment 	:	"no";
-				$debit 				= (isset($results[$i]->chequeamount)) 		? $results[$i]->chequeamount : "0";
-
 				$accountcode       = (!empty($results[$i]->accountcode))		? $results[$i]->accountcode : "";
 				$detailparticulars = (!empty($results[$i]->detailparticulars)) 	? $results[$i]->detailparticulars : "";
 				$ischeck 			= (!empty($results[$i]->ischeck)) 			? $results[$i]->ischeck 			: "no";
@@ -1617,18 +1618,6 @@ class controller extends wc_controller
 				$totalcredit     	+= $debit; 
 
 				$table .= '<tr class="clone" valign="middle">';
-				// $table	.= '<td class = "checkbox-select remove-margin text-center ">';
-				// $table	.=  $ui->formField('checkbox')
-				// 				->setSplit('', 'col-md-12')
-				// 				// ->setName("wtax[".$row."]")
-				// 				->setId("wtax[".$row."]")
-				// 				->setClass("wtax")
-				// 				->setDefault("")
-				// 				->setValue(1)
-				// 				->setAttribute(array("disabled" => "disabled"))
-				// 				->draw($show_input);
-				// $table	.= '</td>';
-				// $table .= 	'<td class="edit-button text-center" style="display: none"><button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button></td>';
 				$table	.= '<td class = "remove-margin hidden">';
 				$table	.=  $ui->formField('text')
 								->setSplit('', 'col-md-12')

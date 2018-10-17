@@ -890,6 +890,9 @@
 										} else if( $accountcode == $cred_id ) {
 											$disable_debit		= 'readOnly';
 											$disable_code 		= 'disabled';
+										} else if( $accountcode == $op_acct ) {
+											$disable_credit		= 'readOnly';
+											$disable_code 		= 'disabled';
 										} else {
 											$disable_debit		= ($debit > 0) ? '' : 'readOnly';
 											$disable_credit		= ($credit > 0) ? '' : 'readOnly';
@@ -3128,6 +3131,18 @@ function add_storage(id,balance,discount,credits,excess){
 	init_storage();
 }
 
+function compute_excess_amt(){
+	var excess_amt = 0;
+
+	$('#payable_list_container tr').each(function(){
+		var ind_excess = $(this).find('.over').attr('data-value');
+		console.log('ind_excess ... '+ind_excess);
+		excess_amt 	+= parseFloat(ind_excess);
+	});
+
+	return excess_amt;
+}
+
 /**CHECK BALANCE**/
 function checkBalance(val,id){
 	var table 			= document.getElementById('payable_list_container');
@@ -3136,29 +3151,28 @@ function checkBalance(val,id){
 	var discountamount 	= $('#payable_list_container #discountamount'+id).val();
 	var credit_used 	= $('#payable_list_container #credits_used'+id).val();
 	var current_payment = $('#payable_list_container #paymentamount'+id).val();
-	// var curr_overpayment= $('#payable_list_container #overpayment'+id).val();
+	var curr_overpayment= $('#payable_list_container #overpayment'+id).val();
 
 	dueamount			= removeComma(dueamount);
 	discount			= removeComma(discountamount);
 	current_payment		= removeComma(current_payment);
 	var newval			= removeComma(val);
 	total_amount 		= removeComma(total_amount);
-	// curr_overpayment 	= removeComma(curr_overpayment);
+	curr_overpayment 	= removeComma(curr_overpayment);
 
 	var condition = "";
 	var input 	  = "";
 	var error 	  = 0;
 		condition 		= (parseFloat(newval) || parseFloat(discount) == 0 || (parseFloat(discount) > parseFloat(dueamount) || parseFloat(discount) > parseFloat(current_payment) ) ) ;
 	
-	// var excess_payment 	= $('#overpayment').val();
-	var excess_payment 	= $('#overpayment').val();
-		excess_payment 	= parseFloat(excess_payment) || 0;
-	
+	var excess_payment 	= 0;
 	var ind_excess 		= 0;
 	if(condition){
 		if(current_payment >= 0){
-			excess_payment 	+=	(current_payment - dueamount);
-			ind_excess 		=	current_payment - dueamount;
+			console.log("NEW VALUE = "+newval);
+			console.log("DUE AMOUNT = "+dueamount);
+			ind_excess 		=	newval - dueamount;
+			console.log("IND EXCESS = "+ind_excess);
 			$('#receiveAmtError').addClass('hidden');
 		} else {
 			$('#receiveAmtError').removeClass('hidden');
@@ -3184,14 +3198,16 @@ function checkBalance(val,id){
 			$(this).find('.paymentamount').closest('div').removeClass('has-error');
 			$('#TagReceivablesBtn').prop('disabled',false);
 		}
-		excess_payment 	=	(excess_payment < 0) ? 0 : excess_payment;
-		$('#payableForm #overpayment').val(excess_payment);
-		$('#payable_list_container #overpayment'+id).val(ind_excess);
+
+		$('#payable_list_container #overpayment_'+id).attr('data-value',ind_excess);
+		$('#payable_list_container #overpayment_'+id).html(ind_excess);
 		$('#payable_list_container #paymentamount'+id).value = '';
+
+		excess_payment = compute_excess_amt();
+		$('#payableForm #overpayment').val(excess_payment);
 	}else{
 		$('#payable_list_container #paymentamount'+id).value = newval;
 	}
-
 	if(error == 0){
 		dueamount 	=	(excess_payment > 0) 	?	 0	:	dueamount;
 		add_storage(id,dueamount,discount,credit_used,ind_excess);
