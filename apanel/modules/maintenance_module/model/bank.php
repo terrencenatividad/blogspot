@@ -18,13 +18,16 @@
 		{
 			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (shortname LIKE '%$search%' OR bankcode LIKE '%$search%'  OR accountno LIKE '%$search%') " 	: 	"";
 
-			$fields 	=	array('id','shortname','bankcode','accountno','stat', 'checking_account');
+			$fields 	=	array('id','shortname','b.bankcode','b.accountno','b.stat', 'checking_account','firstchequeno','nextchequeno');
 
-			$result = $this->db->setTable('bank')
+			$result = $this->db->setTable('bank b')
 							->setFields($fields)
-							->setWhere(" stat IN  ('active','inactive') $add_cond ")
+							->leftJoin("bankdetail bd ON b.id = bd.bank_id ")
+							->setWhere(" b.stat IN  ('active','inactive') $add_cond ")
 							->setOrderBy($sort)
+							->setGroupBy("b.id")
 							->runPagination();
+							// echo $this->db->getQuery();
 			return $result;
 		}
 

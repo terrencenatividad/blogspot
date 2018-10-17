@@ -366,6 +366,17 @@ $("#deactivateMultipleBtn").click(function()
 		return id;
 	}
 
+		$('#customer_table').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
+			var b = $('input[type=checkbox]:not(.checkall)');
+			var row = $('#customer_table >tbody >tr').length;
+			var c =	b.filter(':checked').length;
+			if(c == row){
+				$('#customer_table thead tr th').find('.checkall').prop('checked', true).iCheck('update');
+			}else{
+				$('#customer_table thead tr th').find('.checkall').prop('checked', false).iCheck('update');
+			}
+		});
+
 </script>
 
 

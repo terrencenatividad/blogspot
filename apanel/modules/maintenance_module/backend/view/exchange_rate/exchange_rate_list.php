@@ -320,4 +320,15 @@ $('#items').on('change', function(){
 		return id;
 	}
 
+	$('#exchangerate_table').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
+			var b = $('input[type=checkbox]:not(.checkall)');
+			var row = $('#exchangerate_table >tbody >tr').length;
+			var c =	b.filter(':checked').length;
+			if(c == row){
+				$('#exchangerate_table thead tr th').find('.checkall').prop('checked', true).iCheck('update');
+			}else{
+				$('#exchangerate_table thead tr th').find('.checkall').prop('checked', false).iCheck('update');
+			}
+		});
+
 </script>
