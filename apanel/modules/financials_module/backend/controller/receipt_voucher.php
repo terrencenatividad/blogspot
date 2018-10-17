@@ -1579,7 +1579,7 @@ class controller extends wc_controller
 			$overpaymentacct 	=	$this->receipt_voucher->retrieveOPDetails();
 			$results 			=	array_merge($results,$overpaymentacct);
 		}
-
+		// var_dump($overpaymentacct);
 		// Retrieve business type list
 		$acc_entry_data     = array("id ind","CONCAT(segment5, ' - ', accountname) val");
 		$acc_entry_cond     = "";
@@ -1588,11 +1588,12 @@ class controller extends wc_controller
 		$dis_entry 			= $this->receipt_voucher->getValue("fintaxcode", array("salesAccount"), "fstaxcode = 'DC'");
 		$discount_code 		= isset($dis_entry[0]->salesAccount) ? $dis_entry[0]->salesAccount	: "";
 
+		$op_code 			= isset($overpaymentacct[0]->accountcode) ? $overpaymentacct[0]->accountcode : "";
 		$ui 	            = $this->ui;
 		$show_input         = $this->show_input;
 
 		$totalcredit = 0;
-		// var_dump($results);
+
 		if(!empty($results)){
 			$credit      = '0.00';
 			$count       = count($results);
@@ -1607,7 +1608,7 @@ class controller extends wc_controller
 				$ischeck 			= (!empty($results[$i]->ischeck)) 			? $results[$i]->ischeck 			: "no";
 				$isoverpayment 		= (!empty($results[$i]->is_overpayment)) 	? $results[$i]->is_overpayment 	:	"no";
 				$debit 				= (isset($results[$i]->chequeamount)) 		? $results[$i]->chequeamount : "0";
-	
+
 				if($isoverpayment == 'yes'){
 					$credit 			= number_format($overpayment,2);
 				} else {
@@ -1691,7 +1692,7 @@ class controller extends wc_controller
 		}
 
 
-		$dataArray = array( "table" => $table, "totaldebit" => number_format($totalcredit, 2),"discount_code"=>$discount_code );
+		$dataArray = array( "table" => $table, "totaldebit" => number_format($totalcredit, 2),"discount_code"=>$discount_code, "op_code"=>$op_code);
 		return $dataArray;
 	}
 

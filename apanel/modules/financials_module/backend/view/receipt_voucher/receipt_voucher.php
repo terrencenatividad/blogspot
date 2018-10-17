@@ -2875,6 +2875,8 @@ function getRVDetails(){
 		.done(function(data)
 		{	
 			var discount_code = data.discount_code;
+			var op_code 	  = data.op_code;
+
 			var total_payment = $("#paymentModal #total_payment").val();
 			$("#paymentModal").modal("hide");
 
@@ -2903,9 +2905,18 @@ function getRVDetails(){
 					$('#debit\\['+row+'\\]').val(discount_amount);
 					disable_acct_fields(row);
 				}
-				$('#entriesTable tbody tr.clone').removeClass('added_row');
 				addAmountAll("credit");
 				addAmountAll("debit");
+				$('#entriesTable tbody tr').each(function(){
+					var accountcode = $(this).find('.accountcode').val();
+					if(accountcode == op_code){
+						$(this).find('.accountcode').prop('disabled',true);
+						$(this).find('.credit').prop('readonly',true);
+						$(this).find('.debit').prop('readonly',true);
+						$(this).find('.confirm-delete').prop('disabled',true);
+					}
+				});
+				$('#entriesTable tbody tr.clone').removeClass('added_row');
 				addAmounts();
 			}	
 		});
