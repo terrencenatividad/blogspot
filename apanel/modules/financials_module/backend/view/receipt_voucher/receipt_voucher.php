@@ -2909,7 +2909,7 @@ function getRVDetails(){
 				addAmountAll("debit");
 				$('#entriesTable tbody tr').each(function(){
 					var accountcode = $(this).find('.accountcode').val();
-					if(accountcode == op_code){
+					if(accountcode!="" && accountcode == op_code){
 						$(this).find('.accountcode').prop('disabled',true);
 						$(this).find('.credit').prop('readonly',true);
 						$(this).find('.debit').prop('readonly',true);
