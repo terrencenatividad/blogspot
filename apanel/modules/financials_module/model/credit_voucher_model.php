@@ -6,6 +6,34 @@ class credit_voucher_model extends wc_model {
 		$this->log = new log();
 	}
 
+	public function saveCreditVoucher($data) {
+		$result = $this->db->setTable('creditvoucher')
+							->setValues($data)
+							->runInsert();
+
+		return $result;
+	}
+
+	public function updateCreditVoucher($data, $voucherno) {
+		$result = $this->db->setTable('creditvoucher')
+							->setValues($data)
+							->setWhere("voucherno = '$voucherno'")
+							->runUpdate();
+		
+		return $result;
+	}
+
+	
+	public function getCustomerList() {
+		$result = $this->db->setTable('partners')
+							->setFields("partnercode ind, companycode, CONCAT( first_name, ' ', last_name ),  CONCAT(partnercode,' - ',partnername) val")
+							->setWhere("partnercode != '' AND partnertype = 'customer' AND stat = 'active'")
+							->setOrderBy('partnername')
+							->runSelect()
+							->getResult();
+		return $result;
+	}
+
 	public function getCreditVoucherPagination($fields, $search, $sort, $datefilter, $source, $filter) {
 		$sort = ($sort) ? $sort : 'transactiondate desc';
 		$condition = "";
@@ -38,6 +66,40 @@ class credit_voucher_model extends wc_model {
 						->setWhere("cr_voucher = '$voucherno'")
 						->runSelect()
 						->getRow();
+
+		return $result;
+	}
+
+	public function getCVById($voucherno) {
+		$fields 				= array(
+			'transactiondate',
+			'voucherno',
+			'partner',
+            'invoiceno',
+			'referenceno',
+			'amount',
+			'receivableno',
+			'source',
+			'stat'
+		);
+		$result = $this->db->setTable('creditvoucher')
+						->setFields($fields)
+						->setWhere("voucherno = '$voucherno'")
+						->runSelect()
+						->getRow();
+		return $result;
+	}
+
+	public function getAccountsReceivablePagination($customer, $search) {
+		$condition = '';
+		if ($search) {
+			$condition .= ' AND ' . $this->generateSearch($search, array('voucherno'));
+		}
+		$result		= $this->db->setTable('accountsreceivable')
+								->setFields('voucherno, transactiondate, amount, invoiceno')
+								->setWhere("customer = '$customer' AND stat NOT IN ('cancelled','temporary')". $condition)
+								->setOrderBy('voucherno')
+								->runPagination();
 
 		return $result;
 	}

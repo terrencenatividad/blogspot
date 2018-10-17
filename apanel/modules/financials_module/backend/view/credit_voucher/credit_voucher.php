@@ -1,4 +1,4 @@
-<section class="content">
+	<section class="content">
 		<div class="box box-primary">
 			<form action="" method="post" class="form-horizontal">
 				<div class="box-body">
@@ -34,15 +34,42 @@
 										<div class="col-md-6">
 											<?php
 											echo $ui->formField('text')
-											->setLabel('Date')
+											->setLabel('Transaction Date')
 											->setSplit('col-md-4', 'col-md-8')
-											->setName('date')
-											->setId('date')
 											->setClass('datepicker-input')
+											->setAttribute(array('readonly' => ''))
 											->setAddon('calendar')
-											->setValue($date)
+											->setName('transactiondate')
+											->setId('transactiondate')
+											->setValue($transactiondate)
 											->setValidation('required')
-											//->setAttribute(array('readonly'=>'','data-date-start-date'=>$close_date))
+											->draw($show_input);
+											?>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<?php
+											echo $ui->formField('dropdown')
+											->setLabel('Customer')
+											->setSplit('col-md-4', 'col-md-8')
+											->setPlaceholder('Select Customer')
+											->setName('customer')
+											->setId('customer')
+											->setValue($partnername)
+											->setList($customer_list)
+											->setValidation('required')
+											->draw($show_input);
+											?>
+										</div>
+										<div class="col-md-6">
+											<?php
+											echo $ui->formField('text')
+											->setLabel('Reference')
+											->setSplit('col-md-4', 'col-md-8')
+											->setName('referenceno')
+											->setId('referenceno')
+											->setValue($referenceno)
 											->draw($show_input);
 											?>
 										</div>
@@ -51,60 +78,48 @@
 										<div class="col-md-6">
 											<?php
 											echo $ui->formField('text')
-											->setLabel('Reference ')
+											->setLabel('Receivable No.')
 											->setSplit('col-md-4', 'col-md-8')
-											->setName('reference')
-											->setId('reference')
-											->setValue($reference)
-											->setValidation('required')
+											->setPlaceholder('Select Account Receivable')
+											->setName('receivableno')
+											->setId('receivableno')
+											->setAttribute(array('readonly'))
+											->setAddon('search')
+											->setValue($receivableno)
 											->draw($show_input);
 											?>
 										</div>
 										<div class="col-md-6">
 											<?php
-											echo $ui->formField('textarea')
-											->setLabel('Notes')
+											echo $ui->formField('text')
+											->setLabel('Amount')
+											->setPlaceholder('0.00')
 											->setSplit('col-md-4', 'col-md-8')
-											->setName('notes')
-											->setId('notes')
-											->setValue($notes)
+											->setName('amount')
+											->setId('amount')
+											->setValue($amount)
+											->setValidation('required')
+											->draw($show_input);
+											?>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<?php
+											echo $ui->formField('text')
+											->setLabel('Invoice No.')
+											->setPlaceholder('Sales Invoice')
+											->setSplit('col-md-4', 'col-md-8')
+											->setName('invoiceno')
+											->setId('invoiceno')
+											->setAttribute(array('readonly'))
+											->setValue($invoiceno)
 											->draw($show_input);
 											?>
 										</div>
 									</div>
 								</div>
 							</div>
-						</div>
-						<div class="box-body table-responsive no-padding">
-							<table id="tableList" class="table table-hover table-sidepad">
-								<thead>
-									<tr class="info">
-										<th class="col-xs-3">Item</th>
-										<th>Description</th>
-										<th class="col-xs-2 text-right">Amount</th>
-										<th style="width: 50px;"></th>
-									</tr>
-								</thead>
-								<tbody>
-
-								</tbody>
-								<tfoot>
-									<tr>
-										<td>
-											<?php if ($show_input): ?>
-												<button type="button" class="btn btn-link" onClick="addRefurbishDetails()">Add a New Line</button>
-											<?php endif ?>
-										</td>
-										<td>
-											<p id="error_msg" class="help-block text-red text-right"></p>
-										</td>
-										<td class="text-right">
-											<b id="total_debit" class="form-<?= ($show_input) ? 'padding' : 'control-static' ?>"></b>
-										</td>
-										<td></td>
-									</tr>
-								</tfoot>
-							</table>
 						</div>
 						<div class="box-body">
 							<hr>
@@ -132,165 +147,168 @@
 					</form>
 				</div>
 			</section>
+			<div id="ar_list_modal" class="modal fade" tabindex="-1" role="dialog">
+				<div class="modal-dialog modal-lg" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h4 class="modal-title">Accounts Receivable List</h4>
+						</div>
+						<div class="modal-body">
+							<div class="row">
+								<div class="col-md-4 col-md-offset-8">
+									<div class="input-group">
+										<input id="ar_search" class="form-control pull-right" placeholder="Search" type="text">
+										<div class="input-group-addon">
+											<i class="fa fa-search"></i>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="modal-body no-padding">
+							<table id="ar_tableList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
+								<thead>
+									<tr class="info">
+										<th class="col-xs-4">AR No.</th>
+										<th class="col-xs-4">Transaction Date</th>
+										<th class="col-xs-4 text-right">Amount</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td colspan="4" class="text-center">Loading Items</td>
+									</tr>
+								</tbody>
+							</table>
+							<div id="pagination"></div>
+						</div>
+					</div>
+				</div>
+			</div>
 			<script>
-				var delete_row		= {};
-				var ajax_call		= '';
-				var ajax_call2		= '';
-				var min_row			= 2;
-				function addRefurbishDetails(details, index) {
-					var details = details || {item: '', description: '', detail_amount: ''};
-					var row = `
-					<tr>
-					<td>
-					<?php
-					$value = ($show_input) ? '' : '<span id="temp_view_` + index + `"></span>';
-					echo $ui->formField('text')
-					->setPlaceholder('Item')
-					->setSplit('', 'col-md-12')
-					->setName('item[]')
-					->setValidation('required')
-					->setValue('` + details.item + `')
-					->draw($show_input);
-					?>
-					</td>
-					<td>
-					<?php
-					echo $ui->formField('text')
-					->setPlaceholder('Description')
-					->setSplit('', 'col-md-12')
-					->setName('description[]')
-					->setValue('` + details.description + `')
-					->draw($show_input);
-					?>
-					</td>
-					<td class="text-right amount_column">
-					<?php
-					echo $ui->formField('text')
-					->setSplit('', 'col-md-12')
-					->setId('detail_amount')
-					->setName('detail_amount[]')
-					->setClass('text-right')
-					->setValidation('required decimal')
-					->setValue('` + (parseFloat(details.detail_amount) || 0).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + `')
-					->draw($show_input);
-					?>
-					</td>
-					<td>
-					<?php if ($show_input): ?>
-						<button type="button" class="btn btn-danger delete_row" data-id="222" style="outline:none;">
-						<span class="glyphicon glyphicon-trash"></span>
-						</button>
-					<?php endif ?>
-					</td>
-					</tr>
-					`;
-					$('#tableList tbody').append(row);
-					}
-					var refurbish_details = <?=$refurbish_details?>;
-					function displayDetails(refurbish_details) {
-						$('#tableList tbody').html('');
-						if (refurbish_details.length > 0) {
-							refurbish_details.forEach(function(refurbish_details, index) {
-								addRefurbishDetails(refurbish_details, index);
-							});
-						} else if (min_row == 0) {
-							$('#tableList tbody').append(`
-								<tr>
-								<td colspan="5" class="text-center"><b>Select Packing No.</b></td>
-								</tr>
-								`);
+				<?php if ($show_input): ?>
+					var ajax		= {};
+					var ajax_call	= '';
+					$('#customer').on('change', function() {
+						$('#invoiceno').val('');
+						$('#receivableno').val('');
+					});
+
+					$('#receivableno').on('focus', function() {
+						var customer = $('#customer').val();
+						ajax.customer = customer;
+						if (customer == '') {
+							$('#warning_modal').modal('show').find('#warning_message').html('Please Select a Customer');
+							$('#customer').trigger('blur');
+						} else {
+							$('#ar_tableList tbody').html(`<tr>
+								<td colspan="4" class="text-center">Loading Items</td>
+							</tr>`);
+							$('#pagination').html('');
+							getARList();
 						}
-						if (refurbish_details.length < min_row) {
-							for (var x = refurbish_details.length; x < min_row; x++) {
-								addRefurbishDetails('', x);
+					});
+					$('#ar_list_modal #ar_search').on('input', function() {
+						ajax.page = 1;
+						ajax.search = $(this).val();
+						getARList();
+					});
+					function getARList() {
+						ajax.limit = 5;
+						$('#ar_list_modal').modal('show');
+						$('#invoice_list_modal').modal('hide');
+						if (ajax_call != '') {
+							ajax_call.abort();
+						}
+						ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_ar_list', ajax, function(data) {
+							$('#ar_tableList tbody').html(data.table);
+							$('#pagination').html(data.pagination);
+							if (ajax.page > data.page_limit && data.page_limit > 0) {
+								ajax.page = data.page_limit;
+								getList();
 							}
-						}
+						});
 					}
-					displayDetails(refurbish_details);
-					<?php if ($show_input): ?>
-						function deleteVoucherDetails(id) {
-							delete_row.remove();
-							if ($('#tableList tbody tr').length <= 1) {
-								addRefurbishDetails();
+					$('#ar_tableList').on('click', 'tr[data-id]', function() {
+						var rno = $(this).attr('data-id');
+						var ino = $(this).attr('data-invno');
+						$('#receivableno').val(rno).trigger('blur');
+						$('#invoiceno').val(ino).trigger('blur');
+						$('#ar_list_modal').modal('hide');
+					});
+
+					$('form').on('click', '[id="save"]', function(e) {
+						e.preventDefault();
+						var form_element = $(this).closest('form');
+						var submit_data = '&submit=' + $(this).attr('id');
+						form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+							if (form_element.closest('form').find('.form-group.has-error').length == 0) {
+								$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' + '&finalized=finalized' + submit_data, function(data) {
+									if (data.success) {
+										$('#delay_modal').modal('show');
+										setTimeout(function() {							
+											window.location = data.redirect;						
+										}, 1000)
+									}
+								});
+							} else {
+								form_element.closest('form').find('.form-group.has-error').first().find('input, textarea, select').focus();
 							}
-						}
-						$('body').on('click', '.delete_row', function() {
-							delete_row = $(this).closest('tr');
-						});
-						$(function() {
-							linkDeleteToModal('.delete_row', 'deleteVoucherDetails');
-						});
-						$('form').on('click', '[id="save"]', function(e) {
-							e.preventDefault();
-							var form_element = $(this).closest('form');
-							var submit_data = '&submit=' + $(this).attr('id');
-							form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
-								if (form_element.closest('form').find('.form-group.has-error').length == 0) {
-									$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' + '&finalized=finalized' + submit_data, function(data) {
-										if (data.success) {
-											$('#delay_modal').modal('show');
-											setTimeout(function() {							
-												window.location = data.redirect;						
-											}, 1000)
-										}
-									});
-								} else {
-									form_element.closest('form').find('.form-group.has-error').first().find('input, textarea, select').focus();
+					});
+					$('form').on('click', '[id="save_new"]', function(e) {
+						e.preventDefault();
+						var form_element = $(this).closest('form');
+						var submit_data = '&submit=' + $(this).attr('id');
+						form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+						if (form_element.closest('form').find('.form-group.has-error').length == 0) {
+							$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' + '&finalized=finalized' + submit_data, function(data) {
+								if (data.success) {
+									$('#delay_modal').modal('show');
+									setTimeout(function() {							
+										window.location = data.redirect;						
+									}, 1000)
 								}
-						});
-						$('form').on('click', '[id="save_new"]', function(e) {
-							e.preventDefault();
-							var form_element = $(this).closest('form');
-							var submit_data = '&submit=' + $(this).attr('id');
-							form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
-							if (form_element.closest('form').find('.form-group.has-error').length == 0) {
-								$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' + '&finalized=finalized' + submit_data, function(data) {
-									if (data.success) {
-										$('#delay_modal').modal('show');
-										setTimeout(function() {							
-											window.location = data.redirect;						
-										}, 1000)
-									}
-								});
-							} else {
-								form_element.closest('form').find('.form-group.has-error').first().find('input, textarea, select').focus();
-							}
-						});
-						$('form').on('click', '[id="save_exit"]', function(e) {
-							e.preventDefault();
-							var form_element = $(this).closest('form');
-							var submit_data = '&submit=' + $(this).attr('id');
-							form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
-							if (form_element.closest('form').find('.form-group.has-error').length == 0) {
-								$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' + '&finalized=finalized' + submit_data, function(data) {
-									if (data.success) {
-										$('#delay_modal').modal('show');
-										setTimeout(function() {							
-											window.location = data.redirect;						
-										}, 1000)
-									}
-								});
-							} else {
-								form_element.closest('form').find('.form-group.has-error').first().find('input, textarea, select').focus();
-							}
-						});
-						$('form').on('click', '[type="submit"]', function(e) {
-							e.preventDefault();
-							var form_element = $(this).closest('form');
-							var submit_data = '&submit=' + $(this).attr('id');
-							form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
-							if (form_element.closest('form').find('.form-group.has-error').length == 0) {
-								$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' + '&finalized=finalized' + submit_data, function(data) {
-									if (data.success) {
-										$('#delay_modal').modal('show');
-										setTimeout(function() {							
-											window.location = data.redirect;						
-										}, 1000)
-									}
-								});
-							} else {
-								form_element.closest('form').find('.form-group.has-error').first().find('input, textarea, select').focus();
-							}
-						});
-						<?php endif ?>
-					</script>
+							});
+						} else {
+							form_element.closest('form').find('.form-group.has-error').first().find('input, textarea, select').focus();
+						}
+					});
+					$('form').on('click', '[id="save_exit"]', function(e) {
+						e.preventDefault();
+						var form_element = $(this).closest('form');
+						var submit_data = '&submit=' + $(this).attr('id');
+						form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+						if (form_element.closest('form').find('.form-group.has-error').length == 0) {
+							$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' + '&finalized=finalized' + submit_data, function(data) {
+								if (data.success) {
+									$('#delay_modal').modal('show');
+									setTimeout(function() {							
+										window.location = data.redirect;						
+									}, 1000)
+								}
+							});
+						} else {
+							form_element.closest('form').find('.form-group.has-error').first().find('input, textarea, select').focus();
+						}
+					});
+					$('form').on('click', '[type="submit"]', function(e) {
+						e.preventDefault();
+						var form_element = $(this).closest('form');
+						var submit_data = '&submit=' + $(this).attr('id');
+						form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+						if (form_element.closest('form').find('.form-group.has-error').length == 0) {
+							$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' + '&finalized=finalized' + submit_data, function(data) {
+								if (data.success) {
+									$('#delay_modal').modal('show');
+									setTimeout(function() {							
+										window.location = data.redirect;						
+									}, 1000)
+								}
+							});
+						} else {
+							form_element.closest('form').find('.form-group.has-error').first().find('input, textarea, select').focus();
+						}
+					});
+				<?php endif ?>
+			</script>
