@@ -353,8 +353,8 @@
 									$uom  				= (empty($quotation_no)) ? $details[$i]->issueuom 	: 	$details[$i]->issueuom;
 									$warehouse_code		= (empty($quotation_no)) ? $details[$i]->warehouse 	: 	'';
 									$warehouse_name		= (empty($quotation_no)) ? $details[$i]->description: 	'';
-									$itemdiscount  		= $details[$i]->discountamount;
-									$discountedamount 	= $details[$i]->discountedamount;
+									$itemdiscount  		= (isset($details[$i]->discountamount)) ? $details[$i]->discountamount : 0;
+									$discountedamount 	= (isset($details[$i]->discountedamount))? $details[$i]->discountedamount : 0;
 									
 									//itemcode, detailparticular, unitprice, issueqty, taxcode, taxrate, amount
 
