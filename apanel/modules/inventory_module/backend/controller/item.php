@@ -324,7 +324,7 @@ class controller extends wc_controller {
 						'typeid'				=> $this->getValueCSV('Item Type', $row, 'required', $errors, 'getItemTypeList'),
 						'classid'				=> $this->getValueCSV('Item Class', $row, 'required', $errors, 'getItemClassList', 'Item Class Parent'),
 						'weight'				=> $this->getValueCSV('Weight', $row, 'decimal', $errors),
-						'weight_type'			=> $this->getValueCSV('Weight Type', $row, '', $errors, 'getWeightTypeList'),
+						'weight_type'			=> $this->getValueCSV('Weight Type', $row, '', $errors, 'getWeightTypeList', 'Weight'),
 						'uom_base'				=> $this->getValueCSV('Base UOM', $row, 'required', $errors, 'getUOMList'),
 						'uom_purchasing'		=> $this->getValueCSV('Purchasing UOM', $row, 'required', $errors, 'getUOMList'),
 						'purchasing_conv'		=> $this->getValueCSV('Converted Purchasing UOM', $row, 'required integer', $errors),
