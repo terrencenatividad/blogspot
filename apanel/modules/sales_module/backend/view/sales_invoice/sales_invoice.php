@@ -563,6 +563,7 @@
 													->setName('vatable_sales')
 													->setId('vatable_sales')
 													->setClass("input_label text-right remove-margin")
+													->setAttribute(array('readOnly'=>"readOnly"))
 													->setValue(number_format($vatable_sales,2))
 													->draw($show_input);
 										?>
@@ -585,6 +586,7 @@
 													->setSplit('', 'col-md-12')
 													->setName('vatexempt_sales')
 													->setId('vatexempt_sales')
+													->setAttribute(array('readOnly'=>"readOnly"))
 													->setClass("input_label text-right remove-margin")
 													->setValue(number_format($vatexempt_sales,2))
 													->draw($show_input);
@@ -608,7 +610,7 @@
 													->setName('total_sales')
 													->setId('total_sales')
 													->setClass("input_label text-right")
-													->setAttribute(array("maxlength" => "40"))
+													->setAttribute(array("maxlength" => "40","readOnly"=>"readOnly"))
 													->setValue(number_format($total_sales,2))
 													->draw($show_input);
 										?>
@@ -645,6 +647,7 @@
 														->setName('discountamount')
 														->setId('discountamount')
 														->setClass("input_label text-right")
+														->setAttribute(array('readOnly'=>"readOnly"))
 														->setValue(number_format($discountamount,2) . "" . $percentage )
 														->draw($show_input);
 											?>
@@ -669,7 +672,7 @@
 													->setName('total_tax')
 													->setId('total_tax')
 													->setClass("input_label text-right")
-													->setAttribute(array("maxlength" => "40"))
+													->setAttribute(array("maxlength" => "40","readOnly"=>"readOnly"))
 													->setValue(number_format($total_tax,2))
 													->draw($show_input);
 										?>
@@ -692,7 +695,7 @@
 													->setName('total')
 													->setId('total')
 													->setClass("input_label text-right")
-													->setAttribute(array("maxlength" => "40"))
+													->setAttribute(array("maxlength" => "40","readOnly"=>"readOnly"))
 													->setValue(number_format($total,2))
 													->draw($show_input);
 										?>
