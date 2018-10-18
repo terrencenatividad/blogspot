@@ -85,7 +85,7 @@
 										'style' => 'width: 100px'
 									)
 								)
-								->addHeader('Traction Date', array('class' => 'col-md-2'), 'sort', 'b.transactiondate')
+								->addHeader('Transaction Date', array('class' => 'col-md-2'), 'sort', 'b.transactiondate')
 								->addHeader('Billing No.', array('class' => 'col-md-3'), 'sort', 'b.voucherno', 'desc')
 								->addHeader('Customer', array('class' => 'col-md-3'), 'sort', 'customer')
 								->addHeader('Amount', array('class' => 'col-md-2 text-right'), 'sort', 'b.netamount')
