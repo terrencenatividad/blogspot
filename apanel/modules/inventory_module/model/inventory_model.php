@@ -343,6 +343,21 @@ class inventory_model extends wc_model {
 			$this->table_detail = 'purchasereturn_details';
 			$this->quantity_field = 'convreceiptqty';
 			$this->inventory_movement = -1;
+		} else if ($type == 'Beginning Balance') {
+			$this->table = 'inv_beg_balance';
+			$this->table_detail = 'inv_beg_balance';
+			$this->quantity_field = 'quantity';
+			$this->inventory_movement = 1;
+		} else if ($type == 'Stock Transfer') {
+			$this->table = 'stock_approval';
+			$this->table_detail = 'stock_approval_details';
+			$this->quantity_field = 'qtytransferred';
+			$this->inventory_movement = 1;
+		} else if ($type == 'Inventory Adjustment') {
+			$this->table = 'inventoryadjustments_header';
+			$this->table_detail = 'inventoryadjustments';
+			$this->quantity_field = 'increase - decrease';
+			$this->inventory_movement = 1;
 		}
 		$this->inventory_log_previous = array();
 
@@ -353,12 +368,40 @@ class inventory_model extends wc_model {
 		return $this;
 	}
 
+	private function getValues() {
+		if ($this->log_type == 'Stock Transfer') {
+			$source			= $this->db->setTable($this->table_detail . ' d')
+										->innerJoin($this->table . ' h ON d.voucherno = h.voucherno AND d.companycode = h.companycode')
+										->setFields(array('d.itemcode', 'h.source', 'd.qtytransferred * - 1', 'qtytransferred'))
+										->setWhere("voucherno = '{$this->voucherno}'")
+										->buildSelect();
+
+			$destination	= $this->db->setTable($this->table_detail . ' d')
+										->innerJoin($this->table . ' h ON d.voucherno = h.voucherno AND d.companycode = h.companycode')
+										->setFields(array('d.itemcode', 'h.source', 'd.qtytransferred', ' qtytransferred'))
+										->setWhere("voucherno = '{$this->voucherno}'")
+										->buildSelect();
+
+			$query = $source . ' UNION ' . $destination;
+
+			$result = $this->db->setTable("($query) a")
+								->setFields('*')
+								->runSelect()
+								->getResult();
+
+		} else {
+			$result = $this->db->setTable($this->table_detail)
+								->setFields($this->fields)
+								->setWhere("voucherno = '{$this->voucherno}'")
+								->runSelect()
+								->getResult();
+		}
+
+		return $result;
+	}
+
 	public function preparePreviousValues() {
-		$result = $this->db->setTable($this->table_detail)
-							->setFields($this->fields)
-							->setWhere("voucherno = '{$this->voucherno}'")
-							->runSelect()
-							->getResult();
+		$result = $this->getValues();
 
 		foreach ($result as $row) {
 			if ( ! isset($this->inventory_log_previous[$row->itemcode])) {
@@ -374,11 +417,7 @@ class inventory_model extends wc_model {
 	}
 
 	public function computeValues() {
-		$result = $this->db->setTable($this->table_detail)
-							->setFields($this->fields)
-							->setWhere("voucherno = '{$this->voucherno}'")
-							->runSelect()
-							->getResult();
+		$result = $this->getValues();
 
 		$current_values = array();
 
