@@ -65,6 +65,25 @@ class financial_model extends wc_model {
 
 		return $result;
 	}
+		
+	public function generateBillAR($voucherno) {
+		$this->voucherno			= $voucherno;
+		$this->header_table			= 'accountsreceivable';
+		$this->detail_table			= 'ar_details';
+		$this->vouchertype			= 'AR';
+
+		$this->source_header_table	= ($this->source_header_table) ? $this->source_header_table : 'billing';
+		$this->source_detail_table	= ($this->source_detail_table) ? $this->source_detail_table : 'billing_details';
+
+		$this->initSales();
+
+		$result = ( ! empty($this->source_header_table) && ! empty($this->source_detail_table));
+		if ($result) {
+			$result = $this->generateAccount();
+		}
+
+		return $result;
+	}
 
 	public function generateDM($voucherno) {
 		$this->voucherno			= $voucherno;
