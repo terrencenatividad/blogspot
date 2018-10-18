@@ -4979,19 +4979,19 @@ function set_total_credits_amt(){
 	$("#applied_cred_amt").html(total);
 }
 
-$("#entriesTable").on('ifToggled','.wtax',function() {
-	$('#tax_amount').val('');
-	row = $(this).closest('tr');
-});
+// $("#entriesTable").on('ifToggled','.wtax',function() {
+// 	$('#tax_amount').val('');
+// 	row = $(this).closest('tr');
+// });
 
-$("#entriesTable").on('click', '.edit-button', function() {
-	$('#tax_amount').val($(this).attr('data-amount'));
-	var accountcode = $(this).closest('tr').find('.accountcode').val();
-	row = $(this).closest('tr');
-	var taxcode = $(this).closest('tr').find('.taxcode').val();
-	selected_tax_account = taxcode;
-	get_coa(accountcode);
-});
+// $("#entriesTable").on('click', '.edit-button', function() {
+// 	$('#tax_amount').val($(this).attr('data-amount'));
+// 	var accountcode = $(this).closest('tr').find('.accountcode').val();
+// 	row = $(this).closest('tr');
+// 	var taxcode = $(this).closest('tr').find('.taxcode').val();
+// 	selected_tax_account = taxcode;
+// 	get_coa(accountcode);
+// });
 
 $('#entriesTable').on('change', '.accountcode', function(){
 	row = $(this).closest('tr')
@@ -4999,15 +4999,15 @@ $('#entriesTable').on('change', '.accountcode', function(){
 	get_coa(account);
 });
 
-$('#entriesTable .taxcode').each(function(){
-	var acc = $(this).val();
-	var tax_amt = $(this).closest('tr').find('.taxbase_amount').val();
-	if (acc != '' ){
-		$(this).closest('tr').find('.checkbox-select').hide();
-		$(this).closest('tr').find('.edit-button').show().attr('data-amount', tax_amt);
-		$('#tax_account').val(acc);
-	}
-});
+// $('#entriesTable .taxcode').each(function(){
+// 	var acc = $(this).val();
+// 	var tax_amt = $(this).closest('tr').find('.taxbase_amount').val();
+// 	if (acc != '' ){
+// 		$(this).closest('tr').find('.checkbox-select').hide();
+// 		$(this).closest('tr').find('.edit-button').show().attr('data-amount', tax_amt);
+// 		$('#tax_account').val(acc);
+// 	}
+// });
 
 $('#payableForm').on('click','#update_ap_acct',function(e){
 	e.preventDefault();
@@ -5037,6 +5037,8 @@ $('#payableForm').on('click','#update_ap_acct',function(e){
 });
 
 $('#payableForm').on('ifChecked', '.cwt', function(){
+	var total_payment = $("#paymentModal #total_payment").val();
+	$('#tax_amount').val(total_payment);
 	$('#atcModal').modal('show');	
 });
 
@@ -5077,7 +5079,6 @@ $('#tax_apply').click(function(){
 
 	$('#cwtdiv').addClass('hidden');
 	$('#editdiv').removeClass('hidden');
-
 	
 	$('#atcModal').modal('hide');
 });
@@ -5096,10 +5097,9 @@ $('#tax_apply_edit').click(function(){
 	});
 });
 
-$('.tax_amount').on('change', function(){
-	var accs = $(this).val();
-	acc = addCommas(parseFloat(accs).toFixed(2));
-	$('.tax_amount').val(acc);
+	
+$('#atc_cancel').on('click', function(){
+	$('.cwt').iCheck('uncheck');
 });
 
 $('#creditvoucherModal').on('shown.bs.modal',function(){
@@ -5108,11 +5108,5 @@ $('#creditvoucherModal').on('shown.bs.modal',function(){
 
 $('#TagCreditsBtn').on('click',function(){
 	set_total_credits_amt();
-});
-
-$('.tax_amount').on('change', function(){
-	var accs = $(this).val();
-	acc = addCommas(parseFloat(accs).toFixed(2));
-	$('.tax_amount').val(acc);
 });
 </script>
