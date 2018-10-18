@@ -352,7 +352,7 @@
 					$table .= '<td>' . $row->accountno . '</td>';
 					$table .= '<td id="booknumber">' . $book_date. ' - ' .$row->booknumber . '</td>';
 					$table .= '<td id="start_check" class="start_check" value="' . $row->firstchequeno. '-' .$row->lastchequeno. '">' . $row->firstchequeno. '-' .$row->lastchequeno. '</td>';
-					$table .= '<td>' . $next. '</td>';
+					$table .= '<td class="next">' . $next. '</td>';
 					$table .= '<td>' . $check_stat. '</td>';
 					$table .= '</tr>';
 
