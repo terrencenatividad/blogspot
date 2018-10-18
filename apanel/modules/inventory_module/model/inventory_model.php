@@ -386,7 +386,7 @@ class inventory_model extends wc_model {
 
 			$result = $this->db->setTable("($query) a")
 								->setFields('*')
-								->runSelect()
+								->runSelect(false)
 								->getResult();
 
 		} else {
