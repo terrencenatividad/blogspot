@@ -601,7 +601,7 @@ $('#checkForm #firstchequeno, #lastchequeno').on('blur' ,function(){
 		var start = parseFloat(result[0]);
 		var end = parseFloat(result[1]);
 		error_message 	=	"<b>not valid</b>";
-		if (((start <= first_number && end >= first_number) || (start <= end_number && end >= end_number)) && ((start != old_first || end_number != old_last)) ){ 
+		if (((start <= first_number && end >= first_number) || (start <= end_number && end >= end_number)) && ((start != old_first && end != old_last)) ){ 
 			$('#modal_checker_on_range').modal('show');
 			$('#msg1').html("Number entered is within the series of existing checks");
 			$('#checkForm #inner_input').addClass("has-error").find('p.help-block').html(error_message);
