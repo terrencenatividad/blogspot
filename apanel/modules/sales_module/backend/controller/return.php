@@ -301,10 +301,11 @@ class controller extends wc_controller {
 			$result = $this->sales_model->deleteReturn($delete_id);
 		}
 		if ($result && $this->inventory_model) {
-			$this->inventory_model->prepareInventoryLog('Sales Return', $voucherno)
+			foreach ($delete_id as $voucherno) {
+				$this->inventory_model->prepareInventoryLog('Sales Return', $voucherno)
 										->computeValues()
 										->logChanges('Cancelled');
-
+			}
 			$this->inventory_model->generateBalanceTable();
 		}
 		return array(
