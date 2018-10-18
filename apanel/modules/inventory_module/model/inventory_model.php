@@ -371,15 +371,15 @@ class inventory_model extends wc_model {
 	private function getValues() {
 		if ($this->log_type == 'Stock Transfer') {
 			$source			= $this->db->setTable($this->table_detail . ' d')
-										->innerJoin($this->table . ' h ON d.voucherno = h.voucherno AND d.companycode = h.companycode')
+										->innerJoin($this->table . ' h ON d.stocktransferno = h.stocktransferno AND d.companycode = h.companycode')
 										->setFields(array('d.itemcode', 'h.source', 'd.qtytransferred * - 1', 'qtytransferred'))
-										->setWhere("voucherno = '{$this->voucherno}'")
+										->setWhere("h.stocktransferno = '{$this->voucherno}'")
 										->buildSelect();
 
 			$destination	= $this->db->setTable($this->table_detail . ' d')
-										->innerJoin($this->table . ' h ON d.voucherno = h.voucherno AND d.companycode = h.companycode')
+										->innerJoin($this->table . ' h ON d.stocktransferno = h.stocktransferno AND d.companycode = h.companycode')
 										->setFields(array('d.itemcode', 'h.source', 'd.qtytransferred', ' qtytransferred'))
-										->setWhere("voucherno = '{$this->voucherno}'")
+										->setWhere("h.stocktransferno = '{$this->voucherno}'")
 										->buildSelect();
 
 			$query = $source . ' UNION ' . $destination;
