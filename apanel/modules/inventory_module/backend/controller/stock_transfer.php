@@ -635,6 +635,11 @@ class controller extends wc_controller
 		$data['stocktransferno']	= $sta_no;
 		$result						= $this->stock_transfer->saveStockTransferApproval($data, $data2);
 		if ($result && $this->inventory_model) {
+			$this->inventory_model->prepareInventoryLog('Stock Transfer', $sta_no)
+									->setDetails($data['approved_by'])
+									->computeValues()
+									->logChanges();
+
 			$this->inventory_model->setReference($sta_no)
 								->setDetails($data['approved_by'])
 								->generateBalanceTable();
@@ -657,12 +662,18 @@ class controller extends wc_controller
 		$voucherno					= $data['stocktransferno'];
 		$data2						= $this->getItemDetails();
 		$data2						= $this->cleanData($data2);
+
+		$this->inventory_model->prepareInventoryLog('Stock Transfer', $voucherno)
+								->preparePreviousValues();
+
 		$result						= $this->stock_transfer->updateStockApproval($data, $data2, $voucherno);
 	
 		if ($result && $this->inventory_model) {
-			$this->inventory_model->setReference($voucherno)
-								->setDetails($data['approved_by'])
-								->generateBalanceTable();
+			$this->inventory_model->computeValues()
+									->setDetails($data['approved_by'])
+									->logChanges();
+
+			$this->inventory_model->generateBalanceTable();
 		}
 		return array(
 			'redirect'	=> MODULE_URL,
@@ -718,10 +729,16 @@ class controller extends wc_controller
 		{
 			$msg = "success";
 			$this->logs->saveActivity("Received Stock Transfer [$stocktransferno] ");
+			
 			if ( $this->inventory_model ) {
+				$this->inventory_model->prepareInventoryLog('Stock Transfer', $stocktransferno)
+									->setDetails($approved_by)
+									->computeValues()
+									->logChanges();
+
 				$this->inventory_model->setReference($stocktransferno)
-								->setDetails($approved_by)
-								->generateBalanceTable();
+									->setDetails($approved_by)
+									->generateBalanceTable();
 			}
 		}
 		else
@@ -849,11 +866,14 @@ class controller extends wc_controller
 	
 		if ($delete_id) {
 			$this->stock_transfer->deleteStockTransferApproval($delete_id);
-			$this->inventory_model->setReference($delete_id)
-								->setDetails($approved_by)
-								->generateBalanceTable();
 		}
-		
+		if ($result && $this->inventory_model) {
+			$this->inventory_model->prepareInventoryLog('Stock Transfer', $delete_id)
+										->computeValues()
+										->logChanges('Cancelled');
+
+			$this->inventory_model->generateBalanceTable();
+		}
 		return array(
 			'msg'	=> ''
 		);

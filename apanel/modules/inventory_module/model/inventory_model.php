@@ -141,6 +141,24 @@ class inventory_model extends wc_model {
 								->runSelect()
 								->getResult();
 
+		if (empty($inv_check)) {
+			$check_transactions = $this->db->setTable("($inner_query) i")
+											->setFields('*')
+											->setLimit(1)
+											->runSelect()
+											->getRow();
+
+			if (empty($check_transactions)) {
+				$this->db->setTable('invdtlfile')
+							->setWhere('companycode IS NOT NULL')
+							->runDelete();
+
+				$this->db->setTable('invfile')
+							->setWhere('companycode IS NOT NULL')
+							->runDelete();
+			}
+		}
+
 		if ($inv_check) {
 			$result = $this->db->setTable('invdtlfile')
 							->setWhere('companycode IS NOT NULL')
@@ -386,7 +404,7 @@ class inventory_model extends wc_model {
 
 			$result = $this->db->setTable("($query) a")
 								->setFields('*')
-								->runSelect()
+								->runSelect(false)
 								->getResult();
 
 		} else {

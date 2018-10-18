@@ -318,9 +318,9 @@ class controller extends wc_controller {
 				$this->inventory_model->prepareInventoryLog('Delivery Receipt', $voucherno)
 										->computeValues()
 										->logChanges('Cancelled');
-				$this->inventory_model->generateBalanceTable();
 				$this->delivery_model->createClearingEntries($voucherno);
 			}
+			$this->inventory_model->generateBalanceTable();
 		}
 		return array(
 			'success' => $result
