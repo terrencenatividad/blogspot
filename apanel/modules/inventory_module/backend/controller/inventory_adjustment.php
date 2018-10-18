@@ -113,6 +113,11 @@ class controller extends wc_controller {
 			$msg = "success";
 			$this->log->saveActivity("Adjusted [$itemcode] with $value ");
 			if ( $this->inventory_model ) {
+				$this->inventory_model->prepareInventoryLog('Inventory Adjustment', $voucher)
+									->setDetails($this->name)
+									->computeValues()
+									->logChanges();
+
 				$this->inventory_model->setReference($voucher)
 										->setDetails($this->name)
 										->generateBalanceTable();
@@ -463,6 +468,11 @@ class controller extends wc_controller {
 						}
 
 						if ( $this->inventory_model ) {
+							$this->inventory_model->prepareInventoryLog('Beginning Balance', $voucherno)
+													->setDetails($this->name)
+													->computeValues()
+													->logChanges();
+
 							$this->inventory_model->setReference($voucherno)
 													->setDetails($this->name)
 													->generateBalanceTable();
