@@ -105,9 +105,9 @@ class delivery_receipt_model extends wc_model {
 
 		if ( ! $exist) {
 			$seq					= new seqcontrol();
-			$jvvoucherno			= $seq->getValue('IT');
+			$jvvoucherno			= $seq->getValue('JV');
 			$data['voucherno']		= $jvvoucherno;
-			$data['transtype']		= 'IT';
+			$data['transtype']		= 'JV';
 			$data['currencycode']	= 'PHP';
 			$data['exchangerate']	= '1';
 		}

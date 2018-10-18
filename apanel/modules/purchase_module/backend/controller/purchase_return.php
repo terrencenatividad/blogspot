@@ -249,10 +249,13 @@ class controller extends wc_controller {
 		$seq						= new seqcontrol();
 		$data['voucherno']			= $seq->getValue('PRTN');
 		$result						= $this->purchase_model->savePurchaseReturn($data, $data2);
-		// if ($result && $this->financial_model) {
-		// 	$this->financial_model->generateCM($data['voucherno']);
-		// }
+	
 		if ($result && $this->inventory_model) {
+			$this->inventory_model->prepareInventoryLog('Purchase Return', $data['voucherno'])
+									->setDetails($data['vendor'])
+									->computeValues()
+									->logChanges();
+
 			$this->inventory_model->setReference($data['voucherno'])
 									->setDetails($data['vendor'])
 									->generateBalanceTable();
@@ -276,14 +279,18 @@ class controller extends wc_controller {
 		$voucherno					= $this->input->post('voucherno_ref');
 		$data2						= $this->getItemDetails();
 		$data2						= $this->cleanData($data2);
+
+		$this->inventory_model->prepareInventoryLog('Purchase Return', $voucherno)
+								->preparePreviousValues();
+
 		$result						= $this->purchase_model->updatePurchaseReturn($data, $data2, $voucherno);
-		// if ($result && $this->financial_model) {
-		// 	$this->financial_model->generateCM($voucherno);
-		// }
+		
 		if ($result && $this->inventory_model) {
-			$this->inventory_model->setReference($voucherno)
+			$this->inventory_model->computeValues()
 									->setDetails($data['vendor'])
-									->generateBalanceTable();
+									->logChanges();
+
+			$this->inventory_model->generateBalanceTable();
 		}
 		return array(
 			'redirect'	=> MODULE_URL,
@@ -296,12 +303,12 @@ class controller extends wc_controller {
 		if ($delete_id) {
 			$result = $this->purchase_model->deletePurchaseReturn($delete_id);
 		}
-		// if ($result && $this->financial_model) {
-		// 	foreach ($delete_id as $voucherno) {
-		// 		$this->financial_model->cancelDM($voucherno);
-		// 	}
-		// }
 		if ($result && $this->inventory_model) {
+			foreach ($delete_id as $voucherno) {
+				$this->inventory_model->prepareInventoryLog('Purchase Return', $voucherno)
+										->computeValues()
+										->logChanges('Cancelled');
+			}
 			$this->inventory_model->generateBalanceTable();
 		}
 		return array(

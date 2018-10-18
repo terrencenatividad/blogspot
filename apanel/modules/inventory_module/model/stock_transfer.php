@@ -258,8 +258,8 @@
 		}
 
 		private function getAmounts(&$data, &$data2) {
-			// $this->cleanNumber($data, array('amount'));
-			$this->cleanNumber($data2, array('qtytransferred', 'price'));
+			$this->cleanNumber($data, array('total_amount'));
+			$this->cleanNumber($data2, array('qtytransferred', 'price', 'ohqty', 'qtytoapply','amount'));
 			$data2['amount'] = array();
 			foreach ($data2['itemcode'] as $key => $value) {
 				// $data2['convissueqty'][$key]	= $data2['issueqty'][$key] * $data2['conversion'][$key];

@@ -258,6 +258,11 @@ class controller extends wc_controller {
 		$this->delivery_model->createClearingEntries($data['voucherno']);
 
 		if ($result && $this->inventory_model) {
+			$this->inventory_model->prepareInventoryLog('Delivery Receipt', $data['voucherno'])
+									->setDetails($data['customer'])
+									->computeValues()
+									->logChanges();
+
 			$this->inventory_model->setReference($data['voucherno'])
 									->setDetails($data['customer'])
 									->generateBalanceTable();
@@ -282,14 +287,20 @@ class controller extends wc_controller {
 		$voucherno					= $this->input->post('voucherno_ref');
 		$data2						= $this->getItemDetails();
 		$data2						= $this->cleanData($data2);
+
+		$this->inventory_model->prepareInventoryLog('Delivery Receipt', $voucherno)
+								->preparePreviousValues();
+
 		$result						= $this->delivery_model->updateDeliveryReceipt($data, $data2, $voucherno);
 
 		$this->delivery_model->createClearingEntries($voucherno);
 
 		if ($result && $this->inventory_model) {
-			$this->inventory_model->setReference($voucherno)
+			$this->inventory_model->computeValues()
 									->setDetails($data['customer'])
-									->generateBalanceTable();
+									->logChanges();
+
+			$this->inventory_model->generateBalanceTable();
 		}
 		return array(
 			'redirect'	=> MODULE_URL,
@@ -304,9 +315,12 @@ class controller extends wc_controller {
 		}
 		if ($result && $this->inventory_model) {
 			foreach ($delete_id as $voucherno) {
-				$this->inventory_model->generateBalanceTable();
+				$this->inventory_model->prepareInventoryLog('Delivery Receipt', $voucherno)
+										->computeValues()
+										->logChanges('Cancelled');
 				$this->delivery_model->createClearingEntries($voucherno);
 			}
+			$this->inventory_model->generateBalanceTable();
 		}
 		return array(
 			'success' => $result
