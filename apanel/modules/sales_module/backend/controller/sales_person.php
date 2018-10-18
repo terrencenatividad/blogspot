@@ -775,5 +775,28 @@
 	
 			return $dataArray = array( "msg" => $msg );
 		}
+
+		private function update_multiple_activate(){
+			$posted_data 			=	$this->input->post(array('ids'));
+	
+			$data['stat'] 			=	'active';
+			
+			$posted_ids 			=	$posted_data['ids'];
+			$id_arr 				=	explode(',',$posted_ids);
+			
+			foreach($id_arr as $key => $value)
+			{
+				$result 			= 	$this->sales_person->updateStat($data, $value);
+			}
+	
+			if($result)
+			{
+				$msg = "success";
+			} else {
+				$msg = "Failed to Update.";
+			}
+	
+			return $dataArray = array( "msg" => $msg );
+		}
 	}
 ?>

@@ -28,6 +28,8 @@
 					<?= 
 						$ui->OptionButton('');
 					?>
+					<input id = "activateMultipleBtn" type = "button" name = "activate" 
+					value = "Activate" class="btn btn-success btn-flat ">
 					<input id = "deactivateMultipleBtn" type = "button" name = "deactivate" 
           				value = "Deactivate" class="btn btn-warning btn-flat ">
 				</div>
@@ -481,6 +483,32 @@ $("#deactivateMultipleBtn").click(function()
 			} 
 		});
 	});
+	});
+
+	$("#activateMultipleBtn").click(function() 
+	{
+		var id = [];
+
+		$('input:checkbox.item_checkbox:checked').each(function()
+		{
+			id.push($(this).val());
+		});
+
+		if( id != "" )
+		{
+			$('#multipleActivateModal').modal('show');
+			$( "#multipleActivateModal #btnYes" ).click(function() {
+			ids 	=	getSelectedIds();
+			$.post('<?=MODULE_URL?>ajax/update_multiple_activate', "&ids="+ids ,function(data) {
+				if( data.msg == 'success' )
+				{
+					$('.checked').iCheck('uncheck');
+					showList();
+					$('#multipleActivateModal').modal('hide');
+				} 
+			});
+		});
+		}
 	});
 
 	function getSelectedIds(){

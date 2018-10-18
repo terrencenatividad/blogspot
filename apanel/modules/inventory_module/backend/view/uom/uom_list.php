@@ -13,6 +13,7 @@
 								<!-- <button type="button" id="item_multiple_delete" class="btn btn-danger">Delete<span></span></button> -->
 								<input id = "item_multiple_delete" type = "button" name = "delete" 
 								value = "Delete" class="btn btn-danger btn-flat ">
+							<input id = "activateMultipleBtn" type = "button" name = "activate" value = "Activate" class="btn btn-success btn-flat ">
 							<input id = "deactivateMultipleBtn" type = "button" name = "deactivate" value = "Deactivate" class="btn btn-warning btn-flat ">
 							</div>
 						</div>
@@ -162,21 +163,57 @@
 			});
 		});
 
-		$("#deactivateMultipleBtn").click(function() 
+	$("#deactivateMultipleBtn").click(function() 
 	{
-		$('#multipleDeactivateModal').modal('show');
-		$( "#multipleDeactivateModal #btnDeac" ).click(function() {
-		ids 	=	getSelectedIds();
-		$.post('<?=MODULE_URL?>ajax/update_multiple_deactivate', "&ids="+ids ,function(data) {
-			
-			if( data.msg == 'success' )
-			{
-				$('.checked').iCheck('uncheck');
-				getList();
-				$('#multipleDeactivateModal').modal('hide');
-			} 
+	var id = [];
+
+		$('input:checkbox.item_checkbox:checked').each(function()
+		{
+			id.push($(this).val());
 		});
+		
+		if( id != "" )
+		{
+			$('#multipleDeactivateModal').modal('show');
+			$( "#multipleDeactivateModal #btnDeac" ).click(function() {
+			ids 	=	getSelectedIds();
+			$.post('<?=MODULE_URL?>ajax/update_multiple_deactivate', "&ids="+ids ,function(data) {
+				
+				if( data.msg == 'success' )
+				{
+					$('.checked').iCheck('uncheck');
+					getList();
+					$('#multipleDeactivateModal').modal('hide');
+				} 
+			});
+		});
+		}
 	});
+
+	$("#activateMultipleBtn").click(function() 
+	{
+		var id = [];
+
+		$('input:checkbox.item_checkbox:checked').each(function()
+		{
+			id.push($(this).val());
+		});
+
+		if( id != "" )
+		{
+			$('#multipleActivateModal').modal('show');
+			$( "#multipleActivateModal #btnYes" ).click(function() {
+			ids 	=	getSelectedIds();
+			$.post('<?=MODULE_URL?>ajax/update_multiple_activate', "&ids="+ids ,function(data) {
+				if( data.msg == 'success' )
+				{
+					$('.checked').iCheck('uncheck');
+					getList();
+					$('#multipleActivateModal').modal('hide');
+				} 
+			});
+		});
+		}
 	});
 
 	function getSelectedIds(){

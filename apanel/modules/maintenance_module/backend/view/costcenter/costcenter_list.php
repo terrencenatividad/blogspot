@@ -1,25 +1,46 @@
 <section class="content">
-
     <div class="box box-primary">
         
         <div class="box-header">
             <div class="row">
 
-				<div class = "col-md-8">
-					<?=$ui->CreateNewButton('');?>
-					<input type="button" id="item_multiple_delete" class="btn btn-danger  btn-flat"  value="Delete" >
-					<input id = "activateMultipleBtn" type = "button" name = "activate" value = "Activate" class="btn btn-success btn-flat ">
+            <div class = "col-md-8">
+					<?= 
+						$ui->CreateNewButton('');
+					?>
+					<input id = "item_multiple_delete" type = "button" name = "delete" 
+						value = "Delete" class="btn btn-danger btn-flat ">
 					<input id = "deactivateMultipleBtn" type = "button" name = "deactivate" value = "Deactivate" class="btn btn-warning btn-flat ">
+
+                    <!-- <a href="<?php echo BASE_URL; ?>maintenance/exchange_rate/create" class = "btn btn-primary danger">Create</a>
+					<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Delete <span></span> </button> -->
+					
+					<!--<div class="btn btn-group" id="option_buttons">
+						<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+							Options <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li>
+								<a href = "#" id="export" download="Customers.csv" ><span class="glyphicon glyphicon-open"></span> Export</a>
+							</li>
+							<li>
+								<a href="javascript:void(0);" id="import"><span class="glyphicon glyphicon-save"></span> Import</a>
+							</li>
+						</ul>
+					</div>-->
 				</div>
-				<div class="input-group input-group-sm">
-					<input id="search" name="table_search" class="form-control pull-right" placeholder="Search" type="text">
-					<div class="input-group-btn">
-						<button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
-					</div>
-				</div>
+
+                <div class="col-md-4 pull-right">
+                    <div class="input-group input-group-sm">
+                        <input id="search" name="table_search" class="form-control pull-right" placeholder="Search" type="text">
+                        <div class="input-group-btn">
+                            <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
             </div>
-			
 			<br>
+
 			<div class="row">
 				<div class="col-md-4 col-md-offset-8">
 					<div class="row">
@@ -41,6 +62,9 @@
 			</div>
 
 
+
+			<br>
+
 			<div class='row'>
 				<div class="col-md-12">
 					<div class = "alert alert-warning alert-dismissable hidden">
@@ -54,8 +78,18 @@
         </div>
 
        	<div class="box-body table table-responsive">
-            <table id = "currency_table" class="table table-hover">
+            <table id = "exchangerate_table" class="table table-hover">
                 <thead>
+					<!--<tr class = "info">
+						<th class = "col-md-1 text-center">
+                            <input type = "checkbox" class = "checkall"/>
+                        </th>
+                        <th class = "col-md-3 text-center">Effectivity Date</th>
+                        <th class = "col-md-3 text-center">Base Currency Code</th>
+                        <th class = "col-md-3 text-center">Exchange Currency Code</th>
+                        <th class = "col-md-3 text-center">Exchange Rate</th>
+					</tr>-->
+
 					<?php
 						echo $ui->loadElement('table')
 								->setHeaderClass('info')
@@ -65,10 +99,11 @@
 										'class' => 'col-md-1 text-center'
 									)
 								)
-								->addHeader('Bank Account Name',array('class'=>'col-md-3'),'sort','shortname')
-								->addHeader('Bank Account Code',array('class'=>'col-md-3'),'sort','bankcode')
-								->addHeader('Bank Account Number', array('class'=>'col-md-3'),'sort','accountno')
-								->addHeader('Status', array('class'=>'col-md-3'),'','')
+								->addHeader('Effectivity Date',array('class'=>'col-md-3'),'sort','effectivedate')
+								->addHeader('Base Currency Code', array('class'=>'col-md-3'),'sort','basecurrencycode')
+								->addHeader('Exchange Currency Code', array('class'=>'col-md-3'),'sort','exchangecurrencycode')
+								->addHeader('Exchange Rate', array('class'=>'col-md-3'),'sort','exchangerate')
+								->addHeader('Status', array('class'=>'col-md-3'),'sort','stat')
 								->draw();
 					?>
 				</thead>
@@ -94,20 +129,21 @@ function show_error(msg)
 	$("#errmsg").html(msg);
 }
 
-function showList(){
-	$.post('<?=BASE_URL?>maintenance/bank/ajax/bank_list', ajax, function(data)
+function showList(pg){
+	$.post('<?=BASE_URL?>maintenance/exchange_rate/ajax/exchange_rate_list', ajax, function(data)
 	{
-		$('#currency_table #list_container').html(data.table);
+		$('#exchangerate_table #list_container').html(data.table);
         $('#pagination').html(data.pagination);
         //$("#export").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 		if (ajax.page > data.page_limit && data.page_limit > 0) {
 			ajax.page = data.page_limit;
-			getList();
+			showList();
 		}
 	});
 };
 
-$( "#search" ).keyup(function() {
+$( "#search" ).keyup(function() 
+{
 	var search = $( this ).val();
 	ajax.search = search;
 	showList();
@@ -127,7 +163,7 @@ $(document).ready(function()
 {
 	showList();
 
-	$( "#currency_table" ).on('click' , '.delete', function() 
+	$( "#exchangerate_table" ).on('click' , '.delete', function() 
 	{
 		var id = $( this ).attr("data-id");
 		
@@ -138,7 +174,7 @@ $(document).ready(function()
 
 			$( "#delete-yes" ).click(function() 
 			{
-				$.post('<?=BASE_URL?>maintenance/bank/ajax/delete', 'id=' + id, function(data) 
+				$.post('<?=BASE_URL?>maintenance/exchange_rate/ajax/delete', 'id=' + id, function(data) 
 				{
 					if( data.msg == 'success' )	
 					{
@@ -148,7 +184,7 @@ $(document).ready(function()
 					else
 					{			
 						$(".delete-modal").modal("hide");
-						show_error("Unable to delete the Bank.");
+						show_error("Unable to delete the Exchange Rate(s).");
 					}
 				});
 			});	
@@ -197,12 +233,11 @@ $(document).ready(function()
 		var form_csv = $('#import_csv').val('').closest('.form-group').find('.form-control').html('').closest('.form-group').html();
 		$('#import_csv').closest('.form-group').html(form_csv);
 	});
-
 });
 
 function ajaxCallback(id) {
 	var ids = getDeleteId(id);
-	$.post('<?=BASE_URL?>maintenance/bank/ajax/delete', 'id=' + id, function(data) 
+	$.post('<?=BASE_URL?>maintenance/exchange_rate/ajax/delete', 'id=' + id, function(data) 
 	{
 		if( data.msg == 'success' )	
 		{
@@ -218,13 +253,13 @@ function ajaxCallback(id) {
 }
 
 $(function() {
-	linkButtonToTable('#item_multiple_delete', '#currency_table');
-	linkDeleteToModal('#currency_table .delete', 'ajaxCallback');
-	linkDeleteMultipleToModal('#item_multiple_delete', '#currency_table', 'ajaxCallback');
+	linkButtonToTable('#item_multiple_delete', '#exchangerate_table');
+	linkDeleteToModal('#exchangerate_table .delete', 'ajaxCallback');
+	linkDeleteMultipleToModal('#item_multiple_delete', '#exchangerate_table', 'ajaxCallback');
 });
 
 // Sorting Script
-tableSort('#currency_table', function(value) {
+tableSort('#exchangerate_table', function(value) {
   ajax.sort = value;
   ajax.page = 1;
   showList();
@@ -239,100 +274,60 @@ $('#items').on('change', function(){
 	showList();
 });
 
-$('#list_container').on('click', '.manage_check', function(){
-	var id = $(this).attr('data-id');
-	window.location = '<?=MODULE_URL?>manage_check/' + id;
-});
 
-$('#list_container').on('click', '.activate', function(){
-	var id = $(this).attr('data-id');
-	$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
-		showList();
-	});
-});
+		$('#exchangerate_table').on('click', '.activate', function() { 
+				var id = $(this).attr('data-id');
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+					showList();
+				});
+			});
 
-$('#list_container').on('click', '.deactivate', function() { 
-	$('#deactivate_modal').modal('show');
-	var id = $(this).attr('data-id');
-	
-	$('#deactivate_modal').on('click', '#deactyes', function() {
-		$('#deactivate_modal').modal('hide');
-		
-		$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
-			showList();
-		});
-	});
-});
-
-$("#deactivateMultipleBtn").click(function() 
-	{
-	var id = [];
-
-		$('input:checkbox.item_checkbox:checked').each(function()
-		{
-			id.push($(this).val());
-		});
-		
-		if( id != "" )
-		{
-			$('#multipleDeactivateModal').modal('show');
-			$( "#multipleDeactivateModal #btnDeac" ).click(function() {
-			ids 	=	getSelectedIds();
-			$.post('<?=MODULE_URL?>ajax/update_multiple_deactivate', "&ids="+ids ,function(data) {
+		$('#exchangerate_table').on('click', '.deactivate', function() { 
+			$('#deactivate_modal').modal('show');
+			var id = $(this).attr('data-id');
+			
+			$('#deactivate_modal').on('click', '#deactyes', function() {
+				$('#deactivate_modal').modal('hide');
 				
-				if( data.msg == 'success' )
-				{
-					$('.checked').iCheck('uncheck');
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
 					showList();
-					$('#multipleDeactivateModal').modal('hide');
-				} 
+				});
 			});
 		});
-		}
+
+	$("#deactivateMultipleBtn").click(function() 
+	{
+		$('#multipleDeactivateModal').modal('show');
+		$( "#multipleDeactivateModal #btnDeac" ).click(function() {
+		ids 	=	getSelectedIds();
+		$.post('<?=MODULE_URL?>ajax/update_multiple_deactivate', "&ids="+ids ,function(data) {
+			
+			if( data.msg == 'success' )
+			{
+				$('.checked').iCheck('uncheck');
+				showList();
+				$('#multipleDeactivateModal').modal('hide');
+			} 
+		});
+	});
 	});
 
-$("#activateMultipleBtn").click(function() 
-	{
-		var id = [];
-
-		$('input:checkbox.item_checkbox:checked').each(function()
-		{
+	function getSelectedIds(){
+		id 	=	[];
+		$('.checkbox:checked').each(function(){
 			id.push($(this).val());
 		});
+		return id;
+	}
 
-		if( id != "" )
-		{
-			$('#multipleActivateModal').modal('show');
-			$( "#multipleActivateModal #btnYes" ).click(function() {
-			ids 	=	getSelectedIds();
-			$.post('<?=MODULE_URL?>ajax/update_multiple_activate', "&ids="+ids ,function(data) {
-				if( data.msg == 'success' )
-				{
-					$('.checked').iCheck('uncheck');
-					showList();
-					$('#multipleActivateModal').modal('hide');
-				} 
-			});
-		});
-		}
-	});
-
-  function getSelectedIds(){
-    id   =  [];
-    $('.checkbox:checked').each(function(){
-      id.push($(this).val());
-    });
-    return id;
-  }
-
-$('#currency_table').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
+	$('#exchangerate_table').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
 			var b = $('input[type=checkbox]:not(.checkall)');
-			var row = $('#currency_table >tbody >tr').length;
+			var row = $('#exchangerate_table >tbody >tr').length;
 			var c =	b.filter(':checked').length;
 			if(c == row){
-				$('#currency_table thead tr th').find('.checkall').prop('checked', true).iCheck('update');
+				$('#exchangerate_table thead tr th').find('.checkall').prop('checked', true).iCheck('update');
 			}else{
-				$('#currency_table thead tr th').find('.checkall').prop('checked', false).iCheck('update');
+				$('#exchangerate_table thead tr th').find('.checkall').prop('checked', false).iCheck('update');
 			}
 		});
 
