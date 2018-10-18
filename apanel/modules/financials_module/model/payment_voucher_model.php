@@ -1673,24 +1673,20 @@ class payment_voucher_model extends wc_model
 								
 
 		foreach ($result as $value) {
-			$first = $value->firstchequeno;
-			$last = $value->lastchequeno;
-			if (($cno > $last)){
+			$first	= $value->firstchequeno;
+			$last	= $value->lastchequeno;
+			$data	= array();
+			if (($cno >= $last)){
 				$data['stat'] 		=  'closed'; 
-				$data['nextchequeno'] = $cno + 1;
-				$con = "AND $cno > lastchequeno";
-			} 
-			if($last == $cno){
-				$data['stat'] 		=  'closed'; 
-				$con = "AND $cno = lastchequeno";
-			} 
-			if($cno < $last){
+				$data['nextchequeno'] = $value->lastchequeno;
+				$con = "AND $first = firstchequeno";
+			}
+			if($cno >= $first && $cno < $last){
 				$data['stat'] 		=  'open'; 
 				$data['nextchequeno'] = $cno + 1;
-				$con = "AND $cno < lastchequeno";
+				$con = "AND $first = firstchequeno";
 			}
-
-			if ($first && $last){
+			if ($data){
 					$result = $this->db->setTable("bankdetail") 
 										->setValues($data)
 										->setWhere("bank_id = '$getBank' $con")
