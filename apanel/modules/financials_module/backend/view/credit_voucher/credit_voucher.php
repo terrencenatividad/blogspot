@@ -133,8 +133,8 @@
 										->addSaveExit()
 										->drawSaveOption();
 									}
-
-									if($ajax_task == 'ajax_view') {
+									
+									if($ajax_task == 'ajax_view' && $source == '' && $stat != 'inactive' && $applied == NULL) {
 										echo $ui->drawSubmit($show_input);
 									} else if($ajax_task == 'ajax_edit') {
 										echo $ui->drawSubmit(true);
