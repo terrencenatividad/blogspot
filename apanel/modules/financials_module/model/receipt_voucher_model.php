@@ -976,10 +976,10 @@ class receipt_voucher_model extends wc_model
 
 			if($insertResult){
 				$seq 				= new seqcontrol();
-				$creditvoucherno 	= $seq->getValue("ADVP");
+				$creditvoucherno 	= $seq->getValue("CV");
 
 				$post_credit_voucher['voucherno']			= $creditvoucherno;
-				$post_credit_voucher['transtype']			= 'ADVP';
+				$post_credit_voucher['transtype']			= 'CV';
 				$post_credit_voucher['stat']			 	= 'temporary';
 				$post_credit_voucher['transactiondate']		= $transactiondate;
 				$post_credit_voucher['fiscalyear']			= $fiscalyear;
