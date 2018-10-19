@@ -132,6 +132,9 @@ class controller extends wc_controller {
 		$data['amount']				= $this->input->post('amount');
 		$data['receivableno']		= $this->input->post('receivableno');
 		$data['balance']			= $data['amount'];
+		$data['currencycode']		= 'PHP';
+		$data['exchangerate']		= '1';
+		$data['convertedamount']	= $data['amount'];
 		$seq						= new seqcontrol();
 		$data['voucherno']			= $seq->getValue('CV');
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
@@ -158,6 +161,8 @@ class controller extends wc_controller {
 		$data['invoiceno']			= $this->input->post('invoiceno');
 		$data['referenceno']		= $this->input->post('referenceno');
 		$data['amount']				= $this->input->post('amount');
+		$data['convertedamount']	= $data['amount'];
+		$data['balance']			= $data['amount'];
 		$data['receivableno']		= $this->input->post('receivableno');
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$result						= $this->credit_voucher_model->updateCreditVoucher($data, $voucherno);
