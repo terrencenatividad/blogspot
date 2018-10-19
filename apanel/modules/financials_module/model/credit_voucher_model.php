@@ -97,7 +97,7 @@ class credit_voucher_model extends wc_model {
 		}
 		$result		= $this->db->setTable('accountsreceivable')
 								->setFields('voucherno, transactiondate, amount, invoiceno')
-								->setWhere("customer = '$customer' AND stat NOT IN ('cancelled','temporary')". $condition)
+								->setWhere("customer = '$customer' AND stat NOT IN ('cancelled','temporary') AND excessamount > 0". $condition)
 								->setOrderBy('voucherno')
 								->runPagination();
 
