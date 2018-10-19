@@ -1584,6 +1584,7 @@ echo $ui->loadElement('modal')
 
 <script>
 	var ajax 	 		= {};
+	var cred_ajax 		= {};
 
 	var id_array 		= [];
 	var accounts 		= [];
@@ -2601,6 +2602,16 @@ $('#pagination').on('click', 'a', function(e) {
 	}
 });
 
+
+$('#creditvoucherModal #pagination').on('click', 'a', function(e) {
+	e.preventDefault();
+	var li = $(this).closest('li');
+	if (li.not('.active').length && li.not('.disabled').length) {
+		cred_ajax.page = $(this).attr('data-page');
+		showCreditsList();
+	}
+});
+
 $('#paymentModal').on('show.bs.modal', function () {
 	$('#payable_list_container tr').each(function(index,value){
 		var amt_to_receive 	= $(this).find('.paymentamount').val();
@@ -2653,29 +2664,28 @@ function showCreditsList(){
 		voucherno 		= $('#payableForm #h_voucher_no').val();
 
 	var ajax_call		= '';
-		ajax.limit 		= 5;
+		cred_ajax.limit 		= 5;
 
 	if (ajax_call != '') {
 		ajax_call.abort();
 	}
 
-	ajax.customer 	= customer_code;
-	ajax.voucherno 	= voucherno;
-	ajax.vno 		= vnose;
-	ajax.task 		= task;
-	ajax_call 		= $.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/load_credit_vouchers", ajax )
+	cred_ajax.customer 	= customer_code;
+	cred_ajax.voucherno 	= voucherno;
+	cred_ajax.vno 		= vnose;
+	cred_ajax.task 		= task;
+	cred_ajax_call 		= $.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/load_credit_vouchers", cred_ajax )
 						.done(function( data ) 
 						{
-							$('#pagination').html(data.pagination);
+							$('#creditvoucherModal #pagination').html(data.pagination);
 							$('#creditvoucherModal #list_container').html(data.table);
+							
+							// drawTemplate();
 
-							if(!($("paymentModal").data('bs.modal') || {isShown: false}).isShown){
-								var check_rows = $('#payableForm #selected_rows').html();
-								var obj = (check_rows != "") ? JSON.parse(check_rows) : 0;
-
-								for(var i = 0; i < obj.length; i++){
-									$('input#row_check' + obj[i]["row"]).iCheck('check');
-								} 
+							if(!($("creditvoucherModal").data('bs.modal') || {isShown: false}).isShown){
+								for (var key in credits_box) {
+									$('#creditvoucherModal input#check' + key).iCheck('check');
+								}
 								$('#creditvoucherModal').modal('show');
 							};
 						});
@@ -2698,7 +2708,7 @@ function showCreditsVoucher(){
 		// 	</tr>`);
 		// $('#pagination').html('');
 		// showList();
-		showCreditsList()
+		showCreditsList();
 	}
 	else
 	{
@@ -2998,12 +3008,12 @@ function computeCreditBalance(id,toapply){
 	initialize_credit_box(id);
 
 	var computed_balance 	= parseFloat(amount) - parseFloat(toapply);
-	var new_box 	= {};
-		new_box[id] = {};
-
-	new_box[id]['amount']  = parseFloat(amount);
-	new_box[id]['toapply'] = parseFloat(toapply);
-	new_box[id]['balance'] = computed_balance;
+	// var new_box 	= {};
+	// 	new_box[id] = {};
+		
+	credits_box[id]['amount']  = parseFloat(amount);
+	credits_box[id]['toapply'] = parseFloat(toapply);
+	credits_box[id]['balance'] = computed_balance;
 
 	$('#list_container #credits_balance'+id).html(addComma(computed_balance));  
 	// $('#list_container #credits_balance'+id).attr('data-value',addComma(computed_balance));       
@@ -3015,13 +3025,13 @@ function computeCreditBalance(id,toapply){
 		$('#totalpaymenterror').removeClass('hidden');
 		$('#TagCreditsBtn').prop('disabled',true);
 	} else {
-		credits_box = new_box;  
+		// credits_box = credits_box;  
 		$('#appliedamounterror').addClass('hidden');
 		$('#totalpaymenterror').addClass('hidden');
 		$('#TagCreditsBtn').prop('disabled',false);
 	}
-	console.log("ADDED | ");
-	console.log(credits_box);
+	// console.log("ADDED | ");
+	// console.log(credits_box);
 	addCreditsAmount();
 }
 
@@ -3147,7 +3157,7 @@ function compute_excess_amt(){
 
 	$('#payable_list_container tr').each(function(){
 		var ind_excess = $(this).find('.over').attr('data-value');
-		console.log('ind_excess ... '+ind_excess);
+		// console.log('ind_excess ... '+ind_excess);
 		excess_amt 	+= parseFloat(ind_excess);
 	});
 
@@ -3180,10 +3190,10 @@ function checkBalance(val,id){
 	var ind_excess 		= 0;
 	if(condition){
 		if(current_payment >= 0){
-			console.log("NEW VALUE = "+newval);
-			console.log("DUE AMOUNT = "+dueamount);
+			// console.log("NEW VALUE = "+newval);
+			// console.log("DUE AMOUNT = "+dueamount);
 			ind_excess 		=	newval - dueamount;
-			console.log("IND EXCESS = "+ind_excess);
+			// console.log("IND EXCESS = "+ind_excess);
 			$('#receiveAmtError').addClass('hidden');
 		} else {
 			$('#receiveAmtError').removeClass('hidden');
@@ -4930,14 +4940,21 @@ $(document).ready(function() {
 		showCreditsVoucher();
 	});
 
+	// $('#creditVoucherLists').on('ifChecked', '.icheckbox', function(event){
+	// 	console.log('checked');
+	// 	var selectid = $(this).attr('row');
+	// 	var selecttoggleid = $(this).attr('toggleid');
+
+	// 	selectCredits(selectid,1);		
+	// });
+
 	$('#creditVoucherLists').on('ifToggled', '.icheckbox', function(event){
-		event.type = "checked";
+		console.log('unchecked');
 		var selectid = $(this).attr('row');
 		var selecttoggleid = $(this).attr('toggleid');
-		
-		selectCredits(selectid,1);		
-	});
 
+		selectCredits(selectid,selecttoggleid);		
+	});
 }); // end
 
 var row = '';
