@@ -241,7 +241,7 @@
 
 						<div class = 'panel panel-default'>
 							<div class = 'panel-heading'>
-								<h3 class="panel-title">Please enter a number within <span id="range"></span></h3>
+								<h3 class="panel-title"><span id="range"></span></h3>
 							</div>
 							<div class = 'panel-body'>
 								<div class = 'col-md-12 no-padding'>
@@ -625,10 +625,11 @@ $('#clear_checks').on('click', function(){
 $('#check_container').on('click', '.cancel_check_range', function(){
 	ajax.id     =  $('#id').val();
 	check_range =  $(this).closest('tr').find('#start_check').html();
+	next = $(this).closest('tr').find('.next').html();
 	var result = check_range.split('-');
 	ajax.start = result[0];
 	ajax.end = result[1];
-	$('#range').html(check_range);
+	$('#range').html("Please enter a number between <span id='check_between'>"+next+"-"+ajax.end+"</span>");
 	if( id != "" )
 	{
 		$("#cancel_checks").modal("show");
@@ -661,12 +662,18 @@ $('#save_cancelled').on('click',function(){
 $('#cancelled_checks #firstcancelled, #lastcancelled').on('blur',function(){
 	var first_number= parseFloat('0.' + $('#firstcancelled').val());
 	var end_number 	= parseFloat('0.' + $('#lastcancelled').val());
-	var range 		= $('#range').html();
+	var range 		= $('#check_between').html();
 	var range = range.split('-');
+	var next = $(this).closest('tr').find('.next').html();
 	var start = parseFloat('0.' + range[0]);
 	var end = parseFloat('0.' + range[1]);
+	var next = parseFloat('0.' + next);
+	console.log('start'+start);
+	console.log('end'+end);
+	console.log('first_number'+first_number);
+	console.log('end_number'+end_number);
 	if (first_number){
-		if (start <= first_number && first_number <= end){ 
+		if (start <= first_number && first_number <= start){ 
 			$('#cancel_checks #firstcancelled').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
 		}  else {
 			error_message 	=	"<b>The number you entered is not within the check range</b>";
