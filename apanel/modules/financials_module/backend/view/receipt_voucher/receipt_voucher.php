@@ -1053,7 +1053,7 @@
 						<?endif;?>
 						&nbsp;
 						<?
-						if(($status == 'open' && $has_access == 1) && $restrict_rv){
+						if(($status == 'open' && $has_access == 1) && $restrict_rv && ($cv_status=="" || $cv_status != "used")){
 							echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
 						}
 						?>
