@@ -10,9 +10,10 @@ class controller extends wc_controller {
 		$this->fields			= array(
 			'id',
 			'costcenter_code',
-			'costcenter',
-			'fa_account',
-			'budget_account',
+			'costcenter_account',
+			'name',
+			'description',
+			'approver',
 			'stat'
 		);
 	}
@@ -28,6 +29,7 @@ class controller extends wc_controller {
 		$data = $this->input->post($this->fields);
 		$data['ui'] = $this->ui;
 		$data['coa_list']		= $this->costcenter->getCOA();
+		$data['users_list']		= $this->costcenter->getUsers();
 		$data['ajax_task'] = 'ajax_create';
 		$data['ajax_post'] = '';
 		$data['show_input'] = true;
@@ -39,6 +41,7 @@ class controller extends wc_controller {
 		$data = (array) $this->costcenter->getCostCenterById($this->fields, $id);
 		$data['ui'] = $this->ui;
 		$data['coa_list']		= $this->costcenter->getCOA();
+		$data['users_list']		= $this->costcenter->getUsers();
 		$data['ajax_task'] = 'ajax_edit';
 		$data['ajax_post'] = "&id=$id";
 		$data['show_input'] = true;
@@ -49,6 +52,7 @@ class controller extends wc_controller {
 		$this->view->title = $this->ui->ViewLabel('');
 		$data = (array) $this->costcenter->getCostCenterById($this->fields, $id);
 		$data['coa_list']		= $this->costcenter->getCOA();
+		$data['users_list']		= $this->costcenter->getUsers();
 		$data['ui'] = $this->ui;
 		$data['show_input'] = false;
 		$this->view->load('costcenter/costcenter', $data);
@@ -89,13 +93,6 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
-			$getBudgetAccount = $this->costcenter->getBudgetAccount($row->budget_account);
-			if ($getBudgetAccount) {
-				$budget_account = $getBudgetAccount->accountname;
-			}
-			else {
-				$budget_account = '';
-			}
 			$stat = $row->stat;
 			if($stat == 'active'){
 				$status = '<span class="label label-success">ACTIVE</span>';								
@@ -126,9 +123,10 @@ class controller extends wc_controller {
 									->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $row->costcenter_code . '</td>';
-			$table .= '<td>' . $row->costcenter . '</td>';
 			$table .= '<td>' . $row->accountname . '</td>';
-			$table .= '<td>' . $budget_account . '</td>';
+			$table .= '<td>' . $row->name . '</td>';
+			$table .= '<td>' . $row->description . '</td>';
+			$table .= '<td>' . $row->approver . '</td>';
 			$table .= '<td>' . $status . '</td>';
 			$table .= '</tr>';
 		}

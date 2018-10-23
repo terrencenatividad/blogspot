@@ -61,7 +61,17 @@ class costcenter extends wc_model {
 							->getResult();
                            
             return $result;
-        }
+		}
+	
+	public function getUsers()
+	{
+		$result = $this->db->setTable('wc_users')
+						->setFields("username ind, username val, stat stat")
+						->runSelect()
+						->getResult();
+					
+		return $result;
+	}
 
 	public function getCostCenterById($fields, $id) {
 		return $this->db->setTable('cost_center')
@@ -75,8 +85,8 @@ class costcenter extends wc_model {
 	public function getCostCenterListPagination($fields, $search = '', $sort) {
 
 			$result = $this->db->setTable("cost_center c")
-								->leftJoin('chartaccount ca ON c.fa_account = ca.id AND c.companycode = ca.companycode')
-								->setFields("c.id,costcenter_code,costcenter,fa_account,budget_account,ca.accountname,c.stat")
+								->leftJoin('chartaccount ca ON c.costcenter_account = ca.id AND c.companycode = ca.companycode')
+								->setFields("c.id,costcenter_code,costcenter_account,name,c.description,ca.accountname,approver,c.stat")
 								->setWhere(1)
 								->setOrderBy($sort)
 								->runPagination();
