@@ -1312,7 +1312,7 @@
 								&nbsp;&nbsp;&nbsp;
 								<?endif;?>
 								<div class="btn-group">
-									<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal" >Cancel</button>
+									<button type="button" class="btn btn-default btn-sm btn-flat" id="cancelCreditApplication">Cancel</button>
 								</div>
 							</div>
 						</div>
@@ -1589,6 +1589,7 @@ echo $ui->loadElement('modal')
 	var id_array 		= [];
 	var accounts 		= [];
 	var acct_details 	= [];
+	var tagged_AR 		= [];
 
 	var checker 	= new Array();
 
@@ -1689,7 +1690,6 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 							$(this).closest('tr').remove();
 						}
 					});
-
 					$("#entriesTable tbody tr.clone").first().before(clone_acct);
 				}
 				resetIds();
@@ -2638,17 +2638,30 @@ $('#paymentModal').on('hidden.bs.modal',function(){
 });
 
 $('#cancelPaymentModal').on('click',function(){
-	var selected_rows 	= [];
+	container 	=	$.extend(true,{},tagged_AR);
+	var selected_rows 	= JSON.stringify(container);
 	$('#selected_rows').html(selected_rows);
 	$('#paymentModal').modal('hide');
-	$('#payable_list_container tr').each(function(index,value){
+	// $('#payable_list_container tr').each(function(index,value){
+	// 	if($(this).find('.icheckbox').prop('checked')){
+	// 		var voucher = $(this).find('.icheckbox').attr('row');
+	// 		selectPayable(voucher,1);
+	// 	}
+	// });
+	// $('#pv_amount').html('0.00');
+});
+
+$('#cancelCreditApplication').on('click',function(){
+	credits_box = [];
+	$('#creditvoucherModal').modal('hide');
+	$('#creditVoucherLists tr').each(function(index,value){
 		if($(this).find('.icheckbox').prop('checked')){
 			var voucher = $(this).find('.icheckbox').attr('row');
-			selectPayable(voucher,1);
+			// selectPayable(voucher,1);
 		}
 	});
-	// selectPayable(id,toggle){
-});
+	$('#applied_cred_amt').html('0.00');
+});	
 
 $('#editcredacct').on('click',function(e){
 	e.preventDefault();
@@ -2843,9 +2856,10 @@ function getRVDetails(){
 	}
 
 	cheques = JSON.stringify(cheques);
-
 	$("#selected_rows").html(selected_rows);
-
+	
+	tagged_AR 	 = $.extend(true,{},container);;
+	
 	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques + "&overpayment="+overpayment + "&advance="+is_ap;
 	
 	if(selected_rows == "")
@@ -2917,7 +2931,8 @@ function getRVDetails(){
 		});
 		$('.cwt').removeAttr('disabled');
 		var has_payment = $('#total_payment').val();
-		if(has_payment > 0){
+		console.log('has payment '+has_payment);
+		if(parseFloat(has_payment) > 0){
 			$('#crv').prop('disabled',false);
 		}
 	}
@@ -2968,6 +2983,12 @@ function selectPayable(id,toggle){
 	}
 
 	$('#payable_list_container #check'+id).iCheck('update');
+
+	console.log("INSIDE SELECT PAYABLE ");
+	console.log("CONTAINER");
+	console.log(container);
+	console.log("TAGGED AR");
+	console.log(tagged_AR);
 
 	// Get number of checkboxes and assign to textarea
 	balance 	=	removeComma(balance);
@@ -3643,6 +3664,7 @@ function apply_credit_account(amount){
 	$('#creditvoucherModal').modal('hide');
 
 	var cheque_rows = $('#entriesTable tbody tr.added_row').length;
+
 	if(cheque_rows == 0){
 		$('#entriesTable tr').each(function(index) {
 			var account = $(this).find('.accountcode').val();
@@ -3650,7 +3672,7 @@ function apply_credit_account(amount){
 				$(this).remove();
 			}
 		});
-		if(amount > 0){
+		if(parseFloat(amount) > 0){
 			$("#entriesTable tbody tr.clone:not(.added_row)").first().after(clone_acct);
 			resetIds();
 			var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first().next('tr');
