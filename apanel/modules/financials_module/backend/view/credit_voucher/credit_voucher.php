@@ -133,8 +133,8 @@
 										->addSaveExit()
 										->drawSaveOption();
 									}
-
-									if($ajax_task == 'ajax_view') {
+									
+									if($ajax_task == 'ajax_view' && $source == '' && $stat != 'inactive' && $applied == NULL) {
 										echo $ui->drawSubmit($show_input);
 									} else if($ajax_task == 'ajax_edit') {
 										echo $ui->drawSubmit(true);
@@ -228,6 +228,14 @@
 						ajax.page = 1;
 						ajax.search = $(this).val();
 						getARList();
+					});
+					$('#ar_list_modal #pagination').on('click', 'a', function(e) {
+						e.preventDefault();
+						var li = $(this).closest('li');
+						if (li.not('.active').length && li.not('.disabled').length) {
+							ajax.page = $(this).attr('data-page');
+							getARList();
+						}
 					});
 					function getARList() {
 						ajax.limit = 5;

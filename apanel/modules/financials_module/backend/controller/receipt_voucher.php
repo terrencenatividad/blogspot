@@ -217,7 +217,7 @@ class controller extends wc_controller
 				// Update the Credit Voucher 
 				$update_ref['referenceno']  	= $generatedvoucher;
 				$update_ref['stat'] 			= "open";
-				$ref_cond 						= "referenceno = '$voucherno' AND transtype = 'ADVP'";
+				$ref_cond 						= "referenceno = '$voucherno' AND transtype = 'CV'";
 				$updateTempRecord				= $this->receipt_voucher->editData($update_ref,"creditvoucher",$ref_cond);
 				$update_cred['rv_voucher']  	= $generatedvoucher;
 				$update_cred['stat'] 			= "active";
@@ -271,8 +271,9 @@ class controller extends wc_controller
 		$vendor_details 		   	= $this->receipt_voucher->getValue("partners", "partnername"," partnertype = 'customer' AND partnercode = '".$data["main"]->customer."'", "");
 
 		$transactiondate 			= $data["main"]->transactiondate;
+		$voucherno 					= $data["main"]->voucherno;
 		$restrict_rv 				= $this->restrict->setButtonRestriction($transactiondate);
-		$data["voucherno"]         = $data["main"]->voucherno;
+		$data["voucherno"]         = $voucherno;
 		$data["customercode"]        = $vendor_details[0]->partnername;
 		$data["v_convertedamount"] = $data["main"]->convertedamount;
 		$data["exchangerate"]      = $data["main"]->exchangerate;
@@ -360,8 +361,14 @@ class controller extends wc_controller
 		$data['cred_id'] 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
 		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
 
-		$op_acct  					= $this->receipt_voucher->retrieveOPDetails();
-		$data['op_acct'] 			= isset($op_acct[0]->accountcode) 	? 	$op_acct[0]->accountcode 	:	"";
+		// Overpayment Acct
+		$op_acct  						= $this->receipt_voucher->retrieveOPDetails();
+		$data['op_acct'] 				= isset($op_acct[0]->accountcode) 	? 	$op_acct[0]->accountcode 	:	"";
+
+		// Credit Voucher Checker
+		$cv_checker 					= $this->receipt_voucher->checkifCVinuse($voucherno);
+		$cv_status 						= isset($cv_checker->status) 	?	$cv_checker->status 	:	""; 	
+		$data['cv_status'] 				= $cv_status;
 
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
@@ -798,14 +805,14 @@ class controller extends wc_controller
 			
 			if(!empty($decode_json)) {
 				foreach($decode_json as $value => $row){	
-					array_push($voucher_array, $row['vno']);
-					$amt_array[$row['vno']] = $row;
+					array_push($voucher_array, $value);
+					$amt_array[$value] = $row;
 				}	
 			}
 
 			for($i = 0; $i < count($pagination->result); $i++, $j++){
 				$voucherno 		=	isset($pagination->result[$i]->voucherno) 	? 	$pagination->result[$i]->voucherno 		: 	"";
-				$amount			=	isset($pagination->result[$i]->amount) 		? 	$pagination->result[$i]->amount 		:	0;
+				$totalamt		=	isset($pagination->result[$i]->amount) 		? 	$pagination->result[$i]->amount 		:	0;
 				$balance 		=	isset($pagination->result[$i]->balance)		?	$pagination->result[$i]->balance 		: 	0;
 				$invoiceno		=	isset($pagination->result[$i]->invoiceno) 	? 	$pagination->result[$i]->invoiceno 		: 	0;
 				$referenceno 	=	isset($pagination->result[$i]->referenceno) ? 	$pagination->result[$i]->referenceno	: 	"";
@@ -813,6 +820,13 @@ class controller extends wc_controller
 				$orig_balance 	=	isset($pagination->result[$i]->orig_balance)? 	$pagination->result[$i]->orig_balance 	:	0;
 
 				$voucher_checked= (in_array($voucherno , $voucher_array)) ? 'checked' : '';
+
+				// $balance_2		= $balance;
+
+				if (isset($amt_array[$voucherno])) {
+					$amount		= str_replace(',','',$amt_array[$voucherno]['toapply']);
+					$balance	= str_replace(',','',$amt_array[$voucherno]['balance']);
+				}
 
 				$disable_checkbox 	=	"";
 				$disable_onclick 	=	'onClick="selectCredits(\''.$voucherno.'\',1);"';
@@ -824,7 +838,7 @@ class controller extends wc_controller
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$voucherno.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$invoiceno.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
-				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "credits_amount'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($amount,2).'">'.number_format($amount,2).'</td>';
+				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "credits_amount'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($totalamt,2).'">'.number_format($totalamt,2).'</td>';
 				$table	.= 	'<td class="text-right balances" style="vertical-align:middle;" id = "credits_balance'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($orig_balance,2).'">'.number_format($balance,2).'</td>';
 				
 				if($voucher_checked == 'checked'){
@@ -1732,6 +1746,9 @@ class controller extends wc_controller
 				$chequedate   	= $this->date->dateFormat($row->chequedate);
 				$chequeamount  	= $row->chequeamount;
 
+				$cv_checker 	= $this->receipt_voucher->checkifCVinuse($voucher);
+				$cv_status 		= isset($cv_checker->status) 	?	$cv_checker->status 	:	""; 	
+
 				$prevvno 		= $voucher;
 				$voucher_status = '<span class="label label-danger">'.strtoupper($status).'</span>';
 				if($status == 'open'){
@@ -1745,11 +1762,11 @@ class controller extends wc_controller
 				$has_post  		= isset($has_access[0]->mod_post)		?	$has_access[0]->mod_post	:	0;
 				$has_unpost 	= isset($has_access[0]->mod_unpost)		?	$has_access[0]->mod_unpost	:	0;
 
-				$show_btn 		= ($status == 'open' && $restrict_rv);
-				$show_edit 		= ($status == 'open' && $has_edit == 1 && $restrict_rv);
-				$show_dlt 		= ($status == 'open' && $has_delete == 1 && $restrict_rv);
-				$show_post 		= ($status == 'open' && $has_post == 1 && $restrict_rv);
-				$show_unpost 	= ($status == 'posted' && $has_unpost == 1 && $restrict_rv);
+				$show_btn 		= ($status == 'open' && $restrict_rv && ($cv_status=="" || $cv_status != "used"));
+				$show_edit 		= ($status == 'open' && $has_edit == 1 && $restrict_rv && ($cv_status=="" || $cv_status != "used"));
+				$show_dlt 		= ($status == 'open' && $has_delete == 1 && $restrict_rv && ($cv_status=="" || $cv_status != "used"));
+				$show_post 		= ($status == 'open' && $has_post == 1 && $restrict_rv && ($cv_status=="" || $cv_status != "used"));
+				$show_unpost 	= ($status == 'posted' && $has_unpost == 1 && $restrict_rv && ($cv_status=="" || $cv_status != "used"));
 
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()

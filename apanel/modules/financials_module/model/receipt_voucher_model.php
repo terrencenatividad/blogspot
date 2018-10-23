@@ -976,10 +976,10 @@ class receipt_voucher_model extends wc_model
 
 			if($insertResult){
 				$seq 				= new seqcontrol();
-				$creditvoucherno 	= $seq->getValue("ADVP");
+				$creditvoucherno 	= $seq->getValue("CV");
 
 				$post_credit_voucher['voucherno']			= $creditvoucherno;
-				$post_credit_voucher['transtype']			= 'ADVP';
+				$post_credit_voucher['transtype']			= 'CV';
 				$post_credit_voucher['stat']			 	= 'temporary';
 				$post_credit_voucher['transactiondate']		= $transactiondate;
 				$post_credit_voucher['fiscalyear']			= $fiscalyear;
@@ -2103,6 +2103,24 @@ class receipt_voucher_model extends wc_model
 					->runSelect()
 					->getResult();
 
+		return $result;
+	}
+
+	public function checkifCVinuse($voucherno){
+		
+		$sub_query 	=	$this->db->setTable('creditvoucher_applied cra')
+								 ->setFields('SUM(cra.convertedamount) amount, cra.cr_voucher, cra.partner, cra.companycode, cra.rv_voucher')
+								 ->setGroupBy('cra.cr_voucher')
+								 ->buildSelect();
+
+		$result 	=	$this->db->setTable('creditvoucher crv')
+								 ->setFields("IF((crv.convertedamount = (crv.balance - IFNULL(crva.amount,0))),'unused','used') status")
+								 ->leftJoin('('.$sub_query.') crva ON crva.cr_voucher = crv.voucherno AND crva.companycode = crv.companycode AND crva.partner = crv.partner')
+								 ->leftJoin('partners p ON p.partnercode = crv.partner')
+								 ->setWhere("crv.referenceno = '$voucherno'")
+								 ->runSelect()
+								 ->getRow();
+		
 		return $result;
 	}
 }

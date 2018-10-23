@@ -1053,7 +1053,7 @@
 						<?endif;?>
 						&nbsp;
 						<?
-						if(($status == 'open' && $has_access == 1) && $restrict_rv){
+						if(($status == 'open' && $has_access == 1) && $restrict_rv && ($cv_status=="" || $cv_status != "used")){
 							echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
 						}
 						?>
@@ -1226,7 +1226,7 @@
 		</div>
 	</div>
 	
-	<div class="modal fade" id="creditvoucherModal">
+	<div class="modal fade" id="creditvoucherModal" data-backdrop="static">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -1246,7 +1246,7 @@
 					</div>
 				</div>
 				<div class="modal-body">
-					<form class="form-horizontal" id="creditsForm">
+					<form class="form-horizontal" tabindex="-1" id="creditsForm">
 						<div class="row">
 							<div class="col-md-4">
 								<?php
@@ -1584,6 +1584,7 @@ echo $ui->loadElement('modal')
 
 <script>
 	var ajax 	 		= {};
+	var cred_ajax 		= {};
 
 	var id_array 		= [];
 	var accounts 		= [];
@@ -2601,6 +2602,16 @@ $('#pagination').on('click', 'a', function(e) {
 	}
 });
 
+
+$('#creditvoucherModal #pagination').on('click', 'a', function(e) {
+	e.preventDefault();
+	var li = $(this).closest('li');
+	if (li.not('.active').length && li.not('.disabled').length) {
+		cred_ajax.page = $(this).attr('data-page');
+		showCreditsList();
+	}
+});
+
 $('#paymentModal').on('show.bs.modal', function () {
 	$('#payable_list_container tr').each(function(index,value){
 		var amt_to_receive 	= $(this).find('.paymentamount').val();
@@ -2648,34 +2659,31 @@ $('#editcredacct').on('click',function(e){
 });
 
 function showCreditsList(){
-	var vnose 			= JSON.stringify(container);
+	var vnose 			= JSON.stringify(credits_box);
 	var	customer_code	= $('#payableForm #customer').val();
 		voucherno 		= $('#payableForm #h_voucher_no').val();
 
 	var ajax_call		= '';
-		ajax.limit 		= 5;
+		cred_ajax.limit 		= 5;
 
 	if (ajax_call != '') {
 		ajax_call.abort();
 	}
+	cred_ajax.customer 	= customer_code;
+	cred_ajax.voucherno = voucherno;
+	cred_ajax.vno 		= vnose;
+	cred_ajax.task 		= task;
 
-	ajax.customer 	= customer_code;
-	ajax.voucherno 	= voucherno;
-	ajax.vno 		= vnose;
-	ajax.task 		= task;
-	ajax_call 		= $.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/load_credit_vouchers", ajax )
+	cred_ajax_call 		= $.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/load_credit_vouchers", cred_ajax )
 						.done(function( data ) 
 						{
-							$('#pagination').html(data.pagination);
+							$('#creditvoucherModal #pagination').html(data.pagination);
 							$('#creditvoucherModal #list_container').html(data.table);
 
-							if(!($("paymentModal").data('bs.modal') || {isShown: false}).isShown){
-								var check_rows = $('#payableForm #selected_rows').html();
-								var obj = (check_rows != "") ? JSON.parse(check_rows) : 0;
-
-								for(var i = 0; i < obj.length; i++){
-									$('input#row_check' + obj[i]["row"]).iCheck('check');
-								} 
+							if(!($("creditvoucherModal").data('bs.modal') || {isShown: false}).isShown){
+								for (var key in credits_box) {
+									$('#creditvoucherModal input#check' + key).iCheck('check');
+								}
 								$('#creditvoucherModal').modal('show');
 							};
 						});
@@ -2690,18 +2698,8 @@ function showCreditsVoucher(){
 	valid			+= validateField('payableForm','customer', "customer_help");
 
 	if(valid == 0 && customer_code != ""){
-		// showList(h_voucher_no);
-		// setChequeZero();
-		// clearChequePayment();
-		// $('#payable_list_container tbody').html(`<tr>
-		// 	<td colspan="4" class="text-center">Loading Items</td>
-		// 	</tr>`);
-		// $('#pagination').html('');
-		// showList();
-		showCreditsList()
-	}
-	else
-	{
+		showCreditsList();
+	} else {
 		bootbox.dialog({
 			message: "Please select customer first.",
 			title: "Oops!",
@@ -2849,7 +2847,6 @@ function getRVDetails(){
 	cheques = JSON.stringify(cheques);
 
 	$("#selected_rows").html(selected_rows);
-	$('#crv').prop('disabled',false);
 
 	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques + "&overpayment="+overpayment + "&advance="+is_ap;
 	
@@ -2921,6 +2918,7 @@ function getRVDetails(){
 			}	
 		});
 		$('.cwt').removeAttr('disabled');
+		$('#crv').prop('disabled',false);
 	}
 }
 
@@ -2980,9 +2978,6 @@ function initialize_credit_box(id){
 	if (typeof credits_box[id] === 'undefined') {
 		credits_box[id] = {};
 	}
-	credits_box[id].balance = 0;
-	credits_box[id].amount = 0;
-	credits_box[id].toapply = 0;
 }
 
 function computeCreditBalance(id,toapply){
@@ -2998,12 +2993,13 @@ function computeCreditBalance(id,toapply){
 	initialize_credit_box(id);
 
 	var computed_balance 	= parseFloat(amount) - parseFloat(toapply);
-	var new_box 	= {};
-		new_box[id] = {};
+	// var new_box 	= {};
+	// 	new_box[id] = {};
+	console.log(credits_box);
 
-	new_box[id]['amount']  = parseFloat(amount);
-	new_box[id]['toapply'] = parseFloat(toapply);
-	new_box[id]['balance'] = computed_balance;
+	credits_box[id]['amount']  = parseFloat(amount);
+	credits_box[id]['toapply'] = parseFloat(toapply);
+	credits_box[id]['balance'] = computed_balance;
 
 	$('#list_container #credits_balance'+id).html(addComma(computed_balance));  
 	// $('#list_container #credits_balance'+id).attr('data-value',addComma(computed_balance));       
@@ -3015,12 +3011,12 @@ function computeCreditBalance(id,toapply){
 		$('#totalpaymenterror').removeClass('hidden');
 		$('#TagCreditsBtn').prop('disabled',true);
 	} else {
-		credits_box = new_box;  
+		// credits_box = credits_box;  
 		$('#appliedamounterror').addClass('hidden');
 		$('#totalpaymenterror').addClass('hidden');
 		$('#TagCreditsBtn').prop('disabled',false);
 	}
-	console.log("ADDED | ");
+	// console.log("ADDED | ");
 	console.log(credits_box);
 	addCreditsAmount();
 }
@@ -3039,6 +3035,7 @@ function addCreditsAmount(){
 }
 
 function selectCredits(id,toggle,toapply_value=""){
+	console.log("TOGGLE = "+toggle);
 	var check 		= $('#list_container #check'+id);
 	var balance 	= $('#list_container #credits_balance'+id).attr('data-value');
 	var amount 		= $('#list_container #credits_amount'+id).attr('data-value');
@@ -3147,7 +3144,7 @@ function compute_excess_amt(){
 
 	$('#payable_list_container tr').each(function(){
 		var ind_excess = $(this).find('.over').attr('data-value');
-		console.log('ind_excess ... '+ind_excess);
+		// console.log('ind_excess ... '+ind_excess);
 		excess_amt 	+= parseFloat(ind_excess);
 	});
 
@@ -3180,10 +3177,10 @@ function checkBalance(val,id){
 	var ind_excess 		= 0;
 	if(condition){
 		if(current_payment >= 0){
-			console.log("NEW VALUE = "+newval);
-			console.log("DUE AMOUNT = "+dueamount);
+			// console.log("NEW VALUE = "+newval);
+			// console.log("DUE AMOUNT = "+dueamount);
 			ind_excess 		=	newval - dueamount;
-			console.log("IND EXCESS = "+ind_excess);
+			// console.log("IND EXCESS = "+ind_excess);
 			$('#receiveAmtError').addClass('hidden');
 		} else {
 			$('#receiveAmtError').removeClass('hidden');
@@ -3325,13 +3322,8 @@ function totalPaymentGreaterThanChequeAmount(){
 	var total_payment	= document.getElementById('total_payment').value;
 	var total_cheque	= document.getElementById('totalcheques').value;
 
-	// original
-	// $('#payableForm #disp_tot_payment').html(total_payment);
-	// $('#payableForm #disp_tot_cheque').html(total_cheque);
-
 	$('#payableForm #disp_tot_cheque').html(total_payment);
 	$('#payableForm #disp_tot_payment').html(total_cheque);
-
 
 	total_payment    	= total_payment.replace(/\,/g,'');
 	total_cheque    	= total_cheque.replace(/\,/g,'');
@@ -4931,13 +4923,15 @@ $(document).ready(function() {
 	});
 
 	$('#creditVoucherLists').on('ifToggled', '.icheckbox', function(event){
-		event.type = "checked";
 		var selectid = $(this).attr('row');
 		var selecttoggleid = $(this).attr('toggleid');
-		
-		selectCredits(selectid,1);		
+
+		selectCredits(selectid,selecttoggleid);		
 	});
 
+	if(container = []){
+		$('#crv').prop('disabled',true);
+	}
 }); // end
 
 var row = '';
@@ -4968,7 +4962,7 @@ function set_selected_cv(){
 		var credit_to_apply = credits_box[key]['toapply'];
 		$('#credittoapply'+key).val(addComma(credit_to_apply));
 		$('input#check' + key).iCheck('check');
-		selectCredits(key,1,credit_to_apply);
+		// selectCredits(key,1,credit_to_apply);
 	} 
 }
 

@@ -44,6 +44,8 @@ class controller extends wc_controller {
 	public function view($voucherno) {
 		$this->view->title			= 'View Credit Voucher';
 		$data						= (array) $this->credit_voucher_model->getCVById($voucherno);
+		$balance					= $this->credit_voucher_model->getApplied($data['voucherno']);
+		$data['applied']			= $balance->amount;
 		$data['customer_list']		= $this->credit_voucher_model->getCustomerList();
 		$data['partnername']		= $data['partner'];
 		$data['transactiondate'] 	= $this->date->dateFormat($data['transactiondate']);
@@ -99,10 +101,10 @@ class controller extends wc_controller {
 			$balance = $row->amount - $getApplied->amount;
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView() 
-									->addEdit($row->source != 'RV' && $row->stat != 'inactive')
-									->addDelete($row->source != 'RV' && $row->stat != 'inactive')
+									->addEdit($row->source != 'RV' && $row->stat != 'inactive' && $balance == $row->amount)
+									->addDelete($row->source != 'RV' && $row->stat != 'inactive' && $balance == $row->amount)
 									->addPrint()
-									->addCheckbox($row->source != 'RV' && $row->stat != 'inactive')
+									->addCheckbox($row->source != 'RV' && $row->stat != 'inactive' && $balance == $row->amount)
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->voucherno)
                                     ->draw();
@@ -130,6 +132,9 @@ class controller extends wc_controller {
 		$data['amount']				= $this->input->post('amount');
 		$data['receivableno']		= $this->input->post('receivableno');
 		$data['balance']			= $data['amount'];
+		$data['currencycode']		= 'PHP';
+		$data['exchangerate']		= '1';
+		$data['convertedamount']	= $data['amount'];
 		$seq						= new seqcontrol();
 		$data['voucherno']			= $seq->getValue('CV');
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
@@ -156,6 +161,8 @@ class controller extends wc_controller {
 		$data['invoiceno']			= $this->input->post('invoiceno');
 		$data['referenceno']		= $this->input->post('referenceno');
 		$data['amount']				= $this->input->post('amount');
+		$data['convertedamount']	= $data['amount'];
+		$data['balance']			= $data['amount'];
 		$data['receivableno']		= $this->input->post('receivableno');
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$result						= $this->credit_voucher_model->updateCreditVoucher($data, $voucherno);
