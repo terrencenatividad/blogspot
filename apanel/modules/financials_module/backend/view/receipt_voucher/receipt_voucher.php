@@ -1226,7 +1226,7 @@
 		</div>
 	</div>
 	
-	<div class="modal fade" id="creditvoucherModal" data-backdrop="static">
+	<div class="modal fade" id="creditvoucherModal" tabindex="-1" data-backdrop="static">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -1246,7 +1246,7 @@
 					</div>
 				</div>
 				<div class="modal-body">
-					<form class="form-horizontal" tabindex="-1" id="creditsForm">
+					<form class="form-horizontal" id="creditsForm">
 						<div class="row">
 							<div class="col-md-4">
 								<?php
@@ -2623,10 +2623,8 @@ $('#paymentModal').on('show.bs.modal', function () {
 		
 		if(credits_used == 0) {
 			$('#excess_credit_error').addClass('hidden');
-			$('#TagReceivablesBtn').prop('disabled',false);
 		}
-		if(amt_to_receive < 0){
-			$('#TagReceivablesBtn').prop('disabled',true);
+		if(amt_to_receive <= 0){
 		}
 
   	});
@@ -2918,7 +2916,10 @@ function getRVDetails(){
 			}	
 		});
 		$('.cwt').removeAttr('disabled');
-		$('#crv').prop('disabled',false);
+		var has_payment = $('#total_payment').val();
+		if(has_payment > 0){
+			$('#crv').prop('disabled',false);
+		}
 	}
 }
 
@@ -3192,19 +3193,16 @@ function checkBalance(val,id){
 			$(this).find('.paymentamount').closest('div').addClass('has-error');
 			$('#total_payment').val('');
 			$('#total_discount').val('');
-			$('#TagReceivablesBtn').prop('disabled',true);
 			error++;
 		} else {
 			$("#discountAmtError").addClass('hidden');
 			$(this).find('.discountamount').closest('div').removeClass('has-error');
 			$(this).find('.paymentamount').closest('div').removeClass('has-error');
-			$('#TagReceivablesBtn').prop('disabled',false);
 		}
 		if(discount == 0){
 			$("#discountAmtError").addClass('hidden');
 			$(this).find('.discountamount').closest('div').removeClass('has-error');
 			$(this).find('.paymentamount').closest('div').removeClass('has-error');
-			$('#TagReceivablesBtn').prop('disabled',false);
 		}
 
 		$('#payable_list_container #overpayment_'+id).attr('data-value',ind_excess);
@@ -4831,7 +4829,6 @@ $(document).ready(function() {
 					$(this).find('.credits_used').closest('.form-group').addClass('has-error');
 				}
 			});
-			$('#TagReceivablesBtn').prop('disabled',true);
 			$('#payableForm #total_cred_used').val(0);
 		} else {
 			$('#payableForm #total_cred_used').val(total_cred_used);
@@ -4839,7 +4836,6 @@ $(document).ready(function() {
 			$('#payable_list_container tr').each(function(index) {
 				$(this).find('.credits_used').closest('.form-group').removeClass('has-error');
 			});
-			$('#TagReceivablesBtn').prop('disabled',false);
 		}
 	});
 
