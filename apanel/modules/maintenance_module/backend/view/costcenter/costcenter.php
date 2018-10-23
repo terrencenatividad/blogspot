@@ -18,12 +18,41 @@
 					</div>
                     <div class="col-md-6">
 						<?php
-							echo $ui->formField('text')
-									->setLabel('Cost Center')
+							echo $ui->formField('dropdown')
+									->setLabel('Cost Center Account')
+									->setPlaceholder('Select Account')
 									->setSplit('col-md-3', 'col-md-8')
-									->setName('costcenter')
-									->setId('costcenter')
-									->setValue($costcenter)
+									->setName('costcenter_account')
+									->setId('costcenter_account')
+									->setList($coa_list)
+									->setValue($costcenter_account)
+									->setValidation('required')
+									->draw($show_input);
+						?>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-6">
+						<?php
+							echo $ui->formField('text')
+								->setLabel('Name')
+								->setSplit('col-md-3', 'col-md-8')
+								->setName('name')
+								->setId('name')
+								->setValue($name)
+								->setValidation('required')
+								->draw($show_input);
+						?>
+					</div>
+                    <div class="col-md-6">
+						<?php
+							echo $ui->formField('textarea')
+									->setLabel('Description')
+									->setSplit('col-md-3', 'col-md-8')
+									->setName('description')
+									->setId('description')
+									->setValue($description)
 									->setValidation('required')
 									->draw($show_input);
 						?>
@@ -34,29 +63,29 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('Fixed Asset Account ')
-								->setPlaceholder('Select Account')
+								->setLabel('Cost Center Approver ')
+								->setPlaceholder('Select User')
 								->setSplit('col-md-3', 'col-md-8')
-								->setName('fa_account')
-								->setId('fa_account')
-								->setList($coa_list)
-								->setValue($fa_account)
+								->setName('approver')
+								->setId('approver')
+								->setList($users_list)
+								->setValue($approver)
 								->setValidation('required')
 								->draw($show_input);
 						?>
 					</div>
                     <div class="col-md-6">
 						<?php
-							echo $ui->formField('dropdown')
-								->setLabel('Budget Account ')
-								->setPlaceholder('Select Account')
-								->setSplit('col-md-3', 'col-md-8')
-								->setName('budget_account')
-								->setId('budget_account')
-								->setList($coa_list)
-								->setValue($budget_account)
-								->setValidation('required')
-								->draw($show_input);
+							// echo $ui->formField('dropdown')
+							// 	->setLabel('Budget Account ')
+							// 	->setPlaceholder('Select Account')
+							// 	->setSplit('col-md-3', 'col-md-8')
+							// 	->setName('budget_account')
+							// 	->setId('budget_account')
+							// 	->setList($coa_list)
+							// 	->setValue($budget_account)
+							// 	->setValidation('required')
+							// 	->draw($show_input);
 						?>
 					</div>
 				</div>

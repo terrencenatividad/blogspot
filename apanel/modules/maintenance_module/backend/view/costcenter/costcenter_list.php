@@ -76,10 +76,11 @@
 										'class' => 'col-md-1 text-center'
 									)
 								)
-								->addHeader('Cost Center Code',array('class'=>'col-md-3'),'sort','effectivedate')
-								->addHeader('Cost Center', array('class'=>'col-md-3'),'sort','basecurrencycode')
-								->addHeader('Fixed Asset Account', array('class'=>'col-md-3'),'sort','exchangecurrencycode')
-								->addHeader('Budget Account', array('class'=>'col-md-3'),'sort','exchangerate')
+								->addHeader('Cost Center Code',array('class'=>'col-md-2'),'sort','costcenter_code')
+								->addHeader('Cost Center Account', array('class'=>'col-md-2'),'sort','accountname')
+								->addHeader('Name', array('class'=>'col-md-3'),'sort','name')
+								->addHeader('Description', array('class'=>'col-md-3'),'sort','c.description')
+								->addHeader('Approver', array('class'=>'col-md-3'),'sort','approver')
 								->addHeader('Status', array('class'=>'col-md-3'),'sort','stat')					
 								->draw();
 					?>
