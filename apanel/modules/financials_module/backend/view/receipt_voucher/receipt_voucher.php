@@ -2847,7 +2847,6 @@ function getRVDetails(){
 	cheques = JSON.stringify(cheques);
 
 	$("#selected_rows").html(selected_rows);
-	$('#crv').prop('disabled',false);
 
 	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques + "&overpayment="+overpayment + "&advance="+is_ap;
 	
@@ -2919,6 +2918,7 @@ function getRVDetails(){
 			}	
 		});
 		$('.cwt').removeAttr('disabled');
+		$('#crv').prop('disabled',false);
 	}
 }
 
