@@ -805,14 +805,14 @@ class controller extends wc_controller
 			
 			if(!empty($decode_json)) {
 				foreach($decode_json as $value => $row){	
-					array_push($voucher_array, $row['vno']);
-					$amt_array[$row['vno']] = $row;
+					array_push($voucher_array, $value);
+					$amt_array[$value] = $row;
 				}	
 			}
 
 			for($i = 0; $i < count($pagination->result); $i++, $j++){
 				$voucherno 		=	isset($pagination->result[$i]->voucherno) 	? 	$pagination->result[$i]->voucherno 		: 	"";
-				$amount			=	isset($pagination->result[$i]->amount) 		? 	$pagination->result[$i]->amount 		:	0;
+				$totalamt		=	isset($pagination->result[$i]->amount) 		? 	$pagination->result[$i]->amount 		:	0;
 				$balance 		=	isset($pagination->result[$i]->balance)		?	$pagination->result[$i]->balance 		: 	0;
 				$invoiceno		=	isset($pagination->result[$i]->invoiceno) 	? 	$pagination->result[$i]->invoiceno 		: 	0;
 				$referenceno 	=	isset($pagination->result[$i]->referenceno) ? 	$pagination->result[$i]->referenceno	: 	"";
@@ -820,6 +820,13 @@ class controller extends wc_controller
 				$orig_balance 	=	isset($pagination->result[$i]->orig_balance)? 	$pagination->result[$i]->orig_balance 	:	0;
 
 				$voucher_checked= (in_array($voucherno , $voucher_array)) ? 'checked' : '';
+
+				// $balance_2		= $balance;
+
+				if (isset($amt_array[$voucherno])) {
+					$amount		= str_replace(',','',$amt_array[$voucherno]['toapply']);
+					$balance	= str_replace(',','',$amt_array[$voucherno]['balance']);
+				}
 
 				$disable_checkbox 	=	"";
 				$disable_onclick 	=	'onClick="selectCredits(\''.$voucherno.'\',1);"';
@@ -831,7 +838,7 @@ class controller extends wc_controller
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$voucherno.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$invoiceno.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
-				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "credits_amount'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($amount,2).'">'.number_format($amount,2).'</td>';
+				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "credits_amount'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($totalamt,2).'">'.number_format($totalamt,2).'</td>';
 				$table	.= 	'<td class="text-right balances" style="vertical-align:middle;" id = "credits_balance'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($orig_balance,2).'">'.number_format($balance,2).'</td>';
 				
 				if($voucher_checked == 'checked'){

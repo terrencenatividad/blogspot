@@ -1226,7 +1226,7 @@
 		</div>
 	</div>
 	
-	<div class="modal fade" id="creditvoucherModal">
+	<div class="modal fade" id="creditvoucherModal" data-backdrop="static">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -1246,7 +1246,7 @@
 					</div>
 				</div>
 				<div class="modal-body">
-					<form class="form-horizontal" id="creditsForm">
+					<form class="form-horizontal" tabindex="-1" id="creditsForm">
 						<div class="row">
 							<div class="col-md-4">
 								<?php
@@ -2659,7 +2659,7 @@ $('#editcredacct').on('click',function(e){
 });
 
 function showCreditsList(){
-	var vnose 			= JSON.stringify(container);
+	var vnose 			= JSON.stringify(credits_box);
 	var	customer_code	= $('#payableForm #customer').val();
 		voucherno 		= $('#payableForm #h_voucher_no').val();
 
@@ -2669,18 +2669,16 @@ function showCreditsList(){
 	if (ajax_call != '') {
 		ajax_call.abort();
 	}
-
 	cred_ajax.customer 	= customer_code;
-	cred_ajax.voucherno 	= voucherno;
+	cred_ajax.voucherno = voucherno;
 	cred_ajax.vno 		= vnose;
 	cred_ajax.task 		= task;
+
 	cred_ajax_call 		= $.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/load_credit_vouchers", cred_ajax )
 						.done(function( data ) 
 						{
 							$('#creditvoucherModal #pagination').html(data.pagination);
 							$('#creditvoucherModal #list_container').html(data.table);
-							
-							// drawTemplate();
 
 							if(!($("creditvoucherModal").data('bs.modal') || {isShown: false}).isShown){
 								for (var key in credits_box) {
@@ -2700,18 +2698,8 @@ function showCreditsVoucher(){
 	valid			+= validateField('payableForm','customer', "customer_help");
 
 	if(valid == 0 && customer_code != ""){
-		// showList(h_voucher_no);
-		// setChequeZero();
-		// clearChequePayment();
-		// $('#payable_list_container tbody').html(`<tr>
-		// 	<td colspan="4" class="text-center">Loading Items</td>
-		// 	</tr>`);
-		// $('#pagination').html('');
-		// showList();
 		showCreditsList();
-	}
-	else
-	{
+	} else {
 		bootbox.dialog({
 			message: "Please select customer first.",
 			title: "Oops!",
@@ -2990,9 +2978,6 @@ function initialize_credit_box(id){
 	if (typeof credits_box[id] === 'undefined') {
 		credits_box[id] = {};
 	}
-	credits_box[id].balance = 0;
-	credits_box[id].amount = 0;
-	credits_box[id].toapply = 0;
 }
 
 function computeCreditBalance(id,toapply){
@@ -3010,7 +2995,8 @@ function computeCreditBalance(id,toapply){
 	var computed_balance 	= parseFloat(amount) - parseFloat(toapply);
 	// var new_box 	= {};
 	// 	new_box[id] = {};
-		
+	console.log(credits_box);
+
 	credits_box[id]['amount']  = parseFloat(amount);
 	credits_box[id]['toapply'] = parseFloat(toapply);
 	credits_box[id]['balance'] = computed_balance;
@@ -3031,7 +3017,7 @@ function computeCreditBalance(id,toapply){
 		$('#TagCreditsBtn').prop('disabled',false);
 	}
 	// console.log("ADDED | ");
-	// console.log(credits_box);
+	console.log(credits_box);
 	addCreditsAmount();
 }
 
@@ -3049,6 +3035,7 @@ function addCreditsAmount(){
 }
 
 function selectCredits(id,toggle,toapply_value=""){
+	console.log("TOGGLE = "+toggle);
 	var check 		= $('#list_container #check'+id);
 	var balance 	= $('#list_container #credits_balance'+id).attr('data-value');
 	var amount 		= $('#list_container #credits_amount'+id).attr('data-value');
@@ -3335,13 +3322,8 @@ function totalPaymentGreaterThanChequeAmount(){
 	var total_payment	= document.getElementById('total_payment').value;
 	var total_cheque	= document.getElementById('totalcheques').value;
 
-	// original
-	// $('#payableForm #disp_tot_payment').html(total_payment);
-	// $('#payableForm #disp_tot_cheque').html(total_cheque);
-
 	$('#payableForm #disp_tot_cheque').html(total_payment);
 	$('#payableForm #disp_tot_payment').html(total_cheque);
-
 
 	total_payment    	= total_payment.replace(/\,/g,'');
 	total_cheque    	= total_cheque.replace(/\,/g,'');
@@ -4940,21 +4922,16 @@ $(document).ready(function() {
 		showCreditsVoucher();
 	});
 
-	// $('#creditVoucherLists').on('ifChecked', '.icheckbox', function(event){
-	// 	console.log('checked');
-	// 	var selectid = $(this).attr('row');
-	// 	var selecttoggleid = $(this).attr('toggleid');
-
-	// 	selectCredits(selectid,1);		
-	// });
-
 	$('#creditVoucherLists').on('ifToggled', '.icheckbox', function(event){
-		console.log('unchecked');
 		var selectid = $(this).attr('row');
 		var selecttoggleid = $(this).attr('toggleid');
 
 		selectCredits(selectid,selecttoggleid);		
 	});
+
+	if(container = []){
+		$('#crv').prop('disabled',true);
+	}
 }); // end
 
 var row = '';
@@ -4985,7 +4962,7 @@ function set_selected_cv(){
 		var credit_to_apply = credits_box[key]['toapply'];
 		$('#credittoapply'+key).val(addComma(credit_to_apply));
 		$('input#check' + key).iCheck('check');
-		selectCredits(key,1,credit_to_apply);
+		// selectCredits(key,1,credit_to_apply);
 	} 
 }
 
