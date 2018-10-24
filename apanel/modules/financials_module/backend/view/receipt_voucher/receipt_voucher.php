@@ -3656,8 +3656,8 @@ function set_credit_account(){
 	var cred_acct 	= $('#hidden_cred_id').val();
 
 	var checker 	= $('#accountcode\\['+row+'\\]').val();
-	// console.log("CHECKER "+checker);
-	if(checker!=""){
+
+	if(checker!=undefined){
 		var ParentRow = $("#entriesTable tbody tr.clone").last();
 			ParentRow.after(clone_acct);
 		
