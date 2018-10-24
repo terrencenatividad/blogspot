@@ -1266,7 +1266,26 @@
 										->setValue(number_format($sum_applied,2))
 										->draw(true);
 								?>
-							</div>			
+							</div>
+							<div class="col-md-5">
+								<?php
+								echo $ui->formField('text')
+										->setSplit('col-md-6', 'col-md-6')
+										->setLabel("Receivables Amount")
+										->setClass("input-sm text-right")
+										->setName('current_tagged_receivables')
+										->setId('current_tagged_receivables')
+										->setPlaceHolder("0.00")
+										->setAttribute(
+											array(
+												"maxlength" => "20", 
+												"readonly" => "readonly"
+											)
+										)
+										->setValue(number_format($current_tagged_receivables,2))
+										->draw(true);
+								?>
+							</div>						
 						</div>
 					
 						<div class="has-error">
@@ -2642,13 +2661,6 @@ $('#cancelPaymentModal').on('click',function(){
 	var selected_rows 	= JSON.stringify(container);
 	$('#selected_rows').html(selected_rows);
 	$('#paymentModal').modal('hide');
-	// $('#payable_list_container tr').each(function(index,value){
-	// 	if($(this).find('.icheckbox').prop('checked')){
-	// 		var voucher = $(this).find('.icheckbox').attr('row');
-	// 		selectPayable(voucher,1);
-	// 	}
-	// });
-	// $('#pv_amount').html('0.00');
 });
 
 $('#cancelCreditApplication').on('click',function(){
@@ -2660,7 +2672,7 @@ $('#cancelCreditApplication').on('click',function(){
 			// selectPayable(voucher,1);
 		}
 	});
-	$('#applied_cred_amt').html('0.00');
+	// $('#applied_cred_amt').html('0.00');
 });	
 
 $('#editcredacct').on('click',function(e){
@@ -2792,6 +2804,7 @@ function addPaymentAmount() {
 	}
 	amount = addCommas(amount.toFixed(2));
 	$('#total_payment').val(amount);
+	$('#current_tagged_receivables').val(amount);
 	discount = addCommas(discount.toFixed(2));
 	$('#total_discount').val(discount);
 
@@ -2896,6 +2909,7 @@ function getRVDetails(){
 			if('<?= $task ?>' == "create" || '<?= $task ?>' == "edit" ){
 				$("#entriesTable tbody").html(data.table);
 				$("#pv_amount").html(total_payment);
+				$('#current_tagged_receivables').val(total_payment);
 				var count_container = Object.keys(container).length;
 				var discount_amount = 0; 
 				for(i = 0; i < count_container; i++) {
@@ -2931,7 +2945,7 @@ function getRVDetails(){
 		});
 		$('.cwt').removeAttr('disabled');
 		var has_payment = $('#total_payment').val();
-		console.log('has payment '+has_payment);
+
 		if(parseFloat(has_payment) > 0){
 			$('#crv').prop('disabled',false);
 		}
@@ -2984,12 +2998,6 @@ function selectPayable(id,toggle){
 
 	$('#payable_list_container #check'+id).iCheck('update');
 
-	console.log("INSIDE SELECT PAYABLE ");
-	console.log("CONTAINER");
-	console.log(container);
-	console.log("TAGGED AR");
-	console.log(tagged_AR);
-
 	// Get number of checkboxes and assign to textarea
 	balance 	=	removeComma(balance);
 	add_storage(id,balance,0,0,overpayment);
@@ -3015,16 +3023,12 @@ function computeCreditBalance(id,toapply){
 	initialize_credit_box(id);
 
 	var computed_balance 	= parseFloat(amount) - parseFloat(toapply);
-	// var new_box 	= {};
-	// 	new_box[id] = {};
-	console.log(credits_box);
 
 	credits_box[id]['amount']  = parseFloat(amount);
 	credits_box[id]['toapply'] = parseFloat(toapply);
 	credits_box[id]['balance'] = computed_balance;
 
-	$('#list_container #credits_balance'+id).html(addComma(computed_balance));  
-	// $('#list_container #credits_balance'+id).attr('data-value',addComma(computed_balance));       
+	$('#list_container #credits_balance'+id).html(addComma(computed_balance));       
 
 	if( toapply > balance ) {
 		$('#appliedamounterror').removeClass('hidden');
@@ -3038,8 +3042,7 @@ function computeCreditBalance(id,toapply){
 		$('#totalpaymenterror').addClass('hidden');
 		$('#TagCreditsBtn').prop('disabled',false);
 	}
-	// console.log("ADDED | ");
-	console.log(credits_box);
+
 	addCreditsAmount();
 }
 
@@ -3057,7 +3060,6 @@ function addCreditsAmount(){
 }
 
 function selectCredits(id,toggle,toapply_value=""){
-	console.log("TOGGLE = "+toggle);
 	var check 		= $('#list_container #check'+id);
 	var balance 	= $('#list_container #credits_balance'+id).attr('data-value');
 	var amount 		= $('#list_container #credits_amount'+id).attr('data-value');
@@ -3166,7 +3168,6 @@ function compute_excess_amt(){
 
 	$('#payable_list_container tr').each(function(){
 		var ind_excess = $(this).find('.over').attr('data-value');
-		// console.log('ind_excess ... '+ind_excess);
 		excess_amt 	+= parseFloat(ind_excess);
 	});
 
@@ -3199,10 +3200,7 @@ function checkBalance(val,id){
 	var ind_excess 		= 0;
 	if(condition){
 		if(current_payment >= 0){
-			// console.log("NEW VALUE = "+newval);
-			// console.log("DUE AMOUNT = "+dueamount);
 			ind_excess 		=	newval - dueamount;
-			// console.log("IND EXCESS = "+ind_excess);
 			$('#receiveAmtError').addClass('hidden');
 		} else {
 			$('#receiveAmtError').removeClass('hidden');

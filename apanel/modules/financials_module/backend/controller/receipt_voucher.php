@@ -164,14 +164,15 @@ class controller extends wc_controller
 		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
 
 		// Application Data
-		$data['sum_applied'] 		= 0;
-		$data['sum_discount']		= 0;
-		$data['credits_applied'] 	= 0;
-		$data['payments'] 			= "''";
-		$data['credits_box'] 		= "''";
-		$data['available_credits'] 	= "0.00";
-		$data['credits_used'] 		= 0;
-		$data['overpayment'] 		= 0;
+		$data['sum_applied'] 				= 0;
+		$data['sum_discount']				= 0;
+		$data['credits_applied'] 			= 0;
+		$data['payments'] 					= "''";
+		$data['credits_box'] 				= "''";
+		$data['available_credits'] 			= "0.00";
+		$data['credits_used'] 				= 0;
+		$data['overpayment'] 				= 0;
+		$data['current_tagged_receivables'] = 0;
 
 		$data["listofcheques"]		= "";
 		$data["show_cheques"] 		= 'hidden';
@@ -339,9 +340,9 @@ class controller extends wc_controller
 					$sum_discount += $value->dis;
 			}
 		}
-		$data['sum_applied'] 	= $sum_applied;
-		$data['sum_discount'] 	= $sum_discount;
-
+		$data['sum_applied'] 					= $sum_applied;
+		$data['sum_discount'] 					= $sum_discount;
+		$data['current_tagged_receivables'] 	= 0;
 		//Credits
 		$credits_applied 		= $data['credits'];
 
@@ -617,9 +618,10 @@ class controller extends wc_controller
 			}
 		}
 
-		$data['sum_applied'] 			= $sum_applied;
-		$data['sum_discount'] 			= $sum_discount;
-		$data['payments'] 				= json_encode($payments);
+		$data['sum_applied'] 					= $sum_applied;
+		$data['sum_discount'] 					= $sum_discount;
+		$data['payments'] 						= json_encode($payments);
+		$data['current_tagged_receivables'] 	= 0;
 
 		//Credits
 		$credits_applied 		= $data['credits'];
