@@ -798,11 +798,11 @@ class controller extends wc_controller
 				$dropdown = $this->ui->loadElement('check_task')
 							->addView()
 							->addEdit($show_edit && $checker != "import" && $restrict_ap)
-							->addOtherTask(
-								'Issue Payment',
-								'credit-card',
-								$show_payment  && $restrict_ap
-							)
+							// ->addOtherTask(
+							// 	'Issue Payment',
+							// 	'credit-card',
+							// 	$show_payment  && $restrict_ap
+							// )
 							->addOtherTask(
 								'Print 2307',
 								'print',
