@@ -133,6 +133,8 @@
 	}
 	$(function() {
 		linkButtonToTable('#item_multiple_delete', '#tableList');
+		linkButtonToTable('#activateMultipleBtn', '#tableList');
+		linkButtonToTable('#deactivateMultipleBtn', '#tableList');
 		linkDeleteToModal('#tableList .delete', 'ajaxCallback');
 		linkDeleteMultipleToModal('#item_multiple_delete', '#tableList', 'ajaxCallback');
 	});

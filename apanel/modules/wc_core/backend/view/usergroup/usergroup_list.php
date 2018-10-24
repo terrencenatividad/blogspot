@@ -155,6 +155,8 @@
 		}
 		$(function() {
 			linkButtonToTable('#item_multiple_delete, #item_multiple_view', '#tableList');
+			linkButtonToTable('#activateMultipleBtn', '#tableList');
+			linkButtonToTable('#deactivateMultipleBtn', '#tableList');
 			linkDeleteToModal('#tableList .delete', 'ajaxCallback');
 			linkDeleteMultipleToModal('#item_multiple_delete', '#tableList', 'ajaxCallback');
 		});
@@ -259,8 +261,9 @@ $("#deactivateMultipleBtn").click(function()
 
 	function getSelectedIds(){
 		id 	=	[];
+		// console.log(arr);
 		$('.checkbox:checked').each(function(){
-			id.push($(this).val());
+			id.push(atob($(this).val()));
 		});
 		return id;
 	}

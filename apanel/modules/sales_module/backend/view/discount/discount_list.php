@@ -270,6 +270,11 @@ function showList(pg){
 
 showList();
 
+$(function() {
+	linkButtonToTable('#activateMultipleBtn', '#discount_table');
+	linkButtonToTable('#deactivateMultipleBtn', '#discount_table');
+});
+
 $(document).ready(function() 
 {
 	$( "#discount_table" ).on('click' , '.delete', function() 

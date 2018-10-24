@@ -493,6 +493,8 @@ function ajaxCallback(id) {
 
 $(function() {
 	linkButtonToTable('#item_multiple_delete', '#sales_person_table');
+	linkButtonToTable('#activateMultipleBtn', '#sales_person_table');
+	linkButtonToTable('#deactivateMultipleBtn', '#sales_person_table');
 	linkDeleteToModal('#sales_person_table .delete', 'ajaxCallback');
 	linkDeleteMultipleToModal('#item_multiple_delete', '#sales_person_table', 'ajaxCallback');
 });

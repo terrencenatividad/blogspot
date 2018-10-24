@@ -316,6 +316,8 @@ function ajaxCallback(id) {
 
 $(function() {
 	linkButtonToTable('#item_multiple_delete', '#customer_table');
+	linkButtonToTable('#activateMultipleBtn', '#customer_table');
+	linkButtonToTable('#deactivateMultipleBtn', '#customer_table');
 	linkDeleteToModal('#customer_table .delete', 'ajaxCallback');
 	linkDeleteMultipleToModal('#item_multiple_delete', '#customer_table', 'ajaxCallback');
 });

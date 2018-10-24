@@ -473,6 +473,12 @@ $("#activateMultipleBtn").click(function()
 		});
 		return id;
 	}
+
+	$(function() {
+			linkButtonToTable('#deleteMultipleBtn', '#tableList');
+			linkButtonToTable('#activateMultipleBtn', '#tableList');
+			linkButtonToTable('#deactivateMultipleBtn', '#tableList');
+		});
 		/*
 		* For Import Modal
 		*/

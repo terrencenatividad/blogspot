@@ -256,6 +256,8 @@ function ajaxCallback(id) {
 
 $(function() {
 	linkButtonToTable('#item_multiple_delete', '#exchangerate_table');
+	linkButtonToTable('#activateMultipleBtn', '#exchangerate_table');
+	linkButtonToTable('#deactivateMultipleBtn', '#exchangerate_table');
 	linkDeleteToModal('#exchangerate_table .delete', 'ajaxCallback');
 	linkDeleteMultipleToModal('#item_multiple_delete', '#exchangerate_table', 'ajaxCallback');
 });
