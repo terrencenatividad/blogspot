@@ -199,7 +199,7 @@ class backend {
 
 	public function getPage() {
 		$page = explode('/', str_replace(str_replace('%', '', $this->module_link), '', SUB_FOLDER));
-		if (in_array($page[0], array('add', 'view', 'edit', 'delete', 'listing', 'print'))) {
+		if (in_array($page[0], array('create', 'view', 'edit', 'delete', 'listing', 'print'))) {
 			return $page[0];
 		} else if ($page[0] == 'ajax') {
 			return (isset($page[1])) ? $page[1] : false;
