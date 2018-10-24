@@ -265,6 +265,11 @@
 			}
 		});
 	}
+	$(function() {
+			linkButtonToTable('#deleteMultipleBtn', '#tableList');
+			linkButtonToTable('#activateMultipleBtn', '#tableList');
+			linkButtonToTable('#deactivateMultipleBtn', '#tableList');
+		});
 	tableSort('#tableList', function(value, x) 
 	{
 		ajax.sort = value;

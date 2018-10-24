@@ -212,6 +212,11 @@ function getIds(ids) {
 	return "id[]=" + x.join("&id[]=");
 }
 
+	$(function() {
+			linkButtonToTable('#activateMultipleBtn', '#pricelist_table');
+			linkButtonToTable('#deactivateMultipleBtn', '#pricelist_table');
+		});
+
 $(document).ready(function() 
 {
 	showList();

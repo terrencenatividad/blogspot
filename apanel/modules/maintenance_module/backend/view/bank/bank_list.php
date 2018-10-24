@@ -219,6 +219,8 @@ function ajaxCallback(id) {
 
 $(function() {
 	linkButtonToTable('#item_multiple_delete', '#currency_table');
+	linkButtonToTable('#activateMultipleBtn', '#currency_table');
+	linkButtonToTable('#deactivateMultipleBtn', '#currency_table');
 	linkDeleteToModal('#currency_table .delete', 'ajaxCallback');
 	linkDeleteMultipleToModal('#item_multiple_delete', '#currency_table', 'ajaxCallback');
 });
