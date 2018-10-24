@@ -1609,6 +1609,7 @@ echo $ui->loadElement('modal')
 	var accounts 		= [];
 	var acct_details 	= [];
 	var tagged_AR 		= [];
+	var tagged_CV 		= [];
 
 	var checker 	= new Array();
 
@@ -2664,13 +2665,9 @@ $('#cancelPaymentModal').on('click',function(){
 });
 
 $('#cancelCreditApplication').on('click',function(){
-	credits_box = [];
-	$('#creditVoucherLists tr').each(function(index,value){
-		if($(this).find('.icheckbox').prop('checked')){
-			var voucher = $(this).find('.icheckbox').attr('row');
-			// selectPayable(voucher,1);
-		}
-	});
+	credits_box =	$.extend(true,{},tagged_CV);
+	$('#appliedamounterror').addClass('hidden');
+	$('#totalpaymenterror').addClass('hidden');
 	$('#creditvoucherModal').modal('hide');
 });	
 
@@ -2721,6 +2718,9 @@ function showCreditsVoucher(){
 
 	if(valid == 0 && customer_code != ""){
 		showCreditsList();
+		console.log(credits_box);
+		tagged_CV 	 = $.extend(true,{},credits_box);
+		console.log(tagged_CV);
 	} else {
 		bootbox.dialog({
 			message: "Please select customer first.",
@@ -2870,7 +2870,7 @@ function getRVDetails(){
 	cheques = JSON.stringify(cheques);
 	$("#selected_rows").html(selected_rows);
 	
-	tagged_AR 	 = $.extend(true,{},container);;
+	tagged_AR 	 = $.extend(true,{},container);
 	
 	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques + "&overpayment="+overpayment + "&advance="+is_ap;
 	
