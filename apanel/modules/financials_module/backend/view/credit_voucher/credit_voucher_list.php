@@ -12,7 +12,7 @@
 				<div class="row">
 					<div class="col-md-8">
 						<?
-							echo $ui->CreateNewButton('');
+							//echo $ui->CreateNewButton('');
 						?>
 						<input type="button" id="item_multiple_delete" class="btn btn-danger btn-flat " value="Cancel">
 					</div>

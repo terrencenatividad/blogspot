@@ -550,7 +550,7 @@
                     &nbsp;
                     </div>
                     <div class="col-md-8 col-sm-8 col-xs-8 text-center">
-                        <?if($v_balance > 0 && $restrict_ap && $stat != 'cancelled'){?>
+                        <?if(false && $v_balance > 0 && $restrict_ap && $stat != 'cancelled'){?>
                         <button type="button" class="btn btn-primary btn-md btn-flat" id="btnReceive">Issue Payment</button>
                         &nbsp;
                         <?}?>
