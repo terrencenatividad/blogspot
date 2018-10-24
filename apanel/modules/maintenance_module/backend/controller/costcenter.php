@@ -21,6 +21,11 @@ class controller extends wc_controller {
 	public function listing() {
 		$this->view->title = $this->ui->ListLabel('');
 		$data['ui'] = $this->ui;
+		$access = $this->costcenter->getModuleAccessList('Super Admin', 'Cost Center');
+		foreach ($access as $key => $row) {
+			$data['mod_add'] = $row->mod_add;
+			$data['mod_delete'] = $row->mod_delete;
+		}
 		$this->view->load('costcenter/costcenter_list', $data);
 	}
 
@@ -86,7 +91,7 @@ class controller extends wc_controller {
 	private function ajax_list() {
 		$search	= $this->input->post('search');
 		$sort	= $this->input->post('sort');
-
+	
 		$pagination = $this->costcenter->getCostCenterListPagination($this->fields, $search, $sort);
 		$table = '';
 		if (empty($pagination->result)) {
