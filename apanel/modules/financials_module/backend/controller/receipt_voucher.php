@@ -621,7 +621,7 @@ class controller extends wc_controller
 		$data['sum_applied'] 					= $sum_applied;
 		$data['sum_discount'] 					= $sum_discount;
 		$data['payments'] 						= json_encode($payments);
-		$data['current_tagged_receivables'] 	= 0;
+		$data['current_tagged_receivables'] 	= $sum_applied;
 
 		//Credits
 		$credits_applied 		= $data['credits'];

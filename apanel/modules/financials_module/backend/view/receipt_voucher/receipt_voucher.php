@@ -1263,7 +1263,7 @@
 												"readonly" => "readonly"
 											)
 										)
-										->setValue(number_format($sum_applied,2))
+										->setValue(number_format($credits_applied,2))
 										->draw(true);
 								?>
 							</div>
@@ -2940,8 +2940,9 @@ function getRVDetails(){
 				});
 				$('#entriesTable tbody tr.clone').removeClass('added_row');
 				addAmounts();
-
-				set_credit_account();
+				
+				var total = $('#creditvoucherModal #total_credits_to_apply').val();
+				apply_credit_account(total);
 			}	
 		});
 		$('.cwt').removeAttr('disabled');
@@ -3053,12 +3054,13 @@ function computeCreditBalance(id,toapply){
 function addCreditsAmount(){
 	var count_container = Object.keys(credits_box).length;
 	var	total_credits = 0; 	
-
+	console.log(credits_box);
 	for (var key in credits_box) {
 		credits 	= removeComma(credits_box[key]['toapply']);
 		credits  	= parseFloat(credits);
 		total_credits += credits;
 	}
+	console.log("TOTAL "+total_credits);
 	total_credits = addCommas(total_credits.toFixed(2));
 	$('#total_credits_to_apply').val(total_credits);
 }
@@ -3652,17 +3654,18 @@ function computefortotalaccounts(){
 
 function set_credit_account(){
 	var cred_acct 	= $('#hidden_cred_id').val();
-	var row 	  	= $('#entriesTable tbody tr.clone').length;
 
 	var checker 	= $('#accountcode\\['+row+'\\]').val();
 	// console.log("CHECKER "+checker);
 	if(checker!=""){
 		var ParentRow = $("#entriesTable tbody tr.clone").last();
-			ParentRow.before(clone_acct);
+			ParentRow.after(clone_acct);
 		
 		resetIds();
 	}
 
+	var row 	  	= $('#entriesTable tbody tr.clone').length;
+	
 	$("#accountcode\\["+ row +"\\]").val(cred_acct).trigger('change.select2');
 	$("#h_accountcode\\["+ row +"\\]").val(cred_acct);
 	$('#credit\\['+row+'\\]').val('0.00');	
