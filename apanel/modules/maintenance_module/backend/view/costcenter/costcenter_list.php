@@ -23,22 +23,14 @@
 						</div>
 					</div> -->
 					<div class="col-md-8">
-					<?php 
-					if($mod_add == '1'){ ?>
-						<a href="<?php MODULE_URL ?>create" class="btn btn-primary btn-flat" role="button">Add Cost Center</a>
-					<?php }else{ ?>
-						<a class="btn btn-primary btn-flat" role="button" disabled >Add Cost Center</a>
-					<?php  }
+					<?=  
+						$ui->CreateNewButton('');
 					?>
 					<?php 
 						// $ui->OptionButton('');
 					?>
-						<?php if($mod_delete == '1'){ ?>
-							<input id = "item_multiple_delete" type = "button" name = "delete" value = "Delete" class="btn btn-danger btn-flat ">
-					<?php }else{ ?>
-							<input type = "button" name = "delete" value = "Delete" class="btn btn-danger btn-flat" disabled>
-						
-					<?php }
+					<?=
+						$ui->CreateDeleteButton('');
 					?>
 					
 					<input id = "activateMultipleBtn" type = "button" name = "activate" value = "Activate" class="btn btn-success btn-flat ">
