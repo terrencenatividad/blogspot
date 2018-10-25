@@ -899,9 +899,11 @@
 										} else if( $accountcode == $cred_id ) {
 											$disable_debit		= 'readOnly';
 											$disable_code 		= 'disabled';
+											$disable_credit 	= '';
 										} else if( $accountcode == $op_acct ) {
 											$disable_credit		= 'readOnly';
 											$disable_code 		= 'disabled';
+											$disable_debit		= '';
 										} else {
 											$disable_debit		= ($debit > 0) ? '' : 'readOnly';
 											$disable_credit		= ($credit > 0) ? '' : 'readOnly';
