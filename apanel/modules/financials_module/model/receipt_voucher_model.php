@@ -71,7 +71,7 @@ class receipt_voucher_model extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used, overpayment";
+		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used, overpayment, advancepayment";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -1122,7 +1122,7 @@ class receipt_voucher_model extends wc_model
 												// echo " sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' ";
 
 						$cm_voucher			= 	isset($cm_existing[0]->voucherno) ? $cm_existing[0]->voucherno 	:	"";
-					
+									
 						if($credits == 0){
 							$del_result 		=	$this->cancelCreditMemo($cm_voucher);
 						} else {
@@ -1215,11 +1215,11 @@ class receipt_voucher_model extends wc_model
 		$result	= $this->db->setTable('journaldetails')
 							->setWhere("voucherno = '$voucherno' AND transtype = 'CM'")
 							->runDelete();
-		
+
 		if ($result) {
 			$result = $this->deleteCreditMemo($voucherno);
 		}
-							
+
 		return $result;
 	}
 
@@ -1301,7 +1301,6 @@ class receipt_voucher_model extends wc_model
 				$insert_info['accountcode']			= $count[$i]->accountcode;
 				$insert_info['debit']				= $count[$i]->credit;
 				$insert_info['credit']				= $count[$i]->debit;
-				$insert_info['taxbase_amount']		= $count[$i]->taxbase_amount;
 				$insert_info['currencycode']		= $count[$i]->currencycode;
 				$insert_info['exchangerate']		= $count[$i]->exchangerate;
 				$insert_info['converteddebit']		= $count[$i]->convertedcredit;
