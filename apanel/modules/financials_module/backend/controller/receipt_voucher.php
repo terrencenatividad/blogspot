@@ -826,11 +826,11 @@ class controller extends wc_controller
 
 				$voucher_checked= (in_array($voucherno , $voucher_array)) ? 'checked' : '';
 
-				// $balance_2		= $balance;
+				$balance_2		= $balance;
 
 				if (isset($amt_array[$voucherno])) {
 					$amount		= str_replace(',','',$amt_array[$voucherno]['toapply']);
-					$balance	= str_replace(',','',$amt_array[$voucherno]['balance']);
+					$balance_2	= str_replace(',','',$amt_array[$voucherno]['balance']);
 				}
 
 				$disable_checkbox 	=	"";
@@ -844,7 +844,7 @@ class controller extends wc_controller
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$invoiceno.'</td>';
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
 				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "credits_amount'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($totalamt,2).'">'.number_format($totalamt,2).'</td>';
-				$table	.= 	'<td class="text-right balances" style="vertical-align:middle;" id = "credits_balance'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($orig_balance,2).'">'.number_format($balance,2).'</td>';
+				$table	.= 	'<td class="text-right balances" style="vertical-align:middle;" id = "credits_balance'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance_2,2).'</td>';
 				
 				if($voucher_checked == 'checked'){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.

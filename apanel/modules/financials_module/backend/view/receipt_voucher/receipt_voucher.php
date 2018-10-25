@@ -3027,10 +3027,12 @@ function initialize_credit_box(id){
 }
 
 function computeCreditBalance(id,toapply){
+	var org_balance = $('#list_container #credits_balance'+id).html();
 	var balance 	= $('#list_container #credits_balance'+id).attr('data-value');
 	var amount 		= $('#list_container #credits_amount'+id).attr('data-value');
 		amount 		= removeComma(amount);
 		toapply 	= removeComma(toapply);
+		org_balance = removeComma(org_balance);
 		balance  	= removeComma(balance);
 	
 	var total_payment = $('#total_payment').val();
@@ -3038,7 +3040,7 @@ function computeCreditBalance(id,toapply){
 
 	initialize_credit_box(id);
 
-	var computed_balance 	= parseFloat(amount) - parseFloat(toapply);
+	var computed_balance 	= parseFloat(balance) - parseFloat(toapply);
 
 	credits_box[id]['amount']  = parseFloat(amount);
 	credits_box[id]['toapply'] = parseFloat(toapply);
