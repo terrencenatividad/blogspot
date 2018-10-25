@@ -162,6 +162,7 @@ class controller extends wc_controller
 		$data["existingcreditaccount"]	= isset($cred_acct[0]->account) ? $cred_acct[0]->account	:	"";
 		$data['cred_id'] 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
 		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
+		$data['ap_checker'] 	 		= "no";
 
 		// Application Data
 		$data['sum_applied'] 				= 0;
@@ -283,6 +284,7 @@ class controller extends wc_controller
 		$data["paymenttype"]       = $data["main"]->paymenttype;
 		$data["particulars"]       = $data["main"]->particulars;
 		$data['status']				= $data["main"]->stat;
+		$data['ap_checker'] 	 	= $data["main"]->advancepayment;
 		// Vendor/Customer Details
 		$data["v_vendor"] 		   	= $data["vend"]->name;
 		$data["v_email"] 		   	= $data["vend"]->email;
@@ -587,7 +589,8 @@ class controller extends wc_controller
 		$available_credits 		 = $this->receipt_voucher->retrieve_existing_credits($customer);
 		$data["available_credits"] = isset($available_credits[0]->curr_credit) 	?	$available_credits[0]->curr_credit 	+	$credits_used	:	"0.00";
 		$data['status']			 = $data["main"]->stat;
-	 		
+		$data['ap_checker'] 	 = $data['main']->advancepayment;
+
 		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array();
 
 		$account_array	= array();

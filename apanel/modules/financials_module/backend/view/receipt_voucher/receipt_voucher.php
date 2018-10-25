@@ -156,7 +156,16 @@
 										<label for="ap_checker" class="control-label col-md-4">Advance Payment</label>
 										<?if($show_input):?>
 										<div class="col-md-1">
-											<input type="checkbox" name="ap_checker" id="ap_checker" class="" value="no" style="position: absolute; opacity: 0;">
+											<?
+												echo $ui->setElement('checkbox')
+														 ->setName('ap_checker')
+														 ->setId('ap_checker')
+														 ->setDefault("yes")
+														 ->setValue($ap_checker)
+														 ->setAttribute(array('style'=>"position:absolute; opacity:0;"))
+														 ->draw($show_input);
+											?>
+											<!-- <input type="checkbox" name="ap_checker" id="ap_checker" class="" value="<?=$ap_checker?>" style="position: absolute; opacity: 0;"> -->
 										</div>
 										<?endif;?>
 										<div class="col-md-7">

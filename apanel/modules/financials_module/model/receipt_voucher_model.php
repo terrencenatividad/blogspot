@@ -71,7 +71,7 @@ class receipt_voucher_model extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used, overpayment";
+		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used, overpayment, advancepayment";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
