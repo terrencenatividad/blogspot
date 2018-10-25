@@ -1145,6 +1145,31 @@ class controller extends wc_controller
 		$dataArray = array("code" => $code,"msg"=> $msg );
 		return $dataArray;
 	}
+	
+	private function cancel_cv_entries()
+	{
+		$vouchers 		= $this->input->post('delete_id');
+		$payments 		= "'" . implode("','", $vouchers) . "'";
+
+		$cv_vouchers 	= $this->receipt_voucher->getValue("creditvoucher", "voucherno", "transtype = 'CV' AND referenceno IN ($payments)");
+
+		$result 		= 0;
+		foreach($cv_vouchers as $key => $content){
+			$cm_no 			=  	$content->voucherno;
+			$result 		= 	$this->receipt_voucher->cancelCreditVoucher($cm_no);
+		}
+
+		if($result){
+			$code 	= 1; 
+			$msg 	= "Successfully cancelled the vouchers.";
+		}else{
+			$code 	= 0; 
+			$msg 	= "Sorry, the system was unable to cancelled the vouchers.";
+		}
+
+		$dataArray = array("code" => $code,"msg"=> $msg );
+		return $dataArray;
+	}
 
 	private function ajax_post() {
 		$id 			= $this->input->post('id');
@@ -1269,6 +1294,7 @@ class controller extends wc_controller
 			$errmsg 	= $result['errmsg'];
 		}
 
+		// echo $submit;
 		$redirect_url = MODULE_URL;
 		if ($submit == 'save_new') {
 			$redirect_url = MODULE_URL . 'create';
@@ -2014,5 +2040,42 @@ class controller extends wc_controller
 
 		$return = array('credit_id'=>$cred_id, "credit_account"=>$existingcreditaccount);
 		return $return;
+	}
+
+	public function cancel_connected_entries(){
+		$vouchers 		= $this->input->post('delete_id');
+		
+		$result 		= 0;
+		foreach($vouchers as $key=>$voucherno){
+			$details = $this->receipt_voucher->rvDetailsChecker($voucherno);
+			
+			$overpayment  	=	(isset($details->overpayment) && $details->overpayment > 0) ? "yes" 	: 	"no";
+			$advance 		= 	(isset($details->advancepayment) && $details->advancepayment == "yes" ) ? $details->advancepayment 	: "no";
+
+			if($overpayment == "yes"){
+				$payments 		= "'" . implode("','", $vouchers) . "'";
+
+				$cm_vouchers 	= $this->receipt_voucher->getValue("journalvoucher", "voucherno", "transtype = 'CM' AND si_no IN ($payments)");
+		
+				foreach($cm_vouchers as $key => $content){
+					$cm_no 			=  	$content->voucherno;
+					$result 		= 	$this->receipt_voucher->cancelCreditMemo($cm_no);
+				}
+			}
+			if($advance == "yes") {
+				$result 		= 	$this->receipt_voucher->cancelCreditVoucher($voucherno);
+			}
+
+			if($result){
+				$code 	= 1; 
+				$msg 	= "Successfully cancelled the voucher(s).";
+			}else{
+				$code 	= 0; 
+				$msg 	= "Sorry, the system was unable to cancelled the voucher(s).";
+			}
+
+		}
+		$dataArray = array("code" => $code,"msg"=> $msg );
+		return $dataArray;
 	}
 }
