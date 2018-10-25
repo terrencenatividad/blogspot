@@ -98,9 +98,9 @@
 											if(!$show_input){
 												echo '<p class="form-control-static">'.number_format($sum_applied,2).'</p>';
 											}else{
-
+												$disable_receivables 	=	($ap_checker == 'yes') 	? "disabled" 	:	"";
 												?>
-												<button type="button" id="apv" class="btn btn-block btn-success btn-flat">
+												<button type="button" id="apv" class="btn btn-block btn-success btn-flat" <?=$disable_receivables?>>
 													<em class="pull-left"><small>Click to view tagged receivables</small></em>
 													<strong id="pv_amount" class="pull-right"><?=number_format($sum_applied,2)?></strong>
 												</button>
@@ -139,9 +139,9 @@
 											if(!$show_input){
 												echo '<p class="form-control-static">'.number_format($credits_applied,2).'</p>';
 											}else{
-
+												$disable_cv 	=	($ap_checker == 'yes') 	? "disabled" 	:	"";
 												?>
-												<button type="button" id="crv" class="btn btn-block btn-success btn-flat">
+												<button type="button" id="crv" class="btn btn-block btn-success btn-flat" <?=$disable_cv?>>
 													<em class="pull-left"><small>Click to view tagged credits</small></em>
 													<strong id="applied_cred_amt" class="pull-right"><?=number_format($credits_applied,2)?></strong>
 												</button>
