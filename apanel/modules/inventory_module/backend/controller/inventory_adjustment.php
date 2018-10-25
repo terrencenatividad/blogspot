@@ -262,7 +262,7 @@ class controller extends wc_controller {
 		$error 	=	"";
 		
 		if($field_value <= 0){
-			$error 	= 	"$field_name on row $line is [<strong>$field_value</strong>]. Please input a Price greater than 0.<br/>";
+			$error 	= 	"$field_name on row $line is [<strong>$field_value</strong>]. Please input a ".strtoupper($field_name)." greater than 0.<br/>";
 		}
 
 		return $error;
