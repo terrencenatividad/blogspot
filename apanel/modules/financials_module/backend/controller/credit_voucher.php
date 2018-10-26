@@ -7,6 +7,7 @@ class controller extends wc_controller {
 		$this->input				= new input();
 		$this->seq 					= new seqcontrol();
 		$this->credit_voucher_model	= new credit_voucher_model();
+		$this->credit_voucher_print	= new credit_voucher_print();
 		$this->session				= new session();
 		$this->log 					= new log();
 		$this->fields 				= array(
@@ -68,9 +69,49 @@ class controller extends wc_controller {
 		$this->view->load('credit_voucher/credit_voucher', $data);
 	}
 
-	public function print_preview($voucherno) 
-	{
-		
+	public function print_preview($voucherno) {
+		$data				= $this->credit_voucher_model->getCVDetails($voucherno);
+		$rv_details			= $this->credit_voucher_model->getRVDetails($voucherno);
+		$applied_details	= $this->credit_voucher_model->getAppliedDetails($voucherno);
+		$pdf				= $this->credit_voucher_print;
+
+		$pdf->setHeaderDetails($data)
+			->setRVDetails($rv_details);
+
+		$pdf->total_applied = 0;
+
+		// foreach ($applied_details as $key => $row) {
+		// 	if ($key % 5 == 0) {
+		// 		$pdf->addPage();
+		// 	}
+
+		// 	$pdf->SetFont("Arial", "", "9");
+
+		// 	$pdf->Cell(48,5, $this->date->dateFormat($row->date_applied), 'L', 0, 'L');
+		// 	$pdf->Cell(48,5, $row->rv_voucher, 0, 0, 'L');
+		// 	$pdf->Cell(48,5, $row->invoiceno, 0, 0, 'L');
+		// 	$pdf->Cell(48,5, number_format($row->credit, 2), 'R', 1, 'R');
+
+		// 	if (($key - 4) % 5 == 0 && count($applied_details) > 5) {
+		// 		$pdf->SetFont("Arial", "B", "9");
+		// 		$page = ceil($key / 5);
+		// 		$pdf->Cell(192, 7, 'Page ' . $page . ' of ' . ceil(count($applied_details) / 5) , 'T', 1, 'C');
+		// 	}
+
+		// 	$pdf->total_applied += $row->credit;
+		// }
+
+		// $pdf->SetFont("Arial", "B", "9");
+		// $pdf->Cell(148,5, 'Total Credits Applied:', 'L', 0, 'L');
+		// $pdf->Cell(44,5, number_format($pdf->total_applied, 2), 'R', 1, 'R');
+
+		// $balance = $data->amount - $pdf->total_applied;
+		// $pdf->Cell(148,5, 'Balance:', 'LB', 0, 'L');
+		// $pdf->Cell(44,5, number_format($balance, 2), 'RB', 1, 'R');
+		// $page = ceil($key / 5);
+		// $pdf->Cell(192, 7, 'Page ' . $page . ' of ' . ceil(count($applied_details) / 5) , 0, 1, 'C');
+
+		$pdf->Output();
 	}
 	
 	public function ajax($task) {
@@ -97,6 +138,7 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
+			$stat = $row->stat != 'inactive' ? 'active' : 'cancelled';
 			$getApplied = $this->credit_voucher_model->getApplied($row->voucherno);
 			$balance = $row->amount - $getApplied->amount;
 			$dropdown = $this->ui->loadElement('check_task')
@@ -117,6 +159,7 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->referenceno . '</td>';
 			$table .= '<td align = "right">' . number_format($balance, 2) . '</td>';
 			$table .= '<td align = "right">' . number_format($row->amount, 2) . '</td>';
+			$table .= '<td>' . $this->colorStat($stat) . '</td>';
 			$table .= '</tr>';
 		}
 		$pagination->table = $table;
@@ -170,6 +213,19 @@ class controller extends wc_controller {
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
 		);
+	}
+
+	private function colorStat($stat) {
+		$color = 'default';
+		switch ($stat) {
+			case 'active':
+				$color = 'success';
+				break;
+			case 'cancelled':
+				$color = 'danger';
+				break;
+		}
+		return '<span class="label label-' . $color . '">' . strtoupper($stat) . '</span>';
 	}
 
 	private function ajax_load_ar_list() {

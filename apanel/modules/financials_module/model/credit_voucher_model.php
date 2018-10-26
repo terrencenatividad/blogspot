@@ -90,6 +90,63 @@ class credit_voucher_model extends wc_model {
 		return $result;
 	}
 
+	public function getCVDetails($voucherno) {
+		$fields = array(
+			'transactiondate',
+			'voucherno',
+			'partnername',
+            'invoiceno',
+			'referenceno',
+			'amount',
+			'receivableno',
+			'source',
+			'c.stat'
+		);
+		$result = $this->db->setTable('creditvoucher c')
+						->leftJoin('partners p ON p.partnercode = c.partner')
+						->setFields($fields)
+						->setWhere("voucherno = '$voucherno'")
+						->runSelect()
+						->getRow();
+		return $result;
+	}
+
+	public function getRVDetails($voucherno) {
+		$fields = array(
+			'accountname',
+			'detailparticulars',
+			'debit',
+            'credit'
+		);
+		$result = $this->db->setTable('creditvoucher c')
+						->leftJoin('rv_details r ON r.voucherno = c.referenceno')
+						->leftJoin('chartaccount ca ON ca.id = r.accountcode')
+						->setFields($fields)
+						->setWhere("c.voucherno = '$voucherno' AND r.checkstat != 'cleared' AND r.stat != 'cancelled' AND r.credit != 0")
+						->runSelect()
+						->getResult();
+		return $result;
+	}
+
+	public function getAppliedDetails($voucherno) {
+		$fields = array(
+			'rv_voucher',
+			'r.credit credit',
+			'ar.invoiceno invoiceno',
+			'ca.entereddate date_applied'
+		);
+		$result = $this->db->setTable('creditvoucher c')
+						->leftJoin('creditvoucher_applied ca ON ca.cr_voucher = c.voucherno')
+						->leftJoin('rv_details r ON r.voucherno = ca.rv_voucher')
+						->leftJoin('accountsreceivable ar ON ar.voucherno = r.arvoucherno')
+						->setFields($fields)
+						->setWhere("c.voucherno = '$voucherno' AND r.checkstat != 'cleared' AND r.stat != 'cancelled' AND r.credit != 0")
+						->setOrderBy('date_applied DESC')
+						->runSelect()
+						->getResult();
+		return $result;
+	}
+
 	public function getAccountsReceivablePagination($customer, $search) {
 		$condition = '';
 		if ($search) {
