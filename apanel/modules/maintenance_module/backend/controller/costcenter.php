@@ -100,8 +100,8 @@ class controller extends wc_controller {
 				$status = '<span class="label label-warning">INACTIVE</span>';
 			}
 
-			$show_activate 		= ($stat != 'inactive');
-			$show_deactivate 	= ($stat != 'active');
+			$show_activate 		= ($stat != 'inactive') && MOD_EDIT;
+			$show_deactivate 	= ($stat != 'active') && MOD_EDIT;
 
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')

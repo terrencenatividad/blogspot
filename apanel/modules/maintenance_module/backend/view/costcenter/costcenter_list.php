@@ -29,12 +29,8 @@
 					<?php 
 						// $ui->OptionButton('');
 					?>
-					<?=
-						$ui->CreateDeleteButton('');
-					?>
-					
-					<input id = "activateMultipleBtn" type = "button" name = "activate" value = "Activate" class="btn btn-success btn-flat ">
-					<input id = "deactivateMultipleBtn" type = "button" name = "deactivate" value = "Deactivate" class="btn btn-warning btn-flat ">
+					<?=$ui->CreateDeleteButton('');?>
+					<?=$ui->CreateActButton('');?>
 					</div>
 					<div class="col-md-4">
 						<div class="form-group">
