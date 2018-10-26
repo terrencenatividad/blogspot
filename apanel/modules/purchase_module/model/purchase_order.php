@@ -180,7 +180,7 @@ class purchase_order extends wc_model
 		$retrieved_data['vendor']    =	$this->retrievevendorDetails($vendor_code);
 
 			// Retrieve Details
-		$detail_fields 			= "pd.itemcode, pd.detailparticular, pd.warehouse, w.description, pd.unitprice, pd.receiptqty,receiptuom, pd.taxcode, pd.taxrate, pd.amount, u.uomdesc";
+		$detail_fields 			= "pd.itemcode, pd.detailparticular, pd.warehouse, w.description, pd.unitprice, pd.receiptqty,receiptuom, pd.taxcode, pd.taxrate, pd.amount";
 		$condition 				= " pd.voucherno = '$voucherno' ";
 
 		$retrieved_data['details'] = 	$this->db->setTable('purchaseorder_details pd')
@@ -226,12 +226,11 @@ class purchase_order extends wc_model
 		return $retrieved_data;
 	}
 
-	public function retrieveData($table, $fields = array(), $cond = "", $join = "", $join2 = "", $orderby = "", $groupby = "")
+	public function retrieveData($table, $fields = array(), $cond = "", $join = "", $orderby = "", $groupby = "")
 	{
 		$result = $this->db->setTable($table)
 		->setFields($fields)
 		->leftJoin($join)
-		->leftJoin($join2)
 		->setGroupBy($groupby)
 		->setWhere($cond)
 		->setOrderBy($orderby)
@@ -398,7 +397,7 @@ class purchase_order extends wc_model
 			if($postIndex == 'itemcode' || $postIndex=='detailparticulars' || $postIndex == 'warehouse' ||  
 				$postIndex == 'quantity' || $postIndex == 'uom' || $postIndex == 'itemprice' || $postIndex=='taxcode' ||
 				$postIndex=='taxrate' || $postIndex == 'taxamount' || $postIndex == 'amount' || 
-				$postIndex == 'h_amount' || $postIndex == 'uom_hidden')
+				$postIndex == 'h_amount')
 			{
 				$a		= '';
 
@@ -438,7 +437,7 @@ class purchase_order extends wc_model
 			$detailparticular 	=	$tempArrayValue['detailparticulars'];
 			$warehouse 			=	$tempArrayValue['warehouse'];
 			$quantity 			=	$tempArrayValue['quantity'];
-			$uom 				=	$tempArrayValue['uom_hidden'];
+			$uom 				=	$tempArrayValue['uom'];
 			$price 				=	$tempArrayValue['itemprice'];
 			$amount 			=	$tempArrayValue['amount'];
 			$taxcode  			=	$tempArrayValue['taxcode'];

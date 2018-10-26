@@ -86,7 +86,7 @@ class controller extends wc_controller {
 	private function ajax_list() {
 		$search	= $this->input->post('search');
 		$sort	= $this->input->post('sort');
-
+	
 		$pagination = $this->costcenter->getCostCenterListPagination($this->fields, $search, $sort);
 		$table = '';
 		if (empty($pagination->result)) {
@@ -100,8 +100,8 @@ class controller extends wc_controller {
 				$status = '<span class="label label-warning">INACTIVE</span>';
 			}
 
-			$show_activate 		= ($stat != 'inactive');
-			$show_deactivate 	= ($stat != 'active');
+			$show_activate 		= ($stat != 'inactive') && MOD_EDIT;
+			$show_deactivate 	= ($stat != 'active') && MOD_EDIT;
 
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')

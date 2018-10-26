@@ -23,8 +23,7 @@
 							$ui->OptionButton('');
 						?>
 						<a class="btn btn-info btn-flat" role="button" href="<?=MODULE_URL?>master" style="outline:none;">Master Price List</a>
-						<input id = "activateMultipleBtn" type = "button" name = "activate" value = "Activate" class="btn btn-success btn-flat ">
-						<input id = "deactivateMultipleBtn" type = "button" name = "deactivate" value = "Deactivate" class="btn btn-warning btn-flat ">
+						<?=	$ui->CreateActButton(''); ?>
 					</div>
 					<div class = "col-md-4">
 						<div class="form-group">
@@ -188,6 +187,7 @@ function showList(pg){
 	ajax_call 	=	$.post('<?=BASE_URL?>maintenance/pricelist/ajax/price_list',ajax, function(data) {
 						$('#pricelist_table #list_container').html(data.table);
 						$('#pagination').html(data.pagination);
+						historyOfMyLife();
 						$("#export_id").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 						if (ajax.page > data.page_limit && data.page_limit > 0) {
 							ajax.page = data.page_limit;
@@ -211,6 +211,11 @@ function getIds(ids) {
 	var x = ids.split(",");
 	return "id[]=" + x.join("&id[]=");
 }
+
+	$(function() {
+			// linkButtonToTable('#activateMultipleBtn', '#pricelist_table');
+			// linkButtonToTable('#deactivateMultipleBtn', '#pricelist_table');
+		});
 
 $(document).ready(function() 
 {
@@ -448,4 +453,21 @@ tableSort('#pricelist_table', function(value, getlist) {
 				$('#pricelist_table thead tr th').find('.checkall').prop('checked', false).iCheck('update');
 			}
 		});
+
+function historyOfMyLife() {
+	var arr = [];
+	$('#pricelist_table tbody').find('.label').each(function(index, value){
+		arr.push($(this).html());
+		if(jQuery.inArray('ACTIVE', arr) != -1) {
+			$('#deactivateMultipleBtn').attr('disabled', false);
+		}else{
+			$('#deactivateMultipleBtn').attr('disabled', true);
+		}
+		if(jQuery.inArray('INACTIVE', arr) != -1) {
+			$('#activateMultipleBtn').attr('disabled', false);
+		}else{
+			$('#activateMultipleBtn').attr('disabled', true);
+		}
+	});
+}
 </script>

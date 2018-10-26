@@ -71,7 +71,7 @@ class receipt_voucher_model extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used, overpayment";
+		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used, overpayment, advancepayment";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -1033,12 +1033,13 @@ class receipt_voucher_model extends wc_model
 		if(!empty($combined_payables)){
 			$aPvApplicationArray 	= array();
 			$iApplicationLineNum	= 1;
+
 			foreach ($combined_payables as $pickedKey => $pickedValue) {
 				$payable 					= $pickedValue['vno'];
 				$amount 					= $pickedValue['amt'];
 				$discount 					= $pickedValue['dis'];
 				$credits 					= $pickedValue['cred'];
-				$excess 					= $pickedValue['over'];
+				$excess 					= isset($pickedValue['over']) ? $pickedValue['over'] 	: 0;
 
 				$data['avoucherno'] 		= $payable;
 
@@ -1101,7 +1102,7 @@ class receipt_voucher_model extends wc_model
 				}
 
 				// Insert Overpayment on Credit Memo
-				if($insertResult && $total_credits_used > 0){
+				if($insertResult && $credits > 0 && $status != "temporary"){
 					$data['temp_voucher'] 	=	$voucherno;
 					$data['overpayment'] 	= 	$credits;
 					// echo $credits;
@@ -1122,7 +1123,7 @@ class receipt_voucher_model extends wc_model
 												// echo " sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' ";
 
 						$cm_voucher			= 	isset($cm_existing[0]->voucherno) ? $cm_existing[0]->voucherno 	:	"";
-					
+									
 						if($credits == 0){
 							$del_result 		=	$this->cancelCreditMemo($cm_voucher);
 						} else {
@@ -1170,6 +1171,19 @@ class receipt_voucher_model extends wc_model
 			'errmsg' 	=> $errmsg
 		);
 	}
+	
+	public function cancelCreditVoucher($voucherno) {
+		$result	= $this->db->setTable('creditvoucher')
+							->setValues(array('stat'=>'inactive'))
+							->setWhere("referenceno = '$voucherno' AND transtype = 'CV'")
+							->runUpdate();
+
+		if ($result) {
+			$this->log->saveActivity("Cancel Credit Voucher with Reference to [$voucherno]");
+		}
+
+		return $result;
+	}
 
 	public function cancelCreditMemo($voucherno) {
 		$result	= $this->db->setTable('journalvoucher')
@@ -1215,11 +1229,11 @@ class receipt_voucher_model extends wc_model
 		$result	= $this->db->setTable('journaldetails')
 							->setWhere("voucherno = '$voucherno' AND transtype = 'CM'")
 							->runDelete();
-		
+
 		if ($result) {
 			$result = $this->deleteCreditMemo($voucherno);
 		}
-							
+
 		return $result;
 	}
 
@@ -1301,7 +1315,6 @@ class receipt_voucher_model extends wc_model
 				$insert_info['accountcode']			= $count[$i]->accountcode;
 				$insert_info['debit']				= $count[$i]->credit;
 				$insert_info['credit']				= $count[$i]->debit;
-				$insert_info['taxbase_amount']		= $count[$i]->taxbase_amount;
 				$insert_info['currencycode']		= $count[$i]->currencycode;
 				$insert_info['exchangerate']		= $count[$i]->exchangerate;
 				$insert_info['converteddebit']		= $count[$i]->convertedcredit;
@@ -1784,7 +1797,7 @@ class receipt_voucher_model extends wc_model
 							   ->setWhere("rvapp.voucherno IN($payments) AND rvapp.stat NOT IN('cancelled','temporary')")
 							   ->runSelect()
 							   ->getResult();
-	
+
 		if(!empty($paymentArray))
 		{
 			for($i = 0; $i < count($paymentArray); $i++)
@@ -1842,7 +1855,7 @@ class receipt_voucher_model extends wc_model
 					->setWhere("voucherno IN($payments)")
 					->runSelect()
 					->getResult();
-	
+			
 			if(!empty($count))
 			{
 				$ctr = count($count) + 1;
@@ -1884,7 +1897,71 @@ class receipt_voucher_model extends wc_model
 					->setValues($update_info)
 					->setWhere("voucherno IN($payments) ")
 					->runUpdate();
+
+			if(!$result){
+				$errmsg[] = "The system has encountered an error in updating Official Receipt [$payments]. Please contact admin to fix this issue.";
+			}else{
+				$this->log->saveActivity(ucfirst($type)." Receipt Vouchers [".str_replace("'","",$payments)."]");
+			}
+			return $errmsg;
+		} else {
+			$update_info			= array();
+			$update_info['stat']	= ($type == 'delete') ? 'deleted' : 'cancelled';
+
+			// Update pv_details
+			$result = $this->db->setTable($detailTable)
+					->setValues($update_info)
+					->setWhere("voucherno IN($payments)")
+					->runUpdate();
+
+			$count = $this->db->setTable($detailTable)
+					->setFields('*')
+					->setWhere("voucherno IN($payments)")
+					->runSelect()
+					->getResult();
 			
+			if(!empty($count))
+			{
+				$ctr = count($count) + 1;
+				for($i = 0; $i < count($count); $i++)
+				{
+					$insert_info['voucherno']			= $count[$i]->voucherno;
+					$insert_info['slcode']				= $count[$i]->slcode;
+					$insert_info['bankrecon_id']		= $count[$i]->bankrecon_id;
+					$insert_info['linenum']				= $ctr;
+					$insert_info['arvoucherno']			= $count[$i]->arvoucherno;
+					$insert_info['transtype']			= $count[$i]->transtype;
+					$insert_info['costcentercode']		= $count[$i]->costcentercode;
+					$insert_info['accountcode']			= $count[$i]->accountcode;
+					$insert_info['debit']				= $count[$i]->credit;
+					$insert_info['credit']				= $count[$i]->debit;
+					$insert_info['currencycode']		= $count[$i]->currencycode;
+					$insert_info['exchangerate']		= $count[$i]->exchangerate;
+					$insert_info['converteddebit']		= $count[$i]->convertedcredit;
+					$insert_info['convertedcredit']		= $count[$i]->converteddebit;
+					$insert_info['taxcode']				= $count[$i]->taxcode;
+					$insert_info['taxacctflg']			= $count[$i]->taxacctflg;
+					$insert_info['taxline']				= $count[$i]->taxline;
+					$insert_info['vatflg']				= $count[$i]->vatflg;
+					$insert_info['detailparticulars']	= $count[$i]->detailparticulars;
+					$insert_info['stat']				= $count[$i]->stat;
+					$insert_info['checkstat']			= $count[$i]->checkstat;
+					$insert_info['checknumber']			= $count[$i]->checknumber;
+	
+					// var_dump($insert_info);
+					$result = $this->db->setTable($detailTable)
+										->setValues($insert_info)
+										->runInsert();
+					$ctr++;
+				}
+			}
+			
+			// Update paymentvoucher
+			$result = $this->db->setTable($mainTable)
+					->setValues($update_info)
+					->setWhere("voucherno IN($payments) ")
+					->runUpdate();
+
 			if(!$result){
 				$errmsg[] = "The system has encountered an error in updating Official Receipt [$payments]. Please contact admin to fix this issue.";
 			}else{
@@ -2021,9 +2098,8 @@ class receipt_voucher_model extends wc_model
 								 ->setFields("crv.voucherno, crv.partner, crv.convertedamount amount, crv.balance as orig_balance, (crv.balance - IFNULL(crva.amount,0)) balance, crv.invoiceno, crv.referenceno, crv.receivableno")
 								 ->leftJoin('('.$sub_query.') crva ON crva.cr_voucher = crv.voucherno AND crva.companycode = crv.companycode AND crva.partner = crv.partner')
 								 ->leftJoin('partners p ON p.partnercode = crv.partner')
-								 ->setWhere("crv.partner = '$customer'")
+								 ->setWhere("crv.partner = '$customer' AND crv.stat IN ('open','active')")
 								 ->runPagination();
-								//  echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -2121,6 +2197,16 @@ class receipt_voucher_model extends wc_model
 								 ->runSelect()
 								 ->getRow();
 		
+		return $result;
+	}
+
+	public function rvDetailsChecker($voucherno){
+		$result 	=	$this->db->setTable("receiptvoucher rv")
+								  ->leftJoin("rv_application rva ON rva.voucherno = rv.voucherno AND rva.companycode = rv.companycode")
+								  ->setFields("rv.voucherno, rv.advancepayment, IFNULL(rva.credits_used,0) overpayment")
+								  ->setWhere("rv.voucherno = '$voucherno'")
+								  ->runSelect()
+								  ->getRow();
 		return $result;
 	}
 }

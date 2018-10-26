@@ -670,11 +670,11 @@ class controller extends wc_controller
 				$dropdown = $this->ui->loadElement('check_task')
 				->addView()
 				->addEdit($show_edit && $checker != "import" && $restrict_ar)
-				->addOtherTask(
-					'Receive Payment',
-					'credit-card',
-					$show_payment  && $restrict_ar
-				)
+				// ->addOtherTask(
+				// 	'Receive Payment',
+				// 	'credit-card',
+				// 	$show_payment  && $restrict_ar
+				// )
 				->addDelete($show_delete && $checker != "import"  && $restrict_ar)
 				->addCheckbox($show_delete && $checker != "import"  && $restrict_ar)
 				->setValue($voucher)

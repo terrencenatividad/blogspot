@@ -280,8 +280,10 @@
 		var ids = getDeleteId(id);
 		$.post('<?=MODULE_URL?>ajax/ajax_delete', ids+'&type=cancel', function(data) {
 			if(data.code == 1){
-				$.post('<?=MODULE_URL?>ajax/cancel_cm_entries', ids, function(data) {
-					showList();
+				$.post('<?=MODULE_URL?>ajax/cancel_connected_entries',ids, function(data2){
+					if(data2.code == 1){
+						showList();
+					}
 				});
 			}
 		});

@@ -371,7 +371,11 @@ class ui {
 			if (FULL_URL != MODULE_URL) {
 				$url = str_replace('view', 'edit', FULL_URL);
 			}
-			return '<a href="' . $url  . '" class="btn btn-primary">Edit</a>';
+			if(MOD_EDIT){
+				return '<a href="' . $url  . '" class="btn btn-primary">Edit</a>';
+			}else{
+				return false;
+			}
 		}
 	}
 
@@ -561,7 +565,28 @@ class ui {
 	public function CreateNewButton($type) {
 		$url = MODULE_URL . 'create';
 		$mod_name = "Add " . MODULE_NAME;
-		return ' <a href="' . $url . '" class="btn btn-primary btn-flat" role="button">'.$mod_name.'</a>';
+		if(MOD_ADD){
+			return ' <a href="' . $url . '" class="btn btn-primary btn-flat" role="button">'.$mod_name.'</a>';			
+		}else{
+			return false;						
+		}
+	}
+
+	public function CreateDeleteButton($type) {
+		if(MOD_DELETE){
+			return ' <input id = "item_multiple_delete" type = "button" name = "delete" value = "Delete" class="btn btn-danger btn-flat ">';
+		}else{
+			return false;			
+		}
+	}
+
+	public function CreateActButton($type) {
+		if(MOD_EDIT){
+			return ' <input id = "activateMultipleBtn" type = "button" name = "activate" value = "Activate" class="btn btn-success btn-flat">
+					 <input id = "deactivateMultipleBtn" type = "button" name = "deactivate" value = "Deactivate" class="btn btn-warning btn-flat">';
+		}else{
+			return false;
+		}
 	}
 
 	public function OptionButton($type){

@@ -86,6 +86,7 @@ class controller extends wc_controller {
 
 	public function view($voucherno) {
 		$this->view->title			= 'View Journal Voucher';
+		$this->fields[]				= 'stat';
 		$data						= (array) $this->jv_model->getJournalVoucherById($this->fields, $voucherno);
 		// Retrieve Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();

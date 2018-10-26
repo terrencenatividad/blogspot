@@ -171,5 +171,4 @@ class costcenter extends wc_model {
 
 		return $result;
 	}
-
 }
