@@ -67,9 +67,8 @@
 						<?= 
 							$ui->OptionButton('');
 						?>
-					<?= $ui->OptionButton(''); ?>
-					<?=	$ui->CreateDeleteButton(''); ?>
-					<?=	$ui->CreateActButton(''); ?>
+						<?=	$ui->CreateDeleteButton(''); ?>
+						<?=	$ui->CreateActButton(''); ?>
 				</div>
 				<div class="col-md-4">
 					<div class="form-group">
