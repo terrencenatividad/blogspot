@@ -2657,7 +2657,6 @@ $('#paymentModal').on('show.bs.modal', function () {
 		}
 		if(amt_to_receive <= 0){
 		}
-
   	});
 });
 
@@ -2880,9 +2879,9 @@ function getRVDetails(){
 
 	cheques = JSON.stringify(cheques);
 	$("#selected_rows").html(selected_rows);
-	
-	tagged_AR 	 = $.extend(true,{},container);
-	
+
+	tagged_AR 	 = 	$.extend(true,{},container);
+
 	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques + "&overpayment="+overpayment + "&advance="+is_ap;
 	
 	if(selected_rows == "")
@@ -4491,7 +4490,7 @@ $(document).ready(function() {
 		var paymentmode = $("#paymentmode").val();
 		var selected_rows 	= JSON.stringify(container);
 		$('#selected_rows').html(selected_rows);
-
+		tagged_AR 	 = 	$.extend(true,{},container);
 		if(paymentmode == "cheque"){
 			addAmounts();
 		}
