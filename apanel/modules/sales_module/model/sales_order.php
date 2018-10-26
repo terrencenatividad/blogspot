@@ -315,6 +315,8 @@
 			$subtotal			= str_replace(',','',$subtotal);
 			$totalamount		= str_replace(',','',$totalamount);
 			$discount_amount	= str_replace(',','',$discount_amount);
+			$vat_sales			= str_replace(',','',$vat_sales);
+			$vat_exempt			= str_replace(',','',$vat_exempt);
 			/**FORMAT DATES**/
 			$transactiondate	= date("Y-m-d",strtotime($transactiondate));
 			$duedate 			= date("Y-m-d",strtotime($duedate));
