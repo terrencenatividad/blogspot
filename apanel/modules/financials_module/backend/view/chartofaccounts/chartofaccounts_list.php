@@ -66,15 +66,9 @@
 							</ul>
 						</div>
 					</form> -->
-					<?= 
-						$ui->OptionButton('');
-					?>
-					<input id = "deleteMultipleBtn" type = "button" name = "delete" 
-						value = "Delete" class="btn btn-danger btn-flat ">
-					<input id = "activateMultipleBtn" type = "button" name = "activate" 
-					value = "Activate" class="btn btn-success btn-flat ">
-					<input id = "deactivateMultipleBtn" type = "button" name = "deactivate" 
-          				value = "Deactivate" class="btn btn-warning btn-flat ">
+					<?= $ui->OptionButton(''); ?>
+					<?=	$ui->CreateDeleteButton(''); ?>
+					<?=	$ui->CreateActButton(''); ?>
 				</div>
 				<div class="col-md-4">
 					<div class="form-group">
@@ -332,6 +326,7 @@ var ajax = {};
 		{
 			$('#list_container').html(data.table);
 			$('#pagination').html(data.pagination);
+			historyOfMyLife();
 			$("#export_id").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 			
 			if (ajax.page > data.page_limit && data.page_limit > 0) 
@@ -343,9 +338,9 @@ var ajax = {};
 		});
 	}
 	$(function() {
-	linkButtonToTable('#deleteMultipleBtn', '#tableList');
-	linkButtonToTable('#activateMultipleBtn', '#tableList');
-	linkButtonToTable('#deactivateMultipleBtn', '#tableList');
+	linkButtonToTable('#item_multiple_delete', '#tableList');
+	// linkButtonToTable('#activateMultipleBtn', '#tableList');
+	// linkButtonToTable('#deactivateMultipleBtn', '#tableList');
 });
 	tableSort('#tableList', function(value, x) 
 	{
@@ -434,7 +429,7 @@ var ajax = {};
 		/*
 		* For Delete All
 		*/
-		$( "#deleteMultipleBtn" ).click(function() 
+		$( "#item_multiple_delete" ).click(function() 
 		{	
 			var id = [];
 
@@ -632,6 +627,24 @@ $("#deactivateMultipleBtn").click(function()
 				$('#tableList thead tr th').find('.checkall').prop('checked', false).iCheck('update');
 			}
 		});
+
+function historyOfMyLife() {
+	var arr = [];
+	$('#tableList tbody').find('.label').each(function(index, value){
+		arr.push($(this).html());
+		if(jQuery.inArray('ACTIVE', arr) != -1) {
+			$('#deactivateMultipleBtn').attr('disabled', false);
+		}else{
+			$('#deactivateMultipleBtn').attr('disabled', true);
+		}
+		if(jQuery.inArray('INACTIVE', arr) != -1) {
+			$('#activateMultipleBtn').attr('disabled', false);
+		}else{
+			$('#activateMultipleBtn').attr('disabled', true);
+			
+		}
+	});
+}
 
 
 </script>

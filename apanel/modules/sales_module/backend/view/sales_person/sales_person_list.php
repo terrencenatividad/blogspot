@@ -10,8 +10,7 @@
 					<?= 
 						$ui->OptionButton('');
 					?>
-					<input id = "activateMultipleBtn" type = "button" name = "activate" value = "Activate" class="btn btn-success btn-flat ">
-					<input id = "deactivateMultipleBtn" type = "button" name = "deactivate" value = "Deactivate" class="btn btn-warning btn-flat ">
+					<?=	$ui->CreateActButton(''); ?>
 				</div>
 
                 <div class="col-md-4 pull-right">
@@ -321,6 +320,7 @@ function showList(pg){
 	ajax_call = $.post('<?=BASE_URL?>maintenance/sales_person/ajax/sales_person_list',ajax, function(data) {
 					$('#sales_person_table #list_container').html(data.table);
 					$('#sp_list #pagination').html(data.pagination);
+					historyOfMyLife();
 					$("#export_id").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 					if (ajax.page > data.page_limit && data.page_limit > 0) {
 						ajax.page = data.page_limit;
@@ -493,8 +493,8 @@ function ajaxCallback(id) {
 
 $(function() {
 	linkButtonToTable('#item_multiple_delete', '#sales_person_table');
-	linkButtonToTable('#activateMultipleBtn', '#sales_person_table');
-	linkButtonToTable('#deactivateMultipleBtn', '#sales_person_table');
+	// linkButtonToTable('#activateMultipleBtn', '#sales_person_table');
+	// linkButtonToTable('#deactivateMultipleBtn', '#sales_person_table');
 	linkDeleteToModal('#sales_person_table .delete', 'ajaxCallback');
 	linkDeleteMultipleToModal('#item_multiple_delete', '#sales_person_table', 'ajaxCallback');
 });
@@ -591,6 +591,23 @@ $("#deactivateMultipleBtn").click(function()
 				$('#sales_person_table thead tr th').find('.checkall').prop('checked', false).iCheck('update');
 			}
 		});
+
+function historyOfMyLife() {
+	var arr = [];
+	$('#sales_person_table tbody').find('.label').each(function(index, value){
+		arr.push($(this).html());
+		if(jQuery.inArray('ACTIVE', arr) != -1) {
+			$('#deactivateMultipleBtn').attr('disabled', false);
+		}else{
+			$('#deactivateMultipleBtn').attr('disabled', true);
+		}
+		if(jQuery.inArray('INACTIVE', arr) != -1) {
+			$('#activateMultipleBtn').attr('disabled', false);
+		}else{
+			$('#activateMultipleBtn').attr('disabled', true);
+		}
+	});
+}
 
 </script>
 

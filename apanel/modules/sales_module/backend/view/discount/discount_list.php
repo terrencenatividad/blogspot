@@ -28,10 +28,7 @@
 					<?= 
 						$ui->OptionButton('');
 					?>
-					<input id = "activateMultipleBtn" type = "button" name = "activate" 
-					value = "Activate" class="btn btn-success btn-flat ">
-					<input id = "deactivateMultipleBtn" type = "button" name = "deactivate" 
-          				value = "Deactivate" class="btn btn-warning btn-flat ">
+					<?=	$ui->CreateActButton(''); ?>
 				</div>
 
 				<!--<div class = "col-md-1">
@@ -260,6 +257,7 @@ function showList(pg){
 	ajax_call = $.post('<?=BASE_URL?>maintenance/discount/ajax/discount_list',ajax, function(data) {
 					$('#discount_table #list_container').html(data.table);
 					$('#pagination').html(data.pagination);
+					historyOfMyLife();
 					$("#export_id").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 					if (ajax.page > data.page_limit && data.page_limit > 0) {
 						ajax.page = data.page_limit;
@@ -271,8 +269,8 @@ function showList(pg){
 showList();
 
 $(function() {
-	linkButtonToTable('#activateMultipleBtn', '#discount_table');
-	linkButtonToTable('#deactivateMultipleBtn', '#discount_table');
+	// linkButtonToTable('#activateMultipleBtn', '#discount_table');
+	// linkButtonToTable('#deactivateMultipleBtn', '#discount_table');
 });
 
 $(document).ready(function() 
@@ -534,4 +532,22 @@ $("#deactivateMultipleBtn").click(function()
 				$('#discount_table thead tr th').find('.checkall').prop('checked', false).iCheck('update');
 			}
 		});
+
+function historyOfMyLife() {
+	var arr = [];
+	$('#discount_table tbody').find('.label').each(function(index, value){
+		arr.push($(this).html());
+		if(jQuery.inArray('ACTIVE', arr) != -1) {
+			$('#deactivateMultipleBtn').attr('disabled', false);
+		}else{
+			$('#deactivateMultipleBtn').attr('disabled', true);
+		}
+		if(jQuery.inArray('INACTIVE', arr) != -1) {
+			$('#activateMultipleBtn').attr('disabled', false);
+		}else{
+			$('#activateMultipleBtn').attr('disabled', true);
+			
+		}
+	});
+}
 </script>
