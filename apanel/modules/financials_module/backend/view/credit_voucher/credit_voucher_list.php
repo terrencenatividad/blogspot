@@ -10,13 +10,21 @@
 		<div class="box box-primary">
 			<div class="box-header pb-none">
 				<div class="row">
-					<div class="col-md-8">
+					<div class="col-md-3">
 						<?
 							//echo $ui->CreateNewButton('');
 						?>
-						<input type="button" id="item_multiple_delete" class="btn btn-danger btn-flat " value="Cancel">
+						<!-- <input type="button" id="item_multiple_delete" class="btn btn-danger btn-flat " value="Cancel"> -->
+						<div class="form-group">
+							<div class="input-group">
+								<input type="text" name="daterangefilter" id="daterangefilter" class="form-control" value = "" data-daterangefilter="month">
+								<span class="input-group-addon">
+									<i class="glyphicon glyphicon-calendar"></i>
+								</span>
+							</div>
+						</div>
 					</div>
-					<div class="col-md-4">
+					<div class="col-md-offset-5 col-md-4">
 						<div class="form-group">
 							<div class="input-group">
 								<input id="table_search" class="form-control pull-right" placeholder="Search" type="text">
@@ -29,14 +37,14 @@
 				</div>
 				<div class="row">
 					<div class="col-md-3">
-						<div class="form-group">
+						<!-- <div class="form-group">
 							<div class="input-group">
 								<input type="text" name="daterangefilter" id="daterangefilter" class="form-control" value = "" data-daterangefilter="month">
 								<span class="input-group-addon">
 									<i class="glyphicon glyphicon-calendar"></i>
 								</span>
 							</div>
-						</div>
+						</div> -->
 					</div>
 					<div class = "col-md-5">
 						
@@ -82,13 +90,14 @@
 										'style' => 'width: 15px'
 									)
 								)
-								->addHeader('Date', array('class' => 'col-md-2'), 'sort', 'transactiondate')
+								->addHeader('Date', array('class' => 'col-md-1'), 'sort', 'transactiondate')
 								->addHeader('Credit Voucher No', array('class' => 'col-md-2'), 'sort', 'voucherno')
 								->addHeader('Customer', array('class' => 'col-md-2'), 'sort', 'partnername')
 								->addHeader('Invoice No', array('class' => 'col-md-2'), 'sort', 'invoiceno')
 								->addHeader('Reference No', array('class' => 'col-md-2'), 'sort', 'referenceno')
 								->addHeader('Balance', array('class' => 'col-md-1'), 'sort', 'balance')
 								->addHeader('Amount', array('class' => 'col-md-1'), 'sort', 'amount')
+								->addHeader('Status', array('class' => 'col-md-1'), 'sort', 'stat')
 								->draw();
 					?>
 					<tbody>
