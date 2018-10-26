@@ -635,9 +635,9 @@ class controller extends wc_controller
 				if(isset($row->amount)) {
 					$vno 	=	$row->cvo;
 					$total_cr_applied += $row->amount;
-					$applied[$vno]['amount'] = $row->balance;
+					$applied[$vno]['amount']  = $row->balance;
 					$applied[$vno]['toapply'] = $row->amount;
-					$applied[$vno]['balance'] = $row->balance;
+					$applied[$vno]['balance'] = $row->balance - $row->amount;
 				}
 			}
 		}
