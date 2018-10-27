@@ -648,6 +648,7 @@ class controller extends wc_controller
 		$data['restrict_rv'] 			= true;
 		$data['has_access'] 			= 0;
 		$cred_acct						= $this->receipt_voucher->retrieve_existing_acct();
+	
 		$data["existingcreditaccount"]	= isset($cred_acct[0]->account) ? $cred_acct[0]->account	:	"";
 		$data['cred_id'] 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
 		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
