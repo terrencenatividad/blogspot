@@ -128,7 +128,7 @@ function getMainList(){
 		$("#export").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));;
 	});
 }
-getMainList();
+// getMainList();
 
 $('#tableListYearly tbody').on('click', 'a', function() {
 	var path = $(this).attr('data-id');
