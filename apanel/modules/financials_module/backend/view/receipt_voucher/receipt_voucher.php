@@ -2193,6 +2193,7 @@ function addAmountAll(field) {
 		{          
 			if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
 			{                            
+				console.log('with');
 				inData = inputs.value.replace(/,/g,'');
 				if(is_cheque == 'yes'){
 					inputs.readOnly   = true;
@@ -2203,6 +2204,7 @@ function addAmountAll(field) {
 			}
 			else
 			{             
+				console.log('not');
 				inData = 0;
 				if(is_cheque == 'yes'){
 					inputs.readOnly   = true;
@@ -2907,6 +2909,7 @@ function getRVDetails(){
 		{	
 			var discount_code = data.discount_code;
 			var op_code 	  = data.op_code;
+			var arv_acct 	  = data.arv_acct;
 
 			var total_payment = $("#paymentModal #total_payment").val();
 			$("#paymentModal").modal("hide");
@@ -2920,6 +2923,8 @@ function getRVDetails(){
 				$("#pv_amount").html(total_payment);
 				$('#current_tagged_receivables').val(total_payment);
 				var count_container = Object.keys(container).length;
+				
+				//For Discount
 				var discount_amount = 0; 
 				for(i = 0; i < count_container; i++) {
 					discount_amount += parseFloat(0) || parseFloat(container[i]['dis']) ;
@@ -2937,11 +2942,16 @@ function getRVDetails(){
 					$('#debit\\['+row+'\\]').val(discount_amount);
 					disable_acct_fields(row);
 				}
-				addAmountAll("credit");
+				
+				// For Advance Payment - Credit Voucher
+				var total = $('#creditvoucherModal #total_credits_to_apply').val();
+				apply_credit_account(total);
+
 				addAmountAll("debit");
+				addAmountAll("credit");
 				$('#entriesTable tbody tr').each(function(){
 					var accountcode = $(this).find('.accountcode').val();
-					if(accountcode!="" && accountcode == op_code){
+					if(accountcode!="" && (accountcode == op_code || accountcode == arv_acct)){
 						$(this).find('.accountcode').prop('disabled',true);
 						$(this).find('.credit').prop('readonly',true);
 						$(this).find('.debit').prop('readonly',true);
@@ -2950,9 +2960,6 @@ function getRVDetails(){
 				});
 				$('#entriesTable tbody tr.clone').removeClass('added_row');
 				addAmounts();
-				
-				var total = $('#creditvoucherModal #total_credits_to_apply').val();
-				apply_credit_account(total);
 			}	
 		});
 		$('.cwt').removeAttr('disabled');
@@ -3713,7 +3720,7 @@ function apply_credit_account(amount){
 				credit_row.find('.confirm-delete').prop('disabled',true);
 				credit_row.find('.credit').prop('readonly',true);
 		}
-		addAmountAll("debit");
+		// addAmountAll("debit");
 	}
 	drawTemplate();
 }

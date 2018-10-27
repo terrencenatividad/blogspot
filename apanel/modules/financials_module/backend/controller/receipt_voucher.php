@@ -1594,6 +1594,7 @@ class controller extends wc_controller
 		$arvoucher_  = array();
 		$dis_amount  = array();
 
+		$accountcode_ 	= 	"";
 		for($i = 0; $i < count($decode_json); $i++)
 		{
 			$apvoucherno = $decode_json[$i]["vno"];
@@ -1610,6 +1611,7 @@ class controller extends wc_controller
 			$account_total[$accountcode] = $account_amounts[$accountcode] + $account_dis[$accountcode];
 			
 			$arvoucher_[] = $apvoucherno;
+			$accountcode_ = $accountcode;
 		}
 
 		$condi =  implode("','" , $arvoucher_);
@@ -1629,8 +1631,7 @@ class controller extends wc_controller
 			$overpaymentacct 	=	$this->receipt_voucher->retrieveOPDetails();
 			$results 			=	array_merge($results,$overpaymentacct);
 		}
-		// var_dump($overpaymentacct);
-		// Retrieve business type list
+
 		$acc_entry_data     = array("id ind","CONCAT(segment5, ' - ', accountname) val");
 		$acc_entry_cond     = "";
 		$account_entry_list = $this->receipt_voucher->getValue("chartaccount", $acc_entry_data, $acc_entry_cond, "segment5");
@@ -1729,7 +1730,7 @@ class controller extends wc_controller
 									->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 									->setValue($credit)
 									->draw($show_input).
-							'</td>';
+						   '</td>';
 				$table  .= '<td class="text-center">
 								<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id='.$row.' id='.$row.' name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"><span class="glyphicon glyphicon-trash"></span></button>
 							</td>';
@@ -1742,7 +1743,7 @@ class controller extends wc_controller
 		}
 
 
-		$dataArray = array( "table" => $table, "totaldebit" => number_format($totalcredit, 2),"discount_code"=>$discount_code, "op_code"=>$op_code);
+		$dataArray = array( "table" => $table, "totaldebit" => number_format($totalcredit, 2),"discount_code"=>$discount_code, "op_code"=>$op_code, "arv_acct"=>$accountcode_);
 		return $dataArray;
 	}
 
