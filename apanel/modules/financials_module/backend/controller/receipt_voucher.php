@@ -212,7 +212,8 @@ class controller extends wc_controller
 				$update_condition			= "voucherno = '$voucherno'";
 				$updateTempRecord			= $this->receipt_voucher->editData($update_info,"receiptvoucher",$update_condition);
 				$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_details",$update_condition);
-				$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_application",$update_condition);
+				$rvappcond					= "voucherno = '$voucherno' AND stat = 'temporary'";
+				$updateTempRecord			= $this->receipt_voucher->editData($update_info,"rv_application",$rvappcond);
 				$update_cheque['voucherno']	= $generatedvoucher;
 				$updateTempRecord			= $this->receipt_voucher->editData($update_cheque,"rv_cheques",$update_condition);
 				// Update TMP source of CM
@@ -689,13 +690,14 @@ class controller extends wc_controller
 		$sub_select[0]->amount;
 		
 		$docinfo_table  = "receiptvoucher as pv";
-		$docinfo_fields = array('pv.transactiondate AS documentdate','pv.voucherno AS voucherno',"CONCAT( first_name, ' ', last_name )","'{$sub_select[0]->amount}' AS amount",'pv.amount AS pvamount', "'' AS referenceno", "particulars AS remarks", "p.partnername AS customer");
+		$docinfo_fields = array('pv.transactiondate AS documentdate','pv.voucherno AS voucherno',"CONCAT( first_name, ' ', last_name )","'{$sub_select[0]->amount}' AS amount",'pv.amount AS pvamount', "'' AS referenceno", "particulars AS remarks", "p.partnername AS customer","advancepayment");
 		$docinfo_join   = "partners as p ON p.partnercode = pv.customer AND p.companycode = pv.companycode";
 		$docinfo_cond 	= "pv.voucherno = '$voucherno'";
 
 		$documentinfo  	= $this->receipt_voucher->retrieveData($docinfo_table, $docinfo_fields, $docinfo_cond, $docinfo_join);
 
 		$customer 	    = $documentinfo[0]->customer;
+		$ap_checker 	= $documentinfo[0]->advancepayment;
 
 		// Retrieve Document Details
 		$docdet_table   = "rv_details as dtl";
@@ -759,12 +761,14 @@ class controller extends wc_controller
 		}
 
 		// Retrieve Applied Payment //
-		$p_table = "rv_application pv";
-		$p_fields = array("arvoucherno voucherno", "pv.amount amount", "ap.sourceno si_no", "pv.discount discount") ;
-		$p_cond = (!empty($pv_v)) ? "pv.voucherno IN($pv_v) " : "";
-		$p_join = "accountsreceivable ap ON pv.arvoucherno = ap.voucherno" ;
-		$appliedpaymentArray = $this->receipt_voucher->retrieveData($p_table, $p_fields, $p_cond, $p_join);
-		
+		if($ap_checker != "yes"){
+			$p_table = "rv_application pv";
+			$p_fields = array("arvoucherno voucherno", "pv.amount amount", "ap.sourceno si_no", "pv.discount discount") ;
+			$p_cond = (!empty($pv_v)) ? "pv.voucherno IN($pv_v) " : "";
+			$p_join = "accountsreceivable ap ON pv.arvoucherno = ap.voucherno" ;
+			$appliedpaymentArray = $this->receipt_voucher->retrieveData($p_table, $p_fields, $p_cond, $p_join);
+		}
+
 		// Setting for PDFs
 		$print = new print_voucher_model('P', 'mm', 'Letter');
 		$print->setDocumentType('Receipt Voucher')
@@ -773,9 +777,11 @@ class controller extends wc_controller
 				->setVoucherStatus($voucher_status)
 				->setPayments($chequeArray_2)
 				->setDocumentDetails($documentdetails)
-				->setCheque($chequeArray)
-				->setAppliedPayment($appliedpaymentArray)
-				->drawPDF('rv_voucher_' . $voucherno);
+				->setCheque($chequeArray);
+		if($ap_checker!="yes"){
+			$print->setAppliedPayment($appliedpaymentArray);
+		}
+			$print->drawPDF('rv_voucher_' . $voucherno);
 	}
 
 	public function ajax($task) {
