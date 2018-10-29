@@ -1577,6 +1577,7 @@ class payment_voucher_model extends wc_model
 							->innerJoin("chartaccount c on c.segment5 = b.gl_code")
 							->setWhere("c.id = '$ca' ")
 							->runSelect()
+							->setLimit(1)
 							->getResult();
 		return $result;
 	}
@@ -1618,28 +1619,26 @@ class payment_voucher_model extends wc_model
 							->setOrderBy('firstchequeno')
 							->runSelect()
 							->getResult();
-		
+
 		$last_num	= $curr_seq;
 		$curr		= 0;
 		$nums		= array();
 		$real_nums	= array();
-		
 		foreach ($result as $check) {
 			if ($curr != $check->firstchequeno) {
 				$curr = $check->firstchequeno;
-
-				for ($x = $check->nextchequeno; $x <= $check->lastchequeno; $x++) {
-					$nums[$x] = true;
-				}
+				$nums[$check->nextchequeno] = true;
+				// for ($x = $check->nextchequeno; $x <= $check->lastchequeno; $x++) {
+				// 	$nums[$x] = true;
+				// }
 			}
-			for ($x = $check->firstcancelled; $x <= $check->lastcancelled; $x++) {
-				unset($nums[$x]);
+			for ($i = $check->firstcancelled; $i <= $check->lastcancelled; $i++) {
+				unset($nums[$i]);
 			}
 			if ($curr != $check->firstchequeno && $last_num > 0) {
 				break;
 			}
 		}
-
 		foreach ($nums as $key => $val) {
 			if ($key > $last_num) {
 				return $key;
