@@ -1598,17 +1598,24 @@ $('#chequeTable .cheque_account').on('change', function()  {
 	// })
 
 
-	$.post("<?=BASE_URL?>financials/disbursement/ajax/getNumbers" , { bank: val, curr_seq: num } ).done(function(data){
+	$.post("<?=BASE_URL?>financials/disbursement/ajax/getNumbers" , 
+	{ bank: val, curr_seq: num } 
+	).done(function(data){
+		console.log(data);
 		if (data.nums != false){
-		curr_bank_seq[val] = data.nums;
-		var row = $("#chequeTable tbody tr").length;
-		cheque_element.closest('tr').find('.chequenumber').val(data.nums);
+			curr_bank_seq[val] = data.nums;
+			var row = $("#chequeTable tbody tr").length;
+			cheque_element.closest('tr').find('.chequenumber').val(data.nums);
 		} else {
 			$('#nocheckModal').modal('show');
 			$('#chequeTable #accountcode\\['+row+'\\]').val('');
 		}
-	})
-
+	}).fail(function(xhr, status, error) {
+        console.log('debug mode : ');
+		console.log('xhr : '+xhr);
+		console.log('status : '+status);
+		console.log('error : '+error);
+    });
 
 	cheque_arr = [];
 
