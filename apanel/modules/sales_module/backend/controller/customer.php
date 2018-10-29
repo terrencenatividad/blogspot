@@ -371,26 +371,12 @@
 			return array("proceed" => $proceed,"errmsg"=>$error_messages);
 		}
 
-		private function get_duplicate(){
-			$current = $this->input->post('curr_code');
-			$old 	 = $this->input->post('old_code');
-			$count 	 = 0;
-
-			if( $current!='' && $current != $old )
-			{
-				$result = $this->customer->check_duplicate($current);
-
-				$count = $result[0]->count;
-			}
-			
-			$msg   = "";
-
-			if( $count > 0 )
-			{	
-				$msg = "exists";
-			}
-
-			return $dataArray = array("msg" => $msg);
+		private function ajax_check_code() {
+			$partnercode	= $this->input->post('partnercode');
+			$result = $this->customer->checkCode($partnercode);
+			return array(
+				'available'	=> $result
+			);
 		}
 
 		private function customer_list(){

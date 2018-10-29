@@ -138,13 +138,19 @@
 			return $errmsg;
 		}
 
-		public function check_duplicate($current)
-		{
-			return $this->db->setTable('partners')
-							->setFields('COUNT(partnercode) count')
-							->setWhere(" partnercode = '$current'")
-							->runSelect()
-							->getResult();
+		public function checkCode($partnercode) {
+			$result = $this->db->setTable('partners')
+								->setFields('partnercode')
+								->setWhere("partnercode = '$partnercode'")
+								->setLimit(1)
+								->runSelect(false)
+								->getRow();
+	
+			if ($result) {
+				return false;
+			} else {
+				return true;
+			}
 		}
 
 		public function export($search, $sort)

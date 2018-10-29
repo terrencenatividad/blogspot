@@ -5013,24 +5013,24 @@ var row = '';
 prev_account = '';
 var selected_tax_account = '';
 	
-function get_coa(account){
-	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_tax",{account:account}).done(function(data){
-		if((data.result == 'Creditable Withholding Tax')){
-			if (prev_account != '' && account != prev_account) {
-				$('#tax_amount').val('');
-			}
-			prev_account = account;
-			$('#atcModal').modal('show');
-			$('#tax_account').html(data.ret);
-			if (selected_tax_account) {
-				$('#tax_account').val(selected_tax_account);
-			}
-		} else {
-			row.find('.checkbox-select').show();
-			row.find('.edit-button').hide();
-		}
-	});
-}
+// function get_coa(account){
+// 	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_tax",{account:account}).done(function(data){
+// 		if((data.result == 'Creditable Withholding Tax')){
+// 			if (prev_account != '' && account != prev_account) {
+// 				$('#tax_amount').val('');
+// 			}
+// 			prev_account = account;
+// 			$('#atcModal').modal('show');
+// 			$('#tax_account').html(data.ret);
+// 			if (selected_tax_account) {
+// 				$('#tax_account').val(selected_tax_account);
+// 			}
+// 		} else {
+// 			row.find('.checkbox-select').show();
+// 			row.find('.edit-button').hide();
+// 		}
+// 	});
+// }
 
 function set_selected_cv(){
 	for(key in credits_box){
@@ -5062,11 +5062,11 @@ function set_total_credits_amt(){
 // 	get_coa(accountcode);
 // });
 
-$('#entriesTable').on('change', '.accountcode', function(){
-	row = $(this).closest('tr')
-	var account = $(this).val();
-	get_coa(account);
-});
+// $('#entriesTable').on('change', '.accountcode', function(){
+// 	row = $(this).closest('tr')
+// 	var account = $(this).val();
+// 	get_coa(account);
+// });
 
 // $('#entriesTable .taxcode').each(function(){
 // 	var acc = $(this).val();
