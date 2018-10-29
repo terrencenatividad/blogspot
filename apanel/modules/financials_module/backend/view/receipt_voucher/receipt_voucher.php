@@ -783,7 +783,7 @@
 											$disable_code 		= 'disabled';
 											$added_class 		= 'added_row';
 											$indicator 			= "cheque";
-										} else if($aPvJournalDetails_Index > 0 && $accountcode == $discount_code ){
+										} else if($aPvJournalDetails_Index > 0 && $accountcode == $discount_code){
 											$disable_debit		= 'readOnly';
 											$disable_credit		= 'readOnly';
 											$disable_code 		= 'disabled';
@@ -898,12 +898,12 @@
 											$added_class 		= 'discount_row';
 										} else if( $accountcode == $cred_id ) {
 											$disable_debit		= 'readOnly';
-											$disable_code 		= 'disabled';
-											$disable_credit 	= '';
-										} else if( $accountcode == $op_acct ) {
 											$disable_credit		= 'readOnly';
 											$disable_code 		= 'disabled';
-											$disable_debit		= '';
+										} else if( $accountcode == $op_acct ) {
+											$disable_credit		= 'readOnly';
+											$disable_credit		= 'readOnly';
+											$disable_code 		= 'disabled';
 										} else {
 											$disable_debit		= ($debit > 0) ? '' : 'readOnly';
 											$disable_credit		= ($credit > 0) ? '' : 'readOnly';
@@ -2193,6 +2193,7 @@ function addAmountAll(field) {
 		{          
 			if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
 			{                            
+				console.log('with');
 				inData = inputs.value.replace(/,/g,'');
 				if(is_cheque == 'yes'){
 					inputs.readOnly   = true;
@@ -2203,6 +2204,7 @@ function addAmountAll(field) {
 			}
 			else
 			{             
+				console.log('not');
 				inData = 0;
 				if(is_cheque == 'yes'){
 					inputs.readOnly   = true;
@@ -2907,6 +2909,7 @@ function getRVDetails(){
 		{	
 			var discount_code = data.discount_code;
 			var op_code 	  = data.op_code;
+			var arv_acct 	  = data.arv_acct;
 
 			var total_payment = $("#paymentModal #total_payment").val();
 			$("#paymentModal").modal("hide");
@@ -2920,6 +2923,8 @@ function getRVDetails(){
 				$("#pv_amount").html(total_payment);
 				$('#current_tagged_receivables').val(total_payment);
 				var count_container = Object.keys(container).length;
+				
+				//For Discount
 				var discount_amount = 0; 
 				for(i = 0; i < count_container; i++) {
 					discount_amount += parseFloat(0) || parseFloat(container[i]['dis']) ;
@@ -2937,11 +2942,16 @@ function getRVDetails(){
 					$('#debit\\['+row+'\\]').val(discount_amount);
 					disable_acct_fields(row);
 				}
-				addAmountAll("credit");
+				
+				// For Advance Payment - Credit Voucher
+				var total = $('#creditvoucherModal #total_credits_to_apply').val();
+				apply_credit_account(total);
+
 				addAmountAll("debit");
+				addAmountAll("credit");
 				$('#entriesTable tbody tr').each(function(){
 					var accountcode = $(this).find('.accountcode').val();
-					if(accountcode!="" && accountcode == op_code){
+					if(accountcode!="" && (accountcode == op_code || accountcode == arv_acct)){
 						$(this).find('.accountcode').prop('disabled',true);
 						$(this).find('.credit').prop('readonly',true);
 						$(this).find('.debit').prop('readonly',true);
@@ -2950,9 +2960,6 @@ function getRVDetails(){
 				});
 				$('#entriesTable tbody tr.clone').removeClass('added_row');
 				addAmounts();
-				
-				var total = $('#creditvoucherModal #total_credits_to_apply').val();
-				apply_credit_account(total);
 			}	
 		});
 		$('.cwt').removeAttr('disabled');
@@ -3066,13 +3073,11 @@ function computeCreditBalance(id,toapply){
 function addCreditsAmount(){
 	var count_container = Object.keys(credits_box).length;
 	var	total_credits = 0; 	
-	console.log(credits_box);
 	for (var key in credits_box) {
 		credits 	= removeComma(credits_box[key]['toapply']);
 		credits  	= parseFloat(credits);
 		total_credits += credits;
 	}
-	console.log("TOTAL "+total_credits);
 	total_credits = addCommas(total_credits.toFixed(2));
 	$('#total_credits_to_apply').val(total_credits);
 }
@@ -3707,13 +3712,15 @@ function apply_credit_account(amount){
 			$("#entriesTable tbody tr.clone:not(.added_row)").first().after(clone_acct);
 			resetIds();
 			var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first().next('tr');
+				credit_row.find('.debit').val(addComma(amount));
+				// addAmountAll("credit");
+				// addAmountAll("debit");
 				credit_row.find('.accountcode').val(cred_acct).prop('disabled',true);
 				credit_row.find('.h_accountcode').val(cred_acct);
-				credit_row.find('.debit').val(addComma(amount)).prop('readonly',true);
+				credit_row.find('.debit').prop('readonly',true);
 				credit_row.find('.confirm-delete').prop('disabled',true);
 				credit_row.find('.credit').prop('readonly',true);
 		}
-		addAmountAll("debit");
 	}
 	drawTemplate();
 }

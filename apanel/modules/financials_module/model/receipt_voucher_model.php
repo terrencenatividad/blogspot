@@ -905,7 +905,7 @@ class receipt_voucher_model extends wc_model
 				$errmsg[] 	= "<li>Error in Updating Official Receipt Header.</li>";
 			} else {
 				$appliedCreditsArray 	= array();
-				if(!empty($picked_creditvoucher)){
+				if(!empty($picked_creditvoucher) && $status!="temporary"){
 					$cr_linenum	= 1;
 					foreach ($picked_creditvoucher as $pickedKey => $pickedValue) {
 						$applied_cred_amt 	= $pickedValue['toapply'];
@@ -964,7 +964,8 @@ class receipt_voucher_model extends wc_model
 					}
 				}
 			}	
-		} if($ap_checker == 'yes'){
+		} 
+		if($ap_checker == 'yes' && $status!="temporary"){
 			$this->db->setTable($detailAppTable)
 						->setWhere("voucherno = '$voucherno'")
 						->runDelete();
@@ -1102,7 +1103,7 @@ class receipt_voucher_model extends wc_model
 				}
 
 				// Insert Overpayment on Credit Memo
-				if($insertResult && $credits > 0 && $status != "temporary"){
+				if($insertResult && $credits > 0 && $status!="temporary"){
 					$data['temp_voucher'] 	=	$voucherno;
 					$data['overpayment'] 	= 	$credits;
 					// echo $credits;

@@ -863,9 +863,9 @@ class controller extends wc_controller
 
 		$retrieve_details =	$this->stock_transfer->getStockTransferApproval(array('approved_by'),$delete_id);
 		$approved_by 	  = isset($retrieve_details->approved_by)	?	$retrieve_details->approved_by 	:	"";
-	
+		$result = 0;
 		if ($delete_id) {
-			$this->stock_transfer->deleteStockTransferApproval($delete_id);
+			$result = $this->stock_transfer->deleteStockTransferApproval($delete_id);
 		}
 		if ($result && $this->inventory_model) {
 			$this->inventory_model->prepareInventoryLog('Stock Transfer', $delete_id)
