@@ -17,7 +17,7 @@
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('partnercode')
 									->setId('partnercode')
-									->setValidation('required code')
+									->setValidation('required code')	
 									->setMaxLength(20)
 									->addHidden((isset($task) && $task == 'update'))
 									->setAttribute(array('autocomplete' => 'off'))
@@ -300,27 +300,24 @@ $('#customerForm #btnSave').on('click',function(){
 	}
 });
 
-$('body').on('blur', '#partnercode',function(){
-	ajax.old_code   =   $('#h_customer_code').val();
-	ajax.curr_code   =  $(this).val();
-
-	var task       =  '<?=$task?>';
-	var error_message   =  '';  
-	var partner_element = $(this);
-	var form_group     =   partner_element.closest('.form-group');
-
-	$.post('<?=BASE_URL?>maintenance/customer/ajax/get_duplicate',ajax, function(data) {
-		if( data.msg == 'exists' )
-		{
-		error_message   =  "<b>The Code you entered already exists!</b>";
-		partner_element.closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+var ajax_call = '';
+$('#partnercode').on('input', function() {
+	if (ajax_call != '') {
+		ajax_call.abort();
+	}
+	var partnercode = $(this).val();
+	$('#partnercode').closest('form').find('[type="submit"]').addClass('disabled');
+	ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_check_code', 'partnercode=' + partnercode + '<?=$ajax_post?>', function(data) {
+		var error_message = 'The Code you entered already exists';
+		if (data.available) {
+			var form_group = $('#partnercode').closest('.form-group');
+			if (form_group.find('p.help-block').html() == error_message) {
+				form_group.removeClass('has-error').find('p.help-block').html('');
+			}
+		} else {
+			$('#partnercode').closest('.form-group').addClass('has-error').find('p.help-block').html(error_message);
 		}
-		else if( ( ajax.curr_code != "" && data.msg == "") || (data.msg == '' && task == 'edit'))
-		{
-		if (form_group.find('p.help-block').html() != "") {
-			form_group.removeClass('has-error').find('p.help-block').html('');
-		}
-		}
+		$('#partnercode').closest('form').find('[type="submit"]').removeClass('disabled');
 	});
 });
 
