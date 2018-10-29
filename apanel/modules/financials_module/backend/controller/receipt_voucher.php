@@ -179,6 +179,9 @@ class controller extends wc_controller
 		$data["show_cheques"] 		= 'hidden';
 
 		$data['restrict_rv'] 		= true;
+
+		$ar_acct 			=	'';
+		$data['ar_acct'] 	=	$ar_acct;
 		
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
@@ -372,6 +375,15 @@ class controller extends wc_controller
 		$cv_checker 					= $this->receipt_voucher->checkifCVinuse($voucherno);
 		$cv_status 						= isset($cv_checker->status) 	?	$cv_checker->status 	:	""; 	
 		$data['cv_status'] 				= $cv_status;
+
+		$ar_acct 	=	'';
+		$details = $data['details'];
+		foreach($details as $key=>$row){
+			if(isset($row->accrecid)) {
+				$ar_acct = $row->accrecid;
+			}
+		}
+		$data['ar_acct'] 	=	$ar_acct;
 
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
@@ -598,6 +610,7 @@ class controller extends wc_controller
 			$accountcode 	=	$dtl['chequeaccount'];
 			$account_array[] = $accountcode;
 		}
+
 		$account_array = ($account_array) ? " OR c.id IN ('".implode("','",$account_array)."')" : "";
 
 		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val, b.stat stat";
@@ -655,6 +668,15 @@ class controller extends wc_controller
 
 		$op_acct  					= $this->receipt_voucher->retrieveOPDetails();
 		$data['op_acct'] 			= isset($op_acct[0]->accountcode) 	? 	$op_acct[0]->accountcode 	:	"";
+		
+		$ar_acct 	=	'';
+		$details = $data['details'];
+		foreach($details as $key=>$row){
+			if(isset($row->accrecid)) {
+				$ar_acct = $row->accrecid;
+			}
+		}
+		$data['ar_acct'] 	=	$ar_acct;
 
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
@@ -1614,6 +1636,7 @@ class controller extends wc_controller
 			$arvoucher_[] = $apvoucherno;
 			$accountcode_ = $accountcode;
 		}
+
 
 		$condi =  implode("','" , $arvoucher_);
 		$cond = "('".$condi."')";

@@ -87,10 +87,13 @@ class receipt_voucher_model extends wc_model
 		$temp["main"] = $retrieveArrayMain;
 
 		// Retrieve Details
-		$detailFields = "main.accountcode, chart.accountname, main.detailparticulars, main.ischeck, main.debit, SUM(main.credit) credit,main.taxcode,main.taxbase_amount";
+		$detailFields = "main.accountcode, chart2.id as accrecid, chart.accountname, main.detailparticulars, main.ischeck, main.debit, SUM(main.credit) credit,main.taxcode,main.taxbase_amount";
 		$detail_cond  = "main.voucherno = '$sid' AND main.stat != 'temporary'";
 		$orderby 	  = "main.linenum";	
-		$detailJoin   = "chartaccount as chart ON chart.id = main.accountcode AND chart.companycode = main.companycode";
+		$detailJoin   = "chartaccount as chart ON chart.id = main.accountcode AND chart.companycode = main.companycode 
+						 LEFT JOIN  chartaccount as chart2 ON chart2.id = main.accountcode AND chart.companycode = main.companycode AND chart.accountclasscode = 'ACCREC'";		
+		// $ar_result	= $this->receipt_voucher->getValue('ar_details apd LEFT JOIN chartaccount AS chart ON apd.accountcode = chart.id AND chart.companycode = apd.companycode','accountcode',"voucherno = '$apvoucherno' AND chart.accountclasscode = 'ACCREC'","","","apd.accountcode");
+		// $ar_code 	= isset($ar_result[0]->accountcode) 	?	$ar_result[0]->accountcode 	:	"";
 		$groupby      = "main.linenum";
 	
 		$retrieveArrayDetail = $this->db->setTable('rv_details as main')
@@ -686,7 +689,7 @@ class receipt_voucher_model extends wc_model
 		}
 
 		$isExist						= $this->getValue($mainAppTable, array("stat"), "voucherno = '$voucherno' AND stat IN ('posted','temporary','cancelled') ");
-		$status							= (!empty($isExist[0]->stat)) ? "open" : "temporary";
+		$status							= (!empty($isExist[0]->stat) && ($isExist[0]->stat == "open" || $isExist[0]->stat == "posted")) ? "open" : "temporary";
 		$valid 							= 0;
 
 		$transactiondate				= $this->date->dateDbFormat($transactiondate); 
@@ -816,7 +819,7 @@ class receipt_voucher_model extends wc_model
 				$post_application['currencycode']		= 'PHP';
 				$post_application['exchangerate']		= '1.00';
 				$post_application['convertedamount']	= $amount;
-				$post_application['stat']			 	= 'posted';
+				$post_application['stat']			 	= $status;
 
 				$iApplicationLineNum++;
 				$aPvApplicationArray[]					= $post_application;

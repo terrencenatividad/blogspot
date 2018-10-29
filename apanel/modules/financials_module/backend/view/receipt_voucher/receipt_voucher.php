@@ -12,6 +12,7 @@
 	
 	<form method = "post" class="form-horizontal" id = "payableForm">
 		<input type="hidden" id="h_task" name="h_task" value="<?=$task?>">
+		<input type="hidden" id="ar_acct" name="ar_acct" value="<?=$ar_acct?>">
 		<div class="box box-primary">
 			<div class="box-body">
 				<div class = "row">
@@ -885,6 +886,8 @@
 											$added_function_cr	= "";
 											$indicator 			= "";
 											
+											$ar_acct 			= ($aPvJournalDetails_Value->accrecid != NULL) ? $aPvJournalDetails_Value->accountcode : "";
+
 										if($aPvJournalDetails_Index < ($count-1) && $paymenttype == 'cheque' && $ischeck == 'yes'){					
 											$disable_debit		= 'readOnly';
 											$disable_credit		= 'readOnly';
@@ -901,6 +904,10 @@
 											$disable_credit		= 'readOnly';
 											$disable_code 		= 'disabled';
 										} else if( $accountcode == $op_acct ) {
+											$disable_credit		= 'readOnly';
+											$disable_dedit		= 'readOnly';
+											$disable_code 		= 'disabled';
+										} else if( $accountcode == $ar_acct ) {
 											$disable_credit		= 'readOnly';
 											$disable_credit		= 'readOnly';
 											$disable_code 		= 'disabled';
@@ -2174,6 +2181,7 @@ function addAmountAll(field) {
 	var inData = 0;
 
 	var chk	   = document.getElementsByName('chk[]');
+	var ar_acct= $('#ar_acct').val();
 
 	if(field == 'debit')
 	{
@@ -2189,13 +2197,18 @@ function addAmountAll(field) {
 		var inputs 		= document.getElementById(field+'['+i+']');
 		var disables 	= document.getElementById(notfield+'['+i+']');
 		var is_cheque   = $("#ischeck\\["+i+"\\]").val();
+
+		var accountcode = $('#'+field+"\\["+i+"\\]").closest('tr').find('.accountcode').val();
+	
 		if(document.getElementById(notfield+'['+i+']')!=null)
 		{          
 			if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
-			{                            
-				console.log('with');
+			{                         
 				inData = inputs.value.replace(/,/g,'');
 				if(is_cheque == 'yes'){
+					inputs.readOnly   = true;
+					disables.readOnly = true;
+				}else if(accountcode == ar_acct){
 					inputs.readOnly   = true;
 					disables.readOnly = true;
 				}else {
@@ -2204,9 +2217,10 @@ function addAmountAll(field) {
 			}
 			else
 			{             
-				console.log('not');
-				inData = 0;
 				if(is_cheque == 'yes'){
+					inputs.readOnly   = true;
+					disables.readOnly = true;
+				}else if(accountcode == ar_acct){
 					inputs.readOnly   = true;
 					disables.readOnly = true;
 				}else {
@@ -2947,8 +2961,6 @@ function getRVDetails(){
 				var total = $('#creditvoucherModal #total_credits_to_apply').val();
 				apply_credit_account(total);
 
-				addAmountAll("debit");
-				addAmountAll("credit");
 				$('#entriesTable tbody tr').each(function(){
 					var accountcode = $(this).find('.accountcode').val();
 					if(accountcode!="" && (accountcode == op_code || accountcode == arv_acct)){
@@ -2956,6 +2968,8 @@ function getRVDetails(){
 						$(this).find('.credit').prop('readonly',true);
 						$(this).find('.debit').prop('readonly',true);
 						$(this).find('.confirm-delete').prop('disabled',true);
+						$('#ar_acct').val(arv_acct);
+						addAmountAll("credit");
 					}
 				});
 				$('#entriesTable tbody tr.clone').removeClass('added_row');
@@ -2968,6 +2982,8 @@ function getRVDetails(){
 		if(parseFloat(has_payment) > 0){
 			$('#crv').prop('disabled',false);
 		}
+		addAmountAll("debit");
+		addAmountAll("credit");
 	}
 }
 
