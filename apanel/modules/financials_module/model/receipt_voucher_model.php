@@ -844,7 +844,7 @@ class receipt_voucher_model extends wc_model
 		// details and pv_application
 		if(!empty($aPvApplicationArray) && !is_null($aPvApplicationArray)){
 			$isAppDetailExist	= $this->getValue($applicationTable, array("COUNT(*) AS count"), " voucherno = '$voucherno'");
-			
+			// echo "Detail Count ".$isAppDetailExist[0]->count;
 			if($isAppDetailExist[0]->count > 0){
 	
 				$this->db->setTable($detailAppTable)
@@ -908,7 +908,7 @@ class receipt_voucher_model extends wc_model
 				$errmsg[] 	= "<li>Error in Updating Official Receipt Header.</li>";
 			} else {
 				$appliedCreditsArray 	= array();
-				if(!empty($picked_creditvoucher) && $status!="temporary"){
+				if(!empty($picked_creditvoucher)){
 					$cr_linenum	= 1;
 					foreach ($picked_creditvoucher as $pickedKey => $pickedValue) {
 						$applied_cred_amt 	= $pickedValue['toapply'];
@@ -967,8 +967,30 @@ class receipt_voucher_model extends wc_model
 					}
 				}
 			}	
-		} 
-		if($ap_checker == 'yes' && $status!="temporary"){
+		} else {
+			$this->db->setTable($detailAppTable)
+						->setWhere("voucherno = '$voucherno'")
+						->runDelete();
+
+			$insertResult = $this->db->setTable($detailAppTable) 
+									->setValues($aPvDetailArray)
+									->runInsert();
+									
+			if(!$insertResult){
+				$code 		= 0;
+				$errmsg[] 	= "<li>Error in Updating Official Receipt Details.</li>";
+			}
+
+			// $insertResult = $this->db->setTable($applicationTable) 
+			// 					->setValues($aPvApplicationArray)
+			// 					->runInsert();
+
+			// if(!$insertResult){
+			// 	$code 		= 0;
+			// 	$errmsg[] 	= "<li>Error in Updating Official Receipt Application.</li>";
+			// }
+		}
+		if($ap_checker == 'yes' ){
 			$this->db->setTable($detailAppTable)
 						->setWhere("voucherno = '$voucherno'")
 						->runDelete();
@@ -1106,7 +1128,7 @@ class receipt_voucher_model extends wc_model
 				}
 
 				// Insert Overpayment on Credit Memo
-				if($insertResult && $credits > 0 && $status!="temporary"){
+				if($insertResult && $credits > 0 ){
 					$data['temp_voucher'] 	=	$voucherno;
 					$data['overpayment'] 	= 	$credits;
 					// echo $credits;
