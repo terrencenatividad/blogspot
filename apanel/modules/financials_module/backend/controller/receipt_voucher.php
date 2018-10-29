@@ -2010,26 +2010,26 @@ class controller extends wc_controller
 		return $returnArray;
 	}
 
-	public function get_tax(){
-		$account = $this->input->post("account");
-		$result = $this->receipt_voucher->getValues("chartaccount",array("accountname"),"id = '$account' ");
-		$result_class = $result[0]->accountname;
+	// public function get_tax(){
+	// 	$account = $this->input->post("account");
+	// 	$result = $this->receipt_voucher->getValues("chartaccount",array("accountname"),"id = '$account' ");
+	// 	$result_class = $result[0]->accountname;
 
-		$bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
-		$bus_type_cond                = "cwt = '$account' AND atc.stat = 'active'";
-		$join 						  =  "chartaccount ca ON atc.cwt = ca.id";
-		$tax_list  			 		  = $this->receipt_voucher->getTax("atccode atc", $bus_type_data,$join ,$bus_type_cond, false);
+	// 	$bus_type_data                = array("atcId ind", "CONCAT(atc_code ,' - ', short_desc) val");
+	// 	$bus_type_cond                = "cwt = '$account' AND atc.stat = 'active'";
+	// 	$join 						  =  "chartaccount ca ON atc.cwt = ca.id";
+	// 	$tax_list  			 		  = $this->receipt_voucher->getTax("atccode atc", $bus_type_data,$join ,$bus_type_cond, false);
 
-		$ret = '';
-		foreach ($tax_list as $key) {
-			$in  = $key->ind;
-			$val = $key->val;
-			$ret .= "<option value=". $in.">" .$val. "</option>";
-		}
+	// 	$ret = '';
+	// 	foreach ($tax_list as $key) {
+	// 		$in  = $key->ind;
+	// 		$val = $key->val;
+	// 		$ret .= "<option value=". $in.">" .$val. "</option>";
+	// 	}
 		
-		$returnArray = array( "result" => $result_class, "ret" => $ret);
-		return $returnArray;
-	}
+	// 	$returnArray = array( "result" => $result_class, "ret" => $ret);
+	// 	return $returnArray;
+	// }
 
 	public function get_cwt(){
 		$result = $this->receipt_voucher->getValues("chartaccount",array("id,accountname"),"accountname = 'Creditable Withholding Tax' ");
