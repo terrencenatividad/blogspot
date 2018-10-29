@@ -706,7 +706,7 @@ class controller extends wc_controller
 		$docdet_orderby = "CASE WHEN dtl.debit > 0 THEN 1 ELSE 2 END, dtl.linenum";
 		
 		$documentdetails = $this->receipt_voucher->retrieveData($docdet_table, $docdet_fields, $docdet_cond, $docdet_join, $docdet_orderby, $docdet_groupby);
-
+	
 		// Retrieve Payment Details
 		$paymentArray	 = $this->receipt_voucher->retrievePaymentDetails($voucherno);
 
@@ -718,11 +718,11 @@ class controller extends wc_controller
 		foreach ($ap_voucher as $row) {
 			$apvoucher[] = $row->arvoucherno;
 		}
-		$ap =  implode("','" , $apvoucher);
+		$ap =  !empty($apvoucher) ? implode("','" , $apvoucher) : "";
 		$ap_no = "('".$ap."')";
 		$ap_amount    = $this->receipt_voucher->getValue("accountsreceivable", array("SUM(amount) total_amount"), "voucherno IN $ap_no" );
 		$total_amount = $ap_amount[0]->total_amount;
-		$amount = $paymentArray[0]->amount;
+		$amount = isset($paymentArray[0]->amount) ? $paymentArray[0]->amount : 0;
 		$balance = $total_amount - $amount;
 		
 		if($balance != $amount && $balance != 0)
@@ -739,6 +739,7 @@ class controller extends wc_controller
 		}
 
 		$chequeArray = "";
+		$chequeArray_2 = "";
 		if(!empty($pv_voucherno))
 		{
 			for($p = 0; $p < count($pv_voucherno); $p++)
@@ -760,7 +761,7 @@ class controller extends wc_controller
 		// Retrieve Applied Payment //
 		$p_table = "rv_application pv";
 		$p_fields = array("arvoucherno voucherno", "pv.amount amount", "ap.sourceno si_no", "pv.discount discount") ;
-		$p_cond = "pv.voucherno IN($pv_v) " ;
+		$p_cond = (!empty($pv_v)) ? "pv.voucherno IN($pv_v) " : "";
 		$p_join = "accountsreceivable ap ON pv.arvoucherno = ap.voucherno" ;
 		$appliedpaymentArray = $this->receipt_voucher->retrieveData($p_table, $p_fields, $p_cond, $p_join);
 		
