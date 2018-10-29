@@ -689,7 +689,7 @@ class receipt_voucher_model extends wc_model
 		}
 
 		$isExist						= $this->getValue($mainAppTable, array("stat"), "voucherno = '$voucherno' AND stat IN ('posted','temporary','cancelled') ");
-		$status							= (!empty($isExist[0]->stat)) ? "open" : "temporary";
+		$status							= (!empty($isExist[0]->stat) && ($isExist[0]->stat == "open" || $isExist[0]->stat == "posted")) ? "open" : "temporary";
 		$valid 							= 0;
 
 		$transactiondate				= $this->date->dateDbFormat($transactiondate); 
