@@ -33,7 +33,7 @@
 			$fields = "i.itemname as itemname, i.itemdesc as itemdesc, i.uom_base, p.itemprice as price, template.adjusted_price as c_price, 
 						i.receivable_account item_receivable, i.revenue_account item_revenue, i.expense_account item_expense, i.payable_account item_payable, 
 						i.inventory_account item_inventory, class.receivable_account class_receivable, class.revenue_account class_revenue, class.expense_account class_expense, 
-						class.payable_account class_payable, class.inventory_account class_inventory, u.uomdesc uomcode, template.stat as stat";
+						class.payable_account class_payable, class.inventory_account class_inventory, u.uomcode, template.stat as stat";
 			$cond 	= "i.itemcode = '$itemcode'";
 
 			$subquery 		=	"SELECT  pld.sellPrice as adjusted_price,
@@ -157,7 +157,7 @@
 			$retrieved_data['customer']  =	$this->retrieveCustomerDetails($customer_code);
 
 			// Retrieve Details
-			$detail_fields 			= "sd.itemcode, sd.detailparticular, sd.warehouse, w.description, sd.unitprice, sd.issueqty, u.uomdesc issueuom, sd.taxcode, sd.taxrate, sd.amount, sd.discountamount, sd.discountedamount, sd.discounttype";
+			$detail_fields 			= "sd.itemcode, sd.detailparticular, sd.warehouse, w.description, sd.unitprice, sd.issueqty, u.uomcode issueuom, sd.taxcode, sd.taxrate, sd.amount, sd.discountamount, sd.discountedamount, sd.discounttype";
 			$condition 				= " sd.voucherno = '$voucherno' ";
 			
 			$retrieved_data['details'] = 	$this->db->setTable('salesorder_details sd')
