@@ -2192,45 +2192,48 @@ function addAmountAll(field) {
 		notfield	= 'debit';
 	}
 
-	for(i = 0; i <= chk.length; i++) 
-	{  
+	for(i = 1; i <= chk.length; i++) {  
+		// console.log('i '+i);
 		var inputs 		= document.getElementById(field+'['+i+']');
 		var disables 	= document.getElementById(notfield+'['+i+']');
 		var is_cheque   = $("#ischeck\\["+i+"\\]").val();
 
 		var accountcode = $('#'+field+"\\["+i+"\\]").closest('tr').find('.accountcode').val();
-	
+		// console.log("FIELDS "+field);
 		if(document.getElementById(notfield+'['+i+']')!=null)
 		{          
-			if(inputs.value && inputs.value != '0' && inputs.value != '0.00')
+			if(inputs.value && parseFloat(inputs.value) != 0 && inputs.value != '0.00')
 			{                         
+				// console.log("INPUT = "+inputs.value);
 				inData = inputs.value.replace(/,/g,'');
 				if(is_cheque == 'yes'){
 					inputs.readOnly   = true;
 					disables.readOnly = true;
-				}else if(accountcode == ar_acct){
+				}else if(ar_acct!="" && accountcode == ar_acct){
 					inputs.readOnly   = true;
 					disables.readOnly = true;
 				}else {
 					disables.readOnly = true;
 				}
+
+				sum = parseFloat(sum) + parseFloat(inData);
+				// console.log("SUM "+sum);
 			}
 			else
 			{             
 				if(is_cheque == 'yes'){
 					inputs.readOnly   = true;
 					disables.readOnly = true;
-				}else if(accountcode == ar_acct){
+				}else if(ar_acct!="" && accountcode == ar_acct){
 					inputs.readOnly   = true;
 					disables.readOnly = true;
 				}else {
 					disables.readOnly = false;
 				}
 			} 
-
-			sum = parseFloat(sum) + parseFloat(inData);
 		}	
 	}
+
 
 	if(field == 'debit')
 	{
