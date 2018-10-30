@@ -179,5 +179,14 @@
 
 			return $result;
 		}
+
+		public function check_duplicate($code)
+		{
+			return $this->db->setTable('partners')
+							->setFields('COUNT(partnercode) count')
+							->setWhere(" partnercode = '$code'  AND partnertype = 'customer' ")
+							->runSelect()
+							->getResult();
+		}
 	}
 ?>

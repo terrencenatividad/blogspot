@@ -33,9 +33,21 @@
 		{
 			$this->view->title 	= $this->ui->ListLabel('');
 			$data['ui'] 		= $this->ui;
+
 			$this->view->load('customer/customer_list' ,$data);
 		}
 		
+		function correct_encoding($text) {
+			$current_encoding = mb_detect_encoding("�", 'auto');
+			$text = iconv($current_encoding, 'UTF-8', "�");
+			// preg_replace('/[[:^print:]]/', '', '�')
+			return $text;
+		}
+
+		function trim_special_characters($text){
+			return preg_replace('/[[:^print:]]/', '', $text);
+		}
+
 		public function create()
 		{
 			$this->view->title = $this->ui->AddLabel('');
@@ -181,7 +193,7 @@
 			if ( ! preg_match('/^[\\a-zA-Z0-9-_ !@#$%^&*()\/<>?,.{}:;=+\r\n"\']*$/', $value)) {
 				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line contains invalid characters.<br/>";
 			}
-			echo $error."\n\n";
+			// echo $error."\n\n";
 			// echo "\n\n". utf8_encode($field_value)."\n\n";
 
 			return $error;
@@ -270,7 +282,20 @@
 							$credit_limit 		= isset($b[10])? htmlspecialchars(addslashes(trim($b[10])))	: 	0;
 
 							$headerArr = array('Customer Code','Company Name','Address','Email','Business Type','Contact Number','First Name','Last Name','Payment Terms','Tin No.','Credit Limit');
-
+							
+							// **** Trim Other Unusual Special Characters***/ 
+							$customercode 	   	= $this->trim_special_characters($customercode);
+							$companyname        = $this->trim_special_characters($companyname);
+							$address            = $this->trim_special_characters($address);
+							$email 				= $this->trim_special_characters($email);
+							$business 			= $this->trim_special_characters($business);
+							$contact 			= $this->trim_special_characters($contact);
+							$firstname        	= $this->trim_special_characters($firstname);
+							$lastname           = $this->trim_special_characters($lastname);
+							$terms 				= $this->trim_special_characters($terms);
+							$tinno 				= $this->trim_special_characters($tinno);
+							$credit_limit 		= $this->trim_special_characters($credit_limit);
+					
 							// *********Validation Starts here**************
 							
 							// Check for Empty on first line
