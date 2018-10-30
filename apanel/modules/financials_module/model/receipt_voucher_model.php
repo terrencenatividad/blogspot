@@ -1078,7 +1078,7 @@ class receipt_voucher_model extends wc_model
 												array(
 													"amount as convertedamount"
 												), 
-												" voucherno = '$payable' AND stat IN('open','posted') "
+												" voucherno = '$payable' AND stat IN('open','posted','temporary') "
 											);
 
 				$applied_amounts			= $this->getValue(
@@ -1090,12 +1090,13 @@ class receipt_voucher_model extends wc_model
 													"COALESCE(SUM(overpayment),0) overpayment",
 													"COALESCE(SUM(forexamount),0) forexamount"
 												), 
-												"  arvoucherno = '$payable' AND stat IN('open','posted') "
+												"  arvoucherno = '$payable' AND stat IN('open','posted','temporary') "
 											);
 				
 				$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
 				$applied_credits 			= (!empty($applied_amounts[0]->credits)) ? $applied_amounts[0]->credits : 0;
 				$applied_disc 				= (!empty($applied_amounts[0]->discount)) ? $applied_amounts[0]->discount : 0;
+				$applied_over 				= (!empty($applied_amounts[0]->overpayment)) ? $applied_amounts[0]->overpayment : 0;
 				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount + $applied_credits + $applied_disc;
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
 
