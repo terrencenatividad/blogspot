@@ -13,7 +13,7 @@
 								->setId('costcenter_code')
 								->setValue($costcenter_code)
 								->setAttribute(array("maxlength" => "50"))
-								->setValidation('required')
+								->setValidation('alpha_num required')
 								->draw($show_input);
 						?>
 					</div>
@@ -43,7 +43,7 @@
 								->setId('name')
 								->setValue($name)
 								->setAttribute(array("maxlength" => "100"))
-								->setValidation('required')
+								->setValidation('alpha_num required')
 								->draw($show_input);
 						?>
 					</div>
