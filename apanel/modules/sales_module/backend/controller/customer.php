@@ -10,6 +10,7 @@
 			$this->ui 			= 	new ui();
 			$this->url 			=	new url();
 			$this->log 			= 	new log();
+			$this->import 		= 	new import();
 
 			$this->view->header_active = 'maintenance/customer/';
 
@@ -37,16 +38,11 @@
 			$this->view->load('customer/customer_list' ,$data);
 		}
 		
-		function correct_encoding($text) {
-			$current_encoding = mb_detect_encoding("�", 'auto');
-			$text = iconv($current_encoding, 'UTF-8', "�");
-			// preg_replace('/[[:^print:]]/', '', '�')
-			return $text;
-		}
-
-		function trim_special_characters($text){
-			return preg_replace('/[[:^print:]]/', '', $text);
-		}
+		// function correct_encoding($text) {
+		// 	$current_encoding = mb_detect_encoding("�", 'auto');
+		// 	$text = iconv($current_encoding, 'UTF-8', "�");
+		// 	return $text;
+		// }
 
 		public function create()
 		{
@@ -115,100 +111,19 @@
 			
 			echo $return;
 		}
-		
-		private function check_character_length($field_name, $field_value, $line, $max_length, $input_length){
-			$error 	=	"";
-			
-			if($input_length > $max_length){
-				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line exceeded the Max Character Length of $max_length.<br/>";
-			}
 
-			return $error;
-		}
-
-		private function check_empty($field_name, $field_value, $line){
-			$error 	=	"";
-			
-			if($field_value  == ""){
-				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line is empty.<br/>";
-			}
-
-			return $error;
-		}
-
-		private function check_numeric($field_name, $field_value, $line){
-			$error 	=	"";
-			
-			if(!is_numeric($field_value)){
-				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line is not a valid number.<br/>";
-			}
-
-			return $error;
-		}
-
-		private function check_negative($field_name, $field_value, $line){
-			$error 	=	"";
-			
-			if($field_value < 0){
-				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line has a negative value.<br/>";
-			}
-
-			return $error;
-		}
-
-		private function check_email($field_name, $field_value, $line){
-			$error 	=	"";
-			if (!filter_var($field_value, FILTER_VALIDATE_EMAIL)) {
-				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line is not a valid E-mail.<br/>";
-			}
-			return $error;
-		}
-
-		private function check_business_type($field_name, $field_value, $line){
-			$business_type 	=	array('Corporation','Individual');
-			$error 			=	"";
-
-			if (!in_array($field_value, $business_type)) {
-				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line is not a valid Business Type.<br/>";
-			}
-			return $error;
-		}
-
-		private function check_duplicate_code($field_name,$field_value,$line){
+		public function check_duplicate_code($field_name,$field_value,$line){
 			$error 		=	"";
-
+	
 			$exists 	= 	$this->customer->check_duplicate($field_value);
 			$count  	=	isset($exists[0]->count) 	?	$exists[0]->count 	:	0;
-
+	
 			if($count > 0){
 				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line already exists.<br/>";
 			}
 			return $error;
-		}
-
-		function check_special_characters($field_name,$field_value,$line){
-			$error 	=	"";
-			
-			$value = str_replace(',', '', $field_value);
-			if ( ! preg_match('/^[\\a-zA-Z0-9-_ !@#$%^&*()\/<>?,.{}:;=+\r\n"\']*$/', $value)) {
-				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line contains invalid characters.<br/>";
-			}
-			// echo $error."\n\n";
-			// echo "\n\n". utf8_encode($field_value)."\n\n";
-
-			return $error;
-		}
-
-		function check_alpha_num($field_name,$field_value,$line){
-			$error 	= "";
-
-			$value = str_replace(',','',$field_value);
-			if ( ! preg_match('/^[a-zA-Z0-9-_]*$/', $value)) {
-				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line contains invalid characters.<br/>";
-			}
-			return $error;
-		}
-
+		}	
+		
 		private function save_import(){
 			$file		= fopen($_FILES['file']['tmp_name'],'r') or exit ("File Unable to upload") ;
 
@@ -284,59 +199,59 @@
 							$headerArr = array('Customer Code','Company Name','Address','Email','Business Type','Contact Number','First Name','Last Name','Payment Terms','Tin No.','Credit Limit');
 							
 							// **** Trim Other Unusual Special Characters***/ 
-							$customercode 	   	= $this->trim_special_characters($customercode);
-							$companyname        = $this->trim_special_characters($companyname);
-							$address            = $this->trim_special_characters($address);
-							$email 				= $this->trim_special_characters($email);
-							$business 			= $this->trim_special_characters($business);
-							$contact 			= $this->trim_special_characters($contact);
-							$firstname        	= $this->trim_special_characters($firstname);
-							$lastname           = $this->trim_special_characters($lastname);
-							$terms 				= $this->trim_special_characters($terms);
-							$tinno 				= $this->trim_special_characters($tinno);
-							$credit_limit 		= $this->trim_special_characters($credit_limit);
+							// $customercode 	   	= $this->import->trim_special_characters($customercode);
+							// $companyname        = $this->import->trim_special_characters($companyname);
+							// $address            = $this->import->trim_special_characters($address);
+							// $email 				= $this->import->trim_special_characters($email);
+							// $business 			= $this->import->trim_special_characters($business);
+							// $contact 			= $this->import->trim_special_characters($contact);
+							// $firstname        	= $this->import->trim_special_characters($firstname);
+							// $lastname           = $this->import->trim_special_characters($lastname);
+							// $terms 				= $this->import->trim_special_characters($terms);
+							// $tinno 				= $this->import->trim_special_characters($tinno);
+							// $credit_limit 		= $this->import->trim_special_characters($credit_limit);
 					
 							// *********Validation Starts here**************
 							
 							// Check for Empty on first line
-							$errmsg[] 	=	$this->check_empty("Customer Code", $customercode, $line);
-							$errmsg[] 	=	$this->check_empty("Company Name", $companyname, $line);
-							$errmsg[] 	=	$this->check_empty("Address", $address, $line);
-							$errmsg[] 	=	$this->check_empty("Business Type", $business, $line);
+							$errmsg[] 	=	$this->import->check_empty("Customer Code", $customercode, $line);
+							$errmsg[] 	=	$this->import->check_empty("Company Name", $companyname, $line);
+							$errmsg[] 	=	$this->import->check_empty("Address", $address, $line);
+							$errmsg[] 	=	$this->import->check_empty("Business Type", $business, $line);
 						
 							// Check for Max Length 
-							$errmsg[] 	=	$this->check_character_length("Customer Code", $customercode, $line, "20", strlen($customercode));
-							$errmsg[] 	=	$this->check_character_length("Company Name", $companyname, $line, "30", strlen($companyname));
-							$errmsg[] 	=	$this->check_character_length("Address", $address, $line, "105", strlen($address));
-							$errmsg[] 	=	$this->check_character_length("Email", $email, $line, "150", strlen($email));
-							$errmsg[] 	=	$this->check_character_length("Contact Number", $contact, $line, "20", strlen($contact));
-							$errmsg[] 	=	$this->check_character_length("First Name", $firstname, $line, "20", strlen($firstname));
-							$errmsg[] 	=	$this->check_character_length("Last Name", $lastname, $line, "20", strlen($lastname));
-							$errmsg[] 	=	$this->check_character_length("Payment Terms", $terms, $line, "5", strlen($terms));
-							$errmsg[] 	=	$this->check_character_length("Tin No", $tinno, $line, "15", strlen($tinno));
-							$errmsg[] 	=	$this->check_character_length("Credit Limit", $credit_limit, $line, "20", strlen($credit_limit));
+							$errmsg[] 	=	$this->import->check_character_length("Customer Code", $customercode, $line, "20", strlen($customercode));
+							$errmsg[] 	=	$this->import->check_character_length("Company Name", $companyname, $line, "30", strlen($companyname));
+							$errmsg[] 	=	$this->import->check_character_length("Address", $address, $line, "105", strlen($address));
+							$errmsg[] 	=	$this->import->check_character_length("Email", $email, $line, "150", strlen($email));
+							$errmsg[] 	=	$this->import->check_character_length("Contact Number", $contact, $line, "20", strlen($contact));
+							$errmsg[] 	=	$this->import->check_character_length("First Name", $firstname, $line, "20", strlen($firstname));
+							$errmsg[] 	=	$this->import->check_character_length("Last Name", $lastname, $line, "20", strlen($lastname));
+							$errmsg[] 	=	$this->import->check_character_length("Payment Terms", $terms, $line, "5", strlen($terms));
+							$errmsg[] 	=	$this->import->check_character_length("Tin No", $tinno, $line, "15", strlen($tinno));
+							$errmsg[] 	=	$this->import->check_character_length("Credit Limit", $credit_limit, $line, "20", strlen($credit_limit));
 
 							// Check for Duplicates
 							$errmsg[] 	=	$this->check_duplicate_code("Customer Code",$customercode,$line);
 
 							// Check for Numerical Values
-							$errmsg[] 	=	$this->check_numeric("Payment Terms", $terms, $line);
-							$errmsg[] 	=	$this->check_numeric("Credit Limit", $credit_limit, $line);
+							$errmsg[] 	=	$this->import->check_numeric("Payment Terms", $terms, $line);
+							$errmsg[] 	=	$this->import->check_numeric("Credit Limit", $credit_limit, $line);
 
 							// Check for Negative Values
-							$errmsg[] 	=	$this->check_negative("Payment Terms", $terms, $line);
-							$errmsg[] 	=	$this->check_negative("Credit Limit", $credit_limit, $line);
+							$errmsg[] 	=	$this->import->check_negative("Payment Terms", $terms, $line);
+							$errmsg[] 	=	$this->import->check_negative("Credit Limit", $credit_limit, $line);
 
 							// Check for E-mail Format
-							$errmsg[] 	=	$this->check_email("Email", $email, $line);
+							$errmsg[] 	=	$this->import->check_email("Email", $email, $line);
 
 							// Check for Business Content ( Individual or Corporation )
-							$errmsg[] 	=	$this->check_business_type("Business Type", $business, $line);
+							$errmsg[] 	=	$this->import->check_business_type("Business Type", $business, $line);
 
 							//Check for Character Type
-							$errmsg[] 	=	$this->check_alpha_num("Customer Code",$customercode,$line);
-							$errmsg[] 	=	$this->check_special_characters("Company Name",$companyname,$line);
-							// $errmsg[] 	=	$this->check_special_characters("Company Name",$companyname,$line);
+							$errmsg[] 	=	$this->import->check_alpha_num("Customer Code",$customercode,$line);
+							$errmsg[] 	=	$this->import->check_special_characters("Company Name",$companyname,$line);
+							// $errmsg[] 	=	$this->import->check_special_characters("Company Name",$companyname,$line);
 
 							// Check for Duplicate Customer
 							if( !in_array($customercode, $list) ){
