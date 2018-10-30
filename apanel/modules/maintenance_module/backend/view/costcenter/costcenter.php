@@ -12,7 +12,8 @@
 								->setName('costcenter_code')
 								->setId('costcenter_code')
 								->setValue($costcenter_code)
-								->setValidation('required')
+								->setAttribute(array("maxlength" => "50"))
+								->setValidation('alpha_num required')
 								->draw($show_input);
 						?>
 					</div>
@@ -41,7 +42,8 @@
 								->setName('name')
 								->setId('name')
 								->setValue($name)
-								->setValidation('required')
+								->setAttribute(array("maxlength" => "100"))
+								->setValidation('alpha_num required')
 								->draw($show_input);
 						?>
 					</div>
@@ -53,6 +55,7 @@
 									->setName('description')
 									->setId('description')
 									->setValue($description)
+									->setAttribute(array("maxlength" => "1000"))
 									->setValidation('required')
 									->draw($show_input);
 						?>
