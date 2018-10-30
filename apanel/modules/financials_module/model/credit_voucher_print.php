@@ -20,6 +20,10 @@ class credit_voucher_print extends fpdf {
     public function header() {
 		$this->SetFont("Arial", "B", "14");
 		$this->Cell(192,7, 'CREDIT VOUCHER', 0, 1, 'C');
+		if ($this->header_details->stat == 'inactive') {
+			$this->SetFont("Arial", "BI", "10");
+			$this->Cell(192,7, 'CANCELLED', 0, 1, 'C');
+		}
 
 		$this->Ln();
 

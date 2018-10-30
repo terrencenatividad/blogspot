@@ -121,8 +121,9 @@ class credit_voucher_model extends wc_model {
 		$result = $this->db->setTable('creditvoucher c')
 						->leftJoin('rv_details r ON r.voucherno = c.referenceno')
 						->leftJoin('chartaccount ca ON ca.id = r.accountcode')
+						->leftJoin('fintaxcode f ON f.salesAccount = r.accountcode')
 						->setFields($fields)
-						->setWhere("c.voucherno = '$voucherno' AND r.checkstat != 'cleared' AND r.stat != 'cancelled' AND r.credit != 0")
+						->setWhere("c.voucherno = '$voucherno' AND r.stat != 'deleted' AND r.credit != 0 AND f.fstaxcode = 'ADV'")
 						->runSelect()
 						->getResult();
 		return $result;
@@ -140,7 +141,7 @@ class credit_voucher_model extends wc_model {
 						->leftJoin('rv_details r ON r.voucherno = ca.rv_voucher')
 						->leftJoin('accountsreceivable ar ON ar.voucherno = r.arvoucherno')
 						->setFields($fields)
-						->setWhere("c.voucherno = '$voucherno' AND r.checkstat != 'cleared' AND r.stat != 'cancelled' AND r.credit != 0")
+						->setWhere("c.voucherno = '$voucherno' AND r.stat != 'deleted' AND r.credit != 0")
 						->setOrderBy('date_applied DESC')
 						->runSelect()
 						->getResult();

@@ -210,6 +210,7 @@ class print_voucher_model extends fpdf {
 	
 	private function drawDocumentDetails() {
 		$accounts = $this->accounts;
+		$notes	  = ($this->documentinfo->remarks) ? ($this->documentinfo->remarks) : '';
 		$this->AddPage();
 		$this->Ln();
 		$this->SetFillColor(233, 233, 233);
@@ -226,7 +227,7 @@ class print_voucher_model extends fpdf {
 			$accountInfo	= array();
 			$totaldebit		= 0;
 			$totalcredit	= 0;
-			$notes			= ($this->documentinfo->remarks) ? ($this->documentinfo->remarks) : '';
+			
 
 			foreach ($accounts as $account) {
 				$totaldebit			+= $account->debit;
