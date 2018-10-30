@@ -199,17 +199,17 @@
 							$headerArr = array('Customer Code','Company Name','Address','Email','Business Type','Contact Number','First Name','Last Name','Payment Terms','Tin No.','Credit Limit');
 							
 							// **** Trim Other Unusual Special Characters***/ 
-							// $customercode 	   	= $this->import->trim_special_characters($customercode);
-							// $companyname        = $this->import->trim_special_characters($companyname);
-							// $address            = $this->import->trim_special_characters($address);
-							// $email 				= $this->import->trim_special_characters($email);
-							// $business 			= $this->import->trim_special_characters($business);
-							// $contact 			= $this->import->trim_special_characters($contact);
-							// $firstname        	= $this->import->trim_special_characters($firstname);
-							// $lastname           = $this->import->trim_special_characters($lastname);
-							// $terms 				= $this->import->trim_special_characters($terms);
-							// $tinno 				= $this->import->trim_special_characters($tinno);
-							// $credit_limit 		= $this->import->trim_special_characters($credit_limit);
+							$customercode 	   	= $this->import->trim_special_characters($customercode);
+							$companyname        = $this->import->trim_special_characters($companyname);
+							$address            = $this->import->trim_special_characters($address);
+							$email 				= $this->import->trim_special_characters($email);
+							$business 			= $this->import->trim_special_characters($business);
+							$contact 			= $this->import->trim_special_characters($contact);
+							$firstname        	= $this->import->trim_special_characters($firstname);
+							$lastname           = $this->import->trim_special_characters($lastname);
+							$terms 				= $this->import->trim_special_characters($terms);
+							$tinno 				= $this->import->trim_special_characters($tinno);
+							$credit_limit 		= $this->import->trim_special_characters($credit_limit);
 					
 							// *********Validation Starts here**************
 							
