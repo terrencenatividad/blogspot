@@ -155,7 +155,7 @@
 								<div class="col-md-6">
 									<div class="form-group">
 										<label for="ap_checker" class="control-label col-md-4">Advance Payment</label>
-										<?if($show_input):?>
+										<?//if($show_input):?>
 										<div class="col-md-1">
 											<?
 												echo $ui->setElement('checkbox')
@@ -168,7 +168,7 @@
 											?>
 											<!-- <input type="checkbox" name="ap_checker" id="ap_checker" class="" value="<?=$ap_checker?>" style="position: absolute; opacity: 0;"> -->
 										</div>
-										<?endif;?>
+										<?//endif;?>
 										<div class="col-md-7">
 											<div class="row">
 												<div class="col-md-12" id="editlink" style="margin-top:5px;">
