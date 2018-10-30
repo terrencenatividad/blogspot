@@ -131,20 +131,21 @@ class controller extends wc_controller {
 				} else if( $transtype == 'RV' ) {
 					$result 	=	$this->ledger->findSourceAR($voucherno);
 					$voucherno2 	=	isset($result->arvoucherno) ? $result->arvoucherno : "";
-					$link 		.=	BASE_URL."financials/accounts_receivable/view/";
-					// $link 	.=	BASE_URL."financials/receipt_voucher/view/";
+					// $link 		.=	BASE_URL."financials/accounts_receivable/view/";
+					$link 	.=	BASE_URL."financials/receipt_voucher/view/";
 				} else if( $transtype == 'PV' ) {
 					$result 	=	$this->ledger->findSourceAP($voucherno);
 					$voucherno2 	=	isset($result->apvoucherno) ? $result->apvoucherno : "";
-					$link 	.=	BASE_URL."financials/accounts_payable/view/";
-					// $link 	.=	BASE_URL."financials/payment_voucher/view/";
+					// $link 	.=	BASE_URL."financials/accounts_payable/view/";
+					$link 	.=	BASE_URL."financials/payment_voucher/view/";
 				} else if( $transtype == 'JV' ) {
 					$link 	.=	BASE_URL."financials/journal_voucher/view/";
 				} else if( $transtype == 'DV' ) {
 					$link 	.=	BASE_URL."financials/payment/view/";
 				}
 
-				$link 	.=	($voucherno2 != "") 	? 	$voucherno2 	: 	$voucherno;
+				// $link 	.=	($voucherno2 != "") 	? 	$voucherno2 	: 	$voucherno;
+				$link 	.=	$voucherno;
 
 				if($prevacct != $nextacct)
 				{	
