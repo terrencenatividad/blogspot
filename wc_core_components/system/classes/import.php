@@ -68,19 +68,21 @@ class import {
         }
         return $error;
     }
-
+    
+    // For checking of coding
     public function check_alpha_num($field_name,$field_value,$line){
         $error 	= "";
 
         $value = str_replace(',','',$field_value);
         if ( ! preg_match('/^[a-zA-Z0-9-_]*$/', $value)) {
-            $error 	= 	"$field_name [<strong>$field_value</strong>] on row $line contains invalid characters.<br/>";
+            $error 	= 	"$field_name [<strong>$field_value</strong>] on row $line contains invalid characters. <b>Allowed Characters:</b> a-z A-Z 0-9 - _ (Letters, Numbers, Dash, and Underscore).<br/>";
         }
         return $error;
     }
 
     //For Unusual Special Characters
-    function trim_special_characters($text){
+    public function trim_special_characters($text){
         return preg_replace('/[[:^print:]]/', '', $text);
     }
+
 }
