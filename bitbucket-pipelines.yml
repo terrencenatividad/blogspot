@@ -15,3 +15,4 @@ pipelines:
                 - git ftp push --user $FTP_USERNAME --passwd $FTP_PASSWORD ftp://ourwebprojects.com/public_html/scalelink
                 - git ftp push --user $FTP_USERNAME --passwd $FTP_PASSWORD ftp://ourwebprojects.com/public_html/aoc
                 - git ftp push --user $FTP_USERNAME_SB --passwd $FTP_PASSWORD_SB ftp://5e-consulting.com/public_html/prime-sandbox
+                - git ftp catchup --user $FTP_USERNAME_CID --passwd $FTP_PASSWORD_CID $FTP_PATH_CID
