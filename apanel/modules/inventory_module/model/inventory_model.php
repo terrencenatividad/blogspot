@@ -347,8 +347,8 @@ class inventory_model extends wc_model {
 			$this->quantity_field = 'convissueqty';
 			$this->inventory_movement = -1;
 		} else if ($type == 'Sales Return') {
-			$this->table = 'salesreturn';
-			$this->table_detail = 'salesreturn_details';
+			$this->table = 'returns';
+			$this->table_detail = 'returns_details';
 			$this->quantity_field = 'convissueqty';
 			$this->inventory_movement = 1;
 		} else if ($type == 'Purchase Receipt') {
