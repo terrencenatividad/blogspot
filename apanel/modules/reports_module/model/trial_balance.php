@@ -715,20 +715,26 @@ class trial_balance extends wc_model {
 	}
 
 	public function getYearforClosing(){
-		//SELECT bt.fiscalyear, bt.period FROM balance_table bt LEFT JOIN ( SELECT jv.voucherno, jv.period, jv.fiscalyear FROM journalvoucher jv WHERE jv.source = 'closing' AND jv.stat = 'posted') closing ON closing.period = bt.period AND closing.fiscalyear = bt.fiscalyear GROUP BY bt.fiscalyear LIMIT 1
-		$inner_query 	= 	$this->db->setTable("journalvoucher jv")
-									 ->setFields("jv.voucherno, jv.period, jv.fiscalyear")
-									 ->setWhere("jv.source = 'closing' AND jv.stat = 'posted'")
-									 ->buildSelect();
-									 
-		$result 		=	$this->db->setTable("balance_table bt")
-								 	 ->setFields("bt.fiscalyear, bt.period")
-									 ->leftJoin("($inner_query) closing ON closing.period = bt.period AND closing.fiscalyear = bt.fiscalyear")
-									 ->setGroupBy("bt.fiscalyear")
-									 ->setOrderBy("bt.fiscalyear ASC")
-									 ->setLimit(1)
-									 ->runSelect()
-									 ->getResult();
+		// SELECT for Month & Year
+		$year = date('Y');
+		// $year =	2018;
+		$select 	=	array(); 
+		for($x=1;$x<=12;$x++){
+			$select[] 	=	"SELECT $year year, $x month";
+		}
+		$select_query 	= implode(" UNION ",$select);
+		
+		// SELECT JV w/o closing
+		$result 	=	$this->db->setTable("($select_query) period")
+								->setFields("period.year")
+								->leftJoin("journalvoucher jv ON jv.period = period.month AND jv.fiscalyear = period.year AND jv.source = 'closing' AND jv.stat = 'posted' ")
+								->setWhere("jv.voucherno IS NULL ")
+								->setGroupBy("period.year, period.month")
+								->setOrderBy("period.year ASC, period.month ASC")
+								->setLimit(1)
+								->runSelect(false)
+								->getRow();
+
 		return $result;
 	}
 

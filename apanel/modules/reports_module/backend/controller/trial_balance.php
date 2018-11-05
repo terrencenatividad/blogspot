@@ -24,10 +24,12 @@ class controller extends wc_controller {
 		$data['proforma_list'] 		= 	$this->trial_balance->getProformaList();
 
 		$year_result 				=  	$this->trial_balance->getYearforClosing();
-		$year_closing 				=	isset($year_result[0]->fiscalyear)	?	$year_result[0]->fiscalyear	:	"";
+		$year_closing 				=	isset($year_result->year)		?	$year_result->year	:	"";	
 		$period_result 				=	$this->trial_balance->getClosingMonth($year_closing);
+		$ret_year  			 		=	isset($period_result->year) 	?	$period_result->year 	:	"";	 			
+		$ret_month 					=	isset($period_result->month) 	?	$period_result->month 	:	"";
 
-		$last_date 					= 	$period_result->year."-".$period_result->month."-1";
+		$last_date 					= 	$ret_year."-".$ret_month."-1";
 		$complete_date 				= 	$this->trial_balance->getMonthEnd($last_date);
 		$complete_date 				=	$this->date->dateFormat($complete_date);
 
