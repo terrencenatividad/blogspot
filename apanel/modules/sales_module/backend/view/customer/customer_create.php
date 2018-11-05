@@ -67,6 +67,7 @@
 									->setMaxLength(150)
 									->setAttribute(array('data-inputmask' => "'alias': 'email'"))
 									->setValue($email)
+									->setValidation('email')
 									->draw($show_input);
 							?>
 						</div>
@@ -328,6 +329,5 @@ $('#customerForm #btnCancel').on('click',function(){
 		window.location = '<?php echo BASE_URL . 'maintenance/customer'; ?>';
 	<?php endif ?>
 });
-
 </script>	
 <?php endif ?>

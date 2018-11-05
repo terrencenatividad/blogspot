@@ -65,6 +65,7 @@
 								->setMaxLength(150)
 								->setValue($email)
 								->setAttribute(array('data-inputmask' => "'alias': 'email'"))
+								->setValidation('email')
 								->draw($show_input);
 						?>
 					</div>

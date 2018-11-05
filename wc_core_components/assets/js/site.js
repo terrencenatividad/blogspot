@@ -457,6 +457,19 @@ $('body').on('blur blur_validate keyup keydown', '[data-validation~="special"]',
 		}
 	}
 });
+$('body').on('blur blur_validate keyup keydown', '[data-validation~="email"]', function(e) {
+	var error_message = `Invalid E-mail Format.`;
+	var form_group = $(this).closest('.form-group');
+	var val = $(this).val() || '';
+	if ( ! (/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(val))) {
+		form_group.addClass('has-error');
+		form_group.find('p.help-block.m-none').html(error_message)
+	} else {
+		if (form_group.find('p.help-block.m-none').html() == error_message) {
+			form_group.removeClass('has-error').find('p.help-block.m-none').html('');
+		}
+	}
+});
 // /\
 // || Input Validations
 
