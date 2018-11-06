@@ -4077,7 +4077,8 @@ $('#itemsTable .taxcode').each(function(){
 
 $('.tax_amount').on('change', function(){
 	var accs = $(this).val();
-	acc = addCommas(parseFloat(accs).toFixed(2));
+		accs 		= accs.replace(/,/g,'');
+		acc = addCommas(parseFloat(accs).toFixed(2));
 	$('.tax_amount').val(acc);
 });
 </script>
