@@ -75,6 +75,7 @@
 										'style' => 'width: 100px'
 									)
 								)
+								->addHeader('Item Group', array(), 'sort', 'label', 'asc')
 								->addHeader('Item Type', array(), 'sort', 'label', 'asc')
 								->addHeader('Status', array(), 'sort', 'label', 'asc')								
 								->draw();

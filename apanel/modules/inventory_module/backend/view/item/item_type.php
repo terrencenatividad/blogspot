@@ -4,7 +4,22 @@
 				<br>
 				<form action="" method="post" class="form-horizontal">
 					<div class="row">
-						<div class="col-md-8 col-md-offset-2">
+						<div class="col-md-6">
+							<?php
+								echo $ui->formField('dropdown')
+									->setLabel('Item Group ')
+									->setSplit('col-md-3', 'col-md-6')
+									->setName('item_group')
+									->setId('item_group')
+									->setList(array('Goods' => 'Goods', 'Service' => 'Service'))
+									->setPlaceholder('none')
+									->setDefault('none')
+									->setValue($item_group)
+									->setValidation('required')
+									->draw($show_input);
+							?>
+						</div>
+						<div class="col-md-6">
 							<?php
 								echo $ui->formField('text')
 									->setLabel('Item Type ')
