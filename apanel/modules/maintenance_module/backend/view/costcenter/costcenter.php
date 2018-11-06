@@ -42,8 +42,8 @@
 								->setName('name')
 								->setId('name')
 								->setValue($name)
-								->setAttribute(array("maxlength" => "100"))
-								->setValidation('alpha_num required')
+								->setAttribute(array("maxlength" => "100", "onKeyPress" => "noquote(event);"))
+								->setValidation('alpha_num_special required')
 								->draw($show_input);
 						?>
 					</div>
@@ -122,5 +122,19 @@
 				$(this).find('.form-group.has-error').first().find('input, textarea, select').focus();
 			}
 		});
+
+$('body').on('blur blur_validate keyup keydown', '[data-validation~="alpha_num_special"]', function(e) {
+    var error_message = `Invalid Input <a href="#invalid_characters" class="glyphicon glyphicon-info-sign" data-toggle="modal" data-error_message="<p><b>Allowed Characters:</b> a-z A-Z 0-9</p><p>Letters and Numbers Only</p><p><b>Note:</b> Space is an Invalid Character</p>"></a>`;
+	var form_group = $(this).closest('.form-group');
+	var val = $(this).val() || '';
+	if (! (/^[a-zA-Z0-9., &()\[\]_\-':;]*$/.test(val))) {
+		form_group.addClass('has-error');
+		form_group.find('p.help-block.m-none').html(error_message)
+	} else {
+		if (form_group.find('p.help-block.m-none').html() == error_message) {
+			form_group.removeClass('has-error').find('p.help-block.m-none').html('');
+		}
+	}
+});
 	</script>
 	<?php endif ?>
