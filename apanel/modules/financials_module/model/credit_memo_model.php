@@ -9,7 +9,7 @@ class credit_memo_model extends wc_model {
 	public function saveJournalVoucher($data, $data2) {
 		
 		$debit		= $this->removeComma($data2['debit']);
-		$sr_amount	= $this->removeComma($data2['sr_amount']);
+		$sr_amount	= isset($data2['sr_amount']) 	?	$this->removeComma($data2['sr_amount']) : 0;
 		$total	= 0;
 		foreach ($debit as $entry) {
 			$total += $entry;

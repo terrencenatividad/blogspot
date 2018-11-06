@@ -234,7 +234,7 @@
 		{
 			return $this->db->setTable('partners')
 							->setFields('COUNT(partnercode) count')
-							->setWhere(" partnercode = '$code'")
+							->setWhere(" partnercode='$code' AND partnertype='sales'")
 							->runSelect()
 							->getResult();
 		}
