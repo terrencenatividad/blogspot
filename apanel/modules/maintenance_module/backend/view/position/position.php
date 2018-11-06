@@ -2,37 +2,37 @@
 		<div class="box box-primary">
 			<div class="box-body">
 				<br>
-				<form action="" method="post" class="form-horizontal">
-					<div class="row">
-						<div class="col-md-6">
-							<?php
-								echo $ui->formField('dropdown')
-									->setLabel('Item Group ')
-									->setSplit('col-md-3', 'col-md-6')
-									->setName('item_group')
-									->setId('item_group')
-									->setList(array('Goods' => 'Goods', 'Service' => 'Service'))
-									->setPlaceholder('none')
-									->setDefault('none')
-									->setValue($item_group)
-									->setValidation('required')
-									->draw($show_input);
-							?>
-						</div>
-						<div class="col-md-6">
-							<?php
-								echo $ui->formField('text')
-									->setLabel('Item Type ')
-									->setAttribute(array('autocomplete' => 'off'))
-									->setSplit('col-md-3', 'col-md-6')
-									->setName('label')
-									->setId('label')
-									->setValue($label)
-									->setValidation('required')
-									->draw($show_input);
-							?>
-						</div>
+				<form action="" id="form" method="post" class="form-horizontal">
+				<div class="row">
+					<div class="col-md-6">
+						<?php
+							echo $ui->formField('text')
+								->setLabel('Position')
+								->setSplit('col-md-3', 'col-md-8')
+								->setName('position')
+								->setId('position')
+								->setValue($position)
+								->setAttribute(array("maxlength" => "100"))
+								->setValidation('required')
+								->draw($show_input);
+						?>
 					</div>
+                    <div class="col-md-6">
+						<?php
+							echo $ui->formField('textarea')
+								->setLabel('Description')
+								->setSplit('col-md-3', 'col-md-8')
+								->setName('description')
+								->setId('description')
+								->setValue($description)
+								->setAttribute(array("maxlength" => "500"))
+								->setValidation('required')
+								->draw($show_input);
+						?>
+					</div>
+				</div>
+
+			
 					<hr>
 					<div class="row">
 						<div class="col-md-12 text-center">
@@ -44,6 +44,7 @@
 			</div>
 		</div>
 	</section>
+
 	<?php if ($show_input): ?>
 	<script>
 		$('form').submit(function(e) {

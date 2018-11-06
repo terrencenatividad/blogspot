@@ -9,10 +9,12 @@ class controller extends wc_controller {
 		$this->session			= new session();
 		$this->fields			= array(
 			'id',
+			'item_group',
 			'label',
 			'stat'
 		);
 		$this->csv_header		= array(
+			'Item Group',
 			'Item Type'
 		);
 	}
@@ -63,6 +65,7 @@ class controller extends wc_controller {
 		$result = $this->item_type_model->getItemTypeList($this->fields, $search, $sort);
 		foreach ($result as $row) {
 			$csv .= "\n";
+			$csv .= '"' . $row->item_group . '"';
 			$csv .= '"' . $row->label . '"';
 		}
 		echo $csv;
@@ -98,23 +101,24 @@ class controller extends wc_controller {
 
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
-									->addView()
-									->addEdit()
-									->addOtherTask(
-										'Activate',
-										'arrow-up',
-										$show_deactivate
-									)
-									->addOtherTask(
-										'Deactivate',
-										'arrow-down',
-										$show_activate
-									)	
-									->addDelete()
-									->addCheckbox()
-									->setValue($row->id)
-									->draw();
+			->addView()
+			->addEdit()
+			->addOtherTask(
+				'Activate',
+				'arrow-up',
+				$show_deactivate
+			)
+			->addOtherTask(
+				'Deactivate',
+				'arrow-down',
+				$show_activate
+			)	
+			->addDelete()
+			->addCheckbox()
+			->setValue($row->id)
+			->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
+			$table .= '<td>' . $row->item_group . '</td>';
 			$table .= '<td>' . $row->label . '</td>';
 			$table .= '<td>' . $status . '</td>';
 			$table .= '</tr>';
@@ -205,11 +209,11 @@ class controller extends wc_controller {
 				if ($duplicate) {
 					$error[] = 'Duplicate Entry'; 
 				}
-					
+
 				if ($exist) {
 					$error[] = 'Entry Already Exist';
 				}
-						
+
 				if ($validity) {
 					$error[] = 'Invalid Entry';
 				}
@@ -283,7 +287,7 @@ class controller extends wc_controller {
 		return array(
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
-			);
+		);
 	}
 
 	private function ajax_edit_deactivate()
@@ -295,7 +299,7 @@ class controller extends wc_controller {
 		return array(
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
-			);
+		);
 	}
 
 	private function update_multiple_deactivate(){

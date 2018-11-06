@@ -1,4 +1,4 @@
-	<section class="content">
+<section class="content">
 		<div class="box box-primary">
 			<div class="box-header pb-none">
 				<div class="row">
@@ -23,14 +23,14 @@
 						</div>
 					</div> -->
 					<div class="col-md-8">
-					<?= 
+					<?=  
 						$ui->CreateNewButton('');
 					?>
-					<?= 
-						$ui->OptionButton('');
+					<?php 
+						// $ui->OptionButton('');
 					?>
-					<?=	$ui->CreateDeleteButton(''); ?>
-					<?=	$ui->CreateActButton(''); ?>
+					<?=$ui->CreateDeleteButton('');?>
+					<?=$ui->CreateActButton('');?>
 					</div>
 					<div class="col-md-4">
 						<div class="form-group">
@@ -71,13 +71,12 @@
 								->addHeader(
 									'<input type="checkbox" class="checkall">',
 									array(
-										'class' => 'text-center',
-										'style' => 'width: 100px'
+										'class' => 'col-md-1 text-center'
 									)
 								)
-								->addHeader('Item Group', array(), 'sort', 'label', 'asc')
-								->addHeader('Item Type', array(), 'sort', 'label', 'asc')
-								->addHeader('Status', array(), 'sort', 'label', 'asc')								
+								->addHeader('Position',array('class'=>'col-md-3'),'sort','position')
+								->addHeader('Description', array('class'=>'col-md-4'),'sort','c.description')
+								->addHeader('Status', array('class'=>'col-md-3'),'sort','stat')					
 								->draw();
 					?>
 					<tbody>
@@ -388,7 +387,7 @@
 		return id;
 	}
 
-	$('#tableList').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
+	$('#tableList').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {			
 			var b = $('input[type=checkbox]:not(.checkall)');
 			var row = $('#tableList >tbody >tr').length;
 			var c =	b.filter(':checked').length;
@@ -399,21 +398,20 @@
 			}
 		});
 
-function historyOfMyLife() {
-	var arr = [];
-	$('#tableList tbody').find('.label').each(function(index, value){
-		arr.push($(this).html());
-		if(jQuery.inArray('ACTIVE', arr) != -1) {
-			$('#deactivateMultipleBtn').attr('disabled', false);
-		}else{
-			$('#deactivateMultipleBtn').attr('disabled', true);
-		}
-		if(jQuery.inArray('INACTIVE', arr) != -1) {
-			$('#activateMultipleBtn').attr('disabled', false);
-		}else{
-			$('#activateMultipleBtn').attr('disabled', true);
-		}
-	});
-}
-
+	function historyOfMyLife() {
+		var arr = [];
+		$('#tableList tbody').find('.label').each(function(index, value){
+			arr.push($(this).html());
+			if(jQuery.inArray('ACTIVE', arr) != -1) {
+				$('#deactivateMultipleBtn').attr('disabled', false);
+			}else{
+				$('#deactivateMultipleBtn').attr('disabled', true);
+			}
+			if(jQuery.inArray('INACTIVE', arr) != -1) {
+				$('#activateMultipleBtn').attr('disabled', false);
+			}else{
+				$('#activateMultipleBtn').attr('disabled', true);
+			}
+		});
+	}
 	</script>
