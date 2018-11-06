@@ -139,6 +139,21 @@ class user_model extends wc_model {
 		return $result;
 	}
 
+	public function getPositionList($search = '') {
+		$condition = "stat = 'active'";
+		if ($search) {
+			$condition = " position = '$search'";
+		}
+		$result = $this->db->setTable('position')
+						->setFields('position ind, position val')
+						->setWhere($condition)
+						->setOrderBy('position')
+						->runSelect()
+						->getResult();
+
+		return $result;
+	}
+
 	public function saveUserCSV($values) {
 		foreach ($values as $key => $row) {
 			$values[$key]['password'] = password_hash($row['password'], PASSWORD_BCRYPT);

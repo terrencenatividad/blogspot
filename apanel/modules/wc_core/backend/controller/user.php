@@ -19,7 +19,8 @@ class controller extends wc_controller {
 			'lastname',
 			'middleinitial',
 			'phone',
-			'mobile'
+			'mobile',
+			'position'
 		);
 		$this->csv_header		= array(
 			'First Name',
@@ -47,6 +48,7 @@ class controller extends wc_controller {
 		$this->view->title = $this->ui->AddLabel('');
 		$data = $this->input->post($this->fields);
 		$data['ui'] = $this->ui;
+		$data['position_list'] = $this->user_model->getPositionList('');
 		$data['group_list'] = $this->user_model->getGroupList('');
 		$data['ajax_task'] = 'ajax_create';
 		$data['ajax_post'] = '';
@@ -58,6 +60,7 @@ class controller extends wc_controller {
 		$this->view->title = $this->ui->EditLabel('');
 		$data = (array) $this->user_model->getUserById($this->fields, $username);
 		$data['ui'] = $this->ui;
+		$data['position_list'] = $this->user_model->getPositionList('');
 		$data['group_list'] = $this->user_model->getGroupList('');
 		$data['ajax_task'] = 'ajax_edit';
 		$data['ajax_post'] = "&username_ref=$username";
@@ -69,6 +72,7 @@ class controller extends wc_controller {
 		$this->view->title = $this->ui->ViewLabel('');
 		$data = (array) $this->user_model->getUserById($this->fields, $username);
 		$data['ui'] = $this->ui;
+		$data['position_list'] = $this->user_model->getPositionList('');
 		$data['group_list'] = $this->user_model->getGroupList('');
 		$data['show_input'] = false;
 		$this->view->load('user/user', $data);
@@ -106,23 +110,23 @@ class controller extends wc_controller {
 
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
-									->addView()
-									->addEdit()
-									->addPrint()
-									->addOtherTask(
-										'Activate',
-										'arrow-up',
-										$show_deactivate
-									)
-									->addOtherTask(
-										'Deactivate',
-										'arrow-down',
-										$show_activate
-									)	
-									->addDelete()
-									->addCheckbox()
-									->setValue($row->username)
-									->draw();
+			->addView()
+			->addEdit()
+			->addPrint()
+			->addOtherTask(
+				'Activate',
+				'arrow-up',
+				$show_deactivate
+			)
+			->addOtherTask(
+				'Deactivate',
+				'arrow-down',
+				$show_activate
+			)	
+			->addDelete()
+			->addCheckbox()
+			->setValue($row->username)
+			->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $row->username . '</td>';
 			$table .= '<td>' . $row->firstname . ' ' . $row->lastname . '</td>';
@@ -139,11 +143,11 @@ class controller extends wc_controller {
 		$color = 'default';
 		switch ($stat) {
 			case 'active':
-				$color = 'success';
-				break;
+			$color = 'success';
+			break;
 			case 'inactive':
-				$color = 'warning';
-				break;
+			$color = 'warning';
+			break;
 		}
 		return '<span class="label label-' . $color . '">' . strtoupper($stat) . '</span>';
 	}
@@ -248,7 +252,7 @@ class controller extends wc_controller {
 				if ($duplicate) {
 					$error[] = 'Duplicate Entry'; 
 				}
-					
+				
 				if ($exist) {
 					$error[] = 'Entry Already Exist';
 				}
@@ -256,7 +260,7 @@ class controller extends wc_controller {
 				if ($invalid) {
 					$error[] = 'Invalid Entry';
 				}
-						
+				
 				if ($validity) {
 					$error[] = 'Invalid Entry';
 				}
@@ -331,7 +335,7 @@ class controller extends wc_controller {
 		return array(
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
-			);
+		);
 	}
 	
 	private function ajax_edit_deactivate()
@@ -343,7 +347,7 @@ class controller extends wc_controller {
 		return array(
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
-			);
+		);
 	}
 
 	private function update_multiple_deactivate(){
