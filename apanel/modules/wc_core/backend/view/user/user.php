@@ -126,6 +126,21 @@
 										}
 									?>
 								</div>
+								<div class="col-md-6"></div>
+								<div class="col-md-6">
+									<?php
+										echo $ui->formField('dropdown')
+											->setLabel('Position ')
+											->setPlaceholder('Select Group')
+											->setSplit('col-md-4', 'col-md-8')
+											->setName('position')
+											->setId('position')
+											->setList($position_list)
+											->setValue($position)
+											->setValidation('required')
+											->draw($show_input);
+									?>
+								</div>
 							</div>
 						</div>
 					</div>
