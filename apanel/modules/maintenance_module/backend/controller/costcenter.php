@@ -58,23 +58,50 @@ class controller extends wc_controller {
 		$this->view->load('costcenter/costcenter', $data);
 	}
 
-	public function get_import() {
-		$csv = $this->csv_header();
-		echo $csv;
-	}
+	private function get_duplicate(){
+		$current = $this->input->post('curr_code');
+		$old 	 = $this->input->post('old_code');
+		$count 	 = 0;
 
-	public function get_export($search = '', $sort = '') {
-		$search	= base64_decode($search);
-		$sort	= base64_decode($sort);
-		$csv	= $this->csv_header();
-		$result = $this->item_type_model->getItemTypeList($this->fields, $search, $sort);
-		foreach ($result as $row) {
-			$csv .= "\n";
-			$csv .= '"' . $row->label . '"';
+		if( $current!='' && $current != $old )
+		{
+			$result = $this->costcenter->check_duplicate($current);
+
+			$count = $result[0]->count;
+		}else if(( $current!='' && $current != $old ))
+		
+		$msg   = "";
+
+		if( $count > 0 )
+		{	
+			$msg = "exists";
 		}
-		echo $csv;
+
+		return $dataArray = array("msg" => $msg);
 	}
 	
+	private function get_duplicate_name(){
+		$current = $this->input->post('curr_name');
+		$old 	 = $this->input->post('old_name');
+		$count 	 = 0;
+
+		if( $current!='' && $current != $old )
+		{
+			$result = $this->costcenter->check_duplicate_name($current);
+
+			$count = $result[0]->count;
+		}else if(( $current!='' && $current != $old ))
+		
+		$msg   = "";
+
+		if( $count > 0 )
+		{	
+			$msg = "exists";
+		}
+
+		return $dataArray = array("msg" => $msg);
+	}
+
 	public function ajax($task) {
 		$ajax = $this->{$task}();
 		if ($ajax) {
