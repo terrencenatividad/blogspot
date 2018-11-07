@@ -185,7 +185,7 @@
 														->setClass("text-right quantity")
 														->setAttribute(array("maxlength" => "20"))
 														->setValue($quantity)
-														->setValidation('required')
+														->setValidation('required integer')
 														->draw($show_input);
 											?>
 										</td>	
@@ -243,6 +243,7 @@
 														->setClass("text-right price")
 														->setAttribute(array("maxlength" => "20"))
 														->setValue($quantity)
+														->setValidation('integer')
 														->draw($show_input);
 											?>
 											<?php
@@ -314,6 +315,7 @@
 														->setClass("text-right quantity")
 														->setAttribute(array("maxlength" => "20"))
 														->setValue($quantity)
+														->setValidation('integer')														
 														->draw($show_input);
 											?>
 										</td>
