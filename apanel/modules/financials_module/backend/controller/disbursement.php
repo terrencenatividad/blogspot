@@ -294,16 +294,6 @@ class controller extends wc_controller
 		$data["generated_id"]  	= $sid;
 		$data["sid"] 		   	= $sid;
 		$data["date"] 		   	= date("M d, Y");
-		// $check = ($data["rollArray"]['chequeaccount']);
-		// foreach ($ as $aPvJournalDetails_Index => $aPvJournalDetails_Value) {
-			
-		// }
-		// $check 	= $data['rollArray'];
-		// var_dump(array {$check['chequeaccount']});
-		// // var_dump($check["chequeaccount"]);
-		// foreach ($check as $value) {
-			
-		// }
 
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
@@ -321,11 +311,14 @@ class controller extends wc_controller
 		// $cash_account_join 	 	  = "accountclass as class USING(accountclasscode)";
 		// $cash_account_cond 	 	  = "(chart.id != '' AND chart.id != '-') AND class.accountclasscode = 'CASH' AND chart.accounttype != 'P'";
 		// $cash_order_by 		 	  = "class.accountclass";
-		// $data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
-
-
-
+		// $data["cash_account_list"] = $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);		
 		
+		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
+		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
+		$cash_order_by 		 	  	= "id desc";
+		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
+		$data["cash_account_list"] 	= $this->payment_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
+
 		// Header Data
 		$voucherno 					= $data["main"]->voucherno;
 		$data["voucherno"]       	= $voucherno;
@@ -339,6 +332,7 @@ class controller extends wc_controller
 
 		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array() ;
 		$data["show_cheques"] 	 = isset($data['rollArray'][$sid]) ? '' : 'hidden';
+		
 		// Application Data
 		$payments 			= $data['payments'];
 		$sum_applied		= 0;
