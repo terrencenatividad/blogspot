@@ -81,8 +81,13 @@ class controller extends wc_controller
 			$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 			$data["itemcodes"] 		= $this->so->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
 
-			$w_entry_data          = array("warehousecode ind","description val");
+			$w_entry_data           = array("warehousecode ind","description val");
 			$data["warehouses"] 	= $this->so->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
+
+			$vatex_comp_data        = array("code","value");
+			$vatex_comp_cond        = "code = 'sale_vatex'";
+			$result   		 		= $this->so->getValue("wc_reference", $vatex_comp_data, $vatex_comp_cond);
+			$data["vat_ex"] 		= isset($result[0]->value) 	? $result[0]->value 	:	"yes";
 
 			$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
 			$acc_entry_cond          = "accounttype != 'P'";
@@ -286,6 +291,10 @@ class controller extends wc_controller
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$data["itemcodes"] 		= $this->so->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
 
+		$vatex_comp_data        = array("code","value");
+		$vatex_comp_cond        = "code = 'sale_vatex'";
+		$result   		 		= $this->so->getValue("wc_reference", $vatex_comp_data, $vatex_comp_cond);
+		$data["vat_ex"] 		= isset($result[0]->value) 	? $result[0]->value 	:	"yes";
 		
 		$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
 		$acc_entry_cond          = "accounttype != 'P'";
@@ -321,13 +330,11 @@ class controller extends wc_controller
 		
 		//Footer Data
 		$discountamount 		 = $retrieved_data['header']->discountamount;
-		$discounttype 			 = $retrieved_data['header']->discounttype;
 		$discountrate 			 = 0;
 		$totalamount 			 = $retrieved_data['header']->netamount;
 		$vat 					 = $retrieved_data['header']->taxamount;
 		$totalsales 			 = $retrieved_data['header']->amount;
 		$data['t_subtotal'] 	 = $totalsales;
-		$data['discounttype']    = $discounttype;
 		$data['discountamount']  = $discountamount;
 		$data['t_total'] 	 	 = $totalamount;
 		$data['t_vat'] 			 = $vat;
@@ -335,6 +342,7 @@ class controller extends wc_controller
 		$data['t_vatexempt'] 	 = $retrieved_data['header']->vat_exempt;
 
 		$discounttype 		 	 = $retrieved_data['header']->discounttype;
+		$data['discounttype']    = $discounttype;
 		if ($discounttype == 'perc' && $discountamount) {
 			$discountrate = ($discountamount / ($totalsales + $vat)) * 100;
 			$discountrate = ceil($discountrate);
@@ -402,6 +410,11 @@ class controller extends wc_controller
 		$w_entry_data          = array("warehousecode ind","description val");
 		$data["warehouses"] 	= $this->so->getValue("warehouse", $w_entry_data,'',"warehousecode");
 
+		$vatex_comp_data        = array("code","value");
+		$vatex_comp_cond        = "code = 'sale_vatex'";
+		$result   		 		= $this->so->getValue("wc_reference", $vatex_comp_data, $vatex_comp_cond);
+		$data["vat_ex"] 		= isset($result[0]->value) 	? $result[0]->value 	:	"yes";
+		
 		$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
 		$acc_entry_cond          = "accounttype != 'P'";
 		$data["account_entries"] = $this->so->getValue("chartaccount", $acc_entry_data,$acc_entry_cond, "segment5");
@@ -771,7 +784,7 @@ class controller extends wc_controller
 		$data_post 	= $this->input->post();
 
 		$voucher 	= $this->input->post("voucher");
-
+	
 		/**
 		* Update Database
 		*/
