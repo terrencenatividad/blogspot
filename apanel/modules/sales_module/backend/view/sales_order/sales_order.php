@@ -1203,14 +1203,19 @@ function addAmounts() {
 	}
 
 	vatable_sales 		= 0;
+	subtotal 			= total_h_vatable + total_h_vatex;
+	final_total 		= (total_h_vatable + total_h_vatex - total_discount + total_h_vat);
 	
 	if(vatex=="yes"){
 		vatable_sales 		= (parseFloat(total_h_vatable) - parseFloat(total_discount));
+		vatable_sales 		= (vatable_sales > 0) ? vatable_sales 	: 0;
 		total_h_vat 		= (parseFloat(total_h_vatable) - parseFloat(total_discount))*0.12;
+		total_h_vat 		= (total_h_vat > 0) ? total_h_vat 	: 0;
 		total_h_vatable 	= vatable_sales;
+		final_total 		= (total_h_vatable + total_h_vatex + total_h_vat);
 	}
-	subtotal 			= total_h_vatable + total_h_vatex;
 
+	final_total 		= Math.round(100*final_total)/100;
 	total_h_vatable	 	= Math.round(100*total_h_vatable)/100;
 	total_h_vatex	 	= Math.round(100*total_h_vatex)/100;
 	subtotal	 		= Math.round(100*subtotal)/100;
@@ -1220,7 +1225,7 @@ function addAmounts() {
 	document.getElementById('t_vatexempt').value	= addCommas(total_h_vatex.toFixed(2));
 	document.getElementById('t_subtotal').value 	= addCommas(subtotal.toFixed(2));
 	document.getElementById('t_vat').value			= addCommas(total_h_vat.toFixed(2));
-	document.getElementById('t_total').value 		= addCommas(( total_h_vatable + total_h_vatex - total_discount + total_h_vat ).toFixed(2));
+	document.getElementById('t_total').value 		= addCommas(final_total.toFixed(2));
 }
 
 /**FORMAT NUMBERS TO DECIMAL**/
