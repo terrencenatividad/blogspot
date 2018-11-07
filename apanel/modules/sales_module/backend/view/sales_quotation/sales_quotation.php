@@ -185,7 +185,7 @@
 														->setClass("text-right price")
 														->setAttribute(array("maxlength" => "20"))
 														->setValue($price)
-														->setValidation('required')
+														->setValidation('required decimal')
 														->draw($show_input);
 											?>
 										</td>	
@@ -1490,11 +1490,11 @@ $('#customer').on('change', function(){
  		itemprice 		=	itemprice.value.replace(/,/g,'');
 	
  		var amount 	 	=	parseFloat(itemprice);
- 		total_amount 	 		+= amount;
+		 total_amount 	 		+= amount;
+		 var total = parseInt(total_amount) || 0;
  	}
 	
- 	document.getElementById('amount').value 				= addCommas(total_amount.toFixed(2));
-
+ 	document.getElementById('amount').value 				= addCommas(total.toFixed(2));
  }
 
 

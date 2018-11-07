@@ -405,6 +405,7 @@
 																	->setAttribute(array("maxlength" => "20"))
 																	->setClass("format_values_db format_values text-right debit")
 																	->setValue($debit)
+																	->setValidation('decimal')
 																	->draw($show_input);
 														?>
 													</td>
@@ -417,6 +418,7 @@
 																	->setAttribute(array("maxlength" => "20"))
 																	->setClass("format_values_cr format_values text-right credit")
 																	->setValue($credit)
+																	->setValidation('decimal')
 																	->draw($show_input);
 														?>
 													</td>
@@ -499,6 +501,7 @@
 																	->setAttribute(array("maxlength" => "20"))
 																	->setClass("format_values_db format_values text-right debit")
 																	->setValue($debit)
+																	->setValidation('decimal')
 																	->draw($show_input);
 														?>
 													</td>
@@ -511,6 +514,7 @@
 																	->setAttribute(array("maxlength" => "20"))
 																	->setClass("format_values_cr format_values text-right credit")
 																	->setValue($credit)
+																	->setValidation('decimal')
 																	->draw($show_input);
 														?>
 													</td>
@@ -619,6 +623,7 @@
 																		->setAttribute($debit_attr)
 																		->setClass("format_values_db format_values text-right")
 																		->setValue(number_format($debit,2))
+																		->setValidation('decimal')
 																		->draw($show_input);
 															?>
 														</td>
@@ -631,6 +636,7 @@
 																		->setAttribute($credit_attr)
 																		->setClass("format_values_cr format_values text-right credit")
 																		->setValue(number_format($credit,2))
+																		->setValidation('decimal')
 																		->draw($show_input);
 															?>
 														</td>

@@ -533,6 +533,7 @@
 													->setClass("text-right debit")
 													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 													->setValue(number_format($debit, 2))
+													->setValidation('decimal')
 													->draw($show_input);
 													?>
 												</td>
@@ -545,6 +546,7 @@
 													->setClass("text-right account_amount  credit")
 													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 													->setValue(number_format($credit, 2))
+													->setValidation('decimal')
 													->draw($show_input);
 													?>
 												</td>
@@ -595,6 +597,7 @@
 													->setClass("text-right debit")
 													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 													->setValue(number_format($debit, 2))
+													->setValidation('decimal')
 													->draw($show_input);
 													?>
 												</td>
@@ -607,6 +610,7 @@
 													->setId('credit['.$row.']')
 													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 													->setValue(number_format($credit, 2))
+													->setValidation('decimal')
 													->draw($show_input);
 													?>
 												</td>
@@ -683,6 +687,7 @@
 													->setValidation('decimal')
 													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
 													->setValue(number_format($debit, 2))
+													->setValidation('decimal')
 													->draw($show_input);
 													$detail_row	.= '</td>';
 
@@ -695,6 +700,7 @@
 													->setId('credit['.$row.']')
 													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_credit))
 													->setValue(number_format($credit, 2))
+													->setValidation('decimal')
 													->draw($show_input);
 													$detail_row	.= '</td>';
 

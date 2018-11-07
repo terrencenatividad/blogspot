@@ -357,7 +357,7 @@
 									endforeach;
 								else:
 							?>
-							<tr class="clone">
+							<tr class="clone hidden">
 								<td class="">
 									<?php
 										echo $ui->formField('dropdown')
@@ -431,7 +431,7 @@
 							<tr>
 								<? if($show_input):?>
 								<td colspan="2">
-									<a type="button" class="btn btn-link add-cheque"  style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Check</a>
+									<a type="button" class="btn btn-link add-cheque hidden"  style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Check</a>
 								</td>
 								<td class="text-right"><label class="control-label">Total</label></td>
 								<td class="text-right">
