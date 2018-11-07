@@ -162,7 +162,7 @@ class controller extends wc_controller
 		$data["existingcreditaccount"]	= isset($cred_acct[0]->account) ? $cred_acct[0]->account	:	"";
 		$data['cred_id'] 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
 		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
-		$data['ap_checker'] 	 		= "no";
+		$data['ap_checker'] 	 		= 0;
 
 		// Application Data
 		$data['sum_applied'] 				= 0;
@@ -279,16 +279,17 @@ class controller extends wc_controller
 		$transactiondate 			= $data["main"]->transactiondate;
 		$voucherno 					= $data["main"]->voucherno;
 		$restrict_rv 				= $this->restrict->setButtonRestriction($transactiondate);
-		$data["voucherno"]         = $voucherno;
-		$data["customercode"]        = $vendor_details[0]->partnername;
-		$data["v_convertedamount"] = $data["main"]->convertedamount;
-		$data["exchangerate"]      = $data["main"]->exchangerate;
-		$data["transactiondate"]   = $this->date->dateFormat($transactiondate);
+		$data["voucherno"]         	= $voucherno;
+		$data["customercode"]       = $vendor_details[0]->partnername;
+		$data["v_convertedamount"] 	= $data["main"]->convertedamount;
+		$data["exchangerate"]      	= $data["main"]->exchangerate;
+		$data["transactiondate"]   	= $this->date->dateFormat($transactiondate);
 		$data["or_no"]       		= $data["main"]->or_no;
-		$data["paymenttype"]       = $data["main"]->paymenttype;
-		$data["particulars"]       = $data["main"]->particulars;
+		$data["paymenttype"]       	= $data["main"]->paymenttype;
+		$data["particulars"]       	= $data["main"]->particulars;
 		$data['status']				= $data["main"]->stat;
-		$data['ap_checker'] 	 	= $data["main"]->advancepayment;
+		$data['ap_checker'] 	 	= ($data['main']->advancepayment == 'yes') ? 1 : 0;
+
 		// Vendor/Customer Details
 		$data["v_vendor"] 		   	= $data["vend"]->name;
 		$data["v_email"] 		   	= $data["vend"]->email;
@@ -602,8 +603,7 @@ class controller extends wc_controller
 		$available_credits 		 = $this->receipt_voucher->retrieve_existing_credits($customer);
 		$data["available_credits"] = isset($available_credits[0]->curr_credit) 	?	$available_credits[0]->curr_credit 	+	$credits_used	:	"0.00";
 		$data['status']			 = $data["main"]->stat;
-		$data['ap_checker'] 	 = $data['main']->advancepayment;
-
+		$data['ap_checker'] 	 = ($data['main']->advancepayment == 'yes') ? 1 : 0;
 		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array();
 
 		$account_array	= array();
