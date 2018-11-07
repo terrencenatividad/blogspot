@@ -429,375 +429,375 @@
 											->draw($show_input);
 											?>
 										</td>
-										<? else:?>
-											<td class="text-right" colspan="3"><label class="control-label">Total</label></td>
-											<td class="text-right">
-												<?php
-												echo $ui->formField('text')
-												->setSplit('', 'col-md-12 field_col')
-												->setClass("text-right input_label")
-												->setId("totalcheques")
-												->setAttribute(array("readonly" => "readonly"))
-												->setValue(number_format($totalchequeamt, 2))
-												->draw($show_input);
-												?>
-											</td>
-											<?endif;?>
-										</tr>	
-									</tfoot>
-								</table>
-							</div>
-						</div>
-						<!--End of Cheque Details-->
-						<hr/>
-						<!--Account Entries-->
-						<div class="panel panel-default" id="accounting_details">
-							<div class="panel-heading">
-								<strong>Accounting Details</strong>
-							</div>
-							<div class="has-error">
-								<span id="totalAmountError" class="help-block hidden small">
-									<i class="glyphicon glyphicon-exclamation-sign"></i> 
-									The total Debit Amount and Credit Amount must match.
-								</span>
-								<span id="zeroTotalAmountError" class="help-block hidden small">
-									<i class="glyphicon glyphicon-exclamation-sign"></i> 
-									Total Debit and Total Credit must have a value.
-								</span>
-								<span id="accountcodeError" class="help-block hidden small">
-									<i class="glyphicon glyphicon-exclamation-sign"></i> 
-									Account Code field must have a value.
-								</span>
-							</div>
-							<div class="table-responsive">
-								<table class="table table-hover table-condensed " id="entriesTable">
-									<thead>
-										<tr class="info">
-											<th class="col-md-4">Account</th>
-											<th class="col-md-3">Description</th>
-											<th class="col-md-2">Debit</th>
-											<th class="col-md-2">Credit</th>
-											<?if($show_input){?><th class="col-md-1"></th><?}?>
-										</tr>
-									</thead>
-									<tbody id = "ap_items">
-										<?php
-										$row 				= 1;
-
-										$total_debit 		= 0;
-										$total_credit 		= 0;
-
-										if($task == 'create')
-										{
-											$accountcode 		= '';
-											$detailparticulars 	= '';
-											$debit 				= '0.00';
-											$credit 			= '0.00';
-
-											?>
-
-											<tr class="clone">
-												<td>
-													<?php
-													echo $ui->formField('dropdown')
-													->setPlaceholder('Select One')
-													->setSplit('', 'col-md-12')
-													->setName("accountcode[".$row."]")
-													->setClass("accountcode")
-													->setId("accountcode[".$row."]")
-													->setList($account_entry_list)
-													->setValue($accountcode)
-													->draw($show_input);
-													?>
-													<input type = "hidden" class="h_accountcode" name='h_accountcode[<?=$row?>]' id='h_accountcode[<?=$row?>]'>
-												</td>
-												<td>
-													<?php
-													echo $ui->formField('text')
-													->setSplit('', 'col-md-12')
-													->setName('detailparticulars['.$row.']')
-													->setId('detailparticulars['.$row.']')
-													->setClass('description')
-													->setAttribute(array("maxlength" => "100"))
-													->setValue($detailparticulars)
-													->draw($show_input);
-													?>
-													<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
-												</td>
-												<td>
-													<?php
-													echo $ui->formField('text')
-													->setSplit('', 'col-md-12 field_col')
-													->setName('debit['.$row.']')
-													->setId('debit['.$row.']')
-													->setClass("text-right debit")
-													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
-													->setValue(number_format($debit, 2))
-													->setValidation('decimal')
-													->draw($show_input);
-													?>
-												</td>
-												<td>
-													<?php
-													echo $ui->formField('text')
-													->setSplit('', 'col-md-12 field_col')
-													->setName('credit['.$row.']')
-													->setId('credit['.$row.']')
-													->setClass("text-right account_amount  credit")
-													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
-													->setValue(number_format($credit, 2))
-													->setValidation('decimal')
-													->draw($show_input);
-													?>
-												</td>
-												<td class="text-center">
-													<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
-													<!-- <input type="hidden" id="not_cancelled" value="no" name="not_cancelled[]" class="not_cancelled"> -->
-												</td>
-											</tr>
-
-											<?
-											$row++;
-											?>
-
-											<tr class="clone">
-												<td>
-													<?php
-													echo $ui->formField('dropdown')
-													->setPlaceholder('Select One')
-													->setSplit('', 'col-md-12')
-													->setName("accountcode[".$row."]")
-													->setClass("accountcode")
-													->setId("accountcode[".$row."]")
-													->setList($account_entry_list)
-													->setValue($accountcode)
-													->draw($show_input);
-													?>
-													<input type = "hidden" class="h_accountcode" name='h_accountcode[<?=$row?>]' id='h_accountcode[<?=$row?>]'>
-												</td>
-												<td>
-													<?php
-													echo $ui->formField('text')
-													->setSplit('', 'col-md-12')
-													->setName('detailparticulars['.$row.']')
-													->setId('detailparticulars['.$row.']')
-													->setClass('description')
-													->setAttribute(array("maxlength" => "100"))
-													->setValue($detailparticulars)
-													->draw($show_input);
-													?>
-													<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
-												</td>
-												<td>
-													<?php
-													echo $ui->formField('text')
-													->setSplit('', 'col-md-12 field_col')
-													->setName('debit['.$row.']')
-													->setId('debit['.$row.']')
-													->setClass("text-right debit")
-													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
-													->setValue(number_format($debit, 2))
-													->setValidation('decimal')
-													->draw($show_input);
-													?>
-												</td>
-												<td>
-													<?php
-													echo $ui->formField('text')
-													->setSplit('', 'col-md-12 field_col')
-													->setName('credit['.$row.']')
-													->setClass("text-right account_amount credit")
-													->setId('credit['.$row.']')
-													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
-													->setValue(number_format($credit, 2))
-													->setValidation('decimal')
-													->draw($show_input);
-													?>
-												</td>
-												<td class="text-center">
-													<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
-													<!-- <input type="hidden" id="not_cancelled" value="no" name="not_cancelled[]" class="not_cancelled"> -->
-
-												</td>
-											</tr>
-
+									<? else:?>
+										<td class="text-right" colspan="3"><label class="control-label">Total</label></td>
+										<td class="text-right">
 											<?php
-										}else{
-											$aPvJournalDetails 	= $data['details'];
-											$detail_row 		= '';
-											if(!empty($aPvJournalDetails)){
-												foreach ($aPvJournalDetails as $aPvJournalDetails_Index => $aPvJournalDetails_Value) {
-													$accountcode 		= $aPvJournalDetails_Value->accountcode;
-													$detailparticulars 	= $aPvJournalDetails_Value->detailparticulars;
-													$debit 				= $aPvJournalDetails_Value->debit;
-													$credit 			= $aPvJournalDetails_Value->credit;
-													$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
-
-													$disable_code 		= "";
-													$added_class 		= "";
-													$indicator 			= "";
-													if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque' && $ischeck == 'yes'){
-														$disable_debit		= 'readOnly';
-														$disable_credit		= 'readOnly';
-														$disable_code 		= 'disabled';
-														$added_class 		= 'added_row';
-														$indicator 			= "cheque";
-													} else {
-														$disable_debit		= ($debit > 0) ? '' : 'readOnly';
-														$disable_credit		= ($credit > 0) ? '' : 'readOnly';
-													}
-
-													$total_debit 		+= $debit;
-													$total_credit 		+= $credit;
-													$detail_row	.= '<tr class="clone '.$added_class.'">';
-
-													$detail_row	.= '<td>';
-													$detail_row .= $ui->formField('dropdown')
-													->setPlaceholder('Select One')
-													->setSplit('', 'col-md-12')
-													->setName("accountcode[".$row."]")
-													->setClass("accountcode")
-													->setId("accountcode[".$row."]")
-													->setAttribute(array($disable_code))
-													->setList($account_entry_list)
-													->setValue($accountcode)
-													->draw($show_input);
-
-													$detail_row	.= '	<input type = "hidden" class="h_accountcode" value="'.$accountcode.'" name="h_accountcode['.$row.']" id="h_accountcode['.$row.']">
-													</td>';
-
-													$detail_row	.= '<td>';
-													$detail_row .= $ui->formField('text')
-													->setSplit('', 'col-md-12')
-													->setName('detailparticulars['.$row.']')
-													->setId('detailparticulars['.$row.']')
-													->setClass('description')
-													->setAttribute(array("maxlength" => "100"))
-													->setValue($detailparticulars)
-													->draw($show_input);
-													$detail_row	.= '	<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
-													</td>';
-
-													$detail_row	.= '<td class="text-right">';
-													$detail_row .= $ui->formField('text')
-													->setSplit('', 'col-md-12 field_col')
-													->setName('debit['.$row.']')
-													->setClass("debit text-right $indicator")
-													->setId('debit['.$row.']')
-													->setValidation('decimal')
-													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
-													->setValue(number_format($debit, 2))
-													->setValidation('decimal')
-													->draw($show_input);
-													$detail_row	.= '</td>';
-
-													$detail_row	.= '<td class="text-right">';
-													$detail_row .= $ui->formField('text')
-													->setSplit('', 'col-md-12 field_col')
-													->setName('credit['.$row.']')
-													->setValidation('decimal')
-													->setClass("account_amount credit text-right $indicator")
-													->setId('credit['.$row.']')
-													->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_credit))
-													->setValue(number_format($credit, 2))
-													->setValidation('decimal')
-													->draw($show_input);
-													$detail_row	.= '</td>';
-
-													if( $show_input ){
-														$detail_row .= '<td class="text-center">';
-														$detail_row .= '<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"  '.$disable_code.'><span class="glyphicon glyphicon-trash"></span></button>';
-														// $detail_row .= '<input type="hidden" id="not_cancelled" value="no" name="not_cancelled[]" class="not_cancelled">';
-														$detail_row .= '</td>';
-													}
-
-													$detail_row	.= '</tr>';
-
-													$row++;
-												}
-
-												echo $detail_row;
-											}
-										}
-										?>
-									</tbody>
-									<tfoot>
-										<? if($show_input): ?>
-											<tr>
-												<td>
-													<a type="button" class="btn btn-link add-entry" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Entry</a>
-												</td>	
-											</tr>
-											<?endif;?>
-											<tr id="total">
-												<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
-												<td class="right" style="border-top:1px solid #DDDDDD;">
-													<label class="control-label col-md-12">Total</label>
-												</td>
-												<td class="text-right" style="border-top:1px solid #DDDDDD;">
-													<?php
-													echo $ui->formField('text')
-													->setSplit('', 'col-md-12')
-													->setName('total_debit')
-													->setId('total_debit')
-													->setClass("input_label text-right")
-													->setAttribute(array("maxlength" => "40", "readonly" => "readonly"))
-													->setValue(number_format($total_debit,2))
-													->draw($show_input);
-													?>
-												</td>
-												<td class="text-right" style="border-top:1px solid #DDDDDD;">
-													<?php
-													echo $ui->formField('text')
-													->setSplit('', 'col-md-12')
-													->setName('total_credit')
-													->setId('total_credit')
-													->setClass("input_label text-right")
-													->setAttribute(array("maxlength" => "40", "readonly" => "readonly"))
-													->setValue(number_format($total_credit,2))
-													->draw($show_input);
-													?>
-												</td>
-											</tr>	
-										</tfoot>
-									</table>
-								</div>
-							</div>
-							<!--End of Accounting Entries-->
-
-							<div class="row">
-								<div class="col-md-12 col-sm-12 text-center">
-									<?if($show_input):?>
-									<? if($task == 'create') {
-										echo $ui->addSavePreview()
-										->addSaveNew()
-										->addSaveExit()
-										->drawSaveOption();
-									}
-
-									if($task == 'view') {
-										echo $ui->drawSubmit($show_input);
-									} else if($task == 'edit') { ?>
-										<input type = "button" value = "Save" name = "save" id = "save" class="btn btn-primary btn-sm btn-flat"/>
-									<?php }
-									?>
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12 field_col')
+											->setClass("text-right input_label")
+											->setId("totalcheques")
+											->setAttribute(array("readonly" => "readonly"))
+											->setValue(number_format($totalchequeamt, 2))
+											->draw($show_input);
+											?>
+										</td>
 									<?endif;?>
-									&nbsp;
-									<?
-									if(($main_status == 'open' && $has_access == 1) && $restrict_dv){
-										echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
-									}
-									?>
-									<input type = "hidden" value = "" name = "h_save" id = "h_save"/>
-									<button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel">Cancel</button>
-								</div>
-							</div>
+								</tr>	
+							</tfoot>
+						</table>
+					</div>
+				</div>
+				<!--End of Cheque Details-->
+				<hr/>
+				<!--Account Entries-->
+				<div class="panel panel-default" id="accounting_details">
+					<div class="panel-heading">
+						<strong>Accounting Details</strong>
+					</div>
+					<div class="has-error">
+						<span id="totalAmountError" class="help-block hidden small">
+							<i class="glyphicon glyphicon-exclamation-sign"></i> 
+							The total Debit Amount and Credit Amount must match.
+						</span>
+						<span id="zeroTotalAmountError" class="help-block hidden small">
+							<i class="glyphicon glyphicon-exclamation-sign"></i> 
+							Total Debit and Total Credit must have a value.
+						</span>
+						<span id="accountcodeError" class="help-block hidden small">
+							<i class="glyphicon glyphicon-exclamation-sign"></i> 
+							Account Code field must have a value.
+						</span>
+					</div>
+					<div class="table-responsive">
+						<table class="table table-hover table-condensed " id="entriesTable">
+							<thead>
+								<tr class="info">
+									<th class="col-md-4">Account</th>
+									<th class="col-md-3">Description</th>
+									<th class="col-md-2">Debit</th>
+									<th class="col-md-2">Credit</th>
+									<?if($show_input){?><th class="col-md-1"></th><?}?>
+								</tr>
+							</thead>
+							<tbody id = "ap_items">
+								<?php
+								$row 				= 1;
 
+								$total_debit 		= 0;
+								$total_credit 		= 0;
+
+								if($task == 'create')
+								{
+									$accountcode 		= '';
+									$detailparticulars 	= '';
+									$debit 				= '0.00';
+									$credit 			= '0.00';
+
+									?>
+
+									<tr class="clone">
+										<td>
+											<?php
+											echo $ui->formField('dropdown')
+											->setPlaceholder('Select One')
+											->setSplit('', 'col-md-12')
+											->setName("accountcode[".$row."]")
+											->setClass("accountcode")
+											->setId("accountcode[".$row."]")
+											->setList($account_entry_list)
+											->setValue($accountcode)
+											->draw($show_input);
+											?>
+											<input type = "hidden" class="h_accountcode" name='h_accountcode[<?=$row?>]' id='h_accountcode[<?=$row?>]'>
+										</td>
+										<td>
+											<?php
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('detailparticulars['.$row.']')
+											->setId('detailparticulars['.$row.']')
+											->setClass('description')
+											->setAttribute(array("maxlength" => "100"))
+											->setValue($detailparticulars)
+											->draw($show_input);
+											?>
+											<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
+										</td>
+										<td>
+											<?php
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12 field_col')
+											->setName('debit['.$row.']')
+											->setId('debit['.$row.']')
+											->setClass("text-right debit")
+											->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
+											->setValue(number_format($debit, 2))
+											->setValidation('decimal')
+											->draw($show_input);
+											?>
+										</td>
+										<td>
+											<?php
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12 field_col')
+											->setName('credit['.$row.']')
+											->setId('credit['.$row.']')
+											->setClass("text-right account_amount  credit")
+											->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
+											->setValue(number_format($credit, 2))
+											->setValidation('decimal')
+											->draw($show_input);
+											?>
+										</td>
+										<td class="text-center">
+											<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+											<!-- <input type="hidden" id="not_cancelled" value="no" name="not_cancelled[]" class="not_cancelled"> -->
+										</td>
+									</tr>
+
+									<?
+									$row++;
+									?>
+
+									<tr class="clone">
+										<td>
+											<?php
+											echo $ui->formField('dropdown')
+											->setPlaceholder('Select One')
+											->setSplit('', 'col-md-12')
+											->setName("accountcode[".$row."]")
+											->setClass("accountcode")
+											->setId("accountcode[".$row."]")
+											->setList($account_entry_list)
+											->setValue($accountcode)
+											->draw($show_input);
+											?>
+											<input type = "hidden" class="h_accountcode" name='h_accountcode[<?=$row?>]' id='h_accountcode[<?=$row?>]'>
+										</td>
+										<td>
+											<?php
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('detailparticulars['.$row.']')
+											->setId('detailparticulars['.$row.']')
+											->setClass('description')
+											->setAttribute(array("maxlength" => "100"))
+											->setValue($detailparticulars)
+											->draw($show_input);
+											?>
+											<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
+										</td>
+										<td>
+											<?php
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12 field_col')
+											->setName('debit['.$row.']')
+											->setId('debit['.$row.']')
+											->setClass("text-right debit")
+											->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
+											->setValue(number_format($debit, 2))
+											->setValidation('decimal')
+											->draw($show_input);
+											?>
+										</td>
+										<td>
+											<?php
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12 field_col')
+											->setName('credit['.$row.']')
+											->setClass("text-right account_amount credit")
+											->setId('credit['.$row.']')
+											->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
+											->setValue(number_format($credit, 2))
+											->setValidation('decimal')
+											->draw($show_input);
+											?>
+										</td>
+										<td class="text-center">
+											<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+											<!-- <input type="hidden" id="not_cancelled" value="no" name="not_cancelled[]" class="not_cancelled"> -->
+
+										</td>
+									</tr>
+
+									<?php
+								}else{ 
+									$aPvJournalDetails 	= $data['details'];
+									$detail_row 		= '';
+									if(!empty($aPvJournalDetails)){
+										foreach ($aPvJournalDetails as $aPvJournalDetails_Index => $aPvJournalDetails_Value) {
+											$accountcode 		= $aPvJournalDetails_Value->accountcode;
+											$detailparticulars 	= $aPvJournalDetails_Value->detailparticulars;
+											$debit 				= $aPvJournalDetails_Value->debit;
+											$credit 			= $aPvJournalDetails_Value->credit;
+											$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
+
+											$disable_code 		= "";
+											$added_class 		= "";
+											$indicator 			= "";
+											if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque' && $ischeck == 'yes'){
+												$disable_debit		= 'readOnly';
+												$disable_credit		= 'readOnly';
+												$disable_code 		= 'disabled';
+												$added_class 		= 'added_row';
+												$indicator 			= "cheque";
+											} else {
+												$disable_debit		= ($debit > 0) ? '' : 'readOnly';
+												$disable_credit		= ($credit > 0) ? '' : 'readOnly';
+											}
+
+											$total_debit 		+= $debit;
+											$total_credit 		+= $credit;
+											$detail_row	.= '<tr class="clone '.$added_class.'">';
+
+											$detail_row	.= '<td>';
+											$detail_row .= $ui->formField('dropdown')
+											->setPlaceholder('Select One')
+											->setSplit('', 'col-md-12')
+											->setName("accountcode[".$row."]")
+											->setClass("accountcode")
+											->setId("accountcode[".$row."]")
+											->setAttribute(array($disable_code))
+											->setList($account_entry_list)
+											->setValue($accountcode)
+											->draw($show_input);
+
+											$detail_row	.= '	<input type = "hidden" class="h_accountcode" value="'.$accountcode.'" name="h_accountcode['.$row.']" id="h_accountcode['.$row.']">
+											</td>';
+
+											$detail_row	.= '<td>';
+											$detail_row .= $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('detailparticulars['.$row.']')
+											->setId('detailparticulars['.$row.']')
+											->setClass('description')
+											->setAttribute(array("maxlength" => "100"))
+											->setValue($detailparticulars)
+											->draw($show_input);
+											$detail_row	.= '	<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
+											</td>';
+
+											$detail_row	.= '<td class="text-right">';
+											$detail_row .= $ui->formField('text')
+											->setSplit('', 'col-md-12 field_col')
+											->setName('debit['.$row.']')
+											->setClass("debit text-right $indicator")
+											->setId('debit['.$row.']')
+											->setValidation('decimal')
+											->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
+											->setValue(number_format($debit, 2))
+											->setValidation('decimal')
+											->draw($show_input);
+											$detail_row	.= '</td>';
+
+											$detail_row	.= '<td class="text-right">';
+											$detail_row .= $ui->formField('text')
+											->setSplit('', 'col-md-12 field_col')
+											->setName('credit['.$row.']')
+											->setValidation('decimal')
+											->setClass("account_amount credit text-right $indicator")
+											->setId('credit['.$row.']')
+											->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_credit))
+											->setValue(number_format($credit, 2))
+											->setValidation('decimal')
+											->draw($show_input);
+											$detail_row	.= '</td>';
+
+											if( $show_input ){
+												$detail_row .= '<td class="text-center">';
+												$detail_row .= '<button type="button" class="btn btn-danger btn-flat confirm-delete delete" data-id="'.$row.'" name="chk[]" style="outline:none;" onClick="confirmDelete('.$row.');"  '.$disable_code.'><span class="glyphicon glyphicon-trash"></span></button>';
+												// $detail_row .= '<input type="hidden" id="not_cancelled" value="no" name="not_cancelled[]" class="not_cancelled">';
+												$detail_row .= '</td>';
+											}
+
+											$detail_row	.= '</tr>';
+
+											$row++;
+										}
+
+										echo $detail_row;
+									}
+								}
+								?>
+							</tbody>
+							<tfoot>
+								<? if($show_input): ?>
+									<tr>
+										<td>
+											<a type="button" class="btn btn-link add-entry" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Entry</a>
+										</td>	
+									</tr>
+									<?endif;?>
+									<tr id="total">
+										<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+										<td class="right" style="border-top:1px solid #DDDDDD;">
+											<label class="control-label col-md-12">Total</label>
+										</td>
+										<td class="text-right" style="border-top:1px solid #DDDDDD;">
+											<?php
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('total_debit')
+											->setId('total_debit')
+											->setClass("input_label text-right")
+											->setAttribute(array("maxlength" => "40", "readonly" => "readonly"))
+											->setValue(number_format($total_debit,2))
+											->draw($show_input);
+											?>
+										</td>
+										<td class="text-right" style="border-top:1px solid #DDDDDD;">
+											<?php
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('total_credit')
+											->setId('total_credit')
+											->setClass("input_label text-right")
+											->setAttribute(array("maxlength" => "40", "readonly" => "readonly"))
+											->setValue(number_format($total_credit,2))
+											->draw($show_input);
+											?>
+										</td>
+									</tr>	
+								</tfoot>
+							</table>
 						</div>
 					</div>
-				</form>
+					<!--End of Accounting Entries-->
 
-			</section>
+					<div class="row">
+						<div class="col-md-12 col-sm-12 text-center">
+							<?if($show_input):?>
+							<? if($task == 'create') {
+								echo $ui->addSavePreview()
+								->addSaveNew()
+								->addSaveExit()
+								->drawSaveOption();
+							}
+
+							if($task == 'view') {
+								echo $ui->drawSubmit($show_input);
+							} else if($task == 'edit') { ?>
+								<input type = "button" value = "Save" name = "save" id = "save" class="btn btn-primary btn-sm btn-flat"/>
+							<?php }
+							?>
+							<?endif;?>
+							&nbsp;
+							<?
+							if(($main_status == 'open' && $has_access == 1) && $restrict_dv){
+								echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
+							}
+							?>
+							<input type = "hidden" value = "" name = "h_save" id = "h_save"/>
+							<button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel">Cancel</button>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</form>
+</section>
 
 			<!-- Delete Record Confirmation Modal -->
 			<div class="modal fade" id="deleteItemModal" tabindex="-1" data-backdrop="static">
