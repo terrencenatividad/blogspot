@@ -4786,11 +4786,16 @@ $(document).ready(function() {
 		var ParentRow = $("#entriesTable tbody tr.clone").last();
 		var rv_amount = $('#pv_amount').html();
 		var offset 	  = 3;
-		if(parseFloat(rv_amount) > 0){
-			ParentRow.before(clone_acct);
-			offset 	  = 4;
-		} else {
-			ParentRow.after(clone_acct);
+		var cwt = $('.cwt').is(':checked'); 
+		if(cwt==true){
+		ParentRow.prev().before(clone_acct);
+		offset     = 5;      
+		}
+		else if(parseFloat(rv_amount) > 0){
+		ParentRow.before(clone_acct);
+		offset     = 4;
+		}else {
+		ParentRow.after(clone_acct);
 		}
 		setZero(offset);
 		drawTemplate();
@@ -5112,7 +5117,7 @@ $('#payableForm').on('click', '.edit-button', function(){
 	var row 	  = $('#entriesTable tbody tr.clone').length - 1;
 	var atc = $("#taxcode\\["+ row +"\\]").val();
 	var amount = $("#taxbase_amount\\["+ row +"\\]").val();
-	$('#tax_account').val(atc);
+	$('#tax_account').val(atc).trigger('change.select2');
 	$('#tax_amount').val(amount);
 	$('#atcModal').modal('show');
 
