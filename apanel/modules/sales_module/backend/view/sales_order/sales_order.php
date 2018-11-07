@@ -1203,13 +1203,13 @@ function addAmounts() {
 	}
 
 	vatable_sales 		= 0;
-	subtotal 			= total_h_vatable + total_h_vatex;
 	
 	if(vatex=="yes"){
 		vatable_sales 		= (parseFloat(total_h_vatable) - parseFloat(total_discount));
 		total_h_vat 		= (parseFloat(total_h_vatable) - parseFloat(total_discount))*0.12;
 		total_h_vatable 	= vatable_sales;
 	}
+	subtotal 			= total_h_vatable + total_h_vatex;
 
 	total_h_vatable	 	= Math.round(100*total_h_vatable)/100;
 	total_h_vatex	 	= Math.round(100*total_h_vatex)/100;
