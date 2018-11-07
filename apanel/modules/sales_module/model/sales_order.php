@@ -269,7 +269,6 @@
 
 		public function processTransaction($data, $task, $voucher = "")
 		{
-			// var_dump($data);
 			$mainInvTable		= "salesorder";
 			$detailInvTable		= "salesorder_details";
 		
@@ -302,7 +301,7 @@
 			$totalamount 		= (isset($data['t_total']) && (!empty($data['t_total']))) ? htmlentities(addslashes(trim($data['t_total']))) : "";
 
 			$discounttype 		= (isset($data['discounttype']) && (!empty($data['discounttype']))) ? htmlentities(addslashes(trim($data['discounttype']))) : "";
-
+		
 			$discount_amount 	= (isset($data['discountamount']) && (!empty($data['discountamount']))) ? htmlentities(addslashes(trim($data['discountamount']))) : "";
 			
 			$discount_rate 		= (isset($data['discountrate']) && (!empty($data['discountrate']))) ? htmlentities(addslashes(trim($data['discountrate']))) : "";
@@ -315,6 +314,7 @@
 			$subtotal			= str_replace(',','',$subtotal);
 			$totalamount		= str_replace(',','',$totalamount);
 			$discount_amount	= str_replace(',','',$discount_amount);
+
 			$vat_sales			= str_replace(',','',$vat_sales);
 			$vat_exempt			= str_replace(',','',$vat_exempt);
 			/**FORMAT DATES**/
