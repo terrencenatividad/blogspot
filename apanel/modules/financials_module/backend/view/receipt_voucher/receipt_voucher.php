@@ -214,6 +214,7 @@
 															->draw($show_input);
 												}else{
 												?>
+												<input type="checkbox" id="cwt" class="cwt form-control" checked>
 												<button type="button" class="btn btn-primary btn-flat btn-xs edit-button">
 												<i class="glyphicon glyphicon-pencil"></i>
 												</button>
@@ -3765,6 +3766,20 @@ $(document).ready(function() {
 	$( "#exchange_rate" ).click(function() {
 		toggleExchangeRate();
 	});
+	if('<?= $task ?>' == "edit"){
+		var row 	  = $('#entriesTable tbody tr.clone').length - 1;
+	
+		var cwt = $("#taxcode\\["+ row +"\\]").val();
+		if(cwt == ''){
+			$('.cwt').iCheck('uncheck');
+			$('.edit-button').css('display','none');
+			$('#atcModal').modal('hide');
+		}else{
+			$('#cwtdiv').addClass('hidden');
+			$('#editdiv').removeClass('hidden');
+		}
+	}
+	
 	
 	/**ADD NEW BANK ROW**/
 	$('body').on('click', '.add-cheque', function() {
