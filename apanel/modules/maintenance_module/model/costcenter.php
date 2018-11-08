@@ -137,6 +137,24 @@ class costcenter extends wc_model {
 		return $result;
 	}
 
+	public function check_duplicate($current)
+		{
+			return $this->db->setTable('cost_center')
+							->setFields('COUNT(costcenter_code) count')
+							->setWhere(" costcenter_code = '$current'")
+							->runSelect()
+							->getResult();
+		}
+	
+	public function check_duplicate_name($current)
+	{
+		return $this->db->setTable('cost_center')
+						->setFields('COUNT(name) count')
+						->setWhere(" name = '$current'")
+						->runSelect()
+						->getResult();
+	}
+
 	private function getCostCenterListQuery($fields, $search = '', $sort) {
 		$sort		= ($sort) ? $sort : 'costcenter_code';
 		$condition = '';

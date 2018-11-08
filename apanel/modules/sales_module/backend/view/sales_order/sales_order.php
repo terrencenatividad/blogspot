@@ -18,6 +18,7 @@
 			<input class = "form_iput" value = "<?=$h_outstanding?>" name = "h_outstanding" id = "h_outstanding" type="hidden">
 			<input class = "form_iput" value = "<?=$h_incurred?>" name = "h_incurred" id = "h_incurred" type="hidden">
 			<input class = "form_iput" value = "<?=$h_balance?>" name = "h_balance" id = "h_balance" type="hidden">
+			<input class = "form_iput" value = "<?=$vat_ex?>" name = "vat_ex" id = "vat_ex" type="hidden">
 			
 			<div class="box-body">
 				<br>
@@ -822,13 +823,9 @@
 	}
 
 	function computeforremainingcredit(){
-		console.log("TEST");
 		var credit_limit 			=	$('#h_curr_limit').val();
 		var outstanding_receivables = 	$('#h_outstanding').val();
-		console.log("CREDIT LIMIT = "+credit_limit);
-		console.log("OUTSTANDING = "+outstanding_receivables);
 		var balance 				=	parseFloat(credit_limit) 	-	parseFloat(outstanding_receivables);
-		console.log("balance = "+balance);
 		$('#h_balance').val(balance);
 	}
 
@@ -1076,9 +1073,9 @@ function computeAmount()
 	var count	= table.tBodies[0].rows.length;
 
 	var discounttype = $('#itemsTable tfoot .discounttype:checked').val();
-	// console.log('Discount Type = '+discounttype);
 	var discount_rate = removeComma($('#itemsTable tfoot #discountrate').val());
 	var discount = removeComma($('#itemsTable tfoot #discountamount').val());
+	var vatex 	 = $('#vat_ex').val();
 	
 	var total_amount   	= 0;
 	var total_tax 		= 0;
@@ -1092,18 +1089,22 @@ function computeAmount()
 		vat 			= 	(vat == "" || vat == undefined) 	?	0 	:	vat;
 		itemprice 		=	removeComma(itemprice.value);
 		quantity 		=	removeComma(quantity.value);
-			// console.log("VAT = "+vat);
-		var totalprice 	=	parseFloat(itemprice) 	* 	parseFloat(quantity);
-		var amount 		=	parseFloat(totalprice) / ( 1 + parseFloat(vat) );
-		var vat_amount 	=	parseFloat(amount)	*	parseFloat(vat);
 
+		var totalprice 	=	parseFloat(itemprice) 	* 	parseFloat(quantity);
+		var amount 		=	0;
+		var vat_amount 	=	0;
+
+		if(vatex == 'yes'){
+			amount 		= parseFloat(totalprice);
+			vat_amount	= parseFloat(totalprice) * parseFloat(vat);
+		} else {
+			amount		= parseFloat(totalprice) / ( 1 + parseFloat(vat) );
+			vat_amount	= parseFloat(amount)	*	parseFloat(vat);
+		}
 
 		if(discount > 0){
 			var itemdiscount 		= parseFloat(discount) / parseFloat(quantity);
 			var discountedamount 	= parseFloat(amount) - parseFloat(itemdiscount);
-
-			// console.log("ITEM DISCOUNT = "+itemdiscount);
-			// console.log("DISCOUNTED AMOUNT = "+discountedamount);
 
 			document.getElementById('itemdiscount['+row+']').value 	= addCommas(itemdiscount.toFixed(2));
 			document.getElementById('discountedamount['+row+']').value 	= addCommas(discountedamount.toFixed(2));
@@ -1122,14 +1123,7 @@ function computeAmount()
 		total_tax 		+= vat_amount;
 	}
 
-	// var discount_type 	= document.getElementById('discounttype').value;
-	// var discount_type 	= $('input[type=radio][name=discounttype]:checked').val();
-	// discount_perc 		= (discount_type == 'perc') ? discount/100 : discount / total_amount;
 	if (discounttype == 'perc') {
-		// console.log("DISCOUNT RATE - "+discount_rate);
-		// console.log("TOTAL AMOUNT - "+total_amount);
-		// console.log("TOTAL TAX - "+total_tax);
-
 		discount = total_amount * (discount_rate / 100);
 		$('#itemsTable tfoot #discountamount').val(addComma(discount));
 	}
@@ -1149,6 +1143,7 @@ function addAmounts() {
 
 	var table				= document.getElementById('itemsTable');
 	var count				= table.tBodies[0].rows.length;
+	var vatex 	 			= $('#vat_ex').val();
 
 	var discounttype = $('#itemsTable tfoot .discounttype:checked').val();
 	var discount_rate = removeComma($('#itemsTable tfoot #discountrate').val());
@@ -1169,16 +1164,19 @@ function addAmounts() {
 		var taxrate				= removeComma(x_taxrate.value);
 		var quantity 			= removeComma(x_quantity.value);
 		var h_discountedamount	= removeComma(h_discountedamount.value);
-		// console.log("Discount Amount = "+h_discountedamount);
-
-		// unitprice 		= 	(unitprice == "" || unitprice == undefined) ?	0 	:	unitprice;
-		// taxrate 		= 	(taxrate == "" || taxrate == undefined) ?	0 	:	taxrate;
-
-		// console.log("Tax Rate = "+taxrate);
 
 		var totalprice 	=	parseFloat(unitprice) 	* 	parseFloat(quantity);
-		var amount 		=	parseFloat(totalprice) / ( 1 + parseFloat(taxrate) );
-		var vat_amount 	=	parseFloat(amount)	*	parseFloat(taxrate);
+
+		var amount 		=	0;
+		var vat_amount 	=	0;
+
+		if(vatex == 'yes'){
+			amount 		= parseFloat(totalprice);
+			vat_amount	= parseFloat(totalprice) * parseFloat(taxrate);
+		} else {
+			amount		= parseFloat(totalprice) / ( 1 + parseFloat(taxrate) );
+			vat_amount	= parseFloat(amount)	*	parseFloat(taxrate);
+		}
 
 		var net_of_vat		= 0;
 		var vat_ex			= 0;
@@ -1190,8 +1188,6 @@ function addAmounts() {
 		if( parseFloat(taxrate) > 0.00 || parseFloat(taxrate) > 0 )	{
 			net_of_vat 		= amount;
 		}
-		// console.log("net of vat = "+net_of_vat);	
-		// total_amount 	 	+= amount;
 
 		net_of_vat 			= net_of_vat * 1;
 		vat_ex				= amount - net_of_vat;
@@ -1206,21 +1202,30 @@ function addAmounts() {
 		total_h_vat			+= vat;
 	}
 
-	subtotal 				= total_h_vatable + total_h_vatex;
-	// console.log("SUBTOTAL = "+subtotal);
+	vatable_sales 		= 0;
+	subtotal 			= total_h_vatable + total_h_vatex;
+	final_total 		= (total_h_vatable + total_h_vatex - total_discount + total_h_vat);
+	
+	if(vatex=="yes"){
+		vatable_sales 		= (parseFloat(total_h_vatable) - parseFloat(total_discount));
+		vatable_sales 		= (vatable_sales > 0) ? vatable_sales 	: 0;
+		total_h_vat 		= (parseFloat(total_h_vatable) - parseFloat(total_discount))*0.12;
+		total_h_vat 		= (total_h_vat > 0) ? total_h_vat 	: 0;
+		total_h_vatable 	= vatable_sales;
+		final_total 		= (total_h_vatable + total_h_vatex + total_h_vat);
+	}
 
+	final_total 		= Math.round(100*final_total)/100;
 	total_h_vatable	 	= Math.round(100*total_h_vatable)/100;
 	total_h_vatex	 	= Math.round(100*total_h_vatex)/100;
 	subtotal	 		= Math.round(100*subtotal)/100;
 	total_h_vat	 		= Math.round(100*total_h_vat)/100;
 
-	// document.getElementById('t_total').value 				= addCommas(total_amount.toFixed(2));
 	document.getElementById('t_vatsales').value		= addCommas(total_h_vatable.toFixed(2));
 	document.getElementById('t_vatexempt').value	= addCommas(total_h_vatex.toFixed(2));
 	document.getElementById('t_subtotal').value 	= addCommas(subtotal.toFixed(2));
 	document.getElementById('t_vat').value			= addCommas(total_h_vat.toFixed(2));
-	document.getElementById('t_total').value 		= addCommas(( total_h_vatable + total_h_vatex - total_discount + total_h_vat ).toFixed(2));
-	// document.getElementById('t_total').value 			= addCommas((total_h_vatable + total_discount).toFixed(2));
+	document.getElementById('t_total').value 		= addCommas(final_total.toFixed(2));
 }
 
 /**FORMAT NUMBERS TO DECIMAL**/
@@ -1403,7 +1408,10 @@ function finalizeEditTransaction()
 {
 	var btn 	=	$('#save').val();
 				
-	$("#sales_order_form").find('.form-group').find('input, textarea, select').trigger('blur');
+	//Discount Type
+	var discounttype = $("#itemsTable tfoot #discount").find('.discounttype:checked').val();
+
+	$("#sales_order_form").find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
 	var no_error = true;
 	$('.quantity').each(function() {
@@ -1429,14 +1437,14 @@ function finalizeEditTransaction()
 		// $('#creditLimitModal').modal('show');
 		no_error = false;
 	}
-	
+
 	if($('#sales_order_form').find('.form-group.has-error').length == 0 && no_error)
 	{
 		if($("#sales_order_form #itemcode\\[1\\]").val() != ''  && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #due_date").val() != '' && $("#sales_order_form #customer").val() != '')
 		{
 			setTimeout(function() {
 				computeAmount();
-				$.post("<?=BASE_URL?>sales/sales_order/ajax/<?=$task?>",$("#sales_order_form").serialize()+'<?=$ajax_post?>',function(data)
+				$.post("<?=BASE_URL?>sales/sales_order/ajax/<?=$task?>",$("#sales_order_form").serialize()+'<?=$ajax_post?>'+"&selected_dtype="+discounttype,function(data)
 				{		
 					if( data.msg == 'success' )
 					{
@@ -1455,11 +1463,6 @@ function finalizeEditTransaction()
 						{
 							window.location 	=	"<?=BASE_URL?>sales/sales_order/create";
 						}
-						
-					}
-					else
-					{
-						//insert error message / MOdal heree
 						
 					}
 				});
@@ -1766,6 +1769,7 @@ $(document).ready(function(){
 		{
 			$("#sales_order_form").change(function()
 			{
+				computeAmount();
 				if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
 				{
 					$.post("<?=BASE_URL?>sales/sales_order/ajax/save_temp_data",$("#sales_order_form").serialize())

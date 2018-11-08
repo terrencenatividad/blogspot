@@ -99,7 +99,7 @@
 											if(!$show_input){
 												echo '<p class="form-control-static">'.number_format($sum_applied,2).'</p>';
 											}else{
-												$disable_receivables 	=	($ap_checker == 'yes') 	? "disabled" 	:	"";
+												$disable_receivables 	=	($ap_checker == 1) 	? "disabled" 	:	"";
 												?>
 												<button type="button" id="apv" class="btn btn-block btn-success btn-flat" <?=$disable_receivables?>>
 													<em class="pull-left"><small>Click to view tagged receivables</small></em>
@@ -140,7 +140,7 @@
 											if(!$show_input){
 												echo '<p class="form-control-static">'.number_format($credits_applied,2).'</p>';
 											}else{
-												$disable_cv 	=	($ap_checker == 'yes') 	? "disabled" 	:	"";
+												$disable_cv 	=	($ap_checker == 1) 	? "disabled" 	:	"";
 												?>
 												<button type="button" id="crv" class="btn btn-block btn-success btn-flat" <?=$disable_cv?>>
 													<em class="pull-left"><small>Click to view tagged credits</small></em>
@@ -155,20 +155,18 @@
 								<div class="col-md-6">
 									<div class="form-group">
 										<label for="ap_checker" class="control-label col-md-4">Advance Payment</label>
-										<?//if($show_input):?>
 										<div class="col-md-1">
 											<?
 												echo $ui->setElement('checkbox')
 														 ->setName('ap_checker')
 														 ->setId('ap_checker')
-														 ->setDefault("yes")
+														 ->setSwitch()
+														 ->setDefault('1')
 														 ->setValue($ap_checker)
 														 ->setAttribute(array('style'=>"position:absolute; opacity:0;"))
 														 ->draw($show_input);
 											?>
-											<!-- <input type="checkbox" name="ap_checker" id="ap_checker" class="" value="<?=$ap_checker?>" style="position: absolute; opacity: 0;"> -->
 										</div>
-										<?//endif;?>
 										<div class="col-md-7">
 											<div class="row">
 												<div class="col-md-12" id="editlink" style="margin-top:5px;">
@@ -211,12 +209,12 @@
 															->setId("cwt")
 															->setName("cwt")
 															->setClass("cwt")
-															->setDefault("")
-															->setValue(1)
+															->setDefault('1')
 															->setAttribute(array("disabled" => "disabled"))
 															->draw($show_input);
 												}else{
 												?>
+												<input type="checkbox" id="cwt" class="cwt form-control" checked>
 												<button type="button" class="btn btn-primary btn-flat btn-xs edit-button">
 												<i class="glyphicon glyphicon-pencil"></i>
 												</button>
@@ -3768,6 +3766,20 @@ $(document).ready(function() {
 	$( "#exchange_rate" ).click(function() {
 		toggleExchangeRate();
 	});
+	if('<?= $task ?>' == "edit"){
+		var row 	  = $('#entriesTable tbody tr.clone').length - 1;
+	
+		var cwt = $("#taxcode\\["+ row +"\\]").val();
+		if(cwt == ''){
+			$('.cwt').iCheck('uncheck');
+			$('.edit-button').css('display','none');
+			$('#atcModal').modal('hide');
+		}else{
+			$('#cwtdiv').addClass('hidden');
+			$('#editdiv').removeClass('hidden');
+		}
+	}
+	
 	
 	/**ADD NEW BANK ROW**/
 	$('body').on('click', '.add-cheque', function() {
@@ -4789,11 +4801,16 @@ $(document).ready(function() {
 		var ParentRow = $("#entriesTable tbody tr.clone").last();
 		var rv_amount = $('#pv_amount').html();
 		var offset 	  = 3;
-		if(parseFloat(rv_amount) > 0){
-			ParentRow.before(clone_acct);
-			offset 	  = 4;
-		} else {
-			ParentRow.after(clone_acct);
+		var cwt = $('.cwt').is(':checked'); 
+		if(cwt==true){
+		ParentRow.prev().before(clone_acct);
+		offset     = 5;      
+		}
+		else if(parseFloat(rv_amount) > 0){
+		ParentRow.before(clone_acct);
+		offset     = 4;
+		}else {
+		ParentRow.after(clone_acct);
 		}
 		setZero(offset);
 		drawTemplate();
@@ -5115,7 +5132,7 @@ $('#payableForm').on('click', '.edit-button', function(){
 	var row 	  = $('#entriesTable tbody tr.clone').length - 1;
 	var atc = $("#taxcode\\["+ row +"\\]").val();
 	var amount = $("#taxbase_amount\\["+ row +"\\]").val();
-	$('#tax_account').val(atc);
+	$('#tax_account').val(atc).trigger('change.select2');
 	$('#tax_amount').val(amount);
 	$('#atcModal').modal('show');
 
