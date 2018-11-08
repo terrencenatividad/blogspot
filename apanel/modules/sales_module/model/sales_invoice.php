@@ -587,7 +587,7 @@ class sales_invoice extends wc_model
 
 	public function retrieveDeliveries($code)
 	{
-		$header_fields 	= 	"dr.customer, dr.remarks, dr.taxamount, dr.taxcode, (dr.discountamount/so.amount) discount";
+		$header_fields 	= 	"dr.customer, dr.remarks, dr.taxamount, dr.taxcode, (dr.discountamount/so.amount) discount, dr.discounttype, dr.discountamount";
 		$condition 		=	" dr.voucherno = '$code' ";
 		$retrieved_data['header'] 	= 	$this->db->setTable('deliveryreceipt dr')
 												->leftJoin('salesorder so on so.voucherno = dr.source_no AND so.companycode = dr.companycode')
