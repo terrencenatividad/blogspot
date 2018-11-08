@@ -7,7 +7,7 @@
 
 				<div class = "col-md-8">
 					<?=$ui->CreateNewButton('');?>
-					<?= $ui->OptionButton(''); ?>
+					<?//= $ui->OptionButton(''); ?>
 					<?=	$ui->CreateDeleteButton(''); ?>
 					<?=	$ui->CreateActButton(''); ?>
 				</div>
