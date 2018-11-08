@@ -27,6 +27,7 @@ class controller extends wc_controller {
 			'header_taxcode' 		=> 'taxcode', 
 			'header_taxamount' 		=> 'taxamount',
 			'header_discounttype'   => 'discounttype',
+			'header_discountrate'   => 'discountrate',
 			'header_discountamount' => 'discountamount'
 		);
 		$this->fields2			= array(
