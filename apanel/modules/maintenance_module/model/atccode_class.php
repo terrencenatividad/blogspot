@@ -166,11 +166,15 @@ class atccode_class extends wc_model
 
 	public function check_accountclasscode($current)
 	{
-		return $this->db->setTable('chartaccount')
+		$result = $this->db->setTable('chartaccount')
 						->setFields('accountclasscode')
 						->setWhere(" segment5 = '$current' AND accountclasscode IN('TAX','CULIAB','OTHCL')")
 						->runSelect()
 						->getResult();
+
+						echo $this->db->getQuery();
+
+						return $result;
 	}
 
 	public function check_cwt_accountclasscode()
