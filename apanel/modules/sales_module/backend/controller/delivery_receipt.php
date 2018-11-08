@@ -254,7 +254,7 @@ class controller extends wc_controller {
 		$seq						= new seqcontrol();
 		$data['voucherno']			= $seq->getValue('DR');
 		$result						= $this->delivery_model->saveDeliveryReceipt($data, $data2);
-
+		
 		$this->delivery_model->createClearingEntries($data['voucherno']);
 
 		if ($result && $this->inventory_model) {
@@ -267,6 +267,8 @@ class controller extends wc_controller {
 									->setDetails($data['customer'])
 									->generateBalanceTable();
 		}
+
+
 		$redirect_url = MODULE_URL;
 		if ($submit == 'save_new') {
 			$redirect_url = MODULE_URL . 'create';

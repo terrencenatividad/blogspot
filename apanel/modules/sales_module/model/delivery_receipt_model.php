@@ -196,13 +196,13 @@ class delivery_receipt_model extends wc_model {
 		$result = $this->db->setTable('deliveryreceipt')
 							->setValues($data)
 							->runInsert();
-
 		if ($result) {
 			if ($result) {
 				$this->log->saveActivity("Create Delivery Receipt [{$data['voucherno']}]");
 			}
 			$result = $this->updateDeliveryReceiptDetails($data2, $data['voucherno']);
 		}
+
 
 		return $result;
 	}
