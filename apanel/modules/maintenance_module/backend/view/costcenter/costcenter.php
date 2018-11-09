@@ -139,6 +139,11 @@ var ajax = {};
 		{
 			error_message 	=	"<b>The Code you entered already exists!</b>";
 			$('#costcenter_code').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+		}else if( ( ajax.curr_code != "" && data.msg == "donut") || (data.msg == '' && task == 'edit'))
+		{
+			if (form_group.find('p.help-block').html() != "") {
+				form_group.removeClass('has-error').find('p.help-block').html('');
+			}
 		}
 		else if( ( ajax.curr_code != "" && data.msg == "") || (data.msg == '' && task == 'edit'))
 		{
@@ -162,8 +167,13 @@ $('#name').on('blur',function(){
 		{
 			error_message 	=	"<b>The Name you entered already exists!</b>";
 			$('#name').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+		}else if( ( ajax.curr_name != "" && data.msg == "donut") || (data.msg == '' && task == 'edit'))
+		{
+			if (form_group.find('p.help-block').html() != "") {
+				form_group.removeClass('has-error').find('p.help-block').html('');
+			}
 		}
-		else if( ( ajax.curr_code != "" && data.msg == "") || (data.msg == '' && task == 'edit'))
+		else if( ( ajax.curr_name != "" && data.msg == "") || (data.msg == '' && task == 'edit'))
 		{
 			if (form_group.find('p.help-block').html() != "") {
 				form_group.removeClass('has-error').find('p.help-block').html('');

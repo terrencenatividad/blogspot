@@ -74,6 +74,8 @@ class controller extends wc_controller {
 		if( $count > 0 )
 		{	
 			$msg = "exists";
+		}else{
+			$msg = "donut";
 		}
 
 		return $dataArray = array("msg" => $msg);
@@ -96,6 +98,8 @@ class controller extends wc_controller {
 		if( $count > 0 )
 		{	
 			$msg = "exists";
+		}else{
+			$msg = "donut";
 		}
 
 		return $dataArray = array("msg" => $msg);
