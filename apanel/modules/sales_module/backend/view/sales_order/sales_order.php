@@ -185,7 +185,13 @@
 				</div>
 			</div>
 
-			<div class="box-body table-responsive no-padding">
+			<div class="has-error">
+				<span id="discountError" class="help-block hidden small">
+					<i class="glyphicon glyphicon-exclamation-sign"></i> 
+					You cannot input a Discount Amount greater than your Price Amount.	
+				</span>
+			</div>						
+			<div class="box-body table-responsive no-padding">				
 				<table class="table table-hover table-condensed table-sidepad" id="itemsTable">
 					<thead>
 						<tr class="info">
@@ -1819,19 +1825,43 @@ $(document).ready(function(){
 	// -- For Items -- End
 
 	// -- For Discount --
+		function countDiscountErrors(){
+
+		}
+
 		$('#sales_order_form').on('change','.discount',function(e){
 			var id 		= 	$(this).attr("id");
 			var row 	=	id.replace(/[a-z]/g, '');
 			var dtype 	= 	$('#discounttype').val();
-
-			if( $(this).val() > 0 && dtype == ""){
+			var value 	= 	$(this).val();
+			// console.log('id = '+row);
+			var price 	= 	$(this).closest('tr').find('.price').val();
+			
+			// console.log("Price = "+price);
+			// console.log("Value = "+value);
+			
+			if( parseFloat(value) > 0 && dtype == ""){
 				$('#discounttype').closest('.form-group').addClass('has-error');
 				$(this).val(0);
+			} else {
+				if( parseFloat(value) > 0 && parseFloat(value) > parseFloat(price) ){
+					$(this).closest('div').addClass('has-error');
+				} else {
+					$(this).closest('div').removeClass('has-error');
+				}
+				var count_errors 	=	$('#sales_order_form .discount').closest('tr').find('.has-error').length;
+				// console.log("has error "+count_errors);
+				if(count_errors > 0){
+					$('#discountError').removeClass('hidden');
+				} else {
+					$('#discountError').addClass('hidden');
+				}
 			}
-
 			formatNumber(id);
 			computeAmount();
 		});
+
+		$('#sales_')
 
 		$('#discounttype').on('select2:selecting',function(e){
 			var curr_type	=  $(this).val();	
