@@ -84,6 +84,9 @@ class controller extends wc_controller
 			$w_entry_data           = array("warehousecode ind","description val");
 			$data["warehouses"] 	= $this->so->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
 
+			$disc_type_data         = array("code ind","value val");
+			$data["discounttypes"] 	= $this->so->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
+
 			$vatex_comp_data        = array("code","value");
 			$vatex_comp_cond        = "code = 'sale_vatex'";
 			$result   		 		= $this->so->getValue("wc_reference", $vatex_comp_data, $vatex_comp_cond);
@@ -300,6 +303,9 @@ class controller extends wc_controller
 		$acc_entry_cond          = "accounttype != 'P'";
 		$data["account_entries"] = $this->so->getValue("chartaccount", $acc_entry_data,$acc_entry_cond, "segment5");
 
+		$disc_type_data         = array("code ind","value val");
+		$data["discounttypes"] 	= $this->so->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
+
 		/**ADD NEW CUSTOMER**/
 		
 		// Retrieve business type list
@@ -334,8 +340,9 @@ class controller extends wc_controller
 		$totalamount 			 = $retrieved_data['header']->netamount;
 		$vat 					 = $retrieved_data['header']->taxamount;
 		$totalsales 			 = $retrieved_data['header']->amount;
+
 		$data['t_subtotal'] 	 = $totalsales;
-		$data['discountamount']  = $discountamount;
+		$data['t_discount']  	 = $discountamount;
 		$data['t_total'] 	 	 = $totalamount;
 		$data['t_vat'] 			 = $vat;
 		$data['t_vatsales'] 	 = $retrieved_data['header']->vat_sales;
@@ -410,6 +417,9 @@ class controller extends wc_controller
 		$w_entry_data          = array("warehousecode ind","description val");
 		$data["warehouses"] 	= $this->so->getValue("warehouse", $w_entry_data,'',"warehousecode");
 
+		$disc_type_data         = array("code ind","value val");
+		$data["discounttypes"] 	= $this->so->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
+
 		$vatex_comp_data        = array("code","value");
 		$vatex_comp_cond        = "code = 'sale_vatex'";
 		$result   		 		= $this->so->getValue("wc_reference", $vatex_comp_data, $vatex_comp_cond);
@@ -446,7 +456,7 @@ class controller extends wc_controller
 		//Footer Data
 		$discountamount 		 = $retrieved_data['header']->discountamount;
 		$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
-		$data['discountamount']  = $discountamount;
+		$data['t_discount']	 	 = $discountamount;
 		$data['t_total'] 	 	 = $retrieved_data['header']->netamount;
 		$data['t_vat'] 			 = $retrieved_data['header']->taxamount;
 		$data['t_vatsales'] 	 = $retrieved_data['header']->vat_sales;
@@ -540,7 +550,7 @@ class controller extends wc_controller
 		/** DETAILS INFO **/
 
 			$docdet_table   = "salesorder_details as dtl";
-			$docdet_fields  = array("dtl.itemcode as itemcode", "dtl.detailparticular as description", "dtl.issueqty as quantity","UPPER(dtl.issueuom) uom","unitprice as price","dtl.taxamount","amount as amount","dtl.taxrate","dtl.taxamount","dtl.taxcode","dtl.discountamount itemdiscount");
+			$docdet_fields  = array("dtl.itemcode as itemcode", "dtl.detailparticular as description", "dtl.issueqty as quantity","UPPER(dtl.issueuom) uom","unitprice as price","IF(dtl.discounttype='perc',CONCAT(dtl.discountrate,' ','%'),dtl.discountamount) itemdiscount","dtl.taxamount","amount as amount","dtl.taxrate","dtl.taxamount","dtl.taxcode");
 			//$docdet_fields  = array("dtl.itemcode as itemcode","dtl.issueqty as quantity", "dtl.detailparticular as description", "unitprice as price","amount as amount");
 			$docdet_cond    = "dtl.voucherno = '$voucherno'";
 			$docdet_join 	= "";
@@ -574,10 +584,10 @@ class controller extends wc_controller
 				// ->addTermsAndCondition()
 				->addReceived();
 
-		$print->setHeaderWidth(array(30, 40, 20, 20, 30, 30,30))
-				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C','C'))
-				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price','Tax','Amount'))
-				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R','R'))
+		$print->setHeaderWidth(array(30, 40, 20, 10, 30, 20, 20, 30))
+				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C','C','C'))
+				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price','Discount','Tax','Amount'))
+				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R','R','R'))
 				->setSummaryWidth(array('170', '30'));
 
 		$detail_height = 37;
@@ -593,8 +603,10 @@ class controller extends wc_controller
 			}
 			$vatable_sales	+= ($row->taxrate) ? $row->amount : 0;
 			$vat_exempt		+= ($row->taxrate) ? 0 : $row->amount;
-			$discount		+= $row->itemdiscount;
+			// $discount		+= $row->itemdiscount;
+			$discount 		= 
 			$tax			+= $row->taxamount;
+			$discount 	    = isset($documentinfo->discount) ? $documentinfo->discount : 0;
 			// $total_amount	+= $row->amount;
 			$row->quantity	= number_format($row->quantity);
 			$row->price		= number_format($row->price, 2);
@@ -606,9 +618,10 @@ class controller extends wc_controller
 					'VATable Sales'		=> number_format($vatable_sales, 2),
 					'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
 					'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
-					'Discount'			=> number_format($discount, 2),
 					'Tax'				=> number_format($tax, 2),
-					'Total Amount'		=> number_format($total_amount, 2)
+					'Total Amount'		=> number_format($total_amount, 2),
+					'' 					=> '',
+					'Discount'			=> number_format($discount, 2)
 				);
 				$print->drawSummary($summary);
 				// $print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
@@ -624,9 +637,10 @@ class controller extends wc_controller
 			'VATable Sales'		=> number_format($vatable_sales, 2),
 			'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
 			'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
-			'Discount'			=> number_format($discount, 2),
 			'Tax'				=> number_format($tax, 2),
-			'Total Amount'		=> number_format($total_amount, 2)
+			'Total Amount'		=> number_format($total_amount, 2),
+			'' 					=> '',
+			'Discount'			=> number_format($discount, 2)
 		);
 		$print->drawSummary($summary);
 		// $print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));

@@ -991,14 +991,12 @@ function getDeliveries(code)
 		//$('#sales_invoice_form #customer').trigger('change');
 		$('#sales_invoice_form #remarks').val(notes);
 		$('#itemsTable tbody').html(items);
-
-		addAmounts();
 		
-		var disc_perc 	= data.discount;
+		var disc_type 	= data.discounttype; 
+		var disc_amt 	= parseFloat(data.discountamount);
 		var total_sales = $('#total_sales').val();
-		// console.log('total_sales '+total_sales);
-		var discountamt = parseFloat(total_sales) * parseFloat(disc_perc);
-		$('#sales_invoice_form #discountamount').val(discountamt.toFixed(2));
+		
+		$('#sales_invoice_form #discountamount').val(disc_amt.toFixed(2));
 		$('#sales_invoice_form #remarks').trigger('change');
 
 		addAmounts();

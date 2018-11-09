@@ -97,6 +97,23 @@
 									</div>
 								</div>
 							</div>
+							<div class = "col-md-6">
+								<?php
+									echo $ui->formField('dropdown')
+										->setLabel('Discount Type ')
+										->setPlaceholder('Select Discount Type')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('discounttype')
+										->setId('discounttype')
+										->setList($discounttypes)
+										->setValue($discounttype)
+										// ->setValidation('required')
+										->setNone('none')
+										->setDefault('none')
+										->draw($show_input);
+								?>
+								<input type="hidden" value="" id="newdisctype" name="newdisctype">
+							</div>
 						</div>
 
 						<div class = 'hidden'>
@@ -174,13 +191,14 @@
 						<tr class="info">
 							<th class="col-md-2 text-center">Item</th>
 							<th class="col-md-2 text-center">Description</th>
-							<th class="col-md-2 text-center">Warehouse</th>
+							<th class="col-md-1 text-center">Warehouse</th>
 							<th class="col-md-1 text-center">Quantity</th>
 							<th class="col-md-1 text-center">UOM</th>
 							<th class="col-md-1 text-center">Price</th>
+							<th class="col-md-1 text-center">Discount</th>
 							<th class="col-md-1 text-center">Tax</th>
 							<th class="col-md-2 text-center">Amount</th>
-							<th class="text-center"></th>
+							<?php if($task !="view"):?><th class="text-center"></th><?php endif;?>
 						</tr>
 					</thead>
 					<tbody>
@@ -192,6 +210,7 @@
 								$warehouse 			= '';
 								$discounttype 		= '';
 								$price	   			= '0.00';
+								$discount 			= '0.00';
 								$rowamount 			= '0.00';
 
 								$quantity 		 	= 0;
@@ -202,6 +221,7 @@
 								$vatable_sales 	   	= 0;
 								$vat_exempt_sales 	= 0;
 								$t_subtotal 		= 0;
+								$t_discount 		= 0;
 								$t_discount  		= 0;
 								$t_total 			= 0;
 								$t_vat 				= 0;
@@ -296,6 +316,20 @@
 									</td>
 									<td class = "remove-margin">
 										<?php
+											echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('discount['.$row.']')
+													->setId('discount['.$row.']')
+													->setClass("text-right discount")
+													->setAttribute(array("maxlength" => "20","readOnly"=>true))
+													->setValue($discount)
+													->setValidation('decimal')
+													//->addHidden(true)
+													->draw($show_input);
+										?>
+									</td>
+									<td class = "remove-margin">
+										<?php
 											echo $ui->formField('dropdown')
 													->setSplit('', 'col-md-12')
 													->setName('taxcode['.$row.']')
@@ -347,6 +381,7 @@
 									$detailparticular	= $details[$i]->detailparticular;
 									$quantity 			= isset($details[$i]->issueqty) ?	number_format($details[$i]->issueqty,0) 	: 	"1";
 									$itemprice 			= $details[$i]->unitprice;
+									$discount 			= $details[$i]->discountamount;
 									$uom 				= $details[$i]->issueuom;
 									$taxcode 			= $details[$i]->taxcode;
 									$taxrate 			= $details[$i]->taxrate;
@@ -440,6 +475,20 @@
 													->draw($show_input);
 										?>
 									</td>
+									<td class = "remove-margin text-right">
+										<?php
+											echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('discount['.$row.']')
+													->setId('discount['.$row.']')
+													->setClass("text-right discount")
+													->setAttribute(array("maxlength" => "20","readOnly"=>true))
+													->setValue($discount)
+													->setValidation('decimal')
+													//->addHidden(true)
+													->draw($show_input);
+										?>
+									</td>
 									<td class = "remove-margin">
 										<?php
 											echo $ui->formField('dropdown')
@@ -495,11 +544,11 @@
 						</tr>	
 
 						<tr id="vatable_sales" >
-							<td colspan="4"></td>
-							<td colspan="2" class="right">
+							<td colspan="6"></td>
+							<td class="right" colspan="2">
 								<label class="control-label col-md-12">VATable Sales</label>
 							</td>
-							<td class="text-right" colspan="2" >
+							<td class="text-right" >
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
@@ -512,15 +561,15 @@
 											->draw($show_input);
 								?>
 							</td>
-							<td></td>
+							<?php if($task != "view"):?><td></td><?php endif;?>
 						</tr>
 						
 						<tr id="vat_exempt_sales" >
-							<td colspan="4"></td>
-							<td colspan="2" class="right">
+							<td colspan="6"></td>
+							<td class="right" colspan="2">
 								<label class="control-label col-md-12">VAT-Exempt Sales</label>
 							</td>
-							<td class="text-right" colspan="2" >
+							<td class="text-right" >
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
@@ -533,15 +582,15 @@
 											->draw($show_input);
 								?>
 							</td>
-							<td></td>
+							<?php if($task != "view"):?><td></td><?php endif;?>
 						</tr>
 
 						<tr id="total_sales" >
-							<td colspan="4"></td>
-							<td colspan="2" class="right">
+							<td colspan="6"></td>
+							<td class="right" colspan="2">
 								<label class="control-label col-md-12">Total Sales</label>
 							</td>
-							<td class="text-right" colspan="2" >
+							<td class="text-right" >
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
@@ -555,40 +604,96 @@
 											->draw($show_input);
 								?>
 							</td>
-							<td></td>
+							<?php if($task != "view"):?><td></td><?php endif;?>
 						</tr>
 
+						<tr id="total_sales" >
+							<td colspan="6"></td>
+							<td class="right" colspan="2">
+								<label class="control-label col-md-12">Add 12% VAT</label>
+							</td>
+							<td class="text-right"> 
+								<div class = 'col-md-7'></div>
+								<?php
+									echo $ui->formField('text')
+											->setSplit('', 'col-md-5')
+											->setName('t_vat')
+											->setId('t_vat')
+											->setClass("input_label text-right")
+											->setAttribute(array("maxlength" => "40","readOnly"=>"readOnly"))
+											->setValue(number_format($t_vat,2))
+											->draw($show_input);
+								?>
+							</td>
+							<?php if($task != "view"):?><td></td><?php endif;?>
+						</tr>
+
+						<tr id="total_amount_due">
+							<td colspan="6"></td>
+							<td class="right" colspan="2">
+								<label class="control-label col-md-12">Total Amount</label>
+							</td>
+							<td class="text-right" style="border-top:1px solid #DDDDDD;">
+								<div class = 'col-md-7'></div>
+								<?php
+									echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('t_total')
+											->setId('t_total')
+											->setClass("input_label text-right")
+											->setAttribute(array("maxlength" => "40","readOnly"=>"readOnly"))
+											->setValue(number_format($t_total,'2','.',','))
+											->draw($show_input);
+								?>
+							</td>
+							<?php if($task != "view"):?><td></td><?php endif;?>
+						</tr>
+						<tr>
+							<td colspan="9"></td>
+						</tr>
 						<tr id="discount" >
-							<td colspan="4"></td>
-							<td colspan="2" class="right">
+							<td colspan="6"></td>
+							<td class="right" colspan="2">
 								<label class="control-label col-md-12">Discount</label>
 							</td>
-							<td class="text-right" colspan="2" >
-								<?php 	if($show_input) : ?>
-									<div class = 'row'>
+							<td class="text-right" >
+								<div class="col-md-7"></div>
+								<?php
+									echo $ui->formField('text')
+											->setSplit('', 'col-md-5')
+											->setName('t_discount')
+											->setId('t_discount')
+											->setClass("input_label text-right")
+											->setAttribute(array("readOnly"=>"readOnly"))
+											->setAttribute(array("maxlength" => "40"))
+											->setValue(number_format($t_discount,2))
+											->draw($show_input);
+								?>
+								<?php 	//if($show_input) : ?>
+									<!-- <div class = 'row'>
 										<div class="col-md-6">
 											<div class="form-group">
 												<div class="col-md-12">
 													<div class="input-group">
 														<div class="input-group-addon with-checkbox">
 															<?php
-																echo $ui->setElement('radio')
-																		->setName('discounttype')
-																		->setClass('discounttype')
-																		->setDefault('perc')
-																		->setValue($discounttype)
-																		->draw($show_input);
+																// echo $ui->setElement('radio')
+																// 		->setName('discounttype')
+																// 		->setClass('discounttype')
+																// 		->setDefault('perc')
+																// 		->setValue($discounttype)
+																// 		->draw($show_input);
 															?>
 														</div>
 														<?php
-															echo $ui->setElement('text')
-																	->setId('discountrate')
-																	->setName('discountrate')
-																	->setClass('discount_entry rate text-right')
-																	->setAttribute(array('data-max' => 99.99, 'data-min' => '0.00'))
-																	->setValidation('decimal')
-																	->setValue(((empty($discountrate)) ? '0.00' : number_format($discountrate, 2)))
-																	->draw($show_input);
+															// echo $ui->setElement('text')
+															// 		->setId('discountrate')
+															// 		->setName('discountrate')
+															// 		->setClass('discount_entry rate text-right')
+															// 		->setAttribute(array('data-max' => 99.99, 'data-min' => '0.00'))
+															// 		->setValidation('decimal')
+															// 		->setValue(((empty($discountrate)) ? '0.00' : number_format($discountrate, 2)))
+															// 		->draw($show_input);
 														?>
 														<div class="input-group-addon">
 															<strong>%</strong>
@@ -603,83 +708,41 @@
 													<div class="input-group">
 														<div class="input-group-addon with-checkbox">
 															<?php
-															echo $ui->setElement('radio')
-																	->setName('discounttype')
-																	->setClass('discounttype')
-																	->setDefault('amt')
-																	->setValue($discounttype)
-																	->draw($show_input);
+															// echo $ui->setElement('radio')
+															// 		->setName('discounttype')
+															// 		->setClass('discounttype')
+															// 		->setDefault('amt')
+															// 		->setValue($discounttype)
+															// 		->draw($show_input);
 															?>
 														</div>
 														<?php
-														echo $ui->setElement('text')
-																->setId('discountamount')
-																->setName('discountamount')
-																->setClass('discount_entry text-right')
-																->setAttribute(array('data-min' => '0.00'))
-																->setValidation('decimal')
-																->setValue(((empty($discountamount)) ? '0.00' : number_format($discountamount, 2)))
-																->draw($show_input);
+														// echo $ui->setElement('text')
+														// 		->setId('discountamount')
+														// 		->setName('discountamount')
+														// 		->setClass('discount_entry text-right')
+														// 		->setAttribute(array('data-min' => '0.00'))
+														// 		->setValidation('decimal')
+														// 		->setValue(((empty($discountamount)) ? '0.00' : number_format($discountamount, 2)))
+														// 		->draw($show_input);
 														?>
 													</div>
 												</div>
 											</div>
 										</div>
-									</div>
-								<?php 	else:
-											echo $ui->setElement('text')
-													->setName('discountamount')
-													->setClass('total_discount')
-													->setValue(((empty($discountamount)) ? '0.00' : number_format($discountamount, 2)))
-													->draw(false);
-										endif 
+									</div> -->
+								<?php 	
+										// else:
+										// 	echo $ui->setElement('text')
+										// 			->setName('discountamount')
+										// 			->setClass('total_discount')
+										// 			->setValue(((empty($discountamount)) ? '0.00' : number_format($discountamount, 2)))
+										// 			->draw(false);
+										// endif 
 								?>
 							</td>
-							<td></td>
+							<?php if($task != "view"):?><td></td><?php endif;?>
 						</tr>
-
-						<tr id="total_sales" >
-							<td colspan="4"></td>
-							<td colspan="2" class="right">
-								<label class="control-label col-md-12">Add 12% VAT</label>
-							</td>
-							<td class="text-right" colspan="2"> 
-								<div class = 'col-md-7'></div>
-								<?php
-									echo $ui->formField('text')
-											->setSplit('', 'col-md-5')
-											->setName('t_vat')
-											->setId('t_vat')
-											->setClass("input_label text-right")
-											->setAttribute(array("maxlength" => "40","readOnly"=>"readOnly"))
-											->setValue(number_format($t_vat,2))
-											->draw($show_input);
-								?>
-							</td>
-							<td></td>
-						</tr>
-
-						<tr id="total_amount_due">
-							<td colspan="4"></td>
-							<td colspan="2" class="right">
-								<label class="control-label col-md-12">Total Amount</label>
-							</td>
-							<td class="text-right" colspan="2" style="border-top:1px solid #DDDDDD;">
-								<div class = 'col-md-7'></div>
-								<?php
-									echo $ui->formField('text')
-											->setSplit('', 'col-md-12')
-											->setName('t_total')
-											->setId('t_total')
-											->setClass("input_label text-right")
-											->setAttribute(array("maxlength" => "40","readOnly"=>"readOnly"))
-											->setValue(number_format($t_total,'2','.',','))
-											->draw($show_input);
-								?>
-							</td>
-							<td></td>
-						</tr>
-
 					</tfoot>
 				</table>
 			</div>
@@ -752,6 +815,23 @@
 						</div> -->
 					</div>
 				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="discounttypeModal" tabindex="-1"  data-backdrop="static" data-keyboard="false" >
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Confirmation
+			</div>
+			<div class="modal-body" id="message">
+				Changing the Current Discount Type will clear out the Discounts. Do you wish to proceed?
+			</div>
+			<div class="modal-footer text-center">
+				<button type="button" class="btn btn-info btn-flat" id="disc_yes" data-dismiss='modal'>Yes</button>
+				<button type="button" class="btn btn-default btn-flat" id="disc_no" >No</button>
 			</div>
 		</div>
 	</div>
@@ -1072,23 +1152,26 @@ function computeAmount()
 	var table 	= document.getElementById('itemsTable');
 	var count	= table.tBodies[0].rows.length;
 
-	var discounttype = $('#itemsTable tfoot .discounttype:checked').val();
-	var discount_rate = removeComma($('#itemsTable tfoot #discountrate').val());
-	var discount = removeComma($('#itemsTable tfoot #discountamount').val());
-	var vatex 	 = $('#vat_ex').val();
+	// var discounttype 	= $('#itemsTable tfoot .discounttype:checked').val();
+	// var discount_rate 	= removeComma($('#itemsTable tfoot #discountrate').val());
+	// var discount 		= removeComma($('#itemsTable tfoot #discountamount').val());
+
+	var vatex 	 		= $('#vat_ex').val();
+	var discounttype 	= $('#discounttype').val();
 	
 	var total_amount   	= 0;
 	var total_tax 		= 0;
-	for(row = 1; row <= count; row++) 
-	{  
+	for(row = 1; row <= count; row++) {  
 		var vat 		=	document.getElementById('taxrate['+row+']');
 		var itemprice 	=	document.getElementById('itemprice['+row+']');
+		var discount 	=	document.getElementById('discount['+row+']');
 		var quantity 	=	document.getElementById('quantity['+row+']');
 
 		vat 			=	removeComma(vat.value);
 		vat 			= 	(vat == "" || vat == undefined) 	?	0 	:	vat;
 		itemprice 		=	removeComma(itemprice.value);
 		quantity 		=	removeComma(quantity.value);
+		discount 		=	removeComma(discount.value);
 
 		var totalprice 	=	parseFloat(itemprice) 	* 	parseFloat(quantity);
 		var amount 		=	0;
@@ -1100,14 +1183,19 @@ function computeAmount()
 		} else {
 			amount		= parseFloat(totalprice) / ( 1 + parseFloat(vat) );
 			vat_amount	= parseFloat(amount)	*	parseFloat(vat);
-		}
+		}	
+		// console.log('discount type '+ discounttype);
 
-		if(discount > 0){
-			var itemdiscount 		= parseFloat(discount) / parseFloat(quantity);
+		if(parseFloat(discount) > 0 && (discounttype!="none" || discounttype!="")){
+			// var itemdiscount 		= parseFloat(discount) / parseFloat(quantity);
+			// console.log(parseFloat(totalprice) * (parseFloat(discount)/100));
+			var itemdiscount 		= (discounttype == 'amt') ? parseFloat(discount) : parseFloat(amount) * (parseFloat(discount)/100);
 			var discountedamount 	= parseFloat(amount) - parseFloat(itemdiscount);
 
 			document.getElementById('itemdiscount['+row+']').value 	= addCommas(itemdiscount.toFixed(2));
 			document.getElementById('discountedamount['+row+']').value 	= addCommas(discountedamount.toFixed(2));
+			
+			amount 		=	discountedamount;
 		}
 
 		amount			= 	(amount>0) 		?	Math.round(amount*1000) / 1000 	:	0;
@@ -1123,10 +1211,10 @@ function computeAmount()
 		total_tax 		+= vat_amount;
 	}
 
-	if (discounttype == 'perc') {
-		discount = total_amount * (discount_rate / 100);
-		$('#itemsTable tfoot #discountamount').val(addComma(discount));
-	}
+	// if (discounttype == 'perc') {
+	// 	discount = total_amount * (discount_rate / 100);
+	// 	$('#itemsTable tfoot #discountamount').val(addComma(discount));
+	// }
 
 	addAmounts(); 
 }
@@ -1144,14 +1232,16 @@ function addAmounts() {
 	var table				= document.getElementById('itemsTable');
 	var count				= table.tBodies[0].rows.length;
 	var vatex 	 			= $('#vat_ex').val();
+	var discounttype  		= $('#discounttype').val();
 
-	var discounttype = $('#itemsTable tfoot .discounttype:checked').val();
-	var discount_rate = removeComma($('#itemsTable tfoot #discountrate').val());
-		total_discount = removeComma($('#itemsTable tfoot #discountamount').val());
+	// var discounttype = $('#itemsTable tfoot .discounttype:checked').val();
+	// var discount_rate = removeComma($('#itemsTable tfoot #discountrate').val());
+	// 	total_discount = removeComma($('#itemsTable tfoot #discountamount').val());
 	
 	for (var i = 1; i <= count; i++) {
 		var row = '[' + i + ']';
 		var x_unitprice			= document.getElementById('itemprice' + row);
+		var x_discount			= document.getElementById('discount' + row);
 		var x_quantity			= document.getElementById('quantity' + row);
 		var x_taxrate			= document.getElementById('taxrate' + row);
 		var x_amount			= document.getElementById('amount' + row);
@@ -1161,6 +1251,7 @@ function addAmounts() {
 		var h_discountedamount	= document.getElementById('discountedamount' + row);
 		
 		var unitprice			= removeComma(x_unitprice.value);
+		var discount			= removeComma(x_discount.value);
 		var taxrate				= removeComma(x_taxrate.value);
 		var quantity 			= removeComma(x_quantity.value);
 		var h_discountedamount	= removeComma(h_discountedamount.value);
@@ -1172,6 +1263,10 @@ function addAmounts() {
 
 		if(vatex == 'yes'){
 			amount 		= parseFloat(totalprice);
+			if(parseFloat(discount)>0 && (discounttype != "none" || discounttype!="")){
+				discount 	= (discounttype == "amt") ? parseFloat(discount) : parseFloat(totalprice) * (parseFloat(discount)/100);
+				amount 		= parseFloat(totalprice) - parseFloat(discount);
+			}
 			vat_amount	= parseFloat(totalprice) * parseFloat(taxrate);
 		} else {
 			amount		= parseFloat(totalprice) / ( 1 + parseFloat(taxrate) );
@@ -1200,6 +1295,7 @@ function addAmounts() {
 		total_h_vatable		+= net_of_vat;
 		total_h_vatex		+= vat_ex;
 		total_h_vat			+= vat;
+		total_discount 		+= discount;
 	}
 
 	vatable_sales 		= 0;
@@ -1207,23 +1303,25 @@ function addAmounts() {
 	final_total 		= (total_h_vatable + total_h_vatex - total_discount + total_h_vat);
 	
 	if(vatex=="yes"){
-		vatable_sales 		= (parseFloat(total_h_vatable) - parseFloat(total_discount));
+		vatable_sales 		= (parseFloat(total_h_vatable));
 		vatable_sales 		= (vatable_sales > 0) ? vatable_sales 	: 0;
-		total_h_vat 		= (parseFloat(total_h_vatable) - parseFloat(total_discount))*0.12;
+		total_h_vat 		= (parseFloat(total_h_vatable))*0.12;
 		total_h_vat 		= (total_h_vat > 0) ? total_h_vat 	: 0;
 		total_h_vatable 	= vatable_sales;
 		final_total 		= (total_h_vatable + total_h_vatex + total_h_vat);
-	}
+	}	
 
 	final_total 		= Math.round(100*final_total)/100;
 	total_h_vatable	 	= Math.round(100*total_h_vatable)/100;
 	total_h_vatex	 	= Math.round(100*total_h_vatex)/100;
 	subtotal	 		= Math.round(100*subtotal)/100;
 	total_h_vat	 		= Math.round(100*total_h_vat)/100;
+	total_discount 		= Math.round(100*total_discount)/100;
 
 	document.getElementById('t_vatsales').value		= addCommas(total_h_vatable.toFixed(2));
 	document.getElementById('t_vatexempt').value	= addCommas(total_h_vatex.toFixed(2));
 	document.getElementById('t_subtotal').value 	= addCommas(subtotal.toFixed(2));
+	document.getElementById('t_discount').value 	= addCommas(total_discount.toFixed(2));
 	document.getElementById('t_vat').value			= addCommas(total_h_vat.toFixed(2));
 	document.getElementById('t_total').value 		= addCommas(final_total.toFixed(2));
 }
@@ -1280,13 +1378,14 @@ function resetIds()
 		row.cells[3].getElementsByTagName("input")[0].id 	= 'quantity['+x+']';
 		row.cells[4].getElementsByTagName("input")[0].id 	= 'uom['+x+']';
 		row.cells[5].getElementsByTagName("input")[0].id 	= 'itemprice['+x+']';
-		row.cells[6].getElementsByTagName("select")[0].id 	= 'taxcode['+x+']';
-		row.cells[6].getElementsByTagName("input")[0].id 	= 'taxrate['+x+']';
-		row.cells[6].getElementsByTagName("input")[1].id 	= 'taxamount['+x+']';
-		row.cells[7].getElementsByTagName("input")[0].id 	= 'amount['+x+']';
-		row.cells[7].getElementsByTagName("input")[1].id 	= 'h_amount['+x+']';
-		row.cells[7].getElementsByTagName("input")[2].id 	= 'itemdiscount['+x+']';
-		row.cells[7].getElementsByTagName("input")[3].id 	= 'discountedamount['+x+']';
+		row.cells[6].getElementsByTagName("input")[0].id 	= 'discount['+x+']';
+		row.cells[7].getElementsByTagName("select")[0].id 	= 'taxcode['+x+']';
+		row.cells[7].getElementsByTagName("input")[0].id 	= 'taxrate['+x+']';
+		row.cells[7].getElementsByTagName("input")[1].id 	= 'taxamount['+x+']';
+		row.cells[8].getElementsByTagName("input")[0].id 	= 'amount['+x+']';
+		row.cells[8].getElementsByTagName("input")[1].id 	= 'h_amount['+x+']';
+		row.cells[8].getElementsByTagName("input")[2].id 	= 'itemdiscount['+x+']';
+		row.cells[8].getElementsByTagName("input")[3].id 	= 'discountedamount['+x+']';
 
 		row.cells[0].getElementsByTagName("select")[0].name = 'itemcode['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
@@ -1294,17 +1393,18 @@ function resetIds()
 		row.cells[3].getElementsByTagName("input")[0].name 	= 'quantity['+x+']';
 		row.cells[4].getElementsByTagName("input")[0].name 	= 'uom['+x+']';
 		row.cells[5].getElementsByTagName("input")[0].name 	= 'itemprice['+x+']';
-		row.cells[6].getElementsByTagName("select")[0].name = 'taxcode['+x+']';
-		row.cells[6].getElementsByTagName("input")[0].name 	= 'taxrate['+x+']';
-		row.cells[6].getElementsByTagName("input")[1].name 	= 'taxamount['+x+']';
-		row.cells[7].getElementsByTagName("input")[0].name 	= 'amount['+x+']';
-		row.cells[7].getElementsByTagName("input")[1].name 	= 'h_amount['+x+']';
-		row.cells[7].getElementsByTagName("input")[2].name 	= 'itemdiscount['+x+']';
-		row.cells[7].getElementsByTagName("input")[3].name 	= 'discountedamount['+x+']';
+		row.cells[6].getElementsByTagName("input")[0].name 	= 'discount['+x+']';
+		row.cells[7].getElementsByTagName("select")[0].name = 'taxcode['+x+']';
+		row.cells[7].getElementsByTagName("input")[0].name 	= 'taxrate['+x+']';
+		row.cells[7].getElementsByTagName("input")[1].name 	= 'taxamount['+x+']';
+		row.cells[8].getElementsByTagName("input")[0].name 	= 'amount['+x+']';
+		row.cells[8].getElementsByTagName("input")[1].name 	= 'h_amount['+x+']';
+		row.cells[8].getElementsByTagName("input")[2].name 	= 'itemdiscount['+x+']';
+		row.cells[8].getElementsByTagName("input")[3].name 	= 'discountedamount['+x+']';
 
-		row.cells[8].getElementsByTagName("button")[0].setAttribute('id',x);
+		row.cells[9].getElementsByTagName("button")[0].setAttribute('id',x);
 		row.cells[0].getElementsByTagName("select")[0].setAttribute('data-id',x);
-		row.cells[8].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
+		row.cells[9].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
 
 		x++;
 	}
@@ -1326,6 +1426,7 @@ function setZero()
 	document.getElementById('quantity['+newid+']').value 			= '0';
 	document.getElementById('uom['+newid+']').value 				= '';
 	document.getElementById('itemprice['+newid+']').value 			= '0.00';
+	document.getElementById('discount['+newid+']').value 			= '0.00';
 	document.getElementById('taxcode['+newid+']').value 			= 'none';
 	document.getElementById('taxrate['+newid+']').value 			= '0.00';
 	document.getElementById('taxamount['+newid+']').value 			= '0.00';
@@ -1353,7 +1454,7 @@ function cancelTransaction(vno)
 /** FINALIZE SAVING **/
 function finalizeTransaction(type)
 {
-	$("#sales_order_form").find('.form-group').find('input, textarea, select').trigger('blur');
+	$("#sales_order_form").find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
 	var no_error = true;
 	$('.quantity').each(function() {
@@ -1376,13 +1477,13 @@ function finalizeTransaction(type)
 
 	var credit_limit_exceed =	checkIfExceededCreditLimit();
 	if(credit_limit_exceed == 1){
-		// $('#creditLimitModal').modal('show');
 		no_error = false;
 	}
 
+	computeAmount();
+
 	if($("#sales_order_form").find('.form-group.has-error').length == 0 && no_error){	
 		$('#save').val(type);
-		computeAmount();
 		if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
 		{
 			$('#delay_modal').modal('show');
@@ -1407,9 +1508,6 @@ function finalizeTransaction(type)
 function finalizeEditTransaction()
 {
 	var btn 	=	$('#save').val();
-				
-	//Discount Type
-	var discounttype = $("#itemsTable tfoot #discount").find('.discounttype:checked').val();
 
 	$("#sales_order_form").find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
@@ -1434,7 +1532,6 @@ function finalizeEditTransaction()
 
 	var credit_limit_exceed =	checkIfExceededCreditLimit();
 	if(credit_limit_exceed == 1){
-		// $('#creditLimitModal').modal('show');
 		no_error = false;
 	}
 
@@ -1444,7 +1541,7 @@ function finalizeEditTransaction()
 		{
 			setTimeout(function() {
 				computeAmount();
-				$.post("<?=BASE_URL?>sales/sales_order/ajax/<?=$task?>",$("#sales_order_form").serialize()+'<?=$ajax_post?>'+"&selected_dtype="+discounttype,function(data)
+				$.post("<?=BASE_URL?>sales/sales_order/ajax/<?=$task?>",$("#sales_order_form").serialize()+'<?=$ajax_post?>',function(data)
 				{		
 					if( data.msg == 'success' )
 					{
@@ -1597,8 +1694,7 @@ $(document).ready(function(){
 		//For Edit
 		computeAmount();
 
-		$('.itemcode').on('change', function(e) 
-		{
+		$('.itemcode').on('change', function(e) {
 			var customer 	=	$('#customer').val();
 			
 			if( customer != "" )
@@ -1652,11 +1748,9 @@ $(document).ready(function(){
 			}
 			if (removeComma($(this).val()) > 0) {
 				var quantity = getQuantity(itemcode, warehouse);
-				// console.log(quantity);
 					
 				$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_item_quantity', "itemcode="+itemcode+"&warehouse="+warehouse, function(data) {
 					var data_qty = data.qty;
-					// var x = data_qty.replace(/\.00$/,'');
 					var x = removeComma(data_qty);
 					if ((quantity > x) ){
 						$('#orderQtymodal').modal('show');
@@ -1724,42 +1818,60 @@ $(document).ready(function(){
 		
 	// -- For Items -- End
 
-	// -- For Discount -- 
+	// -- For Discount --
+		$('#sales_order_form').on('change','.discount',function(e){
+			var id 		= 	$(this).attr("id");
+			var row 	=	id.replace(/[a-z]/g, '');
+			var dtype 	= 	$('#discounttype').val();
 
-		// $('.d_opt').on('change',function(){
-		// 	var disc_id =	$('input[type=radio][name=discounttype]:checked').attr('id');
+			if( $(this).val() > 0 && dtype == ""){
+				$('#discounttype').closest('.form-group').addClass('has-error');
+				$(this).val(0);
+			}
 
-		// 	var type 	=	$(this).val();
-		// 	$('#h_disctype').val(type);
+			formatNumber(id);
+			computeAmount();
+		});
+
+		$('#discounttype').on('select2:selecting',function(e){
+			var curr_type	=  $(this).val();	
+			var new_type 	= e.params.args.data.id;
 			
-			//computeTotalAmount();
-		// });
+			if(curr_type == ""){
+				$('#discounttype').closest('.form-group').removeClass('has-error');
 
-		// $('#h_disctype').on('change',function(){
-		// 	computeAmount();
-		// });
+				if(new_type=="none" || new_type==""){
+					$('.discount').prop('readOnly',true);
+				} else {
+					$('.discount').prop('readOnly',false);
+				}
+			} else {
+				if(curr_type!="" ){
+					e.preventDefault();
+					$('#discounttypeModal').modal('show');
+					$(this).select2('close');
+				}
+			}
+			$('#newdisctype').val(new_type);
+		});
 
-		// $('#t_discount').on('change',function(){
-		// 	var disc_id =	$('input[type=radio][name=discounttype]:checked').attr('id');
-		// 	if( disc_id != "" || disc_id != undefined )
-		// 	{
-		// 		var type 	=	$('#'+disc_id).val();
-		// 		var value 	=	$(this).val();
+		$('#discounttypeModal').on('click','#disc_yes',function(){
+			var newtype = $('#newdisctype').val();
+			$('#discounttype').val(newtype).trigger('change');
+			$('#discounttypeModal').modal('hide');
+			$('.discount').val('0.00');
 
-		// 		$('#h_disctype').val(type);	
+			if(newtype=="none" || newtype==""){
+				$('.discount').prop('readOnly',true);
+			} else {
+				$('.discount').prop('readOnly',false);
+			}
+			computeAmount();
+		});
 
-		// 		if( value <= 100 )
-		// 		{
-		// 			computeAmount();
-		// 		}
-		// 		else
-		// 		{
-		// 			//Add Modal here
-		// 			alert( " You cannot enter a value greater than 100 ! " );
-		// 		}
-		// 	}
-		// });
-
+		$('#discounttypeModal').on('click','#disc_no',function(){
+			$('#discounttypeModal').modal('hide');
+		});
 	// -- For Discount -- End
 
 	// -- For Saving -- 
@@ -1861,14 +1973,14 @@ $(document).ready(function(){
 	});
 
 	// Discount
-	$('#itemsTable tfoot .discount_entry').on('input blur', function() {
-		$(this).closest('tr').find('.discounttype').iCheck('uncheck');
-		$(this).closest('.input-group').find('.discounttype').iCheck('check');
-	});
-	$('#itemsTable tfoot').on('ifChecked', '.discounttype', function() {
-		$(this).closest('tr').find('.discounttype:not(:checked)').closest('.input-group').find('.discount_entry.rate').val('0.00');
-		computeAmount();
-	});
+	// $('#itemsTable tfoot .discount_entry').on('input blur', function() {
+	// 	$(this).closest('tr').find('.discounttype').iCheck('uncheck');
+	// 	$(this).closest('.input-group').find('.discounttype').iCheck('check');
+	// });
+	// $('#itemsTable tfoot').on('ifChecked', '.discounttype', function() {
+	// 	$(this).closest('tr').find('.discounttype:not(:checked)').closest('.input-group').find('.discount_entry.rate').val('0.00');
+	// 	computeAmount();
+	// });
 });
 
 </script>

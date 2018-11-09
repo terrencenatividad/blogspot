@@ -630,7 +630,8 @@ class controller extends wc_controller
 
 		$customer 		= $deliveries['header']->customer;
 		$notes 			= $deliveries['header']->remarks;
-		$discountamount	= $deliveries['header']->discount ? $deliveries['header']->discount : 0 ; 
+		$discounttype	= $deliveries['header']->discounttype ? $deliveries['header']->discounttype : 0 ; 
+		$discountamount	= $deliveries['header']->discountamount ? $deliveries['header']->discountamount : 0 ; 
 
 		$item_entry_data    = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$itemcodes 			= $this->invoice->getValue("items", $item_entry_data,"stat = 'active'","itemcode");
@@ -782,10 +783,11 @@ class controller extends wc_controller
 		}
 
 		return array(
-			'customer' 	=> $customer,
-			'notes' 	=> $notes,
-			'discount'  => $discountamount,
- 			'items'		=> $result
+			'customer' 			=> $customer,
+			'notes' 			=> $notes,
+			'discounttype'  	=> $discounttype,
+			'discountamount' 	=> $discountamount,
+ 			'items'				=> $result
 		);
 	}
 
