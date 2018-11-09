@@ -1194,11 +1194,8 @@ function computeAmount()
 			amount		= parseFloat(totalprice) / ( 1 + parseFloat(vat) );
 			vat_amount	= parseFloat(amount)	*	parseFloat(vat);
 		}	
-		// console.log('discount type '+ discounttype);
 
 		if(parseFloat(discount) > 0 && (discounttype!="none" || discounttype!="")){
-			// var itemdiscount 		= parseFloat(discount) / parseFloat(quantity);
-			// console.log(parseFloat(totalprice) * (parseFloat(discount)/100));
 			var itemdiscount 		= (discounttype == 'amt') ? parseFloat(discount) : parseFloat(amount) * (parseFloat(discount)/100);
 			var discountedamount 	= parseFloat(amount) - parseFloat(itemdiscount);
 
@@ -1311,6 +1308,7 @@ function addAmounts() {
 	vatable_sales 		= 0;
 	subtotal 			= total_h_vatable + total_h_vatex;
 	final_total 		= (total_h_vatable + total_h_vatex - total_discount + total_h_vat);
+	total_discount = discount;
 	
 	if(vatex=="yes"){
 		vatable_sales 		= (parseFloat(total_h_vatable));
