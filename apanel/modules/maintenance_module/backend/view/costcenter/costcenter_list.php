@@ -74,8 +74,7 @@
 										'class' => 'col-md-1 text-center'
 									)
 								)
-								->addHeader('Cost Center Code',array('class'=>'col-md-2'),'sort','costcenter_code')
-								->addHeader('Cost Center Account', array('class'=>'col-md-2'),'sort','accountname')
+								->addHeader('Budget Center Code',array('class'=>'col-md-2'),'sort','costcenter_code')
 								->addHeader('Name', array('class'=>'col-md-3'),'sort','name')
 								->addHeader('Description', array('class'=>'col-md-3'),'sort','c.description')
 								->addHeader('Approver', array('class'=>'col-md-3'),'sort','approver')
