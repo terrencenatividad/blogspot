@@ -1837,7 +1837,7 @@ $(document).ready(function(){
 			var curr_type	=  $(this).val();	
 			var new_type 	= e.params.args.data.id;
 			
-			if(curr_type == ""){
+			if(curr_type == "none" || curr_type == ""){
 				$('#discounttype').closest('.form-group').removeClass('has-error');
 
 				if(new_type=="none" || new_type==""){

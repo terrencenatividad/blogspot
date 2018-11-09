@@ -97,7 +97,8 @@ class controller extends wc_controller
 			$data["account_ entries"] = $this->so->getValue("chartaccount", $acc_entry_data,$acc_entry_cond, "segment5");
 
 			$data['transactiondate'] = $this->date->dateFormat();
-
+			$data['discounttype'] 	= "none";
+		
 		/**ADD NEW CUSTOMER**/
 		
 			// Retrieve business type list
