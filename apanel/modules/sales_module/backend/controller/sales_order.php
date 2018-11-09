@@ -84,6 +84,9 @@ class controller extends wc_controller
 			$w_entry_data           = array("warehousecode ind","description val");
 			$data["warehouses"] 	= $this->so->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
 
+			$disc_type_data         = array("code ind","value val");
+			$data["discounttypes"] 	= $this->so->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
+
 			$vatex_comp_data        = array("code","value");
 			$vatex_comp_cond        = "code = 'sale_vatex'";
 			$result   		 		= $this->so->getValue("wc_reference", $vatex_comp_data, $vatex_comp_cond);
@@ -300,6 +303,9 @@ class controller extends wc_controller
 		$acc_entry_cond          = "accounttype != 'P'";
 		$data["account_entries"] = $this->so->getValue("chartaccount", $acc_entry_data,$acc_entry_cond, "segment5");
 
+		$disc_type_data         = array("code ind","value val");
+		$data["discounttypes"] 	= $this->so->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
+
 		/**ADD NEW CUSTOMER**/
 		
 		// Retrieve business type list
@@ -334,8 +340,9 @@ class controller extends wc_controller
 		$totalamount 			 = $retrieved_data['header']->netamount;
 		$vat 					 = $retrieved_data['header']->taxamount;
 		$totalsales 			 = $retrieved_data['header']->amount;
+
 		$data['t_subtotal'] 	 = $totalsales;
-		$data['discountamount']  = $discountamount;
+		$data['t_discount']  	 = $discountamount;
 		$data['t_total'] 	 	 = $totalamount;
 		$data['t_vat'] 			 = $vat;
 		$data['t_vatsales'] 	 = $retrieved_data['header']->vat_sales;
@@ -410,6 +417,9 @@ class controller extends wc_controller
 		$w_entry_data          = array("warehousecode ind","description val");
 		$data["warehouses"] 	= $this->so->getValue("warehouse", $w_entry_data,'',"warehousecode");
 
+		$disc_type_data         = array("code ind","value val");
+		$data["discounttypes"] 	= $this->so->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
+
 		$vatex_comp_data        = array("code","value");
 		$vatex_comp_cond        = "code = 'sale_vatex'";
 		$result   		 		= $this->so->getValue("wc_reference", $vatex_comp_data, $vatex_comp_cond);
@@ -446,7 +456,7 @@ class controller extends wc_controller
 		//Footer Data
 		$discountamount 		 = $retrieved_data['header']->discountamount;
 		$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
-		$data['discountamount']  = $discountamount;
+		$data['t_discount']	 	 = $discountamount;
 		$data['t_total'] 	 	 = $retrieved_data['header']->netamount;
 		$data['t_vat'] 			 = $retrieved_data['header']->taxamount;
 		$data['t_vatsales'] 	 = $retrieved_data['header']->vat_sales;
