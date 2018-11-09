@@ -5124,7 +5124,7 @@ $('#payableForm').on('click','#update_ap_acct',function(e){
 
 $('#payableForm').on('ifChecked', '.cwt', function(){
 	var total_payment = $("#paymentModal #total_payment").val();
-	$('#tax_amount').val(total_payment);
+	// $('#tax_amount').val(total_payment);
 	$('#atcModal').modal('show');	
 });
 
