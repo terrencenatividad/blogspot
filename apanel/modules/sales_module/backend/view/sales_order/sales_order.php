@@ -1353,7 +1353,7 @@ function cancelTransaction(vno)
 /** FINALIZE SAVING **/
 function finalizeTransaction(type)
 {
-	$("#sales_order_form").find('.form-group').find('input, textarea, select').trigger('blur');
+	$("#sales_order_form").find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
 	var no_error = true;
 	$('.quantity').each(function() {

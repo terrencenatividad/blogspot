@@ -337,6 +337,7 @@
 			$post_header['referenceno'] 		= 	'';
 			$post_header['amount'] 				= 	$subtotal;
 			$post_header['discounttype'] 		=	$discounttype;
+			$post_header['discountrate'] 		=	$discount_rate;
 			$post_header['discountamount'] 		=	$discount_amount;
 			$post_header['netamount'] 			=	$totalamount;
 			$post_header['taxcode'] 			=	'VAT';
