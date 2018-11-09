@@ -8,6 +8,7 @@
 				<input class = "form_iput" value = "" name = "address1" id="address1" type="hidden">
 				<input class = "form_iput" value = "update" name = "querytype" id="querytype" type="hidden">
 				<input class = "form_iput" value = "" name = "id" id = "id" type="hidden">
+				<input class = "form_iput" value = "<?=$vat_ex?>" name = "vat_ex" id = "vat_ex" type="hidden">
 			</form>
 
 			<form method = "post" class="form-horizontal" id="sales_invoice_form">
@@ -256,7 +257,8 @@
 									<th class="col-md-1 text-left">Quantity</th>
 									<th class="col-md-1 text-left">UOM</th>
 									<th class="col-md-1 text-left">Price</th>
-									<th class="col-md-2 text-left">Tax</th>
+									<th class="col-md-1 text-left">Discount</th>
+									<th class="col-md-1 text-left">Tax</th>
 									<th class="col-md-2 text-left">Amount</th>
 									<th class="col-md-1 taxt-left"></th>
 								</tr>
@@ -483,6 +485,18 @@
 															->setClass("text-right price")
 															->setAttribute(array("maxlength" => "20","readOnly"=>"readOnly"))
 															->setValue(number_format($itemprice,2))
+															->draw($show_input);
+												?>
+											</td>
+											<td class = "remove-margin text-right">
+												<?php
+													echo $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName('discount['.$row.']')
+															->setId('discount['.$row.']')
+															->setClass("text-right price")
+															->setAttribute(array("maxlength" => "20","readOnly"=>""))
+															->setValue(number_format($discount,2))
 															->draw($show_input);
 												?>
 											</td>
@@ -1055,14 +1069,15 @@ function computeAmount()
 {
 	var table 	= document.getElementById('itemsTable');
 	var count	= table.tBodies[0].rows.length;
+	var vatex 	= $('#vat_ex').val();
 
 	var discount		= parseFloat(document.getElementById('discountamount').value || 0.00);
 	var total_amount   	= 0;
 	for(row = 1; row <= count; row++) 
 	{  
 		var vat 		=	document.getElementById('taxrate['+row+']');
-		
 		var itemprice 	=	document.getElementById('itemprice['+row+']');
+		var discount 	=	document.getElementById('discount['+row+']');
 		var quantity 	=	document.getElementById('quantity['+row+']');
 
 		vat 			=	vat.value.replace(/,/g,'');
@@ -1070,9 +1085,16 @@ function computeAmount()
 		quantity 		=	quantity.value.replace(/,/g,'');
 		
 		var totalprice 	=	parseFloat(itemprice) 	* 	parseFloat(quantity);
-		var amount 		=	parseFloat(totalprice) / ( 1 + parseFloat(vat) );
-		
-		var vat_amount 	=	parseFloat(amount) * parseFloat(vat);
+		var amount 		=	0;
+		var vat_amount 	=	0;
+
+		if(vatex == 'yes'){
+			amount 		= parseFloat(totalprice);
+			vat_amount	= parseFloat(totalprice) * parseFloat(vat);
+		} else {
+			amount		= parseFloat(totalprice) / ( 1 + parseFloat(vat) );
+			vat_amount	= parseFloat(amount)	*	parseFloat(vat);
+		}	
 		
 		amount			= 	Math.round(parseFloat(amount)*100) / 100;
 		vat_amount		= 	Math.round(parseFloat(vat_amount)*100) / 100;
@@ -1085,25 +1107,14 @@ function computeAmount()
 		total_amount 	+= amount;
 	}
 
-	var discount_type 	= document.getElementById('disctype').value;
-	discount_perc 		= (discount_type == 'perc') ? discount/100 : discount / total_amount;
-	
-	if(discount_perc > 0){
-		/**
-		 * Apply discount to item rows
-		 */
-		for(row = 1; row <= count; row++) 
-		{
-			var amount 		=	document.getElementById('amount['+row+']');
-			amount 			=	amount.value.replace(/,/g,'');
+	if(parseFloat(discount) > 0 && (discounttype!="none" || discounttype!="")){
+		var itemdiscount 		= (discounttype == 'amt') ? parseFloat(discount) : parseFloat(amount) * (parseFloat(discount)/100);
+		var discountedamount 	= parseFloat(amount) - parseFloat(itemdiscount);
 
-			var itemdiscount 	= parseFloat(amount) * parseFloat(discount_perc);
-			var discountedamount = parseFloat(amount) - parseFloat(itemdiscount);
-
-			document.getElementById('itemdiscount['+row+']').value 	= addCommas(itemdiscount.toFixed(2));
-			document.getElementById('discountedamount['+row+']').value 	= addCommas(discountedamount.toFixed(2));
-			
-		}
+		document.getElementById('itemdiscount['+row+']').value 	= addCommas(itemdiscount.toFixed(2));
+		document.getElementById('discountedamount['+row+']').value 	= addCommas(discountedamount.toFixed(2));
+		
+		amount 		=	discountedamount;
 	}
 	
 	addAmounts(); 
@@ -1123,6 +1134,8 @@ function addAmounts() {
 
 	var table				= document.getElementById('itemsTable');
 	var count				= table.tBodies[0].rows.length;
+	var vatex 	 			= $('#vat_ex').val();
+	var discounttype  		= $('#discounttype').val();
 
 	var discount			= parseFloat(document.getElementById('discountamount').value || 0.00);
 	
@@ -1132,6 +1145,7 @@ function addAmounts() {
 	for (var i = 1; i <= count; i++) {
 		var row = '[' + i + ']';
 		var x_unitprice			= document.getElementById('itemprice' + row);
+		var x_discount			= document.getElementById('discount' + row);
 		var x_quantity			= document.getElementById('quantity' + row);
 		var x_taxrate			= document.getElementById('taxrate' + row);
 		var x_amount			= document.getElementById('amount' + row);
@@ -1141,12 +1155,30 @@ function addAmounts() {
 		var h_discountedamount	= document.getElementById('discountedamount' + row);
 
 		var unitprice				= x_unitprice.value.replace(/[,]+/g, '');
+		var discount			= removeComma(x_discount.value);
 		var taxrate					= parseFloat(x_taxrate.value);
 		var quantity 				= x_quantity.value.replace(/[,]+/g,'');
 		//var tax_amount		= ( quantity * unitprice ) * taxrate;
 		var amount					= ( quantity * unitprice ) / (taxrate + 1);
 		var h_discountedamount		= h_discountedamount.value.replace(/[,]+/g, '');
 		
+		var totalprice 	=	parseFloat(unitprice) 	* 	parseFloat(quantity);
+
+		var amount 		=	0;
+		var vat_amount 	=	0;
+
+		if(vatex == 'yes'){
+			amount 		= parseFloat(totalprice);
+			if(parseFloat(discount)>0 && (discounttype != "none" || discounttype!="")){
+				discount 	= (discounttype == "amt") ? parseFloat(discount) : parseFloat(totalprice) * (parseFloat(discount)/100);
+				amount 		= parseFloat(totalprice) - parseFloat(discount);
+			}
+			vat_amount	= parseFloat(totalprice) * parseFloat(taxrate);
+		} else {
+			amount		= parseFloat(totalprice) / ( 1 + parseFloat(taxrate) );
+			vat_amount	= parseFloat(amount)	*	parseFloat(taxrate);
+		}
+
 		var net_of_vat		= 0;
 		var vat_ex			= 0;
 		var vat				= 0;
@@ -1176,6 +1208,7 @@ function addAmounts() {
 		total_h_vatable		+= net_of_vat;
 		total_h_vatex		+= vat_ex;
 		total_h_vat			+= vat;
+		total_discount 		+= discount;
 	}
 	
 	subtotal 				= total_h_vatable + total_h_vatex;
@@ -1189,11 +1222,23 @@ function addAmounts() {
 	// 	total_discount 		= discount;
 	// }
 
-	total_discount = discount;
-	console.log("TOTAL_DISCOUNT = "+total_discount);
+	vatable_sales 		= 0;
+	subtotal 			= total_h_vatable + total_h_vatex;
+	final_total 		= (total_h_vatable + total_h_vatex - total_discount + total_h_vat);
+	total_discount 		= discount;
+	
 	/**
 	 * Round off to 2 decimals before getting total
 	 */
+
+	if(vatex=="yes"){
+		vatable_sales 		= (parseFloat(total_h_vatable));
+		vatable_sales 		= (vatable_sales > 0) ? vatable_sales 	: 0;
+		total_h_vat 		= (parseFloat(total_h_vatable))*0.12;
+		total_h_vat 		= (total_h_vat > 0) ? total_h_vat 	: 0;
+		total_h_vatable 	= vatable_sales;
+		final_total 		= (total_h_vatable + total_h_vatex + total_h_vat);
+	}	
 
 	total_h_vatable	 	= Math.round(100*total_h_vatable)/100;
 	total_h_vatex	 	= Math.round(100*total_h_vatex)/100;
@@ -1204,7 +1249,7 @@ function addAmounts() {
 	document.getElementById('vatexempt_sales').value	= addCommas(total_h_vatex.toFixed(2));
 	document.getElementById('total_sales').value 		= addCommas(subtotal.toFixed(2));
 	document.getElementById('total_tax').value			= addCommas(total_h_vat.toFixed(2));
-	document.getElementById('total').value 				= addCommas(( total_h_vatable + total_h_vatex - total_discount + total_h_vat ).toFixed(2));
+	document.getElementById('total').value 				= addCommas((final_total).toFixed(2));
 }
 
 /**FORMAT NUMBERS TO DECIMAL**/

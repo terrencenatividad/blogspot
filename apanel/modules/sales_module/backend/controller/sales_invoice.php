@@ -106,6 +106,9 @@ class controller extends wc_controller
 		$data['disc_radio_perc'] = '';
 		$data['restrict_si'] 	 = false;
 
+		$result   		 		= $this->invoice->retrieveVatExValue();
+		$data["vat_ex"] 		= isset($result->value) 	? $result->value 	:	"yes";
+
 		//Finalize Saving	
 		$save_status 			= $this->input->post('save');
 
@@ -194,6 +197,11 @@ class controller extends wc_controller
 		$invoice_reference 		= $this->invoice->getReference("invoice_dr");
 		$invoice_dr 			= $invoice_reference[0]->value;
 		
+		$vatex_comp_data        = array("code","value");
+		$vatex_comp_cond        = "code = 'sale_vatex'";
+		$result   		 		= $this->invoice->getValue("wc_reference", $vatex_comp_data, $vatex_comp_cond);
+		$data["vat_ex"] 		= isset($result[0]->value) 	? $result[0]->value 	:	"yes";
+
 		$data['dr_linked'] 		= ($invoice_dr == 'yes') ? true : false;
 		if($invoice_dr == 'yes')
 		{
@@ -291,6 +299,11 @@ class controller extends wc_controller
 		// Header Data
 		$transactiondate 		= $retrieved_data["header"]->transactiondate;
 		$duedate 				= $retrieved_data["header"]->duedate;
+
+		$vatex_comp_data        = array("code","value");
+		$vatex_comp_cond        = "code = 'sale_vatex'";
+		$result   		 		= $this->invoice->getValue("wc_reference", $vatex_comp_data, $vatex_comp_cond);
+		$data["vat_ex"] 		= isset($result[0]->value) 	? $result[0]->value 	:	"yes";
 
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["referenceno"]     = $retrieved_data["header"]->referenceno;
@@ -646,6 +659,7 @@ class controller extends wc_controller
 				$detailparticular 	= $val->detailparticular;
 				$quantity 			= $val->issueqty;
 				$unitprice 			= $val->unitprice;
+				$discount 			= ($val->discounttype == 'amt') ? $val->discountamount : $val->discounttype;
 				$taxcode 			= $val->taxcode;
 				$taxrate 			= $val->taxrate;
 				$taxamount 			= $val->taxamount;
@@ -727,6 +741,22 @@ class controller extends wc_controller
 											)
 										)
 										->setValue(number_format($unitprice,2))
+										->draw(true);
+				$result     .= '</td>';
+
+				$result 	.= '<td>';
+				$result 	.= $this->ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setName('discount['.$row.']')
+										->setId('discount['.$row.']')
+										->setClass("text-right price")
+										->setAttribute(
+											array(
+												"maxlength" => "20",
+												"readOnly" => "readOnly"
+											)
+										)
+										->setValue(number_format($discount,2))
 										->draw(true);
 				$result     .= '</td>';
 

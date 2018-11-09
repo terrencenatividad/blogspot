@@ -597,7 +597,7 @@ class sales_invoice extends wc_model
 												->runSelect()
 												->getRow();
 
-		$detail_fields 		= "itemcode, detailparticular, unitprice, issueqty, taxcode, taxrate, taxamount, amount, issueuom";
+		$detail_fields 		= "itemcode, detailparticular, unitprice, issueqty, taxcode, taxrate, taxamount, amount, issueuom, discountrate, discounttype, discountamount";
 		$condition 			= " voucherno = '$code' ";
 		
 		$retrieved_data['details'] 	= $this->db->setTable('deliveryreceipt_details')
@@ -975,6 +975,15 @@ class sales_invoice extends wc_model
 			$temp[] = $arr . " LIKE '%" . str_replace(' ', '%', $search) . "%'";
 		}
 		return '(' . implode(' OR ', $temp) . ')';
+	}
+
+	public function retrieveVatExValue(){
+		$result 			= 	$this->db->setTable('wc_reference')
+										  ->setFields(array('code','value'))
+										  ->setWhere("code = 'sale_vatex'")
+										  ->runSelect(false)
+										  ->getRow();
+		return $result;
 	}
 }
 ?>
