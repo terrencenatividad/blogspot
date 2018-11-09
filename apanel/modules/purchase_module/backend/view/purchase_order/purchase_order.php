@@ -1197,9 +1197,10 @@ echo $ui->loadElement('modal')
 				quantity 		=	quantity.value.replace(/,/g,'');
 
 				var totalprice 	=	parseFloat(itemprice) 	* 	parseFloat(quantity);
-				var amount 		=	parseFloat(totalprice) / ( 1 + parseFloat(vat) );
+				//var amount 		=	parseFloat(totalprice) / ( 1 + parseFloat(vat) );
 
-				var vat_amount 	=	parseFloat(amount)	*	parseFloat(vat);
+				var vat_amount 	=	parseFloat(totalprice)	*	parseFloat(vat);
+				var amount 		=	parseFloat(totalprice) + parseFloat(vat_amount);
 
 				amount			= 	Math.round(amount*1000) / 1000;
 				vat_amount		= 	Math.round(vat_amount*100) / 100;
@@ -1241,8 +1242,9 @@ echo $ui->loadElement('modal')
 				var taxrate			= parseFloat(x_taxrate.value);
 				var quantity 		= x_quantity.value.replace(/[,]+/g,'');
 				var tax_amount		= ( quantity * unitprice ) * taxrate;
-				var amount			= ( quantity * unitprice ) / (taxrate + 1);
-
+				//var amount			= ( quantity * unitprice ) / (taxrate + 1);
+				var amount			= ( quantity * unitprice ) + tax_amount;
+				
 				var net_of_vat		= 0;
 				var vat_ex			= 0;
 				var vat				= 0;
@@ -1257,8 +1259,10 @@ echo $ui->loadElement('modal')
 					net_of_vat 		= amount;
 				}
 
-				vat_ex				= amount - net_of_vat;
-				vat					= net_of_vat * taxrate;
+				// vat_ex				= amount - net_of_vat;
+				// vat					= net_of_vat * taxrate;
+				vat_ex				= amount - net_of_vat - tax_amount;
+				vat					= tax_amount;
 
 				total_h_vatable		+= net_of_vat;
 				total_h_vatex		+= vat_ex;
@@ -1269,8 +1273,8 @@ echo $ui->loadElement('modal')
 		// }
 
 		document.getElementById('t_subtotal').value 			= addCommas(subtotal.toFixed(2));
-		document.getElementById('t_vat').value					= total_h_vat.toFixed(2);
-		document.getElementById('t_total').value 				= ( total_h_vatable + total_h_vatex - wtax + total_h_vat ).toFixed(2);
+		document.getElementById('t_vat').value					= addCommas(total_h_vat.toFixed(2));
+		document.getElementById('t_total').value 				= addCommas(( total_h_vatable + total_h_vatex - wtax + total_h_vat ).toFixed(2));
 
 	}
 
