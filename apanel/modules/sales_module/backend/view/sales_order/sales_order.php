@@ -381,6 +381,12 @@
 								$row 			= 1;
 								$disable_debit	= '';
 								$disable_credit	= '';
+
+								$readOnly 		= true;
+								if($discounttype !="" || $discounttype != "none"){
+									$readOnly 	= false;
+								}
+								
 								for($i = 0; $i < count($details); $i++)
 								{
 									$itemcode 	 		= $details[$i]->itemcode;
@@ -398,8 +404,6 @@
 									$itemdiscount  		= (isset($details[$i]->discountamount)) ? $details[$i]->discountamount : 0;
 									$discountedamount 	= (isset($details[$i]->discountedamount))? $details[$i]->discountedamount : 0;
 									
-									//itemcode, detailparticular, unitprice, issueqty, taxcode, taxrate, amount
-
 							?>	
 									<tr class="clone" valign="middle">
 										<td class = "remove-margin">
@@ -433,7 +437,7 @@
 
 											echo $ui->formField('dropdown')
 												->setPlaceholder('Select One')
-												->setSplit('	', 'col-md-12')
+												->setSplit('', 'col-md-12')
 												->setName("warehouse[".$row."]")
 												->setId("warehouse[".$row."]")
 												->setClass('warehouse')
@@ -488,7 +492,7 @@
 													->setName('discount['.$row.']')
 													->setId('discount['.$row.']')
 													->setClass("text-right discount")
-													->setAttribute(array("maxlength" => "20","readOnly"=>true))
+													->setAttribute(array("maxlength" => "20", 'readonly' => $readOnly))
 													->setValue($discount)
 													->setValidation('decimal')
 													//->addHidden(true)
@@ -1825,20 +1829,13 @@ $(document).ready(function(){
 	// -- For Items -- End
 
 	// -- For Discount --
-		function countDiscountErrors(){
-
-		}
-
 		$('#sales_order_form').on('change','.discount',function(e){
 			var id 		= 	$(this).attr("id");
 			var row 	=	id.replace(/[a-z]/g, '');
 			var dtype 	= 	$('#discounttype').val();
 			var value 	= 	$(this).val();
-			// console.log('id = '+row);
+
 			var price 	= 	$(this).closest('tr').find('.price').val();
-			
-			// console.log("Price = "+price);
-			// console.log("Value = "+value);
 			
 			if( parseFloat(value) > 0 && dtype == ""){
 				$('#discounttype').closest('.form-group').addClass('has-error');
@@ -1850,7 +1847,7 @@ $(document).ready(function(){
 					$(this).closest('div').removeClass('has-error');
 				}
 				var count_errors 	=	$('#sales_order_form .discount').closest('tr').find('.has-error').length;
-				// console.log("has error "+count_errors);
+			
 				if(count_errors > 0){
 					$('#discountError').removeClass('hidden');
 				} else {
@@ -1860,8 +1857,6 @@ $(document).ready(function(){
 			formatNumber(id);
 			computeAmount();
 		});
-
-		$('#sales_')
 
 		$('#discounttype').on('select2:selecting',function(e){
 			var curr_type	=  $(this).val();	

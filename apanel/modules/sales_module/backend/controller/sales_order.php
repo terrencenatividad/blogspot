@@ -94,9 +94,9 @@ class controller extends wc_controller
 
 			$acc_entry_data          = array("accountname ind","CONCAT(segment5,' - ', accountname )  val");
 			$acc_entry_cond          = "accounttype != 'P'";
-			$data["account_ entries"] = $this->so->getValue("chartaccount", $acc_entry_data,$acc_entry_cond, "segment5");
+			$data["account_ entries"]= $this->so->getValue("chartaccount", $acc_entry_data,$acc_entry_cond, "segment5");
 
-			$data['transactiondate'] = $this->date->dateFormat();
+			$data['transactiondate']= $this->date->dateFormat();
 			$data['discounttype'] 	= "none";
 		
 		/**ADD NEW CUSTOMER**/
@@ -136,13 +136,12 @@ class controller extends wc_controller
 
 			//Footer Data
 			$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
-			$data['discounttype']  	 = $retrieved_data['header']->discounttype;
 			$data['discountamount']  = $retrieved_data['header']->discountamount;
 			$data['t_total'] 	 	 = $retrieved_data['header']->netamount;
 
-			$discounttype 		 	 = $retrieved_data['header']->discounttype;
+			$discounttype 		 	 = "none";
 			$data['percentage'] 	 = "";
-			$data['h_disctype'] 	 = $discounttype;
+			$data['discounttype'] 	 = $discounttype;
 
 			//Vendor Data
 			$data["terms"] 		 	 = $retrieved_data["customer"]->terms;
@@ -198,10 +197,7 @@ class controller extends wc_controller
 			$data['discounttype']    = $retrieved_data['header']->discounttype;
 			$data['discountamount']  = $retrieved_data['header']->discountamount;
 			$data['t_total'] 	 	 = $retrieved_data['header']->netamount;
-
-			$discounttype 		 	 = $retrieved_data['header']->discounttype;
 			$data['percentage'] 	 = "";
-			$data['h_disctype'] 	 = $discounttype;
 
 			//Vendor Data
 			$data["terms"] 		 	 = $retrieved_data["customer"]->terms;
@@ -349,14 +345,14 @@ class controller extends wc_controller
 		$data['t_vatsales'] 	 = $retrieved_data['header']->vat_sales;
 		$data['t_vatexempt'] 	 = $retrieved_data['header']->vat_exempt;
 
-		$discounttype 		 	 = $retrieved_data['header']->discounttype;
+		$discounttype 		 	 = !empty($retrieved_data['header']->discounttype) ? $retrieved_data['header']->discounttype : "none";
 		$data['discounttype']    = $discounttype;
-		if ($discounttype == 'perc' && $discountamount) {
-			$discountrate = ($discountamount / ($totalsales + $vat)) * 100;
-			$discountrate = ceil($discountrate);
-		}
+		// if ($discounttype == 'perc' && $discountamount) {
+		// 	$discountrate = ($discountamount / ($totalsales + $vat)) * 100;
+		// 	$discountrate = ceil($discountrate);
+		// }
 		$data['percentage'] 	 = "";
-		$data['discountrate'] 	 = $discountrate;
+		// $data['discountrate'] 	 = $discountrate;
 
 		//Credit Limit 
 		$result 				= $this->retrieve_credit_limit($customer);
