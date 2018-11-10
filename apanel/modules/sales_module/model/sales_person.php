@@ -28,7 +28,7 @@
 
 		public function retrieveExistingSalesPerson($data, $partnercode)
 		{
-			$condition 		=	" partnertype = 'sales' AND stat = 'active'  AND partnercode = '$partnercode' ";
+			$condition 		=	" partnertype = 'sales' AND stat != 'deleted'  AND partnercode = '$partnercode' ";
 
 			return $this->db->setTable('partners')
 							->setFields($data)

@@ -10,7 +10,6 @@ class controller extends wc_controller {
 		$this->fields			= array(
 			'id',
 			'costcenter_code',
-			'costcenter_account',
 			'name',
 			'description',
 			'approver',
@@ -75,6 +74,8 @@ class controller extends wc_controller {
 		if( $count > 0 )
 		{	
 			$msg = "exists";
+		}else{
+			$msg = "donut";
 		}
 
 		return $dataArray = array("msg" => $msg);
@@ -97,6 +98,8 @@ class controller extends wc_controller {
 		if( $count > 0 )
 		{	
 			$msg = "exists";
+		}else{
+			$msg = "donut";
 		}
 
 		return $dataArray = array("msg" => $msg);
@@ -150,7 +153,6 @@ class controller extends wc_controller {
 									->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $row->costcenter_code . '</td>';
-			$table .= '<td>' . $row->accountname . '</td>';
 			$table .= '<td>' . $row->name . '</td>';
 			$table .= '<td>' . $row->description . '</td>';
 			$table .= '<td>' . $row->approver . '</td>';

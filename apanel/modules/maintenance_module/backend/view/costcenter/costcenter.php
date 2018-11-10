@@ -9,7 +9,7 @@
 					<div class="col-md-6">
 						<?php
 							echo $ui->formField('text')
-								->setLabel('Cost Center Code')
+								->setLabel('Budget Center Code')
 								->setSplit('col-md-3', 'col-md-8')
 								->setName('costcenter_code')
 								->setId('costcenter_code')
@@ -22,13 +22,13 @@
                     <div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-									->setLabel('Cost Center Account')
-									->setPlaceholder('Select Account')
+									->setLabel('Budget Center Approver ')
+									->setPlaceholder('Select User')
 									->setSplit('col-md-3', 'col-md-8')
-									->setName('costcenter_account')
-									->setId('costcenter_account')
-									->setList($coa_list)
-									->setValue($costcenter_account)
+									->setName('approver')
+									->setId('approver')
+									->setList($users_list)
+									->setValue($approver)
 									->setValidation('required')
 									->draw($show_input);
 						?>
@@ -67,16 +67,16 @@
 				<div class="row">
 					<div class="col-md-6">
 						<?php
-							echo $ui->formField('dropdown')
-								->setLabel('Cost Center Approver ')
-								->setPlaceholder('Select User')
-								->setSplit('col-md-3', 'col-md-8')
-								->setName('approver')
-								->setId('approver')
-								->setList($users_list)
-								->setValue($approver)
-								->setValidation('required')
-								->draw($show_input);
+							// echo $ui->formField('dropdown')
+							// 	->setLabel('Cost Center Approver ')
+							// 	->setPlaceholder('Select User')
+							// 	->setSplit('col-md-3', 'col-md-8')
+							// 	->setName('approver')
+							// 	->setId('approver')
+							// 	->setList($users_list)
+							// 	->setValue($approver)
+							// 	->setValidation('required')
+							// 	->draw($show_input);
 						?>
 					</div>
                     <div class="col-md-6">
@@ -140,6 +140,12 @@ var ajax = {};
 			error_message 	=	"<b>The Code you entered already exists!</b>";
 			$('#costcenter_code').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
 		}
+		else if( ( ajax.curr_code != "" && data.msg == "donut") || (data.msg == '' && task == 'edit'))
+		{
+			if (form_group.find('p.help-block').html() != "") {
+				form_group.removeClass('has-error').find('p.help-block').html('');
+			}
+		}
 		else if( ( ajax.curr_code != "" && data.msg == "") || (data.msg == '' && task == 'edit'))
 		{
 			if (form_group.find('p.help-block').html() != "") {
@@ -163,7 +169,13 @@ $('#name').on('blur',function(){
 			error_message 	=	"<b>The Name you entered already exists!</b>";
 			$('#name').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
 		}
-		else if( ( ajax.curr_code != "" && data.msg == "") || (data.msg == '' && task == 'edit'))
+		else if( ( ajax.curr_name != "" && data.msg == "donut") || (data.msg == '' && task == 'edit'))
+		{
+			if (form_group.find('p.help-block').html() != "") {
+				form_group.removeClass('has-error').find('p.help-block').html('');
+			}
+		}
+		else if( ( ajax.curr_name != "" && data.msg == "") || (data.msg == '' && task == 'edit'))
 		{
 			if (form_group.find('p.help-block').html() != "") {
 				form_group.removeClass('has-error').find('p.help-block').html('');

@@ -675,8 +675,8 @@ class controller extends wc_controller
 				// 	'credit-card',
 				// 	$show_payment  && $restrict_ar
 				// )
-				->addDelete($show_delete && $checker != "import"  && $restrict_ar)
-				->addCheckbox($show_delete && $checker != "import"  && $restrict_ar)
+				->addDelete($show_delete && $restrict_ar)
+				->addCheckbox($show_delete  && $restrict_ar)
 				->setValue($voucher)
 				->setLabels(array('delete' => 'Cancel'))
 				->draw();
