@@ -71,7 +71,7 @@ class receipt_voucher_model extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used, overpayment, advancepayment";
+		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used, overpayment, advancepayment, cwt";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -561,6 +561,7 @@ class receipt_voucher_model extends wc_model
 		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
 		// $credit_input 			= (isset($data['credit_input']) && (!empty($data['credit_input']))) ? htmlentities(addslashes($data['credit_input'])) 	:	0;
 		$ap_checker 			= (isset($data['advance_payment']) && (!empty($data['advance_payment']))) ? htmlentities(addslashes(trim($data['advance_payment']))) : 	"no";
+		$cwt_checker 			= (isset($data['cwt']) && (!empty($data['cwt']))) ? htmlentities(addslashes(trim($data['cwt']))) : 	"no";
 		$creditsamt_to_apply 	= (isset($data['total_credits_to_apply']) && (!empty($data['total_credits_to_apply']))) ? htmlentities(addslashes(trim($data['total_credits_to_apply']))) : 	0;
 		$credits_box 			= (isset($data['credits_box']) && (!empty($data['credits_box']))) ? htmlentities(addslashes(trim($data['credits_box']))) : 	[];
 
@@ -715,6 +716,7 @@ class receipt_voucher_model extends wc_model
 		$post_header['paymenttype']		= $paymenttype;	
 		// $post_header['referenceno']		= $referenceno;
 		$post_header['advancepayment']  = $ap_checker;
+		$post_header['cwt']  			= $cwt_checker;
 		$post_header['or_no']			= $or_no;
 		
 		$post_header['stat']			= $status;

@@ -163,6 +163,7 @@ class controller extends wc_controller
 		$data['cred_id'] 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
 		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
 		$data['ap_checker'] 	 		= 0;
+		$data['cwt_checker'] 	 		= 0;
 
 		// Application Data
 		$data['sum_applied'] 				= 0;
@@ -270,8 +271,12 @@ class controller extends wc_controller
 		$acc_entry_join 			  = "chartaccount coa2 ON coa2.parentaccountcode = coa.id";
 		$acc_entry_order 			  = "coa.segment5, coa2.segment5";
 		$data["account_entry_list"]   = $this->receipt_voucher->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
-
+		
 		$data["customer_list"]    	= array();
+
+		$atc_entry_data               = array("atcId ind","atc_code val");
+		$atc_entry_cond               = "stat = 'active'";
+		$data["atc_list"]   		  = $this->receipt_voucher->getValue("atccode", $atc_entry_data, $atc_entry_cond, "","","","");
 
 		// Main
 		$vendor_details 		   	= $this->receipt_voucher->getValue("partners", "partnername"," partnertype = 'customer' AND partnercode = '".$data["main"]->customer."'", "");
@@ -289,6 +294,7 @@ class controller extends wc_controller
 		$data["particulars"]       	= $data["main"]->particulars;
 		$data['status']				= $data["main"]->stat;
 		$data['ap_checker'] 	 	= ($data['main']->advancepayment == 'yes') ? 1 : 0;
+		$data['cwt_checker'] 	 	= ($data['main']->cwt == 'yes') ? 1 : 0;
 
 		// Vendor/Customer Details
 		$data["v_vendor"] 		   	= $data["vend"]->name;
@@ -604,6 +610,7 @@ class controller extends wc_controller
 		$data["available_credits"] = isset($available_credits[0]->curr_credit) 	?	$available_credits[0]->curr_credit 	+	$credits_used	:	"0.00";
 		$data['status']			 = $data["main"]->stat;
 		$data['ap_checker'] 	 = ($data['main']->advancepayment == 'yes') ? 1 : 0;
+		$data['cwt_checker'] 	 = ($data['main']->cwt == 'yes') ? 1 : 0;
 		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array();
 
 		$account_array	= array();
