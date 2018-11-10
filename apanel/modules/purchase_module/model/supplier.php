@@ -17,7 +17,7 @@
 
 		public function retrieveExistingSupplier($data, $partnercode)
 		{
-			$condition 		=	" partnertype = 'supplier' AND stat = 'active'  AND partnercode = '$partnercode' ";
+			$condition 		=	" partnertype = 'supplier' AND stat != 'deleted'  AND partnercode = '$partnercode' ";
 
 			return $this->db->setTable('partners')
 							->setFields($data)
