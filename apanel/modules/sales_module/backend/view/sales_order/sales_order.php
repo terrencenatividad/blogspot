@@ -315,7 +315,7 @@
 													->setClass("text-right price")
 													->setAttribute(array("maxlength" => "20"))
 													->setValue($price)
-													->setValidation('decimal')
+													->setValidation('decimal required')
 													//->addHidden(true)
 													->draw($show_input);
 										?>
@@ -393,7 +393,7 @@
 									$detailparticular	= $details[$i]->detailparticular;
 									$quantity 			= isset($details[$i]->issueqty) ?	number_format($details[$i]->issueqty,0) 	: 	"1";
 									$itemprice 			= $details[$i]->unitprice;
-									$discount 			= $details[$i]->discountamount;
+									$discount 			= isset($details[$i]->discountamount) ? $details[$i]->discountamount : '0.00';
 									$uom 				= $details[$i]->issueuom;
 									$taxcode 			= $details[$i]->taxcode;
 									$taxrate 			= $details[$i]->taxrate;
@@ -480,7 +480,7 @@
 													->setId('itemprice['.$row.']')
 													->setClass("price text-right")
 													->setAttribute(array("maxlength" => "20"))
-													->setValidation('decimal')
+													->setValidation('decimal required')
 													->setValue(number_format($itemprice,'2','.',','))
 													->draw($show_input);
 										?>
@@ -1194,10 +1194,18 @@ function computeAmount()
 			amount		= parseFloat(totalprice) / ( 1 + parseFloat(vat) );
 			vat_amount	= parseFloat(amount)	*	parseFloat(vat);
 		}	
+			
+		var itemdiscount = 0;
+		var discountedamount = 0;
 
-		if(parseFloat(discount) > 0 && (discounttype!="none" || discounttype!="")){
-			var itemdiscount 		= (discounttype == 'amt') ? parseFloat(discount) : parseFloat(amount) * (parseFloat(discount)/100);
-			var discountedamount 	= parseFloat(amount) - parseFloat(itemdiscount);
+		if(discounttype!="none" || discounttype!=""){
+			if(parseFloat(discount) > 0){
+				itemdiscount 	= (discounttype == 'amt') ? parseFloat(discount) : parseFloat(amount) * (parseFloat(discount)/100);
+				discountedamount= parseFloat(amount) - parseFloat(itemdiscount);
+			} else {
+				itemdiscount 	= 0;
+				discountedamount= parseFloat(amount);
+			}
 
 			document.getElementById('itemdiscount['+row+']').value 	= addCommas(itemdiscount.toFixed(2));
 			document.getElementById('discountedamount['+row+']').value 	= addCommas(discountedamount.toFixed(2));
@@ -1307,8 +1315,7 @@ function addAmounts() {
 
 	vatable_sales 		= 0;
 	subtotal 			= total_h_vatable + total_h_vatex;
-	final_total 		= (total_h_vatable + total_h_vatex - total_discount + total_h_vat);
-	total_discount = discount;
+	final_total 		= (total_h_vatable + total_h_vatex - total_discount + total_h_vat);	
 	
 	if(vatex=="yes"){
 		vatable_sales 		= (parseFloat(total_h_vatable));
