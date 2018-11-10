@@ -535,7 +535,7 @@ class controller extends wc_controller
 			$discount 	    = isset($documentinfo->discount) ? $documentinfo->discount : 0;
 			$vatable_sales	+= ($row->taxrate > 0) ? $row->amount : 0;
 			$vat_exempt		+= ($row->taxrate == 0) ? $row->amount : 0;
-			$discount		+= isset($row->discunt) ? $row->discount : 0;
+			$discount		+= isset($row->discount) ? $row->discount : 0;
 			$tax			+= $row->taxamount;
 			$total_amount	+= 0;
 			$row->quantity	= number_format($row->quantity);
@@ -639,10 +639,9 @@ class controller extends wc_controller
 		$deliveries = $this->invoice->retrieveDeliveries($drno);
 
 		$customer 		= $deliveries['header']->customer;
-		$discounttype 	= $deliveries['header']->discounttype;
 		$notes 			= $deliveries['header']->remarks;
-		$discounttype	= $deliveries['header']->discounttype ? $deliveries['header']->discounttype : 0 ; 
-		$discountamount	= $deliveries['header']->discountamount ? $deliveries['header']->discountamount : 0 ; 
+		$discounttype	= isset($deliveries['header']->discounttype) ? $deliveries['header']->discounttype : 0 ; 
+		$discountamount	= isset($deliveries['header']->discountamount) ? $deliveries['header']->discountamount : 0 ; 
 
 		$item_entry_data    = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$itemcodes 			= $this->invoice->getValue("items", $item_entry_data,"stat = 'active'","itemcode");
@@ -657,7 +656,7 @@ class controller extends wc_controller
 				$detailparticular 	= $val->detailparticular;
 				$quantity 			= $val->issueqty;
 				$unitprice 			= $val->unitprice;
-				$discount 			= ($val->discounttype == 'amt') ? $val->discountamount : $val->discounttype;
+				$discount 			= ($val->discounttype == 'amt') ? $val->discountamount : $val->discountrate;
 				$taxcode 			= $val->taxcode;
 				$taxrate 			= $val->taxrate;
 				$taxamount 			= $val->taxamount;
