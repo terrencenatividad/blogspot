@@ -151,6 +151,7 @@ class controller extends wc_controller
 			$data['t_vat'] 			 = 0;
 			$data['t_vatsales'] 	 = 0;
 			$data['t_vatexempt'] 	 = 0;
+			$data['t_discount'] 	 = 0;
 
 			//Details
 			$data['details'] 		 = $retrieved_data['details'];
