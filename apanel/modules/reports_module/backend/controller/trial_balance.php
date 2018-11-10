@@ -221,10 +221,6 @@ class controller extends wc_controller {
 				$accountcode  		=	$row->accountcode;
 				$accountname  		=	$row->accountname;
 				
-				$accountid          = $pagination->result[$i]->accountid;
-				$accountcode		= $pagination->result[$i]->accountcode;
-				$accountname		= $pagination->result[$i]->accountname;	
-
 				$prevcarry 			= $this->trial_balance->getPrevCarry($accountid,$datefilterFrom);
 				$balcarry			= $this->trial_balance->getBalanceCarry($accountid,$datefilterFrom,$datefilterTo);
 				$amount				= $this->trial_balance->getCurrent($accountid,$datefilterFrom,$datefilterTo);
@@ -234,14 +230,19 @@ class controller extends wc_controller {
 				$periodbalance      = $amount;
 
 				$accumulatedbalance = $balcarry + $periodbalance;
+					
+				$totaldebit 				+= $debit;
+				$totalcredit 				+= $credit;
+				$totalperiodbalance 		+= $periodbalance;
+				$totalaccumulatedbalance 	+= $accumulatedbalance;
 
-				$totalprevcarry 		+= $prevcarry;
-				$totalbalcarry  		+= $balcarry;
-				$totaldebit 			+= $debit;
-				$totalcredit 			+= $credit;
-				$totalperiodbalance 	+= $periodbalance;
-				$totalaccumulatedbalance += $accumulatedbalance;
-				
+				$periodbalance 		= ($periodbalance < 0) ? '('.number_format(abs($periodbalance),2).')' : number_format(abs($periodbalance),2);
+				$balcarry 			= ($balcarry < 0) ? '('.number_format(abs($balcarry),2).')' : number_format(abs($balcarry),2);
+				$credit 			= ($credit < 0) ? '('.number_format(abs($credit),2).')' : number_format(abs($credit),2);
+				$debit 				= ($debit < 0) ? '('.number_format(abs($debit),2).')' : number_format(abs($debit),2);
+				$prevcarry 			= ($prevcarry < 0) ? '('.number_format(abs($prevcarry),2).')' : number_format(abs($prevcarry),2);
+				$accumulatedbalance = ($accumulatedbalance < 0) ? '('.number_format(abs($accumulatedbalance),2).')' : number_format(abs($accumulatedbalance),2);
+
 				$debitLink	= $debit;
 				$creditLink	= $credit;
 
@@ -255,18 +256,17 @@ class controller extends wc_controller {
 				$csv .= '"' . $accumulatedbalance . '"';
 				$csv .= "\n";
 			}
-			// $totaldebit 				= ($totaldebit < 0) ? '('.number_format(abs($totaldebit),2).')' : number_format(abs($totaldebit),2);
-			// $totalcredit 				= ($totalcredit < 0) ? '('.number_format(abs($totalcredit),2).')' : number_format(abs($totalcredit),2);
+
+			$totaldebit 				= ($totaldebit < 0) ? '('.number_format(abs($totaldebit),2).')' : number_format(abs($totaldebit),2);
+			$totalcredit 				= ($totalcredit < 0) ? '('.number_format(abs($totalcredit),2).')' : number_format(abs($totalcredit),2);
 			$totalperiodbalance 		= ($totalperiodbalance < 0) ? '('.number_format(abs($totalperiodbalance),2).')' : number_format(abs($totalperiodbalance),2);
 			$totalaccumulatedbalance 	= ($totalaccumulatedbalance < 0) ? '('.number_format(abs($totalaccumulatedbalance),2).')' : number_format(abs($totalaccumulatedbalance),2);
-			$totalprevcarry 			= ($totalprevcarry < 0) ? '('.number_format(abs($totalprevcarry),2).')' : number_format(abs($totalprevcarry),2);
-			$totalbalcarry 				= ($totalbalcarry < 0) ? '('.number_format(abs($totalbalcarry),2).')' : number_format(abs($totalbalcarry),2);
-
+			
 			$csv .= '"","","","","' . $totaldebit . '","' . $totalcredit . '","' . $totalperiodbalance . '","' . $totalaccumulatedbalance . '"';
 			$csv .= "\n";
 		}
 
-		// return $csv;
+		return $csv;
 	}
 
 	private function load_account_transactions(){
