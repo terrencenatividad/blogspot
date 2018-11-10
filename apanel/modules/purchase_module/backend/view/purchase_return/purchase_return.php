@@ -193,6 +193,7 @@
 			<table id="receipt_tableList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
 				<thead>
 					<tr class="info">
+						<th class="col-xs-3">PO No.</th>
 						<th class="col-xs-3">PR No.</th>
 						<th class="col-xs-3">Transaction Date</th>
 						<th class="col-xs-4">Notes</th>
