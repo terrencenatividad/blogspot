@@ -318,6 +318,7 @@ class sales_invoice extends wc_model
 			$data_insert['warehouse']  		= $dr_warehouse;
 			//$data_insert['discount']    	= $tempArrayValue['discount'];
 			$data_insert['itemdiscount']    = $tempArrayValue['itemdiscount'];
+			$data_insert['discounttype']    = $discounttype;
 			$data_insert['discountedamount']= $tempArrayValue['discountedamount'];
 			if(isset($tempArrayValue['h_taxcode']) && $tempArrayValue['h_taxcode'] != 'none'){
 				$taxcode 					= $tempArrayValue['h_taxcode'];

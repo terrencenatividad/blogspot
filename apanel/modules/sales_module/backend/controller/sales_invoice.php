@@ -197,10 +197,8 @@ class controller extends wc_controller
 		$invoice_reference 		= $this->invoice->getReference("invoice_dr");
 		$invoice_dr 			= $invoice_reference[0]->value;
 		
-		$vatex_comp_data        = array("code","value");
-		$vatex_comp_cond        = "code = 'sale_vatex'";
-		$result   		 		= $this->invoice->getValue("wc_reference", $vatex_comp_data, $vatex_comp_cond);
-		$data["vat_ex"] 		= isset($result[0]->value) 	? $result[0]->value 	:	"yes";
+		$result   		 		= $this->invoice->retrieveVatExValue();
+		$data["vat_ex"] 		= isset($result->value) 	? $result->value 	:	"yes";
 
 		$data['dr_linked'] 		= ($invoice_dr == 'yes') ? true : false;
 		if($invoice_dr == 'yes')
@@ -300,10 +298,8 @@ class controller extends wc_controller
 		$transactiondate 		= $retrieved_data["header"]->transactiondate;
 		$duedate 				= $retrieved_data["header"]->duedate;
 
-		$vatex_comp_data        = array("code","value");
-		$vatex_comp_cond        = "code = 'sale_vatex'";
-		$result   		 		= $this->invoice->getValue("wc_reference", $vatex_comp_data, $vatex_comp_cond);
-		$data["vat_ex"] 		= isset($result[0]->value) 	? $result[0]->value 	:	"yes";
+		$result   		 		= $this->invoice->retrieveVatExValue();
+		$data["vat_ex"] 		= isset($result->value) 	? $result->value 	:	"yes";
 
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["referenceno"]     = $retrieved_data["header"]->referenceno;
@@ -642,6 +638,7 @@ class controller extends wc_controller
 		$deliveries = $this->invoice->retrieveDeliveries($drno);
 
 		$customer 		= $deliveries['header']->customer;
+		$discounttype 	= $deliveries['header']->discounttype;
 		$notes 			= $deliveries['header']->remarks;
 		$discounttype	= $deliveries['header']->discounttype ? $deliveries['header']->discounttype : 0 ; 
 		$discountamount	= $deliveries['header']->discountamount ? $deliveries['header']->discountamount : 0 ; 
