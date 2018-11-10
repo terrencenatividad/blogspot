@@ -145,6 +145,12 @@ var ajax = {};
 				form_group.removeClass('has-error').find('p.help-block').html('');
 			}
 		}
+		else if( ( ajax.curr_code != "" && data.msg == "donut") || (data.msg == '' && task == 'edit'))
+		{
+			if (form_group.find('p.help-block').html() != "") {
+				form_group.removeClass('has-error').find('p.help-block').html('');
+			}
+		}
 		else if( ( ajax.curr_code != "" && data.msg == "") || (data.msg == '' && task == 'edit'))
 		{
 			if (form_group.find('p.help-block').html() != "") {

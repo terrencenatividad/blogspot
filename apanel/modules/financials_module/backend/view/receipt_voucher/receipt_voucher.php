@@ -202,23 +202,17 @@
 									<div class="form-group">
 										<label for="cwt" class="control-label col-md-4">CWT</label>
 										<div class="col-md-3" id="cwtdiv">
-												<?php
-												if($task != 'edit'){
+												<?php												
 													echo $ui->formField('checkbox')
 															->setSplit('', 'col-md-12')
 															->setId("cwt")
 															->setName("cwt")
 															->setClass("cwt")
 															->setDefault('1')
+														 	->setValue($cwt_checker)
 															->setAttribute(array("disabled" => "disabled"))
 															->draw($show_input);
-												}else{
 												?>
-												<input type="checkbox" id="cwt" class="cwt form-control" checked>
-												<button type="button" class="btn btn-primary btn-flat btn-xs edit-button">
-												<i class="glyphicon glyphicon-pencil"></i>
-												</button>
-												<?php } ?>	
 										</div>
 									<div id="editdiv" class="col-md-3 hidden">	
 										<button type="button" class="btn btn-primary btn-flat btn-xs edit-button">
@@ -3767,16 +3761,12 @@ $(document).ready(function() {
 		toggleExchangeRate();
 	});
 	if('<?= $task ?>' == "edit"){
-		var row 	  = $('#entriesTable tbody tr.clone').length - 1;
-	
-		var cwt = $("#taxcode\\["+ row +"\\]").val();
-		if(cwt == ''){
-			$('.cwt').iCheck('uncheck');
-			$('.edit-button').css('display','none');
-			$('#atcModal').modal('hide');
-		}else{
+		var cwt = $('.cwt').is(':checked');
+		if(cwt == true){
 			$('#cwtdiv').addClass('hidden');
 			$('#editdiv').removeClass('hidden');
+		}else{
+			$('.cwt').iCheck('enable');
 		}
 	}
 	
@@ -5124,7 +5114,7 @@ $('#payableForm').on('click','#update_ap_acct',function(e){
 
 $('#payableForm').on('ifChecked', '.cwt', function(){
 	var total_payment = $("#paymentModal #total_payment").val();
-	$('#tax_amount').val(total_payment);
+	// $('#tax_amount').val(total_payment);
 	$('#atcModal').modal('show');	
 });
 

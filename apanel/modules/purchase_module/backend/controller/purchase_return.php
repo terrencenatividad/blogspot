@@ -326,6 +326,7 @@ class controller extends wc_controller {
 		}
 		foreach ($pagination->result as $key => $row) {
 			$table .= '<tr data-id="' . $row->voucherno . '" data-si="' . $row->invoiceno . '">';
+			$table .= '<td>' . $row->po_no . '</td>';
 			$table .= '<td>' . $row->voucherno . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->remarks . '</td>';

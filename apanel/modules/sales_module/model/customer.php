@@ -43,7 +43,7 @@
 										->setGroupBy('customer')
 										->buildSelect();
 
-			$condition 		=	" partnertype = 'customer' AND stat = 'active' AND partnercode = '$partnercode' ";
+			$condition 		=	" partnertype = 'customer' AND stat != 'deleted' AND partnercode = '$partnercode' ";
 			
 			$result 		= 	$this->db->setTable('partners p')
 										->leftJoin("($receivables) as incurred ON incurred.customer = p.partnercode")

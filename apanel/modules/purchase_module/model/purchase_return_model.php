@@ -234,7 +234,7 @@ class purchase_return_model extends wc_model {
 								->buildSelect();
 
 		$result		= $this->db->setTable('purchasereceipt_details prd')
-								->setFields('pr.voucherno voucherno, pr.transactiondate transactiondate, remarks, pr.netamount netamount, (IF(SUM(prd.receiptqty) IS NULL, 0, SUM(prd.receiptqty)) - IF(prtn.pr_qty IS NULL, 0, prtn.pr_qty)) qtyleft, pr.vendor, invoiceno')
+								->setFields('pr.voucherno voucherno, pr.source_no po_no, pr.transactiondate transactiondate, remarks, pr.netamount netamount, (IF(SUM(prd.receiptqty) IS NULL, 0, SUM(prd.receiptqty)) - IF(prtn.pr_qty IS NULL, 0, prtn.pr_qty)) qtyleft, pr.vendor, invoiceno')
 								->innerJoin('purchasereceipt pr ON prd.voucherno = pr.voucherno AND prd.companycode = pr.companycode')
 								->leftJoin("($subquery) prtn ON prtn.source_no = prd.voucherno AND prtn.companycode = prd.companycode")
 								->setWhere("pr.stat NOT IN ('Cancelled','temporary')" . $condition)

@@ -812,14 +812,14 @@ class bankrecon_model extends wc_model {
 
 		$bankrecon = $this->db->setTable('bankrecon b')
 								->innerJoin('bankrecon_tagged bt ON bt.recon_id = b.id AND bt.companycode = b.companycode')
-								->setFields('bt.companycode, bt.recon_id, recdet_id, bt.id, bt.stat, bt.voucherno, bt.v_updatedate')
+								->setFields('bt.companycode, bt.recon_id, recdet_id, bt.id, bt.stat, bt.voucherno, bt.v_updatedate, bt.v_checkno')
 								->setWhere("accountcode = '$accountcode' AND (b.id = '$recon_id' OR b.id = 'closed')")
 								->buildSelect();
 
 		$where = ($get_null) ? 'b.id IS NULL' : 'b.id IS NOT NULL';
 
 		$query2 = $this->db->setTable("($query) i")
-							->leftJoin("($bankrecon) b ON i.voucherno = b.voucherno AND i.updatedate = b.v_updatedate AND i.companycode = b.companycode AND b.recon_id = '$recon_id'")
+							->leftJoin("($bankrecon) b ON i.voucherno = b.voucherno AND i.updatedate = b.v_updatedate AND i.chequenumber = b.v_checkno AND i.companycode = b.companycode AND b.recon_id = '$recon_id'")
 							->setFields('i.*, recdet_id, b.id tagged_id, b.stat')
 							->setWhere($where)
 							->buildSelect();
