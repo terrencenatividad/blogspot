@@ -467,7 +467,6 @@ class controller extends wc_controller
 
 		$documentinfo  	= $this->invoice->retrieveData($docinfo_table, $docinfo_fields, $docinfo_cond, $docinfo_join);
 		$documentinfo	= $documentinfo[0]; 
-
 		$customer 	    = $documentinfo->customer;
 
 		/** HEADER INFO - END**/
@@ -476,7 +475,7 @@ class controller extends wc_controller
 
 		$docdet_table   = "salesinvoice_details as dtl";
 		//Jasmine - rearranged positions
-		$docdet_fields  = array("dtl.itemcode as itemcode", "dtl.detailparticular as description","dtl.issueqty as quantity" ,"UPPER(dtl.issueuom) as uom", "unitprice as price", "taxamount","amount as amount", "taxrate", "itemdiscount");
+		$docdet_fields  = array("dtl.itemcode as itemcode", "dtl.detailparticular as description","dtl.issueqty as quantity" ,"UPPER(dtl.issueuom) as uom", "unitprice as price","IF(dtl.discounttype='perc',CONCAT(dtl.discountrate,' ','%'),dtl.itemdiscount) itemdiscount", "taxamount","amount as amount", "taxrate");
 		//$docdet_fields  = array("dtl.itemcode as itemcode", "dtl.detailparticular as description", "dtl.issueqty as quantity","unitprice as price","amount as amount");
 		$docdet_cond    = " dtl.voucherno = '$voucherno' ";
 		$docdet_join 	= "";
@@ -513,10 +512,10 @@ class controller extends wc_controller
 				->addTermsAndCondition()
 				->addReceived();
 
-		$print->setHeaderWidth(array(30, 50, 20, 20, 30, 20, 30))
-				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
-				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price', 'Tax', 'Amount'))
-				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R', 'R'))
+		$print->setHeaderWidth(array(30, 50, 20, 10, 20, 20, 20, 30))
+				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C','C'))
+				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price', 'Discount', 'Tax', 'Amount'))
+				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R', 'R','R'))
 				->setSummaryWidth(array('170', '30'));
 
 		$detail_height = 28;
@@ -533,9 +532,10 @@ class controller extends wc_controller
 				$print->drawHeader();
 			}
 			// echo $row->taxrate;
+			$discount 	    = isset($documentinfo->discount) ? $documentinfo->discount : 0;
 			$vatable_sales	+= ($row->taxrate > 0) ? $row->amount : 0;
 			$vat_exempt		+= ($row->taxrate == 0) ? $row->amount : 0;
-			$discount		+= $row->itemdiscount;
+			$discount		+= isset($row->discunt) ? $row->discount : 0;
 			$tax			+= $row->taxamount;
 			$total_amount	+= 0;
 			$row->quantity	= number_format($row->quantity);
@@ -566,9 +566,10 @@ class controller extends wc_controller
 			'VATable Sales'		=> number_format($vatable_sales, 2),
 			'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
 			'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
-			'Discount'			=> number_format($discount, 2),
 			'Tax'				=> number_format($tax, 2),
-			'Total Amount'		=> number_format($total_amount, 2)
+			'Total Amount'		=> number_format($total_amount, 2),
+			''					=> '',
+			'Discount'			=> number_format($discount, 2)
 		);
 		$print->drawSummary($summary);
 

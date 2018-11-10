@@ -320,6 +320,8 @@ class sales_invoice extends wc_model
 			$data_insert['itemdiscount']    = $tempArrayValue['itemdiscount'];
 			$data_insert['discounttype']    = $discounttype;
 			$data_insert['discountedamount']= $tempArrayValue['discountedamount'];
+			$data_insert['discountrate'] 	= ($discounttype == 'perc') ? $tempArrayValue['itemdiscount'] : 0;
+
 			if(isset($tempArrayValue['h_taxcode']) && $tempArrayValue['h_taxcode'] != 'none'){
 				$taxcode 					= $tempArrayValue['h_taxcode'];
 				$data_insert['taxcode']    	= $taxcode;
