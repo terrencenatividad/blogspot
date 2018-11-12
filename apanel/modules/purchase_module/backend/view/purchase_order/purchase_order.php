@@ -551,7 +551,7 @@
 									</td>
 								</tr>
 
-								<tr id="total_purchase">
+								<tr id="total_purchase" class="hidden">
 									<td colspan = '5'></td>
 									<td class="text-right">
 										<label class="control-label">Withholding Tax</label>
@@ -968,7 +968,7 @@
 echo $ui->loadElement('modal')
 ->setId('vendor_modal')
 ->setContent('maintenance/supplier/create')
-->setHeader('Add a Vendor')
+->setHeader('Add New Supplier')
 ->draw();
 ?>
 <!-- Delete Record Confirmation Modal -->
