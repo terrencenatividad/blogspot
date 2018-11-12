@@ -28,6 +28,7 @@
 					<?= 
 						$ui->OptionButton('');
 					?>
+					<?=	$ui->CreateDeleteButton(''); ?>
 					<?=	$ui->CreateActButton(''); ?>
 				</div>
 
@@ -114,7 +115,7 @@
 				<h4 class="modal-title">Confirmation</h4>
 				</div>
 				<div class="modal-body">
-				<p>Are you sure you want to cancel this record?</p>
+				<p>Are you sure you want to delete this record?</p>
 				</div>
 				<div class="modal-footer text-center">
 					<button type="button" class="btn btn-outline btn-flat" id = "delete-yes">Yes</button>
@@ -268,74 +269,28 @@ function showList(pg){
 
 showList();
 
+function ajaxCallback(id) {
+	var ids = getDeleteId(id);
+	$.post('<?=MODULE_URL?>ajax/ajax_delete', ids, function(data) {
+		if ( ! data.success) {
+			$('#warning_modal #warning_message').html('<p>Unable to delete Discount: Discount in Use</p>');
+			data.error_id.forEach(function(id) {
+				$('#warning_modal #warning_message').append('<p>Discount Code: ' + id + '</p>');
+			});
+			$('#warning_modal').modal('show');
+		}
+		showList();
+	});
+}
+
 $(function() {
-	// linkButtonToTable('#activateMultipleBtn', '#discount_table');
-	// linkButtonToTable('#deactivateMultipleBtn', '#discount_table');
+	linkButtonToTable('#item_multiple_delete', '#discount_table');
+	linkDeleteToModal('#discount_table .delete', 'ajaxCallback');
+	linkDeleteMultipleToModal('#item_multiple_delete', '#discount_table', 'ajaxCallback');
 });
 
 $(document).ready(function() 
 {
-	$( "#discount_table" ).on('click' , '.delete', function() 
-	{
-		var id = $( this ).attr("data-id");
-		
-		if( id != "" )
-		{
-			$(".delete-modal > .modal").css("display", "inline");
-			$(".delete-modal").modal("show");
-
-			$( "#delete-yes" ).click(function() 
-			{
-				$.post('<?=BASE_URL?>maintenance/discount/ajax/delete', 'id=' + id, function(data) 
-				{
-					if( data.msg == 'success' )	
-					{
-						$(".delete-modal").modal("hide");
-						showList();
-					}
-					else
-					{			
-						$(".delete-modal").modal("hide");
-						show_error(data.msg);
-					}
-				});
-			});	
-		}
-
-	});
-
-	$( "#deletelistBtn" ).click(function() 
-	{	
-		var id = [];
-
-		$('input:checkbox[name="checkbox[]"]:checked').each(function()
-		{
-			id.push($(this).val());
-		});
-
-		if( id != "" )
-		{
-			$(".delete-modal > .modal").css("display", "inline");
-			$(".delete-modal").modal("show");
-
-			$( "#delete-yes" ).click(function() 
-			{
-				$.post('<?=BASE_URL?>maintenance/discount/ajax/delete', 'id=' + id, function(data) 
-				{
-					if( data.success )	
-					{
-						window.location.href = "<?=BASE_URL?>maintenance/discount";
-					}
-					else
-					{
-						// Call function to display error_get_last
-						show_error(data.msg);
-					}
-				});
-			});	
-		}
-	});
-
 	/** -- FOR TAGGING AS COMPLETE -- **/
 	$('#discount_table').on('click','.tag_customers',function(){
 		var code	=	$(this).attr('data-id');
