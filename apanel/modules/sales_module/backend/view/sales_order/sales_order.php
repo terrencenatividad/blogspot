@@ -350,8 +350,8 @@
 													->setNone('none')
 													->draw($show_input);
 										?>
-										<input id = '<?php echo 'taxrate['.$row.']'; ?>' name = '<?php echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value='0.00' >
-										<input id = '<?php echo 'taxamount['.$row.']'; ?>' name = '<?php echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value='0.00'>
+										<input id = '<?php echo 'taxrate['.$row.']'; ?>' name = '<?php echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12 taxrate' type = 'hidden' value='0.00' >
+										<input id = '<?php echo 'taxamount['.$row.']'; ?>' name = '<?php echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12 taxamount' type = 'hidden' value='0.00'>
 									</td>
 									<td class = "remove-margin">
 										<?php
@@ -512,8 +512,8 @@
 													->setValue($taxcode)
 													->draw($show_input);
 										?>
-										<input id = '<?php echo 'taxrate['.$row.']'; ?>' name = '<?php echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value="<?php echo $taxrate;?>" > 
-										<input id = '<?php echo 'taxamount['.$row.']'; ?>' name = '<?php echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' >
+										<input id = '<?php echo 'taxrate['.$row.']'; ?>' name = '<?php echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12 taxrate' type = 'hidden' value="<?php echo $taxrate;?>" > 
+										<input id = '<?php echo 'taxamount['.$row.']'; ?>' name = '<?php echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12 taxamount' type = 'hidden' >
 									</td>
 									<td class = "remove-margin text-right">
 										<?php
@@ -1218,7 +1218,7 @@ function computeAmount()
 
 		document.getElementById('amount['+row+']').value 			=	addCommas(amount.toFixed(2));
 		document.getElementById('h_amount['+row+']').value 			=	addCommas(amount.toFixed(5));
-		document.getElementById('taxrate['+row+']').value 			= 	addCommas(vat.toFixed(2));
+		// document.getElementById('taxrate['+row+']').value 			= 	addCommas(vat.toFixed(2));
 		document.getElementById('taxamount['+row+']').value 		= 	addCommas(vat_amount.toFixed(5));
 		document.getElementById('discountedamount['+row+']').value 	= 	addCommas(amount.toFixed(5));
 
@@ -1729,11 +1729,12 @@ $(document).ready(function(){
 			var id 		= 	$(this).attr("id");
 			var row 	=	id.replace(/[a-z]/g, '');
 			var code 	= 	$(this).val();
+			var taxcode_= 	$(this);
 
 			$.post('<?=BASE_URL?>sales/sales_invoice/ajax/get_value', "taxcode=" + code + "&event=getTaxRate", function(data) {
-				document.getElementById('taxrate' + row).value = data.taxrate;
-				computeAmount();
+				taxcode_.closest('tr').find('.taxrate').val(data.taxrate).trigger('change');;
 			});
+			computeAmount();
 		});
 
 		$('#sales_order_form').on('change','.quantity',function(e){
@@ -1909,8 +1910,7 @@ $(document).ready(function(){
 		// Process New Transaction
 		if('<?= $task ?>' == "create")
 		{
-			$("#sales_order_form").change(function()
-			{
+			$("#sales_order_form").on('change blur',function(){
 				computeAmount();
 				if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
 				{

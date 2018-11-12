@@ -399,7 +399,7 @@
 					
 					foreach($postValue as $postValueIndex => $postValueIndexValue)
 					{
-						if($postIndex == 'quantity' || $postIndex == 'amount' || $postIndex == 'h_amount' || $postIndex == 'taxamount' || 
+						if($postIndex == 'quantity' || $postIndex == 'amount' || $postIndex == 'h_amount' || $postIndex == 'taxamount' || $postIndex == 'taxrate' || 
 							$postIndex == 'itemprice' || $postIndex == 'discount'|| $postIndex == 'itemdiscount' || $postIndex == 'discountedamount')
 						{
 							$a = str_replace(',', '', $postValueIndexValue);
