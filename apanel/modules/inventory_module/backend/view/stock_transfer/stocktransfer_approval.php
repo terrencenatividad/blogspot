@@ -389,7 +389,10 @@
 			if ($('.qtytransferred:not([readonly])').length > 0 && items > 0) {
 				$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
 					if (data.success) {
-						window.location = data.redirect;
+						$('#delay_modal').modal('show');
+							setTimeout(function() {							
+								window.location = data.redirect;						
+							}, 1000)
 					} 
 				});
 			} else {
