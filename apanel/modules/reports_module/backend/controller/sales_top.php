@@ -70,6 +70,7 @@ class controller extends wc_controller {
 
 		if ($pagination->result) {
 			foreach ($pagination->result as $key => $row) {
+				$net_qty = $row->sales - $row->returns;
 				$table .= '<tr>';
 				$table .= '<td>' . ((($pagination->page - 1) * 10) + $key + 1) . '</td>';
 				$table .= '<td>' . $row->itemname . '</td>';
@@ -78,8 +79,14 @@ class controller extends wc_controller {
 				// $table .= '<td>' . $row->warehouse . '</td>';
 				$table .= '<td class="text-right">' . number_format($row->sales) . '</td>';
 				$table .= '<td class="text-right">' . number_format($row->returns) . '</td>';
-				$table .= '<td class="text-right">' . number_format($row->sales - $row->returns) . '</td>';
-				$table .= '<td class="text-right">' . number_format($row->total_amount, 2) . '</td>';
+				$table .= '<td class="text-right">' . number_format($net_qty) . '</td>';
+				if ($net_qty < 0) {
+					$getAmount = $this->sales_top_model->getReturnedAmount($row->itemcode, $dates[0], $dates[1]);
+					$table .= '<td class="text-right">- ' . number_format($getAmount->amount) . '</td>';
+				}
+				else {
+					$table .= '<td class="text-right">' . number_format($row->total_amount, 2) . '</td>';
+				}
 				$table .= '</tr>';
 			}
 		} else {

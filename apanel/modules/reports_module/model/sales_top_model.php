@@ -41,7 +41,7 @@ class sales_top_model extends wc_model {
 		$sr = $this->db->setTable('salesreturn a')
 						->innerJoin('salesreturn_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
 						->setFields("itemcode, transactiondate, a.companycode, b.warehouse, 0 sales, issueqty returns, 0 amount, issueuom uom")
-						->setWhere("a.stat = 'open' OR a.stat = 'posted'")
+						->setWhere("a.stat = 'Returned' OR a.stat = 'temporary'")
 						->buildSelect();
 
 		$inner_query = $si . ' UNION ALL ' . $sr;
@@ -49,12 +49,24 @@ class sales_top_model extends wc_model {
 		$query = $this->db->setTable("($inner_query) iq")
 							->innerJoin('items i ON i.itemcode = iq.itemcode AND i.companycode = iq.companycode')
 							->innerJoin('itemclass ic ON ic.id = i.classid AND ic.companycode = i.companycode')
-							->setFields('itemname, warehouse, label category, SUM(sales) sales, SUM(returns) returns, SUM(amount) total_amount, uom')
+							->setFields('i.itemcode, itemname, warehouse, label category, SUM(sales) sales, SUM(returns) returns, SUM(amount) total_amount, uom')
 							->setWhere("warehouse != '' AND transactiondate >= '$start' AND transactiondate <= '$end'" . $condition)
 							->setGroupBy('i.itemcode')
 							->setOrderBy($sort);
 
 		return $query;
+	}
+
+	public function getReturnedAmount($itemcode, $start, $end) {
+		$result = $this->db->setTable('salesreturn sr')
+						->leftJoin('salesreturn_details sd ON sr.voucherno = sd.voucherno')
+						->setFields("SUM(sd.amount) amount")
+						->setWhere("sd.itemcode = '$itemcode' AND sd.stat != 'Cancelled' AND sr.transactiondate >= '$start' AND sr.transactiondate <= '$end'")
+						->setGroupBy('sd.itemcode')
+						->runSelect()
+						->getRow();
+
+		return $result;
 	}
 
 }
