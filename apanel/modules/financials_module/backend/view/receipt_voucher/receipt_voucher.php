@@ -9,7 +9,6 @@
 		</div>
 		<p class = "text-bold">Please contact admin to fix this issue.</p>
 	</div>
-	
 	<form method = "post" class="form-horizontal" id = "payableForm">
 		<input type="hidden" id="h_task" name="h_task" value="<?=$task?>">
 		<input type="hidden" id="ar_acct" name="ar_acct" value="<?=$ar_acct?>">
@@ -1066,8 +1065,10 @@
 						if(($status == 'open' && $has_access == 1) && $restrict_rv && ($cv_status=="" || $cv_status != "used")){
 							echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
 						}
+						echo $ui->drawCancel();
 						?>
-						<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
+						
+						<!-- <a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a> -->
 						<!-- <button type="button" class="btn btn-default btn-flat" data-id="<?//=$generated_id?>" id="btnCancel">Cancel</button> -->
 					</div>
 				</div>
@@ -1412,7 +1413,7 @@
 <!-- End Delete Record Confirmation Modal -->
 
 <!--DELETE RECORD CONFIRMATION MODAL-->
-<div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
+<!-- <div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
 	<div class="modal-dialog modal-sm">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -1437,7 +1438,7 @@
 			</div>
 		</div>
 	</div>
-</div>
+</div> -->
 <!-- End DELETE RECORD CONFIRMATION MODAL-->
 
 <!-- ON CHANGING OF VENDOR MODAL -->
@@ -4173,10 +4174,10 @@ $(document).ready(function() {
 		});
 	});
 
-	$('#cancelModal #btnYes').click(function() {
-		var record = document.getElementById('h_voucher_no').value;
-		cancelTransaction(record);
-	});
+	// $('#cancelModal #btnYes').click(function() {
+	// 	var record = document.getElementById('h_voucher_no').value;
+	// 	cancelTransaction(record);
+	// });
 
 	/**TOGGLE ISSUE PAYMENT**/
 	$("#btnReceive").click(function(){
