@@ -258,11 +258,11 @@ class controller extends wc_controller {
 			}
 
 			$totaldebit 				= ($totaldebit < 0) ? '('.number_format(abs($totaldebit),2).')' : number_format(abs($totaldebit),2);
-			$totaldebit 				= ($totalcredit < 0) ? '('.number_format(abs($totalcredit),2).')' : number_format(abs($totalcredit),2);
+			$totalcredit 				= ($totalcredit < 0) ? '('.number_format(abs($totalcredit),2).')' : number_format(abs($totalcredit),2);
 			$totalperiodbalance 		= ($totalperiodbalance < 0) ? '('.number_format(abs($totalperiodbalance),2).')' : number_format(abs($totalperiodbalance),2);
 			$totalaccumulatedbalance 	= ($totalaccumulatedbalance < 0) ? '('.number_format(abs($totalaccumulatedbalance),2).')' : number_format(abs($totalaccumulatedbalance),2);
 			
-			$csv .= '"","","","","' . $totaldebit . '","' . $totaldebit . '","' . $totalperiodbalance . '","' . $totalaccumulatedbalance . '"';
+			$csv .= '"","","","","' . $totaldebit . '","' . $totalcredit . '","' . $totalperiodbalance . '","' . $totalaccumulatedbalance . '"';
 			$csv .= "\n";
 		}
 
