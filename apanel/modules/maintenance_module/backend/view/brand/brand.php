@@ -109,6 +109,7 @@ $('#brandcode').on('blur',function(){
 	var error_message 	=	'';	
 	var form_group	 	= 	$('#brandcode').closest('.form-group');
 	var hasSpace = $(this).val().indexOf(' ')>=0;
+	var regex = /^[0-9a-zA-Z\_]+$/;
 
 	$.post('<?=BASE_URL?>maintenance/brand/ajax/get_duplicate',ajax, function(data) {
 		if( data.msg == 'exists' )
@@ -116,9 +117,14 @@ $('#brandcode').on('blur',function(){
 			error_message 	=	"<b>The Code you entered already exists!</b>";
 			$('#brandcode').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
 		}
-		
 		else if(hasSpace == true) {
 			error_message 	=	"<b>Space not allowed</b>";
+			$('#brandcode').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+		}
+		else if(!regex.test(ajax.curr_code))
+		{
+			console.log(ajax.curr_code);
+			error_message 	=	"<b>Special character not allowed</b>";
 			$('#brandcode').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
 		}
 		else if( ( ajax.curr_code != "" && data.msg == "") || (data.msg == '' && task == 'edit'))
@@ -127,6 +133,7 @@ $('#brandcode').on('blur',function(){
 				form_group.removeClass('has-error').find('p.help-block').html('');
 			}
 		}
+
 	});
 });
 
