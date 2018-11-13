@@ -631,7 +631,7 @@ class controller extends wc_controller
 				$checker 	 			= $row->importchecker; 
 				$import 				= ($checker=='import') 	?	"Yes" 	:	"No";
 				$stat					= $row->stat;
-				$payment_status			= $row->payment_status;
+				//$payment_status			= $row->payment_status;
 				
 				// if($balance != 0 && $stat == 'cancelled')
 				// {
@@ -654,13 +654,31 @@ class controller extends wc_controller
 				// 	$voucher_status = '<span class="label label-success">PAID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
 				// }
 
-				if($payment_status == "paid") {
+			
+				if($balance != 0 && $stat == 'cancelled'){
+					$status 		= 'cancelled';
+				}else if($balance == 0 && $stat == 'cancelled'){
+					$status 		= 'cancelled';
+				}
+				else if($balance != $amount && $balance != 0 && $stat == 'cancelled'){
+					$status 		= 'cancelled';
+				}
+				else if($balance != $amount && $balance != 0){
+					$status  		= 'partial';
+				}else if($balance != 0){
+					$status 		= 'unpaid';
+				}
+				else{
+					$status 		= 'paid';
+				}
+
+				if($status == "paid") {
 					$voucher_status = '<span class="label label-success">PAID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
-				} else if($payment_status == 'unpaid'){
+				} else if($status == 'unpaid'){
 					$voucher_status = '<span class="label label-warning">UNPAID</span>';
-				} else if($payment_status == 'cancelled'){
+				} else if($status == 'cancelled'){
 					$voucher_status = '<span class="label label-danger">CANCELLED</span>';
-				} else if($payment_status == "partial"){
+				} else if($status == "partial"){
 					$voucher_status = '<span class="label label-info">PARTIAL</span>';
 				}
 

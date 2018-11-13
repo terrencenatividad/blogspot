@@ -470,24 +470,16 @@
 			return $dataArray = array("msg" => $msg);
 		}
 
-		private function delete()
-		{
-			$id_array 		= array('id');
-			$id       		= $this->input->post($id_array);
-			
-			$result 		= $this->discount->deleteDiscount($id);
-			
-			if( empty($result) )
-			{
-				$msg = "success";
-				$this->log->saveActivity("Deleted Discount [". implode($id, ', ') ."] ");
+		private function ajax_delete() {
+			$delete_id = $this->input->post('delete_id');
+			$error_id = array();
+			if ($delete_id) {
+				$error_id = $this->discount->deleteDiscount($delete_id);
 			}
-			else
-			{
-				$msg = $result;
-			}
-
-			return $dataArray = array("msg" => $msg);
+			return array(
+				'success'	=> (empty($error_id)),
+				'error_id'	=> $error_id
+			);
 		}
 		
 		private function tagging_list(){
