@@ -37,6 +37,7 @@ class controller extends wc_controller {
 		$csv .= '"' . implode('","', array('Rank', 'Item', 'Category', 'UOM', 'Qty Sold', 'Qty Return', 'Net Qty', 'Total Amount')) . '"';
 		$result = $this->sales_top_model->getSales($warehouse, $sort, $dates[0], $dates[1]);
 		foreach ($result as $key => $row) {
+			$net_qty = $row->sales - $row->returns;
 			$csv .= "\n";
 			$csv .= '"' . ($key + 1) . '",';
 			$csv .= '"' . $row->itemname . '",';
@@ -44,8 +45,14 @@ class controller extends wc_controller {
 			$csv .= '"' . strtoupper($row->uom) . '",';
 			$csv .= '"' . number_format($row->sales) . '",';
 			$csv .= '"' . number_format($row->returns) . '",';
-			$csv .= '"' . number_format($row->sales - $row->returns) . '",';
-			$csv .= '"' . number_format($row->total_amount, 2) . '"';
+			$csv .= '"' . number_format($net_qty, 2) . '",';
+			if ($net_qty < 0) {
+				$getAmount = $this->sales_top_model->getReturnedAmount($row->itemcode, $dates[0], $dates[1]);
+				$csv .= '"- ' . number_format($getAmount->amount) . '",';
+			}
+			else {
+				$csv .= '"' . number_format($row->total_amount) . '",';
+			}
 		}
 		echo $csv;
 	}
