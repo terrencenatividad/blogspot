@@ -92,7 +92,7 @@
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true">×</span></button>
-							<h4 class="modal-title">Import ATC Code</h4>
+							<h4 class="modal-title">Import Bank</h4>
 						</div>
 						<div class="modal-body">
 							<label>Step 1. Download the sample template 
@@ -148,12 +148,12 @@
 					$('#currency_table #list_container').html(data.table);
 					$('#pagination').html(data.pagination);
 					historyOfMyLife();
-        $("#export_id").attr('href', 'data:text/csv;filename=bank.csv;charset=utf-8,' + encodeURIComponent(data.csv));
-        if (ajax.page > data.page_limit && data.page_limit > 0) {
-        	ajax.page = data.page_limit;
-        	getList();
-        }
-    });
+					$("#export_id").attr('href', 'data:text/csv;filename=bank.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+					if (ajax.page > data.page_limit && data.page_limit > 0) {
+						ajax.page = data.page_limit;
+						getList();
+					}
+				});
 			};
 
 			$( "#search" ).keyup(function() {
