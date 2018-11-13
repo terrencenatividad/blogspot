@@ -195,6 +195,16 @@ $("#import_id").click(function()
 						});
 	});
 
+$('#import-modal').on('show.bs.modal', function() {
+          var form_csv = $('#import_csv').val('').closest('.form-group').find('.form-control').html('').closest('.form-group').html();
+          $('#import_csv').closest('.form-group').html(form_csv);
+        });
+
+$('#importForm').on('change', '#import_csv', function() {
+          var filename = $(this).val().split("\\");
+          $(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
+        });
+		
 $('#pagination').on('click', 'a', function(e) {
 	e.preventDefault();
 	$('.checked').iCheck('uncheck');

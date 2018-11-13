@@ -195,7 +195,14 @@
 					$show_activate 		= ($stat != 'inactive');
 					$show_deactivate 	= ($stat != 'active');
 
-					$dropdown = $this->ui->loadElement('check_task')
+					$session  			= new session();
+					$login    			= $session->get('login');
+					$groupname  		= isset($login['groupname']) ? $login['groupname'] : '';
+					$access 			= $this->brand->checkAccess($groupname);
+
+					if($access == "1") 
+					{
+						$dropdown = $this->ui->loadElement('check_task')
 										->addView()
 										->addEdit()
 										->addOtherTask(
@@ -212,6 +219,18 @@
 										->addCheckbox()
 										->setValue($row->brandcode)
 										->draw();
+					}
+					else {
+						$dropdown = $this->ui->loadElement('check_task')
+										->addView()
+										->addEdit()
+										->addDelete()
+										->addCheckbox()
+										->setValue($row->brandcode)
+										->draw();
+					}
+
+					
 
 					$table .= '<tr>';
 					$table .= ' <td align = "center">' .$dropdown. '</td>';
