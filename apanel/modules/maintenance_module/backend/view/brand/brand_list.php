@@ -96,7 +96,7 @@
 					<div class="modal-body">
 						<label>Step 1. Download the sample template 
 						<a href="<?=BASE_URL?>modules/maintenance_module/backend/view/
-											pdf/import_atccode.csv">here</a>
+											pdf/import_brands.csv">here</a>
 						</label>
 						<hr/>
 						<label>Step 2. Fill up the information needed for each columns of the template.
@@ -130,7 +130,6 @@
 	</div>
 </div>
 
-
 <script>
 var ajax = {};
 
@@ -147,7 +146,7 @@ function showList(){
 		$('#brand_table #list_container').html(data.table);
         $('#pagination').html(data.pagination);
 		historyOfMyLife();
-		$("#export_id").attr('href', 'data:text/csv;filename=brands_export.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+		$("#export_id").attr('href', 'data:text/csv;filename=export_brands.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 		if (ajax.page > data.page_limit && data.page_limit > 0) {
 			ajax.page = data.page_limit;
 			showList();
@@ -155,7 +154,7 @@ function showList(){
 	});
 };
 
-$('#export_id').prop('download','brands_export.csv');
+$('#export_id').prop('download','export_brands.csv');
 		// $('#export_id').prop('href','');
 
 $( "#search" ).keyup(function() {
@@ -163,6 +162,38 @@ $( "#search" ).keyup(function() {
 	ajax.search = search;
 	showList();
 });
+
+/** For Import Modal **/
+$("#import_id").click(function() 
+	{
+		$("#import-modal > .modal").css("display", "inline");
+		$('#import-modal').modal();
+	});
+
+	$("#importForm #btnImport").click(function() 
+	{
+		var formData =	new FormData();
+		formData.append('file',$('#import_csv')[0].files[0]);
+		ajax_call 	=	$.ajax({
+							url : '<?=MODULE_URL?>ajax/save_import',
+							data:	formData,
+							cache: 	false,
+							processData: false, 
+							contentType: false,
+							type: 	'POST',
+							success: function(response){
+								if(response && response.errmsg == ""){
+									$('#import-modal').modal('hide');
+									$(".alert-warning").addClass("hidden");
+									$("#errmsg").html('');
+									show_success_msg("Your data has been successfully imported!");
+								}else{
+									$('#import-modal').modal('hide');
+									show_error(response.errmsg);
+								}
+							},
+						});
+	});
 
 $('#pagination').on('click', 'a', function(e) {
 	e.preventDefault();
@@ -173,6 +204,15 @@ $('#pagination').on('click', 'a', function(e) {
 		showList();
 	}
 });
+
+function show_success_msg(msg)
+	{
+		$('#success_modal #message').html(msg);
+		$('#success_modal').modal('show');
+		setTimeout(function() {												
+			window.location = '<?= MODULE_URL ?>';		
+		}, 1000)
+	}
 
 $(document).ready(function() 
 {

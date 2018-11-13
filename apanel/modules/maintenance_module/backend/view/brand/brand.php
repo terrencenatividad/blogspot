@@ -21,8 +21,9 @@
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('brandcode')
 									->setId('brandcode')
+									->setMaxLength(12)
 									->setValue($brandcode)
-									->setValidation('required code')
+									->setValidation('required') //required code
 									->draw($show_input);
 						?>
 					</div>
@@ -36,6 +37,7 @@
 									->setSplit('col-md-3', 'col-md-6')
 									->setName('brandname')
 									->setId('brandname')
+									->setMaxLength(30)
 									->setValue($brandname)
 									->setValidation('required')
 									->draw($show_input);
@@ -56,9 +58,11 @@
 						<? 	
 							}else{
 						?>
+							<?php if($access == 1):  ?>
 							<div class="btn-group">
 								<a class="btn btn-primary btn-flat" role="button" href="<?=BASE_URL?>maintenance/brand/edit/<?=$brandcode?>" style="outline:none;">Edit</a>
 							</div>
+							<?php endif; ?>
 						<?
 							}
 						?>
@@ -104,11 +108,17 @@ $('#brandcode').on('blur',function(){
 	var task 		=	'<?=$task?>';
 	var error_message 	=	'';	
 	var form_group	 	= 	$('#brandcode').closest('.form-group');
+	var hasSpace = $(this).val().indexOf(' ')>=0;
 
 	$.post('<?=BASE_URL?>maintenance/brand/ajax/get_duplicate',ajax, function(data) {
 		if( data.msg == 'exists' )
 		{
 			error_message 	=	"<b>The Code you entered already exists!</b>";
+			$('#brandcode').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+		}
+		
+		else if(hasSpace == true) {
+			error_message 	=	"<b>Space not allowed</b>";
 			$('#brandcode').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
 		}
 		else if( ( ajax.curr_code != "" && data.msg == "") || (data.msg == '' && task == 'edit'))

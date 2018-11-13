@@ -68,9 +68,14 @@
 		public function view($code)
 		{
 			$this->view->title 	= $this->ui->ViewLabel('');
-			
+			$session  			= new session();
+			$login    			= $session->get('login');
+			$groupname  		= isset($login['groupname']) ? $login['groupname'] : '';
+			$access 			= $this->brand->checkAccess($groupname);
+
 			$data 			 	= (array) $this->brand->retrieveExistingBrand($this->fields, $code);
 			
+			$data['access']		= $access->mod_edit;
 			$data['ui'] 		= $this->ui;
 			$data['show_input'] = false;
 			$data['task'] 		= "";
@@ -161,6 +166,11 @@
 			}
 
 			return $dataArray = array("msg" => $msg);
+		}
+
+		private function validateCode() 
+		{
+			$input = $this->input->post('curr_code');
 		}
         
         private function brand_list() {
@@ -298,7 +308,7 @@
 			$search = $this->input->post("search");
 			$sort 	= $this->input->post('sort');
 
-			$header = array('brandcode','brandname','stat');
+			$header = array('Brand Code','Brand Name','Status');
 			
 			$prev 	= '';
 			$next 	= '';
@@ -326,8 +336,128 @@
 
 			return $csv;
 		}
+
+		private function save_import(){
+			$file		= fopen($_FILES['file']['tmp_name'],'r') or exit ("File Unable to upload") ;
+
+			$filedir	= $_FILES["file"]["tmp_name"];
 	
-        
+			$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext","application/octet-stream");
+
+			/**VALIDATE FILE IF CORRUPT**/
+			if(!empty($_FILES['file']['error'])){
+				$errmsg[] = "File being uploaded is corrupted.<br/>";
+			}
+
+			/**VALIDATE FILE TYPE**/
+			if(!in_array($_FILES['file']['type'],$file_types)){
+				$errmsg[]= "Invalid file type, file must be .csv.<br/>";
+			}
+			
+			$headerArr = array('Brand Code','Brand Name');
+			
+			if( empty($errmsg) )
+			{
+				//$x = file_get_contents($_FILES['file']['tmp_name']);
+				$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
+
+				for ($n = 0; $n < count($x); $n++) {
+					if($n==0)
+					{
+						$layout = count($headerArr);
+						$template = count($x);
+						$header = $x[$n];
+						
+						for ($m=0; $m< $layout; $m++)
+						{
+							$template_header = $header[$m];
+
+							$error = (empty($template_header) && !in_array($template_header,$headerArr)) ? "error" : "";
+						}	
+
+						$errmsg[]	= (!empty($error) || $error != "" ) ? "Invalid template. Please download template from the system first.<br/>" : "";
+						
+						$errmsg		= array_filter($errmsg);
+
+					}
+
+					if ($n > 0) 
+					{
+						$z[] = $x[$n];
+					}
+				}
+				
+				$line 	=	1;
+				$list 				= 	array();
+
+				$uniqbrandcode_ = 	array();
+
+				$prev_code		= '';
+				$prev_name		= '';
+				
+				foreach ($z as $b) 
+				{
+					if( empty($b[0]) || empty($b[1]) )
+					{
+						$errmsg[]	= "Brand Name/ Brand code on row $line shouldn't be empty.<br/>";	
+
+						$line++;
+					}
+					else if ( ! empty($b)) 
+					{	
+						$brandcode 	   	= (!empty($b[0])) ?	$b[0] 	: 	$prev_code;
+						$brandname       = (!empty($b[1])) ? $b[1] 	: 	$prev_name; 
+
+						$prev_code 				= $brandcode;
+						$prev_name 				= $brandname;
+
+						// Check if Brand Code exists
+						$brandcode_exists 	= $this->brand->check_duplicate($brandcode);
+						$brandcode_count  	= $brandcode_exists[0]->count;
+
+						if( $brandcode_count > 0 )
+						{
+							$errmsg[]	= "Brand Code [<strong>$brandcode</strong>] on row $line already exists.<br/>";
+							$errmsg		= array_filter($errmsg);
+						}
+						//var_dump($brandcode ." ". $status);
+						// Check if status is correct
+						// if( $status != "active" && $status != "ACTIVE" && $status != "inactive" && $status != "INACTIVE" ) 
+						// {
+						// 	$errmsg[] 	= "Incorrect Status on row $line. <br/>";
+						// 	$errmsg 	= array_filter($errmsg);
+						// }
+					
+						if( !in_array($brandcode, $uniqbrandcode_) ){
+							$uniqbrandcode_[]= $brandcode;
+							$brandname_[]	= $brandname;
+						}
+						$line++;
+					}
+				}
+
+				$proceed 	=	false;
+
+				if( empty($errmsg) )
+				{
+					$posted_brand = array(
+						'brandcode'		=> $uniqbrandcode_,
+						'brandname'		=> $brandname_
+					);
+					
+					$proceed  				= $this->brand->importBrand($posted_brand);
+					if( $proceed )
+					{
+						$this->log->saveActivity("Imported Discounts.");
+					}
+				}
+			}
+
+			$error_messages		= implode(' ', $errmsg);
+			
+			return array("proceed" => $proceed,"errmsg"=>$error_messages);
+		}
+		
     }
 
 ?>

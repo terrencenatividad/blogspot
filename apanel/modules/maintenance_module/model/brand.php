@@ -140,5 +140,37 @@
 							->getResult();
 			return $result;
 		}
+
+		public function importBrand($data)
+		{
+			$result = $this->db->setTable('brands')
+					->setValuesFromPost($data)
+					->runInsert();
+
+			return $result;
+		}
+
+		public function checkExistingBrandcode($data) {
+			$item_types = "'" . implode("', '", $data) . "'";
+	
+			$result = $this->db->setTable('brands')
+								->setFields('brandcode')
+								->setWhere("brandcode IN ($item_types)")
+								->runSelect()
+								->getResult();
+			
+			return $result;
+		}
+
+		public function checkAccess($groupname)
+		{
+			$result = $this->db->setTable( PRE_TABLE .'_module_access')
+								->setFields('mod_edit')
+								->setWhere("groupname = '$groupname' AND module_name='Brand'")
+								->runSelect()
+								->getRow();
+			
+			return $result;
+		}
     }
 ?>
