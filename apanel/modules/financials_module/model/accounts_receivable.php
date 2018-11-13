@@ -327,19 +327,7 @@ class accounts_receivable extends wc_model
 								"p.partnername AS customer",
 								"main.referenceno as referenceno",
 								"main.lockkey as importchecker",
-								"main.stat as stat",
-								"IF(
-									(main.convertedamount - payment.amount)>0 AND main.stat!='cancelled','partial',
-									IF(
-										(main.convertedamount - payment.amount)=0 AND main.stat!='cancelled','paid',
-										IF(
-											(main.convertedamount - payment.amount)<0 AND main.stat!='cancelled','paid',
-											IF(
-												main.stat!='cancelled','unpaid','cancelled'
-											)
-										)
-									)
-								) payment_status"
+								"main.stat as stat"
 						);
 		$ar_table 	=	"accountsreceivable as main";
 		$ar_cond 	=	"main.stat IN ('posted','cancelled') $add_query";
