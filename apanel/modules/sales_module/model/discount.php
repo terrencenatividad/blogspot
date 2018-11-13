@@ -1,6 +1,7 @@
 <?php
 	class discount extends wc_model
 	{
+		
 		public function retrieveDefaultDiscountTableList()
 		{
 			return $this->db->setTable('wc_option')
@@ -141,39 +142,25 @@
 
 		}
 
-		public function deleteDiscount($id)
-		{
-			$condition   = "";
-			$id_array 	 = explode(',', $id['id']);
-			$errmsg 	 = array();
-
-			for($i = 0; $i < count($id_array); $i++)
-			{
-				$discountcode 	=	$id_array[$i];
-
-				$exists 		= $this->retrieveTaggedCustomers($discountcode);
-
-				if( !empty($exists) && count($exists) > 0){
-					$errmsg[] = "<p class = 'no-margin'>Deleting Discount: $discountcode Failed. This Template is already being used.</p>";
-				}
-				else{
-					$condition 		= " discountcode = '$discountcode' ";
-					
-					$result 		= $this->db->setTable('discount')
-											//->innerJoin('customer_discount c ON c.discountcode = d.discountcode AND c.companycode = d.companycode ')
-											->setWhere($condition)
-											->runDelete();
-
-					$error 			= $this->db->getError();
-
-					if ($error == 'locked') {
-						$errmsg[]  = "<p class = 'no-margin'>Deleting Discount: $discountcode</p>";
+		public function deleteDiscount($data) {
+			$error_id = array();
+			foreach ($data as $id) {
+				$result =  $this->db->setTable('discount')
+									->setWhere("discountcode = '$id'")
+									->setLimit(1)
+									->runDelete();
+			
+				if ($result) {
+					//$this->log->saveActivity("Delete Discount [$id]");
+				} 
+				else {
+					if ($this->db->getError() == 'locked') {
+						$error_id[] = $id;
 					}
 				}
-			
 			}
-			
-			return $errmsg;
+	
+			return $error_id;
 		}
 		
 		public function check_duplicate($current, $table, $column)
