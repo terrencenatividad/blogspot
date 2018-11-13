@@ -627,6 +627,7 @@ class controller extends wc_controller
 						'address1' 			=> $this->getValueCSV('Bank Address', $row, 'required', $errors)
 					);
 				}
+				$line = 1;
 				$bankcode = $this->bank->checkGL();
 				$name = array();
 				foreach ($bankcode as $m) {
@@ -645,19 +646,20 @@ class controller extends wc_controller
 
 				foreach ($csv_array as $key => $check_row) {
 					if(in_array($check_row[0], $existing)) {
-						$errors[0] = "The GL Code you entered was being used by another bank<br>";
+						$errors[0] = "The GL Code you entered in line " .$line. " was being used by another bank<br>";
 					}
 
 					if(in_array($check_row[0],$name)){
 
 					}else{
-						$errors[0] = "Bank Account Code you entered doesn't exist<br>";
+						$errors[0] = "Bank Account Code in " .$line. " you entered doesn't exist<br>";
 					}
 					if(in_array($check_row[4],$currency)){
 
 					}else{
-						$errors[0] = "Currency Code you entered doesn't exist<br>";
-					}	
+						$errors[0] = "Currency Code in " .$line. " you entered doesn't exist<br>";
+					}
+					$line++;	
 				}
 
 				if (empty($errors)) {
