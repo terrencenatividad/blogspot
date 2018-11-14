@@ -302,9 +302,9 @@ class controller extends wc_controller {
 		$data = $this->input->post($this->fields);
 
 		$ident 	=	'';
-		$ident 	.=	($data['serialized'] == '1') 	?	"1" 	:	"0";
-		$ident 	.=	($data['engine'] == '1') 		?	"1" 	:	"0";
-		$ident 	.=	($data['chassis'] == '1') 	?	"1" 	:	"0";
+		$ident 	.=	(isset($data['serialized']) && $data['serialized'] == '1') 	?	"1" 	:	"0";
+		$ident 	.=	(isset($data['engine']) && $data['engine'] == '1') 		?	"1" 	:	"0";
+		$ident 	.=	(isset($data['chassis']) && $data['chassis'] == '1') 	?	"1" 	:	"0";
 
 		unset($data['serialized']);
 		unset($data['chassis']);
@@ -327,9 +327,9 @@ class controller extends wc_controller {
 		$data = $this->input->post($this->fields);
 
 		$ident 	=	'';
-		$ident 	.=	($data['serialized'] == '1') 	?	"1" 	:	"0";
-		$ident 	.=	($data['engine'] == '1') 		?	"1" 	:	"0";
-		$ident 	.=	($data['chassis'] == '1') 		?	"1" 	:	"0";
+		$ident 	.=	(isset($data['serialized']) && $data['serialized'] == '1') 	?	"1" 	:	"0";
+		$ident 	.=	(isset($data['engine']) && $data['engine'] == '1') 		?	"1" 	:	"0";
+		$ident 	.=	(isset($data['chassis']) && $data['chassis'] == '1') 	?	"1" 	:	"0";
 
 		unset($data['serialized']);
 		unset($data['chassis']);
