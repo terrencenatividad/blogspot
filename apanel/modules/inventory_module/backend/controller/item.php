@@ -404,12 +404,13 @@ class controller extends wc_controller {
 					$engine 					= ($engine == "Y") 	?	"1" 	:	"0";
 					$chassis 	 				= $this->getValueCSV('Chassis No.(Y/N)', $row, '', $errors, '');
 					$chassis 					= ($chassis == "Y") 	?	"1" 	:	"0";
+					$replacement_part 			= $this->getValueCSV('Replacement Code', $row, 'alphanum', $errors, 'getItemDropdownList');
 
 					if($bundle == "0"){
 						$ident 					= $serialized.$engine.$chassis;
 					} else {
 						if($replacement == "1"){
-							$errors[$row['row_num']]['Replacement Part (Y/N)']['Invalid Entry'] = "This is a Bundle Item. Unable to set a Replacement Part.";
+							$errors[$row['row_num']]['Replacement Part (Y/N)']['Invalid Entry'] = "This is a Bundle Item. Unable to set as a Replacement Part.";
 						}
 						if($serialized == "1"){
 							$errors[$row['row_num']]['Serial No.(Y/N)']['Invalid Entry'] = "This is a Bundle Item. Unable to set Serial No.";
@@ -420,7 +421,13 @@ class controller extends wc_controller {
 						if($chassis == "1"){
 							$errors[$row['row_num']]['Chassis No.(Y/N)']['Invalid Entry'] = "This is a Bundle Item. Unable to set Chassis No.";
 						}
- 					}
+					}
+
+					if($bundle == "0" && $replacement == 1){
+						if($replacement_part == ""){
+							$errors[$row['row_num']]['Replacement Code']['Missing Entry'] = "The Item is set as a Replacement. Please select its Original Part.";
+						}
+					}
 					$values[] = array(
 						'itemcode'				=> $this->getValueCSV('Item Code', $row, 'alphanum', $errors),
 						'barcode'				=> $this->getValueCSV('Barcode', $row, 'alphanum', $errors),
