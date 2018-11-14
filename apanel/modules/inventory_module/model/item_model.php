@@ -240,6 +240,18 @@ class item_model extends wc_model {
 						->getResult();
 	}
 
+	public function getGroupsList($search = '') {
+		$condition = "type = 'item_group'";
+		if ($search) {
+			$condition = "uomdesc = '$search'";
+		}
+		return $this->db->setTable('wc_option')
+						->setFields('code ind, value val')
+						->setWhere($condition)
+						->runSelect(false)
+						->getResult();
+	}
+
 	public function getEditItemClassList($search = '',$classid) {
 		$condition = "stat = 'active' OR id = '$classid'";
 		if ($search) {

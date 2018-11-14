@@ -90,17 +90,7 @@ class controller extends wc_controller {
 		$data['ui']							= $this->ui;
 		$data['uom_list']					= $this->item_model->getUOMList();
 		$data['itemclass_list']				= $this->item_model->getItemClassList('');
-		$groups = array(
-			'0' => (object) array(
-				'ind' => 'goods',
-				'val' => 'Goods'
-			),
-			'1' => (object)array(
-				'ind' => 'services',
-				'val' => 'Services'
-			)
-		);
-		$data['groups_list'] 				= $groups;
+		$data['groups_list'] 				= $this->item_model->getGroupsList();
 		$data['itemtype_list']				= $this->item_model->getItemtypeList();
 		$weight = $data['weight_type'];
 		$data['weight_type_list']			= $this->item_model->getWeightTypeList($search= '', $weight);
@@ -113,14 +103,12 @@ class controller extends wc_controller {
 		$data['chart_account_list']			= $this->item_model->getChartAccountList();
 		$data['existing_item_list'] 		= $this->item_model->getItemDropdownList();
 		$data['brand_list'] 				= $this->item_model->getBrandDropdownList();
-		$data['ajax_task'] = 'ajax_create';
-		$data['ajax_post'] = '';
-		$data['show_input'] = true;
-		$data['serialized'] 			= '';
-		$data['engine'] 				= '';
-		$data['chassis'] 				= '';
-		// echo $test = 	$this->binaryconvtoamount("0111");
-		// echo base_convert('8', 16, 2);
+		$data['ajax_task'] 					= 'ajax_create';
+		$data['ajax_post'] 					= '';
+		$data['show_input'] 				= true;
+		$data['serialized'] 				= '0';
+		$data['engine'] 					= '0';
+		$data['chassis'] 					= '0';
 		$this->view->load('item/item', $data);
 	}
 
@@ -136,17 +124,7 @@ class controller extends wc_controller {
 		$classid = $data['classid'];
 		$weight = $data['weight_type'];
 		$replacement = $data['replacementcode'];
-		$groups = array(
-			'0' => (object) array(
-				'ind' => 'goods',
-				'val' => 'Goods'
-			),
-			'1' => (object)array(
-				'ind' => 'services',
-				'val' => 'Services'
-			)
-		);
-		$data['groups_list'] 				= $groups;
+		$data['groups_list'] 				= $this->item_model->getGroupsList();
 		$data['uom_list']					= $this->item_model->getEditUOMList('', $base, $selling, $purchasing);
 		$data['itemclass_list']				= $this->item_model->getEditItemClassList('',$classid);
 		$data['itemtype_list']				= $this->item_model->getEditItemtypeList($search = '', $itemtype);
@@ -179,17 +157,7 @@ class controller extends wc_controller {
 		$selling = $result->selling;
 		$purchasing = $result->purchasing;
 		$classid = $data['classid'];
-		$groups = array(
-			'0' => (object) array(
-				'ind' => 'goods',
-				'val' => 'Goods'
-			),
-			'1' => (object)array(
-				'ind' => 'services',
-				'val' => 'Services'
-			)
-		);
-		$data['groups_list'] 				= $groups;
+		$data['groups_list'] 				= $this->item_model->getGroupsList();
 		$data['uom_list']					= $this->item_model->getEditUOMList('', $base, $selling, $purchasing);
 		$data['itemclass_list']				= $this->item_model->getEditItemClassList('',$classid);
 		$data['itemtype_list']				= $this->item_model->getEditItemtypeList($search = '', $itemtype);	
