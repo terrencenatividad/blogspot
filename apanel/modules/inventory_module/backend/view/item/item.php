@@ -540,8 +540,8 @@
 			$("#engine").prop('disabled',$status).iCheck('update');
 			$('#replacement_part').prop('disabled',$status).iCheck('update');
 		}
-
-		if($('#bundle').iCheck('check') && task == 'ajax_edit'){
+		
+		if($('#bundle').attr('checked') && task == 'ajax_edit'){
 			disable_checkboxes(1);
 		}
 
