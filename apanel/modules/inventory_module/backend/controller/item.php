@@ -38,6 +38,7 @@ class controller extends wc_controller {
 		);
 		$this->csv_header		= array(
 			'Item Code',
+			'Barcode',
 			'Item Name',
 			'Item Description',
 			'Item Type',
@@ -47,12 +48,11 @@ class controller extends wc_controller {
 			'Item Class Parent',
 			'Weight',
 			'Weight Type',
-			'Barcode',
 			'Bundle',
 			'Serial No.(Y/N)',
-			'Chassis No.(Y/N)',
 			'Engine No.(Y/N)',
-			'Brand',
+			'Chassis No.(Y/N)',
+			'Brand Code',
 			'Replacement Part (Y/N)',
 			'Replacement Code',
 			'Base UOM',
@@ -160,9 +160,9 @@ class controller extends wc_controller {
 		$data['chart_account_list']			= $this->item_model->getChartAccountList();
 		$data['existing_item_list'] 		= $this->item_model->getEditItemDropdownList($itemcode, $replacement);
 		$data['brand_list'] 				= $this->item_model->getBrandDropdownList();
-		$data['ajax_task'] = 'ajax_edit';
-		$data['ajax_post'] = "&itemcode_ref=$itemcode";
-		$data['show_input'] = true;
+		$data['ajax_task'] 					= 'ajax_edit';
+		$data['ajax_post'] 					= "&itemcode_ref=$itemcode";
+		$data['show_input'] 				= true;
 		$data['serialized'] 				= substr($data['item_ident_flag'],0,1);
 		$data['engine'] 					= substr($data['item_ident_flag'],1,1);
 		$data['chassis'] 					= substr($data['item_ident_flag'],2,1);
@@ -226,16 +226,32 @@ class controller extends wc_controller {
 		$result		= $this->item_model->getItemList($this->fields, $search, $typeid, $classid, $sort);
 		
 		foreach ($result as $row) {
+			$item_ident_flag 	= isset($row->item_ident_flag) ? $row->item_ident_flag : "000";
+			$replacement 		= isset($row->replacement) && $row->replacement == '1' ? "Y" : "N";
+			$bundle 			= isset($row->bundle) && $row->bundle == '1' ? "Y" : "N";
+			$serialized			= (substr($item_ident_flag,0,1) == '1') ? "Y" : "N";
+			$engine				= (substr($item_ident_flag,1,1) == '1') ? "Y" : "N";
+			$chassis 			= (substr($item_ident_flag,2,1) == '1') ? "Y" : "N";
+
 			$csv .= "\n";
 			$csv .= '"' . $row->itemcode . '",';
+			$csv .= '"' . $row->barcode . '",';
 			$csv .= '"' . $row->itemname . '",';
 			$csv .= '"' . $row->itemdesc . '",';
 			$csv .= '"' . $row->item_type . '",';
+			$csv .= '"' . $row->itemgroup . '",';
 			$csv .= '"' . $row->item_class . '",';
 			$csv .= '"' . (($row->item_class_parent) ? 'Child' : 'Parent') . '",';
 			$csv .= '"' . $row->item_class_parent . '",';
 			$csv .= '"' . $row->weight . '",';
 			$csv .= '"' . $row->weight_type . '",';
+			$csv .= '"' . $bundle . '",';
+			$csv .= '"' . $serialized . '",';
+			$csv .= '"' . $engine . '",';
+			$csv .= '"' . $chassis . '",';
+			$csv .= '"' . $row->brandcode . '",';
+			$csv .= '"' . $replacement . '",';
+			$csv .= '"' . $row->replacementcode . '",';
 			$csv .= '"' . $row->base_uom . '",';
 			$csv .= '"' . $row->purchasing_uom . '",';
 			$csv .= '"' . $row->purchasing_conv . '",';

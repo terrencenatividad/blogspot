@@ -87,20 +87,26 @@ class item_model extends wc_model {
 		);
 		$result = $this->getItemListQuery($fields, $search, $typeid, $classid, $sort)
 						->runPagination();
-
 		return $result;
 	}
 
 	public function getItemList($fields, $search, $typeid, $classid, $sort) {
 		$fields = array(
 			'itemcode',
+			'barcode',
 			'itemname',
 			'itemdesc',
 			'it.label item_type',
+			'itemgroup',
 			'ic.label item_class',
 			'ic2.label item_class_parent',
 			'weight',
 			'wt.uomdesc weight_type',
+			'bundle',
+			'item_ident_flag',
+			'brandcode',
+			'replacement',
+			'replacementcode',
 			'buom.uomdesc base_uom',
 			'suom.uomdesc selling_uom',
 			'selling_conv',
@@ -391,7 +397,7 @@ class item_model extends wc_model {
 		}
 		$query = $this->db->setTable("items i")
 							->innerJoin("itemclass ic ON ic.id = i.classid AND ic.companycode = i.companycode")
-							->innerJoin("itemtype it ON it.id = i.typeid AND it.companycode = i.companycode")
+							->leftJoin("itemtype it ON it.id = i.typeid AND it.companycode = i.companycode")
 							->setFields($fields)
 							->setWhere($condition)
 							->setOrderBy($sort);
