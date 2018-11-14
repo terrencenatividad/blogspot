@@ -243,7 +243,7 @@ class item_model extends wc_model {
 	public function getGroupsList($search = '') {
 		$condition = "type = 'item_group'";
 		if ($search) {
-			$condition = "uomdesc = '$search'";
+			$condition = "code = '$search'";
 		}
 		return $this->db->setTable('wc_option')
 						->setFields('code ind, value val')
