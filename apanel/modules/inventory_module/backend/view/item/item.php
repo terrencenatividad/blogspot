@@ -47,7 +47,7 @@
 												->setName('barcode')
 												->setId('barcode')
 												->setValue($barcode)
-												->setValidation('alphanum')
+												->setValidation('alpha_num')
 												->draw($show_input);
 										?>
 									</div>
@@ -555,11 +555,11 @@
 			disable_checkboxes(0);
 		});
 
-		$('#replacement_part').on('ifChecked', function(e){
+		$('form').on('ifChecked','#replacement_part', function(e){
 			$("#replacement_for").prop('disabled',false);
 		});
 
-		$('#replacement_part').on('ifUnchecked', function(e){
+		$('form').on('ifUnchecked','#replacement_part', function(e){
 			$("#replacement_for").prop('disabled',true);
 		});
 
