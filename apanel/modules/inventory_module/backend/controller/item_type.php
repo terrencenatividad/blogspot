@@ -65,7 +65,7 @@ class controller extends wc_controller {
 		$result = $this->item_type_model->getItemTypeList($this->fields, $search, $sort);
 		foreach ($result as $row) {
 			$csv .= "\n";
-			$csv .= '"' . $row->item_group . '"';
+			$csv .= '"' . $row->item_group . '",';
 			$csv .= '"' . $row->label . '"';
 		}
 		echo $csv;
@@ -189,6 +189,7 @@ class controller extends wc_controller {
 				foreach ($csv_array as $row) {
 					$check_field['Item Type'][] = $this->getValueCSV('Item Type', $row);
 					$values[] = array(
+						'item_group' => $this->getValueCSV('Item Group', $row, 'required', $validity),
 						'label' => $this->getValueCSV('Item Type', $row, 'required', $validity)
 					);
 				}
