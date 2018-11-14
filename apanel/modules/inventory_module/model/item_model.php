@@ -191,10 +191,14 @@ class item_model extends wc_model {
 						->getResult();
 	}
 
-	public function getItemDropdownList() {
+	public function getItemDropdownList($search="") {
+		$condition = " stat = 'active'";
+		if ($search) {
+			$condition .= " AND itemcode = '$search'";
+		}
 		return $this->db->setTable('items')
 						->setFields('itemcode ind, itemname val')
-						->setWhere("stat = 'active'")
+						->setWhere($condition)
 						->runSelect()
 						->getResult();
 	}
@@ -208,10 +212,14 @@ class item_model extends wc_model {
 						->getResult();
 	}
 	
-	public function getBrandDropdownList() {
+	public function getBrandDropdownList($search="") {
+		$condition = " stat = 'active'";
+		if ($search) {
+			$condition .= " AND brandcode = '$search'";
+		}
 		return $this->db->setTable('brands')
 						->setFields('brandcode ind, brandname val')
-						->setWhere("stat = 'active'")
+						->setWhere($condition)
 						->runSelect()
 						->getResult();
 	}

@@ -378,14 +378,15 @@ class controller extends wc_controller {
 	private function ajax_save_import() {
 		$csv_array	= array_map('str_getcsv', file($_FILES['file']['tmp_name']));
 		$result		= false;
+		$ident 		= "000";
 		$errors		= array();
 		if ($csv_array[0] == $this->csv_header) {
 			unset($csv_array[0]);
 
 			if (empty($csv_array)) {
-				$error = 'No Data Given';
+				$error = 'No Data Given.';
 			} else if (count($csv_array) > 2000) {
-				$error = 'Too Many Data. Please Upload Maximum of 2000 Rows';
+				$error = 'Too Many Data. Please Upload Maximum of 2000 Rows.';
 			} else {
 				$check_field = array(
 					'Item Code' => array()
@@ -393,14 +394,48 @@ class controller extends wc_controller {
 				foreach ($csv_array as $key => $row) {
 					$row['row_num'] = $key + 1;
 					$check_field['Item Code'][$row['row_num']] = $this->getValueCSV('Item Code', $row);
+					$bundle 					= $this->getValueCSV('Bundle', $row, '', $errors, '');
+					$bundle 					= ($bundle == "Y") 	?	"1" 	:	"0";
+					$replacement 				= $this->getValueCSV('Replacement Part (Y/N)', $row, '', $errors, '');
+					$replacement 				= ($replacement == "Y") 	?	"1" 	:	"0";
+					$serialized 	 			= $this->getValueCSV('Serial No.(Y/N)', $row, '', $errors, '');
+					$serialized 				= ($serialized == "Y") 	?	"1" 	:	"0";
+					$engine 	 				= $this->getValueCSV('Engine No.(Y/N)', $row, '', $errors, '');
+					$engine 					= ($engine == "Y") 	?	"1" 	:	"0";
+					$chassis 	 				= $this->getValueCSV('Chassis No.(Y/N)', $row, '', $errors, '');
+					$chassis 					= ($chassis == "Y") 	?	"1" 	:	"0";
+
+					if($bundle == "0"){
+						$ident 					= $serialized.$engine.$chassis;
+					} else {
+						if($replacement == "1"){
+							$errors[$row['row_num']]['Replacement Part (Y/N)']['Invalid Entry'] = "This is a Bundle Item. Unable to set a Replacement Part.";
+						}
+						if($serialized == "1"){
+							$errors[$row['row_num']]['Serial No.(Y/N)']['Invalid Entry'] = "This is a Bundle Item. Unable to set Serial No.";
+						}
+						if($engine == "1"){
+							$errors[$row['row_num']]['Engine No.(Y/N)']['Invalid Entry'] = "This is a Bundle Item. Unable to set Engine No.";
+						}
+						if($chassis == "1"){
+							$errors[$row['row_num']]['Chassis No.(Y/N)']['Invalid Entry'] = "This is a Bundle Item. Unable to set Chassis No.";
+						}
+ 					}
 					$values[] = array(
 						'itemcode'				=> $this->getValueCSV('Item Code', $row, 'alphanum', $errors),
+						'barcode'				=> $this->getValueCSV('Barcode', $row, 'alphanum', $errors),
 						'itemname'				=> $this->getValueCSV('Item Name', $row, 'required text', $errors),
 						'itemdesc'				=> $this->getValueCSV('Item Description', $row, 'required', $errors),
 						'typeid'				=> $this->getValueCSV('Item Type', $row, 'required', $errors, 'getItemTypeList'),
+						'itemgroup'				=> $this->getValueCSV('Item Group', $row, 'required', $errors, 'getGroupsList'),
 						'classid'				=> $this->getValueCSV('Item Class', $row, 'required', $errors, 'getItemClassList', 'Item Class Parent'),
 						'weight'				=> $this->getValueCSV('Weight', $row, 'decimal', $errors),
 						'weight_type'			=> $this->getValueCSV('Weight Type', $row, '', $errors, 'getWeightTypeList', 'Weight'),
+						'bundle' 				=> $bundle,
+ 						'item_ident_flag'		=> $ident,
+						'brandcode'				=> $this->getValueCSV('Brand Code', $row, 'alphanum', $errors, 'getBrandDropdownList'),
+						'replacement'			=> $replacement,
+						'replacementcode'		=> $this->getValueCSV('Replacement Code', $row, 'alphanum', $errors, 'getItemDropdownList'),
 						'uom_base'				=> $this->getValueCSV('Base UOM', $row, 'required', $errors, 'getUOMList'),
 						'uom_purchasing'		=> $this->getValueCSV('Purchasing UOM', $row, 'required', $errors, 'getUOMList'),
 						'purchasing_conv'		=> $this->getValueCSV('Converted Purchasing UOM', $row, 'required integer', $errors),
@@ -439,9 +474,9 @@ class controller extends wc_controller {
 					}
 				}
 
-				if (empty($errors)) {
-					$result = $this->item_model->saveItemCSV($values);
-				}
+				// if (empty($errors)) {
+				// 	$result = $this->item_model->saveItemCSV($values);
+				// }
 			}
 		} else {
 			$error = 'Invalid Import File. Please Use our Template for Uploading CSV';
