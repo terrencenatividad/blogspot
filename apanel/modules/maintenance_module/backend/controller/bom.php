@@ -22,7 +22,7 @@ class controller extends wc_controller
 			'item_code',
 			'item_name',
 			'detailsdesc',
-			'percentage',
+			'quantity',
 			'uom'
 		);
 	}
@@ -43,10 +43,9 @@ class controller extends wc_controller
 		$this->view->load('bom/bom',$data);
 	}
 
-	public function edit($atc_code = "") {
+	public function edit($id) {
 		$this->view->title  = 'Edit Bill of Materials';
-		$data["ajax_task"] = "edit";
-		$data["task"] = "ajax_edit";
+		$data["ajax_task"] = "ajax_edit";
 		$data['ui'] = $this->ui;
 		$data['sid'] = $atc_code;
 
@@ -54,14 +53,12 @@ class controller extends wc_controller
 		$this->view->load('atc_code/atc_code',$data);
 	}
 
-	public function view($atc_code = "") {
-		$this->view->title  = $this->ui->ViewLabel('');
-		$data["ajax_task"] = "edit";
-		$data["ajax_task"] = "view";
+	public function view($id) {
+		$this->view->title  = 'View Bill of Materials';
+		$data["ajax_task"] = "ajax_view";
 		$data["task"] = "ajax_view";
 		$data['ui'] = $this->ui;
 		$this->view->load('atc_code/atc_code',$data);
-
 	}
 
 	public function ajax($task) {
@@ -70,6 +67,16 @@ class controller extends wc_controller
 			header('Content-type: application/json');
 			echo json_encode($ajax);
 		}
+	}
+
+	private function ajax_create() {
+		$bom = $this->input->post($this->fields);
+		$bom_details = $this->input->post($this->bomdetails);
+		$this->seq = new seqcontrol();
+		$bom['bom_code'] = $this->seq->getValue('BOM');
+
+		$bom_save = $this->bom->saveBOM($bom, $bom_details);
+
 	}
 
 	private function ajax_list() {
@@ -229,73 +236,73 @@ class controller extends wc_controller
 
 	// activate/deactivate
 
-	// private function ajax_edit_activate()
-	// {
-	// 	$code = $this->input->post('id');
-	// 	$data['stat'] = 'active';
+	private function ajax_edit_activate()
+	{
+		$code = $this->input->post('id');
+		$data['stat'] = 'active';
 
-	// 	$result = $this->atc_code->updateStat($data,$code);
-	// 	return array(
-	// 		'redirect'	=> MODULE_URL,
-	// 		'success'	=> $result
-	// 	);
-	// }
+		$result = $this->bom->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+		);
+	}
 
-	// private function ajax_edit_deactivate()
-	// {
-	// 	$code = $this->input->post('id');
-	// 	$data['stat'] = 'inactive';
+	private function ajax_edit_deactivate()
+	{
+		$code = $this->input->post('id');
+		$data['stat'] = 'inactive';
 
-	// 	$result = $this->atc_code->updateStat($data,$code);
-	// 	return array(
-	// 		'redirect'	=> MODULE_URL,
-	// 		'success'	=> $result
-	// 	);
-	// }
+		$result = $this->bom->updateStat($data,$code);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+		);
+	}
 
-	// private function update_multiple_deactivate(){
-	// 	$posted_data 			=	$this->input->post(array('ids'));
+	private function update_multiple_deactivate(){
+		$posted_data 			=	$this->input->post(array('ids'));
 
-	// 	$data['stat'] 			=	'inactive';
+		$data['stat'] 			=	'inactive';
 
-	// 	$posted_ids 			=	$posted_data['ids'];
-	// 	$id_arr 				=	explode(',',$posted_ids);
+		$posted_ids 			=	$posted_data['ids'];
+		$id_arr 				=	explode(',',$posted_ids);
 
-	// 	foreach($id_arr as $key => $value)
-	// 	{
-	// 		$result 			= 	$this->atc_code->updateStat($data, $value);
-	// 	}
+		foreach($id_arr as $key => $value)
+		{
+			$result 			= 	$this->bom->updateStat($data, $value);
+		}
 
-	// 	if($result)
-	// 	{
-	// 		$msg = "success";
-	// 	} else {
-	// 		$msg = "Failed to Update.";
-	// 	}
+		if($result)
+		{
+			$msg = "success";
+		} else {
+			$msg = "Failed to Update.";
+		}
 
-	// 	return $dataArray = array( "msg" => $msg );
-	// }
+		return $dataArray = array( "msg" => $msg );
+	}
 
-	// private function update_multiple_activate(){
-	// 	$posted_data 			=	$this->input->post(array('ids'));
+	private function update_multiple_activate(){
+		$posted_data 			=	$this->input->post(array('ids'));
 
-	// 	$data['stat'] 			=	'active';
+		$data['stat'] 			=	'active';
 
-	// 	$posted_ids 			=	$posted_data['ids'];
-	// 	$id_arr 				=	explode(',',$posted_ids);
+		$posted_ids 			=	$posted_data['ids'];
+		$id_arr 				=	explode(',',$posted_ids);
 
-	// 	foreach($id_arr as $key => $value)
-	// 	{
-	// 		$result 			= 	$this->atc_code->updateStat($data, $value);
-	// 	}
+		foreach($id_arr as $key => $value)
+		{
+			$result 			= 	$this->bom->updateStat($data, $value);
+		}
 
-	// 	if($result)
-	// 	{
-	// 		$msg = "success";
-	// 	} else {
-	// 		$msg = "Failed to Update.";
-	// 	}
+		if($result)
+		{
+			$msg = "success";
+		} else {
+			$msg = "Failed to Update.";
+		}
 
-	// 	return $dataArray = array( "msg" => $msg );
-	// }
+		return $dataArray = array( "msg" => $msg );
+	}
 }
