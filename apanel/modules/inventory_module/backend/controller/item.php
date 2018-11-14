@@ -13,9 +13,16 @@ class controller extends wc_controller {
 			'itemname',
 			'itemdesc',
 			'typeid',
+			'itemgroup',
 			'classid',
 			'weight',
 			'weight_type',
+			'barcode',
+			'bundle',
+			'item_ident_flag',
+			'brand' => 'brandcode',
+			'replacement_part' => 'replacement',
+			'replacement_for'=> 'replacementcode',
 			'uom_base',
 			'uom_selling',
 			'uom_purchasing',
@@ -34,11 +41,20 @@ class controller extends wc_controller {
 			'Item Name',
 			'Item Description',
 			'Item Type',
+			'Item Group',
 			'Item Class',
 			'Item Class Type',
 			'Item Class Parent',
 			'Weight',
 			'Weight Type',
+			'Barcode',
+			'Bundle',
+			'Serial No.(Y/N)',
+			'Chassis No.(Y/N)',
+			'Engine No.(Y/N)',
+			'Brand',
+			'Replacement Part (Y/N)',
+			'Replacement Code',
 			'Base UOM',
 			'Purchasing UOM',
 			'Converted Purchasing UOM',
@@ -74,6 +90,17 @@ class controller extends wc_controller {
 		$data['ui']							= $this->ui;
 		$data['uom_list']					= $this->item_model->getUOMList();
 		$data['itemclass_list']				= $this->item_model->getItemClassList('');
+		$groups = array(
+			'0' => (object) array(
+				'ind' => 'goods',
+				'val' => 'Goods'
+			),
+			'1' => (object)array(
+				'ind' => 'services',
+				'val' => 'Services'
+			)
+		);
+		$data['groups_list'] 				= $groups;
 		$data['itemtype_list']				= $this->item_model->getItemtypeList();
 		$weight = $data['weight_type'];
 		$data['weight_type_list']			= $this->item_model->getWeightTypeList($search= '', $weight);
@@ -84,16 +111,22 @@ class controller extends wc_controller {
 		$data['revenuetype_list']			= $this->item_model->getRevenueTypeList();
 		$data['expensetype_list']			= $this->item_model->getExpenseTypeList();
 		$data['chart_account_list']			= $this->item_model->getChartAccountList();
+		$data['existing_item_list'] 		= $this->item_model->getItemDropdownList();
+		$data['brand_list'] 				= $this->item_model->getBrandDropdownList();
 		$data['ajax_task'] = 'ajax_create';
 		$data['ajax_post'] = '';
 		$data['show_input'] = true;
+		$data['serialized'] 			= '';
+		$data['engine'] 				= '';
+		$data['chassis'] 				= '';
+		// echo $test = 	$this->binaryconvtoamount("0111");
+		// echo base_convert('8', 16, 2);
 		$this->view->load('item/item', $data);
 	}
 
 	public function edit($itemcode) {
 		$this->view->title = $this->ui->EditLabel('');
 		$data = (array) $this->item_model->getItemById($this->fields, $itemcode);
-
 		$itemtype = $data['typeid'];
 		$data['ui']							= $this->ui;
 		$result = $this->item_model->getUOMCode($itemcode);
@@ -102,6 +135,18 @@ class controller extends wc_controller {
 		$purchasing = $result->purchasing;
 		$classid = $data['classid'];
 		$weight = $data['weight_type'];
+		$replacement = $data['replacementcode'];
+		$groups = array(
+			'0' => (object) array(
+				'ind' => 'goods',
+				'val' => 'Goods'
+			),
+			'1' => (object)array(
+				'ind' => 'services',
+				'val' => 'Services'
+			)
+		);
+		$data['groups_list'] 				= $groups;
 		$data['uom_list']					= $this->item_model->getEditUOMList('', $base, $selling, $purchasing);
 		$data['itemclass_list']				= $this->item_model->getEditItemClassList('',$classid);
 		$data['itemtype_list']				= $this->item_model->getEditItemtypeList($search = '', $itemtype);
@@ -113,9 +158,14 @@ class controller extends wc_controller {
 		$data['revenuetype_list']			= $this->item_model->getRevenueTypeList();
 		$data['expensetype_list']			= $this->item_model->getExpenseTypeList();
 		$data['chart_account_list']			= $this->item_model->getChartAccountList();
+		$data['existing_item_list'] 		= $this->item_model->getEditItemDropdownList($itemcode, $replacement);
+		$data['brand_list'] 				= $this->item_model->getBrandDropdownList();
 		$data['ajax_task'] = 'ajax_edit';
 		$data['ajax_post'] = "&itemcode_ref=$itemcode";
 		$data['show_input'] = true;
+		$data['serialized'] 				= substr($data['item_ident_flag'],0,1);
+		$data['engine'] 					= substr($data['item_ident_flag'],1,1);
+		$data['chassis'] 					= substr($data['item_ident_flag'],2,1);
 		$this->view->load('item/item', $data);
 	}
 
@@ -129,6 +179,17 @@ class controller extends wc_controller {
 		$selling = $result->selling;
 		$purchasing = $result->purchasing;
 		$classid = $data['classid'];
+		$groups = array(
+			'0' => (object) array(
+				'ind' => 'goods',
+				'val' => 'Goods'
+			),
+			'1' => (object)array(
+				'ind' => 'services',
+				'val' => 'Services'
+			)
+		);
+		$data['groups_list'] 				= $groups;
 		$data['uom_list']					= $this->item_model->getEditUOMList('', $base, $selling, $purchasing);
 		$data['itemclass_list']				= $this->item_model->getEditItemClassList('',$classid);
 		$data['itemtype_list']				= $this->item_model->getEditItemtypeList($search = '', $itemtype);	
@@ -141,7 +202,12 @@ class controller extends wc_controller {
 		$data['revenuetype_list']			= $this->item_model->getRevenueTypeList();
 		$data['expensetype_list']			= $this->item_model->getExpenseTypeList();
 		$data['chart_account_list']			= $this->item_model->getChartAccountList();
-		$data['show_input'] = false;
+		$data['existing_item_list'] 		= $this->item_model->getItemDropdownList();
+		$data['brand_list'] 				= $this->item_model->getBrandDropdownList();
+		$data['show_input'] 				= false;
+		$data['serialized'] 				= substr($data['item_ident_flag'],0,1);
+		$data['engine'] 					= substr($data['item_ident_flag'],1,1);
+		$data['chassis'] 					= substr($data['item_ident_flag'],2,1);
 		$this->view->load('item/item', $data);
 	}
 
@@ -250,6 +316,17 @@ class controller extends wc_controller {
 
 	private function ajax_create() {
 		$data = $this->input->post($this->fields);
+
+		$ident 	=	'';
+		$ident 	.=	($data['serialized'] == '1') 	?	"1" 	:	"0";
+		$ident 	.=	($data['engine'] == '1') 		?	"1" 	:	"0";
+		$ident 	.=	($data['chassis'] == '1') 	?	"1" 	:	"0";
+
+		unset($data['serialized']);
+		unset($data['chassis']);
+		unset($data['engine']);
+
+		$data['item_ident_flag'] 	=	$ident; 
 		$data = $this->cleanData($data);
 		$result = $this->item_model->saveItem($data);
 		return array(
@@ -259,7 +336,22 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_edit() {
+		$this->fields[] = 'serialized';
+		$this->fields[] = 'engine';
+		$this->fields[] = 'chassis';
+		
 		$data = $this->input->post($this->fields);
+
+		$ident 	=	'';
+		$ident 	.=	($data['serialized'] == '1') 	?	"1" 	:	"0";
+		$ident 	.=	($data['engine'] == '1') 		?	"1" 	:	"0";
+		$ident 	.=	($data['chassis'] == '1') 		?	"1" 	:	"0";
+
+		unset($data['serialized']);
+		unset($data['chassis']);
+		unset($data['engine']);
+
+		$data['item_ident_flag'] 	=	$ident; 
 		$data = $this->cleanData($data);
 		$itemcode = $this->input->post('itemcode_ref');
 		$result = $this->item_model->updateItem($data, $itemcode);
@@ -507,4 +599,19 @@ class controller extends wc_controller {
 
 		return $dataArray = array( "msg" => $msg );
 	}
+
+	// private function binaryconvtoamount($binary){
+	// 	$amt = 0; 
+	// 	$i   = 1;
+	// 	$binary_arr = str_split($binary);
+	// 	// echo count($binary_arr);
+	// 	for($x=count($binary_arr); $x >= 1; $x--){
+	// 		echo $x ."<br>";
+	// 		if($binary_arr[$x] != 0){
+	// 			$amt = $binary_arr[$x] * $i;
+	// 		}
+	// 		$i++;
+	// 	}		
+	// 	return $amt;
+	// }
 }

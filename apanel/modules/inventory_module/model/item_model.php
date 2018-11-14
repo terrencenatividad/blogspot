@@ -193,6 +193,23 @@ class item_model extends wc_model {
 						->getResult();
 	}
 
+	public function getEditItemDropdownList($itemcode="", $replacement="") {
+		$condition = "( stat = 'active' AND itemcode != '$itemcode') OR itemcode = '$replacement'";
+		return $this->db->setTable('items')
+						->setFields('itemcode ind, itemname val')
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
+	}
+	
+	public function getBrandDropdownList() {
+		return $this->db->setTable('brands')
+						->setFields('brandcode ind, brandname val')
+						->setWhere("stat = 'active'")
+						->runSelect()
+						->getResult();
+	}
+
 	public function getEditUOMList($search = '', $base, $selling, $purchasing) {
 		$condition = "stat = 'active' OR uomcode = '$base' OR uomcode = '$selling' OR uomcode = '$purchasing'";
 		if ($search) {
