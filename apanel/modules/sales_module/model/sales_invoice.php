@@ -322,21 +322,23 @@ class sales_invoice extends wc_model
 			$data_insert['discountedamount']= $tempArrayValue['discountedamount'];
 			$data_insert['discountrate'] 	= ($discounttype == 'perc') ? $tempArrayValue['discount'] : 0;
 
-			if(isset($tempArrayValue['h_taxcode']) && $tempArrayValue['h_taxcode'] != 'none'){
-				$taxcode 					= $tempArrayValue['h_taxcode'];
-				$data_insert['taxcode']    	= $taxcode;
-				$tax 						= $this->getValue("fintaxcode", array("taxrate"), " fstaxcode = '$taxcode' ");
-				$taxrate 					= ($tax) ? $tax[0]->taxrate : 0;
-				//$taxamount 					= $data_insert['amount'] * $taxrate;
-				// $taxamount 					= $data_insert['discountedamount'] * $taxrate;
-				$data_insert['taxrate']    	= $taxrate;
-				$data_insert['taxamount']   = $tempArrayValue['taxamount'];
-			}else{
-				$data_insert['taxcode'] 	= '';
-				$data_insert['taxrate'] 	= '0.00';
-				$data_insert['taxamount'] 	= '0.00';
-			}
-			
+			// if(isset($tempArrayValue['h_taxcode']) && $tempArrayValue['h_taxcode'] != 'none'){
+			// 	$taxcode 					= $tempArrayValue['h_taxcode'];
+			// 	$data_insert['taxcode']    	= $taxcode;
+			// 	$tax 						= $this->getValue("fintaxcode", array("taxrate"), " fstaxcode = '$taxcode' ");
+			// 	$taxrate 					= ($tax) ? $tax[0]->taxrate : 0;
+			// 	//$taxamount 					= $data_insert['amount'] * $taxrate;
+			// 	// $taxamount 					= $data_insert['discountedamount'] * $taxrate;
+			// 	$data_insert['taxrate']    	= $taxrate;
+			// 	$data_insert['taxamount']   = $tempArrayValue['taxamount'];
+			// }else{
+			// 	$data_insert['taxcode'] 	= '';
+			// 	$data_insert['taxrate'] 	= '0.00';
+			// 	$data_insert['taxamount'] 	= '0.00';
+			// }
+			$data_insert['taxcode'] 		= $tempArrayValue['h_taxcode'];
+			$data_insert['taxrate'] 		= $tempArrayValue['taxrate'];
+			$data_insert['taxamount'] 		= $tempArrayValue['taxamount'];
 			$data_insert['stat']		    = $status;
 
 			$linenum++;
@@ -803,7 +805,7 @@ class sales_invoice extends wc_model
 								/**GROUP BALANCE ACCOUNTS**/
 								if(!empty($account)){
 									$account_info[$account]['remarks'][] 		= $remarks;
-									$account_info[$account]['amount'][] 		= ($amount + $itemdiscount);
+									$account_info[$account]['amount'][] 		= $amount + $taxamount;
 									//$account_info[$account]['amount'][] 		= (($amount - $itemdiscount) + (($amount - $itemdiscount) * $taxrate));
 									//$account_info[$account]['amount'][] 		= $amount + ($taxamount - $discounttax);
 								}
@@ -813,10 +815,10 @@ class sales_invoice extends wc_model
 									$sales_info[$salesaccount]['remarks'][] 	= $remarks;
 									if($discountperc > 0){
 										//$sales_info[$salesaccount]['amount'][] 	= $amount;
-										$sales_info[$salesaccount]['amount'][] 	= $amount + $discount;
+										$sales_info[$salesaccount]['amount'][] 	= $amount + $itemdiscount;
 									}else{
 										//$sales_info[$salesaccount]['amount'][] 	= $amount;
-										$sales_info[$salesaccount]['amount'][] 	= $amount + $discount;
+										$sales_info[$salesaccount]['amount'][] 	= $amount;
 									}
 								}
 								
@@ -831,6 +833,8 @@ class sales_invoice extends wc_model
 							/**
 							* Discount
 							*/
+							$linenum		= 1;
+
 							if($discountamount > 0)
 							{
 								$detail_info['voucherno']			= $financial_header['voucherno'];
@@ -856,7 +860,6 @@ class sales_invoice extends wc_model
 							/**
 							* Accounts Receivable Account
 							*/
-							$linenum		= 1;
 						
 							if(!empty($account_info)){
 								foreach($account_info as $account_index => $account_value)
