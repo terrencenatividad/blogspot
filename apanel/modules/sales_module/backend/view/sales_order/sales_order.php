@@ -570,7 +570,7 @@
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
-											->setSplit('', 'col-md-5 col-sm-12')
+											->setSplit('', 'col-md-12 col-sm-12')
 											->setName('t_vatsales')
 											->setId('t_vatsales')
 											->setClass("input_label text-right remove-margin")
@@ -591,7 +591,7 @@
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
-											->setSplit('', 'col-md-5')
+											->setSplit('', 'col-md-12')
 											->setName('t_vatexempt')
 											->setId('t_vatexempt')
 											->setAttribute(array("readOnly"=>"readOnly"))
@@ -612,7 +612,7 @@
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
-											->setSplit('', 'col-md-5')
+											->setSplit('', 'col-md-12')
 											->setName('t_subtotal')
 											->setId('t_subtotal')
 											->setClass("input_label text-right")
@@ -634,7 +634,7 @@
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
-											->setSplit('', 'col-md-5')
+											->setSplit('', 'col-md-12')
 											->setName('t_vat')
 											->setId('t_vat')
 											->setClass("input_label text-right")
@@ -678,7 +678,7 @@
 								<div class="col-md-7"></div>
 								<?php
 									echo $ui->formField('text')
-											->setSplit('', 'col-md-5')
+											->setSplit('', 'col-md-12')
 											->setName('t_discount')
 											->setId('t_discount')
 											->setClass("input_label text-right")
@@ -1851,7 +1851,7 @@ $(document).ready(function(){
 			var dtype 	= 	$('#discounttype').val();
 			var value 	= 	$(this).val();
 
-			var price 	= 	$(this).closest('tr').find('.price').val();
+			var price 	= 	removeComma($(this).closest('tr').find('.price').val());
 			
 			if( parseFloat(value) > 0 && dtype == ""){
 				$('#discounttype').closest('.form-group').addClass('has-error');
