@@ -45,7 +45,8 @@
 								<div class="input-group" >
 									<input name="table_search" id = "search" class="form-control pull-right" placeholder="Search" type="text" style = "height: 34px;">
 									<div class="input-group-btn" style = "height: 34px;">
-										<button type="submit" class="btn btn-default" id="daterange-btn" style = "height: 34px;"><i class="fa fa-search"></i></button>
+										<!-- <button type="button" class="btn btn-default" id="search-btn" style = "height: 34px;"><i class="fa fa-search"></i></button> -->
+										<button type="button" class="btn btn-default" id="search-btn" style = "height: 34px;"><i class="fa fa-search"></i></button>
 									</div>
 								</div>
 							</div>
@@ -73,10 +74,10 @@
 					echo $ui->loadElement('table')
 							->setHeaderClass('danger')
 							->addHeader('Transaction Date',array('class'=>'col-md-1'),'sort','bal.transactiondate')
-							->addHeader('Voucher No.', array('class'=>'col-md-1'),'sort','bal.voucherno')
-							->addHeader('Partner',array('class'=>'col-md-1'),'sort','p.partnername')
-							->addHeader('Description',array('class'=>'col-md-1'))
-							->addHeader('Status',array('class'=>'col-md-1'))
+							->addHeader('Voucher No.', array('class'=>'col-md-3'),'sort','bal.voucherno')
+							->addHeader('Partner',array('class'=>'col-md-3'),'sort','p.partnername')
+							->addHeader('Description',array('class'=>'col-md-3'))
+							->addHeader('Status',array('class'=>'col-md-1'),'sort','bal.stat')
 							->addHeader('Total Debit',array('class'=>'col-md-1'),'sort','SUM(bal.debit)')
 							->addHeader('Total Credit',array('class'=>'col-md-1'),'sort','SUM(bal.credit)')
 							->draw();
@@ -97,6 +98,7 @@
 		getList();
 	});
 	$('#accountcodefilter').on('change', function() {
+		ajax.page = 1;
 		ajax.accountcodefilter = $(this).val();
 		ajax_call.abort();
 		getList();

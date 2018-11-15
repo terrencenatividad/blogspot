@@ -107,7 +107,7 @@ class controller extends wc_controller {
 				$credit 			=	$row->credit;
 				$transtype 			=	$row->transtype;
 				$description  		=	"";
-				$status 			=	"";
+				$status 			=	$row->status;
 				$bdebit 			=	0;
 				$bcredit 			=	0;
 
@@ -199,7 +199,7 @@ class controller extends wc_controller {
 				$table .= '<td style="text-align:left"><a href="'.$link.'" target="_blank">' . $voucherno . '</a></td>' ;
 				$table .= '<td style="text-align:left">' . $partner . '</td>';
 				$table .= '<td>' . $description . '</td>';
-				$table .= '<td>' . $status . '</td>';
+				$table .= '<td class="text-left">' . $status . '</td>';
 				$table .= '<td>' . number_format($debit, 2, '.', ',') . '</td>';
 				$table .= '<td>' . number_format($credit, 2, '.', ',') . '</td>';
 				$table .= '</tr>';
@@ -297,7 +297,7 @@ class controller extends wc_controller {
 				$credit 			=	$row->credit;
 				$transtype 			=	$row->transtype;
 				$description  		=	"";
-				$status 			=	"";
+				$status 			=	$row->status;
 				$bdebit 			=	0;
 				$bcredit 			=	0;
 
