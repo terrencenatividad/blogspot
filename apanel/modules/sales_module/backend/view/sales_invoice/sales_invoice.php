@@ -421,6 +421,10 @@
 											$uom 				= $details[$i]->issueuom;
 											$uom 				= strtoupper($uom);
 											$itemprice 			= $details[$i]->unitprice;
+											$discounttype 		= isset($details[$i]->discounttype) ? $details[$i]->discounttype : '';
+											$discount 			= isset($details[$i]->discountamount) ? $details[$i]->discountamount : '0.00';
+											$discountrate 		= isset($details[$i]->discountrate) ? $details[$i]->discountrate : '0.00';
+											$discount 			= ($discounttype == "perc") ? $discountrate 	:	$discountamount;
 											$taxcode 			= $details[$i]->taxcode;
 											$taxrate 			= $details[$i]->taxrate;
 											$taxamount 			= $details[$i]->taxamount;
