@@ -231,19 +231,20 @@ class controller extends wc_controller
 
 		//Footer Data
 		$data['total'] 	 		 = $retrieved_data['header']->amount;
+		$data['discounttype']  	 = $retrieved_data['header']->discounttype;
 		$data['discountamount']  = $retrieved_data['header']->discountamount;
 		$data['total_sales'] 	 = $retrieved_data['header']->netamount;
 		$data['total_tax'] 		 = $retrieved_data['header']->taxamount;
 		$data['vatable_sales'] 	 = $retrieved_data['header']->vat_sales;
 		$data['vatexempt_sales'] = $retrieved_data['header']->vat_exempt;
 
-		$discounttype 		 	 = $retrieved_data['header']->discounttype;
-		$data['percentage'] 	 = "";
-		$data['disctype'] 	 	 = $discounttype;
-		$data['disc_amt'] 	 	 = ($discounttype == 'amt') ? 'checked' : '';
-		$data['disc_perc'] 	 	 = ($discounttype == 'perc') ? 'checked' : '';
-		$data['disc_radio_amt']  = ($discounttype == 'amt') ? 'active' : '';
-		$data['disc_radio_perc'] = ($discounttype == 'perc') ? 'active' : '';
+		// $discounttype 		 	 = $retrieved_data['header']->discounttype;
+		// $data['percentage'] 	 = "";
+		// $data['disctype'] 	 	 = $discounttype;
+		// $data['disc_amt'] 	 	 = ($discounttype == 'amt') ? 'checked' : '';
+		// $data['disc_perc'] 	 	 = ($discounttype == 'perc') ? 'checked' : '';
+		// $data['disc_radio_amt']  = ($discounttype == 'amt') ? 'active' : '';
+		// $data['disc_radio_perc'] = ($discounttype == 'perc') ? 'active' : '';
 
 		//Vendor Data
 		$data["terms"] 		 	 = $retrieved_data["customer"]->terms;
