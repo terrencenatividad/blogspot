@@ -803,7 +803,7 @@ class sales_invoice extends wc_model
 								/**GROUP BALANCE ACCOUNTS**/
 								if(!empty($account)){
 									$account_info[$account]['remarks'][] 		= $remarks;
-									$account_info[$account]['amount'][] 		= ($amount + $itemdiscount);
+									$account_info[$account]['amount'][] 		= ($amount + ($amount * $taxrate));
 									//$account_info[$account]['amount'][] 		= (($amount - $itemdiscount) + (($amount - $itemdiscount) * $taxrate));
 									//$account_info[$account]['amount'][] 		= $amount + ($taxamount - $discounttax);
 								}
