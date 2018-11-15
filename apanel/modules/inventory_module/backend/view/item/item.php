@@ -1,4 +1,4 @@
-	<section class="content">
+<section class="content">
 		<form action="" method="post" class="form-horizontal">
 			<div class="nav-tabs-custom">
 				<ul class="nav nav-tabs">
@@ -41,13 +41,13 @@
 								<div class="row">
 									<div class="col-md-6">
 										<?php
-											echo $ui->formField('textarea')
-												->setLabel('Item Desc ')
+											echo $ui->formField('text')
+												->setLabel('Barcode')
 												->setSplit('col-md-4', 'col-md-8')
-												->setName('itemdesc')
-												->setId('itemdesc')
-												->setValue($itemdesc)
-												->setValidation('required')
+												->setName('barcode')
+												->setId('barcode')
+												->setValue($barcode)
+												->setValidation('alpha_num')
 												->draw($show_input);
 										?>
 									</div>
@@ -55,14 +55,12 @@
 								<div class="row">
 									<div class="col-md-6">
 										<?php
-											echo $ui->formField('dropdown')
-												->setLabel('Item Type ')
-												->setPlaceholder('Select Item Type')
+											echo $ui->formField('textarea')
+												->setLabel('Item Desc ')
 												->setSplit('col-md-4', 'col-md-8')
-												->setName('typeid')
-												->setId('typeid')
-												->setList($itemtype_list)
-												->setValue($typeid)
+												->setName('itemdesc')
+												->setId('itemdesc')
+												->setValue($itemdesc)
 												->setValidation('required')
 												->draw($show_input);
 										?>
@@ -77,6 +75,36 @@
 												->setId('classid')
 												->setList($itemclass_list)
 												->setValue($classid)
+												->setValidation('required')
+												->draw($show_input);
+										?>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-6">
+										<?php
+											echo $ui->formField('dropdown')
+												->setLabel('Item Group ')
+												->setPlaceholder('Select Item Group')
+												->setSplit('col-md-4', 'col-md-8')
+												->setName('itemgroup')
+												->setId('itemgroup')
+												->setList($groups_list)
+												->setValue($itemgroup)
+												->setValidation('required')
+												->draw($show_input);
+										?>
+									</div>
+									<div class="col-md-6">
+										<?php
+											echo $ui->formField('dropdown')
+												->setLabel('Item Type ')
+												->setPlaceholder('Select Item Type')
+												->setSplit('col-md-4', 'col-md-8')
+												->setName('typeid')
+												->setId('typeid')
+												->setList($itemtype_list)
+												->setValue($typeid)
 												->setValidation('required')
 												->draw($show_input);
 										?>
@@ -105,6 +133,128 @@
 												->setId('weight_type')
 												->setList($weight_type_list)
 												->setValue($weight_type)
+												->draw($show_input);
+										?>
+									</div>
+								</div>
+								<hr>
+								<div class="row">
+									<div class="col-md-6">
+										<div class="form-group">
+											<label for="bundle" class="control-label col-md-4">Bundle</label>
+											<div class="col-md-1">
+												<?
+													echo $ui->setElement('checkbox')
+															->setName('bundle')
+															->setId('bundle')
+															->setDefault(1)
+															->setValue($bundle)
+															->setAttribute(array('style'=>"position:absolute; opacity:0;"))
+															->draw($show_input);
+												?>
+											</div>
+										</div>
+									</div>
+								</div>
+								<hr>
+								<div class="row">
+									<div class="col-md-6">
+										<div class="form-group">
+											<label for="serialized" class="control-label col-md-4">Serial #</label>
+											<div class="col-md-1">
+												<?
+													echo $ui->setElement('checkbox')
+															->setName('serialized')
+															->setId('serialized')
+															->setDefault(1)
+															->setValue($serialized)
+															->setAttribute(array('style'=>"position:absolute; opacity:0;"))
+															->draw($show_input);
+												?>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6">
+										<div class="form-group">
+											<label for="engine" class="control-label col-md-4">Engine #</label>
+											<div class="col-md-1">
+												<?
+													echo $ui->setElement('checkbox')
+															->setName('engine')
+															->setId('engine')
+															->setDefault(1)
+															->setValue($engine)
+															->setAttribute(array('style'=>"position:absolute; opacity:1;"))
+															->draw($show_input);
+												?>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-6">
+										<div class="form-group">
+											<label for="chassis" class="control-label col-md-4">Chassis #</label>
+											<div class="col-md-1">
+												<?
+													echo $ui->setElement('checkbox')
+															->setName('chassis')
+															->setId('chassis')
+															->setDefault(1)
+															->setValue($chassis)
+															->setAttribute(array('style'=>"position:absolute; opacity:0;"))
+															->draw($show_input);
+												?>
+											</div>	
+										</div>
+									</div>
+								</div>
+								<hr>
+								<div class="row">
+									<div class="col-md-6">
+										<?php
+											echo $ui->formField('dropdown')
+												->setLabel('Brand')
+												->setPlaceholder('Select Brand')
+												->setSplit('col-md-4', 'col-md-8')
+												->setName('brand')
+												->setId('brand')
+												->setList($brand_list)
+												->setValue($brandcode)
+												->setNone('none')
+												->draw($show_input);
+										?>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-6">
+										<div class="form-group">
+											<label for="replacement_part" class="control-label col-md-4">Replacement Part</label>
+											<div class="col-md-1">
+												<?
+													echo $ui->setElement('checkbox')
+															->setName('replacement_part')
+															->setId('replacement_part')
+															->setDefault(1)
+															->setValue($replacement)
+															->setAttribute(array('style'=>"position:absolute; opacity:0;"))
+															->draw($show_input);
+												?>
+											</div>
+										</div>
+									</div>	
+									<div class="col-md-6" id="replacement_selection">
+										<?php
+											echo $ui->formField('dropdown')
+												->setLabel('Replacement For')
+												->setPlaceholder('Select Replacement Item')
+												->setSplit('col-md-4', 'col-md-8')
+												->setName('replacement_for')
+												->setId('replacement_for')
+												->setList($existing_item_list)
+												->setAttribute(array('disabled'=>true))
+												->setValue($replacementcode)
+												->setNone('none')
 												->draw($show_input);
 										?>
 									</div>
@@ -347,6 +497,7 @@
 	<?php if ($show_input): ?>
 	<script>
 		var ajax_call = '';
+		var task 	  = '<?=$ajax_task?>';
 		var uom = $('#uom_base option:selected').html();
 		if (uom != '') {
 			$('.uom_in span').html(uom);
@@ -374,85 +525,43 @@
 			var uom = $(this).find('option:selected').html();
 			$('.uom_in span').html(uom);
 		});
-		// $("select option:selected").attr('disabled','disabled');
 
-		$('#classid').change(function() {
-			
-			var id = $('#classid').val();
-			$('#h_classid').val(id);
+		function uncheck_checkboxes(){
+			$("#chassis").iCheck('uncheck');
+			$("#serialized").iCheck('uncheck');
+			$("#engine").iCheck('uncheck');
+			$('#replacement_part').iCheck('uncheck');
+		}
+
+		function disable_checkboxes($status){
+			uncheck_checkboxes();
+			$("#chassis").prop('disabled',$status).iCheck('update');
+			$("#serialized").prop('disabled',$status).iCheck('update');
+			$("#engine").prop('disabled',$status).iCheck('update');
+			$('#replacement_part').prop('disabled',$status).iCheck('update');
+		}
+		
+		if($('#bundle').attr('checked') && task == 'ajax_edit'){
+			disable_checkboxes(1);
+		}
+
+		$('form').on('ifChecked','#bundle',function(e){
+			disable_checkboxes(1);
+			$('#replacement_for').val('none');
+			drawTemplate();
 		});
 
-		// var classid = '';
-		// var itemtype = '';
-		// $(document).ready(function() {
-		// 	classid  		= $('#classid').val();
-		// 	itemtype 		= $('#typeid').val();
-		// 	weighttype 		= $('#weight_type').val();
-		// 	uom_base 		= $('#uom_base').val();
-		// 	uom_selling 	= $('#uom_selling').val();
-		// 	uom_purchase 	= $('#uom_purchasing').val();
-		// });
+		$('form').on('ifUnchecked','#bundle',function(e){
+			disable_checkboxes(0);
+		});
 
-		// $('#classid').on('select2:open', function (e) {
-		// 	$('select#classid option').each(function(index, value) {
-		// 	var selected = value.value
-		// 	if(classid == selected) {
-		// 		var option = $("option[value='" + selected + "']");
-		// 		option.remove().trigger('chosen:updated');
-		// 	}
-		// 	});
-		// });
+		$('form').on('ifChecked','#replacement_part', function(e){
+			$("#replacement_for").prop('disabled',false);
+		});
 
-		// $('#typeid').on('select2:open', function (e) {
-		// 	$('select#typeid option').each(function(index, value) {
-		// 	var selected = value.value
-		// 	if(itemtype == selected) {
-		// 		var option = $("option[value='" + selected + "']");
-		// 		option.remove().trigger('chosen:updated');
-		// 	}
-		// 	});
-		// });
-
-		// $('#weight_type').on('select2:open', function (e) {
-		// 	$('select#weight_type option').each(function(index, value) {
-		// 	var selected = value.value
-		// 	if(weighttype == selected) {
-		// 		var option = $("option[value='" + selected + "']");
-		// 		option.remove().trigger('chosen:updated');
-		// 	}
-		// 	});
-		// });
-
-		// $('#uom_base').on('select2:open', function (e) {
-		// 	$('select#uom_base option').each(function(index, value) {
-		// 	var selected = value.value
-		// 	if(uom_base == selected) {
-		// 		var option = $("option[value='" + selected + "']");
-		// 		option.remove().trigger('chosen:updated');
-		// 	}
-		// 	});
-		// });
-
-		// $('#uom_selling').on('select2:open', function (e) {
-		// 	$('select#uom_selling option').each(function(index, value) {
-		// 	var selected = value.value
-		// 	if(uom_selling == selected) {
-		// 		var option = $("option[value='" + selected + "']");
-		// 		option.remove().trigger('chosen:updated');
-		// 	}
-		// 	});
-		// });
-
-		// $('#uom_purchasing').on('select2:open', function (e) {
-		// 	$('select#uom_purchasing option').each(function(index, value) {
-		// 	var selected = value.value
-		// 	if(uom_purchase == selected) {
-		// 		var option = $("option[value='" + selected + "']");
-		// 		option.remove().trigger('chosen:updated');
-		// 	}
-		// 	});
-		// });
-		
+		$('form').on('ifUnchecked','#replacement_part', function(e){
+			$("#replacement_for").prop('disabled',true);
+		});
 
 		$('form').submit(function(e) {
 			e.preventDefault();
@@ -474,6 +583,8 @@
 			}
 			$(this).find('.form-group').find("select option:selected").prop('disabled',true);
 		});
+		
+			
 	</script>
 	<?php else: ?>
 	<script>

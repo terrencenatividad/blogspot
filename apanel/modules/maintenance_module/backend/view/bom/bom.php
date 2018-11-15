@@ -19,6 +19,7 @@
 										->setSplit('col-md-3', 'col-md-8')
 										->setName('bundle_item_code')
 										->setId('bundle_item_code')
+										->setList(array('1' => 'Bundle Code 1', '2' => 'Bundle Code 2'))
 										->setValue($bundle_item_code)
 										->setValidation('required')
 										->draw($show_input);	
@@ -61,7 +62,7 @@
 														->setSplit('col-md-3', 'col-md-12')
 														->setName("item_code")
 														->setId("item_code")
-														->setList(array())
+														->setList(array('1' => 'Code 1', '2' => 'Code 2'))
 														->setNone('Select One')
 														->draw($show_input);
 														?>
@@ -73,7 +74,6 @@
 														->setName('item_name')
 														->setId('item_name')
 														->setAttribute(array('readonly'))
-														->setValue("")
 														->draw($show_input);
 														?>
 													</td>
@@ -83,6 +83,7 @@
 														->setSplit('', 'col-md-12')
 														->setName('detailsdesc')
 														->setId('detailsdesc')
+														->setAttribute(array('readonly'))
 														->draw($show_input);
 														?>
 													</td>
@@ -91,8 +92,8 @@
 														echo $ui->formField('text')
 														->setPlaceholder('0.00')
 														->setSplit('', 'col-md-12')
-														->setName('percentage')
-														->setId('percentage')
+														->setName('quantity')
+														->setId('quantity')
 														->setClass('text-right')
 														->draw($show_input);
 														?>
@@ -102,6 +103,7 @@
 														<?php
 														echo $ui->formField('text')
 														->setSplit('', 'col-md-12')
+														->setAttribute(array('readonly'))
 														->setName('uom')
 														->setId('uom')
 														->draw($show_input);
@@ -209,6 +211,8 @@
 					<?php if ($show_input): ?>
 						$('form').submit(function(e) {
 							e.preventDefault();
+							$('#delay_modal').modal('show');
+							return false;
 							var status = $(document.activeElement).attr('id');
 							$(this).find('.form-group').find('input, textarea, select').trigger('blur');
 							if ($(this).find('.form-group.has-error').length == 0) {

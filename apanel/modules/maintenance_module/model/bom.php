@@ -41,5 +41,32 @@ class bom extends wc_model
 		
 		return $result;
 	}
+
+	public function updateStat($data,$code)
+	{
+		$condition 			   = " atcId = '$code' ";
+
+		$result 			   = $this->db->setTable('atccode')
+		->setValues($data)
+		->setWhere($condition)
+		->setLimit(1)
+		->runUpdate();
+
+		return $result;
+	}
+
+	public function saveBOM($bom, $bom_details) {
+		$result = $this->db->setTable('bom')
+		->setValues($disburse)
+		->runInsert();
+
+		$bom_details['bom_code'] = $bom['bom_code'];
+
+		$result = $this->db->setTable('bom_details')
+		->setValuesFromPost($disburse_comp)
+		->runInsert();
+
+		return $result;
+	}
 }
 ?>
