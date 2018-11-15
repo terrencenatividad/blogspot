@@ -338,7 +338,7 @@ class controller extends wc_controller
 		$totalamount 			 = $retrieved_data['header']->netamount;
 		$vat 					 = $retrieved_data['header']->taxamount;
 		$totalsales 			 = $retrieved_data['header']->amount;
-
+		
 		$data['t_subtotal'] 	 = $totalsales;
 		$data['t_discount']  	 = $discountamount;
 		$data['t_total'] 	 	 = $totalamount;

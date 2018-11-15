@@ -404,7 +404,7 @@
 									$discounttype 		= isset($details[$i]->discounttype) ? $details[$i]->discounttype : '';
 									$discount 			= isset($details[$i]->discountamount) ? $details[$i]->discountamount : '0.00';
 									$discountrate 		= isset($details[$i]->discountrate) ? $details[$i]->discountrate : '0.00';
-									$discount 			= ($discounttype == "perc") ? $discountrate 	:	$discountamount;
+									$discount 			= ($discounttype == "perc") ? $discountrate 	:	$discount;
 									$uom 				= $details[$i]->issueuom;
 									$taxcode 			= $details[$i]->taxcode;
 									$taxrate 			= $details[$i]->taxrate;
