@@ -803,8 +803,8 @@ class sales_invoice extends wc_model
 								/**GROUP BALANCE ACCOUNTS**/
 								if(!empty($account)){
 									$account_info[$account]['remarks'][] 		= $remarks;
-									$account_info[$account]['amount'][] 		= $amount + $taxamount;
-									// $account_info[$account]['amount'][] 		= (($amount - $itemdiscount) + (($amount - $itemdiscount) * $taxrate));
+									$account_info[$account]['amount'][] 		= ($amount + $itemdiscount);
+									//$account_info[$account]['amount'][] 		= (($amount - $itemdiscount) + (($amount - $itemdiscount) * $taxrate));
 									//$account_info[$account]['amount'][] 		= $amount + ($taxamount - $discounttax);
 								}
 								
@@ -812,16 +812,19 @@ class sales_invoice extends wc_model
 								if(!empty($salesaccount)){
 									$sales_info[$salesaccount]['remarks'][] 	= $remarks;
 									if($discountperc > 0){
-										$sales_info[$salesaccount]['amount'][] 	= $amount + $itemdiscount;
+										//$sales_info[$salesaccount]['amount'][] 	= $amount;
+										$sales_info[$salesaccount]['amount'][] 	= $amount + $discount;
 									}else{
-										$sales_info[$salesaccount]['amount'][] 	= $amount;
+										//$sales_info[$salesaccount]['amount'][] 	= $amount;
+										$sales_info[$salesaccount]['amount'][] 	= $amount + $discount;
 									}
 								}
 								
 								/**GROUP TAX ACCOUNTS**/
 								if(!empty($vataccount)){
 									$vat_info[$vataccount]['remarks'][] 		= $remarks;
-									$vat_info[$vataccount]['amount'][] 			= ($amount - $itemdiscount) * $taxrate;
+									//$vat_info[$vataccount]['amount'][] 			= ($amount - $itemdiscount) * $taxrate;
+									$vat_info[$vataccount]['amount'][] 			= $amount * $taxrate;
 								}
 							}
 
