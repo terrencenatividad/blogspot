@@ -401,7 +401,10 @@
 									$detailparticular	= $details[$i]->detailparticular;
 									$quantity 			= isset($details[$i]->issueqty) ?	number_format($details[$i]->issueqty,0) 	: 	"1";
 									$itemprice 			= $details[$i]->unitprice;
+									$discounttype 		= isset($details[$i]->discounttype) ? $details[$i]->discounttype : '';
 									$discount 			= isset($details[$i]->discountamount) ? $details[$i]->discountamount : '0.00';
+									$discountrate 		= isset($details[$i]->discountrate) ? $details[$i]->discountrate : '0.00';
+									$discount 			= ($discounttype == "perc") ? $discountrate 	:	$discountamount;
 									$uom 				= $details[$i]->issueuom;
 									$taxcode 			= $details[$i]->taxcode;
 									$taxrate 			= $details[$i]->taxrate;
