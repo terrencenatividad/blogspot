@@ -713,20 +713,20 @@ class sales_invoice extends wc_model
 														->getRow();
 
 				$detail_fields 		= " inv.itemcode as itemcode, inv.detailparticular as remarks, inv.amount as amount,
-									inv.taxamount as taxamount, inv.taxcode as taxcode, item.receivable_account as araccount,
-									item.revenue_account as slsaccount, tax.salesAccount as vataccount, inv.taxrate as taxrate,
-									itmclass.receivable_account as class_araccount, itmclass.revenue_account as class_slsaccount,
-									inv.itemdiscount as itemdiscount";
+										inv.taxamount as taxamount, inv.taxcode as taxcode, item.receivable_account as araccount,
+										item.revenue_account as slsaccount, tax.salesAccount as vataccount, inv.taxrate as taxrate,
+										itmclass.receivable_account as class_araccount, itmclass.revenue_account as class_slsaccount,
+										inv.itemdiscount as itemdiscount";
 				$condition 			= " voucherno = '$invoice' ";
 				
 				$retrieved_data['details'] 	= $this->db->setTable('salesinvoice_details as inv')
-												->setFields($detail_fields)
-												->leftJoin('items item ON item.itemcode = inv.itemcode AND item.companycode = inv.companycode')
-												->leftJoin('itemclass itmclass ON itmclass.id = item.classid AND itmclass.companycode = inv.companycode')
-												->leftJoin('fintaxcode tax ON tax.fstaxcode = inv.taxcode AND tax.companycode = inv.companycode')
-												->setWhere($condition)
-												->runSelect()
-												->getResult();
+														->setFields($detail_fields)
+														->leftJoin('items item ON item.itemcode = inv.itemcode AND item.companycode = inv.companycode')
+														->leftJoin('itemclass itmclass ON itmclass.id = item.classid AND itmclass.companycode = inv.companycode')
+														->leftJoin('fintaxcode tax ON tax.fstaxcode = inv.taxcode AND tax.companycode = inv.companycode')
+														->setWhere($condition)
+														->runSelect()
+														->getResult();
 												
 				$financial_voucher  					= ($existing_ar && !empty($existing_ar[0]->voucherno)) ? $existing_ar[0]->voucherno : $seq->getValue('AR');
 				$financial_header['voucherno']			= $financial_voucher;
@@ -803,7 +803,8 @@ class sales_invoice extends wc_model
 								/**GROUP BALANCE ACCOUNTS**/
 								if(!empty($account)){
 									$account_info[$account]['remarks'][] 		= $remarks;
-									$account_info[$account]['amount'][] 		= (($amount - $itemdiscount) + (($amount - $itemdiscount) * $taxrate));
+									$account_info[$account]['amount'][] 		= $amount + $taxamount;
+									// $account_info[$account]['amount'][] 		= (($amount - $itemdiscount) + (($amount - $itemdiscount) * $taxrate));
 									//$account_info[$account]['amount'][] 		= $amount + ($taxamount - $discounttax);
 								}
 								
@@ -811,7 +812,7 @@ class sales_invoice extends wc_model
 								if(!empty($salesaccount)){
 									$sales_info[$salesaccount]['remarks'][] 	= $remarks;
 									if($discountperc > 0){
-										$sales_info[$salesaccount]['amount'][] 	= $amount;
+										$sales_info[$salesaccount]['amount'][] 	= $amount + $itemdiscount;
 									}else{
 										$sales_info[$salesaccount]['amount'][] 	= $amount;
 									}
@@ -822,6 +823,31 @@ class sales_invoice extends wc_model
 									$vat_info[$vataccount]['remarks'][] 		= $remarks;
 									$vat_info[$vataccount]['amount'][] 			= ($amount - $itemdiscount) * $taxrate;
 								}
+							}
+
+							/**
+							* Discount
+							*/
+							if($discountamount > 0)
+							{
+								$detail_info['voucherno']			= $financial_header['voucherno'];
+								$detail_info['transtype']			= 'AR';
+								$detail_info['linenum']				= $linenum;
+								$detail_info['accountcode']			= $discountaccount[0]->account;
+								$detail_info['currencycode']		= "PHP";
+							
+								$detail_info['debit']				= $discountamount;
+								$detail_info['credit']				= 0;
+								$detail_info['converteddebit']		= $discountamount;
+								$detail_info['convertedcredit']		= 0;
+						
+								$detail_info['sourcecode']			= 'SI';
+								//$detail_info['detailparticulars']	= '';
+								$detail_info['stat']				= 'posted';
+							
+								$detailArray[]						= $detail_info;
+							
+								$linenum++;
 							}
 
 							/**
@@ -886,31 +912,6 @@ class sales_invoice extends wc_model
 									
 									$linenum++;	
 								}
-							}
-
-							/**
-							* Discount
-							*/
-							if($discountamount > 0)
-							{
-								$detail_info['voucherno']			= $financial_header['voucherno'];
-								$detail_info['transtype']			= 'AR';
-								$detail_info['linenum']				= $linenum;
-								$detail_info['accountcode']			= $discountaccount[0]->account;
-								$detail_info['currencycode']		= "PHP";
-							
-								$detail_info['debit']				= $discountamount;
-								$detail_info['credit']				= 0;
-								$detail_info['converteddebit']		= $discountamount;
-								$detail_info['convertedcredit']		= 0;
-						
-								$detail_info['sourcecode']			= 'SI';
-								//$detail_info['detailparticulars']	= '';
-								$detail_info['stat']				= 'posted';
-							
-								$detailArray[]						= $detail_info;
-							
-								$linenum++;
 							}
 
 							/**
