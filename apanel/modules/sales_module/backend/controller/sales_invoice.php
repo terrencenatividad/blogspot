@@ -657,6 +657,9 @@ class controller extends wc_controller
 				$quantity 			= $val->issueqty;
 				$unitprice 			= $val->unitprice;
 				$discount 			= ($val->discounttype == 'amt') ? $val->discountamount : $val->discountrate;
+				$percentage 		= ($val->discounttype == 'perc') ? "%" : "";
+				$discountamount 	= $val->discountamount;
+				$discountrate 		= $val->discountrate;
 				$taxcode 			= $val->taxcode;
 				$taxrate 			= $val->taxrate;
 				$taxamount 			= $val->taxamount;
@@ -753,8 +756,10 @@ class controller extends wc_controller
 												"readOnly" => "readOnly"
 											)
 										)
-										->setValue(number_format($discount,2))
+										->setValue(number_format($discount,2)." ".$percentage)
 										->draw(true);
+				$result 	.= '<input id = "h_discountrate['.$row.']" name = "h_discountrate['.$row.']" maxlength = "20" class = "col-md-12" type = "hidden" value = "'.$discountrate.'">';
+				$result 	.= '<input id = "h_discount['.$row.']" name = "h_discount['.$row.']" maxlength = "20" class = "col-md-12" type = "hidden" value = "'.$discountamount.'">';
 				$result     .= '</td>';
 
 				$result 	.= '<td>';

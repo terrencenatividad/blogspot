@@ -424,7 +424,8 @@
 											$discounttype 		= isset($details[$i]->discounttype) ? $details[$i]->discounttype : '';
 											$discount 			= isset($details[$i]->discountamount) ? $details[$i]->discountamount : '0.00';
 											$discountrate 		= isset($details[$i]->discountrate) ? $details[$i]->discountrate : '0.00';
-											$discount 			= ($discounttype == "perc") ? $discountrate 	:	$discountamount;
+											$discount 			= ($discounttype == "perc") ? $discountrate 	:	$discount;
+											$percentage 		= ($discounttype == "perc") ? "%" : "";
 											$taxcode 			= $details[$i]->taxcode;
 											$taxrate 			= $details[$i]->taxrate;
 											$taxamount 			= $details[$i]->taxamount;
@@ -501,9 +502,21 @@
 															->setId('discount['.$row.']')
 															->setClass("text-right price")
 															->setAttribute(array("maxlength" => "20","readOnly"=>""))
-															->setValue(number_format($itemdiscount,2))
+															->setValue(number_format($discount,2)." ".$percentage)
 															->draw($show_input);
 												?>
+												<?php
+													// echo $ui->formField('text')
+													// 		->setSplit('', 'col-md-12')
+													// 		->setName('h_discount['.$row.']')
+													// 		->setId('h_discount['.$row.']')
+													// 		->setClass("text-right price hidden")
+													// 		->setAttribute(array("maxlength" => "20","readOnly"=>""))
+													// 		->setValue(number_format($itemdiscount,2))
+													// 		->draw($show_input);
+												?>
+												<input id = '<?php echo 'h_discountrate['.$row.']'; ?>' name = '<?php echo 'h_discountrate['.$row.']'; ?>' maxlength = "20" class = "col-md-12" type = "hidden" value = '<?php echo $discount;?>'>
+												<input id = '<?php echo 'h_discount['.$row.']'; ?>' name = '<?php echo 'h_discount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value = '<?php echo $itemdiscount;?>'>
 											</td>
 											<td class = "remove-margin">
 												<?php
@@ -559,7 +572,7 @@
 							</tbody>
 							<tfoot class="summary">
 								<tr>
-									<td colspan="7" style="border-top:1px solid #E2E2E2;">
+									<td colspan="8" style="border-top:1px solid #E2E2E2;">
 										<? if($task != 'view') { ?>
 											<!-- <a type="button" class="btn btn-link add-data" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Line</a> -->
 										<? } ?>
@@ -691,7 +704,7 @@
 														->setId('discountamount')
 														->setClass("input_label text-right")
 														->setAttribute(array('readOnly'=>"readOnly"))
-														->setValue(number_format($discountamount,2) . "" . $percentage )
+														->setValue(number_format($discountamount,2))
 														->draw($show_input);
 											?>
 										</div>
@@ -1340,7 +1353,9 @@ function resetIds()
 		row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
 		row.cells[2].getElementsByTagName("input")[0].id 	= 'quantity['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].id 	= 'itemprice['+x+']';
-		row.cells[4].getElementsByTagName("input")[0].id 	= 'itemprice['+x+']';
+		row.cells[4].getElementsByTagName("input")[0].id 	= 'discount['+x+']';
+		row.cells[4].getElementsByTagName("input")[1].id 	= 'h_discountrate['+x+']';
+		row.cells[4].getElementsByTagName("input")[2].id 	= 'h_discount['+x+']';
 		row.cells[5].getElementsByTagName("select")[0].id 	= 'taxcode['+x+']';
 		row.cells[5].getElementsByTagName("input")[0].id 	= 'taxrate['+x+']';
 		row.cells[5].getElementsByTagName("input")[1].id 	= 'taxamount['+x+']';
@@ -1353,7 +1368,9 @@ function resetIds()
 		row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
 		row.cells[2].getElementsByTagName("input")[0].name 	= 'quantity['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].name 	= 'itemprice['+x+']';
-		row.cells[4].getElementsByTagName("input")[0].name 	= 'itemprice['+x+']';
+		row.cells[4].getElementsByTagName("input")[0].name 	= 'discount['+x+']';
+		row.cells[4].getElementsByTagName("input")[1].name 	= 'h_discountrate['+x+']';
+		row.cells[4].getElementsByTagName("input")[2].name 	= 'h_discount['+x+']';
 		row.cells[5].getElementsByTagName("select")[0].name = 'taxcode['+x+']';
 		row.cells[5].getElementsByTagName("input")[0].name	= 'taxrate['+x+']';
 		row.cells[5].getElementsByTagName("input")[1].name 	= 'taxamount['+x+']';
@@ -1399,6 +1416,8 @@ function setZero()
 	document.getElementById('quantity['+newid+']').value 			= '1';
 	document.getElementById('itemprice['+newid+']').value 			= '0.00';
 	document.getElementById('discount['+newid+']').value 			= '0.00';
+	document.getElementById('h_discountrate['+newid+']').value 		= '0.00';
+	document.getElementById('h_discount['+newid+']').value 			= '0.00';
 	document.getElementById('taxcode['+newid+']').value 			= 'none';
 	document.getElementById('taxrate['+newid+']').value 			= '0';
 	document.getElementById('amount['+newid+']').value 				= '0.00';
