@@ -25,6 +25,17 @@ class bank extends wc_model
 		return $result;
 	}
 
+	public function checkExisting()
+	{
+		$result = $this->db->setTable('bank')
+		->setFields('gl_code')
+		->setWhere("stat = 'active'")
+		->runSelect()
+		->getResult();
+
+		return $result;
+	}
+
 	public function retrieveListing($search="", $sort ,$limit)
 	{
 		$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (shortname LIKE '%$search%' OR b.bankcode LIKE '%$search%' OR b.accountno LIKE '%$search%') " 	: 	"";
