@@ -190,6 +190,14 @@
 					<i class="glyphicon glyphicon-exclamation-sign"></i> 
 					You cannot input a Discount Amount greater than your Price Amount.	
 				</span>
+				<span id="discount100Error" class="help-block hidden small">
+					<i class="glyphicon glyphicon-exclamation-sign"></i> 
+					You cannot input a Percentage Discount greater than 100.
+				</span>
+				<span id="negaDiscountError" class="help-block hidden small">
+					<i class="glyphicon glyphicon-exclamation-sign"></i> 
+					You cannot input a Negative Percentage Discount. 
+				</span>
 			</div>						
 			<div class="box-body table-responsive no-padding">				
 				<table class="table table-hover table-condensed table-sidepad" id="itemsTable">
@@ -1497,7 +1505,9 @@ function finalizeTransaction(type)
 
 	computeAmount();
 
-	if($("#sales_order_form").find('.form-group.has-error').length == 0 && no_error){	
+	// console.log($('#sales_order_form').find('.form-group.has-error').length);
+
+	if($('#sales_order_form .form-group .has-error').length == 0 && no_error){	
 		$('#save').val(type);
 		if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
 		{
@@ -1549,8 +1559,8 @@ function finalizeEditTransaction()
 	if(credit_limit_exceed == 1){
 		no_error = false;
 	}
-
-	if($('#sales_order_form').find('.form-group.has-error').length == 0 && no_error)
+	// console.log($('#sales_order_form').find('.form-group.has-error').length);
+	if($('#sales_order_form .form-group .has-error').length == 0 && no_error)
 	{
 		if($("#sales_order_form #itemcode\\[1\\]").val() != ''  && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #due_date").val() != '' && $("#sales_order_form #customer").val() != '')
 		{
@@ -1845,20 +1855,47 @@ $(document).ready(function(){
 			
 			if( parseFloat(value) > 0 && dtype == ""){
 				$('#discounttype').closest('.form-group').addClass('has-error');
-				$(this).val(0);
 			} else {
+				if(dtype == "perc" && parseFloat(value) > 100){
+					$(this).closest('div').addClass('has-error');
+					$(this).addClass('greaterthan100');
+				} else {
+					$(this).closest('div').removeClass('has-error');
+				}
+				if(dtype == "perc" && parseFloat(value) < 0){
+					$(this).closest('div').addClass('has-error');
+					$(this).addClass('negativediscount');
+				} else {
+					$(this).closest('div').removeClass('has-error');
+				}
 				if( parseFloat(value) > 0 && parseFloat(value) > parseFloat(price) ){
+					$(this).addClass('greaterthanprice');
 					$(this).closest('div').addClass('has-error');
 				} else {
 					$(this).closest('div').removeClass('has-error');
 				}
-				var count_errors 	=	$('#sales_order_form .discount').closest('tr').find('.has-error').length;
-			
-				if(count_errors > 0){
+				var pricediscounterrors 	=	$('#sales_order_form .greaterthanprice').closest('tr').find('.has-error').length;
+				var greaterthan100 			=	$('#sales_order_form .greaterthan100').closest('tr').find('.has-error').length;
+				var negativediscount 		=	$('#sales_order_form .negativediscount').closest('tr').find('.has-error').length;
+
+				if(pricediscounterrors > 0){
 					$('#discountError').removeClass('hidden');
 				} else {
 					$('#discountError').addClass('hidden');
 				}
+
+				if(greaterthan100 > 0){
+					$('#discount100Error').removeClass('hidden');
+				} else {
+					$('#discount100Error').addClass('hidden');
+				}
+
+				if(negativediscount > 0){
+					$('#negaDiscountError').removeClass('hidden');
+				} else {
+					$('#negaDiscountError').addClass('hidden');
+				}
+
 			}
 			formatNumber(id);
 			computeAmount();
