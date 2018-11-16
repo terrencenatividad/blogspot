@@ -774,12 +774,12 @@ class sales_invoice extends wc_model
 						$discountperc	= ($discountamount > 0) ? $discountamount / $invoiceamount : 0;
 						$detailData 	= $retrieved_data['details'];
 
-						if($discounttype == 'perc' && $discountamount > 0)
-						{
-							$invoicenet		= $retrieved_data['header']->netamount;
-							$discountamount	= $invoicenet * ($discountamount / 100);
-							$discountperc	= ($discountamount > 0) ? round(($discountamount / $invoiceamount),2) : 0;
-						}
+						// if($discounttype == 'perc' && $discountamount > 0)
+						// {
+						// 	$invoicenet		= $retrieved_data['header']->netamount;
+						// 	$discountamount	= $invoicenet * ($discountamount / 100);
+						// 	$discountperc	= ($discountamount > 0) ? round(($discountamount / $invoiceamount),2) : 0;
+						// }
 
 						if(!empty($detailData)){
 							foreach($detailData as $detailIndex => $detailValue)
