@@ -545,7 +545,7 @@ class controller extends wc_controller
 			$row->taxamount	= number_format($row->taxamount, 2);
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$total_amount = $vatable_sales + $vat_exempt - $discount + $tax;
+				$total_amount = $vatable_sales + $vat_exempt + $tax;
 				$summary = array(
 					'VATable Sales'		=> number_format($vatable_sales, 2),
 					'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
@@ -562,7 +562,7 @@ class controller extends wc_controller
 				$total_amount	= 0;
 			}
 		}
-		$total_amount = $vatable_sales + $vat_exempt - $discount + $tax;
+		$total_amount = $vatable_sales + $vat_exempt + $tax;
 		$summary = array(
 			'VATable Sales'		=> number_format($vatable_sales, 2),
 			'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
