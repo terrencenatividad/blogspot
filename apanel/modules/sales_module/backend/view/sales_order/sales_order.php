@@ -1783,19 +1783,19 @@ $(document).ready(function(){
 				warehouse_element.trigger('blur');
 				$(this).val(0);
 			}
-			if (removeComma($(this).val()) > 0) {
-				var quantity = getQuantity(itemcode, warehouse);
+			// if (removeComma($(this).val()) > 0) {
+			// 	var quantity = getQuantity(itemcode, warehouse);
 					
-				$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_item_quantity', "itemcode="+itemcode+"&warehouse="+warehouse, function(data) {
-					var data_qty = data.qty;
-					var x = removeComma(data_qty);
-					if ((quantity > x) ){
-						$('#orderQtymodal').modal('show');
-						$(this_element).val(0);
-					}
-				});
+			// 	$.post('<?php //echo BASE_URL?>sales/sales_order/ajax/retrieve_item_quantity', "itemcode="+itemcode+"&warehouse="+warehouse, function(data) {
+			// 		var data_qty = data.qty;
+			// 		var x = removeComma(data_qty);
+			// 		if ((quantity > x) ){
+			// 			$('#orderQtymodal').modal('show');
+			// 			$(this_element).val(0);
+			// 		}
+			// 	});
 				
-			}
+			// }
 		});
 
 
@@ -1805,8 +1805,6 @@ $(document).ready(function(){
 				var itemcode = $(this).closest('tr').find('.itemcode').val();
 				var warehouse = $(this).closest('tr').find('select.warehouse').val();
 				var quantity = parseFloat(removeComma($(this).closest('tr').find('.quantity').val()));
-
-				
 				if (typeof quantities[itemcode] == 'undefined') {
 					quantities[itemcode] = [];
 				}
