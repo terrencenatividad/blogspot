@@ -344,7 +344,7 @@
 								for($i = 0; $i < count($details); $i++)
 								{
 									$itemcode 	 		= $details[$i]->itemcode;
-									$detailparticular	= $details[$i]->detailparticular;
+									$detailparticular	= htmlspecialchars($details[$i]->detailparticular);
 									$quantity 			= isset($details[$i]->issueqty) ?	number_format($details[$i]->issueqty,0) 	: 	"1";
 									$itemprice 			= $details[$i]->unitprice;
 									$uom 				= $details[$i]->issueuom;
