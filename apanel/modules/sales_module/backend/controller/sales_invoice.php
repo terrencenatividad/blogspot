@@ -654,7 +654,7 @@ class controller extends wc_controller
 			foreach($deliveries['details'] as $ind => $val)
 			{
 				$itemcode 			= $val->itemcode;
-				$detailparticular 	= $val->detailparticular;
+				$detailparticular 	= htmlspecialchars($val->detailparticular);
 				$quantity 			= $val->issueqty;
 				$unitprice 			= $val->unitprice;
 				$discount 			= ($val->discounttype == 'amt') ? $val->discountamount : $val->discountrate;

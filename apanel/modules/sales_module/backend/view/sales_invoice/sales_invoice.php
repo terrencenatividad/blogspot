@@ -416,7 +416,7 @@
 										for($i = 0; $i < count($details); $i++)
 										{
 											$itemcode 	 		= $details[$i]->itemcode;
-											$detailparticular	= $details[$i]->detailparticular;
+											$detailparticular	= htmlspecialchars($details[$i]->detailparticular);
 											$quantity 			= $details[$i]->issueqty;
 											$uom 				= $details[$i]->issueuom;
 											$uom 				= strtoupper($uom);
