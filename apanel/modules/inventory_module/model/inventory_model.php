@@ -287,6 +287,7 @@ class inventory_model extends wc_model {
 				$result = $this->db->setTable('price_average')
 									->setValues($values)
 									->runInsert(false);
+
 			}
 		}
 	}
@@ -496,6 +497,8 @@ class inventory_model extends wc_model {
 			$this->db->setTable('inventorylogs')
 						->setValues($logs)
 						->runInsert();
+						
+			$this->recomputePriceAverage();
 		}
 	}
 
