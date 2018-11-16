@@ -503,7 +503,7 @@
 													->setName('discount['.$row.']')
 													->setId('discount['.$row.']')
 													->setClass("text-right discount")
-													->setAttribute(array("maxlength" => "20", 'readonly' => $readOnly))
+													->setAttribute(array("maxlength" => "20"))
 													->setValue($discount)
 													->setValidation('decimal')
 													//->addHidden(true)
@@ -1996,6 +1996,13 @@ $(document).ready(function(){
 				
 				finalizeEditTransaction();
 			});
+
+			var discounttype = $('#discounttype').val();
+			if(discounttype != "" && discounttype != "none"){
+				$('#sales_order_form .discount').prop('readonly',false);
+			} else {
+				$('#sales_order_form .discount').prop('readonly',true);
+			}
 		}
 	// -- For Saving -- End
 
