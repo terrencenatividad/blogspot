@@ -1200,10 +1200,8 @@ function computeAmount()
 
 		if(vatex == 'yes'){
 			amount 		= parseFloat(totalprice);
-			vat_amount	= parseFloat(totalprice) * parseFloat(vat);
 		} else {
 			amount		= parseFloat(totalprice) / ( 1 + parseFloat(vat) );
-			vat_amount	= parseFloat(amount)	*	parseFloat(vat);
 		}	
 			
 		var itemdiscount = 0;
@@ -1222,6 +1220,16 @@ function computeAmount()
 			document.getElementById('discountedamount['+row+']').value 	= addCommas(discountedamount.toFixed(2));
 			
 			amount 		=	discountedamount;
+		}
+
+		if(vatex == 'yes'){
+			if(parseFloat(discountedamount) > 0){
+				vat_amount	= parseFloat(discountedamount) * parseFloat(vat);
+			} else {
+				vat_amount	= parseFloat(totalprice) * parseFloat(vat);
+			}
+		} else {
+			vat_amount	= parseFloat(amount)	*	parseFloat(vat);
 		}
 
 		amount			= 	(amount>0) 		?	Math.round(amount*1000) / 1000 	:	0;
