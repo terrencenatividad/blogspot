@@ -203,7 +203,21 @@ class item_model extends wc_model {
 						->getResult();
 	}
 
-	public function getEditItemDropdownList($itemcode="", $replacement="") {
+	public function getReplacementDropdownList($search="") {
+		$condition = " stat = 'active' AND replacementcode = ''";
+		if ($search) {
+			$condition .= " AND itemcode = '$search'";
+		}
+		$result = $this->db->setTable('items')
+						->setFields('itemcode ind, itemname val')
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
+						
+		return $result;
+	}
+
+	public function getEditReplacementDropdownList($itemcode="", $replacement="") {
 		$condition = "( stat = 'active' AND itemcode != '$itemcode') OR itemcode = '$replacement'";
 		return $this->db->setTable('items')
 						->setFields('itemcode ind, itemname val')
