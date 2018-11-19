@@ -18,7 +18,7 @@ class controller extends wc_controller
 
 		$this->bomdetails 			= array(
 			'id',
-			'bom_code_id',
+			'bom_code',
 			'item_code',
 			'item_name',
 			'detailsdesc',
@@ -45,20 +45,28 @@ class controller extends wc_controller
 
 	public function edit($id) {
 		$this->view->title  = 'Edit Bill of Materials';
+		$data = (array) $this->bom->getBOMById($this->fields, $id);
+		$bomcode = $data['bom_code'];
+		$details = $this->bom->getDetails($this->bomdetails, $bomcode);
+		$data['bomdetails'] = $details;
 		$data["ajax_task"] = "ajax_edit";
 		$data['ui'] = $this->ui;
-		$data['sid'] = $atc_code;
-
-		$data["button_name"] = "Save";
-		$this->view->load('atc_code/atc_code',$data);
+		$data['ajax_post'] = "&id=$id";
+		$data['show_input'] = true;
+		$this->view->load('bom/bom',$data);
 	}
 
 	public function view($id) {
 		$this->view->title  = 'View Bill of Materials';
+		$data = (array) $this->bom->getBOMById($this->fields, $id);
+		$bomcode = $data['bom_code'];
+		$details = $this->bom->getDetails($this->bomdetails, $bomcode);
+		$data['bomdetails'] = $details;
 		$data["ajax_task"] = "ajax_view";
-		$data["task"] = "ajax_view";
+		$data['ajax_post'] = "&id=$id";
 		$data['ui'] = $this->ui;
-		$this->view->load('atc_code/atc_code',$data);
+		$data['show_input'] = false;
+		$this->view->load('bom/bom',$data);
 	}
 
 	public function ajax($task) {
@@ -73,10 +81,45 @@ class controller extends wc_controller
 		$bom = $this->input->post($this->fields);
 		$bom_details = $this->input->post($this->bomdetails);
 		$this->seq = new seqcontrol();
+
 		$bom['bom_code'] = $this->seq->getValue('BOM');
+		$bom['status'] = 'active';
+		$bom_details['bom_code'] = $bom['bom_code'];
+		$result = $this->bom->saveBOM($bom, $bom_details);
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $result
+		);
+	}
 
-		$bom_save = $this->bom->saveBOM($bom, $bom_details);
+	private function ajax_edit() {
+		$id = $this->input->post('id');
+		$bom = $this->input->post($this->fields);
+		$bom['status'] = 'active';
+		$bom_details = $this->input->post($this->bomdetails);
+		$bomcode = $bom['bom_code'];
+		$result = $this->bom->updateBOM($bom, $id, $bomcode);
+		$bom_details['bom_code'] = $bom['bom_code'];
+		$bom_details['id'] = '';
+		$details = $this->bom->saveDetails($bom_details);
 
+		return array(
+			'redirect'	=> MODULE_URL,
+			'success'	=> $details
+		);
+	}
+
+	private function colorStat($stat) {
+		$color = 'default';
+		switch ($stat) {
+			case 'active':
+			$color = 'success';
+			break;
+			case 'inactive':
+			$color = 'warning';
+			break; 
+		}
+		return '<span class="label label-' . $color . '">' . strtoupper($stat) . '</span>';
 	}
 
 	private function ajax_list() {
@@ -111,8 +154,7 @@ class controller extends wc_controller
 			$table .= '<tr>';
 			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $row->bom_code . '</td>';
-			$table .= '<td>' . $row->item_code . '</td>';
-			$table .= '<td>' . $row->item_name . '</td>';
+			$table .= '<td>' . $row->bundle_item_code . '</td>';
 			$table .= '<td>' . $row->description . '</td>';
 			$table .= '<td>' . $this->colorStat($row->status) . '</td>';
 			$table .= '</tr>';
@@ -123,6 +165,26 @@ class controller extends wc_controller
 
 		return $pagination;
 	}
+
+	public function ajax_delete()
+	{
+		$data_var = array(
+			'id'
+		);
+		$data = $this->input->post($data_var);
+		extract($data);
+
+		$data_var = array('id');
+		$id       = $this->input->post($data_var);
+
+			/**
+			* Delete Database
+			*/
+			$result = $this->bom->deleteBOM($id);
+
+			$dataArray = array( "msg" => $result );
+			return $dataArray;
+		}
 
 	private function export() {
 		$data_post = $this->input->post(array("sort", "search"));
@@ -138,20 +200,20 @@ class controller extends wc_controller
 		$csv .= "\n";
 
 		$retrieved 	=	array_filter($result);
-		if(!empty($retrieved)){
-			foreach ($retrieved as $key => $row){
-				$bom_code 			= $row->bom_code;
-				$item_code 			= $row->item_code;
-				$item_name       	= $row->item_name;
-				$description    	 	= $row->description;   	 	
+		// if(!empty($retrieved)){
+		// 	foreach ($retrieved as $key => $row){
+		// 		$bom_code 			= $row->bom_code;
+		// 		$item_code 			= $row->item_code;
+		// 		$item_name       	= $row->item_name;
+		// 		$description    	 	= $row->description;   	 	
 
-				$csv .= '"' . $bom_code 		. '",';
-				$csv .= '"' . $item_code 		. '",';
-				$csv .= '"' . $item_name 		. '",';
-				$csv .= '"' . $description 		. '",';
-				$csv .= "\n";
-			}
-		}
+		// 		$csv .= '"' . $bom_code 		. '",';
+		// 		$csv .= '"' . $item_code 		. '",';
+		// 		$csv .= '"' . $item_name 		. '",';
+		// 		$csv .= '"' . $description 		. '",';
+		// 		$csv .= "\n";
+		// 	}
+		// }
 		return $csv;
 	}
 
@@ -239,7 +301,7 @@ class controller extends wc_controller
 	private function ajax_edit_activate()
 	{
 		$code = $this->input->post('id');
-		$data['stat'] = 'active';
+		$data['status'] = 'active';
 
 		$result = $this->bom->updateStat($data,$code);
 		return array(
@@ -251,7 +313,7 @@ class controller extends wc_controller
 	private function ajax_edit_deactivate()
 	{
 		$code = $this->input->post('id');
-		$data['stat'] = 'inactive';
+		$data['status'] = 'inactive';
 
 		$result = $this->bom->updateStat($data,$code);
 		return array(
@@ -263,7 +325,7 @@ class controller extends wc_controller
 	private function update_multiple_deactivate(){
 		$posted_data 			=	$this->input->post(array('ids'));
 
-		$data['stat'] 			=	'inactive';
+		$data['status'] 			=	'inactive';
 
 		$posted_ids 			=	$posted_data['ids'];
 		$id_arr 				=	explode(',',$posted_ids);
@@ -286,7 +348,7 @@ class controller extends wc_controller
 	private function update_multiple_activate(){
 		$posted_data 			=	$this->input->post(array('ids'));
 
-		$data['stat'] 			=	'active';
+		$data['status'] 			=	'active';
 
 		$posted_ids 			=	$posted_data['ids'];
 		$id_arr 				=	explode(',',$posted_ids);
