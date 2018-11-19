@@ -29,6 +29,16 @@ class receipt_voucher_model extends wc_model
 		return $result;
 	}
 
+	public function retrieveOverpaymentAccountList(){
+		$result = $this->db->setTable('chartaccount')
+					->setFields("id ind, accountname val")
+					->setWhere("accountclasscode IN('ACCPAY') AND stat = 'active'")
+					->setOrderBy("val")
+					->runSelect()
+					->getResult();
+		
+		return $result;
+	}
 
 	public function retrieveProformaList()
 	{
@@ -71,7 +81,7 @@ class receipt_voucher_model extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used, overpayment, advancepayment, cwt";
+		$setFields = "voucherno, transactiondate, customer,or_no, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat, credits_used, overpayment, advancepayment, cwt, opchecker";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -341,45 +351,69 @@ class receipt_voucher_model extends wc_model
 			$search_key .= ' AND ' . $this->generateSearch($search, array("main.voucherno"));
 		}
 
-		// Sub Select
-		$table_rv  = "rv_application AS rv";
-		$rv_fields = "COALESCE(SUM(rv.convertedamount),0) + COALESCE(SUM(rv.discount),0) + COALESCE(SUM(rv.credits_used),0) - COALESCE(SUM(rv.forexamount),0)";
+		// $table_rv  = "rv_application AS rv";
+		// $rv_fields = "COALESCE(SUM(rv.convertedamount),0) + COALESCE(SUM(rv.discount),0) + COALESCE(SUM(rv.credits_used),0) - COALESCE(SUM(rv.forexamount),0)";
 
-		$rv_cond   = "rv.arvoucherno = main.voucherno AND rv.stat IN('open','posted') AND rv.voucherno = '$voucherno' ";
-
-		// Main Queries
-		// $main_table   = "accountsreceivable as main";
-		// $main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0)) as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno");
-		// $main_join 	  = "partners p ON p.partnercode = main.customer ";
-		// $orderby  	  = "main.transactiondate DESC";
+		// $rv_cond   = "rv.arvoucherno = main.voucherno AND rv.stat IN('open','posted') AND rv.voucherno = '$voucherno' ";
 		
-		$rva_cond 	=	($voucherno != "") ?	" AND app.voucherno = '$voucherno'"	:	"";
+		// $rva_cond 	=	($voucherno != "") ?	" AND app.voucherno = '$voucherno'"	:	"";
 
-		$mainTable	= "accountsreceivable as main";
-		$mainFields	= array(
-							"main.voucherno as voucherno", "main.transactiondate as transactiondate",
-							"main.convertedamount as amount", "IF((main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0) - COALESCE(SUM(app.credits_used),0))>0, (main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0) - COALESCE(SUM(app.credits_used),0)),0) as balance", "main.referenceno as referenceno",
-							"SUM(app.convertedamount) as payment","COALESCE(SUM(app.credits_used),0) credits_used","app.overpayment as overpayment"
-						);
-		$mainJoin	= "rv_application AS app ON app.arvoucherno = main.voucherno AND app.stat IN('open','posted') $rva_cond ";
-		$groupBy 	= "main.voucherno";
+		// $mainTable	= "accountsreceivable as main";
+		// $mainFields	= array(
+		// 					"main.voucherno as voucherno", "main.transactiondate as transactiondate",
+		// 					"main.convertedamount as amount", "IF((main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0) - COALESCE(SUM(app.credits_used),0))>0, (main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0) - COALESCE(SUM(app.credits_used),0)),0) as balance", "main.referenceno as referenceno",
+		// 					"SUM(app.convertedamount) as payment","COALESCE(SUM(app.credits_used),0) credits_used","app.overpayment as overpayment"
+		// 				);
+		// $mainJoin	= "rv_application AS app ON app.arvoucherno = main.voucherno AND app.stat IN('open','posted') $rva_cond ";
+		// $groupBy 	= "main.voucherno";
 
-		$groupBy 	.=	($voucherno != "") 	?	", app.voucherno":"";
-		$sub_select 		= $this->db->setTable($table_rv)
-										->setFields($rv_fields)
-										->setWhere($rv_cond)
-										->buildSelect();
-		if($customercode && empty($voucherno)){
-			$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND main.balance != 0 ";
-			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $groupBy);
-			$tempArr["result"] = $query;
-		} else if($voucherno) {
-			$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND ((main.balance - ($sub_select)) <= main.convertedamount) AND ( main.balance != 0 OR ($sub_select) != 0)";
-			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $groupBy);
-			$tempArr["result"] = $query;
-		}
+		// $groupBy 	.=	($voucherno != "") 	?	", app.voucherno":"";
+		// $sub_select 		= $this->db->setTable($table_rv)
+		// 								->setFields($rv_fields)
+		// 								->setWhere($rv_cond)
+		// 								->buildSelect();
+		// if($customercode && empty($voucherno)){
+		// 	$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND main.balance != 0 ";
+		// 	$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $groupBy);
+		// 	$tempArr["result"] = $query;
+		// } else if($voucherno) {
+		// 	$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND ((main.balance - ($sub_select)) <= main.convertedamount) AND ( main.balance != 0 OR ($sub_select) != 0)";
+		// 	$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $groupBy);
+		// 	$tempArr["result"] = $query;
+		// }
 
 		// echo $this->db->getQuery();
+
+
+		$mainTable 		= "accountsreceivable main";
+		$mainFields 	= array("main.voucherno, main.transactiondate, main.convertedamount amount, main.referenceno, main.balance, 
+								(main.balance - COALESCE(rv.payment,0)) remaining_for_payment, COALESCE(rv.credits_used,0) credits_used, 
+								COALESCE(rv.overpayment,0) as overpayment, COALESCE(rv.convertedamount,0) as payment");
+		$mainCondition	= "main.stat = 'posted' AND main.customer = '$customercode'";
+		$mainGroupBy 	= "main.voucherno";
+
+		// if($customercode && empty($voucherno)){
+		// 	$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND main.balance != 0 ";
+		// } else {
+		// 	$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND ((main.balance - ($sub_select)) <= main.convertedamount) AND ( main.balance != 0 OR ($sub_select) != 0)";
+		// }
+
+		$sub_cond 		=	($voucherno != "") ?	" AND voucherno = '$voucherno'"	:	"";
+		$sub_query 		= 	$this->db->setTable('rv_application')
+									 ->setFields('arvoucherno, voucherno, SUM(convertedamount) convertedamount, SUM(discount) discount, SUM(credits_used) credits_used, SUM(overpayment) overpayment, (COALESCE(SUM(convertedamount),0) + COALESCE(SUM(discount),0) + COALESCE(SUM(credits_used),0) - COALESCE(SUM(forexamount),0)) payment')
+									 ->setWhere("stat IN ('open','posted') $sub_cond")
+									 ->setGroupBy('arvoucherno')
+									 ->buildSelect();
+
+		$query  		=	$this->db->setTable($mainTable)
+									  ->setFields($mainFields)
+									  ->leftJoin("($sub_query) as rv ON rv.arvoucherno = main.voucherno")
+									  ->setWhere($mainCondition)
+									  ->setGroupBy($mainGroupBy)
+									  ->setHaving("remaining_for_payment > 0 OR main.balance > 0")
+									  ->runPagination();
+									//   echo $this->db->getQuery();
+		
 		return $query;
 	}
 	
@@ -561,6 +595,7 @@ class receipt_voucher_model extends wc_model
 		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
 		// $credit_input 			= (isset($data['credit_input']) && (!empty($data['credit_input']))) ? htmlentities(addslashes($data['credit_input'])) 	:	0;
 		$ap_checker 			= (isset($data['advance_payment']) && (!empty($data['advance_payment']))) ? htmlentities(addslashes(trim($data['advance_payment']))) : 	"no";
+		$op_checker 			= (isset($data['overpayment']) && (!empty($data['overpayment']))) ? htmlentities(addslashes(trim($data['overpayment']))) : 	"no";
 		$cwt_checker 			= (isset($data['cwt']) && (!empty($data['cwt']))) ? htmlentities(addslashes(trim($data['cwt']))) : 	"no";
 		$creditsamt_to_apply 	= (isset($data['total_credits_to_apply']) && (!empty($data['total_credits_to_apply']))) ? htmlentities(addslashes(trim($data['total_credits_to_apply']))) : 	0;
 		$credits_box 			= (isset($data['credits_box']) && (!empty($data['credits_box']))) ? htmlentities(addslashes(trim($data['credits_box']))) : 	[];
@@ -716,6 +751,7 @@ class receipt_voucher_model extends wc_model
 		$post_header['paymenttype']		= $paymenttype;	
 		// $post_header['referenceno']		= $referenceno;
 		$post_header['advancepayment']  = $ap_checker;
+		$post_header['opchecker']  		= $op_checker;
 		$post_header['cwt']  			= $cwt_checker;
 		$post_header['or_no']			= $or_no;
 		
@@ -991,8 +1027,143 @@ class receipt_voucher_model extends wc_model
 			// 	$code 		= 0;
 			// 	$errmsg[] 	= "<li>Error in Updating Official Receipt Application.</li>";
 			// }
+				// if(!empty($combined_payables)){
+				// 	$aPvApplicationArray 	= array();
+				// 	$iApplicationLineNum	= 1;
+		
+				// 	foreach ($combined_payables as $pickedKey => $pickedValue) {
+				// 		$payable 					= $pickedValue['vno'];
+				// 		$amount 					= $pickedValue['amt'];
+				// 		$discount 					= $pickedValue['dis'];
+				// 		$credits 					= $pickedValue['cred'];
+				// 		$excess 					= isset($pickedValue['over']) ? $pickedValue['over'] 	: 0;
+		
+				// 		$data['avoucherno'] 		= $payable;
+		
+				// 		$applied_sum				= 0;
+				// 		$applied_discount			= 0;
+				// 		$applied_forexamount		= 0;
+		
+				// 		$invoice_amounts			= $this->getValue(
+				// 										$applicableHeaderTable, 
+				// 										array(
+				// 											"amount as convertedamount"
+				// 										), 
+				// 										" voucherno = '$payable' AND stat IN('open','posted','temporary') "
+				// 									);
+		
+				// 		$applied_amounts			= $this->getValue(
+				// 										$applicationTable, 
+				// 										array(
+				// 											"COALESCE(SUM(amount),0) convertedamount",
+				// 											"COALESCE(SUM(discount),0) discount",
+				// 											"COALESCE(SUM(credits_used),0) credits",
+				// 											"COALESCE(SUM(overpayment),0) overpayment",
+				// 											"COALESCE(SUM(forexamount),0) forexamount"
+				// 										), 
+				// 										"  arvoucherno = '$payable' AND stat IN('open','posted','temporary') "
+				// 									);
+						
+				// 		$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
+				// 		$applied_credits 			= (!empty($applied_amounts[0]->credits)) ? $applied_amounts[0]->credits : 0;
+				// 		$applied_disc 				= (!empty($applied_amounts[0]->discount)) ? $applied_amounts[0]->discount : 0;
+				// 		$applied_over 				= (!empty($applied_amounts[0]->overpayment)) ? $applied_amounts[0]->overpayment : 0;
+				// 		$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount + $applied_credits + $applied_disc;
+				// 		$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
+		
+				// 		$balance_info['amountreceived']	= $applied_sum;
+				// 		$balance_info['excessamount'] 	= ($excess >= 0) 	?	$excess 	:	0;
+				// 		$balance_amt 					= $invoice_amount - $applied_sum;
+				// 		$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;
+						
+				// 		$insertResult = $this->db->setTable($applicableHeaderTable)
+				// 						->setValues($balance_info)
+				// 						->setWhere("voucherno = '$payable'")
+				// 						->runUpdate();
+							
+				// 		if($insertResult){
+				// 			$partner_dtl 	=$this->getValue(
+				// 									$customerTable, 
+				// 									"credits_amount", 
+				// 									" partnercode = '$customer' "
+				// 								);
+		
+				// 			$existing_credit	= ($partner_dtl[0]->credits_amount > 0) ? $partner_dtl[0]->credits_amount 	:	0;
+							
+				// 			$existing_credit 	+=	$overpayment;
+				// 			$partner_info['credits_amount'] 	=	( $existing_credit - $credits_applied );
+		
+				// 			$insertResult 	=	$this->db->setTable($customerTable)
+				// 										 ->setValues($partner_info)
+				// 										 ->setWhere("partnercode = '$customer'")
+				// 										 ->runUpdate();
+				// 		}
+		
+				// 		// Insert Overpayment on Credit Memo
+				// 		if($insertResult && $credits > 0 ){
+				// 			$data['temp_voucher'] 	=	$voucherno;
+				// 			$data['overpayment'] 	= 	$credits;
+				// 			// echo $credits;
+				// 			$arvoucher 				= 	(isset($data['avoucherno']) && (!empty($data['avoucherno']))) ? htmlentities(addslashes(trim($data['avoucherno'])))	:	"";
+							
+				// 			$reference_inv 			= 	$this->getValue("accountsreceivable", array("invoiceno as number"), "voucherno = '$arvoucher'");
+				// 			$invoiceno 				= 	isset($reference_inv[0]->number) 	?	$reference_inv[0]->number	:	"";
+				// 			// echo $old_cred_used; echo $total_credits_used;
+				// 			if( $task == 'create'){
+				// 				$op_result 			=	$this->generateCreditMemo($data);
+				// 			} else if($old_cred_used != $total_credits_used && $task == 'edit'){	
+				// 				// echo " si_no = '$voucherno' AND sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' ";
+				// 				$cm_existing 		=	$this->getValue(
+				// 											"journalvoucher", 
+				// 											"voucherno", 
+				// 											" si_no = '$voucherno' AND sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' "
+				// 										);
+				// 										// echo " sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' ";
+		
+				// 				$cm_voucher			= 	isset($cm_existing[0]->voucherno) ? $cm_existing[0]->voucherno 	:	"";
+											
+				// 				if($credits == 0){
+				// 					$del_result 		=	$this->cancelCreditMemo($cm_voucher);
+				// 				} else {
+				// 					$del_result 		=	$this->deleteCreditMemoDetails($cm_voucher);
+		
+				// 					if($del_result){
+				// 						$op_result 		=	$this->generateCreditMemo($data, $cm_voucher);
+				// 					}
+				// 				}
+				// 			} 
+				// 		} else {
+				// 			$arvoucher 				= 	(isset($data['avoucherno']) && (!empty($data['avoucherno']))) ? htmlentities(addslashes(trim($data['avoucherno'])))	:	"";
+							
+				// 			$reference_inv 			= 	$this->getValue("accountsreceivable", array("invoiceno as number"), "voucherno = '$arvoucher'");
+				// 			$invoiceno 				= 	isset($reference_inv[0]->number) 	?	$reference_inv[0]->number	:	"";
+		
+				// 			if($old_cred_used != $total_credits_used && $task == 'edit'){	
+				// 				// echo " si_no = '$voucherno' AND sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' ";
+				// 				$cm_existing 		=	$this->getValue(
+				// 											"journalvoucher", 
+				// 											"voucherno", 
+				// 											" si_no = '$voucherno' AND sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' "
+				// 										);
+				// 										// echo " sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' ";
+		
+				// 				$cm_voucher			= 	isset($cm_existing[0]->voucherno) ? $cm_existing[0]->voucherno 	:	"";
+							
+				// 				if($credits == 0){
+				// 					$del_result 		=	$this->cancelCreditMemo($cm_voucher);
+				// 				} else {
+				// 					$del_result 		=	$this->deleteCreditMemoDetails($cm_voucher);
+		
+				// 					if($del_result){
+				// 						$op_result 		=	$this->generateCreditMemo($data, $cm_voucher);
+				// 					}
+				// 				}
+				// 			}
+				// 		}
+				// 	}
+				// }
 		}
-		if($ap_checker == 'yes' ){
+		if($ap_checker == 'yes' || $op_checker == "yes" ){
 			$this->db->setTable($detailAppTable)
 						->setWhere("voucherno = '$voucherno'")
 						->runDelete();
@@ -1015,11 +1186,19 @@ class receipt_voucher_model extends wc_model
 				$post_credit_voucher['partner'] 			= $customer;
 				$post_credit_voucher['currencycode']		= 'PHP';
 				$post_credit_voucher['exchangerate']		= '1.00';
-				$post_credit_voucher['amount'] 				= $total_payment;
-				$post_credit_voucher['balance'] 			= $total_payment;
-				$post_credit_voucher['convertedamount']		= $total_payment;
+				
+				if($ap_checker == "yes"){
+					$post_credit_voucher['amount'] 				= $total_payment;
+					$post_credit_voucher['balance'] 			= $total_payment;
+					$post_credit_voucher['convertedamount']		= $total_payment;
+				} else {
+					$post_credit_voucher['amount'] 				= $total_payment;
+					$post_credit_voucher['balance'] 			= $total_payment;
+					$post_credit_voucher['convertedamount']		= $total_payment;
+				}
+
 				$post_credit_voucher['referenceno']			= $voucherno;
-				$post_credit_voucher['source']			 	= 'RV';
+				$post_credit_voucher['source']			 	= ($ap_checker == "yes") ? 'ADV' : "OP";
  
 				$creditsArray[]								= $post_credit_voucher;
 				// var_dump($creditsArray);
@@ -1054,146 +1233,7 @@ class receipt_voucher_model extends wc_model
 				}
 			}
 		}
-
-		/**
-		 * Update Accounts Payable Balance
-		 */
-		if(!empty($combined_payables)){
-			$aPvApplicationArray 	= array();
-			$iApplicationLineNum	= 1;
-
-			foreach ($combined_payables as $pickedKey => $pickedValue) {
-				$payable 					= $pickedValue['vno'];
-				$amount 					= $pickedValue['amt'];
-				$discount 					= $pickedValue['dis'];
-				$credits 					= $pickedValue['cred'];
-				$excess 					= isset($pickedValue['over']) ? $pickedValue['over'] 	: 0;
-
-				$data['avoucherno'] 		= $payable;
-
-				$applied_sum				= 0;
-				$applied_discount			= 0;
-				$applied_forexamount		= 0;
-
-				$invoice_amounts			= $this->getValue(
-												$applicableHeaderTable, 
-												array(
-													"amount as convertedamount"
-												), 
-												" voucherno = '$payable' AND stat IN('open','posted','temporary') "
-											);
-
-				$applied_amounts			= $this->getValue(
-												$applicationTable, 
-												array(
-													"COALESCE(SUM(amount),0) convertedamount",
-													"COALESCE(SUM(discount),0) discount",
-													"COALESCE(SUM(credits_used),0) credits",
-													"COALESCE(SUM(overpayment),0) overpayment",
-													"COALESCE(SUM(forexamount),0) forexamount"
-												), 
-												"  arvoucherno = '$payable' AND stat IN('open','posted','temporary') "
-											);
-				
-				$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
-				$applied_credits 			= (!empty($applied_amounts[0]->credits)) ? $applied_amounts[0]->credits : 0;
-				$applied_disc 				= (!empty($applied_amounts[0]->discount)) ? $applied_amounts[0]->discount : 0;
-				$applied_over 				= (!empty($applied_amounts[0]->overpayment)) ? $applied_amounts[0]->overpayment : 0;
-				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount + $applied_credits + $applied_disc;
-				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
-
-				$balance_info['amountreceived']	= $applied_sum;
-				$balance_info['excessamount'] 	= ($excess >= 0) 	?	$excess 	:	0;
-				$balance_amt 					= $invoice_amount - $applied_sum;
-				$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;
-				
-				$insertResult = $this->db->setTable($applicableHeaderTable)
-								->setValues($balance_info)
-								->setWhere("voucherno = '$payable'")
-								->runUpdate();
-					
-				if($insertResult){
-					$partner_dtl 	=$this->getValue(
-											$customerTable, 
-											"credits_amount", 
-											" partnercode = '$customer' "
-										);
-
-					$existing_credit	= ($partner_dtl[0]->credits_amount > 0) ? $partner_dtl[0]->credits_amount 	:	0;
-					
-					$existing_credit 	+=	$overpayment;
-					$partner_info['credits_amount'] 	=	( $existing_credit - $credits_applied );
-
-					$insertResult 	=	$this->db->setTable($customerTable)
-												 ->setValues($partner_info)
-												 ->setWhere("partnercode = '$customer'")
-												 ->runUpdate();
-				}
-
-				// Insert Overpayment on Credit Memo
-				if($insertResult && $credits > 0 ){
-					$data['temp_voucher'] 	=	$voucherno;
-					$data['overpayment'] 	= 	$credits;
-					// echo $credits;
-					$arvoucher 				= 	(isset($data['avoucherno']) && (!empty($data['avoucherno']))) ? htmlentities(addslashes(trim($data['avoucherno'])))	:	"";
-					
-					$reference_inv 			= 	$this->getValue("accountsreceivable", array("invoiceno as number"), "voucherno = '$arvoucher'");
-					$invoiceno 				= 	isset($reference_inv[0]->number) 	?	$reference_inv[0]->number	:	"";
-					// echo $old_cred_used; echo $total_credits_used;
-					if( $task == 'create'){
-						$op_result 			=	$this->generateCreditMemo($data);
-					} else if($old_cred_used != $total_credits_used && $task == 'edit'){	
-						// echo " si_no = '$voucherno' AND sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' ";
-						$cm_existing 		=	$this->getValue(
-													"journalvoucher", 
-													"voucherno", 
-													" si_no = '$voucherno' AND sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' "
-												);
-												// echo " sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' ";
-
-						$cm_voucher			= 	isset($cm_existing[0]->voucherno) ? $cm_existing[0]->voucherno 	:	"";
-									
-						if($credits == 0){
-							$del_result 		=	$this->cancelCreditMemo($cm_voucher);
-						} else {
-							$del_result 		=	$this->deleteCreditMemoDetails($cm_voucher);
-
-							if($del_result){
-								$op_result 		=	$this->generateCreditMemo($data, $cm_voucher);
-							}
-						}
-					} 
-				} else {
-					$arvoucher 				= 	(isset($data['avoucherno']) && (!empty($data['avoucherno']))) ? htmlentities(addslashes(trim($data['avoucherno'])))	:	"";
-					
-					$reference_inv 			= 	$this->getValue("accountsreceivable", array("invoiceno as number"), "voucherno = '$arvoucher'");
-					$invoiceno 				= 	isset($reference_inv[0]->number) 	?	$reference_inv[0]->number	:	"";
-
-					if($old_cred_used != $total_credits_used && $task == 'edit'){	
-						// echo " si_no = '$voucherno' AND sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' ";
-						$cm_existing 		=	$this->getValue(
-													"journalvoucher", 
-													"voucherno", 
-													" si_no = '$voucherno' AND sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' "
-												);
-												// echo " sourceno = '$invoiceno' AND invoiceno = '$arvoucher' AND transtype = 'CM' ";
-
-						$cm_voucher			= 	isset($cm_existing[0]->voucherno) ? $cm_existing[0]->voucherno 	:	"";
-					
-						if($credits == 0){
-							$del_result 		=	$this->cancelCreditMemo($cm_voucher);
-						} else {
-							$del_result 		=	$this->deleteCreditMemoDetails($cm_voucher);
-
-							if($del_result){
-								$op_result 		=	$this->generateCreditMemo($data, $cm_voucher);
-							}
-						}
-					}
-				}
-			}
-		}
-
+		
 		return array(
 			'code' 		=> $code,
 			'voucher' 	=> $voucherno,
@@ -2132,11 +2172,22 @@ class receipt_voucher_model extends wc_model
 		return $result;
 	}
 
-	public function retrieve_existing_acct(){
+	public function retrieve_existing_credacct(){
 		$query 	=	$this->db->setTable("fintaxcode fx")
 							->leftJoin('chartaccount coa ON coa.id = fx.salesAccount')
 							->setFields("coa.id, CONCAT(segment5,' - ',accountname) account")
 							->setWhere("fstaxcode = 'ADV'")
+							->runSelect()
+							->getResult();
+
+		return $query;
+	}
+
+	public function retrieve_existing_opacct(){
+		$query 	=	$this->db->setTable("fintaxcode fx")
+							->leftJoin('chartaccount coa ON coa.id = fx.salesAccount')
+							->setFields("coa.id, CONCAT(segment5,' - ',accountname) account")
+							->setWhere("fstaxcode = 'OP'")
 							->runSelect()
 							->getResult();
 
@@ -2157,6 +2208,16 @@ class receipt_voucher_model extends wc_model
 		$result 	=	$this->db->setTable($table)
 				 		->setValues($data)
 				 		->runInsert();
+		// echo $result;
+
+		return $result;
+	}
+
+	public function updateData($table, $data, $cond){
+		$result 	=	$this->db->setTable($table)
+						 	->setValues($data)
+							->setWhere($cond)
+							->runUpdate();
 		// echo $result;
 
 		return $result;
