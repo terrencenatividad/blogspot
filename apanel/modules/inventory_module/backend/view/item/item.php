@@ -544,6 +544,10 @@
 		if($('#bundle').attr('checked') && task == 'ajax_edit'){
 			disable_checkboxes(1);
 		}
+		// For Replacement For Dropdown
+		if($('#replacement_part').attr('checked') && task == 'ajax_edit'){
+			$('#replacement_for').prop('disabled',false);
+		}
 
 		$('form').on('ifChecked','#bundle',function(e){
 			disable_checkboxes(1);
