@@ -421,6 +421,7 @@ class controller extends wc_controller
 		$credits_applied 		= $data['credits'];
 
 		$total_cr_applied		= 0;
+		$applied 				= [];
 		if($credits_applied){
 			foreach($credits_applied as $key=>$row){
 				if(isset($row->amount)) {
@@ -429,6 +430,7 @@ class controller extends wc_controller
 			}
 		}
 		$data['credits_applied'] 	= $total_cr_applied;
+		$data['credits_box']     	= json_encode($applied);
 
 		$data['restrict_rv'] 			= $restrict_rv;
 		$cred_acct						= $this->receipt_voucher->retrieve_existing_credacct();
@@ -459,160 +461,6 @@ class controller extends wc_controller
 		$data['ar_acct'] 	=	$ar_acct;
 
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
-	}
-
-	public function sawt_csv() {
-		$voucherno = $_GET['h_voucher_no'];
-		$partnercode = $_GET['partnercode'];
-		
-		$partner = $this->receipt_voucher->getPartnerDetails($partnercode);
-		$rv = $this->receipt_voucher->getRV($voucherno);
-		$rv_details = $this->receipt_voucher->getRVDetails($voucherno);
-
-		$date=date_create($rv->postingdate);
-		$date = date_format($date,"F, Y");
-
-		$businesstype = $partner->businesstype;
-
-		$contact_person = $partner->last_name.', '.$partner->first_name;
-
-		if ($businesstype == 'Individual') {
-			$filename = 'SAWT 1701';
-			$form = '1701';
-		}
-		else {
-			$filename = 'SAWT 1702';
-			$form = '1702';
-		}
-
-		$excel = new PHPExcel();
-		$excel->getProperties()
-				->setCreator('Cid')
-				->setLastModifiedBy('Cid')
-				->setTitle($filename)
-				->setSubject('SAWT')
-				->setDescription('SAWT')
-				->setKeywords('SAWT')
-				->setCategory('SAWT');
-
-		$excel->getActiveSheet()->setTitle('SAWT');
-		$excel->setActiveSheetIndex(0);
-		$sheet = $excel->getActiveSheet();
-
-		$sheet->getCell('A1')->setValue('BIR FORM '.$form);
-		$sheet->getCell('A2')->setValue('SUMMARY ALPHALIST OF WITHHOLDING TAXES (SAWT)');
-		$sheet->getCell('A3')->setValue('FOR THE MONTH OF '.strtoupper($date));
-
-
-		$sheet->getCell('A6')->setValue('TIN : '.$partner->tinno);
-		$sheet->getCell('A7')->setValue("PAYEE'S NAME: ".strtoupper($partner->partnername));
-
-		$sheet->getCell('A11')->setValue('SEQ');
-		$sheet->getCell('A12')->setValue('NO');
-		$sheet->getCell('A14')->setValue('(1)');
-		$sheet->getCell('A15')->setValue('------------------------------');
-
-		$sheet->getCell('B11')->setValue('TAXPAYER');
-		$sheet->getCell('B12')->setValue('IDENTIFICATION');
-		$sheet->getCell('B13')->setValue('NO');
-		$sheet->getCell('B14')->setValue('(2)');
-		$sheet->getCell('B15')->setValue('------------------------------');
-
-		$sheet->getCell('C11')->setValue('CORPORATION');
-		$sheet->getCell('C12')->setValue('(Registered Name)');
-		$sheet->getCell('C14')->setValue('(3)');
-		$sheet->getCell('C15')->setValue('------------------------------');
-
-		$sheet->getCell('D11')->setValue('INDIVIDUAL');
-		$sheet->getCell('D12')->setValue('(Last Name, First Name, Middle Name)');
-		$sheet->getCell('D14')->setValue('(4)');
-		$sheet->getCell('D15')->setValue('------------------------------');
-
-		$sheet->getCell('E11')->setValue('ATC CODE');
-		$sheet->getCell('E14')->setValue('(5)');
-		$sheet->getCell('E15')->setValue('------------------------------');
-
-		$sheet->getCell('F11')->setValue('NATURE OF PAYMENT');
-		$sheet->getCell('F15')->setValue('------------------------------');
-
-		$sheet->getCell('G11')->setValue('AMOUNT OF');
-		$sheet->getCell('G12')->setValue('INCOME PAYMENT');
-		$sheet->getCell('G14')->setValue('(6)');
-		$sheet->getCell('G15')->setValue('------------------------------');
-
-		$sheet->getCell('H11')->setValue('TAX RATE');
-		$sheet->getCell('H14')->setValue('(7)');
-		$sheet->getCell('H15')->setValue('------------------------------');
-
-		$sheet->getCell('I11')->setValue('AMOUNT OF');
-		$sheet->getCell('I12')->setValue('TAX WITHHELD');
-		$sheet->getCell('I14')->setValue('(8)');
-		$sheet->getCell('I15')->setValue('------------------------------');
-
-		$count = 1;
-		$totalwtaxamount = 0;
-		$cell_row = 16;
-		if ($rv_details) {
-			foreach ($rv_details as $row) {
-
-				$sheet->getCell('A'.$cell_row)->setValue($count);
-				$sheet->getCell('B'.$cell_row)->setValue($partner->tinno);
-				if ($businesstype != 'Individual') {
-					$sheet->getCell('C'.$cell_row)->setValue(strtoupper($partner->partnername));
-				}
-				else {
-					$sheet->getCell('D'.$cell_row)->setValue(strtoupper($contact_person));
-				}
-				$sheet->getCell('E'.$cell_row)->setValue($row->atc_code);
-				$sheet->getCell('F'.$cell_row)->setValue(strtoupper($rv->paymenttype));
-				$sheet->getCell('G'.$cell_row)->setValue($row->taxbase_amount);
-				$sheet->getCell('H'.$cell_row)->setValue($row->tax_rate);
-				$sheet->getCell('I'.$cell_row)->setValue($row->credit);
-
-				$count++;
-				$cell_row++;
-				$totalwtaxamount = $totalwtaxamount + $row->credit;
-			}
-		}
-
-		else {
-			$sheet->mergeCells('A16:I16');
-			$sheet->getCell('A16')->setValue('NO CREDITABLE WITHHOLDING TAX');
-			$sheet->getStyle('A16')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-			$cell_row = $cell_row + 1;
-		}
-
-		$fortotal_row = $cell_row + 1;
-		$forend_report = $cell_row + 3;
-		$fortotal_amount = $cell_row + 1;
-
-		$sheet->getCell('A'.$fortotal_row)->setValue('Grand Total :');
-		$sheet->getCell('A'.$forend_report)->setValue('END OF REPORT');
-
-		$sheet->getCell('I'.$cell_row)->setValue('------------------');
-		$sheet->getCell('I'.$fortotal_amount)->setValue($totalwtaxamount);
-		// $sheet->getCell('I19')->setValue('==================');
-
-		$sheet->getStyle('G15:I18')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-
-		foreach ($excel->getAllSheets() as $sheet) {
-			for ($col = 0; $col <= PHPExcel_Cell::columnIndexFromString($sheet->getHighestDataColumn()); $col++) {
-				$sheet->getColumnDimensionByColumn($col)->setAutoSize(true);
-			}
-		}
-
-		$filename.= '.xlsx';
-
-		header('Content-type: application/vnd.ms-excel');
-		header("Content-Disposition: attachment; filename=\"$filename\"");
-		header("Pragma: no-cache");
-		header("Expires: 0");
-
-		flush();
-
-		$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel5');
-
-		$writer->save('php://output');
 	}
 
 	public function edit($sid)

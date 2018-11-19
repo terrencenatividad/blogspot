@@ -9,7 +9,6 @@
 		</div>
 		<p class = "text-bold">Please contact admin to fix this issue.</p>
 	</div>
-	
 	<form method = "post" class="form-horizontal" id = "payableForm">
 		<input type="hidden" id="h_task" name="h_task" value="<?=$task?>">
 		<input type="hidden" id="ar_acct" name="ar_acct" value="<?=$ar_acct?>">
@@ -1109,8 +1108,10 @@
 						if(($status == 'open' && $has_access == 1) && $restrict_rv && ($cv_status=="" || $cv_status != "used")){
 							echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
 						}
+						echo $ui->drawCancel();
 						?>
-						<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
+						
+						<!-- <a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a> -->
 						<!-- <button type="button" class="btn btn-default btn-flat" data-id="<?//=$generated_id?>" id="btnCancel">Cancel</button> -->
 					</div>
 				</div>
@@ -1455,7 +1456,7 @@
 <!-- End Delete Record Confirmation Modal -->
 
 <!--DELETE RECORD CONFIRMATION MODAL-->
-<div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
+<!-- <div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
 	<div class="modal-dialog modal-sm">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -1480,7 +1481,7 @@
 			</div>
 		</div>
 	</div>
-</div>
+</div> -->
 <!-- End DELETE RECORD CONFIRMATION MODAL-->
 
 <!-- ON CHANGING OF VENDOR MODAL -->
@@ -1599,8 +1600,8 @@
 							<div class="row row-dense">
 								<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 									<div class="btn-group">
-										<button type="button" class="btn btn-primary btn-flat" id="tax_apply">Apply</button>
-										<button type="button" class="btn btn-primary btn-flat hidden" id="tax_apply_edit">Apply</button>
+										<button type="button" class="btn btn-primary btn-flat" id="tax_apply" disabled>Apply</button>
+										<button type="button" class="btn btn-primary btn-flat hidden" id="tax_apply_edit" disabled>Apply</button>
 									</div>
 										&nbsp;&nbsp;&nbsp;
 									<div class="btn-group">
@@ -4232,10 +4233,10 @@ $(document).ready(function() {
 		});
 	});
 
-	$('#cancelModal #btnYes').click(function() {
-		var record = document.getElementById('h_voucher_no').value;
-		cancelTransaction(record);
-	});
+	// $('#cancelModal #btnYes').click(function() {
+	// 	var record = document.getElementById('h_voucher_no').value;
+	// 	cancelTransaction(record);
+	// });
 
 	/**TOGGLE ISSUE PAYMENT**/
 	$("#btnReceive").click(function(){
@@ -5245,6 +5246,14 @@ $('#payableForm').on('click', '.edit-button', function(){
 	var row 	  = $('#entriesTable tbody tr.clone').length - 1;
 	var atc = $("#taxcode\\["+ row +"\\]").val();
 	var amount = $("#taxbase_amount\\["+ row +"\\]").val();
+
+	$('.tax_amount').on('input', function() {
+		if ($(this).val() >= '0') {
+			$('#tax_apply').prop('disabled', false);
+			$('#tax_apply_edit').prop('disabled', false);
+		}
+	});	
+
 	$('#tax_account').val(atc).trigger('change.select2');
 	$('#tax_amount').val(amount);
 	$('#atcModal').modal('show');
@@ -5253,33 +5262,49 @@ $('#payableForm').on('click', '.edit-button', function(){
 	$('#tax_apply_edit').removeClass('hidden');
 });
 
+$('.tax_amount').on('input', function() {
+    if ($(this).val() != '0' && $(this).val() != '') {
+        $('#tax_apply').prop('disabled', false);
+		$('#tax_apply_edit').prop('disabled', false);
+    }else{
+		$('#tax_apply').prop('disabled', true);
+		$('#tax_apply_edit').prop('disabled', true);
+	}
+});
+
 $('#tax_apply').click(function(){
 	var tax_account = $('#tax_account').val();
 	var tax_amount = $('#tax_amount').val();
 	tax_amount = tax_amount.replace(/,/g,'');
 
-	var clone = $("#entriesTable tbody tr.clone:last");
-		var ParentRow = $("#entriesTable tbody tr.clone").last();
+		
+		$('.tax_amount').find('input, textarea, select').trigger('blur');
+		if ($('#atcModal').find('.has-error').length == 0) {
+			var clone = $("#entriesTable tbody tr.clone:last");
+			var ParentRow = $("#entriesTable tbody tr.clone").last();
 			ParentRow.before(clone_acct);
 			offset 	  = 4;
 		
 			setZero(offset);
 			drawTemplate();
-
-	$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_cwt","tax_account=" + tax_account+"&tax_amount="+tax_amount).done(function(data){
-		var row 	= $('#entriesTable tbody tr.clone').length - 1;
-					$("#accountcode\\["+ row +"\\]").val(data.id).trigger('change.select2');
-					$("#h_accountcode\\["+ row +"\\]").val(data.id);
-					$("#debit\\["+ row +"\\]").val(addComma(data.amount));
-					$("#taxcode\\["+ row +"\\]").val(tax_account);
-					$("#taxbase_amount\\["+ row +"\\]").val(tax_amount);
-					addAmountAll('debit');
-	});
-
-	$('#cwtdiv').addClass('hidden');
-	$('#editdiv').removeClass('hidden');
-	
-	$('#atcModal').modal('hide');
+			
+			$.post("<?= BASE_URL ?>financials/receipt_voucher/ajax/get_cwt","tax_account=" + tax_account+"&tax_amount="+tax_amount).done(function(data){
+				var row 	= $('#entriesTable tbody tr.clone').length - 1;
+							$("#accountcode\\["+ row +"\\]").val(data.id).trigger('change.select2');
+							$("#h_accountcode\\["+ row +"\\]").val(data.id);
+							$("#debit\\["+ row +"\\]").val(addComma(data.amount));
+							$("#taxcode\\["+ row +"\\]").val(tax_account);
+							$("#taxbase_amount\\["+ row +"\\]").val(tax_amount);
+							addAmountAll('debit');
+							
+							$('#atcModal').modal('hide');
+							$('#cwtdiv').addClass('hidden');
+							$('#editdiv').removeClass('hidden');
+		});
+		}else{
+			$('.tax_amount').find('.has-error').first().find('input, textarea, select').focus();
+			$('#tax_apply').prop('disabled', true);
+		}
 });
 
 $('#tax_apply_edit').click(function(){
