@@ -7,10 +7,22 @@
 
 				<div class="box box-primary">
 					<div class="panel panel-default">
-
 						<form class="form-horizontal form-group" method="POST" id="coaForm" autocomplete="off">
 							<div class="panel-body">
 								<div class="row">
+									<?php if($ajax_task == 'ajax_edit') : ?>
+										<div class="col-md-6 hidden">
+											<?
+											echo $ui->formField('text')
+											->setLabel('Bundle Item Code ')
+											->setSplit('col-md-3', 'col-md-8')
+											->setName('bom_code')
+											->setId('bom_code')
+											->setValue($bom_code)
+											->draw($show_input);	
+											?>	
+										</div>
+									<?php endif; ?>
 									<div class="col-md-6">
 										<?
 										echo $ui->formField('dropdown')
@@ -54,71 +66,143 @@
 												</tr>
 											</thead>
 											<tbody>
-												<tr class="clone" valign="middle">
-													<td class = "remove-margin">
-														<?php
-														echo $ui->formField('dropdown')
-														->setPlaceholder('Select One')
-														->setSplit('col-md-3', 'col-md-12')
-														->setName("item_code")
-														->setId("item_code")
-														->setList(array('1' => 'Code 1', '2' => 'Code 2'))
-														->setNone('Select One')
-														->draw($show_input);
-														?>
-													</td>
-													<td class = "remove-margin">
-														<?php
-														echo $ui->formField('text')
-														->setSplit('', 'col-md-12')
-														->setName('item_name')
-														->setId('item_name')
-														->setAttribute(array('readonly'))
-														->draw($show_input);
-														?>
-													</td>
-													<td class = "remove-margin">
-														<?php
-														echo $ui->formField('text')
-														->setSplit('', 'col-md-12')
-														->setName('detailsdesc')
-														->setId('detailsdesc')
-														->setAttribute(array('readonly'))
-														->draw($show_input);
-														?>
-													</td>
-													<td class = "remove-margin">
-														<?php
-														echo $ui->formField('text')
-														->setPlaceholder('0.00')
-														->setSplit('', 'col-md-12')
-														->setName('quantity')
-														->setId('quantity')
-														->setClass('text-right')
-														->draw($show_input);
-														?>
-													</td>
+												<?php if($ajax_task != 'ajax_create') { ?>
+													<?php foreach ($bomdetails as $key => $row) { ?>
+														<tr class="clone" valign="middle">
+															<td class = "remove-margin">
+																<?php
+																echo $ui->formField('dropdown')
+																->setPlaceholder('Select One')
+																->setSplit('col-md-3', 'col-md-12')
+																->setName("item_code[]")
+																->setId("item_code")
+																->setValue($row->item_code)
+																->setList(array('1' => 'Code 1', '2' => 'Code 2'))
+																->draw($show_input);
+																?>
+															</td>
+															<td class = "remove-margin">
+																<?php
+																echo $ui->formField('text')
+																->setSplit('', 'col-md-12')
+																->setName('item_name[]')
+																->setId('item_name')
+														// ->setAttribute(array('readonly'))
+																->setValue($row->item_name)
+																->draw($show_input);
+																?>
+															</td>
+															<td class = "remove-margin">
+																<?php
+																echo $ui->formField('text')
+																->setSplit('', 'col-md-12')
+																->setName('detailsdesc[]')
+																->setId('detailsdesc')
+														// ->setAttribute(array('readonly'))
+																->setValue($row->detailsdesc)
+																->draw($show_input);
+																?>
+															</td>
+															<td class = "remove-margin">
+																<?php
+																echo $ui->formField('text')
+																->setPlaceholder('0.00')
+																->setSplit('', 'col-md-12')
+																->setName('quantity[]')
+																->setId('quantity')
+																->setValue($row->quantity)
+																->setClass('text-right')
+																->draw($show_input);
+																?>
+															</td>
 
-													<td class = "remove-margin">
-														<?php
-														echo $ui->formField('text')
-														->setSplit('', 'col-md-12')
-														->setAttribute(array('readonly'))
-														->setName('uom')
-														->setId('uom')
-														->draw($show_input);
-														?>
-													</td>	
+															<td class = "remove-margin">
+																<?php
+																echo $ui->formField('text')
+																->setSplit('', 'col-md-12')
+														// ->setAttribute(array('readonly'))
+																->setName('uom[]')
+																->setId('uom')
+																->setValue($row->uom)
+																->setClass('text-right')
+																->draw($show_input);
+																?>
+															</td>	
 
-													<td class="text-center">
-														<button type="button" class="btn btn-danger btn-flat confirm-delete"><span class="glyphicon glyphicon-trash"></span></button>
-													</td>			
-												</tr>
+															<td class="text-center">
+																<button type="button" class="btn btn-danger btn-flat confirm-delete"><span class="glyphicon glyphicon-trash"></span></button>
+															</td>			
+														</tr>
+													<?php } ?>
+												<?php } else { ?>
+													<tr class="clone" valign="middle">
+														<td class = "remove-margin">
+															<?php
+															echo $ui->formField('dropdown')
+															->setPlaceholder('Select One')
+															->setSplit('col-md-3', 'col-md-12')
+															->setName("item_code[]")
+															->setId("item_code")
+															->setList(array('1' => 'Code 1', '2' => 'Code 2'))
+															->draw($show_input);
+															?>
+														</td>
+														<td class = "remove-margin">
+															<?php
+															echo $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName('item_name[]')
+															->setId('item_name')
+														// ->setAttribute(array('readonly'))
+															->draw($show_input);
+															?>
+														</td>
+														<td class = "remove-margin">
+															<?php
+															echo $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName('detailsdesc[]')
+															->setId('detailsdesc')
+														// ->setAttribute(array('readonly'))
+															->draw($show_input);
+															?>
+														</td>
+														<td class = "remove-margin">
+															<?php
+															echo $ui->formField('text')
+															->setPlaceholder('0.00')
+															->setSplit('', 'col-md-12')
+															->setName('quantity[]')
+															->setId('quantity')
+															->setClass('text-right')
+															->draw($show_input);
+															?>
+														</td>
+
+														<td class = "remove-margin">
+															<?php
+															echo $ui->formField('text')
+															->setSplit('', 'col-md-12')
+														// ->setAttribute(array('readonly'))
+															->setName('uom[]')
+															->setId('uom')
+															->setClass('text-right')
+															->draw($show_input);
+															?>
+														</td>	
+
+														<td class="text-center">
+															<button type="button" class="btn btn-danger btn-flat confirm-delete"><span class="glyphicon glyphicon-trash"></span></button>
+														</td>			
+													</tr>
+												<?php } ?>
 											</tbody>
 											<tfoot>
 												<tr>
 													<td>
-														<a type="button" class="btn btn-link add-data" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Line</a>
+														<?php if($ajax_task != 'ajax_view') : ?>
+															<a type="button" class="btn btn-link add-data" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Line</a>
+														<?php endif; ?>
 													</td>	
 												</tr>
 											</tfoot>
@@ -130,14 +214,7 @@
 								<div class="row center">
 									<div class="col-md-5 col-sm-4 col-xs-4"></div>
 									<div class="col-md-2 col-sm-3 col-xs-3" id="task_buttons" style="padding:3px;">
-										<?php if($ajax_task == "ajax_view") {?>
-											<input type = "button" name = "add" value = "<?= $button_name ?>" 
-											class = "btn btn-primary btn-flat" 
-											onClick = "document.location = '<?=MODULE_URL?>edit/<?=$sid?>'">	
-										<?php } else { ?>
-											<input type = "submit" name = "update" value = "Save" 
-											class = "btn btn-primary btn-flat">	
-										<?php } ?>	
+										<?php echo $ui->drawSubmit($show_input); ?>
 										<a href="<?=MODULE_URL?>" class="btn btn-default btn-flat">Cancel</a>
 
 
@@ -211,14 +288,14 @@
 					<?php if ($show_input): ?>
 						$('form').submit(function(e) {
 							e.preventDefault();
-							$('#delay_modal').modal('show');
-							return false;
-							var status = $(document.activeElement).attr('id');
 							$(this).find('.form-group').find('input, textarea, select').trigger('blur');
 							if ($(this).find('.form-group.has-error').length == 0) {
-								$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + '<?=$ajax_post?>' + '&status=' + status, function(data) {
+								$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + '<?=$ajax_post?>' + '&id=' + '<?=$ajax_post ?>', function(data) {
 									if (data.success) {
-										window.location = data.redirect;
+										$('#delay_modal').modal('show');
+										setTimeout(function() {
+											window.location = data.redirect;
+										},500);
 									}
 								});
 							} else {

@@ -60,11 +60,10 @@
 								'class' => 'col-md-1 text-center'
 							)
 						)
-						->addHeader('BOM Code', array('class' => 'col-md-1 text-center'))
-						->addHeader('BOM Name', array('class' => 'col-md-1 text-center'))
-						->addHeader('Item Code', array('class'=> 'col-md-1 text-center'))
-						->addHeader('Description', array('class'=> 'col-md-3 text-center'))
-						->addHeader('Status', array('class'=> 'col-md-3 text-center'))
+						->addHeader('BOM Code', array('class' => 'col-md-3 text-center'),'sort', 'bom_code', 'asc')
+						->addHeader('Bundle Code Id', array('class' => 'col-md-3 text-center'),'sort', 'bundle_item_code')
+						->addHeader('Description', array('class'=> 'col-md-6 text-center'),'sort', 'description')
+						->addHeader('Status', array('class'=> 'col-md-4 text-center'),'sort', 'status')
 						->draw();
 						?>		
 						<tbody id="list_container">
@@ -87,8 +86,7 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 			<div class="modal-body">
-				Are you sure you want to delete this ATC Code?
-				<input type="hidden" id="recordId"/>
+				Are you sure you want to delete bom?
 			</div>
 			<div class="modal-footer">
 				<div class="row row-dense">
@@ -106,7 +104,6 @@
 		</div>
 	</div>
 </div>
-
 <!--DELETE RECORDS CONFIRMATION MODAL-->
 <div class="modal fade" id="multipleDeleteModal" tabindex="-1" data-backdrop="static">
 	<div class="modal-dialog modal-sm">
@@ -116,7 +113,7 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 			<div class="modal-body">
-				Are you sure you want to delete selected atc code(s)?
+				Are you sure you want to delete selected bom(s)?
 			</div>
 			<div class="modal-footer">
 				<div class="row row-dense">
@@ -259,16 +256,15 @@
 
 				$( "#btnYes" ).click(function() 
 				{
-					$.post('<?=MODULE_URL?>ajax/delete', 'id=' + id, function(data) 
+					$.post('<?=MODULE_URL?>ajax/ajax_delete', 'id=' + id, function(data) 
 					{
 						if( data.msg == "" )
 							window.location.href = "<?=MODULE_URL?>";
 						else
 						{
-								// Call function to display error_get_last
-								show_error(data.msg);
-							}
-						});
+							show_error(data.msg);
+						}
+					});
 				});	
 			}
 		});
@@ -291,7 +287,7 @@
 
 				$( "#multipleDeleteModal #btnYes" ).click(function() 
 				{
-					$.post('<?=MODULE_URL?>ajax/delete', 'id=' + id, function(data) 
+					$.post('<?=MODULE_URL?>ajax/ajax_delete', 'id=' + id, function(data) 
 					{
 						if( data.msg == "" )
 							window.location.href = "<?=MODULE_URL?>";
@@ -410,14 +406,6 @@
 				},
 			});
 		});
-
-		// $("#export").click(function() 
-		// {
-		// 	ajax.addCond 		 = $("#addCond").val();
-		// 	ajax.search			 = $("#table_search").val() 
-
-		// 	window.location = '<?//=MODULE_URL?>ajax/export?' + $.param(ajax);
-		// });
 
 		$('#pagination').on('click', 'a', function(e) {
 			e.preventDefault();
