@@ -13,9 +13,16 @@ class controller extends wc_controller {
 			'itemname',
 			'itemdesc',
 			'typeid',
+			'itemgroup',
 			'classid',
 			'weight',
 			'weight_type',
+			'barcode',
+			'bundle',
+			'item_ident_flag',
+			'brand' => 'brandcode',
+			'replacement_part' => 'replacement',
+			'replacement_for'=> 'replacementcode',
 			'uom_base',
 			'uom_selling',
 			'uom_purchasing',
@@ -31,14 +38,23 @@ class controller extends wc_controller {
 		);
 		$this->csv_header		= array(
 			'Item Code',
+			'Barcode',
 			'Item Name',
 			'Item Description',
 			'Item Type',
+			'Item Group',
 			'Item Class',
 			'Item Class Type',
 			'Item Class Parent',
 			'Weight',
 			'Weight Type',
+			'Bundle',
+			'Serial No.(Y/N)',
+			'Engine No.(Y/N)',
+			'Chassis No.(Y/N)',
+			'Brand Code',
+			'Replacement Part (Y/N)',
+			'Replacement Code',
 			'Base UOM',
 			'Purchasing UOM',
 			'Converted Purchasing UOM',
@@ -74,6 +90,7 @@ class controller extends wc_controller {
 		$data['ui']							= $this->ui;
 		$data['uom_list']					= $this->item_model->getUOMList();
 		$data['itemclass_list']				= $this->item_model->getItemClassList('');
+		$data['groups_list'] 				= $this->item_model->getGroupsList();
 		$data['itemtype_list']				= $this->item_model->getItemtypeList();
 		$weight = $data['weight_type'];
 		$data['weight_type_list']			= $this->item_model->getWeightTypeList($search= '', $weight);
@@ -84,16 +101,20 @@ class controller extends wc_controller {
 		$data['revenuetype_list']			= $this->item_model->getRevenueTypeList();
 		$data['expensetype_list']			= $this->item_model->getExpenseTypeList();
 		$data['chart_account_list']			= $this->item_model->getChartAccountList();
-		$data['ajax_task'] = 'ajax_create';
-		$data['ajax_post'] = '';
-		$data['show_input'] = true;
+		$data['existing_item_list'] 		= $this->item_model->getReplacementDropdownList();
+		$data['brand_list'] 				= $this->item_model->getBrandDropdownList();
+		$data['ajax_task'] 					= 'ajax_create';
+		$data['ajax_post'] 					= '';
+		$data['show_input'] 				= true;
+		$data['serialized'] 				= '0';
+		$data['engine'] 					= '0';
+		$data['chassis'] 					= '0';
 		$this->view->load('item/item', $data);
 	}
 
 	public function edit($itemcode) {
 		$this->view->title = $this->ui->EditLabel('');
 		$data = (array) $this->item_model->getItemById($this->fields, $itemcode);
-
 		$itemtype = $data['typeid'];
 		$data['ui']							= $this->ui;
 		$result = $this->item_model->getUOMCode($itemcode);
@@ -102,6 +123,8 @@ class controller extends wc_controller {
 		$purchasing = $result->purchasing;
 		$classid = $data['classid'];
 		$weight = $data['weight_type'];
+		$replacement = $data['replacementcode'];
+		$data['groups_list'] 				= $this->item_model->getGroupsList();
 		$data['uom_list']					= $this->item_model->getEditUOMList('', $base, $selling, $purchasing);
 		$data['itemclass_list']				= $this->item_model->getEditItemClassList('',$classid);
 		$data['itemtype_list']				= $this->item_model->getEditItemtypeList($search = '', $itemtype);
@@ -113,9 +136,14 @@ class controller extends wc_controller {
 		$data['revenuetype_list']			= $this->item_model->getRevenueTypeList();
 		$data['expensetype_list']			= $this->item_model->getExpenseTypeList();
 		$data['chart_account_list']			= $this->item_model->getChartAccountList();
-		$data['ajax_task'] = 'ajax_edit';
-		$data['ajax_post'] = "&itemcode_ref=$itemcode";
-		$data['show_input'] = true;
+		$data['existing_item_list'] 		= $this->item_model->getEditReplacementDropdownList($itemcode, $replacement);
+		$data['brand_list'] 				= $this->item_model->getBrandDropdownList();
+		$data['ajax_task'] 					= 'ajax_edit';
+		$data['ajax_post'] 					= "&itemcode_ref=$itemcode";
+		$data['show_input'] 				= true;
+		$data['serialized'] 				= substr($data['item_ident_flag'],0,1);
+		$data['engine'] 					= substr($data['item_ident_flag'],1,1);
+		$data['chassis'] 					= substr($data['item_ident_flag'],2,1);
 		$this->view->load('item/item', $data);
 	}
 
@@ -129,6 +157,7 @@ class controller extends wc_controller {
 		$selling = $result->selling;
 		$purchasing = $result->purchasing;
 		$classid = $data['classid'];
+		$data['groups_list'] 				= $this->item_model->getGroupsList();
 		$data['uom_list']					= $this->item_model->getEditUOMList('', $base, $selling, $purchasing);
 		$data['itemclass_list']				= $this->item_model->getEditItemClassList('',$classid);
 		$data['itemtype_list']				= $this->item_model->getEditItemtypeList($search = '', $itemtype);	
@@ -141,7 +170,12 @@ class controller extends wc_controller {
 		$data['revenuetype_list']			= $this->item_model->getRevenueTypeList();
 		$data['expensetype_list']			= $this->item_model->getExpenseTypeList();
 		$data['chart_account_list']			= $this->item_model->getChartAccountList();
-		$data['show_input'] = false;
+		$data['existing_item_list'] 		= $this->item_model->getReplacementDropdownList();
+		$data['brand_list'] 				= $this->item_model->getBrandDropdownList();
+		$data['show_input'] 				= false;
+		$data['serialized'] 				= substr($data['item_ident_flag'],0,1);
+		$data['engine'] 					= substr($data['item_ident_flag'],1,1);
+		$data['chassis'] 					= substr($data['item_ident_flag'],2,1);
 		$this->view->load('item/item', $data);
 	}
 
@@ -160,16 +194,32 @@ class controller extends wc_controller {
 		$result		= $this->item_model->getItemList($this->fields, $search, $typeid, $classid, $sort);
 		
 		foreach ($result as $row) {
+			$item_ident_flag 	= isset($row->item_ident_flag) ? $row->item_ident_flag : "000";
+			$replacement 		= isset($row->replacement) && $row->replacement == '1' ? "Y" : "N";
+			$bundle 			= isset($row->bundle) && $row->bundle == '1' ? "Y" : "N";
+			$serialized			= (substr($item_ident_flag,0,1) == '1') ? "Y" : "N";
+			$engine				= (substr($item_ident_flag,1,1) == '1') ? "Y" : "N";
+			$chassis 			= (substr($item_ident_flag,2,1) == '1') ? "Y" : "N";
+
 			$csv .= "\n";
 			$csv .= '"' . $row->itemcode . '",';
+			$csv .= '"' . $row->barcode . '",';
 			$csv .= '"' . $row->itemname . '",';
 			$csv .= '"' . $row->itemdesc . '",';
 			$csv .= '"' . $row->item_type . '",';
+			$csv .= '"' . $row->itemgroup . '",';
 			$csv .= '"' . $row->item_class . '",';
 			$csv .= '"' . (($row->item_class_parent) ? 'Child' : 'Parent') . '",';
 			$csv .= '"' . $row->item_class_parent . '",';
 			$csv .= '"' . $row->weight . '",';
 			$csv .= '"' . $row->weight_type . '",';
+			$csv .= '"' . $bundle . '",';
+			$csv .= '"' . $serialized . '",';
+			$csv .= '"' . $engine . '",';
+			$csv .= '"' . $chassis . '",';
+			$csv .= '"' . $row->brandcode . '",';
+			$csv .= '"' . $replacement . '",';
+			$csv .= '"' . $row->replacementcode . '",';
 			$csv .= '"' . $row->base_uom . '",';
 			$csv .= '"' . $row->purchasing_uom . '",';
 			$csv .= '"' . $row->purchasing_conv . '",';
@@ -249,8 +299,24 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_create() {
-		$data = $this->input->post($this->fields);
+		$this->fields[] = 'serialized';
+		$this->fields[] = 'engine';
+		$this->fields[] = 'chassis';
+
+		$data 	= $this->input->post($this->fields);
+
+		$ident 	=	'';
+		$ident 	.=	(isset($data['serialized']) && $data['serialized'] == '1') 	?	"1" 	:	"0";
+		$ident 	.=	(isset($data['engine']) && $data['engine'] == '1') 		?	"1" 	:	"0";
+		$ident 	.=	(isset($data['chassis']) && $data['chassis'] == '1') 	?	"1" 	:	"0";
+
+		unset($data['serialized']);
+		unset($data['chassis']);
+		unset($data['engine']);
+
+		$data['item_ident_flag'] 	=	$ident; 
 		$data = $this->cleanData($data);
+
 		$result = $this->item_model->saveItem($data);
 		return array(
 			'redirect'	=> MODULE_URL,
@@ -259,7 +325,22 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_edit() {
+		$this->fields[] = 'serialized';
+		$this->fields[] = 'engine';
+		$this->fields[] = 'chassis';
+		
 		$data = $this->input->post($this->fields);
+
+		$ident 	=	'';
+		$ident 	.=	(isset($data['serialized']) && $data['serialized'] == '1') 	?	"1" 	:	"0";
+		$ident 	.=	(isset($data['engine']) && $data['engine'] == '1') 		?	"1" 	:	"0";
+		$ident 	.=	(isset($data['chassis']) && $data['chassis'] == '1') 	?	"1" 	:	"0";
+
+		unset($data['serialized']);
+		unset($data['chassis']);
+		unset($data['engine']);
+
+		$data['item_ident_flag'] 	=	$ident; 
 		$data = $this->cleanData($data);
 		$itemcode = $this->input->post('itemcode_ref');
 		$result = $this->item_model->updateItem($data, $itemcode);
@@ -302,14 +383,15 @@ class controller extends wc_controller {
 	private function ajax_save_import() {
 		$csv_array	= array_map('str_getcsv', file($_FILES['file']['tmp_name']));
 		$result		= false;
+		$ident 		= "000";
 		$errors		= array();
 		if ($csv_array[0] == $this->csv_header) {
 			unset($csv_array[0]);
 
 			if (empty($csv_array)) {
-				$error = 'No Data Given';
+				$error = 'No Data Given.';
 			} else if (count($csv_array) > 2000) {
-				$error = 'Too Many Data. Please Upload Maximum of 2000 Rows';
+				$error = 'Too Many Data. Please Upload Maximum of 2000 Rows.';
 			} else {
 				$check_field = array(
 					'Item Code' => array()
@@ -317,14 +399,55 @@ class controller extends wc_controller {
 				foreach ($csv_array as $key => $row) {
 					$row['row_num'] = $key + 1;
 					$check_field['Item Code'][$row['row_num']] = $this->getValueCSV('Item Code', $row);
+					$bundle 					= $this->getValueCSV('Bundle', $row, '', $errors, '');
+					$bundle 					= ($bundle == "Y") 	?	"1" 	:	"0";
+					$replacement 				= $this->getValueCSV('Replacement Part (Y/N)', $row, '', $errors, '');
+					$replacement 				= ($replacement == "Y") 	?	"1" 	:	"0";
+					$serialized 	 			= $this->getValueCSV('Serial No.(Y/N)', $row, '', $errors, '');
+					$serialized 				= ($serialized == "Y") 	?	"1" 	:	"0";
+					$engine 	 				= $this->getValueCSV('Engine No.(Y/N)', $row, '', $errors, '');
+					$engine 					= ($engine == "Y") 	?	"1" 	:	"0";
+					$chassis 	 				= $this->getValueCSV('Chassis No.(Y/N)', $row, '', $errors, '');
+					$chassis 					= ($chassis == "Y") 	?	"1" 	:	"0";
+					$replacement_part 			= $this->getValueCSV('Replacement Code', $row, 'alphanum', $errors, 'getItemDropdownList');
+
+					if($bundle == "0"){
+						$ident 					= $serialized.$engine.$chassis;
+					} else {
+						if($replacement == "1"){
+							$errors[$row['row_num']]['Replacement Part (Y/N)']['Invalid Entry'] = "This is a Bundle Item. Unable to set as a Replacement Part.";
+						}
+						if($serialized == "1"){
+							$errors[$row['row_num']]['Serial No.(Y/N)']['Invalid Entry'] = "This is a Bundle Item. Unable to set Serial No.";
+						}
+						if($engine == "1"){
+							$errors[$row['row_num']]['Engine No.(Y/N)']['Invalid Entry'] = "This is a Bundle Item. Unable to set Engine No.";
+						}
+						if($chassis == "1"){
+							$errors[$row['row_num']]['Chassis No.(Y/N)']['Invalid Entry'] = "This is a Bundle Item. Unable to set Chassis No.";
+						}
+					}
+
+					if($bundle == "0" && $replacement == 1){
+						if($replacement_part == ""){
+							$errors[$row['row_num']]['Replacement Code']['Missing Entry'] = "The Item is set as a Replacement. Please select its Original Part.";
+						}
+					}
 					$values[] = array(
 						'itemcode'				=> $this->getValueCSV('Item Code', $row, 'alphanum', $errors),
+						'barcode'				=> $this->getValueCSV('Barcode', $row, 'alphanum', $errors),
 						'itemname'				=> $this->getValueCSV('Item Name', $row, 'required text', $errors),
 						'itemdesc'				=> $this->getValueCSV('Item Description', $row, 'required', $errors),
 						'typeid'				=> $this->getValueCSV('Item Type', $row, 'required', $errors, 'getItemTypeList'),
+						'itemgroup'				=> $this->getValueCSV('Item Group', $row, 'required', $errors, 'getGroupsList'),
 						'classid'				=> $this->getValueCSV('Item Class', $row, 'required', $errors, 'getItemClassList', 'Item Class Parent'),
 						'weight'				=> $this->getValueCSV('Weight', $row, 'decimal', $errors),
 						'weight_type'			=> $this->getValueCSV('Weight Type', $row, '', $errors, 'getWeightTypeList', 'Weight'),
+						'bundle' 				=> $bundle,
+ 						'item_ident_flag'		=> $ident,
+						'brandcode'				=> $this->getValueCSV('Brand Code', $row, 'alphanum', $errors, 'getBrandDropdownList'),
+						'replacement'			=> $replacement,
+						'replacementcode'		=> $this->getValueCSV('Replacement Code', $row, 'alphanum', $errors, 'getReplacementDropdownList'),
 						'uom_base'				=> $this->getValueCSV('Base UOM', $row, 'required', $errors, 'getUOMList'),
 						'uom_purchasing'		=> $this->getValueCSV('Purchasing UOM', $row, 'required', $errors, 'getUOMList'),
 						'purchasing_conv'		=> $this->getValueCSV('Converted Purchasing UOM', $row, 'required integer', $errors),
@@ -363,9 +486,9 @@ class controller extends wc_controller {
 					}
 				}
 
-				if (empty($errors)) {
-					$result = $this->item_model->saveItemCSV($values);
-				}
+				// if (empty($errors)) {
+				// 	$result = $this->item_model->saveItemCSV($values);
+				// }
 			}
 		} else {
 			$error = 'Invalid Import File. Please Use our Template for Uploading CSV';
@@ -507,4 +630,19 @@ class controller extends wc_controller {
 
 		return $dataArray = array( "msg" => $msg );
 	}
+
+	// private function binaryconvtoamount($binary){
+	// 	$amt = 0; 
+	// 	$i   = 1;
+	// 	$binary_arr = str_split($binary);
+	// 	// echo count($binary_arr);
+	// 	for($x=count($binary_arr); $x >= 1; $x--){
+	// 		echo $x ."<br>";
+	// 		if($binary_arr[$x] != 0){
+	// 			$amt = $binary_arr[$x] * $i;
+	// 		}
+	// 		$i++;
+	// 	}		
+	// 	return $amt;
+	// }
 }

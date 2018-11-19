@@ -87,20 +87,26 @@ class item_model extends wc_model {
 		);
 		$result = $this->getItemListQuery($fields, $search, $typeid, $classid, $sort)
 						->runPagination();
-
 		return $result;
 	}
 
 	public function getItemList($fields, $search, $typeid, $classid, $sort) {
 		$fields = array(
 			'itemcode',
+			'barcode',
 			'itemname',
 			'itemdesc',
 			'it.label item_type',
+			'itemgroup',
 			'ic.label item_class',
 			'ic2.label item_class_parent',
 			'weight',
 			'wt.uomdesc weight_type',
+			'bundle',
+			'item_ident_flag',
+			'brandcode',
+			'replacement',
+			'replacementcode',
 			'buom.uomdesc base_uom',
 			'suom.uomdesc selling_uom',
 			'selling_conv',
@@ -185,10 +191,49 @@ class item_model extends wc_model {
 						->getResult();
 	}
 
-	public function getItemDropdownList() {
+	public function getItemDropdownList($search="") {
+		$condition = " stat = 'active'";
+		if ($search) {
+			$condition .= " AND itemcode = '$search'";
+		}
 		return $this->db->setTable('items')
 						->setFields('itemcode ind, itemname val')
-						->setWhere("stat = 'active'")
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
+	}
+
+	public function getReplacementDropdownList($search="") {
+		$condition = " stat = 'active' AND replacementcode = ''";
+		if ($search) {
+			$condition .= " AND itemcode = '$search'";
+		}
+		$result = $this->db->setTable('items')
+						->setFields('itemcode ind, itemname val')
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
+						
+		return $result;
+	}
+
+	public function getEditReplacementDropdownList($itemcode="", $replacement="") {
+		$condition = "( stat = 'active' AND itemcode != '$itemcode') OR itemcode = '$replacement'";
+		return $this->db->setTable('items')
+						->setFields('itemcode ind, itemname val')
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
+	}
+	
+	public function getBrandDropdownList($search="") {
+		$condition = " stat = 'active'";
+		if ($search) {
+			$condition .= " AND brandcode = '$search'";
+		}
+		return $this->db->setTable('brands')
+						->setFields('brandcode ind, brandname val')
+						->setWhere($condition)
 						->runSelect()
 						->getResult();
 	}
@@ -214,6 +259,18 @@ class item_model extends wc_model {
 						->setFields('uomcode ind, uomdesc val')
 						->setWhere($condition)
 						->runSelect()
+						->getResult();
+	}
+
+	public function getGroupsList($search = '') {
+		$condition = "type = 'item_group'";
+		if ($search) {
+			$condition = "code = '$search'";
+		}
+		return $this->db->setTable('wc_option')
+						->setFields('code ind, value val')
+						->setWhere($condition)
+						->runSelect(false)
 						->getResult();
 	}
 
@@ -374,7 +431,7 @@ class item_model extends wc_model {
 		}
 		$query = $this->db->setTable("items i")
 							->innerJoin("itemclass ic ON ic.id = i.classid AND ic.companycode = i.companycode")
-							->innerJoin("itemtype it ON it.id = i.typeid AND it.companycode = i.companycode")
+							->leftJoin("itemtype it ON it.id = i.typeid AND it.companycode = i.companycode")
 							->setFields($fields)
 							->setWhere($condition)
 							->setOrderBy($sort);

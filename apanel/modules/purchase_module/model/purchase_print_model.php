@@ -28,11 +28,11 @@ class purchase_print_model extends fpdf {
 
 	public function header() {
 		$company = $this->db->setTable('company')
-							->setFields('companycode, companyimage, companyname, address, email, tin, phone, fax,mobile')
-							->setWhere("companycode = '" . COMPANYCODE . "'")
-							->setLimit(1)
-							->runSelect()
-							->getRow();
+		->setFields('companycode, companyimage, companyname, address, email, tin, phone, fax,mobile')
+		->setWhere("companycode = '" . COMPANYCODE . "'")
+		->setLimit(1)
+		->runSelect()
+		->getRow();
 
 		$this->SetFont('Arial', 'B', 12);
 		$this->Cell(140, 5, strtoupper($company->companyname), 0, 0, 'L');
@@ -152,6 +152,46 @@ class purchase_print_model extends fpdf {
 				$this->Ln();
 			}
 		}
+		$document_info = $this->document_info;
+		$amount = $document_info->amount;
+		$wtaxamount = $document_info->wtax;
+		$vat = $document_info->vat;
+		$taxcode = $document_info->wtaxcode;
+		$taxrate = $document_info->wtaxrate;
+		$netamount = $document_info->net;
+
+		$this->SetFont('Arial', 'B', 9);
+		$this->SetY(215);
+		$this->SetX(153);
+		$this->Cell(20, 4, 'Total Purchase', 0, 0, 'L');
+		$this->SetFont('Arial', '', 9);
+		$this->SetY(215);
+		$this->SetX(193.5);
+		$this->Cell(20, 4, number_format($amount, 2), 0, 0, 'L');
+		$this->SetFont('Arial', 'B', 9);
+		$this->SetY(225);
+		$this->SetX(153);
+		$this->Cell(20, 4, 'Total Purchases Tax', 0, 0, 'L');
+		$this->SetFont('Arial', '', 9);
+		$this->SetY(225);
+		$this->SetX(198);
+		$this->Cell(20, 4, number_format($vat, 2), 0, 0, 'L');
+		$this->SetFont('Arial', 'B', 9);
+		$this->SetY(235);
+		$this->SetX(153);
+		$this->Cell(20, 4, 'Withholding Tax', 0, 0, 'L');
+		$this->SetFont('Arial', '', 9);
+		$this->SetY(235);
+		$this->SetX(196);
+		$this->Cell(20, 4, $wtaxamount, 0, 0, 'L');
+		$this->SetFont('Arial', 'B', 9);
+		$this->SetY(243);
+		$this->SetX(153);
+		$this->Cell(20, 4, 'Total Amount Due', 0, 0, 'L');
+		$this->SetFont('Arial', '', 9);
+		$this->SetY(243);
+		$this->SetX(193.5);
+		$this->Cell(20, 4, number_format($netamount, 2), 0, 0, 'L');
 		$this->SetY($header_end);
 		$this->Ln();
 	}
@@ -241,6 +281,11 @@ class purchase_print_model extends fpdf {
 
 	public function setDocumentDetails($document_details) {
 		$this->document_details = $document_details;
+		return $this;
+	}
+
+	public function setDocumentInfo($document_info) {
+		$this->document_info = $document_info;
 		return $this;
 	}
 

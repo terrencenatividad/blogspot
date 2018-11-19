@@ -190,6 +190,14 @@
 					<i class="glyphicon glyphicon-exclamation-sign"></i> 
 					You cannot input a Discount Amount greater than your Price Amount.	
 				</span>
+				<span id="discount100Error" class="help-block hidden small">
+					<i class="glyphicon glyphicon-exclamation-sign"></i> 
+					You cannot input a Percentage Discount greater than 100.
+				</span>
+				<span id="negaDiscountError" class="help-block hidden small">
+					<i class="glyphicon glyphicon-exclamation-sign"></i> 
+					You cannot input a Negative Percentage Discount. 
+				</span>
 			</div>						
 			<div class="box-body table-responsive no-padding">				
 				<table class="table table-hover table-condensed table-sidepad" id="itemsTable">
@@ -390,10 +398,13 @@
 								for($i = 0; $i < count($details); $i++)
 								{
 									$itemcode 	 		= $details[$i]->itemcode;
-									$detailparticular	= $details[$i]->detailparticular;
+									$detailparticular	= htmlspecialchars($details[$i]->detailparticular);
 									$quantity 			= isset($details[$i]->issueqty) ?	number_format($details[$i]->issueqty,0) 	: 	"1";
 									$itemprice 			= $details[$i]->unitprice;
+									$discounttype 		= isset($details[$i]->discounttype) ? $details[$i]->discounttype : '';
 									$discount 			= isset($details[$i]->discountamount) ? $details[$i]->discountamount : '0.00';
+									$discountrate 		= isset($details[$i]->discountrate) ? $details[$i]->discountrate : '0.00';
+									$discount 			= ($discounttype == "perc") ? $discountrate 	:	$discount;
 									$uom 				= $details[$i]->issueuom;
 									$taxcode 			= $details[$i]->taxcode;
 									$taxrate 			= $details[$i]->taxrate;
@@ -492,7 +503,7 @@
 													->setName('discount['.$row.']')
 													->setId('discount['.$row.']')
 													->setClass("text-right discount")
-													->setAttribute(array("maxlength" => "20", 'readonly' => $readOnly))
+													->setAttribute(array("maxlength" => "20"))
 													->setValue($discount)
 													->setValidation('decimal')
 													//->addHidden(true)
@@ -562,7 +573,7 @@
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
-											->setSplit('', 'col-md-5 col-sm-12')
+											->setSplit('', 'col-md-12 col-sm-12')
 											->setName('t_vatsales')
 											->setId('t_vatsales')
 											->setClass("input_label text-right remove-margin")
@@ -583,7 +594,7 @@
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
-											->setSplit('', 'col-md-5')
+											->setSplit('', 'col-md-12')
 											->setName('t_vatexempt')
 											->setId('t_vatexempt')
 											->setAttribute(array("readOnly"=>"readOnly"))
@@ -604,7 +615,7 @@
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
-											->setSplit('', 'col-md-5')
+											->setSplit('', 'col-md-12')
 											->setName('t_subtotal')
 											->setId('t_subtotal')
 											->setClass("input_label text-right")
@@ -626,7 +637,7 @@
 								<div class = 'col-md-7'></div>
 								<?php
 									echo $ui->formField('text')
-											->setSplit('', 'col-md-5')
+											->setSplit('', 'col-md-12')
 											->setName('t_vat')
 											->setId('t_vat')
 											->setClass("input_label text-right")
@@ -670,7 +681,7 @@
 								<div class="col-md-7"></div>
 								<?php
 									echo $ui->formField('text')
-											->setSplit('', 'col-md-5')
+											->setSplit('', 'col-md-12')
 											->setName('t_discount')
 											->setId('t_discount')
 											->setClass("input_label text-right")
@@ -1189,10 +1200,8 @@ function computeAmount()
 
 		if(vatex == 'yes'){
 			amount 		= parseFloat(totalprice);
-			vat_amount	= parseFloat(totalprice) * parseFloat(vat);
 		} else {
 			amount		= parseFloat(totalprice) / ( 1 + parseFloat(vat) );
-			vat_amount	= parseFloat(amount)	*	parseFloat(vat);
 		}	
 			
 		var itemdiscount = 0;
@@ -1211,6 +1220,16 @@ function computeAmount()
 			document.getElementById('discountedamount['+row+']').value 	= addCommas(discountedamount.toFixed(2));
 			
 			amount 		=	discountedamount;
+		}
+
+		if(vatex == 'yes'){
+			if(parseFloat(discountedamount) > 0){
+				vat_amount	= parseFloat(discountedamount) * parseFloat(vat);
+			} else {
+				vat_amount	= parseFloat(totalprice) * parseFloat(vat);
+			}
+		} else {
+			vat_amount	= parseFloat(amount)	*	parseFloat(vat);
 		}
 
 		amount			= 	(amount>0) 		?	Math.round(amount*1000) / 1000 	:	0;
@@ -1497,7 +1516,9 @@ function finalizeTransaction(type)
 
 	computeAmount();
 
-	if($("#sales_order_form").find('.form-group.has-error').length == 0 && no_error){	
+	// console.log($('#sales_order_form').find('.form-group.has-error').length);
+
+	if($('#sales_order_form .form-group .has-error').length == 0 && no_error){	
 		$('#save').val(type);
 		if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
 		{
@@ -1549,8 +1570,8 @@ function finalizeEditTransaction()
 	if(credit_limit_exceed == 1){
 		no_error = false;
 	}
-
-	if($('#sales_order_form').find('.form-group.has-error').length == 0 && no_error)
+	// console.log($('#sales_order_form').find('.form-group.has-error').length);
+	if($('#sales_order_form .form-group .has-error').length == 0 && no_error)
 	{
 		if($("#sales_order_form #itemcode\\[1\\]").val() != ''  && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #due_date").val() != '' && $("#sales_order_form #customer").val() != '')
 		{
@@ -1762,19 +1783,19 @@ $(document).ready(function(){
 				warehouse_element.trigger('blur');
 				$(this).val(0);
 			}
-			if (removeComma($(this).val()) > 0) {
-				var quantity = getQuantity(itemcode, warehouse);
+			// if (removeComma($(this).val()) > 0) {
+			// 	var quantity = getQuantity(itemcode, warehouse);
 					
-				$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_item_quantity', "itemcode="+itemcode+"&warehouse="+warehouse, function(data) {
-					var data_qty = data.qty;
-					var x = removeComma(data_qty);
-					if ((quantity > x) ){
-						$('#orderQtymodal').modal('show');
-						$(this_element).val(0);
-					}
-				});
+			// 	$.post('<?php //echo BASE_URL?>sales/sales_order/ajax/retrieve_item_quantity', "itemcode="+itemcode+"&warehouse="+warehouse, function(data) {
+			// 		var data_qty = data.qty;
+			// 		var x = removeComma(data_qty);
+			// 		if ((quantity > x) ){
+			// 			$('#orderQtymodal').modal('show');
+			// 			$(this_element).val(0);
+			// 		}
+			// 	});
 				
-			}
+			// }
 		});
 
 
@@ -1784,8 +1805,6 @@ $(document).ready(function(){
 				var itemcode = $(this).closest('tr').find('.itemcode').val();
 				var warehouse = $(this).closest('tr').find('select.warehouse').val();
 				var quantity = parseFloat(removeComma($(this).closest('tr').find('.quantity').val()));
-
-				
 				if (typeof quantities[itemcode] == 'undefined') {
 					quantities[itemcode] = [];
 				}
@@ -1841,24 +1860,51 @@ $(document).ready(function(){
 			var dtype 	= 	$('#discounttype').val();
 			var value 	= 	$(this).val();
 
-			var price 	= 	$(this).closest('tr').find('.price').val();
+			var price 	= 	removeComma($(this).closest('tr').find('.price').val());
 			
 			if( parseFloat(value) > 0 && dtype == ""){
 				$('#discounttype').closest('.form-group').addClass('has-error');
-				$(this).val(0);
 			} else {
+				if(dtype == "perc" && parseFloat(value) > 100){
+					$(this).closest('div').addClass('has-error');
+					$(this).addClass('greaterthan100');
+				} else {
+					$(this).closest('div').removeClass('has-error');
+				}
+				if(dtype == "perc" && parseFloat(value) < 0){
+					$(this).closest('div').addClass('has-error');
+					$(this).addClass('negativediscount');
+				} else {
+					$(this).closest('div').removeClass('has-error');
+				}
 				if( parseFloat(value) > 0 && parseFloat(value) > parseFloat(price) ){
+					$(this).addClass('greaterthanprice');
 					$(this).closest('div').addClass('has-error');
 				} else {
 					$(this).closest('div').removeClass('has-error');
 				}
-				var count_errors 	=	$('#sales_order_form .discount').closest('tr').find('.has-error').length;
-			
-				if(count_errors > 0){
+				var pricediscounterrors 	=	$('#sales_order_form .greaterthanprice').closest('tr').find('.has-error').length;
+				var greaterthan100 			=	$('#sales_order_form .greaterthan100').closest('tr').find('.has-error').length;
+				var negativediscount 		=	$('#sales_order_form .negativediscount').closest('tr').find('.has-error').length;
+
+				if(pricediscounterrors > 0){
 					$('#discountError').removeClass('hidden');
 				} else {
 					$('#discountError').addClass('hidden');
 				}
+
+				if(greaterthan100 > 0){
+					$('#discount100Error').removeClass('hidden');
+				} else {
+					$('#discount100Error').addClass('hidden');
+				}
+
+				if(negativediscount > 0){
+					$('#negaDiscountError').removeClass('hidden');
+				} else {
+					$('#negaDiscountError').addClass('hidden');
+				}
+
 			}
 			formatNumber(id);
 			computeAmount();
@@ -1948,6 +1994,13 @@ $(document).ready(function(){
 				
 				finalizeEditTransaction();
 			});
+
+			var discounttype = $('#discounttype').val();
+			if(discounttype != "" && discounttype != "none"){
+				$('#sales_order_form .discount').prop('readonly',false);
+			} else {
+				$('#sales_order_form .discount').prop('readonly',true);
+			}
 		}
 	// -- For Saving -- End
 

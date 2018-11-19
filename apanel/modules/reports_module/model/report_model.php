@@ -18,7 +18,8 @@ class report_model extends wc_model {
 				'credit',
 				'transactiondate',
 				'a.companycode',
-				'a.source'
+				'a.source',
+				'a.stat'
 			);
 			$fields2 = array(
 				'voucherno',
@@ -32,6 +33,7 @@ class report_model extends wc_model {
 				'transactiondate',
 				'companycode',
 				'source',
+				'stat',
 				'partnercode',
 			);
 			$ap = $this->db->setTable('accountspayable a')

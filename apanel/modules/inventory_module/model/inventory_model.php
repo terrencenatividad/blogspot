@@ -441,12 +441,12 @@ class inventory_model extends wc_model {
 
 		foreach ($result as $row) {
 			if ( ! isset($current_values[$row->itemcode])) {
-				$current_values[$row->itemcode][$row->source] = 0;
-			} else if ( ! isset($current_values[$row->itemcode][$row->source])) {
-				$current_values[$row->itemcode][$row->source] = 0;
+				$current_values[$row->itemcode][$row->warehouse] = 0;
+			} else if ( ! isset($current_values[$row->itemcode][$row->warehouse])) {
+				$current_values[$row->itemcode][$row->warehouse] = 0;
 			} 
 
-			$current_values[$row->itemcode][$row->source] += $row->{$this->quantity_field};
+			$current_values[$row->itemcode][$row->warehouse] += $row->{$this->quantity_field};
 		}
 		$current_values;
 
@@ -496,6 +496,7 @@ class inventory_model extends wc_model {
 			$this->db->setTable('inventorylogs')
 						->setValues($logs)
 						->runInsert();
+			$this->recomputePriceAverage();
 		}
 	}
 

@@ -231,19 +231,20 @@ class controller extends wc_controller
 
 		//Footer Data
 		$data['total'] 	 		 = $retrieved_data['header']->amount;
+		$data['discounttype']  	 = $retrieved_data['header']->discounttype;
 		$data['discountamount']  = $retrieved_data['header']->discountamount;
 		$data['total_sales'] 	 = $retrieved_data['header']->netamount;
 		$data['total_tax'] 		 = $retrieved_data['header']->taxamount;
 		$data['vatable_sales'] 	 = $retrieved_data['header']->vat_sales;
 		$data['vatexempt_sales'] = $retrieved_data['header']->vat_exempt;
 
-		$discounttype 		 	 = $retrieved_data['header']->discounttype;
-		$data['percentage'] 	 = "";
-		$data['disctype'] 	 	 = $discounttype;
-		$data['disc_amt'] 	 	 = ($discounttype == 'amt') ? 'checked' : '';
-		$data['disc_perc'] 	 	 = ($discounttype == 'perc') ? 'checked' : '';
-		$data['disc_radio_amt']  = ($discounttype == 'amt') ? 'active' : '';
-		$data['disc_radio_perc'] = ($discounttype == 'perc') ? 'active' : '';
+		// $discounttype 		 	 = $retrieved_data['header']->discounttype;
+		// $data['percentage'] 	 = "";
+		// $data['disctype'] 	 	 = $discounttype;
+		// $data['disc_amt'] 	 	 = ($discounttype == 'amt') ? 'checked' : '';
+		// $data['disc_perc'] 	 	 = ($discounttype == 'perc') ? 'checked' : '';
+		// $data['disc_radio_amt']  = ($discounttype == 'amt') ? 'active' : '';
+		// $data['disc_radio_perc'] = ($discounttype == 'perc') ? 'active' : '';
 
 		//Vendor Data
 		$data["terms"] 		 	 = $retrieved_data["customer"]->terms;
@@ -544,7 +545,7 @@ class controller extends wc_controller
 			$row->taxamount	= number_format($row->taxamount, 2);
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$total_amount = $vatable_sales + $vat_exempt - $discount + $tax;
+				$total_amount = $vatable_sales + $vat_exempt + $tax;
 				$summary = array(
 					'VATable Sales'		=> number_format($vatable_sales, 2),
 					'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
@@ -561,7 +562,7 @@ class controller extends wc_controller
 				$total_amount	= 0;
 			}
 		}
-		$total_amount = $vatable_sales + $vat_exempt - $discount + $tax;
+		$total_amount = $vatable_sales + $vat_exempt + $tax;
 		$summary = array(
 			'VATable Sales'		=> number_format($vatable_sales, 2),
 			'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
@@ -653,10 +654,13 @@ class controller extends wc_controller
 			foreach($deliveries['details'] as $ind => $val)
 			{
 				$itemcode 			= $val->itemcode;
-				$detailparticular 	= $val->detailparticular;
+				$detailparticular 	= htmlspecialchars($val->detailparticular);
 				$quantity 			= $val->issueqty;
 				$unitprice 			= $val->unitprice;
 				$discount 			= ($val->discounttype == 'amt') ? $val->discountamount : $val->discountrate;
+				$percentage 		= ($val->discounttype == 'perc') ? "%" : "";
+				$discountamount 	= $val->discountamount;
+				$discountrate 		= $val->discountrate;
 				$taxcode 			= $val->taxcode;
 				$taxrate 			= $val->taxrate;
 				$taxamount 			= $val->taxamount;
@@ -753,8 +757,10 @@ class controller extends wc_controller
 												"readOnly" => "readOnly"
 											)
 										)
-										->setValue(number_format($discount,2))
+										->setValue(number_format($discount,2)." ".$percentage)
 										->draw(true);
+				$result 	.= '<input id = "h_discountrate['.$row.']" name = "h_discountrate['.$row.']" maxlength = "20" class = "col-md-12" type = "hidden" value = "'.$discountrate.'">';
+				$result 	.= '<input id = "h_discount['.$row.']" name = "h_discount['.$row.']" maxlength = "20" class = "col-md-12" type = "hidden" value = "'.$discountamount.'">';
 				$result     .= '</td>';
 
 				$result 	.= '<td>';
