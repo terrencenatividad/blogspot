@@ -34,7 +34,7 @@
 								->setName('partnername')
 								->setId('partnername')
 								->setValidation('required special')
-								->setMaxLength(30)
+								->setMaxLength(100)
 								->setValue($partnername)
 								->draw($show_input);
 						?>
