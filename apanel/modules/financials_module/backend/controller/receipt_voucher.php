@@ -1333,7 +1333,7 @@ class controller extends wc_controller
 				$balance		= $pagination->result[$i]->balance; 
 				$totalamount	= $pagination->result[$i]->amount;
 				$referenceno	= $pagination->result[$i]->referenceno;
-				$credit_used	= $pagination->result[$i]->credits_used;
+				// $credit_used	= $pagination->result[$i]->credits_used;
 				$overpayment	= $pagination->result[$i]->overpayment;
 
 				$voucher_checked= (in_array($voucher , $voucher_array)) ? 'checked' : '';
@@ -1345,7 +1345,7 @@ class controller extends wc_controller
 				$json_encode_array["vno"] 		= $voucher;
 				$json_encode_array["amt"]    	= $totalamount;
 				$json_encode_array["bal"]   	= $balance;
-				$json_encode_array["cred"]		= $credit_used;
+				// $json_encode_array["cred"]		= $credit_used;
 				$json_encode_array['over']  	= $overpayment;
 			
 				$json_data[] 					= $json_encode_array;
@@ -1357,7 +1357,7 @@ class controller extends wc_controller
 				$appliedamount  = isset($result_rvapp[0]->amount) 			?	$result_rvapp[0]->amount		:	0;
 				$applieddiscount= isset($result_rvapp[0]->discount)			?	$result_rvapp[0]->discount		:	0;
 				$appliedover  	= isset($result_rvapp[0]->overpayment) 		?	$result_rvapp[0]->overpayment	:	0;
-				$appliedcreds   = isset($result_rvapp[0]->credits_used) 	?	$result_rvapp[0]->credits_used	:	0;
+				// $appliedcreds   = isset($result_rvapp[0]->credits_used) 	?	$result_rvapp[0]->credits_used	:	0;
 	
 				$balance_2		= $balance;
 				
@@ -1365,10 +1365,12 @@ class controller extends wc_controller
 					$balance_2	= str_replace(',','',$amt_array[$voucher]['bal']);
 					$amount		= str_replace(',','',$amt_array[$voucher]['amt']);
 					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0.00';
-					$credit_used= isset($amt_array[$voucher]['cred']) ? $amt_array[$voucher]['cred'] : '0.00';
+					// $credit_used= isset($amt_array[$voucher]['cred']) ? $amt_array[$voucher]['cred'] : '0.00';
 
-					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount + $credit_used;
-					$balance_2 	= $balance_2 - $amount - $discount - $credit_used;
+					// $balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount + $credit_used;
+					// $balance_2 	= $balance_2 - $amount - $discount - $credit_used;
+					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount;
+					$balance_2 	= $balance_2 - $amount - $discount;
 					$balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
 				}
 				
@@ -1533,6 +1535,7 @@ class controller extends wc_controller
 		$cheques       	 = $this->input->post("cheques");
 		$overpayment 	 = $this->input->post("overpayment");
 		$advance 		 = $this->input->post("advance");
+		$over 			 = $this->input->post("over");
 
 		$invoice_data 	= (isset($checkrows) && (!empty($checkrows))) ? trim($checkrows) : "";
 		$invoice_data  	= str_replace('\\', '', $invoice_data);
@@ -1598,7 +1601,7 @@ class controller extends wc_controller
 		$show_input         = $this->show_input;
 
 		$totalcredit = 0;
-
+		
 		if(!empty($results)){
 			$credit      = '0.00';
 			$count       = count($results);

@@ -599,6 +599,7 @@ class receipt_voucher_model extends wc_model
 		$cwt_checker 			= (isset($data['cwt']) && (!empty($data['cwt']))) ? htmlentities(addslashes(trim($data['cwt']))) : 	"no";
 		$creditsamt_to_apply 	= (isset($data['total_credits_to_apply']) && (!empty($data['total_credits_to_apply']))) ? htmlentities(addslashes(trim($data['total_credits_to_apply']))) : 	0;
 		$credits_box 			= (isset($data['credits_box']) && (!empty($data['credits_box']))) ? htmlentities(addslashes(trim($data['credits_box']))) : 	[];
+		$h_op_acct 				= (isset($data['hidden_op_acct']) && (!empty($data['hidden_op_acct']))) ? htmlentities(addslashes(trim($data['hidden_op_acct']))) : "";
 
 		$invoice_data  			= str_replace('\\', '', $h_check_rows);
 		$invoice_data  			= html_entity_decode($invoice_data);
@@ -797,7 +798,8 @@ class receipt_voucher_model extends wc_model
 
 		$iDetailLineNum = 1;
 		$aPvDetailArray = array();
-		// var_dump($tempArray);
+		$excess 		= 0;
+		
 		foreach($tempArray as $tempArrayIndex => $tempArrayValue)
 		{
 			$accountcode 						= $tempArrayValue['h_accountcode'];
@@ -805,6 +807,7 @@ class receipt_voucher_model extends wc_model
 			$debit			    				= isset($tempArrayValue['debit']) ? $tempArrayValue['debit'] : 0;
 			$credit			    				= isset($tempArrayValue['credit']) ? $tempArrayValue['credit'] : 0;
 			$ischeck 							= isset($tempArrayValue['ischeck']) && $tempArrayValue != "" 	?	$tempArrayValue['ischeck'] 	:	"no";
+			$excess += ($tempArrayValue['h_accountcode'] == $h_op_acct) ? $credit : 0;
 			$post_detail['voucherno']			= $voucherno;
 			$post_detail['linenum']				= $iDetailLineNum;
 			$post_detail['transtype']			= $source;
@@ -826,6 +829,7 @@ class receipt_voucher_model extends wc_model
 
 		$aPvApplicationArray 	= array();
 		$total_credits_used 	= 0;
+		$list_of_invoices 		= array();
 		if(!empty($picked_payables)){
 			$iApplicationLineNum	= 1;
 			foreach ($picked_payables as $pickedKey => $pickedValue) {
@@ -833,10 +837,13 @@ class receipt_voucher_model extends wc_model
 				$amount 	= $pickedValue['amt'];
 				$discount 	= $pickedValue['dis'];
 				$credits 	= $pickedValue['cred'];
-				$excess 	= $pickedValue['over'];
+				// $excess 	= $pickedValue['over'];
+
+				$ret_bal	= $this->getValue("accountsreceivable", array("balance, invoiceno"), "voucherno = '$payable' AND stat NOT IN ('temporary','cancelled') ");
+				$balance 	= isset($ret_bal[0]->balance) 		?	$ret_bal[0]->balance 	:	0;
+				$invoiceno 	= isset($ret_bal[0]->invoiceno) 	?	$ret_bal[0]->invoiceno 	:	0;
 				
-				$ret_bal	= $this->getValue("accountsreceivable", array("balance"), "voucherno = '$payable' AND stat NOT IN ('temporary','cancelled') ");
-				$balance 	= isset($ret_bal[0]->balance) 	?	$ret_bal[0]->balance 	:	0;
+				$list_of_invoices[] 	=	$invoiceno;
 
 				$amount 	= str_replace(',','',$amount);
 				$discount 	= str_replace(',','',$discount);
@@ -1192,9 +1199,10 @@ class receipt_voucher_model extends wc_model
 					$post_credit_voucher['balance'] 			= $total_payment;
 					$post_credit_voucher['convertedamount']		= $total_payment;
 				} else {
-					$post_credit_voucher['amount'] 				= $total_payment;
-					$post_credit_voucher['balance'] 			= $total_payment;
-					$post_credit_voucher['convertedamount']		= $total_payment;
+					$post_credit_voucher['amount'] 				= $excess;
+					$post_credit_voucher['balance'] 			= $excess;
+					$post_credit_voucher['convertedamount']		= $excess;
+					$post_credit_voucher['invoiceno']			= implode(',',$list_of_invoices);
 				}
 
 				$post_credit_voucher['referenceno']			= $voucherno;
