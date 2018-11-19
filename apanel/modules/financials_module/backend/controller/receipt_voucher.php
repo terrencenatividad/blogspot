@@ -158,11 +158,16 @@ class controller extends wc_controller
 		$data["cash_account_list"] 	= $this->receipt_voucher->retrievebank("bank b", $cash_account_fields, $cash_account_cond ,$cash_account_join ,$cash_account_cond, '');
 
 		$data["generated_id"]     		= '';
-		$cred_acct						= $this->receipt_voucher->retrieve_existing_acct();
+		$cred_acct						= $this->receipt_voucher->retrieve_existing_credacct();
 		$data["existingcreditaccount"]	= isset($cred_acct[0]->account) ? $cred_acct[0]->account	:	"";
 		$data['cred_id'] 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
 		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
+		$op_acct						= $this->receipt_voucher->retrieve_existing_opacct();
+		$data["existingopaccount"]		= isset($op_acct[0]->account) 	? $op_acct[0]->account	:	"";
+		$data['op_acct'] 				= isset($op_acct[0]->id) 		? $op_acct[0]->id		:	"";
+		$data['opacctlist'] 			= $this->receipt_voucher->retrieveOverpaymentAccountList();
 		$data['ap_checker'] 	 		= 0;
+		$data['op_checker'] 	 		= 0;
 		$data['cwt_checker'] 	 		= 0;
 
 		// Application Data
@@ -199,7 +204,8 @@ class controller extends wc_controller
 		$generatedvoucher = '';
 
 		if (!empty($data_validate["customer"]) && !empty($data_validate["document_date"])) {
-			$voucherno = (isset($data_validate['h_voucher_no']) && (!empty($data_validate['h_voucher_no']))) ? htmlentities(trim($data_validate['h_voucher_no'])) : "";
+			$voucherno  = (isset($data_validate['h_voucher_no']) && (!empty($data_validate['h_voucher_no']))) ? htmlentities(trim($data_validate['h_voucher_no'])) : "";
+			$customer 	= $data_validate["customer"];
 
 			$isExist = $this->receipt_voucher->getValue("receiptvoucher", array("voucherno"), "voucherno = '$voucherno'");
 
@@ -222,14 +228,68 @@ class controller extends wc_controller
 				$source_cond 				= "si_no = '$voucherno' AND transtype = 'CM'";
 				$updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
 				// Update the Credit Voucher 
-				$update_ref['referenceno']  	= $generatedvoucher;
-				$update_ref['stat'] 			= "open";
-				$ref_cond 						= "referenceno = '$voucherno' AND transtype = 'CV'";
-				$updateTempRecord				= $this->receipt_voucher->editData($update_ref,"creditvoucher",$ref_cond);
-				$update_cred['rv_voucher']  	= $generatedvoucher;
-				$update_cred['stat'] 			= "active";
-				$cred_cond 						= "rv_voucher = '$voucherno'";
-				$updateTempRecord				= $this->receipt_voucher->editData($update_cred,"creditvoucher_applied",$cred_cond);
+				$update_ref['referenceno']  = $generatedvoucher;
+				$update_ref['stat'] 		= "open";
+				$ref_cond 					= "referenceno = '$voucherno' AND transtype = 'CV'";
+				$updateTempRecord			= $this->receipt_voucher->editData($update_ref,"creditvoucher",$ref_cond);
+				$update_cred['rv_voucher']  = $generatedvoucher;
+				$update_cred['stat'] 		= "active";
+				$cred_cond 					= "rv_voucher = '$voucherno'";
+				$updateTempRecord			= $this->receipt_voucher->editData($update_cred,"creditvoucher_applied",$cred_cond);
+
+				// Update the AR
+				$applied_sum				= 0;
+				$applied_discount			= 0;
+				$applied_forexamount		= 0;
+
+				$ar_voucher 				= $this->receipt_voucher->getValue("rv_application", "arvoucherno", "voucherno = '$generatedvoucher'");
+				$ar_voucher 				= isset($ar_voucher[0]->arvoucherno) 	?	$ar_voucher[0]->arvoucherno 	:	"";
+
+				$invoice_amounts			= $this->receipt_voucher->getValue("accountsreceivable", array("amount as convertedamount"), " voucherno = '$ar_voucher' AND stat IN('open','posted') ");
+
+				$applied_amounts			= $this->receipt_voucher->getValue(
+												"rv_application",
+												array(
+													"COALESCE(SUM(amount),0) convertedamount",
+													"COALESCE(SUM(discount),0) discount",
+													"COALESCE(SUM(credits_used),0) credits",
+													"COALESCE(SUM(overpayment),0) overpayment",
+													"COALESCE(SUM(forexamount),0) forexamount"
+												), 
+												"  arvoucherno = '$ar_voucher' AND stat IN('open','posted','temporary') "
+											);
+				
+				$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
+				$applied_credits 			= (!empty($applied_amounts[0]->credits)) ? $applied_amounts[0]->credits : 0;
+				$applied_disc 				= (!empty($applied_amounts[0]->discount)) ? $applied_amounts[0]->discount : 0;
+				$applied_over 				= (!empty($applied_amounts[0]->overpayment)) ? $applied_amounts[0]->overpayment : 0;
+				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount + $applied_credits + $applied_disc;
+				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
+
+				$balance_info['amountreceived']	= $applied_sum;
+				$balance_info['excessamount'] 	= ($applied_over >= 0) 	?	$applied_over 	:	0;
+				$balance_amt 					= $invoice_amount - $applied_sum;
+				$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;
+				
+				$updateTempRecord = $this->receipt_voucher->updateData("accountsreceivable", $balance_info, "voucherno = '$ar_voucher'");
+					
+				if($updateTempRecord){
+					$partner_dtl 	=$this->receipt_voucher->getValue(
+											"partners", 
+											"credits_amount", 
+											" partnercode = '$customer' "
+										);
+
+					$existing_credit	= ($partner_dtl[0]->credits_amount > 0) ? $partner_dtl[0]->credits_amount 	:	0;
+					
+					$existing_credit 	+=	$applied_over;
+					$partner_info['credits_amount'] 	=	( $existing_credit - $applied_credits );
+
+					$updateTempRecord = $this->receipt_voucher->updateData("partners", $partner_info, "partnercode = '$customer'");
+				}
+
+			
+		
 			}
 		}
 
@@ -294,6 +354,7 @@ class controller extends wc_controller
 		$data["particulars"]       	= $data["main"]->particulars;
 		$data['status']				= $data["main"]->stat;
 		$data['ap_checker'] 	 	= ($data['main']->advancepayment == 'yes') ? 1 : 0;
+		$data['op_checker'] 	 	= ($data['main']->opchecker == 'yes') ? 1 : 0;
 		$data['cwt_checker'] 	 	= ($data['main']->cwt == 'yes') ? 1 : 0;
 
 		// Vendor/Customer Details
@@ -370,14 +431,18 @@ class controller extends wc_controller
 		$data['credits_applied'] 	= $total_cr_applied;
 
 		$data['restrict_rv'] 			= $restrict_rv;
-		$cred_acct						= $this->receipt_voucher->retrieve_existing_acct();
+		$cred_acct						= $this->receipt_voucher->retrieve_existing_credacct();
 		$data["existingcreditaccount"]	= isset($cred_acct[0]->account) ? $cred_acct[0]->account	:	"";
 		$data['cred_id'] 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
 		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
-
+		$op_acct						= $this->receipt_voucher->retrieve_existing_opacct();
+		$data["existingopaccount"]		= isset($op_acct[0]->account) 	? $op_acct[0]->account	:	"";
+		$data['op_acct'] 				= isset($op_acct[0]->id) 		? $op_acct[0]->id		:	"";
+		$data['opacctlist'] 			= $this->receipt_voucher->retrieveOverpaymentAccountList();
+	
 		// Overpayment Acct
-		$op_acct  						= $this->receipt_voucher->retrieveOPDetails();
-		$data['op_acct'] 				= isset($op_acct[0]->accountcode) 	? 	$op_acct[0]->accountcode 	:	"";
+		// $op_acct  						= $this->receipt_voucher->retrieveOPDetails();
+		// $data['op_acct'] 				= isset($op_acct[0]->accountcode) 	? 	$op_acct[0]->accountcode 	:	"";
 
 		// Credit Voucher Checker
 		$cv_checker 					= $this->receipt_voucher->checkifCVinuse($voucherno);
@@ -610,6 +675,7 @@ class controller extends wc_controller
 		$data["available_credits"] = isset($available_credits[0]->curr_credit) 	?	$available_credits[0]->curr_credit 	+	$credits_used	:	"0.00";
 		$data['status']			 = $data["main"]->stat;
 		$data['ap_checker'] 	 = ($data['main']->advancepayment == 'yes') ? 1 : 0;
+		$data['op_checker'] 	 = ($data['main']->opchecker == 'yes') ? 1 : 0;
 		$data['cwt_checker'] 	 = ($data['main']->cwt == 'yes') ? 1 : 0;
 		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array();
 
@@ -668,14 +734,18 @@ class controller extends wc_controller
 
 		$data['restrict_rv'] 			= true;
 		$data['has_access'] 			= 0;
-		$cred_acct						= $this->receipt_voucher->retrieve_existing_acct();
-	
+
+		$cred_acct						= $this->receipt_voucher->retrieve_existing_credacct();
 		$data["existingcreditaccount"]	= isset($cred_acct[0]->account) ? $cred_acct[0]->account	:	"";
 		$data['cred_id'] 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
 		$data['advcredacct'] 			= $this->receipt_voucher->retrieveCredAccountsList();
+		$op_acct						= $this->receipt_voucher->retrieve_existing_opacct();
+		$data["existingopaccount"]		= isset($op_acct[0]->account) 	? $op_acct[0]->account	:	"";
+		$data['op_acct'] 				= isset($op_acct[0]->id) 		? $op_acct[0]->id		:	"";
+		$data['opacctlist'] 			= $this->receipt_voucher->retrieveOverpaymentAccountList();
 
-		$op_acct  					= $this->receipt_voucher->retrieveOPDetails();
-		$data['op_acct'] 			= isset($op_acct[0]->accountcode) 	? 	$op_acct[0]->accountcode 	:	"";
+		// $op_acct  					= $this->receipt_voucher->retrieveOPDetails();
+		// $data['op_acct'] 			= isset($op_acct[0]->accountcode) 	? 	$op_acct[0]->accountcode 	:	"";
 		
 		$ar_acct 	=	'';
 		$details = $data['details'];
@@ -1552,50 +1622,48 @@ class controller extends wc_controller
 										->setValue(number_format(0, 2))
 										->draw($show_input).'</td>';
 				}
-				// echo $voucher_checked;
-				$avl_credit 	=	str_replace(',','',$avl_credit);
-				//&& $avl_credit > 0
-				if($voucher_checked == 'checked'){
-					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
-					$this->ui->formField('text')
-						->setSplit('', 'col-md-12')
-						->setClass("input-sm text-right credits_used")
-						->setId('credits_used'.$voucher)
-						->setPlaceHolder("0.00")
-						->setMaxLength(20)
-						->setAttribute(
-							array(
-								"onBlur" => ' formatNumber(this.id);', 
-								"onClick" => " SelectAll(this.id); ",
-								"onChange" => ' checkCredit(this.value,\''.$voucher.'\'); '
-							)
-						)
-						->setValidation('decimal')
-						->setValue(number_format($credit_used,2))
-						->draw($show_input).'</td>';
-					$table	.= '</tr>';
-				}
-				else{
-					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
-					$this->ui->formField('text')
-						->setSplit('', 'col-md-12')
-						->setClass("input-sm text-right credits_used")
-						->setId('credits_used'.$voucher)
-						->setPlaceHolder("0.00")
-						->setMaxLength(20)
-						->setAttribute(
-							array(
-								"disabled" => "disabled", 
-								"onBlur" => ' formatNumber(this.id);', 
-								"onClick" => " SelectAll(this.id); ",
-								"onChange" => ' checkCredit(this.value,\''.$voucher.'\'); '
-							)
-						)
-						->setValidation('decimal')
-						->setValue(number_format(0, 2))
-						->draw($show_input).'</td>';
-					$table	.= '</tr>';
-				}
+				// $avl_credit 	=	str_replace(',','',$avl_credit);
+				// if($voucher_checked == 'checked'){
+				// 	$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
+				// 	$this->ui->formField('text')
+				// 		->setSplit('', 'col-md-12')
+				// 		->setClass("input-sm text-right credits_used")
+				// 		->setId('credits_used'.$voucher)
+				// 		->setPlaceHolder("0.00")
+				// 		->setMaxLength(20)
+				// 		->setAttribute(
+				// 			array(
+				// 				"onBlur" => ' formatNumber(this.id);', 
+				// 				"onClick" => " SelectAll(this.id); ",
+				// 				"onChange" => ' checkCredit(this.value,\''.$voucher.'\'); '
+				// 			)
+				// 		)
+				// 		->setValidation('decimal')
+				// 		->setValue(number_format($credit_used,2))
+				// 		->draw($show_input).'</td>';
+				// 	$table	.= '</tr>';
+				// }
+				// else{
+				// 	$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
+				// 	$this->ui->formField('text')
+				// 		->setSplit('', 'col-md-12')
+				// 		->setClass("input-sm text-right credits_used")
+				// 		->setId('credits_used'.$voucher)
+				// 		->setPlaceHolder("0.00")
+				// 		->setMaxLength(20)
+				// 		->setAttribute(
+				// 			array(
+				// 				"disabled" => "disabled", 
+				// 				"onBlur" => ' formatNumber(this.id);', 
+				// 				"onClick" => " SelectAll(this.id); ",
+				// 				"onChange" => ' checkCredit(this.value,\''.$voucher.'\'); '
+				// 			)
+				// 		)
+				// 		->setValidation('decimal')
+				// 		->setValue(number_format(0, 2))
+				// 		->draw($show_input).'</td>';
+				// 	$table	.= '</tr>';
+				// }
 			}
 		}
 		// else
