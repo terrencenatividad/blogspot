@@ -119,7 +119,7 @@ class receipt_voucher_model extends wc_model
 		
 		$setFields = "partnername name, email, tinno, address1, terms, businesstype, partnercode";
 		$customer    = $temp["main"]->customer;
-		$cond = "partnercode = '$customer'";
+		$cond = "partnercode = '$customer' AND partnertype = 'customer'";
 
 		// Retrieve Header
 		$retrieveArrayVendor =  $this->db->setTable('partners')
@@ -329,7 +329,7 @@ class receipt_voucher_model extends wc_model
 										"pvc.stat as chequestat"
 									)
 								)
-								->leftJoin("partners p ON p.partnercode = main.customer ")
+								->leftJoin("partners p ON p.partnercode = main.customer AND p.companycode = main.companycode AND p.partnertype = 'customer'")
 								->leftJoin("rv_cheques as pvc ON pvc.voucherno = main.voucherno ")
 								->leftJoin("chartaccount coa ON coa.id = pvc.chequeaccount ")
 								->setWhere("main.stat NOT IN('deleted','temporary') ".$add_query)
@@ -427,7 +427,7 @@ class receipt_voucher_model extends wc_model
 		$main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "main.balance as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno", "apd.accountcode", "chart.accountclasscode", "SUM(apd.credit) AS sumcredit", "apd.detailparticulars");
 		$apd_join 	  = "ar_details AS apd ON main.voucherno = apd.voucherno AND main.companycode = apd.companycode";
 		$chart_join   = "chartaccount AS chart ON apd.accountcode = chart.id AND chart.companycode = apd.companycode";
-		$main_join 	  = "partners p ON p.partnercode = main.customer";
+		$main_join 	  = "partners p ON p.partnercode = main.customer AND p.companycode = main.companycode AND p.partnertype = 'customer'";
 		$main_cond 	  = "main.stat = 'posted' AND main.customer = '$customercode' AND chart.accountclasscode = 'ACCREC' AND apd.voucherno  IN $cond";
 		$groupby 	  = "apd.accountcode";
 		$orderby  	  = "main.transactiondate DESC";
@@ -1833,7 +1833,7 @@ class receipt_voucher_model extends wc_model
 
 		$main_fields = array("main.transactiondate as transactiondate", "main.voucherno as voucherno", "CONCAT( first_name, ' ', last_name ) AS vendor", "main.referenceno as referenceno", "main.amount as amount", "main.balance as balance", "main.particulars");
 
-		$main_join   = "partners p ON p.partnercode = main.customer"; //AND p.companycode
+		$main_join   = "partners p ON p.partnercode = main.customer AND p.companycode = main.companycode AND p.partnertype = 'customer'"; //AND p.companycode
 		$main_table  = "accountsreceivable as main";
 		$main_cond   = "main.stat = 'posted' $add_query";
 		$query 		 = $this->retrieveData($main_table, $main_fields, $main_cond, $main_join);
@@ -2109,7 +2109,7 @@ class receipt_voucher_model extends wc_model
 										"pvc.stat as chequestat"
 									)
 								)
-								->leftJoin("partners p ON p.partnercode = main.customer ")
+								->leftJoin("partners p ON p.partnercode = main.customer AND p.companycode = main.companycode AND p.partnertype = 'customer'")
 								->leftJoin("rv_cheques as pvc ON pvc.voucherno = main.voucherno ")
 								->leftJoin("chartaccount coa ON coa.id = pvc.chequeaccount ")
 								->setWhere("main.stat != 'temporary' ".$add_query)
@@ -2182,7 +2182,7 @@ class receipt_voucher_model extends wc_model
 		$result 	=	$this->db->setTable('creditvoucher crv')
 								 ->setFields("crv.voucherno, crv.partner, crv.convertedamount amount, crv.balance as orig_balance, (crv.balance - IFNULL(crva.amount,0)) balance, crv.invoiceno, crv.referenceno, crv.receivableno")
 								 ->leftJoin('('.$sub_query.') crva ON crva.cr_voucher = crv.voucherno AND crva.companycode = crv.companycode AND crva.partner = crv.partner')
-								 ->leftJoin('partners p ON p.partnercode = crv.partner')
+								 ->leftJoin('partners p ON p.partnercode = crv.partner AND p.companycode = crv.companycode AND p.partnertype = "customer"')
 								 ->setWhere("crv.partner = '$customer' AND crv.stat IN ('open','active')")
 								 ->runPagination();
 		return $result;
@@ -2298,7 +2298,7 @@ class receipt_voucher_model extends wc_model
 		$result 	=	$this->db->setTable('creditvoucher crv')
 								 ->setFields("IF((crv.convertedamount = (crv.balance - IFNULL(crva.amount,0))),'unused','used') status")
 								 ->leftJoin('('.$sub_query.') crva ON crva.cr_voucher = crv.voucherno AND crva.companycode = crv.companycode AND crva.partner = crv.partner')
-								 ->leftJoin('partners p ON p.partnercode = crv.partner')
+								 ->leftJoin('partners p ON p.partnercode = crv.partner AND p.companycode = crv.companycode AND p.partnertype = "customer"')
 								 ->setWhere("crv.referenceno = '$voucherno'")
 								 ->runSelect()
 								 ->getRow();

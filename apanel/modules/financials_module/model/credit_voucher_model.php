@@ -51,7 +51,7 @@ class credit_voucher_model extends wc_model {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
 		}
 		$result = $this->db->setTable("creditvoucher c")
-						->leftJoin("partners p ON p.partnercode = c.partner")
+						->leftJoin("partners p ON p.partnercode = c.partner AND p.partnertype = 'customer' AND p.companycode = c.companycode")
 						->setFields($fields)
 						->setWhere("voucherno != ''".$condition)
 						->setOrderBy($sort)
@@ -103,7 +103,7 @@ class credit_voucher_model extends wc_model {
 			'c.stat'
 		);
 		$result = $this->db->setTable('creditvoucher c')
-						->leftJoin('partners p ON p.partnercode = c.partner')
+						->leftJoin('partners p ON p.partnercode = c.partner AND p.partnertype = "customer" AND p.companycode = c.companycode')
 						->setFields($fields)
 						->setWhere("voucherno = '$voucherno'")
 						->runSelect()

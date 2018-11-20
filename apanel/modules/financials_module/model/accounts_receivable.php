@@ -71,7 +71,7 @@ class accounts_receivable extends wc_model
 		// Retrieve Vendor Details
 		$customer_code = $temp["main"]->customer;
 		$custFields = "address1, tinno, terms, email, CONCAT( first_name, ' ', last_name ), partnername AS name"; 
-		$cust_cond = "partnercode = '$customer_code'";
+		$cust_cond = "partnercode = '$customer_code' AND partnertype = 'customer'";
 
 		$custDetails = $this->db->setTable('partners')
 							->setFields($custFields)
@@ -331,7 +331,7 @@ class accounts_receivable extends wc_model
 						);
 		$ar_table 	=	"accountsreceivable as main";
 		$ar_cond 	=	"main.stat IN ('posted','cancelled') $add_query";
-		$ar_join 	=	"partners p ON p.partnercode = main.customer ";
+		$ar_join 	=	"partners p ON p.partnercode = main.customer AND p.companycode = main.companycode AND p.partnertype = 'customer'";
 
 
 		$query 	=	$this->db->setTable($ar_table)
@@ -1516,7 +1516,7 @@ class accounts_receivable extends wc_model
 
 		$main_fields = array("main.transactiondate as transactiondate", "main.voucherno as voucherno", "CONCAT( first_name, ' ', last_name )", "main.referenceno as referenceno", "main.amount as amount", "main.balance as balance", "main.particulars", "p.partnername AS customer");
 
-		$main_join   = "partners p ON p.partnercode = main.customer"; //AND p.companycode
+		$main_join   = "partners p ON p.partnercode = main.customer AND p.companycode = main.companycode AND p.partnertype = 'customer'"; //AND p.companycode
 		$main_table  = "accountsreceivable as main";
 		$main_cond   = "main.stat = 'posted' $add_query";
 		$query 		 = $this->retrieveData($main_table, $main_fields, $main_cond, $main_join);
