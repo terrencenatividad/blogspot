@@ -362,10 +362,6 @@
 									$row 				= 1;
 									$disable_debit		= '';
 									$disable_credit		= '';
-									$t_vat 				= 0;
-									$t_wtax 			= 0;
-									$t_wtaxcode 		= 'NA1';
-									$t_wtaxrate 		= 0;
 
 									for($i = 0; $i < count($details); $i++)
 									{
@@ -1760,7 +1756,7 @@ $(document).ready(function(){
 
 	// -- Tax -- 
 
-	$('#t_wtaxcode').on('change',function(){
+	$('#purchase_order_form').on('change', '#t_wtaxcode',function(){
 		
 		var wtaxcode 	=	$(this).val();
 
@@ -1771,7 +1767,7 @@ $(document).ready(function(){
 			$.post('<?=BASE_URL?>purchase/purchase_order/ajax/get_ATC', ajax, function(data) 
 			{
 				$('#atcModal #atccode').html(data.atc_codes);
-				$('#purchase_order_form #wtaxrate').val(data.wtaxrate);	
+				$('#purchase_order_form #wtaxrate').val(data.wtaxrate).trigger('change');	
 				
 				computeWTAX();
 				computeAmount();
@@ -1790,6 +1786,7 @@ $(document).ready(function(){
 		if( h_atc != "" )
 		{
 			$('#atcModal').modal('hide');
+			$('#purchase_order_form').trigger('change');
 		}
 	});
 
@@ -1800,7 +1797,7 @@ $(document).ready(function(){
 		// Process New Transaction
 		if('<?= $task ?>' == "create")
 		{
-			$("#purchase_order_form").change(function()
+			$("#purchase_order_form").on('change blur',function()
 			{
 				if($("#purchase_order_form #itemcode\\[1\\]").val() != '' && $("#purchase_order_form #transaction_date").val() != '' && $("#purchase_order_form #due_date").val() != '' && $("#purchase_order_form #vendor").val() != '')
 				{
