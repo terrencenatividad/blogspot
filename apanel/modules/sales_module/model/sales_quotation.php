@@ -116,7 +116,7 @@
 
 			$result = $this->db->setTable('salesquotation s')
 							->setFields($fields)
-							->leftJoin('partners p ON p.partnercode = s.customer ')
+							->leftJoin('partners p ON p.partnercode = s.customer AND p.partnertype = "customer" ')
 							->setWhere($add . $add_query)
 							->setOrderBy($sort)
 							->runPagination();
