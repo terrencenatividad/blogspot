@@ -151,7 +151,7 @@ class purchase_order extends wc_model
 
 		return $this->db->setTable('purchaseorder po')
 		->setFields($fields)
-		->leftJoin('partners p ON p.partnercode = po.vendor AND p.partnertype = "supplier" ')
+		->leftJoin('partners p ON p.partnercode = po.vendor AND p.partnertype = "supplier" AND p.companycode = po.companycode')
 		->leftJoin("($receipt) pr ON pr.source_no = po.voucherno AND pr.vendor = p.partnercode")
 		->setWhere(" po.stat NOT IN ( 'temporary' )   $add_query")
 		->setOrderBy($sort)
@@ -168,7 +168,7 @@ class purchase_order extends wc_model
 		$condition 		=	" po.voucherno = '$voucherno' ";
 		
 		$retrieved_data['header'] 	= 	$this->db->setTable('purchaseorder po')
-														->leftJoin(' partners p ON p.partnercode = po.vendor AND p.partnertype = "supplier" ')
+														->leftJoin(' partners p ON p.partnercode = po.vendor AND p.partnertype = "supplier" AND p.companycode = po.companycode')
 														->setFields($header_fields)
 														->setWhere($condition)
 														->setLimit('1')
@@ -613,7 +613,7 @@ class purchase_order extends wc_model
 
 		return $this->db->setTable('purchaseorder po')
 		->setFields($fields)
-		->leftJoin('partners p ON p.partnercode = po.vendor ')
+		->leftJoin('partners p ON p.partnercode = po.vendor AND p.companycode = po.companycode AND p.partnertype = "supplier" ')
 		->leftJoin("($receipt) pr ON pr.source_no = po.voucherno AND pr.vendor = p.partnercode")
 		->setWhere(" po.stat != 'temporary'  $add_query")
 		->setOrderBy($sort)
