@@ -562,6 +562,7 @@
 												->setId('t_wtaxcode')
 												->setClass("taxcode")
 												->setAttribute(array("maxlength" => "20"))
+												->setNone('none')
 												->setList($wtax_codes)
 												->setValue($t_wtaxcode)
 												->draw($show_input);
