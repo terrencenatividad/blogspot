@@ -159,7 +159,7 @@
             window.open('<?php echo MODULE_URL ?>sawt_dat?datepicker=' + datepicker);
         });
 		$("#datepicker").datepicker( {
-			format: "mm-yyyy",
+			format: "MM-yyyy",
 			viewMode: "months", 
 			minViewMode: "months",
 		});

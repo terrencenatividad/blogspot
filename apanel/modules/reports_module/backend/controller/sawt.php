@@ -38,8 +38,20 @@ class controller extends wc_controller {
 
 		if (!empty($data)) {
 			$date = explode("-", $data['datepicker']);
-			$month = $date[0];
+			//$month = $date[0];
 			$year = $date[1];
+			if($date[0] == 'January'){$month = '01';}
+			else if($date[0] == 'February'){$month = '02';}
+			else if($date[0] == 'March'){$month = '03';}
+			else if($date[0] == 'April'){$month = '04';}
+			else if($date[0] == 'May'){$month = '05';}
+			else if($date[0] == 'June'){$month = '06';}
+			else if($date[0] == 'July'){$month = '07';}
+			else if($date[0] == 'August'){$month = '08';}
+			else if($date[0] == 'September'){$month = '09';}
+			else if($date[0] == 'October'){$month = '10';}
+			else if($date[0] == 'November'){$month = '11';}
+			else if($date[0] == 'December'){$month = '12';}
 		}
 		else {
 			$month = '';
@@ -89,18 +101,18 @@ class controller extends wc_controller {
 		if (!empty($_GET["datepicker"])) {
 			$datefilter = $_GET['datepicker'];
 			$date = explode("-", $datefilter);
-			if($date[0] == '01'){$month = 'January';}
-			else if($date[0] == '02'){$month = 'February';}
-			else if($date[0] == '03'){$month = 'March';}
-			else if($date[0] == '04'){$month = 'April';}
-			else if($date[0] == '05'){$month = 'May';}
-			else if($date[0] == '06'){$month = 'June';}
-			else if($date[0] == '07'){$month = 'July';}
-			else if($date[0] == '08'){$month = 'August';}
-			else if($date[0] == '09'){$month = 'September';}
-			else if($date[0] == '10'){$month = 'October';}
-			else if($date[0] == '11'){$month = 'November';}
-			else if($date[0] == '12'){$month = 'December';}
+			if($date[0] == 'January'){$month = '01';}
+			else if($date[0] == 'February'){$month = '02';}
+			else if($date[0] == 'March'){$month = '03';}
+			else if($date[0] == 'April'){$month = '04';}
+			else if($date[0] == 'May'){$month = '05';}
+			else if($date[0] == 'June'){$month = '06';}
+			else if($date[0] == 'July'){$month = '07';}
+			else if($date[0] == 'August'){$month = '08';}
+			else if($date[0] == 'September'){$month = '09';}
+			else if($date[0] == 'October'){$month = '10';}
+			else if($date[0] == 'November'){$month = '11';}
+			else if($date[0] == 'December'){$month = '12';}
 
 			$year = $date[1];
 		}
@@ -110,7 +122,7 @@ class controller extends wc_controller {
 		}
 
         $company =  $this->sawt_model->getCompanyDetails($this->fields);
-		$pagination	= $this->sawt_model->getSawtPagination($date[0], $year);
+		$pagination	= $this->sawt_model->getSawtPagination($month, $year);
 	
 		if ($company->businesstype == 'Individual') {
 			$filename = 'SAWT 1701';
@@ -137,7 +149,7 @@ class controller extends wc_controller {
 
 		$sheet->getCell('A1')->setValue('BIR FORM '.$form);
         $sheet->getCell('A2')->setValue('SUMMARY ALPHALIST OF WITHHOLDING TAXES (SAWT)');
-		$sheet->getCell('A3')->setValue('FOR THE MONTH OF '.strtoupper($month). ' '.$year);
+		$sheet->getCell('A3')->setValue('FOR THE MONTH OF '.strtoupper($date[0]). ' '.$year);
 
 
 		$sheet->getCell('A6')->setValue('TIN : '.$company->tin);
@@ -258,18 +270,18 @@ class controller extends wc_controller {
 		if (!empty($_GET["datepicker"])) {
 			$datefilter = $_GET['datepicker'];
 			$date = explode("-", $datefilter);
-			if($date[0] == '01'){$month = 'January';}
-			else if($date[0] == '02'){$month = 'February';}
-			else if($date[0] == '03'){$month = 'March';}
-			else if($date[0] == '04'){$month = 'April';}
-			else if($date[0] == '05'){$month = 'May';}
-			else if($date[0] == '06'){$month = 'June';}
-			else if($date[0] == '07'){$month = 'July';}
-			else if($date[0] == '08'){$month = 'August';}
-			else if($date[0] == '09'){$month = 'September';}
-			else if($date[0] == '10'){$month = 'October';}
-			else if($date[0] == '11'){$month = 'November';}
-			else if($date[0] == '12'){$month = 'December';}
+			if($date[0] == 'January'){$month = '01';}
+			else if($date[0] == 'February'){$month = '02';}
+			else if($date[0] == 'March'){$month = '03';}
+			else if($date[0] == 'April'){$month = '04';}
+			else if($date[0] == 'May'){$month = '05';}
+			else if($date[0] == 'June'){$month = '06';}
+			else if($date[0] == 'July'){$month = '07';}
+			else if($date[0] == 'August'){$month = '08';}
+			else if($date[0] == 'September'){$month = '09';}
+			else if($date[0] == 'October'){$month = '10';}
+			else if($date[0] == 'November'){$month = '11';}
+			else if($date[0] == 'December'){$month = '12';}
 
 			$year = $date[1];
 		}
@@ -279,7 +291,7 @@ class controller extends wc_controller {
 		}
 
         $company =  $this->sawt_model->getCompanyDetails($this->fields);
-		$pagination	= $this->sawt_model->getSawtPagination($date[0], $year);
+		$pagination	= $this->sawt_model->getSawtPagination($month, $year);
 	
 		if ($company->businesstype == 'Individual') {
 			$filename = 'SAWT 1701';

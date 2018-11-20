@@ -5330,6 +5330,11 @@ $('#payableForm').on('click', '.edit-button', function(){
 	var row 	  = $('#entriesTable tbody tr.clone').length - 1;
 	var atc = $("#taxcode\\["+ row +"\\]").val();
 	var amount = $("#taxbase_amount\\["+ row +"\\]").val();
+	var tax_amount = $('#tax_amount').val(amount);
+		if ( tax_amount >= '0') {
+			$('#tax_apply').prop('disabled', false);
+			$('#tax_apply_edit').prop('disabled', false);
+		}
 
 	$('.tax_amount').on('input', function() {
 		if ($(this).val() >= '0') {
