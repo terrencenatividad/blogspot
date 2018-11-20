@@ -151,7 +151,7 @@ class purchase_order extends wc_model
 
 		return $this->db->setTable('purchaseorder po')
 		->setFields($fields)
-		->leftJoin('partners p ON p.partnercode = po.vendor ')
+		->leftJoin('partners p ON p.partnercode = po.vendor AND p.partnertype = "supplier" ')
 		->leftJoin("($receipt) pr ON pr.source_no = po.voucherno AND pr.vendor = p.partnercode")
 		->setWhere(" po.stat NOT IN ( 'temporary' )   $add_query")
 		->setOrderBy($sort)

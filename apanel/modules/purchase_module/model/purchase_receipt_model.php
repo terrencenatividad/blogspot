@@ -227,7 +227,7 @@ class purchase_receipt_model extends wc_model {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
 		}
 		$result = $this->db->setTable("purchasereceipt pr")
-							->innerJoin('partners po ON po.partnercode = pr.vendor AND po.companycode = pr.companycode')
+							->innerJoin('partners po ON po.partnercode = pr.vendor AND po.companycode = pr.companycode AND po.partnertype = "supplier"')
 							->setFields("transactiondate, voucherno, source_no, partnername vendor, netamount, pr.stat stat, invoiceno")
 							->setWhere($condition)
 							->setOrderBy($sort)

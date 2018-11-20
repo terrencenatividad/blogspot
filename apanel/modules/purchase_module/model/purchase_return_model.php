@@ -109,7 +109,7 @@ class purchase_return_model extends wc_model {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
 		}
 		$result = $this->db->setTable("purchasereturn prtn")
-							->innerJoin('partners p ON p.partnercode = prtn.vendor AND p.companycode = prtn.companycode')
+							->innerJoin('partners p ON p.partnercode = prtn.vendor AND p.companycode = prtn.companycode AND p.partnertype = "supplier"')
 							->setFields("transactiondate, voucherno, source_no, partnername vendor, prtn.stat stat")
 							->setWhere($condition)
 							->setOrderBy($sort)
