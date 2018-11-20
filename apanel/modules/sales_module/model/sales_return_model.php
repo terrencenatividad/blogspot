@@ -308,7 +308,7 @@ class sales_return_model extends wc_model {
 	
 	public function getDocumentInfo($voucherno) {
 		$result = $this->db->setTable('salesreturn sr')
-							->innerJoin('partners p ON p.partnercode = sr.customer AND p.companycode = sr.companycode')
+							->innerJoin('partners p ON p.partnercode = sr.customer AND p.companycode = sr.companycode AND p.partnertype = "customer"')
 							->setFields("sr.transactiondate documentdate, sr.voucherno voucherno, p.partnername company, CONCAT(p.first_name, ' ', p.last_name) customer, source_no referenceno, sr.remarks remarks, partnercode, wtaxamount wtax, amount, discounttype disctype, discountamount discount, netamount net, taxamount vat")
 							->setWhere("voucherno = '$voucherno'")
 							->runSelect()
@@ -331,7 +331,7 @@ class sales_return_model extends wc_model {
 	public function getCustomerDetails($partnercode) {
 		$result = $this->db->setTable('partners')
 							->setFields(array('partnername customer', 'address1 address', 'tinno', 'terms', 'mobile contactno'))
-							->setWhere("partnercode = '$partnercode'")
+							->setWhere("partnercode = '$partnercode' AND partnertype = 'customer'")
 							->runSelect()
 							->getRow();
 
