@@ -35,7 +35,7 @@
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('partnername')
 									->setId('partnername')
-									->setMaxLength(30)
+									->setMaxLength(100)
 									->setValidation('required special')
 									->setValue($partnername)
 									->draw($show_input);

@@ -40,7 +40,7 @@ class sawt_model extends wc_model {
                         ->leftJoin('chartaccount c ON c.id = d.accountcode')
 						->leftJoin('atccode a ON a.atcId = d.taxcode')
 						->setFields($fields)
-						->setWhere($condition. "c.accountname = 'Creditable Withholding Tax' AND rv.stat = 'posted'")
+						->setWhere($condition. "d.taxcode != '' AND rv.stat = 'posted'")
                         //->setOrderBy($sort)
                         ->runSelect()
 						->getResult();
