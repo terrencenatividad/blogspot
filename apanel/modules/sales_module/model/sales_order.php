@@ -127,7 +127,7 @@
 			
 			$result 	=	 $this->db->setTable('salesorder s')
 							->setFields($fields)
-							->leftJoin('partners p ON p.partnercode = s.customer 	')
+							->leftJoin('partners p ON p.partnercode = s.customer AND p.partnertype = "customer"')
 							->setWhere(" s.stat != 'temporary'  $add_query")
 							->setOrderBy($sort)
 							->setLimit($limit)
