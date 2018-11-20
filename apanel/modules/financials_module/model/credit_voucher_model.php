@@ -35,7 +35,7 @@ class credit_voucher_model extends wc_model {
 	}
 
 	public function getCreditVoucherPagination($fields, $search, $sort, $datefilter, $source, $filter) {
-		$sort = ($sort) ? $sort : 'transactiondate desc';
+		$sort = ($sort) ? $sort : 'voucherno desc';
 		$condition = "";
 		if ($filter != 'all' && $filter != ''){
 			$condition .= " AND c.stat = '$filter' ";
