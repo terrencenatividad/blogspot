@@ -830,6 +830,7 @@ class receipt_voucher_model extends wc_model
 		$aPvApplicationArray 	= array();
 		$total_credits_used 	= 0;
 		$list_of_invoices 		= array();
+		$list_of_receivables 	= array();
 		if(!empty($picked_payables)){
 			$iApplicationLineNum	= 1;
 			foreach ($picked_payables as $pickedKey => $pickedValue) {
@@ -841,9 +842,15 @@ class receipt_voucher_model extends wc_model
 
 				$ret_bal	= $this->getValue("accountsreceivable", array("balance, invoiceno"), "voucherno = '$payable' AND stat NOT IN ('temporary','cancelled') ");
 				$balance 	= isset($ret_bal[0]->balance) 		?	$ret_bal[0]->balance 	:	0;
-				$invoiceno 	= isset($ret_bal[0]->invoiceno) 	?	$ret_bal[0]->invoiceno 	:	0;
+				$invoiceno 	= isset($ret_bal[0]->invoiceno) 	?	$ret_bal[0]->invoiceno 	:	"";
 				
-				$list_of_invoices[] 	=	$invoiceno;
+				// $list_of_invoices[] 	=	(!in_array($invoiceno, $list_of_invoices)  ? $invoiceno ;
+				if(!in_array($invoiceno, $list_of_invoices) && $invoiceno != "") {
+					$list_of_invoices[] = $invoiceno;
+				}
+				if(!in_array($payable, $list_of_receivables) && $payable != "") {
+					$list_of_receivables[] = $payable;
+				}
 
 				$amount 	= str_replace(',','',$amount);
 				$discount 	= str_replace(',','',$discount);
@@ -1193,7 +1200,7 @@ class receipt_voucher_model extends wc_model
 				$post_credit_voucher['partner'] 			= $customer;
 				$post_credit_voucher['currencycode']		= 'PHP';
 				$post_credit_voucher['exchangerate']		= '1.00';
-				
+			
 				if($ap_checker == "yes"){
 					$post_credit_voucher['amount'] 				= $total_payment;
 					$post_credit_voucher['balance'] 			= $total_payment;
@@ -1202,6 +1209,7 @@ class receipt_voucher_model extends wc_model
 					$post_credit_voucher['amount'] 				= $excess;
 					$post_credit_voucher['balance'] 			= $excess;
 					$post_credit_voucher['convertedamount']		= $excess;
+					$post_credit_voucher['receivableno']		= implode(',',$list_of_receivables);
 					$post_credit_voucher['invoiceno']			= implode(',',$list_of_invoices);
 				}
 
