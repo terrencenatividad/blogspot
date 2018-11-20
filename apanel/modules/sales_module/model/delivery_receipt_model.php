@@ -437,11 +437,12 @@ class delivery_receipt_model extends wc_model {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
 		}
 		$result = $this->db->setTable("deliveryreceipt dr")
-							->innerJoin('partners p ON p.partnercode = dr.customer AND p.companycode = dr.companycode')
+							->innerJoin('partners p ON p.partnercode = dr.customer AND p.companycode = dr.companycode AND p.partnertype = "customer"')
 							->setFields("transactiondate, voucherno, source_no, partnername customer, netamount, deliverydate, dr.stat stat")
 							->setWhere($condition)
 							->setOrderBy($sort)
-							->runPagination();
+							->runPagination(); 
+
 		return $result;
 	}
 
