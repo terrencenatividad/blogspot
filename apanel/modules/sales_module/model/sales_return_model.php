@@ -111,7 +111,7 @@ class sales_return_model extends wc_model {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
 		}
 		$result = $this->db->setTable("salesreturn sr")
-							->innerJoin('partners p ON p.partnercode = sr.customer AND p.companycode = sr.companycode')
+							->innerJoin('partners p ON p.partnercode = sr.customer AND p.companycode = sr.companycode AND p.partnertype = "customer"')
 							->setFields("transactiondate, voucherno, source_no, partnername customer, sr.stat stat")
 							->setWhere($condition)
 							->setOrderBy($sort)
