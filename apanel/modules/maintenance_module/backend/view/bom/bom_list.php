@@ -11,7 +11,6 @@
 					<div class = "col-md-8">
 						<div class="form-group">
 							<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Add New BOM</a>
-							<?= $ui->OptionButton(''); ?>
 							<?=	$ui->CreateDeleteButton(''); ?>
 							<?=	$ui->CreateActButton(''); ?>
 						</div>
