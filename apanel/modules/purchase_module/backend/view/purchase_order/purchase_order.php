@@ -332,7 +332,7 @@
 											->setClass("text-right price")
 											->setValidation('required decimal')
 											->setAttribute(array("maxlength" => "20"))
-											->setValue($price)
+											->setValue(number_format($price,2))
 											->draw($show_input);
 											?>
 										</td>
@@ -345,7 +345,7 @@
 											->setClass("text-right")
 											->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
 											->setValidation('decimal')
-											->setValue($rowamount)
+											->setValue(number_format($rowamount,2))
 											->draw($show_input);
 											?>
 
@@ -471,7 +471,7 @@
 												->setClass("price")
 												->setAttribute(array("maxlength" => "20"))
 												->setValidation('required decimal')
-												->setValue($itemprice)
+												->setValue(number_format($itemprice, 2))
 												->draw($show_input);
 												?>
 											</td>
@@ -484,7 +484,7 @@
 												->setClass("text-right")
 												->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
 												->setValidation('decimal')
-												->setValue($amount)
+												->setValue(number_format($amount, 2))
 												->draw($show_input);
 												?>
 
@@ -775,7 +775,9 @@
 										<p class="form-control-static"><label>Total Amount Due</label></p>
 									</td>
 									<td colspan="2" class="text-right">
-										<p class="form-control-static"><label><?php echo number_format($received_total_vatable + $received_total_tax - $received_withholding, 2) ?></label></p>
+										<p class="form-control-static"><label><?php 
+										$totallings = $received_total_vatable + $received_total_tax - $received_withholding;
+										echo number_format($totallings, 2) ?></label></p>
 									</td>
 								</tr>
 							</tfoot>
@@ -1267,7 +1269,7 @@ echo $ui->loadElement('modal')
 
 		document.getElementById('t_subtotal').value 			= addCommas(subtotal.toFixed(2));
 		document.getElementById('t_vat').value					= total_h_vat.toFixed(2);
-		document.getElementById('t_total').value 				= ( total_h_vatable + total_h_vatex - wtax + total_h_vat ).toFixed(2);
+		document.getElementById('t_total').value 				= addCommas((total_h_vatable + total_h_vatex - wtax + total_h_vat ).toFixed(2));
 
 	}
 
