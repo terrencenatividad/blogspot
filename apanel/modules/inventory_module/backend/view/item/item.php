@@ -47,6 +47,7 @@
 												->setName('barcode')
 												->setId('barcode')
 												->setValue($barcode)
+												->setMaxLength(50)
 												->setValidation('alpha_num')
 												->draw($show_input);
 										?>
