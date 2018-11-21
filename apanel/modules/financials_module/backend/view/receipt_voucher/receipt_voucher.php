@@ -1325,6 +1325,7 @@
 										->setValue(number_format($credits_applied,2))
 										->draw(true);
 								?>
+								<input type="hidden" name="total_opcredits_to_apply" id="total_opcredits_to_apply" value="">
 							</div>
 							<div class="col-md-5">
 								<?php
@@ -2241,7 +2242,6 @@ function addAmountAll(field) {
 		notfield	= 'debit';
 	}
 
-console.log("DISCOUNT "+disacct);
 	for(i = 1; i <= chk.length; i++) {  
 		var inputs 		= document.getElementById(field+'['+i+']');
 		var disables 	= document.getElementById(notfield+'['+i+']');
@@ -2387,7 +2387,7 @@ function validateDetails(){
 	{
 		for(var i=1;i<=count;i++)
 		{
-			var accountcode = document.getElementById('accountcode['+i+']').value;
+			var accountcode = document.getElementById('h_accountcode['+i+']').value;
 			var debit 		= document.getElementById('debit['+i+']').value;
 			var credit 		= document.getElementById('credit['+i+']').value;
 
@@ -3150,14 +3150,18 @@ function selectPayable(id,toggle){
 	addPaymentAmount();
 }
 
-function initialize_credit_box(id){
+function initialize_credit_box(id, source){
 	if (typeof credits_box[id] === 'undefined') {
 		credits_box[id] = {};
+	}
+	if (typeof credits_box[id][source] === 'undefined') {
+		credits_box[id][source] = {};
 	}
 }
 
 function computeCreditBalance(id,toapply){
 	var org_balance = $('#list_container #credits_balance'+id).html();
+	var source 		= $('#list_container #source'+id).attr('data-value');
 	var balance 	= $('#list_container #credits_balance'+id).attr('data-value');
 	var amount 		= $('#list_container #credits_amount'+id).attr('data-value');
 		amount 		= removeComma(amount);
@@ -3168,13 +3172,13 @@ function computeCreditBalance(id,toapply){
 	var total_payment = $('#total_payment').val();
 		total_payment = removeComma(total_payment);
 
-	initialize_credit_box(id);
+	initialize_credit_box(id, source);
 
 	var computed_balance 	= parseFloat(balance) - parseFloat(toapply);
 
-	credits_box[id]['amount']  = parseFloat(amount);
-	credits_box[id]['toapply'] = parseFloat(toapply);
-	credits_box[id]['balance'] = computed_balance;
+	credits_box[id][source]['amount']  = parseFloat(amount);
+	credits_box[id][source]['toapply'] = parseFloat(toapply);
+	credits_box[id][source]['balance'] = computed_balance;
 
 	$('#list_container #credits_balance'+id).html(addComma(computed_balance));       
 
@@ -3197,13 +3201,23 @@ function computeCreditBalance(id,toapply){
 function addCreditsAmount(){
 	var count_container = Object.keys(credits_box).length;
 	var	total_credits = 0; 	
-	for (var key in credits_box) {
-		credits 	= removeComma(credits_box[key]['toapply']);
-		credits  	= parseFloat(credits);
-		total_credits += credits;
+	var total_opcredits = 0;
+
+	for (var vouchers in credits_box) {
+		var credit_content = credits_box[vouchers];
+		for(var sourcetype in credit_content){
+			credits 	= removeComma(credit_content[sourcetype]['toapply']);
+			credits  	= parseFloat(credits);
+			total_credits += credits;
+			if(sourcetype == 'OP'){
+				total_opcredits += credits;
+			}
+		}
 	}
 	total_credits = addCommas(total_credits.toFixed(2));
+	total_opcredits = addCommas(total_opcredits.toFixed(2));
 	$('#total_credits_to_apply').val(total_credits);
+	$('#total_opcredits_to_apply').val(total_opcredits);
 }
 
 function selectCredits(id,toggle,toapply_value=""){
@@ -3848,14 +3862,14 @@ function set_account(){
 }
 
 function apply_credit_account(amount){
-	var cred_acct 	= $('#hidden_cred_id').val();
-	var op_acct 	= $('#hidden_op_acct').val();
-	var is_ap 		= $('#ap_checker').is(':checked');
-		is_ap 		= (is_ap == true) ? "yes" 	:	"no";
-	var is_op 		= $('#op_checker').is(':checked');
-		is_op 		= (is_op == true) ? "yes" 	:	"no";
-
 	$('#creditvoucherModal').modal('hide');
+	
+	var cred_acct = $('#hidden_cred_id').val();
+	var op_acct	  = $('#hidden_op_acct').val();
+
+	var total_opcredits_amount 	=	$('#total_opcredits_to_apply').val();
+		total_opcredits_amount 	=	removeComma(total_opcredits_amount);
+	var total_advcredits_amount =	parseFloat(amount - total_opcredits_amount);
 
 	var cheque_rows = $('#entriesTable tbody tr.added_row').length;
 
@@ -3866,22 +3880,31 @@ function apply_credit_account(amount){
 				$(this).remove();
 			}
 		});
-		var accountcode = "";
-		if(is_ap == "yes"){
-			accountcode = cred_acct;
-		} else if(is_op == "yes"){
-			accountcode = op_acct;
-		}
-		if(parseFloat(amount) > 0){
+		if(total_advcredits_amount>0){
+			var adv_account = cred_acct;
 			$("#entriesTable tbody tr.clone:not(.added_row)").first().after(clone_acct);
 			resetIds();
 			var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first().next('tr');
-				credit_row.find('.debit').val(addComma(amount));
-				credit_row.find('.accountcode').val(accountcode).prop('disabled',true);
-				credit_row.find('.h_accountcode').val(accountcode);
+				credit_row.find('.debit').val(addComma(total_advcredits_amount));
+				credit_row.find('.accountcode').val(adv_account).prop('disabled',true);
+				credit_row.find('.h_accountcode').val(adv_account);
 				credit_row.find('.debit').prop('readonly',true);
 				credit_row.find('.confirm-delete').prop('disabled',true);
 				credit_row.find('.credit').prop('readonly',true);
+				addAmountAll("credit");
+		}  
+		if(total_opcredits_amount>0){
+			var op_account = op_acct;
+			$("#entriesTable tbody tr.clone:not(.added_row)").first().after(clone_acct);
+			resetIds();
+			var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first().next('tr');
+				credit_row.find('.debit').val(addComma(total_opcredits_amount));
+				credit_row.find('.accountcode').val(op_acct).prop('disabled',true);
+				credit_row.find('.h_accountcode').val(op_acct);
+				credit_row.find('.debit').prop('readonly',true);
+				credit_row.find('.confirm-delete').prop('disabled',true);
+				credit_row.find('.credit').prop('readonly',true);
+				addAmountAll("credit");
 		}
 	}
 	drawTemplate();
@@ -4362,7 +4385,12 @@ $(document).ready(function() {
 	});
 
 	function finalize_saving(button_name){
-		$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/update_temporarily_saved_data",$("#payableForm").serialize())
+		var is_ap 	= $('#ap_checker').is(':checked');
+			is_ap 	= (is_ap == true) ? "yes" 	:	"no";
+		var is_op 	= $('#op_checker').is(':checked');
+			is_op 	= (is_op == true) ? "yes" 	:	"no";
+					
+		$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/update_temporarily_saved_data",$("#payableForm").serialize()+"&advance_payment="+is_ap+"&overpayment="+is_op)
 		.done(function(data)
 		{	
 			if(data.success == 1)
@@ -5248,12 +5276,14 @@ var selected_tax_account = '';
 // }
 
 function set_selected_cv(){
-	for(key in credits_box){
-		var credit_to_apply = credits_box[key]['toapply'];
-		$('#credittoapply'+key).val(addComma(credit_to_apply));
-		$('input#check' + key).iCheck('check');
-		// selectCredits(key,1,credit_to_apply);
-	} 
+	for (var vouchers in credits_box) {
+		var credit_content = credits_box[vouchers];
+		for(var sourcetype in credit_content){
+			credit_to_apply 	= addComma(credit_content[sourcetype]['toapply']);
+			$('#credittoapply'+vouchers).val(addComma(credit_to_apply));
+			$('input#check' + vouchers).iCheck('check');
+		}
+	}
 }
 
 function set_total_credits_amt(){

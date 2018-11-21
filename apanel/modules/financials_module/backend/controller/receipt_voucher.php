@@ -193,8 +193,10 @@ class controller extends wc_controller
 	}
 
 	public function update_temporarily_saved_data(){
-		$data_validate 	= $this->input->post(array('referenceno',"h_task","h_voucher_no", "customer", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_","selected_rows"));
-		$btn_type 		= $data_validate['h_save'];
+		
+		$data_validate 	= $this->input->post();
+		$ap_checker 	= $data_validate['advance_payment'];
+		$op_checker 	= $data_validate['overpayment'];
 
 		$errmsg 			= array();
 		$temp 				= array();
@@ -227,11 +229,14 @@ class controller extends wc_controller
 				$update_source['si_no']  	= $generatedvoucher;
 				$source_cond 				= "si_no = '$voucherno' AND transtype = 'CM'";
 				$updateTempRecord			= $this->receipt_voucher->editData($update_source,"journalvoucher",$source_cond);
-				// Update the Credit Voucher 
-				$update_ref['referenceno']  = $generatedvoucher;
-				$update_ref['stat'] 		= "open";
-				$ref_cond 					= "referenceno = '$voucherno' AND transtype = 'CV'";
-				$updateTempRecord			= $this->receipt_voucher->editData($update_ref,"creditvoucher",$ref_cond);
+					
+				// Generate Credit Voucher
+
+				if($updateTempRecord && ($ap_checker == "yes" || $op_checker == "yes")){
+					$updateTempRecord 		= $this->receipt_voucher->generateCreditVoucher($data_validate, $generatedvoucher, $ap_checker);
+				}
+
+				// Update the Applied Credit Voucher 
 				$update_cred['rv_voucher']  = $generatedvoucher;
 				$update_cred['stat'] 		= "active";
 				$cred_cond 					= "rv_voucher = '$voucherno'";
@@ -256,14 +261,14 @@ class controller extends wc_controller
 													"COALESCE(SUM(overpayment),0) overpayment",
 													"COALESCE(SUM(forexamount),0) forexamount"
 												), 
-												"  arvoucherno = '$ar_voucher' AND stat IN('open','posted','temporary') "
+												"  arvoucherno = '$ar_voucher' AND stat IN('open','posted') "
 											);
 				
 				$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
 				$applied_credits 			= (!empty($applied_amounts[0]->credits)) ? $applied_amounts[0]->credits : 0;
 				$applied_disc 				= (!empty($applied_amounts[0]->discount)) ? $applied_amounts[0]->discount : 0;
 				$applied_over 				= (!empty($applied_amounts[0]->overpayment)) ? $applied_amounts[0]->overpayment : 0;
-				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount + $applied_credits + $applied_disc;
+				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount + $applied_credits + $applied_over + $applied_disc;
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
 
 				$balance_info['amountreceived']	= $applied_sum;
@@ -286,10 +291,7 @@ class controller extends wc_controller
 					$partner_info['credits_amount'] 	=	( $existing_credit - $applied_credits );
 
 					$updateTempRecord = $this->receipt_voucher->updateData("partners", $partner_info, "partnercode = '$customer'");
-				}
-
-			
-		
+				}		
 			}
 		}
 
@@ -302,7 +304,7 @@ class controller extends wc_controller
 			}
 		}
 
-		$dataArray = array("success"=>$updateTempRecord,"error"=>$errmsg, "btn_type"=>$btn_type , 'voucher' => $generatedvoucher);
+		$dataArray = array("success"=>$updateTempRecord,"error"=>$errmsg, 'voucher' => $generatedvoucher);
 		return $dataArray;
 	}
 
@@ -778,14 +780,15 @@ class controller extends wc_controller
 				$referenceno 	=	isset($pagination->result[$i]->referenceno) ? 	$pagination->result[$i]->referenceno	: 	"";
 				$receivableno 	=	isset($pagination->result[$i]->receivableno)? 	$pagination->result[$i]->receivableno	:	"";
 				$orig_balance 	=	isset($pagination->result[$i]->orig_balance)? 	$pagination->result[$i]->orig_balance 	:	0;
+				$source 		=	isset($pagination->result[$i]->source)		? 	$pagination->result[$i]->source			:	"";
 
 				$voucher_checked= (in_array($voucherno , $voucher_array)) ? 'checked' : '';
 
 				$balance_2		= $balance;
 
 				if (isset($amt_array[$voucherno])) {
-					$amount		= str_replace(',','',$amt_array[$voucherno]['toapply']);
-					$balance_2	= str_replace(',','',$amt_array[$voucherno]['balance']);
+					$amount		= str_replace(',','',$amt_array[$voucherno][$source]['toapply']);
+					$balance_2	= str_replace(',','',$amt_array[$voucherno][$source]['balance']);
 				}
 
 				$disable_checkbox 	=	"";
@@ -800,6 +803,7 @@ class controller extends wc_controller
 				$table	.= 	'<td class="text-left" style="vertical-align:middle;" '.$disable_onclick.'>'.$referenceno.'</td>';
 				$table	.= 	'<td class="text-right" style="vertical-align:middle;" id = "credits_amount'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($totalamt,2).'">'.number_format($totalamt,2).'</td>';
 				$table	.= 	'<td class="text-right balances" style="vertical-align:middle;" id = "credits_balance'.$voucherno.'" '.$disable_onclick.' data-value="'.number_format($balance,2).'">'.number_format($balance_2,2).'</td>';
+				$table	.= 	'<td class="text-right hidden sourcetype" style="vertical-align:middle;" id = "source'.$voucherno.'" '.$disable_onclick.' data-value="'.$source.'">'.$source.'</td>';
 				
 				if($voucher_checked == 'checked'){
 					$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
@@ -1289,7 +1293,7 @@ class controller extends wc_controller
 		$avl_credit 	= $this->input->post("avl_cred");
 		$vno 			= $this->input->post('vno');
 		$rv 			= $this->input->post('voucherno');
-		
+
 		$check_rows 	= (isset($vno) && (!empty($vno))) ? trim($vno) : "";
 		$check_rows  	= str_replace('\\', '', $check_rows);
 		$decode_json    = json_decode($check_rows,true);	
@@ -1352,13 +1356,13 @@ class controller extends wc_controller
 			
 				$json_encode 					= json_encode($json_data);
 
-				$result_rvapp	= $this->receipt_voucher->getValue("rv_application", array("convertedamount AS amount", "discount as discount", "overpayment", "credits_used"),"arvoucherno = '$voucher' AND voucherno = '$rv' AND stat IN('open','posted', 'temporary')");
+				$result_rvapp	= $this->receipt_voucher->getValue("rv_application", array("SUM(convertedamount) AS amount", "SUM(discount) as discount", "SUM(overpayment) overpayment", "SUM(credits_used) credits_used"),"arvoucherno = '$voucher' AND stat IN('open','posted', 'temporary')", "", "", "arvoucherno");
 
 				$appliedamount  = isset($result_rvapp[0]->amount) 			?	$result_rvapp[0]->amount		:	0;
 				$applieddiscount= isset($result_rvapp[0]->discount)			?	$result_rvapp[0]->discount		:	0;
 				$appliedover  	= isset($result_rvapp[0]->overpayment) 		?	$result_rvapp[0]->overpayment	:	0;
 				// $appliedcreds   = isset($result_rvapp[0]->credits_used) 	?	$result_rvapp[0]->credits_used	:	0;
-	
+				// echo $appliedamount."\n";
 				$balance_2		= $balance;
 				
 				if (isset($amt_array[$voucher])) {
@@ -1374,9 +1378,8 @@ class controller extends wc_controller
 					$balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
 				}
 				
-				$balance 		= ($overpayment>0 || $balance == 0) ? $appliedamount - $appliedover : $balance;
-
-				// echo $balance."\n\n";
+				$balance 		= ($overpayment>0 || $balance == 0) ? $totalamount - ($appliedamount + $appliedover) : $balance;
+			
 				$disable_checkbox 	=	"";
 				$disable_onclick 	=	'onClick="selectPayable(\''.$voucher.'\',1);"';
 
@@ -2010,18 +2013,20 @@ class controller extends wc_controller
 			$overpayment  	=	(isset($details->overpayment) && $details->overpayment > 0) ? "yes" 	: 	"no";
 			$advance 		= 	(isset($details->advancepayment) && $details->advancepayment == "yes" ) ? $details->advancepayment 	: "no";
 
-			if($overpayment == "yes"){
-				$payments 		= "'" . implode("','", $vouchers) . "'";
+			// if($overpayment == "yes"){
+			// 	$payments 		= "'" . implode("','", $vouchers) . "'";
 
-				$cm_vouchers 	= $this->receipt_voucher->getValue("journalvoucher", "voucherno", "transtype = 'CM' AND si_no IN ($payments)");
+			// 	$cm_vouchers 	= $this->receipt_voucher->getValue("journalvoucher", "voucherno", "transtype = 'CM' AND si_no IN ($payments)");
 		
-				foreach($cm_vouchers as $key => $content){
-					$cm_no 			=  	$content->voucherno;
-					$result 		= 	$this->receipt_voucher->cancelCreditMemo($cm_no);
-				}
-			}
-			if($advance == "yes") {
+			// 	foreach($cm_vouchers as $key => $content){
+			// 		$cm_no 			=  	$content->voucherno;
+			// 		$result 		= 	$this->receipt_voucher->cancelCreditMemo($cm_no);
+			// 	}
+			// }
+			if($advance == "yes" || $overpayment == "yes") {
 				$result 		= 	$this->receipt_voucher->cancelCreditVoucher($voucherno);
+			} else {
+				$result 		= 	1;
 			}
 
 			if($result){
