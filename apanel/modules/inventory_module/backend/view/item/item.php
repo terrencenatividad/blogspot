@@ -47,6 +47,7 @@
 												->setName('barcode')
 												->setId('barcode')
 												->setValue($barcode)
+												->setMaxLength(50)
 												->setValidation('alpha_num')
 												->draw($show_input);
 										?>
@@ -565,6 +566,8 @@
 
 		$('form').on('ifUnchecked','#replacement_part', function(e){
 			$("#replacement_for").prop('disabled',true);
+			$("#replacement_for").val('');
+			drawTemplate();
 		});
 
 		$('form').submit(function(e) {

@@ -101,7 +101,7 @@
 											)
 										)
 							->addHeader('Date',array('class'=>'col-md-2'),'sort','po.transactiondate')
-							->addHeader('PO No.', array('class'=>'col-md-1'),'sort','po.voucherno')
+							->addHeader('PO No.', array('class'=>'col-md-1'),'sort','po.voucherno','desc')
 							->addHeader('Reference No.',array('class'=>'col-md-1'),'sort','po.referenceno')
 							->addHeader('Supplier',array('class'=>'col-md-2'),'sort','p.partnername')
 							->addHeader('Amount',array('class'=>'col-md-2'),'sort','po.netamount')

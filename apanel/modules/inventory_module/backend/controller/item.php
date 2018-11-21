@@ -399,6 +399,7 @@ class controller extends wc_controller {
 				foreach ($csv_array as $key => $row) {
 					$row['row_num'] = $key + 1;
 					$check_field['Item Code'][$row['row_num']] = $this->getValueCSV('Item Code', $row);
+					$check_field['Replacement Code'][$row['row_num']] = $this->getValueCSV('Replacement Code', $row);
 					$bundle 					= $this->getValueCSV('Bundle', $row, '', $errors, '');
 					$bundle 					= ($bundle == "Y") 	?	"1" 	:	"0";
 					$replacement 				= $this->getValueCSV('Replacement Part (Y/N)', $row, '', $errors, '');
@@ -469,7 +470,7 @@ class controller extends wc_controller {
 						$duplicate	= array_values($data_duplicate);
 						foreach ($check_row as $num_row => $value) {
 							if (in_array(strtolower($value), $duplicate)) {
-								$errors[$num_row]['Item Code']['Duplicate Data'] = $value;
+								$errors[$num_row][$key]['Duplicate Data'] = $value;
 							}
 						}
 					}
@@ -486,9 +487,9 @@ class controller extends wc_controller {
 					}
 				}
 
-				// if (empty($errors)) {
-				// 	$result = $this->item_model->saveItemCSV($values);
-				// }
+				if (empty($errors)) {
+					$result = $this->item_model->saveItemCSV($values);
+				}
 			}
 		} else {
 			$error = 'Invalid Import File. Please Use our Template for Uploading CSV';
