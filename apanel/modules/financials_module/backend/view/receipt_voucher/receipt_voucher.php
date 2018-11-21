@@ -815,7 +815,7 @@
 										if($aPvJournalDetails_Index < ($count-1) && $paymenttype == 'cheque' && $ischeck == 'yes'){					
 											$disable_debit		= 'readOnly';
 											$disable_credit		= 'readOnly';
-											$disable_dedit 		= "readOnly";
+											$disable_debit 		= "readOnly";
 											$disable_code 		= 'disabled';
 											$added_class 		= 'added_row';
 											$indicator 			= "cheque";
@@ -940,11 +940,11 @@
 											$disable_code 		= 'disabled';
 										} else if( $accountcode == $op_acct ) {
 											$disable_credit		= 'readOnly';
-											$disable_dedit		= 'readOnly';
+											$disable_debit		= 'readOnly';
 											$disable_code 		= 'disabled';
 										} else if( $accountcode == $ar_acct ) {
 											$disable_credit		= 'readOnly';
-											$disable_credit		= 'readOnly';
+											$disable_debit		= 'readOnly';
 											$disable_code 		= 'disabled';
 										} else {
 											$disable_debit		= ($debit > 0) ? '' : 'readOnly';
