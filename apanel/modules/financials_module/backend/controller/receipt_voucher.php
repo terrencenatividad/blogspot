@@ -790,8 +790,10 @@ class controller extends wc_controller
 				if (isset($amt_array[$voucherno][$source])) {
 					$amount		= str_replace(',','',$amt_array[$voucherno][$source]['toapply']);
 					$balance_2	= str_replace(',','',$amt_array[$voucherno][$source]['balance']);
-					$balance 	+= $balance_2;
+					// $balance 	+= $balance_2;
 				}
+
+				$balance 		= ($balance == 0) ? $totalamt - $amount : $balance;
 
 				$disable_checkbox 	=	"";
 				$disable_onclick 	=	'onClick="selectCredits(\''.$voucherno.'\',1);"';

@@ -2754,7 +2754,12 @@ $('#cancelPaymentModal').on('click',function(){
 });
 
 $('#cancelCreditApplication').on('click',function(){
-	credits_box =	$.extend(true,{},tagged_CV);
+	for(var vouchers in tagged_CV) { 
+		var content = tagged_CV[vouchers];
+		for(var types in content) { 
+			credits_box =	$.extend(true,{},tagged_CV);
+		}
+	}
 	$('#appliedamounterror').addClass('hidden');
 	$('#totalpaymenterror').addClass('hidden');
 	$('#creditvoucherModal').modal('hide');
@@ -2807,7 +2812,12 @@ function showCreditsVoucher(){
 
 	if(valid == 0 && customer_code != ""){
 		showCreditsList();
-		tagged_CV 	 = $.extend(true,{},credits_box);
+		for(var vouchers in credits_box) { 
+			var content = credits_box[vouchers];
+			for(var types in content) { 
+				tagged_CV 	 = $.extend(true,{},credits_box);
+			}
+		}
 	} else {
 		bootbox.dialog({
 			message: "Please select customer first.",
@@ -3176,9 +3186,15 @@ function computeCreditBalance(id,toapply){
 
 	var computed_balance 	= parseFloat(balance) - parseFloat(toapply);
 
-	credits_box[id][source]['amount']  = parseFloat(amount);
-	credits_box[id][source]['toapply'] = parseFloat(toapply);
-	credits_box[id][source]['balance'] = computed_balance;
+	if(parseFloat(toapply) > 0){
+		credits_box[id][source]['amount']  = parseFloat(amount);
+		credits_box[id][source]['toapply'] = parseFloat(toapply);
+		credits_box[id][source]['balance'] = computed_balance;
+	} else {
+		credits_box = $.grep(credits_box, function(e){ 
+			return e.id != id; 
+		});
+	}
 
 	$('#list_container #credits_balance'+id).html(addComma(computed_balance));       
 
@@ -5276,6 +5292,8 @@ var selected_tax_account = '';
 // }
 
 function set_selected_cv(){
+	console.log("CREDITS BOX ... ");
+	console.log(credits_box);
 	for (var vouchers in credits_box) {
 		var credit_content = credits_box[vouchers];
 		for(var sourcetype in credit_content){
