@@ -1998,12 +1998,32 @@ class controller extends wc_controller
 		return $return;
 	}
 
-	public function retrieve_existing_acct(){
-		$cred_acct				= $this->receipt_voucher->retrieve_existing_acct();
+	public function retrieve_existing_credacct(){
+		$cred_acct				= $this->receipt_voucher->retrieve_existing_credacct();
 		$existingcreditaccount	= isset($cred_acct[0]->account) ? $cred_acct[0]->account	:	"";
 		$cred_id 				= isset($cred_acct[0]->id) ? $cred_acct[0]->id	:	"";
 
 		$return = array('credit_id'=>$cred_id, "credit_account"=>$existingcreditaccount);
+		return $return;
+	}
+
+	public function update_overpayment_account(){
+		$credit_account 		=	$this->input->post('op_acct');
+		$data['salesAccount'] 	=	$credit_account;
+		$table 					= 	"fintaxcode";
+		$cond 					=	"fstaxcode = 'OP' AND stat = 'active'";
+		$result = $this->receipt_voucher->editData($data, $table, $cond);
+
+		$return = array( "result" => $result);
+		return $return;
+	}
+
+	public function retrieve_existing_opacct(){
+		$op_acct			= $this->receipt_voucher->retrieve_existing_opacct();
+		$existingopaccount	= isset($op_acct[0]->account) ? $op_acct[0]->account	:	"";
+		$op_id 				= isset($op_acct[0]->id) ? $op_acct[0]->id	:	"";
+
+		$return = array('op_id'=>$op_id, "op_account"=>$existingopaccount);
 		return $return;
 	}
 

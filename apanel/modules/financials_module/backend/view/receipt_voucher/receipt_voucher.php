@@ -214,50 +214,51 @@
 															->draw($show_input);
 												?>
 										</div>
-									<div id="editdiv" class="col-md-3 hidden">	
-										<button type="button" class="btn btn-primary btn-flat btn-xs edit-button">
-											<i class="glyphicon glyphicon-pencil"></i>
-										</button>	
-									</div>	
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="form-group">
-									<label for="op_checker" class="control-label col-md-4">Overpayment</label>
-									<div class="col-md-1">
-										<?
-											echo $ui->setElement('checkbox')
-														->setName('op_checker')
-														->setId('op_checker')
-														->setSwitch()
-														->setDefault('1')
-														->setValue($op_checker)
-														->setAttribute(array('style'=>"position:absolute; opacity:0;",'disabled'=>true))
-														->draw($show_input);
-										?>
+										<div id="editdiv" class="col-md-3 hidden">	
+											<button type="button" class="btn btn-primary btn-flat btn-xs edit-button">
+												<i class="glyphicon glyphicon-pencil"></i>
+											</button>	
+										</div>
 									</div>
-									<div class="col-md-7">
-										<div class="row">
-											<div class="col-md-12" id="op_editlink" style="margin-top:5px;">
-												<label id="existingopaccount"><?=$existingopaccount?></label> 
-												<?if($show_input):?><a href="#ap" id="editopacct" style="margin-left:10px;"><u>Edit</u></a><?endif;?>
-											</div>
-											<div class="col-md-12 hidden" id="updateopaccountdiv">
-												<div class="row">
-													<div class="col-md-10" >
-														<?php
-															echo $ui->formField('dropdown')
-																	->setClass("op_acct")
-																	->setName('op_acct')
-																	->setId('op_acct')
-																	->setList($opacctlist)
-																	->setValue($op_acct)
-																	->draw($show_input);
-														?>
-														<input id="hidden_op_acct" name="hidden_op_acct" type="hidden" value="<?=$op_acct?>">
-													</div>
-													<div class="col-md-2">
-														<button class="btn btn-primary btn-flat" id="update_op_acct">Save</button>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label for="op_checker" class="control-label col-md-4">Overpayment</label>
+										<div class="col-md-1">
+											<?
+												echo $ui->setElement('checkbox')
+															->setName('op_checker')
+															->setId('op_checker')
+															->setSwitch()
+															->setDefault('1')
+															->setValue($op_checker)
+															->setAttribute(array('style'=>"position:absolute; opacity:0;",'disabled'=>true))
+															->draw($show_input);
+											?>
+										</div>
+										<div class="col-md-7">
+											<div class="row">
+												<div class="col-md-12" id="op_editlink" style="margin-top:5px;">
+													<label id="existingopaccount"><?=$existingopaccount?></label> 
+													<?if($show_input):?><a href="#ap" id="editopacct" style="margin-left:10px;"><u>Edit</u></a><?endif;?>
+												</div>
+												<div class="col-md-12 hidden" id="updateopaccountdiv">
+													<div class="row">
+														<div class="col-md-10" >
+															<?php
+																echo $ui->formField('dropdown')
+																		->setClass("op_acct")
+																		->setName('op_acct')
+																		->setId('op_acct')
+																		->setList($opacctlist)
+																		->setValue($op_acct)
+																		->draw($show_input);
+															?>
+															<input id="hidden_op_acct" name="hidden_op_acct" type="hidden" value="<?=$op_acct?>">
+														</div>
+														<div class="col-md-2">
+															<button class="btn btn-primary btn-flat" id="update_op_acct">Save</button>
+														</div>
 													</div>
 												</div>
 											</div>
@@ -265,7 +266,6 @@
 									</div>
 								</div>
 							</div>
-						</div>
 							<div class="row">
 								<div class = "col-md-12">
 									<?php
@@ -2769,6 +2769,12 @@ $('#editcredacct').on('click',function(e){
 	e.preventDefault();
 	$('#editlink').addClass('hidden');
 	$('#updateacctdropdown').removeClass('hidden');
+});
+
+$('#editopacct').on('click',function(e){
+	e.preventDefault();
+	$('#op_editlink').addClass('hidden');
+	$('#updateopaccountdiv').removeClass('hidden');
 });
 
 function showCreditsList(){
@@ -5350,7 +5356,7 @@ $('#payableForm').on('click','#update_ap_acct',function(e){
 		if(data.result){
 			$('#editlink').removeClass('hidden');
 			$('#updateacctdropdown').addClass('hidden');
-			$.post('<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_existing_acct', function(data) {
+			$.post('<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_existing_credacct', function(data) {
 				$('#existingcreditaccount').html(data.credit_account);
 				$('#hidden_cred_id').val(data.credit_id);
 
@@ -5368,6 +5374,34 @@ $('#payableForm').on('click','#update_ap_acct',function(e){
 		}
 	});
 });
+
+$('#payableForm').on('click','#update_op_acct',function(e){
+	e.preventDefault();
+
+	var new_op_account = $('#op_acct').val();
+	$.post('<?=BASE_URL?>financials/receipt_voucher/ajax/update_overpayment_account', "op_acct=" + new_op_account, function(data) {
+		if(data.result){
+			$('#op_editlink').removeClass('hidden');
+			$('#updateopaccountdiv').addClass('hidden');
+			$.post('<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_existing_opacct', function(data) {
+				$('#existingcreditaccount').html(data.op_account);
+				$('#hidden_op_acct').val(data.op_id);
+
+				var count_cred_row 	=	$('#entriesTable tbody tr.op_row').length;
+				if(count_cred_row > 0){
+					$('#entriesTable tbody tr.op_row').each(function() {
+						$(this).find('.accountcode').val(new_op_account).trigger('change.select2');
+						$(this).find('.h_accountcode').val(new_op_account);
+						$(this).find('.accountcode').prop('disabled',true);
+						$(this).find('.confirm-delete').prop('disabled',true);
+						// $("#accountcode\\["+ row +"\\]").closest('tr').addClass('credit_account');
+					});
+				}
+			});
+		}
+	});
+});
+
 
 $('#payableForm').on('ifChecked', '.cwt', function(){
 	var total_payment = $("#paymentModal #total_payment").val();
