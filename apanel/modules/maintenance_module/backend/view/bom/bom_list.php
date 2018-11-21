@@ -257,8 +257,10 @@
 				{
 					$.post('<?=MODULE_URL?>ajax/ajax_delete', 'id=' + id, function(data) 
 					{
-						if( data.msg == "" )
-							window.location.href = "<?=MODULE_URL?>";
+						if( data.msg == "" ){
+							showList();
+							$("#deleteModal").modal("hide");
+						}
 						else
 						{
 							show_error(data.msg);
@@ -288,8 +290,10 @@
 				{
 					$.post('<?=MODULE_URL?>ajax/ajax_delete', 'id=' + id, function(data) 
 					{
-						if( data.msg == "" )
-							window.location.href = "<?=MODULE_URL?>";
+						if( data.msg == "" ) {
+							showList();
+							$("#deleteModal").modal("hide");
+						}
 						else
 						{
 							// Call function to display error_get_last
