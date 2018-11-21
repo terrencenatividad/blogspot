@@ -570,11 +570,12 @@ class controller extends wc_controller
 		if($credits_applied){
 			foreach($credits_applied as $key=>$row){
 				if(isset($row->amount)) {
-					$vno 	=	$row->cvo;
+					$vno 		=	$row->cvo;
+					$source 	=	$row->source;
 					$total_cr_applied += $row->amount;
-					$applied[$vno]['amount']  = $row->balance;
-					$applied[$vno]['toapply'] = $row->amount;
-					$applied[$vno]['balance'] = $row->balance - $row->amount;
+					$applied[$vno][$source]['amount']  = $row->balance;
+					$applied[$vno][$source]['toapply'] = $row->amount;
+					$applied[$vno][$source]['balance'] = $row->balance - $row->amount;
 				}
 			}
 		}
@@ -785,10 +786,11 @@ class controller extends wc_controller
 				$voucher_checked= (in_array($voucherno , $voucher_array)) ? 'checked' : '';
 
 				$balance_2		= $balance;
-
-				if (isset($amt_array[$voucherno])) {
+				$amount 		= 0;
+				if (isset($amt_array[$voucherno][$source])) {
 					$amount		= str_replace(',','',$amt_array[$voucherno][$source]['toapply']);
 					$balance_2	= str_replace(',','',$amt_array[$voucherno][$source]['balance']);
+					$balance 	+= $balance_2;
 				}
 
 				$disable_checkbox 	=	"";

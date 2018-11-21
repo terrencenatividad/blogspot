@@ -144,7 +144,7 @@ class receipt_voucher_model extends wc_model
 		$temp["payments"] = $applicationArray;
 
 		// Retrieve Credits Used
-		$creditsFields 	= "cr_voucher as cvo, rv_voucher as rvo, ar_voucher as arv, crva.convertedamount as amount, crv.balance, crva.partner as customer";
+		$creditsFields 	= "cr_voucher as cvo, rv_voucher as rvo, ar_voucher as arv, crva.convertedamount as amount, crv.balance, crva.partner as customer, crv.source";
 		$app_cond 		= "crva.rv_voucher = '$sid' AND crva.stat NOT IN ('cancelled','temporary' )";
 		$creditsArray 	= $this->db->setTable('creditvoucher_applied as crva')
 								->setFields($creditsFields)
@@ -980,18 +980,18 @@ class receipt_voucher_model extends wc_model
 							$appliedCreditsArray[]					= $cred_application;
 						}
 					}
+					
+					$iscrvexisting	= $this->getValue($creditsAppTable, array("COUNT(*) AS count"), " cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'");
 
-					$iscrvexisting	= $this->getValue($creditsAppTable, array("COUNT(*) AS count"), " cr_voucher = '$pickedKey' AND rv_voucher = '$voucherno'");
-				
 					if($iscrvexisting[0]->count > 0){
 			
 						$this->db->setTable($creditsAppTable)
-								->setWhere(" cr_voucher = '$pickedKey' AND rv_voucher = '$voucherno'")
+								->setWhere(" cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'")
 								->runDelete();
 			
 						$insertResult = $this->db->setTable($creditsAppTable) 
 											->setValues($appliedCreditsArray)
-											->setWhere(" cr_voucher = '$pickedKey' AND rv_voucher = '$voucherno'")
+											->setWhere(" cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'")
 											->runInsert();
 										
 						if(!$insertResult){
@@ -1001,9 +1001,9 @@ class receipt_voucher_model extends wc_model
 					} else {
 						$insertResult = $this->db->setTable($creditsAppTable) 
 											->setValues($appliedCreditsArray)
-											->setWhere(" cr_voucher = '$pickedKey' AND rv_voucher = '$voucherno'")
+											// ->setWhere(" cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'")
 											->runInsert();
-										
+											
 						if(!$insertResult){
 							$code 		= 0;
 							$errmsg[] 	= "<li>Error in Saving Applied Credit Accounts Details.</li>";
