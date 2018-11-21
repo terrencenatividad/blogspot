@@ -41,23 +41,22 @@ class vat_summary extends wc_model {
 		if($type != 'summary'){
 			$result =  $this->db->setTable('balance_table as bt')
 							->setFields("ca.accountname as accountname, bt.voucherno as voucher, part.partnername as partner, bt.transtype as transtype, 
-										bt.transactiondate as transactiondate, part.tinno as tin, bt.debit as debit, bt.credit as credit, part.address1 as address, bt.voucherno")
+										bt.transactiondate as transactiondate, part.tinno as tin, SUM(bt.debit) as debit, SUM(bt.credit) as credit, part.address1 as address, bt.voucherno")
 							->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
 							->leftJoin('partners as part ON part.partnercode = bt.partnercode AND part.companycode = bt.companycode ')
 							->setWhere("bt.transtype IN('AR','AP','PV','JV') AND ca.accountname LIKE '%$type%' $filter")
-							->setGroupBy("voucher")
-							->setOrderBy("bt.accountcode ASC")
+							->setGroupBy("bt.voucherno")
+							->setOrderBy("bt.accountcode, part.partnername ASC")
 							->runPagination();
 		}else{
 			$result =  $this->db->setTable('balance_table as bt')
-							->setFields("ca.accountname as accountname, SUM(bt.debit) as debit, SUM(bt.credit) as credit")
+							->setFields("ca.accountname as accountname, SUM(bt.debit) as debit, SUM(bt.credit) as credit, bt.transtype as transtype, bt.voucherno")
 							->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
 							->leftJoin('partners as part ON part.partnercode = bt.partnercode AND part.companycode = bt.companycode ')
-							->setWhere("bt.transtype IN('AR','AP','PV','JV') AND (ca.accountname LIKE '%Output%' OR ca.accountname LIKE '%Input Vat%') $filter")
+							->setWhere("bt.transtype IN('AR','AP','PV','JV') AND (ca.accountname LIKE '%Output%' OR ca.accountname LIKE '%Input%') $filter")
 							->setGroupBy("bt.accountcode")
 							->setOrderBy("ca.accountname DESC")
 							->runPagination();
-
 		}
 		
 
@@ -93,7 +92,7 @@ class vat_summary extends wc_model {
 					$table 		= 'journaldetails';
 				}
 
-				$gross 			= $this->getValue($table, array('SUM(debit) amount'), " voucherno = '$voucherno' AND stat != 'cancelled'");
+				$gross 			= $this->getValue($table, array('SUM(debit) amount'), " voucherno = '$voucherno' ");
 				$grossamount 	= ($gross) ? $gross[0]->amount : 0;
 				$vatamount 		= ($credit > $debit) ? $credit - $debit : $debit - $credit; 
 				
@@ -104,6 +103,7 @@ class vat_summary extends wc_model {
 				$col[$i]['transtype'] 	= $transtype;
 				$col[$i]['tin'] 		= $tin;
 				$col[$i]['amount']		= $grossamount;
+				$col[$i]['vatamount']	= $vatamount;
 				$i++;
 			}
 		}else{
@@ -113,8 +113,22 @@ class vat_summary extends wc_model {
 				$accountname 	= $accounts->accountname;
 				$debit 			= $accounts->debit;
 				$credit 		= $accounts->credit;
+				$voucherno 		= $accounts->voucherno;
+				$transtype 		= $accounts->transtype;
 
-				$vatamount 		= ($debit > $credit) ? $debit - $credit : $credit - $debit; 
+				if($transtype == 'AR'){
+					$table 		= 'ar_details';
+				}else if($transtype == 'AP'){
+					$table 		= 'ap_details';
+				}else if($transtype == 'PV'){
+					$table 		= 'pv_details';
+				}else if($transtype == 'JV'){
+					$table 		= 'journaldetails';
+				}
+
+				$gross 			= $this->getValue($table, array('SUM(debit) amount'), " voucherno = '$voucherno' ");
+				$grossamount 	= ($gross) ? $gross[0]->amount : 0;
+				$vatamount 		= ($debit > $credit) ? $debit : $credit; 
 				
 				$col[$i]['account'] 	= $accountname;
 				$col[$i]['amount']		= $vatamount;
