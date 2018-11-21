@@ -5206,6 +5206,7 @@ $(document).ready(function() {
 	});
 
 	$('#cancelTransactionModal').on('click','#btnNo',function(){
+		$('#ap_checker').iCheck('uncheck');
 		$('#cancelTransactionModal').modal('hide');
 	})
 
