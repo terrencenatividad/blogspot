@@ -486,9 +486,9 @@ class controller extends wc_controller {
 					}
 				}
 
-				// if (empty($errors)) {
-				// 	$result = $this->item_model->saveItemCSV($values);
-				// }
+				if (empty($errors)) {
+					$result = $this->item_model->saveItemCSV($values);
+				}
 			}
 		} else {
 			$error = 'Invalid Import File. Please Use our Template for Uploading CSV';
