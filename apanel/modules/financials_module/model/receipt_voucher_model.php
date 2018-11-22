@@ -983,38 +983,38 @@ class receipt_voucher_model extends wc_model
 							$cr_linenum++;
 							$appliedCreditsArray[]					= $cred_application;
 							$total_credit_applied 					+= $applied_cred_amt;
+						
+							$iscrvexisting	= $this->getValue($creditsAppTable, array("COUNT(*) AS count"), " cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'");
+							if($iscrvexisting[0]->count > 0){
+						
+								$insertResult = $this->db->setTable($creditsAppTable)
+														->setWhere(" cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'")
+														->runDelete();
+							}
 						}
 					}
 					
-					$iscrvexisting	= $this->getValue($creditsAppTable, array("COUNT(*) AS count"), " cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'");
-
 					if($total_credit_applied > 0){
-						if($iscrvexisting[0]->count > 0){
-				
-							$this->db->setTable($creditsAppTable)
-									->setWhere(" cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'")
-									->runDelete();
-				
-							$insertResult = $this->db->setTable($creditsAppTable) 
-												->setValues($appliedCreditsArray)
-												->setWhere(" cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'")
-												->runInsert();
-											
-							if(!$insertResult){
-								$code 		= 0;
-								$errmsg[] 	= "<li>Error in Saving Applied Credit Accounts Details.</li>";
-							}
-						} else {
-							$insertResult = $this->db->setTable($creditsAppTable) 
-												->setValues($appliedCreditsArray)
-												// ->setWhere(" cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'")
-												->runInsert();
-												
-							if(!$insertResult){
-								$code 		= 0;
-								$errmsg[] 	= "<li>Error in Saving Applied Credit Accounts Details.</li>";
-							}
+						$insertResult = $this->db->setTable($creditsAppTable) 
+											->setValues($appliedCreditsArray)
+											// ->setWhere(" cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'")
+											->runInsert();
+										
+						if(!$insertResult){
+							$code 		= 0;
+							$errmsg[] 	= "<li>Error in Saving Applied Credit Accounts Details.</li>";
 						}
+						// } else {
+						// 	$insertResult = $this->db->setTable($creditsAppTable) 
+						// 						->setValues($appliedCreditsArray)
+						// 						// ->setWhere(" cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'")
+						// 						->runInsert();
+												
+						// 	if(!$insertResult){
+						// 		$code 		= 0;
+						// 		$errmsg[] 	= "<li>Error in Saving Applied Credit Accounts Details.</li>";
+						// 	}
+						// }
 					}
 				}
 			}	
@@ -2383,7 +2383,7 @@ class receipt_voucher_model extends wc_model
 	}
 
 	public function cancelCreditVoucherApplied($voucherno) {
-		$result	= $this->db->setTable('creditvoucher')
+		$result	= $this->db->setTable('creditvoucher_applied')
 							->setValues(array('stat'=>'inactive'))
 							->setWhere("rv_voucher = '$voucherno'")
 							->runUpdate();

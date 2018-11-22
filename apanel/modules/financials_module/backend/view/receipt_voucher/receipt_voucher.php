@@ -3915,42 +3915,46 @@ function apply_credit_account(amount){
 		total_opcredits_amount 	=	removeComma(total_opcredits_amount);
 	var total_advcredits_amount =	parseFloat(amount - total_opcredits_amount);
 
-	var cheque_rows = $('#entriesTable tbody tr.added_row').length;
+	// var cheque_rows = $('#entriesTable tbody tr.added_row').length;
 
-	if(cheque_rows == 0){
-		$('#entriesTable tr').each(function(index) {
-			var account = $(this).find('.accountcode').val();
-			if(account == cred_acct || account == op_acct){
-				$(this).remove();
-			}
-		});
-		if(total_advcredits_amount>0){
-			var adv_account = cred_acct;
-			$("#entriesTable tbody tr.clone:not(.added_row)").first().after(clone_acct);
-			resetIds();
-			var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first().next('tr');
-				credit_row.find('.debit').val(addComma(total_advcredits_amount));
-				credit_row.find('.accountcode').val(adv_account).prop('disabled',true);
-				credit_row.find('.h_accountcode').val(adv_account);
-				credit_row.find('.debit').prop('readonly',true);
-				credit_row.find('.confirm-delete').prop('disabled',true);
-				credit_row.find('.credit').prop('readonly',true);
-				addAmountAll("credit");
-		}  
-		if(total_opcredits_amount>0){
-			var op_account = op_acct;
-			$("#entriesTable tbody tr.clone:not(.added_row)").first().after(clone_acct);
-			resetIds();
-			var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first().next('tr');
-				credit_row.find('.debit').val(addComma(total_opcredits_amount));
-				credit_row.find('.accountcode').val(op_acct).prop('disabled',true);
-				credit_row.find('.h_accountcode').val(op_acct);
-				credit_row.find('.debit').prop('readonly',true);
-				credit_row.find('.confirm-delete').prop('disabled',true);
-				credit_row.find('.credit').prop('readonly',true);
-				addAmountAll("credit");
+	// if(cheque_rows == 0){
+		
+	// }
+
+	$('#entriesTable tr').each(function(index) {
+		var account = $(this).find('.accountcode').val();
+		if(account == cred_acct || account == op_acct){
+			$(this).remove();
 		}
+	});
+	if(total_advcredits_amount>0){
+		var adv_account = cred_acct;
+		console.log(clone_acct);
+		$("#entriesTable tbody tr.clone:not(.added_row)").first().before(clone_acct);
+		resetIds();
+		var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first();
+			credit_row.find('.debit').val(addComma(total_advcredits_amount));
+			credit_row.find('.accountcode').val(adv_account).prop('disabled',true);
+			credit_row.find('.h_accountcode').val(adv_account);
+			credit_row.find('.debit').prop('readonly',true);
+			credit_row.find('.confirm-delete').prop('disabled',true);
+			credit_row.find('.credit').prop('readonly',true);
+	}  
+	if(total_opcredits_amount>0){
+		// $("#entriesTable tbody tr.clone:not(.added_row)").first().after(clone_acct);
+		// console.log(clone_acct);
+		$("#entriesTable tbody tr.clone:not(.added_row)").first().before(clone_acct);
+		resetIds();
+		var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first();
+			// console.log(credit_row);
+			credit_row.find('.debit').val(addComma(total_opcredits_amount));
+			credit_row.find('.accountcode').val(op_acct).prop('disabled',true);
+			credit_row.find('.h_accountcode').val(op_acct);
+			credit_row.find('.debit').prop('readonly',true);
+			credit_row.find('.confirm-delete').prop('disabled',true);
+			credit_row.find('.credit').prop('readonly',true);
 	}
+	addAmountAll("credit");
 	drawTemplate();
 }
 
@@ -5347,36 +5351,6 @@ function set_total_credits_amt(){
 	
 	$("#applied_cred_amt").html(total);
 }
-
-// $("#entriesTable").on('ifToggled','.wtax',function() {
-// 	$('#tax_amount').val('');
-// 	row = $(this).closest('tr');
-// });
-
-// $("#entriesTable").on('click', '.edit-button', function() {
-// 	$('#tax_amount').val($(this).attr('data-amount'));
-// 	var accountcode = $(this).closest('tr').find('.accountcode').val();
-// 	row = $(this).closest('tr');
-// 	var taxcode = $(this).closest('tr').find('.taxcode').val();
-// 	selected_tax_account = taxcode;
-// 	get_coa(accountcode);
-// });
-
-// $('#entriesTable').on('change', '.accountcode', function(){
-// 	row = $(this).closest('tr')
-// 	var account = $(this).val();
-// 	get_coa(account);
-// });
-
-// $('#entriesTable .taxcode').each(function(){
-// 	var acc = $(this).val();
-// 	var tax_amt = $(this).closest('tr').find('.taxbase_amount').val();
-// 	if (acc != '' ){
-// 		$(this).closest('tr').find('.checkbox-select').hide();
-// 		$(this).closest('tr').find('.edit-button').show().attr('data-amount', tax_amt);
-// 		$('#tax_account').val(acc);
-// 	}
-// });
 
 $('#payableForm').on('click','#update_ap_acct',function(e){
 	e.preventDefault();
