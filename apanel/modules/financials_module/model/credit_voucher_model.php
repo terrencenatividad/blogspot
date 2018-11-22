@@ -63,7 +63,7 @@ class credit_voucher_model extends wc_model {
 	public function getApplied($voucherno) {
 		$result = $this->db->setTable("creditvoucher_applied")
 						->setFields('SUM(amount) amount')
-						->setWhere("cr_voucher = '$voucherno'")
+						->setWhere("cr_voucher = '$voucherno' AND stat = 'active'")
 						->runSelect()
 						->getRow();
 

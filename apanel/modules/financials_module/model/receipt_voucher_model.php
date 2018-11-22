@@ -600,6 +600,7 @@ class receipt_voucher_model extends wc_model
 		$creditsamt_to_apply 	= (isset($data['total_credits_to_apply']) && (!empty($data['total_credits_to_apply']))) ? htmlentities(addslashes(trim($data['total_credits_to_apply']))) : 	0;
 		$credits_box 			= (isset($data['credits_box']) && (!empty($data['credits_box']))) ? htmlentities(addslashes(trim($data['credits_box']))) : 	[];
 		$h_op_acct 				= (isset($data['hidden_op_acct']) && (!empty($data['hidden_op_acct']))) ? htmlentities(addslashes(trim($data['hidden_op_acct']))) : "";
+		$h_adv_acct				= (isset($data['hidden_cred_id']) && (!empty($data['hidden_cred_id']))) ? htmlentities(addslashes(trim($data['hidden_cred_id']))) : "";
 
 		$invoice_data  			= str_replace('\\', '', $h_check_rows);
 		$invoice_data  			= html_entity_decode($invoice_data);
@@ -752,7 +753,9 @@ class receipt_voucher_model extends wc_model
 		$post_header['paymenttype']		= $paymenttype;	
 		// $post_header['referenceno']		= $referenceno;
 		$post_header['advancepayment']  = $ap_checker;
+		$post_header['advcode']  		= $h_adv_acct; // advance payment account
 		$post_header['opchecker']  		= $op_checker;
+		$post_header['opcode']  		= $h_op_acct; // overpayment account
 		$post_header['cwt']  			= $cwt_checker;
 		$post_header['or_no']			= $or_no;
 		
@@ -952,6 +955,7 @@ class receipt_voucher_model extends wc_model
 				$appliedCreditsArray 	= array();
 				if(!empty($picked_creditvoucher)){
 					$cr_linenum	= 1;
+					$total_credit_applied 	=	0;
 					foreach ($picked_creditvoucher as $creditvoucher => $contents) {
 						foreach($contents as $sourcetype => $values){
 							$applied_cred_amt 	= $contents[$sourcetype]['toapply'];
@@ -978,36 +982,39 @@ class receipt_voucher_model extends wc_model
 
 							$cr_linenum++;
 							$appliedCreditsArray[]					= $cred_application;
+							$total_credit_applied 					+= $applied_cred_amt;
+						
+							$iscrvexisting	= $this->getValue($creditsAppTable, array("COUNT(*) AS count"), " cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'");
+							if($iscrvexisting[0]->count > 0){
+						
+								$insertResult = $this->db->setTable($creditsAppTable)
+														->setWhere(" cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'")
+														->runDelete();
+							}
 						}
 					}
 					
-					$iscrvexisting	= $this->getValue($creditsAppTable, array("COUNT(*) AS count"), " cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'");
-
-					if($iscrvexisting[0]->count > 0){
-			
-						$this->db->setTable($creditsAppTable)
-								->setWhere(" cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'")
-								->runDelete();
-			
+					if($total_credit_applied > 0){
 						$insertResult = $this->db->setTable($creditsAppTable) 
 											->setValues($appliedCreditsArray)
-											->setWhere(" cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'")
+											// ->setWhere(" cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'")
 											->runInsert();
 										
 						if(!$insertResult){
 							$code 		= 0;
 							$errmsg[] 	= "<li>Error in Saving Applied Credit Accounts Details.</li>";
 						}
-					} else {
-						$insertResult = $this->db->setTable($creditsAppTable) 
-											->setValues($appliedCreditsArray)
-											// ->setWhere(" cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'")
-											->runInsert();
-											
-						if(!$insertResult){
-							$code 		= 0;
-							$errmsg[] 	= "<li>Error in Saving Applied Credit Accounts Details.</li>";
-						}
+						// } else {
+						// 	$insertResult = $this->db->setTable($creditsAppTable) 
+						// 						->setValues($appliedCreditsArray)
+						// 						// ->setWhere(" cr_voucher = '$creditvoucher' AND rv_voucher = '$voucherno'")
+						// 						->runInsert();
+												
+						// 	if(!$insertResult){
+						// 		$code 		= 0;
+						// 		$errmsg[] 	= "<li>Error in Saving Applied Credit Accounts Details.</li>";
+						// 	}
+						// }
 					}
 				}
 			}	
@@ -2341,6 +2348,7 @@ class receipt_voucher_model extends wc_model
 		
 		$sub_query 	=	$this->db->setTable('creditvoucher_applied cra')
 								 ->setFields('SUM(cra.convertedamount) amount, cra.cr_voucher, cra.partner, cra.companycode, cra.rv_voucher')
+								 ->setWhere('stat = "active"')
 								 ->setGroupBy('cra.cr_voucher')
 								 ->buildSelect();
 
@@ -2362,6 +2370,28 @@ class receipt_voucher_model extends wc_model
 								  ->setWhere("rv.voucherno = '$voucherno'")
 								  ->runSelect()
 								  ->getRow();
+		return $result;
+	}
+
+	public function checkExistingAppliedCreditVoucher($rvoucher){
+		$result 	=	$this->db->setTable("creditvoucher_applied")
+								  ->setFields("COUNT(*) total")
+								  ->setWhere("rv_voucher = '$rvoucher'")
+								  ->runSelect()
+								  ->getRow();
+		return $result;
+	}
+
+	public function cancelCreditVoucherApplied($voucherno) {
+		$result	= $this->db->setTable('creditvoucher_applied')
+							->setValues(array('stat'=>'inactive'))
+							->setWhere("rv_voucher = '$voucherno'")
+							->runUpdate();
+	
+		if ($result) {
+			$this->log->saveActivity("Cancel Applied Credit Voucher with Reference to [$voucherno]");
+		}
+
 		return $result;
 	}
 }

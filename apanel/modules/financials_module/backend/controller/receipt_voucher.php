@@ -791,10 +791,12 @@ class controller extends wc_controller
 					$amount		= str_replace(',','',$amt_array[$voucherno][$source]['toapply']);
 					$balance_2	= str_replace(',','',$amt_array[$voucherno][$source]['balance']);
 					// $balance 	+= $balance_2;
-				}
-
-				$balance 		= ($balance == 0) ? $totalamt - $amount : $balance;
-
+				}		
+				// echo "total amount ".$totalamt . "\n";
+				// echo 'amount' . $amount."\n";
+				// echo 'balance' . $balance."\n";
+				$balance 		= ($balance_2 > 0 && $amount > 0) ? $balance_2 + $amount : $balance;
+				// echo "computed balance ". $balance."\n";
 				$disable_checkbox 	=	"";
 				$disable_onclick 	=	'onClick="selectCredits(\''.$voucherno.'\',1);"';
 
@@ -2037,20 +2039,16 @@ class controller extends wc_controller
 			$overpayment  	=	(isset($details->overpayment) && $details->overpayment > 0) ? "yes" 	: 	"no";
 			$advance 		= 	(isset($details->advancepayment) && $details->advancepayment == "yes" ) ? $details->advancepayment 	: "no";
 
-			// if($overpayment == "yes"){
-			// 	$payments 		= "'" . implode("','", $vouchers) . "'";
+			$count_applied 	= 	$this->receipt_voucher->checkExistingAppliedCreditVoucher($voucherno);
 
-			// 	$cm_vouchers 	= $this->receipt_voucher->getValue("journalvoucher", "voucherno", "transtype = 'CM' AND si_no IN ($payments)");
-		
-			// 	foreach($cm_vouchers as $key => $content){
-			// 		$cm_no 			=  	$content->voucherno;
-			// 		$result 		= 	$this->receipt_voucher->cancelCreditMemo($cm_no);
-			// 	}
-			// }
 			if($advance == "yes" || $overpayment == "yes") {
 				$result 		= 	$this->receipt_voucher->cancelCreditVoucher($voucherno);
 			} else {
-				$result 		= 	1;
+				if($count_applied->total > 0){
+					$result 		= 	$this->receipt_voucher->cancelCreditVoucherApplied($voucherno);
+				} else {
+				  	$result 		= 	1;
+				}
 			}
 
 			if($result){
