@@ -62,20 +62,20 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->vendor . '</td>';
 			$table .= '<td>' . $row->remarks . '</td>';
 			$table .= '<td>' . $row->ref_no . '</td>';
-			$table .= '<td>' . number_format($amount,2) . '</td>';
-			$table .= '<td>' . number_format($row->discount,2) . '</td>';
-			$table .= '<td>' . number_format($row->taxamount,2) . '</td>';
-			$table .= '<td>' . number_format($row->amount,2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($amount,2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->discount,2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->taxamount,2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->amount,2) . '</td>';
 			$table .= '</tr>';
 		}
 		
 		$table .= '<tr>';
 		$table .= '<td colspan = "4"></td>';
 		$table .= '<td><strong>Total<strong></td>';
-		$table .= '<td>' . number_format($total_amt,2) . '</td>';
-		$table .= '<td>' . number_format($totaldiscount,2) . '</td>';
-		$table .= '<td>' . number_format($totalvat,2) . '</td>';
-		$table .= '<td>' . number_format($totalnetpurchases,2) . '</td>';
+		$table .= '<td class="text-right"><strong>' . number_format($total_amt,2) . '<strong></td>';
+		$table .= '<td class="text-right"><strong>' . number_format($totaldiscount,2) . '<strong></td>';
+		$table .= '<td class="text-right"><strong>' . number_format($totalvat,2) . '<strong></td>';
+		$table .= '<td class="text-right"><strong>' . number_format($totalnetpurchases,2) . '<strong></td>';
 		$table .= '</tr>';
 
 		$pagination->table  = $table;
