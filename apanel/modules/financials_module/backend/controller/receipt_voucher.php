@@ -594,7 +594,8 @@ class controller extends wc_controller
 		$data["existingopaccount"]		= isset($op_acct[0]->account) 	? $op_acct[0]->account	:	"";
 		$data['op_acct'] 				= isset($op_acct[0]->id) 		? $op_acct[0]->id		:	"";
 		$data['opacctlist'] 			= $this->receipt_voucher->retrieveOverpaymentAccountList();
-
+		$data['saved_op_acct'] 			= $data["main"]->opcode;
+		$data['saved_adv_acct'] 		= $data["main"]->advcode;
 		// $op_acct  					= $this->receipt_voucher->retrieveOPDetails();
 		// $data['op_acct'] 			= isset($op_acct[0]->accountcode) 	? 	$op_acct[0]->accountcode 	:	"";
 		

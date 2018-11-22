@@ -935,11 +935,12 @@
 											$disable_credit		= 'readOnly';
 											$disable_code 		= 'disabled';
 											$added_class 		= 'discount_row';
-										} else if( $accountcode == $cred_id ) {
+										} else if( $accountcode == $cred_id || $saved_adv_acct == $accountcode) {
 											$disable_debit		= 'readOnly';
 											$disable_credit		= 'readOnly';
 											$disable_code 		= 'disabled';
-										} else if( $accountcode == $op_acct ) {
+											$added_class 		= "credit_account";
+										} else if( $accountcode == $op_acct || $saved_op_acct == $accountcode ) {
 											$disable_credit		= 'readOnly';
 											$disable_debit		= 'readOnly';
 											$disable_code 		= 'disabled';
@@ -948,7 +949,6 @@
 											$disable_credit		= 'readOnly';
 											$disable_debit		= 'readOnly';
 											$disable_code 		= 'disabled';
-											$added_class 		= "credit_account";
 										} else {
 											$disable_debit		= ($debit > 0) ? '' : 'readOnly';
 											$disable_credit		= ($credit > 0) ? '' : 'readOnly';
@@ -5385,7 +5385,7 @@ function update_op_account(new_op_account){
 			$('#op_editlink').removeClass('hidden');
 			$('#updateopaccountdiv').addClass('hidden');
 			$.post('<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_existing_opacct', function(data) {
-				$('#existingcreditaccount').html(data.op_account);
+				$('#existingopaccount').html(data.op_account);
 				$('#hidden_op_acct').val(data.op_id);
 
 				var count_cred_row 	=	$('#entriesTable tbody tr.op_row').length;
