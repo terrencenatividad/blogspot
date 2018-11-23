@@ -223,12 +223,19 @@ class controller extends wc_controller {
 					$status_display =	'<span class="label label-danger">'.strtoupper($stat).'</span>';
 				}
 				
+				$link =	"";
+				if($transtype == "PV"){
+					$link 	.=	BASE_URL . "financials/payment_voucher/view/$voucherno";
+				} else {
+					$link 	.=	BASE_URL . "financials/disbursement/view/$voucherno";
+				}
+
 				$table .= '<tr>';
 				$table .= '<td style="text-align:center;">' . $dropdown 	. '</td>';
 				$table .= '<td>' . $this->date->dateFormat($chequedate) 	. '</td>';
 				$table .= '<td>' . $chequenumber 	. '</td>';
 				$table .= '<td>' . $invoiceno 		. '</td>';
-				$table .= '<td>' . $voucherno 		. '</td>';
+				$table .= '<td><a href="'.$link.'" target="blank_">' . $voucherno 		. '</a></td>';
 				$table .= '<td>' . $bankname 		. '</td>';
 				$table .= '<td>' . $partnername 	. '</td>';
 				$table .= '<td class="text-right">' . number_format($chequeamount,2) . '</td>';

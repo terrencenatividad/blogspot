@@ -80,7 +80,7 @@
 			}
 			$sort 		=	($sort 	!=	"") 	? 	$sort 	:	"chq.chequedate ASC";
 
-            $fields     =   array('chq.releasedate, chq.chequenumber, ap.invoiceno, chq.voucherno, chq.chequedate, coa.accountname bank, IF(pv.transtype="PV", pt.partnername, pt2.partnername) as partner, chq.chequeamount, chq.stat, chq.cleardate, chq.transtype, chq.companycode');
+            $fields     =   array('chq.releasedate, chq.chequenumber, ap.invoiceno, chq.voucherno, chq.chequedate, coa.accountname bank, IF(pv.transtype="PV", pt.partnername, pt2.partnername) as partner, chq.chequeamount, chq.stat, chq.cleardate, chq.companycode, pv.transtype');
 
             $query 	= $this->db->setTable("pv_cheques as chq")
 									->leftJoin("pv_application as pva ON pva.voucherno = chq.voucherno AND pva.companycode = chq.companycode")					   
