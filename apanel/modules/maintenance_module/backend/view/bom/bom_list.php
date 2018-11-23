@@ -20,7 +20,7 @@
 							<div class="input-group">
 								<input id="table_search" name="table_search" class="form-control pull-right" placeholder="Search" type="text">
 								<div class="input-group-btn">
-									<button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+									<button type="submit" class="btn btn-default" id = "search_table"><i class="fa fa-search"></i></button>
 								</div>
 							</div>
 						</div>
@@ -215,9 +215,10 @@
 				}
 			});
 
-			$( "#table_search" ).keyup(function() 
+			$( "#search_table" ).click(function(e) 
 			{
-				var search = $( this ).val();
+				e.preventDefault();
+				var search = $('#table_search').val();
 				ajax.search = search;
 				showList();
 			});

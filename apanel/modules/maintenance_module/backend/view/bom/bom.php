@@ -132,7 +132,9 @@
 															</td>	
 
 															<td class="text-center">
-																<button type="button" class="btn btn-danger btn-flat confirm-delete"><span class="glyphicon glyphicon-trash"></span></button>
+																<?php if($ajax_task == 'ajax_edit') : ?>
+																	<button type="button" class="btn btn-danger btn-flat confirm-delete"><span class="glyphicon glyphicon-trash"></span></button>
+																<?php endif; ?>
 															</td>			
 														</tr>
 													<?php endforeach; ?>
