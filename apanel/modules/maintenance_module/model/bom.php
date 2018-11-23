@@ -23,6 +23,17 @@ class bom extends wc_model
 		return $result;
 	}
 
+	public function getItemDetails($itemcode) {
+		$result = $this->db->setTable('items')
+		->setFields('itemname, itemdesc, uom_base')
+		->setWhere("itemcode = '$itemcode'")
+		->setLimit(1)
+		->runSelect()
+		->getRow();
+
+		return $result;
+	}
+
 	public function getBOMCode($id)
 	{
 		$result = $this->db->setTable('bom')
@@ -30,6 +41,28 @@ class bom extends wc_model
 		->setWhere("id = '$id'")
 		->runSelect()
 		->getRow();
+
+		return $result;
+	}
+
+	public function getBundleList()
+	{
+		$result = $this->db->setTable('items')
+		->setFields('itemcode ind, itemcode val')
+		->setWhere("bundle = '1'")
+		->runSelect()
+		->getResult();
+
+		return $result;
+	}
+
+	public function getItemList()
+	{
+		$result = $this->db->setTable('items')
+		->setFields('itemcode ind, CONCAT(itemcode, " - " , itemname) val')
+		->setWhere("bundle = '0'")
+		->runSelect()
+		->getResult();
 
 		return $result;
 	}
@@ -150,7 +183,7 @@ class bom extends wc_model
 			->runDelete();
 			
 			if(!$result)
-				$errmsg[] = "<p class = 'no-margin'>Deleting ATC Code: $id</p>";
+				$errmsg[] = "<p class = 'no-margin'>Deleting BOM ID: $id</p>";
 			else
 				$this->log->saveActivity("Delete ATC Code [$id]");
 		}
