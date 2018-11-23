@@ -19,6 +19,7 @@
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('itemcode')
 												->setId('itemcode')
+												->setMaxLength(12)
 												->setValue($itemcode)
 												->addHidden((isset($ajax_task) && $ajax_task == 'ajax_edit'))
 												->setValidation('required code')
@@ -33,6 +34,7 @@
 												->setName('itemname')
 												->setId('itemname')
 												->setValue($itemname)
+												->setMaxLength(30)
 												->setValidation('required')
 												->draw($show_input);
 										?>
@@ -62,6 +64,7 @@
 												->setName('itemdesc')
 												->setId('itemdesc')
 												->setValue($itemdesc)
+												->setMaxLength(1000)
 												->setValidation('required')
 												->draw($show_input);
 										?>
@@ -120,6 +123,7 @@
 												->setName('weight')
 												->setId('weight')
 												->setValue($weight)
+												->setMaxLength(5)
 												->setValidation('decimal')
 												->draw($show_input);
 										?>
