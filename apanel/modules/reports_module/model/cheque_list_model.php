@@ -80,13 +80,15 @@
 			}
 			$sort 		=	($sort 	!=	"") 	? 	$sort 	:	"chq.chequedate ASC";
 
-            $fields     =   array('chq.releasedate, chq.chequenumber, ap.invoiceno, chq.voucherno, chq.chequedate, coa.accountname bank, pt.partnername as partner, chq.chequeamount, chq.stat, chq.cleardate, chq.transtype, chq.companycode');
+            $fields     =   array('chq.releasedate, chq.chequenumber, ap.invoiceno, chq.voucherno, chq.chequedate, coa.accountname bank, IF(pv.transtype="PV", pt.partnername, pt2.partnername) as partner, chq.chequeamount, chq.stat, chq.cleardate, chq.transtype, chq.companycode');
 
             $query 	= $this->db->setTable("pv_cheques as chq")
-									->leftJoin("pv_application as pva ON pva.voucherno = chq.voucherno AND pva.companycode = chq.companycode")							   
-									->leftJoin("accountspayable as ap ON ap.voucherno = pva.apvoucherno AND ap.companycode = pva.companycode ")
+									->leftJoin("pv_application as pva ON pva.voucherno = chq.voucherno AND pva.companycode = chq.companycode")					   
+									->leftJoin("accountspayable as ap ON ap.voucherno = pva.apvoucherno AND ap.companycode = pva.companycode ")	
 									->leftJoin("chartaccount as coa ON coa.id = chq.chequeaccount AND coa.companycode = chq.companycode ")
 									->leftJoin("partners as pt ON pt.partnercode = ap.vendor AND pt.partnertype = 'supplier' AND ap.companycode = pt.companycode ")
+									->leftJoin("paymentvoucher as pv ON pv.voucherno = chq.voucherno AND pv.companycode = chq.companycode")	
+									->leftJoin("partners as pt2 ON pt2.partnercode = pv.vendor AND pt2.partnertype = 'supplier' AND pv.companycode = pt2.companycode ")
 									->setFields($fields)
 									->setWhere($condition)
 									->setOrderBy($sort);	
