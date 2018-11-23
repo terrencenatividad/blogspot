@@ -146,6 +146,7 @@
 															->setName("item_code[]")
 															->setId("item_code")
 															->setList($item_list)
+															->setValidation('required')
 															->draw($show_input);
 															?>
 														</td>

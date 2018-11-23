@@ -292,7 +292,7 @@
 					{
 						if( data.msg == "" ) {
 							showList();
-							$("#deleteModal").modal("hide");
+							$("#multipleDeleteModal").modal("hide");
 						}
 						else
 						{
