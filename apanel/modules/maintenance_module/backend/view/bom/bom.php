@@ -112,7 +112,7 @@
 																->setName('quantity[]')
 																->setId('quantity')
 																->setValue(number_format($row->quantity,2))
-																->setValidation('integer')
+																->setValidation('required integer')
 																->setClass('text-right')
 																->draw($show_input);
 																?>
@@ -179,7 +179,7 @@
 															->setSplit('', 'col-md-12')
 															->setName('quantity[]')
 															->setId('quantity')
-															->setValidation('integer')
+															->setValidation('required integer')
 															->setClass('text-right')
 															->draw($show_input);
 															?>
