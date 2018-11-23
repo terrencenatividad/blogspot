@@ -631,7 +631,7 @@ class controller extends wc_controller
 				$checker 	 			= $row->importchecker; 
 				$import 				= ($checker=='import') 	?	"Yes" 	:	"No";
 				$stat					= $row->stat;
-				//$payment_status			= $row->payment_status;
+				$payment_status			= $row->payment_status;
 				
 				// if($balance != 0 && $stat == 'cancelled')
 				// {
@@ -653,32 +653,32 @@ class controller extends wc_controller
 				// {
 				// 	$voucher_status = '<span class="label label-success">PAID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
 				// }
-
 			
-				if($balance != 0 && $stat == 'cancelled'){
-					$status 		= 'cancelled';
-				}else if($balance == 0 && $stat == 'cancelled'){
-					$status 		= 'cancelled';
-				}
-				else if($balance != $amount && $balance != 0 && $stat == 'cancelled'){
-					$status 		= 'cancelled';
-				}
-				else if($balance != $amount && $balance != 0){
-					$status  		= 'partial';
-				}else if($balance != 0){
-					$status 		= 'unpaid';
-				}
-				else{
-					$status 		= 'paid';
-				}
-
-				if($status == "paid") {
+				// if($balance != 0 && $stat == 'cancelled'){
+				// 	$status 		= 'cancelled';
+				// }else if($balance == 0 && $stat == 'cancelled'){
+				// 	$status 		= 'cancelled';
+				// }
+				// else if($balance != $amount && $balance != 0 && $stat == 'cancelled'){
+				// 	$status 		= 'cancelled';
+				// }
+				// else if($balance != $amount && $balance != 0){
+				// 	$status  		= 'partial';
+				// }else if($balance != 0){
+				// 	$status 		= 'unpaid';
+				// }
+				// else{
+				// 	$status 		= 'paid';
+				// }
+				
+				$voucher_status	= "";
+				if($payment_status == "paid") {
 					$voucher_status = '<span class="label label-success">PAID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
-				} else if($status == 'unpaid'){
+				} else if($payment_status == 'unpaid'){
 					$voucher_status = '<span class="label label-warning">UNPAID</span>';
-				} else if($status == 'cancelled'){
+				} else if($payment_status == 'cancelled'){
 					$voucher_status = '<span class="label label-danger">CANCELLED</span>';
-				} else if($status == "partial"){
+				} else if($payment_status == "partial"){
 					$voucher_status = '<span class="label label-info">PARTIAL</span>';
 				}
 
@@ -686,18 +686,18 @@ class controller extends wc_controller
 				$show_delete 	= ($balance == $amount && $stat != 'cancelled');
 				$show_payment 	= ($balance != 0  && $stat != 'cancelled');
 				$dropdown = $this->ui->loadElement('check_task')
-				->addView()
-				->addEdit($show_edit && $checker != "import" && $restrict_ar)
-				// ->addOtherTask(
-				// 	'Receive Payment',
-				// 	'credit-card',
-				// 	$show_payment  && $restrict_ar
-				// )
-				->addDelete($show_delete && $restrict_ar)
-				->addCheckbox($show_delete  && $restrict_ar)
-				->setValue($voucher)
-				->setLabels(array('delete' => 'Cancel'))
-				->draw();
+									->addView()
+									->addEdit($show_edit && $checker != "import" && $restrict_ar)
+									// ->addOtherTask(
+									// 	'Receive Payment',
+									// 	'credit-card',
+									// 	$show_payment  && $restrict_ar
+									// )
+									->addDelete($show_delete && $restrict_ar)
+									->addCheckbox($show_delete  && $restrict_ar)
+									->setValue($voucher)
+									->setLabels(array('delete' => 'Cancel'))
+									->draw();
 				$viewlink		= BASE_URL . "financials/accounts_receivable/view/$voucher";
 				$editlink		= BASE_URL . "financials/accounts_receivable/edit/$voucher";
 				$voucherlink	= MODULE_URL . "print_preview/$voucher";
