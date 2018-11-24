@@ -26,11 +26,20 @@
 										?>
 									</h3>
 								</diV> -->
-								<div class = "col-md-3">
+								
+								<div class="col-md-12 col-xs-12">
+									<div class="row">
+										<div class="col-md-offset-1 col-md-10">
+											<h3><?php echo $status_badge;?></h3>
+										<div>
+										<!-- <div class = "col-md-8"></div> -->
+									</div>
+								</div>
+								<div class = "col-md-6">
 									<?php
 									echo $ui->formField('text')
 									->setLabel('Voucher No')
-									->setSplit('col-md-8', 'col-md-4')
+									->setSplit('col-md-4', 'col-md-8')
 									->setName('voucher_no')
 									->setId('voucher_no')
 									->setAttribute(array("disabled" => "disabled"))
@@ -40,14 +49,11 @@
 									?>
 									<input type = "hidden" id = "h_voucher_no" name = "h_voucher_no" value = "<?= $generated_id ?>">
 								</div>
-								<div class="col-md-1">
-									<?php echo $status_badge;?>
-								</div>
-								<div class = "col-md-8">
+								<div class = "col-md-6">
 									<?php
 									echo $ui->formField('text')
 									->setLabel('Voucher Date')
-									->setSplit('col-md-6', 'col-md-6')
+									->setSplit('col-md-4', 'col-md-8')
 									->setName('document_date')
 									->setId('document_date')
 									->setClass('datepicker-input')

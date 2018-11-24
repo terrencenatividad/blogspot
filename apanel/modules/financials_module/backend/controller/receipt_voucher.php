@@ -188,6 +188,7 @@ class controller extends wc_controller
 
 		$ar_acct 			=	'';
 		$data['ar_acct'] 	=	$ar_acct;
+		$data['status_badge']=  "";
 		
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
@@ -623,6 +624,7 @@ class controller extends wc_controller
 			}
 		}
 		$data['ar_acct'] 	=	$ar_acct;
+		$data['status_badge']=  "";
 
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
