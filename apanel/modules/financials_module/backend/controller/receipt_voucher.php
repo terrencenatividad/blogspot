@@ -189,7 +189,7 @@ class controller extends wc_controller
 		$ar_acct 			=	'';
 		$data['ar_acct'] 	=	$ar_acct;
 		$data['status_badge']=  "";
-		
+
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
 
@@ -2055,7 +2055,7 @@ class controller extends wc_controller
 		foreach($vouchers as $key=>$voucherno){
 			$details = $this->receipt_voucher->rvDetailsChecker($voucherno);
 			
-			$overpayment  	=	(isset($details->overpayment) && $details->overpayment > 0) ? "yes" 	: 	"no";
+			$overpayment  	=	(isset($details->overpayment) && $details->overpayment == "yes") ? "yes" 	: 	"no";
 			$advance 		= 	(isset($details->advancepayment) && $details->advancepayment == "yes" ) ? $details->advancepayment 	: "no";
 
 			$count_applied 	= 	$this->receipt_voucher->checkExistingAppliedCreditVoucher($voucherno);

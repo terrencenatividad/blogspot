@@ -13,6 +13,7 @@
 		<input type="hidden" id="h_task" name="h_task" value="<?=$task?>">
 		<input type="hidden" id="ar_acct" name="ar_acct" value="<?=$ar_acct?>">
 		<input type="hidden" id="disc_acct" name="disc_acct" >
+		<input type="hidden" id="final_voucher" name="final_voucher" >
 		<div class="box box-primary">
 			<div class="box-body">
 				<div class = "row">
@@ -4467,9 +4468,11 @@ $(document).ready(function() {
 				if(credit_used > 0){
 					$('#success_save_modal p#credit_memo').removeClass('hidden');
 					$('#success_save_modal').modal('show');	
+					$('#final_voucher').val(data.voucher);
 				} else if(is_ap=="yes" || is_op=="yes") {
 					$('#success_save_modal p#credit_voucher').removeClass('hidden');
 					$('#success_save_modal').modal('show');	
+					$('#final_voucher').val(data.voucher);
 				} else {
 					$('#delay_modal').modal('show');
 					setTimeout(function() {
@@ -5207,8 +5210,9 @@ $(document).ready(function() {
 	});
 
 	$('#save_okbtn').on('click',function(){
+		var voucher = $('#final_voucher').val();
 		setTimeout(function() {
-			window.location.href = '<?=BASE_URL?>financials/receipt_voucher';
+			window.location.href = '<?=BASE_URL?>financials/receipt_voucher/view/'+voucher;
 		},1500);
 	});
 
