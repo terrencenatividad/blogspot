@@ -631,7 +631,7 @@ class controller extends wc_controller
 				$checker 	 			= $row->importchecker; 
 				$import 				= ($checker=='import') 	?	"Yes" 	:	"No";
 				$stat					= $row->stat;
-				//$payment_status			= $row->payment_status;
+				$payment_status			= $row->payment_status;
 				
 				// if($balance != 0 && $stat == 'cancelled')
 				// {
@@ -655,30 +655,30 @@ class controller extends wc_controller
 				// }
 
 			
-				if($balance != 0 && $stat == 'cancelled'){
-					$status 		= 'cancelled';
-				}else if($balance == 0 && $stat == 'cancelled'){
-					$status 		= 'cancelled';
-				}
-				else if($balance != $amount && $balance != 0 && $stat == 'cancelled'){
-					$status 		= 'cancelled';
-				}
-				else if($balance != $amount && $balance != 0){
-					$status  		= 'partial';
-				}else if($balance != 0){
-					$status 		= 'unpaid';
-				}
-				else{
-					$status 		= 'paid';
-				}
+				// if($balance != 0 && $stat == 'cancelled'){
+				// 	$status 		= 'cancelled';
+				// }else if($balance == 0 && $stat == 'cancelled'){
+				// 	$status 		= 'cancelled';
+				// }
+				// else if($balance != $amount && $balance != 0 && $stat == 'cancelled'){
+				// 	$status 		= 'cancelled';
+				// }
+				// else if($balance != $amount && $balance != 0){
+				// 	$status  		= 'partial';
+				// }else if($balance != 0){
+				// 	$status 		= 'unpaid';
+				// }
+				// else{
+				// 	$status 		= 'paid';
+				// }
 
-				if($status == "paid") {
+				if($payment_status == "paid") {
 					$voucher_status = '<span class="label label-success">PAID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
-				} else if($status == 'unpaid'){
+				} else if($payment_status == 'unpaid'){
 					$voucher_status = '<span class="label label-warning">UNPAID</span>';
-				} else if($status == 'cancelled'){
+				} else if($payment_status == 'cancelled'){
 					$voucher_status = '<span class="label label-danger">CANCELLED</span>';
-				} else if($status == "partial"){
+				} else if($payment_status == "partial"){
 					$voucher_status = '<span class="label label-info">PARTIAL</span>';
 				}
 
