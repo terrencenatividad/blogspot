@@ -101,7 +101,7 @@ class controller extends wc_controller {
 		$data['revenuetype_list']			= $this->item_model->getRevenueTypeList();
 		$data['expensetype_list']			= $this->item_model->getExpenseTypeList();
 		$data['chart_account_list']			= $this->item_model->getChartAccountList();
-		$data['existing_item_list'] 		= $this->item_model->getItemDropdownList();
+		$data['existing_item_list'] 		= $this->item_model->getReplacementDropdownList();
 		$data['brand_list'] 				= $this->item_model->getBrandDropdownList();
 		$data['ajax_task'] 					= 'ajax_create';
 		$data['ajax_post'] 					= '';
@@ -136,7 +136,7 @@ class controller extends wc_controller {
 		$data['revenuetype_list']			= $this->item_model->getRevenueTypeList();
 		$data['expensetype_list']			= $this->item_model->getExpenseTypeList();
 		$data['chart_account_list']			= $this->item_model->getChartAccountList();
-		$data['existing_item_list'] 		= $this->item_model->getEditItemDropdownList($itemcode, $replacement);
+		$data['existing_item_list'] 		= $this->item_model->getEditReplacementDropdownList($itemcode, $replacement);
 		$data['brand_list'] 				= $this->item_model->getBrandDropdownList();
 		$data['ajax_task'] 					= 'ajax_edit';
 		$data['ajax_post'] 					= "&itemcode_ref=$itemcode";
@@ -170,7 +170,7 @@ class controller extends wc_controller {
 		$data['revenuetype_list']			= $this->item_model->getRevenueTypeList();
 		$data['expensetype_list']			= $this->item_model->getExpenseTypeList();
 		$data['chart_account_list']			= $this->item_model->getChartAccountList();
-		$data['existing_item_list'] 		= $this->item_model->getItemDropdownList();
+		$data['existing_item_list'] 		= $this->item_model->getReplacementDropdownList();
 		$data['brand_list'] 				= $this->item_model->getBrandDropdownList();
 		$data['show_input'] 				= false;
 		$data['serialized'] 				= substr($data['item_ident_flag'],0,1);
@@ -299,7 +299,11 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_create() {
-		$data = $this->input->post($this->fields);
+		$this->fields[] = 'serialized';
+		$this->fields[] = 'engine';
+		$this->fields[] = 'chassis';
+
+		$data 	= $this->input->post($this->fields);
 
 		$ident 	=	'';
 		$ident 	.=	(isset($data['serialized']) && $data['serialized'] == '1') 	?	"1" 	:	"0";
@@ -312,6 +316,7 @@ class controller extends wc_controller {
 
 		$data['item_ident_flag'] 	=	$ident; 
 		$data = $this->cleanData($data);
+
 		$result = $this->item_model->saveItem($data);
 		return array(
 			'redirect'	=> MODULE_URL,
@@ -394,6 +399,7 @@ class controller extends wc_controller {
 				foreach ($csv_array as $key => $row) {
 					$row['row_num'] = $key + 1;
 					$check_field['Item Code'][$row['row_num']] = $this->getValueCSV('Item Code', $row);
+					$check_field['Replacement Code'][$row['row_num']] = $this->getValueCSV('Replacement Code', $row);
 					$bundle 					= $this->getValueCSV('Bundle', $row, '', $errors, '');
 					$bundle 					= ($bundle == "Y") 	?	"1" 	:	"0";
 					$replacement 				= $this->getValueCSV('Replacement Part (Y/N)', $row, '', $errors, '');
@@ -442,7 +448,7 @@ class controller extends wc_controller {
  						'item_ident_flag'		=> $ident,
 						'brandcode'				=> $this->getValueCSV('Brand Code', $row, 'alphanum', $errors, 'getBrandDropdownList'),
 						'replacement'			=> $replacement,
-						'replacementcode'		=> $this->getValueCSV('Replacement Code', $row, 'alphanum', $errors, 'getItemDropdownList'),
+						'replacementcode'		=> $this->getValueCSV('Replacement Code', $row, 'alphanum', $errors, 'getReplacementDropdownList'),
 						'uom_base'				=> $this->getValueCSV('Base UOM', $row, 'required', $errors, 'getUOMList'),
 						'uom_purchasing'		=> $this->getValueCSV('Purchasing UOM', $row, 'required', $errors, 'getUOMList'),
 						'purchasing_conv'		=> $this->getValueCSV('Converted Purchasing UOM', $row, 'required integer', $errors),
@@ -464,7 +470,7 @@ class controller extends wc_controller {
 						$duplicate	= array_values($data_duplicate);
 						foreach ($check_row as $num_row => $value) {
 							if (in_array(strtolower($value), $duplicate)) {
-								$errors[$num_row]['Item Code']['Duplicate Data'] = $value;
+								$errors[$num_row][$key]['Duplicate Data'] = $value;
 							}
 						}
 					}
@@ -481,9 +487,9 @@ class controller extends wc_controller {
 					}
 				}
 
-				// if (empty($errors)) {
-				// 	$result = $this->item_model->saveItemCSV($values);
-				// }
+				if (empty($errors)) {
+					$result = $this->item_model->saveItemCSV($values);
+				}
 			}
 		} else {
 			$error = 'Invalid Import File. Please Use our Template for Uploading CSV';

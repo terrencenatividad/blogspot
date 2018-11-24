@@ -332,7 +332,7 @@
 											->setClass("text-right price")
 											->setValidation('required decimal')
 											->setAttribute(array("maxlength" => "20"))
-											->setValue($price)
+											->setValue(number_format($price,2))
 											->draw($show_input);
 											?>
 										</td>
@@ -345,7 +345,7 @@
 											->setClass("text-right")
 											->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
 											->setValidation('decimal')
-											->setValue($rowamount)
+											->setValue(number_format($rowamount,2))
 											->draw($show_input);
 											?>
 
@@ -362,10 +362,6 @@
 									$row 				= 1;
 									$disable_debit		= '';
 									$disable_credit		= '';
-									$t_vat 				= 0;
-									$t_wtax 			= 0;
-									$t_wtaxcode 		= 'NA1';
-									$t_wtaxrate 		= 0;
 
 									for($i = 0; $i < count($details); $i++)
 									{
@@ -475,7 +471,7 @@
 												->setClass("price")
 												->setAttribute(array("maxlength" => "20"))
 												->setValidation('required decimal')
-												->setValue($itemprice)
+												->setValue(number_format($itemprice, 2))
 												->draw($show_input);
 												?>
 											</td>
@@ -488,7 +484,7 @@
 												->setClass("text-right")
 												->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
 												->setValidation('decimal')
-												->setValue($amount)
+												->setValue(number_format($amount, 2))
 												->draw($show_input);
 												?>
 
@@ -566,6 +562,7 @@
 												->setId('t_wtaxcode')
 												->setClass("taxcode")
 												->setAttribute(array("maxlength" => "20"))
+												->setNone('none')
 												->setList($wtax_codes)
 												->setValue($t_wtaxcode)
 												->draw($show_input);
@@ -778,7 +775,9 @@
 										<p class="form-control-static"><label>Total Amount Due</label></p>
 									</td>
 									<td colspan="2" class="text-right">
-										<p class="form-control-static"><label><?php echo number_format($received_total_vatable + $received_total_tax - $received_withholding, 2) ?></label></p>
+										<p class="form-control-static"><label><?php 
+										$totallings = $received_total_vatable + $received_total_tax - $received_withholding;
+										echo number_format($totallings, 2) ?></label></p>
 									</td>
 								</tr>
 							</tfoot>
@@ -1273,8 +1272,8 @@ echo $ui->loadElement('modal')
 		// }
 
 		document.getElementById('t_subtotal').value 			= addCommas(subtotal.toFixed(2));
-		document.getElementById('t_vat').value					= addCommas(total_h_vat.toFixed(2));
-		document.getElementById('t_total').value 				= addCommas(( total_h_vatable + total_h_vatex - wtax + total_h_vat ).toFixed(2));
+		document.getElementById('t_vat').value					= total_h_vat.toFixed(2);
+		document.getElementById('t_total').value 				= addCommas((total_h_vatable + total_h_vatex - wtax + total_h_vat ).toFixed(2));
 
 	}
 
@@ -1764,7 +1763,7 @@ $(document).ready(function(){
 
 	// -- Tax -- 
 
-	$('#t_wtaxcode').on('change',function(){
+	$('#purchase_order_form').on('change', '#t_wtaxcode',function(){
 		
 		var wtaxcode 	=	$(this).val();
 
@@ -1775,7 +1774,7 @@ $(document).ready(function(){
 			$.post('<?=BASE_URL?>purchase/purchase_order/ajax/get_ATC', ajax, function(data) 
 			{
 				$('#atcModal #atccode').html(data.atc_codes);
-				$('#purchase_order_form #wtaxrate').val(data.wtaxrate);	
+				$('#purchase_order_form #wtaxrate').val(data.wtaxrate).trigger('change');	
 				
 				computeWTAX();
 				computeAmount();
@@ -1794,6 +1793,7 @@ $(document).ready(function(){
 		if( h_atc != "" )
 		{
 			$('#atcModal').modal('hide');
+			$('#purchase_order_form').trigger('change');
 		}
 	});
 
@@ -1804,7 +1804,7 @@ $(document).ready(function(){
 		// Process New Transaction
 		if('<?= $task ?>' == "create")
 		{
-			$("#purchase_order_form").change(function()
+			$("#purchase_order_form").on('change blur',function()
 			{
 				if($("#purchase_order_form #itemcode\\[1\\]").val() != '' && $("#purchase_order_form #transaction_date").val() != '' && $("#purchase_order_form #due_date").val() != '' && $("#purchase_order_form #vendor").val() != '')
 				{

@@ -19,6 +19,7 @@
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('itemcode')
 												->setId('itemcode')
+												->setMaxLength(12)
 												->setValue($itemcode)
 												->addHidden((isset($ajax_task) && $ajax_task == 'ajax_edit'))
 												->setValidation('required code')
@@ -33,6 +34,7 @@
 												->setName('itemname')
 												->setId('itemname')
 												->setValue($itemname)
+												->setMaxLength(30)
 												->setValidation('required')
 												->draw($show_input);
 										?>
@@ -47,6 +49,7 @@
 												->setName('barcode')
 												->setId('barcode')
 												->setValue($barcode)
+												->setMaxLength(50)
 												->setValidation('alpha_num')
 												->draw($show_input);
 										?>
@@ -61,6 +64,7 @@
 												->setName('itemdesc')
 												->setId('itemdesc')
 												->setValue($itemdesc)
+												->setMaxLength(1000)
 												->setValidation('required')
 												->draw($show_input);
 										?>
@@ -119,6 +123,7 @@
 												->setName('weight')
 												->setId('weight')
 												->setValue($weight)
+												->setMaxLength(5)
 												->setValidation('decimal')
 												->draw($show_input);
 										?>
@@ -544,6 +549,10 @@
 		if($('#bundle').attr('checked') && task == 'ajax_edit'){
 			disable_checkboxes(1);
 		}
+		// For Replacement For Dropdown
+		if($('#replacement_part').attr('checked') && task == 'ajax_edit'){
+			$('#replacement_for').prop('disabled',false);
+		}
 
 		$('form').on('ifChecked','#bundle',function(e){
 			disable_checkboxes(1);
@@ -561,6 +570,8 @@
 
 		$('form').on('ifUnchecked','#replacement_part', function(e){
 			$("#replacement_for").prop('disabled',true);
+			$("#replacement_for").val('');
+			drawTemplate();
 		});
 
 		$('form').submit(function(e) {

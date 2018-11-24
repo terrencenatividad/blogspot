@@ -127,6 +127,10 @@ class controller extends wc_controller
 			$discounttype 		 	 = $retrieved_data['header']->discounttype;
 			$data['percentage'] 	 = "";
 			$data['h_disctype'] 	 = $discounttype;
+			$data['t_vat'] 			 = $retrieved_data['header']->taxamount;
+			$data['t_wtax'] 		 = $retrieved_data['header']->wtaxamount;
+			$data['t_wtaxcode'] 	 = $retrieved_data['header']->wtaxcode;
+			$data['t_wtaxrate'] 	 = $retrieved_data['header']->wtaxrate;
 
 			//Vendor Data
 			$data["terms"] 		 	 = '';
@@ -503,7 +507,7 @@ class controller extends wc_controller
 		->setFooterDetails(array('Approved By', 'Checked By'))
 		->setVendorDetails($vendordetails)
 		->setDocumentDetails($documentdetails)
-				// ->addTermsAndCondition()
+		->setDocumentInfo($documentinfo)
 		->addReceived();
 
 		$print->setHeaderWidth(array(40, 60, 20, 20, 30, 30))
@@ -531,7 +535,7 @@ class controller extends wc_controller
 				$total_amount = 0;
 			}
 		}
-		$print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
+		// $print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
 
 		$print->drawPDF('Purchase Order - ' . $voucherno);
 	}

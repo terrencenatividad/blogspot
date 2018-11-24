@@ -318,6 +318,7 @@
 			$discount_amount	= str_replace(',','',$discount_amount);
 			$total_discount		= str_replace(',','',$total_discount);
 
+			$vat				= str_replace(',','',$vat);
 			$vat_sales			= str_replace(',','',$vat_sales);
 			$vat_exempt			= str_replace(',','',$vat_exempt);
 

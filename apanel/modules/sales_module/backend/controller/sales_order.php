@@ -338,7 +338,7 @@ class controller extends wc_controller
 		$totalamount 			 = $retrieved_data['header']->netamount;
 		$vat 					 = $retrieved_data['header']->taxamount;
 		$totalsales 			 = $retrieved_data['header']->amount;
-
+		
 		$data['t_subtotal'] 	 = $totalsales;
 		$data['t_discount']  	 = $discountamount;
 		$data['t_total'] 	 	 = $totalamount;
@@ -582,7 +582,7 @@ class controller extends wc_controller
 				// ->addTermsAndCondition()
 				->addReceived();
 
-		$print->setHeaderWidth(array(30, 40, 20, 10, 30, 20, 20, 30))
+		$print->setHeaderWidth(array(30, 50, 20, 10, 20, 20, 20, 30))
 				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C','C','C'))
 				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price','Discount','Tax','Amount'))
 				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R','R','R'))
@@ -601,17 +601,15 @@ class controller extends wc_controller
 			}
 			$vatable_sales	+= ($row->taxrate) ? $row->amount : 0;
 			$vat_exempt		+= ($row->taxrate) ? 0 : $row->amount;
-			// $discount		+= $row->itemdiscount;
-			$discount 		= 
 			$tax			+= $row->taxamount;
 			$discount 	    = isset($documentinfo->discount) ? $documentinfo->discount : 0;
-			// $total_amount	+= $row->amount;
 			$row->quantity	= number_format($row->quantity);
 			$row->price		= number_format($row->price, 2);
 			$row->amount	= number_format($row->amount, 2);
+			$row->taxamount	= number_format($row->taxamount, 2);
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$total_amount = $vatable_sales + $vat_exempt - $discount + $tax;
+				$total_amount = $vatable_sales + $vat_exempt + $tax;
 				$summary = array(
 					'VATable Sales'		=> number_format($vatable_sales, 2),
 					'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
@@ -630,7 +628,7 @@ class controller extends wc_controller
 				$total_amount	= 0;
 			}
 		}
-		$total_amount = $vatable_sales + $vat_exempt - $discount + $tax;
+		$total_amount = $vatable_sales + $vat_exempt + $tax;
 		$summary = array(
 			'VATable Sales'		=> number_format($vatable_sales, 2),
 			'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
