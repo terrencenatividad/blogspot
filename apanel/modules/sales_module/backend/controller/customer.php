@@ -101,7 +101,7 @@
 		}
 
 		public function get_import(){
-			header('Content-type: application/csv');
+			header('Content-type: text/html; charset=utf-8');
 			$header = array('Customer Code','Company Name','Address','Email','Business Type','Contact Number','First Name','Last Name','Payment Terms','Tin No.',"Credit Limit");
 
 			$return = '';
@@ -186,7 +186,7 @@
 						if( ! empty($b)) {	
 							$customercode 	   	= isset($b[0]) ? htmlspecialchars(addslashes(trim($b[0])))	: 	"";
 							$companyname        = isset($b[1]) ? addslashes(trim($b[1]))		: 	"";
-							$address            = isset($b[2]) ? htmlspecialchars(addslashes(trim($b[2])))	: 	"";
+							$address            = isset($b[2]) ? addslashes(trim($b[2]))	: 	"";
 							$email 				= isset($b[3]) ? htmlspecialchars(addslashes(trim($b[3])))	: 	"";
 							$business 			= isset($b[4]) ? htmlspecialchars(addslashes(trim($b[4])))	: 	"";
 							$contact 			= isset($b[5]) ? htmlspecialchars(addslashes(trim($b[5])))	: 	"";
@@ -201,7 +201,7 @@
 							// **** Trim Other Unusual Special Characters***/ 
 							$customercode 	   	= $this->import->trim_special_characters($customercode);
 							$companyname        = $this->import->trim_special_characters($companyname);
-							$address            = $this->import->trim_special_characters($address);
+							// $address            = $this->import->trim_special_characters($address);
 							$email 				= $this->import->trim_special_characters($email);
 							$business 			= $this->import->trim_special_characters($business);
 							$contact 			= $this->import->trim_special_characters($contact);
@@ -235,15 +235,20 @@
 							$errmsg[] 	=	$this->check_duplicate_code("Customer Code",$customercode,$line);
 
 							// Check for Numerical Values
-							$errmsg[] 	=	$this->import->check_numeric("Payment Terms", $terms, $line);
 							$errmsg[] 	=	$this->import->check_numeric("Credit Limit", $credit_limit, $line);
 
 							// Check for Negative Values
-							$errmsg[] 	=	$this->import->check_negative("Payment Terms", $terms, $line);
 							$errmsg[] 	=	$this->import->check_negative("Credit Limit", $credit_limit, $line);
 
 							// Check for E-mail Format
-							$errmsg[] 	=	$this->import->check_email("Email", $email, $line);
+							if($email != ''){
+								$errmsg[] 	=	$this->import->check_email("Email", $email, $line);
+							}
+
+							if($terms != ''){
+								$errmsg[] 	=	$this->import->check_negative("Payment Terms", $terms, $line);
+								$errmsg[] 	=	$this->import->check_numeric("Payment Terms", $terms, $line);
+							}
 
 							// Check for Business Content ( Individual or Corporation )
 							$errmsg[] 	=	$this->import->check_business_type("Business Type", $business, $line);
