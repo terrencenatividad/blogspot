@@ -462,6 +462,22 @@ class controller extends wc_controller
 		}
 		$data['ar_acct'] 	=	$ar_acct;
 
+		/**
+		 * Status Badge
+		 */
+		
+		$status 		= $data["main"]->stat;
+		if($status == 'cancelled'){
+			$status_class 	= 'danger';
+		} else if($status == 'open'){
+			$status_class 	= 'info';
+		} else if($status == 'posted'){
+			$status_class 	= 'success';
+		}
+
+		$status_badge = '<span class="label label-'.$status_class.'">'.strtoupper($status).'</span>';
+		$data['status_badge'] 	= $status_badge;
+
 		$this->view->load('receipt_voucher/receipt_voucher', $data);
 	}
 
