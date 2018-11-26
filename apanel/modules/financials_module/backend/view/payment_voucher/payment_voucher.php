@@ -21,6 +21,13 @@
 				<div class = "col-md-12">&nbsp;</div>
 				<div class = "col-md-11">
 					<div class = "row">
+						<div class="col-md-12 col-xs-12">
+							<div class="row">
+								<div class="col-md-offset-1 col-md-10">
+									<h3><?php echo $status_badge;?></h3>
+								<div>
+							</div>
+						</div>
 						<div class = "col-md-6">
 							<?php
 								echo $ui->formField('text')
