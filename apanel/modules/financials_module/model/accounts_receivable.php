@@ -328,10 +328,11 @@ class accounts_receivable extends wc_model
 								"main.referenceno as referenceno",
 								"main.lockkey as importchecker",
 								"main.stat as stat",
-								"IF(main.stat = 'cancelled','cancelled',
-								 IF(main.balance - payment.amount AND main.balance != 0 AND main.stat = 'cancelled', 'cancelled',
-								 IF(main.balance - payment.amount AND main.balance != 0,'partial',
-								 IF(main.balance != 0,'unpaid','paid')))) payment_status"
+								"IF(main.balance!=0 AND main.stat='cancelled','cancelled',
+								 IF(main.balance=0 AND main.stat='cancelled','cancelled',
+								 IF(main.balance!=payment.amount AND main.balance!=0 AND main.stat='cancelled','cancelled',
+								 IF(main.balance!=payment.amount AND main.balance!=0,'partial',
+								 IF(main.balance!=0,'unpaid','paid'))))) payment_status"
 						);
 						// $balance != $amount && $balance != 0 && $stat == 'cancelled'
 		$ar_table 	=	"accountsreceivable as main";

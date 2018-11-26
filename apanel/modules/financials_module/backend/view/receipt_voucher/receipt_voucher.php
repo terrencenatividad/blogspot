@@ -13,12 +13,29 @@
 		<input type="hidden" id="h_task" name="h_task" value="<?=$task?>">
 		<input type="hidden" id="ar_acct" name="ar_acct" value="<?=$ar_acct?>">
 		<input type="hidden" id="disc_acct" name="disc_acct" >
+		<input type="hidden" id="final_voucher" name="final_voucher" >
 		<div class="box box-primary">
 			<div class="box-body">
 				<div class = "row">
 					<div class = "col-md-12">&nbsp;</div>
 						<div class = "col-md-11">
 							<div class = "row">
+								<!-- <div class = "col-md-offset-1">
+									<h3>
+										<?php
+											// echo $status_badge;
+										?>
+									</h3>
+								</diV> -->
+								
+								<div class="col-md-12 col-xs-12">
+									<div class="row">
+										<div class="col-md-offset-1 col-md-10">
+											<h3><?php echo $status_badge;?></h3>
+										<div>
+										<!-- <div class = "col-md-8"></div> -->
+									</div>
+								</div>
 								<div class = "col-md-6">
 									<?php
 									echo $ui->formField('text')
@@ -4451,9 +4468,11 @@ $(document).ready(function() {
 				if(credit_used > 0){
 					$('#success_save_modal p#credit_memo').removeClass('hidden');
 					$('#success_save_modal').modal('show');	
+					$('#final_voucher').val(data.voucher);
 				} else if(is_ap=="yes" || is_op=="yes") {
 					$('#success_save_modal p#credit_voucher').removeClass('hidden');
 					$('#success_save_modal').modal('show');	
+					$('#final_voucher').val(data.voucher);
 				} else {
 					$('#delay_modal').modal('show');
 					setTimeout(function() {
@@ -5191,8 +5210,9 @@ $(document).ready(function() {
 	});
 
 	$('#save_okbtn').on('click',function(){
+		var voucher = $('#final_voucher').val();
 		setTimeout(function() {
-			window.location.href = '<?=BASE_URL?>financials/receipt_voucher';
+			window.location.href = '<?=BASE_URL?>financials/receipt_voucher/view/'+voucher;
 		},1500);
 	});
 
