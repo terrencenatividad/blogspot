@@ -344,7 +344,7 @@
 								for($i = 0; $i < count($details); $i++)
 								{
 									$itemcode 	 		= $details[$i]->itemcode;
-									$detailparticular	= $details[$i]->detailparticular;
+									$detailparticular	= htmlspecialchars($details[$i]->detailparticular);
 									$quantity 			= isset($details[$i]->issueqty) ?	number_format($details[$i]->issueqty,0) 	: 	"1";
 									$itemprice 			= $details[$i]->unitprice;
 									$uom 				= $details[$i]->issueuom;
@@ -1650,21 +1650,21 @@ $(document).ready(function(){
 				warehouse_element.trigger('blur');
 				$(this).val(0);
 			}
-			if (removeComma($(this).val()) > 0) {
-				var quantity = getQuantity(itemcode, warehouse);
-				// console.log(quantity);
+			// if (removeComma($(this).val()) > 0) {
+			// 	var quantity = getQuantity(itemcode, warehouse);
+			// 	// console.log(quantity);
 					
-				$.post('<?php echo BASE_URL?>sales/sales_order/ajax/retrieve_item_quantity', "itemcode="+itemcode+"&warehouse="+warehouse, function(data) {
-					var data_qty = data.qty;
-					// var x = data_qty.replace(/\.00$/,'');
-					var x = removeComma(data_qty);
-					if ((quantity > x) ){
-						$('#orderQtymodal').modal('show');
-						$(this_element).val(0);
-					}
-				});
+			// 	$.post('<?php //echo BASE_URL?>sales/sales_order/ajax/retrieve_item_quantity', "itemcode="+itemcode+"&warehouse="+warehouse, function(data) {
+			// 		var data_qty = data.qty;
+			// 		// var x = data_qty.replace(/\.00$/,'');
+			// 		var x = removeComma(data_qty);
+			// 		if ((quantity > x) ){
+			// 			$('#orderQtymodal').modal('show');
+			// 			$(this_element).val(0);
+			// 		}
+			// 	});
 				
-			}
+			// }
 		});
 
 

@@ -127,7 +127,7 @@
 			
 			$result 	=	 $this->db->setTable('salesorder s')
 							->setFields($fields)
-							->leftJoin('partners p ON p.partnercode = s.customer 	')
+							->leftJoin('partners p ON p.partnercode = s.customer AND p.partnertype = "customer"')
 							->setWhere(" s.stat != 'temporary'  $add_query")
 							->setOrderBy($sort)
 							->setLimit($limit)
@@ -618,7 +618,7 @@
 
 			return $this->db->setTable('salesorder s')
 							->setFields($fields)
-							->leftJoin('partners p ON p.partnercode = s.customer ')
+							->leftJoin('partners p ON p.partnercode = s.customer AND p.partnertype = "customer"')
 							->setWhere(" s.stat != 'temporary'  $add_query")
 							->setOrderBy($sort)
 							->setLimit($limit)
@@ -629,7 +629,7 @@
 		public function retrieve_credit_limit($code){
 			$result =  $this->db->setTable('partners')
 							 ->setFields('credit_limit')
-							 ->setWhere(" partnercode = '$code' AND stat = 'active'")
+							 ->setWhere(" partnercode = '$code' AND partnertype = 'customer' AND stat = 'active'")
 							 ->runSelect()
 							 ->getResult();
 							//  echo $this->db->getQuery();

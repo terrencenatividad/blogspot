@@ -115,6 +115,7 @@ class controller extends wc_controller {
 				$receiptno 				= 	$row->voucherno;
 				$partnername 			=	$row->partnername;
 				$paymentdetail			=	$row->payment;
+				$chequedetails			=	$row->chequedetails;
 				$bank					=	$row->bank;
 				$amount 				=	$row->amount;
 				$paymentdate	 		=	$row->paymentdate;
@@ -132,6 +133,7 @@ class controller extends wc_controller {
 				$table .= '<td><a target="_blank" href="'.BASE_URL.'financials/receipt_voucher/print_preview/'.$receiptno.'">' . $receiptno 	. '</td>';
 				$table .= '<td>' . $partnername . '</td>';
 				$table .= '<td>' . $paymentdetail 	. '</td>';
+				$table .= '<td>' . $chequedetails 	. '</td>';
 				$table .= '<td>' . $this->date->dateFormat($paymentdate) . '</td>';
 				$table .= '<td class="text-right">' . number_format($amount,2) . '</td>';
 				$table .= '</tr>';
@@ -167,42 +169,42 @@ class controller extends wc_controller {
 			}
 
 			$tabledetails .= '<tr>
-								<th colspan="5">Grand Total: </th>
+								<th colspan="6">Grand Total: </th>
 								<th class="text-right">' . number_format($grandtotal,2) . '</th>
 							</tr>';
 
 			$tabledetails .= '<tr class="danger">
-								<th colspan="6">Summary:</th>
+								<th colspan="7">Summary:</th>
 							</tr>
 							<tr class="warning">
 								<th></th>
 								<th class="text-right">Total Issued</th>
 								<th class="text-right">Total Amount</th>
-								<th colspan="3"></th>
+								<th colspan="4"></th>
 							</tr>
 							<tr>
 								<th>Cash:</th>
 								<th class="text-right">' . number_format($totalcashissued) . '</th>
 								<th class="text-right">' . number_format($totalcashamount,2) . '</th>
-								<th colspan="3"></th>
+								<th colspan="4"></th>
 							</tr>
 							<tr>
 								<th>Dated Check:</th>
 								<th class="text-right">' . number_format($totaldatedissued) . '</th>
 								<th class="text-right">' . number_format($totaldatedamount,2) . '</th>
-								<th colspan="3"></th>
+								<th colspan="4"></th>
 							</tr>
 							<tr>
 								<th>PDC:</th>
 								<th class="text-right">' . number_format($totalpdcissued) . '</th>
 								<th class="text-right">' . number_format($totalpdcamount,2) . '</th>
-								<th colspan="3"></th>
+								<th colspan="4"></th>
 							</tr>
 							<tr class="warning">
 								<th>Total Provisional Receipt Issued:</th>
 								<th class="text-right">' . number_format($totalreceiptissued) . '</th>
 								<th class="text-right">' . number_format($totalreceiptamt, 2) . '</th>
-								<th colspan="3"></th>
+								<th colspan="4"></th>
 							</tr>';
 		}
 
@@ -229,7 +231,7 @@ class controller extends wc_controller {
 		}
 		$retrieved = $this->report->fileExport($search, $dates[0], $dates[1], $partner, $filter, $bank, $sort, $mode);
 		
-		$header = array("Date","Voucher No.","Customer","Payment Details","Payment Date","Amount"); 
+		$header = array("Date","Voucher No.","Customer","Payment Details","Cheque Details","Payment Date","Amount"); 
 	
 		$grandtotal 		=	0;
 		$totalcashissued	=	0;
@@ -264,6 +266,7 @@ class controller extends wc_controller {
 				$csv .= '"' . $row->voucherno . '",';
 				$csv .= '"' . $row->partnername . '",';
 				$csv .= '"' . $row->payment . '",';
+				$csv .= '"' . $row->chequedetails . '",';
 				$csv .= '"' . $row->paymentdate . '",';
 				$csv .= '"' . number_format($row->amount,2) . '",';
 				$csv .= "\n";
@@ -282,7 +285,7 @@ class controller extends wc_controller {
 			$totalreceiptissued =	$totalcashissued 	+	$totaldatedissued 	+	$totalpdcissued;
 			$totalreceiptamt 	=	$totalcashamount 	+	$totaldatedamount 	+	$totalpdcamount;
 			$grandtotal = array(
-				'Grand Total','','','','',number_format($grandtotal, 2)
+				'Grand Total','','','','','',number_format($grandtotal, 2)
 			);
 			$csv .= '"' . implode('","', $grandtotal) . '"';
 			$csv .= "\n\n";

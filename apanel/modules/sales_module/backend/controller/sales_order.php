@@ -223,10 +223,6 @@ class controller extends wc_controller
 				if( $updateTempRecord )
 				{
 					$this->log->saveActivity("Created Sales Order [$generatedvoucher] ");
-
-					if ( $this->inventory_model ) {
-						$this->inventory_model->generateBalanceTable();
-					}
 				}
 
 				if( $quotation_no != "" )
@@ -241,12 +237,14 @@ class controller extends wc_controller
 					{
 						$this->log->saveActivity("Converted Sales Quotation [$quotation_no] ");
 						
-						if ( $this->inventory_model ) {
-							$this->inventory_model->generateBalanceTable();
-						}
 					}
 				}
 
+				if( $updateTempRecord ){
+					if ( $this->inventory_model ) {
+						$this->inventory_model->generateBalanceTable();
+					}
+				}
 				if( $updateTempRecord && $save_status == 'final' )
 				{
 					$this->url->redirect(BASE_URL . 'sales/sales_order');
