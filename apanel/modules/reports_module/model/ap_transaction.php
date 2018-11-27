@@ -28,7 +28,7 @@ class ap_transaction extends wc_model {
 		$addCondition .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND ap.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 
 		$result = $this->db->setTable('partners p')
-						->setFields("p.partnercode suppliercode, p.partnername suppliername, ap.voucherno, pv.voucherno pvoucherno, ap.transactiondate, ap.invoiceno, ap.amount, ap.amountpaid,ap.balance,ap.particulars,ap.terms,ap.stat")
+						->setFields("p.partnercode suppliercode, p.partnername suppliername, ap.voucherno, pv.voucherno pvoucherno, ap.transactiondate, ap.invoiceno, ap.amount, pv.amount as amountpaid,ap.balance,ap.particulars,ap.terms,ap.stat")
 						->leftJoin("accountspayable ap ON p.partnercode = ap.vendor")
 						->leftJoin("pv_application pv ON ap.voucherno = pv.apvoucherno")
 						->setWhere("p.partnercode != '' AND p.partnertype = 'supplier' AND p.stat = 'active' AND ap.stat IN('open','posted') $addCondition ")
@@ -54,7 +54,7 @@ class ap_transaction extends wc_model {
 		$addCondition .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND ap.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 
 		$result = $this->db->setTable('partners p')
-							->setFields("p.partnercode suppliercode, p.partnername suppliername, ap.voucherno, pv.voucherno pvoucherno, ap.transactiondate, ap.invoiceno,ap.amount,ap.amountpaid,ap.balance,ap.particulars,ap.terms,ap.stat")
+							->setFields("p.partnercode suppliercode, p.partnername suppliername, ap.voucherno, pv.voucherno pvoucherno, ap.transactiondate, ap.invoiceno,ap.amount,pv.amount amountpaid,ap.balance,ap.particulars,ap.terms,ap.stat")
 							->leftJoin("accountspayable ap ON p.partnercode = ap.vendor")
 							->leftJoin("pv_application pv ON ap.voucherno = pv.apvoucherno")
 							->setWhere("p.partnercode != '' AND p.partnertype = 'supplier' AND p.stat = 'active' AND ap.stat IN('open','posted') $addCondition ")
