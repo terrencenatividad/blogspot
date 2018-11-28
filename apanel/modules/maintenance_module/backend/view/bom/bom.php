@@ -45,6 +45,7 @@
 										->setSplit('col-md-3', 'col-md-8')
 										->setName('description')
 										->setId('description')
+										->setAttribute(array('readonly'))
 										->setValue($description)
 										->setValidation('required')
 										->draw($show_input);	
@@ -279,6 +280,13 @@
 				$('#btnYes').on('click', function() {
 					remove.remove();
 					$('#deleteItemModal').modal('hide');
+				});
+
+				$('#bundle_item_code').on('change', function() {
+					var itemcode = $(this).val();
+					$.post('<?=MODULE_URL?>ajax/ajax_get_desc', '&itemcode=' + itemcode, function(data) {
+						$('#description').val(data.desc);
+					});
 				});
 
 				$('#itemsTable').on('change', '#item_code', function() {
