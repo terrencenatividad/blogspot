@@ -9,13 +9,14 @@ class controller extends wc_controller {
 		$this->input            = new input();
 		$this->log 				= new log();
 		$this->seq				= new seqcontrol();
+		$this->report_model 	= new report_model;
 		$this->show_input 	    = true;
 		$this->session          = new session();
 	}
 
 	public function view() {
 		$this->view->title 			= 	'Trial Balance';
-		$this->report_model 		= 	new report_model;
+		
 		$this->report_model->generateBalanceTable();
 
 		$account 					=	$this->trial_balance->retrieveAccount("IS");
@@ -314,6 +315,10 @@ class controller extends wc_controller {
 		$data['closing_account'] 	=	$account;
 
 		$result 			=	$this->trial_balance->save_journal_voucher($data);
+		
+		if($result){
+			$this->report_model->generateBalanceTable();
+		}
 		
 		$dataArray 		=	array( "result" =>	$result, 'voucherno' => $temporary_id);
 
