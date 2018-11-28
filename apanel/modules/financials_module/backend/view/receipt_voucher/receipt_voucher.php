@@ -3111,6 +3111,7 @@ function getRVDetails(){
 					$("#accountcode\\["+ row +"\\]").closest('tr').addClass('op_row');
 					$('#accountcode\\['+row+'\\]').val(op_acct).trigger('select2.change');
 					$('#h_accountcode\\['+row+'\\]').val(op_acct);
+					$('#detailparticulars\\['+row+'\\]').val("Overpayment");
 					disable_acct_fields(row);
 					$('#credit\\['+row+'\\]').prop('readonly',false);
 					// $('#disc_acct').val(discount_amount);
