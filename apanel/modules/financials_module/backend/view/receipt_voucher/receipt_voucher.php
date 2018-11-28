@@ -958,7 +958,7 @@
 											$disable_code 		= 'disabled';
 											$added_class 		= "credit_account";
 										} else if( $accountcode == $op_acct || $saved_op_acct == $accountcode ) {
-											$disable_credit		= 'readOnly';
+											$disable_credit		= '';
 											$disable_debit		= 'readOnly';
 											$disable_code 		= 'disabled';
 											$added_class 		= "op_row";
@@ -4785,6 +4785,7 @@ $(document).ready(function() {
 
 		if(is_op == "yes"){
 			$('#op_checker').prop('disabled',false);
+			$('#crv').prop('disabled',true);
 			var new_op_account = $('#op_acct').val();
 			update_op_account(new_op_account);
 		}
