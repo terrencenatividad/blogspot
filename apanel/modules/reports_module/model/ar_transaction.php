@@ -32,7 +32,7 @@ class ar_transaction extends wc_model {
 							->setFields("p.partnercode customercode, p.partnername customername, ar.voucherno, rv.voucherno rvoucherno, ar.transactiondate, ar.invoiceno,ar.amount,ar.amountreceived,ar.balance,ar.particulars,ar.terms,ar.stat")
 							->leftJoin("accountsreceivable ar ON p.partnercode = ar.customer")
 							->leftJoin("rv_application rv ON ar.voucherno = rv.arvoucherno")
-							->setWhere("p.partnercode != '' AND p.partnertype = 'customer' AND p.stat = 'active' AND ar.stat IN('open','posted') $addCondition ")
+							->setWhere("p.partnercode != '' AND p.partnertype = 'customer' AND p.stat = 'active' AND ar.stat IN('open','posted') $addCondition AND rv.stat != 'temporary'")
 							->setOrderBy('p.partnercode')
 							->runPagination();
 		return $result;
