@@ -20,13 +20,13 @@ class ap_aging extends wc_model {
 		$payment_query = $this->db->setTable('pv_application pva')
 									->setFields('(SUM(IFNULL(pva.amount,0))+SUM(IFNULL(pva.discount,0))) payments, pva.apvoucherno, pva.companycode')
 									->leftJoin('paymentvoucher pv ON pv.voucherno = pva.voucherno AND pv.companycode = pva.companycode')
-									->setWhere("pv.stat = 'posted' AND pv.transactiondate <= '$datefilter'")
+									->setWhere("pv.stat IN('open','posted') AND pv.transactiondate <= '$datefilter'")
 									->setGroupBy('pva.apvoucherno')
 									->buildSelect();
 
 		$query = $this->db->setTable('accountspayable ap')
 							->setFields("p.partnername supplier, ap.voucherno, ap.transactiondate, ap.terms, ap.amount, ap.duedate, IF (ap.duedate < DATE_SUB('$datefilter', INTERVAL 60 DAY), ap.amount - IFNULL(pva.payments, 0), 0) oversixty,
-							IF (ap.duedate < DATE_SUB('$datefilter', INTERVAL 30 DAY) AND ap.duedate > DATE_SUB('$datefilter', INTERVAL 60 DAY), ap.amount - IFNULL(pva.payments, 0), 0) sixty,
+							IF (ap.duedate < DATE_SUB('$datefilter', INTERVAL 30 DAY) AND ap.duedate >= DATE_SUB('$datefilter', INTERVAL 60 DAY), ap.amount - IFNULL(pva.payments, 0), 0) sixty,
 							IF (ap.duedate < '$datefilter' AND ap.duedate >= DATE_SUB('$datefilter', INTERVAL 30 DAY), ap.amount - IFNULL(pva.payments, 0), 0) thirty,
 							IF (ap.duedate >= '$datefilter', ap.amount - IFNULL(pva.payments, 0), 0) current, (ap.amount - IFNULL(pva.payments, 0)) balance, ap.companycode")
 							->leftJoin("($payment_query) pva ON pva.apvoucherno = ap.voucherno AND pva.companycode = ap.companycode")
