@@ -2780,6 +2780,10 @@ $('#paymentModal').on('hidden.bs.modal',function(){
 	$('#payableError').addClass('hidden');
 	$(this).find('.discountamount').closest('div').removeClass('has-error');
 	$(this).find('.paymentamount').closest('div').removeClass('has-error');
+
+	if(container != undefined || container != []){
+		$('#TagReceivablesBtn').prop('disabled',false);
+	}
 });
 
 $('#cancelPaymentModal').on('click',function(){
