@@ -204,6 +204,15 @@ class controller extends wc_controller
 			return array('itemname' => $name, 'itemdesc' => $desc, 'uom' => $uom_base);
 		}
 
+		private function ajax_get_desc() {
+			$itemcode = $this->input->post('itemcode');
+			$details = $this->bom->getItemDetails($itemcode);
+			$desc = $details->itemdesc;
+
+			return array('desc' => $desc);
+		}
+
+
 	// activate/deactivate
 
 		private function ajax_edit_activate() {

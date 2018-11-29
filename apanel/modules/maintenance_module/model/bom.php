@@ -34,6 +34,17 @@ class bom extends wc_model
 		return $result;
 	}
 
+	public function getItemDesc($itemcode) {
+		$result = $this->db->setTable('items')
+		->setFields('itemdesc')
+		->setWhere("itemcode = '$itemcode'")
+		->setLimit(1)
+		->runSelect()
+		->getRow();
+
+		return $result;
+	}
+
 	public function getBOMCode($id)
 	{
 		$result = $this->db->setTable('bom')
