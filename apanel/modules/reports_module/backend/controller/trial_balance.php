@@ -126,13 +126,11 @@ class controller extends wc_controller {
 		$totalbalcarry  = 0;
 		$totalperiodbalance = 0;
 		$totalaccumulatedbalance = 0;
-		if(count($pagination->result)>0)
-		{
-			for($i=0;$i<count($pagination->result);$i++)
-			{	
-				$accountid          = $pagination->result[$i]->accountid;
-				$accountcode		= $pagination->result[$i]->accountcode;
-				$accountname		= $pagination->result[$i]->accountname;	
+		
+		foreach($pagination as $row){
+				$accountid          = $row->accountid;
+				$accountcode		= $row->accountcode;
+				$accountname		= $row->accountname;	
 
 				$prevcarry 			= $this->trial_balance->getPrevCarry($accountid,$datefilterFrom);
 				$balcarry			= $this->trial_balance->getBalanceCarry($accountid,$datefilterFrom,$datefilterTo);
@@ -160,7 +158,7 @@ class controller extends wc_controller {
 
 				$debitLink	= ($amount > 0) ? '<a href="javascript:void(0);" onClick="openList(\''.$accountid.'\');" >'.$debit.'</a>' : $debit;
 				$creditLink	= ($amount < 0) ? '<a href="javascript:void(0);" onClick="openList(\''.$accountid.'\');" >'.$credit.'</a>' : $credit;
-
+				
 				$table .= "<tr>";																					
 				$table .= '<td class="left">&nbsp;'.$accountcode.'</td>';
 				$table .= '<td class="left">&nbsp;'.$accountname.'</td>';
@@ -171,8 +169,7 @@ class controller extends wc_controller {
 				$table .= '<td class="text-right" >'.$periodbalance.'</td>';
 				$table .= '<td class="text-right" >'.$accumulatedbalance.'</td>';
 				$table .= '</tr>';
-			}	
-			
+		}
 			$totaldebit 				= ($totaldebit < 0) ? '('.number_format(abs($totaldebit),2).')' : number_format(abs($totaldebit),2);
 			$totalcredit 				= ($totalcredit < 0) ? '('.number_format(abs($totalcredit),2).')' : number_format(abs($totalcredit),2);
 			$totalperiodbalance 		= ($totalperiodbalance < 0) ? '('.number_format(abs($totalperiodbalance),2).')' : number_format(abs($totalperiodbalance),2);
@@ -190,14 +187,79 @@ class controller extends wc_controller {
 						<td class="text-right">'.$totalaccumulatedbalance.'</td>';
 
 			$table.= '</tr>';
+		
+		// if(count($pagination->result)>0)
+		// {
+		// 	for($i=0;$i<count($pagination->result);$i++)
+		// 	{	
+		// 		$accountid          = $pagination->result[$i]->accountid;
+		// 		$accountcode		= $pagination->result[$i]->accountcode;
+		// 		$accountname		= $pagination->result[$i]->accountname;	
 
-		}else{
-			$table .= '<tr><td colspan="8" class="text-center"><b>No Records Found</b></td></tr>';
-		}
+		// 		$prevcarry 			= $this->trial_balance->getPrevCarry($accountid,$datefilterFrom);
+		// 		$balcarry			= $this->trial_balance->getBalanceCarry($accountid,$datefilterFrom,$datefilterTo);
+		// 		$amount				= $this->trial_balance->getCurrent($accountid,$datefilterFrom,$datefilterTo);
 
-		$pagination->table = $table;
-		$pagination->csv   = $this->export();
-		return $pagination;
+		// 		$debit 				= ($amount > 0) ? $amount : 0;
+		// 		$credit 			= ($amount < 0) ? abs($amount) : 0;
+		// 		$periodbalance      = $amount;
+
+		// 		$accumulatedbalance = $balcarry + $periodbalance;
+
+		// 		$totalprevcarry 		+= $prevcarry;
+		// 		$totalbalcarry  		+= $balcarry;
+		// 		$totaldebit 			+= $debit;
+		// 		$totalcredit 			+= $credit;
+		// 		$totalperiodbalance 	+= $periodbalance;
+		// 		$totalaccumulatedbalance += $accumulatedbalance;
+
+		// 		$periodbalance 		= ($periodbalance < 0) ? '('.number_format(abs($periodbalance),2).')' : number_format(abs($periodbalance),2);
+		// 		$balcarry 			= ($balcarry < 0) ? '('.number_format(abs($balcarry),2).')' : number_format(abs($balcarry),2);
+		// 		$credit 			= ($credit < 0) ? '('.number_format(abs($credit),2).')' : number_format(abs($credit),2);
+		// 		$debit 				= ($debit < 0) ? '('.number_format(abs($debit),2).')' : number_format(abs($debit),2);
+		// 		$prevcarry 			= ($prevcarry < 0) ? '('.number_format(abs($prevcarry),2).')' : number_format(abs($prevcarry),2);
+		// 		$accumulatedbalance = ($accumulatedbalance < 0) ? '('.number_format(abs($accumulatedbalance),2).')' : number_format(abs($accumulatedbalance),2);
+
+		// 		$debitLink	= ($amount > 0) ? '<a href="javascript:void(0);" onClick="openList(\''.$accountid.'\');" >'.$debit.'</a>' : $debit;
+		// 		$creditLink	= ($amount < 0) ? '<a href="javascript:void(0);" onClick="openList(\''.$accountid.'\');" >'.$credit.'</a>' : $credit;
+				
+		// 		$table .= "<tr>";																					
+		// 		$table .= '<td class="left">&nbsp;'.$accountcode.'</td>';
+		// 		$table .= '<td class="left">&nbsp;'.$accountname.'</td>';
+		// 		$table .= '<td class="text-right" >'.$prevcarry.'</td>';
+		// 		$table .= '<td class="text-right" >'.$balcarry.'</td>';
+		// 		$table .= '<td class="text-right" >'.$debitLink.'</td>';
+		// 		$table .= '<td class="text-right" >'.$creditLink.'</td>';
+		// 		$table .= '<td class="text-right" >'.$periodbalance.'</td>';
+		// 		$table .= '<td class="text-right" >'.$accumulatedbalance.'</td>';
+		// 		$table .= '</tr>';
+		// 	}	
+			
+		// 	$totaldebit 				= ($totaldebit < 0) ? '('.number_format(abs($totaldebit),2).')' : number_format(abs($totaldebit),2);
+		// 	$totalcredit 				= ($totalcredit < 0) ? '('.number_format(abs($totalcredit),2).')' : number_format(abs($totalcredit),2);
+		// 	$totalperiodbalance 		= ($totalperiodbalance < 0) ? '('.number_format(abs($totalperiodbalance),2).')' : number_format(abs($totalperiodbalance),2);
+		// 	$totalaccumulatedbalance 	= ($totalaccumulatedbalance < 0) ? '('.number_format(abs($totalaccumulatedbalance),2).')' : number_format(abs($totalaccumulatedbalance),2);
+		// 	$totalprevcarry 			= ($totalprevcarry < 0) ? '('.number_format(abs($totalprevcarry),2).')' : number_format(abs($totalprevcarry),2);
+		// 	$totalbalcarry 				= ($totalbalcarry < 0) ? '('.number_format(abs($totalbalcarry),2).')' : number_format(abs($totalbalcarry),2);
+
+		// 	$table .= '<tr class="info">
+		// 				<td class="text-right" colspan="2"><strong>TOTAL</strong></td>
+		// 				<td class="text-right">'.$totalprevcarry.'</td>
+		// 				<td class="text-right">'.$totalbalcarry.'</td>
+		// 				<td class="text-right"><strong>'.$totaldebit.'</strong></td>
+		// 				<td class="text-right"><strong>'.$totalcredit.'</strong></td>
+		// 				<td class="text-right">'.$totalperiodbalance.'</td>
+		// 				<td class="text-right">'.$totalaccumulatedbalance.'</td>';
+
+		// 	$table.= '</tr>';
+
+		// }else{
+		// 	$table .= '<tr><td colspan="8" class="text-center"><b>No Records Found</b></td></tr>';
+		// }
+
+		// $pagination->table = $table;
+		// $pagination->csv   = $this->export();
+		return array('table' => $table);
 
 	}
 
@@ -269,17 +331,17 @@ class controller extends wc_controller {
 				$debitLink	= $debit;
 				$creditLink	= $credit;
 
-				$csv .= '"' . $accountcode . '",';
-				$csv .= '"' . $accountname . '",';
-				$csv .= '"' . $prevcarry . '",';
-				$csv .= '"' . $balcarry . '",';
-				$csv .= '"' . $debitLink . '",';
-				$csv .= '"' . $creditLink . '",';
-				$csv .= '"' . $periodbalance . '",';
-				$csv .= '"' . $accumulatedbalance . '"';
-				$csv .= "\n";
-			}
-
+					$csv .= '"' . $accountcode . '",';
+					$csv .= '"' . $accountname . '",';
+					$csv .= '"' . $prevcarry . '",';
+					$csv .= '"' . $balcarry . '",';
+					$csv .= '"' . $debitLink . '",';
+					$csv .= '"' . $creditLink . '",';
+					$csv .= '"' . $periodbalance . '",';
+					$csv .= '"' . $accumulatedbalance . '"';
+					$csv .= "\n";		
+				}
+				
 			$totaldebit 				= ($totaldebit < 0) ? '('.number_format(abs($totaldebit),2).')' : number_format(abs($totaldebit),2);
 			$totalcredit 				= ($totalcredit < 0) ? '('.number_format(abs($totalcredit),2).')' : number_format(abs($totalcredit),2);
 			$totalperiodbalance 		= ($totalperiodbalance < 0) ? '('.number_format(abs($totalperiodbalance),2).')' : number_format(abs($totalperiodbalance),2);
