@@ -6,8 +6,7 @@ class trial_balance extends wc_model {
 		$credit 	= 0;
 		$prevyear 	= date("Y",strtotime($date." -1 year"));
 		
-		$fetch_debit  = $this->getValue("balance_table",array("SUM(debit) as debit")," accountcode = '$account' AND 
-		YEAR(transactiondate) = $prevyear ");
+		$fetch_debit  = $this->getValue("balance_table",array("SUM(debit) as debit")," accountcode = '$account' AND YEAR(transactiondate) = $prevyear ");
 		$debit        = $fetch_debit[0]->debit;
 		$fetch_credit = $this->getValue("balance_table",array("SUM(credit) as credit")," accountcode = '$account' AND YEAR(transactiondate) = $prevyear ");
 		$credit 	  = $fetch_credit[0]->credit;
@@ -35,13 +34,7 @@ class trial_balance extends wc_model {
 		$debit        = $fetch_debit[0]->debit;
 		$fetch_credit = $this->getValue("balance_table","SUM(credit) as credit"," accountcode = '$account' AND (transactiondate >= '$fromdate' AND transactiondate <= '$todate')");
 		$credit       = $fetch_credit[0]->credit; 
-		// echo "CREDIT = ".$credit."      "; 
-		// echo "DEBIT = ".$debit."\n";
-
 		return ($debit > $credit) ? $debit - $credit : -($credit - $debit);
-
-		// $fetch_result 	=	$this->getValue("balance_table","SUM(debit)-SUM(credit)", "accountcode = '$account' AND (transactiondate >= '$fromdate' AND transactiondate <= '$todate')");
-
 	}
 
 	public function getAccountCodeBeg($beg_balance_query_table,$beg_balance_query_fields,$beg_balance_query_condition,$account,$field){
@@ -50,11 +43,9 @@ class trial_balance extends wc_model {
 					->setFields($beg_balance_query_fields)
 					->setWhere($beg_balance_query_condition." AND accountcode='".$account."'")
 					->setGroupBy("gldetails.account ASC")
-					//->buildSelect();
-		
 					->runSelect()
 					->getResult();
-		//var_dump($result);
+
 		if(!empty($result)){
 			for($i = 0; $i < count($result); $i++)
 			{
@@ -80,7 +71,6 @@ class trial_balance extends wc_model {
 					}
 		$result =   $this->db->runSelect($addon)
 					->getResult();
-					//->buildSelect();
 					// echo $this->db->getQuery();
 		return $result;
 	}
@@ -716,12 +706,14 @@ class trial_balance extends wc_model {
 	}
 
 	public function getYearforClosing(){
-		// SELECT for Month & Year
-		$year = date('Y');
-		// $year =	2018;
+		$ret_years 	=	$this->getSystemTransactionYears();
 		$select 	=	array(); 
-		for($x=1;$x<=12;$x++){
-			$select[] 	=	"SELECT $year year, $x month";
+		$y 	=	0;
+		foreach($ret_years as $key => $result){
+			$year 	=	$result->fiscalyear;
+			for($x=1;$x<=12;$x++){
+				$select[] 	=	"SELECT $year year, $x month";
+			}
 		}
 		$select_query 	= implode(" UNION ",$select);
 		
@@ -852,4 +844,16 @@ class trial_balance extends wc_model {
 					->getResult();
 		return $result;
 	}
+
+	public function getSystemTransactionYears(){
+
+		$result 	=	$this->db->setTable("balance_table")
+								->setFields("fiscalyear")
+								->setGroupBy('fiscalyear')
+								->runSelect()
+								->getResult();
+
+		return $result;
+	}
+
 }	

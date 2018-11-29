@@ -1279,7 +1279,7 @@ class receipt_voucher_model extends wc_model
 
 		$creditsArray[]								= $post_credit_voucher;
 		
-		$iscrvexisting	= $this->getValue($creditsTable, array("COUNT(*) AS count"), " voucherno = '$creditvoucherno' AND referenceno = '$voucherno'");
+		$iscrvexisting	= $this->getValue($creditsTable, array("COUNT(*) AS count"), " referenceno = '$voucherno'");
 				
 		if($iscrvexisting[0]->count > 0){
 			$insertResult 	=	$this->db->setTable($creditsTable)
