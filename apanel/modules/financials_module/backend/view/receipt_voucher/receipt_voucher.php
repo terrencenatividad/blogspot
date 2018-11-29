@@ -958,7 +958,7 @@
 											$disable_code 		= 'disabled';
 											$added_class 		= "credit_account";
 										} else if( $accountcode == $op_acct || $saved_op_acct == $accountcode ) {
-											$disable_credit		= 'readOnly';
+											$disable_credit		= '';
 											$disable_debit		= 'readOnly';
 											$disable_code 		= 'disabled';
 											$added_class 		= "op_row";
@@ -2780,6 +2780,10 @@ $('#paymentModal').on('hidden.bs.modal',function(){
 	$('#payableError').addClass('hidden');
 	$(this).find('.discountamount').closest('div').removeClass('has-error');
 	$(this).find('.paymentamount').closest('div').removeClass('has-error');
+
+	if(container != undefined || container != []){
+		$('#TagReceivablesBtn').prop('disabled',false);
+	}
 });
 
 $('#cancelPaymentModal').on('click',function(){
@@ -3111,6 +3115,7 @@ function getRVDetails(){
 					$("#accountcode\\["+ row +"\\]").closest('tr').addClass('op_row');
 					$('#accountcode\\['+row+'\\]').val(op_acct).trigger('select2.change');
 					$('#h_accountcode\\['+row+'\\]').val(op_acct);
+					$('#detailparticulars\\['+row+'\\]').val("Overpayment");
 					disable_acct_fields(row);
 					$('#credit\\['+row+'\\]').prop('readonly',false);
 					// $('#disc_acct').val(discount_amount);
@@ -4784,6 +4789,7 @@ $(document).ready(function() {
 
 		if(is_op == "yes"){
 			$('#op_checker').prop('disabled',false);
+			$('#crv').prop('disabled',true);
 			var new_op_account = $('#op_acct').val();
 			update_op_account(new_op_account);
 		}
