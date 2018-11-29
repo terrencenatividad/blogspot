@@ -97,13 +97,28 @@ class trial_balance extends wc_model {
 		$result = $this->db->setTable("chartaccount as chart")
 						->setFields(array("chart.id as accountid","chart.segment5 as accountcode","chart.accountname as accountname"))
 						->leftJoin("balance_table as bal ON bal.accountcode = chart.id")
-						->setWhere("YEAR(bal.transactiondate) >= $prevyear 
-		AND YEAR(bal.transactiondate) <= $currentyear $fs_cond")
+						->setWhere("YEAR(bal.transactiondate) >= $prevyear AND YEAR(bal.transactiondate) <= $currentyear $fs_cond")
 						->setGroupBy("chart.segment5")
 						->setOrderBy("chart.segment5 ASC")
 						->runSelect()
 						->getResult();
 						// echo $this->db->getQuery();
+		return $result;
+	}
+
+	public function retrieveYearEndCOAdetails($currentyear,$prevyear,$fstype=""){
+		$fs_cond 	=	(!empty($fstype)) 	?	" AND chart.fspresentation = '$fstype'" 	:	"";
+		
+		$result = $this->db->setTable("chartaccount as chart")
+						->setFields(array("chart.id as accountid","chart.segment5 as accountcode","chart.accountname as accountname"))
+						->leftJoin("balance_table as bal ON bal.accountcode = chart.id AND bal.source = 'closing'")
+						->setWhere("bal.transactiondate >= '$prevyear' AND bal.transactiondate <= '$currentyear' $fs_cond AND (chart.fspresentation = 'BS' OR chart.fspresentation = 'Balance Sheet')")
+						->setGroupBy("chart.segment5")
+						->setOrderBy("chart.segment5 ASC")
+						->runSelect()
+						->getResult();
+						// echo $this->db->getQuery();
+
 		return $result;
 	}
 
@@ -367,7 +382,6 @@ class trial_balance extends wc_model {
 
 	public function save_journal_voucher($data){	
 		$generatedvoucher 	=	isset($data['voucher']) 			?	$data['voucher'] 			: 	"";
-		// $reference 			=	isset($data['reference']) 			?	$data['reference'] 			: 	"";
 		$warehouse 			=	isset($data['warehouse']) 			?	$data['warehouse'] 			: 	"";
 		$lastdayofdate 		=	isset($data['datefrom']) 			?	$data['datefrom'] 			: 	"";
 		$remarks 			=	isset($data['notes']) 				? 	$data['notes'] 				: 	"";
@@ -435,6 +449,133 @@ class trial_balance extends wc_model {
 
 				$prev_carry 	= $this->getPrevCarry($accountid,$firstdayofdate);
 				$amount			= $this->getCurrent($accountid,$firstdayofdate,$lastdayofdate);
+
+				$accounts['voucher'] 			=	$generatedvoucher;
+				$accounts['account'] 			=	$accountid;
+				$accounts['linenum'] 			=	$linenum;
+				$accounts['detailparticulars'] 	= 	$detailparticular;
+	
+				if( $amount > 0 ){
+					$credit 			= 	$prev_carry	+ $amount;
+					$accounts['amount'] 	=	$credit;
+					$result  			=	$this->create_jvdetails_credit($accounts);
+					$total_credit 		+=	$credit;
+
+					$linenum 		+=	1;	
+				} else {
+					$debit 				= -($prev_carry	+ $amount);
+					$accounts['amount'] 	=	$debit;
+
+					$total_debit 		+=	$debit;
+
+					$result 			=	$this->create_jvdetails_debit($accounts);
+
+					$linenum 			+=	1;	
+				}
+			} 
+	
+			$retained 		= ($total_debit > $total_credit) ? $total_debit - $total_credit : -($total_credit - $total_debit);
+
+			if( $result ) {
+				if( $retained < 0 ){
+					$closing['voucher'] 			=	$generatedvoucher;
+					$closing['linenum'] 			=	$linenum;
+					$closing['account'] 			= 	$actualaccount;
+					$closing['amount'] 				=  	-($retained);
+					$closing['detailparticulars'] 	= 	$detailparticular;
+
+					$result 			=	$this->create_jvdetails_debit($closing);
+				} else {
+					$closing['voucher'] 			=	$generatedvoucher;
+					$closing['linenum'] 			=	$linenum;
+					$closing['account'] 			= 	$actualaccount;
+					$closing['amount'] 				=  	$retained;
+					$closing['detailparticulars'] 	= 	$detailparticular;
+	
+					$result 			=	$this->create_jvdetails_credit($closing);
+				}
+
+				return array(
+					'result'=>$result,
+					'voucherno'=>$generatedvoucher
+				);
+			}
+		}
+	}
+
+	public function save_yearend_jv($data){	
+		$generatedvoucher 	=	isset($data['voucher']) 			?	$data['voucher'] 			: 	"";
+		$warehouse 			=	isset($data['warehouse']) 			?	$data['warehouse'] 			: 	"";
+		$lastdayofdate 		=	isset($data['datefrom']) 			?	$data['datefrom'] 			: 	"";
+		$remarks 			=	isset($data['notes']) 				? 	$data['notes'] 				: 	"";
+		$actualaccount  	=	isset($data['closing_account']) 	? 	$data['closing_account'] 	: 	"";
+		$detailparticular 	=	isset($data['detailparticular']) 	? 	$data['detailparticular'] 	:	"";
+		$period_end 		=	isset($data['period_end']) 			? 	$data['period_end'] 		:	"";
+		$period_start 		=	isset($data['period_start']) 		? 	$data['period_start'] 		:	"";
+
+		$result 			=	0;
+		$amount 			= 	0;
+
+		/**FORMAT DATES**/
+		$exploded_date		=	explode(' ',$lastdayofdate);
+		$month 				=	date('m', strtotime($lastdayofdate));
+		$year 				=	date('Y', strtotime($lastdayofdate));
+
+		// $firstdayofdate 	=	date($year.'-'.$month.'-01');
+
+		$currentyear 		= 	date("Y",strtotime($lastdayofdate));
+		$prevyear 			= 	date("Y",strtotime(date($year.'-'.$month.'-01')." -1 year"));
+		$prevfirstdayofdate = 	date($prevyear.'-'.$period_start.'-01');
+		$firstdayofdate 	= 	date($year.'-'.$period_end.'-01');
+
+		$accounts_arr 		= 	$this->retrieveYearEndCOAdetails($lastdayofdate, $prevfirstdayofdate);
+		
+		$h_amount 			= $h_total_debit 	= $h_total_credit = 0;
+		foreach($accounts_arr as $row){
+			$accountid 		= $row->accountid;
+			$prev_carry 	= $this->getPrevCarry($accountid,$prevfirstdayofdate);
+			$amount			= $this->getCurrent($accountid,$prevfirstdayofdate,$lastdayofdate);
+	
+			if( $amount > 0 ){
+				$credit 			= 	$prev_carry	+ $amount;
+				$h_total_credit 	+=	$credit;
+			} else {
+				$debit 				= -($prev_carry + $amount);
+				$h_total_debit 		+=	$debit;
+			}
+		} 
+
+		$str_month 	=	date('F', strtotime($lastdayofdate));
+		$reference	=	"Closing for the Year $year";
+
+		$header['voucherno'] 		=	$generatedvoucher;
+		$header['transtype'] 		=	"JV";
+		$header['stat'] 			=	"temporary";
+		$header['transactiondate'] 	=	$lastdayofdate;
+		$header['fiscalyear'] 		=	$year;
+		$header['period'] 			= 	$month;
+		$header['currencycode'] 	= 	"PHP";
+		$header['exchangerate'] 	=	1;
+		$header['amount'] 	 		=	$h_total_debit;
+		$header['convertedamount'] 	=	$h_total_debit;
+		$header['referenceno'] 		=	$reference;
+		$header['source'] 			=	"closing";
+		$header['sitecode'] 		= 	$warehouse;
+		$header['remarks'] 			= 	$remarks;
+
+		$result 					=	$this->insertdata('journalvoucher',$header);
+
+		if($result){
+			$debit 					= $total_debit 	= 0;
+			$credit 				= $total_credit = 0;
+			$retained 				= 0;
+			$linenum 				= 1;
+
+			foreach($accounts_arr as $row){
+				$accountid 		= $row->accountid;
+
+				$prev_carry 	= $this->getPrevCarry($accountid,$prevfirstdayofdate);
+				$amount			= $this->getCurrent($accountid,$prevfirstdayofdate,$lastdayofdate);
 
 				$accounts['voucher'] 			=	$generatedvoucher;
 				$accounts['account'] 			=	$accountid;
@@ -564,7 +705,7 @@ class trial_balance extends wc_model {
 		return $result;
 	}
 
-	private function getPeriodStart() {
+	public function getPeriodStart() {
 		$result = $this->db->setTable('company')
 							->setFields(array('taxyear', "MONTH(STR_TO_DATE(periodstart,'%b')) periodstart"))
 							->setLimit(1)
@@ -590,6 +731,15 @@ class trial_balance extends wc_model {
 						// ->setWhere($cond)
 						->runSelect()
 						->getResult();
+	}
+
+	public function getCOAname($code) {
+		return $this->db->setTable('chartaccount c')
+						->setFields('id ind, accountname val')
+						->setWhere("id = '$code'")
+						->setLimit(1)
+						->runSelect()
+						->getRow();
 	}
 
 	public function retrieveAccount($code){
@@ -706,8 +856,12 @@ class trial_balance extends wc_model {
 
 	public function getYearforClosing(){
 		$ret_years 	=	$this->getSystemTransactionYears();
+		$ret		= 	$this->getPeriodStart();
+		$month_start= 	($ret->taxyear == 'fiscal') ? $ret->periodstart 	:	1;
+
 		$select 	=	array(); 
 		$y 	=	0;
+
 		foreach($ret_years as $key => $result){
 			$year 	=	$result->fiscalyear;
 			for($x=1;$x<=12;$x++){
@@ -731,16 +885,26 @@ class trial_balance extends wc_model {
 	}
 
 	public function getClosingMonth($year = false) {
-		// SELECT for Month & Year
-		$year = ($year) ? $year : date('Y');
-		// $year =	2018;
+		$ret_years 	=	$this->getSystemTransactionYears();
+
+		$ret		= 	$this->getPeriodStart();
+		// $month_start= 	($ret->taxyear == 'fiscal') ? $ret->periodstart 	:	1;
+		$month_start= 	1;
+		$month_end 	=   12;
+
 		$select 	=	array(); 
-		for($x=1;$x<=12;$x++){
-			$select[] 	=	"SELECT $year year, $x month";
+		foreach($ret_years as $key => $result){
+			$year 	=	$result->fiscalyear;
+			for($x=$month_start;$x<=$month_end;$x++){
+				$select[] 	=	"SELECT $year year, $x month";
+				// if($x==12 && $ret->taxyear == 'fiscal'){
+				// 	$month_end   = $month_start - 1;
+				// 	$month_start = 1;
+				// }
+			}
 		}
 		$select_query 	= implode(" UNION ",$select);
 		
-		// SELECT JV w/o closing
 		$result 	=	$this->db->setTable("($select_query) period")
 								->setFields("period.month, period.year")
 								->leftJoin("journalvoucher jv ON jv.period = period.month AND jv.fiscalyear = period.year AND jv.source = 'closing' AND jv.stat = 'posted' ")
@@ -750,7 +914,7 @@ class trial_balance extends wc_model {
 								->setLimit(1)
 								->runSelect(false)
 								->getRow();
-		// echo $this->db->getQuery();
+								
 		return $result;
 	}
 

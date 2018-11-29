@@ -21,20 +21,42 @@ class controller extends wc_controller {
 
 		$account 					=	$this->trial_balance->retrieveAccount("IS");
 		$data['is_account']			=	isset($account->salesAccount) 	?	$account->salesAccount 	:	"";
+		$acct 						=	$this->trial_balance->retrieveAccount("YEC");
+		$yr_account					=	isset($acct->salesAccount) 		?	$acct->salesAccount 	:	"";
+		$data['yr_account'] 		=	$yr_account;
 		$data['chart_account_list'] =	$this->trial_balance->getChartAccountList();
 		$data['proforma_list'] 		= 	$this->trial_balance->getProformaList();
 
-		$year_result 				=  	$this->trial_balance->getYearforClosing();
-		$year_closing 				=	isset($year_result->year)		?	$year_result->year	:	"";	
-		$period_result 				=	$this->trial_balance->getClosingMonth($year_closing);
+		// $year_result 				=  	$this->trial_balance->getYearforClosing();
+		// $year_closing 				=	isset($year_result->year)		?	$year_result->year	:	"";	
+		$period_result 				=	$this->trial_balance->getClosingMonth();
 		$ret_year  			 		=	isset($period_result->year) 	?	$period_result->year 	:	"";	 			
 		$ret_month 					=	isset($period_result->month) 	?	$period_result->month 	:	"";
+		$ret_period 				= 	$this->trial_balance->getPeriodStart();
+		$period_start 				= 	isset($ret_period->periodstart) ? 	$ret_period->periodstart :	"";
+		$period_end 				=	isset($ret_period->periodstart) ? 	$ret_period->periodstart - 1 : 12;
+		$taxyear 					=	isset($ret_period->taxyear) 	? 	$ret_period->taxyear	:	"";
+
+		$data['taxyear'] 			=	$taxyear;
+		$data['period_start'] 		= 	($taxyear == 'fiscal') ? $period_start 	: "0";
+		$data['period_end'] 		= 	($taxyear == 'fiscal') ? $period_end 	: "11";
 
 		$last_date 					= 	$ret_year."-".$ret_month."-1";
 		$complete_date 				= 	$this->trial_balance->getMonthEnd($last_date);
 		$complete_date 				=	$this->date->dateFormat($complete_date);
 
 		$data['datafrom'] 			=	$complete_date;
+
+		// For Year End Closing
+		$firstmonth 				=	$ret_year."-1-1";
+		$lastmonth 					=	$ret_year."-12-1";
+		$jan 						= 	$this->trial_balance->getMonthEnd($firstmonth);
+		$jan 						=	$this->date->dateFormat($jan);
+		$dec 						= 	$this->trial_balance->getMonthEnd($lastmonth);
+		$dec 						=	$this->date->dateFormat($dec);
+		$data['year_end_date'] 		=	$jan." - ".$dec;
+		$ret_name 					=	$this->trial_balance->getCOAname($yr_account);
+		$data['year_end_acctname'] 	=	isset($ret_name->val) 	?	$ret_name->val	:	"";
 
 		$data['ui'] 				= 	$this->ui;
 		$data['show_input'] 		= 	true;
@@ -298,10 +320,13 @@ class controller extends wc_controller {
 	}
 
 	private function temporary_jv_close(){
-
-		$data 			= 	$this->input->post(array('datefrom','reference','notes','closing_account'));
+		$data 			= 	$this->input->post(array('datefrom','reference','notes','closing_account','taxyear','period_end','period_start'));
 		$datefrom 		=	$data['datefrom'];
 		$datefrom 		=	date("Y-m-d", strtotime($datefrom));
+
+		$taxyear 		=	$data['taxyear'];
+		$period_end		=	$data['period_end'];
+		$period_start 	=	$data['period_start'];
 
 		$account 		=	isset($data['closing_account']) 	?	$data['closing_account'] 	:	"";
 
@@ -312,15 +337,51 @@ class controller extends wc_controller {
 
 		$data['datefrom'] 			=	$datefrom;
 		$data['voucher'] 			=	$temporary_id; 
+		$data['taxyear'] 			= 	$taxyear;
 		$data['closing_account'] 	=	$account;
+		$data['period_end'] 		=	$period_end;
+		$data['period_start'] 		=	$period_start;
 
-		$result 			=	$this->trial_balance->save_journal_voucher($data);
-		
+		$result 					=	$this->trial_balance->save_journal_voucher($data);
+
 		if($result){
 			$this->report_model->generateBalanceTable();
 		}
-		
+
 		$dataArray 		=	array( "result" =>	$result, 'voucherno' => $temporary_id);
+
+		return $dataArray;
+	}
+
+	private function save_yearend_closing(){
+		$data 			= 	$this->input->post(array('datefrom','reference','notes','closing_account','taxyear','period_end','period_start'));
+		$datefrom 		=	$data['datefrom'];
+		$datefrom 		=	date("Y-m-d", strtotime($datefrom));
+		$month 			=	date('m', strtotime($datefrom));
+
+		$taxyear 		=	$data['taxyear'];
+		$period_end		=	$data['period_end'];
+		$period_start 	=	$data['period_start'];
+
+		$new_temp_id 	= 	"";
+		if($result && $taxyear == "fiscal" && ($month == $period_end)){
+			// retrieve retained earnings
+			$gen_value      			= 	$this->trial_balance->getValue("journalvoucher", "COUNT(*) as count", "voucherno != ''");
+			$new_temp_id   				= 	(!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
+
+			$data['voucher'] 			=	$new_temp_id; 
+			$ret_acct 					=	$this->trial_balance->getValue("fintaxcode", "salesAccount", "fstaxcode = 'YEC'");
+			$year_end_account			=	isset($ret_acct[0]->salesAccount) ? $ret_acct[0]->salesAccount  : "";
+			$data['closing_account']	= 	$year_end_account;
+
+			$result 					=	$this->trial_balance->save_yearend_jv($data);
+		}
+
+		if($result){
+			$this->report_model->generateBalanceTable();
+		}
+
+		$dataArray 		=	array( "result" =>	$result, 'voucherno' => $new_temp_id);
 
 		return $dataArray;
 	}
