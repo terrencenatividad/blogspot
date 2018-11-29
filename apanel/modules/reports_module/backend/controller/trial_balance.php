@@ -9,14 +9,13 @@ class controller extends wc_controller {
 		$this->input            = new input();
 		$this->log 				= new log();
 		$this->seq				= new seqcontrol();
-		$this->report_model 	= new report_model;
 		$this->show_input 	    = true;
 		$this->session          = new session();
 	}
 
 	public function view() {
 		$this->view->title 			= 	'Trial Balance';
-		
+		$this->report_model 		= 	new report_model;
 		$this->report_model->generateBalanceTable();
 
 		$account 					=	$this->trial_balance->retrieveAccount("IS");
@@ -127,10 +126,13 @@ class controller extends wc_controller {
 		$totalperiodbalance = 0;
 		$totalaccumulatedbalance = 0;
 		
-		foreach($pagination as $row){
-				$accountid          = $row->accountid;
-				$accountcode		= $row->accountcode;
-				$accountname		= $row->accountname;	
+		if(count($pagination->result)>0)
+		{
+			for($i=0;$i<count($pagination->result);$i++)
+			{	
+				$accountid          = $pagination->result[$i]->accountid;
+				$accountcode		= $pagination->result[$i]->accountcode;
+				$accountname		= $pagination->result[$i]->accountname;	
 
 				$prevcarry 			= $this->trial_balance->getPrevCarry($accountid,$datefilterFrom);
 				$balcarry			= $this->trial_balance->getBalanceCarry($accountid,$datefilterFrom,$datefilterTo);
@@ -188,6 +190,7 @@ class controller extends wc_controller {
 
 			$table.= '</tr>';
 		
+	}
 		// if(count($pagination->result)>0)
 		// {
 		// 	for($i=0;$i<count($pagination->result);$i++)
@@ -257,8 +260,8 @@ class controller extends wc_controller {
 		// 	$table .= '<tr><td colspan="8" class="text-center"><b>No Records Found</b></td></tr>';
 		// }
 
-		// $pagination->table = $table;
-		// $pagination->csv   = $this->export();
+		$pagination->table = $table;
+		$pagination->csv   = $this->export();
 		return array('table' => $table);
 
 	}
