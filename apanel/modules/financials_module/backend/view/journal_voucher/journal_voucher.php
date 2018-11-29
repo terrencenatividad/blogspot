@@ -265,7 +265,7 @@
 						}
 						recomputeTotal();
 					}
-					if (<?php echo ($amount) ? $amount : 0 ?> > 0 || '<?php echo $checker ?>' != 'closing') {
+					if (<?php echo ($amount) ? $amount : 0 ?> > 0 || '<?php echo $stat?>' == 'cancelled' || '<?php echo $checker ?>' != 'closing') {
 						displayDetails(voucher_details);
 					} else {
 						$('#tableList tbody').append(`<tr><th colspan="4" class="text-center">No Entries for this Period</th></tr>`);
