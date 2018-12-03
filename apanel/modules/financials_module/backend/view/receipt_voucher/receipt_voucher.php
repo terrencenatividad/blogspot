@@ -3146,7 +3146,7 @@ function getRVDetails(){
 		$('.cwt').removeAttr('disabled');
 		var has_payment = $('#total_payment').val();
 
-		if(parseFloat(has_payment) > 0){
+		if(parseFloat(has_payment) > 0 && is_op != "yes"){
 			$('#crv').prop('disabled',false);
 		}
 		addAmountAll("debit");
