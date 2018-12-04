@@ -2259,9 +2259,6 @@ function addAmountAll(field) {
 	var is_op 	= $('#op_checker').is(':checked');
 		is_op 	= (is_op == true) ? "true" 	:	"false";
 
-	console.log(" IS AP "+is_ap);
-	console.log(" IS OP "+is_op);
-
 	if(field == 'debit')
 	{
 		notfield	= 'credit';
@@ -2281,7 +2278,6 @@ function addAmountAll(field) {
 		if(document.getElementById(notfield+'['+i+']')!=null){          
 			if(inputs.value && parseFloat(inputs.value) != 0 && inputs.value != '0.00'){                         
 				inData = inputs.value.replace(/,/g,'');
-				console.log(ar_acct +" = "+accountcode);
 				if(is_cheque == 'yes'){
 					inputs.readOnly   = true;
 					disables.readOnly = true;
@@ -2302,7 +2298,6 @@ function addAmountAll(field) {
 				}
 				sum = parseFloat(sum) + parseFloat(inData);
 			} else {             
-				console.log(ar_acct +" = "+accountcode);
 				if(is_cheque == 'yes'){
 					inputs.readOnly   = true;
 					disables.readOnly = true;
@@ -2561,7 +2556,7 @@ function toggleCheckInfo(val){
 		if(selected_rows != '[]'){
 			$("#payableForm #cheque_details").removeClass('hidden');
 		}else{
-			if(is_ap == "false" || is_op == "false"){
+			if(is_ap == "false"){
 				var list 	= (customer != '') ? "<ul><li>Total Receivables</li></ul>" : "<ul><li>Vendor</li><li>Total Receivables</li></ul>";
 				var msg 	= "The following fields are required to process a '<strong>Check</strong>' payment."+list;
 				bootbox.dialog({
@@ -2995,27 +2990,16 @@ function getCheckAccounts() {
 
 function set_op_acct(discount){
 	var op_acct 	= $('#hidden_op_acct').val();
-		
-	// if(discount == "" || discount == undefined) {
-		
-	// } else {
-	// 	var row 	  = $('#entriesTable tbody tr.discount_row').find('.accountcode').data('id') + 1;
-	// }
-
 	var row 	  = $('#entriesTable tbody tr.clone').length;
 	var ParentRow = $("#entriesTable tbody tr.clone").last();
 		ParentRow.before(clone_acct);
 		resetIds();
-		console.log (" set op row "+row);
-
 		$("#accountcode\\["+ row +"\\]").closest('tr').addClass('op_row');
 		$("#accountcode\\["+ row +"\\]").val(op_acct).trigger('change.select2');
 		$("#h_accountcode\\["+ row +"\\]").val(op_acct);
 		$("#detailparticulars\\["+ row +"\\]").val("Overpayment");
 		disable_acct_fields(row);
 		$("#credit\\["+ row +"\\]").prop('readonly',false);
-		// addAmountAll('debit');
-		// drawTemplate();
 }
 
 var payments 		= <?=$payments;?>;
@@ -3121,7 +3105,7 @@ function getRVDetails(){
 					// $('#disc_acct').val(discount_amount);
 				}
 				
-				// // For Advance Payment - Credit Voucher
+				// // // For Advance Payment - Credit Voucher
 				var total = $('#creditvoucherModal #total_credits_to_apply').val();
 				if(parseFloat(total) > 0){
 					apply_credit_account(total);
@@ -3937,12 +3921,6 @@ function apply_credit_account(amount){
 		total_opcredits_amount 	=	removeComma(total_opcredits_amount);
 	var total_advcredits_amount =	parseFloat(amount - total_opcredits_amount);
 
-	// var cheque_rows = $('#entriesTable tbody tr.added_row').length;
-
-	// if(cheque_rows == 0){
-		
-	// }
-
 	$('#entriesTable tr').each(function(index) {
 		var account = $(this).find('.accountcode').val();
 		if(account == cred_acct || account == op_acct){
@@ -3951,7 +3929,6 @@ function apply_credit_account(amount){
 	});
 	if(total_advcredits_amount>0){
 		var adv_account = cred_acct;
-		console.log(clone_acct);
 		$("#entriesTable tbody tr.clone:not(.added_row)").first().before(clone_acct);
 		resetIds();
 		var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first();
@@ -3963,12 +3940,9 @@ function apply_credit_account(amount){
 			credit_row.find('.credit').prop('readonly',true);
 	}  
 	if(total_opcredits_amount>0){
-		// $("#entriesTable tbody tr.clone:not(.added_row)").first().after(clone_acct);
-		// console.log(clone_acct);
 		$("#entriesTable tbody tr.clone:not(.added_row)").first().before(clone_acct);
 		resetIds();
 		var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first();
-			// console.log(credit_row);
 			credit_row.find('.debit').val(addComma(total_opcredits_amount));
 			credit_row.find('.accountcode').val(op_acct).prop('disabled',true);
 			credit_row.find('.h_accountcode').val(op_acct);
