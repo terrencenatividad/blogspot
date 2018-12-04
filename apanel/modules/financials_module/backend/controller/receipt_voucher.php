@@ -1395,7 +1395,7 @@ class controller extends wc_controller
 					// $balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
 				}
 				
-				$balance 		= ($overpayment>0 || $balance > 0) ? $appliedamount + $balance_2 : $balance;
+				$balance 		= (($overpayment>0 || $balance > 0) && $task != "create") ? $appliedamount + $balance_2 : $balance;
 				
 				// echo "Balance 1 = ".$balance."\n";
 				// echo "Balance 2 = ".$balance_2."\n\n";
