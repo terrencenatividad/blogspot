@@ -882,7 +882,7 @@
 														->setSplit('', 'col-md-12')
 														->setClass('quantity text-right')
 														->setValidation('integer')
-														->setValue($row->issueqty)
+														->setValue(number_format($row->issueqty, 0))
 														->draw(false);
 											?>
 										</td>
@@ -900,7 +900,7 @@
 												echo $ui->formField('text')
 														->setSplit('', 'col-md-12')
 														->setClass("text-right price")
-														->setValue($row->unitprice)
+														->setValue(number_format($row->unitprice, 2))
 														->draw(false);
 											?>
 										</td>
@@ -1142,7 +1142,7 @@
 														->setSplit('', 'col-md-12')
 														->setClass('quantity text-right')
 														->setValidation('integer')
-														->setValue($row->balance_qty)
+														->setValue(number_format($row->balance_qty, 0))
 														->draw(false);
 											?>
 										</td>
@@ -1160,7 +1160,7 @@
 												echo $ui->formField('text')
 														->setSplit('', 'col-md-12')
 														->setClass("text-right price")
-														->setValue($row->unitprice)
+														->setValue(number_format($row->unitprice, 2))
 														->draw(false);
 											?>
 										</td>
