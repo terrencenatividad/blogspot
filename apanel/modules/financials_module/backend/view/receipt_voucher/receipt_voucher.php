@@ -1790,9 +1790,12 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 					$("#entriesTable tbody tr.clone:not(.added_row)").first().before(clone_acct);
 				} else {
 					$('#entriesTable tbody tr.clone select.accountcode').each(function() {
-						var account = $(this).val();
-						var len 	= $(this).closest('tbody').find('tr').length >= 2;
-						if(account == "" && (is_ap == "false" || is_op == "false" || len)){
+						var account 		= $(this).val();
+						var len 			= $(this).closest('tbody').find('tr').length >= 2;
+						var is_disabled 	= $(this).is(':disabled');
+						if(account == "" && (is_ap == "false" || len)){
+							$(this).closest('tr').remove();
+						} else if(account != "" && !is_disabled) {
 							$(this).closest('tr').remove();
 						}
 					});
@@ -1812,6 +1815,7 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 			}
 			resetIds();
 			$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
+			$("#accountcode\\["+ row +"\\]").closest('tr').removeClass('op_row');
 			$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 			disable_acct_fields(row);
@@ -3135,6 +3139,9 @@ function getRVDetails(){
 					}
 				});
 			}	
+
+			addAmountAll("debit");
+			addAmountAll("credit");
 		});
 		$('.cwt').removeAttr('disabled');
 		var has_payment = $('#total_payment').val();
@@ -3143,8 +3150,6 @@ function getRVDetails(){
 			$('#crv').prop('disabled',false);
 			$('#op_checker').prop('disabled',false);
 		}
-		// addAmountAll("debit");
-		// addAmountAll("credit");
 	}
 }
 
@@ -4776,7 +4781,7 @@ $(document).ready(function() {
 			var new_op_account = $('#op_acct').val();
 			update_op_account(new_op_account);
 		}
-
+		drawTemplate();
 		$("#paymentmode").removeAttr("disabled");
 
 		/**SAVE CHANGES AND REDIRECT TO LIST**/
