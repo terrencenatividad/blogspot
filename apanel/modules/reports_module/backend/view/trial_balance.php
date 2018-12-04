@@ -173,6 +173,8 @@
 							<input type="hidden" id="period_start" name="period_start" value="<?=$period_start?>">
 							<input type="hidden" id="year_end_date" name="year_end_date" value="<?=$year_end_date?>">
 							<input type="hidden" id="yr_account" name="yr_account" value="<?=$yr_account?>">
+							<input type="hidden" id="last_date" name="last_date" value="<?=$last_date?>">
+							<input type="hidden" id="last_year" name="last_year" value="<?=$last_year?>">
 						</div>
 					</div>
 					<?php
@@ -519,10 +521,17 @@
 
 	$('#jv_header').on('click',"#btnSaveDetails", function(){
 		var current_date 		=	$('#jvModal #datefrom').val();	
-			date 				= 	new Date(current_date);
-			current_month 		=	date.getMonth();
+		var last_closed_year 	=	$('#jvModal #last_year').val();
+		var date_array 			=	current_date.split(' - ');
+		
+		if(date_array.length > 1) {
+			ajax2.datefrom 			=	date_array[1];
+			ajax2.source 			=	"yrend_closing";
+		} else {
+			ajax2.datefrom 			=	current_date;
+			ajax2.source 			=	"closing";
+		}
 
-		ajax2.datefrom 			=	current_date;
 		ajax2.reference 		=	$('#jvModal #reference').val();
 		ajax2.notes 			=	$('#jvModal #notes').val();
 		ajax2.closing_account 	=	$('#jvModal #closing_account').val();
@@ -536,53 +545,26 @@
 			$.post('<?=MODULE_URL?>ajax/temporary_jv_close', ajax2 , function(response) {
 				if( response.result ){
 					$("#jvModal").modal('hide');
+					$.post('<?=MODULE_URL?>ajax/check_existing_yrendjv', "year="+last_closed_year , function(response) {
+						
+					});
 					preview_jv(response.voucherno);
 				}
 			});
 		}
-		
 	});
 
 	$('#previewModal').on('click','#confirmbtn',function(){
 		var current_date 		=	$('#jvModal #datefrom').val();	
 			date 				= 	new Date(current_date);
 			current_month 		=	date.getMonth();
-		var period_end 			=	$('#jvModal #period_end').val();
-		var period_start 		=	$('#jvModal #period_start').val();
-		var year_end_date 		=	$('#jvModal #year_end_date').val();
-		var year_end_acct 		=	$('#jvModal #yr_account').val();
 
 		ajax2.voucherno 		=	$('#previewModal #voucherno').val();
-		ajax4.datefrom 			=	current_date;
-		ajax4.reference 		=	$('#jvModal #reference').val();
-		ajax4.notes 			=	$('#jvModal #notes').val();
-		ajax4.closing_account 	=	$('#jvModal #closing_account').val();
-		ajax4.period_end 		=	$('#jvModal #period_end').val();
-		ajax4.period_start 		=	$('#jvModal #period_start').val();
-		ajax4.taxyear 			=	$('#jvModal #taxyear').val();
 
 		$.post('<?=MODULE_URL?>ajax/close_jv_status', ajax2 , function(response) {
 			if( response.result ){
 				$('#previewModal').modal('hide');
-				console.log(current_month);
-				console.log(ajax4.period_end);
-				if(current_month == period_end){
-					
-					// $.post('<?//=MODULE_URL?>ajax/save_yearend_closing', ajax4 , function(response2) {
-					// 	if( response2.result ){
-					// 		$("#jvModal").modal('hide');
-					// 		preview_jv(response2.voucherno);
-					// 		// $('#redirectionModal').modal('show');
-					// 	}
-					// });
-					$('#jvModal #datefrom').val(year_end_date);
-					$('#jvModal #closing_account').val(year_end_acct);
-					$("#jvModal #closing_account_static").html('<?=$year_end_acctname?>');
-					drawTemplate();
-					$("#jvModal").modal('show');
-				} else {
-					$('#redirectionModal').modal('show');
-				}
+				$('#redirectionModal').modal('show');
 			}
 		});
 	});
@@ -619,7 +601,7 @@
 
 	$('#closing_cancel').on('click',function(e){
 		ajax2.voucherno 	=	$('#previewModal #voucherno').val();
-		//delete temporary saved jv... 
+	
 		$.post('<?=MODULE_URL?>ajax/eradicate_temporary_jv', ajax2 , function(response) {
 			if( response.result ){
 				$('#previewModal').modal('hide');

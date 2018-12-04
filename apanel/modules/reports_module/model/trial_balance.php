@@ -365,6 +365,31 @@ class trial_balance extends wc_model {
 		return $result;
 	}	
 
+	public function check_existing_yrendjv($year=""){
+		$cond		= ($year!="") ? " AND fiscalyear = '$year' " 	:	"";
+
+		$result 	= $this->db->setTable("journalvoucher")
+							   ->setFields(array('voucherno, fiscalyear'))
+							   ->setWhere("stat NOT IN ('cancelled','temporary') AND source='yrend_closing' $cond")
+								->runSelect(false)
+								->getResult();
+
+		return $result;
+	}	
+
+	public function check_latest_closedmonth($year=""){
+		$cond		= ($year!="") ? " AND fiscalyear = '$year' " 	:	"";
+		$result 	= $this->db->setTable("journalvoucher")
+							   ->setFields(array('fiscalyear, period'))
+							   ->setWhere("source='closing' AND stat NOT IN ('cancelled','temporary') $cond")
+							   ->setOrderBy('period DESC')
+							   ->setLimit(1)
+								->runSelect(false)
+								->getResult();
+
+		return $result;
+	}	
+
 	public function get_last_day($month = '', $year = '')  {
 	   if (empty($month))  {
 		  $month = date('m');
@@ -387,6 +412,7 @@ class trial_balance extends wc_model {
 		$remarks 			=	isset($data['notes']) 				? 	$data['notes'] 				: 	"";
 		$actualaccount  	=	isset($data['closing_account']) 	? 	$data['closing_account'] 	: 	"";
 		$detailparticular 	=	isset($data['detailparticular']) 	? 	$data['detailparticular'] 	:	"";
+		$source 			=	isset($data['source']) 	? 	$data['source'] 	:	"";
 
 		$result 			=	0;
 		$amount 			= 	0;
@@ -419,7 +445,7 @@ class trial_balance extends wc_model {
 		} 
 
 		$str_month 	=	date('F', strtotime($lastdayofdate));
-		$reference	=	"Closing for $str_month, $year";
+		$reference	=	($source == "closing") ? "Closing for $str_month, $year" : "Year-end Closing for $year";
 
 		$header['voucherno'] 		=	$generatedvoucher;
 		$header['transtype'] 		=	"JV";
@@ -432,7 +458,7 @@ class trial_balance extends wc_model {
 		$header['amount'] 	 		=	$h_total_debit;
 		$header['convertedamount'] 	=	$h_total_debit;
 		$header['referenceno'] 		=	$reference;
-		$header['source'] 			=	"closing";
+		$header['source'] 			=	$source;
 		$header['sitecode'] 		= 	$warehouse;
 		$header['remarks'] 			= 	$remarks;
 
@@ -444,138 +470,14 @@ class trial_balance extends wc_model {
 			$retained 				= 0;
 			$linenum 				= 1;
 
+			$current_year_id 		= $this->retrieveAccount("IS");
+			$current_year_id 		= isset($current_year_id->salesAccount) ? $current_year_id->salesAccount 	:	"";
+
 			foreach($accounts_arr as $row){
-				$accountid 		= $row->accountid;
+				$accountid 		= ($source == "closing") ? $row->accountid : $current_year_id;
 
 				$prev_carry 	= $this->getPrevCarry($accountid,$firstdayofdate);
 				$amount			= $this->getCurrent($accountid,$firstdayofdate,$lastdayofdate);
-
-				$accounts['voucher'] 			=	$generatedvoucher;
-				$accounts['account'] 			=	$accountid;
-				$accounts['linenum'] 			=	$linenum;
-				$accounts['detailparticulars'] 	= 	$detailparticular;
-	
-				if( $amount > 0 ){
-					$credit 			= 	$prev_carry	+ $amount;
-					$accounts['amount'] 	=	$credit;
-					$result  			=	$this->create_jvdetails_credit($accounts);
-					$total_credit 		+=	$credit;
-
-					$linenum 		+=	1;	
-				} else {
-					$debit 				= -($prev_carry	+ $amount);
-					$accounts['amount'] 	=	$debit;
-
-					$total_debit 		+=	$debit;
-
-					$result 			=	$this->create_jvdetails_debit($accounts);
-
-					$linenum 			+=	1;	
-				}
-			} 
-	
-			$retained 		= ($total_debit > $total_credit) ? $total_debit - $total_credit : -($total_credit - $total_debit);
-
-			if( $result ) {
-				if( $retained < 0 ){
-					$closing['voucher'] 			=	$generatedvoucher;
-					$closing['linenum'] 			=	$linenum;
-					$closing['account'] 			= 	$actualaccount;
-					$closing['amount'] 				=  	-($retained);
-					$closing['detailparticulars'] 	= 	$detailparticular;
-
-					$result 			=	$this->create_jvdetails_debit($closing);
-				} else {
-					$closing['voucher'] 			=	$generatedvoucher;
-					$closing['linenum'] 			=	$linenum;
-					$closing['account'] 			= 	$actualaccount;
-					$closing['amount'] 				=  	$retained;
-					$closing['detailparticulars'] 	= 	$detailparticular;
-	
-					$result 			=	$this->create_jvdetails_credit($closing);
-				}
-
-				return array(
-					'result'=>$result,
-					'voucherno'=>$generatedvoucher
-				);
-			}
-		}
-	}
-
-	public function save_yearend_jv($data){	
-		$generatedvoucher 	=	isset($data['voucher']) 			?	$data['voucher'] 			: 	"";
-		$warehouse 			=	isset($data['warehouse']) 			?	$data['warehouse'] 			: 	"";
-		$lastdayofdate 		=	isset($data['datefrom']) 			?	$data['datefrom'] 			: 	"";
-		$remarks 			=	isset($data['notes']) 				? 	$data['notes'] 				: 	"";
-		$actualaccount  	=	isset($data['closing_account']) 	? 	$data['closing_account'] 	: 	"";
-		$detailparticular 	=	isset($data['detailparticular']) 	? 	$data['detailparticular'] 	:	"";
-		$period_end 		=	isset($data['period_end']) 			? 	$data['period_end'] 		:	"";
-		$period_start 		=	isset($data['period_start']) 		? 	$data['period_start'] 		:	"";
-
-		$result 			=	0;
-		$amount 			= 	0;
-
-		/**FORMAT DATES**/
-		$exploded_date		=	explode(' ',$lastdayofdate);
-		$month 				=	date('m', strtotime($lastdayofdate));
-		$year 				=	date('Y', strtotime($lastdayofdate));
-
-		// $firstdayofdate 	=	date($year.'-'.$month.'-01');
-
-		$currentyear 		= 	date("Y",strtotime($lastdayofdate));
-		$prevyear 			= 	date("Y",strtotime(date($year.'-'.$month.'-01')." -1 year"));
-		$prevfirstdayofdate = 	date($prevyear.'-'.$period_start.'-01');
-		$firstdayofdate 	= 	date($year.'-'.$period_end.'-01');
-
-		$accounts_arr 		= 	$this->retrieveYearEndCOAdetails($lastdayofdate, $prevfirstdayofdate);
-		
-		$h_amount 			= $h_total_debit 	= $h_total_credit = 0;
-		foreach($accounts_arr as $row){
-			$accountid 		= $row->accountid;
-			$prev_carry 	= $this->getPrevCarry($accountid,$prevfirstdayofdate);
-			$amount			= $this->getCurrent($accountid,$prevfirstdayofdate,$lastdayofdate);
-	
-			if( $amount > 0 ){
-				$credit 			= 	$prev_carry	+ $amount;
-				$h_total_credit 	+=	$credit;
-			} else {
-				$debit 				= -($prev_carry + $amount);
-				$h_total_debit 		+=	$debit;
-			}
-		} 
-
-		$str_month 	=	date('F', strtotime($lastdayofdate));
-		$reference	=	"Closing for the Year $year";
-
-		$header['voucherno'] 		=	$generatedvoucher;
-		$header['transtype'] 		=	"JV";
-		$header['stat'] 			=	"temporary";
-		$header['transactiondate'] 	=	$lastdayofdate;
-		$header['fiscalyear'] 		=	$year;
-		$header['period'] 			= 	$month;
-		$header['currencycode'] 	= 	"PHP";
-		$header['exchangerate'] 	=	1;
-		$header['amount'] 	 		=	$h_total_debit;
-		$header['convertedamount'] 	=	$h_total_debit;
-		$header['referenceno'] 		=	$reference;
-		$header['source'] 			=	"closing";
-		$header['sitecode'] 		= 	$warehouse;
-		$header['remarks'] 			= 	$remarks;
-
-		$result 					=	$this->insertdata('journalvoucher',$header);
-
-		if($result){
-			$debit 					= $total_debit 	= 0;
-			$credit 				= $total_credit = 0;
-			$retained 				= 0;
-			$linenum 				= 1;
-
-			foreach($accounts_arr as $row){
-				$accountid 		= $row->accountid;
-
-				$prev_carry 	= $this->getPrevCarry($accountid,$prevfirstdayofdate);
-				$amount			= $this->getCurrent($accountid,$prevfirstdayofdate,$lastdayofdate);
 
 				$accounts['voucher'] 			=	$generatedvoucher;
 				$accounts['account'] 			=	$accountid;
@@ -751,11 +653,13 @@ class trial_balance extends wc_model {
 	}
 
 	public function getJVHeader($voucherno){
-		return $this->db->setTable('journalvoucher')
+		$result =  $this->db->setTable('journalvoucher')
 						->setFields('referenceno, remarks, proformacode, transactiondate')
-						->setWhere("voucherno = '$voucherno' AND stat = 'temporary' AND source = 'closing' ")
+						->setWhere("voucherno = '$voucherno' AND stat = 'temporary' AND source IN ('closing','yrend_closing') ")
 						->runSelect()
 						->getRow();
+						
+		return $result;
 	}
 
 	public function getJVDetails($voucherno, $search="", $limit=1){
@@ -763,7 +667,7 @@ class trial_balance extends wc_model {
 		$result 		= 	$this->db->setTable('journaldetails jv')
 									->leftJoin('chartaccount ca ON ca.id=jv.accountcode')
 									->setFields('jv.linenum, jv.accountcode, CONCAT(ca.segment5," - ",ca.accountname) accountname, jv.detailparticulars, jv.debit, jv.credit')
-									->setWhere("jv.voucherno = '$voucherno' AND jv.stat = 'temporary' AND jv.source = 'closing' AND ( jv.debit > 0 OR jv.credit > 0 ) $search_cond ")
+									->setWhere("jv.voucherno = '$voucherno' AND jv.stat = 'temporary' AND jv.source IN ('closing','yrend_closing') AND ( jv.debit > 0 OR jv.credit > 0 ) $search_cond ")
 									->setOrderBy("jv.linenum")
 									->setLimit($limit)
 									->runPagination();
