@@ -2552,6 +2552,7 @@ function toggleCheckInfo(val){
 		is_ap 	= (is_ap == true) ? "true" 	:	"false";
 	var is_op 	= $('#op_checker').is(':checked');
 		is_op 	= (is_op == true) ? "true" 	:	"false";
+
 	if(val == 'cheque'){
 		if(selected_rows != '[]'){
 			$("#payableForm #cheque_details").removeClass('hidden');
@@ -2568,8 +2569,9 @@ function toggleCheckInfo(val){
 							className: "btn-primary btn-flat",
 							callback: function(result) {
 								$("#payableForm #paymentmode").val('cash');
-								$('#payableForm #paymentmode').select2('destroy');
-								$('#payableForm #paymentmode').select2({width: "100%"});
+								// $('#payableForm #paymentmode').select2('destroy');
+								// $('#payableForm #paymentmode').select2({width: "100%"});
+								drawTemplate();
 							}
 						}
 					}
@@ -2585,7 +2587,7 @@ function toggleCheckInfo(val){
 		$("#payableForm #cheque_details").addClass('hidden');
 		$('#totalcheques').val(0);
 		formatNumber('totalcheques');
-		if(is_ap == "false" || is_op == "false"){
+		if(is_ap == "false" && is_op == "false") {
 			if(container.length > 0){
 				getRVDetails();
 			}
@@ -2595,6 +2597,10 @@ function toggleCheckInfo(val){
 			$('.credit').removeAttr('readonly');
 			$('.accountcode').prop('disabled',false);
 			$('.confirm-delete').prop('disabled',false);
+		} else if(is_ap == "false" && is_op == "true") {
+			if(container.length > 0 && task != "edit"){
+				getRVDetails();
+			}
 		} else {
 			set_account();
 		}
@@ -3024,6 +3030,7 @@ function getRVDetails(){
 	}
 
 	cheques = JSON.stringify(cheques);
+
 	$("#selected_rows").html(selected_rows);
 
 	tagged_AR 	 = 	$.extend(true,{},container);
@@ -3061,7 +3068,7 @@ function getRVDetails(){
 			if(selected_rows != ""){
 				$("#paymentmode").removeAttr("disabled");
 			}
-
+	
 			if('<?= $task ?>' == "create" || '<?= $task ?>' == "edit" ){
 				$("#entriesTable tbody").html(data.table);
 				$("#pv_amount").html(total_payment);
@@ -3088,7 +3095,7 @@ function getRVDetails(){
 					disable_acct_fields(row);
 					$('#disc_acct').val(discount_code);
 				}
-				$('#entriesTable tbody tr.op_row').remove();
+				// $('#entriesTable tbody tr.op_row').remove();
 				// For Overpayment 
 				if(is_op == "yes"){
 					var row = $("#entriesTable tbody tr.clone").length; 
@@ -3100,9 +3107,11 @@ function getRVDetails(){
 					$('#accountcode\\['+row+'\\]').val(op_acct).trigger('select2.change');
 					$('#h_accountcode\\['+row+'\\]').val(op_acct);
 					$('#detailparticulars\\['+row+'\\]').val("Overpayment");
+					// $('#debit\\['+row+'\\]').val(0);
 					disable_acct_fields(row);
 					$('#credit\\['+row+'\\]').prop('readonly',false);
 					// $('#disc_acct').val(discount_amount);
+					$('#op_checker').prop('disabled',false);
 				}
 				
 				// // // For Advance Payment - Credit Voucher
@@ -3122,7 +3131,7 @@ function getRVDetails(){
 						$(this).find('.debit').prop('readonly',true);
 						$(this).find('.confirm-delete').prop('disabled',true);
 						$('#ar_acct').val(arv_acct);
-						addAmountAll("credit");
+						// addAmountAll("credit");
 					}
 				});
 			}	
@@ -3133,9 +3142,8 @@ function getRVDetails(){
 		if(parseFloat(has_payment) > 0 && is_op != "yes"){
 			$('#crv').prop('disabled',false);
 		}
-		addAmountAll("debit");
-		addAmountAll("credit");
-		$('#op_checker').prop('disabled',false);
+		// addAmountAll("debit");
+		// addAmountAll("credit");
 	}
 }
 
@@ -3902,7 +3910,7 @@ function set_account(){
 	}
 	$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 	$("#h_accountcode\\["+ row +"\\]").val(account);
-	$('#credit\\['+row+'\\]').val('0.00');	
+	// $('#credit\\['+row+'\\]').val('0.00');	
 
 	$("#accountcode\\["+ row +"\\]").closest('tr').addClass('credit_account');
 

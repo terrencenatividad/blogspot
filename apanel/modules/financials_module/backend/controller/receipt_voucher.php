@@ -1624,7 +1624,7 @@ class controller extends wc_controller
 		$show_input         = $this->show_input;
 
 		$totalcredit = 0;
-		
+		// var_dump($results);
 		if(!empty($results)){
 			$credit      = '0.00';
 			$count       = count($results);
@@ -1634,11 +1634,11 @@ class controller extends wc_controller
 				if($i==$count && $advance == 'no') {
 					break;
 				}
-				$accountcode       = (!empty($results[$i]->accountcode))		? $results[$i]->accountcode : "";
-				$detailparticulars = (!empty($results[$i]->detailparticulars)) 	? $results[$i]->detailparticulars : "";
+				$accountcode       = (!empty($results[$i]->accountcode))		? $results[$i]->accountcode 		: "";
+				$detailparticulars = (!empty($results[$i]->detailparticulars)) 	? $results[$i]->detailparticulars 	: "";
 				$ischeck 			= (!empty($results[$i]->ischeck)) 			? $results[$i]->ischeck 			: "no";
-				$isoverpayment 		= (!empty($results[$i]->is_overpayment)) 	? $results[$i]->is_overpayment 	:	"no";
-				$debit 				= (isset($results[$i]->chequeamount)) 		? $results[$i]->chequeamount : "0";
+				$isoverpayment 		= (!empty($results[$i]->is_overpayment)) 	? $results[$i]->is_overpayment 		: "no";
+				$debit 				= (isset($results[$i]->chequeamount)) 		? $results[$i]->chequeamount 		: "0";
 
 				if($isoverpayment == 'yes'){
 					$credit 			= number_format($overpayment,2);
