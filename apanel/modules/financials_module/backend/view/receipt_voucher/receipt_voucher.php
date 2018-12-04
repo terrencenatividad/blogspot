@@ -3141,6 +3141,7 @@ function getRVDetails(){
 
 		if(parseFloat(has_payment) > 0 && is_op != "yes"){
 			$('#crv').prop('disabled',false);
+			$('#op_checker').prop('disabled',false);
 		}
 		// addAmountAll("debit");
 		// addAmountAll("credit");
