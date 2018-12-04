@@ -342,8 +342,9 @@ class receipt_voucher_model extends wc_model
 
 	public function retrieveAPList($data,$search)
 	{
-		$customercode = (isset($data["customer"]) && !empty($data["customer"])) ? $data["customer"]         : "";
-		$voucherno  = (isset($data["voucherno"]) && !empty($data["voucherno"])) ? $data["voucherno"]		: "";
+		$customercode 	= (isset($data["customer"]) && !empty($data["customer"])) ? $data["customer"]         : "";
+		$voucherno  	= (isset($data["voucherno"]) && !empty($data["voucherno"])) ? $data["voucherno"]		: "";
+		$task  			= (isset($data["task"]) && !empty($data["task"])) ? $data["task"]		: "";
 		$tempArr    = array();
 		$search_key = '';
 
@@ -352,15 +353,17 @@ class receipt_voucher_model extends wc_model
 		}
 
 		$mainTable 		= "accountsreceivable main";
-		$mainFields 	= array("main.voucherno, main.transactiondate, main.convertedamount amount, main.referenceno, (main.convertedamount - COALESCE(rv.payment,0)) balance, 
+		$mainFields 	= array("main.companycode, main.voucherno, main.transactiondate, main.convertedamount amount, main.referenceno, (main.convertedamount - COALESCE(rv.payment,0)) balance, 
 								(main.convertedamount - COALESCE(rv.payment,0)) remaining_for_payment, COALESCE(rv.credits_used,0) credits_used, 
 								COALESCE(rv.overpayment,0) as overpayment, COALESCE(rv.convertedamount,0) as payment");
 		$mainCondition	= "main.stat = 'posted' AND main.customer = '$customercode'";
 		$mainGroupBy 	= "main.voucherno";
 
+		$sub_fields 	= 'companycode, arvoucherno, voucherno, SUM(convertedamount) convertedamount, SUM(discount) discount, SUM(credits_used) credits_used, SUM(overpayment) overpayment, (COALESCE(SUM(convertedamount),0) + COALESCE(SUM(overpayment),0) + COALESCE(SUM(discount),0) + COALESCE(SUM(credits_used),0) - COALESCE(SUM(forexamount),0)) payment';
+
 		$sub_query 		= 	$this->db->setTable('rv_application')
-									 ->setFields('companycode, arvoucherno, voucherno, SUM(convertedamount) convertedamount, SUM(discount) discount, SUM(credits_used) credits_used, SUM(overpayment) overpayment, (COALESCE(SUM(convertedamount),0) + COALESCE(SUM(overpayment),0) + COALESCE(SUM(discount),0) + COALESCE(SUM(credits_used),0) - COALESCE(SUM(forexamount),0)) payment')
-									 ->setWhere("stat IN ('open','posted') AND voucherno = '$voucherno'")
+									 ->setFields($sub_fields)
+									 ->setWhere("stat IN ('open','posted')")
 									 ->setGroupBy('arvoucherno')
 									 ->buildSelect();
 
@@ -369,11 +372,43 @@ class receipt_voucher_model extends wc_model
 									  ->leftJoin("($sub_query) as rv ON rv.arvoucherno = main.voucherno AND rv.companycode = main.companycode")
 									  ->setWhere($mainCondition)
 									  ->setGroupBy($mainGroupBy)
-									  ->setHaving("remaining_for_payment > 0 OR balance > 0")
-									  ->runPagination();
-									//   echo $this->db->getQuery();
+									  ->setHaving("remaining_for_payment > 0 OR balance > 0");
 		
-		return $query;
+		// For Edit.. current selected RV
+		$result 		=	"";
+		if($voucherno != ""){
+			$query 			=	$query->buildSelect();
+			$sub_fields 	= 'companycode, arvoucherno, voucherno, SUM(convertedamount) convertedamount, SUM(discount) discount, SUM(credits_used) credits_used, SUM(overpayment) overpayment, (COALESCE(SUM(convertedamount),0) + COALESCE(SUM(discount),0) + COALESCE(SUM(credits_used),0) - COALESCE(SUM(forexamount),0)) payment';
+
+			$edit_sub_query = 	$this->db->setTable('rv_application')
+									 ->setFields($sub_fields)
+									 ->setWhere("stat IN ('open','posted') AND voucherno = '$voucherno'")
+									 ->setGroupBy('arvoucherno')
+									 ->buildSelect();
+
+			$edit_query  	=	$this->db->setTable($mainTable)
+										->setFields($mainFields)
+										->leftJoin("($edit_sub_query) as rv ON rv.arvoucherno = main.voucherno AND rv.companycode = main.companycode")
+										->setWhere($mainCondition)
+										->setGroupBy($mainGroupBy)
+										->setHaving("(amount - (payment + overpayment)) < 0")
+										->buildSelect();
+
+										// echo $this->db->getQuery();
+			
+			$main_query		=	$query 	.	" UNION ALL "	.	$edit_query;
+
+			$fields 	= array("c.companycode, c.voucherno, c.transactiondate, c.amount, c.referenceno, c.balance, c.remaining_for_payment, c.credits_used, c.overpayment, c.payment");
+
+			$result  		=	$this->db->setTable("($main_query) c")
+										->setFields($fields)
+										->setOrderBy('c.transactiondate DESC, c.voucherno DESC')
+										->runPagination();	
+		} else {
+			$result 	=	$query->runPagination();
+		}
+
+		return $result;
 	}
 	
 	public function retrieveRVDetails($data)

@@ -1312,7 +1312,7 @@ class controller extends wc_controller
 
 	private function load_payables()
 	{
-		$data       	= $this->input->post(array("customer", "voucherno", "avl_cred"));
+		$data       	= $this->input->post(array("customer", "voucherno", "avl_cred","task"));
 		$task       	= $this->input->post("task");
 		$search			= $this->input->post('search');
 		$avl_credit 	= $this->input->post("avl_cred");
@@ -1362,7 +1362,6 @@ class controller extends wc_controller
 				$balance		= $pagination->result[$i]->balance; 
 				$totalamount	= $pagination->result[$i]->amount;
 				$referenceno	= $pagination->result[$i]->referenceno;
-				// $credit_used	= $pagination->result[$i]->credits_used;
 				$overpayment	= $pagination->result[$i]->overpayment;
 
 				$voucher_checked= (in_array($voucher , $voucher_array)) ? 'checked' : '';
@@ -1374,7 +1373,6 @@ class controller extends wc_controller
 				$json_encode_array["vno"] 		= $voucher;
 				$json_encode_array["amt"]    	= $totalamount;
 				$json_encode_array["bal"]   	= $balance;
-				// $json_encode_array["cred"]		= $credit_used;
 				$json_encode_array['over']  	= $overpayment;
 			
 				$json_data[] 					= $json_encode_array;
@@ -1386,25 +1384,22 @@ class controller extends wc_controller
 				$appliedamount  = isset($result_rvapp[0]->amount) 			?	$result_rvapp[0]->amount		:	0;
 				$applieddiscount= isset($result_rvapp[0]->discount)			?	$result_rvapp[0]->discount		:	0;
 				$appliedover  	= isset($result_rvapp[0]->overpayment) 		?	$result_rvapp[0]->overpayment	:	0;
-				// $appliedcreds   = isset($result_rvapp[0]->credits_used) 	?	$result_rvapp[0]->credits_used	:	0;
-				// echo $appliedamount."\n";
 				$balance_2		= $balance;
 				
 				if (isset($amt_array[$voucher])) {
 					$balance_2	= str_replace(',','',$amt_array[$voucher]['bal']);
 					$amount		= str_replace(',','',$amt_array[$voucher]['amt']);
 					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0.00';
-					// $credit_used= isset($amt_array[$voucher]['cred']) ? $amt_array[$voucher]['cred'] : '0.00';
-
-					// $balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount + $credit_used;
-					// $balance_2 	= $balance_2 - $amount - $discount - $credit_used;
 					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount;
 					$balance_2 	= $balance_2 - $amount - $discount;
-					$balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
+					// $balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
 				}
 				
-				$balance 		= ($overpayment>0 || $balance == 0) ? $totalamount - ($appliedamount + $appliedover) : $balance;
-			
+				$balance 		= ($overpayment>0 || $balance > 0) ? $appliedamount + $balance_2 : $balance;
+				
+				// echo "Balance 1 = ".$balance."\n";
+				// echo "Balance 2 = ".$balance_2."\n\n";
+
 				$disable_checkbox 	=	"";
 				$disable_onclick 	=	'onClick="selectPayable(\''.$voucher.'\',1);"';
 
