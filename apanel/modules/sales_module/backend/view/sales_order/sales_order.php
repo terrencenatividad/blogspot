@@ -842,7 +842,7 @@
 										}
 									}
 
-									$tax += $row->taxamount;
+									$tax += ($row->amount - $row->discountamount) * $row->taxrate;
 									$total_discount += $row->discountamount;
 								?>
 									<tr class="clone" valign="middle">
