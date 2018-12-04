@@ -831,14 +831,14 @@
 								<?php foreach ($delivered_items as $row): ?>
 								<?php 
 									if($row->taxrate > 0.00 || $row->taxrate > 0 )	{
-										$vatable_sales += $row->amount;
+										$vatable_sales += $row->amount-$row->discountamount;
 									}
 									else {
 										if ($row->taxcode == '' || $row->taxcode == 'none' || $row->taxcode == 'ES') {
-											$vat_exempt += $row->amount;
+											$vat_exempt += $row->amount-$row->discountamount;
 										}
 										else {
-											$vat_zerorated += $row->amount;
+											$vat_zerorated += $row->amount-$row->discountamount;
 										}
 									}
 
