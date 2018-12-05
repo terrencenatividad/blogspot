@@ -99,7 +99,7 @@ class controller extends wc_controller {
 		$data['ui'] = $this->ui;
 		$data['ajax_task']			= 'ajax_view';
 		$data['proforma_list']		= $this->jv_model->getProformaList($data);
-		$status 					= $data['stat'];
+		// $status 					= $data['stat'];
 		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno,$status));
 		$coa_array	= array();
 		$hey = json_decode($data['voucher_details']);

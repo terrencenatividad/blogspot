@@ -282,7 +282,7 @@ class payment_voucher_model extends wc_model
 			$add_query .= " AND main.transtype = '$voucher' ";
 		}
 		if ($searchkey){
-			$add_query .= " AND ".$this->generateSearch($searchkey, array("main.voucherno","p.partername","coa.accountname","pvc.chequenumber"));
+			$add_query .= " AND ".$this->generateSearch($searchkey, array("main.voucherno","p.partnername","coa.accountname","pvc.chequenumber"));
 		}
 
 		$query 		 = $this->db->setTable("paymentvoucher main")
@@ -1464,7 +1464,7 @@ class payment_voucher_model extends wc_model
 			$add_query .= " AND main.transtype = '$voucher' ";
 		}
 		if ($searchkey){
-			$add_query .= " AND ".$this->generateSearch($searchkey, array("main.voucherno","p.partername","coa.accountname","pvc.chequenumber"));
+			$add_query .= " AND ".$this->generateSearch($searchkey, array("main.voucherno","p.partnername","coa.accountname","pvc.chequenumber"));
 		}
 
 		$query 		 = $this->db->setTable("paymentvoucher main")

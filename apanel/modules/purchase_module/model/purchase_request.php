@@ -120,7 +120,7 @@
 		{	 
 			$retrieved_data =	array();
 			
-			$header_fields 	= 	"voucherno, transactiondate, duedate, amount, discounttype, discountamount, netamount, taxamount,department,remarks,requestor";
+			$header_fields 	= 	"voucherno, transactiondate, duedate, amount, discounttype, discountamount, netamount, taxamount,department,remarks,requestor, stat";
 
 			$condition 		=	" voucherno = '$voucherno' ";
 			

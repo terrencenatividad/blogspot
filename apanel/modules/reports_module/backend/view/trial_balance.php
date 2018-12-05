@@ -143,7 +143,7 @@
 	</div>
 </div>
 
-<div class="modal fade" id="jvModal" tabindex="-1" data-backdrop="static">
+<div class="modal" id="jvModal" tabindex="-1" data-backdrop="static">
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -151,10 +151,6 @@
 			</div>
 			<div class="modal-body">
 				<form class="form-horizontal" id="jv_header">
-					<!-- <div class="alert alert-warning alert-dismissable hidden" id="sequenceAlert">
-						<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-						<p>&nbsp;</p>
-					</div> -->
 					<div class="row">
 						<div class="col-md-3">
 							<div class="form-group">
@@ -162,53 +158,31 @@
 							</div>
 						</div>
 						<div class="col-md-8" style="margin:0px;">
-						<?php
-							echo $ui->formField('text')
-									->setSplit('','col-md-12')
-									->setName('datefrom')
-									->setId('datefrom')
-									// ->setClass('datefilter')
-									// ->setAddon('calendar')
-									->setAttribute(array('readonly'))
-									->setValidation('required')
-									->setValue($datafrom)
-									->draw(true);
-						?>
+							<?php
+								echo $ui->formField('text')
+										->setSplit('','col-md-12')
+										->setName('datefrom')
+										->setId('datefrom')
+										->setAttribute(array('readonly'))
+										->setValidation('required')
+										->setValue($datafrom)
+										->draw(true);
+							?>
+							<input type="hidden" id="taxyear" name="taxyear" value="<?=$taxyear?>">
+							<input type="hidden" id="period_end" name="period_end" value="<?=$period_end?>">
+							<input type="hidden" id="period_start" name="period_start" value="<?=$period_start?>">
+							<input type="hidden" id="year_end_date" name="year_end_date" value="<?=$year_end_date?>">
+							<input type="hidden" id="yr_account" name="yr_account" value="<?=$yr_account?>">
+							<input type="hidden" id="last_date" name="last_date" value="<?=$last_date?>">
+							<input type="hidden" id="last_year" name="last_year" value="<?=$last_year?>">
 						</div>
-						<!-- <div class="col-md-3">
-							<div class="form-group">
-								<label class="control-label col-md-12">Date To</label>
-							</div>
-						</div>
-						<div class="col-md-8" style="margin:0px;">
-						<?
-							// echo $ui->formField('dropdown')
-							// 		->setSplit('','col-md-12')
-							// 		->setName('dateto')
-							// 		->setId('dateto')
-							// 		->setClass('datefilter')
-							// 		// ->setAddon('calendar')
-							// 		->setValidation('required')
-							// 		->setList($openmonth_list)
-							// 		->draw(true);
-						?>
-						</div> -->
 					</div>
 					<?php
-						// echo $ui->formField('text')
-						// 		->setLabel('Reference')
-						// 		->setSplit('col-md-3','col-md-8')
-						// 		->setName('reference')
-						// 		->setId('reference')
-						// 		->setValidation('required')
-						// 		->draw(true);
-
 						echo $ui->formField('textarea')
 								->setLabel('Notes')
 								->setSplit('col-md-3','col-md-8')
 								->setName("notes")
 								->setId("notes")
-								// ->setValidation('required')
 								->draw(true);
 								
 						echo $ui->formField('dropdown')
@@ -355,7 +329,7 @@
 	</div>
 </div>
 
-<div class="modal fade" id="redirectionModal" tabindex="-1" data-backdrop="static" data-keyboard="false" >
+<div class="modal" id="redirectionModal" tabindex="-1" data-backdrop="static" data-keyboard="false" >
 	<div class="modal-dialog modal-sm">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -381,6 +355,7 @@
 	var ajax = {};
 	var ajax2 = {};
 	var ajax3 = {};
+	var ajax4 = {};
 		ajax.limit 	= 20; 
 		ajax2.limit = 2;
 		ajax3.limit = 10;
@@ -545,12 +520,24 @@
 	}
 
 	$('#jv_header').on('click',"#btnSaveDetails", function(){
-		var current_date 		=	$('#jvModal #datefrom').val();
-
+		var current_date 		=	$('#jvModal #datefrom').val();	
+		var last_closed_year 	=	$('#jvModal #last_year').val();
+		var date_array 			=	current_date.split(' - ');
+		
+		if(date_array.length > 1) {
+			// ajax2.datefrom 			=	date_array[1];
+			ajax2.source 			=	"yrend_closing";
+		} else {
+			ajax2.source 			=	"closing";
+		}
+		console.log(datefrom);
 		ajax2.datefrom 			=	current_date;
 		ajax2.reference 		=	$('#jvModal #reference').val();
 		ajax2.notes 			=	$('#jvModal #notes').val();
 		ajax2.closing_account 	=	$('#jvModal #closing_account').val();
+		ajax2.period_end 		=	$('#jvModal #period_end').val();
+		ajax2.period_start 		=	$('#jvModal #period_start').val();
+		ajax2.taxyear 			=	$('#jvModal #taxyear').val();
 
 		var has_error 	=	validate_date(current_date);
 
@@ -558,15 +545,22 @@
 			$.post('<?=MODULE_URL?>ajax/temporary_jv_close', ajax2 , function(response) {
 				if( response.result ){
 					$("#jvModal").modal('hide');
+					$.post('<?=MODULE_URL?>ajax/check_existing_yrendjv', "year="+last_closed_year , function(response) {
+						
+					});
 					preview_jv(response.voucherno);
 				}
 			});
 		}
-		
 	});
 
 	$('#previewModal').on('click','#confirmbtn',function(){
-		ajax2.voucherno 	=	$('#previewModal #voucherno').val();
+		var current_date 		=	$('#jvModal #datefrom').val();	
+			date 				= 	new Date(current_date);
+			current_month 		=	date.getMonth();
+
+		ajax2.voucherno 		=	$('#previewModal #voucherno').val();
+
 		$.post('<?=MODULE_URL?>ajax/close_jv_status', ajax2 , function(response) {
 			if( response.result ){
 				$('#previewModal').modal('hide');
@@ -607,7 +601,7 @@
 
 	$('#closing_cancel').on('click',function(e){
 		ajax2.voucherno 	=	$('#previewModal #voucherno').val();
-		//delete temporary saved jv... 
+	
 		$.post('<?=MODULE_URL?>ajax/eradicate_temporary_jv', ajax2 , function(response) {
 			if( response.result ){
 				$('#previewModal').modal('hide');

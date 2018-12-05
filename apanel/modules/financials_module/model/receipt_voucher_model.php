@@ -21,7 +21,7 @@ class receipt_voucher_model extends wc_model
 	public function retrieveCredAccountsList(){
 		$result = $this->db->setTable('chartaccount')
 					->setFields("id ind, accountname val")
-					->setWhere("accountclasscode IN('ACCPAY','OTHCA','OTHCL') AND stat = 'active'")
+					->setWhere("accountclasscode IN('ACCREC','CUASET') AND stat = 'active'")
 					->setOrderBy("val")
 					->runSelect()
 					->getResult();
@@ -342,8 +342,9 @@ class receipt_voucher_model extends wc_model
 
 	public function retrieveAPList($data,$search)
 	{
-		$customercode = (isset($data["customer"]) && !empty($data["customer"])) ? $data["customer"]         : "";
-		$voucherno  = (isset($data["voucherno"]) && !empty($data["voucherno"])) ? $data["voucherno"]: "";
+		$customercode 	= (isset($data["customer"]) && !empty($data["customer"])) ? $data["customer"]         : "";
+		$voucherno  	= (isset($data["voucherno"]) && !empty($data["voucherno"])) ? $data["voucherno"]		: "";
+		$task  			= (isset($data["task"]) && !empty($data["task"])) ? $data["task"]		: "";
 		$tempArr    = array();
 		$search_key = '';
 
@@ -351,70 +352,63 @@ class receipt_voucher_model extends wc_model
 			$search_key .= ' AND ' . $this->generateSearch($search, array("main.voucherno"));
 		}
 
-		// $table_rv  = "rv_application AS rv";
-		// $rv_fields = "COALESCE(SUM(rv.convertedamount),0) + COALESCE(SUM(rv.discount),0) + COALESCE(SUM(rv.credits_used),0) - COALESCE(SUM(rv.forexamount),0)";
-
-		// $rv_cond   = "rv.arvoucherno = main.voucherno AND rv.stat IN('open','posted') AND rv.voucherno = '$voucherno' ";
-		
-		// $rva_cond 	=	($voucherno != "") ?	" AND app.voucherno = '$voucherno'"	:	"";
-
-		// $mainTable	= "accountsreceivable as main";
-		// $mainFields	= array(
-		// 					"main.voucherno as voucherno", "main.transactiondate as transactiondate",
-		// 					"main.convertedamount as amount", "IF((main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0) - COALESCE(SUM(app.credits_used),0))>0, (main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0) - COALESCE(SUM(app.credits_used),0)),0) as balance", "main.referenceno as referenceno",
-		// 					"SUM(app.convertedamount) as payment","COALESCE(SUM(app.credits_used),0) credits_used","app.overpayment as overpayment"
-		// 				);
-		// $mainJoin	= "rv_application AS app ON app.arvoucherno = main.voucherno AND app.stat IN('open','posted') $rva_cond ";
-		// $groupBy 	= "main.voucherno";
-
-		// $groupBy 	.=	($voucherno != "") 	?	", app.voucherno":"";
-		// $sub_select 		= $this->db->setTable($table_rv)
-		// 								->setFields($rv_fields)
-		// 								->setWhere($rv_cond)
-		// 								->buildSelect();
-		// if($customercode && empty($voucherno)){
-		// 	$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND main.balance != 0 ";
-		// 	$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $groupBy);
-		// 	$tempArr["result"] = $query;
-		// } else if($voucherno) {
-		// 	$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND ((main.balance - ($sub_select)) <= main.convertedamount) AND ( main.balance != 0 OR ($sub_select) != 0)";
-		// 	$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $groupBy);
-		// 	$tempArr["result"] = $query;
-		// }
-
-		// echo $this->db->getQuery();
-
-
 		$mainTable 		= "accountsreceivable main";
-		$mainFields 	= array("main.voucherno, main.transactiondate, main.convertedamount amount, main.referenceno, (main.convertedamount - COALESCE(rv.payment,0)) balance, 
+		$mainFields 	= array("main.companycode, main.voucherno, main.transactiondate, main.convertedamount amount, main.referenceno, (main.convertedamount - COALESCE(rv.payment,0)) balance, 
 								(main.convertedamount - COALESCE(rv.payment,0)) remaining_for_payment, COALESCE(rv.credits_used,0) credits_used, 
 								COALESCE(rv.overpayment,0) as overpayment, COALESCE(rv.convertedamount,0) as payment");
 		$mainCondition	= "main.stat = 'posted' AND main.customer = '$customercode'";
 		$mainGroupBy 	= "main.voucherno";
 
-		// if($customercode && empty($voucherno)){
-		// 	$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND main.balance != 0 ";
-		// } else {
-		// 	$mainCondition   		= "main.stat = 'posted' AND main.customer = '$customercode' AND ((main.balance - ($sub_select)) <= main.convertedamount) AND ( main.balance != 0 OR ($sub_select) != 0)";
-		// }
+		$sub_fields 	= 'companycode, arvoucherno, voucherno, SUM(convertedamount) convertedamount, SUM(discount) discount, SUM(credits_used) credits_used, SUM(overpayment) overpayment, (COALESCE(SUM(convertedamount),0) + COALESCE(SUM(overpayment),0) + COALESCE(SUM(discount),0) + COALESCE(SUM(credits_used),0) - COALESCE(SUM(forexamount),0)) payment';
 
-		$sub_cond 		=	($voucherno != "") ?	" AND voucherno = '$voucherno'"	:	"";
 		$sub_query 		= 	$this->db->setTable('rv_application')
-									 ->setFields('arvoucherno, voucherno, SUM(convertedamount) convertedamount, SUM(discount) discount, SUM(credits_used) credits_used, SUM(overpayment) overpayment, (COALESCE(SUM(convertedamount),0) + COALESCE(SUM(overpayment),0) + COALESCE(SUM(discount),0) + COALESCE(SUM(credits_used),0) - COALESCE(SUM(forexamount),0)) payment')
-									 ->setWhere("stat IN ('open','posted') $sub_cond")
+									 ->setFields($sub_fields)
+									 ->setWhere("stat IN ('open','posted')")
 									 ->setGroupBy('arvoucherno')
 									 ->buildSelect();
 
 		$query  		=	$this->db->setTable($mainTable)
 									  ->setFields($mainFields)
-									  ->leftJoin("($sub_query) as rv ON rv.arvoucherno = main.voucherno")
+									  ->leftJoin("($sub_query) as rv ON rv.arvoucherno = main.voucherno AND rv.companycode = main.companycode")
 									  ->setWhere($mainCondition)
 									  ->setGroupBy($mainGroupBy)
-									  ->setHaving("remaining_for_payment > 0 OR balance > 0")
-									  ->runPagination();
-									//   echo $this->db->getQuery();
+									  ->setHaving("remaining_for_payment > 0 OR balance > 0");
 		
-		return $query;
+		// For Edit.. current selected RV
+		$result 		=	"";
+		if($voucherno != ""){
+			$query 			=	$query->buildSelect();
+			$sub_fields 	= 'companycode, arvoucherno, voucherno, SUM(convertedamount) convertedamount, SUM(discount) discount, SUM(credits_used) credits_used, SUM(overpayment) overpayment, (COALESCE(SUM(convertedamount),0) + COALESCE(SUM(discount),0) + COALESCE(SUM(credits_used),0) - COALESCE(SUM(forexamount),0)) payment';
+
+			$edit_sub_query = 	$this->db->setTable('rv_application')
+									 ->setFields($sub_fields)
+									 ->setWhere("stat IN ('open','posted') AND voucherno = '$voucherno'")
+									 ->setGroupBy('arvoucherno')
+									 ->buildSelect();
+
+			$edit_query  	=	$this->db->setTable($mainTable)
+										->setFields($mainFields)
+										->leftJoin("($edit_sub_query) as rv ON rv.arvoucherno = main.voucherno AND rv.companycode = main.companycode")
+										->setWhere($mainCondition)
+										->setGroupBy($mainGroupBy)
+										->setHaving("(amount - (payment + overpayment)) < 0")
+										->buildSelect();
+
+										// echo $this->db->getQuery();
+			
+			$main_query		=	$query 	.	" UNION ALL "	.	$edit_query;
+
+			$fields 	= array("c.companycode, c.voucherno, c.transactiondate, c.amount, c.referenceno, c.balance, c.remaining_for_payment, c.credits_used, c.overpayment, c.payment");
+
+			$result  		=	$this->db->setTable("($main_query) c")
+										->setFields($fields)
+										->setOrderBy('c.transactiondate DESC, c.voucherno DESC')
+										->runPagination();	
+		} else {
+			$result 	=	$query->runPagination();
+		}
+
+		return $result;
 	}
 	
 	public function retrieveRVDetails($data)
@@ -1279,7 +1273,7 @@ class receipt_voucher_model extends wc_model
 
 		$creditsArray[]								= $post_credit_voucher;
 		
-		$iscrvexisting	= $this->getValue($creditsTable, array("COUNT(*) AS count"), " voucherno = '$creditvoucherno' AND referenceno = '$voucherno'");
+		$iscrvexisting	= $this->getValue($creditsTable, array("COUNT(*) AS count"), " referenceno = '$voucherno'");
 				
 		if($iscrvexisting[0]->count > 0){
 			$insertResult 	=	$this->db->setTable($creditsTable)
