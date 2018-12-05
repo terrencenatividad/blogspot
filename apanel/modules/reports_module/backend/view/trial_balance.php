@@ -525,13 +525,13 @@
 		var date_array 			=	current_date.split(' - ');
 		
 		if(date_array.length > 1) {
-			ajax2.datefrom 			=	date_array[1];
+			// ajax2.datefrom 			=	date_array[1];
 			ajax2.source 			=	"yrend_closing";
 		} else {
-			ajax2.datefrom 			=	current_date;
 			ajax2.source 			=	"closing";
 		}
-
+		console.log(datefrom);
+		ajax2.datefrom 			=	current_date;
 		ajax2.reference 		=	$('#jvModal #reference').val();
 		ajax2.notes 			=	$('#jvModal #notes').val();
 		ajax2.closing_account 	=	$('#jvModal #closing_account').val();

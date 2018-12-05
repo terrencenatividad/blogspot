@@ -412,18 +412,30 @@ class trial_balance extends wc_model {
 		$remarks 			=	isset($data['notes']) 				? 	$data['notes'] 				: 	"";
 		$actualaccount  	=	isset($data['closing_account']) 	? 	$data['closing_account'] 	: 	"";
 		$detailparticular 	=	isset($data['detailparticular']) 	? 	$data['detailparticular'] 	:	"";
-		$source 			=	isset($data['source']) 	? 	$data['source'] 	:	"";
+		$source 			=	isset($data['source']) 				? 	$data['source'] 	:	"";
 
 		$result 			=	0;
 		$amount 			= 	0;
+		$firstdayofdate 	=	"";
 
 		/**FORMAT DATES**/
-		$exploded_date		=	explode(' ',$lastdayofdate);
-		$month 				=	date('m', strtotime($lastdayofdate));
-		$year 				=	date('Y', strtotime($lastdayofdate));
+		if($source == "closing") {
+			$exploded_date		=	explode(' ',$lastdayofdate);
+			$lastdayofdate 		=	date("Y-m-d", strtotime($lastdayofdate));
+			$month 				=	date('m', strtotime($lastdayofdate));
+			$year 				=	date('Y', strtotime($lastdayofdate));
 
-		$firstdayofdate 	=	date($year.'-'.$month.'-01');
-
+			$firstdayofdate 	=	date($year.'-'.$month.'-01');
+		} else {
+			$exploded_date		=	explode(' - ',$lastdayofdate);
+			$firstdayofdate 	=	$exploded_date[0];
+			$firstdayofdate 	=	date("Y-m-d", strtotime($firstdayofdate));
+			$lastdayofdate 		=	$exploded_date[1];
+			$lastdayofdate 		=	date("Y-m-d", strtotime($lastdayofdate));
+			$month 				=	date('m', strtotime($lastdayofdate));
+			$year 				=	date('Y', strtotime($lastdayofdate));
+		}
+ 
 		$currentyear 		= 	date("Y",strtotime($lastdayofdate));
 		$prevyear 			= 	date("Y",strtotime($firstdayofdate." -1 year"));
 

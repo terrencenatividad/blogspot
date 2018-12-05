@@ -421,12 +421,12 @@ class controller extends wc_controller {
 	private function temporary_jv_close(){
 		$data 			= 	$this->input->post(array('datefrom','reference','notes','closing_account','taxyear','period_end','period_start','source'));
 		$datefrom 		=	$data['datefrom'];
-		$datefrom 		=	date("Y-m-d", strtotime($datefrom));
+		// $datefrom 		=	date("Y-m-d", strtotime($datefrom));
 
+		$source 		=	$data['source'];
 		$taxyear 		=	$data['taxyear'];
 		$period_end		=	$data['period_end'];
 		$period_start 	=	$data['period_start'];
-		$source 		=	$data['source'];
 
 		$account 		=	isset($data['closing_account']) 	?	$data['closing_account'] 	:	"";
 
@@ -450,39 +450,6 @@ class controller extends wc_controller {
 		}
 
 		$dataArray 		=	array( "result" =>	$result, 'voucherno' => $temporary_id);
-
-		return $dataArray;
-	}
-
-	private function save_yearend_closing(){
-		$data 			= 	$this->input->post(array('datefrom','reference','notes','closing_account','taxyear','period_end','period_start'));
-		$datefrom 		=	$data['datefrom'];
-		$datefrom 		=	date("Y-m-d", strtotime($datefrom));
-		$month 			=	date('m', strtotime($datefrom));
-		
-		// $taxyear 		=	$data['taxyear'];
-		// $period_end		=	$data['period_end'];
-		// $period_start 	=	$data['period_start'];
-
-		// $new_temp_id 	= 	"";
-		// if($result && $taxyear == "fiscal" && ($month == $period_end)){
-		// 	// retrieve retained earnings
-		// 	$gen_value      			= 	$this->trial_balance->getValue("journalvoucher", "COUNT(*) as count", "voucherno != ''");
-		// 	$new_temp_id   				= 	(!empty($gen_value[0]->count)) ? 'TMP_'.($gen_value[0]->count + 1) : 'TMP_1';
-
-		// 	$data['voucher'] 			=	$new_temp_id; 
-		// 	$ret_acct 					=	$this->trial_balance->getValue("fintaxcode", "salesAccount", "fstaxcode = 'YEC'");
-		// 	$year_end_account			=	isset($ret_acct[0]->salesAccount) ? $ret_acct[0]->salesAccount  : "";
-		// 	$data['closing_account']	= 	$year_end_account;
-
-		// 	$result 					=	$this->trial_balance->save_yearend_jv($data);
-		// }
-
-		// if($result){
-		// 	$this->report_model->generateBalanceTable();
-		// }
-
-		$dataArray 		=	array( "result" =>	$result, 'voucherno' => $new_temp_id);
 
 		return $dataArray;
 	}
