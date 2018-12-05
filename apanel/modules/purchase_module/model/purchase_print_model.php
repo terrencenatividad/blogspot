@@ -247,11 +247,6 @@ class purchase_print_model extends fpdf {
 		return $this;
 	}
 
-	public function setDocumentInfo($document_info) {
-		$this->document_info = $document_info;
-		return $this;
-	}
-
 	public function setFooterDetails($footer_details) {
 		$this->has_footer_details = true;
 		$this->footer_height += 10;

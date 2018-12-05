@@ -502,12 +502,18 @@ class controller extends wc_controller
 			'PO #'	=> $voucherno
 		);
 
+		$amount = $documentinfo->amount;
+		$vat = $documentinfo->vat;
+		$wtaxamount = $documentinfo->wtax;
+		$taxcode = $documentinfo->wtaxcode;
+		$taxrate = $documentinfo->wtaxrate;
+		$netamount = $documentinfo->net;
+
 		$print = new purchase_print_model();
 		$print->setDocumentType('Purchase Order')
 		->setFooterDetails(array('Approved By', 'Checked By'))
 		->setVendorDetails($vendordetails)
 		->setDocumentDetails($documentdetails)
-		->setDocumentInfo($documentinfo)
 		->addReceived();
 
 		$print->setHeaderWidth(array(40, 60, 20, 20, 30, 30))
