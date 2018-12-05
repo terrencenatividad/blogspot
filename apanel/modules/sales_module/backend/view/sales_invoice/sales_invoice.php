@@ -423,7 +423,7 @@
 											$uom 				= strtoupper($uom);
 											$itemprice 			= $details[$i]->unitprice;
 											$discounttype 		= isset($details[$i]->discounttype) ? $details[$i]->discounttype : '';
-											$discount 			= isset($details[$i]->discountamount) ? $details[$i]->discountamount : '0.00';
+											$discount 			= isset($details[$i]->itemdiscount) ? $details[$i]->itemdiscount : '0.00';
 											$discountrate 		= isset($details[$i]->discountrate) ? $details[$i]->discountrate : '0.00';
 											$discount 			= ($discounttype == "perc") ? $discountrate 	:	$discount;
 											$percentage 		= ($discounttype == "perc") ? "%" : "";

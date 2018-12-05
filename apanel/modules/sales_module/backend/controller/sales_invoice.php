@@ -583,7 +583,7 @@ class controller extends wc_controller
 			'VATable Sales'		=> number_format($vatable_sales, 2),
 			'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
 			'VAT Zero Rated Sales'	=> number_format($vat_zerorated, 2),
-+			'Total Sales'		=> number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2),
+			'Total Sales'		=> number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2),
 			'Tax'				=> number_format($tax, 2),
 			'Total Amount'		=> number_format($total_amount, 2),
 			''					=> '',
