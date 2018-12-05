@@ -248,8 +248,10 @@
 									$price	   			= '0.00';
 									$rowamount 			= '0.00';
 
+									$onhandqty 		 	= 0;
 									$quantity 		 	= 0;
 									$uom 				= '';
+									$discount 		 	= 0;
 									$row 			   	= 1;
 									$total_debit 	   	= 0;
 									$total_credit 	   	= 0;
@@ -265,6 +267,9 @@
 									$s_atc_code 		= 0;
 									$discount_check_amt = 0;
 									$discount_check_perc = 0;
+									$freight = 0;
+									$insurance = 0;
+									$packaging = 0;
 
 									$startnumber 	   	= ($row_ctr == 0) ? 1: $row_ctr;
 
@@ -318,7 +323,7 @@
 											->setClass('onhandqty text-right')
 											->setAttribute(array("maxlength" => "20","readonly"=>"readonly"))
 											->setValidation('required integer')
-											->setValue($quantity)
+											->setValue($onhandqty)
 											->draw($show_input);
 											?>
 										</td>
@@ -438,6 +443,7 @@
 									{
 										$itemcode 	 		= $details[$i]->itemcode;
 										$detailparticular	= stripslashes($details[$i]->detailparticular);
+										$onhandqty  		= $details[$i]->onhandqty;
 										$quantity 			= number_format($details[$i]->receiptqty,0);
 										$itemprice 			= $details[$i]->unitprice;
 										$taxcode 			= $details[$i]->taxcode;
@@ -492,7 +498,7 @@
 												->draw($show_input);
 												?>
 											</td>
-											<td class = "remove-margin">
+											<td class = "remove-margin text-right">
 											<?php
 												echo $ui->formField('text')
 												->setSplit('', 'col-md-12')
@@ -501,7 +507,7 @@
 												->setClass('onhandqty text-right')
 												->setAttribute(array("maxlength" => "20","readonly"=>"readonly"))
 												->setValidation('required integer')
-												->setValue($quantity)
+												->setValue($onhandqty)
 												->draw($show_input);
 											?>
 											</td>
