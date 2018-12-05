@@ -1790,9 +1790,12 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 					$("#entriesTable tbody tr.clone:not(.added_row)").first().before(clone_acct);
 				} else {
 					$('#entriesTable tbody tr.clone select.accountcode').each(function() {
-						var account = $(this).val();
-						var len 	= $(this).closest('tbody').find('tr').length >= 2;
-						if(account == "" && (is_ap == "false" || is_op == "false" || len)){
+						var account 		= $(this).val();
+						var len 			= $(this).closest('tbody').find('tr').length >= 2;
+						var is_disabled 	= $(this).is(':disabled');
+						if(account == "" && (is_ap == "false" || len)){
+							$(this).closest('tr').remove();
+						} else if(account != "" && !is_disabled) {
 							$(this).closest('tr').remove();
 						}
 					});
@@ -1812,6 +1815,7 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 			}
 			resetIds();
 			$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
+			$("#accountcode\\["+ row +"\\]").closest('tr').removeClass('op_row');
 			$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 			disable_acct_fields(row);
@@ -2259,9 +2263,6 @@ function addAmountAll(field) {
 	var is_op 	= $('#op_checker').is(':checked');
 		is_op 	= (is_op == true) ? "true" 	:	"false";
 
-	console.log(" IS AP "+is_ap);
-	console.log(" IS OP "+is_op);
-
 	if(field == 'debit')
 	{
 		notfield	= 'credit';
@@ -2281,7 +2282,6 @@ function addAmountAll(field) {
 		if(document.getElementById(notfield+'['+i+']')!=null){          
 			if(inputs.value && parseFloat(inputs.value) != 0 && inputs.value != '0.00'){                         
 				inData = inputs.value.replace(/,/g,'');
-				console.log(ar_acct +" = "+accountcode);
 				if(is_cheque == 'yes'){
 					inputs.readOnly   = true;
 					disables.readOnly = true;
@@ -2302,7 +2302,6 @@ function addAmountAll(field) {
 				}
 				sum = parseFloat(sum) + parseFloat(inData);
 			} else {             
-				console.log(ar_acct +" = "+accountcode);
 				if(is_cheque == 'yes'){
 					inputs.readOnly   = true;
 					disables.readOnly = true;
@@ -2557,11 +2556,12 @@ function toggleCheckInfo(val){
 		is_ap 	= (is_ap == true) ? "true" 	:	"false";
 	var is_op 	= $('#op_checker').is(':checked');
 		is_op 	= (is_op == true) ? "true" 	:	"false";
+
 	if(val == 'cheque'){
 		if(selected_rows != '[]'){
 			$("#payableForm #cheque_details").removeClass('hidden');
 		}else{
-			if(is_ap == "false" || is_op == "false"){
+			if(is_ap == "false"){
 				var list 	= (customer != '') ? "<ul><li>Total Receivables</li></ul>" : "<ul><li>Vendor</li><li>Total Receivables</li></ul>";
 				var msg 	= "The following fields are required to process a '<strong>Check</strong>' payment."+list;
 				bootbox.dialog({
@@ -2573,8 +2573,9 @@ function toggleCheckInfo(val){
 							className: "btn-primary btn-flat",
 							callback: function(result) {
 								$("#payableForm #paymentmode").val('cash');
-								$('#payableForm #paymentmode').select2('destroy');
-								$('#payableForm #paymentmode').select2({width: "100%"});
+								// $('#payableForm #paymentmode').select2('destroy');
+								// $('#payableForm #paymentmode').select2({width: "100%"});
+								drawTemplate();
 							}
 						}
 					}
@@ -2590,7 +2591,7 @@ function toggleCheckInfo(val){
 		$("#payableForm #cheque_details").addClass('hidden');
 		$('#totalcheques').val(0);
 		formatNumber('totalcheques');
-		if(is_ap == "false" || is_op == "false"){
+		if(is_ap == "false" && is_op == "false") {
 			if(container.length > 0){
 				getRVDetails();
 			}
@@ -2600,6 +2601,10 @@ function toggleCheckInfo(val){
 			$('.credit').removeAttr('readonly');
 			$('.accountcode').prop('disabled',false);
 			$('.confirm-delete').prop('disabled',false);
+		} else if(is_ap == "false" && is_op == "true") {
+			if(container.length > 0 && task != "edit"){
+				getRVDetails();
+			}
 		} else {
 			set_account();
 		}
@@ -2995,27 +3000,16 @@ function getCheckAccounts() {
 
 function set_op_acct(discount){
 	var op_acct 	= $('#hidden_op_acct').val();
-		
-	// if(discount == "" || discount == undefined) {
-		
-	// } else {
-	// 	var row 	  = $('#entriesTable tbody tr.discount_row').find('.accountcode').data('id') + 1;
-	// }
-
 	var row 	  = $('#entriesTable tbody tr.clone').length;
 	var ParentRow = $("#entriesTable tbody tr.clone").last();
 		ParentRow.before(clone_acct);
 		resetIds();
-		console.log (" set op row "+row);
-
 		$("#accountcode\\["+ row +"\\]").closest('tr').addClass('op_row');
 		$("#accountcode\\["+ row +"\\]").val(op_acct).trigger('change.select2');
 		$("#h_accountcode\\["+ row +"\\]").val(op_acct);
 		$("#detailparticulars\\["+ row +"\\]").val("Overpayment");
 		disable_acct_fields(row);
 		$("#credit\\["+ row +"\\]").prop('readonly',false);
-		// addAmountAll('debit');
-		// drawTemplate();
 }
 
 var payments 		= <?=$payments;?>;
@@ -3040,6 +3034,7 @@ function getRVDetails(){
 	}
 
 	cheques = JSON.stringify(cheques);
+
 	$("#selected_rows").html(selected_rows);
 
 	tagged_AR 	 = 	$.extend(true,{},container);
@@ -3077,7 +3072,7 @@ function getRVDetails(){
 			if(selected_rows != ""){
 				$("#paymentmode").removeAttr("disabled");
 			}
-
+	
 			if('<?= $task ?>' == "create" || '<?= $task ?>' == "edit" ){
 				$("#entriesTable tbody").html(data.table);
 				$("#pv_amount").html(total_payment);
@@ -3104,7 +3099,7 @@ function getRVDetails(){
 					disable_acct_fields(row);
 					$('#disc_acct').val(discount_code);
 				}
-				$('#entriesTable tbody tr.op_row').remove();
+				// $('#entriesTable tbody tr.op_row').remove();
 				// For Overpayment 
 				if(is_op == "yes"){
 					var row = $("#entriesTable tbody tr.clone").length; 
@@ -3116,12 +3111,14 @@ function getRVDetails(){
 					$('#accountcode\\['+row+'\\]').val(op_acct).trigger('select2.change');
 					$('#h_accountcode\\['+row+'\\]').val(op_acct);
 					$('#detailparticulars\\['+row+'\\]').val("Overpayment");
+					// $('#debit\\['+row+'\\]').val(0);
 					disable_acct_fields(row);
 					$('#credit\\['+row+'\\]').prop('readonly',false);
 					// $('#disc_acct').val(discount_amount);
+					$('#op_checker').prop('disabled',false);
 				}
 				
-				// // For Advance Payment - Credit Voucher
+				// // // For Advance Payment - Credit Voucher
 				var total = $('#creditvoucherModal #total_credits_to_apply').val();
 				if(parseFloat(total) > 0){
 					apply_credit_account(total);
@@ -3138,20 +3135,21 @@ function getRVDetails(){
 						$(this).find('.debit').prop('readonly',true);
 						$(this).find('.confirm-delete').prop('disabled',true);
 						$('#ar_acct').val(arv_acct);
-						addAmountAll("credit");
+						// addAmountAll("credit");
 					}
 				});
 			}	
+
+			addAmountAll("debit");
+			addAmountAll("credit");
 		});
 		$('.cwt').removeAttr('disabled');
 		var has_payment = $('#total_payment').val();
 
-		if(parseFloat(has_payment) > 0){
+		if(parseFloat(has_payment) > 0 && is_op != "yes"){
 			$('#crv').prop('disabled',false);
+			$('#op_checker').prop('disabled',false);
 		}
-		addAmountAll("debit");
-		addAmountAll("credit");
-		$('#op_checker').prop('disabled',false);
 	}
 }
 
@@ -3918,7 +3916,7 @@ function set_account(){
 	}
 	$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 	$("#h_accountcode\\["+ row +"\\]").val(account);
-	$('#credit\\['+row+'\\]').val('0.00');	
+	// $('#credit\\['+row+'\\]').val('0.00');	
 
 	$("#accountcode\\["+ row +"\\]").closest('tr').addClass('credit_account');
 
@@ -3937,12 +3935,6 @@ function apply_credit_account(amount){
 		total_opcredits_amount 	=	removeComma(total_opcredits_amount);
 	var total_advcredits_amount =	parseFloat(amount - total_opcredits_amount);
 
-	// var cheque_rows = $('#entriesTable tbody tr.added_row').length;
-
-	// if(cheque_rows == 0){
-		
-	// }
-
 	$('#entriesTable tr').each(function(index) {
 		var account = $(this).find('.accountcode').val();
 		if(account == cred_acct || account == op_acct){
@@ -3951,7 +3943,6 @@ function apply_credit_account(amount){
 	});
 	if(total_advcredits_amount>0){
 		var adv_account = cred_acct;
-		console.log(clone_acct);
 		$("#entriesTable tbody tr.clone:not(.added_row)").first().before(clone_acct);
 		resetIds();
 		var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first();
@@ -3963,12 +3954,9 @@ function apply_credit_account(amount){
 			credit_row.find('.credit').prop('readonly',true);
 	}  
 	if(total_opcredits_amount>0){
-		// $("#entriesTable tbody tr.clone:not(.added_row)").first().after(clone_acct);
-		// console.log(clone_acct);
 		$("#entriesTable tbody tr.clone:not(.added_row)").first().before(clone_acct);
 		resetIds();
 		var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first();
-			// console.log(credit_row);
 			credit_row.find('.debit').val(addComma(total_opcredits_amount));
 			credit_row.find('.accountcode').val(op_acct).prop('disabled',true);
 			credit_row.find('.h_accountcode').val(op_acct);
@@ -4793,7 +4781,7 @@ $(document).ready(function() {
 			var new_op_account = $('#op_acct').val();
 			update_op_account(new_op_account);
 		}
-
+		drawTemplate();
 		$("#paymentmode").removeAttr("disabled");
 
 		/**SAVE CHANGES AND REDIRECT TO LIST**/

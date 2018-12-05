@@ -16,25 +16,65 @@ class controller extends wc_controller {
 
 	public function view() {
 		$this->view->title 			= 	'Trial Balance';
-		
 		$this->report_model->generateBalanceTable();
 
 		$account 					=	$this->trial_balance->retrieveAccount("IS");
 		$data['is_account']			=	isset($account->salesAccount) 	?	$account->salesAccount 	:	"";
+		$acct 						=	$this->trial_balance->retrieveAccount("YEC");
+		$yr_account					=	isset($acct->salesAccount) 		?	$acct->salesAccount 	:	"";
+		$data['yr_account'] 		=	$yr_account;
 		$data['chart_account_list'] =	$this->trial_balance->getChartAccountList();
 		$data['proforma_list'] 		= 	$this->trial_balance->getProformaList();
 
-		$year_result 				=  	$this->trial_balance->getYearforClosing();
-		$year_closing 				=	isset($year_result->year)		?	$year_result->year	:	"";	
-		$period_result 				=	$this->trial_balance->getClosingMonth($year_closing);
+		// $year_result 				=  	$this->trial_balance->getYearforClosing();
+		// $year_closing 				=	isset($year_result->year)		?	$year_result->year	:	"";	
+		$period_result 				=	$this->trial_balance->getClosingMonth();
 		$ret_year  			 		=	isset($period_result->year) 	?	$period_result->year 	:	"";	 			
 		$ret_month 					=	isset($period_result->month) 	?	$period_result->month 	:	"";
+		$ret_period 				= 	$this->trial_balance->getPeriodStart();
+		$period_start 				= 	isset($ret_period->periodstart) ? 	$ret_period->periodstart :	"";
+		$period_end 				=	isset($ret_period->periodstart) ? 	$ret_period->periodstart - 1 : 12;
+		// $period_end 				=	($period_end == -1) 	?	11 	:	$period_end;
+		$taxyear 					=	isset($ret_period->taxyear) 	? 	$ret_period->taxyear	:	"";
 
+		$data['taxyear'] 			=	$taxyear;
+		$data['period_start'] 		= 	($taxyear == 'fiscal') ? $period_start 	: "0";
+		$period_end 				= 	($taxyear == 'fiscal' && $period_end != -1) ? $period_end 	: 11;
+		$data['period_end'] 		=	$period_end;
+		
 		$last_date 					= 	$ret_year."-".$ret_month."-1";
 		$complete_date 				= 	$this->trial_balance->getMonthEnd($last_date);
 		$complete_date 				=	$this->date->dateFormat($complete_date);
-
+		
 		$data['datafrom'] 			=	$complete_date;
+
+		// For Year End Closing
+		$ret_name 					=	$this->trial_balance->getCOAname($yr_account);
+		$data['year_end_acctname'] 	=	isset($ret_name->val) 	?	$ret_name->val	:	"";
+
+		$check_last_closedmonth 	=	$this->trial_balance->check_latest_closedmonth();
+		$last_closedyear 			=	isset($check_last_closedmonth[0]->fiscalyear) ? $check_last_closedmonth[0]->fiscalyear : "";
+		$data['last_year'] 			=	$last_closedyear;
+
+		$check_existing_year_end 	=	$this->trial_balance->check_existing_yrendjv($last_closedyear);
+
+		if(empty($check_existing_year_end)){
+			$last_closedmonth 		=	isset($check_last_closedmonth[0]->period) ? $check_last_closedmonth[0]->period : "";
+
+			$firstmonth 				=	$last_closedyear."-1-1";
+			$lastmonth 					=	$last_closedyear."-12-1";
+			$startmonth 				= 	$this->trial_balance->getMonthEnd($firstmonth);
+			$startmonth 				=	$this->date->dateFormat($startmonth);
+			$endmonth 					= 	$this->trial_balance->getMonthEnd($lastmonth);
+			$endmonth 					=	$this->date->dateFormat($endmonth);
+			$data['last_date'] 			=	$endmonth;
+			$data['year_end_date'] 		=	$startmonth." - ".$endmonth;
+
+			if(($last_closedmonth-1) == $period_end){
+				$data['datafrom'] 		=	$startmonth." - ".$endmonth;
+				$data['is_account'] 	=	$yr_account;
+			}
+		}
 
 		$data['ui'] 				= 	$this->ui;
 		$data['show_input'] 		= 	true;
@@ -105,10 +145,13 @@ class controller extends wc_controller {
 		$totalperiodbalance = 0;
 		$totalaccumulatedbalance = 0;
 		
-		foreach($pagination as $row){
-				$accountid          = $row->accountid;
-				$accountcode		= $row->accountcode;
-				$accountname		= $row->accountname;	
+		if(count($pagination->result)>0)
+		{
+			for($i=0;$i<count($pagination->result);$i++)
+			{	
+				$accountid          = $pagination->result[$i]->accountid;
+				$accountcode		= $pagination->result[$i]->accountcode;
+				$accountname		= $pagination->result[$i]->accountname;	
 
 				$prevcarry 			= $this->trial_balance->getPrevCarry($accountid,$datefilterFrom);
 				$balcarry			= $this->trial_balance->getBalanceCarry($accountid,$datefilterFrom,$datefilterTo);
@@ -166,6 +209,7 @@ class controller extends wc_controller {
 
 			$table.= '</tr>';
 		
+	}
 		// if(count($pagination->result)>0)
 		// {
 		// 	for($i=0;$i<count($pagination->result);$i++)
@@ -235,8 +279,8 @@ class controller extends wc_controller {
 		// 	$table .= '<tr><td colspan="8" class="text-center"><b>No Records Found</b></td></tr>';
 		// }
 
-		// $pagination->table = $table;
-		// $pagination->csv   = $this->export();
+		$pagination->table = $table;
+		$pagination->csv   = $this->export();
 		return array('table' => $table);
 
 	}
@@ -359,11 +403,30 @@ class controller extends wc_controller {
 		);
 	}
 
-	private function temporary_jv_close(){
+	private function check_existing_yrendjv(){
+		$transaction_date  	=	$this->input->post('trans_date');
+		
+		$result = $this->trial_balance->check_existing_yrendjv($year);
 
-		$data 			= 	$this->input->post(array('datefrom','reference','notes','closing_account'));
+		$existing 	=	0;
+		if( !empty($result) ){
+			$existing 	=	1;
+		}
+
+		return array(
+			'existing' => $existing
+		);
+	}
+	
+	private function temporary_jv_close(){
+		$data 			= 	$this->input->post(array('datefrom','reference','notes','closing_account','taxyear','period_end','period_start','source'));
 		$datefrom 		=	$data['datefrom'];
-		$datefrom 		=	date("Y-m-d", strtotime($datefrom));
+		// $datefrom 		=	date("Y-m-d", strtotime($datefrom));
+
+		$source 		=	$data['source'];
+		$taxyear 		=	$data['taxyear'];
+		$period_end		=	$data['period_end'];
+		$period_start 	=	$data['period_start'];
 
 		$account 		=	isset($data['closing_account']) 	?	$data['closing_account'] 	:	"";
 
@@ -374,14 +437,18 @@ class controller extends wc_controller {
 
 		$data['datefrom'] 			=	$datefrom;
 		$data['voucher'] 			=	$temporary_id; 
+		$data['taxyear'] 			= 	$taxyear;
 		$data['closing_account'] 	=	$account;
+		$data['period_end'] 		=	$period_end;
+		$data['period_start'] 		=	$period_start;
+		$data['source'] 			=	$source;
 
-		$result 			=	$this->trial_balance->save_journal_voucher($data);
-		
+		$result 					=	$this->trial_balance->save_journal_voucher($data);
+
 		if($result){
 			$this->report_model->generateBalanceTable();
 		}
-		
+
 		$dataArray 		=	array( "result" =>	$result, 'voucherno' => $temporary_id);
 
 		return $dataArray;
