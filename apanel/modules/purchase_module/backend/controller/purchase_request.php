@@ -286,6 +286,7 @@ class controller extends wc_controller
 		$data["requestor"]       = $retrieved_data["header"]->requestor;
 		$data["remarks"]      	 = $retrieved_data["header"]->remarks;
 		$data["department"]      = $retrieved_data["header"]->department;
+		$data["stat"]      		 = $retrieved_data["header"]->stat;
 		$data["due_date"]    	 = $this->date->dateFormat($duedate);
 		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
 		

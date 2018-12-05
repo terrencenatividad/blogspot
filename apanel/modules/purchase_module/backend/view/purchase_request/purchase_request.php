@@ -394,7 +394,7 @@
 					}
 					else
 					{ 	
-						if( $restrict_req  ){
+						if( $restrict_req && $stat != 'cancelled' ){
 					?>
 						<div class="btn-group">
 							<a class="btn btn-primary" role="button" href="<?=BASE_URL?>purchase/purchase_request/edit/<?=$sid?>" style="outline:none;">Edit</a>
