@@ -531,11 +531,17 @@ class controller extends wc_controller
 			$row->description 	= html_entity_decode(stripslashes($row->description));
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
+				$print->drawSummary(array('Total Purchase' => number_format($amount, 2),
+					'Total Purchase Tax' => number_format($vat, 2),
+					'Withholding Tax' => number_format($wtaxamount, 2),
+					'Total Amount Due' => number_format($netamount, 2)));
 				$total_amount = 0;
 			}
 		}
-		// $print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
+		$print->drawSummary(array('Total Purchase' => number_format($amount, 2),
+					'Total Purchase Tax' => number_format($vat, 2),
+					'Withholding Tax' => number_format($wtaxamount, 2),
+					'Total Amount Due' => number_format($netamount, 2)));
 
 		$print->drawPDF('Purchase Order - ' . $voucherno);
 	}

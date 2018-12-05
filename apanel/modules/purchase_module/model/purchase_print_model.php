@@ -155,46 +155,6 @@ class purchase_print_model extends fpdf {
 				$this->Ln();
 			}
 		}
-		$document_info = $this->document_info;
-		$amount = $document_info->amount;
-		$wtaxamount = $document_info->wtax;
-		$vat = $document_info->vat;
-		$taxcode = $document_info->wtaxcode;
-		$taxrate = $document_info->wtaxrate;
-		$netamount = $document_info->net;
-
-		$this->SetFont('Arial', 'B', 9);
-		$this->SetY(215);
-		$this->SetX(153);
-		$this->Cell(20, 4, 'Total Purchase', 0, 0, 'L');
-		$this->SetFont('Arial', '', 9);
-		$this->SetY(215);
-		$this->SetX(193.5);
-		$this->Cell(20, 4, number_format($amount, 2), 0, 0, 'L');
-		$this->SetFont('Arial', 'B', 9);
-		$this->SetY(225);
-		$this->SetX(153);
-		$this->Cell(20, 4, 'Total Purchases Tax', 0, 0, 'L');
-		$this->SetFont('Arial', '', 9);
-		$this->SetY(225);
-		$this->SetX(198);
-		$this->Cell(20, 4, number_format($vat, 2), 0, 0, 'L');
-		$this->SetFont('Arial', 'B', 9);
-		$this->SetY(235);
-		$this->SetX(153);
-		$this->Cell(20, 4, 'Withholding Tax', 0, 0, 'L');
-		$this->SetFont('Arial', '', 9);
-		$this->SetY(235);
-		$this->SetX(196);
-		$this->Cell(20, 4, $wtaxamount, 0, 0, 'L');
-		$this->SetFont('Arial', 'B', 9);
-		$this->SetY(243);
-		$this->SetX(153);
-		$this->Cell(20, 4, 'Total Amount Due', 0, 0, 'L');
-		$this->SetFont('Arial', '', 9);
-		$this->SetY(243);
-		$this->SetX(193.5);
-		$this->Cell(20, 4, number_format($netamount, 2), 0, 0, 'L');
 		$this->SetY($header_end);
 		$this->Ln();
 	}
