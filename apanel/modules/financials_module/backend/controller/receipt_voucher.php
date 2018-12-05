@@ -1353,6 +1353,7 @@ class controller extends wc_controller
 					$amt_array[$row['vno']] = $row;
 				}	
 			}
+			// var_dump($amt_array);
 
 			for($i = 0; $i < count($pagination->result); $i++, $j++){
 				$date			= $pagination->result[$i]->transactiondate;
@@ -1379,26 +1380,32 @@ class controller extends wc_controller
 			
 				$json_encode 					= json_encode($json_data);
 
-				$result_rvapp	= $this->receipt_voucher->getValue("rv_application", array("SUM(convertedamount) AS amount", "SUM(discount) as discount", "SUM(overpayment) overpayment", "SUM(credits_used) credits_used"),"arvoucherno = '$voucher' AND stat IN('open','posted', 'temporary')", "", "", "arvoucherno");
+				$result_rvapp	= $this->receipt_voucher->getValue("rv_application", array("arvoucherno","SUM(convertedamount) AS amount", "SUM(discount) as discount", "SUM(overpayment) overpayment", "SUM(credits_used) credits_used"),"arvoucherno = '$voucher' AND stat IN('open','posted')", "", "", "arvoucherno");
 
+				$appliedvoucher  = isset($result_rvapp[0]->arvoucherno) 	?	$result_rvapp[0]->arvoucherno	:  '';
 				$appliedamount  = isset($result_rvapp[0]->amount) 			?	$result_rvapp[0]->amount		:	0;
 				$applieddiscount= isset($result_rvapp[0]->discount)			?	$result_rvapp[0]->discount		:	0;
 				$appliedover  	= isset($result_rvapp[0]->overpayment) 		?	$result_rvapp[0]->overpayment	:	0;
-				$balance_2		= $balance;
-				
+
+				// echo $appliedamount . "\n";
+
+				$balance_2 	=	0;
 				if (isset($amt_array[$voucher])) {
-					$balance_2	= str_replace(',','',$amt_array[$voucher]['bal']);
-					$amount		= str_replace(',','',$amt_array[$voucher]['amt']);
+					$amount 	= isset($amt_array[$voucher]['amt']) ? $amt_array[$voucher]['amt'] : $totalamount;
+					$balance_2 	= isset($amt_array[$voucher]['bal']) ? $amt_array[$voucher]['bal'] : $totalamount;
 					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0.00';
+					$amount		= str_replace(',','',$amount);
+					$balance_2	= str_replace(',','',$balance_2);
 					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount;
 					$balance_2 	= $balance_2 - $amount - $discount;
-					// $balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
+					$balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
+				} else {
+					$balance_2 	= ($task == "edit" && $balance == 0) ? ($balance + $appliedamount + $applieddiscount) : $balance;
 				}
 				
-				$balance 		= (($overpayment>0 || $balance > 0) && $task != "create") ? $appliedamount + $balance_2 : $balance;
-				
-				// echo "Balance 1 = ".$balance."\n";
-				// echo "Balance 2 = ".$balance_2."\n\n";
+				$balance 		= ($task == "edit" && $balance == 0) ? ($balance + $appliedamount + $applieddiscount) : $balance;
+				// echo $balance."\n\n";
+				// echo $balance_2."\n\n";
 
 				$disable_checkbox 	=	"";
 				$disable_onclick 	=	'onClick="selectPayable(\''.$voucher.'\',1);"';

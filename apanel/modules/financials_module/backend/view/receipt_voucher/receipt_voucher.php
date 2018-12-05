@@ -1709,6 +1709,7 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 	// enable them to allow a cloned row with enabled dropdown and input fields
 	initial_clone.find('.accountcode').attr('disabled', disabled_accountcode);	
 	initial_clone.find('.credit').val('0.00');
+	// initial_clone.find('.debit').val('0.00');
 	initial_clone.find('.confirm-delete').attr('disabled', false);
 	// remove 'cheque' class for checking purposes
 	var cheque_checker 	=	initial_clone.find('.credit').hasClass('cheque');
@@ -3105,17 +3106,18 @@ function getRVDetails(){
 					var row = $("#entriesTable tbody tr.clone").length; 
 					var op_acct 	= $('#hidden_op_acct').val();
 					var ParentRow = $("#entriesTable tbody tr.clone").last();
-					ParentRow.before(clone_acct);
+					var cloned_op = ParentRow.before(clone_acct);
+					console.log( cloned_op );
 					resetIds();
 					$("#accountcode\\["+ row +"\\]").closest('tr').addClass('op_row');
 					$('#accountcode\\['+row+'\\]').val(op_acct).trigger('select2.change');
 					$('#h_accountcode\\['+row+'\\]').val(op_acct);
 					$('#detailparticulars\\['+row+'\\]').val("Overpayment");
-					// $('#debit\\['+row+'\\]').val(0);
+					$('#debit\\['+row+'\\]').val('0.00');
 					disable_acct_fields(row);
 					$('#credit\\['+row+'\\]').prop('readonly',false);
 					// $('#disc_acct').val(discount_amount);
-					$('#op_checker').prop('disabled',false);
+					// $('#op_checker').prop('disabled',false);
 				}
 				
 				// // // For Advance Payment - Credit Voucher
@@ -3138,6 +3140,34 @@ function getRVDetails(){
 						// addAmountAll("credit");
 					}
 				});
+				
+				if(selected_rows != ""){
+
+					var parsed_payment = JSON.parse(selected_rows);
+					var total_rcv  = 0;
+					var total_bal  = 0;
+					for (var i = 0, len = parsed_payment.length; i < len; ++i) {
+						var payment 		= parsed_payment[i];
+						var id 				= payment.vno;
+						var current_amt 	= payment.amt;
+							current_amt 	= parseFloat(current_amt.replace(/\,/g,''));
+						var current_balance = parseFloat(payment.bal);
+
+						total_rcv 	+=	current_amt;
+						total_bal 	+=	(current_balance>0) ? current_balance : current_amt;
+					}
+					if(total_rcv==total_bal){
+						if(is_op == "yes"){
+							$('#op_checker').iCheck('check');
+						}
+						$('#op_checker').prop('disabled',false).iCheck('update');;
+					} else {
+						if(is_op == "yes"){
+							$('#op_checker').iCheck('uncheck');
+						} 
+						$('#op_checker').prop('disabled',true).iCheck('update');
+					}
+				}
 			}	
 
 			addAmountAll("debit");
@@ -3148,7 +3178,6 @@ function getRVDetails(){
 
 		if(parseFloat(has_payment) > 0 && is_op != "yes"){
 			$('#crv').prop('disabled',false);
-			$('#op_checker').prop('disabled',false);
 		}
 	}
 }
@@ -3170,7 +3199,7 @@ function selectPayable(id,toggle){
 		if(toggle == 1){
 			check.prop('checked', false);
 			paymentamount.prop('disabled',true);
-			paymentamount.val('');
+			paymentamount.val('0.00');
 			discountamount.prop('disabled',true);
 			credit_used.prop('disabled',true);
 			credit_used.val("0.00");
@@ -3192,7 +3221,7 @@ function selectPayable(id,toggle){
 		}else{
 			check.prop('checked', false);
 			paymentamount.prop('disabled',true);
-			paymentamount.val('');
+			paymentamount.val('0.00');
 			discountamount.prop('disabled',true);
 			credit_used.prop('disabled',true);
 			credit_used.val("0.00");
@@ -3333,6 +3362,7 @@ function add_storage(id,balance,discount,credits,excess){
 		overpayment = parseFloat(removeComma(overpayment));
 
 	var newvalue 	= {"vno":id,"amt":amount,"bal":balance,"dis":discount,"cred":credits,"over":excess};
+	console.log(newvalue);
 	var newcont 	= JSON.parse(JSON.stringify(container));
 	var total_cred_used  = 0;
 	if(amount != 0){
@@ -3355,8 +3385,9 @@ function add_storage(id,balance,discount,credits,excess){
 
 				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount) + parseFloat(original_credits)) - discount - credits;
 					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
-
+					console.log( " AVAILABLE BALANCE "+available_balance);
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
+				$('#payable_list_container #payable_balance'+id).data('value',available_balance);
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
 
 				found = true;
@@ -3378,7 +3409,9 @@ function add_storage(id,balance,discount,credits,excess){
 		}
 		
 	}else{
+		console.log(balance);
 		$('#payable_list_container #payable_balance'+id).html(addComma(balance));
+		$('#payable_list_container #payable_balance'+id).attr('data-value',available_balance);
 		if(container.length > 0){
 			container = container.filter(function( obj ) {
 				return obj.vno !== id;

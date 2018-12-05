@@ -391,7 +391,7 @@ class receipt_voucher_model extends wc_model
 										->leftJoin("($edit_sub_query) as rv ON rv.arvoucherno = main.voucherno AND rv.companycode = main.companycode")
 										->setWhere($mainCondition)
 										->setGroupBy($mainGroupBy)
-										->setHaving("(amount - (payment + overpayment)) < 0")
+										->setHaving("(amount - (payment + overpayment)) <= 0")
 										->buildSelect();
 
 										// echo $this->db->getQuery();
