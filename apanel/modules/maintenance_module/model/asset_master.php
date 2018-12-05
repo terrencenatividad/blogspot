@@ -116,7 +116,8 @@ class asset_master extends wc_model {
 						->setFields($fields)
 						->leftJoin('purchasereceipt pr ON pr.voucherno = prd.voucherno')
 						->setWhere("itemcode = '$itemcode'")
-						->runPagination();
+						->runSelect()
+						->getResult();
 	}
 
 	public function retrieveAssetClass($id) {

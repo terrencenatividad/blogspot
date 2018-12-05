@@ -494,13 +494,13 @@
 							<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 								<?if($show_input):?>
 								<div class="btn-group">
-									<button type = "button" id="TagReceivablesBtn" class = "btn btn-primary btn-sm btn-flat" onClick = "getRVDetails();">Tag</button>
+									<button type = "button" id="TagPP" class = "btn btn-primary btn-sm btn-flat">Tag</button>
 								</div>
 								&nbsp;&nbsp;&nbsp;
 								<?endif;?>
 								<div class="btn-group">
 									<!-- noted by Sir Mark to remove this onclick function upon cancel. onClick="clearPayment();"-->
-									<button type="button" class="btn btn-default btn-sm btn-flat" id="cancelPaymentModal" >Cancel</button>
+									<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal" >Cancel</button>
 								</div>
 							</div>
 						</div>
@@ -541,12 +541,6 @@ $('#pagination').on('click', 'a', function(e) {
       getItemList();
 });
 
-$('#itemcode_list input[type="checkbox"]').each(function() {
-				if ($(this).is(':checked')) {
-					console.log('asd');
-				}
-		});
-
 function getItemList() {
 	var assname = $('#asset_name').val();
 	var salval = $('#salvage_value').val();
@@ -569,8 +563,17 @@ function getItemList() {
 }
 
 $('#itemcode').on('change', function(){
-	// $('#itemsModal').modal('show');
+	$('#itemsModal').modal('show');
 	getItemList();
+});
+
+$('#itemlists').on('ifChecked','.pono',function(event){
+	var purchaseprice = $(this).iCheck('checked').val();
+		
+	$('#itemsModal').on('click','#TagPP',function(event){
+		$('#purchase_value').val(purchaseprice);
+		$('#itemsModal').modal('hide');
+	});
 });
 
 $('#asset_class').on('change', function(){

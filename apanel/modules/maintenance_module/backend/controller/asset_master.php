@@ -263,10 +263,10 @@ class controller extends wc_controller {
 		$barcode = $result->barcode;
 		
 		$table             = "";
-		foreach($po->result as $row)
+		foreach($po as $row)
 			{
 				$table.= "<tr>";
-				$table.= "<td class='text-center'><input type='checkbox' class='form-control'></td>";								
+				$table.= "<td class='text-center'><input type='radio' name='pono' class='form-control pono' value='$row->unitprice'></td>";								
 				$table.= "<td class='text-center'>$row->transactiondate</td>";				
 				$table.= "<td class='text-center'>$row->source_no</td>";				
 				$table.= "<td class='text-center'>$itemcode</td>";				
@@ -274,7 +274,7 @@ class controller extends wc_controller {
 				$table.= "</tr>";
 			}
 
-		return array('table' => $table, "pagination" => $po->pagination, 'description' => $itemdesc, 'itemname' => $itemname, 'barcode' => $barcode);
+		return array('table' => $table, 'description' => $itemdesc, 'itemname' => $itemname, 'barcode' => $barcode);
 	}
 
 	private function ajax_get_assetclass() {
