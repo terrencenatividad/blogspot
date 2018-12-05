@@ -180,7 +180,7 @@ class import_purchaseorder extends wc_model
 		$retrieved_data['vendor']    =	$this->retrievevendorDetails($vendor_code);
 
 			// Retrieve Details
-		$detail_fields 			= "pd.itemcode, pd.detailparticular, pd.warehouse, w.description, pd.unitprice, pd.receiptqty,receiptuom, pd.taxcode, pd.taxrate, pd.amount, pd.discount";
+		$detail_fields 			= "pd.itemcode, pd.detailparticular, pd.warehouse, w.description, pd.unitprice, pd.onhandqty, pd.receiptqty,receiptuom, pd.taxcode, pd.taxrate, pd.amount, pd.discount";
 		$condition 				= " pd.voucherno = '$voucherno' ";
 
 		$retrieved_data['details'] = 	$this->db->setTable('import_purchaseorder_details pd')
@@ -338,6 +338,8 @@ class import_purchaseorder extends wc_model
 
 		$convpackaging 			= (isset($data['b_packaging']) && (!empty($data['b_packaging']))) ? htmlentities(addslashes(trim($data['b_packaging']))) : "";
 
+		$convertedamount		= (isset($data['b_total']) && (!empty($data['b_total']))) ? htmlentities(addslashes(trim($data['b_total']))) : "";
+
 		$_final 			= (isset($data['save']) && (!empty($data['save']))) ? htmlentities(addslashes(trim($data['save']))) : "";	
 
 		$status				= ( empty($_final) && $voucher == "" ) ? "temporary" : "open";
@@ -351,6 +353,7 @@ class import_purchaseorder extends wc_model
 		$convfreight		= str_replace(',','',$convfreight);
 		$convinsurance		= str_replace(',','',$convinsurance);
 		$convpackaging		= str_replace(',','',$convpackaging);
+		$convertedamount		= str_replace(',','',$convertedamount);
 
 		/**FORMAT DATES**/
 		$transactiondate	= date("Y-m-d",strtotime($transactiondate));
@@ -386,6 +389,7 @@ class import_purchaseorder extends wc_model
 		$post_header['converted_freight'] 	=	$convfreight;
 		$post_header['converted_insurance'] =	$convinsurance;
 		$post_header['converted_packaging'] =	$convpackaging;
+		$post_header['convertedamount'] 	=	$convertedamount;
 		
 
 		/**INSERT HEADER**/
