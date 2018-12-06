@@ -106,22 +106,6 @@ class trial_balance extends wc_model {
 		return $result;
 	}
 
-	public function retrieveYearEndCOAdetails($currentyear,$prevyear,$fstype=""){
-		$fs_cond 	=	(!empty($fstype)) 	?	" AND chart.fspresentation = '$fstype'" 	:	"";
-		
-		$result = $this->db->setTable("chartaccount as chart")
-						->setFields(array("chart.id as accountid","chart.segment5 as accountcode","chart.accountname as accountname"))
-						->leftJoin("balance_table as bal ON bal.accountcode = chart.id AND bal.source = 'closing'")
-						->setWhere("bal.transactiondate >= '$prevyear' AND bal.transactiondate <= '$currentyear' $fs_cond AND (chart.fspresentation = 'BS' OR chart.fspresentation = 'Balance Sheet')")
-						->setGroupBy("chart.segment5")
-						->setOrderBy("chart.segment5 ASC")
-						->runSelect()
-						->getResult();
-						// echo $this->db->getQuery();
-
-		return $result;
-	}
-
 	public function load_account_transactions($data){
 		$daterangefilter	= isset($data['daterangefilter'])  ?  $data['daterangefilter']  : "";
 		$acctfilter		    = isset($data['accountcode'])  ?  $data['accountcode']  : "";
@@ -894,12 +878,12 @@ class trial_balance extends wc_model {
 
 	public function delete_temporary_jv($voucherno){
 		$result 	=	$this->db->setTable("journaldetails")
-								 ->setWhere("voucherno = '$voucherno' AND stat = 'temporary' AND source = 'closing'")
+								 ->setWhere("voucherno = '$voucherno' AND stat = 'temporary' AND source IN ('closing','yrend_closing')")
 								 ->runDelete();
 
 		if( $result ){
 			$result 	=	$this->db->setTable("journalvoucher")
-								 ->setWhere("voucherno = '$voucherno' AND stat = 'temporary' AND source = 'closing'")
+								 ->setWhere("voucherno = '$voucherno' AND stat = 'temporary' AND source IN ('closing','yrend_closing')")
 								 ->runDelete();
 		}
 
