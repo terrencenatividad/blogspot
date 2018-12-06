@@ -23,6 +23,9 @@ class controller extends wc_controller {
 		$acct 						=	$this->trial_balance->retrieveAccount("YEC");
 		$yr_account					=	isset($acct->salesAccount) 		?	$acct->salesAccount 	:	"";
 		$data['yr_account'] 		=	$yr_account;
+		$yr_account_name 			=	$this->trial_balance->getCOAname($yr_account);
+		$yr_account_name 			=	isset($yr_account_name->val)	? 	$yr_account_name->val 	:	"";
+		$data['yr_account_name'] 	=	$yr_account_name;
 		$data['chart_account_list'] =	$this->trial_balance->getChartAccountList();
 		$data['proforma_list'] 		= 	$this->trial_balance->getProformaList();
 
@@ -55,12 +58,12 @@ class controller extends wc_controller {
 		$check_last_closedmonth 	=	$this->trial_balance->check_latest_closedmonth();
 		$last_closedyear 			=	isset($check_last_closedmonth[0]->fiscalyear) ? $check_last_closedmonth[0]->fiscalyear : "";
 		$data['last_year'] 			=	$last_closedyear;
+		$last_closedmonth 			=	isset($check_last_closedmonth[0]->period) ? $check_last_closedmonth[0]->period : "";
+		$data['last_closed_month'] 	=	$last_closedmonth;
 
 		$check_existing_year_end 	=	$this->trial_balance->check_existing_yrendjv($last_closedyear);
 
 		if(empty($check_existing_year_end)){
-			$last_closedmonth 		=	isset($check_last_closedmonth[0]->period) ? $check_last_closedmonth[0]->period : "";
-
 			$firstmonth 				=	$last_closedyear."-1-1";
 			$lastmonth 					=	$last_closedyear."-12-1";
 			$startmonth 				= 	$this->trial_balance->getMonthEnd($firstmonth);
@@ -112,6 +115,8 @@ class controller extends wc_controller {
 			$result = $this->close_jv_status();
 		}else if($task == "eradicate_temporary_jv"){
 			$result = $this->eradicate_temporary_jv();
+		}else if($task == "check_existing_yrendjv") {
+			$result = $this->check_existing_yrendjv();
 		}
 
 		echo json_encode($result); 
@@ -406,7 +411,7 @@ class controller extends wc_controller {
 	private function check_existing_yrendjv(){
 		$transaction_date  	=	$this->input->post('trans_date');
 		
-		$result = $this->trial_balance->check_existing_yrendjv($year);
+		$result = $this->trial_balance->check_existing_yrendjv($transaction_date);
 
 		$existing 	=	0;
 		if( !empty($result) ){

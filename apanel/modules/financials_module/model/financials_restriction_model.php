@@ -36,5 +36,25 @@
 
             return $returnvalue;
         }
+
+        public function getLatestVoucher() {
+            $result     =   $this->db->setTable("journalvoucher")
+                                     ->setFields("voucherno")
+                                     ->setWhere("stat = 'posted' AND source IN ('closing','yrend_closing')")
+                                     ->setOrderBy("voucherno DESC")
+                                     ->setLimit(1)
+                                     ->runSelect()
+                                     ->getRow();
+                                    
+            $resultArr     =   ($result)    ?   explode(" ",$result->voucherno)   :   ""; 
+            $returnvalue    =   "";
+            if( $resultArr ) {
+                $returnvalue    =   $resultArr[0];
+            } else {
+                $returnvalue    =   "";
+            }
+
+            return $returnvalue;
+        }
     }
 
