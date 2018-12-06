@@ -483,6 +483,14 @@ class controller extends wc_controller
 		$bus_type_cond                = "type = 'businesstype'";
 		$data["business_type_list"]   = $this->so->getValue("wc_option", $bus_type_data, $bus_type_cond, false);
 
+		if ($data['stat'] == 'posted') {
+			$cancelled_items			= $this->so->getUnReceivedItems($data["voucherno"]);
+			$data['cancelled_items']	= $cancelled_items;
+			if ($cancelled_items) {
+				$data['delivered_items'] = $this->so->getReceivedItems($data["voucherno"]);
+			}
+		}
+
 		$this->view->load('sales_order/sales_order', $data);
 	}
 

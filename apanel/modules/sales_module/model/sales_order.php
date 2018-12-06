@@ -315,6 +315,7 @@
 			$totalamount		= str_replace(',','',$totalamount);
 			$discount_amount	= str_replace(',','',$discount_amount);
 
+			$vat				= str_replace(',','',$vat);
 			$vat_sales			= str_replace(',','',$vat_sales);
 			$vat_exempt			= str_replace(',','',$vat_exempt);
 			/**FORMAT DATES**/
@@ -664,6 +665,45 @@
 							 ->setWhere("itemcode = '$itemcode' AND warehouse = '$wh'")
 							 ->runSelect()
 							 ->getResult();
+			return $result;
+		}
+
+		public function getUnReceivedItems($voucherno) {
+			$dr_inner = $this->db->setTable('deliveryreceipt a')
+								->innerJoin('deliveryreceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+								->setFields('a.companycode, linenum, b.discountamount, b.discountrate, source_no, SUM(issueqty) issueqty')
+								->setWhere("a.stat = 'Delivered' OR a.stat = 'With Invoice'")
+								->setGroupBy('source_no, itemcode, linenum')
+								->buildSelect();
+	
+			$result	= $this->db->setTable('salesorder a')
+								->innerJoin('salesorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+								->leftJoin("($dr_inner) dr ON dr.source_no = a.voucherno AND dr.companycode = a.companycode AND dr.linenum = b.linenum")
+								->setFields('b.itemcode, detailparticular, b.warehouse, (b.issueqty - dr.issueqty) balance_qty, dr.discountamount as discountamount, dr.discountrate as discountrate, b.amount as amount, b.taxcode, b.taxrate, b.issueuom, unitprice')
+								->setWhere("a.stat IN('open', 'partial', 'posted') AND a.voucherno = '$voucherno'")
+								->setHaving('balance_qty > 0')
+								->runSelect()
+								->getResult();
+	
+			return $result;
+		}
+
+		public function getReceivedItems($voucherno) {
+			$dr_inner = $this->db->setTable('deliveryreceipt a')
+								->innerJoin('deliveryreceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+								->setFields('a.companycode, linenum, b.discountamount, b.discountrate, b.amount as amount, b.taxamount, source_no, SUM(issueqty) issueqty')
+								->setWhere("a.stat = 'Delivered' OR a.stat = 'With Invoice'")
+								->setGroupBy('source_no, itemcode, linenum')
+								->buildSelect();
+	
+			$result	= $this->db->setTable('salesorder a')
+								->innerJoin('salesorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+								->leftJoin("($dr_inner) dr ON dr.source_no = a.voucherno AND dr.companycode = a.companycode AND dr.linenum = b.linenum")
+								->setFields('b.itemcode, detailparticular, b.warehouse, dr.issueqty, b.taxcode, b.taxrate, dr.taxamount as taxamount, b.issueuom, dr.discountamount as discountamount, dr.discountrate as discountrate, unitprice, dr.amount as amount, vat_sales, vat_exempt, vat_zerorated')
+								->setWhere("a.stat IN('open', 'partial', 'posted') AND a.voucherno = '$voucherno'")
+								->runSelect()
+								->getResult();
+	
 			return $result;
 		}
 	}
