@@ -481,6 +481,7 @@ class trial_balance extends wc_model {
 				$accounts['account'] 			=	$accountid;
 				$accounts['linenum'] 			=	$linenum;
 				$accounts['detailparticulars'] 	= 	$detailparticular;
+				$accounts['source'] 			=	$source;
 	
 				if( $amount > 0 ){
 					$credit 			= 	$prev_carry	+ $amount;
@@ -510,6 +511,7 @@ class trial_balance extends wc_model {
 					$closing['account'] 			= 	$actualaccount;
 					$closing['amount'] 				=  	-($retained);
 					$closing['detailparticulars'] 	= 	$detailparticular;
+					$closing['source'] 				=	$source;
 
 					$result 			=	$this->create_jvdetails_debit($closing);
 				} else {
@@ -518,6 +520,7 @@ class trial_balance extends wc_model {
 					$closing['account'] 			= 	$actualaccount;
 					$closing['amount'] 				=  	$retained;
 					$closing['detailparticulars'] 	= 	$detailparticular;
+					$closing['source'] 				=	$source;
 	
 					$result 			=	$this->create_jvdetails_credit($closing);
 				}
@@ -792,21 +795,23 @@ class trial_balance extends wc_model {
 		$ret_years 	=	$this->getSystemTransactionYears();
 
 		$ret		= 	$this->getPeriodStart();
-		// $month_start= 	($ret->taxyear == 'fiscal') ? $ret->periodstart 	:	1;
-		$month_start= 	1;
-		$month_end 	=   12;
+
+		$month_start= 	($ret->taxyear == 'fiscal') ? $ret->periodstart 	:	1;
+		$month_end  = 	($ret->taxyear == 'fiscal') ? $ret->periodstart-1	:	12;
 
 		$select 	=	array(); 
 		foreach($ret_years as $key => $result){
 			$year 	=	$result->fiscalyear;
-			for($x=$month_start;$x<=$month_end;$x++){
+			for($x=$month_start;$x<=12;$x++){
+				if($x==12 && $ret->taxyear == 'fiscal'){
+					$month_end   = $month_start - 1;
+					$month_start = 1;
+					// $x 	=	1;
+				}
 				$select[] 	=	"SELECT $year year, $x month";
-				// if($x==12 && $ret->taxyear == 'fiscal'){
-				// 	$month_end   = $month_start - 1;
-				// 	$month_start = 1;
-				// }
 			}
 		}
+		
 		$select_query 	= implode(" UNION ",$select);
 		
 		$result 	=	$this->db->setTable("($select_query) period")
@@ -870,11 +875,10 @@ class trial_balance extends wc_model {
 	public function getReference($voucherno){
 		$result 		= 	$this->db->setTable('journalvoucher j')
 									->setFields("j.referenceno")
-									->setWhere("j.voucherno = '$voucherno' AND j.companycode = 'CID'")
+									->setWhere("j.voucherno = '$voucherno'")
 									->setLimit(1)
 									->runSelect()
 									->getRow();
-									// echo $this->db->getQuery();
 		return $result;
 	}
 
