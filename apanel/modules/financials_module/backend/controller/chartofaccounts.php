@@ -422,63 +422,53 @@ class controller extends wc_controller
 
 	private function save_import(){
 
-			$file		= fopen($_FILES['file']['tmp_name'],'r') or exit ("File Unable to upload") ;
+		$file		= fopen($_FILES['file']['tmp_name'],'r') or exit ("File Unable to upload") ;
 
-			$filedir	= $_FILES["file"]["tmp_name"];
-	
-			$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
+		$filedir	= $_FILES["file"]["tmp_name"];
 
-			/**VALIDATE FILE IF CORRUPT**/
-			if(!empty($_FILES['file']['error'])){
-				$errmsg[] = "File being uploaded is corrupted.<br/>";
-			}
+		$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
 
-			/**VALIDATE FILE TYPE**/
-			if(!in_array($_FILES['file']['type'],$file_types)){
-				$errmsg[]= "Invalid file type, file must be .csv.<br/>";
-			}
+		/**VALIDATE FILE IF CORRUPT**/
+		if(!empty($_FILES['file']['error'])){
+			$errmsg[] = "File being uploaded is corrupted.<br/>";
+		}
+
+		/**VALIDATE FILE TYPE**/
+		if(!in_array($_FILES['file']['type'],$file_types)){
+			$errmsg[]= "Invalid file type, file must be .csv.<br/>";
+		}
 			
-			$headerArr = array('Account Code','Account Name', 'Account Class', 'FS Presentation', 'Account Type', 'Parent Account', 'Account Nature');
+		$headerArr = array('Account Code','Account Name', 'Account Class', 'FS Presentation', 'Account Type', 'Parent Account', 'Account Nature');
 
-			if( empty($errmsg) )
-			{
-				$row_start = 2;
-				//$x = file_get_contents($_FILES['file']['tmp_name']);
-				$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
+		if( empty($errmsg) ){
+			$row_start = 2;
+			$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
 				
-				for ($n = 0; $n < count($x); $n++) {
-					if($n==0)
-					{
-						$layout = count($headerArr);
-						$template = count($x);
-						$header = $x[$n];
-						
-						for ($m=0; $m< $layout; $m++)
-						{
-							$template_header = $header[$m];
+			for ($n = 0; $n < count($x); $n++) {
+				if($n==0){
+					$layout = count($headerArr);
+					$template = count($x);
+					$header = $x[$n];
+					
+					for ($m=0; $m< $layout; $m++){
+						$template_header = $header[$m];
+						$error = (empty($template_header) && !in_array($template_header,$headerArr)) ? "error" : "";
+					}	
 
-							$error = (empty($template_header) && !in_array($template_header,$headerArr)) ? "error" : "";
-						}	
-
-						$errmsg[]	= (!empty($error) || $error != "" ) ? "Invalid template. Please download template from the system first.<br/>" : "";
-						
-						$errmsg		= array_filter($errmsg);
-
-					}
-
-					if ($n > 0) 
-					{
-						$z[] = $x[$n];
-					}
+					$errmsg[]	= (!empty($error) || $error != "" ) ? "Invalid template. Please download template from the system first.<br/>" : "";
+					$errmsg		= array_filter($errmsg);
 				}
-				
-				$line 	=	1;
-				$list 	=	array();
 
-				foreach ($z as $b) 
-				{
-					if ( !empty($b)) 
-					{	
+				if ($n > 0) {
+					$z[] = $x[$n];
+				}
+			}
+				
+			$line 	=	1;
+			$list 	=	array();
+
+			foreach ($z as $b) {
+				if ( !empty($b)) {	
 					$accountcode 	   	= $b[0];
 					$accountname 	   	= $b[1];
 					$accountclass 	   	= $b[2];
@@ -489,31 +479,25 @@ class controller extends wc_controller
 
 					$exists = $this->coaclass->check_duplicate($accountcode);
 					$count = $exists[0]->count;
-					
-					if( $count > 0 )
-						{
-							$errmsg[]	= "Account Code [<strong>$accountcode</strong>] on row $line already exists.<br/>";
-							$errmsg		= array_filter($errmsg);
-						}
+				
+					if( $count > 0 ){
+						$errmsg[]	= "Account Code [<strong>$accountcode</strong>] on row $line already exists.<br/>";
+						$errmsg		= array_filter($errmsg);
+					}
 					if( !in_array($accountcode, $list) ){
 						$list[] 	=	$accountcode;
-					}else 
-					{
+					} else {
 						$errmsg[]	= "Account Code [<strong>$accountcode</strong>] on row $line has a duplicate within the document.<br/>";
 					}
-					
 					if(empty($accountcode)){
 						$errmsg[] 	= "Account Code is required. Row $line should not be empty.<br>";
 					}
-				
 					if(empty($accountname)){
 						$errmsg[] 	= "Account Name is required. Row $line should not be empty.<br>";
 					}
-	
 					if(empty($accountclass)){
 						$errmsg[] 	= "Account Class is required. Row $line should not be empty.<br>";
 					}
-					
 					if(empty($fspresentation)){
 						$errmsg[] 	= "FS Presentation is required. Row $line should not be empty.<br>";
 					}
@@ -523,7 +507,7 @@ class controller extends wc_controller
 					if(empty($accountnature)){
 						$errmsg[] 	= "Account Nature is required. Row $line should not be empty.<br>";
 					}				
-					
+				
 					$accountcode_[] 	= $accountcode;
 					$accountname_[] 	= addslashes($accountname);
 					$accountclass_[] 	= $accountclass;
@@ -533,28 +517,27 @@ class controller extends wc_controller
 					$accountnature_[] 	= $accountnature;
 
 					$line++;
-			}
-		}
-		$proceed 	=	false;
-
-		if( empty($errmsg) )
-			{
-				$post = array(
-					'segment5'				=> $accountcode_,
-					'accountname'			=> $accountname_,
-					'accountclasscode'		=> $accountclass_,
-					'fspresentation'		=> $fspresentation_,
-					'accounttype'			=> $accounttype_,
-					'parentaccountcode'		=> $parentaccount_,
-					'accountnature'			=> $accountnature_
-				);
-				
-				$proceed  				= $this->coaclass->importCOA($post);
-
-				if( $proceed )
-				{
-					$this->logs->saveActivity("Imported Chart of Account.");
 				}
+			}
+			
+		}
+
+		$proceed 	=	false;
+		if( empty($errmsg) ){
+			$post = array(
+				'segment5'				=> $accountcode_,
+				'accountname'			=> $accountname_,
+				'accountclasscode'		=> $accountclass_,
+				'fspresentation'		=> $fspresentation_,
+				'accounttype'			=> $accounttype_,
+				'parentaccountcode'		=> $parentaccount_,
+				'accountnature'			=> $accountnature_
+			);
+			
+			$proceed  				= $this->coaclass->importCOA($post);
+
+			if( $proceed ){
+				$this->logs->saveActivity("Imported Chart of Account.");
 			}
 		}
 
