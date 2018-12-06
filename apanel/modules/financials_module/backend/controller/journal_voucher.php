@@ -150,37 +150,34 @@ class controller extends wc_controller {
 			$voucherno			=	isset($row->voucherno) 			? 	$row->voucherno 									:	"";
 			$transactiondate 	=	isset($row->transactiondate) 	?	$this->date->DateDbFormat($row->transactiondate)	:	"";
 			$status				=   $row->stat;
+
 			//Checker for Imported files or Closing
 			$checker 			=	isset($row->checker) && !empty($row->checker) 		? 	$row->checker 	:	"";
-			// echo $checker;
-			$display_edit_delete=  	($checker!="import" || $checker!="beginning" || $checker!="closing" ) 	?	1	:	0;
+			$display_edit_delete=  	($checker!="import" || $checker!="beginning" || $checker!="closing"  || $checker!="yrend_closing") 	?	1	:	0;
 			
 			//Transaction Dates equivalent to the closing date / period should be deleted first
 			$latest_closed_date = 	$this->restrict->getClosedDate();
-		
 			$date_compare 		= 	($transactiondate == $latest_closed_date) 	?	1	:	0;
+			$latest_voucherno 	=	$this->restrict->getLatestVoucher();
+			$voucher_compare 	=	($voucherno == $latest_voucherno) 			?	1	:	0;
 
 			//Checker for restricting for Closing on Edit / Delete [ 0 = within closing period ]
 			$restrict_jv 		= 	$this->restrict->setButtonRestriction($transactiondate);
 			
 			$import 			=	($checker!="" && ($row->checker == 'import'||$row->checker  == 'beginning'))	?	"Yes" 	:	"No";
 			$voucher_status = '<span class="label label-danger">'.strtoupper($status).'</span>';
-				if($status == 'open'){
-					$voucher_status = '<span class="label label-info">'.strtoupper($status).'</span>';
-				}else if($status == 'posted'){
-					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
-				}
+			if($status == 'open'){
+				$voucher_status = '<span class="label label-info">'.strtoupper($status).'</span>';
+			}else if($status == 'posted'){
+				$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
+			}
 			$table .= '<tr>';
-				// echo $date_compare."\n\n";
-				// echo $restrict_jv."\n\n";
-				// echo $display_edit_delete."\n\n\n";
-				// echo $status;
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($status != "cancelled" && $display_edit_delete && ($restrict_jv || $date_compare))
-									->addDelete($status != "cancelled" && $display_edit_delete && ($restrict_jv || $date_compare))
+									->addEdit($status != "cancelled" && $display_edit_delete && $restrict_jv)
+									->addDelete($status != "cancelled" && $display_edit_delete && ($restrict_jv || $date_compare && $voucher_compare))
 									->addPrint()
-									->addCheckbox($status != "cancelled" && $display_edit_delete && ($restrict_jv || $date_compare))
+									->addCheckbox($status != "cancelled" && $display_edit_delete && ($restrict_jv || $date_compare && $voucher_compare))
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($voucherno)
 									->draw();
