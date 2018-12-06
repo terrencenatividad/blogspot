@@ -396,7 +396,7 @@ class trial_balance extends wc_model {
 		$remarks 			=	isset($data['notes']) 				? 	$data['notes'] 				: 	"";
 		$actualaccount  	=	isset($data['closing_account']) 	? 	$data['closing_account'] 	: 	"";
 		$detailparticular 	=	isset($data['detailparticular']) 	? 	$data['detailparticular'] 	:	"";
-		$source 			=	isset($data['source']) 				? 	$data['source'] 	:	"";
+		$source 			=	isset($data['source']) 				? 	$data['source'] 			:	"";
 
 		$result 			=	0;
 		$amount 			= 	0;
@@ -543,6 +543,7 @@ class trial_balance extends wc_model {
 		$amount  			=	isset($data['amount']) 				? 	$data['amount'] 			: 	0;
 		$detailparticular 	=	isset($data['detailparticular']) 	? 	$data['detailparticular'] 	:	"";
 		$linenum 			=	isset($data['linenum']) 			? 	$data['linenum'] 			:	"";
+		$source 			=	isset($data['source']) 				? 	$data['source'] 			:	"";
 		// echo "Account = ".$account."\n";
 
 		$details['voucherno'] 			=	$generatedvoucher;
@@ -554,7 +555,7 @@ class trial_balance extends wc_model {
 		$details['exchangerate'] 		= 	1;
 		$details['converteddebit'] 		= 	$amount;
 		$details['convertedcredit'] 	= 	0;
-		$details['source'] 				= 	"closing";
+		$details['source'] 				= 	$source;
 		$details['detailparticulars'] 	= 	$detailparticular;
 		$details['stat'] 				= 	"temporary";
 		// var_dump($details);
@@ -577,6 +578,7 @@ class trial_balance extends wc_model {
 		$amount  			=	isset($data['amount']) 				? 	$data['amount'] 			: 	0;
 		$detailparticular 	=	isset($data['detailparticular']) 	? 	$data['detailparticular'] 	:	"";
 		$linenum 			=	isset($data['linenum']) 			? 	$data['linenum'] 			:	"";
+		$source 			=	isset($data['source']) 				? 	$data['source'] 			:	"";
 		// echo "Account = ".$account."\n";
 
 		$details['voucherno'] 			=	$generatedvoucher;
@@ -588,7 +590,7 @@ class trial_balance extends wc_model {
 		$details['exchangerate'] 		= 	1;
 		$details['converteddebit'] 		= 	0;
 		$details['convertedcredit'] 	= 	$amount;
-		$details['source'] 				= 	"closing";
+		$details['source'] 				= 	$source;
 		$details['detailparticulars'] 	= 	$detailparticular;
 		$details['stat'] 				= 	"temporary";
 
