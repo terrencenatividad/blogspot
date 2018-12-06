@@ -1345,7 +1345,7 @@
 										->setValue(number_format($credits_applied,2))
 										->draw(true);
 								?>
-								<input type="hidden" name="total_opcredits_to_apply" id="total_opcredits_to_apply" value="">
+								<input type="hidden" name="total_opcredits_to_apply" id="total_opcredits_to_apply" value="<?=$total_opcredits_to_apply?>">
 							</div>
 							<div class="col-md-5">
 								<?php
@@ -2592,10 +2592,10 @@ function toggleCheckInfo(val){
 		$("#payableForm #cheque_details").addClass('hidden');
 		$('#totalcheques').val(0);
 		formatNumber('totalcheques');
+		console.log(is_ap);
+		console.log(is_op);
 		if(is_ap == "false" && is_op == "false") {
-			if(container.length > 0){
-				getRVDetails();
-			}
+			getRVDetails();
 			clear_acct_input();
 			$('.ischeck').val('no');
 			$('.debit').removeAttr('readonly');
@@ -3039,11 +3039,11 @@ function getRVDetails(){
 	$("#selected_rows").html(selected_rows);
 
 	tagged_AR 	 = 	$.extend(true,{},container);
-
+	console.log(selected_rows);
+	console.log(cheques);
 	var data 		 = "checkrows=" + selected_rows + "&customer=" + customercode + "&cheques=" + cheques + "&overpayment="+overpayment + "&advance="+is_ap + "&over="+is_op;
 	
-	if(selected_rows == "")
-	{
+	if(selected_rows == "") {
 		bootbox.dialog({
 			message: "Please select RV Voucher.",
 			title: "Oops!",
@@ -3057,14 +3057,11 @@ function getRVDetails(){
 				}
 			}
 		});
-	}
-	else
-	{
+	} else {
 		$.post("<?=BASE_URL?>financials/receipt_voucher/ajax/getRVDetails", data )
 		.done(function(data)
 		{	
 			var discount_code = data.discount_code;
-			// var op_code 	  = data.op_code;
 			var arv_acct 	  = data.arv_acct;
 
 			var total_payment = $("#paymentModal #total_payment").val();
@@ -3100,14 +3097,13 @@ function getRVDetails(){
 					disable_acct_fields(row);
 					$('#disc_acct').val(discount_code);
 				}
-				// $('#entriesTable tbody tr.op_row').remove();
+
 				// For Overpayment 
 				if(is_op == "yes"){
 					var row = $("#entriesTable tbody tr.clone").length; 
-					var op_acct 	= $('#hidden_op_acct').val();
+					var op_acct   = $('#hidden_op_acct').val();
 					var ParentRow = $("#entriesTable tbody tr.clone").last();
 					var cloned_op = ParentRow.before(clone_acct);
-					console.log( cloned_op );
 					resetIds();
 					$("#accountcode\\["+ row +"\\]").closest('tr').addClass('op_row');
 					$('#accountcode\\['+row+'\\]').val(op_acct).trigger('select2.change');
@@ -3116,15 +3112,15 @@ function getRVDetails(){
 					$('#debit\\['+row+'\\]').val('0.00');
 					disable_acct_fields(row);
 					$('#credit\\['+row+'\\]').prop('readonly',false);
-					// $('#disc_acct').val(discount_amount);
-					// $('#op_checker').prop('disabled',false);
 				}
 				
-				// // // For Advance Payment - Credit Voucher
-				var total = $('#creditvoucherModal #total_credits_to_apply').val();
-				if(parseFloat(total) > 0){
+				// For Advance Payment - Credit Voucher
+				var total 	= $('#creditvoucherModal #total_credits_to_apply').val();
+				var totalop = $('#creditvoucherModal #total_opcredits_to_apply').val();
+					
+				if(parseFloat(total) > 0 || parseFloat(totalop) > 0){
+					total 		= total.replace(/\,/g,'');
 					apply_credit_account(total);
-
 					$('#entriesTable tbody tr.clone').removeClass('added_row');
 					addAmounts();
 				}
@@ -3137,12 +3133,10 @@ function getRVDetails(){
 						$(this).find('.debit').prop('readonly',true);
 						$(this).find('.confirm-delete').prop('disabled',true);
 						$('#ar_acct').val(arv_acct);
-						// addAmountAll("credit");
-					}
+					}  
 				});
-				
-				if(selected_rows != ""){
 
+				if(selected_rows != ""){
 					var parsed_payment = JSON.parse(selected_rows);
 					var total_rcv  = 0;
 					var total_bal  = 0;
@@ -3872,13 +3866,13 @@ function loadCheques(){
 		});
 	}
 
-	function clearChequePayment(){
-		$('#tbody_cheque .clone').each(function(index) {
-			accounts = accounts.splice(1,1);
-			if (index > 0) {
-				$(this).remove();
-			}
-		});
+function clearChequePayment(){
+	$('#tbody_cheque .clone').each(function(index) {
+		accounts = accounts.splice(1,1);
+		if (index > 0) {
+			$(this).remove();
+		}
+	});
 	// Get accountno then clear
 	setChequeZero();
 }
@@ -3964,15 +3958,16 @@ function apply_credit_account(amount){
 	var cred_acct = $('#hidden_cred_id').val();
 	var op_acct	  = $('#hidden_op_acct').val();
 
-	var total_opcredits_amount 	=	$('#total_opcredits_to_apply').val();
+	// var total_credits_amount 	=	$('#total_opcredits_to_apply').val() || 0;
+	var total_opcredits_amount 	=	$('#total_opcredits_to_apply').val() || 0;
 		total_opcredits_amount 	=	removeComma(total_opcredits_amount);
-	var total_advcredits_amount =	parseFloat(amount - total_opcredits_amount);
+	var total_advcredits_amount =	parseFloat(amount.replace(/\,/g,'')) - total_opcredits_amount;
 
-	$('#entriesTable tr').each(function(index) {
+	$('#entriesTable tbody tr').each(function(index) {
 		var account = $(this).find('.accountcode').val();
 		if(account == cred_acct || account == op_acct){
 			$(this).remove();
-		}
+		} 
 	});
 	if(total_advcredits_amount>0){
 		var adv_account = cred_acct;
@@ -4052,7 +4047,6 @@ $(document).ready(function() {
 		$('#chequeTable tbody tr.clone:last .input-group.date ').datepicker({ format: 'M dd, yyyy', autoclose: true });
 
 		// Trigger add new line .add-data
-		// $(".add-data").trigger("click");
 		setZero();
 	});
 
