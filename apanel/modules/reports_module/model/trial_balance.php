@@ -439,11 +439,14 @@ class trial_balance extends wc_model {
 		$currentyear 		= 	date("Y",strtotime($lastdayofdate));
 		$prevyear 			= 	date("Y",strtotime($firstdayofdate." -1 year"));
 
+		$current_year_id 	= $this->retrieveAccount("IS");
+		$current_year_id 	= isset($current_year_id->salesAccount) ? $current_year_id->salesAccount 	:	"";
+
 		$accounts_arr 		= $this->retrieveCOAdetails($currentyear,$prevyear,'IS');
 			
 		$h_amount 			= $h_total_debit 	= $h_total_credit = 0;
 		foreach($accounts_arr as $row){
-			$accountid 		= $row->accountid;
+			$accountid 		= ($source == "closing") ? $row->accountid : $current_year_id;
 			$prev_carry 	= $this->getPrevCarry($accountid,$firstdayofdate);
 			$amount			= $this->getCurrent($accountid,$firstdayofdate,$lastdayofdate);
 	
@@ -456,6 +459,8 @@ class trial_balance extends wc_model {
 			}
 		} 
 
+		$h_amount 	= 	($amount > 0) ? $h_total_credit :	$h_total_debit;
+
 		$str_month 	=	date('F', strtotime($lastdayofdate));
 		$reference	=	($source == "closing") ? "Closing for $str_month, $year" : "Year-end Closing for $year";
 
@@ -467,8 +472,8 @@ class trial_balance extends wc_model {
 		$header['period'] 			= 	$month;
 		$header['currencycode'] 	= 	"PHP";
 		$header['exchangerate'] 	=	1;
-		$header['amount'] 	 		=	$h_total_debit;
-		$header['convertedamount'] 	=	$h_total_debit;
+		$header['amount'] 	 		=	$h_amount;
+		$header['convertedamount'] 	=	$h_amount;
 		$header['referenceno'] 		=	$reference;
 		$header['source'] 			=	$source;
 		$header['sitecode'] 		= 	$warehouse;
@@ -481,9 +486,6 @@ class trial_balance extends wc_model {
 			$credit 				= $total_credit = 0;
 			$retained 				= 0;
 			$linenum 				= 1;
-
-			$current_year_id 		= $this->retrieveAccount("IS");
-			$current_year_id 		= isset($current_year_id->salesAccount) ? $current_year_id->salesAccount 	:	"";
 
 			foreach($accounts_arr as $row){
 				$accountid 		= ($source == "closing") ? $row->accountid : $current_year_id;
