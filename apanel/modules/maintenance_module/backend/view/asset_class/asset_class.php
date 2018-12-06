@@ -12,7 +12,7 @@
 								->setName('code')
 								->setId('code')
 								->setValue($code)
-								->setAttribute(array("maxlength" => "50"))
+								->setAttribute(array("maxlength" => "4"))
 								->setValidation('alpha_num required')
 								->draw($show_input);
 						?>
@@ -25,8 +25,8 @@
 								->setName('assetclass')
 								->setId('assetclass')
 								->setValue($assetclass)
-								->setAttribute(array("maxlength" => "50"))
-								->setValidation('alpha_num required')
+								->setAttribute(array("maxlength" => "35"))
+								->setValidation('required special')
 								->draw($show_input);
 						?>
 					</div>
@@ -53,7 +53,7 @@
 									->setName('useful_life')
 									->setId('useful_life')
 									->setValue($useful_life)
-									->setAttribute(array("maxlength" => "1000"))
+									->setAttribute(array("maxlength" => "3"))
 									->setValidation('required')
 									->draw($show_input);
 						?>
@@ -69,7 +69,8 @@
 								->setName('salvage_value')
 								->setId('salvage_value')
 								->setValue($salvage_value)
-								->setValidation('required')
+								->setAttribute(array("maxlength" => "20"))
+								->setValidation('required decimal')
 								->draw($show_input);
 						?>
 					</div>

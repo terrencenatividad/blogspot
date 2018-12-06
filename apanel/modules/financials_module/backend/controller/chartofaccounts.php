@@ -18,41 +18,41 @@ class controller extends wc_controller
 	public function create(){
 
 		/**DEFAULT VALUES**/
-			$data["accountcode"] = "";
-			$data["accountname"] = "";
-			$data["accountclasscode"] = "";
-			$data["fspresentation"] = "";
-			$data["accounttype"] = "";
-			$data["parentaccountcode"] = "";
-			$data["accountnature"] = "";
-			$data["ajax_post"] = "";
-			$data["ajax_task"] = "add";
-			$this->view->title  = $this->ui->AddLabel('');
+		$data["accountcode"] = "";
+		$data["accountname"] = "";
+		$data["accountclasscode"] = "";
+		$data["fspresentation"] = "";
+		$data["accounttype"] = "";
+		$data["parentaccountcode"] = "";
+		$data["accountnature"] = "";
+		$data["ajax_post"] = "";
+		$data["ajax_task"] = "add";
+		$this->view->title  = $this->ui->AddLabel('');
 		/**RETRIEVALS OPTIONS**/
 		/**ACCOUNT TYPE **/
 		$data["accounttype_list"] = $this->coaclass->getValue("wc_option", 
-								  array("code ind","value val"), " type='accounttype' ", "",false,false);
+			array("code ind","value val"), " type='accounttype' ", "",false,false);
 		/**ACCOUNT CLASS **/
 		// RETRIEVE ACCOUNT CODE
 		$acc_entry_data     = array("accountclasscode ind","accountclass val");
 		$account_entry_list = $this->coaclass->getValue("accountclass", 
-								  $acc_entry_data, "", "");
-	
+			$acc_entry_data, "", "");
+
 		$data['accountclasscode_list'] = $account_entry_list;
 
 		/**FS PRESENTATION**/
 		$data["fspresentation_list"] = $this->coaclass->getValue("wc_option", 
-								array("code ind","value val"), " type='fspresentation' ", "",false,false);
+			array("code ind","value val"), " type='fspresentation' ", "",false,false);
 		/**PARENT ACCOUNT**/
 		$parentaccountArray	= $this->coaclass->getValue("chartaccount",
-					array('segment5 ind','accountname val'),"accounttype != 'C'","accountname");
+			array('segment5 ind','accountname val'),"accounttype != 'C'","accountname");
 
 		$data["parentaccountcode_list"] = $parentaccountArray;
-			
+
 		/**ACCOUNT NATURE**/
 		$data["accountnature_list"] = array(
-						"Debit"=>"Debit",
-						"Credit"=>"Credit");
+			"Debit"=>"Debit",
+			"Credit"=>"Credit");
 		
 		$data['ui'] = $this->ui;
 		$data["task"] = "create";
@@ -70,33 +70,33 @@ class controller extends wc_controller
 		/**RETRIEVALS OPTIONS**/
 		/**ACCOUNT TYPE **/
 		$data["accounttype_list"] = $this->coaclass->getValue("wc_option", 
-								  array("code ind","value val"), " type='accounttype' ", "",false,false);
+			array("code ind","value val"), " type='accounttype' ", "",false,false);
 		/**ACCOUNT CLASS **/
 		// RETRIEVE ACCOUNT CODE
 		$acc_entry_data     = array("accountclasscode ind","accountclass val");
 		$account_entry_list = $this->coaclass->getValue("accountclass", 
-								  $acc_entry_data, "", "");
-	
+			$acc_entry_data, "", "");
+
 		$data['accountclasscode_list'] = $account_entry_list;
 
 		/**FS PRESENTATION**/
 		$data["fspresentation_list"] = $this->coaclass->getValue("wc_option", 
-								array("code ind","value val"), " type='fspresentation' ", "",false,false);
+			array("code ind","value val"), " type='fspresentation' ", "",false,false);
 		/**PARENT ACCOUNT**/
 		$parentaccountArray	= $this->coaclass->getValue("chartaccount",
-					array('segment5 ind','accountname val'),"accounttype != 'C'","accountname");
+			array('segment5 ind','accountname val'),"accounttype != 'C'","accountname");
 
 		$data["parentaccountcode_list"] = $parentaccountArray;
-			
+
 		/**ACCOUNT NATURE**/
 		$data["accountnature_list"] = array(
-						"Debit"=>"Debit",
-						"Credit"=>"Credit");
+			"Debit"=>"Debit",
+			"Credit"=>"Credit");
 
 		$data["ajax_post"] 	 = "&companycode=".COMPANYCODE."&account_code=".$accountcode;
 		$retdata = array('id','segment1','segment2','segment3','segment4','segment5',
-					'accountname','accountclasscode','fspresentation','accounttype','parentaccountcode',
-					'accountnature');
+			'accountname','accountclasscode','fspresentation','accounttype','parentaccountcode',
+			'accountnature');
 		$condition = " id = '".$accountcode."' ";
 
 		$list = $this->coaclass->retrieveData($retdata,"","",$condition); 
@@ -129,33 +129,33 @@ class controller extends wc_controller
 		/**RETRIEVALS OPTIONS**/
 		/**ACCOUNT TYPE **/
 		$data["accounttype_list"] = $this->coaclass->getValue("wc_option", 
-								  array("code ind","value val"), " type='accounttype' ", "",false,false);
+			array("code ind","value val"), " type='accounttype' ", "",false,false);
 		/**ACCOUNT CLASS **/
 		// RETRIEVE ACCOUNT CODE
 		$acc_entry_data     = array("accountclasscode ind","accountclass val");
 		$account_entry_list = $this->coaclass->getValue("accountclass", 
-								  $acc_entry_data, "", "");
-	
+			$acc_entry_data, "", "");
+
 		$data['accountclasscode_list'] = $account_entry_list;
 
 		/**FS PRESENTATION**/
 		$data["fspresentation_list"] = $this->coaclass->getValue("wc_option", 
-								array("code ind","value val"), " type='fspresentation' ", "",false,false);
+			array("code ind","value val"), " type='fspresentation' ", "",false,false);
 		/**PARENT ACCOUNT**/
 		$parentaccountArray	= $this->coaclass->getValue("chartaccount",
-					array('segment5 ind','accountname val'),"accounttype != 'C'","accountname");
+			array('segment5 ind','accountname val'),"accounttype != 'C'","accountname");
 
 		$data["parentaccountcode_list"] = $parentaccountArray;
-			
+
 		/**ACCOUNT NATURE**/
 		$data["accountnature_list"] = array(
-						"Debit"=>"Debit",
-						"Credit"=>"Credit");
+			"Debit"=>"Debit",
+			"Credit"=>"Credit");
 
 		$data["ajax_post"] 	 = "&companycode=".COMPANYCODE."&account_code=".$accountcode;
 		$retdata = array('id','segment1','segment2','segment3','segment4','segment5',
-					'accountname','accountclasscode','fspresentation','accounttype','parentaccountcode',
-					'accountnature');
+			'accountname','accountclasscode','fspresentation','accounttype','parentaccountcode',
+			'accountnature');
 		$condition = " id = '".$accountcode."' ";
 
 		$list = $this->coaclass->retrieveData($retdata,"","",$condition);
@@ -220,8 +220,8 @@ class controller extends wc_controller
 		$fields = array("chart.id","chart.segment1","chart.segment2","chart.segment3","chart.segment4","chart.segment5","chart.accountname","chart.accountclasscode","chart.stat");
 		$table = "";
 		$list = $this->coaclass->retrieveData($fields,$search, $sort, $addCond, $limit); 
-	
-			if( !empty($list->result) ) :
+
+		if( !empty($list->result) ) :
 			foreach($list->result as $key => $row)
 			{
 				$sid  = $row->id;
@@ -236,34 +236,34 @@ class controller extends wc_controller
 				$show_deactivate 	= ($stat != 'active');
 
 				$dropdown = $this->ui->loadElement('check_task')
-									->addView()
-									->addEdit()
-									->addOtherTask(
-										'Activate',
-										'arrow-up',
-										$show_deactivate
-									)
-									->addOtherTask(
-										'Deactivate',
-										'arrow-down',
-										$show_activate
-									)	
-									->addDelete()
-									->addCheckbox()
-									->setValue($sid)
-									->draw();
+				->addView()
+				->addEdit()
+				->addOtherTask(
+					'Activate',
+					'arrow-up',
+					$show_deactivate
+				)
+				->addOtherTask(
+					'Deactivate',
+					'arrow-down',
+					$show_activate
+				)	
+				->addDelete()
+				->addCheckbox()
+				->setValue($sid)
+				->draw();
 				$table .= '<tr>
-							<td align = "center">'.$dropdown.'</td>
-							<td>'.$row->segment5.'</td>
-							<td>'.$row->accountname.'</td>
-							<td>'.$row->accountclasscode.'</td>
-							<td>'.$status.'</td>'; 
-						'</tr>';			
+				<td align = "center">'.$dropdown.'</td>
+				<td>'.$row->segment5.'</td>
+				<td>'.$row->accountname.'</td>
+				<td>'.$row->accountclasscode.'</td>
+				<td>'.$status.'</td>'; 
+				'</tr>';			
 			}
 		else:
 			$table .= "<tr>
-							<td colspan = '3' class = 'text-center'>No Records Found</td>
-					  </tr>";
+			<td colspan = '3' class = 'text-center'>No Records Found</td>
+			</tr>";
 		endif;
 
 		$dataArray = array( "table" => $table, "pagination" => $list->pagination, "csv" => $this->export());
@@ -330,7 +330,7 @@ class controller extends wc_controller
 		// 			if(empty($accountcode)){
 		// 				$errmsg[] 	= "Account Code is required. Row $row should not be empty.";
 		// 			}
-					
+
 		// 			if(empty($accountname)){
 		// 				$errmsg[] 	= "Account Name is required. Row $row should not be empty.";
 		// 			}
@@ -342,7 +342,7 @@ class controller extends wc_controller
 		// 			if(empty($fspresentation)){
 		// 				$errmsg[] 	= "FS Presentation is required. Row $row should not be empty.";
 		// 			}
-					
+
 		// 			if(empty($parentaccount) && ($accounttype != 'Parent' && $accounttype != 'P')){
 		// 				$errmsg[] 	= "Parent Account is required for accounts with Child or Both account type. Row $row should not be empty.";
 		// 			}
@@ -354,11 +354,11 @@ class controller extends wc_controller
 		// 			if(empty($accounttype)){
 		// 				$errmsg[] 	= "Account Type is required. Row $row should not be empty.";
 		// 			}
-			
+
 		// 			/**VALIDATE ACCOUNT CODE**/
 		// 			$isaccountcode	= $this->coaclass->getValue("chartaccount",array("segment5"),
 		// 							" segment5 = '$accountcode' ");
-									
+
 		// 			if(isset($isaccountcode[0]->segment5) && !empty($isaccountcode[0]->segment5)){
 		// 				$errmsg[] 	= "Account Code [ <strong>$accountcode</strong> ] on row $row already exists.";
 		// 			}
@@ -373,7 +373,7 @@ class controller extends wc_controller
 		// 			/**VALIDATE FS PRESENTATION**/
 		// 			$isfspresentation	= $this->coaclass->getValue("wc_option",array("code"),
 		// 							" code = '$fspresentation' AND type = 'fs_presentation' ","",false);
-					
+
 		// 							if(isset($isfspresentation[0]->code) && empty($isfspresentation[0]->code)){
 		// 				$errmsg[] 	= "FS Presentation [ <strong>$fspresentation</strong> ] on row $row is not a valid value.";
 		// 			}
@@ -405,7 +405,7 @@ class controller extends wc_controller
 		// 			$row++;
 		// 		}
 		// 	}
-			
+
 		// 	$errmsg				           = array_filter($errmsg);
 		// 	$data['import_error_messages'] = $errmsg;
 
@@ -426,7 +426,7 @@ class controller extends wc_controller
 
 		$filedir	= $_FILES["file"]["tmp_name"];
 
-		$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext");
+		$file_types = array( "text/x-csv","text/tsv","text/comma-separated-values", "text/csv", "application/csv", "application/excel", "application/vnd.ms-excel", "application/vnd.msexcel", "text/anytext", "application/octet-stream");
 
 		/**VALIDATE FILE IF CORRUPT**/
 		if(!empty($_FILES['file']['error'])){
@@ -438,7 +438,7 @@ class controller extends wc_controller
 			$errmsg[]= "Invalid file type, file must be .csv.<br/>";
 		}
 			
-		$headerArr = array('Account Code','Account Name', 'Account Class', 'FS Presentation', 'Account Type', 'Parent Account', 'Account Nature');
+		$headerArr = array('Account Code','Account Name', 'Account Class', 'FS Presentation (BS or IS)', 'Account Type', 'Parent Account', 'Account Nature');
 
 		if( empty($errmsg) ){
 			$row_start = 2;
@@ -542,21 +542,21 @@ class controller extends wc_controller
 		}
 
 		$error_messages		= implode(' ', $errmsg);
-	
+
 		return array("proceed" => $proceed,"errmsg"=>$error_messages);
 	}
 
 	private function add()
 	{
 		$data_var = array(
-					'accountcode'=>'segment5',
-					'accountname',
-					'accountclasscode',
-					'fspresentation',
-					'accounttype',
-					'parentaccountcode',
-					'accountnature'
-				);
+			'accountcode'=>'segment5',
+			'accountname',
+			'accountclasscode',
+			'fspresentation',
+			'accounttype',
+			'parentaccountcode',
+			'accountnature'
+		);
 
 		$data = $this->input->post($data_var);
 
@@ -568,7 +568,7 @@ class controller extends wc_controller
 			$msg = "error_add";
 
 		$dataArray = array("msg" => $msg, "account_code" => $data["segment5"], 
-										  "account_name" => $data["accountname"]);
+			"account_name" => $data["accountname"]);
 		return $dataArray;
 
 	}
@@ -576,15 +576,15 @@ class controller extends wc_controller
 	public function update()
 	{	
 		$data_var = array(
-					'accountcode'=>'segment5',
-					'accountname',
-					'accountclasscode',
-					'fspresentation',
-					'accounttype',
-					'parentaccountcode',
-					'accountnature'
-	   );
-	
+			'accountcode'=>'segment5',
+			'accountname',
+			'accountclasscode',
+			'fspresentation',
+			'accounttype',
+			'parentaccountcode',
+			'accountnature'
+		);
+
 		$data_var2 = array(
 			'account_code'
 		);
@@ -598,7 +598,7 @@ class controller extends wc_controller
 		// */
 		$result = $this->coaclass->editData($data, $account_code);
 
-		 if($result)
+		if($result)
 			$msg = "success";
 
 		$dataArray = array( "msg" => $msg );
@@ -608,7 +608,7 @@ class controller extends wc_controller
 	public function delete()
 	{
 		$data_var = array(
-				'id'
+			'id'
 		);
 		$data = $this->input->post($data_var);
 		extract($data);
@@ -631,8 +631,8 @@ class controller extends wc_controller
 
 		$result = $this->coaclass->fileExport($data_post);
 
-		$header = array("Account Code","Account Name","Account Class","FS Presentation",
-						"Account Type","Parent Account","Account Nature");
+		$header = array("Account Code","Account Name","Account Class","FS Presentation (BS or IS)",
+			"Account Type","Parent Account","Account Nature");
 		
 		$csv = '';
 		$csv .= '"' . implode('","', $header) . '"';
@@ -673,7 +673,7 @@ class controller extends wc_controller
 		return array(
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
-			);
+		);
 	}
 	
 	private function ajax_edit_deactivate()
@@ -685,7 +685,7 @@ class controller extends wc_controller
 		return array(
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
-			);
+		);
 	}
 
 	private function update_multiple_deactivate(){

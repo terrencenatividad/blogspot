@@ -225,10 +225,10 @@ class controller extends wc_controller {
 		$balance_value	   		= str_replace(',', '', $balance_value);
 		$salvage_value	   		= str_replace(',', '', $salvage_value);
 
-		$asset = $this->asset_master->getValue("asset_master am", array("segment5","accountname"),"chartaccount ca ON ca.id = am.gl_asset", " am.gl_asset = '$gl_asset'", "",false,false);
-		$accdep = $this->asset_master->getValue("asset_master am", array("segment5","accountname"),"chartaccount ca ON ca.id = am.gl_accdep", " am.gl_accdep = '$gl_accdep'", "",false,false);
-		$depexpense = $this->asset_master->getValue("asset_master am", array("segment5","accountname"),"chartaccount ca ON ca.id = am.gl_depexpense", " am.gl_depexpense = '$gl_depexpense'", "",false,false);
-		// var_dump($accdep);
+
+		$asset = $this->asset_master->retrieveGLAsset($gl_asset);
+		$accdep = $this->asset_master->retrieveGLAccdep($gl_accdep);
+		$depexpense = $this->asset_master->retrieveGLDepexpense($gl_depexpense);
 		$data = $this->input->post($this->fields);
 
 		$depreciation = 0;
