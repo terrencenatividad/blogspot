@@ -132,31 +132,32 @@ class asset_master extends wc_model {
 
 	public function retrieveGLAsset($gl_asset) {
 		$fields 	= array('segment5','accountname');
-		return $this->db->setTable('asset_master am')
+		return $this->db->setTable('chartaccount')
 						->setFields($fields)
-						->leftJoin('chartaccount ca ON ca.id = am.gl_asset')
-						->setWhere("am.gl_asset = '$gl_asset'")
+						->setWhere("id = '$gl_asset'")
+						->setLimit(1)
+						->runSelect()
+						->getRow();
+	}
+	public function retrieveGLAccdep($gl_accdep) {
+		$fields 	= array('segment5','accountname');
+		return $this->db->setTable('chartaccount')
+						->setFields($fields)
+						->setWhere("id = '$gl_accdep'")
+						->setLimit(1)
+						->runSelect()
+						->getRow();
+	}
+	public function retrieveGLDepexpense($gl_depexpense) {
+		$fields 	= array('segment5','accountname');
+		return $this->db->setTable('chartaccount')
+						->setFields($fields)
+						->setWhere("id = '$gl_depexpense'")
 						->setLimit(1)
 						->runSelect()
 						->getRow();
 	}
 
-	public function getValue($table, $cols = array(), $leftJoin, $cond, $orderby = "", $addon = true,$limit = false)
-	{
-		 $this->db->setTable($table)
-					->setFields($cols)
-					->leftJoin($leftJoin)
-					->setWhere($cond)
-					->setOrderBy($orderby);
-					if($limit){
-						$this->db->setLimit('1');
-					}
-		$result =   $this->db->runSelect($addon)
-					->getRow();
-					//->buildSelect();
-
-		return $result;
-	}
 
 	public function getAssetMasterListPagination($fields, $search = '', $sort) {
 
