@@ -568,7 +568,7 @@
 		$.post('<?=MODULE_URL?>ajax/close_jv_status', ajax2 , function(response) {
 			if( response.result ){
 				$.post('<?=MODULE_URL?>ajax/check_existing_yrendjv', "trans_date="+last_year , function(response2) {
-					if( response2.existing == 1){
+					if( response.result || response2.existing == 1){
 						console.log("IF ");
 						$('#previewModal').modal('hide');
 						$('#redirectionModal').modal('show');
