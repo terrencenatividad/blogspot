@@ -9,7 +9,7 @@
 								<div class="col-md-6">
 									<?php if ($show_input && $ajax_task != 'ajax_edit'): ?>
 										<div class="form-group">
-											<label for="voucherno" class="control-label col-md-4">Delivery No.</label>
+											<label for="voucherno" class="control-label col-md-4">Service Quotation No.</label>
 											<div class="col-md-8">
 												<input type="text" class="form-control" readonly value="<?= (empty($voucherno)) ? ' - Auto Generated -' : $voucherno ?>">
 											</div>
@@ -17,7 +17,7 @@
 									<?php else: ?>
 										<?php
 											echo $ui->formField('text')
-												->setLabel('Delivery No.')
+												->setLabel('Service Quotation No.')
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('voucherno')
 												->setId('voucherno')
@@ -53,7 +53,7 @@
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('job_type')
 											->setId('job_type')
-											->setList($customer_list)
+											->setList($job_list)
 											->setValue($job_type)
 											->setValidation('required')
 											->draw($show_input);
@@ -104,6 +104,25 @@
 								</div>
 							</div>
 							<div class="row">
+								<div class="col-md-6">
+									&nbsp;
+								</div>
+								<div class="col-md-6">
+									<?php
+										echo $ui->formField('dropdown')
+											->setLabel('Discount Type ')
+											->setPlaceholder('None')
+											->setSplit('col-md-4', 'col-md-8')
+											->setName('discount_type')
+											->setId('discount_type')
+											->setList($discount_type_list)
+											->setValue($discount_type)
+											->setValidation('required')
+											->draw($show_input);
+									?>
+								</div>
+							</div>
+							<div class="row">
 								<div class="col-md-12">
 									<?php
 										echo $ui->formField('textarea')
@@ -120,7 +139,7 @@
 					</div>
 				</div>
 				<div class="box-body table-responsive no-padding">
-					<table id="tableList" class="table table-hover table-sidepad table-bordered only-checkbox full-form">
+					<table id="tableList" class="table table-hover table-condensed table-sidepad only-checkbox full-form">
 						<thead>
 							<tr class="info">
 								<th class="col-xs-2">Item</th>
@@ -129,10 +148,11 @@
 								<th class="col-xs-1">Warehouse</th>
 								<th class="col-xs-1 text-right">Qty</th>
 								<th style="width: 50px;">UOM</th>
-								<th class="col-xs-2 text-right">Price</th>
+								<th class="col-xs-1 text-right">Price</th>
+								<th class="col-xs-1 text-right">Discount</th>
 								<th class="col-xs-1">Tax</th>
 								<th class="col-xs-2 text-right">Amount</th>
-								<?php if (false): ?>
+								<?php if ($show_input): ?>
 								<th style="width: 50px;"></th>
 								<?php endif ?>
 							</tr>
@@ -140,13 +160,135 @@
 						<tbody>
 						
 						</tbody>
-						<?php if (false): ?>
-							<tfoot>
-								<td colspan="9">
-									<button type="button" id="addNewItem" class="btn btn-link">Add a New Line</button>
+						<tfoot class="summary">
+							<tr>
+								<td>
+									<?php if ($show_input): ?>
+										<button type="button" id="addNewItem" class="btn btn-link">Add a New Line</button>
+									<?php endif ?>
 								</td>
-							</tfoot>
-						<?php endif ?>
+								<td class="right" colspan="8">
+									<label class="control-label col-md-12">VATable Sales</label>
+								</td>
+								<td class="text-right" >
+									<?php
+										echo $ui->formField('text')
+												->setSplit('', 'col-md-12 col-sm-12')
+												->setName('t_vatable_sales')
+												->setId('t_vatable_sales')
+												->setClass("input_label text-right remove-margin")
+												->setAttribute(array("readOnly"=>"readOnly"))
+												->setValue(number_format($t_vatable_sales,2))
+												->draw($show_input);
+									?>
+								</td>
+								<?php if($show_input):?><td></td><?php endif;?>
+							</tr>
+							<tr>
+								<td class="right" colspan="9">
+									<label class="control-label col-md-12">VAT Exempt Sales</label>
+								</td>
+								<td class="text-right" >
+									<?php
+										echo $ui->formField('text')
+												->setSplit('', 'col-md-12 col-sm-12')
+												->setName('t_vat_exempt_sales')
+												->setId('t_vat_exempt_sales')
+												->setClass("input_label text-right remove-margin")
+												->setAttribute(array("readOnly"=>"readOnly"))
+												->setValue(number_format($t_vat_exempt_sales,2))
+												->draw($show_input);
+									?>
+								</td>
+								<?php if($show_input):?><td></td><?php endif;?>
+							</tr>
+							<tr>
+								<td class="right" colspan="9">
+									<label class="control-label col-md-12">Total Sales</label>
+								</td>
+								<td class="text-right" >
+									<?php
+										echo $ui->formField('text')
+												->setSplit('', 'col-md-12 col-sm-12')
+												->setName('t_vatsales')
+												->setId('t_vatsales')
+												->setClass("input_label text-right remove-margin")
+												->setAttribute(array("readOnly"=>"readOnly"))
+												->setValue(number_format($t_vatsales,2))
+												->draw($show_input);
+									?>
+								</td>
+								<?php if($show_input):?><td></td><?php endif;?>
+							</tr>
+							<tr>
+								<td class="right" colspan="9">
+									<label class="control-label col-md-12">Add 12% VAT</label>
+								</td>
+								<td class="text-right" >
+									<?php
+										echo $ui->formField('text')
+												->setSplit('', 'col-md-12 col-sm-12')
+												->setName('t_vat')
+												->setId('t_vat')
+												->setClass("input_label text-right remove-margin")
+												->setAttribute(array("readOnly"=>"readOnly"))
+												->setValue(number_format($t_vat,2))
+												->draw($show_input);
+									?>
+								</td>
+								<?php if($show_input):?><td></td><?php endif;?>
+							</tr>
+							<tr>
+								<td class="right" colspan="9">&nbsp;</td>
+								<td class="text-right" >
+									<hr/>
+								</td>
+								<?php if($show_input):?><td></td><?php endif;?>
+							</tr>
+							<tr>
+								<td class="right" colspan="9">
+									<label class="control-label col-md-12">Total Amount</label>
+								</td>
+								<td class="text-right" >
+									<?php
+										echo $ui->formField('text')
+												->setSplit('', 'col-md-12 col-sm-12')
+												->setName('t_amount')
+												->setId('t_amount')
+												->setClass("input_label text-right remove-margin")
+												->setAttribute(array("readOnly"=>"readOnly"))
+												->setValue(number_format($t_amount,2))
+												->draw($show_input);
+									?>
+								</td>
+								<?php if($show_input):?><td></td><?php endif;?>
+							</tr>
+							<tr>
+								<td class="right" colspan="9">&nbsp;</td>
+								<td class="text-right" >
+									<br/>
+								</td>
+								<?php if($show_input):?><td></td><?php endif;?>
+							</tr>
+							<tr>
+								<td class="right" colspan="9">
+									<label class="control-label col-md-12">Discount</label>
+								</td>
+								<td class="text-right" >
+									<?php
+										echo $ui->formField('text')
+												->setSplit('', 'col-md-12 col-sm-12')
+												->setName('t_discount')
+												->setId('t_discount')
+												->setClass("input_label text-right remove-margin")
+												->setAttribute(array("readOnly"=>"readOnly"))
+												->setValue(number_format($t_discount,2))
+												->draw($show_input);
+									?>
+								</td>
+								<?php if($show_input):?><td></td><?php endif;?>
+							</tr>
+						</tfoot>
 					</table>
 					<div id="header_values"></div>
 				</div>
@@ -158,6 +300,7 @@
 								if ($stat == 'Prepared' && $restrict_dr || empty($stat)) {
 									echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 								}
+								echo '&nbsp;&nbsp;&nbsp;';
 								echo $ui->drawCancel();
 							?>
 						</div>
@@ -166,62 +309,24 @@
 			</form>
 		</div>
 	</section>
-	<div id="ordered_list_modal" class="modal fade" tabindex="-1" role="dialog">
-		<div class="modal-dialog modal-lg" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title">Order List</h4>
-				</div>
-				<div class="modal-body">
-					<div class="row">
-						<div class="col-md-4 col-md-offset-8">
-							<div class="input-group">
-								<input id="table_search" class="form-control pull-right" placeholder="Search" type="text">
-								<div class="input-group-addon">
-									<i class="fa fa-search"></i>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="modal-body no-padding">
-					<table id="ordered_tableList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
-						<thead>
-							<tr class="info">
-								<th class="col-xs-3">Sales Order No.</th>
-								<th class="col-xs-3">Transaction Date</th>
-								<th class="col-xs-4">Notes</th>
-								<th class="col-xs-2 text-right">Amount</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td colspan="4" class="text-center">Loading Items</td>
-							</tr>
-						</tbody>
-					</table>
-					<div id="pagination"></div>
-				</div>
-			</div>
-		</div>
-	</div>
 	<script>
 		var delete_row	= {};
 		var ajax		= {};
 		var ajax_call	= '';
 		var min_row		= 1;
 		function addVoucherDetails(details, index) {
-			var details = details || {itemcode: '', serialno: '', detailparticular: '', quantity: '', uom: 'PCS', price: '', amount: ''};
+			var details = details || {itemcode: '', detailparticular: '', warranty: '', warehouse: '', quantity: '0', uom: 'PCS', price: '0.00', discount: '0.00', amount: '0.00', taxcode: '', taxrate: '',taxamount: '0.00'};
 			var other_details = JSON.parse(JSON.stringify(details));
 			delete other_details.itemcode;
-			delete other_details.serialno;
 			delete other_details.detailparticular;
+			//delete other_details.warranty;
 			delete other_details.warehouse;
 			delete other_details.quantity;
 			delete other_details.uom;
 			delete other_details.price;
+			delete other_details.discount;
 			delete other_details.amount;
+			delete other_details.taxcode;
 			var otherdetails = '';
 			for (var key in other_details) {
 				if (other_details.hasOwnProperty(key)) {
@@ -229,6 +334,7 @@
 						echo $ui->setElement('hidden')
 								->setName('` + key + `[]')
 								->setValue('` + other_details[key] + `')
+								->setClass('.` + key + `_hidden')
 								->draw();
 					 ?>`;
 				}
@@ -237,7 +343,14 @@
 				<tr>
 					<td>
 						<?php
-							echo '<button class="btn btn-success btn-block text-left"><em>Click to select an item</em></button>';
+							$value = "<span id='temp_view_itemcode_` + index + `'></span>";
+							echo $ui->formField('dropdown')
+								->setSplit('', 'col-md-12')
+								->setName('detail_itemcode[]')
+								->setClass('itemcode')
+								->setList($item_list)
+								->setValue($value)
+								->draw($show_input);
 						?>
 					</td>
 					<td>
@@ -275,7 +388,7 @@
 								->setSplit('', 'col-md-12')
 								->setName('quantity[]')
 								->setClass('quantity text-right')
-								->setAttribute(array('data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.issueqty) || 0) + `'))
+								->setAttribute(array('data-value' => '` + (parseFloat(details.quantity) || 0) + `'))
 								->setValidation('required integer')
 								->setValue('` + (addComma(details.quantity, 0) || 0) + `')
 								->draw($show_input);
@@ -296,9 +409,25 @@
 								->setSplit('', 'col-md-12')
 								->setName('price[]')
 								->setClass('price text-right')
-								->setAttribute(array('data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.issueqty) || 0) + `'))
+								->setAttribute(array('data-value' => '` + (parseFloat(details.price) || 0) + `'))
 								->setValidation('required decimal')
 								->setValue('` + (addComma(details.price, 0) || 0) + `')
+								->draw($show_input);
+						?>
+					</td>
+					<td class="text-right">
+						<?php
+							echo $ui->formField('text')
+								->setSplit('', 'col-md-12')
+								->setName('discount[]')
+								->setClass('discount text-right')
+								->setAttribute(
+									array(
+										'data-value' => '` + (parseFloat(details.discount) || 0) + `'
+									)
+								)
+								->setValidation('required decimal')
+								->setValue('` + (addComma(details.discount, 0) || 0) + `')
 								->draw($show_input);
 						?>
 					</td>
@@ -311,6 +440,7 @@
 								->setClass('taxcode')
 								->setList($taxrate_list)
 								->setValue($value)
+								->setNone('none')
 								->draw($show_input);
 						?>
 					</td>
@@ -320,15 +450,20 @@
 								->setSplit('', 'col-md-12')
 								->setName('amount[]')
 								->setClass('amount text-right')
-								->setAttribute(array('data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.issueqty) || 0) + `'))
+								->setAttribute(
+									array(
+										'data-value' => '` + (parseFloat(details.amount) || 0.00) + `',
+										'readOnly' => 'readOnly'
+									)
+								)
 								->setValidation('required decimal')
 								->setValue('` + (addComma(details.amount, 0.00) || 0.00) + `')
-								->draw(false);
+								->draw($show_input);
 						?>
 					</td>
-					<?php if (false): ?>
+					<?php if ($show_input): ?>
 					<td>
-						<button type="button" class="btn btn-danger delete_row" style="outline:none;">
+						<button type="button" class="btn btn-danger btn-flat delete_row" style="outline:none;">
 							<span class="glyphicon glyphicon-trash"></span>
 						</button>
 					</td>
@@ -366,25 +501,17 @@
 					$('#temp_view_taxrate_' + index).html(tax.val);
 				}
 			});
-			var warehouse = $('#warehouse').val();
-			if (warehouse == details.warehouse) {
-				$('#tableList tbody').find('tr:last .issueqty').each(function() {
-					if (details.issueqty > 0) {
-						$(this).removeAttr('readonly').val($(this).attr('data-value'));
-						$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
-					} else {
-						$('#tableList tbody').find('tr:last .issueqty').attr('readonly', '').val(0);
-						$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('enable');
-					}
-				});
+			if (details.warranty == 'yes') {
+				$(this).removeAttr('readonly').val($(this).attr('data-value'));
+				$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
 			} else {
-				$('#tableList tbody').find('tr:last .issueqty').attr('readonly', '').val(0);
-				$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('disable');
+				$('#tableList tbody').find('tr:last .warranty_hidden').attr('readonly', '').val(0);
+				$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('enable');
 			}
 		}
 		var voucher_details = <?php echo $voucher_details ?>;
 		function displayDetails(details) {
-			$('#tableList tfoot.summary').hide();
+			//$('#tableList tfoot.summary').hide();
 			if (details.length < min_row) {
 				for (var x = details.length; x < min_row; x++) {
 					addVoucherDetails('', x);
@@ -394,7 +521,7 @@
 				details.forEach(function(details, index) {
 					addVoucherDetails(details, index);
 				});
-				$('#tableList tfoot.summary').show();
+				//$('#tableList tfoot.summary').show();
 			} else if (min_row == 0) {
 				$('#tableList tbody').append(`
 					<tr>
@@ -527,29 +654,29 @@
 			}
 		});
 		<?php // endif ?>
-		$('#customer').on('change', function() {
-			ajax.customer = $(this).val();
-			$('#source_no').val('');
-			$('#tableList tbody').html(`
-				<tr>
-					<td colspan="9" class="text-center"><b>Select Sales Order No.</b></td>
-				</tr>
-			`);
-		});
-		$('#warehouse').on('change', function() {
-			var warehouse = $(this).val();
-			$('#tableList tbody .issueqty').each(function() {
-				var warehouse_row = $(this).closest('tr').find('.warehouse').val();
-				if (warehouse == warehouse_row) {
-					$(this).removeAttr('readonly').val($(this).attr('data-value'));
-					$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('check').iCheck('enable');
-				} else {
-					$(this).attr('readonly', '').val(0);
-					$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('uncheck').iCheck('disable');
-				}
-			});
-			recomputeAll();
-		});
+		// $('#customer').on('change', function() {
+		// 	ajax.customer = $(this).val();
+		// 	$('#source_no').val('');
+		// 	$('#tableList tbody').html(`
+		// 		<tr>
+		// 			<td colspan="9" class="text-center"><b>Select Sales Order No.</b></td>
+		// 		</tr>
+		// 	`);
+		// });
+		// $('#warehouse').on('change', function() {
+		// 	var warehouse = $(this).val();
+		// 	$('#tableList tbody .issueqty').each(function() {
+		// 		var warehouse_row = $(this).closest('tr').find('.warehouse').val();
+		// 		if (warehouse == warehouse_row) {
+		// 			$(this).removeAttr('readonly').val($(this).attr('data-value'));
+		// 			$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('check').iCheck('enable');
+		// 		} else {
+		// 			$(this).attr('readonly', '').val(0);
+		// 			$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('uncheck').iCheck('disable');
+		// 		}
+		// 	});
+		// 	recomputeAll();
+		// });
 		$('tbody').on('ifUnchecked', '.check_task input[type="checkbox"]', function() {
 			$(this).closest('tr').find('.issueqty').attr('readonly', '').val(0).trigger('blur');
 		});

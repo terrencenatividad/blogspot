@@ -6,6 +6,17 @@ class service_quotation_model extends wc_model
 		parent::__construct();
 		$this->log = new log();
 	}
+	public function getOption($type, $orderby = "")
+	{
+		$result = $this->db->setTable('wc_option')
+					->setFields("code ind, value val")
+					->setWhere("type = '$type'")
+					->setOrderBy($orderby)
+					->runSelect(false)
+					->getResult();
+
+		return $result;
+	}
     public function getCustomerList() {
 		$result = $this->db->setTable('partners')
 						->setFields("partnercode ind, CONCAT(partnercode,' - ',partnername) val")

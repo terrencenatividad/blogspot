@@ -175,6 +175,7 @@ class sales_invoice extends wc_model
 		$totalamount		= (isset($data['total']) && (!empty($data['total']))) ? htmlentities(addslashes(trim($data['total']))) : 0;
 		$vatable_sales		= (isset($data['vatable_sales']) && (!empty($data['vatable_sales']))) ? htmlentities(addslashes(trim($data['vatable_sales']))) : 0;
 		$vatexempt_sales	= (isset($data['vatexempt_sales']) && (!empty($data['vatexempt_sales']))) ? htmlentities(addslashes(trim($data['vatexempt_sales']))) : 0;
+		$vat_zerorated 		= (isset($data['t_vatzerorated']) && (!empty($data['t_vatzerorated']))) ? htmlentities(addslashes(trim($data['t_vatzerorated']))) : "";
 		$total_sales		= (isset($data['total_sales']) && (!empty($data['total_sales']))) ? htmlentities(addslashes(trim($data['total_sales']))) : 0;
 		$discounttype		= (isset($data['discounttype']) && (!empty($data['discounttype']))) ? htmlentities(addslashes(trim($data['discounttype']))) : "amt";
 		$discountamount		= (isset($data['discountamount']) && (!empty($data['discountamount']))) ? htmlentities(addslashes(trim($data['discountamount']))) : 0;
@@ -192,6 +193,7 @@ class sales_invoice extends wc_model
 		$totalamount		= str_replace(',','',$totalamount);
 		$vatable_sales		= str_replace(',','',$vatable_sales);
 		$vatexempt_sales	= str_replace(',','',$vatexempt_sales);
+		$vat_zerorated		= str_replace(',','',$vat_zerorated);
 		$total_sales		= str_replace(',','',$total_sales);
 		$discountamount		= str_replace(',','',$discountamount);
 		$total_tax			= str_replace(',','',$total_tax);
@@ -223,7 +225,7 @@ class sales_invoice extends wc_model
 		$post_header['taxamount'] 			= $total_tax;
 		$post_header['vat_sales'] 			= $vatable_sales;
 		$post_header['vat_exempt'] 			= $vatexempt_sales;
-		$post_header['vat_zerorated'] 		= 0;
+		$post_header['vat_zerorated'] 		= $vat_zerorated;
 		$post_header['exchangerate'] 		= $exchangerate;
 		
 		/**INSERT HEADER**/
@@ -562,7 +564,7 @@ class sales_invoice extends wc_model
 		$header_fields 	= 	"inv.voucherno as voucherno, inv.transactiondate as transactiondate, inv.drno as drno, inv.referenceno as referenceno,
 		 					inv.duedate as duedate, cust.partnercode as customercode, cust.partnername as customername, inv.discounttype as discounttype, 
 							inv.discountamount as discountamount, inv.amount as amount, inv.netamount as netamount, inv.vat_sales as vat_sales, 
-							inv.vat_exempt as vat_exempt, inv.taxamount as taxamount, inv.remarks as remarks, inv.stat as status";
+							inv.vat_exempt as vat_exempt, inv.vat_zerorated as vat_zerorated, inv.taxamount as taxamount, inv.remarks as remarks, inv.stat as status";
 
 		$condition 		=	" inv.voucherno = '$voucherno' ";
 		

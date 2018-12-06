@@ -140,7 +140,7 @@
 		{	 
 			$retrieved_data =	array();
 			
-			$header_fields 	= 	"s.voucherno, s.transactiondate, s.duedate, s.customer, p.partnername, CONCAT(p.first_name,' ',p.last_name) as  customer_name, s.amount, s.discounttype, s.discountamount, s.netamount, s.vat_sales, s.vat_exempt, s.taxamount, s.remarks, s.stat";
+			$header_fields 	= 	"s.voucherno, s.transactiondate, s.duedate, s.customer, p.partnername, CONCAT(p.first_name,' ',p.last_name) as  customer_name, s.amount, s.discounttype, s.discountamount, s.netamount, s.vat_sales, s.vat_exempt, s.vat_zerorated, s.taxamount, s.remarks, s.stat";
 
 			$condition 		=	" s.voucherno = '$voucherno' ";
 			
@@ -294,6 +294,8 @@
 
 			$vat_exempt 		= (isset($data['t_vatexempt']) && (!empty($data['t_vatexempt']))) ? htmlentities(addslashes(trim($data['t_vatexempt']))) : "";
 
+			$vat_zerorated 		= (isset($data['t_vatzerorated']) && (!empty($data['t_vatzerorated']))) ? htmlentities(addslashes(trim($data['t_vatzerorated']))) : "";
+
 			$vat 	 			= (isset($data['t_vat']) && (!empty($data['t_vat']))) ? htmlentities(addslashes(trim($data['t_vat']))) : "";
 
 			$subtotal 			= (isset($data['t_subtotal']) && (!empty($data['t_subtotal']))) ? htmlentities(addslashes(trim($data['t_subtotal']))) : "";
@@ -321,6 +323,7 @@
 			$vat				= str_replace(',','',$vat);
 			$vat_sales			= str_replace(',','',$vat_sales);
 			$vat_exempt			= str_replace(',','',$vat_exempt);
+			$vat_zerorated		= str_replace(',','',$vat_zerorated);
 
 			/**FORMAT DATES**/
 			$transactiondate	= date("Y-m-d",strtotime($transactiondate));
@@ -351,7 +354,7 @@
 			$post_header['wtaxrate'] 			=	'';
 			$post_header['vat_sales'] 			= 	$vat_sales;
 			$post_header['vat_exempt'] 			=	$vat_exempt;
-			$post_header['vat_zerorated'] 		=	'';
+			$post_header['vat_zerorated'] 		=	$vat_zerorated;
 
 			/**INSERT HEADER**/
 			if($status=='temporary' && $task == 'create')
@@ -670,6 +673,45 @@
 							 ->setWhere("itemcode = '$itemcode' AND warehouse = '$wh'")
 							 ->runSelect()
 							 ->getResult();
+			return $result;
+		}
+
+		public function getUnReceivedItems($voucherno) {
+			$dr_inner = $this->db->setTable('deliveryreceipt a')
+								->innerJoin('deliveryreceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+								->setFields('a.companycode, linenum, b.discountamount, b.discountrate, source_no, SUM(issueqty) issueqty')
+								->setWhere("a.stat = 'Delivered' OR a.stat = 'With Invoice'")
+								->setGroupBy('source_no, itemcode, linenum')
+								->buildSelect();
+	
+			$result	= $this->db->setTable('salesorder a')
+								->innerJoin('salesorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+								->leftJoin("($dr_inner) dr ON dr.source_no = a.voucherno AND dr.companycode = a.companycode AND dr.linenum = b.linenum")
+								->setFields('b.itemcode, detailparticular, b.warehouse, (b.issueqty - dr.issueqty) balance_qty, dr.discountamount as discountamount, dr.discountrate as discountrate, b.amount as amount, b.taxcode, b.taxrate, b.issueuom, unitprice')
+								->setWhere("a.stat IN('open', 'partial', 'posted') AND a.voucherno = '$voucherno'")
+								->setHaving('balance_qty > 0')
+								->runSelect()
+								->getResult();
+	
+			return $result;
+		}
+
+		public function getReceivedItems($voucherno) {
+			$dr_inner = $this->db->setTable('deliveryreceipt a')
+								->innerJoin('deliveryreceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+								->setFields('a.companycode, linenum, b.discountamount, b.discountrate, b.amount as amount, b.taxamount, source_no, SUM(issueqty) issueqty')
+								->setWhere("a.stat = 'Delivered' OR a.stat = 'With Invoice'")
+								->setGroupBy('source_no, itemcode, linenum')
+								->buildSelect();
+	
+			$result	= $this->db->setTable('salesorder a')
+								->innerJoin('salesorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+								->leftJoin("($dr_inner) dr ON dr.source_no = a.voucherno AND dr.companycode = a.companycode AND dr.linenum = b.linenum")
+								->setFields('b.itemcode, detailparticular, b.warehouse, dr.issueqty, b.taxcode, b.taxrate, dr.taxamount as taxamount, b.issueuom, dr.discountamount as discountamount, dr.discountrate as discountrate, unitprice, dr.amount as amount, vat_sales, vat_exempt, vat_zerorated')
+								->setWhere("a.stat IN('open', 'partial', 'posted') AND a.voucherno = '$voucherno'")
+								->runSelect()
+								->getResult();
+	
 			return $result;
 		}
 	}

@@ -17,6 +17,7 @@ class controller extends wc_controller {
 			'targetdate',
 			'customer',
 			'reference',
+			'discount_type',
 			'notes'
 		);
 		$this->fields_header	= array(
@@ -32,17 +33,13 @@ class controller extends wc_controller {
 			'itemcode',
 			'detailparticular',
 			'linenum',
-			'issueqty',
-			'issueuom',
-			'unitprice',
-			'discountrate',
-			'discounttype',
-			'discountamount',
-			'detail_amount'			=> 'amount',
-			'convissueqty',
-			'convuom',
-			'conversion',
-			'detail_warehouse'		=> 'warehouse',
+			'warranty',
+			'warehouse',
+			'quantity',
+			'uom',
+			'price',
+			'discount',
+			'amount',
 			'taxcode',
 			'taxamount',
 			'taxrate'
@@ -71,13 +68,21 @@ class controller extends wc_controller {
 		$data['ui']					= $this->ui;
 		$data['transactiondate']	= $this->date->dateFormat();
 		$data['targetdate']			= $this->date->dateFormat();
+		$data['job_list']			= $this->service_quotation->getOption('job_type','code');
 		$data['customer_list']		= $this->service_quotation->getCustomerList();
+		$data['discount_type_list']	= $this->service_quotation->getOption('discount_type','value');
 		$data['item_list']			= $this->service_quotation->getItemList();
 		$data['warehouse_list']		= $this->service_quotation->getWarehouseList();
 		$data["taxrate_list"]		= $this->service_quotation->getTaxRateList();
 		$data["taxrates"]			= $this->service_quotation->getTaxRates();
 		$data['header_values']		= json_encode(array());
 		$data['voucher_details']	= json_encode(array());
+		$data['t_vatable_sales']	= 0;
+		$data['t_vat_exempt_sales']	= 0;
+		$data['t_vatsales']			= 0;
+		$data['t_vat']				= 0;
+		$data['t_amount']			= 0;
+		$data['t_discount']			= 0;
 		$data['ajax_task']			= 'ajax_create';
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
@@ -85,6 +90,67 @@ class controller extends wc_controller {
 		$close_date 				= $this->parts_and_service->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data['restrict_dr'] 		= false;
+		$this->view->load('service_quotation/service_quotation', $data);
+	}
+	public function edit($id) {
+		$this->view->title			= 'Edit Service Quotation';
+		$this->fields[]				= 'stat';
+		$data						= $this->input->post($this->fields);
+		$data['ui']					= $this->ui;
+		$data['transactiondate']	= $this->date->dateFormat();
+		$data['targetdate']			= $this->date->dateFormat();
+		$data['job_list']			= $this->service_quotation->getOption('job_type','code');
+		$data['customer_list']		= $this->service_quotation->getCustomerList();
+		$data['discount_type_list']	= $this->service_quotation->getOption('discount_type','value');
+		$data['item_list']			= $this->service_quotation->getItemList();
+		$data['warehouse_list']		= $this->service_quotation->getWarehouseList();
+		$data["taxrate_list"]		= $this->service_quotation->getTaxRateList();
+		$data["taxrates"]			= $this->service_quotation->getTaxRates();
+		$data['header_values']		= json_encode(array(
+			''
+		));
+		$data['voucher_details']	= json_encode(
+			array(
+				'0'	=> array(
+					'itemcode' => 'AAA0000001',
+					'detailparticular' => 'This is a description',
+					'warranty' => 'yes',
+					'warehouse' => 'BAW',
+					'quantity' => 1,
+					'uom' => 'pcs',
+					'price' => 0,
+					'taxcode' => '',
+					'amount' => '0.00'
+				),
+				'1'	=> array(
+					'itemcode' => 'AAA0000002',
+					'detailparticular' => '',
+					'warranty' => 'no',
+					'warehouse' => 'BAW',
+					'quantity' => 2,
+					'uom' => 'pcs',
+					'price' => 100,
+					'taxcode' => 'VATG',
+					'amount' => '180.00'
+				)
+			)
+		);
+		$data['t_vatable_sales']	= 180;
+		$data['t_vat_exempt_sales']	= 0;
+		$data['t_vatsales']			= 180;
+		$data['t_vat']				= 21.60;
+		$data['t_amount']			= 201.60;
+		$data['t_discount']			= 20.00;
+
+		$data['ajax_task']			= 'ajax_edit';
+		$data['ajax_post']			= '';
+		$data['show_input']			= true;
+		// Closed Date
+		$close_date 				= $this->parts_and_service->getClosedDate();
+		$data['close_date']			= $close_date;
+		$data['restrict_dr'] 		= false;
+
+		$data['voucherno']					= $id;
 		$this->view->load('service_quotation/service_quotation', $data);
 	}
 	private function ajax_list() {
