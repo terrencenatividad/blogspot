@@ -30,8 +30,7 @@
 						<div class="panel-body">
 							<div class="row">
 								<div class="col-md-12 text-center">
-									<h3><strong>Quarterly Remittance Return</strong></h3>
-									<h4><strong>of Creditable Income Taxes Withheld (Expanded)</strong></h4>
+									<h3><strong>Monthly Value-Added Tax Declaration</strong></h3>
 								</div>
 							</div>
 							

@@ -524,7 +524,7 @@ class controller extends wc_controller
 						$errmsg[] 	= "Account Nature is required. Row $line should not be empty.<br>";
 					}		
 
-					if($fspresentation != 'BS' || $fspresentation != 'IS') {
+					if($fspresentation == 'Balance Sheet' || $fspresentation == 'Income Statement') {
 						$errmsg[]	= "Invalid FS Presenation on Row $line. Kindly use 'IS' for Income Statement and 'BS' for Balance Sheet<br/>";
 					}		
 					
