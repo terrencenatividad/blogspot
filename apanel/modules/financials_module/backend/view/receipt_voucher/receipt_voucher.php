@@ -2589,11 +2589,10 @@ function toggleCheckInfo(val){
 		//For Reseting initial PV & Cheque Details
 		setChequeZero();
 		clearChequePayment();
+		// acctdetailamtreset();
 		$("#payableForm #cheque_details").addClass('hidden');
 		$('#totalcheques').val(0);
 		formatNumber('totalcheques');
-		console.log(is_ap);
-		console.log(is_op);
 		if(is_ap == "false" && is_op == "false") {
 			getRVDetails();
 			clear_acct_input();
@@ -3121,7 +3120,7 @@ function getRVDetails(){
 				if(parseFloat(total) > 0 || parseFloat(totalop) > 0){
 					total 		= total.replace(/\,/g,'');
 					apply_credit_account(total);
-					$('#entriesTable tbody tr.clone').removeClass('added_row');
+					// $('#entriesTable tbody tr.clone').removeClass('added_row');
 					addAmounts();
 				}
 
@@ -3969,9 +3968,10 @@ function apply_credit_account(amount){
 			$(this).remove();
 		} 
 	});
+	var copy_acct 	= $('#entriesTable tbody tr.clone:first')[0].outerHTML;
 	if(total_advcredits_amount>0){
 		var adv_account = cred_acct;
-		$("#entriesTable tbody tr.clone:not(.added_row)").first().before(clone_acct);
+		$("#entriesTable tbody tr.clone:not(.added_row)").first().before(copy_acct);
 		resetIds();
 		var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first();
 			credit_row.find('.debit').val(addComma(total_advcredits_amount));
@@ -3982,7 +3982,7 @@ function apply_credit_account(amount){
 			credit_row.find('.credit').prop('readonly',true);
 	}  
 	if(total_opcredits_amount>0){
-		$("#entriesTable tbody tr.clone:not(.added_row)").first().before(clone_acct);
+		$("#entriesTable tbody tr.clone:not(.added_row)").first().before(copy_acct);
 		resetIds();
 		var credit_row = $("#entriesTable tbody tr.clone:not(.added_row)").first();
 			credit_row.find('.debit').val(addComma(total_opcredits_amount));
@@ -5081,7 +5081,7 @@ $(document).ready(function() {
 
 	// Isabelle -  eto ung pag clone ng td sa may accounting details 
 	$('body').on('click', '.add-entry', function()  {	
-		var clone = $("#entriesTable tbody tr.clone:last");
+		var clone = $("#entriesTable tbody tr.clone:first");
 		var ParentRow = $("#entriesTable tbody tr.clone").last();
 		var rv_amount = $('#pv_amount').html();
 		var offset 	  = 3;
@@ -5089,13 +5089,13 @@ $(document).ready(function() {
 		if(cwt==true){
 			ParentRow.prev().before(clone_acct);
 			offset     = 5;      
-		}
-		else if(parseFloat(rv_amount) > 0){
+		}else if(parseFloat(rv_amount) > 0){
 			ParentRow.before(clone_acct);
 			offset     = 4;
 		}else {
 			ParentRow.after(clone_acct);
 		}
+		ParentRow.prev().before().find('.accountcode').prop('disabled',false);
 		setZero(offset);
 		drawTemplate();
 	});

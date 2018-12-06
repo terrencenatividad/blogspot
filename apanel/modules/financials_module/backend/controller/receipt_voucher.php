@@ -595,7 +595,7 @@ class controller extends wc_controller
 					$applied[$vno][$source]['amount']  = $row->balance;
 					$applied[$vno][$source]['toapply'] = $row->amount;
 					$applied[$vno][$source]['balance'] = $row->balance - $row->amount;
-					$total_cr_applied 	+= 	($source == "OP") ?  	0	:	$row->amount;
+					$total_cr_applied 	+= $row->amount;
 					$total_cr_opapplied += 	($source == "OP") ?  	$row->amount	:	0;
 
 				}
