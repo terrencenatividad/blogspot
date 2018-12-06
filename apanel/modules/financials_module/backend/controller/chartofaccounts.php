@@ -438,7 +438,7 @@ class controller extends wc_controller
 			$errmsg[]= "Invalid file type, file must be .csv.<br/>";
 		}
 			
-		$headerArr = array('Account Code','Account Name', 'Account Class', 'FS Presentation', 'Account Type', 'Parent Account', 'Account Nature');
+		$headerArr = array('Account Code','Account Name', 'Account Class', 'FS Presentation (BS or IS)', 'Account Type', 'Parent Account', 'Account Nature');
 
 		if( empty($errmsg) ){
 			$row_start = 2;
