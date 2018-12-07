@@ -25,7 +25,7 @@
                 'qty',
                 'uom'
             );
-            $editresult = "";
+            
 
         }
 
@@ -45,6 +45,8 @@
             $data['ui']         = $this->ui;
             $data['task']       = 'save';
             $data['show_input'] = true;
+            
+
             $data['ajax_post']  = '';
 
             $data['job_no']     = $this->job->autoGenerate("JOB",'job');  
@@ -60,15 +62,28 @@
         {
             $this->view->title = $this->ui->EditLabel('');
             
-            $data['ui']             = $this->ui;
-            $data['task']           = 'update';
-            $data['show_input']     = true;
-            $data["job_no"]         = $job;
-            $data['job_details']    = (array) $this->job->retrieveExistingJob($job);
-            $retrievedjob           = $this->job->getJob($job);
-            $job_date               = $this->date->dateFormat($retrievedjob[0]->transactiondate);
-            $data['transactiondate'] = $job_date;
-            $data['notes']          = $retrievedjob[0]->notes;
+            $data['ui']                 = $this->ui;
+            $data['task']               = 'update';
+            $data['show_input']         = true;
+            
+
+            $data["job_no"]             = $job;
+
+            $retrievedjob               = $this->job->getJob($job);
+            $job_date                   = $this->date->dateFormat($retrievedjob[0]->transactiondate);
+
+            $data['transactiondate']    = $job_date;
+            $data['notes']              = $retrievedjob[0]->notes;
+
+            $result                   = (array) $this->job->retrieveExistingJob($job);
+            $data['result'] = $result;
+            foreach ($result as $key => $row) {
+                $pr[]       = $row->ipo_no;
+                $item[]     = $row->itemcode;
+            }
+
+            $data['pr_selected']        = $pr;
+            $data['item_selected']      = $item;
 
             $this->view->load('job/job',  $data);
         }
@@ -79,12 +94,24 @@
             $data['ui']             = $this->ui;
             $data['task']           = 'view';
             $data['show_input']     = false;
+            
             $data["job_no"]         = $job;
-            $data['job_details']    = (array) $this->job->retrieveExistingJob($job);
-            $retrievedjob               = $this->job->getJobDate($job);
-            $job_date               = $this->date->dateFormat($retrievedjob[0]->transactiondate);
-            $data['transactiondate'] = $job_date;
-            $data['notes']          = $retrievedjob[0]->notes;
+
+            $retrievedjob               = $this->job->getJob($job);
+            $job_date                   = $this->date->dateFormat($retrievedjob[0]->transactiondate);
+
+            $data['transactiondate']    = $job_date;
+            $data['notes']              = $retrievedjob[0]->notes;
+
+            $result                   = (array) $this->job->retrieveExistingJob($job);
+            $data['result'] = $result;
+            foreach ($result as $key => $row) {
+                $pr[]       = $row->ipo_no;
+                $item[]     = $row->itemcode;
+            }
+
+            $data['pr_selected']        = $pr;
+            $data['item_selected']      = $item;
 
             $this->view->load('job/job',  $data);
         }
@@ -120,7 +147,6 @@
                 $table .= '<td align = "center">' . $dropdown . '</td>';
                 $table .= '<td>' . $row->job_no . '</td>';
                 $table .= '<td>' . $row->notes . '</td>';
-                $table .= '<td>' . $row->ipo_no . '</td>';
                 $table .= '<td class="text-center">' . $this->colorStat($row->stat) . '</td>';
                 $table .= '</tr>';
             }
@@ -213,30 +239,43 @@
 
         private function ajax_load_ipo_items(){
             $ipo = (array)$this->input->post("ipo");
+            $task = $this->input->post("task");
             $table = '';
             $checkid = 0;
             
             
             foreach ($ipo as $key => $value) {
                 $pagination = $this->job->getItemPagination($value);
+                
                 if (empty($pagination->result)) {
                     $table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
                 }
+                
+
                 foreach ($pagination->result as $key => $row) {
+                    if ($task=="save") {
+                        $taggedqty = $this->job->getTaggedItemQty($row->voucherno, $row->itemcode);
+                        $maxval= $row->receiptqty - $taggedqty[0]->count;
+                    }
+                    elseif($task=="update"){
+                        $taggedqty = $this->job->getTaggedItemQty($row->voucherno, $row->itemcode);
+                        $maxval= $row->receiptqty - $taggedqty[0]->count;
+                    }
                     
-                    $taggedqty = $this->job->getTaggedItemQty($row->voucherno, $row->itemcode);
-                    $maxval= $row->receiptqty - $taggedqty[0]->count;
                     if ($maxval) {
                         $table .= '<tr>';
-                        $table .= '<td class = "item_checkbox">';
-                        $table .= '
-                            <input type="checkbox" id = "'.$checkid.'" data-code="'.$row->itemcode.'" data-pr="'.$row->voucherno.'">
-                            <input type="hidden" name="txtipo[]" value="'.$row->voucherno.'">
-                            <input type="hidden" name="txtitem[]" value="'.$row->itemcode.'">
-                            <input type="hidden" name="txtuom[]" value="'.$row->receiptuom.'">
-                            <input type="hidden" name="txtserial[]" value="" data-maxval="">
-                            <input type="hidden" name="txtdesc[]" value="'.$row->detailparticular.'">
-                        </td>';
+                        
+                            $table .= '<td class = "item_checkbox">';
+                            $table .= '
+                                <input type="checkbox" id = "'.$checkid.'" data-code="'.$row->itemcode.'" data-pr="'.$row->voucherno.'">
+                                <input type="hidden" name="txtipo[]" value="'.$row->voucherno.'">
+                                <input type="hidden" name="txtitem[]" value="'.$row->itemcode.'">
+                                <input type="hidden" name="txtuom[]" value="'.$row->receiptuom.'">
+                                <input type="hidden" name="txtserial[]" value="" data-maxval="">
+                                <input type="hidden" name="txtdesc[]" value="'.$row->detailparticular.'">
+                            </td>';
+                        
+                        
                         $table .= '<td class = "td_ipono">' . $row->voucherno . '</td>';
                         $table .= '<td>' . $row->itemcode . " - " . $row->detailparticular . '</td>';
                         $table .= '<td></td>';
@@ -257,6 +296,9 @@
                 }
             }
             $table .= '<script>checkSelectedItems();</script>';
+            if ($task=="view") {
+                $table .= '<script>disabledfields();</script>';
+            }
             $pagination->table = $table;
             return $pagination;
         }

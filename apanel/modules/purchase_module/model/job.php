@@ -9,7 +9,7 @@
         public function getJobListing($data, $sort, $search, $filter){
             $condition = '';
             if ($search) {
-                $condition .= $this->generateSearch($search, array('job_no', 'description'));
+                $condition .= $this->generateSearch($search, array('job_no', 'notes'));
             }
 
             $result = $this->db->setTable('job')
@@ -104,7 +104,7 @@
 
         public function retrieveExistingJob($job){
             $result = $this->db->setTable("job_details")
-                            ->setFields("ipo_no")
+                            ->setFields("ipo_no, itemcode")
                             ->setWhere("job_no='".$job."'")
                             ->runSelect()
                             ->getResult();
