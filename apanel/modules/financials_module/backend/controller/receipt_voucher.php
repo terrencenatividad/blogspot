@@ -583,22 +583,27 @@ class controller extends wc_controller
 		//Credits
 		$credits_applied 		= $data['credits'];
 		$total_cr_applied		= 0;
+		$total_cr_opapplied		= 0;
+		$credits 				= 0;
 		$applied 				= [];
 		if($credits_applied){
 			foreach($credits_applied as $key=>$row){
 				if(isset($row->amount)) {
 					$vno 		=	$row->cvo;
 					$source 	=	$row->source;
-					$total_cr_applied += $row->amount;
+					// $total_cr_applied += $row->amount;
 					$applied[$vno][$source]['amount']  = $row->balance;
 					$applied[$vno][$source]['toapply'] = $row->amount;
 					$applied[$vno][$source]['balance'] = $row->balance - $row->amount;
+					$total_cr_applied 	+= $row->amount;
+					$total_cr_opapplied += 	($source == "OP") ?  	$row->amount	:	0;
+
 				}
 			}
 		}
-		$data['credits_applied'] 	= $total_cr_applied;
-
-		$data['credits_box'] 		= json_encode($applied);
+		$data['credits_applied'] 			= $total_cr_applied;
+		$data['total_opcredits_to_apply'] 	= $total_cr_opapplied;
+		$data['credits_box'] 				= json_encode($applied);
 
 		$data['restrict_rv'] 			= true;
 		$data['has_access'] 			= 0;
