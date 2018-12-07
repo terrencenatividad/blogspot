@@ -29,26 +29,25 @@ class controller extends wc_controller {
 		$data['chart_account_list'] =	$this->trial_balance->getChartAccountList();
 		$data['proforma_list'] 		= 	$this->trial_balance->getProformaList();
 
-		// $year_result 				=  	$this->trial_balance->getYearforClosing();
-		// $year_closing 				=	isset($year_result->year)		?	$year_result->year	:	"";	
 		$period_result 				=	$this->trial_balance->getClosingMonth();
 		$ret_year  			 		=	isset($period_result->year) 	?	$period_result->year 	:	"";	 			
 		$ret_month 					=	isset($period_result->month) 	?	$period_result->month 	:	"";
 		$ret_period 				= 	$this->trial_balance->getPeriodStart();
-		$period_start 				= 	isset($ret_period->periodstart) ? 	$ret_period->periodstart :	"";
-		$period_end 				=	isset($ret_period->periodstart) ? 	$ret_period->periodstart - 1 : 12;
-		// $period_end 				=	($period_end == -1) 	?	11 	:	$period_end;
+		$period_start 				= 	isset($ret_period->periodstart) ? 	$ret_period->periodstart + 1 :	1;
+		$period_end 				=	isset($ret_period->periodstart) ? 	$ret_period->periodstart - 1 :  11;
 		$taxyear 					=	isset($ret_period->taxyear) 	? 	$ret_period->taxyear	:	"";
 
 		$data['taxyear'] 			=	$taxyear;
-		$data['period_start'] 		= 	($taxyear == 'fiscal') ? $period_start 	: "0";
-		$period_end 				= 	($taxyear == 'fiscal' && $period_end != -1) ? $period_end 	: 11;
+		$period_start 				=	($taxyear == 'fiscal') ? $period_start - 1 	: 1;
+		$data['period_start'] 		= 	$period_start;
+		$period_end 				= 	($period_end == -1) 	?	 0 	: $period_end;
+		$period_end 				= 	($taxyear == 'fiscal') ? $period_end 	: 12;
 		$data['period_end'] 		=	$period_end;
-		
+
 		$last_date 					= 	$ret_year."-".$ret_month."-1";
 		$complete_date 				= 	$this->trial_balance->getMonthEnd($last_date);
 		$complete_date 				=	$this->date->dateFormat($complete_date);
-		
+		// echo "Complete Date = ".$complete_date."<br><br>";
 		$data['datafrom'] 			=	$complete_date;
 
 		// For Year End Closing
@@ -59,25 +58,46 @@ class controller extends wc_controller {
 		$last_closedyear 			=	isset($check_last_closedmonth[0]->fiscalyear) ? $check_last_closedmonth[0]->fiscalyear : "";
 		$data['last_year'] 			=	$last_closedyear;
 		$last_closedmonth 			=	isset($check_last_closedmonth[0]->period) ? $check_last_closedmonth[0]->period : "";
+		$last_closedmonth 			=	($taxyear == "fiscal") ? $last_closedmonth 	:	$last_closedmonth - 1;
+		$last_closedmonth 			=	($taxyear == "calendar" && $last_closedmonth == -1) ? 0 : $last_closedmonth; 
 		$data['last_closed_month'] 	=	$last_closedmonth;
+		$check_existing_year_end 	=	$this->trial_balance->check_existing_yrendjv($ret_year);
 
-		$check_existing_year_end 	=	$this->trial_balance->check_existing_yrendjv($last_closedyear);
+		$prevyear 					= 	date("Y",strtotime($complete_date." -1 year"));
+		$prevyear 					=	($taxyear == 'fiscal') ? $prevyear 	:	$last_closedyear;
+		$data['prev_year'] 			=	$prevyear;
+
+		// echo "closed year = ".$last_closedyear."<br>"; 
+		// echo "actual year = ".$ret_year."<br>";
+		// echo "closed month = ".$last_closedmonth."<br>";
+		// echo "actual month = ".$period_end."<br><br>";
+
 
 		if(empty($check_existing_year_end)){
-			$firstmonth 				=	$last_closedyear."-1-1";
-			$lastmonth 					=	$last_closedyear."-12-1";
+			// echo $period_start."<br>";
+			$firstmonth 				=	$prevyear."-".$period_start."-1";
+			$lastmonth 					=	$last_closedyear."-".$period_end."-1";
 			$startmonth 				= 	$this->trial_balance->getMonthEnd($firstmonth);
 			$startmonth 				=	$this->date->dateFormat($startmonth);
+			// echo $lastmonth."<br>";
 			$endmonth 					= 	$this->trial_balance->getMonthEnd($lastmonth);
 			$endmonth 					=	$this->date->dateFormat($endmonth);
 			$data['last_date'] 			=	$endmonth;
 			$data['year_end_date'] 		=	$startmonth." - ".$endmonth;
+			// echo $lastmonth."<br>";
+			// echo $last_closedmonth." - ".$period_end;
+			// echo $last_closedmonth."<br>"; 
+			// echo $period_end."<br>";
+			// echo $prevyear."<br>";
+			// echo $ret_year."<br>";
+			// echo $taxyear."<br>";
 
-			if(($last_closedmonth-1) == $period_end){
+			if( ($last_closedmonth == $period_end && $taxyear == "calendar") || ( $last_closedmonth == $period_end && ($prevyear != $ret_year && $taxyear == 'fiscal') )){ 
 				$data['datafrom'] 		=	$startmonth." - ".$endmonth;
 				$data['is_account'] 	=	$yr_account;
 			}
 		}
+		// echo 'test'.$complete_date;
 
 		$data['ui'] 				= 	$this->ui;
 		$data['show_input'] 		= 	true;
@@ -135,8 +155,7 @@ class controller extends wc_controller {
 		$datefilterFrom = (!empty($dates[0]))? $dates[0] : "";
 		$datefilterTo   = (!empty($dates[1]))? $dates[1] : "";
 		$datefilter     = (!empty($daterangefilter))? $daterangefilter : $default_datefilter;
-			// echo $datefilterFrom;
-			// echo " - ".$datefilterTo; 
+	
 		$currentyear 	= date("Y",strtotime($datefilterTo));
 		$prevyear 		= date("Y",strtotime($datefilterFrom." -1 year"));
 
@@ -195,7 +214,8 @@ class controller extends wc_controller {
 				$table .= '<td class="text-right" >'.$periodbalance.'</td>';
 				$table .= '<td class="text-right" >'.$accumulatedbalance.'</td>';
 				$table .= '</tr>';
-		}
+			}
+
 			$totaldebit 				= ($totaldebit < 0) ? '('.number_format(abs($totaldebit),2).')' : number_format(abs($totaldebit),2);
 			$totalcredit 				= ($totalcredit < 0) ? '('.number_format(abs($totalcredit),2).')' : number_format(abs($totalcredit),2);
 			$totalperiodbalance 		= ($totalperiodbalance < 0) ? '('.number_format(abs($totalperiodbalance),2).')' : number_format(abs($totalperiodbalance),2);
@@ -213,81 +233,11 @@ class controller extends wc_controller {
 						<td class="text-right">'.$totalaccumulatedbalance.'</td>';
 
 			$table.= '</tr>';
-		
-	}
-		// if(count($pagination->result)>0)
-		// {
-		// 	for($i=0;$i<count($pagination->result);$i++)
-		// 	{	
-		// 		$accountid          = $pagination->result[$i]->accountid;
-		// 		$accountcode		= $pagination->result[$i]->accountcode;
-		// 		$accountname		= $pagination->result[$i]->accountname;	
-
-		// 		$prevcarry 			= $this->trial_balance->getPrevCarry($accountid,$datefilterFrom);
-		// 		$balcarry			= $this->trial_balance->getBalanceCarry($accountid,$datefilterFrom,$datefilterTo);
-		// 		$amount				= $this->trial_balance->getCurrent($accountid,$datefilterFrom,$datefilterTo);
-
-		// 		$debit 				= ($amount > 0) ? $amount : 0;
-		// 		$credit 			= ($amount < 0) ? abs($amount) : 0;
-		// 		$periodbalance      = $amount;
-
-		// 		$accumulatedbalance = $balcarry + $periodbalance;
-
-		// 		$totalprevcarry 		+= $prevcarry;
-		// 		$totalbalcarry  		+= $balcarry;
-		// 		$totaldebit 			+= $debit;
-		// 		$totalcredit 			+= $credit;
-		// 		$totalperiodbalance 	+= $periodbalance;
-		// 		$totalaccumulatedbalance += $accumulatedbalance;
-
-		// 		$periodbalance 		= ($periodbalance < 0) ? '('.number_format(abs($periodbalance),2).')' : number_format(abs($periodbalance),2);
-		// 		$balcarry 			= ($balcarry < 0) ? '('.number_format(abs($balcarry),2).')' : number_format(abs($balcarry),2);
-		// 		$credit 			= ($credit < 0) ? '('.number_format(abs($credit),2).')' : number_format(abs($credit),2);
-		// 		$debit 				= ($debit < 0) ? '('.number_format(abs($debit),2).')' : number_format(abs($debit),2);
-		// 		$prevcarry 			= ($prevcarry < 0) ? '('.number_format(abs($prevcarry),2).')' : number_format(abs($prevcarry),2);
-		// 		$accumulatedbalance = ($accumulatedbalance < 0) ? '('.number_format(abs($accumulatedbalance),2).')' : number_format(abs($accumulatedbalance),2);
-
-		// 		$debitLink	= ($amount > 0) ? '<a href="javascript:void(0);" onClick="openList(\''.$accountid.'\');" >'.$debit.'</a>' : $debit;
-		// 		$creditLink	= ($amount < 0) ? '<a href="javascript:void(0);" onClick="openList(\''.$accountid.'\');" >'.$credit.'</a>' : $credit;
-				
-		// 		$table .= "<tr>";																					
-		// 		$table .= '<td class="left">&nbsp;'.$accountcode.'</td>';
-		// 		$table .= '<td class="left">&nbsp;'.$accountname.'</td>';
-		// 		$table .= '<td class="text-right" >'.$prevcarry.'</td>';
-		// 		$table .= '<td class="text-right" >'.$balcarry.'</td>';
-		// 		$table .= '<td class="text-right" >'.$debitLink.'</td>';
-		// 		$table .= '<td class="text-right" >'.$creditLink.'</td>';
-		// 		$table .= '<td class="text-right" >'.$periodbalance.'</td>';
-		// 		$table .= '<td class="text-right" >'.$accumulatedbalance.'</td>';
-		// 		$table .= '</tr>';
-		// 	}	
-			
-		// 	$totaldebit 				= ($totaldebit < 0) ? '('.number_format(abs($totaldebit),2).')' : number_format(abs($totaldebit),2);
-		// 	$totalcredit 				= ($totalcredit < 0) ? '('.number_format(abs($totalcredit),2).')' : number_format(abs($totalcredit),2);
-		// 	$totalperiodbalance 		= ($totalperiodbalance < 0) ? '('.number_format(abs($totalperiodbalance),2).')' : number_format(abs($totalperiodbalance),2);
-		// 	$totalaccumulatedbalance 	= ($totalaccumulatedbalance < 0) ? '('.number_format(abs($totalaccumulatedbalance),2).')' : number_format(abs($totalaccumulatedbalance),2);
-		// 	$totalprevcarry 			= ($totalprevcarry < 0) ? '('.number_format(abs($totalprevcarry),2).')' : number_format(abs($totalprevcarry),2);
-		// 	$totalbalcarry 				= ($totalbalcarry < 0) ? '('.number_format(abs($totalbalcarry),2).')' : number_format(abs($totalbalcarry),2);
-
-		// 	$table .= '<tr class="info">
-		// 				<td class="text-right" colspan="2"><strong>TOTAL</strong></td>
-		// 				<td class="text-right">'.$totalprevcarry.'</td>
-		// 				<td class="text-right">'.$totalbalcarry.'</td>
-		// 				<td class="text-right"><strong>'.$totaldebit.'</strong></td>
-		// 				<td class="text-right"><strong>'.$totalcredit.'</strong></td>
-		// 				<td class="text-right">'.$totalperiodbalance.'</td>
-		// 				<td class="text-right">'.$totalaccumulatedbalance.'</td>';
-
-		// 	$table.= '</tr>';
-
-		// }else{
-		// 	$table .= '<tr><td colspan="8" class="text-center"><b>No Records Found</b></td></tr>';
-		// }
+		}
 
 		$pagination->table = $table;
 		$pagination->csv   = $this->export();
 		return array('table' => $table);
-
 	}
 
 	private function export()
@@ -521,17 +471,17 @@ class controller extends wc_controller {
 	private function close_jv_status(){
 		$temp 		=	$this->input->post('voucherno');
 		$voucherno 	=	$this->seq->getValue("JV");
-		// var_dump($reference);
 		$result 	=	$this->trial_balance->update_jv_status($temp,$voucherno);
+		$period		=	"";
 
 		if( $result ){
 			$ret_arr 	=	$this->trial_balance->getReference($voucherno);
-			$reference 	=	$ret_arr->referenceno;
+			$reference 	=	isset($ret_arr->referenceno) ? $ret_arr->referenceno : "";
+			$period 	=	isset($ret_arr->period) ? $ret_arr->period : "";
 
 			$this->log->saveActivity("Closed Book [$voucherno - $reference] ");
 		}
-
-		return $result;
+		return $dataArray 	=	array( "result"=>$result['result'], "period" => $period);
 	}
 
 	public function eradicate_temporary_jv(){

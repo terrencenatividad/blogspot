@@ -366,10 +366,11 @@ class trial_balance extends wc_model {
 		$result 	= $this->db->setTable("journalvoucher")
 							   ->setFields(array('fiscalyear, period'))
 							   ->setWhere("source='closing' AND stat NOT IN ('cancelled','temporary') $cond")
-							   ->setOrderBy('period DESC')
+							   ->setOrderBy('transactiondate DESC')
 							   ->setLimit(1)
 								->runSelect(false)
 								->getResult();
+								// echo $this->db->getQuery();
 
 		return $result;
 	}	
@@ -823,7 +824,7 @@ class trial_balance extends wc_model {
 								->setLimit(1)
 								->runSelect(false)
 								->getRow();
-								
+								// echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -874,7 +875,7 @@ class trial_balance extends wc_model {
 
 	public function getReference($voucherno){
 		$result 		= 	$this->db->setTable('journalvoucher j')
-									->setFields("j.referenceno")
+									->setFields("j.referenceno, j.period")
 									->setWhere("j.voucherno = '$voucherno'")
 									->setLimit(1)
 									->runSelect()

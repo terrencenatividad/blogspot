@@ -175,6 +175,8 @@
 							<input type="hidden" id="yr_account" name="yr_account" value="<?=$yr_account?>">
 							<input type="hidden" id="last_date" name="last_date" value="<?=$last_date?>">
 							<input type="hidden" id="last_year" name="last_year" value="<?=$last_year?>">
+							<input type="hidden" id="prev_year" name="prev_year" value="<?=$prev_year?>">
+							<input type="hidden" id="tax_year" name="tax_year" value="<?=$tax_year?>">
 							<input type="hidden" id="last_closed_month" name="last_closed_month" value="<?=$last_closed_month?>">
 							<input type="hidden" id="yr_account_name" name="yr_account_name" value="<?=$yr_account_name?>">
 						</div>
@@ -401,43 +403,8 @@
 			if( response.existing == 0 ){
 				$('#alert_modal .modal-body').html("<p>You have not performed any closing activities for the Previous Month(s).</p>")
 				$('#alert_modal').modal('show');
-				// $('#close_book').prop('disabled',true);
-			} else {
-				// $('#close_book').prop('disabled',false);
-			}
+			} 
 		});
-	}
-
-	function enable_button(daterange){
-		var date_array 	= daterange.split('-');
-
-		var start 	   	= date_array[0];
-			start 		= new Date(Date.parse(start));
-
-		var end 	   	= date_array[1];
-			end 		= new Date(Date.parse(end));
-
-		var n_start 	= start.getMonth()+1;
-		var n_start_day = start.getDate();
-		var n_start_yr	= start.getFullYear();	
-		
-		var n_end 		= end.getMonth()+1;
-		var n_end_day 	= end.getDate();
-		var n_end_yr	= end.getFullYear();
-		
-		var lastday = function(y,m){
-			return  new Date(y, m, 0).getDate();
-		}
-		var m_lastday 	=	lastday(n_end_yr,n_end);
-		
-		if( n_start == n_end && m_lastday == n_end_day ){
-			$('#close_book').prop('disabled',false);
-		} else {
-			$('#close_book').prop('disabled',true);
-			// check_existing_jv(date_array[1]);
-		}
-
-		// check_existing_jv(date_array[1]);
 	}
 
 	function preview_jv(voucherno){
@@ -482,11 +449,9 @@
 		ajax.daterangefilter = $(this).val();
 		ajax.page = 1;
 		getTrialBalance();
-		// enable_button($(this).val());
 	}).trigger('change');
 	$('#close_book').on('click',function(){
 		var daterangefilter 	=	$('#daterangefilter').val();
-
 		$('#reference').val("");
 		$('#notes').val("");
 		$("#jvModal").modal('show');
@@ -557,25 +522,28 @@
 		var last_year 			=	$('#jvModal #last_year').val();	
 		var last_closed_month 	=	$('#jvModal #last_closed_month').val();
 		var period_end 			=	$('#jvModal #period_end').val();		
-		var yr_account 			=	$('#jvModal #yr_account').val();	
+		var yr_account 			=	$('#jvModal #yr_account').val();		
+		var prev_year 			=	$('#jvModal #prev_year').val();	
 		var year_end_date 		=	$('#jvModal #year_end_date').val();
 		var yr_account_name 	=	$('#jvModal #yr_account_name').val();
-			date 				= 	new Date(current_date);
-			current_month 		=	date.getMonth();
+		var last_date 			=	$('#jvModal #last_date').val();
+		var tax_year 			=	$('#jvModal #tax_year').val();
 
 		ajax2.voucherno 		=	$('#previewModal #voucherno').val();
 
 		$.post('<?=MODULE_URL?>ajax/close_jv_status', ajax2 , function(response) {
 			if( response.result ){
 				$.post('<?=MODULE_URL?>ajax/check_existing_yrendjv', "trans_date="+last_year , function(response2) {
-					if( response.result || response2.existing == 1){
-						console.log("IF ");
-						$('#previewModal').modal('hide');
-						$('#redirectionModal').modal('show');
-					} else {
+					date 				= 	new Date(last_date);
+					current_month 		=	date.getMonth();
+					current_year 		=	date.getFullYear();
+					last_closed_month 	= 	(response.period!="") ? response.period :	last_closed_month;
+					if(!response2.existing){
 						console.log(last_closed_month);
 						console.log(period_end);
-						if(last_closed_month == period_end){
+						console.log(prev_year);
+						console.log(current_year);
+						if(last_closed_month == period_end ){ // && prev_year != current_year
 							$('#previewModal').modal('hide');
 							$('#jvModal #datefrom').val(year_end_date);	
 							$('#jvModal #notes').val("");	
@@ -583,9 +551,16 @@
 							$('#jvModal #closing_account_static').html(yr_account_name);
 							drawTemplate();
 							$("#jvModal").modal('show');
+						} else {
+							$('#previewModal').modal('hide');
+							$('#redirectionModal').modal('show');
 						}
+					} else {
+						$('#previewModal').modal('hide');
+						$('#redirectionModal').modal('show');
 					}
 				});
+				
 			}
 		});
 	});
