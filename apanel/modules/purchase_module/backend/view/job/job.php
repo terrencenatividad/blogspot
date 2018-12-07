@@ -230,7 +230,6 @@
     var selected_items = [];
 
     function getList() {
-        
         $('#ipo_tableList tbody').html(`<tr><td colspan="5" class="text-center">Loading Items</td></tr>`);
         $('#pagination').html('');
         $('#pr_list_modal').modal('show');
@@ -255,14 +254,15 @@
         });
         $('#pr_list_modal').modal('hide');
     }
+
     // save prev selected checkbox
     function saveSelected(tablename){
         selected = [];
-        $("#" + $tablename + " tbody tr td input:checkbox").each(function(){
+        $("#" + tablename + " tbody tr td input:checkbox").each(function(){
             if ($(this).is(":checked")) {
-                if($.inArray($(this).data("item"), selected_items) == -1){
-                    selected.push($(this).data("item"));
-                }
+                
+                selected.push($(this).data("code"));
+                
             }
         });
         return selected;
@@ -271,35 +271,35 @@
     // check checkbox prev selected 
     function checkExistingIPO(){
         $.each($("#ipo_tableList tbody tr td.ipo_checkbox"),function(){
-            if ($.inArray($(this).find("input:checkbox").attr("id"), selected_pr) != -1) {
+            if ($.inArray($(this).find("input:checkbox").data("code"), selected_pr) != -1) {
                 $(this).find("input:checkbox").iCheck("check");
             }
         });
-        $("input[name='ipo_holder']").val(selected_pr); 
     }
 
     function checkSelectedItems(){
         $.each($("#item_tableList tbody tr td.item_checkbox"),function(){
-            if ($.inArray($(this).find("input:checkbox").data("item"), selected_items) != -1 && 
-                $.inArray($(this).find("input:checkbox").data("pr"), prev_selected_pr) != -1) {
+            if ($.inArray($(this).find("input:checkbox").data("code"), selected_items) != -1 && 
+                $.inArray($(this).find("input:checkbox").data("pr"), selected_pr) != -1) {
                 $(this).find("input:checkbox").iCheck("check");
             }
         });
+        
+
     }
 
     $(document).ready(function (){
         
         // load IPO in modal
         $('#btnpreceipt').on('click', function() {
-            prev_selected_pr    = selected_pr;
-            
             getList();
         });
 
         // IPO modal confirm event
         $("#btn_ipo_select").on("click", function(){
-            selected_items      = saveSelected("item_tableList");
+            
             selected_pr         = saveSelected("ipo_tableList");
+            selected_items      = saveSelected("item_tableList");
             $("#pr_amount").text(selected_pr.length);
             getItemList(selected_pr);
         });

@@ -200,7 +200,7 @@
             }
             foreach ($pagination->result as $key => $row) {
                 $table .= '<tr>';
-                $table .= '<td class="ipo_checkbox"><input type="checkbox" id = "' . $row->voucherno . '"></td>';
+                $table .= '<td class="ipo_checkbox"><input type="checkbox" data-code = "' . $row->voucherno . '"></td>';
                 $table .= '<td class="ipo_no">' . $row->voucherno . '</td>';
                 $table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
                 $table .= '<td class="text-right">' . number_format($row->amount, 2) . '</td>';
@@ -230,7 +230,7 @@
                         $table .= '<tr>';
                         $table .= '<td class = "item_checkbox">';
                         $table .= '
-                            <input type="checkbox" id = "'.$checkid.'" data-item="'.$row->itemcode.'" data-pr="'.$row->voucherno.'">
+                            <input type="checkbox" id = "'.$checkid.'" data-code="'.$row->itemcode.'" data-pr="'.$row->voucherno.'">
                             <input type="hidden" name="txtipo[]" value="'.$row->voucherno.'">
                             <input type="hidden" name="txtitem[]" value="'.$row->itemcode.'">
                             <input type="hidden" name="txtuom[]" value="'.$row->receiptuom.'">
