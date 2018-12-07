@@ -93,10 +93,11 @@
             return $result;
         }
 
-        public function getTaggedItemQty($ipo, $itemcode){
+        public function getTaggedItemQty($ipo, $itemcode, $job=""){
+            
             $result = $this->db->setTable("job_details")
                             ->setFields("COUNT(*) as count")
-                            ->setWhere("ipo_no='".$ipo."' AND itemcode='".$itemcode."'")
+                            ->setWhere("ipo_no='".$ipo."' AND itemcode='".$itemcode."' AND job_no != '".$job."'")
                             ->runSelect()
                             ->getResult();
             return $result;

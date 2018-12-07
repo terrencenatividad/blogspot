@@ -322,7 +322,11 @@
             selected_pr         = saveSelected("ipo_tableList");
             selected_items      = saveSelected("item_tableList");
             $("#pr_amount").text(selected_pr.length);
-            getItemList(selected_pr,task);
+            if (task=="update") {
+                getItemList(selected_pr, task, job_no);
+            }
+            else
+                getItemList(selected_pr,task);
         });
 
         // close modal
@@ -410,9 +414,7 @@
                 }
                 selected_items.push("'.$item_selected[$key].'");';
         }
-        echo '  
-                getItemList(selected_pr, task);
-                
+        echo '  getItemList(selected_pr, task, job_no);
             </script>';
     }
     elseif($task=="view"){
@@ -425,8 +427,7 @@
                 }
                 selected_items.push("'.$item_selected[$key].'");';
         }
-        echo '  
-                getItemList(selected_pr, task);
+        echo '  getItemList(selected_pr, task);
                 
             </script>';
     }

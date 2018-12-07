@@ -238,10 +238,11 @@
         }
 
         private function ajax_load_ipo_items(){
-            $ipo = (array)$this->input->post("ipo");
-            $task = $this->input->post("task");
-            $table = '';
-            $checkid = 0;
+            $job_no        = $this->input->post("job");
+            $ipo        = (array)$this->input->post("ipo");
+            $task       = $this->input->post("task");
+            $table      = '';
+            $checkid    = 0;
             
             
             foreach ($ipo as $key => $value) {
@@ -253,14 +254,9 @@
                 
 
                 foreach ($pagination->result as $key => $row) {
-                    if ($task=="save") {
-                        $taggedqty = $this->job->getTaggedItemQty($row->voucherno, $row->itemcode);
-                        $maxval= $row->receiptqty - $taggedqty[0]->count;
-                    }
-                    elseif($task=="update"){
-                        $taggedqty = $this->job->getTaggedItemQty($row->voucherno, $row->itemcode);
-                        $maxval= $row->receiptqty - $taggedqty[0]->count;
-                    }
+                    
+                    $taggedqty = $this->job->getTaggedItemQty($row->voucherno, $row->itemcode, $job_no);
+                    $maxval= $row->receiptqty - $taggedqty[0]->count;
                     
                     if ($maxval) {
                         $table .= '<tr>';
