@@ -151,6 +151,7 @@ class controller extends wc_controller
 			$data['t_vat'] 			 = 0;
 			$data['t_vatsales'] 	 = 0;
 			$data['t_vatexempt'] 	 = 0;
+			$data['t_vatzerorated']  = 0;
 			$data['t_discount'] 	 = 0;
 
 			//Details
@@ -345,6 +346,7 @@ class controller extends wc_controller
 		$data['t_vat'] 			 = $vat;
 		$data['t_vatsales'] 	 = $retrieved_data['header']->vat_sales;
 		$data['t_vatexempt'] 	 = $retrieved_data['header']->vat_exempt;
+		$data['t_vatzerorated'] 	 = $retrieved_data['header']->vat_zerorated;
 
 		$discounttype 		 	 = !empty($retrieved_data['header']->discounttype) ? $retrieved_data['header']->discounttype : "none";
 		$data['discounttype']    = $discounttype;
@@ -459,6 +461,7 @@ class controller extends wc_controller
 		$data['t_vat'] 			 = $retrieved_data['header']->taxamount;
 		$data['t_vatsales'] 	 = $retrieved_data['header']->vat_sales;
 		$data['t_vatexempt'] 	 = $retrieved_data['header']->vat_exempt;
+		$data['t_vatzerorated']  = $retrieved_data['header']->vat_zerorated;
 		
 		$discounttype 		 	 = $retrieved_data['header']->discounttype;
 		$data['discounttype']  	 = $discounttype;
@@ -492,6 +495,14 @@ class controller extends wc_controller
 		$bus_type_data                = array("code ind", "value val");
 		$bus_type_cond                = "type = 'businesstype'";
 		$data["business_type_list"]   = $this->so->getValue("wc_option", $bus_type_data, $bus_type_cond, false);
+
+		if ($data['stat'] == 'posted') {
+			$cancelled_items			= $this->so->getUnReceivedItems($data["voucherno"]);
+			$data['cancelled_items']	= $cancelled_items;
+			if ($cancelled_items) {
+				$data['delivered_items'] = $this->so->getReceivedItems($data["voucherno"]);
+			}
+		}
 
 		$this->view->load('sales_order/sales_order', $data);
 	}
@@ -535,7 +546,7 @@ class controller extends wc_controller
 		/** HEADER INFO **/
 
 			$docinfo_table  = "salesorder as so";
-			$docinfo_fields = array('so.transactiondate AS documentdate','so.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS customer","'' AS referenceno",'so.amount AS amount','so.remarks as remarks','so.discounttype as disctype','so.discountamount as discount', 'so.netamount as net','so.amount as amount','so.vat_sales as vat_sales','so.vat_exempt as vat_exempt','so.taxamount as vat');
+			$docinfo_fields = array('so.transactiondate AS documentdate','so.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS customer","'' AS referenceno",'so.amount AS amount','so.remarks as remarks','so.discounttype as disctype','so.discountamount as discount', 'so.netamount as net','so.amount as amount','so.vat_sales as vat_sales','so.vat_exempt as vat_exempt', 'so.vat_zerorated as vat_zerorated', 'so.taxamount as vat');
 			$docinfo_join   = "partners as p ON p.partnercode = so.customer AND p.companycode = so.companycode";
 			$docinfo_cond 	= "so.voucherno = '$voucherno'";
 
@@ -592,6 +603,7 @@ class controller extends wc_controller
 
 		$vatable_sales	= 0;
 		$vat_exempt		= 0;
+		$vat_zerorated	= 0;
 		$discount		= 0;
 		$tax			= 0;
 		$total_amount 	= 0;
@@ -599,8 +611,19 @@ class controller extends wc_controller
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
 			}
-			$vatable_sales	+= ($row->taxrate) ? $row->amount : 0;
-			$vat_exempt		+= ($row->taxrate) ? 0 : $row->amount;
+			// $vatable_sales	+= ($row->taxrate) ? $row->amount : 0;
+			// $vat_exempt		+= ($row->taxrate) ? 0 : $row->amount;
+			if($row->taxrate > 0.00 || $row->taxrate > 0 )	{
+				$vatable_sales += $row->amount;
+			}
+			else {
+				if ($row->taxcode == '' || $row->taxcode == 'none' || $row->taxcode == 'ES') {
+					$vat_exempt += $row->amount;
+				}
+				else {
+					$vat_zerorated += $row->amount;
+				}
+			}
 			$tax			+= $row->taxamount;
 			$discount 	    = isset($documentinfo->discount) ? $documentinfo->discount : 0;
 			$row->quantity	= number_format($row->quantity);
@@ -609,11 +632,12 @@ class controller extends wc_controller
 			$row->taxamount	= number_format($row->taxamount, 2);
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$total_amount = $vatable_sales + $vat_exempt + $tax;
+				$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
 				$summary = array(
 					'VATable Sales'		=> number_format($vatable_sales, 2),
 					'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
-					'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
+					'VAT Zero Rated Sales'	=> number_format($vat_zerorated, 2),
+					'Total Sales'		=> number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2),
 					'Tax'				=> number_format($tax, 2),
 					'Total Amount'		=> number_format($total_amount, 2),
 					'' 					=> '',
@@ -623,16 +647,18 @@ class controller extends wc_controller
 				// $print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
 				$vatable_sales	= 0;
 				$vat_exempt		= 0;
+				$vat_zerorated	= 0;
 				$discount		= 0;
 				$tax			= 0;
 				$total_amount	= 0;
 			}
 		}
-		$total_amount = $vatable_sales + $vat_exempt + $tax;
+		$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
 		$summary = array(
 			'VATable Sales'		=> number_format($vatable_sales, 2),
 			'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
-			'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
+			'VAT Zero Rated Sales'	=> number_format($vat_zerorated, 2),
+			'Total Sales'		=> number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2),
 			'Tax'				=> number_format($tax, 2),
 			'Total Amount'		=> number_format($total_amount, 2),
 			'' 					=> '',
