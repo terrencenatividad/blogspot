@@ -224,6 +224,7 @@
 		}
 	});
 	$( "#search" ).keyup(function() {
+		ajax.page = 1;
 		var search = $( this ).val();
 		ajax.search = search;
 		showList();
