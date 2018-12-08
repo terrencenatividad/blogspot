@@ -90,10 +90,14 @@ class asset_class extends wc_model {
 	}
 
 	public function getAssetClassListPagination($fields, $search = '', $sort) {
-
+		if ($search) {
+			$condition = $this->generateSearch($search, array('id', 'assetclass'));
+		}else{
+			$condition = "";
+		}
 			$result = $this->db->setTable("asset_class")
 								->setFields($fields)
-								->setWhere(1)
+								->setWhere($condition)
 								->setOrderBy($sort)
 								->runPagination();
 	
