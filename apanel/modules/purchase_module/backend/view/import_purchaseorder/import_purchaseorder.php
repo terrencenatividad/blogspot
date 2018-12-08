@@ -116,6 +116,20 @@
 								->draw($show_input);
 								?>
 							</div>
+							<div class = "col-md-6 department_div">
+								<?php
+								echo $ui->formField('text')
+								->setLabel('Department:')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('department')
+								->setId('department')
+								->setValue($department)
+								->draw($show_input);
+								?>
+							</div>
+						</div>
+
+						<div class = "row">
 							<div class = "col-md-6 exchange_ratediv">
 								<?php
 								echo $ui->formField('text')
@@ -128,19 +142,21 @@
 								->draw($show_input);
 								?>
 							</div>
-						</div>
-
-						<div class = "row">
-							<div class = "col-md-6 department_div">
+							<div class = "col-md-6">
 								<?php
-								echo $ui->formField('text')
-								->setLabel('Department:')
-								->setSplit('col-md-4', 'col-md-8')
-								->setName('department')
-								->setId('department')
-								->setValue($department)
-								->draw($show_input);
+									echo $ui->formField('dropdown')
+										->setLabel('Discount Type ')
+										->setPlaceholder('Select Discount Type')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('discounttype')
+										->setId('discounttype')
+										->setList($discounttypes)
+										->setValue($exchange_rate)
+										// ->setValidation('required')
+										->setNone('none')
+										->draw($show_input);
 								?>
+								<input type="hidden" value="" id="newdisctype" name="newdisctype">
 							</div>
 						</div>
 
@@ -242,34 +258,37 @@
 								<?php
 								if($task == 'create' && empty($request_no))
 								{
-									$accountcode 	   	= '';
-									$detailparticulars 	= '';
-									$warehouse 			= '';
-									$price	   			= '0.00';
-									$rowamount 			= '0.00';
-
-									$onhandqty 		 	= 0;
-									$quantity 		 	= 0;
-									$uom 				= '';
-									$discount 		 	= 0;
-									$row 			   	= 1;
-									$total_debit 	   	= 0;
-									$total_credit 	   	= 0;
-									$vatable_purchase 	= 0;
-									$vat_exempt_purchase= 0;
-									$t_subtotal 		= 0;
-									$t_discount  		= 0;
-									$t_total 			= 0;
-									$t_vat 				= 0;
-									$t_wtax 			= 0;
-									$t_wtaxcode 		= 'NA1';
-									$t_wtaxrate 		= 0;
-									$s_atc_code 		= 0;
-									$discount_check_amt = 0;
-									$discount_check_perc = 0;
-									$freight = 0;
-									$insurance = 0;
-									$packaging = 0;
+									$accountcode 	   	  = '';
+									$detailparticulars 	  = '';
+									$warehouse 			  = '';
+									$price	   			  = '0.00';
+									$rowamount 			  = '0.00';
+  
+									$onhandqty 		 	  = 0;
+									$quantity 		 	  = 0;
+									$uom 				  = '';
+									$discount 		 	  = 0;
+									$row 			   	  = 1;
+									$total_debit 	   	  = 0;
+									$total_credit 	   	  = 0;
+									$vatable_purchase 	  = 0;
+									$vat_exempt_purchase  = 0;
+									$t_subtotal 		  = 0;
+									$t_discount  		  = 0;
+									$t_total 			  = 0;
+									$t_vat 				  = 0;
+									$t_wtax 			  = 0;
+									$t_wtaxcode 		  = 'NA1';
+									$t_wtaxrate 		  = 0;
+									$s_atc_code 		  = 0;
+									$discount_check_amt   = 0;
+									$discount_check_perc  = 0;
+									$freight			  = 0;
+									$insurance 			  = 0;
+									$packaging 			  = 0;
+									$converted_freight 	  = 0;
+									$converted_insurance  = 0;
+									$converted_packaging  = 0;
 
 									$startnumber 	   	= ($row_ctr == 0) ? 1: $row_ctr;
 
@@ -688,6 +707,7 @@
 										->setName('freight')
 										->setId('freight')
 										->setClass("freight text-right")
+										->setPlaceholder('0.00')
 										->setAttribute(array("maxlength" => "20"))
 										->setValue(number_format($freight,2))
 										->draw($show_input);
@@ -700,7 +720,7 @@
 										->setId('b_freight')
 										->setClass("input_label text-right")
 										->setAttribute(array("maxlength" => "40", 'readonly',"style" => "margin-left:4px;margin-right: 14px;"))
-										->setValue(number_format($freight,2))
+										->setValue(number_format($converted_freight,2))
 										->draw($show_input);
 										?>
 									</td>
@@ -718,6 +738,7 @@
 										->setName('insurance')
 										->setId('insurance')
 										->setClass("insurance text-right")
+										->setPlaceholder('0.00')
 										->setAttribute(array("maxlength" => "20"))
 										->setValue(number_format($insurance,2))
 										->draw($show_input);
@@ -730,7 +751,7 @@
 										->setId('b_insurance')
 										->setClass("input_label text-right")
 										->setAttribute(array("maxlength" => "40", 'readonly',"style" => "margin-left:4px;margin-right: 14px;"))
-										->setValue(number_format($insurance,2))
+										->setValue(number_format($converted_insurance,2))
 										->draw($show_input);
 										?>
 									</td>
@@ -748,6 +769,7 @@
 										->setName('packaging')
 										->setId('packaging')
 										->setClass("packaging text-right")
+										->setPlaceholder('0.00')
 										->setAttribute(array("maxlength" => "20"))
 										->setValue(number_format($packaging,2))
 										->draw($show_input);
@@ -760,7 +782,7 @@
 										->setId('b_packaging')
 										->setClass("input_label text-right")
 										->setAttribute(array("maxlength" => "40", 'readonly',"style" => "margin-left:4px;margin-right: 14px;"))
-										->setValue(number_format($packaging,2))
+										->setValue(number_format($converted_packaging,2))
 										->draw($show_input);
 										?>
 									</td>
@@ -1170,6 +1192,23 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="discounttypeModal" tabindex="-1"  data-backdrop="static" data-keyboard="false" >
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Confirmation
+			</div>
+			<div class="modal-body" id="message">
+				Changing the Current Discount Type will clear out the Discounts. Do you wish to proceed?
+			</div>
+			<div class="modal-footer text-center">
+				<button type="button" class="btn btn-info btn-flat" id="disc_yes" data-dismiss='modal'>Yes</button>
+				<button type="button" class="btn btn-default btn-flat" id="disc_no" >No</button>
 			</div>
 		</div>
 	</div>
@@ -1874,7 +1913,6 @@ function computeWTAX()
 $(document).ready(function(){
 
 	// -- For Vendor -- 
-
 		// Get getPartnerInfo
 		$( "#vendor" ).change(function() 
 		{
@@ -1916,8 +1954,19 @@ $(document).ready(function(){
 		$('.itemcode').on('change', function(e) 
 		{
 			var id = $(this).attr("id");
-			getItemDetails(id);
-			
+			var sup = $('#vendor').val();
+			var cur = $('#currency').val();
+			if(sup != "" && cur != ""){
+				getItemDetails(id);			
+			}
+			else if(sup == ""){
+				$('#warning_modal').modal('show').find('#warning_message').html('Please Select a Supplier');
+				setZero();
+			}
+			else if(cur == ""){
+				$('#warning_modal').modal('show').find('#warning_message').html('Please Select a Currency');
+				setZero();
+			}
 		});
 
 		$('.warehouse').on('change', function(e) 
@@ -1925,9 +1974,9 @@ $(document).ready(function(){
 			var id = $(this).attr('id').replace(/[a-z]/g,'');
 			var item 	=	"itemcode"+id;
 			var code = $(this).val();
-			$.post('<?=MODULE_URL?>ajax/get_onhandqty', "warehouse=" + code, function(data) 
+			var itemcode = document.getElementById('itemcode' + id).value;
+			$.post('<?=MODULE_URL?>ajax/get_onhandqty', "warehouse=" + code +"&itemcode="+itemcode, function(data) 
 			{
-				console.log($('#onhandqty'+id));
 				document.getElementById('onhandqty' + id).value = data.onhandqty;
 			});
 			// getItemDetails(item);
@@ -2278,6 +2327,46 @@ $('#currency').on('change', function(){
 		$('#exchange_rate').val(data.exchangerate);				
 	});
 });
+
+$('#discounttype').on('select2:selecting',function(e){
+			var curr_type	=  $(this).val();	
+			var new_type 	= e.params.args.data.id;
+			
+			if(curr_type == "none" || curr_type == ""){
+				$('#discounttype').closest('.form-group').removeClass('has-error');
+
+				if(new_type=="none" || new_type==""){
+					$('.discount').prop('readOnly',true);
+				} else {
+					$('.discount').prop('readOnly',false);
+				}
+			} else {
+				if(curr_type!="" ){
+					e.preventDefault();
+					$('#discounttypeModal').modal('show');
+					$(this).select2('close');
+				}
+			}
+			$('#newdisctype').val(new_type);
+		});
+
+		$('#discounttypeModal').on('click','#disc_yes',function(){
+			var newtype = $('#newdisctype').val();
+			$('#discounttype').val(newtype).trigger('change');
+			$('#discounttypeModal').modal('hide');
+			$('.discount').val('0.00');
+
+			if(newtype=="none" || newtype==""){
+				$('.discount').prop('readOnly',true);
+			} else {
+				$('.discount').prop('readOnly',false);
+			}
+			computeAmount();
+		});
+
+		$('#discounttypeModal').on('click','#disc_no',function(){
+			$('#discounttypeModal').modal('hide');
+		});
 
 </script>
 <?php endif; ?>

@@ -39,6 +39,7 @@ class controller extends wc_controller
 
 	public function listing()
 	{
+		$this->view->title      = 'Import Purchase Order';
 		$data['ui'] 				= $this->ui;
 		
 		$data['show_input'] 		= true;
@@ -80,8 +81,13 @@ class controller extends wc_controller
 
 		$data["h_request_no"] 	= "";
 
+		$data["exchange_rate"] 	= '0.00';
+
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
+
+		$disc_type_data         = array("code ind","value val");
+		$data["discounttypes"] 	= $this->po->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
 
 		$w_entry_data          = array("warehousecode ind","description val");
 		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
@@ -246,7 +252,7 @@ class controller extends wc_controller
 
 	public function edit($voucherno)
 	{
-		$this->view->title      = 'Edit Purchase Order';
+		$this->view->title      = 'Edit Import Purchase Order';
 		$retrieved_data 		= $this->po->retrieveExistingPO($voucherno);
 
 		// Item Limit
@@ -266,6 +272,9 @@ class controller extends wc_controller
 
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
+
+		$disc_type_data         = array("code ind","value val");
+		$data["discounttypes"] 	= $this->po->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
 
 		$cc_entry_data          = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$data["itemcodes"] 		= $this->po->getValue("items", $cc_entry_data,"stat = 'active' AND bundle = '0'","itemcode");
@@ -305,6 +314,9 @@ class controller extends wc_controller
 		$data['freight'] 	 	= $retrieved_data['header']->freight;
 		$data['insurance'] 	 	= $retrieved_data['header']->insurance;
 		$data['packaging'] 	 	= $retrieved_data['header']->packaging;
+		$data['converted_freight'] 	 	 = $retrieved_data['header']->converted_freight;
+		$data['converted_insurance'] 	 = $retrieved_data['header']->converted_insurance;
+		$data['converted_packaging'] 	 = $retrieved_data['header']->converted_packaging;
 		
 		//Footer Data
 		$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
@@ -345,7 +357,7 @@ class controller extends wc_controller
 
 	public function view($voucherno)
 	{
-		$this->view->title      = 'View Purchase Order';
+		$this->view->title      = 'View Import Purchase Order';
 		$retrieved_data 		= $this->po->retrieveExistingPO($voucherno);
 		$close_date 			= $this->restrict->getClosedDate();
 		$data['close_date']		= $close_date;
@@ -403,6 +415,9 @@ class controller extends wc_controller
 		$data['freight'] 	 	= $retrieved_data['header']->freight;
 		$data['insurance'] 	 	= $retrieved_data['header']->insurance;
 		$data['packaging'] 	 	= $retrieved_data['header']->packaging;
+		$data['converted_freight'] 	 	 = $retrieved_data['header']->converted_freight;
+		$data['converted_insurance'] 	 = $retrieved_data['header']->converted_insurance;
+		$data['converted_packaging'] 	 = $retrieved_data['header']->converted_packaging;
 		//Footer Data
 		$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
 		$data['t_discount'] 	 = $retrieved_data['header']->discountamount;
@@ -790,14 +805,16 @@ class controller extends wc_controller
 	private function get_onhandqty()
 	{
 		$warehouse 	=	$this->input->post('warehouse');
+		$itemcode 	=	$this->input->post('itemcode');
 		// echo $wtaxcode;
 		
 		$fields 	= 	array('onhandQty');
 
-		$result 	=	$this->po->getValue('invfile', $fields, " warehouse = '$warehouse' ", "");
+		$result 	=	$this->po->getValue('invfile', $fields, " warehouse = '$warehouse' AND itemcode = '$itemcode'", "");
+		$onhandqty = 0;
 		foreach($result as $row)
 		{
-			$onhandqty = $row->onhandQty;
+			$onhandqty = number_format($row->onhandQty);		
 		}
 		
 		return $dataArray = array("onhandqty" => $onhandqty);
