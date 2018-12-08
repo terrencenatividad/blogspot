@@ -3183,13 +3183,13 @@ function getRVDetails(){
 					if(total_rcv==total_bal){
 						if(is_op == "yes"){
 							$('#op_checker').iCheck('check');
+							$('#op_checker').prop('disabled',false).iCheck('update');
 						}
-						$('#op_checker').prop('disabled',false).iCheck('update');;
 					} else {
 						if(is_op == "yes"){
 							$('#op_checker').iCheck('uncheck');
+							$('#op_checker').prop('disabled',true).iCheck('update');
 						} 
-						$('#op_checker').prop('disabled',true).iCheck('update');
 					}
 				}
 			}	
@@ -3996,7 +3996,9 @@ function apply_credit_account(amount){
 
 	$('#entriesTable tbody tr').each(function(index) {
 		var account = $(this).find('.accountcode').val();
-		if(account == cred_acct || account == op_acct){
+		var isop = $(this).find('.isop').val();
+		var isadv = $(this).find('.isadv').val();
+		if((account == cred_acct || account == op_acct) && (isop == "yes" || isadv == "yes")){
 			$(this).remove();
 		} 
 	});
