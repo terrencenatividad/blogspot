@@ -20,7 +20,7 @@ class ar_aging extends wc_model {
 		$payment_query = $this->db->setTable('rv_application rva')
 									->setFields('(SUM(IFNULL(rva.amount,0)) + SUM(IFNULL(rva.discount,0)) + SUM(IFNULL(rva.credits_used,0)) + SUM(IFNULL(rva.overpayment,0))) payments, rva.arvoucherno, rva.companycode')
 									->leftJoin('receiptvoucher rv ON rv.voucherno = rva.voucherno AND rv.companycode = rva.companycode')
-									->setWhere("rva.stat != 'cancelled' AND rv.transactiondate <= '$datefilter'")
+									->setWhere("rva.stat IN('open','posted') AND rv.transactiondate <= '$datefilter'")
 									->setGroupBy('rva.arvoucherno')
 									->buildSelect();
 
