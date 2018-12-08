@@ -2620,10 +2620,20 @@ function toggleCheckInfo(val){
 			$('.credit').removeAttr('readonly');
 			$('.accountcode').prop('disabled',false);
 			$('.confirm-delete').prop('disabled',false);
-		} else if(is_ap == "false" && is_op == "true") {
+		} else if(is_ap == "false" && is_op == "true" || is_ap == "true" && is_op == "false") {
 			if(container.length > 0 && task != "edit"){
 				getRVDetails();
 			}
+			acctdetailamtreset();
+			$('#entriesTable tbody .added_row').each(function() {
+				$(this).find('.accountcode').val('').trigger('change');
+				$(this).find('.accountcode').prop('disabled',false);
+				$(this).find('.credit').prop('readonly',false);
+				$(this).find('.debit').prop('readonly',false);
+				$(this).find('.confirm-delete').prop('disabled',false);
+			});
+			$('#entriesTable tbody tr.clone').removeClass('added_row');
+
 		} else {
 			set_account();
 		}
