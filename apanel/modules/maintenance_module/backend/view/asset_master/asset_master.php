@@ -201,7 +201,7 @@
 
 				
 
-				<div id="Depreciate" class="tab-pane">
+				<div id="Depreciate" class="tab-pane" style="padding-top:15px">
 				<div class="col-md-12">
 					<div class="row">
 									<div class="col-md-6">
@@ -235,15 +235,17 @@
 								</div>
 
 								<div class="row">
-									
 									<div class="col-md-6">
 										<?php
+										$readonly = ($ajax_task == 'edit') ? "readonly" : "false";
+
 											echo $ui->formField('text')
 													->setLabel('Capitalized Cost')
 													->setSplit('col-md-3', 'col-md-8')
 													->setName('capitalized_cost')
 													->setId('capitalized_cost')
 													->setValue($capitalized_cost)
+													->setAttribute(array("readonly" => $readonly))
 													->setValidation('required decimal')
 													->draw($show_input);
 										?>
@@ -256,6 +258,7 @@
 													->setName('purchase_value')
 													->setId('purchase_value')
 													->setValue($purchase_value)
+													->setAttribute(array("readonly" => $readonly))
 													->setValidation('required decimal')
 													->draw($show_input);
 										?>
@@ -263,16 +266,15 @@
 								</div>
 
 								<div class="row">
-									
-									
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('text')
-													->setLabel('Balance Value')
+													->setLabel('Book Value')
 													->setSplit('col-md-3', 'col-md-8')
 													->setName('balance_value')
 													->setId('balance_value')
 													->setValue($balance_value)
+													->setAttribute(array("readonly" => $readonly))
 													->setValidation('required decimal')
 													->draw($show_input);
 										?>
@@ -291,8 +293,7 @@
 									</div>
 								</div>
 
-								<div class="row">
-									
+								<div class="row hidden">
 									<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
@@ -301,7 +302,7 @@
 												->setName('number_of_dep')
 												->setId('number_of_dep')
 												->setValue($number_of_dep)
-												->setValidation('required integer')
+												->setValidation('integer')
 												->draw($show_input);
 									?>
 								</div>
@@ -313,32 +314,37 @@
 													->setName('depreciation_amount')
 													->setId('depreciation_amount')
 													->setValue($depreciation_amount)
-													->setValidation('required decimal')
+													->setAttribute(array("readonly" => "readonly"))
+													->setValidation('decimal')
 													->draw($show_input);
 										?>
 									</div>
-					</div>
+								</div>
 				
-					<div class="row">
-						<div class="col-md-6">
-							<?php
-								echo $ui->formField('text hidden')
-										->setSplit('col-md-3', 'col-md-8')
-										->setName('frequency_of_dep')
-										->setClass('hidden')
-										->setId('frequency_of_dep')
-										->setValue($frequency_of_dep)
-										->setValidation('required integer')
-										->draw($show_input);
-							?>
-						</div>
+							<div class="row">
+								<div class="col-md-6">
+									<?php
+										echo $ui->formField('text hidden')
+												->setSplit('col-md-3', 'col-md-8')
+												->setName('frequency_of_dep')
+												->setClass('hidden')
+												->setId('frequency_of_dep')
+												->setValue($frequency_of_dep)
+												->setValidation('required integer')
+												->draw($show_input);
+									?>
+								</div>
 						
+						</div>
 					</div>
-					</div>
+					<?php if($show_input):?>
 					<div class="row text-center">
 					<input type="button" id="compute" value="Compute Depreciation" class="btn btn-info">
 					</div>
+					<?php endif?>
 					<br>
+					<?php if($ajax_task == "ajax_create"){?>
+
 					<table class="table table-hover table-sidepad" id="schedule" hidden>
 							<thead>
 								<tr class="info">
@@ -352,48 +358,43 @@
 								</tr>
 							</thead>
 							<tbody>
-								<!-- <tr>	
-									<td class="col-md-2 text-center">Dec. 30, 2018</td>
-									<td class="col-md-3 text-center">Item 1</td>
-									<td class="col-md-3 text-center">8,000.00</td>	
-									<td class="col-md-3 text-center">14150 - Furniture and Fixtures</td>
-									<td class="col-md-3 text-center">14151 - Acc Dep – Furniture and Fixtures</td>
-									<td class="col-md-3 text-center">62136 - Depreciation Expense</td>					
-								</tr>
-								<tr>	
-									<td class="col-md-2 text-center">Mar. 30, 2019</td>
-									<td class="col-md-3 text-center">Item 1</td>
-									<td class="col-md-3 text-center">16,000.00</td>				
-									<td class="col-md-3 text-center">14150 - Furniture and Fixtures</td>
-									<td class="col-md-3 text-center">14151 - Acc Dep – Furniture and Fixtures</td>
-									<td class="col-md-3 text-center">62136 - Depreciation Expense</td>			
-								</tr>
-								<tr>	
-									<td class="col-md-2 text-center">Jun. 30, 2019</td>
-									<td class="col-md-3 text-center">Item 1</td>
-									<td class="col-md-3 text-center">24,000.00</td>	
-									<td class="col-md-3 text-center">14150 - Furniture and Fixtures</td>
-									<td class="col-md-3 text-center">14151 - Acc Dep – Furniture and Fixtures</td>
-									<td class="col-md-3 text-center">62136 - Depreciation Expense</td>						
-								</tr>
-								<tr>	
-									<td class="col-md-2 text-center">Sep. 30, 2019</td>
-									<td class="col-md-3 text-center">Item 1</td>
-									<td class="col-md-3 text-center">32,000.00</td>		
-									<td class="col-md-3 text-center">14150 - Furniture and Fixtures</td>
-									<td class="col-md-3 text-center">14151 - Acc Dep – Furniture and Fixtures</td>
-									<td class="col-md-3 text-center">62136 - Depreciation Expense</td>					
-								</tr>
-								<tr>	
-									<td class="col-md-2 text-center">Jan. 30, 2019</td>
-									<td class="col-md-3 text-center">Item 1</td>
-									<td class="col-md-3 text-center">40,000.00</td>		
-									<td class="col-md-3 text-center">14150 - Furniture and Fixtures</td>
-									<td class="col-md-3 text-center">14151 - Acc Dep – Furniture and Fixtures</td>
-									<td class="col-md-3 text-center">62136 - Depreciation Expense</td>					
-								</tr> -->
+								
 							</tbody>
 					</table>
+					<?php }else{?>
+					<table class="table table-hover table-sidepad" id="schedule">
+							<thead>
+								<tr class="info">
+									<th class="col-md-2 text-center">Date</th>
+									<th class="col-md-3 text-center">Depreciation Amount</th>
+									<th class="col-md-3 text-center">Accumulated Depreciation Amount</th>
+									<th class="col-md-3 text-center">GL Account(Asset)</th>
+									<th class="col-md-3 text-center">GL Account(Acc Dep)</th>
+									<th class="col-md-3 text-center">GL Account(Depreciation Expense)</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php
+									foreach($schedule as $row){ ?>
+											<tr>
+											<td class="col-md-2 text-center"><?php echo $row->depreciation_date; ?></td>
+											<td class="col-md-3 text-center"><?php echo number_format($row->depreciation_amount, 2); ?></td>
+											<td class="col-md-3 text-center"><?php echo number_format($row->accumulated_dep, 2); ?></td>
+											<td class="col-md-3 text-center"><?php echo $row->asset; ?></td>
+											<td class="col-md-3 text-center"><?php echo $row->accdep; ?></td>
+											<td class="col-md-3 text-center"><?php echo $row->depexpense; ?></td>
+											</tr>
+
+
+
+									<?php
+									}
+										?>
+							</tbody>
+					</table>
+					<?php }?>
+
 					
 
 				</div>
@@ -449,7 +450,7 @@
 					</div>
 					</div>
 					<hr>
-					<div class="row">
+					<div class="row" style="padding-bottom: 15px">
 						<div class="col-md-12 text-center">
 							<?php echo $ui->drawSubmit($show_input); ?>
 							<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
@@ -457,7 +458,7 @@
 					</div>
 		</form>
 	</section>
-	<div class="modal fade" id="itemsModal" tabindex="-1" data-backdrop="static">
+	<div class="modal fade" id="itemsModal" tabindex="-1">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -472,7 +473,6 @@
 							<table class="table table-condensed table-bordered table-hover" id="itemlists">
 								<thead>
 									<tr class="info">
-										<th class="col-md-1 text-center"></th>
 										<th class="col-md-2 text-center">Date</th>
 										<th class="col-md-2 text-center">PO</th>
 										<th class="col-md-2 text-center">Item Code</th>
@@ -491,18 +491,7 @@
 						</div>
 						<div id="pagination"></div>
 						<div class="modal-footer">
-							<div class="col-md-12 col-sm-12 col-xs-12 text-center">
-								<?if($show_input):?>
-								<div class="btn-group">
-									<button type = "button" id="TagPP" class = "btn btn-primary btn-sm btn-flat">Tag</button>
-								</div>
-								&nbsp;&nbsp;&nbsp;
-								<?endif;?>
-								<div class="btn-group">
-									<!-- noted by Sir Mark to remove this onclick function upon cancel. onClick="clearPayment();"-->
-									<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal" >Cancel</button>
-								</div>
-							</div>
+							
 						</div>
 					
 					</form>
@@ -567,14 +556,20 @@ $('#itemcode').on('change', function(){
 	getItemList();
 });
 
-$('#itemlists').on('ifChecked','.pono',function(event){
-	var purchaseprice = $(this).iCheck('checked').val();
-		
-	$('#itemsModal').on('click','#TagPP',function(event){
-		$('#purchase_value').val(purchaseprice);
+$('#itemlists').on('click', 'tr[data-id]', function() {
+	var purchaseprice = $(this).attr('data-id');
+	$('#purchase_value').val(purchaseprice);
 		$('#itemsModal').modal('hide');
 	});
-});
+
+// $('#itemlists').on('ifChecked','.pono',function(event){
+// 	var purchaseprice = $(this).iCheck('checked').val();
+		
+// 	$('#itemsModal').on('click','#TagPP',function(event){
+// 		$('#purchase_value').val(purchaseprice);
+// 		$('#itemsModal').modal('hide');
+// 	});
+// });
 
 $('#asset_class').on('change', function(){
 	var assetclass = $('#asset_class').val();
