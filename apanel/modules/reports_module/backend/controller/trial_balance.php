@@ -155,7 +155,8 @@ class controller extends wc_controller {
 		$datefilterFrom = (!empty($dates[0]))? $dates[0] : "";
 		$datefilterTo   = (!empty($dates[1]))? $dates[1] : "";
 		$datefilter     = (!empty($daterangefilter))? $daterangefilter : $default_datefilter;
-	
+			// echo $datefilterFrom;
+			// echo " - ".$datefilterTo; 
 		$currentyear 	= date("Y",strtotime($datefilterTo));
 		$prevyear 		= date("Y",strtotime($datefilterFrom." -1 year"));
 
@@ -169,13 +170,10 @@ class controller extends wc_controller {
 		$totalperiodbalance = 0;
 		$totalaccumulatedbalance = 0;
 		
-		if(count($pagination->result)>0)
-		{
-			for($i=0;$i<count($pagination->result);$i++)
-			{	
-				$accountid          = $pagination->result[$i]->accountid;
-				$accountcode		= $pagination->result[$i]->accountcode;
-				$accountname		= $pagination->result[$i]->accountname;	
+		foreach($pagination as $row){
+				$accountid          = $row->accountid;
+				$accountcode		= $row->accountcode;
+				$accountname		= $row->accountname;	
 
 				$prevcarry 			= $this->trial_balance->getPrevCarry($accountid,$datefilterFrom);
 				$balcarry			= $this->trial_balance->getBalanceCarry($accountid,$datefilterFrom,$datefilterTo);
@@ -214,8 +212,7 @@ class controller extends wc_controller {
 				$table .= '<td class="text-right" >'.$periodbalance.'</td>';
 				$table .= '<td class="text-right" >'.$accumulatedbalance.'</td>';
 				$table .= '</tr>';
-			}
-
+		}
 			$totaldebit 				= ($totaldebit < 0) ? '('.number_format(abs($totaldebit),2).')' : number_format(abs($totaldebit),2);
 			$totalcredit 				= ($totalcredit < 0) ? '('.number_format(abs($totalcredit),2).')' : number_format(abs($totalcredit),2);
 			$totalperiodbalance 		= ($totalperiodbalance < 0) ? '('.number_format(abs($totalperiodbalance),2).')' : number_format(abs($totalperiodbalance),2);
@@ -233,11 +230,7 @@ class controller extends wc_controller {
 						<td class="text-right">'.$totalaccumulatedbalance.'</td>';
 
 			$table.= '</tr>';
-		}
-
-		$pagination->table = $table;
-		$pagination->csv   = $this->export();
-		return array('table' => $table);
+			return array('table' => $table);
 	}
 
 	private function export()

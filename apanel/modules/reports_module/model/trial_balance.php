@@ -85,7 +85,8 @@ class trial_balance extends wc_model {
 		AND YEAR(bal.transactiondate) <= $currentyear $fs_cond")
 						->setGroupBy("chart.segment5")
 						->setOrderBy("chart.segment5 ASC")
-						->runPagination();
+						->runSelect()
+						->getResult();
 
 		return $result;
 	}
