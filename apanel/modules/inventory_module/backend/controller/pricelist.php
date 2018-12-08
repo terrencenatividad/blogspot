@@ -854,32 +854,16 @@
 			return	$dataArray = array( "msg" => $msg );
 		}
 		
-		private function delete_template()
-		{
-			$code 			=	$this->input->post('code');
-
-			$data['stat'] 	=	"deleted";
-			
-			$cond 			=	" itemPriceCode = '$code' ";
-
-			$result 	=	$this->pricelist->updateData($data, "price_list", $cond);
-
-			if( $result )
-			{
-				$result 	=	$this->pricelist->updateData($data, "price_list_details", $cond);
+		private function ajax_delete() {
+			$delete_id = $this->input->post('delete_id');
+			$error_id = array();
+			if ($delete_id) {
+				$error_id = $this->pricelist->deletePricelist($delete_id);
 			}
-
-			if($result == '1')
-			{
-				$this->log->saveActivity("Deleted Price List Template [$code] ");
-				$msg = "success";
-			}
-			else
-			{
-				$msg = "Failed to Delete.";
-			}
-
-			return $dataArray = array( "msg" => $msg );
+			return array(
+				'success'	=> (empty($error_id)),
+				'error_id'	=> $error_id
+			);
 		}
 
 		private function cancel()
