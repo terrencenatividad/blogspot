@@ -21,7 +21,7 @@ class receipt_voucher_model extends wc_model
 	public function retrieveCredAccountsList(){
 		$result = $this->db->setTable('chartaccount')
 					->setFields("id ind, accountname val")
-					->setWhere("accountclasscode IN('ACCREC','CUASET') AND stat = 'active'")
+					->setWhere("accountclasscode IN('ACCREC','CUASET','OTHCL') AND stat = 'active'")
 					->setOrderBy("val")
 					->runSelect()
 					->getResult();
@@ -97,7 +97,7 @@ class receipt_voucher_model extends wc_model
 		$temp["main"] = $retrieveArrayMain;
 
 		// Retrieve Details
-		$detailFields = "main.accountcode, chart2.id as accrecid, chart.accountname, main.detailparticulars, main.ischeck, main.debit, SUM(main.credit) credit,main.taxcode,main.taxbase_amount";
+		$detailFields = "main.accountcode, chart2.id as accrecid, chart.accountname, main.detailparticulars, main.ischeck, main.op_flag isop, main.adv_flag isadv, main.debit, SUM(main.credit) credit,main.taxcode,main.taxbase_amount";
 		$detail_cond  = "main.voucherno = '$sid' AND main.stat != 'temporary'";
 		$orderby 	  = "main.linenum";	
 		$detailJoin   = "chartaccount as chart ON chart.id = main.accountcode AND chart.companycode = main.companycode 
@@ -631,7 +631,7 @@ class receipt_voucher_model extends wc_model
 
 		foreach($data as $postIndex => $postValue)
 		{
-			if($postIndex=='h_accountcode' ||	$postIndex=='detailparticulars'  || $postIndex=='ischeck' || $postIndex=='debit' || $postIndex=='credit' || $postIndex=='taxcode' || $postIndex=='taxbase_amount')
+			if($postIndex=='h_accountcode' ||	$postIndex=='detailparticulars'  || $postIndex=='ischeck' || $postIndex=='isop' || $postIndex=='isadv' || $postIndex=='debit' || $postIndex=='credit' || $postIndex=='taxcode' || $postIndex=='taxbase_amount')
 			{
 				$a		= '';
 				foreach($postValue as $postValueIndex => $postValueIndexValue){
@@ -805,6 +805,8 @@ class receipt_voucher_model extends wc_model
 			$debit			    				= isset($tempArrayValue['debit']) ? $tempArrayValue['debit'] : 0;
 			$credit			    				= isset($tempArrayValue['credit']) ? $tempArrayValue['credit'] : 0;
 			$ischeck 							= isset($tempArrayValue['ischeck']) && $tempArrayValue != "" 	?	$tempArrayValue['ischeck'] 	:	"no";
+			$isop 								= isset($tempArrayValue['isop']) && $tempArrayValue != "" 		?	$tempArrayValue['isop'] 	:	"no";
+			$isadv 								= isset($tempArrayValue['isadv']) && $tempArrayValue != "" 		?	$tempArrayValue['isadv'] 	:	"no";
 			$excess 							+= ($tempArrayValue['h_accountcode'] == $h_op_acct) ? $credit : 0;
 
 			$post_detail['voucherno']			= $voucherno;
@@ -820,6 +822,8 @@ class receipt_voucher_model extends wc_model
 			$post_detail['taxcode']			  	= $tempArrayValue['taxcode'];
 			$post_detail['taxbase_amount']		= $tempArrayValue['taxbase_amount'];
 			$post_detail['ischeck']				= $ischeck;
+			$post_detail['op_flag']				= $isop;
+			$post_detail['adv_flag']			= $isadv;
 			$post_detail['stat']				= $post_header['stat'];
 
 			$iDetailLineNum++;

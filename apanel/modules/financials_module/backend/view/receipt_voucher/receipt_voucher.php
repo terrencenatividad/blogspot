@@ -671,6 +671,8 @@
 											->draw($show_input);
 											?>
 											<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
+											<input type = "hidden" class="isop" name='isop[<?=$row?>]' id='isop[<?=$row?>]'>
+											<input type = "hidden" class="isadv" name='isadv[<?=$row?>]' id='isadv[<?=$row?>]'>
 										</td>
 										<td class = "remove-margin">
 											<?php
@@ -929,6 +931,8 @@
 											$taxbase_amount		= $aPvJournalDetails_Value->taxbase_amount;
 
 											$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
+											$isop 				= isset($aPvJournalDetails_Value->isop) 	?	$aPvJournalDetails_Value->isop	:	"no";
+											$isadv 				= isset($aPvJournalDetails_Value->isadv) 	?	$aPvJournalDetails_Value->isadv	:	"no";
 
 											$total_debit 		+= $debit;
 											$total_credit 		+= $credit;
@@ -941,6 +945,14 @@
 											
 											$ar_acct 			= ($aPvJournalDetails_Value->accrecid != NULL) ? $aPvJournalDetails_Value->accountcode : "";
 					
+											$has_op 			= $op_checker;
+											$has_adv 			= $ap_checker;
+
+											// echo $has_adv."<br>";
+											// echo $accountcode."<br>";
+											// echo $cred_id."<br>";
+											// echo $isadv."<br>";
+
 										if($aPvJournalDetails_Index < ($count-1) && $paymenttype == 'cheque' && $ischeck == 'yes'){					
 											$disable_debit		= 'readOnly';
 											$disable_credit		= 'readOnly';
@@ -952,12 +964,12 @@
 											$disable_credit		= 'readOnly';
 											$disable_code 		= 'disabled';
 											$added_class 		= 'discount_row';
-										} else if( $accountcode == $cred_id || $saved_adv_acct == $accountcode) {
+										} else if( $has_adv && ($accountcode == $cred_id || $saved_adv_acct == $accountcode) && $isadv == "yes" ) {
 											$disable_debit		= 'readOnly';
 											$disable_credit		= 'readOnly';
 											$disable_code 		= 'disabled';
 											$added_class 		= "credit_account";
-										} else if( $accountcode == $op_acct || $saved_op_acct == $accountcode ) {
+										} else if( $has_op && ($accountcode == $op_acct || $saved_op_acct == $accountcode) && $isop == "yes" ) {
 											$disable_credit		= '';
 											$disable_debit		= 'readOnly';
 											$disable_code 		= 'disabled';
@@ -1013,8 +1025,10 @@
 															->setClass('description')
 															->setValue($detailparticulars)
 															->draw($show_input);
-											$detail_row	.= '<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
-											</td>';
+											$detail_row	.= '<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">';
+											$detail_row	.= '<input type = "hidden" class="isop" value="'.$isop.'" name="isop['.$row.']" id="isop['.$row.']">';
+											$detail_row	.= '<input type = "hidden" class="isadv" value="'.$isadv.'" name="isadv['.$row.']" id="isadv['.$row.']">';
+											$detail_row	.= '</td>';
 
 											$detail_row	.= '<td class="text-right class="remove-margin">';
 											$detail_row .= $ui->formField('text')
@@ -1817,6 +1831,7 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 			resetIds();
 			$("#accountcode\\["+ row +"\\]").closest('tr').addClass('added_row');
 			$("#accountcode\\["+ row +"\\]").closest('tr').removeClass('op_row');
+			$("#isop\\["+ row +"\\]").val('no');
 			$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 			disable_acct_fields(row);
@@ -2032,6 +2047,8 @@ function resetIds() {
 		row.cells[2].getElementsByTagName("input")[0].id 	= 'h_accountcode['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
 		row.cells[3].getElementsByTagName("input")[1].id 	= 'ischeck['+x+']';
+		row.cells[3].getElementsByTagName("input")[2].id 	= 'isop['+x+']';
+		row.cells[3].getElementsByTagName("input")[3].id 	= 'isadv['+x+']';
 		row.cells[4].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
 		row.cells[5].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
 		
@@ -2042,6 +2059,8 @@ function resetIds() {
 		row.cells[2].getElementsByTagName("input")[0].name  = 'h_accountcode['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
 		row.cells[3].getElementsByTagName("input")[1].name 	= 'ischeck['+x+']';
+		row.cells[3].getElementsByTagName("input")[2].name 	= 'isop['+x+']';
+		row.cells[3].getElementsByTagName("input")[3].name 	= 'isadv['+x+']';
 		row.cells[4].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
 		row.cells[5].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
 		
@@ -3005,6 +3024,7 @@ function set_op_acct(discount){
 		ParentRow.before(clone_acct);
 		resetIds();
 		$("#accountcode\\["+ row +"\\]").closest('tr').addClass('op_row');
+		$("#isop\\["+ row +"\\]").val('yes');
 		$("#accountcode\\["+ row +"\\]").val(op_acct).trigger('change.select2');
 		$("#h_accountcode\\["+ row +"\\]").val(op_acct);
 		$("#detailparticulars\\["+ row +"\\]").val("Overpayment");
@@ -3105,6 +3125,7 @@ function getRVDetails(){
 					var cloned_op = ParentRow.before(clone_acct);
 					resetIds();
 					$("#accountcode\\["+ row +"\\]").closest('tr').addClass('op_row');
+					$("#isop\\["+ row +"\\]").val('yes')
 					$('#accountcode\\['+row+'\\]').val(op_acct).trigger('select2.change');
 					$('#h_accountcode\\['+row+'\\]').val(op_acct);
 					$('#detailparticulars\\['+row+'\\]').val("Overpayment");
@@ -3945,6 +3966,7 @@ function set_account(){
 	// $('#credit\\['+row+'\\]').val('0.00');	
 
 	$("#accountcode\\["+ row +"\\]").closest('tr').addClass('credit_account');
+	$("#isadv\\["+ row +"\\]").val('yes');
 
 	$('#debit\\['+row+'\\]').prop('disabled',true);
 	$("#accountcode\\["+ row +"\\]").prop('disabled',true);
@@ -5302,6 +5324,7 @@ $(document).ready(function() {
 			$(this).find('.accountcode').val('').trigger('change.select2');
 			$(this).find('.h_accountcode').val('');
 			$(this).find('.credit').val('0.00');
+			$(this).find('.isadv').val('no');
 			$(this).find('.accountcode').prop('disabled',false);
 			$(this).find('.debit').prop('disabled',false);
 			$(this).find('.confirm-delete').prop('disabled',false);
@@ -5410,6 +5433,7 @@ $('#payableForm').on('click','#update_ap_acct',function(e){
 					$('#entriesTable tbody tr.credit_account').each(function() {
 						$(this).find('.accountcode').val(new_credit_account).trigger('change.select2');
 						$(this).find('.h_accountcode').val(new_credit_account);
+						$(this).find('.isadv').val("yes");
 						$(this).find('.accountcode').prop('disabled',true);
 						$(this).find('.confirm-delete').prop('disabled',true);
 						// $("#accountcode\\["+ row +"\\]").closest('tr').addClass('credit_account');
@@ -5434,6 +5458,7 @@ function update_op_account(new_op_account){
 					$('#entriesTable tbody tr.op_row').each(function() {
 						$(this).find('.accountcode').val(new_op_account).trigger('change.select2');
 						$(this).find('.h_accountcode').val(new_op_account);
+						$(this).find('.isop').val('yes');
 						$(this).find('.accountcode').prop('disabled',true);
 						$(this).find('.confirm-delete').prop('disabled',true);
 					});

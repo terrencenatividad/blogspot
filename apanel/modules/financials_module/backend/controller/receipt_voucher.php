@@ -1649,6 +1649,8 @@ class controller extends wc_controller
 				$accountcode       = (!empty($results[$i]->accountcode))		? $results[$i]->accountcode 		: "";
 				$detailparticulars = (!empty($results[$i]->detailparticulars)) 	? $results[$i]->detailparticulars 	: "";
 				$ischeck 			= (!empty($results[$i]->ischeck)) 			? $results[$i]->ischeck 			: "no";
+				$isop 				= (!empty($results[$i]->isop)) 			? $results[$i]->isop 			: "no";
+				$isadv 				= (!empty($results[$i]->isadv)) 			? $results[$i]->isadv 			: "no";
 				$isoverpayment 		= (!empty($results[$i]->is_overpayment)) 	? $results[$i]->is_overpayment 		: "no";
 				$debit 				= (isset($results[$i]->chequeamount)) 		? $results[$i]->chequeamount 		: "0";
 
@@ -1702,6 +1704,8 @@ class controller extends wc_controller
 									->setValue($detailparticulars)
 									->draw($show_input).
 							'	<input type = "hidden" class="ischeck" value="'.$ischeck.'" name="ischeck['.$row.']" id="ischeck['.$row.']">
+								<input type = "hidden" class="isop" value="'.$isop.'" name="isop['.$row.']" id="isop['.$row.']">
+								<input type = "hidden" class="isadv" value="'.$isadv.'" name="isadv['.$row.']" id="isadv['.$row.']">
 							</td>';
 				$table  .=  '<td class = "remove-margin">'
 								.$ui->formField('text')
