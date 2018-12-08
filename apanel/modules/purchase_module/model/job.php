@@ -9,7 +9,7 @@
         public function getJobListing($data, $sort, $search, $filter){
             $condition = '';
             if ($search) {
-                $condition .= $this->generateSearch($search, array('job_no', 'description'));
+                $condition .= $this->generateSearch($search, array('job_no', 'notes'));
             }
 
             $result = $this->db->setTable('job')
@@ -93,10 +93,11 @@
             return $result;
         }
 
-        public function getTaggedItemQty($ipo, $itemcode){
+        public function getTaggedItemQty($ipo, $itemcode, $job=""){
+            
             $result = $this->db->setTable("job_details")
                             ->setFields("COUNT(*) as count")
-                            ->setWhere("ipo_no='".$ipo."' AND itemcode='".$itemcode."'")
+                            ->setWhere("ipo_no='".$ipo."' AND itemcode='".$itemcode."' AND job_no != '".$job."'")
                             ->runSelect()
                             ->getResult();
             return $result;
@@ -104,7 +105,7 @@
 
         public function retrieveExistingJob($job){
             $result = $this->db->setTable("job_details")
-                            ->setFields("ipo_no")
+                            ->setFields("ipo_no, itemcode")
                             ->setWhere("job_no='".$job."'")
                             ->runSelect()
                             ->getResult();

@@ -56,14 +56,22 @@
                             <div class="col-md-8">
                                 <?php
                                 if(!$show_input){
-                                    echo '<p class="form-control-static">Purchase Receipt Selected: 0</p>';
-                                }else{
-
                                 ?>
+
+                                <button type="button" class="btn btn-block btn-secondary btn-flat" disabled>
+                                    <em class="pull-left"><small>Purchase Receipt Selected</small></em>
+                                    <strong id="pr_amount" class="pull-right">0</strong>
+                                </button>
+
+                                <?php
+                                }else{
+                                ?>
+
                                 <button type="button" id="btnpreceipt" class="btn btn-block btn-success btn-flat">
                                     <em class="pull-left"><small>Click to view tagged Purchase Receipt</small></em>
                                     <strong id="pr_amount" class="pull-right">0</strong>
                                 </button>
+
                                 <?php
                                 }
                                 ?>
@@ -90,7 +98,14 @@
                         <table id="item_tableList" class="table table-hover table-striped table-sidepad">
                             <thead>
                                 <tr class="info">
+                                    <?php
+                                        if ($show_input) {
+                                    ?>
                                     <th class="col-md-1"><input type="checkbox" class="checkall"></th>
+                                    <?php
+                                        }
+                                    ?>
+                                    
                                     <th class="col-md-2">IPO No.</th>
                                     <th class="col-md-2">Item</th>
                                     <th class="col-md-4">Description</th>
@@ -115,14 +130,18 @@
 
                 <div class="row">
                     <div class="col-md-12 text-center">
-                        
+                        <?php
+                        if($show_input){
+                        ?>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-primary btn-flat" id="btnSave">Save</button>
+                            <button type="button" data-moduleurl="<?=MODULE_URL?>" class="btn btn-primary btn-flat" id="btnSave">Save</button>
                         </div>
-                        
+                        <?php
+                        }
+                        ?>
                         &nbsp;&nbsp;&nbsp;
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default btn-flat" id="btnCancel">Cancel</button>
+                            <a href="<?=MODULE_URL?>" class="btn btn-default btn-flat" id="btnCancel">Cancel</a>
                         </div>
                     </div>
                 </div>
@@ -222,13 +241,14 @@
 
 </section>
 
+        
 <script type="text/javascript">
-
-    var ajax = {};
-    var data = {};
-    var selected_pr = [];
-    var selected_items = [];
-
+    var ajax            = {};
+    var data            = {};
+    var selected_pr     = [];
+    var selected_items  = [];
+    var task            = "<?=$task?>";
+    var job_no          = "<?=$job_no?>";
     function getList() {
         $('#ipo_tableList tbody').html(`<tr><td colspan="5" class="text-center">Loading Items</td></tr>`);
         $('#pagination').html('');
@@ -242,9 +262,9 @@
         });
     }
     
-    function getItemList(ipo){
+    function getItemList(ipo ,task, job=""){
         ajax.limit = 5;
-        $.post('<?=MODULE_URL?>ajax/ajax_load_ipo_items', {ipo:ipo},function (data) {
+        $.post('<?=MODULE_URL?>ajax/ajax_load_ipo_items', {ipo:ipo,task:task,job:job},function (data) {
             $('#item_tableList tbody').html(data.table);
             
             $('#item_pagination').html(data.pagination);
@@ -260,9 +280,7 @@
         selected = [];
         $("#" + tablename + " tbody tr td input:checkbox").each(function(){
             if ($(this).is(":checked")) {
-                
                 selected.push($(this).data("code"));
-                
             }
         });
         return selected;
@@ -284,12 +302,15 @@
                 $(this).find("input:checkbox").iCheck("check");
             }
         });
-        
+    }
 
+    function disabledfields(){
+        $("input:checkbox").closest("td").remove();
+        $(".quantity").prop("disabled", true);
     }
 
     $(document).ready(function (){
-        
+        $("#pr_amount").text(selected_pr.length);
         // load IPO in modal
         $('#btnpreceipt').on('click', function() {
             getList();
@@ -301,7 +322,11 @@
             selected_pr         = saveSelected("ipo_tableList");
             selected_items      = saveSelected("item_tableList");
             $("#pr_amount").text(selected_pr.length);
-            getItemList(selected_pr);
+            if (task=="update") {
+                getItemList(selected_pr, task, job_no);
+            }
+            else
+                getItemList(selected_pr,task);
         });
 
         // close modal
@@ -331,6 +356,7 @@
         $('#jobForm #btnSave').on('click', function () {
             no_error        = true;
             error_message   = "";
+            moduleurl       = $("btnSave").data("moduleurl");
 
             if ($("#item_tableList input:checked").length<1) {
                 no_error        = false;
@@ -363,7 +389,7 @@
                         function (data) {
                             if (data.query1 && data.query2 && data.query3) {
                                 $('#delay_modal').modal('show');
-                                //setTimeout(function () {window.location = '<?php MODULE_URL ?>';}, 1000);
+                                setTimeout(function () {window.location = "<?=MODULE_URL?>";}, 1000);
                             }
                         });
                 }
@@ -374,48 +400,35 @@
             console.log($("#jobForm").serialize());
             
         });
-        
-    });
-
-    
-
-    $('#brandcode').on('blur', function () {
-        ajax.old_code = $('#h_brand_code').val();
-        ajax.curr_code = $(this).val();
-
-        var task = '<?=$task?>';
-        var error_message = '';
-        var form_group = $('#brandcode').closest('.form-group');
-        var hasSpace = $(this).val().indexOf(' ') >= 0;
-        var regex = /^[0-9a-zA-Z\_]+$/;
-
-        console.log(ajax.old_code);
-        console.log(ajax.curr_code);
-
-        $.post('<?=BASE_URL?>maintenance/brand/ajax/get_duplicate', ajax, function (data) {
-            if (data.msg == 'exists') {
-                error_message = "<b>The Code you entered already exists!</b>";
-                $('#brandcode').closest('.form-group').addClass("has-error").find('p.help-block').html(
-                    error_message);
-            } else if (hasSpace == true) {
-                error_message = "<b>Space not allowed</b>";
-                $('#brandcode').closest('.form-group').addClass("has-error").find('p.help-block').html(
-                    error_message);
-            } else if (!regex.test(ajax.curr_code)) {
-                console.log(ajax.curr_code);
-                error_message = "<b>Special character not allowed</b>";
-                $('#brandcode').closest('.form-group').addClass("has-error").find('p.help-block').html(
-                    error_message);
-            } else if ((ajax.curr_code != "" && data.msg == "") || (data.msg == '' && task == 'edit')) {
-                if (form_group.find('p.help-block').html() != "") {
-                    form_group.removeClass('has-error').find('p.help-block').html('');
-                }
-            }
-
-        });
-    });
-
-    $('#brandForm #btnCancel').on('click', function () {
-         window.location = '<?php MODULE_URL ?>';
     });
 </script>
+<?php
+    
+    if($task=="update"){
+        echo "<script>";
+        
+        foreach ($pr_selected as $key => $value) {
+            echo '
+                if($.inArray("'.$pr_selected[$key].'", selected_pr)==-1){
+                    selected_pr.push("'.$pr_selected[$key].'");
+                }
+                selected_items.push("'.$item_selected[$key].'");';
+        }
+        echo '  getItemList(selected_pr, task, job_no);
+            </script>';
+    }
+    elseif($task=="view"){
+        echo "<script>";
+        
+        foreach ($pr_selected as $key => $value) {
+            echo '
+                if($.inArray("'.$pr_selected[$key].'", selected_pr)==-1){
+                    selected_pr.push("'.$pr_selected[$key].'");
+                }
+                selected_items.push("'.$item_selected[$key].'");';
+        }
+        echo '  getItemList(selected_pr, task);
+                
+            </script>';
+    }
+?>
