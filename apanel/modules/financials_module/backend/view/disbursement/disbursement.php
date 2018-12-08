@@ -1072,7 +1072,7 @@
 				echo $ui->loadElement('modal')
 						->setId('vendor_modal')
 						->setContent('maintenance/supplier/create')
-						->setHeader('Add a Vendor')
+						->setHeader('Add a Supplier')
 						->draw();
 			?>
 			<script>

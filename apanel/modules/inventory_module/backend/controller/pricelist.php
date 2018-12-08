@@ -244,7 +244,7 @@
 											'arrow-up',
 											$show_deactivate
 										)
-										//  ->addDelete()
+										  ->addDelete()
 										 ->addOtherTask('Tag Customers', 'bookmark')
 										 ->addOtherTask(
 											'Deactivate',
