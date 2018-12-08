@@ -374,6 +374,9 @@ class controller extends wc_controller
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
 
+		$disc_type_data         = array("code ind","value val");
+		$data["discounttypes"] 	= $this->po->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
+
 		$w_entry_data          = array("warehousecode ind","description val");
 		$data["warehouses"] 	= $this->po->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
 
@@ -490,7 +493,7 @@ class controller extends wc_controller
 		/** HEADER INFO **/
 
 		$docinfo_table  = "import_purchaseorder as po";
-		$docinfo_fields = array('po.transactiondate AS documentdate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","'' AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate','po.exchangecurrency','po.freight','po.converted_freight','po.insurance','po.converted_insurance','po.packaging','po.converted_packaging','po.convertedamount');
+		$docinfo_fields = array('po.transactiondate AS documentdate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","po.referenceno AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate','po.exchangecurrency','po.freight','po.converted_freight','po.insurance','po.converted_insurance','po.packaging','po.converted_packaging','po.convertedamount');
 		$docinfo_join   = "partners as p ON p.partnercode = po.vendor AND p.partnertype = 'supplier' AND p.companycode = po.companycode";
 		$docinfo_cond 	= "po.voucherno = '$voucherno'";
 
@@ -526,7 +529,8 @@ class controller extends wc_controller
 		$documentdetails	= array(
 			'Date'	=> $this->date->dateFormat($documentinfo->documentdate),
 			'PO #'	=> $voucherno,
-			'Currency' => $documentinfo->exchangecurrency
+			'Currency' => $documentinfo->exchangecurrency,
+			'Reference #' => $documentinfo->referenceno
 		);
 
 		$print = new import_purchase_print_model();
@@ -537,7 +541,7 @@ class controller extends wc_controller
 		->setDocumentInfo($documentinfo)
 		->addReceived();
 
-		$print->setHeaderWidth(array(25, 29, 20, 20, 20, 15, 15, 28, 28))
+		$print->setHeaderWidth(array(20, 29, 18, 26, 15, 12, 22, 29, 29))
 		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
 		->setHeader(array('Item Code', 'Description', 'On Hand Qty', 'Price',  'Quantity', 'UOM', 'Discount', 'Foreign Currency', 'Base Currency'))
 		->setRowAlign(array('L', 'L', 'R', 'R', 'R', 'R', 'R', 'R', 'R'))
