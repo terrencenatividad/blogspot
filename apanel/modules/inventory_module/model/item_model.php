@@ -373,8 +373,8 @@ class item_model extends wc_model {
 			$condition .= (($condition) ? " AND " : " ") . "i.classid = '$classid'";
 		}
 		$query = $this->db->setTable("items i")
-							->innerJoin("itemclass ic ON ic.id = i.classid AND ic.companycode = i.companycode")
-							->innerJoin("itemtype it ON it.id = i.typeid AND it.companycode = i.companycode")
+							->leftJoin("itemclass ic ON ic.id = i.classid AND ic.companycode = i.companycode")
+							->leftJoin("itemtype it ON it.id = i.typeid AND it.companycode = i.companycode")
 							->setFields($fields)
 							->setWhere($condition)
 							->setOrderBy($sort);
