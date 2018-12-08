@@ -22,7 +22,7 @@ class controller extends wc_controller {
 		// $data['show_input'] 		= 	true;
         $data['datefilter'] 		= 	$this->date->datefilterMonth();
         $data['supplier_list']	    =   $this->landed_cost->getSupplierList();
-        $data['import_purchase_order_list']	    =   $this->landed_cost->getImportPurchaseOrderList();
+		$data['import_purchase_order_list']	    =   $this->landed_cost->getImportPurchaseOrderList();
         $this->view->load('landed_cost', $data);
 
 		// $login						= 	$this->session->get('login');
@@ -42,10 +42,11 @@ class controller extends wc_controller {
 
 	private function ajax_list()
 	{
-		$data = $this->input->post(array('daterangefilter','supplier','import_purchase_order'));
+		$data = $this->input->post(array('daterangefilter','supplier','import_purchase_order','tab'));
 		$import_purchase_order	= $this->input->post('import_purchase_order');
 		$supplier			= $this->input->post('supplier');
-
+		$tab = $data['tab'];
+		// var_dump($data['tab']);
 		// $datefilter			= $this->input->post('datefilter');
 		// $datefilter			= $this->date->dateDbFormat($datefilter);
 		$daterangefilter	= $data['daterangefilter'];
@@ -57,11 +58,11 @@ class controller extends wc_controller {
 		}
 		$datefilterFrom = (!empty($dates[0]))? $dates[0] : "";
 		$datefilterTo   = (!empty($dates[1]))? $dates[1] : "";
-		$datefilter     = (!empty($daterangefilter))? $daterangefilter : $default_datefilter;
+		// $datefilter     = (!empty($daterangefilter))? $daterangefilter : $default_datefilter;
 			// echo $datefilterFrom;
-            // echo " - ".$datefilterTo; 
+			// echo " - ".$datefilterTo; 
 
-		$pagination = $this->landed_cost->getUnitCostLanded($datefilterFrom,$datefilterTo,$import_purchase_order,$supplier);
+		$pagination = $this->landed_cost->getUnitCostLanded($datefilterFrom,$datefilterTo,$import_purchase_order,$supplier,$tab);
 		
 		$table = '';
 		$addtl_cost = 0;
@@ -118,8 +119,9 @@ class controller extends wc_controller {
 			$query_job_item_count = $this->landed_cost->getTotalItemsInJob($job_no);
 			$job_item_count = $query_job_item_count->qty;
 			$importation_cost_unit =  floatval($total_importation_cost) / $job_item_count; //sprintf("%7.2f",$quantity);
-
-			$table .=	'<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($importation_cost_unit,2).'</td>';
+			
+			$table .=	'<td class="text-right">'.$job_no.'</td>	
+						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($importation_cost_unit,2).'</td>';
 			
 				// LANDED COST CALCS STAGING
 			$landed_cost_unit = $unit_cost_base + $importation_cost_unit;
