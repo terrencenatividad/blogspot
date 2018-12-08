@@ -266,6 +266,23 @@
 						</div>
 					</div>
 				</div>
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						Landed Cost
+					</div>
+					<div class="panel-body">
+						<div class="list-group">
+							<a href="landed_cost" class="list-group-item">
+								<h4 class="list-group-item-heading">Landed Cost Report</h4>
+								<p class="list-group-item-text">List of Landed Cost calculation in a given Import Purchase Order</p>
+							</a>
+							<a href="job_report" class="list-group-item">
+								<h4 class="list-group-item-heading">Job Report</h4>
+								<p class="list-group-item-text">List of Jobs</p>
+							</a>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</section>

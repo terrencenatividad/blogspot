@@ -6,18 +6,17 @@ class controller extends wc_controller {
 		$this->ui				= new ui();
 		$this->input			= new input();
 		$this->logs				= new log();
-		$this->service_quotation= new service_quotation_model();
+		$this->job_order        = new job_order_model();
 		$this->parts_and_service= new parts_and_service_model();
 		
 		$this->session			= new session();
 		$this->fields 			= array(
 			'voucherno',
 			'transactiondate',
-			'job_type',
-			'targetdate',
-			'customer',
+            'customer',
+            'source_no',
 			'reference',
-			'discount_type',
+			'customerpo',
 			'notes'
 		);
 		$this->fields_header	= array(
@@ -56,25 +55,25 @@ class controller extends wc_controller {
 		}
 	}
 	public function listing() {
-		$this->view->title		= 'Service Quotation';
-		$data['customer_list']	= $this->service_quotation->getCustomerList();
+		$this->view->title		= 'Job Order';
+		$data['customer_list']	= $this->job_order->getCustomerList();
 		$data['ui']				= $this->ui;
-		$this->view->load('service_quotation/service_quotation_list', $data);
+		$this->view->load('job_order/job_order_list', $data);
 	}
 	public function create() {
-		$this->view->title			= 'Add Service Quotation';
+		$this->view->title			= 'Add Job Order';
 		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
 		$data['ui']					= $this->ui;
 		$data['transactiondate']	= $this->date->dateFormat();
 		$data['targetdate']			= $this->date->dateFormat();
-		$data['job_list']			= $this->service_quotation->getOption('job_type','code');
-		$data['customer_list']		= $this->service_quotation->getCustomerList();
-		$data['discount_type_list']	= $this->service_quotation->getOption('discount_type','value');
-		$data['item_list']			= $this->service_quotation->getItemList();
-		$data['warehouse_list']		= $this->service_quotation->getWarehouseList();
-		$data["taxrate_list"]		= $this->service_quotation->getTaxRateList();
-		$data["taxrates"]			= $this->service_quotation->getTaxRates();
+		$data['job_list']			= $this->job_order->getOption('job_type','code');
+		$data['customer_list']		= $this->job_order->getCustomerList();
+		$data['discount_type_list']	= $this->job_order->getOption('discount_type','value');
+		$data['item_list']			= $this->job_order->getItemList();
+		$data['warehouse_list']		= $this->job_order->getWarehouseList();
+		$data["taxrate_list"]		= $this->job_order->getTaxRateList();
+		$data["taxrates"]			= $this->job_order->getTaxRates();
 		$data['header_values']		= json_encode(array());
 		$data['voucher_details']	= json_encode(array());
 		$data['t_vatable_sales']	= 0;
@@ -90,57 +89,46 @@ class controller extends wc_controller {
 		$close_date 				= $this->parts_and_service->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data['restrict_dr'] 		= false;
-		$this->view->load('service_quotation/service_quotation', $data);
+		$this->view->load('job_order/job_order', $data);
 	}
 	public function edit($id) {
-		$this->view->title			= 'Edit Service Quotation';
+		$this->view->title			= 'Edit Job Order';
 		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
 		$data['ui']					= $this->ui;
 		$data['transactiondate']	= $this->date->dateFormat();
 		$data['targetdate']			= $this->date->dateFormat();
-		$data['job_list']			= $this->service_quotation->getOption('job_type','code');
-		$data['customer_list']		= $this->service_quotation->getCustomerList();
-		$data['discount_type_list']	= $this->service_quotation->getOption('discount_type','value');
-		$data['item_list']			= $this->service_quotation->getItemList();
-		$data['warehouse_list']		= $this->service_quotation->getWarehouseList();
-		$data["taxrate_list"]		= $this->service_quotation->getTaxRateList();
-		$data["taxrates"]			= $this->service_quotation->getTaxRates();
+		$data['job_list']			= $this->job_order->getOption('job_type','code');
+		$data['customer_list']		= $this->job_order->getCustomerList();
+		$data['discount_type_list']	= $this->job_order->getOption('discount_type','value');
+		$data['item_list']			= $this->job_order->getItemList();
+		$data['warehouse_list']		= $this->job_order->getWarehouseList();
+		$data["taxrate_list"]		= $this->job_order->getTaxRateList();
+		$data["taxrates"]			= $this->job_order->getTaxRates();
 		$data['header_values']		= json_encode(array(
 			''
 		));
 		$data['voucher_details']	= json_encode(
 			array(
 				'0'	=> array(
-					'itemcode' => 'AAA0000001',
-					'detailparticular' => 'This is a description',
-					'warranty' => 'yes',
-					'warehouse' => 'BAW',
-					'quantity' => 1,
-					'uom' => 'pcs',
-					'price' => 0,
-					'taxcode' => '',
-					'amount' => '0.00'
+					'itemcode' => 'SERVICE001',
+					'detailparticular' => 'L3608',
+					'warehouse' => 'WH00003',
+					'quantity' => 2,
+					'uom' => 'PCS'
 				),
 				'1'	=> array(
-					'itemcode' => 'AAA0000002',
-					'detailparticular' => '',
-					'warranty' => 'no',
-					'warehouse' => 'BAW',
-					'quantity' => 2,
-					'uom' => 'pcs',
-					'price' => 100,
-					'taxcode' => 'VATG',
-					'amount' => '180.00'
+					'itemcode' => '1-494443',
+					'detailparticular' => 'Water Filter',
+					'warehouse' => 'WH00003',
+					'quantity' => 3,
+					'uom' => 'PCS'
 				)
 			)
 		);
-		$data['t_vatable_sales']	= 180;
-		$data['t_vat_exempt_sales']	= 0;
-		$data['t_vatsales']			= 180;
-		$data['t_vat']				= 21.60;
-		$data['t_amount']			= 201.60;
-		$data['t_discount']			= 20.00;
+		$data['reference']	= "0001";
+		$data['customerpo']	= "000008001";
+		$data['customer']	= "CUS_000008";
 
 		$data['ajax_task']			= 'ajax_edit';
 		$data['ajax_post']			= '';
@@ -150,8 +138,125 @@ class controller extends wc_controller {
 		$data['close_date']			= $close_date;
 		$data['restrict_dr'] 		= false;
 
-		$data['voucherno']					= $id;
-		$this->view->load('service_quotation/service_quotation', $data);
+		$data['voucherno']			= "JO0000000001";
+		$data['source_no']			= "SQ0000000001";
+		$this->view->load('job_order/job_order', $data);
+	}
+	public function view($id) {
+		$this->view->title			= 'View Job Order';
+		$this->fields[]				= 'stat';
+		$data						= $this->input->post($this->fields);
+		$data['ui']					= $this->ui;
+		$data['transactiondate']	= $this->date->dateFormat();
+		$data['targetdate']			= $this->date->dateFormat();
+		$data['job_list']			= $this->job_order->getOption('job_type','code');
+		$data['customer_list']		= $this->job_order->getCustomerList();
+		$data['discount_type_list']	= $this->job_order->getOption('discount_type','value');
+		$data['item_list']			= $this->job_order->getItemList();
+		$data['warehouse_list']		= $this->job_order->getWarehouseList();
+		$data["taxrate_list"]		= $this->job_order->getTaxRateList();
+		$data["taxrates"]			= $this->job_order->getTaxRates();
+		$data['header_values']		= json_encode(array(
+			''
+		));
+		$data['voucher_details']	= json_encode(
+			array(
+				'0'	=> array(
+					'itemcode' => 'SERVICE001 - L3608',
+					'detailparticular' => 'L3608',
+					'warehouse' => 'WH00003',
+					'quantity' => 2,
+					'uom' => 'PCS'
+				),
+				'1'	=> array(
+					'itemcode' => '1-494443 - Water Filter',
+					'detailparticular' => 'Water Filter',
+					'warehouse' => 'WH00003',
+					'quantity' => 3,
+					'uom' => 'PCS'
+				)
+			)
+		);
+		$data['reference']	= "0001";
+		$data['customerpo']	= "000008001";
+		$data['customer']	= "CUS_000008";
+
+		$data['t_vatable_sales']	= 180;
+		$data['t_vat_exempt_sales']	= 0;
+		$data['t_vatsales']			= 180;
+		$data['t_vat']				= 21.60;
+		$data['t_amount']			= 201.60;
+		$data['t_discount']			= 20.00;
+
+		$data['ajax_task']			= 'ajax_view';
+		$data['ajax_post']			= '';
+		$data['show_input']			= false;
+		// Closed Date
+		$close_date 				= $this->parts_and_service->getClosedDate();
+		$data['close_date']			= $close_date;
+		$data['restrict_dr'] 		= false;
+
+		$data['voucherno']			= "JO0000000001";
+		$data['source_no']			= "SQ0000000001";
+		$this->view->load('job_order/job_order', $data);
+	}
+	public function payment($id) {
+		$this->view->title			= 'View Job Order';
+		$this->fields[]				= 'stat';
+		$data						= $this->input->post($this->fields);
+		$data['ui']					= $this->ui;
+		$data['transactiondate']	= $this->date->dateFormat();
+		$data['targetdate']			= $this->date->dateFormat();
+		$data['job_list']			= $this->job_order->getOption('job_type','code');
+		$data['customer_list']		= $this->job_order->getCustomerList();
+		$data['discount_type_list']	= $this->job_order->getOption('discount_type','value');
+		$data['item_list']			= $this->job_order->getItemList();
+		$data['warehouse_list']		= $this->job_order->getWarehouseList();
+		$data["taxrate_list"]		= $this->job_order->getTaxRateList();
+		$data["taxrates"]			= $this->job_order->getTaxRates();
+		$data['header_values']		= json_encode(array(
+			''
+		));
+		$data['voucher_details']	= json_encode(
+			array(
+				'0'	=> array(
+					'itemcode' => 'SERVICE001 - L3608',
+					'detailparticular' => 'L3608',
+					'warehouse' => 'WH00003',
+					'quantity' => 2,
+					'uom' => 'PCS'
+				),
+				'1'	=> array(
+					'itemcode' => '1-494443 - Water Filter',
+					'detailparticular' => 'Water Filter',
+					'warehouse' => 'WH00003',
+					'quantity' => 3,
+					'uom' => 'PCS'
+				)
+			)
+		);
+		$data['reference']	= "0001";
+		$data['customerpo']	= "000008001";
+		$data['customer']	= "CUS_000008";
+
+		$data['t_vatable_sales']	= 180;
+		$data['t_vat_exempt_sales']	= 0;
+		$data['t_vatsales']			= 180;
+		$data['t_vat']				= 21.60;
+		$data['t_amount']			= 201.60;
+		$data['t_discount']			= 20.00;
+
+		$data['ajax_task']			= 'ajax_view';
+		$data['ajax_post']			= '';
+		$data['show_input']			= false;
+		// Closed Date
+		$close_date 				= $this->parts_and_service->getClosedDate();
+		$data['close_date']			= $close_date;
+		$data['restrict_dr'] 		= false;
+
+		$data['voucherno']			= "JO0000000001";
+		$data['source_no']			= "SQ0000000001";
+		$this->view->load('job_order/job_order_payment', $data);
 	}
 	private function ajax_list() {
 		$data		= $this->input->post(array('search', 'sort', 'customer', 'filter', 'daterangefilter'));
@@ -161,7 +266,7 @@ class controller extends wc_controller {
 		$filter		= $data['filter'];
 		$datefilter	= $data['daterangefilter'];
 
-		//$pagination	= $this->service_quotation->getServiceQuotationPagination($search, $sort, $customer, $filter, $datefilter);
+		//$pagination	= $this->job_order->getServiceQuotationPagination($search, $sort, $customer, $filter, $datefilter);
 		$table		= '';
 		$pagination = new stdClass;
 		// if (empty($pagination->result)) {
@@ -189,30 +294,40 @@ class controller extends wc_controller {
 		// 	$table .= '<td>' . $this->colorStat($row->stat) . '</td>';
 		// 	$table .= '</tr>';
 		// }
-		$len = 10;
+		$len = 1;
 		for($x=1;$x<=$len;$x++){
 			$transactiondate = date("M d, Y");
 			$job_types 		= array('Inspection','Repair','Preventive Maintenance','Refurbish');
 			$job_type 		= $job_types[(array_rand($job_types))];
 			$statuses 		= array('Pending','Partial','With JO','Cancelled');
-			$status 		= ($filter == 'all') ? $statuses[(array_rand($statuses))] : $filter;
+			// $status 		= ($filter == 'all') ? $statuses[(array_rand($statuses))] : $filter;
+			$status 		= "Prepared";
 			$dropdown = $this->ui->loadElement('check_task')
 						->addView()
 						->addEdit()
 						->addDelete()
-						->addPrint()
-						->addOtherTask('Add Payment', 'bookmark')
+						// ->addPrint()
+						->addOtherTask('Issue Parts', 'bookmark')
 						->addCheckbox()
 						->setLabels(array('delete' => 'Cancel'))
 						->setValue($x)
 						->draw();
+			// $table .= '<tr>';
+			// $table .= '<td align = "center">' . $dropdown . '</td>';
+			// $table .= '<td>' . $this->date->dateFormat($transactiondate) . '</td>';
+			// $table .= '<td>SQ00000'.$x.'</td>';
+			// $table .= '<td>Company C</td>';
+			// $table .= '<td>'.$job_type.'</td>';
+			// $table .= '<td>'.$this->generateRandomString().'</td>';
+			// $table .= '<td>'.$this->colorStat($status).'</td>';
+
 			$table .= '<tr>';
 			$table .= '<td align = "center">' . $dropdown . '</td>';
-			$table .= '<td>' . $this->date->dateFormat($transactiondate) . '</td>';
-			$table .= '<td>SQ00000'.$x.'</td>';
+			$table .= '<td>Dec 03, 2018</td>';
+			$table .= '<td>JO0000000001</td>';
 			$table .= '<td>Company C</td>';
-			$table .= '<td>'.$job_type.'</td>';
-			$table .= '<td>'.$this->generateRandomString().'</td>';
+			$table .= '<td>SQ0000000001</td>';
+			$table .= '<td>001020123</td>';
 			$table .= '<td>'.$this->colorStat($status).'</td>';
 		}
 		$pagination->table = $table;

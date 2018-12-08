@@ -280,6 +280,7 @@
 										$row 			   	= 1;
 										$vatable_sales 	   	= 0;
 										$vatexempt_sales 	= 0;
+										$t_vatzerorated 	= 0;
 										$total_sales		= 0;
 										$discountamount		= 0;
 										$total_tax			= 0;
@@ -422,7 +423,7 @@
 											$uom 				= strtoupper($uom);
 											$itemprice 			= $details[$i]->unitprice;
 											$discounttype 		= isset($details[$i]->discounttype) ? $details[$i]->discounttype : '';
-											$discount 			= isset($details[$i]->discountamount) ? $details[$i]->discountamount : '0.00';
+											$discount 			= isset($details[$i]->itemdiscount) ? $details[$i]->itemdiscount : '0.00';
 											$discountrate 		= isset($details[$i]->discountrate) ? $details[$i]->discountrate : '0.00';
 											$discount 			= ($discounttype == "perc") ? $discountrate 	:	$discount;
 											$percentage 		= ($discounttype == "perc") ? "%" : "";
@@ -616,6 +617,26 @@
 													->draw($show_input);
 										?>
 									</td>
+								</tr>
+
+								<tr id="vat_zerorated_sales" >
+									<td colspan="5"></td>
+									<td class="right" colspan="2">
+										<label class="control-label col-md-12">VAT Zero Rated Sales</label>
+									</td>
+									<td class="text-right" >
+										<?php
+											echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('t_vatzerorated')
+													->setId('t_vatzerorated')
+													->setAttribute(array("readOnly"=>"readOnly"))
+													->setClass("input_label text-right remove-margin")
+													->setValue(number_format($t_vatzerorated,2))
+													->draw($show_input);
+										?>
+									</td>
+									<?php if($task != "view"):?><td></td><?php endif;?>
 								</tr>
 
 								<tr>
@@ -1144,6 +1165,7 @@ function computeAmount()
 function addAmounts() {
 	var total_h_vatable		= 0;
 	var total_h_vatex		= 0;
+	var total_h_zero		= 0;
 	var total_h_vat			= 0;
 	var total_discount		= 0;
 	var total_gross_disc	= 0;
@@ -1173,6 +1195,7 @@ function addAmounts() {
 		var h_amount			= document.getElementById('h_amount' + row);
 		var h_itemdiscount		= document.getElementById('itemdiscount' + row);
 		var h_discountedamount	= document.getElementById('discountedamount' + row);
+		var taxcode				= document.getElementById('taxcode' + row);
 
 		var unitprice				= x_unitprice.value.replace(/[,]+/g, '');
 		var discount				= removeComma(x_discount.value);
@@ -1200,33 +1223,49 @@ function addAmounts() {
 
 		var net_of_vat		= 0;
 		var vat_ex			= 0;
+		var vat_zero		= 0;
 		var vat				= 0;
 		var temp_amount 	= 0;
 
 		x_amount.value		= addCommas(amount.toFixed(2));
 		h_amount.value		= amount.toFixed(2);
 
+		var tax_code = '';
+		if (taxcode != null) {
+			tax_code = taxcode.value;
+		}
+
 		if( parseFloat(taxrate) > 0.00 || parseFloat(taxrate) > 0 )	{
 			net_of_vat 		= amount;
 		}
+		else {
+			if (tax_code == '' || tax_code == 'none' || tax_code == 'ES') {
+				vat_ex = amount;
+			}
+			else {
+				vat_zero = amount;
+			}
+		}
 
 		net_of_vat 			= net_of_vat * 1;
-		vat_ex				= amount - net_of_vat;
+		//vat_ex				= amount - net_of_vat;
 		vat					= h_discountedamount * taxrate;
 		
 		net_of_vat 			= Math.round(net_of_vat * 100) / 100;
 		vat_ex 				= Math.round(vat_ex * 100) / 100;
+		vat_zero 			= Math.round(vat_zero * 100) / 100;
 		vat 				= Math.round(vat * 100) / 100;
 
 		total_h_vatable		+= net_of_vat;
 		total_h_vatex		+= vat_ex;
+		total_h_zero		+= vat_zero;
 		total_h_vat			+= vat;
 		total_discount 		+= discount;
 	}
 	
 	vatable_sales 		= 0;
-	subtotal 			= total_h_vatable + total_h_vatex;
-	final_total 		= (total_h_vatable + total_h_vatex - total_discount + total_h_vat);	
+	subtotal 			= total_h_vatable + total_h_vatex + total_h_zero;
+	final_total 		= (total_h_vatable + total_h_vatex + total_h_zero - total_discount + total_h_vat);	
 	
 	if(vatex=="yes"){
 		vatable_sales 		= (parseFloat(total_h_vatable));
@@ -1234,18 +1273,20 @@ function addAmounts() {
 		total_h_vat 		= (parseFloat(total_h_vatable))*0.12;
 		total_h_vat 		= (total_h_vat > 0) ? total_h_vat 	: 0;
 		total_h_vatable 	= vatable_sales;
-		final_total 		= (total_h_vatable + total_h_vatex + total_h_vat);
+		final_total 		= (total_h_vatable + total_h_vatex + total_h_zero + total_h_vat);
 	}	
 
 	final_total 		= Math.round(100*final_total)/100;
 	total_h_vatable	 	= Math.round(100*total_h_vatable)/100;
 	total_h_vatex	 	= Math.round(100*total_h_vatex)/100;
+	total_h_zero	 	= Math.round(100*total_h_zero)/100;
 	subtotal	 		= Math.round(100*subtotal)/100;
 	total_h_vat	 		= Math.round(100*total_h_vat)/100;
 	total_discount 		= Math.round(100*total_discount)/100;
 
 	document.getElementById('vatable_sales').value		= addCommas(total_h_vatable.toFixed(2));
 	document.getElementById('vatexempt_sales').value	= addCommas(total_h_vatex.toFixed(2));
+	document.getElementById('t_vatzerorated').value	= addCommas(total_h_zero.toFixed(2));
 	document.getElementById('total_sales').value 		= addCommas(subtotal.toFixed(2));
 	document.getElementById('total_tax').value			= addCommas(total_h_vat.toFixed(2));
 	document.getElementById('total').value 				= addCommas((final_total).toFixed(2));

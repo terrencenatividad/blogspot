@@ -357,6 +357,26 @@
 							$errmsg		= array_filter($errmsg);
 						}
 
+						if ($suppliercode == '') {
+							$errmsg[]	= "Supplier Code name is required on row $line.<br/>";
+							$errmsg		= array_filter($errmsg);
+						}
+
+						if ($companyname == '') {
+							$errmsg[]	= "Company name is required on row $line.<br/>";
+							$errmsg		= array_filter($errmsg);
+						}
+
+						if ($business == '') {
+							$errmsg[]	= "Business Type is required on row $line.<br/>";
+							$errmsg		= array_filter($errmsg);
+						}
+
+						if ($address == '') {
+							$errmsg[]	= "Address is required on row $line.<br/>";
+							$errmsg		= array_filter($errmsg);
+						}
+
 						if(!is_numeric($terms)){
 							$errmsg[] 	= "Payment terms [ <strong>$terms</strong> ] on row $line is not a valid number.<br/>";
 							$errmsg		= array_filter($errmsg);
