@@ -90,10 +90,17 @@ class asset_class extends wc_model {
 	}
 
 	public function getAssetClassListPagination($fields, $search = '', $sort) {
-
+		if(!$sort){
+			$sort = 'code ASC';
+		}
+		if ($search) {
+			$condition = $this->generateSearch($search, array('id','code', 'assetclass'));
+		}else{
+			$condition = "";
+		}
 			$result = $this->db->setTable("asset_class")
 								->setFields($fields)
-								->setWhere(1)
+								->setWhere($condition)
 								->setOrderBy($sort)
 								->runPagination();
 	
@@ -130,19 +137,19 @@ class asset_class extends wc_model {
 							->getResult();
 		}
 
-	private function getAssetClassListQuery($fields, $search = '', $sort) {
-		$sort		= ($sort) ? $sort : 'assetclass';
-		$condition = '';
-		if ($search) {
-			$condition = $this->generateSearch($search, array('id', 'assetclass'));
-		}
-		$query = $this->db->setTable('asset_class')
-							->setFields($fields)
-							->setOrderBy($sort)
-							->setWhere($condition);
+	// private function getAssetClassListQuery($fields, $search = '', $sort) {
+	// 	$sort		= ($sort) ? $sort : 'assetclass';
+	// 	$condition = '';
+	// 	if ($search) {
+	// 		$condition = $this->generateSearch($search, array('id', 'assetclass'));
+	// 	}
+	// 	$query = $this->db->setTable('asset_class')
+	// 						->setFields($fields)
+	// 						->setOrderBy($sort)
+	// 						->setWhere($condition);
 
-		return $query;
-	}
+	// 	return $query;
+	// }
 
 	private function generateSearch($search, $array) {
 		$temp = array();

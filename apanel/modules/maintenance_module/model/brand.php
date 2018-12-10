@@ -81,21 +81,37 @@
 				$brandcode    = $id_array[$i];
 
 				$condition 		= " brandcode = '$brandcode'";
-				
-				$result 		= $this->db->setTable('brands')
+
+				$checkExisting 	= $this->check_usage($brandcode);
+				if($checkExisting[0]->count != "0")
+				{	
+					$errmsg[]  = "<p class = 'no-margin'>Brandcode: $brandcode is in use.</p>";
+				}
+				else
+				{
+					$result 		= $this->db->setTable('brands')
 										->setWhere($condition)
 										->runDelete();
 										// echo $this->db->getQuery();
 
-				$error 			= $this->db->getError();		
+					$error 			= $this->db->getError();		
 
-				if ($error == 'locked') {
-					$errmsg[]  = "<p class = 'no-margin'>Deleting Currency: $brandcode</p>";
+					if ($error == 'locked') {
+						$errmsg[]  = "<p class = 'no-margin'>Deleting Brandcode: $brandcode</p>";
+					}
 				}
-			
 			}
 			
 			return $errmsg;
+		}
+
+		public function check_usage($current)
+		{
+			return $this->db->setTable('items')
+							->setFields('COUNT(brandcode) count')
+							->setWhere(" brandcode = '$current'")
+							->runSelect()
+							->getResult();
 		}
 
 		public function updateStat($data,$code)
