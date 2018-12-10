@@ -61,7 +61,8 @@ class controller extends wc_controller {
 		$last_closedmonth 			=	($taxyear == "fiscal") ? $last_closedmonth 	:	$last_closedmonth - 1;
 		$last_closedmonth 			=	($taxyear == "calendar" && $last_closedmonth == -1) ? 0 : $last_closedmonth; 
 		$data['last_closed_month'] 	=	$last_closedmonth;
-		$check_existing_year_end 	=	$this->trial_balance->check_existing_yrendjv($ret_year);
+		$year_parameter 			=	($taxyear == 'calendar') ? $last_closedyear 	:	$ret_year;
+		$check_existing_year_end 	=	$this->trial_balance->check_existing_yrendjv($year_parameter);
 
 		$prevyear 					= 	date("Y",strtotime($complete_date." -1 year"));
 		$prevyear 					=	($taxyear == 'fiscal') ? $prevyear 	:	$last_closedyear;
@@ -72,7 +73,7 @@ class controller extends wc_controller {
 		// echo "closed month = ".$last_closedmonth."<br>";
 		// echo "actual month = ".$period_end."<br><br>";
 
-
+		// var_dump($check_existing_year_end);
 		if(empty($check_existing_year_end)){
 			// echo $period_start."<br>";
 			$firstmonth 				=	$prevyear."-".$period_start."-1";
@@ -85,12 +86,16 @@ class controller extends wc_controller {
 			$data['last_date'] 			=	$endmonth;
 			$data['year_end_date'] 		=	$startmonth." - ".$endmonth;
 			// echo $lastmonth."<br>";
-			// echo $last_closedmonth." - ".$period_end;
+			// echo $last_closedmonth." - ".$period_end."<br>";
 			// echo $last_closedmonth."<br>"; 
 			// echo $period_end."<br>";
 			// echo $prevyear."<br>";
 			// echo $ret_year."<br>";
 			// echo $taxyear."<br>";
+
+			if($period_end == 12 && $taxyear == "calendar"){
+				$period_end = 11;
+			}
 
 			if( ($last_closedmonth == $period_end && $taxyear == "calendar") || ( $last_closedmonth == $period_end && ($prevyear != $ret_year && $taxyear == 'fiscal') )){ 
 				$data['datafrom'] 		=	$startmonth." - ".$endmonth;
