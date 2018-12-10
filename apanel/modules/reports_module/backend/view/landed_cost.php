@@ -40,8 +40,8 @@
 				<!-- <div class="col-md-3"></div> -->
 				<div class="col-md-3">
 					<div class="form-group text-right">
-						
-						<!-- <a href="" id="export_csv" download="Landed_Cost.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a> -->
+					<a href="<?php echo BASE_URL ?>purchase/job" id="job_link" class="btn btn-primary">Create Job</a>
+						<a href="" id="export_csv" download="Landed_Cost.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 					</div>
 				</div>
 				</form>
@@ -169,6 +169,7 @@
 				ajax.page = data.page_limit;
 				getList();
 			}
+			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 		});
 	}
 	getList();

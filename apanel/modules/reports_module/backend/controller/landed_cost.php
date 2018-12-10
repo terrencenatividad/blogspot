@@ -136,97 +136,106 @@ class controller extends wc_controller {
 
 		// return array('table' => $table);
 		$pagination->table = $table;
-		// $pagination->csv   = $this->export();
+		$pagination->csv   = $this->export();
 		return $pagination;
 
 	}
 
 	private function export()
 	{
-		$data 		= $this->input->post(array('daterangefilter'));
+		$data = $this->input->post(array('daterangefilter','supplier','import_purchase_order','tab'));
+		$import_purchase_order	= $this->input->post('import_purchase_order');
+		$supplier			= $this->input->post('supplier');
+		$tab = $data['tab'];
 		
-		$data['daterangefilter'] = str_replace(array('%2C', '+'), array(',', ' '), $data['daterangefilter']);
+		$daterangefilter	= $data['daterangefilter'];
 		
-		$datefilter	= $data['daterangefilter'];	
-		$datefilter = explode('-', $datefilter);
-		$dates		= array();
-		foreach ($datefilter as $date) {
+		$date_filter = explode('-', $daterangefilter);
+		foreach ($date_filter as $date) {
 			$dates[] = date('Y-m-d', strtotime($date));
 		}
-		
-		$default_datefilter = date("M d, Y",strtotime('first day of this month')).' - '.date("M d, Y",strtotime('last day of this month'));		
 		$datefilterFrom = (!empty($dates[0]))? $dates[0] : "";
 		$datefilterTo   = (!empty($dates[1]))? $dates[1] : "";
-		$datefilter     = (!empty($daterangefilter))? $daterangefilter : $default_datefilter;
 
-		$currentyear 	= date("Y",strtotime($datefilterTo));
-		$prevyear 		= date("Y",strtotime($datefilterFrom." -1 year"));
-
-		$totaldebit 	= 0;
-		$totalcredit 	= 0;
-		$totalperiodbalance = 0;
-		$totalaccumulatedbalance = 0;
-		$retrieved = $this->trial_balance->retrieveCOAdetails($currentyear,$prevyear);
+		$retrieved = $this->landed_cost->exportUnitCostLanded($datefilterFrom,$datefilterTo,$import_purchase_order,$supplier,$tab);
 		
-		$header		= array('Account Code','Account Name','Prev Carryforward','Balance Carryforward','Total Debit','Total Credit','Balance for the Period','Accumulated Balance');
+		$header	= array('Item','Description','IPO Number','IPO Date','Qty/Unit','IPO Receipt Date','Unit Cost Foreign Currency','Unit Cost Base Currency','Job Number','Importation Cost per Unit','Landed Cost per Unit','Total Landed Cost');
+
+		$import_purchase_order_export = "";
+		($import_purchase_order == "") ? $import_purchase_order_export = "All" : $import_purchase_order_export = $import_purchase_order;
+		$supplier_export = "";
+		($supplier == "") ? $supplier_export = "All" : $supplier_export = $supplier;
+		$tab_export = "";
+		($tab == "") ? $tab_export = "All" : $tab_export = $supplier;
 
 		$csv 	= '';
-		$csv 	.= 'Trial Balance';
+		$csv 	.= 'Landed Cost Report';
+		$csv 	.= "\n\n";
+		$csv 	.= 'IPO: ' .$import_purchase_order_export. ',Supplier: ' .$supplier_export. ',Period: ' .$datefilterFrom. '-' .$datefilterTo. '';
+		$csv 	.= "\n";
+		$csv 	.= 'Job: ' .$tab_export. '';
 		$csv 	.= "\n\n";
 		$csv 	.= '"' . implode('","',$header).'"';
 		$csv 	.= "\n";
-
-		$filtered 	=	array_filter($retrieved);
+		
+		$filtered  = array_filter($retrieved);
 
 		if (!empty($filtered)){
 			foreach ($filtered as $key => $row){
-				$accountid 			= 	$row->accountid;
-				$accountcode  		=	$row->accountcode;
-				$accountname  		=	$row->accountname;
-				
-				$prevcarry 			= $this->trial_balance->getPrevCarry($accountid,$datefilterFrom);
-				$balcarry			= $this->trial_balance->getBalanceCarry($accountid,$datefilterFrom,$datefilterTo);
-				$amount				= $this->trial_balance->getCurrent($accountid,$datefilterFrom,$datefilterTo);
-
-				$debit 				= ($amount > 0) ? $amount : 0;
-				$credit 			= ($amount < 0) ? abs($amount) : 0;
-				$periodbalance      = $amount;
-
-				$accumulatedbalance = $balcarry + $periodbalance;
-					
-				$totaldebit 				+= $debit;
-				$totalcredit 				+= $credit;
-				$totalperiodbalance 		+= $periodbalance;
-				$totalaccumulatedbalance 	+= $accumulatedbalance;
-
-				$periodbalance 		= ($periodbalance < 0) ? '('.number_format(abs($periodbalance),2).')' : number_format(abs($periodbalance),2);
-				$balcarry 			= ($balcarry < 0) ? '('.number_format(abs($balcarry),2).')' : number_format(abs($balcarry),2);
-				$credit 			= ($credit < 0) ? '('.number_format(abs($credit),2).')' : number_format(abs($credit),2);
-				$debit 				= ($debit < 0) ? '('.number_format(abs($debit),2).')' : number_format(abs($debit),2);
-				$prevcarry 			= ($prevcarry < 0) ? '('.number_format(abs($prevcarry),2).')' : number_format(abs($prevcarry),2);
-				$accumulatedbalance = ($accumulatedbalance < 0) ? '('.number_format(abs($accumulatedbalance),2).')' : number_format(abs($accumulatedbalance),2);
-
-				$debitLink	= $debit;
-				$creditLink	= $credit;
-
-				$csv .= '"' . $accountcode . '",';
-				$csv .= '"' . $accountname . '",';
-				$csv .= '"' . $prevcarry . '",';
-				$csv .= '"' . $balcarry . '",';
-				$csv .= '"' . $debitLink . '",';
-				$csv .= '"' . $creditLink . '",';
-				$csv .= '"' . $periodbalance . '",';
-				$csv .= '"' . $accumulatedbalance . '"';
-				$csv .= "\n";
-			}
-
-			$totaldebit 				= ($totaldebit < 0) ? '('.number_format(abs($totaldebit),2).')' : number_format(abs($totaldebit),2);
-			$totalcredit 				= ($totalcredit < 0) ? '('.number_format(abs($totalcredit),2).')' : number_format(abs($totalcredit),2);
-			$totalperiodbalance 		= ($totalperiodbalance < 0) ? '('.number_format(abs($totalperiodbalance),2).')' : number_format(abs($totalperiodbalance),2);
-			$totalaccumulatedbalance 	= ($totalaccumulatedbalance < 0) ? '('.number_format(abs($totalaccumulatedbalance),2).')' : number_format(abs($totalaccumulatedbalance),2);
 			
-			$csv .= '"","","","","' . $totaldebit . '","' . $totalcredit . '","' . $totalperiodbalance . '","' . $totalaccumulatedbalance . '"';
+				// CALCULATE ADDITIONAL COST
+			$freight_cost = $row->freight;
+			$insurance_cost = $row->insurance;
+			$packaging_cost = $row->packaging;
+			$addtl_cost = $freight_cost + $insurance_cost + $packaging_cost;
+				//TOTAL COST OF IMPORT PURCHASE ORDER
+			$total_ipo_amt = $row->netamount;
+				// CALCULATE UNIT COST
+			$unit_cost_foreign = ( $total_ipo_amt / ($total_ipo_amt + $addtl_cost) ) * $addtl_cost ;
+				// EXCHANGE RATES STAGING
+			$exchange_curr = $row->exchangecurrency;
+			$exchange_rate = $row->exchangerate;
+			$unit_cost_base = $unit_cost_foreign * $exchange_rate;
+			$base_curr = $row->basecurrency;
+
+				// IPO FIELDS STAGING
+			$item_code = $row->itemcode;
+			$item_name = $row->itemname;
+			$item_desc = $row->detailparticular;
+			$voucher_no = $row->voucherno;
+			$transaction_date = $row->transactiondate;
+			$item_quantity = $row->receiptqty;
+			$uom = $row->receiptuom;
+			$job_no = $row->job_no;
+			$receipt_date = $row->receiptdate;
+
+			$csv .= '"' .$item_code.'- '.$item_name. '",';
+			$csv .= '"' .$item_desc. '",';
+			$csv .= '"' .$voucher_no. '",';
+			$csv .= '"' .$transaction_date. '",';
+			$csv .= '"' .$item_quantity.' '.$uom. '",';
+			$csv .= '"' .$receipt_date. '",';
+			$csv .= '"' .$exchange_curr.' '.number_format($unit_cost_foreign,2). '",';
+			$csv .= '"' .$base_curr.' '.number_format($unit_cost_base,2). '",';
+
+				// JOB FIELDS STAGING
+			$job_quantity = $row->qty;
+			$query_importation_cost = $this->landed_cost->getSumOfAp($job_no);
+			$total_importation_cost = $query_importation_cost->debit;
+			$query_job_item_count = $this->landed_cost->getTotalItemsInJob($job_no);
+			$job_item_count = $query_job_item_count->qty;
+			$importation_cost_unit =  floatval($total_importation_cost) / $job_item_count; //sprintf("%7.2f",$quantity);
+
+			$csv .= '"' .$job_no. '",';
+			$csv .= '"' .$base_curr.' '.number_format($importation_cost_unit,2). '",';
+			
+				// LANDED COST CALCS STAGING
+			$landed_cost_unit = $unit_cost_base + $importation_cost_unit;
+			$total_landed_cost = $landed_cost_unit * $item_quantity;
+			$csv .= '"' .$base_curr.' '.number_format($landed_cost_unit,2). '",';
+			$csv .= '"' .$base_curr.' '.number_format($total_landed_cost,2). '",';
 			$csv .= "\n";
+			}
 		}
 
 		return $csv;
