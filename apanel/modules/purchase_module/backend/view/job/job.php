@@ -185,7 +185,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <div id="ipo_pagination"></div>
+                    <div id="pr_pagination"></div>
                 </div>
                 <div class="modal-footer">
                     <button id="btn_ipo_select" class="btn btn-primary btn-flat">Confirm</button>
@@ -229,7 +229,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <div id="ipo_pagination"></div>
+                    <div id="serial_pagination"></div>
                 </div>
                 <div class="modal-footer">
                     <button id="btn_ipo_select" class="btn btn-primary btn-flat">Confirm</button>
@@ -245,29 +245,38 @@
 <script type="text/javascript">
     var ajax            = {};
     var data            = {};
+    var selected_holder = [];
+    var selected  = {'pr_no'    :[],
+                    'pr_item'   :[],
+                    'itemcode'  :[],
+                    'qty'       :[],
+                    };
     var selected_pr     = [];
     var selected_items  = [];
     var task            = "<?=$task?>";
     var job_no          = "<?=$job_no?>";
     function getList() {
+        ajax.limit = 5;
         $('#ipo_tableList tbody').html(`<tr><td colspan="5" class="text-center">Loading Items</td></tr>`);
-        $('#pagination').html('');
+        $('#pr_pagination').html('');
         $('#pr_list_modal').modal('show');
         $.post('<?=MODULE_URL?>ajax/ajax_load_ipo_list', ajax, function(data) {
             $('#ipo_tableList tbody').html(data.table);
-            $('#ipo_pagination').html(data.pagination);
+            $('#pr_pagination').html(data.pagination);
             if (ajax.page > data.page_limit && data.page_limit > 0) {
                 ajax.page = data.page_limit;
+                
             }
         });
     }
     
     function getItemList(ipo ,task, job=""){
         ajax.limit = 5;
+        $('#pr_pagination').html('');
         $.post('<?=MODULE_URL?>ajax/ajax_load_ipo_items', {ipo:ipo,task:task,job:job},function (data) {
             $('#item_tableList tbody').html(data.table);
-            
             $('#item_pagination').html(data.pagination);
+            console.log(data);
             if (ajax.page > data.page_limit && data.page_limit > 0) {
                 ajax.page = data.page_limit;
             }
@@ -276,32 +285,44 @@
     }
 
     // save prev selected checkbox
-    function saveSelected(tablename){
-        selected = [];
-        $("#" + tablename + " tbody tr td input:checkbox").each(function(){
-            if ($(this).is(":checked")) {
-                selected.push($(this).data("code"));
+    function saveSelected(){
+        
+        $("#item_tableList tbody tr").each(function(){
+            pr          = $(this).find("input:checkbox").data("pr");
+            itemcode    = $(this).find("input:checkbox").data("itemcode");
+            qty         = $(this).find(".quantity").val();
+            if ($(this).find("input:checkbox").is(":checked")) {
+                for(var i=0; i<selected.itemcode.length; i++){
+                    if (selected.pr_item[i] == pr && selected.itemcode[i] == itemcode) {
+                        selected.qty[i] = qty;
+                    }
+                }
             }
         });
-        return selected;
     }
 
     // check checkbox prev selected 
     function checkExistingIPO(){
         $.each($("#ipo_tableList tbody tr td.ipo_checkbox"),function(){
-            if ($.inArray($(this).find("input:checkbox").data("code"), selected_pr) != -1) {
+            if ($.inArray($(this).find("input:checkbox").data("prno"), selected.pr_no) != -1) {
                 $(this).find("input:checkbox").iCheck("check");
             }
         });
     }
 
     function checkSelectedItems(){
-        $.each($("#item_tableList tbody tr td.item_checkbox"),function(){
-            if ($.inArray($(this).find("input:checkbox").data("code"), selected_items) != -1 && 
-                $.inArray($(this).find("input:checkbox").data("pr"), selected_pr) != -1) {
-                $(this).find("input:checkbox").iCheck("check");
-            }
-        });
+        if (selected.itemcode.length>0) {
+            $.each($("#item_tableList tbody tr td.item_checkbox"),function(index, value){
+                data_pr         = $(this).find("input:checkbox").data("pr");
+                data_itemcode   = $(this).find("input:checkbox").data("itemcode");
+                for(var i=0; i<selected.itemcode.length; i++){
+                    if (data_itemcode == selected.itemcode[i] && data_pr == selected.pr_item[i]) {
+                        $(this).find("input:checkbox").iCheck("check");
+                        $(this).parent().find(".quantity").val(selected.qty[i]);
+                    }
+                }
+            });
+        }
     }
 
     function disabledfields(){
@@ -309,26 +330,103 @@
         $(".quantity").prop("disabled", true);
     }
 
+    function checkholder(){
+
+        $.each($("#ipo_tableList tbody tr td.ipo_checkbox"),function(){
+            if ($.inArray($(this).find("input:checkbox").data("prno"), selected_holder) != -1) {
+                $(this).find("input:checkbox").iCheck("check");
+            }
+        });
+    }
+        
     $(document).ready(function (){
-        $("#pr_amount").text(selected_pr.length);
+        
+        
+        $("#pr_amount").text(selected.pr_no.length);
+
+        $("#ipo_tableList tbody").on("ifChecked", "input:checkbox", function(){
+            in_array = false;
+            for(var i=0; i<selected_holder.length; i++){
+                if (selected_holder[i] == $(this).data("prno")) {
+                    in_array = true;
+                }
+            }
+            if (!in_array) {
+                selected_holder.push($(this).data("prno"));
+            }
+            
+        });
+        $("#ipo_tableList tbody").on("ifUnchecked", "input:checkbox", function(){
+            
+            index = selected_holder.indexOf($(this).data("prno"));
+            selected_holder.splice(index, 1);
+        });
+        $("#item_tableList tbody").on("ifChecked", "input:checkbox", function(){
+            pr          = $(this).data("pr");
+            itemcode    = $(this).data("itemcode");
+            qty         = $(this).closest("tr").find(".quantity").val();
+            in_array    =false;
+            for(var i=0; i<selected.pr_item.length; i++){
+                if (pr == selected.pr_item[i] && itemcode == selected.itemcode[i]) {
+                    in_array = true;
+                }
+            }
+            if (!in_array) {
+                    selected.pr_item.push(pr);
+                    selected.itemcode.push(itemcode);
+                    selected.qty.push(qty);
+            }
+            
+        });
+        $("#item_tableList tbody").on("ifUnchecked", "input:checkbox", function(){
+            pr          = $(this).data("pr");
+            itemcode    = $(this).data("itemcode");
+            for(var i=0; i<selected.pr_item.length; i++){
+
+                if (pr == selected.pr_item[i] && itemcode == selected.itemcode[i]) {
+
+                    selected.pr_item.splice(i,1);
+                    selected.itemcode.splice(i,1);
+                    selected.qty.splice(i,1)
+                }
+
+            }
+        });
         // load IPO in modal
         $('#btnpreceipt').on('click', function() {
+            selected_holder = selected.pr_no;
             getList();
         });
 
         // IPO modal confirm event
         $("#btn_ipo_select").on("click", function(){
-            
-            selected_pr         = saveSelected("ipo_tableList");
-            selected_items      = saveSelected("item_tableList");
-            $("#pr_amount").text(selected_pr.length);
+            selected.pr_no = selected_holder;
+            selected_holder = [];
+            saveSelected();
+            $("#pr_amount").text(selected.pr_no.length);
             if (task=="update") {
-                getItemList(selected_pr, task, job_no);
+                getItemList(selected.pr_no, task, job_no);
             }
             else
-                getItemList(selected_pr,task);
+                getItemList(selected.pr_no, task);
         });
-
+        $('#pr_pagination').on('click', 'a', function(e) {
+            e.preventDefault();
+            ajax.page = $(this).attr('data-page');
+            checkholder();
+            getList();
+        });
+        $('#item_pagination').on('click', 'a', function(e) {
+            e.preventDefault();
+            ajax.page = $(this).attr('data-page');
+            saveSelected();
+            if (task=="update") {
+                getItemList(selected.pr_no, task, job_no);
+            }
+            else
+                getItemList(selected.pr_no, task);
+              
+        });
         // close modal
         $('#btn_modal_close').on('click', function() {
             $('#pr_list_modal').modal('hide');
@@ -356,9 +454,9 @@
         $('#jobForm #btnSave').on('click', function () {
             no_error        = true;
             error_message   = "";
-            moduleurl       = $("btnSave").data("moduleurl");
+            
 
-            if ($("#item_tableList input:checked").length<1) {
+            if ($("#item_tableList tbody input:checked").length<1) {
                 no_error        = false;
                 error_message   = 'No selected items. Please select items to proceed.';
             }
@@ -387,10 +485,12 @@
                 if ($('#jobform').find('.form-group.has-error').length == 0) {
                     $.post('<?=MODULE_URL?>ajax/<?=$task?>', $("#jobForm").serialize(),
                         function (data) {
-                            if (data.query1 && data.query2 && data.query3) {
+                            console.log(data);
+                            if (data.query1 && data.query2 && data.query3 && data.delquery1 && data.delquery2 || data.query1 && data.query2 && data.query3 && task == "save") {
                                 $('#delay_modal').modal('show');
                                 setTimeout(function () {window.location = "<?=MODULE_URL?>";}, 1000);
                             }
+                            
                         });
                 }
             }
@@ -409,12 +509,20 @@
         
         foreach ($pr_selected as $key => $value) {
             echo '
-                if($.inArray("'.$pr_selected[$key].'", selected_pr)==-1){
-                    selected_pr.push("'.$pr_selected[$key].'");
+                in_array = false;
+                for(var i=0; i<selected.pr_no.length; i++){
+                    if (selected.pr_no[i]=="'.$pr_selected[$key].'"){
+                        in_array = true;
+                    }
                 }
-                selected_items.push("'.$item_selected[$key].'");';
+                if(!in_array){
+                    selected.pr_no.push("'.$pr_selected[$key].'");
+                }
+                selected.pr_item.push("'.$pr_selected[$key].'")
+                selected.itemcode.push("'.$item_selected[$key].'");
+                selected.qty.push("'.$qty[$key].'");';
         }
-        echo '  getItemList(selected_pr, task, job_no);
+        echo '  getItemList(selected.pr_no, task, job_no);
             </script>';
     }
     elseif($task=="view"){
@@ -422,12 +530,20 @@
         
         foreach ($pr_selected as $key => $value) {
             echo '
-                if($.inArray("'.$pr_selected[$key].'", selected_pr)==-1){
-                    selected_pr.push("'.$pr_selected[$key].'");
+                in_array = false;
+                for(var i=0; i<selected.pr_no.length; i++){
+                    if (selected.pr_no[i]=="'.$pr_selected[$key].'"){
+                        in_array = true;
+                    }
                 }
-                selected_items.push("'.$item_selected[$key].'");';
+                if(!in_array){
+                    selected.pr_no.push("'.$pr_selected[$key].'");
+                }
+                selected.pr_item.push("'.$pr_selected[$key].'")
+                selected.itemcode.push("'.$item_selected[$key].'");
+                selected.qty.push("'.$qty[$key].'");';
         }
-        echo '  getItemList(selected_pr, task);
+        echo '  getItemList(selected.pr_no, task, job_no);
                 
             </script>';
     }
