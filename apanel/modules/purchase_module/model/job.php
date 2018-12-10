@@ -79,7 +79,7 @@
             $result = $this->db->setTable("purchaseorder")
                             ->setFields("transactiondate, voucherno, amount")
                             ->setWhere("stat='open'")
-                            ->setOrderBy("transactiondate")
+                            ->setOrderBy("voucherno ASC")
                             ->runPagination();
             return $result;
         }
@@ -88,7 +88,7 @@
             $result = $this->db->setTable("purchaseorder_details")
                             ->setFields("voucherno, itemcode, detailparticular, receiptqty, receiptuom")
                             ->setWhere("voucherno='".$ipo_number."'")
-                            ->setOrderBy("voucherno")
+                            ->setOrderBy("voucherno ASC")
                             ->runPagination();
             return $result;
         }
@@ -96,7 +96,7 @@
         public function getTaggedItemQty($ipo, $itemcode, $job=""){
             
             $result = $this->db->setTable("job_details")
-                            ->setFields("COUNT(*) as count")
+                            ->setFields("SUM(qty) AS count")
                             ->setWhere("ipo_no='".$ipo."' AND itemcode='".$itemcode."' AND job_no != '".$job."'")
                             ->runSelect()
                             ->getResult();
@@ -105,7 +105,7 @@
 
         public function retrieveExistingJob($job){
             $result = $this->db->setTable("job_details")
-                            ->setFields("ipo_no, itemcode")
+                            ->setFields("ipo_no, itemcode, qty")
                             ->setWhere("job_no='".$job."'")
                             ->runSelect()
                             ->getResult();
@@ -161,7 +161,23 @@
             return $result;
         }
 
+        public function deleteJobValues($table, $value){
+            $result = $this->db->setTable($table)
+                            ->setWhere("job_no = '".$value."'")
+                            ->runDelete();
+                            
+            return $result;
+        }
         
+        public function updateJobValues($values, $job_no){
+            $result = $this->db->setTable("job")
+                            ->setFields("job_no, ipo_no, notes, transactiondate, stat")
+                            ->setValues($values)
+                            ->setWhere("job_no = '".$job_no."'")
+                            ->runUpdate();
+            return $result;
+        }
+
     }
 
 ?>
