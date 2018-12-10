@@ -1,5 +1,5 @@
 <?php
-class service_quotation_model extends wc_model
+class job_order_model extends wc_model
 {
 	public function __construct() 
 	{
