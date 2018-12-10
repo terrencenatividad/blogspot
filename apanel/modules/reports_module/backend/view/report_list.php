@@ -76,6 +76,10 @@
 								<h4 class="list-group-item-heading">Collection Register</h4>
 								<p class="list-group-item-text">List of Issued Payment in a given period of time.</p>
 							</a>
+							<a href="budget_report" class="list-group-item">
+								<h4 class="list-group-item-heading">Budget Variance Report</h4>
+								<p class="list-group-item-text">Budget Details for Income Statement and Balance Sheet.</p>
+							</a>
 						</div>
 					</div>
 				</div>

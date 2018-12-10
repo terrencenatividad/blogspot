@@ -518,13 +518,24 @@
 									</td>
 									<td class="text-right" colspan = "2" style="border-top:1px solid #DDDDDD;">
 										<?php
-										echo $ui->formField('text')
-										->setName('t_subtotal')
-										->setId('t_subtotal')
-										->setClass("input_label text-right")
-										->setAttribute(array("maxlength" => "40", 'readonly'))
-										->setValue(number_format($t_subtotal,2))
-										->draw($show_input);
+										if($task == 'view') {
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('t_subtotal')
+											->setId('t_subtotal')
+											->setClass("input_label text-right")
+											->setAttribute(array("maxlength" => "40", 'readonly'))
+											->setValue(number_format($t_subtotal,2))
+											->draw($show_input);
+										} else {
+											echo $ui->formField('text')
+											->setName('t_subtotal')
+											->setId('t_subtotal')
+											->setClass("input_label text-right")
+											->setAttribute(array("maxlength" => "40", 'readonly'))
+											->setValue(number_format($t_subtotal,2))
+											->draw($show_input);
+										}
 										?>
 									</td>
 								</tr>
@@ -536,13 +547,24 @@
 									</td>
 									<td class="text-right" colspan = "2">
 										<?php
-										echo $ui->formField('text')
-										->setName('t_vat')
-										->setId('t_vat')
-										->setClass("input_label text-right")
-										->setAttribute(array("maxlength" => "40", 'readonly'))
-										->setValue(number_format($t_vat,2))
-										->draw($show_input);
+										if($task == 'view') {
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('t_vat')
+											->setId('t_vat')
+											->setClass("input_label text-right")
+											->setAttribute(array("maxlength" => "40", 'readonly'))
+											->setValue(number_format($t_vat,2))
+											->draw($show_input);	
+										} else {
+											echo $ui->formField('text')
+											->setName('t_vat')
+											->setId('t_vat')
+											->setClass("input_label text-right")
+											->setAttribute(array("maxlength" => "40", 'readonly'))
+											->setValue(number_format($t_vat,2))
+											->draw($show_input);
+										}
 										?>
 									</td>
 								</tr>
@@ -623,13 +645,24 @@
 									</td>
 									<td class="text-right" colspan = "2" style="border-top:1px solid #DDDDDD;">
 										<?php
-										echo $ui->formField('text')
-										->setName('t_total')
-										->setId('t_total')
-										->setClass("input_label text-right")
-										->setAttribute(array("maxlength" => "40",'readonly'))
-										->setValue(number_format($t_total,2))
-										->draw($show_input);
+										if($task == 'view') {
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('t_total')
+											->setId('t_total')
+											->setClass("input_label text-right")
+											->setAttribute(array("maxlength" => "40",'readonly'))
+											->setValue(number_format($t_total,2))
+											->draw($show_input);
+										} else {
+											echo $ui->formField('text')
+											->setName('t_total')
+											->setId('t_total')
+											->setClass("input_label text-right")
+											->setAttribute(array("maxlength" => "40",'readonly'))
+											->setValue(number_format($t_total,2))
+											->draw($show_input);
+										}
 										?>
 									</td>
 								</tr>

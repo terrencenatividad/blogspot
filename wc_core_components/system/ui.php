@@ -204,7 +204,10 @@ class ui {
 		if ( ! empty($this->label)) {
 			$label .= '<label' . $for . $class . '>' . $this->label;
 			if((isset($this->attribute['data-validation']) && ! empty($this->attribute['data-validation'])) && (strpos( $this->attribute['data-validation'], "required" ) !== false)){
-				$label .= ' <span class = "asterisk">*</span>';
+				if(MODULE_TASK != 'mod_view'){
+					$label .= ' <span class = "asterisk">*</span>';
+				}
+				
 			}
 		}
 		$label .= '</label>';
