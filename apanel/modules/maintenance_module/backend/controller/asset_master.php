@@ -35,6 +35,15 @@ class controller extends wc_controller {
 			'gl_depexpense',
 			'stat'
 		);
+		$this->fields2			= array(
+			'asset_id',
+			'itemcode',
+			'depreciation_date',
+			'accumulated_dep',
+			'gl_asset',
+			'gl_accdep',
+			'gl_depexpense'
+		);
 	}
 
 	public function listing() {
@@ -62,13 +71,18 @@ class controller extends wc_controller {
 	public function edit($id) {
 		$this->view->title = $this->ui->EditLabel('');
 		$data = (array) $this->asset_master->getAssetMasterById($this->fields, $id);
+		$data['capitalized_cost'] 	= number_format($data['capitalized_cost'], 2);
+		$data['purchase_value'] 	= number_format($data['purchase_value'], 2);
+		$data['balance_value'] 		= number_format($data['balance_value'], 2);
+		$data['salvage_value'] 		= number_format($data['salvage_value'], 2);
 		$data['ui'] = $this->ui;
-		$data['item_list']		= $this->asset_master->getItems();
+		$data['item_list']		= $this->asset_master->retrieveItems($data['itemcode']);
 		$data['assetclass_list']		= $this->asset_master->getAssetClass();
 		$data['coa_list']		= $this->asset_master->getCOA();
 		$data['commissioning_date']	= $this->date->dateFormat($data['commissioning_date']);
 		$data['retirement_date']	= $this->date->dateFormat($data['retirement_date']);
 		$data['depreciation_month']	= $this->date->dateFormat($data['depreciation_month']);
+		$data['schedule']	= $this->asset_master->getSchedule($data['asset_number']);
 		$data['ajax_task'] = 'ajax_edit';
 		$data['ajax_post'] = "&id=$id";
 		$data['show_input'] = true;
@@ -78,12 +92,18 @@ class controller extends wc_controller {
 	public function view($id) {
 		$this->view->title = $this->ui->ViewLabel('');
 		$data = (array) $this->asset_master->getAssetMasterById($this->fields, $id);
-		$data['item_list']		= $this->asset_master->getItems();
-		$data['assetclass_list']		= $this->asset_master->getAssetClass();
-		$data['coa_list']		= $this->asset_master->getCOA();
+		$data['capitalized_cost'] 	= number_format($data['capitalized_cost'], 2);
+		$data['purchase_value'] 	= number_format($data['purchase_value'], 2);
+		$data['balance_value'] 		= number_format($data['balance_value'], 2);
+		$data['salvage_value'] 		= number_format($data['salvage_value'], 2);
+		$data['item_list']			= $this->asset_master->getItems();
+		$data['assetclass_list']	= $this->asset_master->getAssetClass();
+		$data['coa_list']			= $this->asset_master->getCOA();
 		$data['commissioning_date']	= $this->date->dateFormat($data['commissioning_date']);
 		$data['retirement_date']	= $this->date->dateFormat($data['retirement_date']);
 		$data['depreciation_month']	= $this->date->dateFormat($data['depreciation_month']);
+		$data['schedule']	= $this->asset_master->getSchedule($data['asset_number']);
+		$data['ajax_task'] = 'view';
 		$data['ui'] = $this->ui;
 		$data['show_input'] = false;
 		$this->view->load('asset_master/asset_master', $data);
@@ -174,9 +194,40 @@ class controller extends wc_controller {
 
 	private function ajax_create() {
 		$data = $this->input->post($this->fields);
+		$shh  = $this->input->post($this->fields2);
 		$data['frequency_of_dep'] = '1';
 		$data['stat'] = 'active';
+		$asset_number = $data['asset_number'];
+
+		$data['capitalized_cost']	= str_replace(',', '', $data['capitalized_cost']);
+		$data['purchase_value']	   = str_replace(',', '', $data['purchase_value']);
+		$data['useful_life']	   		= str_replace(',', '', $data['useful_life']);
+		$data['salvage_value']	   		= str_replace(',', '', $data['salvage_value']);
+		$data['balance_value']	   		= str_replace(',', '', $data['balance_value']);
+
+
+		$capitalized_cost	   	= $data['capitalized_cost'];
+		$purchase_value	   		= $data['purchase_value'];
+		$useful_life 			= $data['useful_life'];
+		$balance_value 			= $data['balance_value'];
+		$salvage_value 			= $data['salvage_value'];
+		$time  					= strtotime($data['depreciation_month']);
+		$depreciation = 0;
+		
+		
+
 		$result = $this->asset_master->saveAssetMaster($data);
+		// var_dump(($balance_value - $salvage_value) / $useful_life);
+
+
+		for($x=1;$x<=$data['useful_life'];$x++){
+			$depreciation_amount 	= ($balance_value - $salvage_value) / $useful_life;
+			$depreciation += ($balance_value - $salvage_value) / $useful_life;
+			$final = date("Y-m-d", strtotime("+$x month", $time));
+			$sched = $this->asset_master->saveAssetMasterSchedule($shh,$asset_number,$useful_life,$balance_value,$salvage_value,$final,$depreciation,$depreciation_amount);
+			
+			}
+
 		return array(
 			'redirect' => MODULE_URL,
 			'success' => $result
@@ -214,7 +265,7 @@ class controller extends wc_controller {
 		$purchase_value 		= $this->input->post('purchase_value');
 		$balance_value 			= $this->input->post('balance_value');
 		$salvage_value 			= $this->input->post('salvage_value');
-		$number_of_dep 			= $this->input->post('number_of_dep');
+		$useful_life 			= $this->input->post('useful_life');
 		$gl_asset 				= $this->input->post('gl_asset');
 		$gl_accdep 				= $this->input->post('gl_accdep');
 		$gl_depexpense 			= $this->input->post('gl_depexpense');
@@ -235,13 +286,13 @@ class controller extends wc_controller {
 		$table = '';   
 		$time  = strtotime($data['depreciation_month']);
 
-		for($x=1;$x<=$number_of_dep;$x++){
-		$depreciation += ($balance_value - $salvage_value) / $number_of_dep;
+		for($x=1;$x<=$useful_life;$x++){
+		$depreciation += ($balance_value - $salvage_value) / $useful_life;
 		$final = date("M-d-Y", strtotime("+$x month", $time));
 	
 		$table .= '<tr>';
 		$table .= '<td class="col-md-2 text-center">'.$final.'</td>';
-		$table .= '<td class="col-md-3 text-center">'.number_format(($balance_value - $salvage_value) / $number_of_dep, 2).'</td>';
+		$table .= '<td class="col-md-3 text-center">'.number_format(($balance_value - $salvage_value) / $useful_life, 2).'</td>';
 		$table .= '<td class="col-md-3 text-center">'.number_format($depreciation, 2).'</td>';
 		$table .= '<td class="col-md-3 text-center">'.$asset->segment5.' - '.$asset->accountname.'</td>';
 		$table .= '<td class="col-md-3 text-center">'.$accdep->segment5.' - '.$accdep->accountname.'</td>';
@@ -265,8 +316,8 @@ class controller extends wc_controller {
 		$table             = "";
 		foreach($po as $row)
 			{
-				$table.= "<tr>";
-				$table.= "<td class='text-center'><input type='radio' name='pono' class='form-control pono' value='$row->unitprice'></td>";								
+				$table .= "<tr style='cursor:pointer' data-id='$row->unitprice'>";
+				// $table.= "<td class='text-center'><input type='radio' name='pono' class='form-control pono' value='$row->unitprice'></td>";								
 				$table.= "<td class='text-center'>$row->transactiondate</td>";				
 				$table.= "<td class='text-center'>$row->source_no</td>";				
 				$table.= "<td class='text-center'>$itemcode</td>";				

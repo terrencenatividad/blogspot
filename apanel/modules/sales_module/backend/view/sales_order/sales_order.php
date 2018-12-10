@@ -2348,27 +2348,27 @@ $(document).ready(function(){
 			var value 	= 	$(this).val();
 
 			var price 	= 	removeComma($(this).closest('tr').find('.price').val());
-			
+			var form 	=	$(this);
 			if( parseFloat(value) > 0 && dtype == ""){
 				$('#discounttype').closest('.form-group').addClass('has-error');
 			} else {
 				if(dtype == "perc" && parseFloat(value) > 100){
-					$(this).closest('div').addClass('has-error');
-					$(this).addClass('greaterthan100');
+					form.closest('div').addClass('has-error');
+					form.addClass('greaterthan100');
 				} else {
-					$(this).closest('div').removeClass('has-error');
+					form.closest('div').removeClass('has-error');
 				}
 				if(dtype == "perc" && parseFloat(value) < 0){
-					$(this).closest('div').addClass('has-error');
-					$(this).addClass('negativediscount');
+					form.closest('div').addClass('has-error');
+					form.addClass('negativediscount');
 				} else {
-					$(this).closest('div').removeClass('has-error');
+					form.closest('div').removeClass('has-error');
 				}
 				if( parseFloat(value) > 0 && parseFloat(value) > parseFloat(price) ){
-					$(this).addClass('greaterthanprice');
-					$(this).closest('div').addClass('has-error');
+					form.addClass('greaterthanprice');
+					form.closest('div').addClass('has-error');
 				} else {
-					$(this).closest('div').removeClass('has-error');
+					form.closest('div').removeClass('has-error');
 				}
 				var pricediscounterrors 	=	$('#sales_order_form .greaterthanprice').closest('tr').find('.has-error').length;
 				var greaterthan100 			=	$('#sales_order_form .greaterthan100').closest('tr').find('.has-error').length;
