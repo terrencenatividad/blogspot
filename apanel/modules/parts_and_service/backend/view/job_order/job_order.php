@@ -305,7 +305,7 @@
 					 ?>`;
 				}
 			}
-			console.log(index);
+			// console.log(index);
 			var row = `
 				<tr>
 					<td>
@@ -372,6 +372,72 @@
 				</tr>
 			`;
 			$('#tableList tbody').append(row);
+			var row2 = `
+				<tr>
+					<td>
+						<?php
+							$value = "<span id='temp_view_itemcode_` + index + `'>` + details.itemcode + `</span>";
+							echo $ui->formField('dropdown')
+								->setSplit('', 'col-md-12')
+								->setName('detail_itemcode[]')
+								->setClass('itemcode')
+								->setList($item_list)
+								->setValue($value)
+								->draw($show_input);
+						?>
+					</td>
+					<td>
+						<?php
+							echo $ui->formField('text')
+								->setSplit('', 'col-md-12')
+								->setName('detailparticular[]')
+								->setValue('` + details.detailparticular + `')
+								->draw($show_input);
+						?>
+					</td>
+					<td>
+						<?php
+							$value = "<span id='temp_view_warehouse_` + index + `'></span>";
+							echo $ui->formField('dropdown')
+								->setSplit('', 'col-md-12')
+								->setName('detail_warehouse[]')
+								->setClass('warehouse')
+								->setList($warehouse_list)
+								->setValue($value)
+								->draw($show_input);
+						?>
+					</td>
+					<td class="text-right">
+						<?php
+							echo $ui->formField('text')
+								->setSplit('', 'col-md-12')
+								->setName('quantity[]')
+								->setClass('quantity text-right')
+								->setAttribute(array('data-value' => '` + (parseFloat(details.quantity) || 0) + `'))
+								->setValidation('required integer')
+								->setValue('` + (addComma(1, 0) || 0) + `')
+								->draw($show_input);
+						?>
+						` + otherdetails + `
+					</td>
+					<td>
+						<?php
+							echo $ui->formField('text')
+								->setSplit('', 'col-md-12')
+								->setValue('` + details.uom.toUpperCase() + `')
+								->draw(false);
+						?>
+					</td>
+					<?php if ($show_input): ?>
+					<td class="text-right">
+						<button type="button" class="btn btn-danger btn-flat delete_row" style="outline:none;">
+							<span class="glyphicon glyphicon-trash"></span>
+						</button>
+					</td>
+					<?php endif ?>
+				</tr>
+			`;
+			$('#issuedPartsList tbody').append(row2);
 			if (details.itemcode != '') {
 				console.log(details.itemcode);
 				$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
