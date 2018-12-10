@@ -151,7 +151,7 @@
 										->setName('discounttype')
 										->setId('discounttype')
 										->setList($discounttypes)
-										->setValue($exchange_rate)
+										->setValue($discounttype)
 										// ->setValidation('required')
 										->setNone('none')
 										->draw($show_input);
@@ -218,7 +218,7 @@
 								->setSplit('col-md-2', 'col-md-10')
 								->setName('remarks')
 								->setId('remarks')
-								->setValue("")
+								->setValue($remarks)
 								->draw($show_input);
 								?>
 							</div>
@@ -260,6 +260,7 @@
 								{
 									$accountcode 	   	  = '';
 									$detailparticulars 	  = '';
+									$remarks 			  = '';
 									$warehouse 			  = '';
 									$price	   			  = '0.00';
 									$rowamount 			  = '0.00';
@@ -1462,6 +1463,7 @@ echo $ui->loadElement('modal')
 				var quantity 	=	document.getElementById('quantity['+row+']');
 				var discount 	=	document.getElementById('discount['+row+']');
 				var exchangerate 	=	$('#exchange_rate').val();
+				var discounttype 	=	$('#discounttype').val();
 
 				vat 			=	vat.value.replace(/,/g,'');
 				itemprice 		=	itemprice.value.replace(/,/g,'');
@@ -1469,10 +1471,12 @@ echo $ui->loadElement('modal')
 				exchangerate	=	exchangerate.replace(/,/g,'');
 				discount		=	discount.value.replace(/,/g,'');
 
+				
+
 				var totalprice 	=	(parseFloat(itemprice) 	* 	parseFloat(quantity)) - parseFloat(discount);
 				var totalbase 	=	parseFloat(totalprice) 	* 	parseFloat(exchangerate);
 				//var amount 		=	parseFloat(totalprice) / ( 1 + parseFloat(vat) );
-
+	
 				var vat_amount 	=	parseFloat(totalprice)	*	parseFloat(vat);
 				var amount 		=	parseFloat(totalprice) + parseFloat(vat_amount);
 				
@@ -1523,6 +1527,7 @@ echo $ui->loadElement('modal')
 				var freight			= $('#freight').val();
 				var insurance		= $('#insurance').val();
 				var packaging		= $('#packaging').val();
+				var discounttype 	=	$('#discounttype').val();
 
 				var unitprice		= x_unitprice.value.replace(/[,]+/g, '');
 				var taxrate			= parseFloat(x_taxrate.value);
@@ -1534,7 +1539,15 @@ echo $ui->loadElement('modal')
 				exchangerate 		= exchangerate.replace(/[,]+/g,'');
 				var tax_amount		= ( quantity * unitprice ) * taxrate;
 				//var amount			= ( quantity * unitprice ) / (taxrate + 1);
-				var amount			= ( quantity * unitprice ) + tax_amount - discount;
+				
+				if(discounttype == 'perc'){
+					discountamt = ((parseFloat(unitprice) 	* 	parseFloat(quantity)) * (parseFloat(discount)/100));
+				}else{
+					discountamt = discount;
+				}
+				console.log(discountamt);
+				
+				var amount			= ( quantity * unitprice ) + tax_amount - discountamt;
 
 				var baseamount		= amount * exchangerate;
 				
@@ -1945,6 +1958,10 @@ $(document).ready(function(){
 				return isNumberKey(e,45);
 		});
 
+
+		$('.discount').prop('readonly',true);
+
+
 	// -- For Vendor -- End
 
 	// -- For Items -- 
@@ -2331,7 +2348,6 @@ $('#currency').on('change', function(){
 $('#discounttype').on('select2:selecting',function(e){
 			var curr_type	=  $(this).val();	
 			var new_type 	= e.params.args.data.id;
-			
 			if(curr_type == "none" || curr_type == ""){
 				$('#discounttype').closest('.form-group').removeClass('has-error');
 

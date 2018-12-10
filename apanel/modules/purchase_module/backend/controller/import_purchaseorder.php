@@ -31,7 +31,9 @@ class controller extends wc_controller
 			'transactiondate',
 			'currency',
 			'exchange_rate',
-			'department'
+			'department',
+			'remarks',
+			'discounttype'
 		);
 		
 		$this->inventory_model  = $this->checkoutModel('inventory_module/inventory_model');
@@ -121,6 +123,7 @@ class controller extends wc_controller
 			$data["request_no"]  	= $retrieved_data["header"]->voucherno;
 			$data['department'] 	= $retrieved_data['header']->department;
 			$data["referenceno"]  	= $retrieved_data["header"]->voucherno;
+			$data["remarks"]  		= $retrieved_data["header"]->remarks;
 			/** RETRIEVE DATA **/
 			//Header Data
 			//$data["vendor"]      	 = $retrieved_data["header"]->requestor;
@@ -309,6 +312,8 @@ class controller extends wc_controller
 		$data['currency'] 	 	 = $retrieved_data['header']->exchangecurrency;
 		$data['exchange_rate'] 	 = $retrieved_data['header']->exchangerate;
 		$data['department'] 	 = $retrieved_data['header']->department;
+		$data["remarks"]  		= $retrieved_data["header"]->remarks;
+		$data['discounttype'] 	 = $retrieved_data['header']->discounttype;
 		$data['referenceno'] 	 = $retrieved_data['header']->referenceno;
 		$data["transactiondate"] = date('M d,Y', strtotime($transactiondate));
 		$data['freight'] 	 	= $retrieved_data['header']->freight;
@@ -411,6 +416,8 @@ class controller extends wc_controller
 		$data["vendor"]      	 = $retrieved_data["header"]->companyname;
 		$data['department'] 	 = $retrieved_data['header']->department;
 		$data['referenceno'] 	 = $retrieved_data['header']->referenceno;
+		$data["remarks"]      	 = $retrieved_data["header"]->remarks;
+		$data['discounttype'] 	 = $retrieved_data['header']->discounttype;
 		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
 		$data['stat'] 			 = $retrieved_data["header"]->stat;
 		$data['currency'] 	 	 = $retrieved_data['header']->exchangecurrency;
