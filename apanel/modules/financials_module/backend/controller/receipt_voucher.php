@@ -1404,7 +1404,7 @@ class controller extends wc_controller
 					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount;
 					$balance_2 	= $balance_2 - $amount - $discount;
 					$balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
-					$balance 	= ($balance + $amount + $discount);
+					$balance 	= ($task == "edit") ? ($balance + $amount + $discount) : $balance;
 				} else {
 					$balance_2 	= ($task == "edit" && $balance == 0) ? ($balance + $appliedamount + $applieddiscount) : $balance;
 				}

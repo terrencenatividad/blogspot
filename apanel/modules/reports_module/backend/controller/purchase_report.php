@@ -53,10 +53,30 @@ class controller extends wc_controller {
 		$supplier 	= $data['supplier'];
 
 		$pagination = $this->report->retrieveMainListing($year, $supplier);
+		$grand 		= $this->report->export_main($year, $supplier);
+
 		$table 	=	"";
 		$total_jan 	=	$total_feb 	=	$total_march 	=	$total_april 	=	$total_may 		=	$total_june  	=	0;
 		$total_july =	$total_aug 	=	$total_sept =	$total_oct 		=	$total_nov 		=	$total_decm 	=	0;
 		
+		$grand_jan 	=	$grand_feb 	=	$grand_march 	=	$grand_april 	=	$grand_may 		=	$grand_june  	=	0;
+		$grand_july =	$grand_aug 	=	$grand_sept =	$grand_oct 		=	$grand_nov 		=	$grand_decm 	=	0;
+		
+		foreach($grand as $key => $row){
+			$grand_jan 			+=	str_replace(',','',$row->jan);
+			$grand_feb 			+=	str_replace(',','',$row->feb);
+			$grand_march 		+=	str_replace(',','',$row->march);
+			$grand_april 		+=	str_replace(',','',$row->april);
+			$grand_may 			+=	str_replace(',','',$row->may);
+			$grand_june 		+=	str_replace(',','',$row->june);
+			$grand_july 		+=	str_replace(',','',$row->july);
+			$grand_aug 			+=	str_replace(',','',$row->aug);
+			$grand_sept 		+=	str_replace(',','',$row->sept); 		
+			$grand_oct 			+=	str_replace(',','',$row->oct);
+			$grand_nov 	 		+=	str_replace(',','',$row->nov);
+			$grand_decm 		+=	str_replace(',','',$row->decm);
+		}
+
 		foreach($pagination->result as $key => $row){
 
 			$partnercode 		=	$row->partnercode;
@@ -519,6 +539,22 @@ class controller extends wc_controller {
 			$table 	.= 	"<td><strong>".number_format($total_nov,2)."</strong></td>";
 			$table 	.= 	"</tr>";
 		}
+
+		$table 	.= 	"<tr class='warning'>";
+		$table 	.= 	"<td  class='text-left'><strong>Grand Total</strong></td>";
+		$table 	.= 	"<td><strong>".number_format($grand_jan,2)."</strong></td>";
+		$table 	.= 	"<td><strong>".number_format($grand_feb,2)."</strong></td>";
+		$table 	.= 	"<td><strong>".number_format($grand_march,2)."</strong></td>";
+		$table 	.= 	"<td><strong>".number_format($grand_april,2)."</strong></td>";
+		$table 	.= 	"<td><strong>".number_format($grand_may,2)."</strong></td>";
+		$table 	.= 	"<td><strong>".number_format($grand_june,2)."</strong></td>";
+		$table 	.= 	"<td><strong>".number_format($grand_july,2)."</strong></td>";
+		$table 	.= 	"<td><strong>".number_format($grand_aug,2)."</strong></td>";
+		$table 	.= 	"<td><strong>".number_format($grand_sept,2)."</strong></td>";
+		$table 	.= 	"<td><strong>".number_format($grand_oct,2)."</strong></td>";
+		$table 	.= 	"<td><strong>".number_format($grand_nov,2)."</strong></td>";
+		$table 	.= 	"<td><strong>".number_format($grand_decm,2)."</strong></td>";
+		$table 	.= 	"</tr>";
 
 		$pagination->table 	= $table;
 		$pagination->csv 	= $this->generateCSV($year, $supplier);
