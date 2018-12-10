@@ -77,14 +77,21 @@
 
             $result                   = (array) $this->job->retrieveExistingJob($job);
             $data['result'] = $result;
+
+            $pr_item                    = array();
+            $item                       = array();
+            $qty                        = array();
             foreach ($result as $key => $row) {
-                $pr[]       = $row->ipo_no;
-                $item[]     = $row->itemcode;
+                
+                $pr_item[]      = $row->ipo_no;
+                $item[]         = $row->itemcode;
+                $qty[]          = $row->qty;
+
             }
-
-            $data['pr_selected']        = $pr;
+            
+            $data['pr_selected']        = $pr_item;
             $data['item_selected']      = $item;
-
+            $data['qty']                = $qty;
             $this->view->load('job/job',  $data);
         }
 
@@ -108,11 +115,12 @@
             foreach ($result as $key => $row) {
                 $pr[]       = $row->ipo_no;
                 $item[]     = $row->itemcode;
+                $qty[]      = $row->qty;
             }
 
             $data['pr_selected']        = $pr;
             $data['item_selected']      = $item;
-
+            $data['qty']                = $qty;
             $this->view->load('job/job',  $data);
         }
 
@@ -226,7 +234,7 @@
             }
             foreach ($pagination->result as $key => $row) {
                 $table .= '<tr>';
-                $table .= '<td class="ipo_checkbox"><input type="checkbox" data-code = "' . $row->voucherno . '"></td>';
+                $table .= '<td class="ipo_checkbox"><input type="checkbox" data-prno = "' . $row->voucherno . '"></td>';
                 $table .= '<td class="ipo_no">' . $row->voucherno . '</td>';
                 $table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
                 $table .= '<td class="text-right">' . number_format($row->amount, 2) . '</td>';
@@ -238,7 +246,7 @@
         }
 
         private function ajax_load_ipo_items(){
-            $job_no        = $this->input->post("job");
+            $job_no     = $this->input->post("job");
             $ipo        = (array)$this->input->post("ipo");
             $task       = $this->input->post("task");
             $table      = '';
@@ -256,18 +264,23 @@
                 foreach ($pagination->result as $key => $row) {
                     
                     $taggedqty = $this->job->getTaggedItemQty($row->voucherno, $row->itemcode, $job_no);
-                    $maxval= $row->receiptqty - $taggedqty[0]->count;
+                    
+                    if (empty($taggedqty)) {
+                        $maxval = $row->receiptqty;
+                    }
+                    else
+                        $maxval = $row->receiptqty - $taggedqty[0]->count;
                     
                     if ($maxval) {
                         $table .= '<tr>';
                         
                             $table .= '<td class = "item_checkbox">';
                             $table .= '
-                                <input type="checkbox" id = "'.$checkid.'" data-code="'.$row->itemcode.'" data-pr="'.$row->voucherno.'">
+                                <input type="checkbox" id = "'.$checkid.'" data-itemcode="'.$row->itemcode.'" data-pr="'.$row->voucherno.'">
                                 <input type="hidden" name="txtipo[]" value="'.$row->voucherno.'">
                                 <input type="hidden" name="txtitem[]" value="'.$row->itemcode.'">
                                 <input type="hidden" name="txtuom[]" value="'.$row->receiptuom.'">
-                                <input type="hidden" name="txtserial[]" value="" data-maxval="">
+                                <input type="hidden" name="txtserial[]" value="">
                                 <input type="hidden" name="txtdesc[]" value="'.$row->detailparticular.'">
                             </td>';
                         
@@ -290,6 +303,9 @@
                         $checkid++;
                     }
                 }
+            }
+            if ($table=="") {
+                $table = '<tr><td colspan="7" class="text-center"><b>No Available Items To Tag</b></td></tr>';
             }
             $table .= '<script>checkSelectedItems();</script>';
             if ($task=="view") {
@@ -359,6 +375,73 @@
             return $query_result;
         }
 
+        private function update(){
+            $job_voucher    = $this->job->autoGenerate("JOBIPO","job_ipo");
+            $job_notarray   = $this->input->post("txtjob");
+            $notes          = $this->input->post("remarks");
+            $date           = $this->input->post("transaction_date");
+            $date           = $this->date->dateDbFormat($date);
+            $status         = "inactive";
+            $ipo            = $this->input->post("txtipo");
+            $itemcode       = $this->input->post("txtitem");
+            $qty            = $this->input->post("txtquantity");
+            $uom            = $this->input->post("txtuom");
+            $serial         = $this->input->post("txtserial");
+            $desc           = $this->input->post("txtdesc");
+            $is_multiple    = (count($itemcode)>1) ? true : false;
+
+            for ($i=0 ; $i<count($itemcode) ; $i++) {
+                $job_static[$i]            = $this->input->post("txtjob");
+                $job_increment[$i]  = $job_voucher++;
+            }
+            
+            $delete_result  = $this->job->deleteJobValues("job_details", $job_static[0]);
+            $delete_result2 = $this->job->deleteJobValues("job_ipo", $job_static[0]);
+
+            $values = array(
+                'job_no'            => $job_notarray,
+                'ipo_no'            => "",
+                'notes'             => $notes,
+                'transactiondate'   => $date,
+                'stat'              => $status
+            );
+
+            $result = $this->job->updateJobValues($values, $job_static[0]);
+
+
+            $values = array(
+                'job_no'        =>$job_static,
+                'ipo_no'        =>$ipo,
+                'itemcode'      =>$itemcode,
+                'qty'           =>$qty,
+                'uom'           =>$uom,
+                'serial_number' =>$serial,
+                'description'   =>$desc,
+            );
+            if ($delete_result===true) {
+                $result1 = $this->job->saveFromPost("job_details", $values);
+            }
+            
+
+            $values = array(
+                'job_voucher_no'    => $job_increment,
+                'job_no'            => $job_static, 
+                'voucher_no'        => $ipo,
+            );
+            if ($delete_result2===true) {
+                $result2 = $this->job->saveFromPost("job_ipo", $values);
+            }
+            
+
+            $query_result = array(
+                'delquery1' => $delete_result,
+                'delquery2' => $delete_result2,
+                'query1' => $result,
+                'query2' => $result1,
+                'query3' => $result2
+            );
+            return $query_result;
+        }
         
     } 
 
