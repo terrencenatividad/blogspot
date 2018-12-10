@@ -168,6 +168,24 @@
 							</div>
 						</div>
 
+						<div class="row">
+							<div class = "col-md-6">
+								<?php
+									echo $ui->formField('text')
+										->setLabel('Shipping Address ')
+										->setPlaceholder('Shipping Address')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('s_address')
+										->setId('s_address')
+										->setValue($s_address)
+										->setValidation('required')
+										->setNone('none')
+										->setDefault('none')
+										->draw($show_input);
+								?>
+							</div>
+						</div>
+
 						<div class = "row">
 							<div class = "col-md-12">
 								<?php
@@ -335,7 +353,7 @@
 															->setClass("text-right price")
 															->setAttribute(array("maxlength" => "20"))
 															->setValue($price)
-															->setValidation('decimal required')
+															->setValidation('decimal')
 															//->addHidden(true)
 															->draw($show_input);
 												?>

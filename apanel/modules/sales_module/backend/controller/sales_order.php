@@ -24,6 +24,7 @@ class controller extends wc_controller
 		$this->fields = array(
 				'voucherno',
 				'customer',
+				's_address',
 				'documentno',
 				'tinno',
 				'address1',
@@ -329,6 +330,7 @@ class controller extends wc_controller
 		$customer 				 = $retrieved_data["header"]->customer;
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["customer"]      	 = $customer;
+		$data["s_address"]       = $retrieved_data["header"]->s_address;
 		$data["due_date"]    	 = $this->date->dateFormat($retrieved_data["header"]->duedate);
 		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
 		$data['remarks'] 		 = $retrieved_data["header"]->remarks;
@@ -448,6 +450,7 @@ class controller extends wc_controller
 		$customer 				 = $retrieved_data["header"]->customer;
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["customer"]      	 = $retrieved_data["header"]->partnername;
+		$data["s_address"]       = $retrieved_data["header"]->s_address;
 		$data["due_date"]    	 = $this->date->dateFormat($duedate);
 		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
 		$data['remarks'] 		 = $retrieved_data["header"]->remarks;

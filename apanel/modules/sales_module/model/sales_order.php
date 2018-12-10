@@ -140,7 +140,7 @@
 		{	 
 			$retrieved_data =	array();
 			
-			$header_fields 	= 	"s.voucherno, s.transactiondate, s.duedate, s.customer, p.partnername, CONCAT(p.first_name,' ',p.last_name) as  customer_name, s.amount, s.discounttype, s.discountamount, s.netamount, s.vat_sales, s.vat_exempt, s.vat_zerorated, s.taxamount, s.remarks, s.stat";
+			$header_fields 	= 	"s.voucherno, s.transactiondate, s.duedate, s.customer, p.partnername, CONCAT(p.first_name,' ',p.last_name) as  customer_name, s.s_address, s.amount, s.discounttype, s.discountamount, s.netamount, s.vat_sales, s.vat_exempt, s.vat_zerorated, s.taxamount, s.remarks, s.stat";
 
 			$condition 		=	" s.voucherno = '$voucherno' ";
 			
@@ -281,6 +281,8 @@
 			$quotation_no		= (isset($data['h_quotation_no']) && (!empty($data['h_quotation_no']))) ? htmlentities(addslashes(trim($data['h_quotation_no']))) : "";
 			
 			$customer			= (isset($data['customer']) && (!empty($data['customer']))) ? htmlentities(addslashes(trim($data['customer']))) : "";
+
+			$s_address			= (isset($data['s_address']) && (!empty($data['s_address']))) ? htmlentities(addslashes(trim($data['s_address']))) : "";
 			
 			$transactiondate	= (isset($data['transaction_date']) && (!empty($data['transaction_date']))) ? htmlentities(addslashes(trim($data['transaction_date']))) : "";
 			
@@ -335,6 +337,7 @@
 			$post_header['transactiondate'] 	=	$transactiondate;
 			$post_header['duedate'] 			= 	$duedate;
 			$post_header['customer'] 			=	$customer;
+			$post_header['s_address'] 			=	$s_address;
 			$post_header['fiscalyear'] 			=	$fiscalyear;
 			$post_header['period'] 				=	$period;
 			$post_header['transtype'] 			=	"SO";
