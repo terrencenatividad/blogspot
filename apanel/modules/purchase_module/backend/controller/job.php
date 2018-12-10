@@ -6,38 +6,75 @@
             $this->input			= new input();
             $this->job   	        = new job();
             $this->session			= new session();
-
-            $this->data = array();
-            $this->view->header_active = 'purchase/job/';
-            $this->log              = new log();
-            $this->fields           = array(
-                'job_no',
-                'notes',
-                'ipo_no',
-                'stat'
-            );
-            $this->jobdetails       = array(
-                'job_no',
-                'ipo_no',
-                'itemcode',
-                'serial_number',
-                'notes',
-                'qty',
-                'uom'
-            );
+            $this->log 			    = new log();
             
+            $this->view->header_active = 'purchase/job/';
+
+            $this->fields 			= array(
+                'job_no',
+                'notes',
+				'ipo_no',
+				'stat'
+			);
+			
+			$this->jobdetails		= array(
+				'job_no',
+				'ipo_no',
+				'itemcode',
+				'serial_number',
+				'notes',
+				'qty',
+				'uom'
+			);
 
         }
 
         public function listing() {
+    
             $this->view->title = 'Job';
             
-            $data['ui'] 			= $this->ui;
-            $data['datefilter']		= date("M d, Y");
-
+            $data['ui'] 				= $this->ui;
+            $data['datefilter']		    = date("M d, Y");
             $this->view->load('job/job_list', $data);
         }
 
+        public function ajax($task) {
+			$ajax = $this->{$task}();
+			if ($ajax) {
+				header('Content-type: application/json');
+				echo json_encode($ajax);
+			}
+		}
+
+        public function view($job){
+            $this->view->title = $this->ui->ViewLabel('');
+
+            $data['ui']             = $this->ui;
+            $data['task']           = 'view';
+            $data['show_input']     = false;
+            
+            $data["job_no"]         = $job;
+
+            $retrievedjob               = $this->job->getJob($job);
+            $job_date                   = $this->date->dateFormat($retrievedjob[0]->transactiondate);
+
+            $data['transactiondate']    = $job_date;
+            $data['notes']              = $retrievedjob[0]->notes;
+
+            $result                   = (array) $this->job->retrieveExistingJob($job);
+            $data['result'] = $result;
+            foreach ($result as $key => $row) {
+                $pr[]       = $row->ipo_no;
+                $item[]     = $row->itemcode;
+                $qty[]      = $row->qty;
+            }
+
+            $data['pr_selected']        = $pr;
+            $data['item_selected']      = $item;
+            $data['qty']                = $qty;
+            $this->view->load('job/job',  $data);
+        }
+        
         public function create()
         {
             $this->view->title = $this->ui->AddLabel('');
@@ -95,137 +132,177 @@
             $this->view->load('job/job',  $data);
         }
 
-        public function view($job){
-            $this->view->title = $this->ui->ViewLabel('');
+        private function update(){
+            $job_voucher    = $this->job->autoGenerate("JOBIPO","job_ipo");
+            $job_notarray   = $this->input->post("txtjob");
+            $notes          = $this->input->post("remarks");
+            $date           = $this->input->post("transaction_date");
+            $date           = $this->date->dateDbFormat($date);
+            $status         = "on-going";
+            $ipo            = $this->input->post("txtipo");
+            $itemcode       = $this->input->post("txtitem");
+            $qty            = $this->input->post("txtquantity");
+            $uom            = $this->input->post("txtuom");
+            $serial         = $this->input->post("txtserial");
+            $desc           = $this->input->post("txtdesc");
+            $is_multiple    = (count($itemcode)>1) ? true : false;
 
-            $data['ui']             = $this->ui;
-            $data['task']           = 'view';
-            $data['show_input']     = false;
+            for ($i=0 ; $i<count($itemcode) ; $i++) {
+                $job_static[$i]            = $this->input->post("txtjob");
+                $job_increment[$i]  = $job_voucher++;
+            }
             
-            $data["job_no"]         = $job;
+            $delete_result  = $this->job->deleteJobValues("job_details", $job_static[0]);
+            $delete_result2 = $this->job->deleteJobValues("job_ipo", $job_static[0]);
 
-            $retrievedjob               = $this->job->getJob($job);
-            $job_date                   = $this->date->dateFormat($retrievedjob[0]->transactiondate);
-
-            $data['transactiondate']    = $job_date;
-            $data['notes']              = $retrievedjob[0]->notes;
-
-            $result                   = (array) $this->job->retrieveExistingJob($job);
-            $data['result'] = $result;
-            foreach ($result as $key => $row) {
-                $pr[]       = $row->ipo_no;
-                $item[]     = $row->itemcode;
-                $qty[]      = $row->qty;
-            }
-
-            $data['pr_selected']        = $pr;
-            $data['item_selected']      = $item;
-            $data['qty']                = $qty;
-            $this->view->load('job/job',  $data);
-        }
-
-        public function ajax($task) {
-            $ajax = $this->{$task}();
-            if ($ajax) {
-                header('Content-type: application/json');
-                echo json_encode($ajax);
-            }
-        }
-
-        private function ajax_list() {
-            $data   = $this->input->post(array('search', 'sort', 'filter'));
-            extract($data);
-            $pagination = $this->job->getJobListing($this->fields, $sort, $search, $filter);
-            $table = '';
-            if (empty($pagination->result)) {
-                $table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
-            }
-            foreach($pagination->result as $row) {
-                $show_activate      = ($row->stat != 'inactive');
-                $show_deactivate    = ($row->stat != 'active');
-                $dropdown = $this->ui->loadElement('check_task')
-                ->addView()
-                ->addEdit()
-                ->addDelete()
-                ->addCheckbox()
-                ->setValue($row->job_no)
-                ->draw();
-                
-                $table .= '<tr>';
-                $table .= '<td align = "center">' . $dropdown . '</td>';
-                $table .= '<td>' . $row->job_no . '</td>';
-                $table .= '<td>' . $row->notes . '</td>';
-                $table .= '<td class="text-center">' . $this->colorStat($row->stat) . '</td>';
-                $table .= '</tr>';
-            }
-    
-            $pagination->table = $table;
-    
-            return $pagination;
-        }
-
-        public function ajax_delete() {
-            $data_var = array(
-                'id'
+            $values = array(
+                'job_no'            => $job_notarray,
+                'ipo_no'            => "",
+                'notes'             => $notes,
+                'transactiondate'   => $date,
+                'stat'              => $status
             );
-            $data = $this->input->post($data_var);
-            extract($data);
-    
-            $data_var = array('id');
-            $id       = $this->input->post($data_var);
 
-            $result = $this->job->deleteJob($id);
-            if( empty($result) )
-            {
-                $result = "success";
+            $result = $this->job->updateJobValues($values, $job_static[0]);
+
+
+            $values = array(
+                'job_no'        =>$job_static,
+                'ipo_no'        =>$ipo,
+                'itemcode'      =>$itemcode,
+                'qty'           =>$qty,
+                'uom'           =>$uom,
+                'serial_number' =>$serial,
+                'description'   =>$desc,
+            );
+            if ($delete_result===true) {
+                $result1 = $this->job->saveFromPost("job_details", $values);
             }
-            else
-            {
-                $result = $result;
+            
+
+            $values = array(
+                'job_voucher_no'    => $job_increment,
+                'job_no'            => $job_static, 
+                'voucher_no'        => $ipo,
+            );
+            if ($delete_result2===true) {
+                $result2 = $this->job->saveFromPost("job_ipo", $values);
             }
-            $dataArray = array( "msg" => $result );
-            return $dataArray;
+            
+
+            $query_result = array(
+                'delquery1' => $delete_result,
+                'delquery2' => $delete_result2,
+                'query1' => $result,
+                'query2' => $result1,
+                'query3' => $result2
+            );
+            return $query_result;
+        }
+		
+		private function colorStat($stat) {
+			$color = 'default';
+			switch ($stat) {
+				case 'closed':
+				$color = 'success';
+				$stat = 'CLOSED';
+				break;
+				case 'on-going':
+				$color = 'warning';
+				$stat = 'ON-GOING';
+				break; 
+				case 'cancelled':
+				$color = 'danger';
+				$stat = 'CANCELLED';
+				break; 
+			}
+			return '<span class="label label-' . $color . '">' . strtoupper($stat) . '</span>';
+		}
+
+		private function ajax_list() {
+          $data  = $this->input->post(array('search', 'sort', 'filter'));
+          extract($data);
+          //var_dump($data);
+          $pagination = $this->job->getJobListing($this->fields, $sort, $search, $filter);
+          $table = '';
+          if (empty($pagination->result)) {
+            $table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
+          }
+          foreach($pagination->result as $row) {
+            $show_activate     = ($row->stat == 'on-going');
+            
+            $edit_check = $this->job->check_importationCost($row->job_no);
+            //var_dump($edit_check);
+
+            $dropdown = $this->ui->loadElement('check_task')
+            ->addView()
+            ->addEdit( $show_activate && $edit_check[0]->count == 0 )
+            ->addOtherTask(
+              'Cancel',
+              'remove',
+              $show_activate
+            )
+            ->addCheckbox($row->stat == 'on-going')
+            ->setValue($row->job_no)
+            ->draw();
+            
+            $table .= '<tr>';
+            $table .= '<td align = "center">' . $dropdown . '</td>';
+            $table .= '<td>' . $row->job_no . '</td>';
+            $table .= '<td>' . $row->notes . '</td>';
+            $table .= '<td class="text-center">' . $this->colorStat($row->stat) . '</td>';
+            $table .= '</tr>';
+          }
+      
+          $pagination->table = $table;
+      
+          return $pagination;
         }
 
-        public function ajax_processingFee() {
+		public function ajax_delete() {
+			$data_var = array(
+				'job_no'
+			);
+			$data = $this->input->post($data_var);
+			extract($data);
+	
+			$data_var 					= array('job_no');
+			$id      		 			= $this->input->post($data_var);
+			$datas['stat'] 			=	'cancelled';
+			$result = $this->job->deleteJob($datas, $id);
+			var_dump($result);
+			if( empty($result) )
+			{
+				$result = "success";
+			}
+			else
+			{
+				$result = $result;
+			}
+			$dataArray = array( "msg" => $result );
+			return $dataArray;
+		}
 
-            $data_var = array('id');
-            $id       = $this->input->post($data_var);
-            $pagination = $this->job->check_importationCost($id);
-            $table = '';
-            if (empty($pagination->result)) {
-                $table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
-            }
-            foreach($pagination->result as $row) {
-                $table .= '<td>' . $row->reference . '</td>';
-                $table .= '<td>' . $row->date . '</td>';
-                $table .= '<td>' . $row->debit . '</td>';
-                $table .= '<td>' . $row->credit . '</td>';
-                $table .= '</tr>';
-            }
-    
-            $pagination->table = $table;
-    
-            return $pagination;
+		public function canceljob()
+		{
+			$id_array 		= array('id');
+			$id       		= $this->input->post($id_array);
+			
+			$result 		= $this->job->cancel_job($id);
+			if( empty($result) )
+			{
+				$msg = "success";
+			}
+			else
+			{
+				$msg = $result;
+			}
+
+			return $dataArray 		= array( "msg" => $msg);
         }
-
-        private function colorStat($stat) {
-            $color = 'default';
-            switch ($stat) {
-                case 'active':
-                $color = 'success';
-                $stat = 'JOB CLOSED';
-                break;
-                case 'inactive':
-                $color = 'warning';
-                $stat = 'JOB ON-GOING';
-                break; 
-            }
-            return '<span class="label label-' . $color . '">' . strtoupper($stat) . '</span>';
-        }
-
+        
         private function ajax_load_ipo_list() {
-            $selected_ipo = (array)$this->input->post("preselect");
+            
             $pagination = $this->job->getIPOPagination();
             $table      = '';
 
@@ -314,7 +391,6 @@
             $pagination->table = $table;
             return $pagination;
         }
-        
 
         private function save(){
             $job_voucher    = $this->job->autoGenerate("JOBIPO","job_ipo");
@@ -322,7 +398,7 @@
             $notes          = $this->input->post("remarks");
             $date           = $this->input->post("transaction_date");
             $date           = $this->date->dateDbFormat($date);
-            $status         = "inactive";
+            $status         = "on-going";
             $ipo            = $this->input->post("txtipo");
             $itemcode       = $this->input->post("txtitem");
             $qty            = $this->input->post("txtquantity");
@@ -375,74 +451,7 @@
             return $query_result;
         }
 
-        private function update(){
-            $job_voucher    = $this->job->autoGenerate("JOBIPO","job_ipo");
-            $job_notarray   = $this->input->post("txtjob");
-            $notes          = $this->input->post("remarks");
-            $date           = $this->input->post("transaction_date");
-            $date           = $this->date->dateDbFormat($date);
-            $status         = "inactive";
-            $ipo            = $this->input->post("txtipo");
-            $itemcode       = $this->input->post("txtitem");
-            $qty            = $this->input->post("txtquantity");
-            $uom            = $this->input->post("txtuom");
-            $serial         = $this->input->post("txtserial");
-            $desc           = $this->input->post("txtdesc");
-            $is_multiple    = (count($itemcode)>1) ? true : false;
+    }
 
-            for ($i=0 ; $i<count($itemcode) ; $i++) {
-                $job_static[$i]            = $this->input->post("txtjob");
-                $job_increment[$i]  = $job_voucher++;
-            }
-            
-            $delete_result  = $this->job->deleteJobValues("job_details", $job_static[0]);
-            $delete_result2 = $this->job->deleteJobValues("job_ipo", $job_static[0]);
-
-            $values = array(
-                'job_no'            => $job_notarray,
-                'ipo_no'            => "",
-                'notes'             => $notes,
-                'transactiondate'   => $date,
-                'stat'              => $status
-            );
-
-            $result = $this->job->updateJobValues($values, $job_static[0]);
-
-
-            $values = array(
-                'job_no'        =>$job_static,
-                'ipo_no'        =>$ipo,
-                'itemcode'      =>$itemcode,
-                'qty'           =>$qty,
-                'uom'           =>$uom,
-                'serial_number' =>$serial,
-                'description'   =>$desc,
-            );
-            if ($delete_result===true) {
-                $result1 = $this->job->saveFromPost("job_details", $values);
-            }
-            
-
-            $values = array(
-                'job_voucher_no'    => $job_increment,
-                'job_no'            => $job_static, 
-                'voucher_no'        => $ipo,
-            );
-            if ($delete_result2===true) {
-                $result2 = $this->job->saveFromPost("job_ipo", $values);
-            }
-            
-
-            $query_result = array(
-                'delquery1' => $delete_result,
-                'delquery2' => $delete_result2,
-                'query1' => $result,
-                'query2' => $result1,
-                'query3' => $result2
-            );
-            return $query_result;
-        }
-        
-    } 
 
 ?>

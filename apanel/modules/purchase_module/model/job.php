@@ -1,17 +1,19 @@
 <?php
     class job extends wc_model
     {
-        public function __construct() {
+        public function __construct() 
+        {
             parent::__construct();
             $this->log = new log();
         }
 
-        public function getJobListing($data, $sort, $search, $filter){
+        public function getJobListing($data, $sort, $search, $filter)
+        {
             $condition = '';
             if ($search) {
-                $condition .= $this->generateSearch($search, array('job_no', 'notes'));
+                $condition .= $this->generateSearch($search, array('job_no', 'notes', 'stat'));
             }
-
+            //var_dump($search);
             $result = $this->db->setTable('job')
             ->setFields($data)
             ->setWhere($condition)
@@ -35,7 +37,8 @@
             return $result;
         }
 
-        public function deleteJob($id)  {
+        public function deleteJob($id)
+        {
             $cond   = "";
             $pieces = explode(',', $id["id"]);
             $errmsg = array();
@@ -59,22 +62,78 @@
             return $errmsg;
         }
         
-        public function check_jobStatus($job_no)  {
-            return $this->db->setTable('job')
-                            ->setFields('COUNT(job_no) count')
-                            ->setWhere(" job_no = '$job_no'")
-                            ->runSelect()
-                            ->getResult();
-        }
-        
-        public function check_importationCost($job_no) {
-            return $this->db->setTable('job')
-                            ->setFields('COUNT(job_no) count')
-                            ->setWhere(" job_no = '$job_no'")
-                            ->runSelect()
-                            ->getResult();
+        public function check_journalDm($job_no)
+		{
+			return $this->db->setTable('journaldetails')
+							->setFields('COUNT(job_no) count')
+							->setWhere(" job_no = '$job_no' AND debit !=0.00")
+							->runSelect()
+							->getResult();
         }
 
+        public function check_journalCm($job_no)
+		{
+			return $this->db->setTable('journaldetails')
+							->setFields('COUNT(job_no) count')
+							->setWhere(" job_no = '$job_no' AND credit !=0.00")
+							->runSelect()
+							->getResult();
+        }
+        
+        public function check_importationCost($job_no)
+		{
+			return $this->db->setTable('ap_details')
+							->setFields('COUNT(voucherno) count')
+							->setWhere(" job_no = '$job_no' AND debit !=0.00")
+							->runSelect()
+							->getResult();
+        }
+
+        public function check_usage($job_no)
+		{
+			return $this->db->setTable('job')
+							->setFields('COUNT(brandcode) count')
+							->setWhere(" brandcode = '$job_no'")
+							->runSelect()
+							->getResult();
+		}
+
+        public function cancel_job($id)
+		{
+			$condition   = "";
+			$id_array 	 = explode(',', $id['id']);
+			$errmsg 	 = array();
+
+			for($i = 0; $i < count($id_array); $i++)
+			{
+				$job_no    = $id_array[$i];
+
+                $condition 		= " job_no = '$job_no'";
+                $data['stat']		           =	'cancelled';
+
+                $checkExisting 	= $this->check_importationCost($job_no);
+                //var_dump($checkExisting);
+
+                // checking for debit memo and credit memo? 
+				if($checkExisting[0]->count > 0)
+				{	
+                    $errmsg[]  = "<p class = 'no-margin'> Job no: $job_no is already tagged with importation cost/s. Cannot cancel.</p>";
+				}
+				else
+				{
+                    $result 		= $this->db->setTable('job')
+                                        ->setValues($data)
+										->setWhere($condition)
+										->runUpdate();
+										// echo $this->db->getQuery();
+
+					$error 			= $this->db->getError();	
+				}
+			}
+			
+			return $errmsg;
+        }
+        
         public function getIPOPagination() {
             $result = $this->db->setTable("purchaseorder")
                             ->setFields("transactiondate, voucherno, amount")
@@ -98,24 +157,6 @@
             $result = $this->db->setTable("job_details")
                             ->setFields("SUM(qty) AS count")
                             ->setWhere("ipo_no='".$ipo."' AND itemcode='".$itemcode."' AND job_no != '".$job."'")
-                            ->runSelect()
-                            ->getResult();
-            return $result;
-        }
-
-        public function retrieveExistingJob($job){
-            $result = $this->db->setTable("job_details")
-                            ->setFields("ipo_no, itemcode, qty")
-                            ->setWhere("job_no='".$job."'")
-                            ->runSelect()
-                            ->getResult();
-            return $result;
-        }
-
-        public function getJob($job){
-            $result = $this->db->setTable("job")
-                            ->setFields("transactiondate,notes")
-                            ->setWhere("job_no='".$job."'")
                             ->runSelect()
                             ->getResult();
             return $result;
@@ -178,6 +219,26 @@
             return $result;
         }
 
+        public function retrieveExistingJob($job){
+            $result = $this->db->setTable("job_details")
+                            ->setFields("ipo_no, itemcode, qty")
+                            ->setWhere("job_no='".$job."'")
+                            ->runSelect()
+                            ->getResult();
+            return $result;
+        }
+
+        public function getJob($job){
+            $result = $this->db->setTable("job")
+                            ->setFields("transactiondate,notes")
+                            ->setWhere("job_no='".$job."'")
+                            ->runSelect()
+                            ->getResult();
+            return $result;
+        }
+
+        
+        
     }
 
 ?>

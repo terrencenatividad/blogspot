@@ -244,17 +244,15 @@
         
 <script type="text/javascript">
     var ajax            = {};
-    var data            = {};
     var selected_holder = [];
     var selected  = {'pr_no'    :[],
                     'pr_item'   :[],
                     'itemcode'  :[],
                     'qty'       :[],
                     };
-    var selected_pr     = [];
-    var selected_items  = [];
     var task            = "<?=$task?>";
     var job_no          = "<?=$job_no?>";
+    
     function getList() {
         ajax.limit = 5;
         $('#ipo_tableList tbody').html(`<tr><td colspan="5" class="text-center">Loading Items</td></tr>`);
@@ -273,7 +271,7 @@
     function getItemList(ipo ,task, job=""){
         ajax.limit = 5;
         $('#pr_pagination').html('');
-        $.post('<?=MODULE_URL?>ajax/ajax_load_ipo_items', {ipo:ipo,task:task,job:job},function (data) {
+        $.post('<?=MODULE_URL?>ajax/ajax_load_ipo_items', {ajax, ipo:ipo,task:task,job:job},function (data) {
             $('#item_tableList tbody').html(data.table);
             $('#item_pagination').html(data.pagination);
             console.log(data);
