@@ -14,6 +14,7 @@ class controller extends wc_controller {
 			'voucherno',
 			'transactiondate',
 			'customer',
+			's_address',
 			'deliverydate',
 			'source_no',
 			'remarks',
@@ -371,7 +372,7 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
-			$table .= '<tr data-id="' . $row->voucherno . '">';
+			$table .= '<tr data-id="' . $row->voucherno . '" data-address="'.$row->s_address.'">';
 			$table .= '<td>' . $row->voucherno . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->remarks . '</td>';
