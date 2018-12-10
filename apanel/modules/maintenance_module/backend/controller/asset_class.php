@@ -93,7 +93,7 @@ class controller extends wc_controller {
 	private function ajax_list() {
 		$search	= $this->input->post('search');
 		$sort	= $this->input->post('sort');
-	
+		
 		$pagination = $this->asset_class->getAssetClassListPagination($this->fields, $search, $sort);
 		$table = '';
 		if (empty($pagination->result)) {

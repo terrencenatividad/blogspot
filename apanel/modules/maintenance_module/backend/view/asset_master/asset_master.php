@@ -237,15 +237,12 @@
 								<div class="row">
 									<div class="col-md-6">
 										<?php
-										$readonly = ($ajax_task == 'edit') ? "readonly" : "false";
-
 											echo $ui->formField('text')
 													->setLabel('Capitalized Cost')
 													->setSplit('col-md-3', 'col-md-8')
 													->setName('capitalized_cost')
 													->setId('capitalized_cost')
 													->setValue($capitalized_cost)
-													->setAttribute(array("readonly" => $readonly))
 													->setValidation('required decimal')
 													->draw($show_input);
 										?>
@@ -258,7 +255,6 @@
 													->setName('purchase_value')
 													->setId('purchase_value')
 													->setValue($purchase_value)
-													->setAttribute(array("readonly" => $readonly))
 													->setValidation('required decimal')
 													->draw($show_input);
 										?>
@@ -274,7 +270,6 @@
 													->setName('balance_value')
 													->setId('balance_value')
 													->setValue($balance_value)
-													->setAttribute(array("readonly" => $readonly))
 													->setValidation('required decimal')
 													->draw($show_input);
 										?>
@@ -501,6 +496,15 @@
 	</div>
 <?php if ($show_input): ?>
 <script>
+$(document).ready(function(){
+	if('<?=$ajax_task?>' == 'ajax_edit'){
+		$('#capitalized_cost').prop('readonly',true);
+		$('#purchase_value').prop('readonly',true);
+		$('#balance_value').prop('readonly',true);
+	}
+});
+
+
 var ajax = {};
 	$('form').submit(function(e) {
 			e.preventDefault();

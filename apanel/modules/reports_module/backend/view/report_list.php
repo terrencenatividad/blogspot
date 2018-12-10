@@ -283,6 +283,27 @@
 						</div>
 					</div>
 				</div>
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						Fixed Asset
+					</div>
+					<div class="panel-body">
+						<div class="list-group">
+							<a href="asset_history" class="list-group-item">
+								<h4 class="list-group-item-heading">Asset History</h4>
+								<p class="list-group-item-text">List of asset history</p>
+							</a>
+							<a href="asset_master_list" class="list-group-item">
+								<h4 class="list-group-item-heading">Asset Master List</h4>
+								<p class="list-group-item-text">List of assets</p>
+							</a>
+							<a href="asset_transaction" class="list-group-item">
+								<h4 class="list-group-item-heading">Asset Transaction</h4>
+								<p class="list-group-item-text">List of transactions of assets</p>
+							</a>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</section>
