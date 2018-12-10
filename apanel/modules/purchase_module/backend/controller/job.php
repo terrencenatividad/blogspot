@@ -7,7 +7,7 @@
             $this->job   	        = new job();
             $this->session			= new session();
             $this->log 			    = new log();
-            $this->data             = array();
+            
             $this->view->header_active = 'purchase/job/';
 
             $this->fields 			= array(
@@ -27,7 +27,6 @@
 				'uom'
 			);
 
-            $data = array();
         }
 
         public function listing() {
@@ -139,7 +138,7 @@
             $notes          = $this->input->post("remarks");
             $date           = $this->input->post("transaction_date");
             $date           = $this->date->dateDbFormat($date);
-            $status         = "inactive";
+            $status         = "on-going";
             $ipo            = $this->input->post("txtipo");
             $itemcode       = $this->input->post("txtitem");
             $qty            = $this->input->post("txtquantity");
@@ -221,44 +220,44 @@
 		}
 
 		private function ajax_list() {
-			$data	= $this->input->post(array('search', 'sort', 'filter'));
-			extract($data);
-			//var_dump($data);
-			$pagination = $this->job->getJobListing($this->fields, $sort, $search, $filter);
-			$table = '';
-			if (empty($pagination->result)) {
-				$table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
-			}
-			foreach($pagination->result as $row) {
-				$show_activate 		= ($row->stat == 'on-going');
-				
-				$edit_check = $this->job->check_importationCost($row->job_no);
-				//var_dump($edit_check);
+          $data  = $this->input->post(array('search', 'sort', 'filter'));
+          extract($data);
+          //var_dump($data);
+          $pagination = $this->job->getJobListing($this->fields, $sort, $search, $filter);
+          $table = '';
+          if (empty($pagination->result)) {
+            $table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
+          }
+          foreach($pagination->result as $row) {
+            $show_activate     = ($row->stat == 'on-going');
+            
+            $edit_check = $this->job->check_importationCost($row->job_no);
+            //var_dump($edit_check);
 
-				$dropdown = $this->ui->loadElement('check_task')
-				->addView()
-				->addEdit( $show_activate && $edit_check[0]->count == 0 )
-				->addOtherTask(
-					'Cancel',
-					'remove',
-					$show_activate
-				)
-				->addCheckbox($row->stat == 'on-going')
-				->setValue($row->job_no)
-				->draw();
-				
-				$table .= '<tr>';
-				$table .= '<td align = "center">' . $dropdown . '</td>';
-				$table .= '<td>' . $row->job_no . '</td>';
-				$table .= '<td>' . $row->notes . '</td>';
-				$table .= '<td class="text-center">' . $this->colorStat($row->stat) . '</td>';
-				$table .= '</tr>';
-			}
-	
-			$pagination->table = $table;
-	
-			return $pagination;
-		}
+            $dropdown = $this->ui->loadElement('check_task')
+            ->addView()
+            ->addEdit( $show_activate && $edit_check[0]->count == 0 )
+            ->addOtherTask(
+              'Cancel',
+              'remove',
+              $show_activate
+            )
+            ->addCheckbox($row->stat == 'on-going')
+            ->setValue($row->job_no)
+            ->draw();
+            
+            $table .= '<tr>';
+            $table .= '<td align = "center">' . $dropdown . '</td>';
+            $table .= '<td>' . $row->job_no . '</td>';
+            $table .= '<td>' . $row->notes . '</td>';
+            $table .= '<td class="text-center">' . $this->colorStat($row->stat) . '</td>';
+            $table .= '</tr>';
+          }
+      
+          $pagination->table = $table;
+      
+          return $pagination;
+        }
 
 		public function ajax_delete() {
 			$data_var = array(
@@ -303,7 +302,7 @@
         }
         
         private function ajax_load_ipo_list() {
-            $selected_ipo = (array)$this->input->post("preselect");
+            
             $pagination = $this->job->getIPOPagination();
             $table      = '';
 
@@ -399,7 +398,7 @@
             $notes          = $this->input->post("remarks");
             $date           = $this->input->post("transaction_date");
             $date           = $this->date->dateDbFormat($date);
-            $status         = "inactive";
+            $status         = "on-going";
             $ipo            = $this->input->post("txtipo");
             $itemcode       = $this->input->post("txtitem");
             $qty            = $this->input->post("txtquantity");
