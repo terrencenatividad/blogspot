@@ -132,7 +132,112 @@
 			}
 			
 			return $errmsg;
-		}
+        }
+        
+        public function getIPOPagination() {
+            $result = $this->db->setTable("purchaseorder")
+                            ->setFields("transactiondate, voucherno, amount")
+                            ->setWhere("stat='open'")
+                            ->setOrderBy("voucherno ASC")
+                            ->runPagination();
+            return $result;
+        }
+
+        public function getItemPagination($ipo_number){
+            $result = $this->db->setTable("purchaseorder_details")
+                            ->setFields("voucherno, itemcode, detailparticular, receiptqty, receiptuom")
+                            ->setWhere("voucherno='".$ipo_number."'")
+                            ->setOrderBy("voucherno ASC")
+                            ->runPagination();
+            return $result;
+        }
+
+        public function getTaggedItemQty($ipo, $itemcode, $job=""){
+            
+            $result = $this->db->setTable("job_details")
+                            ->setFields("SUM(qty) AS count")
+                            ->setWhere("ipo_no='".$ipo."' AND itemcode='".$itemcode."' AND job_no != '".$job."'")
+                            ->runSelect()
+                            ->getResult();
+            return $result;
+        }
+
+        public function autoGenerate($prefix, $table){
+            $gen_value = $this->db->setTable($table)
+                            ->setFields("COUNT(*) AS count")
+                            ->setWhere("job_no!=''")
+                            ->runSelect(false)
+                            ->getResult();
+            
+            if ($gen_value[0]->count>0) {
+                $result = $prefix;
+                $number = $gen_value[0]->count + 1;
+                $zeros = 10 - strlen($number);
+                
+                for ($zeros; $zeros > 0; $zeros--) { 
+                    $result.=0;
+                }
+                $result.=$number;
+            }
+            else{
+                $result = $prefix."0000000001";
+            }
+            
+            return $result;
+        }
+
+        public function saveFromPost($table, $values){
+            $result = $this->db->setTable($table)
+                            ->setValuesFromPost($values)
+                            ->runInsert();
+                           
+            return $result;
+        }
+
+        public function saveValues($table, $values){
+            $result = $this->db->setTable($table)
+                            ->setValues($values)
+                            ->runInsert();
+                            
+            return $result;
+        }
+
+        public function deleteJobValues($table, $value){
+            $result = $this->db->setTable($table)
+                            ->setWhere("job_no = '".$value."'")
+                            ->runDelete();
+                            
+            return $result;
+        }
+        
+        public function updateJobValues($values, $job_no){
+            $result = $this->db->setTable("job")
+                            ->setFields("job_no, ipo_no, notes, transactiondate, stat")
+                            ->setValues($values)
+                            ->setWhere("job_no = '".$job_no."'")
+                            ->runUpdate();
+            return $result;
+        }
+
+        public function retrieveExistingJob($job){
+            $result = $this->db->setTable("job_details")
+                            ->setFields("ipo_no, itemcode, qty")
+                            ->setWhere("job_no='".$job."'")
+                            ->runSelect()
+                            ->getResult();
+            return $result;
+        }
+
+        public function getJob($job){
+            $result = $this->db->setTable("job")
+                            ->setFields("transactiondate,notes")
+                            ->setWhere("job_no='".$job."'")
+                            ->runSelect()
+                            ->getResult();
+            return $result;
+        }
+
+        
         
     }
 
