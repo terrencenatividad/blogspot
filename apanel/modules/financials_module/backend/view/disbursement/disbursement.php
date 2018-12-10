@@ -173,7 +173,7 @@
 							<th class="col-md-3">Check Number</th>
 							<th class="col-md-2">Check Date</th>
 							<th class="col-md-2">Amount</th>
-							<th class="col-md-1">Action</th>
+							<?php if($main_status != 'cancelled'){ ?><th class="col-md-1">Action</th><?php } ?>
 						</tr>
 					</thead>
 					<tbody id="tbody_cheque">
@@ -343,9 +343,11 @@
 										<?php endif; ?>
 
 										<?php else :  ?>
+										<?php if($main_status != 'cancelled'){ ?>
 											<td class="text-center">
 												<button type="button" class="btn btn-info btn-flat print_check <?=$status?>"  style="outline:none;" ><span class="glyphicon glyphicon-download-alt"></span></button>
 											</td>	
+										<?php } ?>
 										<?php endif; ?>
 									</tr>	
 									<?
