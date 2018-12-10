@@ -404,6 +404,7 @@ class receipt_voucher_model extends wc_model
 										->setFields($fields)
 										->setOrderBy('c.transactiondate DESC, c.voucherno DESC')
 										->runPagination();	
+										// echo $this->db->getQuery();
 		} else {
 			$result 	=	$query->setOrderBy('transactiondate DESC, voucherno DESC')
 									->runPagination();

@@ -3029,17 +3029,24 @@ function getCheckAccounts() {
 
 function set_op_acct(discount){
 	var op_acct 	= $('#hidden_op_acct').val();
-	var row 	  = $('#entriesTable tbody tr.clone').length;
-	var ParentRow = $("#entriesTable tbody tr.clone").last();
+	console.log("OP ACCT "+op_acct);
+	var row 	  	= $('#entriesTable tbody tr.clone').length;
+	var copy_acct 	= $('#entriesTable tbody tr.clone:first')[0].outerHTML;
+	var ParentRow 	= $("#entriesTable tbody tr.clone").last();
 		ParentRow.before(clone_acct);
 		resetIds();
-		$("#accountcode\\["+ row +"\\]").closest('tr').addClass('op_row');
-		$("#isop\\["+ row +"\\]").val('yes');
-		$("#accountcode\\["+ row +"\\]").val(op_acct).trigger('change.select2');
-		$("#h_accountcode\\["+ row +"\\]").val(op_acct);
-		$("#detailparticulars\\["+ row +"\\]").val("Overpayment");
-		disable_acct_fields(row);
-		$("#credit\\["+ row +"\\]").prop('readonly',false);
+	var curr 		= $("#entriesTable tbody tr.clone").last();
+	var current_row = curr.prev().find('.accountcode').data('id');
+		curr.prev().addClass('op_row');
+		curr.prev().find('.accountcode').val(op_acct).trigger('select2.change');
+		curr.prev().find('.accountcode').val(op_acct).prop('selected', true);
+		curr.prev().find('.h_accountcode').val(op_acct);
+		curr.prev().find('.isop').val('yes');
+		curr.prev().find('.description').val('Overpayment');
+		curr.prev().find('.debit').val('0.00');
+		disable_acct_fields(current_row);
+		curr.prev().find('.credit').prop('readonly',false);
+		drawTemplate();
 }
 
 var payments 		= <?=$payments;?>;

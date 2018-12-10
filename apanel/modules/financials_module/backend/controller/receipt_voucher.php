@@ -1369,6 +1369,7 @@ class controller extends wc_controller
 				$totalamount	= $pagination->result[$i]->amount;
 				$referenceno	= $pagination->result[$i]->referenceno;
 				$overpayment	= $pagination->result[$i]->overpayment;
+				$payment		= $pagination->result[$i]->payment;	
 
 				$voucher_checked= (in_array($voucher , $voucher_array)) ? 'checked' : '';
 				$amt_checked 	= (in_array($voucher , $amt_array)) ? $amt_checked : '';
@@ -1397,20 +1398,24 @@ class controller extends wc_controller
 				$balance_2 	=	0;
 				if (isset($amt_array[$voucher])) {
 					$amount 	= isset($amt_array[$voucher]['amt']) ? $amt_array[$voucher]['amt'] : $totalamount;
-					$balance_2 	= isset($amt_array[$voucher]['bal']) ? $amt_array[$voucher]['bal'] : $totalamount;
+					$balance_2 	= isset($amt_array[$voucher]['bal']) && $amt_array[$voucher]['bal'] != 0 ? $amt_array[$voucher]['bal'] : $totalamount;
 					$discount	= isset($amt_array[$voucher]['dis']) ? $amt_array[$voucher]['dis'] : '0.00';
 					$amount		= str_replace(',','',$amount);
 					$balance_2	= str_replace(',','',$balance_2);
+					// echo "Balance 2 = ".$balance_2;
+					// echo "Amount 2 = ".$amount;
+					// echo "Discount 2 = ".$discount;
 					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount;
 					$balance_2 	= $balance_2 - $amount - $discount;
-					$balance_2 	= ($amount > $balance) ? 0 	:	$balance_2;
-					$balance 	= ($task == "edit") ? ($balance + $amount + $discount) : $balance;
+					$balance_2 	= ($amount > $balance_2) ? 0 	:	$balance_2;
+					// echo "Balance 2 = ".$balance_2;
+					$balance 	= ($task == "edit") ? $appliedamount + $applieddiscount  : $balance;
 				} else {
 					$balance_2 	= ($task == "edit" && $balance == 0) ? ($balance + $appliedamount + $applieddiscount) : $balance;
 				}
 				
 				$balance 		= ($task == "edit" && $balance == 0) ? ($balance + $appliedamount + $applieddiscount) : $balance;
-				// echo $balance."\n\n";
+	
 				// echo $balance_2."\n\n";
 
 				$disable_checkbox 	=	"";
@@ -1508,62 +1513,13 @@ class controller extends wc_controller
 										->setValue(number_format(0, 2))
 										->draw($show_input).'</td>';
 				}
-				// $avl_credit 	=	str_replace(',','',$avl_credit);
-				// if($voucher_checked == 'checked'){
-				// 	$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
-				// 	$this->ui->formField('text')
-				// 		->setSplit('', 'col-md-12')
-				// 		->setClass("input-sm text-right credits_used")
-				// 		->setId('credits_used'.$voucher)
-				// 		->setPlaceHolder("0.00")
-				// 		->setMaxLength(20)
-				// 		->setAttribute(
-				// 			array(
-				// 				"onBlur" => ' formatNumber(this.id);', 
-				// 				"onClick" => " SelectAll(this.id); ",
-				// 				"onChange" => ' checkCredit(this.value,\''.$voucher.'\'); '
-				// 			)
-				// 		)
-				// 		->setValidation('decimal')
-				// 		->setValue(number_format($credit_used,2))
-				// 		->draw($show_input).'</td>';
-				// 	$table	.= '</tr>';
-				// }
-				// else{
-				// 	$table	.= 	'<td class="text-right pay" style="vertical-align:middle;">'.
-				// 	$this->ui->formField('text')
-				// 		->setSplit('', 'col-md-12')
-				// 		->setClass("input-sm text-right credits_used")
-				// 		->setId('credits_used'.$voucher)
-				// 		->setPlaceHolder("0.00")
-				// 		->setMaxLength(20)
-				// 		->setAttribute(
-				// 			array(
-				// 				"disabled" => "disabled", 
-				// 				"onBlur" => ' formatNumber(this.id);', 
-				// 				"onClick" => " SelectAll(this.id); ",
-				// 				"onChange" => ' checkCredit(this.value,\''.$voucher.'\'); '
-				// 			)
-				// 		)
-				// 		->setValidation('decimal')
-				// 		->setValue(number_format(0, 2))
-				// 		->draw($show_input).'</td>';
-				// 	$table	.= '</tr>';
-				// }
 			}
 		}
-		// else
-		// {
-		// 	$table	.= '<tr>';
-		// 	$table	.= 	'<td class="text-center" colspan="6">- No Records Found -</td>';
-		// 	$table	.= '</tr>';
-		// }
 		$pagination->table = $table;
 		$dataArray = array( "table" => $pagination->table, "json_encode" => $json_encode, "pagination" => $pagination->pagination, "page" => $pagination->page, "page_limit" => $pagination->page_limit );
 		
 		return $dataArray;
 	}
-
 
 	private function getrvdetails()
 	{
