@@ -22,6 +22,24 @@ class asset_master extends wc_model {
 		return $result;
 	}
 
+	public function saveAssetMasterSchedule($shh,$asset_number,$useful_life,$balance_value,$salvage_value,$final,$depreciation,$depreciation_amount) {
+		$shh['asset_id'] = $asset_number;
+		$shh['depreciation_date'] = $final;
+		$shh['accumulated_dep'] = $depreciation;
+		$shh['depreciation_amount'] = $depreciation_amount;
+
+		$result =  $this->db->setTable('depreciation_schedule')
+							->setValues($shh)
+							->runInsert();
+							
+		if ($result) {
+			$insert_id = $this->db->getInsertId();
+			$this->log->saveActivity("Create Asset Master Schedule [$insert_id]");
+		}
+
+		return $result;
+	}
+
 	public function updateAssetMaster($data, $id) {
 		$data['commissioning_date'] = $this->date->dateDbFormat();
 		$data['retirement_date']    = $this->date->dateDbFormat();
@@ -34,6 +52,26 @@ class asset_master extends wc_model {
 		
 		if ($result) {
 			$this->log->saveActivity("Update Asset Master [$id]");
+		}
+
+		return $result;
+	}
+
+	public function updateAssetMasterSchedule($shh,$asset_number,$useful_life,$balance_value,$salvage_value,$final,$depreciation,$depreciation_amount) {
+		$shh['asset_id'] = $asset_number;
+		$shh['depreciation_date'] = $final;
+		$shh['accumulated_dep'] = $depreciation;
+		$shh['depreciation_amount'] = $depreciation_amount;
+
+		$result =  $this->db->setTable('depreciation_schedule')
+							->setValues($shh)
+							->setWhere("asset_id = '$asset_number'")
+							->setLimit(1)
+							->runUpdate();
+							
+		if ($result) {
+			$insert_id = $this->db->getInsertId();
+			$this->log->saveActivity("Create Asset Master Schedule [$insert_id]");
 		}
 
 		return $result;
@@ -65,6 +103,18 @@ class asset_master extends wc_model {
 						->setFields("itemcode ind, CONCAT(itemcode, ' - ', itemname) val, i.stat stat")
 						->leftJoin('itemtype it ON it.id = i.typeid')
 						->setWhere("it.label = 'Fixed Asset' AND NOT EXISTS (SELECT *  FROM asset_master am WHERE am.itemcode = i.itemcode)")
+						->runSelect()
+						->getResult();
+						
+		return $result;
+	}
+
+	public function retrieveItems($itemcode)
+	{
+		$result = $this->db->setTable('items i')
+						->setFields("itemcode ind, CONCAT(itemcode, ' - ', itemname) val, i.stat stat")
+						->leftJoin('itemtype it ON it.id = i.typeid')
+						->setWhere("it.label = 'Fixed Asset' AND (i.itemcode = '$itemcode' OR NOT EXISTS (SELECT *  FROM asset_master am WHERE am.itemcode = i.itemcode))")
 						->runSelect()
 						->getResult();
 						
@@ -158,6 +208,19 @@ class asset_master extends wc_model {
 						->getRow();
 	}
 
+	public function getSchedule($asset_number) {
+		$fields 	= array('depreciation_date','depreciation_amount','accumulated_dep','gl_asset','gl_accdep','gl_depexpense','CONCAT(coa.segment5, " - ", coa.accountname) asset','CONCAT(asd.segment5, " - ", asd.accountname) accdep','CONCAT(dsa.segment5, " - ", dsa.accountname) depexpense');
+		$result = $this->db->setTable('depreciation_schedule ds')
+						->setFields($fields)
+						->leftJoin('chartaccount coa ON coa.id = ds.gl_asset')
+						->leftJoin('chartaccount asd ON asd.id = ds.gl_accdep')
+						->leftJoin('chartaccount dsa ON dsa.id = ds.gl_depexpense')
+						->setWhere("asset_id = '$asset_number'")
+						->setOrderBy('depreciation_date')
+						->runSelect()
+						->getResult();
+		return $result;
+	}
 
 	public function getAssetMasterListPagination($fields, $search = '', $sort) {
 

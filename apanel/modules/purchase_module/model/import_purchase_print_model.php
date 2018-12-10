@@ -167,69 +167,131 @@ class import_purchase_print_model extends fpdf {
 		$converted_packaging = $document_info->converted_packaging;
 		$convertedamount = $document_info->convertedamount;
 		$exchangecurrency = $document_info->exchangecurrency;
+		$remarks = $document_info->remarks;
 
-		$this->SetFont('Arial', 'B', 9);
+		$this->SetFont('Arial', 'B', 8);
+		$this->SetY(205);
+		$this->SetX(8);
+		$this->Cell(20, 4, 'Notes:', 0, 0, 'L');
+
+		$this->SetFont('Arial', '', 8);
+		$this->SetY(210);
+		$this->SetX(8);
+		$this->Cell(90, 4, $remarks, 0, 0, 'L');
+
+		$this->SetFont('Arial', '', 8);
+		$this->SetY(205);
+		$this->SetX(145);
+		$this->Cell(8, 4, $exchangecurrency, 0, 0, 'L');
+
+		$this->SetFont('Arial', '', 8);
+		$this->SetY(215);
+		$this->SetX(145);
+		$this->Cell(8, 4, $exchangecurrency, 0, 0, 'L');
+
+		$this->SetFont('Arial', '', 8);
+		$this->SetY(225);
+		$this->SetX(145);
+		$this->Cell(8, 4, $exchangecurrency, 0, 0, 'L');
+
+		$this->SetFont('Arial', '', 8);
+		$this->SetY(235);
+		$this->SetX(145);
+		$this->Cell(8, 4, $exchangecurrency, 0, 0, 'L');
+
+		$this->SetFont('Arial', '', 8);
+		$this->SetY(243);
+		$this->SetX(145);
+		$this->Cell(8, 4, $exchangecurrency, 0, 0, 'L');
+
+		$this->SetFont('Arial', '', 8);
+		$this->SetY(205);
+		$this->SetX(176.5);
+		$this->Cell(8, 4, 'PHP', 0, 0, 'L');
+
+		$this->SetFont('Arial', '', 8);
+		$this->SetY(215);
+		$this->SetX(176.5);
+		$this->Cell(8, 4, 'PHP', 0, 0, 'L');
+
+		$this->SetFont('Arial', '', 8);
+		$this->SetY(225);
+		$this->SetX(176.5);
+		$this->Cell(8, 4, 'PHP', 0, 0, 'L');
+
+		$this->SetFont('Arial', '', 8);
+		$this->SetY(235);
+		$this->SetX(176.5);
+		$this->Cell(8, 4, 'PHP', 0, 0, 'L');
+
+		$this->SetFont('Arial', '', 8);
+		$this->SetY(243);
+		$this->SetX(176.5);
+		$this->Cell(8, 4, 'PHP', 0, 0, 'L');
+
+		$this->SetFont('Arial', 'B', 8);
 		$this->SetY(205);
 		$this->SetX(115);
 		$this->Cell(20, 4, 'Total Purchase', 0, 0, 'L');
-		$this->SetFont('Arial', '', 9);
+		$this->SetFont('Arial', '', 8);
 		$this->SetY(205);
 		$this->SetX(156);
-		$this->Cell(20, 4, number_format($amount, 2).' '.$exchangecurrency, 0, 0, 'R');
-		$this->SetFont('Arial', '', 9);
+		$this->Cell(20, 4, number_format($amount, 2), 0, 0, 'R');
+		$this->SetFont('Arial', '', 8);
 		$this->SetY(205);
 		$this->SetX(188);
-		$this->Cell(20, 4, number_format($convertedamount, 2).' PHP', 0, 0, 'R');
-		$this->SetFont('Arial', 'B', 9);
+		$this->Cell(20, 4, number_format($convertedamount, 2), 0, 0, 'R');
+		$this->SetFont('Arial', 'B', 8);
 		$this->SetY(215);
 		$this->SetX(115);
 		$this->Cell(20, 4, 'Freight', 0, 0, 'L');
-		$this->SetFont('Arial', '', 9);
+		$this->SetFont('Arial', '', 8);
 		$this->SetY(215);
 		$this->SetX(156);
-		$this->Cell(20, 4, number_format($freight, 2).' '.$exchangecurrency, 0, 0, 'R');
-		$this->SetFont('Arial', '', 9);
+		$this->Cell(20, 4, number_format($freight, 2), 0, 0, 'R');
+		$this->SetFont('Arial', '', 8);
 		$this->SetY(215);
 		$this->SetX(188);
-		$this->Cell(20, 4, number_format($converted_freight, 2).' PHP', 0, 0, 'R');
-		$this->SetFont('Arial', 'B', 9);
+		$this->Cell(20, 4, number_format($converted_freight, 2), 0, 0, 'R');
+		$this->SetFont('Arial', 'B', 8);
 		$this->SetY(225);
 		$this->SetX(115);
 		$this->Cell(20, 4, 'Insurance', 0, 0, 'L');
-		$this->SetFont('Arial', '', 9);
+		$this->SetFont('Arial', '', 8);
 		$this->SetY(225);
 		$this->SetX(156);
-		$this->Cell(20, 4, number_format($insurance, 2).' '.$exchangecurrency, 0, 0, 'R');
-		$this->SetFont('Arial', '', 9);
+		$this->Cell(20, 4, number_format($insurance, 2), 0, 0, 'R');
+		$this->SetFont('Arial', '', 8);
 		$this->SetY(225);
 		$this->SetX(188);
-		$this->Cell(20, 4, number_format($converted_insurance, 2).' PHP', 0, 0, 'R');
-		$this->SetFont('Arial', 'B', 9);
+		$this->Cell(20, 4, number_format($converted_insurance, 2), 0, 0, 'R');
+		$this->SetFont('Arial', 'B', 8);
 		$this->SetY(235);
 		$this->SetX(115);
 		$this->Cell(20, 4, 'Packaging', 0, 0, 'L');
-		$this->SetFont('Arial', '', 9);
+		$this->SetFont('Arial', '', 8);
 		$this->SetY(235);
 		$this->SetX(156);
-		$this->Cell(20, 4, number_format($packaging, 2).' '.$exchangecurrency, 0, 0, 'R');
-		$this->SetFont('Arial', '', 9);
+		$this->Cell(20, 4, number_format($packaging, 2), 0, 0, 'R');
+		$this->SetFont('Arial', '', 8);
 		$this->SetY(235);
 		$this->SetX(188);
-		$this->Cell(20, 4, $converted_packaging.' PHP', 0, 0, 'R');
-		$this->SetFont('Arial', 'B', 9);
+		$this->Cell(20, 4, number_format($converted_packaging, 2), 0, 0, 'R');
+		$this->SetFont('Arial', 'B', 8);
 		$this->SetY(243);
 		$this->SetX(115);
 		$this->Cell(20, 4, 'Total Amount Due', 0, 0, 'L');
-		$this->SetFont('Arial', '', 9);
+		$this->SetFont('Arial', '', 8);
 		$this->SetY(243);
 		$this->SetX(156);
-		$this->Cell(20, 4, number_format(($amount+$freight+$insurance+$packaging), 2).' '.$exchangecurrency, 0, 0, 'R');
-		$this->SetFont('Arial', '', 9);
+		$this->Cell(20, 4, number_format(($amount+$freight+$insurance+$packaging), 2), 0, 0, 'R');
+		$this->SetFont('Arial', '', 8);
 		$this->SetY(243);
 		$this->SetX(188);
-		$this->Cell(20, 4, number_format(($convertedamount+$converted_freight+$converted_insurance+$converted_packaging), 2).' PHP', 0, 0, 'R');
+		$this->Cell(20, 4, number_format(($convertedamount+$converted_freight+$converted_insurance+$converted_packaging), 2), 0, 0, 'R');
 		$this->SetY($header_end);
 		$this->Ln();
+	
 	}
 
 	public function footer() {
@@ -273,17 +335,17 @@ class import_purchase_print_model extends fpdf {
 				}
 			}
 
-			$receipt_width = 216 - ($this->margin_side * 2) - $content_width - $label_width;
-			$this->SetFont('Arial', 'B', 8);
-			$this->Rect($this->margin_side + $content_width + $label_width, $footer_start, $receipt_width, 20);
-			$this->SetY($footer_start);
-			$this->SetX($this->margin_side + $content_width + $label_width);
-			$this->Cell($receipt_width, 5, 'Received the above good/s in good condition', 0, 0, 'C');
-			$this->Ln(15);
-			$this->SetFont('Arial', '', 8);
-			$this->SetX($this->margin_side + $content_width + $label_width);
-			$this->Cell($receipt_width - round($receipt_width * 0.5), 5, 'Signature over Printed Name', 0, 0, 'C');
-			$this->Cell(round($receipt_width * 0.5), 5, 'Date Received', 0, 0, 'C');
+			// $receipt_width = 216 - ($this->margin_side * 2) - $content_width - $label_width;
+			// $this->SetFont('Arial', 'B', 8);
+			// $this->Rect($this->margin_side + $content_width + $label_width, $footer_start, $receipt_width, 20);
+			// $this->SetY($footer_start);
+			// $this->SetX($this->margin_side + $content_width + $label_width);
+			// $this->Cell($receipt_width, 5, 'Received the above good/s in good condition', 0, 0, 'C');
+			// $this->Ln(15);
+			// $this->SetFont('Arial', '', 8);
+			// $this->SetX($this->margin_side + $content_width + $label_width);
+			// $this->Cell($receipt_width - round($receipt_width * 0.5), 5, 'Signature over Printed Name', 0, 0, 'C');
+			// $this->Cell(round($receipt_width * 0.5), 5, 'Date Received', 0, 0, 'C');
 		} else if ($this->has_footer_details) {
 			$content_width		= 69;
 			$label_width		= 30;
@@ -388,13 +450,13 @@ class import_purchase_print_model extends fpdf {
 		$this->SetY($this->GetY() + 2);
 		$this->SetFillColor(230,230,230);
 		$this->Rect($this->margin_side, $this->GetY(), 216 - ($this->margin_side * 2), 279 - $this->GetY() - $this->margin_top - $this->footer_height - 2);
-		$this->SetFont('Arial', 'B', 9);
+		$this->SetFont('Arial', 'B', 8);
 		foreach($this->header as $key => $header) {
 			$width = isset($this->header_width[$key]) ? $this->header_width[$key] : 0;
 			$align = isset($this->header_align[$key]) ? $this->header_align[$key] : 'L';
 			$this->Cell($width, 6, $header, 1, 0, $align, true);
 		}
-		$this->SetFont('Arial', '', 9);
+		$this->SetFont('Arial', '', 8);
 		$this->Ln();
 	}
 	

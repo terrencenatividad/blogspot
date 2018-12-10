@@ -163,7 +163,7 @@ class import_purchaseorder extends wc_model
 	{	 
 		$retrieved_data =	array();
 		
-		$header_fields 	= 	"po.voucherno, po.transactiondate, po.referenceno, po.vendor, p.partnername as companyname,CONCAT(p.first_name, ' ',p.last_name) as vendor_name, po.amount, po.discounttype, po.discountamount, po.netamount, po.taxamount, po.wtaxamount, po.wtaxrate, po.wtaxcode, po.atcCode, po.department, po.stat, po.exchangecurrency,po.exchangerate,po.freight,po.insurance,po.packaging";
+		$header_fields 	= 	"po.voucherno, po.transactiondate, po.referenceno, po.vendor, p.partnername as companyname,CONCAT(p.first_name, ' ',p.last_name) as vendor_name, po.remarks as remarks, po.amount, po.discounttype, po.discountamount, po.netamount, po.taxamount, po.wtaxamount, po.wtaxrate, po.wtaxcode, po.atcCode, po.department, po.stat, po.exchangecurrency,po.exchangerate,po.freight,po.insurance,po.packaging,po.converted_freight,po.converted_insurance,po.converted_packaging";
 
 		$condition 		=	" po.voucherno = '$voucherno' ";
 		
@@ -367,7 +367,7 @@ class import_purchaseorder extends wc_model
 		$post_header['vendor'] 				=	$vendor;
 		$post_header['fiscalyear'] 			=	$fiscalyear;
 		$post_header['period'] 				=	$period;
-		$post_header['transtype'] 			=	"PO";
+		$post_header['transtype'] 			=	"IPO";
 		$post_header['stat'] 		 		= 	$status;
 		$post_header['remarks'] 			=	$remarks;
 		$post_header['basecurrency'] 		=	'PHP';
@@ -493,7 +493,7 @@ class import_purchaseorder extends wc_model
 			if( $tempArrayValue['itemcode'] != "" )
 			{
 				$data_insert["voucherno"]         	= $voucherno;
-				$data_insert['transtype']         	= 'PO';
+				$data_insert['transtype']         	= 'IPO';
 				$data_insert['linenum']	        	= $linenum;
 				$data_insert['itemcode']	  		= $itemcode;
 				$data_insert['detailparticular']	= $detailparticular;
