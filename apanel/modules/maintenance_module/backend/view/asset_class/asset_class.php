@@ -54,7 +54,7 @@
 									->setId('useful_life')
 									->setValue($useful_life)
 									->setAttribute(array("maxlength" => "3"))
-									->setValidation('required')
+									->setValidation('required integer')
 									->draw($show_input);
 						?>
 					</div>
