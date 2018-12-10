@@ -3180,16 +3180,18 @@ function getRVDetails(){
 						total_rcv 	+=	current_amt;
 						total_bal 	+=	(current_balance>0) ? current_balance : current_amt;
 					}
+					console.log(total_rcv);
+					console.log(total_bal);
 					if(total_rcv==total_bal){
 						if(is_op == "yes"){
 							$('#op_checker').iCheck('check');
-							$('#op_checker').prop('disabled',false).iCheck('update');
 						}
+						$('#op_checker').prop('disabled',false).iCheck('update');
 					} else {
 						if(is_op == "yes"){
 							$('#op_checker').iCheck('uncheck');
-							$('#op_checker').prop('disabled',true).iCheck('update');
 						} 
+						$('#op_checker').prop('disabled',true).iCheck('update');
 					}
 				}
 			}	
