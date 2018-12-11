@@ -1362,23 +1362,29 @@
 		var credit_currency = 0;
 		$('#itemsTable').on('blur', '.debit', function() {
 			var rate = removeComma($('#exchangerate').val());
-			if($(this).val() != '') {
+			var debit = removeComma($(this).val());
+			if(debit != '0') {
 				debit_currency = $(this).val() * rate;
 				$(this).closest('tr').find('.currencyamount').val(addComma(debit_currency)).attr('name', 'currencydebit');
 				$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
 				sumDebit();
 				sumCurrencyAmount();
+			} else {
+				$(this).closest('tr').find('.credit').removeAttr('readonly');
 			}
 		});
 
 		$('#itemsTable').on('blur', '.credit', function() {
 			var rate = removeComma($('#exchangerate').val());
-			if($(this).val() != '') {
+			var credit = removeComma($(this).val());
+			if(credit != '0') {
 				credit_currency = $(this).val() * rate;
 				$(this).closest('tr').find('.currencyamount').val(addComma(credit_currency)).attr('name', 'currencycredit');
 				$(this).closest('tr').find('.debit').attr('readonly', 'readonly');
 				sumCredit();
 				sumCurrencyAmount();
+			} else {
+				$(this).closest('tr').find('.debit').removeAttr('readonly');
 			}
 		});
 

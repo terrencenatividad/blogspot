@@ -52,7 +52,7 @@ class controller extends wc_controller {
             $totalcredit    +=   $row->credit;
 			$table .= '<tr>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
-			$table .= '<td>' . $row->voucherno . '</td>';
+			$table .= '<td><a href="'.BASE_URL."financials/journal_voucher/view/" . $row->voucherno . '" target="_blank"> '.$row->voucherno.'</a></td>';
 			$table .= '<td>' . $row->remarks . '</td>';
 			$table .= '<td>' . $row->accountname . '</td>';
 			$table .= '<td>' . number_format($row->debit,2) . '</td>';

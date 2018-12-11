@@ -35,7 +35,7 @@ class credit_voucher_model extends wc_model {
 	}
 
 	public function getCreditVoucherPagination($fields, $search, $sort, $datefilter, $source, $filter) {
-		$sort = ($sort) ? $sort : 'transactiondate desc';
+		$sort = ($sort) ? $sort : 'voucherno desc';
 		$condition = "";
 		if ($filter != 'all' && $filter != ''){
 			$condition .= " AND c.stat = '$filter' ";
@@ -51,7 +51,7 @@ class credit_voucher_model extends wc_model {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
 		}
 		$result = $this->db->setTable("creditvoucher c")
-						->leftJoin("partners p ON p.partnercode = c.partner")
+						->leftJoin("partners p ON p.partnercode = c.partner AND p.partnertype = 'customer' AND p.companycode = c.companycode")
 						->setFields($fields)
 						->setWhere("voucherno != ''".$condition)
 						->setOrderBy($sort)
@@ -63,7 +63,7 @@ class credit_voucher_model extends wc_model {
 	public function getApplied($voucherno) {
 		$result = $this->db->setTable("creditvoucher_applied")
 						->setFields('SUM(amount) amount')
-						->setWhere("cr_voucher = '$voucherno'")
+						->setWhere("cr_voucher = '$voucherno' AND stat = 'active'")
 						->runSelect()
 						->getRow();
 
@@ -103,7 +103,7 @@ class credit_voucher_model extends wc_model {
 			'c.stat'
 		);
 		$result = $this->db->setTable('creditvoucher c')
-						->leftJoin('partners p ON p.partnercode = c.partner')
+						->leftJoin('partners p ON p.partnercode = c.partner AND p.partnertype = "customer" AND p.companycode = c.companycode')
 						->setFields($fields)
 						->setWhere("voucherno = '$voucherno'")
 						->runSelect()

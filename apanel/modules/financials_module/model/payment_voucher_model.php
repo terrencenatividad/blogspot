@@ -105,7 +105,7 @@ class payment_voucher_model extends wc_model
 		
 		$setFields = "partnername name, email, tinno, address1, terms";
 		$vendor    = $temp["main"]->vendor;
-		$cond = "partnercode = '$vendor'";
+		$cond = "partnercode = '$vendor' AND partnertype = 'supplier'";
 
 		// Retrieve Header
 		$retrieveArrayVendor =  $this->db->setTable('partners')
@@ -302,7 +302,7 @@ class payment_voucher_model extends wc_model
 										"pvc.stat as chequestat"
 									)
 								)
-								->leftJoin("partners p ON p.partnercode = main.vendor ")
+								->leftJoin("partners p ON p.partnercode = main.vendor AND p.companycode = main.companycode AND p.partnertype = 'supplier'")
 								->leftJoin("pv_cheques as pvc ON pvc.voucherno = main.voucherno ")
 								->leftJoin("chartaccount coa ON coa.id = pvc.chequeaccount ")
 								->setWhere("main.stat NOT IN('deleted','temporary') ".$add_query)
@@ -332,7 +332,7 @@ class payment_voucher_model extends wc_model
 		// Main Queries
 		$main_table   = "accountspayable as main";
 		$main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0)) as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno");
-		$main_join 	  = "partners p ON p.partnercode = main.vendor ";
+		$main_join 	  = "partners p ON p.partnercode = main.vendor AND p.companycode = main.companycode AND p.partnertype = 'supplier'";
 		$orderby  	  = "main.transactiondate DESC";
 		
 		$pva_cond 	=	($voucherno != "") ?	" AND app.voucherno = '$voucherno'"	:	"";
@@ -388,7 +388,7 @@ class payment_voucher_model extends wc_model
 		$main_fields  = array("main.voucherno as voucherno", "main.transactiondate as transactiondate", "main.convertedamount as amount", "main.balance as balance", "p.partnername AS vendor_name", "main.referenceno as referenceno", "apd.accountcode", "chart.accountclasscode", "SUM(apd.credit) AS sumcredit", "apd.detailparticulars");
 		$apd_join 	  = "ap_details AS apd ON main.voucherno = apd.voucherno AND main.companycode = apd.companycode";
 		$chart_join   = "chartaccount AS chart ON apd.accountcode = chart.id AND chart.companycode = apd.companycode";
-		$main_join 	  = "partners p ON p.partnercode = main.vendor";
+		$main_join 	  = "partners p ON p.partnercode = main.vendor AND p.companycode = main.companycode AND p.partnertype = 'supplier'";
 		$main_cond 	  = "main.stat = 'posted' AND main.vendor = '$vendorcode' AND chart.accountclasscode = 'ACCPAY' AND apd.voucherno  IN $cond";
 		$groupby 	  = "apd.accountcode";
 		$orderby  	  = "main.transactiondate DESC";
@@ -1273,7 +1273,7 @@ class payment_voucher_model extends wc_model
 
 		$main_fields = array("main.transactiondate as transactiondate", "main.voucherno as voucherno", "CONCAT( first_name, ' ', last_name ) AS vendor", "main.referenceno as referenceno", "main.amount as amount", "main.balance as balance", "main.particulars");
 
-		$main_join   = "partners p ON p.partnercode = main.vendor"; //AND p.companycode
+		$main_join   = "partners p ON p.partnercode = main.vendor AND p.companycode = main.companycode AND p.partnertype = 'supplier'"; //AND p.companycode
 		$main_table  = "accountspayable as main";
 		$main_cond   = "main.stat = 'posted' $add_query";
 		$query 		 = $this->retrieveData($main_table, $main_fields, $main_cond, $main_join);
@@ -1484,7 +1484,7 @@ class payment_voucher_model extends wc_model
 										"pvc.stat as chequestat"
 									)
 								)
-								->leftJoin("partners p ON p.partnercode = main.vendor ")
+								->leftJoin("partners p ON p.partnercode = main.vendor AND p.companycode = main.companycode AND p.partnertype = 'supplier'")
 								->leftJoin("pv_cheques as pvc ON pvc.voucherno = main.voucherno ")
 								->leftJoin("chartaccount coa ON coa.id = pvc.chequeaccount ")
 								->setWhere("main.stat != 'temporary' ".$add_query)
@@ -1510,7 +1510,7 @@ class payment_voucher_model extends wc_model
 		$res = 	$this->db->setTable("pv_cheques pvc")
 					->setFields(array("chequeconvertedamount","vendor","chequedate","partnername", "chequenumber"))
 					->leftJoin("paymentvoucher pv ON pvc.voucherno = pv.voucherno ")
-					->leftJoin("partners p ON pv.vendor = p.partnercode ")
+					->leftJoin("partners p ON pv.vendor = p.partnercode AND p.companycode = p.companycode AND p.partnertype = 'supplier'")
 					->setWhere("pvc.voucherno = '$vno' AND chequenumber = '$cno'")
 					->runSelect()
 					->getResult();

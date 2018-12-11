@@ -22,7 +22,7 @@
 		public function retrieveCustomerDetails($vendor_code)
 		{
 			$fields = "address1, tinno, terms, email, partnername AS name";
-			$cond 	= "partnercode = '$vendor_code'";
+			$cond 	= "partnercode = '$vendor_code' AND partnertype = 'customer'";
 
 			$result = $this->db->setTable('partners')
 								->setFields($fields)
@@ -116,7 +116,7 @@
 
 			$result = $this->db->setTable('salesquotation s')
 							->setFields($fields)
-							->leftJoin('partners p ON p.partnercode = s.customer ')
+							->leftJoin('partners p ON p.partnercode = s.customer AND p.partnertype = "customer" AND s.companycode = p.companycode ')
 							->setWhere($add . $add_query)
 							->setOrderBy($sort)
 							->runPagination();
@@ -521,7 +521,7 @@
 
 			return $this->db->setTable('salesquotation s')
 							->setFields($fields)
-							->leftJoin('partners p ON p.partnercode = s.customer ')
+							->leftJoin('partners p ON p.partnercode = s.customer AND p.partnertype = "customer" AND p.companycode = s.companycode')
 							->setWhere($add . $add_query)
 							->setOrderBy($sort)
 							->runSelect()

@@ -506,8 +506,11 @@ class controller extends wc_controller
 					}
 					if(empty($accountnature)){
 						$errmsg[] 	= "Account Nature is required. Row $line should not be empty.<br>";
-					}				
-				
+					}		
+					if($fspresentation == 'Balance Sheet' || $fspresentation == 'Income Statement') {
+						$errmsg[]	= "Invalid FS Presenation on Row $line. Kindly use 'IS' for Income Statement and 'BS' for Balance Sheet<br/>";
+					}		
+					
 					$accountcode_[] 	= $accountcode;
 					$accountname_[] 	= addslashes($accountname);
 					$accountclass_[] 	= $accountclass;
@@ -631,8 +634,7 @@ class controller extends wc_controller
 
 		$result = $this->coaclass->fileExport($data_post);
 
-		$header = array("Account Code","Account Name","Account Class","FS Presentation (BS or IS)",
-			"Account Type","Parent Account","Account Nature");
+		$header = array("Account Code","Account Name","Account Class","FS Presentation (BS or IS)","Account Type","Parent Account","Account Nature");
 		
 		$csv = '';
 		$csv .= '"' . implode('","', $header) . '"';

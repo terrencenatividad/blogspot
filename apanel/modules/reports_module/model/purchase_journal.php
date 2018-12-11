@@ -2,6 +2,7 @@
 class purchase_journal extends wc_model {
 
 	public function purchase_journalList($startdate, $enddate,$vendor, $sort) {
+		$orderby	= '';
 		$condition = '';
 		if ($startdate && $enddate) {
 			$condition .= " AND pr.transactiondate >= '$startdate' AND pr.transactiondate <= '$enddate'";
@@ -11,20 +12,25 @@ class purchase_journal extends wc_model {
 			$condition .= " AND pr.vendor IN ('" . implode("', '", $vendor) . "')";
 		}
 
+		if($sort){
+			$orderby .= $sort;
+		}
+
 		$fields = array('
 			pr.vendor code, pr.transactiondate transactiondate, pr.remarks remarks, pr.voucherno ref_no, pr.discountamount discount, pr.taxamount taxamount, pr.netamount netamount, pt.partnername vendor, pt.tinno tinno, pr.amount amount'
 		);
 
-		$result = $this->db->setTable('purchasereceipt pr')
+		$result = $this->db->setTable('purchaseorder pr')
 						->setFields($fields)
 						->leftJoin('partners pt ON pr.vendor = pt.partnercode')
 						->setWhere(" pr.taxamount > 0 AND pr.stat NOT IN ('temporary','cancelled') " .$condition)
+						->setOrderBy($orderby)
 						->runPagination();
-						// echo $this->db->getQuery();
 		return $result;
 	}
 
 	public function fileExport($startdate, $enddate,$vendor, $sort) {
+		$orderby	= '';
 		$condition = '';
 		if ($startdate && $enddate) {
 			$condition .= " AND pr.transactiondate >= '$startdate' AND pr.transactiondate <= '$enddate'";
@@ -34,14 +40,19 @@ class purchase_journal extends wc_model {
 			$condition .= " AND pr.vendor IN ('" . implode("', '", $vendor) . "')";
 		}
 
+		if($sort){
+			$orderby .= $sort;
+		}
+
 		$fields = array('
 			pr.vendor code, pr.transactiondate transactiondate, pr.remarks remarks, pr.voucherno ref_no, pr.discountamount discount, pr.taxamount taxamount, pr.netamount netamount, pt.partnername vendor, pt.tinno tinno, pr.amount amount'
 		);
 
-		$result = $this->db->setTable('purchasereceipt pr')
+		$result = $this->db->setTable('purchaseorder pr')
 						->setFields($fields)
 						->leftJoin('partners pt ON pr.vendor = pt.partnercode')
 						->setWhere(" pr.taxamount > 0 AND pr.stat NOT IN ('temporary','cancelled')" .$condition)
+						->setOrderBy($orderby)
 						->runSelect()
 						->getResult();
 		return $result;

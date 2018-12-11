@@ -105,11 +105,11 @@
 				<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				<h4 class="modal-title">Attach File</h4>
-				<h5 class="modal-title">JO NO.: JO0000000001</h5>
+				<h4 class="modal-title">JO NO.: JO0000000001</h4>
 				</div>
 				<div class="modal-body">
 					<div class="form-group">
-						<label for="import_csv">Step 3. Select the updated file and click 'Import' to proceed.</label>
+						<!-- <label for="import_csv">Step 3. Select the updated file and click 'Import' to proceed.</label> -->
 						<?php
 							echo $ui->setElement('file')
 									->setId('import_csv')
@@ -125,7 +125,7 @@
 				<div class="modal-footer">
 					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 						<div class="btn-group">
-						<button type = "button" class = "btn btn-primary btn-sm btn-flat">Import</button>
+						<button type = "button" class = "btn btn-primary btn-sm btn-flat">Attach</button>
 						</div>
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
