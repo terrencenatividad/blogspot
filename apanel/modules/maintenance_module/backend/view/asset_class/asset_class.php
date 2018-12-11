@@ -108,7 +108,7 @@
                     <div class="col-md-6">
 						<?php
 							echo $ui->formField('dropdown')
-								->setLabel('GL Account (Depreciate Expense) ')
+								->setLabel('GL Account(Depreciate Expense)')
 								->setPlaceholder('Select Account')
 								->setSplit('col-md-3', 'col-md-8')
 								->setName('gl_depexpense')
