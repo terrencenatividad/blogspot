@@ -201,7 +201,7 @@ class controller extends wc_controller {
 		$this->view->load('job_order/job_order', $data);
 	}
 	public function payment($id) {
-		$this->view->title			= 'View Job Order';
+		$this->view->title			= 'Job Order - Issue Parts';
 		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
 		$data['ui']					= $this->ui;
@@ -222,14 +222,16 @@ class controller extends wc_controller {
 				'0'	=> array(
 					'itemcode' => 'SERVICE001 - L3608',
 					'detailparticular' => 'L3608',
-					'warehouse' => 'WH00003',
+					'warehouse' => 'APOLLO',
+					'orderqty' => 2,
 					'quantity' => 2,
 					'uom' => 'PCS'
 				),
 				'1'	=> array(
 					'itemcode' => '1-494443 - Water Filter',
 					'detailparticular' => 'Water Filter',
-					'warehouse' => 'WH00003',
+					'warehouse' => 'APOLLO',
+					'orderqty' => 3,
 					'quantity' => 3,
 					'uom' => 'PCS'
 				)
@@ -308,6 +310,7 @@ class controller extends wc_controller {
 						->addDelete()
 						// ->addPrint()
 						->addOtherTask('Issue Parts', 'bookmark')
+						->addOtherTask('Tag as Complete', 'bookmark')
 						->addCheckbox()
 						->setLabels(array('delete' => 'Cancel'))
 						->setValue($x)

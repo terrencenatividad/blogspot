@@ -139,6 +139,7 @@
 								->setId('exchange_rate')
 								->setClass('exchange_rate')
 								->setValue($exchange_rate)
+								->setValidation('decimal')
 								->draw($show_input);
 								?>
 							</div>
@@ -711,6 +712,7 @@
 										->setPlaceholder('0.00')
 										->setAttribute(array("maxlength" => "20"))
 										->setValue(number_format($freight,2))
+										->setValidation('decimal')
 										->draw($show_input);
 										?>
 									</td>
@@ -742,6 +744,7 @@
 										->setPlaceholder('0.00')
 										->setAttribute(array("maxlength" => "20"))
 										->setValue(number_format($insurance,2))
+										->setValidation('decimal')
 										->draw($show_input);
 										?>
 									</td>
@@ -773,6 +776,7 @@
 										->setPlaceholder('0.00')
 										->setAttribute(array("maxlength" => "20"))
 										->setValue(number_format($packaging,2))
+										->setValidation('decimal')
 										->draw($show_input);
 										?>
 									</td>
@@ -2383,6 +2387,6 @@ $('#discounttype').on('select2:selecting',function(e){
 		$('#discounttypeModal').on('click','#disc_no',function(){
 			$('#discounttypeModal').modal('hide');
 		});
-
+		
 </script>
 <?php endif; ?>
