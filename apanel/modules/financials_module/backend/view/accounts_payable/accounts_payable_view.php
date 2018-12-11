@@ -99,7 +99,7 @@
                                             Job Tagged
                                         </div>
                                         <div class="col-md-6">
-                                            <?php echo $job_no; ?>
+                                            <?php echo substr($job_no, 0, 20) . '...'; ?>
                                         </div>
                                     </div>
                                 <?php endif; ?>
@@ -241,11 +241,19 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class = "remove-margin">
-                                                <div class="col-md-12 currencyamount text-right">
-                                                    <?php echo number_format($row->debit, 2);?>
-                                                </div>
-                                            </td>
+                                            <?php if($row->debit == 0)  { ?>
+                                                <td class = "remove-margin">
+                                                    <div class="col-md-12 currencyamount text-right">
+                                                        <?php echo number_format($row->converteddebit, 2);?>
+                                                    </div>
+                                                </td>
+                                            <?php } else { ?>
+                                                <td class = "remove-margin">
+                                                    <div class="col-md-12 currencyamount text-right">
+                                                        <?php echo number_format($row->convertedcredit, 2);?>
+                                                    </div>
+                                                </td>
+                                            <?php } ?>
                                             <input type="hidden" name="linenum[]" value = "<?php echo $row->linenum; ?>" class = "linenum">
                                             <?php $val = ($ajax_task) == 'ajax_view' ? 'hidden' : ''; ?>
                                             <td class="text-center" <?php echo $val; ?>>
