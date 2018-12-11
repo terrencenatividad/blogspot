@@ -123,9 +123,9 @@
 								->setName('mobile')
 								->setId('mobile')
 								->setValue($mobile)
-								->setValidation('integer')
+								// ->setValidation('integer')
 								->setMaxLength(20)
-								//->setAttribute(array('data-inputmask' => "'mask': '0999-9999-999'"))
+								->setAttribute(array('data-inputmask' => "'mask': '0999-999-9999'"))
 								->draw($show_input);
 						?>
 					</div>
