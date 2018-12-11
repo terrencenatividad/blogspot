@@ -545,7 +545,7 @@ class delivery_receipt_model extends wc_model {
 								->buildSelect();
 
 		$result		= $this->db->setTable('salesorder_details sod')
-								->setFields('so.voucherno, so.transactiondate transactiondate, remarks, so.netamount netamount, (IF(SUM(sod.issueqty) IS NULL, 0, SUM(sod.issueqty)) - IF(dr.pr_qty IS NULL, 0, dr.pr_qty)) qtyleft, so.customer')
+								->setFields('so.voucherno, so.transactiondate transactiondate, remarks, so.netamount netamount, (IF(SUM(sod.issueqty) IS NULL, 0, SUM(sod.issueqty)) - IF(dr.pr_qty IS NULL, 0, dr.pr_qty)) qtyleft, so.customer, so.s_address')
 								->innerJoin('salesorder so ON sod.voucherno = so.voucherno AND sod.companycode = so.companycode')
 								->leftJoin("($subquery) dr ON dr.source_no = sod.voucherno AND dr.companycode = sod.companycode")
 								->setWhere("so.stat IN ('open','partial')" . $condition)
