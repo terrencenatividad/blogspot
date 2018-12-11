@@ -775,6 +775,8 @@
 											->draw($show_input);
 											?>
 											<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
+											<input type = "hidden" class="isop" name='isop[<?=$row?>]' id='isop[<?=$row?>]'>
+											<input type = "hidden" class="isadv" name='isadv[<?=$row?>]' id='isadv[<?=$row?>]'>
 										</td>
 										<td class = "remove-margin">
 											<?php
