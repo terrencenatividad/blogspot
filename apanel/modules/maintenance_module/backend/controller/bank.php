@@ -652,7 +652,7 @@ class controller extends wc_controller
 					if(in_array($check_row[0],$name)){
 
 					}else{
-						$errors[0] = "Bank Account Code in " .$line. " you entered doesn't exist<br>";
+						$errors[0] = "The GL Account Code you entered in " .$line. " doesn't exist<br>";
 					}
 					if(in_array($check_row[4],$currency)){
 
