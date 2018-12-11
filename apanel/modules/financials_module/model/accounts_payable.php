@@ -507,8 +507,9 @@ class accounts_payable extends wc_model
 			"main.referenceno as referenceno",
 			"main.lockkey as importchecker",
 			"main.stat as stat",
-			"IF((main.amount - payment.amount)>0 AND main.stat!='cancelled','partial',
-			IF((main.amount - payment.amount)=0 AND main.stat!='cancelled','paid',
+			"IF(
+			(main.convertedamount - payment.amount)>0 AND main.stat!='cancelled','partial',
+			IF((main.convertedamount - payment.amount)=0 AND main.stat!='cancelled','paid',
 			IF(main.stat!='cancelled','unpaid','cancelled')
 			)
 		) payment_status"
@@ -2019,7 +2020,7 @@ class accounts_payable extends wc_model
 
 	public function getAPDetails($id) {
 		$result = $this->db->setTable('ap_details ad')
-		->setFields('ad.accountcode as accountcode, ad.detailparticulars as description, ad.debit as debit, ad.credit as credit, IF(ad.debit != 0, converteddebit, convertedcredit) as currencyamount, ad.linenum as linenum')
+		->setFields('ad.accountcode as accountcode, ad.detailparticulars as description, ad.debit as debit, ad.credit as credit, IF(ad.debit != 0, converteddebit, convertedcredit) as currencyamount, ad.linenum as linenum, ad.converteddebit as converteddebit, ad.convertedcredit as convertedcredit')
 		->leftJoin('chartaccount as ca ON ca.id = ad.accountcode')
 		->setWhere("voucherno = '$id'")
 		->runSelect()
@@ -2068,7 +2069,7 @@ class accounts_payable extends wc_model
 
 	public function checkStat($voucherno) {
 		$result = $this->db->setTable('accountspayable')
-		->setFields('amountpaid, balance, amount')
+		->setFields('amountpaid, balance, convertedamount')
 		->setWhere("voucherno = '$voucherno'")
 		->runSelect()
 		->getRow();

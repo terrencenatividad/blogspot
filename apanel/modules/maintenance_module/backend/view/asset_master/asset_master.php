@@ -109,8 +109,8 @@
 													->setName('description')
 													->setId('description')
 													->setValue($description)
-													->setAttribute(array("maxlength" => "50"))
-													->setValidation('alpha_num_special required')
+													->setAttribute(array("maxlength" => "1000"))
+													->setValidation('required')
 													->draw($show_input);
 										?>
 									</div>
@@ -122,8 +122,8 @@
 												->setName('asset_location')
 												->setId('asset_location')
 												->setValue($asset_location)
-												->setAttribute(array("maxlength" => "10"))
-												->setValidation('alpha_num required')
+												->setAttribute(array("maxlength" => "30"))
+												->setValidation('required')
 												->draw($show_input);
 										?>
 									</div>
@@ -138,8 +138,8 @@
 													->setName('department')
 													->setId('department')
 													->setValue($department)
-													->setAttribute(array("maxlength" => "10"))
-													->setValidation('alpha_num required')
+													->setAttribute(array("maxlength" => "30"))
+													->setValidation('required')
 													->draw($show_input);
 										?>
 									</div>	
@@ -154,7 +154,7 @@
 													// ->setList($users_list)
 													->setValue($accountable_person)
 													->setAttribute(array("maxlength" => "30"))
-													->setValidation('alpha_num required')
+													->setValidation('required')
 													->draw($show_input);
 										?>
 									</div>

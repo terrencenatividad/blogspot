@@ -1549,7 +1549,6 @@ echo $ui->loadElement('modal')
 				}else{
 					discountamt = discount;
 				}
-				console.log(discountamt);
 				
 				var amount			= ( quantity * unitprice ) + tax_amount - discountamt;
 
@@ -2344,8 +2343,10 @@ $(document).ready(function(){
 
 $('#currency').on('change', function(){
 	ajax.currency 		= 	$(this).val();
+
 	$.post('<?=MODULE_URL?>ajax/get_exchange_rate', ajax, function(data) {
-		$('#exchange_rate').val(data.exchangerate);				
+		$('#exchange_rate').val(data.exchangerate);	
+		computeAmount();
 	});
 });
 
