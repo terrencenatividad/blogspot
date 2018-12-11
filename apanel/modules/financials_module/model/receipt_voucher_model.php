@@ -2232,6 +2232,7 @@ class receipt_voucher_model extends wc_model
 
 		$sub_query 	=	$this->db->setTable('creditvoucher_applied cra')
 								 ->setFields('SUM(cra.convertedamount) amount, cra.cr_voucher, cra.partner, cra.companycode, cra.rv_voucher')
+								 ->setWhere('cra.stat="active"')
 								 ->setGroupBy('cra.cr_voucher')
 								 ->buildSelect();
 
