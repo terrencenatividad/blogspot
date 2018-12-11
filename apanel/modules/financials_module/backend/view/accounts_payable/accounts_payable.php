@@ -222,7 +222,7 @@
 									<?php
 									echo $ui->formField('dropdown')
 									->setPlaceholder('Select one')
-									->setLabel('Reference No')
+									->setLabel('Asset Code')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('assetid')
 									->setId('assetid')
