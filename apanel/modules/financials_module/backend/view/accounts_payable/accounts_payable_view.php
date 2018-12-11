@@ -116,9 +116,9 @@
                                 <?php if(!empty($assetid)) : ?>
                                     <div class="col-md-4">
                                         <div class="col-md-6">
-                                           Asset Code
-                                       </div>
-                                       <div class="col-md-6">
+                                         Asset Code
+                                     </div>
+                                     <div class="col-md-6">
                                         <?php echo $assetid; ?>
                                     </div>
                                 </div>
@@ -232,7 +232,7 @@
                                                     </div>
                                                 </td>
                                                 <td class = "remove-margin" colspan = "2">
-                                                 <div class="col-md-2">
+                                                   <div class="col-md-2">
                                                     <span class="label label-default currency_symbol"><?php echo $currencycode ?></span>
                                                 </div>
                                                 <div class="col-md-10">
@@ -241,11 +241,19 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class = "remove-margin">
-                                                <div class="col-md-12 currencyamount text-right">
-                                                    <?php echo number_format($row->debit, 2);?>
-                                                </div>
-                                            </td>
+                                            <?php if($row->debit == 0)  { ?>
+                                                <td class = "remove-margin">
+                                                    <div class="col-md-12 currencyamount text-right">
+                                                        <?php echo number_format($row->converteddebit, 2);?>
+                                                    </div>
+                                                </td>
+                                            <?php } else { ?>
+                                                <td class = "remove-margin">
+                                                    <div class="col-md-12 currencyamount text-right">
+                                                        <?php echo number_format($row->convertedcredit, 2);?>
+                                                    </div>
+                                                </td>
+                                            <?php } ?>
                                             <input type="hidden" name="linenum[]" value = "<?php echo $row->linenum; ?>" class = "linenum">
                                             <?php $val = ($ajax_task) == 'ajax_view' ? 'hidden' : ''; ?>
                                             <td class="text-center" <?php echo $val; ?>>
@@ -264,29 +272,29 @@
                                         <label class="control-label">Total</label>
                                     </td>
                                     <td class="right" style="border-top:1px solid #DDDDDD;">
-                                       <div class="col-md-12 text-right">
-                                           <span id = "total_debit"></span>
-                                       </div>
-                                   </td>
-                                   <td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
-                                   <td class="right" style="border-top:1px solid #DDDDDD;">
-                                       <div class="col-md-12 text-right">
-                                           <span id = "total_credit"></span>
-                                       </div>
-                                   </td>
-                                   <td class="right" style="border-top:1px solid #DDDDDD;">
-                                       <div class="col-md-12 text-right">
-                                           <span id = "total_currency"></span>
-                                       </div>
-                                   </td>
-                                   <td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
-                               </tr>   
-                           </tfoot>
-                       </table>
-                   </div>
-               </div>
-               <div class="row">
-                   <div class="col-md-12 text-right">
+                                     <div class="col-md-12 text-right">
+                                         <span id = "total_debit"></span>
+                                     </div>
+                                 </td>
+                                 <td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+                                 <td class="right" style="border-top:1px solid #DDDDDD;">
+                                     <div class="col-md-12 text-right">
+                                         <span id = "total_credit"></span>
+                                     </div>
+                                 </td>
+                                 <td class="right" style="border-top:1px solid #DDDDDD;">
+                                     <div class="col-md-12 text-right">
+                                         <span id = "total_currency"></span>
+                                     </div>
+                                 </td>
+                                 <td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+                             </tr>   
+                         </tfoot>
+                     </table>
+                 </div>
+             </div>
+             <div class="row">
+                 <div class="col-md-12 text-right">
                     <a href="<?=MODULE_URL?>" class = "btn btn-primary btn-flat">Exit</a>
                 </div>
             </div>
@@ -310,7 +318,7 @@
                         <tbody>
                             <?php if(isset($payments)) { ?>
                                 <?php foreach ($payments as $key => $row) : ?>
-                                 <tr>
+                                   <tr>
                                     <td class = "remove-margin">
                                         <?php
                                         echo $ui->formField('text')
