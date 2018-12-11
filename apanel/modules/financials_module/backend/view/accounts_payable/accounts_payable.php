@@ -222,7 +222,7 @@
 									<?php
 									echo $ui->formField('dropdown')
 									->setPlaceholder('Select one')
-									->setLabel('Reference No')
+									->setLabel('Asset Code')
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('assetid')
 									->setId('assetid')
@@ -1093,7 +1093,7 @@
 					<div class="row row-dense">
 						<div class="col-md-12 center">
 							<div class="btn-group">
-								<button type="button" class="btn btn-primary btn-flat" id="btnYes">Yes</button>
+								<button type="button" class="btn btn-primary btn-flat" id="btnCancelYes">Yes</button>
 							</div>
 							&nbsp;&nbsp;&nbsp;
 							<div class="btn-group">
@@ -1313,7 +1313,7 @@
 			$('#cancelModal').modal('show');
 		});
 
-		$('#btnYes').on('click', function() {
+		$('#btnCancelYes').on('click', function() {
 			window.location = '<?= MODULE_URL ?>';
 		});
 
