@@ -138,7 +138,7 @@
 										->drawSaveOption();
 									}
 
-									if($ajax_task == 'ajax_view' && isset($stat) &&  $stat != 'cancelled') {
+									if($ajax_task == 'ajax_view' && $display_edit && isset($stat) &&  $stat != 'cancelled') {
 										echo $ui->drawSubmit($show_input);
 									} else if($ajax_task == 'ajax_edit') {
 										echo $ui->drawSubmit(true);

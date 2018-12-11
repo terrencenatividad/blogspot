@@ -93,13 +93,12 @@ class controller extends wc_controller {
 		$checker 					= isset($data['source']) && !empty($data['source']) ? $data['source'] : "";
 		$data['checker']			= $checker;
 		$status						= $data['stat'];
-		$data['display_edit']		= ($checker!="import" && $checker!="beginning" && $checker!="closing" && $status != 'cancelled') ? 1 : 0;
+		$data['display_edit']		= ($checker!="import" && $checker!="beginning" && $checker!="closing" && $checker!="yrend_closing" && $status != 'cancelled') ? 1 : 0;
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui'] = $this->ui;
 		$data['ajax_task']			= 'ajax_view';
 		$data['proforma_list']		= $this->jv_model->getProformaList($data);
-		// $status 					= $data['stat'];
 		$data['voucher_details']	= json_encode($this->jv_model->getJournalVoucherDetails($this->fields2, $voucherno,$status));
 		$coa_array	= array();
 		$hey = json_decode($data['voucher_details']);
