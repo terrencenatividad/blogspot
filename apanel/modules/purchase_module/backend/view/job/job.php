@@ -561,25 +561,28 @@
             </script>';
     }
     elseif($task=="view"){
+        
         echo "<script>";
         
         foreach ($pr as $key => $value) {
             echo '
                 in_array = false;
                 for(var i=0; i<selected.pr_no.length; i++){
-                    if (selected.pr_no[i]=="' . $pr[$key] . '"){
+                    if (selected.pr_no[i]=="'.$pr[$key].'"){
                         in_array = true;
                     }
                 }
                 if(!in_array){
-                    selected.pr_no.push("' . $pr[$key] . '");
+                    selected.pr_no.push("'.$pr[$key].'");
                 }
                 selected.pr_item.push("' . $pr[$key] . '");
                 selected.itemcode.push("' . $item[$key] . '");
+                selected.linenum.push("' . $linenum[$key] . '");
                 selected.qty.push("' . $qty[$key] . '");';
         }
         echo '  viewItemList();
                 
             </script>';
+
     }
 ?>
