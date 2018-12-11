@@ -169,19 +169,17 @@
 						</div>
 
 						<div class="row">
-							<div class = "col-md-6">
+							<div class = "col-md-12">
 								<?php
-									echo $ui->formField('text')
-										->setLabel('Shipping Address ')
-										->setPlaceholder('Shipping Address')
-										->setSplit('col-md-4', 'col-md-8')
-										->setName('s_address')
-										->setId('s_address')
-										->setValue($s_address)
-										->setValidation('required')
-										->setNone('none')
-										->setDefault('none')
-										->draw($show_input);
+									echo $ui->formField('textarea')
+											->setLabel('Shipping Address:')
+											->setSplit('col-md-2', 'col-md-10')
+											->setName('s_address')
+											->setId('s_address')
+											->setAttribute(array("maxlength" => "105"))
+											->setValidation('required')
+											->setValue($s_address)
+											->draw($show_input);
 								?>
 							</div>
 						</div>
