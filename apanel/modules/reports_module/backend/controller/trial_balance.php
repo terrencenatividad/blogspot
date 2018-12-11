@@ -235,7 +235,10 @@ class controller extends wc_controller {
 						<td class="text-right">'.$totalaccumulatedbalance.'</td>';
 
 			$table.= '</tr>';
-			return array('table' => $table);
+			return array(
+				'table' => $table,
+				'csv'	=> $this->export()
+			);
 	}
 
 	private function export()
