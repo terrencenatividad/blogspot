@@ -507,8 +507,9 @@ class accounts_payable extends wc_model
 			"main.referenceno as referenceno",
 			"main.lockkey as importchecker",
 			"main.stat as stat",
-			"IF((main.amount - payment.amount)>0 AND main.stat!='cancelled','partial',
-			IF((main.amount - payment.amount)=0 AND main.stat!='cancelled','paid',
+			"IF(
+			(main.convertedamount - payment.amount)>0 AND main.stat!='cancelled','partial',
+			IF((main.convertedamount - payment.amount)=0 AND main.stat!='cancelled','paid',
 			IF(main.stat!='cancelled','unpaid','cancelled')
 			)
 		) payment_status"
@@ -2068,7 +2069,7 @@ class accounts_payable extends wc_model
 
 	public function checkStat($voucherno) {
 		$result = $this->db->setTable('accountspayable')
-		->setFields('amountpaid, balance, amount')
+		->setFields('amountpaid, balance, convertedamount')
 		->setWhere("voucherno = '$voucherno'")
 		->runSelect()
 		->getRow();

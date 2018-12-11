@@ -99,7 +99,7 @@
                                             Job Tagged
                                         </div>
                                         <div class="col-md-6">
-                                            <?php echo $job_no; ?>
+                                            <?php echo substr($job_no, 0, 20) . '...'; ?>
                                         </div>
                                     </div>
                                 <?php endif; ?>
@@ -116,9 +116,9 @@
                                 <?php if(!empty($assetid)) : ?>
                                     <div class="col-md-4">
                                         <div class="col-md-6">
-                                         Asset Code
-                                     </div>
-                                     <div class="col-md-6">
+                                           Asset Code
+                                       </div>
+                                       <div class="col-md-6">
                                         <?php echo $assetid; ?>
                                     </div>
                                 </div>
@@ -232,7 +232,7 @@
                                                     </div>
                                                 </td>
                                                 <td class = "remove-margin" colspan = "2">
-                                                   <div class="col-md-2">
+                                                 <div class="col-md-2">
                                                     <span class="label label-default currency_symbol"><?php echo $currencycode ?></span>
                                                 </div>
                                                 <div class="col-md-10">
@@ -264,29 +264,29 @@
                                         <label class="control-label">Total</label>
                                     </td>
                                     <td class="right" style="border-top:1px solid #DDDDDD;">
-                                     <div class="col-md-12 text-right">
-                                         <span id = "total_debit"></span>
-                                     </div>
-                                 </td>
-                                 <td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
-                                 <td class="right" style="border-top:1px solid #DDDDDD;">
-                                     <div class="col-md-12 text-right">
-                                         <span id = "total_credit"></span>
-                                     </div>
-                                 </td>
-                                 <td class="right" style="border-top:1px solid #DDDDDD;">
-                                     <div class="col-md-12 text-right">
-                                         <span id = "total_currency"></span>
-                                     </div>
-                                 </td>
-                                 <td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
-                             </tr>   
-                         </tfoot>
-                     </table>
-                 </div>
-             </div>
-             <div class="row">
-                 <div class="col-md-12 text-right">
+                                       <div class="col-md-12 text-right">
+                                           <span id = "total_debit"></span>
+                                       </div>
+                                   </td>
+                                   <td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+                                   <td class="right" style="border-top:1px solid #DDDDDD;">
+                                       <div class="col-md-12 text-right">
+                                           <span id = "total_credit"></span>
+                                       </div>
+                                   </td>
+                                   <td class="right" style="border-top:1px solid #DDDDDD;">
+                                       <div class="col-md-12 text-right">
+                                           <span id = "total_currency"></span>
+                                       </div>
+                                   </td>
+                                   <td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+                               </tr>   
+                           </tfoot>
+                       </table>
+                   </div>
+               </div>
+               <div class="row">
+                   <div class="col-md-12 text-right">
                     <a href="<?=MODULE_URL?>" class = "btn btn-primary btn-flat">Exit</a>
                 </div>
             </div>
@@ -310,7 +310,7 @@
                         <tbody>
                             <?php if(isset($payments)) { ?>
                                 <?php foreach ($payments as $key => $row) : ?>
-                                   <tr>
+                                 <tr>
                                     <td class = "remove-margin">
                                         <?php
                                         echo $ui->formField('text')

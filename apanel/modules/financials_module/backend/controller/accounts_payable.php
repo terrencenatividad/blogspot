@@ -104,13 +104,13 @@ class controller extends wc_controller
 		$check_stat = $this->accounts_payable->checkStat($id);
 		$amountpaid = $check_stat->amountpaid;
 		$bal = $check_stat->balance;
-		$amount = $check_stat->amount;
+		$convertedamount = $check_stat->convertedamount;
 		$stat = '';
-		if($bal == $amount && $data['stat'] == 'posted') {
+		if($bal == $convertedamount && $data['stat'] == 'posted') {
 			$stat = 'unpaid';
-		} else if($bal > 0 && $bal != $amount && $data['stat'] == 'posted') {
+		} else if($bal != $convertedamount && $data['stat'] == 'posted') {
 			$stat = 'partial';
-		} else if($bal == 0 && $amountpaid == $amount && $data['stat'] == 'posted'){
+		} else if($bal == 0 && $amountpaid == $convertedamount && $data['stat'] == 'posted'){
 			$stat = 'paid';
 		} else if($bal != 0 && $data['stat'] == 'cancelled'){
 			$stat = 'cancelled';
@@ -456,7 +456,7 @@ class controller extends wc_controller
 		$ap['convertedamount'] = $post['total_currency'];
 		$ap['amount'] = str_replace(',', '', $post['total_debit']);
 		$ap['exchangerate'] = str_replace(',', '', $ap['exchangerate']);
-		$ap['balance'] = $ap['amount'];
+		$ap['balance'] = $ap['total_currency'];
 		$ap['terms'] = $post['vendor_terms'];
 		$ap['stat'] = 'posted';
 		$ap['job_no'] = $post['job'];
