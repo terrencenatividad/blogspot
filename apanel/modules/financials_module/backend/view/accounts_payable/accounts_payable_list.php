@@ -8,7 +8,7 @@
 		</ul>
 	</div>
 
-    <div class="box box-primary">
+	<div class="box box-primary">
 		<div class="box-header">
 			<div class="row">
 				<div class="col-md-8">
@@ -18,8 +18,8 @@
 						<button type="button" id="item_multiple_delete" class="btn btn-danger delete_button">Cancel<span></span></button>
 					</div> -->
 					<?php
-						echo $ui->CreateNewButton('');
-						echo $ui->OptionButton('');
+					echo $ui->CreateNewButton('');
+					echo $ui->OptionButton('');
 					?>
 					<input type="button" id="item_multiple_delete" class="btn btn-danger btn-flat " value="Cancel">
 				</div>
@@ -50,13 +50,13 @@
 					<div class = "row">
 						<div class = "col-md-6">
 							<?php
-								echo $ui->formField('dropdown')
-										->setPlaceholder('Filter Supplier')
-										->setName('vendor')
-										->setId('vendor')
-										->setList($vendor_list)
-										->setNone('Filter: All')
-										->draw($show_input);
+							echo $ui->formField('dropdown')
+							->setPlaceholder('Filter Supplier')
+							->setName('vendor')
+							->setId('vendor')
+							->setList($vendor_list)
+							->setNone('Filter: All')
+							->draw($show_input);
 							?>
 						</div>
 					</div>
@@ -91,28 +91,25 @@
 		<div class="table-responsive">
 			<table id="tableList" class="table table-hover">
 				<?php
-					echo $ui->loadElement('table')
-							->setHeaderClass('info')
-							->addHeader(
-								'<input type="checkbox" class="checkall">',
-								array(
-									'class' => 'col-md-1 text-center'
-								)
-							)
-							->addHeader('Date', array('class' => 'col-md-1'), 'sort', 'main.transactiondate', 'desc')
-							->addHeader('Imported', array('class' => 'col-md-1'), 'sort', 'main.lockkey')
-							->addHeader('Voucher No', array('class' => 'col-md-1'), 'sort', 'main.voucherno')
-							->addHeader('Supplier', array('class' => 'col-md-2'), 'sort', 'p.partnername')
-							->addHeader('Reference', array('class' => 'col-md-2'), 'sort', 'main.referenceno')
-							->addHeader('Amount', array('class' => 'col-md-2'), 'sort', 'main.convertedamount')
-							->addHeader('Balance', array('class' => 'col-md-2'), 'sort', 'main.balance')
-							->addHeader('Status', array('class' => 'col-md-1'))
-							->draw();
+				echo $ui->loadElement('table')
+				->setHeaderClass('info')
+				->addHeader(
+					'<input type="checkbox" class="checkall">',
+					array(
+						'class' => 'col-md-1 text-center'
+					)
+				)
+				->addHeader('Date', array('class' => 'col-md-1'), 'sort', 'main.transactiondate', 'desc')
+				->addHeader('Imported', array('class' => 'col-md-1'), 'sort', 'main.lockkey')
+				->addHeader('Voucher No', array('class' => 'col-md-1'), 'sort', 'main.voucherno')
+				->addHeader('Supplier', array('class' => 'col-md-2'), 'sort', 'p.partnername')
+				->addHeader('Reference', array('class' => 'col-md-2'), 'sort', 'main.referenceno')
+				->addHeader('Amount', array('class' => 'col-md-2'), 'sort', 'main.convertedamount')
+				->addHeader('Balance', array('class' => 'col-md-2'), 'sort', 'main.balance')
+				->addHeader('Status', array('class' => 'col-md-1'))
+				->draw();
 				?>
 				<tbody>
-					<tr>
-						<td colspan="8" class="text-center"><b>No Records Found</b></td>
-					</tr>
 				</tbody>
 			</table>
 		</div>
@@ -129,101 +126,101 @@
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true">×</span></button>
-						<h4 class="modal-title">Import Payables</h4>
-					</div>
-					<div class="modal-body">
-					<label>Step 1. Download the sample template <a href="<?=MODULE_URL?>get_import" id="download-link" download="Accounts Payable Template.csv" >here</a></label>
-						<hr/>
-						<label>Step 2. Fill up the information needed for each columns of the template.</label>
-						<hr/>
-						<div class="form-group field_col">
-							<label for="import_csv">Step 3. Select the updated file and click 'Import' to proceed.</label>
-							<?php
-								echo $ui->setElement('file')
-										->setId('import_csv')
-										->setName('import_csv')
-										->setAttribute(array('accept' => '.csv'))
-										->setValidation('required')
-										->draw();
-							?>
-							<span class="help-block"></span>
+							<h4 class="modal-title">Import Payables</h4>
 						</div>
-						<p class="help-block">The file to be imported must be in CSV (Comma Separated Values) file.</p>
-					</div>
-					<div class="modal-footer text-center">
-						<button type="button" class="btn btn-primary btn-flat" id = "btnImport">Import</button>
-						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
-					</div>
-				</form>
+						<div class="modal-body">
+							<label>Step 1. Download the sample template <a href="<?=MODULE_URL?>get_import" id="download-link" download="Accounts Payable Template.csv" >here</a></label>
+							<hr/>
+							<label>Step 2. Fill up the information needed for each columns of the template.</label>
+							<hr/>
+							<div class="form-group field_col">
+								<label for="import_csv">Step 3. Select the updated file and click 'Import' to proceed.</label>
+								<?php
+								echo $ui->setElement('file')
+								->setId('import_csv')
+								->setName('import_csv')
+								->setAttribute(array('accept' => '.csv'))
+								->setValidation('required')
+								->draw();
+								?>
+								<span class="help-block"></span>
+							</div>
+							<p class="help-block">The file to be imported must be in CSV (Comma Separated Values) file.</p>
+						</div>
+						<div class="modal-footer text-center">
+							<button type="button" class="btn btn-primary btn-flat" id = "btnImport">Import</button>
+							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
 
-<div class = "alert alert-warning alert-dismissable hidden">
-	<!-- <button type="button" class="close" data-dismiss="alert" >&times;</button> -->
-	<h4><strong>Warning!</strong></h4>
-	<div id = "errmsg"></div>
-	<div id = "warningmsg"></div>
-</div>
-<script>
-	var ajax = {}
-	var ajax_call = {};
-	var ajax = filterFromURL();
-	ajax.filter = $('#filter_tabs .active a').attr('href');
-	ajax.limit 	= $('#items').val();
-	ajax.filter = ajax.filter || $('#filter_tabs .active a').attr('href');
-	ajaxToFilter(ajax, { search : '#table_search', limit : '#items', vendor : '#vendor', daterangefilter : '#daterangefilter' });
+	<div class = "alert alert-warning alert-dismissable hidden">
+		<!-- <button type="button" class="close" data-dismiss="alert" >&times;</button> -->
+		<h4><strong>Warning!</strong></h4>
+		<div id = "errmsg"></div>
+		<div id = "warningmsg"></div>
+	</div>
+	<script>
+		var ajax = {}
+		var ajax_call = {};
+		var ajax = filterFromURL();
+		ajax.filter = $('#filter_tabs .active a').attr('href');
+		ajax.limit 	= $('#items').val();
+		ajax.filter = ajax.filter || $('#filter_tabs .active a').attr('href');
+		ajaxToFilter(ajax, { search : '#table_search', limit : '#items', vendor : '#vendor', daterangefilter : '#daterangefilter' });
 
-	ajaxToFilterTab(ajax, '#filter_tabs', 'filter');
+		ajaxToFilterTab(ajax, '#filter_tabs', 'filter');
 
-	tableSort('#tableList', function(value, x) 
-	{
-		ajax.sort = value;
-		ajax.page = 1;
-		if (x) 
+		tableSort('#tableList', function(value, x) 
 		{
-			getList();
-		}
-	});
-	
-	$('#items').on('change', function() {
-		ajax.page = 1;
-		ajax.limit = $(this).val();
-		getList();
-	});
-
-	function getList() {
-		filterToURL();
-		ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
-			$('#tableList tbody').html(data.list);
-			$('#pagination').html(data.pagination);
+			ajax.sort = value;
+			ajax.page = 1;
+			if (x) 
+			{
+				getList();
+			}
 		});
-	}
-	getList();
-	$( "#table_search" ).keyup(function() 
-	{
-		var search = $( this ).val();
-		ajax.search = search;
+
+		$('#items').on('change', function() {
+			ajax.page = 1;
+			ajax.limit = $(this).val();
+			getList();
+		});
+
+		function getList() {
+			filterToURL();
+			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
+				$('#tableList tbody').html(data.table);
+				$('#pagination').html(data.pagination);
+			});
+		}
 		getList();
-	});
-	$('#daterangefilter').on('change', function() {
-		ajax.daterangefilter = $(this).val();
-		ajax_call.abort();
-		getList();
-	})
-	$('#vendor').on('change', function() {
-		ajax.page 	= 1;
-		ajax.vendor = $(this).val();
-		ajax_call.abort();
-		getList();
-	});
-	$('#filter_tabs li').on('click', function() {
-		ajax.page = 1;
-		ajax.filter = $(this).find('a').attr('href');
-		ajax_call.abort();
-		getList();
-	});
+		$( "#table_search" ).keyup(function() 
+		{
+			var search = $( this ).val();
+			ajax.search = search;
+			getList();
+		});
+		$('#daterangefilter').on('change', function() {
+			ajax.daterangefilter = $(this).val();
+			ajax_call.abort();
+			getList();
+		})
+		$('#vendor').on('change', function() {
+			ajax.page 	= 1;
+			ajax.vendor = $(this).val();
+			ajax_call.abort();
+			getList();
+		});
+		$('#filter_tabs li').on('click', function() {
+			ajax.page = 1;
+			ajax.filter = $(this).find('a').attr('href');
+			ajax_call.abort();
+			getList();
+		});
 	// $("#import").click(function() 
 	// {
 	// 	$(".import-modal > .modal").css("display", "inline");
@@ -253,8 +250,8 @@
 	});
 	$('#btnImport').on('click',function(e){
 		var formData =	new FormData();
-			formData.append('file',$('#import_csv')[0].files[0]);
-			ajax_call 	=	$.ajax({
+		formData.append('file',$('#import_csv')[0].files[0]);
+		ajax_call 	=	$.ajax({
 			url : '<?=MODULE_URL?>ajax/save_import',
 			data:	formData,
 			cache: 	false,
@@ -345,7 +342,7 @@
 	$(function() {
 		linkButtonToTable('#item_multiple_delete', '#tableList');
 		linkCancelToModal('#tableList .delete', 'ajaxCallback');
-		linkDeleteMultipleToModal('#item_multiple_delete', '#tableList', 'ajaxCallback');
+		linkCancelMultipleToModal('#item_multiple_delete', '#tableList', 'ajaxCallback');
 	});
 	$('body').on('click','.issue_payment',function(e){
 		var voucher = $(this).attr('data-id');

@@ -109,8 +109,8 @@
 													->setName('description')
 													->setId('description')
 													->setValue($description)
-													->setAttribute(array("maxlength" => "50"))
-													->setValidation('alpha_num_special required')
+													->setAttribute(array("maxlength" => "1000"))
+													->setValidation('required')
 													->draw($show_input);
 										?>
 									</div>
@@ -122,8 +122,8 @@
 												->setName('asset_location')
 												->setId('asset_location')
 												->setValue($asset_location)
-												->setAttribute(array("maxlength" => "10"))
-												->setValidation('alpha_num required')
+												->setAttribute(array("maxlength" => "30"))
+												->setValidation('required')
 												->draw($show_input);
 										?>
 									</div>
@@ -138,8 +138,8 @@
 													->setName('department')
 													->setId('department')
 													->setValue($department)
-													->setAttribute(array("maxlength" => "10"))
-													->setValidation('alpha_num required')
+													->setAttribute(array("maxlength" => "30"))
+													->setValidation('required')
 													->draw($show_input);
 										?>
 									</div>	
@@ -154,7 +154,7 @@
 													// ->setList($users_list)
 													->setValue($accountable_person)
 													->setAttribute(array("maxlength" => "30"))
-													->setValidation('alpha_num required')
+													->setValidation('required')
 													->draw($show_input);
 										?>
 									</div>
@@ -453,11 +453,11 @@
 					</div>
 		</form>
 	</section>
-	<div class="modal fade" id="itemsModal" tabindex="-1">
+	<div class="modal fade" id="itemsModal" tabindex="-1" data-keyboard="false" data-backdrop="static">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> -->
 					<h4 class="modal-title">Items</h4>
 				</div>
 				<div class="modal-body">
@@ -485,8 +485,8 @@
 							</table>
 						</div>
 						<div id="pagination"></div>
-						<div class="modal-footer">
-							
+						<div class="modal-footer text-center">
+						<button type="button" class="btn btn-default btn-flat" id="cancelprice" data-dismiss='modal'>Cancel</button>
 						</div>
 					
 					</form>
@@ -614,6 +614,10 @@ $('#compute').on('click', function(){
 	$('#depreciation_amount').val(dep_amount);
 	getList();
 	
+});
+
+$('#cancelprice').on('click', function(){
+	$('#itemcode').val('').trigger('change');
 });
 
 $('body').on('blur blur_validate keyup keydown', '[data-validation~="alpha_num_special"]', function(e) {

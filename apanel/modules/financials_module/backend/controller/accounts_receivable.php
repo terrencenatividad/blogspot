@@ -267,16 +267,15 @@ class controller extends wc_controller
 			
 			// For Admin Logs
 			$this->logs->saveActivity("Add New Accounts Receivable [$generatedvoucher]");
-
-			if(!empty($data_validate['h_save']))
+			if($data_validate['h_save_preview'] == 'h_save_exit')
 			{
-				$this->url->redirect(BASE_URL . 'financials/accounts_receivable');
+				$this->url->redirect(MODULE_URL);
 			}
-			else if(!empty($data_validate['h_save_preview']))
+			else if($data_validate['h_save_preview'] == 'h_save_preview')
 			{
 				$this->url->redirect(BASE_URL . 'financials/accounts_receivable/view/' . $generatedvoucher);
 			}
-			else
+			else if($data_validate['h_save_preview'] == 'h_save_new')
 			{
 				$this->url->redirect(BASE_URL . 'financials/accounts_receivable/create');
 			}
