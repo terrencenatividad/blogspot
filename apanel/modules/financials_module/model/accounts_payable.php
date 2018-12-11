@@ -190,7 +190,7 @@ class accounts_payable extends wc_model
 		// Retrieve Vendor Details
 		$vendor_code = $temp["main"]->vendor;
 		$custFields = "address1, tinno, terms, email, CONCAT( first_name, ' ', last_name ), partnername AS name"; 
-		$cust_cond = "partnercode = '$vendor_code'";
+		$cust_cond = "partnercode = '$vendor_code' AND partnertype = 'supplier'";
 
 		$custDetails = $this->db->setTable('partners')
 		->setFields($custFields)
@@ -355,7 +355,7 @@ class accounts_payable extends wc_model
 		// Retrieve Vendor Details
 		$vendor_code = $temp["main"]->vendor;
 		$custFields = "address1, tinno, terms, email, CONCAT( first_name, ' ', last_name ), partnername AS name"; 
-		$cust_cond = "partnercode = '$vendor_code'";
+		$cust_cond = "partnercode = '$vendor_code' AND partnertype = 'supplier'";
 
 		$custDetails = $this->db->setTable('partners')
 		->setFields($custFields)
@@ -516,7 +516,7 @@ class accounts_payable extends wc_model
 	);
 		$ap_table 	=	"accountspayable as main";
 		$ap_cond 	=	"main.stat IN ('posted','cancelled') $add_query";
-		$ap_join 	=	"partners p ON p.partnercode = main.vendor ";
+		$ap_join 	=	"partners p ON p.partnercode = main.vendor AND p.partnertype = 'supplier' AND p.companycode = main.companycode";
 
 
 		$result 	=	$this->db->setTable($ap_table)
@@ -1719,7 +1719,7 @@ class accounts_payable extends wc_model
 
 		$main_fields = array("main.transactiondate as transactiondate", "main.voucherno as voucherno", "CONCAT( first_name, ' ', last_name )", "main.referenceno as referenceno", "main.amount as amount", "main.balance as balance", "main.particulars", "p.partnername AS vendor");
 
-		$main_join   = "partners p ON p.partnercode = main.vendor"; //AND p.companycode
+		$main_join   = "partners p ON p.partnercode = main.vendor AND p.companycode = main.companycode AND p.partnertype = 'supplier'"; //AND p.companycode
 		$main_table  = "accountspayable as main";
 		$main_cond   = "main.stat = 'posted' $add_query";
 		$query 		 = $this->retrieveData($main_table, $main_fields, $main_cond, $main_join);

@@ -143,8 +143,8 @@ class controller extends wc_controller {
 			$balance = $row->amount - $getApplied->amount;
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView() 
-									->addEdit($row->source != 'RV' && $row->stat != 'inactive' && $balance == $row->amount)
-									->addDelete($row->source != 'RV' && $row->stat != 'inactive' && $balance == $row->amount)
+									// ->addEdit($row->source != 'RV' && $row->stat != 'inactive' && $balance == $row->amount)
+									// ->addDelete($row->source != 'RV' && $row->stat != 'inactive' && $balance == $row->amount)
 									->addPrint()
 									->addCheckbox($row->source != 'RV' && $row->stat != 'inactive' && $balance == $row->amount)
 									->setLabels(array('delete' => 'Cancel'))

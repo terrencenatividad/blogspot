@@ -25,8 +25,8 @@
 										->draw();
 								?>
 							</div>
-							<div class = "col-md-9"></div>
-							<div clss = "col-md-1">
+							<!-- <div class = "col-md-9"></div> -->
+							<div class = "col-md-1 text-right">
 								<a href="" id="export_csv" download="Check List.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 							</div>
 						</div>

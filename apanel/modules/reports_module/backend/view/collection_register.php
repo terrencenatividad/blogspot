@@ -15,7 +15,7 @@
 								?>
 							</div>
 							<div class = "col-md-9"></div>
-							<div clss = "col-md-1">
+							<div class = "col-md-1 text-right">
 								<a href="" id="export_csv" download="Collection Register.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 							</div>
 						</div>
@@ -95,7 +95,8 @@
 								->addHeader('Date',array('class'=>'col-md-1 center'),'sort','chq.chequedate')
 								->addHeader('Voucher No.', array('class'=>'col-md-1 center'),'sort','chq.chequenumber')
 								->addHeader('Customer',array('class'=>'col-md-1 center'),'sort','inv.invoiceno')
-								->addHeader('Payment Details',array('class'=>'col-md-2 center'),'sort','bnk.bankcode, bnk.longname')
+								->addHeader('Payment Details',array('class'=>'col-md-2 center'),'sort','rv.paymenttype')
+								->addHeader('Cheque Details',array('class'=>'col-md-2 center'),'sort','CONCAT(coa.accountname," : ",chq.chequenumber)')
 								->addHeader('Payment Date',array('class'=>'col-md-1 center'),'sort','pt.partnername')
 								->addHeader('Amount',array('class'=>'col-md-1 center'),'sort','chq.chequeamount')
 								->draw();
