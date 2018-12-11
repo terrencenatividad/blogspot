@@ -31,11 +31,34 @@
 		</div>
 		<div class="nav-tabs-custom">
 			<ul id="filter_tabs" class="nav nav-tabs">
-				<li class="<?echo ($tab == 'summary_tab') ? 'active' : '';?>"><a href="#Summary" id="summary_tab" role="tab" data-toggle="tab">Summary</a></li>
-				<li class="<?echo ($tab == 'output_tab') ? 'active' : '';?>"><a href="#Output" id="output_tab" role="tab" data-toggle="tab">Sales</a></li>
-				<li class="<?echo ($tab == 'input_tab') ? 'active' : '';?>"><a href="#Input" id="input_tab" role="tab" data-toggle="tab">Purchase / Billing</a></li>	
+				<!-- <li class="<?echo ($tab == 'summary_tab') ? 'active' : '';?>"><a href="#Summary" id="summary_tab" role="tab" data-toggle="tab">Summary</a></li> -->
+				<li class="<?echo ($tab == 'output_tab') ? 'active' : '';?>"><a href="output_tab" id="output_tab" role="tab" data-toggle="tab">Sales</a></li>
+				<li class="<?echo ($tab == 'input_tab') ? 'active' : '';?>"><a href="input_tab" id="input_tab" role="tab" data-toggle="tab">Purchase / Billing</a></li>	
 			</ul>
-			<div class="tab-content no-padding">
+			<table id="tableList" class="table table-hover table-sidepad">
+				<?php
+					echo $ui->loadElement('table')
+							->setHeaderClass('default')
+							->addHeader('Reference', array('class' => 'col-md-1'))
+							->addHeader('Partner', array('class' => 'col-md-2'))
+							->addHeader('TIN', array('class' => 'col-md-1'))
+							->addHeader('Address', array('class' => 'col-md-4'))
+							->addHeader('Gross Amount', array('class' => 'col-md-1'))
+							->addHeader('Net Amount', array('class' => 'col-md-1'))
+							->addHeader('Tax Amount', array('class' => 'col-md-1'))
+							->draw();
+				?>
+				<tbody>
+
+				</tbody>
+				<!--<tfoot>
+					<tr>
+						<td colspan="9">Showing 1 to 25 of 57 entries</td>
+					</tr>
+				</tfoot>-->
+			</table>
+			<div id="pagination"></div>
+			<!-- <div class="tab-content no-padding">
 				<div id="Summary" class="tab-pane <?echo ($tab == 'summary_tab') ? 'active' : '';?>">
 					<?php echo $summary_view ?>
 				</div>
@@ -46,19 +69,52 @@
 					<?php echo $purchase_view ?>
 				</div>
 				
-			</div>
+			</div> -->
 		</div>
 	</section>
 	</form>
 	<script>
+		var ajax = {}
+		var ajax_call = '';
+		var ajax = filterFromURL();
+		ajax.filter = ajax.filter || $('#filter_tabs .active a').attr('href');
+		ajaxToFilter(ajax, { limit : '#items', daterangefilter : '#daterangefilter' });
+		ajaxToFilterTab(ajax, '#filter_tabs', 'filter');
+
+		$('#pagination').on('click', 'a', function(e) {
+			e.preventDefault();
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				ajax.page = $(this).attr('data-page');
+				getList();
+			}
+		});
+		function getList() {
+			filterToURL();
+			if (ajax_call != '') {
+				ajax_call.abort();
+			}
+			ajax.daterangefilter 	= $('#daterangefilter').val();
+			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
+				$('#tableList tbody').html(data.table);
+				$('#pagination').html(data.pagination);
+				if (ajax.page > data.page_limit && data.page_limit > 0) {
+					ajax.page = data.page_limit;
+					getList();
+				}
+			});
+		}
+		getList();
+
+		$('#daterangefilter').on('change', function() {
+			ajax.page 	= 1;
+			ajax.daterangefilter 	= $(this).val();
+			getList();
+		});
 		
-		// $('#daterangefilter').on('apply.daterangepicker', function(ev, picker) {
+		// $('#daterangefilter').on('change', function() {
 		// 	$('#vat_summary_form').submit();
 		// });
-		
-		$('#daterangefilter').on('change', function() {
-			$('#vat_summary_form').submit();
-		});
 		
 		$('#export').click(function() {
 			var daterangefilter = $('#daterangefilter').val();
@@ -66,15 +122,14 @@
 			window.location = '<?php echo MODULE_URL ?>view_export/' + daterangefilter;
 		});
 
-		$('.pagination').on('click', 'a', function(e) {
-			e.preventDefault();
-			$('#vat_summary_form #page').val($(this).attr('data-page'));
-			$('#vat_summary_form').submit();
+		$('#filter_tabs li').on('click', function() {
+			ajax.page = 1;
+			ajax.filter = $(this).find('a').attr('href');
+			getList();
 		});
-
-		// $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-		// 	$('#vat_summary_form #tab').val(this.id);
+		// $('.pagination').on('click', 'a', function(e) {
+		// 	e.preventDefault();
+		// 	$('#vat_summary_form #page').val($(this).attr('data-page'));
 		// 	$('#vat_summary_form').submit();
 		// });
-		
 	</script>

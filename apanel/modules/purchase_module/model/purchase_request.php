@@ -106,7 +106,7 @@
 
 			$result = $this->db->setTable('purchaserequest s')
 							->setFields($fields)
-							->leftJoin("wc_users p ON p.username	 = s.requestor  AND p.stat = 'active'")
+							->leftJoin("wc_users p ON p.username = s.requestor  AND p.stat = 'active'")
 							->setWhere($add . $add_query)
 							->setOrderBy($sort)
 							->setGroupBy('s.voucherno')

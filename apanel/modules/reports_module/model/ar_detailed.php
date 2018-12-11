@@ -24,7 +24,8 @@ class ar_detailed extends wc_model {
 		$addCondition = "";
 		$addCondition .= (!empty($customer) && $customer != 'none')? " AND ar.customer = '$customer' ":"";
 		$addCondition .= (!empty($datefilter) && !is_null($datefilter)) ? "AND ar.transactiondate <= '$datefilter' " : "";
-		$balanceCondition = " AND ((select (SUM(app.amount) + SUM(app.discount)) from rv_application app left join receiptvoucher pay ON pay.voucherno = app.voucherno where app.arvoucherno = ar.voucherno and pay.transactiondate <= '$datefilter') < ar.amount) ";
+		//$balanceCondition = " AND ((select (SUM(app.amount) + SUM(app.discount)) from rv_application app left join receiptvoucher pay ON pay.voucherno = app.voucherno where app.arvoucherno = ar.voucherno and pay.transactiondate <= '$datefilter') < ar.amount) ";
+		$balanceCondition = 'AND (ar.balance > 0 OR ar.balance > 0.00)';
 		$result = $this->db->setTable('partners p')
 							->setFields("
 								p.partnercode customercode, p.partnername customername, 
