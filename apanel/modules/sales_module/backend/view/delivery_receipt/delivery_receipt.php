@@ -110,6 +110,21 @@
 								</div>
 							</div>
 							<div class="row">
+								<div class = "col-md-12">
+									<?php
+										echo $ui->formField('textarea')
+												->setLabel('Shipping Address:')
+												->setSplit('col-md-2', 'col-md-10')
+												->setName('s_address')
+												->setId('s_address')
+												->setValue($s_address)
+												->setAttribute(array("maxlength" => "105"))
+												->setValidation('required')
+												->draw($show_input);
+									?>
+								</div>
+							</div>
+							<div class="row">
 								<div class="col-md-12">
 									<?php
 										echo $ui->formField('textarea')

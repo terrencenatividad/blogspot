@@ -168,6 +168,22 @@
 							</div>
 						</div>
 
+						<div class="row">
+							<div class = "col-md-12">
+								<?php
+									echo $ui->formField('textarea')
+											->setLabel('Shipping Address:')
+											->setSplit('col-md-2', 'col-md-10')
+											->setName('s_address')
+											->setId('s_address')
+											->setAttribute(array("maxlength" => "105"))
+											->setValidation('required')
+											->setValue($s_address)
+											->draw($show_input);
+								?>
+							</div>
+						</div>
+
 						<div class = "row">
 							<div class = "col-md-12">
 								<?php
@@ -335,7 +351,7 @@
 															->setClass("text-right price")
 															->setAttribute(array("maxlength" => "20"))
 															->setValue($price)
-															->setValidation('decimal required')
+															->setValidation('decimal')
 															//->addHidden(true)
 															->draw($show_input);
 												?>
