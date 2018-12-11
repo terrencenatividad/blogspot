@@ -173,7 +173,7 @@
                         ap_details ad
                     INNER JOIN chartaccount ca ON ca.id = ad.accountcode
                     WHERE
-                        job_no = '$job_no' AND debit != 0.00
+                        job_no = '$job_no' AND debit != 0.00 AND job_no != ''
                     UNION
                     SELECT
                         jd.voucherno,
@@ -184,7 +184,7 @@
                         journaldetails jd
                     INNER JOIN chartaccount ca ON ca.id = jd.accountcode
                     WHERE
-                        jd.job_no = '$job_no' AND jd.transtype = 'DM' AND jd.debit != 0.00
+                        jd.job_no = '$job_no' AND jd.transtype = 'DM' AND jd.debit != 0.00  AND job_no != ''
                     UNION
                     SELECT
                         jd.voucherno,
@@ -195,13 +195,14 @@
                         journaldetails jd
                     INNER JOIN chartaccount ca ON ca.id = jd.accountcode
                     WHERE
-                        jd.job_no = '$job_no' AND jd.transtype = 'CM' AND jd.credit != 0.00
+                        jd.job_no = '$job_no' AND jd.transtype = 'CM' AND jd.credit != 0.00  AND job_no != ''
             ";
 
             $result = 	$this->db->setTable("($query) main")
                         ->setFields('main.voucherno,main.accountname,main.debit,main.credit')
                         ->setOrderBy($sort)
                         ->runPagination(false);
+            //echo $this->db->getQuery();
             return $result;         
         }
 
