@@ -29,6 +29,16 @@ class accounts_payable extends wc_model
 		}
 	}
 
+	public function checkRefNo($referenceno) {
+		$result = $this->db->setTable('purchasereceipt')
+		->setFields("voucherno")
+		->setWhere("voucherno = '$referenceno'")
+		->runSelect()
+		->getRow();
+		
+		return $result;
+	}
+
 	public function getJobList() {
 		$result = $this->db->setTable('job')
 		->setFields("job_no")

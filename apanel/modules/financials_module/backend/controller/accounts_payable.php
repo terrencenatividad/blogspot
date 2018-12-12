@@ -407,16 +407,18 @@ class controller extends wc_controller
 			$vendor		 		= $row->vendor; 
 			$referenceno 		= $row->referenceno; 
 			$checker 	 		= $row->importchecker;
-			$import 	 		= ($checker == 'import') 	?	"Yes" 	:	"No";
+			$import 	 		= ($checker == 'import') 	?	"yes" 	:	"no";
+			$checker_pr = $this->accounts_payable->checkRefNo($referenceno);
+			$pr = ($checker_pr == true);
 			$stat				= $row->stat;
 			$payment_status 	= $row->payment_status;
 			$status 	= ($row->stat != 'cancelled');
 			$dropdown = $this->ui->loadElement('check_task')
 			->addView()
-			->addEdit($status && $restrict && $import)
+			->addEdit($status && $restrict && !$pr)
 			->addPrint()
 			->addDelete($status && $restrict)
-			->addCheckbox($status && $restrict && $import)
+			->addCheckbox($status && $restrict)
 			->setValue($voucher)
 			->setLabels(array('delete' => 'Cancel'))
 			->draw();
