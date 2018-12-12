@@ -443,14 +443,15 @@
 								</div>
 						</div>
 					</div>
-					</div>
-					<hr>
 					<div class="row" style="padding-bottom: 15px">
 						<div class="col-md-12 text-center">
 							<?php echo $ui->drawSubmit($show_input); ?>
 							<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
 						</div>
 					</div>
+					</div>
+					<hr>
+					
 		</form>
 	</section>
 	<div class="modal fade" id="itemsModal" tabindex="-1" data-keyboard="false" data-backdrop="static">
