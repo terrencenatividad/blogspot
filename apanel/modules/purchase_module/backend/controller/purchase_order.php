@@ -14,6 +14,7 @@ class controller extends wc_controller
 		$this->view->title      = 'Purchase Order';
 		$this->show_input 	    = true;
 		$this->inventory_model	= $this->checkoutModel('inventory_module/inventory_model');
+		$this->report_model		= $this->checkoutModel('reports_module/report_model');
 
 		$this->user 		    = USERNAME;
 
@@ -776,9 +777,11 @@ class controller extends wc_controller
 		else
 		{
 			$msg = "success";
-
 			if ( $this->inventory_model ) {
 				$this->inventory_model->generateBalanceTable();
+			}
+			if($this->report_model){
+				$this->report_model->generateAssetActivity();
 			}
 		}
 
@@ -804,6 +807,9 @@ class controller extends wc_controller
 
 			if ( $this->inventory_model ) {
 				$this->inventory_model->generateBalanceTable();
+			}
+			if($this->report_model){
+				$this->report_model->generateAssetActivity();
 			}
 		}
 
