@@ -554,9 +554,9 @@ class accounts_payable extends wc_model
 	public function getAccountClasscode($accountcode){
 		$result = $this->db->setTable("chartaccount")
 		->setFields('accountclasscode')
-		->setWhere("id = '$accountcode'")
+		->setWhere("id IN($accountcode)")
 		->runSelect()
-		->getRow();
+		->getResult();
 
 		return $result;
 	}
@@ -2069,12 +2069,12 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
-	public function saveAPDetails($ap_details, $voucherno) {
-		$result1 = $this->db->setTable('ap_details')
+	public function saveAPDetails($ap_details) {
+		$result = $this->db->setTable('ap_details')
 		->setValuesFromPost($ap_details)
 		->runInsert();
 
-		return $result1;
+		return $result;
 	}
 
 	public function checkStat($voucherno) {

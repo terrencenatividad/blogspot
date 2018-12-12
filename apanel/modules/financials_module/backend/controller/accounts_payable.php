@@ -174,7 +174,7 @@ class controller extends wc_controller
 		$data['voucherno'] = $id;
 		$data['asset_list'] = $this->accounts_payable->retrieveAssetId();
 		$data['show_input'] 	   = true;
-		$this->view->load('accounts_payable/accounts_payable', $data);
+		$this->view->load('accounts_payable/accounts_payable_edit', $data);
 	}
 
 	public function apply_bir($sid){
@@ -458,10 +458,12 @@ class controller extends wc_controller
 		$ap['convertedamount'] = $post['total_currency'];
 		$ap['amount'] = str_replace(',', '', $post['total_debit']);
 		$ap['exchangerate'] = str_replace(',', '', $ap['exchangerate']);
-		$ap['balance'] = $ap['total_currency'];
+		$ap['balance'] = $post['total_currency'];
 		$ap['terms'] = $post['vendor_terms'];
 		$ap['stat'] = 'posted';
 		$ap['job_no'] = $post['job'];
+
+		$ap_details['transtype'] = 'AP';
 		$ap_details['checkstat'] = 'uncleared';
 		$ap_details['voucherno'] = $ap['voucherno'];
 		$ap_details['source'] = $ap['referenceno'];
@@ -470,7 +472,22 @@ class controller extends wc_controller
 		$ap_details['converteddebit'] = str_replace(',', '', $post['currencydebit']);
 		$ap_details['convertedcredit'] = str_replace(',', '', $post['currencycredit']);
 
-		$result    = $this->accounts_payable->saveAP($ap, $ap_details);
+		$account = $this->input->post('account');
+		$check = false;
+		if(!empty($account)) {
+			$result = $this->accounts_payable->getAccountClasscode($account);
+			foreach($result as $row) {
+				if($row->accountclasscode == 'ACCPAY') {
+					$check = true;
+					$result    = $this->accounts_payable->saveAP($ap, $ap_details);
+				} else {
+					$result = false;
+				}
+			}	
+		} else {
+			$result    = $this->accounts_payable->saveAP($ap, $ap_details);
+		}
+		
 
 		if($button == 'save_preview')
 		{
@@ -487,7 +504,8 @@ class controller extends wc_controller
 
 		return array(
 			'redirect'	=> $redirect,
-			'success'	=> $result
+			'success'	=> $result,
+			'check'		=> $check
 		);
 	}
 
@@ -507,21 +525,50 @@ class controller extends wc_controller
 		$ap['convertedamount'] = $post['total_currency'];
 		$ap['amount'] = str_replace(',', '', $post['total_debit']);
 		$ap['exchangerate'] = str_replace(',', '', $ap['exchangerate']);
-		$ap['balance'] = $ap['amount'];
+		$ap['balance'] = $post['total_currency'];
 		$ap['terms'] = $post['vendor_terms'];
 		$ap['stat'] = 'posted';
 		$ap['job_no'] = $post['job'];
+
 		$ap_details['transtype'] = 'AP';
 		$ap_details['checkstat'] = 'uncleared';
 		$ap_details['voucherno'] = $ap['voucherno'];
 		$ap_details['source'] = $ap['referenceno'];
+		$rate = str_replace(',', '', $ap['exchangerate']);
+		$debit = str_replace(',', '', $ap_details['debit']);
+		$credit = str_replace(',', '', $ap_details['credit']);
+		$convdebit = [];
+		$convcredit = [];
+		foreach($debit as $row) {
+			$convdebit[] = $rate * $row;
+		}
+		foreach($credit as $row) {
+			$convcredit[] = $rate * $row;
+		}
 		$ap_details['debit'] = str_replace(',', '', $ap_details['debit']);
 		$ap_details['credit'] = str_replace(',', '', $ap_details['credit']);
-		$ap_details['converteddebit'] = str_replace(',', '', $post['currencydebit']);
-		$ap_details['convertedcredit'] = str_replace(',', '', $post['currencycredit']);
-		$result    = $this->accounts_payable->updateAP($ap['voucherno'], $ap);
-		$details = $this->accounts_payable->saveAPDetails($ap_details, $ap['voucherno']);
+		$ap_details['converteddebit'] = $convdebit;
+		$ap_details['convertedcredit'] = $convcredit;
 
+		$account = $this->input->post('account');
+		$result = $this->accounts_payable->getAccountClasscode($account);
+		$check = false;
+		if(!empty($account)) {
+			foreach($result as $row) {
+				if($row->accountclasscode == 'ACCPAY') {
+					$check = true;
+					$result    = $this->accounts_payable->updateAP($ap['voucherno'], $ap);
+					$details = $this->accounts_payable->saveAPDetails($ap_details);
+				} else {
+					$result = false;
+					$details = false;
+				}
+			}
+		} else {
+			$result    = $this->accounts_payable->updateAP($ap['voucherno'], $ap);
+			$details = $this->accounts_payable->saveAPDetails($ap_details);
+		}
+		
 
 		if($button == 'save_preview')
 		{
@@ -538,7 +585,8 @@ class controller extends wc_controller
 
 		return array(
 			'redirect'	=> $redirect,
-			'success'	=> $details
+			'success'	=> $details,
+			'check'		=> $check
 		);
 	}
 
@@ -1373,5 +1421,17 @@ class controller extends wc_controller
 		$result = $this->accounts_payable->getAssetDetails($asset);
 		$in  = $result->ind;
 		return $in;
+	}
+
+	private function ajax_check_account() {
+		$account = $this->input->post('account');
+		$result = $this->accounts_payable->getAccountClasscode($account);
+		$check = false;
+		foreach($result as $row) {
+			if($row->accountclasscode == 'ACCPAY') {
+				$check = true;
+			}
+		}
+		return $check;
 	}
 }
