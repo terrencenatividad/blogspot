@@ -412,6 +412,7 @@ class controller extends wc_controller {
 		$table		= '';
 		$success	= true;
 		if (empty($details)) {
+			// $details	= $this->purchase_model->getImportPurchaseOrderDetails($voucherno, $warehouse);
 			$table		= '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 			$success	= false;
 		}
