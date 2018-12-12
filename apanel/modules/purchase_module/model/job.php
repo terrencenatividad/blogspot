@@ -137,7 +137,7 @@
         public function getPRPagination() {
             $result = $this->db->setTable("purchasereceipt")
                             ->setFields("voucherno, source_no, transactiondate, amount")
-                            ->setWhere("stat='Received'")
+                            ->setWhere("stat='Received' AND 'transtype='IPO'")
                             ->setOrderBy("voucherno ASC")
                             ->runPagination();
             return $result;
