@@ -58,7 +58,8 @@ class controller extends wc_controller {
 			'discounttype',
 			'detail_discountamount'		=> 'discountamount',
 			'detail_withholdingamount'	=> 'withholdingamount',
-			'detail_warehouse'			=> 'warehouse'
+			'detail_warehouse'			=> 'warehouse',
+
 		);
 		$this->clean_number		= array(
 			'receiptqty'
@@ -303,6 +304,7 @@ class controller extends wc_controller {
 		$data['fiscalyear']		= $this->date->getYear($data['transactiondate']);
 		$seq						= new seqcontrol();
 		$data['voucherno']			= $seq->getValue('PR');
+		$data['transtype']			= $this->purchase_model->getTransactionType($data['source_no']);
 		$result						= $this->purchase_model->savePurchaseReceipt($data, $data2);
 		if ($result && $this->financial_model) {
 			$this->financial_model->generateAP($data['voucherno']);

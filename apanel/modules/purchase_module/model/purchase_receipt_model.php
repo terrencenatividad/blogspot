@@ -113,7 +113,7 @@ class purchase_receipt_model extends wc_model {
 		}
 	}
 
-	private function getTransactionType($source_no) {
+	public function getTransactionType($source_no) {
 		$query_po = $this->db->setTable('purchaseorder po')
 							->setFields('po.transtype transtype')
 							->setWhere("po.voucherno = '$source_no'")

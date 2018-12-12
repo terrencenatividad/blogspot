@@ -12,9 +12,32 @@
             <form method="post" id="jobForm" class="form-horizontal">
                 
                 <div class="col-md-12">&nbsp;</div>
-
                 <div class="row">
-                   
+                    <?php if($task == 'view') : ?>
+                        <?php if($stat == 'cancelled') { ?>
+                            <div class="row">
+                                <div class="col-lg-2"></div>
+                                <div class="col-lg-4">
+                                    <?php echo '<font size = "4em"><span class="label label-danger">CANCELLED</span></font>'; ?>
+                                </div>
+                                <div class="col-lg-3"></div>
+                            </div>
+                            <br>
+                        <?php } ?>
+                        <?php if($stat == 'closed') { ?>
+                            <div class="row">
+                                <div class="col-lg-2"></div>
+                                <div class="col-lg-4">
+                                    <?php echo '<font size = "4em"><span class="label label-success">CLOSED</span></font>'; ?>
+                                </div>
+                                <div class="col-lg-3"></div>
+                            </div>
+                            <br>
+                        <?php } ?>
+                    <?php endif; ?>
+                </div>
+                
+                <div class="row">
                     <div class="col-md-6">
                         <?php
                             
