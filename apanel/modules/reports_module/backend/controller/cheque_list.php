@@ -223,12 +223,19 @@ class controller extends wc_controller {
 					$status_display =	'<span class="label label-danger">'.strtoupper($stat).'</span>';
 				}
 				
+				$link =	"";
+				if($transtype == "PV"){
+					$link 	.=	BASE_URL . "financials/payment_voucher/view/$voucherno";
+				} else {
+					$link 	.=	BASE_URL . "financials/disbursement/view/$voucherno";
+				}
+
 				$table .= '<tr>';
 				$table .= '<td style="text-align:center;">' . $dropdown 	. '</td>';
 				$table .= '<td>' . $this->date->dateFormat($chequedate) 	. '</td>';
 				$table .= '<td>' . $chequenumber 	. '</td>';
 				$table .= '<td>' . $invoiceno 		. '</td>';
-				$table .= '<td>' . $voucherno 		. '</td>';
+				$table .= '<td><a href="'.$link.'" target="blank_">' . $voucherno 		. '</a></td>';
 				$table .= '<td>' . $bankname 		. '</td>';
 				$table .= '<td>' . $partnername 	. '</td>';
 				$table .= '<td class="text-right">' . number_format($chequeamount,2) . '</td>';
@@ -276,7 +283,7 @@ class controller extends wc_controller {
 		}
 		$retrieved = $this->report->fileExport($search, $dates[0], $dates[1], $partner, $filter, $bank, $sort);
 		
-		$header = array("Check Date","Check Number","Invoice No.","Bank","Partner","Release Date","Cleared Date","Amount","Check Status"); 
+		$header = array("Check Date","Check Number","Invoice No.","Voucher No.","Bank","Partner","Amount","Release Date","Cleared Date","Check Status"); 
 	
 		$csv 	= '';
 		$csv 	.= 'Check List';
@@ -311,6 +318,7 @@ class controller extends wc_controller {
 				$csv .= ($prev_date!=$next_date) 	? 	'"' . $chequedate . '",' 	:	'"",';
 				$csv .= '"' . $row->chequenumber . '",';
 				$csv .= '"' . $row->invoiceno . '",';
+				$csv .= '"' . $row->voucherno . '",';
 				$csv .= '"' . $row->bank . '",';
 				$csv .= '"' . $row->partner . '",';
 				$csv .= '"' . number_format($row->chequeamount,2) . '",';
@@ -327,10 +335,10 @@ class controller extends wc_controller {
 				$count_per_cheque 	+=	1;
 			}
 
-			$csv .= '"","","","Total checks for '.$chequedate.'","'.$count_per_cheque.'","' . number_format($total_per_cheque,2) . '"';
+			$csv .= '"","","","","Total checks for '.$chequedate.'","'.$count_per_cheque.'","' . number_format($total_per_cheque,2) . '"';
 			$csv .= "\n\n";
 			
-			$csv .= '"","","","","Grand Total","' . number_format($grandtotal,2) . '"';
+			$csv .= '"","","","","","Grand Total","' . number_format($grandtotal,2) . '"';
 			$csv .= "\n";
 		}
 

@@ -131,7 +131,8 @@
 									pt.partnername,
 									coa.accountname bank,
 									IF(rv.paymenttype = "cash", "CASH",
-									IF(rv.paymenttype = "cheque", CONCAT(coa.accountname," : ",chq.chequenumber),"BANK TRANSFER")) payment,
+									IF(rv.paymenttype = "cheque", "CHEQUE", "BANK TRANSFER")) payment,
+									IFNULL(CONCAT(coa.accountname," : ",chq.chequenumber),"") chequedetails,
 									IFNULL(chq.chequedate, rv.transactiondate) paymentdate,
 									IFNULL(chq.chequeconvertedamount,app.amount) amount');
 

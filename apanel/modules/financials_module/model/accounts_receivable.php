@@ -71,7 +71,7 @@ class accounts_receivable extends wc_model
 		// Retrieve Vendor Details
 		$customer_code = $temp["main"]->customer;
 		$custFields = "address1, tinno, terms, email, CONCAT( first_name, ' ', last_name ), partnername AS name"; 
-		$cust_cond = "partnercode = '$customer_code'";
+		$cust_cond = "partnercode = '$customer_code' AND partnertype = 'customer'";
 
 		$custDetails = $this->db->setTable('partners')
 							->setFields($custFields)
@@ -306,7 +306,7 @@ class accounts_receivable extends wc_model
 		$add_query .= (!empty($vendfilter) && $vendfilter != 'none') ? "AND p.partnercode = '$vendfilter' " : "";
 		// $add_query .= $addCondition;
 
-		$rv_app_fields 	=	array("(COALESCE(SUM(rvapp.convertedamount),0) + COALESCE(SUM(rvapp.discount),0) + COALESCE(SUM(rvapp.credits_used),0) - COALESCE(SUM(rvapp.forexamount), 0)) amount",
+		$rv_app_fields 	=	array("(COALESCE(SUM(rvapp.convertedamount),0) + COALESCE(SUM(rvapp.discount),0) + COALESCE(SUM(rvapp.credits_used),0)  + COALESCE(SUM(rvapp.overpayment),0) - COALESCE(SUM(rvapp.forexamount), 0)) amount",
 									"rvapp.voucherno rvoucher", "rvapp.arvoucherno arno");
 		$rv_table 		=	"rv_application rvapp";
 		$rv_cond 		=	"rvapp.stat NOT IN('cancelled','temporary')";
@@ -327,11 +327,17 @@ class accounts_receivable extends wc_model
 								"p.partnername AS customer",
 								"main.referenceno as referenceno",
 								"main.lockkey as importchecker",
-								"main.stat as stat"
+								"main.stat as stat",
+								"IF(main.balance!=0 AND main.stat='cancelled','cancelled',
+								 IF(main.balance=0 AND main.stat='cancelled','cancelled',
+								 IF(main.balance!=payment.amount AND main.balance!=0 AND main.stat='cancelled','cancelled',
+								 IF(main.balance!=payment.amount AND main.balance!=0,'partial',
+								 IF(main.balance!=0,'unpaid','paid'))))) payment_status"
 						);
+						// $balance != $amount && $balance != 0 && $stat == 'cancelled'
 		$ar_table 	=	"accountsreceivable as main";
 		$ar_cond 	=	"main.stat IN ('posted','cancelled') $add_query";
-		$ar_join 	=	"partners p ON p.partnercode = main.customer ";
+		$ar_join 	=	"partners p ON p.partnercode = main.customer AND p.companycode = main.companycode AND p.partnertype = 'customer'";
 
 
 		$query 	=	$this->db->setTable($ar_table)
@@ -1516,7 +1522,7 @@ class accounts_receivable extends wc_model
 
 		$main_fields = array("main.transactiondate as transactiondate", "main.voucherno as voucherno", "CONCAT( first_name, ' ', last_name )", "main.referenceno as referenceno", "main.amount as amount", "main.balance as balance", "main.particulars", "p.partnername AS customer");
 
-		$main_join   = "partners p ON p.partnercode = main.customer"; //AND p.companycode
+		$main_join   = "partners p ON p.partnercode = main.customer AND p.companycode = main.companycode AND p.partnertype = 'customer'"; //AND p.companycode
 		$main_table  = "accountsreceivable as main";
 		$main_cond   = "main.stat = 'posted' $add_query";
 		$query 		 = $this->retrieveData($main_table, $main_fields, $main_cond, $main_join);

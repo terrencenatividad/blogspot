@@ -197,35 +197,35 @@ class controller extends wc_controller {
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
 				$total_amount = $vatable_sales + $vat_exempt - $discount + $tax - $wtax;
-				$summary = array(
-					'VATable Sales'		=> number_format($vatable_sales, 2),
-					'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
-					'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
-					'Discount'			=> number_format($discount, 2),
-					'Tax'				=> number_format($tax, 2),
-					'WTax'				=> number_format($wtax, 2),
-					'Total Amount'		=> number_format($total_amount, 2)
-				);
-				$print->drawSummary($summary);
-				$vatable_sales	= 0;
-				$vat_exempt		= 0;
-				$discount		= 0;
-				$tax			= 0;
-				$wtax			= 0;
-				$total_amount	= 0;
+				// $summary = array(
+				// 	'VATable Sales'		=> number_format($vatable_sales, 2),
+				// 	'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
+				// 	'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
+				// 	'Discount'			=> number_format($discount, 2),
+				// 	'Tax'				=> number_format($tax, 2),
+				// 	'WTax'				=> number_format($wtax, 2),
+				// 	'Total Amount'		=> number_format($total_amount, 2)
+				// );
+				// $print->drawSummary($summary);
+				// $vatable_sales	= 0;
+				// $vat_exempt		= 0;
+				// $discount		= 0;
+				// $tax			= 0;
+				// $wtax			= 0;
+				// $total_amount	= 0;
 			}
 		}
 		$total_amount = $vatable_sales + $vat_exempt - $discount + $tax - $wtax;
-		$summary = array(
-			'VATable Sales'		=> number_format($vatable_sales, 2),
-			'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
-			'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
-			'Discount'			=> number_format($discount, 2),
-			'Tax'				=> number_format($tax, 2),
-			'WTax'				=> number_format($wtax, 2),
-			'Total Amount'		=> number_format($total_amount, 2)
-		);
-		$print->drawSummary($summary);
+		// $summary = array(
+		// 	'VATable Sales'		=> number_format($vatable_sales, 2),
+		// 	'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
+		// 	'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
+		// 	'Discount'			=> number_format($discount, 2),
+		// 	'Tax'				=> number_format($tax, 2),
+		// 	'WTax'				=> number_format($wtax, 2),
+		// 	'Total Amount'		=> number_format($total_amount, 2)
+		// );
+		// $print->drawSummary($summary);
 
 		$print->drawPDF('Purchase Receipt - ' . $voucherno);
 	}

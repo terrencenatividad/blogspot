@@ -111,7 +111,7 @@ class return_model extends wc_model {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
 		}
 		$result = $this->db->setTable("returns r")
-							->innerJoin('partners p ON p.partnercode = r.customer AND p.companycode = r.companycode')
+							->innerJoin('partners p ON p.partnercode = r.customer AND p.companycode = r.companycode AND p.partnertype = "customer"')
 							->setFields("transactiondate, voucherno, source_no, partnername customer, r.stat stat")
 							->setWhere($condition)
 							->setOrderBy($sort)
@@ -305,7 +305,7 @@ class return_model extends wc_model {
 	
 	public function getDocumentInfo($voucherno) {
 		$result = $this->db->setTable('returns r')
-							->innerJoin('partners p ON p.partnercode = r.customer AND p.companycode = r.companycode')
+							->innerJoin('partners p ON p.partnercode = r.customer AND p.companycode = r.companycode AND p.partnertype = "customer"')
 							->setFields("r.transactiondate documentdate, r.voucherno voucherno, p.partnername company, CONCAT(p.first_name, ' ', p.last_name) customer, source_no referenceno, r.remarks remarks, partnercode, wtaxamount wtax, amount, discounttype disctype, discountamount discount, netamount net, taxamount vat")
 							->setWhere("voucherno = '$voucherno'")
 							->runSelect()
@@ -328,7 +328,7 @@ class return_model extends wc_model {
 	public function getCustomerDetails($partnercode) {
 		$result = $this->db->setTable('partners')
 							->setFields(array('partnername customer', 'address1 address', 'tinno', 'terms', 'mobile contactno'))
-							->setWhere("partnercode = '$partnercode'")
+							->setWhere("partnercode = '$partnercode' AND partnertype = 'customer'")
 							->runSelect()
 							->getRow();
 

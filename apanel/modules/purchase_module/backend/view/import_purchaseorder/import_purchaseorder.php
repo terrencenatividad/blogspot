@@ -139,6 +139,7 @@
 								->setId('exchange_rate')
 								->setClass('exchange_rate')
 								->setValue($exchange_rate)
+								->setValidation('decimal')
 								->draw($show_input);
 								?>
 							</div>
@@ -711,6 +712,7 @@
 										->setPlaceholder('0.00')
 										->setAttribute(array("maxlength" => "20"))
 										->setValue(number_format($freight,2))
+										->setValidation('decimal')
 										->draw($show_input);
 										?>
 									</td>
@@ -742,6 +744,7 @@
 										->setPlaceholder('0.00')
 										->setAttribute(array("maxlength" => "20"))
 										->setValue(number_format($insurance,2))
+										->setValidation('decimal')
 										->draw($show_input);
 										?>
 									</td>
@@ -773,6 +776,7 @@
 										->setPlaceholder('0.00')
 										->setAttribute(array("maxlength" => "20"))
 										->setValue(number_format($packaging,2))
+										->setValidation('decimal')
 										->draw($show_input);
 										?>
 									</td>
@@ -1545,7 +1549,6 @@ echo $ui->loadElement('modal')
 				}else{
 					discountamt = discount;
 				}
-				console.log(discountamt);
 				
 				var amount			= ( quantity * unitprice ) + tax_amount - discountamt;
 
@@ -2340,8 +2343,10 @@ $(document).ready(function(){
 
 $('#currency').on('change', function(){
 	ajax.currency 		= 	$(this).val();
+
 	$.post('<?=MODULE_URL?>ajax/get_exchange_rate', ajax, function(data) {
-		$('#exchange_rate').val(data.exchangerate);				
+		$('#exchange_rate').val(data.exchangerate);	
+		computeAmount();
 	});
 });
 
@@ -2383,6 +2388,6 @@ $('#discounttype').on('select2:selecting',function(e){
 		$('#discounttypeModal').on('click','#disc_no',function(){
 			$('#discounttypeModal').modal('hide');
 		});
-
+		
 </script>
 <?php endif; ?>

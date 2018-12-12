@@ -3411,7 +3411,7 @@ function loadCheques(i)
 				
 				$("#receivableForm #btnSave").html('Saving...');
 
-				$("#receivableForm #h_save").val("h_save");
+				$("#receivableForm #h_save_preview").val("h_save_exit");
 
 				$.post("<?=BASE_URL?>financials/accounts_receivable/ajax/save_receivable_data",$("#receivableForm").serialize())
 				.done(function(data)
@@ -3456,7 +3456,7 @@ function loadCheques(i)
 
 			if(valid == 0)
 			{
-				$("#receivableForm #h_save_new").val("h_save_new");
+				$("#receivableForm #h_save_preview").val("h_save_new");
 
 				// setTimeout(function() 
 				// {

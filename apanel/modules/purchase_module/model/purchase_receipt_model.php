@@ -269,7 +269,7 @@ class purchase_receipt_model extends wc_model {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
 		}
 		$result = $this->db->setTable("purchasereceipt pr")
-							->innerJoin('partners po ON po.partnercode = pr.vendor AND po.companycode = pr.companycode')
+							->innerJoin('partners po ON po.partnercode = pr.vendor AND po.companycode = pr.companycode AND po.partnertype = "supplier"')
 							->setFields("transactiondate, voucherno, source_no, partnername vendor, netamount, pr.stat stat, invoiceno")
 							->setWhere($condition)
 							->setOrderBy($sort)
@@ -538,7 +538,7 @@ class purchase_receipt_model extends wc_model {
 
 	public function getDocumentInfo($voucherno) {
 		$result = $this->db->setTable('purchasereceipt pr')
-							->innerJoin('partners p ON p.partnercode = pr.vendor AND p.companycode = pr.companycode')
+							->innerJoin('partners p ON p.partnercode = pr.vendor AND p.companycode = pr.companycode AND p.partnertype = "supplier"')
 							->setFields("pr.transactiondate documentdate, pr.voucherno voucherno, p.partnername company, CONCAT(p.first_name, ' ', p.last_name) vendor, source_no referenceno, pr.remarks remarks, partnercode, wtaxamount wtax, amount, discounttype disctype, discountamount discount, discountrate, netamount net, taxamount vat, wtaxrate")
 							->setWhere("voucherno = '$voucherno'")
 							->runSelect()
@@ -561,7 +561,7 @@ class purchase_receipt_model extends wc_model {
 	public function getVendorDetails($partnercode) {
 		$result = $this->db->setTable('partners')
 							->setFields(array('partnername vendor', 'address1 address', 'tinno', 'terms', 'mobile contactno'))
-							->setWhere("partnercode = '$partnercode'")
+							->setWhere("partnercode = '$partnercode' AND partnertype = 'supplier'")
 							->runSelect()
 							->getRow();
 

@@ -1,4 +1,4 @@
-<section class="content">
+	<section class="content">
 		<div class="box box-primary">
 			<form action="" method="post" class="form-horizontal">
 				<div class="box-body">
@@ -76,7 +76,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('Sales Quotation No. ')
+											->setLabel('Service Quotation No. ')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('source_no')
 											->setId('source_no')
@@ -122,7 +122,8 @@
 								<th class="col-md-3">Item</th>
 								<th class="col-md-3">Description</th>
 								<th class="col-md-2">Warehouse</th>
-								<th class="col-md-2">Quantity</th>
+								<th class="col-md-1">Order Quantity</th>
+								<th class="col-md-1">Quantity</th>
 								<th class="col-md-1">UOM</th>
 								<?php if ($show_input): ?>
 								<th class="col-md-1"></th>
@@ -150,10 +151,10 @@
 						<div id="submit_container" class="col-md-12 text-center">
 							<?php
 								if ($stat == 'Prepared' && $restrict_dr || empty($stat)) {
-									echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
+									// echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 								}
 							?>
-							<?php if(!$show_input):?><a href="http://localhost/triglobe/apanel/parts_and_service/job_order/payment/1" class="btn btn-warning">Issue Parts</a><?endif;?>
+							<?php if(!$show_input):?><a href="http://localhost/triglobe/apanel/parts_and_service/job_order/view/1" class="btn btn-flat btn-success">Issue</a><?endif;?>
 							<?php
 								// echo '&nbsp;&nbsp;&nbsp;';
 								echo $ui->drawCancel();
@@ -162,6 +163,44 @@
 					</div>
 				</div>
 			</form>
+		</div>	
+		<div class="box box-warning">
+			<div class="box-body">
+				<div class="row">
+					<div class="col-md-11">
+						<h3>Issued Parts:</h3>
+					</div>
+				</div>
+			</div>
+			<div class="box-body table-responsive no-padding">
+				<table id="issuedPartsList" class="table table-hover table-condensed table-sidepad only-checkbox full-form">
+					<thead>
+						<tr class="info">
+							<th class="col-md-3">Item</th>
+							<th class="col-md-3">Description</th>
+							<th class="col-md-2">Warehouse</th>
+							<th class="col-md-2">Quantity</th>
+							<th class="col-md-1">UOM</th>
+							<?php if ($show_input): ?>
+							<th class="col-md-1"></th>
+							<?php endif ?>
+						</tr>
+					</thead>
+					<tbody>
+					
+					</tbody>
+					<tfoot class="summary">
+						<tr>
+							<td colspan="6">
+								<?php if ($show_input): ?>
+									<button type="button" id="addNewItem" class="btn btn-link">Add a New Line</button>
+								<?php endif ?>
+							</td>
+						</tr>
+					</tfoot>
+				</table>
+				<div id="header_values"></div>
+			</div>
 		</div>
 	</section>
 	<div id="sec_modal" class="modal fade" tabindex="-1" role="dialog">
@@ -267,7 +306,6 @@
 					 ?>`;
 				}
 			}
-			console.log(index);
 			var row = `
 				<tr>
 					<td>
@@ -293,15 +331,28 @@
 					</td>
 					<td>
 						<?php
-							$value = "<span id='temp_view_warehouse_` + index + `'></span>";
+							$value = "<span id='temp_view_warehouse_` + details.warehouse + `'></span>";
 							echo $ui->formField('dropdown')
 								->setSplit('', 'col-md-12')
 								->setName('detail_warehouse[]')
 								->setClass('warehouse')
 								->setList($warehouse_list)
-								->setValue($value)
+								->setValue('` + details.warehouse + `')
 								->draw($show_input);
 						?>
+					</td>
+					<td class="text-right">
+						<?php
+							echo $ui->formField('text')
+								->setSplit('', 'col-md-12')
+								->setName('orderqty[]')
+								->setClass('orderqty text-right')
+								->setAttribute(array('data-value' => '` + (parseFloat(details.orderqty) || 0) + `'))
+								->setValidation('required integer')
+								->setValue('` + (addComma(details.orderqty, 0) || 0) + `')
+								->draw($show_input);
+						?>
+						` + otherdetails + `
 					</td>
 					<td class="text-right">
 						<?php
@@ -312,7 +363,7 @@
 								->setAttribute(array('data-value' => '` + (parseFloat(details.quantity) || 0) + `'))
 								->setValidation('required integer')
 								->setValue('` + (addComma(details.quantity, 0) || 0) + `')
-								->draw($show_input);
+								->draw(true);
 						?>
 						` + otherdetails + `
 					</td>
@@ -337,12 +388,15 @@
 			if (details.itemcode != '') {
 				console.log(details.itemcode);
 				$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+				$('#issuedPartsList tbody').find('tr:last .itemcode').val(details.itemcode);
 			}
 			if (details.warehouse != '') {
 				$('#tableList tbody').find('tr:last .warehouse').val(details.warehouse);
+				$('#issuedPartsList tbody').find('tr:last .warehouse').val(details.warehouse);
 			}
 			if (details.taxcode != '') {
 				$('#tableList tbody').find('tr:last .taxcode').val(details.taxcode);
+				$('#issuedPartsList tbody').find('tr:last .taxcode').val(details.taxcode);
 			}
 			try {
 				drawTemplate();
@@ -386,10 +440,14 @@
 					addVoucherDetails(details, index);
 				});
 				//$('#tableList tfoot.summary').show();
+
+			var row2 = "<tr><td colspan='6' class='text-center'>No Records Found</td></tr>";
+			$('#issuedPartsList tbody').append(row2);
+
 			} else if (min_row == 0) {
 				$('#tableList tbody').append(`
 					<tr>
-						<td colspan="9" class="text-center"><b>Select Sales Quotation No.</b></td>
+						<td colspan="9" class="text-center"><b>Select Service Quotation No.</b></td>
 					</tr>
 				`);
 			}

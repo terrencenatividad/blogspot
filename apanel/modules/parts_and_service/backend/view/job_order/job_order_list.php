@@ -99,6 +99,43 @@
 				</table>
 			</div>
 		</div>
+		<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Attach File</h4>
+				<h4 class="modal-title">JO NO.: JO0000000001</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<!-- <label for="import_csv">Step 3. Select the updated file and click 'Import' to proceed.</label> -->
+						<?php
+							echo $ui->setElement('file')
+									->setId('import_csv')
+									->setName('import_csv')
+									->setAttribute(array('accept' => '.csv'))
+									->setValidation('required')
+									->draw();
+						?>
+						<span class="help-block"></span>
+					</div>
+					<p class="help-block">The file to be imported shall not exceed the size of 1mb and must be a PDF, PNG or JPG file.</p>
+				</div>
+				<div class="modal-footer">
+					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+						<div class="btn-group">
+						<button type = "button" class = "btn btn-primary btn-sm btn-flat">Attach</button>
+						</div>
+						&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+						<button type="button" class="btn btn-default btn-sm btn-flat">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			</div>
+		</div>
 		<!-- <div id="pagination"></div> -->
 	</section>
 	<script>
@@ -144,6 +181,10 @@
 				getList();
 			}
 		});
+		$('#tableList').on('click','.issue_parts',function(){
+			var id = $(this).data('id');
+			window.location.href = '<?=BASE_URL?>parts_and_service/job_order/payment/'+id;
+		});
 		function getList() {
 			filterToURL();
 			if (ajax_call != '') {
@@ -178,4 +219,7 @@
 			ajax.daterangefilter = $(this).val();
 			getList();
 		})
+		$('#tableList').on('click','.tag_as_complete',function(){
+			$('#attach_modal').modal('show');
+		});
 	</script>
