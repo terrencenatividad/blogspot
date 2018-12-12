@@ -775,6 +775,8 @@
 											->draw($show_input);
 											?>
 											<input type = "hidden" class="ischeck" name='ischeck[<?=$row?>]' id='ischeck[<?=$row?>]'>
+											<input type = "hidden" class="isop" name='isop[<?=$row?>]' id='isop[<?=$row?>]'>
+											<input type = "hidden" class="isadv" name='isadv[<?=$row?>]' id='isadv[<?=$row?>]'>
 										</td>
 										<td class = "remove-margin">
 											<?php
@@ -4011,7 +4013,7 @@ function apply_credit_account(amount){
 			$(this).remove();
 		} 
 	});
-	var copy_acct 	= $('#entriesTable tbody tr.clone:first')[0].outerHTML;
+	var copy_acct 	= (task == "create") ? clone_acct: $('#entriesTable tbody tr.clone:first')[0].outerHTML;
 	if(total_advcredits_amount>0){
 		var adv_account = cred_acct;
 		$("#entriesTable tbody tr.clone:not(.added_row)").first().before(copy_acct);

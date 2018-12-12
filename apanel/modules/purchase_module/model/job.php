@@ -137,7 +137,7 @@
         public function getPRPagination() {
             $result = $this->db->setTable("purchasereceipt")
                             ->setFields("voucherno, source_no, transactiondate, amount")
-                            ->setWhere("stat='Received'")
+                            ->setWhere("stat='Received' AND transtype='IPO'")
                             ->setOrderBy("voucherno ASC")
                             ->runPagination();
             return $result;
@@ -154,9 +154,10 @@
 
         public function getTaggedItemQty($ipo, $itemcode, $job=""){
             
-            $result = $this->db->setTable("job_details")
-                            ->setFields("SUM(qty) AS count")
-                            ->setWhere("ipo_no='".$ipo."' AND itemcode='".$itemcode."' AND job_no != '".$job."'")
+            $result = $this->db->setTable("job_details jd")
+                            ->setFields("SUM(jd.qty) AS count")
+                            ->leftJoin("job j ON j.job_no = jd.job_no")
+                            ->setWhere("jd.ipo_no='".$ipo."' AND jd.itemcode='".$itemcode."' AND jd.job_no != '".$job."' AND j.stat='on-going'")
                             ->runSelect()
                             ->getResult();
             return $result;
@@ -231,7 +232,7 @@
 
         public function getJob($job){
             $result = $this->db->setTable("job")
-                            ->setFields("transactiondate,notes")
+                            ->setFields("transactiondate,notes,stat")
                             ->setWhere("job_no='".$job."'")
                             ->runSelect()
                             ->getResult();

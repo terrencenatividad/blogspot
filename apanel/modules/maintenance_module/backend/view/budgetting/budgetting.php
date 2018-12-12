@@ -64,8 +64,8 @@
 										->setSplit('col-md-3', 'col-md-8')
 										->setName('budgetdesc')
 										->setId('budgetdesc')
+										->setMaxLength(250)
 										->setValue($budgetdesc)
-										->setValidation('required')
 										->draw($show_input);	
 										?>	
 									</div>

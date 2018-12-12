@@ -1,4 +1,4 @@
-<section class="content">
+	<section class="content">
 		<div class="box box-primary">
 			<form action="" method="post" class="form-horizontal">
 				<div class="box-body">
@@ -76,7 +76,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('Sales Quotation No. ')
+											->setLabel('Service Quotation No. ')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('source_no')
 											->setId('source_no')
@@ -447,7 +447,7 @@
 			} else if (min_row == 0) {
 				$('#tableList tbody').append(`
 					<tr>
-						<td colspan="9" class="text-center"><b>Select Sales Quotation No.</b></td>
+						<td colspan="9" class="text-center"><b>Select Service Quotation No.</b></td>
 					</tr>
 				`);
 			}

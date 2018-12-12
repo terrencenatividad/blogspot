@@ -692,16 +692,29 @@
 														</td>
 														<td class = "remove-margin">
 															<?php
-															echo $ui->formField('text')
-															->setPlaceholder('00.00')
-															->setSplit('', 'col-md-12')
-															->setName('currencyamount[]')
-															->setId('currencyamount')
-															->setAttribute(array("maxlength" => "20", 'readonly'))
-															->setClass("currencyamount text-right")
-															->setValidation('decimal')
-															->setValue($row->currencyamount)
-															->draw($show_input);
+															if($row->debit == 0) {
+																echo $ui->formField('text')
+																->setPlaceholder('00.00')
+																->setSplit('', 'col-md-12')
+																->setName('currencycredit[]')
+																->setId('currencycredit')
+																->setAttribute(array("maxlength" => "20", 'readonly'))
+																->setClass("currencyamount text-right")
+																->setValidation('decimal')
+																->setValue($row->convertedcredit)
+																->draw($show_input);
+															} else {
+																echo $ui->formField('text')
+																->setPlaceholder('00.00')
+																->setSplit('', 'col-md-12')
+																->setName('currencydebit[]')
+																->setId('currencydebit')
+																->setAttribute(array("maxlength" => "20", 'readonly'))
+																->setClass("currencyamount text-right")
+																->setValidation('decimal')
+																->setValue($row->converteddebit)
+																->draw($show_input);
+															}
 															?>
 														</td>
 														<input type="hidden" name="linenum[]" value = "<?php echo $row->linenum; ?>" class = "linenum">
@@ -1362,23 +1375,29 @@
 		var credit_currency = 0;
 		$('#itemsTable').on('blur', '.debit', function() {
 			var rate = removeComma($('#exchangerate').val());
-			if($(this).val() != '') {
+			var debit = removeComma($(this).val());
+			if(debit != '0') {
 				debit_currency = $(this).val() * rate;
 				$(this).closest('tr').find('.currencyamount').val(addComma(debit_currency)).attr('name', 'currencydebit');
 				$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
 				sumDebit();
 				sumCurrencyAmount();
+			} else {
+				$(this).closest('tr').find('.credit').removeAttr('readonly');
 			}
 		});
 
 		$('#itemsTable').on('blur', '.credit', function() {
 			var rate = removeComma($('#exchangerate').val());
-			if($(this).val() != '') {
+			var credit = removeComma($(this).val());
+			if(credit != '0') {
 				credit_currency = $(this).val() * rate;
 				$(this).closest('tr').find('.currencyamount').val(addComma(credit_currency)).attr('name', 'currencycredit');
 				$(this).closest('tr').find('.debit').attr('readonly', 'readonly');
 				sumCredit();
 				sumCurrencyAmount();
+			} else {
+				$(this).closest('tr').find('.debit').removeAttr('readonly');
 			}
 		});
 
