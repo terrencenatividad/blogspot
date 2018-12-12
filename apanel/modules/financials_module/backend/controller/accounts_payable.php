@@ -8,6 +8,7 @@ class controller extends wc_controller
 		$this->url 			    = new url();
 		$this->accounts_payable = new accounts_payable();
 		$this->restrict 		= new financials_restriction_model();
+		$this->report_model		= $this->checkoutModel('reports_module/report_model');
 		$this->input            = new input();
 		$this->ui 			    = new ui();
 		$this->logs  			= new log;
@@ -501,6 +502,10 @@ class controller extends wc_controller
 		{
 			$redirect = MODULE_URL;
 		}
+
+		if ($result && $this->report_model){ 
+			$this->report_model->generateAssetActivity();
+		} 
 
 		return array(
 			'redirect'	=> $redirect,

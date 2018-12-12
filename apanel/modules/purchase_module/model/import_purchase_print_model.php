@@ -335,17 +335,17 @@ class import_purchase_print_model extends fpdf {
 				}
 			}
 
-			// $receipt_width = 216 - ($this->margin_side * 2) - $content_width - $label_width;
-			// $this->SetFont('Arial', 'B', 8);
-			// $this->Rect($this->margin_side + $content_width + $label_width, $footer_start, $receipt_width, 20);
-			// $this->SetY($footer_start);
-			// $this->SetX($this->margin_side + $content_width + $label_width);
-			// $this->Cell($receipt_width, 5, 'Received the above good/s in good condition', 0, 0, 'C');
-			// $this->Ln(15);
-			// $this->SetFont('Arial', '', 8);
-			// $this->SetX($this->margin_side + $content_width + $label_width);
-			// $this->Cell($receipt_width - round($receipt_width * 0.5), 5, 'Signature over Printed Name', 0, 0, 'C');
-			// $this->Cell(round($receipt_width * 0.5), 5, 'Date Received', 0, 0, 'C');
+			$receipt_width = 216 - ($this->margin_side * 2) - $content_width - $label_width;
+			$this->SetFont('Arial', 'B', 8);
+			$this->Rect($this->margin_side + $content_width + $label_width, $footer_start, $receipt_width, 20);
+			$this->SetY($footer_start);
+			$this->SetX($this->margin_side + $content_width + $label_width);
+			$this->Cell($receipt_width, 5, '', '', 0, 'C');
+			$this->Ln(15);
+			$this->SetFont('Arial', '', 8);
+			$this->SetX($this->margin_side + $content_width + $label_width);
+			$this->Cell($receipt_width - round($receipt_width * 0.5), 5, '', 0, 0, 'C');
+			$this->Cell(round($receipt_width * 0.5), 5, '', 0, 0, 'C');
 		} else if ($this->has_footer_details) {
 			$content_width		= 69;
 			$label_width		= 30;

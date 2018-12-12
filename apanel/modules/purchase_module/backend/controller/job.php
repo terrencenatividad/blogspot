@@ -59,7 +59,7 @@
 
             $data['transactiondate']    = $job_date;
             $data['notes']              = $retrievedjob[0]->notes;
-
+            $data['stat']               =$retrievedjob[0]->stat;
             $result                     = (array) $this->job->retrieveExistingJob($job);
             $data['result']             = $result;
 
