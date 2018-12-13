@@ -22,6 +22,7 @@
 						<?= 
 							$ui->OptionButton('');
 						?>
+						<?=	$ui->CreateDeleteButton(''); ?>
 						<a class="btn btn-info btn-flat" role="button" href="<?=MODULE_URL?>master" style="outline:none;">Master Price List</a>
 						<?=	$ui->CreateActButton(''); ?>
 					</div>
@@ -197,20 +198,39 @@ function showList(pg){
 };
 
 function ajaxCallback(id) {
-	//var ids = getDeleteId(id);
-	ajax.code 	=	id;
-	$.post('<?=MODULE_URL?>ajax/delete_template', ajax, function(data) {
-		if(data.msg == "success")
-		{
-			showList();
+	var ids = getDeleteId(id);
+	$.post('<?=MODULE_URL?>ajax/ajax_delete', ids, function(data) {
+		if ( ! data.success) {
+			$('#warning_modal #warning_message').html('<p>Unable to delete Pricelist: Template in Use</p>');
+			data.error_id.forEach(function(id) {
+				$('#warning_modal #warning_message').append('<p>Pricelist Code: ' + id + '</p>');
+			});
+			$('#warning_modal').modal('show');
 		}
+		showList();
 	});
 }
+$(function() {
+	linkButtonToTable('#item_multiple_delete', '#pricelist_table');
+	linkDeleteToModal('#pricelist_table .delete', 'ajaxCallback');
+	linkDeleteMultipleToModal('#item_multiple_delete', '#pricelist_table', 'ajaxCallback');
+});
 
-function getIds(ids) {
-	var x = ids.split(",");
-	return "id[]=" + x.join("&id[]=");
-}
+
+// function ajaxCallback(id) {
+// 	ajax.code 	=	id;
+// 	$.post('<?=MODULE_URL?>ajax/delete_template', ajax, function(data) {
+// 		if(data.msg == "success")
+// 		{
+// 			showList();
+// 		}
+// 	});
+// }
+
+// function getIds(ids) {
+// 	var x = ids.split(",");
+// 	return "id[]=" + x.join("&id[]=");
+// }
 
 	$(function() {
 			// linkButtonToTable('#activateMultipleBtn', '#pricelist_table');
@@ -221,66 +241,66 @@ $(document).ready(function()
 {
 	showList();
 
-	$( "#pricelist_table" ).on('click' , '.delete', function() 
-	{
-		var id = $( this ).attr("data-id");
+	// $( "#pricelist_table" ).on('click' , '.delete', function() 
+	// {
+	// 	var id = $( this ).attr("data-id");
 		
-		if( id != "" )
-		{
-			$(".delete-modal > .modal").css("display", "inline");
-			$(".delete-modal").modal("show");
+	// 	if( id != "" )
+	// 	{
+	// 		$(".delete-modal > .modal").css("display", "inline");
+	// 		$(".delete-modal").modal("show");
 
-			$( "#delete-yes" ).click(function() 
-			{
-				$.post('<?=BASE_URL?>maintenance/discount/ajax/delete', 'id=' + id, function(data) 
-				{
-					if( data.msg == 'success' )	
-					{
-						$(".delete-modal").modal("hide");
-						showList();
-					}
-					else
-					{			
-						$(".delete-modal").modal("hide");
-						show_error(data.msg);
-					}
-				});
-			});	
-		}
+	// 		$( "#delete-yes" ).click(function() 
+	// 		{
+	// 			$.post('<?=BASE_URL?>maintenance/discount/ajax/delete', 'id=' + id, function(data) 
+	// 			{
+	// 				if( data.msg == 'success' )	
+	// 				{
+	// 					$(".delete-modal").modal("hide");
+	// 					showList();
+	// 				}
+	// 				else
+	// 				{			
+	// 					$(".delete-modal").modal("hide");
+	// 					show_error(data.msg);
+	// 				}
+	// 			});
+	// 		});	
+	// 	}
 
-	});
+	// });
 
-	$( "#deletelistBtn" ).click(function() 
-	{	
-		var id = [];
+	// $( "#deletelistBtn" ).click(function() 
+	// {	
+	// 	var id = [];
 
-		$('input:checkbox[name="checkbox[]"]:checked').each(function()
-		{
-			id.push($(this).val());
-		});
+	// 	$('input:checkbox[name="checkbox[]"]:checked').each(function()
+	// 	{
+	// 		id.push($(this).val());
+	// 	});
 
-		if( id != "" )
-		{
-			$(".delete-modal > .modal").css("display", "inline");
-			$(".delete-modal").modal("show");
+	// 	if( id != "" )
+	// 	{
+	// 		$(".delete-modal > .modal").css("display", "inline");
+	// 		$(".delete-modal").modal("show");
 
-			$( "#delete-yes" ).click(function() 
-			{
-				$.post('<?=BASE_URL?>maintenance/pricelist/ajax/delete', 'id=' + id, function(data) 
-				{
-					if( data.success )	
-					{
-						window.location.href = "<?=BASE_URL?>maintenance/pricelist";
-					}
-					else
-					{
-						// Call function to display error_get_last
-						show_error(data.msg);
-					}
-				});
-			});	
-		}
-	});
+	// 		$( "#delete-yes" ).click(function() 
+	// 		{
+	// 			$.post('<?=BASE_URL?>maintenance/pricelist/ajax/delete', 'id=' + id, function(data) 
+	// 			{
+	// 				if( data.success )	
+	// 				{
+	// 					window.location.href = "<?=BASE_URL?>maintenance/pricelist";
+	// 				}
+	// 				else
+	// 				{
+	// 					// Call function to display error_get_last
+	// 					show_error(data.msg);
+	// 				}
+	// 			});
+	// 		});	
+	// 	}
+	// });
 
 	/** For Import Modal **/
 	$("#import").click(function() 
@@ -330,9 +350,9 @@ $(document).ready(function()
 	});
 	
 	/** -- FOR DELETING DATA -- **/
-	$(function() {
-		linkDeleteToModal('#pricelist_table .delete', 'ajaxCallback');
-	});
+	// $(function() {
+	// 	linkDeleteToModal('#pricelist_table .delete', 'ajaxCallback');
+	// });
 	/** -- FOR DELETING DATA -- end **/
 
 	/** -- FOR TAGGING AS COMPLETE -- **/

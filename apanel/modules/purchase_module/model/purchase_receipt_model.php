@@ -113,8 +113,31 @@ class purchase_receipt_model extends wc_model {
 		}
 	}
 
+	public function getTransactionType($source_no) {
+		$query_po = $this->db->setTable('purchaseorder po')
+							->setFields('po.transtype transtype')
+							->setWhere("po.voucherno = '$source_no'")
+							->buildSelect();
+
+		$query_ipo = $this->db->setTable('import_purchaseorder ipo')
+							->setFields('ipo.transtype transtype')
+							->setWhere("ipo.voucherno = '$source_no'")
+							->buildSelect();
+
+		$query = $query_po .' UNION ALL '. $query_ipo;
+
+		$result = $this->db->setTable("($query) i")
+							->setFields(array('transtype'))
+							->runSelect(FALSE)
+							->getRow();
+
+		return $result->transtype;
+	}
+
 	private function updatePurchaseOrder($voucherno) {
 		$source_no	= $this->getSourceNo($voucherno);
+
+		$transtype = $this->getTransactionType($source_no);
 
 		$subquery	= $this->db->setTable('purchasereceipt pr')
 								->setFields('IF(SUM(prd.receiptqty) IS NULL, 0, SUM(prd.receiptqty)) pr_qty, source_no, pr.companycode companycode')
@@ -122,15 +145,29 @@ class purchase_receipt_model extends wc_model {
 								->setWhere("pr.stat != 'Cancelled' AND source_no = '$source_no'")
 								->setGroupBy('pr.source_no')
 								->buildSelect();
-
-		$result		= $this->db->setTable('purchaseorder_details pod')
-								->setFields('po.voucherno voucherno, po.transactiondate transactiondate, po.netamount netamount, SUM(pod.receiptqty) quantity, COALESCE(pr.pr_qty, 0, pr.pr_qty) quantity_x')
-								->innerJoin('purchaseorder po ON pod.voucherno = po.voucherno AND pod.companycode = po.companycode')
-								->leftJoin("($subquery) pr ON pr.source_no = pod.voucherno AND pr.companycode = pod.companycode")
-								->setWhere("po.stat IN ('open','partial', 'posted') AND po.voucherno = '$source_no'")
-								->setGroupBy('po.voucherno')
-								->runSelect()
-								->getRow();
+								
+		if ($transtype == 'IPO') {
+			$result		= $this->db->setTable('import_purchaseorder_details ipod')
+									->setFields('ipo.voucherno voucherno, ipo.transactiondate transactiondate, ipo.netamount netamount, SUM(ipod.receiptqty) quantity, COALESCE(pr.pr_qty, 0, pr.pr_qty) quantity_x')
+									->innerJoin('import_purchaseorder ipo ON ipod.voucherno = ipo.voucherno AND ipod.companycode = ipo.companycode')
+									->leftJoin("($subquery) pr ON pr.source_no = ipod.voucherno AND pr.companycode = ipod.companycode")
+									->setWhere("ipo.stat IN ('open','partial', 'posted') AND ipo.voucherno = '$source_no'")
+									->setGroupBy('ipo.voucherno')
+									->runSelect()
+									->getRow();	
+									// echo $this->db->getQuery();
+								
+		} elseif ($transtype == 'PO') {
+			$result		= $this->db->setTable('purchaseorder_details pod')
+									->setFields('po.voucherno voucherno, po.transactiondate transactiondate, po.netamount netamount, SUM(pod.receiptqty) quantity, COALESCE(pr.pr_qty, 0, pr.pr_qty) quantity_x')
+									->innerJoin('purchaseorder po ON pod.voucherno = po.voucherno AND pod.companycode = po.companycode')
+									->leftJoin("($subquery) pr ON pr.source_no = pod.voucherno AND pr.companycode = pod.companycode")
+									->setWhere("po.stat IN ('open','partial', 'posted') AND po.voucherno = '$source_no'")
+									->setGroupBy('po.voucherno')
+									->runSelect()
+									->getRow();	
+		}
+		
 
 		if ($result) {
 			$status = 'open';
@@ -141,12 +178,17 @@ class purchase_receipt_model extends wc_model {
 			} else if ($result->quantity = $result->quantity_x) {
 				$status = 'posted';
 			}
-			$result = $this->db->setTable('purchaseorder')
+			
+			$table = '';
+			$table = ($transtype == 'IPO') ? 'import_purchaseorder' : 'purchaseorder';
+			
+			$result = $this->db->setTable("$table")
+								->setFields('voucherno, stat')
 								->setValues(array('stat' => $status))
 								->setWhere("voucherno = '$source_no'")
 								->runUpdate();
+																
 		}
-
 
 		return $result;
 	}
@@ -227,7 +269,7 @@ class purchase_receipt_model extends wc_model {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
 		}
 		$result = $this->db->setTable("purchasereceipt pr")
-							->innerJoin('partners po ON po.partnercode = pr.vendor AND po.companycode = pr.companycode')
+							->innerJoin('partners po ON po.partnercode = pr.vendor AND po.companycode = pr.companycode AND po.partnertype = "supplier"')
 							->setFields("transactiondate, voucherno, source_no, partnername vendor, netamount, pr.stat stat, invoiceno")
 							->setWhere($condition)
 							->setOrderBy($sort)
@@ -332,36 +374,118 @@ class purchase_receipt_model extends wc_model {
 	public function getPurchaseOrderPagination($vendor = '', $search = '') {
 		$condition = '';
 		if ($search) {
-			$condition .= ' AND ' . $this->generateSearch($search, array('po.voucherno', 'po.remarks'));
+			$condition .= ' AND ' . $this->generateSearch($search, array('voucherno', 'remarks'));
 		}
 		if ($vendor != '') {
-			 $condition .= " AND po.vendor = '$vendor'";
+			 $condition .= " AND vendor = '$vendor'";
 		}
 
 		$subquery	= $this->db->setTable('purchasereceipt pr')
+								// ->setFields('IF(prd.receiptqty IS NULL, 0, prd.receiptqty) pr_qty, source_no, pr.companycode companycode')
 								->setFields('IF(SUM(prd.receiptqty) IS NULL, 0, SUM(prd.receiptqty)) pr_qty, source_no, pr.companycode companycode')
 								->innerJoin('purchasereceipt_details prd ON prd.voucherno = pr.voucherno AND prd.companycode = pr.companycode')
 								->setWhere("pr.stat != 'Cancelled'")
 								->setGroupBy('pr.source_no')
 								->buildSelect();
+							
 
-		$result		= $this->db->setTable('purchaseorder_details pod')
-								->setFields('po.voucherno voucherno, po.transactiondate transactiondate, remarks, po.netamount netamount, (IF(SUM(pod.receiptqty) IS NULL, 0, SUM(pod.receiptqty)) - IF(pr.pr_qty IS NULL, 0, pr.pr_qty)) qtyleft, po.vendor')
+		$query_po		= $this->db->setTable('purchaseorder_details pod')
+								// ->setFields('po.voucherno voucherno, po.transactiondate transactiondate, remarks, po.netamount netamount, (IF(SUM(pod.receiptqty) IS NULL, 0, SUM(pod.receiptqty)) - IF(pr.pr_qty IS NULL, 0, pr.pr_qty)) qtyleft, po.vendor vendor')
+								->setFields('po.voucherno voucherno, po.transactiondate transactiondate, remarks, po.netamount netamount, (IF(pod.receiptqty IS NULL, 0, pod.receiptqty) - IF(pr.pr_qty IS NULL, 0, pr.pr_qty)) qtyleft, po.vendor vendor')
 								->innerJoin('purchaseorder po ON pod.voucherno = po.voucherno AND pod.companycode = po.companycode')
 								->leftJoin("($subquery) pr ON pr.source_no = pod.voucherno AND pr.companycode = pod.companycode")
 								->setWhere("po.stat IN ('open','partial')" . $condition)
-								->setGroupBy('po.voucherno')
-								->setHaving('qtyleft > 0')
-								->runPagination();
+								// ->setGroupBy('po.voucherno')
+								// ->setHaving('qtyleft > 0')
+								->buildSelect();
+								// ->runPagination();
+								
+		$query_ipo		= $this->db->setTable('import_purchaseorder_details ipod')
+								// ->setFields('ipo.voucherno voucherno, ipo.transactiondate transactiondate, remarks, ipo.netamount netamount, (IF(SUM(ipod.receiptqty) IS NULL, 0, SUM(ipod.receiptqty)) - IF(pr.pr_qty IS NULL, 0, pr.pr_qty)) qtyleft, ipo.vendor vendor')
+								->setFields('ipo.voucherno voucherno, ipo.transactiondate transactiondate, remarks, ipo.netamount netamount, (IF(ipod.receiptqty IS NULL, 0, ipod.receiptqty) - IF(pr.pr_qty IS NULL, 0, pr.pr_qty)) qtyleft, ipo.vendor vendor')
+								->innerJoin('import_purchaseorder ipo ON ipod.voucherno = ipo.voucherno AND ipod.companycode = ipo.companycode')
+								->leftJoin("($subquery) pr ON pr.source_no = ipod.voucherno AND pr.companycode = ipod.companycode")
+								->setWhere("ipo.stat IN ('open','partial')" . $condition)
+								// ->setGroupBy('ipo.voucherno')
+								// ->setHaving('qtyleft > 0')
+								->buildSelect();
+								// ->runPagination()
+								// echo $this->db->getQuery();;
+		
+		$query	= $query_po .' UNION ALL '. $query_ipo ;
 
+		$result = $this->db->setTable("($query) i")
+							->setFields('i.voucherno, i.transactiondate, i.remarks, i.netamount, i.qtyleft, i.vendor')
+							->setGroupBy('i.voucherno')
+							->setHaving('i.qtyleft > 0')
+							->runPagination(FALSE);
+							
 		return $result;
 	}
 
 	public function getPurchaseOrderDetails($voucherno, $voucherno_ref = false) {
-		$result1		= $this->db->setTable('purchaseorder_details pod')
-								->setFields("itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, pod.warehouse, receiptuom, unitprice, 'none' taxcode, taxrate, pod.taxamount, pod.amount, convreceiptqty, convuom, conversion")
-								->innerJoin('purchaseorder po ON pod.voucherno = po.voucherno AND pod.companycode = po.companycode')
-								->setWhere("po.voucherno = '$voucherno'")
+		$transtype = $this->getTransactionType($voucherno);
+		
+
+		if ($transtype == 'PO'){
+			$result1		= $this->db->setTable('purchaseorder_details pod')
+									->setFields("itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, pod.warehouse, receiptuom, unitprice, 'none' taxcode, taxrate, pod.taxamount, pod.amount, convreceiptqty, convuom, conversion")
+									->innerJoin('purchaseorder po ON pod.voucherno = po.voucherno AND pod.companycode = po.companycode')
+									->setWhere("po.voucherno = '$voucherno'")
+									->runSelect()
+									->getResult();
+		} else {
+			$result1		= $this->db->setTable('import_purchaseorder_details ipod')
+								->setFields("itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, ipod.warehouse, receiptuom, unitprice, 'none' taxcode, taxrate, ipod.taxamount, ipod.amount, convreceiptqty, convuom, conversion")
+								->innerJoin('import_purchaseorder ipo ON ipod.voucherno = ipo.voucherno AND ipod.companycode = ipo.companycode')
+								->setWhere("ipo.voucherno = '$voucherno'")
+								->runSelect()
+								->getResult();
+		}
+					
+		$addcond = ($voucherno_ref) ? " AND pr.voucherno != '$voucherno_ref'" : '';
+
+		
+		$result2		= $this->db->setTable('purchasereceipt_details prd')
+								->setFields("itemcode, linenum, SUM(receiptqty) receiptqty, prd.warehouse")
+								->innerJoin('purchasereceipt pr ON prd.voucherno = pr.voucherno AND prd.companycode = pr.companycode')
+								->setWhere("source_no = '$voucherno' AND pr.stat != 'Cancelled'" . $addcond)
+								->setGroupBy('linenum')
+								->runSelect()
+								->getResult();
+		
+		$checker	= array();
+		$result		= array();
+		foreach ($result2 as $key => $row) {
+			$checker[$row->linenum] = $row->receiptqty;
+		}
+
+		foreach ($result1 as $key => $row) {
+			$add_result = true;
+			if (isset($checker[$row->linenum])) {
+				$quantity = $checker[$row->linenum];
+
+				if ($quantity >= $row->receiptqty) {
+					$add_result = false;
+				}
+				$row->maxqty = ($row->maxqty > $quantity) ? $row->maxqty - $quantity : 0;
+				$row->receiptqty = ($row->receiptqty > $quantity) ? $row->receiptqty - $quantity : 0;
+				$checker[$row->linenum] -= $row->receiptqty;
+			}
+			
+			if ($add_result) {
+				$result[] = $row;
+			}
+		}
+
+		return $result;
+	}
+
+	public function getImportPurchaseOrderDetails($voucherno, $voucherno_ref = false) {
+		$result1		= $this->db->setTable('import_purchaseorder_details ipod')
+								->setFields("itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, ipod.warehouse, receiptuom, unitprice, 'none' taxcode, taxrate, ipod.taxamount, ipod.amount, convreceiptqty, convuom, conversion")
+								->innerJoin('import_purchaseorder ipo ON ipod.voucherno = ipo.voucherno AND ipod.companycode = ipo.companycode')
+								->setWhere("ipo.voucherno = '$voucherno'")
 								->runSelect()
 								->getResult();
 
@@ -414,7 +538,7 @@ class purchase_receipt_model extends wc_model {
 
 	public function getDocumentInfo($voucherno) {
 		$result = $this->db->setTable('purchasereceipt pr')
-							->innerJoin('partners p ON p.partnercode = pr.vendor AND p.companycode = pr.companycode')
+							->innerJoin('partners p ON p.partnercode = pr.vendor AND p.companycode = pr.companycode AND p.partnertype = "supplier"')
 							->setFields("pr.transactiondate documentdate, pr.voucherno voucherno, p.partnername company, CONCAT(p.first_name, ' ', p.last_name) vendor, source_no referenceno, pr.remarks remarks, partnercode, wtaxamount wtax, amount, discounttype disctype, discountamount discount, discountrate, netamount net, taxamount vat, wtaxrate")
 							->setWhere("voucherno = '$voucherno'")
 							->runSelect()
@@ -437,7 +561,7 @@ class purchase_receipt_model extends wc_model {
 	public function getVendorDetails($partnercode) {
 		$result = $this->db->setTable('partners')
 							->setFields(array('partnername vendor', 'address1 address', 'tinno', 'terms', 'mobile contactno'))
-							->setWhere("partnercode = '$partnercode'")
+							->setWhere("partnercode = '$partnercode' AND partnertype = 'supplier'")
 							->runSelect()
 							->getRow();
 

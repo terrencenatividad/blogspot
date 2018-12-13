@@ -88,7 +88,7 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 			<div class="modal-body">
-				Are you sure you want to delete bom?
+				Are you sure you want to delete budget?
 			</div>
 			<div class="modal-footer">
 				<div class="row row-dense">

@@ -6,8 +6,7 @@ class trial_balance extends wc_model {
 		$credit 	= 0;
 		$prevyear 	= date("Y",strtotime($date." -1 year"));
 		
-		$fetch_debit  = $this->getValue("balance_table",array("SUM(debit) as debit")," accountcode = '$account' AND 
-		YEAR(transactiondate) = $prevyear ");
+		$fetch_debit  = $this->getValue("balance_table",array("SUM(debit) as debit")," accountcode = '$account' AND YEAR(transactiondate) = $prevyear ");
 		$debit        = $fetch_debit[0]->debit;
 		$fetch_credit = $this->getValue("balance_table",array("SUM(credit) as credit")," accountcode = '$account' AND YEAR(transactiondate) = $prevyear ");
 		$credit 	  = $fetch_credit[0]->credit;
@@ -35,13 +34,7 @@ class trial_balance extends wc_model {
 		$debit        = $fetch_debit[0]->debit;
 		$fetch_credit = $this->getValue("balance_table","SUM(credit) as credit"," accountcode = '$account' AND (transactiondate >= '$fromdate' AND transactiondate <= '$todate')");
 		$credit       = $fetch_credit[0]->credit; 
-		// echo "CREDIT = ".$credit."      "; 
-		// echo "DEBIT = ".$debit."\n";
-
 		return ($debit > $credit) ? $debit - $credit : -($credit - $debit);
-
-		// $fetch_result 	=	$this->getValue("balance_table","SUM(debit)-SUM(credit)", "accountcode = '$account' AND (transactiondate >= '$fromdate' AND transactiondate <= '$todate')");
-
 	}
 
 	public function getAccountCodeBeg($beg_balance_query_table,$beg_balance_query_fields,$beg_balance_query_condition,$account,$field){
@@ -50,11 +43,9 @@ class trial_balance extends wc_model {
 					->setFields($beg_balance_query_fields)
 					->setWhere($beg_balance_query_condition." AND accountcode='".$account."'")
 					->setGroupBy("gldetails.account ASC")
-					//->buildSelect();
-		
 					->runSelect()
 					->getResult();
-		//var_dump($result);
+
 		if(!empty($result)){
 			for($i = 0; $i < count($result); $i++)
 			{
@@ -80,7 +71,6 @@ class trial_balance extends wc_model {
 					}
 		$result =   $this->db->runSelect($addon)
 					->getResult();
-					//->buildSelect();
 					// echo $this->db->getQuery();
 		return $result;
 	}
@@ -95,7 +85,8 @@ class trial_balance extends wc_model {
 		AND YEAR(bal.transactiondate) <= $currentyear $fs_cond")
 						->setGroupBy("chart.segment5")
 						->setOrderBy("chart.segment5 ASC")
-						->runPagination();
+						->runSelect()
+						->getResult();
 
 		return $result;
 	}
@@ -107,8 +98,7 @@ class trial_balance extends wc_model {
 		$result = $this->db->setTable("chartaccount as chart")
 						->setFields(array("chart.id as accountid","chart.segment5 as accountcode","chart.accountname as accountname"))
 						->leftJoin("balance_table as bal ON bal.accountcode = chart.id")
-						->setWhere("YEAR(bal.transactiondate) >= $prevyear 
-		AND YEAR(bal.transactiondate) <= $currentyear $fs_cond")
+						->setWhere("YEAR(bal.transactiondate) >= $prevyear AND YEAR(bal.transactiondate) <= $currentyear $fs_cond")
 						->setGroupBy("chart.segment5")
 						->setOrderBy("chart.segment5 ASC")
 						->runSelect()
@@ -360,6 +350,32 @@ class trial_balance extends wc_model {
 		return $result;
 	}	
 
+	public function check_existing_yrendjv($year=""){
+		$cond		= ($year!="") ? " AND fiscalyear = '$year' " 	:	"";
+
+		$result 	= $this->db->setTable("journalvoucher")
+							   ->setFields(array('voucherno, fiscalyear'))
+							   ->setWhere("stat NOT IN ('cancelled','temporary') AND source='yrend_closing' $cond")
+								->runSelect(false)
+								->getResult();
+
+		return $result;
+	}	
+
+	public function check_latest_closedmonth($year=""){
+		$cond		= ($year!="") ? " AND fiscalyear = '$year' " 	:	"";
+		$result 	= $this->db->setTable("journalvoucher")
+							   ->setFields(array('fiscalyear, period'))
+							   ->setWhere("source='closing' AND stat NOT IN ('cancelled','temporary') $cond")
+							   ->setOrderBy('transactiondate DESC')
+							   ->setLimit(1)
+								->runSelect(false)
+								->getResult();
+								// echo $this->db->getQuery();
+
+		return $result;
+	}	
+
 	public function get_last_day($month = '', $year = '')  {
 	   if (empty($month))  {
 		  $month = date('m');
@@ -377,31 +393,46 @@ class trial_balance extends wc_model {
 
 	public function save_journal_voucher($data){	
 		$generatedvoucher 	=	isset($data['voucher']) 			?	$data['voucher'] 			: 	"";
-		// $reference 			=	isset($data['reference']) 			?	$data['reference'] 			: 	"";
 		$warehouse 			=	isset($data['warehouse']) 			?	$data['warehouse'] 			: 	"";
 		$lastdayofdate 		=	isset($data['datefrom']) 			?	$data['datefrom'] 			: 	"";
 		$remarks 			=	isset($data['notes']) 				? 	$data['notes'] 				: 	"";
 		$actualaccount  	=	isset($data['closing_account']) 	? 	$data['closing_account'] 	: 	"";
 		$detailparticular 	=	isset($data['detailparticular']) 	? 	$data['detailparticular'] 	:	"";
+		$source 			=	isset($data['source']) 				? 	$data['source'] 			:	"";
 
 		$result 			=	0;
 		$amount 			= 	0;
+		$firstdayofdate 	=	"";
 
 		/**FORMAT DATES**/
-		$exploded_date		=	explode(' ',$lastdayofdate);
-		$month 				=	date('m', strtotime($lastdayofdate));
-		$year 				=	date('Y', strtotime($lastdayofdate));
+		if($source == "closing") {
+			$exploded_date		=	explode(' ',$lastdayofdate);
+			$lastdayofdate 		=	date("Y-m-d", strtotime($lastdayofdate));
+			$month 				=	date('m', strtotime($lastdayofdate));
+			$year 				=	date('Y', strtotime($lastdayofdate));
 
-		$firstdayofdate 	=	date($year.'-'.$month.'-01');
-
+			$firstdayofdate 	=	date($year.'-'.$month.'-01');
+		} else {
+			$exploded_date		=	explode(' - ',$lastdayofdate);
+			$firstdayofdate 	=	$exploded_date[0];
+			$firstdayofdate 	=	date("Y-m-d", strtotime($firstdayofdate));
+			$lastdayofdate 		=	$exploded_date[1];
+			$lastdayofdate 		=	date("Y-m-d", strtotime($lastdayofdate));
+			$month 				=	date('m', strtotime($lastdayofdate));
+			$year 				=	date('Y', strtotime($lastdayofdate));
+		}
+ 
 		$currentyear 		= 	date("Y",strtotime($lastdayofdate));
 		$prevyear 			= 	date("Y",strtotime($firstdayofdate." -1 year"));
+
+		$current_year_id 	= $this->retrieveAccount("IS");
+		$current_year_id 	= isset($current_year_id->salesAccount) ? $current_year_id->salesAccount 	:	"";
 
 		$accounts_arr 		= $this->retrieveCOAdetails($currentyear,$prevyear,'IS');
 			
 		$h_amount 			= $h_total_debit 	= $h_total_credit = 0;
 		foreach($accounts_arr as $row){
-			$accountid 		= $row->accountid;
+			$accountid 		= ($source == "closing") ? $row->accountid : $current_year_id;
 			$prev_carry 	= $this->getPrevCarry($accountid,$firstdayofdate);
 			$amount			= $this->getCurrent($accountid,$firstdayofdate,$lastdayofdate);
 	
@@ -414,8 +445,10 @@ class trial_balance extends wc_model {
 			}
 		} 
 
+		$h_amount 	= 	($amount > 0) ? $h_total_credit :	$h_total_debit;
+
 		$str_month 	=	date('F', strtotime($lastdayofdate));
-		$reference	=	"Closing for $str_month, $year";
+		$reference	=	($source == "closing") ? "Closing for $str_month, $year" : "Year-end Closing for $year";
 
 		$header['voucherno'] 		=	$generatedvoucher;
 		$header['transtype'] 		=	"JV";
@@ -425,10 +458,10 @@ class trial_balance extends wc_model {
 		$header['period'] 			= 	$month;
 		$header['currencycode'] 	= 	"PHP";
 		$header['exchangerate'] 	=	1;
-		$header['amount'] 	 		=	$h_total_debit;
-		$header['convertedamount'] 	=	$h_total_debit;
+		$header['amount'] 	 		=	$h_amount;
+		$header['convertedamount'] 	=	$h_amount;
 		$header['referenceno'] 		=	$reference;
-		$header['source'] 			=	"closing";
+		$header['source'] 			=	$source;
 		$header['sitecode'] 		= 	$warehouse;
 		$header['remarks'] 			= 	$remarks;
 
@@ -441,7 +474,7 @@ class trial_balance extends wc_model {
 			$linenum 				= 1;
 
 			foreach($accounts_arr as $row){
-				$accountid 		= $row->accountid;
+				$accountid 		= ($source == "closing") ? $row->accountid : $current_year_id;
 
 				$prev_carry 	= $this->getPrevCarry($accountid,$firstdayofdate);
 				$amount			= $this->getCurrent($accountid,$firstdayofdate,$lastdayofdate);
@@ -450,6 +483,7 @@ class trial_balance extends wc_model {
 				$accounts['account'] 			=	$accountid;
 				$accounts['linenum'] 			=	$linenum;
 				$accounts['detailparticulars'] 	= 	$detailparticular;
+				$accounts['source'] 			=	$source;
 	
 				if( $amount > 0 ){
 					$credit 			= 	$prev_carry	+ $amount;
@@ -479,6 +513,7 @@ class trial_balance extends wc_model {
 					$closing['account'] 			= 	$actualaccount;
 					$closing['amount'] 				=  	-($retained);
 					$closing['detailparticulars'] 	= 	$detailparticular;
+					$closing['source'] 				=	$source;
 
 					$result 			=	$this->create_jvdetails_debit($closing);
 				} else {
@@ -487,6 +522,7 @@ class trial_balance extends wc_model {
 					$closing['account'] 			= 	$actualaccount;
 					$closing['amount'] 				=  	$retained;
 					$closing['detailparticulars'] 	= 	$detailparticular;
+					$closing['source'] 				=	$source;
 	
 					$result 			=	$this->create_jvdetails_credit($closing);
 				}
@@ -512,6 +548,7 @@ class trial_balance extends wc_model {
 		$amount  			=	isset($data['amount']) 				? 	$data['amount'] 			: 	0;
 		$detailparticular 	=	isset($data['detailparticular']) 	? 	$data['detailparticular'] 	:	"";
 		$linenum 			=	isset($data['linenum']) 			? 	$data['linenum'] 			:	"";
+		$source 			=	isset($data['source']) 				? 	$data['source'] 			:	"";
 		// echo "Account = ".$account."\n";
 
 		$details['voucherno'] 			=	$generatedvoucher;
@@ -523,7 +560,7 @@ class trial_balance extends wc_model {
 		$details['exchangerate'] 		= 	1;
 		$details['converteddebit'] 		= 	$amount;
 		$details['convertedcredit'] 	= 	0;
-		$details['source'] 				= 	"closing";
+		$details['source'] 				= 	$source;
 		$details['detailparticulars'] 	= 	$detailparticular;
 		$details['stat'] 				= 	"temporary";
 		// var_dump($details);
@@ -546,6 +583,7 @@ class trial_balance extends wc_model {
 		$amount  			=	isset($data['amount']) 				? 	$data['amount'] 			: 	0;
 		$detailparticular 	=	isset($data['detailparticular']) 	? 	$data['detailparticular'] 	:	"";
 		$linenum 			=	isset($data['linenum']) 			? 	$data['linenum'] 			:	"";
+		$source 			=	isset($data['source']) 				? 	$data['source'] 			:	"";
 		// echo "Account = ".$account."\n";
 
 		$details['voucherno'] 			=	$generatedvoucher;
@@ -557,7 +595,7 @@ class trial_balance extends wc_model {
 		$details['exchangerate'] 		= 	1;
 		$details['converteddebit'] 		= 	0;
 		$details['convertedcredit'] 	= 	$amount;
-		$details['source'] 				= 	"closing";
+		$details['source'] 				= 	$source;
 		$details['detailparticulars'] 	= 	$detailparticular;
 		$details['stat'] 				= 	"temporary";
 
@@ -574,7 +612,7 @@ class trial_balance extends wc_model {
 		return $result;
 	}
 
-	private function getPeriodStart() {
+	public function getPeriodStart() {
 		$result = $this->db->setTable('company')
 							->setFields(array('taxyear', "MONTH(STR_TO_DATE(periodstart,'%b')) periodstart"))
 							->setLimit(1)
@@ -602,6 +640,15 @@ class trial_balance extends wc_model {
 						->getResult();
 	}
 
+	public function getCOAname($code) {
+		return $this->db->setTable('chartaccount c')
+						->setFields('id ind, accountname val')
+						->setWhere("id = '$code'")
+						->setLimit(1)
+						->runSelect()
+						->getRow();
+	}
+
 	public function retrieveAccount($code){
 		return $this->db->setTable('fintaxcode')
 						->setFields('salesAccount')
@@ -611,11 +658,13 @@ class trial_balance extends wc_model {
 	}
 
 	public function getJVHeader($voucherno){
-		return $this->db->setTable('journalvoucher')
+		$result =  $this->db->setTable('journalvoucher')
 						->setFields('referenceno, remarks, proformacode, transactiondate')
-						->setWhere("voucherno = '$voucherno' AND stat = 'temporary' AND source = 'closing' ")
+						->setWhere("voucherno = '$voucherno' AND stat = 'temporary' AND source IN ('closing','yrend_closing') ")
 						->runSelect()
 						->getRow();
+						
+		return $result;
 	}
 
 	public function getJVDetails($voucherno, $search="", $limit=1){
@@ -623,7 +672,7 @@ class trial_balance extends wc_model {
 		$result 		= 	$this->db->setTable('journaldetails jv')
 									->leftJoin('chartaccount ca ON ca.id=jv.accountcode')
 									->setFields('jv.linenum, jv.accountcode, CONCAT(ca.segment5," - ",ca.accountname) accountname, jv.detailparticulars, jv.debit, jv.credit')
-									->setWhere("jv.voucherno = '$voucherno' AND jv.stat = 'temporary' AND jv.source = 'closing' AND ( jv.debit > 0 OR jv.credit > 0 ) $search_cond ")
+									->setWhere("jv.voucherno = '$voucherno' AND jv.stat = 'temporary' AND jv.source IN ('closing','yrend_closing') AND ( jv.debit > 0 OR jv.credit > 0 ) $search_cond ")
 									->setOrderBy("jv.linenum")
 									->setLimit($limit)
 									->runPagination();
@@ -715,12 +764,18 @@ class trial_balance extends wc_model {
 	}
 
 	public function getYearforClosing(){
-		// SELECT for Month & Year
-		$year = date('Y');
-		// $year =	2018;
+		$ret_years 	=	$this->getSystemTransactionYears();
+		$ret		= 	$this->getPeriodStart();
+		$month_start= 	($ret->taxyear == 'fiscal') ? $ret->periodstart 	:	1;
+
 		$select 	=	array(); 
-		for($x=1;$x<=12;$x++){
-			$select[] 	=	"SELECT $year year, $x month";
+		$y 	=	0;
+
+		foreach($ret_years as $key => $result){
+			$year 	=	$result->fiscalyear;
+			for($x=1;$x<=12;$x++){
+				$select[] 	=	"SELECT $year year, $x month";
+			}
 		}
 		$select_query 	= implode(" UNION ",$select);
 		
@@ -739,16 +794,28 @@ class trial_balance extends wc_model {
 	}
 
 	public function getClosingMonth($year = false) {
-		// SELECT for Month & Year
-		$year = ($year) ? $year : date('Y');
-		// $year =	2018;
+		$ret_years 	=	$this->getSystemTransactionYears();
+
+		$ret		= 	$this->getPeriodStart();
+
+		$month_start= 	($ret->taxyear == 'fiscal') ? $ret->periodstart 	:	1;
+		$month_end  = 	($ret->taxyear == 'fiscal') ? $ret->periodstart-1	:	12;
+
 		$select 	=	array(); 
-		for($x=1;$x<=12;$x++){
-			$select[] 	=	"SELECT $year year, $x month";
+		foreach($ret_years as $key => $result){
+			$year 	=	$result->fiscalyear;
+			for($x=$month_start;$x<=12;$x++){
+				if($x==12 && $ret->taxyear == 'fiscal'){
+					$month_end   = $month_start - 1;
+					$month_start = 1;
+					// $x 	=	1;
+				}
+				$select[] 	=	"SELECT $year year, $x month";
+			}
 		}
+		
 		$select_query 	= implode(" UNION ",$select);
 		
-		// SELECT JV w/o closing
 		$result 	=	$this->db->setTable("($select_query) period")
 								->setFields("period.month, period.year")
 								->leftJoin("journalvoucher jv ON jv.period = period.month AND jv.fiscalyear = period.year AND jv.source = 'closing' AND jv.stat = 'posted' ")
@@ -758,7 +825,7 @@ class trial_balance extends wc_model {
 								->setLimit(1)
 								->runSelect(false)
 								->getRow();
-		// echo $this->db->getQuery();
+								// echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -809,23 +876,22 @@ class trial_balance extends wc_model {
 
 	public function getReference($voucherno){
 		$result 		= 	$this->db->setTable('journalvoucher j')
-									->setFields("j.referenceno")
-									->setWhere("j.voucherno = '$voucherno' AND j.companycode = 'CID'")
+									->setFields("j.referenceno, j.period")
+									->setWhere("j.voucherno = '$voucherno'")
 									->setLimit(1)
 									->runSelect()
 									->getRow();
-									// echo $this->db->getQuery();
 		return $result;
 	}
 
 	public function delete_temporary_jv($voucherno){
 		$result 	=	$this->db->setTable("journaldetails")
-								 ->setWhere("voucherno = '$voucherno' AND stat = 'temporary' AND source = 'closing'")
+								 ->setWhere("voucherno = '$voucherno' AND stat = 'temporary' AND source IN ('closing','yrend_closing')")
 								 ->runDelete();
 
 		if( $result ){
 			$result 	=	$this->db->setTable("journalvoucher")
-								 ->setWhere("voucherno = '$voucherno' AND stat = 'temporary' AND source = 'closing'")
+								 ->setWhere("voucherno = '$voucherno' AND stat = 'temporary' AND source IN ('closing','yrend_closing')")
 								 ->runDelete();
 		}
 
@@ -851,4 +917,16 @@ class trial_balance extends wc_model {
 					->getResult();
 		return $result;
 	}
+
+	public function getSystemTransactionYears(){
+
+		$result 	=	$this->db->setTable("balance_table")
+								->setFields("fiscalyear")
+								->setGroupBy('fiscalyear')
+								->runSelect()
+								->getResult();
+
+		return $result;
+	}
+
 }	

@@ -109,7 +109,7 @@ class purchase_return_model extends wc_model {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
 		}
 		$result = $this->db->setTable("purchasereturn prtn")
-							->innerJoin('partners p ON p.partnercode = prtn.vendor AND p.companycode = prtn.companycode')
+							->innerJoin('partners p ON p.partnercode = prtn.vendor AND p.companycode = prtn.companycode AND p.partnertype = "supplier"')
 							->setFields("transactiondate, voucherno, source_no, partnername vendor, prtn.stat stat")
 							->setWhere($condition)
 							->setOrderBy($sort)
@@ -306,7 +306,7 @@ class purchase_return_model extends wc_model {
 	
 	public function getDocumentInfo($voucherno) {
 		$result = $this->db->setTable('purchasereturn prtn')
-							->innerJoin('partners p ON p.partnercode = prtn.vendor AND p.companycode = prtn.companycode')
+							->innerJoin('partners p ON p.partnercode = prtn.vendor AND p.companycode = prtn.companycode AND p.partnertype = "supplier"')
 							->setFields("prtn.transactiondate documentdate, prtn.voucherno voucherno, p.partnername company, CONCAT(p.first_name, ' ', p.last_name) vendor, pr.invoiceno, prtn.source_no referenceno, prtn.remarks remarks, partnercode, prtn.wtaxamount wtax, prtn.amount, prtn.discounttype disctype, prtn.discountamount discount, prtn.netamount net, prtn.taxamount vat")
 							->leftJoin('purchasereceipt pr ON pr.voucherno = prtn.source_no AND pr.companycode = prtn.companycode')
 							->setWhere("prtn.voucherno = '$voucherno'")
@@ -330,7 +330,7 @@ class purchase_return_model extends wc_model {
 	public function getVendorDetails($partnercode) {
 		$result = $this->db->setTable('partners')
 							->setFields(array('partnername vendor', 'address1 address', 'tinno', 'terms', 'mobile contactno'))
-							->setWhere("partnercode = '$partnercode'")
+							->setWhere("partnercode = '$partnercode' AND partnertype = 'supplier'")
 							->runSelect()
 							->getRow();
 

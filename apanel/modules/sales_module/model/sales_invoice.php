@@ -486,7 +486,7 @@ class sales_invoice extends wc_model
 		
 		$result = $this->db->setTable('salesinvoice as inv')
 						->setFields($fields)
-						->leftJoin('partners cust ON cust.partnercode = inv.customer AND cust.companycode = inv.companycode')
+						->leftJoin('partners cust ON cust.partnercode = inv.customer AND cust.companycode = inv.companycode AND cust.partnertype = "customer"')
 						->leftJoin("accountsreceivable app ON app.sourceno = inv.voucherno AND app.companycode = inv.companycode AND app.stat != 'cancelled' ")
 						->setWhere(" inv.stat NOT IN ('temporary') ".$condition)
 						->setGroupBy(" inv.voucherno ")
@@ -548,7 +548,7 @@ class sales_invoice extends wc_model
 
 		return $this->db->setTable('salesinvoice as inv')
 						->setFields($fields)
-						->leftJoin('partners cust ON cust.partnercode = inv.customer AND cust.companycode = inv.companycode')
+						->leftJoin('partners cust ON cust.partnercode = inv.customer AND cust.companycode = inv.companycode AND cust.partnertype = "customer"')
 						->leftJoin("accountsreceivable app ON app.sourceno = inv.voucherno AND app.companycode = inv.companycode AND app.stat != 'cancelled' ")
 						->setWhere(" inv.stat NOT IN ('temporary') ".$add_query)
 						->setGroupBy(" inv.voucherno ")
@@ -570,7 +570,7 @@ class sales_invoice extends wc_model
 		
 		$retrieved_data['header'] 	= 	$this->db->setTable('salesinvoice as inv')
 												->setFields($header_fields)
-												->leftJoin('partners cust ON cust.partnercode = inv.customer AND cust.companycode = inv.companycode')
+												->leftJoin('partners cust ON cust.partnercode = inv.customer AND cust.companycode = inv.companycode AND cust.partnertype = "customer"')
 												->setWhere($condition)
 												->setLimit('1')
 												->runSelect()

@@ -40,7 +40,7 @@ class controller extends wc_controller {
 		foreach ($pagination->result as $key => $row) {
 			$table .= '<tr>';
 			$table .= '<td>' . $row->customer . '</td>';
-			$table .= '<td>' . $row->voucherno . '</td>';
+			$table .= '<td><a href="'.BASE_URL."financials/accounts_receivable/view/" . $row->voucherno . '" target="_blank">'. $row->voucherno . '</a></td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->terms . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->duedate) . '</td>';

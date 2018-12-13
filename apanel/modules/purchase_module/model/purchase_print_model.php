@@ -7,7 +7,6 @@ class purchase_print_model extends fpdf {
 	private $footer_height		= 0;
 	private $has_received		= false;
 	private $has_footer_details	= false;
-	private $vendor_details		= array();
 	private $document_details	= array();
 	private $footer_details		= array();
 	private $summary_width		= array();
@@ -17,7 +16,11 @@ class purchase_print_model extends fpdf {
 	private $header_align		= array();
 	private $header				= array();
 	private $row_align			= array();
+	private $header_fontsize  	= array();
+	private $vendor_details		= array();
 	private $requestor_details	= array();
+	public $next_page			= false;
+	private $summary_start 		= 0;
 	
 	public function __construct($orientation = 'P', $unit = 'mm', $size = 'Letter') {
 		parent::__construct($orientation, $unit, $size);
@@ -152,46 +155,6 @@ class purchase_print_model extends fpdf {
 				$this->Ln();
 			}
 		}
-		$document_info = $this->document_info;
-		$amount = $document_info->amount;
-		$wtaxamount = $document_info->wtax;
-		$vat = $document_info->vat;
-		$taxcode = $document_info->wtaxcode;
-		$taxrate = $document_info->wtaxrate;
-		$netamount = $document_info->net;
-
-		$this->SetFont('Arial', 'B', 9);
-		$this->SetY(215);
-		$this->SetX(153);
-		$this->Cell(20, 4, 'Total Purchase', 0, 0, 'L');
-		$this->SetFont('Arial', '', 9);
-		$this->SetY(215);
-		$this->SetX(193.5);
-		$this->Cell(20, 4, number_format($amount, 2), 0, 0, 'L');
-		$this->SetFont('Arial', 'B', 9);
-		$this->SetY(225);
-		$this->SetX(153);
-		$this->Cell(20, 4, 'Total Purchases Tax', 0, 0, 'L');
-		$this->SetFont('Arial', '', 9);
-		$this->SetY(225);
-		$this->SetX(198);
-		$this->Cell(20, 4, number_format($vat, 2), 0, 0, 'L');
-		$this->SetFont('Arial', 'B', 9);
-		$this->SetY(235);
-		$this->SetX(153);
-		$this->Cell(20, 4, 'Withholding Tax', 0, 0, 'L');
-		$this->SetFont('Arial', '', 9);
-		$this->SetY(235);
-		$this->SetX(196);
-		$this->Cell(20, 4, $wtaxamount, 0, 0, 'L');
-		$this->SetFont('Arial', 'B', 9);
-		$this->SetY(243);
-		$this->SetX(153);
-		$this->Cell(20, 4, 'Total Amount Due', 0, 0, 'L');
-		$this->SetFont('Arial', '', 9);
-		$this->SetY(243);
-		$this->SetX(193.5);
-		$this->Cell(20, 4, number_format($netamount, 2), 0, 0, 'L');
 		$this->SetY($header_end);
 		$this->Ln();
 	}
@@ -284,11 +247,6 @@ class purchase_print_model extends fpdf {
 		return $this;
 	}
 
-	public function setDocumentInfo($document_info) {
-		$this->document_info = $document_info;
-		return $this;
-	}
-
 	public function setFooterDetails($footer_details) {
 		$this->has_footer_details = true;
 		$this->footer_height += 10;
@@ -322,13 +280,30 @@ class purchase_print_model extends fpdf {
 	}
 
 	public function addRow($row) {
+		$h 	=	6;
+
 		foreach($this->header as $key => $header) {
+			$x = $this->GetX();
+     		$y = $this->GetY();
 			$width			= isset($this->header_width[$key]) ? $this->header_width[$key] : 0;
 			$align			= isset($this->row_align[$key]) ? $this->row_align[$key] : 'L';
 			$array_values	= array_values((array) $row);
 			$data			= isset($row->$header) ? $row->$header : $array_values[$key];
-			$this->Cell($width, 5, $data, 0, 0, $align);
+			$this->setFont('Arial','',9);
+			if($key == 2){
+				$this->setFont('Times','',9);
+			}
+			$this->MultiCell($width, 6, $array_values[$key], 0, $align);
+			$y2 = $this->GetY();
+			if (($y2 - $y) > $h) {
+				$h = $y2 - $y;
+			}
+			$this->SetXY($x + $width, $y);
 		}
+		if (($y + $h + $this->footer_height) >= $this->summary_start) {
+			$this->next_page = true;
+		}
+		$this->SetY($y + $h - 6);
 		$this->Ln();
 	}
 
@@ -365,6 +340,8 @@ class purchase_print_model extends fpdf {
 	public function drawSummary($summary) {
 		$summary_height	= count($summary) * 5;
 		$summary_start	= 279 - $this->margin_top - $this->footer_height - $summary_height - 2;
+		// $this->Line(8, $summary_start, 29, $summary_start);
+		$this->summary_start 	=	$summary_start;
 		$alignment		= $this->summary_align;
 		$font_style		= $this->summary_font_style;
 		$this->SetY($summary_start);

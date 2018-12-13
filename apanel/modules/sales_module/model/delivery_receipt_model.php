@@ -436,11 +436,12 @@ class delivery_receipt_model extends wc_model {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
 		}
 		$result = $this->db->setTable("deliveryreceipt dr")
-							->innerJoin('partners p ON p.partnercode = dr.customer AND p.companycode = dr.companycode')
+							->innerJoin('partners p ON p.partnercode = dr.customer AND p.companycode = dr.companycode AND p.partnertype = "customer"')
 							->setFields("transactiondate, voucherno, source_no, partnername customer, netamount, deliverydate, dr.stat stat")
 							->setWhere($condition)
 							->setOrderBy($sort)
-							->runPagination();
+							->runPagination(); 
+
 		return $result;
 	}
 
@@ -618,7 +619,7 @@ class delivery_receipt_model extends wc_model {
 
 	public function getDocumentInfo($voucherno) {
 		$result = $this->db->setTable('deliveryreceipt dr')
-							->innerJoin('partners p ON p.partnercode = dr.customer AND p.companycode = dr.companycode')
+							->innerJoin('partners p ON p.partnercode = dr.customer AND p.companycode = dr.companycode AND p.partnertype = "customer"')
 							->setFields("dr.transactiondate documentdate, dr.voucherno voucherno, p.partnername company, CONCAT(p.first_name, ' ', p.last_name) customer, source_no referenceno, dr.remarks remarks, partnercode, wtaxamount wtax, amount, discounttype disctype, discountamount discount, netamount net, taxamount vat")
 							->setWhere("voucherno = '$voucherno'")
 							->runSelect()
@@ -641,7 +642,7 @@ class delivery_receipt_model extends wc_model {
 	public function getCustomerDetails($partnercode) {
 		$result = $this->db->setTable('partners')
 							->setFields(array('partnername customer', 'address1 address', 'tinno', 'terms', 'mobile contactno'))
-							->setWhere("partnercode = '$partnercode'")
+							->setWhere("partnercode = '$partnercode' AND partnertype = 'customer'")
 							->runSelect()
 							->getRow();
 

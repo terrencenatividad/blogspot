@@ -158,6 +158,8 @@ class controller extends wc_controller
 
 		$data['restrict_pv'] 	= true;
 
+		$data['status_badge']=  "";
+
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
 		
@@ -342,6 +344,22 @@ class controller extends wc_controller
 		$data['restrict_pv'] 	= $restrict_pv;
 
 		/**
+		 * Status Badge
+		 */
+		
+		$status 		= $data["main"]->status;
+		if($status == 'cancelled'){
+			$status_class 	= 'danger';
+		} else if($status == 'open'){
+			$status_class 	= 'info';
+		} else if($status == 'posted'){
+			$status_class 	= 'success';
+		}
+
+		$status_badge = '<span class="label label-'.$status_class.'">'.strtoupper($status).'</span>';
+		$data['status_badge'] 	= $status_badge;
+
+		/**
 		 * Get Company Settings
 		 */
 		$company_setting = $this->payment_voucher->companySettings(
@@ -442,6 +460,8 @@ class controller extends wc_controller
 
 		$data['restrict_pv'] 	= true;	
 		$data['has_access'] 	= 0;
+
+		$data['status_badge']=  "";
 
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));

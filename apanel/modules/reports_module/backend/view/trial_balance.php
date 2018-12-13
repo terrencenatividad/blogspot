@@ -143,7 +143,7 @@
 	</div>
 </div>
 
-<div class="modal fade" id="jvModal" tabindex="-1" data-backdrop="static">
+<div class="modal" id="jvModal" tabindex="-1" data-backdrop="static">
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -151,10 +151,6 @@
 			</div>
 			<div class="modal-body">
 				<form class="form-horizontal" id="jv_header">
-					<!-- <div class="alert alert-warning alert-dismissable hidden" id="sequenceAlert">
-						<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-						<p>&nbsp;</p>
-					</div> -->
 					<div class="row">
 						<div class="col-md-3">
 							<div class="form-group">
@@ -162,53 +158,35 @@
 							</div>
 						</div>
 						<div class="col-md-8" style="margin:0px;">
-						<?php
-							echo $ui->formField('text')
-									->setSplit('','col-md-12')
-									->setName('datefrom')
-									->setId('datefrom')
-									// ->setClass('datefilter')
-									// ->setAddon('calendar')
-									->setAttribute(array('readonly'))
-									->setValidation('required')
-									->setValue($datafrom)
-									->draw(true);
-						?>
+							<?php
+								echo $ui->formField('text')
+										->setSplit('','col-md-12')
+										->setName('datefrom')
+										->setId('datefrom')
+										->setAttribute(array('readonly'))
+										->setValidation('required')
+										->setValue($datafrom)
+										->draw(true);
+							?>
+							<input type="hidden" id="taxyear" name="taxyear" value="<?=$taxyear?>">
+							<input type="hidden" id="period_end" name="period_end" value="<?=$period_end?>">
+							<input type="hidden" id="period_start" name="period_start" value="<?=$period_start?>">
+							<input type="hidden" id="year_end_date" name="year_end_date" value="<?=$year_end_date?>">
+							<input type="hidden" id="yr_account" name="yr_account" value="<?=$yr_account?>">
+							<input type="hidden" id="last_date" name="last_date" value="<?=$last_date?>">
+							<input type="hidden" id="last_year" name="last_year" value="<?=$last_year?>">
+							<input type="hidden" id="prev_year" name="prev_year" value="<?=$prev_year?>">
+							<input type="hidden" id="tax_year" name="tax_year" value="<?=$tax_year?>">
+							<input type="hidden" id="last_closed_month" name="last_closed_month" value="<?=$last_closed_month?>">
+							<input type="hidden" id="yr_account_name" name="yr_account_name" value="<?=$yr_account_name?>">
 						</div>
-						<!-- <div class="col-md-3">
-							<div class="form-group">
-								<label class="control-label col-md-12">Date To</label>
-							</div>
-						</div>
-						<div class="col-md-8" style="margin:0px;">
-						<?
-							// echo $ui->formField('dropdown')
-							// 		->setSplit('','col-md-12')
-							// 		->setName('dateto')
-							// 		->setId('dateto')
-							// 		->setClass('datefilter')
-							// 		// ->setAddon('calendar')
-							// 		->setValidation('required')
-							// 		->setList($openmonth_list)
-							// 		->draw(true);
-						?>
-						</div> -->
 					</div>
 					<?php
-						// echo $ui->formField('text')
-						// 		->setLabel('Reference')
-						// 		->setSplit('col-md-3','col-md-8')
-						// 		->setName('reference')
-						// 		->setId('reference')
-						// 		->setValidation('required')
-						// 		->draw(true);
-
 						echo $ui->formField('textarea')
 								->setLabel('Notes')
 								->setSplit('col-md-3','col-md-8')
 								->setName("notes")
 								->setId("notes")
-								// ->setValidation('required')
 								->draw(true);
 								
 						echo $ui->formField('dropdown')
@@ -355,7 +333,7 @@
 	</div>
 </div>
 
-<div class="modal fade" id="redirectionModal" tabindex="-1" data-backdrop="static" data-keyboard="false" >
+<div class="modal" id="redirectionModal" tabindex="-1" data-backdrop="static" data-keyboard="false" >
 	<div class="modal-dialog modal-sm">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -381,6 +359,7 @@
 	var ajax = {};
 	var ajax2 = {};
 	var ajax3 = {};
+	var ajax4 = {};
 		ajax.limit 	= 20; 
 		ajax2.limit = 2;
 		ajax3.limit = 10;
@@ -424,43 +403,8 @@
 			if( response.existing == 0 ){
 				$('#alert_modal .modal-body').html("<p>You have not performed any closing activities for the Previous Month(s).</p>")
 				$('#alert_modal').modal('show');
-				// $('#close_book').prop('disabled',true);
-			} else {
-				// $('#close_book').prop('disabled',false);
-			}
+			} 
 		});
-	}
-
-	function enable_button(daterange){
-		var date_array 	= daterange.split('-');
-
-		var start 	   	= date_array[0];
-			start 		= new Date(Date.parse(start));
-
-		var end 	   	= date_array[1];
-			end 		= new Date(Date.parse(end));
-
-		var n_start 	= start.getMonth()+1;
-		var n_start_day = start.getDate();
-		var n_start_yr	= start.getFullYear();	
-		
-		var n_end 		= end.getMonth()+1;
-		var n_end_day 	= end.getDate();
-		var n_end_yr	= end.getFullYear();
-		
-		var lastday = function(y,m){
-			return  new Date(y, m, 0).getDate();
-		}
-		var m_lastday 	=	lastday(n_end_yr,n_end);
-		
-		if( n_start == n_end && m_lastday == n_end_day ){
-			$('#close_book').prop('disabled',false);
-		} else {
-			$('#close_book').prop('disabled',true);
-			// check_existing_jv(date_array[1]);
-		}
-
-		// check_existing_jv(date_array[1]);
 	}
 
 	function preview_jv(voucherno){
@@ -505,11 +449,9 @@
 		ajax.daterangefilter = $(this).val();
 		ajax.page = 1;
 		getTrialBalance();
-		// enable_button($(this).val());
 	}).trigger('change');
 	$('#close_book').on('click',function(){
 		var daterangefilter 	=	$('#daterangefilter').val();
-
 		$('#reference').val("");
 		$('#notes').val("");
 		$("#jvModal").modal('show');
@@ -545,14 +487,25 @@
 	}
 
 	$('#jv_header').on('click',"#btnSaveDetails", function(){
-		var current_date 		=	$('#jvModal #datefrom').val();
+		var current_date 		=	$('#jvModal #datefrom').val();	
+		var last_closed_year 	=	$('#jvModal #last_year').val();
+		var date_array 			=	current_date.split(' - ');
+		
+		if(date_array.length > 1) {
+			ajax2.source 			=	"yrend_closing";
+		} else {
+			ajax2.source 			=	"closing";
+		}
 
 		ajax2.datefrom 			=	current_date;
 		ajax2.reference 		=	$('#jvModal #reference').val();
 		ajax2.notes 			=	$('#jvModal #notes').val();
 		ajax2.closing_account 	=	$('#jvModal #closing_account').val();
+		ajax2.period_end 		=	$('#jvModal #period_end').val();
+		ajax2.period_start 		=	$('#jvModal #period_start').val();
+		ajax2.taxyear 			=	$('#jvModal #taxyear').val();
 
-		var has_error 	=	validate_date(current_date);
+		var has_error 			=	validate_date(current_date);
 
 		if(!has_error){
 			$.post('<?=MODULE_URL?>ajax/temporary_jv_close', ajax2 , function(response) {
@@ -562,15 +515,52 @@
 				}
 			});
 		}
-		
 	});
 
 	$('#previewModal').on('click','#confirmbtn',function(){
-		ajax2.voucherno 	=	$('#previewModal #voucherno').val();
+		var current_date 		=	$('#jvModal #datefrom').val();	
+		var last_year 			=	$('#jvModal #last_year').val();	
+		var last_closed_month 	=	$('#jvModal #last_closed_month').val();
+		var period_end 			=	$('#jvModal #period_end').val();		
+		var yr_account 			=	$('#jvModal #yr_account').val();		
+		var prev_year 			=	$('#jvModal #prev_year').val();	
+		var year_end_date 		=	$('#jvModal #year_end_date').val();
+		var yr_account_name 	=	$('#jvModal #yr_account_name').val();
+		var last_date 			=	$('#jvModal #last_date').val();
+		var tax_year 			=	$('#jvModal #tax_year').val();
+
+		ajax2.voucherno 		=	$('#previewModal #voucherno').val();
+
 		$.post('<?=MODULE_URL?>ajax/close_jv_status', ajax2 , function(response) {
 			if( response.result ){
-				$('#previewModal').modal('hide');
-				$('#redirectionModal').modal('show');
+				$.post('<?=MODULE_URL?>ajax/check_existing_yrendjv', "trans_date="+last_year , function(response2) {
+					date 				= 	new Date(last_date);
+					current_month 		=	date.getMonth();
+					current_year 		=	date.getFullYear();
+					last_closed_month 	= 	(response.period!="") ? response.period :	last_closed_month;
+					if(!response2.existing){
+						console.log(last_closed_month);
+						console.log(period_end);
+						console.log(prev_year);
+						console.log(current_year);
+						if(last_closed_month == period_end ){ // && prev_year != current_year
+							$('#previewModal').modal('hide');
+							$('#jvModal #datefrom').val(year_end_date);	
+							$('#jvModal #notes').val("");	
+							$('#jvModal #closing_account').val(yr_account);
+							$('#jvModal #closing_account_static').html(yr_account_name);
+							drawTemplate();
+							$("#jvModal").modal('show');
+						} else {
+							$('#previewModal').modal('hide');
+							$('#redirectionModal').modal('show');
+						}
+					} else {
+						$('#previewModal').modal('hide');
+						$('#redirectionModal').modal('show');
+					}
+				});
+				
 			}
 		});
 	});
@@ -607,7 +597,7 @@
 
 	$('#closing_cancel').on('click',function(e){
 		ajax2.voucherno 	=	$('#previewModal #voucherno').val();
-		//delete temporary saved jv... 
+	
 		$.post('<?=MODULE_URL?>ajax/eradicate_temporary_jv', ajax2 , function(response) {
 			if( response.result ){
 				$('#previewModal').modal('hide');

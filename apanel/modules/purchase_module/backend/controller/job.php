@@ -48,30 +48,38 @@
         public function view($job){
             $this->view->title = $this->ui->ViewLabel('');
 
-            $data['ui']             = $this->ui;
-            $data['task']           = 'view';
-            $data['show_input']     = false;
+            $data['ui']                 = $this->ui;
+            $data['task']               = 'view';
+            $data['show_input']         = false;
             
-            $data["job_no"]         = $job;
+            $data["job_no"]             = $job;
 
             $retrievedjob               = $this->job->getJob($job);
             $job_date                   = $this->date->dateFormat($retrievedjob[0]->transactiondate);
 
             $data['transactiondate']    = $job_date;
             $data['notes']              = $retrievedjob[0]->notes;
+            $data['stat']               =$retrievedjob[0]->stat;
+            $result                     = (array) $this->job->retrieveExistingJob($job);
+            $data['result']             = $result;
 
-            $result                   = (array) $this->job->retrieveExistingJob($job);
-            $data['result'] = $result;
-
+            $pr_item                    = array();
+            $item                       = array();
+            $qty                        = array();
+            $linenum                    = array();
             foreach ($result as $key => $row) {
-                $pr[]               = $row->ipo_no;
-                $item[]             = $row->itemcode . " - " . $row->description;
-                $qty[]              = $row->qty;
-            }
+                
+                $pr_item[]      = $row->ipo_no;
+                $item[]         = $row->itemcode;
+                $linenum[]      = $row->linenum;
+                $qty[]          = $row->qty;
 
-            $data['pr_selected']        = $pr;
-            $data['item_selected']      = $item;
-            $data['qty']                = $qty;
+            }
+            
+            $data['pr']         = $pr_item;
+            $data['item']       = $item;
+            $data['linenum']    = $linenum;
+            $data['qty']        = $qty;
             $this->view->load('job/job',  $data);
         }
         
@@ -112,7 +120,7 @@
             $data['notes']              = $retrievedjob[0]->notes;
 
             $result                     = (array) $this->job->retrieveExistingJob($job);
-            $data['result'] = $result;
+            $data['result']             = $result;
 
             $pr_item                    = array();
             $item                       = array();
