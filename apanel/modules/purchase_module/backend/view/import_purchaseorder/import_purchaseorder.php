@@ -276,6 +276,7 @@
 									$vatable_purchase 	  = 0;
 									$vat_exempt_purchase  = 0;
 									$t_subtotal 		  = 0;
+									$b_subtotal 		  = 0;
 									$t_discount  		  = 0;
 									$t_total 			  = 0;
 									$t_vat 				  = 0;
@@ -462,6 +463,7 @@
 
 									for($i = 0; $i < count($details); $i++)
 									{
+										$b_subtotal			= 0;
 										$itemcode 	 		= $details[$i]->itemcode;
 										$detailparticular	= stripslashes($details[$i]->detailparticular);
 										$onhandqty  		= $details[$i]->onhandqty;
@@ -470,10 +472,12 @@
 										$taxcode 			= $details[$i]->taxcode;
 										$taxrate 			= $details[$i]->taxrate;
 										$amount  			= $details[$i]->amount;
+										$convertedamount  	= $details[$i]->convertedamount;
 										$uom  				= $details[$i]->receiptuom;
 										$discount  			= $details[$i]->discount;
 										$warehouse_code		= (empty($request_no)) ? $details[$i]->warehouse 	: 	'';
 										$warehouse_name		= (empty($request_no)) ? $details[$i]->description: 	'';
+										$b_subtotal 	   += $convertedamount; 
 
 
 										?>	
@@ -624,7 +628,7 @@
 												->setClass("text-right")
 												->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
 												->setValidation('decimal')
-												->setValue(number_format($amount,2))
+												->setValue(number_format($convertedamount,2))
 												->draw($show_input);
 												?>
 
@@ -674,7 +678,7 @@
 										->setId('b_subtotal')
 										->setClass("input_label text-right")
 										->setAttribute(array("maxlength" => "40", 'readonly',"style" => "margin-left:4px;margin-right: 14px;"))
-										->setValue(number_format($t_subtotal,2))
+										->setValue(number_format($b_subtotal,2))
 										->draw($show_input);
 										?>
 									</td>

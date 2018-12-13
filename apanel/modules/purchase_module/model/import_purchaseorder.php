@@ -106,7 +106,7 @@ class import_purchaseorder extends wc_model
 
 	public function retrieveListing($data)
 	{
-		$fields 			= array('po.voucherno', 'p.partnername as vendor', 'po.referenceno', 'po.request_no', 'po.transactiondate','po.stat','po.netamount','(po.netamount - IFNULL(pr.received_amount,0)) as balance');
+		$fields 			= array('po.voucherno', 'p.partnername as vendor', 'po.referenceno', 'po.request_no', 'po.transactiondate','po.stat','po.netamount','(po.convertedamount - IFNULL(pr.received_amount,0)) as balance','po.convertedamount');
 
 		$daterangefilter 	= isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
 		$vendfilter      	= isset($data['vendor']) ? htmlentities($data['vendor']) : ""; 
@@ -180,7 +180,7 @@ class import_purchaseorder extends wc_model
 		$retrieved_data['vendor']    =	$this->retrievevendorDetails($vendor_code);
 
 			// Retrieve Details
-		$detail_fields 			= "pd.itemcode, pd.detailparticular, pd.warehouse, w.description, pd.unitprice, pd.onhandqty, pd.receiptqty,receiptuom, pd.taxcode, pd.taxrate, pd.amount, pd.discount";
+		$detail_fields 			= "pd.itemcode, pd.detailparticular, pd.warehouse, w.description, pd.unitprice, pd.onhandqty, pd.receiptqty,receiptuom, pd.taxcode, pd.taxrate, pd.amount, pd.convertedamount, pd.discount";
 		$condition 				= " pd.voucherno = '$voucherno' ";
 
 		$retrieved_data['details'] = 	$this->db->setTable('import_purchaseorder_details pd')
