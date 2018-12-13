@@ -1083,6 +1083,14 @@
 	</div>
 
 	<script>
+	$(document).ready(function() {
+		if(removeComma($('.credit').val()) == 0) {
+			$('.credit').attr('readonly', 'readonly');
+		} else {
+			$('.debit').attr('readonly', 'readonly');
+		}
+	});
+
 		$('#btnCancel').click(function() 
 		{
 			$('#cancelModal').modal('show');

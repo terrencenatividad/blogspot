@@ -109,7 +109,7 @@ class controller extends wc_controller
 		$stat = '';
 		if($bal == $convertedamount && $data['stat'] == 'posted') {
 			$stat = 'unpaid';
-		} else if($bal != $convertedamount && $data['stat'] == 'posted') {
+		} else if($bal != $convertedamount && $bal != 0 && $data['stat'] == 'posted') {
 			$stat = 'partial';
 		} else if($bal == 0 && $amountpaid == $convertedamount && $data['stat'] == 'posted'){
 			$stat = 'paid';
@@ -131,6 +131,9 @@ class controller extends wc_controller
 		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList($data);
 		$data['account_list'] = $this->accounts_payable->retrieveAccounts();
 		$data["business_type_list"]   = $this->accounts_payable->getBusiness();
+		$checker_pr = $this->accounts_payable->checkRefNo($data['referenceno']);
+		$checker = ($checker_pr) ? true : false;
+		$data['checker'] = $checker;
 		$data['details'] = $details;
 		$data['currency'] = $data['currencycode'];
 		$data['address'] = $det['address1'];
@@ -456,10 +459,10 @@ class controller extends wc_controller
 		$ap['invoicedate'] = $ap['transactiondate'];
 		$ap['invoicedate'] =  date('Y-m-d');
 		$ap['fiscalyear'] = date('Y');
-		$ap['convertedamount'] = $post['total_currency'];
+		$ap['convertedamount'] = str_replace(',', '', $ap['exchangerate']) * str_replace(',', '', $post['total_debit']);
 		$ap['amount'] = str_replace(',', '', $post['total_debit']);
 		$ap['exchangerate'] = str_replace(',', '', $ap['exchangerate']);
-		$ap['balance'] = $post['total_currency'];
+		$ap['balance'] = $ap['convertedamount'];
 		$ap['terms'] = $post['vendor_terms'];
 		$ap['stat'] = 'posted';
 		$ap['job_no'] = $post['job'];
@@ -487,8 +490,8 @@ class controller extends wc_controller
 		$account = $this->input->post('account');
 		$check = false;
 		if(!empty($account)) {
-			$result = $this->accounts_payable->getAccountClasscode($account);
-			foreach($result as $row) {
+			$classcode = $this->accounts_payable->getAccountClasscode($account);
+			foreach($classcode as $row) {
 				if($row->accountclasscode == 'ACCPAY') {
 					$check = true;
 					$result    = $this->accounts_payable->saveAP($ap, $ap_details);
@@ -538,10 +541,10 @@ class controller extends wc_controller
 		$ap['invoicedate'] = $ap['transactiondate'];
 		$ap['invoicedate'] =  date('Y-m-d');
 		$ap['fiscalyear'] = date('Y');
-		$ap['convertedamount'] = $post['total_currency'];
+		$ap['convertedamount'] = str_replace(',', '', $ap['exchangerate']) * str_replace(',', '', $post['total_debit']);
 		$ap['amount'] = str_replace(',', '', $post['total_debit']);
 		$ap['exchangerate'] = str_replace(',', '', $ap['exchangerate']);
-		$ap['balance'] = $post['total_currency'];
+		$ap['balance'] = $ap['convertedamount'];
 		$ap['terms'] = $post['vendor_terms'];
 		$ap['stat'] = 'posted';
 		$ap['job_no'] = $post['job'];
@@ -567,10 +570,10 @@ class controller extends wc_controller
 		$ap_details['convertedcredit'] = $convcredit;
 
 		$account = $this->input->post('account');
-		$result = $this->accounts_payable->getAccountClasscode($account);
+		$classcode = $this->accounts_payable->getAccountClasscode($account);
 		$check = false;
 		if(!empty($account)) {
-			foreach($result as $row) {
+			foreach($classcode as $row) {
 				if($row->accountclasscode == 'ACCPAY') {
 					$check = true;
 					$result    = $this->accounts_payable->updateAP($ap['voucherno'], $ap);
@@ -1386,7 +1389,7 @@ class controller extends wc_controller
 	private function ajax_check_cwt() {
 		$accountcode = $this->input->post('accountcode');
 		$checker = '';
-		$accountclasscode = $this->accounts_payable->getAccountClasscode($accountcode);
+		$accountclasscode = $this->accounts_payable->checkCWT($accountcode);
 		$acode = $accountclasscode->accountclasscode;
 		if($acode == 'OTHCL' || $acode == 'TAX' || $acode == 'CULIAB') {
 			$checker = 'true';

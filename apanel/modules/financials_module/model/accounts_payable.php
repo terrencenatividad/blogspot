@@ -562,6 +562,16 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
+	public function checkCWT($accountcode){
+		$result = $this->db->setTable("chartaccount")
+		->setFields('accountclasscode')
+		->setWhere("id = '$accountcode'")
+		->runSelect()
+		->getRow();
+
+		return $result;
+	}
+
 	public function retrievePaymentDetails($voucherno)
 	{
 		/*
@@ -2094,7 +2104,7 @@ class accounts_payable extends wc_model
 		->leftJoin('pv_application as pa ON pv.voucherno = pa.voucherno')
 		->leftJoin('pv_details as pd ON pv.voucherno = pd.voucherno')
 		->leftJoin('chartaccount as ca ON pd.accountcode = ca.id')
-		->setWhere("pa.apvoucherno = '$voucherno' AND pd.debit != 0")
+		->setWhere("pa.apvoucherno = '$voucherno' AND pd.debit != 0 AND pv.stat != 'cancelled'")
 		->runSelect()
 		->getResult();
 
