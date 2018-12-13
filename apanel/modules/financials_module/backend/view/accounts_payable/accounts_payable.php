@@ -1206,7 +1206,7 @@
 			});
 		});
 
-		<?php if($ajax_post != 'create') : ?>
+		<?php if($ajax_task != 'ajax_create') : ?>
 			$(document).ready(function() {
 				sumDebit();
 				sumCredit();
