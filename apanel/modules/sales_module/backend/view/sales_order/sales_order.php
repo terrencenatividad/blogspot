@@ -291,6 +291,10 @@
 														->setValue("")
 														->draw($show_input);
 												?>
+												<input type = "hidden" id = <?php echo 'h_itemcode['.$row.']'; ?> name = <?php echo 'h_itemcode['.$row.']'; ?> class = "h_itemcode" value = "">
+												<input type = "hidden" id = <?php echo 'h_parentcode['.$row.']'; ?> name = <?php echo 'h_parentcode['.$row.']'; ?> class = "h_parentcode" value = "">
+												<input type = "hidden" id = <?php echo 'h_isbundle['.$row.']'; ?> name = <?php echo 'h_isbundle['.$row.']'; ?> class = "h_isbundle" value = "">
+												<input type = "hidden" id = <?php echo 'h_parentline['.$row.']'; ?> name = <?php echo 'h_parentline['.$row.']'; ?> class = "h_parentline" value = "">
 											</td>
 											<td class = "remove-margin">
 												<?php
@@ -298,6 +302,7 @@
 															->setSplit('', 'col-md-12')
 															->setName('detailparticulars['.$row.']')
 															->setId('detailparticulars['.$row.']')
+															->setClass('itemdescription')
 															->setAttribute(array("maxlength" => "100"))
 															->setValue("")
 															->draw($show_input);
@@ -336,7 +341,7 @@
 															->setSplit('', 'col-md-12')
 															->setName('uom['.$row.']')
 															->setId('uom['.$row.']')
-															->setClass("text-right")
+															->setClass("text-right itemuom")
 															->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
 															->setValue($uom)
 															->draw($show_input);
@@ -395,7 +400,7 @@
 															->setSplit('', 'col-md-12')
 															->setName('amount['.$row.']')
 															->setId('amount['.$row.']')
-															->setClass("text-right")
+															->setClass("text-right itemamount")
 															->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
 															->setValidation('decimal')
 															->setValue($rowamount)
@@ -458,6 +463,10 @@
 														->setValidation('required')
 														->draw($show_input);
 												?>
+												<input type = "hidden" id = <?php echo 'h_itemcode['.$row.']'; ?> name = <?php echo 'h_itemcode['.$row.']'; ?> class = "h_itemcode" value = "<?php echo $itemcode ?>">
+												<input type = "hidden" id = <?php echo 'h_parentcode['.$row.']'; ?> name = <?php echo 'h_parentcode['.$row.']'; ?> class = "h_parentcode" value = "<?php echo $parentcode ?>">
+												<input type = "hidden" id = <?php echo 'h_isbundle['.$row.']'; ?> name = <?php echo 'h_isbundle['.$row.']'; ?> class = "h_isbundle" value = "<?php echo $isbundle ?>">
+												<input type = "text" id = <?php echo 'h_parentline['.$row.']'; ?> name = <?php echo 'h_parentline['.$row.']'; ?> class = "h_parentline" value = "<?php echo $parentline ?>">
 											</td>
 											<td class = "remove-margin">
 												<?php
@@ -1590,6 +1599,7 @@ function getItemDetails(id)
 
 			if( data != false )
 			{
+				document.getElementById('h_itemcode'+row).value 			=	itemcode;
 				document.getElementById('detailparticulars'+row).value 		=	data.itemdesc;
 				document.getElementById('uom'+row).value 					=	data.uomcode;
 				
@@ -1622,11 +1632,51 @@ function getItemDetails(id)
 
 				$('#sales_order_form').trigger('change');
 			}
+
+			if (data.bundle == '1') {
+				document.getElementById('h_isbundle'+row).value 			=	"Yes";
+			}
+			else {
+				document.getElementById('h_isbundle'+row).value 			=	"No";
+			}
 			
 		});
 
 	}
 }
+
+$('.itemcode').on('change', function() {
+	var itemcode = $(this).val();
+	var name = $(this).attr("name");
+	var linenum = name.match(/\d+/)[0];
+	var row = $(this);
+	$.post('<?=BASE_URL?>sales/sales_order/ajax/get_bundle_items',"itemcode="+itemcode+"&linenum="+linenum, function(data) {
+		if(data.table != "") {
+		var table = data.table;
+			row.closest('tr').addClass('bundle_item');
+			$('#itemsTable tbody tr.clone select').select2('destroy');
+			row.closest('tr.bundle_item').after(table);
+			row.closest('tr').find('.h_parentline').val(linenum);
+		} else {
+			if(row.closest('tr').hasClass('bundle_item')){
+				row.closest('tr').nextAll('tr.parts').remove();
+			}
+		}
+		resetIds();
+		drawTemplate();
+	});
+});
+
+$('.quantity').on('blur', function() {
+	var itemcode = $(this).closest('tr').find('.itemcode').val();
+	var parent = $(this).closest('tr').find('.h_parentline').val();
+	var quantity = $(this).val();
+	$('#itemsTable tbody tr').find('.h_parentline[value="'+parent+'"]').each(function(index, value) {
+		var itemqty = $(this).closest('tr').find('.quantity').attr('data-id');
+		var total = quantity * itemqty;
+		$(this).closest('tr.parts').find('.quantity').val(total);
+	});
+});
 
 /**COMPUTE ROW AMOUNT**/
 function computeAmount()
@@ -1885,12 +1935,18 @@ function resetIds()
 	var table 	= document.getElementById('itemsTable');
 	var count	= table.tBodies[0].rows.length;
 
+	console.log( " count = "+count);
+
 	x = 1;
 	for(var i = 1;i <= count;i++)
 	{
 		var row = table.rows[i];
 
 		row.cells[0].getElementsByTagName("select")[0].id 	= 'itemcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].id 	= 'h_itemcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[1].id 	= 'h_parentcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[2].id 	= 'h_isbundle['+x+']';
+		row.cells[0].getElementsByTagName("input")[3].id 	= 'h_parentline['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
 		row.cells[2].getElementsByTagName("select")[0].id 	= 'warehouse['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].id 	= 'quantity['+x+']';
@@ -1906,6 +1962,10 @@ function resetIds()
 		row.cells[8].getElementsByTagName("input")[3].id 	= 'discountedamount['+x+']';
 
 		row.cells[0].getElementsByTagName("select")[0].name = 'itemcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].name 	= 'h_itemcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[1].name 	= 'h_parentcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[2].name 	= 'h_isbundle['+x+']';
+		row.cells[0].getElementsByTagName("input")[3].name 	= 'h_parentline['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
 		row.cells[2].getElementsByTagName("select")[0].name = 'warehouse['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].name 	= 'quantity['+x+']';
@@ -1939,6 +1999,10 @@ function setZero()
 	//alert(newid);
 
 	document.getElementById('itemcode['+newid+']').value 			= '';
+	document.getElementById('h_itemcode['+newid+']').value 			= '';
+	document.getElementById('h_parentcode['+newid+']').value 		= '';
+	document.getElementById('h_isbundle['+newid+']').value 			= '';
+	document.getElementById('h_parentline['+newid+']').value 			= '';
 	document.getElementById('detailparticulars['+newid+']').value 	= '';
 	document.getElementById('warehouse['+newid+']').value 			= '';
 	document.getElementById('quantity['+newid+']').value 			= '0';
@@ -2004,7 +2068,7 @@ function finalizeTransaction(type)
 
 	if($('#sales_order_form .form-group .has-error').length == 0 && no_error){	
 		$('#save').val(type);
-		if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
+		if($("#sales_order_form #s_address").val() != '' && $("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
 		{
 			$('#delay_modal').modal('show');
 			setTimeout(function() {									
@@ -2334,6 +2398,7 @@ $(document).ready(function(){
 			setZero();
 
 			$('#itemsTable tbody tr.clone select').select2({width: "100%"});
+			drawTemplate();
 		});
 		
 	// -- For Items -- End
