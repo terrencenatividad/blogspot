@@ -65,6 +65,7 @@ class controller extends wc_controller
 		$data['transactiondate'] = date('m d, Y', strtotime($data['transactiondate']));
 		$data['total'] = number_format($data['total'], 2);
 		$data["ajax_task"] = "ajax_edit";
+		$data['user_list'] = $this->budgetting->getUserList();
 		$data['ui'] = $this->ui;
 		$data['ajax_post'] = "&id=$id";
 		$data['show_input'] = true;
@@ -77,6 +78,7 @@ class controller extends wc_controller
 		$data['budget_center'] = $this->budgetting->getBudgetCenter();
 		$data['total'] = number_format($data['total'], 2);
 		$data["ajax_task"] = "ajax_view";
+		$data['user_list'] = $this->budgetting->getUserList();
 		$data['ui'] = $this->ui;
 		$data['ajax_post'] = "&id=$id";
 		$data['ui'] = $this->ui;

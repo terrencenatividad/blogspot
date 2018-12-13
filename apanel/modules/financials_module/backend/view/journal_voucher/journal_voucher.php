@@ -138,7 +138,7 @@
 										->drawSaveOption();
 									}
 
-									if($ajax_task == 'ajax_view' && isset($stat) &&  $stat != 'cancelled') {
+									if($ajax_task == 'ajax_view' && $display_edit && isset($stat) &&  $stat != 'cancelled') {
 										echo $ui->drawSubmit($show_input);
 									} else if($ajax_task == 'ajax_edit') {
 										echo $ui->drawSubmit(true);
@@ -265,7 +265,7 @@
 						}
 						recomputeTotal();
 					}
-					if (<?php echo ($amount) ? $amount : 0 ?> > 0 || '<?php echo $checker ?>' != 'closing') {
+					if (<?php echo ($amount) ? $amount : 0 ?> > 0 || '<?php echo $stat?>' == 'cancelled' || '<?php echo $checker ?>' != 'closing') {
 						displayDetails(voucher_details);
 					} else {
 						$('#tableList tbody').append(`<tr><th colspan="4" class="text-center">No Entries for this Period</th></tr>`);

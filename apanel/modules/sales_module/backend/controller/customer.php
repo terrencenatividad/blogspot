@@ -235,15 +235,20 @@
 							$errmsg[] 	=	$this->check_duplicate_code("Customer Code",$customercode,$line);
 
 							// Check for Numerical Values
-							$errmsg[] 	=	$this->import->check_numeric("Payment Terms", $terms, $line);
 							$errmsg[] 	=	$this->import->check_numeric("Credit Limit", $credit_limit, $line);
 
 							// Check for Negative Values
-							$errmsg[] 	=	$this->import->check_negative("Payment Terms", $terms, $line);
 							$errmsg[] 	=	$this->import->check_negative("Credit Limit", $credit_limit, $line);
 
 							// Check for E-mail Format
-							$errmsg[] 	=	$this->import->check_email("Email", $email, $line);
+							if($email != ''){
+								$errmsg[] 	=	$this->import->check_email("Email", $email, $line);
+							}
+
+							if($terms != ''){
+								$errmsg[] 	=	$this->import->check_negative("Payment Terms", $terms, $line);
+								$errmsg[] 	=	$this->import->check_numeric("Payment Terms", $terms, $line);
+							}
 
 							// Check for Business Content ( Individual or Corporation )
 							$errmsg[] 	=	$this->import->check_business_type("Business Type", $business, $line);

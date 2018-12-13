@@ -1,204 +1,254 @@
 <section class="content">
-	<div class="box box-primary">
-		<form action="" method="post" class="form-horizontal">
-			<div class="box-body">
-				<br>
-				<div class="row">
-					<div class="col-md-11">
+	<ul class="nav nav-tabs">
+		<li class="active"><a href="#main" data-toggle="tab" data-id="main">Details</a></li>
+		<?if(!$show_input):?><li><a href="#files" data-toggle="tab" data-id="files">Attachments</a></li><?endif;?>
+	</ul>
+	<div class="tab-content">
+		<div class="tab-pane active" id="main">
+			<div class="box box-primary">
+				<form action="" method="post" class="form-horizontal">
+					<div class="box-body">
+						<br>
 						<div class="row">
-							<div class="col-md-6">
-								<?php if ($show_input && $ajax_task != 'ajax_edit'): ?>
-									<div class="form-group">
-										<label for="voucherno" class="control-label col-md-4">JO No.</label>
-										<div class="col-md-8">
-											<input type="text" class="form-control" readonly value="<?= (empty($voucherno)) ? ' - Auto Generated -' : $voucherno ?>">
-										</div>
+							<div class="col-md-11">
+								<div class="row">
+									<div class="col-md-6">
+										<?php if ($show_input && $ajax_task != 'ajax_edit'): ?>
+											<div class="form-group">
+												<label for="voucherno" class="control-label col-md-4">JO No.</label>
+												<div class="col-md-8">
+													<input type="text" class="form-control" readonly value="<?= (empty($voucherno)) ? ' - Auto Generated -' : $voucherno ?>">
+												</div>
+											</div>
+										<?php else: ?>
+											<?php
+												echo $ui->formField('text')
+													->setLabel('JO No.')
+													->setSplit('col-md-4', 'col-md-8')
+													->setName('voucherno')
+													->setId('voucherno')
+													->setValue($voucherno)
+													->addHidden($voucherno)
+													->setValidation('required')
+													->draw(($show_input && $ajax_task != 'ajax_edit'));
+											?>
+										<?php endif ?>
 									</div>
-								<?php else: ?>
-									<?php
-										echo $ui->formField('text')
-											->setLabel('JO No.')
-											->setSplit('col-md-4', 'col-md-8')
-											->setName('voucherno')
-											->setId('voucherno')
-											->setValue($voucherno)
-											->addHidden($voucherno)
-											->setValidation('required')
-											->draw(($show_input && $ajax_task != 'ajax_edit'));
-									?>
-								<?php endif ?>
-							</div>
-							<div class="col-md-6">
-								<?php
-									echo $ui->formField('text')
-										->setLabel('Document Date')
-										->setSplit('col-md-4', 'col-md-8')
-										->setName('transactiondate')
-										->setId('transactiondate')
-										->setClass('datepicker-input')
-										->setAttribute(array('readonly', 'data-date-start-date' => $close_date))
-										->setAddon('calendar')
-										->setValue($transactiondate)
-										->setValidation('required')
-										->draw($show_input);
-								?>
+									<div class="col-md-6">
+										<?php
+											echo $ui->formField('text')
+												->setLabel('Document Date')
+												->setSplit('col-md-4', 'col-md-8')
+												->setName('transactiondate')
+												->setId('transactiondate')
+												->setClass('datepicker-input')
+												->setAttribute(array('readonly', 'data-date-start-date' => $close_date))
+												->setAddon('calendar')
+												->setValue($transactiondate)
+												->setValidation('required')
+												->draw($show_input);
+										?>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-6">
+										<?php
+											echo $ui->formField('dropdown')
+												->setLabel('Customer ')
+												->setPlaceholder('Select Customer')
+												->setSplit('col-md-4', 'col-md-8')
+												->setName('customer')
+												->setId('customer')
+												->setList($customer_list)
+												->setValue($customer)
+												->setValidation('required')
+												->draw($show_input);
+										?>
+									</div>
+									<div class="col-md-6">
+										<?php
+											echo $ui->formField('text')
+													->setLabel('Reference')
+													->setSplit('col-md-4', 'col-md-8')
+													->setName('reference')
+													->setId('reference')
+													->setValue($reference)
+													->setValidation('required')
+													->draw($show_input);
+										?>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-6">
+										<?php
+											echo $ui->formField('text')
+												->setLabel('Service Quotation No. ')
+												->setSplit('col-md-4', 'col-md-8')
+												->setName('source_no')
+												->setId('source_no')
+												->setAttribute(array('readonly'))
+												->setAddon('search')
+												->setValue($source_no)
+												->setValidation('required')
+												->draw($show_input);
+										?>
+									</div>
+									<div class="col-md-6">
+										<?php
+											echo $ui->formField('text')
+												->setLabel('Customer PO No.')
+												->setSplit('col-md-4', 'col-md-8')
+												->setName('customerpo')
+												->setId('customerpo')
+												->setValue($customerpo)
+												->draw($show_input);
+										?>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-12">
+										<?php
+											echo $ui->formField('textarea')
+												->setLabel('Notes')
+												->setSplit('col-md-2', 'col-md-10')
+												->setName('notes')
+												->setId('notes')
+												->setValue($notes)
+												->draw($show_input);
+										?>
+									</div>
+								</div>
 							</div>
 						</div>
+					</div>
+					<div class="box-body table-responsive no-padding">
+						<table id="tableList" class="table table-hover table-condensed table-sidepad only-checkbox full-form">
+							<thead>
+								<tr class="info">
+									<th class="col-md-3">Item</th>
+									<th class="col-md-3">Description</th>
+									<th class="col-md-2">Warehouse</th>
+									<th class="col-md-2">Quantity</th>
+									<th class="col-md-1">UOM</th>
+									<?php if ($show_input): ?>
+									<th class="col-md-1"></th>
+									<?php endif ?>
+								</tr>
+							</thead>
+							<tbody>
+							
+							</tbody>
+							<tfoot class="summary">
+								<!-- <tr>
+									<td colspan="6">
+										<?php if ($show_input): ?>
+											<button type="button" id="addNewItem" class="btn btn-link">Add a New Line</button>
+										<?php endif ?>
+									</td>
+								</tr> -->
+							</tfoot>
+						</table>
+						<div id="header_values"></div>
+					</div>
+					<div class="box-body">
+						<hr>
 						<div class="row">
-							<div class="col-md-6">
+							<div id="submit_container" class="col-md-12 text-center">
 								<?php
-									echo $ui->formField('dropdown')
-										->setLabel('Customer ')
-										->setPlaceholder('Select Customer')
-										->setSplit('col-md-4', 'col-md-8')
-										->setName('customer')
-										->setId('customer')
-										->setList($customer_list)
-										->setValue($customer)
-										->setValidation('required')
-										->draw($show_input);
+									if ($stat == 'Prepared' && $restrict_dr || empty($stat)) {
+										echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
+									}
 								?>
-							</div>
-							<div class="col-md-6">
+								<?php if(!$show_input):?><a href="http://localhost/triglobe/apanel/parts_and_service/job_order/payment/1" class="btn btn-warning">Issue Parts</a><?endif;?>
 								<?php
-									echo $ui->formField('text')
-											->setLabel('Reference')
-											->setSplit('col-md-4', 'col-md-8')
-											->setName('reference')
-											->setId('reference')
-											->setValue($reference)
-											->setValidation('required')
-											->draw($show_input);
-								?>
-							</div>
-						</div>
-						<div class="row">
-							<div class="col-md-6">
-								<?php
-									echo $ui->formField('text')
-										->setLabel('Sales Quotation No. ')
-										->setSplit('col-md-4', 'col-md-8')
-										->setName('source_no')
-										->setId('source_no')
-										->setAttribute(array('readonly'))
-										->setAddon('search')
-										->setValue($source_no)
-										->setValidation('required')
-										->draw($show_input);
-								?>
-							</div>
-							<div class="col-md-6">
-								<?php
-									echo $ui->formField('text')
-										->setLabel('Customer PO No.')
-										->setSplit('col-md-4', 'col-md-8')
-										->setName('customerpo')
-										->setId('customerpo')
-										->setValue($customerpo)
-										->draw($show_input);
-								?>
-							</div>
-						</div>
-						<div class="row">
-							<div class="col-md-12">
-								<?php
-									echo $ui->formField('textarea')
-										->setLabel('Notes')
-										->setSplit('col-md-2', 'col-md-10')
-										->setName('notes')
-										->setId('notes')
-										->setValue($notes)
-										->draw($show_input);
+									// echo '&nbsp;&nbsp;&nbsp;';
+									echo $ui->drawCancel();
 								?>
 							</div>
 						</div>
 					</div>
-				</div>
+				</form>
 			</div>
-			<div class="box-body table-responsive no-padding">
-				<table id="tableList" class="table table-hover table-condensed table-sidepad only-checkbox full-form">
-					<thead>
-						<tr class="info">
-							<th class="col-md-3">Item</th>
-							<th class="col-md-3">Description</th>
-							<th class="col-md-2">Warehouse</th>
-							<th class="col-md-2">Quantity</th>
-							<th class="col-md-1">UOM</th>
-							<?php if ($show_input): ?>
-							<th class="col-md-1"></th>
-							<?php endif ?>
-						</tr>
-					</thead>
-					<tbody>
-					
-					</tbody>
-					<tfoot class="summary">
-						<tr>
-							<td colspan="6">
+			<?if(!$show_input):?>
+			<div class="box box-warning">
+				<div class="box-body">
+					<div class="row">
+						<div class="col-md-11">
+							<h3>Issued Parts:</h3>
+						</div>
+					</div>
+				</div>
+				<div class="box-body table-responsive no-padding">
+					<table id="issuedPartsList" class="table table-hover table-condensed table-sidepad only-checkbox full-form">
+						<thead>
+							<tr class="info">
+								<th class="col-md-3">Item</th>
+								<th class="col-md-3">Description</th>
+								<th class="col-md-2">Warehouse</th>
+								<th class="col-md-2">Quantity</th>
+								<th class="col-md-1">UOM</th>
 								<?php if ($show_input): ?>
-									<button type="button" id="addNewItem" class="btn btn-link">Add a New Line</button>
+								<th class="col-md-1"></th>
 								<?php endif ?>
-							</td>
-						</tr>
-					</tfoot>
-				</table>
-				<div id="header_values"></div>
-			</div>
-			<div class="box-body">
-				<hr>
-				<div class="row">
-					<div id="submit_container" class="col-md-12 text-center">
-						<?php
-							if ($stat == 'Prepared' && $restrict_dr || empty($stat)) {
-								echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
-							}
-						?>
-						<?php if(!$show_input):?><a href="http://localhost/triglobe/apanel/parts_and_service/job_order/payment/1" class="btn btn-warning">Issue Parts</a><?endif;?>
-						<?php
-							// echo '&nbsp;&nbsp;&nbsp;';
-							echo $ui->drawCancel();
-						?>
-					</div>
+							</tr>
+						</thead>
+						<tbody>
+						
+						</tbody>
+						<tfoot class="summary">
+							<tr>
+								<td colspan="6">
+									<?php if ($show_input): ?>
+										<button type="button" id="addNewItem" class="btn btn-link">Add a New Line</button>
+									<?php endif ?>
+								</td>
+							</tr>
+						</tfoot>
+					</table>
+					<div id="header_values"></div>
 				</div>
 			</div>
-		</form>
-	</div>
-	<div class="box box-warning">
-		<div class="box-body">
-			<div class="row">
-				<div class="col-md-11">
-					<h3>Issued Parts:</h3>
-				</div>
-			</div>
+			<?endif;?>
 		</div>
-		<div class="box-body table-responsive no-padding">
-			<table id="issuedPartsList" class="table table-hover table-condensed table-sidepad only-checkbox full-form">
-				<thead>
-					<tr class="info">
-						<th class="col-md-3">Item</th>
-						<th class="col-md-3">Description</th>
-						<th class="col-md-2">Warehouse</th>
-						<th class="col-md-2">Quantity</th>
-						<th class="col-md-1">UOM</th>
-						<?php if ($show_input): ?>
-						<th class="col-md-1"></th>
-						<?php endif ?>
-					</tr>
-				</thead>
-				<tbody>
-				
-				</tbody>
-				<tfoot class="summary">
-					<tr>
-						<td colspan="6">
-							<?php if ($show_input): ?>
-								<button type="button" id="addNewItem" class="btn btn-link">Add a New Line</button>
-							<?php endif ?>
-						</td>
-					</tr>
-				</tfoot>
-			</table>
-			<div id="header_values"></div>
+		<div class="tab-pane" id="files">
+			<div class="box box-primary">
+				<form method = "post" class="form-horizontal" id="case_attachments_form" enctype="multipart/form-data">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="table-responsive">
+								<table id="fileTable" class="table table-bordered">
+									<thead>
+										<tr class="info">
+											<th class="col-md-1">Action</th>
+											<th class="col-md-5">File Name</th>
+											<th class="col-md-2">File Type</th>
+										</tr>
+									</thead>
+									<tbody class="files" id="attachment_list">
+										<tr>
+											<!-- <td colspan="4" class="text-center">
+												<strong>- No Attachments Available -</strong>
+											</td> -->
+											<td>
+												<button type="button" id="replace_attachment" name="replace_attachment" class="btn btn-primary">Replace</button>
+											</td>
+											<td><a href="insert uploaded link here">1123132.pdf</a></td>
+											<td>PDF</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<!-- <hr/>
+					<div class="row">
+						<div class="col-md-12 text-center">
+							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal" onClick="getList();">Close</button>
+						</div>
+					</div> -->
+					<br/>
+				</form>
+			</div>
 		</div>
 	</div>
 </section>
@@ -280,6 +330,83 @@
 		</div>
 		</div>
 	</div>
+	<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-md" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title">Attach File</h4>
+			<h4 class="modal-title">JO NO.: JO0000000001</h4>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<!-- <label for="import_csv">Step 3. Select the updated file and click 'Import' to proceed.</label> -->
+					<?php
+						echo $ui->setElement('file')
+								->setId('import_csv')
+								->setName('import_csv')
+								->setAttribute(array('accept' => '.csv'))
+								->setValidation('required')
+								->draw();
+					?>
+					<span class="help-block"></span>
+				</div>
+				<p class="help-block">The file to be imported shall not exceed the size of 1mb and must be a PDF, PNG or JPG file.</p>
+			</div>
+			<div class="modal-footer">
+				<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+					<div class="btn-group">
+					<button type = "button" class = "btn btn-primary btn-sm btn-flat">Attach</button>
+					</div>
+					&nbsp;&nbsp;&nbsp;
+					<div class="btn-group">
+					<button type="button" class="btn btn-default btn-sm btn-flat">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+	<div id="ordered_list_modal" class="modal fade" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Service Quotation List</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-4 col-md-offset-8">
+							<div class="input-group">
+								<input id="table_search" class="form-control pull-right" placeholder="Search" type="text">
+								<div class="input-group-addon">
+									<i class="fa fa-search"></i>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-body no-padding">
+					<table id="ordered_tableList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
+						<thead>
+							<tr class="info">
+								<th class="col-xs-3">Service Quotation No.</th>
+								<th class="col-xs-3">Transaction Date</th>
+								<th class="col-xs-4">Notes</th>
+								<!-- <th class="col-xs-2 text-right">Amount</th> -->
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td colspan="4" class="text-center">Loading Items</td>
+							</tr>
+						</tbody>
+					</table>
+					<div id="pagination"></div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<script>
 		var delete_row	= {};
 		var ajax		= {};
@@ -316,6 +443,7 @@
 								->setName('detail_itemcode[]')
 								->setClass('itemcode')
 								->setList($item_list)
+								->setNone('Selected: None')
 								->setValue($value)
 								->draw($show_input);
 						?>
@@ -337,6 +465,7 @@
 								->setName('detail_warehouse[]')
 								->setClass('warehouse')
 								->setList($warehouse_list)
+								->setNone('Selected: None')
 								->setValue($value)
 								->draw($show_input);
 						?>
@@ -371,6 +500,11 @@
 					<?php endif ?>
 				</tr>
 			`;
+			// var row = `
+			// 	<tr>
+			// 		<td colspan="6" class="text-center"><i><strong>Please select a Customer and Service Quotation First.</strong></i></td>
+			// 	</tr>
+			// `;
 			$('#tableList tbody').append(row);
 			var row2 = `
 				<tr>
@@ -439,7 +573,6 @@
 			`;
 			$('#issuedPartsList tbody').append(row2);
 			if (details.itemcode != '') {
-				console.log(details.itemcode);
 				$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
 			}
 			if (details.warehouse != '') {
@@ -479,7 +612,6 @@
 		}
 		var voucher_details = <?php echo $voucher_details ?>;
 		function displayDetails(details) {
-			//$('#tableList tfoot.summary').hide();
 			if (details.length < min_row) {
 				for (var x = details.length; x < min_row; x++) {
 					addVoucherDetails('', x);
@@ -489,11 +621,10 @@
 				details.forEach(function(details, index) {
 					addVoucherDetails(details, index);
 				});
-				//$('#tableList tfoot.summary').show();
 			} else if (min_row == 0) {
 				$('#tableList tbody').append(`
 					<tr>
-						<td colspan="9" class="text-center"><b>Select Sales Quotation No.</b></td>
+						<td colspan="9" class="text-center"><b>Select Service Quotation No.</b></td>
 					</tr>
 				`);
 			}
@@ -572,6 +703,9 @@
 			$(this).closest('tr').find('.discounttype:not(:checked)').closest('.input-group').find('.discount_entry.rate').val('0.00');
 			recomputeAll();
 		});
+		$('#replace_attachment').on('click',function(e){
+			$('#attach_modal').modal('show');
+		});
 	</script>
 	<?php if ($show_input): ?>
 	<script>
@@ -600,7 +734,12 @@
 				ajax_call.abort();
 			}
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_ordered_list', ajax, function(data) {
-				$('#ordered_tableList tbody').html(data.table);
+				// $('#ordered_tableList tbody').html(data.table);
+				$('#ordered_tableList tbody').html(`<tr>
+					<td >SQ00001</td>
+					<td >Nov 29, 2016</td>
+					<td >Quotation for Repair</td>
+				</tr>`);
 				$('#pagination').html(data.pagination);
 				if (ajax.page > data.page_limit && data.page_limit > 0) {
 					ajax.page = data.page_limit;

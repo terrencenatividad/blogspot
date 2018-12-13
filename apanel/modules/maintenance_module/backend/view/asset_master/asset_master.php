@@ -508,7 +508,6 @@ $(document).ready(function(){
 var ajax = {};
 	$('form').submit(function(e) {
 			e.preventDefault();
-			
 			$(this).find('.form-group').find("select option:selected").prop('disabled',false);
 			$(this).find('.form-group').find('input, textarea, select').trigger('blur');
 			if ($(this).find('.form-group.has-error').length == 0) {
@@ -525,7 +524,7 @@ var ajax = {};
 				$('.nav.nav-tabs').find('a[href="#' + first.closest('.tab-pane').attr('id') + '"]').trigger('click');
 				first.focus();
 			}
-			$(this).find('.form-group').find("select option:selected").prop('disabled',true);
+			// $(this).find('.form-group').find("select option:selected").prop('disabled',true);
 		});
 
 $('#pagination').on('click', 'a', function(e) {
@@ -578,11 +577,11 @@ $('#itemlists').on('click', 'tr[data-id]', function() {
 $('#asset_class').on('change', function(){
 	var assetclass = $('#asset_class').val();
 	$.post('<?=MODULE_URL?>ajax/ajax_get_assetclass', 'assetclass='+assetclass , function(data) {
-		$('#useful_life').val(data.useful_life).trigger('change.select2');
-		$('#salvage_value').val(data.salvage_value).trigger('change.select2');
-		$('#gl_asset').val(data.gl_asset).trigger('change.select2');
-		$('#gl_accdep').val(data.gl_accdep).trigger('change.select2');
-		$('#gl_depexpense').val(data.gl_depexpense).trigger('change.select2');
+		$('#useful_life').val(data.useful_life).trigger('change');
+		$('#salvage_value').val(data.salvage_value).trigger('change');
+		$('#gl_asset').val(data.gl_asset).trigger('change');
+		$('#gl_accdep').val(data.gl_accdep).trigger('change');
+		$('#gl_depexpense').val(data.gl_depexpense).trigger('change');
 		});
 });
 

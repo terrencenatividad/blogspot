@@ -16,7 +16,7 @@ class asset_master extends wc_model {
 		
 		if ($result) {
 			$insert_id = $this->db->getInsertId();
-			$this->log->saveActivity("Create Asset Master [$insert_id]");
+			$this->log->saveActivity("Create Asset [$insert_id]");
 		}
 
 		return $result;
@@ -34,7 +34,7 @@ class asset_master extends wc_model {
 							
 		if ($result) {
 			$insert_id = $this->db->getInsertId();
-			$this->log->saveActivity("Create Asset Master Schedule [$insert_id]");
+			$this->log->saveActivity("Create Asset Schedule [$insert_id]");
 		}
 
 		return $result;
@@ -51,7 +51,7 @@ class asset_master extends wc_model {
 							->runUpdate();
 		
 		if ($result) {
-			$this->log->saveActivity("Update Asset Master [$id]");
+			$this->log->saveActivity("Update Asset [$id]");		
 		}
 
 		return $result;
@@ -79,15 +79,15 @@ class asset_master extends wc_model {
 
 	public function deleteAssetMaster($data) {
 		$error_id = array();
-		foreach ($data as $id) {
+				foreach ($data as $id) {
 			$result =  $this->db->setTable('asset_master')
 								->setWhere("id = '$id'")
 								->setLimit(1)
 								->runDelete();
 		
-			if ($result) {
-				$this->log->saveActivity("Delete Asset Master [$id]");
-			} else {
+		if ($result) {
+			$this->log->saveActivity("Delete Asset [$id]");
+		} else {
 				if ($this->db->getError() == 'locked') {
 					$error_id[] = $id;
 				}

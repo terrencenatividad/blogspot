@@ -226,7 +226,7 @@
 					<div role="tabpanel" class="tab-pane active" id="ordered">
 					<?php endif ?>
 
-					<div class="box-body table-responsive no-padding">				
+					<div class="box-body table-responsive no-padding">
 						<table class="table table-hover table-condensed table-sidepad" id="itemsTable">
 							<thead>
 								<tr class="info">
@@ -1104,7 +1104,7 @@
 						</table>
 					</div>
 					<div role="tabpanel" class="tab-pane" id="cancelled">
-						<table class="table table-hover table-condensed table-sidepad" id="itemsTable2">
+						<table class="table table-hover table-condensed table-sidepad" id="itemsTable3">
 							<thead>
 								<tr class="info">
 									<th class="col-md-2 text-center">Item</th>

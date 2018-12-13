@@ -134,29 +134,30 @@
 			return $errmsg;
         }
         
-        public function getIPOPagination() {
-            $result = $this->db->setTable("purchaseorder")
-                            ->setFields("transactiondate, voucherno, amount")
-                            ->setWhere("stat='open'")
+        public function getPRPagination() {
+            $result = $this->db->setTable("purchasereceipt")
+                            ->setFields("voucherno, source_no, transactiondate, amount")
+                            ->setWhere("stat='Received' AND transtype='IPO'")
                             ->setOrderBy("voucherno ASC")
                             ->runPagination();
             return $result;
         }
 
-        public function getItemPagination($ipo_number){
-            $result = $this->db->setTable("purchaseorder_details")
-                            ->setFields("voucherno, itemcode, detailparticular, receiptqty, receiptuom")
-                            ->setWhere("voucherno='".$ipo_number."'")
-                            ->setOrderBy("voucherno ASC")
+        public function getItemPagination($pr_number){
+            $result = $this->db->setTable("purchasereceipt_details")
+                            ->setFields("voucherno, itemcode, linenum, detailparticular, receiptqty, receiptuom")
+                            ->setWhere("voucherno='".$pr_number."'")
+                            ->setOrderBy("voucherno ASC, linenum ASC")
                             ->runPagination();
             return $result;
         }
 
         public function getTaggedItemQty($ipo, $itemcode, $job=""){
             
-            $result = $this->db->setTable("job_details")
-                            ->setFields("SUM(qty) AS count")
-                            ->setWhere("ipo_no='".$ipo."' AND itemcode='".$itemcode."' AND job_no != '".$job."'")
+            $result = $this->db->setTable("job_details jd")
+                            ->setFields("SUM(jd.qty) AS count")
+                            ->leftJoin("job j ON j.job_no = jd.job_no")
+                            ->setWhere("jd.ipo_no='".$ipo."' AND jd.itemcode='".$itemcode."' AND jd.job_no != '".$job."' AND j.stat='on-going'")
                             ->runSelect()
                             ->getResult();
             return $result;
@@ -212,7 +213,7 @@
         
         public function updateJobValues($values, $job_no){
             $result = $this->db->setTable("job")
-                            ->setFields("job_no, ipo_no, notes, transactiondate, stat")
+                            ->setFields("job_no, notes, transactiondate, stat")
                             ->setValues($values)
                             ->setWhere("job_no = '".$job_no."'")
                             ->runUpdate();
@@ -221,8 +222,9 @@
 
         public function retrieveExistingJob($job){
             $result = $this->db->setTable("job_details")
-                            ->setFields("ipo_no, itemcode, qty")
+                            ->setFields("ipo_no, itemcode, linenum, description, qty")
                             ->setWhere("job_no='".$job."'")
+                            ->setOrderBy("ipo_no ASC, linenum ASC")
                             ->runSelect()
                             ->getResult();
             return $result;
@@ -230,7 +232,7 @@
 
         public function getJob($job){
             $result = $this->db->setTable("job")
-                            ->setFields("transactiondate,notes")
+                            ->setFields("transactiondate,notes,stat")
                             ->setWhere("job_no='".$job."'")
                             ->runSelect()
                             ->getResult();
