@@ -763,7 +763,7 @@ class controller extends wc_controller
 		$itemuom = [];
 		$table = '';
 		foreach ($result as $key => $row) {
-			$table .= '<tr class="clone parts">';
+			$table .= '<tr class="parts clone '.$linenum.'">';
 			$table .= '<td>' . $ui->formField('dropdown')
 								->setPlaceholder('Select One')
 								->setSplit('	', 'col-md-12')

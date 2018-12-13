@@ -431,6 +431,9 @@
 										for($i = 0; $i < count($details); $i++)
 										{
 											$itemcode 	 		= $details[$i]->itemcode;
+											$parentcode 	 	= $details[$i]->parentcode;
+											$isbundle 	 		= $details[$i]->isbundle;
+											$parentline 	 	= $details[$i]->parentline;
 											$detailparticular	= htmlspecialchars($details[$i]->detailparticular);
 											$quantity 			= isset($details[$i]->issueqty) ?	number_format($details[$i]->issueqty,0) 	: 	"1";
 											$itemprice 			= $details[$i]->unitprice;
@@ -449,7 +452,11 @@
 											$discountedamount 	= (isset($details[$i]->discountedamount))? $details[$i]->discountedamount : 0;
 											
 									?>	
-											<tr class="clone" valign="middle">
+											<?php if ($parentcode == '') { ?>
+												<tr class="clone" valign="middle" style = "font-weight:bold">
+											<?php } else { ?>
+												<tr class="clone" valign="middle" style = "font-weight:normal">
+											<?php } ?>
 												<td class = "remove-margin">
 												<?php
 													echo $ui->formField('dropdown')
@@ -466,7 +473,7 @@
 												<input type = "hidden" id = <?php echo 'h_itemcode['.$row.']'; ?> name = <?php echo 'h_itemcode['.$row.']'; ?> class = "h_itemcode" value = "<?php echo $itemcode ?>">
 												<input type = "hidden" id = <?php echo 'h_parentcode['.$row.']'; ?> name = <?php echo 'h_parentcode['.$row.']'; ?> class = "h_parentcode" value = "<?php echo $parentcode ?>">
 												<input type = "hidden" id = <?php echo 'h_isbundle['.$row.']'; ?> name = <?php echo 'h_isbundle['.$row.']'; ?> class = "h_isbundle" value = "<?php echo $isbundle ?>">
-												<input type = "text" id = <?php echo 'h_parentline['.$row.']'; ?> name = <?php echo 'h_parentline['.$row.']'; ?> class = "h_parentline" value = "<?php echo $parentline ?>">
+												<input type = "hidden" id = <?php echo 'h_parentline['.$row.']'; ?> name = <?php echo 'h_parentline['.$row.']'; ?> class = "h_parentline" value = "<?php echo $parentline ?>">
 											</td>
 											<td class = "remove-margin">
 												<?php
@@ -1639,7 +1646,6 @@ function getItemDetails(id)
 			else {
 				document.getElementById('h_isbundle'+row).value 			=	"No";
 			}
-			
 		});
 
 	}
@@ -1653,13 +1659,13 @@ $('.itemcode').on('change', function() {
 	$.post('<?=BASE_URL?>sales/sales_order/ajax/get_bundle_items',"itemcode="+itemcode+"&linenum="+linenum, function(data) {
 		if(data.table != "") {
 		var table = data.table;
-			row.closest('tr').addClass('bundle_item');
+			row.closest('tr').attr('class', 'clone ' + linenum);
 			$('#itemsTable tbody tr.clone select').select2('destroy');
-			row.closest('tr.bundle_item').after(table);
+			row.closest('tr.'+linenum).after(table);
 			row.closest('tr').find('.h_parentline').val(linenum);
 		} else {
-			if(row.closest('tr').hasClass('bundle_item')){
-				row.closest('tr').nextAll('tr.parts').remove();
+			if(row.closest('tr').hasClass(linenum))	{
+				row.closest('tr').nextAll('tr.'+linenum).remove();
 			}
 		}
 		resetIds();
@@ -2589,6 +2595,7 @@ $(document).ready(function(){
 			var rowCount 	= table.tBodies[0].rows.length;;
 
 			deleteItem(id);
+			
 			
 			$('#deleteItemModal').modal('hide');
 		});
