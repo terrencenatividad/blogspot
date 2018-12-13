@@ -236,11 +236,11 @@
 									<div class="form-group">
 										<label class="control-label col-md-4">Job Items </label>
 										<div class="col-md-8">
-											<?php if($ajax_task != 'ajax_view') {?>
+											<?php if($ajax_task != 'ajax_view') { ?>
 												<input type="hidden" name="jobs_tagged" id = "jobs_tagged" value = "<?php echo $job_no; ?>">
 												<button type="button" id="job" class="btn btn-block btn-success btn-flat" <?php echo $val ?>>
 													<em class="pull-left"><small>Click to tag job items</small></em>
-													<strong id="job" class="pull-right"></strong>
+													<strong id="job_text" class="pull-right"></strong>
 												</button>
 											<?php } else { ?>
 												<span><?php echo $job_no; ?></span>
@@ -1258,6 +1258,7 @@
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
 				var get = $(this).val();
 				job.push(get);
+				$('#job_text').html(job.length);
 				$('#assetid').attr('disabled', 'disabled');
 				$('#jobModal').modal('hide');
 			});
