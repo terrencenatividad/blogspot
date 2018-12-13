@@ -468,10 +468,21 @@ class controller extends wc_controller
 		$ap_details['checkstat'] = 'uncleared';
 		$ap_details['voucherno'] = $ap['voucherno'];
 		$ap_details['source'] = $ap['referenceno'];
+		$rate = str_replace(',', '', $ap['exchangerate']);
+		$debit = str_replace(',', '', $ap_details['debit']);
+		$credit = str_replace(',', '', $ap_details['credit']);
+		$convdebit = [];
+		$convcredit = [];
+		foreach($debit as $row) {
+			$convdebit[] = $rate * $row;
+		}
+		foreach($credit as $row) {
+			$convcredit[] = $rate * $row;
+		}
 		$ap_details['debit'] = str_replace(',', '', $ap_details['debit']);
 		$ap_details['credit'] = str_replace(',', '', $ap_details['credit']);
-		$ap_details['converteddebit'] = str_replace(',', '', $post['currencydebit']);
-		$ap_details['convertedcredit'] = str_replace(',', '', $post['currencycredit']);
+		$ap_details['converteddebit'] = $convdebit;
+		$ap_details['convertedcredit'] = $convcredit;
 
 		$account = $this->input->post('account');
 		$check = false;
