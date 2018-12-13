@@ -31,7 +31,7 @@
 		public function retrieveItemDetails($itemcode, $customer)
 		{
 			$fields = "i.itemname as itemname, i.itemdesc as itemdesc, i.uom_base, p.itemprice as price, template.adjusted_price as c_price, 
-						i.receivable_account item_receivable, i.revenue_account item_revenue, i.expense_account item_expense, i.payable_account item_payable, 
+						i.receivable_account item_receivable, i.revenue_account item_revenue, i.expense_account item_expense, i.payable_account item_payable, i.bundle bundle,
 						i.inventory_account item_inventory, class.receivable_account class_receivable, class.revenue_account class_revenue, class.expense_account class_expense, 
 						class.payable_account class_payable, class.inventory_account class_inventory, u.uomcode, template.stat as stat";
 			$cond 	= "i.itemcode = '$itemcode'";
@@ -58,6 +58,18 @@
 								->runSelect()
 								->getRow();
 
+			return $result;
+		}
+
+		public function retrieveBundleDetails($itemcode) {
+			$fields = "CONCAT(bd.item_code,' - ',bd.item_name) as item_name, bd.quantity, bd.detailsdesc, bd.uom, bd.item_code";
+			$result = $this->db->setTable('items i')
+							->leftJoin('bom b ON b.bundle_item_code = i.itemcode')
+							->leftJoin('bomdetails bd ON bd.bom_code = b.bom_code')
+							->setFields($fields)
+							->setWhere("status = 'active' AND b.bundle_item_code = '$itemcode'")
+							->runSelect()
+							->getResult();
 			return $result;
 		}
 
@@ -393,11 +405,11 @@
 								->setWhere($cond)
 								->runUpdate();
 			}
-
+			var_dump($data);
 			/**INSERT DETAILS**/
 			foreach($data as $postIndex => $postValue)
 			{
-				if($postIndex == 'itemcode' || $postIndex=='detailparticulars' || $postIndex == 'warehouse' || 
+				if($postIndex == 'itemcode' || $postIndex == 'h_itemcode' || $postIndex == 'h_parentcode' || $postIndex == 'h_isbundle' || $postIndex == 'h_parentline' || $postIndex=='detailparticulars' || $postIndex == 'warehouse' || 
 					$postIndex == 'quantity' ||  $postIndex == 'itemprice' || $postIndex == 'discount'|| $postIndex == 'amount' || 
 					$postIndex == 'h_amount'|| $postIndex == 'uom' || $postIndex == 'taxamount' || $postIndex == 'taxcode' || 
 					$postIndex == 'taxrate' || $postIndex == 'itemdiscount' || $postIndex == 'discountedamount' ) 
@@ -436,7 +448,10 @@
 			
 			foreach($tempArray as $tempArrayIndex => $tempArrayValue)
 			{
-				$itemcode 			=	$tempArrayValue['itemcode'];
+				$itemcode 			=	$tempArrayValue['h_itemcode'];
+				$parentcode 		=	$tempArrayValue['h_parentcode'];
+				$isbundle 			=	$tempArrayValue['h_isbundle'];
+				$h_parentline 		=	$tempArrayValue['h_parentline'];
 				$detailparticular 	= 	$tempArrayValue['detailparticulars'];
 				$quantity 			=	$tempArrayValue['quantity'];
 				$warehouse 			=  	$tempArrayValue['warehouse'];
@@ -459,12 +474,15 @@
 
 				$convuom 			= 	$tempArrayValue['uom'];
 
-				if( $tempArrayValue['itemcode'] != "" )
+				if( $tempArrayValue['h_itemcode'] != "" )
 				{
 					$data_insert["voucherno"]         	= $voucherno;
 					$data_insert['transtype']         	= 'SO';
 					$data_insert['linenum']	        	= $linenum;
 					$data_insert['itemcode']	  		= $itemcode;
+					$data_insert['parentcode']	  		= $parentcode;
+					$data_insert['isbundle']	  		= $isbundle;
+					$data_insert['parentline']	  		= $h_parentline;
 					$data_insert['detailparticular']	= $detailparticular;
 					$data_insert['warehouse']			= $warehouse;
 					$data_insert['issueuom']			= $uom;
@@ -492,7 +510,6 @@
 
 			/**INSERT IR DETAILS**/
 			$isDetailExist	= $this->getValue($detailInvTable, array("COUNT(*) as count"),"voucherno = '$voucherno'");
-
 			if($isDetailExist[0]->count == 0 && $task == 'create' )
 			{
 				$this->db->setTable($detailInvTable)
