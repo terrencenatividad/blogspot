@@ -295,7 +295,7 @@ class report_model extends wc_model {
 		$ap = $this->db->setTable('accountspayable ap')
 						->leftJoin('ap_details apd ON ap.companycode = apd.companycode AND ap.voucherno = apd.voucherno')
 						->leftJoin('chartaccount coa ON coa.id = apd.accountcode')
-						->leftJoin('asset_master am ON am.asset_number = ap.assetcode')
+						->leftJoin('asset_master am ON am.asset_number = ap.assetid')
 						->setFields($apfields)
 						->setWhere("ap.stat IN('open','posted','cancelled') AND accountname = 'Fixed Asset'")
 						->buildSelect();
