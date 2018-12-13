@@ -1236,6 +1236,25 @@
 			}
 		});
 
+		$('#exchangerate').on('blur', function() {
+			var row = '';
+			var total = 0;
+			var rate = $(this).val();
+			$('.currencyamount').each(function() {
+				var debit = $(this).closest('tr').find('.debit').val();
+				var credit = $(this).closest('tr').find('.credit').val();
+				if(debit != '') {
+					row = $(this).closest('tr').find('.debit');
+					total = debit * rate;
+				} else {
+					row = $(this).closest('tr').find('.credit');
+					total = credit * rate;
+				}
+				row.closest('tr').find('.currencyamount').val(addComma(total));
+				sumCurrencyAmount();
+			});
+		});
+
 		$('#itemsTable').on('blur', '.credit', function() {
 			var rate = removeComma($('#exchangerate').val());
 			var credit = removeComma($(this).val());
