@@ -576,11 +576,13 @@
 			n.removeAttr('readonly', '').val(n.attr('data-value')).trigger('blur');
 		});
 		$('#ordered_tableList').on('click', 'tr[data-id]', function() {
-			var so = $(this).attr('data-id');
-			$('#source_no').val(so).trigger('blur');
-			$('#ordered_list_modal').modal('hide');
-			loadPackingListDetails();
-		});
+ 			var so = $(this).attr('data-id');
+			var address = $(this).attr('data-address');
+ 			$('#source_no').val(so).trigger('blur');
+			$('#s_address').val(address).trigger('blur');
+ 			$('#ordered_list_modal').modal('hide');
+ 			loadPackingListDetails();
+ 		});
 		function loadPackingListDetails() {
 			var voucherno = $('#source_no').val();
 			if (voucherno) {

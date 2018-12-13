@@ -234,13 +234,14 @@
 								</div>
 								<div class="col-md-6">
 									<div class="form-group">
+										<?php $tags = explode(',', $job_no); ?>
 										<label class="control-label col-md-4">Job Items </label>
 										<div class="col-md-8">
 											<?php if($ajax_task != 'ajax_view') {?>
 												<input type="hidden" name="jobs_tagged" id = "jobs_tagged" value = "<?php echo $job_no; ?>">
 												<button type="button" id="job" class="btn btn-block btn-success btn-flat" <?php echo $val ?>>
 													<em class="pull-left"><small>Click to tag job items</small></em>
-													<strong id="job" class="pull-right"></strong>
+													<strong id="job" class="pull-right"><?php echo count($tags); ?></strong>
 												</button>
 											<?php } else { ?>
 												<span><?php echo $job_no; ?></span>
@@ -1082,6 +1083,14 @@
 	</div>
 
 	<script>
+	$(document).ready(function() {
+		if(removeComma($('.credit').val()) == 0) {
+			$('.credit').attr('readonly', 'readonly');
+		} else {
+			$('.debit').attr('readonly', 'readonly');
+		}
+	});
+
 		$('#btnCancel').click(function() 
 		{
 			$('#cancelModal').modal('show');
