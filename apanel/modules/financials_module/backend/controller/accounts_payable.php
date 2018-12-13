@@ -131,6 +131,9 @@ class controller extends wc_controller
 		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList($data);
 		$data['account_list'] = $this->accounts_payable->retrieveAccounts();
 		$data["business_type_list"]   = $this->accounts_payable->getBusiness();
+		$checker_pr = $this->accounts_payable->checkRefNo($data['referenceno']);
+		$checker = ($checker_pr) ? true : false;
+		$data['checker'] = $checker;
 		$data['details'] = $details;
 		$data['currency'] = $data['currencycode'];
 		$data['address'] = $det['address1'];
