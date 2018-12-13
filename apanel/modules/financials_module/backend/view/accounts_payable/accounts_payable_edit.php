@@ -1141,6 +1141,8 @@
 				debit_currency = $(this).val() * rate;
 				$(this).closest('tr').find('.currencyamount').val(addComma(debit_currency));
 				$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
+				$(this).closest('tr').find('.credit').attr('data-validation', 'decimal');
+				$(this).closest('tr').find('.asterisk').html('');
 				sumDebit();
 				sumCurrencyAmount();
 			} else {
@@ -1155,6 +1157,8 @@
 				credit_currency = $(this).val() * rate;
 				$(this).closest('tr').find('.currencyamount').val(addComma(credit_currency));
 				$(this).closest('tr').find('.debit').attr('readonly', 'readonly');
+				$(this).closest('tr').find('.debit').attr('data-validation', 'decimal');
+				$(this).closest('tr').find('.asterisk').html('');
 				sumCredit();
 				sumCurrencyAmount();
 			} else {
