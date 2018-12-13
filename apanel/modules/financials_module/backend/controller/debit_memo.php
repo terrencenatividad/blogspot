@@ -11,8 +11,11 @@ class controller extends wc_controller {
 		$this->session			= new session();
 		$this->fields 			= array(
 			'voucherno',
+			'job_no',
 			'transactiondate',
+			'currencycode',
 			'referenceno',
+			'exchangerate',
 			'remarks',
 			'proformacode',
 			'partner',
@@ -57,6 +60,9 @@ class controller extends wc_controller {
 		$data['show_input']			= true;
 		$data['restrict_dm'] 		= true;
 		$data['status'] 			= false;
+		$data['currencycodes'] = $this->dm_model->getCurrencyCode();
+		$data['currency'] = 'PHP';
+		$data["exchangerate"]       = "1.00";
 		$this->view->load('debit_memo/debit_memo', $data);
 	}
 
@@ -83,6 +89,8 @@ class controller extends wc_controller {
 		$data['show_input']			= true;
 		$data['restrict_dm'] 		= true;
 		$data['status'] 			= false;
+		$data['currencycodes'] = $this->dm_model->getCurrencyCode();
+		$data['currency'] = $data['currencycode'];
 		$this->view->load('debit_memo/debit_memo', $data);
 	}
 
@@ -112,6 +120,8 @@ class controller extends wc_controller {
 		$data['show_input']			= false;
 		$data['restrict_dm'] 		= $restrict_dm;
 		$data['status']				= $status;
+		$data['currencycodes'] = $this->dm_model->getCurrencyCode();
+		$data['currency'] = $data['currencycode'];
 		$this->view->load('debit_memo/debit_memo', $data);
 	}
 
@@ -298,6 +308,35 @@ class controller extends wc_controller {
 			'partnername' 		=> $details[0]->partnername
 
 		);
+	}
+
+	private function ajax_get_currency_val() {
+		$currencycode = $this->input->post('currencycode');
+		$result = $this->dm_model->getExchangeRate($currencycode);
+		return array("exchangerate" => $result->exchangerate);
+	}
+
+	private function ajax_list_jobs() {
+		$jobs_tagged = $this->input->post('jobs_tagged');
+		$tags = explode(',', $jobs_tagged);
+		$pagination = $this->dm_model->getJobList();
+		$table = '';
+
+		if (empty($pagination->result)) {
+			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+		}
+
+		foreach($pagination->result as $key => $row)
+		{
+			$table	.= '<tr>';
+			$check = in_array($row->job_no, $tags) ? 'checked' : '';
+			$table	.= '<td class = "text-center"><input type = "checkbox" name = "jobno[]" id = "jobno" class = "jobno" value = "'.$row->job_no.'" '.$check.'></td>';
+			$table	.= '<td>'.$row->job_no.'</td>';
+			$table	.= '</tr>';
+		}
+
+		$pagination->table = $table;
+		return $pagination;
 	}
 
 }

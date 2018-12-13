@@ -11,12 +11,16 @@ class controller extends wc_controller {
 		$this->session			= new session();
 		$this->fields 			= array(
 			'voucherno',
+			'job_no',
 			'transactiondate',
+			'currencycode',
 			'referenceno',
+			'exchangerate',
 			'remarks',
 			'proformacode',
 			'partner',
 			'amount',
+			'convertedamount',
 			'si_no',
 			'sr_amount',
 			'stat'
@@ -55,6 +59,9 @@ class controller extends wc_controller {
 		$data['show_input']			= true;
 		$data['restrict_cm'] 		= true;
 		$data['status'] 			= false;
+		$data['currencycodes'] = $this->cm_model->getCurrencyCode();
+		$data['currency'] = 'PHP';
+		$data["exchangerate"]       = "1.00";
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
 
@@ -82,6 +89,8 @@ class controller extends wc_controller {
 		$data['show_input']			= true;
 		$data['restrict_cm'] 		= true;
 		$data['status'] 			= false;
+		$data['currencycodes'] = $this->cm_model->getCurrencyCode();
+		$data['currency'] = $data['currencycode'];
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
 
@@ -112,6 +121,8 @@ class controller extends wc_controller {
 		$data['restrict_cm'] 		= $restrict_cm;
 		$data['status']				= $status;
 		$data['display_edit'] 		= $display_edit;
+		$data['currencycodes'] = $this->cm_model->getCurrencyCode();
+		$data['currency'] = $data['currencycode'];
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
 
@@ -205,14 +216,32 @@ class controller extends wc_controller {
 		// 	$data['stat']		= 'posted';
 		// 	$data2['stat']		= 'posted';
 		// }
+		//$ap['job_no'] = $post['job'];
+		$result						= '';
+		$job_no						= $this->input->post('job');
 		$submit						= $this->input->post('submit');
 		$data						= $this->input->post($this->fields);
 		$data2						= $this->input->post($this->fields2);
+		
 		$seq						= new seqcontrol();
+		$data['job_no']				= $job_no;
 		$data['voucherno']			= $seq->getValue('CM');
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
+		
+		$data['amount'] 			= str_replace(',', '', $this->input->post('total_debit'));
+		$data['convertedamount'] 	= $this->input->post('total_currency');
+		$data2['converteddebit'] 	= str_replace(',', '', $this->input->post('currencydebit'));
+		
 		// $result					= $this->cm_model->updateJournalVoucher($data, $data2, $this->temp, (($finalized) ? 'Create' : false));
-		$result						= $this->cm_model->saveJournalVoucher($data, $data2);
+
+		var_dump($data, $data2);
+
+		if($data['job_no'] != '') {
+			//filter to save in financials_job
+			$result = 'failed to save in voucher';
+		}else {
+			$result						= $this->cm_model->saveJournalVoucher($data, $data2);
+		}
 
 		$redirect_url = MODULE_URL;
 		if ($submit == 'save_new') {
@@ -238,6 +267,7 @@ class controller extends wc_controller {
 		$data2					= $this->input->post($this->fields2);
 		$data2['stat']			= 'posted';
 		$result					= $this->cm_model->updateJournalVoucher($data, $data2, $voucherno, 'Update');
+		$data['job_no']				= $this->input->post('job');
 		return array(
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
@@ -300,6 +330,35 @@ class controller extends wc_controller {
 			'partnername' 		=> $details[0]->partnername
 
 		);
+	}
+
+	private function ajax_list_jobs() {
+		$jobs_tagged = $this->input->post('jobs_tagged');
+		$tags = explode(',', $jobs_tagged);
+		$pagination = $this->cm_model->getJobList();
+		$table = '';
+
+		if (empty($pagination->result)) {
+			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+		}
+
+		foreach($pagination->result as $key => $row)
+		{
+			$table	.= '<tr>';
+			$check = in_array($row->job_no, $tags) ? 'checked' : '';
+			$table	.= '<td class = "text-center"><input type = "checkbox" name = "jobno[]" id = "jobno" class = "jobno" value = "'.$row->job_no.'" '.$check.'></td>';
+			$table	.= '<td>'.$row->job_no.'</td>';
+			$table	.= '</tr>';
+		}
+
+		$pagination->table = $table;
+		return $pagination;
+	}
+
+	private function ajax_get_currency_val() {
+		$currencycode = $this->input->post('currencycode');
+		$result = $this->cm_model->getExchangeRate($currencycode);
+		return array("exchangerate" => $result->exchangerate);
 	}
 
 }

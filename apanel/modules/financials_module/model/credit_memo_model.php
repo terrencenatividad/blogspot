@@ -7,7 +7,6 @@ class credit_memo_model extends wc_model {
 	}
 	
 	public function saveJournalVoucher($data, $data2) {
-		
 		$debit		= $this->removeComma($data2['debit']);
 		$sr_amount	= isset($data2['sr_amount']) 	?	$this->removeComma($data2['sr_amount']) : 0;
 		$total	= 0;
@@ -411,6 +410,37 @@ class credit_memo_model extends wc_model {
 					->getResult();
 		return $result;
 
-	}	
+	}
+
+	public function getJobList() {
+		$result = $this->db->setTable('job')
+		->setFields("job_no")
+		->setGroupBy('job_no')
+		->runPagination();
+		
+		return $result;
+	}
+
+	public function getCurrencyCode()
+	{
+		$result = $this->db->setTable('currency')
+		->setFields("currencycode ind, currencycode val")
+		->runSelect()
+		->getResult();
+		
+		return $result;
+	}
+
+	public function getExchangeRate($currencycode)
+	{
+		$result = $this->db->setTable('exchangerate')
+		->setFields("exchangerate")
+		->setWhere("exchangecurrencycode = '$currencycode'")
+		->setLimit(1)
+		->runSelect()
+		->getRow();
+		
+		return $result;
+	}
 
 }
