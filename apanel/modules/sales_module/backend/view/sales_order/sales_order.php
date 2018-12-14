@@ -2365,6 +2365,10 @@ $(document).ready(function(){
 			resetIds();
 		});
 
+		$('#changeCustomerModal').on('click','#disc_no',function(){
+			$('#changeCustomerModal').modal('hide');
+		});
+
 		// Open Modal
 		$('#customer_button').click(function()
 		{
