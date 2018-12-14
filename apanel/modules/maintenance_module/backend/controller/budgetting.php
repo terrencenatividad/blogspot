@@ -18,6 +18,7 @@ class controller extends wc_controller
 			'budget_check',
 			'owner',
 			'prepared_by',
+			'approver',
 			'approved_by',
 			'period_start',
 			'period_end',
@@ -101,7 +102,7 @@ class controller extends wc_controller
 		$year = date('Y');
 		$date = date('Y-m-d', strtotime($budget['transactiondate']));
 		$budget['transactiondate'] = $date;
-		$budget['status'] = 'active';
+		$budget['status'] = 'for approval';
 		$budget['period_start'] = $year . '-01-01';
 		$budget['period_end'] = $year . '-12-31';
 		$budget['effectivity_date'] = $year . '-01-01';
@@ -122,7 +123,7 @@ class controller extends wc_controller
 		$date = date('Y-m-d', strtotime($budget['transactiondate']));
 		$year = date('Y');
 		$date = date('Y-m-d', strtotime($budget['transactiondate']));
-		$budget['status'] = 'active';
+		$budget['status'] = 'for approval';
 		$budget['transactiondate'] = $date;
 		$budget['period_start'] = $year . '-01-01';
 		$budget['period_end'] = $year . '-12-31';
@@ -145,11 +146,14 @@ class controller extends wc_controller
 	private function colorStat($stat) {
 		$color = 'default';
 		switch ($stat) {
-			case 'active':
+			case 'approved':
 			$color = 'success';
 			break;
-			case 'inactive':
-			$color = 'warning';
+			case 'rejected':
+			$color = 'danger';
+			break; 
+			case 'for approval':
+			$color = 'info';
 			break; 
 		}
 		return '<span class="label label-' . $color . '">' . strtoupper($stat) . '</span>';
@@ -164,23 +168,28 @@ class controller extends wc_controller
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach($pagination->result as $row) {
-			$show_activate 		= ($row->status != 'inactive');
-			$show_deactivate 	= ($row->status != 'active');
+			$show_button = ($row->status == 'for approval');
+			$show_supplemental = ($row->status == 'approved');
 			$dropdown = $this->ui->loadElement('check_task')
 			->addView()
-			->addEdit()
+			->addEdit($show_button)
 			->addOtherTask(
-				'Activate',
-				'arrow-up',
-				$show_deactivate
+				'Approve',
+				'thumbs-up',
+				$show_button
 			)
 			->addOtherTask(
-				'Deactivate',
-				'arrow-down',
-				$show_activate
-			)	
-			->addDelete()
-			->addCheckbox()
+				'Reject',
+				'thumbs-down',
+				$show_button
+			)
+			->addOtherTask(
+				'Supplemental',
+				'plus-sign',
+				$show_supplemental
+			)
+			->addDelete($show_button)
+			->addCheckbox($show_button)
 			->setValue($row->id)
 			->draw();
 			
@@ -248,10 +257,14 @@ class controller extends wc_controller
 	private function ajax_get_accounts_edit() {
 		$budgetcode	= $this->input->post('budgetcode');
 		$task	= $this->input->post('ajax_task');
+		if($task == 'ajax_view') {
 		$list = $this->budgetting->getBudgetAccounts($budgetcode);
+		} else {
+			$list = $this->budgetting->getBudgetAccountsOnEdit($budgetcode);
+		}
 		$table = '';
 		foreach($list as $row) {	
-		$show_input = ($task == 'ajax_edit') ? true : false;		
+			$show_input = ($task == 'ajax_edit') ? true : false;		
 			$table .= '<tr>';
 			$table .= '<td class = "hidden">' .$this->ui->formField('text')
 			->setSplit('col-md-3', 'col-md-12')
@@ -322,73 +335,93 @@ class controller extends wc_controller
 			return array('itemname' => $name, 'itemdesc' => $desc, 'uom' => $uom_base);
 		}
 
+		private function ajax_update_status() {
+			$fields = $this->input->post(array('approved_by', 'status'));
+			$status = $this->input->post('status');
+			$id = $this->input->post('id');
+			$get_approver = $this->budgetting->getApprover($id);
+			$approver = $get_approver->approver;
+			$session			= new session();
+			$get = $session->get('login');
+			$username = $get['username'];
+			if($username == $approver) {
+				$fields['status'] = $status;
+				$fields['approved_by'] = $username;
+				$result = $this->budgetting->updateBudgetStatus($fields, $id);
+			} else {
+				$result = false;
+			}
+
+			return array('success' => $result);
+		}
+
 	// activate/deactivate
 
-		private function ajax_edit_activate() {
-			$code = $this->input->post('id');
-			$data['status'] = 'active';
+		// private function ajax_edit_activate() {
+		// 	$code = $this->input->post('id');
+		// 	$data['status'] = 'active';
 
-			$result = $this->budgetting->updateStat($data,$code);
-			return array(
-				'redirect'	=> MODULE_URL,
-				'success'	=> $result
-			);
-		}
+		// 	$result = $this->budgetting->updateStat($data,$code);
+		// 	return array(
+		// 		'redirect'	=> MODULE_URL,
+		// 		'success'	=> $result
+		// 	);
+		// }
 
-		private function ajax_edit_deactivate() {
-			$code = $this->input->post('id');
-			$data['status'] = 'inactive';
+		// private function ajax_edit_deactivate() {
+		// 	$code = $this->input->post('id');
+		// 	$data['status'] = 'inactive';
 
-			$result = $this->budgetting->updateStat($data,$code);
-			return array(
-				'redirect'	=> MODULE_URL,
-				'success'	=> $result
-			);
-		}
+		// 	$result = $this->budgetting->updateStat($data,$code);
+		// 	return array(
+		// 		'redirect'	=> MODULE_URL,
+		// 		'success'	=> $result
+		// 	);
+		// }
 
-		private function update_multiple_deactivate() {
-			$posted_data 			=	$this->input->post(array('ids'));
+		// private function update_multiple_deactivate() {
+		// 	$posted_data 			=	$this->input->post(array('ids'));
 
-			$data['status'] 			=	'inactive';
+		// 	$data['status'] 			=	'inactive';
 
-			$posted_ids 			=	$posted_data['ids'];
-			$id_arr 				=	explode(',',$posted_ids);
+		// 	$posted_ids 			=	$posted_data['ids'];
+		// 	$id_arr 				=	explode(',',$posted_ids);
 
-			foreach($id_arr as $key => $value)
-			{
-				$result 			= 	$this->budgetting->updateStat($data, $value);
-			}
+		// 	foreach($id_arr as $key => $value)
+		// 	{
+		// 		$result 			= 	$this->budgetting->updateStat($data, $value);
+		// 	}
 
-			if($result)
-			{
-				$msg = "success";
-			} else {
-				$msg = "Failed to Update.";
-			}
+		// 	if($result)
+		// 	{
+		// 		$msg = "success";
+		// 	} else {
+		// 		$msg = "Failed to Update.";
+		// 	}
 
-			return $dataArray = array( "msg" => $msg );
-		}
+		// 	return $dataArray = array( "msg" => $msg );
+		// }
 
-		private function update_multiple_activate() {
-			$posted_data 			=	$this->input->post(array('ids'));
+		// private function update_multiple_activate() {
+		// 	$posted_data 			=	$this->input->post(array('ids'));
 
-			$data['status'] 			=	'active';
+		// 	$data['status'] 			=	'active';
 
-			$posted_ids 			=	$posted_data['ids'];
-			$id_arr 				=	explode(',',$posted_ids);
+		// 	$posted_ids 			=	$posted_data['ids'];
+		// 	$id_arr 				=	explode(',',$posted_ids);
 
-			foreach($id_arr as $key => $value)
-			{
-				$result 			= 	$this->budgetting->updateStat($data, $value);
-			}
+		// 	foreach($id_arr as $key => $value)
+		// 	{
+		// 		$result 			= 	$this->budgetting->updateStat($data, $value);
+		// 	}
 
-			if($result)
-			{
-				$msg = "success";
-			} else {
-				$msg = "Failed to Update.";
-			}
+		// 	if($result)
+		// 	{
+		// 		$msg = "success";
+		// 	} else {
+		// 		$msg = "Failed to Update.";
+		// 	}
 
-			return $dataArray = array( "msg" => $msg );
-		}
+		// 	return $dataArray = array( "msg" => $msg );
+		// }
 	}
