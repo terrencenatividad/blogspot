@@ -1206,7 +1206,7 @@
 			});
 		});
 
-		<?php if($ajax_post != 'create') : ?>
+		<?php if($ajax_task != 'ajax_create') : ?>
 			$(document).ready(function() {
 				sumDebit();
 				sumCredit();
@@ -1234,6 +1234,25 @@
 			} else {
 				$(this).closest('tr').find('.credit').removeAttr('readonly');
 			}
+		});
+
+		$('#exchangerate').on('blur', function() {
+			var row = '';
+			var total = 0;
+			var rate = $(this).val();
+			$('.currencyamount').each(function() {
+				var debit = $(this).closest('tr').find('.debit').val();
+				var credit = $(this).closest('tr').find('.credit').val();
+				if(debit != '') {
+					row = $(this).closest('tr').find('.debit');
+					total = debit * rate;
+				} else {
+					row = $(this).closest('tr').find('.credit');
+					total = credit * rate;
+				}
+				row.closest('tr').find('.currencyamount').val(addComma(total));
+				sumCurrencyAmount();
+			});
 		});
 
 		$('#itemsTable').on('blur', '.credit', function() {

@@ -704,6 +704,10 @@ class controller extends wc_controller
 		{
 			$result = $this->get_details();
 		}
+		else if( $task == 'get_bundle_items' )
+		{
+			$result = $this->get_bundle_items();
+		}
 		else if( $task == 'delete_so' )
 		{
 			$result = $this->delete_so();
@@ -739,6 +743,137 @@ class controller extends wc_controller
 		$result 	= $this->so->retrieveItemDetails($itemcode,$customer);
 		
 		return $result;
+	}
+
+	private function get_bundle_items()
+	{
+		$mainitemcode 	= $this->input->post('itemcode');
+		$linenum 		= $this->input->post('linenum');
+		$ui 			= $this->ui;
+
+		$result 		= $this->so->retrieveBundleDetails($mainitemcode);
+		
+		$cc_entry_data  = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
+		$itemcodes 		= $this->so->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
+
+		$w_entry_data           = array("warehousecode ind","description val");
+		$warehouses 	= $this->so->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
+
+		$itemcode = [];
+		$itemdesc = [];
+		$itemname = [];
+		$itemqty = [];
+		$itemuom = [];
+		$table = '';
+		foreach ($result as $key => $row) {
+			$table .= '<tr class="parts clone '.$linenum.'">';
+			$table .= '<td>' . $ui->formField('dropdown')
+								->setPlaceholder('Select One')
+								->setSplit('	', 'col-md-12')
+								->setName("itemcode[".$key."]")
+								->setId("itemcode[".$key."]")
+								->setList($itemcodes)
+								->setClass('itemcode')
+								->setAttribute(array('disabled', 'true'))
+								->setValue($row->item_code)
+								->draw(true);
+			$table .='<input type = "hidden" id = "h_itemcode["'.$key.'"]" name = "h_itemcode["'.$key.'"]" class = "h_itemcode" value = "'.$row->item_code.'">';
+			$table .='<input type = "hidden" id = "h_parentcode["'.$key.'"]" name = "h_parentcode["'.$key.'"]" class = "h_parentcode" value = "'.$mainitemcode.'">';
+			$table .='<input type = "hidden" id = "h_isbundle["'.$key.'"]" name = "h_isbundle["'.$key.'"]" class = "h_isbundle" value = "No">';
+			$table .='<input type = "hidden" id = "h_parentline["'.$key.'"]" name = "h_parentline["'.$key.'"]" class = "h_parentline" value = "'.$linenum.'">';
+			'</td>';
+			$table .= '<td>' . $ui->formField('text')
+								->setSplit('	', 'col-md-12')
+								->setName("detailparticulars[".$key."]")
+								->setId("detailparticulars[".$key."]")
+								->setAttribute(array('readonly', 'readonly'))
+								->setClass('itemdescription')
+								->setValue($row->detailsdesc) 
+								->draw(true);
+						'</td>';
+			$table .= '<td>' . $ui->formField('dropdown')
+								->setSplit('	', 'col-md-12')
+								->setPlaceholder('Select One')
+								->setName("warehouse[".$key."]")
+								->setAttribute(array('disabled', 'true'))
+								->setId("warehouse[".$key."]")
+								->setClass('warehouse')
+								->setList($warehouses)
+								->setNone('none')
+								->setValue('')
+								->draw(true); 
+			$table .='<input type = "hidden" id = "h_warehouse["'.$key.'"]" name = "h_warehouse["'.$key.'"]" class = "h_warehouse" value = "">';
+			'</td>';
+			$table .= '<td>' . $ui->formField('text')
+								->setSplit('	', 'col-md-12')
+								->setName("quantity[".$key."]")
+								->setAttribute(array('readonly' => 'readonly', 'data-id' => $row->quantity))
+								->setId("quantity[".$key."]")
+								->setClass('quantity text-right ' . $mainitemcode)
+								->setValue('0')
+								->draw(true); 
+			$table .='<input type = "hidden" id = "h_quantity["'.$key.'"]" name = "h_quantity["'.$key.'"]" class = "h_quantity" value = "'.$row->quantity.'">';
+						'</td>';
+			$table .= '<td>' . $ui->formField('text')
+								->setPlaceholder('Select One')
+								->setSplit('	', 'col-md-12')
+								->setName("uom[".$key."]")
+								->setId("uom[".$key."]")
+								->setAttribute(array('readonly', 'readonly'))
+								->setClass('itemuom text-right')
+								->setValue($row->uom)
+								->draw(true); 
+						'</td>';
+			$table .= '<td>' . $ui->formField('text')
+								->setPlaceholder('Select One')
+								->setSplit('	', 'col-md-12')
+								->setAttribute(array('readonly', 'readonly'))
+								->setName("itemprice[".$key."]")
+								->setId("itemprice[".$key."]")
+								->setClass('text-right')
+								->setValue("0.00")
+								->draw(true); 
+						'</td>';
+			$table .= '<td>' . $ui->formField('text')
+								->setPlaceholder('0.00')
+								->setSplit('	', 'col-md-12')
+								->setName("discount[".$key."]")
+								->setId("discount[".$key."]")
+								->setAttribute(array('readonly', 'readonly'))
+								->setClass('itemdiscount text-right')
+								->setValue("0.00")
+								->draw(true); 
+						'</td>';
+			$table .= '<td>' . $ui->formField('dropdown')
+								->setSplit('	', 'col-md-12')
+								->setName("taxcode[".$key."]")
+								->setAttribute(array('disabled', 'true'))
+								->setId("taxcode[".$key."]")
+								->setValue('none')
+								->setList(array('none'=>'none'))
+								->setClass('taxcode')
+								->draw(true); 
+			$table .="<input id = 'taxrate['".$key."']' name = 'taxrate['".$key."']' maxlength = '20' class = 'col-md-12 taxrate' type = 'hidden' value='0' > 
+			<input id = 'taxamount['".$key."']' name = 'taxamount['.$key.']' maxlength = '20' class = 'col-md-12 taxamount' type = 'hidden' >";
+			'</td>';
+			$table .= '<td>' . $ui->formField('text')
+								->setSplit('	', 'col-md-12')
+								->setName("amount[".$key."]")
+								->setAttribute(array('readonly', 'readonly'))
+								->setId("amount[".$key."]")
+								->setClass('itemamount text-right')
+								->setValue("0.00")
+								->draw(true); 
+			$table .="<input id = 'h_amount['".$key."']' name = 'h_amount['".$key."']' maxlength = '20' class = 'col-md-12' type = 'hidden' >
+			<input id = 'itemdiscount['".$key."']' name = 'itemdiscount['".$key."']' maxlength = '20' type = 'hidden' value = ''>
+			<input id = 'discountedamount['".$key."']'' name = 'discountedamount['".$key."']' maxlength = '20' type = 'hidden' value = ''>";
+			'</td>';
+			$table .= '<td class="text-center">
+			<button type="button" class="btn btn-danger btn-flat confirm-delete" disabled data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+			</td>';
+			$table .= '</tr>';
+		}
+		return array('table' => $table);
 	}
 
 	private function get_value()

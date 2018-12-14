@@ -509,6 +509,7 @@ class accounts_payable extends wc_model
 		->buildSelect();
 
 		$ap_fields 	=	array(
+			'main.entereddate as entereddate',
 			"main.voucherno as voucherno", 
 			"main.companycode as companycode", 
 			"main.transactiondate as transactiondate",
@@ -558,6 +559,16 @@ class accounts_payable extends wc_model
 		->setWhere("id IN($accountcode)")
 		->runSelect()
 		->getResult();
+
+		return $result;
+	}
+
+	public function checkCWT($accountcode){
+		$result = $this->db->setTable("chartaccount")
+		->setFields('accountclasscode')
+		->setWhere("id = '$accountcode'")
+		->runSelect()
+		->getRow();
 
 		return $result;
 	}
@@ -1968,6 +1979,14 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
+	public function saveFinancialsJob($fields) {
+		$result = $this->db->setTable('financial_jobs')
+		->setValues($fields)
+		->runInsert(false);
+
+		return $result;
+	}
+
 	public function getAccount($tax_account){
 		$result = $this->db->setTable('atccode a')
 		->setFields("tax_rate,tax_account")
@@ -1976,8 +1995,16 @@ class accounts_payable extends wc_model
 		->runSelect()
 		->getResult();
 		return $result;
+	}
 
+	public function checkVoucherOnFinancialsJob($voucherno){
+		$result = $this->db->setTable('financial_jobs')
+		->setFields('voucherno')
+		->setWhere("voucherno = '$voucherno'")
+		->runSelect(false)
+		->getRow();
 
+		return $result;
 	}
 
 	public function check_if_exists($column, $table, $condition) {
@@ -2050,6 +2077,19 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
+	public function updateFinancialsJobs($fields, $voucherno)
+	{
+		$result = $this->db->setTable('financial_jobs')
+		->setWhere("voucherno = '$voucherno'")
+		->runDelete(false);
+
+		$result = $this->db->setTable('financial_jobs')
+		->setValues($fields)
+		->runInsert(false);
+
+		return $result;
+	}
+
 	public function updateAP($voucherno, $fields)
 	{
 
@@ -2094,7 +2134,7 @@ class accounts_payable extends wc_model
 		->leftJoin('pv_application as pa ON pv.voucherno = pa.voucherno')
 		->leftJoin('pv_details as pd ON pv.voucherno = pd.voucherno')
 		->leftJoin('chartaccount as ca ON pd.accountcode = ca.id')
-		->setWhere("pa.apvoucherno = '$voucherno' AND pd.debit != 0")
+		->setWhere("pa.apvoucherno = '$voucherno' AND pd.debit != 0 AND pv.stat != 'cancelled'")
 		->runSelect()
 		->getResult();
 

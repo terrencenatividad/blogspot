@@ -701,7 +701,7 @@ class controller extends wc_controller
 				// $table .= '<td>' . $row->request_no. '</td>';
 				$table .= '<td>' . $row->referenceno. '</td>';
 				$table .= '<td>' . $row->vendor . '</td>';
-				$table .= '<td class = "text-right" >' . number_format($row->netamount,2) . '</td>';
+				$table .= '<td class = "text-right" >' . number_format($row->convertedamount,2) . '</td>';
 				$table .= '<td class = "text-right" >' . number_format($balance,2) . '</td>';
 				$table .= '<td>' . $voucher_status . '</td>';
 				$table .= '</tr>';

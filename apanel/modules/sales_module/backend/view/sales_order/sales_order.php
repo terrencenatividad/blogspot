@@ -19,6 +19,7 @@
 			<input class = "form_iput" value = "<?=$h_incurred?>" name = "h_incurred" id = "h_incurred" type="hidden">
 			<input class = "form_iput" value = "<?=$h_balance?>" name = "h_balance" id = "h_balance" type="hidden">
 			<input class = "form_iput" value = "<?=$vat_ex?>" name = "vat_ex" id = "vat_ex" type="hidden">
+			<input class = "form_iput" value = "<?=$task?>" name = "task" id = "task" type="hidden">
 			
 			<div class="box-body">
 				<br>
@@ -291,6 +292,10 @@
 														->setValue("")
 														->draw($show_input);
 												?>
+												<input type = "hidden" id = <?php echo 'h_itemcode['.$row.']'; ?> name = <?php echo 'h_itemcode['.$row.']'; ?> class = "h_itemcode" value = "">
+												<input type = "hidden" id = <?php echo 'h_parentcode['.$row.']'; ?> name = <?php echo 'h_parentcode['.$row.']'; ?> class = "h_parentcode" value = "">
+												<input type = "hidden" id = <?php echo 'h_isbundle['.$row.']'; ?> name = <?php echo 'h_isbundle['.$row.']'; ?> class = "h_isbundle" value = "">
+												<input type = "hidden" id = <?php echo 'h_parentline['.$row.']'; ?> name = <?php echo 'h_parentline['.$row.']'; ?> class = "h_parentline" value = "">
 											</td>
 											<td class = "remove-margin">
 												<?php
@@ -298,6 +303,7 @@
 															->setSplit('', 'col-md-12')
 															->setName('detailparticulars['.$row.']')
 															->setId('detailparticulars['.$row.']')
+															->setClass('itemdescription')
 															->setAttribute(array("maxlength" => "100"))
 															->setValue("")
 															->draw($show_input);
@@ -316,6 +322,7 @@
 														->setValue("")
 														->draw($show_input);
 												?>
+												<input type = "hidden" id = <?php echo 'h_warehouse['.$row.']'; ?> name = <?php echo 'h_warehouse['.$row.']'; ?> class = "h_warehouse" value = "">
 											</td>
 											<td class = "remove-margin">
 												<?php
@@ -329,6 +336,7 @@
 															->setValue($quantity)
 															->draw($show_input);
 												?>
+												<input type = "hidden" id = <?php echo 'h_quantity['.$row.']'; ?> name = <?php echo 'h_quantity['.$row.']'; ?> class = "h_quantity" value = "">
 											</td>
 											<td class = "remove-margin">
 												<?php
@@ -336,7 +344,7 @@
 															->setSplit('', 'col-md-12')
 															->setName('uom['.$row.']')
 															->setId('uom['.$row.']')
-															->setClass("text-right")
+															->setClass("text-right itemuom")
 															->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
 															->setValue($uom)
 															->draw($show_input);
@@ -395,7 +403,7 @@
 															->setSplit('', 'col-md-12')
 															->setName('amount['.$row.']')
 															->setId('amount['.$row.']')
-															->setClass("text-right")
+															->setClass("text-right itemamount")
 															->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
 															->setValidation('decimal')
 															->setValue($rowamount)
@@ -426,8 +434,12 @@
 										for($i = 0; $i < count($details); $i++)
 										{
 											$itemcode 	 		= $details[$i]->itemcode;
+											$parentcode 	 	= $details[$i]->parentcode;
+											$isbundle 	 		= $details[$i]->isbundle;
+											$parentline 	 	= $details[$i]->parentline;
 											$detailparticular	= htmlspecialchars($details[$i]->detailparticular);
 											$quantity 			= isset($details[$i]->issueqty) ?	number_format($details[$i]->issueqty,0) 	: 	"1";
+											$bundle_itemqty 	= isset($details[$i]->bundle_itemqty) ?	number_format($details[$i]->bundle_itemqty,0) 	: 	"0";
 											$itemprice 			= $details[$i]->unitprice;
 											$discounttype 		= isset($details[$i]->discounttype) ? $details[$i]->discounttype : '';
 											$discount 			= isset($details[$i]->discountamount) ? $details[$i]->discountamount : '0.00';
@@ -444,7 +456,12 @@
 											$discountedamount 	= (isset($details[$i]->discountedamount))? $details[$i]->discountedamount : 0;
 											
 									?>	
-											<tr class="clone" valign="middle">
+											<?php if ($parentcode == '') { ?>
+												<tr class="clone" valign="middle" style = "font-weight:bold">
+
+											<?php } else { ?>
+												<tr class="clone" valign="middle" style = "font-weight:normal">
+											<?php } ?>
 												<td class = "remove-margin">
 												<?php
 													echo $ui->formField('dropdown')
@@ -458,6 +475,10 @@
 														->setValidation('required')
 														->draw($show_input);
 												?>
+												<input type = "hidden" id = <?php echo 'h_itemcode['.$row.']'; ?> name = <?php echo 'h_itemcode['.$row.']'; ?> class = "h_itemcode" value = "<?php echo $itemcode ?>">
+												<input type = "hidden" id = <?php echo 'h_parentcode['.$row.']'; ?> name = <?php echo 'h_parentcode['.$row.']'; ?> class = "h_parentcode" value = "<?php echo $parentcode ?>">
+												<input type = "hidden" id = <?php echo 'h_isbundle['.$row.']'; ?> name = <?php echo 'h_isbundle['.$row.']'; ?> class = "h_isbundle" value = "<?php echo $isbundle ?>">
+												<input type = "hidden" id = <?php echo 'h_parentline['.$row.']'; ?> name = <?php echo 'h_parentline['.$row.']'; ?> class = "h_parentline" value = "<?php echo $parentline ?>">
 											</td>
 											<td class = "remove-margin">
 												<?php
@@ -465,6 +486,7 @@
 															->setSplit('', 'col-md-12')
 															->setName('detailparticulars['.$row.']')
 															->setId('detailparticulars['.$row.']')
+															->setClass('detailparticulars')
 															->setAttribute(array("maxlength" => "100"))
 															->setValue($detailparticular)
 															->draw($show_input);
@@ -485,6 +507,7 @@
 														->setValue($value)
 														->draw($show_input);
 												?>
+												<input type = "hidden" id = <?php echo 'h_warehouse['.$row.']'; ?> name = <?php echo 'h_warehouse['.$row.']'; ?> class = "h_warehouse" value = "<?php echo $value ?>">
 											</td>
 											<td class = "remove-margin text-right">
 												<?php
@@ -498,6 +521,7 @@
 															->setValue($quantity)
 															->draw($show_input);
 												?>
+												<input type = "hidden" id = <?php echo 'h_quantity['.$row.']'; ?> name = <?php echo 'h_quantity['.$row.']'; ?> class = "h_quantity" value = "<?php echo $bundle_itemqty ?>">
 											</td>
 											<td class = "remove-margin">	
 												<?php
@@ -545,7 +569,7 @@
 															->setName('taxcode['.$row.']')
 															->setId('taxcode['.$row.']')
 															->setClass("taxcode")
-															->setAttribute(array("maxlength" => "20"))
+															->setAttribute(array('maxlength' => '20'))
 															->setList($tax_codes)
 															->setNone('none')
 															->setValue($taxcode)
@@ -1590,6 +1614,7 @@ function getItemDetails(id)
 
 			if( data != false )
 			{
+				document.getElementById('h_itemcode'+row).value 			=	itemcode;
 				document.getElementById('detailparticulars'+row).value 		=	data.itemdesc;
 				document.getElementById('uom'+row).value 					=	data.uomcode;
 				
@@ -1622,11 +1647,91 @@ function getItemDetails(id)
 
 				$('#sales_order_form').trigger('change');
 			}
-			
+
+			if (data.bundle == '1') {
+				document.getElementById('h_isbundle'+row).value 			=	"Yes";
+			}
+			else {
+				document.getElementById('h_isbundle'+row).value 			=	"No";
+			}
 		});
 
 	}
 }
+
+$('.itemcode').on('change', function() {
+	var itemcode = $(this).val();
+	var name = $(this).attr("name");
+	var linenum = name.match(/\d+/)[0];
+	var row = $(this);
+	var customer = $('#customer').val();
+	$.post('<?=BASE_URL?>sales/sales_order/ajax/get_bundle_items',"itemcode="+itemcode+"&linenum="+linenum, function(data) {
+		if(data.table != "" && customer != '') {
+			var table = data.table;
+			row.closest('tr').attr('class', 'clone ' + linenum);
+			$('#itemsTable tbody tr.clone select').select2('destroy');
+			row.closest('tr.'+linenum).after(table);
+			row.closest('tr').find('.h_parentline').val(linenum);
+		} else {
+			if(row.closest('tr').hasClass(linenum))	{
+				row.closest('tr').nextAll('tr.'+linenum).remove();
+			}
+		}
+		resetIds();
+		drawTemplate();
+	});
+});
+
+$('.quantity').on('blur', function() {
+	var itemcode = $(this).closest('tr').find('.itemcode').val();
+	var parent = $(this).closest('tr').find('.h_parentline').val();
+	var quantity = $(this).val();
+	var task = $('#task').val();
+	$('#itemsTable tbody tr').find('.h_parentline[value="'+parent+'"]').each(function(index, value) {
+		var itemqty = $(this).closest('tr').find('.quantity').attr('data-id');
+		var total = quantity * itemqty;
+		$(this).closest('tr.parts').find('.quantity').val(total);
+		if (task == 'edit') {
+			var bundleqty = $(this).closest('tr.parts').find('.h_quantity').val();
+			var total = quantity * bundleqty;
+			$(this).closest('tr.parts').find('.quantity').val(total);
+		}
+	});
+});
+
+$('.warehouse').on('change', function() {
+	var itemcode = $(this).closest('tr').find('.itemcode').val();
+	var parent = $(this).closest('tr').find('.h_parentline').val();
+	var warehouse = $(this).val();
+	var task = $('#task').val();
+	$(this).closest('tr').find('.h_warehouse').val(warehouse);
+	$('#itemsTable tbody tr').find('.h_parentline[value="'+parent+'"]').each(function(index, value) {
+		$(this).closest('tr.parts').find('.warehouse').val(warehouse);
+		$(this).closest('tr.parts').find('.h_warehouse').val(warehouse);
+		if (task == 'edit') {
+			$(this).closest('tr.parts').find('.warehouse').val(warehouse).trigger('change.select2');
+			$(this).closest('tr.parts').find('.h_warehouse').val(warehouse).trigger('change.select2');
+		}
+	});
+});
+
+$( document ).ready(function() {
+    $('#itemsTable tbody tr').find('.itemcode').each(function(index, value) {
+		parent = $(this).closest('tr').find('.h_parentcode').val();
+		linenum = $(this).closest('tr').find('.h_parentline').val();
+		if (parent != '') {
+			$(this).closest('tr').find('.itemcode').prop('disabled',true)
+			$(this).closest('tr').find('.warehouse').prop('disabled',true)
+			$(this).closest('tr').find('.taxcode').prop('disabled',true)
+			$(this).closest('tr').find('.detailparticulars').prop('readonly',true)
+			$(this).closest('tr').find('.quantity').prop('readonly',true)
+			$(this).closest('tr').find('.price').prop('readonly',true)
+			$(this).closest('tr').find('.discount').prop('readonly',true)
+			$(this).closest('tr').find('.confirm-delete').prop('disabled',true)
+			$(this).closest('tr').addClass('parts '+linenum);
+		}
+	});
+});
 
 /**COMPUTE ROW AMOUNT**/
 function computeAmount()
@@ -1885,15 +1990,23 @@ function resetIds()
 	var table 	= document.getElementById('itemsTable');
 	var count	= table.tBodies[0].rows.length;
 
+	console.log( " count = "+count);
+
 	x = 1;
 	for(var i = 1;i <= count;i++)
 	{
 		var row = table.rows[i];
 
 		row.cells[0].getElementsByTagName("select")[0].id 	= 'itemcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].id 	= 'h_itemcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[1].id 	= 'h_parentcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[2].id 	= 'h_isbundle['+x+']';
+		row.cells[0].getElementsByTagName("input")[3].id 	= 'h_parentline['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
 		row.cells[2].getElementsByTagName("select")[0].id 	= 'warehouse['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].id 	= 'h_warehouse['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].id 	= 'quantity['+x+']';
+		row.cells[3].getElementsByTagName("input")[1].id 	= 'h_quantity['+x+']';
 		row.cells[4].getElementsByTagName("input")[0].id 	= 'uom['+x+']';
 		row.cells[5].getElementsByTagName("input")[0].id 	= 'itemprice['+x+']';
 		row.cells[6].getElementsByTagName("input")[0].id 	= 'discount['+x+']';
@@ -1906,9 +2019,15 @@ function resetIds()
 		row.cells[8].getElementsByTagName("input")[3].id 	= 'discountedamount['+x+']';
 
 		row.cells[0].getElementsByTagName("select")[0].name = 'itemcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[0].name 	= 'h_itemcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[1].name 	= 'h_parentcode['+x+']';
+		row.cells[0].getElementsByTagName("input")[2].name 	= 'h_isbundle['+x+']';
+		row.cells[0].getElementsByTagName("input")[3].name 	= 'h_parentline['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
 		row.cells[2].getElementsByTagName("select")[0].name = 'warehouse['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].name 	= 'h_warehouse['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].name 	= 'quantity['+x+']';
+		row.cells[3].getElementsByTagName("input")[1].name 	= 'h_quantity['+x+']';
 		row.cells[4].getElementsByTagName("input")[0].name 	= 'uom['+x+']';
 		row.cells[5].getElementsByTagName("input")[0].name 	= 'itemprice['+x+']';
 		row.cells[6].getElementsByTagName("input")[0].name 	= 'discount['+x+']';
@@ -1939,9 +2058,15 @@ function setZero()
 	//alert(newid);
 
 	document.getElementById('itemcode['+newid+']').value 			= '';
+	document.getElementById('h_itemcode['+newid+']').value 			= '';
+	document.getElementById('h_parentcode['+newid+']').value 		= '';
+	document.getElementById('h_isbundle['+newid+']').value 			= '';
+	document.getElementById('h_parentline['+newid+']').value 		= '';
 	document.getElementById('detailparticulars['+newid+']').value 	= '';
 	document.getElementById('warehouse['+newid+']').value 			= '';
+	document.getElementById('h_warehouse['+newid+']').value 		= '';
 	document.getElementById('quantity['+newid+']').value 			= '0';
+	document.getElementById('h_quantity['+newid+']').value 			= '0';
 	document.getElementById('uom['+newid+']').value 				= '';
 	document.getElementById('itemprice['+newid+']').value 			= '0.00';
 	document.getElementById('discount['+newid+']').value 			= '0.00';
@@ -2004,7 +2129,7 @@ function finalizeTransaction(type)
 
 	if($('#sales_order_form .form-group .has-error').length == 0 && no_error){	
 		$('#save').val(type);
-		if($("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
+		if($("#sales_order_form #s_address").val() != '' && $("#sales_order_form #itemcode\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #quantity\\[1\\]").val() != '' && $("#sales_order_form #warehouse\\[1\\]").val() != '' && $("#sales_order_form #transaction_date").val() != '' && $("#sales_order_form #customer").val() != '')
 		{
 			$('#delay_modal').modal('show');
 			setTimeout(function() {									
@@ -2334,6 +2459,7 @@ $(document).ready(function(){
 			setZero();
 
 			$('#itemsTable tbody tr.clone select').select2({width: "100%"});
+			drawTemplate();
 		});
 		
 	// -- For Items -- End
@@ -2398,6 +2524,7 @@ $(document).ready(function(){
 		$('#discounttype').on('select2:selecting',function(e){
 			var curr_type	=  $(this).val();	
 			var new_type 	= e.params.args.data.id;
+			//var parentcode = $('.itemcode').closest('tr').find('.h_parentcode').val();
 			
 			if(curr_type == "none" || curr_type == ""){
 				$('#discounttype').closest('.form-group').removeClass('has-error');
@@ -2405,7 +2532,12 @@ $(document).ready(function(){
 				if(new_type=="none" || new_type==""){
 					$('.discount').prop('readOnly',true);
 				} else {
-					$('.discount').prop('readOnly',false);
+					$('#itemsTable tbody tr').find('.itemcode').each(function(index, value) {
+						parent = $(this).closest('tr').find('.h_parentcode').val();
+						if (parent == '') {
+							$(this).closest('tr').find('.discount').prop('readonly',false)
+						}
+					});
 				}
 			} else {
 				if(curr_type!="" ){
@@ -2426,7 +2558,12 @@ $(document).ready(function(){
 			if(newtype=="none" || newtype==""){
 				$('.discount').prop('readOnly',true);
 			} else {
-				$('.discount').prop('readOnly',false);
+				$('#itemsTable tbody tr').find('.itemcode').each(function(index, value) {
+					parent = $(this).closest('tr').find('.h_parentcode').val();
+					if (parent == '') {
+						$(this).closest('tr').find('.discount').prop('readonly',false)
+					}
+				});
 			}
 			computeAmount();
 		});
@@ -2482,7 +2619,13 @@ $(document).ready(function(){
 
 			var discounttype = $('#discounttype').val();
 			if(discounttype != "" && discounttype != "none"){
-				$('#sales_order_form .discount').prop('readonly',false);
+				//$('#sales_order_form .discount').prop('readonly',false);
+				$('#itemsTable tbody tr').find('.itemcode').each(function(index, value) {
+					parent = $(this).closest('tr').find('.h_parentcode').val();
+					if (parent == '') {
+						$(this).closest('tr').find('.discount').prop('readonly',false)
+					}
+				});
 			} else {
 				$('#sales_order_form .discount').prop('readonly',true);
 			}
