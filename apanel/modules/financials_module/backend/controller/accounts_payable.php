@@ -57,6 +57,12 @@ class controller extends wc_controller
 			'converteddebit',
 			'convertedcredit'
 		);
+
+		$this->jobs = array(
+			'id',
+			'voucherno',
+			'job_no'
+		);
 	}
 
 	public function listing() {
@@ -448,6 +454,7 @@ class controller extends wc_controller
 	private function ajax_create()
 	{
 		$post = $this->input->post();
+		$finjobs = $this->input->post($this->jobs);
 		$ap = $this->input->post($this->fields);
 		$button = $this->input->post('button_trigger');
 		$ap_details = $this->input->post($this->apdetails);
@@ -462,10 +469,17 @@ class controller extends wc_controller
 		$ap['convertedamount'] = str_replace(',', '', $ap['exchangerate']) * str_replace(',', '', $post['total_debit']);
 		$ap['amount'] = str_replace(',', '', $post['total_debit']);
 		$ap['exchangerate'] = str_replace(',', '', $ap['exchangerate']);
-		$ap['balance'] = $ap['convertedamount'];
+		$ap['balance'] = $post['total_debit'];
 		$ap['terms'] = $post['vendor_terms'];
 		$ap['stat'] = 'posted';
 		$ap['job_no'] = $post['job'];
+
+		$jobs = explode(',', $post['job']);
+		if(!empty($jobs[0])) {
+			$finjobs['voucherno'] = $ap['voucherno'];
+			$finjobs['job_no'] = $jobs;
+			$fin_job = $this->accounts_payable->saveFinancialsJob($finjobs);
+		}
 
 		$ap_details['transtype'] = 'AP';
 		$ap_details['checkstat'] = 'uncleared';
@@ -495,8 +509,6 @@ class controller extends wc_controller
 				if($row->accountclasscode == 'ACCPAY') {
 					$check = true;
 					$result    = $this->accounts_payable->saveAP($ap, $ap_details);
-				} else {
-					$result = false;
 				}
 			}	
 		} else {
@@ -544,10 +556,34 @@ class controller extends wc_controller
 		$ap['convertedamount'] = str_replace(',', '', $ap['exchangerate']) * str_replace(',', '', $post['total_debit']);
 		$ap['amount'] = str_replace(',', '', $post['total_debit']);
 		$ap['exchangerate'] = str_replace(',', '', $ap['exchangerate']);
-		$ap['balance'] = $ap['convertedamount'];
+		$ap['balance'] = $post['total_debit'];
 		$ap['terms'] = $post['vendor_terms'];
 		$ap['stat'] = 'posted';
-		$ap['job_no'] = $post['job'];
+		if(empty($post['job'])) {
+			$ap['job_no'] = $post['jobs_tagged'];
+		} else {
+			$ap['job_no'] = $post['job'];
+		}
+
+		$jobs = explode(',', $ap['job_no']);
+		$check_voucher = $this->accounts_payable->checkVoucherOnFinancialsJob($ap['voucherno']);
+		$bool = (!empty($check_voucher)) ? true : $check_voucher;
+		$finjobs = array();
+		$finArr = array();
+		if(!empty($jobs[0])) {
+			foreach ($jobs as $row) {
+				if($bool) {
+					$finjobs['voucherno']= $ap['voucherno'];
+					$finjobs['job_no']= $row;
+				} else {
+					$finjobs['voucherno']= $ap['voucherno'];
+					$finjobs['job_no'] = $row;
+					$fin_job = $this->accounts_payable->saveFinancialsJob($finjobs);
+				}
+				$finArr[] 						= $finjobs;
+			}
+			$fin_job = $this->accounts_payable->updateFinancialsJobs($finArr, $ap['voucherno']);
+		}
 
 		$ap_details['transtype'] = 'AP';
 		$ap_details['checkstat'] = 'uncleared';
@@ -578,9 +614,6 @@ class controller extends wc_controller
 					$check = true;
 					$result    = $this->accounts_payable->updateAP($ap['voucherno'], $ap);
 					$details = $this->accounts_payable->saveAPDetails($ap_details);
-				} else {
-					$result = false;
-					$details = false;
 				}
 			}
 		} else {

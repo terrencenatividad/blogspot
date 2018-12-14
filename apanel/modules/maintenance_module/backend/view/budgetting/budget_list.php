@@ -12,7 +12,7 @@
 						<div class="form-group">
 							<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Add Budget</a>
 							<?=	$ui->CreateDeleteButton(''); ?>
-							<?=	$ui->CreateActButton(''); ?>
+							<!-- <?=	$ui->CreateActButton(''); ?> -->
 						</div>
 					</div>
 					<div class="col-md-4">
@@ -182,64 +182,102 @@
 			</div>
 		</div>
 
-		<script>
+		<div class="modal fade" id="modalApproval" tabindex="-1" data-backdrop="static">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">×</span>
+						</button>
+						<h4 class="modal-title">Confirmation</h4>
+					</div>
+					<div class="modal-body">
+						<h5>Are you sure you want to approve this budget?</h5>
+					</div>
+					<div class="modal-footer text-right">
+						<button type="button" class="btn btn-primary btn-flat" id="btnApprove">Confirm</button>
+						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
-			$('.import').closest('.btn-group').find('li:eq(1)').hide();
-			var ajax = {};
+		<div class="modal fade" id="modalReject" tabindex="-1" data-backdrop="static">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">×</span></button>
+							<h4 class="modal-title">Confirmation</h4>
+						</div>
+						<div class="modal-body">
+							<h5>Are you sure you want to reject this budget?</h5>
+						</div>
+						<div class="modal-footer text-right">
+							<button type="button" class="btn btn-primary btn-flat" id="btnReject">Confirm</button>
+							<button type="button" class="btn btn-default btn-flat" 
+							data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
 
-			function show_error(msg) {
-				$(".delete-modal").modal("hide");
-				$(".alert-warning").removeClass("hidden");
-				$("#errmsg").html(msg);
-			}
-			function showList() {
-				$.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data)
-				{
-					$('.checkall').iCheck('uncheck');
-					$('#list_container').html(data.table);
-					$('#pagination').html(data.pagination);
-					historyOfMyLife();
-					$("#export_id").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+			<script>
 
-					if (ajax.page > data.page_limit && data.page_limit > 0) 
+				$('.import').closest('.btn-group').find('li:eq(1)').hide();
+				var ajax = {};
+
+				function show_error(msg) {
+					$(".delete-modal").modal("hide");
+					$(".alert-warning").removeClass("hidden");
+					$("#errmsg").html(msg);
+				}
+				function showList() {
+					$.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data)
 					{
-						ajax.page = data.page_limit;
+						$('.checkall').iCheck('uncheck');
+						$('#list_container').html(data.table);
+						$('#pagination').html(data.pagination);
+						$("#export_id").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+
+						if (ajax.page > data.page_limit && data.page_limit > 0) 
+						{
+							ajax.page = data.page_limit;
+							showList();
+						}
+
+					});
+				}
+				tableSort('#tableList', function(value, x) 
+				{
+					ajax.sort = value;
+					ajax.page = 1;
+					if (x) 
+					{
 						showList();
 					}
-
 				});
-			}
-			tableSort('#tableList', function(value, x) 
-			{
-				ajax.sort = value;
-				ajax.page = 1;
-				if (x) 
+				$( "#table_search" ).keyup(function() 
 				{
+					var search = $( this ).val();
+					ajax.search = search;
 					showList();
-				}
-			});
+				});
 
-			$( "#table_search" ).keyup(function() 
-			{
-				var search = $( this ).val();
-				ajax.search = search;
-				showList();
-			});
+				/**IMPORT**/
+				$('#import-modal').on('show.bs.modal', function() {
+					var form_csv = $('#import_csv').val('').closest('.form-group').
+					find('.form-control').html('').closest('.form-group').html();
+					$('#import_csv').closest('.form-group').html(form_csv);
+				});
 
-			/**IMPORT**/
-			$('#import-modal').on('show.bs.modal', function() {
-				var form_csv = $('#import_csv').val('').closest('.form-group').
-				find('.form-control').html('').closest('.form-group').html();
-				$('#import_csv').closest('.form-group').html(form_csv);
-			});
+				$('#importForm').on('change', '#import_csv', function() {
+					var filename = $(this).val().split("\\");
+					$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
+				});
 
-			$('#importForm').on('change', '#import_csv', function() {
-				var filename = $(this).val().split("\\");
-				$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
-			});
-
-			$(function() {
-				showList();
+				$(function() {
+					showList();
 
 		// $("#selectall").click(function() 
 		// {
@@ -369,25 +407,11 @@
 			return id;
 		}
 
-		$(function() {
-			linkButtonToTable('#item_multiple_delete', '#tableList');
-			// linkButtonToTable('#activateMultipleBtn', '#tableList');
-			// linkButtonToTable('#deactivateMultipleBtn', '#tableList');
-		});
-		/*
-		* For Import Modal
-		*/
 		$("#import_id").click(function() 
 		{
 			$(".import-modal > .modal").css("display", "inline");
 			$('.import-modal').modal();
 		});
-
-
-		// $("#importForm #btnImport").click(function() 
-		// {
-		// 	$("#importForm").submit();
-		// });
 
 		$("#importForm #btnImport").click(function() 
 		{
@@ -431,66 +455,47 @@
 		});
 
 		$('#export_id').prop('download','atccode.csv');
-		// $('#export_id').prop('href','');
 
-	});
 
-function show_success_msg(msg)
-{
-	$('#success_modal #message').html(msg);
-	$('#success_modal').modal('show');
-	setTimeout(function() {												
-		window.location = '<?= MODULE_URL ?>';		
-	}, 1000)
-}
 
-$('#tableList').on('click', '.activate', function() { 
-	var id = $(this).attr('data-id');
-	$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
-		showList();
-	});
-});
+		$('#tableList tbody').on('click', '.approve', function() {
+			var id = $(this).attr('data-id');
+			$('#btnApprove').attr('data-id', id);
+			$('#modalApproval').modal('show');
+		});
 
-$('#tableList').on('click', '.deactivate', function() { 
-	$('#deactivate_modal').modal('show');
-	var id = $(this).attr('data-id');
+		$('#tableList tbody').on('click', '.reject', function() {
+			var id = $(this).attr('data-id');
+			$('#btnReject').attr('data-id', id);
+			$('#modalReject').modal('show');
+		});
 
-	$('#deactivate_modal').on('click', '#deactyes', function() {
-		$('#deactivate_modal').modal('hide');
+		$('#btnApprove').on('click', function() {
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_update_status', '&status=approved' + '&id=' + id, function(data) {
+				if(data.success) {
+					$('#modalApproval').modal('hide');
+					showList();
+				} else {
+					$('#modalApproval').modal('hide');
+					$('.alert-dismissable').removeClass('hidden');
+					$('#errmsg').html('You are not allowed to approve this budget');
+				}
+			});
+		});
 
-		$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
-			showList();
+		$('#btnReject').on('click', function() {
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_update_status', '&status=rejected' + '&id=' + id, function(data) {
+				if(data.success) {
+					$('#modalReject').modal('hide');
+					showList();
+				} else {
+					$('#modalReject').modal('hide');
+					$('.alert-dismissable').removeClass('hidden');
+					$('#errmsg').html('You are not allowed to reject this budget');
+				}
+			});
 		});
 	});
-});
-
-$('#tableList').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
-	var b = $('input[type=checkbox]:not(.checkall)');
-	var row = $('#tableList >tbody >tr').length;
-	var c =	b.filter(':checked').length;
-	if(c == row){
-		$('#tableList thead tr th').find('.checkall').prop('checked', true).iCheck('update');
-	}else{
-		$('#tableList thead tr th').find('.checkall').prop('checked', false).iCheck('update');
-	}
-});
-
-function historyOfMyLife() {
-	var arr = [];
-	$('#tableList tbody').find('.label').each(function(index, value){
-		arr.push($(this).html());
-		if(jQuery.inArray('ACTIVE', arr) != -1) {
-			$('#deactivateMultipleBtn').attr('disabled', false);
-		}else{
-			$('#deactivateMultipleBtn').attr('disabled', true);
-		}
-		if(jQuery.inArray('INACTIVE', arr) != -1) {
-			$('#activateMultipleBtn').attr('disabled', false);
-		}else{
-			$('#activateMultipleBtn').attr('disabled', true);
-
-		}
-	});
-}
-
 </script>

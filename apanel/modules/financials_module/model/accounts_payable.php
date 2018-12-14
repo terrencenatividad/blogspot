@@ -509,6 +509,7 @@ class accounts_payable extends wc_model
 		->buildSelect();
 
 		$ap_fields 	=	array(
+			'main.entereddate as entereddate',
 			"main.voucherno as voucherno", 
 			"main.companycode as companycode", 
 			"main.transactiondate as transactiondate",
@@ -1978,6 +1979,14 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
+	public function saveFinancialsJob($fields) {
+		$result = $this->db->setTable('financial_jobs')
+		->setValues($fields)
+		->runInsert(false);
+
+		return $result;
+	}
+
 	public function getAccount($tax_account){
 		$result = $this->db->setTable('atccode a')
 		->setFields("tax_rate,tax_account")
@@ -1986,8 +1995,16 @@ class accounts_payable extends wc_model
 		->runSelect()
 		->getResult();
 		return $result;
+	}
 
+	public function checkVoucherOnFinancialsJob($voucherno){
+		$result = $this->db->setTable('financial_jobs')
+		->setFields('voucherno')
+		->setWhere("voucherno = '$voucherno'")
+		->runSelect(false)
+		->getRow();
 
+		return $result;
 	}
 
 	public function check_if_exists($column, $table, $condition) {
@@ -2056,6 +2073,19 @@ class accounts_payable extends wc_model
 		->setWhere("partnercode = '$vendor'")
 		->runSelect()
 		->getRow();
+
+		return $result;
+	}
+
+	public function updateFinancialsJobs($fields, $voucherno)
+	{
+		$result = $this->db->setTable('financial_jobs')
+		->setWhere("voucherno = '$voucherno'")
+		->runDelete(false);
+
+		$result = $this->db->setTable('financial_jobs')
+		->setValues($fields)
+		->runInsert(false);
 
 		return $result;
 	}

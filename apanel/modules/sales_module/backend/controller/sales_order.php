@@ -812,6 +812,7 @@ class controller extends wc_controller
 								->setClass('quantity text-right ' . $mainitemcode)
 								->setValue('0')
 								->draw(true); 
+			$table .='<input type = "hidden" id = "h_quantity["'.$key.'"]" name = "h_quantity["'.$key.'"]" class = "h_quantity" value = "'.$row->quantity.'">';
 						'</td>';
 			$table .= '<td>' . $ui->formField('text')
 								->setPlaceholder('Select One')

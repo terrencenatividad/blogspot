@@ -222,7 +222,7 @@
 									<div class="col-md-5 col-sm-4 col-xs-4"></div>
 									<div class="col-md-2 col-sm-3 col-xs-3" id="task_buttons" style="padding:3px;">
 										<?php echo $ui->drawSubmit($show_input); ?>
-										<a href="<?=MODULE_URL?>" class="btn btn-default btn-flat">Cancel</a>
+										<a class="btn btn-default btn-flat" id = "btnCancel">Cancel</a>
 
 
 										<div class="col-md-5 col-sm-4 col-xs-4"></div>
@@ -261,7 +261,43 @@
 				</div>
 			</div>
 
+			<div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content">
+						<div class="modal-header">
+							Confirmation
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<div class="modal-body">
+							Are you sure you want to cancel this transaction?
+						</div>
+						<div class="modal-footer">
+							<div class="row row-dense">
+								<div class="col-md-12 center">
+									<div class="btn-group">
+										<button type="button" class="btn btn-primary btn-flat" id="btnCancelYes">Yes</button>
+									</div>
+									&nbsp;&nbsp;&nbsp;
+									<div class="btn-group">
+										<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<script>
+				$('#btnCancel').click(function() 
+				{
+					$('#cancelModal').modal('show');
+				});
+
+				$('#btnCancelYes').on('click', function() {
+					window.location = '<?= MODULE_URL ?>';
+				});
+
 				var clone = $("#itemsTable tbody tr.clone:first").clone(true);
 				$('#itemsTable').on('click', '.add-data' ,function() {
 					var parent = $("#itemsTable tbody tr.clone").last();

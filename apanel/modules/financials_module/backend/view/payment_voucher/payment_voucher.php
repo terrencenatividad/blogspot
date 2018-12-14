@@ -1,4 +1,4 @@
-<section class="content"> 
+	<section class="content"> 
 <div id = "errordiv" class="alert alert-warning alert-dismissible hidden">
 	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
 	<h4><i class="icon fa fa-warning"></i>The system has encountered the following error/s!</h4>
@@ -2384,6 +2384,7 @@ function toggleCheckInfo(val){
 	if(val == 'cheque'){
 		if(selected_rows != '[]'){
 			$("#payableForm #cheque_details").removeClass('hidden');
+			$("#chequeTable tbody tr ").removeClass('hidden');
 		}else{
 			
 			var list 	= (vendor != '') ? "<ul><li>Total Payment</li></ul>" : "<ul><li>Vendor</li><li>Total Payment</li></ul>";
