@@ -455,6 +455,7 @@
 									?>	
 											<?php if ($parentcode == '') { ?>
 												<tr class="clone" valign="middle" style = "font-weight:bold">
+
 											<?php } else { ?>
 												<tr class="clone" valign="middle" style = "font-weight:normal">
 											<?php } ?>
@@ -482,6 +483,7 @@
 															->setSplit('', 'col-md-12')
 															->setName('detailparticulars['.$row.']')
 															->setId('detailparticulars['.$row.']')
+															->setClass('detailparticulars')
 															->setAttribute(array("maxlength" => "100"))
 															->setValue($detailparticular)
 															->draw($show_input);
@@ -563,7 +565,7 @@
 															->setName('taxcode['.$row.']')
 															->setId('taxcode['.$row.']')
 															->setClass("taxcode")
-															->setAttribute(array("maxlength" => "20"))
+															->setAttribute(array('maxlength' => '20'))
 															->setList($tax_codes)
 															->setNone('none')
 															->setValue($taxcode)
@@ -1698,6 +1700,22 @@ $('.warehouse').on('change', function() {
 	});
 });
 
+$( document ).ready(function() {
+    $('#itemsTable tbody tr').find('.itemcode').each(function(index, value) {
+		parent = $(this).closest('tr').find('.h_parentcode').val();
+		if (parent != '') {
+			$(this).closest('tr').find('.itemcode').prop('disabled',true)
+			$(this).closest('tr').find('.warehouse').prop('disabled',true)
+			$(this).closest('tr').find('.taxcode').prop('disabled',true)
+			$(this).closest('tr').find('.detailparticulars').prop('readonly',true)
+			$(this).closest('tr').find('.quantity').prop('readonly',true)
+			$(this).closest('tr').find('.price').prop('readonly',true)
+			$(this).closest('tr').find('.discount').prop('readonly',true)
+			$(this).closest('tr').find('.confirm-delete').prop('disabled',true)
+		}
+	});
+});
+
 /**COMPUTE ROW AMOUNT**/
 function computeAmount()
 {
@@ -2486,6 +2504,7 @@ $(document).ready(function(){
 		$('#discounttype').on('select2:selecting',function(e){
 			var curr_type	=  $(this).val();	
 			var new_type 	= e.params.args.data.id;
+			//var parentcode = $('.itemcode').closest('tr').find('.h_parentcode').val();
 			
 			if(curr_type == "none" || curr_type == ""){
 				$('#discounttype').closest('.form-group').removeClass('has-error');
@@ -2493,7 +2512,12 @@ $(document).ready(function(){
 				if(new_type=="none" || new_type==""){
 					$('.discount').prop('readOnly',true);
 				} else {
-					$('.discount').prop('readOnly',false);
+					$('#itemsTable tbody tr').find('.itemcode').each(function(index, value) {
+						parent = $(this).closest('tr').find('.h_parentcode').val();
+						if (parent == '') {
+							$(this).closest('tr').find('.discount').prop('readonly',false)
+						}
+					});
 				}
 			} else {
 				if(curr_type!="" ){
@@ -2514,7 +2538,12 @@ $(document).ready(function(){
 			if(newtype=="none" || newtype==""){
 				$('.discount').prop('readOnly',true);
 			} else {
-				$('.discount').prop('readOnly',false);
+				$('#itemsTable tbody tr').find('.itemcode').each(function(index, value) {
+					parent = $(this).closest('tr').find('.h_parentcode').val();
+					if (parent == '') {
+						$(this).closest('tr').find('.discount').prop('readonly',false)
+					}
+				});
 			}
 			computeAmount();
 		});
