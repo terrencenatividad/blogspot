@@ -1656,9 +1656,10 @@ $('.itemcode').on('change', function() {
 	var name = $(this).attr("name");
 	var linenum = name.match(/\d+/)[0];
 	var row = $(this);
+	var customer = $('#customer').val();
 	$.post('<?=BASE_URL?>sales/sales_order/ajax/get_bundle_items',"itemcode="+itemcode+"&linenum="+linenum, function(data) {
-		if(data.table != "") {
-		var table = data.table;
+		if(data.table != "" && customer != '') {
+			var table = data.table;
 			row.closest('tr').attr('class', 'clone ' + linenum);
 			$('#itemsTable tbody tr.clone select').select2('destroy');
 			row.closest('tr.'+linenum).after(table);
@@ -1681,6 +1682,15 @@ $('.quantity').on('blur', function() {
 		var itemqty = $(this).closest('tr').find('.quantity').attr('data-id');
 		var total = quantity * itemqty;
 		$(this).closest('tr.parts').find('.quantity').val(total);
+	});
+});
+
+$('.warehouse').on('change', function() {
+	var itemcode = $(this).closest('tr').find('.itemcode').val();
+	var parent = $(this).closest('tr').find('.h_parentline').val();
+	var warehouse = $(this).val();
+	$('#itemsTable tbody tr').find('.h_parentline[value="'+parent+'"]').each(function(index, value) {
+		$(this).closest('tr.parts').find('.warehouse').val(warehouse);
 	});
 });
 
@@ -2595,7 +2605,6 @@ $(document).ready(function(){
 			var rowCount 	= table.tBodies[0].rows.length;;
 
 			deleteItem(id);
-			
 			
 			$('#deleteItemModal').modal('hide');
 		});

@@ -756,6 +756,9 @@ class controller extends wc_controller
 		$cc_entry_data  = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$itemcodes 		= $this->so->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
 
+		$w_entry_data           = array("warehousecode ind","description val");
+		$warehouses 	= $this->so->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
+
 		$itemcode = [];
 		$itemdesc = [];
 		$itemname = [];
@@ -790,10 +793,14 @@ class controller extends wc_controller
 						'</td>';
 			$table .= '<td>' . $ui->formField('dropdown')
 								->setSplit('	', 'col-md-12')
+								->setPlaceholder('Select One')
 								->setName("warehouse[".$key."]")
 								->setAttribute(array('disabled', 'true'))
 								->setId("warehouse[".$key."]")
 								->setClass('warehouse')
+								->setList($warehouses)
+								->setNone('none')
+								->setValue('')
 								->draw(true); 
 						'</td>';
 			$table .= '<td>' . $ui->formField('text')
