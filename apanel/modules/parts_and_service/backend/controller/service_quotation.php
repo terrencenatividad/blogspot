@@ -266,6 +266,15 @@ class controller extends wc_controller {
 		var_dump($service_details);
 	}
 
+	private function get_item_details()
+	{
+		$itemcode 	= $this->input->post('itemcode');
+
+		$result 	= $this->service_quotation->retrieveItemDetails($itemcode);
+		
+		return $result;
+	}
+
 	public function generateRandomString($length = 10){
 		$characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 		$charactersLength = strlen($characters);

@@ -144,23 +144,153 @@
 					<table id="tableList" class="table table-hover table-condensed table-sidepad only-checkbox full-form">
 						<thead>
 							<tr class="info">
-								<th class="col-xs-2">Item</th>
-								<th class="col-xs-<?php echo ($show_input) ? 2 : 2 ?>">Description</th>
-								<th class="col-xs-1">w/ Warranty</th>
-								<th class="col-xs-1">Warehouse</th>
-								<th class="col-xs-1 text-right">Qty</th>
-								<th style="width: 50px;">UOM</th>
-								<th class="col-xs-1 text-right">Price</th>
-								<th class="col-xs-1 text-right">Discount</th>
-								<th class="col-xs-1">Tax</th>
-								<th class="col-xs-2 text-right">Amount</th>
+								<th class="col-md-2">Item</th>
+								<th class="col-md-2">Description</th>
+								<th style="width:50px;" class="text-center">w/ Warranty</th>
+								<th class="col-md-1">Warehouse</th>
+								<th class="col-md-1 text-right">Qty</th>
+								<th class="col-md-1 text-center">UOM</th>
+								<th class="col-md-1 text-right">Price</th>
+								<th class="col-md-1 text-right">Discount</th>
+								<th class="col-md-1">Tax</th>
+								<th class="col-md-2 text-right">Amount</th>
 								<?php if ($show_input): ?>
 								<th style="width: 50px;"></th>
 								<?php endif ?>
 							</tr>
 						</thead>
 						<tbody>
-						
+							<tr class="clone">
+								<td>
+									<?php
+										echo $ui->formField('dropdown')
+											->setPlaceholder('Select Item')
+											->setSplit('', 'col-md-12')
+											->setName('itemcode[]')
+											->setClass('itemcode')
+											->setList($item_list)
+											->setValue('')
+											->setValidation('required')
+											->draw($show_input);
+									?>
+								</td>
+								<td>
+									<?php
+										echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('detailparticular[]')
+											->setClass('detailparticular')
+											->setValue('')
+											->draw($show_input);
+									?>
+								</td>
+								<td class="text-center">
+									<?php
+										echo $ui->loadElement('check_task')
+												->addCheckbox()
+												->setValue('')
+												->draw();
+									?>
+								</td>
+								<td>
+									<?php
+										echo $ui->formField('dropdown')
+											->setPlaceholder('Select Warehouse')
+											->setSplit('', 'col-md-12')
+											->setName('warehouse[]')
+											->setClass('warehouse')
+											->setList($warehouse_list)
+											->setValue('')
+											->setValidation('required')
+											->draw($show_input);
+									?>
+								</td>
+								<td class="text-right">
+									<?php
+										echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('quantity[]')
+											->setClass('quantity text-right')
+											
+											->setValidation('required integer')
+											->setValue('0')
+											->draw($show_input);
+									?>
+									
+								</td>
+								<td>
+									<?php
+										echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('uom[]')
+											->setClass('uom text-right')
+											->setAttribute(
+												array("maxlength" => "20",'readOnly' => 'readOnly')
+											)
+											->setValue('')
+											->draw($show_input);
+									?>
+								</td>
+								<td class="text-right">
+									<?php
+										echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('price[]')
+											->setClass('price text-right')
+											->setValidation('required decimal')
+											->setValue(number_format(0,2))
+											->draw($show_input);
+									?>
+								</td>
+								<td class="text-right">
+									<?php
+										echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('discount[]')
+											->setClass('discount text-right')
+											->setAttribute(array('disabled'=>'true'))
+											->setValidation('required decimal')
+											->setValue(number_format(0,2))
+											->draw($show_input);
+									?>
+								</td>
+								<td>
+									<?php
+										
+										echo $ui->formField('dropdown')
+											->setSplit('', 'col-md-12')
+											->setName('taxcode[]')
+											->setClass('taxcode')
+											->setList($taxrate_list)
+											->setNone('none')
+											->draw($show_input);
+									?>
+								</td>
+								<td class="text-right">
+									<?php
+										echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setName('amount[]')
+											->setClass('amount text-right')
+											->setAttribute(
+												array(
+													
+													'readOnly' => 'readOnly'
+												)
+											)
+											->setValidation('required decimal')
+											->setValue(number_format(0,2))
+											->draw($show_input);
+									?>
+								</td>
+								<?php if ($show_input): ?>
+								<td>
+									<button type="button" class="btn btn-danger btn-flat delete_row" style="outline:none;">
+										<span class="glyphicon glyphicon-trash"></span>
+									</button>
+								</td>
+								<?php endif ?>
+							</tr>
 						</tbody>
 						<tfoot class="summary">
 							<tr>
@@ -184,7 +314,7 @@
 												->draw($show_input);
 									?>
 								</td>
-								<?php if($show_input):?><td></td><?php endif;?>
+								
 							</tr>
 							<tr>
 								<td class="right" colspan="9">
@@ -202,7 +332,7 @@
 												->draw($show_input);
 									?>
 								</td>
-								<?php if($show_input):?><td></td><?php endif;?>
+								
 							</tr>
 							<tr>
 								<td class="right" colspan="9">
@@ -220,7 +350,7 @@
 												->draw($show_input);
 									?>
 								</td>
-								<?php if($show_input):?><td></td><?php endif;?>
+								
 							</tr>
 							<tr>
 								<td class="right" colspan="9">
@@ -238,14 +368,14 @@
 												->draw($show_input);
 									?>
 								</td>
-								<?php if($show_input):?><td></td><?php endif;?>
+								
 							</tr>
 							<tr>
 								<td class="right" colspan="9">&nbsp;</td>
 								<td class="text-right" >
 									<hr/>
 								</td>
-								<?php if($show_input):?><td></td><?php endif;?>
+								
 							</tr>
 							<tr>
 								<td class="right" colspan="9">
@@ -263,7 +393,7 @@
 												->draw($show_input);
 									?>
 								</td>
-								<?php if($show_input):?><td></td><?php endif;?>
+								
 							</tr>
 							<tr>
 								<td class="right" colspan="9">
@@ -281,7 +411,7 @@
 												->draw($show_input);
 									?>
 								</td>
-								<?php if($show_input):?><td></td><?php endif;?>
+								
 							</tr>
 						</tfoot>
 					</table>
@@ -309,211 +439,79 @@
 		var ajax		= {};
 		var ajax_call	= '';
 		var min_row		= 1;
-		function addVoucherDetails(details, index) {
-			var details = details || {itemcode: '', detailparticular: '', warranty: '', warehouse: '', quantity: '0', uom: 'PCS', price: '0.00', discount: '0.00', amount: '0.00', taxcode: '', taxrate: '',taxamount: '0.00'};
-			var other_details = JSON.parse(JSON.stringify(details));
-			delete other_details.itemcode;
-			delete other_details.detailparticular;
-			//delete other_details.warranty;
-			delete other_details.warehouse;
-			delete other_details.quantity;
-			delete other_details.uom;
-			delete other_details.price;
-			delete other_details.discount;
-			delete other_details.amount;
-			delete other_details.taxcode;
-			var otherdetails = '';
-			for (var key in other_details) {
-				if (other_details.hasOwnProperty(key)) {
-					otherdetails += `<?php 
-						echo $ui->setElement('hidden')
-								->setName('` + key + `[]')
-								->setValue('` + other_details[key] + `')
-								->setClass('.` + key + `_hidden')
-								->draw();
-					 ?>`;
+		// function addVoucherDetails(details) {
+		// 	var details = details || {itemcode: '', detailparticular: '', warranty: '', warehouse: '', quantity: '0', uom: 'PCS', price: '0.00', discount: '0.00', amount: '0.00', taxcode: '', taxrate: '',taxamount: '0.00'};
+			
+
+		// 	var row = `
+				
+		// 	`;
+
+		// 	$('#tableList tbody').append(row);
+
+		// 	if (details.itemcode != '') {
+		// 		$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+		// 	}
+		// 	if (details.warehouse != '') {
+		// 		$('#tableList tbody').find('tr:last .warehouse').val(details.warehouse);
+		// 	}
+		// 	if (details.taxcode != '') {
+		// 		$('#tableList tbody').find('tr:last .taxcode').val(details.taxcode);
+		// 	}
+
+		// 	try {
+		// 		drawTemplate();
+		// 	} catch(e) {};
+
+		// 	var itemlist = <?= json_encode($item_list) ?>;
+		// 	itemlist.forEach(function(item) {
+		// 		if (item.ind == details.itemcode) {
+		// 			$('#temp_view_' + index).html(item.val);
+		// 		}
+		// 	});
+
+		// 	var warehouselist = <?= json_encode($warehouse_list) ?>;
+		// 	warehouselist.forEach(function(warehouse) {
+		// 		if (warehouse.ind == details.warehouse) {
+		// 			$('#temp_view_warehouse_' + index).html(warehouse.val);
+		// 		}
+		// 	});
+
+		// 	var taxrate_list = <?= json_encode($taxrate_list) ?>;
+		// 	taxrate_list.forEach(function(tax) {
+		// 		if (tax.ind == details.taxcode) {
+		// 			$('#temp_view_taxrate_' + index).html(tax.val);
+		// 		}
+		// 	});
+
+		// 	if (details.warranty == 'yes') {
+		// 		$(this).removeAttr('readonly').val($(this).attr('data-value'));
+		// 		$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
+		// 	} 
+		// 	else {
+		// 		$('#tableList tbody').find('tr:last .warranty_hidden').attr('readonly', '').val(0);
+		// 		$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('enable');
+		// 	}
+		// }
+
+		function getItemDetails(itemcode, row){
+			$.post("<?=MODULE_URL?>ajax/get_item_details","itemcode="+itemcode , function(data){
+				
+				switch(data.uom){
+					case "Pieces":
+						uom = "PCS";
+					case "Kilo":
+						uom = "KG";
+					case "Gram":
+						uom = "GRAM";
+					default:
+						uom = "PCS";
 				}
-			}
-
-			var row = `
-				<tr>
-					<td>
-						<?php
-							$value = "<span id='temp_view_itemcode_` + index + `'></span>";
-							echo $ui->formField('dropdown')
-								->setPlaceholder('Select Item')
-								->setSplit('', 'col-md-12')
-								->setName('detail_itemcode[]')
-								->setClass('itemcode')
-								->setList($item_list)
-								->setValue($value)
-								->draw($show_input);
-						?>
-					</td>
-					<td>
-						<?php
-							echo $ui->formField('text')
-								->setSplit('', 'col-md-12')
-								->setName('detailparticular[]')
-								->setValue('` + details.detailparticular + `')
-								->draw($show_input);
-						?>
-					</td>
-					<td class="text-center">
-						<?php
-							echo $ui->loadElement('check_task')
-									->addCheckbox()
-									->setValue('` + details.warranty + `')
-									->draw();
-						?>
-					</td>
-					<td>
-						<?php
-							$value = "<span id='temp_view_warehouse_` + index + `'></span>";
-							echo $ui->formField('dropdown')
-								->setPlaceholder('Select Warehouse')
-								->setSplit('', 'col-md-12')
-								->setName('detail_warehouse[]')
-								->setClass('warehouse')
-								->setList($warehouse_list)
-								->setValue($value)
-								->draw($show_input);
-						?>
-					</td>
-					<td class="text-right">
-						<?php
-							echo $ui->formField('text')
-								->setSplit('', 'col-md-12')
-								->setName('quantity[]')
-								->setClass('quantity text-right')
-								->setAttribute(array('data-value' => '` + (parseFloat(details.quantity) || 0) + `'))
-								->setValidation('required integer')
-								->setValue('` + (addComma(details.quantity, 0) || 0) + `')
-								->draw($show_input);
-						?>
-						` + otherdetails + `
-					</td>
-					<td>
-						<?php
-							echo $ui->formField('text')
-								->setSplit('', 'col-md-12')
-								->setValue('` + details.uom.toUpperCase() + `')
-								->draw(false);
-						?>
-					</td>
-					<td class="text-right">
-						<?php
-							echo $ui->formField('text')
-								->setSplit('', 'col-md-12')
-								->setName('price[]')
-								->setClass('price text-right')
-								->setAttribute(array('data-value' => '` + (parseFloat(details.price) || 0) + `'))
-								->setValidation('required decimal')
-								->setValue('` + (addComma(details.price, 0) || 0) + `')
-								->draw($show_input);
-						?>
-					</td>
-					<td class="text-right">
-						<?php
-							echo $ui->formField('text')
-								->setSplit('', 'col-md-12')
-								->setName('discount[]')
-								->setClass('discount text-right')
-								->setAttribute(
-									array(
-										'data-value' => '` + (parseFloat(details.discount) || 0) + `'
-									)
-								)
-								->setValidation('required decimal')
-								->setValue('` + (addComma(details.discount, 0) || 0) + `')
-								->draw($show_input);
-						?>
-					</td>
-					<td>
-						<?php
-							$value = "<span id='temp_view_taxcode_` + index + `'></span>";
-							echo $ui->formField('dropdown')
-								->setSplit('', 'col-md-12')
-								->setName('taxcode[]')
-								->setClass('taxcode')
-								->setList($taxrate_list)
-								->setValue($value)
-								->setNone('none')
-								->draw($show_input);
-						?>
-					</td>
-					<td class="text-right">
-						<?php
-							echo $ui->formField('text')
-								->setSplit('', 'col-md-12')
-								->setName('amount[]')
-								->setClass('amount text-right')
-								->setAttribute(
-									array(
-										'data-value' => '` + (parseFloat(details.amount) || 0.00) + `',
-										'readOnly' => 'readOnly'
-									)
-								)
-								->setValidation('required decimal')
-								->setValue('` + (addComma(details.amount, 0.00) || 0.00) + `')
-								->draw($show_input);
-						?>
-					</td>
-					<?php if ($show_input): ?>
-					<td>
-						<button type="button" class="btn btn-danger btn-flat delete_row" style="outline:none;">
-							<span class="glyphicon glyphicon-trash"></span>
-						</button>
-					</td>
-					<?php endif ?>
-				</tr>
-			`;
-
-			$('#tableList tbody').append(row);
-
-			if (details.itemcode != '') {
-				$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
-			}
-			if (details.warehouse != '') {
-				$('#tableList tbody').find('tr:last .warehouse').val(details.warehouse);
-			}
-			if (details.taxcode != '') {
-				$('#tableList tbody').find('tr:last .taxcode').val(details.taxcode);
-			}
-
-			try {
-				drawTemplate();
-			} catch(e) {};
-
-			var itemlist = <?= json_encode($item_list) ?>;
-			itemlist.forEach(function(item) {
-				if (item.ind == details.itemcode) {
-					$('#temp_view_' + index).html(item.val);
-				}
+				row.closest("tr").find(".detailparticular").val(data.itemdesc);
+				row.closest("tr").find(".price").val(addComma(data.itemprice));
+				row.closest("tr").find(".uom").val(uom);
+				console.log(data.itemdesc);
 			});
-
-			var warehouselist = <?= json_encode($warehouse_list) ?>;
-			warehouselist.forEach(function(warehouse) {
-				if (warehouse.ind == details.warehouse) {
-					$('#temp_view_warehouse_' + index).html(warehouse.val);
-				}
-			});
-
-			var taxrate_list = <?= json_encode($taxrate_list) ?>;
-			taxrate_list.forEach(function(tax) {
-				if (tax.ind == details.taxcode) {
-					$('#temp_view_taxrate_' + index).html(tax.val);
-				}
-			});
-
-			if (details.warranty == 'yes') {
-				$(this).removeAttr('readonly').val($(this).attr('data-value'));
-				$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
-			} 
-			else {
-				$('#tableList tbody').find('tr:last .warranty_hidden').attr('readonly', '').val(0);
-				$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('enable');
-			}
 		}
 
 		function addCommas(nStr){
@@ -628,8 +626,41 @@
 	<?php if ($show_input): ?>
 
 	<script>
-		$('#addNewItem').on('click', function() {
-			addVoucherDetails();
+		$('body').on('click', '#addNewItem', function() 
+		{
+			$('#tableList tbody tr.clone select').select2('destroy');
+			
+			var clone = $("#tableList tbody tr.clone:first").clone(true); 
+
+			var ParentRow = $("#tableList tbody tr.clone").last();
+			
+			clone.clone(true).insertAfter(ParentRow);
+			$('#tableList tbody tr.clone select').select2({width: "100%"});
+		});
+
+		$('.itemcode').on('change', function(e) {
+			var customer 	=	$('#customer').val();
+			
+			if( customer != "" )
+			{
+				var itemcode = $(this).val();
+				getItemDetails(itemcode, $(this));
+
+			}
+			else
+			{
+				$(this).find(".itemcode").val('');
+				$('#customer').focus();
+			}
+		});
+		
+		$("#discount_type").on("change", function(){
+			
+			if ($(this).val()=="none" || $(this).val()=="") {
+				$(".discount").prop("disabled",true);
+			}
+			else
+				$(".discount").prop("disabled",false);
 		});
 		
 		$('body').on('click', '.delete_row', function() {
