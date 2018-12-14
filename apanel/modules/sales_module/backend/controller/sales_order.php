@@ -756,6 +756,9 @@ class controller extends wc_controller
 		$cc_entry_data  = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
 		$itemcodes 		= $this->so->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
 
+		$w_entry_data           = array("warehousecode ind","description val");
+		$warehouses 	= $this->so->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
+
 		$itemcode = [];
 		$itemdesc = [];
 		$itemname = [];
@@ -763,7 +766,7 @@ class controller extends wc_controller
 		$itemuom = [];
 		$table = '';
 		foreach ($result as $key => $row) {
-			$table .= '<tr class="clone parts">';
+			$table .= '<tr class="parts clone '.$linenum.'">';
 			$table .= '<td>' . $ui->formField('dropdown')
 								->setPlaceholder('Select One')
 								->setSplit('	', 'col-md-12')
@@ -790,12 +793,17 @@ class controller extends wc_controller
 						'</td>';
 			$table .= '<td>' . $ui->formField('dropdown')
 								->setSplit('	', 'col-md-12')
+								->setPlaceholder('Select One')
 								->setName("warehouse[".$key."]")
 								->setAttribute(array('disabled', 'true'))
 								->setId("warehouse[".$key."]")
 								->setClass('warehouse')
+								->setList($warehouses)
+								->setNone('none')
+								->setValue('')
 								->draw(true); 
-						'</td>';
+			$table .='<input type = "hidden" id = "h_warehouse["'.$key.'"]" name = "h_warehouse["'.$key.'"]" class = "h_warehouse" value = "">';
+			'</td>';
 			$table .= '<td>' . $ui->formField('text')
 								->setSplit('	', 'col-md-12')
 								->setName("quantity[".$key."]")
@@ -804,6 +812,7 @@ class controller extends wc_controller
 								->setClass('quantity text-right ' . $mainitemcode)
 								->setValue('0')
 								->draw(true); 
+			$table .='<input type = "hidden" id = "h_quantity["'.$key.'"]" name = "h_quantity["'.$key.'"]" class = "h_quantity" value = "'.$row->quantity.'">';
 						'</td>';
 			$table .= '<td>' . $ui->formField('text')
 								->setPlaceholder('Select One')
