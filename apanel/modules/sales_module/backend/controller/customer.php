@@ -221,7 +221,7 @@
 						
 							// Check for Max Length 
 							$errmsg[] 	=	$this->import->check_character_length("Customer Code", $customercode, $line, "20", strlen($customercode));
-							$errmsg[] 	=	$this->import->check_character_length("Company Name", $companyname, $line, "30", strlen($companyname));
+							$errmsg[] 	=	$this->import->check_character_length("Company Name", $companyname, $line, "100", strlen($companyname));
 							$errmsg[] 	=	$this->import->check_character_length("Address", $address, $line, "105", strlen($address));
 							$errmsg[] 	=	$this->import->check_character_length("Email", $email, $line, "150", strlen($email));
 							$errmsg[] 	=	$this->import->check_character_length("Contact Number", $contact, $line, "20", strlen($contact));
