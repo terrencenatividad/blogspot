@@ -99,7 +99,7 @@
 						'class' => 'col-md-1 text-center'
 					)
 				)
-				->addHeader('Date', array('class' => 'col-md-1'), 'sort', 'main.transactiondate', 'desc')
+				->addHeader('Date', array('class' => 'col-md-1'), 'sort', 'main.entereddate', 'desc')
 				->addHeader('Imported', array('class' => 'col-md-1'), 'sort', 'main.lockkey')
 				->addHeader('Voucher No', array('class' => 'col-md-1'), 'sort', 'main.voucherno')
 				->addHeader('Supplier', array('class' => 'col-md-2'), 'sort', 'p.partnername')
