@@ -12,13 +12,13 @@ class controller extends wc_controller {
 		$this->session			= new session();
 		$this->fields 			= array(
 			'voucherno',
-			'transactiondate',
-			'job_type',
-			'targetdate',
-			'customer',
 			'reference',
+			'customer',
+			'notes',
+			'job_type',
 			'discount_type',
-			'notes'
+			'transactiondate',
+			'targetdate'
 		);
 		$this->fields_header	= array(
 			'header_fiscalyear'		=> 'fiscalyear',
@@ -29,7 +29,7 @@ class controller extends wc_controller {
 			'header_discountrate'   => 'discountrate',
 			'header_discountamount' => 'discountamount'
 		);
-		$this->fields2			= array(
+		$this->fields_details			= array(
 			'itemcode',
 			'detailparticular',
 			'linenum',
@@ -70,7 +70,9 @@ class controller extends wc_controller {
 		$data['targetdate']			= $this->date->dateFormat();
 		$data['job_list']			= $this->service_quotation->getOption('job_type','code');
 		$data['customer_list']		= $this->service_quotation->getCustomerList();
+		
 		$data['discount_type_list']	= $this->service_quotation->getOption('discount_type','value');
+		$data['discount_type'] 		= "none";
 		$data['item_list']			= $this->service_quotation->getItemList();
 		$data['warehouse_list']		= $this->service_quotation->getWarehouseList();
 		$data["taxrate_list"]		= $this->service_quotation->getTaxRateList();
@@ -90,6 +92,7 @@ class controller extends wc_controller {
 		$close_date 				= $this->parts_and_service->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data['restrict_dr'] 		= false;
+
 		$this->view->load('service_quotation/service_quotation', $data);
 	}
 	public function edit($id) {
@@ -252,6 +255,15 @@ class controller extends wc_controller {
 				break;
 		}
 		return '<span class="label label-' . $color . '">' . strtoupper($stat) . '</span>';
+	}
+
+	private function ajax_create(){
+		$seq 		= new seqcontrol();
+		$voucherno 	= $seq->getValue("SEQ");
+		$service 			= $this->input->post($this->fields);
+		$service_details = $this->input->post($this->fields_details);
+		var_dump($service);
+		var_dump($service_details);
 	}
 
 	public function generateRandomString($length = 10){
