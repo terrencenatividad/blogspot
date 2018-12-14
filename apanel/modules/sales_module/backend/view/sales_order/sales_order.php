@@ -20,6 +20,7 @@
 			<input class = "form_iput" value = "<?=$h_balance?>" name = "h_balance" id = "h_balance" type="hidden">
 			<input class = "form_iput" value = "<?=$vat_ex?>" name = "vat_ex" id = "vat_ex" type="hidden">
 			<input class = "form_iput" value = "<?=$task?>" name = "task" id = "task" type="hidden">
+			<input class = "form_iput" value = "" name = "h_curr_customer" id = "h_curr_customer" type="hidden">
 			
 			<div class="box-body">
 				<br>
@@ -537,13 +538,14 @@
 											</td>
 											<td class = "remove-margin text-right">
 												<?php
+													$is_required = ($parentcode == '') ? 'required' : '';
 													echo $ui->formField('text')
 															->setSplit('', 'col-md-12')
 															->setName('itemprice['.$row.']')
 															->setId('itemprice['.$row.']')
 															->setClass("price text-right")
 															->setAttribute(array("maxlength" => "20"))
-															->setValidation('decimal required')
+															->setValidation('decimal '.$is_required)
 															->setValue(number_format($itemprice,'2','.',','))
 															->draw($show_input);
 												?>
@@ -1326,6 +1328,23 @@
 	</div>
 </div>
 
+<div class="modal fade" id="changeCustomerModal" tabindex="-1"  data-backdrop="static" data-keyboard="false" >
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Confirmation
+			</div>
+			<div class="modal-body" id="message">
+				Changing the Current Customer Type will clear out the Item Section. Do you wish to proceed?
+			</div>
+			<div class="modal-footer text-center">
+				<button type="button" class="btn btn-info btn-flat" id="disc_yes" data-dismiss='modal'>Yes</button>
+				<button type="button" class="btn btn-default btn-flat" id="disc_no" >No</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div class="modal fade" id="discounttypeModal" tabindex="-1"  data-backdrop="static" data-keyboard="false" >
 	<div class="modal-dialog modal-sm">
 		<div class="modal-content">
@@ -1528,6 +1547,8 @@
 <script>
 var ajax = {};
 
+var items 		= [];
+
 var close_date 	=	$('#h_close_date').val();
 
 /**RETRIEVES CUSTOMER INFORMATION**/
@@ -1729,6 +1750,9 @@ $( document ).ready(function() {
 			$(this).closest('tr').find('.discount').prop('readonly',true)
 			$(this).closest('tr').find('.confirm-delete').prop('disabled',true)
 			$(this).closest('tr').addClass('parts '+linenum);
+		}
+		else {
+			$(this).closest('tr').addClass(linenum);
 		}
 	});
 });
@@ -2166,7 +2190,8 @@ function finalizeEditTransaction()
 	});
 
 	$('.price').each(function() {
-		if( $(this).val() <= 0 )
+		var validations = $(this).attr('data-validation').split(' ');
+		if( $(this).val() <= 0 && validations.includes('required'))
 		{
 			no_error = false;
 			$(this).closest('div').addClass('has-error');
@@ -2292,22 +2317,52 @@ $(document).ready(function(){
 
 	// -- For Customer --
 		// Get getPartnerInfo
-		$( "#customer" ).change(function() 
-		{
-			customer_id = $("#customer").val();
+		// $( "#customer" ).change(function() 
+		// {
+		// 	customer_id = $("#customer").val();
+		// 	if( customer_id != "" )
+		// 	{
+		// 		retrieveCreditLimit(customer_id);
+		// 		retrieveCurrentIncurredReceivables(customer_id);
+		// 		retrieveCurrentOutstandingReceivables(customer_id);
+		// 		computeforremainingcredit();
 
-			if( customer_id != "" )
+		// 		getPartnerInfo(customer_id);
+		// 		if( $('#itemcode\\[1\\]').val() != "" ){
+		// 			$('.itemcode').trigger('change');
+		// 		}
+		// 	}
+		// });
+
+		$( "#customer" ).on('select2:selecting',function(e) {
+			var curr_id	=  $(this).val();	
+			var new_id 	= e.params.args.data.id;
+			if( curr_id != "" )
 			{
-				retrieveCreditLimit(customer_id);
-				retrieveCurrentIncurredReceivables(customer_id);
-				retrieveCurrentOutstandingReceivables(customer_id);
-				computeforremainingcredit();
-
-				getPartnerInfo(customer_id);
-				if( $('#itemcode\\[1\\]').val() != "" ){
-					$('.itemcode').trigger('change');
-				}
+				e.preventDefault();
+				$('#changeCustomerModal').modal('show');
+				$(this).select2('close');
 			}
+			$('#h_curr_customer').val(new_id);
+		});
+
+		$('#changeCustomerModal').on('click','#disc_yes',function(){
+			var customer_id = $('#h_curr_customer').val();
+			$('#customer').val(customer_id).trigger('change');
+
+			retrieveCreditLimit(customer_id);
+			retrieveCurrentIncurredReceivables(customer_id);
+			retrieveCurrentOutstandingReceivables(customer_id);
+			computeforremainingcredit();
+
+			getPartnerInfo(customer_id);
+			// if( $('#itemcode\\[1\\]').val() != "" ){
+			// 	$('.itemcode').trigger('change');
+			// }
+
+			$('#itemsTable tbody').find('tr').not(':first').remove();
+			setZero();
+			resetIds();
 		});
 
 		// Open Modal
