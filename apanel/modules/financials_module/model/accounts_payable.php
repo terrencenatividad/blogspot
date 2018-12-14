@@ -42,6 +42,7 @@ class accounts_payable extends wc_model
 	public function getJobList() {
 		$result = $this->db->setTable('job')
 		->setFields("job_no")
+		// ->setWhere('stat = "on-going"')
 		->setGroupBy('job_no')
 		->runPagination();
 		
@@ -552,6 +553,16 @@ class accounts_payable extends wc_model
 	}
 
 	public function getAccountClasscode($accountcode){
+		$result = $this->db->setTable("chartaccount")
+		->setFields('accountclasscode')
+		->setWhere("id IN($accountcode)")
+		->runSelect()
+		->getResult();
+
+		return $result;
+	}
+
+	public function checkCWT($accountcode){
 		$result = $this->db->setTable("chartaccount")
 		->setFields('accountclasscode')
 		->setWhere("id = '$accountcode'")
@@ -2069,12 +2080,12 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
-	public function saveAPDetails($ap_details, $voucherno) {
-		$result1 = $this->db->setTable('ap_details')
+	public function saveAPDetails($ap_details) {
+		$result = $this->db->setTable('ap_details')
 		->setValuesFromPost($ap_details)
 		->runInsert();
 
-		return $result1;
+		return $result;
 	}
 
 	public function checkStat($voucherno) {
@@ -2093,7 +2104,7 @@ class accounts_payable extends wc_model
 		->leftJoin('pv_application as pa ON pv.voucherno = pa.voucherno')
 		->leftJoin('pv_details as pd ON pv.voucherno = pd.voucherno')
 		->leftJoin('chartaccount as ca ON pd.accountcode = ca.id')
-		->setWhere("pa.apvoucherno = '$voucherno' AND pd.debit != 0")
+		->setWhere("pa.apvoucherno = '$voucherno' AND pd.debit != 0 AND pv.stat != 'cancelled'")
 		->runSelect()
 		->getResult();
 

@@ -8,6 +8,7 @@ class controller extends wc_controller {
 		$this->logs				= new log();
 		$this->purchase_model	= new purchase_receipt_model();
 		$this->restrict 		= new purchase_restriction_model();
+		$this->report_model		= $this->checkOutModel('reports_module/report_model');
 		$this->financial_model	= $this->checkOutModel('financials_module/financial_model');
 		$this->inventory_model	= $this->checkoutModel('inventory_module/inventory_model');
 		$this->session			= new session();
@@ -306,6 +307,7 @@ class controller extends wc_controller {
 		$data['voucherno']			= $seq->getValue('PR');
 		$data['transtype']			= $this->purchase_model->getTransactionType($data['source_no']);
 		$result						= $this->purchase_model->savePurchaseReceipt($data, $data2);
+		
 		if ($result && $this->financial_model) {
 			$this->financial_model->generateAP($data['voucherno']);
 		}
@@ -319,6 +321,13 @@ class controller extends wc_controller {
 									->setDetails($data['vendor'])
 									->generateBalanceTable();
 		}
+		
+		// $columns['transactiontype'] = 'Received Asset';
+		if ($result && $this->report_model){ 
+			$this->report_model->generateAssetActivity();
+		} 
+		
+
 		$redirect_url = MODULE_URL;
 		if ($submit == 'save_new') {
 			$redirect_url = MODULE_URL . 'create';
@@ -355,6 +364,9 @@ class controller extends wc_controller {
 									->logChanges();
 
 			$this->inventory_model->generateBalanceTable();
+		}
+		if($this->report_model){
+			$this->report_model->generateAssetActivity();
 		}
 		return array(
 			'redirect'	=> MODULE_URL,

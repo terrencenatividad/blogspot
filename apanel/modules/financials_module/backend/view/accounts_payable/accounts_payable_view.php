@@ -425,7 +425,7 @@
 <div class="row">
     <div class="col-md-12 col-sm-12 text-center">
         <div class="btn-group" id="save_group">
-            <?php if($status == 'unpaid') : ?>
+            <?php if($status == 'unpaid' && !$checker) : ?>
                 <a href="<?=MODULE_URL?>edit/<?php echo $voucherno ?>" class = "btn btn-info btn-flat">Edit</a>
             <?php endif; ?>
         </div>
@@ -435,7 +435,7 @@
 </div>
 </section>
 <script>
-    <?php if($ajax_post != 'create') : ?>
+    <?php if($ajax_task != 'ajax_create') : ?>
         $(document).ready(function() {
             sumDebit();
             sumCredit();

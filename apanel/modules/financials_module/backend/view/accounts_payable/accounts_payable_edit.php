@@ -234,13 +234,14 @@
 								</div>
 								<div class="col-md-6">
 									<div class="form-group">
+										<?php $tags = explode(',', $job_no); ?>
 										<label class="control-label col-md-4">Job Items </label>
 										<div class="col-md-8">
-											<?php if($ajax_task != 'ajax_view') { ?>
+											<?php if($ajax_task != 'ajax_view') {?>
 												<input type="hidden" name="jobs_tagged" id = "jobs_tagged" value = "<?php echo $job_no; ?>">
 												<button type="button" id="job" class="btn btn-block btn-success btn-flat" <?php echo $val ?>>
 													<em class="pull-left"><small>Click to tag job items</small></em>
-													<strong id="job_text" class="pull-right"></strong>
+													<strong id="job" class="pull-right"><?php echo count($tags); ?></strong>
 												</button>
 											<?php } else { ?>
 												<span><?php echo $job_no; ?></span>
@@ -355,224 +356,138 @@
 										</tr>
 									</thead>
 									<tbody>
-										<tr class="clone" valign="middle">
-											<td class = "checkbox-select remove-margin text-center">
-												<?php
-												echo $ui->formField('checkbox')
-												->setSplit('', 'col-md-12')
-												->setId("wtax[]")
-												->setClass("wtax")
-												->setDefault("")
-												->setValue(1)
-												->setAttribute(array("disabled" => "disabled"))
-												->draw($show_input);
-												?>
-											</td>
-											<td class="edit-button text-center " style="display: none">
-												<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
-											</td>
-											<td class = "remove-margin hidden" >
-												<?php
-												echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
-												->setName("taxcode[]")
-												->setId("taxcode")
-												->setClass('taxcode')
-												->setValue("")
-												->draw($show_input);
-												?>
-											</td>
-											<td class = "remove-margin hidden">
-												<?php
-												echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
-												->setName("taxbase_amount[]")
-												->setId("taxbase_amount")
-												->setClass('taxbase_amount')
-												->setValue("")
-												->draw($show_input);
-												?>
-											</td>
-											<td class = "remove-margin">
-												<?php
-												echo $ui->formField('dropdown')
-												->setPlaceholder('Select One')
-												->setSplit('', 'col-md-12')
-												->setName("accountcode[]")
-												->setId("accountcode")
-												->setClass('accountcode')
-												->setList($account_list)
-												->setValue("")
-												->draw($show_input);
-												?>
-											</td>
-											<td class = "remove-margin">
-												<?php
-												echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
-												->setName('detailparticulars[]')
-												->setId('detailparticulars')
-												->setAttribute(array("maxlength" => "100"))
-												->setClass('detailparticulars')
-												->setValue("")
-												->draw($show_input);
-												?>
-											</td>
-											<td class = "remove-margin" colspan = "2">
-												<?php
-												echo $ui->formField('text')
-												->setPlaceholder('00.00')
-												->setSplit('col-md-2', 'col-md-10')
-												->setLabel('<span class="label label-default currency_symbol">PHP</span>')
-												->setName('debit[]')
-												->setId('debit')
-												->setAttribute(array("maxlength" => "20"))
-												->setClass("debit text-right")
-												->setValidation('decimal required')
-												->draw($show_input);
-												?>
-											</td>
-											<td class = "remove-margin" colspan = "2">
-												<?php
-												echo $ui->formField('text')
-												->setPlaceholder('00.00')
-												->setSplit('col-md-2', 'col-md-10')
-												->setLabel('<span class="label label-default currency_symbol">PHP</span>')
-												->setName('credit[]')
-												->setId('credit')
-												->setAttribute(array("maxlength" => "20"))
-												->setClass("credit text-right")
-												->setValidation('decimal required')
-												->draw($show_input);
-												?>
-											</td>
-											<td class = "remove-margin">
-												<?php
-												echo $ui->formField('text')
-												->setPlaceholder('00.00')
-												->setSplit('', 'col-md-12')
-												->setName('currencyamount[]')
-												->setId('currencyamount')
-												->setAttribute(array("maxlength" => "20", 'readonly'))
-												->setClass("currencyamount text-right")
-												->setValidation('decimal')
-												->draw($show_input);
-												?>
-											</td>
-											<input type="hidden" name="linenum[]" value = "1" class = "linenum">
-											<td class="text-center">
-												<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="1" name="chk[]" style="outline:none;"><span class="glyphicon glyphicon-trash"></span></button>
-											</td>			
-										</tr>
-										<tr class="clone" valign="middle">
-											<td class = "checkbox-select remove-margin text-center">
-												<?php
-												echo $ui->formField('checkbox')
-												->setSplit('', 'col-md-12')
-												->setId("wtax[]")
-												->setClass("wtax")
-												->setDefault("")
-												->setValue(1)
-												->setAttribute(array("disabled" => "disabled"))
-												->draw($show_input);
-												?>
-											</td>
-											<td class="edit-button text-center" style="display: none">
-												<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
-											</td>
-											<td class = "remove-margin hidden">
-												<?php
-												echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
-												->setName("taxcode[]")
-												->setId("taxcode")
-												->setClass('taxcode')
-												->setValue("")
-												->draw($show_input);
-												?>
-											</td>
-											<td class = "remove-margin hidden">
-												<?php
-												echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
-												->setName("taxbase_amount[]")
-												->setId("taxbase_amount")
-												->setClass('taxbase_amount')
-												->setValue("")
-												->draw($show_input);
-												?>
-											</td>
-											<td class = "remove-margin">
-												<?php
-												echo $ui->formField('dropdown')
-												->setPlaceholder('Select One')
-												->setSplit('', 'col-md-12')
-												->setName("accountcode[]")
-												->setId("accountcode")
-												->setList($account_list)
-												->setClass('accountcode')
-												->setValue("")
-												->draw($show_input);
-												?>
-											</td>
-											<td class = "remove-margin">
-												<?php
-												echo $ui->formField('text')
-												->setSplit('', 'col-md-12')
-												->setName('detailparticulars[]')
-												->setId('detailparticulars')
-												->setClass('detailparticulars')
-												->setAttribute(array("maxlength" => "100"))
-												->setValue("")
-												->draw($show_input);
-												?>
-											</td>
-											<td class = "remove-margin" colspan = "2">
-												<?php
-												echo $ui->formField('text')
-												->setSplit('col-md-2', 'col-md-10')
-												->setLabel('<span class="label label-default currency_symbol">PHP</span>')
-												->setPlaceholder('00.00')
-												->setName('debit[]')
-												->setId('debit')
-												->setAttribute(array("maxlength" => "20"))
-												->setClass("debit text-right")
-												->setValidation('decimal required')
-												->draw($show_input);
-												?>
-											</td>
-											<td class = "remove-margin" colspan = "2">
-												<?php
-												echo $ui->formField('text')
-												->setPlaceholder('00.00')
-												->setSplit('col-md-2', 'col-md-10')
-												->setLabel('<span class="label label-default currency_symbol">PHP</span>')
-												->setName('credit[]')
-												->setId('credit')
-												->setAttribute(array("maxlength" => "20"))
-												->setClass("credit text-right")
-												->setValidation('decimal required')
-												->draw($show_input);
-												?>
-											</td>
-											<td class = "remove-margin">
-												<?php
-												echo $ui->formField('text')
-												->setPlaceholder('00.00')
-												->setSplit('', 'col-md-12')
-												->setName('currencyamount[]')
-												->setId('currencyamount')
-												->setAttribute(array("maxlength" => "20", 'readonly'))
-												->setClass("currencyamount text-right")
-												->setValidation('decimal')
-												->draw($show_input);
-												?>
-											</td>
-											<input type="hidden" name="linenum[]" value = "2" class = "linenum">
-											<td class="text-center">
-												<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="2" name="chk[]" style="outline:none;"><span class="glyphicon glyphicon-trash"></span></button>
-											</td>			
-										</tr>
+										<?php foreach ($details as $key => $row) : ?>
+											<tr class="clone" valign="middle">
+												<?php if($ajax_task == 'ajax_view') { ?>
+													<td class = "checkbox-select remove-margin text-center">
+														<div class="hidden">
+															<?php
+															echo $ui->formField('checkbox')
+															->setSplit('', 'col-md-12')
+															->setId("wtax[]")
+															->setClass("wtax")
+															->setDefault("")
+															->setValue(1)
+															->setAttribute(array("disabled" => "disabled"))
+															->draw($show_input);
+															?>
+														</div>
+													</td>
+												<?php } else { ?>
+													<td class = "checkbox-select remove-margin text-center">
+														<?php
+														echo $ui->formField('checkbox')
+														->setSplit('', 'col-md-12')
+														->setId("wtax[]")
+														->setClass("wtax")
+														->setDefault("")
+														->setValue(1)
+														->setAttribute(array("disabled" => "disabled"))
+														->draw($show_input);
+														?>
+													</td>
+												<?php } ?>
+												<td class="edit-button text-center " style="display: none">
+													<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
+												</td>
+												<td class = "remove-margin hidden" >
+													<?php
+													echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName("taxcode[]")
+													->setId("taxcode")
+													->setClass('taxcode')
+													->setValue("")
+													->draw($show_input);
+													?>
+												</td>
+												<td class = "remove-margin hidden" >
+													<?php
+													echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName("taxbase_amount[]")
+													->setId("taxbase_amount")
+													->setClass('taxbase_amount')
+													->setValue("")
+													->draw($show_input);
+													?>
+												</td>
+												<td class = "remove-margin">
+													<?php
+													echo $ui->formField('dropdown')
+													->setPlaceholder('Select One')
+													->setSplit('', 'col-md-12')
+													->setName("accountcode[]")
+													->setId("accountcode")
+													->setClass('accountcode')
+													->setList($account_list)
+													->setValue($row->accountcode)
+													->draw($show_input);
+													?>
+												</td>
+												<td class = "remove-margin">
+													<?php
+													echo $ui->formField('text')
+													->setSplit('', 'col-md-12')
+													->setName('detailparticulars[]')
+													->setId('detailparticulars')
+													->setAttribute(array("maxlength" => "100"))
+													->setClass('detailparticulars')
+													->setValue($row->description)
+													->draw($show_input);
+													?>
+												</td>
+												<td class = "remove-margin" colspan = "2">
+													<?php
+													echo $ui->formField('text')
+													->setPlaceholder('00.00')
+													->setSplit('col-md-2', 'col-md-10')
+													->setLabel('<span class="label label-default currency_symbol">PHP</span>')
+													->setName('debit[]')
+													->setId('debit')
+													->setAttribute(array("maxlength" => "20"))
+													->setClass("debit text-right")
+													->setValidation('decimal')
+													->setValue(number_format($row->debit,2))
+													->draw($show_input);
+													?>
+												</td>
+												<td class = "remove-margin" colspan = "2">
+													<?php
+													echo $ui->formField('text')
+													->setPlaceholder('00.00')
+													->setSplit('col-md-2', 'col-md-10')
+													->setLabel('<span class="label label-default currency_symbol">PHP</span>')
+													->setName('credit[]')
+													->setId('credit')
+													->setAttribute(array("maxlength" => "20"))
+													->setClass("credit text-right")
+													->setValidation('decimal')
+													->setValue(number_format($row->credit,2))
+													->draw($show_input);
+													?>
+												</td>
+												<td class = "remove-margin">
+													<?php
+													echo $ui->formField('text')
+													->setPlaceholder('00.00')
+													->setSplit('', 'col-md-12')
+													->setName('currencyamount[]')
+													->setId('currencyamount')
+													->setAttribute(array("maxlength" => "20", 'readonly'))
+													->setClass("currencyamount text-right")
+													->setValidation('decimal')
+													->setValue($row->currencyamount)
+													->draw($show_input);
+													?>
+												</td>
+												<input type="hidden" name="linenum[]" value = "<?php echo $row->linenum; ?>" class = "linenum">
+												<?php $val = ($ajax_task) == 'ajax_view' ? 'hidden' : ''; ?>
+												<td class="text-center" <?php echo $val; ?>>
+													<button type="button" class="btn btn-danger btn-flat confirm-delete" data-id="1" name="chk[]" style="outline:none;"><span class="glyphicon glyphicon-trash"></span></button>
+												</td>			
+											</tr>
+										<?php endforeach; ?>
 									</tbody>
 									<tfoot>
 										<tr>
@@ -1168,6 +1083,14 @@
 	</div>
 
 	<script>
+	$(document).ready(function() {
+		if(removeComma($('.credit').val()) == 0) {
+			$('.credit').attr('readonly', 'readonly');
+		} else {
+			$('.debit').attr('readonly', 'readonly');
+		}
+	});
+
 		$('#btnCancel').click(function() 
 		{
 			$('#cancelModal').modal('show');
@@ -1206,7 +1129,7 @@
 			});
 		});
 
-		<?php if($ajax_task != 'ajax_create') : ?>
+		<?php if($ajax_post != 'create') : ?>
 			$(document).ready(function() {
 				sumDebit();
 				sumCredit();
@@ -1236,25 +1159,6 @@
 			}
 		});
 
-		$('#exchangerate').on('blur', function() {
-			var row = '';
-			var total = 0;
-			var rate = $(this).val();
-			$('.currencyamount').each(function() {
-				var debit = $(this).closest('tr').find('.debit').val();
-				var credit = $(this).closest('tr').find('.credit').val();
-				if(debit != '') {
-					row = $(this).closest('tr').find('.debit');
-					total = debit * rate;
-				} else {
-					row = $(this).closest('tr').find('.credit');
-					total = credit * rate;
-				}
-				row.closest('tr').find('.currencyamount').val(addComma(total));
-				sumCurrencyAmount();
-			});
-		});
-
 		$('#itemsTable').on('blur', '.credit', function() {
 			var rate = removeComma($('#exchangerate').val());
 			var credit = removeComma($(this).val());
@@ -1277,7 +1181,6 @@
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
 				var get = $(this).val();
 				job.push(get);
-				$('#job_text').html(job.length);
 				$('#assetid').attr('disabled', 'disabled');
 				$('#jobModal').modal('hide');
 			});
@@ -1432,11 +1335,11 @@
 			deleterow.remove();
 			$('#deleteItemModal').modal('hide');
 		});	
-
 		var accountcodes = [];
 		var good = true;
-		$('#save_preview').click(function(e) {
+		$('#payableForm #save_preview').on('click', function(e) {
 			e.preventDefault();
+
 			$('#button_trigger').val('save_preview');
 			$('.accountcode :selected').each(function() {
 				accountcodes.push($(this).val());
@@ -1447,7 +1350,7 @@
 				$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
 				good = 'false';
 			}
-			
+
 			$(this).find('.form-group').find('input, textarea, select').trigger('blur');
 			if ($(this).find('.form-group.has-error').length == 0) {
 				if(good == true) {
