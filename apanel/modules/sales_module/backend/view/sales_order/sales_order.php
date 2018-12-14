@@ -321,6 +321,7 @@
 														->setValue("")
 														->draw($show_input);
 												?>
+												<input type = "hidden" id = <?php echo 'h_warehouse['.$row.']'; ?> name = <?php echo 'h_warehouse['.$row.']'; ?> class = "h_warehouse" value = "">
 											</td>
 											<td class = "remove-margin">
 												<?php
@@ -501,6 +502,7 @@
 														->setValue($value)
 														->draw($show_input);
 												?>
+												<input type = "hidden" id = <?php echo 'h_warehouse['.$row.']'; ?> name = <?php echo 'h_warehouse['.$row.']'; ?> class = "h_warehouse" value = "<?php echo $value ?>">
 											</td>
 											<td class = "remove-margin text-right">
 												<?php
@@ -1689,8 +1691,10 @@ $('.warehouse').on('change', function() {
 	var itemcode = $(this).closest('tr').find('.itemcode').val();
 	var parent = $(this).closest('tr').find('.h_parentline').val();
 	var warehouse = $(this).val();
+	$(this).closest('tr').find('.h_warehouse').val(warehouse);
 	$('#itemsTable tbody tr').find('.h_parentline[value="'+parent+'"]').each(function(index, value) {
 		$(this).closest('tr.parts').find('.warehouse').val(warehouse);
+		$(this).closest('tr.parts').find('.h_warehouse').val(warehouse);
 	});
 });
 
@@ -1965,6 +1969,7 @@ function resetIds()
 		row.cells[0].getElementsByTagName("input")[3].id 	= 'h_parentline['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
 		row.cells[2].getElementsByTagName("select")[0].id 	= 'warehouse['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].id 	= 'h_warehouse['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].id 	= 'quantity['+x+']';
 		row.cells[4].getElementsByTagName("input")[0].id 	= 'uom['+x+']';
 		row.cells[5].getElementsByTagName("input")[0].id 	= 'itemprice['+x+']';
@@ -1984,6 +1989,7 @@ function resetIds()
 		row.cells[0].getElementsByTagName("input")[3].name 	= 'h_parentline['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
 		row.cells[2].getElementsByTagName("select")[0].name = 'warehouse['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].name 	= 'h_warehouse['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].name 	= 'quantity['+x+']';
 		row.cells[4].getElementsByTagName("input")[0].name 	= 'uom['+x+']';
 		row.cells[5].getElementsByTagName("input")[0].name 	= 'itemprice['+x+']';
@@ -2018,9 +2024,10 @@ function setZero()
 	document.getElementById('h_itemcode['+newid+']').value 			= '';
 	document.getElementById('h_parentcode['+newid+']').value 		= '';
 	document.getElementById('h_isbundle['+newid+']').value 			= '';
-	document.getElementById('h_parentline['+newid+']').value 			= '';
+	document.getElementById('h_parentline['+newid+']').value 		= '';
 	document.getElementById('detailparticulars['+newid+']').value 	= '';
 	document.getElementById('warehouse['+newid+']').value 			= '';
+	document.getElementById('h_warehouse['+newid+']').value 		= '';
 	document.getElementById('quantity['+newid+']').value 			= '0';
 	document.getElementById('uom['+newid+']').value 				= '';
 	document.getElementById('itemprice['+newid+']').value 			= '0.00';

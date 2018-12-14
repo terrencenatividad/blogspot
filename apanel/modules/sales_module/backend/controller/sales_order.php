@@ -802,7 +802,8 @@ class controller extends wc_controller
 								->setNone('none')
 								->setValue('')
 								->draw(true); 
-						'</td>';
+			$table .='<input type = "hidden" id = "h_warehouse["'.$key.'"]" name = "h_warehouse["'.$key.'"]" class = "h_warehouse" value = "">';
+			'</td>';
 			$table .= '<td>' . $ui->formField('text')
 								->setSplit('	', 'col-md-12')
 								->setName("quantity[".$key."]")

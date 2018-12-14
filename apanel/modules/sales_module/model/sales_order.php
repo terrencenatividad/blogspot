@@ -409,7 +409,7 @@
 			/**INSERT DETAILS**/
 			foreach($data as $postIndex => $postValue)
 			{
-				if($postIndex == 'h_itemcode' || $postIndex == 'h_parentcode' || $postIndex == 'h_isbundle' || $postIndex == 'h_parentline' || $postIndex=='detailparticulars' || $postIndex == 'warehouse' || 
+				if($postIndex == 'h_itemcode' || $postIndex == 'h_parentcode' || $postIndex == 'h_isbundle' || $postIndex == 'h_parentline' || $postIndex=='detailparticulars' || $postIndex == 'h_warehouse' || 
 					$postIndex == 'quantity' ||  $postIndex == 'itemprice' || $postIndex == 'discount'|| $postIndex == 'amount' || 
 					$postIndex == 'h_amount'|| $postIndex == 'uom' || $postIndex == 'taxamount' || $postIndex == 'taxcode' || 
 					$postIndex == 'taxrate' || $postIndex == 'itemdiscount' || $postIndex == 'discountedamount' ) 
@@ -455,7 +455,7 @@
 				$h_parentline 		=	$tempArrayValue['h_parentline'];
 				$detailparticular 	= 	$tempArrayValue['detailparticulars'];
 				$quantity 			=	$tempArrayValue['quantity'];
-				$warehouse 			=  	isset($tempArrayValue['warehouse']) ? $tempArrayValue['warehouse'] : '';
+				$warehouse 			=  	$tempArrayValue['h_warehouse'];
 				$price 				= 	$tempArrayValue['itemprice'];
 				$discount 			= 	$tempArrayValue['discount'];
 				$amount 			=	$tempArrayValue['h_amount'];
