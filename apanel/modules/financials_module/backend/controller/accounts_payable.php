@@ -509,8 +509,6 @@ class controller extends wc_controller
 				if($row->accountclasscode == 'ACCPAY') {
 					$check = true;
 					$result    = $this->accounts_payable->saveAP($ap, $ap_details);
-				} else {
-					$result = false;
 				}
 			}	
 		} else {
@@ -616,9 +614,6 @@ class controller extends wc_controller
 					$check = true;
 					$result    = $this->accounts_payable->updateAP($ap['voucherno'], $ap);
 					$details = $this->accounts_payable->saveAPDetails($ap_details);
-				} else {
-					$result = false;
-					$details = false;
 				}
 			}
 		} else {
