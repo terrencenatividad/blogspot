@@ -206,4 +206,105 @@ class report_model extends wc_model {
 						->runInsert(false);
 	}
 
+	// public function saveAssetHistoryActivity($activity,$data) {
+	// 	// $data1['asset_number']	  = $data['asset_number'];
+	// 	// $data1['serial_number']	  = $data['serial_number'];
+	// 	$data1['transactiondate'] = date('Y-m-d H:i:s');
+	// 	$data1['transactiontype'] = $activity;
+	// 	// $data1['transferto'] 	  = $data['accountable_person'].' - '.$data['asset_location'];
+	// 	return $this->db->setTable('asset_history')
+	// 					->setValues($data1)
+	// 					->runInsert();
+	// }
+
+	// public function saveAssetTransactionActivity($activity,$data) {
+	// 	// $data1['asset_number']	  = $data['asset_number'];
+	// 	// $data1['serial_number']	  = $data['serial_number'];
+	// 	$data1['transactiondate'] = date('Y-m-d H:i:s');
+	// 	$data1['transactiontype'] = $activity;
+	// 	// $data1['transferto'] 	  = $data['accountable_person'].' - '.$data['asset_location'];
+	// 	return $this->db->setTable('asset_transaction')
+	// 					->setValues($data1)
+	// 					->runInsert();
+	// }
+	public function generateAssetActivity(){
+	$result = $this->db->setTable('asset_transaction')
+		->setWhere('companycode IS NOT NULL')
+		->runDelete();
+
+		$pofields 	=	array(	'po.companycode',
+								'pod.voucherno',
+								'"Create Purchase Order"',
+								'am.asset_class',
+								'am.asset_number',
+								'am.sub_number',
+								'po.entereddate',
+								'pod.amount',
+								'CONCAT(am.asset_location ," - ", am.accountable_person)'
+							);
+		$prfields 	=	array(	'pr.companycode',
+								'prd.voucherno',
+								'"Received Asset"',
+								'am.asset_class',
+								'am.asset_number',
+								'am.sub_number',
+								'pr.entereddate',
+								'prd.amount',
+								'CONCAT(am.asset_location ," - ", am.accountable_person)'
+							);
+		$apfields 	=	array(	'ap.companycode',
+								'apd.voucherno',
+								'"Repairs"',
+								'am.asset_class',
+								'am.asset_number',
+								'am.sub_number',
+								'ap.entereddate',
+								'apd.debit',
+								'CONCAT(am.asset_location ," - ", am.accountable_person)'
+							);
+
+		$columns 	=	array(	'companycode',
+								'voucherno',
+								'transactiontype',
+								'asset_class',
+								'asset_number',
+								'sub_number',
+								'transactiondate',
+								'amount',
+								'transferto'
+							);
+
+		$po = $this->db->setTable('purchaseorder po')
+						->leftJoin('purchaseorder_details pod ON po.companycode = pod.companycode AND po.voucherno = pod.voucherno')
+						->leftJoin('items i ON i.itemcode = pod.itemcode')
+						->leftJoin('itemtype it ON it.id = i.typeid')
+						->leftJoin('asset_master am ON am.itemcode = i.itemcode')
+						->setFields($pofields)
+						->setWhere("po.stat IN('open','posted','cancelled') AND it.label = 'Fixed Asset' AND EXISTS (SELECT *  FROM asset_master am WHERE am.itemcode = i.itemcode)")
+						->buildSelect();
+
+		$pr = $this->db->setTable('purchasereceipt pr')
+						->leftJoin('purchasereceipt_details prd ON pr.companycode = prd.companycode AND pr.voucherno = prd.voucherno')
+						->leftJoin('items i ON i.itemcode = prd.itemcode')
+						->leftJoin('itemtype it ON it.id = i.typeid')
+						->leftJoin('asset_master am ON am.itemcode = i.itemcode')
+						->setFields($prfields)
+						->setWhere("pr.stat IN('received','cancelled') AND it.label = 'Fixed Asset' AND EXISTS (SELECT *  FROM asset_master am WHERE am.itemcode = i.itemcode)")
+						->buildSelect();
+
+		$ap = $this->db->setTable('accountspayable ap')
+						->leftJoin('ap_details apd ON ap.companycode = apd.companycode AND ap.voucherno = apd.voucherno')
+						->leftJoin('chartaccount coa ON coa.id = apd.accountcode')
+						->leftJoin('asset_master am ON am.asset_number = ap.assetid')
+						->setFields($apfields)
+						->setWhere("ap.stat IN('open','posted','cancelled') AND accountname = 'Fixed Asset'")
+						->buildSelect();
+						
+						
+		$union = $po . ' UNION ALL ' . $pr. ' UNION ALL ' . $ap;
+		$result = $this->db->setTable('asset_transaction')
+						->setFields($columns)
+						->setInsertSelect($union)
+						->runInsert(false);
+	}
 }

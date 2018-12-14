@@ -110,6 +110,21 @@
 								</div>
 							</div>
 							<div class="row">
+								<div class = "col-md-12">
+									<?php
+										echo $ui->formField('textarea')
+												->setLabel('Shipping Address:')
+												->setSplit('col-md-2', 'col-md-10')
+												->setName('s_address')
+												->setId('s_address')
+												->setValue($s_address)
+												->setAttribute(array("maxlength" => "105"))
+												->setValidation('required')
+												->draw($show_input);
+									?>
+								</div>
+							</div>
+							<div class="row">
 								<div class="col-md-12">
 									<?php
 										echo $ui->formField('textarea')
@@ -561,11 +576,13 @@
 			n.removeAttr('readonly', '').val(n.attr('data-value')).trigger('blur');
 		});
 		$('#ordered_tableList').on('click', 'tr[data-id]', function() {
-			var so = $(this).attr('data-id');
-			$('#source_no').val(so).trigger('blur');
-			$('#ordered_list_modal').modal('hide');
-			loadPackingListDetails();
-		});
+ 			var so = $(this).attr('data-id');
+			var address = $(this).attr('data-address');
+ 			$('#source_no').val(so).trigger('blur');
+			$('#s_address').val(address).trigger('blur');
+ 			$('#ordered_list_modal').modal('hide');
+ 			loadPackingListDetails();
+ 		});
 		function loadPackingListDetails() {
 			var voucherno = $('#source_no').val();
 			if (voucherno) {

@@ -123,7 +123,6 @@
 			$id       		= $this->input->post($id_array);
 			
 			$result 		= $this->brand->deleteBrand($id);
-			
 			if( empty($result) )
 			{
 				$msg = "success";
@@ -380,6 +379,11 @@
 				//$x = file_get_contents($_FILES['file']['tmp_name']);
 				$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
 
+				if(count($x) > 2000)
+				{
+					$errmsg[] = "Too many data. Please upload maximum of 2000 Rows. <br/>";
+				}
+
 				for ($n = 0; $n < count($x); $n++) {
 					if($n==0)
 					{
@@ -467,7 +471,7 @@
 					$proceed  				= $this->brand->importBrand($posted_brand);
 					if( $proceed )
 					{
-						$this->log->saveActivity("Imported Discounts.");
+						$this->log->saveActivity("Imported Brandcode.");
 					}
 				}
 			}

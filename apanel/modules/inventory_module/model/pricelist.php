@@ -1,9 +1,14 @@
 <?php
 class pricelist extends wc_model
 {
+    public function __construct() {
+		parent::__construct();
+		$this->log = new log();
+    }
+    
     public function retrievepricelistListing($search, $sort)
     {
-        $add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (pl.itemPriceCode LIKE '%$search%' OR pl.itemPriceName LIKE '%$search%' OR pld.itemDtlCode LIKE '%$search%' OR i.itemdesc LIKE '%$search%' OR sect.partnername LIKE '%$search%' ) " 	: 	"";
+        $add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (pl.itemPriceCode LIKE '%$search%' OR pl.itemPriceName LIKE '%$search%' OR pl.itemPriceDesc LIKE '%$search%' OR pld.itemDtlCode LIKE '%$search%' OR i.itemdesc LIKE '%$search%' OR sect.partnername LIKE '%$search%' ) " 	: 	"";
 
         $fields 	=	array("pl.itemPriceCode, pl.itemPriceName, pl.itemPriceDesc, pl.stat");
 
@@ -479,5 +484,26 @@ class pricelist extends wc_model
 											->runUpdate();
 
 		return $result;
+    }
+    
+    public function deletePricelist($data) {
+		$error_id = array();
+		foreach ($data as $id) {
+			$result =  $this->db->setTable('price_list')
+								->setWhere("itemPriceCode = '$id'")
+								->setLimit(1)
+								->runDelete();
+		
+			if ($result) {
+				$this->log->saveActivity("Delete Price List [$id]");
+			} 
+			else {
+				if ($this->db->getError() == 'locked') {
+					$error_id[] = $id;
+				}
+			}
+		}
+
+		return $error_id;
 	}
 }

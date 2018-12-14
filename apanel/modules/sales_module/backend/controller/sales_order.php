@@ -24,6 +24,7 @@ class controller extends wc_controller
 		$this->fields = array(
 				'voucherno',
 				'customer',
+				's_address',
 				'documentno',
 				'tinno',
 				'address1',
@@ -151,6 +152,7 @@ class controller extends wc_controller
 			$data['t_vat'] 			 = 0;
 			$data['t_vatsales'] 	 = 0;
 			$data['t_vatexempt'] 	 = 0;
+			$data['t_vatzerorated']  = 0;
 			$data['t_discount'] 	 = 0;
 
 			//Details
@@ -224,10 +226,6 @@ class controller extends wc_controller
 				if( $updateTempRecord )
 				{
 					$this->log->saveActivity("Created Sales Order [$generatedvoucher] ");
-
-					if ( $this->inventory_model ) {
-						$this->inventory_model->generateBalanceTable();
-					}
 				}
 
 				if( $quotation_no != "" )
@@ -242,12 +240,14 @@ class controller extends wc_controller
 					{
 						$this->log->saveActivity("Converted Sales Quotation [$quotation_no] ");
 						
-						if ( $this->inventory_model ) {
-							$this->inventory_model->generateBalanceTable();
-						}
 					}
 				}
 
+				if( $updateTempRecord ){
+					if ( $this->inventory_model ) {
+						$this->inventory_model->generateBalanceTable();
+					}
+				}
 				if( $updateTempRecord && $save_status == 'final' )
 				{
 					$this->url->redirect(BASE_URL . 'sales/sales_order');
@@ -328,6 +328,7 @@ class controller extends wc_controller
 		$customer 				 = $retrieved_data["header"]->customer;
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["customer"]      	 = $customer;
+		$data["s_address"]       = $retrieved_data["header"]->s_address;
 		$data["due_date"]    	 = $this->date->dateFormat($retrieved_data["header"]->duedate);
 		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
 		$data['remarks'] 		 = $retrieved_data["header"]->remarks;
@@ -345,6 +346,7 @@ class controller extends wc_controller
 		$data['t_vat'] 			 = $vat;
 		$data['t_vatsales'] 	 = $retrieved_data['header']->vat_sales;
 		$data['t_vatexempt'] 	 = $retrieved_data['header']->vat_exempt;
+		$data['t_vatzerorated'] 	 = $retrieved_data['header']->vat_zerorated;
 
 		$discounttype 		 	 = !empty($retrieved_data['header']->discounttype) ? $retrieved_data['header']->discounttype : "none";
 		$data['discounttype']    = $discounttype;
@@ -446,6 +448,7 @@ class controller extends wc_controller
 		$customer 				 = $retrieved_data["header"]->customer;
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["customer"]      	 = $retrieved_data["header"]->partnername;
+		$data["s_address"]       = $retrieved_data["header"]->s_address;
 		$data["due_date"]    	 = $this->date->dateFormat($duedate);
 		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
 		$data['remarks'] 		 = $retrieved_data["header"]->remarks;
@@ -459,6 +462,7 @@ class controller extends wc_controller
 		$data['t_vat'] 			 = $retrieved_data['header']->taxamount;
 		$data['t_vatsales'] 	 = $retrieved_data['header']->vat_sales;
 		$data['t_vatexempt'] 	 = $retrieved_data['header']->vat_exempt;
+		$data['t_vatzerorated']  = $retrieved_data['header']->vat_zerorated;
 		
 		$discounttype 		 	 = $retrieved_data['header']->discounttype;
 		$data['discounttype']  	 = $discounttype;
@@ -492,6 +496,14 @@ class controller extends wc_controller
 		$bus_type_data                = array("code ind", "value val");
 		$bus_type_cond                = "type = 'businesstype'";
 		$data["business_type_list"]   = $this->so->getValue("wc_option", $bus_type_data, $bus_type_cond, false);
+
+		if ($data['stat'] == 'posted') {
+			$cancelled_items			= $this->so->getUnReceivedItems($data["voucherno"]);
+			$data['cancelled_items']	= $cancelled_items;
+			if ($cancelled_items) {
+				$data['delivered_items'] = $this->so->getReceivedItems($data["voucherno"]);
+			}
+		}
 
 		$this->view->load('sales_order/sales_order', $data);
 	}
@@ -535,7 +547,7 @@ class controller extends wc_controller
 		/** HEADER INFO **/
 
 			$docinfo_table  = "salesorder as so";
-			$docinfo_fields = array('so.transactiondate AS documentdate','so.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS customer","'' AS referenceno",'so.amount AS amount','so.remarks as remarks','so.discounttype as disctype','so.discountamount as discount', 'so.netamount as net','so.amount as amount','so.vat_sales as vat_sales','so.vat_exempt as vat_exempt','so.taxamount as vat');
+			$docinfo_fields = array('so.transactiondate AS documentdate','so.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS customer","'' AS referenceno",'so.amount AS amount','so.remarks as remarks','so.discounttype as disctype','so.discountamount as discount', 'so.netamount as net','so.amount as amount','so.vat_sales as vat_sales','so.vat_exempt as vat_exempt', 'so.vat_zerorated as vat_zerorated', 'so.taxamount as vat');
 			$docinfo_join   = "partners as p ON p.partnercode = so.customer AND p.companycode = so.companycode";
 			$docinfo_cond 	= "so.voucherno = '$voucherno'";
 
@@ -592,6 +604,7 @@ class controller extends wc_controller
 
 		$vatable_sales	= 0;
 		$vat_exempt		= 0;
+		$vat_zerorated	= 0;
 		$discount		= 0;
 		$tax			= 0;
 		$total_amount 	= 0;
@@ -599,8 +612,19 @@ class controller extends wc_controller
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
 			}
-			$vatable_sales	+= ($row->taxrate) ? $row->amount : 0;
-			$vat_exempt		+= ($row->taxrate) ? 0 : $row->amount;
+			// $vatable_sales	+= ($row->taxrate) ? $row->amount : 0;
+			// $vat_exempt		+= ($row->taxrate) ? 0 : $row->amount;
+			if($row->taxrate > 0.00 || $row->taxrate > 0 )	{
+				$vatable_sales += $row->amount;
+			}
+			else {
+				if ($row->taxcode == '' || $row->taxcode == 'none' || $row->taxcode == 'ES') {
+					$vat_exempt += $row->amount;
+				}
+				else {
+					$vat_zerorated += $row->amount;
+				}
+			}
 			$tax			+= $row->taxamount;
 			$discount 	    = isset($documentinfo->discount) ? $documentinfo->discount : 0;
 			$row->quantity	= number_format($row->quantity);
@@ -609,11 +633,12 @@ class controller extends wc_controller
 			$row->taxamount	= number_format($row->taxamount, 2);
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$total_amount = $vatable_sales + $vat_exempt + $tax;
+				$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
 				$summary = array(
 					'VATable Sales'		=> number_format($vatable_sales, 2),
 					'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
-					'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
+					'VAT Zero Rated Sales'	=> number_format($vat_zerorated, 2),
+					'Total Sales'		=> number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2),
 					'Tax'				=> number_format($tax, 2),
 					'Total Amount'		=> number_format($total_amount, 2),
 					'' 					=> '',
@@ -623,16 +648,18 @@ class controller extends wc_controller
 				// $print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
 				$vatable_sales	= 0;
 				$vat_exempt		= 0;
+				$vat_zerorated	= 0;
 				$discount		= 0;
 				$tax			= 0;
 				$total_amount	= 0;
 			}
 		}
-		$total_amount = $vatable_sales + $vat_exempt + $tax;
+		$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
 		$summary = array(
 			'VATable Sales'		=> number_format($vatable_sales, 2),
 			'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
-			'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
+			'VAT Zero Rated Sales'	=> number_format($vat_zerorated, 2),
+			'Total Sales'		=> number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2),
 			'Tax'				=> number_format($tax, 2),
 			'Total Amount'		=> number_format($total_amount, 2),
 			'' 					=> '',
@@ -677,6 +704,10 @@ class controller extends wc_controller
 		{
 			$result = $this->get_details();
 		}
+		else if( $task == 'get_bundle_items' )
+		{
+			$result = $this->get_bundle_items();
+		}
 		else if( $task == 'delete_so' )
 		{
 			$result = $this->delete_so();
@@ -712,6 +743,136 @@ class controller extends wc_controller
 		$result 	= $this->so->retrieveItemDetails($itemcode,$customer);
 		
 		return $result;
+	}
+
+	private function get_bundle_items()
+	{
+		$mainitemcode 	= $this->input->post('itemcode');
+		$linenum 		= $this->input->post('linenum');
+		$ui 			= $this->ui;
+
+		$result 		= $this->so->retrieveBundleDetails($mainitemcode);
+		
+		$cc_entry_data  = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
+		$itemcodes 		= $this->so->getValue("items", $cc_entry_data,"stat = 'active'","itemcode");
+
+		$w_entry_data           = array("warehousecode ind","description val");
+		$warehouses 	= $this->so->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
+
+		$itemcode = [];
+		$itemdesc = [];
+		$itemname = [];
+		$itemqty = [];
+		$itemuom = [];
+		$table = '';
+		foreach ($result as $key => $row) {
+			$table .= '<tr class="parts clone '.$linenum.'">';
+			$table .= '<td>' . $ui->formField('dropdown')
+								->setPlaceholder('Select One')
+								->setSplit('	', 'col-md-12')
+								->setName("itemcode[".$key."]")
+								->setId("itemcode[".$key."]")
+								->setList($itemcodes)
+								->setClass('itemcode')
+								->setAttribute(array('disabled', 'true'))
+								->setValue($row->item_code)
+								->draw(true);
+			$table .='<input type = "hidden" id = "h_itemcode["'.$key.'"]" name = "h_itemcode["'.$key.'"]" class = "h_itemcode" value = "'.$row->item_code.'">';
+			$table .='<input type = "hidden" id = "h_parentcode["'.$key.'"]" name = "h_parentcode["'.$key.'"]" class = "h_parentcode" value = "'.$mainitemcode.'">';
+			$table .='<input type = "hidden" id = "h_isbundle["'.$key.'"]" name = "h_isbundle["'.$key.'"]" class = "h_isbundle" value = "No">';
+			$table .='<input type = "hidden" id = "h_parentline["'.$key.'"]" name = "h_parentline["'.$key.'"]" class = "h_parentline" value = "'.$linenum.'">';
+			'</td>';
+			$table .= '<td>' . $ui->formField('text')
+								->setSplit('	', 'col-md-12')
+								->setName("detailparticulars[".$key."]")
+								->setId("detailparticulars[".$key."]")
+								->setAttribute(array('readonly', 'readonly'))
+								->setClass('itemdescription')
+								->setValue($row->detailsdesc) 
+								->draw(true);
+						'</td>';
+			$table .= '<td>' . $ui->formField('dropdown')
+								->setSplit('	', 'col-md-12')
+								->setPlaceholder('Select One')
+								->setName("warehouse[".$key."]")
+								->setAttribute(array('disabled', 'true'))
+								->setId("warehouse[".$key."]")
+								->setClass('warehouse')
+								->setList($warehouses)
+								->setNone('none')
+								->setValue('')
+								->draw(true); 
+			$table .='<input type = "hidden" id = "h_warehouse["'.$key.'"]" name = "h_warehouse["'.$key.'"]" class = "h_warehouse" value = "">';
+			'</td>';
+			$table .= '<td>' . $ui->formField('text')
+								->setSplit('	', 'col-md-12')
+								->setName("quantity[".$key."]")
+								->setAttribute(array('readonly' => 'readonly', 'data-id' => $row->quantity))
+								->setId("quantity[".$key."]")
+								->setClass('quantity text-right ' . $mainitemcode)
+								->setValue('0')
+								->draw(true); 
+						'</td>';
+			$table .= '<td>' . $ui->formField('text')
+								->setPlaceholder('Select One')
+								->setSplit('	', 'col-md-12')
+								->setName("uom[".$key."]")
+								->setId("uom[".$key."]")
+								->setAttribute(array('readonly', 'readonly'))
+								->setClass('itemuom text-right')
+								->setValue($row->uom)
+								->draw(true); 
+						'</td>';
+			$table .= '<td>' . $ui->formField('text')
+								->setPlaceholder('Select One')
+								->setSplit('	', 'col-md-12')
+								->setAttribute(array('readonly', 'readonly'))
+								->setName("itemprice[".$key."]")
+								->setId("itemprice[".$key."]")
+								->setClass('text-right')
+								->setValue("0.00")
+								->draw(true); 
+						'</td>';
+			$table .= '<td>' . $ui->formField('text')
+								->setPlaceholder('0.00')
+								->setSplit('	', 'col-md-12')
+								->setName("discount[".$key."]")
+								->setId("discount[".$key."]")
+								->setAttribute(array('readonly', 'readonly'))
+								->setClass('itemdiscount text-right')
+								->setValue("0.00")
+								->draw(true); 
+						'</td>';
+			$table .= '<td>' . $ui->formField('dropdown')
+								->setSplit('	', 'col-md-12')
+								->setName("taxcode[".$key."]")
+								->setAttribute(array('disabled', 'true'))
+								->setId("taxcode[".$key."]")
+								->setValue('none')
+								->setList(array('none'=>'none'))
+								->setClass('taxcode')
+								->draw(true); 
+			$table .="<input id = 'taxrate['".$key."']' name = 'taxrate['".$key."']' maxlength = '20' class = 'col-md-12 taxrate' type = 'hidden' value='0' > 
+			<input id = 'taxamount['".$key."']' name = 'taxamount['.$key.']' maxlength = '20' class = 'col-md-12 taxamount' type = 'hidden' >";
+			'</td>';
+			$table .= '<td>' . $ui->formField('text')
+								->setSplit('	', 'col-md-12')
+								->setName("amount[".$key."]")
+								->setAttribute(array('readonly', 'readonly'))
+								->setId("amount[".$key."]")
+								->setClass('itemamount text-right')
+								->setValue("0.00")
+								->draw(true); 
+			$table .="<input id = 'h_amount['".$key."']' name = 'h_amount['".$key."']' maxlength = '20' class = 'col-md-12' type = 'hidden' >
+			<input id = 'itemdiscount['".$key."']' name = 'itemdiscount['".$key."']' maxlength = '20' type = 'hidden' value = ''>
+			<input id = 'discountedamount['".$key."']'' name = 'discountedamount['".$key."']' maxlength = '20' type = 'hidden' value = ''>";
+			'</td>';
+			$table .= '<td class="text-center">
+			<button type="button" class="btn btn-danger btn-flat confirm-delete" disabled data-id="<?=$row?>" name="chk[]" style="outline:none;" onClick="confirmDelete(<?=$row?>);"><span class="glyphicon glyphicon-trash"></span></button>
+			</td>';
+			$table .= '</tr>';
+		}
+		return array('table' => $table);
 	}
 
 	private function get_value()

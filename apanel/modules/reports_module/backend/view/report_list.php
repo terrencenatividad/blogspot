@@ -76,6 +76,10 @@
 								<h4 class="list-group-item-heading">Collection Register</h4>
 								<p class="list-group-item-text">List of Issued Payment in a given period of time.</p>
 							</a>
+							<a href="budget_report" class="list-group-item">
+								<h4 class="list-group-item-heading">Budget Variance Report</h4>
+								<p class="list-group-item-text">Budget Details for Income Statement and Balance Sheet.</p>
+							</a>
 						</div>
 					</div>
 				</div>
@@ -258,6 +262,44 @@
 							<a href="average_cost" class="list-group-item">
 								<h4 class="list-group-item-heading">Average Cost</h4>
 								<p class="list-group-item-text">List of Inventory Average Cost</p>
+							</a>
+						</div>
+					</div>
+				</div>
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						Landed Cost
+					</div>
+					<div class="panel-body">
+						<div class="list-group">
+							<a href="landed_cost" class="list-group-item">
+								<h4 class="list-group-item-heading">Landed Cost Report</h4>
+								<p class="list-group-item-text">List of Landed Cost calculation in a given Import Purchase Order</p>
+							</a>
+							<a href="job_report" class="list-group-item">
+								<h4 class="list-group-item-heading">Job Report</h4>
+								<p class="list-group-item-text">List of Jobs</p>
+							</a>
+						</div>
+					</div>
+				</div>
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						Fixed Asset
+					</div>
+					<div class="panel-body">
+						<div class="list-group">
+							<a href="asset_history" class="list-group-item">
+								<h4 class="list-group-item-heading">Asset History</h4>
+								<p class="list-group-item-text">List of asset history</p>
+							</a>
+							<a href="asset_master_list" class="list-group-item">
+								<h4 class="list-group-item-heading">Asset Master List</h4>
+								<p class="list-group-item-text">List of assets</p>
+							</a>
+							<a href="asset_transaction" class="list-group-item">
+								<h4 class="list-group-item-heading">Asset Transaction</h4>
+								<p class="list-group-item-text">List of transactions of assets</p>
 							</a>
 						</div>
 					</div>

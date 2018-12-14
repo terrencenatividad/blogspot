@@ -111,6 +111,8 @@ class controller extends wc_controller
 
 		$data['restrict_dv'] 		= false;
 
+		$data['status_badge']=  "";
+
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
 		
@@ -277,6 +279,22 @@ class controller extends wc_controller
 
 		$data['restrict_dv'] 	= $restrict_dv;
 
+		/**
+		 * Status Badge
+		 */
+		
+		$status 		= $data["main"]->status;
+		if($status == 'cancelled'){
+			$status_class 	= 'danger';
+		} else if($status == 'open'){
+			$status_class 	= 'info';
+		} else if($status == 'posted'){
+			$status_class 	= 'success';
+		}
+
+		$status_badge = '<span class="label label-'.$status_class.'">'.strtoupper($status).'</span>';
+		$data['status_badge'] 	= $status_badge;
+
 		$this->view->load('disbursement/disbursement', $data);
 	}
 
@@ -365,6 +383,8 @@ class controller extends wc_controller
 		}
 		// Retrieve vendor list
 		$data["vendor_list"]          = $this->payment_voucher->retrieveVendorList($data);
+
+		$data['status_badge']=  "";
 
 		// Process form when form is submitted
 		$data_validate = $this->input->post(array('referenceno', "h_voucher_no", "vendor", "document_date", "h_save", "h_save_new", "h_save_preview", "h_check_rows_"));
