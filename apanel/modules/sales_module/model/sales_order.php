@@ -169,7 +169,7 @@
 			$retrieved_data['customer']  =	$this->retrieveCustomerDetails($customer_code);
 
 			// Retrieve Details
-			$detail_fields 			= "sd.itemcode, sd.detailparticular, sd.warehouse, w.description, sd.unitprice, sd.issueqty, u.uomcode issueuom, sd.taxcode, sd.taxrate, sd.amount, sd.discountrate, sd.discountamount, sd.discountedamount, sd.discounttype, sd.parentcode, sd.isbundle, sd.parentline";
+			$detail_fields 			= "sd.itemcode, sd.detailparticular, sd.warehouse, w.description, sd.unitprice, sd.issueqty, u.uomcode issueuom, sd.taxcode, sd.taxrate, sd.amount, sd.discountrate, sd.discountamount, sd.discountedamount, sd.discounttype, sd.parentcode, sd.isbundle, sd.parentline, sd.bundle_itemqty";
 			$condition 				= " sd.voucherno = '$voucherno' ";
 			
 			$retrieved_data['details'] = 	$this->db->setTable('salesorder_details sd')
@@ -410,7 +410,7 @@
 			foreach($data as $postIndex => $postValue)
 			{
 				if($postIndex == 'h_itemcode' || $postIndex == 'h_parentcode' || $postIndex == 'h_isbundle' || $postIndex == 'h_parentline' || $postIndex=='detailparticulars' || $postIndex == 'h_warehouse' || 
-					$postIndex == 'quantity' ||  $postIndex == 'itemprice' || $postIndex == 'discount'|| $postIndex == 'amount' || 
+					$postIndex == 'quantity' || $postIndex == 'h_quantity' || $postIndex == 'itemprice' || $postIndex == 'discount'|| $postIndex == 'amount' || 
 					$postIndex == 'h_amount'|| $postIndex == 'uom' || $postIndex == 'taxamount' || $postIndex == 'taxcode' || 
 					$postIndex == 'taxrate' || $postIndex == 'itemdiscount' || $postIndex == 'discountedamount' ) 
 				{
@@ -455,6 +455,7 @@
 				$h_parentline 		=	$tempArrayValue['h_parentline'];
 				$detailparticular 	= 	$tempArrayValue['detailparticulars'];
 				$quantity 			=	$tempArrayValue['quantity'];
+				$bundle_itemqty 	=	$tempArrayValue['h_quantity'];
 				$warehouse 			=  	$tempArrayValue['h_warehouse'];
 				$price 				= 	$tempArrayValue['itemprice'];
 				$discount 			= 	$tempArrayValue['discount'];
@@ -488,6 +489,7 @@
 					$data_insert['warehouse']			= $warehouse;
 					$data_insert['issueuom']			= $uom;
 					$data_insert['issueqty']			= $quantity;
+					$data_insert['bundle_itemqty']		= $bundle_itemqty;
 					$data_insert['unitprice']	  		= $price;
 					$data_insert['amount']	  			= $amount;
 					$data_insert['stat']	  			= $status;
