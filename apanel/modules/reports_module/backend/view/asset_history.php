@@ -37,9 +37,9 @@
 							<th class="col-md-2">Asset Class</th>
 							<th class="col-md-2">Asset Number</th>
 							<th class="col-md-2">Serial Number / Engine Number</th>
-							<th class="col-md-2">Transaction Date</th>
+							<th class="col-md-1">Transaction Date</th>
 							<th class="col-md-2">Transaction Type</th>
-							<th class="col-md-2">Amount</th>
+							<th class="col-md-1">Amount</th>
 							<th class="col-md-2 text-right">Transfer To</th>
 						</tr>
 					</thead>

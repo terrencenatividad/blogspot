@@ -65,8 +65,8 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->serial_number . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->transactiontype . '</td>';
-			$table .= '<td class="text-right""><a data-id="' .  $row->voucherno. '" id="modal" href="'.BASE_URL.$tt.$row->voucherno.'" data-toggle="modal">'. number_format($row->amount, 2) . '</a></td>';
-			$table .= '<td>' . $row->transferto . '</td>';
+			$table .= '<td class="text-right"><a data-id="' .  $row->voucherno. '" id="modal" href="'.BASE_URL.$tt.$row->voucherno.'" data-toggle="modal">'. number_format($row->amount, 2) . '</a></td>';
+			$table .= '<td class="text-right">' . $row->transferto . '</td>';
 			$table .= '</tr>';
 		}
 
