@@ -54,6 +54,8 @@ class controller extends wc_controller {
 				$tt = "purchase/purchase_receipt/view/";
 			else if($transtype == 'AP')
 				$tt = "financials/accounts_payable/view/";
+			else
+				$tt = "maintenance/asset_master/view/";
 			$table .= '<tr>';
 			$table .= '<td>' . $row->transactiontype . '</td>';
 			$table .= '<td>' . $row->assetclass . '</td>';

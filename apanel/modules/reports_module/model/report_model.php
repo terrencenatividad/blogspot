@@ -262,6 +262,16 @@ class report_model extends wc_model {
 								'apd.debit',
 								'CONCAT(am.asset_location ," - ", am.accountable_person)'
 							);
+		$depfields 	=	array(	'd.companycode',
+								'am.id',
+								'"Depreciation Run"',
+								'am.asset_class',
+								'am.asset_number',
+								'am.sub_number',
+								'd.depreciation_date',
+								'd.depreciation_amount',
+								'CONCAT(am.asset_location ," - ", am.accountable_person)'
+							);
 
 		$columns 	=	array(	'companycode',
 								'voucherno',
@@ -274,7 +284,7 @@ class report_model extends wc_model {
 								'transferto'
 							);
 
-		$po = $this->db->setTable('purchaseorder po')
+		$po  = $this->db->setTable('purchaseorder po')
 						->leftJoin('purchaseorder_details pod ON po.companycode = pod.companycode AND po.voucherno = pod.voucherno')
 						->leftJoin('items i ON i.itemcode = pod.itemcode')
 						->leftJoin('itemtype it ON it.id = i.typeid')
@@ -283,7 +293,7 @@ class report_model extends wc_model {
 						->setWhere("po.stat IN('open','posted','cancelled') AND it.label = 'Fixed Asset' AND EXISTS (SELECT *  FROM asset_master am WHERE am.itemcode = i.itemcode)")
 						->buildSelect();
 
-		$pr = $this->db->setTable('purchasereceipt pr')
+		$pr  = $this->db->setTable('purchasereceipt pr')
 						->leftJoin('purchasereceipt_details prd ON pr.companycode = prd.companycode AND pr.voucherno = prd.voucherno')
 						->leftJoin('items i ON i.itemcode = prd.itemcode')
 						->leftJoin('itemtype it ON it.id = i.typeid')
@@ -292,16 +302,21 @@ class report_model extends wc_model {
 						->setWhere("pr.stat IN('received','cancelled') AND it.label = 'Fixed Asset' AND EXISTS (SELECT *  FROM asset_master am WHERE am.itemcode = i.itemcode)")
 						->buildSelect();
 
-		$ap = $this->db->setTable('accountspayable ap')
+		$ap  = $this->db->setTable('accountspayable ap')
 						->leftJoin('ap_details apd ON ap.companycode = apd.companycode AND ap.voucherno = apd.voucherno')
-						->leftJoin('chartaccount coa ON coa.id = apd.accountcode')
 						->leftJoin('asset_master am ON am.asset_number = ap.assetid')
 						->setFields($apfields)
-						->setWhere("ap.stat IN('open','posted','cancelled') AND accountname = 'Fixed Asset'")
+						->setWhere("ap.stat IN('open','posted','cancelled') AND am.gl_asset = apd.accountcode")
 						->buildSelect();
+
+		$dep = $this->db->setTable('depreciation_schedule d')
+						->setFields($depfields)
+						->leftJoin('asset_master am ON am.asset_number = d.asset_id')
+						->setWhere("d.depreciation_date <= DATE(NOW())")
+						->buildSelect();				
 						
 						
-		$union = $po . ' UNION ALL ' . $pr. ' UNION ALL ' . $ap;
+		$union = $po . ' UNION ALL ' . $pr. ' UNION ALL ' . $ap. ' UNION ALL ' . $dep;
 		$result = $this->db->setTable('asset_transaction')
 						->setFields($columns)
 						->setInsertSelect($union)
