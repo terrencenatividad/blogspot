@@ -2736,8 +2736,9 @@ $(document).ready(function(){
 			var isbundle = $('.confirm-delete').closest('tr.'+id).find('.h_isbundle').val();
 			if(parentcode.length > 1 && isbundle == 'Yes') {
 				$('#itemsTable tbody').find('tr.'+id).remove();
+				resetIds();
 			} else if(parentcode.length == 1 && isbundle == 'Yes') {
-				$('#itemsTable tbody').find('.parts.'+id).remove();
+				$('#itemsTable tbody').find('tr.parts.'+id).remove();
 				setZero();
 				drawTemplate();
 			} else {
