@@ -373,7 +373,7 @@
 								<?php
 									foreach($schedule as $row){ ?>
 											<tr>
-											<td class="col-md-2 text-center"><?php echo $row->depreciation_date; ?></td>
+											<td class="col-md-2 text-center"><?php echo date("M d, Y",strtotime($row->depreciation_date)); ?></td>
 											<td class="col-md-3 text-center"><?php echo number_format($row->depreciation_amount, 2); ?></td>
 											<td class="col-md-3 text-center"><?php echo number_format($row->accumulated_dep, 2); ?></td>
 											<td class="col-md-3 text-center"><?php echo $row->asset; ?></td>
@@ -498,6 +498,7 @@
 <script>
 $(document).ready(function(){
 	if('<?=$ajax_task?>' == 'ajax_edit'){
+		$('#depreciation_month').prop('readonly',true);
 		$('#capitalized_cost').prop('readonly',true);
 		$('#purchase_value').prop('readonly',true);
 		$('#balance_value').prop('readonly',true);
