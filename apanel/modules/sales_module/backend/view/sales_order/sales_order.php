@@ -1335,7 +1335,7 @@
 				Confirmation
 			</div>
 			<div class="modal-body" id="message">
-				Changing the Current Customer Type will clear out the Item Section. Do you wish to proceed?
+				Changing the current customer will clear out the items section. Do you wish to proceed?
 			</div>
 			<div class="modal-footer text-center">
 				<button type="button" class="btn btn-info btn-flat" id="disc_yes" data-dismiss='modal'>Yes</button>
