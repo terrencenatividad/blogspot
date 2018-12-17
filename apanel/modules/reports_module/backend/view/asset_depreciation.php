@@ -8,7 +8,7 @@
 								->setPlaceholder('Filter Asset')
 								->setName('supplier')
 								->setId('supplier')
-								->setList($supplier_list)
+								->setList(array(''))
 								->setNone('Filter: All')
 								->draw();
 						?>
@@ -26,7 +26,7 @@
 						?>
 					</div>
 					<div class="col-md-6 text-right">
-						<a href="" id="export_csv" download="AP_Aging_Report.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
+						<a href="" id="export_csv" download="Depreciation.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 					</div>
 				</div>	
 			</div>
@@ -34,13 +34,13 @@
 				<table id="tableList" class="table table-hover table-striped table-sidepad">
 						<thead>
 						<tr class="info">
-							<th class="col-md-2">Asset Class</th>
+							<th class="col-md-2">Department</th>
 							<th class="col-md-2">Asset Number</th>
 							<th class="col-md-2">Serial Number / Engine Number</th>
-							<th class="col-md-1">Transaction Date</th>
-							<th class="col-md-2">Transaction Type</th>
-							<th class="col-md-1">Amount</th>
-							<th class="col-md-2 text-right">Transfer To</th>
+							<th class="col-md-1">Asset Class</th>
+							<th class="col-md-2">Description</th>
+							<th class="col-md-1">Capitalized Cost</th>
+							<th class="col-md-2 text-right">Depreciation Amount</th>
 						</tr>
 					</thead>
 					<tbody>

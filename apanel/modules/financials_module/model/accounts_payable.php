@@ -2143,4 +2143,51 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
+	public function getAsset($assetid)
+	{
+		$fields = array('capitalized_cost','balance_value','useful_life','salvage_value','depreciation_month');
+		$result = $this->db->setTable('asset_master')
+						->setFields($fields)
+						->setWhere("asset_number = '$assetid'")
+						->runSelect()
+						->getRow();
+
+		return $result;
+	}
+
+	public function updateAsset($assetid,$amount,$asd1,$asd2)
+	{
+		$fields['capitalized_cost'] = $amount+$asd1;
+		$fields['balance_value'] = $amount+$asd2;
+		$result = $this->db->setTable('asset_master')
+							->setValues($fields)
+							->setWhere("asset_number = '$assetid'")
+							->setLimit(1)
+							->runUpdate();
+
+		if ($result) {
+			$this->log->saveActivity("Update Asset Value [$assetid]");
+		}
+
+		return $result;
+	}
+
+	public function updateAssetMasterSchedule($assetid,$final,$depreciation,$depreciation_amount)
+	{
+		$fields['depreciation_amount'] = $depreciation_amount;
+		$fields['accumulated_dep'] = $depreciation;
+		// var_dump($fields);
+		$result = $this->db->setTable('depreciation_schedule')
+							->setValues($fields)
+							->setWhere("asset_id = '$assetid' AND depreciation_date = '$final'")
+							->setLimit(1)
+							->runUpdate();
+
+		if ($result) {
+			$this->log->saveActivity("Update Asset Value [$assetid]");
+		}
+
+		return $result;
+	}
+
 }
