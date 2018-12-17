@@ -62,6 +62,7 @@ class controller extends wc_controller {
 		$data['commissioning_date']	= $this->date->dateFormat($data['commissioning_date']);
 		$data['retirement_date']	= $this->date->dateFormat($data['retirement_date']);
 		$data['depreciation_month']	= $this->date->dateFormat($data['depreciation_month']);
+		$data['dept_list']			= $this->asset_master->getDepartment();
 		$data['ajax_task'] = 'ajax_create';
 		$data['ajax_post'] = '';
 		$data['show_input'] = true;
@@ -82,7 +83,8 @@ class controller extends wc_controller {
 		$data['commissioning_date']	= $this->date->dateFormat($data['commissioning_date']);
 		$data['retirement_date']	= $this->date->dateFormat($data['retirement_date']);
 		$data['depreciation_month']	= $this->date->dateFormat($data['depreciation_month']);
-		$data['schedule']	= $this->asset_master->getSchedule($data['asset_number']);
+		$data['schedule']			= $this->asset_master->getSchedule($data['asset_number']);
+		$data['dept_list']			= $this->asset_master->getDepartment();
 		$data['ajax_task'] = 'ajax_edit';
 		$data['ajax_post'] = "&id=$id";
 		$data['show_input'] = true;
@@ -102,8 +104,9 @@ class controller extends wc_controller {
 		$data['commissioning_date']	= date("M d, Y",strtotime($data['commissioning_date']));
 		$data['retirement_date']	= date("M d, Y",strtotime($data['retirement_date']));
 		$data['depreciation_month']	= date("M d, Y",strtotime($data['depreciation_month']));
-		$data['schedule']	= $this->asset_master->getSchedule($data['asset_number']);
-		$data['ajax_task'] = 'view';
+		$data['schedule']			= $this->asset_master->getSchedule($data['asset_number']);
+		$data['dept_list']			= $this->asset_master->getDepartment();
+		$data['ajax_task'] 			= 'view';
 		$data['ui'] = $this->ui;
 		$data['show_input'] = false;
 		$this->view->load('asset_master/asset_master', $data);

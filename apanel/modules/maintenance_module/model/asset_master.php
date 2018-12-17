@@ -119,6 +119,16 @@ class asset_master extends wc_model {
 		return $result;
 	}
 
+	public function getDepartment() {
+		$result = $this->db->setTable('cost_center')
+							->setFields("id ind, name val, stat stat")
+							->setWhere(1)
+							->runSelect()
+							->getResult();
+
+		return $result;
+	}
+
 	public function retrieveItems($itemcode)
 	{
 		$result = $this->db->setTable('items i')

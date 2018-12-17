@@ -253,19 +253,33 @@
 					 ?>`;
 				}
 			}
-			var row = `
-				<tr>
+			var row = ``;
+
+			row += `
+				<tr>`;
+
 					<?php if ($show_input): ?>
-					<td>
+					if(details.parentcode == '') {
+			row += `<td>
 						<?php
 							echo $ui->loadElement('check_task')
 									->addCheckbox()
 									->setValue('` + details.itemcode + `')
 									->draw();
 						?>
-					</td>
+					</td>`;
+					} else {
+						row += `<td>
+						<?php
+							echo $ui->loadElement('check_task')
+									->addCheckbox(false)
+									->setValue('` + details.itemcode + `')
+									->draw();
+						?>
+					</td>`;
+					}
 					<?php endif ?>
-					<td>
+			row += `<td>
 						<?php
 							$value = "<span id='temp_view_` + index + `'></span>";
 							echo $ui->formField('dropdown')
@@ -277,6 +291,20 @@
 								->setClass('itemcode')
 								->setValue($value)
 								->addHidden()
+								->draw($show_input);
+						?>
+						<?php
+							echo $ui->formField('hidden')
+								->setName('bundle_itemqty[]')
+								->setClass('bundle_itemqty')
+								->setValue('` + details.bundle_itemqty + `')
+								->draw($show_input);
+						?>
+						<?php
+							echo $ui->formField('hidden')
+								->setName('parentline[]')
+								->setClass('parentline')
+								->setValue('` + details.parentline + `')
 								->draw($show_input);
 						?>
 					</td>
@@ -321,9 +349,10 @@
 								->addHidden()
 								->draw($show_input);
 						?>
-					</td>
+					</td>`;
 					<?php endif ?>
-					<td class="text-right">
+					if (details.parentcode == '') {
+ 				row += `<td class="text-right">
 						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
@@ -335,8 +364,24 @@
 								->draw($show_input);
 						?>
 						` + otherdetails + `
-					</td>
-					<td>
+					</td>`;
+					} else {
+						row += `<td class="text-right">
+						<?php
+							echo $ui->formField('text')
+								->setSplit('', 'col-md-12')
+								->setName('issueqty[]')
+								->setClass('issueqty text-right')
+								->setAttribute(array('data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.issueqty) || 0) + `'))
+								->setValidation('required integer')
+								->setValue('` + (addComma(details.issueqty, 0) || 0) + `')
+								->addHidden()
+								->draw($show_input);
+						?>
+						` + otherdetails + `
+					</td>`;
+					}
+				row +=`	<td>
 						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
@@ -355,7 +400,7 @@
 			`;
 			$('#tableList tbody').append(row);
 			if (details.itemcode != '') {
-				$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+				$('#tableList tbody').find('tr:last .itemcode').val('details.itemcode');
 			}
 			if (details.warehouse != '') {
 				$('#tableList tbody').find('tr:last .warehouse').val(details.warehouse);
@@ -481,7 +526,7 @@
 				$('#tableList tfoot .total_amount_due').val(total_amount_due).closest('.form-group').find('.form-control-static').html(addComma(total_amount_due));
 			}
 		}
-		$('#tableList tbody').on('input change blur', '.taxcode, .unitprice, .issueqty', function() {
+		$('#tableList tbody').on('input change blur', '.taxcode, .unitprice', function() {
 			recomputeAll();
 		});
 		$('#tableList tfoot').on('input change blur', '.wtaxcode', function() {
@@ -633,7 +678,7 @@
 						}
 					});
 				} else {
-					$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');
+					$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');1
 					$('#submit_container [type="submit"]').attr('disabled', false);
 				}
 			} else {
@@ -642,4 +687,16 @@
 			}
 		});
 	</script>
-	<?php endif ?>
+	<?php endif; ?>
+
+	<script>
+		$('#tableList tbody').on('blur', '.issueqty', function() {
+			var qty = $(this).val();
+			var parentline = $(this).closest('tr').find('.parentline').val();
+			$('#tableList tbody tr').find('.parentline[value="'+parentline+'"]').not(':first').each(function() {
+				var itemqty = $(this).closest('tr').find('.bundle_itemqty').val();
+				var total = qty * itemqty;
+				$(this).closest('tr').find('.issueqty').val(total);
+			});
+		});	
+	</script>

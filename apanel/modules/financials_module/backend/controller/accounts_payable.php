@@ -469,7 +469,7 @@ class controller extends wc_controller
 		$ap['convertedamount'] = str_replace(',', '', $ap['exchangerate']) * str_replace(',', '', $post['total_debit']);
 		$ap['amount'] = str_replace(',', '', $post['total_debit']);
 		$ap['exchangerate'] = str_replace(',', '', $ap['exchangerate']);
-		$ap['balance'] = $post['total_debit'];
+		$ap['balance'] = str_replace(',', '', $post['total_debit']);
 		$ap['terms'] = $post['vendor_terms'];
 		$ap['stat'] = 'posted';
 		$ap['job_no'] = $post['job'];
@@ -578,7 +578,7 @@ class controller extends wc_controller
 		$ap['convertedamount'] = str_replace(',', '', $ap['exchangerate']) * str_replace(',', '', $post['total_debit']);
 		$ap['amount'] = str_replace(',', '', $post['total_debit']);
 		$ap['exchangerate'] = str_replace(',', '', $ap['exchangerate']);
-		$ap['balance'] = $post['total_debit'];
+		$ap['balance'] = str_replace(',', '', $post['total_debit']);
 		$ap['terms'] = $post['vendor_terms'];
 		$ap['stat'] = 'posted';
 		if(empty($post['job'])) {
