@@ -132,13 +132,14 @@
 								<div class="row">
 									<div class="col-md-6">
 										<?php
-											echo $ui->formField('textarea')
+											echo $ui->formField('dropdown')
 													->setLabel('Department')
+													->setPlaceholder('Select Department')
 													->setSplit('col-md-3', 'col-md-8')
 													->setName('department')
 													->setId('department')
+													->setList($dept_list)
 													->setValue($department)
-													->setAttribute(array("maxlength" => "30"))
 													->setValidation('required')
 													->draw($show_input);
 										?>
@@ -373,7 +374,7 @@
 								<?php
 									foreach($schedule as $row){ ?>
 											<tr>
-											<td class="col-md-2 text-center"><?php echo $row->depreciation_date; ?></td>
+											<td class="col-md-2 text-center"><?php echo date("M d, Y",strtotime($row->depreciation_date)); ?></td>
 											<td class="col-md-3 text-center"><?php echo number_format($row->depreciation_amount, 2); ?></td>
 											<td class="col-md-3 text-center"><?php echo number_format($row->accumulated_dep, 2); ?></td>
 											<td class="col-md-3 text-center"><?php echo $row->asset; ?></td>
@@ -498,6 +499,7 @@
 <script>
 $(document).ready(function(){
 	if('<?=$ajax_task?>' == 'ajax_edit'){
+		$('#depreciation_month').prop('readonly',true);
 		$('#capitalized_cost').prop('readonly',true);
 		$('#purchase_value').prop('readonly',true);
 		$('#balance_value').prop('readonly',true);

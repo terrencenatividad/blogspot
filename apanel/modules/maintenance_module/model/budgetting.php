@@ -34,6 +34,18 @@ class budgetting extends wc_model
 		return $result;
 	}
 
+
+	public function getApproverName($code)
+	{
+		$result = $this->db->setTable('cost_center')
+		->setFields('approver')
+		->setWhere("costcenter_code = '$code'")
+		->runSelect()
+		->getRow();
+
+		return $result;
+	}
+
 	public function getBOMCode($id)
 	{
 		$result = $this->db->setTable('bom')

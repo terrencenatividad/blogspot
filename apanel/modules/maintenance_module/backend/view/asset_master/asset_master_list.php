@@ -31,7 +31,7 @@
 					?>
 					<?=$ui->CreateDeleteButton('');?>
 					<?=$ui->CreateActButton('');?>
-					<input id="deactivateMultipleBtn" type="button" name="deactivate" value="Run Depreciation" class="btn btn-info btn-flat">
+					<!-- <input id="deactivateMultipleBtn" type="button" name="deactivate" value="Run Depreciation" class="btn btn-info btn-flat"> -->
 					</div>
 					<div class="col-md-4">
 						<div class="form-group">

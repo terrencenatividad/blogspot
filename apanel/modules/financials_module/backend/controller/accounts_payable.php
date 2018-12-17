@@ -469,16 +469,38 @@ class controller extends wc_controller
 		$ap['convertedamount'] = str_replace(',', '', $ap['exchangerate']) * str_replace(',', '', $post['total_debit']);
 		$ap['amount'] = str_replace(',', '', $post['total_debit']);
 		$ap['exchangerate'] = str_replace(',', '', $ap['exchangerate']);
-		$ap['balance'] = $post['total_debit'];
+		$ap['balance'] = str_replace(',', '', $post['total_debit']);
 		$ap['terms'] = $post['vendor_terms'];
 		$ap['stat'] = 'posted';
 		$ap['job_no'] = $post['job'];
-
 		$jobs = explode(',', $post['job']);
+
 		if(!empty($jobs[0])) {
 			$finjobs['voucherno'] = $ap['voucherno'];
 			$finjobs['job_no'] = $jobs;
 			$fin_job = $this->accounts_payable->saveFinancialsJob($finjobs);
+		}
+
+		if($ap['assetid'] != ''){
+			$getAsset = $this->accounts_payable->getAsset($ap['assetid']);
+			$capitalized_cost = $getAsset->capitalized_cost;
+			$balance_value    = $getAsset->balance_value;
+			$salvage_value	  = $getAsset->salvage_value;
+			$useful_life	  = $getAsset->useful_life;
+			$depreciation_month = $getAsset->depreciation_month;
+			$time  					= strtotime($depreciation_month);
+
+			$bv = $balance_value + $ap_details['debit'][0];
+
+			$this->accounts_payable->updateAsset($ap['assetid'],$ap_details['debit'][0],$capitalized_cost,$balance_value);
+			
+			$depreciation = 0;
+			for($x=1;$x<=$useful_life;$x++){
+				$depreciation_amount 	= ($bv - $salvage_value) / $useful_life;
+				$depreciation += ($bv - $salvage_value) / $useful_life;
+				$final = date("Y-m-d", strtotime("+$x month", $time));
+				$sched = $this->accounts_payable->updateAssetMasterSchedule($ap['assetid'],$final,$depreciation,$depreciation_amount);
+			}
 		}
 
 		$ap_details['transtype'] = 'AP';
@@ -529,7 +551,7 @@ class controller extends wc_controller
 			$redirect = MODULE_URL;
 		}
 
-		if ($result && $this->report_model){ 
+		if ($this->report_model){ 
 			$this->report_model->generateAssetActivity();
 		} 
 
@@ -556,7 +578,7 @@ class controller extends wc_controller
 		$ap['convertedamount'] = str_replace(',', '', $ap['exchangerate']) * str_replace(',', '', $post['total_debit']);
 		$ap['amount'] = str_replace(',', '', $post['total_debit']);
 		$ap['exchangerate'] = str_replace(',', '', $ap['exchangerate']);
-		$ap['balance'] = $post['total_debit'];
+		$ap['balance'] = str_replace(',', '', $post['total_debit']);
 		$ap['terms'] = $post['vendor_terms'];
 		$ap['stat'] = 'posted';
 		if(empty($post['job'])) {

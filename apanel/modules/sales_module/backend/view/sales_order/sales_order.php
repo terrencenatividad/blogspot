@@ -1335,7 +1335,7 @@
 				Confirmation
 			</div>
 			<div class="modal-body" id="message">
-				Changing the Current Customer Type will clear out the Item Section. Do you wish to proceed?
+				Changing the current customer will clear out the items section. Do you wish to proceed?
 			</div>
 			<div class="modal-footer text-center">
 				<button type="button" class="btn btn-info btn-flat" id="disc_yes" data-dismiss='modal'>Yes</button>
@@ -2365,6 +2365,10 @@ $(document).ready(function(){
 			resetIds();
 		});
 
+		$('#changeCustomerModal').on('click','#disc_no',function(){
+			$('#changeCustomerModal').modal('hide');
+		});
+
 		// Open Modal
 		$('#customer_button').click(function()
 		{
@@ -2503,7 +2507,8 @@ $(document).ready(function(){
 		{	
 			$('#itemsTable tbody tr.clone select').select2('destroy');
 			
-			var clone = $("#itemsTable tbody tr.clone:first").clone(true); 
+			var linenum = $("#itemsTable tbody tr").attr('class').split(' ');
+			var clone = $("#itemsTable tbody tr.clone:first").attr('class', 'clone').clone(true); 
 
 			var ParentRow = $("#itemsTable tbody tr.clone").last();
 			
@@ -2511,6 +2516,7 @@ $(document).ready(function(){
 			var rows 		= table.tBodies[0].rows.length;
 
 			clone.clone(true).insertAfter(ParentRow);
+			$("#itemsTable tbody tr.clone:first").attr('class', 'clone ' + linenum[1]);
 			setZero();
 
 			$('#itemsTable tbody tr.clone select').select2({width: "100%"});
@@ -2713,15 +2719,33 @@ $(document).ready(function(){
 	// -- For Cancel -- End
 
 	// -- For Deletion of Item Per Row -- 
-	
+		var parentcode = [];
 		$('#deleteItemModal #btnYes').click(function() 
 		{
+			parentcode = [];
 			var id = $('#deleteItemModal').data('id');
-
 			var table 		= document.getElementById('itemsTable');
-			var rowCount 	= table.tBodies[0].rows.length;;
+			var rowCount 	= table.tBodies[0].rows.length;
+			
+			$('.h_parentcode').each(function() {
+				if($(this).val() == '') {
+					parentcode.push('none');
+				}
+			});
 
-			deleteItem(id);
+			var isbundle = $('.confirm-delete').closest('tr.'+id).find('.h_isbundle').val();
+			if(parentcode.length > 1 && isbundle == 'Yes') {
+				$('#itemsTable tbody').find('tr.'+id).remove();
+				resetIds();
+			} else if(parentcode.length == 1 && isbundle == 'Yes') {
+				$('#itemsTable tbody').find('tr.parts.'+id).remove();
+				setZero();
+				drawTemplate();
+			} else {
+				deleteItem(id);
+			}
+
+			addAmounts();
 			
 			$('#deleteItemModal').modal('hide');
 		});

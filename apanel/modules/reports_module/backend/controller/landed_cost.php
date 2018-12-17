@@ -79,11 +79,11 @@ class controller extends wc_controller {
 			$freight_cost = $row->freight;
 			$insurance_cost = $row->insurance;
 			$packaging_cost = $row->packaging;
-			$addtl_cost = $freight_cost + $insurance_cost + $packaging_cost;
+			$addtl_cost = number_format($freight_cost + $insurance_cost + $packaging_cost,2);
 				//TOTAL COST OF IMPORT PURCHASE ORDER
 			$total_ipo_amt = $row->netamount;
 				// CALCULATE UNIT COST
-			$unit_cost_foreign = ( $total_ipo_amt / ($total_ipo_amt + $addtl_cost) ) * $addtl_cost ;
+			$unit_cost_foreign = number_format(( ($total_ipo_amt-$addtl_cost) / $total_ipo_amt ) * $addtl_cost,2) ;
 				// EXCHANGE RATES STAGING
 			$exchange_curr = $row->exchangecurrency;
 			$exchange_rate = $row->exchangerate;
@@ -115,7 +115,7 @@ class controller extends wc_controller {
 
 				// IMPORTATION COST CALCULATION
 			$item_cost = $row->convertedamount;
-			$item_cost_total = $item_cost * $item_quantity; //total cost of item
+			$item_cost_total = number_format($item_cost * $item_quantity, 2); //total cost of item
 
 			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);
 			$total_cost_job = $query_cost_job->total; //total cost of all items in job
@@ -202,7 +202,7 @@ class controller extends wc_controller {
 				//TOTAL COST OF IMPORT PURCHASE ORDER
 			$total_ipo_amt = $row->netamount;
 				// CALCULATE UNIT COST
-			$unit_cost_foreign = ( $total_ipo_amt / ($total_ipo_amt + $addtl_cost) ) * $addtl_cost ;
+			$unit_cost_foreign = number_format(( ($total_ipo_amt-$addtl_cost) / $total_ipo_amt ) * $addtl_cost,2) ;
 				// EXCHANGE RATES STAGING
 			$exchange_curr = $row->exchangecurrency;
 			$exchange_rate = $row->exchangerate;

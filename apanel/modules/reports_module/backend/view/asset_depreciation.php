@@ -2,7 +2,7 @@
 		<div class="box box-primary">
 			<div class="box-header pb-none">
 				<div class="row">
-				<div class="col-md-2">
+					<div class="col-md-2">
 						<?php
 							echo $ui->formField('dropdown')
 								->setPlaceholder('Filter Asset Class')
@@ -48,7 +48,7 @@
 						?>
 					</div>
 					<div class="col-md-4 text-right">
-						<a href="" id="export_csv" download="Asset_History.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
+						<a href="" id="export_csv" download="Depreciation.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 					</div>
 				</div>	
 			</div>
@@ -58,13 +58,13 @@
 						<?php
 							echo $ui->loadElement('table')
 									->setHeaderClass('info')
+									->addHeader('Department',array('class'=>'col-md-2'),'sort','am.department')
+									->addHeader("Asset Number",array('class'=>'col-md-2'),'sort','am.asset_number')
+									->addHeader("Serial Number / Engine Number",array('class'=>'col-md-2'),'sort','am.serial_number')
 									->addHeader('Asset Class',array('class'=>'col-md-2'),'sort','assetclass')
-									->addHeader("Asset Number",array('class'=>'col-md-2'),'sort','asset_number')
-									->addHeader("Serial Number / Engine Number",array('class'=>'col-md-2'),'sort','serial_number')
-									->addHeader('Transaction Date',array('class'=>'col-md-2'),'sort','transactiondate')
-									->addHeader('Transaction Type',array('class'=>'col-md-1'),'sort','transactiontype')
-									->addHeader('Amount',array('class'=>'col-md-1'),'sort','amount')
-									->addHeader('Transfer To',array('class'=>'col-md-1'),'sort','transferto')
+									->addHeader('Description',array('class'=>'col-md-1'),'sort','am.description')
+									->addHeader('Capitalized Cost',array('class'=>'col-md-1'),'sort','am.capitalized_cost')
+									->addHeader('Depreciation Amount',array('class'=>'col-md-1'),'sort','d.depreciation_amount')
 									->draw();
 						?>
 					</thead>
@@ -96,7 +96,7 @@
 			ajax_call.abort();
 			getList();
 		});
-			
+
 		function getList() {
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list',ajax, function(data) {
 				$('#tableList tbody').html(data.table);
@@ -133,4 +133,6 @@
 			}
 			getList();
 		});
+
+
 	</script>

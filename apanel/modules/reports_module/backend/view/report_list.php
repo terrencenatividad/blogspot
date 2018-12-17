@@ -289,6 +289,10 @@
 					</div>
 					<div class="panel-body">
 						<div class="list-group">
+							<a href="asset_depreciation" class="list-group-item">
+								<h4 class="list-group-item-heading">Asset Depreciation List</h4>
+								<p class="list-group-item-text">List of depreciation transactions of assets</p>
+							</a>
 							<a href="asset_history" class="list-group-item">
 								<h4 class="list-group-item-heading">Asset History</h4>
 								<p class="list-group-item-text">List of asset history</p>
