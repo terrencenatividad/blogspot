@@ -383,6 +383,31 @@ class controller extends wc_controller {
 		return $pagination;
 	}
 
+	private function ajax_serial_list() {
+		$search		= $this->input->post('search');
+		$itemcode = $this->input->post('itemcode');
+		$fields = array ('itemcode', 'serialno', 'engineno', 'chassisno');
+		$pagination	= $this->delivery_model->getSerialList($fields, $itemcode, $search);
+		$table		= '';
+		if (empty($pagination->result)) {
+			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+		}
+		foreach ($pagination->result as $key => $row) {
+			$dropdown = $this->ui->loadElement('check_task')
+									->addCheckbox()
+									->setValue($row->itemcode)
+                                    ->draw();
+			$table .= '<tr>';
+			$table .= '<td>' . $dropdown . '</td>';
+			$table .= '<td>' . $row->serialno . '</td>';
+			$table .= '<td>' . $row->engineno . '</td>';
+			$table .= '<td>' . $row->chassisno . '</td>';
+			$table .= '</tr>';
+		}
+		$pagination->table = $table;
+		return $pagination;
+	}
+
 	private function ajax_load_ordered_details() {
 		$voucherno	= $this->input->post('voucherno');
 		$warehouse	= $this->input->post('warehouse');
