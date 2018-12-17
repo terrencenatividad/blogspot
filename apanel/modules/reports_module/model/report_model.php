@@ -238,6 +238,7 @@ class report_model extends wc_model {
 								'am.asset_class',
 								'am.asset_number',
 								'am.sub_number',
+								'am.serial_number',
 								'po.entereddate',
 								'pod.amount',
 								'CONCAT(am.asset_location ," - ", am.accountable_person)'
@@ -248,6 +249,7 @@ class report_model extends wc_model {
 								'am.asset_class',
 								'am.asset_number',
 								'am.sub_number',
+								'am.serial_number',
 								'pr.entereddate',
 								'prd.amount',
 								'CONCAT(am.asset_location ," - ", am.accountable_person)'
@@ -258,6 +260,7 @@ class report_model extends wc_model {
 								'am.asset_class',
 								'am.asset_number',
 								'am.sub_number',
+								'am.serial_number',
 								'ap.entereddate',
 								'apd.debit',
 								'CONCAT(am.asset_location ," - ", am.accountable_person)'
@@ -268,6 +271,7 @@ class report_model extends wc_model {
 								'am.asset_class',
 								'am.asset_number',
 								'am.sub_number',
+								'am.serial_number',
 								'd.depreciation_date',
 								'd.depreciation_amount',
 								'CONCAT(am.asset_location ," - ", am.accountable_person)'
@@ -279,6 +283,7 @@ class report_model extends wc_model {
 								'asset_class',
 								'asset_number',
 								'sub_number',
+								'serial_number',
 								'transactiondate',
 								'amount',
 								'transferto'
