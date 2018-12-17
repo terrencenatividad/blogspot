@@ -1981,7 +1981,7 @@ class accounts_payable extends wc_model
 
 	public function saveFinancialsJob($fields) {
 		$result = $this->db->setTable('financial_jobs')
-		->setValues($fields)
+		->setValuesFromPost($fields)
 		->runInsert(false);
 
 		return $result;
