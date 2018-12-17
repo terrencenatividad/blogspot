@@ -2,18 +2,40 @@
 		<div class="box box-primary">
 			<div class="box-header pb-none">
 				<div class="row">
-					<div class="col-md-3">
+				<div class="col-md-2">
 						<?php
 							echo $ui->formField('dropdown')
-									->setPlaceholder('Filter Asset')
-									->setName('asset')
-									->setId('asset')
-									->setList($asset_list)
-									->setNone('Filter: All')
-									->draw();
+								->setPlaceholder('Filter Asset Class')
+								->setName('assetclass')
+								->setId('assetclass')
+								->setList($assetclass_list)
+								->setNone('Filter: All')
+								->draw();
 						?>
 					</div>
-					<div class="col-md-3">
+					<div class="col-md-2">
+						<?php
+							echo $ui->formField('dropdown')
+								->setPlaceholder('Filter Asset Number')
+								->setName('asset')
+								->setId('asset')
+								->setList($asset_list)
+								->setNone('Filter: All')
+								->draw();
+						?>
+					</div>
+					<div class="col-md-2">
+						<?php
+							echo $ui->formField('dropdown')
+								->setPlaceholder('Filter Department')
+								->setName('department')
+								->setId('department')
+								->setList($dept_list)
+								->setNone('Filter: All')
+								->draw();
+						?>
+					</div>
+					<div class="col-md-2">
 						<?php
 							echo $ui->formField('text')
 								->setName('datefilter')
@@ -25,7 +47,7 @@
 								->draw();
 						?>
 					</div>
-					<div class="col-md-6 text-right">
+					<div class="col-md-4 text-right">
 						<a href="" id="export_csv" download="Asset_Transaction.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 					</div>
 				</div>	
@@ -110,8 +132,13 @@
 			}
 		});
 
-		$("#supplier").on("change",function(){
-			ajax.supplier = $(this).val();
+		$("#assetclass").on("change",function(){
+			ajax.assetclass = $(this).val();
+			getList();
+		});
+
+		$("#department").on("change",function(){
+			ajax.department = $(this).val();
 			getList();
 		});
 

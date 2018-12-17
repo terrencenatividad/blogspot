@@ -132,13 +132,14 @@
 								<div class="row">
 									<div class="col-md-6">
 										<?php
-											echo $ui->formField('textarea')
+											echo $ui->formField('dropdown')
 													->setLabel('Department')
+													->setPlaceholder('Select Department')
 													->setSplit('col-md-3', 'col-md-8')
 													->setName('department')
 													->setId('department')
+													->setList($dept_list)
 													->setValue($department)
-													->setAttribute(array("maxlength" => "30"))
 													->setValidation('required')
 													->draw($show_input);
 										?>
