@@ -30,8 +30,9 @@
             ( (SUM(ad.debit) + IFNULL(SUM(jodDm.debit),0)) - IFNULL(SUM(jodCm.credit),0) ) amount,j.stat,cc.segment5');
 
             $result = $this->db->setTable('job j')
-            ->setFields($fields)    
-            ->innerJoin('ap_details ad ON ad.job_no = j.job_no AND ad.debit != 0.00')
+            ->setFields($fields)   
+            ->leftJoin('financial_jobs fj ON j.job_no = fj.job_no') 
+            ->innerJoin('ap_details ad ON fj.voucherno = ad.voucherno AND ad.debit != 0.00')
             ->innerJoin('chartaccount cc ON cc.id = ad.accountcode')
             ->leftJoin("journaldetails jodDm ON jodDm.job_no = j.job_no AND jodDm.transtype = 'DM' AND jodDm.debit != 0.00 AND jodDm.accountcode = cc.id")
             ->leftJoin("journaldetails jodCm ON jodCm.job_no = j.job_no AND jodCm.transtype = 'CM' AND jodCm.credit != 0.00 AND jodDm.accountcode = cc.id")
@@ -78,7 +79,8 @@
 
             $result = $this->db->setTable('job j')
             ->setFields($fields)    
-            ->innerJoin('ap_details ad ON ad.job_no = j.job_no AND ad.debit != 0.00')
+            ->innerJoin('financial_jobs fj ON fj.job_no = j.job_no')
+            ->innerJoin('ap_details as ad ON ad.voucherno = fj.voucherno AND ad.debit != 0.00')
             ->innerJoin('chartaccount cc ON cc.id = ad.accountcode')
             ->leftJoin("journaldetails jodDm ON jodDm.job_no = j.job_no AND jodDm.transtype = 'DM' AND jodDm.debit != 0.00 AND jodDm.accountcode = cc.id")
             ->leftJoin("journaldetails jodCm ON jodCm.job_no = j.job_no AND jodCm.transtype = 'CM' AND jodCm.credit != 0.00 AND jodDm.accountcode = cc.id")
@@ -104,8 +106,10 @@
                             ap_details.credit
                         FROM
                             ap_details
+                        LEFT JOIN
+                            financial_jobs as fj ON ap_details.voucherno = fj.voucherno
                         INNER JOIN
-                            job ON ap_details.job_no = job.job_no
+                            job ON fj.job_no = job.job_no
                         WHERE
                             ap_details.accountcode = '$code' AND ap_details.debit != 0.00
                         UNION
@@ -149,7 +153,8 @@
         {
             $result = $this->db->setTable('job')
             ->setFields("distinct job.job_no ind, job.job_no val")
-            ->innerJoin('ap_details ON ap_details.job_no = job.job_no AND ap_details.debit != 0.00')
+            ->leftJoin('financial_jobs as fj ON fj.job_no = job.job_no')
+            ->innerJoin('ap_details ON ap_details.voucherno = fj.voucherno AND ap_details.debit != 0.00')
             ->setWhere("job.job_no != '' AND job.stat != 'closed'")
             ->setOrderBy("val")
             ->runSelect()
@@ -172,8 +177,9 @@
                     FROM
                         ap_details ad
                     INNER JOIN chartaccount ca ON ca.id = ad.accountcode
+                    LEFT JOIN financial_jobs as fj ON ad.voucherno = fj.voucherno
                     WHERE
-                        job_no = '$job_no' AND debit != 0.00
+                        fj.job_no = '$job_no' AND debit != 0.00
                     UNION
                     SELECT
                         jd.voucherno,
