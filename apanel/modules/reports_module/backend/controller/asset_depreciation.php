@@ -24,7 +24,7 @@ class controller extends wc_controller {
 		$this->view->title		= 'Asset Depreciation List';
 		$data['ui']				= $this->ui;
 		$data['datefilter']		= date("M d, Y");
-		// $data['supplier_list']	= $this->asset_depreciation->getSupplierList();
+		$data['asset_list']	= $this->asset_depreciation->getAsset();
 		$this->view->load('asset_depreciation', $data);
 	}
 
@@ -37,27 +37,24 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_list() {
-		$pagination		= $this->asset_depreciation->getDepreciation($this->fields);
+		$data 			  = $this->input->post(array('datefilter','asset_number','sort'));
+		$sort      		  = $data['sort'];
+		$asset_number     = $data['asset_number'];
+		$datefilter       = $data['datefilter'];
+
+		$pagination		  = $this->asset_depreciation->getDepreciation($this->fields,$sort,$asset_number,$datefilter);
 		$tt = '';
 		$table		= '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
-			// $transtype = substr($row->voucherno, 0, 2);
-			// if($transtype == 'PO')
-			// 	$tt = "purchase/purchase_order/view/";
-			// else if($transtype == 'PR')
-			// 	$tt = "purchase/purchase_receipt/view/";
-			// else if($transtype == 'AP')
-			// 	$tt = "financials/accounts_payable/view/";
 			$table .= '<tr>';
 			$table .= '<td>' . $row->department . '</td>';
 			$table .= '<td>' . $row->asset_id . '</td>';
 			$table .= '<td>' . $row->serial_number . '</td>';
 			$table .= '<td>' . $row->assetclass . '</td>';
 			$table .= '<td>' . $row->description . '</td>';
-			// $table .= '<td>' . $this->date->dateFormat($row->depreciation_date) . '</td>';
 			$table .= '<td class="text-right">' . number_format($row->capitalized_cost, 2) . '</td>';
 			$table .= '<td class="text-right">' . number_format($row->depreciation_amount, 2) . '</td>';
 			$table .= '</tr>';
@@ -78,11 +75,12 @@ class controller extends wc_controller {
 	}
 
 	private function get_export() {
-		$datefilter	= $this->input->post('datefilter');
-		$datefilter	= $this->date->dateDbFormat($datefilter);
-		// $supplier	= $this->input->post('supplier');
+		$data 			  = $this->input->post(array('datefilter','asset_number','sort'));
+		$sort      		  = $data['sort'];
+		$asset_number     = $data['asset_number'];
+		$datefilter       = $data['datefilter'];
 
-		$result		= $this->asset_depreciation->getDepreciationcsv($this->fields);
+		$result		= $this->asset_depreciation->getDepreciationcsv($this->fields, $sort, $asset_number, $datefilter);
 
 
 		$header = array(
