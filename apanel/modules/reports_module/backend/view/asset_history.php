@@ -5,12 +5,12 @@
 					<div class="col-md-3">
 						<?php
 							echo $ui->formField('dropdown')
-								->setPlaceholder('Filter Asset')
-								->setName('supplier')
-								->setId('supplier')
-								->setList($supplier_list)
-								->setNone('Filter: All')
-								->draw();
+									->setPlaceholder('Filter Asset')
+									->setName('asset')
+									->setId('asset')
+									->setList($asset_list)
+									->setNone('Filter: All')
+									->draw();
 						?>
 					</div>
 					<div class="col-md-3">
@@ -26,22 +26,25 @@
 						?>
 					</div>
 					<div class="col-md-6 text-right">
-						<a href="" id="export_csv" download="AP_Aging_Report.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
+						<a href="" id="export_csv" download="Asset_History.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 					</div>
 				</div>	
 			</div>
 			<div class="box-body table-responsive no-padding" id="report_content">
 				<table id="tableList" class="table table-hover table-striped table-sidepad">
 						<thead>
-						<tr class="info">
-							<th class="col-md-2">Asset Class</th>
-							<th class="col-md-2">Asset Number</th>
-							<th class="col-md-2">Serial Number / Engine Number</th>
-							<th class="col-md-1">Transaction Date</th>
-							<th class="col-md-2">Transaction Type</th>
-							<th class="col-md-1">Amount</th>
-							<th class="col-md-2 text-right">Transfer To</th>
-						</tr>
+						<?php
+							echo $ui->loadElement('table')
+									->setHeaderClass('info')
+									->addHeader('Asset Class',array('class'=>'col-md-2'),'sort','assetclass')
+									->addHeader("Asset Number",array('class'=>'col-md-2'),'sort','asset_number')
+									->addHeader("Serial Number / Engine Number",array('class'=>'col-md-2'),'sort','serial_number')
+									->addHeader('Transaction Date',array('class'=>'col-md-2'),'sort','transactiondate')
+									->addHeader('Transaction Type',array('class'=>'col-md-1'),'sort','transactiontype')
+									->addHeader('Amount',array('class'=>'col-md-1'),'sort','amount')
+									->addHeader('Transfer To',array('class'=>'col-md-1'),'sort','transferto')
+									->draw();
+						?>
 					</thead>
 					<tbody>
 						
@@ -58,6 +61,19 @@
 		var ajax = {};
 		var ajax_call = '';
 		ajax.limit = 10;
+
+		tableSort('#tableList', function(value) {
+			ajax.sort = value;
+			ajax.page = 1;
+			getList();
+		});
+
+		$('#asset').on('change', function() {
+			ajax.page = 1;
+			ajax.asset_number = $(this).val();
+			ajax_call.abort();
+			getList();
+		});
 			
 		function getList() {
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list',ajax, function(data) {
