@@ -355,6 +355,13 @@ class controller extends wc_controller
 			return array('success' => $result);
 		}
 
+
+		private function ajax_get_approver() {
+			$code = $this->input->post('budget_code');
+			$get_approver = $this->budgetting->getApproverName($code);
+			return $get_approver;
+		}
+
 	// activate/deactivate
 
 		// private function ajax_edit_activate() {

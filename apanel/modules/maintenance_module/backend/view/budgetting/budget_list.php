@@ -115,7 +115,7 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 			<div class="modal-body">
-				Are you sure you want to delete selected bom(s)?
+				Are you sure you want to delete selected budget(s)?
 			</div>
 			<div class="modal-footer">
 				<div class="row row-dense">
