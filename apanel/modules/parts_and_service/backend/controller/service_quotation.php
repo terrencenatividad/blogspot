@@ -8,41 +8,45 @@ class controller extends wc_controller {
 		$this->logs				= new log();
 		$this->service_quotation= new service_quotation_model();
 		$this->parts_and_service= new parts_and_service_model();
-		
 		$this->session			= new session();
 		$this->fields 			= array(
-			'voucherno',
 			'reference',
 			'customer',
 			'notes',
-			'job_type',
-			'discount_type',
+			'jobtype',
+			'discounttype',
 			'transactiondate',
-			'targetdate'
+			'targetdate',
+			'vat_sales',
+			'exempt_sales',
+			't_sales',
+			't_vat',
+			't_amount',
+			't_discount'
 		);
 		$this->fields_header	= array(
-			'header_fiscalyear'		=> 'fiscalyear',
-			'header_period'			=> 'period',
-			'header_taxcode' 		=> 'taxcode', 
-			'header_taxamount' 		=> 'taxamount',
-			'header_discounttype'   => 'discounttype',
-			'header_discountrate'   => 'discountrate',
-			'header_discountamount' => 'discountamount'
+			'taxcode' 			=> 'taxcode', 
+			'taxamount' 		=> 'taxamount',
+			'discounttype'   	=> 'discounttype',
+			'discountrate'   	=> 'discountrate',
+			'discountamount' 	=> 'discountamount'
 		);
 		$this->fields_details			= array(
 			'itemcode',
-			'detailparticular',
 			'linenum',
-			'warranty',
+			'detailparticular',
+			'haswarranty',
 			'warehouse',
 			'quantity',
 			'uom',
-			'price',
+			'unitprice',
 			'discount',
 			'amount',
 			'taxcode',
 			'taxamount',
-			'taxrate'
+			'taxrate',
+			'discountamount',
+			'discounttype'
 		);
 		$this->clean_number		= array(
 			'issueqty'
@@ -77,8 +81,8 @@ class controller extends wc_controller {
 		$data['warehouse_list']		= $this->service_quotation->getWarehouseList();
 		$data["taxrate_list"]		= $this->service_quotation->getTaxRateList();
 		$data["taxrates"]			= $this->service_quotation->getTaxRates();
-		$data['header_values']		= json_encode(array());
-		$data['voucher_details']	= json_encode(array());
+		$data['header_values']		= $this->service_quotation->retrieveServiceQuotation();
+		$data['voucher_details']	= $this->service_quotation->retrieveServiceQuotationDetails();
 		$data['t_vatable_sales']	= 0;
 		$data['t_vat_exempt_sales']	= 0;
 		$data['t_vatsales']			= 0;
@@ -86,7 +90,7 @@ class controller extends wc_controller {
 		$data['t_amount']			= 0;
 		$data['t_discount']			= 0;
 		$data['ajax_task']			= 'ajax_create';
-		$data['ajax_post']			= '';
+		
 		$data['show_input']			= true;
 		// Closed Date
 		$close_date 				= $this->parts_and_service->getClosedDate();
@@ -109,6 +113,8 @@ class controller extends wc_controller {
 		$data['warehouse_list']		= $this->service_quotation->getWarehouseList();
 		$data["taxrate_list"]		= $this->service_quotation->getTaxRateList();
 		$data["taxrates"]			= $this->service_quotation->getTaxRates();
+		$data['header_values']		= $this->service_quotation->retrieveServiceQuotation();
+		$data['voucher_details']	= $this->service_quotation->retrieveServiceQuotationDetails();
 		$data['header_values']		= json_encode(array(
 			''
 		));
@@ -258,12 +264,64 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_create(){
-		$seq 		= new seqcontrol();
-		$voucherno 	= $seq->getValue("SEQ");
-		$service 			= $this->input->post($this->fields);
-		$service_details = $this->input->post($this->fields_details);
-		var_dump($service);
-		var_dump($service_details);
+		$seq 				= new seqcontrol();
+		$voucherno 			= $seq->getValue("SEQ");
+		$quote 				= $this->input->post($this->fields);
+		$quote_details 		= $this->input->post($this->fields_details);
+		$submit_data 		= $this->input->post('submit_data');
+
+		$transactiondate 	= date('Y-m-d', strtotime($quote['transactiondate']));
+		$targetdate 		= date('Y-m-d', strtotime($quote['targetdate']));
+		$fiscalyear 		= date('Y', strtotime($transactiondate));
+		$period 			= date('n', strtotime($transactiondate));
+		$values = array(
+					'voucherno' 	=> $voucherno,
+					'transtype' 	=> 'SEQ',
+					'transactiondate' => $transactiondate,
+					'targetdate' 	=> $targetdate,
+					'customer' 		=> $quote['customer'],
+					'jobtype' 		=> $quote['jobtype'],
+					'discounttype' 	=> $quote['discounttype'],
+					'notes' 		=> $quote['notes'],
+					'fiscalyear' 	=> $fiscalyear,
+					'period' 		=> $period,
+					't_amount' 		=> $quote['t_amount'],
+					'vat_sales' 	=> $quote['vat_sales'],
+					'exempt_sales' 	=> $quote['exempt_sales'],
+					't_sales' 		=> $quote['t_sales'],
+					't_vat' 		=> $quote['t_vat'],
+					't_amount' 		=> $quote['t_amount'],
+					't_discount' 	=> $quote['t_discount'],
+					'stat' 			=> 'Pending'
+		);
+		$result1 = $this->service_quotation->saveFromPost('servicequotation',$values);
+
+		$values = array(
+					'voucherno' 		=> $voucherno,
+					'transtype' 		=> 'SEQ',
+					'itemcode' 			=> $quote_details['itemcode'],
+					'linenum' 			=> '',
+					'haswarranty' 		=> $quote_details['haswarranty'],
+					'isbundle' 			=> 'No',
+					'parentcode' 		=> '',
+					'parentline' 		=> '',
+					'detailparticular' 	=> $quote_details['detailparticular'],
+					'warehouse' 		=> $quote_details['warehouse'],
+					'qty' 				=> $quote_details['quantity'],
+					'uom' 				=> $quote_details['uom'],
+					'unitprice' 		=> $quote_details['unitprice'],
+					'taxcode' 			=> $quote_details['taxcode'],
+					'taxrate' 			=> $quote_details['taxrate'],
+					'taxamount' 		=> $quote_details['taxamount'],
+					'amount' 			=> $quote_details['amount'],
+					'discounttype' 		=> $quote_details['discounttype'],
+					'discountrate' 		=> $quote_details['discount'],
+					'discountamount' 	=> $quote_details['discountamount']
+		);
+		$result2 = $this->service_quotation->saveFromPost('servicequotation_details', $values);
+
+		$result = array('query1' => $result1, 'query2' => $result2);
+		return $result;
 	}
 
 	private function get_item_details()
@@ -272,6 +330,14 @@ class controller extends wc_controller {
 
 		$result 	= $this->service_quotation->retrieveItemDetails($itemcode);
 		
+		return $result;
+	}
+
+	private function get_item_bundle(){
+		$itemcode 	= $this->input->post('itemcode');
+
+		$result 	= $this->service_quotation->retrieveBundleDetails($itemcode);
+
 		return $result;
 	}
 

@@ -1,6 +1,6 @@
 <section class="content">
 		<div class="box box-primary">
-			<form action="" method="post" class="form-horizontal">
+			<form action="" method="post" class="form-horizontal" id = "serviceForm">
 				<div class="box-body">
 					<br>
 					<div class="row">
@@ -51,10 +51,10 @@
 											->setLabel('Job Type')
 											->setPlaceholder('Select Job Type')
 											->setSplit('col-md-4', 'col-md-8')
-											->setName('job_type')
+											->setName('jobtype')
 											->setId('job_type')
 											->setList($job_list)
-											->setValue($job_type)
+											->setValue($jobtype)
 											->setValidation('required')
 											->draw($show_input);
 
@@ -114,7 +114,7 @@
 											->setLabel('Discount Type ')
 											->setPlaceholder('None')
 											->setSplit('col-md-4', 'col-md-8')
-											->setName('discount_type')
+											->setName('discounttype')
 											->setId('discount_type')
 											->setList($discount_type_list)
 											->setNone("None")
@@ -160,16 +160,18 @@
 							</tr>
 						</thead>
 						<tbody>
+						<?php foreach ($voucher_details as $key => $row) { ?>
+	
 							<tr class="clone">
 								<td>
-									<?php
+									<?php 
 										echo $ui->formField('dropdown')
 											->setPlaceholder('Select Item')
 											->setSplit('', 'col-md-12')
 											->setName('itemcode[]')
 											->setClass('itemcode')
 											->setList($item_list)
-											->setValue('')
+											->setValue($row->itemcode)
 											->setValidation('required')
 											->draw($show_input);
 									?>
@@ -180,17 +182,20 @@
 											->setSplit('', 'col-md-12')
 											->setName('detailparticular[]')
 											->setClass('detailparticular')
-											->setValue('')
+											->setValue($row->detailparticular)
 											->draw($show_input);
 									?>
 								</td>
 								<td class="text-center">
 									<?php
-										echo $ui->loadElement('check_task')
-												->addCheckbox()
-												->setValue('')
-												->draw();
+										echo $ui->formField('checkbox')
+										->setName('warranty[]')
+										->setClass('warranty')
+										->setValue('0')
+										->draw($show_input);
+
 									?>
+									<input type='hidden' name='haswarranty[]' value = '<?=$row->haswarranty?>'>
 								</td>
 								<td>
 									<?php
@@ -200,7 +205,7 @@
 											->setName('warehouse[]')
 											->setClass('warehouse')
 											->setList($warehouse_list)
-											->setValue('')
+											->setValue($row->warehouse)
 											->setValidation('required')
 											->draw($show_input);
 									?>
@@ -213,7 +218,7 @@
 											->setClass('quantity text-right')
 											
 											->setValidation('required integer')
-											->setValue('0')
+											->setValue($row->qty)
 											->draw($show_input);
 									?>
 									
@@ -227,7 +232,7 @@
 											->setAttribute(
 												array("maxlength" => "20",'readOnly' => 'readOnly')
 											)
-											->setValue('')
+											->setValue($row->uom)
 											->draw($show_input);
 									?>
 								</td>
@@ -235,10 +240,10 @@
 									<?php
 										echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
-											->setName('price[]')
-											->setClass('price text-right')
+											->setName('unitprice[]')
+											->setClass('unitprice text-right')
 											->setValidation('required decimal')
-											->setValue(number_format(0,2))
+											->setValue(number_format($row->unitprice,2))
 											->draw($show_input);
 									?>
 								</td>
@@ -250,9 +255,10 @@
 											->setClass('discount text-right')
 											->setAttribute(array('disabled'=>'true'))
 											->setValidation('required decimal')
-											->setValue(number_format(0,2))
+											->setValue(number_format($row->discountrate,2))
 											->draw($show_input);
 									?>
+									<input type='hidden' name='discountamount[]' value='<?=$row->discountamount?>'>
 								</td>
 								<td>
 									<?php
@@ -262,9 +268,12 @@
 											->setName('taxcode[]')
 											->setClass('taxcode')
 											->setList($taxrate_list)
-											->setNone('none')
+											->setNone('None')
+											->setValue($row->taxcode)
 											->draw($show_input);
 									?>
+									<input type='hidden' name='taxrate[]' value='<?=$row->taxrate?>'>
+									<input type='hidden' name='taxamount[]' value='<?=$row->taxamount?>'>
 								</td>
 								<td class="text-right">
 									<?php
@@ -291,6 +300,7 @@
 								</td>
 								<?php endif ?>
 							</tr>
+						<?php } ?>
 						</tbody>
 						<tfoot class="summary">
 							<tr>
@@ -306,8 +316,8 @@
 									<?php
 										echo $ui->formField('text')
 												->setSplit('', 'col-md-12 col-sm-12')
-												->setName('t_vatable_sales')
-												->setId('t_vatable_sales')
+												->setName('vat_sales')
+												->setId('vat_sales')
 												->setClass("input_label text-right remove-margin")
 												->setAttribute(array("readOnly"=>"readOnly"))
 												->setValue(number_format($t_vatable_sales,2))
@@ -324,8 +334,8 @@
 									<?php
 										echo $ui->formField('text')
 												->setSplit('', 'col-md-12 col-sm-12')
-												->setName('t_vat_exempt_sales')
-												->setId('t_vat_exempt_sales')
+												->setName('exempt_sales')
+												->setId('exempt_sales')
 												->setClass("input_label text-right remove-margin")
 												->setAttribute(array("readOnly"=>"readOnly"))
 												->setValue(number_format($t_vat_exempt_sales,2))
@@ -342,8 +352,8 @@
 									<?php
 										echo $ui->formField('text')
 												->setSplit('', 'col-md-12 col-sm-12')
-												->setName('t_vatsales')
-												->setId('t_vatsales')
+												->setName('t_sales')
+												->setId('t_sales')
 												->setClass("input_label text-right remove-margin")
 												->setAttribute(array("readOnly"=>"readOnly"))
 												->setValue(number_format($t_vatsales,2))
@@ -439,62 +449,158 @@
 		var ajax		= {};
 		var ajax_call	= '';
 		var min_row		= 1;
-		// function addVoucherDetails(details) {
-		// 	var details = details || {itemcode: '', detailparticular: '', warranty: '', warehouse: '', quantity: '0', uom: 'PCS', price: '0.00', discount: '0.00', amount: '0.00', taxcode: '', taxrate: '',taxamount: '0.00'};
+		function addVoucherDetails() {
 			
+			var row = `<tr>
+						<td>
+							<?php
+								echo $ui->formField('dropdown')
+									->setPlaceholder('Select Item')
+									->setSplit('', 'col-md-12')
+									->setName('itemcode[]')
+									->setClass('itemcode')
+									->setList($item_list)
+									->setValue('')
+									->setValidation('required')
+									->draw($show_input);
+							?>
+							<input type='hidden' name='linenum[]' value=''>
+						</td>
+						<td>
+							<?php
+								echo $ui->formField('text')
+									->setSplit('', 'col-md-12')
+									->setName('detailparticular[]')
+									->setClass('detailparticular')
+									->setValue('')
+									->draw($show_input);
+							?>
+						</td>
+						<td class="text-center">
+							<?php
+								echo $ui->formField('checkbox')
+										->setName('warranty[]')
+										->setClass('warranty')
+										->setValue('0')
+										->draw($show_input);
 
-		// 	var row = `
-				
-		// 	`;
+							?>
+							<input type='hidden' name='haswarranty[]' value = 'No'>
+						</td>
+						<td>
+							<?php
+								echo $ui->formField('dropdown')
+									->setPlaceholder('Select Warehouse')
+									->setSplit('', 'col-md-12')
+									->setName('warehouse[]')
+									->setClass('warehouse')
+									->setList($warehouse_list)
+									->setValue('')
+									->setValidation('required')
+									->draw($show_input);
+							?>
+						</td>
+						<td class="text-right">
+							<?php
+								echo $ui->formField('text')
+									->setSplit('', 'col-md-12')
+									->setName('quantity[]')
+									->setClass('quantity text-right')
+									
+									->setValidation('required integer')
+									->setValue('0')
+									->draw($show_input);
+							?>
+							
+						</td>
+						<td>
+							<?php
+								echo $ui->formField('text')
+									->setSplit('', 'col-md-12')
+									->setName('uom[]')
+									->setClass('uom text-right')
+									->setAttribute(
+										array("maxlength" => "20",'readOnly' => 'readOnly')
+									)
+									->setValue("")
+									->draw($show_input);
+							?>
+						</td>
+						<td class="text-right">
+							<?php
+								echo $ui->formField('text')
+									->setSplit('', 'col-md-12')
+									->setName('unitprice[]')
+									->setClass('unitprice text-right')
+									->setValidation('required decimal')
+									->setValue(number_format(0,2))
+									->draw($show_input);
+							?>
+						</td>
+						<td class="text-right">
+							<?php
+								echo $ui->formField('text')
+									->setSplit('', 'col-md-12')
+									->setName('discount[]')
+									->setClass('discount text-right')
+									->setAttribute(array('disabled'=>true))
+									->setValidation('required decimal')
+									->setValue(number_format(0,2))
+									->draw($show_input);
+							?>
+							<input type='hidden' name='discounttype[]' class='discounttype' value=''>
+							<input type='hidden' name='discountamount[]' class='discountamount' value=''>
+						</td>
+						<td>
+							<?php
+								
+								echo $ui->formField('dropdown')
+									->setSplit('', 'col-md-12')
+									->setName('taxcode[]')
+									->setClass('taxcode')
+									->setList($taxrate_list)
+									->setNone('None')
+									->setValue('')
+									->draw($show_input);
+							?>
+							<input type='hidden' name='taxrate[]' class='taxrate' value=''>
+							<input type='hidden' name='taxamount[]' class='taxamount' value=''>
+						</td>
+						<td class="text-right">
+							<?php
+								echo $ui->formField('text')
+									->setSplit('', 'col-md-12')
+									->setName('amount[]')
+									->setClass('amount text-right')
+									->setAttribute(
+										array(
+											
+											'readOnly' => 'readOnly'
+										)
+									)
+									->setValidation('required decimal')
+									->setValue(number_format(0,2))
+									->draw($show_input);
+							?>
+						</td>
+						<?php if ($show_input): ?>
+						<td>
+							<button type="button" class="btn btn-danger btn-flat delete_row" style="outline:none;">
+								<span class="glyphicon glyphicon-trash"></span>
+							</button>
+						</td>
+						<?php endif ?>
+					</tr>
 
-		// 	$('#tableList tbody').append(row);
+			`;
+			
+			$('#tableList tbody').append(row);
+			drawTemplate();
+			checkDiscountType();
+		}
 
-		// 	if (details.itemcode != '') {
-		// 		$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
-		// 	}
-		// 	if (details.warehouse != '') {
-		// 		$('#tableList tbody').find('tr:last .warehouse').val(details.warehouse);
-		// 	}
-		// 	if (details.taxcode != '') {
-		// 		$('#tableList tbody').find('tr:last .taxcode').val(details.taxcode);
-		// 	}
-
-		// 	try {
-		// 		drawTemplate();
-		// 	} catch(e) {};
-
-		// 	var itemlist = <?= json_encode($item_list) ?>;
-		// 	itemlist.forEach(function(item) {
-		// 		if (item.ind == details.itemcode) {
-		// 			$('#temp_view_' + index).html(item.val);
-		// 		}
-		// 	});
-
-		// 	var warehouselist = <?= json_encode($warehouse_list) ?>;
-		// 	warehouselist.forEach(function(warehouse) {
-		// 		if (warehouse.ind == details.warehouse) {
-		// 			$('#temp_view_warehouse_' + index).html(warehouse.val);
-		// 		}
-		// 	});
-
-		// 	var taxrate_list = <?= json_encode($taxrate_list) ?>;
-		// 	taxrate_list.forEach(function(tax) {
-		// 		if (tax.ind == details.taxcode) {
-		// 			$('#temp_view_taxrate_' + index).html(tax.val);
-		// 		}
-		// 	});
-
-		// 	if (details.warranty == 'yes') {
-		// 		$(this).removeAttr('readonly').val($(this).attr('data-value'));
-		// 		$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
-		// 	} 
-		// 	else {
-		// 		$('#tableList tbody').find('tr:last .warranty_hidden').attr('readonly', '').val(0);
-		// 		$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('enable');
-		// 	}
-		// }
-
-		function getItemDetails(itemcode, row){
+		function getItemDetails(itemcode, element){
+			var isbundle = 0;
 			$.post("<?=MODULE_URL?>ajax/get_item_details","itemcode="+itemcode , function(data){
 				
 				switch(data.uom){
@@ -507,11 +613,29 @@
 					default:
 						uom = "PCS";
 				}
-				row.closest("tr").find(".detailparticular").val(data.itemdesc);
-				row.closest("tr").find(".price").val(addComma(data.itemprice));
-				row.closest("tr").find(".uom").val(uom);
-				console.log(data.itemdesc);
-			});
+				element.closest("tr").find(".detailparticular").val(data.itemdesc);
+				element.closest("tr").find(".unitprice").val(addComma(data.itemprice));
+				element.closest("tr").find(".uom").val(uom);
+				if (data.isbundle == 1) {console.log("fired2");
+				$.post("<?=MODULE_URL?>ajax/get_item_bundle","itemcode="+itemcode, function(data){
+					console.log(data);
+				});
+			}
+			});console.log(isbundle);
+			
+		}
+
+		function checkDiscountType(){
+			if ($('#discount_type').val() == 'amt' || $('#discount_type').val() == 'perc') {
+				$('.discount').val('0.00');
+				$('.discount').removeAttr('disabled');	
+			}
+			else{
+				$('.discount').val('0.00');
+				$('.discount').prop('disabled',true);	
+			}
+			$('.discount').parent().parent().removeClass('has-error');
+			recomputeAll();
 		}
 
 		function addCommas(nStr){
@@ -575,94 +699,69 @@
 			var total_amount	= 0;
 			var total_discount 	= 0;
 
-			if ($('#tableList tbody tr .price').length) {
+			if ($('#tableList tbody tr .unitprice').length) {
 				$('#tableList tbody tr').each(function() {
-					var discount 	= $(this).find(".discount").val();
-					var price 		= removeComma($(this).find('.price').val());
+					var discount 	= removeComma($(this).find(".discount").val()) ;
+					var unitprice 	= removeComma($(this).find('.unitprice').val());
 					var quantity 	= removeComma($(this).find('.quantity').val());
-					var amount 		= (price * quantity);
+					var amount 		= (unitprice * quantity);
 					var tax 		= $(this).find('.taxcode').val();
 					var taxrate 	= taxrates[tax] || 0;
-					
+					var itemdiscount= 0;
 
-					if (discount_type != "none" && discount_type != ""){
-						itemdiscount 	= (discount_type == "amt") ? discount : discount/100; 
+					if (discount_type == "amt")
+						itemdiscount	= discount
+
+					else if(discount_type == "perc" && discount < 101)
+						itemdiscount 	= amount * (discount/100);
+
+					if (amount >= itemdiscount) {
+						
 						total_discount 	+= itemdiscount;
 						amount 			= amount - itemdiscount;
+						if (taxrate > 0) {
+							var taxamount 	= amount * taxrate;
+							vat_sales 		+= amount
+							vat_total 		+= taxamount;
+						}
+						else
+							vatexempt_sales += amount;
+						
 					}
-					
-					if (taxrate > 0) {
-						var taxamount 	= amount * taxrate;
-						vat_sales 		+= amount
-						vat_total 		+= taxamount;
+					else{
+						$(this).find(".discount").parent().parent().addClass("has-error");
 					}
-					else
-						vatexempt_sales += amount;
-
+					$(this).find('.taxrate').val(taxrate);
+					$(this).find('.taxamount').val(taxamount);
+					$(this).find('.discounttype').val(discount_type);
+					$(this).find('.discountamount').val(itemdiscount);
 					$(this).find('.amount').val(addComma(amount));
 				});
 
 				total_sales 	= vat_sales + vatexempt_sales;
 				total_amount 	= total_sales + vat_total;
-				$("form").find("#t_vatable_sales").val(addCommas(vat_sales.toFixed(2)));
-				$("form").find("#t_vat_exempt_sales").val(addCommas(vatexempt_sales.toFixed(2)));
-				$("form").find("#t_vatsales").val(addCommas(total_sales.toFixed(2)));
+				$("form").find("#vat_sales").val(addCommas(vat_sales.toFixed(2)));
+				$("form").find("#exempt_sales").val(addCommas(vatexempt_sales.toFixed(2)));
+				$("form").find("#t_sales").val(addCommas(total_sales.toFixed(2)));
 				$("form").find("#t_vat").val(addCommas(vat_total.toFixed(2)));
 				$("form").find("#t_amount").val(addCommas(total_amount.toFixed(2)));
 				$("form").find("#t_discount").val(addCommas(total_discount.toFixed(2)));
 			}
 		}
 
-		$('#tableList tbody').on('input change blur', '.price, .quantity, .discount, .taxcode', function() {
-			recomputeAll();
-		});
-
-		var header_values 	= <?php echo $header_values ?>;
-		var voucher_details = <?php echo $voucher_details ?>;
-		displayHeader(header_values);
-		displayDetails(voucher_details);
 	</script>
 
 	<?php if ($show_input): ?>
 
 	<script>
-		$('body').on('click', '#addNewItem', function() 
-		{
-			$('#tableList tbody tr.clone select').select2('destroy');
-			
-			var clone = $("#tableList tbody tr.clone:first").clone(true); 
-
-			var ParentRow = $("#tableList tbody tr.clone").last();
-			
-			clone.clone(true).insertAfter(ParentRow);
-			$('#tableList tbody tr.clone select').select2({width: "100%"});
-		});
-
-		$('.itemcode').on('change', function(e) {
-			var customer 	=	$('#customer').val();
-			
-			if( customer != "" )
-			{
-				var itemcode = $(this).val();
-				getItemDetails(itemcode, $(this));
-
-			}
-			else
-			{
-				$(this).find(".itemcode").val('');
-				$('#customer').focus();
-			}
+		$(document).ready(function(){
+			addVoucherDetails();
 		});
 		
-		$("#discount_type").on("change", function(){
-			
-			if ($(this).val()=="none" || $(this).val()=="") {
-				$(".discount").prop("disabled",true);
-			}
-			else
-				$(".discount").prop("disabled",false);
+		$('body').on('click', '#addNewItem', function() {
+			addVoucherDetails();
 		});
-		
+
 		$('body').on('click', '.delete_row', function() {
 			delete_row = $(this).closest('tr');
 			delete_row.remove();
@@ -670,39 +769,148 @@
 				addVoucherDetails();
 			}
 		});
+
+		$('#tableList tbody').on('change', '.itemcode', function(e) {
+			var customer 	=	$('#customer').val();
+			if( customer != "" )
+			{
+				var itemcode = $(this).val();
+				getItemDetails(itemcode, $(this));
+			}
+			else
+			{	
+				$(this).val('');
+				drawTemplate();
+				$('#customer').focus();
+			}
+		});
+
+		$('#tableList tbody').on('input', '.quantity', function(e) {
+			var value 	=	removeComma($(this).val());
+			if( value > 0 ){
+				$(this).parent().parent().removeClass('has-error');
+			}
+			else{	
+				$(this).parent().parent().addClass('has-error');
+			}
+		});
+
+		$('#tableList tbody').on('input', '.unitprice', function(e) {
+			var value 	=	removeComma($(this).val());
+			if( value >= 0 ){
+				$(this).parent().parent().removeClass('has-error');
+			}
+			else{	
+				$(this).parent().parent().addClass('has-error');
+			}
+		});
+
+		$('#tableList tbody').on('input', '.discount', function(e) {
+			var value 	= removeComma($(this).val());
+			var type 	= $('#discount_type').val();
+			if (type == 'perc' && value > 100){
+				$(this).parent().parent().addClass('has-error');
+			}
+			else if (type == 'amt' && value < 0){
+				$(this).parent().parent().addClass('has-error');
+			}
+			else{	
+				$(this).parent().parent().removeClass('has-error');
+			}
+		});
+
+        $("#tableList tbody").on("ifChecked", ".warranty", function(){
+            $('input[name="haswarranty"]').val('Yes');
+        });
+
+		$("#tableList tbody").on("ifUnchecked", ".warranty", function(){
+            $('input[name="haswarranty"]').val('No');
+        });
+
+		$('#tableList tbody').on('blur', '.discount', function(e) {
+			var value 	= removeComma($(this).val());
+			var type 	= $('#discount_type').val();
+			if (value == '') {
+				if(type == 'amt')
+					value = '0.00';
+
+				else
+					value = '0';
+
+				$(this).val(value);
+			}
+		});
+
+		$('#tableList tbody').on('change', '.warehouse', function(e) {
+			var warehouse 	=	$(this).val();
+			if( warehouse != '' )
+				$(this).parent().parent().removeClass('has-error');
+			
+			else
+				$(this).parent().parent().addClass('has-error');
+			
+		});
+
+		$('#tableList tbody').on('input change blur', '.unitprice, .quantity, .discount, .taxcode', function() {
+			var row 		= $(this).closest("tr");
+			var unitprice 	= removeComma(row.find(".unitprice").val());
+			var quantity 	= row.find(".quantity").val();
+
+			if (unitprice > 0 && quantity > 0) {
+				recomputeAll();
+			}
+		});
+
 		
+
+		$("#discount_type").on("change", function(){
+			checkDiscountType();
+		});
+		
+
 		$('form').on('click', '[type="submit"]', function(e) {
 			e.preventDefault();
-			console.log($('form').serialize());
+			recomputeAll();
+
 			var form_element = $(this).closest('form');
 			var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
-			recomputeAll();
-			// $('#submit_container [type="submit"]').attr('disabled', true);
-			// form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
-			// if (form_element.find('.form-group.has-error').length == 0) {
-			// 	var items = 0;
-			// 	$('.issueqty:not([readonly])').each(function() {
-			// 		items += removeComma($(this).val());
-			// 	});
-			// 	if ($('.issueqty:not([readonly])').length > 0 && items > 0) {
-			// 		$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
-			// 			if (data.success) {
-			// 				$('#delay_modal').modal('show');
-			// 				setTimeout(function() {							
-			// 					window.location = data.redirect;						
-			// 				}, 1000)
-			// 			} else {
-			// 				$('#submit_container [type="submit"]').attr('disabled', false);
-			// 			}
-			// 		});
-			// 	} else {
-			// 		$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');
-			// 		$('#submit_container [type="submit"]').attr('disabled', false);
-			// 	}
-			// } else {
-			// 	form_element.find('.form-group.has-error').first().find('input, textarea, select').focus();
-			// 	$('#submit_container [type="submit"]').attr('disabled', false);
-			// }
+			
+			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
+
+			$('#submit_container [type="submit"]').attr('disabled', true);
+
+			$('.quantity').each(function() {
+				if( $(this).val() < 1 )
+				{
+					$(this).parent().parent().addClass('has-error');
+				}
+			});
+
+			$.each('#tableList tbody tr', function(index, value){
+				$(this).find('input[name="linenum"]').val(index+1);
+			});
+			if (form_element.find('.has-error').length < 1) {console.log("sdasda");
+				if ($('.quantity:not([readonly])').length > 0) {
+					
+					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() , function(data) {
+					 
+						if (data.query1) {
+							$('#delay_modal').modal('show');
+							setTimeout(function(){window.location = '<?=MODULE_URL?>';}, 1000);
+						} else {
+							$('#submit_container [type="submit"]').attr('disabled', false);
+						}
+					});
+				} 
+				else {
+					$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');
+					$('#submit_container [type="submit"]').attr('disabled', false);
+				}
+			} 
+			else {
+				form_element.find('.form-group.has-error').first().find('input, textarea, select').focus();
+				$('#submit_container [type="submit"]').attr('disabled', false);
+			}
 		});
 	</script>
 	<?php endif ?>
