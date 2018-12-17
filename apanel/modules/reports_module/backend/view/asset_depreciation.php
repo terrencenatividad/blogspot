@@ -2,18 +2,40 @@
 		<div class="box box-primary">
 			<div class="box-header pb-none">
 				<div class="row">
-					<div class="col-md-3">
+					<div class="col-md-2">
 						<?php
 							echo $ui->formField('dropdown')
-								->setPlaceholder('Filter Asset')
-								->setName('supplier')
-								->setId('supplier')
-								->setList(array(''))
+								->setPlaceholder('Filter Asset Class')
+								->setName('assetclass')
+								->setId('assetclass')
+								->setList($assetclass_list)
 								->setNone('Filter: All')
 								->draw();
 						?>
 					</div>
-					<div class="col-md-3">
+					<div class="col-md-2">
+						<?php
+							echo $ui->formField('dropdown')
+								->setPlaceholder('Filter Asset Number')
+								->setName('asset')
+								->setId('asset')
+								->setList($asset_list)
+								->setNone('Filter: All')
+								->draw();
+						?>
+					</div>
+					<div class="col-md-2">
+						<?php
+							echo $ui->formField('dropdown')
+								->setPlaceholder('Filter Department')
+								->setName('department')
+								->setId('department')
+								->setList($dept_list)
+								->setNone('Filter: All')
+								->draw();
+						?>
+					</div>
+					<div class="col-md-2">
 						<?php
 							echo $ui->formField('text')
 								->setName('datefilter')
@@ -25,7 +47,7 @@
 								->draw();
 						?>
 					</div>
-					<div class="col-md-6 text-right">
+					<div class="col-md-4 text-right">
 						<a href="" id="export_csv" download="Depreciation.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 					</div>
 				</div>	
@@ -33,15 +55,18 @@
 			<div class="box-body table-responsive no-padding" id="report_content">
 				<table id="tableList" class="table table-hover table-striped table-sidepad">
 						<thead>
-						<tr class="info">
-							<th class="col-md-2">Department</th>
-							<th class="col-md-2">Asset Number</th>
-							<th class="col-md-2">Serial Number / Engine Number</th>
-							<th class="col-md-1">Asset Class</th>
-							<th class="col-md-2">Description</th>
-							<th class="col-md-1">Capitalized Cost</th>
-							<th class="col-md-2 text-right">Depreciation Amount</th>
-						</tr>
+						<?php
+							echo $ui->loadElement('table')
+									->setHeaderClass('info')
+									->addHeader('Department',array('class'=>'col-md-2'),'sort','am.department')
+									->addHeader("Asset Number",array('class'=>'col-md-2'),'sort','am.asset_number')
+									->addHeader("Serial Number / Engine Number",array('class'=>'col-md-2'),'sort','am.serial_number')
+									->addHeader('Asset Class',array('class'=>'col-md-2'),'sort','assetclass')
+									->addHeader('Description',array('class'=>'col-md-1'),'sort','am.description')
+									->addHeader('Capitalized Cost',array('class'=>'col-md-1'),'sort','am.capitalized_cost')
+									->addHeader('Depreciation Amount',array('class'=>'col-md-1'),'sort','d.depreciation_amount')
+									->draw();
+						?>
 					</thead>
 					<tbody>
 						
@@ -58,7 +83,20 @@
 		var ajax = {};
 		var ajax_call = '';
 		ajax.limit = 10;
-			
+
+		tableSort('#tableList', function(value) {
+			ajax.sort = value;
+			ajax.page = 1;
+			getList();
+		});
+
+		$('#asset').on('change', function() {
+			ajax.page = 1;
+			ajax.asset_number = $(this).val();
+			ajax_call.abort();
+			getList();
+		});
+
 		function getList() {
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list',ajax, function(data) {
 				$('#tableList tbody').html(data.table);
@@ -77,8 +115,13 @@
 			}
 		});
 
-		$("#supplier").on("change",function(){
-			ajax.supplier = $(this).val();
+		$("#assetclass").on("change",function(){
+			ajax.assetclass = $(this).val();
+			getList();
+		});
+
+		$("#department").on("change",function(){
+			ajax.department = $(this).val();
 			getList();
 		});
 
@@ -90,4 +133,6 @@
 			}
 			getList();
 		});
+
+
 	</script>
