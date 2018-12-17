@@ -34,7 +34,7 @@
 									<div class="col-md-6">
 										<?
 										echo $ui->formField('dropdown')
-										->setLabel('Budget Center Code')
+										->setLabel('Budget Cost Center')
 										->setPlaceholder('Select one')
 										->setSplit('col-md-3', 'col-md-8')
 										->setName('budget_center_code')
@@ -137,13 +137,13 @@
 								<div class="row">
 									<div class="col-md-6">
 										<?
-										echo $ui->formField('dropdown')
+										echo $ui->formField('text')
 										->setPlaceholder('Select one')
 										->setLabel('Approver')
 										->setSplit('col-md-3', 'col-md-8')
 										->setName('approver')
 										->setId('approver')
-										->setList($user_list)
+										->setAttribute(array('readonly' => 'readonly'))
 										->setValue($approver)
 										->draw($show_input);	
 										?>	
@@ -279,6 +279,14 @@
 						</div>
 						
 						<script>
+							$('#budget_center_code').on('change', function() {
+								$.post('<?=MODULE_URL?>ajax/ajax_get_approver', '&budget_code=' + $(this).val(), function(data) {
+									if(data) {
+										$('#approver').val(data.approver);
+									}
+								});
+							});
+
 							$('#btnCancel').click(function() 
 							{
 								$('#cancelModal').modal('show');
