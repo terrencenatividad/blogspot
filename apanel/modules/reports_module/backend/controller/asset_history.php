@@ -9,23 +9,25 @@ class controller extends wc_controller {
 		$this->report_model			= new report_model();
 		$this->view->header_active	= 'report/';
 		$this->fields				= array(
-			'at.id',
+			'ass.id',
 			'voucherno',
 			'assetclass',
-			'asset_number',
-			'serial_number',
-			'transactiondate',
-			'transactiontype',
+			'ass.asset_number',
+			'ass.serial_number',
+			'ass.transactiondate',
+			'ass.transactiontype',
 			'amount',
 			'transferto'
 		);
 	}
 
 	public function view() {
-		$this->view->title		= 'Asset History';
-		$data['ui']				= $this->ui;
-		$data['datefilter']		= date("M d, Y");
-		$data['asset_list']	= $this->asset_history->getAsset();				
+		$this->view->title			= 'Asset History';
+		$data['ui']					= $this->ui;
+		$data['datefilter']			= date("M d, Y");
+		$data['asset_list']			= $this->asset_history->getAsset();		
+		$data['assetclass_list']	= $this->asset_history->getAssetClass();
+		$data['dept_list']			= $this->asset_history->getAssetDepartment();		
 		$this->view->load('asset_history', $data);
 	}
 
@@ -42,10 +44,11 @@ class controller extends wc_controller {
 
 		$datefilter			= $this->input->post('datefilter');
 		$sort				= $this->input->post('sort');
-		$asset			= $this->input->post('asset_number');
+		$asset				= $this->input->post('asset_number');
+		$assetclass			= $this->input->post('assetclass');
+		$department			= $this->input->post('department');
 
-		$pagination		= $this->asset_history->getAssetHistory($this->fields, $sort, $asset, $datefilter);
-		// $total_aging	= $this->asset_history->getArAgingTotal($datefilter, $supplier);
+		$pagination		= $this->asset_history->getAssetHistory($this->fields, $sort, $asset, $datefilter, $assetclass, $department);
 		$tt = '';
 		$table		= '';
 		if (empty($pagination->result)) {
@@ -89,8 +92,10 @@ class controller extends wc_controller {
 		$datefilter	= $this->date->dateDbFormat($datefilter);
 		$sort	= $this->input->post('sort');
 		$asset	= $this->input->post('asset_number');
+		$assetclass			= $this->input->post('assetclass');
+		$department			= $this->input->post('department');
 
-		$result		= $this->asset_history->getAssetHistorycsv($this->fields, $sort, $asset, $datefilter);
+		$result		= $this->asset_history->getAssetHistorycsv($this->fields, $sort, $asset, $datefilter, $assetclass, $department);
 
 
 		$header = array(
