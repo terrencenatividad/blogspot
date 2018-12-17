@@ -507,14 +507,30 @@
 			if (warehouse == details.warehouse) {
 				$('#tableList tbody').find('tr:last .issueqty').each(function() {
 					if (details.issueqty > 0) {
-						$(this).removeAttr('readonly').val($(this).attr('data-value'));
+						//$(this).removeAttr('readonly').val($(this).attr('data-value'));
+						if  ($(this).hasClass('itempart')) {
+							$(this).val($(this).attr('data-value'));
+							if ($(this).hasClass('partbtn')) {
+								$(this).removeAttr('disabled').val($(this).attr('data-value'));
+							}
+						}
+						else {
+							$(this).removeAttr('readonly').val($(this).attr('data-value'));
+						}
+						$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('check').iCheck('enable');
 						$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
 					} else {
+						if ($(this).hasClass('partbtn')) {
+							$(this).attr('disabled', 'disabled').val(0);
+						}
 						$('#tableList tbody').find('tr:last .issueqty').attr('readonly', '').val(0);
 						$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('enable');
 					}
 				});
 			} else {
+				if ($(this).hasClass('partbtn')) {
+					$(this).attr('disabled', 'disabled').val(0);
+				}
 				$('#tableList tbody').find('tr:last .issueqty').attr('readonly', '').val(0);
 				$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('disable');
 			}
@@ -680,13 +696,18 @@
 				if (warehouse == warehouse_row) {
 					if  ($(this).hasClass('itempart')) {
 						$(this).val($(this).attr('data-value'));
-						$(this).removeAttr('disabled').val($(this).attr('data-value'));
+						if ($(this).hasClass('partbtn')) {
+							$(this).removeAttr('disabled').val($(this).attr('data-value'));
+						}
 					}
 					else {
 						$(this).removeAttr('readonly').val($(this).attr('data-value'));
 					}
 					$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('check').iCheck('enable');
 				} else {
+					if ($(this).hasClass('partbtn')) {
+						$(this).attr('disabled', 'disabled').val(0);
+					}
 					$(this).attr('readonly', '').val(0);
 					$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('uncheck').iCheck('disable');
 				}
