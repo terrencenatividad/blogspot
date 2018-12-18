@@ -1813,6 +1813,27 @@ class accounts_payable extends wc_model
 		return $error_id;
 	}
 
+	public function deleteEntry($data) {
+		$error_id = array();
+		foreach ($data as $id) {
+			$result =  $this->db->setTable('financial_jobs')
+			->setWhere("voucherno = '$id'")
+			->runDelete(false);
+
+			if ($result) {
+				$this->log->saveActivity("Delete Item Type [$id]");
+			} else {
+				if ($this->db->getError() == 'locked') {
+					$error_id[] = $id;
+				}
+			}
+		}
+
+		return $error_id;
+	}
+
+
+
 	public function getDetailsByVoucher($voucher) {
 		$result = $this->db->setTable('ap_details ad')
 		->setFields('ad.voucherno as voucherno, ad.linenum as linenum, ad.exchangerate as exchangerate, ad.accountcode as accountcode, ad.detailparticulars as description, ad.taxbase_amount as taxbase_amount, ad.source as source, ad.currencycode as currencycode,
