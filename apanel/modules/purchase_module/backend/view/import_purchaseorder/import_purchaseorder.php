@@ -643,7 +643,6 @@
 										<?php	
 										$row++;	
 									}
-									var_dump($b_subtotal);
 								}
 								?>
 							</tbody>
