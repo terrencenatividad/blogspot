@@ -111,7 +111,7 @@
 								</button>
 								<?php } else { ?>
 								<span>
-									<?php echo $job_no; ?></span>
+								<?php echo substr($job_no, 0, 20) . '...'; ?></span>
 								<?php } ?>
 							</div>
 						</div>
@@ -972,6 +972,31 @@ echo $ui->loadElement('modal')
 			});
 		});
 
+		$('#paginate').on('click', 'a', function(e) {
+			e.preventDefault();
+			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
+				var get = $(this).val();
+				if($.inArray(get, job) == -1) {
+					job.push(get);
+				}
+			});
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				page = $(this).attr('data-page');
+				$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + $('#jobs_tagged').val() + '&page=' + page, function(data) {
+					if(data) {
+						$('#jobsTable tbody').html(data.table);
+						$('#paginate').html(data.pagination);
+						$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
+							if(jQuery.inArray($(this).val(), job) != -1) {
+								$(this).closest('tr').iCheck('check');
+							}
+						});
+					}
+				});
+			}
+		});
+
 		$('#jobModal').on('shown.bs.modal', function () {
 			$('#jobsTable tbody tr td input[type="checkbox"]').each(function () {
 				if (jQuery.inArray($(this).val(), job) != -1) {
@@ -982,10 +1007,12 @@ echo $ui->loadElement('modal')
 
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
-			job = [];
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
 				var get = $(this).val();
-				job.push(get);
+				if($.inArray(get, job) == -1) {
+					job.push(get);
+				}
+				$('#job_text').html(job.length);
 				$('#assetid').attr('disabled', 'disabled');
 				$('#jobModal').modal('hide');
 			});
