@@ -265,6 +265,7 @@
 									$warehouse 			  = '';
 									$price	   			  = '0.00';
 									$rowamount 			  = '0.00';
+									$rowamountb 			  = '0.00';
   
 									$onhandqty 		 	  = 0;
 									$quantity 		 	  = 0;
@@ -292,6 +293,7 @@
 									$converted_freight 	  = 0;
 									$converted_insurance  = 0;
 									$converted_packaging  = 0;
+									$convertedamount  	  = 0;
 
 									$startnumber 	   	= ($row_ctr == 0) ? 1: $row_ctr;
 
@@ -1479,9 +1481,13 @@ echo $ui->loadElement('modal')
 				exchangerate	=	exchangerate.replace(/,/g,'');
 				discount		=	discount.value.replace(/,/g,'');
 
-				
+				if(discounttype == 'perc'){
+					discountamt = ((parseFloat(itemprice) 	* 	parseFloat(quantity)) * (parseFloat(discount)/100));
+				}else{
+					discountamt = discount;
+				}
 
-				var totalprice 	=	(parseFloat(itemprice) 	* 	parseFloat(quantity)) - parseFloat(discount);
+				var totalprice 	=	(parseFloat(itemprice) 	* 	parseFloat(quantity)) - parseFloat(discountamt);
 				var totalbase 	=	parseFloat(totalprice) 	* 	parseFloat(exchangerate);
 				//var amount 		=	parseFloat(totalprice) / ( 1 + parseFloat(vat) );
 	
