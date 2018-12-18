@@ -677,7 +677,7 @@ class delivery_receipt_model extends wc_model {
 		}
 		$result	= $this->db->setTable('items_serialized')
 								->setFields($fields)
-								->setWhere("itemcode = '$itemcode'" .$condition)
+								->setWhere("itemcode = '$itemcode' AND stat = 'Available'" .$condition)
 								->setOrderBy('voucherno, linenum, rowno')
 								->runPagination();
 								

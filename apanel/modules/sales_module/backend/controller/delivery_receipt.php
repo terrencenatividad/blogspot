@@ -253,6 +253,8 @@ class controller extends wc_controller {
 		$data						= array_merge($this->input->post($this->fields), $this->input->post($this->fields_header));
 		$submit						= $this->input->post('submit');
 		$data2						= $this->getItemDetails();
+		var_dump($data2);
+		exit();
 		$data2						= $this->cleanData($data2);
 		$data['deliverydate']		= $this->date->dateDbFormat($data['deliverydate']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
@@ -384,21 +386,28 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_serial_list() {
-		$search		= $this->input->post('search');
+		$search	= $this->input->post('search');
 		$itemcode = $this->input->post('itemcode');
-		$fields = array ('itemcode', 'serialno', 'engineno', 'chassisno');
+		$allserials = $this->input->post('allserials');
+		$itemselected = $this->input->post('itemselected');
+		$linenum = $this->input->post('linenum');
+		$id = $this->input->post('id');
+		
+		$array_id = explode(',', $id);
+		$all_id = explode(',', $allserials);
+		
+		$fields = array ('id', 'itemcode', 'serialno', 'engineno', 'chassisno');
 		$pagination	= $this->delivery_model->getSerialList($fields, $itemcode, $search);
+		
 		$table		= '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
-			$dropdown = $this->ui->loadElement('check_task')
-									->addCheckbox()
-									->setValue($row->itemcode)
-                                    ->draw();
-			$table .= '<tr>';
-			$table .= '<td>' . $dropdown . '</td>';
+			$checker = (in_array($row->id, $array_id)) ? 'checked' : '';
+			$hide_tr = (in_array($row->id, $all_id) && !in_array($row->id, $array_id)) ? 'hidden' : '';
+			$table .= '<tr class = "'.$hide_tr.'">';
+			$table	.= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'" '.$checker.'></td>';
 			$table .= '<td>' . $row->serialno . '</td>';
 			$table .= '<td>' . $row->engineno . '</td>';
 			$table .= '<td>' . $row->chassisno . '</td>';
