@@ -429,6 +429,7 @@
 												->setAttribute(array("maxlength" => "20"))
 												->setClass("debit text-right")
 												->setValidation('decimal required')
+												->setValue('0.00')
 												->draw($show_input);
 												?>
 											</td>
@@ -442,6 +443,7 @@
 												->setId('credit')
 												->setAttribute(array("maxlength" => "20"))
 												->setClass("credit text-right")
+												->setValue('0.00')
 												->setValidation('decimal required')
 												->draw($show_input);
 												?>
@@ -455,6 +457,7 @@
 												->setId('currencyamount')
 												->setAttribute(array("maxlength" => "20", 'readonly'))
 												->setClass("currencyamount text-right")
+												->setValue('0.00')
 												->setValidation('decimal')
 												->draw($show_input);
 												?>
@@ -537,6 +540,7 @@
 												->setId('debit')
 												->setAttribute(array("maxlength" => "20"))
 												->setClass("debit text-right")
+												->setValue('0.00')
 												->setValidation('decimal required')
 												->draw($show_input);
 												?>
@@ -551,6 +555,7 @@
 												->setId('credit')
 												->setAttribute(array("maxlength" => "20"))
 												->setClass("credit text-right")
+												->setValue('0.00')
 												->setValidation('decimal required')
 												->draw($show_input);
 												?>
@@ -565,6 +570,7 @@
 												->setAttribute(array("maxlength" => "20", 'readonly'))
 												->setClass("currencyamount text-right")
 												->setValidation('decimal')
+												->setValue('0.00')
 												->draw($show_input);
 												?>
 											</td>
@@ -1237,14 +1243,14 @@
 			}
 		});
 
-		$('#exchangerate').on('blur', function() {
 			var row = '';
+		$('#exchangerate').on('blur', function() {
 			var total = 0;
 			var rate = $(this).val();
 			$('.currencyamount').each(function() {
 				var debit = $(this).closest('tr').find('.debit').val();
 				var credit = $(this).closest('tr').find('.credit').val();
-				if(debit != '') {
+				if(debit != '0.00') {
 					row = $(this).closest('tr').find('.debit');
 					total = debit * rate;
 				} else {
