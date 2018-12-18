@@ -789,7 +789,7 @@
 		$(function() {
 			linkDeleteToModal('.delete_row', 'deleteVoucherDetails');
 		});
-		var serials = [];
+
 		$('form').on('click', '[type="submit"]', function(e) {
 			e.preventDefault();
 			var form_element = $(this).closest('form');
@@ -803,8 +803,8 @@
 				else {
 					var req_val = $(this).val();
 					var serial_list = $(this).closest('tr').find('.serialnumbers').val();
-					serials = serial_list.split(",");
-					if (serials[0].length != req_val) {
+					var serials = serial_list.split(",");
+					if (serials == '') {
 						$('#warning_counter').modal('show');
 					}
 				}
