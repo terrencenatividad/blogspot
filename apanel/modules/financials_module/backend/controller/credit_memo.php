@@ -266,13 +266,8 @@ class controller extends wc_controller {
 		
 		// $result					= $this->cm_model->updateJournalVoucher($data, $data2, $this->temp, (($finalized) ? 'Create' : false));
 
-		if($data['job_no'] != '') {
-			//filter to save in financials_job
-			$result = 'failed to save in voucher';
-			$result						= $this->cm_model->saveJournalVoucher($data, $data2);
-		}else {
-			$result						= $this->cm_model->saveJournalVoucher($data, $data2);
-		}
+		$result						= $this->cm_model->saveJournalVoucher($data, $data2);
+		
 
 		$redirect_url = MODULE_URL;
 		if ($submit == 'save_new') {
