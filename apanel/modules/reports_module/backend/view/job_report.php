@@ -264,7 +264,6 @@
             </div>
         </div>
     </div>
-</div>
 
 
 
@@ -506,20 +505,30 @@
             $("#export_csv").attr('href', 'data:text/csv;filename=jobReport.csv;charset=utf-8,' +
                 encodeURIComponent(data.csv));
             fsum = 0;
-            $('#tableList tbody tr td').find('.amount').each(function () {
-                sum = removeComma($(this).html());
-                fsum += +sum;
-                $('.total_job').html(addComma(fsum));
-            });
-
+            sum = 0;
+            
             if (ajax.page > data.page_limit && data.page_limit > 0) {
                 ajax.page = data.page_limit;
                 showList();
+                
             }
+            getTotal();
         });
     };
 
     showList();
+    
+    function getTotal() {
+        if($('#tableList tbody tr td.text-center').html() == 'No Records Found') {
+            $('.total_job').html(addComma('0.00'));
+        } else {
+            $('#tableList tbody tr td').find('.amount').each(function () {
+            sum = removeComma($(this).html());
+            fsum += +sum;
+            $('.total_job').html(addComma(fsum));
+        });
+        }
+    }
 
     function show_error(msg) {
         $(".delete-modal").modal("hide");

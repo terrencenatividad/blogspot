@@ -88,6 +88,9 @@ class controller extends wc_controller
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
 
+		$dep_type_data          = array("id ind", "name val");
+		$data["department_list"] = $this->po->getValue("cost_center", $dep_type_data,'','name');
+
 		$disc_type_data         = array("code ind","value val");
 		$data["discounttypes"] 	= $this->po->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
 
@@ -276,6 +279,9 @@ class controller extends wc_controller
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
 
+		$dep_type_data          = array("id ind", "name val");
+		$data["department_list"] = $this->po->getValue("cost_center", $dep_type_data,'','name');
+
 		$disc_type_data         = array("code ind","value val");
 		$data["discounttypes"] 	= $this->po->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
 
@@ -378,6 +384,9 @@ class controller extends wc_controller
 
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
+
+		$dep_type_data          = array("id ind", "name val");
+		$data["department_list"] = $this->po->getValue("cost_center", $dep_type_data,'','name');
 
 		$disc_type_data         = array("code ind","value val");
 		$data["discounttypes"] 	= $this->po->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
