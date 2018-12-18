@@ -118,10 +118,12 @@
 							</div>
 							<div class = "col-md-6 department_div">
 								<?php
-								echo $ui->formField('text')
+								echo $ui->formField('dropdown')
 								->setLabel('Department:')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('department')
+								->setPlaceholder('Select Department')
+								->setList($department_list)
 								->setId('department')
 								->setValue($department)
 								->draw($show_input);
