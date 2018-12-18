@@ -999,9 +999,12 @@ echo $ui->loadElement('modal')
 				if(data) {
 					$('#exchangerate').val(data.exchangerate);	
 					if($('.debit').val() != '0.00') {
-						$('.currencyamount').html(addComma(data.exchangerate * $('.debit').val()));
-					} else {
-						$('.currencyamount').html(addComma(data.exchangerate * $('.credit').val()));
+						$('.currencyamount').val(addComma(data.exchangerate * $('.debit').val()));
+						console.log('1')
+					}
+					else {
+						$('.currencyamount').val(addComma(data.exchangerate * $('.credit').val()));
+						console.log('2')
 					}
 					//sumDebit();
 					//sumCredit();
@@ -1138,28 +1141,32 @@ echo $ui->loadElement('modal')
 			});
 		<?php endif; ?>
 
+		var row = '';
 		$('#exchangerate').on('blur', function() {
-			var row = '';
 			var total = 0;
 			var rate = $(this).val();
 			$('.currencyamount').each(function() {
 				var debit = $(this).closest('tr').find('.debit').val();
 				var credit = $(this).closest('tr').find('.credit').val();
-				console.log('former debit: ' + debit);
-				console.log('former credit: ' + credit);
-				if(debit != '') {
+				console.log('debit: ' + debit);
+				console.log('credit: ' + credit);
+
+				if(debit != '0.00') {
 					row = $(this).closest('tr').find('.debit');
 					total = debit * rate;
-					console.log('debit: ' + debit);
-					console.log('rate: ' + rate);
-				}else {
+					console.log('debit on row: ' + debit);
+					console.log('rate on row: ' + rate);
+					console.log('total on row: ' + total);
+				} 
+
+				if(credit != '0.00') {
 					row = $(this).closest('tr').find('.credit');
 					total = credit * rate;
-					console.log('credit: ' + credit);
-					console.log('rate: ' + rate);
+					console.log('credit on row: ' + credit);
+					console.log('rate on row: ' + rate);
+					console.log('total on row: ' + total);
 				}
-				console.log('total: ' + total);
-				console.log('--------');
+				console.log('-----');
 				row.closest('tr').find('.currencyamount').val(addComma(total));
 				sumCurrencyAmount();
 			});
