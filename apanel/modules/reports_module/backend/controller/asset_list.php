@@ -151,11 +151,10 @@ class controller extends wc_controller {
 			'Asset Location',
 			'Department',
 			'Accountable Person',
-			'Commissioning Date',
 			'Retirement Date',
+			'Commissioning Date',
 			'No. of Months Useful Life',
 			'Depreciation Month',
-			'Depreciation Amount',
 			'Capitalized Cost',
 			'Purchase Value',
 			'Balance Value',
@@ -179,10 +178,12 @@ class controller extends wc_controller {
 			$csv .= '"' . $row->itemcode . '",';
 			$csv .= '"' . $row->assetclass . '",';
 			$csv .= '"' . $row->asset_name . '",';
+			$csv .= '"' . $row->asset_number . '",';
 			$csv .= '"' . $row->sub_number . '",';
+			$csv .= '"' . $row->serial_number . '",';
 			$csv .= '"' . $row->description . '",';
 			$csv .= '"' . $row->asset_location . '",';
-			$csv .= '"' . $row->department . '",';
+			$csv .= '"' . $row->name . '",';
 			$csv .= '"' . $row->accountable_person . '",';
 			$csv .= '"' . $row->retirement_date . '",';
 			$csv .= '"' . $row->commissioning_date . '",';

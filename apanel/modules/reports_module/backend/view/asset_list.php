@@ -71,18 +71,18 @@
 						<?php
 							echo $ui->loadElement('table')
 									->setHeaderClass('info')
-									->addHeader('Item Code',array('class'=>'col-md-1'),'sort','transactiontype')
+									->addHeader('Item Code',array('class'=>'col-md-1'),'sort','itemcode')
 									->addHeader("Asset Class",array('class'=>'col-md-1'),'sort','assetclass')
-									->addHeader("Asset Name",array('class'=>'col-md-1'),'sort','asset_number')
+									->addHeader("Asset Name",array('class'=>'col-md-1'),'sort','asset_name')
 									->addHeader("Asset Number(Bar Code)",array('class'=>'col-md-1'),'sort','asset_number')
 									->addHeader('Sub-Number',array('class'=>'col-md-1'),'sort','sub_number')
 									->addHeader('Serial Number/ Engine Number',array('class'=>'col-md-1'),'sort','serial_number')
-									->addHeader('Description',array('class'=>'col-md-1'),'sort','transactiondate')
-									->addHeader('Asset Location',array('class'=>'col-md-1'),'sort','transactiondate')
-									->addHeader('Department',array('class'=>'col-md-1'),'sort','amount')
-									->addHeader('Accountable Person',array('class'=>'col-md-1'),'sort','transferto')
-									->addHeader('Retirement Date',array('class'=>'col-md-1'),'sort','transferto')
-									->addHeader('Commissioning Date',array('class'=>'col-md-1'),'sort','transferto')
+									->addHeader('Description',array('class'=>'col-md-1'),'sort','description')
+									->addHeader('Asset Location',array('class'=>'col-md-1'),'sort','asset_location')
+									->addHeader('Department',array('class'=>'col-md-1'),'sort','department')
+									->addHeader('Accountable Person',array('class'=>'col-md-1'),'sort','accountable_person')
+									->addHeader('Retirement Date',array('class'=>'col-md-1'),'sort','retirement_date')
+									->addHeader('Commissioning Date',array('class'=>'col-md-1'),'sort','commissioning_date')
 									->draw();
 						?>
 						</thead>
@@ -112,13 +112,13 @@
 						<?php
 							echo $ui->loadElement('table')
 									->setHeaderClass('info')
-									->addHeader('Item Code',array('class'=>'col-md-2'),'sort','transactiontype')
-									->addHeader('No. of Months Useful Life',array('class'=>'col-md-2'),'sort','transactiontype')
-									->addHeader("Depreciation Month Start ",array('class'=>'col-md-2'),'sort','assetclass')
-									->addHeader("Capitalized Cost",array('class'=>'col-md-2'),'sort','asset_number')
-									->addHeader('Purchase Value',array('class'=>'col-md-2'),'sort','sub_number')
-									->addHeader('Book Value',array('class'=>'col-md-1'),'sort','serial_number')
-									->addHeader('Salvage Value',array('class'=>'col-md-1'),'sort','transactiondate')
+									->addHeader('Item Code',array('class'=>'col-md-2'),'sort','itemcode')
+									->addHeader('No. of Months Useful Life',array('class'=>'col-md-1'),'sort','useful_life')
+									->addHeader("Depreciation Month Start ",array('class'=>'col-md-1'),'sort','depreciation_month')
+									->addHeader("Capitalized Cost",array('class'=>'col-md-2 text-center'),'sort','capitalized_cost')
+									->addHeader('Purchase Value',array('class'=>'col-md-2 text-center'),'sort','purchase_value')
+									->addHeader('Book Value',array('class'=>'col-md-2 text-center'),'sort','balance_value')
+									->addHeader('Salvage Value',array('class'=>'col-md-2 text-center'),'sort','salvage_value')
 									->draw();
 						?>
 						</thead>
@@ -143,10 +143,10 @@
 						<?php
 							echo $ui->loadElement('table')
 									->setHeaderClass('info')
-									->addHeader('Item Code',array('class'=>'col-md-2'),'sort','transactiontype')
-									->addHeader('GL Account(Asset)',array('class'=>'col-md-2'),'sort','transactiontype')
-									->addHeader("GL Account(Accumulated Depreciation)",array('class'=>'col-md-2'),'sort','assetclass')
-									->addHeader("GL Account(Depreciation Expense)",array('class'=>'col-md-2'),'sort','asset_number')
+									->addHeader('Item Code',array('class'=>'col-md-2'),'sort','itemcode')
+									->addHeader('GL Account(Asset)',array('class'=>'col-md-2'),'sort','asset')
+									->addHeader("GL Account(Accumulated Depreciation)",array('class'=>'col-md-2'),'sort','accdep')
+									->addHeader("GL Account(Depreciation Expense)",array('class'=>'col-md-2'),'sort','depexp')
 									->draw();
 						?>
 						</thead>
@@ -172,7 +172,19 @@
 		var ajax_call = '';
 		ajax.limit = 10;
 
-		tableSort('#tableList', function(value) {
+		tableSort('#tableListAsset', function(value) {
+		ajax.sort = value;
+		ajax.page = 1;
+		getList();
+		});
+
+		tableSort('#tableListDepreciation', function(value) {
+		ajax.sort = value;
+		ajax.page = 1;
+		getList();
+		});
+
+		tableSort('#tableListAccounting', function(value) {
 		ajax.sort = value;
 		ajax.page = 1;
 		getList();
@@ -200,7 +212,6 @@
 				}else{
 					table = '#tableListAsset';
 				}
-				console.log(table);
 				$(table+' tbody').html(data.table);
 				$('#tableListAsset tfoot').html(data.footer);
 				$('#pagination').html(data.pagination);
