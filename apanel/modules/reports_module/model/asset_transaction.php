@@ -35,9 +35,9 @@ class asset_transaction extends wc_model {
 		$orderby = '';
 		$condition = '';
 		$datefilter = $this->date->dateDbFormat($datefilter);
-
+		
 		if ($datefilter) {
-			$condition .= " ass.transactiondate <= '$datefilter'";
+			$condition .= " ass.transactiondate <= '$datefilter 11:59:59'";
 		 }
 		 
 		if($sort){
@@ -75,7 +75,7 @@ class asset_transaction extends wc_model {
 		$datefilter = $this->date->dateDbFormat($datefilter);
 
 		if ($datefilter) {
-			$condition .= " ass.transactiondate <= '$datefilter'";
+			$condition .= " ass.transactiondate <= '$datefilter 11:59:59'";
 		 }
 		 
 		if($sort){

@@ -1085,11 +1085,15 @@
 
 	<script>
 		$(document).ready(function() {
-			if(removeComma($('.credit').val()) == 0) {
-				$('.credit').attr('readonly', 'readonly');
-			} else {
-				$('.debit').attr('readonly', 'readonly');
-			}
+			$('.debit').each(function() {
+				if(removeComma($(this).val()) == '0') {
+					$(this).closest('tr').find('.credit').removeAttr('readonly');
+					$(this).attr('readonly', 'readonly');
+				} else {
+					$(this).removeAttr('readonly');
+					$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
+				}
+			});
 		});
 
 		$('#btnCancel').click(function() 
@@ -1160,6 +1164,31 @@
 			}
 		});
 
+		$('#paginate').on('click', 'a', function(e) {
+			e.preventDefault();
+			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
+				var get = $(this).val();
+				if($.inArray(get, job) == -1) {
+					job.push(get);
+				}
+			});
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				page = $(this).attr('data-page');
+				$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + $('#jobs_tagged').val() + '&page=' + page, function(data) {
+					if(data) {
+						$('#jobsTable tbody').html(data.table);
+						$('#paginate').html(data.pagination);
+						$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
+							if(jQuery.inArray($(this).val(), job) != -1) {
+								$(this).closest('tr').iCheck('check');
+							}
+						});
+					}
+				});
+			}
+		});
+
 		$('#itemsTable').on('blur', '.credit', function() {
 			var rate = removeComma($('#exchangerate').val());
 			var credit = removeComma($(this).val());
@@ -1178,14 +1207,15 @@
 
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
-			job = [];
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
 				var get = $(this).val();
-				job.push(get);
+				if($.inArray(get, job) == -1) {
+					job.push(get);
+				}
 				$('#job_text').html(job.length);
 				$('#assetid').attr('disabled', 'disabled');
-				$('#jobModal').modal('hide');
 			});
+			$('#jobModal').modal('hide');
 		});
 
 		$('#vendor').on('change', function() {

@@ -163,13 +163,37 @@ class landed_cost extends wc_model {
 	public function getSumOfAp($job_no) {
 
 		$result = $this->db->setTable('ap_details apd')
-							->setFields('SUM(apd.converteddebit) AS debit')
+							->setFields('SUM(apd.converteddebit) AS credit')
 							->leftJoin('accountspayable ap ON ap.voucherno = apd.voucherno')
 							->setWhere("ap.job_no LIKE '%$job_no%'")
 							->runSelect()
 							->getRow();
 							// echo $this->db->getQuery();
 
+		return $result;
+	}
+
+	public function getSumOfCm($job_no) {
+		$result = $this->db->setTable('journaldetails jd')
+							->setFields('SUM(jd.debit) AS credit')
+							->leftJoin('journalvoucher jv ON jv.voucherno = jd.voucherno')
+							->setWhere("jv.transtype = 'CM' AND jv.job_no LIKE '%$job_no%'")
+							->runSelect()
+							->getRow();
+							// echo $this->db->getQuery();
+							
+		return $result;
+	}
+
+	public function getSumOfDm($job_no) {
+		$result = $this->db->setTable('journaldetails jd')
+							->setFields('SUM(jd.debit) AS debit')
+							->leftJoin('journalvoucher jv ON jv.voucherno = jd.voucherno')
+							->setWhere("jv.transtype = 'DM' AND jv.job_no LIKE '%$job_no%'")
+							->runSelect()
+							->getRow();
+							// echo $this->db->getQuery();
+							
 		return $result;
 	}
 
@@ -185,12 +209,13 @@ class landed_cost extends wc_model {
 
 	public function getTotalCostOfJob($job_no) {
 		$result = $this->db->setTable('job_details jd')
-							->setFields('SUM(jd.qty * ipod.convertedamount) total')
+							->setFields('SUM(jd.qty * (ipod.convertedamount / ipod.convreceiptqty)) total')
 							->innerJoin('purchasereceipt pr ON pr.voucherno = jd.ipo_no')
 							->innerJoin('import_purchaseorder_details ipod ON ipod.voucherno = pr.source_no AND ipod.itemcode = jd.itemcode')
 							->setWhere("jd.job_no = '$job_no'")
 							->runSelect()
 							->getRow();
+							// echo $this->db->getQuery();
 
 		return $result;
 	}

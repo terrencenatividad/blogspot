@@ -121,7 +121,7 @@
                         FROM
                             journaldetails
                         INNER JOIN
-                            job ON journaldetails.job_no = job.job_no
+                            job ON journaldetails.voucherno = fj.job_no
                         INNER JOIN
                             ap_details ON ap_details.accountcode = journaldetails.accountcode
                         WHERE
@@ -190,7 +190,7 @@
                         journaldetails jd
                     INNER JOIN chartaccount ca ON ca.id = jd.accountcode
                     WHERE
-                        jd.job_no = '$job_no' AND jd.transtype = 'DM' AND jd.debit != 0.00
+                        jd.job_no = '$job_no' AND jd.transtype = 'DM' AND jd.debit != 0.00  AND job_no != ''
                     UNION
                     SELECT
                         jd.voucherno,
@@ -201,13 +201,14 @@
                         journaldetails jd
                     INNER JOIN chartaccount ca ON ca.id = jd.accountcode
                     WHERE
-                        jd.job_no = '$job_no' AND jd.transtype = 'CM' AND jd.credit != 0.00
+                        jd.job_no = '$job_no' AND jd.transtype = 'CM' AND jd.credit != 0.00  AND job_no != ''
             ";
 
             $result = 	$this->db->setTable("($query) main")
                         ->setFields('main.voucherno,main.accountname,main.debit,main.credit')
                         ->setOrderBy($sort)
                         ->runPagination(false);
+            //echo $this->db->getQuery();
             return $result;         
         }
 

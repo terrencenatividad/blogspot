@@ -19,6 +19,28 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
+	public function getBudgetAccount($budgetcode)
+	{
+		$result = $this->db->setTable('budget_details bd')
+		->leftJoin('chartaccount as ca ON bd.accountcode = ca.segment5')
+		->setFields("ca.id ind, CONCAT(bd.accountcode, ' - ', ca.accountname) val")
+		->setWhere("bd.budget_code = '$budgetcode'")
+		->runSelect()
+		->getResult();
+		
+		return $result;
+	}
+
+	public function getBudgetCodes()
+	{
+		$result = $this->db->setTable('budget')
+		->setFields("budget_code ind, budget_code val")
+		->runSelect()
+		->getResult();
+		
+		return $result;
+	}
+
 	public function setButtonRestriction($transactiondate) {
 		$closed_date     =   $this->getClosedDate();
 
@@ -1813,6 +1835,27 @@ class accounts_payable extends wc_model
 		return $error_id;
 	}
 
+	public function deleteEntry($data) {
+		$error_id = array();
+		foreach ($data as $id) {
+			$result =  $this->db->setTable('financial_jobs')
+			->setWhere("voucherno = '$id'")
+			->runDelete(false);
+
+			if ($result) {
+				$this->log->saveActivity("Delete Item Type [$id]");
+			} else {
+				if ($this->db->getError() == 'locked') {
+					$error_id[] = $id;
+				}
+			}
+		}
+
+		return $error_id;
+	}
+
+
+
 	public function getDetailsByVoucher($voucher) {
 		$result = $this->db->setTable('ap_details ad')
 		->setFields('ad.voucherno as voucherno, ad.linenum as linenum, ad.exchangerate as exchangerate, ad.accountcode as accountcode, ad.detailparticulars as description, ad.taxbase_amount as taxbase_amount, ad.source as source, ad.currencycode as currencycode,
@@ -2120,7 +2163,7 @@ class accounts_payable extends wc_model
 
 	public function checkStat($voucherno) {
 		$result = $this->db->setTable('accountspayable')
-		->setFields('amountpaid, balance, convertedamount')
+		->setFields('amountpaid, balance, amount')
 		->setWhere("voucherno = '$voucherno'")
 		->runSelect()
 		->getRow();

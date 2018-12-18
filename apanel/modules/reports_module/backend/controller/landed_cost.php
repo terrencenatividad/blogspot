@@ -114,17 +114,20 @@ class controller extends wc_controller {
 						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($unit_cost_base,2).'</td>';
 
 				// IMPORTATION COST CALCULATION
-			$item_cost = $row->convertedamount;
-			$item_cost_total = number_format($item_cost * $item_quantity, 2); //total cost of item
+			$item_cost = $row->convertedamount / $item_quantity;
+			$item_cost_total = number_format($row->convertedamount, 2); //total cost of item
 
 			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);
-			$total_cost_job = $query_cost_job->total; //total cost of all items in job
+			$total_cost_job = number_format($query_cost_job->total,2); //total cost of all items in job
  
 			$query_job_item_count = $this->landed_cost->getTotalItemsInJob($job_no);
 			$job_item_count = $query_job_item_count->qty; //number of items in job
 
-			$query_importation_cost = $this->landed_cost->getSumOfAp($job_no);
-			$total_importation_cost = $query_importation_cost->debit; //importation cost/fees from AP,CM,DM
+			$query_AP_credit = $this->landed_cost->getSumOfAp($job_no);
+			$query_CM_credit = $this->landed_cost->getSumOfCm($job_no);
+			$query_DM_debit = $this->landed_cost->getSumOfDm($job_no);
+
+			$total_importation_cost = $query_AP_credit->credit + $query_CM_credit->credit - $query_DM_debit->debit; //importation cost/fees from AP,CM,DM
 			
 			$item_cost_ratio = $item_cost_total / $total_cost_job; //ratio of item to all items in job
 
@@ -202,7 +205,7 @@ class controller extends wc_controller {
 				//TOTAL COST OF IMPORT PURCHASE ORDER
 			$total_ipo_amt = $row->netamount;
 				// CALCULATE UNIT COST
-			$unit_cost_foreign = ( $total_ipo_amt / ($total_ipo_amt + $addtl_cost) ) * $addtl_cost ;
+			$unit_cost_foreign = number_format(( ($total_ipo_amt-$addtl_cost) / $total_ipo_amt ) * $addtl_cost,2) ;
 				// EXCHANGE RATES STAGING
 			$exchange_curr = $row->exchangecurrency;
 			$exchange_rate = $row->exchangerate;
@@ -241,7 +244,7 @@ class controller extends wc_controller {
 			$job_item_count = $query_job_item_count->qty; //number of items in job
 
 			$query_importation_cost = $this->landed_cost->getSumOfAp($job_no);
-			$total_importation_cost = $query_importation_cost->debit; //importation cost/fees from AP,CM,DM
+			$total_importation_cost = $query_importation_cost->credit; //importation cost/fees from AP,CM,DM
 			
 			$item_cost_ratio = $item_cost_total / $total_cost_job; //ratio of item to all items in job
 

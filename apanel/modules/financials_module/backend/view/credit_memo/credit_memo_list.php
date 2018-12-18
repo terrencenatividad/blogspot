@@ -180,7 +180,7 @@
 			linkButtonToTable('#item_multiple_delete', '#tableList');
 			// linkDeleteToModal('#tableList .delete', 'ajaxCallback');
 			linkCancelToModal('#tableList .delete', 'ajaxCallback');
-			linkDeleteMultipleToModal('#item_multiple_delete', '#tableList', 'ajaxCallback');
+			linkCancelMultipleToModal('#item_multiple_delete', '#tableList', 'ajaxCallback');
 		});
 		$('#daterangefilter').on('change', function() {
 			ajax.page = 1;
