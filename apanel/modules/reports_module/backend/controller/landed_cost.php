@@ -123,8 +123,11 @@ class controller extends wc_controller {
 			$query_job_item_count = $this->landed_cost->getTotalItemsInJob($job_no);
 			$job_item_count = $query_job_item_count->qty; //number of items in job
 
-			$query_importation_cost = $this->landed_cost->getSumOfAp($job_no);
-			$total_importation_cost = $query_importation_cost->debit; //importation cost/fees from AP,CM,DM
+			$query_AP_credit = $this->landed_cost->getSumOfAp($job_no);
+			$query_CM_credit = $this->landed_cost->getSumOfCm($job_no);
+			$query_DM_debit = $this->landed_cost->getSumOfDm($job_no);
+
+			$total_importation_cost = $query_AP_credit->credit + $query_CM_credit->credit - $query_DM_debit->debit; //importation cost/fees from AP,CM,DM
 			
 			$item_cost_ratio = $item_cost_total / $total_cost_job; //ratio of item to all items in job
 
@@ -241,7 +244,7 @@ class controller extends wc_controller {
 			$job_item_count = $query_job_item_count->qty; //number of items in job
 
 			$query_importation_cost = $this->landed_cost->getSumOfAp($job_no);
-			$total_importation_cost = $query_importation_cost->debit; //importation cost/fees from AP,CM,DM
+			$total_importation_cost = $query_importation_cost->credit; //importation cost/fees from AP,CM,DM
 			
 			$item_cost_ratio = $item_cost_total / $total_cost_job; //ratio of item to all items in job
 

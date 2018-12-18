@@ -243,7 +243,7 @@ class controller extends wc_controller {
 			$finjobs['voucherno'] = $data['voucherno'];
 			$finjobs['job_no'] = $jobs;
 			$fin_job = $this->cm_model->saveFinancialsJob($finjobs);
-			var_dump($finjobs);
+			//var_dump($finjobs);
 		}
 
 		$rate = str_replace(',', '', $data['exchangerate']);
