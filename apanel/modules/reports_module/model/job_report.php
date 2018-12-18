@@ -121,7 +121,7 @@
                         FROM
                             journaldetails
                         INNER JOIN
-                            job ON journaldetails.job_no = job.job_no
+                            job ON journaldetails.voucherno = fj.job_no
                         INNER JOIN
                             ap_details ON ap_details.accountcode = journaldetails.accountcode
                         WHERE

@@ -111,7 +111,7 @@
 								</button>
 								<?php } else { ?>
 								<span>
-									<?php echo $job_no; ?></span>
+								<?php echo substr($job_no, 0, 20) . '...'; ?></span>
 								<?php } ?>
 							</div>
 						</div>
@@ -516,7 +516,7 @@ echo $ui->loadElement('modal')
 		echo $ui->formField('text')
 		->setSplit('', 'col-md-12')
 		->setName('debit[]')
-		->setClass('text-right')
+		->setClass('debit text-right')
 		->setValidation('required decimal')
 		->setValue('` +
 				(parseFloat(details.debit) || 0).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") +
@@ -529,7 +529,7 @@ echo $ui->loadElement('modal')
 		echo $ui->formField('text')
 		->setSplit('', 'col-md-12')
 		->setName('credit[]')
-		->setClass('text-right')
+		->setClass('credit text-right')
 		->setValidation('required decimal')
 		->setValue('` +
 				(parseFloat(details.credit) || 0).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") +
@@ -678,7 +678,7 @@ echo $ui->loadElement('modal')
 			if ($(this).val() != '' && $(this).val() != '0.00') {
 				debit_currency = $(this).val() * rate;
 				$(this).closest('tr').find('.currencyamount').val(addComma(debit_currency)).attr('name', 'currencydebit');
-				$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
+				//$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
 			}
 			recomputeTotal();
 			sumCurrencyAmount();
@@ -692,7 +692,7 @@ echo $ui->loadElement('modal')
 			if ($(this).val() != '' && $(this).val() != '0.00') {
 				credit_currency = $(this).val() * rate;
 				$(this).closest('tr').find('.currencyamount').val(addComma(credit_currency)).attr('name', 'currencycredit');
-				$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
+				//$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
 			}
 			recomputeTotal();
 			sumCurrencyAmount();
@@ -723,7 +723,7 @@ echo $ui->loadElement('modal')
 				$('#error_msg').html('');
 				if (form_element.closest('form').find('.form-group.has-error').length == 0) {
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' +
-						'&finalized=finalized' + submit_data,
+						'&finalized=finalized' + submit_data + '&job=' + job,
 						function (data) {
 							if (data.success) {
 								$('#delay_modal').modal('show');
@@ -753,7 +753,7 @@ echo $ui->loadElement('modal')
 				$('#error_msg').html('');
 				if (form_element.closest('form').find('.form-group.has-error').length == 0) {
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' +
-						'&finalized=finalized' + submit_data,
+						'&finalized=finalized' + submit_data + '&job=' + job,
 						function (data) {
 							if (data.success) {
 								$('#delay_modal').modal('show');
@@ -783,7 +783,7 @@ echo $ui->loadElement('modal')
 				$('#error_msg').html('');
 				if (form_element.closest('form').find('.form-group.has-error').length == 0) {
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' +
-						'&finalized=finalized' + submit_data,
+						'&finalized=finalized' + submit_data + '&job=' + job,
 						function (data) {
 							if (data.success) {
 								$('#delay_modal').modal('show');
@@ -813,7 +813,7 @@ echo $ui->loadElement('modal')
 				$('#error_msg').html('');
 				if (form_element.closest('form').find('.form-group.has-error').length == 0) {
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' +
-						'&finalized=finalized' + submit_data,
+						'&finalized=finalized' + submit_data + '&job=' + job,
 						function (data) {
 							if (data.success) {
 								$('#delay_modal').modal('show');
@@ -958,6 +958,31 @@ echo $ui->loadElement('modal')
 			});
 		});
 
+		$('#paginate').on('click', 'a', function(e) {
+			e.preventDefault();
+			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
+				var get = $(this).val();
+				if($.inArray(get, job) == -1) {
+					job.push(get);
+				}
+			});
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				page = $(this).attr('data-page');
+				$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + $('#jobs_tagged').val() + '&page=' + page, function(data) {
+					if(data) {
+						$('#jobsTable tbody').html(data.table);
+						$('#paginate').html(data.pagination);
+						$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
+							if(jQuery.inArray($(this).val(), job) != -1) {
+								$(this).closest('tr').iCheck('check');
+							}
+						});
+					}
+				});
+			}
+		});
+
 		$('#jobModal').on('shown.bs.modal', function () {
 			$('#jobsTable tbody tr td input[type="checkbox"]').each(function () {
 				if (jQuery.inArray($(this).val(), job) != -1) {
@@ -968,10 +993,12 @@ echo $ui->loadElement('modal')
 
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
-			job = [];
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
 				var get = $(this).val();
-				job.push(get);
+				if($.inArray(get, job) == -1) {
+					job.push(get);
+				}
+				$('#job_text').html(job.length);
 				$('#assetid').attr('disabled', 'disabled');
 				$('#jobModal').modal('hide');
 			});
@@ -985,9 +1012,12 @@ echo $ui->loadElement('modal')
 				if(data) {
 					$('#exchangerate').val(data.exchangerate);	
 					if($('.debit').val() != '0.00') {
-						$('.currencyamount').html(addComma(data.exchangerate * $('.debit').val()));
-					} else {
-						$('.currencyamount').html(addComma(data.exchangerate * $('.credit').val()));
+						$('.currencyamount').val(addComma(data.exchangerate * $('.debit').val()));
+						console.log('1')
+					}
+					else {
+						$('.currencyamount').val(addComma(data.exchangerate * $('.credit').val()));
+						console.log('2')
 					}
 					//sumDebit();
 					//sumCredit();
@@ -995,6 +1025,39 @@ echo $ui->loadElement('modal')
 				}
 			});
 		});
+
+		$('#exchangerate').on('change', function() {
+			var exchangerate = $(this).val();
+			$('.currencyamount').each(function() {
+				currency = removeComma($(this).val());
+				var convertedcurrency = currency * exchangerate;
+				$('.currencyamount').val(addComma(convertedcurrency));
+				$('.currencyamount').html(addComma(convertedcurrency));	
+			});
+			sumCurrencyAmount();
+		});
+
+		function sumDebit() {
+			var total_debit = 0;
+			var debit = 0;
+			var curr_val = 0;
+			$('.debit').each(function() {
+				debit = removeComma($(this).val());
+				total_debit += +debit;
+				$('#total_debit').val(addComma(total_debit));
+			});
+		}
+
+		function sumCredit() {
+			var total_credit = 0;
+			var credit = 0;
+			var curr_val = 0;
+			$('.credit').each(function() {
+				credit = removeComma($(this).val());
+				total_credit += +credit;
+				$('#total_credit').val(addComma(total_credit));
+			});
+		}
 
 		function sumCurrencyAmount() {
 			var total_currency = 0;
@@ -1007,5 +1070,118 @@ echo $ui->loadElement('modal')
 				$('#total_currency').html(addComma(total_currency));
 			});
 		}
+
+		function getCurrencyAmountView() {
+			var rate = +removeComma($('#exchangerate').html());
+			$('[name="debit[]"]').each(function() {
+				if ($(this).html() != '' && $(this).html() != '0.00') {
+					var debits = removeComma($(this).html());
+					var debit_currency = debits * rate;
+					$(this).closest('tr').find('#currencyamount').html(addComma(debit_currency));
+					console.log(debits);
+				}
+			});
+			$('[name="credit[]"]').each(function() {
+				if ($(this).html() != '' && $(this).html() != '0.00') {
+					var credits = removeComma($(this).html());
+					var credit_currency = credits * rate;
+					$(this).closest('tr').find('#currencyamount').html(addComma(credit_currency));
+				}
+			});
+			SumCurrencyonView();
+		}
+
+		function getCurrencyAmountEdit() {
+			var rate = +removeComma($('#exchangerate').val());
+			$('[name="debit[]"]').each(function() {
+				if ($(this).val() != '' && $(this).val() != '0.00') {
+					console.log(rate);
+					var debits = removeComma($(this).val());
+					var debit_currency = debits * rate;
+					$(this).closest('tr').find('.currencyamount').val(addComma(debit_currency));
+				}
+			});
+			$('[name="credit[]"]').each(function() {
+				if ($(this).val() != '' && $(this).val() != '0.00') {
+					var credits = removeComma($(this).val());
+					var credit_currency = credits * rate;
+					$(this).closest('tr').find('.currencyamount').val(addComma(credit_currency));
+				}
+			});
+			SumCurrencyonEdit();
+		}
+		
+		function SumCurrencyonView() {
+			var total_currency = 0;
+			$('[name="currencyamount[]"]').each(function () {
+				var currency = +removeComma($(this).html());
+				total_currency += currency;
+				//console.log(total_currency);
+				$(this).closest('tr').find('.currency_symbol').html('<?=$currency ?>');
+
+			});
+			$('#total_currency').html(addComma(total_currency));
+		}
+
+		function SumCurrencyonEdit() {
+			var total_currency = 0;
+			$('[name="currencyamount[]"]').each(function () {
+				var currency = +removeComma($(this).html());
+				total_currency += currency;
+				//console.log(total_currency);
+				$(this).closest('tr').find('.currency_symbol').html('<?=$currency ?>');
+
+			});
+			$('#total_currency').html(addComma(total_currency));
+		}
+
+		String.prototype.toNum = function(){
+			return parseInt(this, 10);
+		}
+		
+		<?php if($ajax_task == 'ajax_view') : ?>
+			$(document).ready(function() {
+				getCurrencyAmountView();
+				sumCurrencyAmount();
+			});
+		<?php endif; ?>
+
+		<?php if($ajax_task == 'ajax_edit') : ?>
+			$(document).ready(function() {
+				getCurrencyAmountEdit();
+				sumCurrencyAmount();
+			});
+		<?php endif; ?>
+
+		var row = '';
+		$('#exchangerate').on('blur', function() {
+			var total = 0;
+			var rate = $(this).val();
+			$('.currencyamount').each(function() {
+				var debit = $(this).closest('tr').find('.debit').val();
+				var credit = $(this).closest('tr').find('.credit').val();
+				console.log('debit: ' + debit);
+				console.log('credit: ' + credit);
+
+				if(debit != '0.00') {
+					row = $(this).closest('tr').find('.debit');
+					total = debit * rate;
+					console.log('debit on row: ' + debit);
+					console.log('rate on row: ' + rate);
+					console.log('total on row: ' + total);
+				} 
+
+				if(credit != '0.00') {
+					row = $(this).closest('tr').find('.credit');
+					total = credit * rate;
+					console.log('credit on row: ' + credit);
+					console.log('rate on row: ' + rate);
+					console.log('total on row: ' + total);
+				}
+				console.log('-----');
+				row.closest('tr').find('.currencyamount').val(addComma(total));
+				sumCurrencyAmount();
+			});
+		});
 
 	</script>
