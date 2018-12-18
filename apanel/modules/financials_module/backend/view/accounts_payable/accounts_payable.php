@@ -344,8 +344,9 @@
 								<thead>
 									<tr class="info">
 										<th class="col-md-1 text-center">Withholding Tax</th>
+										<th class="col-md-2 text-center">Budget Code</th>
 										<th class="col-md-2 text-center">Account</th>
-										<th class="col-md-3 text-center">Description</th>
+										<th class="col-md-2 text-center">Description</th>
 										<th class="col-md-2 text-center" colspan = "2">Debit</th>
 										<th class="col-md-2 text-center" colspan = "2">Credit</th>
 										<th class="col-md-3 text-center">Currency Amount</th>
@@ -389,6 +390,19 @@
 												->setName("taxbase_amount[]")
 												->setId("taxbase_amount")
 												->setClass('taxbase_amount')
+												->setValue("")
+												->draw($show_input);
+												?>
+											</td>
+											<td class = "remove-margin">
+												<?php
+												echo $ui->formField('dropdown')
+												->setPlaceholder('Select One')
+												->setSplit('', 'col-md-12')
+												->setName("budgetcode[]")
+												->setId("budgetcode")
+												->setClass('budgetcode')
+												->setList($budget_list)
 												->setValue("")
 												->draw($show_input);
 												?>
@@ -501,6 +515,19 @@
 												->setName("taxbase_amount[]")
 												->setId("taxbase_amount")
 												->setClass('taxbase_amount')
+												->setValue("")
+												->draw($show_input);
+												?>
+											</td>
+											<td class = "remove-margin">
+												<?php
+												echo $ui->formField('dropdown')
+												->setPlaceholder('Select One')
+												->setSplit('', 'col-md-12')
+												->setName("budgetcode[]")
+												->setId("budgetcode")
+												->setClass('budgetcode')
+												->setList($budget_list)
 												->setValue("")
 												->draw($show_input);
 												?>
@@ -1194,6 +1221,31 @@
 			});
 		});
 
+		$('#paginate').on('click', 'a', function(e) {
+			e.preventDefault();
+			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
+				var get = $(this).val();
+				if($.inArray(get, job) == -1) {
+					job.push(get);
+				}
+			});
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				page = $(this).attr('data-page');
+				$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + $('#jobs_tagged').val() + '&page=' + page, function(data) {
+					if(data) {
+						$('#jobsTable tbody').html(data.table);
+						$('#paginate').html(data.pagination);
+						$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
+							if(jQuery.inArray($(this).val(), job) != -1) {
+								$(this).closest('tr').iCheck('check');
+							}
+						});
+					}
+				});
+			}
+		});
+
 		$('#jobModal').on('shown.bs.modal', function() {
 			$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
 				if(jQuery.inArray($(this).val(), job) != -1) {
@@ -1243,7 +1295,7 @@
 			}
 		});
 
-			var row = '';
+		var row = '';
 		$('#exchangerate').on('blur', function() {
 			var total = 0;
 			var rate = $(this).val();
@@ -1281,10 +1333,11 @@
 
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
-			job = [];
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
 				var get = $(this).val();
-				job.push(get);
+				if($.inArray(get, job) == -1) {
+					job.push(get);
+				}
 				$('#job_text').html(job.length);
 				$('#assetid').attr('disabled', 'disabled');
 				$('#jobModal').modal('hide');
@@ -1389,6 +1442,15 @@
 					$('#atcModal').modal('hide');
 					sumCredit();
 					sumCurrencyAmount();
+				}
+			});
+		});
+
+		$('.budgetcode').on('change', function() {
+			var budgetcode = $(this).val();
+			$.post('<?=MODULE_URL?>ajax/ajax_get_budget_account', '&budgetcode=' + budgetcode, function(data) {
+				if(data) {
+					$(this).closest('tr').find('.accountcode').val(data).trigger('change');
 				}
 			});
 		});

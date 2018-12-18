@@ -83,6 +83,7 @@ class controller extends wc_controller
 		$data["ajax_task"] 		    = "ajax_create";
 		$data["ajax_post"] 	        = "";
 		$data["exchangerate"]       = "1.00";
+		$data['budget_list'] = $this->accounts_payable->getBudgetCodes();
 		$close_date 				= $this->accounts_payable->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data["transactiondate"]    = $this->date->dateFormat();
@@ -111,13 +112,13 @@ class controller extends wc_controller
 		$check_stat = $this->accounts_payable->checkStat($id);
 		$amountpaid = $check_stat->amountpaid;
 		$bal = $check_stat->balance;
-		$convertedamount = $check_stat->convertedamount;
+		$amount = $check_stat->amount;
 		$stat = '';
-		if($bal == $convertedamount && $data['stat'] == 'posted') {
+		if($bal == $amount && $data['stat'] == 'posted') {
 			$stat = 'unpaid';
-		} else if($bal != $convertedamount && $bal != 0 && $data['stat'] == 'posted') {
+		} else if($bal != $amount && $bal != 0 && $data['stat'] == 'posted') {
 			$stat = 'partial';
-		} else if($bal == 0 && $amountpaid == $convertedamount && $data['stat'] == 'posted'){
+		} else if($bal == 0 && $amountpaid == $amount && $data['stat'] == 'posted'){
 			$stat = 'paid';
 		} else if($bal != 0 && $data['stat'] == 'cancelled'){
 			$stat = 'cancelled';
@@ -268,7 +269,7 @@ class controller extends wc_controller
 		$apamount[0]->amount;
 
 		$docinfo_table  = "accountspayable as ap";
-		$docinfo_fields = array('ap.transactiondate AS documentdate','ap.voucherno AS voucherno',"CONCAT( first_name, ' ', last_name )","IF('{$sub_select[0]->amount}' != \"\", '{$sub_select[0]->amount}', '{$apamount[0]->amount}') AS amount",'ap.amount AS apamount', "'' AS referenceno", "particulars AS remarks", "p.partnername AS vendor");
+		$docinfo_fields = array('ap.transactiondate AS documentdate','ap.voucherno AS voucherno',"CONCAT( first_name, ' ', last_name )","IF('{$sub_select[0]->amount}' != \"\", '{$sub_select[0]->amount}', '{$apamount[0]->amount}') AS amount",'ap.amount AS apamount', "'' AS referenceno", "particulars AS remarks", "p.partnername AS vendor", 'ap.currencycode as currencycode', 'ap.exchangerate as exchangerate');
 		$docinfo_join   = "partners as p ON p.partnercode = ap.vendor AND p.companycode = ap.companycode";
 		$docinfo_cond 	= "ap.voucherno = '$voucherno'";
 
@@ -278,7 +279,7 @@ class controller extends wc_controller
 
 		// Retrieve Document Details
 		$docdet_table   = "ap_details as dtl";
-		$docdet_fields  = array("chart.segment5 as accountcode", "chart.accountname as accountname", "SUM(dtl.debit) as debit","SUM(dtl.credit) as credit");
+		$docdet_fields  = array("chart.segment5 as accountcode", "chart.accountname as accountname", "SUM(dtl.debit) as debit","SUM(dtl.credit) as credit", 'IF(dtl.debit = 0, SUM(dtl.convertedcredit), SUM(dtl.converteddebit)) as currency');
 		$docdet_join    = "chartaccount as chart ON chart.id = dtl.accountcode AND chart.companycode = dtl.companycode";
 		$docdet_cond    = "dtl.voucherno = '$voucherno'";
 		$docdet_groupby = "dtl.accountcode";
@@ -311,7 +312,7 @@ class controller extends wc_controller
 		}
 		
 		// Setting for PDFs
-		$print = new print_voucher_model('P', 'mm', 'Letter');
+		$print = new print_payables_model('P', 'mm', 'Letter');
 		$print->setDocumentType('Accounts Payable')
 		->setDocumentInfo($documentinfo[0])
 		->setVendor($vendor)
@@ -424,12 +425,13 @@ class controller extends wc_controller
 			$stat				= $row->stat;
 			$payment_status 	= $row->payment_status;
 			$status 	= ($row->stat != 'cancelled');
+			$status_paid = ($row->balance != '0.00');
 			$dropdown = $this->ui->loadElement('check_task')
 			->addView()
-			->addEdit($status && $restrict && !$pr)
+			->addEdit($status && $restrict && !$pr && $status_paid)
 			->addPrint()
-			->addDelete($status && $restrict)
-			->addCheckbox($status && $restrict)
+			->addDelete($status && $restrict && $status_paid)
+			->addCheckbox($status && $restrict && $status_paid)
 			->setValue($voucher)
 			->setLabels(array('delete' => 'Cancel'))
 			->draw();
@@ -1511,5 +1513,18 @@ class controller extends wc_controller
 			}
 		}
 		return $check;
+	}
+
+	private function ajax_get_budget_account() {
+		$budgetcode = $this->input->post('budgetcode');
+		$accounts = $this->accounts_payable->getBudgetAccount($budgetcode);
+		$ret = '';
+		foreach ($accounts as $key) {
+			$in  = $key->ind;
+			$val = $key->val;
+			$ret .= "<option value=". $in.">" .$val. "</option>";
+		}
+
+		return $ret;
 	}
 }
