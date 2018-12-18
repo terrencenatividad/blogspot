@@ -265,7 +265,6 @@
 									$warehouse 			  = '';
 									$price	   			  = '0.00';
 									$rowamount 			  = '0.00';
-									$rowamountb 			  = '0.00';
   
 									$onhandqty 		 	  = 0;
 									$quantity 		 	  = 0;
@@ -462,10 +461,10 @@
 									$row 				= 1;
 									$disable_debit		= '';
 									$disable_credit		= '';
+									$b_subtotal			= 0;
 
 									for($i = 0; $i < count($details); $i++)
 									{
-										$b_subtotal			= 0;
 										$itemcode 	 		= $details[$i]->itemcode;
 										$detailparticular	= stripslashes($details[$i]->detailparticular);
 										$onhandqty  		= $details[$i]->onhandqty;
@@ -480,7 +479,6 @@
 										$warehouse_code		= (empty($request_no)) ? $details[$i]->warehouse 	: 	'';
 										$warehouse_name		= (empty($request_no)) ? $details[$i]->description: 	'';
 										$b_subtotal 	   += $convertedamount; 
-
 
 										?>	
 										<tr class="clone" valign="middle">
@@ -645,6 +643,7 @@
 										<?php	
 										$row++;	
 									}
+									var_dump($b_subtotal);
 								}
 								?>
 							</tbody>
@@ -891,7 +890,7 @@
 										->setId('b_total')
 										->setClass("input_label text-right")
 										->setAttribute(array("maxlength" => "40",'readonly',"style" => "margin-left:4px;;margin-right: 14px;"))
-										->setValue(number_format($convertedamount+$converted_freight+$converted_insurance+$converted_packaging,2))
+										->setValue(number_format($b_subtotal+$converted_freight+$converted_insurance+$converted_packaging,2))
 										->draw($show_input);
 										?>
 									</td>
