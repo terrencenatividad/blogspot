@@ -77,38 +77,55 @@ class controller extends wc_controller {
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
+		$status = '';
+		$datetoday = $this->date->dateFormat();
+		$acc = 0;
+		$totalcapitalizedcost = 0;
+		$totaldepamount = 0;
+		$totalaccdep = 0;
+		$totalbookval = 0;
 		foreach ($pagination->result as $key => $row) {
-			if($tab == 'Accounting'){
+			$start =  date('M d, Y', strtotime($row->depreciation_month. '11:59:59'));
+			$retdate =  date('M d, Y', strtotime($row->retirement_date. '11:59:59'));
+			$date1 = new DateTime($start);
+			$date2 = $date1->diff(new DateTime($datetoday));
+			$dep   =  $date2->m;
+			if($tab == 'Depreciation'){
+				if($retdate > $datetoday){
+					$status = 'Retired';
+				}else{
+					$status = 'Active';
+				}
+				$depreciation_amount = ($row->balance_value - $row->salvage_value)/$row->useful_life;
+				$accumuluateddep = $depreciation_amount * $dep;
+				$bookvalue 		 = $row->capitalized_cost - $accumuluateddep;
 				$table .= '<tr>';
-				$table .= '<td class="text-left">' . $row->itemcode . '</td>';
-				$table .= '<td class="text-left">' . $row->asset . '</td>';
-				$table .= '<td class="text-left">' . $row->accdep . '</td>';
-				$table .= '<td class="text-left">' . $row->depexp . '</td>';
-				$table .= '</tr>';
-			}else if($tab == 'Depreciation'){
-				$table .= '<tr>';
-				$table .= '<td class="text-left">' . $row->itemcode . '</td>';
-				$table .= '<td class="text-left">' . $row->useful_life . '</td>';
-				$table .= '<td class="text-left">' . $this->date->dateFormat($row->depreciation_month) . '</td>';
+				$table .= '<td class="text-left">' . $row->asset_number . '</td>';
 				$table .= '<td class="text-right">' . number_format($row->capitalized_cost, 2) . '</td>';
-				$table .= '<td class="text-right">' . number_format($row->purchase_value, 2) . '</td>';
-				$table .= '<td class="text-right">' . number_format($row->balance_value, 2) . '</td>';
-				$table .= '<td class="text-right">' . number_format($row->salvage_value, 2) . '</td>';
+				$table .= '<td class="text-left">' . $this->date->dateFormat($row->commissioning_date) . '</td>';
+				$table .= '<td class="text-left">' . $row->useful_life . '</td>';
+				$table .= '<td class="text-right">' . number_format($depreciation_amount, 2) . '</td>';
+				$table .= '<td class="text-left">' . $this->date->dateFormat($row->depreciation_month) . '</td>';
+				$table .= '<td class="text-left">' . $this->date->dateFormat($row->retirement_date) . '</td>';
+				$table .= '<td class="text-left">' . $status . '</td>';
+				$table .= '<td class="text-right">' . number_format($accumuluateddep, 2) . '</td>';
+				$table .= '<td class="text-right">' . number_format($bookvalue, 2) . '</td>';
 				$table .= '</tr>';
+
+				$totalcapitalizedcost += $row->capitalized_cost;
+				$totaldepamount		  += $depreciation_amount;
+				$totalaccdep		  += $accumuluateddep;
+				$totalbookval		  += $bookvalue;
 			}else{
 				$table .= '<tr>';
-				$table .= '<td class="text-left">' . $row->itemcode . '</td>';
-				$table .= '<td class="text-left">' . $row->assetclass . '</td>';
-				$table .= '<td class="text-left">' . $row->asset_name . '</td>';
 				$table .= '<td class="text-left">' . $row->asset_number . '</td>';
 				$table .= '<td class="text-left">' . $row->sub_number . '</td>';
 				$table .= '<td class="text-left">' . $row->serial_number . '</td>';
+				$table .= '<td class="text-left">' . $row->assetclass . '</td>';
 				$table .= '<td class="text-left">' . $row->description . '</td>';
 				$table .= '<td class="text-left">' . $row->asset_location . '</td>';
 				$table .= '<td class="text-left">' . $row->name . '</td>';
 				$table .= '<td class="text-left">' . $row->accountable_person . '</td>';
-				$table .= '<td class="text-left">' . $this->date->dateFormat($row->retirement_date) . '</td>';
-				$table .= '<td class="text-left">' . $this->date->dateFormat($row->commissioning_date) . '</td>';
 				$table .= '</tr>';
 			}
 			
@@ -116,6 +133,15 @@ class controller extends wc_controller {
 		}
 
 		$footer = '';
+		if($tab == 'Depreciation'){
+			$footer .= '<tr>';
+			$footer .= '<td colspan="1" class="text-left"><b> Total:' . '</b></td>';
+			$footer .= '<td colspan="1" class="text-right"><b> ' . number_format($totalcapitalizedcost, 2) . '</b></td>';
+			$footer .= '<td colspan="3" class="text-right"><b> ' . number_format($totaldepamount, 2) . '</b></td>';
+			$footer .= '<td colspan="4" class="text-right"><b> ' . number_format($totalaccdep, 2) . '</b></td>';
+			$footer .= '<td colspan="1" class="text-right"><b> ' . number_format($totalbookval, 2) . '</b></td>';
+			$footer .= '</tr>';
+		}
 
 		if ($pagination->page_limit > 1) {
 			$footer .= '<tr>';
@@ -141,27 +167,23 @@ class controller extends wc_controller {
 
 
 		$header = array(
-			'Item Code',
-			'Asset Class',
-			'Asset Name',
 			'Asset Number',
 			'Sub-number',
 			'Serial Number/Engine Number',
+			'Asset Class',
 			'Description',
 			'Asset Location',
 			'Department',
 			'Accountable Person',
-			'Retirement Date',
+			'Capitalized Cost',
 			'Commissioning Date',
 			'No. of Months Useful Life',
-			'Depreciation Month',
-			'Capitalized Cost',
-			'Purchase Value',
-			'Balance Value',
-			'Salvage Value',
-			'GL Account(Asset)',
-			'GL Account(Accdep)',
-			'GL Account(Dep Expense)'
+			'Depreciation Amount / Month',
+			'Depreciation Month Start',
+			'Retirement Date',
+			'Status',
+			'Accumulated Depreciation',
+			'Book Value',
 		);
 
 		$csv = '';
@@ -173,48 +195,78 @@ class controller extends wc_controller {
 		if (empty($result)) {
 			$csv .= 'No Records Found';
 		}
+		$status = '';
+		$datetoday = $this->date->dateFormat();
+		$acc = 0;
+		$totalcapitalizedcost = 0;
+		$totaldepamount = 0;
+		$totalaccdep = 0;
+		$totalbookval = 0;
 		foreach ($result as $key => $row) {
-			$csv .= "\n";
-			$csv .= '"' . $row->itemcode . '",';
-			$csv .= '"' . $row->assetclass . '",';
-			$csv .= '"' . $row->asset_name . '",';
-			$csv .= '"' . $row->asset_number . '",';
-			$csv .= '"' . $row->sub_number . '",';
-			$csv .= '"' . $row->serial_number . '",';
-			$csv .= '"' . $row->description . '",';
-			$csv .= '"' . $row->asset_location . '",';
-			$csv .= '"' . $row->name . '",';
-			$csv .= '"' . $row->accountable_person . '",';
-			$csv .= '"' . $row->retirement_date . '",';
-			$csv .= '"' . $row->commissioning_date . '",';
-			$csv .= '"' . $row->useful_life . '",';
-			$csv .= '"' . $row->depreciation_month . '",';
-			$csv .= '"' . $row->capitalized_cost . '",';
-			$csv .= '"' . $row->purchase_value . '",';
-			$csv .= '"' . $row->balance_value . '",';
-			$csv .= '"' . $row->salvage_value . '",';
-			$csv .= '"' . $row->asset . '",';
-			$csv .= '"' . $row->accdep . '",';
-			$csv .= '"' . $row->depexp . '",';
+			$start =  date('M d, Y', strtotime($row->depreciation_month. '11:59:59'));
+			$retdate =  date('M d, Y', strtotime($row->retirement_date. '11:59:59'));
+			$date1 = new DateTime($start);
+			$date2 = $date1->diff(new DateTime($datetoday));
+			$dep   =  $date2->m;
+				if($retdate > $datetoday){
+					$status = 'Retired';
+				}else{
+					$status = 'Active';
+				}
+				$depreciation_amount = ($row->balance_value - $row->salvage_value)/$row->useful_life;
+				$accumuluateddep = $depreciation_amount * $dep;
+				$bookvalue 		 = $row->capitalized_cost - $accumuluateddep;
+				
+				$csv .= "\n";
+				$csv .= '"' . $row->itemcode . '",';
+				$csv .= '"' . $row->sub_number . '",';
+				$csv .= '"' . $row->serial_number . '",';
+				$csv .= '"' . $row->assetclass . '",';
+				$csv .= '"' . $row->description . '",';
+				$csv .= '"' . $row->asset_location . '",';
+				$csv .= '"' . $row->name . '",';
+				$csv .= '"' . $row->accountable_person . '",';
+				$csv .= '"' . $row->capitalized_cost . '",';
+				$csv .= '"' . $row->commissioning_date . '",';
+				$csv .= '"' . $row->useful_life . '",';
+				$csv .= '"' . $depreciation_amount . '",';
+				$csv .= '"' . $row->depreciation_month . '",';
+				$csv .= '"' . $row->retirement_date . '",';
+				$csv .= '"' . $status . '",';
+				$csv .= '"' . $accumuluateddep . '",';
+				$csv .= '"' . $bookvalue . '",';
+
+				$totalcapitalizedcost += $row->capitalized_cost;
+				$totaldepamount		  += $depreciation_amount;
+				$totalaccdep		  += $accumuluateddep;
+				$totalbookval		  += $bookvalue;
 			
 
 		}
 		
-		// $csv .= "\n";
-		// $csv .= '"Totals:",';
-		// $csv .= '"",';
-		// $csv .= '"",';
-		// $csv .= '"",';
-		// $csv .= '"",';
-		// $csv .= '"' . number_format($total_aging->current_total, 2) . '",';
-		// $csv .= '"' . number_format($total_aging->thirty_total, 2) . '",';
-		// $csv .= '"' . number_format($total_aging->sixty_total, 2) . '",';
-		// $csv .= '"' . number_format($total_aging->oversixty_total, 2) . '",';
-		// $csv .= '"' . number_format($total_aging->balance_total, 2) . '"';
+		$csv .= "\n";
+		$csv .= '":",';
+		$csv .= '"",';
+		$csv .= '"",';
+		$csv .= '"",';
+		$csv .= '"",';
+		$csv .= '"",';
+		$csv .= '"",';
+		$csv .= '"Total:",';
+		$csv .= '"' . number_format($totalcapitalizedcost, 2) . '",';
+		$csv .= '"",';
+		$csv .= '"",';		
+		$csv .= '"' . number_format($totaldepamount, 2) . '",';
+		$csv .= '"",';
+		$csv .= '"",';
+		$csv .= '"",';
+		$csv .= '"' . number_format($totalaccdep, 2) . '",';
+		$csv .= '"' . number_format($totalbookval, 2) . '",';
 		
 		return $csv;
 	}
 
 
 }
+
 ?>
