@@ -35,7 +35,7 @@
 								->draw();
 						?>
 					</div>
-					<div class="col-md-2">
+					<div class="col-md-2 hidden">
 						<?php
 							echo $ui->formField('text')
 								->setName('datefilter')
@@ -47,7 +47,7 @@
 								->draw();
 						?>
 					</div>
-					<div class="col-md-4 text-right">
+					<div class="col-md-6 text-right">
 						<a href="" id="export_csv" download="AssetMasterList.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 					</div>
 				</div>	
@@ -87,7 +87,7 @@
 						?>
 						</thead>
 						<tbody>
-							<?php foreach($asd->result as $row):?>
+							<!-- <?php foreach($asd->result as $row):?>
 							<tr>
 								<td class="text-left"><?php echo $row->itemcode; ?></td>
 								<td class="text-left"><?php echo $row->assetclass; ?></td>
@@ -102,7 +102,7 @@
 								<td class="text-left"><?php echo date('M d, Y', strtotime($row->retirement_date)); ?></td>
 								<td class="text-left"><?php echo date('M d, Y', strtotime($row->commissioning_date)); ?></td>
 							</tr>
-							<?php endforeach ?>
+							<?php endforeach ?> -->
 						</tbody>
 					</table>
 				</div>
@@ -123,7 +123,7 @@
 						?>
 						</thead>
 						<tbody>
-							<?php foreach($asd->result as $row):?>
+							<!-- <?php foreach($asd->result as $row):?>
 							<tr>
 								<td class="text-left"><?php echo $row->itemcode; ?></td>
 								<td class="text-left"><?php echo $row->useful_life; ?></td>
@@ -133,7 +133,7 @@
 								<td class="text-right"><?php echo number_format($row->balance_value, 2); ?></td>
 								<td class="text-right"><?php echo number_format($row->salvage_value, 2); ?></td>
 							</tr>
-							<?php endforeach ?>
+							<?php endforeach ?> -->
 						</tbody>
 					</table>
 				</div>
@@ -151,14 +151,14 @@
 						?>
 						</thead>
 						<tbody>
-							<?php foreach($asd->result as $row):?>
+							<!-- <?php foreach($asd->result as $row):?>
 							<tr>
 								<td class="text-left"><?php echo $row->itemcode; ?></td>
 								<td class="text-left"><?php echo $row->asset; ?></td>
 								<td class="text-left"><?php echo $row->accdep; ?></td>
 								<td class="text-left"><?php echo $row->depexp; ?></td>
 							</tr>
-							<?php endforeach ?>
+							<?php endforeach ?> -->
 						</tbody>
 					</table>
 				</div>
@@ -193,8 +193,16 @@
 			
 		function getList() {
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list',ajax, function(data) {
-				$('#tableList tbody').html(data.table);
-				$('#tableList tfoot').html(data.footer);
+				if(ajax.tab == 'Accounting'){
+					table = '#tableListAccounting';
+				}else if(ajax.tab == 'Depreciation'){
+					table = '#tableListDepreciation';
+				}else{
+					table = '#tableListAsset';
+				}
+				console.log(table);
+				$(table+' tbody').html(data.table);
+				$('#tableListAsset tfoot').html(data.footer);
 				$('#pagination').html(data.pagination);
 				$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 			});

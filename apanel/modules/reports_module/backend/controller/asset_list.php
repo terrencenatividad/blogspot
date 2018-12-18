@@ -50,7 +50,7 @@ class controller extends wc_controller {
 		$data['asset_list']			= $this->asset_list->getAsset();	
 		$data['assetclass_list']	= $this->asset_list->getAssetClass();
 		$data['dept_list']			= $this->asset_list->getAssetDepartment();	
-		$data['asd']				= $this->asset_list->getAssetMasterListPagination($this->fields);
+		// $data['asd']				= $this->asset_list->getAssetMasterList($this->fields);
 		$this->view->load('asset_list', $data);
 	}
 
@@ -71,28 +71,48 @@ class controller extends wc_controller {
 		$department	= $this->input->post('department');
 		$tab		= $this->input->post('tab');
 		
-		$pagination		= $this->asset_list->getAssetMasterListPagination($this->fields);
+		$pagination		= $this->asset_list->getAssetMasterList($this->fields, $sort, $asset, $datefilter, $assetclass, $department);
 		$tt = '';
 		$table		= '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
+			if($tab == 'Accounting'){
+				$table .= '<tr>';
+				$table .= '<td class="text-left">' . $row->itemcode . '</td>';
+				$table .= '<td class="text-left">' . $row->asset . '</td>';
+				$table .= '<td class="text-left">' . $row->accdep . '</td>';
+				$table .= '<td class="text-left">' . $row->depexp . '</td>';
+				$table .= '</tr>';
+			}else if($tab == 'Depreciation'){
+				$table .= '<tr>';
+				$table .= '<td class="text-left">' . $row->itemcode . '</td>';
+				$table .= '<td class="text-left">' . $row->useful_life . '</td>';
+				$table .= '<td class="text-left">' . $this->date->dateFormat($row->depreciation_month) . '</td>';
+				$table .= '<td class="text-right">' . number_format($row->capitalized_cost, 2) . '</td>';
+				$table .= '<td class="text-right">' . number_format($row->purchase_value, 2) . '</td>';
+				$table .= '<td class="text-right">' . number_format($row->balance_value, 2) . '</td>';
+				$table .= '<td class="text-right">' . number_format($row->salvage_value, 2) . '</td>';
+				$table .= '</tr>';
+			}else{
+				$table .= '<tr>';
+				$table .= '<td class="text-left">' . $row->itemcode . '</td>';
+				$table .= '<td class="text-left">' . $row->assetclass . '</td>';
+				$table .= '<td class="text-left">' . $row->asset_name . '</td>';
+				$table .= '<td class="text-left">' . $row->asset_number . '</td>';
+				$table .= '<td class="text-left">' . $row->sub_number . '</td>';
+				$table .= '<td class="text-left">' . $row->serial_number . '</td>';
+				$table .= '<td class="text-left">' . $row->description . '</td>';
+				$table .= '<td class="text-left">' . $row->asset_location . '</td>';
+				$table .= '<td class="text-left">' . $row->name . '</td>';
+				$table .= '<td class="text-left">' . $row->accountable_person . '</td>';
+				$table .= '<td class="text-left">' . $this->date->dateFormat($row->retirement_date) . '</td>';
+				$table .= '<td class="text-left">' . $this->date->dateFormat($row->commissioning_date) . '</td>';
+				$table .= '</tr>';
+			}
 			
-			$table .= '<tr>';
-			$table .= '<td>' . $row->itemcode . '</td>';
-			$table .= '<td>' . $row->assetclass . '</td>';
-			$table .= '<td>' . $row->asset_name . '</td>';
-			$table .= '<td>' . $row->asset_number . '</td>';
-			$table .= '<td>' . $row->sub_number . '</td>';
-			$table .= '<td>' . $row->serial_number . '</td>';
-			$table .= '<td>' . $row->description . '</td>';
-			$table .= '<td>' . $row->asset_location . '</td>';
-			$table .= '<td>' . $row->name . '</td>';
-			$table .= '<td>' . $row->accountable_person . '</td>';
-			$table .= '<td>' . $this->date->dateFormat($row->retirement_date) . '</td>';
-			$table .= '<td>' . $this->date->dateFormat($row->commissioning_date) . '</td>';
-			$table .= '</tr>';
+			
 		}
 
 		$footer = '';
@@ -117,7 +137,7 @@ class controller extends wc_controller {
 		$assetclass	= $this->input->post('assetclass');
 		$department	= $this->input->post('department');
 
-		$result		= $this->asset_list->getAssetMasterListPaginationcsv($this->fields);
+		$result		= $this->asset_list->getAssetMasterListcsv($this->fields, $sort, $asset, $datefilter, $assetclass, $department);
 
 
 		$header = array(
@@ -140,7 +160,6 @@ class controller extends wc_controller {
 			'Purchase Value',
 			'Balance Value',
 			'Salvage Value',
-			'number_of_dep',
 			'GL Account(Asset)',
 			'GL Account(Accdep)',
 			'GL Account(Dep Expense)'
@@ -157,25 +176,25 @@ class controller extends wc_controller {
 		}
 		foreach ($result as $key => $row) {
 			$csv .= "\n";
-			$csv .= '"' . $row->itemcode;
-			$csv .= '"' . $row->assetclass;
-			$csv .= '"' . $row->asset_name;
-			$csv .= '"' . $row->sub_number;
-			$csv .= '"' . $row->description;
-			$csv .= '"' . $row->asset_location;
-			$csv .= '"' . $row->department;
-			$csv .= '"' . $row->accountable_person;
-			$csv .= '"' . $row->retirement_date;
-			$csv .= '"' . $row->commissioning_date;
-			$csv .= '"' . $row->useful_life;
-			$csv .= '"' . $row->depreciation_month;
-			$csv .= '"' . $row->capitalized_cost;
-			$csv .= '"' . $row->purchase_value;
-			$csv .= '"' . $row->balance_value;
-			$csv .= '"' . $row->salvage_value;
-			$csv .= '"' . $row->asset;
-			$csv .= '"' . $row->accdep;
-			$csv .= '"' . $row->depexp;
+			$csv .= '"' . $row->itemcode . '",';
+			$csv .= '"' . $row->assetclass . '",';
+			$csv .= '"' . $row->asset_name . '",';
+			$csv .= '"' . $row->sub_number . '",';
+			$csv .= '"' . $row->description . '",';
+			$csv .= '"' . $row->asset_location . '",';
+			$csv .= '"' . $row->department . '",';
+			$csv .= '"' . $row->accountable_person . '",';
+			$csv .= '"' . $row->retirement_date . '",';
+			$csv .= '"' . $row->commissioning_date . '",';
+			$csv .= '"' . $row->useful_life . '",';
+			$csv .= '"' . $row->depreciation_month . '",';
+			$csv .= '"' . $row->capitalized_cost . '",';
+			$csv .= '"' . $row->purchase_value . '",';
+			$csv .= '"' . $row->balance_value . '",';
+			$csv .= '"' . $row->salvage_value . '",';
+			$csv .= '"' . $row->asset . '",';
+			$csv .= '"' . $row->accdep . '",';
+			$csv .= '"' . $row->depexp . '",';
 			
 
 		}
