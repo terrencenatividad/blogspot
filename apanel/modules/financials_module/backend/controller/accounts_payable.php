@@ -525,6 +525,7 @@ class controller extends wc_controller
 
 		$account = $this->input->post('account');
 		$check = false;
+		$result = false;
 		if(!empty($account)) {
 			$classcode = $this->accounts_payable->getAccountClasscode($account);
 			foreach($classcode as $row) {
@@ -630,6 +631,8 @@ class controller extends wc_controller
 		$account = $this->input->post('account');
 		$classcode = $this->accounts_payable->getAccountClasscode($account);
 		$check = false;
+		$result = false;
+		$details = false;
 		if(!empty($account)) {
 			foreach($classcode as $row) {
 				if($row->accountclasscode == 'ACCPAY') {

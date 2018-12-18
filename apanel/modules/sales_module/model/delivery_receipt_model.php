@@ -559,8 +559,9 @@ class delivery_receipt_model extends wc_model {
 
 	public function getSalesOrderDetails($voucherno, $voucherno_ref = false) {
 		$result1		= $this->db->setTable('salesorder_details sod')
-								->setFields("sod.itemcode, detailparticular, linenum, issueqty, issueqty maxqty, sod.warehouse, issueuom, unitprice, sod.taxcode, taxrate, sod.taxamount, sod.amount, convissueqty, convuom, conversion, FLOOR(COALESCE(inv.onhandQty, 0) / conversion) available, sod.discounttype, sod.discountrate, sod.discountamount, sod.parentcode, sod.bundle_itemqty, sod.parentline")
+								->setFields("sod.itemcode, detailparticular, linenum, issueqty, issueqty maxqty, sod.warehouse, issueuom, unitprice, sod.taxcode, taxrate, sod.taxamount, sod.amount, convissueqty, convuom, conversion, FLOOR(COALESCE(inv.onhandQty, 0) / conversion) available, sod.discounttype, sod.discountrate, sod.discountamount, sod.parentcode, sod.bundle_itemqty, sod.parentline, i.item_ident_flag")
 								->innerJoin('salesorder so ON sod.voucherno = so.voucherno AND sod.companycode = so.companycode')
+								->leftJoin('items i ON i.itemcode = sod.itemcode')
 								->leftJoin('invfile inv ON sod.itemcode = inv.itemcode AND sod.warehouse = inv.warehouse AND sod.companycode = inv.companycode')
 								->setWhere("so.voucherno = '$voucherno'")
 								->runSelect()
@@ -667,6 +668,20 @@ class delivery_receipt_model extends wc_model {
 			$temp[] = $arr . " LIKE '%" . str_replace(' ', '%', $search) . "%'";
 		}
 		return '(' . implode(' OR ', $temp) . ')';
+	}
+
+	public function getSerialList($fields, $itemcode, $search) {
+		$condition = '';
+		if ($search) {
+			$condition .= ' AND ' . $this->generateSearch($search, array('serialno', 'engineno', 'chassisno'));
+		}
+		$result	= $this->db->setTable('items_serialized')
+								->setFields($fields)
+								->setWhere("itemcode = '$itemcode'" .$condition)
+								->setOrderBy('voucherno, linenum, rowno')
+								->runPagination();
+								
+		return $result;
 	}
 
 }
