@@ -479,4 +479,23 @@ class credit_memo_model extends wc_model {
 		return $result;
 	}
 
+	public function deleteEntry($data) {
+		$error_id = array();
+		foreach ($data as $id) {
+			$result =  $this->db->setTable('financial_jobs')
+			->setWhere("voucherno = '$id'")
+			->runDelete(false);
+
+			if ($result) {
+				$this->log->saveActivity("Delete Item Type [$id]");
+			} else {
+				if ($this->db->getError() == 'locked') {
+					$error_id[] = $id;
+				}
+			}
+		}
+
+		return $error_id;
+	}
+
 }

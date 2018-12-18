@@ -358,8 +358,7 @@ class controller extends wc_controller {
 		$delete_id = $this->input->post('delete_id');
 		if ($delete_id) {
 			$this->cm_model->deleteJournalVouchers($delete_id);
-		}
-		if ($delete_id) {
+			$delete_fin = $this->cm_model->deleteEntry($delete_id);
 			$this->cm_model->reverseEntries($delete_id);
 		}
 	}
