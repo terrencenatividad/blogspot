@@ -889,7 +889,7 @@
 										->setId('b_total')
 										->setClass("input_label text-right")
 										->setAttribute(array("maxlength" => "40",'readonly',"style" => "margin-left:4px;;margin-right: 14px;"))
-										->setValue(number_format($t_total,2))
+										->setValue(number_format($convertedamount+$converted_freight+$converted_insurance+$converted_packaging,2))
 										->draw($show_input);
 										?>
 									</td>
