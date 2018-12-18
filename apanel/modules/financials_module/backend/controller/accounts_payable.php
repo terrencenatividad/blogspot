@@ -337,6 +337,7 @@ class controller extends wc_controller
 		$error_id = array();
 		if ($delete_id) {
 			$error_id = $this->accounts_payable->updateEntry($data, $delete_id);
+			$delete_fin = $this->accounts_payable->deleteEntry($delete_id);
 			$result 	= $this->accounts_payable->reverseEntries($invoices);
 		}
 		return array(
