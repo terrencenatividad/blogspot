@@ -114,11 +114,11 @@ class controller extends wc_controller {
 						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($unit_cost_base,2).'</td>';
 
 				// IMPORTATION COST CALCULATION
-			$item_cost = $row->convertedamount;
-			$item_cost_total = number_format($item_cost * $item_quantity, 2); //total cost of item
+			$item_cost = $row->convertedamount / $item_quantity;
+			$item_cost_total = number_format($row->convertedamount, 2); //total cost of item
 
 			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);
-			$total_cost_job = $query_cost_job->total; //total cost of all items in job
+			$total_cost_job = number_format($query_cost_job->total,2); //total cost of all items in job
  
 			$query_job_item_count = $this->landed_cost->getTotalItemsInJob($job_no);
 			$job_item_count = $query_job_item_count->qty; //number of items in job
