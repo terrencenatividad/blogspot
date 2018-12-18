@@ -1085,11 +1085,15 @@
 
 	<script>
 		$(document).ready(function() {
-			if(removeComma($('.credit').val()) == 0) {
-				$('.credit').attr('readonly', 'readonly');
-			} else {
-				$('.debit').attr('readonly', 'readonly');
-			}
+			$('.debit').each(function() {
+				if(removeComma($(this).val()) == '0') {
+					$(this).closest('tr').find('.credit').removeAttr('readonly');
+					$(this).attr('readonly', 'readonly');
+				} else {
+					$(this).removeAttr('readonly');
+					$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
+				}
+			});
 		});
 
 		$('#btnCancel').click(function() 

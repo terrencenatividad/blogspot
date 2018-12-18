@@ -1230,6 +1230,7 @@
 				$(this).closest('tr').find('.credit').attr('data-validation', 'decimal');
 				$(this).closest('tr').find('.asterisk').html('');
 				sumDebit();
+				sumCredit();
 				sumCurrencyAmount();
 			} else {
 				$(this).closest('tr').find('.credit').removeAttr('readonly');
@@ -1265,6 +1266,7 @@
 				$(this).closest('tr').find('.debit').attr('data-validation', 'decimal');
 				$(this).closest('tr').find('.asterisk').html('');
 				sumCredit();
+				sumDebit();
 				sumCurrencyAmount();
 			} else {
 				$(this).closest('tr').find('.debit').removeAttr('readonly');
