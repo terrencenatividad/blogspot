@@ -20,6 +20,7 @@ class controller extends wc_controller {
 			'proformacode',
 			'partner',
 			'amount',
+			'convertedamount',
 			'si_no',
 			'sr_amount',
 			'stat'
@@ -29,7 +30,9 @@ class controller extends wc_controller {
 			'accountcode',
 			'detailparticulars',
 			'debit',
-			'credit'
+			'credit',
+			'convertedcredit',
+			'converteddebit'
 		);
 		// $this->temp				= 'TMP_DM_' . USERNAME;
 	}
@@ -214,13 +217,47 @@ class controller extends wc_controller {
 		// 	$data['stat']		= 'posted';
 		// 	$data2['stat']		= 'posted';
 		// }
+		$result						= '';
+		$job_no						= $this->input->post('job');
 		$submit						= $this->input->post('submit');
 		$data						= $this->input->post($this->fields);
 		$data2						= $this->input->post($this->fields2);
+
 		$seq						= new seqcontrol();
+		$data['job_no']				= $job_no;
 		$data['voucherno']			= $seq->getValue('DM');
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		// $result					= $this->cm_model->updateJournalVoucher($data, $data2, $this->temp, (($finalized) ? 'Create' : false));
+		$data['amount'] 			= str_replace(',', '', $this->input->post('total_debit'));
+		$data['convertedamount'] 	= $this->input->post('total_currency');
+		
+		$jobs = explode(',', $data['job_no']);
+
+		if(!empty($jobs[0])) {
+			$finjobs['voucherno'] = $data['voucherno'];
+			$finjobs['job_no'] = $jobs;
+			$fin_job = $this->dm_model->saveFinancialsJob($finjobs);
+			//var_dump($finjobs);
+		}
+
+		$rate = str_replace(',', '', $data['exchangerate']);
+		$debit = str_replace(',', '', $data2['debit']);
+		$credit = str_replace(',', '', $data2['credit']);
+
+		$convdebit = [];
+		$convcredit = [];
+		foreach($debit as $row) {
+			$convdebit[] = $rate * $row;
+		}
+		foreach($credit as $row) {
+			$convcredit[] = $rate * $row;
+		}
+
+		$data2['debit'] = str_replace(',', '', $data2['debit']);
+		$data2['credit'] = str_replace(',', '', $data2['credit']);
+		$data2['converteddebit'] = $convdebit;
+		$data2['convertedcredit'] = $convcredit;
+
 		$result						= $this->dm_model->saveJournalVoucher($data, $data2);
 
 		$redirect_url = MODULE_URL;

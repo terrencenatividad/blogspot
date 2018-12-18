@@ -67,7 +67,7 @@
 			return $this->db->setTable('financial_jobs')
 							->setFields('COUNT(voucherno) count')
 							->setWhere(" job_no = '$job_no'")
-							->runSelect()
+							->runSelect(false)
 							->getResult();
         }
 
