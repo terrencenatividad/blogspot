@@ -23,6 +23,29 @@ class budgetting extends wc_model
 		return $result;
 	}
 
+	public function getApprover($id)
+	{
+		$result = $this->db->setTable('budget')
+		->setFields('approver')
+		->setWhere("id = '$id'")
+		->runSelect()
+		->getRow();
+
+		return $result;
+	}
+
+
+	public function getApproverName($code)
+	{
+		$result = $this->db->setTable('cost_center')
+		->setFields('approver')
+		->setWhere("costcenter_code = '$code'")
+		->runSelect()
+		->getRow();
+
+		return $result;
+	}
+
 	public function getBOMCode($id)
 	{
 		$result = $this->db->setTable('bom')
@@ -47,7 +70,7 @@ class budgetting extends wc_model
 	public function getUserList()
 	{
 		$result = $this->db->setTable('wc_users')
-		->setFields('firstname ind, CONCAT(firstname, "  ", lastname) val')
+		->setFields('username ind, CONCAT(firstname, "  ", lastname) val')
 		->runSelect()
 		->getResult();
 
@@ -115,6 +138,17 @@ class budgetting extends wc_model
 		return $result;
 	}
 
+	public function updateBudgetStatus($fields, $id)
+	{
+		$result 			   = $this->db->setTable('budget')
+		->setValues($fields)
+		->setWhere("id = '$id'")
+		->setLimit(1)
+		->runUpdate();
+
+		return $result;
+	}
+
 	public function updateBudget($data, $id, $budget_code)
 	{
 
@@ -170,6 +204,18 @@ class budgetting extends wc_model
 	}
 
 	public function getBudgetAccounts($budgetcode)
+	{
+		$result = $this->db->setTable('budget_details bd')
+		->setFields('bd.accountcode as accountcode, ca.accountname as accountname, bd.description as description, bd.amount as amount')
+		->leftJoin('chartaccount ca ON bd.accountcode = ca.segment5')
+		->setWhere("budget_code = '$budgetcode' AND amount != 0")
+		->runSelect()
+		->getResult();
+
+		return $result;
+	}
+
+	public function getBudgetAccountsOnEdit($budgetcode)
 	{
 		$result = $this->db->setTable('budget_details bd')
 		->setFields('bd.accountcode as accountcode, ca.accountname as accountname, bd.description as description, bd.amount as amount')

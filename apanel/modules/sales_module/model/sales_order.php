@@ -169,7 +169,7 @@
 			$retrieved_data['customer']  =	$this->retrieveCustomerDetails($customer_code);
 
 			// Retrieve Details
-			$detail_fields 			= "sd.itemcode, sd.detailparticular, sd.warehouse, w.description, sd.unitprice, sd.issueqty, u.uomcode issueuom, sd.taxcode, sd.taxrate, sd.amount, sd.discountrate, sd.discountamount, sd.discountedamount, sd.discounttype";
+			$detail_fields 			= "sd.itemcode, sd.detailparticular, sd.warehouse, w.description, sd.unitprice, sd.issueqty, u.uomcode issueuom, sd.taxcode, sd.taxrate, sd.amount, sd.discountrate, sd.discountamount, sd.discountedamount, sd.discounttype, sd.parentcode, sd.isbundle, sd.parentline, sd.bundle_itemqty";
 			$condition 				= " sd.voucherno = '$voucherno' ";
 			
 			$retrieved_data['details'] = 	$this->db->setTable('salesorder_details sd')
@@ -177,6 +177,7 @@
 											->leftJoin('warehouse w ON w.warehousecode = sd.warehouse ')
 											->setFields($detail_fields)
 											->setWhere($condition)
+											->setOrderBy('sd.linenum')
 											->runSelect()
 											->getResult();
 			return $retrieved_data;
@@ -405,12 +406,11 @@
 								->setWhere($cond)
 								->runUpdate();
 			}
-			var_dump($data);
 			/**INSERT DETAILS**/
 			foreach($data as $postIndex => $postValue)
 			{
-				if($postIndex == 'itemcode' || $postIndex == 'h_itemcode' || $postIndex == 'h_parentcode' || $postIndex == 'h_isbundle' || $postIndex == 'h_parentline' || $postIndex=='detailparticulars' || $postIndex == 'warehouse' || 
-					$postIndex == 'quantity' ||  $postIndex == 'itemprice' || $postIndex == 'discount'|| $postIndex == 'amount' || 
+				if($postIndex == 'h_itemcode' || $postIndex == 'h_parentcode' || $postIndex == 'h_isbundle' || $postIndex == 'h_parentline' || $postIndex=='detailparticulars' || $postIndex == 'h_warehouse' || 
+					$postIndex == 'quantity' || $postIndex == 'h_quantity' || $postIndex == 'itemprice' || $postIndex == 'discount'|| $postIndex == 'amount' || 
 					$postIndex == 'h_amount'|| $postIndex == 'uom' || $postIndex == 'taxamount' || $postIndex == 'taxcode' || 
 					$postIndex == 'taxrate' || $postIndex == 'itemdiscount' || $postIndex == 'discountedamount' ) 
 				{
@@ -432,6 +432,7 @@
 					}	
 				}
 			}
+
 			//||  $postIndex=='taxcode' || 
 					//$postIndex=='taxrate' || $postIndex == 'taxamount' 
 			/**START OF INSERT QUERY**/
@@ -454,11 +455,12 @@
 				$h_parentline 		=	$tempArrayValue['h_parentline'];
 				$detailparticular 	= 	$tempArrayValue['detailparticulars'];
 				$quantity 			=	$tempArrayValue['quantity'];
-				$warehouse 			=  	$tempArrayValue['warehouse'];
+				$bundle_itemqty 	=	$tempArrayValue['h_quantity'];
+				$warehouse 			=  	$tempArrayValue['h_warehouse'];
 				$price 				= 	$tempArrayValue['itemprice'];
 				$discount 			= 	$tempArrayValue['discount'];
 				$amount 			=	$tempArrayValue['h_amount'];
-				$taxcode 			=	$tempArrayValue['taxcode'];
+				$taxcode 			=	isset($tempArrayValue['taxcode']) ? $tempArrayValue['taxcode'] : '';
 				$taxrate 			=	$tempArrayValue['taxrate'];
 				$taxamount 			=	$tempArrayValue['taxamount'];
 				$discountamt  		=	$tempArrayValue['itemdiscount'];
@@ -487,6 +489,7 @@
 					$data_insert['warehouse']			= $warehouse;
 					$data_insert['issueuom']			= $uom;
 					$data_insert['issueqty']			= $quantity;
+					$data_insert['bundle_itemqty']		= $bundle_itemqty;
 					$data_insert['unitprice']	  		= $price;
 					$data_insert['amount']	  			= $amount;
 					$data_insert['stat']	  			= $status;

@@ -7,9 +7,10 @@ class asset_master extends wc_model {
 	}
 
 	public function saveAssetMaster($data) {
-		$data['commissioning_date'] = $this->date->dateDbFormat();
-		$data['retirement_date']    = $this->date->dateDbFormat();
-		$data['depreciation_month'] = $this->date->dateDbFormat();
+		$data['commissioning_date'] = date("Y-m-d",strtotime($data['commissioning_date']));
+		$data['retirement_date']    = date("Y-m-d",strtotime($data['retirement_date']));
+		$data['depreciation_month'] = date("Y-m-d",strtotime($data['depreciation_month']));
+		
 		$result =  $this->db->setTable('asset_master')
 							->setValues($data)
 							->runInsert();
@@ -22,6 +23,12 @@ class asset_master extends wc_model {
 		return $result;
 	}
 
+	// public function deletesched($asset_number) {
+	// 	$result = $this->db->setTable('depreciation_schedule')
+	// 						->setWhere("asset_id = '$asset_number'")
+	// 						->runDelete();
+	// }
+
 	public function saveAssetMasterSchedule($shh,$asset_number,$useful_life,$balance_value,$salvage_value,$final,$depreciation,$depreciation_amount) {
 		$shh['asset_id'] = $asset_number;
 		$shh['depreciation_date'] = $final;
@@ -31,7 +38,6 @@ class asset_master extends wc_model {
 		$result =  $this->db->setTable('depreciation_schedule')
 							->setValues($shh)
 							->runInsert();
-							
 		if ($result) {
 			$insert_id = $this->db->getInsertId();
 			$this->log->saveActivity("Create Asset Schedule [$insert_id]");
@@ -40,15 +46,19 @@ class asset_master extends wc_model {
 		return $result;
 	}
 
-	public function updateAssetMaster($data, $id) {
-		$data['commissioning_date'] = $this->date->dateDbFormat();
-		$data['retirement_date']    = $this->date->dateDbFormat();
-		$data['depreciation_month'] = $this->date->dateDbFormat();
+	public function updateAssetMaster($data, $id, $asset_number) {
+		$data['commissioning_date'] = date("Y-m-d",strtotime($data['commissioning_date']));
+		$data['retirement_date']    = date("Y-m-d",strtotime($data['retirement_date']));
+		$data['depreciation_month'] = date("Y-m-d",strtotime($data['depreciation_month']));
 		$result =  $this->db->setTable('asset_master')
 							->setValues($data)
 							->setWhere("id = '$id'")
 							->setLimit(1)
 							->runUpdate();
+
+		$result = $this->db->setTable('depreciation_schedule')
+							->setWhere("asset_id = '$asset_number'")
+							->runDelete();
 		
 		if ($result) {
 			$this->log->saveActivity("Update Asset [$id]");		
@@ -106,6 +116,16 @@ class asset_master extends wc_model {
 						->runSelect()
 						->getResult();
 						
+		return $result;
+	}
+
+	public function getDepartment() {
+		$result = $this->db->setTable('cost_center')
+							->setFields("id ind, name val, stat stat")
+							->setWhere(1)
+							->runSelect()
+							->getResult();
+
 		return $result;
 	}
 

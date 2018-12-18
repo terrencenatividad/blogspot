@@ -9,23 +9,25 @@ class controller extends wc_controller {
 		$this->report_model			= new report_model();
 		$this->view->header_active	= 'report/';
 		$this->fields				= array(
-			'at.id',
+			'ass.id',
 			'voucherno',
 			'assetclass',
-			'asset_number',
-			'serial_number',
-			'transactiondate',
-			'transactiontype',
+			'ass.asset_number',
+			'ass.serial_number',
+			'ass.transactiondate',
+			'ass.transactiontype',
 			'amount',
 			'transferto'
 		);
 	}
 
 	public function view() {
-		$this->view->title		= 'Asset History';
-		$data['ui']				= $this->ui;
-		$data['datefilter']		= date("M d, Y");
-		$data['supplier_list']	= $this->asset_history->getSupplierList();
+		$this->view->title			= 'Asset History';
+		$data['ui']					= $this->ui;
+		$data['datefilter']			= date("M d, Y");
+		$data['asset_list']			= $this->asset_history->getAsset();		
+		$data['assetclass_list']	= $this->asset_history->getAssetClass();
+		$data['dept_list']			= $this->asset_history->getAssetDepartment();		
 		$this->view->load('asset_history', $data);
 	}
 
@@ -41,11 +43,12 @@ class controller extends wc_controller {
 		$this->report_model->generateAssetActivity();
 
 		$datefilter			= $this->input->post('datefilter');
-		$datefilter			= $this->date->dateDbFormat($datefilter);
-		$supplier			= $this->input->post('supplier');
+		$sort				= $this->input->post('sort');
+		$asset				= $this->input->post('asset_number');
+		$assetclass			= $this->input->post('assetclass');
+		$department			= $this->input->post('department');
 
-		$pagination		= $this->asset_history->getAssetHistory($this->fields);
-		// $total_aging	= $this->asset_history->getArAgingTotal($datefilter, $supplier);
+		$pagination		= $this->asset_history->getAssetHistory($this->fields, $sort, $asset, $datefilter, $assetclass, $department);
 		$tt = '';
 		$table		= '';
 		if (empty($pagination->result)) {
@@ -65,8 +68,8 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->serial_number . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->transactiontype . '</td>';
-			$table .= '<td class="text-right""><a data-id="' .  $row->voucherno. '" id="modal" href="'.BASE_URL.$tt.$row->voucherno.'" data-toggle="modal">'. number_format($row->amount, 2) . '</a></td>';
-			$table .= '<td>' . $row->transferto . '</td>';
+			$table .= '<td class="text-right"><a data-id="' .  $row->voucherno. '" id="modal" href="'.BASE_URL.$tt.$row->voucherno.'" data-toggle="modal">'. number_format($row->amount, 2) . '</a></td>';
+			$table .= '<td class="text-right">' . $row->transferto . '</td>';
 			$table .= '</tr>';
 		}
 
@@ -80,68 +83,65 @@ class controller extends wc_controller {
 
 		$pagination->table	= $table;
 		$pagination->footer	= $footer;
-		// $pagination->csv	= $this->get_export();
+		$pagination->csv	= $this->get_export();
 		return $pagination;
 	}
 
-	// private function get_export() {
-	// 	$datefilter	= $this->input->post('datefilter');
-	// 	$datefilter	= $this->date->dateDbFormat($datefilter);
-	// 	$supplier	= $this->input->post('supplier');
+	private function get_export() {
+		$datefilter	= $this->input->post('datefilter');
+		$datefilter	= $this->date->dateDbFormat($datefilter);
+		$sort	= $this->input->post('sort');
+		$asset	= $this->input->post('asset_number');
+		$assetclass			= $this->input->post('assetclass');
+		$department			= $this->input->post('department');
 
-	// 	$result			= $this->asset_history->getArAgingExport($datefilter, $supplier);
-	// 	$total_aging	= $this->asset_history->getArAgingTotal($datefilter, $supplier);
+		$result		= $this->asset_history->getAssetHistorycsv($this->fields, $sort, $asset, $datefilter, $assetclass, $department);
 
-	// 	$header = array(
-	// 		'Supplier',
-	// 		'Reference',
-	// 		'Transaction Date',
-	// 		'Terms',
-	// 		'Due Date',
-	// 		'Current',
-	// 		'1 - 30',
-	// 		'31 -60 Days',
-	// 		'Over 60 Days',
-	// 		'Balance'
-	// 	);
 
-	// 	$csv = '';
-	// 	$csv .= 'Accounts Payable Aging';
-	// 	$csv .= "\n\n";
-	// 	$csv .= '"Date:","' . $this->date->dateFormat($datefilter) . '"';
-	// 	$csv .= "\n\n";
-	// 	$csv .= '"' . implode('","', $header) . '"';
-	// 	if (empty($result)) {
-	// 		$csv .= 'No Records Found';
-	// 	}
-	// 	foreach ($result as $key => $row) {
-	// 		$csv .= "\n";
-	// 		$csv .= '"' . $row->supplier . '",';
-	// 		$csv .= '"' . $row->voucherno . '",';
-	// 		$csv .= '"' . $this->date->dateFormat($row->transactiondate) . '",';
-	// 		$csv .= '"' . $row->terms . '",';
-	// 		$csv .= '"' . $this->date->dateFormat($row->duedate) . '",';
-	// 		$csv .= '"' . number_format($row->current, 2) . '",';
-	// 		$csv .= '"' . number_format($row->thirty, 2) . '",';
-	// 		$csv .= '"' . number_format($row->sixty, 2) . '",';
-	// 		$csv .= '"' . number_format($row->oversixty, 2) . '",';
-	// 		$csv .= '"' . number_format($row->balance, 2) . '"';
-	// 	}
+		$header = array(
+			'Asset Class',
+			'Asset Number',
+			'Serial Number / Engine Number',
+			'Transaction Date',
+			'Transaction Type',
+			'Transaction Amount',
+			'Transfer To'
+		);
+
+		$csv = '';
+		$csv .= 'Asset History';
+		$csv .= "\n\n";
+		$csv .= '"Date:","' . $this->date->dateFormat($datefilter) . '"';
+		$csv .= "\n\n";
+		$csv .= '"' . implode('","', $header) . '"';
+		if (empty($result)) {
+			$csv .= 'No Records Found';
+		}
+		foreach ($result as $key => $row) {
+			$csv .= "\n";
+			$csv .= '"' . $row->assetclass . '",';
+			$csv .= '"' . $row->asset_number . '",';
+			$csv .= '"' . $row->serial_number . '",';
+			$csv .= '"' . $this->date->dateFormat($row->transactiondate) . '",';
+			$csv .= '"' . $row->transactiontype . '",';
+			$csv .= '"' . number_format($row->amount, 2) . '",';
+			$csv .= '"' . $row->transferto . '",';
+		}
 		
-	// 	$csv .= "\n";
-	// 	$csv .= '"Totals:",';
-	// 	$csv .= '"",';
-	// 	$csv .= '"",';
-	// 	$csv .= '"",';
-	// 	$csv .= '"",';
-	// 	$csv .= '"' . number_format($total_aging->current_total, 2) . '",';
-	// 	$csv .= '"' . number_format($total_aging->thirty_total, 2) . '",';
-	// 	$csv .= '"' . number_format($total_aging->sixty_total, 2) . '",';
-	// 	$csv .= '"' . number_format($total_aging->oversixty_total, 2) . '",';
-	// 	$csv .= '"' . number_format($total_aging->balance_total, 2) . '"';
+		// $csv .= "\n";
+		// $csv .= '"Totals:",';
+		// $csv .= '"",';
+		// $csv .= '"",';
+		// $csv .= '"",';
+		// $csv .= '"",';
+		// $csv .= '"' . number_format($total_aging->current_total, 2) . '",';
+		// $csv .= '"' . number_format($total_aging->thirty_total, 2) . '",';
+		// $csv .= '"' . number_format($total_aging->sixty_total, 2) . '",';
+		// $csv .= '"' . number_format($total_aging->oversixty_total, 2) . '",';
+		// $csv .= '"' . number_format($total_aging->balance_total, 2) . '"';
 		
-	// 	return $csv;
-	// }
+		return $csv;
+	}
 
 
 }

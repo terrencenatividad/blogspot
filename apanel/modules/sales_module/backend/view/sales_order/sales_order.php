@@ -19,6 +19,8 @@
 			<input class = "form_iput" value = "<?=$h_incurred?>" name = "h_incurred" id = "h_incurred" type="hidden">
 			<input class = "form_iput" value = "<?=$h_balance?>" name = "h_balance" id = "h_balance" type="hidden">
 			<input class = "form_iput" value = "<?=$vat_ex?>" name = "vat_ex" id = "vat_ex" type="hidden">
+			<input class = "form_iput" value = "<?=$task?>" name = "task" id = "task" type="hidden">
+			<input class = "form_iput" value = "" name = "h_curr_customer" id = "h_curr_customer" type="hidden">
 			
 			<div class="box-body">
 				<br>
@@ -321,6 +323,7 @@
 														->setValue("")
 														->draw($show_input);
 												?>
+												<input type = "hidden" id = <?php echo 'h_warehouse['.$row.']'; ?> name = <?php echo 'h_warehouse['.$row.']'; ?> class = "h_warehouse" value = "">
 											</td>
 											<td class = "remove-margin">
 												<?php
@@ -334,6 +337,7 @@
 															->setValue($quantity)
 															->draw($show_input);
 												?>
+												<input type = "hidden" id = <?php echo 'h_quantity['.$row.']'; ?> name = <?php echo 'h_quantity['.$row.']'; ?> class = "h_quantity" value = "">
 											</td>
 											<td class = "remove-margin">
 												<?php
@@ -431,8 +435,12 @@
 										for($i = 0; $i < count($details); $i++)
 										{
 											$itemcode 	 		= $details[$i]->itemcode;
+											$parentcode 	 	= $details[$i]->parentcode;
+											$isbundle 	 		= $details[$i]->isbundle;
+											$parentline 	 	= $details[$i]->parentline;
 											$detailparticular	= htmlspecialchars($details[$i]->detailparticular);
 											$quantity 			= isset($details[$i]->issueqty) ?	number_format($details[$i]->issueqty,0) 	: 	"1";
+											$bundle_itemqty 	= isset($details[$i]->bundle_itemqty) ?	number_format($details[$i]->bundle_itemqty,0) 	: 	"0";
 											$itemprice 			= $details[$i]->unitprice;
 											$discounttype 		= isset($details[$i]->discounttype) ? $details[$i]->discounttype : '';
 											$discount 			= isset($details[$i]->discountamount) ? $details[$i]->discountamount : '0.00';
@@ -449,7 +457,12 @@
 											$discountedamount 	= (isset($details[$i]->discountedamount))? $details[$i]->discountedamount : 0;
 											
 									?>	
-											<tr class="clone" valign="middle">
+											<?php if ($parentcode == '') { ?>
+												<tr class="clone" valign="middle" style = "font-weight:bold">
+
+											<?php } else { ?>
+												<tr class="clone" valign="middle" style = "font-weight:normal">
+											<?php } ?>
 												<td class = "remove-margin">
 												<?php
 													echo $ui->formField('dropdown')
@@ -466,7 +479,7 @@
 												<input type = "hidden" id = <?php echo 'h_itemcode['.$row.']'; ?> name = <?php echo 'h_itemcode['.$row.']'; ?> class = "h_itemcode" value = "<?php echo $itemcode ?>">
 												<input type = "hidden" id = <?php echo 'h_parentcode['.$row.']'; ?> name = <?php echo 'h_parentcode['.$row.']'; ?> class = "h_parentcode" value = "<?php echo $parentcode ?>">
 												<input type = "hidden" id = <?php echo 'h_isbundle['.$row.']'; ?> name = <?php echo 'h_isbundle['.$row.']'; ?> class = "h_isbundle" value = "<?php echo $isbundle ?>">
-												<input type = "text" id = <?php echo 'h_parentline['.$row.']'; ?> name = <?php echo 'h_parentline['.$row.']'; ?> class = "h_parentline" value = "<?php echo $parentline ?>">
+												<input type = "hidden" id = <?php echo 'h_parentline['.$row.']'; ?> name = <?php echo 'h_parentline['.$row.']'; ?> class = "h_parentline" value = "<?php echo $parentline ?>">
 											</td>
 											<td class = "remove-margin">
 												<?php
@@ -474,6 +487,7 @@
 															->setSplit('', 'col-md-12')
 															->setName('detailparticulars['.$row.']')
 															->setId('detailparticulars['.$row.']')
+															->setClass('detailparticulars')
 															->setAttribute(array("maxlength" => "100"))
 															->setValue($detailparticular)
 															->draw($show_input);
@@ -494,6 +508,7 @@
 														->setValue($value)
 														->draw($show_input);
 												?>
+												<input type = "hidden" id = <?php echo 'h_warehouse['.$row.']'; ?> name = <?php echo 'h_warehouse['.$row.']'; ?> class = "h_warehouse" value = "<?php echo $value ?>">
 											</td>
 											<td class = "remove-margin text-right">
 												<?php
@@ -507,6 +522,7 @@
 															->setValue($quantity)
 															->draw($show_input);
 												?>
+												<input type = "hidden" id = <?php echo 'h_quantity['.$row.']'; ?> name = <?php echo 'h_quantity['.$row.']'; ?> class = "h_quantity" value = "<?php echo $bundle_itemqty ?>">
 											</td>
 											<td class = "remove-margin">	
 												<?php
@@ -522,13 +538,14 @@
 											</td>
 											<td class = "remove-margin text-right">
 												<?php
+													$is_required = ($parentcode == '') ? 'required' : '';
 													echo $ui->formField('text')
 															->setSplit('', 'col-md-12')
 															->setName('itemprice['.$row.']')
 															->setId('itemprice['.$row.']')
 															->setClass("price text-right")
 															->setAttribute(array("maxlength" => "20"))
-															->setValidation('decimal required')
+															->setValidation('decimal '.$is_required)
 															->setValue(number_format($itemprice,'2','.',','))
 															->draw($show_input);
 												?>
@@ -554,7 +571,7 @@
 															->setName('taxcode['.$row.']')
 															->setId('taxcode['.$row.']')
 															->setClass("taxcode")
-															->setAttribute(array("maxlength" => "20"))
+															->setAttribute(array('maxlength' => '20'))
 															->setList($tax_codes)
 															->setNone('none')
 															->setValue($taxcode)
@@ -1311,6 +1328,23 @@
 	</div>
 </div>
 
+<div class="modal fade" id="changeCustomerModal" tabindex="-1"  data-backdrop="static" data-keyboard="false" >
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Confirmation
+			</div>
+			<div class="modal-body" id="message">
+				Changing the current customer will clear out the items section. Do you wish to proceed?
+			</div>
+			<div class="modal-footer text-center">
+				<button type="button" class="btn btn-info btn-flat" id="disc_yes" data-dismiss='modal'>Yes</button>
+				<button type="button" class="btn btn-default btn-flat" id="disc_no" >No</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div class="modal fade" id="discounttypeModal" tabindex="-1"  data-backdrop="static" data-keyboard="false" >
 	<div class="modal-dialog modal-sm">
 		<div class="modal-content">
@@ -1513,6 +1547,8 @@
 <script>
 var ajax = {};
 
+var items 		= [];
+
 var close_date 	=	$('#h_close_date').val();
 
 /**RETRIEVES CUSTOMER INFORMATION**/
@@ -1639,7 +1675,6 @@ function getItemDetails(id)
 			else {
 				document.getElementById('h_isbundle'+row).value 			=	"No";
 			}
-			
 		});
 
 	}
@@ -1650,16 +1685,17 @@ $('.itemcode').on('change', function() {
 	var name = $(this).attr("name");
 	var linenum = name.match(/\d+/)[0];
 	var row = $(this);
+	var customer = $('#customer').val();
 	$.post('<?=BASE_URL?>sales/sales_order/ajax/get_bundle_items',"itemcode="+itemcode+"&linenum="+linenum, function(data) {
-		if(data.table != "") {
-		var table = data.table;
-			row.closest('tr').addClass('bundle_item');
+		if(data.table != "" && customer != '') {
+			var table = data.table;
+			row.closest('tr').attr('class', 'clone ' + linenum);
 			$('#itemsTable tbody tr.clone select').select2('destroy');
-			row.closest('tr.bundle_item').after(table);
+			row.closest('tr.'+linenum).after(table);
 			row.closest('tr').find('.h_parentline').val(linenum);
 		} else {
-			if(row.closest('tr').hasClass('bundle_item')){
-				row.closest('tr').nextAll('tr.parts').remove();
+			if(row.closest('tr').hasClass(linenum))	{
+				row.closest('tr').nextAll('tr.'+linenum).remove();
 			}
 		}
 		resetIds();
@@ -1671,10 +1707,53 @@ $('.quantity').on('blur', function() {
 	var itemcode = $(this).closest('tr').find('.itemcode').val();
 	var parent = $(this).closest('tr').find('.h_parentline').val();
 	var quantity = $(this).val();
+	var task = $('#task').val();
 	$('#itemsTable tbody tr').find('.h_parentline[value="'+parent+'"]').each(function(index, value) {
 		var itemqty = $(this).closest('tr').find('.quantity').attr('data-id');
 		var total = quantity * itemqty;
 		$(this).closest('tr.parts').find('.quantity').val(total);
+		if (task == 'edit') {
+			var bundleqty = $(this).closest('tr.parts').find('.h_quantity').val();
+			var total = quantity * bundleqty;
+			$(this).closest('tr.parts').find('.quantity').val(total);
+		}
+	});
+});
+
+$('.warehouse').on('change', function() {
+	var itemcode = $(this).closest('tr').find('.itemcode').val();
+	var parent = $(this).closest('tr').find('.h_parentline').val();
+	var warehouse = $(this).val();
+	var task = $('#task').val();
+	$(this).closest('tr').find('.h_warehouse').val(warehouse);
+	$('#itemsTable tbody tr').find('.h_parentline[value="'+parent+'"]').each(function(index, value) {
+		$(this).closest('tr.parts').find('.warehouse').val(warehouse);
+		$(this).closest('tr.parts').find('.h_warehouse').val(warehouse);
+		if (task == 'edit') {
+			$(this).closest('tr.parts').find('.warehouse').val(warehouse).trigger('change.select2');
+			$(this).closest('tr.parts').find('.h_warehouse').val(warehouse).trigger('change.select2');
+		}
+	});
+});
+
+$( document ).ready(function() {
+    $('#itemsTable tbody tr').find('.itemcode').each(function(index, value) {
+		parent = $(this).closest('tr').find('.h_parentcode').val();
+		linenum = $(this).closest('tr').find('.h_parentline').val();
+		if (parent != '') {
+			$(this).closest('tr').find('.itemcode').prop('disabled',true)
+			$(this).closest('tr').find('.warehouse').prop('disabled',true)
+			$(this).closest('tr').find('.taxcode').prop('disabled',true)
+			$(this).closest('tr').find('.detailparticulars').prop('readonly',true)
+			$(this).closest('tr').find('.quantity').prop('readonly',true)
+			$(this).closest('tr').find('.price').prop('readonly',true)
+			$(this).closest('tr').find('.discount').prop('readonly',true)
+			$(this).closest('tr').find('.confirm-delete').prop('disabled',true)
+			$(this).closest('tr').addClass('parts '+linenum);
+		}
+		else {
+			$(this).closest('tr').addClass(linenum);
+		}
 	});
 });
 
@@ -1949,7 +2028,9 @@ function resetIds()
 		row.cells[0].getElementsByTagName("input")[3].id 	= 'h_parentline['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
 		row.cells[2].getElementsByTagName("select")[0].id 	= 'warehouse['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].id 	= 'h_warehouse['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].id 	= 'quantity['+x+']';
+		row.cells[3].getElementsByTagName("input")[1].id 	= 'h_quantity['+x+']';
 		row.cells[4].getElementsByTagName("input")[0].id 	= 'uom['+x+']';
 		row.cells[5].getElementsByTagName("input")[0].id 	= 'itemprice['+x+']';
 		row.cells[6].getElementsByTagName("input")[0].id 	= 'discount['+x+']';
@@ -1968,7 +2049,9 @@ function resetIds()
 		row.cells[0].getElementsByTagName("input")[3].name 	= 'h_parentline['+x+']';
 		row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
 		row.cells[2].getElementsByTagName("select")[0].name = 'warehouse['+x+']';
+		row.cells[2].getElementsByTagName("input")[0].name 	= 'h_warehouse['+x+']';
 		row.cells[3].getElementsByTagName("input")[0].name 	= 'quantity['+x+']';
+		row.cells[3].getElementsByTagName("input")[1].name 	= 'h_quantity['+x+']';
 		row.cells[4].getElementsByTagName("input")[0].name 	= 'uom['+x+']';
 		row.cells[5].getElementsByTagName("input")[0].name 	= 'itemprice['+x+']';
 		row.cells[6].getElementsByTagName("input")[0].name 	= 'discount['+x+']';
@@ -2002,10 +2085,12 @@ function setZero()
 	document.getElementById('h_itemcode['+newid+']').value 			= '';
 	document.getElementById('h_parentcode['+newid+']').value 		= '';
 	document.getElementById('h_isbundle['+newid+']').value 			= '';
-	document.getElementById('h_parentline['+newid+']').value 			= '';
+	document.getElementById('h_parentline['+newid+']').value 		= '';
 	document.getElementById('detailparticulars['+newid+']').value 	= '';
 	document.getElementById('warehouse['+newid+']').value 			= '';
+	document.getElementById('h_warehouse['+newid+']').value 		= '';
 	document.getElementById('quantity['+newid+']').value 			= '0';
+	document.getElementById('h_quantity['+newid+']').value 			= '0';
 	document.getElementById('uom['+newid+']').value 				= '';
 	document.getElementById('itemprice['+newid+']').value 			= '0.00';
 	document.getElementById('discount['+newid+']').value 			= '0.00';
@@ -2105,7 +2190,8 @@ function finalizeEditTransaction()
 	});
 
 	$('.price').each(function() {
-		if( $(this).val() <= 0 )
+		var validations = $(this).attr('data-validation').split(' ');
+		if( $(this).val() <= 0 && validations.includes('required'))
 		{
 			no_error = false;
 			$(this).closest('div').addClass('has-error');
@@ -2231,22 +2317,56 @@ $(document).ready(function(){
 
 	// -- For Customer --
 		// Get getPartnerInfo
-		$( "#customer" ).change(function() 
-		{
-			customer_id = $("#customer").val();
+		// $( "#customer" ).change(function() 
+		// {
+		// 	customer_id = $("#customer").val();
+		// 	if( customer_id != "" )
+		// 	{
+		// 		retrieveCreditLimit(customer_id);
+		// 		retrieveCurrentIncurredReceivables(customer_id);
+		// 		retrieveCurrentOutstandingReceivables(customer_id);
+		// 		computeforremainingcredit();
 
-			if( customer_id != "" )
+		// 		getPartnerInfo(customer_id);
+		// 		if( $('#itemcode\\[1\\]').val() != "" ){
+		// 			$('.itemcode').trigger('change');
+		// 		}
+		// 	}
+		// });
+
+		$( "#customer" ).on('select2:selecting',function(e) {
+			var curr_id	=  $(this).val();	
+			var new_id 	= e.params.args.data.id;
+			if( curr_id != "" )
 			{
-				retrieveCreditLimit(customer_id);
-				retrieveCurrentIncurredReceivables(customer_id);
-				retrieveCurrentOutstandingReceivables(customer_id);
-				computeforremainingcredit();
-
-				getPartnerInfo(customer_id);
-				if( $('#itemcode\\[1\\]').val() != "" ){
-					$('.itemcode').trigger('change');
-				}
+				e.preventDefault();
+				$('#changeCustomerModal').modal('show');
+				$(this).select2('close');
 			}
+			$('#h_curr_customer').val(new_id);
+		});
+
+		$('#changeCustomerModal').on('click','#disc_yes',function(){
+			var customer_id = $('#h_curr_customer').val();
+			$('#customer').val(customer_id).trigger('change');
+
+			retrieveCreditLimit(customer_id);
+			retrieveCurrentIncurredReceivables(customer_id);
+			retrieveCurrentOutstandingReceivables(customer_id);
+			computeforremainingcredit();
+
+			getPartnerInfo(customer_id);
+			// if( $('#itemcode\\[1\\]').val() != "" ){
+			// 	$('.itemcode').trigger('change');
+			// }
+
+			$('#itemsTable tbody').find('tr').not(':first').remove();
+			setZero();
+			resetIds();
+		});
+
+		$('#changeCustomerModal').on('click','#disc_no',function(){
+			$('#changeCustomerModal').modal('hide');
 		});
 
 		// Open Modal
@@ -2387,7 +2507,8 @@ $(document).ready(function(){
 		{	
 			$('#itemsTable tbody tr.clone select').select2('destroy');
 			
-			var clone = $("#itemsTable tbody tr.clone:first").clone(true); 
+			var linenum = $("#itemsTable tbody tr").attr('class').split(' ');
+			var clone = $("#itemsTable tbody tr.clone:first").attr('class', 'clone').clone(true); 
 
 			var ParentRow = $("#itemsTable tbody tr.clone").last();
 			
@@ -2395,6 +2516,7 @@ $(document).ready(function(){
 			var rows 		= table.tBodies[0].rows.length;
 
 			clone.clone(true).insertAfter(ParentRow);
+			$("#itemsTable tbody tr.clone:first").attr('class', 'clone ' + linenum[1]);
 			setZero();
 
 			$('#itemsTable tbody tr.clone select').select2({width: "100%"});
@@ -2463,6 +2585,7 @@ $(document).ready(function(){
 		$('#discounttype').on('select2:selecting',function(e){
 			var curr_type	=  $(this).val();	
 			var new_type 	= e.params.args.data.id;
+			//var parentcode = $('.itemcode').closest('tr').find('.h_parentcode').val();
 			
 			if(curr_type == "none" || curr_type == ""){
 				$('#discounttype').closest('.form-group').removeClass('has-error');
@@ -2470,7 +2593,12 @@ $(document).ready(function(){
 				if(new_type=="none" || new_type==""){
 					$('.discount').prop('readOnly',true);
 				} else {
-					$('.discount').prop('readOnly',false);
+					$('#itemsTable tbody tr').find('.itemcode').each(function(index, value) {
+						parent = $(this).closest('tr').find('.h_parentcode').val();
+						if (parent == '') {
+							$(this).closest('tr').find('.discount').prop('readonly',false)
+						}
+					});
 				}
 			} else {
 				if(curr_type!="" ){
@@ -2491,7 +2619,12 @@ $(document).ready(function(){
 			if(newtype=="none" || newtype==""){
 				$('.discount').prop('readOnly',true);
 			} else {
-				$('.discount').prop('readOnly',false);
+				$('#itemsTable tbody tr').find('.itemcode').each(function(index, value) {
+					parent = $(this).closest('tr').find('.h_parentcode').val();
+					if (parent == '') {
+						$(this).closest('tr').find('.discount').prop('readonly',false)
+					}
+				});
 			}
 			computeAmount();
 		});
@@ -2547,7 +2680,13 @@ $(document).ready(function(){
 
 			var discounttype = $('#discounttype').val();
 			if(discounttype != "" && discounttype != "none"){
-				$('#sales_order_form .discount').prop('readonly',false);
+				//$('#sales_order_form .discount').prop('readonly',false);
+				$('#itemsTable tbody tr').find('.itemcode').each(function(index, value) {
+					parent = $(this).closest('tr').find('.h_parentcode').val();
+					if (parent == '') {
+						$(this).closest('tr').find('.discount').prop('readonly',false)
+					}
+				});
 			} else {
 				$('#sales_order_form .discount').prop('readonly',true);
 			}
@@ -2580,15 +2719,33 @@ $(document).ready(function(){
 	// -- For Cancel -- End
 
 	// -- For Deletion of Item Per Row -- 
-	
+		var parentcode = [];
 		$('#deleteItemModal #btnYes').click(function() 
 		{
+			parentcode = [];
 			var id = $('#deleteItemModal').data('id');
-
 			var table 		= document.getElementById('itemsTable');
-			var rowCount 	= table.tBodies[0].rows.length;;
+			var rowCount 	= table.tBodies[0].rows.length;
+			
+			$('.h_parentcode').each(function() {
+				if($(this).val() == '') {
+					parentcode.push('none');
+				}
+			});
 
-			deleteItem(id);
+			var isbundle = $('.confirm-delete').closest('tr.'+id).find('.h_isbundle').val();
+			if(parentcode.length > 1 && isbundle == 'Yes') {
+				$('#itemsTable tbody').find('tr.'+id).remove();
+				resetIds();
+			} else if(parentcode.length == 1 && isbundle == 'Yes') {
+				$('#itemsTable tbody').find('tr.parts.'+id).remove();
+				setZero();
+				drawTemplate();
+			} else {
+				deleteItem(id);
+			}
+
+			addAmounts();
 			
 			$('#deleteItemModal').modal('hide');
 		});
