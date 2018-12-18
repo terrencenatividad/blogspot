@@ -20,18 +20,22 @@ class credit_memo_model extends wc_model {
 		$data['stat']				= 'posted';
 		$data['period']				= date("n", strtotime($data['transactiondate']));
 		$data['fiscalyear']			= date("Y", strtotime($data['transactiondate']));
-		$data['currencycode']		= 'PHP';
-		$exchangerate				= '1.00';
+		//$data['currencycode']		= 'PHP';
+		//$exchangerate				= '1.00';
 		$data['amount']				= $total;
 		$data['sr_amount']			= $sr_amount;
-		$data['convertedamount']	= $total * $exchangerate;
+		$data['convertedamount']	= $total * $data['exchangerate'];
+
+		//var_dump($data, $data2);
 
 		$result = $this->db->setTable('journalvoucher')
 							->setValues($data)
 							->runInsert();
+							
 		// if ($result && $data2['debit'] != '') {
 		// 	$result = $this->updateJournalVoucherDetails($data2, $data['voucherno']);
 		// }
+		
 		if ($result) {
 			$result = $this->updateJournalVoucherDetails($data2, $data['voucherno']);
 		}
@@ -48,9 +52,10 @@ class credit_memo_model extends wc_model {
 		$data['stat']				= 'posted';
 		$data['period']				= date("n", strtotime($data['transactiondate']));
 		$data['fiscalyear']			= date("Y", strtotime($data['transactiondate']));
-		$data['amount']		= $total;
-		$data['sr_amount']	= $sr_amount;
-		$data['transtype']	= 'CM';
+		$data['amount']				= $total;
+		$data['convertedamount']	= $total * $data['exchangerate'];
+		$data['sr_amount']			= $sr_amount;
+		$data['transtype']			= 'CM';
 		
 		$result = $this->db->setTable('journalvoucher')
 							->setValues($data)
@@ -84,8 +89,8 @@ class credit_memo_model extends wc_model {
 			$data['stat']				= 'posted';
 			$data['debit']				= $this->removeComma($data['debit']);
 			$data['credit']				= $this->removeComma($data['credit']);
-			$data['converteddebit']		= $this->removeComma($data['debit']);
-			$data['convertedcredit']	= $this->removeComma($data['credit']);
+			$data['converteddebit']		= $this->removeComma($data['converteddebit']);
+			$data['convertedcredit']	= $this->removeComma($data['convertedcredit']);
 			$data['linenum']			= $linenum;
 			$result = $this->db->setTable('journaldetails')
 						->setValuesFromPost($data)
@@ -162,7 +167,7 @@ class credit_memo_model extends wc_model {
 									->setValues($insert_info)
 									->runInsert();
 				$ctr++;
-				var_dump($count);
+				//var_dump($count);
 			}
 	}
 	return $count;
@@ -298,7 +303,7 @@ class credit_memo_model extends wc_model {
 	public function getDocumentDetails($voucherno) {
 		$result = $this->db->setTable('journaldetails jd')
 							->innerJoin('chartaccount ca ON jd.accountcode = ca.id AND ca.companycode = jd.companycode')
-							->setFields("CONCAT(segment5, ' - ',accountname) accountname, debit, credit")
+							->setFields("CONCAT(segment5, ' - ',accountname) accountname, debit, credit, converteddebit")
 							->setWhere("jd.voucherno = '$voucherno' AND jd.stat = 'posted'")
 							->runSelect()
 							->getResult();
@@ -440,6 +445,37 @@ class credit_memo_model extends wc_model {
 		->runSelect()
 		->getRow();
 		
+		return $result;
+	}
+
+	public function saveFinancialsJob($fields) {
+		$result = $this->db->setTable('financial_jobs')
+		->setValuesFromPost($fields)
+		->runInsert(false);
+
+		return $result;
+	}
+
+	public function checkVoucherOnFinancialsJob($voucherno){
+		$result = $this->db->setTable('financial_jobs')
+		->setFields('voucherno')
+		->setWhere("voucherno = '$voucherno'")
+		->runSelect(false)
+		->getRow();
+
+		return $result;
+	}
+
+	public function updateFinancialsJobs($fields, $voucherno)
+	{
+		$result = $this->db->setTable('financial_jobs')
+		->setWhere("voucherno = '$voucherno'")
+		->runDelete(false);
+
+		$result = $this->db->setTable('financial_jobs')
+		->setValues($fields)
+		->runInsert(false);
+
 		return $result;
 	}
 
