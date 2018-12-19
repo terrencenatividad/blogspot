@@ -1025,16 +1025,13 @@ echo $ui->loadElement('modal')
 			$.post('<?=MODULE_URL?>ajax/ajax_get_currency_val', { currencycode : currencycode }, function(data) {
 				if(data) {
 					$('#exchangerate').val(data.exchangerate);	
-					if($('.debit').val() != '0.00') {
-						$('.currencyamount').val(addComma(data.exchangerate * removeComma($('.debit').val())));
-						console.log('1')
-					}
-					else {
-						$('.currencyamount').val(addComma(data.exchangerate * removeComma($('.credit').val())));
-						console.log('2')
-					}
-					//sumDebit();
-					//sumCredit();
+					$('.debit').each(function() {
+						if($(this).val() != '0.00') {
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).val()));
+						} else {
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).closest('tr').find('.credit').val()));
+						}
+					});
 					sumCurrencyAmount();
 				}
 			});
