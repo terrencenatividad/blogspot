@@ -32,7 +32,7 @@ class controller extends wc_controller {
 			'header_discountamount' => 'discountamount'
 		);
 		$this->fields2			= array(
-			'itemcode',
+			'itemcode',			
 			'detailparticular',
 			'linenum',
 			'issueqty',
@@ -48,7 +48,11 @@ class controller extends wc_controller {
 			'detail_warehouse'		=> 'warehouse',
 			'taxcode',
 			'taxamount',
-			'taxrate'
+			'taxrate',
+			'serialnumbers'
+		);
+		$this->fields3 			= array(
+			'serialnumbers'
 		);
 		$this->clean_number		= array(
 			'issueqty'
@@ -253,8 +257,6 @@ class controller extends wc_controller {
 		$data						= array_merge($this->input->post($this->fields), $this->input->post($this->fields_header));
 		$submit						= $this->input->post('submit');
 		$data2						= $this->getItemDetails();
-		var_dump($data2);
-		exit();
 		$data2						= $this->cleanData($data2);
 		$data['deliverydate']		= $this->date->dateDbFormat($data['deliverydate']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
@@ -455,6 +457,7 @@ class controller extends wc_controller {
 				$data[$field] = $temp[$field];
 			}
 		}
+
 		return $data;
 	}
 

@@ -83,6 +83,7 @@
 					<li><a href="approved" data-toggle="tab">Approved</a></li>
 					<li><a href="rejected" data-toggle="tab">Rejected</a></li>
 					<li><a href="partial" data-toggle="tab">Partial</a></li>
+					<li><a href="cancelled" data-toggle="tab">Cancelled</a></li>
 					<li class="active"><a href="all" data-toggle="tab">All</a></li>
 				</ul>
 				<div class="table-responsive" >

@@ -19,14 +19,37 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
-	public function getBudgetAccount($budgetcode)
+	public function checkBudgetAccount($accountcode)
 	{
-		$result = $this->db->setTable('budget_details bd')
-		->leftJoin('chartaccount as ca ON bd.accountcode = ca.segment5')
-		->setFields("ca.id ind, CONCAT(bd.accountcode, ' - ', ca.accountname) val")
-		->setWhere("bd.budget_code = '$budgetcode'")
+		$result = $this->db->setTable('budget_details')
+		->setFields("accountcode")
+		->setWhere("accountcode = '$accountcode'")
 		->runSelect()
-		->getResult();
+		->getRow();
+		
+		return $result;
+	}
+
+	public function getAccountName($id)
+	{
+		$result = $this->db->setTable('chartaccount')
+		->setFields("CONCAT(segment5, ' - ', accountname) as accountname")
+		->setWhere("id = '$id'")
+		->runSelect()
+		->getRow();
+		
+		return $result;
+	}
+
+	public function getBudgetAmount($budgetcode, $accountcode)
+	{
+		$result = $this->db->setTable('budget_details as bd')
+		->setFields("bd.amount as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
+		->leftJoin('budget as b ON bd.budget_code = b.budget_code')
+		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
+		->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
+		->runSelect()
+		->getRow();
 		
 		return $result;
 	}
@@ -2022,6 +2045,14 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
+	public function saveActualBudget($fields) {
+		$result = $this->db->setTable('actual_budget')
+		->setValues($fields)
+		->runInsert(false);
+
+		return $result;
+	}
+
 	public function saveFinancialsJob($fields) {
 		$result = $this->db->setTable('financial_jobs')
 		->setValuesFromPost($fields)
@@ -2101,7 +2132,7 @@ class accounts_payable extends wc_model
 
 	public function getAPDetails($id) {
 		$result = $this->db->setTable('ap_details ad')
-		->setFields('ad.accountcode as accountcode, ad.detailparticulars as description, ad.debit as debit, ad.credit as credit, IF(ad.debit != 0, converteddebit, convertedcredit) as currencyamount, ad.linenum as linenum, ad.converteddebit as converteddebit, ad.convertedcredit as convertedcredit')
+		->setFields('ad.budgetcode as budgetcode, ad.accountcode as accountcode, ad.detailparticulars as description, ad.debit as debit, ad.credit as credit, IF(ad.debit != 0, converteddebit, convertedcredit) as currencyamount, ad.linenum as linenum, ad.converteddebit as converteddebit, ad.convertedcredit as convertedcredit')
 		->leftJoin('chartaccount as ca ON ca.id = ad.accountcode')
 		->setWhere("voucherno = '$id'")
 		->runSelect()

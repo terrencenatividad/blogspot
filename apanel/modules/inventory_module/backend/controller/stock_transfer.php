@@ -540,7 +540,9 @@ class controller extends wc_controller
 				$status = '<span class="label label-info">PARTIAL</span>';
 			} else if( $stat == 'rejected') {
 				$status = '<span class="label label-danger">REJECTED</span>';
-			} 
+			} else if( $stat == 'cancelled' ){
+				$status = '<span class="label label-danger">CANCELLED</span>';
+			}
 
 			$transfer_out .= '<tr>';
 			$transfer_out .= '<td>' . $dropdown . '</td>';
