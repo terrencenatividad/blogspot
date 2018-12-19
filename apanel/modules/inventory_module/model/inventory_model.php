@@ -391,7 +391,7 @@ class inventory_model extends wc_model {
 		if ($this->log_type == 'Stock Transfer') {
 			$source			= $this->db->setTable($this->table_detail . ' d')
 										->innerJoin($this->table . ' h ON d.stocktransferno = h.stocktransferno AND d.companycode = h.companycode')
-										->setFields(array('d.itemcode', 'h.source', 'd.qtytransferred * - 1', 'qtytransferred'))
+										->setFields(array('d.itemcode', 'h.source warehouse', 'd.qtytransferred * - 1', 'qtytransferred'))
 										->setWhere("h.stocktransferno = '{$this->voucherno}'")
 										->buildSelect();
 
