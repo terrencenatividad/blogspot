@@ -307,22 +307,22 @@ class import_purchase_print_model extends fpdf {
 		if ($this->has_received) {
 			if ($this->has_footer_details) {
 				$content_width	= 75;
-				$label_width	= 30;
+				$label_width	= 37;
 				$this->SetFillColor(230,230,230);
 				$this->SetX($this->margin_side);
-				$this->Cell(30, 5, '', 'TLR', 0, 'L', true);
+				$this->Cell(37, 5, '', 'TLR', 0, 'L', true);
 				$this->Cell($content_width, 5, '', 'T', 0, 'L');
 				$this->Ln();
 				$this->SetX($this->margin_side);
-				$this->Cell(30, 5, '', 'TLR', 0, 'L', true);
+				$this->Cell(37, 5, '', 'TLR', 0, 'L', true);
 				$this->Cell($content_width, 5, '', 'T', 0, 'L');
 				$this->Ln();
 				$this->SetX($this->margin_side);
-				$this->Cell(30, 5, '', 'TLR', 0, 'L', true);
+				$this->Cell(37, 5, '', 'TLR', 0, 'L', true);
 				$this->Cell($content_width, 5, '', 'T', 0, 'L');
 				$this->Ln();
 				$this->SetX($this->margin_side);
-				$this->Cell(30, 5, '', 'TLRB', 0, 'L', true);
+				$this->Cell(37, 5, '', 'TLRB', 0, 'L', true);
 				$this->Cell($content_width, 5, '', 'TB', 0, 'L');
 				if ($this->footer_details) {
 					$this->SetY($footer_start);
@@ -502,6 +502,110 @@ class import_purchase_print_model extends fpdf {
 	public function drawPDF($filename = 'print_preview') {
 		// $this->initializePage();
 		$this->Output($filename . '.pdf', 'I');
+	}
+
+	/**START OF MULTICELL TABLE FUNCTION**/
+	private function setWidths($w) {
+		//Set the array of column widths
+		$this->widths = $w;
+	}
+
+	private function setAligns($a) {
+		//Set the array of column alignments
+		$this->aligns = $a;
+	}
+
+	private function row($data, $type = 'accounts') {
+		//Calculate the height of the row
+		$nb = 0;
+		if ($type == 'accounts') {
+			$col_index = array('accountname', 'debit', 'credit');
+		} else if ($type == 'payments') {
+			$col_index = array('chequenumber', 'chequedate', 'accountname', 'chequeamount');
+		} else if ($type == 'cheque') {
+			$col_index = array('accountname', 'chequenumber', 'chequedate', 'chequeamount');
+		} else if ($type == 'applied_payment'){
+			$col_index = array('voucherno', 'si_no', 'amount', 'discount');
+		}
+		foreach ($this->widths as $index => $width) {
+			$nb = max($nb, $this->NbLines($width, $data->{$col_index[$index]}));
+		}
+		$h = 5 * $nb;
+		//Issue a page break first if needed
+		$this->CheckPageBreak($h);
+		//Draw the cells of the row
+		foreach ($this->widths as $index => $width) {
+			$w = $width;
+			$a = isset($this->aligns[$index]) ? $this->aligns[$index] : 'L';
+			//Save the current position
+			$x = $this->GetX();
+			$y = $this->GetY();
+			//Draw the border
+			$this->Rect($x, $y, $w, $h);
+			//Print the text
+			$this->MultiCell($w, 5, $data->{$col_index[$index]}, 0, $a);
+			//Put the position to the right of the cell
+			$this->SetXY($x + $w, $y);
+		}
+		//Go to the next line
+		$this->Ln($h);
+	}
+
+	private function CheckPageBreak($h) {
+		//If the height h would cause an overflow, add a new page immediately
+		if ($this->GetY() + $h>$this->PageBreakTrigger) {
+			$this->AddPage($this->CurOrientation);
+		}
+	}
+
+	private function NbLines($w, $txt) {
+		//Computes the number of lines a MultiCell of width w will take
+		$cw = &$this->CurrentFont['cw'];
+		if ($w == 0) {
+			$w = $this->w - $this->rMargin - $this->x;
+		}
+		$wmax = ($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
+		$s = str_replace("\r", '', $txt);
+		$nb = strlen($s);
+		if ($nb > 0 && $s[$nb - 1] == "\n") {
+			$nb--;
+		}
+		$sep	= -1;
+		$i		= 0;
+		$j		= 0;
+		$l		= 0;
+		$nl		= 1;
+		while ($i < $nb) {
+			$c = $s[$i];
+			if ($c == "\n") {
+				$i++;
+				$sep	= -1;
+				$j		= $i;
+				$l		= 0;
+				$nl++;
+				continue;
+			}
+			if ($c == ' ') {
+				$sep = $i;
+			}
+			$l += $cw[$c];
+			if ($l > $wmax) {
+				if ($sep == -1) {
+					if ($i == $j) {
+						$i++;
+					}
+				} else {
+					$i=$sep+1;
+				}
+				$sep	= -1;
+				$j		= $i;
+				$l		= 0;
+				$nl++;
+			} else {
+				$i++;
+			}
+		}
+		return $nl;
 	}
 
 }

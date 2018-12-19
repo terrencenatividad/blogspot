@@ -62,7 +62,7 @@
 			<ul id="filter_tabs" class="nav nav-tabs">
 				<li class="active"><a href="#Asset" data-toggle="tab" data-id="Asset">Asset Details</a></li>
 				<li><a href="#Depreciation" data-toggle="tab" data-id="Depreciation">Depreciation</a></li>
-				<li><a href="#Accounting" data-toggle="tab" data-id="Accounting">Accounting</a></li>
+				<!-- <li><a href="#Accounting" data-toggle="tab" data-id="Accounting">Accounting</a></li> -->
 			</ul>
 			<div class="tab-content no-padding">
 				<div id="Asset" class="tab-pane table-responsive scroll active">
@@ -71,18 +71,14 @@
 						<?php
 							echo $ui->loadElement('table')
 									->setHeaderClass('info')
-									->addHeader('Item Code',array('class'=>'col-md-1'),'sort','itemcode')
-									->addHeader("Asset Class",array('class'=>'col-md-1'),'sort','assetclass')
-									->addHeader("Asset Name",array('class'=>'col-md-1'),'sort','asset_name')
-									->addHeader("Asset Number(Bar Code)",array('class'=>'col-md-1'),'sort','asset_number')
+									->addHeader('Asset Number',array('class'=>'col-md-1'),'sort','asset_number')
 									->addHeader('Sub-Number',array('class'=>'col-md-1'),'sort','sub_number')
 									->addHeader('Serial Number/ Engine Number',array('class'=>'col-md-1'),'sort','serial_number')
+									->addHeader("Asset Class",array('class'=>'col-md-1'),'sort','assetclass')
 									->addHeader('Description',array('class'=>'col-md-1'),'sort','description')
 									->addHeader('Asset Location',array('class'=>'col-md-1'),'sort','asset_location')
 									->addHeader('Department',array('class'=>'col-md-1'),'sort','department')
 									->addHeader('Accountable Person',array('class'=>'col-md-1'),'sort','accountable_person')
-									->addHeader('Retirement Date',array('class'=>'col-md-1'),'sort','retirement_date')
-									->addHeader('Commissioning Date',array('class'=>'col-md-1'),'sort','commissioning_date')
 									->draw();
 						?>
 						</thead>
@@ -104,6 +100,7 @@
 							</tr>
 							<?php endforeach ?> -->
 						</tbody>
+						<tfoot></tfoot>
 					</table>
 				</div>
 				<div id="Depreciation" class="tab-pane">
@@ -112,29 +109,22 @@
 						<?php
 							echo $ui->loadElement('table')
 									->setHeaderClass('info')
-									->addHeader('Item Code',array('class'=>'col-md-2'),'sort','itemcode')
-									->addHeader('No. of Months Useful Life',array('class'=>'col-md-1'),'sort','useful_life')
-									->addHeader("Depreciation Month Start ",array('class'=>'col-md-1'),'sort','depreciation_month')
+									->addHeader('Asset Number',array('class'=>'col-md-2'),'sort','asset_number')
+									
 									->addHeader("Capitalized Cost",array('class'=>'col-md-2 text-center'),'sort','capitalized_cost')
-									->addHeader('Purchase Value',array('class'=>'col-md-2 text-center'),'sort','purchase_value')
-									->addHeader('Book Value',array('class'=>'col-md-2 text-center'),'sort','balance_value')
-									->addHeader('Salvage Value',array('class'=>'col-md-2 text-center'),'sort','salvage_value')
+									->addHeader('Commissioning Date',array('class'=>'col-md-1'),'sort','commissioning_date')
+									->addHeader('No. of Months Useful Life',array('class'=>'col-md-1'),'sort','useful_life')
+									->addHeader("Depreciation Amount / Month ",array('class'=>'col-md-1'),'sort','depreciation_amount')
+									->addHeader("Depreciation Month Start ",array('class'=>'col-md-1'),'sort','depreciation_month')
+									->addHeader('Retirement Date',array('class'=>'col-md-1'),'sort','retirement_date')
+									->addHeader('Status',array('class'=>'col-md-2 text-center'),'sort','status')
+									->addHeader('Accumulated Depreciation',array('class'=>'col-md-2 text-center'),'sort','balance_value')
+									->addHeader('Book Value',array('class'=>'col-md-2 text-center'),'sort','salvage_value')
 									->draw();
 						?>
 						</thead>
-						<tbody>
-							<!-- <?php foreach($asd->result as $row):?>
-							<tr>
-								<td class="text-left"><?php echo $row->itemcode; ?></td>
-								<td class="text-left"><?php echo $row->useful_life; ?></td>
-								<td class="text-left"><?php echo date('M d, Y', strtotime($row->depreciation_month)); ?></td>
-								<td class="text-right"><?php echo number_format($row->capitalized_cost, 2); ?></td>
-								<td class="text-right"><?php echo number_format($row->purchase_value, 2); ?></td>
-								<td class="text-right"><?php echo number_format($row->balance_value, 2); ?></td>
-								<td class="text-right"><?php echo number_format($row->salvage_value, 2); ?></td>
-							</tr>
-							<?php endforeach ?> -->
-						</tbody>
+						<tbody></tbody>
+						<tfoot></tfoot>
 					</table>
 				</div>
 				<div id="Accounting" class="tab-pane">
@@ -151,14 +141,6 @@
 						?>
 						</thead>
 						<tbody>
-							<!-- <?php foreach($asd->result as $row):?>
-							<tr>
-								<td class="text-left"><?php echo $row->itemcode; ?></td>
-								<td class="text-left"><?php echo $row->asset; ?></td>
-								<td class="text-left"><?php echo $row->accdep; ?></td>
-								<td class="text-left"><?php echo $row->depexp; ?></td>
-							</tr>
-							<?php endforeach ?> -->
 						</tbody>
 					</table>
 				</div>
@@ -205,15 +187,13 @@
 			
 		function getList() {
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list',ajax, function(data) {
-				if(ajax.tab == 'Accounting'){
-					table = '#tableListAccounting';
-				}else if(ajax.tab == 'Depreciation'){
+				if(ajax.tab == 'Depreciation'){
 					table = '#tableListDepreciation';
 				}else{
 					table = '#tableListAsset';
 				}
 				$(table+' tbody').html(data.table);
-				$('#tableListAsset tfoot').html(data.footer);
+				$(table+' tfoot').html(data.footer);
 				$('#pagination').html(data.pagination);
 				$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 			});

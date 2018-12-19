@@ -282,6 +282,57 @@ class controller extends wc_controller {
 		$voucherno				= $this->input->post('voucherno_ref');
 		$data2					= $this->input->post($this->fields2);
 		$data2['stat']			= 'posted';
+
+		$data['job_no']				= $this->input->post('job');
+		$jobs_tagged				= $this->input->post('jobs_tagged');
+
+		$rate = str_replace(',', '', $data['exchangerate']);
+		$debit = str_replace(',', '', $data2['debit']);
+		$credit = str_replace(',', '', $data2['credit']);
+
+		$job_no						= $this->input->post('job');
+		$data['job_no']				= $job_no;
+
+		if(empty($this->input->post('job'))) {
+			$data['job_no'] = $jobs_tagged;
+		} else {
+			$data['job_no'] = $data['job_no'];
+		}
+
+		$jobs = explode(',', $data['job_no']);
+		$check_voucher = $this->dm_model->checkVoucherOnFinancialsJob($voucherno);
+		$bool = (!empty($check_voucher)) ? true : $check_voucher;
+		$finjobs = array();
+		$finArr = array();
+		if(!empty($jobs[0])) {
+			foreach ($jobs as $row) {
+				if($bool) {
+					$finjobs['voucherno']= $voucherno;
+					$finjobs['job_no']= $row;
+				} else {
+					$finjobs['voucherno']= $voucherno;
+					$finjobs['job_no'] = $row;
+					$fin_job = $this->dm_model->saveFinancialsJob($finjobs);
+				}
+				$finArr[] 						= $finjobs;
+			}
+			$fin_job = $this->dm_model->updateFinancialsJobs($finArr, $voucherno);
+		}
+
+		$convdebit = [];
+		$convcredit = [];
+		foreach($debit as $row) {
+			$convdebit[] = $rate * $row;
+		}
+		foreach($credit as $row) {
+			$convcredit[] = $rate * $row;
+		}
+
+		$data2['debit'] = str_replace(',', '', $data2['debit']);
+		$data2['credit'] = str_replace(',', '', $data2['credit']);
+		$data2['converteddebit'] = $convdebit;
+		$data2['convertedcredit'] = $convcredit;
+
 		$result					= $this->dm_model->updateJournalVoucher($data, $data2, $voucherno, 'Update');
 		return array(
 			'redirect'	=> MODULE_URL,
@@ -293,9 +344,11 @@ class controller extends wc_controller {
 		$delete_id = $this->input->post('delete_id');
 		if ($delete_id) {
 			$this->dm_model->deleteJournalVouchers($delete_id);
+			$delete_fin = $this->dm_model->deleteEntry($delete_id);
+			$this->dm_model->reverseEntries($delete_id);
 		}
 		if ($delete_id) {
-			$this->dm_model->reverseEntries($delete_id);
+			
 		}
 	}
 

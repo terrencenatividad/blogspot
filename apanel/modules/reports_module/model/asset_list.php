@@ -51,11 +51,11 @@ class asset_list extends wc_model {
 		}else{
 			$orderby = 'am.id ASC';
 		}
-		$datefilter = $this->date->dateDbFormat($datefilter);
+		// $datefilter = $this->date->dateDbFormat($datefilter);
 
-		if ($datefilter) {
-			$condition .= " AND am.entereddate <= '$datefilter 11:59:59'";
-		 }
+		// if ($datefilter) {
+		// 	$condition .= " AND am.entereddate <= '$datefilter 11:59:59'";
+		//  }
 		
 		if($asset != 'none' && $asset != ''){
 			$condition .= " AND am.asset_number = '$asset'";
@@ -112,83 +112,5 @@ class asset_list extends wc_model {
 		return $result;
 	}
 
-	public function getAssetTransaction($fields, $sort, $asset, $datefilter, $assetclass, $department) {
-		$orderby = '';
-		$condition = '';
-		$datefilter = $this->date->dateDbFormat($datefilter);
-		
-
-		if ($datefilter) {
-			$condition .= " ass.transactiondate <= '$datefilter 11:59:59'";
-		 }
-		 
-		if($sort){
-			$orderby = $sort;
-		}else{
-			$orderby = 'ass.transactiondate DESC';
-		}
-		
-		if($asset != 'none' && $asset != ''){
-			$condition .= " AND ass.asset_number = '$asset'";
-		}
-
-		if($assetclass != 'none' && $assetclass != ''){
-			$condition .= " AND am.asset_class = '$assetclass'";
-		}
-
-		if($department != 'none' && $department != ''){
-			$condition .= " AND am.department = '$department'";
-		}
-
-		$result = $this->db->setTable('asset_transaction ass')
-							->setFields($fields)
-							->leftJoin('asset_master am ON am.asset_number = ass.asset_number')
-							->leftJoin('asset_class ac ON ac.id = ass.asset_class')
-							->leftJoin('cost_center cc ON cc.id = am.department')
-							->setWhere($condition)
-							->setOrderBy($orderby)
-							->runPagination();
-		return $result;
-	}
-
-	public function getAssetTransactioncsv($fields, $sort, $asset, $datefilter, $assetclass, $department) {
-		$orderby = '';
-		$condition = '';
-		$datefilter = $this->date->dateDbFormat($datefilter);
-
-		if ($datefilter) {
-			$condition .= " ass.transactiondate <= '$datefilter 11:59:59'";
-		 }
-		 
-		if($sort){
-			$orderby = $sort;
-		}else{
-			$orderby = 'ass.transactiondate DESC';
-		}
-		
-		if($asset != 'none' && $asset != ''){
-			$condition .= " AND ass.asset_number = '$asset'";
-		}
-
-		if($assetclass != 'none' && $assetclass != ''){
-			$condition .= " AND am.asset_class = '$assetclass'";
-		}
-
-		if($department != 'none' && $department != ''){
-			$condition .= " AND am.department = '$department'";
-		}
-
-		$result = $this->db->setTable('asset_transaction ass')
-							->setFields($fields)
-							->leftJoin('asset_master am ON am.asset_number = ass.asset_number')
-							->leftJoin('asset_class ac ON ac.id = ass.asset_class')
-							->leftJoin('cost_center cc ON cc.id = am.department')
-							->setWhere($condition)
-							->setOrderBy($orderby)
-							->runSelect()
-							->getResult();
-
-		return $result;
-	}
 
 }
