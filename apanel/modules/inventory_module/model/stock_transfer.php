@@ -448,7 +448,7 @@
 
 		public function getStockTransferRequestList($search,$filter, $startdate, $enddate, $warehouse, $type) 
 		{
-			$condition = "st.stat NOT IN ('closed','temporary','cancelled') ";
+			$condition = "st.stat NOT IN ('closed','temporary') ";
 			if ($search) {
 				$condition .= ' AND ' . $this->generateSearch($search, array('st.stocktransferno'));
 			}
@@ -479,7 +479,7 @@
 
 		public function getStockTransferApprovalList($search,$filter, $startdate, $enddate, $warehouse, $type) 
 		{
-			$condition = "sa.stat NOT IN ('temporary','cancelled')  ";
+			$condition = "sa.stat NOT IN ('temporary')  ";
 			if ($search) {
 				$condition .= ' AND ' . $this->generateSearch($search, array('sa.stocktransferno','sa.source_no'));
 			}

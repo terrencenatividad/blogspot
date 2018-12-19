@@ -1300,8 +1300,8 @@
 			var total = 0;
 			var rate = $(this).val();
 			$('.currencyamount').each(function() {
-				var debit = $(this).closest('tr').find('.debit').val();
-				var credit = $(this).closest('tr').find('.credit').val();
+				var debit = removeComma($(this).closest('tr').find('.debit').val());
+				var credit = removeComma($(this).closest('tr').find('.credit').val());
 				if(debit != '0.00') {
 					row = $(this).closest('tr').find('.debit');
 					total = debit * rate;
@@ -1448,9 +1448,10 @@
 
 		$('.budgetcode').on('change', function() {
 			var budgetcode = $(this).val();
+			var row = $(this);
 			$.post('<?=MODULE_URL?>ajax/ajax_get_budget_account', '&budgetcode=' + budgetcode, function(data) {
 				if(data) {
-					$(this).closest('tr').find('.accountcode').val(data).trigger('change');
+					row.closest('tr').find('.accountcode').html(data.ret).val('');
 				}
 			});
 		});
