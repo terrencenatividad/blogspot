@@ -107,7 +107,7 @@
 								<input type="hidden" name="jobs_tagged" id="jobs_tagged" value="<?php echo $job_no; ?>">
 								<button type="button" id="job" class="btn btn-block btn-success btn-flat" <?php //echo $val ?>>
 									<em class="pull-left"><small>Click to tag job items</small></em>
-									<strong id="job" class="pull-right"></strong>
+									<strong id="job_text" class="pull-right"></strong>
 								</button>
 								<?php } else { ?>
 								<span>
@@ -1026,11 +1026,11 @@ echo $ui->loadElement('modal')
 				if(data) {
 					$('#exchangerate').val(data.exchangerate);	
 					if($('.debit').val() != '0.00') {
-						$('.currencyamount').val(addComma(data.exchangerate * $('.debit').val()));
+						$('.currencyamount').val(addComma(data.exchangerate * removeComma($('.debit').val())));
 						console.log('1')
 					}
 					else {
-						$('.currencyamount').val(addComma(data.exchangerate * $('.credit').val()));
+						$('.currencyamount').val(addComma(data.exchangerate * removeComma($('.credit').val())));
 						console.log('2')
 					}
 					//sumDebit();
@@ -1040,16 +1040,16 @@ echo $ui->loadElement('modal')
 			});
 		});
 
-		$('#exchangerate').on('change', function() {
-			var exchangerate = $(this).val();
-			$('.currencyamount').each(function() {
-				currency = removeComma($(this).val());
-				var convertedcurrency = currency * exchangerate;
-				$('.currencyamount').val(addComma(convertedcurrency));
-				$('.currencyamount').html(addComma(convertedcurrency));	
-			});
-			sumCurrencyAmount();
-		});
+		// $('#exchangerate').on('change', function() {
+		// 	var exchangerate = $(this).val();
+		// 	$('.currencyamount').each(function() {
+		// 		currency = removeComma($(this).val());
+		// 		var convertedcurrency = currency * exchangerate;
+		// 		$('.currencyamount').val(addComma(convertedcurrency));
+		// 		$('.currencyamount').html(addComma(convertedcurrency));	
+		// 	});
+		// 	sumCurrencyAmount();
+		// });
 
 		function sumDebit() {
 			var total_debit = 0;
@@ -1080,7 +1080,7 @@ echo $ui->loadElement('modal')
 				//console.log($(this).val());
 				currency = removeComma($(this).val());
 				total_currency += +currency;
-				//console.log(total_currency);
+				console.log(total_currency);
 				$('#total_currency').val(addComma(total_currency));
 				$('#total_currency').html(addComma(total_currency));
 			});
@@ -1173,8 +1173,8 @@ echo $ui->loadElement('modal')
 			var total = 0;
 			var rate = $(this).val();
 			$('.currencyamount').each(function() {
-				var debit = $(this).closest('tr').find('.debit').val();
-				var credit = $(this).closest('tr').find('.credit').val();
+				var debit = removeComma($(this).closest('tr').find('.debit').val());
+				var credit = removeComma($(this).closest('tr').find('.credit').val());
 				console.log('debit: ' + debit);
 				console.log('credit: ' + credit);
 
