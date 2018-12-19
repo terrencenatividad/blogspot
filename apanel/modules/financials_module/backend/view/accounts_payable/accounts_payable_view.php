@@ -96,10 +96,10 @@
                                 <?php if(!empty($job_no)) : ?>
                                     <div class="col-md-4">
                                         <div class="col-md-6">
-                                            Job Tagged
+                                            <h4>Job Tagged</h4>
                                         </div>
                                         <div class="col-md-6">
-                                            <?php echo substr($job_no, 0, 20) . '...'; ?>
+                                            <h4><strong><?php echo substr($job_no, 0, 20) . '...'; ?></strong></h4>
                                         </div>
                                     </div>
                                 <?php endif; ?>
@@ -115,11 +115,11 @@
                                 </div>
                                 <?php if(!empty($assetid)) : ?>
                                     <div class="col-md-4">
-                                        <div class="col-md-6">
-                                         Asset Code
+                                        <div class="col-md-7">
+                                        <h4>Asset Code</h4>
                                      </div>
-                                     <div class="col-md-6">
-                                        <?php echo $assetid; ?>
+                                     <div class="col-md-5">
+                                       <h4><strong> <?php echo $assetid; ?></strong></h4>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -152,12 +152,13 @@
                         <table class="table table-hover table-condensed " id="itemsTable">
                             <thead>
                                 <tr class="info">
-                                    <th class="col-md-1 text-center">Withholding Tax</th>
-                                    <th class="col-md-2 text-center">Account</th>
-                                    <th class="col-md-3 text-center">Description</th>
-                                    <th class="col-md-2 text-center" colspan = "2">Debit</th>
-                                    <th class="col-md-2 text-center" colspan = "2">Credit</th>
-                                    <th class="col-md-3 text-center">Currency Amount</th>
+                                        <th class="col-md-1 text-center">Withholding Tax</th>
+                                        <th class="col-md-2 text-center">Budget Code</th>
+                                        <th class="col-md-2 text-center">Account</th>
+                                        <th class="col-md-2 text-center">Description</th>
+                                        <th class="col-md-2 text-center" colspan = "2">Debit</th>
+                                        <th class="col-md-2 text-center" colspan = "2">Credit</th>
+                                        <th class="col-md-3 text-center">Currency Amount</th>
                                     <?if($ajax_task != 'view'){?>
                                         <th class="col-md-1 center"></th>
                                         <?}?>
@@ -196,6 +197,19 @@
                                                         ?>
                                                     </td>
                                                 <?php } ?>
+                                                 <td class = "remove-margin">
+                                                    <?php
+                                                    echo $ui->formField('dropdown')
+                                                    ->setPlaceholder('Select One')
+                                                    ->setSplit('', 'col-md-12')
+                                                    ->setName("accountcode[]")
+                                                    ->setId("accountcode")
+                                                    ->setClass('accountcode')
+                                                    ->setList($budget_list)
+                                                    ->setValue($row->budgetcode)
+                                                    ->draw($show_input);
+                                                    ?>
+                                                </td>
                                                 <td class = "remove-margin">
                                                     <?php
                                                     echo $ui->formField('dropdown')
@@ -265,6 +279,7 @@
                             </tbody>
                             <tfoot>  
                                 <tr id="total">
+                                    <td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
                                     <td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
                                     <td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
                                     <td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
