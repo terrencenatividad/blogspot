@@ -376,6 +376,26 @@ class controller extends wc_controller {
 		return array('gl_asset' => $gl_asset, 'gl_accdep' => $gl_accdep, 'gl_depexpense' => $gl_depexpense, 'salvage_value' => $salvage_value, 'useful_life' => $useful_life);
 	}
 
+	private function check_duplicate(){
+		$old 	 = $this->input->post('old');
+		$current 	 = $this->input->post('asset_number');
+		$count 	 = 0;
+		if( $current!='' && $current != $old )
+		{
+			$result = $this->asset_master->check_duplicate($current);
+			$count = $result[0]->count;
+		}
+
+		$msg   = "";
+
+		if( $count > 0 )
+		{	
+			$msg = "exists";
+		}
+
+		return $dataArray = array("msg" => $msg);
+	}
+
 	private function csv_header() {
 		header('Content-type: application/csv');
 
@@ -490,9 +510,9 @@ class controller extends wc_controller {
 		return $value;
 	}
 
-	private function check_duplicate($array) {
-		return array_unique(array_diff_assoc($array, array_unique($array)));
-	}
+	// private function check_duplicate($array) {
+	// 	return array_unique(array_diff_assoc($array, array_unique($array)));
+	// }
 
 	private function ajax_edit_activate()
 	{

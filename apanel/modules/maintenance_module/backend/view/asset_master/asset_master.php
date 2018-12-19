@@ -23,6 +23,7 @@
 													->setValidation('alpha_num required')
 													->draw($show_input);
 										?>
+										<input type="text" id="h_asset_number" class="hidden" value="<?php echo $asset_number ?>">
 									</div>
 									<div class="col-md-6">
 										<?php
@@ -615,6 +616,20 @@ $('#compute').on('click', function(){
 	$('#depreciation_amount').val(dep_amount);
 	getList();
 	
+});
+
+$('#asset_number').on('input', function(){
+	asset_number = $(this).val();
+	old 		 = $('#h_asset_number').val();
+	$.post('<?=MODULE_URL?>ajax/check_duplicate', 'asset_number='+asset_number+'&old='+old , function(data) {
+		if(data.msg == 'exists'){
+			error_message 	=	"<b>The Code you entered already exists!</b>";
+				$('#asset_number').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+		}else{
+				$('#asset_number').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+		}
+		
+	});
 });
 
 $('#cancelprice').on('click', function(){
