@@ -486,7 +486,7 @@
 									->draw($show_input);
 							?> ` + otherdetails + ` </td>
 						` } else { ;
-							row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart issueqty partbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `</td>`;
+							row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart issueqty partbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `<input type = "hidden" class = "issueqty" name = "issueqty[]" data-value = "` + (parseFloat(details.issueqty) || 0) + `" value = "` + (parseFloat(details.issueqty) || 0) + `"/></td>`;
 						}  
 					}
 				row +=`	<td>
@@ -508,7 +508,7 @@
 			`;
 			$('#tableList tbody').append(row);
 			if (details.itemcode != '') {
-				$('#tableList tbody').find('tr:last .itemcode').val('details.itemcode');
+				$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
 			}
 			if (details.warehouse != '') {
 				$('#tableList tbody').find('tr:last .warehouse').val(details.warehouse);
@@ -798,6 +798,7 @@
 			$('#submit_container [type="submit"]').attr('disabled', true);
 			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
+			var count_err = 0;
 			$('#tableList tbody tr').find('.partbtn').each(function() {
 				if ($(this).attr('disabled')) {}
 				else {
@@ -805,35 +806,38 @@
 					var serial_list = $(this).closest('tr').find('.serialnumbers').val();
 					var serials = serial_list.split(",");
 					if (serials == '') {
+						count_err++;
 						$('#warning_counter').modal('show');
 					}
 				}
 			});
-
-			if (form_element.find('.form-group.has-error').length == 0) {
-				var items = 0;
-				$('.issueqty:not([readonly])').each(function() {
-					items += removeComma($(this).val());
-				});
-				if ($('.issueqty:not([readonly])').length > 0 && items > 0) {
-					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
-						if (data.success) {
-							$('#delay_modal').modal('show');
-							setTimeout(function() {							
-								window.location = data.redirect;						
-							}, 1000)
-						} else {
-							$('#submit_container [type="submit"]').attr('disabled', false);
-						}
+			if (count_err == 0) {
+				if (form_element.find('.form-group.has-error').length == 0) {
+					var items = 0;
+					$('.issueqty:not([readonly])').each(function() {
+						items += removeComma($(this).val());
 					});
+					if ($('.issueqty:not([readonly])').length > 0 && items > 0) {
+						$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
+							if (data.success) {
+								$('#delay_modal').modal('show');
+								setTimeout(function() {							
+									window.location = data.redirect;						
+								}, 1000)
+							} else {
+								$('#submit_container [type="submit"]').attr('disabled', false);
+							}
+						});
+					} else {
+						$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');1
+						$('#submit_container [type="submit"]').attr('disabled', false);
+					}
 				} else {
-					$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');1
+					form_element.find('.form-group.has-error').first().find('input, textarea, select').focus();
 					$('#submit_container [type="submit"]').attr('disabled', false);
 				}
-			} else {
-				form_element.find('.form-group.has-error').first().find('input, textarea, select').focus();
-				$('#submit_container [type="submit"]').attr('disabled', false);
 			}
+			$('#submit_container [type="submit"]').attr('disabled', false);
 		});
 	</script>
 	<?php endif; ?>
