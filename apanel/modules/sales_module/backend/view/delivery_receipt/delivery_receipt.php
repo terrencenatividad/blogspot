@@ -16,6 +16,13 @@
 										</div>
 									<?php else: ?>
 										<?php
+											echo $ui->formField('hidden')
+												->setName('voucher')
+												->setId('voucher')
+												->setValue($voucherno)
+												->draw($show_input);
+										?>
+										<?php
 											echo $ui->formField('text')
 												->setLabel('Delivery No.')
 												->setSplit('col-md-4', 'col-md-8')
@@ -140,6 +147,14 @@
 											->setName('main_serial')
 											->setId('main_serial')
 											->setClass('main_serial')
+											->draw($show_input);
+									?>
+									<?php
+										echo $ui->formField('hidden')
+											->setName('task')
+											->setId('task')
+											->setClass('task')
+											->setValue($ajax_task)
 											->draw($show_input);
 									?>
 								</div>
@@ -413,6 +428,13 @@
 								->setValue('` + details.item_ident_flag + `')
 								->draw($show_input);
 						?>
+						<?php
+							echo $ui->formField('hidden')
+								->setName('linenumber[]')
+								->setClass('linenumber')
+								->setValue('` + details.linenum + `')
+								->draw($show_input);
+						?>
 					</td>
 					<td>
 						<?php
@@ -482,7 +504,6 @@
 									->setAttribute(array('readonly' => 'readonly', 'data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.issueqty) || 0) + `'))
 									->setValidation('integer')
 									->setValue(0)
-									//->addHidden()
 									->draw($show_input);
 							?> ` + otherdetails + ` </td>
 						` } else { ;
@@ -868,6 +889,7 @@
 		var linenum = '';
 		var serials = '';
 		var itemrow = '';
+		var task = '';
 		$('#tableList tbody').on('click', '.partbtn', function() {
 			itemrow = $(this);
 			linenum = $(this).closest('tr').find('span').attr('id')
@@ -891,9 +913,16 @@
 				ajax_call.abort();
 			}
 			ajax.itemselected = serials;
-			ajax.linenum = linenum;
+			//ajax.linenum = linenum;
 			ajax.allserials = $('#main_serial').val();
 			ajax.id = itemrow.closest('tr').find('.serialnumbers').val();
+			task = $('#task').val();
+			ajax.task = $('#task').val();
+			if (task=='ajax_edit') {
+				var linenumber = itemrow.closest('tr').find('.linenumber').val();
+				ajax.linenumber = linenumber;
+				ajax.voucherno = $('#voucher').val();
+			}
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_serial_list', ajax, function(data) {
 				$('#tableSerialList tbody').html(data.table);
 				$('#serial_pagination').html(data.pagination);
