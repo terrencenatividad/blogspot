@@ -185,7 +185,7 @@ class controller extends wc_controller {
 		$csv 	= '';
 		$csv 	.= 'Landed Cost Report';
 		$csv 	.= "\n\n";
-		$csv 	.= 'IPO: ' .$import_purchase_order_export. ',Supplier: ' .$supplier_export. ',Period: ' .$datefilterFrom. '-' .$datefilterTo. '';
+		$csv 	.= 'IPO: ' .$import_purchase_order_export. ',Supplier: ' .$supplier_export. ',Period: ' .date('M d Y',strtotime($datefilterFrom)). ' - ' .date('M d Y',strtotime($datefilterTo)). '';
 		$csv 	.= "\n";
 		$csv 	.= 'Job: ' .$tab_export. '';
 		$csv 	.= "\n\n";
@@ -201,7 +201,7 @@ class controller extends wc_controller {
 			$freight_cost = $row->freight;
 			$insurance_cost = $row->insurance;
 			$packaging_cost = $row->packaging;
-			$addtl_cost = $freight_cost + $insurance_cost + $packaging_cost;
+			$addtl_cost = number_format($freight_cost + $insurance_cost + $packaging_cost,2);
 				//TOTAL COST OF IMPORT PURCHASE ORDER
 			$total_ipo_amt = $row->netamount;
 				// CALCULATE UNIT COST
@@ -233,18 +233,21 @@ class controller extends wc_controller {
 			$csv .= '"' .$exchange_curr.' '.number_format($unit_cost_foreign,2). '",';
 			$csv .= '"' .$base_curr.' '.number_format($unit_cost_base,2). '",';
 
-				// IMPORTATION COST CALCULATION
-			$item_cost = $row->convertedamount;
-			$item_cost_total = $item_cost * $item_quantity; //total cost of item
+			// IMPORTATION COST CALCULATION
+			$item_cost = $row->convertedamount / $item_quantity;
+			$item_cost_total = number_format($row->convertedamount, 2); //total cost of item
 
 			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);
-			$total_cost_job = $query_cost_job->total; //total cost of all items in job
+			$total_cost_job = number_format($query_cost_job->total,2); //total cost of all items in job
 	
 			$query_job_item_count = $this->landed_cost->getTotalItemsInJob($job_no);
 			$job_item_count = $query_job_item_count->qty; //number of items in job
 
-			$query_importation_cost = $this->landed_cost->getSumOfAp($job_no);
-			$total_importation_cost = $query_importation_cost->credit; //importation cost/fees from AP,CM,DM
+			$query_AP_credit = $this->landed_cost->getSumOfAp($job_no);
+			$query_CM_credit = $this->landed_cost->getSumOfCm($job_no);
+			$query_DM_debit = $this->landed_cost->getSumOfDm($job_no);
+
+			$total_importation_cost = $query_AP_credit->credit + $query_CM_credit->credit - $query_DM_debit->debit; //importation cost/fees from AP,CM,DM
 			
 			$item_cost_ratio = $item_cost_total / $total_cost_job; //ratio of item to all items in job
 
