@@ -1837,6 +1837,16 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
+	public function updateActualBudget($voucherno, $fields)
+	{
+		$result = $this->db->setTable('actual_budget')
+		->setValues($fields)
+		->setWhere("voucherno = '$voucherno'")
+		->runUpdate(false);
+		
+		return $result;
+	}
+
 	public function updateEntry($fields, $data) {
 		$error_id = array();
 		foreach ($data as $id) {

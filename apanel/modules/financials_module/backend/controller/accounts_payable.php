@@ -62,6 +62,12 @@ class controller extends wc_controller
 		$this->jobs = array(
 			'id',
 			'voucherno',
+			'job_no'
+		);
+
+		$this->actualbudget = array(
+			'id',
+			'voucherno',
 			'budget_code',
 			'accountcode',
 			'actual'
@@ -538,7 +544,7 @@ class controller extends wc_controller
 		$accountchecker = array();
 		$errors = array();
 
-		$jobs = $this->input->post($this->jobs);
+		$actualbudget = $this->input->post($this->actualbudget);
 		if(!empty($ap_details['budgetcode'])) {
 			for($check = 0; $check < count($ap_details['budgetcode']); $check++) {
 				if(!empty($ap_details['budgetcode'][$check])) {
@@ -556,33 +562,33 @@ class controller extends wc_controller
 								if($ap_details['debit'][$check] > $amount) {
 									$warning[] = 'You were about to exceed from your budget code ' . $ap_details['budgetcode'][$check] . 
 									' ' . $accountname . ' account <br>';
-									$jobs['voucherno'] = $ap['voucherno'];
-									$jobs['budget_code'] = $ap_details['budgetcode'][$check];
-									$jobs['accountcode'] = $ap_details['accountcode'][$check];
-									$jobs['actual'] = $ap_details['debit'][$check];
-									$save_budget = $this->accounts_payable->saveActualBudget($jobs);
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
+									$actualbudget['actual'] = $ap_details['debit'][$check];
+									$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
 								} else {
-									$jobs['voucherno'] = $ap['voucherno'];
-									$jobs['budget_code'] = $ap_details['budgetcode'][$check];
-									$jobs['accountcode'] = $ap_details['accountcode'][$check];
-									$jobs['actual'] = $ap_details['debit'][$check];
-									$save_budget = $this->accounts_payable->saveActualBudget($jobs);
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
+									$actualbudget['actual'] = $ap_details['debit'][$check];
+									$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
 								}
 							} else {
 								if($ap_details['credit'][$check] > $amount) {
 									$warning[] = 'You were about to exceed from your budget code ' . $ap_details['budgetcode'][$check] . 
 									' ' . $accountname . ' account <br>';
-									$jobs['voucherno'] = $ap['voucherno'];
-									$jobs['budget_code'] = $ap_details['budgetcode'][$check];
-									$jobs['accountcode'] = $ap_details['accountcode'][$check];
-									$jobs['actual'] = $ap_details['credit'][$check];
-									$save_budget = $this->accounts_payable->saveActualBudget($jobs);
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
+									$actualbudget['actual'] = $ap_details['credit'][$check];
+									$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
 								} else {
-									$jobs['voucherno'] = $ap['voucherno'];
-									$jobs['budget_code'] = $ap_details['budgetcode'][$check];
-									$jobs['accountcode'] = $ap_details['accountcode'][$check];
-									$jobs['actual'] = $ap_details['credit'][$check];
-									$save_budget = $this->accounts_payable->saveActualBudget($jobs);
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
+									$actualbudget['actual'] = $ap_details['credit'][$check];
+									$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
 								}
 							}
 						} else {
@@ -717,7 +723,7 @@ class controller extends wc_controller
 		$accountchecker = array();
 		$errors = array();
 
-		$jobs = $this->input->post($this->jobs);
+		$actualbudget = $this->input->post($this->actualbudget);
 		if(!empty($ap_details['budgetcode'])) {
 			for($check = 0; $check < count($ap_details['budgetcode']); $check++) {
 				if(!empty($ap_details['budgetcode'][$check])) {
@@ -735,33 +741,33 @@ class controller extends wc_controller
 								if($ap_details['debit'][$check] > $amount) {
 									$warning[] = 'You were about to exceed from your budget code ' . $ap_details['budgetcode'][$check] . 
 									' ' . $accountname . ' account <br>';
-									$jobs['voucherno'] = $ap['voucherno'];
-									$jobs['budget_code'] = $ap_details['budgetcode'][$check];
-									$jobs['accountcode'] = $ap_details['accountcode'][$check];
-									$jobs['actual'] = $ap_details['debit'][$check];
-									$save_budget = $this->accounts_payable->saveActualBudget($jobs);
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
+									$actualbudget['actual'] = $ap_details['debit'][$check];
+									$update_budget = $this->accounts_payable->updateActualBudget($ap['voucherno'], $actualbudget);
 								} else {
-									$jobs['voucherno'] = $ap['voucherno'];
-									$jobs['budget_code'] = $ap_details['budgetcode'][$check];
-									$jobs['accountcode'] = $ap_details['accountcode'][$check];
-									$jobs['actual'] = $ap_details['debit'][$check];
-									$save_budget = $this->accounts_payable->saveActualBudget($jobs);
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
+									$actualbudget['actual'] = $ap_details['debit'][$check];
+									$update_budget = $this->accounts_payable->updateActualBudget($ap['voucherno'], $actualbudget);
 								}
 							} else {
 								if($ap_details['credit'][$check] > $amount) {
 									$warning[] = 'You were about to exceed from your budget code ' . $ap_details['budgetcode'][$check] . 
 									' ' . $accountname . ' account <br>';
-									$jobs['voucherno'] = $ap['voucherno'];
-									$jobs['budget_code'] = $ap_details['budgetcode'][$check];
-									$jobs['accountcode'] = $ap_details['accountcode'][$check];
-									$jobs['actual'] = $ap_details['credit'][$check];
-									$save_budget = $this->accounts_payable->saveActualBudget($jobs);
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
+									$actualbudget['actual'] = $ap_details['credit'][$check];
+									$update_budget = $this->accounts_payable->updateActualBudget($ap['voucherno'], $actualbudget);
 								} else {
-									$jobs['voucherno'] = $ap['voucherno'];
-									$jobs['budget_code'] = $ap_details['budgetcode'][$check];
-									$jobs['accountcode'] = $ap_details['accountcode'][$check];
-									$jobs['actual'] = $ap_details['credit'][$check];
-									$save_budget = $this->accounts_payable->saveActualBudget($jobs);
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
+									$actualbudget['actual'] = $ap_details['credit'][$check];
+									$update_budget = $this->accounts_payable->updateActualBudget($ap['voucherno'], $actualbudget);
 								}
 							}
 						} else {
@@ -1622,7 +1628,7 @@ class controller extends wc_controller
 		return $result;
 	}
 
-	private function ajax_list_jobs() {
+	private function ajax_list_job() {
 		$jobs_tagged = $this->input->post('jobs_tagged');
 		$tags = explode(',', $jobs_tagged);
 		$pagination = $this->accounts_payable->getJobList();
