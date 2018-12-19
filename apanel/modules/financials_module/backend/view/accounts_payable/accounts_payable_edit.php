@@ -1215,23 +1215,6 @@
 			console.log($console);
 		}
 
-		var debit_currency = 0;
-		var credit_currency = 0;
-		$('#itemsTable').on('blur', '.debit', function() {
-			var rate = removeComma($('#exchangerate').val());
-			var debit = removeComma($(this).val());
-			if(debit != '0') {
-				debit_currency = $(this).val() * rate;
-				$(this).closest('tr').find('.currencyamount').val(addComma(debit_currency));
-				$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
-				$(this).closest('tr').find('.credit').attr('data-validation', 'decimal');
-				$(this).closest('tr').find('.asterisk').html('');
-				sumDebit();
-				sumCurrencyAmount();
-			} else {
-				$(this).closest('tr').find('.credit').removeAttr('readonly');
-			}
-		});
 
 		$('#paginate').on('click', 'a', function(e) {
 			e.preventDefault();
@@ -1258,6 +1241,30 @@
 			}
 		});
 
+
+		var debit_currency = 0;
+		var credit_currency = 0;
+		$('#itemsTable').on('blur', '.debit', function() {
+			var rate = removeComma($('#exchangerate').val());
+			var debit = removeComma($(this).val());
+			if(debit != '0') {
+				debit_currency = $(this).val() * rate;
+				$(this).closest('tr').find('.currencyamount').val(addComma(debit_currency));
+				$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
+				$(this).closest('tr').find('.credit').attr('data-validation', 'decimal');
+				$(this).closest('tr').find('.asterisk').html('');
+				sumDebit();
+				sumCredit();
+				sumCurrencyAmount();
+			} else {
+				$(this).closest('tr').find('.credit').removeAttr('readonly');
+				$(this).closest('tr').find('.currencyamount').val('0.00');
+				sumDebit();
+				sumCredit();
+				sumCurrencyAmount();
+			}
+		});
+
 		$('#itemsTable').on('blur', '.credit', function() {
 			var rate = removeComma($('#exchangerate').val());
 			var credit = removeComma($(this).val());
@@ -1268,9 +1275,14 @@
 				$(this).closest('tr').find('.debit').attr('data-validation', 'decimal');
 				$(this).closest('tr').find('.asterisk').html('');
 				sumCredit();
+				sumDebit();
 				sumCurrencyAmount();
 			} else {
 				$(this).closest('tr').find('.debit').removeAttr('readonly');
+				$(this).closest('tr').find('.currencyamount').val('0.00');
+				sumDebit();
+				sumCredit();
+				sumCurrencyAmount();
 			}
 		});
 
@@ -1336,11 +1348,13 @@
 			$.post('<?=MODULE_URL?>ajax/ajax_get_currency_val', { currencycode : currencycode }, function(data) {
 				if(data) {
 					$('#exchangerate').val(data.exchangerate);	
-					if($('.debit').val() != '0.00') {
-						$('.currencyamount').val(addComma(data.exchangerate * $('.debit').val()));
-					} else {
-						$('.currencyamount').val(addComma(data.exchangerate * $('.credit').val()));
-					}
+					$('.debit').each(function() {
+						if($(this).val() != '0.00') {
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).val()));
+						} else {
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).closest('tr').find('.credit').val()));
+						}
+					});
 					sumDebit();
 					sumCredit();
 					sumCurrencyAmount();
