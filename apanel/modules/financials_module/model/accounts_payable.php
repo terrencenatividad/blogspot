@@ -58,6 +58,7 @@ class accounts_payable extends wc_model
 	{
 		$result = $this->db->setTable('budget')
 		->setFields("budget_code ind, budget_code val")
+		->setWhere("status = 'approved'")
 		->runSelect()
 		->getResult();
 		
