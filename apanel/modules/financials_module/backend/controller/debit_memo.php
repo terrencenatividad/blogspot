@@ -65,7 +65,7 @@ class controller extends wc_controller {
 		$data['status'] 			= false;
 		$data['currencycodes'] = $this->dm_model->getCurrencyCode();
 		$data['currency'] = 'PHP';
-		$data["exchangerate"]       = "1.00";
+		//$data["exchangerate"]       = "1.00";
 		$this->view->load('debit_memo/debit_memo', $data);
 	}
 
@@ -127,12 +127,24 @@ class controller extends wc_controller {
 		$data['currency'] = $data['currencycode'];
 		$this->view->load('debit_memo/debit_memo', $data);
 	}
+	// old print for dm
+	// public function print_preview($voucherno) {
+	// 	$documentinfo		= $this->dm_model->getDocumentInfo($voucherno);
+	// 	$documentdetails	= $this->dm_model->getDocumentDetails($voucherno);
+	// 	$documentvendor   	= $this->dm_model->getVendor($voucherno);
+	// 	$print = new print_voucher_model('P', 'mm', 'Letter');
+	// 	$print->setDocumentType('Debit Memo')
+	// 	->setDocumentInfo($documentinfo)
+	// 	->setDocumentDetails($documentdetails)
+	// 	->setVendor($documentvendor[0]->partnername)
+	// 	->drawPDF('dm_voucher_' . $voucherno);
+	// }
 
 	public function print_preview($voucherno) {
 		$documentinfo		= $this->dm_model->getDocumentInfo($voucherno);
 		$documentdetails	= $this->dm_model->getDocumentDetails($voucherno);
 		$documentvendor   	= $this->dm_model->getVendor($voucherno);
-		$print = new print_voucher_model('P', 'mm', 'Letter');
+		$print = new print_payables_model('P', 'mm', 'Letter');
 		$print->setDocumentType('Debit Memo')
 		->setDocumentInfo($documentinfo)
 		->setDocumentDetails($documentdetails)
