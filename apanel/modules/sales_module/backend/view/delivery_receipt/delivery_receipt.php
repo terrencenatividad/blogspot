@@ -390,55 +390,57 @@
 								->addHidden()
 								->draw($show_input);
 						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('serialnumbers[]')
-								->setClass('serialnumbers')
-								->setValue('` + details.serialnumbers + `')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('h_itemcode[]')
-								->setClass('h_itemcode')
-								->setValue('` + details.itemcode + `')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('h_detailparticular[]')
-								->setClass('h_detailparticular')
-								->setValue('` + details.detailparticular + `')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('bundle_itemqty[]')
-								->setClass('bundle_itemqty')
-								->setValue('` + details.bundle_itemqty + `')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('parentline[]')
-								->setClass('parentline')
-								->setValue('` + details.parentline + `')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('item_ident_flag[]')
-								->setClass('item_ident_flag')
-								->setValue('` + details.item_ident_flag + `')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('linenumber[]')
-								->setClass('linenumber')
-								->setValue('` + details.linenum + `')
-								->draw($show_input);
-						?>
+						<?php if ($ajax_task != '') { ?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('serialnumbers[]')
+									->setClass('serialnumbers')
+									->setValue('` + details.serialnumbers + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('h_itemcode[]')
+									->setClass('h_itemcode')
+									->setValue('` + details.itemcode + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('h_detailparticular[]')
+									->setClass('h_detailparticular')
+									->setValue('` + details.detailparticular + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('bundle_itemqty[]')
+									->setClass('bundle_itemqty')
+									->setValue('` + details.bundle_itemqty + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('parentline[]')
+									->setClass('parentline')
+									->setValue('` + details.parentline + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('item_ident_flag[]')
+									->setClass('item_ident_flag')
+									->setValue('` + details.item_ident_flag + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('linenumber[]')
+									->setClass('linenumber')
+									->setValue('` + details.linenum + `')
+									->draw($show_input);
+							?>
+						<?php } ?>
 					</td>
 					<td>
 						<?php
@@ -462,9 +464,10 @@
 								->addHidden()
 								->draw($show_input);
 						?>
-					</td>
+					</td>`;
+
 					<?php if ($show_input): ?>
-					<td class="text-right">
+					row += `<td class="text-right">
 						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
@@ -498,21 +501,33 @@
 								` + otherdetails + `
 					</td>`;
 					} else {
-						if (details.item_ident_flag == 0) {
+						<?php if ($ajax_task != '') { ?>
+							if (details.item_ident_flag == 0) {
+								row += `<td class="text-right">
+								<?php
+									echo $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setName('issueqty[]')
+										->setClass('itempart issueqty text-right')
+										->setAttribute(array('readonly' => 'readonly', 'data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.issueqty) || 0) + `'))
+										->setValidation('integer')
+										->setValue(0)
+										->draw($show_input);
+								?> ` + otherdetails + ` </td>
+							`; } else {
+								row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart issueqty partbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `<input type = "hidden" class = "issueqty" name = "issueqty[]" data-value = "` + (parseFloat(details.issueqty) || 0) + `" value = "` + (parseFloat(details.issueqty) || 0) + `"/></td>`;
+							} 
+						<?php } else { ?>
 							row += `<td class="text-right">
-							<?php
-								echo $ui->formField('text')
-									->setSplit('', 'col-md-12')
-									->setName('issueqty[]')
-									->setClass('itempart issueqty text-right')
-									->setAttribute(array('readonly' => 'readonly', 'data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.issueqty) || 0) + `'))
-									->setValidation('integer')
-									->setValue(0)
-									->draw($show_input);
-							?> ` + otherdetails + ` </td>
-						` } else { ;
-							row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart issueqty partbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `<input type = "hidden" class = "issueqty" name = "issueqty[]" data-value = "` + (parseFloat(details.issueqty) || 0) + `" value = "` + (parseFloat(details.issueqty) || 0) + `"/></td>`;
-						}  
+								<?php
+									echo $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setClass('itempart issueqty text-right')
+										->setValue('` + (addComma(details.issueqty, 0) || 0) + `')
+										->addHidden()
+										->draw($show_input);
+								?> ` + otherdetails + ` </td>`;
+						<?php } ?> 
 					}
 				row +=`	<td>
 						<?php
