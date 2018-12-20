@@ -521,7 +521,6 @@ class delivery_receipt_model extends wc_model {
 								->setOrderBy('linenum')
 								->runSelect()
 								->getResult();
-
 			$result = $this->getSalesOrderDetails($sourceno, $voucherno);
 
 			$checker	= array();
@@ -734,6 +733,21 @@ class delivery_receipt_model extends wc_model {
 						->getRow();
 
 		return $result;
+	}
+
+	public function UpdateItemsSerialized($voucherno) {
+		$result = $this->db->setTable('deliveryreceipt_details')
+						->setFields("GROUP_CONCAT(serialnumbers ORDER BY linenum ASC SEPARATOR ',') as serialnumbers")
+						->setWhere("serialnumbers != '' AND stat NOT IN ('Cancelled','temporary')")
+						->runSelect()
+						->getRow();
+		
+		$ids = preg_split("/[\s,]+/", $result->serialnumbers);
+		$serials = implode(",",$ids);
+		$this->db->setTable('items_serialized')
+						->setValues(array('stat'=>'Available'))
+						->setWhere("id NOT IN($serials)")
+						->runUpdate();
 	}
 
 }

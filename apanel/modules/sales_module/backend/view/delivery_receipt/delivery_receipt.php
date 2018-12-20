@@ -388,7 +388,7 @@
 								->draw($show_input);
 						?>
 						<?php
-							echo $ui->formField('hidden')
+							echo $ui->formField('text')
 								->setName('serialnumbers[]')
 								->setClass('serialnumbers')
 								->draw($show_input);
