@@ -63,7 +63,7 @@ class controller extends wc_controller {
 		$data['status'] 			= false;
 		$data['currencycodes'] = $this->cm_model->getCurrencyCode();
 		$data['currency'] = 'PHP';
-		//$data["exchangerate"]       = "1.00";
+		$data["exchangerate"]       = "1.00";
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
 
@@ -130,12 +130,24 @@ class controller extends wc_controller {
 
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
+	// old print for cm
+	// public function print_preview2($voucherno) {
+	// 	$documentinfo		= $this->cm_model->getDocumentInfo($voucherno);
+	// 	$documentdetails	= $this->cm_model->getDocumentDetails($voucherno);
+	// 	$documentvendor   	= $this->cm_model->getVendor($voucherno);
+	// 	$print = new print_voucher_model('P', 'mm', 'Letter');
+	// 	$print->setDocumentType('Credit Memo')
+	// 			->setDocumentInfo($documentinfo)
+	// 			->setDocumentDetails($documentdetails)
+	// 			->setVendor($documentvendor[0]->partnername)
+	// 			->drawPDF('cm_voucher_' . $voucherno);
+	// }
 
 	public function print_preview($voucherno) {
 		$documentinfo		= $this->cm_model->getDocumentInfo($voucherno);
 		$documentdetails	= $this->cm_model->getDocumentDetails($voucherno);
 		$documentvendor   	= $this->cm_model->getVendor($voucherno);
-		$print = new print_voucher_model('P', 'mm', 'Letter');
+		$print = new print_payables_model('P', 'mm', 'Letter');
 		$print->setDocumentType('Credit Memo')
 				->setDocumentInfo($documentinfo)
 				->setDocumentDetails($documentdetails)
