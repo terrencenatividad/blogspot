@@ -303,6 +303,8 @@ class controller extends wc_controller {
 
 		$this->delivery_model->createClearingEntries($voucherno);
 
+		$this->delivery_model->UpdateItemsSerialized($voucherno);
+
 		if ($result && $this->inventory_model) {
 			$this->inventory_model->computeValues()
 									->setDetails($data['customer'])

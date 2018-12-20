@@ -16,11 +16,13 @@
 										</div>
 									<?php else: ?>
 										<?php
-											echo $ui->formField('hidden')
-												->setName('voucher')
-												->setId('voucher')
-												->setValue($voucherno)
-												->draw($show_input);
+											if ($ajax_task == 'ajax_edit') {
+												echo $ui->formField('hidden')
+													->setName('voucher')
+													->setId('voucher')
+													->setValue($voucherno)
+													->draw($show_input);
+											}
 										?>
 										<?php
 											echo $ui->formField('text')
@@ -330,12 +332,13 @@
 		var ajax_call	= '';
 		var min_row		= 0;
 		function addVoucherDetails(details, index) {
-			var details = details || {itemcode: '', detailparticular: '', issueqty: ''};
+			var details = details || {itemcode: '', detailparticular: '', issueqty: '', serialnumbers : ''};
 			var other_details = JSON.parse(JSON.stringify(details));
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
 			delete other_details.issueqty;
 			delete other_details.warehouse;
+			delete other_details.serialnumbers;
 			var otherdetails = '';
 			for (var key in other_details) {
 				if (other_details.hasOwnProperty(key)) {
@@ -391,6 +394,7 @@
 							echo $ui->formField('hidden')
 								->setName('serialnumbers[]')
 								->setClass('serialnumbers')
+								->setValue('` + details.serialnumbers + `')
 								->draw($show_input);
 						?>
 						<?php
@@ -837,6 +841,11 @@
 					var items = 0;
 					$('.issueqty:not([readonly])').each(function() {
 						items += removeComma($(this).val());
+					});
+					$('.serialnumbers').each(function() {
+						if(($(this).val() == 'undefined')){
+							$(this).val('');
+						}
 					});
 					if ($('.issueqty:not([readonly])').length > 0 && items > 0) {
 						$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {

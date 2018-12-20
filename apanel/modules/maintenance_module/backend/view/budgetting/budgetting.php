@@ -22,6 +22,16 @@
 										<div class="col-md-6 hidden">
 											<?
 											echo $ui->formField('text')
+											->setSplit('col-md-3', 'col-md-8')
+											->setName('id')
+											->setId('id')
+											->setValue($ajax_post)
+											->draw($show_input);	
+											?>	
+										</div>
+										<div class="col-md-6 hidden">
+											<?
+											echo $ui->formField('text')
 											->setLabel('Budget Code ')
 											->setSplit('col-md-3', 'col-md-8')
 											->setName('budget_code')
@@ -31,6 +41,17 @@
 											?>	
 										</div>
 									<?php endif; ?>
+										<div class="col-md-6 hidden">
+											<?
+											echo $ui->formField('text')
+											->setLabel('Budget Code ')
+											->setSplit('col-md-3', 'col-md-8')
+											->setName('v_total')
+											->setId('v_total')
+											->setValue($total)
+											->draw($show_input);	
+											?>	
+										</div>
 									<div class="col-md-6">
 										<?
 										echo $ui->formField('dropdown')
@@ -153,34 +174,36 @@
 									<div class="panel panel-default">
 										<div class="table-responsive">
 											<fieldset>
-												<table class="table table-hover table-condensed " id="itemsTable">
-													<thead>
-														<tr class="info">
-															<th class="col-md-4 text-center">Account</th>
-															<th class="col-md-4 text-center">Description</th>
-															<th class="col-md-4 text-center">Amount</th>
-														</tr>
-													</thead>
-													<tbody>
-													</tbody>
-													<tfoot>
-														<tr>
-															<td></td>
-															<td></td>
-															<td><?
-															echo $ui->formField('text')
-															->setLabel('Total')
-															->setSplit('col-md-3', 'col-md-8')
-															->setName('total')
-															->setId('total')
-															->setValue($total)
-															->setClass('text-right')
-															->setAttribute(array('readonly'))
-															->draw($show_input);	
-															?></td>
-														</tr>
-													</tfoot>
-												</table>
+												<div style = "height : 400px; overflow-y : scroll; overflow-x : hidden;">
+													<table class="table table-hover table-condensed " id="itemsTable">
+														<thead>
+															<tr class="info">
+																<th class="col-md-4 text-center">Account</th>
+																<th class="col-md-4 text-center">Description</th>
+																<th class="col-md-4 text-center">Amount</th>
+															</tr>
+														</thead>
+														<tbody>
+														</tbody>
+														<tfoot>
+															<tr>
+																<td></td>
+																<td></td>
+																<td><?
+																echo $ui->formField('text')
+																->setLabel('Total')
+																->setSplit('col-md-3', 'col-md-8')
+																->setName('total')
+																->setId('total')
+																->setClass('text-right input_label')
+																->setAttribute(array('readonly'))
+																->setValue($total)
+																->draw($show_input);	
+																?></td>
+															</tr>
+														</tfoot>
+													</table>
+												</div>
 											</fieldset>
 										</div>
 									</div>
@@ -324,6 +347,7 @@
 									var amount = $(this).val();
 									total += +removeComma(amount);
 									$('#total').val(addComma(total));
+									$('#v_total').val(addComma(total));
 								});
 							}
 
@@ -332,7 +356,7 @@
 									e.preventDefault();
 									$(this).find('.form-group').find('input, textarea, select').trigger('blur');
 									if ($(this).find('.form-group.has-error').length == 0) {
-										$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + '<?=$ajax_post ?>', function(data) {
+										$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $(this).serialize() + '<?=$ajax_post?>', function(data) {
 											if (data.success) {
 												$('#delay_modal').modal('show');
 												setTimeout(function() {

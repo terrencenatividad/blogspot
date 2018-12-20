@@ -290,7 +290,8 @@ class credit_memo_model extends wc_model {
 
 	public function getDocumentInfo($voucherno) {
 		$result = $this->db->setTable('journalvoucher jv')
-							->setFields('voucherno, transactiondate documentdate, amount, referenceno, remarks, partner')
+							//->setFields('voucherno, transactiondate documentdate, amount, referenceno, remarks, partner')
+							->setFields('voucherno, transactiondate documentdate, amount, referenceno, remarks, partner, jv.currencycode, exchangerate')
 							->innerJoin('partners pt on pt.partnercode = jv.partner')
 							->setWhere("voucherno = '$voucherno' AND jv.stat = 'posted'")
 							->setLimit(1)
@@ -303,7 +304,8 @@ class credit_memo_model extends wc_model {
 	public function getDocumentDetails($voucherno) {
 		$result = $this->db->setTable('journaldetails jd')
 							->innerJoin('chartaccount ca ON jd.accountcode = ca.id AND ca.companycode = jd.companycode')
-							->setFields("CONCAT(segment5, ' - ',accountname) accountname, debit, credit, converteddebit")
+							//->setFields("CONCAT(segment5, ' - ',accountname) accountname, debit, credit, converteddebit")
+							->setFields("CONCAT(segment5, ' - ',accountname) accountname, debit, credit, converteddebit, convertedcredit, IF(debit = 0, SUM(convertedcredit), SUM(converteddebit)) as currency")
 							->setWhere("jd.voucherno = '$voucherno' AND jd.stat = 'posted'")
 							->runSelect()
 							->getResult();
@@ -420,6 +422,7 @@ class credit_memo_model extends wc_model {
 	public function getJobList() {
 		$result = $this->db->setTable('job')
 		->setFields("job_no")
+		->setWhere('stat = "on-going"')
 		->setGroupBy('job_no')
 		->runPagination();
 		

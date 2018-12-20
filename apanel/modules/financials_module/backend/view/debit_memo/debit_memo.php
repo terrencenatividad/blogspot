@@ -991,6 +991,12 @@ echo $ui->loadElement('modal')
 			});
 		});
 
+		$('#jobsTable').on('ifToggled', 'input[type="checkbox"]', function() {
+			if(!$(this).is(':checked')) {
+				job.splice( $.inArray($(this).val(),job) ,1 );
+			}
+		});
+
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
@@ -1188,6 +1194,15 @@ echo $ui->loadElement('modal')
 				console.log('-----');
 				row.closest('tr').find('.currencyamount').val(addComma(total));
 				sumCurrencyAmount();
+			});
+		});
+
+		$(document).ready(function() {
+			var currencycode = $('#currencycode').val();
+			$.post('<?=MODULE_URL?>ajax/ajax_get_currency_val', { currencycode : currencycode }, function(data) {
+				if(data) {
+					$('#exchangerate').val(data.exchangerate);
+				}
 			});
 		});
 
