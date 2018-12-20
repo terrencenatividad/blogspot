@@ -65,10 +65,10 @@ class controller extends wc_controller
 		$data['budget_center'] = $this->budgetting->getBudgetCenter();
 		$data['transactiondate'] = date('m d, Y', strtotime($data['transactiondate']));
 		$data['total'] = number_format($data['total'], 2);
-		$data["ajax_task"] = "ajax_edit";
-		$data['user_list'] = $this->budgetting->getUserList();
 		$data['ui'] = $this->ui;
-		$data['ajax_post'] = "&id=$id";
+		$data['user_list'] = $this->budgetting->getUserList();
+		$data["ajax_task"] = "ajax_edit";
+		$data['ajax_post'] = "$id";
 		$data['show_input'] = true;
 		$this->view->load('budgetting/budgetting',$data);
 	}
@@ -80,8 +80,6 @@ class controller extends wc_controller
 		$data['total'] = number_format($data['total'], 2);
 		$data["ajax_task"] = "ajax_view";
 		$data['user_list'] = $this->budgetting->getUserList();
-		$data['ui'] = $this->ui;
-		$data['ajax_post'] = "&id=$id";
 		$data['ui'] = $this->ui;
 		$data['show_input'] = false;
 		$this->view->load('budgetting/budgetting',$data);
@@ -97,6 +95,7 @@ class controller extends wc_controller
 
 	private function ajax_create() {
 		$budget = $this->input->post($this->fields);
+		$post = $this->input->post();
 		$budget_details = $this->input->post($this->budget_details);
 		$this->seq = new seqcontrol();
 		$year = date('Y');
@@ -107,7 +106,7 @@ class controller extends wc_controller
 		$budget['period_end'] = $year . '-12-31';
 		$budget['effectivity_date'] = $year . '-01-01';
 		$budget['budget_code'] = $this->seq->getValue('BUD');
-		$budget['total'] = str_replace(',', '', $budget['total']);
+		$budget['total'] = str_replace(',', '', $post['v_total']);
 		$budget_details['amount'] = str_replace(',', '', $budget_details['amount']);
 		$budget_details['budget_code'] = $budget['budget_code'];
 		$result = $this->budgetting->saveBudget($budget, $budget_details);
@@ -119,16 +118,18 @@ class controller extends wc_controller
 
 	private function ajax_edit() {
 		$id = $this->input->post('id');
+		$post = $this->input->post();
 		$budget = $this->input->post($this->fields);
 		$date = date('Y-m-d', strtotime($budget['transactiondate']));
 		$year = date('Y');
 		$date = date('Y-m-d', strtotime($budget['transactiondate']));
+		$budget['budget_code'] = $budget['budget_code'];
 		$budget['status'] = 'for approval';
 		$budget['transactiondate'] = $date;
 		$budget['period_start'] = $year . '-01-01';
 		$budget['period_end'] = $year . '-12-31';
 		$budget['effectivity_date'] = $year . '-01-01';
-		$budget['total'] = str_replace(',', '', $budget['total']);
+		$budget['total'] = str_replace(',', '', $post['v_total']);
 		$budget_details = $this->input->post($this->budget_details);
 		$budgetcode = $budget['budget_code'];
 		$result = $this->budgetting->updateBudget($budget, $id, $budgetcode);
