@@ -65,7 +65,7 @@ class controller extends wc_controller {
 		$data['status'] 			= false;
 		$data['currencycodes'] = $this->dm_model->getCurrencyCode();
 		$data['currency'] = 'PHP';
-		$data["exchangerate"]       = "1.00";
+		//$data["exchangerate"]       = "1.00";
 		$this->view->load('debit_memo/debit_memo', $data);
 	}
 
