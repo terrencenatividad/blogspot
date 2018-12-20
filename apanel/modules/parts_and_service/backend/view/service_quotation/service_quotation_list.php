@@ -69,6 +69,7 @@
 			<ul id="filter_tabs" class="nav nav-tabs">
 				<li class="active"><a href="all" data-toggle="tab">All</a></li>
 				<li><a href="Pending" data-toggle="tab">Pending</a></li>
+				<li><a href="Approved" data-toggle="tab">Approved</a></li>
 				<li><a href="Partial" data-toggle="tab">Partial</a></li>
 				<li><a href="With JO" data-toggle="tab">With JO</a></li>
 				<li><a href="Cancelled" data-toggle="tab">Cancelled</a></li>
@@ -88,7 +89,7 @@
 								->addHeader('Transaction Date', array('class' => 'col-md-2'), 'sort', 'transactiondate')
 								->addHeader('SQ No.', array('class' => 'col-md-3'), 'sort', 'voucherno', 'desc')
 								->addHeader('Customer', array('class' => 'col-md-2'), 'sort', 'customer')
-								->addHeader('Job Type', array('class' => 'col-md-3'), 'sort', 'job_type')
+								->addHeader('Job Type', array('class' => 'col-md-3'), 'sort', 'jobtype')
 								->addHeader('Reference', array('class' => 'col-md-2'), 'sort', 'reference')
 								->addHeader('Status', array('style' => 'width: 15px'), 'sort', 'stat')
 								->draw();
@@ -108,6 +109,7 @@
 		ajaxToFilter(ajax, { search : '#table_search', limit : '#items', customer : '#customer', daterangefilter : '#daterangefilter' });
 		ajaxToFilterTab(ajax, '#filter_tabs', 'filter');
 	
+	/** -- FOR SORTING -- **/
 		ajax.filter = $('#filter_tabs .active a').attr('href');
 		tableSort('#tableList', function(value, getlist) {
 			ajax.sort = value;
@@ -116,26 +118,41 @@
 				getList();
 			}
 		}, ajax);
+	/** -- FOR SORTING -- end **/
+
+	/** -- FOR SEARCH -- **/	
 		$('#table_search').on('input', function () {
 			ajax.page = 1;
 			ajax.search = $(this).val();
 			getList();
 		});
+	/** -- FOR SEARCH -- end **/	
+
+	/** -- FOR ITEM DISPLAY -- **/
 		$('#items').on('change', function() {
 			ajax.limit = $(this).val();
 			ajax.page = 1;
 			getList();
 		});
+	/** -- FOR ITEM DISPLAY -- end **/
+
+	/** -- FOR CUSTOMER **/
 		$('#customer').on('change', function() {
 			ajax.page = 1;
 			ajax.customer = $(this).val();
 			getList();
 		});
+	/** -- FOR CUSTOMER -- end **/
+	
+	/** -- FOR TAB FILTERS -- **/	
 		$('#filter_tabs li').on('click', function() {
 			ajax.page = 1;
 			ajax.filter = $(this).find('a').attr('href');
 			getList();
 		});
+	/** -- FOR TAB FILTERS -- end **/	
+
+	/** -- FOR PAGINATION **/
 		$('#pagination').on('click', 'a', function(e) {
 			e.preventDefault();
 			var li = $(this).closest('li');
@@ -144,6 +161,18 @@
 				getList();
 			}
 		});
+	/** -- FOR PAGINATION -- end **/
+
+	/** -- FOR DATE -- **/
+		$('#daterangefilter').on('change', function() 
+		{
+			ajax.daterangefilter = $(this).val();
+			ajax.page 	= 1;
+			getList();
+		});
+	/** -- FOR DATE -- end **/	
+
+
 		function getList() {
 			filterToURL();
 			if (ajax_call != '') {
@@ -158,24 +187,28 @@
 				}
 			});
 		}
+
 		getList();
+
+
+	/** -- FOR DELETING DATA -- **/
 		function ajaxCallback(id) {
 			var ids = getDeleteId(id);
 			$.post('<?=MODULE_URL?>ajax/ajax_delete', ids, function(data) {
-				getList();
+				if(data.msg == "success"){
+					getList();
+				}
 			});
 		}
 		function getIds(ids) {
 			var x = ids.split(",");
 			return "id[]=" + x.join("&id[]=");
 		}
+
 		$(function() {
 			linkButtonToTable('#item_multiple_cancel', '#tableList');
 			linkCancelToModal('#tableList .delete', 'ajaxCallback');
 			linkCancelMultipleToModal('#item_multiple_cancel', '#tableList', 'ajaxCallback');
 		});
-		$('#daterangefilter').on('change', function() {
-			ajax.daterangefilter = $(this).val();
-			getList();
-		})
+	/** -- FOR DELETING DATA -- end **/
 	</script>

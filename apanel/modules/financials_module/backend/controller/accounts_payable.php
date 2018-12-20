@@ -614,11 +614,15 @@ class controller extends wc_controller
 			foreach($classcode as $row) {
 				if($row->accountclasscode == 'ACCPAY') {
 					$check = true;
-					$result    = $this->accounts_payable->saveAP($ap, $ap_details);
+					if(empty($errors)) {
+						$result    = $this->accounts_payable->saveAP($ap, $ap_details);
+					}
 				}
 			}	
 		} else {
-			$result    = $this->accounts_payable->saveAP($ap, $ap_details);
+			if(empty($errors)) {
+				$result    = $this->accounts_payable->saveAP($ap, $ap_details);
+			}
 		}
 		
 
@@ -792,13 +796,17 @@ class controller extends wc_controller
 			foreach($classcode as $row) {
 				if($row->accountclasscode == 'ACCPAY') {
 					$check = true;
-					$result    = $this->accounts_payable->updateAP($ap['voucherno'], $ap);
-					$details = $this->accounts_payable->saveAPDetails($ap_details);
+					if(empty($errors)) {
+						$result    = $this->accounts_payable->updateAP($ap['voucherno'], $ap);
+						$details = $this->accounts_payable->saveAPDetails($ap_details);
+					}
 				}
 			}
 		} else {
-			$result    = $this->accounts_payable->updateAP($ap['voucherno'], $ap);
-			$details = $this->accounts_payable->saveAPDetails($ap_details);
+			if(empty($errors)) {
+				$result    = $this->accounts_payable->updateAP($ap['voucherno'], $ap);
+				$details = $this->accounts_payable->saveAPDetails($ap_details);
+			}
 		}
 		
 
@@ -1628,7 +1636,7 @@ class controller extends wc_controller
 		return $result;
 	}
 
-	private function ajax_list_job() {
+	private function ajax_list_jobs() {
 		$jobs_tagged = $this->input->post('jobs_tagged');
 		$tags = explode(',', $jobs_tagged);
 		$pagination = $this->accounts_payable->getJobList();

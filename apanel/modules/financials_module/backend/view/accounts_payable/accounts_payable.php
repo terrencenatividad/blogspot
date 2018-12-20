@@ -1396,6 +1396,12 @@
 			}
 		});
 
+		$('#jobsTable').on('ifToggled', 'input[type="checkbox"]', function() {
+			if(!$(this).is(':checked')) {
+				job.splice( $.inArray($(this).val(),job) ,1 );
+			}
+		});
+
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
