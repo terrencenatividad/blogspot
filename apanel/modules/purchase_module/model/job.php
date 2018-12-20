@@ -107,19 +107,19 @@
 			return $errmsg;
         }
         
-        public function getPRPagination() {
-            $result = $this->db->setTable("purchasereceipt")
-                            ->setFields("voucherno, source_no, transactiondate, amount")
-                            ->setWhere("stat='Received' AND transtype='IPO'")
+        public function getIPOPagination() {
+            $result = $this->db->setTable("import_purchaseorder")
+                            ->setFields("voucherno, transactiondate, amount")
+                            ->setWhere("stat='open'")
                             ->setOrderBy("voucherno ASC")
                             ->runPagination();
             return $result;
         }
 
-        public function getItemPagination($pr_number){
-            $result = $this->db->setTable("purchasereceipt_details")
+        public function getItemPagination($ipo_number){
+            $result = $this->db->setTable("import_purchaseorder_details")
                             ->setFields("voucherno, itemcode, linenum, detailparticular, receiptqty, receiptuom")
-                            ->setWhere("voucherno='".$pr_number."'")
+                            ->setWhere("voucherno='".$ipo_number."'")
                             ->setOrderBy("voucherno ASC, linenum ASC")
                             ->runPagination();
             return $result;

@@ -239,8 +239,8 @@
 										<label class="control-label col-md-4">Job Items </label>
 										<div class="col-md-8">
 											<?php if($ajax_task != 'ajax_view') {?>
-												<input type="hidden" name="jobs_tagged" id = "jobs_tagged">
-												<button type="button" id="job" class="btn btn-block btn-success btn-flat" <?php echo $val ?>>
+												<input type="hidden" name="jobs_tagged" id = "jobs_tagged" value = "<?php echo $job_no ?>">
+												<button type="button" id="job" class="btn btn-block btn-success btn-flat" <?php echo $job_no ?>>
 													<em class="pull-left"><small>Click to tag job items</small></em>
 													<strong id="job_text" class="pull-right"><?php echo $tags; ?></strong>
 												</button>
@@ -1176,13 +1176,23 @@
 
 		var job = [];
 		$('#job').on('click', function() {
-			$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + $('#jobs_tagged').val(), function(data) {
-				if(data) {
-					$('#jobModal').modal('show');
-					$('#jobsTable tbody').html(data.table);
-					$('#paginate').html(data.pagination);
-				}
-			});
+			if(job == '') {
+				$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + $('#jobs_tagged').val(), function(data) {
+					if(data) {
+						$('#jobModal').modal('show');
+						$('#jobsTable tbody').html(data.table);
+						$('#paginate').html(data.pagination);
+					}
+				});
+			} else {
+				$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + job, function(data) {
+					if(data) {
+						$('#jobModal').modal('show');
+						$('#jobsTable tbody').html(data.table);
+						$('#paginate').html(data.pagination);
+					}
+				});
+			}
 		});
 
 		$('#jobModal').on('shown.bs.modal', function() {
@@ -1215,6 +1225,9 @@
 			console.log($console);
 		}
 
+		$(document).ready(function() {
+			job = $('#jobs_tagged').val().split(',');	
+		});
 
 		$('#paginate').on('click', 'a', function(e) {
 			e.preventDefault();
@@ -1227,7 +1240,7 @@
 			var li = $(this).closest('li');
 			if (li.not('.active').length && li.not('.disabled').length) {
 				page = $(this).attr('data-page');
-				$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + $('#jobs_tagged').val() + '&page=' + page, function(data) {
+				$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + job + '&page=' + page, function(data) {
 					if(data) {
 						$('#jobsTable tbody').html(data.table);
 						$('#paginate').html(data.pagination);
@@ -1240,7 +1253,6 @@
 				});
 			}
 		});
-
 
 		var debit_currency = 0;
 		var credit_currency = 0;
@@ -1283,6 +1295,12 @@
 				sumDebit();
 				sumCredit();
 				sumCurrencyAmount();
+			}
+		});
+
+		$('#jobsTable').on('ifToggled', 'input[type="checkbox"]', function() {
+			if(!$(this).is(':checked')) {
+				job.splice( $.inArray($(this).val(),job) ,1 );
 			}
 		});
 
