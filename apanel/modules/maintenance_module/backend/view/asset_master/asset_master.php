@@ -13,17 +13,17 @@
 								<div class="row">
 									<div class="col-md-6">
 										<?php
-											echo $ui->formField('dropdown')
-													->setLabel('Item Code')
-													->setPlaceholder('Select Item Code')
+											echo $ui->formField('text')
+													->setLabel('Asset Number(Bar Code)')
 													->setSplit('col-md-3', 'col-md-8')
-													->setName('itemcode')
-													->setId('itemcode')
-													->setList($item_list)
-													->setValue($itemcode)
-													// ->setValidation('required')
+													->setName('asset_number')
+													->setId('asset_number')
+													->setValue($asset_number)
+													->setAttribute(array("maxlength" => "10"))
+													->setValidation('alpha_num required')
 													->draw($show_input);
 										?>
+										<input type="text" id="h_asset_number" class="hidden" value="<?php echo $asset_number ?>">
 									</div>
 									<div class="col-md-6">
 										<?php
@@ -46,19 +46,6 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('text')
-													->setLabel('Asset Number(Bar Code)')
-													->setSplit('col-md-3', 'col-md-8')
-													->setName('asset_number')
-													->setId('asset_number')
-													->setValue($asset_number)
-													->setAttribute(array("maxlength" => "10"))
-													->setValidation('alpha_num required')
-													->draw($show_input);
-										?>
-									</div>
-									<div class="col-md-6">
-										<?php
-											echo $ui->formField('text')
 													->setLabel('Asset Name')
 													->setSplit('col-md-3', 'col-md-8')
 													->setName('asset_name')
@@ -66,6 +53,20 @@
 													->setValue($asset_name)
 													->setAttribute(array("maxlength" => "50"))
 													->setValidation('required')
+													->draw($show_input);
+										?>
+									</div>
+									<div class="col-md-6">
+										<?php
+											echo $ui->formField('dropdown')
+													->setLabel('Item Code')
+													->setPlaceholder('Select Item Code')
+													->setSplit('col-md-3', 'col-md-8')
+													->setName('itemcode')
+													->setId('itemcode')
+													->setList($item_list)
+													->setValue($itemcode)
+													// ->setValidation('required')
 													->draw($show_input);
 										?>
 									</div>
@@ -615,6 +616,20 @@ $('#compute').on('click', function(){
 	$('#depreciation_amount').val(dep_amount);
 	getList();
 	
+});
+
+$('#asset_number').on('input', function(){
+	asset_number = $(this).val();
+	old 		 = $('#h_asset_number').val();
+	$.post('<?=MODULE_URL?>ajax/check_duplicate', 'asset_number='+asset_number+'&old='+old , function(data) {
+		if(data.msg == 'exists'){
+			error_message 	=	"<b>The Code you entered already exists!</b>";
+				$('#asset_number').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+		}else{
+				$('#asset_number').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+		}
+		
+	});
 });
 
 $('#cancelprice').on('click', function(){

@@ -137,11 +137,11 @@ class delivery_receipt_model extends wc_model {
 								->getRow();
 
 			$clearing_account = ($ftax) ? $ftax->account : '';
-
+			$total_amount	= 0;
+			
 			if ($details && $clearing_account) {
 				$linenum		= array();
-				$total_amount	= 0;
-
+				
 				foreach ($details as $key => $row) {
 					$details[$key]->linenum				= $key + 1;
 					$details[$key]->voucherno			= $jvvoucherno;
@@ -169,6 +169,7 @@ class delivery_receipt_model extends wc_model {
 					'stat'				=> $data['stat']
 				);
 			}
+			$detail_insert  = false;
 			$detail_insert = $this->db->setTable('journaldetails')
 										->setValues($details)
 										->runInsert();
@@ -718,10 +719,20 @@ class delivery_receipt_model extends wc_model {
 		}
 		$result	= $this->db->setTable('items_serialized')
 								->setFields($fields)
-								->setWhere("itemcode = '$itemcode' AND stat = 'Available'" .$condition)
+								->setWhere("itemcode = '$itemcode'" .$condition)
 								->setOrderBy('voucherno, linenum, rowno')
 								->runPagination();
 								
+		return $result;
+	}
+
+	public function getDRSerials($itemcode, $voucherno, $linenum) {
+		$result = $this->db->setTable('deliveryreceipt_details') 
+						->setFields('serialnumbers')
+						->setWhere("itemcode='$itemcode' AND voucherno='$voucherno' AND linenum='$linenum'")
+						->runSelect()
+						->getRow();
+
 		return $result;
 	}
 

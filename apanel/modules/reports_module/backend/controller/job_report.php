@@ -6,6 +6,7 @@
             $this->input			= new input();
             $this->job_report   	= new job_report();
             $this->session			= new session();
+            $this->report_model 	= new report_model;
             $this->data = array();
             $this->view->header_active = 'report/';
         }
@@ -20,6 +21,9 @@
 
             $data['job_list'] 		= $this->job_report->get_allJob();
             $data['job_list2']      = $this->job_report->get_job_without_closed();
+            
+            $this->report_model->generateBalanceTable();
+
             $this->view->load('job_report', $data);
         }
 
@@ -56,12 +60,18 @@
                     {
                         $jstatus = '<span class="label label-danger">'.strtoupper($row->stat).'</span>';
                     }
+                    $valuee = 0;
+                    if($row->amount > 0) {
+                        $valuee = number_format($row->amount,2);
+                    }else {
+                        $valuee = "(" .number_format($row->amount,2) . ")";
+                    }
 
                     $table .= '<tr>';
                     $table .= '<td>' . $row->job_no . '</td>';
                     $table .= '<td>' . $row->segment5 . '</td>';
                     $table .= '<td>' . $row->accountname . '</td>';
-                    $table .= '<td class = "finalsum text-right" > <a href="#" class = "amount" data-id="'.$row->id.'" >' . number_format($row->amount,2) . '</a> </td>';
+                    $table .= '<td class = "finalsum text-right" > <a href="#" class = "amount" data-id="'.$row->id.'" >' . $valuee . '</a> </td>';
                     $table .= '<td class = "text-right">' . $jstatus . '</td>';
                     $table .= '</tr>';
                 }
@@ -136,7 +146,7 @@
 
                     $table .= '<tr>';
                     $table .= '<td>' . $row->referenceList . '</td>';
-                    $table .= '<td>' . $this->date->dateFormat($row->entereddate) . '</td>';
+                    $table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
                     $table .= '<td class="tobesum text-right">' . number_format($row->debit,2) . '</td>';
                     $table .= '<td class="tobesum2 text-right">' . number_format($row->credit,2) . '</td>';
                 }

@@ -54,8 +54,8 @@
 					echo $ui->loadElement('table')
 							->setHeaderClass('info')
 							->addHeader('Job Number',array('class'=>'col-md-2'),'sort','j.job_no')
-							->addHeader('Account Code', array('class'=>'col-md-1'),'sort','cc.segment5')
-							->addHeader('Account Name',array('class'=>'col-md-2'),'sort','cc.accountname')
+							->addHeader('Account Code', array('class'=>'col-md-1'),'sort','ca.segment5')
+							->addHeader('Account Name',array('class'=>'col-md-2'),'sort','ca.accountname')
 							->addHeader('Amount',array('class'=>'col-md-1 text-right'))
 							->addHeader('Status',array('class'=>'col-md-1 text-right'),'sort','j.stat')
 							->draw();
@@ -102,7 +102,7 @@
 					echo $ui->loadElement('table')
 							->setHeaderClass('info')
 							->addHeader('Reference',array('class'=>'col-md-1'),'sort','referenceList')
-							->addHeader('Date', array('class'=>'col-md-2'),'sort','main.entereddate')
+							->addHeader('Date', array('class'=>'col-md-2'),'sort','main.transactiondate')
 							->addHeader('Debit',array('class'=>'col-md-1'),'sort','main.debit')
 							->addHeader('Credit',array('class'=>'col-md-1 text-right'),'sort','main.credit')
 							->draw();
@@ -433,7 +433,7 @@
             closed_ftotal_credit = 0;
             closed_finaltotal = 0;
             $('#tb_closejob #closedjob_listing').html(data.table);
-            $('#pagination').html(data.pagination);
+            $('#pagination3').html(data.pagination);
 
             $('#tb_closejob tbody tr td.closed_debit').each(function () {
                 tdebits = removeComma($(this).html());
