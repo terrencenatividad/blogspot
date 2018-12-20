@@ -16,11 +16,13 @@
 										</div>
 									<?php else: ?>
 										<?php
-											echo $ui->formField('hidden')
-												->setName('voucher')
-												->setId('voucher')
-												->setValue($voucherno)
-												->draw($show_input);
+											if ($ajax_task == 'ajax_edit') {
+												echo $ui->formField('hidden')
+													->setName('voucher')
+													->setId('voucher')
+													->setValue($voucherno)
+													->draw($show_input);
+											}
 										?>
 										<?php
 											echo $ui->formField('text')
@@ -330,12 +332,13 @@
 		var ajax_call	= '';
 		var min_row		= 0;
 		function addVoucherDetails(details, index) {
-			var details = details || {itemcode: '', detailparticular: '', issueqty: ''};
+			var details = details || {itemcode: '', detailparticular: '', issueqty: '', serialnumbers : ''};
 			var other_details = JSON.parse(JSON.stringify(details));
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
 			delete other_details.issueqty;
 			delete other_details.warehouse;
+			delete other_details.serialnumbers;
 			var otherdetails = '';
 			for (var key in other_details) {
 				if (other_details.hasOwnProperty(key)) {
@@ -387,54 +390,57 @@
 								->addHidden()
 								->draw($show_input);
 						?>
-						<?php
-							echo $ui->formField('text')
-								->setName('serialnumbers[]')
-								->setClass('serialnumbers')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('h_itemcode[]')
-								->setClass('h_itemcode')
-								->setValue('` + details.itemcode + `')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('h_detailparticular[]')
-								->setClass('h_detailparticular')
-								->setValue('` + details.detailparticular + `')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('bundle_itemqty[]')
-								->setClass('bundle_itemqty')
-								->setValue('` + details.bundle_itemqty + `')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('parentline[]')
-								->setClass('parentline')
-								->setValue('` + details.parentline + `')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('item_ident_flag[]')
-								->setClass('item_ident_flag')
-								->setValue('` + details.item_ident_flag + `')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('linenumber[]')
-								->setClass('linenumber')
-								->setValue('` + details.linenum + `')
-								->draw($show_input);
-						?>
+						<?php if ($ajax_task != '') { ?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('serialnumbers[]')
+									->setClass('serialnumbers')
+									->setValue('` + details.serialnumbers + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('h_itemcode[]')
+									->setClass('h_itemcode')
+									->setValue('` + details.itemcode + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('h_detailparticular[]')
+									->setClass('h_detailparticular')
+									->setValue('` + details.detailparticular + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('bundle_itemqty[]')
+									->setClass('bundle_itemqty')
+									->setValue('` + details.bundle_itemqty + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('parentline[]')
+									->setClass('parentline')
+									->setValue('` + details.parentline + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('item_ident_flag[]')
+									->setClass('item_ident_flag')
+									->setValue('` + details.item_ident_flag + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('linenumber[]')
+									->setClass('linenumber')
+									->setValue('` + details.linenum + `')
+									->draw($show_input);
+							?>
+						<?php } ?>
 					</td>
 					<td>
 						<?php
@@ -458,9 +464,10 @@
 								->addHidden()
 								->draw($show_input);
 						?>
-					</td>
+					</td>`;
+
 					<?php if ($show_input): ?>
-					<td class="text-right">
+					row += `<td class="text-right">
 						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
@@ -494,21 +501,33 @@
 								` + otherdetails + `
 					</td>`;
 					} else {
-						if (details.item_ident_flag == 0) {
+						<?php if ($ajax_task != '') { ?>
+							if (details.item_ident_flag == 0) {
+								row += `<td class="text-right">
+								<?php
+									echo $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setName('issueqty[]')
+										->setClass('itempart issueqty text-right')
+										->setAttribute(array('readonly' => 'readonly', 'data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.issueqty) || 0) + `'))
+										->setValidation('integer')
+										->setValue(0)
+										->draw($show_input);
+								?> ` + otherdetails + ` </td>
+							`; } else {
+								row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart issueqty partbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `<input type = "hidden" class = "issueqty" name = "issueqty[]" data-value = "` + (parseFloat(details.issueqty) || 0) + `" value = "` + (parseFloat(details.issueqty) || 0) + `"/></td>`;
+							} 
+						<?php } else { ?>
 							row += `<td class="text-right">
-							<?php
-								echo $ui->formField('text')
-									->setSplit('', 'col-md-12')
-									->setName('issueqty[]')
-									->setClass('itempart issueqty text-right')
-									->setAttribute(array('readonly' => 'readonly', 'data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.issueqty) || 0) + `'))
-									->setValidation('integer')
-									->setValue(0)
-									->draw($show_input);
-							?> ` + otherdetails + ` </td>
-						` } else { ;
-							row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart issueqty partbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `<input type = "hidden" class = "issueqty" name = "issueqty[]" data-value = "` + (parseFloat(details.issueqty) || 0) + `" value = "` + (parseFloat(details.issueqty) || 0) + `"/></td>`;
-						}  
+								<?php
+									echo $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setClass('itempart issueqty text-right')
+										->setValue('` + (addComma(details.issueqty, 0) || 0) + `')
+										->addHidden()
+										->draw($show_input);
+								?> ` + otherdetails + ` </td>`;
+						<?php } ?> 
 					}
 				row +=`	<td>
 						<?php
@@ -837,6 +856,11 @@
 					var items = 0;
 					$('.issueqty:not([readonly])').each(function() {
 						items += removeComma($(this).val());
+					});
+					$('.serialnumbers').each(function() {
+						if(($(this).val() == 'undefined')){
+							$(this).val('');
+						}
 					});
 					if ($('.issueqty:not([readonly])').length > 0 && items > 0) {
 						$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {

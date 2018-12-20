@@ -115,10 +115,10 @@ class controller extends wc_controller {
 
 				// IMPORTATION COST CALCULATION
 			$item_cost = $row->convertedamount / $item_quantity;
-			$item_cost_total = number_format($row->convertedamount, 2); //total cost of item
+			$item_cost_total = $row->convertedamount; //total cost of item
 
 			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);
-			$total_cost_job = number_format($query_cost_job->total,2); //total cost of all items in job
+			$total_cost_job = $query_cost_job->total; //total cost of all items in job
  
 			$query_job_item_count = $this->landed_cost->getTotalItemsInJob($job_no);
 			$job_item_count = $query_job_item_count->qty; //number of items in job
@@ -129,13 +129,12 @@ class controller extends wc_controller {
 
 			$total_importation_cost = $query_AP_credit->credit + $query_CM_credit->credit - $query_DM_debit->debit; //importation cost/fees from AP,CM,DM
 			
-			$item_cost_ratio = $item_cost_total / $total_cost_job; //ratio of item to all items in job
+			$item_cost_ratio = ($item_cost_total/$total_cost_job); //ratio of item to all items in job
 
 			$importation_cost_unit =  ($item_cost_ratio * $total_importation_cost) / $item_quantity; //sprintf("%7.2f",$quantity);
 			
-			$table .=	'<td class="text-right">'.$job_no.'</td> 
+			$table .=	'<td class="text-right">'.$item_cost_total.' / '.$total_cost_job.' = '.$item_cost_ratio.'</td> 
 						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($importation_cost_unit,2).'</td>'; 
-						
 			
 				// LANDED COST CALCS STAGING
 			$landed_cost_unit = $unit_cost_base + $importation_cost_unit;
@@ -233,13 +232,13 @@ class controller extends wc_controller {
 			$csv .= '"' .$exchange_curr.' '.number_format($unit_cost_foreign,2). '",';
 			$csv .= '"' .$base_curr.' '.number_format($unit_cost_base,2). '",';
 
-			// IMPORTATION COST CALCULATION
+					// IMPORTATION COST CALCULATION
 			$item_cost = $row->convertedamount / $item_quantity;
-			$item_cost_total = number_format($row->convertedamount, 2); //total cost of item
+			$item_cost_total = $row->convertedamount; //total cost of item
 
 			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);
-			$total_cost_job = number_format($query_cost_job->total,2); //total cost of all items in job
-	
+			$total_cost_job = $query_cost_job->total; //total cost of all items in job
+ 
 			$query_job_item_count = $this->landed_cost->getTotalItemsInJob($job_no);
 			$job_item_count = $query_job_item_count->qty; //number of items in job
 
@@ -249,7 +248,7 @@ class controller extends wc_controller {
 
 			$total_importation_cost = $query_AP_credit->credit + $query_CM_credit->credit - $query_DM_debit->debit; //importation cost/fees from AP,CM,DM
 			
-			$item_cost_ratio = $item_cost_total / $total_cost_job; //ratio of item to all items in job
+			$item_cost_ratio = ($item_cost_total/$total_cost_job); //ratio of item to all items in job
 
 			$importation_cost_unit =  ($item_cost_ratio * $total_importation_cost) / $item_quantity; //sprintf("%7.2f",$quantity);
 

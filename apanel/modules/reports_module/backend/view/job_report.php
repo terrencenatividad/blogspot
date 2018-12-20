@@ -350,6 +350,7 @@
     var ftotal_credit = 0;
 
     $('#tableList').on('click', '.amount', function () {
+        ajax.page = 1;
         var account_code = $(this).attr('data-id');
         ajax.account_code = $(this).attr('data-id');
         showProcessFee();
@@ -358,11 +359,12 @@
     });
 
     function showProcessFee() {
+        ajax.page = 1;
         var ftotal_debit = 0;
         var ftotal_credit = 0;
         $.post('<?=MODULE_URL?>ajax/processing_fee_listing', ajax, function (data) {
             $('#tb_process_fee #tb_process_body').html(data.table);
-            $('#pagination2').html(data.pagination);
+            $('#pagination2').html(data.pagination2);
 
             $('#tb_process_fee tbody tr td.tobesum').each(function () {
                 debits = removeComma($(this).html());
@@ -426,6 +428,7 @@
     });
 
     function closejobList() {
+        ajax.page = 1;
         $.post('<?=MODULE_URL?>ajax/close_job_listing', ajax, function (data) {
             tdebits = 0;
             tcredits = 0;
@@ -516,9 +519,14 @@
         });
     };
 
-    showList();
+    //showList();
     
     function getTotal() {
+        // ajax_call = $.post('<?=MODULE_URL?>ajax/jobreport_listingTotal', ajax, function (data) {
+        //     if (data) { 
+        //         $('#total_job').html(data.total);
+        //     }
+        //  });
         if($('#tableList tbody tr td.text-center').html() == 'No Records Found') {
             $('.total_job').html(addComma('0.00'));
         } else {

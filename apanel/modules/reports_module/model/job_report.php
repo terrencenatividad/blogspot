@@ -235,6 +235,50 @@
 												->runUpdate();
 			return $result;
         }
+
+        public function retrieveListingTotal($data)
+        {
+            
+
+            $daterangefilter 	= isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
+            $jobno      	= isset($data['job_number']) ? htmlentities($data['job_number']) : ""; 
+            $searchkey 		 	= isset($data['account_search']) ? htmlentities($data['account_search']) : "";
+            $sort 		 	 	= isset($data['sort']) ? htmlentities($data['sort']) : "j.job_no ASC";
+            
+            $datefilterArr		= explode(' - ',$daterangefilter);
+            $datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
+            $datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
+            
+            $add_query   = (!empty($searchkey)) ? "AND (ca.segment5 LIKE '%$searchkey%' OR ca.accountname LIKE '%$searchkey%' )" : "";
+            $add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND j.entereddate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
+            $add_query .= (!empty($jobno) && $jobno != 'none') ? "AND j.job_no = '$jobno' " : "";
+            //var_dump($add_query);
+
+            $fields         = array('
+                                    fj.job_no,
+                                    bt.accountcode,
+                                    ca.accountname,
+                                    ca.segment5,
+                                    ca.id,
+                                    (SUM(bt.debit) - SUM(bt.credit)) AS amount,
+                                    j.stat
+                                    ');
+
+            $result         = $this->db->setTable('balance_table bt')
+                                        ->setFields($fields)
+                                        ->innerJoin('financial_jobs fj on fj.voucherno = bt.voucherno')
+                                        ->leftJoin('chartaccount ca on ca.id = bt.accountcode')
+                                        ->leftJoin('job j on j.job_no = fj.job_no')
+                                        ->setWhere("bt.transtype IN('AP',
+                                        'CM','DM') AND j.job_no != '' $add_query")
+                                        ->setOrderBy($sort)
+                                        ->setGroupBy('bt.accountcode, j.job_no')
+                                        ->runSelect()
+                                        ->getResult();
+            //echo $this->db->getQuery();
+
+            return $result;
+        }
         
     }
 
