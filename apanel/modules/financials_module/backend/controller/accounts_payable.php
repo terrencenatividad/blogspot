@@ -91,7 +91,6 @@ class controller extends wc_controller
 		$data['show_input']         = true;
 		$data["ajax_task"] 		    = "ajax_create";
 		$data["ajax_post"] 	        = "";
-		$data["exchangerate"]       = "1.00";
 		$data['budget_list'] = $this->accounts_payable->getBudgetCodes();
 		$close_date 				= $this->accounts_payable->getClosedDate();
 		$data['close_date']			= $close_date;
