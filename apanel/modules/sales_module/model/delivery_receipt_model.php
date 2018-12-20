@@ -257,7 +257,6 @@ class delivery_receipt_model extends wc_model {
 		$this->db->setTable('deliveryreceipt_details')
 					->setWhere("voucherno = '$voucherno'")
 					->runDelete();
-
 		$result = $this->db->setTable('deliveryreceipt_details')
 							->setValuesFromPost($data)
 							->runInsert();
@@ -527,12 +526,12 @@ class delivery_receipt_model extends wc_model {
 			foreach ($result1 as $key => $row) {
 				$checker[$row->linenum] = (object) $row;
 			}
-
 			foreach ($result as $key => $row) {
 				$result[$key]->issueqty = (isset($checker[$row->linenum])) ? $checker[$row->linenum]->issueqty : 0;
 				if (isset($checker[$row->linenum])) {
 					$result[$key]->amount = $checker[$row->linenum]->amount;
 				}
+				$result[$key]->serialnumbers = (isset($checker[$row->linenum])) ? $checker[$row->linenum]->serialnumbers : 0;
 			}
 		}
 		return $result;
@@ -744,10 +743,12 @@ class delivery_receipt_model extends wc_model {
 		
 		$ids = preg_split("/[\s,]+/", $result->serialnumbers);
 		$serials = implode(",",$ids);
-		$this->db->setTable('items_serialized')
-						->setValues(array('stat'=>'Available'))
-						->setWhere("id NOT IN($serials)")
-						->runUpdate();
+		if ($serials != "") {
+			$this->db->setTable('items_serialized')
+							->setValues(array('stat'=>'Available'))
+							->setWhere("id NOT IN($serials)")
+							->runUpdate();
+		}
 	}
 
 }
