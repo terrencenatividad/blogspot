@@ -1258,6 +1258,15 @@
 	</div>
 
 	<script>
+		$(document).ready(function() {
+			var currencycode = $('#currencycode').val();
+			$.post('<?=MODULE_URL?>ajax/ajax_get_currency_val', { currencycode : currencycode }, function(data) {
+				if(data) {
+					$('#exchanerate').val(data.exchangerate);
+				}
+			});
+		});
+
 		$('#btnCancel').click(function() 
 		{
 			$('#cancelModal').modal('show');
