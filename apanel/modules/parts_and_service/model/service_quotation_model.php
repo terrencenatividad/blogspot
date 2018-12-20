@@ -161,11 +161,12 @@ class service_quotation_model extends wc_model
 		return $result;
 	}
 	public function retrieveServiceQuotationDetails($voucherno=""){
-		$fields = "CONCAT(sq.itemcode,' - ',i.itemname) as itemname, sq.itemcode, sq.linenum, sq.haswarranty, sq.isbundle, sq.parentcode, sq.parentline, sq.detailparticular, sq.warehouse, sq.qty, sq.uom, sq.unitprice, sq.taxcode, sq.taxrate, sq.discounttype, sq.discountrate";
+		$fields = "CONCAT(sq.itemcode,' - ',i.itemname) as itemname, sq.itemcode, sq.linenum, sq.haswarranty, sq.isbundle, sq.parentcode, sq.parentline, sq.childqty, sq.detailparticular, sq.warehouse, sq.qty, sq.uom, sq.unitprice, sq.taxcode, sq.taxrate, sq.discounttype, sq.discountrate";
 		$result = $this->db->setTable('servicequotation_details sq')
 						->leftJoin('items i ON sq.itemcode = i.itemcode')
 						->setFields($fields)
 						->setWhere("voucherno = '$voucherno'")
+						->setOrderBy('linenum ASC')
 						->runSelect()
 						->getResult();
 		return $result;

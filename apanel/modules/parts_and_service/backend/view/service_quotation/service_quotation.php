@@ -162,14 +162,26 @@
 					<?php foreach ($voucher_details as $key => $row) { ?>
 						<?php 
 							if($row->parentcode != ''){
-								$attrdisabled = array('disabled',true);
-								$attrreadonly = array('readonly', 'readonly');
-								$trprop 	  = 'subitem'.$row->parentline;
+								$attrdisabled 	= array('disabled',true);
+								$attrreadonly 	= array('readonly', 'readonly');
+								$trprop 	  	= 'class="subitem'.$row->parentline.'"';
+								$discountstat 	= array('readonly', 'readonly');
 							}
 							else{
-								$attrdisabled = array('', '');
-								$attrreadonly = array('', '');
-								$trprop 	= 'class="item'.$row->linenum.' items" data-linenum="'.$row->linenum.'" data-isbundle="1"';
+								$attrdisabled 	= array('', '');
+								$attrreadonly 	= array('', '');
+								$trprop 		= 'class="item'.$row->linenum.' items" data-linenum="'.$row->linenum.'"';
+
+								if ($row->isbundle == 'Yes') 
+									$trprop 	.= ' data-isbundle="1"';
+								else
+									$trprop 	.= ' data-isbundle="0"';
+								
+
+								if ($row->discounttype == 'none') 
+									$discountstat = array('readonly', 'readonly');
+								else
+									$discountstat = array();
 							}
 						?>
 						<tr <?=$trprop?>>
@@ -247,7 +259,7 @@
 										->setClass('quantity text-right')
 										->setAttribute($attrreadonly)
 										->setValidation('required integer')
-										->setValue($row->qty)
+										->setValue($row->qty+0)
 										->draw($show_input);
 								?>
 								
@@ -283,7 +295,7 @@
 										->setSplit('', 'col-md-12')
 										->setName('discount[]')
 										->setClass('discount text-right')
-										->setAttribute(array('readonly'=>'true'))
+										->setAttribute($discountstat)
 										->setValidation('required decimal')
 										->setValue(number_format($row->discountrate,2))
 										->draw($show_input);
@@ -320,7 +332,13 @@
 										->draw($show_input);
 								?>
 							</td>
-							<?php if ($show_input): ?>
+							<?php if ($row->parentcode != ''):?>
+							<td>
+								<button type="button" class="btn btn-danger btn-flat delete_row" style="outline:none;" disabled>
+									<span class="glyphicon glyphicon-trash"></span>
+								</button>
+							</td>
+							<?php elseif ($show_input): ?>
 							<td>
 								<button type="button" class="btn btn-danger btn-flat delete_row" style="outline:none;">
 									<span class="glyphicon glyphicon-trash"></span>
@@ -478,8 +496,8 @@
 	var ajax_call	= '';
 	var min_row		= 1;
 	function addVoucherDetails() {
-		var linenum = $('#tableList tbody tr.items').length + 1;
-		var row = `<tr class='item`+ linenum +` items' data-linenum='`+ linenum +`'>
+		var linenum = $('#tableList tbody tr').length + 1;
+		var row = `<tr class='item`+ linenum +` items' data-linenum='`+ linenum +`' data-isbundle='0'>
 					<td>
 						<?php
 							echo $ui->formField('dropdown')
@@ -634,31 +652,47 @@
 	}
 
 	function getItemDetails(itemcode, element){
-		var parentline = element.closest('tr').data('linenum');
-		var customer = $('#customer').val();
+		var row 		= element.closest('tr')
+		var isbundle 	= row.data('isbundle');
+		var parentline 	= row.data('linenum');
+		var customer 	= $('#customer').val();
 
 		$.post("<?=MODULE_URL?>ajax/get_item_details","itemcode="+itemcode, function(data){
-			element.closest("tr").find(".detailparticular").val(data.itemdesc);
-			element.closest("tr").find(".unitprice").val(addComma(data.itemprice));
-			element.closest("tr").find(".uom").val(data.uom);
-			element.closest("tr").data('isbundle', data.isbundle);
+
+			row.find(".detailparticular").val(data.itemdesc);
+			row.find(".warranty").iCheck('uncheck');
+			row.find(".haswarranty").val('No');
+			row.find(".warehouse").val('');
+			row.find(".quantity").val('0');
+			row.find(".uom").val(data.uom)
+			row.find(".unitprice").val(addComma(data.itemprice));
+			row.find(".discount").val('0.00');
+			row.find(".taxcode").val('none');
+
+			if (data.isbundle == 1) 
+				row.find(".isbundle").val('Yes');
+			else
+				row.find(".isbundle").val('No');
+
 			$.post('<?=MODULE_URL?>ajax/get_bundle_items',"itemcode="+itemcode+"&linenum="+parentline, function(bundle) {
+
 				if(bundle.table != "" && customer != '') {
+
 					var table = bundle.table;
-					
 					$('#tableList tbody tr select').select2('destroy');
 					element.closest('tr.item'+parentline).after(table);
-				} else {
-					if(element.closest('tr').data('isbundle')==1)	{ 
-						element.closest('tr').nextAll('tr.subitem'+parentline).remove();
-					}
+					$('.subitem'+parentline).find('.warehouse').val('');
+				} 
+				else {
+
+					if(row.data('isbundle')==1)
+						row.nextAll('tr.subitem'+parentline).remove();
+
 				}
 				drawTemplate();
 			});
-			$.each($('tr.subitem'+parentline), function(){
-				$(this).find('input').attr('readonly','readonly');
-				$(this).find('select').attr('readonly','readonly');
-			});
+
+			row.data('isbundle', data.isbundle);
 		});
 		
 	}
@@ -764,14 +798,19 @@
 	});
 
 	$('body').on('click', '.delete_row', function() {
-		delete_row = $(this).closest('tr');
+		var delete_row 	= $(this).closest('tr');
+		var linenum 	= delete_row.data('linenum');
+		var isbundle 	= delete_row.data('isbundle');
+
+		if(isbundle==1)	{
+			console.log('delete');
+			delete_row.nextAll('tr.subitem'+linenum).remove();
+		}
+		
 		delete_row.remove();
-		if ($('#tableList tbody tr').length < min_row) {
+
+		if ($('#tableList tbody tr').length < min_row) 
 			addVoucherDetails();
-		}
-		if($(this).closest('tr').data('isbundle', data.isbundle)==1)	{ 
-			$(this).closest('tr').nextAll('tr.subitem'+linenum).remove();
-		}
 	});
 
 	$('#tableList tbody').on('change', '.itemcode', function(e) {
@@ -797,9 +836,11 @@
 			else
 				$(this).parent().parent().removeClass('has-error');
 		}
-		
+		console.log($(this).closest('tr').data('isbundle'));
+
 		if ($(this).closest('tr').data('isbundle') == 1) {
 			var linenum = $(this).closest('tr').data('linenum');
+
 			$.each($('.subitem'+linenum), function(){
 				var subitemqty 	= $(this).closest('tr').find('.childqty').val();
 				subitemqty 		= subitemqty * value;
@@ -929,9 +970,9 @@
 
 		//$('#submit_container [type="submit"]').attr('disabled', true);
 
-		$('.quantity').each(function() {
+		$('.items .quantity').each(function() {
 
-			if( $(this).val() < 1 && $(this).closest('tr').hasClass('items')){
+			if( $(this).val() < 1){
 				$(this).parent().parent().addClass('has-error');
 			}
 		});
