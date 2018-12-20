@@ -253,7 +253,7 @@ class controller extends wc_controller {
 		);
 		
 		$result1 = $this->service_quotation->saveValues('servicequotation',$values);
-		var_dump($values);
+		
 		$values = array(
 					'voucherno' 		=> $voucherno,
 					'transtype' 		=> 'SEQ',
@@ -278,7 +278,7 @@ class controller extends wc_controller {
 					'discountamount' 	=> str_replace(',', '', $quote_details['discountamount']),
 					'stat' 				=> 'Pending'
 		);
-		var_dump($values);
+		
 		$result2 = $this->service_quotation->saveFromPost('servicequotation_details', $values);
 
 		$result = array('query1' => $result1, 'query2' => $result2);
@@ -398,7 +398,7 @@ class controller extends wc_controller {
 		$itemcodes 		= $this->service_quotation->getItemList();
 
 		$w_entry_data           = array("warehousecode ind","description val");
-		$warehouses 	= $this->service_quotation->getWarehouseList();
+		$warehouse_list 	= $this->service_quotation->getWarehouseList();
 
 		$itemcode = [];
 		$itemdesc = [];
@@ -448,18 +448,19 @@ class controller extends wc_controller {
 			$table .= "<td class='text-center'>" . $ui->formField('checkbox')
 								->setName('warranty[]')
 								->setClass('warranty')
-								->setAttribute(array('disabled' ,true))
+								->setAttribute(array('disabled' ,true)) 
 								->setValue('0')
 								->draw(true);
 					"</td>";
 			$table .= '<td>' . $ui->formField('dropdown')
-								->setSplit('	', 'col-md-12')
 								->setPlaceholder('Select Warehouse')
-								->setName("displaywarehouse[]")
-								->setAttribute(array('disabled', true))
+								->setSplit('', 'col-md-12')
+								->setName('warehouse[]')
 								->setClass('warehouse')
-								->setList($warehouses)
-								->setValue('Select Warehouse')
+								->setList($warehouse_list)
+								->setValue('')
+								->setAttribute(array('disabled', true))
+								->setValidation('required')
 								->draw(true);
 						'</td>';
 			$table .= '<td>' . $ui->formField('text')
