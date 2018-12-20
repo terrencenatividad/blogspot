@@ -35,6 +35,23 @@ class controller extends wc_controller
 			'amount'
 		);
 
+		$this->budgetreport = array(
+			'budget_code',
+			'accountcode',
+			'january',
+			'february',
+			'march',
+			'april',
+			'may',
+			'june',
+			'july',
+			'august',
+			'september',
+			'october',
+			'november',
+			'december'
+		);
+
 		$data = array();
 	}
 
@@ -53,6 +70,7 @@ class controller extends wc_controller
 		$data['user_list'] = $this->budgetting->getUserList();
 		$data['prepared_by'] = $get['username'];
 		$data['ui'] 		= $this->ui;
+		$data['transactiondate'] = date('M D, Y');
 		$data['ajax_task'] 	= 'ajax_create';
 		$data['ajax_post'] 	= '';
 		$data['show_input'] = true;
@@ -97,6 +115,7 @@ class controller extends wc_controller
 		$budget = $this->input->post($this->fields);
 		$post = $this->input->post();
 		$budget_details = $this->input->post($this->budget_details);
+		$budgetreport = $this->input->post($this->budgetreport);
 		$this->seq = new seqcontrol();
 		$year = date('Y');
 		$date = date('Y-m-d', strtotime($budget['transactiondate']));
@@ -109,6 +128,38 @@ class controller extends wc_controller
 		$budget['total'] = str_replace(',', '', $post['v_total']);
 		$budget_details['amount'] = str_replace(',', '', $budget_details['amount']);
 		$budget_details['budget_code'] = $budget['budget_code'];
+		$permonth = 0;
+		$temp = array();
+		if($budget['budget_check'] == 'Monitored') {
+			if(!empty($budget_details['amount'])) {
+				for($i = 0; $i < count($budget_details['accountcode']); $i++) {
+					if(!empty($budget_details['amount'][$i])) {
+						
+						$permonth = str_replace(',','',$budget_details['amount'][$i]) / 12;
+						$rounded = round($permonth);
+						$budgetreport['budget_code'] = $budget['budget_code'];
+						$budgetreport['accountcode'] = $budget_details['accountcode'][$i];
+						$budgetreport['january'] = $rounded;
+						$budgetreport['february'] = $rounded;
+						$budgetreport['march'] = $rounded;
+						$budgetreport['april'] = $rounded;
+						$budgetreport['may'] = $rounded;
+						$budgetreport['june'] = $rounded;
+						$budgetreport['july'] = $rounded;
+						$budgetreport['august'] = $rounded;
+						$budgetreport['september'] = $rounded;
+						$budgetreport['october'] = $rounded;
+						$budgetreport['november'] = $rounded;
+						$budgetreport['december'] = $rounded;
+						$temp[] = $budgetreport;
+					}
+				}
+			}
+		}
+		if($temp){
+			$savebudget = $this->budgetting->saveBudgetReport($temp);
+		}
+		
 		$result = $this->budgetting->saveBudget($budget, $budget_details);
 		return array(
 			'redirect'	=> MODULE_URL,
@@ -132,6 +183,38 @@ class controller extends wc_controller
 		$budget['total'] = str_replace(',', '', $post['v_total']);
 		$budget_details = $this->input->post($this->budget_details);
 		$budgetcode = $budget['budget_code'];
+		$permonth = 0;
+		$temp = array();
+		if($budget['budget_check'] == 'Monitored') {
+			if(!empty($budget_details['amount'])) {
+				for($i = 0; $i < count($budget_details['accountcode']); $i++) {
+					if(!empty($budget_details['amount'][$i])) {
+						$permonth = str_replace(',','',$budget_details['amount'][$i]) / 12;
+						$rounded = round($permonth);
+						$budgetreport['budget_code'] = $budget['budget_code'];
+						$budgetreport['accountcode'] = $budget_details['accountcode'][$i];
+						$budgetreport['january'] = $rounded;
+						$budgetreport['february'] = $rounded;
+						$budgetreport['march'] = $rounded;
+						$budgetreport['april'] = $rounded;
+						$budgetreport['may'] = $rounded;
+						$budgetreport['june'] = $rounded;
+						$budgetreport['july'] = $rounded;
+						$budgetreport['august'] = $rounded;
+						$budgetreport['september'] = $rounded;
+						$budgetreport['october'] = $rounded;
+						$budgetreport['november'] = $rounded;
+						$budgetreport['december'] = $rounded;
+						$temp[] = $budgetreport;
+					}
+				}
+			}
+		}
+
+		if($temp){
+			$savebudget = $this->budgetting->updateBudgetReport($budgetcode, $temp);
+		}
+
 		$result = $this->budgetting->updateBudget($budget, $id, $budgetcode);
 		$budget_details['budget_code'] = $budgetcode;
 		$budget_details['id'] = '';
