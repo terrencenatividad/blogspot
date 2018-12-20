@@ -44,6 +44,7 @@ class controller extends wc_controller
 		$this->apdetails = array(
 			'voucherno',
 			'transtype',
+			'budgetcode',
 			'accountcode',
 			'debit',
 			'credit',
@@ -62,6 +63,14 @@ class controller extends wc_controller
 			'id',
 			'voucherno',
 			'job_no'
+		);
+
+		$this->actualbudget = array(
+			'id',
+			'voucherno',
+			'budget_code',
+			'accountcode',
+			'actual'
 		);
 	}
 
@@ -83,6 +92,7 @@ class controller extends wc_controller
 		$data["ajax_task"] 		    = "ajax_create";
 		$data["ajax_post"] 	        = "";
 		$data["exchangerate"]       = "1.00";
+		$data['budget_list'] = $this->accounts_payable->getBudgetCodes();
 		$close_date 				= $this->accounts_payable->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data["transactiondate"]    = $this->date->dateFormat();
@@ -111,13 +121,13 @@ class controller extends wc_controller
 		$check_stat = $this->accounts_payable->checkStat($id);
 		$amountpaid = $check_stat->amountpaid;
 		$bal = $check_stat->balance;
-		$convertedamount = $check_stat->convertedamount;
+		$amount = $check_stat->amount;
 		$stat = '';
-		if($bal == $convertedamount && $data['stat'] == 'posted') {
+		if($bal == $amount && $data['stat'] == 'posted') {
 			$stat = 'unpaid';
-		} else if($bal != $convertedamount && $bal != 0 && $data['stat'] == 'posted') {
+		} else if($bal != $amount && $bal != 0 && $data['stat'] == 'posted') {
 			$stat = 'partial';
-		} else if($bal == 0 && $amountpaid == $convertedamount && $data['stat'] == 'posted'){
+		} else if($bal == 0 && $amountpaid == $amount && $data['stat'] == 'posted'){
 			$stat = 'paid';
 		} else if($bal != 0 && $data['stat'] == 'cancelled'){
 			$stat = 'cancelled';
@@ -144,6 +154,7 @@ class controller extends wc_controller
 		$data['currency'] = $data['currencycode'];
 		$data['address'] = $det['address1'];
 		$data['email'] = $det['email'];
+		$data['budget_list'] = $this->accounts_payable->getBudgetCodes();
 		$data['tinno'] = $det['tinno'];
 		$data["ui"]   			   = $this->ui;
 		$data['show_input'] 	   = false;
@@ -175,6 +186,7 @@ class controller extends wc_controller
 		$data['email'] = $det['email'];
 		$data['address1'] = $det['address1'];
 		$data['tinno'] = $det['tinno'];
+		$data['budget_list'] = $this->accounts_payable->getBudgetCodes();
 		$data["ui"]   			   = $this->ui;
 		$data['status_badge'] = $this->colorStat($data['stat']);
 		$data["ajax_task"] 	  		   = "ajax_edit";
@@ -268,7 +280,7 @@ class controller extends wc_controller
 		$apamount[0]->amount;
 
 		$docinfo_table  = "accountspayable as ap";
-		$docinfo_fields = array('ap.transactiondate AS documentdate','ap.voucherno AS voucherno',"CONCAT( first_name, ' ', last_name )","IF('{$sub_select[0]->amount}' != \"\", '{$sub_select[0]->amount}', '{$apamount[0]->amount}') AS amount",'ap.amount AS apamount', "'' AS referenceno", "particulars AS remarks", "p.partnername AS vendor");
+		$docinfo_fields = array('ap.transactiondate AS documentdate','ap.voucherno AS voucherno',"CONCAT( first_name, ' ', last_name )","IF('{$sub_select[0]->amount}' != \"\", '{$sub_select[0]->amount}', '{$apamount[0]->amount}') AS amount",'ap.amount AS apamount', "'' AS referenceno", "particulars AS remarks", "p.partnername AS vendor", 'ap.currencycode as currencycode', 'ap.exchangerate as exchangerate');
 		$docinfo_join   = "partners as p ON p.partnercode = ap.vendor AND p.companycode = ap.companycode";
 		$docinfo_cond 	= "ap.voucherno = '$voucherno'";
 
@@ -278,7 +290,7 @@ class controller extends wc_controller
 
 		// Retrieve Document Details
 		$docdet_table   = "ap_details as dtl";
-		$docdet_fields  = array("chart.segment5 as accountcode", "chart.accountname as accountname", "SUM(dtl.debit) as debit","SUM(dtl.credit) as credit");
+		$docdet_fields  = array("chart.segment5 as accountcode", "chart.accountname as accountname", "SUM(dtl.debit) as debit","SUM(dtl.credit) as credit", 'IF(dtl.debit = 0, SUM(dtl.convertedcredit), SUM(dtl.converteddebit)) as currency');
 		$docdet_join    = "chartaccount as chart ON chart.id = dtl.accountcode AND chart.companycode = dtl.companycode";
 		$docdet_cond    = "dtl.voucherno = '$voucherno'";
 		$docdet_groupby = "dtl.accountcode";
@@ -311,7 +323,7 @@ class controller extends wc_controller
 		}
 		
 		// Setting for PDFs
-		$print = new print_voucher_model('P', 'mm', 'Letter');
+		$print = new print_payables_model('P', 'mm', 'Letter');
 		$print->setDocumentType('Accounts Payable')
 		->setDocumentInfo($documentinfo[0])
 		->setVendor($vendor)
@@ -337,6 +349,7 @@ class controller extends wc_controller
 		$error_id = array();
 		if ($delete_id) {
 			$error_id = $this->accounts_payable->updateEntry($data, $delete_id);
+			$delete_fin = $this->accounts_payable->deleteEntry($delete_id);
 			$result 	= $this->accounts_payable->reverseEntries($invoices);
 		}
 		return array(
@@ -423,12 +436,13 @@ class controller extends wc_controller
 			$stat				= $row->stat;
 			$payment_status 	= $row->payment_status;
 			$status 	= ($row->stat != 'cancelled');
+			$status_paid = ($row->balance != '0.00');
 			$dropdown = $this->ui->loadElement('check_task')
 			->addView()
-			->addEdit($status && $restrict && !$pr)
+			->addEdit($status && $restrict && !$pr && $status_paid)
 			->addPrint()
-			->addDelete($status && $restrict)
-			->addCheckbox($status && $restrict)
+			->addDelete($status && $restrict && $status_paid)
+			->addCheckbox($status && $restrict && $status_paid)
 			->setValue($voucher)
 			->setLabels(array('delete' => 'Cancel'))
 			->draw();
@@ -525,6 +539,76 @@ class controller extends wc_controller
 
 		$account = $this->input->post('account');
 		$check = false;
+		$result = false;
+		$warning = array();
+		$accountchecker = array();
+		$errors = array();
+
+		$actualbudget = $this->input->post($this->actualbudget);
+		if(!empty($ap_details['budgetcode'])) {
+			for($check = 0; $check < count($ap_details['budgetcode']); $check++) {
+				if(!empty($ap_details['budgetcode'][$check])) {
+					$get_accountname = $this->accounts_payable->getAccountName($ap_details['accountcode'][$check]);
+					$get_amount = $this->accounts_payable->getBudgetAmount($ap_details['budgetcode'][$check], $ap_details['accountcode'][$check]);
+					$accountname = $get_accountname->accountname;
+					if(!$get_amount) {
+						$accountchecker[] = 'The account ' . $accountname . ' is not in your budget code ' .$ap_details['budgetcode'][$check]. '.';
+					} else {
+						$amount = $get_amount->amount;
+						$type = $get_amount->budget_check;
+
+						if($type == 'Monitored') {
+							if($ap_details['debit'][$check] != '0.00') {
+								if($ap_details['debit'][$check] > $amount) {
+									$warning[] = 'You were about to exceed from your budget code ' . $ap_details['budgetcode'][$check] . 
+									' ' . $accountname . ' account <br>';
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
+									$actualbudget['actual'] = $ap_details['debit'][$check];
+									$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
+								} else {
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
+									$actualbudget['actual'] = $ap_details['debit'][$check];
+									$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
+								}
+							} else {
+								if($ap_details['credit'][$check] > $amount) {
+									$warning[] = 'You were about to exceed from your budget code ' . $ap_details['budgetcode'][$check] . 
+									' ' . $accountname . ' account <br>';
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
+									$actualbudget['actual'] = $ap_details['credit'][$check];
+									$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
+								} else {
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
+									$actualbudget['actual'] = $ap_details['credit'][$check];
+									$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
+								}
+							}
+						} else {
+							if($ap_details['debit'][$check] != '0.00') {
+								if($ap_details['debit'][$check] > $amount) {
+									$error[] = 'You are not allowed to exceed budget in ' . $ap_details['budgetcode'][$check] . 
+									' ' . $accountname . ' account <br>';
+								}
+							} else {
+								if($ap_details['credit'][$check] > $amount) {
+									$error[] = 'You are not allowed to exceed budget in ' . $ap_details['budgetcode'][$check] . 
+									' ' . $accountname . ' account <br>';
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
 		if(!empty($account)) {
 			$classcode = $this->accounts_payable->getAccountClasscode($account);
 			foreach($classcode as $row) {
@@ -558,7 +642,10 @@ class controller extends wc_controller
 		return array(
 			'redirect'	=> $redirect,
 			'success'	=> $result,
-			'check'		=> $check
+			'check'		=> $check,
+			'warning'  	=> $warning,
+			'error'		=> $errors,
+			'accountchecker' => $accountchecker
 		);
 	}
 
@@ -630,6 +717,77 @@ class controller extends wc_controller
 		$account = $this->input->post('account');
 		$classcode = $this->accounts_payable->getAccountClasscode($account);
 		$check = false;
+		$result = false;
+		$details = false;
+		$warning = array();
+		$accountchecker = array();
+		$errors = array();
+
+		$actualbudget = $this->input->post($this->actualbudget);
+		if(!empty($ap_details['budgetcode'])) {
+			for($check = 0; $check < count($ap_details['budgetcode']); $check++) {
+				if(!empty($ap_details['budgetcode'][$check])) {
+					$get_accountname = $this->accounts_payable->getAccountName($ap_details['accountcode'][$check]);
+					$get_amount = $this->accounts_payable->getBudgetAmount($ap_details['budgetcode'][$check], $ap_details['accountcode'][$check]);
+					$accountname = $get_accountname->accountname;
+					if(!$get_amount) {
+						$accountchecker[] = 'The account ' . $accountname . ' is not in your budget code ' .$ap_details['budgetcode'][$check]. '.';
+					} else {
+						$amount = $get_amount->amount;
+						$type = $get_amount->budget_check;
+
+						if($type == 'Monitored') {
+							if($ap_details['debit'][$check] != '0.00') {
+								if($ap_details['debit'][$check] > $amount) {
+									$warning[] = 'You were about to exceed from your budget code ' . $ap_details['budgetcode'][$check] . 
+									' ' . $accountname . ' account <br>';
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
+									$actualbudget['actual'] = $ap_details['debit'][$check];
+									$update_budget = $this->accounts_payable->updateActualBudget($ap['voucherno'], $actualbudget);
+								} else {
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
+									$actualbudget['actual'] = $ap_details['debit'][$check];
+									$update_budget = $this->accounts_payable->updateActualBudget($ap['voucherno'], $actualbudget);
+								}
+							} else {
+								if($ap_details['credit'][$check] > $amount) {
+									$warning[] = 'You were about to exceed from your budget code ' . $ap_details['budgetcode'][$check] . 
+									' ' . $accountname . ' account <br>';
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
+									$actualbudget['actual'] = $ap_details['credit'][$check];
+									$update_budget = $this->accounts_payable->updateActualBudget($ap['voucherno'], $actualbudget);
+								} else {
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
+									$actualbudget['actual'] = $ap_details['credit'][$check];
+									$update_budget = $this->accounts_payable->updateActualBudget($ap['voucherno'], $actualbudget);
+								}
+							}
+						} else {
+							if($ap_details['debit'][$check] != '0.00') {
+								if($ap_details['debit'][$check] > $amount) {
+									$error[] = 'You are not allowed to exceed budget in ' . $ap_details['budgetcode'][$check] . 
+									' ' . $accountname . ' account <br>';
+								}
+							} else {
+								if($ap_details['credit'][$check] > $amount) {
+									$error[] = 'You are not allowed to exceed budget in ' . $ap_details['budgetcode'][$check] . 
+									' ' . $accountname . ' account <br>';
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
 		if(!empty($account)) {
 			foreach($classcode as $row) {
 				if($row->accountclasscode == 'ACCPAY') {
@@ -660,7 +818,10 @@ class controller extends wc_controller
 		return array(
 			'redirect'	=> $redirect,
 			'success'	=> $details,
-			'check'		=> $check
+			'check'		=> $check,
+			'warning'  	=> $warning,
+			'error'		=> $errors,
+			'accountchecker' => $accountchecker
 		);
 	}
 
@@ -1467,7 +1628,7 @@ class controller extends wc_controller
 		return $result;
 	}
 
-	private function ajax_list_jobs() {
+	private function ajax_list_job() {
 		$jobs_tagged = $this->input->post('jobs_tagged');
 		$tags = explode(',', $jobs_tagged);
 		$pagination = $this->accounts_payable->getJobList();
@@ -1507,5 +1668,18 @@ class controller extends wc_controller
 			}
 		}
 		return $check;
+	}
+
+	private function ajax_check_budget() {
+		$budgetcode = $this->input->post('budgetcode');
+		$accountcode = $this->input->post('accountcode');
+		$amount = 0;
+		$budget_check = '';
+		$get_amount = $this->accounts_payable->getBudgetAmount($budgetcode, $accountcode);
+		if(!empty($get_amount->amount)) {
+			$amount = $get_amount->amount;
+			$budget_check = $get_amount->budget_check;
+		}
+		return array('amount' => $amount, 'budget_check' => $budget_check);
 	}
 }

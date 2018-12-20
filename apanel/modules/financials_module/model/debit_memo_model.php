@@ -20,10 +20,10 @@ class debit_memo_model extends wc_model {
 		$data['stat']				= 'posted';
 		$data['period']				= date("n", strtotime($data['transactiondate']));
 		$data['fiscalyear']			= date("Y", strtotime($data['transactiondate']));
-		$data['currencycode']		= 'PHP';
-		$exchangerate				= '1.00';
+		//$data['currencycode']		= 'PHP';
+		//$exchangerate				= '1.00';
 		$data['amount']				= $total;
-		$data['convertedamount']	= $total * $exchangerate;
+		$data['convertedamount']	= $total * $data['exchangerate'];
 
 		$result = $this->db->setTable('journalvoucher')
 							->setValues($data)
@@ -47,9 +47,10 @@ class debit_memo_model extends wc_model {
 		$data['stat']				= 'posted';
 		$data['period']				= date("n", strtotime($data['transactiondate']));
 		$data['fiscalyear']			= date("Y", strtotime($data['transactiondate']));
-		$data['amount']		= $total;
-		$data['sr_amount']	= $sr_amount;
-		$data['transtype']	= 'DM';
+		$data['amount']				= $total;
+		$data['convertedamount']	= $total * $data['exchangerate'];
+		$data['sr_amount']			= $sr_amount;
+		$data['transtype']			= 'DM';
 		
 		$result = $this->db->setTable('journalvoucher')
 							->setValues($data)
@@ -83,8 +84,8 @@ class debit_memo_model extends wc_model {
 			$data['stat']				= 'posted';
 			$data['debit']				= $this->removeComma($data['debit']);
 			$data['credit']				= $this->removeComma($data['credit']);
-			$data['converteddebit']		= $this->removeComma($data['debit']);
-			$data['convertedcredit']	= $this->removeComma($data['credit']);
+			$data['converteddebit']		= $this->removeComma($data['converteddebit']);
+			$data['convertedcredit']	= $this->removeComma($data['convertedcredit']);
 			$data['linenum']			= $linenum;
 			$result = $this->db->setTable('journaldetails')
 						->setValuesFromPost($data)
@@ -401,6 +402,87 @@ class debit_memo_model extends wc_model {
 					->getResult();
 		return $result;
 
-	}	
+	}
+	
+	public function getJobList() {
+		$result = $this->db->setTable('job')
+		->setFields("job_no")
+		->setGroupBy('job_no')
+		->runPagination();
+		
+		return $result;
+	}
+
+	public function getCurrencyCode()
+	{
+		$result = $this->db->setTable('currency')
+		->setFields("currencycode ind, currencycode val")
+		->runSelect()
+		->getResult();
+		
+		return $result;
+	}
+
+	public function getExchangeRate($currencycode)
+	{
+		$result = $this->db->setTable('exchangerate')
+		->setFields("exchangerate")
+		->setWhere("exchangecurrencycode = '$currencycode'")
+		->setLimit(1)
+		->runSelect()
+		->getRow();
+		
+		return $result;
+	}
+
+	public function saveFinancialsJob($fields) {
+		$result = $this->db->setTable('financial_jobs')
+		->setValuesFromPost($fields)
+		->runInsert(false);
+
+		return $result;
+	}
+
+	public function checkVoucherOnFinancialsJob($voucherno){
+		$result = $this->db->setTable('financial_jobs')
+		->setFields('voucherno')
+		->setWhere("voucherno = '$voucherno'")
+		->runSelect(false)
+		->getRow();
+
+		return $result;
+	}
+
+	public function updateFinancialsJobs($fields, $voucherno)
+	{
+		$result = $this->db->setTable('financial_jobs')
+		->setWhere("voucherno = '$voucherno'")
+		->runDelete(false);
+
+		$result = $this->db->setTable('financial_jobs')
+		->setValues($fields)
+		->runInsert(false);
+
+		return $result;
+	}
+
+	public function deleteEntry($data) {
+		$error_id = array();
+		foreach ($data as $id) {
+			$result =  $this->db->setTable('financial_jobs')
+			->setWhere("voucherno = '$id'")
+			->runDelete(false);
+
+			if ($result) {
+				$this->log->saveActivity("Delete Item Type [$id]");
+			} else {
+				if ($this->db->getError() == 'locked') {
+					$error_id[] = $id;
+				}
+			}
+		}
+
+		return $error_id;
+	}
 
 }

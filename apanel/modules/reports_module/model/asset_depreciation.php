@@ -37,7 +37,7 @@ class asset_depreciation extends wc_model {
 		$datefilter = $this->date->dateDbFormat($datefilter);
 
 		if ($datefilter) {
-			$condition .= " AND depreciation_date <= '$datefilter'";
+			$condition .= " AND depreciation_date <= '$datefilter 11:59:59'";
 		 }
 
 		if($sort){
@@ -77,7 +77,7 @@ class asset_depreciation extends wc_model {
 		$datefilter = $this->date->dateDbFormat($datefilter);
 
 		if ($datefilter) {
-			$condition .= " AND depreciation_date <= '$datefilter'";
+			$condition .= " AND depreciation_date <= '$datefilter 11:59:59'";
 		 }
 
 		if($sort){

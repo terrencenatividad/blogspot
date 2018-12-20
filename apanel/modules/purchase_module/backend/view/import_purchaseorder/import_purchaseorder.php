@@ -118,10 +118,12 @@
 							</div>
 							<div class = "col-md-6 department_div">
 								<?php
-								echo $ui->formField('text')
+								echo $ui->formField('dropdown')
 								->setLabel('Department:')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('department')
+								->setPlaceholder('Select Department')
+								->setList($department_list)
 								->setId('department')
 								->setValue($department)
 								->draw($show_input);
@@ -292,6 +294,7 @@
 									$converted_freight 	  = 0;
 									$converted_insurance  = 0;
 									$converted_packaging  = 0;
+									$convertedamount  	  = 0;
 
 									$startnumber 	   	= ($row_ctr == 0) ? 1: $row_ctr;
 
@@ -460,10 +463,10 @@
 									$row 				= 1;
 									$disable_debit		= '';
 									$disable_credit		= '';
+									$b_subtotal			= 0;
 
 									for($i = 0; $i < count($details); $i++)
 									{
-										$b_subtotal			= 0;
 										$itemcode 	 		= $details[$i]->itemcode;
 										$detailparticular	= stripslashes($details[$i]->detailparticular);
 										$onhandqty  		= $details[$i]->onhandqty;
@@ -478,7 +481,6 @@
 										$warehouse_code		= (empty($request_no)) ? $details[$i]->warehouse 	: 	'';
 										$warehouse_name		= (empty($request_no)) ? $details[$i]->description: 	'';
 										$b_subtotal 	   += $convertedamount; 
-
 
 										?>	
 										<tr class="clone" valign="middle">
@@ -889,7 +891,7 @@
 										->setId('b_total')
 										->setClass("input_label text-right")
 										->setAttribute(array("maxlength" => "40",'readonly',"style" => "margin-left:4px;;margin-right: 14px;"))
-										->setValue(number_format($t_total,2))
+										->setValue(number_format($b_subtotal+$converted_freight+$converted_insurance+$converted_packaging,2))
 										->draw($show_input);
 										?>
 									</td>
@@ -1479,9 +1481,13 @@ echo $ui->loadElement('modal')
 				exchangerate	=	exchangerate.replace(/,/g,'');
 				discount		=	discount.value.replace(/,/g,'');
 
-				
+				if(discounttype == 'perc'){
+					discountamt = ((parseFloat(itemprice) 	* 	parseFloat(quantity)) * (parseFloat(discount)/100));
+				}else{
+					discountamt = discount;
+				}
 
-				var totalprice 	=	(parseFloat(itemprice) 	* 	parseFloat(quantity)) - parseFloat(discount);
+				var totalprice 	=	(parseFloat(itemprice) 	* 	parseFloat(quantity)) - parseFloat(discountamt);
 				var totalbase 	=	parseFloat(totalprice) 	* 	parseFloat(exchangerate);
 				//var amount 		=	parseFloat(totalprice) / ( 1 + parseFloat(vat) );
 	

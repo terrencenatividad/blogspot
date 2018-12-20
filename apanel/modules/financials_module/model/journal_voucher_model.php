@@ -207,8 +207,8 @@ class journal_voucher_model extends wc_model {
 
 	public function getJournalVoucherDetails($fields, $voucherno,$status) {
 		if($status != 'cancelled'){
-			$fields = array('voucherno','accountcode','detailparticulars','SUM(debit) debit','SUM(credit) credit','linenum');
-			$groupby = 'accountcode';
+			$fields = array('voucherno','accountcode','detailparticulars','debit','credit','linenum');
+			$groupby = '';
 		}else{
 			$fields = array('voucherno','accountcode','detailparticulars','debit','credit','linenum');
 			$groupby = '';

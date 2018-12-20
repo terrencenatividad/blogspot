@@ -276,7 +276,7 @@ class asset_master extends wc_model {
 
 	public function check_duplicate($current)
 		{
-			return $this->db->setTable('asset_number')
+			return $this->db->setTable('asset_master')
 							->setFields('COUNT(asset_number) count')
 							->setWhere(" asset_number = '$current'")
 							->runSelect()

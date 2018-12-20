@@ -137,11 +137,11 @@ class delivery_receipt_model extends wc_model {
 								->getRow();
 
 			$clearing_account = ($ftax) ? $ftax->account : '';
-
+			$total_amount	= 0;
+			
 			if ($details && $clearing_account) {
 				$linenum		= array();
-				$total_amount	= 0;
-
+				
 				foreach ($details as $key => $row) {
 					$details[$key]->linenum				= $key + 1;
 					$details[$key]->voucherno			= $jvvoucherno;
@@ -169,6 +169,7 @@ class delivery_receipt_model extends wc_model {
 					'stat'				=> $data['stat']
 				);
 			}
+			$detail_insert  = false;
 			$detail_insert = $this->db->setTable('journaldetails')
 										->setValues($details)
 										->runInsert();
@@ -200,9 +201,20 @@ class delivery_receipt_model extends wc_model {
 			if ($result) {
 				$this->log->saveActivity("Create Delivery Receipt [{$data['voucherno']}]");
 			}
+
 			$result = $this->updateDeliveryReceiptDetails($data2, $data['voucherno']);
 		}
 
+
+		return $result;
+	}
+
+	public function getSerials($id) {
+		$result = $this->db->setTable('items_serialized')
+			->setFields('serialno, engineno, chassisno')
+			->setWhere("id='$id'")
+			->runSelect()	
+			->getRow();
 
 		return $result;
 	}
@@ -249,6 +261,36 @@ class delivery_receipt_model extends wc_model {
 		$result = $this->db->setTable('deliveryreceipt_details')
 							->setValuesFromPost($data)
 							->runInsert();
+	
+		foreach ($data['serialnumbers'] as $row) {
+			if ($row != "") {
+				$ids = explode(",", $row);
+				foreach ($ids as $id) {
+					//$getData = $this->getSerials($id);
+						
+					// $itemcode = $row['itemcode'];
+					// $itemlinenum = $row['linenum'];
+
+					// $s_data['voucherno'] = $voucherno;
+					// $s_data['serialno'] = $getData->serialno;
+					// $s_data['engineno'] = $getData->engineno;
+					// $s_data['chassisno'] = $getData->chassisno;
+
+					// $this->db->setTable('dr_serialized')
+					// 		->setWhere("voucherno = '$voucherno' AND itemcode = '$itemcode' AND itemlinenum = '$itemlinenum'")
+					// 		->runDelete();
+
+					// $this->db->setTable('dr_serialized')
+					// 					->setValues($s_data)
+					// 					->runInsert();
+
+					$this->db->setTable('items_serialized')
+										->setValues(array('stat'=>'Not Available'))
+										->setWhere("id = '$id'")
+										->runUpdate();
+				}
+			}
+		}
 
 		$this->updateSalesOrder($voucherno);
 							
@@ -681,6 +723,16 @@ class delivery_receipt_model extends wc_model {
 								->setOrderBy('voucherno, linenum, rowno')
 								->runPagination();
 								
+		return $result;
+	}
+
+	public function getDRSerials($itemcode, $voucherno, $linenum) {
+		$result = $this->db->setTable('deliveryreceipt_details') 
+						->setFields('serialnumbers')
+						->setWhere("itemcode='$itemcode' AND voucherno='$voucherno' AND linenum='$linenum'")
+						->runSelect()
+						->getRow();
+
 		return $result;
 	}
 

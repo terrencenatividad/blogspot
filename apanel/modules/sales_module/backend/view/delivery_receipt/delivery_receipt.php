@@ -16,6 +16,13 @@
 										</div>
 									<?php else: ?>
 										<?php
+											echo $ui->formField('hidden')
+												->setName('voucher')
+												->setId('voucher')
+												->setValue($voucherno)
+												->draw($show_input);
+										?>
+										<?php
 											echo $ui->formField('text')
 												->setLabel('Delivery No.')
 												->setSplit('col-md-4', 'col-md-8')
@@ -135,6 +142,21 @@
 											->setValue($remarks)
 											->draw($show_input);
 									?>
+									<?php
+										echo $ui->formField('hidden')
+											->setName('main_serial')
+											->setId('main_serial')
+											->setClass('main_serial')
+											->draw($show_input);
+									?>
+									<?php
+										echo $ui->formField('hidden')
+											->setName('task')
+											->setId('task')
+											->setClass('task')
+											->setValue($ajax_task)
+											->draw($show_input);
+									?>
 								</div>
 							</div>
 						</div>
@@ -234,10 +256,11 @@
 		<div class="modal-dialog modal-md" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<button type="button" id = "modal_close" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					<h4 class="modal-title">Items</h4>
 					<h5 class="modal-title">Item Code: <input type = "text" id = "sec_itemcode"></h5>
 					<h5 class="modal-title">Description: <input type = "text" id = "sec_description"></h5>
+					<input type = "hidden" id  = "checkcount">
 				</div>
 				<div class="modal-body">
 					<div class="row">
@@ -275,6 +298,26 @@
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
 							<button id = "btn_close" type="button" class="btn btn-default btn-sm btn-flat">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="warning_counter" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Oooops!</h4>
+				</div>
+				<div class="modal-body">
+					Selected serial numbers must be equal to the required value.
+				</div>
+				<div class="modal-footer">
+					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+						<div class="btn-group">
+							<button id = "btn_ok" type = "button" class = "btn btn-default btn-sm btn-flat">Ok</button>
 						</div>
 					</div>
 				</div>
@@ -346,6 +389,12 @@
 						?>
 						<?php
 							echo $ui->formField('hidden')
+								->setName('serialnumbers[]')
+								->setClass('serialnumbers')
+								->draw($show_input);
+						?>
+						<?php
+							echo $ui->formField('hidden')
 								->setName('h_itemcode[]')
 								->setClass('h_itemcode')
 								->setValue('` + details.itemcode + `')
@@ -377,6 +426,13 @@
 								->setName('item_ident_flag[]')
 								->setClass('item_ident_flag')
 								->setValue('` + details.item_ident_flag + `')
+								->draw($show_input);
+						?>
+						<?php
+							echo $ui->formField('hidden')
+								->setName('linenumber[]')
+								->setClass('linenumber')
+								->setValue('` + details.linenum + `')
 								->draw($show_input);
 						?>
 					</td>
@@ -448,11 +504,10 @@
 									->setAttribute(array('readonly' => 'readonly', 'data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.issueqty) || 0) + `'))
 									->setValidation('integer')
 									->setValue(0)
-									//->addHidden()
 									->draw($show_input);
 							?> ` + otherdetails + ` </td>
 						` } else { ;
-							row += `<td class="text-right"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart issueqty partbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `</td>`;
+							row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart issueqty partbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `<input type = "hidden" class = "issueqty" name = "issueqty[]" data-value = "` + (parseFloat(details.issueqty) || 0) + `" value = "` + (parseFloat(details.issueqty) || 0) + `"/></td>`;
 						}  
 					}
 				row +=`	<td>
@@ -474,7 +529,7 @@
 			`;
 			$('#tableList tbody').append(row);
 			if (details.itemcode != '') {
-				$('#tableList tbody').find('tr:last .itemcode').val('details.itemcode');
+				$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
 			}
 			if (details.warehouse != '') {
 				$('#tableList tbody').find('tr:last .warehouse').val(details.warehouse);
@@ -755,6 +810,7 @@
 		$(function() {
 			linkDeleteToModal('.delete_row', 'deleteVoucherDetails');
 		});
+
 		$('form').on('click', '[type="submit"]', function(e) {
 			e.preventDefault();
 			var form_element = $(this).closest('form');
@@ -762,30 +818,47 @@
 			recomputeAll();
 			$('#submit_container [type="submit"]').attr('disabled', true);
 			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
-			if (form_element.find('.form-group.has-error').length == 0) {
-				var items = 0;
-				$('.issueqty:not([readonly])').each(function() {
-					items += removeComma($(this).val());
-				});
-				if ($('.issueqty:not([readonly])').length > 0 && items > 0) {
-					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
-						if (data.success) {
-							$('#delay_modal').modal('show');
-							setTimeout(function() {							
-								window.location = data.redirect;						
-							}, 1000)
-						} else {
-							$('#submit_container [type="submit"]').attr('disabled', false);
-						}
+
+			var count_err = 0;
+			$('#tableList tbody tr').find('.partbtn').each(function() {
+				if ($(this).attr('disabled')) {}
+				else {
+					var req_val = $(this).val();
+					var serial_list = $(this).closest('tr').find('.serialnumbers').val();
+					var serials = serial_list.split(",");
+					if (serials == '') {
+						count_err++;
+						$('#warning_counter').modal('show');
+					}
+				}
+			});
+			if (count_err == 0) {
+				if (form_element.find('.form-group.has-error').length == 0) {
+					var items = 0;
+					$('.issueqty:not([readonly])').each(function() {
+						items += removeComma($(this).val());
 					});
+					if ($('.issueqty:not([readonly])').length > 0 && items > 0) {
+						$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
+							if (data.success) {
+								$('#delay_modal').modal('show');
+								setTimeout(function() {							
+									window.location = data.redirect;						
+								}, 1000)
+							} else {
+								$('#submit_container [type="submit"]').attr('disabled', false);
+							}
+						});
+					} else {
+						$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');1
+						$('#submit_container [type="submit"]').attr('disabled', false);
+					}
 				} else {
-					$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');1
+					form_element.find('.form-group.has-error').first().find('input, textarea, select').focus();
 					$('#submit_container [type="submit"]').attr('disabled', false);
 				}
-			} else {
-				form_element.find('.form-group.has-error').first().find('input, textarea, select').focus();
-				$('#submit_container [type="submit"]').attr('disabled', false);
 			}
+			$('#submit_container [type="submit"]').attr('disabled', false);
 		});
 	</script>
 	<?php endif; ?>
@@ -811,15 +884,25 @@
 				recomputeAll();
 			}
 		});	
-
+		var itemselected = [];
+		var allserials = [];
+		var linenum = '';
+		var serials = '';
+		var itemrow = '';
+		var task = '';
 		$('#tableList tbody').on('click', '.partbtn', function() {
+			itemrow = $(this);
+			linenum = $(this).closest('tr').find('span').attr('id')
 			itemcode = $(this).closest('tr').find('.h_itemcode').val();
 			description = $(this).closest('tr').find('.h_detailparticular').val();
-			tagSerial(itemcode, description);	
+			serials = $(this).closest('tr').find('.serialnumbers').val();
+			check_num = $(this).val();
+			tagSerial(itemcode, description, serials, check_num);	
 		});
 
-		function tagSerial(itemcode, description) {
+		function tagSerial(itemcode, description, serials, check_num) {
 			$('#serialModal').modal('show');
+			$('#serialModal #checkcount').val(check_num);
 			$("#serialModal #sec_itemcode").val(itemcode).prop('disabled', 'disabled').css('border', 'white').css('background', 'white');
 			$("#serialModal #sec_description").val(description).prop('disabled', 'disabled').css('border', 'white').css('background', 'white');
 		}
@@ -828,6 +911,17 @@
 			filterToURL();
 			if (ajax_call != '') {
 				ajax_call.abort();
+			}
+			ajax.itemselected = serials;
+			//ajax.linenum = linenum;
+			ajax.allserials = $('#main_serial').val();
+			ajax.id = itemrow.closest('tr').find('.serialnumbers').val();
+			task = $('#task').val();
+			ajax.task = $('#task').val();
+			if (task=='ajax_edit') {
+				var linenumber = itemrow.closest('tr').find('.linenumber').val();
+				ajax.linenumber = linenumber;
+				ajax.voucherno = $('#voucher').val();
 			}
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_serial_list', ajax, function(data) {
 				$('#tableSerialList tbody').html(data.table);
@@ -864,5 +958,39 @@
 
 		$('#serialModal #btn_close').on('click', function() {
 			$('#serialModal').modal('hide');
+		});
+
+		$('#btn_tag').on('click', function() {
+			itemselected = [];
+			allserials = [];
+			var count = 0;
+			var checkcount = $('#checkcount').val();
+			$('#tableSerialList tbody tr input[type="checkbox"]:checked').each(function() {
+				count++;
+				var serialed = $(this).val();
+				itemselected.push(serialed);
+				itemrow.closest('tr').find('.serialnumbers').val(itemselected);
+			});
+			$('#tableList tbody tr .serialnumbers').each(function() {
+				var serials = $(this).val();
+				if (serials != '') {
+					allserials.push(serials);
+					$('#main_serial').val(allserials);
+				}	
+			});
+			if (count != checkcount) {
+				$('#warning_counter').modal('show');
+				$('#modal_close').hide();
+				$('#btn_close').hide();
+			}
+			else {
+				$('#serialModal').modal('hide');	
+				$('#modal_close').show();
+				$('#btn_close').show();
+			}
+		});
+
+		$('#btn_ok').on('click', function() {
+			$('#warning_counter').modal('hide');
 		});
 	</script>

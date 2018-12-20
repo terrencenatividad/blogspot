@@ -297,7 +297,7 @@
 								<h4 class="list-group-item-heading">Asset History</h4>
 								<p class="list-group-item-text">List of asset history</p>
 							</a>
-							<a href="asset_master_list" class="list-group-item">
+							<a href="asset_list" class="list-group-item">
 								<h4 class="list-group-item-heading">Asset Master List</h4>
 								<p class="list-group-item-text">List of assets</p>
 							</a>

@@ -11,12 +11,16 @@ class controller extends wc_controller {
 		$this->session			= new session();
 		$this->fields 			= array(
 			'voucherno',
+			'job_no',
 			'transactiondate',
+			'currencycode',
 			'referenceno',
+			'exchangerate',
 			'remarks',
 			'proformacode',
 			'partner',
 			'amount',
+			'convertedamount',
 			'si_no',
 			'sr_amount',
 			'stat'
@@ -26,7 +30,9 @@ class controller extends wc_controller {
 			'accountcode',
 			'detailparticulars',
 			'debit',
-			'credit'
+			'credit',
+			'convertedcredit',
+			'converteddebit'
 		);
 	}
 
@@ -55,6 +61,9 @@ class controller extends wc_controller {
 		$data['show_input']			= true;
 		$data['restrict_cm'] 		= true;
 		$data['status'] 			= false;
+		$data['currencycodes'] = $this->cm_model->getCurrencyCode();
+		$data['currency'] = 'PHP';
+		//$data["exchangerate"]       = "1.00";
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
 
@@ -82,6 +91,9 @@ class controller extends wc_controller {
 		$data['show_input']			= true;
 		$data['restrict_cm'] 		= true;
 		$data['status'] 			= false;
+		$data['currencycodes'] = $this->cm_model->getCurrencyCode();
+		$data['currency'] = $data['currencycode'];
+		//$data['details'] = $details;
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
 
@@ -93,10 +105,10 @@ class controller extends wc_controller {
 		$display_edit 				= $this->cm_model->getSource($voucherno);
 		$display_edit 				= ($display_edit[0]->source == "excess") ? 0 : 1;
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
-		$data['ui'] = $this->ui;
-		$data['partner_list']   	 = $this->cm_model->getVendorList();
+		$data['ui']					= $this->ui;
+		$data['partner_list']   	= $this->cm_model->getVendorList();
 		$status						= $data['stat'];
-		$data['voucher_details']	= json_encode($this->cm_model->getJournalVoucherDetails($this->fields2, $voucherno));
+		$data['voucher_details']	= json_encode($this->cm_model->getJournalVoucherDetails								  ($this->fields2, $voucherno));
 		$data['show_input']			= false;
 		$coa_array	= array();
 		$hey = json_decode($data['voucher_details']);
@@ -106,12 +118,16 @@ class controller extends wc_controller {
 			}
 		$data['chartofaccounts']	= $this->cm_model->getEditChartOfAccountList($data,$coa_array);		
 		$data['ajax_task']			= 'ajax_view';
+		//$data['ajax_post'] 			= "&id=$id";
 		$data['proforma_list']		= $this->cm_model->getProformaList($data);
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data['restrict_cm'] 		= $restrict_cm;
 		$data['status']				= $status;
 		$data['display_edit'] 		= $display_edit;
+		$data['currencycodes'] = $this->cm_model->getCurrencyCode();
+		$data['currency'] = 		$data['currencycode'];
+
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
 
@@ -205,14 +221,53 @@ class controller extends wc_controller {
 		// 	$data['stat']		= 'posted';
 		// 	$data2['stat']		= 'posted';
 		// }
+		//$ap['job_no'] = $post['job'];
+		$result						= '';
+		$job_no						= $this->input->post('job');
 		$submit						= $this->input->post('submit');
 		$data						= $this->input->post($this->fields);
 		$data2						= $this->input->post($this->fields2);
+		
 		$seq						= new seqcontrol();
+		$data['job_no']				= $job_no;
 		$data['voucherno']			= $seq->getValue('CM');
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
+		
+		$data['amount'] 			= str_replace(',', '', $this->input->post('total_debit'));
+		$data['convertedamount'] 	= $this->input->post('total_currency');
+		//$data2['converteddebit'] 	= str_replace(',', '', $this->input->post('currencydebit'));	
+
+		$jobs = explode(',', $data['job_no']);
+
+		if(!empty($jobs[0])) {
+			$finjobs['voucherno'] = $data['voucherno'];
+			$finjobs['job_no'] = $jobs;
+			$fin_job = $this->cm_model->saveFinancialsJob($finjobs);
+			//var_dump($finjobs);
+		}
+
+		$rate = str_replace(',', '', $data['exchangerate']);
+		$debit = str_replace(',', '', $data2['debit']);
+		$credit = str_replace(',', '', $data2['credit']);
+
+		$convdebit = [];
+		$convcredit = [];
+		foreach($debit as $row) {
+			$convdebit[] = $rate * $row;
+		}
+		foreach($credit as $row) {
+			$convcredit[] = $rate * $row;
+		}
+
+		$data2['debit'] = str_replace(',', '', $data2['debit']);
+		$data2['credit'] = str_replace(',', '', $data2['credit']);
+		$data2['converteddebit'] = $convdebit;
+		$data2['convertedcredit'] = $convcredit;
+		
 		// $result					= $this->cm_model->updateJournalVoucher($data, $data2, $this->temp, (($finalized) ? 'Create' : false));
+
 		$result						= $this->cm_model->saveJournalVoucher($data, $data2);
+		
 
 		$redirect_url = MODULE_URL;
 		if ($submit == 'save_new') {
@@ -230,14 +285,64 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_edit() {
-		$data['partner_list']   	 = $this->cm_model->getVendorList();
-		$data					= $this->input->post($this->fields);
+		$data['partner_list']   	= $this->cm_model->getVendorList();
+		$data						= $this->input->post($this->fields);
 		unset($data['voucherno']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
-		$voucherno				= $this->input->post('voucherno_ref');
-		$data2					= $this->input->post($this->fields2);
-		$data2['stat']			= 'posted';
-		$result					= $this->cm_model->updateJournalVoucher($data, $data2, $voucherno, 'Update');
+		$voucherno					= $this->input->post('voucherno_ref');
+		$data2						= $this->input->post($this->fields2);
+		$data2['stat']				= 'posted';
+		$data['job_no']				= $this->input->post('job');
+		$jobs_tagged				= $this->input->post('jobs_tagged');
+
+		$rate = str_replace(',', '', $data['exchangerate']);
+		$debit = str_replace(',', '', $data2['debit']);
+		$credit = str_replace(',', '', $data2['credit']);
+
+		$job_no						= $this->input->post('job');
+		$data['job_no']				= $job_no;
+
+		if(empty($this->input->post('job'))) {
+			$data['job_no'] = $jobs_tagged;
+		} else {
+			$data['job_no'] = $data['job_no'];
+		}
+
+		$jobs = explode(',', $data['job_no']);
+		$check_voucher = $this->cm_model->checkVoucherOnFinancialsJob($voucherno);
+		$bool = (!empty($check_voucher)) ? true : $check_voucher;
+		$finjobs = array();
+		$finArr = array();
+		if(!empty($jobs[0])) {
+			foreach ($jobs as $row) {
+				if($bool) {
+					$finjobs['voucherno']= $voucherno;
+					$finjobs['job_no']= $row;
+				} else {
+					$finjobs['voucherno']= $voucherno;
+					$finjobs['job_no'] = $row;
+					$fin_job = $this->cm_model->saveFinancialsJob($finjobs);
+				}
+				$finArr[] 						= $finjobs;
+			}
+			$fin_job = $this->cm_model->updateFinancialsJobs($finArr, $voucherno);
+		}
+
+		$convdebit = [];
+		$convcredit = [];
+		foreach($debit as $row) {
+			$convdebit[] = $rate * $row;
+		}
+		foreach($credit as $row) {
+			$convcredit[] = $rate * $row;
+		}
+
+		$data2['debit'] = str_replace(',', '', $data2['debit']);
+		$data2['credit'] = str_replace(',', '', $data2['credit']);
+		$data2['converteddebit'] = $convdebit;
+		$data2['convertedcredit'] = $convcredit;
+		
+		$result						= $this->cm_model->updateJournalVoucher($data, $data2, $voucherno, 'Update');
 		return array(
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
@@ -248,8 +353,7 @@ class controller extends wc_controller {
 		$delete_id = $this->input->post('delete_id');
 		if ($delete_id) {
 			$this->cm_model->deleteJournalVouchers($delete_id);
-		}
-		if ($delete_id) {
+			$delete_fin = $this->cm_model->deleteEntry($delete_id);
 			$this->cm_model->reverseEntries($delete_id);
 		}
 	}
@@ -300,6 +404,35 @@ class controller extends wc_controller {
 			'partnername' 		=> $details[0]->partnername
 
 		);
+	}
+
+	private function ajax_list_jobs() {
+		$jobs_tagged = $this->input->post('jobs_tagged');
+		$tags = explode(',', $jobs_tagged);
+		$pagination = $this->cm_model->getJobList();
+		$table = '';
+
+		if (empty($pagination->result)) {
+			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+		}
+
+		foreach($pagination->result as $key => $row)
+		{
+			$table	.= '<tr>';
+			$check = in_array($row->job_no, $tags) ? 'checked' : '';
+			$table	.= '<td class = "text-center"><input type = "checkbox" name = "jobno[]" id = "jobno" class = "jobno" value = "'.$row->job_no.'" '.$check.'></td>';
+			$table	.= '<td>'.$row->job_no.'</td>';
+			$table	.= '</tr>';
+		}
+
+		$pagination->table = $table;
+		return $pagination;
+	}
+
+	private function ajax_get_currency_val() {
+		$currencycode = $this->input->post('currencycode');
+		$result = $this->cm_model->getExchangeRate($currencycode);
+		return array("exchangerate" => $result->exchangerate);
 	}
 
 }
