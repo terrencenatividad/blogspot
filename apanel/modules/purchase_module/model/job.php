@@ -108,7 +108,7 @@
         }
         
         public function getIPOPagination() {
-            $result = $this->db->setTable("import_purchase_order")
+            $result = $this->db->setTable("import_purchaseorder")
                             ->setFields("voucherno, transactiondate, amount")
                             ->setWhere("stat='open'")
                             ->setOrderBy("voucherno ASC")
@@ -117,7 +117,7 @@
         }
 
         public function getItemPagination($ipo_number){
-            $result = $this->db->setTable("import_purchase_order_details")
+            $result = $this->db->setTable("import_purchaseorder_details")
                             ->setFields("voucherno, itemcode, linenum, detailparticular, receiptqty, receiptuom")
                             ->setWhere("voucherno='".$ipo_number."'")
                             ->setOrderBy("voucherno ASC, linenum ASC")
