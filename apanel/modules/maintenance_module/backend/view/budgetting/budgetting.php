@@ -153,34 +153,36 @@
 									<div class="panel panel-default">
 										<div class="table-responsive">
 											<fieldset>
-												<table class="table table-hover table-condensed " id="itemsTable">
-													<thead>
-														<tr class="info">
-															<th class="col-md-4 text-center">Account</th>
-															<th class="col-md-4 text-center">Description</th>
-															<th class="col-md-4 text-center">Amount</th>
-														</tr>
-													</thead>
-													<tbody>
-													</tbody>
-													<tfoot>
-														<tr>
-															<td></td>
-															<td></td>
-															<td><?
-															echo $ui->formField('text')
-															->setLabel('Total')
-															->setSplit('col-md-3', 'col-md-8')
-															->setName('total')
-															->setId('total')
-															->setValue($total)
-															->setClass('text-right')
-															->setAttribute(array('readonly'))
-															->draw($show_input);	
-															?></td>
-														</tr>
-													</tfoot>
-												</table>
+												<div style = "height : 400px; overflow-y : scroll; overflow-x : hidden;">
+													<table class="table table-hover table-condensed " id="itemsTable">
+														<thead>
+															<tr class="info">
+																<th class="col-md-4 text-center">Account</th>
+																<th class="col-md-4 text-center">Description</th>
+																<th class="col-md-4 text-center">Amount</th>
+															</tr>
+														</thead>
+														<tbody>
+														</tbody>
+														<tfoot>
+															<tr>
+																<td></td>
+																<td></td>
+																<td><?
+																echo $ui->formField('text')
+																->setLabel('Total')
+																->setSplit('col-md-3', 'col-md-8')
+																->setName('total')
+																->setId('total')
+																->setValue($total)
+																->setClass('text-right input_label')
+																->setAttribute(array('readonly'))
+																->draw($show_input);	
+																?></td>
+															</tr>
+														</tfoot>
+													</table>
+												</div>
 											</fieldset>
 										</div>
 									</div>
