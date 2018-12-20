@@ -221,7 +221,7 @@ class controller extends wc_controller
 			->setName('accountcode[]')
 			->setId('accountcode')
 			->setClass('hidden')
-			->setValue($row->segment5)
+			->setValue($row->id)
 			->setAttribute(array('readonly'))
 			->draw(true); 
 			'</td>';
@@ -258,7 +258,7 @@ class controller extends wc_controller
 		$budgetcode	= $this->input->post('budgetcode');
 		$task	= $this->input->post('ajax_task');
 		if($task == 'ajax_view') {
-		$list = $this->budgetting->getBudgetAccounts($budgetcode);
+			$list = $this->budgetting->getBudgetAccounts($budgetcode);
 		} else {
 			$list = $this->budgetting->getBudgetAccountsOnEdit($budgetcode);
 		}
