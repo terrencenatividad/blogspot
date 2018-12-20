@@ -202,6 +202,24 @@
 	
 			return $dataArray = array( "msg" => $msg );
         }
+
+        private function jobreport_listingTotal()
+        {
+            $posted_data 	= $this->input->post(array("daterangefilter", "job_number", "account_search","sort"));
+            //var_dump($posted_data);
+            //var_dump($this->input->post());
+
+            $result 	= $this->job_report->retrieveListingTotal($posted_data);
+            $total = 0;
+            if( !empty($result) ) {
+                foreach($result as $row) {
+                    $valuee = number_format($row->amount,2);
+                    $total =+ $valuee;
+                }
+                var_dump($total);
+            }
+            return $total;
+        }
         
     }
 
