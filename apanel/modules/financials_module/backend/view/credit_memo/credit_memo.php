@@ -107,7 +107,12 @@
 								<input type="hidden" name="jobs_tagged" id="jobs_tagged" value="<?php echo $job_no; ?>">
 								<button type="button" id="job" class="btn btn-block btn-success btn-flat" <?php //echo $val ?>>
 									<em class="pull-left"><small>Click to tag job items</small></em>
-									<strong id="job_text" class="pull-right"></strong>
+									<strong id="job_text" class="pull-right"> 
+									<?php if($ajax_task == 'ajax_edit') {?>
+									<?php echo $tags; ?>
+									<?php } else { ?>
+									<?php } ?>
+									</strong>
 								</button>
 								<?php } else { ?>
 								<span>
@@ -1020,9 +1025,13 @@ echo $ui->loadElement('modal')
 				}
 				$('#job_text').html(job.length);
 				$('#assetid').attr('disabled', 'disabled');
-				$('#jobModal').modal('hide');
+				
 			});
+			if(ctr == 0) {
+				$('#job_text').html('0');
+			}
 			console.log(job);
+			$('#jobModal').modal('hide');
 		});
 
 		$('#currencycode').on('change', function() {
@@ -1033,9 +1042,11 @@ echo $ui->loadElement('modal')
 					$('#exchangerate').val(data.exchangerate);	
 					$('.debit').each(function() {
 						if($(this).val() != '0.00') {
-							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).val()));
+							console.log($('#exchangerate').val());
+							console.log($(this).val());
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).val())));
 						} else {
-							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).closest('tr').find('.credit').val()));
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).closest('tr').find('.credit').val())));
 						}
 					});
 					sumCurrencyAmount();

@@ -1413,15 +1413,21 @@
 
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
+			job = [];
+			var ctr = 0;
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
 				var get = $(this).val();
+				ctr++;
 				if($.inArray(get, job) == -1) {
 					job.push(get);
 				}
 				$('#job_text').html(job.length);
 				$('#assetid').attr('disabled', 'disabled');
-				$('#jobModal').modal('hide');
 			});
+			if(ctr == 0) {
+				$('#job_text').html('0');
+			}
+			$('#jobModal').modal('hide');
 		});
 
 		$('#vendor').on('change', function() {
@@ -1663,16 +1669,11 @@
 									}
 								});
 							} else if(data.error != '') {
-								$('#warning-modal').modal('show');
-								$('#errors').html(data.error);
-								$('#warning-modal').on('hidden.bs.modal', function() {
-									if(data.success) {
-										$('#delay_modal').modal('show');
-										setTimeout(function() {
-											window.location = data.redirect;
-										},500);
-									}
-								});
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.error);
+							} else if(data.accountchecker != ''){
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.accountchecker);
 							} else {
 								if(data.success) {
 									$('#delay_modal').modal('show');
@@ -1723,16 +1724,11 @@
 									}
 								});
 							} else if(data.error != '') {
-								$('#warning-modal').modal('show');
-								$('#errors').html(data.error);
-								$('#warning-modal').on('hidden.bs.modal', function() {
-									if(data.success) {
-										$('#delay_modal').modal('show');
-										setTimeout(function() {
-											window.location = data.redirect;
-										},500);
-									}
-								});
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.error);
+							} else if(data.accountchecker != ''){
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.accountchecker);
 							} else {
 								if(data.success) {
 									$('#delay_modal').modal('show');
