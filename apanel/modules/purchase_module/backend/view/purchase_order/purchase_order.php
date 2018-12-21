@@ -197,12 +197,13 @@
 						<table class="table table-hover table-condensed table-sidepad" id="itemsTable">
 							<thead>
 								<tr class="info">
+									<th class="col-md-2 text-center">Budget Code</th>
 									<th class="col-md-2 text-center">Item Name</th>
 									<th class="col-md-2 text-center">Description</th>
-									<th class="col-md-2 text-center">Warehouse</th>
+									<th class="col-md-1 text-center">Warehouse</th>
 									<th class="col-md-1 text-center">Quantity</th>
 									<th class="col-md-1 text-center">UOM</th>
-									<th class="col-md-2 text-center">Tax</th>
+									<th class="col-md-1 text-center">Tax</th>
 									<th class="col-md-1 text-center">Price</th>
 									<th class="col-md-2 text-center">Amount</th>
 									<th class="taxt-center"></th>
@@ -240,6 +241,19 @@
 
 									?>
 									<tr class="clone" valign="middle">
+										<td class = "remove-margin">
+											<?php
+											echo $ui->formField('dropdown')
+											->setPlaceholder('Select One')
+											->setSplit('	', 'col-md-12')
+											->setName("budgetcode[".$row."]")
+											->setId("budgetcode[".$row."]")
+											->setList($budget_list)
+											->setClass('budgetcode')
+											->setValidation('required')
+											->draw($show_input);
+											?>
+										</td>
 										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('dropdown')
@@ -365,6 +379,7 @@
 
 									for($i = 0; $i < count($details); $i++)
 									{
+										$budgetcode 	 		= $details[$i]->budgetcode;
 										$itemcode 	 		= $details[$i]->itemcode;
 										$detailparticular	= stripslashes($details[$i]->detailparticular);
 										$quantity 			= number_format($details[$i]->receiptqty,0);
@@ -377,8 +392,22 @@
 										$warehouse_name		= (empty($request_no)) ? $details[$i]->description: 	'';
 
 
-										?>	
+										?>
 										<tr class="clone" valign="middle">
+											<td class = "remove-margin">
+												<?php
+												echo $ui->formField('dropdown')
+												->setPlaceholder('Select One')
+												->setSplit('	', 'col-md-12')
+												->setName("budgetcode[".$row."]")
+												->setId("budgetcode[".$row."]")
+												->setList($budget_list)
+												->setClass('budgetcode')
+												->setValidation('required')
+												->setValue($budgetcode)
+												->draw($show_input);
+												?>
+											</td>
 											<td class = "remove-margin">
 												<?php
 												echo $ui->formField('dropdown')
@@ -978,6 +1007,60 @@
 	</div>
 </div>
 
+<div class="modal fade" id="warning-modal" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Warning
+			</div>
+			<div class="modal-body">
+				<div class = "row">
+					<div class="col-md-12">
+						<div id = "errors">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 col-sm-12 col-xs-12 text-right">
+						<div class="btn-group">
+							<button type="button" class="btn btn-info btn-flat" data-dismiss="modal">Confirm</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="accountchecker-modal" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Warning
+			</div>
+			<div class="modal-body">
+				<div class = "row">
+					<div class="col-md-12">
+						<div id = "accounterror">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 col-sm-12 col-xs-12 text-right">
+						<div class="btn-group">
+							<button type="button" class="btn btn-info btn-flat" data-dismiss="modal">Okay</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script>
 	function addVendorToDropdown() {
 
@@ -1355,33 +1438,35 @@ echo $ui->loadElement('modal')
 		for(var i = 1;i <= count;i++)
 		{
 			var row = table.rows[i];
-			row.cells[0].getElementsByTagName("select")[0].id 	= 'itemcode['+x+']';
-			row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
-			row.cells[2].getElementsByTagName("select")[0].id 	= 'warehouse['+x+']';
-			row.cells[3].getElementsByTagName("input")[0].id 	= 'quantity['+x+']';
-			row.cells[4].getElementsByTagName("input")[0].id 	= 'uom['+x+']';
-			row.cells[5].getElementsByTagName("select")[0].id 	= 'taxcode['+x+']';
-			row.cells[5].getElementsByTagName("input")[1].id 	= 'taxamount['+x+']';
-			row.cells[5].getElementsByTagName("input")[0].id 	= 'taxrate['+x+']';
-			row.cells[6].getElementsByTagName("input")[0].id 	= 'itemprice['+x+']';
-			row.cells[7].getElementsByTagName("input")[0].id 	= 'amount['+x+']';
-			row.cells[7].getElementsByTagName("input")[1].id 	= 'h_amount['+x+']';
+			row.cells[0].getElementsByTagName("select")[0].id 	= 'budgetcode['+x+']';
+			row.cells[1].getElementsByTagName("select")[0].id 	= 'itemcode['+x+']';
+			row.cells[2].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
+			row.cells[3].getElementsByTagName("select")[0].id 	= 'warehouse['+x+']';
+			row.cells[4].getElementsByTagName("input")[0].id 	= 'quantity['+x+']';
+			row.cells[5].getElementsByTagName("input")[0].id 	= 'uom['+x+']';
+			row.cells[6].getElementsByTagName("select")[0].id 	= 'taxcode['+x+']';
+			row.cells[6].getElementsByTagName("input")[1].id 	= 'taxamount['+x+']';
+			row.cells[6].getElementsByTagName("input")[0].id 	= 'taxrate['+x+']';
+			row.cells[7].getElementsByTagName("input")[0].id 	= 'itemprice['+x+']';
+			row.cells[8].getElementsByTagName("input")[0].id 	= 'amount['+x+']';
+			row.cells[8].getElementsByTagName("input")[1].id 	= 'h_amount['+x+']';
 			
-			row.cells[0].getElementsByTagName("select")[0].name = 'itemcode['+x+']';
-			row.cells[1].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
-			row.cells[2].getElementsByTagName("select")[0].name = 'warehouse['+x+']';
-			row.cells[3].getElementsByTagName("input")[0].name 	= 'quantity['+x+']';
-			row.cells[4].getElementsByTagName("input")[0].name 	= 'uom['+x+']';
-			row.cells[5].getElementsByTagName("select")[0].name = 'taxcode['+x+']';
-			row.cells[5].getElementsByTagName("input")[1].name 	= 'taxamount['+x+']';
-			row.cells[5].getElementsByTagName("input")[0].name 	= 'taxrate['+x+']';
-			row.cells[6].getElementsByTagName("input")[0].name 	= 'itemprice['+x+']';
-			row.cells[7].getElementsByTagName("input")[0].name 	= 'amount['+x+']';
-			row.cells[7].getElementsByTagName("input")[1].name 	= 'h_amount['+x+']';
+			row.cells[0].getElementsByTagName("select")[0].name 	= 'budgetcode['+x+']';
+			row.cells[1].getElementsByTagName("select")[0].name = 'itemcode['+x+']';
+			row.cells[2].getElementsByTagName("input")[0].name 	= 'detailparticulars['+x+']';
+			row.cells[3].getElementsByTagName("select")[0].name = 'warehouse['+x+']';
+			row.cells[4].getElementsByTagName("input")[0].name 	= 'quantity['+x+']';
+			row.cells[5].getElementsByTagName("input")[0].name 	= 'uom['+x+']';
+			row.cells[6].getElementsByTagName("select")[0].name = 'taxcode['+x+']';
+			row.cells[6].getElementsByTagName("input")[1].name 	= 'taxamount['+x+']';
+			row.cells[6].getElementsByTagName("input")[0].name 	= 'taxrate['+x+']';
+			row.cells[7].getElementsByTagName("input")[0].name 	= 'itemprice['+x+']';
+			row.cells[8].getElementsByTagName("input")[0].name 	= 'amount['+x+']';
+			row.cells[8].getElementsByTagName("input")[1].name 	= 'h_amount['+x+']';
 			
-			row.cells[8].getElementsByTagName("button")[0].setAttribute('id',x);
+			row.cells[9].getElementsByTagName("button")[0].setAttribute('id',x);
 			row.cells[0].getElementsByTagName("select")[0].setAttribute('data-id',x);
-			row.cells[8].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
+			row.cells[9].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
 
 			x++;
 		}
@@ -1396,6 +1481,7 @@ echo $ui->loadElement('modal')
 		var table 		= document.getElementById('itemsTable');
 		var newid 		= table.tBodies[0].rows.length;
 
+		document.getElementById('budgetcode['+newid+']').value 			= '';
 		document.getElementById('itemcode['+newid+']').value 			= '';
 		document.getElementById('detailparticulars['+newid+']').value 	= '';
 		document.getElementById('warehouse['+newid+']').value 			= '';
@@ -1427,7 +1513,7 @@ function cancelTransaction(vno)
 }
 
 /** FINALIZE SAVING **/
-function finalizeTransaction(type)
+function finalizeTransaction(type, error, warning, checkamount)
 {
 	$("#purchase_order_form").find('.form-group').find('input, textarea, select').trigger('blur');
 
@@ -1455,10 +1541,28 @@ function finalizeTransaction(type)
 
 		if($("#purchase_order_form #itemcode\\[1\\]").val() != '' && $("#purchase_order_form #warehouse\\[1\\]").val() != '' && $("#purchase_order_form #transaction_date").val() != '' && $("#purchase_order_form #due_date").val() != '' && $("#purchase_order_form #vendor").val() != '')
 		{
-			$('#delay_modal').modal('show');
-			setTimeout(function() {
-				$('#purchase_order_form').submit();
-			},1000);
+
+			if(checkamount != '') {
+				$('#warning-modal').modal('show');
+				$('#errors').html(checkamount);
+				$('#warning-modal').on('hidden.bs.modal', function() {
+					$('#delay_modal').modal('show');
+					setTimeout(function() {
+						$('#purchase_order_form').submit();
+					},1000);
+				});
+			} else if(error != '') {
+				$('#accountchecker-modal').modal('show');
+				$('#accounterror').html(data.error);
+			} else if(warning != ''){
+				$('#accountchecker-modal').modal('show');
+				$('#accounterror').html(warning);
+			} else {
+				$('#delay_modal').modal('show');
+				setTimeout(function() {
+					$('#purchase_order_form').submit();
+				},1000);
+			}
 		}
 	}
 	else{
@@ -1502,28 +1606,54 @@ function finalizeEditTransaction()
 
 				$.post("<?=BASE_URL?>purchase/purchase_order/ajax/<?=$task?>",$("#purchase_order_form").serialize()+'<?=$ajax_post?>',function(data)
 				{		
-					if( data.msg == 'success' )
-					{
-						if( btn == 'final' )
-						{
-							$('#delay_modal').modal('show');
-							setTimeout(function() {
-								window.location 	=	"<?=BASE_URL?>purchase/purchase_order";								
-							},1000);
+					var parse = JSON.stringify(data.msg);
+					var parsed = JSON.parse(parse);
+					error = parsed['error'];
+					warning = parsed['warning'];
+					checkamount = parsed['checkamount'];
+					errmsg = parsed['errmsg'];
+
+					if(checkamount != '') {
+						$('#warning-modal').modal('show');
+						$('#errors').html(checkamount);
+						$('#warning-modal').on('hidden.bs.modal', function() {
+							if(errmsg == '') {
+								if( btn == 'final' ) {
+									$('#delay_modal').modal('show');
+									setTimeout(function() {
+										window.location 	=	"<?=BASE_URL?>purchase/purchase_order";								
+									},1000);
+								}
+								else if( btn == 'final_preview' ) {
+									window.location 	=	"<?=BASE_URL?>purchase/purchase_order/view/"+data.voucher;
+								}
+								else if( btn == 'final_new' ) {
+									window.location 	=	"<?=BASE_URL?>purchase/purchase_order/create";
+								}
+							}
+						});
+					} else if(error != '') {
+						$('#accountchecker-modal').modal('show');
+						$('#accounterror').html(data.error);
+					} else if(warning != ''){
+						$('#accountchecker-modal').modal('show');
+						$('#accounterror').html(warning);
+					} else {
+						if(errmsg == '') {
+							if( btn == 'final' ) {
+								$('#delay_modal').modal('show');
+								setTimeout(function() {
+									window.location 	=	"<?=BASE_URL?>purchase/purchase_order";								
+								},1000);
+							}
+							else if( btn == 'final_preview' ) {
+								window.location 	=	"<?=BASE_URL?>purchase/purchase_order/view/"+data.voucher;
+							}
+							else if( btn == 'final_new' ) {
+								window.location 	=	"<?=BASE_URL?>purchase/purchase_order/create";
+							}
+
 						}
-						else if( btn == 'final_preview' )
-						{
-							window.location 	=	"<?=BASE_URL?>purchase/purchase_order/view/"+data.voucher;
-						}
-						else if( btn == 'final_new' )
-						{
-							window.location 	=	"<?=BASE_URL?>purchase/purchase_order/create";
-						}
-						
-					}
-					else
-					{
-						//insert error message / MOdal heree
 					}
 				});	
 			},1000);
@@ -1837,14 +1967,22 @@ $(document).ready(function(){
 		// Process New Transaction
 		if('<?= $task ?>' == "create")
 		{
+			var error = '';
+			var warning = '';
+			var checkamount = '';
 			$("#purchase_order_form").on('change blur',function()
 			{
-				if($("#purchase_order_form #itemcode\\[1\\]").val() != '' && $("#purchase_order_form #transaction_date").val() != '' && $("#purchase_order_form #due_date").val() != '' && $("#purchase_order_form #vendor").val() != '')
+				if($("#purchase_order_form #itemcode\\[1\\]").val() != '' && $("#purchase_order_form #transaction_date").val() != '' && $("#purchase_order_form #due_date").val() != '' && $("#purchase_order_form #vendor").val() != '' && 
+					$("#purchase_order_form #budgetcode\\[1\\]").val() != '')
 				{
 					$.post("<?=BASE_URL?>purchase/purchase_order/ajax/save_temp_data",$("#purchase_order_form").serialize())
 					.done(function(data)
 					{	
-						
+						var parse = JSON.stringify(data.msg);
+						var parsed = JSON.parse(parse);
+						error = parsed['error'];
+						warning = parsed['warning'];
+						checkamount = parsed['checkamount'];
 					});
 				}
 			});
@@ -1852,20 +1990,20 @@ $(document).ready(function(){
 			//Final Saving
 			$('#purchase_order_form #btnSave').click(function(){
 
-				finalizeTransaction("final");
+				finalizeTransaction("final", error, warning, checkamount);
 
 			});
 
 			//Save & Preview
 			$("#purchase_order_form #save_preview").click(function()
 			{
-				finalizeTransaction("final_preview");
+				finalizeTransaction("final_preview", error, warning, checkamount);
 			});
 
 			//Save & New
 			$("#purchase_order_form #save_new").click(function()
 			{
-				finalizeTransaction("final_new");
+				finalizeTransaction("final_new", error, warning, checkamount);
 			});
 		}
 		else if('<?= $task ?>' == "edit")

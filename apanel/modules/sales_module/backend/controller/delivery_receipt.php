@@ -49,7 +49,8 @@ class controller extends wc_controller {
 			'taxcode',
 			'taxamount',
 			'taxrate',
-			'serialnumbers'
+			'serialnumbers',
+			'parentcode'
 		);
 		$this->clean_number		= array(
 			'issueqty'
