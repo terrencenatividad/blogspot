@@ -1413,6 +1413,8 @@
 
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
+			job = [];
+			var ctr = 0;
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
 				var get = $(this).val();
 				if($.inArray(get, job) == -1) {
@@ -1421,6 +1423,9 @@
 				$('#job_text').html(job.length);
 				$('#assetid').attr('disabled', 'disabled');
 			});
+			if(ctr == 0) {
+				$('#job_text').html('0');
+			}
 			$('#jobModal').modal('hide');
 		});
 
