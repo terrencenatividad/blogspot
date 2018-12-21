@@ -1,11 +1,9 @@
 <section class="content">
-	<?php if($ajax_task == 'view'):?>
-	<ul id="section_tab" class="nav nav-tabs">
+	<ul id='nav' class="nav nav-tabs">
 		<li class="active"><a href="Details" data-toggle="tab">Details</a></li>
-		<li><a href="Attachment" data-toggle="tab">Attachment</a></li>
+		<?if(!$show_input):?><li><a href="Attachment" data-toggle="tab">Attachments</a></li><?endif;?>
 	</ul>
-	<?php endif;?>
-	<div id='details_section' class="box box-primary">
+	<div id='Details' class="box box-primary tab-pane">
 		<form action="" method="post" class="form-horizontal">
 			<div class="box-body">
 				<br>
@@ -151,7 +149,7 @@
 							<th class="col-md-1 text-center">UOM</th>
 							<th class="col-md-1 text-right">Price</th>
 							<th class="col-md-1 text-right">Discount</th>
-							<th class="col-md-1">Tax</th>
+							<th class="col-md-1 text-center">Tax</th>
 							<th class="col-md-2 text-right">Amount</th>
 							<?php if ($show_input): ?>
 							<th style="width: 50px;"></th>
@@ -161,6 +159,7 @@
 					<tbody>
 					<?php foreach ($voucher_details as $key => $row) { ?>
 						<?php 
+							$checkval = ($row->haswarranty == 'Yes') ? 'check' : 'uncheck';
 							if($row->parentcode != ''){
 								$attrdisabled 	= array('disabled',true);
 								$attrreadonly 	= array('readonly', 'readonly');
@@ -170,12 +169,7 @@
 							else{
 								$attrdisabled 	= array('', '');
 								$attrreadonly 	= array('', '');
-								$trprop 		= 'class="item'.$row->linenum.' items" data-linenum="'.$row->linenum.'"';
-
-								if ($row->isbundle == 'Yes') 
-									$trprop 	.= ' data-isbundle="1"';
-								else
-									$trprop 	.= ' data-isbundle="0"';
+								$trprop 		= 'class="item'.$row->linenum.' items"';
 								
 
 								if ($row->discounttype == 'none') 
@@ -183,6 +177,9 @@
 								else
 									$discountstat = array();
 							}
+
+							
+							
 						?>
 						<tr <?=$trprop?>>
 							<td>
@@ -198,21 +195,20 @@
 										->setValidation('required')
 										->draw($show_input);
 								?>
-<?php if($row->parentcode != ''): ?>
-<input type="hidden" class='itemcode' 	name="itemcode[]"" 	value="<?=$row->itemcode?>">
-<input type="hidden" class='warehouse' 	name="warehouse[]"" value="<?=$row->warehouse?>">
-<input type="hidden" class='taxcode'	name="taxcode[]"" 	value="">
-<?php endif;?>
-<input type="hidden" class='linenum' 	name="linenum[]" 	value=''>
-<input type="hidden" class='parentcode' name="parentcode[]" value='<?=$row->parentcode?>'>
-<input type="hidden" class='parentline' name="parentline[]" value='<?=$row->parentline?>'>
-<input type="hidden" class='childqty' 	name="childqty[]" 	value='<?=$row->childqty?>'>
-<input type='hidden' class='haswarranty' name='haswarranty[]' value='<?=$row->haswarranty?>'>
-<input type="hidden" class='isbundle' 	name="isbundle[]" 	value='<?=$row->isbundle?>'>
-<input type='hidden' class='discountamount' name='discountamount[]' value='<?=$row->discountamount?>'>
-<input type='hidden' class='discounttype_details' name='discounttype_details[]' value='<?=$row->discounttype?>'>
-<input type='hidden' class='taxrate' 	name='taxrate[]' 	value='<?=$row->taxrate?>'>
-<input type='hidden' class='taxamount' 	name='taxamount[]' 	value='<?=$row->taxamount?>'>
+								<?php if($row->parentcode != ''): ?>
+								<input type="hidden" class='itemcode' 	name="itemcode[]"" 	value="<?=$row->itemcode?>">
+								<input type="hidden" class='warehouse' 	name="warehouse[]"" value="<?=$row->warehouse?>">
+								<input type="hidden" class='taxcode'	name="taxcode[]"" 	value="">
+								<?php endif;?>
+								<input type="hidden" class='linenum' 	name="linenum[]" 	value='<?=$row->linenum?>'>
+								<input type="hidden" class='parentcode' name="parentcode[]" value='<?=$row->parentcode?>'>
+								<input type="hidden" class='parentline' name="parentline[]" value='<?=$row->parentline?>'>
+								<input type="hidden" class='childqty' 	name="childqty[]" 	value='<?=$row->childqty?>'>
+								<input type='hidden' class='haswarranty' name='haswarranty[]' value='<?=$row->haswarranty?>'>
+								<input type="hidden" class='isbundle' 	name="isbundle[]" 	value='<?=$row->isbundle?>'>
+								<input type='hidden' class='discounttype_details' name='discounttype_details[]' value='<?=$row->discounttype?>'>
+								<input type='hidden' class='taxrate' 	name='taxrate[]' 	value='<?=$row->taxrate?>'>
+								<input type='hidden' class='taxamount' 	name='taxamount[]' 	value='<?=$row->taxamount?>'>
 							</td>
 							<td>
 								<?php
@@ -301,7 +297,7 @@
 										->draw($show_input);
 								?>
 							</td>
-							<td>
+							<td class="<?=($ajax_task=='view')? 'text-center':'';?>">
 								<?php
 									
 									echo $ui->formField('dropdown')
@@ -316,6 +312,7 @@
 								?>
 								
 							</td>
+
 							<td class="text-right">
 								<?php
 									echo $ui->formField('text')
@@ -332,7 +329,7 @@
 										->draw($show_input);
 								?>
 							</td>
-							<?php if ($row->parentcode != ''):?>
+							<?php if ($row->parentcode != '' && $show_input):?>
 							<td>
 								<button type="button" class="btn btn-danger btn-flat delete_row" style="outline:none;" disabled>
 									<span class="glyphicon glyphicon-trash"></span>
@@ -346,6 +343,12 @@
 							</td>
 							<?php endif ?>
 						</tr>
+
+						<script>
+							$('.item<?=$row->linenum;?>').find('.warranty').iCheck('<?=$checkval?>');
+							$('.subitem<?=$row->parentline;?>').find('.warranty').iCheck('<?=$checkval?>');
+						</script>
+
 					<?php } ?>
 					</tbody>
 					<tfoot class="summary">
@@ -489,6 +492,46 @@
 			</div>
 		</form>
 	</div>
+	<div id="Attachment" class="tab-pane">
+			<div class="box box-primary">
+				<form method = "post" class="form-horizontal" id="case_attachments_form" enctype="multipart/form-data">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="table-responsive">
+								<table id="fileTable" class="table table-bordered">
+									<thead>
+										<tr class="info">
+											<th class="col-md-1">Action</th>
+											<th class="col-md-5">File Name</th>
+											<th class="col-md-2">File Type</th>
+										</tr>
+									</thead>
+									<tbody class="files" id="attachment_list">
+										<tr>
+											<!-- <td colspan="4" class="text-center">
+												<strong>- No Attachments Available -</strong>
+											</td> -->
+											<td>
+												<button type="button" id="replace_attachment" name="replace_attachment" class="btn btn-primary">Replace</button>
+											</td>
+											<td><a href="insert uploaded link here">1123132.pdf</a></td>
+											<td>PDF</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<!-- <hr/>
+					<div class="row">
+						<div class="col-md-12 text-center">
+							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal" onClick="getList();">Close</button>
+						</div>
+					</div> -->
+					<br/>
+				</form>
+			</div>
+		</div>
 </section>
 <script>
 	var delete_row	= {};
@@ -496,8 +539,8 @@
 	var ajax_call	= '';
 	var min_row		= 1;
 	function addVoucherDetails() {
-		var linenum = $('#tableList tbody tr').length + 1;
-		var row = `<tr class='item`+ linenum +` items' data-linenum='`+ linenum +`' data-isbundle='0'>
+		var linenum = $('tableList tbody tr').length + 1;
+		var row = `<tr class='item`+ linenum +` items'>
 					<td>
 						<?php
 							echo $ui->formField('dropdown')
@@ -650,13 +693,11 @@
 		drawTemplate();
 		checkDiscountType();
 	}
-
 	function getItemDetails(itemcode, element){
 		var row 		= element.closest('tr')
-		var isbundle 	= row.data('isbundle');
-		var parentline 	= row.data('linenum');
+		var parentline 	= row.find('.linenum').val();
 		var customer 	= $('#customer').val();
-
+		console.log(row);
 		$.post("<?=MODULE_URL?>ajax/get_item_details","itemcode="+itemcode, function(data){
 
 			row.find(".detailparticular").val(data.itemdesc);
@@ -671,9 +712,12 @@
 
 			if (data.isbundle == 1) 
 				row.find(".isbundle").val('Yes');
-			else
+			else{
 				row.find(".isbundle").val('No');
+				row.nextAll('tr.subitem'+parentline).remove();
+			}
 
+				
 			$.post('<?=MODULE_URL?>ajax/get_bundle_items',"itemcode="+itemcode+"&linenum="+parentline, function(bundle) {
 
 				if(bundle.table != "" && customer != '') {
@@ -682,30 +726,39 @@
 					$('#tableList tbody tr select').select2('destroy');
 					element.closest('tr.item'+parentline).after(table);
 					$('.subitem'+parentline).find('.warehouse').val('');
+					setLineNum();
 				} 
-				else {
 
-					if(row.data('isbundle')==1)
-						row.nextAll('tr.subitem'+parentline).remove();
-
-				}
 				drawTemplate();
 			});
 
-			row.data('isbundle', data.isbundle);
 		});
 		
 	}
+	function setLineNum(){
+		var static_linenum = 0;
+		$.each($('.linenum'),function(index){
+			var linenum = index+1;
+			var isparent = $(this).closest('tr').hasClass('items');
 
+			$(this).val(linenum);
+
+			if (isparent) {
+				static_linenum = linenum;
+				$(this).closest('tr').attr('class', 'items item'+linenum);
+			}
+			else
+				$(this).closest('tr').attr('class', 'subitem'+static_linenum);
+			
+		});
+	}
 	function checkDiscountType(){
 		if ($('#discount_type').val() == 'amt' || $('#discount_type').val() == 'perc') 
 			$('.discount').prop('readonly',false);	
 		
 		else
 			$('.discount').prop('readonly',true);	
-		
 	}
-
 	function addCommas(nStr){
 		nStr += '';
 		x = nStr.split('.');
@@ -717,7 +770,6 @@
 		}
 		return x1 + x2;
 	}
-	
 	function recomputeAll() {
 		var taxrates = <?php echo $taxrates ?>;
 		var discount_type = $("#discount_type").val();
@@ -781,78 +833,90 @@
 </script>
 
 <?php if ($show_input): ?>
-
 <script>
+
 	$('#section_tab li a').on('click',function(){
 		var section = $('#section_tab li:active a').attr('href');
 
 	});
 
 	$(document).ready(function(){
-		if ($('#tableList tbody tr').length < 1) 
+		if ($('#tableList tbody tr').length < 1) {
 			addVoucherDetails();
+			setLineNum();
+		}
 	});
 	
 	$('body').on('click', '#addNewItem', function() {
 		addVoucherDetails();
+		setLineNum();
 	});
 
 	$('body').on('click', '.delete_row', function() {
-		var delete_row 	= $(this).closest('tr');
-		var linenum 	= delete_row.data('linenum');
-		var isbundle 	= delete_row.data('isbundle');
+		var row 		= $(this).closest('tr');
+		var linenum 	= row.find('.linenum').val();
+		var isbundle 	= row.find('.isbundle').val();
 
-		if(isbundle==1)	{
-			console.log('delete');
-			delete_row.nextAll('tr.subitem'+linenum).remove();
-		}
-		
-		delete_row.remove();
+		if(isbundle == 'Yes')	
+			row.nextAll('tr.subitem'+linenum).remove();
+		row.remove();
+
 
 		if ($('#tableList tbody tr').length < min_row) 
 			addVoucherDetails();
+
+		setLineNum();
 	});
 
 	$('#tableList tbody').on('change', '.itemcode', function(e) {
 		var customer 	=	$('#customer').val();
-		if( customer != "" )
-		{
+
+		if( customer != "" ){
 			var itemcode = $(this).val();
 			getItemDetails(itemcode, $(this));
 		}
-		else
-		{	
+		else{	
 			$(this).val('');
 			drawTemplate();
 			$('#customer').focus();
 		}
+
 	});
 
 	$('#tableList tbody').on('input', '.quantity', function(e) {
-		var value 	=	removeComma($(this).val());
+		var formgroup 	= $(this).parent().parent();
+		var value 		= removeComma($(this).val());
+		var linenum 	= $(this).closest('tr').find('.linenum').val();
+		var isbundle 	= $(this).closest('tr').find('.isbundle').val();
+
 		if ($(this).closest('tr').hasClass('items')) {
 			if (value < 1) 
-				$(this).parent().parent().addClass('has-error');
+				formgroup.addClass('has-error');
 			else
-				$(this).parent().parent().removeClass('has-error');
+				formgroup.removeClass('has-error');
 		}
-		console.log($(this).closest('tr').data('isbundle'));
-
-		if ($(this).closest('tr').data('isbundle') == 1) {
-			var linenum = $(this).closest('tr').data('linenum');
+		console.log(linenum);
+		if (isbundle == 'Yes') {
 
 			$.each($('.subitem'+linenum), function(){
+
 				var subitemqty 	= $(this).closest('tr').find('.childqty').val();
+
 				subitemqty 		= subitemqty * value;
+
 				$(this).find('.quantity').val(subitemqty);
+
 			});
 		}
 	});
 
 	$('#tableList tbody').on('change', '.warehouse', function(e) {
-		var value 	= $(this).val();
-		var linenum = $(this).closest('tr').data('linenum');
-		if ($(this).closest('tr').data('isbundle') == 1) {
+		var value 		= $(this).val();
+		var linenum 	= $(this).closest('tr').find('.linenum').val();
+		var isbundle 	= $(this).closest('tr').find('.isbundle').val();
+
+		if (isbundle == 'Yes') {
+
 			$.each($('.subitem'+linenum), function(){
 				$(this).find('.warehouse').val(value);
 			});
@@ -861,43 +925,46 @@
 	});
 
 	$('#tableList tbody').on('input', '.unitprice', function(e) {
-		var value 	=	removeComma($(this).val());
+		var value 		=	removeComma($(this).val());
+		var formgroup 	= $(this).parent().parent();
+
 		if( value >= 0 ){
-			$(this).parent().parent().removeClass('has-error');
+			formgroup.removeClass('has-error');
 		}
 		else{	
-			$(this).parent().parent().addClass('has-error');
+			formgroup.addClass('has-error');
 		}
 	});
 
 	$('#tableList tbody').on('input', '.discount', function(e) {
 		var value 	= removeComma($(this).val());
 		var type 	= $('#discount_type').val();
-		if (type == 'perc' && value > 100){
-			$(this).parent().parent().addClass('has-error');
-		}
-		else if (type == 'amt' && value < 0){
-			$(this).parent().parent().addClass('has-error');
-		}
-		else{	
-			$(this).parent().parent().removeClass('has-error');
-		}
+		var formgroup = $(this).parent().parent();
+
+		if (type == 'perc' && value > 100)
+			formgroup.addClass('has-error');
+		
+		else if (type == 'amt' && value < 0)
+			formgroup.addClass('has-error');
+		
+		else
+			formgroup.removeClass('has-error');
 	});
 
 	$('#tableList tbody').on('blur', '.discount, .quantity', function(e) {
 		var value 	= removeComma($(this).val());
-		if (value == '') {
-			value = '0.00';
 
-		$(this).val(value);
-		}
+		if (value == '') 
+			$(this).val('0.00');
 	});
 
     $("#tableList tbody").on("ifChecked", ".warranty", function(){
-        $(this).closest('tr').find('.haswarranty').val('Yes');
-        var linenum = $(this).closest('tr').data('linenum');
+        var linenum = $(this).closest('tr').find('.linenum').val();
+        var isbundle = $(this).closest('tr').find('.isbundle').val();
 
-        if ($(this).closest('tr').data('isbundle') == 1) {
+        $(this).closest('tr').find('.haswarranty').val('Yes');
+
+        if (isbundle == 'Yes') {
 			$.each($('.subitem'+linenum), function(){
 				$(this).find('.warranty').iCheck('check');
 				$(this).find('.haswarranty').val('Yes');
@@ -907,24 +974,31 @@
     });
 
 	$("#tableList tbody").on("ifUnchecked", ".warranty", function(){
-        $(this).closest('tr').find('.haswarranty').val('No');
-        var linenum = $(this).closest('tr').data('linenum');
+        var linenum = $(this).closest('tr').find('.linenum').val();
+        var isbundle = $(this).closest('tr').find('.isbundle').val();
 
-        if ($(this).closest('tr').data('isbundle') == 1) {
+        $(this).closest('tr').find('.haswarranty').val('No');
+
+        if (isbundle == 'Yes') {
+
 			$.each($('.subitem'+linenum), function(){
+
 				$(this).find('.warranty').iCheck('uncheck');
 				$(this).find('.haswarranty').val('No');
+
 			});
 		}
     });
 
 	$('#tableList tbody').on('change', '.warehouse', function(e) {
-		var warehouse 	=	$(this).val();
+		var warehouse 	= $(this).val();
+		var formgroup 	= $(this).parent().parent();
+
 		if( warehouse != '' )
-			$(this).parent().parent().removeClass('has-error');
+			formgroup.removeClass('has-error');
 		
 		else
-			$(this).parent().parent().addClass('has-error');
+			formgroup.addClass('has-error');
 		
 	});
 
@@ -940,35 +1014,40 @@
 
 	$('#tableList tbody').on('input change blur', '.unitprice, .quantity, .discount, .taxcode', function() {
 		var row 		= $(this).closest("tr");
+		var amount 	 	= 0;
+		var discounttype = $('#discount_type').val();
 		var unitprice 	= removeComma(row.find(".unitprice").val());
 		var quantity 	= removeComma(row.find(".quantity").val());
-		var discounttype = $('#discount_type').val();
 		var discount 	= removeComma(row.find('.discount'));
-		var amount 	 	= 0;
+		var formgroup 	= row.find('.discount').parent().parent();
+
 		if (unitprice >= 0 && quantity > 0) {
 			amount 		= unitprice * quantity;
-			if(discounttype=='amt' && amount < discount)
-				row.find('.discount').parent().parent().addClass('has-error');
-			else if(discounttype=='perc' && discount > 100)
-				row.find('.discount').parent().parent().addClass('has-error');
+
+			if(discounttype == 'amt' && amount < discount)
+				formgroup.addClass('has-error');
+
+			else if(discounttype == 'perc' && discount > 100)
+				formgroup.addClass('has-error');
+
 			else{
-				row.find('.discount').parent().parent().removeClass('has-error');
+				formgroup.removeClass('has-error');
 				recomputeAll();
 			}
 		}
 	});
 	
-
 	$('form').on('click', '[type="submit"]', function(e) {
 		e.preventDefault();
 		recomputeAll();
+		setLineNum();
 
 		var form_element = $(this).closest('form');
 		var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
 		
 		form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
-		//$('#submit_container [type="submit"]').attr('disabled', true);
+		$('#submit_container [type="submit"]').attr('disabled', true);
 
 		$('.items .quantity').each(function() {
 
@@ -976,12 +1055,8 @@
 				$(this).parent().parent().addClass('has-error');
 			}
 		});
-		$linenum = 1;
-		$('.linenum').each(function(){
-			$(this).val($linenum);
-			$linenum++;
-		})
-
+		
+		
 		if (form_element.find('.has-error').length < 1) {console.log(form_element.serialize());
 			if ($('.quantity:not([readonly])').length > 0) {
 				
@@ -989,7 +1064,7 @@
 				 
 					if (data.query1) {
 						$('#delay_modal').modal('show');
-						//setTimeout(function(){window.location = '<?=MODULE_URL?>';}, 1000);
+						setTimeout(function(){window.location = '<?=MODULE_URL?>';}, 1000);
 					} else {
 						$('#submit_container [type="submit"]').attr('disabled', false);
 					}
@@ -1004,6 +1079,18 @@
 			form_element.find('.form-group.has-error').first().find('input, textarea, select').focus();
 			$('#submit_container [type="submit"]').attr('disabled', false);
 		}
+	});
+</script>
+<?php else: ?>
+<script>
+	$('#nav li a').on('click', function(){
+		$('#nav li').removeClass();
+		$('#Details').hide();
+		$('#Attachment').hide();
+
+		$(this).closest('li').attr('class','active');
+		var tab = $('#nav li.active a').attr('href');console.log(tab);
+		$('#'+tab).show();
 	});
 </script>
 <?php endif ?>
