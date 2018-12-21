@@ -302,7 +302,8 @@ class sales_print_model extends fpdf {
 			$align			= isset($this->row_align[$key]) ? $this->row_align[$key] : 'L';
 			$array_values	= array_values((array) $row);
 			$data			= isset($row->$header) ? $row->$header : $array_values[$key];
-			if ($array_values[6] == '') {
+			$array_values[10] = isset($array_values[10]) ? $array_values['10'] : 1;
+			if ($array_values[6] == '' || $array_values[10] == '') {
 				$this->setFont('Arial','B',9);
 				if($key == 2){
 					$this->setFont('Times','B',9);

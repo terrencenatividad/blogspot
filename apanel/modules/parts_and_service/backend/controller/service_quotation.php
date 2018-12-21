@@ -134,16 +134,62 @@ class controller extends wc_controller {
 		
 		$data['voucher_details']	= $servicequotation_details;
 
-		$data['t_vatable_sales']	= 180;
+		$data['t_vatable_sales']	= 0;
 		$data['t_vat_exempt_sales']	= 0;
-		$data['t_vatsales']			= 180;
-		$data['t_vat']				= 21.60;
-		$data['t_amount']			= 201.60;
-		$data['t_discount']			= 20.00;
+		$data['t_vatsales']			= 0;
+		$data['t_vat']				= 0;
+		$data['t_amount']			= 0;
+		$data['t_discount']			= 0;
 
 		$data['ajax_task']			= 'ajax_update';
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
+		// Closed Date
+		$close_date 				= $this->parts_and_service->getClosedDate();
+		$data['close_date']			= $close_date;
+
+		$this->view->load('service_quotation/service_quotation', $data);
+	}
+	public function view($id) {
+		$this->view->title			= 'View Service Quotation';
+		$this->fields[]				= 'stat';
+		$data						= $this->input->post($this->fields);
+		$data['ui']					= $this->ui;
+		
+
+		$servicequotation			= $this->service_quotation->retrieveServiceQuotation($id);
+		$servicequotation_details	= $this->service_quotation->retrieveServiceQuotationDetails($id);
+		
+		$data['voucherno'] 			= $id;
+		$data['jobtype'] 			= $servicequotation[0]->jobtype;
+		$data['customer'] 			= $servicequotation[0]->customer;
+		$data['transactiondate']	= $this->date->dateFormat($servicequotation[0]->transactiondate);
+		$data['targetdate']			= $this->date->dateFormat($servicequotation[0]->targetdate);
+		$data['reference'] 			= $servicequotation[0]->reference;
+		$data['discount_type'] 		= $servicequotation[0]->discounttype;
+		$data['notes']				= $servicequotation[0]->notes;
+		
+
+		$data['job_list']			= $this->service_quotation->getOption('job_type','code');
+		$data['customer_list']		= $this->service_quotation->getCustomerList();
+		$data['discount_type_list']	= $this->service_quotation->getOption('discount_type','value');
+		$data['item_list']			= $this->service_quotation->getItemList();
+		$data['warehouse_list']		= $this->service_quotation->getWarehouseList();
+		$data["taxrate_list"]		= $this->service_quotation->getTaxRateList();
+		$data["taxrates"]			= $this->service_quotation->getTaxRates();
+		
+		$data['voucher_details']	= $servicequotation_details;
+
+		$data['t_vatable_sales']	= 0;
+		$data['t_vat_exempt_sales']	= 0;
+		$data['t_vatsales']			= 0;
+		$data['t_vat']				= 0;
+		$data['t_amount']			= 0;
+		$data['t_discount']			= 0;
+
+		$data['ajax_task']			= 'view';
+		$data['ajax_post']			= '';
+		$data['show_input']			= false;
 		// Closed Date
 		$close_date 				= $this->parts_and_service->getClosedDate();
 		$data['close_date']			= $close_date;
