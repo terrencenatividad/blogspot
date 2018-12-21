@@ -124,7 +124,7 @@
 
         public function retrieveprocessListing($data)
         {
-            $sort 		 	 	= isset($data['sort']) ? htmlentities($data['sort']) : "";
+            $sort 		 	 	= isset($data['sort2']) ? htmlentities($data['sort2']) : "";
             $code               = $data['account_code'];
             $fields 			= array('Reference, Date, debit, Credit');
 
@@ -161,7 +161,8 @@
             $result = 	$this->db->setTable("($query) main")
                         ->setFields('main.voucherno AS referenceList,main.transactiondate,main.debit,main.credit')
                         ->setOrderBy($sort)
-                        ->runPagination(false);
+                        ->runSelect(false)
+                        ->getResult();
             return $result;         
         }
 
@@ -181,7 +182,7 @@
 
         public function retrieveclosedjobListing($data)
         {
-            $sort 		 	 	= isset($data['sort']) ? htmlentities($data['sort']) : "";
+            $sort 		 	 	= isset($data['sort3']) ? htmlentities($data['sort3']) : "";
             $job_no               = $data['close_job_number'];
             $fields 			= array('Reference, Date, debit, Credit');
 
@@ -219,7 +220,8 @@
             $result = 	$this->db->setTable("($query) main")
                         ->setFields('main.voucherno,main.accountname,main.debit,main.credit')
                         ->setOrderBy($sort)
-                        ->runPagination(false);
+                        ->runSelect(false)
+                        ->getResult();
             //echo $this->db->getQuery();
             return $result;         
         }
@@ -275,7 +277,7 @@
                                         ->setGroupBy('bt.accountcode, j.job_no')
                                         ->runSelect()
                                         ->getResult();
-            //echo $this->db->getQuery();
+            echo $this->db->getQuery();
 
             return $result;
         }

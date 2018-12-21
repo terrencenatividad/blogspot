@@ -64,7 +64,7 @@
                     if($row->amount > 0) {
                         $valuee = number_format($row->amount,2);
                     }else {
-                        $valuee = "(" .number_format($row->amount,2) . ")";
+                        $valuee = "(" .number_format((abs($row->amount)),2) . ")";
                     }
 
                     $table .= '<tr>';
@@ -132,15 +132,15 @@
 
         private function processing_fee_listing()
         {
-            $posted_data 	= $this->input->post(array("account_code","sort"));
+            $posted_data 	= $this->input->post(array("account_code","sort2"));
 
             //$code 	= $this->input->post('account_code');
             $pagination 	= $this->job_report->retrieveprocessListing($posted_data);
 
             $table 	= '';
 
-            if( !empty($pagination->result) ) :
-                foreach ($pagination->result as $key => $row) {
+            if( !empty($pagination) ) :
+                foreach ($pagination as $key => $row) {
 
 
 
@@ -156,20 +156,21 @@
                 </tr>";
             endif;
             
-            $pagination->table 	= $table;
-            return $pagination;
+            //$pagination->table 	= $table;
+            return array('table' => $table);
+            //return $table;
         }
 
         private function close_job_listing()
         {
-            $posted_data 	= $this->input->post(array("close_job_number","sort"));
+            $posted_data 	= $this->input->post(array("close_job_number","sort3"));
             //var_dump($this->input->post('close_job_number'));
             $pagination 	= $this->job_report->retrieveclosedjobListing($posted_data);
             
             $table 	= '';
 
-            if( !empty($pagination->result) ) :
-                foreach ($pagination->result as $key => $row) {
+            if( !empty($pagination) ) :
+                foreach ($pagination as $key => $row) {
 
 
 
@@ -185,8 +186,9 @@
                 </tr>";
             endif;
             
-            $pagination->table 	= $table;
-            return $pagination;
+            //$pagination->table 	= $table;
+            //return $pagination;
+            return array('table' => $table);
         }
 
         private function ajax_get_closing() {

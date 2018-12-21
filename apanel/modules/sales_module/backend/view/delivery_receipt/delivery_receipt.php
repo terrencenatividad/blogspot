@@ -339,6 +339,7 @@
 			delete other_details.issueqty;
 			delete other_details.warehouse;
 			delete other_details.serialnumbers;
+			delete other_details.parentcode;
 			var otherdetails = '';
 			for (var key in other_details) {
 				if (other_details.hasOwnProperty(key)) {
@@ -351,9 +352,12 @@
 				}
 			}
 			var row = ``;
-
-			row += `
-				<tr>`;
+			if (details.parentcode == '') {
+				row += `<tr style = 'font-weight:bold'>`;
+			}
+			else {
+				row += `<tr>`;
+			}
 
 					<?php if ($show_input): ?>
 					if(details.parentcode == '') {
@@ -403,6 +407,13 @@
 									->setName('h_itemcode[]')
 									->setClass('h_itemcode')
 									->setValue('` + details.itemcode + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('parentcode[]')
+									->setClass('parentcode')
+									->setValue('` + details.parentcode + `')
 									->draw($show_input);
 							?>
 							<?php
