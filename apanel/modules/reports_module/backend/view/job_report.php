@@ -296,23 +296,23 @@
         }
     });
 
-     $('#pagination2').on('click', 'a', function (e) {
-        e.preventDefault();
-        var li = $(this).closest('li');
-        if (li.not('.active').length && li.not('.disabled').length) {
-            ajax.page = $(this).attr('data-page');
-            showProcessFee();
-        }
-    });
+    //  $('#pagination2').on('click', 'a', function (e) {
+    //     e.preventDefault();
+    //     var li = $(this).closest('li');
+    //     if (li.not('.active').length && li.not('.disabled').length) {
+    //         ajax.page = $(this).attr('data-page');
+    //         showProcessFee();
+    //     }
+    // });
 
-    $('#pagination3').on('click', 'a', function (e) {
-        e.preventDefault();
-        var li = $(this).closest('li');
-        if (li.not('.active').length && li.not('.disabled').length) {
-            ajax.page = $(this).attr('data-page');
-            closejobList();
-        }
-    });
+    // $('#pagination3').on('click', 'a', function (e) {
+    //     e.preventDefault();
+    //     var li = $(this).closest('li');
+    //     if (li.not('.active').length && li.not('.disabled').length) {
+    //         ajax.page = $(this).attr('data-page');
+    //         closejobList();
+    //     }
+    // });
     /** -- FOR PAGINATION -- end **/
 
     // Sorting Script
@@ -323,14 +323,14 @@
     });
 
     tableSort('#tb_process_fee', function (value) {
-        ajax.sort = value;
-        ajax.page = 1;
+        ajax.sort2 = value;
+        //ajax.page2 = 1;
         showProcessFee();
     });
 
     tableSort('#tb_closejob', function (value) {
-        ajax.sort = value;
-        ajax.page = 1;
+        ajax.sort3 = value;
+        //ajax.page3 = 1;
         closejobList();
     });
 
@@ -359,12 +359,12 @@
     });
 
     function showProcessFee() {
-        ajax.page = 1;
+        //ajax.page2 = 1;
         var ftotal_debit = 0;
         var ftotal_credit = 0;
         $.post('<?=MODULE_URL?>ajax/processing_fee_listing', ajax, function (data) {
             $('#tb_process_fee #tb_process_body').html(data.table);
-            $('#pagination2').html(data.pagination2);
+            //$('#pagination2').html(data.pagination2);
 
             $('#tb_process_fee tbody tr td.tobesum').each(function () {
                 debits = removeComma($(this).html());
@@ -378,10 +378,10 @@
                 $('#total_credit').val(addComma(ftotal_credit));
             });
 
-            if (ajax.page > data.page_limit && data.page_limit > 0) {
-                ajax.page = data.page_limit;
-                showProcessFee();
-            }
+            // if (ajax.page > data.page_limit && data.page_limit > 0) {
+            //     ajax.page = data.page_limit;
+            //     showProcessFee();
+            // }
         });
     }
     /** -- FOR PROCESSING FEE end -- **/
@@ -428,7 +428,7 @@
     });
 
     function closejobList() {
-        ajax.page = 1;
+        //ajax.page3 = 1;
         $.post('<?=MODULE_URL?>ajax/close_job_listing', ajax, function (data) {
             tdebits = 0;
             tcredits = 0;
@@ -436,7 +436,7 @@
             closed_ftotal_credit = 0;
             closed_finaltotal = 0;
             $('#tb_closejob #closedjob_listing').html(data.table);
-            $('#pagination3').html(data.pagination);
+            //$('#pagination3').html(data.pagination);
 
             $('#tb_closejob tbody tr td.closed_debit').each(function () {
                 tdebits = removeComma($(this).html());
@@ -522,11 +522,11 @@
     //showList();
     
     function getTotal() {
-        // ajax_call = $.post('<?=MODULE_URL?>ajax/jobreport_listingTotal', ajax, function (data) {
-        //     if (data) { 
-        //         $('#total_job').html(data.total);
-        //     }
-        //  });
+        ajax_call = $.post('<?=MODULE_URL?>ajax/jobreport_listingTotal', ajax, function (data) {
+            if (data) { 
+                $('#total_job').html(data.total);
+            }
+         });
         if($('#tableList tbody tr td.text-center').html() == 'No Records Found') {
             $('.total_job').html(addComma('0.00'));
         } else {
