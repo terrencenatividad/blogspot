@@ -147,17 +147,17 @@
 							</div>
 							<div class = "col-md-6">
 								<?php
-									echo $ui->formField('dropdown')
-										->setLabel('Discount Type ')
-										->setPlaceholder('Select Discount Type')
-										->setSplit('col-md-4', 'col-md-8')
-										->setName('discounttype')
-										->setId('discounttype')
-										->setList($discounttypes)
-										->setValue($discounttype)
+								echo $ui->formField('dropdown')
+								->setLabel('Discount Type ')
+								->setPlaceholder('Select Discount Type')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('discounttype')
+								->setId('discounttype')
+								->setList($discounttypes)
+								->setValue($discounttype)
 										// ->setValidation('required')
-										->setNone('none')
-										->draw($show_input);
+								->setNone('none')
+								->draw($show_input);
 								?>
 								<input type="hidden" value="" id="newdisctype" name="newdisctype">
 							</div>
@@ -244,6 +244,7 @@
 						<table class="table table-hover table-condensed table-sidepad" id="itemsTable">
 							<thead>
 								<tr class="info">
+									<th class="col-md-1 text-center">Budget Code</th>
 									<th class="col-md-1 text-center">Item Name</th>
 									<th class="col-md-2 text-center">Description</th>
 									<th class="col-md-1 text-center">Warehouse</th>
@@ -252,7 +253,7 @@
 									<th class="col-md-1 text-center">Quantity</th>
 									<th class="col-md-1 text-center">UOM</th>
 									<th class="col-md-1 text-center">Discount</th>
-									<th class="col-md-2 text-center">Foreign Currency Amount</th>
+									<th class="col-md-1 text-center">Foreign Currency Amount</th>
 									<th class="col-md-2 text-center">Base Currency Amount</th>
 									<th class="taxt-center"></th>
 								</tr>
@@ -267,7 +268,7 @@
 									$warehouse 			  = '';
 									$price	   			  = '0.00';
 									$rowamount 			  = '0.00';
-  
+
 									$onhandqty 		 	  = 0;
 									$quantity 		 	  = 0;
 									$uom 				  = '';
@@ -300,6 +301,20 @@
 
 									?>
 									<tr class="clone" valign="middle">
+										<td class = "remove-margin">
+											<?php
+											echo $ui->formField('dropdown')
+											->setPlaceholder('Select One')
+											->setSplit('	', 'col-md-12')
+											->setName("budgetcode[".$row."]")
+											->setId("budgetcode[".$row."]")
+											->setClass('budgetcode')
+											->setList($budget_list)
+											->setValidation('required')
+											->setValue("")
+											->draw($show_input);
+											?>
+										</td>
 										<td class = "remove-margin">
 											<?php
 											echo $ui->formField('dropdown')
@@ -467,6 +482,7 @@
 
 									for($i = 0; $i < count($details); $i++)
 									{
+										$budgetcode 	 		= $details[$i]->budgetcode;
 										$itemcode 	 		= $details[$i]->itemcode;
 										$detailparticular	= stripslashes($details[$i]->detailparticular);
 										$onhandqty  		= $details[$i]->onhandqty;
@@ -484,6 +500,20 @@
 
 										?>	
 										<tr class="clone" valign="middle">
+											<td class = "remove-margin">
+												<?php
+												echo $ui->formField('dropdown')
+												->setPlaceholder('Select One')
+												->setSplit('	', 'col-md-12')
+												->setName("budgetcode[".$row."]")
+												->setId("budgetcode[".$row."]")
+												->setClass('budgetcode')
+												->setList($budget_list)
+												->setValidation('required')
+												->setValue($budgetcode)
+												->draw($show_input);
+												?>
+											</td>
 											<td class = "remove-margin">
 												<?php
 												echo $ui->formField('dropdown')
@@ -526,7 +556,7 @@
 												?>
 											</td>
 											<td class = "remove-margin text-right">
-											<?php
+												<?php
 												echo $ui->formField('text')
 												->setSplit('', 'col-md-12')
 												->setName('onhandqty['.$row.']')
@@ -536,7 +566,7 @@
 												->setValidation('required integer')
 												->setValue($onhandqty)
 												->draw($show_input);
-											?>
+												?>
 											</td>
 											<td class = "remove-margin text-right">
 												<?php
@@ -594,7 +624,7 @@
 												<input id = '<?php echo 'taxamount['.$row.']'; ?>' name = '<?php echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' >
 											</td>
 											<td class = "remove-margin">
-											<?php
+												<?php
 												echo $ui->formField('text')
 												->setSplit('', 'col-md-12')
 												->setName('discount['.$row.']')
@@ -604,7 +634,7 @@
 												->setAttribute(array("maxlength" => "20"))
 												->setValue(number_format($discount,2))
 												->draw($show_input);
-											?>
+												?>
 											</td>
 											<td class = "remove-margin text-right">
 												<?php
@@ -658,7 +688,7 @@
 								</tr>
 
 								<tr id="total_purchase">
-									<td colspan = '7'></td>
+									<td colspan = '8'></td>
 									<td class="text-right">
 										<label class="control-label">Total Purchase</label>
 									</td>
@@ -704,7 +734,7 @@
 									</td>
 								</tr>
 								<tr id="total_freight">
-									<td colspan = '7'></td>
+									<td colspan = '8'></td>
 									<td class="text-right">
 										<label class="control-label">Freight</label>
 									</td>
@@ -736,7 +766,7 @@
 								</tr>
 
 								<tr id="total_insurance">
-									<td colspan = '7'></td>
+									<td colspan = '8'></td>
 									<td class="text-right">
 										<label class="control-label">Insurance</label>
 									</td>
@@ -768,7 +798,7 @@
 								</tr>
 
 								<tr id="total_packaging">
-									<td colspan = '7'></td>
+									<td colspan = '8'></td>
 									<td class="text-right">
 										<label class="control-label">Packaging</label>
 									</td>
@@ -869,7 +899,7 @@
 								</tr>
 
 								<tr id="total_amount_due">
-									<td colspan = '7'></td>
+									<td colspan = '8'></td>
 									<td class="text-right">
 										<label class="control-label">Total Amount Due</label>
 									</td>
@@ -1225,6 +1255,60 @@
 	</div>
 </div>
 
+<div class="modal fade" id="warning-modal" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Warning
+			</div>
+			<div class="modal-body">
+				<div class = "row">
+					<div class="col-md-12">
+						<div id = "errors">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 col-sm-12 col-xs-12 text-right">
+						<div class="btn-group">
+							<button type="button" class="btn btn-info btn-flat" data-dismiss="modal">Confirm</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="accountchecker-modal" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Warning
+			</div>
+			<div class="modal-body">
+				<div class = "row">
+					<div class="col-md-12">
+						<div id = "accounterror">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 col-sm-12 col-xs-12 text-right">
+						<div class="btn-group">
+							<button type="button" class="btn btn-info btn-flat" data-dismiss="modal">Okay</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script>
 	function addVendorToDropdown() {
 
@@ -1490,7 +1574,7 @@ echo $ui->loadElement('modal')
 				var totalprice 	=	(parseFloat(itemprice) 	* 	parseFloat(quantity)) - parseFloat(discountamt);
 				var totalbase 	=	parseFloat(totalprice) 	* 	parseFloat(exchangerate);
 				//var amount 		=	parseFloat(totalprice) / ( 1 + parseFloat(vat) );
-	
+
 				var vat_amount 	=	parseFloat(totalprice)	*	parseFloat(vat);
 				var amount 		=	parseFloat(totalprice) + parseFloat(vat_amount);
 				
@@ -1651,41 +1735,43 @@ echo $ui->loadElement('modal')
 		for(var i = 1;i <= count;i++)
 		{
 			var row = table.rows[i];
-			row.cells[0].getElementsByTagName("select")[0].id 	= 'itemcode['+x+']';
-			row.cells[1].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
-			row.cells[2].getElementsByTagName("select")[0].id 	= 'warehouse['+x+']';
-			row.cells[3].getElementsByTagName("input")[0].id 	= 'onhandqty['+x+']';
-			row.cells[4].getElementsByTagName("input")[0].id 	= 'itemprice['+x+']';
-			row.cells[5].getElementsByTagName("input")[0].id 	= 'quantity['+x+']';
-			row.cells[6].getElementsByTagName("input")[0].id 	= 'uom['+x+']';
-			row.cells[7].getElementsByTagName("select")[0].id 	= 'taxcode['+x+']';
-			row.cells[7].getElementsByTagName("input")[1].id 	= 'taxamount['+x+']';
-			row.cells[7].getElementsByTagName("input")[0].id 	= 'taxrate['+x+']';
-			row.cells[8].getElementsByTagName("input")[0].id 	= 'discount['+x+']';
-			row.cells[9].getElementsByTagName("input")[0].id 	= 'foreignamount['+x+']';
-			row.cells[9].getElementsByTagName("input")[1].id 	= 'h_amount['+x+']';
-			row.cells[10].getElementsByTagName("input")[0].id 	= 'baseamount['+x+']';
-			row.cells[10].getElementsByTagName("input")[1].id 	= 'b_amount['+x+']';
+			row.cells[0].getElementsByTagName("select")[0].id 	= 'budgetcode['+x+']';
+			row.cells[1].getElementsByTagName("select")[0].id 	= 'itemcode['+x+']';
+			row.cells[2].getElementsByTagName("input")[0].id 	= 'detailparticulars['+x+']';
+			row.cells[3].getElementsByTagName("select")[0].id 	= 'warehouse['+x+']';
+			row.cells[4].getElementsByTagName("input")[0].id 	= 'onhandqty['+x+']';
+			row.cells[5].getElementsByTagName("input")[0].id 	= 'itemprice['+x+']';
+			row.cells[6].getElementsByTagName("input")[0].id 	= 'quantity['+x+']';
+			row.cells[7].getElementsByTagName("input")[0].id 	= 'uom['+x+']';
+			row.cells[8].getElementsByTagName("select")[0].id 	= 'taxcode['+x+']';
+			row.cells[8].getElementsByTagName("input")[1].id 	= 'taxamount['+x+']';
+			row.cells[8].getElementsByTagName("input")[0].id 	= 'taxrate['+x+']';
+			row.cells[9].getElementsByTagName("input")[0].id 	= 'discount['+x+']';
+			row.cells[10].getElementsByTagName("input")[0].id 	= 'foreignamount['+x+']';
+			row.cells[10].getElementsByTagName("input")[1].id 	= 'h_amount['+x+']';
+			row.cells[11].getElementsByTagName("input")[0].id 	= 'baseamount['+x+']';
+			row.cells[11].getElementsByTagName("input")[1].id 	= 'b_amount['+x+']';
 			
-			row.cells[0].getElementsByTagName("select")[0].name 	= 'itemcode['+x+']';
-			row.cells[1].getElementsByTagName("input")[0].name	= 'detailparticulars['+x+']';
-			row.cells[2].getElementsByTagName("select")[0].name 	= 'warehouse['+x+']';
-			row.cells[3].getElementsByTagName("input")[0].name	= 'onhandqty['+x+']';
-			row.cells[4].getElementsByTagName("input")[0].name	= 'itemprice['+x+']';
-			row.cells[5].getElementsByTagName("input")[0].name	= 'quantity['+x+']';
-			row.cells[6].getElementsByTagName("input")[0].name	= 'uom['+x+']';
-			row.cells[7].getElementsByTagName("select")[0].name 	= 'taxcode['+x+']';
-			row.cells[7].getElementsByTagName("input")[1].name	= 'taxamount['+x+']';
-			row.cells[7].getElementsByTagName("input")[0].name	= 'taxrate['+x+']';
-			row.cells[8].getElementsByTagName("input")[0].name	= 'discount['+x+']';
-			row.cells[9].getElementsByTagName("input")[0].name	= 'foreignamount['+x+']';
-			row.cells[9].getElementsByTagName("input")[1].name	= 'h_amount['+x+']';
-			row.cells[10].getElementsByTagName("input")[0].name 	= 'baseamount['+x+']';
-			row.cells[10].getElementsByTagName("input")[1].name 	= 'b_amount['+x+']';
+			row.cells[0].getElementsByTagName("select")[0].name 	= 'budgetcode['+x+']';
+			row.cells[1].getElementsByTagName("select")[0].name 	= 'itemcode['+x+']';
+			row.cells[2].getElementsByTagName("input")[0].name	= 'detailparticulars['+x+']';
+			row.cells[3].getElementsByTagName("select")[0].name 	= 'warehouse['+x+']';
+			row.cells[4].getElementsByTagName("input")[0].name	= 'onhandqty['+x+']';
+			row.cells[5].getElementsByTagName("input")[0].name	= 'itemprice['+x+']';
+			row.cells[6].getElementsByTagName("input")[0].name	= 'quantity['+x+']';
+			row.cells[7].getElementsByTagName("input")[0].name	= 'uom['+x+']';
+			row.cells[8].getElementsByTagName("select")[0].name 	= 'taxcode['+x+']';
+			row.cells[8].getElementsByTagName("input")[1].name	= 'taxamount['+x+']';
+			row.cells[8].getElementsByTagName("input")[0].name	= 'taxrate['+x+']';
+			row.cells[9].getElementsByTagName("input")[0].name	= 'discount['+x+']';
+			row.cells[10].getElementsByTagName("input")[0].name	= 'foreignamount['+x+']';
+			row.cells[10].getElementsByTagName("input")[1].name	= 'h_amount['+x+']';
+			row.cells[11].getElementsByTagName("input")[0].name 	= 'baseamount['+x+']';
+			row.cells[11].getElementsByTagName("input")[1].name 	= 'b_amount['+x+']';
 			
-			row.cells[11].getElementsByTagName("button")[0].setAttribute('id',x);
+			row.cells[12].getElementsByTagName("button")[0].setAttribute('id',x);
 			row.cells[0].getElementsByTagName("select")[0].setAttribute('data-id',x);
-			row.cells[11].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
+			row.cells[12].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
 
 			x++;
 		}
@@ -1735,7 +1821,7 @@ function cancelTransaction(vno)
 }
 
 /** FINALIZE SAVING **/
-function finalizeTransaction(type)
+function finalizeTransaction(type, error, warning, checkamount)
 {
 	$("#purchase_order_form").find('.form-group').find('input, textarea, select').trigger('blur');
 
@@ -1763,10 +1849,28 @@ function finalizeTransaction(type)
 
 		if($("#purchase_order_form #itemcode\\[1\\]").val() != '' && $("#purchase_order_form #warehouse\\[1\\]").val() != '' && $("#purchase_order_form #transaction_date").val() != '' && $("#purchase_order_form #due_date").val() != '' && $("#purchase_order_form #vendor").val() != '')
 		{
-			$('#delay_modal').modal('show');
-			setTimeout(function() {
-				$('#purchase_order_form').submit();
-			},1000);
+
+			if(checkamount != '') {
+				$('#warning-modal').modal('show');
+				$('#errors').html(checkamount);
+				$('#warning-modal').on('hidden.bs.modal', function() {
+					$('#delay_modal').modal('show');
+					setTimeout(function() {
+						$('#purchase_order_form').submit();
+					},1000);
+				});
+			} else if(error != '') {
+				$('#accountchecker-modal').modal('show');
+				$('#accounterror').html(data.error);
+			} else if(warning != ''){
+				$('#accountchecker-modal').modal('show');
+				$('#accounterror').html(warning);
+			} else {
+				$('#delay_modal').modal('show');
+				setTimeout(function() {
+					$('#purchase_order_form').submit();
+				},1000);
+			}
 		}
 	}
 	else{
@@ -1810,28 +1914,54 @@ function finalizeEditTransaction()
 
 				$.post("<?=BASE_URL?>purchase/import_purchaseorder/ajax/<?=$task?>",$("#purchase_order_form").serialize()+'<?=$ajax_post?>',function(data)
 				{		
-					if( data.msg == 'success' )
-					{
-						if( btn == 'final' )
-						{
-							$('#delay_modal').modal('show');
-							setTimeout(function() {
-								window.location 	=	"<?=BASE_URL?>purchase/import_purchaseorder";								
-							},1000);
+					var parse = JSON.stringify(data.msg);
+					var parsed = JSON.parse(parse);
+					error = parsed['error'];
+					warning = parsed['warning'];
+					checkamount = parsed['checkamount'];
+					errmsg = parsed['errmsg'];
+
+					if(checkamount != '') {
+						$('#warning-modal').modal('show');
+						$('#errors').html(checkamount);
+						$('#warning-modal').on('hidden.bs.modal', function() {
+							if(errmsg == '') {
+								if( btn == 'final' ) {
+									$('#delay_modal').modal('show');
+									setTimeout(function() {
+										window.location 	=	"<?=BASE_URL?>purchase/import_purchaseorder";								
+									},1000);
+								}
+								else if( btn == 'final_preview' ) {
+									window.location 	=	"<?=BASE_URL?>purchase/import_purchaseorder/view/"+data.voucher;
+								}
+								else if( btn == 'final_new' ) {
+									window.location 	=	"<?=BASE_URL?>purchase/import_purchaseorder/create";
+								}
+							}
+						});
+					} else if(error != '') {
+						$('#accountchecker-modal').modal('show');
+						$('#accounterror').html(data.error);
+					} else if(warning != ''){
+						$('#accountchecker-modal').modal('show');
+						$('#accounterror').html(warning);
+					} else {
+						if(errmsg == '') {
+							if( btn == 'final' ) {
+								$('#delay_modal').modal('show');
+								setTimeout(function() {
+									window.location 	=	"<?=BASE_URL?>purchase/import_purchaseorder";								
+								},1000);
+							}
+							else if( btn == 'final_preview' ) {
+								window.location 	=	"<?=BASE_URL?>purchase/import_purchaseorder/view/"+data.voucher;
+							}
+							else if( btn == 'final_new' ) {
+								window.location 	=	"<?=BASE_URL?>purchase/import_purchaseorder/create";
+							}
+
 						}
-						else if( btn == 'final_preview' )
-						{
-							window.location 	=	"<?=BASE_URL?>purchase/import_purchaseorder/view/"+data.voucher;
-						}
-						else if( btn == 'final_new' )
-						{
-							window.location 	=	"<?=BASE_URL?>purchase/import_purchaseorder/create";
-						}
-						
-					}
-					else
-					{
-						//insert error message / MOdal heree
 					}
 				});	
 			},1000);
@@ -2255,6 +2385,9 @@ $(document).ready(function(){
 		// Process New Transaction
 		if('<?= $task ?>' == "create")
 		{
+			var error = '';
+			var warning = '';
+			var checkamount = '';
 			$("#purchase_order_form").on('change blur',function()
 			{
 				if($("#purchase_order_form #itemcode\\[1\\]").val() != '' && $("#purchase_order_form #transaction_date").val() != '' && $("#purchase_order_form #due_date").val() != '' && $("#purchase_order_form #vendor").val() != '')
@@ -2262,7 +2395,11 @@ $(document).ready(function(){
 					$.post("<?=BASE_URL?>purchase/import_purchaseorder/ajax/save_temp_data",$("#purchase_order_form").serialize())
 					.done(function(data)
 					{	
-						
+						var parse = JSON.stringify(data.msg);
+						var parsed = JSON.parse(parse);
+						error = parsed['error'];
+						warning = parsed['warning'];
+						checkamount = parsed['checkamount'];
 					});
 				}
 			});
@@ -2270,20 +2407,20 @@ $(document).ready(function(){
 			//Final Saving
 			$('#purchase_order_form #btnSave').click(function(){
 
-				finalizeTransaction("final");
+				finalizeTransaction("final", error, warning, checkamount);
 
 			});
 
 			//Save & Preview
 			$("#purchase_order_form #save_preview").click(function()
 			{
-				finalizeTransaction("final_preview");
+				finalizeTransaction("final_preview", error, warning, checkamount);
 			});
 
 			//Save & New
 			$("#purchase_order_form #save_new").click(function()
 			{
-				finalizeTransaction("final_new");
+				finalizeTransaction("final_new", error, warning, checkamount);
 			});
 		}
 		else if('<?= $task ?>' == "edit")
@@ -2361,43 +2498,43 @@ $('#currency').on('change', function(){
 });
 
 $('#discounttype').on('select2:selecting',function(e){
-			var curr_type	=  $(this).val();	
-			var new_type 	= e.params.args.data.id;
-			if(curr_type == "none" || curr_type == ""){
-				$('#discounttype').closest('.form-group').removeClass('has-error');
+	var curr_type	=  $(this).val();	
+	var new_type 	= e.params.args.data.id;
+	if(curr_type == "none" || curr_type == ""){
+		$('#discounttype').closest('.form-group').removeClass('has-error');
 
-				if(new_type=="none" || new_type==""){
-					$('.discount').prop('readOnly',true);
-				} else {
-					$('.discount').prop('readOnly',false);
-				}
-			} else {
-				if(curr_type!="" ){
-					e.preventDefault();
-					$('#discounttypeModal').modal('show');
-					$(this).select2('close');
-				}
-			}
-			$('#newdisctype').val(new_type);
-		});
+		if(new_type=="none" || new_type==""){
+			$('.discount').prop('readOnly',true);
+		} else {
+			$('.discount').prop('readOnly',false);
+		}
+	} else {
+		if(curr_type!="" ){
+			e.preventDefault();
+			$('#discounttypeModal').modal('show');
+			$(this).select2('close');
+		}
+	}
+	$('#newdisctype').val(new_type);
+});
 
-		$('#discounttypeModal').on('click','#disc_yes',function(){
-			var newtype = $('#newdisctype').val();
-			$('#discounttype').val(newtype).trigger('change');
-			$('#discounttypeModal').modal('hide');
-			$('.discount').val('0.00');
+$('#discounttypeModal').on('click','#disc_yes',function(){
+	var newtype = $('#newdisctype').val();
+	$('#discounttype').val(newtype).trigger('change');
+	$('#discounttypeModal').modal('hide');
+	$('.discount').val('0.00');
 
-			if(newtype=="none" || newtype==""){
-				$('.discount').prop('readOnly',true);
-			} else {
-				$('.discount').prop('readOnly',false);
-			}
-			computeAmount();
-		});
+	if(newtype=="none" || newtype==""){
+		$('.discount').prop('readOnly',true);
+	} else {
+		$('.discount').prop('readOnly',false);
+	}
+	computeAmount();
+});
 
-		$('#discounttypeModal').on('click','#disc_no',function(){
-			$('#discounttypeModal').modal('hide');
-		});
-		
+$('#discounttypeModal').on('click','#disc_no',function(){
+	$('#discounttypeModal').modal('hide');
+});
+
 </script>
 <?php endif; ?>

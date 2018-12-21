@@ -295,7 +295,8 @@ class purchase_receipt_model extends wc_model {
 								->setWhere("voucherno = '$voucherno'")
 								->setOrderBy('linenum')
 								->runSelect()
-								->getResult();			
+								->getResult();
+			
 		} else {
 			$sourceno = $this->db->setTable('purchasereceipt')
 								->setFields('source_no')
@@ -329,6 +330,7 @@ class purchase_receipt_model extends wc_model {
 				}
 			}
 		}
+		
 		return $result;
 		
 	}
@@ -429,18 +431,20 @@ class purchase_receipt_model extends wc_model {
 
 		if ($transtype == 'PO'){
 			$result1		= $this->db->setTable('purchaseorder_details pod')
-									->setFields("itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, pod.warehouse, receiptuom, unitprice, 'none' taxcode, taxrate, pod.taxamount, pod.amount, convreceiptqty, convuom, conversion")
+									->setFields("pod.itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, pod.warehouse, receiptuom, unitprice, 'none' taxcode, taxrate, pod.taxamount, pod.amount, convreceiptqty, convuom, conversion, item_ident_flag")
 									->innerJoin('purchaseorder po ON pod.voucherno = po.voucherno AND pod.companycode = po.companycode')
+									->innerJoin('items i ON i.itemcode = pod.itemcode')
 									->setWhere("po.voucherno = '$voucherno'")
 									->runSelect()
 									->getResult();
 		} else {
 			$result1		= $this->db->setTable('import_purchaseorder_details ipod')
-								->setFields("itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, ipod.warehouse, receiptuom, unitprice, 'none' taxcode, taxrate, ipod.taxamount, ipod.amount, convreceiptqty, convuom, conversion")
-								->innerJoin('import_purchaseorder ipo ON ipod.voucherno = ipo.voucherno AND ipod.companycode = ipo.companycode')
-								->setWhere("ipo.voucherno = '$voucherno'")
-								->runSelect()
-								->getResult();
+									->setFields("ipod.itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, ipod.warehouse, receiptuom, unitprice, 'none' taxcode, taxrate, ipod.taxamount, ipod.amount, convreceiptqty, convuom, conversion, item_ident_flag")
+									->innerJoin('import_purchaseorder ipo ON ipod.voucherno = ipo.voucherno AND ipod.companycode = ipo.companycode')
+									->innerJoin('items i ON i.itemcode = ipod.itemcode')
+									->setWhere("ipo.voucherno = '$voucherno'")
+									->runSelect()
+									->getResult();
 		}
 					
 		$addcond = ($voucherno_ref) ? " AND pr.voucherno != '$voucherno_ref'" : '';
@@ -477,7 +481,7 @@ class purchase_receipt_model extends wc_model {
 				$result[] = $row;
 			}
 		}
-
+		
 		return $result;
 	}
 

@@ -999,8 +999,11 @@ echo $ui->loadElement('modal')
 
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
+			job = [];
+			var ctr = 0;
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
 				var get = $(this).val();
+				ctr++;
 				if($.inArray(get, job) == -1) {
 					job.push(get);
 				}
@@ -1010,7 +1013,6 @@ echo $ui->loadElement('modal')
 			if(ctr == 0) {
 				$('#job_text').html('0');
 			}
-			console.log(job);
 			$('#jobModal').modal('hide');
 		});
 
@@ -1022,9 +1024,9 @@ echo $ui->loadElement('modal')
 					$('#exchangerate').val(data.exchangerate);	
 					$('.debit').each(function() {
 						if($(this).val() != '0.00') {
-							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).val()));
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).val())));
 						} else {
-							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).closest('tr').find('.credit').val()));
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).closest('tr').find('.credit').val())));
 						}
 					});
 					// if($('.debit').val() != '0.00') {

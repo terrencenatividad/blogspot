@@ -96,16 +96,16 @@ class controller extends wc_controller {
 		$data['currency'] = $data['currencycode'];
 		//$data['details'] = $details;
 		
-		$tag = 0;
-		if($data['job_no'] != '') {
-			$jobs = explode(',', $data['job_no']);
-			foreach($jobs as $i =>$key) {
-				$tag = $tag + 1;
-			}
-		}else {
-			$tag = '';
-		}
-		$data['tags'] = $tag;
+		// $tag = 0;
+		// if($data['job_no'] != '') {
+		// 	$jobs = explode(',', $data['job_no']);
+		// 	foreach($jobs as $i =>$key) {
+		// 		$tag = $tag + 1;
+		// 	}
+		// }else {
+		// 	$tag = '';
+		// }
+		// $data['tags'] = $tag;
 
 		$this->view->load('credit_memo/credit_memo', $data);
 	}

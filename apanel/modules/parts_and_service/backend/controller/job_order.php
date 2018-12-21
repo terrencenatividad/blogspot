@@ -11,37 +11,29 @@ class controller extends wc_controller {
 		
 		$this->session			= new session();
 		$this->fields 			= array(
-			'voucherno',
+			'job_order_no',
 			'transactiondate',
             'customer',
-            'source_no',
 			'reference',
-			'customerpo',
+            'service_quotation',
+			'po_number',
 			'notes'
 		);
 		$this->fields_header	= array(
 			'header_fiscalyear'		=> 'fiscalyear',
 			'header_period'			=> 'period',
-			'header_taxcode' 		=> 'taxcode', 
-			'header_taxamount' 		=> 'taxamount',
-			'header_discounttype'   => 'discounttype',
-			'header_discountrate'   => 'discountrate',
-			'header_discountamount' => 'discountamount'
+			'header_discounttype'   => 'discounttype'
 		);
 		$this->fields2			= array(
-			'itemcode',
+			'job_order_no',
+			'h_itemcode' 		=> 'itemcode',
 			'detailparticular',
 			'linenum',
-			'warranty',
-			'warehouse',
-			'quantity',
-			'uom',
-			'price',
-			'discount',
-			'amount',
-			'taxcode',
-			'taxamount',
-			'taxrate'
+			'h_warehouse'		=> 'warehouse',
+			'qty',
+			'h_uom'				=> 'uom',
+			'isbundle',
+			'parentline'
 		);
 		$this->clean_number		= array(
 			'issueqty'
@@ -380,5 +372,68 @@ class controller extends wc_controller {
 			$randomString .= $characters[rand(0, $charactersLength - 1)];
 		}
 		return $randomString;
+	}
+
+	private function ajax_load_sq_list() {
+        $customer   = $this->input->post('customer');
+		$pagination = $this->job_order->getSQPagination($customer);
+		$table      = '';
+
+		if (empty($pagination->result)) {
+			$table = '<tr><td colspan="5" class="text-center"><b>No Records Found</b></td></tr>';
+		}
+		foreach ($pagination->result as $key => $row) {
+			$table .= '<tr data-id = "' . $row->voucherno . '">';
+			$table .= '<td>' . $row->voucherno . '</td>';
+			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
+			$table .= '<td>' . $row->notes . '</td>';
+			$table .= '</tr>';
+		}
+		// $table .= '<script>checkExistingPR();</script>';
+		$pagination->table = $table;
+		return $pagination;
+	}
+
+	private function ajax_load_sq_details() {
+		$voucherno	= $this->input->post('voucherno');
+		$warehouse	= $this->input->post('warehouse');
+		$details	= $this->job_order->getServiceQuotationDetails($voucherno, $warehouse);
+		$header		= $this->job_order->getServiceQuotationHeader($this->fields_header, $voucherno);
+		// var_dump($details);
+
+		$table		= '';
+		$success	= true;
+		if (empty($details)) {
+			$table		= '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+			$success	= false;
+		}
+		return array(
+			'table'		=> $table,
+			'details'	=> $details,
+			'header'	=> $header,
+			'success'	=> $success
+		);
+	}
+
+	private function ajax_create() {
+		$seq 					= new seqcontrol();
+		$job_order_no 			= $seq->getValue("JO");
+		
+		$data = $this->input->post($this->fields);
+		$data['job_order_no'] = $job_order_no;
+		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
+		// $data1 = $this->input->post($this->fields_header);
+		$data2 = $this->input->post($this->fields2);
+		// $data2['job_order_no'] = $job_order_no;
+		// var_dump($data2);
+		// $result  = $this->job_order->saveValues('job_order',$data);
+		// $result1 = $this->job_order->saveFromPost('job_order_details', $data2, $data);
+
+		$result		= $this->job_order->saveJobOrder($data, $data2);
+		
+		return array(
+			'redirect' => MODULE_URL,
+			'success' => $result
+		);
 	}
 }
