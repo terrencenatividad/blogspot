@@ -1417,6 +1417,7 @@
 			var ctr = 0;
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
 				var get = $(this).val();
+				ctr++;
 				if($.inArray(get, job) == -1) {
 					job.push(get);
 				}
