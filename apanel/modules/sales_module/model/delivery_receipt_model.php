@@ -219,7 +219,7 @@ class delivery_receipt_model extends wc_model {
 		return $result;
 	}
 
-	public function updateDeliveryReceipt($data, $data2, $voucherno)                         {
+	public function updateDeliveryReceipt($data, $data2, $voucherno) {
 		$this->getAmounts($data, $data2);
 
 		$result = $this->db->setTable('deliveryreceipt')
