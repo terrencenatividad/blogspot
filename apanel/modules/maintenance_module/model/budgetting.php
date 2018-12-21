@@ -81,7 +81,7 @@ class budgetting extends wc_model
 	public function getAccounts($type)
 	{
 		$result = $this->db->setTable('chartaccount')
-		->setFields('accountname, segment5')
+		->setFields('accountname, id')
 		->setWhere("fspresentation = '$type'")
 		->runSelect()
 		->getResult();
@@ -151,7 +151,6 @@ class budgetting extends wc_model
 
 	public function updateBudget($data, $id, $budget_code)
 	{
-
 		$result = $this->db->setTable('budget')
 		->setValues($data)
 		->setWhere("id = '$id'")
@@ -207,7 +206,7 @@ class budgetting extends wc_model
 	{
 		$result = $this->db->setTable('budget_details bd')
 		->setFields('bd.accountcode as accountcode, ca.accountname as accountname, bd.description as description, bd.amount as amount')
-		->leftJoin('chartaccount ca ON bd.accountcode = ca.segment5')
+		->leftJoin('chartaccount ca ON bd.accountcode = ca.id')
 		->setWhere("budget_code = '$budgetcode' AND amount != 0")
 		->runSelect()
 		->getResult();
@@ -219,7 +218,7 @@ class budgetting extends wc_model
 	{
 		$result = $this->db->setTable('budget_details bd')
 		->setFields('bd.accountcode as accountcode, ca.accountname as accountname, bd.description as description, bd.amount as amount')
-		->leftJoin('chartaccount ca ON bd.accountcode = ca.segment5')
+		->leftJoin('chartaccount ca ON bd.accountcode = ca.id')
 		->setWhere("budget_code = '$budgetcode'")
 		->runSelect()
 		->getResult();
@@ -235,6 +234,26 @@ class budgetting extends wc_model
 		$result = $this->db->setTable('budget_details')
 		->setValuesFromPost($budget_details)
 		->runInsert();
+
+		return $result;
+	}
+
+	public function saveBudgetReport($budgetreport) {
+		$result = $this->db->setTable('budget_report')
+		->setValues($budgetreport)
+		->runInsert(false);
+
+		return $result;
+	}
+
+	public function updateBudgetReport($budgetcode, $budgetreport) {
+		$result = $this->db->setTable('budget_report')
+		->setWhere("budget_code = '$budgetcode'")
+		->runDelete(false);
+
+		$result = $this->db->setTable('budget_report')
+		->setValues($budgetreport)
+		->runInsert(false);
 
 		return $result;
 	}

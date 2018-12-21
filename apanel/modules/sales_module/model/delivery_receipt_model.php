@@ -219,7 +219,7 @@ class delivery_receipt_model extends wc_model {
 		return $result;
 	}
 
-	public function updateDeliveryReceipt($data, $data2, $voucherno)                         {
+	public function updateDeliveryReceipt($data, $data2, $voucherno) {
 		$this->getAmounts($data, $data2);
 
 		$result = $this->db->setTable('deliveryreceipt')
@@ -671,7 +671,7 @@ class delivery_receipt_model extends wc_model {
 
 	public function getDocumentContent($voucherno) {
 		$result = $this->db->setTable('deliveryreceipt_details drd')
-							->setFields("itemcode 'Item Code', detailparticular 'Description', issueqty 'Quantity', UPPER(issueuom) 'UOM', unitprice price, amount amount")
+							->setFields("itemcode 'Item Code', detailparticular 'Description', issueqty 'Quantity', UPPER(issueuom) 'UOM', unitprice price, amount amount, parentcode")
 							->leftJoin('uom u ON u.uomcode = drd.issueuom AND u.companycode = drd.companycode')
 							->setWhere("voucherno = '$voucherno'")
 							->runSelect()

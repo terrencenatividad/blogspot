@@ -88,7 +88,7 @@ class accounts_payable extends wc_model
 	public function getJobList() {
 		$result = $this->db->setTable('job')
 		->setFields("job_no")
-		// ->setWhere('stat = "on-going"')
+		->setWhere('stat = "on-going"')
 		->setGroupBy('job_no')
 		->runPagination();
 		
