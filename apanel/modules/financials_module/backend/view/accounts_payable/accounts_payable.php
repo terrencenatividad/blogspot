@@ -1420,8 +1420,8 @@
 				}
 				$('#job_text').html(job.length);
 				$('#assetid').attr('disabled', 'disabled');
-				$('#jobModal').modal('hide');
 			});
+			$('#jobModal').modal('hide');
 		});
 
 		$('#vendor').on('change', function() {
@@ -1663,16 +1663,11 @@
 									}
 								});
 							} else if(data.error != '') {
-								$('#warning-modal').modal('show');
-								$('#errors').html(data.error);
-								$('#warning-modal').on('hidden.bs.modal', function() {
-									if(data.success) {
-										$('#delay_modal').modal('show');
-										setTimeout(function() {
-											window.location = data.redirect;
-										},500);
-									}
-								});
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.error);
+							} else if(data.accountchecker != ''){
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.accountchecker);
 							} else {
 								if(data.success) {
 									$('#delay_modal').modal('show');
@@ -1723,16 +1718,11 @@
 									}
 								});
 							} else if(data.error != '') {
-								$('#warning-modal').modal('show');
-								$('#errors').html(data.error);
-								$('#warning-modal').on('hidden.bs.modal', function() {
-									if(data.success) {
-										$('#delay_modal').modal('show');
-										setTimeout(function() {
-											window.location = data.redirect;
-										},500);
-									}
-								});
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.error);
+							} else if(data.accountchecker != ''){
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.accountchecker);
 							} else {
 								if(data.success) {
 									$('#delay_modal').modal('show');
