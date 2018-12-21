@@ -85,7 +85,7 @@
             $daterangefilter 	= isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
             $jobno      	= isset($data['job_number']) ? htmlentities($data['job_number']) : ""; 
             $searchkey 		 	= isset($data['account_search']) ? htmlentities($data['account_search']) : "";
-            $sort 		 	 	= isset($data['sort']) ? htmlentities($data['sort']) : "fj.job_no";
+            $sort 		 	 	= isset($data['sort']) ? htmlentities($data['sort']) : "j.job_no ASC";
             
             $datefilterArr		= explode(' - ',$daterangefilter);
             $datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
@@ -94,7 +94,6 @@
             $add_query   = (!empty($searchkey)) ? "AND (ca.segment5 LIKE '%$searchkey%' OR ca.accountname LIKE '%$searchkey%' )" : "";
             $add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND j.entereddate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
             $add_query .= (!empty($jobno) && $jobno != 'none') ? "AND j.job_no = '$jobno' " : "";
-            //var_dump($add_query);
             
 
             $fields         = array('
@@ -122,10 +121,11 @@
             return $result;
         }
 
-        public function retrieveprocessListing($data)
+        public function retrieveprocessListing($sort,$jobno,$code)
         {
-            $sort 		 	 	= isset($data['sort2']) ? htmlentities($data['sort2']) : "";
-            $code               = $data['account_code'];
+            //$sort 		 	 	= isset($data['sort2']) ? htmlentities($data['sort2']) : "";
+            //$code               = $data['account_code'];
+            //$jobno               = $data['pjobno'];
             $fields 			= array('Reference, Date, debit, Credit');
 
             $query = "SELECT
@@ -140,7 +140,7 @@
                         INNER JOIN
                             job ON fj.job_no = job.job_no
                         WHERE
-                            balance_table.accountcode = '$code' AND balance_table.debit != 0.00
+                            balance_table.accountcode = '$code' AND balance_table.debit != 0.00 AND fj.job_no = '$jobno'
                             
                         UNION
                         
@@ -156,7 +156,7 @@
                         INNER JOIN
                             job ON fj.job_no = job.job_no
                         WHERE
-                            balance_table.accountcode = '$code' AND balance_table.credit != 0.00";
+                            balance_table.accountcode = '$code' AND balance_table.credit != 0.00 AND fj.job_no = '$jobno'";
 
             $result = 	$this->db->setTable("($query) main")
                         ->setFields('main.voucherno AS referenceList,main.transactiondate,main.debit,main.credit')

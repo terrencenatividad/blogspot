@@ -307,8 +307,10 @@ class credit_memo_model extends wc_model {
 							//->setFields("CONCAT(segment5, ' - ',accountname) accountname, debit, credit, converteddebit")
 							->setFields("CONCAT(segment5, ' - ',accountname) accountname, debit, credit, converteddebit, convertedcredit, IF(debit = 0, SUM(convertedcredit), SUM(converteddebit)) as currency")
 							->setWhere("jd.voucherno = '$voucherno' AND jd.stat = 'posted'")
+							->setGroupBy('accountcode')
 							->runSelect()
 							->getResult();
+							//echo $this->db->getQuery();
 		return $result;
 	}
 

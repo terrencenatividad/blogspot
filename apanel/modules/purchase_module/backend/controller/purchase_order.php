@@ -69,6 +69,7 @@ class controller extends wc_controller
 
 		$data['vendor_list'] 	= $this->po->retrieveVendorList();
 		$data['proforma_list'] 	= $this->po->retrieveProformaList();
+		$data['budget_list'] = $this->po->getBudgetCodes();
 
 		$data["business_type"] 	= $this->po->getOption("businesstype");
 		$data["vat_type"] 		= $this->po->getOption("vat_type");
@@ -201,10 +202,13 @@ class controller extends wc_controller
 				$generatedvoucher			= $this->seq->getValue('PO', $this->companycode); 
 				
 				$update_info				= array();
+				$fields = array();
 				$update_info['voucherno']	= $generatedvoucher;
 				$update_info['stat']		= 'open';
 				$update_condition			= "voucherno = '$voucherno'";
+				$fields['voucherno'] = $update_info['voucherno'];
 				$updateTempRecord			= $this->po->updateData($update_info,"purchaseorder",$update_condition);
+				$updateTempRecord = $this->po->updateActual($fields, $voucherno);
 				$updateTempRecord			= $this->po->updateData($update_info,"purchaseorder_details",$update_condition);
 
 				$this->log->saveActivity("Created Purchase Order [$generatedvoucher] ");
@@ -260,6 +264,7 @@ class controller extends wc_controller
 		$data['proforma_list'] 	= $this->po->retrieveProformaList();
 		$data["business_type"] 	= $this->po->getOption("businesstype");
 		$data["vat_type"] 		= $this->po->getOption("vat_type");
+		$data['budget_list'] = $this->po->getBudgetCodes();
 		$data["tax_codes"] 		= $this->po->getTaxCode('VAT',"fstaxcode ind, shortname val");
 		$data["wtax_codes"] 	= $this->po->getTaxCode('WTX',"fstaxcode ind, shortname val");
 
@@ -546,9 +551,9 @@ class controller extends wc_controller
 			}
 		}
 		$print->drawSummary(array('Total Purchase' => number_format($amount, 2),
-					'Total Purchase Tax' => number_format($vat, 2),
-					'Withholding Tax' => number_format($wtaxamount, 2),
-					'Total Amount Due' => number_format($netamount, 2)));
+			'Total Purchase Tax' => number_format($vat, 2),
+			'Withholding Tax' => number_format($wtaxamount, 2),
+			'Total Amount Due' => number_format($netamount, 2)));
 
 		$print->drawPDF('Purchase Order - ' . $voucherno);
 	}
@@ -766,25 +771,41 @@ class controller extends wc_controller
 		$data_post 	= $this->input->post();
 		$voucher 	= $this->input->post("h_voucher_no");
 
+
 		if( $final == "save" )
 			$result    = $this->po->processTransaction($data_post, "create" , $voucher);
 		else
 			$result    = $this->po->processTransaction($data_post, "create");
-		if(!empty($result))
+
+
+		$saveArr = array();
+		$actualArr = array();
+
+		if(!empty($result['errmsg']) && !empty($result['error']) && !empty($result['warning']))
 		{
 			$msg = $result;
 		}
 		else
 		{
-			$msg = "success";
+			// $msg = "success";
+			$msg = $result;
 			if ( $this->inventory_model ) {
 				$this->inventory_model->generateBalanceTable();
 			}
 			if($this->report_model){
 				$this->report_model->generateAssetActivity();
 			}
+			if(isset($data_post['budgetcode'])){
+				for($i=1;$i<=count($data_post['budgetcode']);$i++){
+					$saveArr['voucherno'] 	= $data_post['h_voucher_no'];
+					$saveArr['accountcode'] = $result['accountcode'];
+					$saveArr['budget_code'] = $data_post['budgetcode'][$i];
+					$saveArr['actual'] 		= str_replace(',','', $data_post['amount'][$i]);
+					$actualArr[]      		= $saveArr;
+				}
+			}
+			$save = $this->po->saveActual($actualArr, $data_post['h_voucher_no']);
 		}
-
 		return $dataArray = array("msg" => $msg);
 	}
 	
@@ -796,14 +817,14 @@ class controller extends wc_controller
 		
 		$result = $this->po->processTransaction($data_post, "edit", $voucher);
 		
-		if(!empty($result))
+		if(!empty($result['errmsg']) && !empty($result['error']) && !empty($result['warning']))
 		{
 			$msg = $result;
 		}
 		else
 		{
 			$this->log->saveActivity("Edited Purchase Order [$voucher] ");
-			$msg = "success";
+			$msg = $result;
 
 			if ( $this->inventory_model ) {
 				$this->inventory_model->generateBalanceTable();
@@ -811,6 +832,16 @@ class controller extends wc_controller
 			if($this->report_model){
 				$this->report_model->generateAssetActivity();
 			}
+			if(isset($data_post['budgetcode'])){
+				for($i=1;$i<=count($data_post['budgetcode']);$i++){
+					$saveArr['voucherno'] 	= $data_post['h_voucher_no'];
+					$saveArr['accountcode'] = $result['accountcode'];
+					$saveArr['budget_code'] = $data_post['budgetcode'][$i];
+					$saveArr['actual'] 		= str_replace(',','', $data_post['amount'][$i]);
+					$actualArr[]      		= $saveArr;
+				}
+			}
+			$save = $this->po->updateBudget($actualArr, $voucher);
 		}
 
 		return $dataArray = array( "msg" => $msg, "voucher" => $voucher );
