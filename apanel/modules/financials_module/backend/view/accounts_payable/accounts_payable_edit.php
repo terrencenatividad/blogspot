@@ -234,11 +234,11 @@
 								</div>
 								<div class="col-md-6">
 									<div class="form-group">
-										<?php $tags = explode(',', $job_no); ?>
+										<?php $tags = explode(',', $job_no);?>
 										<?php $tags = ($tags[0] == '') ? 0 : count($tags); ?>
 										<label class="control-label col-md-4">Job Items </label>
 										<div class="col-md-8">
-											<?php if($ajax_task != 'ajax_view') {?>
+											<?php if($ajax_task != 'ajax_view') { ?>
 												<input type="hidden" name="jobs_tagged" id = "jobs_tagged" value = "<?php echo $job_no ?>">
 												<button type="button" id="job" class="btn btn-block btn-success btn-flat" <?php echo $job_no ?>>
 													<em class="pull-left"><small>Click to tag job items</small></em>
@@ -1174,31 +1174,17 @@
 			window.location = '<?= MODULE_URL ?>';
 		});
 
-		var job = [];
-		$('#job').on('click', function() {
-			if(job == '') {
-				$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + $('#jobs_tagged').val(), function(data) {
-					if(data) {
-						$('#jobModal').modal('show');
-						$('#jobsTable tbody').html(data.table);
-						$('#paginate').html(data.pagination);
-					}
-				});
-			} else {
-				$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + job, function(data) {
-					if(data) {
-						$('#jobModal').modal('show');
-						$('#jobsTable tbody').html(data.table);
-						$('#paginate').html(data.pagination);
-					}
-				});
-			}
+		$(document).ready(function() {
+			job = $('#jobs_tagged').val().split(',');	
 		});
 
-		$('#jobModal').on('shown.bs.modal', function() {
-			$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
-				if(jQuery.inArray($(this).val(), job) != -1) {
-					$(this).closest('tr').iCheck('check');
+		var job = [];
+		$('#job').on('click', function() {
+			$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + job, function(data) {
+				if(data) {
+					$('#jobModal').modal('show');
+					$('#jobsTable tbody').html(data.table);
+					$('#paginate').html(data.pagination);
 				}
 			});
 		});
@@ -1224,10 +1210,6 @@
 		function consoler($console) {
 			console.log($console);
 		}
-
-		$(document).ready(function() {
-			job = $('#jobs_tagged').val().split(',');	
-		});
 
 		$('#paginate').on('click', 'a', function(e) {
 			e.preventDefault();
@@ -1306,18 +1288,15 @@
 
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
-			job = [];
 			var ctr = 0;
-			$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
-				if($(this).is(':checked')) {
-					ctr++;
-					var get = $(this).val();
-					if($.inArray(get, job) == -1) {
-						job.push(get);
-					}
-					$('#job_text').html(job.length);
-					$('#assetid').attr('disabled', 'disabled');
+			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
+				ctr++;
+				var get = $(this).val();
+				if($.inArray(get, job) == -1) {
+					job.push(get);
 				}
+				$('#job_text').html(job.length);
+				$('#assetid').attr('disabled', 'disabled');
 			});
 			if(ctr == 0) {
 				$('#job_text').html('0');
