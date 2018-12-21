@@ -1,7 +1,7 @@
 <section class="content">
 	<ul id='nav' class="nav nav-tabs">
 		<li class="active"><a href="Details" data-toggle="tab">Details</a></li>
-		<?if(!$show_input):?><li><a href="Attachment" data-toggle="tab">Attachments</a></li><?endif;?>
+		<?if(!$show_input && !empty($filename)):?><li><a href="Attachment" data-toggle="tab">Attachments</a></li><?endif;?>
 	</ul>
 	<div id='Details' class="box box-primary tab-pane">
 		<form action="" method="post" class="form-horizontal">
@@ -508,14 +508,11 @@
 									</thead>
 									<tbody class="files" id="attachment_list">
 										<tr>
-											<!-- <td colspan="4" class="text-center">
-												<strong>- No Attachments Available -</strong>
-											</td> -->
 											<td>
 												<button type="button" id="replace_attachment" name="replace_attachment" class="btn btn-primary">Replace</button>
 											</td>
-											<td><a href="insert uploaded link here">1123132.pdf</a></td>
-											<td>PDF</td>
+											<td><a href="insert uploaded link here"><?=$filename?></a></td>
+											<td><?=$filetype?></td>
 										</tr>
 									</tbody>
 								</table>

@@ -168,7 +168,8 @@ class controller extends wc_controller {
 		$data['reference'] 			= $servicequotation[0]->reference;
 		$data['discount_type'] 		= $servicequotation[0]->discounttype;
 		$data['notes']				= $servicequotation[0]->notes;
-		
+		$data['filename'] 			= $servicequotation[0]->filename;
+		$data['filetype'] 			= $servicequotation[0]->filetype;
 
 		$data['job_list']			= $this->service_quotation->getOption('job_type','code');
 		$data['customer_list']		= $this->service_quotation->getCustomerList();
@@ -221,6 +222,7 @@ class controller extends wc_controller {
 									->addView()
 									->addEdit($row->stat == 'Pending')
 									->addDelete($row->stat == 'Pending')
+									->addOtherTask('Tag as Accepted', 'bookmark', $row->stat == 'Pending')
 									->addCheckbox($row->stat == 'Pending')
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->voucherno)

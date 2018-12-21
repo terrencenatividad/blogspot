@@ -101,6 +101,42 @@
 			</div>
 		</div>
 		<div id="pagination"></div>
+		<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Attach File</h4>
+				<h4 class="modal-title">Service Quotation No: <span id="modal-voucher"></span></h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<?php
+							echo $ui->setElement('file')
+									->setId('import_pdf')
+									->setName('import_pdf')
+									->setAttribute(array('accept' => '.jpg, .pdf'))
+									->setValidation('required')
+									->draw();
+						?>
+						<span class="help-block"></span>
+					</div>
+					<p class="help-block">The file to be imported shall not exceed the size of 3mb and must be a PDF, PNG or JPG file.</p>
+				</div>
+				<div class="modal-footer">
+					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+						<div class="btn-group">
+						<button type = "button" class = "btn btn-primary btn-sm btn-flat">Attach</button>
+						</div>
+						&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+						<button type="button" class="btn btn-default btn-sm btn-flat">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			</div>
+		</div>
 	</section>
 	<script>
 		var ajax = filterFromURL();
@@ -190,7 +226,6 @@
 
 		getList();
 
-
 	/** -- FOR DELETING DATA -- **/
 		function ajaxCallback(id) {
 			var ids = getDeleteId(id);
@@ -211,4 +246,11 @@
 			linkCancelMultipleToModal('#item_multiple_cancel', '#tableList', 'ajaxCallback');
 		});
 	/** -- FOR DELETING DATA -- end **/
+
+		$('#tableList').on('click','.tag_as_accepted',function(){
+			var voucherno = $(this).data('id');
+			$('#modal-voucher').html(voucherno);
+			$('#attach_modal').modal('show');
+		});
+
 	</script>
