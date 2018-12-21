@@ -1414,14 +1414,18 @@
 		var ctr = 0;
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
-			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
-				var get = $(this).val();
-				ctr++;
-				if($.inArray(get, job) == -1) {
-					job.push(get);
+			$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
+				if($(this).is(':checked')) {
+					var get = $(this).val();
+					ctr++;
+					if($.inArray(get, job) == -1) {
+						job.push(get);
+					}
+					$('#job_text').html(job.length);
+					$('#assetid').attr('disabled', 'disabled');
+				} else {
+					$('#job_text').html(job.length);
 				}
-				$('#job_text').html(job.length);
-				$('#assetid').attr('disabled', 'disabled');
 			});
 			if(ctr == 0) {
 				$('#job_text').html('0');

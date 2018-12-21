@@ -1286,17 +1286,21 @@
 			}
 		});
 
+		var ctr = 0;
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
-			var ctr = 0;
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
-				ctr++;
-				var get = $(this).val();
-				if($.inArray(get, job) == -1) {
-					job.push(get);
+				if($(this).is(':checked')) {
+					ctr++;
+					var get = $(this).val();
+					if($.inArray(get, job) == -1) {
+						job.push(get);
+					}
+					$('#job_text').html(job.length);
+					$('#assetid').attr('disabled', 'disabled');
+				} else {
+					$('#job_text').html(job.length);
 				}
-				$('#job_text').html(job.length);
-				$('#assetid').attr('disabled', 'disabled');
 			});
 			if(ctr == 0) {
 				$('#job_text').html('0');
