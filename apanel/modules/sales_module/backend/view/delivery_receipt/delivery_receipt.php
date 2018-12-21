@@ -352,9 +352,12 @@
 				}
 			}
 			var row = ``;
-
-			row += `
-				<tr>`;
+			if (details.parentcode == '') {
+				row += `<tr style = 'font-weight:bold'>`;
+			}
+			else {
+				row += `<tr>`;
+			}
 
 					<?php if ($show_input): ?>
 					if(details.parentcode == '') {
@@ -407,7 +410,7 @@
 									->draw($show_input);
 							?>
 							<?php
-								echo $ui->formField('text')
+								echo $ui->formField('hidden')
 									->setName('parentcode[]')
 									->setClass('parentcode')
 									->setValue('` + details.parentcode + `')
