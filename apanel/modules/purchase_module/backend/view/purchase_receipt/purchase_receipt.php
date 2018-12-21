@@ -284,14 +284,63 @@
 			</div>
 		</div>
 	</div>
+
+	<div id="serialize_modal" class="modal fade" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Input Serial Numbers</h4>
+				</div>
+
+				<div class="modal-body no-padding">
+					<table id="serialize_tableList" class="table table-hover table-sidepad no-margin-bottom">
+						<thead>
+							<tr class="info">
+								<th class="col-xs-1 text-center">No.</th>
+								<th class="col-xs-2 text-center">Item No.</th>
+								<th class="col-xs-3 text-center">Item Name</th>
+								<th class="col-xs-2 text-center">Serial Number</th>
+								<th class="col-xs-2 text-center">Engine Number</th>
+								<th class="col-xs-2 text-center">Chassis Number</th>
+							</tr>
+						</thead>
+						<tbody id="serialize_tbody">
+							
+						</tbody>
+
+						<tfoot class="summary">
+							<tr>
+								<td colspan="4">
+									<a type="button" class="btn btn-link add-data" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Line</a>
+								</td>	
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+
+				<div class="modal-footer text-center">
+					<button type="button" class="btn btn-primary">Save</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>					
+	</div>`;
 	<script>
 		var delete_row	= {};
 		var ajax		= {};
 		var ajax_call	= '';
 		var min_row		= 0;
+
+		// var serialize = [];
+		var serialize = [{
+						'itemcode': ''
+					}];
+		
 		function addVoucherDetails(details, index) {
 			var details = details || {itemcode: '', detailparticular: '', receiptqty: ''};
 			var other_details = JSON.parse(JSON.stringify(details));
+			// console.log(other_details);
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
 			delete other_details.receiptqty;
@@ -376,11 +425,15 @@
 						?>
 					</td>
 					<td class="text-right">
+						<button type="button" id="serial_`+ details.linenum +`" data-itemcode="`+details.itemcode+`" data-item="`+details.detailparticular+`" class="serialize_button btn btn-block btn-success btn-flat" disabled>
+							<em class="pull-left"><small>Enter serial numbers</small></em>
+						</button>
 						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
 								->setName('receiptqty[]')
 								->setClass('receiptqty text-right')
+								->setID('receiptqty`+ details.linenum +`')
 								->setAttribute(array('data-value' => '` + (parseFloat(details.receiptqty) || 0) + `'))
 								->setValidation('required integer')
 								->setValue('` + (addComma(details.receiptqty, 0) || 0) + `')
@@ -456,7 +509,9 @@
 					<?php endif ?>
 				</tr>
 			`;
+			
 			$('#tableList tbody').append(row);
+			// $('body').append(modal);
 			if (details.itemcode != '') {
 				$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
 			}
@@ -487,22 +542,135 @@
 					$('#temp_view_taxrate_' + index).html(tax.val);
 				}
 			});
+			
+			if (details.item_ident_flag == 0) {
+				$('#serial_' + details.linenum).addClass('hidden');
+				$('#receiptqty' + details.linenum).removeClass('hidden');
+
+			} else {
+				$('#receiptqty' + details.linenum).addClass('hidden');
+				$('#serial' + details.linenum).removeClass('hidden');
+				
+				var item = {};
+				item = {itemcode : details.itemcode,
+						numbers : []};
+				serialize[index] = item;
+
+				// DECLARE SERIAL NUMBERS BASED ON QUANTITY
+				var prop = {};
+				for(var i = 1; i <= parseInt(details.receiptqty); i++){
+					prop = {serialno: '',
+								engineno: '',
+								chassisno: ''
+								};
+					serialize[index].numbers.push(prop);
+				};		
+			}
+			<?php if (!$show_input) { ?>
+				$('#serial_' + details.linenum).addClass('hidden');
+				$('#receiptqty' + details.linenum).removeClass('hidden');
+			<?php }	?>
+
 			var warehouse = $('#warehouse').val();
-			if (warehouse == details.warehouse) {
-				$('#tableList tbody').find('tr:last .receiptqty').each(function() {
-					if (details.receiptqty > 0) {
-						$(this).removeAttr('readonly').val($(this).attr('data-value'));
+			if (warehouse == details.wareserializehouse) {
+				$('#tableList tbody').finserialized('tr:last .receiptqty').each(function() {
+					if (details.receiptqtserializey > 0) {
+						$(this).removeAttserializer('readonly').val($(this).attr('data-value'));
 						$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
+						$('#tableList tbody').find('tr:last .serialize_button').prop("disabled",false);
 					} else {
 						$('#tableList tbody').find('tr:last .receiptqty').attr('readonly', '').val(0);
 						$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('enable');
+						$('#tableList tbody').find('tr:last .serialize_button').prop("disabled",true);
 					}
 				});
 			} else {
 				$('#tableList tbody').find('tr:last .receiptqty').attr('readonly', '').val(0);
 				$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('disable');
+				$('#tableList tbody').find('tr:last .serialize_button').prop("disabled",true);
 			}
+			
+			$('#serial_' + details.linenum).on("click", function() {
+				$('#serialize_tableList tbody').empty();
+				icode = $('#serial_' + details.linenum).data('itemcode');
+				item = $('#serial_' + details.linenum).data('item');
+				var rows = 0;
+
+				for (var i = 0 ; i <= index ; i++){
+					if(serialize[i].itemcode == icode){
+						
+						for (var rows = 0 ; rows < parseInt(details.receiptqty) ; rows++){
+							
+							if (!serialize[index].numbers[rows].serialno){	// CHECK NUMBER OF ROW WITH SERIAL NUMBERS														
+								break; //BREAK LOOP IF END OF QUANTITY REACHED
+							}else{ //ELSE POPULATE EXISTING ROW WITH SERIALS
+								sn = serialize[i].numbers[rows].serialno;
+								en = serialize[i].numbers[rows].engineno;
+								cn = serialize[i].numbers[rows].chassisno;
+								addRow(icode, item, rows, sn, en, cn);
+							}
+						}
+						break;
+					}
+				}
+				
+				console.log(rows);
+				console.log(serialize);
+				$("#serialize_modal").modal('show');
+			});
 		}
+
+		$('.add-data').on("click", function() {
+				addRow();
+			});
+
+		function addRow(icode, item, rownum, serialno, engineno, chassisno){
+				// if ()
+				$('#serialize_tableList tbody').append(
+					`<tr>
+						<td id="serial_item_count" class="col-xs-1 text-center"></td>
+						<td class="item_no col-xs-2">` + icode + `</td>
+						<td class="item_name col-xs-3">` + item + `</td>
+						<td id="serial_no" class="col-xs-2">
+							<?php
+								echo $ui->formField('text')
+									->setSplit('', 'col-md-12')
+									->setName('serial_no_item`+ rownum +`[]')
+									->setClass('serial_no_item`+ rownum +` text-right')
+									->setID('serial_no_item`+ rownum +`')
+									->setValue('`+ serialno +`')
+									->setValidation('required')
+									->draw($show_input);
+							?>
+						</td>
+						<td id="engine_no" class="col-xs-2">
+							<?php
+								echo $ui->formField('text')
+									->setSplit('', 'col-md-12')
+									->setName('engine_no_item`+ rownum +`[]')
+									->setClass('engine_no_item`+ rownum +` text-right')
+									->setID('engine_no_item`+ rownum +`')																
+									->setValue('`+ engineno +`')
+									->setValidation('required')
+									->draw($show_input);
+							?>
+						</td>
+						<td id="chassis_no" class="col-xs-2">
+							<?php
+								echo $ui->formField('text')
+									->setSplit('', 'col-md-12')
+									->setName('engine_no_item`+ rownum +`[]')
+									->setClass('engine_no_item`+ rownum +` text-right')
+									->setID('engine_no_item`+ rownum +`')																
+									->setValue('`+ chassisno +`')
+									->setValidation('required')
+									->draw($show_input);
+							?>
+						</td>
+					</tr>`
+				);
+			}
+	
 		var voucher_details = <?php echo $voucher_details ?>;
 		function displayDetails(details) {
 			$('#tableList tfoot.summary').hide();
@@ -633,7 +801,7 @@
 		$('#source_no').on('focus', function() {
 			var vendor = $('#vendor').val();
 			ajax.vendor = vendor;
-			if (vendor == '') {
+			if (vendor == '') {g
 				$('#warning_modal').modal('show').find('#warning_message').html('Please Select a Supplier');
 				$('#vendor').trigger('blur');
 			} else {
@@ -686,9 +854,11 @@
 				if (warehouse == warehouse_row) {
 					$(this).removeAttr('readonly').val($(this).attr('data-value'));
 					$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('check').iCheck('enable');
+					$(this).closest('tr').find('.serialize_button ').prop("disabled",false);
 				} else {
 					$(this).attr('readonly', '').val(0);
 					$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('uncheck').iCheck('disable');
+					$(this).closest('tr').find('.serialize_button ').prop("disabled",true);
 				}
 			});
 			recomputeAll();
