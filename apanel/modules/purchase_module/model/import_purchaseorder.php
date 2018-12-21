@@ -25,24 +25,35 @@ class import_purchaseorder extends wc_model
 		return $result;
 	}
 
+	public function getBudgetCodes()
+	{
+		$result = $this->db->setTable('budget')
+		->setFields("budget_code ind, budget_code val")
+		->setWhere("status = 'approved'")
+		->runSelect()
+		->getResult();
+
+		return $result;
+	}
+
 	public function getTaxRateList() {
 		$result = $this->db->setTable('fintaxcode')
-					->setFields('fstaxcode ind, shortname val')
-					->setWhere("taxtype = 'VAT'")
-					->setOrderBy('fstaxcode')
-					->runSelect()
-					->getResult();
+		->setFields('fstaxcode ind, shortname val')
+		->setWhere("taxtype = 'VAT'")
+		->setOrderBy('fstaxcode')
+		->runSelect()
+		->getResult();
 
 		return $result;
 	}
 
 	public function getWTaxCodeList() {
 		$result = $this->db->setTable('fintaxcode')
-					->setFields('fstaxcode ind, shortname val')
-					->setWhere("taxtype = 'WTX'")
-					->setOrderBy('taxrate')
-					->runSelect()
-					->getResult();
+		->setFields('fstaxcode ind, shortname val')
+		->setWhere("taxtype = 'WTX'")
+		->setOrderBy('taxrate')
+		->runSelect()
+		->getResult();
 
 		return $result;
 	}
@@ -158,7 +169,7 @@ class import_purchaseorder extends wc_model
 		->setGroupBy('po.voucherno')
 		->runPagination();		
 	}
-		
+	
 	public function retrieveExistingPO($voucherno)
 	{	 
 		$retrieved_data =	array();
@@ -168,19 +179,19 @@ class import_purchaseorder extends wc_model
 		$condition 		=	" po.voucherno = '$voucherno' ";
 		
 		$retrieved_data['header'] 	= 	$this->db->setTable('import_purchaseorder po')
-														->leftJoin(' partners p ON p.partnercode = po.vendor AND p.partnertype = "supplier" ')
-														->setFields($header_fields)
-														->setWhere($condition)
-														->setLimit('1')
-														->runSelect()
-														->getRow();
-									
+		->leftJoin(' partners p ON p.partnercode = po.vendor AND p.partnertype = "supplier" ')
+		->setFields($header_fields)
+		->setWhere($condition)
+		->setLimit('1')
+		->runSelect()
+		->getRow();
+		
 		// Retrieve Vendor Details
 		$vendor_code 			 	 = 	$retrieved_data['header']->vendor;
 		$retrieved_data['vendor']    =	$this->retrievevendorDetails($vendor_code);
 
 			// Retrieve Details
-		$detail_fields 			= "pd.itemcode, pd.detailparticular, pd.warehouse, w.description, pd.unitprice, pd.onhandqty, pd.receiptqty,receiptuom, pd.taxcode, pd.taxrate, pd.amount, pd.convertedamount, pd.discount";
+		$detail_fields 			= "pd.budgetcode, pd.itemcode, pd.detailparticular, pd.warehouse, w.description, pd.unitprice, pd.onhandqty, pd.receiptqty,receiptuom, pd.taxcode, pd.taxrate, pd.amount, pd.convertedamount, pd.discount";
 		$condition 				= " pd.voucherno = '$voucherno' ";
 
 		$retrieved_data['details'] = 	$this->db->setTable('import_purchaseorder_details pd')
@@ -193,7 +204,7 @@ class import_purchaseorder extends wc_model
 
 			//echo $this->db->getQuery();
 		return $retrieved_data;
-}
+	}
 
 	public function retrieveExistingPQ($request_no)
 	{	 
@@ -430,7 +441,7 @@ class import_purchaseorder extends wc_model
 		/**INSERT DETAILS**/
 		foreach($data as $postIndex => $postValue)
 		{
-			if($postIndex == 'itemcode' || $postIndex=='detailparticulars' || $postIndex == 'warehouse' || $postIndex == 'onhandqty' || 
+			if($postIndex == 'budgetcode' || $postIndex == 'itemcode' || $postIndex=='detailparticulars' || $postIndex == 'warehouse' || $postIndex == 'onhandqty' || 
 				$postIndex == 'quantity' || $postIndex == 'uom' || $postIndex == 'itemprice' || $postIndex=='taxcode' ||
 				$postIndex=='taxrate' || $postIndex == 'taxamount' || $postIndex == 'foreignamount' || 
 				$postIndex == 'h_amount' || $postIndex == 'baseamount' || 
@@ -470,6 +481,7 @@ class import_purchaseorder extends wc_model
 
 		foreach($tempArray as $tempArrayIndex => $tempArrayValue)
 		{
+			$budgetcode 			=	$tempArrayValue['budgetcode'];
 			$itemcode 			=	$tempArrayValue['itemcode'];
 			$detailparticular 	=	$tempArrayValue['detailparticulars'];
 			$warehouse 			=	$tempArrayValue['warehouse'];
@@ -492,6 +504,7 @@ class import_purchaseorder extends wc_model
 
 			if( $tempArrayValue['itemcode'] != "" )
 			{
+				$data_insert["budgetcode"]         	= $budgetcode;
 				$data_insert["voucherno"]         	= $voucherno;
 				$data_insert['transtype']         	= 'IPO';
 				$data_insert['linenum']	        	= $linenum;
@@ -523,8 +536,83 @@ class import_purchaseorder extends wc_model
 
 		}
 
+		$warning = array();
+		$checkamount = array();
+		$error = array();
+		$accountcode = '';
 		/**INSERT IR DETAILS**/
 		$isDetailExist	= $this->getValue($detailInvTable, array("COUNT(*) as count"),"voucherno = '$voucherno'");
+		foreach($tempArr as $row) {
+			if(!empty($row['budgetcode'])) {
+				$budgetcode = $row['budgetcode'];
+				$type = $this->db->setTable('budget')
+				->setFields('budget_check')
+				->setWhere("budget_code = '$budgetcode'")
+				->runSelect()
+				->getRow();
+				if($type->budget_check == 'Monitored') {
+
+					$itemcode = $row['itemcode'];
+					$check = $this->db->setTable('items')
+					->setFields('expense_account')
+					->setWhere("itemcode = '$itemcode'")
+					->runSelect()
+					->getRow();
+
+					if($check->expense_account == 0) {
+						$getaccount = $this->db->setTable('itemclass ic')
+						->setFields('ic.expense_account')
+						->leftJoin('items as i ON i.classid = ic.id')
+						->runSelect()
+						->getRow();
+
+						$expenseaccount = $getaccount->expense_account;
+						$accountcode = $expenseaccount;
+						$getbudgetaccount = $this->db->setTable('budget_details')
+						->setFields('accountcode, amount')
+						->setWhere("accountcode = '$expenseaccount'")
+						->runSelect()
+						->getRow();
+
+						if(!$getbudgetaccount) {
+							$warning[] = "The account of your item didn't match any accounts under budget code " . $row['budgetcode']. '.';
+						} else {
+							if($row['convertedamount'] > $getbudgetaccount->amount) {
+								$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. '.';
+							}
+						}
+					} else {
+						$expenseaccount = $check->expense_account;
+						$accountcode = $expenseaccount;
+						$getbudgetaccount = $this->db->setTable('budget_details')
+						->setFields('accountcode, amount')
+						->setWhere("accountcode = '$expenseaccount'")
+						->runSelect()
+						->getRow();
+						if(!$getbudgetaccount) {
+							$warning[] = "The account of your item didn't match any accounts under budget code " . $row['budgetcode']. '.';
+						} else {
+							if($row['convertedamount'] > $getbudgetaccount->amount) {
+								$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. '.';
+							}
+						}
+					}
+				} else {
+					$getbudgetaccount = $this->db->setTable('budget_details')
+					->setFields('accountcode, amount')
+					->setWhere("accountcode = '$expenseaccount'")
+					->runSelect()
+					->getRow();
+					if(!$getbudgetaccount) {
+						$warning[] = "The account of your item didn't match any accounts under budget code " . $row['budgetcode']. '.';
+					} else {
+						if($row['convertedamount'] > $getbudgetaccount->amount) {
+							$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. '.';
+						}
+					}
+				}
+			}	
+		}
 
 		if($isDetailExist[0]->count == 0 && $task == 'create' )
 		{
@@ -552,8 +640,35 @@ class import_purchaseorder extends wc_model
 		{
 			$errmsg[] 		= "The system has encountered an error in saving. Our team is currently checking on this.<br/>";
 		}
+		
+		return array('errmsg' =>$errmsg, 'warning' => $warning, 'checkamount' => $checkamount, 'error' => $error, 'accountcode' => $accountcode);
+	}
 
-		return $errmsg;
+	public function updateActual($fields, $voucherno) {
+		$result = $this->db->setTable('actual_budget')
+		->setValues($fields)
+		->setWhere("voucherno = '$voucherno'")
+		->runUpdate(false);
+		
+		return $result;
+	}
+
+	public function saveActual($fields, $voucherno) {
+		$this->db->setTable('actual_budget')
+		->setWhere("voucherno = '$voucherno' ")
+		->runDelete(false);
+
+		$result = $this->db->setTable('actual_budget')
+		->setValues($fields)
+		->runInsert(false);
+		return $result;
+	}
+
+	public function updateBudget($fields, $voucherno) {
+		return $this->db->setTable('actual_budget')
+		->setValues($fields)
+		->setWhere("voucherno = '$voucherno' ")
+		->runUpdate(false);
 	}
 
 	public function updateData($data, $table, $cond)
@@ -672,39 +787,39 @@ class import_purchaseorder extends wc_model
 
 	public function getUnReceivedItems($voucherno) {
 		$pr_inner = $this->db->setTable('purchasereceipt a')
-							->innerJoin('purchasereceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-							->setFields('a.companycode, linenum, source_no, SUM(receiptqty) received_qty')
-							->setWhere("a.stat = 'Received'")
-							->setGroupBy('source_no, itemcode, linenum')
-							->buildSelect();
+		->innerJoin('purchasereceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+		->setFields('a.companycode, linenum, source_no, SUM(receiptqty) received_qty')
+		->setWhere("a.stat = 'Received'")
+		->setGroupBy('source_no, itemcode, linenum')
+		->buildSelect();
 
 		$result	= $this->db->setTable('import_purchaseorder a')
-							->innerJoin('import_purchaseorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-							->leftJoin("($pr_inner) pr ON pr.source_no = a.voucherno AND pr.companycode = a.companycode AND pr.linenum = b.linenum")
-							->setFields('b.itemcode, detailparticular, b.warehouse, (b.receiptqty - pr.received_qty) balance_qty, taxcode, taxrate, b.receiptuom, unitprice')
-							->setWhere("a.stat IN('open', 'partial', 'posted') AND a.voucherno = '$voucherno'")
-							->setHaving('balance_qty > 0')
-							->runSelect()
-							->getResult();
+		->innerJoin('import_purchaseorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+		->leftJoin("($pr_inner) pr ON pr.source_no = a.voucherno AND pr.companycode = a.companycode AND pr.linenum = b.linenum")
+		->setFields('b.itemcode, detailparticular, b.warehouse, (b.receiptqty - pr.received_qty) balance_qty, taxcode, taxrate, b.receiptuom, unitprice')
+		->setWhere("a.stat IN('open', 'partial', 'posted') AND a.voucherno = '$voucherno'")
+		->setHaving('balance_qty > 0')
+		->runSelect()
+		->getResult();
 
 		return $result;
 	}
 
 	public function getReceivedItems($voucherno) {
 		$pr_inner = $this->db->setTable('purchasereceipt a')
-							->innerJoin('purchasereceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-							->setFields('a.companycode, linenum, source_no, SUM(receiptqty) received_qty')
-							->setWhere("a.stat = 'Received'")
-							->setGroupBy('source_no, itemcode, linenum')
-							->buildSelect();
+		->innerJoin('purchasereceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+		->setFields('a.companycode, linenum, source_no, SUM(receiptqty) received_qty')
+		->setWhere("a.stat = 'Received'")
+		->setGroupBy('source_no, itemcode, linenum')
+		->buildSelect();
 
 		$result	= $this->db->setTable('import_purchaseorder a')
-							->innerJoin('import_purchaseorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-							->leftJoin("($pr_inner) pr ON pr.source_no = a.voucherno AND pr.companycode = a.companycode AND pr.linenum = b.linenum")
-							->setFields('b.itemcode, detailparticular, b.warehouse, pr.received_qty, taxcode, taxrate, b.receiptuom, unitprice, a.wtaxrate')
-							->setWhere("a.stat IN('open', 'partial', 'posted') AND a.voucherno = '$voucherno'")
-							->runSelect()
-							->getResult();
+		->innerJoin('import_purchaseorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+		->leftJoin("($pr_inner) pr ON pr.source_no = a.voucherno AND pr.companycode = a.companycode AND pr.linenum = b.linenum")
+		->setFields('b.itemcode, detailparticular, b.warehouse, pr.received_qty, taxcode, taxrate, b.receiptuom, unitprice, a.wtaxrate')
+		->setWhere("a.stat IN('open', 'partial', 'posted') AND a.voucherno = '$voucherno'")
+		->runSelect()
+		->getResult();
 
 		return $result;
 	}

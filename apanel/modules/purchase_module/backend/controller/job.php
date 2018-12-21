@@ -424,11 +424,16 @@
                         $maxval = $row->receiptqty - $taggedqty[0]->count;
                     
                     if ($maxval) {
+                        $disable = array('disable', true);
+                    }
+                    else
+                        $disable = array('disable', false);
+
                         $table .= '<tr>';
                         
                             $table .= '<td>';
                             $table .= '
-                                <input type="checkbox" id = "'.$checkid.'" data-itemcode="'.$row->itemcode.'" data-ipo="'.$row->voucherno.'" data-linenum="'.$row->linenum.'">
+                                <input type="checkbox" id = "'.$checkid.'" data-itemcode="'.$row->itemcode.'" data-ipo="'.$row->voucherno.'" data-linenum="'.$row->linenum.'" '.$disable.'>
                                 <input type="hidden" name="txtipo[]" value="'.$row->voucherno.'">
                                 <input type="hidden" name="txtitem[]" value="'.$row->itemcode.'">
                                 <input type="hidden" name="txtlinenum[]" value="'.$row->linenum.'">
@@ -456,7 +461,7 @@
                         $table .= '<td class = "text-right">' . strtoupper($row->receiptuom) . '</td>';
                         $table .= '</tr>';
                         $checkid++;
-                    }
+                    
                 }
             }
             if ($table=="") {

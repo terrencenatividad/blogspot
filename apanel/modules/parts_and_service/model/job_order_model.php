@@ -70,4 +70,114 @@ class job_order_model extends wc_model
 
 		return json_encode($taxrates);
 	}
+
+	public function getSQPagination($customer) {
+		$result = $this->db->setTable("servicequotation")
+						->setFields("voucherno, transactiondate, notes")
+						->setWhere("customer = '$customer' AND stat='Approved'")
+						->setOrderBy("voucherno ASC")
+						->runPagination();
+		return $result;
+	}
+
+	public function getServiceQuotationHeader($fields, $voucherno) {
+		$result = $this->db->setTable('servicequotation')
+						->setFields($fields)
+						->setWhere("voucherno = '$voucherno'")
+						->runSelect()
+						->getRow();
+
+		return $result;
+	}
+
+	public function getServiceQuotationDetails($voucherno, $voucherno_ref = false) {
+		$result1		= $this->db->setTable('servicequotation_details sqd')
+								->setFields("sqd.itemcode, detailparticular, linenum, qty, sqd.warehouse, uom, sqd.parentcode, sqd.childqty, sqd.isbundle, sqd.parentline, i.item_ident_flag")
+								->innerJoin('servicequotation sq ON sqd.voucherno = sq.voucherno AND sqd.companycode = sq.companycode')
+								->leftJoin('items i ON i.itemcode = sqd.itemcode')
+								->leftJoin('invfile inv ON sqd.itemcode = inv.itemcode AND sqd.warehouse = inv.warehouse AND sqd.companycode = inv.companycode')
+								->setWhere("sq.voucherno = '$voucherno'")
+								->setOrderBy('linenum ASC')
+								->runSelect()
+								->getResult();
+
+
+		// $checker	= array();
+		// $result		= array();
+		// foreach ($result2 as $key => $row) {
+		// 	$checker[$row->linenum] = $row->issueqty;
+		// }
+
+		// foreach ($result1 as $key => $row) {
+		// 	$add_result = true;
+		// 	if (isset($checker[$row->linenum])) {
+		// 		$quantity = $checker[$row->linenum];
+
+		// 		if ($quantity >= $row->issueqty) {
+		// 			$add_result = false;
+		// 		}
+		// 		$row->maxqty = ($row->maxqty > $quantity) ? $row->maxqty - $quantity : 0;
+		// 		$row->issueqty = ($row->issueqty > $quantity) ? $row->issueqty - $quantity : 0;
+		// 		$checker[$row->linenum] -= $row->issueqty;
+		// 	}
+		// 	$row->qtyleft = $row->maxqty;
+		// 	if ($row->available < $row->maxqty) {
+		// 		$row->maxqty = $row->available;
+		// 	}
+		// 	$row->maxqty = ($row->maxqty > 0) ? $row->maxqty : 0;
+		// 	if ($add_result) {
+		// 		$result[] = $row;
+		// 	}
+		// }
+
+		return $result1;
+	}
+
+	public function saveValues($table, $values){
+        $result = $this->db->setTable($table)
+                        ->setValues($values)
+                        ->runInsert();
+                        
+        return $result;
+	}
+	
+	public function saveFromPost($table, $values, $data){
+		$data['job_order_no'];
+		$result = $this->db->setTable($table)
+                            ->setValuesFromPost($values)
+                            ->runInsert();
+                           
+        return $result;
+	}
+
+	public function saveJobOrder($data, $data2) {
+
+		$result = $this->db->setTable('job_order')
+							->setValues($data)
+							->runInsert();
+		if ($result) {
+			if ($result) {
+				$this->log->saveActivity("Create Job Order [{$data['job_order_no']}]");
+			}
+
+			$result = $this->updateJobOrderDetails($data2, $data['job_order_no']);
+		}
+
+
+		return $result;
+	}
+
+	public function updateJobOrderDetails($data, $voucherno) {
+		$data['job_order_no']	= $voucherno;
+		$this->db->setTable('job_order_details')
+					->setWhere("job_order_no = '$voucherno'")
+					->runDelete();
+					// var_dump($data);
+		$result = $this->db->setTable('job_order_details')
+							->setValuesFromPost($data)
+							->runInsert();
+							
+		return $result;
+	}
+
 }
