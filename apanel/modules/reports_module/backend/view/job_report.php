@@ -101,10 +101,10 @@
                                 <?php
 					echo $ui->loadElement('table')
 							->setHeaderClass('info')
-							->addHeader('Reference',array('class'=>'col-md-1'),'sort','referenceList')
-							->addHeader('Date', array('class'=>'col-md-2'),'sort','main.transactiondate')
-							->addHeader('Debit',array('class'=>'col-md-1'),'sort','main.debit')
-							->addHeader('Credit',array('class'=>'col-md-1 text-right'),'sort','main.credit')
+							->addHeader('Reference',array('class'=>'col-md-1'),'','referenceList')
+							->addHeader('Date', array('class'=>'col-md-2'),'','main.transactiondate')
+							->addHeader('Debit',array('class'=>'col-md-1'),'','main.debit')
+							->addHeader('Credit',array('class'=>'col-md-1 text-right'),'','main.credit')
 							->draw();
 				?>
                             </thead>
@@ -204,10 +204,10 @@
                                         <?php
 									echo $ui->loadElement('table')
 											->setHeaderClass('info')
-											->addHeader('Reference',array('class'=>'col-md-2'),'sort','main.voucherno')
-											->addHeader('Account', array('class'=>'col-md-2'),'sort','main.accountname')
-											->addHeader('Debit',array('class'=>'col-md-2 text-right'),'sort','main.debit')
-											->addHeader('Credit',array('class'=>'col-md-2 text-right'),'sort','main.credit')
+											->addHeader('Reference',array('class'=>'col-md-2'),'','main.voucherno')
+											->addHeader('Account', array('class'=>'col-md-2'),'','main.accountname')
+											->addHeader('Debit',array('class'=>'col-md-2 text-right'),'','main.debit')
+											->addHeader('Credit',array('class'=>'col-md-2 text-right'),'','main.credit')
 											->draw();
 									?>
                                     </thead>
@@ -322,17 +322,17 @@
         showList();
     });
 
-    tableSort('#tb_process_fee', function (value) {
-        ajax.sort2 = value;
-        //ajax.page2 = 1;
-        showProcessFee();
-    });
+    // tableSort('#tb_process_fee', function (value) {
+    //     ajax.sort = value;
+    //     ajax.page = 1;
+    //     showProcessFee();
+    // });
 
-    tableSort('#tb_closejob', function (value) {
-        ajax.sort3 = value;
-        //ajax.page3 = 1;
-        closejobList();
-    });
+    // tableSort('#tb_closejob', function (value) {
+    //     ajax.sort = value;
+    //     ajax.page = 1;
+    //     closejobList();
+    // });
 
     /** -- FOR DATE -- **/
     $('#daterangefilter').on('change', function () {
@@ -351,18 +351,23 @@
 
     $('#tableList').on('click', '.amount', function () {
         ajax.page = 1;
-        var account_code = $(this).attr('data-id');
-        ajax.account_code = $(this).attr('data-id');
-        showProcessFee();
+        var p_acccode = $(this).attr('data-id');
+        var p_jobno = $(this).attr('data-job');
+        console.log(p_jobno);
+        showProcessFee(p_acccode, p_jobno);
         $('#process-fee-modal').modal('show');
-        console.log(account_code);
+        //console.log(getData);
+        //console.log(myarr);
+        //console.log(myarr[0]);
+        //c/onsole.log(myarr[1]);
     });
 
-    function showProcessFee() {
-        //ajax.page2 = 1;
+    function showProcessFee(a, b) {
+        ajax.page = 1;
         var ftotal_debit = 0;
         var ftotal_credit = 0;
-        $.post('<?=MODULE_URL?>ajax/processing_fee_listing', ajax, function (data) {
+        console.log(b);
+        $.post('<?=MODULE_URL?>ajax/processing_fee_listing', ajax + '&process_jobno=' + b + '&process_accid=' + a , function (data) {
             $('#tb_process_fee #tb_process_body').html(data.table);
             //$('#pagination2').html(data.pagination2);
 
@@ -428,7 +433,7 @@
     });
 
     function closejobList() {
-        //ajax.page3 = 1;
+        ajax.page = 1;
         $.post('<?=MODULE_URL?>ajax/close_job_listing', ajax, function (data) {
             tdebits = 0;
             tcredits = 0;
@@ -509,7 +514,7 @@
                 encodeURIComponent(data.csv));
             fsum = 0;
             sum = 0;
-            
+            $('.total_job').html(addComma(data.amountview));
             if (ajax.page > data.page_limit && data.page_limit > 0) {
                 ajax.page = data.page_limit;
                 showList();
@@ -523,14 +528,30 @@
     
     function getTotal() {
         ajax_call = $.post('<?=MODULE_URL?>ajax/jobreport_listingTotal', ajax, function (data) {
-            if (data) { 
-                $('#total_job').html(data.total);
-            }
+            // if (data) { 
+            //     $('#total_job').html(data.total);
+            // }
          });
         if($('#tableList tbody tr td.text-center').html() == 'No Records Found') {
             $('.total_job').html(addComma('0.00'));
         } else {
-            $('#tableList tbody tr td').find('.amount').each(function () {
+            var pat = /\([\d]+\)/;
+            var sum = "";
+            $('#tableList tbody tr td a').find('.amount').each(function () {
+                // if ($(this).contains('(')) {
+                //     sum = $(this).html();
+                //     console.log(sum);
+                //     sum = sum.replace('(', '');
+                //     sum = sum.replace(')', '');
+                //     sum = sum - (sum*2);
+                    
+                //     // res = sum.replace('a', "");
+                //     // sum = sum.replace('a', "");
+
+                //     //console.log('with ( or )');
+                    
+                // }
+
             sum = removeComma($(this).html());
             fsum += +sum;
             $('.total_job').html(addComma(fsum));

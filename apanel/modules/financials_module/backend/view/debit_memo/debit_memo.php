@@ -1006,9 +1006,12 @@ echo $ui->loadElement('modal')
 				}
 				$('#job_text').html(job.length);
 				$('#assetid').attr('disabled', 'disabled');
-				$('#jobModal').modal('hide');
 			});
+			if(ctr == 0) {
+				$('#job_text').html('0');
+			}
 			console.log(job);
+			$('#jobModal').modal('hide');
 		});
 
 		$('#currencycode').on('change', function() {
