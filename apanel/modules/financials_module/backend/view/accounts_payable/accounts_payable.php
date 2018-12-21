@@ -1411,10 +1411,9 @@
 			}
 		});
 
+		var ctr = 0;
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
-			job = [];
-			var ctr = 0;
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
 				var get = $(this).val();
 				ctr++;
