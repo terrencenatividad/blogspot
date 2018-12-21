@@ -133,7 +133,7 @@ class controller extends wc_controller {
 
 			$importation_cost_unit =  ($item_cost_ratio * $total_importation_cost) / $item_quantity; //sprintf("%7.2f",$quantity);
 			
-			$table .=	'<td class="text-right">'.$item_cost_total.' / '.$total_cost_job.' = '.$item_cost_ratio.'</td> 
+			$table .=	'<td class="text-right">'.$job_no.'</td> 
 						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($importation_cost_unit,2).'</td>'; 
 			
 				// LANDED COST CALCS STAGING
