@@ -32,7 +32,7 @@ class controller extends wc_controller {
 			'header_discountamount' => 'discountamount'
 		);
 		$this->fields2			= array(
-			'itemcode',
+			'itemcode',			
 			'detailparticular',
 			'linenum',
 			'issueqty',
@@ -48,7 +48,9 @@ class controller extends wc_controller {
 			'detail_warehouse'		=> 'warehouse',
 			'taxcode',
 			'taxamount',
-			'taxrate'
+			'taxrate',
+			'serialnumbers',
+			'parentcode'
 		);
 		$this->clean_number		= array(
 			'issueqty'
@@ -253,8 +255,6 @@ class controller extends wc_controller {
 		$data						= array_merge($this->input->post($this->fields), $this->input->post($this->fields_header));
 		$submit						= $this->input->post('submit');
 		$data2						= $this->getItemDetails();
-		var_dump($data2);
-		exit();
 		$data2						= $this->cleanData($data2);
 		$data['deliverydate']		= $this->date->dateDbFormat($data['deliverydate']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
@@ -303,6 +303,8 @@ class controller extends wc_controller {
 		$result						= $this->delivery_model->updateDeliveryReceipt($data, $data2, $voucherno);
 
 		$this->delivery_model->createClearingEntries($voucherno);
+
+		$this->delivery_model->UpdateItemsSerialized($voucherno);
 
 		if ($result && $this->inventory_model) {
 			$this->inventory_model->computeValues()
@@ -390,13 +392,24 @@ class controller extends wc_controller {
 		$itemcode = $this->input->post('itemcode');
 		$allserials = $this->input->post('allserials');
 		$itemselected = $this->input->post('itemselected');
-		$linenum = $this->input->post('linenum');
+		$linenum = $this->input->post('linenumber');
 		$id = $this->input->post('id');
-		
+		$task = $this->input->post('task');
+		$voucherno = '';
+		if ($task=='ajax_edit') {
+			$voucherno = $this->input->post('voucherno');
+		}
+		$curr = $this->delivery_model->getDRSerials($itemcode, $voucherno, $linenum);
+		if ($curr) {
+			$current_id = explode(",", $curr->serialnumbers);
+		}
+		else {
+			$current_id = [];
+		}
 		$array_id = explode(',', $id);
 		$all_id = explode(',', $allserials);
 		
-		$fields = array ('id', 'itemcode', 'serialno', 'engineno', 'chassisno');
+		$fields = array ('id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat');
 		$pagination	= $this->delivery_model->getSerialList($fields, $itemcode, $search);
 		
 		$table		= '';
@@ -404,10 +417,10 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
-			$checker = (in_array($row->id, $array_id)) ? 'checked' : '';
-			$hide_tr = (in_array($row->id, $all_id) && !in_array($row->id, $array_id)) ? 'hidden' : '';
+			$checker = (in_array($row->id, $array_id) || in_array($row->id, $current_id)) ? 'checked' : '';
+			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id)) || ($row->stat == 'Not Available') && (!in_array($row->id, $current_id))) ? 'hidden' : '';
 			$table .= '<tr class = "'.$hide_tr.'">';
-			$table	.= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'" '.$checker.'></td>';
+			$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'" '.$checker.'></td>';
 			$table .= '<td>' . $row->serialno . '</td>';
 			$table .= '<td>' . $row->engineno . '</td>';
 			$table .= '<td>' . $row->chassisno . '</td>';
@@ -455,6 +468,7 @@ class controller extends wc_controller {
 				$data[$field] = $temp[$field];
 			}
 		}
+
 		return $data;
 	}
 

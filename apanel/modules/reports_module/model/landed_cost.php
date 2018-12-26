@@ -18,12 +18,13 @@ class landed_cost extends wc_model {
 		$result = $this->db->setTable('import_purchaseorder ipo')
 							->setFields("ipo.voucherno ind, ipo.voucherno val")
 							->leftJoin("purchasereceipt pr ON pr.source_no = ipo.voucherno")
-							->leftJoin("job_details jd ON jd.ipo_no = pr.voucherno")
+							->leftJoin("job_details jd ON jd.ipo_no = ipo.voucherno")
 							->setWhere("ipo.voucherno != '' AND ipo.stat = 'posted' AND jd.job_no != ''")
 							->setGroupBy("val")
 							->setOrderBy("val")
 							->runSelect()
 							->getResult();
+							// echo $this->db->getQuery();
 
 		return $result;
     }
@@ -73,8 +74,9 @@ class landed_cost extends wc_model {
 
 		$result = $this->db->setTable('job_details jd')
 							->setFields($fields)
-							->leftJoin('purchasereceipt pr ON pr.voucherno = jd.ipo_no')
-							->leftJoin('import_purchaseorder_details ipod ON ipod.voucherno = pr.source_no AND ipod.itemcode = jd.itemcode')
+							// ->leftJoin('import_purchaseorder_details ipod ON ipod.voucherno = pr.source_no AND ipod.itemcode = jd.itemcode')
+							->leftJoin('import_purchaseorder_details ipod ON ipod.voucherno = jd.ipo_no AND ipod.itemcode = jd.itemcode')
+							->leftJoin('purchasereceipt pr ON pr.source_no = ipod.voucherno')
 							->leftJoin('purchasereceipt_details prd ON prd.voucherno = pr.voucherno')
 							->leftJoin('import_purchaseorder ipo ON ipo.voucherno = ipod.voucherno')
 							->leftJoin('partners p ON ipo.vendor = p.partnercode')
@@ -175,7 +177,7 @@ class landed_cost extends wc_model {
 
 	public function getSumOfCm($job_no) {
 		$result = $this->db->setTable('journaldetails jd')
-							->setFields('SUM(jd.debit) AS credit')
+							->setFields('SUM(jd.converteddebit) AS credit')
 							->leftJoin('journalvoucher jv ON jv.voucherno = jd.voucherno')
 							->setWhere("jv.transtype = 'CM' AND jv.job_no LIKE '%$job_no%'")
 							->runSelect()
@@ -187,7 +189,7 @@ class landed_cost extends wc_model {
 
 	public function getSumOfDm($job_no) {
 		$result = $this->db->setTable('journaldetails jd')
-							->setFields('SUM(jd.debit) AS debit')
+							->setFields('SUM(jd.converteddebit) AS debit')
 							->leftJoin('journalvoucher jv ON jv.voucherno = jd.voucherno')
 							->setWhere("jv.transtype = 'DM' AND jv.job_no LIKE '%$job_no%'")
 							->runSelect()
@@ -209,9 +211,10 @@ class landed_cost extends wc_model {
 
 	public function getTotalCostOfJob($job_no) {
 		$result = $this->db->setTable('job_details jd')
-							->setFields('SUM(jd.qty * (ipod.convertedamount / ipod.convreceiptqty)) total')
-							->innerJoin('purchasereceipt pr ON pr.voucherno = jd.ipo_no')
-							->innerJoin('import_purchaseorder_details ipod ON ipod.voucherno = pr.source_no AND ipod.itemcode = jd.itemcode')
+							->setFields('SUM(jd.qty * (ipod.convertedamount / ipod.receiptqty)) total')
+							// ->innerJoin('purchasereceipt pr ON pr.voucherno = jd.ipo_no')
+							// ->innerJoin('import_purchaseorder_details ipod ON ipod.voucherno = pr.source_no AND ipod.itemcode = jd.itemcode')
+							->innerJoin('import_purchaseorder_details ipod ON ipod.voucherno = jd.ipo_no AND ipod.itemcode = jd.itemcode')
 							->setWhere("jd.job_no = '$job_no'")
 							->runSelect()
 							->getRow();

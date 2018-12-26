@@ -12,6 +12,7 @@ class controller extends wc_controller {
 		$this->fields			= array(
 			'voucherno',
 			'transactiondate',
+			'job_orderno',
 			'customer',
 			'remarks',
 			'amount',
@@ -302,6 +303,25 @@ class controller extends wc_controller {
 		return array(
 			'success' => $result
 		);
+	}
+
+	private function ajax_load_jo_list() {
+		$customer	= $this->input->post('customer');
+		$search		= $this->input->post('search');
+		$pagination	= $this->billing_model->getJOList($customer, $search);
+		$table		= '';
+		if (empty($pagination->result)) {
+			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+		}
+		foreach ($pagination->result as $key => $row) {
+			$table .= '<tr data-id="' . $row->job_order_no . '">';
+			$table .= '<td>' . $row->job_order_no . '</td>';
+			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
+			$table .= '<td class="text-right">' . $row->service_quotation . '</td>';
+			$table .= '</tr>';
+		}
+		$pagination->table = $table;
+		return $pagination;
 	}
 
 	private function ajax_update_exchangerate() {

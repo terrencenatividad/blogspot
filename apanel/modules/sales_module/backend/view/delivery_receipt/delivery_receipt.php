@@ -16,6 +16,15 @@
 										</div>
 									<?php else: ?>
 										<?php
+											if ($ajax_task == 'ajax_edit') {
+												echo $ui->formField('hidden')
+													->setName('voucher')
+													->setId('voucher')
+													->setValue($voucherno)
+													->draw($show_input);
+											}
+										?>
+										<?php
 											echo $ui->formField('text')
 												->setLabel('Delivery No.')
 												->setSplit('col-md-4', 'col-md-8')
@@ -140,6 +149,14 @@
 											->setName('main_serial')
 											->setId('main_serial')
 											->setClass('main_serial')
+											->draw($show_input);
+									?>
+									<?php
+										echo $ui->formField('hidden')
+											->setName('task')
+											->setId('task')
+											->setClass('task')
+											->setValue($ajax_task)
 											->draw($show_input);
 									?>
 								</div>
@@ -315,12 +332,14 @@
 		var ajax_call	= '';
 		var min_row		= 0;
 		function addVoucherDetails(details, index) {
-			var details = details || {itemcode: '', detailparticular: '', issueqty: ''};
+			var details = details || {itemcode: '', detailparticular: '', issueqty: '', serialnumbers : ''};
 			var other_details = JSON.parse(JSON.stringify(details));
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
 			delete other_details.issueqty;
 			delete other_details.warehouse;
+			delete other_details.serialnumbers;
+			delete other_details.parentcode;
 			var otherdetails = '';
 			for (var key in other_details) {
 				if (other_details.hasOwnProperty(key)) {
@@ -333,9 +352,12 @@
 				}
 			}
 			var row = ``;
-
-			row += `
-				<tr>`;
+			if (details.parentcode == '') {
+				row += `<tr style = 'font-weight:bold'>`;
+			}
+			else {
+				row += `<tr>`;
+			}
 
 					<?php if ($show_input): ?>
 					if(details.parentcode == '') {
@@ -372,47 +394,64 @@
 								->addHidden()
 								->draw($show_input);
 						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('serialnumbers[]')
-								->setClass('serialnumbers')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('h_itemcode[]')
-								->setClass('h_itemcode')
-								->setValue('` + details.itemcode + `')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('h_detailparticular[]')
-								->setClass('h_detailparticular')
-								->setValue('` + details.detailparticular + `')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('bundle_itemqty[]')
-								->setClass('bundle_itemqty')
-								->setValue('` + details.bundle_itemqty + `')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('parentline[]')
-								->setClass('parentline')
-								->setValue('` + details.parentline + `')
-								->draw($show_input);
-						?>
-						<?php
-							echo $ui->formField('hidden')
-								->setName('item_ident_flag[]')
-								->setClass('item_ident_flag')
-								->setValue('` + details.item_ident_flag + `')
-								->draw($show_input);
-						?>
+						<?php if ($ajax_task != '') { ?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('serialnumbers[]')
+									->setClass('serialnumbers')
+									->setValue('` + details.serialnumbers + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('h_itemcode[]')
+									->setClass('h_itemcode')
+									->setValue('` + details.itemcode + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('parentcode[]')
+									->setClass('parentcode')
+									->setValue('` + details.parentcode + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('h_detailparticular[]')
+									->setClass('h_detailparticular')
+									->setValue('` + details.detailparticular + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('bundle_itemqty[]')
+									->setClass('bundle_itemqty')
+									->setValue('` + details.bundle_itemqty + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('parentline[]')
+									->setClass('parentline')
+									->setValue('` + details.parentline + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('item_ident_flag[]')
+									->setClass('item_ident_flag')
+									->setValue('` + details.item_ident_flag + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('linenumber[]')
+									->setClass('linenumber')
+									->setValue('` + details.linenum + `')
+									->draw($show_input);
+							?>
+						<?php } ?>
 					</td>
 					<td>
 						<?php
@@ -436,9 +475,10 @@
 								->addHidden()
 								->draw($show_input);
 						?>
-					</td>
+					</td>`;
+
 					<?php if ($show_input): ?>
-					<td class="text-right">
+					row += `<td class="text-right">
 						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
@@ -472,22 +512,33 @@
 								` + otherdetails + `
 					</td>`;
 					} else {
-						if (details.item_ident_flag == 0) {
+						<?php if ($ajax_task != '') { ?>
+							if (details.item_ident_flag == 0) {
+								row += `<td class="text-right">
+								<?php
+									echo $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setName('issueqty[]')
+										->setClass('itempart issueqty text-right')
+										->setAttribute(array('readonly' => 'readonly', 'data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.issueqty) || 0) + `'))
+										->setValidation('integer')
+										->setValue(0)
+										->draw($show_input);
+								?> ` + otherdetails + ` </td>
+							`; } else {
+								row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart issueqty partbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `<input type = "hidden" class = "issueqty" name = "issueqty[]" data-value = "` + (parseFloat(details.issueqty) || 0) + `" value = "` + (parseFloat(details.issueqty) || 0) + `"/></td>`;
+							} 
+						<?php } else { ?>
 							row += `<td class="text-right">
-							<?php
-								echo $ui->formField('text')
-									->setSplit('', 'col-md-12')
-									->setName('issueqty[]')
-									->setClass('itempart issueqty text-right')
-									->setAttribute(array('readonly' => 'readonly', 'data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.issueqty) || 0) + `'))
-									->setValidation('integer')
-									->setValue(0)
-									//->addHidden()
-									->draw($show_input);
-							?> ` + otherdetails + ` </td>
-						` } else { ;
-							row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart issueqty partbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `</td>`;
-						}  
+								<?php
+									echo $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setClass('itempart issueqty text-right')
+										->setValue('` + (addComma(details.issueqty, 0) || 0) + `')
+										->addHidden()
+										->draw($show_input);
+								?> ` + otherdetails + ` </td>`;
+						<?php } ?> 
 					}
 				row +=`	<td>
 						<?php
@@ -508,7 +559,7 @@
 			`;
 			$('#tableList tbody').append(row);
 			if (details.itemcode != '') {
-				$('#tableList tbody').find('tr:last .itemcode').val('details.itemcode');
+				$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
 			}
 			if (details.warehouse != '') {
 				$('#tableList tbody').find('tr:last .warehouse').val(details.warehouse);
@@ -789,7 +840,7 @@
 		$(function() {
 			linkDeleteToModal('.delete_row', 'deleteVoucherDetails');
 		});
-		var serials = [];
+
 		$('form').on('click', '[type="submit"]', function(e) {
 			e.preventDefault();
 			var form_element = $(this).closest('form');
@@ -798,42 +849,51 @@
 			$('#submit_container [type="submit"]').attr('disabled', true);
 			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
+			var count_err = 0;
 			$('#tableList tbody tr').find('.partbtn').each(function() {
 				if ($(this).attr('disabled')) {}
 				else {
 					var req_val = $(this).val();
 					var serial_list = $(this).closest('tr').find('.serialnumbers').val();
-					serials = serial_list.split(",");
-					if (serials[0].length != req_val) {
+					var serials = serial_list.split(",");
+					if (serials == '') {
+						count_err++;
 						$('#warning_counter').modal('show');
 					}
 				}
 			});
-
-			if (form_element.find('.form-group.has-error').length == 0) {
-				var items = 0;
-				$('.issueqty:not([readonly])').each(function() {
-					items += removeComma($(this).val());
-				});
-				if ($('.issueqty:not([readonly])').length > 0 && items > 0) {
-					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
-						if (data.success) {
-							$('#delay_modal').modal('show');
-							setTimeout(function() {							
-								window.location = data.redirect;						
-							}, 1000)
-						} else {
-							$('#submit_container [type="submit"]').attr('disabled', false);
+			if (count_err == 0) {
+				if (form_element.find('.form-group.has-error').length == 0) {
+					var items = 0;
+					$('.issueqty:not([readonly])').each(function() {
+						items += removeComma($(this).val());
+					});
+					$('.serialnumbers').each(function() {
+						if(($(this).val() == 'undefined')){
+							$(this).val('');
 						}
 					});
+					if ($('.issueqty:not([readonly])').length > 0 && items > 0) {
+						$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
+							if (data.success) {
+								$('#delay_modal').modal('show');
+								setTimeout(function() {							
+									window.location = data.redirect;						
+								}, 1000)
+							} else {
+								$('#submit_container [type="submit"]').attr('disabled', false);
+							}
+						});
+					} else {
+						$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');1
+						$('#submit_container [type="submit"]').attr('disabled', false);
+					}
 				} else {
-					$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');1
+					form_element.find('.form-group.has-error').first().find('input, textarea, select').focus();
 					$('#submit_container [type="submit"]').attr('disabled', false);
 				}
-			} else {
-				form_element.find('.form-group.has-error').first().find('input, textarea, select').focus();
-				$('#submit_container [type="submit"]').attr('disabled', false);
 			}
+			$('#submit_container [type="submit"]').attr('disabled', false);
 		});
 	</script>
 	<?php endif; ?>
@@ -864,6 +924,7 @@
 		var linenum = '';
 		var serials = '';
 		var itemrow = '';
+		var task = '';
 		$('#tableList tbody').on('click', '.partbtn', function() {
 			itemrow = $(this);
 			linenum = $(this).closest('tr').find('span').attr('id')
@@ -887,9 +948,16 @@
 				ajax_call.abort();
 			}
 			ajax.itemselected = serials;
-			ajax.linenum = linenum;
+			//ajax.linenum = linenum;
 			ajax.allserials = $('#main_serial').val();
 			ajax.id = itemrow.closest('tr').find('.serialnumbers').val();
+			task = $('#task').val();
+			ajax.task = $('#task').val();
+			if (task=='ajax_edit') {
+				var linenumber = itemrow.closest('tr').find('.linenumber').val();
+				ajax.linenumber = linenumber;
+				ajax.voucherno = $('#voucher').val();
+			}
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_serial_list', ajax, function(data) {
 				$('#tableSerialList tbody').html(data.table);
 				$('#serial_pagination').html(data.pagination);

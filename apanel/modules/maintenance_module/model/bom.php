@@ -71,9 +71,9 @@ class bom extends wc_model
 			->getResult();
 		} else {
 			$result = $this->db->setTable('items i')
-			->setFields('i.itemcode ind, i.itemcode val')
-			->leftJoin('bom b ON b.bundle_item_code = i.itemcode')
-			->setWhere("bundle = '1' AND b.bundle_item_code != i.itemcode")
+			->setFields("IF(b.bundle_item_code != i.itemcode, i.itemcode, '') as ind, IF(b.bundle_item_code != i.itemcode, i.itemcode, '') as val")
+			->leftJoin('bom b ON b.bundle_item_code != i.itemcode')
+			->setWhere("bundle = '1'")
 			->runSelect()
 			->getResult();
 		}

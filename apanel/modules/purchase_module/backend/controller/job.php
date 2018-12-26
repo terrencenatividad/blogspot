@@ -63,20 +63,20 @@
             $result                     = (array) $this->job->retrieveExistingJob($job);
             $data['result']             = $result;
 
-            $pr_item                    = array();
+            $ipo_item                    = array();
             $item                       = array();
             $qty                        = array();
             $linenum                    = array();
             foreach ($result as $key => $row) {
                 
-                $pr_item[]      = $row->ipo_no;
+                $ipo_item[]      = $row->ipo_no;
                 $item[]         = $row->itemcode;
                 $linenum[]      = $row->linenum;
                 $qty[]          = $row->qty;
 
             }
             
-            $data['pr']         = $pr_item;
+            $data['ipo']         = $ipo_item;
             $data['item']       = $item;
             $data['linenum']    = $linenum;
             $data['qty']        = $qty;
@@ -122,20 +122,20 @@
             $result                     = (array) $this->job->retrieveExistingJob($job);
             $data['result']             = $result;
 
-            $pr_item                    = array();
+            $ipo_item                    = array();
             $item                       = array();
             $qty                        = array();
             $linenum                    = array();
             foreach ($result as $key => $row) {
                 
-                $pr_item[]      = $row->ipo_no;
+                $ipo_item[]      = $row->ipo_no;
                 $item[]         = $row->itemcode;
                 $linenum[]      = $row->linenum;
                 $qty[]          = $row->qty;
 
             }
             
-            $data['pr']         = $pr_item;
+            $data['ipo']         = $ipo_item;
             $data['item']       = $item;
             $data['linenum']    = $linenum;
             $data['qty']        = $qty;
@@ -376,9 +376,9 @@
 			return $dataArray 		= array( "msg" => $msg);
         }
         
-        private function ajax_load_pr_list() {
+        private function ajax_load_ipo_list() {
             
-            $pagination = $this->job->getPRPagination();
+            $pagination = $this->job->getipoPagination();
             $table      = '';
 
             if (empty($pagination->result)) {
@@ -386,27 +386,26 @@
             }
             foreach ($pagination->result as $key => $row) {
                 $table .= '<tr>';
-                $table .= '<td><input type="checkbox" data-prno = "' . $row->voucherno . '"></td>';
+                $table .= '<td><input type="checkbox" data-ipono = "' . $row->voucherno . '"></td>';
                 $table .= '<td>' . $row->voucherno . '</td>';
-                $table .= '<td>' . $row->source_no . '</td>';
                 $table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
                 $table .= '<td class="text-right">' . number_format($row->amount, 2) . '</td>';
                 $table .= '</tr>';
             }
-            $table .= '<script>checkExistingPR();</script>';
+            $table .= '<script>checkExistingIPO();</script>';
             $pagination->table = $table;
             return $pagination;
         }
 
-        private function ajax_load_pr_items(){
+        private function ajax_load_ipo_items(){
             $job_no     = $this->input->post("job");
-            $pr        = (array)$this->input->post("pr");
+            $ipo        = (array)$this->input->post("ipo");
             $task       = $this->input->post("task");
             $table      = '';
             $checkid    = 0;
             
             
-            foreach ($pr as $key => $value) {
+            foreach ($ipo as $key => $value) {
                 $pagination = $this->job->getItemPagination($value);
                 
                 if (empty($pagination->result)) {
@@ -425,11 +424,16 @@
                         $maxval = $row->receiptqty - $taggedqty[0]->count;
                     
                     if ($maxval) {
+                        $disable = array('disable', true);
+                    }
+                    else
+                        $disable = array('disable', false);
+
                         $table .= '<tr>';
                         
                             $table .= '<td>';
                             $table .= '
-                                <input type="checkbox" id = "'.$checkid.'" data-itemcode="'.$row->itemcode.'" data-pr="'.$row->voucherno.'" data-linenum="'.$row->linenum.'">
+                                <input type="checkbox" id = "'.$checkid.'" data-itemcode="'.$row->itemcode.'" data-ipo="'.$row->voucherno.'" data-linenum="'.$row->linenum.'" '.$disable.'>
                                 <input type="hidden" name="txtipo[]" value="'.$row->voucherno.'">
                                 <input type="hidden" name="txtitem[]" value="'.$row->itemcode.'">
                                 <input type="hidden" name="txtlinenum[]" value="'.$row->linenum.'">
@@ -457,7 +461,7 @@
                         $table .= '<td class = "text-right">' . strtoupper($row->receiptuom) . '</td>';
                         $table .= '</tr>';
                         $checkid++;
-                    }
+                    
                 }
             }
             if ($table=="") {

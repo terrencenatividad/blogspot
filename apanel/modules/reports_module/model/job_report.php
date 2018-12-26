@@ -20,26 +20,49 @@
             $datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
             $datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
             
-            $add_query   = (!empty($searchkey)) ? "AND (cc.segment5 LIKE '%$searchkey%' OR cc.accountname LIKE '%$searchkey%' )" : "";
+            $add_query   = (!empty($searchkey)) ? "AND (ca.segment5 LIKE '%$searchkey%' OR ca.accountname LIKE '%$searchkey%' )" : "";
             $add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND j.entereddate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
             $add_query .= (!empty($jobno) && $jobno != 'none') ? "AND j.job_no = '$jobno' " : "";
             //var_dump($add_query);
             
 
-            $fields 			= array('j.job_no,cc.id,cc.accountname,
-            ( (SUM(ad.debit) + IFNULL(SUM(jodDm.debit),0)) - IFNULL(SUM(jodCm.credit),0) ) amount,j.stat,cc.segment5');
+            // $fields 			= array('j.job_no,cc.id,cc.accountname,
+            // ( (SUM(ad.debit) + IFNULL(SUM(jodDm.debit),0)) - IFNULL(SUM(jodCm.credit),0) ) amount,j.stat,cc.segment5');
 
-            $result = $this->db->setTable('job j')
-            ->setFields($fields)   
-            ->leftJoin('financial_jobs fj ON j.job_no = fj.job_no') 
-            ->innerJoin('ap_details ad ON fj.voucherno = ad.voucherno AND ad.debit != 0.00')
-            ->innerJoin('chartaccount cc ON cc.id = ad.accountcode')
-            ->leftJoin("journaldetails jodDm ON jodDm.job_no = j.job_no AND jodDm.transtype = 'DM' AND jodDm.debit != 0.00 AND jodDm.accountcode = cc.id")
-            ->leftJoin("journaldetails jodCm ON jodCm.job_no = j.job_no AND jodCm.transtype = 'CM' AND jodCm.credit != 0.00 AND jodDm.accountcode = cc.id")
-            ->setWhere(" j.stat != 'deleted' $add_query")
-            ->setGroupBy('ad.accountcode,j.job_no')
-            ->setOrderBy($sort)
-            ->runPagination();	    
+            // $result = $this->db->setTable('job j')
+            // ->setFields($fields)   
+            // ->leftJoin('financial_jobs fj ON j.job_no = fj.job_no') 
+            // ->innerJoin('ap_details ad ON fj.voucherno = ad.voucherno AND ad.debit != 0.00')
+            // ->innerJoin('chartaccount cc ON cc.id = ad.accountcode')
+            // ->leftJoin("journaldetails jodDm ON jodDm.job_no = j.job_no AND jodDm.transtype = 'DM' AND jodDm.debit != 0.00 AND jodDm.accountcode = cc.id")
+            // ->leftJoin("journaldetails jodCm ON jodCm.job_no = j.job_no AND jodCm.transtype = 'CM' AND jodCm.credit != 0.00 AND jodDm.accountcode = cc.id")
+            // ->setWhere(" j.stat != 'deleted' $add_query")
+            // ->setGroupBy('ad.accountcode,j.job_no')
+            // ->setOrderBy($sort)
+            // ->runPagination();	    
+            //echo $this->db->getQuery();
+            
+
+            $fields         = array('
+                                    fj.job_no,
+                                    bt.accountcode,
+                                    ca.accountname,
+                                    ca.segment5,
+                                    ca.id,
+                                    (SUM(bt.debit) - SUM(bt.credit)) AS amount,
+                                    j.stat
+                                    ');
+
+            $result         = $this->db->setTable('balance_table bt')
+                                        ->setFields($fields)
+                                        ->innerJoin('financial_jobs fj on fj.voucherno = bt.voucherno')
+                                        ->leftJoin('chartaccount ca on ca.id = bt.accountcode')
+                                        ->leftJoin('job j on j.job_no = fj.job_no')
+                                        ->setWhere("bt.transtype IN('AP',
+                                        'CM','DM') AND j.job_no != '' $add_query")
+                                        ->setGroupBy('bt.accountcode, j.job_no')
+                                        ->setOrderBy($sort)
+                                        ->runPagination();
             //echo $this->db->getQuery();
 
             return $result;
@@ -62,90 +85,84 @@
             $daterangefilter 	= isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
             $jobno      	= isset($data['job_number']) ? htmlentities($data['job_number']) : ""; 
             $searchkey 		 	= isset($data['account_search']) ? htmlentities($data['account_search']) : "";
-            $sort 		 	 	= isset($data['sort']) ? htmlentities($data['sort']) : "j.job_no";
+            $sort 		 	 	= isset($data['sort']) ? htmlentities($data['sort']) : "j.job_no ASC";
             
             $datefilterArr		= explode(' - ',$daterangefilter);
             $datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
             $datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
             
-            $add_query   = (!empty($searchkey)) ? "AND (cc.segment5 LIKE '%$searchkey%' OR cc.accountname LIKE '%$searchkey%' )" : "";
+            $add_query   = (!empty($searchkey)) ? "AND (ca.segment5 LIKE '%$searchkey%' OR ca.accountname LIKE '%$searchkey%' )" : "";
             $add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND j.entereddate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
             $add_query .= (!empty($jobno) && $jobno != 'none') ? "AND j.job_no = '$jobno' " : "";
-            //var_dump($add_query);
             
 
-            $fields 			= array('j.job_no,cc.id,cc.accountname,
-            ( (SUM(ad.debit) + IFNULL(SUM(jodDm.debit),0)) - IFNULL(SUM(jodCm.credit),0) ) amount,j.stat,cc.segment5');
+            $fields         = array('
+                                    fj.job_no,
+                                    bt.accountcode,
+                                    ca.accountname,
+                                    ca.segment5,
+                                    ca.id,
+                                    (SUM(bt.debit) - SUM(bt.credit)) AS amount,
+                                    j.stat
+                                    ');
 
-            $result = $this->db->setTable('job j')
-            ->setFields($fields)    
-            ->innerJoin('financial_jobs fj ON fj.job_no = j.job_no')
-            ->innerJoin('ap_details as ad ON ad.voucherno = fj.voucherno AND ad.debit != 0.00')
-            ->innerJoin('chartaccount cc ON cc.id = ad.accountcode')
-            ->leftJoin("journaldetails jodDm ON jodDm.job_no = j.job_no AND jodDm.transtype = 'DM' AND jodDm.debit != 0.00 AND jodDm.accountcode = cc.id")
-            ->leftJoin("journaldetails jodCm ON jodCm.job_no = j.job_no AND jodCm.transtype = 'CM' AND jodCm.credit != 0.00 AND jodDm.accountcode = cc.id")
-            ->setWhere(" j.stat != 'deleted' $add_query")
-            ->setGroupBy('ad.accountcode,j.job_no')
-            ->setOrderBy($sort)
-            ->runPagination();	    
+            $result         = $this->db->setTable('balance_table bt')
+                                        ->setFields($fields)
+                                        ->innerJoin('financial_jobs fj on fj.voucherno = bt.voucherno')
+                                        ->leftJoin('chartaccount ca on ca.id = bt.accountcode')
+                                        ->leftJoin('job j on j.job_no = fj.job_no')
+                                        ->setWhere("bt.transtype IN('AP',
+                                        'CM','DM') AND j.job_no != '' $add_query")
+                                        ->setGroupBy('bt.accountcode, j.job_no')
+                                        ->setOrderBy($sort)
+                                        ->runPagination();
             //echo $this->db->getQuery();
 
             return $result;
         }
 
-        public function retrieveprocessListing($data)
+        public function retrieveprocessListing($sort,$jobno,$code)
         {
-            $sort 		 	 	= isset($data['sort']) ? htmlentities($data['sort']) : "";
-            $code               = $data['account_code'];
+            //$sort 		 	 	= isset($data['sort2']) ? htmlentities($data['sort2']) : "";
+            //$code               = $data['account_code'];
+            //$jobno               = $data['pjobno'];
             $fields 			= array('Reference, Date, debit, Credit');
 
             $query = "SELECT
-                            ap_details.voucherno,
-                            ap_details.entereddate,
-                            ap_details.debit,
-                            ap_details.credit
+                            balance_table.voucherno,
+                            balance_table.transactiondate,
+                            balance_table.debit,
+                            balance_table.credit
                         FROM
-                            ap_details
+                            balance_table
                         LEFT JOIN
-                            financial_jobs as fj ON ap_details.voucherno = fj.voucherno
+                            financial_jobs AS fj ON balance_table.voucherno = fj.voucherno
                         INNER JOIN
                             job ON fj.job_no = job.job_no
                         WHERE
-                            ap_details.accountcode = '$code' AND ap_details.debit != 0.00
+                            balance_table.accountcode = '$code' AND balance_table.debit != 0.00 AND fj.job_no = '$jobno'
+                            
                         UNION
+                        
                         SELECT
-                            journaldetails.voucherno,
-                            journaldetails.entereddate,
-                            journaldetails.debit,
-                            journaldetails.credit
+                            balance_table.voucherno,
+                            balance_table.transactiondate,
+                            balance_table.debit,
+                            balance_table.credit
                         FROM
-                            journaldetails
+                            balance_table
+                        LEFT JOIN
+                            financial_jobs AS fj ON balance_table.voucherno = fj.voucherno
                         INNER JOIN
-                            job ON journaldetails.voucherno = fj.job_no
-                        INNER JOIN
-                            ap_details ON ap_details.accountcode = journaldetails.accountcode
+                            job ON fj.job_no = job.job_no
                         WHERE
-                            journaldetails.accountcode = '$code' AND journaldetails.transtype = 'DM' AND journaldetails.debit != 0.00 AND journaldetails.job_no = job.job_no
-                        UNION
-                        SELECT
-                            journaldetails.voucherno,
-                            journaldetails.entereddate,
-                            journaldetails.debit,
-                            journaldetails.credit
-                        FROM
-                            journaldetails
-                        INNER JOIN
-                            job ON journaldetails.job_no = job.job_no
-                        INNER JOIN
-                            ap_details ON ap_details.accountcode = journaldetails.accountcode
-                        WHERE
-                            journaldetails.accountcode = '$code' AND journaldetails.transtype = 'CM' AND journaldetails.credit != 0.00 AND journaldetails.job_no = job.job_no
-                            ";
+                            balance_table.accountcode = '$code' AND balance_table.credit != 0.00 AND fj.job_no = '$jobno'";
 
             $result = 	$this->db->setTable("($query) main")
-                        ->setFields('main.voucherno AS referenceList,main.entereddate,main.debit,main.credit')
+                        ->setFields('main.voucherno AS referenceList,main.transactiondate,main.debit,main.credit')
                         ->setOrderBy($sort)
-                        ->runPagination(false);
+                        ->runSelect(false)
+                        ->getResult();
             return $result;         
         }
 
@@ -165,49 +182,46 @@
 
         public function retrieveclosedjobListing($data)
         {
-            $sort 		 	 	= isset($data['sort']) ? htmlentities($data['sort']) : "";
+            $sort 		 	 	= isset($data['sort3']) ? htmlentities($data['sort3']) : "";
             $job_no               = $data['close_job_number'];
             $fields 			= array('Reference, Date, debit, Credit');
 
             $query = "SELECT
-                        ad.voucherno,
-                        ca.accountname,
-                        ad.debit,
-                        ad.credit
-                    FROM
-                        ap_details ad
-                    INNER JOIN chartaccount ca ON ca.id = ad.accountcode
-                    LEFT JOIN financial_jobs as fj ON ad.voucherno = fj.voucherno
-                    WHERE
-                        fj.job_no = '$job_no' AND debit != 0.00
-                    UNION
-                    SELECT
-                        jd.voucherno,
-                        ca.accountname,
-                        jd.debit,
-                        jd.credit
-                    FROM
-                        journaldetails jd
-                    INNER JOIN chartaccount ca ON ca.id = jd.accountcode
-                    WHERE
-                        jd.job_no = '$job_no' AND jd.transtype = 'DM' AND jd.debit != 0.00  AND job_no != ''
-                    UNION
-                    SELECT
-                        jd.voucherno,
-                        ca.accountname,
-                        jd.debit,
-                        jd.credit
-                    FROM
-                        journaldetails jd
-                    INNER JOIN chartaccount ca ON ca.id = jd.accountcode
-                    WHERE
-                        jd.job_no = '$job_no' AND jd.transtype = 'CM' AND jd.credit != 0.00  AND job_no != ''
+                            bt.voucherno,
+                            ca.accountname,
+                            bt.debit,
+                            bt.credit
+                        FROM
+                            balance_table bt 
+                        INNER JOIN 
+                            chartaccount ca on ca.id = bt.accountcode
+                        left join 
+                            financial_jobs fj on fj.voucherno = bt.voucherno
+                        where
+                            fj.job_no = '$job_no' AND bt.debit != '' AND bt.transtype != 'DM'
+                            
+                        UNION
+                        
+                        SELECT
+                            bt.voucherno,
+                            ca.accountname,
+                            bt.debit,
+                            bt.credit
+                        FROM
+                            balance_table bt 
+                        INNER JOIN 
+                            chartaccount ca on ca.id = bt.accountcode
+                        left join 
+                            financial_jobs fj on fj.voucherno = bt.voucherno
+                        where
+                            fj.job_no = '$job_no' AND bt.credit != '' AND bt.transtype = 'DM'
             ";
 
             $result = 	$this->db->setTable("($query) main")
                         ->setFields('main.voucherno,main.accountname,main.debit,main.credit')
                         ->setOrderBy($sort)
-                        ->runPagination(false);
+                        ->runSelect(false)
+                        ->getResult();
             //echo $this->db->getQuery();
             return $result;         
         }
@@ -222,6 +236,50 @@
 												->setLimit(1)
 												->runUpdate();
 			return $result;
+        }
+
+        public function retrieveListingTotal($data)
+        {
+            
+
+            $daterangefilter 	= isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
+            $jobno      	= isset($data['job_number']) ? htmlentities($data['job_number']) : ""; 
+            $searchkey 		 	= isset($data['account_search']) ? htmlentities($data['account_search']) : "";
+            $sort 		 	 	= isset($data['sort']) ? htmlentities($data['sort']) : "j.job_no ASC";
+            
+            $datefilterArr		= explode(' - ',$daterangefilter);
+            $datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
+            $datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
+            
+            $add_query   = (!empty($searchkey)) ? "AND (ca.segment5 LIKE '%$searchkey%' OR ca.accountname LIKE '%$searchkey%' )" : "";
+            $add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND j.entereddate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
+            $add_query .= (!empty($jobno) && $jobno != 'none') ? "AND j.job_no = '$jobno' " : "";
+            //var_dump($add_query);
+
+            $fields         = array('
+                                    fj.job_no,
+                                    bt.accountcode,
+                                    ca.accountname,
+                                    ca.segment5,
+                                    ca.id,
+                                    (SUM(bt.debit) - SUM(bt.credit)) AS amount,
+                                    j.stat
+                                    ');
+
+            $result         = $this->db->setTable('balance_table bt')
+                                        ->setFields($fields)
+                                        ->innerJoin('financial_jobs fj on fj.voucherno = bt.voucherno')
+                                        ->leftJoin('chartaccount ca on ca.id = bt.accountcode')
+                                        ->leftJoin('job j on j.job_no = fj.job_no')
+                                        ->setWhere("bt.transtype IN('AP',
+                                        'CM','DM') AND j.job_no != '' $add_query")
+                                        ->setOrderBy($sort)
+                                        ->setGroupBy('bt.accountcode, j.job_no')
+                                        ->runSelect()
+                                        ->getResult();
+            echo $this->db->getQuery();
+
+            return $result;
         }
         
     }

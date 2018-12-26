@@ -71,6 +71,7 @@ class controller extends wc_controller
 		$data["row"] 			  	= 1;
 		$data["transactiondate"]    = $this->date->dateFormat();
 		$data["main_status"] 			= "";
+		$data['budget_list'] = $this->payment_voucher->getBudgetCodes();
 		// Retrieve vendor list
 		$data["vendor_list"]        = $this->payment_voucher->retrieveVendorList($data);
 
@@ -131,11 +132,14 @@ class controller extends wc_controller
 				$generatedvoucher			= $seq->getValue('DV');
 
 				$update_info				= array();
+				$fields = array();
 				$update_info['voucherno']	= $generatedvoucher;
+				$fields['voucherno'] = $update_info['voucherno'];
 				$update_info['stat']		= 'open';
 				$update_condition			= "voucherno = '$voucherno'";
 				$updateTempRecord			= $this->payment_voucher->editData($update_info,"paymentvoucher",$update_condition);
 				$updateTempRecord			= $this->payment_voucher->editData($update_info,"pv_details",$update_condition);
+				$updateTempRecord			= $this->payment_voucher->updateBudget($fields, $voucherno);
 				
 				$update_cheque['voucherno']	= $generatedvoucher;
 				$updateTempRecord			= $this->payment_voucher->editData($update_cheque,"pv_cheques",$update_condition);
@@ -148,7 +152,6 @@ class controller extends wc_controller
 					$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
 					$updateCheckNo = $this->payment_voucher->updateCheck($bank_id, $cno);
 				}
-
 			}
 			
 			if(empty($errmsg))
@@ -186,6 +189,7 @@ class controller extends wc_controller
 		$data["generated_id"]  	   	= $sid;
 		$data["sid"] 		   	   	= $sid;
 		$data["date"] 			   	= date("M d, Y");
+		$data['budget_list'] = $this->payment_voucher->getBudgetCodes();
 
 		$data["business_type_list"]	= array();
 
@@ -221,6 +225,7 @@ class controller extends wc_controller
 		$data["paymenttype"]       	= $data["main"]->paymenttype;
 		$data["particulars"]       	= $data["main"]->particulars;
 		$data['main_status']		= $data["main"]->status;
+		$data['budget_list'] = $this->payment_voucher->getBudgetCodes();
 		// Vendor/Customer Details
 		$data["v_vendor"] 		   	= $data["vend"]->name;
 		$data["v_email"] 		   	= $data["vend"]->email;
@@ -312,10 +317,12 @@ class controller extends wc_controller
 		$data["generated_id"]  	= $sid;
 		$data["sid"] 		   	= $sid;
 		$data["date"] 		   	= date("M d, Y");
+		$data['budget_list'] = $this->payment_voucher->getBudgetCodes();
 
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
 		$data['close_date']			= $close_date;
+		$data['budget_list'] = $this->payment_voucher->getBudgetCodes();
 
 		// Retrieve business type list
 		$acc_entry_data               = array("coa.id ind","CONCAT(coa.segment5, ' - ', coa.accountname) val");
@@ -850,11 +857,58 @@ class controller extends wc_controller
 
 	private function apply_payments()
 	{
-		
-		$data_post 	= $this->input->post();
+		$warning = array();
+		$accountchecker = array();
+		$error = array();
+		$save_budget = array();
 
-		$result    	= array_filter($this->payment_voucher->savePayment($data_post));
-		
+		$data_post 	= $this->input->post();
+		if(!empty($data_post['budgetcode'])) {
+			for($arr = 0; $arr <= count($data_post['budgetcode']); $arr++) {
+				if(!empty($data_post['budgetcode'][$arr])) {
+					$getaccount = $this->payment_voucher->getAccountName($data_post['accountcode'][$arr]);
+					$checkaccount = $this->payment_voucher->getAmountAndAccount($data_post['budgetcode'][$arr], $data_post['accountcode'][$arr]);
+					$accountname = $getaccount->accountname;
+					if(!$checkaccount) {
+						$accountchecker[] = 'The account ' . $accountname . ' is not in your budget code ' .$data_post['budgetcode'][$arr]. '.';
+					} else {
+						$amount = $checkaccount->amount;
+						$type = $checkaccount->budget_check;
+
+						if($type == 'Monitored') {
+							if($data_post['debit'][$arr] != '0.00') {
+								if(str_replace(',','',$data_post['debit'][$arr]) > $amount) {
+									$warning[] = 'You were about to exceed from your budget code ' . $data_post['budgetcode'][$arr] . 
+									' ' . $accountname . ' account <br>';
+								}
+							} else {
+								if($data_post['credit'][$arr] > $amount) {
+									$warning[] = 'You were about to exceed from your budget code ' . $data_post['budgetcode'][$arr] . 
+									' ' . $accountname . ' account <br>';
+								}
+							}
+						} else {
+							if($data_post['debit'][$arr] != '0.00') {
+								if(str_replace(',','',$data_post['debit'][$arr]) > $amount) {
+									$error[] = 'You are not allowed to exceed budget in ' . $data_post['budgetcode'][$arr] . 
+									' ' . $accountname . ' account <br>';
+								}
+							} else {
+								if($data_post['credit'][$arr] > $amount) {
+									$error[] = 'You are not allowed to exceed budget in ' . $data_post['budgetcode'][$arr] . 
+									' ' . $accountname . ' account <br>';
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if(empty($error)) {
+			$result    	= array_filter($this->payment_voucher->savePayment($data_post));
+		}
+
 		$code 		= 0;
 		$voucher 	= '';
 		$errmsg 	= array();
@@ -877,7 +931,7 @@ class controller extends wc_controller
 		// 	} 
 		// }
 
-		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);
+		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg, 'warning' => $warning, 'accountchecker' => $accountchecker, 'error' => $error);
 		return $dataArray;
 	}
 

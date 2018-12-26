@@ -107,7 +107,14 @@
 								<input type="hidden" name="jobs_tagged" id="jobs_tagged" value="<?php echo $job_no; ?>">
 								<button type="button" id="job" class="btn btn-block btn-success btn-flat" <?php //echo $val ?>>
 									<em class="pull-left"><small>Click to tag job items</small></em>
-									<strong id="job" class="pull-right"></strong>
+									<strong id="job_text" class="pull-right"> 
+									<?php if($ajax_task == 'ajax_edit') {?>
+										<?php $tags = explode(',', $job_no); ?>
+										<?php $tags = ($tags[0] == '') ? 0 : count($tags); ?>
+									<?php echo $tags; ?>
+									<?php } else { ?>
+									<?php } ?>
+									</strong>
 								</button>
 								<?php } else { ?>
 								<span>
@@ -960,18 +967,34 @@ echo $ui->loadElement('modal')
 			ajax.page = $(this).attr('data-page');
 			getList();
 		});
-
+		
+		<?php if($ajax_task == 'ajax_create') : ?>
 		var job = [];
-		$('#job').on('click', function () {
-			$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + $('#jobs_tagged').val(), function (data) {
-				if (data) {
+		$('#job').on('click', function() {
+			$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + $('#jobs_tagged').val(), function(data) {
+				if(data) {
 					$('#jobModal').modal('show');
 					$('#jobsTable tbody').html(data.table);
 					$('#paginate').html(data.pagination);
 				}
 			});
 		});
+		<?php endif ?>
 
+		<?php if($ajax_task == 'ajax_edit') : ?>
+		var job = [];
+		$('#job').on('click', function() {
+			$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + job, function(data) {
+				if(data) {
+					$('#jobModal').modal('show');
+					$('#jobsTable tbody').html(data.table);
+					$('#paginate').html(data.pagination);
+				}
+			});
+		});
+		<?php endif ?>
+
+		<?php if($ajax_task == 'ajax_create') : ?>
 		$('#paginate').on('click', 'a', function(e) {
 			e.preventDefault();
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
@@ -996,7 +1019,36 @@ echo $ui->loadElement('modal')
 				});
 			}
 		});
+		<?php endif ?>
 
+		<?php if($ajax_task == 'ajax_edit') : ?>
+		$('#paginate').on('click', 'a', function(e) {
+			e.preventDefault();
+			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
+				var get = $(this).val();
+				if($.inArray(get, job) == -1) {
+					job.push(get);
+				}
+			});
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				page = $(this).attr('data-page');
+				$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + job + '&page=' + page, function(data) {
+					if(data) {
+						$('#jobsTable tbody').html(data.table);
+						$('#paginate').html(data.pagination);
+						$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
+							if(jQuery.inArray($(this).val(), job) != -1) {
+								$(this).closest('tr').iCheck('check');
+							}
+						});
+					}
+				});
+			}
+		});
+		<?php endif ?>
+
+		<?php if($ajax_task == 'ajax_create') : ?>
 		$('#jobModal').on('shown.bs.modal', function () {
 			$('#jobsTable tbody tr td input[type="checkbox"]').each(function () {
 				if (jQuery.inArray($(this).val(), job) != -1) {
@@ -1004,20 +1056,64 @@ echo $ui->loadElement('modal')
 				}
 			});
 		});
+		<?php endif ?>
 
+		$('#jobsTable').on('ifToggled', 'input[type="checkbox"]', function() {
+			if(!$(this).is(':checked')) {
+				job.splice( $.inArray($(this).val(),job) ,1 );
+			}
+		});
+		
+		<?php if($ajax_task == 'ajax_create') : ?>
+		var ctr = 0;
+		$('#confirmJob').on('click',function(e) {
+			e.preventDefault();
+			$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
+				if($(this).is(':checked')) {
+					var get = $(this).val();
+					ctr++;
+					if($.inArray(get, job) == -1) {
+						job.push(get);
+					}
+					$('#job_text').html(job.length);
+					$('#assetid').attr('disabled', 'disabled');
+				} else {
+					$('#job_text').html(job.length);
+				}
+			});
+			if(ctr == 0) {
+				$('#job_text').html('0');
+			}
+			$('#jobModal').modal('hide');
+		});
+		<?php endif ?>
+		
+		<?php if($ajax_task == 'ajax_edit') : ?>
+		var ctr = 0;
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
-				var get = $(this).val();
-				if($.inArray(get, job) == -1) {
-					job.push(get);
+				if($(this).is(':checked')) {
+					ctr++;
+					var get = $(this).val();
+					if($.inArray(get, job) == -1) {
+						job.push(get);
+					}
+					$('#job_text').html(job.length);
+					$('#assetid').attr('disabled', 'disabled');
+				} else {
+					$('#job_text').html(job.length);
 				}
-				$('#job_text').html(job.length);
-				$('#assetid').attr('disabled', 'disabled');
-				$('#jobModal').modal('hide');
+				if($(this).is(':checked') = '') {
+					$('#job_text').html('0');
+				}
 			});
-			console.log(job);
+			if(ctr == 0) {
+				$('#job_text').html('0');
+			}
+			$('#jobModal').modal('hide');
 		});
+		<?php endif ?>
 
 		$('#currencycode').on('change', function() {
 			var currencycode = $(this).val();
@@ -1025,31 +1121,30 @@ echo $ui->loadElement('modal')
 			$.post('<?=MODULE_URL?>ajax/ajax_get_currency_val', { currencycode : currencycode }, function(data) {
 				if(data) {
 					$('#exchangerate').val(data.exchangerate);	
-					if($('.debit').val() != '0.00') {
-						$('.currencyamount').val(addComma(data.exchangerate * $('.debit').val()));
-						console.log('1')
-					}
-					else {
-						$('.currencyamount').val(addComma(data.exchangerate * $('.credit').val()));
-						console.log('2')
-					}
-					//sumDebit();
-					//sumCredit();
+					$('.debit').each(function() {
+						if($(this).val() != '0.00') {
+							console.log($('#exchangerate').val());
+							console.log($(this).val());
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).val())));
+						} else {
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).closest('tr').find('.credit').val())));
+						}
+					});
 					sumCurrencyAmount();
 				}
 			});
 		});
 
-		$('#exchangerate').on('change', function() {
-			var exchangerate = $(this).val();
-			$('.currencyamount').each(function() {
-				currency = removeComma($(this).val());
-				var convertedcurrency = currency * exchangerate;
-				$('.currencyamount').val(addComma(convertedcurrency));
-				$('.currencyamount').html(addComma(convertedcurrency));	
-			});
-			sumCurrencyAmount();
-		});
+		// $('#exchangerate').on('change', function() {
+		// 	var exchangerate = $(this).val();
+		// 	$('.currencyamount').each(function() {
+		// 		currency = removeComma($(this).val());
+		// 		var convertedcurrency = currency * exchangerate;
+		// 		$('.currencyamount').val(addComma(convertedcurrency));
+		// 		$('.currencyamount').html(addComma(convertedcurrency));	
+		// 	});
+		// 	sumCurrencyAmount();
+		// });
 
 		function sumDebit() {
 			var total_debit = 0;
@@ -1080,7 +1175,7 @@ echo $ui->loadElement('modal')
 				//console.log($(this).val());
 				currency = removeComma($(this).val());
 				total_currency += +currency;
-				//console.log(total_currency);
+				console.log(total_currency);
 				$('#total_currency').val(addComma(total_currency));
 				$('#total_currency').html(addComma(total_currency));
 			});
@@ -1165,6 +1260,7 @@ echo $ui->loadElement('modal')
 			$(document).ready(function() {
 				getCurrencyAmountEdit();
 				sumCurrencyAmount();
+				job = $('#jobs_tagged').val().split(',');	
 			});
 		<?php endif; ?>
 
@@ -1173,8 +1269,8 @@ echo $ui->loadElement('modal')
 			var total = 0;
 			var rate = $(this).val();
 			$('.currencyamount').each(function() {
-				var debit = $(this).closest('tr').find('.debit').val();
-				var credit = $(this).closest('tr').find('.credit').val();
+				var debit = removeComma($(this).closest('tr').find('.debit').val());
+				var credit = removeComma($(this).closest('tr').find('.credit').val());
 				console.log('debit: ' + debit);
 				console.log('credit: ' + credit);
 
@@ -1196,6 +1292,15 @@ echo $ui->loadElement('modal')
 				console.log('-----');
 				row.closest('tr').find('.currencyamount').val(addComma(total));
 				sumCurrencyAmount();
+			});
+		});
+
+		$(document).ready(function() {
+			var currencycode = $('#currencycode').val();
+			$.post('<?=MODULE_URL?>ajax/ajax_get_currency_val', { currencycode : currencycode }, function(data) {
+				if(data) {
+					$('#exchangerate').val(data.exchangerate);
+				}
 			});
 		});
 		

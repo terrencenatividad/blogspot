@@ -63,13 +63,14 @@ class controller extends wc_controller {
 		$data['status'] 			= false;
 		$data['currencycodes'] = $this->cm_model->getCurrencyCode();
 		$data['currency'] = 'PHP';
-		$data["exchangerate"]       = "1.00";
+		//$data["exchangerate"]       = "1.00";
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
 
 	public function edit($voucherno) {
 		$this->view->title			= 'Edit Credit Memo';
 		$data						= (array) $this->cm_model->getJournalVoucherById($this->fields, $voucherno);
+
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		// Retrieve Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
@@ -94,6 +95,18 @@ class controller extends wc_controller {
 		$data['currencycodes'] = $this->cm_model->getCurrencyCode();
 		$data['currency'] = $data['currencycode'];
 		//$data['details'] = $details;
+		
+		// $tag = 0;
+		// if($data['job_no'] != '') {
+		// 	$jobs = explode(',', $data['job_no']);
+		// 	foreach($jobs as $i =>$key) {
+		// 		$tag = $tag + 1;
+		// 	}
+		// }else {
+		// 	$tag = '';
+		// }
+		// $data['tags'] = $tag;
+
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
 
@@ -130,12 +143,24 @@ class controller extends wc_controller {
 
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
+	// old print for cm
+	// public function print_preview2($voucherno) {
+	// 	$documentinfo		= $this->cm_model->getDocumentInfo($voucherno);
+	// 	$documentdetails	= $this->cm_model->getDocumentDetails($voucherno);
+	// 	$documentvendor   	= $this->cm_model->getVendor($voucherno);
+	// 	$print = new print_voucher_model('P', 'mm', 'Letter');
+	// 	$print->setDocumentType('Credit Memo')
+	// 			->setDocumentInfo($documentinfo)
+	// 			->setDocumentDetails($documentdetails)
+	// 			->setVendor($documentvendor[0]->partnername)
+	// 			->drawPDF('cm_voucher_' . $voucherno);
+	// }
 
 	public function print_preview($voucherno) {
 		$documentinfo		= $this->cm_model->getDocumentInfo($voucherno);
 		$documentdetails	= $this->cm_model->getDocumentDetails($voucherno);
 		$documentvendor   	= $this->cm_model->getVendor($voucherno);
-		$print = new print_voucher_model('P', 'mm', 'Letter');
+		$print = new print_payables_model('P', 'mm', 'Letter');
 		$print->setDocumentType('Credit Memo')
 				->setDocumentInfo($documentinfo)
 				->setDocumentDetails($documentdetails)
