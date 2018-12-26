@@ -401,6 +401,24 @@ class controller extends wc_controller {
 
 		$result 					=	$this->trial_balance->save_journal_voucher($data);
 
+		// JOB ORDER ENHANCEMENT
+		$curr_date 		= date("Y-m-d", strtotime($datefrom));
+		$month 			= date('m', strtotime($curr_date));
+		$year 			= date('Y', strtotime($curr_date));
+		$firstdayofdate = date($year.'-'.$month.'-01');
+
+		// For Checking if there is an open Job Order
+		// $ret_released   = $this->trial_balance->getValue("job_order", "COUNT(*) as count", "job_order_no!='' AND stat!='cancelled' AND (transactiondate<='$curr_date' AND transactiondate>='$firstdayofdate')");
+		// $count_released = (!empty($ret_released[0]->count) && $ret_released[0]->count!=0) ? $ret_released[0]->count 	:	0;
+
+		$ret_released 	=	$this->trial_balance->getPartialJobOrderCount($firstdayofdate, $curr_date);
+		$count_released =  (!empty($ret_released->count) && $ret_released->count!=0) ? $ret_released->count 	:	0;
+
+		// Change all job order no to job release .. 
+		if( $count_released > 0){ 
+			$result 	=	$this->trial_balance->save_accrual_journal_voucher($data);
+		}
+
 		if($result){
 			$this->report_model->generateBalanceTable();
 		}
