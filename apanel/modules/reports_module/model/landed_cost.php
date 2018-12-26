@@ -24,6 +24,7 @@ class landed_cost extends wc_model {
 							->setOrderBy("val")
 							->runSelect()
 							->getResult();
+							echo $this->db->getQuery();
 
 		return $result;
     }
@@ -176,7 +177,7 @@ class landed_cost extends wc_model {
 
 	public function getSumOfCm($job_no) {
 		$result = $this->db->setTable('journaldetails jd')
-							->setFields('SUM(jd.debit) AS credit')
+							->setFields('SUM(jd.converteddebit) AS credit')
 							->leftJoin('journalvoucher jv ON jv.voucherno = jd.voucherno')
 							->setWhere("jv.transtype = 'CM' AND jv.job_no LIKE '%$job_no%'")
 							->runSelect()
@@ -188,7 +189,7 @@ class landed_cost extends wc_model {
 
 	public function getSumOfDm($job_no) {
 		$result = $this->db->setTable('journaldetails jd')
-							->setFields('SUM(jd.debit) AS debit')
+							->setFields('SUM(jd.converteddebit) AS debit')
 							->leftJoin('journalvoucher jv ON jv.voucherno = jd.voucherno')
 							->setWhere("jv.transtype = 'DM' AND jv.job_no LIKE '%$job_no%'")
 							->runSelect()
