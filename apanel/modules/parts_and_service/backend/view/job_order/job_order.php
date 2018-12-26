@@ -155,7 +155,7 @@
 						<div class="row">
 							<div id="submit_container" class="col-md-12 text-center">
 								<?php
-									if ($stat == 'Prepared' && $restrict_dr || empty($stat)) {
+									if ($stat == 'prepared' && $restrict_dr || empty($stat)) {
 										echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 									}
 								?>
@@ -408,16 +408,16 @@
 		</div>
 	</div>
 	<script>
-	$(document).ready(function(){
-		customer = $('#customer').val();
-		if(customer == ''){
-			$('#tableList tbody').html(`
-				<tr>
-					<td colspan="9" class="text-center"><b>Select Service Quotation No.</b></td>
-				</tr>
-			`);
-		}
-	});
+	// $(document).ready(function(){
+	// 	customer = $('#customer').val();
+	// 	if(customer == ''){
+	// 		$('#tableList tbody').html(`
+	// 			<tr>
+	// 				<td colspan="9" class="text-center"><b>Select Service Quotation No.</b></td>
+	// 			</tr>
+	// 		`);
+	// 	}
+	// });
 		var delete_row	= {};
 		var ajax		= {};
 		var ajax_call	= '';
@@ -589,13 +589,13 @@
 							echo $ui->formField('text')
 								->setName('uom[]')
 								->setSplit('', 'col-md-12')
-								->setValue('` + details.uom.toUpperCase() + `')
+								->setValue('` + details.unit.toUpperCase() + `')
 								->draw(false);
 
 							echo $ui->formField('hidden')
 								->setName('h_uom[]')
 								->setSplit('', 'col-md-12')
-								->setValue('` + details.uom.toUpperCase() + `')
+								->setValue('` + details.unit.toUpperCase() + `')
 								->draw($show_input);
 						?>
 					</td>
@@ -667,7 +667,7 @@
 						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
-								->setValue('` + details.uom.toUpperCase() + `')
+								->setValue('` + details.unit.toUpperCase() + `')
 								->draw(false);
 						?>
 					</td>
@@ -720,6 +720,7 @@
 			}
 		}
 		var voucher_details = <?php echo $voucher_details ?>;
+		console.log(voucher_details);
 		function displayDetails(details) {
 			if (details.length < min_row) {
 				for (var x = details.length; x < min_row; x++) {
