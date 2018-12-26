@@ -101,7 +101,7 @@
 		}
 
 		public function get_import(){
-			header('Content-type: application/csv');
+			header('Content-type: text/html; charset=utf-8');
 			$header = array('Customer Code','Company Name','Address','Email','Business Type','Contact Number','First Name','Last Name','Payment Terms','Tin No.',"Credit Limit");
 
 			$return = '';
@@ -186,7 +186,7 @@
 						if( ! empty($b)) {	
 							$customercode 	   	= isset($b[0]) ? htmlspecialchars(addslashes(trim($b[0])))	: 	"";
 							$companyname        = isset($b[1]) ? addslashes(trim($b[1]))		: 	"";
-							$address            = isset($b[2]) ? htmlspecialchars(addslashes(trim($b[2])))	: 	"";
+							$address            = isset($b[2]) ? addslashes(trim($b[2]))	: 	"";
 							$email 				= isset($b[3]) ? htmlspecialchars(addslashes(trim($b[3])))	: 	"";
 							$business 			= isset($b[4]) ? htmlspecialchars(addslashes(trim($b[4])))	: 	"";
 							$contact 			= isset($b[5]) ? htmlspecialchars(addslashes(trim($b[5])))	: 	"";
@@ -201,7 +201,7 @@
 							// **** Trim Other Unusual Special Characters***/ 
 							$customercode 	   	= $this->import->trim_special_characters($customercode);
 							$companyname        = $this->import->trim_special_characters($companyname);
-							$address            = $this->import->trim_special_characters($address);
+							// $address            = $this->import->trim_special_characters($address);
 							$email 				= $this->import->trim_special_characters($email);
 							$business 			= $this->import->trim_special_characters($business);
 							$contact 			= $this->import->trim_special_characters($contact);

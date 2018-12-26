@@ -17,7 +17,8 @@ class controller extends wc_controller {
 			'reference',
             'service_quotation',
 			'po_number',
-			'notes'
+			'notes',
+			'stat'
 		);
 		$this->fields_header	= array(
 			'header_fiscalyear'		=> 'fiscalyear',
@@ -30,8 +31,8 @@ class controller extends wc_controller {
 			'detailparticular',
 			'linenum',
 			'h_warehouse'		=> 'warehouse',
-			'qty',
-			'h_uom'				=> 'uom',
+			'qty'				=> 'quantity',
+			'h_uom'				=> 'unit',
 			'isbundle',
 			'parentline'
 		);
@@ -87,6 +88,9 @@ class controller extends wc_controller {
 		$this->view->title			= 'Edit Job Order';
 		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
+
+		$data						= (array) $this->job_order->getJOByID($this->fields, $id);
+
 		$data['ui']					= $this->ui;
 		$data['transactiondate']	= $this->date->dateFormat();
 		$data['targetdate']			= $this->date->dateFormat();
@@ -100,27 +104,9 @@ class controller extends wc_controller {
 		$data['header_values']		= json_encode(array(
 			''
 		));
-		$data['voucher_details']	= json_encode(
-			array(
-				'0'	=> array(
-					'itemcode' => 'SERVICE001',
-					'detailparticular' => 'L3608',
-					'warehouse' => 'WH00003',
-					'quantity' => 2,
-					'uom' => 'PCS'
-				),
-				'1'	=> array(
-					'itemcode' => '1-494443',
-					'detailparticular' => 'Water Filter',
-					'warehouse' => 'WH00003',
-					'quantity' => 3,
-					'uom' => 'PCS'
-				)
-			)
-		);
-		$data['reference']	= "0001";
-		$data['customerpo']	= "000008001";
-		$data['customer']	= "CUS_000008";
+
+		$data['voucher_details']	= json_encode($this->job_order->getJobOrderDetails($this->fields2, $id));
+		//var_dump($data['voucher_details']);
 
 		$data['ajax_task']			= 'ajax_edit';
 		$data['ajax_post']			= '';
@@ -129,9 +115,7 @@ class controller extends wc_controller {
 		$close_date 				= $this->parts_and_service->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data['restrict_dr'] 		= false;
-
-		$data['voucherno']			= "JO0000000001";
-		$data['source_no']			= "SQ0000000001";
+		
 		$this->view->load('job_order/job_order', $data);
 	}
 	public function view($id) {
@@ -260,88 +244,88 @@ class controller extends wc_controller {
 		$filter		= $data['filter'];
 		$datefilter	= $data['daterangefilter'];
 
-		//$pagination	= $this->job_order->getServiceQuotationPagination($search, $sort, $customer, $filter, $datefilter);
+		$pagination	= $this->job_order->getJOList($this->fields);
 		$table		= '';
-		$pagination = new stdClass;
-		// if (empty($pagination->result)) {
-		// 	$table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
-		// }
-		// foreach ($pagination->result as $key => $row) {
-		// 	$transactiondate 	=	$row->transactiondate;
-		// 	$table .= '<tr>';
-		// 	$dropdown = $this->ui->loadElement('check_task')
-		// 							->addView()
-		// 							->addEdit($row->stat == 'Pending')
-		// 							->addDelete($row->stat == 'Pending')
-		// 							->addPrint()
-		// 							->addOtherTask('Add Payment', 'bookmark')
-		// 							->addCheckbox($row->stat == 'Pending')
-		// 							->setLabels(array('delete' => 'Cancel'))
-		// 							->setValue($row->voucherno)
-		// 							->draw();
-		// 	$table .= '<td align = "center">' . $dropdown . '</td>';
-		// 	$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
-		// 	$table .= '<td>' . $row->voucherno . '</td>';
-		// 	$table .= '<td>' . $row->customer . '</td>';
-		// 	$table .= '<td>' . $row->source_no . '</td>';
-		// 	$table .= '<td>' . $this->date->dateFormat($row->deliverydate) . '</td>';
-		// 	$table .= '<td>' . $this->colorStat($row->stat) . '</td>';
-		// 	$table .= '</tr>';
-		// }
-		$len = 1;
-		for($x=1;$x<=$len;$x++){
-			$transactiondate = date("M d, Y");
-			$job_types 		= array('Inspection','Repair','Preventive Maintenance','Refurbish');
-			$job_type 		= $job_types[(array_rand($job_types))];
-			$statuses 		= array('Pending','Partial','With JO','Cancelled');
-			// $status 		= ($filter == 'all') ? $statuses[(array_rand($statuses))] : $filter;
-			$status 		= "Prepared";
-			$dropdown = $this->ui->loadElement('check_task')
-						->addView()
-						->addEdit()
-						->addDelete()
-						// ->addPrint()
-						->addOtherTask('Issue Parts', 'bookmark')
-						->addOtherTask('Tag as Complete', 'bookmark')
-						->addCheckbox()
-						->setLabels(array('delete' => 'Cancel'))
-						->setValue($x)
-						->draw();
-			// $table .= '<tr>';
-			// $table .= '<td align = "center">' . $dropdown . '</td>';
-			// $table .= '<td>' . $this->date->dateFormat($transactiondate) . '</td>';
-			// $table .= '<td>SQ00000'.$x.'</td>';
-			// $table .= '<td>Company C</td>';
-			// $table .= '<td>'.$job_type.'</td>';
-			// $table .= '<td>'.$this->generateRandomString().'</td>';
-			// $table .= '<td>'.$this->colorStat($status).'</td>';
-
-			$table .= '<tr>';
-			$table .= '<td align = "center">' . $dropdown . '</td>';
-			$table .= '<td>Dec 03, 2018</td>';
-			$table .= '<td>JO0000000001</td>';
-			$table .= '<td>Company C</td>';
-			$table .= '<td>SQ0000000001</td>';
-			$table .= '<td>001020123</td>';
-			$table .= '<td>'.$this->colorStat($status).'</td>';
+		// $pagination = new stdClass;
+		if (empty($pagination->result)) {
+			$table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
 		}
+		foreach ($pagination->result as $row) {
+			$table .= '<tr>';
+			$dropdown = $this->ui->loadElement('check_task')
+									->addView()
+									->addEdit($row->stat == 'prepared')
+									->addDelete($row->stat == 'prepared')
+									->addPrint()
+									->addOtherTask('Add Payment', 'bookmark')
+									->addCheckbox($row->stat == 'prepared')
+									->setLabels(array('delete' => 'Cancel'))
+									->setValue($row->job_order_no)
+									->draw();
+			$table .= '<td align = "center">' . $dropdown . '</td>';
+			$table .= '<td>' . $row->job_order_no . '</td>';
+			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
+			$table .= '<td>' . $row->customer . '</td>';
+			$table .= '<td>' . $row->service_quotation . '</td>';
+			$table .= '<td>' . $row->po_number . '</td>';
+			$table .= '<td>' . $this->colorStat($row->stat) . '</td>';
+			$table .= '</tr>';
+		}
+		// $len = 1;
+		// for($x=1;$x<=$len;$x++){
+		// 	$transactiondate = date("M d, Y");
+		// 	$job_types 		= array('Inspection','Repair','Preventive Maintenance','Refurbish');
+		// 	$job_type 		= $job_types[(array_rand($job_types))];
+		// 	$statuses 		= array('Pending','Partial','With JO','Cancelled');
+		// 	// $status 		= ($filter == 'all') ? $statuses[(array_rand($statuses))] : $filter;
+		// 	$status 		= "Prepared";
+		// 	$dropdown = $this->ui->loadElement('check_task')
+		// 				->addView()
+		// 				->addEdit()
+		// 				->addDelete()
+		// 				// ->addPrint()
+		// 				->addOtherTask('Issue Parts', 'bookmark')
+		// 				->addOtherTask('Tag as Complete', 'bookmark')
+		// 				->addCheckbox()
+		// 				->setLabels(array('delete' => 'Cancel'))
+		// 				->setValue($x)
+		// 				->draw();
+		// 	// $table .= '<tr>';
+		// 	// $table .= '<td align = "center">' . $dropdown . '</td>';
+		// 	// $table .= '<td>' . $this->date->dateFormat($transactiondate) . '</td>';
+		// 	// $table .= '<td>SQ00000'.$x.'</td>';
+		// 	// $table .= '<td>Company C</td>';
+		// 	// $table .= '<td>'.$job_type.'</td>';
+		// 	// $table .= '<td>'.$this->generateRandomString().'</td>';
+		// 	// $table .= '<td>'.$this->colorStat($status).'</td>';
+
+		// 	$table .= '<tr>';
+		// 	$table .= '<td align = "center">' . $dropdown . '</td>';
+		// 	$table .= '<td>Dec 03, 2018</td>';
+		// 	$table .= '<td>JO0000000001</td>';
+		// 	$table .= '<td>Company C</td>';
+		// 	$table .= '<td>SQ0000000001</td>';
+		// 	$table .= '<td>001020123</td>';
+		// 	$table .= '<td>'.$this->colorStat($status).'</td>';
+		// }
+		// $pagination->table = $table;
+		// $pagination->pagination = '<div class="text-center">
+		// 							<ul class="pagination">
+		// 								<li class="disabled">
+		// 									<a href="#" data-page="1">
+		// 										<span aria-hidden="true">«</span>
+		// 									</a>
+		// 								</li>
+		// 								<li class="active"><a href="#" data-page="1">1</a></li><li><a href="#" data-page="2">2</a></li><li><a href="#" data-page="3">3</a></li><li><a href="#" data-page="4">4</a></li><li><a href="#" data-page="5">5</a></li><li><a href="#" data-page="6">6</a></li><li><a href="#" data-page="7">7</a></li><li><a href="#" data-page="8">8</a></li>
+		// 								<li><a href="#" data-page="9">9</a></li>
+		// 								<li>
+		// 									<a href="#" data-page="2">
+		// 										<span aria-hidden="true">»</span>
+		// 									</a>
+		// 								</li>
+		// 							</ul>
+		// 							</div>';
 		$pagination->table = $table;
-		$pagination->pagination = '<div class="text-center">
-									<ul class="pagination">
-										<li class="disabled">
-											<a href="#" data-page="1">
-												<span aria-hidden="true">«</span>
-											</a>
-										</li>
-										<li class="active"><a href="#" data-page="1">1</a></li><li><a href="#" data-page="2">2</a></li><li><a href="#" data-page="3">3</a></li><li><a href="#" data-page="4">4</a></li><li><a href="#" data-page="5">5</a></li><li><a href="#" data-page="6">6</a></li><li><a href="#" data-page="7">7</a></li><li><a href="#" data-page="8">8</a></li>
-										<li><a href="#" data-page="9">9</a></li>
-										<li>
-											<a href="#" data-page="2">
-												<span aria-hidden="true">»</span>
-											</a>
-										</li>
-									</ul>
-									</div>';
 		return $pagination;
 	}
 

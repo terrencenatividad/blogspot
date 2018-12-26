@@ -85,10 +85,10 @@
 										'style' => 'width: 100px'
 									)
 								)
+								->addHeader('JO No.', array('class' => 'col-md-3'), 'sort', 'job_order_no', 'desc')
 								->addHeader('Transaction Date', array('class' => 'col-md-2'), 'sort', 'transactiondate')
-								->addHeader('JO No.', array('class' => 'col-md-3'), 'sort', 'voucherno', 'desc')
 								->addHeader('Customer', array('class' => 'col-md-2'), 'sort', 'customer')
-								->addHeader('SQ No.', array('class' => 'col-md-3'), 'sort', 'job_type')
+								->addHeader('SQ No.', array('class' => 'col-md-3'), 'sort', 'service_quotation')
 								->addHeader('Reference', array('class' => 'col-md-2'), 'sort', 'reference')
 								->addHeader('Status', array('style' => 'width: 15px'), 'sort', 'stat')
 								->draw();

@@ -180,4 +180,33 @@ class job_order_model extends wc_model
 		return $result;
 	}
 
+	public function getJOList($fields) {
+		
+		$result = $this->db->setTable("job_order")
+							->setFields($fields)
+							->setWhere(1)
+							->setOrderBy('transactiondate ASC')
+							->runPagination();
+
+		return $result;
+	}
+
+	public function getJOByID($fields, $voucherno) {
+		return $this->db->setTable('job_order')
+						->setFields($fields)
+						->setWhere("job_order_no = '$voucherno'")
+						->runSelect()
+						->getRow();
+	}
+
+	public function getJobOrderDetails($fields, $voucherno) {
+		$result = $this->db->setTable('job_order_details')
+							->setFields($fields)
+							->setWhere("job_order_no = '$voucherno'")
+							->setOrderBy('linenum')
+							->runSelect()
+							->getResult();
+		return $result;
+	}
+
 }

@@ -161,6 +161,7 @@ class billing_model extends wc_model {
 			'b.taxamount',
 			'b.vat_sales',
 			'b.vat_exempt',
+			'b.job_orderno',
 			'b.exchangerate',
 			"IF(b.stat = 'Cancelled', b.stat, IF(IFNULL(balance, 0) <= 0, 'Paid', IF(IFNULL(balance, 0) = netamount, 'Unpaid', 'With Partial Payment'))) stat"
 		);
@@ -258,6 +259,38 @@ class billing_model extends wc_model {
 							->runSelect()
 							->getRow();
 
+		return $result;
+	}
+
+	public function getJOList($customer, $search) {
+		$condition = '';
+		if ($search) {
+			$condition .= ' AND ' . $this->generateSearch($search, array('job_order_no', 'transactiondate', 'service_quotation'));
+		}
+
+		$result = $this->db->setTable('billing')
+						->setFields("GROUP_CONCAT(job_orderno SEPARATOR ',') as job_orderno")
+						->setWhere("job_orderno != '' AND stat != 'Cancelled'")
+						->runSelect()
+						->getRow();
+		
+		$ids = preg_split("/[\s,]+/", $result->job_orderno);
+		$jo = implode(",",$ids);
+		if ($jo != '') {
+			$result		= $this->db->setTable('job_order')
+								->setFields('job_order_no, transactiondate, service_quotation')
+								->setWhere("customer = '$customer' AND stat NOT IN ('Paid','Cancelled') AND job_order_no NOT IN ($jo)". $condition)
+								->setOrderBy('job_order_no')
+								->runPagination();
+		}
+		else {
+			$result		= $this->db->setTable('job_order')
+								->setFields('job_order_no, transactiondate, service_quotation')
+								->setWhere("customer = '$customer' AND stat NOT IN ('Paid','Cancelled')". $condition)
+								->setOrderBy('job_order_no')
+								->runPagination();
+		}
+		
 		return $result;
 	}
 

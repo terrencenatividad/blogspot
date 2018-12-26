@@ -107,7 +107,14 @@
 								<input type="hidden" name="jobs_tagged" id="jobs_tagged" value="<?php echo $job_no; ?>">
 								<button type="button" id="job" class="btn btn-block btn-success btn-flat" <?php //echo $val ?>>
 									<em class="pull-left"><small>Click to tag job items</small></em>
-									<strong id="job_text" class="pull-right"></strong>
+									<strong id="job_text" class="pull-right">
+									<?php if($ajax_task == 'ajax_edit') {?>
+										<?php $tags = explode(',', $job_no); ?>
+										<?php $tags = ($tags[0] == '') ? 0 : count($tags); ?>
+									<?php echo $tags; ?>
+									<?php } else { ?>
+									<?php } ?>
+									</strong>
 								</button>
 								<?php } else { ?>
 								<span>
@@ -947,17 +954,33 @@ echo $ui->loadElement('modal')
 			}
 		});
 
+		<?php if($ajax_task == 'ajax_create') : ?>
 		var job = [];
-		$('#job').on('click', function () {
-			$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + $('#jobs_tagged').val(), function (data) {
-				if (data) {
+		$('#job').on('click', function() {
+			$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + $('#jobs_tagged').val(), function(data) {
+				if(data) {
 					$('#jobModal').modal('show');
 					$('#jobsTable tbody').html(data.table);
 					$('#paginate').html(data.pagination);
 				}
 			});
 		});
+		<?php endif ?>
 
+		<?php if($ajax_task == 'ajax_edit') : ?>
+		var job = [];
+		$('#job').on('click', function() {
+			$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + job, function(data) {
+				if(data) {
+					$('#jobModal').modal('show');
+					$('#jobsTable tbody').html(data.table);
+					$('#paginate').html(data.pagination);
+				}
+			});
+		});
+		<?php endif ?>
+
+		<?php if($ajax_task == 'ajax_create') : ?>
 		$('#paginate').on('click', 'a', function(e) {
 			e.preventDefault();
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
@@ -982,7 +1005,36 @@ echo $ui->loadElement('modal')
 				});
 			}
 		});
+		<?php endif ?>
 
+		<?php if($ajax_task == 'ajax_edit') : ?>
+		$('#paginate').on('click', 'a', function(e) {
+			e.preventDefault();
+			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
+				var get = $(this).val();
+				if($.inArray(get, job) == -1) {
+					job.push(get);
+				}
+			});
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				page = $(this).attr('data-page');
+				$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + job + '&page=' + page, function(data) {
+					if(data) {
+						$('#jobsTable tbody').html(data.table);
+						$('#paginate').html(data.pagination);
+						$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
+							if(jQuery.inArray($(this).val(), job) != -1) {
+								$(this).closest('tr').iCheck('check');
+							}
+						});
+					}
+				});
+			}
+		});
+		<?php endif ?>
+
+		<?php if($ajax_task == 'ajax_create') : ?>
 		$('#jobModal').on('shown.bs.modal', function () {
 			$('#jobsTable tbody tr td input[type="checkbox"]').each(function () {
 				if (jQuery.inArray($(this).val(), job) != -1) {
@@ -990,6 +1042,7 @@ echo $ui->loadElement('modal')
 				}
 			});
 		});
+		<?php endif ?>
 
 		$('#jobsTable').on('ifToggled', 'input[type="checkbox"]', function() {
 			if(!$(this).is(':checked')) {
@@ -997,24 +1050,58 @@ echo $ui->loadElement('modal')
 			}
 		});
 
+		<?php if($ajax_task == 'ajax_create') : ?>
+		var ctr = 0;
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
-			job = [];
-			var ctr = 0;
-			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
-				var get = $(this).val();
-				ctr++;
-				if($.inArray(get, job) == -1) {
-					job.push(get);
+			$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
+				if($(this).is(':checked')) {
+					var get = $(this).val();
+					ctr++;
+					if($.inArray(get, job) == -1) {
+						job.push(get);
+					}
+					$('#job_text').html(job.length);
+					$('#assetid').attr('disabled', 'disabled');
+				} else {
+					$('#job_text').html(job.length);
 				}
-				$('#job_text').html(job.length);
-				$('#assetid').attr('disabled', 'disabled');
 			});
 			if(ctr == 0) {
 				$('#job_text').html('0');
 			}
 			$('#jobModal').modal('hide');
 		});
+		<?php endif ?>
+		
+		<?php if($ajax_task == 'ajax_edit') : ?>
+		var ctr = 0;
+		console.log(ctr);
+		$('#confirmJob').on('click',function(e) {
+			e.preventDefault();
+			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
+				console.log($(this).is(':checked'));
+				if($(this).is(':checked')) {
+					ctr++;
+					var get = $(this).val();
+					if($.inArray(get, job) == -1) {
+						job.push(get);
+					}
+					$('#job_text').html(job.length);
+					$('#assetid').attr('disabled', 'disabled');
+				} else {
+					$('#job_text').html(job.length);
+				}
+				if($(this).is(':checked') = '') {
+					$('#job_text').html('0');
+				}
+			});
+			if(ctr == 0) {
+				$('#job_text').html('0');
+			}
+			$('#jobModal').modal('hide');
+		});
+		<?php endif ?>
 
 		$('#currencycode').on('change', function() {
 			var currencycode = $(this).val();
@@ -1168,6 +1255,7 @@ echo $ui->loadElement('modal')
 			$(document).ready(function() {
 				getCurrencyAmountEdit();
 				sumCurrencyAmount();
+				job = $('#jobs_tagged').val().split(',');	
 			});
 		<?php endif; ?>
 
