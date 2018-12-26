@@ -84,6 +84,7 @@
             if($amountview = 0 ) {
                 $pagination->amountview = $amountview;
             }
+            $pagination->amountview = $amountview;
             $pagination->table 	= $table;
             $pagination->csv 	= $this->export_main();
             //var_dump($amountview);

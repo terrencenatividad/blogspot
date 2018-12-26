@@ -1301,6 +1301,9 @@
 				} else {
 					$('#job_text').html(job.length);
 				}
+				if($(this).is(':checked') = '') {
+					$('#job_text').html('0');
+				}
 			});
 			if(ctr == 0) {
 				$('#job_text').html('0');

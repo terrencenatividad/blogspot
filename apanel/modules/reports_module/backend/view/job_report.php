@@ -34,14 +34,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-1">
-                </div>
-                <div class="col-md-1">
+                <div class="col-md-3 text-right">
                     <a href="" id="bt_close_job" class="btn btn-primary" data-toggle="modal" data-target="#close-job-modal"><span
                             class="glyphicon glyphicon-export"></span>
                         Close job</a>
-                </div>
-                <div class="col-md-1">
                     <a href="" id="export_csv" download="jobReport.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span>
                         Export</a>
                 </div>
