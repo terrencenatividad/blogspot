@@ -24,7 +24,7 @@ class landed_cost extends wc_model {
 							->setOrderBy("val")
 							->runSelect()
 							->getResult();
-							echo $this->db->getQuery();
+							// echo $this->db->getQuery();
 
 		return $result;
     }
