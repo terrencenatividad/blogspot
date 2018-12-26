@@ -19,6 +19,52 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
+	public function checkBudgetAccount($accountcode)
+	{
+		$result = $this->db->setTable('budget_details')
+		->setFields("accountcode")
+		->setWhere("accountcode = '$accountcode'")
+		->runSelect()
+		->getRow();
+		
+		return $result;
+	}
+
+	public function getAccountName($id)
+	{
+		$result = $this->db->setTable('chartaccount')
+		->setFields("CONCAT(segment5, ' - ', accountname) as accountname")
+		->setWhere("id = '$id'")
+		->runSelect()
+		->getRow();
+		
+		return $result;
+	}
+
+	public function getBudgetAmount($budgetcode, $accountcode)
+	{
+		$result = $this->db->setTable('budget_details as bd')
+		->setFields("bd.amount as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
+		->leftJoin('budget as b ON bd.budget_code = b.budget_code')
+		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
+		->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
+		->runSelect()
+		->getRow();
+		
+		return $result;
+	}
+
+	public function getBudgetCodes()
+	{
+		$result = $this->db->setTable('budget')
+		->setFields("budget_code ind, budget_code val")
+		->setWhere("status = 'approved'")
+		->runSelect()
+		->getResult();
+		
+		return $result;
+	}
+
 	public function setButtonRestriction($transactiondate) {
 		$closed_date     =   $this->getClosedDate();
 
@@ -42,7 +88,7 @@ class accounts_payable extends wc_model
 	public function getJobList() {
 		$result = $this->db->setTable('job')
 		->setFields("job_no")
-		// ->setWhere('stat = "on-going"')
+		->setWhere('stat = "on-going"')
 		->setGroupBy('job_no')
 		->runPagination();
 		
@@ -509,6 +555,7 @@ class accounts_payable extends wc_model
 		->buildSelect();
 
 		$ap_fields 	=	array(
+			'main.entereddate as entereddate',
 			"main.voucherno as voucherno", 
 			"main.companycode as companycode", 
 			"main.transactiondate as transactiondate",
@@ -1791,6 +1838,17 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
+	public function updateActualBudget($voucherno, $fields)
+	{
+		unset($fields['id']);
+		$result = $this->db->setTable('actual_budget')
+		->setValues($fields)
+		->setWhere("voucherno = '$voucherno'")
+		->runUpdate(false);
+		
+		return $result;
+	}
+
 	public function updateEntry($fields, $data) {
 		$error_id = array();
 		foreach ($data as $id) {
@@ -1811,6 +1869,27 @@ class accounts_payable extends wc_model
 
 		return $error_id;
 	}
+
+	public function deleteEntry($data) {
+		$error_id = array();
+		foreach ($data as $id) {
+			$result =  $this->db->setTable('financial_jobs')
+			->setWhere("voucherno = '$id'")
+			->runDelete(false);
+
+			if ($result) {
+				$this->log->saveActivity("Delete Item Type [$id]");
+			} else {
+				if ($this->db->getError() == 'locked') {
+					$error_id[] = $id;
+				}
+			}
+		}
+
+		return $error_id;
+	}
+
+
 
 	public function getDetailsByVoucher($voucher) {
 		$result = $this->db->setTable('ap_details ad')
@@ -1978,6 +2057,22 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
+	public function saveActualBudget($fields) {
+		$result = $this->db->setTable('actual_budget')
+		->setValues($fields)
+		->runInsert(false);
+
+		return $result;
+	}
+
+	public function saveFinancialsJob($fields) {
+		$result = $this->db->setTable('financial_jobs')
+		->setValuesFromPost($fields)
+		->runInsert(false);
+
+		return $result;
+	}
+
 	public function getAccount($tax_account){
 		$result = $this->db->setTable('atccode a')
 		->setFields("tax_rate,tax_account")
@@ -1986,8 +2081,16 @@ class accounts_payable extends wc_model
 		->runSelect()
 		->getResult();
 		return $result;
+	}
 
+	public function checkVoucherOnFinancialsJob($voucherno){
+		$result = $this->db->setTable('financial_jobs')
+		->setFields('voucherno')
+		->setWhere("voucherno = '$voucherno'")
+		->runSelect(false)
+		->getRow();
 
+		return $result;
 	}
 
 	public function check_if_exists($column, $table, $condition) {
@@ -2041,7 +2144,7 @@ class accounts_payable extends wc_model
 
 	public function getAPDetails($id) {
 		$result = $this->db->setTable('ap_details ad')
-		->setFields('ad.accountcode as accountcode, ad.detailparticulars as description, ad.debit as debit, ad.credit as credit, IF(ad.debit != 0, converteddebit, convertedcredit) as currencyamount, ad.linenum as linenum, ad.converteddebit as converteddebit, ad.convertedcredit as convertedcredit')
+		->setFields('ad.budgetcode as budgetcode, ad.accountcode as accountcode, ad.detailparticulars as description, ad.debit as debit, ad.credit as credit, IF(ad.debit != 0, converteddebit, convertedcredit) as currencyamount, ad.linenum as linenum, ad.converteddebit as converteddebit, ad.convertedcredit as convertedcredit')
 		->leftJoin('chartaccount as ca ON ca.id = ad.accountcode')
 		->setWhere("voucherno = '$id'")
 		->runSelect()
@@ -2056,6 +2159,19 @@ class accounts_payable extends wc_model
 		->setWhere("partnercode = '$vendor'")
 		->runSelect()
 		->getRow();
+
+		return $result;
+	}
+
+	public function updateFinancialsJobs($fields, $voucherno)
+	{
+		$result = $this->db->setTable('financial_jobs')
+		->setWhere("voucherno = '$voucherno'")
+		->runDelete(false);
+
+		$result = $this->db->setTable('financial_jobs')
+		->setValues($fields)
+		->runInsert(false);
 
 		return $result;
 	}
@@ -2090,7 +2206,7 @@ class accounts_payable extends wc_model
 
 	public function checkStat($voucherno) {
 		$result = $this->db->setTable('accountspayable')
-		->setFields('amountpaid, balance, convertedamount')
+		->setFields('amountpaid, balance, amount')
 		->setWhere("voucherno = '$voucherno'")
 		->runSelect()
 		->getRow();
@@ -2109,6 +2225,53 @@ class accounts_payable extends wc_model
 		->getResult();
 
 		// echo $this->db->getQuery();
+
+		return $result;
+	}
+
+	public function getAsset($assetid)
+	{
+		$fields = array('capitalized_cost','balance_value','useful_life','salvage_value','depreciation_month');
+		$result = $this->db->setTable('asset_master')
+						->setFields($fields)
+						->setWhere("asset_number = '$assetid'")
+						->runSelect()
+						->getRow();
+
+		return $result;
+	}
+
+	public function updateAsset($assetid,$amount,$asd1,$asd2)
+	{
+		$fields['capitalized_cost'] = $amount+$asd1;
+		$fields['balance_value'] = $amount+$asd2;
+		$result = $this->db->setTable('asset_master')
+							->setValues($fields)
+							->setWhere("asset_number = '$assetid'")
+							->setLimit(1)
+							->runUpdate();
+
+		if ($result) {
+			$this->log->saveActivity("Update Asset Value [$assetid]");
+		}
+
+		return $result;
+	}
+
+	public function updateAssetMasterSchedule($assetid,$final,$depreciation,$depreciation_amount)
+	{
+		$fields['depreciation_amount'] = $depreciation_amount;
+		$fields['accumulated_dep'] = $depreciation;
+		// var_dump($fields);
+		$result = $this->db->setTable('depreciation_schedule')
+							->setValues($fields)
+							->setWhere("asset_id = '$assetid' AND depreciation_date = '$final'")
+							->setLimit(1)
+							->runUpdate();
+
+		if ($result) {
+			$this->log->saveActivity("Update Asset Value [$assetid]");
+		}
 
 		return $result;
 	}

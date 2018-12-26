@@ -65,7 +65,7 @@
 						)
 						->addHeader('Job Number',array('class'=>'col-md-3'),'sort','job_no')
                         ->addHeader('Notes',array('class'=>'col-md-5'),'sort','notes')
-                        ->addHeader('Status', array('class'=>'col-md-1'),'sort','stat')
+                        ->addHeader('Status', array('class'=>'col-md-1 text-center'),'sort','stat')
                         ->draw();
 						?>
 						<tbody id="list_container">

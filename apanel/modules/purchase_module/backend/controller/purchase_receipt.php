@@ -60,7 +60,6 @@ class controller extends wc_controller {
 			'detail_discountamount'		=> 'discountamount',
 			'detail_withholdingamount'	=> 'withholdingamount',
 			'detail_warehouse'			=> 'warehouse',
-
 		);
 		$this->clean_number		= array(
 			'receiptqty'

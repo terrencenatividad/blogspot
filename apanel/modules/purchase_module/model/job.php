@@ -62,41 +62,14 @@
             return $errmsg;
         }
         
-        public function check_journalDm($job_no)
-		{
-			return $this->db->setTable('journaldetails')
-							->setFields('COUNT(job_no) count')
-							->setWhere(" job_no = '$job_no' AND debit !=0.00")
-							->runSelect()
-							->getResult();
-        }
-
-        public function check_journalCm($job_no)
-		{
-			return $this->db->setTable('journaldetails')
-							->setFields('COUNT(job_no) count')
-							->setWhere(" job_no = '$job_no' AND credit !=0.00")
-							->runSelect()
-							->getResult();
-        }
-        
         public function check_importationCost($job_no)
 		{
-			return $this->db->setTable('ap_details')
+			return $this->db->setTable('financial_jobs')
 							->setFields('COUNT(voucherno) count')
-							->setWhere(" job_no = '$job_no' AND debit !=0.00")
-							->runSelect()
+							->setWhere(" job_no = '$job_no'")
+							->runSelect(false)
 							->getResult();
         }
-
-        public function check_usage($job_no)
-		{
-			return $this->db->setTable('job')
-							->setFields('COUNT(brandcode) count')
-							->setWhere(" brandcode = '$job_no'")
-							->runSelect()
-							->getResult();
-		}
 
         public function cancel_job($id)
 		{
@@ -134,19 +107,19 @@
 			return $errmsg;
         }
         
-        public function getPRPagination() {
-            $result = $this->db->setTable("purchasereceipt")
-                            ->setFields("voucherno, source_no, transactiondate, amount")
-                            ->setWhere("stat='Received' AND transtype='IPO'")
+        public function getIPOPagination() {
+            $result = $this->db->setTable("import_purchaseorder")
+                            ->setFields("voucherno, transactiondate, amount")
+                            ->setWhere("stat='open'")
                             ->setOrderBy("voucherno ASC")
                             ->runPagination();
             return $result;
         }
 
-        public function getItemPagination($pr_number){
-            $result = $this->db->setTable("purchasereceipt_details")
+        public function getItemPagination($ipo_number){
+            $result = $this->db->setTable("import_purchaseorder_details")
                             ->setFields("voucherno, itemcode, linenum, detailparticular, receiptqty, receiptuom")
-                            ->setWhere("voucherno='".$pr_number."'")
+                            ->setWhere("voucherno='".$ipo_number."'")
                             ->setOrderBy("voucherno ASC, linenum ASC")
                             ->runPagination();
             return $result;

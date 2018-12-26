@@ -80,6 +80,7 @@ class controller extends wc_controller
 		$data["wtax_codes"] 	= $this->po->getTaxCode('WTX',"fstaxcode ind, shortname val");
 		$data['percentage'] 	= "";
 		$data['h_disctype'] 	= "perc";
+		$data['budget_list'] = $this->po->getBudgetCodes();
 
 		$data["h_request_no"] 	= "";
 
@@ -87,6 +88,9 @@ class controller extends wc_controller
 
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
+
+		$dep_type_data          = array("id ind", "name val");
+		$data["department_list"] = $this->po->getValue("cost_center", $dep_type_data,'','name');
 
 		$disc_type_data         = array("code ind","value val");
 		$data["discounttypes"] 	= $this->po->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
@@ -214,8 +218,11 @@ class controller extends wc_controller
 				$update_info['voucherno']	= $generatedvoucher;
 				$update_info['stat']		= 'open';
 				$update_condition			= "voucherno = '$voucherno'";
+				$fields = array();
+				$fields['voucherno'] = $update_info['voucherno'];
 				$updateTempRecord			= $this->po->updateData($update_info,"import_purchaseorder",$update_condition);
 				$updateTempRecord			= $this->po->updateData($update_info,"import_purchaseorder_details",$update_condition);
+				$updateTempRecord = $this->po->updateActual($fields, $voucherno);
 
 				$this->log->saveActivity("Created Purchase Order [$generatedvoucher] ");
 
@@ -272,9 +279,13 @@ class controller extends wc_controller
 		$data["vat_type"] 		= $this->po->getOption("vat_type");
 		$data["tax_codes"] 		= $this->po->getTaxCode('VAT',"fstaxcode ind, shortname val");
 		$data["wtax_codes"] 	= $this->po->getTaxCode('WTX',"fstaxcode ind, shortname val");
+		$data['budget_list'] = $this->po->getBudgetCodes();
 
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
+
+		$dep_type_data          = array("id ind", "name val");
+		$data["department_list"] = $this->po->getValue("cost_center", $dep_type_data,'','name');
 
 		$disc_type_data         = array("code ind","value val");
 		$data["discounttypes"] 	= $this->po->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
@@ -378,6 +389,9 @@ class controller extends wc_controller
 
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
+
+		$dep_type_data          = array("id ind", "name val");
+		$data["department_list"] = $this->po->getValue("cost_center", $dep_type_data,'','name');
 
 		$disc_type_data         = array("code ind","value val");
 		$data["discounttypes"] 	= $this->po->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
@@ -542,7 +556,7 @@ class controller extends wc_controller
 
 		$print = new import_purchase_print_model();
 		$print->setDocumentType('Import Purchase Order')
-		->setFooterDetails(array('Approved By', 'Checked By'))
+		->setFooterDetails(array('Prepared By', 'Recommending Approval','Approved By'))
 		->setVendorDetails($vendordetails)
 		->setDocumentDetails($documentdetails)
 		->setDocumentInfo($documentinfo)
@@ -840,17 +854,27 @@ class controller extends wc_controller
 			$result    = $this->po->processTransaction($data_post, "create" , $voucher);
 		else
 			$result    = $this->po->processTransaction($data_post, "create");
-		if(!empty($result))
+		if(!empty($result['errmsg']) && !empty($result['error']) && !empty($result['warning']))
 		{
 			$msg = $result;
 		}
 		else
 		{
-			$msg = "success";
+			$msg = $result;
 
 			if ( $this->inventory_model ) {
 				$this->inventory_model->generateBalanceTable();
 			}
+			if(isset($data_post['budgetcode'])){
+				for($i=1;$i<=count($data_post['budgetcode']);$i++){
+					$saveArr['voucherno'] 	= $data_post['h_voucher_no'];
+					$saveArr['accountcode'] = $result['accountcode'];
+					$saveArr['budget_code'] = $data_post['budgetcode'][$i];
+					$saveArr['actual'] 		= str_replace(',','', $data_post['baseamount'][$i]);
+					$actualArr[]      		= $saveArr;
+				}
+			}
+			$save = $this->po->saveActual($actualArr, $voucher);
 		}
 
 		return $dataArray = array("msg" => $msg);
@@ -864,18 +888,28 @@ class controller extends wc_controller
 		
 		$result = $this->po->processTransaction($data_post, "edit", $voucher);
 		
-		if(!empty($result))
+		if(!empty($result['errmsg']) && !empty($result['error']) && !empty($result['warning']))
 		{
 			$msg = $result;
 		}
 		else
 		{
 			$this->log->saveActivity("Edited Purchase Order [$voucher] ");
-			$msg = "success";
+			$msg = $result;
 
 			if ( $this->inventory_model ) {
 				$this->inventory_model->generateBalanceTable();
 			}
+			if(isset($data_post['budgetcode'])){
+				for($i=1;$i<=count($data_post['budgetcode']);$i++){
+					$saveArr['voucherno'] 	= $data_post['h_voucher_no'];
+					$saveArr['accountcode'] = $result['accountcode'];
+					$saveArr['budget_code'] = $data_post['budgetcode'][$i];
+					$saveArr['actual'] 		= str_replace(',','', $data_post['baseamount'][$i]);
+					$actualArr[]      		= $saveArr;
+				}
+			}
+			$save = $this->po->updateBudget($actualArr, $voucher);
 		}
 
 		return $dataArray = array( "msg" => $msg, "voucher" => $voucher );

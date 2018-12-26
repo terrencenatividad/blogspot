@@ -62,6 +62,7 @@ class controller extends wc_controller {
 		$data['commissioning_date']	= $this->date->dateFormat($data['commissioning_date']);
 		$data['retirement_date']	= $this->date->dateFormat($data['retirement_date']);
 		$data['depreciation_month']	= $this->date->dateFormat($data['depreciation_month']);
+		$data['dept_list']			= $this->asset_master->getDepartment();
 		$data['ajax_task'] = 'ajax_create';
 		$data['ajax_post'] = '';
 		$data['show_input'] = true;
@@ -82,7 +83,8 @@ class controller extends wc_controller {
 		$data['commissioning_date']	= $this->date->dateFormat($data['commissioning_date']);
 		$data['retirement_date']	= $this->date->dateFormat($data['retirement_date']);
 		$data['depreciation_month']	= $this->date->dateFormat($data['depreciation_month']);
-		$data['schedule']	= $this->asset_master->getSchedule($data['asset_number']);
+		$data['schedule']			= $this->asset_master->getSchedule($data['asset_number']);
+		$data['dept_list']			= $this->asset_master->getDepartment();
 		$data['ajax_task'] = 'ajax_edit';
 		$data['ajax_post'] = "&id=$id";
 		$data['show_input'] = true;
@@ -99,11 +101,12 @@ class controller extends wc_controller {
 		$data['item_list']			= $this->asset_master->getItems();
 		$data['assetclass_list']	= $this->asset_master->getAssetClass();
 		$data['coa_list']			= $this->asset_master->getCOA();
-		$data['commissioning_date']	= $this->date->dateFormat($data['commissioning_date']);
-		$data['retirement_date']	= $this->date->dateFormat($data['retirement_date']);
-		$data['depreciation_month']	= $this->date->dateFormat($data['depreciation_month']);
-		$data['schedule']	= $this->asset_master->getSchedule($data['asset_number']);
-		$data['ajax_task'] = 'view';
+		$data['commissioning_date']	= date("M d, Y",strtotime($data['commissioning_date']));
+		$data['retirement_date']	= date("M d, Y",strtotime($data['retirement_date']));
+		$data['depreciation_month']	= date("M d, Y",strtotime($data['depreciation_month']));
+		$data['schedule']			= $this->asset_master->getSchedule($data['asset_number']);
+		$data['dept_list']			= $this->asset_master->getDepartment();
+		$data['ajax_task'] 			= 'view';
 		$data['ui'] = $this->ui;
 		$data['show_input'] = false;
 		$this->view->load('asset_master/asset_master', $data);
@@ -236,10 +239,42 @@ class controller extends wc_controller {
 
 	private function ajax_edit() {
 		$data = $this->input->post($this->fields);
+		$shh  = $this->input->post($this->fields2);
+		$code = $this->input->post('id');
 		$data['frequency_of_dep'] = '1';
 		$data['stat'] = 'active';
-		$code = $this->input->post('id');
-		$result = $this->asset_master->updateAssetMaster($data, $code);
+		$asset_number = $data['asset_number'];
+
+		$data['capitalized_cost']		= str_replace(',', '', $data['capitalized_cost']);
+		$data['purchase_value']	   		= str_replace(',', '', $data['purchase_value']);
+		$data['useful_life']	   		= str_replace(',', '', $data['useful_life']);
+		$data['salvage_value']	   		= str_replace(',', '', $data['salvage_value']);
+		$data['balance_value']	   		= str_replace(',', '', $data['balance_value']);
+
+
+		$capitalized_cost	   	= $data['capitalized_cost'];
+		$purchase_value	   		= $data['purchase_value'];
+		$useful_life 			= $data['useful_life'];
+		$balance_value 			= $data['balance_value'];
+		$salvage_value 			= $data['salvage_value'];
+		$time  					= strtotime($data['depreciation_month']);
+		$depreciation = 0;
+		
+		
+
+		$result = $this->asset_master->updateAssetMaster($data, $code, $asset_number);
+		// var_dump(($balance_value - $salvage_value) / $useful_life);
+		// $result = $this->asset_master->deletesched($asset_number);
+
+
+		for($x=1;$x<=$data['useful_life'];$x++){
+			$depreciation_amount 	= ($balance_value - $salvage_value) / $useful_life;
+			$depreciation += ($balance_value - $salvage_value) / $useful_life;
+			$final = date("Y-m-d", strtotime("+$x month", $time));
+			$sched = $this->asset_master->saveAssetMasterSchedule($shh,$asset_number,$useful_life,$balance_value,$salvage_value,$final,$depreciation,$depreciation_amount);
+			
+			}
+			
 		return array(
 			'redirect' => MODULE_URL,
 			'success' => $result
@@ -288,7 +323,7 @@ class controller extends wc_controller {
 
 		for($x=1;$x<=$useful_life;$x++){
 		$depreciation += ($balance_value - $salvage_value) / $useful_life;
-		$final = date("M-d-Y", strtotime("+$x month", $time));
+		$final = date("M d, Y", strtotime("+$x month", $time));
 	
 		$table .= '<tr>';
 		$table .= '<td class="col-md-2 text-center">'.$final.'</td>';
@@ -339,6 +374,26 @@ class controller extends wc_controller {
 		$gl_depexpense = $result->gl_depexpense;
 
 		return array('gl_asset' => $gl_asset, 'gl_accdep' => $gl_accdep, 'gl_depexpense' => $gl_depexpense, 'salvage_value' => $salvage_value, 'useful_life' => $useful_life);
+	}
+
+	private function check_duplicate(){
+		$old 	 = $this->input->post('old');
+		$current 	 = $this->input->post('asset_number');
+		$count 	 = 0;
+		if( $current!='' && $current != $old )
+		{
+			$result = $this->asset_master->check_duplicate($current);
+			$count = $result[0]->count;
+		}
+
+		$msg   = "";
+
+		if( $count > 0 )
+		{	
+			$msg = "exists";
+		}
+
+		return $dataArray = array("msg" => $msg);
 	}
 
 	private function csv_header() {
@@ -455,9 +510,9 @@ class controller extends wc_controller {
 		return $value;
 	}
 
-	private function check_duplicate($array) {
-		return array_unique(array_diff_assoc($array, array_unique($array)));
-	}
+	// private function check_duplicate($array) {
+	// 	return array_unique(array_diff_assoc($array, array_unique($array)));
+	// }
 
 	private function ajax_edit_activate()
 	{

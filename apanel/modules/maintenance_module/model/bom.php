@@ -58,11 +58,25 @@ class bom extends wc_model
 
 	public function getBundleList()
 	{
-		$result = $this->db->setTable('items')
-		->setFields('itemcode ind, itemcode val')
-		->setWhere("bundle = '1'")
+		$count = $this->db->setTable('bom')
+		->setFields('COUNT(*) as count')
 		->runSelect()
-		->getResult();
+		->getRow();
+
+		if($count->count == 0) {
+			$result = $this->db->setTable('items i')
+			->setFields('i.itemcode ind, i.itemcode val')
+			->setWhere("bundle = '1'")
+			->runSelect()
+			->getResult();
+		} else {
+			$result = $this->db->setTable('items i')
+			->setFields("IF(b.bundle_item_code != i.itemcode, i.itemcode, '') as ind, IF(b.bundle_item_code != i.itemcode, i.itemcode, '') as val")
+			->leftJoin('bom b ON b.bundle_item_code != i.itemcode')
+			->setWhere("bundle = '1'")
+			->runSelect()
+			->getResult();
+		}
 
 		return $result;
 	}

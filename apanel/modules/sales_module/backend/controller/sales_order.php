@@ -560,7 +560,7 @@ class controller extends wc_controller
 		/** DETAILS INFO **/
 
 			$docdet_table   = "salesorder_details as dtl";
-			$docdet_fields  = array("dtl.itemcode as itemcode", "dtl.detailparticular as description", "dtl.issueqty as quantity","UPPER(dtl.issueuom) uom","unitprice as price","IF(dtl.discounttype='perc',CONCAT(dtl.discountrate,' ','%'),dtl.discountamount) itemdiscount","dtl.taxamount","amount as amount","dtl.taxrate","dtl.taxamount","dtl.taxcode");
+			$docdet_fields  = array("dtl.itemcode as itemcode", "dtl.detailparticular as description", "dtl.issueqty as quantity","UPPER(dtl.issueuom) uom","unitprice as price","IF(dtl.discounttype='perc',CONCAT(dtl.discountrate,' ','%'),dtl.discountamount) itemdiscount","dtl.taxamount","amount as amount","dtl.taxrate","dtl.taxamount","dtl.taxcode", "dtl.parentcode");
 			//$docdet_fields  = array("dtl.itemcode as itemcode","dtl.issueqty as quantity", "dtl.detailparticular as description", "unitprice as price","amount as amount");
 			$docdet_cond    = "dtl.voucherno = '$voucherno'";
 			$docdet_join 	= "";
@@ -812,6 +812,7 @@ class controller extends wc_controller
 								->setClass('quantity text-right ' . $mainitemcode)
 								->setValue('0')
 								->draw(true); 
+			$table .='<input type = "hidden" id = "h_quantity["'.$key.'"]" name = "h_quantity["'.$key.'"]" class = "h_quantity" value = "'.$row->quantity.'">';
 						'</td>';
 			$table .= '<td>' . $ui->formField('text')
 								->setPlaceholder('Select One')

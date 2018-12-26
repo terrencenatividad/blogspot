@@ -234,12 +234,15 @@
 							// Check for Duplicates
 							$errmsg[] 	=	$this->check_duplicate_code("Customer Code",$customercode,$line);
 
-							// Check for Numerical Values
-							$errmsg[] 	=	$this->import->check_numeric("Credit Limit", $credit_limit, $line);
+							if($credit_limit != ''){
+								// Check for Numerical Values
+							
+								$errmsg[] 	=	$this->import->check_numeric("Credit Limit", $credit_limit, $line);
 
-							// Check for Negative Values
-							$errmsg[] 	=	$this->import->check_negative("Credit Limit", $credit_limit, $line);
-
+								// Check for Negative Values
+								$errmsg[] 	=	$this->import->check_negative("Credit Limit", $credit_limit, $line);
+							}
+							
 							// Check for E-mail Format
 							if($email != ''){
 								$errmsg[] 	=	$this->import->check_email("Email", $email, $line);

@@ -79,11 +79,11 @@ class controller extends wc_controller {
 			$freight_cost = $row->freight;
 			$insurance_cost = $row->insurance;
 			$packaging_cost = $row->packaging;
-			$addtl_cost = $freight_cost + $insurance_cost + $packaging_cost;
+			$addtl_cost = number_format($freight_cost + $insurance_cost + $packaging_cost,2);
 				//TOTAL COST OF IMPORT PURCHASE ORDER
 			$total_ipo_amt = $row->netamount;
 				// CALCULATE UNIT COST
-			$unit_cost_foreign = ( $total_ipo_amt / ($total_ipo_amt + $addtl_cost) ) * $addtl_cost ;
+			$unit_cost_foreign = number_format(( ($total_ipo_amt-$addtl_cost) / $total_ipo_amt ) * $addtl_cost,2) ;
 				// EXCHANGE RATES STAGING
 			$exchange_curr = $row->exchangecurrency;
 			$exchange_rate = $row->exchangerate;
@@ -94,9 +94,10 @@ class controller extends wc_controller {
 			$item_code = $row->itemcode;
 			$item_name = $row->itemname;
 			$item_desc = $row->detailparticular;
-			$voucher_no = $row->voucherno;
+			$ipo_no = $row->ipo_num;
 			$transaction_date = $row->transactiondate;
-			$item_quantity = $row->receiptqty;
+			// $item_quantity = $row->receiptqty;
+			$item_quantity = $row->qty;
 			$uom = $row->receiptuom;
 			$job_no = $row->job_no;
 			$receipt_date = $row->receiptdate;
@@ -104,24 +105,36 @@ class controller extends wc_controller {
 			$table .= '<tr>
 						<td class="text-right">'.$item_code.'- '.$item_name.'</td>
 						<td class="text-right">'.$item_desc.'</td>
-						<td class="text-right">'.$voucher_no.'</td>
-						<td class="text-center">'.$transaction_date.'</td>
+						<td class="text-right">'.$ipo_no.'</td>
+						<td class="text-center">'.date('M d, Y',strtotime($transaction_date)).'</td>
 						<td class="text-center">'.$item_quantity.' '.$uom.'</td>
 						
-						<td class="text-center">'.$receipt_date.'</td>
+						<td class="text-center">'.date('M d, Y',strtotime($receipt_date)).'</td>
 						<td class="text-right"><span class="pull-left">'.$exchange_curr.'</span>'.number_format($unit_cost_foreign,2).'</td>
 						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($unit_cost_base,2).'</td>';
 
-				// JOB FIELDS STAGING
-			$job_quantity = $row->qty;
-			$query_importation_cost = $this->landed_cost->getSumOfAp($job_no);
-			$total_importation_cost = $query_importation_cost->debit;
+				// IMPORTATION COST CALCULATION
+			$item_cost = $row->convertedamount / $item_quantity;
+			$item_cost_total = $row->convertedamount; //total cost of item
+
+			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);
+			$total_cost_job = $query_cost_job->total; //total cost of all items in job
+ 
 			$query_job_item_count = $this->landed_cost->getTotalItemsInJob($job_no);
-			$job_item_count = $query_job_item_count->qty;
-			$importation_cost_unit =  floatval($total_importation_cost) / $job_item_count; //sprintf("%7.2f",$quantity);
+			$job_item_count = $query_job_item_count->qty; //number of items in job
+
+			$query_AP_credit = $this->landed_cost->getSumOfAp($job_no);
+			$query_CM_credit = $this->landed_cost->getSumOfCm($job_no);
+			$query_DM_debit = $this->landed_cost->getSumOfDm($job_no);
+
+			$total_importation_cost = $query_AP_credit->credit + $query_CM_credit->credit - $query_DM_debit->debit; //importation cost/fees from AP,CM,DM
 			
-			$table .=	'<td class="text-right">'.$job_no.'</td>	
-						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($importation_cost_unit,2).'</td>';
+			$item_cost_ratio = ($item_cost_total/$total_cost_job); //ratio of item to all items in job
+
+			$importation_cost_unit =  ($item_cost_ratio * $total_importation_cost) / $item_quantity; //sprintf("%7.2f",$quantity);
+			
+			$table .=	'<td class="text-right">'.$job_no.'</td> 
+						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($importation_cost_unit,2).'</td>'; 
 			
 				// LANDED COST CALCS STAGING
 			$landed_cost_unit = $unit_cost_base + $importation_cost_unit;
@@ -171,7 +184,7 @@ class controller extends wc_controller {
 		$csv 	= '';
 		$csv 	.= 'Landed Cost Report';
 		$csv 	.= "\n\n";
-		$csv 	.= 'IPO: ' .$import_purchase_order_export. ',Supplier: ' .$supplier_export. ',Period: ' .$datefilterFrom. '-' .$datefilterTo. '';
+		$csv 	.= 'IPO: ' .$import_purchase_order_export. ',Supplier: ' .$supplier_export. ',Period: ' .date('M d Y',strtotime($datefilterFrom)). ' - ' .date('M d Y',strtotime($datefilterTo)). '';
 		$csv 	.= "\n";
 		$csv 	.= 'Job: ' .$tab_export. '';
 		$csv 	.= "\n\n";
@@ -183,15 +196,15 @@ class controller extends wc_controller {
 		if (!empty($filtered)){
 			foreach ($filtered as $key => $row){
 			
-				// CALCULATE ADDITIONAL COST
+			// CALCULATE ADDITIONAL COST
 			$freight_cost = $row->freight;
 			$insurance_cost = $row->insurance;
 			$packaging_cost = $row->packaging;
-			$addtl_cost = $freight_cost + $insurance_cost + $packaging_cost;
+			$addtl_cost = number_format($freight_cost + $insurance_cost + $packaging_cost,2);
 				//TOTAL COST OF IMPORT PURCHASE ORDER
 			$total_ipo_amt = $row->netamount;
 				// CALCULATE UNIT COST
-			$unit_cost_foreign = ( $total_ipo_amt / ($total_ipo_amt + $addtl_cost) ) * $addtl_cost ;
+			$unit_cost_foreign = number_format(( ($total_ipo_amt-$addtl_cost) / $total_ipo_amt ) * $addtl_cost,2) ;
 				// EXCHANGE RATES STAGING
 			$exchange_curr = $row->exchangecurrency;
 			$exchange_rate = $row->exchangerate;
@@ -202,29 +215,42 @@ class controller extends wc_controller {
 			$item_code = $row->itemcode;
 			$item_name = $row->itemname;
 			$item_desc = $row->detailparticular;
-			$voucher_no = $row->voucherno;
+			$ipo_no = $row->ipo_num;
 			$transaction_date = $row->transactiondate;
-			$item_quantity = $row->receiptqty;
+			// $item_quantity = $row->receiptqty;
+			$item_quantity = $row->qty;
 			$uom = $row->receiptuom;
 			$job_no = $row->job_no;
 			$receipt_date = $row->receiptdate;
 
 			$csv .= '"' .$item_code.'- '.$item_name. '",';
 			$csv .= '"' .$item_desc. '",';
-			$csv .= '"' .$voucher_no. '",';
-			$csv .= '"' .$transaction_date. '",';
+			$csv .= '"' .$ipo_no. '",';
+			$csv .= '"' .date('M d, Y',strtotime($transaction_date)). '",';
 			$csv .= '"' .$item_quantity.' '.$uom. '",';
-			$csv .= '"' .$receipt_date. '",';
+			$csv .= '"' .date('M d, Y',strtotime($receipt_date)). '",';
 			$csv .= '"' .$exchange_curr.' '.number_format($unit_cost_foreign,2). '",';
 			$csv .= '"' .$base_curr.' '.number_format($unit_cost_base,2). '",';
 
-				// JOB FIELDS STAGING
-			$job_quantity = $row->qty;
-			$query_importation_cost = $this->landed_cost->getSumOfAp($job_no);
-			$total_importation_cost = $query_importation_cost->debit;
+					// IMPORTATION COST CALCULATION
+			$item_cost = $row->convertedamount / $item_quantity;
+			$item_cost_total = $row->convertedamount; //total cost of item
+
+			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);
+			$total_cost_job = $query_cost_job->total; //total cost of all items in job
+ 
 			$query_job_item_count = $this->landed_cost->getTotalItemsInJob($job_no);
-			$job_item_count = $query_job_item_count->qty;
-			$importation_cost_unit =  floatval($total_importation_cost) / $job_item_count; //sprintf("%7.2f",$quantity);
+			$job_item_count = $query_job_item_count->qty; //number of items in job
+
+			$query_AP_credit = $this->landed_cost->getSumOfAp($job_no);
+			$query_CM_credit = $this->landed_cost->getSumOfCm($job_no);
+			$query_DM_debit = $this->landed_cost->getSumOfDm($job_no);
+
+			$total_importation_cost = $query_AP_credit->credit + $query_CM_credit->credit - $query_DM_debit->debit; //importation cost/fees from AP,CM,DM
+			
+			$item_cost_ratio = ($item_cost_total/$total_cost_job); //ratio of item to all items in job
+
+			$importation_cost_unit =  ($item_cost_ratio * $total_importation_cost) / $item_quantity; //sprintf("%7.2f",$quantity);
 
 			$csv .= '"' .$job_no. '",';
 			$csv .= '"' .$base_curr.' '.number_format($importation_cost_unit,2). '",';

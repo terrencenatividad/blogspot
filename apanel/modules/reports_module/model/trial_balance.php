@@ -193,7 +193,7 @@ class trial_balance extends wc_model {
 				}else if($transtype == 'RV'){
 					$link		= '<a href="' . BASE_URL. 'financials/receipt_voucher/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
 				}else if($transtype == 'DV'){
-					$link		= '<a href="' . BASE_URL. 'financials/payment/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
+					$link		= '<a href="' . BASE_URL. 'financials/disbursement/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
 				}else if($transtype == 'JV'){
 					$link		= '<a href="' . BASE_URL .'financials/journal_voucher/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
 				}else if($transtype == 'IT'){

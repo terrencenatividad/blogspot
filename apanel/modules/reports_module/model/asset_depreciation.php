@@ -1,5 +1,5 @@
 <?php
-class asset_transaction extends wc_model {
+class asset_depreciation extends wc_model {
 
 	public function getAsset() {
 		$result = $this->db->setTable('asset_master')
@@ -31,23 +31,23 @@ class asset_transaction extends wc_model {
 		return $result;
 	}
 
-	public function getAssetTransaction($fields, $sort, $asset, $datefilter, $assetclass, $department) {
+	public function getDepreciationcsv($fields, $sort, $asset_number, $datefilter, $assetclass, $department) {
 		$orderby = '';
-		$condition = '';
+		$condition = 'd.depreciation_date <= DATE(NOW()) ';
 		$datefilter = $this->date->dateDbFormat($datefilter);
-		
+
 		if ($datefilter) {
-			$condition .= " ass.transactiondate <= '$datefilter 11:59:59'";
+			$condition .= " AND depreciation_date <= '$datefilter 11:59:59'";
 		 }
-		 
+
 		if($sort){
 			$orderby = $sort;
 		}else{
-			$orderby = 'ass.transactiondate DESC';
+			$orderby = 'd.depreciation_date DESC';
 		}
 		
-		if($asset != 'none' && $asset != ''){
-			$condition .= " AND ass.asset_number = '$asset'";
+		if($asset_number != 'none' && $asset_number != ''){
+			$condition .= " AND d.asset_id = '$asset_number'";
 		}
 
 		if($assetclass != 'none' && $assetclass != ''){
@@ -58,54 +58,55 @@ class asset_transaction extends wc_model {
 			$condition .= " AND am.department = '$department'";
 		}
 
-		$result = $this->db->setTable('asset_transaction ass')
+		$result = $this->db->setTable('depreciation_schedule d')
 							->setFields($fields)
-							->leftJoin('asset_master am ON am.asset_number = ass.asset_number')
-							->leftJoin('asset_class ac ON ac.id = ass.asset_class')
-							->leftJoin('cost_center cc ON cc.id = am.department')
-							->setWhere($condition)
-							->setOrderBy($orderby)
-							->runPagination();
-		return $result;
-	}
-
-	public function getAssetTransactioncsv($fields, $sort, $asset, $datefilter, $assetclass, $department) {
-		$orderby = '';
-		$condition = '';
-		$datefilter = $this->date->dateDbFormat($datefilter);
-
-		if ($datefilter) {
-			$condition .= " ass.transactiondate <= '$datefilter 11:59:59'";
-		 }
-		 
-		if($sort){
-			$orderby = $sort;
-		}else{
-			$orderby = 'ass.transactiondate DESC';
-		}
-		
-		if($asset != 'none' && $asset != ''){
-			$condition .= " AND ass.asset_number = '$asset'";
-		}
-
-		if($assetclass != 'none' && $assetclass != ''){
-			$condition .= " AND am.asset_class = '$assetclass'";
-		}
-
-		if($department != 'none' && $department != ''){
-			$condition .= " AND am.department = '$department'";
-		}
-
-		$result = $this->db->setTable('asset_transaction ass')
-							->setFields($fields)
-							->leftJoin('asset_master am ON am.asset_number = ass.asset_number')
-							->leftJoin('asset_class ac ON ac.id = ass.asset_class')
+							->leftJoin('asset_master am ON am.asset_number = d.asset_id')
+							->leftJoin('asset_class ac ON ac.id = am.asset_class')
 							->leftJoin('cost_center cc ON cc.id = am.department')
 							->setWhere($condition)
 							->setOrderBy($orderby)
 							->runSelect()
 							->getResult();
 
+		return $result;
+	}
+
+	public function getDepreciation($fields, $sort, $asset_number, $datefilter, $assetclass, $department) {
+		$orderby = '';
+		$condition = 'd.depreciation_date <= DATE(NOW()) ';
+		$datefilter = $this->date->dateDbFormat($datefilter);
+
+		if ($datefilter) {
+			$condition .= " AND depreciation_date <= '$datefilter 11:59:59'";
+		 }
+
+		if($sort){
+			$orderby = $sort;
+		}else{
+			$orderby = 'd.depreciation_date DESC';
+		}
+		
+		if($asset_number != 'none' && $asset_number != ''){
+			$condition .= " AND d.asset_id = '$asset_number'";
+		}
+
+		if($assetclass != 'none' && $assetclass != ''){
+			$condition .= " AND am.asset_class = '$assetclass'";
+		}
+
+		if($department != 'none' && $department != ''){
+			$condition .= " AND am.department = '$department'";
+		}
+
+		$result = $this->db->setTable('depreciation_schedule d')
+							->setFields($fields)
+							->leftJoin('asset_master am ON am.asset_number = d.asset_id')
+							->leftJoin('asset_class ac ON ac.id = am.asset_class')
+							->leftJoin('cost_center cc ON cc.id = am.department')
+							->setWhere($condition)
+							->setOrderBy($orderby)
+							->runPagination();
+							// echo $this->db->getQuery();
 		return $result;
 	}
 

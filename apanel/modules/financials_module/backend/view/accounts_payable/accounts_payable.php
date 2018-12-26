@@ -344,8 +344,9 @@
 								<thead>
 									<tr class="info">
 										<th class="col-md-1 text-center">Withholding Tax</th>
+										<th class="col-md-2 text-center">Budget Code</th>
 										<th class="col-md-2 text-center">Account</th>
-										<th class="col-md-3 text-center">Description</th>
+										<th class="col-md-2 text-center">Description</th>
 										<th class="col-md-2 text-center" colspan = "2">Debit</th>
 										<th class="col-md-2 text-center" colspan = "2">Credit</th>
 										<th class="col-md-3 text-center">Currency Amount</th>
@@ -398,9 +399,23 @@
 												echo $ui->formField('dropdown')
 												->setPlaceholder('Select One')
 												->setSplit('', 'col-md-12')
+												->setName("budgetcode[]")
+												->setId("budgetcode")
+												->setClass('budgetcode')
+												->setList($budget_list)
+												->setValue("")
+												->draw($show_input);
+												?>
+											</td>
+											<td class = "remove-margin">
+												<?php
+												echo $ui->formField('dropdown')
+												->setPlaceholder('Select One')
+												->setSplit('', 'col-md-12')
 												->setName("accountcode[]")
 												->setId("accountcode")
 												->setClass('accountcode')
+												->setValidation('required')
 												->setList($account_list)
 												->setValue("")
 												->draw($show_input);
@@ -429,6 +444,7 @@
 												->setAttribute(array("maxlength" => "20"))
 												->setClass("debit text-right")
 												->setValidation('decimal required')
+												->setValue('0.00')
 												->draw($show_input);
 												?>
 											</td>
@@ -442,6 +458,7 @@
 												->setId('credit')
 												->setAttribute(array("maxlength" => "20"))
 												->setClass("credit text-right")
+												->setValue('0.00')
 												->setValidation('decimal required')
 												->draw($show_input);
 												?>
@@ -455,6 +472,7 @@
 												->setId('currencyamount')
 												->setAttribute(array("maxlength" => "20", 'readonly'))
 												->setClass("currencyamount text-right")
+												->setValue('0.00')
 												->setValidation('decimal')
 												->draw($show_input);
 												?>
@@ -507,10 +525,24 @@
 												echo $ui->formField('dropdown')
 												->setPlaceholder('Select One')
 												->setSplit('', 'col-md-12')
+												->setName("budgetcode[]")
+												->setId("budgetcode")
+												->setClass('budgetcode')
+												->setList($budget_list)
+												->setValue("")
+												->draw($show_input);
+												?>
+											</td>
+											<td class = "remove-margin">
+												<?php
+												echo $ui->formField('dropdown')
+												->setPlaceholder('Select One')
+												->setSplit('', 'col-md-12')
 												->setName("accountcode[]")
 												->setId("accountcode")
 												->setList($account_list)
 												->setClass('accountcode')
+												->setValidation('required')
 												->setValue("")
 												->draw($show_input);
 												?>
@@ -537,6 +569,7 @@
 												->setId('debit')
 												->setAttribute(array("maxlength" => "20"))
 												->setClass("debit text-right")
+												->setValue('0.00')
 												->setValidation('decimal required')
 												->draw($show_input);
 												?>
@@ -551,6 +584,7 @@
 												->setId('credit')
 												->setAttribute(array("maxlength" => "20"))
 												->setClass("credit text-right")
+												->setValue('0.00')
 												->setValidation('decimal required')
 												->draw($show_input);
 												?>
@@ -565,6 +599,7 @@
 												->setAttribute(array("maxlength" => "20", 'readonly'))
 												->setClass("currencyamount text-right")
 												->setValidation('decimal')
+												->setValue('0.00')
 												->draw($show_input);
 												?>
 											</td>
@@ -583,6 +618,7 @@
 											</td>	
 										</tr>	
 										<tr id="total">
+											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
@@ -1167,7 +1203,70 @@
 		</div>
 	</div>
 
+	<div class="modal fade" id="warning-modal" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					Warning
+				</div>
+				<div class="modal-body">
+					<div class = "row">
+						<div class="col-md-12">
+							<div id = "errors">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<div class="row row-dense">
+						<div class="col-md-12 col-sm-12 col-xs-12 text-right">
+							<div class="btn-group">
+								<button type="button" class="btn btn-info btn-flat" data-dismiss="modal">Confirm</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="accountchecker-modal" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					Warning
+				</div>
+				<div class="modal-body">
+					<div class = "row">
+						<div class="col-md-12">
+							<div id = "accounterror">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<div class="row row-dense">
+						<div class="col-md-12 col-sm-12 col-xs-12 text-right">
+							<div class="btn-group">
+								<button type="button" class="btn btn-info btn-flat" data-dismiss="modal">Okay</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<script>
+		$(document).ready(function() {
+			var currencycode = $('#currencycode').val();
+			$.post('<?=MODULE_URL?>ajax/ajax_get_currency_val', { currencycode : currencycode }, function(data) {
+				if(data) {
+					$('#exchangerate').val(data.exchangerate);
+				}
+			});
+		});
+
 		$('#btnCancel').click(function() 
 		{
 			$('#cancelModal').modal('show');
@@ -1186,6 +1285,31 @@
 					$('#paginate').html(data.pagination);
 				}
 			});
+		});
+
+		$('#paginate').on('click', 'a', function(e) {
+			e.preventDefault();
+			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
+				var get = $(this).val();
+				if($.inArray(get, job) == -1) {
+					job.push(get);
+				}
+			});
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				page = $(this).attr('data-page');
+				$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + $('#jobs_tagged').val() + '&page=' + page, function(data) {
+					if(data) {
+						$('#jobsTable tbody').html(data.table);
+						$('#paginate').html(data.pagination);
+						$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
+							if(jQuery.inArray($(this).val(), job) != -1) {
+								$(this).closest('tr').iCheck('check');
+							}
+						});
+					}
+				});
+			}
 		});
 
 		$('#jobModal').on('shown.bs.modal', function() {
@@ -1230,20 +1354,25 @@
 				$(this).closest('tr').find('.credit').attr('data-validation', 'decimal');
 				$(this).closest('tr').find('.asterisk').html('');
 				sumDebit();
+				sumCredit();
 				sumCurrencyAmount();
 			} else {
 				$(this).closest('tr').find('.credit').removeAttr('readonly');
+				$(this).closest('tr').find('.currencyamount').val('0.00');
+				sumDebit();
+				sumCredit();
+				sumCurrencyAmount();
 			}
 		});
 
+		var row = '';
 		$('#exchangerate').on('blur', function() {
-			var row = '';
 			var total = 0;
 			var rate = $(this).val();
 			$('.currencyamount').each(function() {
-				var debit = $(this).closest('tr').find('.debit').val();
-				var credit = $(this).closest('tr').find('.credit').val();
-				if(debit != '') {
+				var debit = removeComma($(this).closest('tr').find('.debit').val());
+				var credit = removeComma($(this).closest('tr').find('.credit').val());
+				if(debit != '0.00') {
 					row = $(this).closest('tr').find('.debit');
 					total = debit * rate;
 				} else {
@@ -1265,22 +1394,43 @@
 				$(this).closest('tr').find('.debit').attr('data-validation', 'decimal');
 				$(this).closest('tr').find('.asterisk').html('');
 				sumCredit();
+				sumDebit();
 				sumCurrencyAmount();
 			} else {
 				$(this).closest('tr').find('.debit').removeAttr('readonly');
+				$(this).closest('tr').find('.currencyamount').val('0.00');
+				sumDebit();
+				sumCredit();
+				sumCurrencyAmount();
 			}
 		});
 
+		$('#jobsTable').on('ifToggled', 'input[type="checkbox"]', function() {
+			if(!$(this).is(':checked')) {
+				job.splice( $.inArray($(this).val(),job) ,1 );
+			}
+		});
+
+		var ctr = 0;
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
-			job = [];
-			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
-				var get = $(this).val();
-				job.push(get);
-				$('#job_text').html(job.length);
-				$('#assetid').attr('disabled', 'disabled');
-				$('#jobModal').modal('hide');
+			$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
+				if($(this).is(':checked')) {
+					var get = $(this).val();
+					ctr++;
+					if($.inArray(get, job) == -1) {
+						job.push(get);
+					}
+					$('#job_text').html(job.length);
+					$('#assetid').attr('disabled', 'disabled');
+				} else {
+					$('#job_text').html(job.length);
+				}
 			});
+			if(ctr == 0) {
+				$('#job_text').html('0');
+			}
+			$('#jobModal').modal('hide');
 		});
 
 		$('#vendor').on('change', function() {
@@ -1332,11 +1482,13 @@
 			$.post('<?=MODULE_URL?>ajax/ajax_get_currency_val', { currencycode : currencycode }, function(data) {
 				if(data) {
 					$('#exchangerate').val(data.exchangerate);	
-					if($('.debit').val() != '0.00') {
-						$('.currencyamount').val(addComma(data.exchangerate * $('.debit').val()));
-					} else {
-						$('.currencyamount').val(addComma(data.exchangerate * $('.credit').val()));
-					}
+					$('.debit').each(function() {
+						if($(this).val() != '0.00') {
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).val()));
+						} else {
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).closest('tr').find('.credit').val()));
+						}
+					});
 					sumDebit();
 					sumCredit();
 					sumCurrencyAmount();
@@ -1408,8 +1560,8 @@
 
 			$('#itemsTable tbody tr.clone select').select2({width: "100%"});
 			$('#itemsTable tbody tr.clone #detailparticulars').last().val('');
-			$('#itemsTable tbody tr.clone #debit').last().val('');
-			$('#itemsTable tbody tr.clone #credit').last().val('');
+			$('#itemsTable tbody tr.clone #debit').last().val('0.00');
+			$('#itemsTable tbody tr.clone #credit').last().val('0.00');
 			$('#itemsTable tbody tr.clone .edit-button').last().hide();
 			$('#itemsTable tbody tr.clone .checkbox-select').last().show();
 			$('#itemsTable tbody tr.clone .linenum').last().val(++data_id);
@@ -1448,16 +1600,35 @@
 				good = 'false';
 			}
 			
-			$(this).find('.form-group').find('input, textarea, select').trigger('blur');
-			if ($(this).find('.form-group.has-error').length == 0) {
+			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
+			if ($('#payableForm').find('.form-group.has-error').length == 0) {
 				if(good == true) {
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes, function(data) {
 						if(data.check) {
-							if(data.success) {
-								$('#delay_modal').modal('show');
-								setTimeout(function() {
-									window.location = data.redirect;
-								},500);
+							if(data.warning != '') {
+								$('#warning-modal').modal('show');
+								$('#errors').html(data.warning);
+								$('#warning-modal').on('hidden.bs.modal', function() {
+									if(data.success) {
+										$('#delay_modal').modal('show');
+										setTimeout(function() {
+											window.location = data.redirect;
+										},500);
+									}
+								});
+							} else if(data.error != '') {
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.error);
+							} else if(data.accountchecker != ''){
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.accountchecker);
+							} else {
+								if(data.success) {
+									$('#delay_modal').modal('show');
+									setTimeout(function() {
+										window.location = data.redirect;
+									},500);
+								}
 							}
 						} else {
 							$('#error-modal').modal('show');
@@ -1467,7 +1638,7 @@
 					$('#error-modal').modal('show');
 				}
 			} else {
-				$(this).find('.form-group.has-error').first().find('input, textarea, select').focus();
+				$('#payableForm').find('.form-group.has-error').first().find('input, textarea, select').focus();
 			}
 		});
 		
@@ -1484,16 +1655,35 @@
 				good = false;
 			}
 
-			$(this).find('.form-group').find('input, textarea, select').trigger('blur');
-			if ($(this).find('.form-group.has-error').length == 0) {
+			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
+			if ($('#payableForm').find('.form-group.has-error').length == 0) {
 				if(good == true) {
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes, function(data) {
 						if(data.check) {
-							if(data.success) {
-								$('#delay_modal').modal('show');
-								setTimeout(function() {
-									window.location = data.redirect;
-								},500);
+							if(data.warning != '') {
+								$('#warning-modal').modal('show');
+								$('#errors').html(data.warning);
+								$('#warning-modal').on('hidden.bs.modal', function() {
+									if(data.success) {
+										$('#delay_modal').modal('show');
+										setTimeout(function() {
+											window.location = data.redirect;
+										},500);
+									}
+								});
+							} else if(data.error != '') {
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.error);
+							} else if(data.accountchecker != ''){
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.accountchecker);
+							} else {
+								if(data.success) {
+									$('#delay_modal').modal('show');
+									setTimeout(function() {
+										window.location = data.redirect;
+									},500);
+								}
 							}
 						} else {
 							$('#error-modal').modal('show');
@@ -1503,7 +1693,7 @@
 					$('#error-modal').modal('show');
 				}
 			} else {
-				$(this).find('.form-group.has-error').first().find('input, textarea, select').focus();
+				$('#payableForm').find('.form-group.has-error').first().find('input, textarea, select').focus();
 			}
 		});
 
@@ -1520,16 +1710,35 @@
 				good = 'false';
 			}
 
-			$(this).find('.form-group').find('input, textarea, select').trigger('blur');
-			if ($(this).find('.form-group.has-error').length == 0) {
+			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
+			if ($('#payableForm').find('.form-group.has-error').length == 0) {
 				if(good == true) {
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes, function(data) {
 						if(data.check) {
-							if(data.success) {
-								$('#delay_modal').modal('show');
-								setTimeout(function() {
-									window.location = data.redirect;
-								},500);
+							if(data.warning != '') {
+								$('#warning-modal').modal('show');
+								$('#errors').html(data.warning);
+								$('#warning-modal').on('hidden.bs.modal', function() {
+									if(data.success) {
+										$('#delay_modal').modal('show');
+										setTimeout(function() {
+											window.location = data.redirect;
+										},500);
+									}
+								});
+							} else if(data.error != '') {
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.error);
+							} else if(data.accountchecker != ''){
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.accountchecker);
+							} else {
+								if(data.success) {
+									$('#delay_modal').modal('show');
+									setTimeout(function() {
+										window.location = data.redirect;
+									},500);
+								}
 							}
 						} else {
 							$('#error-modal').modal('show');
@@ -1539,7 +1748,7 @@
 					$('#error-modal').modal('show');
 				}
 			} else {
-				$(this).find('.form-group.has-error').first().find('input, textarea, select').focus();
+				$('#payableForm').find('.form-group.has-error').first().find('input, textarea, select').focus();
 			}
 		});
 	</script>
