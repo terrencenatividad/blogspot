@@ -127,7 +127,10 @@ class controller extends wc_controller {
 			$query_CM_credit = $this->landed_cost->getSumOfCm($job_no);
 			$query_DM_debit = $this->landed_cost->getSumOfDm($job_no);
 
-			$total_importation_cost = $query_AP_credit->credit + $query_CM_credit->credit - $query_DM_debit->debit; //importation cost/fees from AP,CM,DM
+			$ap_credit = $query_AP_credit->credit;
+			$cm_credit = $query_CM_credit->credit;
+			$dm_debit = $query_DM_debit->debit;
+			$total_importation_cost = $ap_credit + $cm_credit - $dm_debit; //importation cost/fees from AP,CM,DM
 			
 			$item_cost_ratio = ($item_cost_total/$total_cost_job); //ratio of item to all items in job
 
