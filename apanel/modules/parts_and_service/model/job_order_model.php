@@ -180,4 +180,16 @@ class job_order_model extends wc_model
 		return $result;
 	}
 
+	public function getJOList($fields) {
+		
+		$result = $this->db->setTable("job_order")
+							->setFields($fields)
+							->setWhere(1)
+							->setOrderBy('transactiondate ASC')
+							->runPagination();
+
+		return $result;
+	
+	}
+
 }
