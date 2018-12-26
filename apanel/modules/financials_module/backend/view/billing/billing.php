@@ -60,6 +60,20 @@
 											->draw($show_input);
 									?>
 								</div>
+								<div class="col-md-6">
+									<?php
+										echo $ui->formField('text')
+											->setLabel('Job Order No.')
+											->setSplit('col-md-4', 'col-md-8')
+											->setPlaceholder('Select Job Order')
+											->setName('job_orderno')
+											->setId('job_orderno')
+											->setAttribute(array('readonly'))
+											->setAddon('search')
+											->setValue($job_orderno)
+											->draw($show_input);
+									?>
+								</div>
 							</div>
 							<div class="row">
 								<div class="col-md-12">
@@ -342,6 +356,45 @@
 			</div>
 		</div>
 	</div>
+	<div id="jo_list_modal" class="modal fade" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Job Order List</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-4 col-md-offset-8">
+							<div class="input-group">
+								<input id="jo_search" class="form-control pull-right" placeholder="Search" type="text">
+								<div class="input-group-addon">
+									<i class="fa fa-search"></i>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-body no-padding">
+					<table id="jo_tableList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
+						<thead>
+							<tr class="info">
+								<th class="col-xs-4">JO No.</th>
+								<th class="col-xs-4">Transaction Date</th>
+								<th class="col-xs-4 text-right">Service Quotation</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td colspan="4" class="text-center">Loading Items</td>
+							</tr>
+						</tbody>
+					</table>
+					<div id="pagination"></div>
+					</div>
+				</div>
+			</div>
+		</div>
 	<script>
 		var delete_row	= {};
 		var ajax		= {};
@@ -604,6 +657,58 @@
 	</script>
 	<?php if ($show_input): ?>
 	<script>
+		$('#customer').on('change', function() {
+			$('#job_orderno').val('');
+		});
+
+		$('#job_orderno').on('focus', function() {
+			var customer = $('#customer').val();
+			ajax.customer = customer;
+			if (customer == '') {
+				$('#warning_modal').modal('show').find('#warning_message').html('Please Select a Customer');
+				$('#customer').trigger('blur');
+			} else {
+				$('#jo_tableList tbody').html(`<tr>
+					<td colspan="4" class="text-center">Loading Items</td>
+					</tr>`);
+				$('#pagination').html('');
+				getJOList();
+			}
+		});
+		$('#jo_list_modal #jo_search').on('input', function() {
+			ajax.page = 1;
+			ajax.search = $(this).val();
+			getJOList();
+		});
+		$('#jo_list_modal #pagination').on('click', 'a', function(e) {
+			e.preventDefault();
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				ajax.page = $(this).attr('data-page');
+				getJOList();
+			}
+		});
+		function getJOList() {
+			ajax.limit = 5;
+			$('#jo_list_modal').modal('show');
+			if (ajax_call != '') {
+					ajax_call.abort();
+			}
+			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_jo_list', ajax, function(data) {
+				$('#jo_tableList tbody').html(data.table);
+				$('#pagination').html(data.pagination);
+				if (ajax.page > data.page_limit && data.page_limit > 0) {
+					ajax.page = data.page_limit;
+					getJOList();
+				}
+			});
+		}
+		$('#jo_tableList').on('click', 'tr[data-id]', function() {
+			var jono = $(this).attr('data-id');
+			$('#job_orderno').val(jono).trigger('blur');
+			$('#jo_list_modal').modal('hide');
+		});
+
 		$('.fulldaterange').daterangepicker({
 			timePicker: true,
 			timePickerIncrement: 1,

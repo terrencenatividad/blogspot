@@ -285,7 +285,7 @@
 		</div>
 	</div>
 
-	<div id="serialize_modal" class="modal fade" tabindex="-1" role="dialog">
+	<div id="serialize_modal" class="modal fade" tabindex="-1" role="dialog" data-item="" data-itemcode="">
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -320,7 +320,7 @@
 				</div>
 
 				<div class="modal-footer text-center">
-					<button type="button" class="btn btn-primary">Save</button>
+					<button type="button" class="btn btn-primary save_serials">Save</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 				</div>
 			</div>
@@ -336,6 +336,11 @@
 		var serialize = [{
 						'itemcode': ''
 					}];
+
+		var serialize_item_selected = '';
+		var serialize_icode_selected = '';
+		var index_selected = 0;
+		var item_max_qty = 0;
 		
 		function addVoucherDetails(details, index) {
 			var details = details || {itemcode: '', detailparticular: '', receiptqty: ''};
@@ -594,7 +599,16 @@
 				$('#serialize_tableList tbody').empty();
 				icode = $('#serial_' + details.linenum).data('itemcode');
 				item = $('#serial_' + details.linenum).data('item');
+				serialize_item_selected = item;
+				serialize_icode_selected = icode;
+				index_selected = index;
+				item_max_qty = parseInt(details.receiptqty);
+				
 				var rows = 0;
+
+				// serialize[1].numbers[0].serialno = '0001';
+				// serialize[1].numbers[0].engineno = '0001';
+				// serialize[1].numbers[0].chassisno = '0001';
 
 				for (var i = 0 ; i <= index ; i++){
 					if(serialize[i].itemcode == icode){
@@ -607,6 +621,7 @@
 								sn = serialize[i].numbers[rows].serialno;
 								en = serialize[i].numbers[rows].engineno;
 								cn = serialize[i].numbers[rows].chassisno;
+
 								addRow(icode, item, rows, sn, en, cn);
 							}
 						}
@@ -614,30 +629,46 @@
 					}
 				}
 				
-				console.log(rows);
-				console.log(serialize);
+				// console.log(rows);
+				
 				$("#serialize_modal").modal('show');
 			});
 		}
 
 		$('.add-data').on("click", function() {
-				addRow();
-			});
+			rownum = $('#serialize_tableList tbody tr').length;
+			// alert(item_max_qty);
+			if (rownum < item_max_qty) {
+				addRow(serialize_icode_selected, serialize_item_selected);
+			}		
+		});
+
+		$('.save_serials').on("click", function(){
+			saveSerialsInput(index_selected);
+		})
 
 		function addRow(icode, item, rownum, serialno, engineno, chassisno){
-				// if ()
+				if (typeof rownum == 'undefined'){
+					rownum = $('#serialize_tableList tbody tr').length;
+					// console.log(rownum);
+				}
+
+				(typeof serialno == 'undefined') ? serialno = '' : serialno=serialno;
+				(typeof engineno == 'undefined') ? engineno = '' : engineno=engineno;
+				(typeof chassisno == 'undefined') ? chassisno = '' : chassisno=chassisno;
+
 				$('#serialize_tableList tbody').append(
 					`<tr>
-						<td id="serial_item_count" class="col-xs-1 text-center"></td>
+						<td id="serial_item_count" class="col-xs-1 text-center">` + (rownum+1) + `</td>
 						<td class="item_no col-xs-2">` + icode + `</td>
 						<td class="item_name col-xs-3">` + item + `</td>
 						<td id="serial_no" class="col-xs-2">
 							<?php
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
-									->setName('serial_no_item`+ rownum +`[]')
-									->setClass('serial_no_item`+ rownum +` text-right')
-									->setID('serial_no_item`+ rownum +`')
+									->setName('serial_no_item[`+ rownum +`]')
+									->setClass('serial_no_item text-right')
+									->setID('serial_no_item[`+ rownum +`]')
 									->setValue('`+ serialno +`')
 									->setValidation('required')
 									->draw($show_input);
@@ -647,9 +678,9 @@
 							<?php
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
-									->setName('engine_no_item`+ rownum +`[]')
-									->setClass('engine_no_item`+ rownum +` text-right')
-									->setID('engine_no_item`+ rownum +`')																
+									->setName('engine_no_item[`+ rownum +`]')
+									->setClass('engine_no_item text-right')
+									->setID('engine_no_item[`+ rownum +`]')																
 									->setValue('`+ engineno +`')
 									->setValidation('required')
 									->draw($show_input);
@@ -659,9 +690,9 @@
 							<?php
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
-									->setName('engine_no_item`+ rownum +`[]')
-									->setClass('engine_no_item`+ rownum +` text-right')
-									->setID('engine_no_item`+ rownum +`')																
+									->setName('chassis_no_item[`+ rownum +`]')
+									->setClass('chassis_no_item text-right')
+									->setID('chassis_no_item[`+ rownum +`]')																
 									->setValue('`+ chassisno +`')
 									->setValidation('required')
 									->draw($show_input);
@@ -670,6 +701,29 @@
 					</tr>`
 				);
 			}
+	
+		function saveSerialsInput(index){
+			number_rows = $('#serialize_tableList tbody tr').length;
+			
+			for (i = 0; i < number_rows; i++) {
+				serialize[index].numbers[i].serialno = $('#serial_no_item\\['+i+'\\]').val();
+				serialize[index].numbers[i].engineno = $('#engine_no_item\\['+i+'\\]').val();
+				serialize[index].numbers[i].chassisno = $('#chassis_no_item\\['+i+'\\]').val();
+			}
+			
+			// CHECK NUMBER OF INPUTS FOR QUANTITY IN DB
+			var count = 0;
+			$(".serial_no_item").each(function() {
+				if($(this).val().length > 0) {
+					count++;
+				}
+			})
+
+			console.log(serialize);
+			$("#serialize_modal").modal('hide');
+			$("#receiptqty"+(index+1)).val(count); //UPDATE QUANTITY BASED ON POPULATED SERIALS
+			// console.log(serialize);
+		}
 	
 		var voucher_details = <?php echo $voucher_details ?>;
 		function displayDetails(details) {

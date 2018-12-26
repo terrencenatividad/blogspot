@@ -88,6 +88,9 @@ class controller extends wc_controller {
 		$this->view->title			= 'Edit Job Order';
 		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
+
+		$data						= (array) $this->job_order->getJOByID($this->fields, $id);
+
 		$data['ui']					= $this->ui;
 		$data['transactiondate']	= $this->date->dateFormat();
 		$data['targetdate']			= $this->date->dateFormat();
@@ -101,27 +104,9 @@ class controller extends wc_controller {
 		$data['header_values']		= json_encode(array(
 			''
 		));
-		$data['voucher_details']	= json_encode(
-			array(
-				'0'	=> array(
-					'itemcode' => 'SERVICE001',
-					'detailparticular' => 'L3608',
-					'warehouse' => 'WH00003',
-					'quantity' => 2,
-					'uom' => 'PCS'
-				),
-				'1'	=> array(
-					'itemcode' => '1-494443',
-					'detailparticular' => 'Water Filter',
-					'warehouse' => 'WH00003',
-					'quantity' => 3,
-					'uom' => 'PCS'
-				)
-			)
-		);
-		$data['reference']	= "0001";
-		$data['customerpo']	= "000008001";
-		$data['customer']	= "CUS_000008";
+
+		$data['voucher_details']	= json_encode($this->job_order->getJobOrderDetails($this->fields2, $id));
+		//var_dump($data['voucher_details']);
 
 		$data['ajax_task']			= 'ajax_edit';
 		$data['ajax_post']			= '';
@@ -130,9 +115,7 @@ class controller extends wc_controller {
 		$close_date 				= $this->parts_and_service->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data['restrict_dr'] 		= false;
-
-		$data['voucherno']			= "JO0000000004";
-		$data['source_no']			= "SQ0000000009";
+		
 		$this->view->load('job_order/job_order', $data);
 	}
 	public function view($id) {
@@ -271,11 +254,11 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($row->stat == 'Pending')
-									->addDelete($row->stat == 'Pending')
+									->addEdit($row->stat == 'prepared')
+									->addDelete($row->stat == 'prepared')
 									->addPrint()
 									->addOtherTask('Add Payment', 'bookmark')
-									->addCheckbox($row->stat == 'Pending')
+									->addCheckbox($row->stat == 'prepared')
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->job_order_no)
 									->draw();
