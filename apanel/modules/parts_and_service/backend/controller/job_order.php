@@ -31,8 +31,8 @@ class controller extends wc_controller {
 			'detailparticular',
 			'linenum',
 			'h_warehouse'		=> 'warehouse',
-			'qty',
-			'h_uom'				=> 'uom',
+			'qty'				=> 'quantity',
+			'h_uom'				=> 'unit',
 			'isbundle',
 			'parentline'
 		);
@@ -131,8 +131,8 @@ class controller extends wc_controller {
 		$data['close_date']			= $close_date;
 		$data['restrict_dr'] 		= false;
 
-		$data['voucherno']			= "JO0000000001";
-		$data['source_no']			= "SQ0000000001";
+		$data['voucherno']			= "JO0000000004";
+		$data['source_no']			= "SQ0000000009";
 		$this->view->load('job_order/job_order', $data);
 	}
 	public function view($id) {
