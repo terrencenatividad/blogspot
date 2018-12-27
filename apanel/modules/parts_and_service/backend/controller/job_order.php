@@ -32,7 +32,7 @@ class controller extends wc_controller {
 			'linenum',
 			'h_warehouse'		=> 'warehouse',
 			'qty'				=> 'quantity',
-			'h_uom'				=> 'unit',
+			'h_uom'				=> 'uom',
 			'isbundle',
 			'parentline'
 		);
@@ -122,6 +122,7 @@ class controller extends wc_controller {
 		$this->view->title			= 'View Job Order';
 		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
+		$data						= (array) $this->job_order->getJOByID($this->fields, $id);
 		$data['ui']					= $this->ui;
 		$data['transactiondate']	= $this->date->dateFormat();
 		$data['targetdate']			= $this->date->dateFormat();
@@ -135,34 +136,7 @@ class controller extends wc_controller {
 		$data['header_values']		= json_encode(array(
 			''
 		));
-		$data['voucher_details']	= json_encode(
-			array(
-				'0'	=> array(
-					'itemcode' => 'SERVICE001 - L3608',
-					'detailparticular' => 'L3608',
-					'warehouse' => 'WH00003',
-					'quantity' => 2,
-					'uom' => 'PCS'
-				),
-				'1'	=> array(
-					'itemcode' => '1-494443 - Water Filter',
-					'detailparticular' => 'Water Filter',
-					'warehouse' => 'WH00003',
-					'quantity' => 3,
-					'uom' => 'PCS'
-				)
-			)
-		);
-		$data['reference']	= "0001";
-		$data['customerpo']	= "000008001";
-		$data['customer']	= "CUS_000008";
-
-		$data['t_vatable_sales']	= 180;
-		$data['t_vat_exempt_sales']	= 0;
-		$data['t_vatsales']			= 180;
-		$data['t_vat']				= 21.60;
-		$data['t_amount']			= 201.60;
-		$data['t_discount']			= 20.00;
+		$data['voucher_details']	= json_encode($this->job_order->getJobOrderDetails($this->fields2, $id));		
 
 		$data['ajax_task']			= 'ajax_view';
 		$data['ajax_post']			= '';
@@ -172,8 +146,8 @@ class controller extends wc_controller {
 		$data['close_date']			= $close_date;
 		$data['restrict_dr'] 		= false;
 
-		$data['voucherno']			= "JO0000000001";
-		$data['source_no']			= "SQ0000000001";
+		$data['job_order_no']			= $id;
+		// $data['service_quotation']		= "SQ0000000001";
 		$this->view->load('job_order/job_order', $data);
 	}
 	public function payment($id) {
@@ -193,26 +167,8 @@ class controller extends wc_controller {
 		$data['header_values']		= json_encode(array(
 			''
 		));
-		$data['voucher_details']	= json_encode(
-			array(
-				'0'	=> array(
-					'itemcode' => 'SERVICE001 - L3608',
-					'detailparticular' => 'L3608',
-					'warehouse' => 'APOLLO',
-					'orderqty' => 2,
-					'quantity' => 2,
-					'uom' => 'PCS'
-				),
-				'1'	=> array(
-					'itemcode' => '1-494443 - Water Filter',
-					'detailparticular' => 'Water Filter',
-					'warehouse' => 'APOLLO',
-					'orderqty' => 3,
-					'quantity' => 3,
-					'uom' => 'PCS'
-				)
-			)
-		);
+		$data['voucher_details']	= json_encode($this->job_order->getJobOrderDetails($this->fields2, $id));		
+		
 		$data['reference']	= "0001";
 		$data['customerpo']	= "000008001";
 		$data['customer']	= "CUS_000008";
@@ -383,7 +339,6 @@ class controller extends wc_controller {
 		$warehouse	= $this->input->post('warehouse');
 		$details	= $this->job_order->getServiceQuotationDetails($voucherno, $warehouse);
 		$header		= $this->job_order->getServiceQuotationHeader($this->fields_header, $voucherno);
-		// var_dump($details);
 
 		$table		= '';
 		$success	= true;
@@ -405,6 +360,7 @@ class controller extends wc_controller {
 		
 		$data = $this->input->post($this->fields);
 		$data['job_order_no'] = $job_order_no;
+		$data['stat']				= 'prepared';
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
 		// $data1 = $this->input->post($this->fields_header);
 		$data2 = $this->input->post($this->fields2);
