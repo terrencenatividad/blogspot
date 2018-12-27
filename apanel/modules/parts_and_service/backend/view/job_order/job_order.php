@@ -89,7 +89,7 @@
 												->setAttribute(array('readonly'))
 												->setAddon('search')
 												->setValue($service_quotation)
-												->setValidation('required')
+												//->setValidation('required')
 												->draw($show_input);
 										?>
 									</div>
@@ -139,13 +139,13 @@
 							
 							</tbody>
 							<tfoot class="summary">
-								<!-- <tr>
+								<tr>
 									<td colspan="6">
-										<?php if ($show_input): ?>
-											<button type="button" id="addNewItem" class="btn btn-link">Add a New Line</button>
+										<?php if( ($show_input) ): ?>
+											<button type="button" id="addNewItemJODetails" class="btn btn-link">Add a New Line</button>
 										<?php endif ?>
 									</td>
-								</tr> -->
+								</tr>
 							</tfoot>
 						</table>
 						<div id="header_values"></div>
@@ -589,13 +589,13 @@
 							echo $ui->formField('text')
 								->setName('uom[]')
 								->setSplit('', 'col-md-12')
-								->setValue('` + details.unit.toUpperCase() + `')
+								->setValue('` + details.uom.toUpperCase() + `')
 								->draw(false);
 
 							echo $ui->formField('hidden')
 								->setName('h_uom[]')
 								->setSplit('', 'col-md-12')
-								->setValue('` + details.unit.toUpperCase() + `')
+								->setValue('` + details.uom.toUpperCase() + `')
 								->draw($show_input);
 						?>
 					</td>
@@ -667,7 +667,7 @@
 						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
-								->setValue('` + details.unit.toUpperCase() + `')
+								->setValue('` + details.uom.toUpperCase() + `')
 								->draw(false);
 						?>
 					</td>
@@ -819,7 +819,7 @@
 	</script>
 	<?php if ($show_input): ?>
 	<script>
-		$('#addNewItem').on('click', function() {
+		$('#addNewItemJODetails').on('click', function() {
 			addVoucherDetails();
 		});
 		<?php // if ($ajax_task == 'ajax_create'): ?>
@@ -899,6 +899,7 @@
 			$('#service_quotation').val(so).trigger('blur');
 			$('#ordered_list_modal').modal('hide');
 			loadPackingListDetails();
+			document.getElementById('addNewItemJODetails').style.visibility = 'hidden';
 		});
 		function loadPackingListDetails() {
 			var voucherno = $('#service_quotation').val();
@@ -942,6 +943,7 @@
 					items += removeComma($(this).val());
 				});
 				if ($('.qty:not([readonly])').length > 0 && items > 0) {
+					console.log(form_element.serialize());
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
 						if (data.success) {
 							$('#delay_modal').modal('show');
