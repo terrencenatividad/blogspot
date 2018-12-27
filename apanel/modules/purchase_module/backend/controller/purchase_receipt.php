@@ -64,6 +64,18 @@ class controller extends wc_controller {
 		$this->clean_number		= array(
 			'receiptqty'
 		);
+
+		$this->serial_fields	= array(
+			'voucherno',
+			'source_no',
+			'itemcode',
+			'linenum',
+			'serial_no_list',
+			'engine_no_list',
+			'chassis_no_list',
+			'receiptqty',
+			'item_ident_flag'
+		);
 	}
 
 	public function listing() {
@@ -306,6 +318,8 @@ class controller extends wc_controller {
 		$data['voucherno']			= $seq->getValue('PR');
 		$data['transtype']			= $this->purchase_model->getTransactionType($data['source_no']);
 		$result						= $this->purchase_model->savePurchaseReceipt($data, $data2);
+		$serials					= $this->input->post($this->serial_fields);
+		$result2					= $this->purchase_model->saveSerialNumbers($serials,$data['voucherno']);
 		
 		if ($result && $this->financial_model) {
 			$this->financial_model->generateAP($data['voucherno']);
