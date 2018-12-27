@@ -172,7 +172,7 @@ class job_order_model extends wc_model
 		$this->db->setTable('job_order_details')
 					->setWhere("job_order_no = '$voucherno'")
 					->runDelete();
-					// var_dump($data);
+					 //var_dump($data);
 		$result = $this->db->setTable('job_order_details')
 							->setValuesFromPost($data)
 							->runInsert();

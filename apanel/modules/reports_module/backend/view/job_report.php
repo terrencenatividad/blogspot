@@ -451,8 +451,12 @@
                 $('.closed_job_total_credit').html(addComma(closed_ftotal_credit));
             });
             closed_finaltotal = closed_ftotal_debit - closed_ftotal_credit;
-            $('.closed_final_total').html(addComma(closed_finaltotal));
-
+            if(closed_finaltotal > 0) {
+                $('.closed_final_total').html(addComma(closed_finaltotal));
+            }
+            else {
+                $('.closed_final_total').html("("+Math.abs(addComma(closed_finaltotal))+")");
+            }
         });
     }
     var error_message 	=	'';	
@@ -510,7 +514,7 @@
                 encodeURIComponent(data.csv));
             fsum = 0;
             sum = 0;
-            $('.total_job').html(addComma(data.amountview));
+            $('.total_job').html((data.amountview));
             if (ajax.page > data.page_limit && data.page_limit > 0) {
                 ajax.page = data.page_limit;
                 showList();
@@ -523,36 +527,36 @@
     //showList();
     
     function getTotal() {
-        ajax_call = $.post('<?=MODULE_URL?>ajax/jobreport_listingTotal', ajax, function (data) {
-            // if (data) { 
-            //     $('#total_job').html(data.total);
-            // }
-         });
-        if($('#tableList tbody tr td.text-center').html() == 'No Records Found') {
-            $('.total_job').html(addComma('0.00'));
-        } else {
-            var pat = /\([\d]+\)/;
-            var sum = "";
-            $('#tableList tbody tr td a').find('.amount').each(function () {
-                // if ($(this).contains('(')) {
-                //     sum = $(this).html();
-                //     console.log(sum);
-                //     sum = sum.replace('(', '');
-                //     sum = sum.replace(')', '');
-                //     sum = sum - (sum*2);
+        // ajax_call = $.post('<?=MODULE_URL?>ajax/jobreport_listingTotal', ajax, function (data) {
+        //     // if (data) { 
+        //     //     $('#total_job').html(data.total);
+        //     // }
+        //  });
+        // if($('#tableList tbody tr td.text-center').html() == 'No Records Found') {
+        //     $('.total_job').html(addComma('0.00'));
+        // } else {
+        //     var pat = /\([\d]+\)/;
+        //     var sum = "";
+        //     $('#tableList tbody tr td a').find('.amount').each(function () {
+        //         // if ($(this).contains('(')) {
+        //         //     sum = $(this).html();
+        //         //     console.log(sum);
+        //         //     sum = sum.replace('(', '');
+        //         //     sum = sum.replace(')', '');
+        //         //     sum = sum - (sum*2);
                     
-                //     // res = sum.replace('a', "");
-                //     // sum = sum.replace('a', "");
+        //         //     // res = sum.replace('a', "");
+        //         //     // sum = sum.replace('a', "");
 
-                //     //console.log('with ( or )');
+        //         //     //console.log('with ( or )');
                     
-                // }
+        //         // }
 
-            sum = removeComma($(this).html());
-            fsum += +sum;
-            $('.total_job').html(addComma(fsum));
-        });
-        }
+        //     sum = removeComma($(this).html());
+        //     fsum += +sum;
+        //     $('.total_job').html(addComma(fsum));
+        // });
+        // }
     }
 
     function show_error(msg) {
