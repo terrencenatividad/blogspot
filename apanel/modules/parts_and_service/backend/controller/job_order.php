@@ -36,6 +36,18 @@ class controller extends wc_controller {
 			'isbundle',
 			'parentline'
 		);
+		$this->fields3			= array(
+			'job_order_no',
+			'jod.itemcode',
+			'detailparticular',
+			'linenum',
+			'warehouse',
+			'quantity',
+			'uom',
+			'isbundle',
+			'parentline',
+			'item_ident_flag'
+		);
 		$this->clean_number		= array(
 			'issueqty'
 		);
@@ -133,11 +145,9 @@ class controller extends wc_controller {
 		$data['warehouse_list']		= $this->job_order->getWarehouseList();
 		$data["taxrate_list"]		= $this->job_order->getTaxRateList();
 		$data["taxrates"]			= $this->job_order->getTaxRates();
-		$data['header_values']		= json_encode(array(
+		$data['voucher_details']	= json_encode($this->job_order->getJobOrderDetails($this->fields2, $id));$data['header_values']		= json_encode(array(
 			''
-		));
-		$data['voucher_details']	= json_encode($this->job_order->getJobOrderDetails($this->fields2, $id));		
-
+		));		
 		$data['ajax_task']			= 'ajax_view';
 		$data['ajax_post']			= '';
 		$data['show_input']			= false;
@@ -154,6 +164,7 @@ class controller extends wc_controller {
 		$this->view->title			= 'Job Order - Issue Parts';
 		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
+		$data						= (array) $this->job_order->getJOByID($this->fields, $id);
 		$data['ui']					= $this->ui;
 		$data['transactiondate']	= $this->date->dateFormat();
 		$data['targetdate']			= $this->date->dateFormat();
@@ -167,19 +178,8 @@ class controller extends wc_controller {
 		$data['header_values']		= json_encode(array(
 			''
 		));
-		$data['voucher_details']	= json_encode($this->job_order->getJobOrderDetails($this->fields2, $id));		
-		
-		$data['reference']	= "0001";
-		$data['customerpo']	= "000008001";
-		$data['customer']	= "CUS_000008";
-
-		$data['t_vatable_sales']	= 180;
-		$data['t_vat_exempt_sales']	= 0;
-		$data['t_vatsales']			= 180;
-		$data['t_vat']				= 21.60;
-		$data['t_amount']			= 201.60;
-		$data['t_discount']			= 20.00;
-
+		$data['voucher_details']	= json_encode($this->job_order->getJobOrder($this->fields3, $id));
+	
 		$data['ajax_task']			= 'ajax_view';
 		$data['ajax_post']			= '';
 		$data['show_input']			= false;
@@ -188,8 +188,6 @@ class controller extends wc_controller {
 		$data['close_date']			= $close_date;
 		$data['restrict_dr'] 		= false;
 
-		$data['voucherno']			= "JO0000000001";
-		$data['source_no']			= "SQ0000000001";
 		$this->view->load('job_order/job_order_payment', $data);
 	}
 	private function ajax_list() {
@@ -339,7 +337,7 @@ class controller extends wc_controller {
 		$warehouse	= $this->input->post('warehouse');
 		$details	= $this->job_order->getServiceQuotationDetails($voucherno, $warehouse);
 		$header		= $this->job_order->getServiceQuotationHeader($this->fields_header, $voucherno);
-
+		
 		$table		= '';
 		$success	= true;
 		if (empty($details)) {
@@ -355,6 +353,30 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_create() {
+		$seq 					= new seqcontrol();
+		$job_order_no 			= $seq->getValue("JO");
+		
+		$data = $this->input->post($this->fields);
+		$data['stat'] = 'prepared';
+		$data['job_order_no'] = $job_order_no;
+		$data['stat']				= 'prepared';
+		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
+		// $data1 = $this->input->post($this->fields_header);
+		$data2 = $this->input->post($this->fields2);
+		// $data2['job_order_no'] = $job_order_no;
+		// var_dump($data2);
+		// $result  = $this->job_order->saveValues('job_order',$data);
+		// $result1 = $this->job_order->saveFromPost('job_order_details', $data2, $data);
+
+		$result		= $this->job_order->saveJobOrder($data, $data2);
+		
+		return array(
+			'redirect' => MODULE_URL,
+			'success' => $result
+		);
+	}
+
+	private function ajax_view() {
 		$seq 					= new seqcontrol();
 		$job_order_no 			= $seq->getValue("JO");
 		
