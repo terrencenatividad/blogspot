@@ -424,7 +424,7 @@
                         $maxval = $row->receiptqty - $taggedqty[0]->count;
                     
                     if ($maxval) {
-                        $disable = 'disabled';
+                        $disable = '';
                     }
                     else
                         $disable = 'disabled';
