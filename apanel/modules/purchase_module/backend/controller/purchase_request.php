@@ -10,7 +10,7 @@ class controller extends wc_controller
 		$this->input            = new input();
 		$this->ui 			    = new ui();
 		$this->restrict 		= new purchase_restriction_model();
-		$this->view->title      = 'Purchase Request';
+		$this->view->title      = 'Purchase Requisition';
 		$this->show_input 	    = true;
 		$this->logs  			= new log;
 		$this->inventory_model	= $this->checkoutModel('inventory_module/inventory_model');
