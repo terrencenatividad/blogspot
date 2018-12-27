@@ -423,7 +423,7 @@
 		var ajax_call	= '';
 		var min_row		= 1;
 		function addVoucherDetails(details, index) {
-			var details = details || {itemcode: '', detailparticular: '', warehouse: '', qty: '0', uom: 'PCS', childqty : '0', linenum : '0', isbundle : 'No', parentline : '', parentcode : ''};
+			var details = details || {itemcode: '', detailparticular: '', warehouse: '', qty: '0', uom: 'PC', childqty : '0', linenum : '0', isbundle : 'No', parentline : '', parentcode : ''};
 			var other_details = JSON.parse(JSON.stringify(details));
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
@@ -905,6 +905,7 @@
 			$('#ordered_list_modal').modal('hide');
 			loadPackingListDetails();
 			document.getElementById('addNewItemJODetails').style.visibility = 'hidden';
+
 		});
 		function loadPackingListDetails() {
 			var voucherno = $('#service_quotation').val();
@@ -918,6 +919,9 @@
 						displayHeader(data.header);
 						$('.itemcode').prop('disabled','true');
 						$('.detailparticular').prop('readonly','true');
+						$('.qty').prop('readonly','true');
+						$('.warehouse').prop('disabled','true');
+						//$('#tableList tbody .warehouse').prop('disabled','true');
 					}
 				});
 			}
@@ -940,14 +944,16 @@
 			var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
 			recomputeAll();
 			
+			console.log(header_values);
+			
 			$('#submit_container [type="submit"]').attr('disabled', true);
 			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
 			if (form_element.find('.form-group.has-error').length == 0) {
 				var items = 0;
-				$('.qty:not([readonly])').each(function() {
+				$('.qty').each(function() {
 					items += removeComma($(this).val());
 				});
-				if ($('.qty:not([readonly])').length > 0 && items > 0) {
+				if ($('.qty').length > 0 && items > 0) {
 					console.log(form_element.serialize());
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
 						if (data.success) {

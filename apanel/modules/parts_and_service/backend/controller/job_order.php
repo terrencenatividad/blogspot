@@ -332,16 +332,16 @@ class controller extends wc_controller {
 	private function colorStat($stat) {
 		$color = 'default';
 		switch ($stat) {
-			case 'Pending':
+			case 'prepared':
 				$color = 'default';
 				break;
-			case 'Partial':
+			case 'partial':
 				$color = 'warning';
 				break;
-			case 'Cancelled':
+			case 'cancelled':
 				$color = 'danger';
 				break;
-			case 'With JO':
+			case 'completed':
 				$color = 'info';
 				break;
 		}
@@ -410,15 +410,33 @@ class controller extends wc_controller {
 		// $data1 = $this->input->post($this->fields_header);
 		$data2 = $this->input->post($this->fields2);
 		// $data2['job_order_no'] = $job_order_no;
-		// var_dump($data2);
+		//var_dump($data, $data2);
+
 		// $result  = $this->job_order->saveValues('job_order',$data);
 		// $result1 = $this->job_order->saveFromPost('job_order_details', $data2, $data);
 
+		$itemcodewosq					= $this->input->post('detail_itemcode');
+		if($data['service_quotation'] == '') {
+			$data2['itemcode']	= $itemcodewosq;
+		}
 		$result		= $this->job_order->saveJobOrder($data, $data2);
 		
 		return array(
 			'redirect' => MODULE_URL,
 			'success' => $result
 		);
+	}
+
+	private function ajax_delete() {
+		$delete_id = $this->input->post('delete_id');
+		if ($delete_id) {
+			$result		= $this->job_order->deleteJobOrder($delete_id);
+			if(empty($result)) {
+				$msg = "success";
+			}else {
+				$msg = $result;
+			}
+		}
+		return array('success' => $msg);
 	}
 }
