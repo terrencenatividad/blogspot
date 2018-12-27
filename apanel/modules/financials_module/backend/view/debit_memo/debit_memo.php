@@ -1076,11 +1076,9 @@ echo $ui->loadElement('modal')
 		
 		<?php if($ajax_task == 'ajax_edit') : ?>
 		var ctr = 0;
-		console.log(ctr);
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
 			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
-				console.log($(this).is(':checked'));
 				if($(this).is(':checked')) {
 					ctr++;
 					var get = $(this).val();
@@ -1092,7 +1090,7 @@ echo $ui->loadElement('modal')
 				} else {
 					$('#job_text').html(job.length);
 				}
-				if($(this).is(':checked') = '') {
+				if($(this).is(':checked') == 'false') {
 					$('#job_text').html('0');
 				}
 			});

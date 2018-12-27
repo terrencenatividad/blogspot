@@ -41,7 +41,6 @@
 								->setName('companyname')
 								->setId('companyname')
 								->setValue($companyname)
-								->setMaxLength(40)
 								->setValidation('special required')
 								->draw();
 						?>

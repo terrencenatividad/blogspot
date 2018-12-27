@@ -279,14 +279,14 @@ class billing_model extends wc_model {
 		if ($jo != '') {
 			$result		= $this->db->setTable('job_order')
 								->setFields('job_order_no, transactiondate, service_quotation')
-								->setWhere("customer = '$customer' AND stat NOT IN ('Paid','Cancelled') AND job_order_no NOT IN ($jo)". $condition)
+								->setWhere("customer = '$customer' AND stat = 'Completed' AND job_order_no NOT IN ($jo)". $condition)
 								->setOrderBy('job_order_no')
 								->runPagination();
 		}
 		else {
 			$result		= $this->db->setTable('job_order')
 								->setFields('job_order_no, transactiondate, service_quotation')
-								->setWhere("customer = '$customer' AND stat NOT IN ('Paid','Cancelled')". $condition)
+								->setWhere("customer = '$customer' AND stat = 'Completed'". $condition)
 								->setOrderBy('job_order_no')
 								->runPagination();
 		}

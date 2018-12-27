@@ -81,9 +81,19 @@
                 <td colspan = '12' class = 'text-center'>No Records Found</td>
                 </tr>";
             endif;
-            if($amountview = 0 ) {
-                $pagination->amountview = $amountview;
+            // if($amountview = 0 ) {
+            //     $pagination->amountview = $amountview;
+            // }
+            $amountnotif = '';
+            if($amountview > 0) {
+                $amountview = number_format($amountview,2);
+                $amountnotif = "positive";
+            }else {
+                $amountview = "(" .number_format((abs($amountview)),2) . ")";
+                $amountnotif = "negative";
             }
+            $pagination->amountnotif = $amountnotif;
+            $pagination->amountview = $amountview;
             $pagination->table 	= $table;
             $pagination->csv 	= $this->export_main();
             //var_dump($amountview);
@@ -107,6 +117,12 @@
                 foreach ($result->result as $key => $row){
     
                     $totalamount += $row->amount;
+                    $valuee = 0;
+                    if($row->amount > 0) {
+                        $valuee = number_format($row->amount,2);
+                    }else {
+                        $valuee = "(" .number_format((abs($row->amount)),2) . ")";
+                    }
                     $jstatus = '';
                     if($row->stat == 'on-going')
                     {
@@ -124,13 +140,18 @@
                     $csv .= '"' . $row->job_no . '",';
                     $csv .= '"' . $row->segment5 . '",';
                     $csv .= '"' . $row->accountname . '",';
-                    $csv .= '"' . number_format($row->amount,2) . '",';
+                    $csv .= '"' . $valuee . '",';
                     $csv .= '"' . $jstatus . '",';
                     $csv .= "\n";
                 }
             }
+            if($totalamount > 0) {
+                $totalamount = number_format($totalamount,2);
+            }else {
+                $totalamount = "(" .number_format((abs($totalamount)),2) . ")";
+            }
             
-            $csv .= '"","","Total ","'. number_format($totalamount,2) .'"';
+            $csv .= '"","","Total ","'. $totalamount .'"';
             return $csv;
         }
 
@@ -155,8 +176,8 @@
                     $table .= '<tr>';
                     $table .= '<td>' . $row->referenceList . '</td>';
                     $table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
-                    $table .= '<td class="tobesum text-right">' . number_format($row->debit,2) . '</td>';
-                    $table .= '<td class="tobesum2 text-right">' . number_format($row->credit,2) . '</td>';
+                    $table .= '<td class="tobesum text-right">' . number_format($row->converted_debit,2) . '</td>';
+                    $table .= '<td class="tobesum2 text-right">' . number_format($row->converted_credit,2) . '</td>';
                 }
             else:
                 $table .= "<tr>
@@ -185,8 +206,8 @@
                     $table .= '<tr>';
                     $table .= '<td>' . $row->voucherno . '</td>';
                     $table .= '<td>' . $row->accountname . '</td>';
-                    $table .= '<td class="closed_debit text-right">' . number_format($row->debit,2) . '</td>';
-                    $table .= '<td class="closed_credit text-right">' . number_format($row->credit,2) . '</td>';
+                    $table .= '<td class="closed_debit text-right">' . number_format($row->converted_debit,2) . '</td>';
+                    $table .= '<td class="closed_credit text-right">' . number_format($row->converted_credit,2) . '</td>';
                 }
             else:
                 $table .= "<tr>
