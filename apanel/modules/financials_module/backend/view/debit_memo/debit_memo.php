@@ -1092,7 +1092,7 @@ echo $ui->loadElement('modal')
 				} else {
 					$('#job_text').html(job.length);
 				}
-				if($(this).is(':checked') = '') {
+				if($(this).is(':checked') == 'false') {
 					$('#job_text').html('0');
 				}
 			});
