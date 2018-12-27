@@ -263,7 +263,6 @@
 					<h5 class="modal-title">Item Code: <input type = "text" id = "sec_itemcode"></h5>
 					<h5 class="modal-title">Description: <input type = "text" id = "sec_description"></h5>
 					<input type = "hidden" id  = "checkcount">
-					<input type = "hidden" id  = "type">
 				</div>
 				<div class="modal-body">
 					<div class="row">
@@ -397,7 +396,7 @@
 						?>
 						<?php if ($ajax_task != '') { ?>
 							<?php
-								echo $ui->formField('text')
+								echo $ui->formField('hidden')
 									->setName('serialnumbers[]')
 									->setClass('serialnumbers')
 									->setValue('` + details.serialnumbers + `')
@@ -975,7 +974,6 @@
 		function tagSerial(itemcode, description, serials, check_num, type, quantityleft) {
 			$('#serialModal').modal('show');
 			$('#serialModal #checkcount').val(check_num);
-			$('#serialModal #type').val(type);
 			$("#serialModal #sec_itemcode").val(itemcode).prop('disabled', 'disabled').css('border', 'white').css('background', 'white');
 			$("#serialModal #sec_description").val(description).prop('disabled', 'disabled').css('border', 'white').css('background', 'white');
 		}
@@ -1038,7 +1036,6 @@
 			allserials = [];
 			var count = 0;
 			var checkcount = $('#checkcount').val();
-			var itemtype = $('#type').val();
 			qtyleft =  removeComma(quantityleft);
 			$('#tableSerialList tbody tr input[type="checkbox"]:checked').each(function() {
 				count++;
@@ -1053,26 +1050,26 @@
 					$('#main_serial').val(allserials);
 				}	
 			});	
-			if (count != checkcount && itemtype =='itempart') {
+			if (count != checkcount && type =='itempart') {
 				$('#warning_counter .modal-body').html('Selected serial numbers must be equal to the required value.')
 				$('#warning_counter').modal('show');
 				$('#modal_close').hide();
 				$('#btn_close').hide();
 			}
-			else if (count > qtyleft && itemtype == 'mainitem') {
+			else if (count > qtyleft && type == 'mainitem') {
 				$('#warning_counter .modal-body').html('Selected serial numbers must not be more than the quantity left.')
 				$('#warning_counter').modal('show');
 				$('#modal_close').hide();
 				$('#btn_close').hide();
 			}
-			else if (count == 0 && itemtype == 'mainitem') {
+			else if (count == 0 && type == 'mainitem') {
 				$('#warning_counter .modal-body').html('There is no selected serial number.')
 				$('#warning_counter').modal('show');
 				$('#modal_close').hide();
 				$('#btn_close').hide();
 			}
 			else {
-				if (itemtype == 'mainitem') {
+				if (type == 'mainitem') {
 					itemrow.closest('tr').find('.issueqty').val(count);
 				}
 				$('#serialModal').modal('hide');	
