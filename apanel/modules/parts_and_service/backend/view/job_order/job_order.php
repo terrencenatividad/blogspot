@@ -89,7 +89,7 @@
 												->setAttribute(array('readonly'))
 												->setAddon('search')
 												->setValue($service_quotation)
-												->setValidation('required')
+												//->setValidation('required')
 												->draw($show_input);
 										?>
 									</div>
@@ -139,13 +139,13 @@
 							
 							</tbody>
 							<tfoot class="summary">
-								<!-- <tr>
+								<tr>
 									<td colspan="6">
-										<?php if ($show_input): ?>
-											<button type="button" id="addNewItem" class="btn btn-link">Add a New Line</button>
+										<?php if( ($show_input) ): ?>
+											<button type="button" id="addNewItemJODetails" class="btn btn-link">Add a New Line</button>
 										<?php endif ?>
 									</td>
-								</tr> -->
+								</tr>
 							</tfoot>
 						</table>
 						<div id="header_values"></div>
@@ -446,10 +446,12 @@
 					 ?>`;
 				}
 			}
-			// console.log(index);
+			// I added a condition that if details.linenum (retrieved data) is 0 (meaning, nothing was retrieved), the line number should refer to the passed index..
+			var linenum = (details.linenum != 0) ? details.linenum : index + 1; 
+			
 			var row = ``;
 			if(details.parentcode == ""){
-				var asd = 'parents'+details.linenum;
+				var asd = 'parents'+linenum;
 			}else{
 				var asd = 'subitem'+details.parentline;
 			}
@@ -459,7 +461,7 @@
 				var dsa = 'data-isbundle="0"';
 			}
 			row += `
-				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.qty+`" data-linenum="`+details.linenum+`">`;
+				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.qty+`" data-linenum="`+linenum+`">`;
 			row += `<td>
 						<?php
 							$value = "<span id='temp_view_itemcode_` + index + `'>` + details.itemcode + `</span>";
@@ -495,7 +497,7 @@
 							echo $ui->formField('hidden')
 								->setName('linenum[]')
 								->setClass('linenum')
-								->setValue('` + details.linenum + `')
+								->setValue('` + linenum + `')
 								->draw($show_input);
 						?>
 					</td>
@@ -520,14 +522,14 @@
 								->setClass('warehouse parent')
 								->setList($warehouse_list)
 								->setNone('Selected: None')
-								->setAttribute(array('data-linenum' => '` + (details.linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
 								->setValue($value)
 								->draw($show_input);
 
 							echo $ui->formField('hidden')
 								->setName('h_warehouse[]')
 								->setClass('h_warehouse parts warehouse')
-								->setAttribute(array('data-linenum' => '` + (details.linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
 								->setValue('` + details.warehouse + `')
 								->draw($show_input);
 						?> ` + otherdetails + ` </td>
@@ -542,14 +544,14 @@
 								->setClass('warehouse parts')
 								->setList($warehouse_list)
 								->setNone('Selected: None')
-								->setAttribute(array('disabled' => 'disabled', 'data-linenum' => '` + (details.linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setAttribute(array('disabled' => 'disabled', 'data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
 								->setValue('')
 								->draw($show_input);
 
 							echo $ui->formField('hidden')
 								->setName('h_warehouse[]')
 								->setClass('h_warehouse warehouse')
-								->setAttribute(array('data-linenum' => '` + (details.linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
 								->setValue('` + details.warehouse + `')
 								->draw($show_input);
 						?>` + otherdetails + ` </td>
@@ -589,13 +591,13 @@
 							echo $ui->formField('text')
 								->setName('uom[]')
 								->setSplit('', 'col-md-12')
-								->setValue('` + details.unit.toUpperCase() + `')
+								->setValue('` + details.uom.toUpperCase() + `')
 								->draw(false);
 
 							echo $ui->formField('hidden')
 								->setName('h_uom[]')
 								->setSplit('', 'col-md-12')
-								->setValue('` + details.unit.toUpperCase() + `')
+								->setValue('` + details.uom.toUpperCase() + `')
 								->draw($show_input);
 						?>
 					</td>
@@ -667,7 +669,7 @@
 						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
-								->setValue('` + details.unit.toUpperCase() + `')
+								->setValue('` + details.uom.toUpperCase() + `')
 								->draw(false);
 						?>
 					</td>
@@ -729,6 +731,7 @@
 			}
 			if (details.length > 0) {
 				details.forEach(function(details, index) {
+					console.log(index);
 					addVoucherDetails(details, index);
 				});
 			} else if (min_row == 0) {
@@ -819,8 +822,10 @@
 	</script>
 	<?php if ($show_input): ?>
 	<script>
-		$('#addNewItem').on('click', function() {
-			addVoucherDetails();
+		$('#addNewItemJODetails').on('click', function() {
+			var count_lines = $('#tableList tbody tr').length; // This is to count the initial rows on the table after clicking the add new line button
+			// console.log(" COUNT "+count_lines);
+			addVoucherDetails('',count_lines);
 		});
 		<?php // if ($ajax_task == 'ajax_create'): ?>
 		$('#service_quotation').on('focus', function() {
@@ -899,6 +904,7 @@
 			$('#service_quotation').val(so).trigger('blur');
 			$('#ordered_list_modal').modal('hide');
 			loadPackingListDetails();
+			document.getElementById('addNewItemJODetails').style.visibility = 'hidden';
 		});
 		function loadPackingListDetails() {
 			var voucherno = $('#service_quotation').val();
@@ -942,6 +948,7 @@
 					items += removeComma($(this).val());
 				});
 				if ($('.qty:not([readonly])').length > 0 && items > 0) {
+					console.log(form_element.serialize());
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
 						if (data.success) {
 							$('#delay_modal').modal('show');
