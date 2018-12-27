@@ -49,7 +49,7 @@
                                     ca.accountname,
                                     ca.segment5,
                                     ca.id,
-                                    (SUM(bt.debit) - SUM(bt.credit)) AS amount,
+                                    (SUM(bt.converted_debit) - SUM(bt.converted_credit)) AS amount,
                                     j.stat
                                     ');
 
@@ -102,7 +102,7 @@
                                     ca.accountname,
                                     ca.segment5,
                                     ca.id,
-                                    (SUM(bt.debit) - SUM(bt.credit)) AS amount,
+                                    (SUM(bt.converted_debit) - SUM(bt.converted_credit)) AS amount,
                                     j.stat
                                     ');
 
@@ -131,8 +131,8 @@
             $query = "SELECT
                             balance_table.voucherno,
                             balance_table.transactiondate,
-                            balance_table.debit,
-                            balance_table.credit
+                            balance_table.converted_debit,
+                            balance_table.converted_credit
                         FROM
                             balance_table
                         LEFT JOIN
@@ -147,8 +147,8 @@
                         SELECT
                             balance_table.voucherno,
                             balance_table.transactiondate,
-                            balance_table.debit,
-                            balance_table.credit
+                            balance_table.converted_debit,
+                            balance_table.converted_credit
                         FROM
                             balance_table
                         LEFT JOIN
@@ -159,7 +159,7 @@
                             balance_table.accountcode = '$code' AND balance_table.credit != 0.00 AND fj.job_no = '$jobno'";
 
             $result = 	$this->db->setTable("($query) main")
-                        ->setFields('main.voucherno AS referenceList,main.transactiondate,main.debit,main.credit')
+                        ->setFields('main.voucherno AS referenceList,main.transactiondate,main.converted_debit,main.converted_credit')
                         ->setOrderBy($sort)
                         ->runSelect(false)
                         ->getResult();
@@ -171,7 +171,7 @@
             $result = $this->db->setTable('job')
             ->setFields("distinct job.job_no ind, job.job_no val")
             ->leftJoin('financial_jobs as fj ON fj.job_no = job.job_no')
-            ->innerJoin('ap_details ON ap_details.voucherno = fj.voucherno AND ap_details.debit != 0.00')
+            ->innerJoin('balance_table ON balance_table.voucherno = fj.voucherno AND balance_table.converted_debit != 0.00')
             ->setWhere("job.job_no != '' AND job.stat != 'closed'")
             ->setOrderBy("val")
             ->runSelect()
@@ -189,8 +189,8 @@
             $query = "SELECT
                             bt.voucherno,
                             ca.accountname,
-                            bt.debit,
-                            bt.credit
+                            bt.converted_debit,
+                            bt.converted_credit
                         FROM
                             balance_table bt 
                         INNER JOIN 
@@ -198,15 +198,15 @@
                         left join 
                             financial_jobs fj on fj.voucherno = bt.voucherno
                         where
-                            fj.job_no = '$job_no' AND bt.debit != '' AND bt.transtype != 'DM'
+                            fj.job_no = '$job_no' AND bt.converted_debit != '' AND bt.transtype != 'DM'
                             
                         UNION
                         
                         SELECT
                             bt.voucherno,
                             ca.accountname,
-                            bt.debit,
-                            bt.credit
+                            bt.converted_debit,
+                            bt.converted_credit
                         FROM
                             balance_table bt 
                         INNER JOIN 
@@ -218,7 +218,7 @@
             ";
 
             $result = 	$this->db->setTable("($query) main")
-                        ->setFields('main.voucherno,main.accountname,main.debit,main.credit')
+                        ->setFields('main.voucherno,main.accountname,main.converted_debit,main.converted_credit')
                         ->setOrderBy($sort)
                         ->runSelect(false)
                         ->getResult();
@@ -262,7 +262,7 @@
                                     ca.accountname,
                                     ca.segment5,
                                     ca.id,
-                                    (SUM(bt.debit) - SUM(bt.credit)) AS amount,
+                                    (SUM(bt.converted_debit) - SUM(bt.converted_credit)) AS amount,
                                     j.stat
                                     ');
 
