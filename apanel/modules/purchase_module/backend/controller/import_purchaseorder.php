@@ -386,6 +386,7 @@ class controller extends wc_controller
 		$data["vat_type"] 		= $this->po->getOption("vat_type");
 		$data["tax_codes"] 		= $this->po->getTaxCode('VAT',"fstaxcode ind, shortname val");
 		$data["wtax_codes"] 	= $this->po->getTaxCode('WTX',"fstaxcode ind, shortname val");
+		$data['budget_list'] = $this->po->getBudgetCodes();
 
 		$curr_type_data         = array("currencycode ind", "currency val");
 		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');

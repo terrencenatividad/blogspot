@@ -30,6 +30,7 @@ class job_order_model extends wc_model
 	public function getItemList() {
 		$result = $this->db->setTable('items')
 						->setFields("itemcode ind, CONCAT(itemcode, ' - ', itemname) val")
+						//->setWhere("itemgroup = 'goods'")
 						->runSelect()
 						->getResult();
 
@@ -159,8 +160,11 @@ class job_order_model extends wc_model
 			if ($result) {
 				$this->log->saveActivity("Create Job Order [{$data['job_order_no']}]");
 			}
-
 			$result = $this->updateJobOrderDetails($data2, $data['job_order_no']);
+			if($result && $data['service_quotation'] != '') {
+				$result = $this->updateSQ($data['service_quotation']);
+				$this->log->saveActivity("Update Service Qoutation with JO [{$data['service_quotation']}]");
+			}
 		}
 
 
@@ -219,5 +223,35 @@ class job_order_model extends wc_model
 							->getResult();
 		return $result;
 	}
+	public function updateSQ($code)
+		{
+			$data['stat'] = 'With JO';
+			$condition 			   = " voucherno = '$code' ";
+
+			$result 			   = $this->db->setTable('servicequotation')
+												->setValues($data)
+												->setWhere($condition)
+												->setLimit(1)
+												->runUpdate();
+
+			return $result;
+		}
+
+	public function deleteJobOrder($data) {
+			$ids	= "'" . implode("','", $data) . "'";
+			$result	= $this->db->setTable('job_order')
+								->setValues(array('stat'=>'cancelled'))
+								->setWhere("job_order_no IN ($ids)")
+								->setLimit(count($data))
+								->runUpdate();
+			if ($result) {
+				if ($result) {
+					$log_id = implode(', ', $data);
+					$this->log->saveActivity("Delete Job Order [$log_id]");
+				}
+			}
+	
+			return $result;
+		}
 
 }
