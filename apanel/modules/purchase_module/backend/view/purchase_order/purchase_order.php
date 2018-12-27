@@ -250,7 +250,6 @@
 											->setId("budgetcode[".$row."]")
 											->setList($budget_list)
 											->setClass('budgetcode')
-											->setValidation('required')
 											->draw($show_input);
 											?>
 										</td>
@@ -403,7 +402,6 @@
 												->setId("budgetcode[".$row."]")
 												->setList($budget_list)
 												->setClass('budgetcode')
-												->setValidation('required')
 												->setValue($budgetcode)
 												->draw($show_input);
 												?>

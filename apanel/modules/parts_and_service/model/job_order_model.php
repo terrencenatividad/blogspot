@@ -176,7 +176,7 @@ class job_order_model extends wc_model
 		$this->db->setTable('job_order_details')
 					->setWhere("job_order_no = '$voucherno'")
 					->runDelete();
-					 //var_dump($data);
+					// var_dump($data);
 		$result = $this->db->setTable('job_order_details')
 							->setValuesFromPost($data)
 							->runInsert();
@@ -189,7 +189,7 @@ class job_order_model extends wc_model
 		$result = $this->db->setTable("job_order")
 							->setFields($fields)
 							->setWhere(1)
-							->setOrderBy('transactiondate ASC')
+							->setOrderBy('job_order_no DESC')
 							->runPagination();
 
 		return $result;
@@ -213,6 +213,16 @@ class job_order_model extends wc_model
 		return $result;
 	}
 
+	public function getJobOrder($fields, $voucherno) {
+		$result = $this->db->setTable('job_order_details jod')
+							->setFields($fields)
+							->leftJoin('items i ON i.itemcode = jod.itemcode')
+							->setWhere("job_order_no = '$voucherno'")
+							->setOrderBy('linenum')
+							->runSelect()
+							->getResult();
+		return $result;
+	}
 	public function updateSQ($code)
 		{
 			$data['stat'] = 'With JO';
