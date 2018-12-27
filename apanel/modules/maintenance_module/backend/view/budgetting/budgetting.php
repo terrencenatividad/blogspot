@@ -10,13 +10,6 @@
 						
 						<form class="form-horizontal form-group" method="POST" id="coaForm" autocomplete="off">
 							<div class="panel-body">
-								<?php if($ajax_task == 'ajax_edit') : ?>
-									<div class="row">
-										<div class="col-md-6">
-											<a class="btn btn-info" data-target = '#import-modal' data-toggle = "modal">Import</a>
-										</div>
-									</div>
-								<?php endif; ?>
 								<div class="row">
 									<?php if($ajax_task == 'ajax_edit') : ?>
 										<div class="col-md-6 hidden">
@@ -41,17 +34,17 @@
 											?>	
 										</div>
 									<?php endif; ?>
-										<div class="col-md-6 hidden">
-											<?
-											echo $ui->formField('text')
-											->setLabel('Budget Code ')
-											->setSplit('col-md-3', 'col-md-8')
-											->setName('v_total')
-											->setId('v_total')
-											->setValue($total)
-											->draw($show_input);	
-											?>	
-										</div>
+									<div class="col-md-6 hidden">
+										<?
+										echo $ui->formField('text')
+										->setLabel('Budget Code ')
+										->setSplit('col-md-3', 'col-md-8')
+										->setName('v_total')
+										->setId('v_total')
+										->setValue($total)
+										->draw($show_input);	
+										?>	
+									</div>
 									<div class="col-md-6">
 										<?
 										echo $ui->formField('dropdown')
@@ -171,40 +164,84 @@
 									</div>
 								</div>
 								<div class="container">
-									<div class="panel panel-default">
-										<div class="table-responsive">
-											<fieldset>
-												<div style = "height : 400px; overflow-y : scroll; overflow-x : hidden;">
-													<table class="table table-hover table-condensed " id="itemsTable">
-														<thead>
-															<tr class="info">
-																<th class="col-md-4 text-center">Account</th>
-																<th class="col-md-4 text-center">Description</th>
-																<th class="col-md-4 text-center">Amount</th>
-															</tr>
-														</thead>
-														<tbody>
-														</tbody>
-														<tfoot>
-															<tr>
-																<td></td>
-																<td></td>
-																<td><?
-																echo $ui->formField('text')
-																->setLabel('Total')
-																->setSplit('col-md-3', 'col-md-8')
-																->setName('total')
-																->setId('total')
-																->setClass('text-right input_label')
-																->setAttribute(array('readonly'))
-																->setValue($total)
-																->draw($show_input);	
-																?></td>
-															</tr>
-														</tfoot>
-													</table>
-												</div>
-											</fieldset>
+									<div class="nav-tabs-custom">
+										<?php if($ajax_task == 'ajax_view') : ?>
+											<ul id="filter_tabs" class="nav nav-tabs">
+												<li class="active"><a href="#Budgets" data-toggle="tab" data-id="Quarterly">Budgets</a></li>
+												<li><a href="#Supplements" data-toggle="tab" data-id="Monthly">Budget Supplements</a></li>
+											</ul>
+										<?php endif; ?>
+										<div class="panel panel-default">
+											<div class="table-responsive">
+												<fieldset>
+													<div class="tab-content no-padding">
+														<div id="Budgets" class="tab-pane table-responsive scroll active">
+															<div style = "height : 400px; overflow-y : scroll; overflow-x : hidden;">
+																<table class="table table-hover table-condensed " id="itemsTable">
+																	<thead>
+																		<tr class="info">
+																			<th class="col-md-4 text-center">Account</th>
+																			<th class="col-md-4 text-center">Description</th>
+																			<th class="col-md-4 text-center">Amount</th>
+																		</tr>
+																	</thead>
+																	<tbody>
+																	</tbody>
+																	<tfoot>
+																		<tr>
+																			<td></td>
+																			<td></td>
+																			<td><?
+																			echo $ui->formField('text')
+																			->setLabel('Total')
+																			->setSplit('col-md-3', 'col-md-8')
+																			->setName('total')
+																			->setId('total')
+																			->setClass('text-right input_label')
+																			->setAttribute(array('readonly'))
+																			->setValue($total)
+																			->draw($show_input);	
+																			?></td>
+																		</tr>
+																	</tfoot>
+																</table>
+															</div>
+														</div>
+														<div id="Supplements" class="tab-pane table-responsive scroll">
+															<div style = "height : 400px; overflow-y : scroll; overflow-x : hidden;">
+																<table class="table table-hover table-condensed " id="tableSupplement">
+																	<thead>
+																		<tr class="info">
+																			<th class="col-md-4 text-center">Account</th>
+																			<th class="col-md-4 text-center">Description</th>
+																			<th class="col-md-4 text-center">Amount</th>
+																		</tr>
+																	</thead>
+																	<tbody id = "view_supplements">
+																	</tbody>
+																	<tfoot>
+																		<tr>
+																			<td></td>
+																			<td></td>
+																			<td><?
+																			echo $ui->formField('text')
+																			->setLabel('Total')
+																			->setSplit('col-md-3', 'col-md-8')
+																			->setName('total_supplement')
+																			->setId('total_supplement')
+																			->setClass('text-right input_label')
+																			->setAttribute(array('readonly'))
+																			->setValue($total)
+																			->draw($show_input);	
+																			?></td>
+																		</tr>
+																	</tfoot>
+																</table>
+															</div>
+														</div>
+													</div>
+												</fieldset>
+											</div>
 										</div>
 									</div>
 								</div>
@@ -300,7 +337,7 @@
 								</div>
 							</div>
 						</div>
-						
+
 						<script>
 							$('#budget_center_code').on('change', function() {
 								$.post('<?=MODULE_URL?>ajax/ajax_get_approver', '&budget_code=' + $(this).val(), function(data) {
@@ -333,6 +370,15 @@
 								$(document).ready(function() {
 									$.post('<?=MODULE_URL?>ajax/ajax_get_accounts_edit','&budgetcode=' + '<?= $budget_code ?>' + '&ajax_task=' + '<?=$ajax_task?>', function(data) {
 										$('#itemsTable tbody').html(data.table);
+									});
+								});
+							<?php endif; ?>
+
+							<?php if($ajax_task == 'ajax_view') : ?>
+								$(document).ready(function() {
+									$.post('<?=MODULE_URL?>ajax/ajax_get_supplements_view','&budgetcode=' + '<?= $budget_code ?>' + '&ajax_task=' + '<?=$ajax_task?>', function(data) {
+										$('#tableSupplement tbody').html(data.table);
+										$('#total_supplement').html(addComma(data.total));
 									});
 								});
 							<?php endif; ?>

@@ -183,38 +183,6 @@ class controller extends wc_controller
 		$budget['total'] = str_replace(',', '', $post['v_total']);
 		$budget_details = $this->input->post($this->budget_details);
 		$budgetcode = $budget['budget_code'];
-		$permonth = 0;
-		$temp = array();
-		if($budget['budget_check'] == 'Monitored') {
-			if(!empty($budget_details['amount'])) {
-				for($i = 0; $i < count($budget_details['accountcode']); $i++) {
-					if(!empty($budget_details['amount'][$i])) {
-						$permonth = str_replace(',','',$budget_details['amount'][$i]) / 12;
-						$rounded = round($permonth);
-						$budgetreport['budget_code'] = $budget['budget_code'];
-						$budgetreport['accountcode'] = $budget_details['accountcode'][$i];
-						$budgetreport['january'] = $rounded;
-						$budgetreport['february'] = $rounded;
-						$budgetreport['march'] = $rounded;
-						$budgetreport['april'] = $rounded;
-						$budgetreport['may'] = $rounded;
-						$budgetreport['june'] = $rounded;
-						$budgetreport['july'] = $rounded;
-						$budgetreport['august'] = $rounded;
-						$budgetreport['september'] = $rounded;
-						$budgetreport['october'] = $rounded;
-						$budgetreport['november'] = $rounded;
-						$budgetreport['december'] = $rounded;
-						$temp[] = $budgetreport;
-					}
-				}
-			}
-		}
-
-		if($temp){
-			$savebudget = $this->budgetting->updateBudgetReport($budgetcode, $temp);
-		}
-
 		$result = $this->budgetting->updateBudget($budget, $id, $budgetcode);
 		$budget_details['budget_code'] = $budgetcode;
 		$budget_details['id'] = '';
@@ -268,7 +236,7 @@ class controller extends wc_controller
 				$show_button
 			)
 			->addOtherTask(
-				'Supplemental',
+				'Manage Budget Suppliments',
 				'plus-sign',
 				$show_supplemental
 			)
@@ -279,10 +247,10 @@ class controller extends wc_controller
 			
 			$table .= '<tr>';
 			$table .= '<td align = "center">' . $dropdown . '</td>';
-			$table .= '<td>' . $row->budget_code . '</td>';
+			$table .= '<td class = "budgetcode">' . $row->budget_code . '</td>';
 			$table .= '<td>' . $row->budgetdesc . '</td>';
 			$table .= '<td>' . $row->budget_type . '</td>';
-			$table .= '<td>' . $row->budget_check . '</td>';
+			$table .= '<td class = "budgetcheck">' . $row->budget_check . '</td>';
 			$table .= '<td>' . $row->owner . '</td>';
 			$table .= '<td>' . $row->prepared_by . '</td>';
 			$table .= '<td>' . $this->colorStat($row->status) . '</td>';
@@ -329,7 +297,7 @@ class controller extends wc_controller
 			->setName('amount[]')
 			->setId('amount')
 			->setClass('text-right')
-			->setValidation('integer')
+			->setValidation('decimal')
 			->draw(true);
 			'</td>';
 			$table .= '</tr>';
@@ -381,13 +349,52 @@ class controller extends wc_controller
 			->setId('amount')
 			->setClass('text-right')
 			->setValue(number_format($row->amount,2))
-			->setValidation('integer')
+			->setValidation('decimal')
 			->draw($show_input);
 			'</td>';
 			$table .= '</tr>';
 		}
 
 		return array('table' => $table);
+	}
+
+	private function ajax_get_supplements_view() {
+		$budgetcode	= $this->input->post('budgetcode');
+		$list = $this->budgetting->getSupplementAccounts($budgetcode);
+		$table = '';
+		$total = 0;
+		foreach($list as $row) {			
+			$table .= '<tr>';
+			$table .= '<td>' .$this->ui->formField('text')
+			->setSplit('col-md-3', 'col-md-12')
+			->setName('accountname[]')
+			->setId('accountname')
+			->setValue($row->accountname)
+			->setAttribute(array('readonly'))
+			->draw(false); 
+			'</td>';
+			$table .= '<td>' .$this->ui->formField('text')
+			->setSplit('col-md-3', 'col-md-12')
+			->setName('description[]')
+			->setId('description')
+			->setValue($row->description)
+			->draw(false); 
+			'</td>';
+			$table .= '<td>' . 
+			$this->ui->formField('text')
+			->setSplit('col-md-3', 'col-md-12')
+			->setName('amount[]')
+			->setId('amount_view')
+			->setClass('text-right')
+			->setValue(number_format($row->amount,2))
+			->setValidation('decimal')
+			->draw(false); 
+			'</td>';
+			$table .= '</tr>';
+			$total += $row->amount;
+		}
+
+		return array('table' => $table, 'total' => $total);
 	}
 
 	public function ajax_delete() {
@@ -430,6 +437,9 @@ class controller extends wc_controller
 			$username = $get['username'];
 			if($username == $approver) {
 				$fields['status'] = $status;
+				if($status == 'approved') {
+					$v = $this->budgetting->saveBudgetReport($id);
+				}
 				$fields['approved_by'] = $username;
 				$result = $this->budgetting->updateBudgetStatus($fields, $id);
 			} else {
@@ -444,6 +454,112 @@ class controller extends wc_controller
 			$code = $this->input->post('budget_code');
 			$get_approver = $this->budgetting->getApproverName($code);
 			return $get_approver;
+		}
+
+		private function ajax_get_budget_accounts() {
+			$id = $this->input->post('id');
+			$getaccounts = $this->budgetting->getBudgetAccountsOnSupplement($id);
+			$ret = '';
+			foreach ($getaccounts as $row) {
+				$in  = $row->ind;
+				$val = $row->val;
+				$ret .= "<option value=". $in.">" .$val. "</option>";
+			}
+			return $ret;
+		}
+
+		private function ajax_get_supplements() {
+			$id = $this->input->post('id');
+			$pagination = $this->budgetting->getBudgetSupplements($id);
+			$table = '';
+			if (empty($pagination->result)) {
+				$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+			}
+			foreach($pagination->result as $row) {
+				$status = ($row->status == 'for approval');
+				$dropdown = $this->ui->loadElement('check_task')
+				->addOtherTask(
+					'Edit Supplement',
+					'pencil',
+					$status
+				)
+				->addOtherTask(
+					'Delete Supplement',
+					'trash',
+					$status
+				)
+				->addOtherTask(
+					'Approve Supplement',
+					'thumbs-up',
+					$status
+				)
+				->addOtherTask(
+					'Reject Supplement',
+					'thumbs-down',
+					$status
+				)
+				->setValue($row->id)
+				->draw();
+				$dropdown = ($row->status == 'for approval') ? $dropdown : '';
+
+				$table .= '<tr>';
+				$table .= '<td align = "center">' . $dropdown . '</td>';
+				$table .= '<td>' . $row->accountname . '</td>';
+				$table .= '<td>' . $row->description . '</td>';
+				$table .= '<td>' . $row->amount . '</td>';
+				$table .= '<td>' . $this->colorStat($row->status) . '</td>';
+				$table .= '</tr>';
+			}
+			$pagination->table = $table;
+			return $pagination;
+		}
+
+		private function ajax_save_supplement() {
+			$supplements = $this->input->post();
+			$supplements['amount'] = str_replace(',', '', $supplements['amount']);
+			$result = $this->budgetting->saveSupplement($supplements);
+			return $result;
+		}
+
+		private function ajax_delete_supplement() {
+			$id = $this->input->post('delete_id');
+			$result = $this->budgetting->deleteSupplement($id);
+			return $result;
+		}
+
+		private function ajax_edit_supplement() {
+			$id = $this->input->post('edit_id');
+			$result = $this->budgetting->getSupplementValues($id);
+			return $result;
+		}
+
+		private function ajax_save_edit_supplement() {
+			$id = $this->input->post('edit_id');
+			$post = $this->input->post();
+			$fields['accountcode'] = $post['code_edit'];
+			$fields['description'] = $post['description_edit'];
+			$fields['amount'] = str_replace(',','',$post['amount_edit']);
+			$result = $this->budgetting->updateSupplement($id, $fields);
+			return $result;
+		}
+
+		private function ajax_update_approve_status_supplement() {
+			$id = $this->input->post('budget_id');
+			$arr = array('status');
+			$fields = $this->input->post($arr);
+			$fields['status'] = 'approved';
+			$savereport = $this->budgetting->saveBudgetReportSupplement($id);
+			$result = $this->budgetting->updateSupplementAppove($id, $fields);
+			return $result;
+		}
+
+		private function ajax_update_reject_status_supplement() {
+			$id = $this->input->post('budget_id');
+			$arr = array('status');
+			$fields = $this->input->post($arr);
+			$fields['status'] = 'rejected';
+			$result = $this->budgetting->updateSupplementReject($id, $fields);
+			return $result;
 		}
 
 	// activate/deactivate
