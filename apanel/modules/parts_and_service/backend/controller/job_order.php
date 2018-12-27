@@ -32,7 +32,7 @@ class controller extends wc_controller {
 			'linenum',
 			'h_warehouse'		=> 'warehouse',
 			'qty'				=> 'quantity',
-			'h_uom'				=> 'unit',
+			'h_uom'				=> 'uom',
 			'isbundle',
 			'parentline'
 		);
@@ -114,7 +114,7 @@ class controller extends wc_controller {
 		// Closed Date
 		$close_date 				= $this->parts_and_service->getClosedDate();
 		$data['close_date']			= $close_date;
-		$data['restrict_dr'] 		= false;
+		$data['restrict_dr'] 		= true;
 		
 		$this->view->load('job_order/job_order', $data);
 	}
@@ -404,6 +404,7 @@ class controller extends wc_controller {
 		$job_order_no 			= $seq->getValue("JO");
 		
 		$data = $this->input->post($this->fields);
+		$data['stat'] = 'prepared';
 		$data['job_order_no'] = $job_order_no;
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
 		// $data1 = $this->input->post($this->fields_header);
