@@ -140,7 +140,7 @@
                         INNER JOIN
                             job ON fj.job_no = job.job_no
                         WHERE
-                            balance_table.accountcode = '$code' AND balance_table.debit != 0.00 AND fj.job_no = '$jobno'
+                            balance_table.accountcode = '$code' AND balance_table.converted_debit != 0.00 AND fj.job_no = '$jobno'
                             
                         UNION
                         
@@ -156,7 +156,7 @@
                         INNER JOIN
                             job ON fj.job_no = job.job_no
                         WHERE
-                            balance_table.accountcode = '$code' AND balance_table.credit != 0.00 AND fj.job_no = '$jobno'";
+                            balance_table.accountcode = '$code' AND balance_table.converted_credit != 0.00 AND fj.job_no = '$jobno'";
 
             $result = 	$this->db->setTable("($query) main")
                         ->setFields('main.voucherno AS referenceList,main.transactiondate,main.converted_debit,main.converted_credit')
@@ -214,7 +214,7 @@
                         left join 
                             financial_jobs fj on fj.voucherno = bt.voucherno
                         where
-                            fj.job_no = '$job_no' AND bt.credit != '' AND bt.transtype = 'DM'
+                            fj.job_no = '$job_no' AND bt.converted_credit != '' AND bt.transtype = 'DM'
             ";
 
             $result = 	$this->db->setTable("($query) main")
