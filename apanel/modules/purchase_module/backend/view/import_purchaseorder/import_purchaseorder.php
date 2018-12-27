@@ -310,7 +310,6 @@
 											->setId("budgetcode[".$row."]")
 											->setClass('budgetcode')
 											->setList($budget_list)
-											->setValidation('required')
 											->setValue("")
 											->draw($show_input);
 											?>
@@ -509,7 +508,6 @@
 												->setId("budgetcode[".$row."]")
 												->setClass('budgetcode')
 												->setList($budget_list)
-												->setValidation('required')
 												->setValue($budgetcode)
 												->draw($show_input);
 												?>
