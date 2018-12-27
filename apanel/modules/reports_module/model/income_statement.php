@@ -14,10 +14,10 @@ class income_statement extends wc_model {
 
 	private function getPeriodStart() {
 		$result = $this->db->setTable('company')
-							->setFields(array('taxyear', "MONTH(STR_TO_DATE(periodstart,'%b')) periodstart"))
-							->setLimit(1)
-							->runSelect()
-							->getRow();
+		->setFields(array('taxyear', "MONTH(STR_TO_DATE(periodstart,'%b')) periodstart"))
+		->setLimit(1)
+		->runSelect()
+		->getRow();
 
 		if ($result->taxyear == 'fiscal') {
 			$this->period = $result->periodstart;
@@ -86,44 +86,54 @@ class income_statement extends wc_model {
 
 	public function getRecords($start, $end) {
 		$filter = " AND (bt.transactiondate >= '$start' AND bt.transactiondate <= '$end') ";
+		$filter2 = " AND (b.transactiondate >= '$start' AND b.transactiondate <= '$end') ";
 		$result =  $this->db->setTable('balance_table as bt')
-							->setFields("ca.accountnature parentnature, ca.accountclasscode as accountclasscode, bt.accountcode as accountcode, ca.accountname as accountname, bt.transactiondate as transactiondate, SUM(bt.debit) as debit, SUM(bt.credit) as credit, ca.parentaccountcode as parent, ca.accountnature as accountnature")
-							->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
-							->setWhere("ca.fspresentation = 'IS' AND ca.accountclasscode IN('REV','REVENU') AND bt.source != 'closing' $filter")
-							->setGroupBy('bt.accountcode')
-							->setOrderBy("bt.accountcode")
-							->runSelect()
-							->getResult();
+		->setFields("ca.accountnature parentnature, ca.accountclasscode as accountclasscode, bt.accountcode as accountcode, ca.accountname as accountname, bt.transactiondate as transactiondate, SUM(bt.debit) as debit, SUM(bt.credit) as credit, ca.parentaccountcode as parent, ca.accountnature as accountnature")
+		->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
+		->setWhere("ca.fspresentation = 'IS' AND ca.accountclasscode IN('REV','REVENU') AND bt.source != 'closing' $filter")
+		->setGroupBy('bt.accountcode')
+		->setOrderBy("bt.accountcode")
+		->runSelect()
+		->getResult();
 
 		$result1 =  $this->db->setTable('balance_table bt')
-							->setFields("ca.accountnature parentnature, ca.accountclasscode as accountclasscode, bt.accountcode as accountcode,ca.accountname as accountname, bt.transactiondate as transactiondate, SUM(bt.debit) as debit, SUM(bt.credit) as credit, ca.parentaccountcode as parent, ca.accountnature as accountnature")
-							->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
-							->setWhere("ca.fspresentation = 'IS' AND ca.accountclasscode IN('OTHINC','OTRINC') AND bt.source != 'closing' $filter")
-							->setGroupBy('bt.accountcode')
-							->setOrderBy("bt.accountcode")
-							->runSelect()
-							->getResult();
+		->setFields("ca.accountnature parentnature, ca.accountclasscode as accountclasscode, bt.accountcode as accountcode,ca.accountname as accountname, bt.transactiondate as transactiondate, SUM(bt.debit) as debit, SUM(bt.credit) as credit, ca.parentaccountcode as parent, ca.accountnature as accountnature")
+		->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
+		->setWhere("ca.fspresentation = 'IS' AND ca.accountclasscode IN('OTHINC','OTRINC') AND bt.source != 'closing' $filter")
+		->setGroupBy('bt.accountcode')
+		->setOrderBy("bt.accountcode")
+		->runSelect()
+		->getResult();
 
 		$result2 =  $this->db->setTable('balance_table bt')
-							->setFields("ca.accountnature parentnature, ca.accountclasscode as accountclasscode, bt.accountcode as accountcode,ca.accountname as accountname, bt.transactiondate as transactiondate, SUM(bt.debit) as debit, SUM(bt.credit) as credit, ca.parentaccountcode as parent, ca.accountnature as accountnature")
-							->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
-							->setWhere("ca.fspresentation = 'IS' AND ca.accountclasscode IN('COST','COSTSA') AND bt.source != 'closing' $filter")
-							->setGroupBy('bt.accountcode')
-							->setOrderBy("bt.accountcode")
-							->runSelect()
-							->getResult();
+		->setFields("ca.accountnature parentnature, ca.accountclasscode as accountclasscode, bt.accountcode as accountcode,ca.accountname as accountname, bt.transactiondate as transactiondate, SUM(bt.debit) as debit, SUM(bt.credit) as credit, ca.parentaccountcode as parent, ca.accountnature as accountnature")
+		->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
+		->setWhere("ca.fspresentation = 'IS' AND ca.accountclasscode IN('COST','COSTSA') AND bt.source != 'closing' $filter")
+		->setGroupBy('bt.accountcode')
+		->setOrderBy("bt.accountcode")
+		->runSelect()
+		->getResult();
 
 		$result3 =  $this->db->setTable('balance_table bt')
-							->setFields("ca.accountnature parentnature, ca.accountclasscode as accountclasscode, bt.accountcode as accountcode,ca.accountname as accountname, bt.transactiondate as transactiondate, SUM(bt.debit) as debit, SUM(bt.credit) as credit, ca.parentaccountcode as parent, ca.accountnature as accountnature")
-							->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
-							->setWhere("ca.fspresentation = 'IS' AND ca.accountclasscode IN('EXP','OPSEXP','OTREXP') $filter")
-							->setGroupBy('bt.accountcode')
-							->setOrderBy("bt.accountcode")
-							->runSelect()
-							->getResult();
-							
-							
-		return array_merge($result, $result1, $result2, $result3);
+		->setFields("ca.accountnature parentnature, ca.accountclasscode as accountclasscode, bt.accountcode as accountcode,ca.accountname as accountname, bt.transactiondate as transactiondate, SUM(bt.debit) as debit, SUM(bt.credit) as credit, ca.parentaccountcode as parent, ca.accountnature as accountnature")
+		->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
+		->setWhere("ca.fspresentation = 'IS' AND ca.accountclasscode IN('EXP','OPSEXP','OTREXP') $filter")
+		->setGroupBy('bt.accountcode')
+		->setOrderBy("bt.accountcode")
+		->runSelect()
+		->getResult();
+
+		$result4 =  $this->db->setTable('budget b')
+		->setFields("ca.accountnature parentnature, ca.accountclasscode as accountclasscode, bd.accountcode as accountcode,ca.accountname as accountname, b.transactiondate as transactiondate, 0 as debit, SUM(bd.amount) as credit, ca.parentaccountcode as parent, ca.accountnature as accountnature")
+		->leftJoin('budget_details as bd ON bd.budget_code = b.budget_code')
+		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
+		->setWhere("ca.fspresentation IN('IS','BS') AND ca.accountclasscode IN('REV','REVENU','OTHINC','OTRINC','COST','COSTSA','EXP','OPSEXP','OTREXP') AND bd.amount != 0 $filter2")
+		->setGroupBy('bd.accountcode')
+		->setOrderBy("bd.accountcode")
+		->runSelect(false)
+		->getResult();
+
+		return array_merge($result, $result1, $result2, $result3, $result4);
 	}
 
 	public function getYearList($year_now) {
@@ -146,7 +156,7 @@ class income_statement extends wc_model {
 		$cost_array 	= array('COST','COSTSA');
 		$exp_array 		= array('EXP','OPSEXP','OTREXP');
 		$inc_array 		= array('INCTAX');
-			
+
 		$data_key = 0;
 		
 		foreach ($data as $key => $val) {

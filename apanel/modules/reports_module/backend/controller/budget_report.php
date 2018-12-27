@@ -7,13 +7,14 @@ class controller extends wc_controller {
 		$this->input				= new input();
 		$this->budget_report				= new budget_report_model();
 		$this->view->header_active	= 'report/';
+
 	}
 
 	public function view() {
-		$this->view->title		= 'Budget Variance Report';
+		$this->view->title		= 'Budget Report';
 		$data['ui']				= $this->ui;
 		$data['datefilter']		= date("M d, Y");
-		$data['costcenter_list']	= $this->budget_report->getCostCenterList();
+		$data['budgetcenter_list']	= $this->budget_report->getBudgetCodeList();
 		$this->view->load('budget_report', $data);
 	}
 
@@ -26,22 +27,37 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_list() {
-		$data			= $this->input->post(array('costcenter', 'budget_type'));
+		$data			= $this->input->post(array('budgetcode'));
 		extract($data);
 
-		$pagination		= $this->budget_report->getBudgetList($costcenter, $budget_type);
+		$pagination		= $this->budget_report->getBudgetReportList($budgetcode);
 
 		$table		= '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
+			$total = $row->january * 12;
 			$table .= '<tr>';
-			$table .= '<td>' . $row->accountcode . '</td>';
-			$table .= '<td>' . $row->description . '</td>';
-			$table .= '<td class = "amount">' . number_format($row->amount, 2) . '</td>';
-			$table .= '<td class = "actual">' . number_format($row->actual, 2) . '</td>';
-			$table .= '<td class = "variance">' . number_format($row->variance, 2) . '</td>';
+			$table .= '<td>' . $row->accountname . '</td>';
+			$table .= '<td>' . $row->budget_code . '</td>';
+			$table .= '<td>' . number_format($row->january, 2) . '</td>';
+			$table .= '<td>' . number_format($row->february, 2) . '</td>';
+			$table .= '<td>' . number_format($row->march, 2) . '</td>';
+			$table .= '<td>' . number_format($row->april, 2) . '</td>';
+			$table .= '<td>' . number_format($row->may, 2) . '</td>';
+			$table .= '<td>' . number_format($row->june, 2) . '</td>';
+			$table .= '<td>' . number_format($row->july, 2) . '</td>';
+			$table .= '<td>' . number_format($row->august, 2) . '</td>';
+			$table .= '<td>' . number_format($row->september, 2) . '</td>';
+			$table .= '<td>' . number_format($row->october, 2) . '</td>';
+			$table .= '<td>' . number_format($row->november, 2) . '</td>';
+			$table .= '<td>' . number_format($row->december, 2) . '</td>';
+			$table .= '</tr>';
+			$table .= '<tr>';
+			$table .= '<td colspan = "12"></td>';
+			$table .= '<td><b>Total</b></td>';
+			$table .= '<td><b>' .$total. '</b></td>';
 			$table .= '</tr>';
 		}
 
@@ -51,17 +67,26 @@ class controller extends wc_controller {
 	}
 
 	private function get_export() {
-		$data			= $this->input->post(array('costcenter', 'budget_type'));
+		$data			= $this->input->post(array('budgetcode'));
 		extract($data);
 
-		$result			= $this->budget_report->getBudgetReportExport($costcenter, $budget_type);
+		$result			= $this->budget_report->getBudgetReportExport($budgetcode);
 
 		$header = array(
-			'Account Code',
-			'Description',
-			'Budget',
-			'Actual',
-			'Variance'
+			'Account Name',
+			'Budget Code',
+			'January',
+			'February',
+			'March',
+			'April',
+			'May',
+			'June',
+			'July',
+			'August',
+			'September',	
+			'October',
+			'November',
+			'December'
 		);
 
 		$csv = '';
@@ -71,11 +96,20 @@ class controller extends wc_controller {
 		}
 		foreach ($result as $key => $row) {
 			$csv .= "\n";
-			$csv .= '"' . $row->accountcode . '",';
-			$csv .= '"' . $row->description . '",';
-			$csv .= '"' . $row->amount . '",';
-			$csv .= '"' . $row->actual . '",';
-			$csv .= '"' . $row->variance . '",';
+			$csv .= '"' . $row->accountname . '",';
+			$csv .= '"' . $row->budget_code . '",';
+			$csv .= '"' . $row->january . '",';
+			$csv .= '"' . $row->february . '",';
+			$csv .= '"' . $row->march . '",';
+			$csv .= '"' . $row->april . '",';
+			$csv .= '"' . $row->may . '",';
+			$csv .= '"' . $row->june . '",';
+			$csv .= '"' . $row->july . '",';
+			$csv .= '"' . $row->august . '",';
+			$csv .= '"' . $row->september . '",';
+			$csv .= '"' . $row->october . '",';
+			$csv .= '"' . $row->november . '",';
+			$csv .= '"' . $row->december . '",';
 		}
 		
 		return $csv;

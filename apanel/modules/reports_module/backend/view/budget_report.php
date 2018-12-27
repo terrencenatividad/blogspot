@@ -6,25 +6,14 @@
 					<?php
 					echo $ui->formField('dropdown')
 					->setPlaceholder('Filter Cost Center')
-					->setName('costcenter')
-					->setId('costcenter')
-					->setList($costcenter_list)
+					->setName('budgetcode')
+					->setId('budgetcode')
+					->setList($budgetcenter_list)
 					->setNone('Filter: All')
 					->draw();
 					?>
 				</div>
-				<div class="col-md-3">
-					<?php
-					echo $ui->formField('dropdown')
-					->setPlaceholder('Filter Budget Type')
-					->setName('budget_type')
-					->setId('budget_type')
-					->setList(array('BS' => 'Balance Sheet', 'IS' => 'Income Statement'))
-					->setNone('Filter: All')
-					->draw();
-					?>
-				</div>
-				<div class="col-md-3"></div>
+				<div class="col-md-6"></div>
 				<div class="col-md-3 text-right">
 					<a href="" id="export_csv" download="Budget_Report.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 				</div>
@@ -35,24 +24,25 @@
 			<table id="tableList" class="table table-hover table-striped table-sidepad">
 				<thead>
 					<tr class="info">
-						<th class="col-md-1">Code</th>
-						<th class="col-md-2">Description</th>
-						<th class="col-md-2">Budget</th>
-						<th class="col-md-2">Actual</th>
-						<th class="col-md-1">Variance</th>
+						<th class="col-md-1">Account Name</th>
+						<th class="col-md-1">Budget Code</th>
+						<th class="col-md-1">January</th>
+						<th class="col-md-1">February</th>
+						<th class="col-md-1">March</th>
+						<th class="col-md-1">April</th>
+						<th class="col-md-1">May</th>
+						<th class="col-md-1">June</th>
+						<th class="col-md-1">July</th>
+						<th class="col-md-1">August</th>
+						<th class="col-md-1">September</th>
+						<th class="col-md-1">October</th>
+						<th class="col-md-1">November</th>
+						<th class="col-md-1">December</th>
 					</tr>
 				</thead>
 				<tbody>
 
 				</tbody>
-				<tfoot>
-					<tr>
-						<td colspan = "2"></td>
-						<td><b>Total : </b><span class = "total_budget"></span></td>
-						<td><b>Total : </b><span class = "total_actual"></span></td>
-						<td><b>Total : </b><span class="total_variance"></span></td>
-					</tr>
-				</tfoot>
 			</table>
 		</div>
 	</div>
@@ -69,42 +59,9 @@
 			$('#tableList tfoot').html(data.footer);
 			$('#pagination').html(data.pagination);
 			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
-			totalBudget();
-			totalActual();
-			totalVariance();
 		});
 	}
 	getList();
-
-	function totalBudget() {
-		var total = 0;
-		var amount = 0;
-		$('#tableList tbody tr td.amount').each(function(index,value) {
-			amount = removeComma($(this).html());
-			total += amount;
-			$('td .total_budget').html(addComma(total));
-		});
-	}
-
-	function totalActual() {
-		var total = 0;
-		var amount = 0;
-		$('#tableList tbody tr td.actual').each(function(index,value) {
-			amount = removeComma($(this).html());
-			total += amount;
-			$('td .total_actual').html(addComma(total));
-		});
-	}
-
-	function totalVariance() {
-		var total = 0;
-		var amount = 0;
-		$('#tableList tbody tr td.variance').each(function(index,value) {
-			amount = removeComma($(this).html());
-			total += amount;
-			$('td .total_variance').html(addComma(total));
-		});
-	}
 
 	$('#pagination').on('click', 'a', function(e) {
 		e.preventDefault();
@@ -112,24 +69,11 @@
 		if (li.not('.active').length && li.not('.disabled').length) {
 			ajax.page = $(this).attr('data-page');
 			getList();
-			totalBudget();
-			totalActual();
-			totalVariance();
 		}
 	});
 
-	$("#costcenter").on("change",function(){
-		ajax.costcenter = $(this).val();
+	$("#budgetcode").on("change",function(){
+		ajax.budgetcode = $(this).val();
 		getList();
-		totalBudget();
-		totalActual();
-		totalVariance();
-	});
-	$("#budget_type").on("change",function(){
-		ajax.budget_type = $(this).val();
-		getList();
-		totalBudget();
-		totalActual();
-		totalVariance();
 	});
 </script>
