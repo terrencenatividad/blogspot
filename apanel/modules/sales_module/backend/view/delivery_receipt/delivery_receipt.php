@@ -314,7 +314,7 @@
 					<h4 class="modal-title">Oooops!</h4>
 				</div>
 				<div class="modal-body">
-					Selected serial numbers must be equal to the required value.
+					
 				</div>
 				<div class="modal-footer">
 					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
@@ -451,6 +451,13 @@
 									->setValue('` + details.linenum + `')
 									->draw($show_input);
 							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('quantityleft[]')
+									->setClass('quantityleft')
+									->setValue('` + details.qtyleft + `')
+									->draw($show_input);
+							?>
 						<?php } ?>
 					</td>
 					<td>
@@ -497,7 +504,7 @@
 						?>
 					</td>`;
 					<?php endif ?>
-					if (details.parentcode == '') {
+					if (details.parentcode == '' && details.item_ident_flag == 0) {
 						row += `<td class="text-right">
 								<?php
 									echo $ui->formField('text')
@@ -508,10 +515,24 @@
 										->setValidation('required integer')
 										->setValue('` + (addComma(details.issueqty, 0) || 0) + `')
 										->draw($show_input);
-								?>
-								` + otherdetails + `
-					</td>`;
-					} else {
+								?>` + otherdetails + `</td>`;
+					}
+					else if (details.parentcode == '' && details.item_ident_flag != 0) {
+						<?php if ($ajax_task != '') { ?>
+							row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right mainitem issueqty serialbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `<input type = "hidden" class = "issueqty" name = "issueqty[]" data-value = "` + (parseFloat(details.issueqty) || 0) + `" value = "` + (parseFloat(details.issueqty) || 0) + `"/></td>`;
+						<?php } else { ?>
+							row += `<td class="text-right">
+								<?php
+									echo $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setClass('mainitem issueqty text-right')
+										->setValue('` + (addComma(details.issueqty, 0) || 0) + `')
+										->addHidden()
+										->draw($show_input);
+								?> ` + otherdetails + ` </td>`;
+						<?php } ?> 
+					}
+					else {
 						<?php if ($ajax_task != '') { ?>
 							if (details.item_ident_flag == 0) {
 								row += `<td class="text-right">
@@ -526,7 +547,7 @@
 										->draw($show_input);
 								?> ` + otherdetails + ` </td>
 							`; } else {
-								row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart issueqty partbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `<input type = "hidden" class = "issueqty" name = "issueqty[]" data-value = "` + (parseFloat(details.issueqty) || 0) + `" value = "` + (parseFloat(details.issueqty) || 0) + `"/></td>`;
+								row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart issueqty serialbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `<input type = "hidden" class = "issueqty" name = "issueqty[]" data-value = "` + (parseFloat(details.issueqty) || 0) + `" value = "` + (parseFloat(details.issueqty) || 0) + `"/></td>`;
 							} 
 						<?php } else { ?>
 							row += `<td class="text-right">
@@ -593,19 +614,22 @@
 				$('#tableList tbody').find('tr:last .issueqty').each(function() {
 					if (details.issueqty > 0) {
 						//$(this).removeAttr('readonly').val($(this).attr('data-value'));
-						if  ($(this).hasClass('itempart')) {
+						// if  ($(this).hasClass('itempart')) {
 							$(this).val($(this).attr('data-value'));
-							if ($(this).hasClass('partbtn')) {
+						// 	if ($(this).hasClass('serialbtn')) {
+						// 		$(this).removeAttr('disabled').val($(this).attr('data-value'));
+						// 	}
+						// }
+						// else {
+							$(this).removeAttr('readonly').val($(this).attr('data-value'));
+							if ($(this).hasClass('serialbtn')) {
 								$(this).removeAttr('disabled').val($(this).attr('data-value'));
 							}
-						}
-						else {
-							$(this).removeAttr('readonly').val($(this).attr('data-value'));
-						}
+						// }
 						$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('check').iCheck('enable');
 						$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
 					} else {
-						if ($(this).hasClass('partbtn')) {
+						if ($(this).hasClass('serialbtn')) {
 							$(this).attr('disabled', 'disabled').val(0);
 						}
 						$('#tableList tbody').find('tr:last .issueqty').attr('readonly', '').val(0);
@@ -613,7 +637,7 @@
 					}
 				});
 			} else {
-				if ($(this).hasClass('partbtn')) {
+				if ($(this).hasClass('serialbtn')) {
 					$(this).attr('disabled', 'disabled').val(0);
 				}
 				$('#tableList tbody').find('tr:last .issueqty').attr('readonly', '').val(0);
@@ -779,18 +803,21 @@
 			$('#tableList tbody .issueqty').each(function() {
 				var warehouse_row = $(this).closest('tr').find('.warehouse').val();
 				if (warehouse == warehouse_row) {
-					if  ($(this).hasClass('itempart')) {
+					// if  ($(this).hasClass('itempart')) {
 						$(this).val($(this).attr('data-value'));
-						if ($(this).hasClass('partbtn')) {
+					// 	if ($(this).hasClass('serialbtn')) {
+					// 		$(this).removeAttr('disabled').val($(this).attr('data-value'));
+					// 	}
+					// }
+					// else {
+						$(this).removeAttr('readonly').val($(this).attr('data-value'));
+						if ($(this).hasClass('serialbtn')) {
 							$(this).removeAttr('disabled').val($(this).attr('data-value'));
 						}
-					}
-					else {
-						$(this).removeAttr('readonly').val($(this).attr('data-value'));
-					}
+					// }
 					$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('check').iCheck('enable');
 				} else {
-					if ($(this).hasClass('partbtn')) {
+					if ($(this).hasClass('serialbtn')) {
 						$(this).attr('disabled', 'disabled').val(0);
 					}
 					$(this).attr('readonly', '').val(0);
@@ -850,7 +877,7 @@
 			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
 
 			var count_err = 0;
-			$('#tableList tbody tr').find('.partbtn').each(function() {
+			$('#tableList tbody tr').find('.serialbtn').each(function() {
 				if ($(this).attr('disabled')) {}
 				else {
 					var req_val = $(this).val();
@@ -925,17 +952,26 @@
 		var serials = '';
 		var itemrow = '';
 		var task = '';
-		$('#tableList tbody').on('click', '.partbtn', function() {
+		var type = '';
+		var quantityleft = '';
+		$('#tableList tbody').on('click', '.serialbtn', function() {
 			itemrow = $(this);
 			linenum = $(this).closest('tr').find('span').attr('id')
 			itemcode = $(this).closest('tr').find('.h_itemcode').val();
 			description = $(this).closest('tr').find('.h_detailparticular').val();
 			serials = $(this).closest('tr').find('.serialnumbers').val();
+			quantityleft = $(this).closest('tr').find('.quantityleft').val();
 			check_num = $(this).val();
-			tagSerial(itemcode, description, serials, check_num);	
+			if ($(this).hasClass('mainitem')) {
+				type = 'mainitem';
+			}
+			else {
+				type = 'itempart';
+			}
+			tagSerial(itemcode, description, serials, check_num, type, quantityleft);	
 		});
 
-		function tagSerial(itemcode, description, serials, check_num) {
+		function tagSerial(itemcode, description, serials, check_num, type, quantityleft) {
 			$('#serialModal').modal('show');
 			$('#serialModal #checkcount').val(check_num);
 			$("#serialModal #sec_itemcode").val(itemcode).prop('disabled', 'disabled').css('border', 'white').css('background', 'white');
@@ -1000,6 +1036,7 @@
 			allserials = [];
 			var count = 0;
 			var checkcount = $('#checkcount').val();
+			qtyleft =  removeComma(quantityleft);
 			$('#tableSerialList tbody tr input[type="checkbox"]:checked').each(function() {
 				count++;
 				var serialed = $(this).val();
@@ -1012,13 +1049,29 @@
 					allserials.push(serials);
 					$('#main_serial').val(allserials);
 				}	
-			});
-			if (count != checkcount) {
+			});	
+			if (count != checkcount && type =='itempart') {
+				$('#warning_counter .modal-body').html('Selected serial numbers must be equal to the required value.')
+				$('#warning_counter').modal('show');
+				$('#modal_close').hide();
+				$('#btn_close').hide();
+			}
+			else if (count > qtyleft && type == 'mainitem') {
+				$('#warning_counter .modal-body').html('Selected serial numbers must not be more than the quantity left.')
+				$('#warning_counter').modal('show');
+				$('#modal_close').hide();
+				$('#btn_close').hide();
+			}
+			else if (count == 0 && type == 'mainitem') {
+				$('#warning_counter .modal-body').html('There is no selected serial number.')
 				$('#warning_counter').modal('show');
 				$('#modal_close').hide();
 				$('#btn_close').hide();
 			}
 			else {
+				if (type == 'mainitem') {
+					itemrow.closest('tr').find('.issueqty').val(count);
+				}
 				$('#serialModal').modal('hide');	
 				$('#modal_close').show();
 				$('#btn_close').show();
