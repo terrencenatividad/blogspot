@@ -159,7 +159,7 @@
 										echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 									}
 								?>
-								<?php if(!$show_input):?><a href="http://localhost/triglobe/apanel/parts_and_service/job_order/payment/<?php echo $job_order_no ?>" class="btn btn-warning">Issue Parts</a><?endif;?>
+								<?php if(!$show_input):?><a href="http://localhost/triglobe/apanel/parts_and_service/job_order/payment/1" class="btn btn-warning">Issue Parts</a><?endif;?>
 								<?php
 									// echo '&nbsp;&nbsp;&nbsp;';
 									echo $ui->drawCancel();
@@ -474,75 +474,46 @@
 								->setValue($value)
 								->draw($show_input);
 
-							echo $ui->formField('hidden')
+							 $ui->formField('hidden')
 								->setName('h_itemcode[]')
 								->setClass('h_itemcode')
 								->setValue('` + details.itemcode + `')
 								->draw($show_input);
-							echo $ui->formField('hidden')
+							 $ui->formField('hidden')
 								->setName('childqty[]')
 								->setClass('childqty')
 								->setValue('` + details.qty + `')
 								->draw($show_input);
-							echo $ui->formField('hidden')
+							 $ui->formField('hidden')
 								->setName('parentline[]')
 								->setClass('parentline')
 								->setValue('` + details.parentline + `')
 								->draw($show_input);
-							echo $ui->formField('hidden')
+							 $ui->formField('hidden')
 								->setName('isbundle[]')
 								->setClass('isbundle')
 								->setValue('` + details.isbundle + `')
 								->draw($show_input);
-							echo $ui->formField('hidden')
+							 $ui->formField('hidden')
 								->setName('linenum[]')
 								->setClass('linenum')
 								->setValue('` + linenum + `')
 								->draw($show_input);
 						?>
 					</td>
-					<td>`;
-					if(details.parentcode == ''){
-					row += `<?php
+					<td>
+						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
 								->setName('detailparticular[]')
-								->setClass('detailparticular parent')
-								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setClass('detailparticular')
 								->setValue('` + details.detailparticular + `')
 								->draw($show_input);
-
-								echo $ui->formField('hidden')
-								->setName('h_detailparticular[]')
-								->setClass('h_detailparticular parts')
-								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
-								->setValue('` + details.detailparticular + `')
-								->draw($show_input);
-						?> ` + otherdetails + ` </td>
-					`;
-					}else{
-						row += `<?php
-							echo $ui->formField('text')
-								->setSplit('', 'col-md-12')
-								->setName('detailparticular[] detailforBundle')
-								->setClass('detailparticular parts')
-								->setValue('` + details.detailparticular + `')
-								->setAttribute(array('disabled' => 'disabled', 'data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
-								->draw($show_input);
-
-								echo $ui->formField('hidden')
-								->setName('h_detailparticular[]')
-								->setClass('h_detailparticular')
-								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
-								->setValue('` + details.detailparticular + `')
-								->draw($show_input);
-								?>` + otherdetails + ` </td>
-						`;
-					}
-						
+						?>
+					</td>`;
 
 					if(details.parentcode == ''){
-					row += `<td class="text-right">
+					row += `<td class="text-left">
 					<?php
 							$value = "<span id='temp_view_warehouse_` + index + `'></span>";
 							echo $ui->formField('dropdown')
@@ -564,7 +535,7 @@
 						?> ` + otherdetails + ` </td>
 						`;
 					}else{
-						row += `<td class="text-right">
+						row += `<td class="text-left">
 						<?php
 							$value = "<span id='temp_view_warehouse_` + index + `'></span>";
 							echo $ui->formField('dropdown')
@@ -577,7 +548,7 @@
 								->setValue('` + details.warehouse + `')
 								->draw($show_input);
 
-							echo $ui->formField('hidden')
+							 $ui->formField('hidden')
 								->setName('h_warehouse[]')
 								->setClass('h_warehouse')
 								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
@@ -588,7 +559,7 @@
 					}
 
 					if(details.parentcode == ''){
-					row += `<td class="text-right">
+					row += `<td class="text-left">
 							<?php
 								echo $ui->formField('text')
 										->setSplit('', 'col-md-12')
@@ -601,7 +572,7 @@
 							?> ` + otherdetails + ` </td>
 						`;
 					}else{
-						row += `<td class="text-right">
+						row += `<td class="text-left">
 							<?php
 								echo $ui->formField('text')
 										->setSplit('', 'col-md-12')
@@ -623,7 +594,7 @@
 								->setValue('` + details.uom.toUpperCase() + `')
 								->draw(false);
 
-							echo $ui->formField('hidden')
+							 $ui->formField('hidden')
 								->setName('h_uom[]')
 								->setSplit('', 'col-md-12')
 								->setValue('` + details.uom.toUpperCase() + `')
@@ -681,12 +652,12 @@
 								->draw($show_input);
 						?>
 					</td>
-					<td class="text-right">
+					<td class="text-left">
 						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
 								->setName('qty[]')
-								->setClass('qty text-right')
+								->setClass('qty text-left')
 								->setAttribute(array('data-value' => '` + (parseFloat(details.qty) || 0) + `'))
 								->setValidation('required integer')
 								->setValue('` + (addComma(1, 0) || 0) + `')
@@ -751,7 +722,7 @@
 			}
 		}
 		var voucher_details = <?php echo $voucher_details ?>;
-		//console.log(voucher_details);
+		console.log(voucher_details);
 		function displayDetails(details) {
 			if (details.length < min_row) {
 				for (var x = details.length; x < min_row; x++) {
@@ -760,8 +731,7 @@
 			}
 			if (details.length > 0) {
 				details.forEach(function(details, index) {
-					//console.log(index);
-					//console.log(details);
+					console.log(index);
 					addVoucherDetails(details, index);
 				});
 			} else if (min_row == 0) {
@@ -946,9 +916,7 @@
 					} else {
 						$('#tableList tbody').html('');
 						displayDetails(data.details);
-						//console.log(data.details);
 						displayHeader(data.header);
-						//console.log(data.header);
 						$('.itemcode').prop('disabled','true');
 						$('.detailparticular').prop('readonly','true');
 						$('.qty').prop('readonly','true');
@@ -976,7 +944,7 @@
 			var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
 			recomputeAll();
 			
-			//console.log(header_values);
+			console.log(header_values);
 			
 			$('#submit_container [type="submit"]').attr('disabled', true);
 			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
@@ -1040,50 +1008,6 @@
 		}
 	});
 
-	$('#tableList tbody').on('change', '.itemcode', function(e) {
-		var customer 	=	$('#customer').val();
-
-		if( customer != "" ){
-			var itemcode = $(this).val();
-			console.log(itemcode);
-			getItemDetails(itemcode);
-		}
-		else{	
-			$(this).val('');
-			drawTemplate();
-			$('#customer').focus();
-		}
-
-	});
-
-	function getItemDetails(itemcode){
-		console.log(itemcode);
-		var itemcode = itemcode;
-		if (itemcode != "") {
-				ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_bundle_details',"itemcode="+itemcode, function(data) {
-					if ( ! data.success) {
-						$('#tableList tbody').html(data.table);
-					} else {
-						console.log(data.mainheader);
-						console.log(data.header);
-						console.log(data.details);
-						$('#tableList tbody').html('');
-						//console.log("HEADER:" + mainheader);
-						displayDetails("");
-						var main_detail = data.mainheader.detailparticular
-						console.log(main_detail);
-						$('#detailforBundle').val(main_detail);
-						displayHeader(data.header);	
-						displayDetails(data.mainheader);
-						displayDetails(data.details);
-						//$('.itemcode').prop('disabled','true');
-						//$('.detailparticular').prop('readonly','true');
-						//$('.qty').prop('readonly','true');
-						//$('.warehouse').prop('disabled','true');
-						document.getElementById('addNewItemJODetails').style.visibility = 'hidden';
-					}
-				});
-			}
-	}
+	
 	</script>
 	<?php endif ?>

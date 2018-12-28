@@ -248,7 +248,7 @@ class job_order_model extends wc_model
 			if ($result) {
 				if ($result) {
 					$log_id = implode(', ', $data);
-					$this->log->saveActivity("Delete Job Order [$log_id]");
+					$this->log->saveActivity("Delete/Cancelled Job Order [$log_id]");
 				}
 			}
 	
@@ -265,18 +265,83 @@ class job_order_model extends wc_model
 									->setWhere("itemcode = '$itemcode'" .$condition)
 									->setOrderBy('voucherno, linenum, rowno')
 									->runPagination();
-									
+									// echo $this->db->getQuery();
 			return $result;
 		}
 
 	public function getJOSerials($itemcode, $voucherno, $linenum) {
 			$result = $this->db->setTable('job_release_details') 
 							->setFields('serialnumbers')
-							->setWhere("itemcode='$itemcode' AND job_order_no='$voucherno' AND linenum='$linenum'")
+							->setWhere("itemcode='$itemcode' AND job_item_id='$voucherno' AND linenum='$linenum'")
 							->runSelect()
 							->getRow();
 	
 			return $result;
 		}
+	public function retrieveItemDetails($itemcode)
+	{
+		$result = $this->db->setTable('items i')
+							->leftJoin('uom u ON u.uomcode = i.uom_selling AND u.companycode = i.companycode')
+							->leftJoin('items_price p ON p.itemcode = i.itemcode AND p.companycode = i.companycode')
+							
+							->setFields("i.itemdesc as detailparticular, u.uomcode as uom, i.bundle as isbundle")
+							->setWhere("i.itemcode = '$itemcode'")
+							->setLimit('1')
+							->runSelect()
+							->getRow();
+
+		return $result;
+	}
+
+	public function retrieveBundleDetails($itemcode) {
+		$fields = "bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom";
+			$result = $this->db->setTable('items i')
+							->leftJoin('bom b ON b.bundle_item_code = i.itemcode')
+							->leftJoin('bomdetails bd ON bd.bom_code = b.bom_code')
+							->setFields($fields)
+							->setWhere("status = 'active' AND b.bundle_item_code = '$itemcode'")
+							->runSelect()
+							->getResult();
+			return $result;
+	}
+
+	public function getItemListforBundle($itemcode) {
+		$result = $this->db->setTable('items')
+						->setFields("itemcode as code, CONCAT(itemcode, ' - ', itemname) as itemcode, itemdesc as detailparticular, uom_base as uom")
+						->setWhere("itemcode = '$itemcode'")
+						->runSelect()
+						->getRow();
+		return $result;
+	}
+
+	public function saveJobRelease($data, $data2) {
+		
+				$result = $this->db->setTable('job_release')
+									->setValues($data)
+									->runInsert();
+				if ($result) {
+					if ($result) {
+						$this->log->saveActivity("Create Job Release [{$data['job_release_no']}]");
+					}
+					$result = $this->updateJobReleaseDetails($data2, $data['job_release_no']);
+					
+				}
+		
+		
+				return $result;
+			}
+		
+			public function updateJobReleaseDetails($data, $voucherno) {
+				$data['job_release_no']	= $voucherno;
+				$this->db->setTable('job_release_details')
+							->setWhere("job_release_no = '$voucherno'")
+							->runDelete();
+							// var_dump($data);
+				$result = $this->db->setTable('job_release_details')
+									->setValuesFromPost($data)
+									->runInsert();
+									
+				return $result;
+			}
 
 }
