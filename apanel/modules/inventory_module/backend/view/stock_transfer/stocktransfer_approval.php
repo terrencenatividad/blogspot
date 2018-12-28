@@ -198,6 +198,9 @@
 					if(details.qtytoapply == null || details.qtytoapply == ""){ details.qtytoapply = '0';}
 					if(details.price == null || details.price == ""){ details.price = '0.00';}
 					if(details.amount == null || details.amount == ""){ details.amount = '0.00';}
+
+		
+
 		var other_details = JSON.parse(JSON.stringify(details));
 		delete other_details.itemcode;
 		delete other_details.detailparticular;
@@ -367,6 +370,9 @@
 			}
 		}else if(details.length > 0){
 			details.forEach(function(details, index) {
+				$.post('<?=MODULE_URL;?>ajax/get_serialize',{itemcode:details.itemcode}, function(data){
+					
+				})
 				addRowDetails(details, index);
 			});
 		} 

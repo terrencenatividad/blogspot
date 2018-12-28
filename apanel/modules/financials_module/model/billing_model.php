@@ -52,7 +52,7 @@ class billing_model extends wc_model {
 		}
 		$data['amount']				= array_sum($data2['amount']);
 		$data['taxamount']			= array_sum($data2['taxamount']);
-		$data['netamount']			= $data['amount'] + $data['taxamount'] - $data['discountamount'];
+		$data['netamount']			= $data['netamount'];
 	}
 
 	public function updateBillingDetails($data, $voucherno) {
