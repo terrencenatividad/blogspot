@@ -395,6 +395,7 @@ class controller extends wc_controller {
 		$linenum = $this->input->post('linenumber');
 		$id = $this->input->post('id');
 		$task = $this->input->post('task');
+		$item_ident = $this->input->post('item_ident');
 		$voucherno = '';
 		if ($task=='ajax_edit') {
 			$voucherno = $this->input->post('voucherno');
@@ -421,9 +422,32 @@ class controller extends wc_controller {
 			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id)) || ($row->stat == 'Not Available') && (!in_array($row->id, $current_id))) ? 'hidden' : '';
 			$table .= '<tr class = "'.$hide_tr.'">';
 			$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'" '.$checker.'></td>';
-			$table .= '<td>' . $row->serialno . '</td>';
-			$table .= '<td>' . $row->engineno . '</td>';
-			$table .= '<td>' . $row->chassisno . '</td>';
+			if ($item_ident == '100') {
+				$table .= '<td>' . $row->serialno . '</td>';
+			}
+			else if ($item_ident == '010') {
+				$table .= '<td>' . $row->engineno . '</td>';
+			}
+			else if ($item_ident == '001') {
+				$table .= '<td>' . $row->chassisno . '</td>';
+			}
+			else if ($item_ident == '110') {
+				$table .= '<td>' . $row->serialno . '</td>';
+				$table .= '<td>' . $row->engineno . '</td>';
+			}
+			else if ($item_ident == '101') {
+				$table .= '<td>' . $row->serialno . '</td>';
+				$table .= '<td>' . $row->chassisno . '</td>';
+			}
+			else if ($item_ident == '011') {
+				$table .= '<td>' . $row->engineno . '</td>';
+				$table .= '<td>' . $row->chassisno . '</td>';
+			}
+			else if ($item_ident == '111') {
+				$table .= '<td>' . $row->serialno . '</td>';
+				$table .= '<td>' . $row->engineno . '</td>';
+				$table .= '<td>' . $row->chassisno . '</td>';
+			}
 			$table .= '</tr>';
 		}
 		$pagination->table = $table;

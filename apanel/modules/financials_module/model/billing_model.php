@@ -280,18 +280,31 @@ class billing_model extends wc_model {
 		if ($jo != '') {
 			$result		= $this->db->setTable('job_order')
 								->setFields('job_order_no, transactiondate, service_quotation')
-								->setWhere("customer = '$customer' AND stat = 'Completed' AND job_order_no NOT IN ($jo)". $condition)
+								->setWhere("customer = '$customer' AND stat = 'completed' AND job_order_no NOT IN ($jo)". $condition)
 								->setOrderBy('job_order_no')
 								->runPagination();
 		}
 		else {
 			$result		= $this->db->setTable('job_order')
 								->setFields('job_order_no, transactiondate, service_quotation')
-								->setWhere("customer = '$customer' AND stat = 'Completed'". $condition)
+								->setWhere("customer = '$customer' AND stat = 'completed'". $condition)
 								->setOrderBy('job_order_no')
 								->runPagination();
 		}
 		
+		return $result;
+	}
+
+	public function getJobOrderDetails($job_order_no) {
+		$result		= $this->db->setTable('job_order_details jod')
+								->setFields("jod.itemcode, detailparticular, linenum, quantity issueqty, i.item_ident_flag")
+								->innerJoin('job_order jo ON jod.job_order_no = jo.job_order_no AND jod.companycode = jo.companycode')
+								->leftJoin('items i ON i.itemcode = jod.itemcode')
+								->leftJoin('invfile inv ON jod.itemcode = inv.itemcode AND jod.warehouse = inv.warehouse AND jod.companycode = inv.companycode')
+								->setWhere("jo.job_order_no = '$job_order_no'")
+								->runSelect()
+								->getResult();
+
 		return $result;
 	}
 
