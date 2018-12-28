@@ -118,7 +118,7 @@
 								<th class="col-md-1 text-center">UOM</th>
 								<th class="col-md-1 text-center">Price</th>
 								<th class="col-md-1 text-center">Discount</th>
-								<th class="col-md-1 text-center">Tax</th>
+								<th class="col-md-2 text-center">Tax</th>
 								<th class="col-md-2 text-center">Amount</th>
 								<?php if ($show_input): ?>
 								<th style="width: 50px;"></th>
