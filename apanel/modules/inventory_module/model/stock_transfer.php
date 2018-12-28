@@ -71,13 +71,12 @@
 
 		public function getStockTransferDetailsRequest($voucherno, $voucherno_ref = false){
 			$result1		= $this->db->setTable('stock_transfer_details std')
-									->setFields("std.itemcode, detailparticular, linenum, qtytoapply, qtytoapply maxqty, std.uom, std.price, std.amount, COALESCE(inv.onhandQty, 0) ohqty, 0 qtytransferred, qtytoapply balanceqty")
+									->setFields("std.itemcode, detailparticular, std.linenum, qtytoapply, qtytoapply maxqty, std.uom, std.price, std.amount, COALESCE(inv.onhandQty, 0) ohqty, 0 qtytransferred, qtytoapply balanceqty")
 									->innerJoin('stock_transfer st ON std.stocktransferno = st.stocktransferno AND std.companycode = st.companycode')
 									->leftJoin('invfile inv ON std.itemcode = inv.itemcode AND std.companycode = inv.companycode AND inv.warehouse = st.source')
 									->setWhere("st.stocktransferno = '$voucherno'")
 									->runSelect()
 									->getResult();
-			// echo $this->db->getQuery();
 			$addcond = ($voucherno_ref) ? " AND sa.stocktransferno != '$voucherno_ref'" : '';
 
 			$result2		= $this->db->setTable('stock_approval_details sad')
@@ -87,13 +86,22 @@
 									->setGroupBy('linenum')
 									->runSelect()
 									->getResult();
+			foreach ($result1 as $key => $row) {
+				$result3  		= $this->db->setTable('items_serialized sad')
+										->setFields("COUNT(sad.itemcode) isserialized")
+										->setWhere("itemcode = '$row->itemcode'")
+										->runSelect()
+										->getResult();
+				$row = (object) array_merge( (array)$row, array( 'isserialized' => $result3[0]->isserialized ) );
+				$_result1[] = $row;
+			}
 			$checker	= array();
 			$result		= array();
 			foreach ($result2 as $key => $row) {
 				$checker[$row->linenum] = $row->qtytoapply;
 			}
 
-			foreach ($result1 as $key => $row) {
+			foreach ($_result1 as $key => $row) {
 				$add_result = true;
 				if (isset($checker[$row->linenum])) {
 					$quantity = $checker[$row->linenum];
@@ -661,6 +669,15 @@
 						->runSelect(false)
 						->getResult();
 
+			return $result;
+		}
+
+		public function retrieveSerial($itemcode){
+			$result = $this->db->setTable('items_serialized')
+						->setFields("serialno, chassisno, engineno")
+						->setWhere("itemcode = '$itemcode'")
+						->runSelect()
+						->getResult();
 			return $result;
 		}
 	}
