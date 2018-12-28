@@ -1,9 +1,9 @@
 <?php
 class budget_report_model extends wc_model {
 
-	public function getCostCenterList() {
-		$result = $this->db->setTable('cost_center')
-		->setFields("costcenter_code ind, costcenter_code val")
+	public function getBudgetCodeList() {
+		$result = $this->db->setTable('budget')
+		->setFields("budget_code ind, budget_code val")
 		->setOrderBy("id")
 		->runSelect()
 		->getResult();
@@ -11,58 +11,74 @@ class budget_report_model extends wc_model {
 		return $result;
 	}
 
-	public function getBudgetList($costcenter, $budget_type) {
+	public function getBudgetReportList($budgetcode) {
+		$budgetreport = array(
+			'br.budget_code',
+			'br.january',
+			'br.february',
+			'br.march',
+			'br.april',
+			'br.may',
+			'br.june',
+			'br.july',
+			'br.august',
+			'br.september',
+			'br.october',
+			'br.november',
+			'br.december',
+			'CONCAT(ca.segment5, " - ", ca.accountname) as accountname'
+		);
+
 		$condition = '';
-		$type = '';
 		
-		if($costcenter == 'none' || empty($costcenter)) {
-			$condition .= "b.budget_center_code != ''";
-		} else if($costcenter != 'none'){
-			$condition .= "b.budget_center_code = '$costcenter'";
+		if($budgetcode == 'none' || empty($budgetcode)) {
+			$condition .= "b.budget_code != ''";
+		} else if($budgetcode != 'none'){
+			$condition .= "b.budget_code = '$budgetcode'";
 		}
 
-		if($budget_type == 'none' || empty($budget_type)) {
-			$type .= " AND b.budget_type != ''";
-		} else {
-			$type .= " AND b.budget_type = '$budget_type'";
-		}
-
-		$result = $this->db->setTable('budget_details bd')
-		->setFields('bd.accountcode accountcode, ca.accountname description, SUM(bd.amount) amount, SUM(bd.actual) actual, (SUM(bd.amount)-SUM(bd.actual)) variance')
-		->leftJoin('budget b ON b.budget_code = bd.budget_code')
-		->leftJoin('chartaccount ca ON bd.accountcode = ca.segment5')
-		->setGroupBy('bd.accountcode')
-		->setOrderBy('bd.accountcode')
-		->setWhere($condition . $type)
-		->runPagination();
+		$result = $this->db->setTable('budget_report as br')
+		->leftJoin('chartaccount as ca ON br.accountcode = ca.id')
+		->leftJoin('budget as b ON b.budget_code = br.budget_code')
+		->setFields($budgetreport)
+		->setWhere($condition)
+		->runPagination(false);
 
 		return $result;
 	}
 
-	public function getBudgetReportExport($costcenter, $budget_type) {
+	public function getBudgetReportExport($budgetcode) {
+		$budgetreport = array(
+			'br.budget_code',
+			'br.january',
+			'br.february',
+			'br.march',
+			'br.april',
+			'br.may',
+			'br.june',
+			'br.july',
+			'br.august',
+			'br.september',
+			'br.october',
+			'br.november',
+			'br.december',
+			'CONCAT(ca.segment5, " - ", ca.accountname) as accountname'
+		);
+
 		$condition = '';
-		$type = '';
-		
-		if($costcenter == 'none' || empty($costcenter)) {
-			$condition .= "b.budget_center_code != ''";
-		} else if($costcenter != 'none'){
-			$condition .= "b.budget_center_code = '$costcenter'";
+
+		if($budgetcode == 'none' || empty($budgetcode)) {
+			$condition .= "b.budget_code != ''";
+		} else if($budgetcode != 'none'){
+			$condition .= "b.budget_code = '$budgetcode'";
 		}
 
-		if($budget_type == 'none' || empty($budget_type)) {
-			$type .= " AND b.budget_type != ''";
-		} else {
-			$type .= " AND b.budget_type = '$budget_type'";
-		}
-
-		$result = $this->db->setTable('budget_details bd')
-		->setFields('bd.accountcode accountcode, ca.accountname description, SUM(bd.amount) amount, SUM(bd.actual) actual, (SUM(bd.amount)-SUM(bd.actual)) variance')
-		->leftJoin('budget b ON b.budget_code = bd.budget_code')
-		->leftJoin('chartaccount ca ON bd.accountcode = ca.segment5')
-		->setGroupBy('bd.accountcode')
-		->setOrderBy('bd.accountcode')
-		->setWhere($condition . $type)
-		->runSelect()
+		$result = $this->db->setTable('budget_report as br')
+		->leftJoin('chartaccount as ca ON br.accountcode = ca.id')
+		->leftJoin('budget as b ON b.budget_code = br.budget_code')
+		->setFields($budgetreport)
+		->setWhere($condition)
+		->runSelect(false)
 		->getResult();
 
 		return $result;

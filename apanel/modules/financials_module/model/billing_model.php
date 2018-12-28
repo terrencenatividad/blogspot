@@ -221,7 +221,8 @@ class billing_model extends wc_model {
 	
 	public function getItemDetailsList() {
 		$result = $this->db->setTable('items i')
-						->setFields("itemcode, itemdesc")
+						->setFields("i.itemcode, i.itemdesc, uom_base, itemprice")
+						->leftJoin('items_price p ON p.itemcode = i.itemcode AND p.companycode = i.companycode')
 						->leftJoin('itemtype it ON it.id = i.typeid AND it.companycode = i.companycode')
 						->setWhere("it.label LIKE '%service%'")
 						->runSelect()
@@ -291,6 +292,18 @@ class billing_model extends wc_model {
 								->runPagination();
 		}
 		
+		return $result;
+	}
+
+	public function getValue($table, $cols = array(), $cond, $orderby = "", $bool = "")
+	{
+		$result = $this->db->setTable($table)
+					->setFields($cols)
+					->setWhere($cond)
+					->setOrderBy($orderby)
+					->runSelect($bool)
+					->getResult();
+
 		return $result;
 	}
 

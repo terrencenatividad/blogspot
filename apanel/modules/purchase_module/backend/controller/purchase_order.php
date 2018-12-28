@@ -803,8 +803,8 @@ class controller extends wc_controller
 					$saveArr['actual'] 		= str_replace(',','', $data_post['amount'][$i]);
 					$actualArr[]      		= $saveArr;
 				}
+				$save = $this->po->saveActual($actualArr, $data_post['h_voucher_no']);
 			}
-			$save = $this->po->saveActual($actualArr, $data_post['h_voucher_no']);
 		}
 		return $dataArray = array("msg" => $msg);
 	}

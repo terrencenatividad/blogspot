@@ -19,10 +19,10 @@
 											echo $ui->formField('text')
 												->setLabel('JO No.')
 												->setSplit('col-md-4', 'col-md-8')
-												->setName('voucherno')
-												->setId('voucherno')
-												->setValue($voucherno)
-												->addHidden($voucherno)
+												->setName('job_order_no')
+												->setId('job_order_no')
+												->setValue($job_order_no)
+												->addHidden($job_order_no)
 												->setValidation('required')
 												->draw(($show_input && $ajax_task != 'ajax_edit'));
 										?>
@@ -78,11 +78,11 @@
 										echo $ui->formField('text')
 											->setLabel('Service Quotation No. ')
 											->setSplit('col-md-4', 'col-md-8')
-											->setName('source_no')
-											->setId('source_no')
+											->setName('service_quotation')
+											->setId('service_quotation')
 											->setAttribute(array('readonly'))
 											->setAddon('search')
-											->setValue($source_no)
+											->setValue($service_quotation)
 											->setValidation('required')
 											->draw($show_input);
 									?>
@@ -92,9 +92,9 @@
 										echo $ui->formField('text')
 											->setLabel('Customer PO No.')
 											->setSplit('col-md-4', 'col-md-8')
-											->setName('customerpo')
-											->setId('customerpo')
-											->setValue($customerpo)
+											->setName('po_number')
+											->setId('po_number')
+											->setValue($po_number)
 											->draw($show_input);
 									?>
 								</div>
@@ -131,7 +131,6 @@
 							</tr>
 						</thead>
 						<tbody>
-						
 						</tbody>
 						<tfoot class="summary">
 							<tr>
@@ -154,7 +153,7 @@
 									// echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 								}
 							?>
-							<?php if(!$show_input):?><a href="http://localhost/triglobe/apanel/parts_and_service/job_order/view/1" class="btn btn-flat btn-success">Issue</a><?endif;?>
+							<?php if(!$show_input):?><a class="btn btn-flat btn-success" id="isyu">Issue</a><?endif;?>
 							<?php
 								// echo '&nbsp;&nbsp;&nbsp;';
 								echo $ui->drawCancel();
@@ -282,18 +281,24 @@
 		</div>
 	</div>
 	<script>
+	
 		var delete_row	= {};
 		var ajax		= {};
 		var ajax_call	= '';
 		var min_row		= 1;
 		function addVoucherDetails(details, index) {
-			var details = details || {itemcode: '', detailparticular: '', warranty: '', warehouse: '', quantity: '0', uom: 'PCS', price: '0.00', discount: '0.00', amount: '0.00', taxcode: '', taxrate: '',taxamount: '0.00'};
+			var details = details || {itemcode: '', detailparticular: '', warehouse: '', quantity: '0', uom: 'PCS', childqty : '0', linenum : '0', isbundle : 'No', parentline : '', parentcode : '', item_ident_flag : '0'};
 			var other_details = JSON.parse(JSON.stringify(details));
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
 			delete other_details.warehouse;
 			delete other_details.quantity;
-			delete other_details.uom;
+			delete other_details.childqty;
+			delete other_details.linenum;
+			delete other_details.isbundle;
+			delete other_details.parentline;
+			delete other_details.parentcode;
+			delete other_details.item_ident_flag;
 			var otherdetails = '';
 			for (var key in other_details) {
 				if (other_details.hasOwnProperty(key)) {
@@ -306,7 +311,8 @@
 					 ?>`;
 				}
 			}
-			var row = `
+			var row = ``;
+			row += `
 				<tr>
 					<td>
 						<?php
@@ -349,11 +355,14 @@
 								->setClass('orderqty text-right')
 								->setAttribute(array('data-value' => '` + (parseFloat(details.orderqty) || 0) + `'))
 								->setValidation('required integer')
-								->setValue('` + (addComma(details.orderqty, 0) || 0) + `')
+								->setValue('` + (addComma(details.quantity, 0) || 0) + `')
 								->draw($show_input);
 						?>
 						` + otherdetails + `
-					</td>
+					</td>`;
+					console.log(details);
+					if(details.item_ident_flag == 0){
+					row +=`
 					<td class="text-right">
 						<?php
 							echo $ui->formField('text')
@@ -366,7 +375,11 @@
 								->draw(true);
 						?>
 						` + otherdetails + `
-					</td>
+					</td>`;
+				} else {
+					row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "` + (parseFloat(details.quantity) || 0) + `">` + otherdetails + `<input type = "hidden" class = "quantity" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "` + (parseFloat(details.quantity) || 0) + `"/></td>`;
+				} 
+					row += `
 					<td>
 						<?php
 							echo $ui->formField('text')
@@ -386,7 +399,6 @@
 			`;
 			$('#tableList tbody').append(row);
 			if (details.itemcode != '') {
-				console.log(details.itemcode);
 				$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
 				$('#issuedPartsList tbody').find('tr:last .itemcode').val(details.itemcode);
 			}
@@ -525,6 +537,10 @@
 		$('#tableList tfoot').on('ifChecked', '.discounttype', function() {
 			$(this).closest('tr').find('.discounttype:not(:checked)').closest('.input-group').find('.discount_entry.rate').val('0.00');
 			recomputeAll();
+		});
+
+		$('#isyu').on('click',function(e){
+			
 		});
 	</script>
 	<?php if ($show_input): ?>
@@ -673,5 +689,8 @@
 		$(body).on('click','.serialqty',function(e){
 			$('#sec_modal').modal("show");
 		});
+
+
+
 	</script>
 	<?php endif ?>

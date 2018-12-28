@@ -56,10 +56,27 @@
 											->setList($customer_list)
 											->setValue($customer)
 											->setValidation('required')
-											// ->addHidden(($ajax_task != 'ajax_create'))
 											->draw($show_input);
 									?>
 								</div>
+								<div class = "col-md-6">
+									<?php
+										echo $ui->formField('dropdown')
+											->setLabel('Discount Type ')
+											->setPlaceholder('Select Discount Type')
+											->setSplit('col-md-4', 'col-md-8')
+											->setName('discounttype')
+											->setId('discounttype')
+											->setList($discounttypes)
+											->setValue($discounttype)
+											->setNone('none')
+											->setDefault('none')
+											->draw($show_input);
+									?>
+									<input type="hidden" value="" id="newdisctype" name="newdisctype">
+								</div>
+							</div>
+							<div class="row">
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
@@ -95,12 +112,14 @@
 					<table id="tableList" class="table table-hover table-sidepad only-checkbox full-form">
 						<thead>
 							<tr class="info">
-								<th class="col-xs-2">Item Name</th>
+								<th class="col-xs-2">Item</th>
 								<th class="col-xs-2">Description</th>
-								<th class="col-xs-2 text-right">Price</th>
-								<th class="col-xs-2 text-right">Qty</th>
-								<th class="col-xs-2">Tax</th>
-								<th class="col-xs-2 text-right">Amount</th>
+								<th class="col-md-1 text-center">Quantity</th>
+								<th class="col-md-1 text-center">UOM</th>
+								<th class="col-md-1 text-center">Price</th>
+								<th class="col-md-1 text-center">Discount</th>
+								<th class="col-md-1 text-center">Tax</th>
+								<th class="col-md-2 text-center">Amount</th>
 								<?php if ($show_input): ?>
 								<th style="width: 50px;"></th>
 								<?php endif ?>
@@ -116,8 +135,10 @@
 										<button type="button" id="addNewItem" class="btn btn-link">Add a New Line</button>
 									<?php endif ?>
 								</td>
-								<td colspan="1"><label class="control-label">VATable Sales</label></td>
-								<td colspan="2">
+							</tr>
+							<tr>
+								<td colspan="<?php echo ($show_input) ? 7 : 8 ?>"><label class="control-label">VATable Sales</label></td>
+								<td colspan="1">
 									<?php
 										echo $ui->formField('text')
 												->setSplit('', 'col-md-12')
@@ -133,8 +154,8 @@
 								<?php endif ?>
 							</tr>
 							<tr>
-								<td colspan="<?php echo ($show_input) ? 4 : 5 ?>"><label class="control-label">VAT-Exempt Sales</label></td>
-								<td colspan="2">
+								<td colspan="<?php echo ($show_input) ? 7 : 8 ?>"><label class="control-label">VAT-Exempt Sales</label></td>
+								<td colspan="1">
 									<?php
 										echo $ui->formField('text')
 												->setSplit('', 'col-md-12')
@@ -150,8 +171,25 @@
 								<?php endif ?>
 							</tr>
 							<tr>
-								<td colspan="<?php echo ($show_input) ? 4 : 5 ?>"><label class="control-label">Total Sales</label></td>
-								<td colspan="2">
+								<td colspan="<?php echo ($show_input) ? 7 : 8 ?>"><label class="control-label">VAT Zero Rated Sales</label></td>
+								<td colspan="1">
+									<?php
+										echo $ui->formField('text')
+												->setSplit('', 'col-md-12')
+												->setName('vat_zerorated')
+												->setClass('vat_zerorated')
+												->setValue(((empty($vat_zerorated)) ? '0.00' : number_format($vat_zerorated, 2)))
+												->addHidden()
+												->draw($show_input);
+									?>
+								</td>
+								<?php if ($show_input): ?>
+								<td></td>
+								<?php endif ?>
+							</tr>
+							<tr>
+								<td colspan="<?php echo ($show_input) ? 7 : 8 ?>"><label class="control-label">Total Sales</label></td>
+								<td colspan="1">
 									<?php
 										echo $ui->formField('text')
 												->setSplit('', 'col-md-12')
@@ -166,7 +204,7 @@
 								<td></td>
 								<?php endif ?>
 							</tr>
-							<tr>
+							<!-- <tr>
 								<td colspan="<?php echo ($show_input) ? 4 : 5 ?>"><label class="control-label">Discount</label></td>
 								<td colspan="2">
 									<?php if ($show_input): ?>
@@ -242,10 +280,10 @@
 								<?php if ($show_input): ?>
 								<td></td>
 								<?php endif ?>
-							</tr>
+							</tr> -->
 							<tr>
-								<td colspan="<?php echo ($show_input) ? 4 : 5 ?>"><label class="control-label">Total Purchase Tax</label></td>
-								<td colspan="2">
+								<td colspan="<?php echo ($show_input) ? 7 : 8 ?>"><label class="control-label">Total Purchase Tax</label></td>
+								<td colspan="1">
 									<?php
 										echo $ui->formField('text')
 												->setSplit('', 'col-md-12')
@@ -261,8 +299,8 @@
 								<?php endif ?>
 							</tr>
 							<tr>
-								<td colspan="<?php echo ($show_input) ? 3 : 4 ?>"></td>
-								<td colspan="3">
+								<td colspan="<?php echo ($show_input) ? 6 : 7 ?>"></td>
+								<td colspan="2">
 									<hr style="margin: 0">
 								</td>
 								<?php if ($show_input): ?>
@@ -270,14 +308,31 @@
 								<?php endif ?>
 							</tr>
 							<tr>
-								<td colspan="<?php echo ($show_input) ? 4 : 5 ?>"><label class="control-label">Total Amount Due</label></td>
-								<td colspan="2">
+								<td colspan="<?php echo ($show_input) ? 7 : 8 ?>"><label class="control-label">Total Amount Due</label></td>
+								<td colspan="1">
 									<?php
 										echo $ui->formField('dropdown')
 												->setSplit('', 'col-md-12')
 												->setName('netamount')
 												->setClass('total_amount_due')
 												->setValue(((empty($netamount)) ? '0.00' : number_format($netamount, 2)))
+												->addHidden()
+												->draw($show_input);
+									?>
+								</td>
+								<?php if ($show_input): ?>
+								<td></td>
+								<?php endif ?>
+							</tr>
+							<tr>
+								<td colspan="<?php echo ($show_input) ? 7 : 8 ?>"><label class="control-label">Discount</label></td>
+								<td colspan="1">
+									<?php
+										echo $ui->formField('dropdown')
+												->setSplit('', 'col-md-12')
+												->setName('total_discount')
+												->setClass('total_discount')
+												->setValue(((empty($total_discount)) ? '0.00' : number_format($total_discount, 2)))
 												->addHidden()
 												->draw($show_input);
 									?>
@@ -305,6 +360,22 @@
 			</form>
 		</div>
 	</section>
+	<div class="modal fade" id="discounttypeModal" tabindex="-1"  data-backdrop="static" data-keyboard="false" >
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					Confirmation
+				</div>
+				<div class="modal-body" id="message">
+					Changing the Current Discount Type will clear out the Discounts. Do you wish to proceed?
+				</div>
+				<div class="modal-footer text-center">
+					<button type="button" class="btn btn-info btn-flat" id="disc_yes" data-dismiss='modal'>Yes</button>
+					<button type="button" class="btn btn-default btn-flat" id="disc_no" >No</button>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div id="exchangerate_expired" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
@@ -391,10 +462,10 @@
 						</tbody>
 					</table>
 					<div id="pagination"></div>
-					</div>
 				</div>
 			</div>
 		</div>
+	</div>
 	<script>
 		var delete_row	= {};
 		var ajax		= {};
@@ -405,6 +476,8 @@
 			details.itemcode = details.itemcode || '';
 			details.detailparticular = details.detailparticular || '';
 			details.unitprice = details.unitprice || '0.00';
+			details.discount = details.discount || '0.00';
+			details.issueuom = details.issueuom || '';
 			var other_details = JSON.parse(JSON.stringify(details));
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
@@ -415,6 +488,8 @@
 			delete other_details.discountamount;
 			delete other_details.taxcode;
 			delete other_details.taxrate;
+			delete other_details.discount;
+			delete other_details.issueuom;
 			var otherdetails = '';
 			for (var key in other_details) {
 				if (other_details.hasOwnProperty(key)) {
@@ -456,6 +531,29 @@
 						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
+								->setName('issueqty[]')
+								->setClass('issueqty text-right')
+								->setAttribute(array('data-value' => '` + (parseFloat(details.issueqty) || 0) + `'))
+								->setValidation('required integer')
+								->setValue('` + (addComma(details.issueqty, 0) || 0) + `')
+								->draw($show_input);
+						?>
+					</td>
+					<td class="text-right">
+						<?php
+							echo $ui->formField('text')
+								->setSplit('', 'col-md-12')
+								->setName('issueuom[]')
+								->setClass('issueuom text-right')
+								->setAttribute(array("maxlength" => "20","readonly" => "readonly"))
+								->setValue('` + details.issueuom + `')
+								->draw($show_input);
+						?>
+					</td>
+					<td class="text-right">
+						<?php
+							echo $ui->formField('text')
+								->setSplit('', 'col-md-12')
 								->setClass('unitprice text-right')
 								->setName('unitprice[]')
 								->setSwitch()
@@ -468,11 +566,11 @@
 						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
-								->setName('issueqty[]')
-								->setClass('issueqty text-right')
-								->setAttribute(array('data-value' => '` + (parseFloat(details.issueqty) || 0) + `'))
-								->setValidation('required integer')
-								->setValue('` + (addComma(details.issueqty, 0) || 0) + `')
+								->setClass('discount text-right')
+								->setName('discount[]')
+								->setValidation('decimal')
+								->setAttribute(array("maxlength" => "20","readonly"=>true))
+								->setValue('` + addComma(details.discount) + `')
 								->draw($show_input);
 						?>
 					</td>
@@ -512,8 +610,20 @@
 								->setAttribute(array('readonly' => ''))
 								->setValidation('required decimal')
 								->setValue('` + (addComma(details.amount) || 0) + `')
-								->addHidden()
+								//->addHidden()
 								->draw($show_input);
+
+								echo $ui->setElement('hidden')
+								->setName('discountamount[]')
+								->setClass('discountamount')	
+								->setValue('` + (parseFloat(details.discountamount) || 0) + `')
+								->draw();
+
+								echo $ui->setElement('hidden')
+								->setName('discountedamount[]')
+								->setClass('discountedamount')	
+								->setValue('` + (parseFloat(details.discountedamount) || 0) + `')
+								->draw();
 						?>
 						` + otherdetails + `
 					</td>
@@ -583,44 +693,75 @@
 				var total_amount = 0;
 				var vatable_sales = 0;
 				var vatexempt_sales = 0;
+				var vatzerorated = 0;
 				var total_tax = 0;
+				var total_discount = 0;
+				var discounttype = $('#discounttype').val();
 				$('#tableList tbody tr').each(function() {
 					var price = removeComma($(this).find('.unitprice').val());
 					var quantity = removeComma($(this).find('.issueqty').val());
 					var tax = $(this).find('.taxcode').val();
+					var discount = $(this).find('.discount').val();
 					var taxrate = taxrates[tax] || 0;
 
 					var amount = (price * quantity);
 					var taxamount = amount - (amount / (1 + parseFloat(taxrate)));
-					amount = amount - taxamount;
-					total_amount += amount;
+					//amount = amount - taxamount;
+					//total_amount += amount;
 					total_tax += taxamount;
-
-					if (taxrate > 0) {
-						vatable_sales += amount;
-					} else {
-						vatexempt_sales += amount;
-					}
 					
 					$(this).find('.taxrate').val(taxrate);
 					$(this).find('.taxamount').val(taxamount);
 
+					var discountamount = 0;
+					var discountedamount = 0;
+
+					if (discounttype == 'perc') {
+						discountamount = amount * (discount/100);
+					}
+					else {
+						discountamount = discount;
+					}
+
+					discountedamount = amount - discountamount;
+
+					amount = discountedamount;
+					total_discount += discountamount;
+					total_amount += discountedamount;
+
+					if (taxrate > 0) {
+						vatable_sales += amount;
+					} 
+					else {
+						if (tax == '' || tax == 'none' || tax == 'ES') {
+							vatexempt_sales = amount;
+						}
+						else {
+							vatzerorated = amount;
+						}
+					}
+
+					$(this).find('.discountamount').val(discountamount);
+					$(this).find('.discountedamount').val(discountedamount);
+
 					$(this).find('.amount').val(addComma(amount)).closest('.form-group').find('.form-control-static').html(addComma(amount));;
 				});
-				var discounttype = $('#tableList tfoot .discounttype:checked').val();
-				var discount_rate = $('#tableList tfoot #discountrate').val();
-				var discount_amount = removeComma($('#tableList tfoot #discountamount').val());
-				if (discounttype == 'perc') {
-					discount_amount = total_amount * discount_rate / 100;
-					$('#tableList tfoot #discountamount').val(addComma(discount_amount));
-				}
+				//var discounttype = $('#tableList tfoot .discounttype:checked').val();
+				//var discount_rate = $('#tableList tfoot #discountrate').val();
+				//var discount_amount = removeComma($('#tableList tfoot #discountamount').val());
+				// if (discounttype == 'perc') {
+				// 	discount_amount = total_amount * discount_rate / 100;
+				// 	$('#tableList tfoot #discountamount').val(addComma(discount_amount));
+				// }
 
-				var total_amount_due = total_amount + total_tax - discount_amount;
+				var total_amount_due = total_amount + total_tax;
 				$('#tableList tfoot .vat_sales').val(vatable_sales).closest('.form-group').find('.form-control-static').html(addComma(vatable_sales));
+				$('#tableList tfoot .vat_zerorated').val(vatzerorated).closest('.form-group').find('.form-control-static').html(addComma(vatzerorated));
 				$('#tableList tfoot .vat_exempt').val(vatexempt_sales).closest('.form-group').find('.form-control-static').html(addComma(vatexempt_sales));
 				$('#tableList tfoot .total_amount').val(total_amount).closest('.form-group').find('.form-control-static').html(addComma(total_amount));
 				$('#tableList tfoot .total_tax').val(total_tax).closest('.form-group').find('.form-control-static').html(addComma(total_tax));
 				$('#tableList tfoot .total_amount_due').val(total_amount_due).closest('.form-group').find('.form-control-static').html(addComma(total_amount_due));
+				$('#tableList tfoot .total_discount').val(total_discount).closest('.form-group').find('.form-control-static').html(addComma(total_discount));
 			}
 		}
 		$('#modal_form').on('submit', function(e) {
@@ -643,7 +784,7 @@
 				$('#cancel_exchangerate_button').attr('disabled', false);
 			}
 		});
-		$('#tableList tbody').on('input change blur', '.taxcode, .unitprice, .issueqty', function() {
+		$('#tableList tbody').on('input change blur', '.taxcode, .unitprice, .issueqty, .discount', function() {
 			recomputeAll();
 		});
 		$('#tableList tfoot .discount_entry').on('input blur', function() {
@@ -722,10 +863,14 @@
 		var itemdetail_list = <?= json_encode($itemdetail_list) ?>;
 		$('#tableList tbody').on('change', '.itemcode', function() {
 			var itemcode_element = $(this).closest('tr').find('.detailparticular');
+			var itemcode_uom = $(this).closest('tr').find('.issueuom');
+			var itemcode_price = $(this).closest('tr').find('.unitprice');
 			var itemcode = $(this).val();
 			itemdetail_list.forEach(function(itemdetail) {
 				if (itemdetail.itemcode == itemcode) {
 					itemcode_element.val(itemdetail.itemdesc);
+					itemcode_uom.val(itemdetail.uom_base);
+					itemcode_price.val(itemdetail.itemprice);
 				}
 			});
 		});
@@ -769,6 +914,50 @@
 				form_element.find('.form-group.has-error').first().find('input, textarea, select').focus();
 				$('#submit_container [type="submit"]').attr('disabled', false);
 			}
+		});
+
+		$('#discounttype').on('select2:selecting',function(e){
+			var curr_type	=  $(this).val();	
+			var new_type 	= e.params.args.data.id;
+			
+			if(curr_type == "none" || curr_type == ""){
+				$('#discounttype').closest('.form-group').removeClass('has-error');
+
+				if(new_type=="none" || new_type==""){
+					$('.discount').prop('readOnly',true);
+				} else {
+					$('#tableList tbody tr').find('.itemcode').each(function(index, value) {
+						$(this).closest('tr').find('.discount').prop('readonly',false)
+					});
+				}
+			} else {
+				if(curr_type!="" ){
+					e.preventDefault();
+					$('#discounttypeModal').modal('show');
+					$(this).select2('close');
+				}
+			}
+			$('#newdisctype').val(new_type);
+		});
+
+		$('#discounttypeModal').on('click','#disc_yes',function(){
+			var newtype = $('#newdisctype').val();
+			$('#discounttype').val(newtype).trigger('change');
+			$('#discounttypeModal').modal('hide');
+			$('.discount').val('0.00');
+
+			if(newtype=="none" || newtype==""){
+				$('.discount').prop('readOnly',true);
+			} else {
+				$('#tableList tbody tr').find('.itemcode').each(function(index, value) {
+					$(this).closest('tr').find('.discount').prop('readonly',false)
+				});
+			}
+			recomputeAll();
+		});
+
+		$('#discounttypeModal').on('click','#disc_no',function(){
+			$('#discounttypeModal').modal('hide');
 		});
 	</script>
 	<?php endif ?>

@@ -34,6 +34,68 @@ class budgetting extends wc_model
 		return $result;
 	}
 
+	public function getBudgetAccountsOnSupplement($id)
+	{
+		$result = $this->db->setTable('budget b')
+		->setFields('bd.accountcode ind, CONCAT(ca.segment5, " - ", ca.accountname) as val')
+		->leftJoin('budget_details as bd ON b.budget_code = bd.budget_code')
+		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
+		->setWhere("b.id = '$id' AND bd.amount != 0")
+		->runSelect()
+		->getResult();
+
+		return $result;
+	}
+
+	public function getSupplementValues($id)
+	{
+		$result = $this->db->setTable('budget_supplement bs')
+		->setFields('bs.accountcode as accountcode, CONCAT(ca.segment5, " - ", ca.accountname) as accountname, bs.description as description, bs.amount as amount, bs.status as status')
+		->leftJoin('chartaccount as ca ON ca.id = bs.accountcode')
+		->setWhere("bs.id = '$id'")
+		->runSelect(false)
+		->getRow();
+
+		return $result;
+	}
+
+	public function updateSupplement($id,$fields)
+	{
+		$result 			   = $this->db->setTable('budget_supplement')
+		->setValues($fields)
+		->setWhere("id = '$id'")
+		->setLimit(1)
+		->runUpdate(false);
+
+		return $result;
+	}
+
+	public function getBudgetSupplements($id)
+	{
+		$result = $this->db->setTable('budget_supplement bs')
+		->setFields('bs.id as id, CONCAT(ca.segment5, " - ", ca.accountname) as accountname, bs.description as description, bs.amount as amount, bs.status as status')
+		->leftJoin('chartaccount as ca ON ca.id = bs.accountcode')
+		->setWhere("bs.budget_id = '$id'")
+		->runPagination(false);
+
+		return $result;
+	}
+
+	public function saveSupplement($supplements) {
+		$result = $this->db->setTable('budget_supplement')
+		->setValues($supplements)
+		->runInsert(false);
+
+		return $result;
+	}
+
+	public function saveBudgetSupplementReport($fields) {
+		$result = $this->db->setTable('budget_report')
+		->setValues($fields)
+		->runInsert(false);
+
+		return $result;
+	}
 
 	public function getApproverName($code)
 	{
@@ -138,6 +200,44 @@ class budgetting extends wc_model
 		return $result;
 	}
 
+	public function updateSupplementAppove($id, $fields)
+	{
+		$result 			   = $this->db->setTable('budget_supplement')
+		->setValues($fields)
+		->setWhere("id = '$id'")
+		->setLimit(1)
+		->runUpdate(false);
+
+		return $result;
+	}
+
+
+
+	public function updateBudgetSupplementReport($id, $fields)
+	{
+		$budgetcode = $this->getIdOfBudgetCode($id);
+		$code = $budgetcode->budget_code;
+		$accountcode = $budgetcode->accountcode;
+		$result 			   = $this->db->setTable('budget_report')
+		->setValues($fields)
+		->setWhere("budget_code = '$code' AND accountcode = '$accountcode'")
+		->setLimit(1)
+		->runUpdate(false);
+
+		return $result;
+	}
+
+	public function updateSupplementReject($id, $fields)
+	{
+		$result 			   = $this->db->setTable('budget_supplement')
+		->setValues($fields)
+		->setWhere("id = '$id'")
+		->setLimit(1)
+		->runUpdate(false);
+
+		return $result;
+	}
+
 	public function updateBudgetStatus($fields, $id)
 	{
 		$result 			   = $this->db->setTable('budget')
@@ -164,6 +264,15 @@ class budgetting extends wc_model
 		if ($result) {
 			$this->log->saveActivity("Update Content [$id]");
 		}
+
+		return $result;
+	}
+
+	public function deleteSupplement($id)
+	{
+		$result = $this->db->setTable('budget_supplement')
+		->setWhere("id = '$id'")
+		->runDelete(false);
 
 		return $result;
 	}
@@ -214,6 +323,20 @@ class budgetting extends wc_model
 		return $result;
 	}
 
+	public function getSupplementAccounts($budgetcode)
+	{
+		$result = $this->db->setTable('budget_supplement bs')
+		->setFields('bs.accountcode as accountcode, ca.accountname as accountname, bs.description as description, SUM(bs.amount) as amount')
+		->leftJoin('chartaccount ca ON bs.accountcode = ca.id')
+		->leftJoin('budget as b ON bs.budget_id = b.id')
+		->setWhere("b.budget_code = '$budgetcode'")
+		->setGroupBy('bs.accountcode')
+		->runSelect(false)
+		->getResult();
+
+		return $result;
+	}
+
 	public function getBudgetAccountsOnEdit($budgetcode)
 	{
 		$result = $this->db->setTable('budget_details bd')
@@ -238,10 +361,93 @@ class budgetting extends wc_model
 		return $result;
 	}
 
-	public function saveBudgetReport($budgetreport) {
-		$result = $this->db->setTable('budget_report')
-		->setValues($budgetreport)
-		->runInsert(false);
+	public function getIdOfBudgetCode($id) {
+		$result  = $this->db->setTable('budget_supplement bs')
+		->leftJoin('budget_details as bs ON bs.accountcode = bd.accountcode')
+		->leftJoin('budget as b ON bs.budget_code = bs.budget_code')
+		->setFields('bd.budget_code, bs.accountcode, bs.description, bs.amount')
+		->setWhere("bs.id = '$id' AND b.budget_check = 'Monitored'")
+		->runSelect()
+		->getRow();
+		return $result;
+	}
+
+	public function saveBudgetReportSupplement($id) {
+		$getdetails = $this->getIdOfBudgetCode($id);
+		if($getdetails) {
+			$temp = array();
+			$budget_code = $getdetails->budget_code;
+			$accountcode = $getdetails->accountcode;
+			$description = $getdetails->description;
+			$amount = $getdetails->amount;
+			$rounded = round($amount / 12);
+			$temp['budget_code'] = $budget_code;
+			$temp['accountcode'] = $accountcode;
+			$temp['january'] = $rounded;
+			$temp['february'] = $rounded;
+			$temp['march'] = $rounded;
+			$temp['april'] = $rounded;
+			$temp['may'] = $rounded;
+			$temp['june'] = $rounded;
+			$temp['july'] = $rounded;
+			$temp['august'] = $rounded;
+			$temp['september'] = $rounded;
+			$temp['october'] = $rounded;
+			$temp['november'] = $rounded;
+			$temp['december'] = $rounded;
+			$result = $this->db->setTable('budget_report')
+			->setValues($temp)
+			->runInsert(false);	
+		} else {
+			$return = false;
+		}
+		
+		return $result;
+	}
+
+	public function getIdOfBudget($id) {
+		$result  = $this->db->setTable('budget_details bd')
+		->leftJoin('budget as b ON bd.budget_code = b.budget_code')
+		->setFields('bd.budget_code, bd.accountcode, bd.description, bd.amount')
+		->setWhere("b.id = '$id' AND b.budget_check = 'Monitored' AND bd.amount != 0")
+		->runSelect()
+		->getResult();
+		return $result;
+	}
+
+	public function saveBudgetReport($id) {
+		$budget = $this->getIdOfBudget($id);
+		$temp = array();
+		$fields = array();
+		if($budget) {
+			foreach($budget as $row) {
+				$budget_code = $row->budget_code;
+				$accountcode = $row->accountcode;
+				$description = $row->description;
+				$amount = $row->amount;
+				$rounded = round($amount / 12);
+				$temp['budget_code'] = $budget_code;
+				$temp['accountcode'] = $accountcode;
+				$temp['january'] = $rounded;
+				$temp['february'] = $rounded;
+				$temp['march'] = $rounded;
+				$temp['april'] = $rounded;
+				$temp['may'] = $rounded;
+				$temp['june'] = $rounded;
+				$temp['july'] = $rounded;
+				$temp['august'] = $rounded;
+				$temp['september'] = $rounded;
+				$temp['october'] = $rounded;
+				$temp['november'] = $rounded;
+				$temp['december'] = $rounded;
+				$fields[] = $temp;	
+			}			
+			$result = $this->db->setTable('budget_report')
+			->setValues($fields)
+			->runInsert(false);
+		} else {
+			$result = false;
+		}
 
 		return $result;
 	}

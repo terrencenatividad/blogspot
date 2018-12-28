@@ -222,62 +222,366 @@
 				</div>
 			</div>
 
-			<script>
+			<div class="modal fade" id="modalApproveSupplement" tabindex="-1" data-backdrop="static">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">×</span></button>
+								<h4 class="modal-title">Confirmation</h4>
+							</div>
+							<div class="modal-body">
+								<h5>Are you sure you want to approve this budget supplement?</h5>
+							</div>
+							<div class="modal-footer text-right">
+								<button type="button" class="btn btn-primary btn-flat" id="btnApproveSupplement">Confirm</button>
+								<button type="button" class="btn btn-default btn-flat" 
+								data-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
 
-				$('.import').closest('.btn-group').find('li:eq(1)').hide();
-				var ajax = {};
+				<div class="modal fade" id="modalRejectSupplement" tabindex="-1" data-backdrop="static">
+					<div class="modal-dialog modal-sm">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">×</span></button>
+									<h4 class="modal-title">Confirmation</h4>
+								</div>
+								<div class="modal-body">
+									<h5>Are you sure you want to reject this budget supplement?</h5>
+								</div>
+								<div class="modal-footer text-right">
+									<button type="button" class="btn btn-primary btn-flat" id="btnRejectSupplement">Confirm</button>
+									<button type="button" class="btn btn-default btn-flat" 
+									data-dismiss="modal">Close</button>
+								</div>
+							</div>
+						</div>
+					</div>
 
-				function show_error(msg) {
-					$(".delete-modal").modal("hide");
-					$(".alert-warning").removeClass("hidden");
-					$("#errmsg").html(msg);
-				}
-				function showList() {
-					$.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data)
-					{
-						$('.checkall').iCheck('uncheck');
-						$('#list_container').html(data.table);
-						$('#pagination').html(data.pagination);
-						$("#export_id").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+					<div class="modal fade" id="modalDeleteSupplement" tabindex="-1" data-backdrop="static">
+						<div class="modal-dialog modal-sm">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">×</span></button>
+										<h4 class="modal-title">Confirmation</h4>
+									</div>
+									<div class="modal-body">
+										<h5>Are you sure you want to delete this supplement?</h5>
+									</div>
+									<div class="modal-footer text-right">
+										<button type="button" class="btn btn-primary btn-flat" id="btnDeleteSupplement">Confirm</button>
+										<button type="button" class="btn btn-default btn-flat" 
+										data-dismiss="modal">Close</button>
+									</div>
+								</div>
+							</div>
+						</div>
 
-						if (ajax.page > data.page_limit && data.page_limit > 0) 
-						{
-							ajax.page = data.page_limit;
-							showList();
-						}
+						<div class="modal fade" id="modalSupplement" tabindex="-1" data-backdrop="static">
+							<div class="modal-dialog modal-lg">
+								<div class="modal-content">
+									<div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">×</span></button>
+											<h4 class="modal-title">Budget Supplement</h4>
+										</div>
+										<div class="modal-body">
+											<form method = "post" class="form-horizontal" id = "supplementForm">
+												<div class="row" id = "create">
+													<input type="hidden" name = "budget_id" id = "budget_id">
+													<div class="col-md-4">
+														<?
+														echo $ui->formField('dropdown')
+														->setLabel('Account Codes')
+														->setPlaceholder('Select one')
+														->setSplit('col-md-6', 'col-md-12')
+														->setName('accountcode')
+														->setId('accountcodes')
+														->setValidation('required')
+														->setNone('none')
+														->draw(true);	
+														?>	
+													</div>	
+													<div class="col-md-4">
+														<?
+														echo $ui->formField('text')
+														->setLabel('Description')
+														->setSplit('col-md-6', 'col-md-12')
+														->setName('description')
+														->setId('description')
+														->setValidation('required')
+														->draw(true);	
+														?>	
+													</div>	
+													<div class="col-md-4">
+														<?
+														echo $ui->formField('text')
+														->setLabel('Amount')
+														->setSplit('col-md-6', 'col-md-12')
+														->setName('amount')
+														->setId('amount')
+														->setClass('text-right')
+														->setValidation('required decimal')
+														->draw(true);	
+														?>	
+													</div>
+												</div>
+												<br><br>
+												<div class="row">
+													<div class="col-md-12 text-center">
+														<button class="btn btn-info" id = "confirmSupplement">Save</button>
+													</div>	
+												</div>
+											</form>
+											<form method = "post" class="form-horizontal" id = "supplementFormEdit" hidden disabled>
+												<div class="row" id = "edit">
+													<input type="hidden" name="code_edit" id = "code_edit">
+													<div class="col-md-4">
+														<?
+														echo $ui->formField('text')
+														->setLabel('Account Codes')
+														->setPlaceholder('Select one')
+														->setSplit('col-md-6', 'col-md-12')
+														->setName('accountcode_edit')
+														->setId('accountcode_edit')
+														->setAttribute(array('readonly'))
+														->setNone('none')
+														->draw(true);	
+														?>	
+													</div>	
+													<div class="col-md-4">
+														<?
+														echo $ui->formField('text')
+														->setLabel('Description')
+														->setSplit('col-md-6', 'col-md-12')
+														->setName('description_edit')
+														->setId('description_edit')
+														->draw(true);	
+														?>	
+													</div>	
+													<div class="col-md-4">
+														<?
+														echo $ui->formField('text')
+														->setLabel('Amount')
+														->setSplit('col-md-6', 'col-md-12')
+														->setName('amount_edit')
+														->setId('amount_edit')
+														->setClass('text-right')
+														->setValidation('decimal')
+														->draw(true);	
+														?>	
+													</div>
+												</div>
+												<br><br>
+												<div class="row">
+													<div class="col-md-12 text-center">
+														<button class="btn btn-info" id = "editSupplement">Save</button>
+													</div>	
+												</div>
+											</form>
+											<br><br>
+											<div class="row">
+												<div class="panel panel-default">
+													<div class="box-body table table-responsive">
+														<table id="itemsTable" class="table table-striped table-condensed table-bordered table-hover">
+															<?
+															echo $ui->loadElement('table')
+															->setHeaderClass('info')
+															->addHeader('',array('class' => 'col-md-1 text-center'))
+															->addHeader('Account Name', array('class' => 'col-md-2 text-center'),'sort', 'ca.accountname')
+															->addHeader('Description', array('class' => 'col-md-2 text-center'),'sort', 'bs.description')
+															->addHeader('Amount', array('class'=> 'col-md-2 text-center'),'sort', 'bs.amount')
+															->addHeader('Status', array('class'=> 'col-md-2 text-center'))
+															->draw();
+															?>		
+															<tbody id="list_supplements">
+															</tbody>
+														</table>
+														<div id="pagination_supplement"></div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="modal-footer text-right">
+											<button type="button" class="btn btn-default btn-flat" 
+											data-dismiss="modal">Close</button>
+										</div>
+									</div>
+								</div>
+							</div>
 
-					});
-				}
-				tableSort('#tableList', function(value, x) 
-				{
-					ajax.sort = value;
-					ajax.page = 1;
-					if (x) 
-					{
-						showList();
-					}
-				});
-				$( "#table_search" ).keyup(function() 
-				{
-					var search = $( this ).val();
-					ajax.search = search;
-					showList();
-				});
+							<script>
 
-				/**IMPORT**/
-				$('#import-modal').on('show.bs.modal', function() {
-					var form_csv = $('#import_csv').val('').closest('.form-group').
-					find('.form-control').html('').closest('.form-group').html();
-					$('#import_csv').closest('.form-group').html(form_csv);
-				});
+								$('.import').closest('.btn-group').find('li:eq(1)').hide();
+								var ajax = {};
 
-				$('#importForm').on('change', '#import_csv', function() {
-					var filename = $(this).val().split("\\");
-					$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
-				});
+								function show_error(msg) {
+									$(".delete-modal").modal("hide");
+									$(".alert-warning").removeClass("hidden");
+									$("#errmsg").html(msg);
+								}
+								function showList() {
+									$.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data)
+									{
+										$('.checkall').iCheck('uncheck');
+										$('#list_container').html(data.table);
+										$('#pagination').html(data.pagination);
+										$("#export_id").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 
-				$(function() {
-					showList();
+										if (ajax.page > data.page_limit && data.page_limit > 0) 
+										{
+											ajax.page = data.page_limit;
+											showList();
+										}
+									});
+								}
+
+								var id = '';
+								$('#tableList tbody').on('click', '.manage_budget_suppliments', function() {
+									id = $(this).attr('data-id');
+									$.post('<?=MODULE_URL?>ajax/ajax_get_budget_accounts', {id:id}, function(data) {
+										if(data) {
+											$('#accountcodes').html(data).val('').trigger('change');
+											$('#accountcodes').closest('.form-group').removeClass('has-error');
+											$('#accountcodes').closest('.form-group').find('.help-block').html('');
+											$('#modalSupplement').modal('show');
+											$('#budget_id').val(id);
+											getBudgetAccounts();
+										}
+									});
+								});
+
+								function getBudgetAccounts() {
+									$.post('<?=MODULE_URL?>ajax/ajax_get_supplements', {id:id}, function(data) {
+										if(data) {
+											$('#list_supplements').html(data.table);
+											$('#pagination_supplement').html(data.pagination);
+										}
+									});
+								}
+
+								$('#confirmSupplement').on('click', function(e) {
+									e.preventDefault();
+									$('#supplementForm').find('.form-group').find('input, textarea, select').trigger('blur');
+									if ($('#supplementForm').find('.form-group.has-error').length == 0) {
+										$.post('<?=MODULE_URL?>ajax/ajax_save_supplement', $('#supplementForm').serialize(), function(data) {
+											getBudgetAccounts();
+											$('#accountcodes').val('none');
+											$('#description').val('');
+											$('#amount').val('');
+										});
+									} else {
+										$('#supplementForm').find('.form-group.has-error').first().find('input, textarea, select').focus();
+									}
+								});
+
+								$('#itemsTable #list_supplements').on('click', '.delete_supplement', function() {
+									var delete_id = $(this).attr('data-id');
+									$.post('<?=MODULE_URL?>ajax/ajax_delete_supplement', { delete_id : delete_id }, function(data) {
+										if(data) {
+											getBudgetAccounts();
+										}
+									});
+								});
+
+								var edit_id = '';
+								$('#itemsTable #list_supplements').on('click', '.edit_supplement', function() {
+									edit_id = $(this).attr('data-id');
+									$('#supplementForm').attr('hidden', 'hidden');
+									$('#supplementForm').attr('disabled', 'disabled');
+									$('#supplementFormEdit').removeAttr('hidden');
+									$('#supplementFormEdit').removeAttr('disabled');
+									$.post('<?=MODULE_URL?>ajax/ajax_edit_supplement', { edit_id : edit_id }, function(data) {
+										if(data) {
+											$('#code_edit').val(data.accountcode);
+											$('#accountcode_edit').val(data.accountname);
+											$('#description_edit').val(data.description);
+											$('#amount_edit').val(data.amount);
+										}
+									});
+								});
+								var budget_id = '';
+								$('#itemsTable #list_supplements').on('click', '.approve_supplement', function() {
+									budget_id = $(this).attr('data-id');
+									$('#modalSupplement').modal('hide');
+									$('#modalApproveSupplement').modal('show');
+								});
+
+								$('#itemsTable #list_supplements').on('click', '.reject_supplement', function() {
+									budget_id = $(this).attr('data-id');
+									$('#modalSupplement').modal('hide');
+									$('#modalRejectSupplement').modal('show');
+								});
+
+								$('#btnApproveSupplement').on('click', function(e) {
+									$.post('<?=MODULE_URL?>ajax/ajax_update_approve_status_supplement', { budget_id : budget_id }, function(data) {
+										if(data) {
+											$('#modalApproveSupplement').modal('hide');
+											$('#modalSupplement').modal('show');
+											getBudgetAccounts();
+										}
+									});
+								});
+
+								$('#btnRejectSupplement').on('click', function(e) { 
+									$.post('<?=MODULE_URL?>ajax/ajax_update_reject_status_supplement', { budget_id : budget_id }, function(data) {
+										if(data) {
+											$('#modalRejectSupplement').modal('hide');
+											$('#modalSupplement').modal('show');
+											getBudgetAccounts();
+										}
+									});
+								});
+
+								$('#editSupplement').on('click', function(e) {
+									e.preventDefault();
+									$('#supplementForm').removeAttr('hidden');
+									$('#supplementForm').removeAttr('disabled');
+									$('#supplementFormEdit').attr('hidden', 'hidden');
+									$('#supplementFormEdit').attr('disabled', 'hidden');
+									$.post('<?=MODULE_URL?>ajax/ajax_save_edit_supplement', $('#supplementFormEdit').serialize() + '&edit_id=' + edit_id, function(data) {
+										if(data) {
+											getBudgetAccounts();
+										}
+									});
+								});
+
+
+								tableSort('#tableList', function(value, x) 
+								{
+									ajax.sort = value;
+									ajax.page = 1;
+									if (x) 
+									{
+										showList();
+									}
+								});
+								$( "#table_search" ).keyup(function() 
+								{
+									var search = $( this ).val();
+									ajax.search = search;
+									showList();
+								});
+
+								/**IMPORT**/
+								$('#import-modal').on('show.bs.modal', function() {
+									var form_csv = $('#import_csv').val('').closest('.form-group').
+									find('.form-control').html('').closest('.form-group').html();
+									$('#import_csv').closest('.form-group').html(form_csv);
+								});
+
+								$('#importForm').on('change', '#import_csv', function() {
+									var filename = $(this).val().split("\\");
+									$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
+								});
+
+								$(function() {
+									showList();
 
 		// $("#selectall").click(function() 
 		// {
