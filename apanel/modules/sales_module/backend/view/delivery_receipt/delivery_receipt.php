@@ -281,9 +281,9 @@
 						<thead>
 							<tr class="info">
 								<th class="col-xs-2"></th>
-								<th class="col-xs-3">Serial No.</th>
-								<th class="col-xs-3">Engine No.</th>
-								<th class="col-xs-4">Chassis No.</th>
+								<th id = "serial_header">Serial No.</th>
+								<th id = "engine_header">Engine No.</th>
+								<th id = "chassis_header">Chassis No.</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -954,6 +954,7 @@
 		var task = '';
 		var type = '';
 		var quantityleft = '';
+		var item_ident = '';
 		$('#tableList tbody').on('click', '.serialbtn', function() {
 			itemrow = $(this);
 			linenum = $(this).closest('tr').find('span').attr('id')
@@ -961,6 +962,7 @@
 			description = $(this).closest('tr').find('.h_detailparticular').val();
 			serials = $(this).closest('tr').find('.serialnumbers').val();
 			quantityleft = $(this).closest('tr').find('.quantityleft').val();
+			item_ident = $(this).closest('tr').find('.item_ident_flag').val();
 			check_num = $(this).val();
 			if ($(this).hasClass('mainitem')) {
 				type = 'mainitem';
@@ -968,14 +970,49 @@
 			else {
 				type = 'itempart';
 			}
-			tagSerial(itemcode, description, serials, check_num, type, quantityleft);	
+			tagSerial(itemcode, description, serials, check_num, type, quantityleft, item_ident);	
 		});
 
-		function tagSerial(itemcode, description, serials, check_num, type, quantityleft) {
+		function tagSerial(itemcode, description, serials, check_num, type, quantityleft, item_ident) {
 			$('#serialModal').modal('show');
 			$('#serialModal #checkcount').val(check_num);
 			$("#serialModal #sec_itemcode").val(itemcode).prop('disabled', 'disabled').css('border', 'white').css('background', 'white');
 			$("#serialModal #sec_description").val(description).prop('disabled', 'disabled').css('border', 'white').css('background', 'white');
+			if (item_ident == '100') {
+				$('#serial_header').show().addClass('col-xs-10');
+				$('#engine_header').hide();
+				$('#chassis_header').hide();
+			}
+			else if (item_ident == '010') {
+				$('#serial_header').hide();
+				$('#engine_header').show().addClass('col-xs-10');
+				$('#chassis_header').hide();
+			}
+			else if (item_ident == '001') {
+				$('#serial_header').hide();
+				$('#engine_header').hide();
+				$('#chassis_header').addClass('col-xs-10').show();
+			}
+			else if (item_ident == '110') {
+				$('#serial_header').show().addClass('col-xs-5');
+				$('#engine_header').show().addClass('col-xs-5');
+				$('#chassis_header').hide();
+			}
+			else if (item_ident == '101') {
+				$('#serial_header').show().addClass('col-xs-5');
+				$('#engine_header').hide();
+				$('#chassis_header').show().addClass('col-xs-5');
+			}
+			else if (item_ident == '011') {
+				$('#serial_header').hide();
+				$('#engine_header').show().addClass('col-xs-5');
+				$('#chassis_header').show().addClass('col-xs-5');
+			}
+			else if (item_ident == '111') {
+				$('#serial_header').show().addClass('col-xs-3');
+				$('#engine_header').show().addClass('col-xs-3');
+				$('#chassis_header').show().addClass('col-xs-4');
+			}
 		}
 
 		function getSerialList() {
@@ -987,6 +1024,7 @@
 			//ajax.linenum = linenum;
 			ajax.allserials = $('#main_serial').val();
 			ajax.id = itemrow.closest('tr').find('.serialnumbers').val();
+			ajax.item_ident = itemrow.closest('tr').find('.item_ident_flag').val();
 			task = $('#task').val();
 			ajax.task = $('#task').val();
 			if (task=='ajax_edit') {

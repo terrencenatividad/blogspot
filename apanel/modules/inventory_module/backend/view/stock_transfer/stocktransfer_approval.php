@@ -113,7 +113,7 @@
 					<div class="col-md-6">
 						<?php
 						echo $ui->formField('text')
-								->setLabel('Approved By')
+								->setLabel('Released By')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('approved_by')
 								->setId('approved_by')
