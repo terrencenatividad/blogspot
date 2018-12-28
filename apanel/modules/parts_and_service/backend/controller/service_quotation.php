@@ -74,8 +74,6 @@ class controller extends wc_controller {
 			array(
 				'jquery.dirrty.js',
 				'jquery.ui.widget.js',
-				'tmpl.min.js',
-				'load-image.all.min.js',
 				'jquery.iframe-transport.js',
 				'jquery.fileupload.js',
 				'jquery.fileupload-process.js',
@@ -471,8 +469,6 @@ class controller extends wc_controller {
 		$itemqty = [];
 		$itemuom = [];
 		$table = '';
-
-				
 		foreach ($result as $key => $row) {
 			$table .= '<tr class="subitem'.$parentline.'">';
 			$table .= '<td>' . $ui->formField('dropdown')
@@ -565,7 +561,7 @@ class controller extends wc_controller {
 								->setName("displaytaxcode[]")
 								->setAttribute(array('disabled', true))
 								->setValue('none')
-								->setList(array('none'=>'None'))
+								->setList(array('0'=>'None'))
 								->setClass('taxcode')
 								->draw(true); 
 						'</td>';
@@ -583,6 +579,51 @@ class controller extends wc_controller {
 			$table .= '</tr>';
 		}
 		return array('table' => $table);
+	}
+
+	private function ajax_upload_file()
+	{
+		$post_data 		= $this->input->post();
+		$upload_handler	= new UploadHandler();
+		//$caseno 		= $post_data['caseno'];
+		
+		if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
+			var_dump($upload_handler->response['files']);
+			foreach($upload_handler->response['files'] as $key => $row) {
+				//echo $row->deleteUrl;
+			}
+		}
+		// if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
+		// 	if(!$upload_handler->response['files'][0]->error){
+		// 		/**
+		// 		 * Generate Attachment Id
+		// 		 * @param table
+		// 		 * @param group fields
+		// 		 * @param custom condition
+		// 		 */
+		// 		$attachment_id = $this->case->getNextId("claim_report_attachments","attachment_id"," AND caseno = '$caseno' AND report_id = '$report' ");
+				
+		// 		foreach($upload_handler->response['files'] as $key => $row) {
+		// 			if ($row->deleteUrl) {
+		// 				$post_data['attachment_id'] 	= $attachment_id;
+		// 				$post_data['attachment_name'] 	= $row->name;
+		// 				$post_data['type'] 				= $row->type;
+		// 				$post_data['url'] 				= $row->url;
+		// 			}
+		// 		}
+		// 		$this->case->uploadAttachment($post_data);
+		// 	}else{
+		// 		foreach($upload_handler->response['files'] as $key => $row) {
+		// 			if ($row->deleteUrl) {
+		// 				$post_data['attachment_id'] 	= $attachment_id;
+		// 				$post_data['attachment_name'] 	= $row->name;
+		// 				$post_data['type'] 				= $row->type;
+		// 				$post_data['url'] 				= $row->url;
+		// 			}
+		// 		}
+		// 		$this->case->deleteAttachment($post_data);
+		// 	}
+		// }
 	}
 
 	public function generateRandomString($length = 10){
