@@ -136,7 +136,7 @@
 			</div>
 			</div>
 		</div>
-		<!-- <div id="pagination"></div> -->
+		<div id="pagination"></div>
 	</section>
 	<script>
 		var ajax = filterFromURL();

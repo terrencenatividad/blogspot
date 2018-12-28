@@ -41,6 +41,50 @@ class purchase_receipt_model extends wc_model {
 		return $result;
 	}
 
+	public function saveSerialNumbers($data, $voucherno){
+		$number_of_items = sizeof($data['linenum']);
+		$voucherno = $voucherno;
+		$source_no = $data['source_no'];
+
+		for ($i = 0 ; $i < ($number_of_items) ; $i++){
+			$serialized_flag = $data['item_ident_flag'][$i]; 
+			$itemcode = $data['itemcode'][$i];
+			$linenum = intval($data['linenum'][$i]);
+			$item_quantity = intval($data['receiptqty'][$i]);
+			$sn = explode(",",$data['serial_no_list'][$i]);
+			$en = explode(",",$data['engine_no_list'][$i]);
+			$cn = explode(",",$data['chassis_no_list'][$i]);
+			
+			echo $item_quantity." ";
+
+			if ($serialized_flag != '0' && $item_quantity > 0) {
+				for ($rowno = 0 ; $rowno < $item_quantity ; $rowno++){
+					
+					$values = array(
+						'voucherno' => $voucherno,
+						'source_no' => $source_no,
+						'itemcode' => $itemcode,
+						'linenum' => $linenum,
+						'rowno' => $rowno+1,
+						'serialno' => $sn[$rowno],
+						'engineno' => $en[$rowno],
+						'chassisno' => $cn[$rowno],	
+					);
+					
+					$result = $this->saveSerialToDb($values);
+				}
+			}
+		}
+	}
+
+	public function saveSerialToDb($values) {
+		$result = $this->db->setTable('items_serialized')
+							->setValues($values)
+							->runInsert();
+		
+		return $result;
+	}
+
 	private function getAmounts(&$data, &$data2) {
 		$this->cleanNumber($data, array('amount', 'netamount', 'discountamount', 'taxamount', 'wtaxamount'));
 		$this->cleanNumber($data2, array('receiptqty', 'unitprice', 'taxamount', 'amount'));
@@ -60,7 +104,7 @@ class purchase_receipt_model extends wc_model {
 		$this->db->setTable('purchasereceipt_details')
 					->setWhere("voucherno = '$voucherno'")
 					->runDelete();
-
+		
 		$result = $this->db->setTable('purchasereceipt_details')
 							->setValuesFromPost($data)
 							->runInsert();

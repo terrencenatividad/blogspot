@@ -66,6 +66,23 @@ class controller extends wc_controller {
 	}
 	public function listing() {
 		$this->view->title		= 'Service Quotation';
+		$this->view->addCSS(array(
+				'jquery.fileupload.css'
+			)
+		);  
+		$this->view->addJS(
+			array(
+				'jquery.dirrty.js',
+				'jquery.ui.widget.js',
+				'tmpl.min.js',
+				'load-image.all.min.js',
+				'jquery.iframe-transport.js',
+				'jquery.fileupload.js',
+				'jquery.fileupload-process.js',
+				'jquery.fileupload-validate.js',
+				'jquery.fileupload-ui.js'
+			)
+		);
 		$data['customer_list']	= $this->service_quotation->getCustomerList();
 		$data['ui']				= $this->ui;
 		$this->view->load('service_quotation/service_quotation_list', $data);

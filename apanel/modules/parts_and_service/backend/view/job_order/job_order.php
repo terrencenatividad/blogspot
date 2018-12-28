@@ -159,7 +159,7 @@
 										echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 									}
 								?>
-								<?php if(!$show_input):?><a href="http://localhost/triglobe/apanel/parts_and_service/job_order/payment/1" class="btn btn-warning">Issue Parts</a><?endif;?>
+								<?php if(!$show_input):?><a href="http://localhost/triglobe/apanel/parts_and_service/job_order/payment/<?php echo $job_order_no ?>" class="btn btn-warning">Issue Parts</a><?endif;?>
 								<?php
 									// echo '&nbsp;&nbsp;&nbsp;';
 									echo $ui->drawCancel();
@@ -423,12 +423,12 @@
 		var ajax_call	= '';
 		var min_row		= 1;
 		function addVoucherDetails(details, index) {
-			var details = details || {itemcode: '', detailparticular: '', warehouse: '', qty: '0', uom: 'PCS', childqty : '0', linenum : '0', isbundle : 'No', parentline : '', parentcode : ''};
+			var details = details || {itemcode: '', detailparticular: '', warehouse: '', quantity: '0', uom: 'PCS', childqty : '0', linenum : '0', isbundle : 'No', parentline : '', parentcode : ''};
 			var other_details = JSON.parse(JSON.stringify(details));
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
 			delete other_details.warehouse;
-			delete other_details.qty;
+			delete other_details.quantity;
 			delete other_details.childqty;
 			delete other_details.linenum;
 			delete other_details.isbundle;
@@ -446,10 +446,12 @@
 					 ?>`;
 				}
 			}
-			// console.log(index);
+			// I added a condition that if details.linenum (retrieved data) is 0 (meaning, nothing was retrieved), the line number should refer to the passed index..
+			var linenum = (details.linenum != 0) ? details.linenum : index + 1; 
+			
 			var row = ``;
 			if(details.parentcode == ""){
-				var asd = 'parents'+details.linenum;
+				var asd = 'parents'+linenum;
 			}else{
 				var asd = 'subitem'+details.parentline;
 			}
@@ -459,7 +461,7 @@
 				var dsa = 'data-isbundle="0"';
 			}
 			row += `
-				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.qty+`" data-linenum="`+details.linenum+`">`;
+				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.quantityt+`" data-linenum="`+linenum+`">`;
 			row += `<td>
 						<?php
 							$value = "<span id='temp_view_itemcode_` + index + `'>` + details.itemcode + `</span>";
@@ -472,30 +474,30 @@
 								->setValue($value)
 								->draw($show_input);
 
-							echo $ui->formField('hidden')
+							 $ui->formField('hidden')
 								->setName('h_itemcode[]')
 								->setClass('h_itemcode')
 								->setValue('` + details.itemcode + `')
 								->draw($show_input);
-							echo $ui->formField('hidden')
+							 $ui->formField('hidden')
 								->setName('childqty[]')
 								->setClass('childqty')
-								->setValue('` + details.qty + `')
+								->setValue('` + details.quantity + `')
 								->draw($show_input);
-							echo $ui->formField('hidden')
+							 $ui->formField('hidden')
 								->setName('parentline[]')
 								->setClass('parentline')
 								->setValue('` + details.parentline + `')
 								->draw($show_input);
-							echo $ui->formField('hidden')
+							 $ui->formField('hidden')
 								->setName('isbundle[]')
 								->setClass('isbundle')
 								->setValue('` + details.isbundle + `')
 								->draw($show_input);
-							echo $ui->formField('hidden')
+							 $ui->formField('hidden')
 								->setName('linenum[]')
 								->setClass('linenum')
-								->setValue('` + details.linenum + `')
+								->setValue('` + linenum + `')
 								->draw($show_input);
 						?>
 					</td>
@@ -509,9 +511,8 @@
 								->draw($show_input);
 						?>
 					</td>`;
-
 					if(details.parentcode == ''){
-					row += `<td class="text-right">
+					row += `<td class="text-left">
 					<?php
 							$value = "<span id='temp_view_warehouse_` + index + `'></span>";
 							echo $ui->formField('dropdown')
@@ -520,20 +521,20 @@
 								->setClass('warehouse parent')
 								->setList($warehouse_list)
 								->setNone('Selected: None')
-								->setAttribute(array('data-linenum' => '` + (details.linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
 								->setValue($value)
 								->draw($show_input);
 
 							echo $ui->formField('hidden')
 								->setName('h_warehouse[]')
 								->setClass('h_warehouse parts warehouse')
-								->setAttribute(array('data-linenum' => '` + (details.linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
 								->setValue('` + details.warehouse + `')
 								->draw($show_input);
 						?> ` + otherdetails + ` </td>
 						`;
 					}else{
-						row += `<td class="text-right">
+						row += `<td class="text-left">
 						<?php
 							$value = "<span id='temp_view_warehouse_` + index + `'></span>";
 							echo $ui->formField('dropdown')
@@ -542,14 +543,14 @@
 								->setClass('warehouse parts')
 								->setList($warehouse_list)
 								->setNone('Selected: None')
-								->setAttribute(array('disabled' => 'disabled', 'data-linenum' => '` + (details.linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
-								->setValue('')
+								->setAttribute(array('disabled' => 'disabled', 'data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setValue('` + details.warehouse + `')
 								->draw($show_input);
 
-							echo $ui->formField('hidden')
+							 $ui->formField('hidden')
 								->setName('h_warehouse[]')
 								->setClass('h_warehouse warehouse')
-								->setAttribute(array('data-linenum' => '` + (details.linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
 								->setValue('` + details.warehouse + `')
 								->draw($show_input);
 						?>` + otherdetails + ` </td>
@@ -563,9 +564,9 @@
 										->setSplit('', 'col-md-12')
 										->setName('qty[]')
 										->setClass('qty text-right')
-										->setAttribute(array('data-value' => '` + (parseFloat(details.qty) || 0) + `'))
+										->setAttribute(array('data-value' => '` + (parseFloat(details.quantity) || 0) + `'))
 										->setValidation('required integer')
-										->setValue('` + (addComma(details.qty, 0) || 0) + `')
+										->setValue('` + (addComma(details.quantity, 0) || 0) + `')
 										->draw($show_input);
 							?> ` + otherdetails + ` </td>
 						`;
@@ -576,9 +577,9 @@
 										->setSplit('', 'col-md-12')
 										->setName('qty[]')
 										->setClass('qty text-right childqty')
-										->setAttribute(array('readonly' => 'readonly','data-value' => '` + (parseFloat(details.qty) || 0) + `'))
+										->setAttribute(array('readonly' => 'readonly','data-value' => '` + (parseFloat(details.quantity) || 0) + `'))
 										->setValidation('required integer')
-										->setValue('` + (parseFloat(details.qty) || 0) + `')
+										->setValue('` + (parseFloat(details.quantity) || 0) + `')
 										->draw($show_input);
 							?> ` + otherdetails + ` </td>
 						`;
@@ -592,7 +593,7 @@
 								->setValue('` + details.uom.toUpperCase() + `')
 								->draw(false);
 
-							echo $ui->formField('hidden')
+							 $ui->formField('hidden')
 								->setName('h_uom[]')
 								->setSplit('', 'col-md-12')
 								->setValue('` + details.uom.toUpperCase() + `')
@@ -656,7 +657,7 @@
 								->setSplit('', 'col-md-12')
 								->setName('qty[]')
 								->setClass('qty text-right')
-								->setAttribute(array('data-value' => '` + (parseFloat(details.qty) || 0) + `'))
+								->setAttribute(array('data-value' => '` + (parseFloat(details.quantity) || 0) + `'))
 								->setValidation('required integer')
 								->setValue('` + (addComma(1, 0) || 0) + `')
 								->draw($show_input);
@@ -720,7 +721,6 @@
 			}
 		}
 		var voucher_details = <?php echo $voucher_details ?>;
-		console.log(voucher_details);
 		function displayDetails(details) {
 			if (details.length < min_row) {
 				for (var x = details.length; x < min_row; x++) {
@@ -820,7 +820,9 @@
 	<?php if ($show_input): ?>
 	<script>
 		$('#addNewItemJODetails').on('click', function() {
-			addVoucherDetails();
+			var count_lines = $('#tableList tbody tr').length; // This is to count the initial rows on the table after clicking the add new line button
+			// console.log(" COUNT "+count_lines);
+			addVoucherDetails('',count_lines);
 		});
 		<?php // if ($ajax_task == 'ajax_create'): ?>
 		$('#service_quotation').on('focus', function() {
@@ -900,6 +902,7 @@
 			$('#ordered_list_modal').modal('hide');
 			loadPackingListDetails();
 			document.getElementById('addNewItemJODetails').style.visibility = 'hidden';
+
 		});
 		function loadPackingListDetails() {
 			var voucherno = $('#service_quotation').val();
@@ -913,6 +916,9 @@
 						displayHeader(data.header);
 						$('.itemcode').prop('disabled','true');
 						$('.detailparticular').prop('readonly','true');
+						$('.qty').prop('readonly','true');
+						$('.warehouse').prop('disabled','true');
+						//$('#tableList tbody .warehouse').prop('disabled','true');
 					}
 				});
 			}
@@ -935,15 +941,16 @@
 			var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
 			recomputeAll();
 			
+			console.log(header_values);
+			
 			$('#submit_container [type="submit"]').attr('disabled', true);
 			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
 			if (form_element.find('.form-group.has-error').length == 0) {
 				var items = 0;
-				$('.qty:not([readonly])').each(function() {
+				$('.qty').each(function() {
 					items += removeComma($(this).val());
 				});
-				if ($('.qty:not([readonly])').length > 0 && items > 0) {
-					console.log(form_element.serialize());
+				if ($('.qty').length > 0 && items > 0) {
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
 						if (data.success) {
 							$('#delay_modal').modal('show');
