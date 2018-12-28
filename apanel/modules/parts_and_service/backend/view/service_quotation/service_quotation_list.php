@@ -106,18 +106,17 @@
 			<div class="modal-content">
 			<form method = "post" id="attachments_form" enctype="multipart/form-data">
 				<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Attach File</h4>
-				<h4 class="modal-title">Service Quotation No: <span id="modal-voucher"></span></h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Attach File for <span id="modal-voucher"></span></h4>
 				</div>
 				<div class="modal-body">
 					<div class="form-group">
 						<input type="hidden" name="voucherno" id='input_voucherno'>
 						<?php
 							echo $ui->setElement('file')
-									->setId('import_pdf')
-									->setName('import_pdf')
-									->setAttribute(array('accept' => '.jpg, .pdf'))
+									->setId('files')
+									->setName('files')
+									->setAttribute(array('accept' => '.pdf, .jpg, .png'))
 									->setValidation('required')
 									->draw();
 						?>
@@ -128,7 +127,7 @@
 				<div class="modal-footer">
 					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 						<div class="btn-group">
-						<button type = "button" class = "btn btn-primary btn-sm btn-flat">Attach</button>
+						<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button">Attach</button>
 						</div>
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
@@ -259,11 +258,7 @@
 
 	</script>
 
-<script type="text/javascript">
-	$('#attachments_form').on('change', '#import_pdf', function() {
-    var filename = $(this).val().split("\\");
-    $(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
-  }); 
+<script>
 $(function () {
 	'use strict';
 
@@ -271,103 +266,48 @@ $(function () {
 		url: '<?= MODULE_URL ?>ajax/ajax_upload_file',
 		maxFileSize: 2000000,
 		disableExifThumbnail :true,
-		previewThumbnail:false
+		previewThumbnail:false,
+		autoUpload:false,
+		add: function (e, data) {            
+			$("#attach_button").off('click').on('click', function () {
+				data.submit();
+			});
+		},
 	});
 	$('#attachments_form').addClass('fileupload-processing');
 	$.ajax({
 		url: $('#attachments_form').fileupload('option', 'url'),
 		dataType: 'json',
-		context: $('#attachments_form')
+		context: $('#attachments_form')[0]
 	}).always(function () {
 		$(this).removeClass('fileupload-processing');
 	}).done(function (result) {
 		$(this).fileupload('option', 'done')
 			.call(this, $.Event('done'), {result: result});
 	});
+
+	$('#attachments_form').bind('fileuploadadd', function (e, data) {
+		var filename = data.files[0].name;
+		$('#attachments_form #files').closest('.input-group').find('.form-control').html(filename);
+	});
 	$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
 		var voucherno 		=  $('#input_voucherno').val();
 		data.formData = {voucherno: voucherno};
 	});
-	$('#attachments_form').bind('fileuploadadd', function(e,data) {
-		var currentfiles = [];
-		$(this).fileupload('option').filesContainer.children().each(function(){
-			currentfiles.push($.trim($('.name a', this).attr('title')));
-		});
-		data.files = $.map(data.files, function(file,i){
-			if ($.inArray(file.name,currentfiles) >= 0) { 
-				bootbox.dialog({
-					title: 'File Exist',
-					message: "File <strong>"+file.name+"</strong> already exist, please select another file.",
-					buttons: {
-						confirm: {
-							label: 'Ok',
-							className: 'btn-info',
-							callback: function(){
-								
-							}
-						}
-					}
-				});
-				return null; 
-			}
-			return file;
-		});
-	});
 	$('#attachments_form').bind('fileuploadalways', function (e, data) {
-		var error = data.result['files'][0]['error'];
-		if(!error){
-			$.post("<?=MODULE_URL?>ajax/update",$('#case_form').serialize()+'&action=attach')
-			.done(function(jsondata)
-			{	
-				var code 	= jsondata.code;
-				var result	= jsondata.msg;
-				if(code){
-					$('#case_form #caseno').val(result);
-					ajax_attachments.caseno = result;
-				}
-			});
-		}
-	});	
-	$('#attachments_form').bind('fileuploaddestroy', function (e, data) {
-		var attachment_id 	= data.id;
-		var attachment_file = data.file;
-		var voucherno 			= $('#input_voucherno').val();
-		
-		$.post('<?=MODULE_URL?>ajax/delete_case_attachment',{
-			caseno			: caseno,
-			attachment_id	: attachment_id,
-			attachment_file	: attachment_file
-		}, function(data) {
-			//getCaseAttachments();
-		});
-
-		// var dialog = bootbox.dialog({
-		// 	title: 'Confirmation : Delete Attachment',
-		// 	message: "<p>Are you sure you want to delete this attachment?</p>",
-		// 	buttons: {
-		// 		yes: {
-		// 			label: "Yes",
-		// 			className: 'btn-info btn-flat',
-		// 			callback: function(){
-		// 				$.post('<?=MODULE_URL?>ajax/delete_attachment',{
-		// 					caseno			: caseno,
-		// 					report_id 		: report_id,
-		// 					attachment_id	: attachment_id,
-		// 					attachment_file	: attachment_file
-		// 				}, function(data) {
-		// 					//getAttachments();
-		// 				});
-		// 			}
-		// 		},
-		// 		no: {
-		// 			label: "No",
-		// 			className: 'btn-default btn-flat',
-		// 			callback: function(){
-						
-		// 			}
+		//var error = data.result['files'][0]['error'];
+		// if(!error){
+		// 	$.post("<?=MODULE_URL?>ajax/update",$('#case_form').serialize()+'&action=attach')
+		// 	.done(function(jsondata)
+		// 	{	
+		// 		var code 	= jsondata.code;
+		// 		var result	= jsondata.msg;
+		// 		if(code){
+		// 			$('#case_form #caseno').val(result);
+		// 			ajax_attachments.caseno = result;
 		// 		}
-		// 	}
-		// });
+		// 	});
+		// }
 	});
 });
 </script>
