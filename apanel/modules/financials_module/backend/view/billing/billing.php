@@ -848,7 +848,22 @@
 			var jono = $(this).attr('data-id');
 			$('#job_orderno').val(jono).trigger('blur');
 			$('#jo_list_modal').modal('hide');
+			$('#addNewItem').hide();
+			loadJODetails();
 		});
+		function loadJODetails() {
+			var voucherno = $('#job_orderno').val();
+			if (voucherno) {
+				ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_ordered_details', { voucherno: voucherno }, function(data) {
+					if ( ! data.success) {
+						$('#tableList tbody').html(data.table);
+					} else {
+						$('#tableList tbody').html('');
+						displayDetails(data.details);
+					}
+				});
+			}
+		}
 
 		$('.fulldaterange').daterangepicker({
 			timePicker: true,
