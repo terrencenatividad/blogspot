@@ -488,6 +488,27 @@
 									->setClass('withholdingamount')	
 									->setValue('` + (parseFloat(details.withholdingamount) || 0) + `')
 									->draw();
+
+							echo $ui->setElement('hidden')
+									->setName('serial_no_list[]')
+									->setID('serial_no`+index+`')
+									->setClass('serial_no')	
+									->setValue('')
+									->draw();
+
+							echo $ui->setElement('hidden')
+									->setName('engine_no_list[]')
+									->setID('engine_no`+index+`')
+									->setClass('engine_no')	
+									->setValue('')
+									->draw();
+
+							echo $ui->setElement('hidden')
+									->setName('chassis_no_list[]')
+									->setID('chassis_no`+index+`')
+									->setClass('chassis_no')	
+									->setValue('')
+									->draw();
 							
 						?>
 					</td>
@@ -704,13 +725,31 @@
 	
 		function saveSerialsInput(index){
 			number_rows = $('#serialize_tableList tbody tr').length;
-			
+			serials = '';
+			engines = '';
+			chassis = '';
 			for (i = 0; i < number_rows; i++) {
 				serialize[index].numbers[i].serialno = $('#serial_no_item\\['+i+'\\]').val();
 				serialize[index].numbers[i].engineno = $('#engine_no_item\\['+i+'\\]').val();
 				serialize[index].numbers[i].chassisno = $('#chassis_no_item\\['+i+'\\]').val();
+
+				if (i==number_rows-1){
+					serials += serialize[index].numbers[i].serialno;
+					engines += serialize[index].numbers[i].engineno;
+					chassis += serialize[index].numbers[i].chassisno;
+				} else {
+					serials += serialize[index].numbers[i].serialno+',';
+					engines += serialize[index].numbers[i].engineno+',';
+					chassis += serialize[index].numbers[i].chassisno+',';
+				}
+				 				
 			}
 			
+			$('#serial_no'+index).val(serials);
+			$('#engine_no'+index).val(engines);
+			$('#chassis_no'+index).val(chassis);
+			// console.log($('#serial_no'+index).val());
+
 			// CHECK NUMBER OF INPUTS FOR QUANTITY IN DB
 			var count = 0;
 			$(".serial_no_item").each(function() {
@@ -960,6 +999,7 @@
 			e.preventDefault();
 			var form_element = $(this).closest('form');
 			var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
+
 			recomputeAll();
 			$('#submit_container [type="submit"]').attr('disabled', true);
 			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');

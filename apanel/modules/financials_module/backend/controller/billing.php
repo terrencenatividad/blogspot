@@ -17,24 +17,29 @@ class controller extends wc_controller {
 			'remarks',
 			'amount',
 			'discounttype',
-			'discountrate',
-			'discountamount',
+			'total_discount'	=> 'discountamount',
 			'netamount',
 			'taxamount',
 			'vat_sales',
 			'vat_exempt',
-			'exchangerate',
+			'vat_zerorated',
+			'exchangerate'
 		);
 		$this->fields2			= array(
 			'itemcode',
 			'detailparticular',
 			'linenum',
 			'issueqty',
+			'issueuom',
 			'unitprice',
 			'taxcode',
 			'taxrate',
 			'detail_taxamount'		=> 'taxamount',
-			'detail_amount'			=> 'amount'
+			'detail_amount'			=> 'amount',
+			'discountamount',
+			'discountedamount',
+			'discounttype',
+			'discount'				=> 'discountrate'
 		);
 		$this->clean_number		= array(
 			'issueqty'
@@ -60,6 +65,8 @@ class controller extends wc_controller {
 		$data["itemdetail_list"]	= $this->billing_model->getItemDetailsList();
 		$data["taxrate_list"]		= $this->billing_model->getTaxRateList();
 		$data["taxrates"]			= $this->billing_model->getTaxRates();
+		$disc_type_data        		= array("code ind","value val");
+		$data["discounttypes"] 		= $this->billing_model->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
 		$data['voucher_details']	= json_encode(array(array('itemcode' => '')));
 		$data['ajax_task']			= 'ajax_create';
 		$data['ajax_post']			= '';
@@ -80,6 +87,8 @@ class controller extends wc_controller {
 		$data['voucher_details']	= json_encode($this->billing_model->getBillingDetails($this->fields2, $voucherno, false));
 		$data["taxrate_list"]		= $this->billing_model->getTaxRateList();
 		$data["taxrates"]			= $this->billing_model->getTaxRates();
+		$disc_type_data        		= array("code ind","value val");
+		$data["discounttypes"] 		= $this->billing_model->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
 		$data['ajax_task']			= 'ajax_edit';
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
@@ -99,6 +108,8 @@ class controller extends wc_controller {
 		$data['voucher_details']	= json_encode($this->billing_model->getBillingDetails($this->fields2, $voucherno));
 		$data["taxrate_list"]		= $this->billing_model->getTaxRateList();
 		$data["taxrates"]			= $this->billing_model->getTaxRates();
+		$disc_type_data        		= array("code ind","value val");
+		$data["discounttypes"] 		= $this->billing_model->getValue("wc_option", $disc_type_data,"type = 'discount_type'");
 		$data['show_input']			= false;
 		$this->view->load('billing/billing', $data);
 	}
