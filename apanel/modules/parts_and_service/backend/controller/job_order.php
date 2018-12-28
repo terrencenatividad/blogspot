@@ -31,7 +31,7 @@ class controller extends wc_controller {
 			'detailparticular',
 			'linenum',
 			'h_warehouse'		=> 'warehouse',
-			'qty'				=> 'quantity',
+			'qty',
 			'h_uom'				=> 'uom',
 			'isbundle',
 			'parentline'
@@ -154,11 +154,11 @@ class controller extends wc_controller {
 		// Closed Date
 		$close_date 				= $this->parts_and_service->getClosedDate();
 		$data['close_date']			= $close_date;
-		$data['restrict_dr'] 		= false;
+		$data['restrict_dr'] 		= true;
 
 		$data['job_order_no']			= $id;
 		// $data['service_quotation']		= "SQ0000000001";
-		$this->view->load('job_order/job_order', $data);
+		$this->view->load('job_order/job_order_view', $data);
 	}
 	public function payment($id) {
 		$this->view->title			= 'Job Order - Issue Parts';
@@ -337,7 +337,7 @@ class controller extends wc_controller {
 		$warehouse	= $this->input->post('warehouse');
 		$details	= $this->job_order->getServiceQuotationDetails($voucherno, $warehouse);
 		$header		= $this->job_order->getServiceQuotationHeader($this->fields_header, $voucherno);
-		
+		//var_dump($details,$header);
 		$table		= '';
 		$success	= true;
 		if (empty($details)) {
@@ -359,31 +359,6 @@ class controller extends wc_controller {
 		$data = $this->input->post($this->fields);
 		$data['stat'] = 'prepared';
 		$data['job_order_no'] = $job_order_no;
-		$data['stat']				= 'prepared';
-		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
-		// $data1 = $this->input->post($this->fields_header);
-		$data2 = $this->input->post($this->fields2);
-		// $data2['job_order_no'] = $job_order_no;
-		// var_dump($data2);
-		// $result  = $this->job_order->saveValues('job_order',$data);
-		// $result1 = $this->job_order->saveFromPost('job_order_details', $data2, $data);
-
-		$result		= $this->job_order->saveJobOrder($data, $data2);
-		
-		return array(
-			'redirect' => MODULE_URL,
-			'success' => $result
-		);
-	}
-
-	private function ajax_view() {
-		$seq 					= new seqcontrol();
-		$job_order_no 			= $seq->getValue("JO");
-		
-		$data = $this->input->post($this->fields);
-		$data['stat'] = 'prepared';
-		$data['job_order_no'] = $job_order_no;
-		$data['stat']				= 'prepared';
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
 		// $data1 = $this->input->post($this->fields_header);
 		$data2 = $this->input->post($this->fields2);
@@ -394,10 +369,12 @@ class controller extends wc_controller {
 		// $result1 = $this->job_order->saveFromPost('job_order_details', $data2, $data);
 
 		$itemcodewosq					= $this->input->post('detail_itemcode');
+		//$itemuom					= $this->input->post('uom');
 		if($data['service_quotation'] == '') {
 			$data2['itemcode']	= $itemcodewosq;
 		}
-		$result		= $this->job_order->saveJobOrder($data, $data2);
+		var_dump($data, $data2);
+		//$result		= $this->job_order->saveJobOrder($data, $data2);
 		
 		return array(
 			'redirect' => MODULE_URL,
@@ -416,5 +393,27 @@ class controller extends wc_controller {
 			}
 		}
 		return array('success' => $msg);
+	}
+
+	private function ajax_load_bundle_details() {
+		$itemcode	= $this->input->post('itemcode');
+		
+		$header		= $this->job_order->retrieveItemDetails($itemcode);
+		$details 	= $this->job_order->retrieveBundleDetails($itemcode);
+		$mainheader = $this->job_order->getItemListforBundle($itemcode);
+		$table		= '';
+		$success	= true;
+		if (empty($details)) {
+			$table		= '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+			$success	= false;
+		}
+		//var_dump($header, $details);
+		return array(
+			'table'		=> $table,
+			'details'	=> $details,
+			'header'	=> $header,
+			'mainheader'=> $mainheader,
+			'success'	=> $success
+		);
 	}
 }
