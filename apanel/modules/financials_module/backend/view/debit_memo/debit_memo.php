@@ -1078,7 +1078,7 @@ echo $ui->loadElement('modal')
 		var ctr = 0;
 		$('#confirmJob').on('click',function(e) {
 			e.preventDefault();
-			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
+			$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
 				if($(this).is(':checked')) {
 					ctr++;
 					var get = $(this).val();
@@ -1090,6 +1090,7 @@ echo $ui->loadElement('modal')
 				} else {
 					$('#job_text').html(job.length);
 				}
+
 				if($(this).is(':checked') == 'false') {
 					$('#job_text').html('0');
 				}
