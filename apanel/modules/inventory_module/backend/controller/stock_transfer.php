@@ -449,7 +449,10 @@ class controller extends wc_controller
 		{
 			$result = $this->delete_approval();
 		}
-
+		else if( $task == 'ajax_load_serial' )
+		{
+			$result = $this->ajax_load_serial();
+		}
 		echo json_encode($result); 
 	}
 
@@ -883,5 +886,23 @@ class controller extends wc_controller
 		);
 	}
 
+	private function ajax_load_serial(){
+		$itemcode 	= $this->input->post('itemcode');
+		$itemname 	= $this->input->post('itemname');
+		$result 	= $this->stock_transfer->retrieveSerial($itemcode);
+		$table 		= '';
+		foreach ($result as $key => $row) {
+			$table 	.= '<tr>';
+			$table 	.= '<td><input type="checkbox" name="chkitem" class="chkitem" data-itemcode="'.$itemcode.'" data-serial="'.$row->serialno.'" data-chassis="'.$row->chassisno.'" data-engine="'.$row->engineno.'"></td>';
+			$table 	.= '<td class="text-center">'.$itemcode.'</td>';
+			$table 	.= '<td class="text-center">'.$itemname.'</td>';
+			$table 	.= '<td class="text-center">'.$row->serialno.'</td>';
+			$table 	.= '<td class="text-center">'.$row->chassisno.'</td>';
+			$table 	.= '<td class="text-center">'.$row->engineno.'</td>';
+			$table 	.= '</tr>';
+		}
+		//$table .= '<script>checkSelected($(".chkitem"));</script>';
+		return $table;
+	}
 }
 ?>

@@ -108,6 +108,20 @@
 						</div>
 					</div>
 				</div>
+				<div class="has-error">
+					<span id="discountError" class="help-block hidden small">
+						<i class="glyphicon glyphicon-exclamation-sign"></i> 
+						You cannot input a Discount Amount greater than your Price Amount.	
+					</span>
+					<span id="discount100Error" class="help-block hidden small">
+						<i class="glyphicon glyphicon-exclamation-sign"></i> 
+						You cannot input a Percentage Discount greater than 100.
+					</span>
+					<span id="negaDiscountError" class="help-block hidden small">
+						<i class="glyphicon glyphicon-exclamation-sign"></i> 
+						You cannot input a Negative Percentage Discount. 
+					</span>
+				</div>	
 				<div class="box-body table-responsive no-padding">
 					<table id="tableList" class="table table-hover table-sidepad only-checkbox full-form">
 						<thead>
@@ -848,7 +862,22 @@
 			var jono = $(this).attr('data-id');
 			$('#job_orderno').val(jono).trigger('blur');
 			$('#jo_list_modal').modal('hide');
+			$('#addNewItem').hide();
+			loadJODetails();
 		});
+		function loadJODetails() {
+			var voucherno = $('#job_orderno').val();
+			if (voucherno) {
+				ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_ordered_details', { voucherno: voucherno }, function(data) {
+					if ( ! data.success) {
+						$('#tableList tbody').html(data.table);
+					} else {
+						$('#tableList tbody').html('');
+						displayDetails(data.details);
+					}
+				});
+			}
+		}
 
 		$('.fulldaterange').daterangepicker({
 			timePicker: true,
@@ -958,6 +987,59 @@
 
 		$('#discounttypeModal').on('click','#disc_no',function(){
 			$('#discounttypeModal').modal('hide');
+		});
+
+		$('#main_form').on('change','.discount',function(e){
+			var dtype 	= 	$('#discounttype').val();
+			var value 	= 	$(this).val();
+
+			var price 	= 	removeComma($(this).closest('tr').find('.unitprice').val());
+			var form 	=	$(this);
+			if( parseFloat(value) > 0 && dtype == ""){
+				$('#discounttype').closest('.form-group').addClass('has-error');
+			} else {
+				if(dtype == "perc" && parseFloat(value) > 100){
+					form.addClass('greaterthan100');
+					form.closest('div').addClass('has-error');
+				} else {
+					form.closest('div').removeClass('has-error');
+				}
+				if(dtype == "perc" && parseFloat(value) < 0){
+					form.closest('div').addClass('has-error');
+					form.addClass('negativediscount');
+				} else {
+					form.closest('div').removeClass('has-error');
+				}
+				if( parseFloat(value) > 0 && parseFloat(value) > parseFloat(price) ){
+					form.addClass('greaterthanprice');
+					form.closest('div').addClass('has-error');
+				} else {
+					form.closest('div').removeClass('has-error');
+				}
+				var pricediscounterrors 	=	$('#main_form .greaterthanprice').closest('tr').find('.has-error').length;
+				var greaterthan100 			=	$('#main_form .greaterthan100').closest('tr').find('.has-error').length;
+				var negativediscount 		=	$('#main_form .negativediscount').closest('tr').find('.has-error').length;
+
+				if(pricediscounterrors > 0){
+					$('#discountError').removeClass('hidden');
+				} else {
+					$('#discountError').addClass('hidden');
+				}
+
+				if(greaterthan100 > 0){
+					$('#discount100Error').removeClass('hidden');
+				} else {
+					$('#discount100Error').addClass('hidden');
+				}
+
+				if(negativediscount > 0){
+					$('#negaDiscountError').removeClass('hidden');
+				} else {
+					$('#negaDiscountError').addClass('hidden');
+				}
+
+			}
+			recomputeAll();
 		});
 	</script>
 	<?php endif ?>

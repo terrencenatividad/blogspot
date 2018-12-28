@@ -335,6 +335,22 @@ class controller extends wc_controller {
 		return $pagination;
 	}
 
+	private function ajax_load_ordered_details() {
+		$voucherno	= $this->input->post('voucherno');
+		$details	= $this->billing_model->getJobOrderDetails($voucherno);
+		$table		= '';
+		$success	= true;
+		if (empty($details)) {
+			$table		= '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+			$success	= false;
+		}
+		return array(
+			'table'		=> $table,
+			'details'	=> $details,
+			'success'	=> $success
+		);
+	}
+
 	private function ajax_update_exchangerate() {
 		$currency_code	= $this->input->post('currency_code');
 		$data			= $this->input->post(array('effectivedate', 'exchangerate'));
