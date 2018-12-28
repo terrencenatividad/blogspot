@@ -217,6 +217,7 @@ class job_order_model extends wc_model
 		$result = $this->db->setTable('job_order_details jod')
 							->setFields($fields)
 							->leftJoin('items i ON i.itemcode = jod.itemcode')
+							->leftJoin('bomdetails bom ON bom.item_code = jod.itemcode')
 							->setWhere("job_order_no = '$voucherno'")
 							->setOrderBy('linenum')
 							->runSelect()
@@ -250,6 +251,30 @@ class job_order_model extends wc_model
 					$this->log->saveActivity("Delete Job Order [$log_id]");
 				}
 			}
+	
+			return $result;
+		}
+
+	public function getSerialList($fields, $itemcode, $search) {
+			$condition = '';
+			if ($search) {
+				$condition .= ' AND ' . $this->generateSearch($search, array('serialno', 'engineno', 'chassisno'));
+			}
+			$result	= $this->db->setTable('items_serialized')
+									->setFields($fields)
+									->setWhere("itemcode = '$itemcode'" .$condition)
+									->setOrderBy('voucherno, linenum, rowno')
+									->runPagination();
+									
+			return $result;
+		}
+
+	public function getJOSerials($itemcode, $voucherno, $linenum) {
+			$result = $this->db->setTable('job_release_details') 
+							->setFields('serialnumbers')
+							->setWhere("itemcode='$itemcode' AND job_order_no='$voucherno' AND linenum='$linenum'")
+							->runSelect()
+							->getRow();
 	
 			return $result;
 		}

@@ -34,7 +34,8 @@ class controller extends wc_controller {
 			'qty'				=> 'quantity',
 			'h_uom'				=> 'uom',
 			'isbundle',
-			'parentline'
+			'parentline',
+			'parentcode'
 		);
 		$this->fields3			= array(
 			'job_order_no',
@@ -42,11 +43,13 @@ class controller extends wc_controller {
 			'detailparticular',
 			'linenum',
 			'warehouse',
-			'quantity',
-			'uom',
+			'jod.quantity',
+			'jod.uom',
 			'isbundle',
+			'parentcode',
 			'parentline',
-			'item_ident_flag'
+			'item_ident_flag',
+			'bom.quantity bomqty'
 		);
 		$this->clean_number		= array(
 			'issueqty'
@@ -312,6 +315,50 @@ class controller extends wc_controller {
 		return $randomString;
 	}
 
+	private function ajax_serial_list() {
+		$search	= $this->input->post('search');
+		$itemcode = $this->input->post('itemcode');
+		$allserials = $this->input->post('allserials');
+		$itemselected = $this->input->post('itemselected');
+		$linenum = $this->input->post('linenumber');
+		$id = $this->input->post('id');
+		$task = $this->input->post('task');
+		$voucherno = '';
+		// var_dump($linenum);
+		if ($task=='ajax_edit') {
+			$voucherno = $this->input->post('voucherno');
+		}
+		$curr = $this->job_order->getJOSerials($itemcode, $voucherno, $linenum);
+		if ($curr) {
+			$current_id = explode(",", $curr->serialnumbers);
+		}
+		else {
+			$current_id = [];
+		}
+		$array_id = explode(',', $id);
+		$all_id = explode(',', $allserials);
+		
+		$fields = array ('id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat');
+		$pagination	= $this->job_order->getSerialList($fields, $itemcode, $search);
+		
+		$table		= '';
+		if (empty($pagination->result)) {
+			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+		}
+		foreach ($pagination->result as $key => $row) {
+			$checker = (in_array($row->id, $array_id) || in_array($row->id, $current_id)) ? 'checked' : '';
+			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id)) || ($row->stat == 'Not Available') && (!in_array($row->id, $current_id))) ? 'hidden' : '';
+			$table .= '<tr class = "'.$hide_tr.'">';
+			$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'" '.$checker.'></td>';
+			$table .= '<td>' . $row->serialno . '</td>';
+			$table .= '<td>' . $row->engineno . '</td>';
+			$table .= '<td>' . $row->chassisno . '</td>';
+			$table .= '</tr>';
+		}
+		$pagination->table = $table;
+		return $pagination;
+	}
+	
 	private function ajax_load_sq_list() {
         $customer   = $this->input->post('customer');
 		$pagination = $this->job_order->getSQPagination($customer);
