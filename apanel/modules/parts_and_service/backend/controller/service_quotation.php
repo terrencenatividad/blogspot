@@ -560,7 +560,7 @@ class controller extends wc_controller {
 								->setSplit('	', 'col-md-12')
 								->setName("displaytaxcode[]")
 								->setAttribute(array('disabled', true))
-								->setValue('none')
+								->setValue('0')
 								->setList(array('0'=>'None'))
 								->setClass('taxcode')
 								->draw(true); 
