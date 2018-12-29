@@ -301,7 +301,8 @@ class billing_model extends wc_model {
 								->innerJoin('job_order jo ON jod.job_order_no = jo.job_order_no AND jod.companycode = jo.companycode')
 								->leftJoin('items i ON i.itemcode = jod.itemcode')
 								->leftJoin('invfile inv ON jod.itemcode = inv.itemcode AND jod.warehouse = inv.warehouse AND jod.companycode = inv.companycode')
-								->setWhere("jo.job_order_no = '$job_order_no'")
+								->leftJoin('itemtype it ON it.id = i.typeid AND it.companycode = i.companycode')
+								->setWhere("jo.job_order_no = '$job_order_no' AND it.label LIKE '%service%'")
 								->runSelect()
 								->getResult();
 
