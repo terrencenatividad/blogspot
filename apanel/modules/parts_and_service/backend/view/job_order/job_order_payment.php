@@ -110,6 +110,12 @@
 											->setId('notes')
 											->setValue($notes)
 											->draw($show_input);
+										echo $ui->formField('hidden')
+											->setName('job_release_no')
+											->setId('job_release_no')
+											->setClass('job_release_no')
+											->setValue('')
+											->draw(true);
 									?>
 								</div>
 							</div>
@@ -154,7 +160,8 @@
 									// echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 								}
 							?>
-							<?php if(!$show_input):?><a class="btn btn-flat btn-success" id="isyu">Issue</a><?endif;?>
+							<?php if(!$show_input):?><a class="btn btn-success" id="isyu">Issue</a><?endif;?>
+							<?php if(!$show_input):?><a class="btn btn-primary hidden" id="save">Save</a><?endif;?>
 							<?php
 								// echo '&nbsp;&nbsp;&nbsp;';
 								echo $ui->drawCancel();
@@ -499,13 +506,13 @@
 									->setClass('quantity text-right')
 									->setAttribute(array('readonly'=>'readonly','data-value' => '` + (parseFloat(details.quantity) || 0) + `'))
 									->setValidation('required integer')
-									->setValue('` + (addComma(details.quantity, 0) || 0) + `')
+									->setValue('0')
 									->draw(true);
 							?>
 							` + otherdetails + `
 						</td>`;
 					} else {
-						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success serialbtn btn-flat col-md-12 text-right itempart quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "` + (parseFloat(details.quantity) || 0) + `">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "` + (parseFloat(details.quantity) || 0) + `"/></td>`;
+						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success serialbtn btn-flat col-md-12 text-right itempart quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "` + (parseFloat(details.quantity) || 0) + `"/></td>`;
 					} 
 					}else{
 						if(details.item_ident_flag == 0){
@@ -518,13 +525,13 @@
 									->setClass('quantity text-right')
 									->setAttribute(array('data-value' => '` + (parseFloat(details.quantity) || 0) + `'))
 									->setValidation('required integer')
-									->setValue('` + (addComma(details.quantity, 0) || 0) + `')
+									->setValue('0')
 									->draw(true);
 							?>
 							` + otherdetails + `
 						</td>`;
 					} else {
-						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right serialbtn itempart quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "` + (parseFloat(details.quantity) || 0) + `">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "` + (parseFloat(details.quantity) || 0) + `"/></td>`;
+						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right serialbtn itempart quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "` + (parseFloat(details.quantity) || 0) + `"/></td>`;
 					}
 					}
 					
@@ -717,7 +724,6 @@
 				var linenum = $(this).closest('tr').data('linenum');
 				$.each($('.subitem'+linenum), function(){
 					var subitemqty 	= $(this).closest('tr').data('value');
-					console.log(value);
 					subitemqty 		= subitemqty * value;
 					$(this).find('.quantity').val(subitemqty);
 				});
@@ -883,9 +889,27 @@
 			});
 		});
 		$('#issuedPartsList tbody').on('click','.editip', function(){
-			$('html, body').animate({
-				scrollTop: $(".familyislove").offset().top
-			}, 500);
+			var jobreleaseno = $(this).closest('tr').data('id');
+			$('#isyu').hide();
+			$('#save').removeClass('hidden');
+
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_issue', 'jobreleaseno='+ jobreleaseno , function(data) {
+							console.log(data.qty);	
+			});
+
+
+
+			$('#job_release_no').val(jobreleaseno);
+			$('html, body').animate({scrollTop: $(".familyislove").offset().top}, 500);
+		});
+
+		$('#save').on('click', function(){
+			var form = $('form').serialize();			
+			var jobreleaseno = $('#job_release_no').val();
+			$.post('<?=MODULE_URL?>ajax/ajax_update_issue', 'jobreleaseno='+ jobreleaseno + form, function(data) {
+							// console.log(form);	
+			});
+			
 		});
 	</script>
 	<?php if ($show_input): ?>

@@ -237,6 +237,28 @@ class job_order_model extends wc_model
 							->getResult();
 		return $result;
 	}
+
+	public function getQty($jobreleaseno) {
+		$result = $this->db->setTable('job_release')
+							->setFields('quantity,itemcode,linenum')
+							->setWhere("job_release_no = '$jobreleaseno'")
+							->setOrderBy('linenum')
+							->runSelect()
+							->getResult();
+		return $result;
+	}
+
+	public function updateIssueParts($job_release_no,$joborderno,$data) {
+		$this->db->setTable('job_release')
+					->setWhere("job_release_no = '$job_release_no'")
+					->runDelete();
+					
+		// $result = $this->db->setTable('job_release')
+		// 					->setValuesFromPost($data)
+		// 					->runInsert();
+		return $result;
+	}
+
 	public function updateSQ($code)
 		{
 			$data['stat'] = 'With JO';
