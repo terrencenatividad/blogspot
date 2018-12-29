@@ -1,7 +1,9 @@
 <section class="content">
 	<ul class="nav nav-tabs">
 		<li class="active"><a href="#main" data-toggle="tab" data-id="main">Details</a></li>
-		<?if(!$show_input):?><li><a href="#files" data-toggle="tab" data-id="files">Attachments</a></li><?endif;?>
+		<?if(!$show_input && $attach_check == 'ready'):?>
+		<li><a href="#files" data-toggle="tab" data-id="files">Attachments</a></li>
+		<?endif;?>
 	</ul>
 	<div class="tab-content">
 		<div class="tab-pane active" id="main">
@@ -225,16 +227,23 @@
 										</tr>
 									</thead>
 									<tbody class="files" id="attachment_list">
-										<tr>
-											<!-- <td colspan="4" class="text-center">
+										<!-- <tr>
+											<td colspan="4" class="text-center">
 												<strong>- No Attachments Available -</strong>
-											</td> -->
+											</td> 
+											<?php 
+											//echo $attachment->row['attachment_url'];
+											//foreach ($attachment as $row) {
+												//print_r ( $single_stuff['question'] );
+											
+											?>
 											<td>
 												<button type="button" id="replace_attachment" name="replace_attachment" class="btn btn-primary">Replace</button>
 											</td>
-											<td><a href="insert uploaded link here">1123132.pdf</a></td>
-											<td>PDF</td>
-										</tr>
+											<td><a href="<?//php echo $row['attachment_url']; ?>"><?//php echo $row['attachment_name']; ?></a></td>
+											<td><?//php echo $row->attachment_type; ?></td>
+											<?php //} ?>
+										</tr> -->
 									</tbody>
 								</table>
 							</div>

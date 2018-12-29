@@ -237,12 +237,11 @@ class controller extends wc_controller {
 									->addView()
 									->addEdit($row->stat == 'Pending')
 									->addDelete($row->stat == 'Pending')
-									->addOtherTask('Tag as Accepted', 'bookmark', $row->stat == 'Pending')
+									->addOtherTask('Approve', 'thumbs-up', $row->stat == 'Pending')
 									->addCheckbox($row->stat == 'Pending')
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->voucherno)
 									->draw();
-
 			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->voucherno . '</td>';
@@ -585,14 +584,41 @@ class controller extends wc_controller {
 	{
 		$post_data 		= $this->input->post();
 		$upload_handler	= new UploadHandler();
-		//$caseno 		= $post_data['caseno'];
-		
+		$reference 		= $post_data['reference'];
+		$upload_result 	= false;
+
 		if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
-			var_dump($upload_handler->response['files']);
-			foreach($upload_handler->response['files'] as $key => $row) {
-				//echo $row->deleteUrl;
+			if(!isset($upload_handler->response['files'][0]->error)){
+				/**
+				 * Generate Attachment Id
+				 * @param table
+				 * @param group fields
+				 * @param custom condition
+				 */
+				$attachment_id = $this->service_quotation->getNextId("service_quotation_attachments","attachment_id");
+				foreach($upload_handler->response['files'] as $key => $row) {
+					$post_data['attachment_id'] 	= $attachment_id;
+					$post_data['attachment_name'] 	= $row->name;
+					$post_data['attachment_type'] 	= $row->type;
+					$post_data['attachment_url']	= $row->url;
+				}
+				$upload_result 	= $this->service_quotation->uploadAttachment($post_data);
+			}else{
+				$upload_result 	= false;
 			}
 		}
+		if($upload_result){
+			/**
+			 * Update status of Service Quotation to Approved
+			 */
+			$this->service_quotation->updateData(array('stat' => 'Approved'), 'servicequotation', " voucherno = '$reference' ");
+		}
+		
+		// $result = array(
+		// 	'upload_result' => $upload_result,
+		// 	'msg'			=> $message
+		// );
+		// return $result;
 		// if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
 		// 	if(!$upload_handler->response['files'][0]->error){
 		// 		/**

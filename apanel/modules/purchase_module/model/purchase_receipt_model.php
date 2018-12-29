@@ -637,4 +637,14 @@ class purchase_receipt_model extends wc_model {
 		return '(' . implode(' OR ', $temp) . ')';
 	}
 
+	public function getSerialNoFromDb() {
+		$result = $this->db->setTable('items_serialized i')
+							->setFields('serialno, engineno, chassisno')
+							// ->setOrderBy('serialno')
+							->runSelect()
+							->getResult();
+		
+		return $result;
+	}
+
 }

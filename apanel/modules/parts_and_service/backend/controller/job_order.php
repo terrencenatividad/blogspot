@@ -64,6 +64,14 @@ class controller extends wc_controller {
 			'serialnumbers',
 			'stat'
 		);
+		$this->fieldsattachment	= array(
+			//'attachment_id',
+			'attachment_url',
+			'attachment_name',
+			'attachment_type',
+			//'reference',
+			//'stat'
+		);
 		$this->clean_number		= array(
 			'issueqty'
 		);
@@ -79,6 +87,21 @@ class controller extends wc_controller {
 		$this->view->title		= 'Job Order';
 		$data['customer_list']	= $this->job_order->getCustomerList();
 		$data['ui']				= $this->ui;
+		$this->view->addCSS(array(
+				'jquery.fileupload.css'
+			)
+		);  
+		$this->view->addJS(
+			array(
+				'jquery.dirrty.js',
+				'jquery.ui.widget.js',
+				'jquery.iframe-transport.js',
+				'jquery.fileupload.js',
+				'jquery.fileupload-process.js',
+				'jquery.fileupload-validate.js',
+				'jquery.fileupload-ui.js'
+			)
+		);
 		$this->view->load('job_order/job_order_list', $data);
 	}
 	public function create() {
@@ -161,7 +184,8 @@ class controller extends wc_controller {
 		$data['warehouse_list']		= $this->job_order->getWarehouseList();
 		$data["taxrate_list"]		= $this->job_order->getTaxRateList();
 		$data["taxrates"]			= $this->job_order->getTaxRates();
-		$data['voucher_details']	= json_encode($this->job_order->getJobOrderDetails($this->fields2, $id));$data['header_values']		= json_encode(array(
+		$data['voucher_details']	= json_encode($this->job_order->getJobOrderDetails($this->fields2, $id));
+		$data['header_values']		= json_encode(array(
 			''
 		));		
 		$data['ajax_task']			= 'ajax_view';
@@ -173,7 +197,13 @@ class controller extends wc_controller {
 		$data['restrict_dr'] 		= true;
 
 		$data['job_order_no']			= $id;
-		// $data['service_quotation']		= "SQ0000000001";
+		$data['attachment']		= $this->job_order->selectAttachment($id,$this->fieldsattachment);
+		$data['attach_check']		= "not ready";
+		if(!empty($data['attachment'])) {
+			$data['attach_check']		= "ready";
+			//$data['attachment_name'] 		= $data['attachment']['attachment_name'];
+			//$data['attachment_type'] 		= $data['attachment']['attachment_type'];
+		}
 		$this->view->load('job_order/job_order_view', $data);
 	}
 	public function payment($id) {
@@ -228,6 +258,7 @@ class controller extends wc_controller {
 									->addDelete($row->stat == 'prepared')
 									->addPrint()
 									->addOtherTask('Add Payment', 'bookmark')
+									->addOtherTask('Tag as Complete', 'bookmark')
 									->addCheckbox($row->stat == 'prepared')
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->job_order_no)
@@ -579,4 +610,40 @@ class controller extends wc_controller {
 			'success' => $result
 		);
 	}
+
+	private function ajax_upload_file()
+	{
+		$post_data 		= $this->input->post();
+		$upload_handler	= new UploadHandler();
+		$reference 		= $post_data['reference'];
+		$upload_result 	= false;
+
+		if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
+			if(!isset($upload_handler->response['files'][0]->error)){
+				/**
+				 * Generate Attachment Id
+				 * @param table
+				 * @param group fields
+				 * @param custom condition
+				 */
+				$attachment_id = $this->job_order->getNextId("job_order_attachments","attachment_id");
+				foreach($upload_handler->response['files'] as $key => $row) {
+					$post_data['attachment_id'] 	= $attachment_id;
+					$post_data['attachment_name'] 	= $row->name;
+					$post_data['attachment_type'] 	= $row->type;
+					$post_data['attachment_url']	= $row->url;
+				}
+				$upload_result 	= $this->job_order->uploadAttachment($post_data);
+			}else{
+				$upload_result 	= false;
+			}
+		}
+		if($upload_result){
+			/**
+			 * Update status of Service Quotation to Approved
+			 */
+			$this->job_order->updateData(array('stat' => 'completed'), 'job_order', " job_order_no = '$reference' ");
+		}
+	}
+	
 }

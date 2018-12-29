@@ -120,9 +120,8 @@
 									->setValidation('required')
 									->draw();
 						?>
-						<span class="help-block"></span>
 					</div>
-					<p class="help-block">The file to be imported shall not exceed the size of 3mb and must be a PDF, PNG or JPG file.</p>
+					<p class="help-block">The file to be imported shall not exceed the size of <strong>3mb</strong> and must be a <strong>PDF, PNG or JPG</strong> file.</p>
 				</div>
 				<div class="modal-footer">
 					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
@@ -131,7 +130,7 @@
 						</div>
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
-						<button type="button" class="btn btn-default btn-sm btn-flat">Cancel</button>
+						<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal">Cancel</button>
 						</div>
 					</div>
 				</div>
@@ -249,10 +248,10 @@
 		});
 	/** -- FOR DELETING DATA -- end **/
 
-		$('#tableList').on('click','.tag_as_accepted',function(){
+		$('#tableList').on('click','.approve',function(){
 			var voucherno = $(this).data('id');
 			$('#modal-voucher').html(voucherno);
-			$('#input_voucherno').html(voucherno);
+			$('#input_voucherno').val(voucherno);
 			$('#attach_modal').modal('show');
 		});
 
@@ -283,7 +282,9 @@ $(function () {
 		$(this).removeClass('fileupload-processing');
 	}).done(function (result) {
 		$(this).fileupload('option', 'done')
-			.call(this, $.Event('done'), {result: result});
+			.call(this, $.Event('done'), {
+				result: result
+			});
 	});
 
 	$('#attachments_form').bind('fileuploadadd', function (e, data) {
@@ -292,22 +293,24 @@ $(function () {
 	});
 	$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
 		var voucherno 		=  $('#input_voucherno').val();
-		data.formData = {voucherno: voucherno};
+		data.formData = {reference: voucherno};
 	});
 	$('#attachments_form').bind('fileuploadalways', function (e, data) {
-		//var error = data.result['files'][0]['error'];
-		// if(!error){
-		// 	$.post("<?=MODULE_URL?>ajax/update",$('#case_form').serialize()+'&action=attach')
-		// 	.done(function(jsondata)
-		// 	{	
-		// 		var code 	= jsondata.code;
-		// 		var result	= jsondata.msg;
-		// 		if(code){
-		// 			$('#case_form #caseno').val(result);
-		// 			ajax_attachments.caseno = result;
-		// 		}
-		// 	});
-		// }
+		var error = data.result['files'][0]['error'];
+		var form_group = $('#attachments_form #files').closest('.form-group');
+		if(!error){
+			$('#attach_modal').modal('hide');
+			var msg = data.result['files'][0]['name'];
+			form_group.removeClass('has-error');
+			form_group.find('p.help-block.m-none').html('');
+
+			$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
+			getList();
+		}else{
+			var msg = data.result['files'][0]['name'];
+			form_group.addClass('has-error');
+			form_group.find('p.help-block.m-none').html(msg);
+		}
 	});
 });
 </script>
