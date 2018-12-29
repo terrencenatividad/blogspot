@@ -367,14 +367,17 @@ class controller extends wc_controller {
 
 		// $result  = $this->job_order->saveValues('job_order',$data);
 		// $result1 = $this->job_order->saveFromPost('job_order_details', $data2, $data);
-
+		$dataparticular		= $this->input->post('h_detailparticular');
+		if($data2['detailparticular'] == '') {
+			$data2['detailparticular'] = $dataparticular;
+		}
 		$itemcodewosq					= $this->input->post('detail_itemcode');
 		//$itemuom					= $this->input->post('uom');
 		if($data['service_quotation'] == '') {
 			$data2['itemcode']	= $itemcodewosq;
 		}
-		var_dump($data, $data2);
-		//$result		= $this->job_order->saveJobOrder($data, $data2);
+		//var_dump($data, $data2);
+		$result		= $this->job_order->saveJobOrder($data, $data2);
 		
 		return array(
 			'redirect' => MODULE_URL,
@@ -414,6 +417,41 @@ class controller extends wc_controller {
 			'header'	=> $header,
 			'mainheader'=> $mainheader,
 			'success'	=> $success
+		);
+	}
+
+	private function ajax_checkbundle() {
+		$itemcode	= $this->input->post('itemcode');
+		$result		= $this->job_order->checkIsBundle($itemcode);
+		$success	= true;
+		if (empty($result)) {
+			$success	= false;
+		}
+		//var_dump($result);
+		return array(
+			'result'  => $result,
+			'success' => $success
+		);
+	 }
+	 
+	private function ajax_edit() {
+		$job_order_no 			= $this->input->post('job_order_no');
+		$data = $this->input->post($this->fields);
+		$data['stat'] = 'prepared';
+		$data['job_order_no'] = $job_order_no[0];
+		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
+		$data2 = $this->input->post($this->fields2);
+
+		$itemcodewosq					= $this->input->post('detail_itemcode');
+		if($data['service_quotation'] == '') {
+			$data2['itemcode']	= $itemcodewosq;
+		}
+		//var_dump($data, $data2, $data['job_order_no']);
+		$result		= $this->job_order->updateJO($data, $data2);
+		
+		return array(
+			'redirect' => MODULE_URL,
+			'success' => $result
 		);
 	}
 }
