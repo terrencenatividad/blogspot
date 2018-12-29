@@ -96,8 +96,8 @@ class controller extends wc_controller {
 			$item_desc = $row->detailparticular;
 			$ipo_no = $row->ipo_num;
 			$transaction_date = $row->transactiondate;
-			// $item_quantity = $row->receiptqty;
-			$item_quantity = $row->qty;
+			$ipo_item_quantity = $row->receiptqty;
+			$job_item_quantity = $row->qty;
 			$uom = $row->receiptuom;
 			$job_no = $row->job_no;
 			$receipt_date = $row->receiptdate;
@@ -107,15 +107,15 @@ class controller extends wc_controller {
 						<td class="text-right">'.$item_desc.'</td>
 						<td class="text-right">'.$ipo_no.'</td>
 						<td class="text-center">'.date('M d, Y',strtotime($transaction_date)).'</td>
-						<td class="text-center">'.$item_quantity.' '.$uom.'</td>
+						<td class="text-center">'.$job_item_quantity.' '.$uom.'</td>
 						
 						<td class="text-center">'.date('M d, Y',strtotime($receipt_date)).'</td>
 						<td class="text-right"><span class="pull-left">'.$exchange_curr.'</span>'.number_format($unit_cost_foreign,2).'</td>
 						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($unit_cost_base,2).'</td>';
 
 				// IMPORTATION COST CALCULATION
-			$item_cost = $row->convertedamount / $item_quantity;
-			$item_cost_total = $row->convertedamount; //total cost of item
+			$item_cost = $row->convertedamount / $ipo_item_quantity;
+			$item_cost_total = $item_cost * $job_item_quantity; //total cost of item
 
 			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);
 			$total_cost_job = $query_cost_job->total; //total cost of all items in job
@@ -134,14 +134,14 @@ class controller extends wc_controller {
 			
 			$item_cost_ratio = ($item_cost_total/$total_cost_job); //ratio of item to all items in job
 
-			$importation_cost_unit =  ($item_cost_ratio * $total_importation_cost) / $item_quantity; //sprintf("%7.2f",$quantity);
+			$importation_cost_unit =  ($item_cost_ratio * $total_importation_cost) / $job_item_quantity; //sprintf("%7.2f",$quantity);
 			
 			$table .=	'<td class="text-right">'.$job_no.'</td> 
 						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($importation_cost_unit,2).'</td>'; 
 			
 				// LANDED COST CALCS STAGING
 			$landed_cost_unit = $unit_cost_base + $importation_cost_unit;
-			$total_landed_cost = $landed_cost_unit * $item_quantity;
+			$total_landed_cost = $landed_cost_unit * $job_item_quantity;
 
 			$table .=	'<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($landed_cost_unit,2).'</td>
 						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($total_landed_cost,2).'</td>;
