@@ -73,7 +73,7 @@
 									?>
 								</div>
 							</div>
-							<div class="row">
+							<div class="row familyislove">
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
@@ -200,14 +200,13 @@
 				<div id="header_values"></div>
 			</div>
 		</div>
-		<div class="text-center">
+		<!-- <div class="text-center">
 			<?php
-				echo '<button type="button" class="btn btn-primary" id="btnSave">Save</button>';
-				echo $ui->drawCancel();
+				// echo '<button type="button" class="btn btn-primary" id="btnSave">Save</button>';
+				// echo $ui->drawCancel();
 			?>
-		</div>
+		</div> -->
 	</section>
-
 	<div class="modal fade" id="serialModal" tabindex="-1" data-backdrop="static">
 		<div class="modal-dialog modal-md" role="document">
 			<div class="modal-content">
@@ -336,6 +335,26 @@
 			</div>
 			</div>
 		</div>
+		</div>
+	</div>
+	<div class="modal fade" id="warning_counter" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Oooops!</h4>
+				</div>
+				<div class="modal-body">
+					
+				</div>
+				<div class="modal-footer">
+					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+						<div class="btn-group">
+							<button id = "btn_ok" type = "button" class = "btn btn-default btn-sm btn-flat">Ok</button>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 	<script>
@@ -683,20 +702,26 @@
 
 		$('#tableList tbody').on('blur', '.quantity', function(e) {
 			var value 	=	removeComma($(this).val());
-		if ($(this).closest('tr').hasClass('items')) {
-			if (value < 1) 
-				$(this).parent().parent().addClass('has-error');
-			else
-				$(this).parent().parent().removeClass('has-error');
-		}
-		if ($(this).closest('tr').data('isbundle') == 1) {
-			var linenum = $(this).closest('tr').data('linenum');
-			$.each($('.subitem'+linenum), function(){
-				var subitemqty 	= $(this).closest('tr').data('value');
-				subitemqty 		= subitemqty * value;
-				$(this).find('.quantity').val(subitemqty);
-			});
-		}
+			var orderqty 	=	removeComma($(this).closest('tr').find('.h_orderqty').val());
+			if ($(this).closest('tr').hasClass('items')) {
+				if (value < 1) 
+					$(this).parent().parent().addClass('has-error');
+				else
+					$(this).parent().parent().removeClass('has-error');
+			}
+			if(value > orderqty){
+				$(this).val(orderqty);
+				value = orderqty;
+			}
+			if ($(this).closest('tr').data('isbundle') == 1) {
+				var linenum = $(this).closest('tr').data('linenum');
+				$.each($('.subitem'+linenum), function(){
+					var subitemqty 	= $(this).closest('tr').data('value');
+					console.log(value);
+					subitemqty 		= subitemqty * value;
+					$(this).find('.quantity').val(subitemqty);
+				});
+			}
 	});	
 
 		var itemselected = [];
@@ -834,6 +859,9 @@
 				$('#btn_close').show();
 			}
 		});
+		$('#btn_ok').on('click', function() {
+			$('#warning_counter').modal('hide');
+		});
 		$(document).ready(function(){
 			getList();
 		});
@@ -853,6 +881,11 @@
 			});
 			getList();
 			});
+		});
+		$('#issuedPartsList tbody').on('click','.editip', function(){
+			$('html, body').animate({
+				scrollTop: $(".familyislove").offset().top
+			}, 500);
 		});
 	</script>
 	<?php if ($show_input): ?>

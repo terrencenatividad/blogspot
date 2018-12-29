@@ -375,14 +375,26 @@ class job_order_model extends wc_model
 							->runInsert();
 		return $result;
 	}
+	public function getIssuedPartsNo($jobno) {
+		$result	= $this->db->setTable('job_release j')
+								->setFields('DISTINCT (job_release_no) asd')
+								->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no  and jod.itemcode = j.itemcode')
+								->setWhere("j.job_order_no = '$jobno' AND (parentcode = '' OR parentcode IS NULL)")
+								->setGroupBy('j.job_release_no, j.itemcode')
+								->setOrderBy('job_release_no,j.linenum')
+								->runSelect()
+								->getResult();
+								// echo $this->db->getQuery();
+		return $result;
+	}
 
 	public function getIssuedParts($jobno) {
 		$result	= $this->db->setTable('job_release j')
-								->setFields('job_release_no,j.job_order_no,j.itemcode,detailparticulars,j.warehouse,j.quantity,j.unit')
-								// ->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no')
-								->setWhere("j.job_order_no = '$jobno'")
-								// ->setGroupBy('j.job_release_no')
-								->setOrderBy('j.job_release_no')
+								->setFields('j.job_order_no,j.itemcode,detailparticulars,j.warehouse,j.quantity,j.unit')
+								->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no  and jod.itemcode = j.itemcode')
+								->setWhere("j.job_release_no = '$jobno' AND (parentcode = '' OR parentcode IS NULL)")
+								->setGroupBy('j.job_release_no, j.itemcode')
+								->setOrderBy('job_release_no,j.linenum')
 								->runSelect()
 								->getResult();
 								// echo $this->db->getQuery();

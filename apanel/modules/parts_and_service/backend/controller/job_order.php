@@ -499,21 +499,26 @@ class controller extends wc_controller {
 		$job_release_no 			= $seq->getValue("JR");
 		$jobno						= $this->input->post('jobno');
 		
-		$list	= $this->job_order->getIssuedParts($jobno);
-
+		$asd	= $this->job_order->getIssuedPartsNo($jobno);
+		
 		$table = '';
 		
-		if (empty($list)) {
+		if (empty($asd)) {
 			$table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 // var_dump($list);
-		foreach ($list as $key => $row) {
-			// $table .= '<tr data-id = "' . $row->job_release_no . '">';
-			// $table .= '<td colspan="5">' . 'Part Issuance No.'.$row->job_release_no . '</td>';
-			// $table .= '<td>' . '<a class="btn-sm" id="editip" title="Edit"><span class="glyphicon glyphicon-pencil"></span> Edit</a>' . '</td>';
-			// $table .= '<td>' . '<a class="btn-sm" title="Delete"><span class="glyphicon glyphicon-trash deleteip"></span> Delete</a>' . '</td>';
-			// $table .= '</tr>';
+
+		foreach ($asd as $row) {
+			$table .= '<tr data-id = "' . $row->asd . '">';
+			$table .= '<td colspan="5">' . 'Part Issuance No.: '.$row->asd . '</td>';
+			$table .= '<td>' . '<a class="btn-sm" id="editip" title="Edit"><span class="glyphicon glyphicon-pencil editip"></span></a>' . '</td>';
+			$table .= '<td>' . '<a class="btn-sm" title="Delete"><span class="glyphicon glyphicon-trash deleteip"></span></a>' . '</td>';
+			$table .= '</tr>';
+		$list	= $this->job_order->getIssuedParts($row->asd);
+		
+			foreach ($list as $key => $row) {
 			$table .= '<tr>';
+			// $table .= '<td>' . $row->job_release_no . '</td>';
 			$table .= '<td>' . $row->itemcode . '</td>';
 			$table .= '<td>' . $row->detailparticulars . '</td>';
 			$table .= '<td>' . $row->warehouse . '</td>';
@@ -521,6 +526,7 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->unit . '</td>';
 			$table .= '</tr>';
 		}
+	}		
 		
 		return array(	
 			'issuedparts'=> $table
