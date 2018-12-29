@@ -314,34 +314,39 @@ class job_order_model extends wc_model
 		return $result;
 	}
 
-	public function saveJobRelease($data, $data2) {
+	public function saveJobRelease($data) {
+		$voucherno ='';
+		$data['stat'] = 'released';	
 		
-				$result = $this->db->setTable('job_release')
-									->setValues($data)
-									->runInsert();
-				if ($result) {
-					if ($result) {
-						$this->log->saveActivity("Create Job Release [{$data['job_release_no']}]");
-					}
-					$result = $this->updateJobReleaseDetails($data2, $data['job_release_no']);
-					
-				}
+		$result = $this->db->setTable('job_release')
+							->setValuesFromPost($data)
+							->runInsert();
+		return $result;
+	}
+
+	public function getIssuedParts($jobno) {
+		$result	= $this->db->setTable('job_release j')
+								->setFields('job_release_no,j.job_order_no,j.itemcode,detailparticulars,j.warehouse,j.quantity,j.unit')
+								// ->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no')
+								->setWhere("j.job_order_no = '$jobno'")
+								// ->setGroupBy('j.job_release_no')
+								->setOrderBy('j.job_release_no')
+								->runSelect()
+								->getResult();
+								// echo $this->db->getQuery();
+		return $result;
+	}
+
+	public function deleteJobRelease($id) {
+		$result	= $this->db->setTable('job_release')
+				->setWhere("job_release_no = '$id'")
+				->runDelete();
 		
-		
-				return $result;
-			}
-		
-			public function updateJobReleaseDetails($data, $voucherno) {
-				$data['job_release_no']	= $voucherno;
-				$this->db->setTable('job_release_details')
-							->setWhere("job_release_no = '$voucherno'")
-							->runDelete();
-							// var_dump($data);
-				$result = $this->db->setTable('job_release_details')
-									->setValuesFromPost($data)
-									->runInsert();
-									
-				return $result;
+			if ($result) {
+				$this->log->saveActivity("Deleted Job Release [$id]");
 			}
 
+		return $result;
+	}
+		
 }

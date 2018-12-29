@@ -51,6 +51,19 @@ class controller extends wc_controller {
 			'item_ident_flag',
 			'bom.quantity bomqty'
 		);
+		$this->fields4			= array(
+			'job_release_no',
+			'job_order_no',
+			'h_transactiondate' =>'transactiondate',
+			'h_itemcode' 		=> 'itemcode',
+			'linenum',
+			'h_detailparticular'=> 'detailparticulars',
+			'h_warehouse'		=> 'warehouse',
+			'quantity',
+			'h_uom'  => 'unit',
+			'serialnumbers',
+			'stat'
+		);
 		$this->clean_number		= array(
 			'issueqty'
 		);
@@ -462,5 +475,65 @@ class controller extends wc_controller {
 			'mainheader'=> $mainheader,
 			'success'	=> $success
 		);
+	}
+
+	private function ajax_create_issue() {
+		$seq 						= new seqcontrol();
+		$job_release_no 			= $seq->getValue("JR");
+		$data						= $this->input->post($this->fields4);
+		$data['job_release_no'] 	= $job_release_no;
+		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
+
+		$result						= $this->job_order->saveJobRelease($data);
+		
+		return array(	
+			'result'=> $result
+		);
+	}
+
+	private function ajax_load_issue() {
+		$seq 						= new seqcontrol();
+		$job_release_no 			= $seq->getValue("JR");
+		$jobno						= $this->input->post('jobno');
+		
+		$list	= $this->job_order->getIssuedParts($jobno);
+
+		$table = '';
+		
+		if (empty($list)) {
+			$table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
+		}
+// var_dump($list);
+		foreach ($list as $key => $row) {
+			// $table .= '<tr data-id = "' . $row->job_release_no . '">';
+			// $table .= '<td colspan="5">' . 'Part Issuance No.'.$row->job_release_no . '</td>';
+			// $table .= '<td>' . '<a class="btn-sm" id="editip" title="Edit"><span class="glyphicon glyphicon-pencil"></span> Edit</a>' . '</td>';
+			// $table .= '<td>' . '<a class="btn-sm" title="Delete"><span class="glyphicon glyphicon-trash deleteip"></span> Delete</a>' . '</td>';
+			// $table .= '</tr>';
+			$table .= '<tr>';
+			$table .= '<td>' . $row->itemcode . '</td>';
+			$table .= '<td>' . $row->detailparticulars . '</td>';
+			$table .= '<td>' . $row->warehouse . '</td>';
+			$table .= '<td>' . $row->quantity . '</td>';
+			$table .= '<td>' . $row->unit . '</td>';
+			$table .= '</tr>';
+		}
+		
+		return array(	
+			'issuedparts'=> $table
+		);
+	}
+
+	private function ajax_delete_issue() {
+		$delete_id = $this->input->post('id');
+		if ($delete_id) {
+			$result		= $this->job_order->deleteJobRelease($delete_id);
+			if(empty($result)) {
+				$msg = "success";
+			}else {
+				$msg = $result;
+			}
+		}
+		return array('success' => $msg);
 	}
 }

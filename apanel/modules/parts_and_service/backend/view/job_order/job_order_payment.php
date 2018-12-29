@@ -42,6 +42,7 @@
 											->setValidation('required')
 											->draw($show_input);
 									?>
+									<input type="hidden" name="h_transactiondate" value="<?php echo $transactiondate ?>">
 								</div>
 							</div>
 							<div class="row">
@@ -180,6 +181,7 @@
 							<th class="col-md-2">Warehouse</th>
 							<th class="col-md-2">Quantity</th>
 							<th class="col-md-1">UOM</th>
+							<th colspan="2" class="col-md-1 text-center">Action	</th>
 							<?php if ($show_input): ?>
 							<th class="col-md-1"></th>
 							<?php endif ?>
@@ -384,7 +386,7 @@
 				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.bomqty+`" data-linenum="`+linenum+`">`;
 			row += `<td>
 						<?php
-							echo $ui->formField('text')
+							echo $ui->formField('hidden')
 								->setName('serialnumbers[]')
 								->setClass('serialnumbers')
 								->setValue('')
@@ -437,6 +439,12 @@
 								->setList($warehouse_list)
 								->setValue('` + details.warehouse + `')
 								->draw($show_input);
+								echo $ui->formField('hidden')
+								->setSplit('', 'col-md-12')
+								->setName('h_warehouse[]')
+								->setClass('h_warehouse')
+								->setValue('` + details.warehouse + `')
+								->draw(true);
 						?>
 					</td>
 					<td class="text-right">
@@ -508,6 +516,11 @@
 								->setSplit('', 'col-md-12')
 								->setValue('` + details.uom.toUpperCase() + `')
 								->draw(false);
+							echo $ui->formField('hidden')
+								->setName('h_uom[]')
+								->setClass('h_uom')
+								->setValue('` + details.uom.toUpperCase() + `')
+								->draw(true);
 						?>
 					</td>
 					<?php if ($show_input): ?>
@@ -663,6 +676,9 @@
 
 		$('#isyu').on('click',function(e){
 			var form = $('form').serialize();
+			$.post('<?=MODULE_URL?>ajax/ajax_create_issue', form + '<?=$ajax_post?>' , function(data) {
+					getList();				
+			});
 		});
 
 		$('#tableList tbody').on('blur', '.quantity', function(e) {
@@ -818,6 +834,26 @@
 				$('#btn_close').show();
 			}
 		});
+		$(document).ready(function(){
+			getList();
+		});
+		function getList() {
+			var jobno = $('#job_order_no').val();
+			$.post('<?=MODULE_URL?>ajax/ajax_load_issue', 'jobno='+ jobno + '<?=$ajax_post?>' , function(data) {
+				$('#issuedPartsList tbody').html(data.issuedparts);
+			});
+		}
+		$('#issuedPartsList tbody').on('click','.deleteip', function(){
+			var id = $(this).closest('tr').data('id');
+			$('#delete_modal').modal('show');
+			
+			$('#delete_yes').on('click', function(){
+				$.post('<?=MODULE_URL?>ajax/ajax_delete_issue', 'id='+ id , function(data) {
+				$('#delete_modal').modal('hide');					
+			});
+			getList();
+			});
+		});
 	</script>
 	<?php if ($show_input): ?>
 	<script>
@@ -839,21 +875,7 @@
 				getList();
 			}
 		});
-		function getList() {
-			ajax.limit = 5;
-			$('#ordered_list_modal').modal('show');
-			if (ajax_call != '') {
-				ajax_call.abort();
-			}
-			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_ordered_list', ajax, function(data) {
-				$('#ordered_tableList tbody').html(data.table);
-				$('#pagination').html(data.pagination);
-				if (ajax.page > data.page_limit && data.page_limit > 0) {
-					ajax.page = data.page_limit;
-					getList();
-				}
-			});
-		}
+		
 		$('#table_search').on('input', function() {
 			ajax.page = 1;
 			ajax.search = $(this).val();
