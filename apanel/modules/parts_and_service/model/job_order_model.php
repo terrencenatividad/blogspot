@@ -184,6 +184,19 @@ class job_order_model extends wc_model
 		return $result;
 	}
 
+	public function updateJO($data, $data2)
+	{
+		$result = $this->db->setTable('job_order')
+				->setValues($data)
+				->setWhere('job_order_no = "'. $data['job_order_no'] .'"')
+				->runUpdate();
+		//var_dump($result);
+				if ($result) {
+					$result = $this->updateJobOrderDetails($data2, $data['job_order_no']);
+				}
+		return $result;
+	}
+
 	public function getJOList($fields) {
 		
 		$result = $this->db->setTable("job_order")
@@ -217,6 +230,7 @@ class job_order_model extends wc_model
 		$result = $this->db->setTable('job_order_details jod')
 							->setFields($fields)
 							->leftJoin('items i ON i.itemcode = jod.itemcode')
+							->leftJoin('bomdetails bom ON bom.item_code = jod.itemcode')
 							->setWhere("job_order_no = '$voucherno'")
 							->setOrderBy('linenum')
 							->runSelect()
@@ -254,6 +268,29 @@ class job_order_model extends wc_model
 			return $result;
 		}
 
+	public function getSerialList($fields, $itemcode, $search) {
+			$condition = '';
+			if ($search) {
+				$condition .= ' AND ' . $this->generateSearch($search, array('serialno', 'engineno', 'chassisno'));
+			}
+			$result	= $this->db->setTable('items_serialized')
+									->setFields($fields)
+									->setWhere("itemcode = '$itemcode'" .$condition)
+									->setOrderBy('voucherno, linenum, rowno')
+									->runPagination();
+									// echo $this->db->getQuery();
+			return $result;
+		}
+
+	public function getJOSerials($itemcode, $voucherno, $linenum) {
+			$result = $this->db->setTable('job_release_details') 
+							->setFields('serialnumbers')
+							->setWhere("itemcode='$itemcode' AND job_item_id='$voucherno' AND linenum='$linenum'")
+							->runSelect()
+							->getRow();
+	
+			return $result;
+		}
 	public function retrieveItemDetails($itemcode)
 	{
 		$result = $this->db->setTable('items i')
@@ -270,15 +307,54 @@ class job_order_model extends wc_model
 	}
 
 	public function retrieveBundleDetails($itemcode) {
-		$fields = "bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom";
-			$result = $this->db->setTable('items i')
-							->leftJoin('bom b ON b.bundle_item_code = i.itemcode')
-							->leftJoin('bomdetails bd ON bd.bom_code = b.bom_code')
-							->setFields($fields)
-							->setWhere("status = 'active' AND b.bundle_item_code = '$itemcode'")
-							->runSelect()
-							->getResult();
-			return $result;
+		// $fields = "bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom";
+		// $fields2 = "CONCAT(itemcode, ' - ', itemname) as itemcode,null as BaseQty, itemdesc as detailparticular, uom_base as uom";
+		// 	$result1 = $this->db->setTable('items i')
+		// 					->leftJoin('bom b ON b.bundle_item_code = i.itemcode')
+		// 					->leftJoin('bomdetails bd ON bd.bom_code = b.bom_code')
+		// 					->setFields($fields)
+		// 					->setWhere("status = 'active' AND b.bundle_item_code = '$itemcode'")
+		// 					->buildSelect();
+
+		// 	$result2 = $this->db->setTable('items i')
+		// 					->setFields($fields2)
+		// 					->setWhere("itemcode = '$itemcode'")
+		// 					->buildSelect();
+
+		// 	$query = $result2 . ' union ' . $result1;
+
+		// 	$result = $this->db->setTable("($query) i")
+		// 	->setFields('*');
+		// 	return $result;
+
+			$query = "SELECT
+						 	 i.itemcode,null as BaseQty, i.itemdesc as detailparticular, i.uom_base as uom, b.bundle_item_code as parentcode
+                        FROM
+							items i
+						LEFT JOIN
+							bom b ON b.bundle_item_code = i.itemcode
+                        WHERE
+						itemcode = '$itemcode'
+						
+						UNION
+						
+						SELECT
+                            bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom, null as parentcode
+                        FROM
+							items i
+                        LEFT JOIN
+							bom b ON b.bundle_item_code = i.itemcode
+						LEFT JOIN
+							bomdetails bd ON bd.bom_code = b.bom_code
+                        WHERE
+							status = 'active' AND b.bundle_item_code = '$itemcode'
+                            ";
+
+            $result = 	$this->db->setTable("($query) main")
+                        ->setFields('main.itemcode AS itemcode,main.BaseQty AS BaseQty,main.detailparticular as detailparticular,main.uom as uom, main.parentcode as parentcode')
+                        ->runSelect(false)
+                        ->getResult();
+            return $result;         
 	}
 
 	public function getItemListforBundle($itemcode) {
@@ -287,8 +363,55 @@ class job_order_model extends wc_model
 						->setWhere("itemcode = '$itemcode'")
 						->runSelect()
 						->getRow();
+		return $result;
+	}
+
+	public function saveJobRelease($data) {
+		$voucherno ='';
+		$data['stat'] = 'released';	
+		
+		$result = $this->db->setTable('job_release')
+							->setValuesFromPost($data)
+							->runInsert();
+		return $result;
+	}
+
+	public function getIssuedParts($jobno) {
+		$result	= $this->db->setTable('job_release j')
+								->setFields('job_release_no,j.job_order_no,j.itemcode,detailparticulars,j.warehouse,j.quantity,j.unit')
+								// ->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no')
+								->setWhere("j.job_order_no = '$jobno'")
+								// ->setGroupBy('j.job_release_no')
+								->setOrderBy('j.job_release_no')
+								->runSelect()
+								->getResult();
+								// echo $this->db->getQuery();
+		return $result;
+	}
+
+	public function deleteJobRelease($id) {
+		$result	= $this->db->setTable('job_release')
+				->setWhere("job_release_no = '$id'")
+				->runDelete();
+		
+			if ($result) {
+				$this->log->saveActivity("Deleted Job Release [$id]");
+			}
 
 		return $result;
 	}
+		
+	public function checkIsBundle($data) {
+
+		$result = $this->db->setTable('bom')
+							->setFields('bundle_item_code')
+							->setWhere("bundle_item_code IN ('$data')")
+							->runSelect()
+							->getResult();
+		
+		return $result;
+	}
+
+	
 
 }

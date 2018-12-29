@@ -105,6 +105,20 @@ class controller extends wc_controller {
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= false;
+		$data['serial_db']			= $this->purchase_model->getSerialNoFromDb();
+		$data['serial_db_array']	= array();
+		foreach ($data['serial_db'] as $serial_db) {
+			array_push($data['serial_db_array'], $serial_db->serialno);
+		}
+		$data['engine_db_array']	= array();
+		foreach ($data['serial_db'] as $engine_db) {
+			array_push($data['engine_db_array'], $engine_db->engineno);
+		}
+		$data['chassis_db_array']	= array();
+		foreach ($data['serial_db'] as $chassis_db) {
+			array_push($data['chassis_db_array'], $chassis_db->chassisno);
+		}
+
 		$this->view->load('purchase_receipt/purchase_receipt', $data);
 	}
 
@@ -129,6 +143,19 @@ class controller extends wc_controller {
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= $this->restrict->setButtonRestriction($transactiondate);
+		$data['serial_db']			= $this->purchase_model->getSerialNoFromDb();
+		$data['serial_db_array']	= array();
+		foreach ($data['serial_db'] as $serial_db) {
+			array_push($data['serial_db_array'], $serial_db->serialno);
+		}
+		$data['engine_db_array']	= array();
+		foreach ($data['serial_db'] as $engine_db) {
+			array_push($data['engine_db_array'], $engine_db->engineno);
+		}
+		$data['chassis_db_array']	= array();
+		foreach ($data['serial_db'] as $chassis_db) {
+			array_push($data['chassis_db_array'], $chassis_db->chassisno);
+		}
 		$this->view->load('purchase_receipt/purchase_receipt', $data);
 	}
 
@@ -152,6 +179,19 @@ class controller extends wc_controller {
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= $this->restrict->setButtonRestriction($transactiondate);
+		$data['serial_db']			= $this->purchase_model->getSerialNoFromDb();
+		$data['serial_db_array']	= array();
+		foreach ($data['serial_db'] as $serial_db) {
+			array_push($data['serial_db_array'], $serial_db->serialno);
+		}
+		$data['engine_db_array']	= array();
+		foreach ($data['serial_db'] as $engine_db) {
+			array_push($data['engine_db_array'], $engine_db->engineno);
+		}
+		$data['chassis_db_array']	= array();
+		foreach ($data['serial_db'] as $chassis_db) {
+			array_push($data['chassis_db_array'], $chassis_db->chassisno);
+		}
 		$this->view->load('purchase_receipt/purchase_receipt', $data);
 	}
 

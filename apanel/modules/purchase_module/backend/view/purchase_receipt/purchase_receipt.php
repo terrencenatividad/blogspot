@@ -600,7 +600,7 @@
 
 			var warehouse = $('#warehouse').val();
 			if (warehouse == details.wareserializehouse) {
-				$('#tableList tbody').finserialized('tr:last .receiptqty').each(function() {
+				$('#tableList tbody').find('tr:last .receiptqty').each(function() {
 					if (details.receiptqtserializey > 0) {
 						$(this).removeAttserializer('readonly').val($(this).attr('data-value'));
 						$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
@@ -665,27 +665,32 @@
 			}		
 		});
 
-		serial_exist = [];
-		engine_exist = [];
-		chassis_exist = [];
+		serial_exist = <?php echo json_encode($serial_db_array) ?>;
+		engine_exist = <?php echo json_encode($engine_db_array) ?>;
+		chassis_exist = <?php echo json_encode($chassis_db_array) ?>;
 		$('.save_serials').on("click", function(){
 			saveSerialsInput(index_selected);
 			
-			serial_exist = [];
-			engine_exist = [];
-			chassis_exist = [];
+			// serial_exist = [];
+			serial_exist = <?php echo json_encode($serial_db_array) ?>;
+			engine_exist = <?php echo json_encode($engine_db_array) ?>;
+			chassis_exist = <?php echo json_encode($chassis_db_array) ?>;
 			for(items = 0; items < serialize.length; items++){
 				if(serialize[items].itemcode != ''){
 					for(serials = 0; serials < serialize[items].numbers.length; serials++){
-						if(serialize[items].numbers[serials].serialno)
-						serial_exist.push(serialize[items].numbers[serials].serialno);
-						engine_exist.push(serialize[items].numbers[serials].engineno);
-						chassis_exist.push(serialize[items].numbers[serials].chassisno);						
+						if(serialize[items].numbers[serials].serialno){
+							serial_exist.push(serialize[items].numbers[serials].serialno);
+							engine_exist.push(serialize[items].numbers[serials].engineno);
+							chassis_exist.push(serialize[items].numbers[serials].chassisno);
+						}						
 					}
 				}
 			}
 
+			// console.log(js_data);
 			// console.log(serial_exist);
+			// console.log(engine_exist);
+			// console.log(chassis_exist);
 			
 		})
 
