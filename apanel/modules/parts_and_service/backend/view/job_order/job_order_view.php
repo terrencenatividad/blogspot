@@ -161,7 +161,7 @@
 										echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 									}
 								?>
-								<?php if(!$show_input):?><a href="http://localhost/triglobe/apanel/parts_and_service/job_order/payment/1" class="btn btn-warning">Issue Parts</a><?endif;?>
+								<?php if(!$show_input):?><a href="http://localhost/triglobe/apanel/parts_and_service/job_order/payment/<?php echo $job_order_no ?>" class="btn btn-warning">Issue Parts</a><?endif;?>
 								<?php
 									// echo '&nbsp;&nbsp;&nbsp;';
 									echo $ui->drawCancel();
@@ -535,12 +535,12 @@
 								->setValue($value)
 								->draw($show_input);
 
-							echo $ui->formField('hidden')
-								->setName('h_warehouse[]')
-								->setClass('h_warehouse parts')
-								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
-								->setValue('` + details.warehouse + `')
-								->draw($show_input);
+							// echo $ui->formField('hidden')
+							// 	->setName('h_warehouse[]')
+							// 	->setClass('h_warehouse parts')
+							// 	->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+							// 	->setValue('` + details.warehouse + `')
+							// 	->draw($show_input);
 						?> ` + otherdetails + ` </td>
 						`;
 					}else{
