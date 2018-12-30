@@ -224,7 +224,10 @@
 		function ajaxCallback(id) {
 			var ids = getDeleteId(id);
 			$.post('<?=MODULE_URL?>ajax/ajax_delete', ids, function(data) {
-				getList();
+				// getList();
+				$.post('<?=MODULE_URL?>ajax/delete_related_jobjv', ids, function(data) {
+					getList();
+				});
 			});
 		}
 		$(function() {
