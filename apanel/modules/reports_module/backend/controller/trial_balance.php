@@ -407,18 +407,6 @@ class controller extends wc_controller {
 		$year 			= date('Y', strtotime($curr_date));
 		$firstdayofdate = date($year.'-'.$month.'-01');
 
-		// For Checking if there is an open Job Order
-		// $ret_released   = $this->trial_balance->getValue("job_order", "COUNT(*) as count", "job_order_no!='' AND stat!='cancelled' AND (transactiondate<='$curr_date' AND transactiondate>='$firstdayofdate')");
-		// $count_released = (!empty($ret_released[0]->count) && $ret_released[0]->count!=0) ? $ret_released[0]->count 	:	0;
-
-		$ret_released 	=	$this->trial_balance->getPartialJobOrderCount($firstdayofdate, $curr_date);
-		$count_released =  (!empty($ret_released->count) && $ret_released->count!=0) ? $ret_released->count 	:	0;
-
-		// Change all job order no to job release .. 
-		if( $count_released > 0){ 
-			$result 	=	$this->trial_balance->save_accrual_journal_voucher($data);
-		}
-
 		if($result){
 			$this->report_model->generateBalanceTable();
 		}
@@ -494,11 +482,37 @@ class controller extends wc_controller {
 		$period		=	"";
 
 		if( $result ){
-			$ret_arr 	=	$this->trial_balance->getReference($voucherno);
-			$reference 	=	isset($ret_arr->referenceno) ? $ret_arr->referenceno : "";
-			$period 	=	isset($ret_arr->period) ? $ret_arr->period : "";
+			$ret_arr 			=	$this->trial_balance->getReference($voucherno);
+			$reference 			=	isset($ret_arr->referenceno) ? $ret_arr->referenceno : "";
+			$period 			=	isset($ret_arr->period) ? $ret_arr->period : "";
+			$fiscalyear 		=	isset($ret_arr->fiscalyear) ? $ret_arr->fiscalyear : "";
+			$source 			=	isset($ret_arr->source) ? $ret_arr->source : "";
+			$transactiondate 	=	isset($ret_arr->transactiondate) ? $ret_arr->transactiondate : "";
 
 			$this->log->saveActivity("Closed Book [$voucherno - $reference] ");
+			
+			// For Checking if there is an open Job Order
+			$firstdayofdate =	 date($fiscalyear.'-'.$period.'-01');
+			$ret_released 	=	 $this->trial_balance->getPartialJobOrderCount($firstdayofdate, $transactiondate);
+			$count_released =  	(!empty($ret_released->count) && $ret_released->count!=0) ? $ret_released->count 	:	0;
+
+			if( $count_released > 0){ 
+				$data2['source'] 	=	$source;
+				$data2['datefrom'] 	=	$transactiondate;
+				$data2['type'] 		=	"accrual_jv";
+				$data2['voucher'] 	= 	$this->seq->getValue("JV");
+				$data2['sourceno']  = 	$voucherno;
+				$result 			=	$this->trial_balance->save_accrual_journal_voucher($data2);
+	
+				if($result){
+					$data2['source'] 	=	$source;
+					$data2['datefrom'] 	=	$transactiondate;
+					$data2['type'] 		=	"reversed_ajv";
+					$data2['voucher'] 	= 	$this->seq->getValue("JV");
+					$data2['sourceno']  = 	$voucherno;
+					$result 			=	$this->trial_balance->save_accrual_journal_voucher($data2);
+				}
+			}
 		}
 		return $dataArray 	=	array( "result"=>$result['result'], "period" => $period);
 	}

@@ -152,8 +152,10 @@ class controller extends wc_controller {
 
 			//Checker for Imported files or Closing
 			$checker 			=	isset($row->checker) && !empty($row->checker) 		? 	$row->checker 	:	"";
-			$display_edit_delete=  	($checker!="import" || $checker!="beginning" || $checker!="closing"  || $checker!="yrend_closing") 	?	1	:	0;
-			
+			$uneditable_box 	= 	array("import","beginning","closing","yrend_closing","accrual_jv","reversed_ajv","jo_release");
+			// $display_edit_delete=  	in_array($checker, $uneditable_box) 	?	0	:	1;
+			$display_edit_delete=  	($checker!="import" || $checker!="beginning" || $checker!="closing"  || $checker!="yrend_closing" || $checker!="accrual_jv" || $checker!="reverse_ajv" || $checker!="jo_release") 	?	1	:	0;
+
 			//Transaction Dates equivalent to the closing date / period should be deleted first
 			$latest_closed_date = 	$this->restrict->getClosedDate();
 			$date_compare 		= 	($transactiondate == $latest_closed_date) 	?	1	:	0;
@@ -162,7 +164,8 @@ class controller extends wc_controller {
 
 			//Checker for restricting for Closing on Edit / Delete [ 0 = within closing period ]
 			$restrict_jv 		= 	$this->restrict->setButtonRestriction($transactiondate);
-			
+
+			// echo $checker." ".$display_edit_delete." ".$restrict_jv."\n";
 			$import 			=	($checker!="" && ($row->checker == 'import'||$row->checker  == 'beginning'))	?	"Yes" 	:	"No";
 			$voucher_status = '<span class="label label-danger">'.strtoupper($status).'</span>';
 			if($status == 'open'){
@@ -173,10 +176,10 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($status != "cancelled" && $display_edit_delete && $restrict_jv)
-									->addDelete($status != "cancelled" && $display_edit_delete && ($restrict_jv || $date_compare && $voucher_compare))
+									->addEdit($status != "cancelled" && $display_edit_delete && $restrict_jv && ($checker!="reversed_ajv" && $checker!="accrual_jv"))
+									->addDelete($status != "cancelled" && $display_edit_delete && ($checker!="reversed_ajv" && $checker!="accrual_jv") && ($restrict_jv || $date_compare && $voucher_compare))
 									->addPrint()
-									->addCheckbox($status != "cancelled" && $display_edit_delete && ($restrict_jv || $date_compare && $voucher_compare))
+									->addCheckbox($status != "cancelled" && $display_edit_delete && ($checker!="reversed_ajv" && $checker!="accrual_jv") && ($restrict_jv || $date_compare && $voucher_compare))
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($voucherno)
 									->draw();
@@ -244,6 +247,22 @@ class controller extends wc_controller {
 		}
 		if ($delete_id) {
 			$this->jv_model->reverseEntries($delete_id);
+		}
+	}
+
+	private function delete_related_jobjv(){
+		$delete_id 	= 	$this->input->post('delete_id');
+		$vouchlist 	=	$this->jv_model->getJournalVoucherBySourceNo("voucherno",$delete_id);
+		// var_dump($vouchlist);
+		foreach($vouchlist as $row){
+			$voucherno[] =	$row->voucherno;
+			
+			if ($voucherno) {
+				$result = $this->jv_model->deleteJournalVouchers($voucherno);
+			}
+			if ($result && $voucherno) {
+				$result = $this->jv_model->reverseEntries($voucherno);
+			}
 		}
 	}
 	
