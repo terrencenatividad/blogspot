@@ -350,29 +350,40 @@ class job_order_model extends wc_model
 		// 	->setFields('*');
 		// 	return $result;
 
-			$query = "SELECT
-						 	 i.itemcode,null as BaseQty, i.itemdesc as detailparticular, i.uom_base as uom, b.bundle_item_code as parentcode
-                        FROM
-							items i
-						LEFT JOIN
-							bom b ON b.bundle_item_code = i.itemcode
-                        WHERE
-						itemcode = '$itemcode'
+			// $query = "SELECT
+			// 			 	 i.itemcode,0 as BaseQty, i.itemdesc as detailparticular, i.uom_base as uom, COALESCE(b.bundle_item_code,'') as parentcode
+            //             FROM
+			// 				items i
+			// 			LEFT JOIN
+			// 				bom b ON b.bundle_item_code = i.itemcode
+            //             WHERE
+			// 			itemcode = '$itemcode'
 						
-						UNION
+			// 			UNION
 						
-						SELECT
-                            bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom, null as parentcode
-                        FROM
-							items i
-                        LEFT JOIN
-							bom b ON b.bundle_item_code = i.itemcode
-						LEFT JOIN
-							bomdetails bd ON bd.bom_code = b.bom_code
-                        WHERE
-							status = 'active' AND b.bundle_item_code = '$itemcode'
-                            ";
-
+			// 			SELECT
+            //                 bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom, b.bundle_item_code as parentcode
+            //             FROM
+			// 				items i
+            //             LEFT JOIN
+			// 				bom b ON b.bundle_item_code = i.itemcode
+			// 			LEFT JOIN
+			// 				bomdetails bd ON bd.bom_code = b.bom_code
+            //             WHERE
+			// 				status = 'active' AND b.bundle_item_code = '$itemcode'
+            //                 ";
+	// echo $query;
+		$query 		=	"SELECT * FROM 
+							(SELECT i.itemcode,0 as BaseQty, i.itemdesc as detailparticular, i.uom_base as uom, '' as parentcode
+							FROM items i
+							WHERE i.stat = 'active'
+							UNION
+							SELECT bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom, b.bundle_item_code as parentcode
+							FROM items i
+							LEFT JOIN bom b ON b.bundle_item_code = i.itemcode AND b.companycode = i.companycode 
+							LEFT JOIN bomdetails bd ON bd.bom_code = b.bom_code AND bd.companycode = b.companycode
+							WHERE status = 'active' ) a 
+						WHERE a.itemcode = '$itemcode' OR a.parentcode =  '$itemcode'";
             $result = 	$this->db->setTable("($query) main")
                         ->setFields('main.itemcode AS itemcode,main.BaseQty AS BaseQty,main.detailparticular as detailparticular,main.uom as uom, main.parentcode as parentcode')
                         ->runSelect(false)

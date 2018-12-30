@@ -433,10 +433,12 @@
 		var delete_row	= {};
 		var ajax		= {};
 		var ajax_call	= '';
-		var min_row		= 1;
+		var min_row		= 1;	
+		var parentline  = 0;
+		var parent 		= 0;
 		function addVoucherDetails(details, index) {
-			console.log(details);
-			console.log(index);
+			// console.log(details);
+			console.log(" index = "+index);
 			var details = details || {itemcode: '', detailparticular: '', warehouse: '', qty: '0', uom: 'PC', childqty : '0', linenum : '0', isbundle : 'No', parentline : '', parentcode : ''};
 			var other_details = JSON.parse(JSON.stringify(details));
 			delete other_details.itemcode;
@@ -460,27 +462,32 @@
 					 ?>`;
 				}
 			}
+			console.log(" details linenum = "+details.linenum);
 			// I added a condition that if details.linenum (retrieved data) is 0 (meaning, nothing was retrieved), the line number should refer to the passed index..
-			var linenum = (details.linenum != 0) ? details.linenum : index + 1;
-			console.log(linenum); 
+			var linenum = (details.linenum != 0 && details.linenum != undefined) ? details.linenum : index + 1;
+			var warehouse = (details.warehouse != "" && details.linenum != undefined) ? details.warehouse : "none";
+			console.log("Line num = "+linenum); 
 			
 			var row = ``;
-			if(details.parentcode == ""){
+			console.log('details parentcode = '+details.parentcode);
+			if(details.parentcode == "" || details.parentcode == null){
 				var asd = 'parents'+linenum;
+				parent = linenum;
 			}else{
-				var asd = 'subitem'+details.parentline;
+				parentline = parent;
+				var asd = 'subitem'+parentline;
 			}
 			if(details.isbundle == "Yes"){
 				var dsa = 'data-isbundle="1"';
 			}else{
 				var dsa = 'data-isbundle="0"';
 			}
-			console.log(details.parentcode);
+			console.log("Parent Code = "+details.parentcode);
 			row += `
 				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.qty+`" data-linenum="`+linenum+`">`;
 			row += `<td>
 					`;
-					if(details.parentcode == null){
+					if(details.parentcode == null  || details.parentcode == ""){
 						row += `
 						<?php
 							$value = "<span id='temp_view_itemcode_` + index + `'>` + details.itemcode + `</span>";
@@ -529,7 +536,7 @@
 							echo $ui->formField('hidden')
 								->setName('parentline[]')
 								->setClass('parentline')
-								->setValue('` + details.parentline + `')
+								->setValue('` + parentline + `')
 								->draw($show_input);
 							echo $ui->formField('hidden')
 								->setName('isbundle[]')
@@ -544,21 +551,21 @@
 						?>
 					</td>
 					<td>`;
-					if(details.parentcode == null){
+					if(details.parentcode == null || details.parentcode == ""){
 					console.log("details: NULL");
 					row += `<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
 								->setName('detailparticular[]')
 								->setClass('detailparticular parent')
-								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->setValue('` + details.detailparticular + `')
 								->draw($show_input);
 
 								echo $ui->formField('hidden')
 								->setName('h_detailparticular[]')
 								->setClass('h_detailparticular parts')
-								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->setValue('` + details.detailparticular + `')
 								->draw($show_input);
 						?> ` + otherdetails + ` </td>
@@ -571,13 +578,13 @@
 								->setName('detailparticular[]')
 								->setClass('detailparticular parts detailforBundle')
 								->setValue('` + details.detailparticular + `')
-								->setAttribute(array('disabled' => 'disabled', 'data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setAttribute(array('disabled' => 'disabled', 'data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->draw($show_input);
 
 								echo $ui->formField('hidden')
 								->setName('h_detailparticular[]')
 								->setClass('h_detailparticular')
-								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->setValue('` + details.detailparticular + `')
 								->draw($show_input);
 								?>` + otherdetails + ` </td>
@@ -585,7 +592,7 @@
 					}
 						
 
-					if(details.parentcode == null){
+					if(details.parentcode == null  || details.parentcode == ""){
 					row += `<td class="text-right">
 					<?php
 							$value = "<span id='temp_view_warehouse_` + index + `'></span>";
@@ -595,14 +602,14 @@
 								->setClass('warehouse parent whchild')
 								->setList($warehouse_list)
 								->setNone('Selected: None')
-								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->setValue($value)
 								->draw($show_input);
 
 							echo $ui->formField('hidden')
 								->setName('h_warehouse[]')
 								->setClass('h_warehouse parts h_whchild')
-								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->setValue('` + details.warehouse + `')
 								->draw($show_input);
 						?> ` + otherdetails + ` </td>
@@ -617,21 +624,21 @@
 								->setClass('warehouse parts WhForBundle')
 								->setList($warehouse_list)
 								->setNone('Selected: None')
-								->setAttribute(array('disabled' => 'disabled', 'data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setAttribute(array('disabled' => 'disabled', 'data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->setValue('` + details.warehouse + `')
 								->draw($show_input);
 
 							echo $ui->formField('hidden')
 								->setName('h_warehouse[]')
 								->setClass('h_warehouse')
-								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (details.parentline) + `'))
+								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->setValue('` + details.warehouse + `')
 								->draw($show_input);
 						?>` + otherdetails + ` </td>
 						`;
 					}
 
-					if(details.parentcode == null){
+					if(details.parentcode == null  || details.parentcode == ""){
 					row += `<td class="text-right">
 							<?php
 								echo $ui->formField('text')
@@ -798,11 +805,13 @@
 		//console.log(voucher_details);
 		function displayDetails(details) {
 			if (details.length < min_row) {
+				console.log("DETAILS LENGTH = "+details.length);
 				for (var x = details.length; x < min_row; x++) {
 					addVoucherDetails('', x);
 				}
 			}
 			if (details.length > 0) {
+				console.log("DETAILS LENGTH = "+details.length);
 				details.forEach(function(details, index) {
 					//console.log(index);
 					//console.log(details);
@@ -1059,20 +1068,20 @@
 
 		$('#tableList tbody').on('blur', '.qty', function(e) {
 			var value 	=	removeComma($(this).val());
-		if ($(this).closest('tr').hasClass('items')) {
-			if (value < 1) 
-				$(this).parent().parent().addClass('has-error');
-			else
-				$(this).parent().parent().removeClass('has-error');
-		}
-		if ($(this).closest('tr').data('isbundle') == 1) {
-			var linenum = $(this).closest('tr').data('linenum');
-			$.each($('.subitem'+linenum), function(){
-				var subitemqty 	= $(this).closest('tr').find('.childqty').val();
-				subitemqty 		= subitemqty * value;
-				$(this).find('.qty').val(subitemqty);
-			});
-		}
+			if ($(this).closest('tr').hasClass('items')) {
+				if (value < 1) 
+					$(this).parent().parent().addClass('has-error');
+				else
+					$(this).parent().parent().removeClass('has-error');
+			}
+			if ($(this).closest('tr').data('isbundle') == 1) {
+				var linenum = $(this).closest('tr').data('linenum');
+				$.each($('.subitem'+linenum), function(){
+					var subitemqty 	= $(this).closest('tr').find('.childqty').val();
+					subitemqty 		= subitemqty * value;
+					$(this).find('.qty').val(subitemqty);
+				});
+			}
 	});
 
 	$('#tableList tbody').on('change', '.warehouse', function(e) {
@@ -1114,9 +1123,9 @@
 					if ( ! data.success) {
 						$('#tableList tbody').html(data.table);
 					} else {
-						console.log(data.mainheader);
-						console.log(data.header);
-						console.log(data.details);
+						// console.log(data.mainheader);
+						// console.log(data.header);
+						// console.log(data.details);
 						$('#tableList tbody').html('');
 						//console.log("HEADER:" + mainheader);
 						//var main_detail = data.mainheader.detailparticular
