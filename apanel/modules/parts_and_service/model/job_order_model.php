@@ -248,14 +248,15 @@ class job_order_model extends wc_model
 		return $result;
 	}
 
-	public function updateIssueParts($job_release_no,$joborderno,$data) {
+	public function updateIssueParts($job_release_no,$data) {
 		$this->db->setTable('job_release')
 					->setWhere("job_release_no = '$job_release_no'")
 					->runDelete();
 					
-		// $result = $this->db->setTable('job_release')
-		// 					->setValuesFromPost($data)
-		// 					->runInsert();
+		$result = $this->db->setTable('job_release')
+							->setValuesFromPost($data)
+							->runInsert();
+							
 		return $result;
 	}
 

@@ -171,7 +171,7 @@
 				</div>
 			</form>
 		</div>	
-		<div class="box box-warning">
+		<div class="box box-warning" id="familyislove">
 			<div class="box-body">
 				<div class="row">
 					<div class="col-md-11">
@@ -512,7 +512,7 @@
 							` + otherdetails + `
 						</td>`;
 					} else {
-						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success serialbtn btn-flat col-md-12 text-right itempart quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "` + (parseFloat(details.quantity) || 0) + `"/></td>`;
+						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success serialbtn btn-flat col-md-12 text-right itempart quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0"/></td>`;
 					} 
 					}else{
 						if(details.item_ident_flag == 0){
@@ -531,7 +531,7 @@
 							` + otherdetails + `
 						</td>`;
 					} else {
-						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right serialbtn itempart quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "` + (parseFloat(details.quantity) || 0) + `"/></td>`;
+						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right serialbtn itempart quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0"/></td>`;
 					}
 					}
 					
@@ -703,7 +703,11 @@
 		$('#isyu').on('click',function(e){
 			var form = $('form').serialize();
 			$.post('<?=MODULE_URL?>ajax/ajax_create_issue', form + '<?=$ajax_post?>' , function(data) {
-					getList();				
+					getList();		
+					$('html, body').animate({scrollTop: $("#familyislove").offset().top}, 500);
+					$('.quantity').val('0');
+					$('#isyu').show();
+					$('#save').addClass('hidden');	
 			});
 		});
 
@@ -894,7 +898,16 @@
 			$('#save').removeClass('hidden');
 
 			$.post('<?=MODULE_URL?>ajax/ajax_edit_issue', 'jobreleaseno='+ jobreleaseno , function(data) {
-							console.log(data.qty);	
+				var asd  = $('#tableList tbody').find('.linenum').val();				
+							var content = data.result;	
+							content.forEach(function(element) {
+								$('#tableList tbody tr').each(function(aaa){
+									var linenums = $(this).data('linenum');
+									if(element.linenum == linenums) {
+										$(this).find('.quantity').val(element.quantity);
+									}
+								});
+							});
 			});
 
 
@@ -904,11 +917,18 @@
 		});
 
 		$('#save').on('click', function(){
-			var form = $('form').serialize();			
+			var form = $('form');			
+							
 			var jobreleaseno = $('#job_release_no').val();
-			$.post('<?=MODULE_URL?>ajax/ajax_update_issue', 'jobreleaseno='+ jobreleaseno + form, function(data) {
-							// console.log(form);	
+			$.post('<?=MODULE_URL?>ajax/ajax_update_issue', form.serialize() + '&jobreleaseno='+ jobreleaseno + '<?=$ajax_post?>', function(data) {
+				getList();
+				$('.quantity').val('0');
+				$('#isyu').show();
+				$('#save').addClass('hidden');	
+				$('html, body').animate({scrollTop: $("#familyislove").offset().top}, 500);
+				
 			});
+			
 			
 		});
 	</script>

@@ -544,7 +544,7 @@ class controller extends wc_controller {
 		
 		$data			= $this->input->post($this->fields4);
 		$joborderno     = $data['job_order_no'][0];
-		$result = $this->job_order->updateIssueParts($job_release_no,$joborderno,$data);
+		$result = $this->job_order->updateIssueParts($job_release_no,$data);
 		
 		return array(	
 			'result' => $result
@@ -568,8 +568,12 @@ class controller extends wc_controller {
 		foreach ($asd as $row) {
 			$table .= '<tr data-id = "' . $row->asd . '">';
 			$table .= '<td colspan="5">' . 'Part Issuance No.: '.$row->asd . '</td>';
-			$table .= '<td>' . '<a class="btn-sm" href="#" id="editip" title="Edit"><span class="glyphicon glyphicon-pencil editip"></span></a>' . '</td>';
-			$table .= '<td>' . '<a class="btn-sm" title="Delete"><span class="glyphicon glyphicon-trash deleteip"></span></a>' . '</td>';
+			$table .= '<td>' . '<a class="btn-sm" href="#" id="editip" title="Edit"><span class="glyphicon glyphicon-pencil editip" style="border: 1px solid gainsboro;
+			padding: 3px 4px 3px 4px;
+			background-color: lavender;"></span></a>' . '</td>';
+			$table .= '<td>' . '<a class="btn-sm" title="Delete"><span class="glyphicon glyphicon-trash deleteip" style="border: 1px solid gainsboro;
+			padding: 3px 4px 3px 4px;
+			background-color: lavender;"></span></a>' . '</td>';
 			$table .= '</tr>';
 		$list	= $this->job_order->getIssuedParts($row->asd);
 		
