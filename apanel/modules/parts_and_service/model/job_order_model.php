@@ -330,12 +330,19 @@ class job_order_model extends wc_model
 	}
 
 	public function retrieveBundleDetails($itemcode) {
+		// $query 		=	"SELECT * FROM 
+		// 					(SELECT i.itemcode,0 as BaseQty, i.itemdesc as detailparticular, i.uom_base as uom, '' as parentcode, i.bundle as bundle
+		// 					FROM items i
+		// 					WHERE i.stat = 'active'
+		// 					UNION
+		// 					SELECT bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom, b.bundle_item_code as parentcode, i.bundle as bundle
+		// 					FROM items i
+		// 					LEFT JOIN bom b ON b.bundle_item_code = i.itemcode AND b.companycode = i.companycode 
+		// 					LEFT JOIN bomdetails bd ON bd.bom_code = b.bom_code AND bd.companycode = b.companycode
+		// 					WHERE status = 'active' ) a 
+		// 				WHERE a.itemcode = '$itemcode' OR a.parentcode =  '$itemcode'";
 		$query 		=	"SELECT * FROM 
-							(SELECT i.itemcode,0 as BaseQty, i.itemdesc as detailparticular, i.uom_base as uom, '' as parentcode, i.bundle as bundle
-							FROM items i
-							WHERE i.stat = 'active'
-							UNION
-							SELECT bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom, b.bundle_item_code as parentcode, i.bundle as bundle
+							( SELECT bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom, b.bundle_item_code as parentcode, i.bundle as bundle
 							FROM items i
 							LEFT JOIN bom b ON b.bundle_item_code = i.itemcode AND b.companycode = i.companycode 
 							LEFT JOIN bomdetails bd ON bd.bom_code = b.bom_code AND bd.companycode = b.companycode
@@ -404,16 +411,16 @@ class job_order_model extends wc_model
 		return $result;
 	}
 		
-	public function checkIsBundle($data) {
+	// public function checkIsBundle($data) {
 
-		$result = $this->db->setTable('bom')
-							->setFields('bundle_item_code')
-							->setWhere("bundle_item_code IN ('$data')")
-							->runSelect()
-							->getResult();
+	// 	$result = $this->db->setTable('bom')
+	// 						->setFields('bundle_item_code')
+	// 						->setWhere("bundle_item_code IN ('$data')")
+	// 						->runSelect()
+	// 						->getResult();
 		
-		return $result;
-	}
+	// 	return $result;
+	// }
 
 	public function getNextId($table,$field,$subcon = "") {
 		$result = $this->db->setTable($table)
