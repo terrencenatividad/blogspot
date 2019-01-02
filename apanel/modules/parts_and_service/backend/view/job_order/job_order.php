@@ -526,7 +526,7 @@
 							echo $ui->formField('hidden')
 								->setName('childqty[]')
 								->setClass('childqty')
-								->setValue('` + details.qty + `')
+								->setValue('` + details.BaseQty + `')
 								->draw($show_input);
 							echo $ui->formField('hidden')
 								->setName('parentline[]')
@@ -801,6 +801,9 @@
 			}
 			if (details.length > 0) {
 				details.forEach(function(details, index) {
+					console.log('details ');
+					console.log(index);
+					console.log(details);
 					addVoucherDetails(details, index);
 				});
 			} else if (min_row == 0) {
@@ -1063,7 +1066,7 @@
 							var content = data.result;
 							content.forEach(function(row) {
 								var ret_itemcode = row.itemcode;
-								var ret_qty 	 = parseFloat(row.quantity);
+								var ret_qty 	 = parseFloat(row.quantity) * value;
 								$.each($('.subitem'+linenum), function(){
 									var subcode = $(this).find('.itemcode').val();
 									if(ret_itemcode == subcode){
@@ -1109,7 +1112,6 @@
 	});
 
 	function getItemDetails(itemcode){
-		var itemcode = itemcode;
 		if (itemcode != "") {
 				ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_bundle_details',"itemcode="+itemcode, function(data) {
 					if ( ! data.success) {
@@ -1120,12 +1122,7 @@
 						displayDetails(data.details);
 						$('.ccode').prop('disabled', true);
 						$('.whchild').prop('disabled', true);
-						// $('.ccode').prop('disabled', false);
-						// $('.detailparticular').prop('readonly','true');
-						// $('.detailforBundle').prop('disabled', true);
-						// $('.WhForBundle').prop('disabled', false);
-						// $('.parentqty').prop('readonly', false);
-						// $('.childqty').prop('readonly', true);
+						$('.ccode').closest('tr').find('.delete_row').prop('disabled', true);
 					}
 				});
 			}
