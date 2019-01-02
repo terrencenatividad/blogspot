@@ -674,6 +674,13 @@
 					$('#temp_view_taxrate_' + index).html(tax.val);
 				}
 			});	
+			var discounttype = $('#discounttype').val();
+			if (discounttype == 'amt' || discounttype == 'perc') {
+				$('#tableList tbody').find('.discount').removeAttr('readonly');
+			} 
+			else {
+				$('#tableList tbody').find('.discount').attr('readonly', '').val('0.00');
+			}
 		}
 		var voucher_details = <?php echo $voucher_details ?>;
 		function displayDetails(details) {
