@@ -18,7 +18,7 @@ class billing_model extends wc_model {
 				$this->log->saveActivity("Create Billing [{$data['voucherno']}]");
 			}
 
-			$result = $this->updateBillingDetails($data2, $data['voucherno']);
+			$result = $this->updateBillingDetails($data2, $data['voucherno'], $data['discounttype']);
 		}
 
 		return $result;
@@ -36,7 +36,7 @@ class billing_model extends wc_model {
 			if ($result) {
 				$this->log->saveActivity("Update Billing [$voucherno]");
 			}
-			$result = $this->updateBillingDetails($data2, $voucherno);
+			$result = $this->updateBillingDetails($data2, $voucherno, $data['discounttype']);
 		}
 
 		return $result;
@@ -55,8 +55,9 @@ class billing_model extends wc_model {
 		$data['netamount']			= $data['netamount'];
 	}
 
-	public function updateBillingDetails($data, $voucherno) {
+	public function updateBillingDetails($data, $voucherno, $discounttype) {
 		$data['voucherno']	= $voucherno;
+		$data['discounttype'] = $discounttype;
 
 		$this->db->setTable('billing_details')
 					->setWhere("voucherno = '$voucherno'")
@@ -276,7 +277,7 @@ class billing_model extends wc_model {
 						->getRow();
 		
 		$ids = preg_split("/[\s,]+/", $result->job_orderno);
-		$jo = implode(",",$ids);
+		$jo	= "'" . implode("','", $ids) . "'";
 		if ($jo != '') {
 			$result		= $this->db->setTable('job_order')
 								->setFields('job_order_no, transactiondate, service_quotation')
