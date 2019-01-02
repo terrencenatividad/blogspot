@@ -401,6 +401,12 @@ class controller extends wc_controller {
 
 		$result 					=	$this->trial_balance->save_journal_voucher($data);
 
+		// JOB ORDER ENHANCEMENT
+		$curr_date 		= date("Y-m-d", strtotime($datefrom));
+		$month 			= date('m', strtotime($curr_date));
+		$year 			= date('Y', strtotime($curr_date));
+		$firstdayofdate = date($year.'-'.$month.'-01');
+
 		if($result){
 			$this->report_model->generateBalanceTable();
 		}
@@ -476,39 +482,34 @@ class controller extends wc_controller {
 		$period		=	"";
 
 		if( $result ){
-			$ret_arr 	=	$this->trial_balance->getReference($voucherno);
-			$reference 	=	isset($ret_arr->referenceno) ? $ret_arr->referenceno : "";
-			$period 	=	isset($ret_arr->period) ? $ret_arr->period : "";
-			$date 		=	isset($ret_arr->transactiondate) ? $ret_arr->transactiondate : "";
-			$source 	=	isset($ret_arr->source) ? $ret_arr->source : "";
+			$ret_arr 			=	$this->trial_balance->getReference($voucherno);
+			$reference 			=	isset($ret_arr->referenceno) ? $ret_arr->referenceno : "";
+			$period 			=	isset($ret_arr->period) ? $ret_arr->period : "";
+			$fiscalyear 		=	isset($ret_arr->fiscalyear) ? $ret_arr->fiscalyear : "";
+			$source 			=	isset($ret_arr->source) ? $ret_arr->source : "";
+			$transactiondate 	=	isset($ret_arr->transactiondate) ? $ret_arr->transactiondate : "";
 
 			$this->log->saveActivity("Closed Book [$voucherno - $reference] ");
-
-			// JOB ORDER ENHANCEMENT
-			$month 			= date('m', strtotime($date));
-			$year 			= date('Y', strtotime($date));
-			$firstdayofdate = date($year.'-'.$month.'-01');
-
-			$ret_released 	=	$this->trial_balance->getPartialJobOrderCount($firstdayofdate, $date);
-			$count_released =  (!empty($ret_released->count) && $ret_released->count!=0) ? $ret_released->count 	:	0;
-
-			// Change all job order no to job release .. 
-			if( $count_released > 0){ 
-				$data2['datefrom'] 	=	$date;
-				$data2['nextmonth'] =	"";
-				$data2['voucher'] 	=	$this->seq->getValue("JV");;
-				$data2['source'] 	=	$source;
-				$data2['type'] 		=	"accrual_jv";
-				$result 			=	$this->trial_balance->save_accrual_journal_voucher($data2);
 			
+			// For Checking if there is an open Job Order
+			$firstdayofdate =	 date($fiscalyear.'-'.$period.'-01');
+			$ret_released 	=	 $this->trial_balance->getPartialJobOrderCount($firstdayofdate, $transactiondate);
+			$count_released =  	(!empty($ret_released->count) && $ret_released->count!=0) ? $ret_released->count 	:	0;
+
+			if( $count_released > 0){ 
+				$data2['source'] 	=	$source;
+				$data2['datefrom'] 	=	$transactiondate;
+				$data2['type'] 		=	"accrual_jv";
+				$data2['voucher'] 	= 	$this->seq->getValue("JV");
+				$data2['sourceno']  = 	$voucherno;
+				$result 			=	$this->trial_balance->save_accrual_journal_voucher($data2);
+	
 				if($result){
-					$data2['datefrom'] 	=	$date;
-					$date 				= 	strtotime($firstdayofdate);
-					$nextmonth 			= 	date("Y-m-d", strtotime("+1 month", $date));
-					$data2['nextmonth'] =	$nextmonth;
-					$data2['voucher'] 	=	$this->seq->getValue("JV");;
 					$data2['source'] 	=	$source;
-					$data2['type'] 		=	"reverse_ajv";
+					$data2['datefrom'] 	=	$transactiondate;
+					$data2['type'] 		=	"reversed_ajv";
+					$data2['voucher'] 	= 	$this->seq->getValue("JV");
+					$data2['sourceno']  = 	$voucherno;
 					$result 			=	$this->trial_balance->save_accrual_journal_voucher($data2);
 				}
 			}

@@ -203,4 +203,70 @@ class service_quotation_model extends wc_model
 
 		return $result;
 	}
+	public function getNextId($table,$field,$subcon = "") {
+		$result = $this->db->setTable($table)
+			->setFields('MAX('.$field.') as current')
+			->setWhere(" $field != '' " . $subcon)
+			->runSelect()
+			->getRow();
+
+		if ($result) {
+			$return = $result->current += 1;
+		} else {
+			$return = '1';
+		}
+		return $return;
+	}
+	public function uploadAttachment($data) {
+		$reference = $data['reference'];
+		$result = $this->db->setTable('service_quotation_attachments')
+							->setValues($data)
+							->runInsert();
+		if ($result) {
+			$this->log->saveActivity("Approve [$reference] with attachment");		
+		}
+		return $result;
+	}
+	public function deleteAttachment($data) {
+		$attachment_file 	= $data['attachment_file'];
+		$reference 			= $data['reference'];
+		
+		if(isset($data['attachment_id']) && !empty($data['attachment_id'])){
+			$attachment_id 		= $data['attachment_id'];
+		}else{
+			
+			$attachment 	= $this->db->setTable('service_quotation_attachments')
+								->setFields('attachment_id')
+								->setWhere(" reference = '$refrence' AND attachment_name = '$attachment_file' ")
+								->runSelect()
+								->getRow();
+
+			$attachment_id 	= $attachment->attachment_id;
+		}
+		
+		/**
+		 * Try to delete file from directory before running the SQL
+		 */
+		if (!unlink('files/'.$attachment_file))
+		{
+			$result = false;
+		}
+	  	else
+		{
+			$result = true;
+		}
+		
+		if($result)
+		{
+			$result = $this->db->setTable('service_quotation_attachments')
+				->setWhere(" reference = '$reference' AND attachment_id = '$attachment_id' ");
+			$this->db->runDelete();
+			
+			if($result)
+			{
+				$this->log->saveActivity("Delete Attachment [$attachment_file] For [$reference]");
+			}
+		}
+		return $result;
+	}
 }

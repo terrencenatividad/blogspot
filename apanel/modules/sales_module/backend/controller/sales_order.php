@@ -850,7 +850,7 @@ class controller extends wc_controller
 								->setAttribute(array('disabled', 'true'))
 								->setId("taxcode[".$key."]")
 								->setValue('none')
-								->setList(array('none'=>'none'))
+								->setList(array('0'=>'none'))
 								->setClass('taxcode')
 								->draw(true); 
 			$table .="<input id = 'taxrate['".$key."']' name = 'taxrate['".$key."']' maxlength = '20' class = 'col-md-12 taxrate' type = 'hidden' value='0' > 

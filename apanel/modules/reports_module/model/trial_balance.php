@@ -711,6 +711,20 @@ class trial_balance extends wc_model {
 							);
 	}
 
+	public function update_transaction_date($data, $voucherno) {
+		$condition 		= " voucherno = '$voucherno' ";
+
+		$result 		= $this->db->setTable('journalvoucher')
+									->setValues($data)
+									->setWhere($condition)
+									->setLimit(1)
+									->runUpdate();
+
+		return $data 	=	array(
+								"result" 	=>	$result
+							);
+	}
+
 	public function update_jvdetails_status($voucherno) {
 		$data["stat"]   = "posted";
 
@@ -876,7 +890,7 @@ class trial_balance extends wc_model {
 
 	public function getReference($voucherno){
 		$result 		= 	$this->db->setTable('journalvoucher j')
-									->setFields("j.referenceno, j.period, j.transactiondate, j.source")
+									->setFields("j.referenceno, j.period, j.fiscalyear, j.transactiondate, j.source")
 									->setWhere("j.voucherno = '$voucherno'")
 									->setLimit(1)
 									->runSelect()
@@ -957,42 +971,32 @@ class trial_balance extends wc_model {
 	// }
 	
 	public function getAccountsOfReleasedItem($startdate, $enddate){
-
-
-		// SELECT jr.job_release_no releaseno,  jo.job_order_no orderno, j_v.accountcode, SUM(j_v.debit) totalamount
+		// SELECT jr.job_release_no releaseno,  jo.job_order_no orderno,  SUM(jv.amount) totalamount 
 		// FROM job_order jo 
-		// LEFT JOIN ( SELECT jr.job_order_no, jr.companycode, jr.job_release_no
-		// 			FROM job_release jr
-		// 			LEFT JOIN job_release_details jrd ON jrd.job_release_no = jr.job_release_no AND jrd.companycode = jr.companycode
-		// 			WHERE jr.stat NOT IN ('cancelled')
-		// 			GROUP BY jr.job_release_no ) jr ON jr.job_order_no = jo.job_order_no AND jr.companycode = jo.companycode
-		// LEFT JOIN ( SELECT jvd.accountcode, jvd.companycode, jvd.debit, jvd.credit, jv.referenceno
-		// 			FROM journaldetails jvd 
-		// 			INNER JOIN journalvoucher jv ON jvd.voucherno = jv.voucherno AND jvd.companycode = jv.companycode
-		// 			INNER JOIN fintaxcode fs ON fs.salesAccount = jvd.accountcode AND fs.companycode = jvd.companycode AND fs.fstaxcode = "IC" 
-		// 			WHERE jv.source = "jo_release" AND jv.stat NOT IN ('cancelled')
-		// 		) j_v ON j_v.referenceno = jr.job_release_no AND j_v.companycode = jr.companycode
-		// WHERE jo.stat IN ('partial','prepared') AND (jo.transactiondate>='2018-01-01' AND jo.transactiondate<='2018-01-31') AND  jo.companycode = 'CID'
+		// LEFT JOIN job_release jr ON jo.job_order_no = jr.job_order_no AND jr.stat!='cancelled' AND jo.companycode = jr.companycode 
+		// LEFT JOIN ( 
+		// 	SELECT jv.referenceno, jv.companycode, SUM(COALESCE(jvd.debit,0)) amount, jvd.accountcode
+		// 	FROM journalvoucher jv 
+		// 	LEFT JOIN journaldetails jvd ON jvd.voucherno = jv.voucherno AND jv.companycode = jvd.companycode
+		// 	WHERE jv.source = "jo_release" AND jv.stat NOT IN ("cancelled")
+		// 	GROUP BY jvd.accountcode
+		// ) jv ON jv.referenceno = jr.job_release_no AND jv.companycode = jr.companycode
+		// LEFT JOIN fintaxcode fs ON fs.salesAccount = jv.accountcode AND fs.companycode = jv.companycode AND fs.fstaxcode = "IC" 
+		// WHERE jo.stat IN ('partial','prepared') AND (jo.transactiondate>='2018-01-01' AND jo.transactiondate<='2018-01-31') AND  jo.companycode = 'CID'  
 
-		$job_release_query 	=	$this->db->setTable('job_release jr')
-										 ->leftJoin('job_release_details jrd ON jrd.job_release_no = jr.job_release_no AND jrd.companycode = jr.companycode')
-										 ->setWhere('jr.stat NOT IN ("cancelled")')
-										 ->setFields("jr.job_order_no, jr.companycode, jr.job_release_no")
-										 ->setGroupBy('jr.job_release_no')
-										 ->buildSelect();
-		
-		$autogen_jv_query 	=	$this->db->setTable('journaldetails jvd')
-										 ->innerJoin('journalvoucher jv ON jvd.voucherno = jv.voucherno AND jvd.companycode = jv.companycode')
-										 ->innerJoin('fintaxcode fs ON fs.salesAccount = jvd.accountcode AND fs.companycode = jvd.companycode AND fs.fstaxcode = "IC"')
-										 ->setFields("jvd.accountcode, jvd.companycode, jvd.debit, jvd.credit, jv.referenceno")
-										 ->setWhere('jv.source = "jo_release" AND jv.stat NOT IN ("cancelled")')
-										 ->buildSelect();
+		$jv_query 	=	$this->db->setTable("journalvoucher jv")
+								 ->leftJoin("journaldetails jvd ON jvd.voucherno = jv.voucherno AND jv.companycode = jvd.companycode")
+								 ->setFields("jv.referenceno, jv.companycode, SUM(COALESCE(jvd.debit,0)) amount, jvd.accountcode")
+								 ->setWhere("jv.source = 'jo_release' AND jv.stat NOT IN ('cancelled')")
+								 ->setGroupBy('jvd.accountcode')
+								 ->buildSelect();
 
 		$result 	=	$this->db->setTable("job_order jo")
-								->leftJoin("($job_release_query) jr ON jr.job_order_no = jo.job_order_no AND jr.companycode = jo.companycode")
-								->leftJoin("($autogen_jv_query) j_v ON j_v.referenceno = jr.job_release_no AND j_v.companycode = jr.companycode")
-								->setFields("jr.job_release_no releaseno,  jo.job_order_no orderno, j_v.accountcode, SUM(j_v.debit) totalamount")
-								->setWhere("jo.stat IN ('partial','prepared') AND (jo.transactiondate>='$startdate' AND jo.transactiondate<='$enddate') AND  jo.companycode = 'CID'")
+								->leftJoin("job_release jr ON jo.job_order_no = jr.job_order_no AND jr.stat!='cancelled' AND jo.companycode = jr.companycode")
+								->leftJoin("($jv_query) jv ON jv.referenceno = jr.job_release_no AND jv.companycode = jr.companycode")
+								->leftJoin('fintaxcode fs ON fs.salesAccount = jv.accountcode AND fs.companycode = jv.companycode AND fs.fstaxcode = "IC"')
+								->setFields("jr.job_release_no releaseno, jo.job_order_no orderno, SUM(jv.amount) totalamount, jv.accountcode invacct")
+								->setWhere("jo.stat IN ('partial','prepared') AND (jo.transactiondate>='$startdate' AND jo.transactiondate<='$enddate')")
 								->runSelect()
 								->getResult();
 								// echo $this->db->getQuery();
@@ -1002,9 +1006,9 @@ class trial_balance extends wc_model {
 	public function save_accrual_journal_voucher($data){	
 		$generatedvoucher 	=	isset($data['voucher']) 			?	$data['voucher'] 			: 	"";
 		$lastdayofdate 		=	isset($data['datefrom']) 			?	$data['datefrom'] 			: 	"";
-		$nextmonth 			=	isset($data['nextmonth']) 			?	$data['nextmonth'] 			: 	"";
-		$source 			=	isset($data['source']) 				?	$data['source'] 			: 	"";
-		$type 				=	isset($data['type']) 				?	$data['type'] 				: 	"reverse_ajv";
+		$source 			=	isset($data['source']) 				? 	$data['source'] 			:	"";
+		$sourceno 			=	isset($data['sourceno']) 			? 	$data['sourceno'] 			:	"";
+		$type 				=	isset($data['type']) 				? 	$data['type'] 				:	"reversed_jv";
 
 		$result 			=	0;
 		$amount 			= 	0;
@@ -1018,6 +1022,9 @@ class trial_balance extends wc_model {
 			$year 				=	date('Y', strtotime($lastdayofdate));
 
 			$firstdayofdate 	=	date($year.'-'.$month.'-01');
+			$nextmonth 			=	date('Y-m-d', strtotime('+1 month', strtotime($firstdayofdate)));
+			$next_m  			= 	date('m', strtotime($nextmonth));
+			$next_y 			= 	date('Y', strtotime($nextmonth));
 		} else {
 			$exploded_date		=	explode(' - ',$lastdayofdate);
 			$firstdayofdate 	=	$exploded_date[0];
@@ -1027,77 +1034,131 @@ class trial_balance extends wc_model {
 			$month 				=	date('m', strtotime($lastdayofdate));
 			$year 				=	date('Y', strtotime($lastdayofdate));
 		}
-		
-		$currentyear 		= 	date("Y",strtotime($lastdayofdate));
-		$prevyear 			= 	date("Y",strtotime($firstdayofdate." -1 year"));
-
-		$ret_ic_acct 		= $this->getAccountsOfReleasedItem($firstdayofdate, $lastdayofdate);
-		$inventory_clearing = isset($ret_ic_acct[0]->accountcode) ? $ret_ic_acct[0]->accountcode 	:	0;
-		$amount 			= isset($ret_ic_acct[0]->totalamount) ? $ret_ic_acct[0]->totalamount 	:	0;
-		$warehouse 			= isset($ret_ic_acct[0]->warehouse)   ? $ret_ic_acct[0]->warehouse 		:	"";
-		// var_dump($ret_ic_acct);
+ 
 		$str_month 	=	date('F', strtotime($lastdayofdate));
-		$reference	=	($type != "reverse_ajv") ? "Accrual Entry for $str_month, $year" : "Reversed Accrual Entry for $str_month, $year";
+		$str_n_month=	date('F', strtotime($nextmonth));
+		
+		// Cost of Goods Account 
+		$ret_cog_acct 		= $this->retrieveAccount("ACOG");
+		$cog_acct 			= isset($ret_cog_acct->salesAccount) ? $ret_cog_acct->salesAccount 	:	"";
 
-		$header['voucherno'] 		=	$generatedvoucher;
-		$header['transtype'] 		=	"JV";
-		$header['stat'] 			=	"posted";
-		$header['transactiondate'] 	=	$lastdayofdate;
-		$header['fiscalyear'] 		=	$year;
-		$header['period'] 			= 	$month;
-		$header['currencycode'] 	= 	"PHP";
-		$header['exchangerate'] 	=	1;
-		$header['amount'] 	 		=	$amount;
-		$header['convertedamount'] 	=	$amount;
-		$header['referenceno'] 		=	$reference;
-		$header['source'] 			=	"jo_release";
-		// $header['sitecode'] 		=   "";
-		// $header['remarks'] 			= 	"";
+		// Accrual Entry
+		// if($type == "accrual_jv"){
+			$getaccts 	= 	$this->getAccountsOfReleasedItem($firstdayofdate, $lastdayofdate);
+			$releaseno 	=	isset($getaccts[0]->releaseno) 	?	$getaccts[0]->releaseno 	:	"";
+			$orderno 	=	isset($getaccts[0]->orderno) 	?	$getaccts[0]->orderno 		:	"";
+			$totalamount=	isset($getaccts[0]->totalamount)? 	$getaccts[0]->totalamount 	: 	0;
+			$accountcode= 	isset($getaccts[0]->invacct)	? 	$getaccts[0]->invacct 		:	"";		
 
-		$result 					=	$this->insertdata('journalvoucher',$header);
+			$reference		= ($type == "accrual_jv") ? "Accrual Entry for $str_month, $year" : "Reversed Accrual Entry for $str_n_month, $year";
+			$accrual_source = $type;
 
-		if($result){
-			$debit 					= $total_debit 	= 0;
-			$credit 				= $total_credit = 0;
-			$retained 				= 0;
-
-			$accounts['voucher'] 			=	$generatedvoucher;
-			$accounts['account'] 			=	$inventory_clearing;
-			$accounts['source'] 			=	$source;
-			$accounts['amount'] 			=	$amount;
-
-			if( $type == "reverse_ajv" ){
-				$accounts['linenum']=	2;
-				$result 			=	$this->create_jvdetails_debit($accounts);
-			} else {
-				$accounts['linenum']=	1;
-				$result  			=	$this->create_jvdetails_credit($accounts);
-			}
+			$header['voucherno'] 		=	$generatedvoucher;
+			$header['transtype'] 		=	"JV";
+			$header['stat'] 			=	"posted";
+			$header['transactiondate'] 	=	$lastdayofdate;
+			$header['fiscalyear'] 		=	$year;
+			$header['period'] 			= 	$month;
+			$header['currencycode'] 	= 	"PHP";
+			$header['exchangerate'] 	=	1;
+			$header['amount'] 	 		=	$totalamount;
+			$header['convertedamount'] 	=	$totalamount;
+			$header['referenceno'] 		=	$reference;
+			$header['source'] 			=	$accrual_source;
+			$header['sourceno'] 		=	$sourceno;
 	
-			// Cost of Goods Account - Debit
-			$ret_cog_acct 		= $this->retrieveAccount("ACOG");
-			$cog_acct 			= isset($ret_cog_acct->salesAccount) ? $ret_cog_acct->salesAccount 	:	"";
-
-			if( $result ) {
+			$result 					=	$this->insertdata('journalvoucher',$header);
+	
+			if($result){
+				$debit 					= $total_debit 	= 0;
+				$credit 				= $total_credit = 0;
+				$retained 				= 0;
+				$linenum 				= 1;
+	
+				// $prev_carry 					= $this->getPrevCarry($accountcode,$firstdayofdate);
+				// $amount							= $this->getCurrent($accountcode,$firstdayofdate,$lastdayofdate);
 				$accounts['voucher'] 			=	$generatedvoucher;
-				$accounts['account'] 			=	$cog_acct;
-				$accounts['source'] 			=	$source;
-				$accounts['amount'] 			=	$amount;
-	
-				if( $type == "reverse_ajv" ){
-					$accounts['linenum']		=	1;
-					$result  					=	$this->create_jvdetails_credit($accounts);
-				} else {
-					$accounts['linenum']		=	2;
-					$result 					=	$this->create_jvdetails_debit($accounts);
-				}
+				$accounts['source'] 			=	$accrual_source;
+				$accounts['amount'] 			=	$totalamount;
 
-				return array(
-					'result'=>$result,
-					'voucherno'=>$generatedvoucher
-				);
+				if($type == "accrual_jv"){
+					$accounts['account'] 			=	$cog_acct;
+					$accounts['linenum'] 			=	1;
+					$result  						=	$this->create_jvdetails_debit($accounts);
+
+					$accounts['account'] 			=	$accountcode;
+					$accounts['linenum'] 			=	2;
+					$result  						=	$this->create_jvdetails_credit($accounts);
+				} else {
+					$accounts['account'] 			=	$accountcode;
+					$accounts['linenum'] 			=	1;
+					$result  						=	$this->create_jvdetails_debit($accounts);
+
+					$accounts['account'] 			=	$cog_acct;
+					$accounts['linenum'] 			=	2;
+					$result  						=	$this->create_jvdetails_credit($accounts);
+				
+					if($result && $type == "reversed_ajv"){
+						$update['transactiondate']	=	$nextmonth;
+						$result  					=	$this->update_transaction_date($update, $generatedvoucher);
+					}
+				}
 			}
-		}
+		// } else { // Reverse Accrual Entry
+
+		return array(
+			'result'=>$result,
+			'voucherno'=>$generatedvoucher
+		);
+		// 	$getaccts 	= 	$this->getAccountsOfReleasedItem($firstdayofdate, $lastdayofdate);
+		// 	$releaseno 	=	isset($getaccts[0]->releaseno) 	?	$getaccts[0]->releaseno 	:	"";
+		// 	$orderno 	=	isset($getaccts[0]->orderno) 	?	$getaccts[0]->orderno 		:	"";
+		// 	$totalamount=	isset($getaccts[0]->totalamount)? 	$getaccts[0]->totalamount 	: 	0;
+		// 	$accountcode= 	isset($getaccts[0]->invacct)	? 	$getaccts[0]->invacct 		:	"";		
+
+		// 	$reference		= "Accrual Entry for $str_month, $year";
+		// 	$accrual_source = $type;
+
+		// 	$header['voucherno'] 		=	$generatedvoucher;
+		// 	$header['transtype'] 		=	"JV";
+		// 	$header['stat'] 			=	"posted";
+		// 	$header['transactiondate'] 	=	$lastdayofdate;
+		// 	$header['fiscalyear'] 		=	$year;
+		// 	$header['period'] 			= 	$month;
+		// 	$header['currencycode'] 	= 	"PHP";
+		// 	$header['exchangerate'] 	=	1;
+		// 	$header['amount'] 	 		=	$totalamount;
+		// 	$header['convertedamount'] 	=	$totalamount;
+		// 	$header['referenceno'] 		=	$reference;
+		// 	$header['source'] 			=	$accrual_source;
+	
+		// 	$result 					=	$this->insertdata('journalvoucher',$header);
+	
+		// 	if($result){
+		// 		$debit 					= $total_debit 	= 0;
+		// 		$credit 				= $total_credit = 0;
+		// 		$retained 				= 0;
+		// 		$linenum 				= 1;
+	
+		// 		// $prev_carry 					= $this->getPrevCarry($accountcode,$firstdayofdate);
+		// 		// $amount							= $this->getCurrent($accountcode,$firstdayofdate,$lastdayofdate);
+	
+		// 		$accounts['voucher'] 			=	$generatedvoucher;
+		// 		$accounts['account'] 			=	$cog_acct;
+		// 		$accounts['linenum'] 			=	1;
+		// 		$accounts['source'] 			=	$accrual_source;
+		// 		$accounts['amount'] 			=	$totalamount;
+		// 		$result  						=	$this->create_jvdetails_debit($accounts);
+
+		// 		$accounts['voucher'] 			=	$generatedvoucher;
+		// 		$accounts['account'] 			=	$accountcode;
+		// 		$accounts['linenum'] 			=	2;
+		// 		$accounts['source'] 			=	$accrual_source;
+		// 		$accounts['amount'] 			=	$totalamount;
+		// 		$result  						=	$this->create_jvdetails_credit($accounts);
+		// 	}
+		// } 
+	
 	}
 
 }	
