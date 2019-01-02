@@ -62,18 +62,23 @@
 				<table id="landedCostListAll" class="landedCostList table table-hover table-striped table-condensed table-bordered" cellpadding="0" cellspacing="0" border="0" width="100%">
 					<thead>
 						<tr class="info">
-							<th class="col-md-1 text-center">Item</th>
-							<th class="col-md-1 text-center">Description</th>
-							<th class="col-md-1 text-center">IPO Number</th>
-							<th class="col-md-1 text-center">IPO Date</th>
-							<th class="col-md-1 text-center">Qty/Unit</th>
-							<th class="col-md-1 text-center">IPO Receipt Date</th>
-							<th class="col-md-1 text-center">Unit Cost Foreign Currency</th>
-							<th class="col-md-1 text-center">Unit Cost Base Currency</th>
-							<th class="col-md-1 text-center">Job Number</th>
-							<th class="col-md-1 text-center">Importation Cost per Unit</th>
-							<th class="col-md-1 text-center">Landed Cost per Unit</th>
-							<th class="col-md-1 text-center">Total Landed Cost</th>
+							<!-- <div class="col-md-5"> -->
+								<th class="col-md-1 text-center">Item</th>
+								<th class="col-md-1 text-center">Description</th>
+								<th class="col-md-1 text-center">IPO Number</th>
+								<th class="col-md-1 text-center">IPO Date</th>
+								<th class="col-md-1 text-center">Qty/Unit</th>
+								<th class="col-md-1 text-center">IPO Receipt Date</th>
+							<!-- </div> -->
+							<!-- <div class="col-md-7"> -->
+								<th class="col-md-1 text-center">Unit Cost Foreign Currency</th>
+								<th class="col-md-1 text-center">Unit Cost Base Currency</th>
+								<th class="col-md-1 text-center">Job Number</th>
+								<th class="col-md-1 text-center">Importation Cost per Unit</th>
+								<th class="col-md-1 text-center">Landed Cost per Unit</th>
+								<th class="col-md-1 text-center">Total Landed Cost</th>
+								<th class="col-md-1 text-center">Job Status</th>
+							<!-- </div> -->
 						</tr>
 					</thead>
 					<tbody id="landed_container">
@@ -99,6 +104,7 @@
 							<th class="col-md-1 text-center">Importation Cost per Unit</th>
 							<th class="col-md-1 text-center">Landed Cost per Unit</th>
 							<th class="col-md-1 text-center">Total Landed Cost</th>
+							<th class="col-md-1 text-center">Job Status</th>
 						</tr>
 					</thead>
 					<tbody id="landed_container">
@@ -125,6 +131,7 @@
 							<th class="col-md-1 text-center">Importation Cost per Unit</th>
 							<th class="col-md-1 text-center">Landed Cost per Unit</th>
 							<th class="col-md-1 text-center">Total Landed Cost</th>
+							<th class="col-md-1 text-center">Job Status</th>
 						</tr>
 					</thead>
 					<tbody id="landed_container">
