@@ -27,15 +27,15 @@ class controller extends wc_controller {
 		);
 		$this->fields2			= array(
 			'job_order_no',
-			'h_itemcode' 		=> 'itemcode',
+			'h_itemcode'		=> 'itemcode',
 			'detailparticular',
 			'linenum',
 			'h_warehouse'		=> 'warehouse',
-			'qty',
+			'qty' 				=> 'quantity',
 			'h_uom'				=> 'uom',
 			'isbundle',
-			'parentline',
-			'parentcode'
+			'parentline'
+			// 'parentcode'
 		);
 		$this->fields3			= array(
 			'job_order_no',
@@ -184,6 +184,7 @@ class controller extends wc_controller {
 		$data['warehouse_list']		= $this->job_order->getWarehouseList();
 		$data["taxrate_list"]		= $this->job_order->getTaxRateList();
 		$data["taxrates"]			= $this->job_order->getTaxRates();
+
 		$data['voucher_details']	= json_encode($this->job_order->getJobOrderDetails($this->fields2, $id));
 		$data['header_values']		= json_encode(array(
 			''
@@ -458,16 +459,18 @@ class controller extends wc_controller {
 
 		// $result  = $this->job_order->saveValues('job_order',$data);
 		// $result1 = $this->job_order->saveFromPost('job_order_details', $data2, $data);
-		$dataparticular		= $this->input->post('h_detailparticular');
-		if($data2['detailparticular'] == '') {
-			$data2['detailparticular'] = $dataparticular;
-		}
-		$itemcodewosq					= $this->input->post('detail_itemcode');
+		// $dataparticular		= $this->input->post('h_detailparticular');
+		// if($data2['detailparticular'] == '') {
+		// 	$data2['detailparticular'] = $dataparticular;
+		// }
+		// $itemcodewosq					= $this->input->post('detail_itemcode');
 		//$itemuom					= $this->input->post('uom');
-		if($data['service_quotation'] == '') {
-			$data2['itemcode']	= $itemcodewosq;
-		}
+		// if($data['service_quotation'] == '') {
+		// 	$data2['itemcode']	= $itemcodewosq;
+		// }
+		// echo  'sq '.$data['service_quotation'] ;
 		//var_dump($data, $data2);
+		unset($data2['parentcode']);
 		$result		= $this->job_order->saveJobOrder($data, $data2);
 		
 		return array(
