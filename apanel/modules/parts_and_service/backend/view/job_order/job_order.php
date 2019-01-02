@@ -479,7 +479,7 @@
 				var dsa = 'data-isbundle="0"';
 			}
 			row += `
-				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.qty+`" data-linenum="`+linenum+`">`;
+				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.qty+`" data-linenum="`+linenum+`"  data-parentlinenum="`+parentline+`">`;
 			row += `<td>
 					`;
 					if(details.parentcode == null  || details.parentcode == ""){
@@ -635,7 +635,7 @@
 								echo $ui->formField('text')
 										->setSplit('', 'col-md-12')
 										->setName('qty[]')
-										->setClass('qty text-right childqty')
+										->setClass('qty text-right parentqty')
 										->setAttribute(array('data-value' => '` + (parseFloat(details.qty) || 0) + `'))
 										->setValidation('required integer')
 										->setValue('` + (addComma(details.qty, 0) || 0) + `')
@@ -648,7 +648,7 @@
 								echo $ui->formField('text')
 										->setSplit('', 'col-md-12')
 										->setName('qty[]')
-										->setClass('qty text-right parentqty')
+										->setClass('qty text-right childqty')
 										->setAttribute(array('readonly' => true,'data-value' => '` + (parseFloat(details.qty) || 0) + `'))
 										->setValidation('required integer')
 										->setValue('` + (parseFloat(details.qty) || 0) + `')
@@ -1046,7 +1046,7 @@
 		// 	$('#sec_modal').modal("show");
 		// });
 
-		$('#tableList tbody').on('blur', '.qty', function(e) {
+		$('#tableList tbody').on('blur', '.parentqty', function(e) {
 			var value 	=	removeComma($(this).val());
 			if ($(this).closest('tr').hasClass('items')) {
 				if (value < 1) 
@@ -1056,11 +1056,27 @@
 			}
 			if ($(this).closest('tr').data('isbundle') == 1) {
 				var linenum = $(this).closest('tr').data('linenum');
-				$.each($('.subitem'+linenum), function(){
-					var subitemqty 	= $(this).closest('tr').find('.childqty').val();
-					subitemqty 		= subitemqty * value;
-					$(this).find('.qty').val(subitemqty);
-				});
+				var bundle 	= $(this).closest('tr').find('.itemcode').val();
+				if(bundle){
+					ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_retrieve_bom_qty', { bundle: bundle }, function(data) {
+						if (data.result) {
+							var content = data.result;
+							content.forEach(function(row) {
+								var ret_itemcode = row.itemcode;
+								var ret_qty 	 = parseFloat(row.quantity);
+								$.each($('.subitem'+linenum), function(){
+									var subcode = $(this).find('.itemcode').val();
+									if(ret_itemcode == subcode){
+										$(this).find('.childqty').val(ret_qty.toFixed(0));
+									}
+								});
+							});
+						} else {
+						
+							
+						}
+					});
+				}
 			}
 	});
 
