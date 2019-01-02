@@ -1,4 +1,5 @@
 <section class="content">
+
 	<ul class="nav nav-tabs">
 		<li class="active"><a href="#main" data-toggle="tab" data-id="main">Details</a></li>
 		<?if(!$show_input):?><li><a href="#files" data-toggle="tab" data-id="files">Attachments</a></li><?endif;?>
@@ -418,7 +419,6 @@
 		$('.childqty').prop('readonly', false);
 
 		<?php if($show_input && $ajax_task == 'ajax_edit' && $service_quotation != ''): ?>
-		//console.log("edit with sq");
 		$('.detailparticular').prop('readonly', true);
 		//$('.qty').prop('readonly','true');
 		$('.detailforBundle').prop('disabled',true);
@@ -437,8 +437,7 @@
 		var parentline  = 0;
 		var parent 		= 0;
 		function addVoucherDetails(details, index) {
-			// console.log(details);
-			console.log(" index = "+index);
+			console.log(details);
 			var details = details || {itemcode: '', detailparticular: '', warehouse: '', qty: '0', uom: 'PC', childqty : '0', linenum : '0', isbundle : 'No', parentline : '', parentcode : ''};
 			var other_details = JSON.parse(JSON.stringify(details));
 			delete other_details.itemcode;
@@ -462,14 +461,11 @@
 					 ?>`;
 				}
 			}
-			console.log(" details linenum = "+details.linenum);
 			// I added a condition that if details.linenum (retrieved data) is 0 (meaning, nothing was retrieved), the line number should refer to the passed index..
 			var linenum = (details.linenum != 0 && details.linenum != undefined) ? details.linenum : index + 1;
-			var warehouse = (details.warehouse != "" && details.linenum != undefined) ? details.warehouse : "none";
-			console.log("Line num = "+linenum); 
-			
+			details.warehouse = (details.warehouse != "" && details.warehouse != undefined) ? details.warehouse : "none";
+			console.log("Warehouse = "+details.warehouse);
 			var row = ``;
-			console.log('details parentcode = '+details.parentcode);
 			if(details.parentcode == "" || details.parentcode == null){
 				var asd = 'parents'+linenum;
 				parent = linenum;
@@ -477,12 +473,11 @@
 				parentline = parent;
 				var asd = 'subitem'+parentline;
 			}
-			if(details.isbundle == "Yes"){
+			if(details.isbundle == 1){
 				var dsa = 'data-isbundle="1"';
 			}else{
 				var dsa = 'data-isbundle="0"';
 			}
-			console.log("Parent Code = "+details.parentcode);
 			row += `
 				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.qty+`" data-linenum="`+linenum+`">`;
 			row += `<td>
@@ -494,7 +489,7 @@
 							echo $ui->formField('dropdown')
 								->setSplit('', 'col-md-12')
 								->setName('detail_itemcode[]')
-								->setClass('itemcode ccode')
+								->setClass('itemcode pcode')
 								->setList($item_list)
 								->setNone('Selected: None')
 								->setValue($value)
@@ -513,7 +508,7 @@
 							echo $ui->formField('dropdown')
 								->setSplit('', 'col-md-12')
 								->setName('detail_itemcode[]')
-								->setClass('itemcode pcode')
+								->setClass('itemcode ccode')
 								->setList($item_list)
 								->setNone('Selected: None')
 								->setValue($value)
@@ -552,7 +547,6 @@
 					</td>
 					<td>`;
 					if(details.parentcode == null || details.parentcode == ""){
-					console.log("details: NULL");
 					row += `<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
@@ -571,14 +565,13 @@
 						?> ` + otherdetails + ` </td>
 					`;
 					}else{
-					console.log("details: with parentcode");
 						row += `<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
 								->setName('detailparticular[]')
 								->setClass('detailparticular parts detailforBundle')
 								->setValue('` + details.detailparticular + `')
-								->setAttribute(array('disabled' => 'disabled', 'data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
+								->setAttribute(array('readOnly' => true, 'data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->draw($show_input);
 
 								echo $ui->formField('hidden')
@@ -590,16 +583,14 @@
 								?>` + otherdetails + ` </td>
 						`;
 					}
-						
-
 					if(details.parentcode == null  || details.parentcode == ""){
-					row += `<td class="text-right">
+					row += `<td>
 					<?php
-							$value = "<span id='temp_view_warehouse_` + index + `'></span>";
+							$value = "<span id='temp_view_warehouse_` + index + `'>'` + warehouse + `'</span>";
 							echo $ui->formField('dropdown')
 								->setSplit('', 'col-md-12')
 								->setName('warehouse[]')
-								->setClass('warehouse parent whchild')
+								->setClass('warehouse parent WhForBundle')
 								->setList($warehouse_list)
 								->setNone('Selected: None')
 								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
@@ -608,29 +599,29 @@
 
 							echo $ui->formField('hidden')
 								->setName('h_warehouse[]')
-								->setClass('h_warehouse parts h_whchild')
+								->setClass('h_warehouse parts')
 								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->setValue('` + details.warehouse + `')
 								->draw($show_input);
 						?> ` + otherdetails + ` </td>
 						`;
 					}else{
-						row += `<td class="text-right">
+						row += `<td>
 						<?php
 							$value = "<span id='temp_view_warehouse_` + index + `'></span>";
 							echo $ui->formField('dropdown')
 								->setSplit('', 'col-md-12')
 								->setName('warehouse[]')
-								->setClass('warehouse parts WhForBundle')
+								->setClass('warehouse parts whchild')
 								->setList($warehouse_list)
 								->setNone('Selected: None')
-								->setAttribute(array('disabled' => 'disabled', 'data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
+								->setAttribute(array('readOnly' => true, 'data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->setValue('` + details.warehouse + `')
 								->draw($show_input);
 
 							echo $ui->formField('hidden')
 								->setName('h_warehouse[]')
-								->setClass('h_warehouse')
+								->setClass('h_warehouse h_whchild')
 								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->setValue('` + details.warehouse + `')
 								->draw($show_input);
@@ -658,7 +649,7 @@
 										->setSplit('', 'col-md-12')
 										->setName('qty[]')
 										->setClass('qty text-right parentqty')
-										->setAttribute(array('readonly' => 'readonly','data-value' => '` + (parseFloat(details.qty) || 0) + `'))
+										->setAttribute(array('readonly' => true,'data-value' => '` + (parseFloat(details.qty) || 0) + `'))
 										->setValidation('required integer')
 										->setValue('` + (parseFloat(details.qty) || 0) + `')
 										->draw($show_input);
@@ -802,19 +793,14 @@
 			}
 		}
 		var voucher_details = <?php echo $voucher_details ?>;
-		//console.log(voucher_details);
 		function displayDetails(details) {
 			if (details.length < min_row) {
-				console.log("DETAILS LENGTH = "+details.length);
 				for (var x = details.length; x < min_row; x++) {
 					addVoucherDetails('', x);
 				}
 			}
 			if (details.length > 0) {
-				console.log("DETAILS LENGTH = "+details.length);
 				details.forEach(function(details, index) {
-					//console.log(index);
-					//console.log(details);
 					addVoucherDetails(details, index);
 				});
 			} else if (min_row == 0) {
@@ -907,7 +893,6 @@
 	<script>
 		$('#addNewItemJODetails').on('click', function() {
 			var count_lines = $('#tableList tbody tr').length; // This is to count the initial rows on the table after clicking the add new line button
-			// console.log(" COUNT "+count_lines);
 			addVoucherDetails('',count_lines);
 			$('.WhForBundle').prop('disabled', false);
 			$('.detailforBundle').prop('disabled', false);
@@ -1002,9 +987,7 @@
 					} else {
 						$('#tableList tbody').html('');
 						displayDetails(data.details);
-						//console.log(data.details);
 						displayHeader(data.header);
-						//console.log(data.header);
 						$('.itemcode').prop('disabled','true');
 						$('.detailparticular').prop('readonly','true');
 						$('.qty').prop('readonly','true');
@@ -1032,8 +1015,6 @@
 			var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
 			recomputeAll();
 			
-			//console.log(header_values);
-			
 			$('#submit_container [type="submit"]').attr('disabled', true);
 			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
 			if (form_element.find('.form-group.has-error').length == 0) {
@@ -1042,7 +1023,6 @@
 					items += removeComma($(this).val());
 				});
 				if ($('.qty').length > 0 && items > 0) {
-					console.log(form_element.serialize());
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
 						if (data.success) {
 							$('#delay_modal').modal('show');
@@ -1101,13 +1081,10 @@
 
 		if( customer != "" ){
 			var itemcode = $(this).val();
-			console.log(itemcode);
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_checkbundle',"itemcode="+itemcode, function(data) {
 				if (!data.success) {
-					console.log("no value");
 				}
 				else {
-					console.log("with value");
 					getItemDetails(itemcode);
 				}
 			});
@@ -1116,34 +1093,23 @@
 	});
 
 	function getItemDetails(itemcode){
-		console.log(itemcode);
 		var itemcode = itemcode;
 		if (itemcode != "") {
 				ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_bundle_details',"itemcode="+itemcode, function(data) {
 					if ( ! data.success) {
 						$('#tableList tbody').html(data.table);
 					} else {
-						// console.log(data.mainheader);
-						// console.log(data.header);
-						// console.log(data.details);
 						$('#tableList tbody').html('');
-						//console.log("HEADER:" + mainheader);
-						//var main_detail = data.mainheader.detailparticular
-						//$('#detailforBundle').val(main_detail);
 						displayHeader(data.header);	
 						displayDetails(data.details);
-						$('.pcode').prop('disabled', false);
 						$('.ccode').prop('disabled', true);
-						//$('.itemcode').prop('disabled','true');
-						$('.detailparticular').prop('readonly','true');
-						//$('.qty').prop('readonly','true');
-						//$('.detailforBundle').prop('disabled','false');
-						$('.detailforBundle').prop('disabled', false);
-						$('.WhForBundle').prop('disabled', false);
 						$('.whchild').prop('disabled', true);
-						$('.parentqty').prop('readonly', false);
-						$('.childqty').prop('readonly', true);
-						//document.getElementById('addNewItemJODetails').style.visibility = 'hidden';
+						// $('.ccode').prop('disabled', false);
+						// $('.detailparticular').prop('readonly','true');
+						// $('.detailforBundle').prop('disabled', true);
+						// $('.WhForBundle').prop('disabled', false);
+						// $('.parentqty').prop('readonly', false);
+						// $('.childqty').prop('readonly', true);
 					}
 				});
 			}
@@ -1151,7 +1117,6 @@
 	// ready for changing on warehouse for multiple items/ bundle
 	// $('#tableList tbody').on('change', '.WhForBundle', function(e) {
 	// 	var wh = $(this).val();
-	// 	console.log(wh);
 	// 	if(wh) {
 	// 		$('.whchild').html("sample");
 	// 		$()
