@@ -51,8 +51,9 @@ class controller extends wc_controller {
 		// $datefilter			= $this->date->dateDbFormat($datefilter);
 		$daterangefilter	= $data['daterangefilter'];
 		// $default_datefilter = date("M d, Y",strtotime('first day of this month')).' - '.date("M d, Y",strtotime('last day of this month'));
+		$datefilter     = (!empty($daterangefilter))? $daterangefilter : '';
 
-		$date_filter = explode('-', $daterangefilter);
+		$date_filter = explode('-', $datefilter);
 		foreach ($date_filter as $date) {
 			$dates[] = date('Y-m-d', strtotime($date));
 		}
@@ -175,8 +176,9 @@ class controller extends wc_controller {
 		$tab = $data['tab'];
 		
 		$daterangefilter	= $data['daterangefilter'];
+		$datefilter     = (!empty($daterangefilter))? $daterangefilter : '';
 		
-		$date_filter = explode('-', $daterangefilter);
+		$date_filter = explode('-', $datefilter);
 		foreach ($date_filter as $date) {
 			$dates[] = date('Y-m-d', strtotime($date));
 		}

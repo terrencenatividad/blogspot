@@ -500,8 +500,17 @@ class job_order_model extends wc_model
 						->setWhere("reference = '$jobno'")
 						->runSelect()
 						->getRow();
-		var_dump($result);
+		// 	var_dump($result);
 		return $result;
 	}
 
+	public function retrieve_bom_qty($bundle){
+		$result = $this->db->setTable('bom b')
+						   ->leftJoin('bomdetails dtl ON dtl.bom_code = b.bom_code AND dtl.companycode = b.companycode')
+						   ->setFields('dtl.item_code itemcode, dtl.quantity')
+						   ->setWhere("b.bundle_item_code = '$bundle'")
+						   ->runSelect()
+						   ->getResult();
+		return $result; 	
+	}	
 }

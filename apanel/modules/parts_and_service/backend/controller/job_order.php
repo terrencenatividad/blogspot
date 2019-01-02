@@ -676,4 +676,12 @@ class controller extends wc_controller {
 		}
 	}
 	
+	private function ajax_retrieve_bom_qty(){
+		$bundle_item = $this->input->post('bundle');
+
+		$result 	 = $this->job_order->retrieve_bom_qty($bundle_item);
+
+		// var_dump($result);
+		return $dataArray = array('result' => $result);
+	}
 }
