@@ -33,7 +33,7 @@
 									->setAttribute(array('data-daterangefilter' => 'month'))
 									->setAddon('calendar')
 									->setValue($datefilter)
-									->setValidation('required')
+									// ->setValidation('required')
 									->draw(true);
 					?>
 				</div>
