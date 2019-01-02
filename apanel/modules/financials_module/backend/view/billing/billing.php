@@ -673,7 +673,7 @@
 				if (tax.ind == details.taxcode) {
 					$('#temp_view_taxrate_' + index).html(tax.val);
 				}
-			});
+			});	
 		}
 		var voucher_details = <?php echo $voucher_details ?>;
 		function displayDetails(details) {
@@ -1043,6 +1043,15 @@
 
 			}
 			recomputeAll();
+		});
+		$(document).ready(function() {
+			var discounttype = $('#discounttype').val();
+			if (discounttype == 'amt' || discounttype == 'perc') {
+				$('#tableList tbody').find('.discount').removeAttr('readonly');
+			} 
+			else {
+				$('#tableList tbody').find('.discount').attr('readonly', '').val('0.00');
+			}
 		});
 	</script>
 	<?php endif ?>
