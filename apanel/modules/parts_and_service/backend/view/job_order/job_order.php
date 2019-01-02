@@ -437,7 +437,7 @@
 		var parentline  = 0;
 		var parent 		= 0;
 		function addVoucherDetails(details, index) {
-			console.log(details);
+			console.log("index = "+index);;
 			var details = details || {itemcode: '', detailparticular: '', warehouse: '', qty: '0', uom: 'PC', childqty : '0', linenum : '0', isbundle : 'No', parentline : '', parentcode : ''};
 			var other_details = JSON.parse(JSON.stringify(details));
 			delete other_details.itemcode;
@@ -462,6 +462,7 @@
 				}
 			}
 			// I added a condition that if details.linenum (retrieved data) is 0 (meaning, nothing was retrieved), the line number should refer to the passed index..
+			// Index + 2 because index starts at 0 but our actual linenum starts at 1.. we add another 1 because our parent is retrieved outside of this function
 			var linenum = (details.linenum != 0 && details.linenum != undefined) ? details.linenum : index + 1;
 			details.warehouse = (details.warehouse != "" && details.warehouse != undefined) ? details.warehouse : "none";
 			console.log("Warehouse = "+details.warehouse);
@@ -479,7 +480,7 @@
 				var dsa = 'data-isbundle="0"';
 			}
 			row += `
-				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.qty+`" data-linenum="`+linenum+`">`;
+				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.qty+`" data-linenum="`+linenum+`"  data-parentlinenum="`+parentline+`">`;
 			row += `<td>
 					`;
 					if(details.parentcode == null  || details.parentcode == ""){
@@ -526,7 +527,7 @@
 							echo $ui->formField('hidden')
 								->setName('childqty[]')
 								->setClass('childqty')
-								->setValue('` + details.qty + `')
+								->setValue('` + details.BaseQty + `')
 								->draw($show_input);
 							echo $ui->formField('hidden')
 								->setName('parentline[]')
@@ -635,7 +636,7 @@
 								echo $ui->formField('text')
 										->setSplit('', 'col-md-12')
 										->setName('qty[]')
-										->setClass('qty text-right childqty')
+										->setClass('qty text-right parentqty')
 										->setAttribute(array('data-value' => '` + (parseFloat(details.qty) || 0) + `'))
 										->setValidation('required integer')
 										->setValue('` + (addComma(details.qty, 0) || 0) + `')
@@ -648,7 +649,7 @@
 								echo $ui->formField('text')
 										->setSplit('', 'col-md-12')
 										->setName('qty[]')
-										->setClass('qty text-right parentqty')
+										->setClass('qty text-right childqty')
 										->setAttribute(array('readonly' => true,'data-value' => '` + (parseFloat(details.qty) || 0) + `'))
 										->setValidation('required integer')
 										->setValue('` + (parseFloat(details.qty) || 0) + `')
@@ -661,12 +662,14 @@
 						<?php
 							echo $ui->formField('text')
 								->setName('uom[]')
+								->setClass('uom')
 								->setSplit('', 'col-md-12')
 								->setValue('` + details.uom.toUpperCase() + `')
 								->draw(false);
 
 							echo $ui->formField('hidden')
 								->setName('h_uom[]')
+								->setClass('h_uom')
 								->setSplit('', 'col-md-12')
 								->setValue('` + details.uom.toUpperCase() + `')
 								->draw($show_input);
@@ -793,15 +796,19 @@
 			}
 		}
 		var voucher_details = <?php echo $voucher_details ?>;
-		function displayDetails(details) {
-			if (details.length < min_row) {
+		function displayDetails(details,linenum="") {
+			// console.log('console item linenum = '+linenum)
+			if (details.length < min_row) { // min_row == 1
 				for (var x = details.length; x < min_row; x++) {
 					addVoucherDetails('', x);
 				}
 			}
 			if (details.length > 0) {
+			// console.log('console item linenum = '+index)
 				details.forEach(function(details, index) {
+					index = (linenum != "") ? linenum++ 	:	index;
 					addVoucherDetails(details, index);
+					
 				});
 			} else if (min_row == 0) {
 				$('#tableList tbody').append(`
@@ -1046,8 +1053,9 @@
 		// 	$('#sec_modal').modal("show");
 		// });
 
-		$('#tableList tbody').on('blur', '.qty', function(e) {
+		$('#tableList tbody').on('blur', '.parentqty', function(e) {
 			var value 	=	removeComma($(this).val());
+			console.log(" VALUE = "+value);
 			if ($(this).closest('tr').hasClass('items')) {
 				if (value < 1) 
 					$(this).parent().parent().addClass('has-error');
@@ -1056,11 +1064,28 @@
 			}
 			if ($(this).closest('tr').data('isbundle') == 1) {
 				var linenum = $(this).closest('tr').data('linenum');
-				$.each($('.subitem'+linenum), function(){
-					var subitemqty 	= $(this).closest('tr').find('.childqty').val();
-					subitemqty 		= subitemqty * value;
-					$(this).find('.qty').val(subitemqty);
-				});
+				var bundle 	= $(this).closest('tr').find('.itemcode').val();
+				if(bundle){
+					ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_retrieve_bom_qty', { bundle: bundle }, function(data) {
+						if (data.result) {
+							var content = data.result;
+							content.forEach(function(row) {
+								var ret_itemcode = row.itemcode;
+								var ret_qty 	 = parseFloat(row.quantity) * value;
+								$.each($('.subitem'+linenum), function(){
+									var subcode = $(this).find('.itemcode').val();
+									if(ret_itemcode == subcode){
+										console.log(ret_qty);
+										$(this).find('.childqty').val(ret_qty.toFixed(0));
+									}
+								});
+							});
+						} else {
+						
+							
+						}
+					});
+				}
 			}
 	});
 
@@ -1078,41 +1103,43 @@
 
 	$('#tableList tbody').on('change', '.itemcode', function(e) {
 		var customer 	=	$('#customer').val();
-
+		var curr_code 	=	$(this);
 		if( customer != "" ){
 			var itemcode = $(this).val();
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_checkbundle',"itemcode="+itemcode, function(data) {
 				if (!data.success) {
 				}
 				else {
-					getItemDetails(itemcode);
+					var content = data.result;
+					if(content.isbundle){
+						var linenum = curr_code.closest('tr').data('linenum');
+						getItemDetails(itemcode,linenum);
+					} 
+					curr_code.closest('tr').find('.detailparticular').val(content.detailparticular);
+					curr_code.closest('tr').find('.uom').val(content.uom);
+					curr_code.closest('tr').find('.h_uom').val(content.uom);
+					curr_code.closest('tr').data('isbundle',content.isbundle);
 				}
 			});
 			
 		}
 	});
 
-	function getItemDetails(itemcode){
-		var itemcode = itemcode;
+	function getItemDetails(itemcode, linenum=""){
 		if (itemcode != "") {
-				ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_bundle_details',"itemcode="+itemcode, function(data) {
-					if ( ! data.success) {
-						$('#tableList tbody').html(data.table);
-					} else {
-						$('#tableList tbody').html('');
-						displayHeader(data.header);	
-						displayDetails(data.details);
-						$('.ccode').prop('disabled', true);
-						$('.whchild').prop('disabled', true);
-						// $('.ccode').prop('disabled', false);
-						// $('.detailparticular').prop('readonly','true');
-						// $('.detailforBundle').prop('disabled', true);
-						// $('.WhForBundle').prop('disabled', false);
-						// $('.parentqty').prop('readonly', false);
-						// $('.childqty').prop('readonly', true);
-					}
-				});
-			}
+			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_bundle_details',"itemcode="+itemcode, function(data) {
+				if ( ! data.success) {
+					$('#tableList tbody').html(data.table);
+				} else {
+					// $('#tableList tbody').html('');
+					displayHeader(data.header);	
+					displayDetails(data.details,linenum);
+					$('.ccode').prop('disabled', true);
+					$('.whchild').prop('disabled', true);
+					$('.ccode').closest('tr').find('.delete_row').prop('disabled', true);
+				}
+			});
+		}
 	}
 	// ready for changing on warehouse for multiple items/ bundle
 	// $('#tableList tbody').on('change', '.WhForBundle', function(e) {

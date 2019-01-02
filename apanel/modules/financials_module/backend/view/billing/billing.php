@@ -144,14 +144,14 @@
 						</tbody>
 						<tfoot class="summary text-right" style="display: none">
 							<tr>
-								<td colspan="<?php echo ($show_input) ? 3 : 4 ?>" class="text-left">
+								<td colspan="<?php echo ($show_input) ? 4 : 4 ?>" class="text-left">
 									<?php if ($show_input): ?>
 										<button type="button" id="addNewItem" class="btn btn-link">Add a New Line</button>
 									<?php endif ?>
 								</td>
 							</tr>
 							<tr>
-								<td colspan="<?php echo ($show_input) ? 7 : 8 ?>"><label class="control-label">VATable Sales</label></td>
+								<td colspan="<?php echo ($show_input) ? 7 : 7 ?>"><label class="control-label">VATable Sales</label></td>
 								<td colspan="1">
 									<?php
 										echo $ui->formField('text')
@@ -168,7 +168,7 @@
 								<?php endif ?>
 							</tr>
 							<tr>
-								<td colspan="<?php echo ($show_input) ? 7 : 8 ?>"><label class="control-label">VAT-Exempt Sales</label></td>
+								<td colspan="<?php echo ($show_input) ? 7 : 7 ?>"><label class="control-label">VAT-Exempt Sales</label></td>
 								<td colspan="1">
 									<?php
 										echo $ui->formField('text')
@@ -185,7 +185,7 @@
 								<?php endif ?>
 							</tr>
 							<tr>
-								<td colspan="<?php echo ($show_input) ? 7 : 8 ?>"><label class="control-label">VAT Zero Rated Sales</label></td>
+								<td colspan="<?php echo ($show_input) ? 7 : 7 ?>"><label class="control-label">VAT Zero Rated Sales</label></td>
 								<td colspan="1">
 									<?php
 										echo $ui->formField('text')
@@ -202,7 +202,7 @@
 								<?php endif ?>
 							</tr>
 							<tr>
-								<td colspan="<?php echo ($show_input) ? 7 : 8 ?>"><label class="control-label">Total Sales</label></td>
+								<td colspan="<?php echo ($show_input) ? 7 : 7 ?>"><label class="control-label">Total Sales</label></td>
 								<td colspan="1">
 									<?php
 										echo $ui->formField('text')
@@ -296,7 +296,7 @@
 								<?php endif ?>
 							</tr> -->
 							<tr>
-								<td colspan="<?php echo ($show_input) ? 7 : 8 ?>"><label class="control-label">Total Purchase Tax</label></td>
+								<td colspan="<?php echo ($show_input) ? 7 : 7 ?>"><label class="control-label">Total Purchase Tax</label></td>
 								<td colspan="1">
 									<?php
 										echo $ui->formField('text')
@@ -313,7 +313,7 @@
 								<?php endif ?>
 							</tr>
 							<tr>
-								<td colspan="<?php echo ($show_input) ? 6 : 7 ?>"></td>
+								<td colspan="<?php echo ($show_input) ? 6 : 6 ?>"></td>
 								<td colspan="2">
 									<hr style="margin: 0">
 								</td>
@@ -322,7 +322,7 @@
 								<?php endif ?>
 							</tr>
 							<tr>
-								<td colspan="<?php echo ($show_input) ? 7 : 8 ?>"><label class="control-label">Total Amount Due</label></td>
+								<td colspan="<?php echo ($show_input) ? 7 : 7 ?>"><label class="control-label">Total Amount Due</label></td>
 								<td colspan="1">
 									<?php
 										echo $ui->formField('dropdown')
@@ -339,14 +339,14 @@
 								<?php endif ?>
 							</tr>
 							<tr>
-								<td colspan="<?php echo ($show_input) ? 7 : 8 ?>"><label class="control-label">Discount</label></td>
+								<td colspan="<?php echo ($show_input) ? 7 : 7 ?>"><label class="control-label">Discount</label></td>
 								<td colspan="1">
 									<?php
 										echo $ui->formField('dropdown')
 												->setSplit('', 'col-md-12')
 												->setName('total_discount')
 												->setClass('total_discount')
-												->setValue(((empty($total_discount)) ? '0.00' : number_format($total_discount, 2)))
+												->setValue(((empty($discountamount)) ? '0.00' : number_format($discountamount, 2)))
 												->addHidden()
 												->draw($show_input);
 									?>
@@ -584,7 +584,7 @@
 								->setName('discount[]')
 								->setValidation('decimal')
 								->setAttribute(array("maxlength" => "20","readonly"=>true))
-								->setValue('` + addComma(details.discount) + `')
+								->setValue('` + addComma(details.discountrate) + `')
 								->draw($show_input);
 						?>
 					</td>
@@ -628,8 +628,8 @@
 								->draw($show_input);
 
 								echo $ui->setElement('hidden')
-								->setName('discountamount[]')
-								->setClass('discountamount')	
+								->setName('discount_amount[]')
+								->setClass('discount_amount')	
 								->setValue('` + (parseFloat(details.discountamount) || 0) + `')
 								->draw();
 
@@ -673,7 +673,14 @@
 				if (tax.ind == details.taxcode) {
 					$('#temp_view_taxrate_' + index).html(tax.val);
 				}
-			});
+			});	
+			var discounttype = $('#discounttype').val();
+			if (discounttype == 'amt' || discounttype == 'perc') {
+				$('#tableList tbody').find('.discount').removeAttr('readonly');
+			} 
+			else {
+				$('#tableList tbody').find('.discount').attr('readonly', '').val('0.00');
+			}
 		}
 		var voucher_details = <?php echo $voucher_details ?>;
 		function displayDetails(details) {
@@ -727,20 +734,20 @@
 					$(this).find('.taxrate').val(taxrate);
 					$(this).find('.taxamount').val(taxamount);
 
-					var discountamount = 0;
+					var discount_amount = 0;
 					var discountedamount = 0;
 
 					if (discounttype == 'perc') {
-						discountamount = amount * (discount/100);
+						discount_amount = amount * (discount/100);
 					}
 					else {
-						discountamount = discount;
+						discount_amount = discount;
 					}
 
-					discountedamount = amount - discountamount;
+					discountedamount = amount - discount_amount;
 
 					amount = discountedamount;
-					total_discount += discountamount;
+					total_discount += discount_amount;
 					total_amount += discountedamount;
 
 					if (taxrate > 0) {
@@ -755,7 +762,7 @@
 						}
 					}
 
-					$(this).find('.discountamount').val(discountamount);
+					$(this).find('.discount_amount').val(discount_amount);
 					$(this).find('.discountedamount').val(discountedamount);
 
 					$(this).find('.amount').val(addComma(amount)).closest('.form-group').find('.form-control-static').html(addComma(amount));;
@@ -930,7 +937,10 @@
 				if ($('.issueqty:not([readonly])').length > 0 && items > 0) {
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data, function(data) {
 						if (data.success) {
-							window.location = data.redirect;
+							$('#delay_modal').modal('show');
+							setTimeout(function() {							
+								window.location = data.redirect;						
+							}, 1000)
 						} else {
 							$('#submit_container [type="submit"]').attr('disabled', false);
 						}
@@ -1040,6 +1050,15 @@
 
 			}
 			recomputeAll();
+		});
+		$(document).ready(function() {
+			var discounttype = $('#discounttype').val();
+			if (discounttype == 'amt' || discounttype == 'perc') {
+				$('#tableList tbody').find('.discount').removeAttr('readonly');
+			} 
+			else {
+				$('#tableList tbody').find('.discount').attr('readonly', '').val('0.00');
+			}
 		});
 	</script>
 	<?php endif ?>

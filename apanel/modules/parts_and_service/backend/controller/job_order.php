@@ -497,13 +497,13 @@ class controller extends wc_controller {
 		$mainheader = $this->job_order->getItemListforBundle($itemcode);
 		$table		= '';
 		$success	= true;
-		if (empty($details)) {
+		if (empty($header)) {
 			$table		= '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 			$success	= false;
 		}
 		//var_dump($header, $details);
 		return array(
-			'table'		=> $table,
+			'table'		=> $header,
 			'details'	=> $details,
 			'header'	=> $header,
 			'mainheader'=> $mainheader,
@@ -608,7 +608,7 @@ class controller extends wc_controller {
 	}
 	private function ajax_checkbundle() {
 		$itemcode	= $this->input->post('itemcode');
-		$result		= $this->job_order->checkIsBundle($itemcode);
+		$result		= $this->job_order->retrieveItemDetails($itemcode);
 		$success	= true;
 		if (empty($result)) {
 			$success	= false;
@@ -676,4 +676,12 @@ class controller extends wc_controller {
 		}
 	}
 	
+	private function ajax_retrieve_bom_qty(){
+		$bundle_item = $this->input->post('bundle');
+
+		$result 	 = $this->job_order->retrieve_bom_qty($bundle_item);
+
+		// var_dump($result);
+		return $dataArray = array('result' => $result);
+	}
 }

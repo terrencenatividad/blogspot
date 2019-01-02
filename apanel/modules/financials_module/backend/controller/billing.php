@@ -36,9 +36,8 @@ class controller extends wc_controller {
 			'taxrate',
 			'detail_taxamount'		=> 'taxamount',
 			'detail_amount'			=> 'amount',
-			'discountamount',
+			'discount_amount'		=> 'discountamount',		
 			'discountedamount',
-			'discounttype',
 			'discount'				=> 'discountrate'
 		);
 		$this->clean_number		= array(
