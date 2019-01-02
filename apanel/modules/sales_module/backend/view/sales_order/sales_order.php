@@ -1573,6 +1573,7 @@ function getPartnerInfo(code) {
 			$("#customer_address").val(address);
 
 			computeDueDate();
+
 		});
 	}
 }
@@ -2316,32 +2317,21 @@ function deleteItem(row)
 $(document).ready(function(){
 
 	// -- For Customer --
-		// Get getPartnerInfo
-		// $( "#customer" ).change(function() 
-		// {
-		// 	customer_id = $("#customer").val();
-		// 	if( customer_id != "" )
-		// 	{
-		// 		retrieveCreditLimit(customer_id);
-		// 		retrieveCurrentIncurredReceivables(customer_id);
-		// 		retrieveCurrentOutstandingReceivables(customer_id);
-		// 		computeforremainingcredit();
-
-		// 		getPartnerInfo(customer_id);
-		// 		if( $('#itemcode\\[1\\]').val() != "" ){
-		// 			$('.itemcode').trigger('change');
-		// 		}
-		// 	}
-		// });
 
 		$( "#customer" ).on('select2:selecting',function(e) {
 			var curr_id	=  $(this).val();	
 			var new_id 	= e.params.args.data.id;
-			if( curr_id != "" )
-			{
+			if( curr_id != "" ){
 				e.preventDefault();
 				$('#changeCustomerModal').modal('show');
 				$(this).select2('close');
+			} else {
+				retrieveCreditLimit(new_id);
+				retrieveCurrentIncurredReceivables(new_id);
+				retrieveCurrentOutstandingReceivables(new_id);
+				computeforremainingcredit();
+
+				getPartnerInfo(new_id);
 			}
 			$('#h_curr_customer').val(new_id);
 		});
