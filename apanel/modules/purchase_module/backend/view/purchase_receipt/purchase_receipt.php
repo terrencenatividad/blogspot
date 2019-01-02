@@ -297,13 +297,12 @@
 					<table id="serialize_tableList" class="table table-hover table-sidepad no-margin-bottom">
 						<thead>
 							<tr class="info">
-								<th class="col-xs-1 text-center">No.</th>
 								<th class="col-xs-2 text-center">Item No.</th>
 								<th class="col-xs-3 text-center">Item Name</th>
 								<th class="col-xs-2 text-center">Serial Number</th>
 								<th class="col-xs-2 text-center">Engine Number</th>
 								<th class="col-xs-2 text-center">Chassis Number</th>
-								<!-- <th class="col-xs-1 text-center"></th> -->
+								<th class="col-xs-1 text-center"></th>
 							</tr>
 						</thead>
 						<tbody id="serialize_tbody">
@@ -650,6 +649,11 @@
 						break;
 					}
 				}
+
+				// ADD 1 ROW IF NO THERE ARE NO ROWS
+				if ($('#serialize_tableList tbody tr').length == 0){
+					addRow(icode, item, 0);
+				}
 				
 				// console.log(rows);
 				
@@ -706,7 +710,7 @@
 
 				$('#serialize_tableList tbody').append(
 					`<tr id="row`+ (rownum+1) +`">
-						<td id="serial_item_count" class="col-xs-1 text-center">` + (rownum+1) + `</td>
+						
 						<td class="item_no col-xs-2">` + icode + `</td>
 						<td class="item_name col-xs-3">` + item + `</td>
 						<td id="serial_no" class="col-xs-2">
@@ -745,6 +749,11 @@
 									->draw($show_input);
 							?>
 						</td>
+						<td class="text-center">
+							<button type="button" class="btn btn-danger btn-flat deleteRow" data-delete=`+rownum+`>
+								<span class="glyphicon glyphicon-trash"></span>
+							</button>
+						</td>
 					</tr>`
 				);
 			}
@@ -754,11 +763,23 @@
 			serials = '';
 			engines = '';
 			chassis = '';
-			for (i = 0; i < number_rows; i++) {
-				serialize[index].numbers[i].serialno = $('#serial_no_item\\['+i+'\\]').val();
-				serialize[index].numbers[i].engineno = $('#engine_no_item\\['+i+'\\]').val();
-				serialize[index].numbers[i].chassisno = $('#chassis_no_item\\['+i+'\\]').val();
 
+			// EMPTY serialize array 
+			for(x = 0; x < serialize[index].numbers.length; x++){
+				serialize[index].numbers[x].serialno = '';
+				serialize[index].numbers[x].engineno = '';
+				serialize[index].numbers[x].chassisno = '';
+			}
+
+			// REPLACE serialize array with new values
+			for (i = 0; i < number_rows; i++) {
+				// serialize[index].numbers[i].serialno = $('#serial_no_item\\['+i+'\\]').val();
+				serialize[index].numbers[i].serialno = $('.serial_no_item:eq('+i+')').val();
+				// serialize[index].numbers[i].engineno = $('#engine_no_item\\['+i+'\\]').val();
+				serialize[index].numbers[i].engineno = $('.engine_no_item:eq('+i+')').val();
+				// serialize[index].numbers[i].chassisno = $('#chassis_no_item\\['+i+'\\]').val();
+				serialize[index].numbers[i].chassisno = $('.chassis_no_item:eq('+i+')').val();
+				
 				if (i==number_rows-1){
 					serials += serialize[index].numbers[i].serialno;
 					engines += serialize[index].numbers[i].engineno;
@@ -768,14 +789,15 @@
 					engines += serialize[index].numbers[i].engineno+',';
 					chassis += serialize[index].numbers[i].chassisno+',';
 				}
-				 				
+
+				
 			}
 			
 			$('#serial_no'+index).val(serials);
 			$('#engine_no'+index).val(engines);
 			$('#chassis_no'+index).val(chassis);
 			// console.log($('#serial_no'+index).val());
-
+			// console.log(serialize);
 			// CHECK NUMBER OF INPUTS FOR QUANTITY IN DB
 			var count = 0;
 			$(".serial_no_item").each(function() {
@@ -790,10 +812,19 @@
 			// $("#receiptqty"+(index+1)).attr('data-value',count);
 			
 		}
+
+		$('tbody').on('click', '.deleteRow', function(e) {
+			var deleted_row = $(this).data('delete');
+			var deleted_serial = $(this).closest('.serial_no_item').val();
+			console.log(deleted_serial);
+
+
+			$(this).closest('tr').remove();
+		});
+
 		var serial_flag = true;
 		var engine_flag = true;
 		var chassis_flag = true;
-
 		$('tbody').on('change','.serial_no_item',function(){
 			var serialinput = $(this).val();
 			
