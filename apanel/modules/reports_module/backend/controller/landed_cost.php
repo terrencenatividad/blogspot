@@ -142,9 +142,19 @@ class controller extends wc_controller {
 				// LANDED COST CALCS STAGING
 			$landed_cost_unit = $unit_cost_base + $importation_cost_unit;
 			$total_landed_cost = $landed_cost_unit * $job_item_quantity;
+			$job_stat = $row->job_stat;
+			
+			if ($job_stat == 'closed') {
+				$job_stat_display = '<span class="label label-success">'.strtoupper($job_stat).'</span>';
+			} elseif ($job_stat == 'on-going') {
+				$job_stat_display = '<span class="label label-warning">'.strtoupper($job_stat).'</span>';
+			} else {
+				$job_stat_display = '<span class="label label-danger">'.strtoupper($job_stat).'</span>';
+			}
 
 			$table .=	'<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($landed_cost_unit,2).'</td>
-						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($total_landed_cost,2).'</td>;
+						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($total_landed_cost,2).'</td>
+						<td class="text-right"><span class="pull-left">'.$job_stat_display.'</td>;
 
 			$table.= </tr>';
 			}	
