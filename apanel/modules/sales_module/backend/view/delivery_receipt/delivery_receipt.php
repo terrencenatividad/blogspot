@@ -479,7 +479,7 @@
 						?>
 						<?php if ($ajax_task != '') { ?>
 							<?php
-								echo $ui->formField('hidden')
+								echo $ui->formField('text')
 									->setName('serialnumbers[]')
 									->setClass('serialnumbers')
 									->setValue('` + details.serialnumbers + `')
@@ -696,19 +696,11 @@
 			if (warehouse == details.warehouse) {
 				$('#tableList tbody').find('tr:last .issueqty').each(function() {
 					if (details.issueqty > 0) {
-						//$(this).removeAttr('readonly').val($(this).attr('data-value'));
-						// if  ($(this).hasClass('itempart')) {
-							$(this).val($(this).attr('data-value'));
-						// 	if ($(this).hasClass('serialbtn')) {
-						// 		$(this).removeAttr('disabled').val($(this).attr('data-value'));
-						// 	}
-						// }
-						// else {
-							$(this).removeAttr('readonly').val($(this).attr('data-value'));
-							if ($(this).hasClass('serialbtn')) {
-								$(this).removeAttr('disabled').val($(this).attr('data-value'));
-							}
-						// }
+						$(this).val($(this).attr('data-value'));
+						$(this).removeAttr('readonly').val($(this).attr('data-value'));
+						if ($(this).hasClass('serialbtn')) {
+							$(this).removeAttr('disabled').val($(this).attr('data-value'));
+						}
 						$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('check').iCheck('enable');
 						$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
 					} else {
@@ -886,18 +878,10 @@
 			$('#tableList tbody .issueqty').each(function() {
 				var warehouse_row = $(this).closest('tr').find('.warehouse').val();
 				if (warehouse == warehouse_row) {
-					// if  ($(this).hasClass('itempart')) {
-						$(this).val($(this).attr('data-value'));
-					// 	if ($(this).hasClass('serialbtn')) {
-					// 		$(this).removeAttr('disabled').val($(this).attr('data-value'));
-					// 	}
-					// }
-					// else {
-						$(this).removeAttr('readonly').val($(this).attr('data-value'));
-						if ($(this).hasClass('serialbtn')) {
-							$(this).removeAttr('disabled').val($(this).attr('data-value'));
-						}
-					// }
+					$(this).removeAttr('readonly').val($(this).attr('data-value'));
+					if ($(this).hasClass('serialbtn')) {
+						$(this).removeAttr('disabled').val($(this).attr('data-value'));
+					}
 					$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('check').iCheck('enable');
 				} else {
 					if ($(this).hasClass('serialbtn')) {
@@ -966,8 +950,9 @@
 					var req_val = $(this).val();
 					var serial_list = $(this).closest('tr').find('.serialnumbers').val();
 					var serials = serial_list.split(",");
-					if (serials == '') {
+					if (serials == '' || serials == 'undefined') {
 						count_err++;
+						$('#warning_counter .modal-body').html('Selected serial numbers must be equal to the required value.')
 						$('#warning_counter').modal('show');
 					}
 				}
@@ -995,7 +980,7 @@
 							}
 						});
 					} else {
-						$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');1
+						$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');
 						$('#submit_container [type="submit"]').attr('disabled', false);
 					}
 				} else {
@@ -1014,18 +999,20 @@
 				var qty = $(this).val();
 				var parentline = $(this).closest('tr').find('.parentline').val();
 				var maxqty = $(this).closest('tr').find('.issueqty').attr('data-max');
-				$('#tableList tbody tr').find('.parentline[value="'+parentline+'"]').not(':first').each(function() {
-					var itemqty = $(this).closest('tr').find('.bundle_itemqty').val();
-					var total = qty * itemqty;
-					var qtyleft = $('#tableList tbody tr td').closest('.qtyleft').find('input').val();
-					if (qtyleft >= qty) {
-						$(this).closest('tr').find('.issueqty').val(total);
-					}
-					else {
-						total = maxqty * itemqty;
-						$(this).closest('tr').find('.issueqty').val(total);
-					}
-				});
+				if ($(this).hasClass('itempart')) {
+					$('#tableList tbody tr').find('.parentline[value="'+parentline+'"]').not(':first').each(function() {
+						var itemqty = $(this).closest('tr').find('.bundle_itemqty').val();
+						var total = qty * itemqty;
+						var qtyleft = $('#tableList tbody tr td').closest('.qtyleft').find('input').val();
+						if (qtyleft >= qty) {
+							$(this).closest('tr').find('.issueqty').val(total);
+						}
+						else {
+							total = maxqty * itemqty;
+							$(this).closest('tr').find('.issueqty').val(total);
+						}
+					});
+				}
 				recomputeAll();
 			}
 		});	
