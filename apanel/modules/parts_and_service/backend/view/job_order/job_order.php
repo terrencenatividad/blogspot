@@ -436,9 +436,10 @@
 		var min_row		= 1;	
 		var parentline  = 0;
 		var parent 		= 0;
-		function addVoucherDetails(details, index) {
-			console.log("index = "+index);;
+		function addVoucherDetails(details, index, parent="") {
+			console.log("Parent = "+parent);
 			var details = details || {itemcode: '', detailparticular: '', warehouse: '', qty: '0', uom: 'PC', childqty : '0', linenum : '0', isbundle : 'No', parentline : '', parentcode : ''};
+			console.log(details);
 			var other_details = JSON.parse(JSON.stringify(details));
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
@@ -462,14 +463,12 @@
 				}
 			}
 			// I added a condition that if details.linenum (retrieved data) is 0 (meaning, nothing was retrieved), the line number should refer to the passed index..
-			// Index + 2 because index starts at 0 but our actual linenum starts at 1.. we add another 1 because our parent is retrieved outside of this function
 			var linenum = (details.linenum != 0 && details.linenum != undefined) ? details.linenum : index + 1;
 			details.warehouse = (details.warehouse != "" && details.warehouse != undefined) ? details.warehouse : "none";
-			console.log("Warehouse = "+details.warehouse);
 			var row = ``;
 			if(details.parentcode == "" || details.parentcode == null){
-				var asd = 'parents'+linenum;
-				parent = linenum;
+				var asd = 'parents'+parent;
+				// parent = linenum;
 			}else{
 				parentline = parent;
 				var asd = 'subitem'+parentline;
@@ -483,6 +482,7 @@
 				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.qty+`" data-linenum="`+linenum+`"  data-parentlinenum="`+parentline+`">`;
 			row += `<td>
 					`;
+					console.log("Item code "+details.itemcode);
 					if(details.parentcode == null  || details.parentcode == ""){
 						row += `
 						<?php
@@ -689,7 +689,11 @@
 			// 		<td colspan="6" class="text-center"><i><strong>Please select a Customer and Service Quotation First.</strong></i></td>
 			// 	</tr>
 			// `;
-			$('#tableList tbody').append(row);
+			if(details.isbundle == 1){
+				$('#tableList tbody tr').eq(parentline-1).after(row);
+			} else {
+				$('#tableList tbody').append(row);
+			}
 			var row2 = `
 				<tr>
 					<td>
@@ -807,7 +811,7 @@
 			// console.log('console item linenum = '+index)
 				details.forEach(function(details, index) {
 					index = (linenum != "") ? linenum++ 	:	index;
-					addVoucherDetails(details, index);
+					addVoucherDetails(details, index, linenum);
 					
 				});
 			} else if (min_row == 0) {
@@ -1055,7 +1059,6 @@
 
 		$('#tableList tbody').on('blur', '.parentqty', function(e) {
 			var value 	=	removeComma($(this).val());
-			console.log(" VALUE = "+value);
 			if ($(this).closest('tr').hasClass('items')) {
 				if (value < 1) 
 					$(this).parent().parent().addClass('has-error');
@@ -1075,7 +1078,6 @@
 								$.each($('.subitem'+linenum), function(){
 									var subcode = $(this).find('.itemcode').val();
 									if(ret_itemcode == subcode){
-										console.log(ret_qty);
 										$(this).find('.childqty').val(ret_qty.toFixed(0));
 									}
 								});
@@ -1112,6 +1114,7 @@
 				else {
 					var content = data.result;
 					var linenum = curr_code.closest('tr').data('linenum');
+					console.log(" TEST = "+linenum);
 					if(content.isbundle == 1){
 						getItemDetails(itemcode,linenum);
 					} else {
@@ -1135,6 +1138,7 @@
 				} else {
 					// $('#tableList tbody').html('');
 					displayHeader(data.header);	
+					console.log("linenum = "+linenum);
 					displayDetails(data.details,linenum);
 					$('.ccode').prop('disabled', true);
 					$('.whchild').prop('disabled', true);
