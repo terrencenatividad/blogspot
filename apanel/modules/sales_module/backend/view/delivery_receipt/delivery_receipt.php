@@ -395,6 +395,20 @@
 			</div>
 		</div>
 	</div>
+	<div id="attachment_success" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title modal-success"><span class="glyphicon glyphicon-ok"></span> Success!</h4>
+				</div>
+				<div class="modal-body">
+					<p>You have successfully updated the attached file.</p>
+				</div>
+				<div class="modal-footer">
+				</div>
+			</div>
+		</div>
+	</div>
 	<script>
 		var delete_row	= {};
 		var ajax		= {};
