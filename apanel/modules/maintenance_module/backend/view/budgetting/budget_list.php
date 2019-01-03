@@ -442,7 +442,7 @@
 								}
 
 								var id = '';
-								$('#tableList tbody').on('click', '.manage_budget_suppliments', function() {
+								$('#tableList tbody').on('click', '.manage_budget_supplements', function() {
 									id = $(this).attr('data-id');
 									$.post('<?=MODULE_URL?>ajax/ajax_get_budget_accounts', {id:id}, function(data) {
 										if(data) {
