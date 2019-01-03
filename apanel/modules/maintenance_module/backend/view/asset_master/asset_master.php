@@ -134,8 +134,8 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('dropdown')
-													->setLabel('Department')
-													->setPlaceholder('Select Department')
+													->setLabel('Budget Center')
+													->setPlaceholder('Select Budget Center')
 													->setSplit('col-md-3', 'col-md-8')
 													->setName('department')
 													->setId('department')
