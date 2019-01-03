@@ -1970,7 +1970,7 @@ $(document).ready(function(){
 			var checkamount = '';
 			$("#purchase_order_form").on('change blur',function()
 			{
-				if($("#purchase_order_form #itemcode\\[1\\]").val() != '' && $("#purchase_order_form #transaction_date").val() != '' && $("#purchase_order_form #due_date").val() != '' && $("#purchase_order_form #vendor").val() != '' && 
+				if($("#purchase_order_form #itemcode\\[1\\]").val() != '' && $("#purchase_order_form #transaction_date").val() != '' && $("#purchase_order_form #due_date").val() != '' && $("#purchase_order_form #vendor").val() != '' || 
 					$("#purchase_order_form #budgetcode\\[1\\]").val() != '')
 				{
 					$.post("<?=BASE_URL?>purchase/purchase_order/ajax/save_temp_data",$("#purchase_order_form").serialize())
