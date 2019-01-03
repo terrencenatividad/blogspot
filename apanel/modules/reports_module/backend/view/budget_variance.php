@@ -100,9 +100,13 @@
 		var total = 0;
 		var amount = 0;
 		$('#tableList tbody tr td.variance').each(function(index,value) {
-			amount = removeComma($(this).html());
+			amount = removeComma($(this).attr('data-val'));
 			total += amount;
-			$('td .total_variance').html(addComma(total));
+			if(total < 0) {
+				$('td .total_variance').html('('+addComma(Math.abs(total))+')');
+			} else {
+				$('td .total_variance').html(addComma(total));
+			}
 		});
 	}
 

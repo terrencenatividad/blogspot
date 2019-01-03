@@ -44,11 +44,12 @@ class accounts_payable extends wc_model
 	public function getBudgetAmount($budgetcode, $accountcode)
 	{
 		$result = $this->db->setTable('budget_details as bd')
-		->setFields("(bd.amount + bs.amount) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
+		->setFields("IFNULL(bs.amount, 0) + bd.amount as amount as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
 		->leftJoin('budget as b ON bd.budget_code = b.budget_code')
-		->leftJoin('budget_supplement as bs ON bs.budget_id = b.id')
+		->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
 		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
-		->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode' AND bs.accountcode = '$accountcode'")
+		->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
+		->setGroupBy('bs.accountcode')
 		->runSelect()
 		->getRow();
 		

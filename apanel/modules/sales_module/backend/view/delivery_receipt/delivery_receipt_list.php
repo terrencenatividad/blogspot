@@ -100,6 +100,58 @@
 			</div>
 		</div>
 		<div id="pagination"></div>
+		<div id="attachment_modal" class="modal fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog modal-md" role="document">
+				<div class="modal-content">
+					<form method = "post" id="attachments_form" enctype="multipart/form-data">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h4 class="modal-title">Attach File for <span id="modal-voucher" style = "font-weight:bold"></span></h4>
+						</div>
+						<div class="modal-body">
+							<div class="form-group">
+								<input type="hidden" name="voucherno" id='input_voucherno'>
+								<?php
+									echo $ui->setElement('file')
+											->setId('files')
+											->setName('files')
+											->setAttribute(array('accept' => '.pdf, .jpg, .png'))
+											->setValidation('required')
+											->draw();
+								?>
+							</div>
+							<p class="help-block">The file to be imported shall not exceed the size of <strong>1mb</strong> and must be a <strong>PDF, PNG or JPG</strong> file.</p>
+						</div>
+						<div class="modal-footer">
+							<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+								<div class="btn-group">
+									<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button">Attach</button>
+								</div>
+								&nbsp;&nbsp;&nbsp;
+								<div class="btn-group">
+									<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal">Cancel</button>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		</div>
+		<div id="attachment_success" class="modal fade" role="dialog">
+			<div class="modal-dialog modal-sm" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title modal-success"><span class="glyphicon glyphicon-ok"></span> Success!</h4>
+					</div>
+					<div class="modal-body">
+						<p>You have successfully attached the file uploaded.</p>
+					</div>
+					<div class="modal-footer">
+					</div>
+				</div>
+			</div>
+		</div>
 	</section>
 	<script>
 		var ajax = filterFromURL();
@@ -185,11 +237,79 @@
 			linkButtonToTable('#item_multiple_cancel', '#tableList');
 			linkCancelToModal('#tableList .delete', 'ajaxCallback');
 			linkCancelMultipleToModal('#item_multiple_cancel', '#tableList', 'ajaxCallback');
-			createConfimationLink('#tableList .tag_as_delivered', 'tagDeliveredCallback');
+			//createConfimationLink('#tableList .tag_as_delivered', 'tagDeliveredCallback');
 			createConfimationLink('#tableList .remove_delivered_tag', 'untagDeliveredCallback');
 		});
 		$('#daterangefilter').on('change', function() {
 			ajax.daterangefilter = $(this).val();
 			getList();
-		})
+		});
+		$('#tableList').on('click', '.tag_as_delivered', function() {
+			var voucher = $(this).attr('data-id');
+			$('#modal-voucher').html(voucher);
+			$('#input_voucherno').val(voucher);
+			$('#attachment_modal').modal('show');
+		});
+	</script>
+	<script>
+		$(function () {
+			'use strict';
+
+			$('#attachments_form').fileupload({
+				url: '<?= MODULE_URL ?>ajax/ajax_upload_file',
+				maxFileSize: 2000000,
+				disableExifThumbnail :true,
+				previewThumbnail:false,
+				autoUpload:false,
+				add: function (e, data) {            
+					$("#attach_button").off('click').on('click', function () {
+						data.submit();
+					});
+				},
+			});
+			$('#attachments_form').addClass('fileupload-processing');
+			$.ajax({
+				url: $('#attachments_form').fileupload('option', 'url'),
+				dataType: 'json',
+				context: $('#attachments_form')[0]
+			}).always(function () {
+				$(this).removeClass('fileupload-processing');
+			}).done(function (result) {
+				$(this).fileupload('option', 'done')
+					.call(this, $.Event('done'), {
+						result: result
+					});
+			});
+
+			$('#attachments_form').bind('fileuploadadd', function (e, data) {
+				var filename = data.files[0].name;
+				$('#attachments_form #files').closest('.input-group').find('.form-control').html(filename);
+			});
+			$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
+				var voucherno 		=  $('#input_voucherno').val();
+				data.formData = {dr_voucherno: voucherno};
+			});
+			$('#attachments_form').bind('fileuploadalways', function (e, data) {
+				var error = data.result['files'][0]['error'];
+				var form_group = $('#attachments_form #files').closest('.form-group');
+				if(!error){
+					var voucherno 		=  $('#input_voucherno').val();
+					$('#attachment_modal').modal('hide');
+					$('#attachment_success').modal('show');
+					setTimeout(function() {							
+						window.location = '<?=MODULE_URL?>view/'+voucherno;						
+					}, 1000)
+					var msg = data.result['files'][0]['name'];
+					form_group.removeClass('has-error');
+					form_group.find('p.help-block.m-none').html('');
+
+					$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
+					getList();
+				}else{
+					var msg = data.result['files'][0]['name'];
+					form_group.addClass('has-error');
+					form_group.find('p.help-block.m-none').html(msg);
+				}
+			});
+		});
 	</script>
