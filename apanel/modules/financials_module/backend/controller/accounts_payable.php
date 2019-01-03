@@ -544,7 +544,7 @@ class controller extends wc_controller
 		$errors = array();
 
 		$actualbudget = $this->input->post($this->actualbudget);
-		if(!empty($ap_details['budgetcode'])) {
+		if(!empty($ap_details['budgetcode'][0])) {
 			for($check = 0; $check < count($ap_details['budgetcode']); $check++) {
 				if(!empty($ap_details['budgetcode'][$check])) {
 					$get_accountname = $this->accounts_payable->getAccountName($ap_details['accountcode'][$check]);
@@ -606,6 +606,8 @@ class controller extends wc_controller
 					}
 				}
 			}
+		} else {
+			unset($ap_details['budgetcode']);
 		}
 
 		if(!empty($account)) {
