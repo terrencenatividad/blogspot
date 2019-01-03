@@ -479,7 +479,7 @@
 						?>
 						<?php if ($ajax_task != '') { ?>
 							<?php
-								echo $ui->formField('text')
+								echo $ui->formField('hidden')
 									->setName('serialnumbers[]')
 									->setClass('serialnumbers')
 									->setValue('` + details.serialnumbers + `')
