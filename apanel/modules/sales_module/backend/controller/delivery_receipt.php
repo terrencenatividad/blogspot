@@ -59,6 +59,21 @@ class controller extends wc_controller {
 
 	public function listing() {
 		$this->view->title		= 'Delivery Receipt';
+		$this->view->addCSS(array(
+				'jquery.fileupload.css'
+			)
+		);  
+		$this->view->addJS(
+			array(
+				'jquery.dirrty.js',
+				'jquery.ui.widget.js',
+				'jquery.iframe-transport.js',
+				'jquery.fileupload.js',
+				'jquery.fileupload-process.js',
+				'jquery.fileupload-validate.js',
+				'jquery.fileupload-ui.js'
+			)
+		);
 		$data['customer_list']	= $this->delivery_model->getCustomerList();
 		$data['ui']				= $this->ui;
 		$this->view->load('delivery_receipt/delivery_receipt_list', $data);
@@ -338,7 +353,41 @@ class controller extends wc_controller {
 		);
 	}
 
-	private function ajax_update_tagdelivered() {
+	private function ajax_upload_file()
+	{
+		$post_data 		= $this->input->post();
+		$upload_handler	= new UploadHandler();
+		$dr_voucherno 	= $post_data['dr_voucherno'];
+		$upload_result 	= false;
+
+		if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
+			if(!isset($upload_handler->response['files'][0]->error)){
+				$attachment_id = $this->delivery_model->getNextId("dr_attachment","attachment_id");
+				foreach($upload_handler->response['files'] as $key => $row) {
+					$post_data['attachment_id'] = $attachment_id;
+					$post_data['attachment_name'] = $row->name;
+					$post_data['attachment_type'] = $row->type;
+					$post_data['attachment_url'] = $row->url;
+				}
+				$upload_result 	= $this->delivery_model->uploadAttachment($post_data);
+			}else{
+				$upload_result 	= false;
+			}
+		}
+		if($upload_result){
+			$result = $this->delivery_model->tagAsDelivered($dr_voucherno);
+				$retrieve_details 	=	$this->delivery_model->getDeliveryReceiptById(array('voucherno','customer'), $dr_voucherno);
+				$customer 			= 	isset($retrieve_details->customer) 	?	$retrieve_details->customer 	:	"";
+
+				if ($result && $this->inventory_model) {
+					$this->inventory_model->setReference($dr_voucherno)
+										->setDetails($customer)
+										->generateBalanceTable();
+				}
+		}
+	}
+
+	/**private function ajax_update_tagdelivered() {
 		$id = $this->input->post('id');
 
 		if ($id) {
@@ -354,7 +403,7 @@ class controller extends wc_controller {
 				}
 			}
 		}
-	}
+	} */
 
 	private function ajax_update_untagdelivered() {
 		$id = $this->input->post('id');
