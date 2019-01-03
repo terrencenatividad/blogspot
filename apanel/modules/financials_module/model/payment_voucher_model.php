@@ -55,8 +55,9 @@ class payment_voucher_model extends wc_model
 	public function getAmountAndAccount($budgetcode, $accountcode)
 	{
 		$result = $this->db->setTable('budget_details as bd')
-		->setFields("bd.amount as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
+		->setFields("(bd.amount + bs.amount) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
 		->leftJoin('budget as b ON bd.budget_code = b.budget_code')
+		->leftJoin('budget_supplement as bs ON bs.budget_id = b.id')
 		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
 		->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 		->runSelect()

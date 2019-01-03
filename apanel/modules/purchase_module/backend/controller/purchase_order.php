@@ -353,6 +353,7 @@ class controller extends wc_controller
 		
 		$data['vendor_list'] 	= $this->po->retrieveVendorList();
 		$data['proforma_list'] 	= $this->po->retrieveProformaList();
+		$data['budget_list'] = $this->po->getBudgetCodes();
 		$data["business_type"] 	= $this->po->getOption("businesstype");
 		$data["vat_type"] 		= $this->po->getOption("vat_type");
 		$data["tax_codes"] 		= $this->po->getTaxCode('VAT',"fstaxcode ind, shortname val");
