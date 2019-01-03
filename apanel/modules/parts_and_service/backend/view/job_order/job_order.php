@@ -503,6 +503,7 @@
 								->draw($show_input);
 					 ?> `;
 					}else{
+						console.log('else = '+details.itemcode);
 						row += `
 						<?php
 							$value = "<span id='temp_view_itemcode_` + index + `'>` + details.itemcode + `</span>";
@@ -690,6 +691,7 @@
 			// 	</tr>
 			// `;
 			if(details.isbundle == 1){
+				parentline = parentline-1;
 				$('#tableList tbody tr').eq(parentline-1).after(row);
 			} else {
 				$('#tableList tbody').append(row);
