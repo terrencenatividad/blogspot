@@ -236,7 +236,7 @@ class controller extends wc_controller
 				$show_button
 			)
 			->addOtherTask(
-				'Manage Budget Suppliments',
+				'Manage Budget Supplements',
 				'plus-sign',
 				$show_supplemental
 			)
