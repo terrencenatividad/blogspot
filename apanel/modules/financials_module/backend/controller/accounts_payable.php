@@ -791,6 +791,8 @@ class controller extends wc_controller
 					}
 				}
 			}
+		} else {
+			unset($ap_details['budgetcode']);
 		}
 
 		if(!empty($account)) {
