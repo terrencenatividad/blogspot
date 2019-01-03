@@ -568,8 +568,10 @@ class import_purchaseorder extends wc_model
 
 						$expenseaccount = $getaccount->expense_account;
 						$accountcode = $expenseaccount;
-						$getbudgetaccount = $this->db->setTable('budget_details')
-						->setFields('accountcode, amount')
+						$getbudgetaccount = $this->db->setTable('budget_details bd')
+						->setFields('(bd.amount + bs.amount) as amount')
+						->leftJoin('budget as b ON bd.budget_code = b.budget_code')
+						->leftJoin('budget_supplement as bs ON b.id = bs.budget_id')
 						->setWhere("accountcode = '$expenseaccount'")
 						->runSelect()
 						->getRow();

@@ -49,6 +49,7 @@ class accounts_payable extends wc_model
 		->leftJoin('budget_supplement as bs ON bs.budget_id = b.id')
 		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
 		->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode' AND bs.accountcode = '$accountcode'")
+		->setGroupBy('bs.accountcode')
 		->runSelect()
 		->getRow();
 		
