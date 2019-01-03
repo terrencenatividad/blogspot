@@ -36,12 +36,13 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
+			$variance = ($row->variance < 0) ? '('.number_format($row->variance, 2).')' : number_format($row->variance,2);
 			$table .= '<tr>';
 			$table .= '<td>' . $row->segment5 . '</td>';
 			$table .= '<td>' . $row->description . '</td>';
 			$table .= '<td class = "amount">' . number_format($row->amount, 2) . '</td>';
 			$table .= '<td class = "actual">' . number_format($row->actual, 2) . '</td>';
-			$table .= '<td class = "variance">' . number_format($row->variance, 2) . '</td>';
+			$table .= '<td class = "variance" data-val = '.$row->variance.'>' . str_replace('-','',$variance) . '</td>';
 			$table .= '</tr>';
 		}
 
