@@ -1325,7 +1325,7 @@
 			$('#job').attr('disabled', 'disabled');
 			$.post('<?=MODULE_URL?>ajax/ajax_get_asset_details', '&asset=' + asset, function(data) {
 				if(data) {
-					$('#itemsTable tbody tr.clone select:first').val(data).trigger('change').select2({width: "100%"});
+					$('#itemsTable tbody tr.clone .accountcode:first').val(data).trigger('change').select2({width: "100%"});
 				}
 			});
 		});
