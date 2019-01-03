@@ -463,11 +463,11 @@
 				}
 			}
 			// I added a condition that if details.linenum (retrieved data) is 0 (meaning, nothing was retrieved), the line number should refer to the passed index..
-			var linenum = (details.linenum != 0 && details.linenum != undefined) ? details.linenum : index + 1;
+			var linenum = (details.linenum != 0  && details.linenum != undefined) ? details.linenum : index + 1;
 			details.warehouse = (details.warehouse != "" && details.warehouse != undefined) ? details.warehouse : "none";
 			var row = ``;
 			if(details.parentcode == "" || details.parentcode == null){
-				var asd = 'parents'+parent;
+				var asd = 'parents'+linenum;
 				// parent = linenum;
 			}else{
 				parentline = parent;
@@ -482,7 +482,6 @@
 				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.qty+`" data-linenum="`+linenum+`"  data-parentlinenum="`+parentline+`">`;
 			row += `<td>
 					`;
-					console.log("Item code "+details.itemcode);
 					if(details.parentcode == null  || details.parentcode == ""){
 						row += `
 						<?php
@@ -503,7 +502,6 @@
 								->draw($show_input);
 					 ?> `;
 					}else{
-						console.log('else = '+details.itemcode);
 						row += `
 						<?php
 							$value = "<span id='temp_view_itemcode_` + index + `'>` + details.itemcode + `</span>";
@@ -691,7 +689,6 @@
 			// 	</tr>
 			// `;
 			if(details.isbundle == 1){
-				parentline = parentline-1;
 				$('#tableList tbody tr').eq(parentline-1).after(row);
 			} else {
 				$('#tableList tbody').append(row);
@@ -763,9 +760,9 @@
 				</tr>
 			`;
 			$('#issuedPartsList tbody').append(row2);
-			if (details.itemcode != '') {
-				$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
-			}
+			// if (details.itemcode != '') {
+			// 	$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+			// }
 			if (details.warehouse != '') {
 				$('#tableList tbody').find('tr:last .warehouse').val(details.warehouse);
 			}
@@ -776,8 +773,9 @@
 				drawTemplate();
 			} catch(e) {};
 			var itemlist = <?= json_encode($item_list) ?>;
+			// console.log(itemlist);
 			itemlist.forEach(function(item) {
-				if (item.ind == details.itemcode) {
+				if (item.code == details.itemcode) {
 					$('#temp_view_' + index).html(item.val);
 				}
 			});
@@ -802,20 +800,31 @@
 			}
 		}
 		var voucher_details = <?php echo $voucher_details ?>;
+		
+		function reorderlinenum(){
+			console.log($('#tableList tbody tr'));
+			$('#tableList tbody tr').each(function(){
+				var linenum = 1;
+				$(this).data('linenum',linenum);
+				linenum++;
+			});
+			console.log("REORDER!");
+		}
+
 		function displayDetails(details,linenum="") {
-			// console.log('console item linenum = '+linenum)
 			if (details.length < min_row) { // min_row == 1
 				for (var x = details.length; x < min_row; x++) {
 					addVoucherDetails('', x);
 				}
 			}
 			if (details.length > 0) {
-			// console.log('console item linenum = '+index)
+				parent = linenum;
 				details.forEach(function(details, index) {
 					index = (linenum != "") ? linenum++ 	:	index;
-					addVoucherDetails(details, index, linenum);
+					addVoucherDetails(details, index, parent);
 					
 				});
+				reorderlinenum();
 			} else if (min_row == 0) {
 				$('#tableList tbody').append(`
 					<tr>
@@ -1060,6 +1069,8 @@
 		// });
 
 		$('#tableList tbody').on('blur', '.parentqty', function(e) {
+			var curr_qty= 	$(this);
+			console.log('clicked = '+curr_qty.closest('tr').data('linenum'));
 			var value 	=	removeComma($(this).val());
 			if ($(this).closest('tr').hasClass('items')) {
 				if (value < 1) 
@@ -1116,8 +1127,8 @@
 				else {
 					var content = data.result;
 					var linenum = curr_code.closest('tr').data('linenum');
-					console.log(" TEST = "+linenum);
 					if(content.isbundle == 1){
+						console.log(" Bundle - linenum = "+linenum)
 						getItemDetails(itemcode,linenum);
 					} else {
 						$('.subitem'+linenum).remove();
@@ -1138,13 +1149,14 @@
 				if ( ! data.success) {
 					$('#tableList tbody').html(data.table);
 				} else {
+					console.log(" DIpsplay Header Linenum = "+linenum);
 					// $('#tableList tbody').html('');
 					displayHeader(data.header);	
-					console.log("linenum = "+linenum);
 					displayDetails(data.details,linenum);
 					$('.ccode').prop('disabled', true);
 					$('.whchild').prop('disabled', true);
 					$('.ccode').closest('tr').find('.delete_row').prop('disabled', true);
+					reorderlinenum();
 				}
 			});
 		}
