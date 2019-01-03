@@ -519,9 +519,11 @@ class purchase_order extends wc_model
 
 						$expenseaccount = $getaccount->expense_account;
 						$accountcode = $expenseaccount;
-						$getbudgetaccount = $this->db->setTable('budget_details')
-						->setFields('accountcode, amount')
-						->setWhere("accountcode = '$expenseaccount'")
+						$getbudgetaccount = $this->db->setTable('budget_details bd')
+						->setFields('IFNULL(bs.amount, 0) + bd.amount as amount')
+						->leftJoin('budget as b ON bd.budget_code = b.budget_code')
+						->leftJoin("budget_supplement as bs ON b.id = bs.budget_id AND bs.accountcode = '$expenseaccount'")
+						->setWhere("bd.accountcode = '$expenseaccount'")
 						->runSelect()
 						->getRow();
 

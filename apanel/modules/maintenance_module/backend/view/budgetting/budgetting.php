@@ -54,7 +54,6 @@
 										->setName('budget_center_code')
 										->setId('budget_center_code')
 										->setList($budget_center)
-										->setNone('none')
 										->setValue($budget_center_code)
 										->setValidation('required')
 										->draw($show_input);	
