@@ -132,8 +132,29 @@ class controller extends wc_controller {
 
 	public function view($voucherno) {
 		$this->view->title			= 'View Delivery Receipt';
+		$this->view->addCSS(array(
+				'jquery.fileupload.css'
+			)
+		);  
+		$this->view->addJS(
+			array(
+				'jquery.dirrty.js',
+				'jquery.ui.widget.js',
+				'jquery.iframe-transport.js',
+				'jquery.fileupload.js',
+				'jquery.fileupload-process.js',
+				'jquery.fileupload-validate.js',
+				'jquery.fileupload-ui.js'
+			)
+		);
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->delivery_model->getDeliveryReceiptById($this->fields, $voucherno);
+		if ($data['stat'] == 'Delivered') {
+			$getData = $this->delivery_model->getFile($voucherno);
+			$data['filename'] 		= $getData->attachment_name;
+			$data['filetype'] 		= $getData->attachment_type;
+			$data['fileurl'] 		= $getData->attachment_url;
+		}
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['deliverydate']		= $this->date->dateFormat($data['deliverydate']);
@@ -386,24 +407,6 @@ class controller extends wc_controller {
 				}
 		}
 	}
-
-	/**private function ajax_update_tagdelivered() {
-		$id = $this->input->post('id');
-
-		if ($id) {
-			$result = $this->delivery_model->tagAsDelivered($id);
-			foreach($id as $index => $voucherno){
-				$retrieve_details 	=	$this->delivery_model->getDeliveryReceiptById(array('voucherno','customer'), $voucherno);
-				$customer 			= 	isset($retrieve_details->customer) 	?	$retrieve_details->customer 	:	"";
-
-				if ($result && $this->inventory_model) {
-					$this->inventory_model->setReference($voucherno)
-										->setDetails($customer)
-										->generateBalanceTable();
-				}
-			}
-		}
-	} */
 
 	private function ajax_update_untagdelivered() {
 		$id = $this->input->post('id');
