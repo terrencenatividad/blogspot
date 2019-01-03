@@ -1111,10 +1111,12 @@
 				}
 				else {
 					var content = data.result;
-					if(content.isbundle){
-						var linenum = curr_code.closest('tr').data('linenum');
+					var linenum = curr_code.closest('tr').data('linenum');
+					if(content.isbundle == 1){
 						getItemDetails(itemcode,linenum);
-					} 
+					} else {
+						$('.subitem'+linenum).remove();
+					}
 					curr_code.closest('tr').find('.detailparticular').val(content.detailparticular);
 					curr_code.closest('tr').find('.uom').val(content.uom);
 					curr_code.closest('tr').find('.h_uom').val(content.uom);
@@ -1141,15 +1143,6 @@
 			});
 		}
 	}
-	// ready for changing on warehouse for multiple items/ bundle
-	// $('#tableList tbody').on('change', '.WhForBundle', function(e) {
-	// 	var wh = $(this).val();
-	// 	if(wh) {
-	// 		$('.whchild').html("sample");
-	// 		$()
-	// 	}
-
-	// });
 
 	</script>
 	<?php endif ?>
