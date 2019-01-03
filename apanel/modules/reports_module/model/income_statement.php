@@ -124,7 +124,7 @@ class income_statement extends wc_model {
 		->getResult();
 
 		$result4 =  $this->db->setTable('budget b')
-		->setFields("ca.accountnature parentnature, ca.accountclasscode as accountclasscode, bd.accountcode as accountcode,ca.accountname as accountname, b.transactiondate as transactiondate, 0 as debit, SUM(bd.amount) as credit, ca.parentaccountcode as parent, ca.accountnature as accountnature")
+		->setFields("ca.accountnature parentnature, ca.accountclasscode as accountclasscode, bd.accountcode as accountcode,ca.accountname as accountname, b.transactiondate as transactiondate, SUM(bd.amount) as debit, 0 as credit, ca.parentaccountcode as parent, ca.accountnature as accountnature")
 		->leftJoin('budget_details as bd ON bd.budget_code = b.budget_code')
 		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
 		->setWhere("ca.fspresentation IN('IS','BS') AND ca.accountclasscode IN('REV','REVENU','OTHINC','OTRINC','COST','COSTSA','EXP','OPSEXP','OTREXP') AND bd.amount != 0 $filter2")

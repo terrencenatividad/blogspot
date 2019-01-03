@@ -43,9 +43,6 @@
 									<?php foreach ($header_monthly as $month): ?>
 										<th class="text-right"><?php echo $month ?></th>
 									<?php endforeach ?>
-									<th class = "text-right">Budget</th>
-									<th class = "text-right">Actual</th>
-									<th class = "text-right">Variance</th>
 								</tr>
 							</thead>
 							<?php echo $monthly_view ?>
