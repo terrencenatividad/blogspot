@@ -165,12 +165,13 @@
 								$attrreadonly 	= array('readonly', 'readonly');
 								$trprop 	  	= 'class="subitem'.$row->parentline.'"';
 								$discountstat 	= array('readonly', 'readonly');
+								$discountclass 	= '';
 							}
 							else{
 								$attrdisabled 	= array('', '');
 								$attrreadonly 	= array('', '');
 								$trprop 		= 'class="item'.$row->linenum.' items"';
-								
+								$discountclass 	= 'discount';
 
 								if ($row->discounttype == 'none') 
 									$discountstat = array('readonly', 'readonly');
@@ -178,8 +179,6 @@
 									$discountstat = array();
 							}
 
-							
-							
 						?>
 						<tr <?=$trprop?>>
 							<td>
@@ -290,7 +289,7 @@
 									echo $ui->formField('text')
 										->setSplit('', 'col-md-12')
 										->setName('discount[]')
-										->setClass('discount text-right')
+										->setClass($discountclass.' text-right')
 										->setAttribute($discountstat)
 										->setValidation('required decimal')
 										->setValue(number_format($row->discountrate,2))
@@ -349,7 +348,7 @@
 							$('.subitem<?=$row->parentline;?>').find('.warranty').iCheck('<?=$checkval?>');
 						</script>
 
-					<?php } ?>
+					<?php } ?> 
 					</tbody>
 					<tfoot class="summary">
 						<tr>
@@ -492,43 +491,39 @@
 			</div>
 		</form>
 	</div>
+	<?if(!$show_input && !empty($filename)):?>
 	<div id="Attachment" class="tab-pane">
-			<div class="box box-primary">
-				<form method = "post" class="form-horizontal" id="case_attachments_form" enctype="multipart/form-data">
-					<div class="row">
-						<div class="col-md-12">
-							<div class="table-responsive">
-								<table id="fileTable" class="table table-bordered">
-									<thead>
-										<tr class="info">
-											<th class="col-md-1">Action</th>
-											<th class="col-md-5">File Name</th>
-											<th class="col-md-2">File Type</th>
-										</tr>
-									</thead>
-									<tbody class="files" id="attachment_list">
-										<tr>
-											<td>
-												<button type="button" id="replace_attachment" name="replace_attachment" class="btn btn-primary">Replace</button>
-											</td>
-											<td><a href="insert uploaded link here"><?=$filename?></a></td>
-											<td><?=$filetype?></td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
+		<div class="box box-primary">
+			<form method = "post" class="form-horizontal" id="case_attachments_form" enctype="multipart/form-data">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="table-responsive">
+							<table id="fileTable" class="table table-bordered">
+								<thead>
+									<tr class="info">
+										<th class="col-md-1">Action</th>
+										<th class="col-md-5">File Name</th>
+										<th class="col-md-2">File Type</th>
+									</tr>
+								</thead>
+								<tbody class="files" id="attachment_list">
+									<tr>
+										<td>
+											<button type="button" id="replace_attachment" name="replace_attachment" class="btn btn-primary">Replace</button>
+										</td>
+										<td><a href="insert uploaded link here"><?=$filename?></a></td>
+										<td><?=$filetype?></td>
+									</tr>
+								</tbody>
+							</table>
 						</div>
 					</div>
-					<!-- <hr/>
-					<div class="row">
-						<div class="col-md-12 text-center">
-							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal" onClick="getList();">Close</button>
-						</div>
-					</div> -->
-					<br/>
-				</form>
-			</div>
+				</div>
+				<br/>
+			</form>
 		</div>
+	</div>
+	<?php endif;?>
 </section>
 <script>
 	var delete_row	= {};
@@ -790,8 +785,9 @@
 				if (discount_type == "amt")
 					itemdiscount	= discount
 
-				else if(discount_type == "perc" && discount < 101)
+				else if(discount_type == "perc")
 					itemdiscount 	= amount * (discount/100);
+
 
 				if (amount >= itemdiscount) {
 					
@@ -804,9 +800,10 @@
 					}
 					else
 						vatexempt_sales += amount;
-					
+
+					$(this).find(".discount").parent().parent().removeClass("has-error");
 				}
-				else{
+				else{console.log('error');
 					$(this).find(".discount").parent().parent().addClass("has-error");
 				}
 				$(this).find('.taxrate').val(taxrate);
@@ -838,10 +835,13 @@
 	});
 
 	$(document).ready(function(){
+
 		if ($('#tableList tbody tr').length < 1) {
 			addVoucherDetails();
 			setLineNum();
 		}
+		else
+			recomputeAll();
 	});
 	
 	$('body').on('click', '#addNewItem', function() {
@@ -892,7 +892,6 @@
 			else
 				formgroup.removeClass('has-error');
 		}
-		console.log(linenum);
 		if (isbundle == 'Yes') {
 
 			$.each($('.subitem'+linenum), function(){
@@ -931,21 +930,6 @@
 		else{	
 			formgroup.addClass('has-error');
 		}
-	});
-
-	$('#tableList tbody').on('input', '.discount', function(e) {
-		var value 	= removeComma($(this).val());
-		var type 	= $('#discount_type').val();
-		var formgroup = $(this).parent().parent();
-
-		if (type == 'perc' && value > 100)
-			formgroup.addClass('has-error');
-		
-		else if (type == 'amt' && value < 0)
-			formgroup.addClass('has-error');
-		
-		else
-			formgroup.removeClass('has-error');
 	});
 
 	$('#tableList tbody').on('blur', '.discount, .quantity', function(e) {
@@ -1006,6 +990,7 @@
 		}
 		else{
 			$('#tableList tbody tr.items .discount').prop('readonly', false);
+			recomputeAll();
 		}
 	});
 
@@ -1018,20 +1003,9 @@
 		var discount 	= removeComma(row.find('.discount'));
 		var formgroup 	= row.find('.discount').parent().parent();
 
-		if (unitprice >= 0 && quantity > 0) {
-			amount 		= unitprice * quantity;
-
-			if(discounttype == 'amt' && amount < discount)
-				formgroup.addClass('has-error');
-
-			else if(discounttype == 'perc' && discount > 100)
-				formgroup.addClass('has-error');
-
-			else{
-				formgroup.removeClass('has-error');
-				recomputeAll();
-			}
-		}
+		if (unitprice >= 0 && quantity > 0) 
+			recomputeAll();
+		
 	});
 	
 	$('form').on('click', '[type="submit"]', function(e) {

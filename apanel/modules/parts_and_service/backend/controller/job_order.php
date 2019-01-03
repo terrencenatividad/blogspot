@@ -27,14 +27,15 @@ class controller extends wc_controller {
 		);
 		$this->fields2			= array(
 			'job_order_no',
-			'h_itemcode' 		=> 'itemcode',
+			'h_itemcode'		=> 'itemcode',
 			'detailparticular',
 			'linenum',
 			'h_warehouse'		=> 'warehouse',
-			'qty'				=> 'quantity',
+			'qty' 				=> 'quantity',
 			'h_uom'				=> 'uom',
 			'isbundle',
 			'parentline'
+			// 'parentcode'
 		);
 		$this->fields3			= array(
 			'job_order_no',
@@ -42,11 +43,34 @@ class controller extends wc_controller {
 			'detailparticular',
 			'linenum',
 			'warehouse',
-			'quantity',
-			'uom',
+			'jod.qty quantity',
+			'jod.uom',
 			'isbundle',
+			'parentcode',
 			'parentline',
-			'item_ident_flag'
+			'item_ident_flag',
+			'bom.quantity bomqty'
+		);
+		$this->fields4			= array(
+			'job_release_no',
+			'job_order_no',
+			'h_transactiondate' =>'transactiondate',
+			'h_itemcode' 		=> 'itemcode',
+			'linenum',
+			'h_detailparticular'=> 'detailparticulars',
+			'h_warehouse'		=> 'warehouse',
+			'quantity',
+			'h_uom'  => 'unit',
+			'serialnumbers',
+			'stat'
+		);
+		$this->fieldsattachment	= array(
+			//'attachment_id',
+			'attachment_url',
+			'attachment_name',
+			'attachment_type',
+			//'reference',
+			//'stat'
 		);
 		$this->clean_number		= array(
 			'issueqty'
@@ -63,6 +87,21 @@ class controller extends wc_controller {
 		$this->view->title		= 'Job Order';
 		$data['customer_list']	= $this->job_order->getCustomerList();
 		$data['ui']				= $this->ui;
+		$this->view->addCSS(array(
+				'jquery.fileupload.css'
+			)
+		);  
+		$this->view->addJS(
+			array(
+				'jquery.dirrty.js',
+				'jquery.ui.widget.js',
+				'jquery.iframe-transport.js',
+				'jquery.fileupload.js',
+				'jquery.fileupload-process.js',
+				'jquery.fileupload-validate.js',
+				'jquery.fileupload-ui.js'
+			)
+		);
 		$this->view->load('job_order/job_order_list', $data);
 	}
 	public function create() {
@@ -145,7 +184,9 @@ class controller extends wc_controller {
 		$data['warehouse_list']		= $this->job_order->getWarehouseList();
 		$data["taxrate_list"]		= $this->job_order->getTaxRateList();
 		$data["taxrates"]			= $this->job_order->getTaxRates();
-		$data['voucher_details']	= json_encode($this->job_order->getJobOrderDetails($this->fields2, $id));$data['header_values']		= json_encode(array(
+
+		$data['voucher_details']	= json_encode($this->job_order->getJobOrderDetails($this->fields2, $id));
+		$data['header_values']		= json_encode(array(
 			''
 		));		
 		$data['ajax_task']			= 'ajax_view';
@@ -154,11 +195,17 @@ class controller extends wc_controller {
 		// Closed Date
 		$close_date 				= $this->parts_and_service->getClosedDate();
 		$data['close_date']			= $close_date;
-		$data['restrict_dr'] 		= false;
+		$data['restrict_dr'] 		= true;
 
 		$data['job_order_no']			= $id;
-		// $data['service_quotation']		= "SQ0000000001";
-		$this->view->load('job_order/job_order', $data);
+		$data['attachment']		= $this->job_order->selectAttachment($id,$this->fieldsattachment);
+		$data['attach_check']		= "not ready";
+		if(!empty($data['attachment'])) {
+			$data['attach_check']		= "ready";
+			//$data['attachment_name'] 		= $data['attachment']['attachment_name'];
+			//$data['attachment_type'] 		= $data['attachment']['attachment_type'];
+		}
+		$this->view->load('job_order/job_order_view', $data);
 	}
 	public function payment($id) {
 		$this->view->title			= 'Job Order - Issue Parts';
@@ -212,6 +259,7 @@ class controller extends wc_controller {
 									->addDelete($row->stat == 'prepared')
 									->addPrint()
 									->addOtherTask('Add Payment', 'bookmark')
+									->addOtherTask('Tag as Complete', 'bookmark')
 									->addCheckbox($row->stat == 'prepared')
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->job_order_no)
@@ -312,6 +360,50 @@ class controller extends wc_controller {
 		return $randomString;
 	}
 
+	private function ajax_serial_list() {
+		$search	= $this->input->post('search');
+		$itemcode = $this->input->post('itemcode');
+		$allserials = $this->input->post('allserials');
+		$itemselected = $this->input->post('itemselected');
+		$linenum = $this->input->post('linenumber');
+		$id = $this->input->post('id');
+		$task = $this->input->post('task');
+		$voucherno = '';
+		// var_dump($linenum);
+		if ($task=='ajax_edit') {
+			$voucherno = $this->input->post('voucherno');
+		}
+		$curr = $this->job_order->getJOSerials($itemcode, $voucherno, $linenum);
+		if ($curr) {
+			$current_id = explode(",", $curr->serialnumbers);
+		}
+		else {
+			$current_id = [];
+		}
+		$array_id = explode(',', $id);
+		$all_id = explode(',', $allserials);
+		
+		$fields = array ('id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat');
+		$pagination	= $this->job_order->getSerialList($fields, $itemcode, $search);
+		
+		$table		= '';
+		if (empty($pagination->result)) {
+			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+		}
+		foreach ($pagination->result as $key => $row) {
+			$checker = (in_array($row->id, $array_id) || in_array($row->id, $current_id)) ? 'checked' : '';
+			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id)) || ($row->stat == 'Not Available') && (!in_array($row->id, $current_id))) ? 'hidden' : '';
+			$table .= '<tr class = "'.$hide_tr.'">';
+			$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'" '.$checker.'></td>';
+			$table .= '<td>' . $row->serialno . '</td>';
+			$table .= '<td>' . $row->engineno . '</td>';
+			$table .= '<td>' . $row->chassisno . '</td>';
+			$table .= '</tr>';
+		}
+		$pagination->table = $table;
+		return $pagination;
+	}
+	
 	private function ajax_load_sq_list() {
         $customer   = $this->input->post('customer');
 		$pagination = $this->job_order->getSQPagination($customer);
@@ -337,7 +429,7 @@ class controller extends wc_controller {
 		$warehouse	= $this->input->post('warehouse');
 		$details	= $this->job_order->getServiceQuotationDetails($voucherno, $warehouse);
 		$header		= $this->job_order->getServiceQuotationHeader($this->fields_header, $voucherno);
-		
+		//var_dump($details,$header);
 		$table		= '';
 		$success	= true;
 		if (empty($details)) {
@@ -359,31 +451,6 @@ class controller extends wc_controller {
 		$data = $this->input->post($this->fields);
 		$data['stat'] = 'prepared';
 		$data['job_order_no'] = $job_order_no;
-		$data['stat']				= 'prepared';
-		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
-		// $data1 = $this->input->post($this->fields_header);
-		$data2 = $this->input->post($this->fields2);
-		// $data2['job_order_no'] = $job_order_no;
-		// var_dump($data2);
-		// $result  = $this->job_order->saveValues('job_order',$data);
-		// $result1 = $this->job_order->saveFromPost('job_order_details', $data2, $data);
-
-		$result		= $this->job_order->saveJobOrder($data, $data2);
-		
-		return array(
-			'redirect' => MODULE_URL,
-			'success' => $result
-		);
-	}
-
-	private function ajax_view() {
-		$seq 					= new seqcontrol();
-		$job_order_no 			= $seq->getValue("JO");
-		
-		$data = $this->input->post($this->fields);
-		$data['stat'] = 'prepared';
-		$data['job_order_no'] = $job_order_no;
-		$data['stat']				= 'prepared';
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
 		// $data1 = $this->input->post($this->fields_header);
 		$data2 = $this->input->post($this->fields2);
@@ -392,11 +459,18 @@ class controller extends wc_controller {
 
 		// $result  = $this->job_order->saveValues('job_order',$data);
 		// $result1 = $this->job_order->saveFromPost('job_order_details', $data2, $data);
-
-		$itemcodewosq					= $this->input->post('detail_itemcode');
-		if($data['service_quotation'] == '') {
-			$data2['itemcode']	= $itemcodewosq;
-		}
+		// $dataparticular		= $this->input->post('h_detailparticular');
+		// if($data2['detailparticular'] == '') {
+		// 	$data2['detailparticular'] = $dataparticular;
+		// }
+		// $itemcodewosq					= $this->input->post('detail_itemcode');
+		//$itemuom					= $this->input->post('uom');
+		// if($data['service_quotation'] == '') {
+		// 	$data2['itemcode']	= $itemcodewosq;
+		// }
+		// echo  'sq '.$data['service_quotation'] ;
+		//var_dump($data, $data2);
+		unset($data2['parentcode']);
 		$result		= $this->job_order->saveJobOrder($data, $data2);
 		
 		return array(
@@ -416,5 +490,201 @@ class controller extends wc_controller {
 			}
 		}
 		return array('success' => $msg);
+	}
+
+	private function ajax_load_bundle_details() {
+		$itemcode	= $this->input->post('itemcode');
+		
+		$header		= $this->job_order->retrieveItemDetails($itemcode);
+		$details 	= $this->job_order->retrieveBundleDetails($itemcode);
+		$mainheader = $this->job_order->getItemListforBundle($itemcode);
+		$table		= '';
+		$success	= true;
+		if (empty($header)) {
+			$table		= '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+			$success	= false;
+		}
+		//var_dump($header, $details);
+		return array(
+			'table'		=> $header,
+			'details'	=> $details,
+			'header'	=> $header,
+			'mainheader'=> $mainheader,
+			'success'	=> $success
+		);
+	}
+
+	private function ajax_create_issue() {
+		$seq 						= new seqcontrol();
+		$job_release_no 			= $seq->getValue("JR");
+		$data						= $this->input->post($this->fields4);
+		$data['job_release_no'] 	= $job_release_no;
+		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
+
+		$result						= $this->job_order->saveJobRelease($data);
+		
+		return array(	
+			'result'=> $result
+		);
+	}
+
+	private function ajax_edit_issue() {
+		$job_release_no = $this->input->post('jobreleaseno');
+		$data			= $this->input->post($this->fields4);
+		$result = $this->job_order->getQty($job_release_no,$data);
+		foreach ($result as $row) {
+			// $qty[] = $row->quantity;
+			$qty = $row->quantity;
+		// var_dump($qty);	
+	}
+		return array(	
+			'result' => $result
+		);
+	}
+
+	private function ajax_update_issue() {
+		$job_release_no = $this->input->post('jobreleaseno');
+		
+		$data			= $this->input->post($this->fields4);
+		$joborderno     = $data['job_order_no'][0];
+		$result = $this->job_order->updateIssueParts($job_release_no,$data);
+		
+		return array(	
+			'result' => $result
+		);
+	}
+
+	private function ajax_load_issue() {
+		$seq 						= new seqcontrol();
+		$job_release_no 			= $seq->getValue("JR");
+		$jobno						= $this->input->post('jobno');
+		
+		$asd	= $this->job_order->getIssuedPartsNo($jobno);
+		
+		$table = '';
+		
+		if (empty($asd)) {
+			$table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
+		}
+// var_dump($list);
+
+		foreach ($asd as $row) {
+			$table .= '<tr data-id = "' . $row->asd . '">';
+			$table .= '<td colspan="5">' . 'Part Issuance No.: '.$row->asd . '</td>';
+			$table .= '<td>' . '<a class="btn-sm" href="#" id="editip" title="Edit"><span class="glyphicon glyphicon-pencil editip" style="border: 1px solid gainsboro;
+			padding: 3px 4px 3px 4px;
+			background-color: lavender;"></span></a>' . '</td>';
+			$table .= '<td>' . '<a class="btn-sm" title="Delete"><span class="glyphicon glyphicon-trash deleteip" style="border: 1px solid gainsboro;
+			padding: 3px 4px 3px 4px;
+			background-color: lavender;"></span></a>' . '</td>';
+			$table .= '</tr>';
+		$list	= $this->job_order->getIssuedParts($row->asd);
+		
+			foreach ($list as $key => $row) {
+			$table .= '<tr>';
+			// $table .= '<td>' . $row->job_release_no . '</td>';
+			$table .= '<td>' . $row->itemcode . '</td>';
+			$table .= '<td>' . $row->detailparticulars . '</td>';
+			$table .= '<td>' . $row->warehouse . '</td>';
+			$table .= '<td>' . $row->quantity . '</td>';
+			$table .= '<td>' . $row->unit . '</td>';
+			$table .= '</tr>';
+		}
+	}		
+		
+		return array(	
+			'issuedparts'=> $table
+		);
+	}
+
+	private function ajax_delete_issue() {
+		$delete_id = $this->input->post('id');
+		if ($delete_id) {
+			$result		= $this->job_order->deleteJobRelease($delete_id);
+			if(empty($result)) {
+				$msg = "success";
+			}else {
+				$msg = $result;
+			}
+		}
+		return array('success' => $msg);
+	}
+	private function ajax_checkbundle() {
+		$itemcode	= $this->input->post('itemcode');
+		$result		= $this->job_order->retrieveItemDetails($itemcode);
+		$success	= true;
+		if (empty($result)) {
+			$success	= false;
+		}
+		//var_dump($result);
+		return array(
+			'result'  => $result,
+			'success' => $success
+		);
+	 }
+	 
+	private function ajax_edit() {
+		$job_order_no 			= $this->input->post('job_order_no');
+		$data = $this->input->post($this->fields);
+		$data['stat'] = 'prepared';
+		$data['job_order_no'] = $job_order_no[0];
+		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
+		$data2 = $this->input->post($this->fields2);
+
+		$itemcodewosq					= $this->input->post('detail_itemcode');
+		if($data['service_quotation'] == '') {
+			$data2['itemcode']	= $itemcodewosq;
+		}
+		//var_dump($data, $data2, $data['job_order_no']);
+		$result		= $this->job_order->updateJO($data, $data2);
+		
+		return array(
+			'redirect' => MODULE_URL,
+			'success' => $result
+		);
+	}
+
+	private function ajax_upload_file()
+	{
+		$post_data 		= $this->input->post();
+		$upload_handler	= new UploadHandler();
+		$reference 		= $post_data['reference'];
+		$upload_result 	= false;
+
+		if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
+			if(!isset($upload_handler->response['files'][0]->error)){
+				/**
+				 * Generate Attachment Id
+				 * @param table
+				 * @param group fields
+				 * @param custom condition
+				 */
+				$attachment_id = $this->job_order->getNextId("job_order_attachments","attachment_id");
+				foreach($upload_handler->response['files'] as $key => $row) {
+					$post_data['attachment_id'] 	= $attachment_id;
+					$post_data['attachment_name'] 	= $row->name;
+					$post_data['attachment_type'] 	= $row->type;
+					$post_data['attachment_url']	= $row->url;
+				}
+				$upload_result 	= $this->job_order->uploadAttachment($post_data);
+			}else{
+				$upload_result 	= false;
+			}
+		}
+		if($upload_result){
+			/**
+			 * Update status of Service Quotation to Approved
+			 */
+			$this->job_order->updateData(array('stat' => 'completed'), 'job_order', " job_order_no = '$reference' ");
+		}
+	}
+	
+	private function ajax_retrieve_bom_qty(){
+		$bundle_item = $this->input->post('bundle');
+
+		$result 	 = $this->job_order->retrieve_bom_qty($bundle_item);
+
+		// var_dump($result);
+		return $dataArray = array('result' => $result);
 	}
 }

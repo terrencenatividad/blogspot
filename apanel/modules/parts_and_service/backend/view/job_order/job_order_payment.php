@@ -42,6 +42,7 @@
 											->setValidation('required')
 											->draw($show_input);
 									?>
+									<input type="hidden" name="h_transactiondate" value="<?php echo $transactiondate ?>">
 								</div>
 							</div>
 							<div class="row">
@@ -72,7 +73,7 @@
 									?>
 								</div>
 							</div>
-							<div class="row">
+							<div class="row familyislove">
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
@@ -109,6 +110,12 @@
 											->setId('notes')
 											->setValue($notes)
 											->draw($show_input);
+										echo $ui->formField('hidden')
+											->setName('job_release_no')
+											->setId('job_release_no')
+											->setClass('job_release_no')
+											->setValue('')
+											->draw(true);
 									?>
 								</div>
 							</div>
@@ -153,7 +160,8 @@
 									// echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 								}
 							?>
-							<?php if(!$show_input):?><a class="btn btn-flat btn-success" id="isyu">Issue</a><?endif;?>
+							<?php if(!$show_input):?><a class="btn btn-success" id="isyu">Issue</a><?endif;?>
+							<?php if(!$show_input):?><a class="btn btn-primary hidden" id="save">Save</a><?endif;?>
 							<?php
 								// echo '&nbsp;&nbsp;&nbsp;';
 								echo $ui->drawCancel();
@@ -163,7 +171,7 @@
 				</div>
 			</form>
 		</div>	
-		<div class="box box-warning">
+		<div class="box box-warning" id="familyislove">
 			<div class="box-body">
 				<div class="row">
 					<div class="col-md-11">
@@ -180,6 +188,7 @@
 							<th class="col-md-2">Warehouse</th>
 							<th class="col-md-2">Quantity</th>
 							<th class="col-md-1">UOM</th>
+							<th colspan="2" class="col-md-1 text-center">Action	</th>
 							<?php if ($show_input): ?>
 							<th class="col-md-1"></th>
 							<?php endif ?>
@@ -190,10 +199,7 @@
 					</tbody>
 					<tfoot class="summary">
 						<tr>
-							<td colspan="6">
-								<?php if ($show_input): ?>
-									<button type="button" id="addNewItem" class="btn btn-link">Add a New Line</button>
-								<?php endif ?>
+							<td colspan="6" class="text-center">
 							</td>
 						</tr>
 					</tfoot>
@@ -201,7 +207,65 @@
 				<div id="header_values"></div>
 			</div>
 		</div>
+		<!-- <div class="text-center">
+			<?php
+				// echo '<button type="button" class="btn btn-primary" id="btnSave">Save</button>';
+				// echo $ui->drawCancel();
+			?>
+		</div> -->
 	</section>
+	<div class="modal fade" id="serialModal" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" id = "modal_close" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Items</h4>
+					<h5 class="modal-title">Item Code: <input type = "text" id = "sec_itemcode" val="123"></h5>
+					<h5 class="modal-title">Description: <input type = "text" id = "sec_description"></h5>
+					<input type = "hidden" id  = "checkcount">
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-4 col-md-offset-8">
+							<div class="input-group">
+								<input id="sec_search" class="form-control pull-right" placeholder="Search" type="text">
+								<div class="input-group-addon">
+									<i class="fa fa-search"></i>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-body no-padding">
+					<table id="tableSerialList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
+						<thead>
+							<tr class="info">
+								<th class="col-xs-2"></th>
+								<th class="col-xs-3">Serial No.</th>
+								<th class="col-xs-3">Engine No.</th>
+								<th class="col-xs-4">Chassis No.</th>
+							</tr>
+						</thead>
+						<tbody>
+							
+						</tbody>
+					</table>
+					<div id="serial_pagination"></div>
+				</div>
+				<div class="modal-footer">
+					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+						<div class="btn-group">
+							<button id = "btn_tag" type = "button" class = "btn btn-primary btn-sm btn-flat">Tag</button>
+						</div>
+						&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+							<button id = "btn_close" type="button" class="btn btn-default btn-sm btn-flat">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div id="sec_modal" class="modal fade" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-md" role="document">
 		<div class="modal-content">
@@ -280,6 +344,26 @@
 		</div>
 		</div>
 	</div>
+	<div class="modal fade" id="warning_counter" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Oooops!</h4>
+				</div>
+				<div class="modal-body">
+					
+				</div>
+				<div class="modal-footer">
+					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+						<div class="btn-group">
+							<button id = "btn_ok" type = "button" class = "btn btn-default btn-sm btn-flat">Ok</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<script>
 	
 		var delete_row	= {};
@@ -300,6 +384,7 @@
 			delete other_details.parentcode;
 			delete other_details.item_ident_flag;
 			var otherdetails = '';
+			
 			for (var key in other_details) {
 				if (other_details.hasOwnProperty(key)) {
 					otherdetails += `<?php 
@@ -311,10 +396,28 @@
 					 ?>`;
 				}
 			}
+			var linenum = (details.linenum != 0) ? details.linenum : index + 1; 	
 			var row = ``;
+			if(details.parentcode == ""){
+				var asd = 'mainitem parents'+linenum;
+			}else{
+				var asd = 'itempart subitem'+details.parentline;
+			}
+			if(details.isbundle == "yes"){
+				var dsa = 'data-isbundle="1"';
+			}else{
+				var dsa = 'data-isbundle="0"';
+			}
 			row += `
-				<tr>
-					<td>
+				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.bomqty+`" data-linenum="`+linenum+`">`;
+			row += `<td>
+						<?php
+							echo $ui->formField('hidden')
+								->setName('serialnumbers[]')
+								->setClass('serialnumbers')
+								->setValue('')
+								->draw(true);
+						?>
 						<?php
 							$value = "<span id='temp_view_itemcode_` + index + `'>` + details.itemcode + `</span>";
 							echo $ui->formField('dropdown')
@@ -324,6 +427,16 @@
 								->setList($item_list)
 								->setValue($value)
 								->draw($show_input);
+						 	echo $ui->formField('hidden')
+								->setName('h_itemcode[]')
+								->setClass('h_itemcode')
+								->setValue('` + details.itemcode + `')
+								->draw(true);
+							echo $ui->formField('hidden')
+								->setName('linenum[]')
+								->setClass('linenum')
+								->setValue('` + details.linenum + `')
+								->draw(true);
 						?>
 					</td>
 					<td>
@@ -331,8 +444,15 @@
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
 								->setName('detailparticular[]')
+								->setClass('detailparticular')
 								->setValue('` + details.detailparticular + `')
 								->draw($show_input);
+							echo $ui->formField('hidden')
+								->setSplit('', 'col-md-12')
+								->setName('h_detailparticular[]')
+								->setClass('h_detailparticular')
+								->setValue('` + details.detailparticular + `')
+								->draw(true);
 						?>
 					</td>
 					<td>
@@ -345,6 +465,12 @@
 								->setList($warehouse_list)
 								->setValue('` + details.warehouse + `')
 								->draw($show_input);
+								echo $ui->formField('hidden')
+								->setSplit('', 'col-md-12')
+								->setName('h_warehouse[]')
+								->setClass('h_warehouse')
+								->setValue('` + details.warehouse + `')
+								->draw(true);
 						?>
 					</td>
 					<td class="text-right">
@@ -353,32 +479,62 @@
 								->setSplit('', 'col-md-12')
 								->setName('orderqty[]')
 								->setClass('orderqty text-right')
-								->setAttribute(array('data-value' => '` + (parseFloat(details.orderqty) || 0) + `'))
+								->setAttribute(array('data-value' => '` + (parseFloat(details.bomqty) || 0) + `'))
 								->setValidation('required integer')
 								->setValue('` + (addComma(details.quantity, 0) || 0) + `')
 								->draw($show_input);
-						?>
-						` + otherdetails + `
-					</td>`;
-					console.log(details);
-					if(details.item_ident_flag == 0){
-					row +=`
-					<td class="text-right">
-						<?php
-							echo $ui->formField('text')
+
+							echo $ui->formField('hidden')
 								->setSplit('', 'col-md-12')
-								->setName('quantity[]')
-								->setClass('quantity text-right')
-								->setAttribute(array('data-value' => '` + (parseFloat(details.quantity) || 0) + `'))
+								->setName('h_orderqty[]')
+								->setClass('h_orderqty text-right')
+								->setAttribute(array('data-value' => '` + (parseFloat(details.bomqty) || 0) + `'))
 								->setValidation('required integer')
 								->setValue('` + (addComma(details.quantity, 0) || 0) + `')
 								->draw(true);
 						?>
 						` + otherdetails + `
 					</td>`;
-				} else {
-					row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "` + (parseFloat(details.quantity) || 0) + `">` + otherdetails + `<input type = "hidden" class = "quantity" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "` + (parseFloat(details.quantity) || 0) + `"/></td>`;
-				} 
+					if(details.parentcode != ''){
+						if(details.item_ident_flag == 0){
+						row +=`
+						<td class="text-right">
+							<?php
+								echo $ui->formField('text')
+									->setSplit('', 'col-md-12')
+									->setName('quantity[]')
+									->setClass('quantity text-right')
+									->setAttribute(array('readonly'=>'readonly','data-value' => '` + (parseFloat(details.quantity) || 0) + `'))
+									->setValidation('required integer')
+									->setValue('0')
+									->draw(true);
+							?>
+							` + otherdetails + `
+						</td>`;
+					} else {
+						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success serialbtn btn-flat col-md-12 text-right itempart quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0"/></td>`;
+					} 
+					}else{
+						if(details.item_ident_flag == 0){
+						row +=`
+						<td class="text-right">
+							<?php
+								echo $ui->formField('text')
+									->setSplit('', 'col-md-12')
+									->setName('quantity[]')
+									->setClass('quantity text-right')
+									->setAttribute(array('data-value' => '` + (parseFloat(details.quantity) || 0) + `'))
+									->setValidation('required integer')
+									->setValue('0')
+									->draw(true);
+							?>
+							` + otherdetails + `
+						</td>`;
+					} else {
+						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right serialbtn itempart quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0"/></td>`;
+					}
+					}
+					
 					row += `
 					<td>
 						<?php
@@ -386,6 +542,11 @@
 								->setSplit('', 'col-md-12')
 								->setValue('` + details.uom.toUpperCase() + `')
 								->draw(false);
+							echo $ui->formField('hidden')
+								->setName('h_uom[]')
+								->setClass('h_uom')
+								->setValue('` + details.uom.toUpperCase() + `')
+								->draw(true);
 						?>
 					</td>
 					<?php if ($show_input): ?>
@@ -540,6 +701,234 @@
 		});
 
 		$('#isyu').on('click',function(e){
+			var form = $('form').serialize();
+			$.post('<?=MODULE_URL?>ajax/ajax_create_issue', form + '<?=$ajax_post?>' , function(data) {
+					getList();		
+					$('html, body').animate({scrollTop: $("#familyislove").offset().top}, 500);
+					$('.quantity').val('0');
+					$('#isyu').show();
+					$('#save').addClass('hidden');	
+			});
+		});
+
+		$('#tableList tbody').on('blur', '.quantity', function(e) {
+			var value 	=	removeComma($(this).val());
+			var orderqty 	=	removeComma($(this).closest('tr').find('.h_orderqty').val());
+			if ($(this).closest('tr').hasClass('items')) {
+				if (value < 1) 
+					$(this).parent().parent().addClass('has-error');
+				else
+					$(this).parent().parent().removeClass('has-error');
+			}
+			if(value > orderqty){
+				$(this).val(orderqty);
+				value = orderqty;
+			}
+			if ($(this).closest('tr').data('isbundle') == 1) {
+				var linenum = $(this).closest('tr').data('linenum');
+				$.each($('.subitem'+linenum), function(){
+					var subitemqty 	= $(this).closest('tr').data('value');
+					subitemqty 		= subitemqty * value;
+					$(this).find('.quantity').val(subitemqty);
+				});
+			}
+	});	
+
+		var itemselected = [];
+		var allserials = [];
+		var linenum = '';
+		var serials = '';
+		var itemrow = '';
+		var task = '';
+		var type = '';
+		var quantityleft = '';
+		$('#tableList tbody').on('click', '.serialbtn', function() {
+			itemrow = $(this);
+			linenum = $(this).closest('tr').find('span').attr('id')
+			itemcode = $(this).closest('tr').find('.h_itemcode').val();
+			description = $(this).closest('tr').find('.h_detailparticular').val();
+			serials = $(this).closest('tr').find('.serialnumbers').val();
+			quantityleft = $(this).closest('tr').find('.h_orderqty').val();
+			check_num = $(this).val();
+			if ($(this).hasClass('mainitem')) {
+				type = 'mainitem';
+			}
+			else {
+				type = 'itempart';
+			}
+			tagSerial(itemcode, description, serials, check_num, type, quantityleft);	
+		});
+
+		function tagSerial(itemcode, description, serials, check_num, type, quantityleft) {
+			$('#serialModal').modal('show');
+			$('#serialModal #checkcount').val(check_num);
+			$("#serialModal #sec_itemcode").val(itemcode).prop('disabled', 'disabled').css('border', 'white').css('background', 'white');
+			$("#serialModal #sec_description").val(description).prop('disabled', 'disabled').css('border', 'white').css('background', 'white');
+		}
+
+		function getSerialList() {
+			filterToURL();
+			if (ajax_call != '') {
+				ajax_call.abort();
+			}
+			ajax.itemselected = serials;
+			//ajax.linenum = linenum;
+			ajax.allserials = $('#main_serial').val();
+			ajax.itemcode  = itemcode;
+			ajax.id = itemrow.closest('tr').find('.serialnumbers').val();
+			task = $('#task').val();
+			ajax.task = $('#task').val();
+			if (task=='ajax_edit') {
+				var linenumber = itemrow.closest('tr').find('.linenum').val();
+				ajax.linenumber = linenumber;
+				ajax.voucherno = $('#job_order_no').val();
+			}
+			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_serial_list', ajax, function(data) {
+				$('#tableSerialList tbody').html(data.table);
+				$('#serial_pagination').html(data.pagination);
+				if (ajax.page > data.page_limit && data.page_limit > 0) {
+					ajax.page = data.page_limit;
+					getSerialList();
+				}
+			});
+		}
+
+		$('#serial_pagination').on('click', 'a', function(e) {
+			e.preventDefault();
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				ajax.page = $(this).attr('data-page');
+				getSerialList();
+			}
+		});
+
+		$('#serialModal #sec_search').on('input', function() {
+			ajax.page = 1;
+			ajax.search = $(this).val();
+			itemcode = $('#sec_itemcode').val();
+			ajax.itemcode = itemcode;
+			getSerialList();
+		});
+
+		$("#serialModal").on('shown.bs.modal', function () {
+			itemcode = $('#sec_itemcode').val();
+			ajax.itemcode = itemcode;
+			getSerialList();
+		});
+
+		$('#serialModal #btn_close').on('click', function() {
+			$('#serialModal').modal('hide');
+		});
+
+		$('#btn_tag').on('click', function() {
+			itemselected = [];
+			allserials = [];
+			var count = 0;
+			var checkcount = $('#checkcount').val();
+			qtyleft =  removeComma(quantityleft);
+			$('#tableSerialList tbody tr input[type="checkbox"]:checked').each(function() {
+				count++;
+				var serialed = $(this).val();
+				itemselected.push(serialed);
+			console.log(quantityleft);		
+			// console.log(itemselected);		
+				
+				itemrow.closest('tr').find('.serialnumbers').val(itemselected);
+			});
+			$('#tableList tbody tr .serialnumbers').each(function() {
+				var serials = $(this).val();
+				if (serials != '') {
+					allserials.push(serials);
+					$('#main_serial').val(allserials);
+				}	
+			});	
+			if (count != checkcount && type =='itempart') {
+				$('#warning_counter .modal-body').html('Selected serial numbers must be equal to the required value.')
+				$('#warning_counter').modal('show');
+				$('#modal_close').hide();
+				$('#btn_close').hide();
+			}
+			else if (count > qtyleft && type == 'mainitem') {
+				$('#warning_counter .modal-body').html('Selected serial numbers must not be more than the quantity left.')
+				$('#warning_counter').modal('show');
+				$('#modal_close').hide();
+				$('#btn_close').hide();
+			}
+			else if (count == 0 && type == 'mainitem') {
+				$('#warning_counter .modal-body').html('There is no selected serial number.')
+				$('#warning_counter').modal('show');
+				$('#modal_close').hide();
+				$('#btn_close').hide();
+			}
+			else {
+				if (type == 'mainitem') {
+					itemrow.closest('tr').find('.quantity').val(count);
+				}
+				$('#serialModal').modal('hide');	
+				$('#modal_close').show();
+				$('#btn_close').show();
+			}
+		});
+		$('#btn_ok').on('click', function() {
+			$('#warning_counter').modal('hide');
+		});
+		$(document).ready(function(){
+			getList();
+		});
+		function getList() {
+			var jobno = $('#job_order_no').val();
+			$.post('<?=MODULE_URL?>ajax/ajax_load_issue', 'jobno='+ jobno + '<?=$ajax_post?>' , function(data) {
+				$('#issuedPartsList tbody').html(data.issuedparts);
+			});
+		}
+		$('#issuedPartsList tbody').on('click','.deleteip', function(){
+			var id = $(this).closest('tr').data('id');
+			$('#delete_modal').modal('show');
+			
+			$('#delete_yes').on('click', function(){
+				$.post('<?=MODULE_URL?>ajax/ajax_delete_issue', 'id='+ id , function(data) {
+				$('#delete_modal').modal('hide');					
+			});
+			getList();
+			});
+		});
+		$('#issuedPartsList tbody').on('click','.editip', function(){
+			var jobreleaseno = $(this).closest('tr').data('id');
+			$('#isyu').hide();
+			$('#save').removeClass('hidden');
+
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_issue', 'jobreleaseno='+ jobreleaseno , function(data) {
+				var asd  = $('#tableList tbody').find('.linenum').val();				
+							var content = data.result;	
+							content.forEach(function(element) {
+								$('#tableList tbody tr').each(function(aaa){
+									var linenums = $(this).data('linenum');
+									if(element.linenum == linenums) {
+										$(this).find('.quantity').val(element.quantity);
+									}
+								});
+							});
+			});
+
+
+
+			$('#job_release_no').val(jobreleaseno);
+			$('html, body').animate({scrollTop: $(".familyislove").offset().top}, 500);
+		});
+
+		$('#save').on('click', function(){
+			var form = $('form');			
+							
+			var jobreleaseno = $('#job_release_no').val();
+			$.post('<?=MODULE_URL?>ajax/ajax_update_issue', form.serialize() + '&jobreleaseno='+ jobreleaseno + '<?=$ajax_post?>', function(data) {
+				getList();
+				$('.quantity').val('0');
+				$('#isyu').show();
+				$('#save').addClass('hidden');	
+				$('html, body').animate({scrollTop: $("#familyislove").offset().top}, 500);
+				
+			});
+			
 			
 		});
 	</script>
@@ -563,21 +952,7 @@
 				getList();
 			}
 		});
-		function getList() {
-			ajax.limit = 5;
-			$('#ordered_list_modal').modal('show');
-			if (ajax_call != '') {
-				ajax_call.abort();
-			}
-			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_ordered_list', ajax, function(data) {
-				$('#ordered_tableList tbody').html(data.table);
-				$('#pagination').html(data.pagination);
-				if (ajax.page > data.page_limit && data.page_limit > 0) {
-					ajax.page = data.page_limit;
-					getList();
-				}
-			});
-		}
+		
 		$('#table_search').on('input', function() {
 			ajax.page = 1;
 			ajax.search = $(this).val();
@@ -690,7 +1065,7 @@
 			$('#sec_modal').modal("show");
 		});
 
-
+		
 
 	</script>
 	<?php endif ?>

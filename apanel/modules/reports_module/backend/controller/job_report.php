@@ -44,8 +44,8 @@
             $pagination 	= $this->job_report->retrieveListing($posted_data);
 
             $table 	= '';
+            $amountview = 0;
             if( !empty($pagination->result) ) :
-                $amountview = 0;
                 foreach ($pagination->result as $key => $row) {
 
                     if($row->stat == 'on-going')

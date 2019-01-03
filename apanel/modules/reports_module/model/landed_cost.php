@@ -54,6 +54,7 @@ class landed_cost extends wc_model {
 			'ipo.converted_packaging',
 			'pr.voucherno pr_vouch',
 			'pr.transactiondate receiptdate',
+			'j.stat job_stat',
 			'jd.job_no',
 			'jd.itemcode',
 			'jd.qty',
@@ -115,6 +116,7 @@ class landed_cost extends wc_model {
 			'ipo.converted_packaging',
 			'pr.voucherno pr_vouch',
 			'pr.transactiondate receiptdate',
+			'j.stat job_stat',
 			'jd.job_no',
 			'jd.itemcode',
 			'jd.qty',
@@ -135,8 +137,8 @@ class landed_cost extends wc_model {
 
 		$result = $this->db->setTable('job_details jd')
 							->setFields($fields)
-							->leftJoin('purchasereceipt pr ON pr.voucherno = jd.ipo_no')
-							->leftJoin('import_purchaseorder_details ipod ON ipod.voucherno = pr.source_no AND ipod.itemcode = jd.itemcode')
+							->leftJoin('import_purchaseorder_details ipod ON ipod.voucherno = jd.ipo_no AND ipod.itemcode = jd.itemcode')
+							->leftJoin('purchasereceipt pr ON pr.source_no = ipod.voucherno')
 							->leftJoin('purchasereceipt_details prd ON prd.voucherno = pr.voucherno')
 							->leftJoin('import_purchaseorder ipo ON ipo.voucherno = ipod.voucherno')
 							->leftJoin('partners p ON ipo.vendor = p.partnercode')

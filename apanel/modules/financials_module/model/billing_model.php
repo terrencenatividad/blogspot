@@ -18,7 +18,7 @@ class billing_model extends wc_model {
 				$this->log->saveActivity("Create Billing [{$data['voucherno']}]");
 			}
 
-			$result = $this->updateBillingDetails($data2, $data['voucherno']);
+			$result = $this->updateBillingDetails($data2, $data['voucherno'], $data['discounttype']);
 		}
 
 		return $result;
@@ -36,7 +36,7 @@ class billing_model extends wc_model {
 			if ($result) {
 				$this->log->saveActivity("Update Billing [$voucherno]");
 			}
-			$result = $this->updateBillingDetails($data2, $voucherno);
+			$result = $this->updateBillingDetails($data2, $voucherno, $data['discounttype']);
 		}
 
 		return $result;
@@ -52,11 +52,12 @@ class billing_model extends wc_model {
 		}
 		$data['amount']				= array_sum($data2['amount']);
 		$data['taxamount']			= array_sum($data2['taxamount']);
-		$data['netamount']			= $data['amount'] + $data['taxamount'] - $data['discountamount'];
+		$data['netamount']			= $data['netamount'];
 	}
 
-	public function updateBillingDetails($data, $voucherno) {
+	public function updateBillingDetails($data, $voucherno, $discounttype) {
 		$data['voucherno']	= $voucherno;
+		$data['discounttype'] = $discounttype;
 
 		$this->db->setTable('billing_details')
 					->setWhere("voucherno = '$voucherno'")
@@ -221,7 +222,8 @@ class billing_model extends wc_model {
 	
 	public function getItemDetailsList() {
 		$result = $this->db->setTable('items i')
-						->setFields("itemcode, itemdesc")
+						->setFields("i.itemcode, i.itemdesc, uom_base, itemprice")
+						->leftJoin('items_price p ON p.itemcode = i.itemcode AND p.companycode = i.companycode')
 						->leftJoin('itemtype it ON it.id = i.typeid AND it.companycode = i.companycode')
 						->setWhere("it.label LIKE '%service%'")
 						->runSelect()
@@ -275,22 +277,48 @@ class billing_model extends wc_model {
 						->getRow();
 		
 		$ids = preg_split("/[\s,]+/", $result->job_orderno);
-		$jo = implode(",",$ids);
+		$jo	= "'" . implode("','", $ids) . "'";
 		if ($jo != '') {
 			$result		= $this->db->setTable('job_order')
 								->setFields('job_order_no, transactiondate, service_quotation')
-								->setWhere("customer = '$customer' AND stat = 'Completed' AND job_order_no NOT IN ($jo)". $condition)
+								->setWhere("customer = '$customer' AND stat = 'completed' AND job_order_no NOT IN ($jo)". $condition)
 								->setOrderBy('job_order_no')
 								->runPagination();
 		}
 		else {
 			$result		= $this->db->setTable('job_order')
 								->setFields('job_order_no, transactiondate, service_quotation')
-								->setWhere("customer = '$customer' AND stat = 'Completed'". $condition)
+								->setWhere("customer = '$customer' AND stat = 'completed'". $condition)
 								->setOrderBy('job_order_no')
 								->runPagination();
 		}
 		
+		return $result;
+	}
+
+	public function getJobOrderDetails($job_order_no) {
+		$result		= $this->db->setTable('job_order_details jod')
+								->setFields("jod.itemcode, detailparticular, linenum, qty issueqty, uom issueuom, i.item_ident_flag")
+								->innerJoin('job_order jo ON jod.job_order_no = jo.job_order_no AND jod.companycode = jo.companycode')
+								->leftJoin('items i ON i.itemcode = jod.itemcode')
+								->leftJoin('invfile inv ON jod.itemcode = inv.itemcode AND jod.warehouse = inv.warehouse AND jod.companycode = inv.companycode')
+								->leftJoin('itemtype it ON it.id = i.typeid AND it.companycode = i.companycode')
+								->setWhere("jo.job_order_no = '$job_order_no' AND it.label LIKE '%service%' AND parentline = 0")
+								->runSelect()
+								->getResult();
+
+		return $result;
+	}
+
+	public function getValue($table, $cols = array(), $cond, $orderby = "", $bool = "")
+	{
+		$result = $this->db->setTable($table)
+					->setFields($cols)
+					->setWhere($cond)
+					->setOrderBy($orderby)
+					->runSelect($bool)
+					->getResult();
+
 		return $result;
 	}
 

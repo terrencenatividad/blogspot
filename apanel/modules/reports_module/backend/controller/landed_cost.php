@@ -51,8 +51,9 @@ class controller extends wc_controller {
 		// $datefilter			= $this->date->dateDbFormat($datefilter);
 		$daterangefilter	= $data['daterangefilter'];
 		// $default_datefilter = date("M d, Y",strtotime('first day of this month')).' - '.date("M d, Y",strtotime('last day of this month'));
+		$datefilter     = (!empty($daterangefilter))? $daterangefilter : '';
 
-		$date_filter = explode('-', $daterangefilter);
+		$date_filter = explode('-', $datefilter);
 		foreach ($date_filter as $date) {
 			$dates[] = date('Y-m-d', strtotime($date));
 		}
@@ -96,8 +97,8 @@ class controller extends wc_controller {
 			$item_desc = $row->detailparticular;
 			$ipo_no = $row->ipo_num;
 			$transaction_date = $row->transactiondate;
-			// $item_quantity = $row->receiptqty;
-			$item_quantity = $row->qty;
+			$ipo_item_quantity = $row->receiptqty;
+			$job_item_quantity = $row->qty;
 			$uom = $row->receiptuom;
 			$job_no = $row->job_no;
 			$receipt_date = $row->receiptdate;
@@ -107,15 +108,15 @@ class controller extends wc_controller {
 						<td class="text-right">'.$item_desc.'</td>
 						<td class="text-right">'.$ipo_no.'</td>
 						<td class="text-center">'.date('M d, Y',strtotime($transaction_date)).'</td>
-						<td class="text-center">'.$item_quantity.' '.$uom.'</td>
+						<td class="text-center">'.$job_item_quantity.' '.$uom.'</td>
 						
 						<td class="text-center">'.date('M d, Y',strtotime($receipt_date)).'</td>
 						<td class="text-right"><span class="pull-left">'.$exchange_curr.'</span>'.number_format($unit_cost_foreign,2).'</td>
 						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($unit_cost_base,2).'</td>';
 
 				// IMPORTATION COST CALCULATION
-			$item_cost = $row->convertedamount / $item_quantity;
-			$item_cost_total = $row->convertedamount; //total cost of item
+			$item_cost = $row->convertedamount / $ipo_item_quantity;
+			$item_cost_total = $item_cost * $job_item_quantity; //total cost of item
 
 			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);
 			$total_cost_job = $query_cost_job->total; //total cost of all items in job
@@ -134,17 +135,27 @@ class controller extends wc_controller {
 			
 			$item_cost_ratio = ($item_cost_total/$total_cost_job); //ratio of item to all items in job
 
-			$importation_cost_unit =  ($item_cost_ratio * $total_importation_cost) / $item_quantity; //sprintf("%7.2f",$quantity);
+			$importation_cost_unit =  ($item_cost_ratio * $total_importation_cost) / $job_item_quantity; //sprintf("%7.2f",$quantity);
 			
 			$table .=	'<td class="text-right">'.$job_no.'</td> 
 						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($importation_cost_unit,2).'</td>'; 
 			
 				// LANDED COST CALCS STAGING
 			$landed_cost_unit = $unit_cost_base + $importation_cost_unit;
-			$total_landed_cost = $landed_cost_unit * $item_quantity;
+			$total_landed_cost = $landed_cost_unit * $job_item_quantity;
+			$job_stat = $row->job_stat;
+			
+			if ($job_stat == 'closed') {
+				$job_stat_display = '<span class="label label-success">'.strtoupper($job_stat).'</span>';
+			} elseif ($job_stat == 'on-going') {
+				$job_stat_display = '<span class="label label-warning">'.strtoupper($job_stat).'</span>';
+			} else {
+				$job_stat_display = '<span class="label label-danger">'.strtoupper($job_stat).'</span>';
+			}
 
 			$table .=	'<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($landed_cost_unit,2).'</td>
-						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($total_landed_cost,2).'</td>;
+						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($total_landed_cost,2).'</td>
+						<td class="text-right"><span class="pull-left">'.$job_stat_display.'</td>;
 
 			$table.= </tr>';
 			}	
@@ -165,8 +176,9 @@ class controller extends wc_controller {
 		$tab = $data['tab'];
 		
 		$daterangefilter	= $data['daterangefilter'];
+		$datefilter     = (!empty($daterangefilter))? $daterangefilter : '';
 		
-		$date_filter = explode('-', $daterangefilter);
+		$date_filter = explode('-', $datefilter);
 		foreach ($date_filter as $date) {
 			$dates[] = date('Y-m-d', strtotime($date));
 		}
@@ -175,7 +187,7 @@ class controller extends wc_controller {
 
 		$retrieved = $this->landed_cost->exportUnitCostLanded($datefilterFrom,$datefilterTo,$import_purchase_order,$supplier,$tab);
 		
-		$header	= array('Item','Description','IPO Number','IPO Date','Qty/Unit','IPO Receipt Date','Unit Cost Foreign Currency','Unit Cost Base Currency','Job Number','Importation Cost per Unit','Landed Cost per Unit','Total Landed Cost');
+		$header	= array('Item','Description','IPO Number','IPO Date','Qty/Unit','IPO Receipt Date','Unit Cost Foreign Currency','Unit Cost Base Currency','Job Number','Importation Cost per Unit','Landed Cost per Unit','Total Landed Cost','Job Status');
 
 		$import_purchase_order_export = "";
 		($import_purchase_order == "") ? $import_purchase_order_export = "All" : $import_purchase_order_export = $import_purchase_order;
@@ -220,8 +232,8 @@ class controller extends wc_controller {
 			$item_desc = $row->detailparticular;
 			$ipo_no = $row->ipo_num;
 			$transaction_date = $row->transactiondate;
-			// $item_quantity = $row->receiptqty;
-			$item_quantity = $row->qty;
+			$ipo_item_quantity = $row->receiptqty;
+			$job_item_quantity = $row->qty;
 			$uom = $row->receiptuom;
 			$job_no = $row->job_no;
 			$receipt_date = $row->receiptdate;
@@ -230,18 +242,18 @@ class controller extends wc_controller {
 			$csv .= '"' .$item_desc. '",';
 			$csv .= '"' .$ipo_no. '",';
 			$csv .= '"' .date('M d, Y',strtotime($transaction_date)). '",';
-			$csv .= '"' .$item_quantity.' '.$uom. '",';
+			$csv .= '"' .$job_item_quantity.' '.$uom. '",';
 			$csv .= '"' .date('M d, Y',strtotime($receipt_date)). '",';
 			$csv .= '"' .$exchange_curr.' '.number_format($unit_cost_foreign,2). '",';
 			$csv .= '"' .$base_curr.' '.number_format($unit_cost_base,2). '",';
 
-					// IMPORTATION COST CALCULATION
-			$item_cost = $row->convertedamount / $item_quantity;
-			$item_cost_total = $row->convertedamount; //total cost of item
+			// IMPORTATION COST CALCULATION
+			$item_cost = $row->convertedamount / $ipo_item_quantity;
+			$item_cost_total = $item_cost * $job_item_quantity; //total cost of item
 
 			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);
 			$total_cost_job = $query_cost_job->total; //total cost of all items in job
- 
+	
 			$query_job_item_count = $this->landed_cost->getTotalItemsInJob($job_no);
 			$job_item_count = $query_job_item_count->qty; //number of items in job
 
@@ -249,20 +261,26 @@ class controller extends wc_controller {
 			$query_CM_credit = $this->landed_cost->getSumOfCm($job_no);
 			$query_DM_debit = $this->landed_cost->getSumOfDm($job_no);
 
-			$total_importation_cost = $query_AP_credit->credit + $query_CM_credit->credit - $query_DM_debit->debit; //importation cost/fees from AP,CM,DM
+			$ap_credit = $query_AP_credit->credit;
+			$cm_credit = $query_CM_credit->credit;
+			$dm_debit = $query_DM_debit->debit;
+			$total_importation_cost = $ap_credit + $cm_credit - $dm_debit; //importation cost/fees from AP,CM,DM
 			
 			$item_cost_ratio = ($item_cost_total/$total_cost_job); //ratio of item to all items in job
 
-			$importation_cost_unit =  ($item_cost_ratio * $total_importation_cost) / $item_quantity; //sprintf("%7.2f",$quantity);
+			$importation_cost_unit =  ($item_cost_ratio * $total_importation_cost) / $job_item_quantity; //sprintf("%7.2f",$quantity);
 
 			$csv .= '"' .$job_no. '",';
 			$csv .= '"' .$base_curr.' '.number_format($importation_cost_unit,2). '",';
 			
-				// LANDED COST CALCS STAGING
+			// LANDED COST CALCS STAGING
 			$landed_cost_unit = $unit_cost_base + $importation_cost_unit;
-			$total_landed_cost = $landed_cost_unit * $item_quantity;
+			$total_landed_cost = $landed_cost_unit * $job_item_quantity;
+			$job_stat = $row->job_stat;
+
 			$csv .= '"' .$base_curr.' '.number_format($landed_cost_unit,2). '",';
 			$csv .= '"' .$base_curr.' '.number_format($total_landed_cost,2). '",';
+			$csv .= '"'.$job_stat. '",';
 			$csv .= "\n";
 			}
 		}

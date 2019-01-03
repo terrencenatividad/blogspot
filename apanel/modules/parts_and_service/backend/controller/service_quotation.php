@@ -74,8 +74,6 @@ class controller extends wc_controller {
 			array(
 				'jquery.dirrty.js',
 				'jquery.ui.widget.js',
-				'tmpl.min.js',
-				'load-image.all.min.js',
 				'jquery.iframe-transport.js',
 				'jquery.fileupload.js',
 				'jquery.fileupload-process.js',
@@ -239,12 +237,11 @@ class controller extends wc_controller {
 									->addView()
 									->addEdit($row->stat == 'Pending')
 									->addDelete($row->stat == 'Pending')
-									->addOtherTask('Tag as Accepted', 'bookmark', $row->stat == 'Pending')
+									->addOtherTask('Approve', 'thumbs-up', $row->stat == 'Pending')
 									->addCheckbox($row->stat == 'Pending')
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->voucherno)
 									->draw();
-
 			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->voucherno . '</td>';
@@ -471,8 +468,6 @@ class controller extends wc_controller {
 		$itemqty = [];
 		$itemuom = [];
 		$table = '';
-
-				
 		foreach ($result as $key => $row) {
 			$table .= '<tr class="subitem'.$parentline.'">';
 			$table .= '<td>' . $ui->formField('dropdown')
@@ -564,8 +559,8 @@ class controller extends wc_controller {
 								->setSplit('	', 'col-md-12')
 								->setName("displaytaxcode[]")
 								->setAttribute(array('disabled', true))
-								->setValue('none')
-								->setList(array('none'=>'None'))
+								->setValue('0')
+								->setList(array('0'=>'None'))
 								->setClass('taxcode')
 								->draw(true); 
 						'</td>';
@@ -583,6 +578,78 @@ class controller extends wc_controller {
 			$table .= '</tr>';
 		}
 		return array('table' => $table);
+	}
+
+	private function ajax_upload_file()
+	{
+		$post_data 		= $this->input->post();
+		$upload_handler	= new UploadHandler();
+		$reference 		= $post_data['reference'];
+		$upload_result 	= false;
+
+		if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
+			if(!isset($upload_handler->response['files'][0]->error)){
+				/**
+				 * Generate Attachment Id
+				 * @param table
+				 * @param group fields
+				 * @param custom condition
+				 */
+				$attachment_id = $this->service_quotation->getNextId("service_quotation_attachments","attachment_id");
+				foreach($upload_handler->response['files'] as $key => $row) {
+					$post_data['attachment_id'] 	= $attachment_id;
+					$post_data['attachment_name'] 	= $row->name;
+					$post_data['attachment_type'] 	= $row->type;
+					$post_data['attachment_url']	= $row->url;
+				}
+				$upload_result 	= $this->service_quotation->uploadAttachment($post_data);
+			}else{
+				$upload_result 	= false;
+			}
+		}
+		if($upload_result){
+			/**
+			 * Update status of Service Quotation to Approved
+			 */
+			$this->service_quotation->updateData(array('stat' => 'Approved'), 'servicequotation', " voucherno = '$reference' ");
+		}
+		
+		// $result = array(
+		// 	'upload_result' => $upload_result,
+		// 	'msg'			=> $message
+		// );
+		// return $result;
+		// if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
+		// 	if(!$upload_handler->response['files'][0]->error){
+		// 		/**
+		// 		 * Generate Attachment Id
+		// 		 * @param table
+		// 		 * @param group fields
+		// 		 * @param custom condition
+		// 		 */
+		// 		$attachment_id = $this->case->getNextId("claim_report_attachments","attachment_id"," AND caseno = '$caseno' AND report_id = '$report' ");
+				
+		// 		foreach($upload_handler->response['files'] as $key => $row) {
+		// 			if ($row->deleteUrl) {
+		// 				$post_data['attachment_id'] 	= $attachment_id;
+		// 				$post_data['attachment_name'] 	= $row->name;
+		// 				$post_data['type'] 				= $row->type;
+		// 				$post_data['url'] 				= $row->url;
+		// 			}
+		// 		}
+		// 		$this->case->uploadAttachment($post_data);
+		// 	}else{
+		// 		foreach($upload_handler->response['files'] as $key => $row) {
+		// 			if ($row->deleteUrl) {
+		// 				$post_data['attachment_id'] 	= $attachment_id;
+		// 				$post_data['attachment_name'] 	= $row->name;
+		// 				$post_data['type'] 				= $row->type;
+		// 				$post_data['url'] 				= $row->url;
+		// 			}
+		// 		}
+		// 		$this->case->deleteAttachment($post_data);
+		// 	}
+		// }
 	}
 
 	public function generateRandomString($length = 10){

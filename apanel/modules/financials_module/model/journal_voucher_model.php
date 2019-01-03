@@ -169,6 +169,15 @@ class journal_voucher_model extends wc_model {
 						->getRow();
 	}
 
+	public function getJournalVoucherBySourceNo($fields, $voucherno) {
+		$ids	= "'" . implode("','", $voucherno) . "'";
+		return $this->db->setTable('journalvoucher')
+						->setFields($fields)
+						->setWhere("sourceno IN ($ids)")
+						->runSelect()
+						->getResult();
+	}
+
 	public function getJournalVoucherPagination($fields, $search, $sort, $datefilter, $source, $filter) {
 		$sort = ($sort) ? $sort : 'transactiondate desc';
 		$condition = "transtype = 'JV' and (stat = 'posted' or stat = 'cancelled')";

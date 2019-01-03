@@ -297,12 +297,12 @@
 					<table id="serialize_tableList" class="table table-hover table-sidepad no-margin-bottom">
 						<thead>
 							<tr class="info">
-								<th class="col-xs-1 text-center">No.</th>
 								<th class="col-xs-2 text-center">Item No.</th>
 								<th class="col-xs-3 text-center">Item Name</th>
 								<th class="col-xs-2 text-center">Serial Number</th>
 								<th class="col-xs-2 text-center">Engine Number</th>
 								<th class="col-xs-2 text-center">Chassis Number</th>
+								<th class="col-xs-1 text-center"></th>
 							</tr>
 						</thead>
 						<tbody id="serialize_tbody">
@@ -315,6 +315,7 @@
 									<a type="button" class="btn btn-link add-data" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Line</a>
 								</td>	
 							</tr>
+
 						</tfoot>
 					</table>
 				</div>
@@ -488,6 +489,27 @@
 									->setClass('withholdingamount')	
 									->setValue('` + (parseFloat(details.withholdingamount) || 0) + `')
 									->draw();
+
+							echo $ui->setElement('hidden')
+									->setName('serial_no_list[]')
+									->setID('serial_no`+index+`')
+									->setClass('serial_no')	
+									->setValue('')
+									->draw();
+
+							echo $ui->setElement('hidden')
+									->setName('engine_no_list[]')
+									->setID('engine_no`+index+`')
+									->setClass('engine_no')	
+									->setValue('')
+									->draw();
+
+							echo $ui->setElement('hidden')
+									->setName('chassis_no_list[]')
+									->setID('chassis_no`+index+`')
+									->setClass('chassis_no')	
+									->setValue('')
+									->draw();
 							
 						?>
 					</td>
@@ -550,10 +572,9 @@
 			
 			if (details.item_ident_flag == 0) {
 				$('#serial_' + details.linenum).addClass('hidden');
-				$('#receiptqty' + details.linenum).removeClass('hidden');
-
+				$('#receiptqty' + details.linenum).removeClass('hidden receiptqty_serialized');
 			} else {
-				$('#receiptqty' + details.linenum).addClass('hidden');
+				$('#receiptqty' + details.linenum).addClass('hidden receiptqty_serialized').attr('data-value',0);
 				$('#serial' + details.linenum).removeClass('hidden');
 				
 				var item = {};
@@ -578,7 +599,7 @@
 
 			var warehouse = $('#warehouse').val();
 			if (warehouse == details.wareserializehouse) {
-				$('#tableList tbody').finserialized('tr:last .receiptqty').each(function() {
+				$('#tableList tbody').find('tr:last .receiptqty').each(function() {
 					if (details.receiptqtserializey > 0) {
 						$(this).removeAttserializer('readonly').val($(this).attr('data-value'));
 						$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
@@ -628,6 +649,11 @@
 						break;
 					}
 				}
+
+				// ADD 1 ROW IF NO THERE ARE NO ROWS
+				if ($('#serialize_tableList tbody tr').length == 0){
+					addRow(icode, item, 0);
+				}
 				
 				// console.log(rows);
 				
@@ -643,8 +669,33 @@
 			}		
 		});
 
+		serial_exist = <?php echo json_encode($serial_db_array) ?>;
+		engine_exist = <?php echo json_encode($engine_db_array) ?>;
+		chassis_exist = <?php echo json_encode($chassis_db_array) ?>;
 		$('.save_serials').on("click", function(){
 			saveSerialsInput(index_selected);
+			
+			// serial_exist = [];
+			serial_exist = <?php echo json_encode($serial_db_array) ?>;
+			engine_exist = <?php echo json_encode($engine_db_array) ?>;
+			chassis_exist = <?php echo json_encode($chassis_db_array) ?>;
+			for(items = 0; items < serialize.length; items++){
+				if(serialize[items].itemcode != ''){
+					for(serials = 0; serials < serialize[items].numbers.length; serials++){
+						if(serialize[items].numbers[serials].serialno){
+							serial_exist.push(serialize[items].numbers[serials].serialno);
+							engine_exist.push(serialize[items].numbers[serials].engineno);
+							chassis_exist.push(serialize[items].numbers[serials].chassisno);
+						}						
+					}
+				}
+			}
+
+			// console.log(js_data);
+			// console.log(serial_exist);
+			// console.log(engine_exist);
+			// console.log(chassis_exist);
+			
 		})
 
 		function addRow(icode, item, rownum, serialno, engineno, chassisno){
@@ -658,8 +709,8 @@
 				(typeof chassisno == 'undefined') ? chassisno = '' : chassisno=chassisno;
 
 				$('#serialize_tableList tbody').append(
-					`<tr>
-						<td id="serial_item_count" class="col-xs-1 text-center">` + (rownum+1) + `</td>
+					`<tr id="row`+ (rownum+1) +`">
+						
 						<td class="item_no col-xs-2">` + icode + `</td>
 						<td class="item_name col-xs-3">` + item + `</td>
 						<td id="serial_no" class="col-xs-2">
@@ -698,19 +749,55 @@
 									->draw($show_input);
 							?>
 						</td>
+						<td class="text-center">
+							<button type="button" class="btn btn-danger btn-flat deleteRow" data-delete=`+rownum+`>
+								<span class="glyphicon glyphicon-trash"></span>
+							</button>
+						</td>
 					</tr>`
 				);
 			}
 	
 		function saveSerialsInput(index){
 			number_rows = $('#serialize_tableList tbody tr').length;
-			
+			serials = '';
+			engines = '';
+			chassis = '';
+
+			// EMPTY serialize array 
+			for(x = 0; x < serialize[index].numbers.length; x++){
+				serialize[index].numbers[x].serialno = '';
+				serialize[index].numbers[x].engineno = '';
+				serialize[index].numbers[x].chassisno = '';
+			}
+
+			// REPLACE serialize array with new values
 			for (i = 0; i < number_rows; i++) {
-				serialize[index].numbers[i].serialno = $('#serial_no_item\\['+i+'\\]').val();
-				serialize[index].numbers[i].engineno = $('#engine_no_item\\['+i+'\\]').val();
-				serialize[index].numbers[i].chassisno = $('#chassis_no_item\\['+i+'\\]').val();
+				// serialize[index].numbers[i].serialno = $('#serial_no_item\\['+i+'\\]').val();
+				serialize[index].numbers[i].serialno = $('.serial_no_item:eq('+i+')').val();
+				// serialize[index].numbers[i].engineno = $('#engine_no_item\\['+i+'\\]').val();
+				serialize[index].numbers[i].engineno = $('.engine_no_item:eq('+i+')').val();
+				// serialize[index].numbers[i].chassisno = $('#chassis_no_item\\['+i+'\\]').val();
+				serialize[index].numbers[i].chassisno = $('.chassis_no_item:eq('+i+')').val();
+				
+				if (i==number_rows-1){
+					serials += serialize[index].numbers[i].serialno;
+					engines += serialize[index].numbers[i].engineno;
+					chassis += serialize[index].numbers[i].chassisno;
+				} else {
+					serials += serialize[index].numbers[i].serialno+',';
+					engines += serialize[index].numbers[i].engineno+',';
+					chassis += serialize[index].numbers[i].chassisno+',';
+				}
+
+				
 			}
 			
+			$('#serial_no'+index).val(serials);
+			$('#engine_no'+index).val(engines);
+			$('#chassis_no'+index).val(chassis);
+			// console.log($('#serial_no'+index).val());
+			// console.log(serialize);
 			// CHECK NUMBER OF INPUTS FOR QUANTITY IN DB
 			var count = 0;
 			$(".serial_no_item").each(function() {
@@ -719,11 +806,95 @@
 				}
 			})
 
-			console.log(serialize);
+			// console.log(serialize);
 			$("#serialize_modal").modal('hide');
 			$("#receiptqty"+(index+1)).val(count); //UPDATE QUANTITY BASED ON POPULATED SERIALS
-			// console.log(serialize);
+			// $("#receiptqty"+(index+1)).attr('data-value',count);
+			
 		}
+
+		$('tbody').on('click', '.deleteRow', function(e) {
+			var deleted_row = $(this).data('delete');
+			var deleted_serial = $(this).closest('.serial_no_item').val();
+			console.log(deleted_serial);
+
+
+			$(this).closest('tr').remove();
+		});
+
+		var serial_flag = true;
+		var engine_flag = true;
+		var chassis_flag = true;
+		$('tbody').on('change','.serial_no_item',function(){
+			var serialinput = $(this).val();
+			
+			if(serialinput != ''){
+			if ($.inArray(serialinput,serial_exist) == -1){
+				serial_flag=true;
+				serial_exist.push(serialinput);
+			} else {
+				serial_flag=false;
+			}
+			}
+			// console.log($.inArray(serialinput,serial_exist));
+			console.log(serial_flag+" "+engine_flag+" "+chassis_flag);
+			// console.log(serial_exist);
+			
+			if (serial_flag && engine_flag && chassis_flag) {
+				$('.save_serials').prop('disabled',false).text("Save");
+			} else {
+				$('.save_serials').prop('disabled',true).text("Duplicate serial number");
+			}
+			// console.log(jQuery.inArray(serialinput,serial_exist));
+
+		});
+
+		$('tbody').on('change','.engine_no_item',function(){
+			var engineinput = $(this).val();
+			
+			if(engineinput){
+			if ($.inArray(engineinput,engine_exist) == -1){
+				engine_flag=true;
+				engine_exist.push(engineinput);
+			} else {
+				engine_flag=false;
+			}
+			}
+			// console.log($.inArray(serialinput,serial_exist));
+			console.log(serial_flag+" "+engine_flag+" "+chassis_flag);
+			// console.log(engine_exist);
+			if (serial_flag && engine_flag && chassis_flag) {
+				$('.save_serials').prop('disabled',false).text("Save");
+			} else {
+				$('.save_serials').prop('disabled',true).text("Duplicate serial number");
+			}
+			// console.log(jQuery.inArray(serialinput,serial_exist));
+
+		});
+
+		$('tbody').on('change','.chassis_no_item',function(){
+			var chassisinput = $(this).val();
+			
+			if(chassisinput){
+			if ($.inArray(chassisinput,chassis_exist) == -1){
+				chassis_flag=true;
+				chassis_exist.push(chassisinput);
+			} else {
+				chassis_flag=false;
+			}
+			}
+			// console.log($.inArray(serialinput,serial_exist));
+			console.log(serial_flag+" "+engine_flag+" "+chassis_flag);
+			// console.log(chassis_exist);
+			if (serial_flag && engine_flag && chassis_flag) {
+				$('.save_serials').prop('disabled',false).text("Save");
+			} else {
+				$('.save_serials').prop('disabled',true).text("Duplicate serial number");
+			}
+			// console.log(jQuery.inArray(serialinput,serial_exist));
+
+		});
+		
 	
 		var voucher_details = <?php echo $voucher_details ?>;
 		function displayDetails(details) {
@@ -960,6 +1131,7 @@
 			e.preventDefault();
 			var form_element = $(this).closest('form');
 			var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
+
 			recomputeAll();
 			$('#submit_container [type="submit"]').attr('disabled', true);
 			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
