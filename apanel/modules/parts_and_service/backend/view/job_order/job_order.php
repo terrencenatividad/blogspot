@@ -506,7 +506,6 @@
 						row += `
 						<?php
 							$value = "<span id='temp_view_itemcode_` + linenum + `'>` + details.itemcode + `</span>";
-							echo $value;
 							echo $ui->formField('dropdown')
 								->setSplit('', 'col-md-12')
 								->setName('detail_itemcode[]')
