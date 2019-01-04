@@ -93,7 +93,7 @@ class job_order_model extends wc_model
 
 	public function getServiceQuotationDetails($voucherno, $voucherno_ref = false) {
 		$result1		= $this->db->setTable('servicequotation_details sqd')
-								->setFields("sqd.itemcode, detailparticular, linenum, qty, sqd.warehouse, uom, sqd.parentcode, sqd.childqty, sqd.isbundle, sqd.parentline, i.item_ident_flag")
+								->setFields("sqd.itemcode, detailparticular, linenum, qty as quantity, sqd.warehouse, uom, sqd.parentcode as parentcode, sqd.childqty, sqd.isbundle as isbundle, sqd.parentline, i.item_ident_flag")
 								->innerJoin('servicequotation sq ON sqd.voucherno = sq.voucherno AND sqd.companycode = sq.companycode')
 								->leftJoin('items i ON i.itemcode = sqd.itemcode')
 								->leftJoin('invfile inv ON sqd.itemcode = inv.itemcode AND sqd.warehouse = inv.warehouse AND sqd.companycode = inv.companycode')
@@ -130,7 +130,7 @@ class job_order_model extends wc_model
 		// 		$result[] = $row;
 		// 	}
 		// }
-
+		//echo $this->db->getQuery();
 		return $result1;
 	}
 

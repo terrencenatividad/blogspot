@@ -478,7 +478,8 @@
 				// console.log("PARENT CODE = "+parentcode);
 				var asd = 'subitem'+parentline;
 			}
-			if(details.isbundle == 1){
+			
+			if(details.isbundle == 1 || details.isbundle == 'yes'){
 				var dsa = 'data-isbundle="1"';
 			}else{
 				// jeff: for parentline anti duplicate
@@ -698,7 +699,7 @@
 			`;
 			
 			// This is for letting the system know where to add the row.. 
-			if(details.isbundle == 1){
+			if(details.isbundle == 0){
 				if($('#tableList tbody tr.parents'+parentline).siblings('.subitem'+parentline).length > 0){ 
 					// we check the current subitem added to know where to add its siblings
 					$('#tableList tbody tr.subitem'+parentline+'[data-linenum="'+(parseFloat(linenum)-1)+'"]').after(row);
@@ -828,7 +829,9 @@
 			// console.log($('#tableList tbody tr'));
 			var linenum = 1;
 			$('#tableList tbody tr').each(function(){
-				$(this).data('linenum',linenum);
+				$(this).attr('data-linenum', linenum);
+				var hiddenLine = $(this).find('.linenum');
+				$(hiddenLine).val(linenum);
 				linenum++;
 			});
 			// console.log("REORDER!");
@@ -1062,6 +1065,7 @@
 			if ($('#tableList tbody tr').length < min_row) {
 				addVoucherDetails();
 			}
+			reorderlinenum();
 		}
 		$('body').on('click', '.delete_row', function() {
 			delete_row = $(this).closest('tr');
@@ -1074,7 +1078,8 @@
 			var form_element = $(this).closest('form');
 			var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
 			recomputeAll();
-			
+			reorderlinenum();
+			console.log(form_element.serialize());
 			$('#submit_container [type="submit"]').attr('disabled', true);
 			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
 			if (form_element.find('.form-group.has-error').length == 0) {

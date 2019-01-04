@@ -472,6 +472,7 @@ class controller extends wc_controller {
 		// var_dump($data2['isbundle']);
 		// $result = 0;
 		$result		= $this->job_order->saveJobOrder($data, $data2);
+		//var_dump($data, $data2);
 		return array(
 			'redirect' => MODULE_URL,
 			'success' => $result
