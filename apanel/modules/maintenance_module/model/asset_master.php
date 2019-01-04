@@ -243,10 +243,15 @@ class asset_master extends wc_model {
 	}
 
 	public function getAssetMasterListPagination($fields, $search = '', $sort) {
-
-			$result = $this->db->setTable("asset_master")
+		$sort		= ($sort) ? $sort : 'asset_name';
+		$condition = '';
+		if ($search) {
+			$condition = $this->generateSearch($search, array('asset_name', 'asset_number','name','a.description','accountable_person'));
+		}
+			$result = $this->db->setTable("asset_master a")
 								->setFields($fields)
-								->setWhere(1)
+								->leftJoin("cost_center c ON c.id = a.department")
+								->setWhere($condition)
 								->setOrderBy($sort)
 								->runPagination();
 	

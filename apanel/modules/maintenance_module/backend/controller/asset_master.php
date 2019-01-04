@@ -8,16 +8,17 @@ class controller extends wc_controller {
 		$this->asset_master		= new asset_master();
 		$this->session			= new session();
 		$this->fields			= array(
-			'id',
+			'a.id',
 			'itemcode',
 			'asset_class',
 			'asset_name',
 			'asset_number',
 			'sub_number',
 			'serial_number',
-			'description',
+			'a.description',
 			'asset_location',
 			'department',
+			'name',
 			'accountable_person',
 			'commissioning_date',
 			'retirement_date',
@@ -33,7 +34,7 @@ class controller extends wc_controller {
 			'gl_asset',
 			'gl_accdep',
 			'gl_depexpense',
-			'stat'
+			'a.stat'
 		);
 		$this->fields2			= array(
 			'asset_id',
@@ -186,7 +187,7 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->asset_name . '</td>';
 			$table .= '<td>' . $row->asset_number . '</td>';
 			$table .= '<td>' . $row->description . '</td>';
-			$table .= '<td>' . $row->department . '</td>';
+			$table .= '<td>' . $row->name . '</td>';
 			$table .= '<td>' . $row->accountable_person . '</td>';
 			$table .= '<td>' . $status . '</td>';
 			$table .= '</tr>';
