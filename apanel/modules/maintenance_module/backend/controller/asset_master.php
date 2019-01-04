@@ -8,17 +8,16 @@ class controller extends wc_controller {
 		$this->asset_master		= new asset_master();
 		$this->session			= new session();
 		$this->fields			= array(
-			'a.id',
+			'id',
 			'itemcode',
 			'asset_class',
 			'asset_name',
 			'asset_number',
 			'sub_number',
 			'serial_number',
-			'a.description',
+			'description',
 			'asset_location',
 			'department',
-			'name',
 			'accountable_person',
 			'commissioning_date',
 			'retirement_date',
@@ -34,7 +33,7 @@ class controller extends wc_controller {
 			'gl_asset',
 			'gl_accdep',
 			'gl_depexpense',
-			'a.stat'
+			'stat'
 		);
 		$this->fields2			= array(
 			'asset_id',
@@ -149,7 +148,7 @@ class controller extends wc_controller {
 		$search	= $this->input->post('search');
 		$sort	= $this->input->post('sort');
 	
-		$pagination = $this->asset_master->getAssetMasterListPagination($this->fields, $search, $sort);
+		$pagination = $this->asset_master->getAssetMasterListPagination($search, $sort);
 		$table = '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';

@@ -242,7 +242,34 @@ class asset_master extends wc_model {
 		return $result;
 	}
 
-	public function getAssetMasterListPagination($fields, $search = '', $sort) {
+	public function getAssetMasterListPagination($search = '', $sort) {
+		$fields = array('a.id id',
+		'itemcode',
+		'asset_class',
+		'asset_name',
+		'asset_number',
+		'sub_number',
+		'serial_number',
+		'a.description description',
+		'asset_location',
+		'department',
+		'name',
+		'accountable_person',
+		'commissioning_date',
+		'retirement_date',
+		'useful_life',
+		'depreciation_month',
+		'depreciation_amount',
+		'capitalized_cost',
+		'purchase_value',
+		'balance_value',
+		'salvage_value',
+		'frequency_of_dep',
+		'number_of_dep',
+		'gl_asset',
+		'gl_accdep',
+		'gl_depexpense',
+		'a.stat stat');
 		$sort		= ($sort) ? $sort : 'asset_name';
 		$condition = '';
 		if ($search) {
