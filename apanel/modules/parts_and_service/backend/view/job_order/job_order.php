@@ -437,9 +437,9 @@
 		var parentline  = 0;
 		var parent 		= 0;
 		function addVoucherDetails(details, index, parent="") {
-			console.log("Parent = "+parent);
+			// console.log("Parent = "+parent);
 			var details = details || {itemcode: '', detailparticular: '', warehouse: '', qty: '0', uom: 'PC', childqty : '0', linenum : '0', isbundle : 'No', parentline : '', parentcode : ''};
-			console.log(details);
+			// console.log(details);
 			var other_details = JSON.parse(JSON.stringify(details));
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
@@ -502,9 +502,11 @@
 								->draw($show_input);
 					 ?> `;
 					}else{
+						console.log( " INDEX "+linenum);
 						row += `
 						<?php
-							$value = "<span id='temp_view_itemcode_` + index + `'>` + details.itemcode + `</span>";
+							$value = "<span id='temp_view_itemcode_` + linenum + `'>` + details.itemcode + `</span>";
+							echo $value;
 							echo $ui->formField('dropdown')
 								->setSplit('', 'col-md-12')
 								->setName('detail_itemcode[]')
@@ -679,7 +681,7 @@
 						<button type="button" class="btn btn-danger btn-flat delete_row" style="outline:none;">
 							<span class="glyphicon glyphicon-trash"></span>
 						</button>
-					</td>
+					</td>s
 					<?php endif ?>
 				</tr>
 			`;
@@ -689,7 +691,14 @@
 			// 	</tr>
 			// `;
 			if(details.isbundle == 1){
-				$('#tableList tbody tr').eq(parentline-1).after(row);
+				console.log(parentline);
+				// console.log(linenum);
+				if($('#tableList tbody tr.parents'+parentline).siblings('.subitem'+parentline).length > 0){
+				console.log(linenum);
+					$('#tableList tbody tr.subitem'+parentline+'[data-linenum="'+(parseFloat(linenum)-1)+'"]').after(row);
+				} else {
+					$('#tableList tbody tr').eq(parentline-1).after(row);
+				}
 			} else {
 				$('#tableList tbody').append(row);
 			}
@@ -760,9 +769,9 @@
 				</tr>
 			`;
 			$('#issuedPartsList tbody').append(row2);
-			// if (details.itemcode != '') {
-			// 	$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
-			// }
+			if (details.itemcode != '') {
+				$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+			}
 			if (details.warehouse != '') {
 				$('#tableList tbody').find('tr:last .warehouse').val(details.warehouse);
 			}
@@ -773,10 +782,9 @@
 				drawTemplate();
 			} catch(e) {};
 			var itemlist = <?= json_encode($item_list) ?>;
-			// console.log(itemlist);
 			itemlist.forEach(function(item) {
-				if (item.code == details.itemcode) {
-					$('#temp_view_' + index).html(item.val);
+				if (item.ind == details.itemcode) {
+					$('#temp_view_itemcode_' + index).html(item.val);
 				}
 			});
 			var warehouselist = <?= json_encode($warehouse_list) ?>;
@@ -802,13 +810,13 @@
 		var voucher_details = <?php echo $voucher_details ?>;
 		
 		function reorderlinenum(){
-			console.log($('#tableList tbody tr'));
+			// console.log($('#tableList tbody tr'));
 			$('#tableList tbody tr').each(function(){
 				var linenum = 1;
 				$(this).data('linenum',linenum);
 				linenum++;
 			});
-			console.log("REORDER!");
+			// console.log("REORDER!");
 		}
 
 		function displayDetails(details,linenum="") {
@@ -1070,7 +1078,7 @@
 
 		$('#tableList tbody').on('blur', '.parentqty', function(e) {
 			var curr_qty= 	$(this);
-			console.log('clicked = '+curr_qty.closest('tr').data('linenum'));
+			// console.log('clicked = '+curr_qty.closest('tr').data('linenum'));
 			var value 	=	removeComma($(this).val());
 			if ($(this).closest('tr').hasClass('items')) {
 				if (value < 1) 
@@ -1111,6 +1119,7 @@
 		if ($(this).closest('tr').data('isbundle') == 1) {
 			$.each($('.subitem'+linenum), function(){
 				$(this).find('.warehouse').val(value);
+				$(this).find('.h_warehouse').val(value);
 			});
 			drawTemplate();
 		}
@@ -1128,7 +1137,7 @@
 					var content = data.result;
 					var linenum = curr_code.closest('tr').data('linenum');
 					if(content.isbundle == 1){
-						console.log(" Bundle - linenum = "+linenum)
+						// console.log(" Bundle - linenum = "+linenum)
 						getItemDetails(itemcode,linenum);
 					} else {
 						$('.subitem'+linenum).remove();
@@ -1149,7 +1158,7 @@
 				if ( ! data.success) {
 					$('#tableList tbody').html(data.table);
 				} else {
-					console.log(" DIpsplay Header Linenum = "+linenum);
+					// console.log(" DIpsplay Header Linenum = "+linenum);
 					// $('#tableList tbody').html('');
 					displayHeader(data.header);	
 					displayDetails(data.details,linenum);
