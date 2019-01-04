@@ -342,7 +342,7 @@ class job_order_model extends wc_model
 		// 					WHERE status = 'active' ) a 
 		// 				WHERE a.itemcode = '$itemcode' OR a.parentcode =  '$itemcode'";
 		$query 		=	"SELECT * FROM 
-							( SELECT bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom, b.bundle_item_code as parentcode, IF(i.bundle='yes','1','0') as bundle
+							( SELECT bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom, b.bundle_item_code as parentcode, i.bundle
 							FROM items i
 							LEFT JOIN bom b ON b.bundle_item_code = i.itemcode AND b.companycode = i.companycode 
 							LEFT JOIN bomdetails bd ON bd.bom_code = b.bom_code AND bd.companycode = b.companycode
