@@ -481,6 +481,8 @@
 			if(details.isbundle == 1){
 				var dsa = 'data-isbundle="1"';
 			}else{
+				// jeff: for parentline anti duplicate
+				parentline = 0;
 				var dsa = 'data-isbundle="0"';
 				style = "style='font-weight: bold;'";
 			}
@@ -1039,6 +1041,16 @@
 			}
 		}
 		function deleteVoucherDetails(id) {
+			// delete with child
+			console.log("closest :"+($(this).closest('tr').data('isbundle') == 1)) 
+			var linenum = delete_row.data('linenum');
+			var bundle = delete_row.data('isbundle');
+			console.log(delete_row.nextAll('.subitem'+linenum));
+			
+			if(bundle == 1) {
+				delete_row.nextAll('.subitem'+linenum).remove();
+			}
+
 			delete_row.remove();
 			if ($('#tableList tbody tr').length < min_row) {
 				addVoucherDetails();
@@ -1161,6 +1173,11 @@
 				}
 			});
 			
+		}else {
+			// validation for customer field
+			$(this).val('');
+			drawTemplate();
+			$('#customer').focus();
 		}
 	});
 
