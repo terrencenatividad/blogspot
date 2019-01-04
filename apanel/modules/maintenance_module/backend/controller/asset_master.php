@@ -148,7 +148,7 @@ class controller extends wc_controller {
 		$search	= $this->input->post('search');
 		$sort	= $this->input->post('sort');
 	
-		$pagination = $this->asset_master->getAssetMasterListPagination($this->fields, $search, $sort);
+		$pagination = $this->asset_master->getAssetMasterListPagination($search, $sort);
 		$table = '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
@@ -186,7 +186,7 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->asset_name . '</td>';
 			$table .= '<td>' . $row->asset_number . '</td>';
 			$table .= '<td>' . $row->description . '</td>';
-			$table .= '<td>' . $row->department . '</td>';
+			$table .= '<td>' . $row->name . '</td>';
 			$table .= '<td>' . $row->accountable_person . '</td>';
 			$table .= '<td>' . $status . '</td>';
 			$table .= '</tr>';
