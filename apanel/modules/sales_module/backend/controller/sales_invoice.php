@@ -24,7 +24,8 @@ class controller extends wc_controller
 				'remarks',
 				'tinno',
 				'address1',
-				'terms'
+				'terms',
+				'srctranstype'
 			);
 
 		$this->view->header_active = 'sales/sales_invoice/';
@@ -68,7 +69,7 @@ class controller extends wc_controller
 		$data['dr_linked'] 		= ($invoice_dr == 'yes') ? true : false;
 		if($invoice_dr == 'yes')
 		{
-			$data["drno"] 		= '';
+			$data["sourceno"] 		= '';
 			$data["deliveries"] = $this->invoice->getDeliveries();
 		}
 
@@ -132,12 +133,12 @@ class controller extends wc_controller
 				/**
 				 * Update DR status
 				 */
-				$drno 						= $this->input->post('drno');
-				if(!empty($drno))
+				$sourceno 						= $this->input->post('sourceno');
+				if(!empty($sourceno))
 				{
 					$dr_info 				 	= array();
 					$dr_info['stat']			= 'With Invoice';
-					$dr_condition				= " voucherno = '$drno' AND stat = 'Delivered' ";
+					$dr_condition				= " voucherno = '$sourceno' AND stat = 'Delivered' ";
 					$updateDrRecord				= $this->invoice->updateData($dr_info,"deliveryreceipt",$dr_condition);
 					$updateDrRecord				= $this->invoice->updateData($dr_info,"deliveryreceipt_details",$dr_condition);
 				}
@@ -203,7 +204,7 @@ class controller extends wc_controller
 		$data['dr_linked'] 		= ($invoice_dr == 'yes') ? true : false;
 		if($invoice_dr == 'yes')
 		{
-			$data["drno"] 		= $retrieved_data["header"]->drno;
+			$data["sourceno"] 		= $retrieved_data["header"]->sourceno;
 			$data["deliveries"] = $this->invoice->getDeliveries();
 		}
 
@@ -212,7 +213,7 @@ class controller extends wc_controller
 
 		$data['ui'] 			= $this->ui;
 		$data['show_input'] 	= true;
-		$data['ro_input'] 		= (!empty($data["drno"])) ? false : true;
+		$data['ro_input'] 		= (!empty($data["sourceno"])) ? false : true;
 		$data['ajax_post'] 		= "&voucher=$voucherno";
 		$data['task'] 			= "edit";
 		$data["row_ctr"] 		= 0;
@@ -228,6 +229,7 @@ class controller extends wc_controller
 		$data["transactiondate"] = date('M d, Y', strtotime($transactiondate));
 		$data["remarks"]      	 = $retrieved_data["header"]->remarks;
 		$data["status"]       	 = $retrieved_data["header"]->status;
+		$data["srctranstype"]    = $retrieved_data["header"]->srctranstype;
 
 		//Footer Data
 		$data['total'] 	 		 = $retrieved_data['header']->amount;
@@ -311,6 +313,7 @@ class controller extends wc_controller
 		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
 		$data["remarks"]      	 = $retrieved_data["header"]->remarks;
 		$data["status"]       	 = $retrieved_data["header"]->status;
+		$data["srctranstype"]    = $retrieved_data["header"]->srctranstype;
 		
 		//Footer Data
 		$data['total'] 	 		 = $retrieved_data['header']->amount;
@@ -333,7 +336,7 @@ class controller extends wc_controller
 		$data['dr_linked'] 		= ($invoice_dr == 'yes') ? true : false;
 		if($invoice_dr == 'yes')
 		{
-			$data["drno"] 		= $retrieved_data["header"]->drno;
+			$data["sourceno"] 		= $retrieved_data["header"]->sourceno;
 			$data["deliveries"] = $this->invoice->getDeliveries();
 		}
 
@@ -464,8 +467,8 @@ class controller extends wc_controller
 								'si.discounttype as disctype','si.discountamount as discount', 
 								'si.amount as net','si.vat_sales as vat_sales','si.vat_exempt as vat_exempt', 'si.vat_zerorated as vat_zerorated',
 								'si.taxamount as vat','si.vat_zerorated as zerorated',
-								'drno', 'pl.voucherno plno', 'pl.source_no sono');
-		$docinfo_join   = "partners as p ON p.partnercode = si.customer AND p.companycode = si.companycode LEFT JOIN deliveryreceipt dr ON dr.voucherno = si.drno AND dr.companycode = si.companycode LEFT JOIN packinglist pl ON pl.voucherno = dr.source_no AND pl.companycode = dr.companycode";
+								'sourceno', 'pl.voucherno plno', 'pl.source_no sono');
+		$docinfo_join   = "partners as p ON p.partnercode = si.customer AND p.companycode = si.companycode LEFT JOIN deliveryreceipt dr ON dr.voucherno = si.sourceno AND dr.companycode = si.companycode LEFT JOIN packinglist pl ON pl.voucherno = dr.source_no AND pl.companycode = dr.companycode";
 		$docinfo_cond 	= "si.voucherno = '$voucherno'"; 
 
 		$documentinfo  	= $this->invoice->retrieveData($docinfo_table, $docinfo_fields, $docinfo_cond, $docinfo_join);
@@ -503,7 +506,7 @@ class controller extends wc_controller
 			'Date'	=> $this->date->dateFormat($documentinfo->documentdate),
 			'SI #'	=> $voucherno,
 			'SO #'	=> $documentinfo->sono,
-			'DR #'	=> $documentinfo->drno,
+			'DR #'	=> $documentinfo->sourceno,
 			'TERMS'	=> $customerdetails->terms
 		);
 
@@ -652,9 +655,10 @@ class controller extends wc_controller
 
 	private function get_deliveries()
 	{
-		$drno 		= $this->input->post('code');
+		$sourceno 		= $this->input->post('code');
+		$voucher 		= $this->input->post('voucher');
 		$result 	= '';
-		$deliveries = $this->invoice->retrieveDeliveries($drno);
+		$deliveries = $this->invoice->retrieveDeliveries($sourceno, $voucher);
 
 		$customer 		= $deliveries['header']->customer;
 		$notes 			= $deliveries['header']->remarks;
@@ -673,15 +677,21 @@ class controller extends wc_controller
 				$itemcode 			= $val->itemcode;
 				$detailparticular 	= htmlspecialchars($val->detailparticular);
 				$quantity 			= $val->issueqty;
-				$unitprice 			= $val->unitprice;
-				$discount 			= ($val->discounttype == 'amt') ? $val->discountamount : $val->discountrate;
-				$percentage 		= ($val->discounttype == 'perc') ? "%" : "";
-				$discountamount 	= $val->discountamount;
-				$discountrate 		= $val->discountrate;
-				$taxcode 			= $val->taxcode;
-				$taxrate 			= $val->taxrate;
-				$taxamount 			= $val->taxamount;
-				$amount 			= $val->amount;
+				$unitprice 			= isset($val->unitprice) ? $val->unitprice : 0;
+				if ($voucher == 'dr') {
+					$discount 		= ($val->discounttype == 'amt') ? $val->discountamount : $val->discountrate;
+					$percentage 	= ($val->discounttype == 'perc') ? "%" : "";
+				}
+				else {
+					$discount		= 0;
+					$percentage 	= '';
+				}
+				$discountamount 	= isset($val->discountamount) ? $val->discountamount : 0;
+				$discountrate 		= isset($val->discountrate) ? $val->discountrate : 0;
+				$taxcode 			= isset($val->taxcode) ? $val->taxcode : '';
+				$taxrate 			= isset($val->taxrate) ? $val->taxrate : 0;
+				$taxamount 			= isset($val->taxamount) ? $val->taxamount : 0;
+				$amount 			= isset($val->amount) ? $val->amount : 0;
 				$uom 				= strtoupper($val->issueuom);
 				$itemdiscount 		= 0;
 				$discountedamount 	= 0;
@@ -1020,7 +1030,7 @@ class controller extends wc_controller
 
 			$dr_info 				 	= array();
 			$dr_info['stat']			= 'Delivered';
-			$dr_condition				= " voucherno IN (select sls.drno from salesinvoice sls where sls.voucherno IN($invoices)) AND stat = 'With Invoice' ";
+			$dr_condition				= " voucherno IN (select sls.sourceno from salesinvoice sls where sls.voucherno IN($invoices)) AND stat = 'With Invoice' ";
 			$updateDrRecord				= $this->invoice->updateData($dr_info,"deliveryreceipt",$dr_condition);
 			$updateDrRecord				= $this->invoice->updateData($dr_info,"deliveryreceipt_details",$dr_condition);
 
@@ -1044,7 +1054,8 @@ class controller extends wc_controller
 	private function ajax_load_delivery_list() {
 		$customer	= $this->input->post('customer');
 		$search		= $this->input->post('search');
-		$list		= $this->invoice->getDeliveryList($customer,$search);
+		$voucher		= $this->input->post('voucher');
+		$list		= $this->invoice->getDeliveryList($customer,$search,$voucher);
 		$table		= '';
 		if (empty($list->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';

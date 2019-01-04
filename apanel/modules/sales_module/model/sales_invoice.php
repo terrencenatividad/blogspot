@@ -119,17 +119,48 @@ class sales_invoice extends wc_model
 		return $result;
 	}
 
-	public function getDeliveryList($customer,$search) {
-		$condition 		= " dr.stat = 'Delivered' AND dr.customer = '$customer' ";
-		if ($search) {
-			$condition .= ' AND ' . $this->generateSearch($search, array('dr.voucherno','dr.remarks'));
-		}
+	public function getDeliveryList($customer,$search,$voucher) {
+		if ($voucher == 'dr') {
+			$condition 		= " dr.stat = 'Delivered' AND dr.customer = '$customer' ";
+			if ($search) {
+				$condition .= ' AND ' . $this->generateSearch($search, array('dr.voucherno','dr.remarks'));
+			}
 
-		$result		= $this->db->setTable('deliveryreceipt dr')
+			$result		= $this->db->setTable('deliveryreceipt dr')
 								->setFields('dr.voucherno voucherno, dr.transactiondate transactiondate, dr.remarks notes')
 								->setWhere($condition)
 								->setGroupBy('dr.voucherno')
 								->runPagination();
+		}
+		else {
+			$condition 		= " jo.stat = 'completed' AND jo.customer = '$customer' ";
+			if ($search) {
+				$condition .= ' AND ' . $this->generateSearch($search, array('jo.job_order_no','jo.notes'));
+			}
+
+			$result = $this->db->setTable('salesinvoice')
+						->setFields("GROUP_CONCAT(sourceno SEPARATOR ',') as sourceno")
+						->setWhere("sourceno != '' AND stat NOT IN ('cancelled', 'temporary') AND srctranstype = 'jo'")
+						->runSelect()
+						->getRow();
+		
+			$ids = preg_split("/[\s,]+/", $result->sourceno);
+			$jo	= "'" . implode("','", $ids) . "'";
+			if ($jo != '') {
+				$result		= $this->db->setTable('job_order jo')
+									->setFields('jo.job_order_no voucherno, jo.transactiondate transactiondate, jo.notes')
+									->setWhere($condition." AND service_quotation != '' AND job_order_no NOT IN ($jo)")
+									->setGroupBy('jo.job_order_no')
+									->runPagination();
+			}
+			else {
+				$result		= $this->db->setTable('job_order jo')
+								->setFields('jo.job_order_no voucherno, jo.transactiondate transactiondate, jo.notes')
+								->setWhere($condition." AND service_quotation != ''")
+								->setGroupBy('jo.job_order_no')
+								->runPagination();
+			}
+		}
 
 		return $result;
 	}
@@ -166,7 +197,8 @@ class sales_invoice extends wc_model
 		$status				= (!empty($isExist)) ? "posted" : "temporary";
 		
 		$invoicedate		= (isset($data['transactiondate']) && (!empty($data['transactiondate']))) ? htmlentities(addslashes(trim($data['transactiondate']))) : "";
-		$drno				= (isset($data['drno']) && (!empty($data['drno']))) ? htmlentities(addslashes(trim($data['drno']))) : "";
+		$sourceno			= (isset($data['sourceno']) && (!empty($data['sourceno']))) ? htmlentities(addslashes(trim($data['sourceno']))) : "";
+		$srctranstype		= (isset($data['srctranstype']) && (!empty($data['srctranstype']))) ? htmlentities(addslashes(trim($data['srctranstype']))) : "";
 		$referenceno		= (isset($data['referenceno']) && (!empty($data['referenceno']))) ? htmlentities(addslashes(trim($data['referenceno']))) : "";
 		$customer			= (isset($data['customer']) && (!empty($data['customer']))) ? htmlentities(addslashes(trim($data['customer']))) : "";
 		$duedate			= (isset($data['duedate']) && (!empty($data['duedate']))) ? htmlentities(addslashes(trim($data['duedate']))) : "";
@@ -183,10 +215,15 @@ class sales_invoice extends wc_model
 		$exchangerate		= (isset($data['exchangerate']) && (!empty($data['exchangerate']))) ? htmlentities(addslashes(trim($data['exchangerate']))) : "1.00";
 		$warehouse 			= '';
 
-		if(!empty($drno))
+		if(!empty($sourceno))
 		{
-			$warehouseObj 	= $this->getValue("deliveryreceipt", array("warehouse"), " voucherno = '$drno' ");
-			$warehouse 		= $warehouseObj[0]->warehouse;
+			if ($srctranstype == 'dr') {
+				$warehouseObj 	= $this->getValue("deliveryreceipt", array("warehouse"), " voucherno = '$sourceno' ");
+				$warehouse 		= $warehouseObj[0]->warehouse;
+			}
+			else {
+				$warehouse		= '';
+			}
 		}
 		
 		/**TRIM COMMAS FROM AMOUNTS**/
@@ -208,7 +245,8 @@ class sales_invoice extends wc_model
 		$post_header['voucherno'] 			= $voucherno;
 		$post_header['warehouse'] 			= $warehouse;
 		$post_header['transactiondate'] 	= $invoicedate;
-		$post_header['drno'] 				= $drno;
+		$post_header['sourceno'] 			= $sourceno;
+		$post_header['srctranstype'] 		= $srctranstype;
 		$post_header['referenceno'] 		= $referenceno;
 		$post_header['duedate'] 			= $duedate;
 		$post_header['transtype'] 			= "SI";
@@ -291,12 +329,20 @@ class sales_invoice extends wc_model
 		$tempArr 			= array();
 		foreach($tempArray as $tempArrayIndex => $tempArrayValue)
 		{
-			
-			$detail_row = $this->db->setTable('deliveryreceipt_details')
-							->setFields("issueuom, convissueqty, convuom, warehouse, conversion")
-							->setWhere(" voucherno = '$drno' AND linenum = '$linenum' ")
-							->runSelect()
-							->getRow();
+			if ($srctranstype == 'dr') {
+				$detail_row = $this->db->setTable('deliveryreceipt_details')
+								->setFields("issueuom, convissueqty, convuom, warehouse, conversion")
+								->setWhere(" voucherno = '$sourceno' AND linenum = '$linenum' ")
+								->runSelect()
+								->getRow();
+			}
+			else {
+				$detail_row = $this->db->setTable('job_order_details')
+								->setFields("uom issueuom, qty convissueqty, uom convuom")
+								->setWhere(" job_order_no = '$sourceno' AND linenum = '$linenum' ")
+								->runSelect()
+								->getRow();
+			}
 			
 			$dr_issueuom 		= (!empty($detail_row->issueuom)) ? $detail_row->issueuom : '';
 			$dr_convissueqty	= (!empty($detail_row->convissueqty)) ? $detail_row->convissueqty : 0;
@@ -561,7 +607,7 @@ class sales_invoice extends wc_model
 	{	 
 		$retrieved_data =	array();
 		
-		$header_fields 	= 	"inv.voucherno as voucherno, inv.transactiondate as transactiondate, inv.drno as drno, inv.referenceno as referenceno,
+		$header_fields 	= 	"inv.voucherno as voucherno, inv.transactiondate as transactiondate, inv.sourceno as sourceno, inv.srctranstype as srctranstype, inv.referenceno as referenceno,
 		 					inv.duedate as duedate, cust.partnercode as customercode, cust.partnername as customername, inv.discounttype as discounttype, 
 							inv.discountamount as discountamount, inv.amount as amount, inv.netamount as netamount, inv.vat_sales as vat_sales, 
 							inv.vat_exempt as vat_exempt, inv.vat_zerorated as vat_zerorated, inv.taxamount as taxamount, inv.remarks as remarks, inv.stat as status";
@@ -592,26 +638,47 @@ class sales_invoice extends wc_model
 		return $retrieved_data;
 	}
 
-	public function retrieveDeliveries($code)
+	public function retrieveDeliveries($code, $voucher)
 	{
-		$header_fields 	= 	"dr.customer, dr.remarks, dr.taxamount, dr.taxcode, (dr.discountamount/so.amount) discount, dr.discounttype, dr.discountamount";
-		$condition 		=	" dr.voucherno = '$code' ";
-		$retrieved_data['header'] 	= 	$this->db->setTable('deliveryreceipt dr')
-												->leftJoin('salesorder so on so.voucherno = dr.source_no AND so.companycode = dr.companycode')
-												->setFields($header_fields)
-												->setWhere($condition)
-												->setLimit('1')
-												->runSelect()
-												->getRow();
+		if ($voucher == 'dr') {	
+			$header_fields 	= 	"dr.customer, dr.remarks, dr.taxamount, dr.taxcode, (dr.discountamount/so.amount) discount, dr.discounttype, dr.discountamount";
+			$condition 		=	" dr.voucherno = '$code' ";
+			$retrieved_data['header'] 	= 	$this->db->setTable('deliveryreceipt dr')
+													->leftJoin('salesorder so on so.voucherno = dr.source_no AND so.companycode = dr.companycode')
+													->setFields($header_fields)
+													->setWhere($condition)
+													->setLimit('1')
+													->runSelect()
+													->getRow();
 
-		$detail_fields 		= "itemcode, detailparticular, unitprice, issueqty, taxcode, taxrate, taxamount, amount, issueuom, discountrate, discounttype, discountamount";
-		$condition 			= " voucherno = '$code' ";
-		
-		$retrieved_data['details'] 	= $this->db->setTable('deliveryreceipt_details')
-										->setFields($detail_fields)
-										->setWhere($condition)
-										->runSelect()
-										->getResult();
+			$detail_fields 		= "itemcode, detailparticular, unitprice, issueqty, taxcode, taxrate, taxamount, amount, issueuom, discountrate, discounttype, discountamount";
+			$condition 			= " voucherno = '$code' ";
+			
+			$retrieved_data['details'] 	= $this->db->setTable('deliveryreceipt_details')
+											->setFields($detail_fields)
+											->setWhere($condition)
+											->runSelect()
+											->getResult();
+		}
+		else {
+			$header_fields 	= 	"jo.customer, jo.notes remarks";
+			$condition 		=	" jo.job_order_no = '$code' ";
+			$retrieved_data['header'] 	= 	$this->db->setTable('job_order jo')
+													->setFields($header_fields)
+													->setWhere($condition)
+													->setLimit('1')
+													->runSelect()
+													->getRow();
+
+			$detail_fields 		= "itemcode, detailparticular, qty issueqty, uom issueuom";
+			$condition 			= " job_order_no = '$code' ";
+			
+			$retrieved_data['details'] 	= $this->db->setTable('job_order_details')
+											->setFields($detail_fields)
+											->setWhere($condition)
+											->runSelect()
+											->getResult();
+		}
 		return $retrieved_data;
 	}
 
