@@ -661,24 +661,28 @@ class sales_invoice extends wc_model
 											->getResult();
 		}
 		else {
-			$header_fields 	= 	"jo.customer, jo.notes remarks";
+			$header_fields 	= 	"jo.customer, jo.notes remarks, sq.t_vat taxamount, sq.t_discount discountamount";
 			$condition 		=	" jo.job_order_no = '$code' ";
 			$retrieved_data['header'] 	= 	$this->db->setTable('job_order jo')
 													->setFields($header_fields)
+													->leftJoin('servicequotation sq ON sq.voucherno = jo.job_order_no')
 													->setWhere($condition)
 													->setLimit('1')
 													->runSelect()
 													->getRow();
 
-			$detail_fields 		= "itemcode, detailparticular, qty issueqty, uom issueuom";
+			$detail_fields 		= "jod.itemcode, jod.detailparticular, jod.qty issueqty, jod.uom issueuom, sqd.unitprice, sqd.taxcode, sqd.taxrate, sqd.taxamount, sqd.amount, sqd.discountrate, sqd.discounttype, sqd.discountamount";
 			$condition 			= " job_order_no = '$code' ";
 			
-			$retrieved_data['details'] 	= $this->db->setTable('job_order_details')
+			$retrieved_data['details'] 	= $this->db->setTable('job_order_details jod')
 											->setFields($detail_fields)
+											->leftJoin('servicequotation sq ON sq.voucherno = jo.job_order_no')
+											->leftJoin('servicequotation_details sqd ON sqd.voucherno = jod.job_order_no')
 											->setWhere($condition)
 											->runSelect()
 											->getResult();
 		}
+		var_dump($retrieved_data);
 		return $retrieved_data;
 	}
 
