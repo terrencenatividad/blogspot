@@ -656,18 +656,25 @@
 				}
 				
 				// console.log(rows);
-				
+				$('.add-data').text("Add a New Line");
 				$("#serialize_modal").modal('show');
 			});
 		}
 
 		$('.add-data').on("click", function() {
-			rownum = $('#serialize_tableList tbody tr').length;
+			rownum = checkSerialRows();
 			// alert(item_max_qty);
 			if (rownum < item_max_qty) {
 				addRow(serialize_icode_selected, serialize_item_selected);
-			}		
+			} else {
+				$(this).text("Maximum items reached");
+			}
 		});
+
+		function checkSerialRows(){
+			rows = $('#serialize_tableList tbody tr').length;
+			return rows;
+		}
 
 		serial_exist = <?php echo json_encode($serial_db_array) ?>;
 		engine_exist = <?php echo json_encode($engine_db_array) ?>;
