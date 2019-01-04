@@ -6,6 +6,192 @@ class job_order_model extends wc_model
 		parent::__construct();
 		$this->log = new log();
 	}
+
+	public function createClearingEntries($voucherno) {
+		$exist = $this->db->setTable('journalvoucher')
+							->setFields('voucherno')
+							->setWhere("referenceno = '$voucherno'")
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+
+		$jvvoucherno = ($exist) ? $exist->voucherno : '';
+
+		$header_fields = array(
+			'job_release_no referenceno',
+			// 'customer',
+			// 'transactiondate',
+			// 'fiscalyear',
+			// 'period',
+			'stat'
+		);
+		$detail_fields = array(
+			'IF(i.inventory_account > 0, i.inventory_account, ic.inventory_account) accountcode',
+			'ROUND(SUM(IFNULL(price_average, 0) * drd.quantity),2) credit'
+		);
+		
+		$data	= (array) $this->getJRById($header_fields,$voucherno);
+
+		$average_query = $this->db->setTable('price_average p1')
+									->setFields('p1.*')
+									->leftJoin('price_average p2 ON p1.itemcode = p2.itemcode AND p1.linenum < p2.linenum')
+									->setWhere('p2.linenum IS NULL')
+									->buildSelect();
+		
+		$details = $this->db->setTable('job_release drd')
+							->setFields($detail_fields)
+							->innerJoin('items i ON i.itemcode = drd.itemcode AND i.companycode = drd.companycode')
+							->leftJoin('itemclass ic ON ic.id = i.classid AND ic.companycode = i.companycode')
+							->leftJoin("($average_query) ac ON ac.itemcode = drd.itemcode")
+							->setWhere("drd.job_release_no = '$voucherno'")
+							->setGroupBy('accountcode')
+							->runSelect()
+							->getResult();
+
+		$dr_stat = ($data) ? $data['stat'] : '';
+		$data['stat'] = 'posted';
+
+		if ($dr_stat == 'Cancelled') {
+			$cancel_data = array('stat' => 'cancelled');
+
+			$this->db->setTable('journalvoucher')
+						->setValues($cancel_data)
+						->setWhere("voucherno = '$jvvoucherno'")
+						->setLimit(1)
+						->runUpdate();
+
+			$fields = array(
+				'voucherno',
+				'transtype',
+				'accountcode',
+				'debit credit',
+				'credit debit',
+				'stat',
+				'converteddebit convertedcredit',
+				'convertedcredit converteddebit',
+				'detailparticulars'
+			);
+
+			$detail = $this->db->setTable('journaldetails')
+								->setFields($fields)
+								->setWhere("voucherno = '$jvvoucherno'")
+								->runSelect()
+								->getResult();
+
+			$linenum = count($detail);
+
+			foreach ($detail as $key => $row) {
+				$linenum++;
+				$detail[$key]->linenum = $linenum;
+
+				$detail[$key] = (array) $detail[$key];
+			}
+
+			$this->db->setTable('journaldetails')
+								->setValues($detail)
+								->runInsert();
+
+			$this->db->setTable('journaldetails')
+					->setValues($cancel_data)
+					->setWhere("voucherno = '$jvvoucherno'")
+					->runUpdate();
+
+			return true;
+		}
+
+		$result = false;
+		
+		$data['amount']				= 0;
+		$data['convertedamount']	= 0;
+
+		if ( ! $exist) {
+			$seq					= new seqcontrol();
+			$jvvoucherno			= $seq->getValue('JV');
+			$data['voucherno']		= $jvvoucherno;
+			$data['transtype']		= 'JV';
+			$data['currencycode']	= 'PHP';
+			$data['exchangerate']	= '1';
+		}
+
+		$header = $this->db->setTable('journalvoucher')
+							->setValues($data);
+
+		if ($exist) {
+			$result = $header->setWhere("voucherno = '$jvvoucherno'")
+							->setLimit(1)
+							->runUpdate();
+		} else {
+			$result = $header->runInsert();
+		}
+		
+		if ($result) {
+			$this->db->setTable('journaldetails')
+					->setWhere("voucherno = '$jvvoucherno'")
+					->runDelete();
+
+
+			$ftax = $this->db->setTable('fintaxcode')
+								->setFields('salesAccount account')
+								->setWhere("fstaxcode = 'IC'")
+								->setLimit(1)
+								->runSelect()
+								->getRow();
+
+			$clearing_account = ($ftax) ? $ftax->account : '';
+			$total_amount	= 0;
+			
+			if ($details && $clearing_account) {
+				$linenum		= array();
+				
+				foreach ($details as $key => $row) {
+					$details[$key]->linenum				= $key + 1;
+					$details[$key]->voucherno			= $jvvoucherno;
+					$details[$key]->transtype			= 'IT';
+					$details[$key]->debit				= 0;
+					$details[$key]->converteddebit		= 0;
+					$details[$key]->convertedcredit		= $row->credit;
+					$details[$key]->detailparticulars	= '';
+					$details[$key]->stat				= $data['stat'];
+
+					$details[$key]	= (array) $details[$key];
+					$total_amount	+= $row->credit;
+				}
+
+				$details[] = array(
+					'accountcode'		=> $clearing_account,
+					'credit'			=> 0,
+					'linenum'			=> $key + 2,
+					'voucherno'			=> $jvvoucherno,
+					'transtype'			=> 'IT',
+					'debit'				=> $total_amount,
+					'converteddebit'	=> $total_amount,
+					'convertedcredit'	=> 0,
+					'detailparticulars'	=> '',
+					'stat'				=> $data['stat']
+				);
+			}
+			$detail_insert  = false;
+			$detail_insert = $this->db->setTable('journaldetails')
+										->setValues($details)
+										->runInsert();
+
+			if ($detail_insert) {
+				$data = array(
+					'amount'			=> $total_amount,
+					'convertedamount'	=> $total_amount
+				);
+				$result = $this->db->setTable('journalvoucher')
+									->setValues($data)
+									->setWhere("voucherno = '$jvvoucherno'")
+									->setLimit(1)
+									->runUpdate();
+
+			}
+		}
+
+		return $result;
+	}
+
 	public function getOption($type, $orderby = "")
 	{
 		$result = $this->db->setTable('wc_option')
@@ -134,6 +320,17 @@ class job_order_model extends wc_model
 		return $result1;
 	}
 
+	public function getInventoryAccount($data) {
+		$result = $this->db->setTable('items')
+						->setFields($data)
+						->setWhere("itemcode = '$data'")
+						->runSelect()
+						->getResult();
+						// var_dump($result);
+
+		return $result;
+	}
+
 	public function saveValues($table, $values){
         $result = $this->db->setTable($table)
                         ->setValues($values)
@@ -214,6 +411,17 @@ class job_order_model extends wc_model
 						->setWhere("job_order_no = '$voucherno'")
 						->runSelect()
 						->getRow();
+	}
+
+	public function getJRByID($fields, $voucherno) {
+		$result = $this->db->setTable('job_release')
+							->setFields($fields)
+							->setWhere("job_release_no = '$voucherno'")
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+		
+		return $result;
 	}
 
 	public function getJobOrderDetails($fields, $voucherno) {
@@ -375,9 +583,10 @@ class job_order_model extends wc_model
 	}
 	public function getIssuedPartsNo($jobno) {
 		$result	= $this->db->setTable('job_release j')
-								->setFields('DISTINCT (job_release_no) asd')
+								->setFields('DISTINCT (job_release_no) asd, voucherno')
 								->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no  and jod.itemcode = j.itemcode')
-								->setWhere("j.job_order_no = '$jobno' AND (parentcode = '' OR parentcode IS NULL)")
+								->leftJoin('journalvoucher jv ON jv.referenceno = j.job_release_no')
+								->setWhere("j.job_order_no = '$jobno' AND (parentcode = '' OR parentcode IS NULL) AND j.stat NOT IN ('cancelled')")
 								->setGroupBy('j.job_release_no, j.itemcode')
 								->setOrderBy('job_release_no,j.linenum')
 								->runSelect()
@@ -388,8 +597,9 @@ class job_order_model extends wc_model
 
 	public function getIssuedParts($jobno) {
 		$result	= $this->db->setTable('job_release j')
-								->setFields('j.job_order_no,j.itemcode,detailparticulars,j.warehouse,j.quantity,j.unit')
+								->setFields('j.job_order_no,j.itemcode,detailparticulars,j.warehouse,j.quantity,j.unit,w.description')
 								->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no  and jod.itemcode = j.itemcode')
+								->leftJoin('warehouse w ON w.warehousecode = j.warehouse')
 								->setWhere("j.job_release_no = '$jobno' AND (parentcode = '' OR parentcode IS NULL)")
 								->setGroupBy('j.job_release_no, j.itemcode')
 								->setOrderBy('job_release_no,j.linenum')
@@ -400,11 +610,19 @@ class job_order_model extends wc_model
 	}
 
 	public function deleteJobRelease($id) {
+		// $result	= $this->db->setTable('job_release')
+		// 		->setWhere("job_release_no = '$id'")
+		// 		->runDelete();
 		$result	= $this->db->setTable('job_release')
+				->setValues(array('stat'=>'cancelled'))
 				->setWhere("job_release_no = '$id'")
-				->runDelete();
+				->runUpdate();
 		
 			if ($result) {
+				$this->db->setTable('journalvoucher')
+						->setValues(array('stat'=>'cancelled'))
+						->setWhere("referenceno = '$id'")
+						->runUpdate();
 				$this->log->saveActivity("Deleted Job Release [$id]");
 			}
 
@@ -520,4 +738,58 @@ class job_order_model extends wc_model
 						   ->getResult();
 		return $result; 	
 	}	
+
+	public function reverseEntries($delete_id,$voucherno)
+	{
+		// $voucherno = "'" . implode("','", $delete_id) . "'";
+		$count = $this->db->setTable('journaldetails')
+				->setFields('*')
+				->setWhere("voucherno IN('$voucherno')")
+				->runSelect()
+				->getResult();
+				
+		if(!empty($count))
+		{
+			// echo '1';
+			$insert_array = array();
+			$ctr = count($count) + 1;
+			for($i = 0; $i < count($count); $i++)
+			{
+				$insert_info['voucherno']			= $count[$i]->voucherno;
+				$insert_info['checkno']				= $count[$i]->checkno;
+				$insert_info['transtype']			= $count[$i]->transtype;
+				$insert_info['linenum']				= $ctr;
+				$insert_info['slcode']				= $count[$i]->slcode;
+				$insert_info['source']				= $count[$i]->source;
+				$insert_info['costcentercode']		= $count[$i]->costcentercode;
+				$insert_info['accountcode']			= $count[$i]->accountcode;
+				$insert_info['debit']				= $count[$i]->credit;
+				$insert_info['credit']				= $count[$i]->debit;
+				$insert_info['currencycode']		= $count[$i]->currencycode;
+				$insert_info['exchangerate']		= $count[$i]->exchangerate;
+				$insert_info['converteddebit']		= $count[$i]->convertedcredit;
+				$insert_info['convertedcredit']		= $count[$i]->converteddebit;
+				$insert_info['taxcode']				= $count[$i]->taxcode;
+				$insert_info['taxacctflg']			= $count[$i]->taxacctflg;
+				$insert_info['taxline']				= $count[$i]->taxline;
+				$insert_info['vatflg']				= $count[$i]->vatflg;
+				$insert_info['detailparticulars']	= $count[$i]->detailparticulars;
+				$insert_info['stat']				= $count[$i]->stat;
+
+				$insert_array[] = $insert_info;
+			// 	// // var_dump($insert_array);
+				
+				$ctr++;
+			}
+			// var_dump($insert_array);
+			$result = $this->db->setTable('journaldetails')
+								->setValues($insert_array)
+								->runInsert();
+								// echo $this->db->getQuery();
+				// var_dump($result);
+			
+		}
+		return $result;
+	
+	}
 }

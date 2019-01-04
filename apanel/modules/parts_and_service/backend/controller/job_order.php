@@ -8,7 +8,7 @@ class controller extends wc_controller {
 		$this->logs				= new log();
 		$this->job_order        = new job_order_model();
 		$this->parts_and_service= new parts_and_service_model();
-		
+		$this->inventory_model	= $this->checkoutModel('inventory_module/inventory_model');		
 		$this->session			= new session();
 		$this->fields 			= array(
 			'job_order_no',
@@ -43,7 +43,7 @@ class controller extends wc_controller {
 			'detailparticular',
 			'linenum',
 			'warehouse',
-			'jod.qty quantity',
+			'jod.quantity',
 			'jod.uom',
 			'isbundle',
 			'parentcode',
@@ -518,10 +518,24 @@ class controller extends wc_controller {
 		$seq 						= new seqcontrol();
 		$job_release_no 			= $seq->getValue("JR");
 		$data						= $this->input->post($this->fields4);
+		$customer					= $this->input->post('h_customer');
 		$data['job_release_no'] 	= $job_release_no;
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
-
+		
 		$result						= $this->job_order->saveJobRelease($data);
+		
+		$this->job_order->createClearingEntries($data['job_release_no']);
+
+		if ($result && $this->inventory_model) {
+			$this->inventory_model->prepareInventoryLog('Job Release', $data['job_release_no'])
+									->setDetails($customer)
+									->computeValues()
+									->logChanges();
+
+			// $this->inventory_model->setReference($data['voucherno'])
+			// 						->setDetails($data['customer'])
+			// 						->generateBalanceTable();
+		}
 		
 		return array(	
 			'result'=> $result
@@ -533,10 +547,8 @@ class controller extends wc_controller {
 		$data			= $this->input->post($this->fields4);
 		$result = $this->job_order->getQty($job_release_no,$data);
 		foreach ($result as $row) {
-			// $qty[] = $row->quantity;
 			$qty = $row->quantity;
-		// var_dump($qty);	
-	}
+		}
 		return array(	
 			'result' => $result
 		);
@@ -546,11 +558,42 @@ class controller extends wc_controller {
 		$job_release_no = $this->input->post('jobreleaseno');
 		
 		$data			= $this->input->post($this->fields4);
+		$customer					= $this->input->post('h_customer');
 		$joborderno     = $data['job_order_no'][0];
 		$result = $this->job_order->updateIssueParts($job_release_no,$data);
-		
+		// $this->job_order->createClearingEntries($job_release_no);
+
+		if ($result && $this->inventory_model) {
+			$this->inventory_model->prepareInventoryLog('Job Release', $job_release_no)
+								->computeValues()
+								->setDetails($customer)
+								->logChanges();
+		}
 		return array(	
 			'result' => $result
+		);
+	}
+
+	private function ajax_delete_issue() {
+		$delete_id = $this->input->post('id');
+		$voucherno = $this->input->post('voucherno');
+		
+		if ($delete_id) {
+			$result = $this->job_order->reverseEntries($delete_id,$voucherno);
+			$result = $this->job_order->deleteJobRelease($delete_id,$voucherno);
+		}
+		if ($result && $this->inventory_model) {
+			
+				$this->inventory_model->prepareInventoryLog('Job Release', $delete_id)
+										->computeValues()
+										->logChanges('Cancelled');
+
+		// 		$this->job_order->createClearingEntries($delete_id);
+			}
+			$this->inventory_model->generateBalanceTable();
+		
+		return array(
+			'success' => $result
 		);
 	}
 
@@ -566,28 +609,29 @@ class controller extends wc_controller {
 		if (empty($asd)) {
 			$table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-// var_dump($list);
 
 		foreach ($asd as $row) {
-			$table .= '<tr data-id = "' . $row->asd . '">';
+			$table .= '<tr  data-jv = "' . $row->voucherno . '" data-id = "' . $row->asd . '">';
 			$table .= '<td colspan="5">' . 'Part Issuance No.: '.$row->asd . '</td>';
-			$table .= '<td>' . '<a class="btn-sm" href="#" id="editip" title="Edit"><span class="glyphicon glyphicon-pencil editip" style="border: 1px solid gainsboro;
+			$table .= '<td>' . '<a class="btn-sm" pointer id="editip" title="Edit"><span class="glyphicon glyphicon-pencil editip pointer" style="border: 1px solid gainsboro;
 			padding: 3px 4px 3px 4px;
 			background-color: lavender;"></span></a>' . '</td>';
-			$table .= '<td>' . '<a class="btn-sm" title="Delete"><span class="glyphicon glyphicon-trash deleteip" style="border: 1px solid gainsboro;
+			$table .= '<td>' . '<a class="btn-sm" pointer title="Delete"><span class="glyphicon glyphicon-trash deleteip pointer" style="border: 1px solid gainsboro;
 			padding: 3px 4px 3px 4px;
 			background-color: lavender;"></span></a>' . '</td>';
 			$table .= '</tr>';
-		$list	= $this->job_order->getIssuedParts($row->asd);
+			
+			$list	= $this->job_order->getIssuedParts($row->asd);
 		
 			foreach ($list as $key => $row) {
 			$table .= '<tr>';
-			// $table .= '<td>' . $row->job_release_no . '</td>';
 			$table .= '<td>' . $row->itemcode . '</td>';
 			$table .= '<td>' . $row->detailparticulars . '</td>';
-			$table .= '<td>' . $row->warehouse . '</td>';
+			$table .= '<td>' . $row->description . '</td>';
 			$table .= '<td>' . $row->quantity . '</td>';
 			$table .= '<td>' . $row->unit . '</td>';
+			$table .= '<td>' . '' . '</td>';
+			$table .= '<td>' . '' . '</td>';
 			$table .= '</tr>';
 		}
 	}		
@@ -597,18 +641,6 @@ class controller extends wc_controller {
 		);
 	}
 
-	private function ajax_delete_issue() {
-		$delete_id = $this->input->post('id');
-		if ($delete_id) {
-			$result		= $this->job_order->deleteJobRelease($delete_id);
-			if(empty($result)) {
-				$msg = "success";
-			}else {
-				$msg = $result;
-			}
-		}
-		return array('success' => $msg);
-	}
 	private function ajax_checkbundle() {
 		$itemcode	= $this->input->post('itemcode');
 		$result		= $this->job_order->retrieveItemDetails($itemcode);
