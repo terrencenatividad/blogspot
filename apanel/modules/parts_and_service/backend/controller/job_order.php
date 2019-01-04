@@ -34,8 +34,8 @@ class controller extends wc_controller {
 			'qty' 				=> 'quantity',
 			'h_uom'				=> 'uom',
 			'isbundle',
-			'parentline'
-			// 'parentcode'
+			'parentline',
+			'parentcode'
 		);
 		$this->fields3			= array(
 			'job_order_no',
@@ -43,7 +43,7 @@ class controller extends wc_controller {
 			'detailparticular',
 			'linenum',
 			'warehouse',
-			'jod.qty quantity',
+			'jod.qty' => 'jod.quantity',
 			'jod.uom',
 			'isbundle',
 			'parentcode',
@@ -185,7 +185,10 @@ class controller extends wc_controller {
 		$data["taxrate_list"]		= $this->job_order->getTaxRateList();
 		$data["taxrates"]			= $this->job_order->getTaxRates();
 
-		$data['voucher_details']	= json_encode($this->job_order->getJobOrderDetails($this->fields2, $id));
+		$this->fields2['isbundle'] = " IF(isbundle = 'yes','1','0') isbundle";
+		$voucherdetails 			= json_encode($this->job_order->getJobOrderDetails($this->fields2, $id));
+		$data['voucher_details']	= $voucherdetails;
+		// var_dump($voucherdetails); 	
 		$data['header_values']		= json_encode(array(
 			''
 		));		
@@ -198,14 +201,14 @@ class controller extends wc_controller {
 		$data['restrict_dr'] 		= true;
 
 		$data['job_order_no']			= $id;
-		$data['attachment']		= $this->job_order->selectAttachment($id,$this->fieldsattachment);
+		$data['attachment']			= $this->job_order->selectAttachment($id,$this->fieldsattachment);
 		$data['attach_check']		= "not ready";
 		if(!empty($data['attachment'])) {
 			$data['attach_check']		= "ready";
 			//$data['attachment_name'] 		= $data['attachment']['attachment_name'];
 			//$data['attachment_type'] 		= $data['attachment']['attachment_type'];
 		}
-		$this->view->load('job_order/job_order_view', $data);
+		$this->view->load('job_order/job_order', $data);
 	}
 	public function payment($id) {
 		$this->view->title			= 'Job Order - Issue Parts';
@@ -452,27 +455,24 @@ class controller extends wc_controller {
 		$data['stat'] = 'prepared';
 		$data['job_order_no'] = $job_order_no;
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
-		// $data1 = $this->input->post($this->fields_header);
-		$data2 = $this->input->post($this->fields2);
-		// $data2['job_order_no'] = $job_order_no;
-		//var_dump($data, $data2);
-
-		// $result  = $this->job_order->saveValues('job_order',$data);
-		// $result1 = $this->job_order->saveFromPost('job_order_details', $data2, $data);
-		// $dataparticular		= $this->input->post('h_detailparticular');
-		// if($data2['detailparticular'] == '') {
-		// 	$data2['detailparticular'] = $dataparticular;
-		// }
-		// $itemcodewosq					= $this->input->post('detail_itemcode');
-		//$itemuom					= $this->input->post('uom');
-		// if($data['service_quotation'] == '') {
-		// 	$data2['itemcode']	= $itemcodewosq;
-		// }
-		// echo  'sq '.$data['service_quotation'] ;
-		//var_dump($data, $data2);
-		unset($data2['parentcode']);
+		$data2 				= $this->input->post($this->fields2);
+		foreach($data2 as $key => $content){
+			if(is_array($content)){
+				foreach($content as $ind => $val) {
+					if($key == 'isbundle') {
+						if($val == 1){
+							$data2[$key][$ind] = 'yes';
+						} else {
+							$data2[$key][$ind]  = 'no';
+						}
+					}
+				}
+			}
+		}
+		// var_dump($data2['isbundle']);
+		// $result = 0;
 		$result		= $this->job_order->saveJobOrder($data, $data2);
-		
+		//var_dump($data, $data2);
 		return array(
 			'redirect' => MODULE_URL,
 			'success' => $result

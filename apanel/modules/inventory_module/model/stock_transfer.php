@@ -675,10 +675,31 @@
 		public function retrieveSerial($itemcode){
 			$result = $this->db->setTable('items_serialized')
 						->setFields("serialno, chassisno, engineno")
-						->setWhere("itemcode = '$itemcode'")
+						->setWhere("itemcode = '$itemcode' AND stat='Available'")
 						->runSelect()
 						->getResult();
 			return $result;
+		}
+
+		public function saveSerializedItems($values){
+			foreach ($values['itemcode'] as $key => $value) {
+				$where = "itemcode='".$values['itemcode'][$key]."' AND serialno='".$values['serialno'][$key]."' AND 
+					chassisno='".$values['chassisno'][$key]."' AND engineno='".$values['engineno'][$key]."'";
+
+				$result = $this->db->setTable('items_serialized')
+									->setValues(array('stat'=>'Not Available'))
+									->setWhere($where)
+									->runUpdate();
+			}
+			
+			if ($result) {
+				$result1 = $this->db->setTable('stock_approval_serialized')
+	                            ->setValuesFromPost($values)
+	                            ->runInsert(false);
+	                            $result2 = $this->db->getQuery();
+			}
+                           
+            return $result1;
 		}
 	}
 ?>

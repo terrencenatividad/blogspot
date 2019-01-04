@@ -437,13 +437,14 @@
 		var parentline  = 0;
 		var parent 		= 0;
 		function addVoucherDetails(details, index, parent="") {
-			console.log("Parent = "+parent);
-			var details = details || {itemcode: '', detailparticular: '', warehouse: '', qty: '0', uom: 'PC', childqty : '0', linenum : '0', isbundle : 'No', parentline : '', parentcode : ''};
+			// console.log("Parent = "+parent);
+			var details = details || {itemcode: '', detailparticular: '', warehouse: '', qty: '0', quantity: '0', uom: 'PC', childqty : '0', linenum : '0', isbundle : '0', parentline : '', parentcode : ''};
 			console.log(details);
 			var other_details = JSON.parse(JSON.stringify(details));
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
 			delete other_details.warehouse;
+			delete other_details.quantity;
 			delete other_details.qty;
 			delete other_details.childqty;
 			delete other_details.linenum;
@@ -466,20 +467,28 @@
 			var linenum = (details.linenum != 0  && details.linenum != undefined) ? details.linenum : index + 1;
 			details.warehouse = (details.warehouse != "" && details.warehouse != undefined) ? details.warehouse : "none";
 			var row = ``;
+			var style = "";
+			var parentcode 	=	"";
 			if(details.parentcode == "" || details.parentcode == null){
 				var asd = 'parents'+linenum;
 				// parent = linenum;
 			}else{
 				parentline = parent;
+				parentcode = $('#tableList tbody tr[data-linenum="'+parent+'"]').find('.h_itemcode').val();
+				// console.log("PARENT CODE = "+parentcode);
 				var asd = 'subitem'+parentline;
 			}
-			if(details.isbundle == 1){
+			
+			if(details.isbundle == 1 || details.isbundle == 'yes'){
 				var dsa = 'data-isbundle="1"';
 			}else{
+				// jeff: for parentline anti duplicate
+				parentline = 0;
 				var dsa = 'data-isbundle="0"';
+				style = "style='font-weight: bold;'";
 			}
 			row += `
-				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.qty+`" data-linenum="`+linenum+`"  data-parentlinenum="`+parentline+`">`;
+				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.quantity+`" data-linenum="`+linenum+`"  data-parentlinenum="`+parentline+`" `+style+`>`;
 			row += `<td>
 					`;
 					if(details.parentcode == null  || details.parentcode == ""){
@@ -495,16 +504,16 @@
 								->setValue($value)
 								->draw($show_input);
 
-							echo $ui->formField('hidden')
+							echo $ui->setElement('hidden')
 								->setName('h_itemcode[]')
 								->setClass('h_itemcode')
 								->setValue('` + details.itemcode + `')
-								->draw($show_input);
+								->draw();
 					 ?> `;
 					}else{
 						row += `
 						<?php
-							$value = "<span id='temp_view_itemcode_` + index + `'>` + details.itemcode + `</span>";
+							$value = "<span id='temp_view_itemcode_` + linenum + `'>` + details.itemcode + `</span>";
 							echo $ui->formField('dropdown')
 								->setSplit('', 'col-md-12')
 								->setName('detail_itemcode[]')
@@ -514,35 +523,40 @@
 								->setValue($value)
 								->draw($show_input);
 
-							echo $ui->formField('hidden')
+							echo $ui->setElement('hidden')
 								->setName('h_itemcode[]')
 								->setClass('h_itemcode')
 								->setValue('` + details.itemcode + `')
-								->draw($show_input);
+								->draw();
 					 ?> `;
 					}
 					row +=`<?php
 							
-							echo $ui->formField('hidden')
+							echo $ui->setElement('hidden')
 								->setName('childqty[]')
 								->setClass('childqty')
 								->setValue('` + details.BaseQty + `')
-								->draw($show_input);
-							echo $ui->formField('hidden')
+								->draw();
+							echo $ui->setElement('hidden')
+								->setName('parentcode[]')
+								->setClass('parentcode')
+								->setValue('` + parentcode + `')
+								->draw();
+							echo $ui->setElement('hidden')
 								->setName('parentline[]')
 								->setClass('parentline')
 								->setValue('` + parentline + `')
-								->draw($show_input);
-							echo $ui->formField('hidden')
+								->draw();
+							echo $ui->setElement('hidden')
 								->setName('isbundle[]')
 								->setClass('isbundle')
 								->setValue('` + details.isbundle + `')
-								->draw($show_input);
-							echo $ui->formField('hidden')
+								->draw();
+							echo $ui->setElement('hidden')
 								->setName('linenum[]')
 								->setClass('linenum')
 								->setValue('` + linenum + `')
-								->draw($show_input);
+								->draw();
 						?>
 					</td>
 					<td>`;
@@ -556,12 +570,12 @@
 								->setValue('` + details.detailparticular + `')
 								->draw($show_input);
 
-								echo $ui->formField('hidden')
+								echo $ui->setElement('hidden')
 								->setName('h_detailparticular[]')
 								->setClass('h_detailparticular parts')
 								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->setValue('` + details.detailparticular + `')
-								->draw($show_input);
+								->draw();
 						?> ` + otherdetails + ` </td>
 					`;
 					}else{
@@ -574,19 +588,19 @@
 								->setAttribute(array('readOnly' => true, 'data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->draw($show_input);
 
-								echo $ui->formField('hidden')
+								echo $ui->setElement('hidden')
 								->setName('h_detailparticular[]')
 								->setClass('h_detailparticular')
 								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->setValue('` + details.detailparticular + `')
-								->draw($show_input);
+								->draw();
 								?>` + otherdetails + ` </td>
 						`;
 					}
 					if(details.parentcode == null  || details.parentcode == ""){
 					row += `<td>
 					<?php
-							$value = "<span id='temp_view_warehouse_` + index + `'>'` + warehouse + `'</span>";
+							$value = "<span id='temp_view_warehouse_` + index + `'>'` + details.warehouse + `'</span>";
 							echo $ui->formField('dropdown')
 								->setSplit('', 'col-md-12')
 								->setName('warehouse[]')
@@ -597,12 +611,12 @@
 								->setValue($value)
 								->draw($show_input);
 
-							echo $ui->formField('hidden')
+							echo $ui->setElement('hidden')
 								->setName('h_warehouse[]')
 								->setClass('h_warehouse parts')
 								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->setValue('` + details.warehouse + `')
-								->draw($show_input);
+								->draw();
 						?> ` + otherdetails + ` </td>
 						`;
 					}else{
@@ -619,12 +633,12 @@
 								->setValue('` + details.warehouse + `')
 								->draw($show_input);
 
-							echo $ui->formField('hidden')
+							echo $ui->setElement('hidden')
 								->setName('h_warehouse[]')
 								->setClass('h_warehouse h_whchild')
 								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->setValue('` + details.warehouse + `')
-								->draw($show_input);
+								->draw();
 						?>` + otherdetails + ` </td>
 						`;
 					}
@@ -636,9 +650,9 @@
 										->setSplit('', 'col-md-12')
 										->setName('qty[]')
 										->setClass('qty text-right parentqty')
-										->setAttribute(array('data-value' => '` + (parseFloat(details.qty) || 0) + `'))
+										->setAttribute(array('data-value' => '` + (parseFloat(details.quantity) || 0) + `'))
 										->setValidation('required integer')
-										->setValue('` + (addComma(details.qty, 0) || 0) + `')
+										->setValue('` + (addComma(details.quantity, 0) || 0) + `')
 										->draw($show_input);
 							?> ` + otherdetails + ` </td>
 						`;
@@ -649,9 +663,9 @@
 										->setSplit('', 'col-md-12')
 										->setName('qty[]')
 										->setClass('qty text-right childqty')
-										->setAttribute(array('readonly' => true,'data-value' => '` + (parseFloat(details.qty) || 0) + `'))
+										->setAttribute(array('readonly' => true,'data-value' => '` + (parseFloat(details.quantity) || 0) + `'))
 										->setValidation('required integer')
-										->setValue('` + (parseFloat(details.qty) || 0) + `')
+										->setValue('` + (parseFloat(details.quantity) || 0) + `')
 										->draw($show_input);
 							?> ` + otherdetails + ` </td>
 						`;
@@ -666,12 +680,12 @@
 								->setValue('` + details.uom.toUpperCase() + `')
 								->draw(false);
 
-							echo $ui->formField('hidden')
+							echo $ui->setElement('hidden')
 								->setName('h_uom[]')
 								->setClass('h_uom')
 								->setSplit('', 'col-md-12')
 								->setValue('` + details.uom.toUpperCase() + `')
-								->draw($show_input);
+								->draw();
 						?>
 					</td>
 					<?php if ($show_input): ?>
@@ -679,90 +693,101 @@
 						<button type="button" class="btn btn-danger btn-flat delete_row" style="outline:none;">
 							<span class="glyphicon glyphicon-trash"></span>
 						</button>
-					</td>
+					</td>s
 					<?php endif ?>
 				</tr>
 			`;
-			// var row = `
-			// 	<tr>
-			// 		<td colspan="6" class="text-center"><i><strong>Please select a Customer and Service Quotation First.</strong></i></td>
-			// 	</tr>
-			// `;
-			if(details.isbundle == 1){
-				$('#tableList tbody tr').eq(parentline-1).after(row);
+			
+			// This is for letting the system know where to add the row.. 
+			if(details.isbundle == 0){
+				if($('#tableList tbody tr.parents'+parentline).siblings('.subitem'+parentline).length > 0){ 
+					// we check the current subitem added to know where to add its siblings
+					$('#tableList tbody tr.subitem'+parentline+'[data-linenum="'+(parseFloat(linenum)-1)+'"]').after(row);
+				} else {
+					$('#tableList tbody tr').eq(parentline-1).after(row);
+				}
 			} else {
 				$('#tableList tbody').append(row);
 			}
-			var row2 = `
-				<tr>
-					<td>
-						<?php
-							$value = "<span id='temp_view_itemcode_` + index + `'>` + details.itemcode + `</span>";
-							echo $ui->formField('dropdown')
-								->setSplit('', 'col-md-12')
-								->setName('detail_itemcode[]')
-								->setClass('itemcode')
-								->setList($item_list)
-								->setValue($value)
-								->draw($show_input);
-						?>
+			// var row2 = `
+			// 	<tr>
+			// 		<td>
+			// 			<?php
+			// 				$value = "<span id='temp_view_itemcode_` + index + `'>` + details.itemcode + `</span>";
+			// 				echo $ui->formField('dropdown')
+			// 					->setSplit('', 'col-md-12')
+			// 					->setName('detail_itemcode[]')
+			// 					->setClass('itemcode')
+			// 					->setList($item_list)
+			// 					->setValue($value)
+			// 					->draw($show_input);
+			// 			?>
 						
-					</td>
-					<td>
-						<?php
-							echo $ui->formField('text')
-								->setSplit('', 'col-md-12')
-								->setName('detailparticular[]')
-								->setValue('` + details.detailparticular + `')
-								->draw($show_input);
-						?>
-					</td>
-					<td>
-						<?php
-							$value = "<span id='temp_view_warehouse_` + index + `'></span>";
-							echo $ui->formField('dropdown')
-								->setSplit('', 'col-md-12')
-								->setName('detail_warehouse[]')
-								->setClass('warehouse')
-								->setList($warehouse_list)
-								->setValue($value)
-								->draw($show_input);
-						?>
-					</td>
-					<td class="text-right">
-						<?php
-							echo $ui->formField('text')
-								->setSplit('', 'col-md-12')
-								->setName('qty[]')
-								->setClass('qty text-right')
-								->setAttribute(array('data-value' => '` + (parseFloat(details.qty) || 0) + `'))
-								->setValidation('required integer')
-								->setValue('` + (addComma(1, 0) || 0) + `')
-								->draw($show_input);
-						?>
-						` + otherdetails + `
-					</td>
-					<td>
-						<?php
-							echo $ui->formField('text')
-								->setSplit('', 'col-md-12')
-								->setValue('` + details.uom.toUpperCase() + `')
-								->draw(false);
-						?>
-					</td>
-					<?php if ($show_input): ?>
-					<td class="text-right">
-						<button type="button" class="btn btn-danger btn-flat delete_row" style="outline:none;">
-							<span class="glyphicon glyphicon-trash"></span>
-						</button>
-					</td>
-					<?php endif ?>
-				</tr>
-			`;
-			$('#issuedPartsList tbody').append(row2);
-			// if (details.itemcode != '') {
-			// 	$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
-			// }
+			// 		</td>
+			// 		<td>
+			// 			<?php
+			// 				echo $ui->formField('text')
+			// 					->setSplit('', 'col-md-12')
+			// 					->setName('detailparticular[]')
+			// 					->setValue('` + details.detailparticular + `')
+			// 					->draw($show_input);
+			// 			?>
+			// 		</td>
+			// 		<td>
+			// 			<?php
+			// 				$value = "<span id='temp_view_warehouse_` + index + `'></span>";
+			// 				echo $ui->formField('dropdown')
+			// 					->setSplit('', 'col-md-12')
+			// 					->setName('detail_warehouse[]')
+			// 					->setClass('warehouse')
+			// 					->setList($warehouse_list)
+			// 					->setValue($value)
+			// 					->draw($show_input);
+			// 			?>
+			// 		</td>
+			// 		<td class="text-right">
+			// 			<?php
+			// 				echo $ui->formField('text')
+			// 					->setSplit('', 'col-md-12')
+			// 					->setName('qty[]')
+			// 					->setClass('qty text-right')
+			// 					->setAttribute(array('data-value' => '` + (parseFloat(details.qty) || 0) + `'))
+			// 					->setValidation('required integer')
+			// 					->setValue('` + (addComma(1, 0) || 0) + `')
+			// 					->draw($show_input);
+			// 			?>
+			// 			` + otherdetails + `
+			// 		</td>
+			// 		<td>
+			// 			<?php
+			// 				echo $ui->formField('text')
+			// 					->setSplit('', 'col-md-12')
+			// 					->setValue('` + details.uom.toUpperCase() + `')
+			// 					->draw(false);
+			// 			?>
+			// 		</td>
+			// 		<?php if ($show_input): ?>
+			// 		<td class="text-right">
+			// 			<button type="button" class="btn btn-danger btn-flat delete_row" style="outline:none;">
+			// 				<span class="glyphicon glyphicon-trash"></span>
+			// 			</button>
+			// 		</td>
+			// 		<?php endif ?>
+			// 	</tr>
+			// `;
+			// $('#issuedPartsList tbody').append(row2);
+			// This part is for placing the value on the input fields
+			if (details.itemcode != '') {
+				if(details.isbundle == 1){
+					if($('#tableList tbody tr.parents'+parentline).siblings('.subitem'+parentline).length > 0){
+						$('#tableList tbody tr.subitem'+parentline+'[data-linenum="'+linenum+'"]').find('.itemcode').val(details.itemcode);
+					} else {
+						$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+					}
+				} else {
+					$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+				}
+			}
 			if (details.warehouse != '') {
 				$('#tableList tbody').find('tr:last .warehouse').val(details.warehouse);
 			}
@@ -773,10 +798,9 @@
 				drawTemplate();
 			} catch(e) {};
 			var itemlist = <?= json_encode($item_list) ?>;
-			// console.log(itemlist);
 			itemlist.forEach(function(item) {
-				if (item.code == details.itemcode) {
-					$('#temp_view_' + index).html(item.val);
+				if (item.ind == details.itemcode) {
+					$('#temp_view_itemcode_' + index).html(item.val);
 				}
 			});
 			var warehouselist = <?= json_encode($warehouse_list) ?>;
@@ -802,13 +826,15 @@
 		var voucher_details = <?php echo $voucher_details ?>;
 		
 		function reorderlinenum(){
-			console.log($('#tableList tbody tr'));
+			// console.log($('#tableList tbody tr'));
+			var linenum = 1;
 			$('#tableList tbody tr').each(function(){
-				var linenum = 1;
-				$(this).data('linenum',linenum);
+				$(this).attr('data-linenum', linenum);
+				var hiddenLine = $(this).find('.linenum');
+				$(hiddenLine).val(linenum);
 				linenum++;
 			});
-			console.log("REORDER!");
+			// console.log("REORDER!");
 		}
 
 		function displayDetails(details,linenum="") {
@@ -822,9 +848,7 @@
 				details.forEach(function(details, index) {
 					index = (linenum != "") ? linenum++ 	:	index;
 					addVoucherDetails(details, index, parent);
-					
 				});
-				reorderlinenum();
 			} else if (min_row == 0) {
 				$('#tableList tbody').append(`
 					<tr>
@@ -910,6 +934,13 @@
 		$('#replace_attachment').on('click',function(e){
 			$('#attach_modal').modal('show');
 		});
+		function retrieve_issued_parts() {
+			var jobno = $('#job_order_no').val();
+			$.post('<?=MODULE_URL?>ajax/ajax_load_issue', 'jobno='+ jobno + '<?=$ajax_post?>' , function(data) {
+				$('#issuedPartsList tbody').html(data.issuedparts);
+			});
+		}
+		retrieve_issued_parts();
 	</script>
 	<?php if ($show_input): ?>
 	<script>
@@ -1020,10 +1051,21 @@
 			}
 		}
 		function deleteVoucherDetails(id) {
+			// delete with child
+			console.log("closest :"+($(this).closest('tr').data('isbundle') == 1)) 
+			var linenum = delete_row.data('linenum');
+			var bundle = delete_row.data('isbundle');
+			console.log(delete_row.nextAll('.subitem'+linenum));
+			
+			if(bundle == 1) {
+				delete_row.nextAll('.subitem'+linenum).remove();
+			}
+
 			delete_row.remove();
 			if ($('#tableList tbody tr').length < min_row) {
 				addVoucherDetails();
 			}
+			reorderlinenum();
 		}
 		$('body').on('click', '.delete_row', function() {
 			delete_row = $(this).closest('tr');
@@ -1036,7 +1078,8 @@
 			var form_element = $(this).closest('form');
 			var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
 			recomputeAll();
-			
+			reorderlinenum();
+			console.log(form_element.serialize());
 			$('#submit_container [type="submit"]').attr('disabled', true);
 			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
 			if (form_element.find('.form-group.has-error').length == 0) {
@@ -1070,7 +1113,7 @@
 
 		$('#tableList tbody').on('blur', '.parentqty', function(e) {
 			var curr_qty= 	$(this);
-			console.log('clicked = '+curr_qty.closest('tr').data('linenum'));
+			// console.log('clicked = '+curr_qty.closest('tr').data('linenum'));
 			var value 	=	removeComma($(this).val());
 			if ($(this).closest('tr').hasClass('items')) {
 				if (value < 1) 
@@ -1111,6 +1154,7 @@
 		if ($(this).closest('tr').data('isbundle') == 1) {
 			$.each($('.subitem'+linenum), function(){
 				$(this).find('.warehouse').val(value);
+				$(this).find('.h_warehouse').val(value);
 			});
 			drawTemplate();
 		}
@@ -1128,11 +1172,12 @@
 					var content = data.result;
 					var linenum = curr_code.closest('tr').data('linenum');
 					if(content.isbundle == 1){
-						console.log(" Bundle - linenum = "+linenum)
+						// console.log(" Bundle - linenum = "+linenum)
 						getItemDetails(itemcode,linenum);
 					} else {
 						$('.subitem'+linenum).remove();
 					}
+					curr_code.closest('tr').find('.h_itemcode').val(itemcode);
 					curr_code.closest('tr').find('.detailparticular').val(content.detailparticular);
 					curr_code.closest('tr').find('.uom').val(content.uom);
 					curr_code.closest('tr').find('.h_uom').val(content.uom);
@@ -1140,6 +1185,11 @@
 				}
 			});
 			
+		}else {
+			// validation for customer field
+			$(this).val('');
+			drawTemplate();
+			$('#customer').focus();
 		}
 	});
 
@@ -1149,7 +1199,7 @@
 				if ( ! data.success) {
 					$('#tableList tbody').html(data.table);
 				} else {
-					console.log(" DIpsplay Header Linenum = "+linenum);
+					// console.log(" DIpsplay Header Linenum = "+linenum);
 					// $('#tableList tbody').html('');
 					displayHeader(data.header);	
 					displayDetails(data.details,linenum);

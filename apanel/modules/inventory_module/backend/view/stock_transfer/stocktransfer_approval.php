@@ -191,7 +191,7 @@
                     <table id="serial_tableList" class="table table-sidepad no-margin-bottom">
                         <thead>
                             <tr class="info">
-                                <th><input type="checkbox" class="checkall text-center col-md-1" style="width:100px;"></th>
+                                <th></th>
                                 <th class="text-center">Item Code</th>
                                 <th class="text-center">Item Name</th>
                                 <th class="text-center">Serial Number</th>
@@ -224,28 +224,8 @@
 	var header_min_row = 0;
 	var selected = [];
 
-	function addRowDetails(details, index, serial) 
+	function addRowDetails(details, index) 
 	{
-		if (details.isserialized>0) {
-			var max = (parseFloat(details.maxqty) || 0);
-			var value = (parseFloat(details.qtytransferred) || 0);
-			var inputqty = `<button type="button" class="btnserial btn btn-block btn-success btn-flat" data-max =`+max+` data-value=`+value+` data-validation="required integer">
-                                    <em class="pull-left"><small>Click to tag serialized item</small></em>
-                                    <strong class="txtqtytransferred pull-right">0</strong>
-                                </button>`
-		}
-		else{
-			var inputqty = `<?php
-						echo $ui->formField('text')
-							->setSplit('', 'col-md-12')
-							->setName('qtytransferred[]')
-							->setClass('qtytransferred')
-							->setAttribute(array('data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.qtytransferred) || 0) + `'))
-							->setValidation('required integer')
-							->setValue('` + (parseInt(details.qtytransferred) || 0) + `')
-							->draw($show_input);
-					?>`
-		}
 		var details = details || {itemcode: '', detailparticular: '', ohqty: '', qtytoapply: '', price: '', amount: ''};
 					if(details.ohqty == null || details.ohqty == ''){ details.ohqty = '0.00';}
 					if(details.detailparticular == ""){ details.detailparticular = "";}
@@ -268,6 +248,8 @@
 		delete other_details.amount;
 		delete other_details.maxqty;
 		var otherdetails = '';
+		var linenum = index+1;
+
 		for (var key in other_details) {
 			if (other_details.hasOwnProperty(key)) {
 				otherdetails += `<?php 
@@ -278,9 +260,32 @@
 					?>`;
 			}
 		}
+		if (details.isserialized>0) {
+			var max 	= (parseFloat(details.maxqty) || 0);
+			var trclass = 'serialized';
+			var inputqty = `<button type="button" class="btnserial btn btn-block btn-success btn-flat" data-max =`+max+` data-validation="required integer">
+                                <em class="pull-left"><small>Click to tag serialized item</small></em>
+                                <strong class="txtqtytransferred pull-right">0</strong>
+                            </button>
+                            <input type='hidden' class='qtytransferred' name='qtytransferred[]' value='0'>`
+		}
+		else{
+			var trclass = '';
+			var inputqty = `<?php
+						echo $ui->formField('text')
+							->setSplit('', 'col-md-12')
+							->setName('qtytransferred[]')
+							->setClass('qtytransferred')
+							->setAttribute(array('data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.qtytransferred) || 0) + `'))
+							->setValidation('required integer')
+							->setValue('` + (parseInt(details.qtytransferred) || 0) + `')
+							->draw($show_input);
+					?>`
+		}
 		var row = `
-			<tr>
+			<tr id='`+index+`' class='`+trclass+`'>
 				<?php if ($show_input): ?>
+					<input type='hidden' name='linenum[]' class='linenum' value='`+linenum+`'>
 				<td>
 					<?php
 						echo $ui->loadElement('check_task')
@@ -429,28 +434,31 @@
 	displayDetails(row_details);
 
 	function getList(row) {
-        var itemcode = row.find('.itemcode').val();
-        var itemname = row.find('.itemname').val();
+        var itemcode 	= row.find('.itemcode').val();
+        var itemname 	= row.find('.itemname').val();
+        var linenum 	= row.find('.linenum').val();
+        var max 		= row.find('.btnserial').data('max');
+        var data 		= {itemcode:itemcode, itemname:itemname, linenum:linenum, max:max};
 
         $('#serial_tableList tbody').html(`<tr><td colspan="6" class="text-center">Loading Items</td></tr>`);
         $('#serial_modalList').modal('show');
 
-        $.post('<?=MODULE_URL?>ajax/ajax_load_serial', {itemcode:itemcode, itemname:itemname}, function(data) {
-        	//$('.chkitem').iCheck('destroy');
+        $.post('<?=MODULE_URL?>ajax/ajax_load_serial', data, function(data) {
             $('#serial_tableList tbody').html(data);
-            //$('.chkitem').iCheck();
         });
     }
 	
 	function checkSelected(checkbox){
 		$.each(checkbox, function(index, value){
 			var itemcode 	= $(this).data('itemcode');
+			var linenum 	= $(this).data('linenum');
 			var serialno 	= $(this).data('serial');
 			var chassisno 	= $(this).data('chassis');
 			var engineno 	= $(this).data('engine');
 
 			for(var i=0; i<selected.length; i++){
 	            if (itemcode   	== selected [i] .itemcode && 
+	            	linenum 	== selected [i] .linenum &&
 	                serialno	== selected [i] .serialno &&
 	                chassisno	== selected [i] .chassisno &&
 	                engineno 	== selected [i] .engineno) 
@@ -458,7 +466,6 @@
 	                $(this).iCheck("check");
 	            }
             }
-
 		});
 	}
 
@@ -466,21 +473,28 @@
 		
 		$.each(checkbox, function(index, value){
 			var itemcode 	= $(this).data('itemcode');
+			var linenum 	= $(this).data('linenum');
 			var serialno 	= $(this).data('serial');
 			var chassisno 	= $(this).data('chassis');
 			var engineno 	= $(this).data('engine');
 
 			for(var i=0; i<selected.length; i++){
 	            if (itemcode   	== selected [i] .itemcode && 
+	            	linenum 	== selected [i] .linenum &&
 	                serialno	== selected [i] .serialno &&
 	                chassisno	== selected [i] .chassisno &&
 	                engineno 	== selected [i] .engineno) 
 	            {
 	            	var inarray = true;
+	            	if (inarray) {
+	            		if (!$(this).is(':checked'))
+	            			selected.splice(i,1);
+	            	}
 				}
             }
             if (!inarray) {
-            	selected.push({'itemcode':itemcode, 'serialno':serialno, 'chassisno':chassisno, 'engineno':engineno});
+            	if ($(this).is(':checked')) 
+            		selected.push({'itemcode':itemcode, 'linenum':linenum, 'serialno':serialno, 'chassisno':chassisno, 'engineno':engineno});
             }
 		});
 	}
@@ -494,10 +508,40 @@
 		if (form_element.find('.form-group.has-error').length == 0) {
 			$('btnRelease').attr('disabled', false);
 			var items = 0;
-			$('.qtytransferred:not([readonly])').each(function() {
-				items += removeComma($(this).val());
+
+			$('#tableList tbody tr .item_checkbox:checked').each(function(){
+				items += removeComma($(this).closest('tr').find('.qtytransferred').val());
 			});
-			if ($('.qtytransferred:not([readonly])').length > 0 && items > 0) {
+
+			if (items > 0) {
+				var voucherno = $('#transaction_no').val();
+				var data={
+					'voucherno'	:[],
+					'itemcode'	:[], 
+					'linenum'	:[], 
+					'serialno'	:[], 
+					'chassisno'	:[], 
+					'engineno'	:[]
+				};
+
+				for (var i = 0; i < selected.length; i++) {
+					data.voucherno.push(voucherno);
+					data.itemcode.push(selected[i].itemcode);
+					data.linenum.push(selected[i].linenum);
+					data.serialno.push(selected[i].serialno);
+					data.chassisno.push(selected[i].chassisno);
+					data.engineno.push(selected[i].engineno);
+				}
+
+				if (data.voucherno.length > 0) {
+					$.post('<?=MODULE_URL?>ajax/save_serialized', data , function(data) {
+						console.log(data);
+						if (data) {
+							// serialized item update and save success
+						}
+					});
+				}
+
 				$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
 					if (data.success) {
 						$('#delay_modal').modal('show');
@@ -506,6 +550,7 @@
 							}, 1000)
 					} 
 				});
+
 			} else {
 				$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');
 				$('btnRelease').attr('disabled', true);
@@ -527,32 +572,65 @@
 	});
 
 	// For Approval - Check & Uncheck
-	$('tbody').on('ifUnchecked', '.check_task input[type="checkbox"]', function() {
-		var n = $(this).closest('tr').find('.qtytransferred');
-		n.removeAttr('readonly', '').val(n.attr('data-value')).trigger('blur');
+	$('#tableList tbody').on('ifUnchecked', '.check_task input[type="checkbox"]', function() {
+		var n 			= $(this).closest('tr').find('.qtytransferred');
+		var btnserial 	= $(this).closest('tr').find('.btnserial');
+		var displayqty 	= $(this).closest('tr').find('.txtqtytransferred');
 
+		n.attr('readonly', true).val(0).trigger('blur');
+		btnserial.attr('disabled', true);
+		displayqty.text('0');
+
+		selected = [];
 	});
-	$('tbody').on('ifChecked', '.check_task input[type="checkbox"]', function() {
-		var n = $(this).closest('tr').find('.qtytransferred');
+	$('#tableList tbody').on('ifChecked', '.check_task input[type="checkbox"]', function() {
+		var n 			= $(this).closest('tr').find('.qtytransferred');
+		var btnserial 	= $(this).closest('tr').find('.btnserial');
+
 		n.removeAttr('readonly', '').val(n.attr('data-value')).trigger('blur');
+		btnserial.attr('disabled', false);
 	});
 
-	// $('#tableList tbody').on('change', '.chkitem', function(){
-	// 	saveSelectedSerial();
-	// });
+	$('#serial_tableList tbody').on('ifUnchecked', '.chkitem', function() {
+		var maxval = $(this).data('maxval');
+		maxval += 1;
+		$('.chkitem').data('maxval', maxval);
+		console.log($(this).data('maxval'));
+		if ($(this).data('maxval')<1) 
+			$('.chkitem:not(:checked)').attr('disabled', true);
+		
+		else
+			$('.chkitem').attr('disabled', false);
+	});
+	$('#serial_tableList tbody').on('ifChecked', '.chkitem', function() {
+		var maxval = $(this).data('maxval');
+		maxval -= 1;
+		$('.chkitem').data('maxval', maxval);
+		console.log($(this).data('maxval'));
+		if ($(this).data('maxval')<1) 
+			$('.chkitem:not(:checked)').attr('disabled', true);
+		
+		else
+			$('.chkitem').attr('disabled', false);
+	});
 	
 	$('#tableList tbody').on('click', '.btnserial', function(){
 		var row = $(this).closest('tr');
 		getList(row);
 	});
 	$('#btn_serial_select').on('click', function(){
-
-		var checkbox 	= $('#serial_tableList tbody tr .chkitem:checked');
-
+		var checkbox 	= $('#serial_tableList tbody tr .chkitem');
+		var linenum 	= $('#serial_tableList tbody .chkitem').data('linenum');
+		var displayqty 	= $('tr#'+(linenum-1)+' .txtqtytransferred');
+		var inputqty 	= $('tr#'+(linenum-1)+' .qtytransferred');
+		
 		saveSelectedSerial(checkbox);
 
-		$('#serial_modalList').modal('hide');
+		var qtycount 	= selected.length;
+		displayqty.text(qtycount);
+		inputqty.val(qtycount);
 
+		$('#serial_modalList').modal('hide');
 	})
 	$('#btn_modal_close').on('click', function(){
 		$('#serial_modalList').modal('hide');
