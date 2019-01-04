@@ -455,7 +455,22 @@ class controller extends wc_controller {
 		$data['stat'] = 'prepared';
 		$data['job_order_no'] = $job_order_no;
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
-		$data2 = $this->input->post($this->fields2);
+		$data2 				= $this->input->post($this->fields2);
+		foreach($data2 as $key => $content){
+			if(is_array($content)){
+				foreach($content as $ind => $val) {
+					if($key == 'isbundle') {
+						if($val == 1){
+							$data2[$key][$ind] = 'yes';
+						} else {
+							$data2[$key][$ind]  = 'no';
+						}
+					}
+				}
+			}
+		}
+		// var_dump($data2['isbundle']);
+		// $result = 0;
 		$result		= $this->job_order->saveJobOrder($data, $data2);
 		return array(
 			'redirect' => MODULE_URL,
