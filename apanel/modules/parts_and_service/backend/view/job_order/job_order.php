@@ -506,7 +506,6 @@
 						row += `
 						<?php
 							$value = "<span id='temp_view_itemcode_` + linenum + `'>` + details.itemcode + `</span>";
-							echo $value;
 							echo $ui->formField('dropdown')
 								->setSplit('', 'col-md-12')
 								->setName('detail_itemcode[]')
@@ -685,16 +684,11 @@
 					<?php endif ?>
 				</tr>
 			`;
-			// var row = `
-			// 	<tr>
-			// 		<td colspan="6" class="text-center"><i><strong>Please select a Customer and Service Quotation First.</strong></i></td>
-			// 	</tr>
-			// `;
+			
+			// This is for letting the system know where to add the row.. 
 			if(details.isbundle == 1){
-				console.log(parentline);
-				// console.log(linenum);
-				if($('#tableList tbody tr.parents'+parentline).siblings('.subitem'+parentline).length > 0){
-				console.log(linenum);
+				if($('#tableList tbody tr.parents'+parentline).siblings('.subitem'+parentline).length > 0){ 
+					// we check the current subitem added to know where to add its siblings
 					$('#tableList tbody tr.subitem'+parentline+'[data-linenum="'+(parseFloat(linenum)-1)+'"]').after(row);
 				} else {
 					$('#tableList tbody tr').eq(parentline-1).after(row);
@@ -769,8 +763,17 @@
 				</tr>
 			`;
 			$('#issuedPartsList tbody').append(row2);
+			// This part is for placing the value on the input fields
 			if (details.itemcode != '') {
-				$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+				if(details.isbundle == 1){
+					if($('#tableList tbody tr.parents'+parentline).siblings('.subitem'+parentline).length > 0){
+						$('#tableList tbody tr.subitem'+parentline+'[data-linenum="'+linenum+'"]').find('.itemcode').val(details.itemcode);
+					} else {
+						$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+					}
+				} else {
+					$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+				}
 			}
 			if (details.warehouse != '') {
 				$('#tableList tbody').find('tr:last .warehouse').val(details.warehouse);
