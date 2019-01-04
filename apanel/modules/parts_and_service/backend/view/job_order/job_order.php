@@ -814,8 +814,8 @@
 		
 		function reorderlinenum(){
 			// console.log($('#tableList tbody tr'));
+			var linenum = 1;
 			$('#tableList tbody tr').each(function(){
-				var linenum = 1;
 				$(this).data('linenum',linenum);
 				linenum++;
 			});
@@ -833,9 +833,7 @@
 				details.forEach(function(details, index) {
 					index = (linenum != "") ? linenum++ 	:	index;
 					addVoucherDetails(details, index, parent);
-					
 				});
-				reorderlinenum();
 			} else if (min_row == 0) {
 				$('#tableList tbody').append(`
 					<tr>
