@@ -511,10 +511,12 @@ class controller extends wc_controller
 		);
 
 		$print = new sales_print_model();
+		$s_address = 'N/A';
 		$print->setDocumentType('Sales Invoice')
 				->setFooterDetails(array('Approved By', 'Checked By'))
 				->setCustomerDetails($customerdetails)
 				->setDocumentDetails($documentdetails)
+				->setShippingDetail($s_address)
 				->addTermsAndCondition()
 				->addReceived();
 
