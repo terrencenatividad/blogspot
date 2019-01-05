@@ -152,7 +152,7 @@ class service_quotation_model extends wc_model
 	}
 
 	public function retrieveServiceQuotation($voucherno=""){
-		$fields = "jobtype, transactiondate, customer, targetdate, discounttype, reference, notes, filename, filetype";
+		$fields = "jobtype, transactiondate, customer, targetdate, discounttype, reference, notes, filename, filetype, stat";
 		$result = $this->db->setTable('servicequotation sq')
 						->setFields($fields)
 						->setWhere("voucherno = '$voucherno'")
