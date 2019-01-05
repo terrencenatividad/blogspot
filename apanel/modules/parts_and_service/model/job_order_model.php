@@ -663,6 +663,21 @@ class job_order_model extends wc_model
 		return $return;
 	}
 
+	public function getCurrentId($table,$voucherno) {
+		$result = $this->db->setTable($table)
+			->setFields('attachment_id')
+			->setWhere(" reference='$voucherno'")
+			->runSelect()
+			->getRow();
+
+		if ($result) {
+			$return = $result->attachment_id;
+		} else {
+			$return = '1';
+		}
+		return $return;
+	}
+
 	public function uploadAttachment($data) {
 		$reference = $data['reference'];
 		$result = $this->db->setTable('job_order_attachments')
@@ -670,6 +685,18 @@ class job_order_model extends wc_model
 							->runInsert();
 		if ($result) {
 			$this->log->saveActivity("Approve [$reference] with attachment");		
+		}
+		return $result;
+	}
+
+	public function replaceAttachment($data) {
+		$reference = $data['reference'];
+		$result = $this->db->setTable('job_order_attachments')
+							->setValues($data)
+							->setWhere("reference='$reference'")
+							->runUpdate();
+		if ($result) {
+			$this->log->saveActivity("Update attachment with [$reference]");		
 		}
 		return $result;
 	}

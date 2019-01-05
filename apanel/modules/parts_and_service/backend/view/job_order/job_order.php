@@ -1271,7 +1271,8 @@ $(function () {
 	$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
 		var voucherno 		=  $('#input_voucherno').val();
 		console.log(voucherno);
-		data.formData = {reference: voucherno};
+		var task 		=  "view";
+		data.formData = {reference: voucherno, task: task};
 	});
 	$('#attachments_form').bind('fileuploadalways', function (e, data) {
 		var error = data.result['files'][0]['error'];
@@ -1283,7 +1284,8 @@ $(function () {
 			form_group.find('p.help-block.m-none').html('');
 
 			$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
-			getList();
+			$('#delay_modal').modal('show');
+			setTimeout(function(){window.location = '<?=MODULE_URL?>view/<?=$job_order_no;?>';}, 1000);
 		}else{
 			var msg = data.result['files'][0]['name'];
 			form_group.addClass('has-error');

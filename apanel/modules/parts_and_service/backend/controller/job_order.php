@@ -171,6 +171,21 @@ class controller extends wc_controller {
 	}
 	public function view($id) {
 		$this->view->title			= 'View Job Order';
+		$this->view->addCSS(array(
+				'jquery.fileupload.css'
+			)
+		);  
+		$this->view->addJS(
+			array(
+				'jquery.dirrty.js',
+				'jquery.ui.widget.js',
+				'jquery.iframe-transport.js',
+				'jquery.fileupload.js',
+				'jquery.fileupload-process.js',
+				'jquery.fileupload-validate.js',
+				'jquery.fileupload-ui.js'
+			)
+		);
 		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
 		$data						= (array) $this->job_order->getJOByID($this->fields, $id);
@@ -662,10 +677,10 @@ class controller extends wc_controller {
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
 		$data2 = $this->input->post($this->fields2);
 
-		$itemcodewosq					= $this->input->post('detail_itemcode');
-		if($data['service_quotation'] == '') {
-			$data2['itemcode']	= $itemcodewosq;
-		}
+		// $itemcodewosq					= $this->input->post('detail_itemcode');
+		// if($data['service_quotation'] == '') {
+		// 	$data2['itemcode']	= $itemcodewosq;
+		// }
 		//var_dump($data, $data2, $data['job_order_no']);
 		$result		= $this->job_order->updateJO($data, $data2);
 		
@@ -681,6 +696,8 @@ class controller extends wc_controller {
 		$upload_handler	= new UploadHandler();
 		$reference 		= $post_data['reference'];
 		$upload_result 	= false;
+		$task 			= $post_data['task'];
+		unset($post_data['task']);
 
 		if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
 			if(!isset($upload_handler->response['files'][0]->error)){
@@ -690,6 +707,11 @@ class controller extends wc_controller {
 				 * @param group fields
 				 * @param custom condition
 				 */
+
+				if ($task=='view') 
+				$attachment_id = $this->job_order->getCurrentId("job_order_attachments", $reference);
+			
+				else
 				$attachment_id = $this->job_order->getNextId("job_order_attachments","attachment_id");
 				foreach($upload_handler->response['files'] as $key => $row) {
 					$post_data['attachment_id'] 	= $attachment_id;
@@ -697,15 +719,16 @@ class controller extends wc_controller {
 					$post_data['attachment_type'] 	= $row->type;
 					$post_data['attachment_url']	= $row->url;
 				}
-				$upload_result 	= $this->job_order->uploadAttachment($post_data);
+				if ($task == 'view')
+					$upload_result 	= $this->job_order->replaceAttachment($post_data);
+				
+				else
+					$upload_result 	= $this->job_order->uploadAttachment($post_data);
 			}else{
 				$upload_result 	= false;
 			}
 		}
-		if($upload_result){
-			/**
-			 * Update status of Service Quotation to Approved
-			 */
+		if($upload_result && $task == 'listing'){
 			$this->job_order->updateData(array('stat' => 'completed'), 'job_order', " job_order_no = '$reference' ");
 		}
 	}
