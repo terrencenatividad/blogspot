@@ -506,15 +506,17 @@ class controller extends wc_controller
 			'Date'	=> $this->date->dateFormat($documentinfo->documentdate),
 			'SI #'	=> $voucherno,
 			'SO #'	=> $documentinfo->sono,
-			'DR #'	=> $documentinfo->sourceno,
+			'DR/JO #'	=> $documentinfo->sourceno,
 			'TERMS'	=> $customerdetails->terms
 		);
 
 		$print = new sales_print_model();
+		$s_address = 'N/A';
 		$print->setDocumentType('Sales Invoice')
 				->setFooterDetails(array('Approved By', 'Checked By'))
 				->setCustomerDetails($customerdetails)
 				->setDocumentDetails($documentdetails)
+				->setShippingDetail($s_address)
 				->addTermsAndCondition()
 				->addReceived();
 

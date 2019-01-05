@@ -185,7 +185,8 @@ class controller extends wc_controller {
 		$data['notes']				= $servicequotation[0]->notes;
 		$data['filename'] 			= $servicequotation[0]->filename;
 		$data['filetype'] 			= $servicequotation[0]->filetype;
-
+		$data['stat'] 				= $servicequotation[0]->stat;
+		
 		$data['job_list']			= $this->service_quotation->getOption('job_type','code');
 		$data['customer_list']		= $this->service_quotation->getCustomerList();
 		$data['discount_type_list']	= $this->service_quotation->getOption('discount_type','value');
