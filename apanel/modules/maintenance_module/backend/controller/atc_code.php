@@ -287,7 +287,7 @@ class controller extends wc_controller
 						}
 
 						$atccode_[] 	= $atccode;
-						$taxrate_[] 	= $taxrate/100;
+						$taxrate_[] 	= ($taxrate > 0) ? $taxrate/100 : 0;
 						$taxcode_[] 	= $taxcode;
 						$description_[]	= addslashes($description);
 						$ewt_[] 		= $ewt;
