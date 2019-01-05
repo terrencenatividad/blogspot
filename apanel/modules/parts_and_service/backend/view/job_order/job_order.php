@@ -744,7 +744,7 @@
 			`;
 			
 			// This is for letting the system know where to add the row.. 
-			if( parentline != 0 ){.siblings('.subitem'+parentline).length);
+			if( parentline != 0 ){
 				if($('#tableList tbody tr[data-linenum="'+parentline+'"]').siblings('.subitem'+parentline).length > 0) {
 					// we check the current subitem added to know where to add its siblings
 					$('#tableList tbody tr.subitem'+parentline+'[data-linenum="'+(parseFloat(linenum)-1)+'"]').after(row);
