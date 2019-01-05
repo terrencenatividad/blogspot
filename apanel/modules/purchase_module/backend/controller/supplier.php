@@ -10,6 +10,7 @@
 			$this->ui 			= 	new ui();
 			$this->url 			=	new url();
 			$this->log 			= 	new log();
+			$this->import 		= 	new import();
 
 			$this->view->header_active = 'maintenance/supplier/';
 
@@ -333,78 +334,103 @@
 				$line 	=	1;
 				$list 	=	array();
 
-				foreach ($z as $b) 
-				{
-					if ( ! empty($b)) 
-					{	
-						$suppliercode 	   	= isset($b[0]) 	?	htmlspecialchars(addslashes(trim($b[0])))	: 	"";
-						$companyname        = isset($b[1]) 	?	htmlspecialchars(addslashes(trim($b[1])))	: 	"";
-						$firstname        	= isset($b[2]) 	?	htmlspecialchars(addslashes(trim($b[2])))	: 	"";
-						$lastname           = isset($b[3]) 	?	htmlspecialchars(addslashes(trim($b[3])))	: 	"";
-						$address            = isset($b[4]) 	?	htmlspecialchars(addslashes(trim($b[4])))	: 	"";
-						$email 				= isset($b[5]) 	?	htmlspecialchars(addslashes(trim($b[5])))	: 	"";
-						$business 			= isset($b[6]) 	?	htmlspecialchars(addslashes(trim($b[6])))	: 	"";
-						$tinno 				= isset($b[7]) 	?	htmlspecialchars(addslashes(trim($b[7])))	: 	"";
-						$terms 				= isset($b[8]) 	?	htmlspecialchars(addslashes(trim($b[8])))	: 	"0";
-						$contact 			= isset($b[9]) 	?	htmlspecialchars(addslashes(trim($b[9])))	: 	"";
+				if(!empty($z)){
+					foreach ($z as $key => $b) {
+						if( ! empty($b)) {	
+							$suppliercode 	   	= isset($b[0]) ? htmlspecialchars(addslashes(trim($b[0])))	: 	"";
+							$companyname        = isset($b[1]) ? addslashes(trim($b[1]))		: 	"";
+							$firstname        	= isset($b[2]) ? htmlspecialchars(addslashes(trim($b[2])))	: 	"";
+							$lastname           = isset($b[3]) ? htmlspecialchars(addslashes(trim($b[3])))	: 	"";
+							$address            = isset($b[4]) ? addslashes(trim($b[4]))	: 	"";
+							$email 				= isset($b[5]) ? htmlspecialchars(addslashes(trim($b[5])))	: 	"";
+							$business 			= isset($b[6]) ? htmlspecialchars(addslashes(trim($b[6])))	: 	"";
+							$tinno 				= isset($b[7]) ? htmlspecialchars(addslashes(trim($b[7])))	: 	"";
+							$terms 				= isset($b[8]) ? htmlspecialchars(addslashes(trim($b[8])))	: 	0;
+							$contact 			= isset($b[9]) ? htmlspecialchars(addslashes(trim($b[9])))	: 	"";
+							
 
-						$exists = $this->supplier->check_duplicate($suppliercode);
-						$count = $exists[0]->count;
+							$headerArr = array('Customer Code','Company Name','Address','Email','Business Type','Contact Number','First Name','Last Name','Payment Terms','Tin No.');
+							
+							// **** Trim Other Unusual Special Characters***/ 
+							$suppliercode 	   	= $this->import->trim_special_characters($suppliercode);
+							$companyname        = $this->import->trim_special_characters($companyname);
+							// $address            = $this->import->trim_special_characters($address);
+							$email 				= $this->import->trim_special_characters($email);
+							$business 			= $this->import->trim_special_characters($business);
+							$contact 			= $this->import->trim_special_characters($contact);
+							$firstname        	= $this->import->trim_special_characters($firstname);
+							$lastname           = $this->import->trim_special_characters($lastname);
+							$terms 				= $this->import->trim_special_characters($terms);
+							$tinno 				= $this->import->trim_special_characters($tinno);
+					
+							// *********Validation Starts here**************
+							
+							// Check for Empty on first line
+							$errmsg[] 	=	$this->import->check_empty("Customer Code", $suppliercode, $line);
+							$errmsg[] 	=	$this->import->check_empty("Company Name", $companyname, $line);
+							$errmsg[] 	=	$this->import->check_empty("Address", $address, $line);
+							$errmsg[] 	=	$this->import->check_empty("Business Type", $business, $line);
+						
+							// Check for Max Length 
+							$errmsg[] 	=	$this->import->check_character_length("Customer Code", $suppliercode, $line, "20", strlen($suppliercode));
+							$errmsg[] 	=	$this->import->check_character_length("Company Name", $companyname, $line, "100", strlen($companyname));
+							$errmsg[] 	=	$this->import->check_character_length("Address", $address, $line, "105", strlen($address));
+							$errmsg[] 	=	$this->import->check_character_length("Email", $email, $line, "150", strlen($email));
+							$errmsg[] 	=	$this->import->check_character_length("Contact Number", $contact, $line, "20", strlen($contact));
+							$errmsg[] 	=	$this->import->check_character_length("First Name", $firstname, $line, "20", strlen($firstname));
+							$errmsg[] 	=	$this->import->check_character_length("Last Name", $lastname, $line, "20", strlen($lastname));
+							$errmsg[] 	=	$this->import->check_character_length("Payment Terms", $terms, $line, "5", strlen($terms));
+							$errmsg[] 	=	$this->import->check_character_length("Tin No", $tinno, $line, "15", strlen($tinno));
 
-						if( $count > 0 )
-						{
-							$errmsg[]	= "Supplier Code [<strong>$suppliercode</strong>] on row $line already exists.<br/>";
-							$errmsg		= array_filter($errmsg);
+							// Check for Duplicates
+							$errmsg[] 	=	$this->check_duplicate_code("Customer Code",$suppliercode,$line);
+
+							// Check for E-mail Format
+							if($email != ''){
+								$errmsg[] 	=	$this->import->check_email("Email", $email, $line);
+							}
+
+							if($terms != ''){
+								$errmsg[] 	=	$this->import->check_negative("Payment Terms", $terms, $line);
+								$errmsg[] 	=	$this->import->check_numeric("Payment Terms", $terms, $line);
+							}
+
+							// Check for Business Content ( Individual or Corporation )
+							$errmsg[] 	=	$this->import->check_business_type("Business Type", $business, $line);
+
+							//Check for Character Type
+							$errmsg[] 	=	$this->import->check_alpha_num("Customer Code",$suppliercode,$line);
+							$errmsg[] 	=	$this->import->check_special_characters("Company Name",$companyname,$line);
+							// $errmsg[] 	=	$this->import->check_special_characters("Company Name",$companyname,$line);
+
+							// Check for Duplicate Customer
+							if( !in_array($suppliercode, $list) ){
+								$list[] 	=	$suppliercode;
+							} else {
+								$errmsg[]	= "Customer Code [<strong>$suppliercode</strong>] on row $line has a duplicate within the document.<br/>";
+							}
+		
+							$errmsg		= 	array_filter($errmsg);
+
+							$suppliercode_[] 	= $suppliercode;
+							$companyname_[]		= $companyname;
+							$firstname_[]		= $firstname;
+							$lastname_[]		= $lastname;
+							$address_[]			= $address;
+							$email_[]			= $email;
+							$business_[] 		= $business;
+							$tinno_[] 			= $tinno;
+							$terms_[] 			= $terms;
+							$contact_[] 		= $contact;
+
+							$line++;
 						}
-
-						if ($suppliercode == '') {
-							$errmsg[]	= "Supplier Code name is required on row $line.<br/>";
-							$errmsg		= array_filter($errmsg);
-						}
-
-						if ($companyname == '') {
-							$errmsg[]	= "Company name is required on row $line.<br/>";
-							$errmsg		= array_filter($errmsg);
-						}
-
-						if ($business == '') {
-							$errmsg[]	= "Business Type is required on row $line.<br/>";
-							$errmsg		= array_filter($errmsg);
-						}
-
-						if ($address == '') {
-							$errmsg[]	= "Address is required on row $line.<br/>";
-							$errmsg		= array_filter($errmsg);
-						}
-
-						if(!is_numeric($terms)){
-							$errmsg[] 	= "Payment terms [ <strong>$terms</strong> ] on row $line is not a valid number.<br/>";
-							$errmsg		= array_filter($errmsg);
-						}
-
-						if( !in_array($suppliercode, $list) ){
-							$list[] 	=	$suppliercode;
-						}
-						else
-						{
-							$errmsg[]	= "Supplier Code [<strong>$suppliercode</strong>] on row $line has a duplicate within the document.<br/>";
-							$errmsg		= array_filter($errmsg);
-						}
-
-						$suppliercode_[] 	= $suppliercode;
-						$companyname_[]		= $companyname;
-						$firstname_[]		= $firstname;
-						$lastname_[]		= $lastname;
-						$address_[]			= $address;
-						$email_[]			= $email;
-						$business_[] 		= $business;
-						$tinno_[] 			= $tinno;
-						$terms_[] 			= $terms;
-						$contact_[] 		= $contact;
-
-						$line++;
 					}
+				} else {
+					$errmsg[] 	= "You are importing an empty template.";
+					$errmsg		= array_filter($errmsg);
 				}
+				
 
 				if( empty($errmsg) )
 				{
@@ -434,6 +460,18 @@
 			
 			return array("proceed" => $proceed,"errmsg"=>$error_messages);
 		}
+
+		public function check_duplicate_code($field_name,$field_value,$line){
+			$error 		=	"";
+	
+			$exists 	= 	$this->supplier->check_duplicate($field_value);
+			$count  	=	isset($exists[0]->count) 	?	$exists[0]->count 	:	0;
+	
+			if($count > 0){
+				$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line already exists.<br/>";
+			}
+			return $error;
+		}	
 
 		private function ajax_edit_activate()
 		{

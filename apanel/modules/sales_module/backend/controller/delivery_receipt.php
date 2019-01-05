@@ -188,6 +188,7 @@ class controller extends wc_controller {
 		$print->setDocumentType('Delivery Receipt')
 				->setFooterDetails(array('Approved By', 'Checked By'))
 				->setCustomerDetails($customerdetails)
+				->setShippingDetail($documentinfo->s_address)
 				->setDocumentDetails($documentdetails)
 				// ->addTermsAndCondition()
 				->addReceived();

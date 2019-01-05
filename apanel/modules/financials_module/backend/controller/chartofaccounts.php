@@ -438,7 +438,7 @@ class controller extends wc_controller
 			$errmsg[]= "Invalid file type, file must be .csv.<br/>";
 		}
 			
-		$headerArr = array('Account Code','Account Name', 'Account Class', 'FS Presentation (BS or IS)', 'Account Type', 'Parent Account', 'Account Nature');
+		$headerArr = array('Account Code','Account Name', 'Account Class', 'FS Presentation (BS or IS)', 'Account Type (P[for Parent], C[for Child], or B[for Both)', 'Parent Account', 'Account Nature');
 
 		if( empty($errmsg) ){
 			$row_start = 2;
@@ -503,9 +503,20 @@ class controller extends wc_controller
 					}
 					if(empty($accounttype)){
 						$errmsg[] 	= "Account Type is required. Row $line should not be empty.<br>";
+					} else {
+						if($accounttype != "B" && $accounttype != "C" && $accounttype != "P") {
+							$errmsg[] 	= "Account Type is invalid. Kindly use 'P' for Parent, 'C' for Child, and 'B' for Both.<br>";
+						}
 					}
 					if(empty($accountnature)){
 						$errmsg[] 	= "Account Nature is required. Row $line should not be empty.<br>";
+					}		
+					// echo $parentaccount;
+					$ret_count = $this->coaclass->check_duplicate($parentaccount);
+					$pa_exists = isset($ret_count[0]->count) ? $ret_count[0]->count : 0;
+					// echo $pa_exists;
+					if($parentaccount!="" && $pa_exists <= 0){
+						$errmsg[] 	= "Parent Account Code on Row $line does not exist.<br>";
 					}		
 					if($fspresentation == 'Balance Sheet' || $fspresentation == 'Income Statement') {
 						$errmsg[]	= "Invalid FS Presenation on Row $line. Kindly use 'IS' for Income Statement and 'BS' for Balance Sheet<br/>";

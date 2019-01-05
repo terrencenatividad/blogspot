@@ -13,6 +13,7 @@
 
 			<form method = "post" class="form-horizontal" id="sales_invoice_form">
 				<input class = "form_iput" value="<?=$discounttype?>" name = "discounttype" id = "discounttype" type="hidden">
+				<input class = "form_iput" value="<?=$srctranstype?>" name = "srctranstype" id = "srctranstype" type="hidden">
 				
 				<div class = "row">
 					<div class = "col-md-12">&nbsp;</div>
@@ -114,23 +115,23 @@
 							// 		->setValidation('required')
 							// 		->draw($ro_input);
 							echo $ui->formField('text')
-									->setLabel('Delivery Receipt ')
+									->setLabel('DR/JO ')
 									->setSplit('col-md-3', 'col-md-8')
-									->setName('drno')
-									->setId('drno')
+									->setName('sourceno')
+									->setId('sourceno')
 									->setAttribute(array('readonly'))
 									->setAddon('search')
-									->setValue($drno)
+									->setValue($sourceno)
 									->setValidation('required')
 									->draw($ro_input);
 						}else{
 							echo $ui->formField('text')
 									->setLabel('Delivery Receipt')
 									->setSplit('col-md-3', 'col-md-8')
-									->setValue($drno)
+									->setValue($sourceno)
 									->draw($ro_input);
 
-							echo '<input type="hidden" id="drno" name="drno" value="'.$drno.'">';
+							echo '<input type="hidden" id="sourceno" name="sourceno" value="'.$sourceno.'">';
 						}
 					?>
 						
@@ -395,7 +396,7 @@
 										</tr> -->
 										<tr>
 											<td colspan="7" class="text-center">
-												<em>Please select a <strong>Delivery Receipt</strong> to load items.</em>
+												<em>Please select a <strong>Delivery Receipt / Job Order</strong> to load items.</em>
 											</td>
 										</tr>
 								<?
@@ -920,11 +921,18 @@ echo $ui->loadElement('modal')
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Delivery Receipt List</h4>
+				<h4 class="modal-title">Delivery Receipt / Job Order List</h4>
 			</div>
 			<div class="modal-body">
 				<div class="row">
-					<div class="col-md-4 col-md-offset-8">
+					<div class="col-md-6" id = "filters">
+						<div class="input-group">
+							<input type = "radio" checked = "true" name = "voucher_type" id = "voucher_type" value = "dr"> Delivery Receipt
+							&nbsp;&nbsp;
+							<input type = "radio" name = "voucher_type" id = "voucher_type" value = "jo"> Job Order
+						</div>
+					</div>
+					<div class="col-md-4 col-md-offset-2">
 						<div class="input-group">
 							<input type="text" id="order_list_search" class="form-control" placeholder="Search...">
 							<div class="input-group-addon">
@@ -938,7 +946,7 @@ echo $ui->loadElement('modal')
 				<table id="delivery_receiptList" class="table table-hover table-clickable table-bordered">
 					<thead>
 						<tr class="info">
-							<th class="col-xs-2">DR No.</th>
+							<th class="col-xs-2">Vocuher No.</th>
 							<th class="col-xs-2">Document Date</th>
 							<th class="col-xs-8">Notes</th>
 						</tr>
@@ -1009,9 +1017,9 @@ function getPartnerInfo(code)
 }
 
 /**RETRIEVE DELIVERY RECEIPT ITEMS**/
-function getDeliveries(code)
+function getDeliveries(code, voucher)
 {
-	$.post('<?=BASE_URL?>sales/sales_invoice/ajax/get_deliveries', "code=" + code)
+	$.post('<?=BASE_URL?>sales/sales_invoice/ajax/get_deliveries', "code=" + code + "&voucher=" + voucher)
 	.done(function(data)
 	{
 		var customer 	= data.customer;
@@ -1496,7 +1504,7 @@ function finalizeTransaction()
 
 	$('#sales_invoice_form #transactiondate').trigger('blur');
 	$('#sales_invoice_form #customer').trigger('blur');
-	$('#sales_invoice_form #drno').trigger('blur');
+	$('#sales_invoice_form #sourceno').trigger('blur');
 	$("#sales_invoice_form .itemcode").trigger('blur');
 
 	if ($('#sales_invoice_form').find('.form-group.has-error').length == 0)
@@ -1783,15 +1791,17 @@ $(document).ready(function(){
 	var limit 	= 5;
 	var search 	= $('#delivery_list_modal #order_list_search').val();
 
-	$('#drno').on('focus', function() {
+	$('#sourceno').on('focus', function() {
 		$('#delivery_list_modal #order_list_search').val('');
-
+		var voucher = $('#delivery_list_modal #voucher_type:checked').val();
+		$('#srctranstype').val(voucher);
 		var customer = $('#customer').val();
 		if (customer == '') {
 			$('#customer_required').modal('show');
 			$('#customer').trigger('blur');
-		} else {
-			$.post('<?=MODULE_URL?>ajax/ajax_load_delivery_list', {customer:customer,limit:limit,page:page}, function(data) {
+		} 
+		else {
+			$.post('<?=MODULE_URL?>ajax/ajax_load_delivery_list', {customer:customer,voucher:voucher,limit:limit,page:page}, function(data) {
 				$('#delivery_receiptList tbody').html(data.table);
 				$('#delivery_list_modal').modal('show');
 				$('#pagination').html(data.pagination);
@@ -1799,11 +1809,22 @@ $(document).ready(function(){
 		}
 	});
 
+	$('#filters').on('ifToggled', 'input[name="voucher_type"]:checked', function () {
+		var voucher = $(this).val();
+		var customer = $('#customer').val();
+		$('#srctranstype').val(voucher);
+		$.post('<?=MODULE_URL?>ajax/ajax_load_delivery_list', {customer:customer,voucher:voucher,limit:limit,page:page}, function(data) {
+			$('#delivery_receiptList tbody').html(data.table);
+			$('#pagination').html(data.pagination);
+		});
+    });
+
 	$('#delivery_list_modal #pagination').on('click', 'a', function(e) {
 		e.preventDefault();
 		var customer = $('#customer').val();
+		var voucher = $('#delivery_list_modal #voucher_type:checked').val();
 		page = $(this).attr('data-page');
-		$.post('<?=MODULE_URL?>ajax/ajax_load_delivery_list', {customer:customer,limit:limit,page:page,search:search}, function(data) {
+		$.post('<?=MODULE_URL?>ajax/ajax_load_delivery_list', {customer:customer,voucher:voucher,limit:limit,page:page,search:search}, function(data) {
 			$('#delivery_receiptList tbody').html(data.table);
 			$('#delivery_list_modal').modal('show');
 			$('#pagination').html(data.pagination);
@@ -1813,21 +1834,23 @@ $(document).ready(function(){
 	$('#delivery_list_modal #order_list_search').on('input', function(e) {
 		e.preventDefault();
 		var customer = $('#customer').val();
+		var voucher = $('#delivery_list_modal #voucher_type:checked').val();
 		search = $(this).val();
-		$.post('<?=MODULE_URL?>ajax/ajax_load_delivery_list', {customer:customer,limit:limit,page:page,search:search}, function(data) {
+		$.post('<?=MODULE_URL?>ajax/ajax_load_delivery_list', {customer:customer,voucher:voucher,limit:limit,page:page,search:search}, function(data) {
 			$('#delivery_receiptList tbody').html(data.table);
 			$('#delivery_list_modal').modal('show');
 			$('#pagination').html(data.pagination);
 		});
 	});
 
-	$('#sales_invoice_form').on('click', '#drno + div.input-group-addon', function(e){
+	$('#sales_invoice_form').on('click', '#sourceno + div.input-group-addon', function(e){
 		var customer = $('#customer').val();
+		var voucher = $('#delivery_list_modal #voucher_type:checked').val();
 		if (customer == '') {
 			$('#customer_required').modal('show');
 			$('#customer').trigger('blur');
 		} else {
-			$.post('<?=MODULE_URL?>ajax/ajax_load_delivery_list', {customer:customer}, function(data) {
+			$.post('<?=MODULE_URL?>ajax/ajax_load_delivery_list', {customer:customer,voucher:voucher}, function(data) {
 				$('#delivery_receiptList tbody').html(data.table);
 				$('#delivery_list_modal').modal('show');
 			});
@@ -1836,15 +1859,16 @@ $(document).ready(function(){
 	
 	$('#customer').on('change', function() {
 		ajax.customer = $(this).val();
-		$('#drno').val('');
+		$('#sourceno').val('');
 	});
 
 	$('#delivery_receiptList').on('click', 'tr[data-id]', function() {
-		var drno = $(this).attr('data-id');
+		var sourceno = $(this).attr('data-id');
 		//$('#drno').val(drno);
-		$('#drno').val(drno).trigger('blur');
+		$('#sourceno').val(sourceno).trigger('blur');
 		$('#delivery_list_modal').modal('hide');
-		getDeliveries(drno);
+		var voucher = $('#delivery_list_modal #voucher_type:checked').val();
+		getDeliveries(sourceno, voucher);
 	});
 
 	// Get getPartnerInfo

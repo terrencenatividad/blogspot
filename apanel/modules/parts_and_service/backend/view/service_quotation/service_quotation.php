@@ -10,6 +10,39 @@
 				<div class="row">
 					<div class="col-md-11">
 						<div class="row">
+		                    <?php 
+		                    	if($ajax_task == 'view') :
+		                        
+		                        	$color = 'default';
+									switch ($stat) {
+										case 'Pending':
+											$color = 'default';
+											break;
+										case 'Approved':
+											$color = 'success';
+											break;
+										case 'Partial':
+											$color = 'warning';
+											break;
+										case 'Cancelled':
+											$color = 'danger';
+											break;
+										case 'With JO':
+											$color = 'info';
+											break;
+									}
+		                        ?> 
+	                            <div class="row">
+	                                <div class="col-lg-2"></div>
+	                                <div class="col-lg-4">
+	                                    <font size = "4em"><span class="label label-<?=$color;?>"><?=$stat;?></span></font>
+	                                </div>
+	                                <div class="col-lg-3"></div>
+	                            </div>
+	                            <br>
+	                        <?php endif; ?>
+		                </div>
+						<div class="row">
 							<div class="col-md-6">
 
 								<?php

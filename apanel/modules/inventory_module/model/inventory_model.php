@@ -53,7 +53,7 @@ class inventory_model extends wc_model {
 						->buildSelect();
 						
 		$dr = $this->db->setTable('deliveryreceipt a')
-						->innerJoin('deliveryreceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+						->innerJoin('deliveryreceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno AND b.parentcode = ""')
 						->setFields($this->createFields('dr', 'convissueqty'))
 						->setWhere("a.stat = 'Delivered' OR a.stat = 'With Invoice'")
 						->buildSelect();
