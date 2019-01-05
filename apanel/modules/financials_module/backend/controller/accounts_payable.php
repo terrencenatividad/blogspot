@@ -421,30 +421,42 @@ class controller extends wc_controller
 		{
 			$date        			= $row->transactiondate;
 			$restrict = $this->accounts_payable->setButtonRestriction($date);
-			$date        			= $this->date->dateFormat($date);
+			$date        		= $this->date->dateFormat($date);
 
-			$voucher     = $row->voucherno; 				
+			$voucher     		= $row->voucherno; 				
 			$balance     		= $row->balance; 
 			$amount	  	 		= $row->amount; 
 			$vendor		 		= $row->vendor; 
 			$referenceno 		= $row->referenceno; 
 			$checker 	 		= $row->importchecker;
 			$import 	 		= ($checker == 'import') 	?	"yes" 	:	"no";
-			$checker_pr = $this->accounts_payable->checkRefNo($referenceno);
-			$pr = ($checker_pr == true);
+			$checker_pr 		= $this->accounts_payable->checkRefNo($referenceno);
+			$pr 				= ($checker_pr == true);
 			$stat				= $row->stat;
 			$payment_status 	= $row->payment_status;
-			$status 	= ($row->stat != 'cancelled');
-			$status_paid = ($row->balance != '0.00');
+			$status 			= ($row->stat != 'cancelled');
+			$status_paid 		= ($row->balance != '0.00');
+			$is_tax 	 		= $this->accounts_payable->getValue("ap_details",array("taxcode"),"voucherno = '$voucher' ");
+			$bir_link 			= false;
+			foreach ($is_tax as $rows) {
+				if ($rows->taxcode != '') {
+					$bir_link = true;
+				}
+			}
 			$dropdown = $this->ui->loadElement('check_task')
-			->addView()
-			->addEdit($status && $restrict && !$pr && $status_paid)
-			->addPrint()
-			->addDelete($status && $restrict && $status_paid)
-			->addCheckbox($status && $restrict && $status_paid)
-			->setValue($voucher)
-			->setLabels(array('delete' => 'Cancel'))
-			->draw();
+						->addView()
+						->addEdit($status && $restrict && !$pr && $status_paid)
+						->addPrint()
+						->addOtherTask(
+							'Print 2307',
+							'print',
+							$bir_link
+						)
+						->addDelete($status && $restrict && $status_paid)
+						->addCheckbox($status && $restrict && $status_paid)
+						->setValue($voucher)
+						->setLabels(array('delete' => 'Cancel'))
+						->draw();
 
 			$table	.= '<tr>';
 			$table	.= '<td class = "text-center">'.$dropdown.'</td>';

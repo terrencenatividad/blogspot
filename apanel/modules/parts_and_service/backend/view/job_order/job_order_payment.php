@@ -58,6 +58,12 @@
 											->setValue($customer)
 											->setValidation('required')
 											->draw($show_input);
+
+										echo $ui->formField('hidden')
+											->setName('h_customer')
+											->setId('h_customer')
+											->setValue($customer)
+											->draw(true);
 									?>
 								</div>
 								<div class="col-md-6">
@@ -364,6 +370,9 @@
 			</div>
 		</div>
 	</div>
+	<style>
+	.pointer {cursor: pointer;}
+	</style>
 	<script>
 	
 		var delete_row	= {};
@@ -883,10 +892,10 @@
 		}
 		$('#issuedPartsList tbody').on('click','.deleteip', function(){
 			var id = $(this).closest('tr').data('id');
+			var jv = $(this).closest('tr').data('jv');
 			$('#delete_modal').modal('show');
-			
 			$('#delete_yes').on('click', function(){
-				$.post('<?=MODULE_URL?>ajax/ajax_delete_issue', 'id='+ id , function(data) {
+				$.post('<?=MODULE_URL?>ajax/ajax_delete_issue', 'id='+ id + '&voucherno=' + jv, function(data) {
 				$('#delete_modal').modal('hide');					
 			});
 			getList();

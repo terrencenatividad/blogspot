@@ -83,11 +83,15 @@ class costcenter extends wc_model {
 	}
 
 	public function getCostCenterListPagination($fields, $search = '', $sort) {
-
+		$sort		= ($sort) ? $sort : 'costcenter_code';
+		$condition = '';
+		if ($search) {
+			$condition = $this->generateSearch($search, array('costcenter_code','name','c.description','approver'));
+		}
 			$result = $this->db->setTable("cost_center c")
 								->leftJoin('chartaccount ca ON c.costcenter_account = ca.id AND c.companycode = ca.companycode')
 								->setFields("c.id,costcenter_code,costcenter_account,name,c.description,ca.accountname,approver,c.stat")
-								->setWhere(1)
+								->setWhere($condition)
 								->setOrderBy($sort)
 								->runPagination();
 	
