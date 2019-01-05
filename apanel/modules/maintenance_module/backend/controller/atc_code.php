@@ -286,8 +286,10 @@ class controller extends wc_controller
 							$errmsg[]	= "ATC Code [<strong>$atccode</strong>] on row $line has a duplicate within the document.<br/>";
 						}
 
+						$errmsg		= 	array_filter($errmsg);
+
 						$atccode_[] 	= $atccode;
-						$taxrate_[] 	= ($taxrate > 0) ? $taxrate/100 : 0;
+						$taxrate_[] 	= ($taxrate > 0) ? (float)$taxrate/100 : 0;
 						$taxcode_[] 	= $taxcode;
 						$description_[]	= addslashes($description);
 						$ewt_[] 		= $ewt;
