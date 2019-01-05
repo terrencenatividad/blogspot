@@ -1002,12 +1002,13 @@
 			if( serialIndex > -1) {
 				serial_input.splice(serialIndex,1);
 			}
-			if(validateSerialNo(serialInput)){
+			if(validateSerialNo(serialInput) == true){
 				$(this).data('value',serialInput);
 				if(serialInput != ""){
 					serial_input.push(serialInput);
 				}
 			}
+			
 			console.log(serial_input);
 			checkFlags();
 		});
@@ -1026,7 +1027,7 @@
 				$(this).closest('.form-group').removeClass('has-error');
 				$(this).closest('.engine_no').find('.error_message').text("");
 			}
-			console.log(validateEngineNo(engineInput));
+			
 			checkFlags();
 		});
 
@@ -1040,7 +1041,7 @@
 			if( engineIndex > -1) {
 				engine_input.splice(engineIndex,1);
 			}
-			if(validateEngineNo(engineInput)){
+			if(validateEngineNo(engineInput) == true){
 				$(this).data('value',engineInput);
 				if(engineInput != ""){
 					engine_input.push(engineInput);
@@ -1078,7 +1079,7 @@
 			if( chassisIndex > -1) {
 				chassis_input.splice(chassisIndex,1);
 			}
-			if(validateChassisNo(chassisInput)){
+			if(validateChassisNo(chassisInput) == true){
 				$(this).data('value',chassisInput);
 				if(chassisInput != ""){
 					chassis_input.push(chassisInput);
