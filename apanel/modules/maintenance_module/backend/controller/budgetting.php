@@ -128,37 +128,6 @@ class controller extends wc_controller
 		$budget['total'] = str_replace(',', '', $post['v_total']);
 		$budget_details['amount'] = str_replace(',', '', $budget_details['amount']);
 		$budget_details['budget_code'] = $budget['budget_code'];
-		$permonth = 0;
-		$temp = array();
-		if($budget['budget_check'] == 'Monitored') {
-			if(!empty($budget_details['amount'])) {
-				for($i = 0; $i < count($budget_details['accountcode']); $i++) {
-					if(!empty($budget_details['amount'][$i])) {
-						
-						$permonth = str_replace(',','',$budget_details['amount'][$i]) / 12;
-						$rounded = round($permonth);
-						$budgetreport['budget_code'] = $budget['budget_code'];
-						$budgetreport['accountcode'] = $budget_details['accountcode'][$i];
-						$budgetreport['january'] = $rounded;
-						$budgetreport['february'] = $rounded;
-						$budgetreport['march'] = $rounded;
-						$budgetreport['april'] = $rounded;
-						$budgetreport['may'] = $rounded;
-						$budgetreport['june'] = $rounded;
-						$budgetreport['july'] = $rounded;
-						$budgetreport['august'] = $rounded;
-						$budgetreport['september'] = $rounded;
-						$budgetreport['october'] = $rounded;
-						$budgetreport['november'] = $rounded;
-						$budgetreport['december'] = $rounded;
-						$temp[] = $budgetreport;
-					}
-				}
-			}
-		}
-		if($temp){
-			$savebudget = $this->budgetting->saveBudgetReport($temp);
-		}
 		
 		$result = $this->budgetting->saveBudget($budget, $budget_details);
 		return array(

@@ -164,7 +164,7 @@ tbody  {
                         $date = explode('-',$transactiondate);
                         $trans_date = $date[1];
                         $trans_date = ltrim($trans_date, '0');
-                        if(!empty($sid) && $task!='create'){
+                        if(!empty($sid)){
                             $row 			= 1;
                             $total_debit 	= 0;
                             $total_credit 	= 0;
@@ -173,7 +173,7 @@ tbody  {
                             {
                                 $accountlevel		= $data["details"][$i]->accountcode;
                                 $accountname		= $data["details"][$i]->atccode;
-                                $accountcode		= ($task != 'view') ? $accountlevel : $accountname;
+                                $accountcode		= $accountname;
                                 $detailparticulars	= $data["details"][$i]->detailparticulars;
                                 $debit				= $data["details"][$i]->debit;
                                 $credit				= $data["details"][$i]->credit;
