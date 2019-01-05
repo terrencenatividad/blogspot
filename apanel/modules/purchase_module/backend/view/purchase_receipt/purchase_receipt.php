@@ -721,6 +721,17 @@
 			chassis_input = [];
 		});
 
+		$('.serial_no_item').keypress(function (e) {
+			var regex = new RegExp("^[a-zA-Z0-9]+$");
+			var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+			if (regex.test(str)) {
+				return true;
+			}
+
+			e.preventDefault();
+			return false;
+		});
+
 		function addRow(icode, item, rownum, serialno, engineno, chassisno){
 				if (typeof rownum == 'undefined'){
 					rownum = $('#serialize_tableList tbody tr').length;
@@ -736,7 +747,7 @@
 						
 						<td class="item_no col-xs-2">` + icode + `</td>
 						<td class="item_name col-xs-3">` + item + `</td>
-						<td id="serial_no" class="col-xs-2">
+						<td class="serial_no" class="col-xs-2">
 							<?php
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
@@ -746,13 +757,14 @@
 									->setValue('`+ serialno +`')
 									->setAttribute(
 										array(
-											'data-value' => "`+ serialno +`"
+											'data-value' => "`+ serialno +`",
+											'maxlength'=> "20"
 										))
 									->draw($show_input);
 							?>
-							<span class="glyphicon form-control-feedback"></span>
+							<div><strong><small class="error_message"></small></strong></div>
 						</td>
-						<td id="engine_no" class="col-xs-2">
+						<td class="engine_no" class="col-xs-2">
 							<?php
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
@@ -762,12 +774,14 @@
 									->setValue('`+ engineno +`')
 									->setAttribute(
 										array(
-											'data-value' => "`+ engineno +`"
+											'data-value' => "`+ engineno +`",
+											'maxlength'=> "20"
 										))
 									->draw($show_input);
 							?>
+							<div><strong><small class="error_message"></small></strong></div>
 						</td>
-						<td id="chassis_no" class="col-xs-2">
+						<td class="chassis_no" class="col-xs-2">
 							<?php
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
@@ -777,10 +791,12 @@
 									->setValue('`+ chassisno +`')
 									->setAttribute(
 										array(
-											'data-value' => "`+ chassisno +`"
+											'data-value' => "`+ chassisno +`",
+											'maxlength'=> "20"
 										))
 									->draw($show_input);
 							?>
+							<div><strong><small class="error_message"></small></strong></div>
 						</td>
 						<td class="text-center">
 							<button type="button" class="btn btn-danger btn-flat deleteRow" data-delete=`+rownum+`>
@@ -853,8 +869,29 @@
 				serial_input.splice(serialDeletedIndex_input,1);
 			}
 
-			// var deleted_serial = $(this).closest('.serial_no_item').val();
-			
+			var engine_deleted = $('#engine_no_item['+deleted_row+']').val();
+			var engineDeletedIndex_saved = engine_saved.indexOf(engine_deleted);
+			var engineDeletedIndex_input = engine_input.indexOf(engine_deleted);
+
+			if( engineDeletedIndex_saved > -1) {
+				engine_input.splice(engineDeletedIndex_saved,1);
+			}
+
+			if( engineDeletedIndex_input > -1) {
+				engine_input.splice(engineDeletedIndex_input,1);
+			}	
+
+			var chassis_deleted = $('#chassis_no_item['+deleted_row+']').val();
+			var chassisDeletedIndex_saved = chassis_saved.indexOf(chassis_deleted);
+			var chassisDeletedIndex_input = chassis_input.indexOf(chassis_deleted);
+
+			if( chassisDeletedIndex_saved > -1) {
+				chassis_input.splice(chassisDeletedIndex_saved,1);
+			}
+
+			if( chassisDeletedIndex_input > -1) {
+				chassis_input.splice(chassisDeletedIndex_input,1);
+			}	
 
 			$(this).closest('tr').remove();
 		});
@@ -904,19 +941,25 @@
 				}
 			}
 		}
+
 		function checkFlags(){
-			if($('td .has-error').length==0){
-				current_flag = true;
-			} else {
-				current_flag = false;
-			}
-			
-			if (serial_flag && engine_flag && chassis_flag && current_flag) {
-				$('.save_serials').prop('disabled',false).text("Save");
-			} else {
-				$('.save_serials').prop('disabled',true).text("Duplicate serial number");
+			var hasError = $('tbody').find('.error_message').text().length;
+			if (hasError > 0){
+				$('.save_serials').prop('disabled',true);
+			}else{
+				$('.save_serials').prop('disabled',false);
 			}
 		}
+		
+		// DISALLOW SPECIAL CHARACTERS IN INPUT
+		$('tbody').on('keypress','.serial_no_item, .engine_no_item, .chassis_no_item', function(event) {
+			var regex = new RegExp("^[a-zA-Z0-9\b]+$");
+			var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+			if (!regex.test(key)) {
+				event.preventDefault();
+			return false;
+			}
+		});
 
 		// SERIAL NUMBER VALIDATE START
 		$('tbody').on('keyup','.serial_no_item',function(){
@@ -925,9 +968,11 @@
 			if (validateSerialNo(serialInput) != true){
 				serial_flag = false;
 				$(this).closest('.form-group').addClass('has-error')
+				$(this).closest('.serial_no').find('.error_message').text(validateSerialNo(serialInput)).css('color', 'red');
 			} else {
 				serial_flag = true;
 				$(this).closest('.form-group').removeClass('has-error');
+				$(this).closest('.serial_no').find('.error_message').text("");
 			}
 
 			checkFlags();
@@ -945,10 +990,12 @@
 			}
 			if(validateSerialNo(serialInput)){
 				$(this).data('value',serialInput);
+				if(serialInput != ""){
+					serial_input.push(serialInput);
+				}
 			}
-			
-			serial_input.push(serialInput);
 			console.log(serial_input);
+			checkFlags();
 		});
 		// SERIAL NUMBER VALIDATE END
 
@@ -956,8 +1003,16 @@
 		$('tbody').on('keyup','.engine_no_item',function(){
 			var engineInput = $(this).val();
 			
-			engine_flag = validateEngineNo(engineInput);
-			
+			if (validateEngineNo(engineInput) != true){
+				engine_flag = false;
+				$(this).closest('.form-group').addClass('has-error')
+				$(this).closest('.engine_no').find('.error_message').text(validateEngineNo(engineInput)).css('color', 'red');
+			} else {
+				engine_flag = true;
+				$(this).closest('.form-group').removeClass('has-error');
+				$(this).closest('.engine_no').find('.error_message').text("");
+			}
+			console.log(validateEngineNo(engineInput));
 			checkFlags();
 		});
 
@@ -973,9 +1028,12 @@
 			}
 			if(validateEngineNo(engineInput)){
 				$(this).data('value',engineInput);
+				if(engineInput != ""){
+					engine_input.push(engineInput);
+				}
 			}
-
-			engine_input.push(engineInput);
+			console.log(engine_input);
+			checkFlags();
 		});
 		// ENGINE NUMBER VALIDATE END
 		
@@ -983,7 +1041,15 @@
 		$('tbody').on('keyup','.chassis_no_item',function(){
 			var chassisInput = $(this).val();
 			
-			chassis_flag = validateChassisNo(chassisInput);
+			if (validateChassisNo(chassisInput) != true){
+				chassis_flag = false;
+				$(this).closest('.form-group').addClass('has-error')
+				$(this).closest('.chassis_no').find('.error_message').text(validateChassisNo(chassisInput)).css('color', 'red');
+			} else {
+				chassis_flag = true;
+				$(this).closest('.form-group').removeClass('has-error');
+				$(this).closest('.chassis_no').find('.error_message').text("");
+			}
 			
 			checkFlags();
 		})
@@ -1000,8 +1066,12 @@
 			}
 			if(validateChassisNo(chassisInput)){
 				$(this).data('value',chassisInput);
+				if(chassisInput != ""){
+					chassis_input.push(chassisInput);
+				}
 			}
-			chassis_input.push(chassisInput);
+			console.log(chassis_input);
+			checkFlags();
 		});
 		// CHASSIS NUMBER VALIDATE END
 		
