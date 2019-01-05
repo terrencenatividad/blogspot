@@ -84,6 +84,7 @@
 				</table>
 			</div>
 		</div>
+		<div id="pagination"></div>
 	</section>
 	<div class="delete-modal">
 		<div class="modal modal-danger">
@@ -146,6 +147,7 @@
 	<script>
 		var ajax = filterFromURL();
 		var ajax_call = '';
+		ajax.limit = 10;
 		ajaxToFilter(ajax, { search : '#table_search', limit : '#items' });
 		$('#table_search').on('input', function () {
 			ajax.search = $(this).val();
@@ -168,6 +170,17 @@
 				$('#warning_modal .modal-body').append(error);
 			}
 		}
+
+		$('#pagination').on('click', 'a', function(e) {
+			e.preventDefault();
+			$('.checked').iCheck('uncheck');
+			var li = $(this).closest('li');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				ajax.page = $(this).attr('data-page');
+				getList();
+			}
+		});
+		
 		$('#importForm').submit(function(e) {
 			e.preventDefault();
 			var form_element = $(this);
@@ -241,12 +254,15 @@
 			}
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
 				$('#tableList tbody').html(data.table);
+				$('#pagination').html(data.pagination);
 				historyOfMyLife();
+				console.log(data);
 				if (ajax.page > data.page_limit && data.page_limit > 0) {
 					ajax.page = data.page_limit;
 					getList();
 				}
 			});
+			
 		}
 		getList();
 		function ajaxCallback(id) {

@@ -293,7 +293,8 @@ $(function () {
 	});
 	$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
 		var voucherno 		=  $('#input_voucherno').val();
-		data.formData = {reference: voucherno};
+		var task 			=  "listing";
+		data.formData = {reference: voucherno, task: task};
 	});
 	$('#attachments_form').bind('fileuploadalways', function (e, data) {
 		var error = data.result['files'][0]['error'];
