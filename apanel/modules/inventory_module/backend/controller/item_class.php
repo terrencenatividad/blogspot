@@ -100,7 +100,7 @@ class controller extends wc_controller {
 		$search = base64_decode($search);
 		$csv = $this->csv_header();
 		$list = $this->item_class_model->getItemClassList($this->fields, $search);
-		$csv .= $this->createCSVList($list);
+		$csv .= $this->createCSVList($list['tree']);
 		echo $csv;
 	}
 	
