@@ -460,7 +460,7 @@ class controller extends wc_controller {
 			if(is_array($content)){
 				foreach($content as $ind => $val) {
 					if($key == 'isbundle') {
-						if($val == 1){
+						if($val == 1 || $val == 'Yes'){
 							$data2[$key][$ind] = 'yes';
 						} else {
 							$data2[$key][$ind]  = 'no';
@@ -471,8 +471,8 @@ class controller extends wc_controller {
 		}
 		// var_dump($data2['isbundle']);
 		// $result = 0;
-		$result		= $this->job_order->saveJobOrder($data, $data2);
-		//var_dump($data, $data2);
+		//$result		= $this->job_order->saveJobOrder($data, $data2);
+		var_dump($data, $data2);
 		return array(
 			'redirect' => MODULE_URL,
 			'success' => $result

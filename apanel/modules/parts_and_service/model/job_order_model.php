@@ -325,7 +325,7 @@ class job_order_model extends wc_model
 							->setLimit('1')
 							->runSelect()
 							->getRow();
-
+		//echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -342,14 +342,14 @@ class job_order_model extends wc_model
 		// 					WHERE status = 'active' ) a 
 		// 				WHERE a.itemcode = '$itemcode' OR a.parentcode =  '$itemcode'";
 		$query 		=	"SELECT * FROM 
-							( SELECT bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom, b.bundle_item_code as parentcode, i.bundle
+							( SELECT bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom, b.bundle_item_code as parentcode
 							FROM items i
 							LEFT JOIN bom b ON b.bundle_item_code = i.itemcode AND b.companycode = i.companycode 
 							LEFT JOIN bomdetails bd ON bd.bom_code = b.bom_code AND bd.companycode = b.companycode
 							WHERE status = 'active' ) a 
 						WHERE a.itemcode = '$itemcode' OR a.parentcode =  '$itemcode'";
             $result = 	$this->db->setTable("($query) main")
-                        ->setFields('main.itemcode AS itemcode,main.BaseQty AS BaseQty,main.detailparticular as detailparticular,main.uom as uom, main.parentcode as parentcode, main.bundle as isbundle')
+                        ->setFields('main.itemcode AS itemcode,main.BaseQty AS BaseQty,main.detailparticular as detailparticular,main.uom as uom, main.parentcode as parentcode')
                         ->runSelect(false)
                         ->getResult();
             return $result;         

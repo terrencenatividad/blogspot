@@ -439,7 +439,7 @@
 		function addVoucherDetails(details, index, parent="") {
 			// console.log("Parent = "+parent);
 			var details = details || {itemcode: '', detailparticular: '', warehouse: '', qty: '0', quantity: '0', uom: 'PC', childqty : '0', linenum : '0', isbundle : '0', parentline : '', parentcode : ''};
-			console.log(details);
+			// console.log(details);
 			var other_details = JSON.parse(JSON.stringify(details));
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
@@ -473,19 +473,27 @@
 				var asd = 'parents'+linenum;
 				// parent = linenum;
 			}else{
-				parentline = parent;
-				parentcode = $('#tableList tbody tr[data-linenum="'+parent+'"]').find('.h_itemcode').val();
-				// console.log("PARENT CODE = "+parentcode);
+				parentline = (details.parentline!= "" && details.parentline!=undefined) ? details.parentline : parent;
+				if(parent!=""){
+					parentcode = $('#tableList tbody tr[data-linenum="'+parent+'"]').find('.h_itemcode').val();
+				} else {
+					parentcode = details.parentcode;
+				}
+
+				console.log(" PARENT CODE = "+parentcode);
+				//  console.log("PARENT CODE = "+parentcode);
 				var asd = 'subitem'+parentline;
 			}
-			
-			if(details.isbundle == 1 || details.isbundle == 'yes'){
+			// console.log("Upper isbundle: "+details.isbundle);
+			if(details.isbundle == 1 || details.isbundle == 'yes' || details.isbundle == 'Yes'){
 				var dsa = 'data-isbundle="1"';
+				// console.log("bundle = 1");
 			}else{
 				// jeff: for parentline anti duplicate
 				parentline = 0;
 				var dsa = 'data-isbundle="0"';
 				style = "style='font-weight: bold;'";
+				// console.log("bundle = 0");
 			}
 			row += `
 				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.quantity+`" data-linenum="`+linenum+`"  data-parentlinenum="`+parentline+`" `+style+`>`;
@@ -697,9 +705,9 @@
 					<?php endif ?>
 				</tr>
 			`;
-			
+			// notif
 			// This is for letting the system know where to add the row.. 
-			if(details.isbundle == 0){
+			if(details.isbundle == 1){
 				if($('#tableList tbody tr.parents'+parentline).siblings('.subitem'+parentline).length > 0){ 
 					// we check the current subitem added to know where to add its siblings
 					$('#tableList tbody tr.subitem'+parentline+'[data-linenum="'+(parseFloat(linenum)-1)+'"]').after(row);
@@ -1182,6 +1190,7 @@
 					curr_code.closest('tr').find('.uom').val(content.uom);
 					curr_code.closest('tr').find('.h_uom').val(content.uom);
 					curr_code.closest('tr').data('isbundle',content.isbundle);
+					curr_code.closest('tr').find('.isbundle').val(content.isbundle);
 				}
 			});
 			
