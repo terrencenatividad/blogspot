@@ -672,17 +672,16 @@ class sales_invoice extends wc_model
 													->getRow();
 
 			$detail_fields 		= "jod.itemcode, jod.detailparticular, jod.qty issueqty, jod.uom issueuom, sqd.unitprice, sqd.taxcode, sqd.taxrate, sqd.taxamount, sqd.amount, sqd.discountrate, sqd.discounttype, sqd.discountamount";
-			$condition 			= " job_order_no = '$code' ";
+			$condition 			= "jod.job_order_no = '$code' ";
 			
 			$retrieved_data['details'] 	= $this->db->setTable('job_order_details jod')
 											->setFields($detail_fields)
-											->leftJoin('servicequotation sq ON sq.voucherno = jo.job_order_no')
-											->leftJoin('servicequotation_details sqd ON sqd.voucherno = jod.job_order_no')
+											->leftJoin('job_order jo ON jo.job_order_no = jo.job_order_no')
+											->leftJoin('servicequotation_details sqd ON sqd.voucherno = jo.service_quotation AND sqd.itemcode = jod.itemcode AND sqd.companycode = jod.companycode')
 											->setWhere($condition)
 											->runSelect()
 											->getResult();
 		}
-		var_dump($retrieved_data);
 		return $retrieved_data;
 	}
 

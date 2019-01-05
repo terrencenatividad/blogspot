@@ -678,14 +678,8 @@ class controller extends wc_controller
 				$detailparticular 	= htmlspecialchars($val->detailparticular);
 				$quantity 			= $val->issueqty;
 				$unitprice 			= isset($val->unitprice) ? $val->unitprice : 0;
-				if ($voucher == 'dr') {
-					$discount 		= ($val->discounttype == 'amt') ? $val->discountamount : $val->discountrate;
-					$percentage 	= ($val->discounttype == 'perc') ? "%" : "";
-				}
-				else {
-					$discount		= 0;
-					$percentage 	= '';
-				}
+				$discount 			= ($val->discounttype == 'amt') ? $val->discountamount : $val->discountrate;
+				$percentage 		= ($val->discounttype == 'perc') ? "%" : "";
 				$discountamount 	= isset($val->discountamount) ? $val->discountamount : 0;
 				$discountrate 		= isset($val->discountrate) ? $val->discountrate : 0;
 				$taxcode 			= isset($val->taxcode) ? $val->taxcode : '';
