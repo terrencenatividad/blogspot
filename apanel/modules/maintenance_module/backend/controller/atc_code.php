@@ -265,6 +265,10 @@ class controller extends wc_controller
 
 							// Check for Negative Values
 							$errmsg[] 	=	$this->import->check_negative("Tax Rate", $taxrate, $line);
+
+							if(empty($errmsg)){
+								$taxrate 	=	($taxrate > 0) ? (float)$taxrate/100 : 0;
+							}
 						}
 
 						$tax = $this->atc_code->check_accountclasscode($ewt);
@@ -289,7 +293,7 @@ class controller extends wc_controller
 						$errmsg		= 	array_filter($errmsg);
 
 						$atccode_[] 	= $atccode;
-						$taxrate_[] 	= ($taxrate > 0) ? (float)$taxrate/100 : 0;
+						$taxrate_[] 	= $taxrate;
 						$taxcode_[] 	= $taxcode;
 						$description_[]	= addslashes($description);
 						$ewt_[] 		= $ewt;
