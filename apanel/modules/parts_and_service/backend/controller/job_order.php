@@ -201,12 +201,11 @@ class controller extends wc_controller {
 		$data['restrict_dr'] 		= true;
 
 		$data['job_order_no']			= $id;
-		$data['attachment']			= $this->job_order->selectAttachment($id,$this->fieldsattachment);
-		$data['attach_check']		= "not ready";
-		if(!empty($data['attachment'])) {
-			$data['attach_check']		= "ready";
-			//$data['attachment_name'] 		= $data['attachment']['attachment_name'];
-			//$data['attachment_type'] 		= $data['attachment']['attachment_type'];
+		if ($data['stat'] == 'completed') {
+			$getData 				= $this->job_order->selectAttachment($id,$this->fieldsattachment);
+			$data['filename'] 		= $getData->attachment_name;
+			$data['filetype'] 		= $getData->attachment_type;
+			$data['fileurl'] 		= $getData->attachment_url;
 		}
 		$this->view->load('job_order/job_order', $data);
 	}
@@ -471,8 +470,8 @@ class controller extends wc_controller {
 		}
 		// var_dump($data2['isbundle']);
 		// $result = 0;
-		//$result		= $this->job_order->saveJobOrder($data, $data2);
-		var_dump($data, $data2);
+		$result		= $this->job_order->saveJobOrder($data, $data2);
+		//var_dump($data, $data2);
 		return array(
 			'redirect' => MODULE_URL,
 			'success' => $result

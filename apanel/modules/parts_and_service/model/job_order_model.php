@@ -341,17 +341,26 @@ class job_order_model extends wc_model
 		// 					LEFT JOIN bomdetails bd ON bd.bom_code = b.bom_code AND bd.companycode = b.companycode
 		// 					WHERE status = 'active' ) a 
 		// 				WHERE a.itemcode = '$itemcode' OR a.parentcode =  '$itemcode'";
-		$query 		=	"SELECT * FROM 
-							( SELECT bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom, b.bundle_item_code as parentcode
-							FROM items i
-							LEFT JOIN bom b ON b.bundle_item_code = i.itemcode AND b.companycode = i.companycode 
-							LEFT JOIN bomdetails bd ON bd.bom_code = b.bom_code AND bd.companycode = b.companycode
-							WHERE status = 'active' ) a 
-						WHERE a.itemcode = '$itemcode' OR a.parentcode =  '$itemcode'";
-            $result = 	$this->db->setTable("($query) main")
-                        ->setFields('main.itemcode AS itemcode,main.BaseQty AS BaseQty,main.detailparticular as detailparticular,main.uom as uom, main.parentcode as parentcode')
-                        ->runSelect(false)
-                        ->getResult();
+		
+		// $query 		=	"SELECT * FROM 
+		// 					( SELECT bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom, b.bundle_item_code as parentcode, i.bundle as bundle
+		// 					FROM items i
+		// 					LEFT JOIN bom b ON b.bundle_item_code = i.itemcode AND b.companycode = i.companycode 
+		// 					LEFT JOIN bomdetails bd ON bd.bom_code = b.bom_code AND bd.companycode = b.companycode
+		// 					WHERE status = 'active' ) a 
+		// 				WHERE a.itemcode = '$itemcode' OR a.parentcode =  '$itemcode'";
+        //     $result = 	$this->db->setTable("($query) main")
+        //                 ->setFields('main.itemcode AS itemcode,main.BaseQty AS BaseQty,main.detailparticular as detailparticular,main.uom as uom, main.parentcode as parentcode, main.bundle as isbundle')
+        //                 ->runSelect(false)
+		// 				->getResult();
+
+		$result	= $this->db->setTable('bomdetails bd')
+								->setFields('bd.item_code as itemcode, bd.quantity as BaseQty, bd.detailsdesc as detailparticular, bd.uom as uom, b.bundle_item_code as parentcode, "0" as isbundle')
+								->leftJoin('bom b ON  b.bom_code = bd.bom_code AND bd.companycode = b.companycode ')
+								->setWhere("b.bundle_item_code = '$itemcode' AND b.status = 'active' ")
+								->runSelect()
+								->getResult();
+			//echo $this->db->getQuery();
             return $result;         
 	}
 
