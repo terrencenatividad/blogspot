@@ -330,7 +330,6 @@ class job_order_model extends wc_model
 
 		return $result;
 	}
-
 	public function saveValues($table, $values){
         $result = $this->db->setTable($table)
                         ->setValues($values)
