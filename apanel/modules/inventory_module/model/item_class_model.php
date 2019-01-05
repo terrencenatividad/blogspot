@@ -106,7 +106,7 @@ class item_class_model extends wc_model {
 
 	public function getParentClass($id, $wnone = false) {
 		$result = $this->getItemClassList(array('id', 'label', 'parentid'));
-		$result = $this->getList($result, $id);
+		$result = $this->getList($result['tree'], $id);
 		$none = array();
 		if ($wnone) {
 			$none = array(
