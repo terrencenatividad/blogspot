@@ -21,7 +21,6 @@ class sales_print_model extends fpdf {
 	private $header_fontsize  	= array();
 	public $next_page			= false;
 	private $summary_start 		= 0;
-	
 	public function __construct($orientation = 'P', $unit = 'mm', $size = 'Letter') {
 		parent::__construct($orientation, $unit, $size);
 		$this->db = new db();
@@ -86,6 +85,12 @@ class sales_print_model extends fpdf {
 		$this->SetFont('Arial', '', 8);
 		$this->SetX(30);
 		$this->MultiCell(100, 4, $address, 0, 'L');
+		$this->SetFont('Arial', 'B', 8);
+		$this->Cell(29, 4, 'SHIPPING ADDRESS', 0, 0, 'L');
+		$this->Cell(17, 4, ':', 0, 0, 'L');
+		$this->SetFont('Arial', '', 8);
+		$this->SetX(40);
+		$this->MultiCell(100, 4, $this->s_address, 0, 'L');
 		$this->SetFont('Arial', 'B', 8);
 		$this->Cell(17, 4, 'CONTACT #', 0, 0, 'L');
 		$this->Cell(17, 4, ':', 0, 0, 'L');
@@ -225,7 +230,12 @@ class sales_print_model extends fpdf {
 		$this->customer_details = $customer_details;
 		return $this;
 	}
-	
+
+	public function setShippingDetail($s_address) {
+		$this->s_address = $s_address;
+		return $this;
+	}
+
 	public function setDocumentType($document_type) {
 		$this->document_type = $document_type;
 		return $this;

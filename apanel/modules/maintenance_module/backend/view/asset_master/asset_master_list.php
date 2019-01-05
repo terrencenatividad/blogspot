@@ -78,7 +78,7 @@
 								->addHeader('Asset Name', array('class'=>'col-md-2'),'sort','asset_class')
 								->addHeader('Asset Number',array('class'=>'col-md-2'),'sort','asset_number')
 								->addHeader('Description', array('class'=>'col-md-3'),'sort','description')
-								->addHeader('Department', array('class'=>'col-md-3'),'sort','department')
+								->addHeader('Budget Center', array('class'=>'col-md-3'),'sort','department')
 								->addHeader('Accountable Person', array('class'=>'col-md-3'),'sort','accountable_person')
 								->addHeader('Status', array('class'=>'col-md-3'),'sort','stat')					
 								->draw();

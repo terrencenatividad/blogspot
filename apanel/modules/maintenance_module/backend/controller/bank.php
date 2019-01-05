@@ -617,15 +617,19 @@ class controller extends wc_controller
 			} else {
 				foreach ($csv_array as $key => $row) {
 					$row['row_num'] = $key + 1;
+					$checking_account 		= $this->getValueCSV('Checking Account (yes/no)', $row, '', $errors, '');
 					$values[] = array(
 						'gl_code'			=> $this->getValueCSV('Bank Account GL Code', $row, 'required', $errors),
 						'bankcode' 			=> $this->getValueCSV('Bank Code', $row, 'required', $errors),
 						'shortname' 		=> $this->getValueCSV('Bank Name', $row, 'required', $errors),
 						'accountno' 		=> $this->getValueCSV('Bank Account Number', $row, 'required text', $errors),
 						'currency' 			=> $this->getValueCSV('Currency Code', $row, 'required text', $errors),
-						'checking_account' 	=> $this->getValueCSV('Checking Account (yes/no)', $row, 'required', $errors),
+						'checking_account' 	=> $this->getValueCSV('Checking Account (yes/no)', $row, '', $errors),
 						'address1' 			=> $this->getValueCSV('Bank Address', $row, 'required', $errors)
 					);
+					if($checking_account != "" && strtolower($checking_account) != "yes" || strtolower($checking_account) != "no"){
+						$errors[0] = "The Checking Account in line " .$row['row_num']. " is invalid. Kindly use 'Yes' for Checking Accounts, otherwise 'No'.<br>";;
+					}
 				}
 				$line = 1;
 				$bankcode = $this->bank->checkGL();
@@ -662,10 +666,11 @@ class controller extends wc_controller
 					$line++;	
 				}
 
-				if (empty($errors)) {
+ 				if (empty($errors)) {
 					$result = $this->bank->saveUserCSV($values);
 				}
 			}
+			// var_dump($checkglcode);
 		} else {
 			$errors[] = 'Invalid Import File. Please Use our Template for Uploading CSV';
 		}
