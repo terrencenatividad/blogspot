@@ -96,10 +96,9 @@ class item_class_model extends wc_model {
 				->leftJoin('wc_option et ON et.code = ic.expensetype')
 				->setWhere($condition);
 
-		$result = $this->db->runSelect()
-							->getResult();
-
-		return $this->buildTree($result);
+		$result = $this->db->runPagination();
+		// var_dump($result);
+		return $this->buildTree($result->result);
 	}
 
 	public function getParentClass($id, $wnone = false) {
