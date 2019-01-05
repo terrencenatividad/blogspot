@@ -419,14 +419,50 @@ class import_purchase_print_model extends fpdf {
 		return $this;
 	}
 
+	// public function addRow($row) {
+	// 	foreach($this->header as $key => $header) {
+	// 		$width			= isset($this->header_width[$key]) ? $this->header_width[$key] : 0;
+	// 		$align			= isset($this->row_align[$key]) ? $this->row_align[$key] : 'L';
+	// 		$array_values	= array_values((array) $row);
+	// 		$data			= isset($row->$header) ? $row->$header : $array_values[$key];
+	// 		$this->Cell($width, 5, $data, 0, 0, $align);
+	// 	}
+	// 	$this->Ln();
+	// }
+
 	public function addRow($row) {
+		$h 	=	6;
 		foreach($this->header as $key => $header) {
+			$x = $this->GetX();
+     		$y = $this->GetY();
 			$width			= isset($this->header_width[$key]) ? $this->header_width[$key] : 0;
 			$align			= isset($this->row_align[$key]) ? $this->row_align[$key] : 'L';
 			$array_values	= array_values((array) $row);
 			$data			= isset($row->$header) ? $row->$header : $array_values[$key];
-			$this->Cell($width, 5, $data, 0, 0, $align);
+			$array_values[10] = isset($array_values[10]) ? $array_values['10'] : 1;
+			// if ($array_values[6] == '' || $array_values[10] == '') {
+			// 	$this->setFont('Arial','B',9);
+			// 	if($key == 2){
+			// 		$this->setFont('Times','B',9);
+			// 	}
+			// }
+			// else {
+				// $this->setFont('Arial','',9);
+				// if($key == 2){
+				// 	$this->setFont('Times','',9);
+				// }
+			// }
+			$this->MultiCell($width, 6, $array_values[$key], 0, $align);
+			$y2 = $this->GetY();
+			if (($y2 - $y) > $h) {
+				$h = $y2 - $y;
+			}
+			$this->SetXY($x + $width, $y);
 		}
+		// if (($y + $h + $this->footer_height) >= $this->summary_start) {
+		// 	$this->next_page = true;
+		// }
+		$this->SetY($y + $h - 6);
 		$this->Ln();
 	}
 
@@ -463,6 +499,8 @@ class import_purchase_print_model extends fpdf {
 	public function drawSummary($summary) {
 		$summary_height	= count($summary) * 5;
 		$summary_start	= 279 - $this->margin_top - $this->footer_height - $summary_height - 2;
+		// $this->Line(8, $summary_start, 29, $summary_start);
+		$this->summary_start 	=	$summary_start;
 		$alignment		= $this->summary_align;
 		$font_style		= $this->summary_font_style;
 		$this->SetY($summary_start);
