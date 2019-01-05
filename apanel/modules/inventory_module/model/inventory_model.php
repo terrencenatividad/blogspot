@@ -377,6 +377,11 @@ class inventory_model extends wc_model {
 			$this->table_detail = 'inventoryadjustments';
 			$this->quantity_field = 'increase - decrease';
 			$this->inventory_movement = 1;
+		} else if ($type == 'Job Release') {
+			$this->table = 'job_release';
+			$this->table_detail = 'job_release';
+			$this->quantity_field = 'quantity';
+			$this->inventory_movement = -1;
 		}
 		$this->inventory_log_previous = array();
 
@@ -408,6 +413,12 @@ class inventory_model extends wc_model {
 								->runSelect(false)
 								->getResult();
 
+		} else if($this->log_type == 'Job Release') {
+			$result = $this->db->setTable($this->table_detail)
+								->setFields($this->fields)
+								->setWhere("job_release_no = '{$this->voucherno}'")
+								->runSelect()
+								->getResult();
 		} else {
 			$result = $this->db->setTable($this->table_detail)
 								->setFields($this->fields)
