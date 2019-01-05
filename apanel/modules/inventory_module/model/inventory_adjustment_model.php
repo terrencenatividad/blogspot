@@ -16,7 +16,7 @@ class inventory_adjustment_model extends wc_model {
 		$result = $this->db->setTable("items as items")
 							->leftJoin('invfile as inv ON inv.itemcode = items.itemcode '.$warehouse_cond)  
                             ->leftJoin('invdtlfile as invdtlfile ON invdtlfile.itemcode = inv.itemcode AND invdtlfile.warehouse = inv.warehouse') 
-							->setFields("items.itemcode as itemcode, inv.onhandQty as OHQty, inv.warehouse as warehouse , inv.allocatedQty as AllocQty, inv.availableQty as AvailQty, inv.orderedQty as OrderQty,items.itemname as itemname")
+							->setFields("items.itemcode as itemcode, inv.onhandQty as OHQty, inv.warehouse as warehouse , inv.allocatedQty as AllocQty, inv.availableQty as AvailQty, inv.orderedQty as OrderQty,items.itemname as itemname, items.item_ident_flag")
 							->setWhere($condition)
 							->setOrderBy($sort)
 							->runPagination();
@@ -652,6 +652,22 @@ class inventory_adjustment_model extends wc_model {
 		$result 	=	$this->db->setTable('inventorylogs')
 								  ->setWhere("activity = 'Beginning Balance'")
 								  ->runDelete();
+		return $result;
+	}
+
+	public function getSerialList($itemcode, $search) {
+		$condition = '';
+		if ($search) {
+			$condition .= ' AND ' . $this->generateSearch($search, array('serialno', 'engineno', 'chassisno'));
+		}
+		$result	= $this->db->setTable('items_serialized')
+								->setFields(array('id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat'))
+								->setWhere("itemcode = '$itemcode'" .$condition)
+								->setOrderBy('voucherno, linenum, rowno')
+								->runPagination();
+
+								// echo $this->db->getQuery();
+								
 		return $result;
 	}
 }
