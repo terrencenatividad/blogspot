@@ -506,7 +506,7 @@ class controller extends wc_controller
 			'Date'	=> $this->date->dateFormat($documentinfo->documentdate),
 			'SI #'	=> $voucherno,
 			'SO #'	=> $documentinfo->sono,
-			'DR #'	=> $documentinfo->sourceno,
+			'DR/JO #'	=> $documentinfo->sourceno,
 			'TERMS'	=> $customerdetails->terms
 		);
 
