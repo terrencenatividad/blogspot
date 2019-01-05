@@ -547,7 +547,7 @@ class controller extends wc_controller
 		/** HEADER INFO **/
 
 			$docinfo_table  = "salesorder as so";
-			$docinfo_fields = array('so.transactiondate AS documentdate','so.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS customer","'' AS referenceno",'so.amount AS amount','so.remarks as remarks','so.discounttype as disctype','so.discountamount as discount', 'so.netamount as net','so.amount as amount','so.vat_sales as vat_sales','so.vat_exempt as vat_exempt', 'so.vat_zerorated as vat_zerorated', 'so.taxamount as vat');
+			$docinfo_fields = array('so.transactiondate AS documentdate','so.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS customer","'' AS referenceno",'so.amount AS amount','so.remarks as remarks','so.discounttype as disctype','so.discountamount as discount', 'so.netamount as net','so.amount as amount','so.vat_sales as vat_sales','so.vat_exempt as vat_exempt', 'so.vat_zerorated as vat_zerorated', 'so.taxamount as vat', 'so.s_address as s_address');
 			$docinfo_join   = "partners as p ON p.partnercode = so.customer AND p.companycode = so.companycode";
 			$docinfo_cond 	= "so.voucherno = '$voucherno'";
 
@@ -573,8 +573,7 @@ class controller extends wc_controller
 		
 		/** CUSTOMER DETAILS **/
 
-			$customercode 		=	$this->so->getValue("salesorder", array('customer')," voucherno = '$voucherno'");
-
+			$customercode 		=	$this->so->getValue("salesorder", array('customer', 's_address')," voucherno = '$voucherno'");
 			$custField			= array('partnername customer', 'address1 address', 'tinno', 'terms', 'mobile contactno');
 			$customerdetails	= $this->so->retrieveData("partners",$custField," partnertype = 'customer' AND partnercode = '".$customercode[0]->customer."'");
 			$customerdetails	= $customerdetails[0];
@@ -585,11 +584,11 @@ class controller extends wc_controller
 			'Date'	=> $this->date->dateFormat($documentinfo->documentdate),
 			'SO #'	=> $voucherno
 		);
-
 		$print = new sales_print_model();
 		$print->setDocumentType('Sales Order')
 				->setFooterDetails(array('Approved By', 'Checked By'))
 				->setCustomerDetails($customerdetails)
+				->setShippingDetail($customercode[0]->s_address)
 				->setDocumentDetails($documentdetails)
 				// ->addTermsAndCondition()
 				->addReceived();

@@ -188,6 +188,7 @@ class controller extends wc_controller {
 		$print->setDocumentType('Delivery Receipt')
 				->setFooterDetails(array('Approved By', 'Checked By'))
 				->setCustomerDetails($customerdetails)
+				->setShippingDetail($documentinfo->s_address)
 				->setDocumentDetails($documentdetails)
 				// ->addTermsAndCondition()
 				->addReceived();
@@ -466,9 +467,10 @@ class controller extends wc_controller {
 		$pagination	= $this->delivery_model->getSerialList($fields, $itemcode, $search);
 		
 		$table		= '';
-		if (empty($pagination->result)) {
-			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
-		}
+		// if (empty($pagination->result)) {
+		// 	$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+		// }
+		$counter = 0;
 		foreach ($pagination->result as $key => $row) {
 			$checker = (in_array($row->id, $array_id) || in_array($row->id, $current_id)) ? 'checked' : '';
 			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id)) || ($row->stat == 'Not Available') && (!in_array($row->id, $current_id))) ? 'hidden' : '';
@@ -501,6 +503,10 @@ class controller extends wc_controller {
 				$table .= '<td>' . $row->chassisno . '</td>';
 			}
 			$table .= '</tr>';
+			$counter++;
+		}
+		if ($counter == 0) {
+			$table.= '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		$pagination->table = $table;
 		return $pagination;

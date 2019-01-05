@@ -167,6 +167,22 @@ class controller extends wc_controller {
 	}
 	public function view($id) {
 		$this->view->title			= 'View Service Quotation';
+		$this->view->addCSS(array(
+				'jquery.fileupload.css'
+			)
+		);  
+		$this->view->addJS(
+			array(
+				'jquery.dirrty.js',
+				'jquery.ui.widget.js',
+				'jquery.iframe-transport.js',
+				'jquery.fileupload.js',
+				'jquery.fileupload-process.js',
+				'jquery.fileupload-validate.js',
+				'jquery.fileupload-ui.js'
+			)
+		);
+
 		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
 		$data['ui']					= $this->ui;
@@ -174,7 +190,8 @@ class controller extends wc_controller {
 
 		$servicequotation			= $this->service_quotation->retrieveServiceQuotation($id);
 		$servicequotation_details	= $this->service_quotation->retrieveServiceQuotationDetails($id);
-		
+		$servicequotation_file 		= $this->service_quotation->retrieveServiceQuotationAttachment($id);
+
 		$data['voucherno'] 			= $id;
 		$data['jobtype'] 			= $servicequotation[0]->jobtype;
 		$data['customer'] 			= $servicequotation[0]->customer;
@@ -183,9 +200,12 @@ class controller extends wc_controller {
 		$data['reference'] 			= $servicequotation[0]->reference;
 		$data['discount_type'] 		= $servicequotation[0]->discounttype;
 		$data['notes']				= $servicequotation[0]->notes;
-		$data['filename'] 			= $servicequotation[0]->filename;
-		$data['filetype'] 			= $servicequotation[0]->filetype;
-
+		$data['stat'] 				= $servicequotation[0]->stat;
+		
+		$data['filename'] 			= $servicequotation_file[0]->attachment_name;
+		$data['filetype'] 			= $servicequotation_file[0]->attachment_type;
+		$data['filepath'] 			= $servicequotation_file[0]->attachment_url;
+		
 		$data['job_list']			= $this->service_quotation->getOption('job_type','code');
 		$data['customer_list']		= $this->service_quotation->getCustomerList();
 		$data['discount_type_list']	= $this->service_quotation->getOption('discount_type','value');
@@ -585,8 +605,10 @@ class controller extends wc_controller {
 		$post_data 		= $this->input->post();
 		$upload_handler	= new UploadHandler();
 		$reference 		= $post_data['reference'];
+		$task 			= $post_data['task'];
 		$upload_result 	= false;
-
+		unset($post_data['task']);
+		
 		if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
 			if(!isset($upload_handler->response['files'][0]->error)){
 				/**
@@ -595,19 +617,30 @@ class controller extends wc_controller {
 				 * @param group fields
 				 * @param custom condition
 				 */
-				$attachment_id = $this->service_quotation->getNextId("service_quotation_attachments","attachment_id");
+				if ($task=='view') 
+					$attachment_id = $this->service_quotation->getCurrentId("service_quotation_attachments", $reference);
+				
+				else
+					$attachment_id = $this->service_quotation->getNextId("service_quotation_attachments","attachment_id");
+
 				foreach($upload_handler->response['files'] as $key => $row) {
 					$post_data['attachment_id'] 	= $attachment_id;
 					$post_data['attachment_name'] 	= $row->name;
 					$post_data['attachment_type'] 	= $row->type;
 					$post_data['attachment_url']	= $row->url;
 				}
-				$upload_result 	= $this->service_quotation->uploadAttachment($post_data);
+
+				if ($task == 'view')
+					$upload_result 	= $this->service_quotation->replaceAttachment($post_data);
+				
+				else
+					$upload_result 	= $this->service_quotation->uploadAttachment($post_data);
+
 			}else{
 				$upload_result 	= false;
 			}
 		}
-		if($upload_result){
+		if($upload_result && $task == 'listing'){
 			/**
 			 * Update status of Service Quotation to Approved
 			 */

@@ -152,7 +152,7 @@ class service_quotation_model extends wc_model
 	}
 
 	public function retrieveServiceQuotation($voucherno=""){
-		$fields = "jobtype, transactiondate, customer, targetdate, discounttype, reference, notes, filename, filetype";
+		$fields = "jobtype, transactiondate, customer, targetdate, discounttype, reference, notes, filename, filetype, stat";
 		$result = $this->db->setTable('servicequotation sq')
 						->setFields($fields)
 						->setWhere("voucherno = '$voucherno'")
@@ -160,6 +160,7 @@ class service_quotation_model extends wc_model
 						->getResult();
 		return $result;
 	}
+
 	public function retrieveServiceQuotationDetails($voucherno=""){
 		$fields = "CONCAT(sq.itemcode,' - ',i.itemname) as itemname, sq.itemcode, sq.linenum, sq.haswarranty, sq.isbundle, sq.parentcode, sq.parentline, sq.childqty, sq.detailparticular, sq.warehouse, sq.qty, sq.uom, sq.unitprice, sq.taxcode, sq.taxrate, sq.discounttype, sq.discountrate, sq.discountamount, sq.taxamount";
 		$result = $this->db->setTable('servicequotation_details sq')
@@ -167,6 +168,16 @@ class service_quotation_model extends wc_model
 						->setFields($fields)
 						->setWhere("voucherno = '$voucherno'")
 						->setOrderBy('linenum ASC')
+						->runSelect()
+						->getResult();
+		return $result;
+	}
+
+	public function retrieveServiceQuotationAttachment($voucherno=""){
+		$fields = "attachment_name, attachment_type, attachment_url";
+		$result = $this->db->setTable('service_quotation_attachments')
+						->setFields($fields)
+						->setWhere("reference = '$voucherno'")
 						->runSelect()
 						->getResult();
 		return $result;
@@ -217,6 +228,20 @@ class service_quotation_model extends wc_model
 		}
 		return $return;
 	}
+	public function getCurrentId($table,$voucherno) {
+		$result = $this->db->setTable($table)
+			->setFields('attachment_id')
+			->setWhere(" reference='$voucherno'")
+			->runSelect()
+			->getRow();
+
+		if ($result) {
+			$return = $result->attachment_id;
+		} else {
+			$return = '1';
+		}
+		return $return;
+	}
 	public function uploadAttachment($data) {
 		$reference = $data['reference'];
 		$result = $this->db->setTable('service_quotation_attachments')
@@ -224,6 +249,17 @@ class service_quotation_model extends wc_model
 							->runInsert();
 		if ($result) {
 			$this->log->saveActivity("Approve [$reference] with attachment");		
+		}
+		return $result;
+	}
+	public function replaceAttachment($data) {
+		$reference = $data['reference'];
+		$result = $this->db->setTable('service_quotation_attachments')
+							->setValues($data)
+							->setWhere("reference='$reference'")
+							->runUpdate();
+		if ($result) {
+			$this->log->saveActivity("Update attachment with [$reference]");		
 		}
 		return $result;
 	}

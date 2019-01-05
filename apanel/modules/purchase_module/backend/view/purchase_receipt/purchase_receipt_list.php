@@ -6,7 +6,7 @@
 						<?
 							echo $ui->CreateNewButton('');
 						?>
-						<button type="button" id="item_multiple_cancel" class="btn btn-danger btn-flat">Cancel<span></span></button>
+						<!--<button type="button" id="item_multiple_cancel" class="btn btn-danger btn-flat">Cancel<span></span></button>-->
 					</div>
 					<div class="col-md-4">
 						<div class="form-group">
@@ -69,15 +69,22 @@
 			<ul id="filter_tabs" class="nav nav-tabs">
 				<li class="active"><a href="all" data-toggle="tab">All</a></li>
 				<li><a href="Received" data-toggle="tab">Received</a></li>
-				<li><a href="Cancelled" data-toggle="tab">Cancelled</a></li>
+				<!--<li><a href="Cancelled" data-toggle="tab">Cancelled</a></li>-->
 			</ul>
 			<div class="table-responsive">
 				<table id="tableList" class="table table-hover table-sidepad">
 					<?php
 						echo $ui->loadElement('table')
 								->setHeaderClass('info')
+								// ->addHeader(
+								// 	'<input type="checkbox" class="checkall">',
+								// 	array(
+								// 		'class' => 'text-center',
+								// 		'style' => 'width: 100px'
+								// 	)
+								// )
 								->addHeader(
-									'<input type="checkbox" class="checkall">',
+									'',
 									array(
 										'class' => 'text-center',
 										'style' => 'width: 100px'

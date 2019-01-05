@@ -10,6 +10,39 @@
 				<div class="row">
 					<div class="col-md-11">
 						<div class="row">
+		                    <?php 
+		                    	if($ajax_task == 'view') :
+		                        
+		                        	$color = 'default';
+									switch ($stat) {
+										case 'Pending':
+											$color = 'default';
+											break;
+										case 'Approved':
+											$color = 'success';
+											break;
+										case 'Partial':
+											$color = 'warning';
+											break;
+										case 'Cancelled':
+											$color = 'danger';
+											break;
+										case 'With JO':
+											$color = 'info';
+											break;
+									}
+		                        ?> 
+	                            <div class="row">
+	                                <div class="col-lg-2"></div>
+	                                <div class="col-lg-4">
+	                                    <font size = "4em"><span class="label label-<?=$color;?>"><?=$stat;?></span></font>
+	                                </div>
+	                                <div class="col-lg-3"></div>
+	                            </div>
+	                            <br>
+	                        <?php endif; ?>
+		                </div>
+						<div class="row">
 							<div class="col-md-6">
 
 								<?php
@@ -509,9 +542,9 @@
 								<tbody class="files" id="attachment_list">
 									<tr>
 										<td>
-											<button type="button" id="replace_attachment" name="replace_attachment" class="btn btn-primary">Replace</button>
+											<button type="button" id="replace_attachment" data-voucherno='<?=$voucherno;?>' name="replace_attachment" class="btn btn-primary">Replace</button>
 										</td>
-										<td><a href="insert uploaded link here"><?=$filename?></a></td>
+										<td><a href="<?=$filepath;?>" target='_blank'><?=$filename?></a></td>
 										<td><?=$filetype?></td>
 									</tr>
 								</tbody>
@@ -524,12 +557,68 @@
 		</div>
 	</div>
 	<?php endif;?>
+
+<div class="modal fade" id="discounttypeModal" tabindex="-1"  data-backdrop="static" data-keyboard="false" >
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Confirmation
+			</div>
+			<div class="modal-body" id="message">
+				Changing the Current Discount Type will clear out the Discounts. Do you wish to proceed?
+			</div>
+			<div class="modal-footer text-center">
+				<button type="button" class="btn btn-info btn-flat" id="disc_yes" data-dismiss='modal'>Yes</button>
+				<button type="button" class="btn btn-default btn-flat" id="disc_no" >No</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-md" role="document">
+		<div class="modal-content">
+		<form method = "post" id="attachments_form" enctype="multipart/form-data">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Attach File for <span id="modal-voucher"></span></h4>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<input type="hidden" name="voucherno" id='input_voucherno'>
+					<?php
+						echo $ui->setElement('file')
+								->setId('files')
+								->setName('files')
+								->setAttribute(array('accept' => '.pdf, .jpg, .png'))
+								->setValidation('required')
+								->draw();
+					?>
+				</div>
+				<p class="help-block">The file to be imported shall not exceed the size of <strong>3mb</strong> and must be a <strong>PDF, PNG or JPG</strong> file.</p>
+			</div>
+			<div class="modal-footer">
+				<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+					<div class="btn-group">
+					<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button">Attach</button>
+					</div>
+					&nbsp;&nbsp;&nbsp;
+					<div class="btn-group">
+					<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</form>
+		</div>
+	</div>
+</div>
 </section>
 <script>
 	var delete_row	= {};
 	var ajax		= {};
 	var ajax_call	= '';
 	var min_row		= 1;
+	var prev_discountype = '<?=$discount_type;?>';
+
 	function addVoucherDetails() {
 		var linenum = $('tableList tbody tr').length + 1;
 		var row = `<tr class='item`+ linenum +` items'>
@@ -689,7 +778,6 @@
 		var row 		= element.closest('tr')
 		var parentline 	= row.find('.linenum').val();
 		var customer 	= $('#customer').val();
-		console.log(row);
 		$.post("<?=MODULE_URL?>ajax/get_item_details","itemcode="+itemcode, function(data){
 
 			row.find(".detailparticular").val(data.itemdesc);
@@ -984,14 +1072,28 @@
 	});
 
 	$("#discount_type").on("change", function(){
-		if ($(this).val()=='none') {
-			$('#tableList tbody tr.items .discount').val('0.00');
+		$('#discounttypeModal').modal('show');
+		
+	});
+
+	$('#disc_yes').on('click', function(){
+		$('#tableList tbody tr.items .discount').val('0.00');
+		prev_discountype = $('#discount_type').val();
+
+		if ($('#discount_type').val()=='none')
 			$('#tableList tbody tr.items .discount').prop('readonly', true);
-		}
-		else{
+
+		else
 			$('#tableList tbody tr.items .discount').prop('readonly', false);
-			recomputeAll();
-		}
+			
+		recomputeAll();
+		$('#discounttypeModal').modal('hide');
+	});
+
+	$('#disc_no').on('click', function(){
+		console.log(prev_discountype);
+		$('#discount_type').val(prev_discountype).trigger('change');
+		$('#discounttypeModal').modal('hide');
 	});
 
 	$('#tableList tbody').on('input change blur', '.unitprice, .quantity, .discount, .taxcode', function() {
@@ -1063,5 +1165,73 @@
 		var tab = $('#nav li.active a').attr('href');console.log(tab);
 		$('#'+tab).show();
 	});
+
+	$('#replace_attachment').on('click', function(){
+		var voucherno = $(this).data('voucherno');
+		$('#modal-voucher').html(voucherno);
+		$('#input_voucherno').val(voucherno);
+		$('#attach_modal').modal('show');
+	});
+
+	
+</script>
+<script>
+$(function () {
+	'use strict';
+
+	$('#attachments_form').fileupload({
+		url: '<?= MODULE_URL ?>ajax/ajax_upload_file',
+		maxFileSize: 2000000,
+		disableExifThumbnail :true,
+		previewThumbnail:false,
+		autoUpload:false,
+		add: function (e, data) {            
+			$("#attach_button").off('click').on('click', function () {
+				data.submit();
+			});
+		},
+	});
+	$('#attachments_form').addClass('fileupload-processing');
+	$.ajax({
+		url: $('#attachments_form').fileupload('option', 'url'),
+		dataType: 'json',
+		context: $('#attachments_form')[0]
+	}).always(function () {
+		$(this).removeClass('fileupload-processing');
+	}).done(function (result) {
+		$(this).fileupload('option', 'done')
+			.call(this, $.Event('done'), {
+				result: result
+			});
+	});
+
+	$('#attachments_form').bind('fileuploadadd', function (e, data) {
+		var filename = data.files[0].name;
+		$('#attachments_form #files').closest('.input-group').find('.form-control').html(filename);
+	});
+	$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
+		var voucherno 	=  $('#input_voucherno').val();
+		var task 		=  "view";
+		data.formData = {reference: voucherno, task: task};
+	});
+	$('#attachments_form').bind('fileuploadalways', function (e, data) {
+		var error = data.result['files'][0]['error'];
+		var form_group = $('#attachments_form #files').closest('.form-group');
+		if(!error){
+			$('#attach_modal').modal('hide');
+			var msg = data.result['files'][0]['name'];
+			form_group.removeClass('has-error');
+			form_group.find('p.help-block.m-none').html('');
+
+			$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
+			$('#delay_modal').modal('show');
+			setTimeout(function(){window.location = '<?=MODULE_URL?>view/<?=$voucherno;?>';}, 1000);
+		}else{
+			var msg = data.result['files'][0]['name'];
+			form_group.addClass('has-error');
+			form_group.find('p.help-block.m-none').html(msg);
+		}
+	});
+});
 </script>
 <?php endif ?>
