@@ -168,7 +168,7 @@ class atccode_class extends wc_model
 	{
 		return $this->db->setTable('chartaccount')
 						->setFields('accountclasscode')
-						->setWhere(" segment5 = '$current' AND accountclasscode IN('TAX','CULIAB','OTHCL')")
+						->setWhere(" segment5 = '$current' AND accountclasscode IN('TAX','CULIAB','OTHCL','CULIAB')")
 						->runSelect()
 						->getResult();
 	}

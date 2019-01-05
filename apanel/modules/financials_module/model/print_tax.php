@@ -131,9 +131,11 @@ class print_tax extends Fpdi {
 
 		$tot_taxbase = 0;
 		$tot_tax = 0;
-		for($i = 0; $i < count($set_coa["details"]); $i++){
-			$tot_taxbase		+= $set_coa["details"][$i]->taxbase_amount;
-			$tot_tax		+= $set_coa["details"][$i]->credit;
+		if(isset($set_coa["details"])){
+			for($i = 0; $i < count($set_coa["details"]); $i++){
+				$tot_taxbase		+= $set_coa["details"][$i]->taxbase_amount;
+				$tot_tax		+= $set_coa["details"][$i]->credit;
+			}
 		}
 		$tot_taxbase = number_format($tot_taxbase,2);
 		$tot_tax = number_format($tot_tax,2);
@@ -143,29 +145,29 @@ class print_tax extends Fpdi {
 		$tot_taxbase3 = (in_array($trans_date, range('9','12'))) ?  $tot_taxbase : '';
 		
 		$taxbase_amount2 = 0;
-		if ($set_coa['details'][0]){
+		if (isset($set_coa['details'])){
 			$tax = 0;
-			for($i = 0; $i < count($set_coa['details'][0]); $i++){
-				$taxbase_amount_ 	= $set_coa['details'][0]->taxbase_amount;
-				$tax 				+= $set_coa['details'][0]->credit;
+			for($i = 0; $i < count($set_coa['details']); $i++){
+				$taxbase_amount_ 	= $set_coa['details'][$i]->taxbase_amount;
+				$tax 				+= $set_coa['details'][$i]->credit;
 				$taxbase_amount		= number_format($taxbase_amount_ ,2);
 				$taxbase_amount2    += $taxbase_amount_;
 			}
 			$tax = number_format($tax,2);
-		$taxbase_amount_ 	= $set_coa["details"][0]->taxbase_amount;
-		$taxbase_amount		= number_format($taxbase_amount_ ,2);
-		$arrval1 = (in_array($trans_date, range('1','4'))) ?  $taxbase_amount : '';
-		$arrval2 = (in_array($trans_date, range('5','8'))) ?  $taxbase_amount : '';
-		$arrval3 = (in_array($trans_date, range('9','12'))) ?  $taxbase_amount : '';
-		$this->Cell(42,4,$arrval1,0,0,'R');
-		$this->setXY(80,120);
-		$this->Cell(42,4,$arrval2,0,0,'R');
-		$this->setXY(105,120);
-		$this->Cell(42,4,$arrval3,0,0,'R');
-		$this->setXY(130,120);
-		$this->Cell(42,4,$taxbase_amount,0,0,'R');
-		$this->setXY(165,120);
-		$this->Cell(42,4,$tax,0,0,'R');
+			$taxbase_amount_ 	= $set_coa["details"][0]->taxbase_amount;
+			$taxbase_amount		= number_format($taxbase_amount_ ,2);
+			$arrval1 = (in_array($trans_date, range('1','4'))) ?  $taxbase_amount : '';
+			$arrval2 = (in_array($trans_date, range('5','8'))) ?  $taxbase_amount : '';
+			$arrval3 = (in_array($trans_date, range('9','12'))) ?  $taxbase_amount : '';
+			$this->Cell(42,4,$arrval1,0,0,'R');
+			$this->setXY(80,120);
+			$this->Cell(42,4,$arrval2,0,0,'R');
+			$this->setXY(105,120);
+			$this->Cell(42,4,$arrval3,0,0,'R');
+			$this->setXY(130,120);
+			$this->Cell(42,4,$taxbase_amount,0,0,'R');
+			$this->setXY(165,120);
+			$this->Cell(42,4,$tax,0,0,'R');
 		}
 
 		if (isset($set_coa['details'][1])){
