@@ -504,7 +504,7 @@ class controller extends wc_controller
 					if(empty($accounttype)){
 						$errmsg[] 	= "Account Type is required. Row $line should not be empty.<br>";
 					} else {
-						if($accounttype != "B" && $accounttype != "C" && $accounttype != "P") {
+						if($accounttype == "Both" || $accounttype != "Child" && $accounttype == "Parent") {
 							$errmsg[] 	= "Account Type is invalid. Kindly use 'P' for Parent, 'C' for Child, and 'B' for Both.<br>";
 						}
 					}

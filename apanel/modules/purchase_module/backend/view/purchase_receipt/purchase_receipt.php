@@ -456,7 +456,7 @@
 					</td>
 					<td>
 						<?php
-							$value = "<span id='temp_view_taxrate_` + index + `'></span>";
+							$value = "<span id='temp_view_taxrate_` + index + `'>` + details.taxcode + `</span>";
 							echo $ui->formField('dropdown')
 								->setSplit('', 'col-md-12 hidden')
 								->setName('taxcode[]')
@@ -473,7 +473,7 @@
 									->draw();
 
 							echo $ui->setElement('hidden')
-									->setName('detail_taxamount[]')
+									->setName('taxamount[]')
 									->setClass('taxamount')	
 									->setValue('` + (parseFloat(details.taxamount) || 0) + `')
 									->draw();
@@ -1144,8 +1144,8 @@
 					var taxrate = taxrates[tax] || 0;
 
 					var amount = (price * quantity);
-					var taxamount = removeComma(addComma(amount - (amount / (1 + parseFloat(taxrate)))));
-					amount = amount - taxamount;
+					var taxamount = removeComma(addComma(amount + (amount * parseFloat(taxrate))));
+					//amount = amount - taxamount;
 					total_amount += amount;
 					total_tax += taxamount;
 					

@@ -472,7 +472,12 @@ class controller extends wc_controller {
 		// }
 		$counter = 0;
 		foreach ($pagination->result as $key => $row) {
-			$checker = (in_array($row->id, $array_id) || in_array($row->id, $current_id)) ? 'checked' : '';
+			if ($curr->serialnumbers == $id) {
+				$checker = (in_array($row->id, $array_id) || in_array($row->id, $current_id)) ? 'checked' : '';
+			}
+			else {
+				$checker = (in_array($row->id, $array_id)) ? 'checked' : '';
+			}
 			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id)) || ($row->stat == 'Not Available') && (!in_array($row->id, $current_id))) ? 'hidden' : '';
 			$table .= '<tr class = "'.$hide_tr.'">';
 			$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'" '.$checker.'></td>';

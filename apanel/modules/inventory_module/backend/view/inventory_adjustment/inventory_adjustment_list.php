@@ -520,10 +520,10 @@
 		$('#adjModal #remarks').val('');
 
 		if( action == "plus" ){
-			$('#adjModal #inventory_account').closest('.form-group').find('label').text("Credit Account");
+			$('#adjModal #inventory_account').closest('.form-group').find('label').html("Credit Account <span style='color:red;'>*</span>");
 		}
 		else if( action == 'minus' ){
-			$('#adjModal #inventory_account').closest('.form-group').find('label').text("Debit Account");
+			$('#adjModal #inventory_account').closest('.form-group').find('label').html("Debit Account <span style='color:red;'>*</span>");
 		}
 
 		getCOAList(partno);
@@ -535,6 +535,7 @@
 	var ajax_serials = {};
 	var ajax_call = '';
 	var serial_box	=	[];
+	var temp_serial_box = [];
 	
 	ajaxToFilter(ajax,{ search: '#table_search', itemcode: '#itemcode', warehouse: '#warehouse'});
 
@@ -617,8 +618,8 @@
 			$("#adjustForm #btnSave_toggle").addClass('disabled');
 			
 			$("#adjustForm #btnSave").html('Saving...');
-			
-			$.post("<?=MODULE_URL?>ajax/update_inventory",$("#adjustForm").serialize())
+			console.log($("#adjustForm").serialize()+"&serials="+serial_box);
+			$.post("<?=MODULE_URL?>ajax/update_inventory",$("#adjustForm").serialize()+"&serials="+serial_box)
 			.done(function(data){
 				//$("#updateForm").submit();
 				$("#adjustForm #btnSave").removeClass('disabled');
@@ -637,6 +638,8 @@
 						
 						if( data.msg == 'success' ){
 							$("#adjModal").modal('hide');
+							serial_box = [];
+							temp_serial_box = [];
 						}
 					});
 				}
@@ -843,6 +846,14 @@
 		if (sec < 0) {sec = "59"};
 		return sec;
 	}
+	// Sorting Script
+	tableSort('#tableList', function(value, getlist) {
+		ajax.sort = value;
+		ajax.page = 1;
+		if (getlist) {
+			getList();
+		}
+	}, ajax);
 
 	function getSerialList(){
 		filterToURL();
@@ -857,7 +868,7 @@
 		$('#serialModal #sec_description').val(itemname);
 		
 		ajax_serials.itemcode	=	itemcode;
-		ajax_serials.search 	=	$('#serialModal #sec_search').val();
+		ajax_serials.limit 		= 	2;
 
 		$.post('<?=MODULE_URL?>ajax/retrieve_serialsforminus', ajax_serials, function(data) {
 			$('#tableSerialList tbody').html(data.table);
@@ -865,6 +876,7 @@
 			if (ajax.page > data.page_limit && data.page_limit > 0) {
 				ajax.page = data.page_limit;
 				getSerialList();
+				setCheckedSerials();
 			}
 		}).done(function(){
 			$('#serialModal').modal('show');
@@ -873,22 +885,68 @@
 
 	$('#serialModal #btn_close').on('click',function(){
 		$('#serialModal').modal('hide');
+		$('#serialModal #sec_search').val('');
+		ajax_serials.search = "";
 		getList();
+		serial_box = [];
+		temp_serial_box = [];
 	});
 
 	$(document).on('click','.serialized',function(){
 		getSerialList();
 	});
 
-	// Sorting Script
-	tableSort('#tableList', function(value, getlist) {
-		ajax.sort = value;
-		ajax.page = 1;
-		if (getlist) {
-			getList();
+	// Pagination for Serialized
+	$('#serialModal #serial_pagination').on('click', 'a', function(e) {
+		e.preventDefault();
+		var li = $(this).closest('li');
+		if (li.not('.active').length && li.not('.disabled').length) {
+			ajax_serials.page = $(this).attr('data-page');
+			getSerialList();
 		}
-	}, ajax);
+	});
 
-	
+	$('#tableSerialList').on('ifChecked','.check_id',function(){
+		var serial_id = $(this).val();
+		if(jQuery.inArray(serial_id, temp_serial_box) == -1){
+			temp_serial_box.push(serial_id);
+		}
+	});
 
+	$('#tableSerialList').on('ifUnchecked','.check_id',function(){
+		var remove_this  = 	$(this).val(); 
+		temp_serial_box = jQuery.grep(temp_serial_box, function(value) {
+			return value != remove_this;
+		});
+	});
+
+	$('#serialModal').on('click','#btn_tag',function(){
+		serial_box = temp_serial_box;
+		temp_serial_box = [];
+		$('#serialModal').modal('hide');
+
+		var count = 0;
+		$.each(serial_box,function(key,value){
+			count++;
+		});
+		$('#issueqtybtn').val(count);
+		$('#issueqtybtn').html(count);
+		$('#issueqty_serial').val(count);
+	});
+
+	function setCheckedSerials(){
+		$.each(temp_serial_box,function(key,value){
+			$('#check_id'+value).iCheck('check');
+		});
+	}
+
+	$('#serialModal').on('show.bs.modal',function(){
+		setCheckedSerials();
+	});
+
+	$('#serialModal').on('change','#sec_search',function(){
+		ajax_serials.search = $(this).val();
+		ajax_serials.page 	= 1;
+		getSerialList();
+	});	
 </script>
