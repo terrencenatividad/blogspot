@@ -290,7 +290,11 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title">Input Serial Numbers</h4>
+					<?php if ($show_input) { ?>
+						<h4 class="modal-title">Input Serial Numbers</h4>
+					<?php } else { ?>
+						<h4 class="modal-title">View Serial Numbers</h4>
+					<?php } ?>
 				</div>
 
 				<div class="modal-body no-padding">
@@ -308,7 +312,7 @@
 						<tbody id="serialize_tbody">
 							
 						</tbody>
-
+						<?php if ($show_input) {?>
 						<tfoot class="summary">
 							<tr>
 								<td colspan="4">
@@ -317,13 +321,15 @@
 							</tr>
 
 						</tfoot>
+						<?php } ?>
 					</table>
 				</div>
-
+				<?php if ($show_input) {?>
 				<div class="modal-footer text-center">
 					<button type="button" class="btn btn-primary save_serials">Save</button>
 					<button type="button" class="btn btn-default close_serials" data-dismiss="modal">Close</button>
 				</div>
+				<?php } ?>
 			</div>
 		</div>					
 	</div>`;
@@ -431,8 +437,8 @@
 						?>
 					</td>
 					<td class="text-right">
-						<button type="button" id="serial_`+ details.linenum +`" data-itemcode="`+details.itemcode+`" data-item="`+details.detailparticular+`" class="serialize_button btn btn-block btn-success btn-flat" disabled>
-							<em class="pull-left"><small>Enter serial numbers (<span class="receiptqty_serialized_display">0</span>)</small></em>
+						<button type="button" id="serial_`+ details.linenum +`" data-itemcode="`+details.itemcode+`" data-item="`+details.detailparticular+`" class="serialize_button btn btn-block btn-success btn-flat">
+							<em class="pull-left"><small>Enter serial numbers (<span class="receiptqty_serialized_display"><?php if ($show_input == '') { ?>` + (addComma(details.receiptqty, 0) || 0) + `<?php } else { ?>0<?php }?></span>)</small></em>
 						</button>
 						<?php
 							echo $ui->formField('text')
@@ -592,10 +598,25 @@
 					serialize[index].numbers.push(prop);
 				};		
 			}
-			<?php if (!$show_input) { ?>
-				$('#serial_' + details.linenum).addClass('hidden');
-				$('#receiptqty' + details.linenum).removeClass('hidden');
-			<?php }	?>
+			
+			<?php if (!$show_input) { ?> //VIEW POPULATE serialize FROM DB
+				var dataFromDB = <?php echo json_encode($serial_db) ?>;
+				var dataFromDB_index = [];
+				for (x = 0 ; x < dataFromDB.length ; x++){
+					if (dataFromDB[x].itemcode === details.itemcode) {
+						dataFromDB_index.push(dataFromDB[x]);
+					}
+				}
+				
+				for (var k = 0 ; k < parseInt(details.receiptqty) ; k++){
+					if(serialize[index].itemcode.length > 0){
+					serialize[index].numbers[k].serialno = dataFromDB_index[k].serialno;
+					serialize[index].numbers[k].engineno = dataFromDB_index[k].engineno;
+					serialize[index].numbers[k].chassisno = dataFromDB_index[k].chassisno;
+					}
+				}
+			<?php } ?>
+			
 
 			var warehouse = $('#warehouse').val();
 			if (warehouse == details.warehouse) {
@@ -613,7 +634,9 @@
 			} else {
 				$('#tableList tbody').find('tr:last .receiptqty').attr('readonly', '').val(0);
 				$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('disable');
-				$('#tableList tbody').find('tr:last .serialize_button').prop("disabled",true);
+				<?php if ($show_input) { ?>
+					$('#tableList tbody').find('tr:last .serialize_button').prop("disabled",true);
+				<?php }	?>
 			}
 			
 			$('#serial_' + details.linenum).on("click", function() {
@@ -627,6 +650,8 @@
 				
 				var rows = 0;
 
+				
+				
 				for (var i = 0 ; i <= index ; i++){
 					if(serialize[i].itemcode == icode){
 						
@@ -645,13 +670,17 @@
 						break;
 					}
 				}
-
+				// IDENTIFY FIELDS NEEDED
+				$("#serialize_tbody").attr("data-item-ident-flag",details.item_ident_flag);
+			
+				<?php if ($show_input) { ?>
 				// ADD 1 ROW IF NO THERE ARE NO ROWS
 				if ($('#serialize_tableList tbody tr').length == 0){
 					addRow(icode, item, 0);
 				}
+				<?php } ?>
 				
-				// console.log(rows);
+				// console.log(serialize);
 				$('.add-data').text("Add a New Line");
 				$("#serialize_modal").modal('show');
 			});
@@ -734,6 +763,20 @@
 					// console.log(rownum);
 				}
 
+				item_ident_flag = $("#serialize_tbody").attr("data-item-ident-flag");
+				
+				hasSerial = '';
+				hasEngine = '';
+				hasChassis = '';
+				
+				<?php if($show_input) { ?>
+				hasSerial = (item_ident_flag[0] == "1") ? '' : 'disabled';
+				hasEngine = (item_ident_flag[1] == "1") ? '' : 'disabled';
+				hasChassis = (item_ident_flag[2] == "1") ? '' : 'disabled';
+				<?php } ?>
+
+				// console.log(hasSerial+', '+hasEngine+', '+hasChassis);
+
 				(typeof serialno == 'undefined') ? serialno = '' : serialno=serialno;
 				(typeof engineno == 'undefined') ? engineno = '' : engineno=engineno;
 				(typeof chassisno == 'undefined') ? chassisno = '' : chassisno=chassisno;
@@ -754,7 +797,8 @@
 									->setAttribute(
 										array(
 											'data-value' => "`+ serialno +`",
-											'maxlength'=> "20"
+											'maxlength'=> "20",
+											'`+hasSerial+`'
 										))
 									->draw($show_input);
 							?>
@@ -771,7 +815,8 @@
 									->setAttribute(
 										array(
 											'data-value' => "`+ engineno +`",
-											'maxlength'=> "20"
+											'maxlength'=> "20",
+											'`+hasEngine+`'
 										))
 									->draw($show_input);
 							?>
@@ -788,17 +833,20 @@
 									->setAttribute(
 										array(
 											'data-value' => "`+ chassisno +`",
-											'maxlength'=> "20"
+											'maxlength'=> "20",
+											'`+hasChassis+`'
 										))
 									->draw($show_input);
 							?>
 							<div><strong><small class="error_message"></small></strong></div>
 						</td>
+						<?php if ($show_input) {?>
 						<td class="text-center">
 							<button type="button" class="btn btn-danger btn-flat deleteRow" data-delete=`+rownum+`>
 								<span class="glyphicon glyphicon-trash"></span>
 							</button>
 						</td>
+						<?php } ?>
 					</tr>`
 				);
 			}
@@ -868,6 +916,8 @@
 			
 			// console.log(serialize);
 		}
+
+		
 
 		$('tbody').on('click', '.deleteRow', function(e) {
 			var deleted_row = $(this).data('delete');
