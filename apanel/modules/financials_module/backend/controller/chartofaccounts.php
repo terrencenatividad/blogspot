@@ -515,9 +515,9 @@ class controller extends wc_controller
 					$ret_count = $this->coaclass->check_duplicate($parentaccount);
 					$pa_exists = isset($ret_count[0]->count) ? $ret_count[0]->count : 0;
 					// echo $pa_exists;
-					if($parentaccount!="" && $pa_exists <= 0){
-						$errmsg[] 	= "Parent Account Code on Row $line does not exist.<br>";
-					}		
+					// if($parentaccount!="" && $pa_exists <= 0){
+					// 	$errmsg[] 	= "Parent Account Code on Row $line does not exist.<br>";
+					// }		
 					if($fspresentation == 'Balance Sheet' || $fspresentation == 'Income Statement') {
 						$errmsg[]	= "Invalid FS Presenation on Row $line. Kindly use 'IS' for Income Statement and 'BS' for Balance Sheet<br/>";
 					}		

@@ -49,7 +49,8 @@ class controller extends wc_controller {
 			'parentcode',
 			'parentline',
 			'item_ident_flag',
-			'bom.quantity bomqty'
+			'bom.quantity bomqty',
+			'w.description'
 		);
 		$this->fields4			= array(
 			'job_release_no',
@@ -611,6 +612,15 @@ class controller extends wc_controller {
 			'success' => $result
 		);
 	}
+
+	private function ajax_check_issuedqty() {
+		$itemcode	= $this->input->post('itemcode');
+		$job_order_no	= $this->input->post('job_order_no');
+
+		$result		= $this->job_order->retrieveIssuedQty($itemcode,$job_order_no);
+
+		return array('result' => $result);
+	 }
 
 	private function ajax_load_issue() {
 		$seq 						= new seqcontrol();

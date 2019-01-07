@@ -30,7 +30,7 @@
 						<div class="panel-body">
 							<div class="row">
 								<div class="col-md-12 text-center">
-									<h3><strong>Quarterly Value-Added Tax Declaration</strong></h3>
+									<h3><strong>Quarterly Value-Added Tax Return</strong></h3>
 								</div>
 							</div>
 							

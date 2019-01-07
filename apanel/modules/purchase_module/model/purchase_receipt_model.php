@@ -335,12 +335,14 @@ class purchase_receipt_model extends wc_model {
 
 	public function getPurchaseReceiptDetails($fields, $voucherno, $view = true) {
 		if ($view) {
-			$result = $this->db->setTable('purchasereceipt_details')
+			$result = $this->db->setTable('purchasereceipt_details pr')
 								->setFields($fields)
+								->innerJoin('items i ON i.itemcode = pr.itemcode')
 								->setWhere("voucherno = '$voucherno'")
 								->setOrderBy('linenum')
 								->runSelect()
 								->getResult();
+								// echo $this->db->getQuery();
 			
 		} else {
 			$sourceno = $this->db->setTable('purchasereceipt')
@@ -638,9 +640,19 @@ class purchase_receipt_model extends wc_model {
 		return '(' . implode(' OR ', $temp) . ')';
 	}
 
-	public function getSerialNoFromDb() {
+	public function getSerialNoFromDbValidation() {
 		$result = $this->db->setTable('items_serialized i')
 							->setFields('serialno, engineno, chassisno')
+							// ->setOrderBy('serialno')
+							->runSelect()
+							->getResult();
+		
+		return $result;
+	}
+
+	public function getSerialNoFromDbView() {
+		$result = $this->db->setTable('items_serialized i')
+							->setFields('itemcode, serialno, engineno, chassisno')
 							// ->setOrderBy('serialno')
 							->runSelect()
 							->getResult();
