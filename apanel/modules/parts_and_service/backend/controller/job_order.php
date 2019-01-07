@@ -570,18 +570,20 @@ class controller extends wc_controller {
 
 	private function ajax_update_issue() {
 		$job_release_no = $this->input->post('jobreleaseno');
-		
 		$data			= $this->input->post($this->fields4);
-		$customer					= $this->input->post('h_customer');
-		$joborderno     = $data['job_order_no'][0];
-		$result = $this->job_order->updateIssueParts($job_release_no,$data);
-		// $this->job_order->createClearingEntries($job_release_no);
+		$customer		= $this->input->post('h_customer');
+		
+		$this->inventory_model->prepareInventoryLog('Job Release', $job_release_no)
+								->preparePreviousValues();
+								
+		$result 		= $this->job_order->updateIssueParts($job_release_no,$data);
+
+		$this->job_order->createClearingEntries($job_release_no);
 
 		if ($result && $this->inventory_model) {
-			$this->inventory_model->prepareInventoryLog('Job Release', $job_release_no)
-								->computeValues()
-								->setDetails($customer)
-								->logChanges();
+			$this->inventory_model->computeValues()
+									->setDetails($customer)
+									->logChanges();
 		}
 		return array(	
 			'result' => $result
@@ -593,7 +595,6 @@ class controller extends wc_controller {
 		$voucherno = $this->input->post('voucherno');
 		
 		if ($delete_id) {
-			$result = $this->job_order->reverseEntries($delete_id,$voucherno);
 			$result = $this->job_order->deleteJobRelease($delete_id,$voucherno);
 		}
 		if ($result && $this->inventory_model) {
@@ -602,9 +603,9 @@ class controller extends wc_controller {
 										->computeValues()
 										->logChanges('Cancelled');
 
-		// 		$this->job_order->createClearingEntries($delete_id);
+				$this->job_order->createClearingEntries($delete_id);
 			}
-			$this->inventory_model->generateBalanceTable();
+			// $this->inventory_model->generateBalanceTable();
 		
 		return array(
 			'success' => $result
@@ -676,7 +677,7 @@ class controller extends wc_controller {
 		$data['job_order_no'] = $job_order_no[0];
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
 		$data2 = $this->input->post($this->fields2);
-
+		
 		// $itemcodewosq					= $this->input->post('detail_itemcode');
 		// if($data['service_quotation'] == '') {
 		// 	$data2['itemcode']	= $itemcodewosq;

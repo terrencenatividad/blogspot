@@ -152,7 +152,7 @@ class service_quotation_model extends wc_model
 	}
 
 	public function retrieveServiceQuotation($voucherno=""){
-		$fields = "jobtype, transactiondate, customer, targetdate, discounttype, reference, notes, filename, filetype, stat";
+		$fields = "jobtype, transactiondate, customer, targetdate, discounttype, reference, notes, vat_sales, exempt_sales, t_sales, t_vat, t_amount, t_discount, stat";
 		$result = $this->db->setTable('servicequotation sq')
 						->setFields($fields)
 						->setWhere("voucherno = '$voucherno'")
@@ -162,7 +162,7 @@ class service_quotation_model extends wc_model
 	}
 
 	public function retrieveServiceQuotationDetails($voucherno=""){
-		$fields = "CONCAT(sq.itemcode,' - ',i.itemname) as itemname, sq.itemcode, sq.linenum, sq.haswarranty, sq.isbundle, sq.parentcode, sq.parentline, sq.childqty, sq.detailparticular, sq.warehouse, sq.qty, sq.uom, sq.unitprice, sq.taxcode, sq.taxrate, sq.discounttype, sq.discountrate, sq.discountamount, sq.taxamount";
+		$fields = "CONCAT(sq.itemcode,' - ',i.itemname) as itemname, sq.itemcode, sq.linenum, sq.haswarranty, sq.isbundle, sq.parentcode, sq.parentline, sq.childqty, sq.detailparticular, sq.warehouse, sq.qty, sq.uom, sq.unitprice, sq.taxcode, sq.taxrate, sq.discounttype, sq.discountrate, sq.discountamount, sq.taxamount, sq.amount";
 		$result = $this->db->setTable('servicequotation_details sq')
 						->leftJoin('items i ON sq.itemcode = i.itemcode')
 						->setFields($fields)

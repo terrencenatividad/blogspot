@@ -98,10 +98,14 @@ class inventory_adjustment_model extends wc_model {
 
 		$itemname 	 		= (isset($data['itemname']) && (!empty($data['itemname']))) ? htmlentities(addslashes(trim($data['itemname']))) : "";
 
-		$issueqty 			= (isset($data['issueqty']) && (!empty($data['issueqty']))) ? htmlentities(addslashes(trim($data['issueqty']))) : "";
+		$issueqty 			= (isset($data['issueqty']) && (!empty($data['issueqty']))) ? htmlentities(addslashes(trim($data['issueqty']))) : 0;
+		$issueqty_serial 	= (isset($data['issueqty_serial']) && (!empty($data['issueqty_serial']))) ? htmlentities(addslashes(trim($data['issueqty_serial']))) : 0;
 		$issueqty 			= str_replace(',','',$issueqty);
+		$issueqty_serial 	= str_replace(',','',$issueqty_serial);
 
 		$warehouse 			= (isset($data['h_warehouse']) && (!empty($data['h_warehouse']))) ? htmlentities(addslashes(trim($data['h_warehouse']))) : "";
+
+		$serials 			= (isset($data['serials']) && (!empty($data['serials']))) ? htmlentities(addslashes(trim($data['serials']))) : "";
 
 		/**FORMAT DATES**/
 		$transactiondate	= date("Y-m-d",strtotime($adjustdate));
@@ -117,12 +121,13 @@ class inventory_adjustment_model extends wc_model {
 													->getRow();
 		if( $action == 'plus' )
 		{
-			$increase 		= $issueqty;
+			$increase 		= (empty($serials) && $serials=="") ? $issueqty : $issueqty_serial;
 			$decrease 		= 0;
 		}
 		else if( $action == 'minus' )
 		{
-			$decrease 		= -$issueqty;
+			$qty 			= (empty($serials) && $serials=="") ? $issueqty : $issueqty_serial;
+			$decrease 		= -$qty;
 			$increase 		= 0;
 		}
 
@@ -156,12 +161,21 @@ class inventory_adjustment_model extends wc_model {
 			$details['decrease'] 		= $decrease;
 			$details['unitprice'] 		= isset($ret_aveprice[0]->price_average) 	?	$ret_aveprice[0]->price_average 	: 	0;
 			$details['warehouse'] 		= $warehouse;
+			$details['serialids'] 		= $serials;
 
 			$this->db->setTable($dtlInvTable)
 				->setValues($details);
 		
 			$insertResult = $this->db->runInsert();
 
+			if($insertResult && $serials!=""){
+				$exploded_serials 		= explode(',',$serials);
+				$update_srl_inv['stat'] = 'Not Available';
+				$insertResult = $this->db->setTable('items_serialized')
+										 ->setValues($update_srl_inv)
+										 ->setWhere("id IN ('".implode('\',\'',$exploded_serials)."')")
+										 ->runUpdate();
+			}
 			return $insertResult;
 		}
 	}
@@ -662,7 +676,7 @@ class inventory_adjustment_model extends wc_model {
 		}
 		$result	= $this->db->setTable('items_serialized')
 								->setFields(array('id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat'))
-								->setWhere("itemcode = '$itemcode'" .$condition)
+								->setWhere("stat = 'Available' AND itemcode = '$itemcode'" .$condition)
 								->setOrderBy('voucherno, linenum, rowno')
 								->runPagination();
 
