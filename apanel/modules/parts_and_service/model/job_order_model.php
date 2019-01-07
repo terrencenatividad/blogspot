@@ -604,7 +604,7 @@ class job_order_model extends wc_model
 	}
 	public function getIssuedPartsNo($jobno) {
 		$result	= $this->db->setTable('job_release j')
-								->setFields('DISTINCT (job_release_no) asd, voucherno')
+								->setFields('DISTINCT (job_release_no) jrno, voucherno')
 								->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no  and jod.itemcode = j.itemcode')
 								->leftJoin('journalvoucher jv ON jv.referenceno = j.job_release_no')
 								->setWhere("j.job_order_no = '$jobno' AND (parentcode = '' OR parentcode IS NULL) AND j.stat NOT IN ('cancelled')")
