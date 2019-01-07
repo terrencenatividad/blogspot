@@ -305,7 +305,7 @@
 								<th class="col-xs-1 text-center"></th>
 							</tr>
 						</thead>
-						<tbody id="serialize_tbody" data-item-ident-flag="">
+						<tbody id="serialize_tbody">
 							
 						</tbody>
 
@@ -456,7 +456,7 @@
 					</td>
 					<td>
 						<?php
-							$value = "<span id='temp_view_taxrate_` + index + `'></span>";
+							$value = "<span id='temp_view_taxrate_` + index + `'>` + details.taxcode + `</span>";
 							echo $ui->formField('dropdown')
 								->setSplit('', 'col-md-12 hidden')
 								->setName('taxcode[]')
@@ -473,7 +473,7 @@
 									->draw();
 
 							echo $ui->setElement('hidden')
-									->setName('detail_taxamount[]')
+									->setName('taxamount[]')
 									->setClass('taxamount')	
 									->setValue('` + (parseFloat(details.taxamount) || 0) + `')
 									->draw();
@@ -645,8 +645,7 @@
 						break;
 					}
 				}
-				// IDENTIFY FIELDS NEEDED
-				$("#serialize_tbody").attr("data-item-ident-flag",details.item_ident_flag);
+
 				// ADD 1 ROW IF NO THERE ARE NO ROWS
 				if ($('#serialize_tableList tbody tr').length == 0){
 					addRow(icode, item, 0);
@@ -734,10 +733,6 @@
 					rownum = $('#serialize_tableList tbody tr').length;
 					// console.log(rownum);
 				}
-				item_ident_flag = $("#serialize_tbody").attr('data-item-ident-flag');
-				hasSerial = (item_ident_flag[0]=="1") ? "" : "disabled";
-				hasEngine = (item_ident_flag[1]=="1") ? "" : "disabled";
-				hasChassis = (item_ident_flag[2]=="1") ? "" : "disabled";
 
 				(typeof serialno == 'undefined') ? serialno = '' : serialno=serialno;
 				(typeof engineno == 'undefined') ? engineno = '' : engineno=engineno;
@@ -759,8 +754,7 @@
 									->setAttribute(
 										array(
 											'data-value' => "`+ serialno +`",
-											'maxlength'=> "20",
-											'`+ hasSerial +`'
+											'maxlength'=> "20"
 										))
 									->draw($show_input);
 							?>
@@ -777,8 +771,7 @@
 									->setAttribute(
 										array(
 											'data-value' => "`+ engineno +`",
-											'maxlength'=> "20",
-											'`+ hasEngine +`'
+											'maxlength'=> "20"
 										))
 									->draw($show_input);
 							?>
@@ -795,8 +788,7 @@
 									->setAttribute(
 										array(
 											'data-value' => "`+ chassisno +`",
-											'maxlength'=> "20",
-											'`+ hasChassis +`'
+											'maxlength'=> "20"
 										))
 									->draw($show_input);
 							?>
@@ -916,7 +908,6 @@
 			}	
 
 			$(this).closest('tr').remove();
-			checkFlags();
 		});
 
 		var serial_flag = true;
@@ -1153,8 +1144,8 @@
 					var taxrate = taxrates[tax] || 0;
 
 					var amount = (price * quantity);
-					var taxamount = removeComma(addComma(amount - (amount / (1 + parseFloat(taxrate)))));
-					amount = amount - taxamount;
+					var taxamount = removeComma(addComma(amount + (amount * parseFloat(taxrate))));
+					//amount = amount - taxamount;
 					total_amount += amount;
 					total_tax += taxamount;
 					
