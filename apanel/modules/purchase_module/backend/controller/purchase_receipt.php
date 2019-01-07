@@ -42,7 +42,7 @@ class controller extends wc_controller {
 			// 'header_wtaxrate'		=> 'wtaxrate',
 		);
 		$this->fields2			= array(
-			'itemcode',
+			'itemcode'					=>'pr.itemcode',
 			'detailparticular',
 			'linenum',
 			'receiptqty',
@@ -59,6 +59,7 @@ class controller extends wc_controller {
 			'detail_discountamount'		=> 'discountamount',
 			'detail_withholdingamount'	=> 'withholdingamount',
 			'detail_warehouse'			=> 'warehouse',
+			'item_ident_flag'
 		);
 		$this->clean_number		= array(
 			'receiptqty'
@@ -104,7 +105,7 @@ class controller extends wc_controller {
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= false;
-		$data['serial_db']			= $this->purchase_model->getSerialNoFromDb();
+		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbValidation();
 		$data['serial_db_array']	= array();
 		foreach ($data['serial_db'] as $serial_db) {
 			array_push($data['serial_db_array'], $serial_db->serialno);
@@ -142,7 +143,7 @@ class controller extends wc_controller {
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= $this->restrict->setButtonRestriction($transactiondate);
-		$data['serial_db']			= $this->purchase_model->getSerialNoFromDb();
+		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbValidation();
 		$data['serial_db_array']	= array();
 		foreach ($data['serial_db'] as $serial_db) {
 			array_push($data['serial_db_array'], $serial_db->serialno);
@@ -178,7 +179,7 @@ class controller extends wc_controller {
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= $this->restrict->setButtonRestriction($transactiondate);
-		$data['serial_db']			= $this->purchase_model->getSerialNoFromDb();
+		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbView();
 		$data['serial_db_array']	= array();
 		foreach ($data['serial_db'] as $serial_db) {
 			array_push($data['serial_db_array'], $serial_db->serialno);
