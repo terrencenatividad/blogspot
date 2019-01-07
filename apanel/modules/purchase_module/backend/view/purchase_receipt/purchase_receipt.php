@@ -765,9 +765,15 @@
 
 				item_ident_flag = $("#serialize_tbody").attr("data-item-ident-flag");
 				
+				hasSerial = '';
+				hasEngine = '';
+				hasChassis = '';
+				
+				<?php if($show_input) { ?>
 				hasSerial = (item_ident_flag[0] == "1") ? '' : 'disabled';
 				hasEngine = (item_ident_flag[1] == "1") ? '' : 'disabled';
 				hasChassis = (item_ident_flag[2] == "1") ? '' : 'disabled';
+				<?php } ?>
 
 				// console.log(hasSerial+', '+hasEngine+', '+hasChassis);
 
