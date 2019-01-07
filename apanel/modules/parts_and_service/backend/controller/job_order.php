@@ -572,15 +572,18 @@ class controller extends wc_controller {
 		$job_release_no = $this->input->post('jobreleaseno');
 		$data			= $this->input->post($this->fields4);
 		$customer		= $this->input->post('h_customer');
-		$result 		= $this->job_order->updateIssueParts($job_release_no,$data);
 		
+		$this->inventory_model->prepareInventoryLog('Job Release', $job_release_no)
+								->preparePreviousValues();
+								
+		$result 		= $this->job_order->updateIssueParts($job_release_no,$data);
+
 		$this->job_order->createClearingEntries($job_release_no);
 
 		if ($result && $this->inventory_model) {
-			$this->inventory_model->prepareInventoryLog('Job Release', $job_release_no)
-								->computeValues()
-								->setDetails($customer)
-								->logChanges();
+			$this->inventory_model->computeValues()
+									->setDetails($customer)
+									->logChanges();
 		}
 		return array(	
 			'result' => $result
