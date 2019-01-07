@@ -541,6 +541,12 @@
 									->setValue('` + details.qtyleft + `')
 									->draw($show_input);
 							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setClass('available_qty')
+									->setValue('` + details.available + `')
+									->draw($show_input);
+							?>
 						<?php } ?>
 					</td>
 					<td>
@@ -877,13 +883,33 @@
 			var warehouse = $(this).val();
 			$('#tableList tbody .issueqty').each(function() {
 				var warehouse_row = $(this).closest('tr').find('.warehouse').val();
+				var parentline = $(this).closest('tr').find('.parentline').val();
 				if (warehouse == warehouse_row) {
-					$(this).removeAttr('readonly').val($(this).attr('data-value'));
-					if ($(this).hasClass('serialbtn')) {
-						$(this).removeAttr('disabled').val($(this).attr('data-value'));
+					if ($(this).closest('tr').find('.issueqty').hasClass('itempart')) {
+						var parent = $('#tableList tbody tr').find('.parentline[value="'+parentline+'"]:first');
+						available = parent.closest('tr').find('.available_qty').val();
+						if (available == 0) {
+							if ($(this).hasClass('serialbtn')) {
+								$(this).attr('disabled', 'disabled').val(0);
+							}
+							$(this).attr('readonly', '').val(0);
+						}
+						else {
+							$(this).removeAttr('readonly').val($(this).attr('data-value'));
+							if ($(this).hasClass('serialbtn')) {
+								$(this).removeAttr('disabled').val($(this).attr('data-value'));
+							}
+						}
+					}
+					else {
+						$(this).removeAttr('readonly').val($(this).attr('data-value'));
+						if ($(this).hasClass('serialbtn')) {
+							$(this).removeAttr('disabled').val($(this).attr('data-value'));
+						}
 					}
 					$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('check').iCheck('enable');
-				} else {
+				} 
+				else {
 					if ($(this).hasClass('serialbtn')) {
 						$(this).attr('disabled', 'disabled').val(0);
 					}

@@ -357,7 +357,7 @@
 											)
 										)
 										->setValidation('required decimal')
-										->setValue(number_format(0,2))
+										->setValue(number_format($row->amount,2))
 										->draw($show_input);
 								?>
 							</td>
@@ -401,7 +401,7 @@
 											->setId('vat_sales')
 											->setClass("input_label text-right remove-margin")
 											->setAttribute(array("readOnly"=>"readOnly"))
-											->setValue(number_format($t_vatable_sales,2))
+											->setValue(number_format($vatable_sales,2))
 											->draw($show_input);
 								?>
 							</td>
@@ -419,7 +419,7 @@
 											->setId('exempt_sales')
 											->setClass("input_label text-right remove-margin")
 											->setAttribute(array("readOnly"=>"readOnly"))
-											->setValue(number_format($t_vat_exempt_sales,2))
+											->setValue(number_format($exempt_sales,2))
 											->draw($show_input);
 								?>
 							</td>
@@ -437,7 +437,7 @@
 											->setId('t_sales')
 											->setClass("input_label text-right remove-margin")
 											->setAttribute(array("readOnly"=>"readOnly"))
-											->setValue(number_format($t_vatsales,2))
+											->setValue(number_format($t_sales,2))
 											->draw($show_input);
 								?>
 							</td>
