@@ -520,10 +520,10 @@
 		$('#adjModal #remarks').val('');
 
 		if( action == "plus" ){
-			$('#adjModal #inventory_account').closest('.form-group').find('label').text("Credit Account");
+			$('#adjModal #inventory_account').closest('.form-group').find('label').html("Credit Account <span style='color:red;'>*</span>");
 		}
 		else if( action == 'minus' ){
-			$('#adjModal #inventory_account').closest('.form-group').find('label').text("Debit Account");
+			$('#adjModal #inventory_account').closest('.form-group').find('label').html("Debit Account <span style='color:red;'>*</span>");
 		}
 
 		getCOAList(partno);
@@ -535,6 +535,7 @@
 	var ajax_serials = {};
 	var ajax_call = '';
 	var serial_box	=	[];
+	var temp_serial_box = [];
 	
 	ajaxToFilter(ajax,{ search: '#table_search', itemcode: '#itemcode', warehouse: '#warehouse'});
 
@@ -617,8 +618,8 @@
 			$("#adjustForm #btnSave_toggle").addClass('disabled');
 			
 			$("#adjustForm #btnSave").html('Saving...');
-			
-			$.post("<?=MODULE_URL?>ajax/update_inventory",$("#adjustForm").serialize())
+			console.log($("#adjustForm").serialize()+"&serials="+serial_box);
+			$.post("<?=MODULE_URL?>ajax/update_inventory",$("#adjustForm").serialize()+"&serials="+serial_box)
 			.done(function(data){
 				//$("#updateForm").submit();
 				$("#adjustForm #btnSave").removeClass('disabled');
@@ -637,6 +638,8 @@
 						
 						if( data.msg == 'success' ){
 							$("#adjModal").modal('hide');
+							serial_box = [];
+							temp_serial_box = [];
 						}
 					});
 				}
@@ -874,6 +877,8 @@
 	$('#serialModal #btn_close').on('click',function(){
 		$('#serialModal').modal('hide');
 		getList();
+		serial_box = [];
+		temp_serial_box = [];
 	});
 
 	$(document).on('click','.serialized',function(){
@@ -889,6 +894,39 @@
 		}
 	}, ajax);
 
-	
+	$('#tableSerialList').on('ifChecked','.check_id',function(){
+		var serial_id = $(this).val();
+		if(jQuery.inArray(serial_id, serial_box) == -1){
+			temp_serial_box.push(serial_id);
+		}
+	});
 
+	$('#tableSerialList').on('ifUnchecked','.check_id',function(){
+		var remove_this  = 	$(this).val(); 
+		temp_serial_box = jQuery.grep(temp_serial_box, function(value) {
+			return value != remove_this;
+		});
+	});
+
+	$('#serialModal').on('click','#btn_tag',function(){
+		serial_box = temp_serial_box;
+		temp_serial_box = [];
+		$('#serialModal').modal('hide');
+
+		var count = 0;
+		$.each(serial_box,function(key,value){
+			count++;
+		});
+		$('#issueqtybtn').val(count);
+		$('#issueqtybtn').html(count);
+		$('#issueqty_serial').val(count);
+	});
+
+	$('#serialModal').on('show.bs.modal',function(){
+		console.log(temp_serial_box);
+		$.each(temp_serial_box,function(key,value){
+			console.log(key+' - '+value);
+			$('#check_id'+value).iCheck('check');
+		});
+	});
 </script>
