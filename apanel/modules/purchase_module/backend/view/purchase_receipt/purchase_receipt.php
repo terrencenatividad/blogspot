@@ -305,7 +305,7 @@
 								<th class="col-xs-1 text-center"></th>
 							</tr>
 						</thead>
-						<tbody id="serialize_tbody">
+						<tbody id="serialize_tbody" data-item-ident-flag="">
 							
 						</tbody>
 
@@ -432,7 +432,7 @@
 					</td>
 					<td class="text-right">
 						<button type="button" id="serial_`+ details.linenum +`" data-itemcode="`+details.itemcode+`" data-item="`+details.detailparticular+`" class="serialize_button btn btn-block btn-success btn-flat" disabled>
-							<em class="pull-left"><small>Enter serial numbers</small></em>
+							<em class="pull-left"><small>Enter serial numbers (<span class="receiptqty_serialized_display">0</span>)</small></em>
 						</button>
 						<?php
 							echo $ui->formField('text')
@@ -598,10 +598,10 @@
 			<?php }	?>
 
 			var warehouse = $('#warehouse').val();
-			if (warehouse == details.wareserializehouse) {
+			if (warehouse == details.warehouse) {
 				$('#tableList tbody').find('tr:last .receiptqty').each(function() {
-					if (details.receiptqtserializey > 0) {
-						$(this).removeAttserializer('readonly').val($(this).attr('data-value'));
+					if (details.receiptqty > 0) {
+						$(this).removeAttr('readonly').val($(this).attr('data-value'));
 						$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
 						$('#tableList tbody').find('tr:last .serialize_button').prop("disabled",false);
 					} else {
@@ -627,18 +627,14 @@
 				
 				var rows = 0;
 
-				// serialize[1].numbers[0].serialno = '0001';
-				// serialize[1].numbers[0].engineno = '0001';
-				// serialize[1].numbers[0].chassisno = '0001';
-
 				for (var i = 0 ; i <= index ; i++){
 					if(serialize[i].itemcode == icode){
 						
 						for (var rows = 0 ; rows < parseInt(details.receiptqty) ; rows++){
 							
-							if (!serialize[index].numbers[rows].serialno){	// CHECK NUMBER OF ROW WITH SERIAL NUMBERS														
+							if (!serialize[index].numbers[rows].serialno && !serialize[index].numbers[rows].engineno && !serialize[index].numbers[rows].chassisno) {	// CHECK NUMBER OF ROW WITH SERIAL NUMBERS														
 								break; //BREAK LOOP IF END OF QUANTITY REACHED
-							}else{ //ELSE POPULATE EXISTING ROW WITH SERIALS
+							} else { //ELSE POPULATE EXISTING ROW WITH SERIALS
 								sn = serialize[i].numbers[rows].serialno;
 								en = serialize[i].numbers[rows].engineno;
 								cn = serialize[i].numbers[rows].chassisno;
@@ -649,7 +645,8 @@
 						break;
 					}
 				}
-
+				// IDENTIFY FIELDS NEEDED
+				$("#serialize_tbody").attr("data-item-ident-flag",details.item_ident_flag);
 				// ADD 1 ROW IF NO THERE ARE NO ROWS
 				if ($('#serialize_tableList tbody tr').length == 0){
 					addRow(icode, item, 0);
@@ -737,6 +734,10 @@
 					rownum = $('#serialize_tableList tbody tr').length;
 					// console.log(rownum);
 				}
+				item_ident_flag = $("#serialize_tbody").attr('data-item-ident-flag');
+				hasSerial = (item_ident_flag[0]=="1") ? "" : "disabled";
+				hasEngine = (item_ident_flag[1]=="1") ? "" : "disabled";
+				hasChassis = (item_ident_flag[2]=="1") ? "" : "disabled";
 
 				(typeof serialno == 'undefined') ? serialno = '' : serialno=serialno;
 				(typeof engineno == 'undefined') ? engineno = '' : engineno=engineno;
@@ -758,7 +759,8 @@
 									->setAttribute(
 										array(
 											'data-value' => "`+ serialno +`",
-											'maxlength'=> "20"
+											'maxlength'=> "20",
+											'`+ hasSerial +`'
 										))
 									->draw($show_input);
 							?>
@@ -775,7 +777,8 @@
 									->setAttribute(
 										array(
 											'data-value' => "`+ engineno +`",
-											'maxlength'=> "20"
+											'maxlength'=> "20",
+											'`+ hasEngine +`'
 										))
 									->draw($show_input);
 							?>
@@ -792,7 +795,8 @@
 									->setAttribute(
 										array(
 											'data-value' => "`+ chassisno +`",
-											'maxlength'=> "20"
+											'maxlength'=> "20",
+											'`+ hasChassis +`'
 										))
 									->draw($show_input);
 							?>
@@ -842,17 +846,35 @@
 			$('#chassis_no'+index).val(chassis);
 	
 			// CHECK NUMBER OF INPUTS FOR QUANTITY IN DB
-			var count = 0;
+			var maxCount = 0;
+			var serialCount = 0;
 			$(".serial_no_item").each(function() {
 				if($(this).val().length > 0) {
-					count++;
+					serialCount++;
 				}
 			})
 
+			var engineCount = 0;
+			$(".engine_no_item").each(function() {
+				if($(this).val().length > 0) {
+					engineCount++;
+				}
+			})
+
+			var chassisCount = 0;
+			$(".chassis_no_item").each(function() {
+				if($(this).val().length > 0) {
+					chassisCount++;
+				}
+			})
+
+			maxCount = Math.max(serialCount,engineCount,chassisCount);
+
 			$("#serialize_modal").modal('hide');
-			$("#receiptqty"+(index+1)).val(count); //UPDATE QUANTITY BASED ON POPULATED SERIALS
-			// $("#receiptqty"+(index+1)).attr('data-value',count);
+			$("#receiptqty"+(index+1)).val(maxCount); //UPDATE QUANTITY BASED ON POPULATED SERIALS
+			$("#receiptqty"+(index+1)).closest('tr').find('.receiptqty_serialized_display').text(maxCount);
 			
+			// console.log(serialize);
 		}
 
 		$('tbody').on('click', '.deleteRow', function(e) {
@@ -894,6 +916,7 @@
 			}	
 
 			$(this).closest('tr').remove();
+			checkFlags();
 		});
 
 		var serial_flag = true;
@@ -988,12 +1011,13 @@
 			if( serialIndex > -1) {
 				serial_input.splice(serialIndex,1);
 			}
-			if(validateSerialNo(serialInput)){
+			if(validateSerialNo(serialInput) == true){
 				$(this).data('value',serialInput);
 				if(serialInput != ""){
 					serial_input.push(serialInput);
 				}
 			}
+			
 			console.log(serial_input);
 			checkFlags();
 		});
@@ -1012,7 +1036,7 @@
 				$(this).closest('.form-group').removeClass('has-error');
 				$(this).closest('.engine_no').find('.error_message').text("");
 			}
-			console.log(validateEngineNo(engineInput));
+			
 			checkFlags();
 		});
 
@@ -1026,7 +1050,7 @@
 			if( engineIndex > -1) {
 				engine_input.splice(engineIndex,1);
 			}
-			if(validateEngineNo(engineInput)){
+			if(validateEngineNo(engineInput) == true){
 				$(this).data('value',engineInput);
 				if(engineInput != ""){
 					engine_input.push(engineInput);
@@ -1064,7 +1088,7 @@
 			if( chassisIndex > -1) {
 				chassis_input.splice(chassisIndex,1);
 			}
-			if(validateChassisNo(chassisInput)){
+			if(validateChassisNo(chassisInput) == true){
 				$(this).data('value',chassisInput);
 				if(chassisInput != ""){
 					chassis_input.push(chassisInput);

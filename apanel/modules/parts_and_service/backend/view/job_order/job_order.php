@@ -211,7 +211,7 @@
 			</div>
 			<?endif;?>
 		</div>
-		<?php if ($stat == 'completed') { ?>
+		<?php if (!$show_input && !empty($filename)) { ?>
 		<div class="tab-pane" id="files">
 			<div class="box box-primary">
 				<form method = "post" class="form-horizontal" id="case_attachments_form" enctype="multipart/form-data">
@@ -333,8 +333,41 @@
 		</div>
 		</div>
 	</div>
+	<?if(!$show_input && !empty($filename)):?>
+	<div id="Attachment" class="tab-pane">
+		<div class="box box-primary">
+			<form method = "post" class="form-horizontal" id="case_attachments_form" enctype="multipart/form-data">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="table-responsive">
+							<table id="fileTable" class="table table-bordered">
+								<thead>
+									<tr class="info">
+										<th class="col-md-1">Action</th>
+										<th class="col-md-5">File Name</th>
+										<th class="col-md-2">File Type</th>
+									</tr>
+								</thead>
+								<tbody class="files" id="attachment_list">
+									<tr>
+										<td>
+											<button type="button" id="replace_attachment" data-voucherno='<?=$voucherno;?>' name="replace_attachment" class="btn btn-primary">Replace</button>
+										</td>
+										<td><a href="<?=$filepath;?>" target='_blank'><?=$filename?></a></td>
+										<td><?=$filetype?></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<br/>
+			</form>
+		</div>
+	</div>
+	<?php endif;?>
 	<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
-			<div class="modal-dialog modal-md" role="document">
+		<div class="modal-dialog modal-md" role="document">
 			<div class="modal-content">
 			<form method = "post" id="attachments_form" enctype="multipart/form-data">
 				<div class="modal-header">
@@ -368,8 +401,9 @@
 				</div>
 			</form>
 			</div>
-			</div>
 		</div>
+	</div>
+	
 	<div id="ordered_list_modal" class="modal fade" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">
@@ -711,19 +745,14 @@
 			
 			// This is for letting the system know where to add the row.. 
 			if( parentline != 0 ){
-				console.log("Current parentline :"+parentline);
-				console.log("Current length: "+ $('#tableList tbody tr.parents'+parentline).siblings('.subitem'+parentline).length);
-				if($('#tableList tbody tr.parents'+parentline).siblings('.subitem'+parentline).length > 0) {
+				if($('#tableList tbody tr[data-linenum="'+parentline+'"]').siblings('.subitem'+parentline).length > 0) {
 					// we check the current subitem added to know where to add its siblings
 					$('#tableList tbody tr.subitem'+parentline+'[data-linenum="'+(parseFloat(linenum)-1)+'"]').after(row);
-					console.log("A");
 				} else {
 					$('#tableList tbody tr').eq(parentline-1).after(row);
-					console.log("B");
 				}
 			} else {
 				$('#tableList tbody').append(row);
-				console.log("C");
 			}
 			
 			// var row2 = `
@@ -795,14 +824,26 @@
 			// $('#issuedPartsList tbody').append(row2);
 			// This part is for placing the value on the input fields
 			if (details.itemcode != '') {
-				if(details.isbundle == 0){
-					if($('#tableList tbody tr.parents'+parentline).siblings('.subitem'+parentline).length > 0){
+				// if(details.isbundle == 0){
+				// 	if($('#tableList tbody tr.parents'+parentline).siblings('.subitem'+parentline).length > 0){
+				// 		$('#tableList tbody tr.subitem'+parentline+'[data-linenum="'+linenum+'"]').find('.itemcode').val(details.itemcode);
+				// 	} else {
+				// 		$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+				// 	}
+				// } else {
+				// 	$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+				// }
+				if( parentline != 0 ){
+					if($('#tableList tbody tr[data-linenum="'+parentline+'"]').siblings('.subitem'+parentline).length > 0) {
 						$('#tableList tbody tr.subitem'+parentline+'[data-linenum="'+linenum+'"]').find('.itemcode').val(details.itemcode);
+						$('#tableList tbody tr.subitem'+parentline+'[data-linenum="'+linenum+'"]').find('.h_itemcode').val(details.itemcode);
 					} else {
 						$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+						$('#tableList tbody').find('tr:last .h_itemcode').val(details.itemcode);
 					}
 				} else {
 					$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+					$('#tableList tbody').find('tr:last .h_itemcode').val(details.itemcode);
 				}
 			}
 			if (details.warehouse != '') {
@@ -948,7 +989,10 @@
 			$(this).closest('tr').find('.discounttype:not(:checked)').closest('.input-group').find('.discount_entry.rate').val('0.00');
 			recomputeAll();
 		});
-		$('#replace_attachment').on('click',function(e){
+		$('#replace_attachment').on('click', function(){
+			var voucherno = $(this).data('voucherno');
+			$('#modal-voucher').html(voucherno);
+			$('#input_voucherno').val(voucherno);
 			$('#attach_modal').modal('show');
 		});
 		function retrieve_issued_parts() {
@@ -967,6 +1011,7 @@
 			$('.WhForBundle').prop('disabled', false);
 			$('.detailforBundle').prop('disabled', false);
 			$('.parentqty').prop('readonly', false);
+			// reorderlinenum();
 		});
 		<?php // if ($ajax_task == 'ajax_create'): ?>
 		$('#service_quotation').on('focus', function() {
@@ -1233,64 +1278,63 @@
 	</script>
 	<?php endif ?>
 
-	<script>
-$(function () {
-	'use strict';
 
-	$('#attachments_form').fileupload({
-		url: '<?= MODULE_URL ?>ajax/ajax_upload_file',
-		maxFileSize: 3000000,
-		disableExifThumbnail :true,
-		previewThumbnail:false,
-		autoUpload:false,
-		add: function (e, data) {            
-			$("#attach_button").off('click').on('click', function () {
-				data.submit();
-				//redirect
-			});
-		},
-	});
-	$('#attachments_form').addClass('fileupload-processing');
-	$.ajax({
-		url: $('#attachments_form').fileupload('option', 'url'),
-		dataType: 'json',
-		context: $('#attachments_form')[0]
-	}).always(function () {
-		$(this).removeClass('fileupload-processing');
-	}).done(function (result) {
-		$(this).fileupload('option', 'done')
-			.call(this, $.Event('done'), {
-				result: result
-			});
-	});
+// <script>
+// $(function () {
+// 	'use strict';
 
-	$('#attachments_form').bind('fileuploadadd', function (e, data) {
-		var filename = data.files[0].name;
-		$('#attachments_form #files').closest('.input-group').find('.form-control').html(filename);
-	});
-	$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
-		var voucherno 		=  $('#input_voucherno').val();
-		console.log(voucherno);
-		var task 		=  "view";
-		data.formData = {reference: voucherno, task: task};
-	});
-	$('#attachments_form').bind('fileuploadalways', function (e, data) {
-		var error = data.result['files'][0]['error'];
-		var form_group = $('#attachments_form #files').closest('.form-group');
-		if(!error){
-			$('#attach_modal').modal('hide');
-			var msg = data.result['files'][0]['name'];
-			form_group.removeClass('has-error');
-			form_group.find('p.help-block.m-none').html('');
+// 	$('#attachments_form').fileupload({
+// 		url: '<?= MODULE_URL ?>ajax/ajax_upload_file',
+// 		maxFileSize: 2000000,
+// 		disableExifThumbnail :true,
+// 		previewThumbnail:false,
+// 		autoUpload:false,
+// 		add: function (e, data) {            
+// 			$("#attach_button").off('click').on('click', function () {
+// 				data.submit();
+// 			});
+// 		},
+// 	});
+// 	$('#attachments_form').addClass('fileupload-processing');
+// 	$.ajax({
+// 		url: $('#attachments_form').fileupload('option', 'url'),
+// 		dataType: 'json',
+// 		context: $('#attachments_form')[0]
+// 	}).always(function () {
+// 		$(this).removeClass('fileupload-processing');
+// 	}).done(function (result) {
+// 		$(this).fileupload('option', 'done')
+// 			.call(this, $.Event('done'), {
+// 				result: result
+// 			});
+// 	});
 
-			$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
-			$('#delay_modal').modal('show');
-			setTimeout(function(){window.location = '<?=MODULE_URL?>view/<?=$job_order_no;?>';}, 1000);
-		}else{
-			var msg = data.result['files'][0]['name'];
-			form_group.addClass('has-error');
-			form_group.find('p.help-block.m-none').html(msg);
-		}
-	});
-});
-</script>
+// 	$('#attachments_form').bind('fileuploadadd', function (e, data) {
+// 		var filename = data.files[0].name;
+// 		$('#attachments_form #files').closest('.input-group').find('.form-control').html(filename);
+// 	});
+// 	$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
+// 		var voucherno 	=  $('#input_voucherno').val();
+// 		var task 		=  "view";
+// 		data.formData = {reference: voucherno, task: task};
+// 	});
+// 	$('#attachments_form').bind('fileuploadalways', function (e, data) {
+// 		var error = data.result['files'][0]['error'];
+// 		var form_group = $('#attachments_form #files').closest('.form-group');
+// 		if(!error){
+// 			$('#attach_modal').modal('hide');
+// 			var msg = data.result['files'][0]['name'];
+// 			form_group.removeClass('has-error');
+// 			form_group.find('p.help-block.m-none').html('');
+
+// 			$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
+// 			$('#delay_modal').modal('show');
+// 			setTimeout(function(){window.location = '<?=MODULE_URL?>view/<?=$job_order_no;?>';}, 1000);
+// 		}else{
+// 			var msg = data.result['files'][0]['name'];
+// 			form_group.addClass('has-error');
+// 			form_group.find('p.help-block.m-none').html(msg);
+// 		}
+// 	});
+// });
+// </script>
