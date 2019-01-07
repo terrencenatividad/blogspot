@@ -201,10 +201,20 @@ class controller extends wc_controller {
 		$data['discount_type'] 		= $servicequotation[0]->discounttype;
 		$data['notes']				= $servicequotation[0]->notes;
 		$data['stat'] 				= $servicequotation[0]->stat;
+
+		$data['vatable_sales']		= $servicequotation[0]->vat_sales;
+		$data['exempt_sales']	 	= $servicequotation[0]->exempt_sales;
+		$data['t_sales']			= $servicequotation[0]->t_sales;
+		$data['t_vat']				= $servicequotation[0]->t_vat;
+		$data['t_amount']			= $servicequotation[0]->t_amount;
+		$data['t_discount']			= $servicequotation[0]->t_discount;
 		
-		$data['filename'] 			= $servicequotation_file[0]->attachment_name;
-		$data['filetype'] 			= $servicequotation_file[0]->attachment_type;
-		$data['filepath'] 			= $servicequotation_file[0]->attachment_url;
+		if (isset($servicequotation_file[0]->attachment_name)) {
+			$data['filename'] 			= $servicequotation_file[0]->attachment_name;
+			$data['filetype'] 			= $servicequotation_file[0]->attachment_type;
+			$data['filepath'] 			= $servicequotation_file[0]->attachment_url;
+		}
+		
 		
 		$data['job_list']			= $this->service_quotation->getOption('job_type','code');
 		$data['customer_list']		= $this->service_quotation->getCustomerList();
@@ -215,13 +225,6 @@ class controller extends wc_controller {
 		$data["taxrates"]			= $this->service_quotation->getTaxRates();
 		
 		$data['voucher_details']	= $servicequotation_details;
-
-		$data['t_vatable_sales']	= 0;
-		$data['t_vat_exempt_sales']	= 0;
-		$data['t_vatsales']			= 0;
-		$data['t_vat']				= 0;
-		$data['t_amount']			= 0;
-		$data['t_discount']			= 0;
 
 		$data['ajax_task']			= 'view';
 		$data['ajax_post']			= '';
