@@ -19,7 +19,7 @@
 												->setSplit('col-md-4', 'col-md-8')
 												->setName('itemcode')
 												->setId('itemcode')
-												->setMaxLength(12)
+												->setMaxLength(25)
 												->setValue($itemcode)
 												->addHidden((isset($ajax_task) && $ajax_task == 'ajax_edit'))
 												->setValidation('required code')
