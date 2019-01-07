@@ -438,6 +438,7 @@ class job_order_model extends wc_model
 							->setFields($fields)
 							->leftJoin('items i ON i.itemcode = jod.itemcode')
 							->leftJoin('bomdetails bom ON bom.item_code = jod.itemcode')
+							->leftJoin('warehouse w ON w.warehousecode = jod.warehouse')
 							->setWhere("job_order_no = '$voucherno'")
 							->setOrderBy('linenum')
 							->runSelect()
@@ -533,6 +534,18 @@ class job_order_model extends wc_model
 							->runSelect()
 							->getRow();
 		//echo $this->db->getQuery();
+		return $result;
+	}
+
+	public function retrieveIssuedQty($itemcode,$job_order_no)
+	{
+		$result = $this->db->setTable('job_release')
+							->setFields("SUM(quantity) issuedqty")
+							->setWhere("itemcode = '$itemcode' AND job_order_no = '$job_order_no' AND stat != 'cancelled'")
+							->setLimit('1')
+							->runSelect()
+							->getRow();
+		// echo $this->db->getQuery();
 		return $result;
 	}
 
