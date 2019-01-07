@@ -305,7 +305,7 @@
 								<th class="col-xs-1 text-center"></th>
 							</tr>
 						</thead>
-						<tbody id="serialize_tbody">
+						<tbody id="serialize_tbody" data-item-ident-flag="">
 							
 						</tbody>
 
@@ -645,7 +645,8 @@
 						break;
 					}
 				}
-
+				// IDENTIFY FIELDS NEEDED
+				$("#serialize_tbody").attr("data-item-ident-flag",details.item_ident_flag);
 				// ADD 1 ROW IF NO THERE ARE NO ROWS
 				if ($('#serialize_tableList tbody tr').length == 0){
 					addRow(icode, item, 0);
@@ -733,6 +734,10 @@
 					rownum = $('#serialize_tableList tbody tr').length;
 					// console.log(rownum);
 				}
+				item_ident_flag = $("#serialize_tbody").attr('data-item-ident-flag');
+				hasSerial = (item_ident_flag[0]=="1") ? "" : "disabled";
+				hasEngine = (item_ident_flag[1]=="1") ? "" : "disabled";
+				hasChassis = (item_ident_flag[2]=="1") ? "" : "disabled";
 
 				(typeof serialno == 'undefined') ? serialno = '' : serialno=serialno;
 				(typeof engineno == 'undefined') ? engineno = '' : engineno=engineno;
@@ -754,7 +759,8 @@
 									->setAttribute(
 										array(
 											'data-value' => "`+ serialno +`",
-											'maxlength'=> "20"
+											'maxlength'=> "20",
+											'`+ hasSerial +`'
 										))
 									->draw($show_input);
 							?>
@@ -771,7 +777,8 @@
 									->setAttribute(
 										array(
 											'data-value' => "`+ engineno +`",
-											'maxlength'=> "20"
+											'maxlength'=> "20",
+											'`+ hasEngine +`'
 										))
 									->draw($show_input);
 							?>
@@ -788,7 +795,8 @@
 									->setAttribute(
 										array(
 											'data-value' => "`+ chassisno +`",
-											'maxlength'=> "20"
+											'maxlength'=> "20",
+											'`+ hasChassis +`'
 										))
 									->draw($show_input);
 							?>
@@ -908,6 +916,7 @@
 			}	
 
 			$(this).closest('tr').remove();
+			checkFlags();
 		});
 
 		var serial_flag = true;
