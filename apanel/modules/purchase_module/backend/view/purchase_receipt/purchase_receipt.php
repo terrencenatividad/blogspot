@@ -763,6 +763,14 @@
 					// console.log(rownum);
 				}
 
+				item_ident_flag = $("#serialize_tbody").attr("data-item-ident-flag");
+				
+				hasSerial = (item_ident_flag[0] == "1") ? '' : 'disabled';
+				hasEngine = (item_ident_flag[1] == "1") ? '' : 'disabled';
+				hasChassis = (item_ident_flag[2] == "1") ? '' : 'disabled';
+
+				// console.log(hasSerial+', '+hasEngine+', '+hasChassis);
+
 				(typeof serialno == 'undefined') ? serialno = '' : serialno=serialno;
 				(typeof engineno == 'undefined') ? engineno = '' : engineno=engineno;
 				(typeof chassisno == 'undefined') ? chassisno = '' : chassisno=chassisno;
@@ -783,7 +791,8 @@
 									->setAttribute(
 										array(
 											'data-value' => "`+ serialno +`",
-											'maxlength'=> "20"
+											'maxlength'=> "20",
+											'`+hasSerial+`'
 										))
 									->draw($show_input);
 							?>
@@ -800,7 +809,8 @@
 									->setAttribute(
 										array(
 											'data-value' => "`+ engineno +`",
-											'maxlength'=> "20"
+											'maxlength'=> "20",
+											'`+hasEngine+`'
 										))
 									->draw($show_input);
 							?>
@@ -817,7 +827,8 @@
 									->setAttribute(
 										array(
 											'data-value' => "`+ chassisno +`",
-											'maxlength'=> "20"
+											'maxlength'=> "20",
+											'`+hasChassis+`'
 										))
 									->draw($show_input);
 							?>
