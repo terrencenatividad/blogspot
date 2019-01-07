@@ -537,4 +537,18 @@ class controller extends wc_controller {
 		$serial_lists->table = $table;
 		return $serial_lists;
 	}
+
+	private function checkifexisting(){	
+		$itemcode 		=	$this->input->post('itemcode');
+		$fieldvalue 	=	$this->input->post('fieldvalue');
+		$fieldtype 		=	$this->input->post('fieldtype');
+
+		$result 		= 	$this->adjustment->checkifexisting($itemcode, $fieldvalue, $fieldtype);
+
+		$count 			=	isset($result[0]->count) 	?	$result[0]->count 	:	0;
+
+		$dataArray 		=	array('count'=>$count);
+
+		return $dataArray;
+	}
 }

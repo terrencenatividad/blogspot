@@ -684,4 +684,27 @@ class inventory_adjustment_model extends wc_model {
 								
 		return $result;
 	}
+
+	public function checkifexisting($itemcode, $fieldvalue, $fieldtype){
+		$array 		= 	array();
+		$condition 	=	"";
+
+		if($fieldtype == 'serial') {
+			$array 	=	array('COUNT(serialno) count');
+			$condition 	=	"itemcode = '$itemcode' AND serialno = '$fieldvalue'";
+		} else if($fieldtype == 'engine') {
+			$array 	=	array('COUNT(engineno) count');
+			$condition 	=	"itemcode = '$itemcode' AND engineno = '$fieldvalue'";
+		} else {
+			$array 	=	array('COUNT(chassisno) count');
+			$condition 	=	"itemcode = '$itemcode' AND chassisno = '$fieldvalue'";
+		}
+
+		$result = $this->db->setTable('items_serialized')
+							->setFields($array)
+							->setWhere($condition)
+							->runSelect()
+							->getResult();
+		return $result;
+	}
 }

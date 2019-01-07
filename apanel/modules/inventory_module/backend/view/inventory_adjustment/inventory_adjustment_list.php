@@ -108,6 +108,7 @@
 					<div class = 'row'>
 						<input type='hidden' name='h_warehouse' id='h_warehouse' value=''>
 						<input type='hidden' name='action' id='addminusbtn' value=''>
+						<input type='hidden' name='action' id='item_ident_flag' value=''>
 
 						<div class = 'panel panel-default'>
 							<div class = 'panel-heading'>
@@ -378,7 +379,7 @@
 			</div>
 			<div class="modal-body">
 				<div class="row">
-					<div class="col-md-4 col-md-offset-8">
+					<div class="col-md-6 col-md-offset-6">
 						<div class="input-group">
 							<input id="sec_search" class="form-control pull-right" placeholder="Search" type="text">
 							<div class="input-group-addon">
@@ -392,7 +393,7 @@
 				<table id="tableSerialList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
 					<thead>
 						<tr class="info">
-							<th class="col-xs-2"></th>
+							<th class="col-xs-2 checkbox_header"></th>
 							<th id = "serial_header">Serial No.</th>
 							<th id = "engine_header">Engine No.</th>
 							<th id = "chassis_header">Chassis No.</th>
@@ -401,6 +402,13 @@
 					<tbody>
 						
 					</tbody>
+					<tfoot>
+						<tr class="newline">
+							<td>
+								<button type="button" class="btn btn-link" onClick="addnewserial()">Add a New Line</button>
+							</td>
+						</tr>
+					</tfoot>
 				</table>
 				<div id="serial_pagination"></div>
 			</div>
@@ -494,6 +502,7 @@
 	}
 
 	function adjustment(partno, partname, qty, ident_flag, action){ 
+		$('#item_ident_flag').val(ident_flag);
 		var has_serial = ident_flag.substring(0, 1);
 		var has_engine = ident_flag.substring(1, 1);
 		var has_chassis= ident_flag.substring(2, 1);
@@ -533,6 +542,7 @@
 
 	var ajax = filterFromURL();
 	var ajax_serials = {};
+	var ajax_manual = {};
 	var ajax_call = '';
 	var serial_box	=	[];
 	var temp_serial_box = [];
@@ -618,7 +628,6 @@
 			$("#adjustForm #btnSave_toggle").addClass('disabled');
 			
 			$("#adjustForm #btnSave").html('Saving...');
-			console.log($("#adjustForm").serialize()+"&serials="+serial_box);
 			$.post("<?=MODULE_URL?>ajax/update_inventory",$("#adjustForm").serialize()+"&serials="+serial_box)
 			.done(function(data){
 				//$("#updateForm").submit();
@@ -640,6 +649,9 @@
 							$("#adjModal").modal('hide');
 							serial_box = [];
 							temp_serial_box = [];
+							$('#issueqtybtn').val(0);
+							$('#issueqtybtn').html(0);
+							$('#issueqty_serial').val(0);
 						}
 					});
 				}
@@ -855,7 +867,7 @@
 		}
 	}, ajax);
 
-	function getSerialList(){
+	function getSerialList(button_ident){
 		filterToURL();
 		if (ajax_call != '') {
 			ajax_call.abort();
@@ -869,18 +881,28 @@
 		
 		ajax_serials.itemcode	=	itemcode;
 		ajax_serials.limit 		= 	2;
-
-		$.post('<?=MODULE_URL?>ajax/retrieve_serialsforminus', ajax_serials, function(data) {
-			$('#tableSerialList tbody').html(data.table);
-			$('#serial_pagination').html(data.pagination);
-			if (ajax.page > data.page_limit && data.page_limit > 0) {
-				ajax.page = data.page_limit;
-				getSerialList();
-				setCheckedSerials();
-			}
-		}).done(function(){
+		console.log(" BUTTON = "+button_ident);
+		if(button_ident=="minus"){
+			$.post('<?=MODULE_URL?>ajax/retrieve_serialsforminus', ajax_serials, function(data) {
+				$('#tableSerialList tbody').html(data.table);
+				$('#serial_pagination').html(data.pagination);
+				if (ajax.page > data.page_limit && data.page_limit > 0) {
+					ajax.page = data.page_limit;
+					getSerialList(button_ident);
+					setCheckedSerials();
+				}
+			}).done(function(){
+				$('.checkbox_header').removeClass('hidden');
+				$('#tableSerialList tfoot.newline').addClass('hidden')
+				$('#serialModal').modal('show');
+			});
+		} else {
+			$('#tableSerialList tbody').html('');
+			$('#tableSerialList #serial_pagination').html('');
+			addnewserial();
+			$('.checkbox_header').addClass('hidden');
 			$('#serialModal').modal('show');
-		});
+		}
 	}
 
 	$('#serialModal #btn_close').on('click',function(){
@@ -893,16 +915,18 @@
 	});
 
 	$(document).on('click','.serialized',function(){
-		getSerialList();
+		var button_ident = $('#addminusbtn').val();
+		getSerialList(button_ident);
 	});
 
 	// Pagination for Serialized
 	$('#serialModal #serial_pagination').on('click', 'a', function(e) {
+		var button_ident = $('#addminusbtn').val();
 		e.preventDefault();
 		var li = $(this).closest('li');
 		if (li.not('.active').length && li.not('.disabled').length) {
 			ajax_serials.page = $(this).attr('data-page');
-			getSerialList();
+			getSerialList(button_ident);
 		}
 	});
 
@@ -945,8 +969,128 @@
 	});
 
 	$('#serialModal').on('change','#sec_search',function(){
+		var button_ident = $('#addminusbtn').val();
 		ajax_serials.search = $(this).val();
 		ajax_serials.page 	= 1;
-		getSerialList();
+		getSerialList(button_ident);
 	});	
+
+	// Plus ( for Adjustment )
+	function addnewserial(details, index) {
+		var details = details || {serialno: '', engineno: '', chassisno: ''};
+		var ident_flag = $('#item_ident_flag').val();
+		var has_serial = ident_flag.substring(0, 1);
+		var has_engine = ident_flag.substring(1, 1);
+		var has_chassis= ident_flag.substring(2, 1);
+
+		var display_serial = display_engine = display_chassis = "";
+			display_serial = (has_serial == 0) ? "class='hidden'" : ""; 
+			display_engine = (has_engine == 0) ? "class='hidden'" : ""; 
+			display_chassis= (has_chassis == 0)? "class='hidden'" : ""; 
+		var row = `
+		<tr>
+			<td `+display_serial+`>
+				<?php
+					echo $ui->formField('text')
+							->setSplit('', 'col-md-12')
+							->setName('serialno[]')
+							->setClass('serialno')
+							->setValue('` + details.serialno + `')
+							->draw();
+				?>
+				<div class="has-error"><strong><small class="error_message"></small></strong></div>
+				</td>
+			<td `+display_engine+`>
+				<?php
+					echo $ui->formField('text')
+							->setSplit('', 'col-md-12')
+							->setName('engineno[]')
+							->setClass('engineno')
+							->setValue('` + details.engineno + `')
+							->draw();
+				?>
+				<div class="has-error"><strong><small class="error_message"></small></strong></div>
+			</td>
+			<td `+display_chassis+`>
+				<?php
+					echo $ui->formField('text')
+							->setSplit('', 'col-md-12')
+							->setName('chassisno[]')
+							->setClass('chassisno')
+							->setValue('` + details.chassisno + `')
+							->draw();
+				?>
+				<div class="has-error"><strong><small class="error_message"></small></strong></div>
+			</td>
+		</tr>
+		`;
+		$('#tableSerialList tbody').append(row);
+	}
+
+	$('#tableSerialList').on('change','.serialno',function(){
+		// checkifexisting
+		var current_selection = $(this);
+		var current_serial 	  = current_selection.val();
+
+		ajax_manual.itemcode   = $('#sec_itemcode').val();
+		ajax_manual.fieldvalue = current_serial;
+		ajax_manual.fieldtype  = "serial";
+
+		$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
+			if(data.count > 0){
+				current_selection.closest('div').addClass('has-error');
+				current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Serial Number already exists!');
+				current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
+			} else {
+				current_selection.closest('div').removeClass('has-error');
+				current_selection.closest('td').find('.error_message').html('');
+			}
+		}).done(function(){
+			
+		});
+	});
+	$('#tableSerialList').on('change','.engineno',function(){
+		// checkifexisting
+		var current_selection = $(this);
+		var current_serial 	  = current_selection.val();
+
+		ajax_manual.itemcode   = $('#sec_itemcode').val();
+		ajax_manual.fieldvalue = current_serial;
+		ajax_manual.fieldtype  = "engine";
+
+		$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
+			if(data.count > 0){
+				current_selection.closest('div').addClass('has-error');
+				current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Engine Number already exists!');
+				current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
+			} else {
+				current_selection.closest('div').removeClass('has-error');
+				current_selection.closest('td').find('.error_message').html('');
+			}
+		}).done(function(){
+			
+		});
+	});
+	$('#tableSerialList').on('change','.chassisno',function(){
+		// checkifexisting
+		var current_selection = $(this);
+		var current_serial 	  = current_selection.val();
+
+		ajax_manual.itemcode   = $('#sec_itemcode').val();
+		ajax_manual.fieldvalue = current_serial;
+		ajax_manual.fieldtype  = "chassis";
+
+		$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
+			if(data.count > 0){
+				current_selection.closest('div').addClass('has-error');
+				current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Chassis Number already exists!');
+				current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
+			} else {
+				current_selection.closest('div').removeClass('has-error');
+				current_selection.closest('td').find('.error_message').html('');
+			}
+		}).done(function(){
+			
+		});
+	});
 </script>
