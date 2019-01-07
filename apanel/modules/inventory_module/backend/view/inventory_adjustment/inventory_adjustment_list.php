@@ -846,6 +846,14 @@
 		if (sec < 0) {sec = "59"};
 		return sec;
 	}
+	// Sorting Script
+	tableSort('#tableList', function(value, getlist) {
+		ajax.sort = value;
+		ajax.page = 1;
+		if (getlist) {
+			getList();
+		}
+	}, ajax);
 
 	function getSerialList(){
 		filterToURL();
@@ -860,7 +868,7 @@
 		$('#serialModal #sec_description').val(itemname);
 		
 		ajax_serials.itemcode	=	itemcode;
-		ajax_serials.search 	=	$('#serialModal #sec_search').val();
+		ajax_serials.limit 		= 	2;
 
 		$.post('<?=MODULE_URL?>ajax/retrieve_serialsforminus', ajax_serials, function(data) {
 			$('#tableSerialList tbody').html(data.table);
@@ -868,6 +876,7 @@
 			if (ajax.page > data.page_limit && data.page_limit > 0) {
 				ajax.page = data.page_limit;
 				getSerialList();
+				setCheckedSerials();
 			}
 		}).done(function(){
 			$('#serialModal').modal('show');
@@ -876,6 +885,8 @@
 
 	$('#serialModal #btn_close').on('click',function(){
 		$('#serialModal').modal('hide');
+		$('#serialModal #sec_search').val('');
+		ajax_serials.search = "";
 		getList();
 		serial_box = [];
 		temp_serial_box = [];
@@ -885,18 +896,19 @@
 		getSerialList();
 	});
 
-	// Sorting Script
-	tableSort('#tableList', function(value, getlist) {
-		ajax.sort = value;
-		ajax.page = 1;
-		if (getlist) {
-			getList();
+	// Pagination for Serialized
+	$('#serialModal #serial_pagination').on('click', 'a', function(e) {
+		e.preventDefault();
+		var li = $(this).closest('li');
+		if (li.not('.active').length && li.not('.disabled').length) {
+			ajax_serials.page = $(this).attr('data-page');
+			getSerialList();
 		}
-	}, ajax);
+	});
 
 	$('#tableSerialList').on('ifChecked','.check_id',function(){
 		var serial_id = $(this).val();
-		if(jQuery.inArray(serial_id, serial_box) == -1){
+		if(jQuery.inArray(serial_id, temp_serial_box) == -1){
 			temp_serial_box.push(serial_id);
 		}
 	});
@@ -922,11 +934,19 @@
 		$('#issueqty_serial').val(count);
 	});
 
-	$('#serialModal').on('show.bs.modal',function(){
-		console.log(temp_serial_box);
+	function setCheckedSerials(){
 		$.each(temp_serial_box,function(key,value){
-			console.log(key+' - '+value);
 			$('#check_id'+value).iCheck('check');
 		});
+	}
+
+	$('#serialModal').on('show.bs.modal',function(){
+		setCheckedSerials();
 	});
+
+	$('#serialModal').on('change','#sec_search',function(){
+		ajax_serials.search = $(this).val();
+		ajax_serials.page 	= 1;
+		getSerialList();
+	});	
 </script>
