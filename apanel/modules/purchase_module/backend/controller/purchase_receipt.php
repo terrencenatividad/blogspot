@@ -61,6 +61,25 @@ class controller extends wc_controller {
 			'detail_warehouse'			=> 'warehouse',
 			'item_ident_flag'
 		);
+		$this->fields3			= array(
+			'itemcode',
+			'detailparticular',
+			'linenum',
+			'receiptqty',
+			'receiptuom',
+			'unitprice',
+			'taxcode',
+			'taxrate',
+			'taxamount'	=> 'taxamount',
+			'amount'	=> 'amount',
+			'convreceiptqty',
+			'convuom',
+			'conversion',
+			'discounttype',
+			'detail_discountamount'		=> 'discountamount',
+			'detail_withholdingamount'	=> 'withholdingamount',
+			'detail_warehouse'			=> 'warehouse',
+		);
 		$this->clean_number		= array(
 			'receiptqty'
 		);
@@ -143,7 +162,7 @@ class controller extends wc_controller {
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= $this->restrict->setButtonRestriction($transactiondate);
-		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbValidation();
+		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbView();
 		$data['serial_db_array']	= array();
 		foreach ($data['serial_db'] as $serial_db) {
 			array_push($data['serial_db_array'], $serial_db->serialno);
@@ -493,17 +512,17 @@ class controller extends wc_controller {
 
 	private function getItemDetails() {
 		$data = array();
- 		$temp = $this->input->post($this->fields2);
+ 		$temp = $this->input->post($this->fields3);
 		foreach ($temp['receiptqty'] as $key => $quantity) {
 			if ($quantity < 1) {
-				foreach ($this->fields2 as $field) {
+				foreach ($this->fields3 as $field) {
 					if (is_array($temp[$field])) {
 						unset($temp[$field][$key]);
 					}
 				}
 			}
 		}
-		foreach ($this->fields2 as $field) {
+		foreach ($this->fields3 as $field) {
 			if (is_array($temp[$field])) {
 				$data[$field] = array_values($temp[$field]);
 			} else {
