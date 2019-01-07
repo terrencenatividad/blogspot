@@ -399,7 +399,6 @@ class controller extends wc_controller {
 				foreach ($csv_array as $key => $row) {
 					$row['row_num'] = $key + 1;
 					$check_field['Item Code'][$row['row_num']] = $this->getValueCSV('Item Code', $row);
-					$check_field['Replacement Code'][$row['row_num']] = $this->getValueCSV('Replacement Code', $row);
 					$bundle 					= $this->getValueCSV('Bundle', $row, '', $errors, '');
 					$bundle 					= ($bundle == "Y") 	?	"1" 	:	"0";
 					$replacement 				= $this->getValueCSV('Replacement Part (Y/N)', $row, '', $errors, '');
@@ -432,6 +431,8 @@ class controller extends wc_controller {
 					if($bundle == "0" && $replacement == 1){
 						if($replacement_part == ""){
 							$errors[$row['row_num']]['Replacement Code']['Missing Entry'] = "The Item is set as a Replacement. Please select its Original Part.";
+						} else {
+							$check_field['Replacement Code'][$row['row_num']] = $this->getValueCSV('Replacement Code', $row);
 						}
 					}
 					$values[] = array(
@@ -469,11 +470,17 @@ class controller extends wc_controller {
 					if ($data_duplicate) {
 						$duplicate	= array_values($data_duplicate);
 						foreach ($check_row as $num_row => $value) {
-							if (in_array(strtolower($value), $duplicate)) {
+							if ($key == "Replacement Code" && $value!=""){
 								$errors[$num_row][$key]['Duplicate Data'] = $value;
+							} else if ($key == "Item Code" && $value!=""){
+								if (in_array(strtolower($value), $duplicate)) {
+									$errors[$num_row][$key]['Duplicate Data'] = $value;
+								}
+							} else {
+
 							}
 						}
-					}
+					}	
 				}
 
 				$exist_check = $this->item_model->checkExistingItem($check_field['Item Code']);

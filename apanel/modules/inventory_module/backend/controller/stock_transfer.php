@@ -453,6 +453,10 @@ class controller extends wc_controller
 		{
 			$result = $this->ajax_load_serial();
 		}
+		else if( $task == 'save_serialized' )
+		{
+			$result = $this->save_serialized();
+		}
 		echo json_encode($result); 
 	}
 
@@ -889,11 +893,13 @@ class controller extends wc_controller
 	private function ajax_load_serial(){
 		$itemcode 	= $this->input->post('itemcode');
 		$itemname 	= $this->input->post('itemname');
+		$linenum 	= $this->input->post('linenum');
+		$max 		= $this->input->post('max');
 		$result 	= $this->stock_transfer->retrieveSerial($itemcode);
 		$table 		= '';
 		foreach ($result as $key => $row) {
 			$table 	.= '<tr>';
-			$table 	.= '<td><input type="checkbox" name="chkitem" class="chkitem" data-itemcode="'.$itemcode.'" data-serial="'.$row->serialno.'" data-chassis="'.$row->chassisno.'" data-engine="'.$row->engineno.'"></td>';
+			$table 	.= '<td><input type="checkbox" name="chkitem" class="chkitem" data-itemcode="'.$itemcode.'" data-linenum="'.$linenum.'" data-serial="'.$row->serialno.'" data-chassis="'.$row->chassisno.'" data-engine="'.$row->engineno.'" data-maxval="'.$max.'"></td>';
 			$table 	.= '<td class="text-center">'.$itemcode.'</td>';
 			$table 	.= '<td class="text-center">'.$itemname.'</td>';
 			$table 	.= '<td class="text-center">'.$row->serialno.'</td>';
@@ -901,8 +907,32 @@ class controller extends wc_controller
 			$table 	.= '<td class="text-center">'.$row->engineno.'</td>';
 			$table 	.= '</tr>';
 		}
-		//$table .= '<script>checkSelected($(".chkitem"));</script>';
+		if ($table == '') {
+			$table = '<tr><td colspan="6" class="text-center"><b>No Records Found</b></td></tr>';
+		}
+		$table .= '<script>checkSelected($(".chkitem"));</script>';
+		
 		return $table;
+	}
+	private function save_serialized(){
+		$voucherno 	= $this->input->post('voucherno');
+		$itemcode 	= $this->input->post('itemcode');
+		$linenum 	= $this->input->post('linenum');
+		$serialno 	= $this->input->post('serialno');
+		$chassisno 	= $this->input->post('chassisno');
+		$engineno 	= $this->input->post('engineno');
+		
+		$values = array(
+					'stocktransferno' => $voucherno,
+					'itemcode' 	=> $itemcode,
+					'linenum' 	=> $linenum,
+					'serialno' 	=> $serialno,
+					'chassisno' => $chassisno,
+					'engineno' 	=> $engineno,
+				);
+
+		$result = $this->stock_transfer->saveSerializedItems($values);
+		return $result;
 	}
 }
 ?>

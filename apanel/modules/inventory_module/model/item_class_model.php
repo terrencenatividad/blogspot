@@ -67,6 +67,7 @@ class item_class_model extends wc_model {
 			'ic.id id',
 			'ic.label label',
 			'ic.parentid parentid',
+			'p.label parent',
 			'ra.accountname receivable_account',
 			'rva.accountname revenue_account',
 			'ea.accountname expense_account',
@@ -96,15 +97,16 @@ class item_class_model extends wc_model {
 				->leftJoin('wc_option et ON et.code = ic.expensetype')
 				->setWhere($condition);
 
-		$result = $this->db->runSelect()
-							->getResult();
-
-		return $this->buildTree($result);
+		$result = $this->db->runPagination();
+		return array(
+			'tree' => $this->buildTree($result),
+			'pagination' => $result->pagination
+		);
 	}
 
 	public function getParentClass($id, $wnone = false) {
 		$result = $this->getItemClassList(array('id', 'label', 'parentid'));
-		$result = $this->getList($result, $id);
+		$result = $this->getList($result['tree'], $id);
 		$none = array();
 		if ($wnone) {
 			$none = array(
@@ -202,10 +204,11 @@ class item_class_model extends wc_model {
 
 	private function buildTree($list, $pid = 0) {
 		$op = array();
-		foreach($list as $item) {
-			if ($item->parentid == $pid) {
+		foreach($list->result as $item) {
+			//if ($item->parentid == $pid) {
 				$op[$item->id] = array(
 					'label'					=> $item->label,
+					'parent'				=> $item->parent,
 					'receivable_account'	=> $item->receivable_account,
 					'revenue_account'		=> $item->revenue_account,
 					'expense_account'		=> $item->expense_account,
@@ -215,11 +218,11 @@ class item_class_model extends wc_model {
 					'expensetype'			=> $item->expensetype,
 					'stat'					=> $item->stat,
 				);
-				$children = $this->buildTree($list, $item->id);
-				if ($children) {
-					$op[$item->id]['children'] = $children;
-				}
-			}
+				// $children = $this->buildTree($list, $item->id);
+				// if ($children) {
+				// 	$op[$item->id]['children'] = $children;
+				// }
+			//}
 		}
 		return $op;
 	}

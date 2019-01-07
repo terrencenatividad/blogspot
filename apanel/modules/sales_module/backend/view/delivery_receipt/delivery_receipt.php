@@ -1,216 +1,248 @@
 <section class="content">
 		<div class="box box-primary">
+			<?php if ($stat == 'Delivered') { ?>
+			<ul class="nav nav-tabs" role="tablist">
+				<li role="presentation" class="active"><a href="#details" aria-controls="details" role="tab" data-toggle="tab">Details</a></li>
+				<li role="presentation"><a href="#attachment" aria-controls="attachment" role="tab" data-toggle="tab">Attachment</a></li>
+			</ul>
+			<?php } ?>
 			<form action="" method="post" class="form-horizontal">
-				<div class="box-body">
-					<br>
-					<div class="row">
-						<div class="col-md-11">
+				<?php if ($stat == 'Delivered') { ?>
+				<div class="tab-content">
+					<div role="tabpanel" class="tab-pane active" id="details">
+				<?php } ?>
+						<div class="box-body">
+							<br>
 							<div class="row">
-								<div class="col-md-6">
-									<?php if ($show_input && $ajax_task != 'ajax_edit'): ?>
-										<div class="form-group">
-											<label for="voucherno" class="control-label col-md-4">Delivery No.</label>
-											<div class="col-md-8">
-												<input type="text" class="form-control" readonly value="<?= (empty($voucherno)) ? ' - Auto Generated -' : $voucherno ?>">
-											</div>
+								<div class="col-md-11">
+									<div class="row">
+										<div class="col-md-6">
+											<?php if ($show_input && $ajax_task != 'ajax_edit'): ?>
+												<div class="form-group">
+													<label for="voucherno" class="control-label col-md-4">Delivery No.</label>
+													<div class="col-md-8">
+														<input type="text" class="form-control" readonly value="<?= (empty($voucherno)) ? ' - Auto Generated -' : $voucherno ?>">
+													</div>
+												</div>
+											<?php else: ?>
+												<?php
+													if ($ajax_task == 'ajax_edit') {
+														echo $ui->formField('hidden')
+															->setName('voucher')
+															->setId('voucher')
+															->setValue($voucherno)
+															->draw($show_input);
+													}
+												?>
+												<?php
+													echo $ui->formField('text')
+														->setLabel('Delivery No.')
+														->setSplit('col-md-4', 'col-md-8')
+														->setName('voucherno')
+														->setId('voucherno')
+														->setValue($voucherno)
+														->addHidden($voucherno)
+														->setValidation('required')
+														->draw(($show_input && $ajax_task != 'ajax_edit'));
+												?>
+											<?php endif ?>
 										</div>
-									<?php else: ?>
-										<?php
-											if ($ajax_task == 'ajax_edit') {
-												echo $ui->formField('hidden')
-													->setName('voucher')
-													->setId('voucher')
-													->setValue($voucherno)
+										<div class="col-md-6">
+											<?php
+												echo $ui->formField('text')
+													->setLabel('Document Date')
+													->setSplit('col-md-4', 'col-md-8')
+													->setName('transactiondate')
+													->setId('transactiondate')
+													->setClass('datepicker-input')
+													->setAttribute(array('readonly', 'data-date-start-date' => $close_date))
+													->setAddon('calendar')
+													->setValue($transactiondate)
+													->setValidation('required')
 													->draw($show_input);
-											}
-										?>
-										<?php
-											echo $ui->formField('text')
-												->setLabel('Delivery No.')
-												->setSplit('col-md-4', 'col-md-8')
-												->setName('voucherno')
-												->setId('voucherno')
-												->setValue($voucherno)
-												->addHidden($voucherno)
-												->setValidation('required')
-												->draw(($show_input && $ajax_task != 'ajax_edit'));
-										?>
-									<?php endif ?>
-								</div>
-								<div class="col-md-6">
-									<?php
-										echo $ui->formField('text')
-											->setLabel('Document Date')
-											->setSplit('col-md-4', 'col-md-8')
-											->setName('transactiondate')
-											->setId('transactiondate')
-											->setClass('datepicker-input')
-											->setAttribute(array('readonly', 'data-date-start-date' => $close_date))
-											->setAddon('calendar')
-											->setValue($transactiondate)
-											->setValidation('required')
-											->draw($show_input);
-									?>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-6">
-									<?php
-										echo $ui->formField('dropdown')
-											->setLabel('Customer ')
-											->setPlaceholder('Select Customer')
-											->setSplit('col-md-4', 'col-md-8')
-											->setName('customer')
-											->setId('customer')
-											->setList($customer_list)
-											->setValue($customer)
-											->setValidation('required')
-											// ->addHidden(($ajax_task != 'ajax_create'))
-											->draw($show_input);
-									?>
-								</div>
-								<div class="col-md-6">
-									<?php
-										echo $ui->formField('text')
-											->setLabel('Target Shipping Date ')
-											->setSplit('col-md-4', 'col-md-8')
-											->setName('deliverydate')
-											->setId('deliverydate')
-											->setClass('datepicker-input')
-											->setAttribute(array('readonly' => ''))
-											->setAddon('calendar')
-											->setValue($deliverydate)
-											->setValidation('required')
-											->draw($show_input);
-									?>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-6">
-									<?php
-										echo $ui->formField('text')
-											->setLabel('Sales Order No. ')
-											->setSplit('col-md-4', 'col-md-8')
-											->setName('source_no')
-											->setId('source_no')
-											->setAttribute(array('readonly'))
-											->setAddon('search')
-											->setValue($source_no)
-											// ->addHidden($source_no)
-											->setValidation('required')
-											->draw($show_input);
-											// ->draw($show_input && $ajax_task != 'ajax_edit');
-									?>
-								</div>
-								<div class="col-md-6">
-									<?php
-										echo $ui->formField('dropdown')
-											->setLabel('Warehouse ')
-											->setPlaceholder('Select Warehouse')
-											->setSplit('col-md-4', 'col-md-8')
-											->setName('warehouse')
-											->setId('warehouse')
-											->setList($warehouse_list)
-											->setValue($warehouse)
-											->setValidation('required')
-											// ->addHidden(($ajax_task != 'ajax_create'))
-											->draw($show_input);
-									?>
-								</div>
-							</div>
-							<div class="row">
-								<div class = "col-md-12">
-									<?php
-										echo $ui->formField('textarea')
-												->setLabel('Shipping Address:')
-												->setSplit('col-md-2', 'col-md-10')
-												->setName('s_address')
-												->setId('s_address')
-												->setValue($s_address)
-												->setAttribute(array("maxlength" => "105"))
-												->setValidation('required')
-												->draw($show_input);
-									?>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-12">
-									<?php
-										echo $ui->formField('textarea')
-											->setLabel('Notes')
-											->setSplit('col-md-2', 'col-md-10')
-											->setName('remarks')
-											->setId('remarks')
-											->setValue($remarks)
-											->draw($show_input);
-									?>
-									<?php
-										echo $ui->formField('hidden')
-											->setName('main_serial')
-											->setId('main_serial')
-											->setClass('main_serial')
-											->draw($show_input);
-									?>
-									<?php
-										echo $ui->formField('hidden')
-											->setName('task')
-											->setId('task')
-											->setClass('task')
-											->setValue($ajax_task)
-											->draw($show_input);
-									?>
+											?>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<?php
+												echo $ui->formField('dropdown')
+													->setLabel('Customer ')
+													->setPlaceholder('Select Customer')
+													->setSplit('col-md-4', 'col-md-8')
+													->setName('customer')
+													->setId('customer')
+													->setList($customer_list)
+													->setValue($customer)
+													->setValidation('required')
+													// ->addHidden(($ajax_task != 'ajax_create'))
+													->draw($show_input);
+											?>
+										</div>
+										<div class="col-md-6">
+											<?php
+												echo $ui->formField('text')
+													->setLabel('Target Shipping Date ')
+													->setSplit('col-md-4', 'col-md-8')
+													->setName('deliverydate')
+													->setId('deliverydate')
+													->setClass('datepicker-input')
+													->setAttribute(array('readonly' => ''))
+													->setAddon('calendar')
+													->setValue($deliverydate)
+													->setValidation('required')
+													->draw($show_input);
+											?>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<?php
+												echo $ui->formField('text')
+													->setLabel('Sales Order No. ')
+													->setSplit('col-md-4', 'col-md-8')
+													->setName('source_no')
+													->setId('source_no')
+													->setAttribute(array('readonly'))
+													->setAddon('search')
+													->setValue($source_no)
+													// ->addHidden($source_no)
+													->setValidation('required')
+													->draw($show_input);
+													// ->draw($show_input && $ajax_task != 'ajax_edit');
+											?>
+										</div>
+										<div class="col-md-6">
+											<?php
+												echo $ui->formField('dropdown')
+													->setLabel('Warehouse ')
+													->setPlaceholder('Select Warehouse')
+													->setSplit('col-md-4', 'col-md-8')
+													->setName('warehouse')
+													->setId('warehouse')
+													->setList($warehouse_list)
+													->setValue($warehouse)
+													->setValidation('required')
+													// ->addHidden(($ajax_task != 'ajax_create'))
+													->draw($show_input);
+											?>
+										</div>
+									</div>
+									<div class="row">
+										<div class = "col-md-12">
+											<?php
+												echo $ui->formField('textarea')
+														->setLabel('Shipping Address:')
+														->setSplit('col-md-2', 'col-md-10')
+														->setName('s_address')
+														->setId('s_address')
+														->setValue($s_address)
+														->setAttribute(array("maxlength" => "105"))
+														->setValidation('required')
+														->draw($show_input);
+											?>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-12">
+											<?php
+												echo $ui->formField('textarea')
+													->setLabel('Notes')
+													->setSplit('col-md-2', 'col-md-10')
+													->setName('remarks')
+													->setId('remarks')
+													->setValue($remarks)
+													->draw($show_input);
+											?>
+											<?php
+												echo $ui->formField('hidden')
+													->setName('main_serial')
+													->setId('main_serial')
+													->setClass('main_serial')
+													->draw($show_input);
+											?>
+											<?php
+												echo $ui->formField('hidden')
+													->setName('task')
+													->setId('task')
+													->setClass('task')
+													->setValue($ajax_task)
+													->draw($show_input);
+											?>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
-				</div>
-				<div class="box-body table-responsive no-padding">
-					<table id="tableList" class="table table-hover table-sidepad only-checkbox full-form">
-						<thead>
-							<tr class="info">
-								<?php if ($show_input): ?>
-								<th class="text-center" style="width: 20px"><input type="checkbox" class="checkall"></th>
-								<?php endif ?>
-								<th class="col-xs-2">Item</th>
-								<th class="col-xs-<?php echo ($show_input) ? 3 : 6 ?>">Description</th>
-								<th class="col-xs-2">Warehouse</th>
-								<?php if ($show_input): ?>
-								<th class="col-xs-2 text-right">Available On Hand</th>
-								<th class="col-xs-1 text-right">Qty Left</th>
-								<?php endif ?>
-								<th class="col-xs-2 text-right">Qty</th>
-								<th style="width: 50px;">UOM</th>
+						<div class="box-body table-responsive no-padding">
+							<table id="tableList" class="table table-hover table-sidepad only-checkbox full-form">
+								<thead>
+									<tr class="info">
+										<?php if ($show_input): ?>
+										<th class="text-center" style="width: 20px"><input type="checkbox" class="checkall"></th>
+										<?php endif ?>
+										<th class="col-xs-2">Item</th>
+										<th class="col-xs-<?php echo ($show_input) ? 3 : 6 ?>">Description</th>
+										<th class="col-xs-2">Warehouse</th>
+										<?php if ($show_input): ?>
+										<th class="col-xs-2 text-right">Available On Hand</th>
+										<th class="col-xs-1 text-right">Qty Left</th>
+										<?php endif ?>
+										<th class="col-xs-2 text-right">Qty</th>
+										<th style="width: 50px;">UOM</th>
+										<?php if (false): ?>
+										<th style="width: 50px;"></th>
+										<?php endif ?>
+									</tr>
+								</thead>
+								<tbody>
+								
+								</tbody>
 								<?php if (false): ?>
-								<th style="width: 50px;"></th>
+									<tfoot>
+										<td colspan="9">
+											<button type="button" id="addNewItem" class="btn btn-link">Add a New Line</button>
+										</td>
+									</tfoot>
 								<?php endif ?>
-							</tr>
-						</thead>
-						<tbody>
-						
-						</tbody>
-						<?php if (false): ?>
-							<tfoot>
-								<td colspan="9">
-									<button type="button" id="addNewItem" class="btn btn-link">Add a New Line</button>
-								</td>
-							</tfoot>
-						<?php endif ?>
-					</table>
-					<div id="header_values"></div>
-				</div>
-				<div class="box-body">
-					<hr>
-					<div class="row">
-						<div id="submit_container" class="col-md-12 text-center">
-							<?php
-								if ($stat == 'Prepared' && $restrict_dr || empty($stat)) {
-									echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
-								}
-								echo $ui->drawCancel();
-							?>
+							</table>
+							<div id="header_values"></div>
 						</div>
+						<div class="box-body">
+							<hr>
+							<div class="row">
+								<div id="submit_container" class="col-md-12 text-center">
+									<?php
+										if ($stat == 'Prepared' && $restrict_dr || empty($stat)) {
+											echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
+										}
+										echo $ui->drawCancel();
+									?>
+								</div>
+							</div>
+						</div>
+						</div>
+					<?php if ($stat == 'Delivered') { ?>
+					<div role="tabpanel" class="tab-pane" id="attachment">
+						<table id="AttachmentTable" class="table table-hover table-sidepad only-checkbox full-form">
+							<thead>
+								<tr class="info">
+									<th class="col-xs-2">Action</th>
+									<th class = "col-xs-7">File Name</th>
+									<th class = "col-xs-3">File Type</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><button type = "button" class = "btn btn-primary btn-sm replace"><span class = "glyphicon glyphicon-pencil"></span> Replace</button></td>
+									<td><a target="_blank" href = "<?php echo $fileurl ?>"><?php echo $filename ?></a></td>
+									<td><?php echo $filetype ?></td>
+								</tr>
+							</tbody>
+						</table>
 					</div>
 				</div>
+			<?php } ?>
 			</form>
 		</div>
 	</section>
@@ -322,6 +354,57 @@
 							<button id = "btn_ok" type = "button" class = "btn btn-default btn-sm btn-flat">Ok</button>
 						</div>
 					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="attachment_modal" class="modal fade" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+				<form method = "post" id="attachments_form" enctype="multipart/form-data">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Attach File for <span id="modal-voucher" style = "font-weight:bold"></span></h4>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<input type="hidden" name="voucherno" id='input_voucherno'>
+							<?php
+								echo $ui->setElement('file')
+										->setId('files')
+										->setName('files')
+										->setAttribute(array('accept' => '.pdf, .jpg, .png'))
+										->setValidation('required')
+										->draw();
+							?>
+						</div>
+						<p class="help-block">The file to be imported shall not exceed the size of <strong>1mb</strong> and must be a <strong>PDF, PNG or JPG</strong> file.</p>
+					</div>
+					<div class="modal-footer">
+						<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+							<div class="btn-group">
+								<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button">Attach</button>
+							</div>
+							&nbsp;&nbsp;&nbsp;
+							<div class="btn-group">
+								<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal">Cancel</button>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div id="attachment_success" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title modal-success"><span class="glyphicon glyphicon-ok"></span> Success!</h4>
+				</div>
+				<div class="modal-body">
+					<p>You have successfully updated the attached file.</p>
+				</div>
+				<div class="modal-footer">
 				</div>
 			</div>
 		</div>
@@ -613,19 +696,11 @@
 			if (warehouse == details.warehouse) {
 				$('#tableList tbody').find('tr:last .issueqty').each(function() {
 					if (details.issueqty > 0) {
-						//$(this).removeAttr('readonly').val($(this).attr('data-value'));
-						// if  ($(this).hasClass('itempart')) {
-							$(this).val($(this).attr('data-value'));
-						// 	if ($(this).hasClass('serialbtn')) {
-						// 		$(this).removeAttr('disabled').val($(this).attr('data-value'));
-						// 	}
-						// }
-						// else {
-							$(this).removeAttr('readonly').val($(this).attr('data-value'));
-							if ($(this).hasClass('serialbtn')) {
-								$(this).removeAttr('disabled').val($(this).attr('data-value'));
-							}
-						// }
+						$(this).val($(this).attr('data-value'));
+						$(this).removeAttr('readonly').val($(this).attr('data-value'));
+						if ($(this).hasClass('serialbtn')) {
+							$(this).removeAttr('disabled').val($(this).attr('data-value'));
+						}
 						$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('check').iCheck('enable');
 						$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
 					} else {
@@ -803,18 +878,10 @@
 			$('#tableList tbody .issueqty').each(function() {
 				var warehouse_row = $(this).closest('tr').find('.warehouse').val();
 				if (warehouse == warehouse_row) {
-					// if  ($(this).hasClass('itempart')) {
-						$(this).val($(this).attr('data-value'));
-					// 	if ($(this).hasClass('serialbtn')) {
-					// 		$(this).removeAttr('disabled').val($(this).attr('data-value'));
-					// 	}
-					// }
-					// else {
-						$(this).removeAttr('readonly').val($(this).attr('data-value'));
-						if ($(this).hasClass('serialbtn')) {
-							$(this).removeAttr('disabled').val($(this).attr('data-value'));
-						}
-					// }
+					$(this).removeAttr('readonly').val($(this).attr('data-value'));
+					if ($(this).hasClass('serialbtn')) {
+						$(this).removeAttr('disabled').val($(this).attr('data-value'));
+					}
 					$(this).closest('tr').find('.check_task [type="checkbox"]').iCheck('check').iCheck('enable');
 				} else {
 					if ($(this).hasClass('serialbtn')) {
@@ -883,8 +950,9 @@
 					var req_val = $(this).val();
 					var serial_list = $(this).closest('tr').find('.serialnumbers').val();
 					var serials = serial_list.split(",");
-					if (serials == '') {
+					if (serials == '' || serials == 'undefined') {
 						count_err++;
+						$('#warning_counter .modal-body').html('Selected serial numbers must be equal to the required value.')
 						$('#warning_counter').modal('show');
 					}
 				}
@@ -912,7 +980,7 @@
 							}
 						});
 					} else {
-						$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');1
+						$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');
 						$('#submit_container [type="submit"]').attr('disabled', false);
 					}
 				} else {
@@ -931,18 +999,20 @@
 				var qty = $(this).val();
 				var parentline = $(this).closest('tr').find('.parentline').val();
 				var maxqty = $(this).closest('tr').find('.issueqty').attr('data-max');
-				$('#tableList tbody tr').find('.parentline[value="'+parentline+'"]').not(':first').each(function() {
-					var itemqty = $(this).closest('tr').find('.bundle_itemqty').val();
-					var total = qty * itemqty;
-					var qtyleft = $('#tableList tbody tr td').closest('.qtyleft').find('input').val();
-					if (qtyleft >= qty) {
-						$(this).closest('tr').find('.issueqty').val(total);
-					}
-					else {
-						total = maxqty * itemqty;
-						$(this).closest('tr').find('.issueqty').val(total);
-					}
-				});
+				if ($(this).hasClass('itempart')) {
+					$('#tableList tbody tr').find('.parentline[value="'+parentline+'"]').not(':first').each(function() {
+						var itemqty = $(this).closest('tr').find('.bundle_itemqty').val();
+						var total = qty * itemqty;
+						var qtyleft = $('#tableList tbody tr td').closest('.qtyleft').find('input').val();
+						if (qtyleft >= qty) {
+							$(this).closest('tr').find('.issueqty').val(total);
+						}
+						else {
+							total = maxqty * itemqty;
+							$(this).closest('tr').find('.issueqty').val(total);
+						}
+					});
+				}
 				recomputeAll();
 			}
 		});	
@@ -1119,4 +1189,74 @@
 		$('#btn_ok').on('click', function() {
 			$('#warning_counter').modal('hide');
 		});
+
+		$('#AttachmentTable').on('click', '.replace', function() {
+			var voucherno = $('#voucherno').val();
+			$('#modal-voucher').html(voucherno);
+			$('#input_voucherno').val(voucherno);
+			$('#attachment_modal').modal('show');
+		});
 	</script>
+	<script>
+		$(function () {
+			'use strict';
+
+			$('#attachments_form').fileupload({
+				url: '<?= MODULE_URL ?>ajax/ajax_upload_file',
+				maxFileSize: 2000000,
+				disableExifThumbnail :true,
+				previewThumbnail:false,
+				autoUpload:false,
+				add: function (e, data) {            
+					$("#attach_button").off('click').on('click', function () {
+						data.submit();
+					});
+				},
+			});
+			$('#attachments_form').addClass('fileupload-processing');
+			$.ajax({
+				url: $('#attachments_form').fileupload('option', 'url'),
+				dataType: 'json',
+				context: $('#attachments_form')[0]
+			}).always(function () {
+				$(this).removeClass('fileupload-processing');
+			}).done(function (result) {
+				$(this).fileupload('option', 'done')
+					.call(this, $.Event('done'), {
+						result: result
+					});
+			});
+
+			$('#attachments_form').bind('fileuploadadd', function (e, data) {
+				var filename = data.files[0].name;
+				$('#attachments_form #files').closest('.input-group').find('.form-control').html(filename);
+			});
+			$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
+				var voucherno 		=  $('#input_voucherno').val();
+				data.formData = {dr_voucherno: voucherno};
+			});
+			$('#attachments_form').bind('fileuploadalways', function (e, data) {
+				var error = data.result['files'][0]['error'];
+				var form_group = $('#attachments_form #files').closest('.form-group');
+				if(!error){
+					var voucherno 		=  $('#input_voucherno').val();
+					$('#attachment_modal').modal('hide');
+					$('#attachment_success').modal('show');
+					setTimeout(function() {							
+						window.location = '<?=MODULE_URL?>view/'+voucherno;						
+					}, 1000)
+					var msg = data.result['files'][0]['name'];
+					form_group.removeClass('has-error');
+					form_group.find('p.help-block.m-none').html('');
+
+					$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
+					getList();
+				}else{
+					var msg = data.result['files'][0]['name'];
+					form_group.addClass('has-error');
+					form_group.find('p.help-block.m-none').html(msg);
+				}
+			});
+		});
+	</script>
+	

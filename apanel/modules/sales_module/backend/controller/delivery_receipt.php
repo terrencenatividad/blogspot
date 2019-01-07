@@ -132,8 +132,29 @@ class controller extends wc_controller {
 
 	public function view($voucherno) {
 		$this->view->title			= 'View Delivery Receipt';
+		$this->view->addCSS(array(
+				'jquery.fileupload.css'
+			)
+		);  
+		$this->view->addJS(
+			array(
+				'jquery.dirrty.js',
+				'jquery.ui.widget.js',
+				'jquery.iframe-transport.js',
+				'jquery.fileupload.js',
+				'jquery.fileupload-process.js',
+				'jquery.fileupload-validate.js',
+				'jquery.fileupload-ui.js'
+			)
+		);
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->delivery_model->getDeliveryReceiptById($this->fields, $voucherno);
+		if ($data['stat'] == 'Delivered') {
+			$getData = $this->delivery_model->getFile($voucherno);
+			$data['filename'] 		= $getData->attachment_name;
+			$data['filetype'] 		= $getData->attachment_type;
+			$data['fileurl'] 		= $getData->attachment_url;
+		}
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['deliverydate']		= $this->date->dateFormat($data['deliverydate']);
@@ -167,6 +188,7 @@ class controller extends wc_controller {
 		$print->setDocumentType('Delivery Receipt')
 				->setFooterDetails(array('Approved By', 'Checked By'))
 				->setCustomerDetails($customerdetails)
+				->setShippingDetail($documentinfo->s_address)
 				->setDocumentDetails($documentdetails)
 				// ->addTermsAndCondition()
 				->addReceived();
@@ -387,24 +409,6 @@ class controller extends wc_controller {
 		}
 	}
 
-	/**private function ajax_update_tagdelivered() {
-		$id = $this->input->post('id');
-
-		if ($id) {
-			$result = $this->delivery_model->tagAsDelivered($id);
-			foreach($id as $index => $voucherno){
-				$retrieve_details 	=	$this->delivery_model->getDeliveryReceiptById(array('voucherno','customer'), $voucherno);
-				$customer 			= 	isset($retrieve_details->customer) 	?	$retrieve_details->customer 	:	"";
-
-				if ($result && $this->inventory_model) {
-					$this->inventory_model->setReference($voucherno)
-										->setDetails($customer)
-										->generateBalanceTable();
-				}
-			}
-		}
-	} */
-
 	private function ajax_update_untagdelivered() {
 		$id = $this->input->post('id');
 		if ($id) {
@@ -463,9 +467,10 @@ class controller extends wc_controller {
 		$pagination	= $this->delivery_model->getSerialList($fields, $itemcode, $search);
 		
 		$table		= '';
-		if (empty($pagination->result)) {
-			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
-		}
+		// if (empty($pagination->result)) {
+		// 	$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+		// }
+		$counter = 0;
 		foreach ($pagination->result as $key => $row) {
 			$checker = (in_array($row->id, $array_id) || in_array($row->id, $current_id)) ? 'checked' : '';
 			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id)) || ($row->stat == 'Not Available') && (!in_array($row->id, $current_id))) ? 'hidden' : '';
@@ -498,6 +503,10 @@ class controller extends wc_controller {
 				$table .= '<td>' . $row->chassisno . '</td>';
 			}
 			$table .= '</tr>';
+			$counter++;
+		}
+		if ($counter == 0) {
+			$table.= '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		$pagination->table = $table;
 		return $pagination;

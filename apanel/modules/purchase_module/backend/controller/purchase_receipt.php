@@ -315,7 +315,7 @@ class controller extends wc_controller {
 									->addEdit($row->stat == 'Received' && $restrict_pr)
 									// ->addDelete($row->stat == 'Received' && $restrict_pr)
 									->addPrint()
-									->addCheckbox($row->stat == 'Received' && $restrict_pr)
+									//->addCheckbox($row->stat == 'Received' && $restrict_pr)
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->voucherno)
 									->draw();

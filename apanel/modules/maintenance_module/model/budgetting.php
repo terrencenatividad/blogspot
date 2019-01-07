@@ -358,6 +358,8 @@ class budgetting extends wc_model
 		->setValuesFromPost($budget_details)
 		->runInsert();
 
+		// echo $this->db->getQuery();
+
 		return $result;
 	}
 

@@ -100,7 +100,7 @@ class controller extends wc_controller {
 		$search = base64_decode($search);
 		$csv = $this->csv_header();
 		$list = $this->item_class_model->getItemClassList($this->fields, $search);
-		$csv .= $this->createCSVList($list);
+		$csv .= $this->createCSVList($list['tree']);
 		echo $csv;
 	}
 	
@@ -117,9 +117,10 @@ class controller extends wc_controller {
 		$search = $data['search'];
 		$limit = $data['limit'];
 		$list = $this->item_class_model->getItemClassList($this->fields, $search, $limit);
-		$table = $this->createList($list);
+		$table = $this->createList($list['tree']);
 		return array(
-			'table' => $table
+			'table' => $table,
+			'pagination' => $list['pagination']
 		);
 	}
 
@@ -173,12 +174,11 @@ class controller extends wc_controller {
 		);
 	}
 
-	private function createList($data, $parent = '', $indent = 1) {
+	private function createList($data, $parent = '', $indent = 0) {
 		$table = '';
 		if (empty($data)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-		
 		foreach ($data as $id => $row) {
 			$stat = $row['stat'];
 			if($stat == 'active'){
@@ -210,13 +210,13 @@ class controller extends wc_controller {
 									->setValue($id)
 									->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
-			$table .= '<td>' . '<span class="category" style="margin-left:' . $indent * 20 . 'px">' . $caret . $row['label'] . '</span>' . '</td>';
-			$table .= '<td data-parent="' . $parent . '">' . $parent . '</td>';
+			$table .= '<td>' . '<span class="" style="margin-left:' . $indent * 20 . 'px">' . $caret . $row['label'] . '</span>' . '</td>';
+			$table .= '<td data-parent="' . $parent . '">' . $row['parent'] . '</td>';
 			$table .= '<td data-parent="' . $parent . '">' . $status . '</td>';
 			$table .= '</tr>';
-			if (isset($row['children'])) {
-				$table .= $this->createList($row['children'], $row['label'], $indent + 1);
-			}
+			// if (isset($row['children'])) {
+			// 	$table .= $this->createList($row['children'], $row['label'], $indent + 1);
+			// }
 		}
 		return $table;
 	}
@@ -226,7 +226,7 @@ class controller extends wc_controller {
 		foreach ($data as $id => $row) {
 			$csv .= "\n";
 			$csv .= '"' . $row['label'] . '",';
-			$csv .= '"' . $parent . '",';
+			$csv .= '"' . $row['parent'] . '",';
 			$csv .= '"' . $row['receivable_account'] . '",';
 			$csv .= '"' . $row['revenue_account'] . '",';
 			$csv .= '"' . $row['expense_account'] . '",';
@@ -234,9 +234,9 @@ class controller extends wc_controller {
 			$csv .= '"' . $row['inventory_account'] . '",';
 			$csv .= '"' . $row['revenuetype'] . '",';
 			$csv .= '"' . $row['expensetype'] . '"';
-			if (isset($row['children'])) {
-				$csv .= $this->createCSVList($row['children'], $row['label']);
-			}
+			// if (isset($row['children'])) {
+			// 	$csv .= $this->createCSVList($row['children'], $row['label']);
+			// }
 		}
 		return $csv;
 	}

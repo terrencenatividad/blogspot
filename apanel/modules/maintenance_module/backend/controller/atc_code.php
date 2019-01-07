@@ -9,6 +9,7 @@ class controller extends wc_controller
 		$this->input        = new input();
 		$this->ui 			= new ui();
 		$this->logs  		= new log; 
+		$this->import  		= new import(); 
 		$this->view->title  = MODULE_NAME;
 		$this->show_input 	= true;
 		$this->companycode  = COMPANYCODE;
@@ -150,6 +151,18 @@ class controller extends wc_controller
 		echo json_encode($result);
 	}
 
+	public function check_duplicate_code($field_name,$field_value,$line){
+		$error 		=	"";
+
+		$exists 	= 	$this->atc_code->check_duplicate($field_value);
+		$count  	=	isset($exists[0]->count) 	?	$exists[0]->count 	:	0;
+
+		if($count > 0){
+			$error 	= 	"$field_name [<strong>$field_value</strong>] on row $line already exists.<br/>";
+		}
+		return $error;
+	}	
+
 	private function save_import(){
 
 		$file		= fopen($_FILES['file']['tmp_name'],'r') or exit ("File Unable to upload") ;
@@ -168,7 +181,7 @@ class controller extends wc_controller
 			$errmsg[]= "Invalid file type, file must be .csv.<br/>";
 		}
 
-		$headerArr = array('ATC Code','Tax Rate', 'Tax Code', 'Description', 'EWT','CWT');
+		$headerArr = array('ATC Code','Tax Rate', 'Tax Code', 'Description', 'EWT Account Code','CWT Account Code');
 		$cwtclass = $this->atc_code->check_cwt_accountclasscode();
 		foreach ($cwtclass as $row) {
 			$cwt_code = $row->segment5;
@@ -207,78 +220,97 @@ class controller extends wc_controller
 			$line 	=	1;
 			$list 	=	array();
 
+			if(!empty($z)){
+				foreach ($z as $b) 
+				{
+					if ( !empty($b)) 
+					{	
+						$atccode 	   	= isset($b[0]) ? htmlspecialchars(addslashes(trim($b[0])))	: 	"";
+						$taxrate 	   	= isset($b[1]) ? addslashes(trim($b[1]))		: 	"";
+						$taxcode 	   	= isset($b[2]) ? addslashes(trim($b[2]))		: 	"";
+						$description   	= isset($b[3]) ? htmlspecialchars(addslashes(trim($b[3])))	: 	"";
+						$ewt			= isset($b[4]) ? htmlspecialchars(addslashes(trim($b[4])))	: 	"";
+						$cwt			= isset($b[5]) ? htmlspecialchars(addslashes(trim($b[5])))	: 	"";
 
-			foreach ($z as $b) 
-			{
-				if ( !empty($b)) 
-				{	
-					$atccode 	   	= $b[0];
-					$taxrate 	   	= $b[1];
-					$taxcode 	   	= $b[2];
-					$description   	= $b[3];
-					$ewt			= $b[4];
-					$cwt			= $b[5];
-
-					$exists = $this->atc_code->check_duplicate($atccode);
-					$count = $exists[0]->count;
-					$tax = $this->atc_code->check_accountclasscode($ewt);
-					$code = array();
-					foreach ($tax as $m) {
-						$code[] = $m->accountclasscode;
-					}
-					if(in_array('CULIAB',$code) || in_array('TAX',$code) || in_array('OTHCL',$code) ){
-
-					}else{
-						$errmsg[] 	= "EWT Code on row $line is not valid for EWT.<br>";
-					}
-					if($cwt != $cwt_code){
-						$errmsg[] 	= "CWT Code on row $line is not a CWT code.<br>";
-					}
-					if( $count > 0 )
-					{
-						$errmsg[]	= "ATC Code [<strong>$atccode</strong>] on row $line already exists.<br/>";
-						$errmsg		= array_filter($errmsg);
-					}
-					if( !in_array($atccode, $list) ){
-						$list[] 	=	$atccode;
-					}
-
-					if(empty($atccode)){
-						$errmsg[] 	= "ATC Code on row $line should not be empty.<br>";
-					}
+						// **** Trim Other Unusual Special Characters***/ 
+						$atccode 	   		= $this->import->trim_special_characters($atccode);
+						$taxcode 			= $this->import->trim_special_characters($taxcode);
+						$ewt       		 	= $this->import->trim_special_characters($ewt);
+						$cwt 				= $this->import->trim_special_characters($cwt);
+						
+						// Check for Empty on first line
+						$errmsg[] 	=	$this->import->check_empty("ATC Code", $atccode, $line);
+						$errmsg[] 	=	$this->import->check_empty("Tax Rate", $taxrate, $line);
+						$errmsg[] 	=	$this->import->check_empty("Tax Code", $taxcode, $line);
+						$errmsg[] 	=	$this->import->check_empty("Description", $description, $line);
+						$errmsg[] 	=	$this->import->check_empty("EWT Account Code", $ewt, $line);
+						$errmsg[] 	=	$this->import->check_empty("CWT Account Code", $cwt, $line);
 					
-					if(empty($taxrate)){
-						$errmsg[] 	= "Tax rate on row $line should not be empty.<br>";
+						// Check for Max Length 
+						// $errmsg[] 	=	$this->import->check_character_length("ATC Code", $atccode, $line, "20", strlen($customercode));
+						// $errmsg[] 	=	$this->import->check_character_length("Tax Rate", $taxrate, $line, "100", strlen($companyname));
+						// $errmsg[] 	=	$this->import->check_character_length("Tax Code", $taxcode, $line, "105", strlen($address));
+						// $errmsg[] 	=	$this->import->check_character_length("Description", $description, $line, "150", strlen($email));
+						// $errmsg[] 	=	$this->import->check_character_length("EWT Account Code", $ewt, $line, "20", strlen($contact));
+						// $errmsg[] 	=	$this->import->check_character_length("CWT Account Code", $cwt, $line, "20", strlen($firstname));
+						
+						// $exists = $this->atc_code->check_duplicate($atccode);
+
+						// Check for Duplicates
+						$errmsg[] 	=	$this->check_duplicate_code("ATC Code",$atccode,$line);
+						
+						if($taxrate != ''){
+							// Check for Numerical Values
+							$errmsg[] 	=	$this->import->check_numeric("Tax Rate", $taxrate, $line);
+
+							// Check for Negative Values
+							$errmsg[] 	=	$this->import->check_negative("Tax Rate", $taxrate, $line);
+
+							if(empty($errmsg)){
+								$taxrate 	=	($taxrate > 0) ? (float)$taxrate/100 : 0;
+							}
+						}
+
+						$tax = $this->atc_code->check_accountclasscode($ewt);
+						$code = array();
+						foreach ($tax as $m) {
+							$code[] = $m->accountclasscode;
+						}
+						if(in_array('CULIAB',$code) || in_array('TAX',$code) || in_array('OTHCL',$code) || in_array('CULIAB',$code) ){
+
+						}else{
+							$errmsg[] 	= "EWT Code on row $line is not valid for EWT.<br>";
+						}
+						if($cwt != $cwt_code){
+							$errmsg[] 	= "CWT Code on row $line is not a CWT code.<br>";
+						}
+						if( !in_array($atccode, $list) ){
+							$list[] 	=	$atccode;
+						} else {
+							$errmsg[]	= "ATC Code [<strong>$atccode</strong>] on row $line has a duplicate within the document.<br/>";
+						}
+
+						$errmsg		= 	array_filter($errmsg);
+
+						$atccode_[] 	= $atccode;
+						$taxrate_[] 	= $taxrate;
+						$taxcode_[] 	= $taxcode;
+						$description_[]	= addslashes($description);
+						$ewt_[] 		= $ewt;
+						$cwt_[] 		= $cwt;
+
+						$line++;
+
+						$coa_id_ewt = $this->atc_code->get_coa_id($ewt);
+						$coa_id_cwt = $this->atc_code->get_coa_id($cwt);
+						$ewt1_[] 		= $coa_id_ewt;
+						$cwt1_[] 		= $coa_id_cwt;
+
 					}
-
-					if(empty($ewt)){
-						$errmsg[] 	= "EWT on row $line should not be empty.<br>";
-					}
-
-					if(empty($cwt)){
-						$errmsg[] 	= "CWT on row $line should not be empty.<br>";
-					}
-
-					if(empty($description)){
-						$errmsg[] 	= "Tax description on row $line should not be empty.<br>";
-					}
-					
-
-					$atccode_[] 	= $atccode;
-					$taxrate_[] 	= $taxrate/100;
-					$taxcode_[] 	= $taxcode;
-					$description_[]	= addslashes($description);
-					$ewt_[] 		= $ewt;
-					$cwt_[] 		= $cwt;
-
-					$line++;
-
-					$coa_id_ewt = $this->atc_code->get_coa_id($ewt);
-					$coa_id_cwt = $this->atc_code->get_coa_id($cwt);
-					$ewt1_[] 		= $coa_id_ewt;
-					$cwt1_[] 		= $coa_id_cwt;
-
 				}
+			} else {
+				$errmsg[] 	= "You are importing an empty template.";
+				$errmsg		= array_filter($errmsg);
 			}
 			$temp = array();
 			foreach ($ewt1_ as $x) {

@@ -298,7 +298,7 @@ class purchase_receipt_model extends wc_model {
 		$sort = ($sort) ? $sort : 'transactiondate desc';
 		$condition = "pr.stat != 'temporary'";
 		if ($search) {
-			$condition .= ' AND ' . $this->generateSearch($search, array('voucherno'));
+			$condition .= ' AND ' . $this->generateSearch($search, array('voucherno','vendor','source_no','invoiceno'));
 		}
 		if ($filter && $filter != 'all') {
 			$condition .= " AND pr.stat = '$filter'";

@@ -8,7 +8,7 @@ class controller extends wc_controller {
 		$this->logs				= new log();
 		$this->job_order        = new job_order_model();
 		$this->parts_and_service= new parts_and_service_model();
-		
+		$this->inventory_model	= $this->checkoutModel('inventory_module/inventory_model');		
 		$this->session			= new session();
 		$this->fields 			= array(
 			'job_order_no',
@@ -34,8 +34,8 @@ class controller extends wc_controller {
 			'qty' 				=> 'quantity',
 			'h_uom'				=> 'uom',
 			'isbundle',
-			'parentline'
-			// 'parentcode'
+			'parentline',
+			'parentcode'
 		);
 		$this->fields3			= array(
 			'job_order_no',
@@ -43,7 +43,7 @@ class controller extends wc_controller {
 			'detailparticular',
 			'linenum',
 			'warehouse',
-			'jod.qty quantity',
+			'jod.qty' => 'jod.quantity',
 			'jod.uom',
 			'isbundle',
 			'parentcode',
@@ -171,6 +171,21 @@ class controller extends wc_controller {
 	}
 	public function view($id) {
 		$this->view->title			= 'View Job Order';
+		$this->view->addCSS(array(
+				'jquery.fileupload.css'
+			)
+		);  
+		$this->view->addJS(
+			array(
+				'jquery.dirrty.js',
+				'jquery.ui.widget.js',
+				'jquery.iframe-transport.js',
+				'jquery.fileupload.js',
+				'jquery.fileupload-process.js',
+				'jquery.fileupload-validate.js',
+				'jquery.fileupload-ui.js'
+			)
+		);
 		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
 		$data						= (array) $this->job_order->getJOByID($this->fields, $id);
@@ -185,7 +200,10 @@ class controller extends wc_controller {
 		$data["taxrate_list"]		= $this->job_order->getTaxRateList();
 		$data["taxrates"]			= $this->job_order->getTaxRates();
 
-		$data['voucher_details']	= json_encode($this->job_order->getJobOrderDetails($this->fields2, $id));
+		$this->fields2['isbundle'] = " IF(isbundle = 'yes','1','0') isbundle";
+		$voucherdetails 			= json_encode($this->job_order->getJobOrderDetails($this->fields2, $id));
+		$data['voucher_details']	= $voucherdetails;
+		// var_dump($voucherdetails); 	
 		$data['header_values']		= json_encode(array(
 			''
 		));		
@@ -198,14 +216,13 @@ class controller extends wc_controller {
 		$data['restrict_dr'] 		= true;
 
 		$data['job_order_no']			= $id;
-		$data['attachment']		= $this->job_order->selectAttachment($id,$this->fieldsattachment);
-		$data['attach_check']		= "not ready";
-		if(!empty($data['attachment'])) {
-			$data['attach_check']		= "ready";
-			//$data['attachment_name'] 		= $data['attachment']['attachment_name'];
-			//$data['attachment_type'] 		= $data['attachment']['attachment_type'];
+		if ($data['stat'] == 'completed') {
+			$getData 				= $this->job_order->selectAttachment($id,$this->fieldsattachment);
+			$data['filename'] 		= $getData->attachment_name;
+			$data['filetype'] 		= $getData->attachment_type;
+			$data['fileurl'] 		= $getData->attachment_url;
 		}
-		$this->view->load('job_order/job_order_view', $data);
+		$this->view->load('job_order/job_order', $data);
 	}
 	public function payment($id) {
 		$this->view->title			= 'Job Order - Issue Parts';
@@ -452,27 +469,24 @@ class controller extends wc_controller {
 		$data['stat'] = 'prepared';
 		$data['job_order_no'] = $job_order_no;
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
-		// $data1 = $this->input->post($this->fields_header);
-		$data2 = $this->input->post($this->fields2);
-		// $data2['job_order_no'] = $job_order_no;
-		//var_dump($data, $data2);
-
-		// $result  = $this->job_order->saveValues('job_order',$data);
-		// $result1 = $this->job_order->saveFromPost('job_order_details', $data2, $data);
-		// $dataparticular		= $this->input->post('h_detailparticular');
-		// if($data2['detailparticular'] == '') {
-		// 	$data2['detailparticular'] = $dataparticular;
-		// }
-		// $itemcodewosq					= $this->input->post('detail_itemcode');
-		//$itemuom					= $this->input->post('uom');
-		// if($data['service_quotation'] == '') {
-		// 	$data2['itemcode']	= $itemcodewosq;
-		// }
-		// echo  'sq '.$data['service_quotation'] ;
-		//var_dump($data, $data2);
-		unset($data2['parentcode']);
+		$data2 				= $this->input->post($this->fields2);
+		foreach($data2 as $key => $content){
+			if(is_array($content)){
+				foreach($content as $ind => $val) {
+					if($key == 'isbundle') {
+						if($val == 1 || $val == 'Yes'){
+							$data2[$key][$ind] = 'yes';
+						} else {
+							$data2[$key][$ind]  = 'no';
+						}
+					}
+				}
+			}
+		}
+		// var_dump($data2['isbundle']);
+		// $result = 0;
 		$result		= $this->job_order->saveJobOrder($data, $data2);
-		
+		//var_dump($data, $data2);
 		return array(
 			'redirect' => MODULE_URL,
 			'success' => $result
@@ -518,10 +532,24 @@ class controller extends wc_controller {
 		$seq 						= new seqcontrol();
 		$job_release_no 			= $seq->getValue("JR");
 		$data						= $this->input->post($this->fields4);
+		$customer					= $this->input->post('h_customer');
 		$data['job_release_no'] 	= $job_release_no;
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
-
+		
 		$result						= $this->job_order->saveJobRelease($data);
+		
+		$this->job_order->createClearingEntries($data['job_release_no']);
+
+		if ($result && $this->inventory_model) {
+			$this->inventory_model->prepareInventoryLog('Job Release', $data['job_release_no'])
+									->setDetails($customer)
+									->computeValues()
+									->logChanges();
+
+			// $this->inventory_model->setReference($data['voucherno'])
+			// 						->setDetails($data['customer'])
+			// 						->generateBalanceTable();
+		}
 		
 		return array(	
 			'result'=> $result
@@ -533,10 +561,8 @@ class controller extends wc_controller {
 		$data			= $this->input->post($this->fields4);
 		$result = $this->job_order->getQty($job_release_no,$data);
 		foreach ($result as $row) {
-			// $qty[] = $row->quantity;
 			$qty = $row->quantity;
-		// var_dump($qty);	
-	}
+		}
 		return array(	
 			'result' => $result
 		);
@@ -546,11 +572,42 @@ class controller extends wc_controller {
 		$job_release_no = $this->input->post('jobreleaseno');
 		
 		$data			= $this->input->post($this->fields4);
+		$customer					= $this->input->post('h_customer');
 		$joborderno     = $data['job_order_no'][0];
 		$result = $this->job_order->updateIssueParts($job_release_no,$data);
-		
+		// $this->job_order->createClearingEntries($job_release_no);
+
+		if ($result && $this->inventory_model) {
+			$this->inventory_model->prepareInventoryLog('Job Release', $job_release_no)
+								->computeValues()
+								->setDetails($customer)
+								->logChanges();
+		}
 		return array(	
 			'result' => $result
+		);
+	}
+
+	private function ajax_delete_issue() {
+		$delete_id = $this->input->post('id');
+		$voucherno = $this->input->post('voucherno');
+		
+		if ($delete_id) {
+			$result = $this->job_order->reverseEntries($delete_id,$voucherno);
+			$result = $this->job_order->deleteJobRelease($delete_id,$voucherno);
+		}
+		if ($result && $this->inventory_model) {
+			
+				$this->inventory_model->prepareInventoryLog('Job Release', $delete_id)
+										->computeValues()
+										->logChanges('Cancelled');
+
+		// 		$this->job_order->createClearingEntries($delete_id);
+			}
+			$this->inventory_model->generateBalanceTable();
+		
+		return array(
+			'success' => $result
 		);
 	}
 
@@ -566,28 +623,29 @@ class controller extends wc_controller {
 		if (empty($asd)) {
 			$table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-// var_dump($list);
 
 		foreach ($asd as $row) {
-			$table .= '<tr data-id = "' . $row->asd . '">';
+			$table .= '<tr  data-jv = "' . $row->voucherno . '" data-id = "' . $row->asd . '">';
 			$table .= '<td colspan="5">' . 'Part Issuance No.: '.$row->asd . '</td>';
-			$table .= '<td>' . '<a class="btn-sm" href="#" id="editip" title="Edit"><span class="glyphicon glyphicon-pencil editip" style="border: 1px solid gainsboro;
+			$table .= '<td>' . '<a class="btn-sm" pointer id="editip" title="Edit"><span class="glyphicon glyphicon-pencil editip pointer" style="border: 1px solid gainsboro;
 			padding: 3px 4px 3px 4px;
 			background-color: lavender;"></span></a>' . '</td>';
-			$table .= '<td>' . '<a class="btn-sm" title="Delete"><span class="glyphicon glyphicon-trash deleteip" style="border: 1px solid gainsboro;
+			$table .= '<td>' . '<a class="btn-sm" pointer title="Delete"><span class="glyphicon glyphicon-trash deleteip pointer" style="border: 1px solid gainsboro;
 			padding: 3px 4px 3px 4px;
 			background-color: lavender;"></span></a>' . '</td>';
 			$table .= '</tr>';
-		$list	= $this->job_order->getIssuedParts($row->asd);
+			
+			$list	= $this->job_order->getIssuedParts($row->asd);
 		
 			foreach ($list as $key => $row) {
 			$table .= '<tr>';
-			// $table .= '<td>' . $row->job_release_no . '</td>';
 			$table .= '<td>' . $row->itemcode . '</td>';
 			$table .= '<td>' . $row->detailparticulars . '</td>';
-			$table .= '<td>' . $row->warehouse . '</td>';
+			$table .= '<td>' . $row->description . '</td>';
 			$table .= '<td>' . $row->quantity . '</td>';
 			$table .= '<td>' . $row->unit . '</td>';
+			$table .= '<td>' . '' . '</td>';
+			$table .= '<td>' . '' . '</td>';
 			$table .= '</tr>';
 		}
 	}		
@@ -597,18 +655,6 @@ class controller extends wc_controller {
 		);
 	}
 
-	private function ajax_delete_issue() {
-		$delete_id = $this->input->post('id');
-		if ($delete_id) {
-			$result		= $this->job_order->deleteJobRelease($delete_id);
-			if(empty($result)) {
-				$msg = "success";
-			}else {
-				$msg = $result;
-			}
-		}
-		return array('success' => $msg);
-	}
 	private function ajax_checkbundle() {
 		$itemcode	= $this->input->post('itemcode');
 		$result		= $this->job_order->retrieveItemDetails($itemcode);
@@ -631,10 +677,10 @@ class controller extends wc_controller {
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
 		$data2 = $this->input->post($this->fields2);
 
-		$itemcodewosq					= $this->input->post('detail_itemcode');
-		if($data['service_quotation'] == '') {
-			$data2['itemcode']	= $itemcodewosq;
-		}
+		// $itemcodewosq					= $this->input->post('detail_itemcode');
+		// if($data['service_quotation'] == '') {
+		// 	$data2['itemcode']	= $itemcodewosq;
+		// }
 		//var_dump($data, $data2, $data['job_order_no']);
 		$result		= $this->job_order->updateJO($data, $data2);
 		
@@ -650,6 +696,8 @@ class controller extends wc_controller {
 		$upload_handler	= new UploadHandler();
 		$reference 		= $post_data['reference'];
 		$upload_result 	= false;
+		$task 			= $post_data['task'];
+		unset($post_data['task']);
 
 		if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
 			if(!isset($upload_handler->response['files'][0]->error)){
@@ -659,6 +707,11 @@ class controller extends wc_controller {
 				 * @param group fields
 				 * @param custom condition
 				 */
+
+				if ($task=='view') 
+				$attachment_id = $this->job_order->getCurrentId("job_order_attachments", $reference);
+			
+				else
 				$attachment_id = $this->job_order->getNextId("job_order_attachments","attachment_id");
 				foreach($upload_handler->response['files'] as $key => $row) {
 					$post_data['attachment_id'] 	= $attachment_id;
@@ -666,15 +719,16 @@ class controller extends wc_controller {
 					$post_data['attachment_type'] 	= $row->type;
 					$post_data['attachment_url']	= $row->url;
 				}
-				$upload_result 	= $this->job_order->uploadAttachment($post_data);
+				if ($task == 'view')
+					$upload_result 	= $this->job_order->replaceAttachment($post_data);
+				
+				else
+					$upload_result 	= $this->job_order->uploadAttachment($post_data);
 			}else{
 				$upload_result 	= false;
 			}
 		}
-		if($upload_result){
-			/**
-			 * Update status of Service Quotation to Approved
-			 */
+		if($upload_result && $task == 'listing'){
 			$this->job_order->updateData(array('stat' => 'completed'), 'job_order', " job_order_no = '$reference' ");
 		}
 	}

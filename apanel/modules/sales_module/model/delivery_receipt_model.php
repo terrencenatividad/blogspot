@@ -324,14 +324,12 @@ class delivery_receipt_model extends wc_model {
 	}
 
 	public function tagAsDelivered($voucherno) {
-		//$ids	= "'" . implode("','", $data) . "'";
 		$result	= $this->db->setTable('deliveryreceipt')
 							->setValues(array('stat' => 'Delivered'))
 							->setWhere("voucherno ='$voucherno'")
 							->runUpdate();
 		if ($result) {
 			if ($result) {
-				//$log_id = implode(', ', $data);
 				$this->log->saveActivity("Tag as Delivered [$voucherno]");
 			}
 			$result = $this->db->setTable('deliveryreceipt_details')
@@ -659,7 +657,7 @@ class delivery_receipt_model extends wc_model {
 	public function getDocumentInfo($voucherno) {
 		$result = $this->db->setTable('deliveryreceipt dr')
 							->innerJoin('partners p ON p.partnercode = dr.customer AND p.companycode = dr.companycode AND p.partnertype = "customer"')
-							->setFields("dr.transactiondate documentdate, dr.voucherno voucherno, p.partnername company, CONCAT(p.first_name, ' ', p.last_name) customer, source_no referenceno, dr.remarks remarks, partnercode, wtaxamount wtax, amount, discounttype disctype, discountamount discount, netamount net, taxamount vat")
+							->setFields("dr.transactiondate documentdate, dr.voucherno voucherno, p.partnername company, CONCAT(p.first_name, ' ', p.last_name) customer, source_no referenceno, dr.remarks remarks, partnercode, wtaxamount wtax, amount, discounttype disctype, discountamount discount, netamount net, taxamount vat, s_address")
 							->setWhere("voucherno = '$voucherno'")
 							->runSelect()
 							->getRow();
@@ -766,12 +764,30 @@ class delivery_receipt_model extends wc_model {
 
 	public function uploadAttachment($data) {
 		$dr_voucherno = $data['dr_voucherno'];
+		
+		$data1['stat'] = 'inactive';
+		$deactivate = $this->db->setTable('dr_attachment')
+								->setValues($data1)
+								->setWhere("dr_voucherno = '$dr_voucherno'")
+								->runUpdate();
+
 		$result = $this->db->setTable('dr_attachment')
 							->setValues($data)
 							->runInsert();
 		if ($result) {
 			$this->log->saveActivity("Approve [$dr_voucherno] with attachment");		
 		}
+		return $result;
+	}
+
+	public function getFile($voucherno) {
+		$result = $this->db->setTable('dr_attachment')
+							->setFields('dr_voucherno, attachment_id, attachment_type, attachment_name, attachment_url')
+							->setWhere("dr_voucherno = '$voucherno' AND stat = 'active'")
+							->runSelect()
+							->setLimit(1)
+							->setOrderBy('entereddate')
+							->getRow();
 		return $result;
 	}
 
