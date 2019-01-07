@@ -329,7 +329,7 @@ class budgetting extends wc_model
 		->setFields('bs.accountcode as accountcode, ca.accountname as accountname, bs.description as description, SUM(bs.amount) as amount')
 		->leftJoin('chartaccount ca ON bs.accountcode = ca.id')
 		->leftJoin('budget as b ON bs.budget_id = b.id')
-		->setWhere("b.budget_code = '$budgetcode'")
+		->setWhere("b.budget_code = '$budgetcode' AND bs.status = 'approved'")
 		->setGroupBy('bs.accountcode')
 		->runSelect(false)
 		->getResult();

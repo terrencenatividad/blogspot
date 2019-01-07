@@ -446,7 +446,7 @@ class purchase_receipt_model extends wc_model {
 								// ->setHaving('qtyleft > 0')
 								->buildSelect();
 								// ->runPagination();
-								
+					
 		$query_ipo		= $this->db->setTable('import_purchaseorder_details ipod')
 								// ->setFields('ipo.voucherno voucherno, ipo.transactiondate transactiondate, remarks, ipo.netamount netamount, (IF(SUM(ipod.receiptqty) IS NULL, 0, SUM(ipod.receiptqty)) - IF(pr.pr_qty IS NULL, 0, pr.pr_qty)) qtyleft, ipo.vendor vendor')
 								->setFields('ipo.voucherno voucherno, ipo.transactiondate transactiondate, remarks, ipo.netamount netamount, (IF(ipod.receiptqty IS NULL, 0, ipod.receiptqty) - IF(pr.pr_qty IS NULL, 0, pr.pr_qty)) qtyleft, ipo.vendor vendor')
@@ -460,6 +460,7 @@ class purchase_receipt_model extends wc_model {
 								// echo $this->db->getQuery();;
 		
 		$query	= $query_po .' UNION ALL '. $query_ipo ;
+		
 
 		$result = $this->db->setTable("($query) i")
 							->setFields('i.voucherno, i.transactiondate, i.remarks, i.netamount, i.qtyleft, i.vendor')
@@ -476,7 +477,7 @@ class purchase_receipt_model extends wc_model {
 
 		if ($transtype == 'PO'){
 			$result1		= $this->db->setTable('purchaseorder_details pod')
-									->setFields("pod.itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, pod.warehouse, receiptuom, unitprice, 'none' taxcode, taxrate, pod.taxamount, pod.amount, convreceiptqty, convuom, conversion, item_ident_flag")
+									->setFields("pod.itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, pod.warehouse, receiptuom, unitprice, taxcode, taxrate, pod.taxamount, pod.amount, convreceiptqty, convuom, conversion, item_ident_flag")
 									->innerJoin('purchaseorder po ON pod.voucherno = po.voucherno AND pod.companycode = po.companycode')
 									->innerJoin('items i ON i.itemcode = pod.itemcode')
 									->setWhere("po.voucherno = '$voucherno'")
@@ -484,7 +485,7 @@ class purchase_receipt_model extends wc_model {
 									->getResult();
 		} else {
 			$result1		= $this->db->setTable('import_purchaseorder_details ipod')
-									->setFields("ipod.itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, ipod.warehouse, receiptuom, unitprice, 'none' taxcode, taxrate, ipod.taxamount, ipod.amount, convreceiptqty, convuom, conversion, item_ident_flag")
+									->setFields("ipod.itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, ipod.warehouse, receiptuom, unitprice, taxcode, taxrate, ipod.taxamount, ipod.amount, convreceiptqty, convuom, conversion, item_ident_flag")
 									->innerJoin('import_purchaseorder ipo ON ipod.voucherno = ipo.voucherno AND ipod.companycode = ipo.companycode')
 									->innerJoin('items i ON i.itemcode = ipod.itemcode')
 									->setWhere("ipo.voucherno = '$voucherno'")

@@ -2,7 +2,7 @@
 
 	<ul class="nav nav-tabs">
 		<li class="active"><a href="#main" data-toggle="tab" data-id="main">Details</a></li>
-		<?if(!$show_input):?><li><a href="#files" data-toggle="tab" data-id="files">Attachments</a></li><?endif;?>
+		<?if(!$show_input && $stat == 'completed'):?><li><a href="#files" data-toggle="tab" data-id="files">Attachments</a></li><?endif;?>
 	</ul>
 	<div class="tab-content">
 		<div class="tab-pane active" id="main">
@@ -211,6 +211,7 @@
 			</div>
 			<?endif;?>
 		</div>
+		<?php if (!$show_input && !empty($filename)) { ?>
 		<div class="tab-pane" id="files">
 			<div class="box box-primary">
 				<form method = "post" class="form-horizontal" id="case_attachments_form" enctype="multipart/form-data">
@@ -233,8 +234,8 @@
 											<td>
 												<button type="button" id="replace_attachment" name="replace_attachment" class="btn btn-primary">Replace</button>
 											</td>
-											<td><a href="insert uploaded link here">1123132.pdf</a></td>
-											<td>PDF</td>
+											<td><a target="_blank" href = "<?php echo $fileurl ?>"><?php echo $filename ?></a></td>
+											<td><?php echo $filetype ?></td>
 										</tr>
 									</tbody>
 								</table>
@@ -251,6 +252,7 @@
 				</form>
 			</div>
 		</div>
+		<?php } ?>
 	</div>
 </section>
 	<div id="sec_modal" class="modal fade" tabindex="-1" role="dialog">
@@ -331,43 +333,77 @@
 		</div>
 		</div>
 	</div>
-	<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
-		<div class="modal-dialog modal-md" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-			<h4 class="modal-title">Attach File</h4>
-			<h4 class="modal-title">JO NO.: JO0000000001</h4>
-			</div>
-			<div class="modal-body">
-				<div class="form-group">
-					<!-- <label for="import_csv">Step 3. Select the updated file and click 'Import' to proceed.</label> -->
-					<?php
-						echo $ui->setElement('file')
-								->setId('import_csv')
-								->setName('import_csv')
-								->setAttribute(array('accept' => '.csv'))
-								->setValidation('required')
-								->draw();
-					?>
-					<span class="help-block"></span>
-				</div>
-				<p class="help-block">The file to be imported shall not exceed the size of 1mb and must be a PDF, PNG or JPG file.</p>
-			</div>
-			<div class="modal-footer">
-				<div class="col-md-12 col-sm-12 col-xs-12 text-center">
-					<div class="btn-group">
-					<button type = "button" class = "btn btn-primary btn-sm btn-flat">Attach</button>
-					</div>
-					&nbsp;&nbsp;&nbsp;
-					<div class="btn-group">
-					<button type="button" class="btn btn-default btn-sm btn-flat">Cancel</button>
+	<?if(!$show_input && !empty($filename)):?>
+	<div id="Attachment" class="tab-pane">
+		<div class="box box-primary">
+			<form method = "post" class="form-horizontal" id="case_attachments_form" enctype="multipart/form-data">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="table-responsive">
+							<table id="fileTable" class="table table-bordered">
+								<thead>
+									<tr class="info">
+										<th class="col-md-1">Action</th>
+										<th class="col-md-5">File Name</th>
+										<th class="col-md-2">File Type</th>
+									</tr>
+								</thead>
+								<tbody class="files" id="attachment_list">
+									<tr>
+										<td>
+											<button type="button" id="replace_attachment" data-voucherno='<?=$voucherno;?>' name="replace_attachment" class="btn btn-primary">Replace</button>
+										</td>
+										<td><a href="<?=$filepath;?>" target='_blank'><?=$filename?></a></td>
+										<td><?=$filetype?></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
-			</div>
-		</div>
+				<br/>
+			</form>
 		</div>
 	</div>
+	<?php endif;?>
+	<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+			<form method = "post" id="attachments_form" enctype="multipart/form-data">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Attach File for <span id="modal-voucher"></span></h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<input type="hidden" name="voucherno" id='input_voucherno'>
+						<?php
+							echo $ui->setElement('file')
+									->setId('files')
+									->setName('files')
+									->setAttribute(array('accept' => '.pdf, .jpg, .png'))
+									->setValidation('required')
+									->draw();
+						?>
+					</div>
+					<p class="help-block">The file to be imported shall not exceed the size of <strong>3mb</strong> and must be a <strong>PDF, PNG or JPG</strong> file.</p>
+				</div>
+				<div class="modal-footer">
+					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+						<div class="btn-group">
+						<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button">Attach</button>
+						</div>
+						&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+						<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</form>
+			</div>
+		</div>
+	</div>
+	
 	<div id="ordered_list_modal" class="modal fade" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">
@@ -419,15 +455,22 @@
 		$('.childqty').prop('readonly', false);
 
 		<?php if($show_input && $ajax_task == 'ajax_edit' && $service_quotation != ''): ?>
+
+		document.getElementById('addNewItemJODetails').style.visibility = 'hidden';
+		$('.pcode').prop('disabled', true);
+		$('.ccode').prop('disabled', true);
 		$('.detailparticular').prop('readonly', true);
-		//$('.qty').prop('readonly','true');
-		$('.detailforBundle').prop('disabled',true);
-		$('.WhForBundle').prop('disabled',true);
-		$('.whchild').prop('disabled', true);
+		$('.warehouse').prop('disabled', true);
 		$('.parentqty').prop('readonly', true);
 		$('.childqty').prop('readonly', true);
+
+		<?php endif ?>
+
+		<?php if($show_input && $ajax_task == 'ajax_edit' && $service_quotation == ''): ?>
 		$('.ccode').prop('disabled', true);
-		document.getElementById('addNewItemJODetails').style.visibility = 'hidden';
+		$('.detailforBundle').prop('readonly', true);
+		$('.whchild').prop('disabled', true);
+		$('.childqty').prop('readonly', true);
 		<?php endif ?>
 	});
 		var delete_row	= {};
@@ -439,7 +482,7 @@
 		function addVoucherDetails(details, index, parent="") {
 			// console.log("Parent = "+parent);
 			var details = details || {itemcode: '', detailparticular: '', warehouse: '', qty: '0', quantity: '0', uom: 'PC', childqty : '0', linenum : '0', isbundle : '0', parentline : '', parentcode : ''};
-			console.log(details);
+			// console.log(details);
 			var other_details = JSON.parse(JSON.stringify(details));
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
@@ -471,21 +514,23 @@
 			var parentcode 	=	"";
 			if(details.parentcode == "" || details.parentcode == null){
 				var asd = 'parents'+linenum;
+				parentline = 0;
 				// parent = linenum;
 			}else{
-				parentline = parent;
-				parentcode = $('#tableList tbody tr[data-linenum="'+parent+'"]').find('.h_itemcode').val();
-				// console.log("PARENT CODE = "+parentcode);
+				parentline = (details.parentline!= "" && details.parentline!=undefined) ? details.parentline : parent;
+				if(parent!=""){
+					parentcode = $('#tableList tbody tr[data-linenum="'+parent+'"]').find('.h_itemcode').val();
+				} else {
+					parentcode = details.parentcode;
+				}
 				var asd = 'subitem'+parentline;
 			}
-			
-			if(details.isbundle == 1 || details.isbundle == 'yes'){
+			if(details.isbundle == 1 || details.isbundle == 'yes' || details.isbundle == 'Yes'){
 				var dsa = 'data-isbundle="1"';
 			}else{
-				// jeff: for parentline anti duplicate
-				parentline = 0;
 				var dsa = 'data-isbundle="0"';
-				style = "style='font-weight: bold;'";
+				//style = "style='font-weight: bold;'";
+				style = "";
 			}
 			row += `
 				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.quantity+`" data-linenum="`+linenum+`"  data-parentlinenum="`+parentline+`" `+style+`>`;
@@ -699,8 +744,8 @@
 			`;
 			
 			// This is for letting the system know where to add the row.. 
-			if(details.isbundle == 0){
-				if($('#tableList tbody tr.parents'+parentline).siblings('.subitem'+parentline).length > 0){ 
+			if( parentline != 0 ){
+				if($('#tableList tbody tr[data-linenum="'+parentline+'"]').siblings('.subitem'+parentline).length > 0) {
 					// we check the current subitem added to know where to add its siblings
 					$('#tableList tbody tr.subitem'+parentline+'[data-linenum="'+(parseFloat(linenum)-1)+'"]').after(row);
 				} else {
@@ -709,6 +754,7 @@
 			} else {
 				$('#tableList tbody').append(row);
 			}
+			
 			// var row2 = `
 			// 	<tr>
 			// 		<td>
@@ -778,14 +824,26 @@
 			// $('#issuedPartsList tbody').append(row2);
 			// This part is for placing the value on the input fields
 			if (details.itemcode != '') {
-				if(details.isbundle == 1){
-					if($('#tableList tbody tr.parents'+parentline).siblings('.subitem'+parentline).length > 0){
+				// if(details.isbundle == 0){
+				// 	if($('#tableList tbody tr.parents'+parentline).siblings('.subitem'+parentline).length > 0){
+				// 		$('#tableList tbody tr.subitem'+parentline+'[data-linenum="'+linenum+'"]').find('.itemcode').val(details.itemcode);
+				// 	} else {
+				// 		$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+				// 	}
+				// } else {
+				// 	$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+				// }
+				if( parentline != 0 ){
+					if($('#tableList tbody tr[data-linenum="'+parentline+'"]').siblings('.subitem'+parentline).length > 0) {
 						$('#tableList tbody tr.subitem'+parentline+'[data-linenum="'+linenum+'"]').find('.itemcode').val(details.itemcode);
+						$('#tableList tbody tr.subitem'+parentline+'[data-linenum="'+linenum+'"]').find('.h_itemcode').val(details.itemcode);
 					} else {
 						$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+						$('#tableList tbody').find('tr:last .h_itemcode').val(details.itemcode);
 					}
 				} else {
 					$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
+					$('#tableList tbody').find('tr:last .h_itemcode').val(details.itemcode);
 				}
 			}
 			if (details.warehouse != '') {
@@ -931,7 +989,10 @@
 			$(this).closest('tr').find('.discounttype:not(:checked)').closest('.input-group').find('.discount_entry.rate').val('0.00');
 			recomputeAll();
 		});
-		$('#replace_attachment').on('click',function(e){
+		$('#replace_attachment').on('click', function(){
+			var voucherno = $(this).data('voucherno');
+			$('#modal-voucher').html(voucherno);
+			$('#input_voucherno').val(voucherno);
 			$('#attach_modal').modal('show');
 		});
 		function retrieve_issued_parts() {
@@ -950,6 +1011,7 @@
 			$('.WhForBundle').prop('disabled', false);
 			$('.detailforBundle').prop('disabled', false);
 			$('.parentqty').prop('readonly', false);
+			// reorderlinenum();
 		});
 		<?php // if ($ajax_task == 'ajax_create'): ?>
 		$('#service_quotation').on('focus', function() {
@@ -1182,6 +1244,7 @@
 					curr_code.closest('tr').find('.uom').val(content.uom);
 					curr_code.closest('tr').find('.h_uom').val(content.uom);
 					curr_code.closest('tr').data('isbundle',content.isbundle);
+					curr_code.closest('tr').find('.isbundle').val(content.isbundle);
 				}
 			});
 			
@@ -1214,3 +1277,64 @@
 
 	</script>
 	<?php endif ?>
+
+
+// <script>
+// $(function () {
+// 	'use strict';
+
+// 	$('#attachments_form').fileupload({
+// 		url: '<?= MODULE_URL ?>ajax/ajax_upload_file',
+// 		maxFileSize: 2000000,
+// 		disableExifThumbnail :true,
+// 		previewThumbnail:false,
+// 		autoUpload:false,
+// 		add: function (e, data) {            
+// 			$("#attach_button").off('click').on('click', function () {
+// 				data.submit();
+// 			});
+// 		},
+// 	});
+// 	$('#attachments_form').addClass('fileupload-processing');
+// 	$.ajax({
+// 		url: $('#attachments_form').fileupload('option', 'url'),
+// 		dataType: 'json',
+// 		context: $('#attachments_form')[0]
+// 	}).always(function () {
+// 		$(this).removeClass('fileupload-processing');
+// 	}).done(function (result) {
+// 		$(this).fileupload('option', 'done')
+// 			.call(this, $.Event('done'), {
+// 				result: result
+// 			});
+// 	});
+
+// 	$('#attachments_form').bind('fileuploadadd', function (e, data) {
+// 		var filename = data.files[0].name;
+// 		$('#attachments_form #files').closest('.input-group').find('.form-control').html(filename);
+// 	});
+// 	$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
+// 		var voucherno 	=  $('#input_voucherno').val();
+// 		var task 		=  "view";
+// 		data.formData = {reference: voucherno, task: task};
+// 	});
+// 	$('#attachments_form').bind('fileuploadalways', function (e, data) {
+// 		var error = data.result['files'][0]['error'];
+// 		var form_group = $('#attachments_form #files').closest('.form-group');
+// 		if(!error){
+// 			$('#attach_modal').modal('hide');
+// 			var msg = data.result['files'][0]['name'];
+// 			form_group.removeClass('has-error');
+// 			form_group.find('p.help-block.m-none').html('');
+
+// 			$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
+// 			$('#delay_modal').modal('show');
+// 			setTimeout(function(){window.location = '<?=MODULE_URL?>view/<?=$job_order_no;?>';}, 1000);
+// 		}else{
+// 			var msg = data.result['files'][0]['name'];
+// 			form_group.addClass('has-error');
+// 			form_group.find('p.help-block.m-none').html(msg);
+// 		}
+// 	});
+// });
+// </script>

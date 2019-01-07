@@ -1608,8 +1608,7 @@ class controller extends wc_controller
 		$error_messages		= implode(' ', $errmsg);
 		$warning_messages	= implode(' ', $warning);
 
-		$resultArray 	=	 array("proceed" => $proceed,"errmsg"=>$error_messages, "warning"=>$warning_messages);
-		echo json_encode($resultArray);
+		return array("proceed" => $proceed,"errmsg"=>$error_messages, "warning"=>$warning_messages);
 	}
 
 	private function ajax_get_currency_val() {

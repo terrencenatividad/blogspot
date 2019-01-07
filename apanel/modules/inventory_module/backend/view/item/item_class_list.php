@@ -147,6 +147,7 @@
 	<script>
 		var ajax = filterFromURL();
 		var ajax_call = '';
+		ajax.limit = 10;
 		ajaxToFilter(ajax, { search : '#table_search', limit : '#items' });
 		$('#table_search').on('input', function () {
 			ajax.search = $(this).val();

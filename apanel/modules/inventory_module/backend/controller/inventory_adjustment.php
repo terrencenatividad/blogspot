@@ -33,7 +33,6 @@ class controller extends wc_controller {
 		$data['item_list'] 			= $this->item_model->getItemDropdownList();
 		$w_entry_data          		= array("warehousecode ind","description val");
 		$data["warehouses"] 		= $this->adjustment->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
-
 		$this->view->load('inventory_adjustment/inventory_adjustment_list', $data);
 	}
 	
@@ -93,6 +92,7 @@ class controller extends wc_controller {
 		$itemcode 	=	$this->input->post('itemcode');
 		$action 	=	$this->input->post('action');
 		$qty 		=	$this->input->post('issueqty');
+		// $serials 	=	$this->input->post('serials');
 		$value 		=	"";
 
 		$voucher 	= 	$this->seq->getValue('ADJ'); 
@@ -107,7 +107,6 @@ class controller extends wc_controller {
 		}
 
 		$result 	=	$this->adjustment->update_inventory($data, $voucher);
-		
 		if( $result )
 		{
 			$msg = "success";
@@ -186,6 +185,7 @@ class controller extends wc_controller {
 				$allocated 		=	isset($row->AllocQty) 	?	$row->AllocQty 	: 	number_format(0,2);
 				$ordered 		=  	isset($row->OrderQty) 	? 	$row->OrderQty 	: 	number_format(0,2);
 				$available 		=  	isset($row->AvailQty) 	? 	$row->AvailQty 	: 	number_format(0,2);
+				$item_ident_flag=	$row->item_ident_flag;
 
 				$table .= '<tr>';
 				$table .= '<td>' . $itemcode . '</td>';
@@ -195,8 +195,8 @@ class controller extends wc_controller {
 				$table .= '<td>' . $ordered . '</td>';
 				$table .= '<td>' . $available . '</td>';
 				$table .= '<td>
-								<button type = "button" id="plus" class = "btn btn-danger" onClick = "adjustment(\''.$itemcode.'\',\''.$itemname.'\', \''.$quantity.'\', \'plus\');" ><i class="fa fa-plus"></i></button>
-								<button type = "button" id="plus" class = "btn btn-danger" onClick = "adjustment(\''.$itemcode.'\',\''.$itemname.'\', \''.$quantity.'\', \'minus\');"><i class="fa fa-minus"></i></button>
+								<button type = "button" id="plus" class = "btn btn-danger" onClick = "adjustment(\''.$itemcode.'\',\''.$itemname.'\', \''.$quantity.'\', \''.$item_ident_flag.'\', \'plus\');" ><i class="fa fa-plus"></i></button>
+								<button type = "button" id="plus" class = "btn btn-danger" onClick = "adjustment(\''.$itemcode.'\',\''.$itemname.'\', \''.$quantity.'\', \''.$item_ident_flag.'\', \'minus\');"><i class="fa fa-minus"></i></button>
 							</td>'; 
 				$table .= '</tr>';
 			}
@@ -502,5 +502,39 @@ class controller extends wc_controller {
 		$dataArray = array( "list" => $list );
 
 		return $dataArray;
+	}
+
+	private function retrieve_serialsforminus(){
+		$itemcode 		=	$this->input->post('itemcode');
+		$search 		=	$this->input->post('search');
+		
+		$serial_lists 	=	$this->adjustment->getSerialList($itemcode, $search);
+		$ret_flag 		= 	$this->adjustment->getValue('items',array('item_ident_flag'),"itemcode = '$itemcode'");
+		$ident_flag 	=	isset($ret_flag[0]->item_ident_flag)  	?	$ret_flag[0]->item_ident_flag 	:	'000';
+		$table 			=	"";
+
+		$has_serial 	=	substr($ident_flag,0,1);
+		$has_engine 	=	substr($ident_flag,1,1);
+		$has_chassis 	=	substr($ident_flag,2,1);
+
+		$hide_serial 	=	($has_serial == 0) 	? "hidden" 	:	"";
+		$hide_engine 	=	($has_engine == 0) ? "hidden" 	:	"";
+		$hide_chassis 	=	($has_chassis == 0)? "hidden" 	:	"";
+
+		// var_dump($ret_flag);
+		if (empty($serial_lists->result)) {
+			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+		} else {
+			foreach ($serial_lists->result as $key => $row) {
+				$table .= '<tr>';
+				$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id'.$row->id.'" class = "check_id" value = "'.$row->id.'"></td>';
+				$table .= '<td class = "'.$hide_serial.'">' . $row->serialno . '</td>';
+				$table .= '<td class = "'.$hide_engine.'">' . $row->engineno . '</td>';
+				$table .= '<td class = "'.$hide_chassis.'">' . $row->chassisno . '</td>';
+			}
+		}
+		
+		$serial_lists->table = $table;
+		return $serial_lists;
 	}
 }

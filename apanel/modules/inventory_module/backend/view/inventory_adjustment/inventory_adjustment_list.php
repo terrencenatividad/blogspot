@@ -42,7 +42,7 @@
 			<div id = "warningmsg"></div>
 		</div>
 
-		<div class="box-body table-responsive no-padding w_selected">
+		<div class="box-body table-responsive no-padding ">
 			<table id="tableList" class="table table-hover">
 				<thead>
 					<?php
@@ -168,12 +168,34 @@
 								<?php
 									echo $ui->formField('text')
 											->setLabel("Quantity:")
-											->setSplit('col-md-4', 'col-md-4')
+											->setSplit('col-md-4', 'col-md-8')
 											->setName('issueqty')
 											->setId('issueqty')
 											->setValue('0')
+											->setClass('notserialized')
 											->setValidation('required integer')
 											->draw();
+								?>
+								<?php
+									echo $ui->setElement('button')
+											->setId('issueqtybtn')
+											->setSplit('col-md-4', 'col-md-8 text-left')
+											->setName('issueqtybtn')
+											->setClass('form-control serialized btn-warning hidden')
+											->setValidation('required')
+											->setPlaceholder('0')
+											->setAttribute(array('style'=>'text-align:left'))
+											->setValue('0')
+											->draw();
+									echo $ui->setElement('hidden')
+											->setId('issueqty_serial')
+											->setName('issueqty_serial')
+											->setClass('form-control')
+											->draw();
+									// echo $ui->setElement('textarea')
+											
+											// <input name='issueqty_serial' id='issueqty_serial' class='form-control' type='hidden'>
+				  							// <textarea class="form-control hidden" id="serialInputs" name="serials"></textarea>
 								?>
 								<div class='col-md-12'><hr/></div>
 								<?php
@@ -343,7 +365,59 @@
 	</div>
 </div>
 
-
+<!-- Serial Modal --> 
+<div class="modal fade" id="serialModal" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog modal-md" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" id = "modal_close" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Items</h4>
+				<h5 class="modal-title"><span class="col-md-2">Item Code:</span><div class="col-md-10"><input type = "text" id = "sec_itemcode" style="background:white; border:white;"></div></h5>
+				<h5 class="modal-title"><span class="col-md-2">Description:</span><div class="col-md-10"><input type = "text" id = "sec_description" style="background:white; border:white;"></div></h5>
+				<input type = "hidden" id  = "checkcount">
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-4 col-md-offset-8">
+						<div class="input-group">
+							<input id="sec_search" class="form-control pull-right" placeholder="Search" type="text">
+							<div class="input-group-addon">
+								<i class="fa fa-search"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body no-padding">
+				<table id="tableSerialList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
+					<thead>
+						<tr class="info">
+							<th class="col-xs-2"></th>
+							<th id = "serial_header">Serial No.</th>
+							<th id = "engine_header">Engine No.</th>
+							<th id = "chassis_header">Chassis No.</th>
+						</tr>
+					</thead>
+					<tbody>
+						
+					</tbody>
+				</table>
+				<div id="serial_pagination"></div>
+			</div>
+			<div class="modal-footer">
+				<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+					<div class="btn-group">
+						<button id = "btn_tag" type = "button" class = "btn btn-primary btn-sm btn-flat">Tag</button>
+					</div>
+					&nbsp;&nbsp;&nbsp;
+					<div class="btn-group">
+						<button id = "btn_close" type="button" class="btn btn-default btn-sm btn-flat">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 <script>
 
 	function show_error(msg, warning) {
@@ -419,20 +493,37 @@
 		});
 	}
 
-	function adjustment(partno, partname, qty, action){ 
+	function adjustment(partno, partname, qty, ident_flag, action){ 
+		var has_serial = ident_flag.substring(0, 1);
+		var has_engine = ident_flag.substring(1, 1);
+		var has_chassis= ident_flag.substring(2, 1);
+
+		if(has_serial == 1 || has_engine == 1 || has_chassis == 1) { 
+			// $('#adjModal #issueqty').prop()
+			$('#adjModal .serialized').removeClass('hidden');
+			$('#adjModal .notserialized').addClass('hidden');
+			
+			if(has_serial==0){$('#serialModal #serial_header').addClass('hidden');} else {$('#serialModal #serial_header').removeClass('hidden');}
+			if(has_engine==0){$('#serialModal #engine_header').addClass('hidden');} else {$('#serialModal #engine_header').removeClass('hidden');}
+			if(has_chassis==0){	$('#serialModal #chassis_header').addClass('hidden');} else {$('#serialModal #chassis_header').removeClass('hidden');}
+		} else {
+			// $('#adjModal #issueqty').val(0);
+			$('#adjModal .serialized').addClass('hidden');
+			$('#adjModal .notserialized').removeClass('hidden');
+		}
+
 		$('#adjModal #modal_code').html(partno);
 		$('#adjModal #itemcode').val(partno);
 		$('#adjModal #modal_p_name').html(partname);
 		$('#adjModal #itemname').val(partname);
-		$('#adjModal #issueqty').val(0);
 		$('#adjModal #addminusbtn').val(action);
 		$('#adjModal #remarks').val('');
 
 		if( action == "plus" ){
-			$('#adjModal #inventory_account').closest('.form-group').find('label').text("Credit Account");
+			$('#adjModal #inventory_account').closest('.form-group').find('label').html("Credit Account <span style='color:red;'>*</span>");
 		}
 		else if( action == 'minus' ){
-			$('#adjModal #inventory_account').closest('.form-group').find('label').text("Debit Account");
+			$('#adjModal #inventory_account').closest('.form-group').find('label').html("Debit Account <span style='color:red;'>*</span>");
 		}
 
 		getCOAList(partno);
@@ -441,7 +532,10 @@
 	}
 
 	var ajax = filterFromURL();
+	var ajax_serials = {};
 	var ajax_call = '';
+	var serial_box	=	[];
+	var temp_serial_box = [];
 	
 	ajaxToFilter(ajax,{ search: '#table_search', itemcode: '#itemcode', warehouse: '#warehouse'});
 
@@ -524,8 +618,8 @@
 			$("#adjustForm #btnSave_toggle").addClass('disabled');
 			
 			$("#adjustForm #btnSave").html('Saving...');
-			
-			$.post("<?=MODULE_URL?>ajax/update_inventory",$("#adjustForm").serialize())
+			console.log($("#adjustForm").serialize()+"&serials="+serial_box);
+			$.post("<?=MODULE_URL?>ajax/update_inventory",$("#adjustForm").serialize()+"&serials="+serial_box)
 			.done(function(data){
 				//$("#updateForm").submit();
 				$("#adjustForm #btnSave").removeClass('disabled');
@@ -544,6 +638,8 @@
 						
 						if( data.msg == 'success' ){
 							$("#adjModal").modal('hide');
+							serial_box = [];
+							temp_serial_box = [];
 						}
 					});
 				}
@@ -576,7 +672,7 @@
 		$('#lockerModal #logged_users').html(data.user_lists);
 	});
 	
-	$('#lockerModal').modal('show');
+	// $('#lockerModal').modal('show');
 
 	$('#lockerModal').on('click','#btnProceed',function(){
 		$.post('<?=MODULE_URL?>ajax/update_locktime', ajax, function(data) {
@@ -750,7 +846,6 @@
 		if (sec < 0) {sec = "59"};
 		return sec;
 	}
-
 	// Sorting Script
 	tableSort('#tableList', function(value, getlist) {
 		ajax.sort = value;
@@ -760,4 +855,98 @@
 		}
 	}, ajax);
 
+	function getSerialList(){
+		filterToURL();
+		if (ajax_call != '') {
+			ajax_call.abort();
+		}
+		var itemcode = $('#adjustForm #itemcode').val();
+		var itemname = $('#adjustForm #itemname').val();
+		$('#serialModal #sec_itemcode').prop('disabled',true);
+		$('#serialModal #sec_description').prop('disabled',true);
+		$('#serialModal #sec_itemcode').val(itemcode);
+		$('#serialModal #sec_description').val(itemname);
+		
+		ajax_serials.itemcode	=	itemcode;
+		ajax_serials.limit 		= 	2;
+
+		$.post('<?=MODULE_URL?>ajax/retrieve_serialsforminus', ajax_serials, function(data) {
+			$('#tableSerialList tbody').html(data.table);
+			$('#serial_pagination').html(data.pagination);
+			if (ajax.page > data.page_limit && data.page_limit > 0) {
+				ajax.page = data.page_limit;
+				getSerialList();
+				setCheckedSerials();
+			}
+		}).done(function(){
+			$('#serialModal').modal('show');
+		});
+	}
+
+	$('#serialModal #btn_close').on('click',function(){
+		$('#serialModal').modal('hide');
+		$('#serialModal #sec_search').val('');
+		ajax_serials.search = "";
+		getList();
+		serial_box = [];
+		temp_serial_box = [];
+	});
+
+	$(document).on('click','.serialized',function(){
+		getSerialList();
+	});
+
+	// Pagination for Serialized
+	$('#serialModal #serial_pagination').on('click', 'a', function(e) {
+		e.preventDefault();
+		var li = $(this).closest('li');
+		if (li.not('.active').length && li.not('.disabled').length) {
+			ajax_serials.page = $(this).attr('data-page');
+			getSerialList();
+		}
+	});
+
+	$('#tableSerialList').on('ifChecked','.check_id',function(){
+		var serial_id = $(this).val();
+		if(jQuery.inArray(serial_id, temp_serial_box) == -1){
+			temp_serial_box.push(serial_id);
+		}
+	});
+
+	$('#tableSerialList').on('ifUnchecked','.check_id',function(){
+		var remove_this  = 	$(this).val(); 
+		temp_serial_box = jQuery.grep(temp_serial_box, function(value) {
+			return value != remove_this;
+		});
+	});
+
+	$('#serialModal').on('click','#btn_tag',function(){
+		serial_box = temp_serial_box;
+		temp_serial_box = [];
+		$('#serialModal').modal('hide');
+
+		var count = 0;
+		$.each(serial_box,function(key,value){
+			count++;
+		});
+		$('#issueqtybtn').val(count);
+		$('#issueqtybtn').html(count);
+		$('#issueqty_serial').val(count);
+	});
+
+	function setCheckedSerials(){
+		$.each(temp_serial_box,function(key,value){
+			$('#check_id'+value).iCheck('check');
+		});
+	}
+
+	$('#serialModal').on('show.bs.modal',function(){
+		setCheckedSerials();
+	});
+
+	$('#serialModal').on('change','#sec_search',function(){
+		ajax_serials.search = $(this).val();
+		ajax_serials.page 	= 1;
+		getSerialList();
+	});	
 </script>
