@@ -405,7 +405,7 @@
 					<tfoot>
 						<tr class="newline">
 							<td>
-								<button type="button" class="btn btn-link" onClick="addnewserial()">Add a New Line</button>
+								<button type="button" class="btn btn-link" id="addnewserialline">Add a New Line</button>
 							</td>
 						</tr>
 					</tfoot>
@@ -546,6 +546,8 @@
 	var ajax_call = '';
 	var serial_box	=	[];
 	var temp_serial_box = [];
+	var serial_manual_box = [];
+	var temp_serial_manual_box = [];
 	
 	ajaxToFilter(ajax,{ search: '#table_search', itemcode: '#itemcode', warehouse: '#warehouse'});
 
@@ -899,7 +901,8 @@
 		} else {
 			$('#tableSerialList tbody').html('');
 			$('#tableSerialList #serial_pagination').html('');
-			addnewserial();
+			var count_lines = $('#tableSerialList tbody tr').length; 
+			addnewserial('',count_lines);
 			$('.checkbox_header').addClass('hidden');
 			$('#serialModal').modal('show');
 		}
@@ -975,6 +978,11 @@
 		getSerialList(button_ident);
 	});	
 
+	$('#addnewserialline').on('click', function() {
+		var count_lines = $('#tableSerialList tbody tr').length; // This is to count the initial rows on the table after clicking the add new line button
+		addnewserial('',count_lines);
+	});
+	
 	// Plus ( for Adjustment )
 	function addnewserial(details, index) {
 		var details = details || {serialno: '', engineno: '', chassisno: ''};
@@ -995,6 +1003,11 @@
 							->setSplit('', 'col-md-12')
 							->setName('serialno[]')
 							->setClass('serialno')
+							->setAttribute(
+								array(
+									'data-linenum' => "`+ index +`"
+								)
+							)
 							->setValue('` + details.serialno + `')
 							->draw();
 				?>
@@ -1006,6 +1019,11 @@
 							->setSplit('', 'col-md-12')
 							->setName('engineno[]')
 							->setClass('engineno')
+							->setAttribute(
+								array(
+									'data-linenum' => "`+ index +`"
+								)
+							)
 							->setValue('` + details.engineno + `')
 							->draw();
 				?>
@@ -1017,6 +1035,11 @@
 							->setSplit('', 'col-md-12')
 							->setName('chassisno[]')
 							->setClass('chassisno')
+							->setAttribute(
+								array(
+									'data-linenum' => "`+ index +`"
+								)
+							)
 							->setValue('` + details.chassisno + `')
 							->draw();
 				?>
@@ -1026,17 +1049,43 @@
 		`;
 		$('#tableSerialList tbody').append(row);
 	}
-
+	function initialize_serial_manual_box(index){
+		console.log('test '+index);
+		if(temp_serial_manual_box[index] == undefined){
+			temp_serial_manual_box[index] = [];
+			if(temp_serial_manual_box[index]['serial'] == undefined){
+				temp_serial_manual_box[index]['serial'] = [];
+			}
+			if(temp_serial_manual_box[index]['engine'] == undefined){
+				temp_serial_manual_box[index]['engine'] = [];
+			}
+			if(temp_serial_manual_box[index]['chassis'] == undefined){
+				temp_serial_manual_box[index]['chassis'] = [];
+			}
+		} 
+	}
+	function check_if_has_errors(){
+		var count = $('#tableSerialList tbody tr').find('input').closest('.has-error').length;
+		if(count > 0) {
+			$('#serialModal #btn_tag').prop('disabled', true);
+		} else {
+			$('#serialModal #btn_tag').prop('disabled', false);
+		}
+		console.log(count);
+	}
 	$('#tableSerialList').on('change','.serialno',function(){
 		// checkifexisting
 		var current_selection = $(this);
 		var current_serial 	  = current_selection.val();
+		var index 			  = $(this).data('linenum');
 
 		ajax_manual.itemcode   = $('#sec_itemcode').val();
 		ajax_manual.fieldvalue = current_serial;
 		ajax_manual.fieldtype  = "serial";
-
+		console.log(temp_serial_manual_box);
 		$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
+			initialize_serial_manual_box(index);
+			temp_serial_manual_box[index]['serial'] = [];
 			if(data.count > 0){
 				current_selection.closest('div').addClass('has-error');
 				current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Serial Number already exists!');
@@ -1044,21 +1093,28 @@
 			} else {
 				current_selection.closest('div').removeClass('has-error');
 				current_selection.closest('td').find('.error_message').html('');
+				if(jQuery.inArray(current_serial,temp_serial_manual_box[index]['serial'])==-1){
+					temp_serial_manual_box[index]['serial'].push(current_serial);
+				}
 			}
+			console.log(temp_serial_manual_box);
 		}).done(function(){
-			
+			check_if_has_errors();
 		});
 	});
 	$('#tableSerialList').on('change','.engineno',function(){
 		// checkifexisting
 		var current_selection = $(this);
-		var current_serial 	  = current_selection.val();
+		var current_engine 	  = current_selection.val();
+		var index 			  = $(this).data('linenum');
 
 		ajax_manual.itemcode   = $('#sec_itemcode').val();
-		ajax_manual.fieldvalue = current_serial;
+		ajax_manual.fieldvalue = current_engine;
 		ajax_manual.fieldtype  = "engine";
 
 		$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
+			initialize_serial_manual_box(index);
+			temp_serial_manual_box[index]['engine'] = [];
 			if(data.count > 0){
 				current_selection.closest('div').addClass('has-error');
 				current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Engine Number already exists!');
@@ -1066,21 +1122,27 @@
 			} else {
 				current_selection.closest('div').removeClass('has-error');
 				current_selection.closest('td').find('.error_message').html('');
+				if(jQuery.inArray(current_engine,temp_serial_manual_box[index]['engine'])==-1){
+					temp_serial_manual_box[index]['engine'].push(current_engine);
+				}
 			}
 		}).done(function(){
-			
+			check_if_has_errors();
 		});
 	});
 	$('#tableSerialList').on('change','.chassisno',function(){
 		// checkifexisting
 		var current_selection = $(this);
-		var current_serial 	  = current_selection.val();
+		var current_chassis   = current_selection.val();
+		var index 			  = $(this).data('linenum');
 
 		ajax_manual.itemcode   = $('#sec_itemcode').val();
-		ajax_manual.fieldvalue = current_serial;
+		ajax_manual.fieldvalue = current_chassis;
 		ajax_manual.fieldtype  = "chassis";
 
 		$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
+			initialize_serial_manual_box(index);
+			temp_serial_manual_box[index]['chassis'] = [];
 			if(data.count > 0){
 				current_selection.closest('div').addClass('has-error');
 				current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Chassis Number already exists!');
@@ -1088,9 +1150,13 @@
 			} else {
 				current_selection.closest('div').removeClass('has-error');
 				current_selection.closest('td').find('.error_message').html('');
+				if(jQuery.inArray(current_chassis,temp_serial_manual_box[index]['chassis'])==-1){
+					temp_serial_manual_box[index]['chassis'].push(current_chassis);
+				}
+				console.log(temp_serial_manual_box);
 			}
 		}).done(function(){
-			
+			check_if_has_errors();
 		});
 	});
 </script>
