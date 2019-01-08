@@ -1116,8 +1116,8 @@
 			if (ajax_call != '') {
 				ajax_call.abort();
 			}
+			ajax.limit = 5;
 			ajax.itemselected = serials;
-			//ajax.linenum = linenum;
 			ajax.allserials = $('#main_serial').val();
 			ajax.id = itemrow.closest('tr').find('.serialnumbers').val();
 			ajax.item_ident = itemrow.closest('tr').find('.item_ident_flag').val();
@@ -1211,6 +1211,14 @@
 				$('#btn_close').show();
 			}
 		});
+
+		// $('#tableSerialList tbody tr .check_id').on('ifChecked', function(){
+		// 	console.log('a');
+		// });
+
+		// $('#tableSerialList').on('ifChecked', '.check_id', function () {
+		// 	console.log($(this).val());
+		// });
 
 		$('#btn_ok').on('click', function() {
 			$('#warning_counter').modal('hide');
