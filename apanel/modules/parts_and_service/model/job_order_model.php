@@ -516,9 +516,9 @@ class job_order_model extends wc_model
 		}
 
 	public function getJOSerials($itemcode, $voucherno, $linenum) {
-			$result = $this->db->setTable('job_release_details') 
+			$result = $this->db->setTable('job_release') 
 							->setFields('serialnumbers')
-							->setWhere("itemcode='$itemcode' AND job_item_id='$voucherno' AND linenum='$linenum'")
+							->setWhere("itemcode='$itemcode' AND job_order_no='$voucherno' AND linenum='$linenum'")
 							->runSelect()
 							->getRow();
 	
