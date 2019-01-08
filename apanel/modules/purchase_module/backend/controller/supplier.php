@@ -94,9 +94,8 @@
 			$sort  	= $this->input->post('sort');
 			$limit  = $this->input->post('limit');
 			$list 	= $this->supplier->retrieveListing($search, $sort, $limit);
-
 			$table 	= '';
-
+			
 			if( !empty($list->result) ) :
 				foreach ($list->result as $key => $row) {
 
@@ -106,7 +105,7 @@
 					}else{
 						$status = '<span class="label label-warning">INACTIVE</span>';
 					}
-
+					// echo $row->partnercode;
 					$show_activate 		= ($stat != 'inactive');
 					$show_deactivate 	= ($stat != 'active');
 
@@ -130,7 +129,7 @@
 					$table .= '<tr>';
 					$table .= '<td align = "center">' . $dropdown . '</td>';
 					$table .= '<td>' . $row->partnercode . '</td>';
-					$table .= '<td>' . $row->partnername . '</td>';
+					$table .= '<td>' . $row->partnername. '</td>';
 					$table .= '<td>' . $row->contact_person. '</td>';
 					$table .= '<td>' . $row->email . '</td>';
 					$table .= '<td>' . $status . '</td>';
@@ -331,18 +330,22 @@
 					}
 				}
 				
-				$line 	=	1;
+				$line 	=	2;
 				$list 	=	array();
 
 				if(!empty($z)){
 					foreach ($z as $key => $b) {
-						if( ! empty($b)) {	
+						if( ! empty($b)) {
+							// if ($line == 8) {
+							// 	echo utf8_encode($b[4]);
+							// 	echo $this->import->trim_special_characters(utf8_encode($b[4]));
+							// }
 							$suppliercode 	   	= isset($b[0]) ? htmlspecialchars(addslashes(trim($b[0])))	: 	"";
 							$companyname        = isset($b[1]) ? addslashes(trim($b[1]))		: 	"";
 							$firstname        	= isset($b[2]) ? htmlspecialchars(addslashes(trim($b[2])))	: 	"";
 							$lastname           = isset($b[3]) ? htmlspecialchars(addslashes(trim($b[3])))	: 	"";
-							$address            = isset($b[4]) ? addslashes(trim($b[4]))	: 	"";
-							$email 				= isset($b[5]) ? htmlspecialchars(addslashes(trim($b[5])))	: 	"";
+							$address            = isset($b[4]) ? htmlspecialchars(addslashes(trim($b[4])))	: 	"";
+							$email 				= isset($b[5]) ? htmlspecialchars(trim($b[5]))	: 	"";
 							$business 			= isset($b[6]) ? htmlspecialchars(addslashes(trim($b[6])))	: 	"";
 							$tinno 				= isset($b[7]) ? htmlspecialchars(addslashes(trim($b[7])))	: 	"";
 							$terms 				= isset($b[8]) ? htmlspecialchars(addslashes(trim($b[8])))	: 	0;
@@ -354,7 +357,7 @@
 							// **** Trim Other Unusual Special Characters***/ 
 							$suppliercode 	   	= $this->import->trim_special_characters($suppliercode);
 							$companyname        = $this->import->trim_special_characters($companyname);
-							// $address            = $this->import->trim_special_characters($address);
+							$address            = $this->import->trim_special_characters($address);
 							$email 				= $this->import->trim_special_characters($email);
 							$business 			= $this->import->trim_special_characters($business);
 							$contact 			= $this->import->trim_special_characters($contact);
@@ -362,6 +365,7 @@
 							$lastname           = $this->import->trim_special_characters($lastname);
 							$terms 				= $this->import->trim_special_characters($terms);
 							$tinno 				= $this->import->trim_special_characters($tinno);
+
 					
 							// *********Validation Starts here**************
 							
