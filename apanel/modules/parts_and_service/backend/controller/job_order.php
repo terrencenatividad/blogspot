@@ -49,7 +49,8 @@ class controller extends wc_controller {
 			'parentcode',
 			'parentline',
 			'item_ident_flag',
-			'bom.quantity bomqty'
+			'bom.quantity bomqty',
+			'w.description'
 		);
 		$this->fields4			= array(
 			'job_release_no',
@@ -244,7 +245,7 @@ class controller extends wc_controller {
 		));
 		$data['voucher_details']	= json_encode($this->job_order->getJobOrder($this->fields3, $id));
 	
-		$data['ajax_task']			= 'ajax_view';
+		$data['ajax_task']			= '';
 		$data['ajax_post']			= '';
 		$data['show_input']			= false;
 		// Closed Date
@@ -612,32 +613,46 @@ class controller extends wc_controller {
 		);
 	}
 
+	private function ajax_check_issuedqty() {
+		$itemcode	= $this->input->post('itemcode');
+		$job_order_no	= $this->input->post('job_order_no');
+
+		$result		= $this->job_order->retrieveIssuedQty($itemcode,$job_order_no);
+
+		return array('result' => $result);
+	 }
+
 	private function ajax_load_issue() {
 		$seq 						= new seqcontrol();
 		$job_release_no 			= $seq->getValue("JR");
 		$jobno						= $this->input->post('jobno');
-		
-		$asd	= $this->job_order->getIssuedPartsNo($jobno);
+		$task						= $this->input->post('ajax_task');
+
+		$result	= $this->job_order->getIssuedPartsNo($jobno);
 		
 		$table = '';
 		
-		if (empty($asd)) {
+		if (empty($result)) {
 			$table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-
-		foreach ($asd as $row) {
-			$table .= '<tr  data-jv = "' . $row->voucherno . '" data-id = "' . $row->asd . '">';
-			$table .= '<td colspan="5">' . 'Part Issuance No.: '.$row->asd . '</td>';
-			$table .= '<td>' . '<a class="btn-sm" pointer id="editip" title="Edit"><span class="glyphicon glyphicon-pencil editip pointer" style="border: 1px solid gainsboro;
-			padding: 3px 4px 3px 4px;
-			background-color: lavender;"></span></a>' . '</td>';
-			$table .= '<td>' . '<a class="btn-sm" pointer title="Delete"><span class="glyphicon glyphicon-trash deleteip pointer" style="border: 1px solid gainsboro;
-			padding: 3px 4px 3px 4px;
-			background-color: lavender;"></span></a>' . '</td>';
-			$table .= '</tr>';
+		foreach ($result as $row) {
+			if($task == ''){
+				$table .= '<tr  data-jv = "' . $row->voucherno . '" data-id = "' . $row->jrno . '">';
+				$table .= '<td colspan="5">' . 'Part Issuance No.: '.$row->jrno . '</td>';
+				$table .= '<td>' . '<a class="btn-sm" pointer id="editip" title="Edit"><span class="glyphicon glyphicon-pencil editip pointer" style="border: 1px solid gainsboro;
+				padding: 3px 4px 3px 4px;
+				background-color: lavender;"></span></a>' . '</td>';
+				$table .= '<td>' . '<a class="btn-sm" pointer title="Delete"><span class="glyphicon glyphicon-trash deleteip pointer" style="border: 1px solid gainsboro;
+				padding: 3px 4px 3px 4px;
+				background-color: lavender;"></span></a>' . '</td>';
+				$table .= '</tr>';
+			}else{
+				$table .= '<tr  data-jv = "' . $row->voucherno . '" data-id = "' . $row->jrno . '">';
+				$table .= '<td colspan="7">' . 'Part Issuance No.: '.$row->jrno . '</td>';
+				$table .= '</tr>';
+			}
 			
-			$list	= $this->job_order->getIssuedParts($row->asd);
-		
+			$list	= $this->job_order->getIssuedParts($row->jrno);
 			foreach ($list as $key => $row) {
 			$table .= '<tr>';
 			$table .= '<td>' . $row->itemcode . '</td>';
@@ -645,8 +660,10 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->description . '</td>';
 			$table .= '<td>' . $row->quantity . '</td>';
 			$table .= '<td>' . $row->unit . '</td>';
-			$table .= '<td>' . '' . '</td>';
-			$table .= '<td>' . '' . '</td>';
+			if($task == ''){
+				$table .= '<td>' . '' . '</td>';
+				$table .= '<td>' . '' . '</td>';
+			}
 			$table .= '</tr>';
 		}
 	}		

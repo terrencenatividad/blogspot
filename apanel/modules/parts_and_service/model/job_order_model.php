@@ -438,6 +438,7 @@ class job_order_model extends wc_model
 							->setFields($fields)
 							->leftJoin('items i ON i.itemcode = jod.itemcode')
 							->leftJoin('bomdetails bom ON bom.item_code = jod.itemcode')
+							->leftJoin('warehouse w ON w.warehousecode = jod.warehouse')
 							->setWhere("job_order_no = '$voucherno'")
 							->setOrderBy('linenum')
 							->runSelect()
@@ -536,6 +537,18 @@ class job_order_model extends wc_model
 		return $result;
 	}
 
+	public function retrieveIssuedQty($itemcode,$job_order_no)
+	{
+		$result = $this->db->setTable('job_release')
+							->setFields("SUM(quantity) issuedqty")
+							->setWhere("itemcode = '$itemcode' AND job_order_no = '$job_order_no' AND stat != 'cancelled'")
+							->setLimit('1')
+							->runSelect()
+							->getRow();
+		// echo $this->db->getQuery();
+		return $result;
+	}
+
 	public function retrieveBundleDetails($itemcode) {
 		// $query 		=	"SELECT * FROM 
 		// 					(SELECT i.itemcode,0 as BaseQty, i.itemdesc as detailparticular, i.uom_base as uom, '' as parentcode, i.bundle as bundle
@@ -591,7 +604,7 @@ class job_order_model extends wc_model
 	}
 	public function getIssuedPartsNo($jobno) {
 		$result	= $this->db->setTable('job_release j')
-								->setFields('DISTINCT (job_release_no) asd, voucherno')
+								->setFields('DISTINCT (job_release_no) jrno, voucherno')
 								->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no  and jod.itemcode = j.itemcode')
 								->leftJoin('journalvoucher jv ON jv.referenceno = j.job_release_no')
 								->setWhere("j.job_order_no = '$jobno' AND (parentcode = '' OR parentcode IS NULL) AND j.stat NOT IN ('cancelled')")
