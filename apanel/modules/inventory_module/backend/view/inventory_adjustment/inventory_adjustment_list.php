@@ -42,7 +42,7 @@
 			<div id = "warningmsg"></div>
 		</div>
 
-		<div class="box-body table-responsive no-padding ">
+		<div class="box-body table-responsive no-padding w_selected">
 			<table id="tableList" class="table table-hover">
 				<thead>
 					<?php
@@ -108,7 +108,7 @@
 					<div class = 'row'>
 						<input type='hidden' name='h_warehouse' id='h_warehouse' value=''>
 						<input type='hidden' name='action' id='addminusbtn' value=''>
-						<input type='hidden' name='action' id='item_ident_flag' value=''>
+						<input type='hidden' name='item_ident_flag' id='item_ident_flag' value=''>
 
 						<div class = 'panel panel-default'>
 							<div class = 'panel-heading'>
@@ -606,8 +606,6 @@
 		});
 	}
 
-	getList();
-
 	function displayBtn(){
 		$.post('<?=MODULE_URL?>ajax/view_import_button', ajax, function(data) {
 			if(data.display == 0){
@@ -618,7 +616,7 @@
 
 	//Hide the table by default
 	$('.w_selected').hide();
-
+	// var ajax_saving = {};
 	/**ADJUSTMENT: SAVING**/
 	$("#adjustForm #btnSave").click(function(){
 		var valid		= 0;
@@ -630,7 +628,11 @@
 			$("#adjustForm #btnSave_toggle").addClass('disabled');
 			
 			$("#adjustForm #btnSave").html('Saving...');
-			$.post("<?=MODULE_URL?>ajax/update_inventory",$("#adjustForm").serialize()+"&serials="+serial_box)
+			// ajax_saving = $('#adjustForm').serializeArray();
+			var serials 		= JSON.stringify(serial_box);
+			var serials_manual  = JSON.stringify(serial_manual_box);
+			// console.log(ajax_saving);
+			$.post("<?=MODULE_URL?>ajax/update_inventory",$('#adjustForm').serialize()+"&serials="+serials+"&serials_manual="+serials_manual)
 			.done(function(data){
 				//$("#updateForm").submit();
 				$("#adjustForm #btnSave").removeClass('disabled');
@@ -686,7 +688,7 @@
 		$('#lockerModal #logged_users').html(data.user_lists);
 	});
 	
-	// $('#lockerModal').modal('show');
+	$('#lockerModal').modal('show');
 
 	$('#lockerModal').on('click','#btnProceed',function(){
 		$.post('<?=MODULE_URL?>ajax/update_locktime', ajax, function(data) {
@@ -704,7 +706,7 @@
 				
 			}
 		});
-		//$('#lockerModal').modal('hide');
+		$('#lockerModal').modal('hide');
 	});
 
 	$('#lockerModal').on('click','#btnCancel',function(){
@@ -948,14 +950,24 @@
 	});
 
 	$('#serialModal').on('click','#btn_tag',function(){
-		serial_box = temp_serial_box;
-		temp_serial_box = [];
+		var button_ident 	= $('#addminusbtn').val();
 		$('#serialModal').modal('hide');
 
 		var count = 0;
-		$.each(serial_box,function(key,value){
-			count++;
-		});
+		if(button_ident=='minus'){
+			serial_box 			= temp_serial_box;
+			temp_serial_box 	= [];
+			$.each(serial_box,function(key,value){
+				count++;
+			});
+		} else {
+			serial_manual_box 		=	temp_serial_manual_box;
+			console.log(serial_manual_box);
+			temp_serial_manual_box 	=	[];
+			$.each(serial_manual_box,function(key,value){
+				count++;
+			});
+		}
 		$('#issueqtybtn').val(count);
 		$('#issueqtybtn').html(count);
 		$('#issueqty_serial').val(count);
@@ -1052,15 +1064,15 @@
 	function initialize_serial_manual_box(index){
 		console.log('test '+index);
 		if(temp_serial_manual_box[index] == undefined){
-			temp_serial_manual_box[index] = [];
+			temp_serial_manual_box[index] = {};
 			if(temp_serial_manual_box[index]['serial'] == undefined){
-				temp_serial_manual_box[index]['serial'] = [];
+				temp_serial_manual_box[index]['serial'] = "";
 			}
 			if(temp_serial_manual_box[index]['engine'] == undefined){
-				temp_serial_manual_box[index]['engine'] = [];
+				temp_serial_manual_box[index]['engine'] = "";
 			}
 			if(temp_serial_manual_box[index]['chassis'] == undefined){
-				temp_serial_manual_box[index]['chassis'] = [];
+				temp_serial_manual_box[index]['chassis'] = "";
 			}
 		} 
 	}
@@ -1085,7 +1097,7 @@
 		console.log(temp_serial_manual_box);
 		$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
 			initialize_serial_manual_box(index);
-			temp_serial_manual_box[index]['serial'] = [];
+			temp_serial_manual_box[index]['serial'] = "";
 			if(data.count > 0){
 				current_selection.closest('div').addClass('has-error');
 				current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Serial Number already exists!');
@@ -1093,9 +1105,10 @@
 			} else {
 				current_selection.closest('div').removeClass('has-error');
 				current_selection.closest('td').find('.error_message').html('');
-				if(jQuery.inArray(current_serial,temp_serial_manual_box[index]['serial'])==-1){
-					temp_serial_manual_box[index]['serial'].push(current_serial);
-				}
+				// if(jQuery.inArray(current_serial,temp_serial_manual_box[index]['serial'])==-1){
+				// 	temp_serial_manual_box[index]['serial'].push(current_serial);
+				// }
+				temp_serial_manual_box[index]['serial'] = current_serial;
 			}
 			console.log(temp_serial_manual_box);
 		}).done(function(){
@@ -1114,7 +1127,7 @@
 
 		$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
 			initialize_serial_manual_box(index);
-			temp_serial_manual_box[index]['engine'] = [];
+			temp_serial_manual_box[index]['engine'] = "";
 			if(data.count > 0){
 				current_selection.closest('div').addClass('has-error');
 				current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Engine Number already exists!');
@@ -1122,9 +1135,10 @@
 			} else {
 				current_selection.closest('div').removeClass('has-error');
 				current_selection.closest('td').find('.error_message').html('');
-				if(jQuery.inArray(current_engine,temp_serial_manual_box[index]['engine'])==-1){
-					temp_serial_manual_box[index]['engine'].push(current_engine);
-				}
+				// if(jQuery.inArray(current_engine,temp_serial_manual_box[index]['engine'])==-1){
+				// 	temp_serial_manual_box[index]['engine'].push(current_engine);
+				// }
+				temp_serial_manual_box[index]['engine'] = current_engine;
 			}
 		}).done(function(){
 			check_if_has_errors();
@@ -1142,7 +1156,7 @@
 
 		$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
 			initialize_serial_manual_box(index);
-			temp_serial_manual_box[index]['chassis'] = [];
+			temp_serial_manual_box[index]['chassis'] = "";
 			if(data.count > 0){
 				current_selection.closest('div').addClass('has-error');
 				current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Chassis Number already exists!');
@@ -1150,9 +1164,10 @@
 			} else {
 				current_selection.closest('div').removeClass('has-error');
 				current_selection.closest('td').find('.error_message').html('');
-				if(jQuery.inArray(current_chassis,temp_serial_manual_box[index]['chassis'])==-1){
-					temp_serial_manual_box[index]['chassis'].push(current_chassis);
-				}
+				// if(jQuery.inArray(current_chassis,temp_serial_manual_box[index]['chassis'])==-1){
+				// 	temp_serial_manual_box[index]['chassis'].push(current_chassis);
+				// }
+				temp_serial_manual_box[index]['chassis'] = current_chassis;
 				console.log(temp_serial_manual_box);
 			}
 		}).done(function(){

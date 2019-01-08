@@ -92,7 +92,7 @@ class controller extends wc_controller {
 		$itemcode 	=	$this->input->post('itemcode');
 		$action 	=	$this->input->post('action');
 		$qty 		=	$this->input->post('issueqty');
-		// $serials 	=	$this->input->post('serials');
+		
 		$value 		=	"";
 
 		$voucher 	= 	$this->seq->getValue('ADJ'); 
