@@ -679,24 +679,29 @@
 
 				<?php if ($show_input) { ?>
 				// ADD 1 ROW IF NO THERE ARE NO ROWS
-				if ($('#serialize_tableList tbody tr').length == 0){
+				if (checkSerialRows() == 0){
 					addRow(icode, item, 0);
 				}
 				<?php } ?>
 				
 				console.log(serialize);
-				$('.add-data').text("Add a New Line");
+				if (checkSerialRows() >= item_max_qty){
+					$('.add-data').text("Maximum items reached");
+				} else {
+					$('.add-data').text("Add a New Line");
+				}
 				$("#serialize_modal").modal('show');
 			});
 		}
 
 		$('.add-data').on("click", function() {
-			rownum = checkSerialRows();
-			// alert(item_max_qty);
-			if (rownum < item_max_qty) {
-				addRow(serialize_icode_selected, serialize_item_selected);
-			} else {
+			if (checkSerialRows() >= item_max_qty) {
 				$(this).text("Maximum items reached");
+			} else {
+				addRow(serialize_icode_selected, serialize_item_selected);
+				if(checkSerialRows() >= item_max_qty) {
+					$(this).text("Maximum items reached");
+				}
 			}
 		});
 

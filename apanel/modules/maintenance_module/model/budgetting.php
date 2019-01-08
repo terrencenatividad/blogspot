@@ -365,11 +365,11 @@ class budgetting extends wc_model
 
 	public function getIdOfBudgetCode($id) {
 		$result  = $this->db->setTable('budget_supplement bs')
-		->leftJoin('budget_details as bs ON bs.accountcode = bd.accountcode')
-		->leftJoin('budget as b ON bs.budget_code = bs.budget_code')
+		->leftJoin('budget_details as bd ON bs.accountcode = bd.accountcode')
+		->leftJoin('budget as b ON bd.budget_code = b.budget_code')
 		->setFields('bd.budget_code, bs.accountcode, bs.description, bs.amount')
-		->setWhere("bs.id = '$id' AND b.budget_check = 'Monitored'")
-		->runSelect()
+		->setWhere("bs.id = '$id' AND b.budget_check = 'Monitored' AND bd.budget_code = b.budget_code")
+		->runSelect(false)
 		->getRow();
 		return $result;
 	}
@@ -403,7 +403,6 @@ class budgetting extends wc_model
 		} else {
 			$return = false;
 		}
-		
 		return $result;
 	}
 

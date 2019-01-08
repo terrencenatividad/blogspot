@@ -406,7 +406,7 @@
 												$('#delay_modal').modal('show');
 												setTimeout(function() {
 													window.location = data.redirect;
-												},500);
+												},1000);
 											}
 										});
 									} else {
