@@ -390,6 +390,12 @@ class inventory_model extends wc_model {
 			$this->table = 'job_release';
 			$this->table_detail = 'job_release';
 			$this->quantity_field = 'quantity';
+			$this->inventory_movement = 1;
+		}
+		else if ($type == 'Job Releases') {
+			$this->table = 'job_release';
+			$this->table_detail = 'job_release';
+			$this->quantity_field = 'quantity';
 			$this->inventory_movement = -1;
 		}
 		$this->inventory_log_previous = array();
@@ -426,10 +432,19 @@ class inventory_model extends wc_model {
 			$result = $this->db->setTable($this->table_detail. ' j')
 								->setFields('j.itemcode, j.warehouse, j.quantity')
 								->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no  and jod.itemcode = j.itemcode')
-								->setWhere("job_release_no = '{$this->voucherno}' AND (parentcode = '' OR parentcode IS NULL)")
+								->setWhere("job_release_no = '{$this->voucherno}' AND (parentcode = '' OR parentcode IS NULL) AND isbundle = 'yes'")
 								->runSelect()
 								->getResult();
-		} else {
+		
+		} else if($this->log_type == 'Job Releases') {
+			$result = $this->db->setTable($this->table_detail. ' j')
+								->setFields('j.itemcode, j.warehouse, j.quantity')
+								->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no  and jod.itemcode = j.itemcode')
+								->setWhere("job_release_no = '{$this->voucherno}' AND (parentcode != '') AND isbundle = 'no'")
+								->runSelect()
+								->getResult();
+			
+		}else {
 			$result = $this->db->setTable($this->table_detail)
 								->setFields($this->fields)
 								->setWhere("voucherno = '{$this->voucherno}'")
