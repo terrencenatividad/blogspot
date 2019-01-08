@@ -41,6 +41,7 @@ class controller extends wc_controller {
 	public function edit($id) {
 		$this->view->title = $this->ui->ViewLabel('');
 		$data = (array) $this->asset_class->getAssetClassById($this->fields, $id);
+		$data['salvage_value'] 		= number_format($data['salvage_value'], 2);
 		$data['coa_list']		= $this->asset_class->getCOA();
 		$data['ajax_task'] = 'ajax_edit';
 		$data['ajax_post'] = "&id=$id";
@@ -52,6 +53,7 @@ class controller extends wc_controller {
 	public function view($id) {
 		$this->view->title = $this->ui->ViewLabel('');
 		$data = (array) $this->asset_class->getAssetClassById($this->fields, $id);
+		$data['salvage_value'] 		= number_format($data['salvage_value'], 2);
 		$data['coa_list']		= $this->asset_class->getCOA();
 		$data['ui'] = $this->ui;
 		$data['show_input'] = false;
@@ -147,6 +149,7 @@ class controller extends wc_controller {
 
 	private function ajax_create() {
 		$data = $this->input->post($this->fields);
+		$data['salvage_value']	= str_replace(',', '', $data['salvage_value']);
 		$data['stat'] = 'active';
 		$result = $this->asset_class->saveAssetClass($data);
 		return array(
@@ -157,6 +160,7 @@ class controller extends wc_controller {
 
 	private function ajax_edit() {
 		$data = $this->input->post($this->fields);
+		$data['salvage_value']	= str_replace(',', '', $data['salvage_value']);
 		$data['stat'] = 'active';
 		$code = $this->input->post('id');
 		$result = $this->asset_class->updateAssetClass($data, $code);

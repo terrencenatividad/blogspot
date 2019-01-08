@@ -160,10 +160,10 @@ class controller extends wc_controller {
 			}else{
 				$status = '<span class="label label-warning">INACTIVE</span>';
 			}
-
-			$show_activate 		= ($stat != 'inactive') && MOD_EDIT;
+			
+			$show_activate 		= ($stat == 'active') && MOD_EDIT;
 			$show_deactivate 	= ($stat != 'active') && MOD_EDIT;
-
+			
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
@@ -177,6 +177,10 @@ class controller extends wc_controller {
 										'Deactivate',
 										'arrow-down',
 										$show_activate
+									)	
+									->addOtherTask(
+										'Tag as Retired',
+										'bookmark'
 									)	
 									->addDelete()
 									->addCheckbox()
@@ -536,6 +540,24 @@ class controller extends wc_controller {
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
 			);
+	}
+
+	private function update_retirement_date(){
+		$id						=	$this->input->post('id');
+
+		$data['retirement_date'] = $this->date->dateDbFormat();
+		$data['stat']			 = 'retired';
+		
+		$result = $this->asset_master->tagRetired($id, $data);
+
+		if($result)
+		{
+			$msg = "success";
+		} else {
+			$msg = "Failed to Update.";
+		}
+
+		return $dataArray = array( "msg" => $msg );
 	}
 
 	private function update_multiple_deactivate(){
