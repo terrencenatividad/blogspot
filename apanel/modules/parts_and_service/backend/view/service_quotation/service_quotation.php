@@ -255,15 +255,24 @@
 							</td>
 							<td class="text-center">
 								<?php
-									echo $ui->formField('checkbox')
-									->setName('warranty[]')
-									->setClass('warranty')
-									->setAttribute($attrdisabled)
-									->setValue('0')
-									->draw($show_input);
+									if ($show_input) {
+										echo $ui->formField('checkbox')
+										->setName('warranty[]')
+										->setClass('warranty')
+										->setAttribute($attrdisabled)
+										->setValue('0')
+										->draw(true);
+									}
+									else{?>
 
-								?>
-								
+								<div class="form-group">
+									<div class="col-md-12">
+										<p class = 'form-control-static'><?=$row->haswarranty?></p>	
+									</div>
+								</div>
+
+									<?php }?>
+
 							</td>
 							<td>
 								<?php
@@ -292,7 +301,7 @@
 								?>
 								
 							</td>
-							<td>
+							<td class="text-center">
 								<?php
 									echo $ui->formField('text')
 										->setSplit('', 'col-md-12')

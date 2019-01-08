@@ -886,21 +886,19 @@
 		function reorderlinenum(){
 			// console.log($('#tableList tbody tr'));
 			var linenum = 1;
-			var subitem = 1;
 			$('#tableList tbody tr').each(function(){
 				$(this).attr('data-linenum', linenum);
 				var hiddenLine = $(this).find('.linenum');
 				$(hiddenLine).val(linenum);
 				
 				// for subitem reorder of linenum in case parent gets change or deleted ..
-				var subitemLine = $(this).data("parentlinenum");
-				if(subitemLine != 0 || "0") {
-					var subLine = $(this).find('.parentline');
-					$(subLine).val(subitem);
-				} 
+				// var subitemLine = $(this).data("parentlinenum");
+				// if(subitemLine != 0 || "0") {
+				// 	var subLine = $(this).find('.parentline');
+				// 	$(subLine).val(subitemLine);
+				// } 
 				
-				console.log(subitemLine);
-				subitem++;
+				//console.log(subitemLine);
 				linenum++;
 			});
 			// console.log("REORDER!");
@@ -1290,7 +1288,7 @@
 	<?php endif ?>
 
 
-// <script>
+ <script>
 // $(function () {
 // 	'use strict';
 

@@ -84,6 +84,7 @@ class inventory_adjustment_model extends wc_model {
 		//print_r($data);
 		$mainInvTable 		= "inventoryadjustments_header";
 		$dtlInvTable 		= "inventoryadjustments";
+		$serializedtable 	= "items_serialized";
 
 		//$this->seq 			= new seqcontrol();
 		//$generatedvoucher	= $this->seq->getValue('ADJ'); 
@@ -105,8 +106,10 @@ class inventory_adjustment_model extends wc_model {
 
 		$warehouse 			= (isset($data['h_warehouse']) && (!empty($data['h_warehouse']))) ? htmlentities(addslashes(trim($data['h_warehouse']))) : "";
 
-		$serials 			= (isset($data['serials']) && (!empty($data['serials']))) ? htmlentities(addslashes(trim($data['serials']))) : "";
-
+		$serials 			= (isset($data['serials']) && !empty($data['serials']) && $data['serials'] != "[]") ? htmlentities(addslashes(trim($data['serials']))) : "";
+		$serials_manual		= (isset($data['serials_manual']) && (!empty($data['serials_manual']))) ? stripslashes($data['serials_manual']) : "";
+		$serials_manual 	= json_decode($serials_manual);
+		// var_dump($serials_manual);
 		/**FORMAT DATES**/
 		$transactiondate	= date("Y-m-d",strtotime($adjustdate));
 		$period				= date("n",strtotime($transactiondate));
@@ -119,14 +122,15 @@ class inventory_adjustment_model extends wc_model {
 													->setWhere(" itemcode = '$itemcode' ")
 													->runSelect()
 													->getRow();
+												// echo $action;
 		if( $action == 'plus' )
 		{
-			$increase 		= (empty($serials) && $serials=="") ? $issueqty : $issueqty_serial;
+			$increase 		= (empty($serials) && ($serials=="" || empty($serial_manual))) ? $issueqty : $issueqty_serial;
 			$decrease 		= 0;
 		}
 		else if( $action == 'minus' )
 		{
-			$qty 			= (empty($serials) && $serials=="") ? $issueqty : $issueqty_serial;
+			$qty 			= (empty($serials) && ($serials=="" || empty($serial_manual))) ? $issueqty : $issueqty_serial;
 			$decrease 		= -$qty;
 			$increase 		= 0;
 		}
@@ -176,6 +180,34 @@ class inventory_adjustment_model extends wc_model {
 										 ->setWhere("id IN ('".implode('\',\'',$exploded_serials)."')")
 										 ->runUpdate();
 			}
+			// var_dump($decoded_serials);
+			$listid 	=	[];
+			if($insertResult && !empty($serials_manual)){
+				foreach($serials_manual as $key=>$row){
+					$serial 	=	$row->serial;
+					$engine 	=	$row->engine;
+					$chassis 	=	$row->chassis;
+
+					$serial_data['warehousecode'] 	=	$warehouse;
+					$serial_data['voucherno'] 		=	$generatedvoucher;
+					$serial_data['source_no'] 		=	$generatedvoucher;
+					$serial_data['itemcode'] 		=	$itemcode;
+					$serial_data['linenum'] 		=	$key + 1;
+					$serial_data['rowno'] 			=	$key + 1;
+					$serial_data['serialno'] 		=	$serial;
+					$serial_data['engineno'] 		=	$engine;
+					$serial_data['chassisno'] 		=	$chassis;
+					$serial_data['stat'] 			=	"Available";
+
+					$item_serialized[] 	=	$serial_data;
+				}
+
+				$this->db->setTable($serializedtable)
+						->setValues($item_serialized);
+				
+				$insertResult = $this->db->runInsert();
+			}
+					
 			return $insertResult;
 		}
 	}
@@ -682,6 +714,29 @@ class inventory_adjustment_model extends wc_model {
 
 								// echo $this->db->getQuery();
 								
+		return $result;
+	}
+
+	public function checkifexisting($itemcode, $fieldvalue, $fieldtype){
+		$array 		= 	array();
+		$condition 	=	"";
+
+		if($fieldtype == 'serial') {
+			$array 	=	array('COUNT(serialno) count');
+			$condition 	=	"itemcode = '$itemcode' AND serialno = '$fieldvalue'";
+		} else if($fieldtype == 'engine') {
+			$array 	=	array('COUNT(engineno) count');
+			$condition 	=	"itemcode = '$itemcode' AND engineno = '$fieldvalue'";
+		} else {
+			$array 	=	array('COUNT(chassisno) count');
+			$condition 	=	"itemcode = '$itemcode' AND chassisno = '$fieldvalue'";
+		}
+
+		$result = $this->db->setTable('items_serialized')
+							->setFields($array)
+							->setWhere($condition)
+							->runSelect()
+							->getResult();
 		return $result;
 	}
 }
