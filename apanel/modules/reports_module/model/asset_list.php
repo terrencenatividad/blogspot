@@ -3,18 +3,14 @@ class asset_list extends wc_model {
 
 	public function getAssetMasterListcsv($fields, $sort, $asset, $datefilter, $assetclass, $department) {
 		$orderby = '';
-		$condition = '';
+		$condition = "";
+
 		if($sort){
 			$orderby = $sort;
 		}else{
 			$orderby = 'am.id ASC';
 		}
-		$datefilter = $this->date->dateDbFormat($datefilter);
-
-		if ($datefilter) {
-			$condition .= " am.entereddate <= '$datefilter 11:59:59'";
-		 }
-
+		
 		if($asset != 'none' && $asset != ''){
 			$condition .= " AND am.asset_number = '$asset'";
 		}
@@ -33,7 +29,7 @@ class asset_list extends wc_model {
 							->leftJoin("chartaccount o ON o.id = am.gl_accdep")
 							->leftJoin("chartaccount a ON a.id = am.gl_depexpense")
 							->leftJoin("cost_center cc ON cc.id = am.department")
-							->setWhere($condition)
+							->setWhere("am.stat IN('active','retired') $condition")
 							->setOrderBy($orderby)
 							->runSelect()
 							->getResult();
@@ -75,7 +71,7 @@ class asset_list extends wc_model {
 							->leftJoin("chartaccount o ON o.id = am.gl_accdep")
 							->leftJoin("chartaccount a ON a.id = am.gl_depexpense")
 							->leftJoin("cost_center cc ON cc.id = am.department")
-							->setWhere("am.stat = 'active' $condition")
+							->setWhere("am.stat IN('active','retired') $condition")
 							->setOrderBy($orderby)
 							->runPagination();
 // echo $this->db->getQuery();

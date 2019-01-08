@@ -72,7 +72,7 @@ class controller extends wc_controller {
 		$tab		= $this->input->post('tab');
 		
 		$pagination		= $this->asset_list->getAssetMasterList($this->fields, $sort, $asset, $datefilter, $assetclass, $department);
-		$tt = '';
+
 		$table		= '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
@@ -92,9 +92,9 @@ class controller extends wc_controller {
 			$dep   =  $date2->m;
 			if($tab == 'Depreciation'){
 				if($retdate > $datetoday){
-					$status = 'Retired';
-				}else{
 					$status = 'Active';
+				}else{
+					$status = 'Retired';
 				}
 				$depreciation_amount = ($row->balance_value - $row->salvage_value)/$row->useful_life;
 				$accumuluateddep = $depreciation_amount * $dep;
@@ -218,7 +218,7 @@ class controller extends wc_controller {
 				$bookvalue 		 = $row->capitalized_cost - $accumuluateddep;
 				
 				$csv .= "\n";
-				$csv .= '"' . $row->itemcode . '",';
+				$csv .= '"' . $row->asset_number . '",';
 				$csv .= '"' . $row->sub_number . '",';
 				$csv .= '"' . $row->serial_number . '",';
 				$csv .= '"' . $row->assetclass . '",';
