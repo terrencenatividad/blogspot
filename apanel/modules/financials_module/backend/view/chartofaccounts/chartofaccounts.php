@@ -197,4 +197,31 @@ $('form').submit(function(e)
 		}
 });
 
+$('body').on('change','#accounttype',function(){
+	toggleParentAccount();
+	$('#parentaccountcode').val('').trigger("change");
+});
+function toggleParentAccount()
+{
+	var accounttype = $('#accounttype').val();
+	var parentaccountcode = $('#parentaccountcode').val();
+	if (accounttype == 'C') {
+		if (parentaccountcode == '') {
+			$('.mars').find('.form-group').addClass('has-error');
+			$('.error-checker').removeClass('hidden');
+			$('label[for="parentaccountcode"]').html('Parent Account Title *');
+		}
+		else {
+			$('.mars').find('.form-group').removeClass('has-error');
+			$('.error-checker').addClass('hidden');
+			$('label[for="parentaccountcode"]').html('Parent Account Title');
+		}
+	}
+	else {
+		$('.mars').find('.form-group').removeClass('has-error');
+		$('.error-checker').addClass('hidden');
+		$('label[for="parentaccountcode"]').html('Parent Account Title');
+	}
+}
+
 </script>

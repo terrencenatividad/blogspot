@@ -891,7 +891,7 @@
 
 					$(this).find(".discount").parent().parent().removeClass("has-error");
 				}
-				else{console.log('error');
+				else{
 					$(this).find(".discount").parent().parent().addClass("has-error");
 				}
 				$(this).find('.taxrate').val(taxrate);
@@ -1072,8 +1072,13 @@
 	});
 
 	$("#discount_type").on("change", function(){
-		$('#discounttypeModal').modal('show');
-		
+		if (prev_discountype != 'none'){
+			$('#discounttypeModal').modal('show');
+		}
+		else{
+			prev_discountype = $(this).val();
+			$('#tableList tbody tr.items .discount').prop('readonly', false);
+		}
 	});
 
 	$('#disc_yes').on('click', function(){
@@ -1091,7 +1096,6 @@
 	});
 
 	$('#disc_no').on('click', function(){
-		console.log(prev_discountype);
 		$('#discount_type').val(prev_discountype).trigger('change');
 		$('#discounttypeModal').modal('hide');
 	});
@@ -1130,7 +1134,7 @@
 		});
 		
 		
-		if (form_element.find('.has-error').length < 1) {console.log(form_element.serialize());
+		if (form_element.find('.has-error').length < 1) {
 			if ($('.quantity:not([readonly])').length > 0) {
 				
 				$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() , function(data) {
@@ -1162,7 +1166,7 @@
 		$('#Attachment').hide();
 
 		$(this).closest('li').attr('class','active');
-		var tab = $('#nav li.active a').attr('href');console.log(tab);
+		var tab = $('#nav li.active a').attr('href');
 		$('#'+tab).show();
 	});
 
