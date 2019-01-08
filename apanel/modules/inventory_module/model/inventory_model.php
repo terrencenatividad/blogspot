@@ -126,7 +126,7 @@ class inventory_model extends wc_model {
 						->buildSelect();
 
 		//Issue Parts
-		$jr = $this->db->setTable('job_release')
+		$jr = $this->db->setTable('job_release b')
 						->setFields($this->createFields('jr', 'quantity'))
 						->setWhere("stat = 'released'")
 						->buildSelect();
@@ -147,7 +147,7 @@ class inventory_model extends wc_model {
 								->runSelect()
 								->getResult();
 
-								var_dump($inv_check);
+								// var_dump($inv_check);
 
 		if (empty($inv_check)) {
 			$check_transactions = $this->db->setTable("($inner_query) i")
