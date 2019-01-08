@@ -301,11 +301,11 @@
 					<table id="serialize_tableList" class="table table-hover table-sidepad no-margin-bottom">
 						<thead>
 							<tr class="info">
-								<th class="col-xs-2 text-center">Item No.</th>
-								<th class="col-xs-3 text-center">Item Name</th>
-								<th class="col-xs-2 text-center">Serial Number</th>
-								<th class="col-xs-2 text-center">Engine Number</th>
-								<th class="col-xs-2 text-center">Chassis Number</th>
+								<th class="col-xs-1 text-center">Item No.</th>
+								<th class="col-xs-2 text-center">Item Name</th>
+								<th class="col-xs-3 text-center">Serial Number</th>
+								<th class="col-xs-3 text-center">Engine Number</th>
+								<th class="col-xs-3 text-center">Chassis Number</th>
 								<th class="col-xs-1 text-center"></th>
 							</tr>
 						</thead>
@@ -775,9 +775,9 @@
 				$('#serialize_tableList tbody').append(
 					`<tr id="row`+ (rownum+1) +`">
 						
-						<td class="item_no col-xs-2">` + icode + `</td>
-						<td class="item_name col-xs-3">` + item + `</td>
-						<td class="serial_no" class="col-xs-2">
+						<td class="item_no col-xs-1 text-center">` + icode + `</td>
+						<td class="item_name col-xs-2 text-center">` + item + `</td>
+						<td class="serial_no" class="col-xs-3">
 							<?php
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
@@ -795,7 +795,7 @@
 							?>
 							<div><strong><small class="error_message"></small></strong></div>
 						</td>
-						<td class="engine_no" class="col-xs-2">
+						<td class="engine_no" class="col-xs-3">
 							<?php
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
@@ -813,7 +813,7 @@
 							?>
 							<div><strong><small class="error_message"></small></strong></div>
 						</td>
-						<td class="chassis_no" class="col-xs-2">
+						<td class="chassis_no" class="col-xs-3">
 							<?php
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
