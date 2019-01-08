@@ -220,6 +220,13 @@
 			});
 		});
 
+		$('#tableList').on('click', '.tag_as_retired', function() { 
+			var id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/update_retirement_date', '&id='+id ,function(data) {
+				getList();
+			});
+		});
+
 		$('#importForm').submit(function(e) {
 			e.preventDefault();
 			var form_element = $(this);
