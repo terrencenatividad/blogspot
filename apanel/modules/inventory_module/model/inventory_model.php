@@ -392,7 +392,7 @@ class inventory_model extends wc_model {
 			$this->quantity_field = 'quantity';
 			$this->inventory_movement = 1;
 		}
-		else if ($type == 'Job Releases') {
+		else if ($type == 'Job Release Parts') {
 			$this->table = 'job_release';
 			$this->table_detail = 'job_release';
 			$this->quantity_field = 'quantity';
@@ -436,7 +436,7 @@ class inventory_model extends wc_model {
 								->runSelect()
 								->getResult();
 		
-		} else if($this->log_type == 'Job Releases') {
+		} else if($this->log_type == 'Job Release Parts') {
 			$result = $this->db->setTable($this->table_detail. ' j')
 								->setFields('j.itemcode, j.warehouse, j.quantity')
 								->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no  and jod.itemcode = j.itemcode')
