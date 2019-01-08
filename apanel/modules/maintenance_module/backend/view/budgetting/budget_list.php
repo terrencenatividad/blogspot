@@ -432,7 +432,19 @@
 										$('#list_container').html(data.table);
 										$('#pagination').html(data.pagination);
 										$("#export_id").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
-
+										var ctr = -1;
+										$('#tableList tbody tr td input[type="checkbox"]').each(function(index, value) {
+											if($(this).attr('disabled')) {
+												ctr++;
+											}
+											if(index == ctr) {
+												$('.checkall').iCheck('disable');
+												$('#item_multiple_delete').addClass('disabled');
+											} else {
+												$('.checkall').iCheck('enable');
+												$('#item_multiple_delete').removeClass('disabled');
+											}
+										});
 										if (ajax.page > data.page_limit && data.page_limit > 0) 
 										{
 											ajax.page = data.page_limit;

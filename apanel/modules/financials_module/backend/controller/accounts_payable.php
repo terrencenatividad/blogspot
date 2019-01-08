@@ -429,7 +429,8 @@ class controller extends wc_controller
 			$vendor		 		= $row->vendor; 
 			$referenceno 		= $row->referenceno; 
 			$checker 	 		= $row->importchecker;
-			$import 	 		= ($checker == 'import') 	?	"yes" 	:	"no";
+			$import 	 		= ($checker == 'import') 	?	"Yes" 	:	"No";
+			$import_checker = ($checker == 'import');
 			$checker_pr 		= $this->accounts_payable->checkRefNo($referenceno);
 			$pr 				= ($checker_pr == true);
 			$stat				= $row->stat;
@@ -444,19 +445,19 @@ class controller extends wc_controller
 				}
 			}
 			$dropdown = $this->ui->loadElement('check_task')
-						->addView()
-						->addEdit($status && $restrict && !$pr && $status_paid)
-						->addPrint()
-						->addOtherTask(
-							'Print 2307',
-							'print',
-							$bir_link
-						)
-						->addDelete($status && $restrict && $status_paid)
-						->addCheckbox($status && $restrict && $status_paid)
-						->setValue($voucher)
-						->setLabels(array('delete' => 'Cancel'))
-						->draw();
+			->addView()
+			->addEdit($status && $restrict && !$pr && $status_paid && !$import_checker)
+			->addPrint(!$import_checker)
+			->addOtherTask(
+				'Print 2307',
+				'print',
+				$bir_link
+			)
+			->addDelete($status && $restrict && $status_paid && !$import_checker)
+			->addCheckbox($status && $restrict && $status_paid && !$import_checker)
+			->setValue($voucher)
+			->setLabels(array('delete' => 'Cancel'))
+			->draw();
 
 			$table	.= '<tr>';
 			$table	.= '<td class = "text-center">'.$dropdown.'</td>';
