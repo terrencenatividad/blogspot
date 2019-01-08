@@ -440,7 +440,7 @@ class inventory_model extends wc_model {
 			$result = $this->db->setTable($this->table_detail. ' j')
 								->setFields('j.itemcode, j.warehouse, j.quantity')
 								->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no  and jod.itemcode = j.itemcode')
-								->setWhere("job_release_no = '{$this->voucherno}' AND (parentcode != '') AND isbundle = 'no'")
+								->setWhere("job_release_no = '{$this->voucherno}' AND isbundle = 'no'")
 								->runSelect()
 								->getResult();
 			
