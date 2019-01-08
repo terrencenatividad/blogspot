@@ -104,9 +104,9 @@ class controller extends wc_controller {
 		$data["taxrates"]			= $this->service_quotation->getTaxRates();
 		$data['header_values']		= array();
 		$data['voucher_details']	= array();
-		$data['t_vatable_sales']	= 0;
-		$data['t_vat_exempt_sales']	= 0;
-		$data['t_vatsales']			= 0;
+		$data['vatable_sales']		= 0;
+		$data['exempt_sales']	 	= 0;
+		$data['t_sales']			= 0;
 		$data['t_vat']				= 0;
 		$data['t_amount']			= 0;
 		$data['t_discount']			= 0;
@@ -149,9 +149,9 @@ class controller extends wc_controller {
 		
 		$data['voucher_details']	= $servicequotation_details;
 
-		$data['t_vatable_sales']	= 0;
-		$data['t_vat_exempt_sales']	= 0;
-		$data['t_vatsales']			= 0;
+		$data['vatable_sales']		= 0;
+		$data['exempt_sales']	 	= 0;
+		$data['t_sales']			= 0;
 		$data['t_vat']				= 0;
 		$data['t_amount']			= 0;
 		$data['t_discount']			= 0;
