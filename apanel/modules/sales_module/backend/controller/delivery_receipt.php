@@ -465,13 +465,8 @@ class controller extends wc_controller {
 		$array_id = explode(',', $id);
 		$all_id = explode(',', $allserials);
 		
-		$fields = array ('id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat');
-		$pagination	= $this->delivery_model->getSerialList($fields, $itemcode, $search);
-		
+		$pagination	= $this->delivery_model->getSerialList($itemcode, $search, $voucherno, $linenum);
 		$table		= '';
-		// if (empty($pagination->result)) {
-		// 	$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
-		// }
 		$counter = 0;
 		foreach ($pagination->result as $key => $row) {
 			if ($curr_serialnumbers == $id) {
@@ -480,35 +475,21 @@ class controller extends wc_controller {
 			else {
 				$checker = (in_array($row->id, $array_id)) ? 'checked' : '';
 			}
-			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id)) || ($row->stat == 'Not Available') && (!in_array($row->id, $current_id))) ? 'hidden' : '';
+			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id))) ? 'hidden' : '';
 			$table .= '<tr class = "'.$hide_tr.'">';
 			$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'" '.$checker.'></td>';
-			if ($item_ident == '100') {
-				$table .= '<td>' . $row->serialno . '</td>';
-			}
-			else if ($item_ident == '010') {
-				$table .= '<td>' . $row->engineno . '</td>';
-			}
-			else if ($item_ident == '001') {
-				$table .= '<td>' . $row->chassisno . '</td>';
-			}
-			else if ($item_ident == '110') {
-				$table .= '<td>' . $row->serialno . '</td>';
-				$table .= '<td>' . $row->engineno . '</td>';
-			}
-			else if ($item_ident == '101') {
-				$table .= '<td>' . $row->serialno . '</td>';
-				$table .= '<td>' . $row->chassisno . '</td>';
-			}
-			else if ($item_ident == '011') {
-				$table .= '<td>' . $row->engineno . '</td>';
-				$table .= '<td>' . $row->chassisno . '</td>';
-			}
-			else if ($item_ident == '111') {
-				$table .= '<td>' . $row->serialno . '</td>';
-				$table .= '<td>' . $row->engineno . '</td>';
-				$table .= '<td>' . $row->chassisno . '</td>';
-			}
+			
+			$has_serial 	=	substr($item_ident,0,1);
+			$has_engine 	=	substr($item_ident,1,1);
+			$has_chassis 	=	substr($item_ident,2,1);
+
+			$hide_serial 	=	($has_serial == 0) 	? "hidden" 	:	"";
+			$hide_engine 	=	($has_engine == 0) ? "hidden" 	:	"";
+			$hide_chassis 	=	($has_chassis == 0)? "hidden" 	:	"";
+			
+			$table .= '<td class = "'.$hide_serial.'">' . $row->serialno . '</td>';
+			$table .= '<td class = "'.$hide_engine.'">' . $row->engineno . '</td>';
+			$table .= '<td class = "'.$hide_chassis.'">' . $row->chassisno . '</td>';
 			$table .= '</tr>';
 			$counter++;
 		}

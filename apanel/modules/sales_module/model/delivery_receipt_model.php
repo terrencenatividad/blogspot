@@ -706,18 +706,37 @@ class delivery_receipt_model extends wc_model {
 		return '(' . implode(' OR ', $temp) . ')';
 	}
 
-	public function getSerialList($fields, $itemcode, $search) {
+	public function getSerialList($itemcode, $search, $voucherno, $linenum) {
 		$condition = '';
 		if ($search) {
 			$condition .= ' AND ' . $this->generateSearch($search, array('serialno', 'engineno', 'chassisno'));
 		}
-		$result	= $this->db->setTable('items_serialized')
-								->setFields($fields)
-								->setWhere("itemcode = '$itemcode'" .$condition)
-								->setOrderBy('voucherno, linenum, rowno')
-								->runPagination();
-								
-		return $result;
+		$result1	= $this->db->setTable('items_serialized')
+								->setFields(array('companycode', 'id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat'))
+								->setWhere("itemcode = '$itemcode' AND stat = 'Available'" .$condition)
+								->buildSelect();
+		$sub_query = $this->db->setTable('deliveryreceipt_details')
+								->setFields('serialnumbers')
+								->setWhere("itemcode='$itemcode' AND voucherno='$voucherno' AND linenum='$linenum'")
+								->setLimit(1)
+								->runSelect()
+								->getRow();
+		$serials = ($sub_query) ? $sub_query->serialnumbers : '""';
+		$result2 = $this->db->setTable('items_serialized') 
+								->setFields(array('companycode', 'id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat'))
+								->setWhere("id IN ($serials)")
+								->buildSelect();
+
+		$inner_query = $result1;
+		if (!empty($result2)) {
+			$inner_query .= ' UNION ALL ' . $result2;
+		}
+		
+		$inner_query = $this->db->setTable("($inner_query) i")
+								->setFields('*')
+								->setOrderBy('id')
+								->runPagination();	
+		return $inner_query;
 	}
 
 	public function getDRSerials($itemcode, $voucherno, $linenum) {
