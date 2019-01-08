@@ -540,6 +540,14 @@
 									});
 								});
 
+
+								$('#modalApproveSupplement').on('hidden.bs.modal',function() {
+									$('#modalSupplement').modal('show');
+								});
+								$('#modalRejectSupplement').on('hidden.bs.modal',function() {
+									$('#modalSupplement').modal('show');
+								});
+
 								$('#btnRejectSupplement').on('click', function(e) { 
 									$.post('<?=MODULE_URL?>ajax/ajax_update_reject_status_supplement', { budget_id : budget_id }, function(data) {
 										if(data) {

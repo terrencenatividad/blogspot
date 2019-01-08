@@ -620,6 +620,7 @@
 	/**ADJUSTMENT: SAVING**/
 	$("#adjustForm #btnSave").click(function(){
 		var valid		= 0;
+		var btn_ident 	= $('#addminusbtn').val();
 
 		$("#adjustForm").find('.form-group').find('input, textarea, select').trigger('blur');
 
@@ -628,13 +629,10 @@
 			$("#adjustForm #btnSave_toggle").addClass('disabled');
 			
 			$("#adjustForm #btnSave").html('Saving...');
-			// ajax_saving = $('#adjustForm').serializeArray();
 			var serials 		= JSON.stringify(serial_box);
 			var serials_manual  = JSON.stringify(serial_manual_box);
-			// console.log(ajax_saving);
 			$.post("<?=MODULE_URL?>ajax/update_inventory",$('#adjustForm').serialize()+"&serials="+serials+"&serials_manual="+serials_manual)
 			.done(function(data){
-				//$("#updateForm").submit();
 				$("#adjustForm #btnSave").removeClass('disabled');
 				$("#adjustForm #btnSave_toggle").removeClass('disabled');
 			
@@ -643,7 +641,6 @@
 				if( data.msg == 'success' )	{
 					$.post("<?=MODULE_URL?>ajax/create_jv",$("#adjustForm").serialize()+"&adjustment_voucher="+data.voucher)
 					.done(function(data){
-						//$("#updateForm").submit();
 						$("#adjustForm #btnSave").removeClass('disabled');
 						$("#adjustForm #btnSave_toggle").removeClass('disabled');
 					
@@ -651,8 +648,13 @@
 						
 						if( data.msg == 'success' ){
 							$("#adjModal").modal('hide');
-							serial_box = [];
-							temp_serial_box = [];
+							if(btn_ident == "minus"){
+								serial_box = [];
+								temp_serial_box = [];
+							} else {
+								serial_manual_box = [];
+								temp_serial_manual_box = [];
+							}
 							$('#issueqtybtn').val(0);
 							$('#issueqtybtn').html(0);
 							$('#issueqty_serial').val(0);
@@ -884,8 +886,8 @@
 		$('#serialModal #sec_description').val(itemname);
 		
 		ajax_serials.itemcode	=	itemcode;
-		ajax_serials.limit 		= 	2;
-		console.log(" BUTTON = "+button_ident);
+		ajax_serials.limit 		= 	5;
+
 		if(button_ident=="minus"){
 			$.post('<?=MODULE_URL?>ajax/retrieve_serialsforminus', ajax_serials, function(data) {
 				$('#tableSerialList tbody').html(data.table);
@@ -902,11 +904,28 @@
 			});
 		} else {
 			$('#tableSerialList tbody').html('');
-			$('#tableSerialList #serial_pagination').html('');
+			$('#serial_pagination').html('');
 			var count_lines = $('#tableSerialList tbody tr').length; 
-			addnewserial('',count_lines);
 			$('.checkbox_header').addClass('hidden');
 			$('#serialModal').modal('show');
+			console.log(temp_serial_manual_box);
+			if(temp_serial_manual_box!=''){
+				$.each(temp_serial_manual_box,function(key,object){
+					// console.log("IND "+key);
+					// 	console.log("VAL "+object);
+					// $.each(object, function(ind,value){
+						
+					// 	console.log("IND "+ind);
+					// 	console.log("VAL "+value);
+					// });
+					console.log(object);
+					console.log(JSON.stringify(object));
+					console.log(object.serial);
+					addnewserial(object,count_lines);
+				});
+			} else {
+				addnewserial('',count_lines);
+			}
 		}
 	}
 
@@ -921,6 +940,9 @@
 
 	$(document).on('click','.serialized',function(){
 		var button_ident = $('#addminusbtn').val();
+		if(button_ident == "plus"){
+			temp_serial_manual_box = serial_manual_box;
+		}
 		getSerialList(button_ident);
 	});
 
@@ -961,8 +983,8 @@
 				count++;
 			});
 		} else {
+			clean_serial_manual_box();
 			serial_manual_box 		=	temp_serial_manual_box;
-			console.log(serial_manual_box);
 			temp_serial_manual_box 	=	[];
 			$.each(serial_manual_box,function(key,value){
 				count++;
@@ -1062,17 +1084,16 @@
 		$('#tableSerialList tbody').append(row);
 	}
 	function initialize_serial_manual_box(index){
-		console.log('test '+index);
 		if(temp_serial_manual_box[index] == undefined){
 			temp_serial_manual_box[index] = {};
-			if(temp_serial_manual_box[index]['serial'] == undefined){
-				temp_serial_manual_box[index]['serial'] = "";
+			if(temp_serial_manual_box[index]['serialno'] == undefined){
+				temp_serial_manual_box[index]['serialno'] = "";
 			}
-			if(temp_serial_manual_box[index]['engine'] == undefined){
-				temp_serial_manual_box[index]['engine'] = "";
+			if(temp_serial_manual_box[index]['engineno'] == undefined){
+				temp_serial_manual_box[index]['engineno'] = "";
 			}
-			if(temp_serial_manual_box[index]['chassis'] == undefined){
-				temp_serial_manual_box[index]['chassis'] = "";
+			if(temp_serial_manual_box[index]['chassisno'] == undefined){
+				temp_serial_manual_box[index]['chassisno'] = "";
 			}
 		} 
 	}
@@ -1083,10 +1104,11 @@
 		} else {
 			$('#serialModal #btn_tag').prop('disabled', false);
 		}
-		console.log(count);
+	}
+	function clean_serial_manual_box(){
+		temp_serial_manual_box = temp_serial_manual_box.filter(function(v){return (v.serialno!="" || v.engineno !=="" || v.chassisno !== "") });
 	}
 	$('#tableSerialList').on('change','.serialno',function(){
-		// checkifexisting
 		var current_selection = $(this);
 		var current_serial 	  = current_selection.val();
 		var index 			  = $(this).data('linenum');
@@ -1094,26 +1116,26 @@
 		ajax_manual.itemcode   = $('#sec_itemcode').val();
 		ajax_manual.fieldvalue = current_serial;
 		ajax_manual.fieldtype  = "serial";
-		console.log(temp_serial_manual_box);
-		$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
-			initialize_serial_manual_box(index);
-			temp_serial_manual_box[index]['serial'] = "";
-			if(data.count > 0){
-				current_selection.closest('div').addClass('has-error');
-				current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Serial Number already exists!');
-				current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
-			} else {
-				current_selection.closest('div').removeClass('has-error');
-				current_selection.closest('td').find('.error_message').html('');
-				// if(jQuery.inArray(current_serial,temp_serial_manual_box[index]['serial'])==-1){
-				// 	temp_serial_manual_box[index]['serial'].push(current_serial);
-				// }
-				temp_serial_manual_box[index]['serial'] = current_serial;
-			}
-			console.log(temp_serial_manual_box);
-		}).done(function(){
-			check_if_has_errors();
-		});
+
+		if(current_serial!=""){
+			$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
+				initialize_serial_manual_box(index);
+				temp_serial_manual_box[index]['serialno'] = "";
+				if(data.count > 0){
+					current_selection.closest('div').addClass('has-error');
+					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Serial Number already exists!');
+					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
+				} else {
+					current_selection.closest('div').removeClass('has-error');
+					current_selection.closest('td').find('.error_message').html('');
+					temp_serial_manual_box[index]['serialno'] = current_serial;
+				}
+			}).done(function(){
+				check_if_has_errors();
+			});
+		} else {
+			temp_serial_manual_box[index]['serialno'] = "";
+		}
 	});
 	$('#tableSerialList').on('change','.engineno',function(){
 		// checkifexisting
@@ -1125,27 +1147,27 @@
 		ajax_manual.fieldvalue = current_engine;
 		ajax_manual.fieldtype  = "engine";
 
-		$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
-			initialize_serial_manual_box(index);
-			temp_serial_manual_box[index]['engine'] = "";
-			if(data.count > 0){
-				current_selection.closest('div').addClass('has-error');
-				current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Engine Number already exists!');
-				current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
-			} else {
-				current_selection.closest('div').removeClass('has-error');
-				current_selection.closest('td').find('.error_message').html('');
-				// if(jQuery.inArray(current_engine,temp_serial_manual_box[index]['engine'])==-1){
-				// 	temp_serial_manual_box[index]['engine'].push(current_engine);
-				// }
-				temp_serial_manual_box[index]['engine'] = current_engine;
-			}
-		}).done(function(){
-			check_if_has_errors();
-		});
+		if(current_engine!=""){
+			$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
+				initialize_serial_manual_box(index);
+				temp_serial_manual_box[index]['engineno'] = "";
+				if(data.count > 0){
+					current_selection.closest('div').addClass('has-error');
+					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Engine Number already exists!');
+					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
+				} else {
+					current_selection.closest('div').removeClass('has-error');
+					current_selection.closest('td').find('.error_message').html('');
+					temp_serial_manual_box[index]['engineno'] = current_engine;
+				}
+			}).done(function(){
+				check_if_has_errors();
+			});
+		} else {
+			temp_serial_manual_box[index]['engineno'] = "";
+		}
 	});
 	$('#tableSerialList').on('change','.chassisno',function(){
-		// checkifexisting
 		var current_selection = $(this);
 		var current_chassis   = current_selection.val();
 		var index 			  = $(this).data('linenum');
@@ -1154,24 +1176,24 @@
 		ajax_manual.fieldvalue = current_chassis;
 		ajax_manual.fieldtype  = "chassis";
 
-		$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
-			initialize_serial_manual_box(index);
-			temp_serial_manual_box[index]['chassis'] = "";
-			if(data.count > 0){
-				current_selection.closest('div').addClass('has-error');
-				current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Chassis Number already exists!');
-				current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
-			} else {
-				current_selection.closest('div').removeClass('has-error');
-				current_selection.closest('td').find('.error_message').html('');
-				// if(jQuery.inArray(current_chassis,temp_serial_manual_box[index]['chassis'])==-1){
-				// 	temp_serial_manual_box[index]['chassis'].push(current_chassis);
-				// }
-				temp_serial_manual_box[index]['chassis'] = current_chassis;
-				console.log(temp_serial_manual_box);
-			}
-		}).done(function(){
-			check_if_has_errors();
-		});
+		if(current_chassis!=""){
+			$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
+				initialize_serial_manual_box(index);
+				temp_serial_manual_box[index]['chassisno'] = "";
+				if(data.count > 0){
+					current_selection.closest('div').addClass('has-error');
+					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Chassis Number already exists!');
+					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
+				} else {
+					current_selection.closest('div').removeClass('has-error');
+					current_selection.closest('td').find('.error_message').html('');
+					temp_serial_manual_box[index]['chassisno'] = current_chassis;
+				}
+			}).done(function(){
+				check_if_has_errors();
+			});
+		} else {
+			temp_serial_manual_box[index]['chassisno'] = "";
+		}
 	});
 </script>
