@@ -309,7 +309,7 @@
 								<th class="col-xs-1 text-center"></th>
 							</tr>
 						</thead>
-						<tbody id="serialize_tbody">
+						<tbody id="serialize_tbody" data-item-ident-flag="">
 							
 						</tbody>
 						<?php if ($show_input) {?>
@@ -438,7 +438,7 @@
 					</td>
 					<td class="text-right">
 						<button type="button" id="serial_`+ details.linenum +`" data-itemcode="`+details.itemcode+`" data-item="`+details.detailparticular+`" class="serialize_button btn btn-block btn-success btn-flat">
-							<em class="pull-left"><small>Enter serial numbers (<span class="receiptqty_serialized_display"><?php if ($show_input == '') { ?>` + (addComma(details.receiptqty, 0) || 0) + `<?php } else { ?>0<?php }?></span>)</small></em>
+							<em class="pull-left"><small>Enter serial numbers (<span class="receiptqty_serialized_display"><?php if ($show_input == '' || $ajax_task == "ajax_edit") { ?>` + (addComma(details.receiptqty, 0) || 0) + `<?php } else { ?>0<?php }?></span>)</small></em>
 						</button>
 						<?php
 							echo $ui->formField('text')
@@ -580,7 +580,11 @@
 				$('#serial_' + details.linenum).addClass('hidden');
 				$('#receiptqty' + details.linenum).removeClass('hidden receiptqty_serialized');
 			} else {
+				<?php if($ajax_task == "ajax_create") { ?>
 				$('#receiptqty' + details.linenum).addClass('hidden receiptqty_serialized').attr('data-value',0);
+				<?php } else { ?>
+				$('#receiptqty' + details.linenum).addClass('hidden receiptqty_serialized')
+				<?php } ?>
 				$('#serial' + details.linenum).removeClass('hidden');
 				
 				var item = {};
@@ -599,7 +603,7 @@
 				};		
 			}
 			
-			<?php if (!$show_input) { ?> //VIEW POPULATE serialize FROM DB
+			<?php if (!$show_input || $ajax_task == 'ajax_edit') { ?> //VIEW POPULATE serialize FROM DB
 				var dataFromDB = <?php echo json_encode($serial_db) ?>;
 				var dataFromDB_index = [];
 				for (x = 0 ; x < dataFromDB.length ; x++){
@@ -641,6 +645,10 @@
 			
 			$('#serial_' + details.linenum).on("click", function() {
 				$('#serialize_tableList tbody').empty();
+
+				// IDENTIFY FIELDS NEEDED
+				$("#serialize_tbody").attr("data-item-ident-flag",details.item_ident_flag);
+
 				icode = $('#serial_' + details.linenum).data('itemcode');
 				item = $('#serial_' + details.linenum).data('item');
 				serialize_item_selected = item;
@@ -650,8 +658,6 @@
 				
 				var rows = 0;
 
-				
-				
 				for (var i = 0 ; i <= index ; i++){
 					if(serialize[i].itemcode == icode){
 						
@@ -670,9 +676,7 @@
 						break;
 					}
 				}
-				// IDENTIFY FIELDS NEEDED
-				$("#serialize_tbody").attr("data-item-ident-flag",details.item_ident_flag);
-			
+
 				<?php if ($show_input) { ?>
 				// ADD 1 ROW IF NO THERE ARE NO ROWS
 				if ($('#serialize_tableList tbody tr').length == 0){
@@ -713,7 +717,7 @@
 			
 			serial_saved = [];
 			engine_saved = [];
-			chassis_saved =[];	
+			chassis_saved = [];	
 			for(items = 0; items < serialize.length; items++){
 				if(serialize[items].itemcode != ''){
 					for(serials = 0; serials < serialize[items].numbers.length; serials++){
@@ -734,9 +738,9 @@
 			engine_input = [];
 			chassis_input = [];
 
-			console.log('serial saved: '+serial_saved);
-			console.log('engine saved: '+engine_saved);
-			console.log('chassis saved: '+chassis_saved);
+			// console.log('serial saved: '+serial_saved);
+			// console.log('engine saved: '+engine_saved);
+			// console.log('chassis saved: '+chassis_saved);
 			
 		})
 
@@ -770,12 +774,12 @@
 				hasChassis = '';
 				
 				<?php if($show_input) { ?>
-				hasSerial = (item_ident_flag[0] == "1") ? '' : 'disabled';
-				hasEngine = (item_ident_flag[1] == "1") ? '' : 'disabled';
-				hasChassis = (item_ident_flag[2] == "1") ? '' : 'disabled';
+				hasSerial = (item_ident_flag[0] == 1) ? '' : 'disabled';
+				hasEngine = (item_ident_flag[1] == 1) ? '' : 'disabled';
+				hasChassis = (item_ident_flag[2] == 1) ? '' : 'disabled';
 				<?php } ?>
 
-				// console.log(hasSerial+', '+hasEngine+', '+hasChassis);
+				console.log(hasSerial+', '+hasEngine+', '+hasChassis);
 
 				(typeof serialno == 'undefined') ? serialno = '' : serialno=serialno;
 				(typeof engineno == 'undefined') ? engineno = '' : engineno=engineno;
@@ -842,7 +846,7 @@
 						</td>
 						<?php if ($show_input) {?>
 						<td class="text-center">
-							<button type="button" class="btn btn-danger btn-flat deleteRow" data-delete=`+rownum+`>
+							<button type="button" class="btn btn-danger btn-flat deleteRow" id="deleteRow`+rownum+`" data-delete=`+rownum+`>
 								<span class="glyphicon glyphicon-trash"></span>
 							</button>
 						</td>
@@ -852,6 +856,17 @@
 			}
 	
 		function saveSerialsInput(index){
+			// DELETE BLANK ROWS
+			initial_number_rows = $('#serialize_tableList tbody tr').length;
+			for (j = 0 ; j < initial_number_rows ; j++){
+				isSerialBlank = ($('.serial_no_item:eq('+j+')').val() == '');
+				isEngineBlank = ($('.engine_no_item:eq('+j+')').val() == '');
+				isChassisBlank = ($('.chassis_no_item:eq('+j+')').val() == '');
+				if (isSerialBlank && isEngineBlank && isChassisBlank) {
+					$('#deleteRow'+j).click();
+				}
+			}
+			// FINAL NUMBER OF ROWS
 			number_rows = $('#serialize_tableList tbody tr').length;
 			serials = '';
 			engines = '';
@@ -916,9 +931,7 @@
 			
 			// console.log(serialize);
 		}
-
 		
-
 		$('tbody').on('click', '.deleteRow', function(e) {
 			var deleted_row = $(this).data('delete');
 			var serial_deleted = $('#serial_no_item['+deleted_row+']').val();
@@ -958,6 +971,7 @@
 			}	
 
 			$(this).closest('tr').remove();
+			checkFlags();
 		});
 
 		var serial_flag = true;
@@ -1059,7 +1073,7 @@
 				}
 			}
 			
-			console.log(serial_input);
+			// console.log(serial_input);
 			checkFlags();
 		});
 		// SERIAL NUMBER VALIDATE END
@@ -1097,7 +1111,7 @@
 					engine_input.push(engineInput);
 				}
 			}
-			console.log(engine_input);
+			// console.log(engine_input);
 			checkFlags();
 		});
 		// ENGINE NUMBER VALIDATE END
@@ -1135,7 +1149,7 @@
 					chassis_input.push(chassisInput);
 				}
 			}
-			console.log(chassis_input);
+			// console.log(chassis_input);
 			checkFlags();
 		});
 		// CHASSIS NUMBER VALIDATE END

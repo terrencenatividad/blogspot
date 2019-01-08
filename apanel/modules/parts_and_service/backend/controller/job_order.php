@@ -76,6 +76,17 @@ class controller extends wc_controller {
 		$this->clean_number		= array(
 			'issueqty'
 		);
+		$this->fieldsMainListing = array(
+			'job_order_no',
+			'transactiondate',
+			'customer',
+			'reference',
+			'service_quotation',
+			'po_number',
+			'notes',
+			'job_order.stat',
+			'partnername'
+		);
 	}
 	public function ajax($task) {
 		$ajax = $this->{$task}();
@@ -263,7 +274,7 @@ class controller extends wc_controller {
 		$filter		= $data['filter'];
 		$datefilter	= $data['daterangefilter'];
 
-		$pagination	= $this->job_order->getJOList($this->fields);
+		$pagination	= $this->job_order->getJOList($this->fieldsMainListing);
 		$table		= '';
 		// $pagination = new stdClass;
 		if (empty($pagination->result)) {
@@ -285,7 +296,7 @@ class controller extends wc_controller {
 			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $row->job_order_no . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
-			$table .= '<td>' . $row->customer . '</td>';
+			$table .= '<td>' . $row->partnername . '</td>';
 			$table .= '<td>' . $row->service_quotation . '</td>';
 			$table .= '<td>' . $row->po_number . '</td>';
 			$table .= '<td>' . $this->colorStat($row->stat) . '</td>';

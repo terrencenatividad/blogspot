@@ -146,10 +146,10 @@ class controller extends wc_controller {
 		$documentvendor   	= $this->dm_model->getVendor($voucherno);
 		$print = new print_payables_model('P', 'mm', 'Letter');
 		$print->setDocumentType('Debit Memo')
-		->setDocumentInfo($documentinfo)
-		->setDocumentDetails($documentdetails)
-		->setVendor($documentvendor[0]->partnername)
-		->drawPDF('dm_voucher_' . $voucherno);
+				->setDocumentInfo($documentinfo)
+				->setDocumentDetails($documentdetails)
+				->setVendor($documentvendor[0]->partnername)
+				->drawPDF('dm_voucher_' . $voucherno);
 	}
 	
 	public function ajax($task) {

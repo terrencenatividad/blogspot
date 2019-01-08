@@ -397,10 +397,11 @@ class job_order_model extends wc_model
 		
 		$result = $this->db->setTable("job_order")
 							->setFields($fields)
-							->setWhere(1)
+							//->setWhere(1)
+							->innerJoin('partners ON job_order.customer = partners.partnercode')
 							->setOrderBy('job_order_no DESC')
 							->runPagination();
-
+							//echo $this->db->getQuery();
 		return $result;
 	}
 
