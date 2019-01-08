@@ -924,8 +924,15 @@
 		$('#serialModal #sec_search').val('');
 		ajax_serials.search = "";
 		getList();
-		serial_box = [];
-		temp_serial_box = [];
+		var button_ident = $('#addminusbtn').val();
+		if(button_ident == "plus"){
+			serial_manual_box = [];
+			temp_serial_manual_box = [];
+		} else {
+			serial_box = [];
+			temp_serial_box = [];
+		}
+		
 	});
 
 	$(document).on('click','.serialized',function(){
