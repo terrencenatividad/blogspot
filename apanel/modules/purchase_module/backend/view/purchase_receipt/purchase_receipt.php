@@ -332,7 +332,7 @@
 				<?php } ?>
 			</div>
 		</div>					
-	</div>`;
+	</div>
 	<script>
 		var delete_row	= {};
 		var ajax		= {};
@@ -684,7 +684,7 @@
 				}
 				<?php } ?>
 				
-				// console.log(serialize);
+				console.log(serialize);
 				$('.add-data').text("Add a New Line");
 				$("#serialize_modal").modal('show');
 			});
@@ -778,8 +778,6 @@
 				hasEngine = (item_ident_flag[1] == 1) ? '' : 'disabled';
 				hasChassis = (item_ident_flag[2] == 1) ? '' : 'disabled';
 				<?php } ?>
-
-				console.log(hasSerial+', '+hasEngine+', '+hasChassis);
 
 				(typeof serialno == 'undefined') ? serialno = '' : serialno=serialno;
 				(typeof engineno == 'undefined') ? engineno = '' : engineno=engineno;
@@ -930,7 +928,35 @@
 			$("#receiptqty"+(index+1)).closest('tr').find('.receiptqty_serialized_display').text(maxCount);
 			
 			// console.log(serialize);
+			
 		}
+
+		// ON EDIT, IMMEDIATELY SAVE SERIALS TO FORM
+		<?php if ($ajax_task=='ajax_edit') { ?>
+		$(document).ready( function(){
+			serials = '';
+			engines = '';
+			chassis = '';
+			for (index = 0 ; index < serialize.length ; index++){
+				if(serialize[index].itemcode.length > 0) {
+					for(index2 = 0 ; index2 < serialize[index].numbers.length ; index2++) {
+						if(index2 == serialize[index].numbers.length-1){
+							serials += serialize[index].numbers[index2].serialno;
+							engines += serialize[index].numbers[index2].engineno;
+							chassis += serialize[index].numbers[index2].chassisno;
+						} else {
+							serials += serialize[index].numbers[index2].serialno+',';
+							engines += serialize[index].numbers[index2].engineno+',';
+							chassis += serialize[index].numbers[index2].chassisno+',';
+						}
+					}
+				}
+				$('#serial_no'+index).val(serials);
+				$('#engine_no'+index).val(engines);
+				$('#chassis_no'+index).val(chassis);
+			}
+		});
+		<?php } ?>
 		
 		$('tbody').on('click', '.deleteRow', function(e) {
 			var deleted_row = $(this).data('delete');

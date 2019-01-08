@@ -85,6 +85,7 @@ class controller extends wc_controller {
 		);
 
 		$this->serial_fields	= array(
+			'detail_warehouse'			=> 'warehouse',
 			'voucherno',
 			'source_no',
 			'itemcode',
@@ -414,6 +415,7 @@ class controller extends wc_controller {
 
 	private function ajax_edit() {
 		$data						= array_merge($this->input->post($this->fields), $this->input->post($this->fields_header));
+		$temp_voucherno				= $data['voucherno'];
 		unset($data['voucherno']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$data['period']				= $this->date->getMonthNumber($data['transactiondate']);
@@ -421,6 +423,9 @@ class controller extends wc_controller {
 		$voucherno					= $this->input->post('voucherno_ref');
 		$data2						= $this->getItemDetails();
 		$data2						= $this->cleanData($data2);
+		$serials					= $this->input->post($this->serial_fields);
+		$delete						= $this->purchase_model->deleteSerialNumbers($temp_voucherno);
+		$result2					= $this->purchase_model->saveSerialNumbers($serials,$temp_voucherno);
 
 		$this->inventory_model->prepareInventoryLog('Purchase Receipt', $voucherno)
 								->preparePreviousValues();

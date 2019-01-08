@@ -47,6 +47,7 @@ class purchase_receipt_model extends wc_model {
 		$source_no = $data['source_no'];
 
 		for ($i = 0 ; $i < ($number_of_items) ; $i++){
+			$warehouse = $data['warehouse'][$i];
 			$serialized_flag = $data['item_ident_flag'][$i]; 
 			$itemcode = $data['itemcode'][$i];
 			$linenum = intval($data['linenum'][$i]);
@@ -61,6 +62,7 @@ class purchase_receipt_model extends wc_model {
 				for ($rowno = 0 ; $rowno < $item_quantity ; $rowno++){
 					
 					$values = array(
+						'warehousecode' => $warehouse,
 						'voucherno' => $voucherno,
 						'source_no' => $source_no,
 						'itemcode' => $itemcode,
@@ -81,7 +83,17 @@ class purchase_receipt_model extends wc_model {
 		$result = $this->db->setTable('items_serialized')
 							->setValues($values)
 							->runInsert();
+							// echo $this->db->getQuery();
+							
 		
+		return $result;
+	}
+
+	public function deleteSerialNumbers($voucherno) {
+		$result = $this->db->setTable('items_serialized')
+					->setWhere("voucherno = '$voucherno'")
+					->runDelete();
+
 		return $result;
 	}
 
