@@ -353,8 +353,9 @@ class purchase_receipt_model extends wc_model {
 
 			$sourceno = ($sourceno) ? $sourceno->source_no : '';
 
-			$result1 = $this->db->setTable('purchasereceipt_details')
+			$result1 = $this->db->setTable('purchasereceipt_details pr')
 								->setFields($fields)
+								->innerJoin('items i ON i.itemcode = pr.itemcode')
 								->setWhere("voucherno = '$voucherno'")
 								->setOrderBy('linenum')
 								->runSelect()

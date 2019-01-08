@@ -280,7 +280,7 @@ class debit_memo_model extends wc_model {
 							//->setFields('voucherno, transactiondate documentdate, amount, referenceno, remarks, partner')
 							->setFields('voucherno, transactiondate documentdate, amount, referenceno, remarks, partner, jv.currencycode, exchangerate')
 							->innerJoin('partners pt on pt.partnercode = jv.partner')
-							->setWhere("voucherno = '$voucherno' AND jv.stat = 'posted'")
+							->setWhere("voucherno = '$voucherno' AND jv.stat IN ('posted','cancelled')")
 							->setLimit(1)
 							->runSelect()
 							->getRow();
@@ -293,7 +293,8 @@ class debit_memo_model extends wc_model {
 							->innerJoin('chartaccount ca ON jd.accountcode = ca.id AND ca.companycode = jd.companycode')
 							//->setFields("CONCAT(segment5, ' - ',accountname) accountname, debit, credit")
 							->setFields("CONCAT(segment5, ' - ',accountname) accountname, debit, credit, converteddebit, convertedcredit, IF(debit = 0, SUM(convertedcredit), SUM(converteddebit)) as currency")
-							->setWhere("jd.voucherno = '$voucherno' AND jd.stat = 'posted'")
+							->setWhere("jd.voucherno = '$voucherno' AND jd.stat IN ('posted','cancelled')")
+							->setGroupBy('linenum')
 							->runSelect()
 							->getResult();
 		return $result;
