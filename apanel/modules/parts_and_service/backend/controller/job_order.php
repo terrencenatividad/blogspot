@@ -558,7 +558,7 @@ class controller extends wc_controller {
 									->computeValues()
 									->logChanges();
 
-			$this->inventory_model->prepareInventoryLog('Job Releases', $data['job_release_no'])
+			$this->inventory_model->prepareInventoryLog('Job Release Parts', $data['job_release_no'])
 									->setDetails($customer)
 									->computeValues()
 									->logChanges();

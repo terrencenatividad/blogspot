@@ -109,7 +109,7 @@ class inventory_adjustment_model extends wc_model {
 		$serials 			= (isset($data['serials']) && !empty($data['serials']) && $data['serials'] != "[]") ? htmlentities(addslashes(trim($data['serials']))) : "";
 		$serials_manual		= (isset($data['serials_manual']) && (!empty($data['serials_manual']))) ? stripslashes($data['serials_manual']) : "";
 		$serials_manual 	= json_decode($serials_manual);
-		// var_dump($serials_manual);
+	
 		/**FORMAT DATES**/
 		$transactiondate	= date("Y-m-d",strtotime($adjustdate));
 		$period				= date("n",strtotime($transactiondate));
@@ -123,14 +123,13 @@ class inventory_adjustment_model extends wc_model {
 													->runSelect()
 													->getRow();
 												// echo $action;
-		if( $action == 'plus' )
-		{
-			$increase 		= (empty($serials) && ($serials=="" || empty($serial_manual))) ? $issueqty : $issueqty_serial;
+		if( $action == 'plus' ){
+			$increase 		= (empty($serials) && empty($serials_manual)) ? $issueqty : $issueqty_serial;
 			$decrease 		= 0;
 		}
 		else if( $action == 'minus' )
 		{
-			$qty 			= (empty($serials) && ($serials=="" || empty($serial_manual))) ? $issueqty : $issueqty_serial;
+			$qty 			= (empty($serials) && empty($serials_manual)) ? $issueqty : $issueqty_serial;
 			$decrease 		= -$qty;
 			$increase 		= 0;
 		}
@@ -184,9 +183,9 @@ class inventory_adjustment_model extends wc_model {
 			$listid 	=	[];
 			if($insertResult && !empty($serials_manual)){
 				foreach($serials_manual as $key=>$row){
-					$serial 	=	$row->serial;
-					$engine 	=	$row->engine;
-					$chassis 	=	$row->chassis;
+					$serial 	=	$row->serialno;
+					$engine 	=	$row->engineno;
+					$chassis 	=	$row->chassisno;
 
 					$serial_data['warehousecode'] 	=	$warehouse;
 					$serial_data['voucherno'] 		=	$generatedvoucher;
