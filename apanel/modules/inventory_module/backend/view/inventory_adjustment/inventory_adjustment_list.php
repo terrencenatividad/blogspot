@@ -908,19 +908,9 @@
 			var count_lines = $('#tableSerialList tbody tr').length; 
 			$('.checkbox_header').addClass('hidden');
 			$('#serialModal').modal('show');
-			console.log(temp_serial_manual_box);
 			if(temp_serial_manual_box!=''){
+				// For setting previously entered values
 				$.each(temp_serial_manual_box,function(key,object){
-					// console.log("IND "+key);
-					// 	console.log("VAL "+object);
-					// $.each(object, function(ind,value){
-						
-					// 	console.log("IND "+ind);
-					// 	console.log("VAL "+value);
-					// });
-					console.log(object);
-					console.log(JSON.stringify(object));
-					console.log(object.serial);
 					addnewserial(object,count_lines);
 				});
 			} else {
@@ -934,8 +924,15 @@
 		$('#serialModal #sec_search').val('');
 		ajax_serials.search = "";
 		getList();
-		serial_box = [];
-		temp_serial_box = [];
+		var button_ident = $('#addminusbtn').val();
+		if(button_ident == "plus"){
+			serial_manual_box = [];
+			temp_serial_manual_box = [];
+		} else {
+			serial_box = [];
+			temp_serial_box = [];
+		}
+		
 	});
 
 	$(document).on('click','.serialized',function(){
@@ -1108,6 +1105,19 @@
 	function clean_serial_manual_box(){
 		temp_serial_manual_box = temp_serial_manual_box.filter(function(v){return (v.serialno!="" || v.engineno !=="" || v.chassisno !== "") });
 	}
+	function checkexistingrows(fieldindex, fieldtype, fieldvalue){
+		var exists 	=	0;
+		$.each(temp_serial_manual_box, function(key, object) {
+			$.each(object, function(index, value){
+				if(value!=""){
+					if(fieldindex!=key && fieldvalue == value && fieldtype == index) {
+						exists	+=	1;
+					}
+				}
+			});
+		});
+		return exists;
+	}
 	$('#tableSerialList').on('change','.serialno',function(){
 		var current_selection = $(this);
 		var current_serial 	  = current_selection.val();
@@ -1118,12 +1128,13 @@
 		ajax_manual.fieldtype  = "serial";
 
 		if(current_serial!=""){
+			var existingrow 	=	jQuery.inArray(current_serial, temp_serial_manual_box);
 			$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
 				initialize_serial_manual_box(index);
 				temp_serial_manual_box[index]['serialno'] = "";
 				if(data.count > 0){
 					current_selection.closest('div').addClass('has-error');
-					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Serial Number already exists!');
+					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Serial Number already exists in the Database!');
 					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
 				} else {
 					current_selection.closest('div').removeClass('has-error');
@@ -1131,6 +1142,12 @@
 					temp_serial_manual_box[index]['serialno'] = current_serial;
 				}
 			}).done(function(){
+				var exists = checkexistingrows(index, "serialno",current_serial);
+				if(exists > 0){
+					current_selection.closest('div').addClass('has-error');
+					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Serial Number already exists within the Modal!');
+					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
+				}
 				check_if_has_errors();
 			});
 		} else {
@@ -1153,7 +1170,7 @@
 				temp_serial_manual_box[index]['engineno'] = "";
 				if(data.count > 0){
 					current_selection.closest('div').addClass('has-error');
-					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Engine Number already exists!');
+					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Engine Number already exists in the Database!');
 					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
 				} else {
 					current_selection.closest('div').removeClass('has-error');
@@ -1161,6 +1178,12 @@
 					temp_serial_manual_box[index]['engineno'] = current_engine;
 				}
 			}).done(function(){
+				var exists = checkexistingrows(index, "engineno",current_engine);
+				if(exists > 0){
+					current_selection.closest('div').addClass('has-error');
+					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Engine Number already exists within the Modal!');
+					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
+				}
 				check_if_has_errors();
 			});
 		} else {
@@ -1182,7 +1205,7 @@
 				temp_serial_manual_box[index]['chassisno'] = "";
 				if(data.count > 0){
 					current_selection.closest('div').addClass('has-error');
-					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Chassis Number already exists!');
+					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Chassis Number already exists in the Database!');
 					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
 				} else {
 					current_selection.closest('div').removeClass('has-error');
@@ -1190,6 +1213,12 @@
 					temp_serial_manual_box[index]['chassisno'] = current_chassis;
 				}
 			}).done(function(){
+				var exists = checkexistingrows(index, "chassisno",current_chassis);
+				if(exists > 0){
+					current_selection.closest('div').addClass('has-error');
+					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Chassis Number already exists within the Modal!');
+					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
+				}
 				check_if_has_errors();
 			});
 		} else {
