@@ -292,8 +292,8 @@
 				<div class="modal-header">
 					<button type="button" id = "modal_close" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					<h4 class="modal-title">Items</h4>
-					<h5 class="modal-title">Item Code: <input type = "text" id = "sec_itemcode"></h5>
-					<h5 class="modal-title">Description: <input type = "text" id = "sec_description"></h5>
+					<h5 class="modal-title">Item Code: <input type = "text" id = "sec_itemcode" style = "width:350px"></h5>
+					<h5 class="modal-title">Description: <input type = "text" id = "sec_description" style = "width:350px"></h5>
 					<input type = "hidden" id  = "checkcount">
 				</div>
 				<div class="modal-body">
