@@ -25,7 +25,6 @@ class controller extends wc_controller {
 			'discountrate',
 			'discountamount',
 			'netamount',
-			'taxamount',
 			'wtaxcode',
 			'wtaxamount',
 			'wtaxrate',
@@ -43,6 +42,26 @@ class controller extends wc_controller {
 			// 'header_wtaxrate'		=> 'wtaxrate',
 		);
 		$this->fields2			= array(
+			'itemcode'					=>'pr.itemcode',
+			'detailparticular',
+			'linenum',
+			'receiptqty',
+			'receiptuom',
+			'unitprice',
+			'taxcode',
+			'taxrate',
+			'taxamount'	=> 'taxamount',
+			'amount'	=> 'amount',
+			'convreceiptqty',
+			'convuom',
+			'conversion',
+			'discounttype',
+			'detail_discountamount'		=> 'discountamount',
+			'detail_withholdingamount'	=> 'withholdingamount',
+			'detail_warehouse'			=> 'warehouse',
+			'item_ident_flag'
+		);
+		$this->fields3			= array(
 			'itemcode',
 			'detailparticular',
 			'linenum',
@@ -51,8 +70,8 @@ class controller extends wc_controller {
 			'unitprice',
 			'taxcode',
 			'taxrate',
-			'detail_taxamount'			=> 'taxamount',
-			'detail_amount'				=> 'amount',
+			'taxamount'	=> 'taxamount',
+			'amount'	=> 'amount',
 			'convreceiptqty',
 			'convuom',
 			'conversion',
@@ -66,6 +85,7 @@ class controller extends wc_controller {
 		);
 
 		$this->serial_fields	= array(
+			'detail_warehouse'			=> 'warehouse',
 			'voucherno',
 			'source_no',
 			'itemcode',
@@ -105,7 +125,7 @@ class controller extends wc_controller {
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= false;
-		$data['serial_db']			= $this->purchase_model->getSerialNoFromDb();
+		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbValidation();
 		$data['serial_db_array']	= array();
 		foreach ($data['serial_db'] as $serial_db) {
 			array_push($data['serial_db_array'], $serial_db->serialno);
@@ -143,7 +163,7 @@ class controller extends wc_controller {
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= $this->restrict->setButtonRestriction($transactiondate);
-		$data['serial_db']			= $this->purchase_model->getSerialNoFromDb();
+		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbView();
 		$data['serial_db_array']	= array();
 		foreach ($data['serial_db'] as $serial_db) {
 			array_push($data['serial_db_array'], $serial_db->serialno);
@@ -179,7 +199,7 @@ class controller extends wc_controller {
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= $this->restrict->setButtonRestriction($transactiondate);
-		$data['serial_db']			= $this->purchase_model->getSerialNoFromDb();
+		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbView();
 		$data['serial_db_array']	= array();
 		foreach ($data['serial_db'] as $serial_db) {
 			array_push($data['serial_db_array'], $serial_db->serialno);
@@ -395,6 +415,7 @@ class controller extends wc_controller {
 
 	private function ajax_edit() {
 		$data						= array_merge($this->input->post($this->fields), $this->input->post($this->fields_header));
+		$temp_voucherno				= $data['voucherno'];
 		unset($data['voucherno']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$data['period']				= $this->date->getMonthNumber($data['transactiondate']);
@@ -402,6 +423,9 @@ class controller extends wc_controller {
 		$voucherno					= $this->input->post('voucherno_ref');
 		$data2						= $this->getItemDetails();
 		$data2						= $this->cleanData($data2);
+		$serials					= $this->input->post($this->serial_fields);
+		$delete						= $this->purchase_model->deleteSerialNumbers($temp_voucherno);
+		$result2					= $this->purchase_model->saveSerialNumbers($serials,$temp_voucherno);
 
 		$this->inventory_model->prepareInventoryLog('Purchase Receipt', $voucherno)
 								->preparePreviousValues();
@@ -493,17 +517,17 @@ class controller extends wc_controller {
 
 	private function getItemDetails() {
 		$data = array();
- 		$temp = $this->input->post($this->fields2);
+ 		$temp = $this->input->post($this->fields3);
 		foreach ($temp['receiptqty'] as $key => $quantity) {
 			if ($quantity < 1) {
-				foreach ($this->fields2 as $field) {
+				foreach ($this->fields3 as $field) {
 					if (is_array($temp[$field])) {
 						unset($temp[$field][$key]);
 					}
 				}
 			}
 		}
-		foreach ($this->fields2 as $field) {
+		foreach ($this->fields3 as $field) {
 			if (is_array($temp[$field])) {
 				$data[$field] = array_values($temp[$field]);
 			} else {

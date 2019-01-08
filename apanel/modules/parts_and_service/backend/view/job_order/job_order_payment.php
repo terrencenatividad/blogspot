@@ -467,12 +467,11 @@
 					<td>
 						<?php
 							$value = "<span id='temp_view_warehouse_` + details.warehouse + `'></span>";
-							echo $ui->formField('dropdown')
+							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
 								->setName('detail_warehouse[]')
 								->setClass('warehouse')
-								->setList($warehouse_list)
-								->setValue('` + details.warehouse + `')
+								->setValue('` + details.description + `')
 								->draw($show_input);
 								echo $ui->formField('hidden')
 								->setSplit('', 'col-md-12')
@@ -720,7 +719,9 @@
 			});
 		});
 
-		$('#tableList tbody').on('blur', '.quantity', function(e) {
+		$('#tableList tbody').on('blur', '.quantity', function(e) {		
+			var itemcode = $(this).closest('tr').find('.h_itemcode').val();
+			var jobno	= $('#job_order_no').val();
 			var value 	=	removeComma($(this).val());
 			var orderqty 	=	removeComma($(this).closest('tr').find('.h_orderqty').val());
 			if ($(this).closest('tr').hasClass('items')) {
@@ -741,6 +742,15 @@
 					$(this).find('.quantity').val(subitemqty);
 				});
 			}
+
+			$.post('<?=MODULE_URL?>ajax/ajax_check_issuedqty', 'itemcode=' + itemcode + '&job_order_no=' + jobno , function(data) {
+				var sum 		 = parseInt(data.result.issuedqty)+parseInt(value);
+				var issueqtyleft = parseInt(orderqty) - parseInt(data.result.issuedqty);
+				if(sum > orderqty){
+					$('#tableList tbody').find('.quantity').val(issueqtyleft);
+				}
+					
+			});
 	});	
 
 		var itemselected = [];
@@ -918,9 +928,6 @@
 								});
 							});
 			});
-
-
-
 			$('#job_release_no').val(jobreleaseno);
 			$('html, body').animate({scrollTop: $(".familyislove").offset().top}, 500);
 		});
@@ -935,14 +942,11 @@
 				$('#isyu').show();
 				$('#save').addClass('hidden');	
 				$('html, body').animate({scrollTop: $("#familyislove").offset().top}, 500);
-				
 			});
-			
-			
 		});
 	</script>
 	<?php if ($show_input): ?>
-	<script>
+	<!-- <script>
 		$('#addNewItem').on('click', function() {
 			addVoucherDetails();
 		});
@@ -1076,5 +1080,5 @@
 
 		
 
-	</script>
+	</script> -->
 	<?php endif ?>

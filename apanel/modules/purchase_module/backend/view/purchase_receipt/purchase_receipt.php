@@ -290,7 +290,11 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title">Input Serial Numbers</h4>
+					<?php if ($show_input) { ?>
+						<h4 class="modal-title">Input Serial Numbers</h4>
+					<?php } else { ?>
+						<h4 class="modal-title">View Serial Numbers</h4>
+					<?php } ?>
 				</div>
 
 				<div class="modal-body no-padding">
@@ -308,7 +312,7 @@
 						<tbody id="serialize_tbody" data-item-ident-flag="">
 							
 						</tbody>
-
+						<?php if ($show_input) {?>
 						<tfoot class="summary">
 							<tr>
 								<td colspan="4">
@@ -317,16 +321,18 @@
 							</tr>
 
 						</tfoot>
+						<?php } ?>
 					</table>
 				</div>
-
+				<?php if ($show_input) {?>
 				<div class="modal-footer text-center">
 					<button type="button" class="btn btn-primary save_serials">Save</button>
 					<button type="button" class="btn btn-default close_serials" data-dismiss="modal">Close</button>
 				</div>
+				<?php } ?>
 			</div>
 		</div>					
-	</div>`;
+	</div>
 	<script>
 		var delete_row	= {};
 		var ajax		= {};
@@ -431,8 +437,8 @@
 						?>
 					</td>
 					<td class="text-right">
-						<button type="button" id="serial_`+ details.linenum +`" data-itemcode="`+details.itemcode+`" data-item="`+details.detailparticular+`" class="serialize_button btn btn-block btn-success btn-flat" disabled>
-							<em class="pull-left"><small>Enter serial numbers (<span class="receiptqty_serialized_display">0</span>)</small></em>
+						<button type="button" id="serial_`+ details.linenum +`" data-itemcode="`+details.itemcode+`" data-item="`+details.detailparticular+`" class="serialize_button btn btn-block btn-success btn-flat">
+							<em class="pull-left"><small>Enter serial numbers (<span class="receiptqty_serialized_display"><?php if ($show_input == '' || $ajax_task == "ajax_edit") { ?>` + (addComma(details.receiptqty, 0) || 0) + `<?php } else { ?>0<?php }?></span>)</small></em>
 						</button>
 						<?php
 							echo $ui->formField('text')
@@ -456,7 +462,7 @@
 					</td>
 					<td>
 						<?php
-							$value = "<span id='temp_view_taxrate_` + index + `'></span>";
+							$value = "<span id='temp_view_taxrate_` + index + `'>` + details.taxcode + `</span>";
 							echo $ui->formField('dropdown')
 								->setSplit('', 'col-md-12 hidden')
 								->setName('taxcode[]')
@@ -473,7 +479,7 @@
 									->draw();
 
 							echo $ui->setElement('hidden')
-									->setName('detail_taxamount[]')
+									->setName('taxamount[]')
 									->setClass('taxamount')	
 									->setValue('` + (parseFloat(details.taxamount) || 0) + `')
 									->draw();
@@ -574,7 +580,11 @@
 				$('#serial_' + details.linenum).addClass('hidden');
 				$('#receiptqty' + details.linenum).removeClass('hidden receiptqty_serialized');
 			} else {
+				<?php if($ajax_task == "ajax_create") { ?>
 				$('#receiptqty' + details.linenum).addClass('hidden receiptqty_serialized').attr('data-value',0);
+				<?php } else { ?>
+				$('#receiptqty' + details.linenum).addClass('hidden receiptqty_serialized')
+				<?php } ?>
 				$('#serial' + details.linenum).removeClass('hidden');
 				
 				var item = {};
@@ -592,10 +602,25 @@
 					serialize[index].numbers.push(prop);
 				};		
 			}
-			<?php if (!$show_input) { ?>
-				$('#serial_' + details.linenum).addClass('hidden');
-				$('#receiptqty' + details.linenum).removeClass('hidden');
-			<?php }	?>
+			
+			<?php if (!$show_input || $ajax_task == 'ajax_edit') { ?> //VIEW POPULATE serialize FROM DB
+				var dataFromDB = <?php echo json_encode($serial_db) ?>;
+				var dataFromDB_index = [];
+				for (x = 0 ; x < dataFromDB.length ; x++){
+					if (dataFromDB[x].itemcode === details.itemcode) {
+						dataFromDB_index.push(dataFromDB[x]);
+					}
+				}
+				
+				for (var k = 0 ; k < parseInt(details.receiptqty) ; k++){
+					if(serialize[index].itemcode.length > 0){
+					serialize[index].numbers[k].serialno = dataFromDB_index[k].serialno;
+					serialize[index].numbers[k].engineno = dataFromDB_index[k].engineno;
+					serialize[index].numbers[k].chassisno = dataFromDB_index[k].chassisno;
+					}
+				}
+			<?php } ?>
+			
 
 			var warehouse = $('#warehouse').val();
 			if (warehouse == details.warehouse) {
@@ -613,11 +638,17 @@
 			} else {
 				$('#tableList tbody').find('tr:last .receiptqty').attr('readonly', '').val(0);
 				$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('disable');
-				$('#tableList tbody').find('tr:last .serialize_button').prop("disabled",true);
+				<?php if ($show_input) { ?>
+					$('#tableList tbody').find('tr:last .serialize_button').prop("disabled",true);
+				<?php }	?>
 			}
 			
 			$('#serial_' + details.linenum).on("click", function() {
 				$('#serialize_tableList tbody').empty();
+
+				// IDENTIFY FIELDS NEEDED
+				$("#serialize_tbody").attr("data-item-ident-flag",details.item_ident_flag);
+
 				icode = $('#serial_' + details.linenum).data('itemcode');
 				item = $('#serial_' + details.linenum).data('item');
 				serialize_item_selected = item;
@@ -645,26 +676,32 @@
 						break;
 					}
 				}
-				// IDENTIFY FIELDS NEEDED
-				$("#serialize_tbody").attr("data-item-ident-flag",details.item_ident_flag);
+
+				<?php if ($show_input) { ?>
 				// ADD 1 ROW IF NO THERE ARE NO ROWS
-				if ($('#serialize_tableList tbody tr').length == 0){
+				if (checkSerialRows() == 0){
 					addRow(icode, item, 0);
 				}
+				<?php } ?>
 				
-				// console.log(rows);
-				$('.add-data').text("Add a New Line");
+				console.log(serialize);
+				if (checkSerialRows() >= item_max_qty){
+					$('.add-data').text("Maximum items reached");
+				} else {
+					$('.add-data').text("Add a New Line");
+				}
 				$("#serialize_modal").modal('show');
 			});
 		}
 
 		$('.add-data').on("click", function() {
-			rownum = checkSerialRows();
-			// alert(item_max_qty);
-			if (rownum < item_max_qty) {
-				addRow(serialize_icode_selected, serialize_item_selected);
-			} else {
+			if (checkSerialRows() >= item_max_qty) {
 				$(this).text("Maximum items reached");
+			} else {
+				addRow(serialize_icode_selected, serialize_item_selected);
+				if(checkSerialRows() >= item_max_qty) {
+					$(this).text("Maximum items reached");
+				}
 			}
 		});
 
@@ -685,7 +722,7 @@
 			
 			serial_saved = [];
 			engine_saved = [];
-			chassis_saved =[];	
+			chassis_saved = [];	
 			for(items = 0; items < serialize.length; items++){
 				if(serialize[items].itemcode != ''){
 					for(serials = 0; serials < serialize[items].numbers.length; serials++){
@@ -705,11 +742,6 @@
 			serial_input = [];
 			engine_input = [];
 			chassis_input = [];
-
-			console.log('serial saved: '+serial_saved);
-			console.log('engine saved: '+engine_saved);
-			console.log('chassis saved: '+chassis_saved);
-			
 		})
 
 		$('.close_serials').on("click", function(){
@@ -718,26 +750,23 @@
 			chassis_input = [];
 		});
 
-		$('.serial_no_item').keypress(function (e) {
-			var regex = new RegExp("^[a-zA-Z0-9]+$");
-			var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
-			if (regex.test(str)) {
-				return true;
-			}
-
-			e.preventDefault();
-			return false;
-		});
-
 		function addRow(icode, item, rownum, serialno, engineno, chassisno){
 				if (typeof rownum == 'undefined'){
 					rownum = $('#serialize_tableList tbody tr').length;
 					// console.log(rownum);
 				}
-				item_ident_flag = $("#serialize_tbody").attr('data-item-ident-flag');
-				hasSerial = (item_ident_flag[0]=="1") ? "" : "disabled";
-				hasEngine = (item_ident_flag[1]=="1") ? "" : "disabled";
-				hasChassis = (item_ident_flag[2]=="1") ? "" : "disabled";
+
+				item_ident_flag = $("#serialize_tbody").attr("data-item-ident-flag");
+				
+				hasSerial = '';
+				hasEngine = '';
+				hasChassis = '';
+				
+				<?php if($show_input) { ?>
+				hasSerial = (item_ident_flag[0] == 1) ? '' : 'disabled';
+				hasEngine = (item_ident_flag[1] == 1) ? '' : 'disabled';
+				hasChassis = (item_ident_flag[2] == 1) ? '' : 'disabled';
+				<?php } ?>
 
 				(typeof serialno == 'undefined') ? serialno = '' : serialno=serialno;
 				(typeof engineno == 'undefined') ? engineno = '' : engineno=engineno;
@@ -760,7 +789,7 @@
 										array(
 											'data-value' => "`+ serialno +`",
 											'maxlength'=> "20",
-											'`+ hasSerial +`'
+											'`+hasSerial+`'
 										))
 									->draw($show_input);
 							?>
@@ -778,7 +807,7 @@
 										array(
 											'data-value' => "`+ engineno +`",
 											'maxlength'=> "20",
-											'`+ hasEngine +`'
+											'`+hasEngine+`'
 										))
 									->draw($show_input);
 							?>
@@ -796,22 +825,35 @@
 										array(
 											'data-value' => "`+ chassisno +`",
 											'maxlength'=> "20",
-											'`+ hasChassis +`'
+											'`+hasChassis+`'
 										))
 									->draw($show_input);
 							?>
 							<div><strong><small class="error_message"></small></strong></div>
 						</td>
+						<?php if ($show_input) {?>
 						<td class="text-center">
-							<button type="button" class="btn btn-danger btn-flat deleteRow" data-delete=`+rownum+`>
+							<button type="button" class="btn btn-danger btn-flat deleteRow" id="deleteRow`+rownum+`" data-delete=`+rownum+`>
 								<span class="glyphicon glyphicon-trash"></span>
 							</button>
 						</td>
+						<?php } ?>
 					</tr>`
 				);
 			}
 	
 		function saveSerialsInput(index){
+			// DELETE BLANK ROWS
+			initial_number_rows = $('#serialize_tableList tbody tr').length;
+			for (j = 0 ; j < initial_number_rows ; j++){
+				isSerialBlank = ($('.serial_no_item:eq('+j+')').val() == '');
+				isEngineBlank = ($('.engine_no_item:eq('+j+')').val() == '');
+				isChassisBlank = ($('.chassis_no_item:eq('+j+')').val() == '');
+				if (isSerialBlank && isEngineBlank && isChassisBlank) {
+					$('#deleteRow'+j).click();
+				}
+			}
+			// FINAL NUMBER OF ROWS
 			number_rows = $('#serialize_tableList tbody tr').length;
 			serials = '';
 			engines = '';
@@ -875,8 +917,36 @@
 			$("#receiptqty"+(index+1)).closest('tr').find('.receiptqty_serialized_display').text(maxCount);
 			
 			// console.log(serialize);
+			
 		}
 
+		// ON EDIT, IMMEDIATELY SAVE SERIALS TO FORM
+		<?php if ($ajax_task=='ajax_edit') { ?>
+		$(document).ready( function(){
+			serials = '';
+			engines = '';
+			chassis = '';
+			for (index = 0 ; index < serialize.length ; index++){
+				if(serialize[index].itemcode.length > 0) {
+					for(index2 = 0 ; index2 < serialize[index].numbers.length ; index2++) {
+						if(index2 == serialize[index].numbers.length-1){
+							serials += serialize[index].numbers[index2].serialno;
+							engines += serialize[index].numbers[index2].engineno;
+							chassis += serialize[index].numbers[index2].chassisno;
+						} else {
+							serials += serialize[index].numbers[index2].serialno+',';
+							engines += serialize[index].numbers[index2].engineno+',';
+							chassis += serialize[index].numbers[index2].chassisno+',';
+						}
+					}
+				}
+				$('#serial_no'+index).val(serials);
+				$('#engine_no'+index).val(engines);
+				$('#chassis_no'+index).val(chassis);
+			}
+		});
+		<?php } ?>
+		
 		$('tbody').on('click', '.deleteRow', function(e) {
 			var deleted_row = $(this).data('delete');
 			var serial_deleted = $('#serial_no_item['+deleted_row+']').val();
@@ -976,7 +1046,7 @@
 		
 		// DISALLOW SPECIAL CHARACTERS IN INPUT
 		$('tbody').on('keypress','.serial_no_item, .engine_no_item, .chassis_no_item', function(event) {
-			var regex = new RegExp("^[a-zA-Z0-9\b]+$");
+			var regex = new RegExp("^[a-zA-Z0-9\b\-]+$");
 			var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
 			if (!regex.test(key)) {
 				event.preventDefault();
@@ -988,14 +1058,16 @@
 		$('tbody').on('keyup','.serial_no_item',function(){
 			var serialInput = $(this).val();
 			
-			if (validateSerialNo(serialInput) != true){
-				serial_flag = false;
-				$(this).closest('.form-group').addClass('has-error')
-				$(this).closest('.serial_no').find('.error_message').text(validateSerialNo(serialInput)).css('color', 'red');
-			} else {
-				serial_flag = true;
-				$(this).closest('.form-group').removeClass('has-error');
-				$(this).closest('.serial_no').find('.error_message').text("");
+			if (serialInput != $(this).data('value')) { // ADDED IF STATEMENT TO PREVENT VALIDATE ON CTRL+C
+				if (validateSerialNo(serialInput) != true){
+					serial_flag = false;
+					$(this).closest('.form-group').addClass('has-error')
+					$(this).closest('.serial_no').find('.error_message').text(validateSerialNo(serialInput)).css('color', 'red');
+				} else {
+					serial_flag = true;
+					$(this).closest('.form-group').removeClass('has-error');
+					$(this).closest('.serial_no').find('.error_message').text("");
+				}
 			}
 
 			checkFlags();
@@ -1003,6 +1075,7 @@
 
 		$('tbody').on('focusin','.serial_no_item',function(){
 			$(this).data('value',$(this).val());
+			console.log('copy');
 		}).on('change','.serial_no_item',function(){
 			var prev_serialInput = $(this).data('value');
 			var serialInput = $(this).val();
@@ -1018,7 +1091,7 @@
 				}
 			}
 			
-			console.log(serial_input);
+			// console.log(serial_input);
 			checkFlags();
 		});
 		// SERIAL NUMBER VALIDATE END
@@ -1027,14 +1100,16 @@
 		$('tbody').on('keyup','.engine_no_item',function(){
 			var engineInput = $(this).val();
 			
-			if (validateEngineNo(engineInput) != true){
-				engine_flag = false;
-				$(this).closest('.form-group').addClass('has-error')
-				$(this).closest('.engine_no').find('.error_message').text(validateEngineNo(engineInput)).css('color', 'red');
-			} else {
-				engine_flag = true;
-				$(this).closest('.form-group').removeClass('has-error');
-				$(this).closest('.engine_no').find('.error_message').text("");
+			if (engineInput != $(this).data('value')) { // ADDED IF STATEMENT TO PREVENT VALIDATE ON CTRL+C
+				if (validateEngineNo(engineInput) != true){
+					engine_flag = false;
+					$(this).closest('.form-group').addClass('has-error')
+					$(this).closest('.engine_no').find('.error_message').text(validateEngineNo(engineInput)).css('color', 'red');
+				} else {
+					engine_flag = true;
+					$(this).closest('.form-group').removeClass('has-error');
+					$(this).closest('.engine_no').find('.error_message').text("");
+				}
 			}
 			
 			checkFlags();
@@ -1056,7 +1131,7 @@
 					engine_input.push(engineInput);
 				}
 			}
-			console.log(engine_input);
+			// console.log(engine_input);
 			checkFlags();
 		});
 		// ENGINE NUMBER VALIDATE END
@@ -1065,14 +1140,16 @@
 		$('tbody').on('keyup','.chassis_no_item',function(){
 			var chassisInput = $(this).val();
 			
-			if (validateChassisNo(chassisInput) != true){
-				chassis_flag = false;
-				$(this).closest('.form-group').addClass('has-error')
-				$(this).closest('.chassis_no').find('.error_message').text(validateChassisNo(chassisInput)).css('color', 'red');
-			} else {
-				chassis_flag = true;
-				$(this).closest('.form-group').removeClass('has-error');
-				$(this).closest('.chassis_no').find('.error_message').text("");
+			if (chassisInput != $(this).data('value')) { // ADDED IF STATEMENT TO PREVENT VALIDATE ON CTRL+C			
+				if (validateChassisNo(chassisInput) != true){
+					chassis_flag = false;
+					$(this).closest('.form-group').addClass('has-error')
+					$(this).closest('.chassis_no').find('.error_message').text(validateChassisNo(chassisInput)).css('color', 'red');
+				} else {
+					chassis_flag = true;
+					$(this).closest('.form-group').removeClass('has-error');
+					$(this).closest('.chassis_no').find('.error_message').text("");
+				}
 			}
 			
 			checkFlags();
@@ -1094,7 +1171,7 @@
 					chassis_input.push(chassisInput);
 				}
 			}
-			console.log(chassis_input);
+			// console.log(chassis_input);
 			checkFlags();
 		});
 		// CHASSIS NUMBER VALIDATE END
@@ -1153,8 +1230,8 @@
 					var taxrate = taxrates[tax] || 0;
 
 					var amount = (price * quantity);
-					var taxamount = removeComma(addComma(amount - (amount / (1 + parseFloat(taxrate)))));
-					amount = amount - taxamount;
+					var taxamount = removeComma(addComma(amount + (amount * parseFloat(taxrate))));
+					//amount = amount - taxamount;
 					total_amount += amount;
 					total_tax += taxamount;
 					

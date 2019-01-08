@@ -511,7 +511,7 @@ var ajax = {};
 			$('.checked').iCheck('uncheck');
 			var li = $(this).closest('li');
 			if (li.not('.active').length && li.not('.disabled').length) {
-				ajax.page = $(this).attr('data-page');
+				ajax.page = 1;
 				showList();
 			}
 		});

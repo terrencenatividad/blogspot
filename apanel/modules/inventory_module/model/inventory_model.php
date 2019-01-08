@@ -125,8 +125,14 @@ class inventory_model extends wc_model {
 						->setFields('*')
 						->buildSelect();
 
+		//Issue Parts
+		$jr = $this->db->setTable('job_release b')
+						->setFields($this->createFields('jr', 'quantity'))
+						->setWhere("stat = 'released'")
+						->buildSelect();
+
 		$inner_query = $bb . ' UNION ALL ' . $so . ' UNION ALL ' . $dr . ' UNION ALL ' . $si . ' UNION ALL ' . $sr . ' UNION ALL ' . $xr;
-		$inner_query .= ' UNION ALL ' . $po . ' UNION ALL ' . $pr . ' UNION ALL ' . $pt . ' UNION ALL ' . $ia . ' UNION ALL ' . $st;
+		$inner_query .= ' UNION ALL ' . $po . ' UNION ALL ' . $pr . ' UNION ALL ' . $pt . ' UNION ALL ' . $ia . ' UNION ALL ' . $st . ' UNION ALL ' . $jr;
 
 		$inner_query = $this->db->setTable("($inner_query) i")
 								->setFields('companycode, itemcode ic, warehouse wh, SUM(bb) bb, SUM(so) so, SUM(dr) dr, SUM(si) si, SUM(sr) sr, SUM(xr) xr, SUM(po) po, SUM(pr) pr, SUM(pt) pt, SUM(ia) ia, SUM(st) st')
@@ -140,6 +146,8 @@ class inventory_model extends wc_model {
 								->setHaving('bb != 0 OR so != 0 OR dr != 0 OR si != 0 OR sr != 0 OR xr != 0 OR po != 0 OR pr != 0 OR pt != 0 OR ia != 0 OR st != 0')
 								->runSelect()
 								->getResult();
+
+								// var_dump($inv_check);
 
 		if (empty($inv_check)) {
 			$check_transactions = $this->db->setTable("($inner_query) i")
@@ -305,7 +313,8 @@ class inventory_model extends wc_model {
 			'pr',
 			'pt',
 			'ia',
-			'st'
+			'st',
+			'jr'
 		);
 
 		$temp = array(
@@ -381,6 +390,12 @@ class inventory_model extends wc_model {
 			$this->table = 'job_release';
 			$this->table_detail = 'job_release';
 			$this->quantity_field = 'quantity';
+			$this->inventory_movement = 1;
+		}
+		else if ($type == 'Job Releases') {
+			$this->table = 'job_release';
+			$this->table_detail = 'job_release';
+			$this->quantity_field = 'quantity';
 			$this->inventory_movement = -1;
 		}
 		$this->inventory_log_previous = array();
@@ -414,12 +429,22 @@ class inventory_model extends wc_model {
 								->getResult();
 
 		} else if($this->log_type == 'Job Release') {
-			$result = $this->db->setTable($this->table_detail)
-								->setFields($this->fields)
-								->setWhere("job_release_no = '{$this->voucherno}'")
+			$result = $this->db->setTable($this->table_detail. ' j')
+								->setFields('j.itemcode, j.warehouse, j.quantity')
+								->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no  and jod.itemcode = j.itemcode')
+								->setWhere("job_release_no = '{$this->voucherno}' AND (parentcode = '' OR parentcode IS NULL) AND isbundle = 'yes'")
 								->runSelect()
 								->getResult();
-		} else {
+		
+		} else if($this->log_type == 'Job Releases') {
+			$result = $this->db->setTable($this->table_detail. ' j')
+								->setFields('j.itemcode, j.warehouse, j.quantity')
+								->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no  and jod.itemcode = j.itemcode')
+								->setWhere("job_release_no = '{$this->voucherno}' AND (parentcode != '') AND isbundle = 'no'")
+								->runSelect()
+								->getResult();
+			
+		}else {
 			$result = $this->db->setTable($this->table_detail)
 								->setFields($this->fields)
 								->setWhere("voucherno = '{$this->voucherno}'")
@@ -432,7 +457,7 @@ class inventory_model extends wc_model {
 
 	public function preparePreviousValues() {
 		$result = $this->getValues();
-
+		
 		foreach ($result as $row) {
 			if ( ! isset($this->inventory_log_previous[$row->itemcode])) {
 				$this->inventory_log_previous[$row->itemcode][$row->warehouse] = 0;

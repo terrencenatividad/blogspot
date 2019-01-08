@@ -92,6 +92,7 @@ class controller extends wc_controller {
 		$itemcode 	=	$this->input->post('itemcode');
 		$action 	=	$this->input->post('action');
 		$qty 		=	$this->input->post('issueqty');
+		
 		$value 		=	"";
 
 		$voucher 	= 	$this->seq->getValue('ADJ'); 
@@ -106,7 +107,6 @@ class controller extends wc_controller {
 		}
 
 		$result 	=	$this->adjustment->update_inventory($data, $voucher);
-		
 		if( $result )
 		{
 			$msg = "success";
@@ -527,7 +527,7 @@ class controller extends wc_controller {
 		} else {
 			foreach ($serial_lists->result as $key => $row) {
 				$table .= '<tr>';
-				$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'"></td>';
+				$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id'.$row->id.'" class = "check_id" value = "'.$row->id.'"></td>';
 				$table .= '<td class = "'.$hide_serial.'">' . $row->serialno . '</td>';
 				$table .= '<td class = "'.$hide_engine.'">' . $row->engineno . '</td>';
 				$table .= '<td class = "'.$hide_chassis.'">' . $row->chassisno . '</td>';
@@ -536,5 +536,19 @@ class controller extends wc_controller {
 		
 		$serial_lists->table = $table;
 		return $serial_lists;
+	}
+
+	private function checkifexisting(){	
+		$itemcode 		=	$this->input->post('itemcode');
+		$fieldvalue 	=	$this->input->post('fieldvalue');
+		$fieldtype 		=	$this->input->post('fieldtype');
+
+		$result 		= 	$this->adjustment->checkifexisting($itemcode, $fieldvalue, $fieldtype);
+
+		$count 			=	isset($result[0]->count) 	?	$result[0]->count 	:	0;
+
+		$dataArray 		=	array('count'=>$count);
+
+		return $dataArray;
 	}
 }

@@ -255,15 +255,24 @@
 							</td>
 							<td class="text-center">
 								<?php
-									echo $ui->formField('checkbox')
-									->setName('warranty[]')
-									->setClass('warranty')
-									->setAttribute($attrdisabled)
-									->setValue('0')
-									->draw($show_input);
+									if ($show_input) {
+										echo $ui->formField('checkbox')
+										->setName('warranty[]')
+										->setClass('warranty')
+										->setAttribute($attrdisabled)
+										->setValue('0')
+										->draw(true);
+									}
+									else{?>
 
-								?>
-								
+								<div class="form-group">
+									<div class="col-md-12">
+										<p class = 'form-control-static'><?=$row->haswarranty?></p>	
+									</div>
+								</div>
+
+									<?php }?>
+
 							</td>
 							<td>
 								<?php
@@ -292,7 +301,7 @@
 								?>
 								
 							</td>
-							<td>
+							<td class="text-center">
 								<?php
 									echo $ui->formField('text')
 										->setSplit('', 'col-md-12')
@@ -357,7 +366,7 @@
 											)
 										)
 										->setValidation('required decimal')
-										->setValue(number_format(0,2))
+										->setValue(number_format($row->amount,2))
 										->draw($show_input);
 								?>
 							</td>
@@ -401,7 +410,7 @@
 											->setId('vat_sales')
 											->setClass("input_label text-right remove-margin")
 											->setAttribute(array("readOnly"=>"readOnly"))
-											->setValue(number_format($t_vatable_sales,2))
+											->setValue(number_format($vatable_sales,2))
 											->draw($show_input);
 								?>
 							</td>
@@ -419,7 +428,7 @@
 											->setId('exempt_sales')
 											->setClass("input_label text-right remove-margin")
 											->setAttribute(array("readOnly"=>"readOnly"))
-											->setValue(number_format($t_vat_exempt_sales,2))
+											->setValue(number_format($exempt_sales,2))
 											->draw($show_input);
 								?>
 							</td>
@@ -437,7 +446,7 @@
 											->setId('t_sales')
 											->setClass("input_label text-right remove-margin")
 											->setAttribute(array("readOnly"=>"readOnly"))
-											->setValue(number_format($t_vatsales,2))
+											->setValue(number_format($t_sales,2))
 											->draw($show_input);
 								?>
 							</td>
@@ -891,7 +900,7 @@
 
 					$(this).find(".discount").parent().parent().removeClass("has-error");
 				}
-				else{console.log('error');
+				else{
 					$(this).find(".discount").parent().parent().addClass("has-error");
 				}
 				$(this).find('.taxrate').val(taxrate);
@@ -1072,8 +1081,13 @@
 	});
 
 	$("#discount_type").on("change", function(){
-		$('#discounttypeModal').modal('show');
-		
+		if (prev_discountype != 'none'){
+			$('#discounttypeModal').modal('show');
+		}
+		else{
+			prev_discountype = $(this).val();
+			$('#tableList tbody tr.items .discount').prop('readonly', false);
+		}
 	});
 
 	$('#disc_yes').on('click', function(){
@@ -1091,7 +1105,6 @@
 	});
 
 	$('#disc_no').on('click', function(){
-		console.log(prev_discountype);
 		$('#discount_type').val(prev_discountype).trigger('change');
 		$('#discounttypeModal').modal('hide');
 	});
@@ -1130,7 +1143,7 @@
 		});
 		
 		
-		if (form_element.find('.has-error').length < 1) {console.log(form_element.serialize());
+		if (form_element.find('.has-error').length < 1) {
 			if ($('.quantity:not([readonly])').length > 0) {
 				
 				$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() , function(data) {
@@ -1162,7 +1175,7 @@
 		$('#Attachment').hide();
 
 		$(this).closest('li').attr('class','active');
-		var tab = $('#nav li.active a').attr('href');console.log(tab);
+		var tab = $('#nav li.active a').attr('href');
 		$('#'+tab).show();
 	});
 
