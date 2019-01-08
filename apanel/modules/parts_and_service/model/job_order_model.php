@@ -411,6 +411,7 @@ class job_order_model extends wc_model
 						->setWhere("job_order_no = '$voucherno'")
 						->runSelect()
 						->getRow();
+						//echo $this->db->getQuery();
 	}
 
 	public function getJRByID($fields, $voucherno) {
