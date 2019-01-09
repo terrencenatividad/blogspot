@@ -387,7 +387,7 @@ class controller extends wc_controller {
 						$errmsg[] 	=	$this->check_empty("Warehouse Name", $warehouse, $line);
 
 						// Check for Character Length
-						$errmsg[] 	=	$this->check_character_length("Item Code", $itemcode, $line, "12", strlen($itemcode));
+						$errmsg[] 	=	$this->check_character_length("Item Code", $itemcode, $line, "25", strlen($itemcode));
 						$errmsg[] 	=	$this->check_character_length("Warehouse Name", $warehouse, $line, "25", strlen($warehouse));
 
 						// Check for Numerical Values
