@@ -44,6 +44,7 @@ class inventory_adjustment_model extends wc_model {
 						->leftJoin("warehouse w ON w.companycode = items.companycode")
 						->leftJoin("invfile inv ON inv.itemcode = items.itemcode AND w.warehousecode = inv.warehouse AND w.companycode = inv.companycode")
 						//->setWhere("inv.onhandQty IS NULL")
+						->setWhere("items.itemgroup = 'goods'")
 						->setOrderBy('items.itemcode')
 						->runSelect()
 						->getResult();
