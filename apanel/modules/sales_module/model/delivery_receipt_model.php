@@ -709,11 +709,11 @@ class delivery_receipt_model extends wc_model {
 	public function getSerialList($itemcode, $search, $voucherno, $linenum) {
 		$condition = '';
 		if ($search) {
-			$condition .= ' AND ' . $this->generateSearch($search, array('serialno', 'engineno', 'chassisno'));
+			$condition .= $this->generateSearch($search, array('serialno', 'engineno', 'chassisno'));
 		}
 		$result1	= $this->db->setTable('items_serialized')
 								->setFields(array('companycode', 'id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat'))
-								->setWhere("itemcode = '$itemcode' AND stat = 'Available'" .$condition)
+								->setWhere("itemcode = '$itemcode' AND stat = 'Available'")
 								->buildSelect();
 		$sub_query = $this->db->setTable('deliveryreceipt_details')
 								->setFields('serialnumbers')
@@ -734,6 +734,7 @@ class delivery_receipt_model extends wc_model {
 		
 		$inner_query = $this->db->setTable("($inner_query) i")
 								->setFields('*')
+								->setWhere($condition)
 								->setOrderBy('id')
 								->runPagination();	
 		return $inner_query;
