@@ -25,6 +25,7 @@ class controller extends wc_controller {
 			'discountrate',
 			'discountamount',
 			'netamount',
+			'taxamount',
 			'wtaxcode',
 			'wtaxamount',
 			'wtaxrate',

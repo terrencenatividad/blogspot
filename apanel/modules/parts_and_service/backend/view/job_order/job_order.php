@@ -1100,7 +1100,6 @@
 			$('#ordered_list_modal').modal('hide');
 			loadPackingListDetails();
 			document.getElementById('addNewItemJODetails').style.visibility = 'hidden';
-
 		});
 		function loadPackingListDetails() {
 			var voucherno = $('#service_quotation').val();
@@ -1116,6 +1115,8 @@
 						$('.detailparticular').prop('readonly','true');
 						$('.qty').prop('readonly','true');
 						$('.warehouse').prop('disabled','true');
+						$('.delete_row').addClass('hidden');
+
 						//$('#tableList tbody .warehouse').prop('disabled','true');
 					}
 				});

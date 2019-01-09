@@ -435,7 +435,8 @@ class controller extends wc_controller {
 	
 	private function ajax_load_sq_list() {
         $customer   = $this->input->post('customer');
-		$pagination = $this->job_order->getSQPagination($customer);
+		$search   = $this->input->post('search');
+		$pagination = $this->job_order->getSQPagination($customer,$search);
 		$table      = '';
 
 		if (empty($pagination->result)) {
@@ -558,9 +559,14 @@ class controller extends wc_controller {
 									->computeValues()
 									->logChanges();
 
-			// $this->inventory_model->setReference($data['voucherno'])
-			// 						->setDetails($data['customer'])
-			// 						->generateBalanceTable();
+			$this->inventory_model->prepareInventoryLog('Job Release Parts', $data['job_release_no'])
+									->setDetails($customer)
+									->computeValues()
+									->logChanges();
+
+			$this->inventory_model->setReference($data['job_release_no'])
+									->setDetails($customer)
+									->generateBalanceTable();
 		}
 		
 		return array(	
@@ -596,6 +602,8 @@ class controller extends wc_controller {
 			$this->inventory_model->computeValues()
 									->setDetails($customer)
 									->logChanges();
+
+			$this->inventory_model->generateBalanceTable();
 		}
 		return array(	
 			'result' => $result
@@ -617,7 +625,7 @@ class controller extends wc_controller {
 
 				$this->job_order->createClearingEntries($delete_id);
 			}
-			// $this->inventory_model->generateBalanceTable();
+			$this->inventory_model->generateBalanceTable();
 		
 		return array(
 			'success' => $result

@@ -331,8 +331,10 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <?php $amount = 0; ?>
                             <?php if(isset($payments)) { ?>
                                 <?php foreach ($payments as $key => $row) : ?>
+                                    <?php $amount = $row->amount; ?>
                                    <tr>
                                     <td class = "remove-margin">
                                         <?php
@@ -421,7 +423,7 @@
                                 <label for="subtotal" class="control-label">Total </label>
                             </td>
                             <td style="border-top:1px solid #DDDDDD;" class="text-right">
-                                <label class="control-label" style="padding: 0 12px 0 12px;">2.00</label>
+                                <label class="control-label" style="padding: 0 12px 0 12px;" id = "total_amount"><?php echo $amount ?></label>
                             </td>
                             <td style="border-top:1px solid #DDDDDD;" class="text-right">
                                 <label class="control-label" style="padding: 0 12px 0 12px;">0.00</label>

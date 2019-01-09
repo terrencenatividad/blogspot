@@ -349,4 +349,17 @@ class asset_master extends wc_model {
 
 		return $result;
 	}
+
+	public function tagRetired($id,$data)
+	{
+		$condition 	= " id = '$id' ";
+
+		$result 	= $this->db->setTable('asset_master')
+							->setValues($data)
+							->setWhere($condition)
+							->setLimit(1)
+							->runUpdate();
+
+		return $result;
+	}
 }

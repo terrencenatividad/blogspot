@@ -301,11 +301,11 @@
 					<table id="serialize_tableList" class="table table-hover table-sidepad no-margin-bottom">
 						<thead>
 							<tr class="info">
-								<th class="col-xs-2 text-center">Item No.</th>
-								<th class="col-xs-3 text-center">Item Name</th>
-								<th class="col-xs-2 text-center">Serial Number</th>
-								<th class="col-xs-2 text-center">Engine Number</th>
-								<th class="col-xs-2 text-center">Chassis Number</th>
+								<th class="col-xs-1 text-center">Item No.</th>
+								<th class="col-xs-2 text-center">Item Name</th>
+								<th class="col-xs-3 text-center">Serial Number</th>
+								<th class="col-xs-3 text-center">Engine Number</th>
+								<th class="col-xs-3 text-center">Chassis Number</th>
 								<th class="col-xs-1 text-center"></th>
 							</tr>
 						</thead>
@@ -679,24 +679,29 @@
 
 				<?php if ($show_input) { ?>
 				// ADD 1 ROW IF NO THERE ARE NO ROWS
-				if ($('#serialize_tableList tbody tr').length == 0){
+				if (checkSerialRows() == 0){
 					addRow(icode, item, 0);
 				}
 				<?php } ?>
 				
 				console.log(serialize);
-				$('.add-data').text("Add a New Line");
+				if (checkSerialRows() >= item_max_qty){
+					$('.add-data').text("Maximum items reached");
+				} else {
+					$('.add-data').text("Add a New Line");
+				}
 				$("#serialize_modal").modal('show');
 			});
 		}
 
 		$('.add-data').on("click", function() {
-			rownum = checkSerialRows();
-			// alert(item_max_qty);
-			if (rownum < item_max_qty) {
-				addRow(serialize_icode_selected, serialize_item_selected);
-			} else {
+			if (checkSerialRows() >= item_max_qty) {
 				$(this).text("Maximum items reached");
+			} else {
+				addRow(serialize_icode_selected, serialize_item_selected);
+				if(checkSerialRows() >= item_max_qty) {
+					$(this).text("Maximum items reached");
+				}
 			}
 		});
 
@@ -737,28 +742,12 @@
 			serial_input = [];
 			engine_input = [];
 			chassis_input = [];
-
-			// console.log('serial saved: '+serial_saved);
-			// console.log('engine saved: '+engine_saved);
-			// console.log('chassis saved: '+chassis_saved);
-			
 		})
 
 		$('.close_serials').on("click", function(){
 			serial_input = [];
 			engine_input = [];
 			chassis_input = [];
-		});
-
-		$('.serial_no_item').keypress(function (e) {
-			var regex = new RegExp("^[a-zA-Z0-9]+$");
-			var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
-			if (regex.test(str)) {
-				return true;
-			}
-
-			e.preventDefault();
-			return false;
 		});
 
 		function addRow(icode, item, rownum, serialno, engineno, chassisno){
@@ -786,9 +775,9 @@
 				$('#serialize_tableList tbody').append(
 					`<tr id="row`+ (rownum+1) +`">
 						
-						<td class="item_no col-xs-2">` + icode + `</td>
-						<td class="item_name col-xs-3">` + item + `</td>
-						<td class="serial_no" class="col-xs-2">
+						<td class="item_no col-xs-1 text-center">` + icode + `</td>
+						<td class="item_name col-xs-2 text-center">` + item + `</td>
+						<td class="serial_no" class="col-xs-3">
 							<?php
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
@@ -806,7 +795,7 @@
 							?>
 							<div><strong><small class="error_message"></small></strong></div>
 						</td>
-						<td class="engine_no" class="col-xs-2">
+						<td class="engine_no" class="col-xs-3">
 							<?php
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
@@ -824,7 +813,7 @@
 							?>
 							<div><strong><small class="error_message"></small></strong></div>
 						</td>
-						<td class="chassis_no" class="col-xs-2">
+						<td class="chassis_no" class="col-xs-3">
 							<?php
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
@@ -1057,7 +1046,7 @@
 		
 		// DISALLOW SPECIAL CHARACTERS IN INPUT
 		$('tbody').on('keypress','.serial_no_item, .engine_no_item, .chassis_no_item', function(event) {
-			var regex = new RegExp("^[a-zA-Z0-9\b]+$");
+			var regex = new RegExp("^[a-zA-Z0-9\b\-]+$");
 			var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
 			if (!regex.test(key)) {
 				event.preventDefault();
@@ -1069,14 +1058,16 @@
 		$('tbody').on('keyup','.serial_no_item',function(){
 			var serialInput = $(this).val();
 			
-			if (validateSerialNo(serialInput) != true){
-				serial_flag = false;
-				$(this).closest('.form-group').addClass('has-error')
-				$(this).closest('.serial_no').find('.error_message').text(validateSerialNo(serialInput)).css('color', 'red');
-			} else {
-				serial_flag = true;
-				$(this).closest('.form-group').removeClass('has-error');
-				$(this).closest('.serial_no').find('.error_message').text("");
+			if (serialInput != $(this).data('value')) { // ADDED IF STATEMENT TO PREVENT VALIDATE ON CTRL+C
+				if (validateSerialNo(serialInput) != true){
+					serial_flag = false;
+					$(this).closest('.form-group').addClass('has-error')
+					$(this).closest('.serial_no').find('.error_message').text(validateSerialNo(serialInput)).css('color', 'red');
+				} else {
+					serial_flag = true;
+					$(this).closest('.form-group').removeClass('has-error');
+					$(this).closest('.serial_no').find('.error_message').text("");
+				}
 			}
 
 			checkFlags();
@@ -1084,6 +1075,7 @@
 
 		$('tbody').on('focusin','.serial_no_item',function(){
 			$(this).data('value',$(this).val());
+			console.log('copy');
 		}).on('change','.serial_no_item',function(){
 			var prev_serialInput = $(this).data('value');
 			var serialInput = $(this).val();
@@ -1108,14 +1100,16 @@
 		$('tbody').on('keyup','.engine_no_item',function(){
 			var engineInput = $(this).val();
 			
-			if (validateEngineNo(engineInput) != true){
-				engine_flag = false;
-				$(this).closest('.form-group').addClass('has-error')
-				$(this).closest('.engine_no').find('.error_message').text(validateEngineNo(engineInput)).css('color', 'red');
-			} else {
-				engine_flag = true;
-				$(this).closest('.form-group').removeClass('has-error');
-				$(this).closest('.engine_no').find('.error_message').text("");
+			if (engineInput != $(this).data('value')) { // ADDED IF STATEMENT TO PREVENT VALIDATE ON CTRL+C
+				if (validateEngineNo(engineInput) != true){
+					engine_flag = false;
+					$(this).closest('.form-group').addClass('has-error')
+					$(this).closest('.engine_no').find('.error_message').text(validateEngineNo(engineInput)).css('color', 'red');
+				} else {
+					engine_flag = true;
+					$(this).closest('.form-group').removeClass('has-error');
+					$(this).closest('.engine_no').find('.error_message').text("");
+				}
 			}
 			
 			checkFlags();
@@ -1146,14 +1140,16 @@
 		$('tbody').on('keyup','.chassis_no_item',function(){
 			var chassisInput = $(this).val();
 			
-			if (validateChassisNo(chassisInput) != true){
-				chassis_flag = false;
-				$(this).closest('.form-group').addClass('has-error')
-				$(this).closest('.chassis_no').find('.error_message').text(validateChassisNo(chassisInput)).css('color', 'red');
-			} else {
-				chassis_flag = true;
-				$(this).closest('.form-group').removeClass('has-error');
-				$(this).closest('.chassis_no').find('.error_message').text("");
+			if (chassisInput != $(this).data('value')) { // ADDED IF STATEMENT TO PREVENT VALIDATE ON CTRL+C			
+				if (validateChassisNo(chassisInput) != true){
+					chassis_flag = false;
+					$(this).closest('.form-group').addClass('has-error')
+					$(this).closest('.chassis_no').find('.error_message').text(validateChassisNo(chassisInput)).css('color', 'red');
+				} else {
+					chassis_flag = true;
+					$(this).closest('.form-group').removeClass('has-error');
+					$(this).closest('.chassis_no').find('.error_message').text("");
+				}
 			}
 			
 			checkFlags();
