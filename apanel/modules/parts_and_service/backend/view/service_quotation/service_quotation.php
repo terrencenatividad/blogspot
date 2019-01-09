@@ -1146,11 +1146,11 @@
 		if (form_element.find('.has-error').length < 1) {
 			if ($('.quantity:not([readonly])').length > 0) {
 				
-				$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() , function(data) {
+				$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + submit_data , function(data){
 				 
-					if (data.query1) {
-						$('#delay_modal').modal('show');
-						setTimeout(function(){window.location = '<?=MODULE_URL?>';}, 1000);
+					if (data.query1 && data.query2) {
+						$('#delay_modal').modal('show');console.log(data.task);
+						setTimeout(function(){window.location = '<?=MODULE_URL?>'+data.task;}, 1000);
 					} else {
 						$('#submit_container [type="submit"]').attr('disabled', false);
 					}
