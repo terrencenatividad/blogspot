@@ -593,7 +593,7 @@ class controller extends wc_controller {
 		
 		$this->inventory_model->prepareInventoryLog('Job Release', $job_release_no)
 								->preparePreviousValues();
-								
+														
 		$result 		= $this->job_order->updateIssueParts($job_release_no,$data);
 
 		$this->job_order->createClearingEntries($job_release_no);
@@ -620,6 +620,10 @@ class controller extends wc_controller {
 		if ($result && $this->inventory_model) {
 			
 				$this->inventory_model->prepareInventoryLog('Job Release', $delete_id)
+										->computeValues()
+										->logChanges('Cancelled');
+
+				$this->inventory_model->prepareInventoryLog('Job Release Parts', $delete_id)
 										->computeValues()
 										->logChanges('Cancelled');
 
