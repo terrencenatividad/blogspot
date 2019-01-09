@@ -1206,6 +1206,11 @@
 				sumDebit();
 				sumCredit();
 				sumCurrencyAmount();
+				if($('#assetid').val() != '') {
+					$('#job').attr('disabled', 'disabled');
+				} else if($('#jobs_tagged').val() != '') {
+					$('#assetid').attr('disabled', 'disabled');
+				}
 			});
 		<?php endif; ?>
 

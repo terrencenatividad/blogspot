@@ -2516,13 +2516,14 @@ $(document).ready(function(){
 	// -- For Items -- End
 
 	// -- For Discount --
-		$('#sales_order_form').on('change','.discount',function(e){
+		$('#sales_order_form').on('change','.discount, .price',function(e){
 			var id 		= 	$(this).attr("id");
 			var row 	=	id.replace(/[a-z]/g, '');
 			var dtype 	= 	$('#discounttype').val();
-			var value 	= 	$(this).val();
+			//var value 	= 	$(this).val();
 
 			var price 	= 	removeComma($(this).closest('tr').find('.price').val());
+			var value 	= 	removeComma($(this).closest('tr').find('.discount').val());
 			var form 	=	$(this);
 			if( parseFloat(value) > 0 && dtype == ""){
 				$('#discounttype').closest('.form-group').addClass('has-error');

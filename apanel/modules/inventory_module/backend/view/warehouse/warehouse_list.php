@@ -80,7 +80,7 @@
 								)
 								->addHeader('Warehouse Code',array('class'=>'col-md-3'),'sort','warehousecode')
 								->addHeader('Warehouse Name', array('class'=>'col-md-3'),'sort','description')
-								->addHeader('Status', array('class'=>'col-md-3'),'sort','status')								
+								->addHeader('Status', array('class'=>'col-md-3'),'sort','stat')								
 								->draw();
 					?>
 				</thead>
