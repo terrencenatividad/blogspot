@@ -258,10 +258,14 @@ class job_order_model extends wc_model
 		return json_encode($taxrates);
 	}
 
-	public function getSQPagination($customer) {
+	public function getSQPagination($customer,$search) {
+		$condition = '';
+		if ($search) {
+			$condition .= ' AND ' . $this->generateSearch($search, array('voucherno', 'transactiondate', 'notes'));
+		}
 		$result = $this->db->setTable("servicequotation")
 						->setFields("voucherno, transactiondate, notes")
-						->setWhere("customer = '$customer' AND stat='Approved'")
+						->setWhere("customer = '$customer' AND stat='Approved' $condition")
 						->setOrderBy("voucherno ASC")
 						->runPagination();
 		return $result;
@@ -781,4 +785,12 @@ class job_order_model extends wc_model
 						   ->getResult();
 		return $result; 	
 	}	
+
+	private function generateSearch($search, $array) {
+		$temp = array();
+		foreach ($array as $arr) {
+			$temp[] = $arr . " LIKE '%" . str_replace(' ', '%', $search) . "%'";
+		}
+		return '(' . implode(' OR ', $temp) . ')';
+	}
 }

@@ -292,8 +292,8 @@
 				<div class="modal-header">
 					<button type="button" id = "modal_close" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					<h4 class="modal-title">Items</h4>
-					<h5 class="modal-title">Item Code: <input type = "text" id = "sec_itemcode"></h5>
-					<h5 class="modal-title">Description: <input type = "text" id = "sec_description"></h5>
+					<h5 class="modal-title">Item Code: <input type = "text" id = "sec_itemcode" style = "width:350px"></h5>
+					<h5 class="modal-title">Description: <input type = "text" id = "sec_description" style = "width:350px"></h5>
 					<input type = "hidden" id  = "checkcount">
 				</div>
 				<div class="modal-body">
@@ -545,6 +545,12 @@
 								echo $ui->formField('hidden')
 									->setClass('available_qty')
 									->setValue('` + details.available + `')
+									->draw($show_input);
+							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setClass('checked')
+									->setValue('')
 									->draw($show_input);
 							?>
 						<?php } ?>
@@ -1044,6 +1050,7 @@
 		});	
 		var itemselected = [];
 		var allserials = [];
+		var checked_serials = [];
 		var linenum = '';
 		var serials = '';
 		var itemrow = '';
@@ -1121,6 +1128,7 @@
 			ajax.allserials = $('#main_serial').val();
 			ajax.id = itemrow.closest('tr').find('.serialnumbers').val();
 			ajax.item_ident = itemrow.closest('tr').find('.item_ident_flag').val();
+			ajax.checked_serials = itemrow.closest('tr').find('.checked').val();
 			task = $('#task').val();
 			ajax.task = $('#task').val();
 			if (task=='ajax_edit') {
@@ -1212,13 +1220,20 @@
 			}
 		});
 
-		// $('#tableSerialList tbody tr .check_id').on('ifChecked', function(){
-		// 	console.log('a');
-		// });
+		$('#tableSerialList').on('ifChecked', '.check_id', function () {
+			var serialnum = $(this).val();
+			checked_serials.push(serialnum);
+			itemrow.closest('tr').find('.checked').val(checked_serials);
+		});
 
-		// $('#tableSerialList').on('ifChecked', '.check_id', function () {
-		// 	console.log($(this).val());
-		// });
+		$('#tableSerialList').on('ifUnchecked', '.check_id', function () {
+			var remove_this  =   $(this).val(); 
+			checked_serials = jQuery.grep(checked_serials, function(value) {
+				return value != remove_this;
+			});
+			itemrow.closest('tr').find('.checked').val(checked_serials);
+			
+		});
 
 		$('#btn_ok').on('click', function() {
 			$('#warning_counter').modal('hide');

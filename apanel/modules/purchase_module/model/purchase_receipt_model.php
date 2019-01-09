@@ -55,8 +55,6 @@ class purchase_receipt_model extends wc_model {
 			$sn = explode(",",$data['serial_no_list'][$i]);
 			$en = explode(",",$data['engine_no_list'][$i]);
 			$cn = explode(",",$data['chassis_no_list'][$i]);
-			
-			// echo $item_quantity." ";
 
 			if ($serialized_flag != '0' && $item_quantity > 0) {
 				for ($rowno = 0 ; $rowno < $item_quantity ; $rowno++){
@@ -103,9 +101,9 @@ class purchase_receipt_model extends wc_model {
 		foreach ($data2['itemcode'] as $key => $value) {
 			$data2['convreceiptqty'][$key]	= $data2['receiptqty'][$key] * $data2['conversion'][$key];
 		}
-		$data['amount']		= array_sum($data2['amount']);
-		$data['taxamount']	= array_sum($data2['taxamount']);
-		$data['netamount']	= $data['amount'] + $data['taxamount'] - intval($data['discountamount']) - intval($data['wtaxamount']);
+		$data['amount']		= (is_array($data2['amount'])) ? array_sum($data2['amount']) : intval($data2['amount']);
+		$data['taxamount']	= (is_array($data2['taxamount'])) ? array_sum($data2['taxamount']) : intval($data2['taxamount']);
+		$data['netamount']	= $data['amount'] + $data['taxamount'] - $data['discountamount'] - $data['wtaxamount'];
 		// var_dump($data['wtaxamount']);
 	}
 
@@ -148,6 +146,7 @@ class purchase_receipt_model extends wc_model {
 			if ($result) {
 				foreach ($data as $voucherno) {
 					$this->updatePurchaseOrder($voucherno);
+					$this->deleteSerialNumbers($voucherno);
 				} 
 			}
 		}

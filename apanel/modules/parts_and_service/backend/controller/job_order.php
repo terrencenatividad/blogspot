@@ -435,7 +435,8 @@ class controller extends wc_controller {
 	
 	private function ajax_load_sq_list() {
         $customer   = $this->input->post('customer');
-		$pagination = $this->job_order->getSQPagination($customer);
+		$search   = $this->input->post('search');
+		$pagination = $this->job_order->getSQPagination($customer,$search);
 		$table      = '';
 
 		if (empty($pagination->result)) {

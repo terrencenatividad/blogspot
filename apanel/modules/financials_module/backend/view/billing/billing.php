@@ -999,11 +999,12 @@
 			$('#discounttypeModal').modal('hide');
 		});
 
-		$('#main_form').on('change','.discount',function(e){
+		$('#main_form').on('change','.discount, .unitprice',function(e){
 			var dtype 	= 	$('#discounttype').val();
-			var value 	= 	$(this).val();
+			//var value 	= 	$(this).val();
 
 			var price 	= 	removeComma($(this).closest('tr').find('.unitprice').val());
+			var value 	= 	removeComma($(this).closest('tr').find('.discount').val());
 			var form 	=	$(this);
 			if( parseFloat(value) > 0 && dtype == ""){
 				$('#discounttype').closest('.form-group').addClass('has-error');
