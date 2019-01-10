@@ -13,8 +13,9 @@
 								->setId('code')
 								->setValue($code)
 								->setAttribute(array("maxlength" => "4"))
-								->setValidation('alpha_num required')
-								->draw($show_input);
+								->addHidden((isset($ajax_task) && $ajax_task == 'ajax_edit'))
+								->setValidation('code required')
+								->draw((isset($ajax_task) && $ajax_task == 'ajax_create'));
 						?>
 					</div>
                     <div class="col-md-6">
