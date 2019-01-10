@@ -433,12 +433,15 @@ class purchase_receipt_model extends wc_model {
 	}
 
 	public function getPurchaseOrderPagination($vendor = '', $search = '') {
-		$condition = '';
+		$po_condition = '';
+		$ipo_condition = '';
 		if ($search) {
-			$condition .= ' AND ' . $this->generateSearch($search, array('voucherno', 'remarks'));
+			$po_condition .= ' AND ' . $this->generateSearch($search, array('po.voucherno', 'remarks'));
+			$ipo_condition .= ' AND ' . $this->generateSearch($search, array('ipo.voucherno', 'remarks'));
 		}
 		if ($vendor != '') {
-			 $condition .= " AND vendor = '$vendor'";
+			 $po_condition .= " AND vendor = '$vendor'";
+			 $ipo_condition .= " AND vendor = '$vendor'";
 		}
 
 		$subquery	= $this->db->setTable('purchasereceipt pr')
@@ -455,7 +458,7 @@ class purchase_receipt_model extends wc_model {
 								->setFields('po.voucherno voucherno, po.transactiondate transactiondate, remarks, po.netamount netamount, (IF(pod.receiptqty IS NULL, 0, pod.receiptqty) - IF(pr.pr_qty IS NULL, 0, pr.pr_qty)) qtyleft, po.vendor vendor')
 								->innerJoin('purchaseorder po ON pod.voucherno = po.voucherno AND pod.companycode = po.companycode')
 								->leftJoin("($subquery) pr ON pr.source_no = pod.voucherno AND pr.companycode = pod.companycode")
-								->setWhere("po.stat IN ('open','partial')" . $condition)
+								->setWhere("po.stat IN ('open','partial')" . $po_condition)
 								// ->setGroupBy('po.voucherno')
 								// ->setHaving('qtyleft > 0')
 								->buildSelect();
@@ -466,7 +469,7 @@ class purchase_receipt_model extends wc_model {
 								->setFields('ipo.voucherno voucherno, ipo.transactiondate transactiondate, remarks, ipo.netamount netamount, (IF(ipod.receiptqty IS NULL, 0, ipod.receiptqty) - IF(pr.pr_qty IS NULL, 0, pr.pr_qty)) qtyleft, ipo.vendor vendor')
 								->innerJoin('import_purchaseorder ipo ON ipod.voucherno = ipo.voucherno AND ipod.companycode = ipo.companycode')
 								->leftJoin("($subquery) pr ON pr.source_no = ipod.voucherno AND pr.companycode = ipod.companycode")
-								->setWhere("ipo.stat IN ('open','partial')" . $condition)
+								->setWhere("ipo.stat IN ('open','partial')" . $ipo_condition)
 								// ->setGroupBy('ipo.voucherno')
 								// ->setHaving('qtyleft > 0')
 								->buildSelect();
