@@ -624,10 +624,11 @@ class controller extends wc_controller
 						'shortname' 		=> $this->getValueCSV('Bank Name', $row, 'required', $errors),
 						'accountno' 		=> $this->getValueCSV('Bank Account Number', $row, 'required text', $errors),
 						'currency' 			=> $this->getValueCSV('Currency Code', $row, 'required text', $errors),
-						'checking_account' 	=> $this->getValueCSV('Checking Account (yes/no)', $row, '', $errors),
+						// 'checking_account' 	=> $this->getValueCSV('Checking Account (yes/no)', $row, '', $errors),
 						'address1' 			=> $this->getValueCSV('Bank Address', $row, 'required', $errors)
 					);
-					if($checking_account != "" && strtolower($checking_account) != "yes" || strtolower($checking_account) != "no"){
+					// echo $checking_account;
+					if($checking_account != "" && (strtolower($checking_account) != "yes" && strtolower($checking_account) != "no")){
 						$errors[0] = "The Checking Account in line " .$row['row_num']. " is invalid. Kindly use 'Yes' for Checking Accounts, otherwise 'No'.<br>";;
 					}
 				}
@@ -640,7 +641,7 @@ class controller extends wc_controller
 				$currencycode = $this->bank->exchangeRate();
 				$currency = array();
 				foreach ($currencycode as $m) {
-					$currency[] = $m->currencycode;
+					$currency[] = strtolower($m->currencycode);
 				}
 				$checkglcode = $this->bank->checkExisting();
 				$existing = array();
@@ -658,7 +659,7 @@ class controller extends wc_controller
 					}else{
 						$errors[0] = "The GL Account Code you entered in " .$line. " doesn't exist<br>";
 					}
-					if(in_array($check_row[4],$currency)){
+					if(in_array(strtolower($check_row[4]),$currency)){
 
 					}else{
 						$errors[0] = "Currency Code in " .$line. " you entered doesn't exist<br>";

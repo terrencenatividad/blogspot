@@ -19,9 +19,10 @@
 													->setName('asset_number')
 													->setId('asset_number')
 													->setValue($asset_number)
+													->addHidden((isset($ajax_task) && $ajax_task == 'ajax_edit'))
 													->setAttribute(array("maxlength" => "10"))
-													->setValidation('alpha_num required')
-													->draw($show_input);
+													->setValidation('code required')
+													->draw((isset($ajax_task) && $ajax_task == 'ajax_create'));
 										?>
 										<input type="text" id="h_asset_number" class="hidden" value="<?php echo $asset_number ?>">
 									</div>
