@@ -22,8 +22,9 @@
 									->setName('currencycode')
 									->setId('currencycode')
 									->setValue($currencycode)
+									->addHidden((isset($task) && $task == 'update'))
 									->setValidation('required code')
-									->draw($show_input);
+									->draw((isset($task) && $task == 'add'));
 						?>
 					</div>
 				</div>
@@ -79,8 +80,7 @@ var ajax = {};
 
 $('#currencyForm #btnSave').on('click',function(){
 
-	$('#currencyForm #currencycode').trigger('blur');
-	$('#currencyForm #currency').trigger('blur');
+	$("#currencyForm").find('.form-group').find('input, textarea, select').trigger('blur');
 
 	if ($('#currencyForm').find('.form-group.has-error').length == 0)
 	{	
