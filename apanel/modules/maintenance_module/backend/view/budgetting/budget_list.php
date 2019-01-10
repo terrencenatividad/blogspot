@@ -468,6 +468,13 @@
 									});
 								});
 
+
+								$('#modalSupplement').on('hidden.bs.modal', function() {
+									$('#accountcodes').val('none');
+									$('#description').val('');
+									$('#amount').val('');
+								});
+
 								function getBudgetAccounts() {
 									$.post('<?=MODULE_URL?>ajax/ajax_get_supplements', {id:id}, function(data) {
 										if(data) {
