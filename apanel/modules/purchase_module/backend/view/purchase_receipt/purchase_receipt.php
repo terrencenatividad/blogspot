@@ -352,7 +352,6 @@
 		function addVoucherDetails(details, index) {
 			var details = details || {itemcode: '', detailparticular: '', receiptqty: ''};
 			var other_details = JSON.parse(JSON.stringify(details));
-			// console.log(other_details);
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
 			delete other_details.receiptqty;
@@ -365,6 +364,7 @@
 			delete other_details.taxcode;
 			delete other_details.taxrate;
 			var otherdetails = '';
+			item_max_qty = (isNaN(details.maxqty)) ? parseInt(details.po_qty) : parseInt(details.maxqty);
 			for (var key in other_details) {
 				if (other_details.hasOwnProperty(key)) {
 					otherdetails += `<?php 
@@ -446,7 +446,9 @@
 								->setName('receiptqty[]')
 								->setClass('receiptqty text-right')
 								->setID('receiptqty`+ details.linenum +`')
-								->setAttribute(array('data-value' => '` + (parseFloat(details.receiptqty) || 0) + `'))
+								->setAttribute(array(
+													'data-value' => '` + (parseFloat(details.receiptqty) || 0) + `',
+													'data-max-qty' => '`  + (parseFloat(item_max_qty) || 0) + `'))
 								->setValidation('required integer')
 								->setValue('` + (addComma(details.receiptqty, 0) || 0) + `')
 								->draw($show_input);
@@ -516,7 +518,13 @@
 									->setClass('chassis_no')	
 									->setValue('')
 									->draw();
-							
+
+							echo $ui->setElement('hidden')
+									->setName('po_qty[]')
+									->setID('po_qty`+index+`')
+									->setClass('po_qty')	
+									->setValue('`+item_max_qty+`')
+									->draw();
 						?>
 					</td>
 					<td class="text-right">
@@ -576,7 +584,7 @@
 				}
 			});
 			
-			if (details.item_ident_flag == 0) {
+			if (details.item_ident_flag == 0 || details.item_ident_flag == null) {
 				$('#serial_' + details.linenum).addClass('hidden');
 				$('#receiptqty' + details.linenum).removeClass('hidden receiptqty_serialized');
 			} else {
@@ -594,7 +602,7 @@
 
 				// DECLARE SERIAL NUMBERS BASED ON QUANTITY
 				var prop = {};
-				for(var i = 1; i <= parseInt(details.receiptqty); i++){
+				for(var i = 1; i <= item_max_qty; i++){
 					prop = {serialno: '',
 								engineno: '',
 								chassisno: ''
@@ -612,7 +620,7 @@
 					}
 				}
 				
-				for (var k = 0 ; k < parseInt(details.receiptqty) ; k++){
+				for (var k = 0 ; k < dataFromDB_index.length ; k++){
 					if(serialize[index].itemcode.length > 0){
 					serialize[index].numbers[k].serialno = dataFromDB_index[k].serialno;
 					serialize[index].numbers[k].engineno = dataFromDB_index[k].engineno;
@@ -654,7 +662,7 @@
 				serialize_item_selected = item;
 				serialize_icode_selected = icode;
 				index_selected = index;
-				item_max_qty = parseInt(details.receiptqty);
+				item_max_qty = (isNaN(details.maxqty)) ? parseInt(details.po_qty) : parseInt(details.maxqty);
 				
 				var rows = 0;
 
@@ -684,7 +692,7 @@
 				}
 				<?php } ?>
 				
-				console.log(serialize);
+				// console.log(serialize);
 				if (checkSerialRows() >= item_max_qty){
 					$('.add-data').text("Maximum items reached");
 				} else {
@@ -753,7 +761,6 @@
 		function addRow(icode, item, rownum, serialno, engineno, chassisno){
 				if (typeof rownum == 'undefined'){
 					rownum = $('#serialize_tableList tbody tr').length;
-					// console.log(rownum);
 				}
 
 				item_ident_flag = $("#serialize_tbody").attr("data-item-ident-flag");
@@ -916,8 +923,6 @@
 			$("#receiptqty"+(index+1)).val(maxCount); //UPDATE QUANTITY BASED ON POPULATED SERIALS
 			$("#receiptqty"+(index+1)).closest('tr').find('.receiptqty_serialized_display').text(maxCount);
 			
-			// console.log(serialize);
-			
 		}
 
 		// ON EDIT, IMMEDIATELY SAVE SERIALS TO FORM
@@ -1075,7 +1080,6 @@
 
 		$('tbody').on('focusin','.serial_no_item',function(){
 			$(this).data('value',$(this).val());
-			console.log('copy');
 		}).on('change','.serial_no_item',function(){
 			var prev_serialInput = $(this).data('value');
 			var serialInput = $(this).val();
@@ -1091,7 +1095,6 @@
 				}
 			}
 			
-			// console.log(serial_input);
 			checkFlags();
 		});
 		// SERIAL NUMBER VALIDATE END
@@ -1131,7 +1134,7 @@
 					engine_input.push(engineInput);
 				}
 			}
-			// console.log(engine_input);
+
 			checkFlags();
 		});
 		// ENGINE NUMBER VALIDATE END
@@ -1171,7 +1174,7 @@
 					chassis_input.push(chassisInput);
 				}
 			}
-			// console.log(chassis_input);
+			
 			checkFlags();
 		});
 		// CHASSIS NUMBER VALIDATE END
@@ -1283,6 +1286,13 @@
 				});
 			}
 		}
+		$('#tableList tbody').on('change','.receiptqty', function() {
+			if ($(this).val() > $(this).data('max-qty')) {
+				$(this).val($(this).data('max-qty'));
+			}
+
+			recomputeAll();
+		});
 		$('#tableList tbody').on('input change blur', '.taxcode, .unitprice, .receiptqty', function() {
 			recomputeAll();
 		});

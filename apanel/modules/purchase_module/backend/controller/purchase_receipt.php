@@ -60,6 +60,7 @@ class controller extends wc_controller {
 			'detail_discountamount'		=> 'discountamount',
 			'detail_withholdingamount'	=> 'withholdingamount',
 			'detail_warehouse'			=> 'warehouse',
+			'po_qty',
 			'item_ident_flag'
 		);
 		$this->fields3			= array(
@@ -80,6 +81,7 @@ class controller extends wc_controller {
 			'detail_discountamount'		=> 'discountamount',
 			'detail_withholdingamount'	=> 'withholdingamount',
 			'detail_warehouse'			=> 'warehouse',
+			'po_qty'
 		);
 		$this->clean_number		= array(
 			'receiptqty'
@@ -164,7 +166,7 @@ class controller extends wc_controller {
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= $this->restrict->setButtonRestriction($transactiondate);
-		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbView();
+		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbView($voucherno);
 		$data['serial_db_array']	= array();
 		foreach ($data['serial_db'] as $serial_db) {
 			array_push($data['serial_db_array'], $serial_db->serialno);
@@ -200,7 +202,7 @@ class controller extends wc_controller {
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= $this->restrict->setButtonRestriction($transactiondate);
-		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbView();
+		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbView($voucherno);
 		$data['serial_db_array']	= array();
 		foreach ($data['serial_db'] as $serial_db) {
 			array_push($data['serial_db_array'], $serial_db->serialno);
@@ -499,7 +501,12 @@ class controller extends wc_controller {
 	private function ajax_load_purchase_details() {
 		$voucherno	= $this->input->post('voucherno');
 		$warehouse	= $this->input->post('warehouse');
-		$details	= $this->purchase_model->getPurchaseOrderDetails($voucherno, $warehouse);
+		$transtype	= $this->purchase_model->getTransactionType($voucherno);
+		if ($transtype == 'PO') {
+			$details	= $this->purchase_model->getPurchaseOrderDetails($voucherno, $warehouse);
+		} else {
+			$details	= $this->purchase_model->getImportPurchaseOrderDetails($voucherno, $warehouse);
+		}
 		$header		= $this->purchase_model->getPurchaseOrderHeader($this->fields_header, $voucherno);
 		$table		= '';
 		$success	= true;
