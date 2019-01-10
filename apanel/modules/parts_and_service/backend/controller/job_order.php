@@ -38,6 +38,21 @@ class controller extends wc_controller {
 			'parentcode'
 		);
 		$this->fields3			= array(
+			'job_order_no',
+			'jod.itemcode',
+			'detailparticular',
+			'jod.linenum',
+			'jod.warehouse',
+			'jod.qty' => 'jod.quantity',
+			'jod.uom',
+			'isbundle',
+			'parentcode',
+			'parentline',
+			'item_ident_flag',
+			'bom.quantity bomqty',
+			'w.description'
+		);
+		$this->fields33			= array(
 			'jr.job_order_no',
 			'jod.itemcode',
 			'detailparticular',
@@ -255,11 +270,7 @@ class controller extends wc_controller {
 		$data['header_values']		= json_encode(array(
 			''
 		));
-		$data['voucher_details']	= json_encode($this->job_order->getJobOrder($this->fields3, $id));
-	// 	for($i = 0; $i < count($data['voucher_details1']);$i++) {
-	// 		$data['voucher_details'] = $data['voucher_details1'][$i];
-	// 	// var_dump($data['voucher_details1'][$i]);
-	// }
+		$data['voucher_details']	= json_encode($this->job_order->getJobOrder($this->fields3, $this->fields33, $id));
 
 		$data['ajax_task']			= '';
 		$data['ajax_post']			= '';
