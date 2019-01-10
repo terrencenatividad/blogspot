@@ -523,7 +523,14 @@
 					<div id="submit_container" class="col-md-12 text-center">
 						<?php
 							if ($show_input) {
-								echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
+								echo $ui->drawSubmitDropdown(true, isset($ajax_task) ? $ajax_task : '');
+							}
+							else{ 
+								if ($stat=='Pending') {
+							?>
+							<a href="<?=MODULE_URL;?>edit/<?=$voucherno;?>" class='btn btn-primary'> Edit</a>
+							<?php 
+								}
 							}
 							echo '&nbsp;&nbsp;&nbsp;';
 							echo $ui->drawCancel();
