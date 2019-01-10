@@ -160,7 +160,7 @@
 										echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 									}
 								?>
-								<?php if(!$show_input):?><a href="http://localhost/triglobe/apanel/parts_and_service/job_order/payment/<?php echo $job_order_no ?>" class="btn btn-warning">Issue Parts</a><?endif;?>
+								<?php if(!$show_input):?><a href="<?=MODULE_URL?>payment/<?php echo $job_order_no ?>" class="btn btn-warning">Issue Parts</a><?endif;?>
 								<?php
 									// echo '&nbsp;&nbsp;&nbsp;';
 									echo $ui->drawCancel();

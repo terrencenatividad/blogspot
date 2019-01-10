@@ -999,19 +999,20 @@
 			$('#discounttypeModal').modal('hide');
 		});
 
-		$('#main_form').on('change','.discount, .unitprice',function(e){
+		$('#main_form').on('change','.discount',function(e){
+			var id 		= 	$(this).attr("id");
+			var row 	=	id.replace(/[a-z]/g, '');
 			var dtype 	= 	$('#discounttype').val();
-			//var value 	= 	$(this).val();
+			var value 	= 	$(this).val();
 
-			var price 	= 	removeComma($(this).closest('tr').find('.unitprice').val());
-			var value 	= 	removeComma($(this).closest('tr').find('.discount').val());
+			var price 	= 	removeComma($(this).closest('tr').find('.price').val());
 			var form 	=	$(this);
 			if( parseFloat(value) > 0 && dtype == ""){
 				$('#discounttype').closest('.form-group').addClass('has-error');
 			} else {
 				if(dtype == "perc" && parseFloat(value) > 100){
-					form.addClass('greaterthan100');
 					form.closest('div').addClass('has-error');
+					form.addClass('greaterthan100');
 				} else {
 					form.closest('div').removeClass('has-error');
 				}
@@ -1027,9 +1028,64 @@
 				} else {
 					form.closest('div').removeClass('has-error');
 				}
-				var pricediscounterrors 	=	$('#main_form .greaterthanprice').closest('tr').find('.has-error').length;
-				var greaterthan100 			=	$('#main_form .greaterthan100').closest('tr').find('.has-error').length;
-				var negativediscount 		=	$('#main_form .negativediscount').closest('tr').find('.has-error').length;
+				var pricediscounterrors 	=	$('#sales_order_form .greaterthanprice').closest('tr').find('.has-error').length;
+				var greaterthan100 			=	$('#sales_order_form .greaterthan100').closest('tr').find('.has-error').length;
+				var negativediscount 		=	$('#sales_order_form .negativediscount').closest('tr').find('.has-error').length;
+				
+				if(pricediscounterrors > 0){
+					$('#discountError').removeClass('hidden');
+				} else {
+					$('#discountError').addClass('hidden');
+				}
+
+				if(greaterthan100 > 0){
+					$('#discount100Error').removeClass('hidden');
+				} else {
+					$('#discount100Error').addClass('hidden');
+				}
+
+				if(negativediscount > 0){
+					$('#negaDiscountError').removeClass('hidden');
+				} else {
+					$('#negaDiscountError').addClass('hidden');
+				}
+
+			}
+			recomputeAll();
+		});
+
+		$('#main_form').on('change','.unitprice',function(e){
+			var id 		= 	$(this).attr("id");
+			var row 	=	id.replace(/[a-z]/g, '');
+			var dtype 	= 	$('#discounttype').val();
+			var price 	= 	removeComma($(this).val());
+
+			var discount 	= 	removeComma($(this).closest('tr').find('.discount').val());
+			var form 	=	$(this).closest('tr').find('.discount');
+			if( parseFloat(discount) > 0 && dtype == ""){
+				$('#discounttype').closest('.form-group').addClass('has-error');
+			} else {
+				if(dtype == "perc" && parseFloat(discount) > 100){
+					form.closest('div').addClass('has-error');
+					form.addClass('greaterthan100');
+				} else {
+					form.closest('div').removeClass('has-error');
+				}
+				if(dtype == "perc" && parseFloat(discount) < 0){
+					form.closest('div').addClass('has-error');
+					form.addClass('negativediscount');
+				} else {
+					form.closest('div').removeClass('has-error');
+				}
+				if( parseFloat(discount) > 0 && parseFloat(discount) > parseFloat(price) ){
+					form.addClass('greaterthanprice');
+					form.closest('div').addClass('has-error');
+				} else {
+					form.closest('div').removeClass('has-error');
+				}
+				var pricediscounterrors 	=	$('#sales_order_form .greaterthanprice').closest('tr').find('.has-error').length;
+				var greaterthan100 			=	$('#sales_order_form .greaterthan100').closest('tr').find('.has-error').length;
+				var negativediscount 		=	$('#sales_order_form .negativediscount').closest('tr').find('.has-error').length;
 
 				if(pricediscounterrors > 0){
 					$('#discountError').removeClass('hidden');
@@ -1052,6 +1108,7 @@
 			}
 			recomputeAll();
 		});
+
 		$(document).ready(function() {
 			var discounttype = $('#discounttype').val();
 			if (discounttype == 'amt' || discounttype == 'perc') {

@@ -155,6 +155,7 @@ class controller extends wc_controller
 		$data['email'] = $det['email'];
 		$data['budget_list'] = $this->accounts_payable->getBudgetCodes();
 		$data['tinno'] = $det['tinno'];
+		$data['vendor'] = $det['partnername'];
 		$data["ui"]   			   = $this->ui;
 		$data['show_input'] 	   = false;
 		$data["ajax_task"] 	  		   = "ajax_view";
@@ -550,7 +551,7 @@ class controller extends wc_controller
 		$ap_details['convertedcredit'] = $convcredit;
 
 		$account = $this->input->post('account');
-		$check = false;
+		$checker = false;
 		$result = false;
 		$warning = array();
 		$accountchecker = array();
@@ -626,7 +627,7 @@ class controller extends wc_controller
 			$classcode = $this->accounts_payable->getAccountClasscode($account);
 			foreach($classcode as $row) {
 				if($row->accountclasscode == 'ACCPAY') {
-					$check = true;
+					$checker = true;
 					if(empty($errors)) {
 						$result    = $this->accounts_payable->saveAP($ap, $ap_details);
 					}
@@ -659,7 +660,7 @@ class controller extends wc_controller
 		return array(
 			'redirect'	=> $redirect,
 			'success'	=> $result,
-			'check'		=> $check,
+			'check'		=> $checker,
 			'warning'  	=> $warning,
 			'error'		=> $errors,
 			'accountchecker' => $accountchecker
