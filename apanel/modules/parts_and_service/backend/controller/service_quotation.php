@@ -309,7 +309,7 @@ class controller extends wc_controller {
 		$voucherno 			= $seq->getValue("SEQ");
 		$quote 				= $this->input->post($this->fields);
 		$quote_details 		= $this->input->post($this->fields_details);
-		$submit_data 		= $this->input->post('submit_data');
+		$submit 			= $this->input->post('submit');
 
 		$transactiondate 	= date('Y-m-d', strtotime($quote['transactiondate']));
 		$targetdate 		= date('Y-m-d', strtotime($quote['targetdate']));
@@ -366,7 +366,14 @@ class controller extends wc_controller {
 		
 		$result2 = $this->service_quotation->saveFromPost('servicequotation_details', $values);
 
-		$result = array('query1' => $result1, 'query2' => $result2);
+		$task = '';
+		if ($submit == 'save_new') {
+			$task = 'create';
+		} else if ($submit == 'save_preview') {
+			$task = 'view/' . $voucherno;
+		}
+
+		$result = array('task' => $task, 'query1' => $result1, 'query2' => $result2);
 		return $result;
 	}
 	private function ajax_update(){
@@ -435,6 +442,7 @@ class controller extends wc_controller {
 		$result2 = $this->service_quotation->saveFromPost('servicequotation_details', $values);
 		
 		$result = array(
+			'task' 		=> '',
 			'delete1' => $delete1,
 			'query1' => $result1, 
 			'query2' => $result2

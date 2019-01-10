@@ -449,6 +449,7 @@ class controller extends wc_controller {
 		$id = $this->input->post('id');
 		$task = $this->input->post('task');
 		$item_ident = $this->input->post('item_ident');
+		$checked_serials = $this->input->post('checked_serials');
 		$voucherno = '';
 		if ($task=='ajax_edit') {
 			$voucherno = $this->input->post('voucherno');
@@ -464,16 +465,17 @@ class controller extends wc_controller {
 		}
 		$array_id = explode(',', $id);
 		$all_id = explode(',', $allserials);
-		
+		$checked_id = explode(',', $checked_serials);
+
 		$pagination	= $this->delivery_model->getSerialList($itemcode, $search, $voucherno, $linenum);
 		$table		= '';
 		$counter = 0;
 		foreach ($pagination->result as $key => $row) {
 			if ($curr_serialnumbers == $id) {
-				$checker = (in_array($row->id, $array_id) || in_array($row->id, $current_id)) ? 'checked' : '';
+				$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id) || in_array($row->id, $current_id)) ? 'checked' : '';
 			}
 			else {
-				$checker = (in_array($row->id, $array_id)) ? 'checked' : '';
+				$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id)) ? 'checked' : '';
 			}
 			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id))) ? 'hidden' : '';
 			$table .= '<tr class = "'.$hide_tr.'">';

@@ -522,9 +522,9 @@
 				<div class="row">
 					<div id="submit_container" class="col-md-12 text-center">
 						<?php
-							
-							echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
-							
+							if ($show_input) {
+								echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
+							}
 							echo '&nbsp;&nbsp;&nbsp;';
 							echo $ui->drawCancel();
 						?>
@@ -583,6 +583,7 @@
 		</div>
 	</div>
 </div>
+<?php if (!$show_input) :?>
 <div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
 	<div class="modal-dialog modal-md" role="document">
 		<div class="modal-content">
@@ -620,6 +621,7 @@
 		</div>
 	</div>
 </div>
+<? endif;?>
 </section>
 <script>
 	var delete_row	= {};
@@ -1146,11 +1148,11 @@
 		if (form_element.find('.has-error').length < 1) {
 			if ($('.quantity:not([readonly])').length > 0) {
 				
-				$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() , function(data) {
+				$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + submit_data , function(data){
 				 
-					if (data.query1) {
-						$('#delay_modal').modal('show');
-						setTimeout(function(){window.location = '<?=MODULE_URL?>';}, 1000);
+					if (data.query1 && data.query2) {
+						$('#delay_modal').modal('show');console.log(data.task);
+						setTimeout(function(){window.location = '<?=MODULE_URL?>'+data.task;}, 1000);
 					} else {
 						$('#submit_container [type="submit"]').attr('disabled', false);
 					}
@@ -1169,6 +1171,10 @@
 </script>
 <?php else: ?>
 <script>
+	$(function(){
+		$('#Attachment').hide();
+	})
+
 	$('#nav li a').on('click', function(){
 		$('#nav li').removeClass();
 		$('#Details').hide();
