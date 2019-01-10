@@ -14,9 +14,10 @@
 								->setName('costcenter_code')
 								->setId('costcenter_code')
 								->setValue($costcenter_code)
+								->addHidden((isset($ajax_task) && $ajax_task == 'ajax_edit'))
 								->setAttribute(array("maxlength" => "50"))
-								->setValidation('alpha_num required')
-								->draw($show_input);
+								->setValidation('code required')
+								->draw((isset($ajax_task) && $ajax_task == 'ajax_create'));
 						?>
 					</div>
                     <div class="col-md-6">
