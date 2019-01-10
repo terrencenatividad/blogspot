@@ -522,9 +522,9 @@
 				<div class="row">
 					<div id="submit_container" class="col-md-12 text-center">
 						<?php
-							
-							echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
-							
+							if ($show_input) {
+								echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
+							}
 							echo '&nbsp;&nbsp;&nbsp;';
 							echo $ui->drawCancel();
 						?>
@@ -583,6 +583,7 @@
 		</div>
 	</div>
 </div>
+<?php if (!$show_input) :?>
 <div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
 	<div class="modal-dialog modal-md" role="document">
 		<div class="modal-content">
@@ -620,6 +621,7 @@
 		</div>
 	</div>
 </div>
+<? endif;?>
 </section>
 <script>
 	var delete_row	= {};
@@ -1169,6 +1171,10 @@
 </script>
 <?php else: ?>
 <script>
+	$(function(){
+		$('#Attachment').hide();
+	})
+
 	$('#nav li a').on('click', function(){
 		$('#nav li').removeClass();
 		$('#Details').hide();

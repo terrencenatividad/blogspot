@@ -38,11 +38,11 @@ class controller extends wc_controller {
 			'parentcode'
 		);
 		$this->fields3			= array(
-			'job_order_no',
+			'jr.job_order_no',
 			'jod.itemcode',
 			'detailparticular',
-			'linenum',
-			'warehouse',
+			'jr.linenum',
+			'jod.warehouse',
 			'jod.qty' => 'jod.quantity',
 			'jod.uom',
 			'isbundle',
@@ -50,7 +50,8 @@ class controller extends wc_controller {
 			'parentline',
 			'item_ident_flag',
 			'bom.quantity bomqty',
-			'w.description'
+			'w.description',
+			'SUM(jr.quantity) as issuedqty'
 		);
 		$this->fields4			= array(
 			'job_release_no',
@@ -255,7 +256,11 @@ class controller extends wc_controller {
 			''
 		));
 		$data['voucher_details']	= json_encode($this->job_order->getJobOrder($this->fields3, $id));
-	
+	// 	for($i = 0; $i < count($data['voucher_details1']);$i++) {
+	// 		$data['voucher_details'] = $data['voucher_details1'][$i];
+	// 	// var_dump($data['voucher_details1'][$i]);
+	// }
+
 		$data['ajax_task']			= '';
 		$data['ajax_post']			= '';
 		$data['show_input']			= false;
@@ -593,7 +598,7 @@ class controller extends wc_controller {
 		
 		$this->inventory_model->prepareInventoryLog('Job Release', $job_release_no)
 								->preparePreviousValues();
-								
+														
 		$result 		= $this->job_order->updateIssueParts($job_release_no,$data);
 
 		$this->job_order->createClearingEntries($job_release_no);
@@ -623,6 +628,10 @@ class controller extends wc_controller {
 										->computeValues()
 										->logChanges('Cancelled');
 
+				$this->inventory_model->prepareInventoryLog('Job Release Parts', $delete_id)
+										->computeValues()
+										->logChanges('Cancelled');
+
 				$this->job_order->createClearingEntries($delete_id);
 			}
 			$this->inventory_model->generateBalanceTable();
@@ -631,15 +640,6 @@ class controller extends wc_controller {
 			'success' => $result
 		);
 	}
-
-	private function ajax_check_issuedqty() {
-		$itemcode	= $this->input->post('itemcode');
-		$job_order_no	= $this->input->post('job_order_no');
-
-		$result		= $this->job_order->retrieveIssuedQty($itemcode,$job_order_no);
-
-		return array('result' => $result);
-	 }
 
 	private function ajax_load_issue() {
 		$seq 						= new seqcontrol();

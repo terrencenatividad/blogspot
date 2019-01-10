@@ -94,12 +94,17 @@
                                     <h4><strong><?php echo $vendor; ?></strong></h4>
                                 </div>
                                 <?php if(!empty($job_no)) : ?>
+                                    <?php $jobs = explode(',', $job_no); ?>
                                     <div class="col-md-4">
                                         <div class="col-md-6">
                                             <h4>Job Tagged</h4>
                                         </div>
                                         <div class="col-md-6">
-                                            <h4><strong><?php echo substr($job_no, 0, 20) . '...'; ?></strong></h4>
+                                            <ul>
+                                                <?php foreach($jobs as $row) : ?>
+                                                    <li><?php echo $row ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
                                         </div>
                                     </div>
                                 <?php endif; ?>
@@ -116,15 +121,15 @@
                                 <?php if(!empty($assetid)) : ?>
                                     <div class="col-md-4">
                                         <div class="col-md-7">
-                                        <h4>Asset Code</h4>
+                                            <h4>Asset Code</h4>
+                                        </div>
+                                        <div class="col-md-5">
+                                         <h4><strong> <?php echo $assetid; ?></strong></h4>
                                      </div>
-                                     <div class="col-md-5">
-                                       <h4><strong> <?php echo $assetid; ?></strong></h4>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                        <div class="row">
+                                 </div>
+                             <?php endif; ?>
+                         </div>
+                         <div class="row">
                             <div class="col-md-8">
                                 <div class="col-md-1">
                                     TIN
@@ -152,13 +157,13 @@
                         <table class="table table-hover table-condensed " id="itemsTable">
                             <thead>
                                 <tr class="info">
-                                        <th class="col-md-1 text-center">Withholding Tax</th>
-                                        <th class="col-md-2 text-center">Budget Code</th>
-                                        <th class="col-md-2 text-center">Account</th>
-                                        <th class="col-md-2 text-center">Description</th>
-                                        <th class="col-md-2 text-center" colspan = "2">Debit</th>
-                                        <th class="col-md-2 text-center" colspan = "2">Credit</th>
-                                        <th class="col-md-3 text-center">Currency Amount</th>
+                                    <th class="col-md-1 text-center">Withholding Tax</th>
+                                    <th class="col-md-2 text-center">Budget Code</th>
+                                    <th class="col-md-2 text-center">Account</th>
+                                    <th class="col-md-2 text-center">Description</th>
+                                    <th class="col-md-2 text-center" colspan = "2">Debit</th>
+                                    <th class="col-md-2 text-center" colspan = "2">Credit</th>
+                                    <th class="col-md-3 text-center">Currency Amount</th>
                                     <?if($ajax_task != 'view'){?>
                                         <th class="col-md-1 center"></th>
                                         <?}?>
@@ -197,7 +202,7 @@
                                                         ?>
                                                     </td>
                                                 <?php } ?>
-                                                 <td class = "remove-margin">
+                                                <td class = "remove-margin">
                                                     <?php
                                                     echo $ui->formField('dropdown')
                                                     ->setPlaceholder('Select One')
@@ -246,7 +251,7 @@
                                                     </div>
                                                 </td>
                                                 <td class = "remove-margin" colspan = "2">
-                                                   <div class="col-md-2">
+                                                 <div class="col-md-2">
                                                     <span class="label label-default currency_symbol"><?php echo $currencycode ?></span>
                                                 </div>
                                                 <div class="col-md-10">
@@ -287,29 +292,29 @@
                                         <label class="control-label">Total</label>
                                     </td>
                                     <td class="right" style="border-top:1px solid #DDDDDD;">
-                                     <div class="col-md-12 text-right">
-                                         <span id = "total_debit"></span>
-                                     </div>
-                                 </td>
-                                 <td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
-                                 <td class="right" style="border-top:1px solid #DDDDDD;">
-                                     <div class="col-md-12 text-right">
-                                         <span id = "total_credit"></span>
-                                     </div>
-                                 </td>
-                                 <td class="right" style="border-top:1px solid #DDDDDD;">
-                                     <div class="col-md-12 text-right">
-                                         <span id = "total_currency"></span>
-                                     </div>
-                                 </td>
-                                 <td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
-                             </tr>   
-                         </tfoot>
-                     </table>
-                 </div>
-             </div>
-             <div class="row">
-                 <div class="col-md-12 text-right">
+                                       <div class="col-md-12 text-right">
+                                           <span id = "total_debit"></span>
+                                       </div>
+                                   </td>
+                                   <td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+                                   <td class="right" style="border-top:1px solid #DDDDDD;">
+                                       <div class="col-md-12 text-right">
+                                           <span id = "total_credit"></span>
+                                       </div>
+                                   </td>
+                                   <td class="right" style="border-top:1px solid #DDDDDD;">
+                                       <div class="col-md-12 text-right">
+                                           <span id = "total_currency"></span>
+                                       </div>
+                                   </td>
+                                   <td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+                               </tr>   
+                           </tfoot>
+                       </table>
+                   </div>
+               </div>
+               <div class="row">
+                   <div class="col-md-12 text-right">
                     <a href="<?=MODULE_URL?>" class = "btn btn-primary btn-flat">Exit</a>
                 </div>
             </div>
@@ -335,108 +340,108 @@
                             <?php if(isset($payments)) { ?>
                                 <?php foreach ($payments as $key => $row) : ?>
                                     <?php $amount = $row->amount; ?>
-                                   <tr>
-                                    <td class = "remove-margin">
-                                        <?php
-                                        echo $ui->formField('text')
-                                        ->setSplit('', 'col-md-12')
-                                        ->setName('date[]')
-                                        ->setId('date')
-                                        ->setAttribute(array("maxlength" => "100"))
-                                        ->setClass('date')
-                                        ->setValue($row->date)
-                                        ->draw($show_input);
-                                        ?>
-                                    </td>
-                                    <td class = "remove-margin">
-                                        <?php
-                                        echo $ui->formField('text')
-                                        ->setSplit('', 'col-md-12')
-                                        ->setName('mode[]')
-                                        ->setId('mode')
-                                        ->setAttribute(array("maxlength" => "100"))
-                                        ->setClass('mode')
-                                        ->setValue(strtoupper($row->mode))
-                                        ->draw($show_input);
-                                        ?>
-                                    </td>
-                                    <td class = "remove-margin">
-                                        <?php
-                                        echo $ui->formField('text')
-                                        ->setSplit('', 'col-md-12')
-                                        ->setName('reference[]')
-                                        ->setId('reference')
-                                        ->setAttribute(array("maxlength" => "100"))
-                                        ->setClass('reference')
-                                        ->setValue($row->reference)
-                                        ->draw($show_input);
-                                        ?>
-                                    </td>
-                                    <td class = "remove-margin">
-                                        <?php
-                                        echo $ui->formField('text')
-                                        ->setSplit('', 'col-md-12')
-                                        ->setName('paymentaccount[]')
-                                        ->setId('paymentaccount')
-                                        ->setAttribute(array("maxlength" => "100"))
-                                        ->setClass('paymentaccount')
-                                        ->setValue($row->paymentaccount)
-                                        ->draw($show_input);
-                                        ?>
-                                    </td>
-                                    <td class = "remove-margin text-right">
-                                        <?php
-                                        echo $ui->formField('text')
-                                        ->setSplit('', 'col-md-12')
-                                        ->setName('amount[]')
-                                        ->setId('amount')
-                                        ->setAttribute(array("maxlength" => "100"))
-                                        ->setClass('amount')
-                                        ->setValue($row->amount)
-                                        ->draw($show_input);
-                                        ?>
-                                    </td>
-                                    <td class = "remove-margin text-right">
-                                        <?php
-                                        echo $ui->formField('text')
-                                        ->setSplit('', 'col-md-12')
-                                        ->setName('discount[]')
-                                        ->setId('discount')
-                                        ->setAttribute(array("maxlength" => "100"))
-                                        ->setClass('discount')
-                                        ->setValue($row->discount)
-                                        ->draw($show_input);
-                                        ?>
-                                    </td>
-                                    <td class = "text-center">
-                                        <a href="<?=MODULE_URL?>print_preview/<?=$voucherno?>" style = "text-decoration: none; color : black;" class = "btn btn-default btn-xs">
-                                            <span class="glyphicon glyphicon-print"></span>
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php } ?>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td class="text-right" colspan="4" style="border-top:1px solid #DDDDDD;">
-                                <label for="subtotal" class="control-label">Total </label>
-                            </td>
-                            <td style="border-top:1px solid #DDDDDD;" class="text-right">
-                                <label class="control-label" style="padding: 0 12px 0 12px;" id = "total_amount"><?php echo $amount ?></label>
-                            </td>
-                            <td style="border-top:1px solid #DDDDDD;" class="text-right">
-                                <label class="control-label" style="padding: 0 12px 0 12px;">0.00</label>
-                            </td>
-                            <td style="border-top:1px solid #DDDDDD;" class = "text-center">
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                                    <tr>
+                                        <td class = "remove-margin">
+                                            <?php
+                                            echo $ui->formField('text')
+                                            ->setSplit('', 'col-md-12')
+                                            ->setName('date[]')
+                                            ->setId('date')
+                                            ->setAttribute(array("maxlength" => "100"))
+                                            ->setClass('date')
+                                            ->setValue($row->date)
+                                            ->draw($show_input);
+                                            ?>
+                                        </td>
+                                        <td class = "remove-margin">
+                                            <?php
+                                            echo $ui->formField('text')
+                                            ->setSplit('', 'col-md-12')
+                                            ->setName('mode[]')
+                                            ->setId('mode')
+                                            ->setAttribute(array("maxlength" => "100"))
+                                            ->setClass('mode')
+                                            ->setValue(strtoupper($row->mode))
+                                            ->draw($show_input);
+                                            ?>
+                                        </td>
+                                        <td class = "remove-margin">
+                                            <?php
+                                            echo $ui->formField('text')
+                                            ->setSplit('', 'col-md-12')
+                                            ->setName('reference[]')
+                                            ->setId('reference')
+                                            ->setAttribute(array("maxlength" => "100"))
+                                            ->setClass('reference')
+                                            ->setValue($row->reference)
+                                            ->draw($show_input);
+                                            ?>
+                                        </td>
+                                        <td class = "remove-margin">
+                                            <?php
+                                            echo $ui->formField('text')
+                                            ->setSplit('', 'col-md-12')
+                                            ->setName('paymentaccount[]')
+                                            ->setId('paymentaccount')
+                                            ->setAttribute(array("maxlength" => "100"))
+                                            ->setClass('paymentaccount')
+                                            ->setValue($row->paymentaccount)
+                                            ->draw($show_input);
+                                            ?>
+                                        </td>
+                                        <td class = "remove-margin text-right">
+                                            <?php
+                                            echo $ui->formField('text')
+                                            ->setSplit('', 'col-md-12')
+                                            ->setName('amount[]')
+                                            ->setId('amount')
+                                            ->setAttribute(array("maxlength" => "100"))
+                                            ->setClass('amount')
+                                            ->setValue($row->amount)
+                                            ->draw($show_input);
+                                            ?>
+                                        </td>
+                                        <td class = "remove-margin text-right">
+                                            <?php
+                                            echo $ui->formField('text')
+                                            ->setSplit('', 'col-md-12')
+                                            ->setName('discount[]')
+                                            ->setId('discount')
+                                            ->setAttribute(array("maxlength" => "100"))
+                                            ->setClass('discount')
+                                            ->setValue($row->discount)
+                                            ->draw($show_input);
+                                            ?>
+                                        </td>
+                                        <td class = "text-center">
+                                            <a href="<?=MODULE_URL?>print_preview/<?=$voucherno?>" style = "text-decoration: none; color : black;" class = "btn btn-default btn-xs">
+                                                <span class="glyphicon glyphicon-print"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php } ?>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td class="text-right" colspan="4" style="border-top:1px solid #DDDDDD;">
+                                    <label for="subtotal" class="control-label">Total </label>
+                                </td>
+                                <td style="border-top:1px solid #DDDDDD;" class="text-right">
+                                    <label class="control-label" style="padding: 0 12px 0 12px;" id = "total_amount"><?php echo $amount ?></label>
+                                </td>
+                                <td style="border-top:1px solid #DDDDDD;" class="text-right">
+                                    <label class="control-label" style="padding: 0 12px 0 12px;">0.00</label>
+                                </td>
+                                <td style="border-top:1px solid #DDDDDD;" class = "text-center">
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 </div>
 <br>
 <div class="row">

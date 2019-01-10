@@ -446,6 +446,11 @@
 								->setClass('linenum')
 								->setValue('` + details.linenum + `')
 								->draw(true);
+							echo $ui->formField('hidden')
+								->setName('h_issuedqty[]')
+								->setClass('h_issuedqty')
+								->setValue('` + details.issuedqty + `')
+								->draw(true);
 						?>
 					</td>
 					<td>
@@ -720,20 +725,25 @@
 		});
 
 		$('#tableList tbody').on('blur', '.quantity', function(e) {		
-			var itemcode = $(this).closest('tr').find('.h_itemcode').val();
-			var jobno	= $('#job_order_no').val();
-			var value 	=	removeComma($(this).val());
+			var itemcode 	= $(this).closest('tr').find('.h_itemcode').val();
+			var jobno		= $('#job_order_no').val();
+			var value 		=	removeComma($(this).val());
 			var orderqty 	=	removeComma($(this).closest('tr').find('.h_orderqty').val());
+			var issuedqty 	=	removeComma($(this).closest('tr').find('.h_issuedqty').val());
+			var issueqtyleft = parseInt(orderqty) - parseInt(issuedqty);
+
 			if ($(this).closest('tr').hasClass('items')) {
 				if (value < 1) 
 					$(this).parent().parent().addClass('has-error');
 				else
 					$(this).parent().parent().removeClass('has-error');
 			}
-			if(value > orderqty){
-				$(this).val(orderqty);
-				value = orderqty;
+			
+			if(value > issueqtyleft){
+				$(this).val(issueqtyleft);
+				value = issueqtyleft;
 			}
+
 			if ($(this).closest('tr').data('isbundle') == 1) {
 				var linenum = $(this).closest('tr').data('linenum');
 				$.each($('.subitem'+linenum), function(){
@@ -742,15 +752,6 @@
 					$(this).find('.quantity').val(subitemqty);
 				});
 			}
-
-			$.post('<?=MODULE_URL?>ajax/ajax_check_issuedqty', 'itemcode=' + itemcode + '&job_order_no=' + jobno , function(data) {
-				var sum 		 = parseInt(data.result.issuedqty)+parseInt(value);
-				var issueqtyleft = parseInt(orderqty) - parseInt(data.result.issuedqty);
-				if(sum > orderqty){
-					$('#tableList tbody').find('.quantity').val(issueqtyleft);
-				}
-					
-			});
 	});	
 
 		var itemselected = [];
@@ -849,9 +850,6 @@
 				count++;
 				var serialed = $(this).val();
 				itemselected.push(serialed);
-			console.log(quantityleft);		
-			// console.log(itemselected);		
-				
 				itemrow.closest('tr').find('.serialnumbers').val(itemselected);
 			});
 			$('#tableList tbody tr .serialnumbers').each(function() {

@@ -362,7 +362,7 @@ var ajax = {};
 	/**FILTER BY TYPE**/
     function filterList(tab)
     {
-    	
+    	ajax.page = 1;
     	if(tab == 'all'){
     		ajax.addCond	= '';
     	}else if(tab == 'asset'){
@@ -511,7 +511,7 @@ var ajax = {};
 			$('.checked').iCheck('uncheck');
 			var li = $(this).closest('li');
 			if (li.not('.active').length && li.not('.disabled').length) {
-				ajax.page = 1;
+				ajax.page = $(this).attr('data-page');
 				showList();
 			}
 		});

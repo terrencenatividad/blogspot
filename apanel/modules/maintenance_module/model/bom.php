@@ -70,10 +70,19 @@ class bom extends wc_model
 			->runSelect()
 			->getResult();
 		} else {
+			$get = $this->db->setTable('bom')
+			->setFields("bundle_item_code as val")
+			->runSelect()
+			->getResult();
+			$code = array();
+			foreach($get as $row) {
+				$code[] = $row->val;
+			}
+			$codes = implode("','",$code);
 			$result = $this->db->setTable('items i')
-			->setFields("IF(b.bundle_item_code != i.itemcode, i.itemcode, '') as ind, IF(b.bundle_item_code != i.itemcode, i.itemcode, '') as val")
-			->leftJoin('bom b ON b.bundle_item_code != i.itemcode')
-			->setWhere("bundle = '1'")
+			->setFields("i.itemcode as ind, i.itemcode as val")
+			->leftJoin('bom b ON b.bundle_item_code = i.itemcode')
+			->setWhere("i.itemcode NOT IN ('$codes') AND i.bundle = '1'")
 			->runSelect()
 			->getResult();
 		}

@@ -149,6 +149,22 @@
 			</div>
 		</div>
 	</div>
+	<div id="tagRetired" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title modal-success">Tag as retired?</h4>
+			</div>
+			<div class="modal-body">
+				<p>Are you sure you want to tag this asset as retired?</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" id="yes_na_yes" data-dismiss="modal">Yes</button>
+				<button type="button" class="btn btn-default" id="no" data-dismiss="modal">No</button>
+			</div>
+		</div>
+	</div>
+</div>
 	<script>
 		var ajax = filterFromURL();
 		var ajax_call = '';
@@ -222,10 +238,14 @@
 
 		$('#tableList').on('click', '.tag_as_retired', function() { 
 			var id = $(this).attr('data-id');
-			$.post('<?=MODULE_URL?>ajax/update_retirement_date', '&id='+id ,function(data) {
+			$('#tagRetired').modal('show');
+			$( "#tagRetired #yes_na_yes" ).click(function() {
+				$.post('<?=MODULE_URL?>ajax/update_retirement_date', '&id='+id ,function(data) {
+				$('#tagRetired').modal('hide');
 				getList();
 			});
 		});
+	});
 
 		$('#importForm').submit(function(e) {
 			e.preventDefault();
