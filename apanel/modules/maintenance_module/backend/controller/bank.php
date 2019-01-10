@@ -62,6 +62,7 @@ class controller extends wc_controller
 	{
 		$this->view->title = $this->ui->EditLabel('');
 		$data 			 	= (array) $this->bank->retrieveExistingBank($this->fields, $id);
+		$data['checking_account'] = ($data['checking_account'] == 'yes') ? 1 : 0;
 		$data['currencylist']   = $this->bank->retrieveExchangeRateDropdown();
 		$data['gllist']   		= $this->bank->retrieveGLDropdown();
 		$data['ui'] 		= $this->ui;
@@ -76,6 +77,7 @@ class controller extends wc_controller
 	{
 		$this->view->title 	= $this->ui->ViewLabel('');
 		$data 			 	= (array) $this->bank->retrieveExistingBank($this->fields, $id);
+		$data['checking_account'] = ($data['checking_account'] == 'yes') ? 1 : 0;
 		$data['currencylist']   = $this->bank->retrieveExchangeRateDropdown();
 		$data['gllist']   		= $this->bank->retrieveGLDropdown();
 		$data['id']			= $id;
@@ -624,15 +626,18 @@ class controller extends wc_controller
 						'shortname' 		=> $this->getValueCSV('Bank Name', $row, 'required', $errors),
 						'accountno' 		=> $this->getValueCSV('Bank Account Number', $row, 'required text', $errors),
 						'currency' 			=> $this->getValueCSV('Currency Code', $row, 'required text', $errors),
-						// 'checking_account' 	=> $this->getValueCSV('Checking Account (yes/no)', $row, '', $errors),
+						'checking_account' 	=> $this->getValueCSV('Checking Account (yes/no)', $row, '', $errors),
 						'address1' 			=> $this->getValueCSV('Bank Address', $row, 'required', $errors)
 					);
 					// echo $checking_account;
 					if($checking_account != "" && (strtolower($checking_account) != "yes" && strtolower($checking_account) != "no")){
 						$errors[0] = "The Checking Account in line " .$row['row_num']. " is invalid. Kindly use 'Yes' for Checking Accounts, otherwise 'No'.<br>";;
+					} else if($checking_account == "") {
+						$curr_key 	=	($key > 0) ? $key - 1 : 0;
+						$values[$curr_key]['checking_account'] = strtolower('no');
 					}
 				}
-				$line = 1;
+				$line = 2;
 				$bankcode = $this->bank->checkGL();
 				$name = array();
 				foreach ($bankcode as $m) {
