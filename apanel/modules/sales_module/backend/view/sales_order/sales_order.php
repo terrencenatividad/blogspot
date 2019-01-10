@@ -1858,7 +1858,7 @@ function addAmounts() {
 	var table				= document.getElementById('itemsTable');
 	var count				= table.tBodies[0].rows.length;
 
-	console.log(count);
+	//console.log(count);
 	var vatex 	 			= $('#vat_ex').val();
 	var discounttype  		= $('#discounttype').val();
 
@@ -2015,7 +2015,7 @@ function resetIds()
 	var table 	= document.getElementById('itemsTable');
 	var count	= table.tBodies[0].rows.length;
 
-	console.log( " count = "+count);
+	//console.log( " count = "+count);
 
 	x = 1;
 	for(var i = 1;i <= count;i++)
@@ -2516,14 +2516,13 @@ $(document).ready(function(){
 	// -- For Items -- End
 
 	// -- For Discount --
-		$('#sales_order_form').on('change','.discount, .price',function(e){
+		$('#sales_order_form').on('change','.discount',function(e){
 			var id 		= 	$(this).attr("id");
 			var row 	=	id.replace(/[a-z]/g, '');
 			var dtype 	= 	$('#discounttype').val();
-			//var value 	= 	$(this).val();
+			var value 	= 	$(this).val();
 
 			var price 	= 	removeComma($(this).closest('tr').find('.price').val());
-			var value 	= 	removeComma($(this).closest('tr').find('.discount').val());
 			var form 	=	$(this);
 			if( parseFloat(value) > 0 && dtype == ""){
 				$('#discounttype').closest('.form-group').addClass('has-error');
@@ -2541,6 +2540,62 @@ $(document).ready(function(){
 					form.closest('div').removeClass('has-error');
 				}
 				if( parseFloat(value) > 0 && parseFloat(value) > parseFloat(price) ){
+					form.addClass('greaterthanprice');
+					form.closest('div').addClass('has-error');
+				} else {
+					form.closest('div').removeClass('has-error');
+				}
+				var pricediscounterrors 	=	$('#sales_order_form .greaterthanprice').closest('tr').find('.has-error').length;
+				var greaterthan100 			=	$('#sales_order_form .greaterthan100').closest('tr').find('.has-error').length;
+				var negativediscount 		=	$('#sales_order_form .negativediscount').closest('tr').find('.has-error').length;
+				
+				if(pricediscounterrors > 0){
+					$('#discountError').removeClass('hidden');
+				} else {
+					$('#discountError').addClass('hidden');
+				}
+
+				if(greaterthan100 > 0){
+					$('#discount100Error').removeClass('hidden');
+				} else {
+					$('#discount100Error').addClass('hidden');
+				}
+
+				if(negativediscount > 0){
+					$('#negaDiscountError').removeClass('hidden');
+				} else {
+					$('#negaDiscountError').addClass('hidden');
+				}
+
+			}
+			formatNumber(id);
+			computeAmount();
+		});
+
+		$('#sales_order_form').on('change','.price',function(e){
+			var id 		= 	$(this).attr("id");
+			var row 	=	id.replace(/[a-z]/g, '');
+			var dtype 	= 	$('#discounttype').val();
+			var price 	= 	removeComma($(this).val());
+
+			var discount 	= 	removeComma($(this).closest('tr').find('.discount').val());
+			var form 	=	$(this).closest('tr').find('.discount');
+			if( parseFloat(discount) > 0 && dtype == ""){
+				$('#discounttype').closest('.form-group').addClass('has-error');
+			} else {
+				if(dtype == "perc" && parseFloat(discount) > 100){
+					form.closest('div').addClass('has-error');
+					form.addClass('greaterthan100');
+				} else {
+					form.closest('div').removeClass('has-error');
+				}
+				if(dtype == "perc" && parseFloat(discount) < 0){
+					form.closest('div').addClass('has-error');
+					form.addClass('negativediscount');
+				} else {
+					form.closest('div').removeClass('has-error');
+				}
+				if( parseFloat(discount) > 0 && parseFloat(discount) > parseFloat(price) ){
 					form.addClass('greaterthanprice');
 					form.closest('div').addClass('has-error');
 				} else {

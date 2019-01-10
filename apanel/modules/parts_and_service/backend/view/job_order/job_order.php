@@ -160,7 +160,7 @@
 										echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 									}
 								?>
-								<?php if(!$show_input):?><a href="http://localhost/triglobe/apanel/parts_and_service/job_order/payment/<?php echo $job_order_no ?>" class="btn btn-warning">Issue Parts</a><?endif;?>
+								<?php if(!$show_input):?><a href="<?=MODULE_URL?>payment/<?php echo $job_order_no ?>" class="btn btn-warning">Issue Parts</a><?endif;?>
 								<?php
 									// echo '&nbsp;&nbsp;&nbsp;';
 									echo $ui->drawCancel();
@@ -333,7 +333,39 @@
 		</div>
 		</div>
 	</div>
-	
+	<?if(!$show_input && !empty($filename)):?>
+	<div id="Attachment" class="tab-pane">
+		<div class="box box-primary">
+			<form method = "post" class="form-horizontal" id="case_attachments_form" enctype="multipart/form-data">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="table-responsive">
+							<table id="fileTable" class="table table-bordered">
+								<thead>
+									<tr class="info">
+										<th class="col-md-1">Action</th>
+										<th class="col-md-5">File Name</th>
+										<th class="col-md-2">File Type</th>
+									</tr>
+								</thead>
+								<tbody class="files" id="attachment_list">
+									<tr>
+										<td>
+											<button type="button" id="replace_attachment" data-voucherno='<?=$voucherno;?>' name="replace_attachment" class="btn btn-primary">Replace</button>
+										</td>
+										<td><a href="<?=$filepath;?>" target='_blank'><?=$filename?></a></td>
+										<td><?=$filetype?></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<br/>
+			</form>
+		</div>
+	</div>
+	<?php endif;?>
 	<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-md" role="document">
 			<div class="modal-content">

@@ -19,12 +19,14 @@
 							echo $ui->formField('text')
 									->setLabel('Brand Code: ')
 									->setSplit('col-md-3', 'col-md-6')
+									->setAttribute(array('autocomplete' => 'off'))
 									->setName('brandcode')
 									->setId('brandcode')
 									->setMaxLength(12)
 									->setValue($brandcode)
-									->setValidation('required') //required code
-									->draw($show_input);
+									->addHidden((isset($task) && $task == 'update'))
+									->setValidation('required code') 
+									->draw((isset($task) && $task == 'add'));
 						?>
 					</div>
 				</div>
@@ -82,9 +84,7 @@
 var ajax = {};
 
 $('#brandForm #btnSave').on('click',function(){
-
-	$('#brandForm #brandcode').trigger('blur');
-	$('#brandForm #brandname').trigger('blur');
+	$("#brandForm").find('.form-group').find('input, textarea, select').trigger('blur');
 
 	if ($('#brandForm').find('.form-group.has-error').length == 0)
 	{	
