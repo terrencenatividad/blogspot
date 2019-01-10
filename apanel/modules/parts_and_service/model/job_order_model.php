@@ -439,9 +439,16 @@ class job_order_model extends wc_model
 		return $result;
 	}
 
-	public function getJobOrder($fields, $voucherno) {
-		$result = $this->db->setTable('job_order_details jod')
-							->setFields($fields)
+	public function getJobOrder($fields, $fields2, $voucherno) {
+		$count = $this->db->setTable('job_release')
+				->setFields('*')
+				->setWhere("job_order_no = '$voucherno' AND stat != 'cancelled'")
+				->runSelect()
+				->getResult();
+
+				if($count){
+					$result1 = $this->db->setTable('job_order_details jod')
+							->setFields($fields2)
 							->leftJoin('items i ON i.itemcode = jod.itemcode')
 							->leftJoin('bomdetails bom ON bom.item_code = jod.itemcode')
 							->leftJoin('warehouse w ON w.warehousecode = jod.warehouse')
@@ -451,8 +458,19 @@ class job_order_model extends wc_model
 							->setGroupBy('jr.job_order_no , jr.linenum')
 							->runSelect()
 							->getResult();
+				}else{
+					$result1 = $this->db->setTable('job_order_details jod')
+							->setFields($fields)
+							->leftJoin('items i ON i.itemcode = jod.itemcode')
+							->leftJoin('bomdetails bom ON bom.item_code = jod.itemcode')
+							->leftJoin('warehouse w ON w.warehousecode = jod.warehouse')
+							->setWhere("jod.job_order_no = '$voucherno'")
+							->setOrderBy('linenum')
+							->runSelect()
+							->getResult();
+				}
 
-	return $result;
+		return $result1;
 }
 
 	public function getQty($jobreleaseno) {

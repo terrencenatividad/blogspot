@@ -38,6 +38,21 @@ class controller extends wc_controller {
 			'parentcode'
 		);
 		$this->fields3			= array(
+			'job_order_no',
+			'jod.itemcode',
+			'detailparticular',
+			'jod.linenum',
+			'jod.warehouse',
+			'jod.qty' => 'jod.quantity',
+			'jod.uom',
+			'isbundle',
+			'parentcode',
+			'parentline',
+			'item_ident_flag',
+			'bom.quantity bomqty',
+			'w.description'
+		);
+		$this->fields33			= array(
 			'jr.job_order_no',
 			'jod.itemcode',
 			'detailparticular',
@@ -255,11 +270,7 @@ class controller extends wc_controller {
 		$data['header_values']		= json_encode(array(
 			''
 		));
-		$data['voucher_details']	= json_encode($this->job_order->getJobOrder($this->fields3, $id));
-	// 	for($i = 0; $i < count($data['voucher_details1']);$i++) {
-	// 		$data['voucher_details'] = $data['voucher_details1'][$i];
-	// 	// var_dump($data['voucher_details1'][$i]);
-	// }
+		$data['voucher_details']	= json_encode($this->job_order->getJobOrder($this->fields3, $this->fields33, $id));
 
 		$data['ajax_task']			= '';
 		$data['ajax_post']			= '';
@@ -480,14 +491,14 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_create() {
-		$seq 					= new seqcontrol();
-		$job_order_no 			= $seq->getValue("JO");
-		
-		$data = $this->input->post($this->fields);
-		$data['stat'] = 'prepared';
-		$data['job_order_no'] = $job_order_no;
+		$seq 						= new seqcontrol();
+		$job_order_no 				= $seq->getValue("JO");
+		$submit						= $this->input->post('submit');
+		$data 						= $this->input->post($this->fields);
+		$data['stat'] 				= 'prepared';
+		$data['job_order_no'] 		= $job_order_no;
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
-		$data2 				= $this->input->post($this->fields2);
+		$data2 						= $this->input->post($this->fields2);
 		foreach($data2 as $key => $content){
 			if(is_array($content)){
 				foreach($content as $ind => $val) {
@@ -501,13 +512,18 @@ class controller extends wc_controller {
 				}
 			}
 		}
-		// var_dump($data2['isbundle']);
-		// $result = 0;
+		
 		$result		= $this->job_order->saveJobOrder($data, $data2);
-		//var_dump($data, $data2);
+		
+		$redirect_url = MODULE_URL;
+		if ($submit == 'save_new') {
+			$redirect_url = MODULE_URL . 'create';
+		} else if ($submit == 'save_preview') {
+			$redirect_url = MODULE_URL . 'view/' . $data['job_order_no'];
+		}
 		return array(
-			'redirect' => MODULE_URL,
-			'success' => $result
+			'redirect'	=> $redirect_url,
+			'success'	=> $result
 		);
 	}
 
@@ -607,7 +623,7 @@ class controller extends wc_controller {
 			$this->inventory_model->computeValues()
 									->setDetails($customer)
 									->logChanges();
-
+			
 			$this->inventory_model->generateBalanceTable();
 		}
 		return array(	
