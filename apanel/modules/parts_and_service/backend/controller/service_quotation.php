@@ -442,6 +442,7 @@ class controller extends wc_controller {
 		$result2 = $this->service_quotation->saveFromPost('servicequotation_details', $values);
 		
 		$result = array(
+			'task' 		=> '',
 			'delete1' => $delete1,
 			'query1' => $result1, 
 			'query2' => $result2
