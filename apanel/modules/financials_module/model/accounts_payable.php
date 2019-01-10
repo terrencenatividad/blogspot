@@ -2157,7 +2157,7 @@ class accounts_payable extends wc_model
 
 	public function getSupplierDetails($vendor) {
 		$result = $this->db->setTable('partners')
-		->setFields('email, address1, tinno')
+		->setFields('email, address1, tinno, partnername')
 		->setWhere("partnercode = '$vendor'")
 		->runSelect()
 		->getRow();
