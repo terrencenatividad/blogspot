@@ -445,16 +445,19 @@ class job_order_model extends wc_model
 							->leftJoin('items i ON i.itemcode = jod.itemcode')
 							->leftJoin('bomdetails bom ON bom.item_code = jod.itemcode')
 							->leftJoin('warehouse w ON w.warehousecode = jod.warehouse')
-							->setWhere("job_order_no = '$voucherno'")
+							->leftJoin('job_release jr ON jod.linenum = jr.linenum AND jod.job_order_no = jr.job_order_no AND jr.itemcode = jod.itemcode')
+							->setWhere("jod.job_order_no = '$voucherno' AND jr.stat != 'cancelled'")
 							->setOrderBy('linenum')
+							->setGroupBy('jr.job_order_no , jr.linenum')
 							->runSelect()
 							->getResult();
-		return $result;
-	}
+
+	return $result;
+}
 
 	public function getQty($jobreleaseno) {
 		$result = $this->db->setTable('job_release')
-							->setFields('quantity,itemcode,linenum')
+							->setFields('quantity,itemcode,linenum,serialnumbers')
 							->setWhere("job_release_no = '$jobreleaseno'")
 							->setOrderBy('linenum')
 							->runSelect()
