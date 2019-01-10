@@ -155,6 +155,7 @@ class controller extends wc_controller
 		$data['email'] = $det['email'];
 		$data['budget_list'] = $this->accounts_payable->getBudgetCodes();
 		$data['tinno'] = $det['tinno'];
+		$data['vendor'] = $det['partnername'];
 		$data["ui"]   			   = $this->ui;
 		$data['show_input'] 	   = false;
 		$data["ajax_task"] 	  		   = "ajax_view";
