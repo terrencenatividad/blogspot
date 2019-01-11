@@ -535,7 +535,7 @@ class purchase_receipt_model extends wc_model {
 				if ($quantity >= $row->receiptqty) {
 					$add_result = false;
 				}
-				$row->maxqty = ($row->maxqty > $quantity) ? $row->maxqty - $quantity : 0;
+				$row->maxqty = intval($row->maxqty);//($row->maxqty > $quantity) ? $row->maxqty - $quantity : 0;
 				$row->receiptqty = ($row->receiptqty > $quantity) ? $row->receiptqty - $quantity : 0;
 				$checker[$row->linenum] -= $row->receiptqty;
 			}
@@ -580,7 +580,7 @@ class purchase_receipt_model extends wc_model {
 				if ($quantity >= $row->receiptqty) {
 					$add_result = false;
 				}
-				$row->maxqty = ($row->maxqty > $quantity) ? $row->maxqty - $quantity : 0;
+				$row->maxqty = intval($row->maxqty);//($row->maxqty > $quantity) ? $row->maxqty - $quantity : 0;
 				$row->receiptqty = ($row->receiptqty > $quantity) ? $row->receiptqty - $quantity : 0;
 				$checker[$row->linenum] -= $row->receiptqty;
 			}
@@ -665,9 +665,10 @@ class purchase_receipt_model extends wc_model {
 		return $result;
 	}
 
-	public function getSerialNoFromDbView() {
+	public function getSerialNoFromDbView($voucherno) {
 		$result = $this->db->setTable('items_serialized i')
 							->setFields('itemcode, serialno, engineno, chassisno')
+							->setWhere("voucherno = '$voucherno'")
 							// ->setOrderBy('serialno')
 							->runSelect()
 							->getResult();
