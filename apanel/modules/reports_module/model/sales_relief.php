@@ -39,7 +39,7 @@
                 $condition .= " AND inv.customer = '$customer'";
             } 
             $query = $this->db->setTable("salesinvoice inv")
-                              ->setFields('inv.transactiondate, inv.period, inv.fiscalyear, p.partnername, p.tinno, inv.netamount, inv.vat_exempt, inv.vat_zerorated, inv.vat_sales, inv.taxamount, inv.amount')
+                              ->setFields('inv.transactiondate, inv.voucherno, inv.period, inv.fiscalyear, p.partnername, p.tinno, inv.netamount, inv.vat_exempt, inv.vat_zerorated, inv.vat_sales, inv.taxamount, inv.amount')
                               ->leftJoin('partners p ON p.partnercode = inv.customer AND p.companycode = inv.companycode AND p.partnertype = "customer"')
                               ->setWhere("inv.stat NOT IN ('cancelled','temporary')".$condition)
                               ->setGroupBy('inv.voucherno')
