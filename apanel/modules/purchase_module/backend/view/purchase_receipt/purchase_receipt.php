@@ -77,7 +77,7 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-											->setLabel('PO No. ')
+											->setLabel('PO/IPO No. ')
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('source_no')
 											->setId('source_no')
@@ -103,6 +103,24 @@
 											->setValidation('required')
 											// ->addHidden(($ajax_task != 'ajax_create'))
 											->draw($show_input);
+									?>
+								</div>
+								<div class="row">
+								</div>
+								<div class="col-md-6">
+									<?php
+										echo $ui->formField('text')
+											->setLabel('Attachment')
+											->setSplit('col-md-4', 'col-md-8')
+											->setName('file')
+											->setId('file')
+											->setAttribute(array('readonly'))
+											->setAddon('file')
+											->setValue($source_no)
+											// ->addHidden($source_no)
+											// ->setValidation('required')
+											->draw($show_input);
+											// ->draw($show_input && $ajax_task != 'ajax_edit');
 									?>
 								</div>
 							</div>
@@ -241,6 +259,11 @@
 						</div>
 					</div>
 				</div>
+				
+				
+
+
+
 			</form>
 		</div>
 	</section>
@@ -333,6 +356,43 @@
 			</div>
 		</div>					
 	</div>
+
+	<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-md" role="document">
+		<div class="modal-content">
+		<form method = "post" id="attachments_form" enctype="multipart/form-data">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Attach File for <span id="modal-voucher"></span></h4>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<input type="hidden" name="voucherno" id='input_voucherno'>
+					<?php
+						echo $ui->setElement('file')
+								->setId('files')
+								->setName('files')
+								->setAttribute(array('accept' => '.pdf, .jpg, .png'))
+								->setValidation('required')
+								->draw();
+					?>
+				</div>
+				<p class="help-block">The file to be imported shall not exceed the size of <strong>3mb</strong> and must be a <strong>PDF, PNG or JPG</strong> file.</p>
+			</div>
+			<div class="modal-footer">
+				<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+					<div class="btn-group">
+					<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button">Attach</button>
+					</div>
+					&nbsp;&nbsp;&nbsp;
+					<div class="btn-group">
+					<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</form>
+		</div>
+	</div>
 	<script>
 		var delete_row	= {};
 		var ajax		= {};
@@ -352,6 +412,7 @@
 		function addVoucherDetails(details, index) {
 			var details = details || {itemcode: '', detailparticular: '', receiptqty: ''};
 			var other_details = JSON.parse(JSON.stringify(details));
+			console.log(details.item_ident_flag);
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
 			delete other_details.receiptqty;
@@ -1308,6 +1369,7 @@
 			recomputeAll();
 		});
 	</script>
+	
 	<?php if ($show_input): ?>
 	<script>
 		$('#addNewItem').on('click', function() {
@@ -1317,7 +1379,7 @@
 		$('#source_no').on('focus', function() {
 			var vendor = $('#vendor').val();
 			ajax.vendor = vendor;
-			if (vendor == '') {g
+			if (vendor == '') {
 				$('#warning_modal').modal('show').find('#warning_message').html('Please Select a Supplier');
 				$('#vendor').trigger('blur');
 			} else {
@@ -1352,6 +1414,25 @@
 			e.preventDefault();
 			ajax.page = $(this).attr('data-page');
 			getList();
+		});
+		$('#file').on('focus', function(){
+			var vendor = $('#vendor').val();
+			// ajax.vendor = vendor;
+
+			if (vendor == '') {
+				$('#warning_modal').modal('show').find('#warning_message').html('Please Select a Supplier');
+				$('#vendor').trigger('blur');
+			} else {
+				var source_no = $('#source_no').val();
+				// ajax.source_no = source_no;
+				if (source_no == '') {
+				$('#warning_modal').modal('show').find('#warning_message').html('Please Select a PO or IPO');
+				$('#source_no').trigger('blur');
+				} else {
+					$('#modal-voucher').html(source_no);
+					$('#attach_modal').modal('show');
+				}
+			}			
 		});
 		<?php // endif ?>
 		$('#vendor').on('change', function() {
@@ -1452,4 +1533,65 @@
 			}
 		});
 	</script>
+	<script>
+		$(function () {
+			'use strict';
+
+			$('#attachments_form').fileupload({
+				url: '<?= MODULE_URL ?>ajax/ajax_upload_file',
+				maxFileSize: 3000000,
+				disableExifThumbnail :true,
+				previewThumbnail:false,
+				autoUpload:false,
+				add: function (e, data) {            
+					$("#attach_button").off('click').on('click', function () {
+						data.submit();
+					});
+				},
+			});
+			$('#attachments_form').addClass('fileupload-processing');
+			$.ajax({
+				url: $('#attachments_form').fileupload('option', 'url'),
+				dataType: 'json',
+				context: $('#attachments_form')[0]
+			}).always(function () {
+				$(this).removeClass('fileupload-processing');
+			}).done(function (result) {
+				$(this).fileupload('option', 'done')
+					.call(this, $.Event('done'), {
+						result: result
+					});
+			});
+
+			$('#attachments_form').bind('fileuploadadd', function (e, data) {
+				var filename = data.files[0].name;
+				$('#attachments_form #files').closest('.input-group').find('.form-control').html(filename);
+				$('#file').val(filename).trigger('blur');
+			});
+			$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
+				var source_no = $('#source_no').val();
+				var task = "create";
+				data.formData = {reference: source_no, task: task};
+			});
+			$('#attachments_form').bind('fileuploadalways', function (e, data) {
+				var error = data.result['files'][0]['error'];
+				var form_group = $('#attachments_form #files').closest('.form-group');
+				if(!error){
+					$('#attach_modal').modal('hide');
+					var msg = data.result['files'][0]['name'];
+					form_group.removeClass('has-error');
+					form_group.find('p.help-block.m-none').html('');
+
+					$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
+					// $('#file').val('').trigger('blur');
+					// getList();
+				}else{
+					var msg = data.result['files'][0]['name'];
+					form_group.addClass('has-error');
+					form_group.find('p.help-block.m-none').html(msg);
+				}
+			});
+		});
+	</script>
+	
 	<?php endif ?>
