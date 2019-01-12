@@ -478,7 +478,7 @@
 						}
 
 						if(empty($sp_code)){
-							$errmsg[] 	= "Supplier Code [ <strong>$terms</strong> ] on row $line should not be empty.<br/>";
+							$errmsg[] 	= "Sales Person [ <strong>$terms</strong> ] on row $line should not be empty.<br/>";
 							$errmsg		= array_filter($errmsg);
 						}
 

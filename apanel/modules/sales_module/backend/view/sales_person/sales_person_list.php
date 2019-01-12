@@ -9,7 +9,8 @@
 					?>
 					<?= 
 						$ui->OptionButton('');
-					?>
+					?>	
+					<?=	$ui->CreateDeleteButton(''); ?>
 					<?=	$ui->CreateActButton(''); ?>
 				</div>
 

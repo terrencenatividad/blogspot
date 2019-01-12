@@ -10,6 +10,7 @@
 			$this->input 		=	new input();
 			$this->url 			=	new url();
 			$this->log 			= 	new log();
+			$this->import		= 	new import();
 
 			$this->view->header_active = 'maintenance/discount/';
 
@@ -226,6 +227,10 @@
 							$errmsg[]	= "Discount Code [<strong>$discountcode</strong>] on row $line already exists.<br/>";
 							$errmsg		= array_filter($errmsg);
 						}
+
+						$errmsg[] 	=	$this->import->check_empty("Discount Code", $discountcode, $line);
+						$errmsg[] 	=	$this->import->check_empty("Discount Name", $discountname, $line);
+						$errmsg[] 	=	$this->import->check_empty("Discount Description", $description, $line);
 
 						
 						if(!is_numeric($discount1)){
