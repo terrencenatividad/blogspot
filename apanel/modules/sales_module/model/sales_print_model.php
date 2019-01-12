@@ -74,16 +74,16 @@ class sales_print_model extends fpdf {
 		$this->Rect($this->margin_side, $detail_start, $detail_width, $rect_height);
 		$this->SetY($detail_start + 1);
 		$this->SetFont('Arial', 'B', 8);
-		$this->Cell(17, 4, 'SOLD TO', 0, 0, 'L');
+		$this->Cell(29, 4, 'SOLD TO', 0, 0, 'L');
 		$this->Cell(17, 4, ':', 0, 0, 'L');
 		$this->SetFont('Arial', '', 8);
-		$this->SetX(30);
+		$this->SetX(40);
 		$this->MultiCell(100, 4, $customer, 0, 'L');
 		$this->SetFont('Arial', 'B', 8);
-		$this->Cell(17, 4, 'ADDRESS', 0, 0, 'L');
+		$this->Cell(29, 4, 'ADDRESS', 0, 0, 'L');
 		$this->Cell(17, 4, ':', 0, 0, 'L');
 		$this->SetFont('Arial', '', 8);
-		$this->SetX(30);
+		$this->SetX(40);
 		$this->MultiCell(100, 4, $address, 0, 'L');
 		$this->SetFont('Arial', 'B', 8);
 		$this->Cell(29, 4, 'SHIPPING ADDRESS', 0, 0, 'L');
@@ -92,16 +92,16 @@ class sales_print_model extends fpdf {
 		$this->SetX(40);
 		$this->MultiCell(100, 4, $this->s_address, 0, 'L');
 		$this->SetFont('Arial', 'B', 8);
-		$this->Cell(17, 4, 'CONTACT #', 0, 0, 'L');
+		$this->Cell(29, 4, 'CONTACT #', 0, 0, 'L');
 		$this->Cell(17, 4, ':', 0, 0, 'L');
 		$this->SetFont('Arial', '', 8);
-		$this->SetX(30);
+		$this->SetX(40);
 		$this->MultiCell(100, 4, $contactno, 0, 'L');
 		$this->SetFont('Arial', 'B', 8);
-		$this->Cell(17, 4, 'TIN', 0, 0, 'L');
+		$this->Cell(29, 4, 'TIN', 0, 0, 'L');
 		$this->Cell(17, 4, ':', 0, 0, 'L');
 		$this->SetFont('Arial', '', 8);
-		$this->SetX(30);
+		$this->SetX(40);
 		$this->MultiCell(100, 4, $tinno, 0, 'L');
 
 		$content_width	= 40;
@@ -154,6 +154,7 @@ class sales_print_model extends fpdf {
 				$this->Ln();
 			}
 		}
+
 		$this->SetY($header_end);
 		$this->Ln();
 	}
@@ -233,6 +234,11 @@ class sales_print_model extends fpdf {
 
 	public function setShippingDetail($s_address) {
 		$this->s_address = $s_address;
+		return $this;
+	}
+
+	public function setRemarksDetail($notes) {
+		$this->notes = $notes;
 		return $this;
 	}
 
