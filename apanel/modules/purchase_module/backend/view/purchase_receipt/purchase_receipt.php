@@ -1052,6 +1052,7 @@
 			}	
 
 			$(this).closest('tr').remove();
+			$('.add-data').text("Add a New Line")
 			checkFlags();
 		});
 
