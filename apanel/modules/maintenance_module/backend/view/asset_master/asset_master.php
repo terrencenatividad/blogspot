@@ -337,7 +337,7 @@
 					</div>
 					<?php if($show_input):?>
 					<div class="row text-center">
-					<input type="button" id="compute" value="Compute Depreciation" class="btn btn-info">
+					<input type="button" id="compute" value="Simulate Depreciation" class="btn btn-info">
 					</div>
 					<?php endif?>
 					<br>
