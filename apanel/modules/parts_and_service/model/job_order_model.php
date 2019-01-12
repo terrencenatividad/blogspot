@@ -491,6 +491,19 @@ class job_order_model extends wc_model
 		$result = $this->db->setTable('job_release')
 							->setValuesFromPost($data)
 							->runInsert();
+
+		foreach ($data['serialnumbers'] as $row) {
+			if ($row != "") {
+				$ids = explode(",", $row);
+				foreach ($ids as $id) {
+					
+					$this->db->setTable('items_serialized')
+										->setValues(array('stat'=>'Not Available'))
+										->setWhere("id = '$id'")
+										->runUpdate();
+				}
+			}
+		}
 							
 		return $result;
 	}
@@ -526,17 +539,22 @@ class job_order_model extends wc_model
 			return $result;
 		}
 
-	public function getSerialList($fields, $itemcode, $search) {
+		public function getSerialList($itemcode, $search, $voucherno, $linenum, $serialnumbers, $task) {
+			$cond = '';
+			if($task == 'ajax_edit'){
+				$cond = " OR id IN($serialnumbers)";
+			}else{
+				$cond = '';
+			}
 			$condition = '';
 			if ($search) {
-				$condition .= ' AND ' . $this->generateSearch($search, array('serialno', 'engineno', 'chassisno'));
+				$condition .= $this->generateSearch($search, array('serialno', 'engineno', 'chassisno'));
 			}
 			$result	= $this->db->setTable('items_serialized')
-									->setFields($fields)
-									->setWhere("itemcode = '$itemcode'" .$condition)
-									->setOrderBy('voucherno, linenum, rowno')
+									->setFields(array('companycode', 'id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat'))
+									->setWhere("itemcode = '$itemcode' AND stat = 'Available' $cond")
 									->runPagination();
-									// echo $this->db->getQuery();
+			
 			return $result;
 		}
 
@@ -627,11 +645,24 @@ class job_order_model extends wc_model
 		$result = $this->db->setTable('job_release')
 							->setValuesFromPost($data)
 							->runInsert();
+							
+		foreach ($data['serialnumbers'] as $row) {
+			if ($row != "") {
+				$ids = explode(",", $row);
+				foreach ($ids as $id) {
+					$this->db->setTable('items_serialized')
+										->setValues(array('stat'=>'Not Available'))
+										->setWhere("id = '$id'")
+										->runUpdate();
+				}
+			}
+		}
+		
 		return $result;
 	}
 	public function getIssuedPartsNo($jobno) {
 		$result	= $this->db->setTable('job_release j')
-								->setFields('DISTINCT (job_release_no) jrno, voucherno')
+								->setFields('DISTINCT (job_release_no) jrno, voucherno, serialnumbers')
 								->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no  and jod.itemcode = j.itemcode')
 								->leftJoin('journalvoucher jv ON jv.referenceno = j.job_release_no')
 								->setWhere("j.job_order_no = '$jobno' AND (parentcode = '' OR parentcode IS NULL) AND j.stat NOT IN ('cancelled')")
@@ -657,12 +688,12 @@ class job_order_model extends wc_model
 		return $result;
 	}
 
-	public function deleteJobRelease($id) {
+	public function deleteJobRelease($id,$data) {
 		$result	= $this->db->setTable('job_release')
 				->setValues(array('stat'=>'cancelled'))
 				->setWhere("job_release_no = '$id'")
 				->runUpdate();
-		
+
 			if ($result) {
 				$this->log->saveActivity("Deleted Job Release [$id]");
 			}

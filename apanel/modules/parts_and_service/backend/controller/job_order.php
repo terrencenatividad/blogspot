@@ -40,6 +40,7 @@ class controller extends wc_controller {
 		$this->fields3			= array(
 			'job_order_no',
 			'jod.itemcode',
+			'i.itemname',
 			'detailparticular',
 			'jod.linenum',
 			'jod.warehouse',
@@ -55,6 +56,7 @@ class controller extends wc_controller {
 		$this->fields33			= array(
 			'jr.job_order_no',
 			'jod.itemcode',
+			'i.itemname',
 			'detailparticular',
 			'jr.linenum',
 			'jod.warehouse',
@@ -413,37 +415,55 @@ class controller extends wc_controller {
 		$linenum = $this->input->post('linenumber');
 		$id = $this->input->post('id');
 		$task = $this->input->post('task');
+		$item_ident = $this->input->post('item_ident');
+		$checked_serials = $this->input->post('checked_serials');
 		$voucherno = '';
-		// var_dump($linenum);
 		if ($task=='ajax_edit') {
 			$voucherno = $this->input->post('voucherno');
 		}
 		$curr = $this->job_order->getJOSerials($itemcode, $voucherno, $linenum);
 		if ($curr) {
 			$current_id = explode(",", $curr->serialnumbers);
+			$curr_serialnumbers = $curr->serialnumbers;
 		}
 		else {
 			$current_id = [];
+			$curr_serialnumbers = '';
 		}
 		$array_id = explode(',', $id);
 		$all_id = explode(',', $allserials);
+		$checked_id = explode(',', $checked_serials);
 		
-		$fields = array ('id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat');
-		$pagination	= $this->job_order->getSerialList($fields, $itemcode, $search);
-		
+		$pagination	= $this->job_order->getSerialList($itemcode, $search, $voucherno, $linenum,$id,$task);
 		$table		= '';
-		if (empty($pagination->result)) {
-			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
-		}
+		$counter = 0;
 		foreach ($pagination->result as $key => $row) {
-			$checker = (in_array($row->id, $array_id) || in_array($row->id, $current_id)) ? 'checked' : '';
-			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id)) || ($row->stat == 'Not Available') && (!in_array($row->id, $current_id))) ? 'hidden' : '';
+			if ($curr_serialnumbers == $id) {
+				$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id) || in_array($row->id, $current_id)) ? 'checked' : '';
+			}
+			else {
+				$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id)) ? 'checked' : '';
+			}
+			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id))) ? 'hidden' : '';
 			$table .= '<tr class = "'.$hide_tr.'">';
 			$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'" '.$checker.'></td>';
-			$table .= '<td>' . $row->serialno . '</td>';
-			$table .= '<td>' . $row->engineno . '</td>';
-			$table .= '<td>' . $row->chassisno . '</td>';
+			
+			$has_serial 	=	substr($item_ident,0,1);
+			$has_engine 	=	substr($item_ident,1,1);
+			$has_chassis 	=	substr($item_ident,2,1);
+
+			$hide_serial 	=	($has_serial == 0) 	? "hidden" 	:	"";
+			$hide_engine 	=	($has_engine == 0) ? "hidden" 	:	"";
+			$hide_chassis 	=	($has_chassis == 0)? "hidden" 	:	"";
+			
+			$table .= '<td class = "'.$hide_serial.'">' . $row->serialno . '</td>';
+			$table .= '<td class = "'.$hide_engine.'">' . $row->engineno . '</td>';
+			$table .= '<td class = "'.$hide_chassis.'">' . $row->chassisno . '</td>';
 			$table .= '</tr>';
+			$counter++;
+		}
+		if ($counter == 0) {
+			$table.= '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		$pagination->table = $table;
 		return $pagination;
@@ -612,7 +632,7 @@ class controller extends wc_controller {
 		$data			= $this->input->post($this->fields4);
 		$customer		= $this->input->post('h_customer');
 		
-		$this->inventory_model->prepareInventoryLog('Job Release', $job_release_no)
+		$this->inventory_model->prepareInventoryLog('Job Release Parts', $job_release_no)
 								->preparePreviousValues();
 														
 		$result 		= $this->job_order->updateIssueParts($job_release_no,$data);
@@ -623,7 +643,7 @@ class controller extends wc_controller {
 			$this->inventory_model->computeValues()
 									->setDetails($customer)
 									->logChanges();
-			
+		
 			$this->inventory_model->generateBalanceTable();
 		}
 		return array(	
@@ -634,9 +654,10 @@ class controller extends wc_controller {
 	private function ajax_delete_issue() {
 		$delete_id = $this->input->post('id');
 		$voucherno = $this->input->post('voucherno');
+		$serialnumbers = $this->input->post('serialnumbers');
 		
 		if ($delete_id) {
-			$result = $this->job_order->deleteJobRelease($delete_id,$voucherno);
+			$result = $this->job_order->deleteJobRelease($delete_id,$voucherno, $serialnumbers);
 		}
 		if ($result && $this->inventory_model) {
 			
@@ -672,7 +693,7 @@ class controller extends wc_controller {
 		}
 		foreach ($result as $row) {
 			if($task == ''){
-				$table .= '<tr  data-jv = "' . $row->voucherno . '" data-id = "' . $row->jrno . '">';
+				$table .= '<tr  data-jv = "' . $row->voucherno . '" data-id = "' . $row->jrno . '" data-serialnumbers = "' . $row->serialnumbers .'">';
 				$table .= '<td colspan="5">' . 'Part Issuance No.: '.$row->jrno . '</td>';
 				$table .= '<td>' . '<a class="btn-sm" pointer id="editip" title="Edit"><span class="glyphicon glyphicon-pencil editip pointer" style="border: 1px solid gainsboro;
 				padding: 3px 4px 3px 4px;
