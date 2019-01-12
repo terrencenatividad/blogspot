@@ -215,6 +215,13 @@
 				}
 			});
 
+			$('#table_search').on('input', function () {
+			ajax.page = 1;
+			ajax.search = $(this).val();
+			var url = '<?= MODULE_URL ?>get_export/';
+			showList();
+		});
+
 			$( "#search_table" ).click(function(e) 
 			{
 				e.preventDefault();

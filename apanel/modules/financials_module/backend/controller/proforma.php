@@ -254,13 +254,13 @@ class controller extends wc_controller
 						$errmsg[] 	= "Proforma Code is required. Row $line should not be empty.<br>";
 					}
 				
-					if(empty($description)){
-						$errmsg[] 	= "Description is required. Row $line should not be empty.<br>";
+					if(empty($transtype)){
+						$errmsg[] 	= "Transaction Type is required. Row $line should not be empty.<br>";
 					}
 	
-					if(empty($accountname)){
-						$errmsg[] 	= "Account Name is required. Row $line should not be empty.<br>";
-					}
+					// if(empty($accountname)){
+					// 	$errmsg[] 	= "Account Name is required. Row $line should not be empty.<br>";
+					// }
 					
 					if(empty($accountcodeid)){
 						$errmsg[] 	= "Account Code Id is required. Row $line should not be empty.<br>";
