@@ -23,8 +23,8 @@ class controller extends wc_controller {
 		
 		// $data['year_list']			= $this->report->getYearList();
 		$data['vendor_list']		= $this->report->retrieveVendorList();
-		// $data['datefilter'] 		= $this->date->datefilterMonth();
-		$data['datefilter'] 		= "Nov 1,2018 - Nov 30,2018";
+		$data['datefilter'] 		= $this->date->datefilterMonth();
+		// $data['datefilter'] 		= "Nov 1,2018 - Nov 30,2018";
         $getCompany 				= $this->report->getCompany($this->companycode);
 		$data['companytin']			= $getCompany->tin;
         $data['companyname']        = $getCompany->companyname;
