@@ -47,8 +47,25 @@
 							?>
 						</div>
 					</div> -->
+					<?php
+					$prev_group	= '';
+					$next_group	= '';
+					?>
 					<?php foreach ($moduleaccess_list as $key => $moduleaccess): ?>
 						<hr class="form-hr">
+						<?php
+							$prev_group = $moduleaccess->module_group;
+							if($prev_group != $next_group):
+						?>
+						<div class="row">
+							<h4 class="module_label col-md-12">
+								<strong><?php echo $moduleaccess->module_group ?></strong>
+							</h4>
+						</div>
+						<hr class="form-hr">
+						<?php
+							endif;
+						?>
 						<div class="row">
 							<label class="control-label col-md-2 module_label" data-id="<?php echo "module_access_{$key}" ?>">
 								<?php echo $moduleaccess->module_name ?>:
@@ -78,6 +95,9 @@
 								</div>
 							</div>
 						</div>
+						<?php
+							$next_group = $prev_group;
+						?>
 					<?php endforeach ?>
 					<hr>
 					<div class="row">
