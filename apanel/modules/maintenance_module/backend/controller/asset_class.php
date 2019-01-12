@@ -39,7 +39,7 @@ class controller extends wc_controller {
 	}
 
 	public function edit($id) {
-		$this->view->title = $this->ui->ViewLabel('');
+		$this->view->title = $this->ui->EditLabel('');
 		$data = (array) $this->asset_class->getAssetClassById($this->fields, $id);
 		$data['salvage_value'] 		= number_format($data['salvage_value'], 2);
 		$data['coa_list']		= $this->asset_class->getCOA();
