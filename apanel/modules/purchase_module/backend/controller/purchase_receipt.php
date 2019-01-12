@@ -308,6 +308,7 @@ class controller extends wc_controller {
 				->setSummaryWidth(array('170', '30'));
 		
 		$documentcontent	= $this->purchase_model->getDocumentContent($voucherno);
+		
 		$detail_height = 37;
 
 		$vatable_sales	= 0;
@@ -324,7 +325,7 @@ class controller extends wc_controller {
 			if ($documentinfo->discountrate == 0 && $documentinfo->discount) {
 				$documentinfo->discountrate = $documentinfo->discount / ($documentinfo->amount + $documentinfo->vat) * 100;
 			}
-
+			
 			$vatable_sales	+= ($row->taxrate) ? $row->Amount : 0;
 			$vat_exempt		+= ($row->taxrate) ? 0 : $row->Amount;
 			$discount		+= number_format(($row->Amount + $row->Tax) * $documentinfo->discountrate / 100, 2, '.', '');
@@ -335,6 +336,21 @@ class controller extends wc_controller {
 			$row->Tax		= number_format($row->Tax, 2);
 			$row->Amount	= number_format($row->Amount, 2);
 			$print->addRow($row);
+				if ($row->Ident != 0) {
+					$documentserials	= $this->purchase_model->getDocumentSerials($voucherno,$row->ItemCode);
+					foreach($documentserials as $key => $rowserials) {
+						$rowserials->ItemCode = '';
+						$rowserials->Description = '';
+						$rowserials->Quantity = $rowserials->Serial;
+						$rowserials->UOM = '';
+						$rowserials->Price = '';
+						$rowserials->Tax = '';
+						$rowserials->Amount = '';
+						// var_dump($row);
+						$print->addRow($rowserials);
+						// var_dump($row->Description." ".$rowserials->Serial.$rowserials->Serial.$rowserials->Serial);
+					}
+				}
 			if (($key + 1) % $detail_height == 0) {
 				$total_amount = $vatable_sales + $vat_exempt - $discount + $tax - $wtax;
 				// $summary = array(
@@ -360,7 +376,7 @@ class controller extends wc_controller {
 		// 	'VATable Sales'		=> number_format($vatable_sales, 2),
 		// 	'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
 		// 	'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
-		// 	'Discount'			=> number_format($discount, 2),
+		// 	'Discount'			=> number_format($discount, 2),getDocumentContent
 		// 	'Tax'				=> number_format($tax, 2),
 		// 	'WTax'				=> number_format($wtax, 2),
 		// 	'Total Amount'		=> number_format($total_amount, 2)
