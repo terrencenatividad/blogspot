@@ -141,10 +141,24 @@ class usergroup_model extends wc_model {
 								->buildSelect();
 
 		$this->db->setTable(PRE_TABLE . '_modules wm')
-					->setFields('wm.module_name module_name, ug.mod_add mod_add, ug.mod_view mod_view, ug.mod_edit mod_edit, ug.mod_delete mod_delete, ug.mod_list mod_list, ug.mod_print mod_print, ug.mod_post mod_post, ug.mod_unpost mod_unpost, ug.mod_close mod_close, has_add, has_view, has_edit, has_delete, has_list, has_print, has_post, has_unpost, has_close')
+					->setFields('wm.module_group module_group, wm.module_name module_name, ug.mod_add mod_add, ug.mod_view mod_view, ug.mod_edit mod_edit, ug.mod_delete mod_delete, ug.mod_list mod_list, ug.mod_print mod_print, ug.mod_post mod_post, ug.mod_unpost mod_unpost, ug.mod_close mod_close, has_add, has_view, has_edit, has_delete, has_list, has_print, has_post, has_unpost, has_close')
 					->leftJoin("($left_select) ug ON ug.module_name = wm.module_name")
 					->setWhere("wm.active = 1")
-					->setGroupBy('wm.module_name');
+					->setGroupBy('wm.module_name')
+					->setOrderBy("CASE 
+						WHEN wm.module_group = 'Sales' THEN 1
+						WHEN wm.module_group = 'Purchase' THEN 2
+						WHEN wm.module_group = 'Billing' THEN 3
+						WHEN wm.module_group = 'Parts and Service' THEN 4
+						WHEN wm.module_group = 'Financials' THEN 5
+						WHEN wm.module_group = 'Inventory' THEN 6
+						WHEN wm.module_group = 'Bank Recon' THEN 7
+						WHEN wm.module_group = 'Reports' THEN 8
+						ELSE 9
+					END,
+					wm.module_order,
+					wm.module_name
+					");
 	
 		// echo $this->db->buildSelect(false);
 		return $this->db->runSelect(false)->getResult();
