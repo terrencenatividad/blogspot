@@ -148,7 +148,7 @@ class controller extends wc_controller {
 
 		$sheet->getCell('A3')->setValue('SALES TRANSACTION');
 		$sheet->getCell('A4')->setValue('RECONCILIATION OF LISTING FOR ENFORCEMENT');
-		$sheet->getCell('A5')->setValue('FOR '.strtoupper($this->date->dateFormat($date[0])). ' to '.strtoupper($this->date->dateFormat($date[1])));
+		$sheet->getCell('A5')->setValue('FOR '.strtoupper($this->date->dateFormat($dates[0])). ' to '.strtoupper($this->date->dateFormat($dates[1])));
 
 		$sheet->getCell('A7')->setValue('TIN: '.$company->tin);
 		$sheet->getCell('A8')->setValue("OWNER'S NAME: ".strtoupper($company->companyname));
