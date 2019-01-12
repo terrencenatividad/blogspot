@@ -278,7 +278,7 @@ class controller extends wc_controller {
 			$link_array						= explode('/',$data['attachment_url']);
 			$data['attachment_filename']	= end($link_array);
 		} 
-		// var_dump($data['attachment_link']);
+		
 		$this->view->load('purchase_receipt/purchase_receipt', $data);
 	}
 
