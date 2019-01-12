@@ -443,7 +443,7 @@ class controller extends wc_controller
 		if( empty($errmsg) ){
 			$row_start = 2;
 			$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
-				
+			$z = array();	
 			for ($n = 0; $n < count($x); $n++) {
 				if($n==0){
 					$layout = count($headerArr);
@@ -452,13 +452,12 @@ class controller extends wc_controller
 					
 					for ($m=0; $m< $layout; $m++){
 						$template_header = $header[$m];
-						$error = (empty($template_header) && !in_array($template_header,$headerArr)) ? "error" : "";
+						$error = (empty($template_header) || !in_array($template_header,$headerArr)) ? "error" : "";
 					}	
 
 					$errmsg[]	= (!empty($error) || $error != "" ) ? "Invalid template. Please download template from the system first.<br/>" : "";
 					$errmsg		= array_filter($errmsg);
 				}
-
 				if ($n > 0) {
 					$z[] = $x[$n];
 				}

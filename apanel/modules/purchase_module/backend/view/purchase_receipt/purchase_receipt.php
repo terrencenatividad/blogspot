@@ -116,7 +116,7 @@
 											->setId('file')
 											->setAttribute(array('readonly'))
 											->setAddon('file')
-											->setValue($source_no)
+											->setValue($attachment_filename)
 											// ->addHidden($source_no)
 											// ->setValidation('required')
 											->draw($show_input);
@@ -412,7 +412,7 @@
 		function addVoucherDetails(details, index) {
 			var details = details || {itemcode: '', detailparticular: '', receiptqty: ''};
 			var other_details = JSON.parse(JSON.stringify(details));
-			console.log(details.item_ident_flag);
+			// console.log(details.item_ident_flag);
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
 			delete other_details.receiptqty;
@@ -986,9 +986,10 @@
 			
 		}
 
-		// ON EDIT, IMMEDIATELY SAVE SERIALS TO FORM
+		
 		<?php if ($ajax_task=='ajax_edit') { ?>
 		$(document).ready( function(){
+			// ON EDIT, IMMEDIATELY SAVE SERIALS TO FORM
 			serials = '';
 			engines = '';
 			chassis = '';
@@ -1010,6 +1011,11 @@
 				$('#engine_no'+index).val(engines);
 				$('#chassis_no'+index).val(chassis);
 			}
+
+			//ON EDIT, getFilename
+			filename = '';
+			filename = <?php echo $attachment_filename ?>
+			// $('#file').val('filename');
 		});
 		<?php } ?>
 		
@@ -1052,6 +1058,7 @@
 			}	
 
 			$(this).closest('tr').remove();
+			$('.add-data').text("Add a New Line")
 			checkFlags();
 		});
 

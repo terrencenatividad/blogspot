@@ -78,9 +78,9 @@
 										'class' => 'text-center col-md-1'
 									)
 								)
-								->addHeader('Warehouse Code',array('class'=>'col-md-3'),'sort','warehousecode')
-								->addHeader('Warehouse Name', array('class'=>'col-md-3'),'sort','description')
-								->addHeader('Status', array('class'=>'col-md-3'),'sort','stat')								
+								->addHeader('Warehouse Code',array('class'=>'col-md-3'),'sort','warehousecode','asc')
+								->addHeader('Warehouse Name', array('class'=>'col-md-3'),'sort','description','asc')
+								->addHeader('Status', array('class'=>'col-md-3'),'sort','stat','asc')								
 								->draw();
 					?>
 				</thead>
