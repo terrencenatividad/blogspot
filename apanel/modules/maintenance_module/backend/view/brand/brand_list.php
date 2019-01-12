@@ -65,9 +65,9 @@
 										'class' => 'col-md-1 text-center'
 									)
 								)
-								->addHeader('Brand Code',array('class'=>'col-md-4'),'sort','brandcode')
-								->addHeader('Brand Name',array('class'=>'col-md-4'),'sort','brandname')
-								->addHeader('Status', array('class'=>'col-md-4'),'','')
+								->addHeader('Brand Code',array('class'=>'col-md-4'),'sort','brandcode','asc')
+								->addHeader('Brand Name',array('class'=>'col-md-4'),'sort','brandname','asc')
+								->addHeader('Status', array('class'=>'col-md-4'),'sort','stat','asc')
 								->draw();
 					?>
 				</thead>

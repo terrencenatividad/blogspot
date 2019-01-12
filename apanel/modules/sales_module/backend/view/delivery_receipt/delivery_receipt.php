@@ -1128,7 +1128,9 @@
 			ajax.allserials = $('#main_serial').val();
 			ajax.id = itemrow.closest('tr').find('.serialnumbers').val();
 			ajax.item_ident = itemrow.closest('tr').find('.item_ident_flag').val();
-			ajax.checked_serials = itemrow.closest('tr').find('.checked').val();
+			var checked = itemrow.closest('tr').find('.checked').val();
+			ajax.checked_serials = checked.toString();
+			// console.log(ajax.checked_serials);
 			task = $('#task').val();
 			ajax.task = $('#task').val();
 			if (task=='ajax_edit') {
@@ -1232,7 +1234,6 @@
 				return value != remove_this;
 			});
 			itemrow.closest('tr').find('.checked').val(checked_serials);
-			
 		});
 
 		$('#btn_ok').on('click', function() {

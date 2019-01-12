@@ -608,6 +608,10 @@
 							$errmsg		= array_filter($errmsg);
 						}
 
+						if(empty($itempricecode)){
+							$errmsg[] 	= "Price List Code is required. Row $line should not be empty.<br>";
+						}
+
 						if(empty($name)){
 							$errmsg[] 	= "Price List Name is required. Row $line should not be empty.<br>";
 						}
