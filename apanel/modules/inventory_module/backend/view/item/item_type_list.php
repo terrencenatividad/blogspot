@@ -75,9 +75,9 @@
 										'style' => 'width: 100px'
 									)
 								)
-								->addHeader('Item Group', array(), 'sort', 'label', 'asc')
+								->addHeader('Item Group', array(), 'sort', 'item_group', 'asc')
 								->addHeader('Item Type', array(), 'sort', 'label', 'asc')
-								->addHeader('Status', array(), 'sort', 'label', 'asc')								
+								->addHeader('Status', array(), 'sort', 'stat', 'asc')								
 								->draw();
 					?>
 					<tbody>
