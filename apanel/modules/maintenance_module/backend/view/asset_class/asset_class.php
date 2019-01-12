@@ -52,9 +52,10 @@
 									->setLabel('No. of Months Useful Life')
 									->setSplit('col-md-3', 'col-md-8')
 									->setName('useful_life')
+									->setClass('useful_life')
 									->setId('useful_life')
 									->setValue($useful_life)
-									->setAttribute(array("maxlength" => "3"))
+									->setAttribute(array("maxlength" => "3", "disabled" => "disabled"))
 									->setValidation('required integer')
 									->draw($show_input);
 						?>
@@ -70,7 +71,7 @@
 								->setName('salvage_value')
 								->setId('salvage_value')
 								->setValue($salvage_value)
-								->setAttribute(array("maxlength" => "20"))
+								->setAttribute(array("maxlength" => "20", "disabled" => "disabled"))
 								->setValidation('required decimal')
 								->draw($show_input);
 						?>
@@ -85,6 +86,7 @@
 								->setId('gl_asset')
 								->setList($coa_list)
 								->setValue($gl_asset)
+								->setAttribute(array("disabled" => "disabled"))
 								->setValidation('required')
 								->draw($show_input);
 						?>
@@ -102,6 +104,7 @@
 								->setId('gl_accdep')
 								->setList($coa_list)
 								->setValue($gl_accdep)
+								->setAttribute(array("disabled" => "disabled"))
 								->setValidation('required')
 								->draw($show_input);
 						?>
@@ -116,6 +119,7 @@
 								->setId('gl_depexpense')
 								->setList($coa_list)
 								->setValue($gl_depexpense)
+								->setAttribute(array("disabled" => "disabled"))
 								->setValidation('required')
 								->draw($show_input);
 						?>
@@ -186,6 +190,65 @@ var ajax = {};
 		}
 	});
 });
+
+$('form').on('ifChecked','#depreciate', function(e){
+	$("#useful_life").prop('disabled',false);
+	$("#salvage_value").prop('disabled',false);
+	$("#gl_asset").prop('disabled',false);
+	$("#gl_accdep").prop('disabled',false);
+	$("#gl_depexpense").prop('disabled',false);
+	$('#useful_life').closest('.form-group').find('#useful_life').attr("data-validation","required integer");
+	$('#salvage_value').closest('.form-group').find('#salvage_value').attr("data-validation","required decimal");
+	$('#gl_asset').closest('.form-group').find('#gl_asset').attr("data-validation","required");
+	$('#gl_accdep').closest('.form-group').find('#gl_accdep').attr("data-validation","required");
+	$('#gl_depexpense').closest('.form-group').find('#gl_depexpense').attr("data-validation","required");
+});
+$('form').on('ifUnchecked','#depreciate', function(e){
+	$("#useful_life").prop('disabled',true);
+	$("#salvage_value").prop('disabled',true);
+	$("#gl_asset").prop('disabled',true);
+	$("#gl_accdep").prop('disabled',true);
+	$("#gl_depexpense").prop('disabled',true);
+	$('#useful_life').closest('.form-group').find('#useful_life').removeAttr("data-validation");
+	$('#salvage_value').closest('.form-group').find('#salvage_value').removeAttr("data-validation");
+	$('#gl_asset').closest('.form-group').find('#gl_asset').removeAttr("data-validation");
+	$('#gl_accdep').closest('.form-group').find('#gl_accdep').removeAttr("data-validation");
+	$('#gl_depexpense').closest('.form-group').find('#gl_depexpense').removeAttr("data-validation");
+
+	$('#useful_life').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+	$('#salvage_value').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+	$('#gl_asset').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+	$('#gl_accdep').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+	$('#gl_depexpense').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+	
+
+});
+var task = '<?php echo $ajax_task; ?>';
+var dep  = $('#depreciate').is(':checked');
+
+if(dep != false){
+	$("#useful_life").prop('disabled',false);
+	$("#salvage_value").prop('disabled',false);
+	$("#gl_asset").prop('disabled',false);
+	$("#gl_accdep").prop('disabled',false);
+	$("#gl_depexpense").prop('disabled',false);
+	$('#useful_life').closest('.form-group').find('#useful_life').attr("data-validation","required integer");
+	$('#salvage_value').closest('.form-group').find('#salvage_value').attr("data-validation","required decimal");
+	$('#gl_asset').closest('.form-group').find('#gl_asset').attr("data-validation","required");
+	$('#gl_accdep').closest('.form-group').find('#gl_accdep').attr("data-validation","required");
+	$('#gl_depexpense').closest('.form-group').find('#gl_depexpense').attr("data-validation","required");
+}else if(dep == false){
+	$("#useful_life").prop('disabled',true);
+	$("#salvage_value").prop('disabled',true);
+	$("#gl_asset").prop('disabled',true);
+	$("#gl_accdep").prop('disabled',true);
+	$("#gl_depexpense").prop('disabled',true);
+	$('#useful_life').closest('.form-group').find('#useful_life').removeAttr("data-validation");
+	$('#salvage_value').closest('.form-group').find('#salvage_value').removeAttr("data-validation");
+	$('#gl_asset').closest('.form-group').find('#gl_asset').removeAttr("data-validation");
+	$('#gl_accdep').closest('.form-group').find('#gl_accdep').removeAttr("data-validation");
+	$('#gl_depexpense').closest('.form-group').find('#gl_depexpense').removeAttr("data-validation");
+}
 
 $('#name').on('blur',function(){
 	ajax.old_name 	= 	$('#h_name').val();
