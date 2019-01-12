@@ -301,7 +301,7 @@ class accounts_receivable extends wc_model
 			$addCondition	= '';
 		}
 
-		$add_query 	= (!empty($searchkey)) ? "AND (main.voucherno LIKE '%$searchkey%' OR main.invoiceno LIKE '%$searchkey%' OR main.particulars LIKE '%$searchkey%' OR p.partnername LIKE '%$searchkey%' OR main.referenceno LIKE '%$searchkey%') " : "";
+		$add_query 	= (!empty($searchkey)) ? "AND (main.voucherno LIKE '%$searchkey%' OR main.invoiceno LIKE '%$searchkey%' OR main.particulars LIKE '%$searchkey%' OR p.partnername LIKE '%$searchkey%' OR main.referenceno LIKE '%$searchkey%' OR main.amount LIKE '%$searchkey%' OR main.balance LIKE '%$searchkey%') " : "";
 		$add_query .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? "AND main.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 		$add_query .= (!empty($vendfilter) && $vendfilter != 'none') ? "AND p.partnercode = '$vendfilter' " : "";
 		// $add_query .= $addCondition;

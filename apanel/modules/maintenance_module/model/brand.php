@@ -6,26 +6,29 @@
         {
             parent::__construct();
             $this->log = new log();
-        }
-
-        public function retrieveListing($search="", $sort ,$limit)
-		{
-			$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (brandcode LIKE '%$search%' OR brandname LIKE '%$search%' OR stat LIKE '%$search') " 	: 	"";
-
+		}
+		
+		public function retrieveListing($search="", $sort) {
 			$fields 	=	array('brandcode','brandname','stat');
-
-			//added for proper order by of string
-			if(empty($sort) || $sort = "") {
-				$sort = "LENGTH(brandcode), brandcode";
-			}
-
-			$result = $this->db->setTable('brands')
-							->setFields($fields)
-							->setWhere(" stat != 'deleted' $add_cond ")
-							->setOrderBy($sort)
+			$result = $this->retrieveBrandListing($fields, $search, $sort)
 							->runPagination();
+	
 			return $result;
-			// echo $this->db->getQuery();
+		}
+
+        public function retrieveBrandListing($fields, $search, $sort)
+		{
+			$sort		= ($sort) ? $sort : 'brandname';
+			$condition = '';
+			if ($search) {
+				$condition = $this->generateSearch($search, array('brandcode','brandname','stat'));
+			}
+			$query = $this->db->setTable('brands')
+								->setFields($fields)
+								->setOrderBy($sort)
+								->setWhere($condition);
+
+			return $query;
         }
         
         public function retrieveExistingBrand($data, $brandcode)
@@ -187,6 +190,14 @@
 								->getRow();
 			
 			return $result;
+		}
+
+		private function generateSearch($search, $array) {
+			$temp = array();
+			foreach ($array as $arr) {
+				$temp[] = $arr . " LIKE '%" . str_replace(' ', '%', $search) . "%'";
+			}
+			return '(' . implode(' OR ', $temp) . ')';
 		}
     }
 ?>

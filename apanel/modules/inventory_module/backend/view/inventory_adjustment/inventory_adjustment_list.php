@@ -1039,6 +1039,7 @@
 									'data-linenum' => "`+ index +`"
 								)
 							)
+							->setMaxLength('20')
 							->setValue('` + details.serialno + `')
 							->draw();
 				?>
@@ -1055,6 +1056,7 @@
 									'data-linenum' => "`+ index +`"
 								)
 							)
+							->setMaxLength('20')
 							->setValue('` + details.engineno + `')
 							->draw();
 				?>
@@ -1071,6 +1073,7 @@
 									'data-linenum' => "`+ index +`"
 								)
 							)
+							->setMaxLength('20')
 							->setValue('` + details.chassisno + `')
 							->draw();
 				?>

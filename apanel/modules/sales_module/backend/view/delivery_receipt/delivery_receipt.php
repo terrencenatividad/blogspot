@@ -629,7 +629,7 @@
 					}
 					else {
 						<?php if ($ajax_task != '') { ?>
-							if (details.item_ident_flag == 0) {
+							//if (details.item_ident_flag == 0) {
 								row += `<td class="text-right">
 								<?php
 									echo $ui->formField('text')
@@ -641,9 +641,9 @@
 										->setValue(0)
 										->draw($show_input);
 								?> ` + otherdetails + ` </td>
-							`; } else {
-								row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart issueqty serialbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `<input type = "hidden" class = "issueqty" name = "issueqty[]" data-value = "` + (parseFloat(details.issueqty) || 0) + `" value = "` + (parseFloat(details.issueqty) || 0) + `"/></td>`;
-							} 
+							`; //} else {
+								//row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart issueqty serialbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `<input type = "hidden" class = "issueqty" name = "issueqty[]" data-value = "` + (parseFloat(details.issueqty) || 0) + `" value = "` + (parseFloat(details.issueqty) || 0) + `"/></td>`;
+							//} 
 						<?php } else { ?>
 							row += `<td class="text-right">
 								<?php
@@ -1031,8 +1031,8 @@
 				var qty = $(this).val();
 				var parentline = $(this).closest('tr').find('.parentline').val();
 				var maxqty = $(this).closest('tr').find('.issueqty').attr('data-max');
-				if ($(this).hasClass('itempart')) {
-					$('#tableList tbody tr').find('.parentline[value="'+parentline+'"]').not(':first').each(function() {
+				$('#tableList tbody tr').find('.parentline[value="'+parentline+'"]').not(':first').each(function() {
+					if ($(this).closest('tr').find('.issueqty').hasClass('itempart')) {
 						var itemqty = $(this).closest('tr').find('.bundle_itemqty').val();
 						var total = qty * itemqty;
 						var qtyleft = $('#tableList tbody tr td').closest('.qtyleft').find('input').val();
@@ -1043,8 +1043,8 @@
 							total = maxqty * itemqty;
 							$(this).closest('tr').find('.issueqty').val(total);
 						}
-					});
-				}
+					}
+				});
 				recomputeAll();
 			}
 		});	
@@ -1128,7 +1128,9 @@
 			ajax.allserials = $('#main_serial').val();
 			ajax.id = itemrow.closest('tr').find('.serialnumbers').val();
 			ajax.item_ident = itemrow.closest('tr').find('.item_ident_flag').val();
-			ajax.checked_serials = itemrow.closest('tr').find('.checked').val();
+			var checked = itemrow.closest('tr').find('.checked').val();
+			ajax.checked_serials = checked.toString();
+			// console.log(ajax.checked_serials);
 			task = $('#task').val();
 			ajax.task = $('#task').val();
 			if (task=='ajax_edit') {
@@ -1232,7 +1234,6 @@
 				return value != remove_this;
 			});
 			itemrow.closest('tr').find('.checked').val(checked_serials);
-			
 		});
 
 		$('#btn_ok').on('click', function() {

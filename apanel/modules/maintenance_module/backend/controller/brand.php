@@ -177,7 +177,7 @@
 			$search = $this->input->post("search");
 			$sort 	= $this->input->post('sort');
 			$limit  = $this->input->post('limit');
-			$list 	= $this->brand->retrieveListing($search, $sort, $limit);
+			$list 	= $this->brand->retrieveListing($search, $sort);
 
 			$table 	= '';
 

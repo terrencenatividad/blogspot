@@ -60,6 +60,7 @@ class controller extends wc_controller {
 			'detail_discountamount'		=> 'discountamount',
 			'detail_withholdingamount'	=> 'withholdingamount',
 			'detail_warehouse'			=> 'warehouse',
+			'po_qty',
 			'item_ident_flag'
 		);
 		$this->fields3			= array(
@@ -80,6 +81,7 @@ class controller extends wc_controller {
 			'detail_discountamount'		=> 'discountamount',
 			'detail_withholdingamount'	=> 'withholdingamount',
 			'detail_warehouse'			=> 'warehouse',
+			'po_qty'
 		);
 		$this->clean_number		= array(
 			'receiptqty'
@@ -108,6 +110,21 @@ class controller extends wc_controller {
 
 	public function create() {
 		$this->view->title			= 'Create Purchase Receipt';
+		$this->view->addCSS(array(
+			'jquery.fileupload.css'
+		)
+		);  
+		$this->view->addJS(
+			array(
+				'jquery.dirrty.js',
+				'jquery.ui.widget.js',
+				'jquery.iframe-transport.js',
+				'jquery.fileupload.js',
+				'jquery.fileupload-process.js',
+				'jquery.fileupload-validate.js',
+				'jquery.fileupload-ui.js'
+			)
+		);
 		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
 		$data['ui']					= $this->ui;
@@ -145,6 +162,21 @@ class controller extends wc_controller {
 
 	public function edit($voucherno) {
 		$this->view->title			= 'Edit Purchase Receipt';
+		$this->view->addCSS(array(
+			'jquery.fileupload.css'
+		)
+		);  
+		$this->view->addJS(
+			array(
+				'jquery.dirrty.js',
+				'jquery.ui.widget.js',
+				'jquery.iframe-transport.js',
+				'jquery.fileupload.js',
+				'jquery.fileupload-process.js',
+				'jquery.fileupload-validate.js',
+				'jquery.fileupload-ui.js'
+			)
+		);
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->purchase_model->getPurchaseReceiptById($this->fields, $voucherno);
 		$transactiondate			= $data['transactiondate'];
@@ -164,7 +196,7 @@ class controller extends wc_controller {
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= $this->restrict->setButtonRestriction($transactiondate);
-		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbView();
+		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbView($voucherno);
 		$data['serial_db_array']	= array();
 		foreach ($data['serial_db'] as $serial_db) {
 			array_push($data['serial_db_array'], $serial_db->serialno);
@@ -182,6 +214,21 @@ class controller extends wc_controller {
 
 	public function view($voucherno) {
 		$this->view->title			= 'View Purchase Receipt';
+		$this->view->addCSS(array(
+			'jquery.fileupload.css'
+		)
+		);  
+		$this->view->addJS(
+			array(
+				'jquery.dirrty.js',
+				'jquery.ui.widget.js',
+				'jquery.iframe-transport.js',
+				'jquery.fileupload.js',
+				'jquery.fileupload-process.js',
+				'jquery.fileupload-validate.js',
+				'jquery.fileupload-ui.js'
+			)
+		);
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->purchase_model->getPurchaseReceiptById($this->fields, $voucherno);
 		$transactiondate			= $data['transactiondate'];
@@ -200,7 +247,7 @@ class controller extends wc_controller {
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= $this->restrict->setButtonRestriction($transactiondate);
-		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbView();
+		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbView($voucherno);
 		$data['serial_db_array']	= array();
 		foreach ($data['serial_db'] as $serial_db) {
 			array_push($data['serial_db_array'], $serial_db->serialno);
@@ -374,14 +421,16 @@ class controller extends wc_controller {
 		$data2						= $this->cleanData($data2);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$data['period']				= $this->date->getMonthNumber($data['transactiondate']);
-		$data['fiscalyear']		= $this->date->getYear($data['transactiondate']);
+		$data['fiscalyear']			= $this->date->getYear($data['transactiondate']);
 		$seq						= new seqcontrol();
 		$data['voucherno']			= $seq->getValue('PR');
 		$data['transtype']			= $this->purchase_model->getTransactionType($data['source_no']);
 		$result						= $this->purchase_model->savePurchaseReceipt($data, $data2);
-		$serials					= $this->input->post($this->serial_fields);
+		$serials					= $this->input->post($this->serial_fields);		
 		$result2					= $this->purchase_model->saveSerialNumbers($serials,$data['voucherno']);
-		
+		$attachment_update['reference'] = $data['voucherno'];
+		$attachment					= $this->purchase_model->updateAttachmentReference($attachment_update,$data['source_no']);
+
 		if ($result && $this->financial_model) {
 			$this->financial_model->generateAP($data['voucherno']);
 		}
@@ -499,7 +548,12 @@ class controller extends wc_controller {
 	private function ajax_load_purchase_details() {
 		$voucherno	= $this->input->post('voucherno');
 		$warehouse	= $this->input->post('warehouse');
-		$details	= $this->purchase_model->getPurchaseOrderDetails($voucherno, $warehouse);
+		$transtype	= $this->purchase_model->getTransactionType($voucherno);
+		// if ($transtype == 'PO') {
+			$details	= $this->purchase_model->getPurchaseOrderDetails($voucherno, $warehouse);
+		// // } else {
+		// 	$details	= $this->purchase_model->getImportPurchaseOrderDetails($voucherno, $warehouse);
+		// }
 		$header		= $this->purchase_model->getPurchaseOrderHeader($this->fields_header, $voucherno);
 		$table		= '';
 		$success	= true;
@@ -536,6 +590,91 @@ class controller extends wc_controller {
 			}
 		}
 		return $data;
+	}
+
+	private function ajax_upload_file()
+	{
+		$post_data 		= $this->input->post();
+		$upload_handler	= new UploadHandler();
+		$reference 		= $post_data['reference'];
+		$task 			= $post_data['task'];
+		$upload_result 	= false;
+		unset($post_data['task']);
+		
+		if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
+			if(!isset($upload_handler->response['files'][0]->error)){
+				/**
+				 * Generate Attachment Id
+				 * @param table
+				 * @param group fields
+				 * @param custom condition
+				 */
+				if ($task=='view') 
+					$attachment_id = $this->purchase_model->getCurrentId("purchasereceipt_attachments", "attachment_id");
+				
+				else
+					$attachment_id = $this->purchase_model->getNextId("purchasereceipt_attachments","attachment_id");
+
+				foreach($upload_handler->response['files'] as $key => $row) {
+					$post_data['attachment_id'] 	= $attachment_id;
+					$post_data['attachment_name'] 	= $row->name;
+					$post_data['attachment_type'] 	= $row->type;
+					$post_data['attachment_url']	= $row->url;
+				}
+
+				if ($task == 'view')
+					$upload_result 	= $this->purchase_model->replaceAttachment($post_data);
+
+				else
+					$upload_result 	= $this->purchase_model->uploadAttachment($post_data);
+
+			}else{
+				$upload_result 	= false;
+			}
+		}
+		// if($upload_result && $task == 'listing'){
+		// 	/**
+		// 	 * Update status of Service Quotation to Approved
+		// 	 */
+		// 	// $this->service_quotation->updateData(array('stat' => 'Approved'), 'servicequotation', " voucherno = '$reference' ");
+		// }
+		
+		// $result = array(
+		// 	'upload_result' => $upload_result,
+		// 	'msg'			=> $message
+		// );
+		// return $result;
+		// if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
+		// 	if(!$upload_handler->response['files'][0]->error){
+		// 		/**
+		// 		 * Generate Attachment Id
+		// 		 * @param table
+		// 		 * @param group fields
+		// 		 * @param custom condition
+		// 		 */
+		// 		$attachment_id = $this->case->getNextId("claim_report_attachments","attachment_id"," AND caseno = '$caseno' AND report_id = '$report' ");
+				
+		// 		foreach($upload_handler->response['files'] as $key => $row) {
+		// 			if ($row->deleteUrl) {
+		// 				$post_data['attachment_id'] 	= $attachment_id;
+		// 				$post_data['attachment_name'] 	= $row->name;
+		// 				$post_data['type'] 				= $row->type;
+		// 				$post_data['url'] uploadAttachmentl;
+		// 			}
+		// 		}
+		// 		$this->case->uploadAttachmuploadAttachment
+		// 	}else{
+		// 		foreach($upload_handler->ruploadAttachment => $row) {
+		// 			if ($row->deleteUrl) {uploadAttachment
+		// 				$post_data['attachment_id'] 	= $attachment_id;
+		// 				$post_data['attachment_name'] 	= $row->name;
+		// 				$post_data['type'] 				= $row->type;
+		// 				$post_data['url'] 				= $row->url;
+		// 			}
+		// 		}
+		// 		$this->case->deleteAttachment($post_data);
+		// 	}
+		// }
 	}
 
 }

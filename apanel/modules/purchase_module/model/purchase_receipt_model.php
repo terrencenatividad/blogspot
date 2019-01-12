@@ -42,6 +42,7 @@ class purchase_receipt_model extends wc_model {
 	}
 
 	public function saveSerialNumbers($data, $voucherno){
+		
 		$number_of_items = sizeof($data['linenum']);
 		$voucherno = $voucherno;
 		$source_no = $data['source_no'];
@@ -75,6 +76,7 @@ class purchase_receipt_model extends wc_model {
 				}
 			}
 		}
+	
 	}
 
 	public function saveSerialToDb($values) {
@@ -535,7 +537,7 @@ class purchase_receipt_model extends wc_model {
 				if ($quantity >= $row->receiptqty) {
 					$add_result = false;
 				}
-				$row->maxqty = ($row->maxqty > $quantity) ? $row->maxqty - $quantity : 0;
+				$row->maxqty = intval($row->maxqty);//($row->maxqty > $quantity) ? $row->maxqty - $quantity : 0;
 				$row->receiptqty = ($row->receiptqty > $quantity) ? $row->receiptqty - $quantity : 0;
 				$checker[$row->linenum] -= $row->receiptqty;
 			}
@@ -550,7 +552,7 @@ class purchase_receipt_model extends wc_model {
 
 	public function getImportPurchaseOrderDetails($voucherno, $voucherno_ref = false) {
 		$result1		= $this->db->setTable('import_purchaseorder_details ipod')
-								->setFields("itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, ipod.warehouse, receiptuom, unitprice, 'none' taxcode, taxrate, ipod.taxamount, ipod.amount, convreceiptqty, convuom, conversion")
+								->setFields("itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, ipod.warehouse, receiptuom, unitprice, 'none' taxcode, taxrate, ipod.taxamount, ipod.amount, convreceiptqty, convuom, conversion, item_ident_flag")
 								->innerJoin('import_purchaseorder ipo ON ipod.voucherno = ipo.voucherno AND ipod.companycode = ipo.companycode')
 								->setWhere("ipo.voucherno = '$voucherno'")
 								->runSelect()
@@ -580,7 +582,7 @@ class purchase_receipt_model extends wc_model {
 				if ($quantity >= $row->receiptqty) {
 					$add_result = false;
 				}
-				$row->maxqty = ($row->maxqty > $quantity) ? $row->maxqty - $quantity : 0;
+				$row->maxqty = intval($row->maxqty);//($row->maxqty > $quantity) ? $row->maxqty - $quantity : 0;
 				$row->receiptqty = ($row->receiptqty > $quantity) ? $row->receiptqty - $quantity : 0;
 				$checker[$row->linenum] -= $row->receiptqty;
 			}
@@ -665,13 +667,81 @@ class purchase_receipt_model extends wc_model {
 		return $result;
 	}
 
-	public function getSerialNoFromDbView() {
+	public function getSerialNoFromDbView($voucherno) {
 		$result = $this->db->setTable('items_serialized i')
 							->setFields('itemcode, serialno, engineno, chassisno')
+							->setWhere("voucherno = '$voucherno'")
 							// ->setOrderBy('serialno')
 							->runSelect()
 							->getResult();
 		
+		return $result;
+	}
+
+	public function getNextId($table,$field,$subcon = "") {
+		$result = $this->db->setTable($table)
+			->setFields('MAX('.$field.') as current')
+			->setWhere(" $field != '' " . $subcon)
+			->runSelect()
+			->getRow();
+
+		if ($result) {
+			$return = $result->current += 1;
+		} else {
+			$return = '1';
+		}
+		return $return;
+	}
+	public function getCurrentId($table,$voucherno) {
+		$result = $this->db->setTable($table)
+			->setFields('attachment_id')
+			->setWhere("reference='$voucherno'")
+			->runSelect()
+			->getRow();
+
+		if ($result) {
+			$return = $result->attachment_id;
+		} else {
+			$return = '1';
+		}
+		return $return;
+	}
+	public function uploadAttachment($data) {
+		$reference = $data['reference'];
+		$result = $this->db->setTable('purchasereceipt_attachments')
+							->setValues($data)
+							->runInsert();
+		// if ($result) {
+		// 	$this->log->saveActivity("Approve [$reference] with attachment");		
+		// }
+		return $result;
+	}
+	public function replaceAttachment($data) {
+		$reference = $data['reference'];
+		$result = $this->db->setTable('purchasereceipt_attachments')
+							->setValues($data)
+							->setWhere("reference='$reference'")
+							->runUpdate();
+		if ($result) {
+			$this->log->saveActivity("Update attachment with [$reference]");		
+		}
+		return $result;
+	}
+
+	public function updateAttachmentReference($data, $source_no) {
+		
+		$result = $this->db->setTable('purchasereceipt_attachments')
+							->setValues($data)
+							->setWhere("reference = '$source_no'")
+							->setOrderBy('attachment_id DESC')
+							->setLimit(1)
+							->runUpdate();
+
+		$result = $this->db->setTable('purchasereceipt_attachments')
+							->setWhere("reference = '$source_no'")
+							->runDelete();
+							
+
 		return $result;
 	}
 
