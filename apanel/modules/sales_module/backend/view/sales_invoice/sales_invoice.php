@@ -946,7 +946,7 @@ echo $ui->loadElement('modal')
 				<table id="delivery_receiptList" class="table table-hover table-clickable table-bordered">
 					<thead>
 						<tr class="info">
-							<th class="col-xs-2">Vocuher No.</th>
+							<th class="col-xs-2">Voucher No.</th>
 							<th class="col-xs-2">Document Date</th>
 							<th class="col-xs-8">Notes</th>
 						</tr>
