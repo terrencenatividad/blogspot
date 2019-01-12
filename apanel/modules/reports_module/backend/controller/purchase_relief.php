@@ -22,7 +22,7 @@ class controller extends wc_controller {
 		$data['year']				= $year;
 		
 		// $data['year_list']			= $this->report->getYearList();
-		$data['customer_list']		= $this->report->retrieveCustomerList();
+		$data['vendor_list']		= $this->report->retrieveVendorList();
 		// $data['datefilter'] 		= $this->date->datefilterMonth();
 		$data['datefilter'] 		= "Nov 1,2018 - Nov 30,2018";
         $getCompany 				= $this->report->getCompany($this->companycode);
@@ -42,27 +42,27 @@ class controller extends wc_controller {
 		}
 	}
 
-	private function display_amount($month, $customercode, $customer, $amount){
+	private function display_amount($month, $vendorcode, $vendor, $amount){
 	
-		return "<a class='clickable' data-id=\"".$month.'/'. $customercode .'/'. $customer . '/' .$amount . '">'.$amount.'</a>';
+		return "<a class='clickable' data-id=\"".$month.'/'. $vendorcode .'/'. $vendor . '/' .$amount . '">'.$amount.'</a>';
 	}
 
 	public function ajax_list(){
-		$data 		= $this->input->post(array('customer','datefilter','sort'));
+		$data 		= $this->input->post(array('vendor','datefilter','sort'));
 		$datefilter 	= 	explode('-', $data['datefilter']);
 		$dates			= 	array();
 		foreach ($datefilter as $date) {
 			$dates[] = $this->date->dateDbFormat($date);
 		}	
 	
-        $custfilter = $data['customer'];
+        $vendfilter = $data['vendor'];
         $sortfilter = $data['sort'];
 
-        $pagination = $this->report->getPurchaseReliefPagination($custfilter, $sortfilter, $dates[0], $dates[1]);
+        $pagination = $this->report->getPurchaseReliefPagination($vendfilter, $sortfilter, $dates[0], $dates[1]);
 		
 		$table 	=	$tabledetails 	=	"";
         if (empty($pagination->result)) {
-			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+			$table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
 		} 
 
 		$totalgross = 0;
@@ -76,18 +76,18 @@ class controller extends wc_controller {
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->tinno . '</td>';
 			$table .= '<td>' . $row->partnername . '</td>';
-			$table .= '<td class="text-right"><a href="'.BASE_URL.'purchase/purchase_receipt/'.$row->voucherno.'">' . number_format($row->netamount,2) . '</a></td>';
-			$table .= '<td class="text-right">' . number_format($row->vat_exempt,2) . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->vat_zerorated,2) . '</td>';
+			$table .= '<td class="text-right"><a href="'.BASE_URL.'purchase/purchase_receipt/view/'.$row->voucherno.'">' . number_format($row->netamount,2) . '</a></td>';
+			// $table .= '<td class="text-right">' . number_format($row->vat_exempt,2) . '</td>';
+			// $table .= '<td class="text-right">' . number_format($row->vat_zerorated,2) . '</td>';
 			$table .= '<td class="text-right">' . number_format($row->vat_sales,2) . '</td>';
 			$table .= '<td class="text-right">' . number_format($row->service,2) . '</td>';
 			$table .= '<td class="text-right">' . number_format($row->goods,2) . '</td>';
 			$table .= '<td class="text-right">' . number_format($row->capital,2) . '</td>';
 			$table .= '<td class="text-right">' . number_format($row->wtaxamount,2) . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->amount,2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->grosstaxable,2) . '</td>';
 			$table .= '</tr>';
 		}
-		$footerdtl 			= 	$this->report->getAmountTotal($custfilter, $sortfilter, $dates[0], $dates[1]);
+		$footerdtl 			= 	$this->report->getAmountTotal($vendfilter, $sortfilter, $dates[0], $dates[1]);
 		$totalgross 		= 	isset($footerdtl->netamount)		?	$footerdtl->netamount		: 	0;
 		$totalexempt		= 	isset($footerdtl->vat_exempt)		?	$footerdtl->vat_exempt		: 	0;
 		$zerorated  		= 	isset($footerdtl->vat_zerorated)	?	$footerdtl->vat_zerorated	: 	0;
@@ -96,19 +96,17 @@ class controller extends wc_controller {
 		$goodstotal 		= 	isset($footerdtl->goods)		    ?	$footerdtl->goods		    : 	0;
 		$capitaltotal  		= 	isset($footerdtl->capital)			?	$footerdtl->capital			: 	0;
 		$outputtax 			= 	isset($footerdtl->wtaxamount)		?	$footerdtl->wtaxamount		: 	0;
-		$grtaxable  		= 	isset($footerdtl->amount)			?	$footerdtl->amount			: 	0;
+		$grtaxable  		= 	isset($footerdtl->grosstaxable)		?	$footerdtl->grosstaxable	: 	0;
 
 		if ($pagination->page_limit > 1) {
 			$tabledetails .= '<tr class="success">
-								<td colspan="12" class="text-center">Page ' . $pagination->page . ' of ' . $pagination->page_limit . '</td>
+								<td colspan="10" class="text-center">Page ' . $pagination->page . ' of ' . $pagination->page_limit . '</td>
 							</tr>';
 		}
 
 		$tabledetails .= '<tr class="warning">
 							<th colspan="3">Grand Total:</th>
 							<th class="text-right">' . number_format($totalgross,2) . '</th>
-							<th class="text-right">' . number_format($totalexempt, 2) . '</th>
-							<th class="text-right">' . number_format($zerorated, 2) . '</th>
 							<th class="text-right">' . number_format($taxablesale, 2) . '</th>
 							<th class="text-right">' . number_format($servicetotal, 2) . '</th>
 							<th class="text-right">' . number_format($goodstotal, 2) . '</th>
@@ -116,6 +114,8 @@ class controller extends wc_controller {
 							<th class="text-right">' . number_format($outputtax, 2) . '</th>
 							<th class="text-right">' . number_format($grtaxable, 2) . '</th>
 						</tr>';
+						// <th class="text-right">' . number_format($totalexempt, 2) . '</th>
+						// <th class="text-right">' . number_format($zerorated, 2) . '</th>
 
 		$pagination->table = $table;
 		$pagination->tabledetails	= $tabledetails;
@@ -123,41 +123,41 @@ class controller extends wc_controller {
 	}
 
 	public function get_csv() {
-		$data 		= $this->input->get(array('customer','datefilter','sort'));
+		$data 		= $this->input->get(array('vendor','datefilter','sort'));
 		$datefilter 	= 	explode('-', urldecode($data['datefilter']));
 		$dates			= 	array();
 		foreach ($datefilter as $date) {
 			$dates[] = $this->date->dateDbFormat($date);
 		}	
 		
-        $custfilter = urldecode($data['customer']);
+        $vendfilter = urldecode($data['vendor']);
 		$sortfilter = urldecode($data['sort']);
 
-		$details 	= $this->report->getPurchaseReliefDetails($custfilter, $sortfilter, $dates[0], $dates[1]);
+		$details 	= $this->report->getPurchaseReliefDetails($vendfilter, $sortfilter, $dates[0], $dates[1]);
 		$company 	= $this->report->getCompany($this->companycode);
 		
-		$filename = 'Sales Relief';
+		$filename = 'Purchase Relief';
 
 		$excel = new PHPExcel();
 		$excel->getProperties()
 				->setCreator('Cid')
 				->setLastModifiedBy('Cid')
 				->setTitle($filename)
-				->setSubject('Sales Relief')
-				->setDescription('Sales Relief')
-				->setKeywords('Sales Relief')
-				->setCategory('Sales Relief');
+				->setSubject('Purchase Relief')
+				->setDescription('Purchase Relief')
+				->setKeywords('Purchase Relief')
+				->setCategory('Purchase Relief');
 
-		$excel->getActiveSheet()->setTitle('Sales Relief');
+		$excel->getActiveSheet()->setTitle('Purchase Relief');
 		$excel->setActiveSheetIndex(0);
 		$sheet = $excel->getActiveSheet();
 
-		// $sheet->getCell('A1')->setValue('SALES RELIEF '.$dates[0].' - '.$dates[1]);
-		$sheet->getCell('A1')->setValue('SUMMARY LIST OF SALES');
+		// $sheet->getCell('A1')->setValue('PURCHASE RELIEF '.$dates[0].' - '.$dates[1]);
+		$sheet->getCell('A1')->setValue('SUMMARY LIST OF PURCHASES');
 
-		$sheet->getCell('A3')->setValue('SALES TRANSACTION');
+		$sheet->getCell('A3')->setValue('PURCHASE TRANSACTION');
 		$sheet->getCell('A4')->setValue('RECONCILIATION OF LISTING FOR ENFORCEMENT');
-		$sheet->getCell('A5')->setValue('FOR '.strtoupper($this->date->dateFormat($date[0])). ' to '.strtoupper($this->date->dateFormat($date[1])));
+		$sheet->getCell('A5')->setValue('FOR '.strtoupper($this->date->dateFormat($dates[0])). ' to '.strtoupper($this->date->dateFormat($dates[1])));
 
 		$sheet->getCell('A7')->setValue('TIN: '.$company->tin);
 		$sheet->getCell('A8')->setValue("OWNER'S NAME: ".strtoupper($company->companyname));
@@ -167,13 +167,14 @@ class controller extends wc_controller {
 		// HEADER STARTS HERE
 		$sheet->getCell('A12')->setValue('TAXABLE MONTH');
 		$sheet->getCell('B12')->setValue('TIN');
-		$sheet->getCell('C12')->setValue('CUSTOMER');
-		$sheet->getCell('D12')->setValue('GROSS SALES');
-		$sheet->getCell('E12')->setValue('EXEMPT SALES');
-		$sheet->getCell('F12')->setValue('ZERO RATED SALES');
-		$sheet->getCell('G12')->setValue('TAXABLE SALES');
-		$sheet->getCell('H12')->setValue('OUTPUT TAX');
-		$sheet->getCell('I12')->setValue('GROSS TAXABLE SALES');
+		$sheet->getCell('C12')->setValue('VENDOR');
+		$sheet->getCell('D12')->setValue('GROSS AMOUNT');
+		$sheet->getCell('E12')->setValue('TAXABLE PURCHASE');
+		$sheet->getCell('F12')->setValue('PURCHASE OF SERVICES');
+		$sheet->getCell('G12')->setValue('PURCHASE OF CAPITAL GOODS');
+		$sheet->getCell('H12')->setValue('PURCHASE OF GOODS OTHER THAN CAPITAL GOODS');
+		$sheet->getCell('I12')->setValue('INPUT TAX');
+		$sheet->getCell('J12')->setValue('GROSS TAXABLE PURCHASE');
 
 		$totalgross = 0;
 		$totalexempt= 0;
@@ -181,6 +182,9 @@ class controller extends wc_controller {
 		$taxablesale= 0;
 		$outputtax 	= 0;
 		$grtaxable  = 0;
+		$totalservice=0;
+		$totalgoods = 0;
+		$totalcapital=0;
 		$cell_row   = 13;
 		if ($details) {
 			foreach ($details as $row) {
@@ -188,21 +192,27 @@ class controller extends wc_controller {
 				$sheet->getCell('B'.$cell_row)->setValue($row->tinno);
 				$sheet->getCell('C'.$cell_row)->setValue(strtoupper($row->partnername));
 				$sheet->getCell('D'.$cell_row)->setValue($row->netamount);
-				$sheet->getCell('E'.$cell_row)->setValue($row->vat_exempt);
-				$sheet->getCell('F'.$cell_row)->setValue($row->vat_zerorated);
-				$sheet->getCell('G'.$cell_row)->setValue($row->vat_sales);
-				$sheet->getCell('H'.$cell_row)->setValue($row->wtaxamount);
-				$sheet->getCell('I'.$cell_row)->setValue($row->amount);
+				// $sheet->getCell('E'.$cell_row)->setValue($row->vat_exempt);
+				// $sheet->getCell('F'.$cell_row)->setValue($row->vat_zerorated);
+				$sheet->getCell('E'.$cell_row)->setValue($row->vat_sales);
+				$sheet->getCell('F'.$cell_row)->setValue($row->service);
+				$sheet->getCell('G'.$cell_row)->setValue($row->goods);
+				$sheet->getCell('H'.$cell_row)->setValue($row->capital);
+				$sheet->getCell('I'.$cell_row)->setValue($row->wtaxamount);
+				$sheet->getCell('J'.$cell_row)->setValue($row->grosstaxable);
 
 				$cell_row++;
 
 				// COMPUTING TOTAL
 				$totalgross += $row->netamount;
-				$totalexempt+= $row->vat_exempt;
-				$zerorated  += $row->vat_zerorated;
+				// $totalexempt+= $row->vat_exempt;
+				// $zerorated  += $row->vat_zerorated;
 				$taxablesale+= $row->vat_sales;
 				$outputtax 	+= $row->wtaxamount;
-				$grtaxable  += $row->amount;
+				$grtaxable  += $row->grosstaxable;
+				$totalservice+=$row->service;
+				$totalgoods += $row->goods;
+				$totalcapital+=$row->capital;
 			}
 		}
 
@@ -215,13 +225,16 @@ class controller extends wc_controller {
 		
 		// SETTING FOOTER TOTAL
 		$sheet->getCell('D'.$fortotal_amount)->setValue($totalgross);
-		$sheet->getCell('E'.$fortotal_amount)->setValue($totalexempt);
-		$sheet->getCell('F'.$fortotal_amount)->setValue($zerorated);
-		$sheet->getCell('G'.$fortotal_amount)->setValue($taxablesale);
-		$sheet->getCell('H'.$fortotal_amount)->setValue($outputtax);
-		$sheet->getCell('I'.$fortotal_amount)->setValue($grtaxable);
+		// $sheet->getCell('E'.$fortotal_amount)->setValue($totalexempt);
+		// $sheet->getCell('F'.$fortotal_amount)->setValue($zerorated);
+		$sheet->getCell('E'.$fortotal_amount)->setValue($taxablesale);
+		$sheet->getCell('F'.$fortotal_amount)->setValue($totalservice);
+		$sheet->getCell('G'.$fortotal_amount)->setValue($totalgoods);
+		$sheet->getCell('H'.$fortotal_amount)->setValue($totalcapital);
+		$sheet->getCell('I'.$fortotal_amount)->setValue($outputtax);
+		$sheet->getCell('J'.$fortotal_amount)->setValue($grtaxable);
 
-		$sheet->getStyle('D13:I38')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		$sheet->getStyle('D13:J38')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
 
 		foreach ($excel->getAllSheets() as $sheet) {
 			for ($col = 0; $col <= PHPExcel_Cell::columnIndexFromString($sheet->getHighestDataColumn()); $col++) {
@@ -244,21 +257,21 @@ class controller extends wc_controller {
 	}
 
 	public function get_dat() {
-		$data 		= $this->input->get(array('customer','datefilter','sort'));
+		$data 		= $this->input->get(array('vendor','datefilter','sort'));
 		$datefilter 	= 	explode('-', urldecode($data['datefilter']));
 		$dates			= 	array();
 		foreach ($datefilter as $date) {
 			$dates[] = $this->date->dateDbFormat($date);
 		}	
-        $custfilter = urldecode($data['customer']);
+        $vendfilter = urldecode($data['vendor']);
 		$sortfilter = urldecode($data['sort']);
 
-		$details 	= $this->report->getPurchaseReliefDetails($custfilter, $sortfilter, $dates[0], $dates[1]);
+		$details 	= $this->report->getPurchaseReliefDetails($vendfilter, $sortfilter, $dates[0], $dates[1]);
 		$company 	= $this->report->getCompany($this->companycode);
 		
-		$filename = 'Sales Relief';
+		$filename = 'Purchase Relief';
 
-		$header = array('#','Taxable Month','TIN','Customer','Gross Sales','Exempt Sales','Zero Rated Sales','Taxable Sales','Output Tax','Gross Taxable Sales');
+		$header = array('#','Taxable Month','TIN','Vendor','Gross Amount','Taxable Purchase','Purchase of Services','Purchase of Capital Goods','Purchase of Goods Other than Capital Goods','Input Tax','Gross Taxable Purchase');
 
 		$csv 		= new exportCSV();
 
@@ -269,24 +282,33 @@ class controller extends wc_controller {
 		$taxablesale= 0;
 		$outputtax 	= 0;
 		$grttaxable = 0;
+		$totalservice=0;
+		$totalgoods  =0;
+		$totalcapital=0;
 		if ($details) {
 			$csv->addRow($header);
 			foreach ($details as $row) {
 				$gross 		=	number_format($row->netamount,2);
-				$vat_exempt =	number_format($row->vat_exempt,2);
-				$vat_zero 	= 	number_format($row->vat_zerorated,2);
-				$vat_sales 	=	number_format($row->vat_sales,2);
+				// $vat_exempt =	number_format($row->vat_exempt,2);
+				// $vat_zero 	= 	number_format($row->vat_zerorated,2);
+				$vat_sales 		=	number_format($row->vat_sales,2);
 				$wtaxamount 	=	number_format($row->wtaxamount,2);
-				$grtaxable 	=	number_format($row->amount,2);
-				$csv->addRow(array($count, $row->transactiondate, $row->tinno, strtoupper($row->partnername), $gross, $vat_exempt, $vat_zero, $vat_sales, $wtaxamount, $grtaxable));
+				$grtaxable 		=	number_format($row->grosstaxable,2);
+				$service 		=	number_format($row->service,2);
+				$goods 			=	number_format($row->goods,2);
+				$capital		=	number_format($row->capital,2);
+				$csv->addRow(array($count, $row->transactiondate, $row->tinno, strtoupper($row->partnername), $gross, $vat_sales, $service, $goods, $capital, $wtaxamount, $grtaxable));
 
 				// COMPUTING TOTAL
 				$totalgross += $row->netamount;
-				$totalexempt+= $row->vat_exempt;
-				$zerorated  += $row->vat_zerorated;
-				$taxablesale+= $row->vat_sales;
-				$outputtax 	+= $row->wtaxamount;
-				$grttaxable += $row->amount;				
+				// $totalexempt+= $row->vat_exempt;
+				// $zerorated  += $row->vat_zerorated;
+				$taxablesale	+= $row->vat_sales;
+				$outputtax 		+= $row->wtaxamount;
+				$grttaxable 	+= $row->grosstaxable;		
+				$totalservice 	+= $row->service;
+				$totalgoods 	+= $row->goods;	
+				$totalcapital 	+= $row->capital;					
 				
 				$count++;
 			}
@@ -294,7 +316,7 @@ class controller extends wc_controller {
 			$csv->addRow(array("NO RECORDS FOUND."));
 		}
 
-		$csv->addRow(array($count, "GRAND TOTAL: ", " ", " ", $totalgross, $totalexempt, $zerorated, $taxablesale, $outputtax, $grttaxable));
+		$csv->addRow(array($count, "GRAND TOTAL: ", " ", " ", $totalgross, $taxablesale, $totalservice, $totalgoods, $totalcapital, $outputtax, $grttaxable));
 
 		$csv->export($filename,'DAT');
 		
