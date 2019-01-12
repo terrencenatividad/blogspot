@@ -64,6 +64,11 @@
 											->setId('h_customer')
 											->setValue($customer)
 											->draw(true);
+											echo $ui->formField('hidden')
+											->setName('task')
+											->setId('task')
+											->setValue('')
+											->draw(true);
 									?>
 								</div>
 								<div class="col-md-6">
@@ -393,7 +398,7 @@
 			delete other_details.parentcode;
 			delete other_details.item_ident_flag;
 			var otherdetails = '';
-			
+
 			for (var key in other_details) {
 				if (other_details.hasOwnProperty(key)) {
 					otherdetails += `<?php 
@@ -426,9 +431,14 @@
 								->setClass('serialnumbers')
 								->setValue('')
 								->draw(true);
+							echo $ui->formField('hidden')
+								->setName('item_ident_flag[]')
+								->setClass('item_ident_flag')
+								->setValue('` + details.item_ident_flag + `')
+								->draw(true);
 						?>
 						<?php
-							$value = "<span id='temp_view_itemcode_` + index + `'>` + details.itemcode + `</span>";
+							$value = "<span id='temp_view_itemcode_` + index + `'>` + details.itemcode + ' - ' + details.itemname +`</span>";
 							echo $ui->formField('dropdown')
 								->setSplit('', 'col-md-12')
 								->setName('detail_itemcode[]')
@@ -535,7 +545,7 @@
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
 									->setName('quantity[]')
-									->setClass('quantity text-right')
+									->setClass('mainitem quantity text-right')
 									->setAttribute(array('data-value' => '` + (parseFloat(details.quantity) || 0) + `'))
 									->setValidation('required integer')
 									->setValue('0')
@@ -544,7 +554,7 @@
 							` + otherdetails + `
 						</td>`;
 					} else {
-						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right serialbtn itempart quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0"/></td>`;
+						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right serialbtn mainitem quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0"/></td>`;
 					}
 					}
 					
@@ -791,17 +801,20 @@
 			if (ajax_call != '') {
 				ajax_call.abort();
 			}
+			ajax.limit = 5;
 			ajax.itemselected = serials;
-			//ajax.linenum = linenum;
 			ajax.allserials = $('#main_serial').val();
-			ajax.itemcode  = itemcode;
 			ajax.id = itemrow.closest('tr').find('.serialnumbers').val();
+			ajax.item_ident = itemrow.closest('tr').find('.item_ident_flag').val();
+			var checked = itemrow.closest('tr').find('.checked').val();
+			// ajax.checked_serials = checked.toString();
+			// console.log(ajax.checked_serials);
 			task = $('#task').val();
 			ajax.task = $('#task').val();
 			if (task=='ajax_edit') {
-				var linenumber = itemrow.closest('tr').find('.linenum').val();
+				var linenumber = itemrow.closest('tr').find('.linenumber').val();
 				ajax.linenumber = linenumber;
-				ajax.voucherno = $('#job_order_no').val();
+				ajax.voucherno = $('#voucher').val();
 			}
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_serial_list', ajax, function(data) {
 				$('#tableSerialList tbody').html(data.table);
@@ -901,15 +914,18 @@
 		$('#issuedPartsList tbody').on('click','.deleteip', function(){
 			var id = $(this).closest('tr').data('id');
 			var jv = $(this).closest('tr').data('jv');
+			var sn = $(this).closest('tr').data('serialnumbers');
 			$('#delete_modal').modal('show');
+			console.log(sn);
 			$('#delete_yes').on('click', function(){
-				$.post('<?=MODULE_URL?>ajax/ajax_delete_issue', 'id='+ id + '&voucherno=' + jv, function(data) {
+				$.post('<?=MODULE_URL?>ajax/ajax_delete_issue', 'id='+ id + '&voucherno=' + jv + '&serialnumbers=' + sn, function(data) {
 				$('#delete_modal').modal('hide');					
 			});
 			getList();
 			});
 		});
 		$('#issuedPartsList tbody').on('click','.editip', function(){
+			$('#task').val('ajax_edit');
 			var jobreleaseno = $(this).closest('tr').data('id');
 			$('#isyu').hide();
 			$('#save').removeClass('hidden');
@@ -922,6 +938,7 @@
 									var linenums = $(this).data('linenum');
 									if(element.linenum == linenums) {
 										$(this).find('.quantity').val(element.quantity);
+										$(this).find('.serialnumbers').val(element.serialnumbers);
 									}
 								});
 							});

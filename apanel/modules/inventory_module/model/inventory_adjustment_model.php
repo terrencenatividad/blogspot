@@ -737,6 +737,7 @@ class inventory_adjustment_model extends wc_model {
 							->setWhere($condition)
 							->runSelect()
 							->getResult();
+
 		return $result;
 	}
 }
