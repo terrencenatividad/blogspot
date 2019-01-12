@@ -609,6 +609,7 @@ class controller extends wc_controller
 		$discount		= 0;
 		$tax			= 0;
 		$total_amount 	= 0;
+		$notes = $customercode[0]->notes; 
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
@@ -636,7 +637,7 @@ class controller extends wc_controller
 			if (($key + 1) % $detail_height == 0) {
 				$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
 				$summary = array(array('Notes:', 'VATable Sales', number_format($vatable_sales, 2)),
-					array('The quick brown fox jumps over the lazy dog','VAT-Exempt Sales'	, number_format($vat_exempt, 2)),
+					array($notes, 'VAT-Exempt Sales', number_format($vat_exempt, 2)),
 					array('','VAT Zero Rated Sales'	, number_format($vat_zerorated, 2)),
 					array('','Total Sales'		, number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2)),
 					array('','Tax'				, number_format($tax, 2)),
@@ -656,7 +657,7 @@ class controller extends wc_controller
 		}
 		$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
 		$summary = array(array('Notes:', 'VATable Sales', number_format($vatable_sales, 2)),
-					array('The quick brown fox jumps over the lazy dog','VAT-Exempt Sales'	, number_format($vat_exempt, 2)),
+					array($notes,'VAT-Exempt Sales', number_format($vat_exempt, 2)),
 					array('','VAT Zero Rated Sales'	, number_format($vat_zerorated, 2)),
 					array('','Total Sales'		, number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2)),
 					array('','Tax'				, number_format($tax, 2)),
