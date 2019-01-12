@@ -504,11 +504,14 @@
 	function adjustment(partno, partname, qty, ident_flag, action){ 
 		$('#item_ident_flag').val(ident_flag);
 		var has_serial = ident_flag.substring(0, 1);
-		var has_engine = ident_flag.substring(1, 1);
-		var has_chassis= ident_flag.substring(2, 1);
-
+		var has_engine = ident_flag.substring(1, 2);
+		var has_chassis= ident_flag.substring(2, 3);
+		// console.log("111 "+ident_flag);
 		if(has_serial == 1 || has_engine == 1 || has_chassis == 1) { 
 			// $('#adjModal #issueqty').prop()
+		// console.log("1 "+has_serial);
+		// console.log("2 "+has_engine);
+		// console.log("3 "+has_chassis);
 			$('#adjModal .serialized').removeClass('hidden');
 			$('#adjModal .notserialized').addClass('hidden');
 			
@@ -1019,8 +1022,8 @@
 		var details = details || {serialno: '', engineno: '', chassisno: ''};
 		var ident_flag = $('#item_ident_flag').val();
 		var has_serial = ident_flag.substring(0, 1);
-		var has_engine = ident_flag.substring(1, 1);
-		var has_chassis= ident_flag.substring(2, 1);
+		var has_engine = ident_flag.substring(1, 2);
+		var has_chassis= ident_flag.substring(2, 3);
 
 		var display_serial = display_engine = display_chassis = "";
 			display_serial = (has_serial == 0) ? "class='hidden'" : ""; 

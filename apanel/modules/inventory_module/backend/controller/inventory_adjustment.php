@@ -512,25 +512,28 @@ class controller extends wc_controller {
 		$ret_flag 		= 	$this->adjustment->getValue('items',array('item_ident_flag'),"itemcode = '$itemcode'");
 		$ident_flag 	=	isset($ret_flag[0]->item_ident_flag)  	?	$ret_flag[0]->item_ident_flag 	:	'000';
 		$table 			=	"";
-
+		// echo $ident_flag;
 		$has_serial 	=	substr($ident_flag,0,1);
 		$has_engine 	=	substr($ident_flag,1,1);
 		$has_chassis 	=	substr($ident_flag,2,1);
 
-		$hide_serial 	=	($has_serial == 0) 	? "hidden" 	:	"";
-		$hide_engine 	=	($has_engine == 0) ? "hidden" 	:	"";
-		$hide_chassis 	=	($has_chassis == 0)? "hidden" 	:	"";
+		$hide_serial 	=	($has_serial == 0) 	? "class='hidden'" 	:	"";
+		$hide_engine 	=	($has_engine == 0) 	? "class='hidden'" 	:	"";
+		$hide_chassis 	=	($has_chassis == 0)	? "class='hidden'" 	:	"";
 
 		// var_dump($ret_flag);
 		if (empty($serial_lists->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		} else {
+			// var_dump($serial_lists->result);
 			foreach ($serial_lists->result as $key => $row) {
+				// echo $row->chassisno;
 				$table .= '<tr>';
 				$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id'.$row->id.'" class = "check_id" value = "'.$row->id.'"></td>';
-				$table .= '<td class = "'.$hide_serial.'">' . $row->serialno . '</td>';
-				$table .= '<td class = "'.$hide_engine.'">' . $row->engineno . '</td>';
-				$table .= '<td class = "'.$hide_chassis.'">' . $row->chassisno . '</td>';
+				$table .= '<td '.$hide_serial.'>' . $row->serialno . '</td>';
+				$table .= '<td '.$hide_engine.'>' . $row->engineno . '</td>';
+				$table .= '<td '.$hide_chassis.'>' . $row->chassisno . '</td>';
+				$table .= '</tr>';
 			}
 		}
 		
