@@ -10,6 +10,7 @@
 			$this->ui 			= 	new ui();
 			$this->url 			=	new url();
 			$this->log 			= 	new log();
+			$this->import		= 	new import();
 			$this->view->header_active = 'maintenance/warehouse/';
 			
 			$this->fields = array(
@@ -322,6 +323,9 @@
 
 						$exists = $this->warehouse->check_duplicate($warehousecode);
 						$count = $exists[0]->count;
+
+						$errmsg[] = $this->import->check_empty("Warehouse Code", $warehousecode, $line);
+						$errmsg[] = $this->import->check_empty("Warehouse Description", $warehousename, $line);
 
 						if( $count > 0 )
 						{
