@@ -17,11 +17,11 @@
 				<div class = "col-md-3">
 					<?php 
 						echo $ui->formField('dropdown')
-							->setPlaceholder('Select Customer')
-							->setName('customer')
-							->setId('customer')
+							->setPlaceholder('Select Vendor')
+							->setName('vendor')
+							->setId('vendor')
 							->setNone('All')
-							->setList($customer_list)
+							->setList($vendor_list)
 							->draw(true);
 					?>
 				</div>
@@ -75,8 +75,8 @@
 							->addHeader('TIN', array('class' => 'col-md-1'), 'sort', 'p.tinno', ' asc')
 							->addHeader('Vendor', array('class' => 'col-md-2'), 'sort', 'p.partnername', ' asc')
 							->addHeader('Gross Amount', array('class' => 'col-md-1'),'sort','rpt.netamount',' asc')
-							->addHeader('Exempt Purchase', array('class' => 'col-md-1'),'sort','rpt.vat_exempt',' asc')
-							->addHeader('Zero Rated Purchase', array('class' => 'col-md-1'),'sort','rpt.vat_zerorated',' asc')
+							// ->addHeader('Exempt Purchase', array('class' => 'col-md-1'),'sort','rpt.vat_exempt',' asc')
+							// ->addHeader('Zero Rated Purchase', array('class' => 'col-md-1'),'sort','rpt.vat_zerorated',' asc')
 							->addHeader('Taxable Purchase', array('class' => 'col-md-1'),'sort','rpt.vat_sales',' sc')
 							->addHeader('Purchase of Services', array('class' => 'col-md-1'),'sort','rpt.service',' asc')
 							->addHeader('Purchase of Capital Goods', array('class' => 'col-md-1'),'sort','rpt.goods',' asc')
@@ -144,9 +144,9 @@
 		ajax.limit = $(this).val();
 		getList();
 	});
-	$('#customer').on('change', function(e) {
+	$('#vendor').on('change', function(e) {
 		e.preventDefault();
-		ajax.customer = $(this).val();
+		ajax.vendor = $(this).val();
 		getList();
 	});
 	function getList() {
@@ -177,13 +177,13 @@
 	$('#downloadcsv').click(function(){
 		var datepicker 	= $('#daterangefilter').val();
 		var sort 		= ajax.sort
-		var customer 	= $('#customer').val();
-		window.open('<?php echo MODULE_URL ?>get_csv?datefilter=' + encodeURIComponent(datepicker) + '&sort=' + encodeURIComponent(sort) + '&customer=' + encodeURIComponent(customer));
+		var vendor 		= $('#vendor').val();
+		window.open('<?php echo MODULE_URL ?>get_csv?datefilter=' + encodeURIComponent(datepicker) + '&sort=' + encodeURIComponent(sort) + '&vendor=' + encodeURIComponent(vendor));
 	});
 	$('#downloadDat').click(function(){
 		var datepicker = $('#daterangefilter').val();
 		var sort 		= ajax.sort
-		var customer 	= $('#customer').val();
-		window.open('<?php echo MODULE_URL ?>get_dat?datefilter=' + encodeURIComponent(datepicker) + '&sort=' + encodeURIComponent(sort) + '&customer=' + encodeURIComponent(customer));
+		var vendor 		= $('#vendor').val();
+		window.open('<?php echo MODULE_URL ?>get_dat?datefilter=' + encodeURIComponent(datepicker) + '&sort=' + encodeURIComponent(sort) + '&vendor=' + encodeURIComponent(vendor));
 	});
 </script>

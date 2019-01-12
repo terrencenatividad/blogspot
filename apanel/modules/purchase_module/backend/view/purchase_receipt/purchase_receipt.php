@@ -117,6 +117,11 @@
 											->setAttribute(array('readonly'))
 											->setAddon('file')
 											->setValue($attachment_filename)
+											->setAttribute(
+												array(
+													'href' => $attachment_url,
+													'target'=> "_blank",
+												))
 											// ->addHidden($source_no)
 											// ->setValidation('required')
 											->draw($show_input);
@@ -986,9 +991,9 @@
 			
 		}
 
-		
-		<?php if ($ajax_task=='ajax_edit') { ?>
 		$(document).ready( function(){
+		<?php if ($ajax_task=='ajax_edit') { ?>
+		
 			// ON EDIT, IMMEDIATELY SAVE SERIALS TO FORM
 			serials = '';
 			engines = '';
@@ -1012,12 +1017,14 @@
 				$('#chassis_no'+index).val(chassis);
 			}
 
-			//ON EDIT, getFilename
-			filename = '';
-			filename = <?php echo $attachment_filename ?>
-			// $('#file').val('filename');
-		});
 		<?php } ?>
+		<?php if ($ajax_task=='') { ?>
+			// ON VIEW, REPLACE DISPLAY WITH LINK TO ATTACHMENT
+			filename = $('#file').text();
+			url = $('#file').attr('href');
+			$('#file').text('').append('<a href="'+url+'" target="_blank">'+filename+'</a>'  )
+		<?php } ?>
+	});
 		
 		$('tbody').on('click', '.deleteRow', function(e) {
 			var deleted_row = $(this).data('delete');
