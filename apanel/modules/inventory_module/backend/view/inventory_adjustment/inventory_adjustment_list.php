@@ -416,7 +416,7 @@
 			<div class="modal-footer">
 				<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 					<div class="btn-group">
-						<button id = "btn_tag" type = "button" class = "btn btn-primary btn-sm btn-flat">Tag</button>
+						<button id = "btn_tag" type = "button" class = "btn btn-primary btn-sm btn-flat" disabled>Tag</button>
 					</div>
 					&nbsp;&nbsp;&nbsp;
 					<div class="btn-group">
@@ -1136,6 +1136,7 @@
 
 		if(current_serial!=""){
 			var existingrow 	=	jQuery.inArray(current_serial, temp_serial_manual_box);
+			$('#btn_tag').prop('disabled',true);
 			$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
 				initialize_serial_manual_box(index);
 				temp_serial_manual_box[index]['serialno'] = "";
@@ -1155,6 +1156,7 @@
 					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Serial Number already exists within the Modal!');
 					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
 				}
+				$('#btn_tag').prop('disabled',false);
 				check_if_has_errors();
 			});
 		} else {
