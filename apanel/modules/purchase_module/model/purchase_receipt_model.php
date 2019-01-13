@@ -105,7 +105,7 @@ class purchase_receipt_model extends wc_model {
 		}
 		$data['amount']		= (is_array($data2['amount'])) ? array_sum($data2['amount']) : intval($data2['amount']);
 		$data['taxamount']	= (is_array($data2['taxamount'])) ? array_sum($data2['taxamount']) : intval($data2['taxamount']);
-		$data['netamount']	= $data['amount'] + $data['taxamount'] - $data['discountamount'] - $data['wtaxamount'];
+		$data['netamount']	= $data['amount'] + $data['taxamount'] - intval($data['discountamount']) - intval($data['wtaxamount']);
 		// var_dump($data['wtaxamount']);
 	}
 
