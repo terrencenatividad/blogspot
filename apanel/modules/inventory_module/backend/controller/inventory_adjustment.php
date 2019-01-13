@@ -506,9 +506,10 @@ class controller extends wc_controller {
 
 	private function retrieve_serialsforminus(){
 		$itemcode 		=	$this->input->post('itemcode');
+		$warehouse 		=	$this->input->post('warehouse');
 		$search 		=	$this->input->post('search');
 		
-		$serial_lists 	=	$this->adjustment->getSerialList($itemcode, $search);
+		$serial_lists 	=	$this->adjustment->getSerialList($itemcode, $warehouse, $search);
 		$ret_flag 		= 	$this->adjustment->getValue('items',array('item_ident_flag'),"itemcode = '$itemcode'");
 		$ident_flag 	=	isset($ret_flag[0]->item_ident_flag)  	?	$ret_flag[0]->item_ident_flag 	:	'000';
 		$table 			=	"";

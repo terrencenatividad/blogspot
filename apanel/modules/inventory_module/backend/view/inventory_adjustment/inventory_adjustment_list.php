@@ -892,6 +892,7 @@
 		$('#serialModal #sec_description').val(itemname);
 		
 		ajax_serials.itemcode	=	itemcode;
+		ajax_serials.warehouse	=	$('#warehouse').val();
 		ajax_serials.limit 		= 	5;
 
 		if(button_ident=="minus"){
