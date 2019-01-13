@@ -534,9 +534,11 @@
 
 		if( action == "plus" ){
 			$('#adjModal #inventory_account').closest('.form-group').find('label').html("Credit Account <span style='color:red;'>*</span>");
+			$('.newline').removeClass('hidden');
 		}
 		else if( action == 'minus' ){
 			$('#adjModal #inventory_account').closest('.form-group').find('label').html("Debit Account <span style='color:red;'>*</span>");
+			$('.newline').addClass('hidden');
 		}
 
 		getCOAList(partno);
@@ -963,6 +965,7 @@
 		if(jQuery.inArray(serial_id, temp_serial_box) == -1){
 			temp_serial_box.push(serial_id);
 		}
+		checkhascontent();
 	});
 
 	$('#tableSerialList').on('ifUnchecked','.check_id',function(){
@@ -970,6 +973,7 @@
 		temp_serial_box = jQuery.grep(temp_serial_box, function(value) {
 			return value != remove_this;
 		});
+		checkhascontent();
 	});
 
 	$('#serialModal').on('click','#btn_tag',function(){
@@ -997,13 +1001,28 @@
 	});
 
 	function setCheckedSerials(){
+		console.log("temp");
+		console.log(temp_serial_box);
+		console.log("actual");
+		console.log(serial_box);
+		temp_serial_box = serial_box;
 		$.each(temp_serial_box,function(key,value){
 			$('#check_id'+value).iCheck('check');
 		});
 	}
 
+	function checkhascontent(){
+		console.log("Serial Box 11");
+		console.log(serial_box);
+		if(serial_box != [] || temp_serial_box != []){
+			$('#btn_tag').prop('disabled',false);
+		} else {
+			$('#btn_tag').prop('disabled',true);
+		}
+	}
 	$('#serialModal').on('show.bs.modal',function(){
 		setCheckedSerials();
+		checkhascontent();
 	});
 
 	$('#serialModal').on('change','#sec_search',function(){
@@ -1174,6 +1193,7 @@
 		ajax_manual.fieldtype  = "engine";
 
 		if(current_engine!=""){
+			$('#btn_tag').prop('disabled',true);
 			$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
 				initialize_serial_manual_box(index);
 				temp_serial_manual_box[index]['engineno'] = "";
@@ -1193,6 +1213,7 @@
 					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Engine Number already exists within the Modal!');
 					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
 				}
+				$('#btn_tag').prop('disabled',false);
 				check_if_has_errors();
 			});
 		} else {
@@ -1209,6 +1230,7 @@
 		ajax_manual.fieldtype  = "chassis";
 
 		if(current_chassis!=""){
+			$('#btn_tag').prop('disabled',true);
 			$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
 				initialize_serial_manual_box(index);
 				temp_serial_manual_box[index]['chassisno'] = "";
@@ -1228,6 +1250,7 @@
 					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Chassis Number already exists within the Modal!');
 					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
 				}
+				$('#btn_tag').prop('disabled',false);
 				check_if_has_errors();
 			});
 		} else {
