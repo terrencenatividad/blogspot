@@ -156,6 +156,8 @@ class controller extends wc_controller {
 		foreach ($data['serial_db'] as $chassis_db) {
 			array_push($data['chassis_db_array'], $chassis_db->chassisno);
 		}
+		$data['attachment_url']		= '';
+		$data['attachment_filename']	= '';
 
 		$this->view->load('purchase_receipt/purchase_receipt', $data);
 	}
@@ -307,7 +309,20 @@ class controller extends wc_controller {
 				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R', 'R'))
 				->setSummaryWidth(array('170', '30'));
 		
+		// $print->setHeaderWidth(array(25, 25, 15, 10, 15, 20, 15, 20))
+		// 		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
+		// 		->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price', 'Tax', 'Amount'))
+		// 		->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R', 'R'))
+		// 		->setSummaryWidth(array('170', '30'));		
+		
 		$documentcontent	= $this->purchase_model->getDocumentContent($voucherno);
+		
+		// foreach($documentcontent as $key => $row){
+		// 	$res = array_slice((array)$row,0,3,true)
+		// 			+ array('S/N' => '','E/N' => '','C/N' => '')
+		// 			+ array_slice((array)$row,3,count((array)$row),true);
+		// 	print_r($res);
+		// }
 		
 		$detail_height = 37;
 
@@ -336,21 +351,17 @@ class controller extends wc_controller {
 			$row->Tax		= number_format($row->Tax, 2);
 			$row->Amount	= number_format($row->Amount, 2);
 			$print->addRow($row);
-				if ($row->Ident != 0) {
-					$documentserials	= $this->purchase_model->getDocumentSerials($voucherno,$row->ItemCode);
-					foreach($documentserials as $key => $rowserials) {
-						$rowserials->ItemCode = '';
-						$rowserials->Description = '';
-						$rowserials->Quantity = $rowserials->Serial;
-						$rowserials->UOM = '';
-						$rowserials->Price = '';
-						$rowserials->Tax = '';
-						$rowserials->Amount = '';
-						// var_dump($row);
-						$print->addRow($rowserials);
-						// var_dump($row->Description." ".$rowserials->Serial.$rowserials->Serial.$rowserials->Serial);
-					}
-				}
+				// if ($row->Ident != 0) {
+				// 	$documentserials	= $this->purchase_model->getDocumentSerials($voucherno,$row->ItemCode);
+					
+				// 	foreach($documentserials as $key => $rowserials) {
+				// 		$sndisplay = $rowserials->Serial;
+				// 		$endisplay = $rowserials->Engine;
+				// 		$cndisplay = $rowserials->Chassis;
+				// 		$print->addRow(array('', $row->Description, $sndisplay, '', '', '', ''));
+				// 		// var_dump($row->Description." ".$rowserials->Serial.$rowserials->Serial.$rowserials->Serial);
+				// 	}
+				// }
 			if (($key + 1) % $detail_height == 0) {
 				$total_amount = $vatable_sales + $vat_exempt - $discount + $tax - $wtax;
 				// $summary = array(
