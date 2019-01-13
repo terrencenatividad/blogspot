@@ -145,6 +145,7 @@
 												->setName('remarks')
 												->setId('remarks')
 												->setValidation('required')
+												->setMaxLength(100)
 												->setValue("")
 												->draw();
 									?>
