@@ -1592,7 +1592,6 @@
 				accountcodes.push($(this).val());
 			});
 			if($('#total_debit').val() != $('#total_credit').val()) {
-				$('#error-modal').modal('show');
 				$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
 				good = 'false';
 			}
