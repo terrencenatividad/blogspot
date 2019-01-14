@@ -1017,12 +1017,14 @@
 				$('#chassis_no'+index).val(chassis);
 			}
 
+			$('#file').val(decodeURI($('#file').val()));
+
 		<?php } ?>
 		<?php if ($ajax_task=='') { ?>
-			// ON VIEW, REPLACE DISPLAY WITH LINK TO ATTACHMENT
-			filename = $('#file').text();
+			// ON VIEW, REPLACE DISPLAY WITH LINK TO ATTACHMENT AND REMOVE VALIDATION
+			filename = decodeURI($('#file').text());
 			url = $('#file').attr('href');
-			$('#file').text('').append('<a href="'+url+'" target="_blank">'+filename+'</a>'  )
+			$('#file').text('').removeAttr('data-validation').append('<a href="'+url+'" target="_blank">'+filename+'</a>'  )
 		<?php } ?>
 	});
 		
