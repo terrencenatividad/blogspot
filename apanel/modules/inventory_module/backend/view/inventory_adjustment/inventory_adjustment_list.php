@@ -145,6 +145,7 @@
 												->setName('remarks')
 												->setId('remarks')
 												->setValidation('required')
+												->setMaxLength(100)
 												->setValue("")
 												->draw();
 									?>
@@ -415,7 +416,7 @@
 			<div class="modal-footer">
 				<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 					<div class="btn-group">
-						<button id = "btn_tag" type = "button" class = "btn btn-primary btn-sm btn-flat">Tag</button>
+						<button id = "btn_tag" type = "button" class = "btn btn-primary btn-sm btn-flat" disabled>Tag</button>
 					</div>
 					&nbsp;&nbsp;&nbsp;
 					<div class="btn-group">
@@ -504,11 +505,14 @@
 	function adjustment(partno, partname, qty, ident_flag, action){ 
 		$('#item_ident_flag').val(ident_flag);
 		var has_serial = ident_flag.substring(0, 1);
-		var has_engine = ident_flag.substring(1, 1);
-		var has_chassis= ident_flag.substring(2, 1);
-
+		var has_engine = ident_flag.substring(1, 2);
+		var has_chassis= ident_flag.substring(2, 3);
+		// console.log("111 "+ident_flag);
 		if(has_serial == 1 || has_engine == 1 || has_chassis == 1) { 
 			// $('#adjModal #issueqty').prop()
+		// console.log("1 "+has_serial);
+		// console.log("2 "+has_engine);
+		// console.log("3 "+has_chassis);
 			$('#adjModal .serialized').removeClass('hidden');
 			$('#adjModal .notserialized').addClass('hidden');
 			
@@ -530,9 +534,11 @@
 
 		if( action == "plus" ){
 			$('#adjModal #inventory_account').closest('.form-group').find('label').html("Credit Account <span style='color:red;'>*</span>");
+			$('.newline').removeClass('hidden');
 		}
 		else if( action == 'minus' ){
 			$('#adjModal #inventory_account').closest('.form-group').find('label').html("Debit Account <span style='color:red;'>*</span>");
+			$('.newline').addClass('hidden');
 		}
 
 		getCOAList(partno);
@@ -886,6 +892,7 @@
 		$('#serialModal #sec_description').val(itemname);
 		
 		ajax_serials.itemcode	=	itemcode;
+		ajax_serials.warehouse	=	$('#warehouse').val();
 		ajax_serials.limit 		= 	5;
 
 		if(button_ident=="minus"){
@@ -959,6 +966,7 @@
 		if(jQuery.inArray(serial_id, temp_serial_box) == -1){
 			temp_serial_box.push(serial_id);
 		}
+		checkhascontent();
 	});
 
 	$('#tableSerialList').on('ifUnchecked','.check_id',function(){
@@ -966,6 +974,7 @@
 		temp_serial_box = jQuery.grep(temp_serial_box, function(value) {
 			return value != remove_this;
 		});
+		checkhascontent();
 	});
 
 	$('#serialModal').on('click','#btn_tag',function(){
@@ -993,13 +1002,28 @@
 	});
 
 	function setCheckedSerials(){
+		console.log("temp");
+		console.log(temp_serial_box);
+		console.log("actual");
+		console.log(serial_box);
+		temp_serial_box = serial_box;
 		$.each(temp_serial_box,function(key,value){
 			$('#check_id'+value).iCheck('check');
 		});
 	}
 
+	function checkhascontent(){
+		console.log("Serial Box 11");
+		console.log(serial_box);
+		if(serial_box != [] || temp_serial_box != []){
+			$('#btn_tag').prop('disabled',false);
+		} else {
+			$('#btn_tag').prop('disabled',true);
+		}
+	}
 	$('#serialModal').on('show.bs.modal',function(){
 		setCheckedSerials();
+		checkhascontent();
 	});
 
 	$('#serialModal').on('change','#sec_search',function(){
@@ -1019,8 +1043,8 @@
 		var details = details || {serialno: '', engineno: '', chassisno: ''};
 		var ident_flag = $('#item_ident_flag').val();
 		var has_serial = ident_flag.substring(0, 1);
-		var has_engine = ident_flag.substring(1, 1);
-		var has_chassis= ident_flag.substring(2, 1);
+		var has_engine = ident_flag.substring(1, 2);
+		var has_chassis= ident_flag.substring(2, 3);
 
 		var display_serial = display_engine = display_chassis = "";
 			display_serial = (has_serial == 0) ? "class='hidden'" : ""; 
@@ -1040,6 +1064,7 @@
 								)
 							)
 							->setMaxLength('20')
+							->setValidation('alpha_num')
 							->setValue('` + details.serialno + `')
 							->draw();
 				?>
@@ -1057,6 +1082,7 @@
 								)
 							)
 							->setMaxLength('20')
+							->setValidation('alpha_num')
 							->setValue('` + details.engineno + `')
 							->draw();
 				?>
@@ -1074,6 +1100,7 @@
 								)
 							)
 							->setMaxLength('20')
+							->setValidation('alpha_num')
 							->setValue('` + details.chassisno + `')
 							->draw();
 				?>
@@ -1132,6 +1159,7 @@
 
 		if(current_serial!=""){
 			var existingrow 	=	jQuery.inArray(current_serial, temp_serial_manual_box);
+			$('#btn_tag').prop('disabled',true);
 			$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
 				initialize_serial_manual_box(index);
 				temp_serial_manual_box[index]['serialno'] = "";
@@ -1151,6 +1179,7 @@
 					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Serial Number already exists within the Modal!');
 					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
 				}
+				$('#btn_tag').prop('disabled',false);
 				check_if_has_errors();
 			});
 		} else {
@@ -1168,6 +1197,7 @@
 		ajax_manual.fieldtype  = "engine";
 
 		if(current_engine!=""){
+			$('#btn_tag').prop('disabled',true);
 			$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
 				initialize_serial_manual_box(index);
 				temp_serial_manual_box[index]['engineno'] = "";
@@ -1187,6 +1217,7 @@
 					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Engine Number already exists within the Modal!');
 					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
 				}
+				$('#btn_tag').prop('disabled',false);
 				check_if_has_errors();
 			});
 		} else {
@@ -1203,6 +1234,7 @@
 		ajax_manual.fieldtype  = "chassis";
 
 		if(current_chassis!=""){
+			$('#btn_tag').prop('disabled',true);
 			$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
 				initialize_serial_manual_box(index);
 				temp_serial_manual_box[index]['chassisno'] = "";
@@ -1222,6 +1254,7 @@
 					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Chassis Number already exists within the Modal!');
 					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
 				}
+				$('#btn_tag').prop('disabled',false);
 				check_if_has_errors();
 			});
 		} else {

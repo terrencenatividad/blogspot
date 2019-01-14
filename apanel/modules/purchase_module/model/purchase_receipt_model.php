@@ -105,7 +105,7 @@ class purchase_receipt_model extends wc_model {
 		}
 		$data['amount']		= (is_array($data2['amount'])) ? array_sum($data2['amount']) : intval($data2['amount']);
 		$data['taxamount']	= (is_array($data2['taxamount'])) ? array_sum($data2['taxamount']) : intval($data2['taxamount']);
-		$data['netamount']	= $data['amount'] + $data['taxamount'] - $data['discountamount'] - $data['wtaxamount'];
+		$data['netamount']	= $data['amount'] + $data['taxamount'] - intval($data['discountamount']) - intval($data['wtaxamount']);
 		// var_dump($data['wtaxamount']);
 	}
 
@@ -618,11 +618,24 @@ class purchase_receipt_model extends wc_model {
 
 	public function getDocumentContent($voucherno) {
 		$result = $this->db->setTable('purchasereceipt_details prd')
-							->setFields("itemcode 'Item Code', detailparticular 'Description', receiptqty 'Quantity', UPPER(receiptuom) 'UOM', unitprice 'Price', taxamount 'Tax', amount 'Amount', prd.taxrate")
+							->setFields("prd.itemcode 'ItemCode', detailparticular 'Description', receiptqty 'Quantity', UPPER(receiptuom) 'UOM', unitprice 'Price', taxamount 'Tax', amount 'Amount', prd.taxrate, item_ident_flag 'Ident'")
 							->leftJoin('fintaxcode f ON prd.taxcode = f.fstaxcode AND f.companycode = prd.companycode')
+							->leftJoin('items i ON prd.itemcode = i.itemcode')
 							->setWhere("voucherno = '$voucherno'")
 							->runSelect()
 							->getResult();
+							// echo $this->db->getQuery();
+
+		return $result;
+	}
+
+	public function getDocumentSerials($voucherno, $itemcode) {
+		$result = $this->db->setTable('items_serialized')
+							->setFields("serialno 'Serial', engineno 'Engine', chassisno 'Chassis'")
+							->setWhere("voucherno = '$voucherno' AND itemcode = '$itemcode'")
+							->runSelect()
+							->getResult();
+							// echo $this->db->getQuery();
 
 		return $result;
 	}

@@ -107,7 +107,7 @@ class inventory_adjustment_model extends wc_model {
 
 		$warehouse 			= (isset($data['h_warehouse']) && (!empty($data['h_warehouse']))) ? htmlentities(addslashes(trim($data['h_warehouse']))) : "";
 
-		$serials 			= (isset($data['serials']) && !empty($data['serials']) && $data['serials'] != "[]") ? htmlentities(addslashes(trim($data['serials']))) : "";
+		$serials 			= (isset($data['serials']) && !empty($data['serials']) && $data['serials'] != "[]") ? $data['serials'] : "";
 		$serials_manual		= (isset($data['serials_manual']) && (!empty($data['serials_manual']))) ? stripslashes($data['serials_manual']) : "";
 		$serials_manual 	= json_decode($serials_manual);
 	
@@ -173,12 +173,17 @@ class inventory_adjustment_model extends wc_model {
 			$insertResult = $this->db->runInsert();
 
 			if($insertResult && $serials!=""){
-				$exploded_serials 		= explode(',',$serials);
+				// var_dump();
+				$exploded_serials 		= json_decode(stripslashes($serials));
+				// var_dump($exploded_serials);
 				$update_srl_inv['stat'] = 'Not Available';
+
 				$insertResult = $this->db->setTable('items_serialized')
 										 ->setValues($update_srl_inv)
 										 ->setWhere("id IN ('".implode('\',\'',$exploded_serials)."')")
 										 ->runUpdate();
+
+										//  echo $this->db->getQuery();
 			}
 			// var_dump($decoded_serials);
 			$listid 	=	[];
@@ -701,14 +706,14 @@ class inventory_adjustment_model extends wc_model {
 		return $result;
 	}
 
-	public function getSerialList($itemcode, $search) {
+	public function getSerialList($itemcode, $warehouse, $search) {
 		$condition = '';
 		if ($search) {
 			$condition .= ' AND ' . $this->generateSearch($search, array('serialno', 'engineno', 'chassisno'));
 		}
 		$result	= $this->db->setTable('items_serialized')
 								->setFields(array('id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat'))
-								->setWhere("stat = 'Available' AND itemcode = '$itemcode'" .$condition)
+								->setWhere("stat = 'Available' AND itemcode = '$itemcode' AND warehousecode = '$warehouse'" .$condition)
 								->setOrderBy('voucherno, linenum, rowno')
 								->runPagination();
 
@@ -737,6 +742,7 @@ class inventory_adjustment_model extends wc_model {
 							->setWhere($condition)
 							->runSelect()
 							->getResult();
+
 		return $result;
 	}
 }
