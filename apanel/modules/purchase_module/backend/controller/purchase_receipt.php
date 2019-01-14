@@ -309,21 +309,23 @@ class controller extends wc_controller {
 				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R', 'R'))
 				->setSummaryWidth(array('170', '30'));
 		
-		// $print->setHeaderWidth(array(25, 25, 15, 10, 15, 20, 15, 20))
-		// 		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
-		// 		->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price', 'Tax', 'Amount'))
-		// 		->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R', 'R'))
-		// 		->setSummaryWidth(array('170', '30'));		
+		$documentcontent	= $this->purchase_model->getDocumentContent($voucherno);		
 		
-		$documentcontent	= $this->purchase_model->getDocumentContent($voucherno);
-		
-		// foreach($documentcontent as $key => $row){
-		// 	$res = array_slice((array)$row,0,3,true)
-		// 			+ array('S/N' => '','E/N' => '','C/N' => '')
-		// 			+ array_slice((array)$row,3,count((array)$row),true);
-		// 	print_r($res);
-		// }
-		
+		$hasSerial = false;
+		foreach($documentcontent as $key => $row) {
+			if ($row->Ident != 0){
+				$hasSerial = true;
+			}
+		}
+
+		if ($hasSerial) {
+			$print->setHeaderWidth(array(25, 30, 15, 15, 15, 15, 15, 25, 20, 25))
+					->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
+					->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'S/N', 'E/N', 'C/N', 'Price', 'Tax', 'Amount'))
+					->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L', 'R', 'R', 'R'))
+					->setSummaryWidth(array('170', '30'));		
+		}
+
 		$detail_height = 37;
 
 		$vatable_sales	= 0;
@@ -350,18 +352,21 @@ class controller extends wc_controller {
 			$row->Price		= number_format($row->Price, 2);
 			$row->Tax		= number_format($row->Tax, 2);
 			$row->Amount	= number_format($row->Amount, 2);
-			$print->addRow($row);
-				// if ($row->Ident != 0) {
-				// 	$documentserials	= $this->purchase_model->getDocumentSerials($voucherno,$row->ItemCode);
-					
-				// 	foreach($documentserials as $key => $rowserials) {
-				// 		$sndisplay = $rowserials->Serial;
-				// 		$endisplay = $rowserials->Engine;
-				// 		$cndisplay = $rowserials->Chassis;
-				// 		$print->addRow(array('', $row->Description, $sndisplay, '', '', '', ''));
-				// 		// var_dump($row->Description." ".$rowserials->Serial.$rowserials->Serial.$rowserials->Serial);
-				// 	}
-				// }
+			
+			if($hasSerial){
+			$print->addRow(array($row->ItemCode, $row->Description, $row->Quantity, $row->UOM, '', '', '', $row->Price, $row->Tax,$row->Amount));
+				if ($row->Ident != 0) {
+					$documentserials	= $this->purchase_model->getDocumentSerials($voucherno,$row->ItemCode);
+					foreach($documentserials as $key => $rowserials) {
+						$sndisplay = $rowserials->Serial;
+						$endisplay = $rowserials->Engine;
+						$cndisplay = $rowserials->Chassis;
+						$print->addRow(array('', '', '', '', $sndisplay, $endisplay, $cndisplay, '', '',''));
+					}
+				}
+			} else {
+				$print->addRow($row);
+			}
 			if (($key + 1) % $detail_height == 0) {
 				$total_amount = $vatable_sales + $vat_exempt - $discount + $tax - $wtax;
 				// $summary = array(

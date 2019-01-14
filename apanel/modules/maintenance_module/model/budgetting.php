@@ -23,6 +23,23 @@ class budgetting extends wc_model
 		return $result;
 	}
 
+	public function getBudgetListingExport($data, $sort, $search, $filter)
+	{
+		$condition = '';
+		if ($search) {
+			$condition .= $this->generateSearch($search, array('budget_code', 'budgetdesc'));
+		}
+
+		$result = $this->db->setTable('budget')
+		->setFields($data)
+		->setWhere($condition)
+		->setOrderBy($sort)
+		->runSelect()
+		->getResult();
+
+		return $result;
+	}
+
 	public function getApprover($id)
 	{
 		$result = $this->db->setTable('budget')
