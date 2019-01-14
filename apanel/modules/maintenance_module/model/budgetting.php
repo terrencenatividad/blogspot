@@ -7,7 +7,7 @@ class budgetting extends wc_model
 		$this->log = new log();
 	}
 
-	public function getJobListing($data, $sort, $search, $filter)
+	public function getBudgetListing($data, $sort, $search, $filter)
 	{
 		$condition = '';
 		if ($search) {
@@ -57,7 +57,7 @@ class budgetting extends wc_model
 		->setFields('bd.accountcode ind, CONCAT(ca.segment5, " - ", ca.accountname) as val')
 		->leftJoin('budget_details as bd ON b.budget_code = bd.budget_code')
 		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
-		->setWhere("b.id = '$id' AND bd.amount != 0")
+		->setWhere("b.id = '$id'")
 		->runSelect()
 		->getResult();
 
@@ -160,7 +160,7 @@ class budgetting extends wc_model
 	public function getAccounts($type)
 	{
 		$result = $this->db->setTable('chartaccount')
-		->setFields('accountname, id')
+		->setFields('id ind, accountname val')
 		->setWhere("fspresentation = '$type'")
 		->runSelect()
 		->getResult();
@@ -175,6 +175,29 @@ class budgetting extends wc_model
 		->setWhere("id = '$id'")
 		->runSelect()
 		->getRow();
+
+		return $result;
+	}
+
+	public function getBudgetCode($id)
+	{
+		$result = $this->db->setTable('budget')
+		->setFields('budget_code')
+		->setWhere("id = '$id'")
+		->runSelect()
+		->getRow();
+
+		return $result;
+	}
+
+	public function getBudgetDetails($data, $id)
+	{
+		$code = $this->getBudgetCode($id);
+		$result = $this->db->setTable('budget_details')
+		->setFields($data)
+		->setWhere("budget_code = '$code->budget_code'")
+		->runSelect()
+		->getResult();
 
 		return $result;
 	}
@@ -340,13 +363,12 @@ class budgetting extends wc_model
 		return $result;
 	}
 
-	public function getSupplementAccounts($budgetcode)
+	public function getSupplementAccounts($id)
 	{
 		$result = $this->db->setTable('budget_supplement bs')
-		->setFields('bs.accountcode as accountcode, ca.accountname as accountname, bs.description as description, SUM(bs.amount) as amount')
+		->setFields('bs.accountcode as accountcode, bs.description as description, SUM(bs.amount) as amount')
 		->leftJoin('chartaccount ca ON bs.accountcode = ca.id')
-		->leftJoin('budget as b ON bs.budget_id = b.id')
-		->setWhere("b.budget_code = '$budgetcode' AND bs.status = 'approved'")
+		->setWhere("bs.budget_id = '$id' AND bs.status = 'approved'")
 		->setGroupBy('bs.accountcode')
 		->runSelect(false)
 		->getResult();
@@ -427,7 +449,7 @@ class budgetting extends wc_model
 		$result  = $this->db->setTable('budget_details bd')
 		->leftJoin('budget as b ON bd.budget_code = b.budget_code')
 		->setFields('bd.budget_code, bd.accountcode, bd.description, bd.amount')
-		->setWhere("b.id = '$id' AND b.budget_check = 'Monitored' AND bd.amount != 0")
+		->setWhere("b.id = '$id' AND b.budget_check = 'Monitored'")
 		->runSelect()
 		->getResult();
 		return $result;

@@ -23,7 +23,6 @@ class controller extends wc_controller
 			'period_start',
 			'period_end',
 			'effectivity_date',
-			'total',
 			'status'
 		);
 
@@ -80,9 +79,11 @@ class controller extends wc_controller
 	public function edit($id) {
 		$this->view->title  = 'Edit Budget';
 		$data = (array) $this->budgetting->getBudgetById($this->fields, $id);
+		$data['budget_details'] = $this->budgetting->getBudgetDetails($this->budget_details, $id);
 		$data['budget_center'] = $this->budgetting->getBudgetCenter();
-		$data['transactiondate'] = date('m d, Y', strtotime($data['transactiondate']));
-		$data['total'] = number_format($data['total'], 2);
+		$data['get_accounts'] = $this->budgetting->getAccounts($data['budget_type']);
+		$data['transactiondate'] = date('M d, Y', strtotime($data['transactiondate']));
+		$data['effectivity_date'] = date('M d, Y', strtotime($data['effectivity_date']));
 		$data['ui'] = $this->ui;
 		$data['user_list'] = $this->budgetting->getUserList();
 		$data["ajax_task"] = "ajax_edit";
@@ -94,8 +95,10 @@ class controller extends wc_controller
 	public function view($id) {
 		$this->view->title  = 'View Budget';
 		$data = (array) $this->budgetting->getBudgetById($this->fields, $id);
+		$data['budget_details'] = $this->budgetting->getBudgetDetails($this->budget_details, $id);
+		$data['get_accounts'] = $this->budgetting->getAccounts($data['budget_type']);
+		$data['budget_supplement'] = $this->budgetting->getSupplementAccounts($id);
 		$data['budget_center'] = $this->budgetting->getBudgetCenter();
-		$data['total'] = number_format($data['total'], 2);
 		$data["ajax_task"] = "ajax_view";
 		$data['user_list'] = $this->budgetting->getUserList();
 		$data['ui'] = $this->ui;
@@ -126,7 +129,6 @@ class controller extends wc_controller
 		$budget['period_start'] = $year . '-01-01';
 		$budget['period_end'] = $year . '-12-31';
 		$budget['budget_code'] = $this->seq->getValue('BUD');
-		$budget['total'] = str_replace(',', '', $post['v_total']);
 		$budget_details['amount'] = str_replace(',', '', $budget_details['amount']);
 		$budget_details['budget_code'] = $budget['budget_code'];
 		
@@ -150,8 +152,6 @@ class controller extends wc_controller
 		$budget['effectivity_date'] = $effectivity_date;
 		$budget['period_start'] = $year . '-01-01';
 		$budget['period_end'] = $year . '-12-31';
-		$budget['effectivity_date'] = $year . '-01-01';
-		$budget['total'] = str_replace(',', '', $post['v_total']);
 		$budget_details = $this->input->post($this->budget_details);
 		$budgetcode = $budget['budget_code'];
 		$result = $this->budgetting->updateBudget($budget, $id, $budgetcode);
@@ -185,7 +185,7 @@ class controller extends wc_controller
 	private function ajax_list() {
 		$data	= $this->input->post(array('search', 'sort', 'filter'));
 		extract($data);
-		$pagination = $this->budgetting->getJobListing($this->fields, $sort, $search, $filter);
+		$pagination = $this->budgetting->getBudgetListing($this->fields, $sort, $search, $filter);
 		$table = '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
@@ -238,136 +238,15 @@ class controller extends wc_controller
 	private function ajax_get_accounts() {
 		$type	= $this->input->post('type');
 		$list = $this->budgetting->getAccounts($type);
-		$table = '';
-		foreach($list as $row) {			
-			$table .= '<tr>';
-			$table .= '<td class = "hidden">' .$this->ui->formField('text')
-			->setSplit('col-md-3', 'col-md-12')
-			->setName('accountcode[]')
-			->setId('accountcode')
-			->setClass('hidden')
-			->setValue($row->id)
-			->setAttribute(array('readonly'))
-			->draw(true); 
-			'</td>';
-			$table .= '<td>' .$this->ui->formField('text')
-			->setSplit('col-md-3', 'col-md-12')
-			->setName('accountname[]')
-			->setId('accountname')
-			->setValue($row->accountname)
-			->setAttribute(array('readonly'))
-			->draw(true); 
-			'</td>';
-			$table .= '<td>' .$this->ui->formField('text')
-			->setSplit('col-md-3', 'col-md-12')
-			->setName('description[]')
-			->setId('description')
-			->draw(true); 
-			'</td>';
-			$table .= '<td>' . 
-			$this->ui->formField('text')
-			->setSplit('col-md-3', 'col-md-12')
-			->setName('amount[]')
-			->setId('amount')
-			->setClass('text-right')
-			->setValidation('decimal')
-			->draw(true);
-			'</td>';
-			$table .= '</tr>';
+		
+		$ret = '';
+		foreach($list as $row) {
+			$ind = $row->ind;
+			$val = $row->val;
+			$ret .= "<option value = ".$ind.">".$val."</option>";
 		}
 
-		return array('table' => $table);
-	}
-
-	private function ajax_get_accounts_edit() {
-		$budgetcode	= $this->input->post('budgetcode');
-		$task	= $this->input->post('ajax_task');
-		if($task == 'ajax_view') {
-			$list = $this->budgetting->getBudgetAccounts($budgetcode);
-		} else {
-			$list = $this->budgetting->getBudgetAccountsOnEdit($budgetcode);
-		}
-		$table = '';
-		foreach($list as $row) {	
-			$show_input = ($task == 'ajax_edit') ? true : false;		
-			$table .= '<tr>';
-			$table .= '<td class = "hidden">' .$this->ui->formField('text')
-			->setSplit('col-md-3', 'col-md-12')
-			->setName('accountcode[]')
-			->setId('accountcode')
-			->setClass('hidden')
-			->setValue($row->accountcode)
-			->setAttribute(array('readonly'))
-			->draw($show_input); 
-			'</td>';
-			$table .= '<td>' .$this->ui->formField('text')
-			->setSplit('col-md-3', 'col-md-12')
-			->setName('accountname[]')
-			->setId('accountname')
-			->setValue($row->accountname)
-			->setAttribute(array('readonly'))
-			->draw($show_input); 
-			'</td>';
-			$table .= '<td>' .$this->ui->formField('text')
-			->setSplit('col-md-3', 'col-md-12')
-			->setName('description[]')
-			->setId('description')
-			->setValue($row->description)
-			->draw($show_input); 
-			'</td>';
-			$table .= '<td>' . 
-			$this->ui->formField('text')
-			->setSplit('col-md-3', 'col-md-12')
-			->setName('amount[]')
-			->setId('amount')
-			->setClass('text-right')
-			->setValue(number_format($row->amount,2))
-			->setValidation('decimal')
-			->draw($show_input);
-			'</td>';
-			$table .= '</tr>';
-		}
-
-		return array('table' => $table);
-	}
-
-	private function ajax_get_supplements_view() {
-		$budgetcode	= $this->input->post('budgetcode');
-		$list = $this->budgetting->getSupplementAccounts($budgetcode);
-		$table = '';
-		$total = 0;
-		foreach($list as $row) {			
-			$table .= '<tr>';
-			$table .= '<td>' .$this->ui->formField('text')
-			->setSplit('col-md-3', 'col-md-12')
-			->setName('accountname[]')
-			->setId('accountname')
-			->setValue($row->accountname)
-			->setAttribute(array('readonly'))
-			->draw(false); 
-			'</td>';
-			$table .= '<td>' .$this->ui->formField('text')
-			->setSplit('col-md-3', 'col-md-12')
-			->setName('description[]')
-			->setId('description')
-			->setValue($row->description)
-			->draw(false); 
-			'</td>';
-			$table .= '<td>' . 
-			$this->ui->formField('text')
-			->setSplit('col-md-3', 'col-md-12')
-			->setName('amount[]')
-			->setId('amount_view')
-			->setClass('text-right')
-			->setValue(number_format($row->amount,2))
-			->setValidation('decimal')
-			->draw(false); 
-			'</td>';
-			$table .= '</tr>';
-			$total += $row->amount;
-		}
-
-		return array('table' => $table, 'total' => $total);
+		return array('ret' => $ret);
 	}
 
 	public function ajax_delete() {
