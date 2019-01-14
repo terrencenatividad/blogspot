@@ -530,7 +530,14 @@ class controller extends wc_controller {
 		$serials					= $this->input->post($this->serial_fields);
 		$delete						= $this->purchase_model->deleteSerialNumbers($temp_voucherno);
 		$result2					= $this->purchase_model->saveSerialNumbers($serials,$temp_voucherno);
-
+		$get_attachment				= $this->purchase_model->getAttachmentFile($voucherno);
+		// $attachment_update['reference'] = $data['voucherno'];
+		// if (isset($get_attachment->attachment_url)) {
+		// 	$attachment				= $this->purchase_model->updateAttachmentReference($temp_voucherno,$data['source_no']);
+		// } else {
+		// 	$attachment				= $this->purchase_model->updateAttachmentReference($temp_voucherno,$data['source_no']);			
+		// }
+		
 		$this->inventory_model->prepareInventoryLog('Purchase Receipt', $voucherno)
 								->preparePreviousValues();
 
@@ -663,8 +670,8 @@ class controller extends wc_controller {
 				 * @param group fields
 				 * @param custom condition
 				 */
-				if ($task=='view') 
-					$attachment_id = $this->purchase_model->getCurrentId("purchasereceipt_attachments", "attachment_id");
+				if ($task=='edit') 
+					$attachment_id = $this->purchase_model->getCurrentId("purchasereceipt_attachments", $reference);
 				
 				else
 					$attachment_id = $this->purchase_model->getNextId("purchasereceipt_attachments","attachment_id");
@@ -676,9 +683,8 @@ class controller extends wc_controller {
 					$post_data['attachment_url']	= $row->url;
 				}
 
-				if ($task == 'view')
+				if ($task == 'edit')
 					$upload_result 	= $this->purchase_model->replaceAttachment($post_data);
-
 				else
 					$upload_result 	= $this->purchase_model->uploadAttachment($post_data);
 
