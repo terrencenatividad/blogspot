@@ -152,7 +152,7 @@
 							<th class="text-center" style="width: 20px"><input type="checkbox" class="checkall"></th>
 							<?php endif ?>
 							<th>Item Code</th>
-							<th>Item Name</th>
+							<!-- <th>Item Name</th> -->
 							<th>Available On Hand</th>
 							<th>Requested Qty</th>
 							<th>Transfer Qty</th>
@@ -310,7 +310,7 @@
 							->draw($show_input);
 					?>
 				</td>
-				<td>
+				<td class="hidden">
 					<?php
 						echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
