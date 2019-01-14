@@ -368,7 +368,20 @@ class bank extends wc_model
 		return $result;
 	}
 
+	public function checkbooknumber($booknumber) {
+		$result = $this->db->setTable('bankdetail')
+							->setFields('booknumber')
+							->setWhere("booknumber = '$booknumber'")
+							->setLimit(1)
+							->runSelect(false)
+							->getRow();
 
+		if ($result) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 
 }
 ?>

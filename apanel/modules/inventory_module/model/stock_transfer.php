@@ -21,7 +21,7 @@
 
 		public function getItemList() {
 			$result = $this->db->setTable('items i')
-							->setFields("i.itemcode ind, i.itemcode val")
+							->setFields("i.itemcode ind, CONCAT(i.itemcode,' - ',i.itemname) val")
 							->setWhere("i.stat = 'active'")
 							->runSelect()
 							->getResult();

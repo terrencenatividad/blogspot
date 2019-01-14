@@ -308,6 +308,7 @@
 
 <script>
 var ajax = {};
+var book = {};
 
 $('#checkForm #btnSave').on('click',function(){
 	$('#checkForm #booknumber').trigger('blur');
@@ -696,6 +697,20 @@ $('#cancel_checks_modal').on('click', function(){
 	window.location = self.location;
 })
 
+$('#checkForm').on('change','#booknumber',function(){
+	book.booknumber = $(this).val();
+	var form_group	= $('#booknumber').closest('div');
 
-
+	$.post('<?=BASE_URL?>maintenance/bank/ajax/checkifexisting', book, function(data) {
+		if(data.available){
+			if (form_group.find('p.help-block').html() != "") {
+				form_group.removeClass('has-error').find('p.help-block').html('');
+				form_group.find('.form-group').removeClass('has-error');
+			}
+		} else {
+			error_message 	=	"<b>The Book Number you entered already exists!</b>";
+			$('#checkForm #booknumber').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+		}
+	});
+});
 </script>
