@@ -1358,7 +1358,6 @@
 				sumCurrencyAmount();
 			} else {
 				$(this).closest('tr').find('.credit').removeAttr('readonly');
-				$(this).closest('tr').find('.currencyamount').val('0.00');
 				sumDebit();
 				sumCredit();
 				sumCurrencyAmount();
@@ -1398,7 +1397,6 @@
 				sumCurrencyAmount();
 			} else {
 				$(this).closest('tr').find('.debit').removeAttr('readonly');
-				$(this).closest('tr').find('.currencyamount').val('0.00');
 				sumDebit();
 				sumCredit();
 				sumCurrencyAmount();
@@ -1593,7 +1591,6 @@
 			$('.accountcode :selected').each(function() {
 				accountcodes.push($(this).val());
 			});
-
 			if($('#total_debit').val() != $('#total_credit').val()) {
 				$('#error-modal').modal('show');
 				$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
