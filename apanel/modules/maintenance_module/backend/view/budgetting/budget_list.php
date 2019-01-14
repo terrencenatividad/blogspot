@@ -12,7 +12,7 @@
 						<div class="form-group">
 							<a href="<?= MODULE_URL ?>create" class="btn btn-primary">Add Budget</a>
 							<?=	$ui->CreateDeleteButton(''); ?>
-							<!-- <?=	$ui->CreateActButton(''); ?> -->
+							<a href="" id="export_csv" download="Budgetting.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 						</div>
 					</div>
 					<div class="col-md-4">
@@ -59,12 +59,13 @@
 								'class' => 'col-md-1 text-center'
 							)
 						)
-						->addHeader('Budget Code', array('class' => 'col-md-2 text-center'),'sort', 'budget_code')
+						->addHeader('Budget Code', array('class' => 'col-md-1 text-center'),'sort', 'budget_code')
 						->addHeader('Budget Description', array('class' => 'col-md-2 text-center'),'sort', 'budgetdesc')
-						->addHeader('Budget Type', array('class'=> 'col-md-2 text-center'),'sort', 'budget_type')
-						->addHeader('Budget Check', array('class'=> 'col-md-2 text-center'),'sort', 'budget_check')
+						->addHeader('Budget Type', array('class'=> 'col-md-1 text-center'),'sort', 'budget_type')
+						->addHeader('Budget Check', array('class'=> 'col-md-1 text-center'),'sort', 'budget_check')
 						->addHeader('Owner', array('class'=> 'col-md-2 text-center'),'sort', 'owner')
 						->addHeader('Prepared By', array('class'=> 'col-md-2 text-center'),'sort', 'prepared_by')
+						->addHeader('Effectivity Date', array('class'=> 'col-md-2 text-center'),'sort', 'effectivity_date')
 						->addHeader('Status', array('class'=> 'col-md-1 text-center'),'sort', 'status')
 						->draw();
 						?>		
@@ -431,7 +432,7 @@
 										$('.checkall').iCheck('uncheck');
 										$('#list_container').html(data.table);
 										$('#pagination').html(data.pagination);
-										$("#export_id").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+										$("#export_csv").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 										var ctr = -1;
 										$('#tableList tbody tr td input[type="checkbox"]').each(function(index, value) {
 											if($(this).attr('disabled')) {
@@ -786,8 +787,6 @@
 		});
 
 		$('#export_id').prop('download','atccode.csv');
-
-
 
 		$('#tableList tbody').on('click', '.approve', function() {
 			var id = $(this).attr('data-id');
