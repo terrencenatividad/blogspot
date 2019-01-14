@@ -1064,6 +1064,7 @@
 								)
 							)
 							->setMaxLength('20')
+							->setValidation('alpha_num')
 							->setValue('` + details.serialno + `')
 							->draw();
 				?>
@@ -1081,6 +1082,7 @@
 								)
 							)
 							->setMaxLength('20')
+							->setValidation('alpha_num')
 							->setValue('` + details.engineno + `')
 							->draw();
 				?>
@@ -1098,6 +1100,7 @@
 								)
 							)
 							->setMaxLength('20')
+							->setValidation('alpha_num')
 							->setValue('` + details.chassisno + `')
 							->draw();
 				?>

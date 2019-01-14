@@ -37,6 +37,7 @@
 					<tr class="info">
 						<th class="col-md-1">Code</th>
 						<th class="col-md-2">Description</th>
+						<th class="col-md-2">Effectivity Date</th>
 						<th class="col-md-2">Budget</th>
 						<th class="col-md-2">Actual</th>
 						<th class="col-md-1">Variance</th>
@@ -47,7 +48,7 @@
 				</tbody>
 				<tfoot>
 					<tr>
-						<td colspan = "2"></td>
+						<td colspan = "3"></td>
 						<td><b>Total : </b><span class = "total_budget"></span></td>
 						<td><b>Total : </b><span class = "total_actual"></span></td>
 						<td><b>Total : </b><span class="total_variance"></span></td>

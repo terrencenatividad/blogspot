@@ -74,7 +74,6 @@
 										->draw($show_input);
 										?>
 									</div>
-									
 								</div>
 								<div class="row">
 									<div class="col-md-6">
@@ -88,6 +87,21 @@
 										->setValue($budgetdesc)
 										->draw($show_input);	
 										?>	
+									</div>
+									<div class="col-md-6">
+										<?php
+										echo $ui->formField('text')
+										->setLabel('Effectivity Date')
+										->setSplit('col-md-3', 'col-md-8')
+										->setName('effectivity_date')
+										->setId('effectivity_date')
+										->setClass('datepicker-input')
+										->setAttribute(array('readonly' => ''))
+										->setAddon('calendar')
+										->setValue($effectivity_date)
+										->setValidation('required')
+										->draw($show_input);
+										?>
 									</div>
 								</div>
 								<div class="row">
