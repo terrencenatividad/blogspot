@@ -791,7 +791,15 @@ class delivery_receipt_model extends wc_model {
 								->setWhere("dr_voucherno = '$dr_voucherno'")
 								->runUpdate();
 
-		$this->deleteAttachment($dr_voucherno);
+		$getFiles = $this->db->setTable('dr_attachment')
+								->setFields("COUNT('attachment_id') count")
+								->setWhere("dr_voucherno = '$dr_voucherno'")
+								->runSelect()
+								->getRow();
+
+		if ($getFiles->count) {
+			$this->deleteAttachment($dr_voucherno);
+		}
 
 		$result = $this->db->setTable('dr_attachment')
 							->setValues($data)
@@ -806,12 +814,12 @@ class delivery_receipt_model extends wc_model {
 		$result = $this->db->setTable('dr_attachment')
 							->setFields('attachment_name')
 							->setWhere("dr_voucherno='$voucherno' AND stat = 'inactive'")
+							->setOrderBy('entereddate DESC')
+							->setLimit(1)
 							->runSelect()
-							->getResult();
+							->getRow();
 
-		foreach ($result as $key => $row) {
-			unlink('files/'.$row->attachment_name);
-		}
+		unlink('files/'.$result->attachment_name);
 	}
 
 	public function getFile($voucherno) {
