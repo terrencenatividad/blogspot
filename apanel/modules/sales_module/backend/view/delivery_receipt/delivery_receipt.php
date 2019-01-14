@@ -151,6 +151,7 @@
 													->setSplit('col-md-2', 'col-md-10')
 													->setName('remarks')
 													->setId('remarks')
+													->setMaxLength(300)
 													->setValue($remarks)
 													->draw($show_input);
 											?>

@@ -197,7 +197,8 @@ class controller extends wc_controller {
 				->setHeaderAlign(array('C', 'C', 'C', 'C'))
 				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM'))
 				->setRowAlign(array('L', 'L', 'R', 'L'))
-				->setSummaryWidth(array('170', '30'));
+				->setSummaryWidth(array('120', '50', '30'))
+				->setSummaryAlign(array('L','R','R'));
 		
 		$documentcontent	= $this->delivery_model->getDocumentContent($voucherno);
 		$detail_height = 37;
@@ -214,10 +215,11 @@ class controller extends wc_controller {
 					->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
 					->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'S/N', 'E/N', 'C/N',))
 					->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
-					->setSummaryWidth(array('170', '30'));		
+					->setSummaryWidth(array('120', '50', '30'))
+					->setSummaryAlign(array('L','R','R'));		
 		}
 
-
+		$notes = $documentinfo->notes; 
 		$total_quantity = 0;
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
@@ -243,11 +245,21 @@ class controller extends wc_controller {
 				$print->addRow($row);
 			}
 			if (($key + 1) % $detail_height == 0) {
-				$print->drawSummary(array('Total Quantity' => $total_quantity));
+				$print->drawSummary(array(array('Notes:', 'Total Quantity', $total_quantity),
+											array($notes, '', ''),
+											array('', '', ''),
+											array('', '', ''),
+											array('', '', '')
+				));
 				$total_quantity = 0;
 			}
 		}
-		$print->drawSummary(array('Total Quantity' => $total_quantity));
+		$print->drawSummary(array(array('Notes:', 'Total Quantity', $total_quantity),
+											array($notes, '', ''),
+											array('', '', ''),
+											array('', '', ''),
+											array('', '', '')
+		));
 
 		$print->drawPDF('Delivery Receipt - ' . $voucherno);
 	}
