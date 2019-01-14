@@ -667,7 +667,7 @@ class delivery_receipt_model extends wc_model {
 
 	public function getDocumentContent($voucherno) {
 		$result = $this->db->setTable('deliveryreceipt_details drd')
-							->setFields("itemcode 'Item Code', detailparticular 'Description', issueqty 'Quantity', UPPER(issueuom) 'UOM', unitprice price, amount amount, parentcode")
+							->setFields("itemcode 'ItemCode', detailparticular 'Description', issueqty 'Quantity', UPPER(issueuom) 'UOM', unitprice price, amount amount, parentcode, serialnumbers")
 							->leftJoin('uom u ON u.uomcode = drd.issueuom AND u.companycode = drd.companycode')
 							->setWhere("voucherno = '$voucherno'")
 							->runSelect()
@@ -750,6 +750,16 @@ class delivery_receipt_model extends wc_model {
 		return $result;
 	}
 
+	public function getSerialById($id) {
+		$result = $this->db->setTable('items_serialized')
+							->setFields('serialno, engineno, chassisno')
+							->setWhere("id='$id'")
+							->runSelect()
+							->getRow();
+
+		return $result;
+	}
+
 	public function UpdateItemsSerialized($voucherno) {
 		$result = $this->db->setTable('deliveryreceipt_details')
 						->setFields("GROUP_CONCAT(serialnumbers ORDER BY linenum ASC SEPARATOR ',') as serialnumbers")
@@ -791,6 +801,16 @@ class delivery_receipt_model extends wc_model {
 								->setWhere("dr_voucherno = '$dr_voucherno'")
 								->runUpdate();
 
+		$getFiles = $this->db->setTable('dr_attachment')
+								->setFields("COUNT('attachment_id') count")
+								->setWhere("dr_voucherno = '$dr_voucherno'")
+								->runSelect()
+								->getRow();
+
+		if ($getFiles->count) {
+			$this->deleteAttachment($dr_voucherno);
+		}
+
 		$result = $this->db->setTable('dr_attachment')
 							->setValues($data)
 							->runInsert();
@@ -798,6 +818,18 @@ class delivery_receipt_model extends wc_model {
 			$this->log->saveActivity("Approve [$dr_voucherno] with attachment");		
 		}
 		return $result;
+	}
+
+	public function deleteAttachment($voucherno) {
+		$result = $this->db->setTable('dr_attachment')
+							->setFields('attachment_name')
+							->setWhere("dr_voucherno='$voucherno' AND stat = 'inactive'")
+							->setOrderBy('entereddate DESC')
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+
+		unlink('files/'.$result->attachment_name);
 	}
 
 	public function getFile($voucherno) {

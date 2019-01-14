@@ -202,6 +202,22 @@ class controller extends wc_controller {
 		$documentcontent	= $this->delivery_model->getDocumentContent($voucherno);
 		$detail_height = 37;
 
+		$hasSerial = false;
+		foreach($documentcontent as $key => $row) {
+			if ($row->serialnumbers != ''){
+				$hasSerial = true;
+			}
+		}
+
+		if ($hasSerial) {
+			$print->setHeaderWidth(array(30, 70, 20, 20, 20, 20, 20))
+					->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
+					->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'S/N', 'E/N', 'C/N',))
+					->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
+					->setSummaryWidth(array('170', '30'));		
+		}
+
+
 		$total_quantity = 0;
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
@@ -210,7 +226,22 @@ class controller extends wc_controller {
 
 			$total_quantity	+= $row->Quantity;
 			$row->Quantity	= number_format($row->Quantity, 2);
-			$print->addRow($row);
+			if($hasSerial){
+				$print->addRow(array($row->ItemCode, $row->Description, $row->Quantity, $row->UOM, '', '', ''));
+				if ($row->serialnumbers != '') {
+					$serials = explode(',', $row->serialnumbers);
+					foreach($serials as $id) {
+						$serial = $this->delivery_model->getSerialById($id);
+						$sndisplay = $serial->serialno;
+						$endisplay = $serial->engineno;
+						$cndisplay = $serial->chassisno;
+						$print->addRow(array('', '', '', '', $sndisplay, $endisplay, $cndisplay));
+					}
+				}
+			} 
+			else {
+				$print->addRow($row);
+			}
 			if (($key + 1) % $detail_height == 0) {
 				$print->drawSummary(array('Total Quantity' => $total_quantity));
 				$total_quantity = 0;

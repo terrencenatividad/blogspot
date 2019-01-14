@@ -214,6 +214,7 @@
 													->setSplit('col-md-3', 'col-md-8')
 													->setName('useful_life')
 													->setId('useful_life')
+													->setClass('asd')
 													->setValue($useful_life)
 													->setAttribute(array("maxlength" => "3"))
 													->setValidation('required')
@@ -245,6 +246,7 @@
 													->setSplit('col-md-3', 'col-md-8')
 													->setName('capitalized_cost')
 													->setId('capitalized_cost')
+													->setClass('asd')
 													->setValue($capitalized_cost)
 													->setValidation('required decimal')
 													->draw($show_input);
@@ -257,6 +259,7 @@
 													->setSplit('col-md-3', 'col-md-8')
 													->setName('purchase_value')
 													->setId('purchase_value')
+													->setClass('asd')
 													->setValue($purchase_value)
 													->setValidation('required decimal')
 													->draw($show_input);
@@ -272,6 +275,7 @@
 													->setSplit('col-md-3', 'col-md-8')
 													->setName('balance_value')
 													->setId('balance_value')
+													->setClass('asd')
 													->setValue($balance_value)
 													->setValidation('required decimal')
 													->draw($show_input);
@@ -284,6 +288,7 @@
 													->setSplit('col-md-3', 'col-md-8')
 													->setName('salvage_value')
 													->setId('salvage_value')
+													->setClass('asd')
 													->setValue($salvage_value)
 													->setValidation('required decimal')
 													->draw($show_input);
@@ -360,7 +365,7 @@
 							</tbody>
 					</table>
 					<?php }else{?>
-					<table class="table table-hover table-sidepad" id="schedule">
+					<table class="table table-hover table-sidepad" id="schedule" hidden>
 							<thead>
 								<tr class="info">
 									<th class="col-md-2 text-center">Date</th>
@@ -450,7 +455,7 @@
 					<hr>
 					<div class="row" style="padding-bottom: 15px">
 						<div class="col-md-12 text-center">
-							<?php echo $ui->drawSubmit($show_input); ?>
+							<?php if($data['stat'] != 'retired') echo $ui->drawSubmit($show_input); ?>
 							<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
 						</div>
 					</div>
@@ -506,8 +511,26 @@ $(document).ready(function(){
 		$('#purchase_value').prop('readonly',true);
 		$('#balance_value').prop('readonly',true);
 	}
+
+$(this).find('.form-group').find('.asd').on( "blur", function(){
+	simulate();
+});
+simulate();
+
 });
 
+function simulate() {
+	var ul 	= $('#useful_life').val();
+	var cc 	= $('#capitalized_cost').val();
+	var pv 	= $('#purchase_value').val();
+	var bv 	= $('#balance_value').val();
+	var sv 	= $('#salvage_value').val();
+	if(ul != '' && cc != '' && pv != '' && bv != '' && sv != ''){
+		$('#compute').removeAttr('disabled');
+	}else{
+		$('#compute').prop('disabled','true');
+	}
+}
 
 var ajax = {};
 	$('form').submit(function(e) {
