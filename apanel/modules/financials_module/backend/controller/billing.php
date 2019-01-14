@@ -320,15 +320,24 @@ class controller extends wc_controller {
 		$search		= $this->input->post('search');
 		$pagination	= $this->billing_model->getJOList($customer, $search);
 		$table		= '';
-		if (empty($pagination->result)) {
-			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
-		}
+		$counter = 0;
 		foreach ($pagination->result as $key => $row) {
-			$table .= '<tr data-id="' . $row->job_order_no . '">';
+			$services = $this->billing_model->countServices($row->job_order_no);
+			if ($services->count == 0) {
+				$hide_tr = 'hidden';
+			}
+			else {
+				$hide_tr = '';
+				$counter++;
+			}
+			$table .= '<tr class ="'.$hide_tr.'" data-id="' . $row->job_order_no . '">';
 			$table .= '<td>' . $row->job_order_no . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td class="text-right">' . $row->service_quotation . '</td>';
 			$table .= '</tr>';
+		}
+		if ($counter == 0) {
+			$table.= '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		$pagination->table = $table;
 		return $pagination;

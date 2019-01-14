@@ -310,6 +310,18 @@ class billing_model extends wc_model {
 		return $result;
 	}
 
+	public function countServices($voucherno) {
+		$result = $this->db->setTable('job_order_details jod')
+							->setFields("COUNT('job_order_no') count")
+							->leftJoin('items i ON i.itemcode = jod.itemcode')
+							->leftJoin('itemtype it ON it.id = i.typeid AND it.companycode = i.companycode')
+							->setWhere("jod.job_order_no = '$voucherno' AND it.label LIKE '%service%'")
+							->runSelect()
+							->getRow();
+		
+		return $result;
+	}
+
 	public function getValue($table, $cols = array(), $cond, $orderby = "", $bool = "")
 	{
 		$result = $this->db->setTable($table)
