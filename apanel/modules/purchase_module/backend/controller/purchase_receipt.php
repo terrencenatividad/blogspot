@@ -156,8 +156,9 @@ class controller extends wc_controller {
 		foreach ($data['serial_db'] as $chassis_db) {
 			array_push($data['chassis_db_array'], $chassis_db->chassisno);
 		}
-		$data['attachment_url']		= '';
+		$data['attachment_url']			= '';
 		$data['attachment_filename']	= '';
+		$data['attachment_filetype']	= '';
 
 		$this->view->load('purchase_receipt/purchase_receipt', $data);
 	}
@@ -212,13 +213,14 @@ class controller extends wc_controller {
 			array_push($data['chassis_db_array'], $chassis_db->chassisno);
 		}
 		$attachment						= $this->purchase_model->getAttachmentFile($voucherno);
-		$data['attachment_url']		= '';
+		$data['attachment_url']			= '';
 		$data['attachment_filename']	= '';
+		$data['attachment_filetype']	= '';
 		
 		if (isset($attachment->attachment_url)) {
 			$data['attachment_url'] 		= $attachment->attachment_url;
-			$link_array						= explode('/',$data['attachment_url']);
-			$data['attachment_filename']	= end($link_array);
+			$data['attachment_filename']	= $attachment->attachment_name;
+			$data['attachment_filetype']	= $attachment->attachment_type;
 		} 
 		$this->view->load('purchase_receipt/purchase_receipt', $data);
 	}
@@ -272,13 +274,14 @@ class controller extends wc_controller {
 			array_push($data['chassis_db_array'], $chassis_db->chassisno);
 		}
 		$attachment						= $this->purchase_model->getAttachmentFile($voucherno);
-		$data['attachment_url']		= '';
+		$data['attachment_url']			= '';
 		$data['attachment_filename']	= '';
+		$data['attachment_filetype']	= '';
 		
 		if (isset($attachment->attachment_url)) {
 			$data['attachment_url'] 		= $attachment->attachment_url;
-			$link_array						= explode('/',$data['attachment_url']);
-			$data['attachment_filename']	= end($link_array);
+			$data['attachment_filename']	= $attachment->attachment_name;
+			$data['attachment_filetype']	= $attachment->attachment_type;
 		} 
 		
 		$this->view->load('purchase_receipt/purchase_receipt', $data);

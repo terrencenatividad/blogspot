@@ -24,6 +24,17 @@
 							->draw();
 					?>
 				</div>
+				<div class="col-md-3 w_selected">
+					<?php
+						echo $ui->formField('dropdown')
+							->setPlaceholder('Select Brand')
+							->setName('brandcode')
+							->setId('brandcode')
+							->setList($brand_list)
+							->setNone('Filter: All')
+							->draw();
+					?>
+				</div>
 				<div class="col-md-offset-6 col-md-3 hidden">
 					<div>Time left = <span id="timer"></span></div>
 				</div>
@@ -50,6 +61,7 @@
 								->setHeaderClass('info')
 								->addHeader('Item Code',array('class'=>'col-md-2'),'sort','items.itemcode')
 								->addHeader('Item Name', array('class'=>'col-md-2'),'sort','items.itemname')
+								->addHeader('Brand', array('class'=>'col-md-2'),'sort','b.brandname')
 								->addHeader('On Hand Quantity', array('class'=>'col-md-1'),'sort','inv.onhandQty')
 								->addHeader('Allocated Quantity', array('class'=>'col-md-1'),'sort','inv.allocatedQty')
 								->addHeader('Ordered Quantity', array('class'=>'col-md-1'),'sort','inv.orderedQty')
@@ -565,6 +577,12 @@
 
 	$('#itemcode').on('change', function() {
 		ajax.itemcode 	= $(this).val();
+		ajax.page 		= 1;
+		getList();
+	});
+
+	$('#brandcode').on('change', function() {
+		ajax.brandcode 	= $(this).val();
 		ajax.page 		= 1;
 		getList();
 	});

@@ -7,6 +7,7 @@ class controller extends wc_controller {
 		$this->input			= new input();
 		$this->adjustment		= new inventory_adjustment_model();
 		$this->item_model		= new item_model();
+		$this->brand_model		= $this->checkoutModel('maintenance_module/brand');
 		$this->session			= new session();
 		$this->log 				= new log();
 		$this->seq 				= new seqcontrol();
@@ -31,6 +32,7 @@ class controller extends wc_controller {
 		$data['ui'] 				= $this->ui;
 		$data['chart_account_list'] = $this->adjustment->getChartAccountList();
 		$data['item_list'] 			= $this->item_model->getItemDropdownList();
+		$data['brand_list'] 		= $this->brand_model->getBrandDropdownList();
 		$w_entry_data          		= array("warehousecode ind","description val");
 		$data["warehouses"] 		= $this->adjustment->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
 		$this->view->load('inventory_adjustment/inventory_adjustment_list', $data);
@@ -163,12 +165,13 @@ class controller extends wc_controller {
 	}
 	
 	private function ajax_list() {
-		$data = $this->input->post(array('itemcode','warehouse', 'daterangefilter','sort'));
+		$data = $this->input->post(array('itemcode','brandcode','warehouse', 'daterangefilter','sort'));
 		$itemcode 	= $data['itemcode'];
+		$brandcode 	= $data['brandcode'];
 		$warehouse 	= $data['warehouse'];
 		$sort 		= $data['sort'];
 
-		$list = $this->adjustment->getInventoryAdjustmentList($itemcode,$warehouse, $sort);
+		$list = $this->adjustment->getInventoryAdjustmentList($itemcode, $brandcode, $warehouse, $sort);
 		$table = '';
 
 		if (empty($list->result)) {
@@ -180,6 +183,7 @@ class controller extends wc_controller {
 
 				$itemcode 		=	trim($row->itemcode);
 				$itemname 		=	trim($row->itemname);
+				$brand 			= 	isset($row->brandname) 	?	$row->brandname :	"";
 				$warehouse 		=	trim($row->warehouse);
 				$quantity 		= 	isset($row->OHQty) 		?	$row->OHQty 	: 	number_format(0,2);
 				$allocated 		=	isset($row->AllocQty) 	?	$row->AllocQty 	: 	number_format(0,2);
@@ -190,6 +194,7 @@ class controller extends wc_controller {
 				$table .= '<tr>';
 				$table .= '<td>' . $itemcode . '</td>';
 				$table .= '<td>' . $itemname . '</td>' ;
+				$table .= '<td>' . $brand . '</td>';
 				$table .= '<td>' . $quantity . '</td>';
 				$table .= '<td>' . $allocated . '</td>';
 				$table .= '<td>' . $ordered . '</td>';
