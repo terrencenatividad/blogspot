@@ -14,9 +14,10 @@ class inventory_adjustment_model extends wc_model {
 		}
 
 		$result = $this->db->setTable("items as items")
+							->leftJoin('brands as b ON b.brandcode = items.brandcode AND b.companycode = items.companycode')
 							->leftJoin('invfile as inv ON inv.itemcode = items.itemcode '.$warehouse_cond)  
                             ->leftJoin('invdtlfile as invdtlfile ON invdtlfile.itemcode = inv.itemcode AND invdtlfile.warehouse = inv.warehouse') 
-							->setFields("items.itemcode as itemcode, inv.onhandQty as OHQty, inv.warehouse as warehouse , inv.allocatedQty as AllocQty, inv.availableQty as AvailQty, inv.orderedQty as OrderQty,items.itemname as itemname, items.item_ident_flag")
+							->setFields("items.itemcode as itemcode, b.brandname, inv.onhandQty as OHQty, inv.warehouse as warehouse , inv.allocatedQty as AllocQty, inv.availableQty as AvailQty, inv.orderedQty as OrderQty,items.itemname as itemname, items.item_ident_flag")
 							->setWhere($condition)
 							->setOrderBy($sort)
 							->runPagination();

@@ -180,6 +180,7 @@ class controller extends wc_controller {
 
 				$itemcode 		=	trim($row->itemcode);
 				$itemname 		=	trim($row->itemname);
+				$brand 			= 	isset($row->brandname) 	?	$row->brandname :	"";
 				$warehouse 		=	trim($row->warehouse);
 				$quantity 		= 	isset($row->OHQty) 		?	$row->OHQty 	: 	number_format(0,2);
 				$allocated 		=	isset($row->AllocQty) 	?	$row->AllocQty 	: 	number_format(0,2);
@@ -190,6 +191,7 @@ class controller extends wc_controller {
 				$table .= '<tr>';
 				$table .= '<td>' . $itemcode . '</td>';
 				$table .= '<td>' . $itemname . '</td>' ;
+				$table .= '<td>' . $brand . '</td>';
 				$table .= '<td>' . $quantity . '</td>';
 				$table .= '<td>' . $allocated . '</td>';
 				$table .= '<td>' . $ordered . '</td>';
