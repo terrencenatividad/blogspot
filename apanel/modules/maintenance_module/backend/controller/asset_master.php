@@ -161,13 +161,15 @@ class controller extends wc_controller {
 				$status = '<span class="label label-warning">INACTIVE</span>';
 			}
 			
-			$show_activate 		= ($stat == 'active') && MOD_EDIT;
-			$show_deactivate 	= ($stat != 'active') && MOD_EDIT;
+			$show_activate 		= ($stat == 'active' && $stat != 'retired') && MOD_EDIT;
+			$show_deactivate 	= ($stat != 'active' && $stat != 'retired') && MOD_EDIT;
+			$show_retired 		= ($stat != 'retired') && MOD_EDIT;
+			$show_untag 		= ($stat == 'retired') && MOD_EDIT;
 			
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit()
+									->addEdit($show_retired)
 									->addOtherTask(
 										'Activate',
 										'arrow-up',
@@ -180,7 +182,13 @@ class controller extends wc_controller {
 									)	
 									->addOtherTask(
 										'Tag as Retired',
-										'bookmark'
+										'bookmark',
+										$show_retired
+									)	
+									->addOtherTask(
+										'Untag as Retired',
+										'bookmark',
+										$show_untag
 									)	
 									->addDelete()
 									->addCheckbox()

@@ -199,5 +199,17 @@
 			}
 			return '(' . implode(' OR ', $temp) . ')';
 		}
+
+		public function getBrandDropdownList($search="") {
+			$condition = " stat = 'active'";
+			if ($search) {
+				$condition .= " AND brandcode = '$search'";
+			}
+			return $this->db->setTable('brands')
+							->setFields('brandcode ind, brandname val')
+							->setWhere($condition)
+							->runSelect()
+							->getResult();
+		}
     }
 ?>
