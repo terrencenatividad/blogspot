@@ -5,6 +5,7 @@ class controller extends wc_controller {
 		parent::__construct();
 		$this->ui					= new ui();
 		$this->input				= new input();
+		$this->dateDbFormat = new date();
 		$this->budget_report				= new budget_variance_model();
 		$this->view->header_active	= 'report/';
 	}
@@ -40,6 +41,7 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$table .= '<td>' . $row->segment5 . '</td>';
 			$table .= '<td>' . $row->description . '</td>';
+			$table .= '<td>' . $this->date->dateFormat($row->effectivity_date, 1) . '</td>';
 			$table .= '<td class = "amount">' . number_format($row->amount, 2) . '</td>';
 			$table .= '<td class = "actual">' . number_format($row->actual, 2) . '</td>';
 			$table .= '<td class = "variance" data-val = '.$row->variance.'>' . str_replace('-','',$variance) . '</td>';

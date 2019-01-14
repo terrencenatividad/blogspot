@@ -119,11 +119,12 @@ class controller extends wc_controller
 		$this->seq = new seqcontrol();
 		$year = date('Y');
 		$date = date('Y-m-d', strtotime($budget['transactiondate']));
+		$effectivity_date = date('Y-m-d', strtotime($budget['effectivity_date']));
 		$budget['transactiondate'] = $date;
+		$budget['effectivity_date'] = $effectivity_date;
 		$budget['status'] = 'for approval';
 		$budget['period_start'] = $year . '-01-01';
 		$budget['period_end'] = $year . '-12-31';
-		$budget['effectivity_date'] = $year . '-01-01';
 		$budget['budget_code'] = $this->seq->getValue('BUD');
 		$budget['total'] = str_replace(',', '', $post['v_total']);
 		$budget_details['amount'] = str_replace(',', '', $budget_details['amount']);
@@ -141,11 +142,12 @@ class controller extends wc_controller
 		$post = $this->input->post();
 		$budget = $this->input->post($this->fields);
 		$date = date('Y-m-d', strtotime($budget['transactiondate']));
+		$effectivity_date = date('Y-m-d', strtotime($budget['effectivity_date']));
 		$year = date('Y');
-		$date = date('Y-m-d', strtotime($budget['transactiondate']));
 		$budget['budget_code'] = $budget['budget_code'];
 		$budget['status'] = 'for approval';
 		$budget['transactiondate'] = $date;
+		$budget['effectivity_date'] = $effectivity_date;
 		$budget['period_start'] = $year . '-01-01';
 		$budget['period_end'] = $year . '-12-31';
 		$budget['effectivity_date'] = $year . '-01-01';
@@ -222,11 +224,13 @@ class controller extends wc_controller
 			$table .= '<td class = "budgetcheck">' . $row->budget_check . '</td>';
 			$table .= '<td>' . $row->owner . '</td>';
 			$table .= '<td>' . $row->prepared_by . '</td>';
+			$table .= '<td>' . $row->effectivity_date . '</td>';
 			$table .= '<td>' . $this->colorStat($row->status) . '</td>';
 			$table .= '</tr>';
 		}
 
 		$pagination->table = $table;
+		$pagination->csv	= $this->get_export();
 
 		return $pagination;
 	}
@@ -530,6 +534,43 @@ class controller extends wc_controller
 			$result = $this->budgetting->updateSupplementReject($id, $fields);
 			return $result;
 		}
+
+		private function get_export() {
+		$data	= $this->input->post(array('search', 'sort', 'filter'));
+		extract($data);
+
+		$result			= $this->budgetting->getBudgetListingExport($this->fields, $sort, $search, $filter);
+
+		$header = array(
+			'Budget Code',
+			'Budget Description',
+			'Budget Type',
+			'Budget Check',
+			'Owner',
+			'Prepared By',
+			'Effectivity Date',
+			'Status'
+		);
+
+		$csv = '';
+		$csv .= '"' . implode('","', $header) . '"';
+		if (empty($result)) {
+			$csv .= 'No Records Found';
+		}
+		foreach ($result as $key => $row) {
+			$csv .= "\n";
+			$csv .= '"' . $row->budget_code . '",';
+			$csv .= '"' . $row->budgetdesc . '",';
+			$csv .= '"' . $row->budget_type . '",';
+			$csv .= '"' . $row->budget_check . '",';
+			$csv .= '"' . $row->owner . '",';
+			$csv .= '"' . $row->prepared_by . '",';
+			$csv .= '"' . $row->effectivity_date . '",';
+			$csv .= '"' . $row->status . '",';
+		}
+		
+		return $csv;
+	}
 
 	// activate/deactivate
 

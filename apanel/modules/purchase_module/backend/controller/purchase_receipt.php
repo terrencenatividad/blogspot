@@ -156,6 +156,8 @@ class controller extends wc_controller {
 		foreach ($data['serial_db'] as $chassis_db) {
 			array_push($data['chassis_db_array'], $chassis_db->chassisno);
 		}
+		$data['attachment_url']		= '';
+		$data['attachment_filename']	= '';
 
 		$this->view->load('purchase_receipt/purchase_receipt', $data);
 	}
@@ -307,7 +309,23 @@ class controller extends wc_controller {
 				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R', 'R'))
 				->setSummaryWidth(array('170', '30'));
 		
-		$documentcontent	= $this->purchase_model->getDocumentContent($voucherno);
+		$documentcontent	= $this->purchase_model->getDocumentContent($voucherno);		
+		
+		$hasSerial = false;
+		foreach($documentcontent as $key => $row) {
+			if ($row->Ident != 0){
+				$hasSerial = true;
+			}
+		}
+
+		if ($hasSerial) {
+			$print->setHeaderWidth(array(25, 30, 15, 15, 15, 15, 15, 25, 20, 25))
+					->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
+					->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'S/N', 'E/N', 'C/N', 'Price', 'Tax', 'Amount'))
+					->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L', 'R', 'R', 'R'))
+					->setSummaryWidth(array('170', '30'));		
+		}
+
 		$detail_height = 37;
 
 		$vatable_sales	= 0;
@@ -324,7 +342,7 @@ class controller extends wc_controller {
 			if ($documentinfo->discountrate == 0 && $documentinfo->discount) {
 				$documentinfo->discountrate = $documentinfo->discount / ($documentinfo->amount + $documentinfo->vat) * 100;
 			}
-
+			
 			$vatable_sales	+= ($row->taxrate) ? $row->Amount : 0;
 			$vat_exempt		+= ($row->taxrate) ? 0 : $row->Amount;
 			$discount		+= number_format(($row->Amount + $row->Tax) * $documentinfo->discountrate / 100, 2, '.', '');
@@ -334,7 +352,21 @@ class controller extends wc_controller {
 			$row->Price		= number_format($row->Price, 2);
 			$row->Tax		= number_format($row->Tax, 2);
 			$row->Amount	= number_format($row->Amount, 2);
-			$print->addRow($row);
+			
+			if($hasSerial){
+			$print->addRow(array($row->ItemCode, $row->Description, $row->Quantity, $row->UOM, '', '', '', $row->Price, $row->Tax,$row->Amount));
+				if ($row->Ident != 0) {
+					$documentserials	= $this->purchase_model->getDocumentSerials($voucherno,$row->ItemCode);
+					foreach($documentserials as $key => $rowserials) {
+						$sndisplay = $rowserials->Serial;
+						$endisplay = $rowserials->Engine;
+						$cndisplay = $rowserials->Chassis;
+						$print->addRow(array('', '', '', '', $sndisplay, $endisplay, $cndisplay, '', '',''));
+					}
+				}
+			} else {
+				$print->addRow($row);
+			}
 			if (($key + 1) % $detail_height == 0) {
 				$total_amount = $vatable_sales + $vat_exempt - $discount + $tax - $wtax;
 				// $summary = array(
@@ -360,7 +392,7 @@ class controller extends wc_controller {
 		// 	'VATable Sales'		=> number_format($vatable_sales, 2),
 		// 	'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
 		// 	'Total Sales'		=> number_format($vatable_sales + $vat_exempt, 2),
-		// 	'Discount'			=> number_format($discount, 2),
+		// 	'Discount'			=> number_format($discount, 2),getDocumentContent
 		// 	'Tax'				=> number_format($tax, 2),
 		// 	'WTax'				=> number_format($wtax, 2),
 		// 	'Total Amount'		=> number_format($total_amount, 2)
