@@ -761,7 +761,7 @@ class purchase_receipt_model extends wc_model {
 	public function getAttachmentFile($voucherno) {
 		
 		$result = $this->db->setTable('purchasereceipt_attachments')
-							->setFields(array('attachment_url'))
+							->setFields(array('attachment_name','attachment_url', 'attachment_type'))
 							->setWhere("reference = '$voucherno'")
 							->setOrderBy('attachment_id DESC')
 							->setLimit(1)

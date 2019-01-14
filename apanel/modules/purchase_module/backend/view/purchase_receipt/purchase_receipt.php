@@ -1,5 +1,12 @@
 <section class="content">
-		<div class="box box-primary">
+	<? if (!$show_input) { ?>
+	<ul id='nav' class="nav nav-tabs">
+		<li class="active"><a href="Details" data-toggle="tab">Details</a></li>
+		<?if(!$show_input && !empty($attachment_filename)):?><li><a href="Attachment" data-toggle="tab">Attachments</a></li><?endif;?>
+	</ul>
+	<? } ?>
+
+		<div id='Details' class="box box-primary tab-pane">
 			<form action="" method="post" class="form-horizontal">
 				<div class="box-body">
 					<br>
@@ -107,6 +114,7 @@
 								</div>
 								<div class="row">
 								</div>
+								<?php if ($show_input) { ?>
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
@@ -128,6 +136,7 @@
 											// ->draw($show_input && $ajax_task != 'ajax_edit');
 									?>
 								</div>
+								<?php } ?>
 							</div>
 							<div class="row">
 								<div class="col-md-12">
@@ -271,6 +280,40 @@
 
 			</form>
 		</div>
+
+		<?if(!$show_input && !empty($attachment_filename)):?>
+		<div id="Attachment" class="tab-pane">
+			<div class="box box-primary">
+				<form method = "post" class="form-horizontal" id="case_attachments_form" enctype="multipart/form-data">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="table-responsive">
+								<table id="fileTable" class="table table-bordered">
+									<thead>
+										<tr class="info">
+											<th class="col-md-1">Action</th>
+											<th class="col-md-5">File Name</th>
+											<th class="col-md-2">File Type</th>
+										</tr>
+									</thead>
+									<tbody class="files" id="attachment_list">
+										<tr>
+											<td>
+												<button type="button" id="replace_attachment" data-voucherno='<?=$voucherno;?>' name="replace_attachment" class="btn btn-primary">Replace</button>
+											</td>
+											<td><a href="<?=$attachment_url;?>" target='_blank'><?=urldecode($attachment_filename)?></a></td>
+											<td><?=$attachment_filetype?></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<br/>
+				</form>
+			</div>
+		</div>
+		<?php endif;?>
 	</section>
 	<div id="purchase_list_modal" class="modal fade" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-lg" role="document">
@@ -399,6 +442,28 @@
 		</div>
 	</div>
 	<script>
+		$(function(){
+		$('#Attachment').hide();
+		})
+
+		$('#nav li a').on('click', function(){
+			$('#nav li').removeClass();
+			$('#Details').hide();
+			$('#Attachment').hide();
+
+			$(this).closest('li').attr('class','active');
+			var tab = $('#nav li.active a').attr('href');
+			$('#'+tab).show();
+		});
+
+		$('#replace_attachment').on('click', function(){
+			var voucherno = $(this).data('voucherno');
+			$('#modal-voucher').html(voucherno);
+			$('#input_voucherno').val(voucherno);
+			$('#attach_modal').modal('show');
+		});
+
+	
 		var delete_row	= {};
 		var ajax		= {};
 		var ajax_call	= '';
@@ -1020,12 +1085,7 @@
 			$('#file').val(decodeURI($('#file').val()));
 
 		<?php } ?>
-		<?php if ($ajax_task=='') { ?>
-			// ON VIEW, REPLACE DISPLAY WITH LINK TO ATTACHMENT AND REMOVE VALIDATION
-			filename = decodeURI($('#file').text());
-			url = $('#file').attr('href');
-			$('#file').text('').removeAttr('data-validation').append('<a href="'+url+'" target="_blank">'+filename+'</a>'  )
-		<?php } ?>
+		
 	});
 		
 		$('tbody').on('click', '.deleteRow', function(e) {
