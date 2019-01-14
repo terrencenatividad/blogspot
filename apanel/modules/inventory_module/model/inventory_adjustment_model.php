@@ -1,7 +1,7 @@
 <?php
 class inventory_adjustment_model extends wc_model {
 
-	public function getInventoryAdjustmentList($itemcode, $warehouse, $sort) {
+	public function getInventoryAdjustmentList($itemcode, $brandcode, $warehouse, $sort) {
 		$warehouse_cond = '';
 		$condition 		= '';
 
@@ -10,6 +10,9 @@ class inventory_adjustment_model extends wc_model {
 			
 			if ($itemcode && $itemcode != 'none') {
 				$condition .= " items.itemcode = '$itemcode'";
+			}
+			if ($brandcode && $brandcode != 'none') {
+				$condition .= " b.brandcode = '$brandcode'";
 			}
 		}
 
