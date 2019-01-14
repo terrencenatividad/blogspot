@@ -48,7 +48,7 @@
 				</tbody>
 				<tfoot>
 					<tr>
-						<td colspan = "2"></td>
+						<td colspan = "3"></td>
 						<td><b>Total : </b><span class = "total_budget"></span></td>
 						<td><b>Total : </b><span class = "total_actual"></span></td>
 						<td><b>Total : </b><span class="total_variance"></span></td>
