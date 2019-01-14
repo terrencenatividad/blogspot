@@ -120,7 +120,7 @@
 											->draw();
 								?>
 							</div>
-							<p class="help-block">The file to be imported shall not exceed the size of <strong>1mb</strong> and must be a <strong>PDF, PNG or JPG</strong> file.</p>
+							<p class="help-block">The file to be imported shall not exceed the size of <strong>3mb</strong> and must be a <strong>PDF, PNG or JPG</strong> file.</p>
 						</div>
 						<div class="modal-footer">
 							<div class="col-md-12 col-sm-12 col-xs-12 text-center">
@@ -257,7 +257,7 @@
 
 			$('#attachments_form').fileupload({
 				url: '<?= MODULE_URL ?>ajax/ajax_upload_file',
-				maxFileSize: 2000000,
+				maxFileSize: 3000000,
 				disableExifThumbnail :true,
 				previewThumbnail:false,
 				autoUpload:false,

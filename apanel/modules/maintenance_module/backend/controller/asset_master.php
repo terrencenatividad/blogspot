@@ -221,19 +221,15 @@ class controller extends wc_controller {
 		$time  					= strtotime($data['depreciation_month']);
 		$depreciation = 0;
 		
-		
-
 		$result = $this->asset_master->saveAssetMaster($data);
-		// var_dump(($balance_value - $salvage_value) / $useful_life);
 
-
-		for($x=1;$x<=$data['useful_life'];$x++){
-			$depreciation_amount 	= ($balance_value - $salvage_value) / $useful_life;
-			$depreciation += ($balance_value - $salvage_value) / $useful_life;
-			$final = date("Y-m-d", strtotime("+$x month", $time));
-			$sched = $this->asset_master->saveAssetMasterSchedule($shh,$asset_number,$useful_life,$balance_value,$salvage_value,$final,$depreciation,$depreciation_amount);
+		// for($x=1;$x<=$data['useful_life'];$x++){
+		// 	$depreciation_amount 	= ($balance_value - $salvage_value) / $useful_life;
+		// 	$depreciation += ($balance_value - $salvage_value) / $useful_life;
+		// 	$final = date("Y-m-d", strtotime("+$x month", $time));
+		// 	$sched = $this->asset_master->saveAssetMasterSchedule($shh,$asset_number,$useful_life,$balance_value,$salvage_value,$final,$depreciation,$depreciation_amount);
 			
-			}
+		// 	}
 
 		return array(
 			'redirect' => MODULE_URL,
@@ -264,20 +260,15 @@ class controller extends wc_controller {
 		$time  					= strtotime($data['depreciation_month']);
 		$depreciation = 0;
 		
-		
-
 		$result = $this->asset_master->updateAssetMaster($data, $code, $asset_number);
-		// var_dump(($balance_value - $salvage_value) / $useful_life);
-		// $result = $this->asset_master->deletesched($asset_number);
 
-
-		for($x=1;$x<=$data['useful_life'];$x++){
-			$depreciation_amount 	= ($balance_value - $salvage_value) / $useful_life;
-			$depreciation += ($balance_value - $salvage_value) / $useful_life;
-			$final = date("Y-m-d", strtotime("+$x month", $time));
-			$sched = $this->asset_master->saveAssetMasterSchedule($shh,$asset_number,$useful_life,$balance_value,$salvage_value,$final,$depreciation,$depreciation_amount);
+		// for($x=1;$x<=$data['useful_life'];$x++){
+		// 	$depreciation_amount 	= ($balance_value - $salvage_value) / $useful_life;
+		// 	$depreciation += ($balance_value - $salvage_value) / $useful_life;
+		// 	$final = date("Y-m-d", strtotime("+$x month", $time));
+		// 	$sched = $this->asset_master->saveAssetMasterSchedule($shh,$asset_number,$useful_life,$balance_value,$salvage_value,$final,$depreciation,$depreciation_amount);
 			
-			}
+		// 	}
 			
 		return array(
 			'redirect' => MODULE_URL,
