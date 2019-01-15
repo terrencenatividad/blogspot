@@ -474,6 +474,7 @@ class controller extends wc_controller
 		$documentinfo  	= $this->invoice->retrieveData($docinfo_table, $docinfo_fields, $docinfo_cond, $docinfo_join);
 		$documentinfo	= $documentinfo[0]; 
 		$customer 	    = $documentinfo->customer;
+		$notes			= $documentinfo->remarks;
 
 		/** HEADER INFO - END**/
 
@@ -524,7 +525,8 @@ class controller extends wc_controller
 				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C','C'))
 				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price', 'Discount', 'Tax', 'Amount'))
 				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R', 'R','R'))
-				->setSummaryWidth(array('170', '30'));
+				->setSummaryWidth(array('120', '50', '30'))
+				->setSummaryAlign(array('L','R','R'));
 
 		$detail_height = 28;
 
@@ -565,14 +567,14 @@ class controller extends wc_controller
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
 				$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
-				$summary = array(
-					'VATable Sales'		=> number_format($vatable_sales, 2),
-					'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
-					'VAT Zero Rated Sales'	=> number_format($vat_zerorated, 2),
-					'Total Sales'		=> number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2),
-					'Discount'			=> number_format($discount, 2),
-					'Tax'				=> number_format($tax, 2),
-					'Total Amount'		=> number_format($total_amount, 2)
+				$summary = array(array('Notes:', 'VATable Sales', number_format($vatable_sales, 2)),
+					array($notes, 'VAT-Exempt Sales', number_format($vat_exempt, 2)),
+					array('','VAT Zero Rated Sales'	, number_format($vat_zerorated, 2)),
+					array('','Total Sales', number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2)),
+					array('','Tax', number_format($tax, 2)),
+					array('','Total Amount', number_format($total_amount, 2)),
+					array('','', ''),
+					array('','Discount', number_format($discount, 2))
 				);
 				$print->drawSummary($summary);
 				$vatable_sales	= 0;
@@ -584,15 +586,14 @@ class controller extends wc_controller
 			}
 		}
 		$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
-		$summary = array(
-			'VATable Sales'		=> number_format($vatable_sales, 2),
-			'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
-			'VAT Zero Rated Sales'	=> number_format($vat_zerorated, 2),
-			'Total Sales'		=> number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2),
-			'Tax'				=> number_format($tax, 2),
-			'Total Amount'		=> number_format($total_amount, 2),
-			''					=> '',
-			'Discount'			=> number_format($discount, 2)
+		$summary = array(array('Notes:', 'VATable Sales', number_format($vatable_sales, 2)),
+					array($notes, 'VAT-Exempt Sales', number_format($vat_exempt, 2)),
+					array('','VAT Zero Rated Sales'	, number_format($vat_zerorated, 2)),
+					array('','Total Sales', number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2)),
+					array('','Tax', number_format($tax, 2)),
+					array('','Total Amount', number_format($total_amount, 2)),
+					array('','', ''),
+					array('','Discount', number_format($discount, 2))
 		);
 		$print->drawSummary($summary);
 
