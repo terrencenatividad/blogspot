@@ -861,42 +861,49 @@ class controller extends wc_controller
 		$accountchecker = array();
 		$error = array();
 		$save_budget = array();
+		$date_checker = array();
 
 		$data_post 	= $this->input->post();
 		if(!empty($data_post['budgetcode'])) {
 			for($arr = 0; $arr <= count($data_post['budgetcode']); $arr++) {
 				if(!empty($data_post['budgetcode'][$arr])) {
-					$getaccount = $this->payment_voucher->getAccountName($data_post['accountcode'][$arr]);
-					$checkaccount = $this->payment_voucher->getAmountAndAccount($data_post['budgetcode'][$arr], $data_post['accountcode'][$arr]);
-					$accountname = $getaccount->accountname;
-					if(!$checkaccount) {
-						$accountchecker[] = 'The account ' . $accountname . ' is not in your budget code ' .$data_post['budgetcode'][$arr]. '.';
+					$date = date('Y-m-d', strtotime($data_post['document_date']));
+					$check_date = $this->payment_voucher->checkEffectivityDate($data_post['budgetcode'][$arr], $date);
+					if(!$check_date) {
+						$date_checker[] = "You don't have an effective budget for this Budget Code";
 					} else {
-						$amount = $checkaccount->amount;
-						$type = $checkaccount->budget_check;
-
-						if($type == 'Monitored') {
-							if($data_post['debit'][$arr] != '0.00') {
-								if(str_replace(',','',$data_post['debit'][$arr]) > $amount) {
-									$warning[] = 'You were about to exceed from your budget code ' . $data_post['budgetcode'][$arr] . 
-									' ' . $accountname . ' account <br>';
-								}
-							} else {
-								if($data_post['credit'][$arr] > $amount) {
-									$warning[] = 'You were about to exceed from your budget code ' . $data_post['budgetcode'][$arr] . 
-									' ' . $accountname . ' account <br>';
-								}
-							}
+						$getaccount = $this->payment_voucher->getAccountName($data_post['accountcode'][$arr]);
+						$checkaccount = $this->payment_voucher->getAmountAndAccount($data_post['budgetcode'][$arr], $data_post['accountcode'][$arr]);
+						$accountname = $getaccount->accountname;
+						if(!$checkaccount) {
+							$accountchecker[] = 'The account ' . $accountname . ' is not in your budget code ' .$data_post['budgetcode'][$arr]. '.';
 						} else {
-							if($data_post['debit'][$arr] != '0.00') {
-								if(str_replace(',','',$data_post['debit'][$arr]) > $amount) {
-									$error[] = 'You are not allowed to exceed budget in ' . $data_post['budgetcode'][$arr] . 
-									' ' . $accountname . ' account <br>';
+							$amount = $checkaccount->amount;
+							$type = $checkaccount->budget_check;
+
+							if($type == 'Monitored') {
+								if($data_post['debit'][$arr] != '0.00') {
+									if(str_replace(',','',$data_post['debit'][$arr]) > $amount) {
+										$warning[] = 'You were about to exceed from your budget code ' . $data_post['budgetcode'][$arr] . 
+										' ' . $accountname . ' account <br>';
+									}
+								} else {
+									if($data_post['credit'][$arr] > $amount) {
+										$warning[] = 'You were about to exceed from your budget code ' . $data_post['budgetcode'][$arr] . 
+										' ' . $accountname . ' account <br>';
+									}
 								}
 							} else {
-								if($data_post['credit'][$arr] > $amount) {
-									$error[] = 'You are not allowed to exceed budget in ' . $data_post['budgetcode'][$arr] . 
-									' ' . $accountname . ' account <br>';
+								if($data_post['debit'][$arr] != '0.00') {
+									if(str_replace(',','',$data_post['debit'][$arr]) > $amount) {
+										$error[] = 'You are not allowed to exceed budget in ' . $data_post['budgetcode'][$arr] . 
+										' ' . $accountname . ' account <br>';
+									}
+								} else {
+									if($data_post['credit'][$arr] > $amount) {
+										$error[] = 'You are not allowed to exceed budget in ' . $data_post['budgetcode'][$arr] . 
+										' ' . $accountname . ' account <br>';
+									}
 								}
 							}
 						}
@@ -931,7 +938,7 @@ class controller extends wc_controller
 		// 	} 
 		// }
 
-		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg, 'warning' => $warning, 'accountchecker' => $accountchecker, 'error' => $error);
+		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg, 'warning' => $warning, 'accountchecker' => $accountchecker, 'error' => $error, 'date_checker' => $date_checker);
 		return $dataArray;
 	}
 

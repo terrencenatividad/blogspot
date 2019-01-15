@@ -490,6 +490,7 @@ class purchase_order extends wc_model
 		$warning = array();
 		$checkamount = array();
 		$error = array();
+		$date_checker = array();
 		$accountcode = '';
 		/**INSERT IR DETAILS**/
 		$isDetailExist	= $this->getValue($detailInvTable, array("COUNT(*) as count"),"voucherno = '$voucherno'");
@@ -501,42 +502,66 @@ class purchase_order extends wc_model
 				->setWhere("budget_code = '$budgetcode'")
 				->runSelect()
 				->getRow();
-				if($type->budget_check == 'Monitored') {
 
-					$itemcode = $row['itemcode'];
-					$check = $this->db->setTable('items')
-					->setFields('expense_account')
-					->setWhere("itemcode = '$itemcode'")
-					->runSelect()
-					->getRow();
+				$result = $this->db->setTable('budget')
+				->setFields("TRUE")
+				->setWhere("budget_code = '$budgetcode' AND effectivity_date <= '$transactiondate'")
+				->runSelect()
+				->getRow();
 
-					if($check->expense_account == 0) {
-						$getaccount = $this->db->setTable('itemclass ic')
-						->setFields('ic.expense_account')
-						->leftJoin('items as i ON i.classid = ic.id')
+				if(!$result) {
+					$date_checker[] = "You don't have an effective budget for this Budget Code";
+				} else {
+					if($type->budget_check == 'Monitored') {
+
+						$itemcode = $row['itemcode'];
+						$check = $this->db->setTable('items')
+						->setFields('expense_account')
+						->setWhere("itemcode = '$itemcode'")
 						->runSelect()
 						->getRow();
 
-						$expenseaccount = $getaccount->expense_account;
-						$accountcode = $expenseaccount;
-						$getbudgetaccount = $this->db->setTable('budget_details bd')
-						->setFields('IFNULL(bs.amount, 0) + bd.amount as amount')
-						->leftJoin('budget as b ON bd.budget_code = b.budget_code')
-						->leftJoin("budget_supplement as bs ON b.id = bs.budget_id AND bs.accountcode = '$expenseaccount'")
-						->setWhere("bd.accountcode = '$expenseaccount'")
-						->runSelect()
-						->getRow();
+						if($check->expense_account == 0) {
+							$getaccount = $this->db->setTable('itemclass ic')
+							->setFields('ic.expense_account')
+							->leftJoin('items as i ON i.classid = ic.id')
+							->runSelect()
+							->getRow();
 
-						if(!$getbudgetaccount) {
-							$warning[] = "The account of your item didn't match any accounts under budget code " . $row['budgetcode']. '.';
+							$expenseaccount = $getaccount->expense_account;
+							$accountcode = $expenseaccount;
+							$getbudgetaccount = $this->db->setTable('budget_details bd')
+							->setFields('IFNULL(bs.amount, 0) + bd.amount as amount')
+							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
+							->leftJoin("budget_supplement as bs ON b.id = bs.budget_id AND bs.accountcode = '$expenseaccount'")
+							->setWhere("bd.accountcode = '$expenseaccount'")
+							->runSelect()
+							->getRow();
+
+							if(!$getbudgetaccount) {
+								$warning[] = "The account of your item didn't match any accounts under budget code " . $row['budgetcode']. '.';
+							} else {
+								if($row['amount'] > $getbudgetaccount->amount) {
+									$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. '.';
+								}
+							}
 						} else {
-							if($row['amount'] > $getbudgetaccount->amount) {
-								$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. '.';
+							$expenseaccount = $check->expense_account;
+							$accountcode = $expenseaccount;
+							$getbudgetaccount = $this->db->setTable('budget_details')
+							->setFields('accountcode, amount')
+							->setWhere("accountcode = '$expenseaccount'")
+							->runSelect()
+							->getRow();
+							if(!$getbudgetaccount) {
+								$warning[] = "The account of your item didn't match any accounts under budget code " . $row['budgetcode']. '.';
+							} else {
+								if($row['amount'] > $getbudgetaccount->amount) {
+									$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. '.';
+								}
 							}
 						}
 					} else {
-						$expenseaccount = $check->expense_account;
-						$accountcode = $expenseaccount;
 						$getbudgetaccount = $this->db->setTable('budget_details')
 						->setFields('accountcode, amount')
 						->setWhere("accountcode = '$expenseaccount'")
@@ -546,21 +571,8 @@ class purchase_order extends wc_model
 							$warning[] = "The account of your item didn't match any accounts under budget code " . $row['budgetcode']. '.';
 						} else {
 							if($row['amount'] > $getbudgetaccount->amount) {
-								$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. '.';
+								$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. '.';
 							}
-						}
-					}
-				} else {
-					$getbudgetaccount = $this->db->setTable('budget_details')
-					->setFields('accountcode, amount')
-					->setWhere("accountcode = '$expenseaccount'")
-					->runSelect()
-					->getRow();
-					if(!$getbudgetaccount) {
-						$warning[] = "The account of your item didn't match any accounts under budget code " . $row['budgetcode']. '.';
-					} else {
-						if($row['amount'] > $getbudgetaccount->amount) {
-							$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. '.';
 						}
 					}
 				}
@@ -596,7 +608,7 @@ class purchase_order extends wc_model
 			$errmsg[] 		= "The system has encountered an error in saving. Our team is currently checking on this.<br/>";
 		}
 
-		return array('errmsg' =>$errmsg, 'warning' => $warning, 'checkamount' => $checkamount, 'error' => $error, 'accountcode' => $accountcode);
+		return array('errmsg' =>$errmsg, 'warning' => $warning, 'checkamount' => $checkamount, 'error' => $error, 'accountcode' => $accountcode, 'date_checker' => $date_checker);
 	}
 
 	public function saveActual($fields, $voucherno) {
