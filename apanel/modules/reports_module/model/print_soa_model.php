@@ -269,7 +269,7 @@ class print_soa_model extends fpdf {
 		$this->SetFont('Arial', 'B', '9');
 		$this->Cell(40, 5, 'Item Code', 'LTB', 0, 'C', true);
 		$this->Cell(60, 5, 'Description', 'LTB', 0, 'C', true);
-		$this->Cell(30, 5, 'Quantity', 'LTB', 0, 'C', true);
+		$this->Cell(30, 5, 'Qty', 'LTB', 0, 'C', true);
 		$this->Cell(30, 5, 'Price', 'LTB', 0, 'C', true);
 		$this->Cell(40, 5, 'Amount', 1, 0, 'C', true);
 		$this->Ln();

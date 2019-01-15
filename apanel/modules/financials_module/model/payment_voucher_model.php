@@ -1310,6 +1310,17 @@ class payment_voucher_model extends wc_model
 		return $errmsg;
 	}
 
+	public function checkEffectivityDate($budgetcode, $date)
+	{
+		$result = $this->db->setTable('budget')
+		->setFields("TRUE")
+		->setWhere("budget_code = '$budgetcode' AND effectivity_date <= '$date'")
+		->runSelect()
+		->getRow();
+		
+		return $result;
+	}
+
 	public function fileExport($data)
 	{
 		$daterangefilter = isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 

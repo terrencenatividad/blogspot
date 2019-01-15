@@ -214,7 +214,7 @@ class controller extends wc_controller {
 	public function get_import($date){
 		
 		header('Content-type: application/csv');
-		$header = array('Item Code','Item Name','Warehouse','Quantity','Unit Price');
+		$header = array('Item Code','Item Name','Warehouse','Qty','Unit Price');
 
 		$return = '';
 		$return .= '"Date","'.$date.'"';

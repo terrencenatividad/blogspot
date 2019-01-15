@@ -467,14 +467,14 @@ class controller extends wc_controller
 								'si.discounttype as disctype','si.discountamount as discount', 
 								'si.amount as net','si.vat_sales as vat_sales','si.vat_exempt as vat_exempt', 'si.vat_zerorated as vat_zerorated',
 								'si.taxamount as vat','si.vat_zerorated as zerorated',
-								'sourceno', 'pl.voucherno plno', 'pl.source_no sono');
+								'sourceno', 'pl.voucherno plno', 'dr.source_no sono');
 		$docinfo_join   = "partners as p ON p.partnercode = si.customer AND p.companycode = si.companycode LEFT JOIN deliveryreceipt dr ON dr.voucherno = si.sourceno AND dr.companycode = si.companycode LEFT JOIN packinglist pl ON pl.voucherno = dr.source_no AND pl.companycode = dr.companycode";
 		$docinfo_cond 	= "si.voucherno = '$voucherno'"; 
 
 		$documentinfo  	= $this->invoice->retrieveData($docinfo_table, $docinfo_fields, $docinfo_cond, $docinfo_join);
 		$documentinfo	= $documentinfo[0]; 
 		$customer 	    = $documentinfo->customer;
-
+		$notes			= $documentinfo->remarks;
 		/** HEADER INFO - END**/
 
 		/** DETAILS INFO **/
@@ -522,9 +522,10 @@ class controller extends wc_controller
 
 		$print->setHeaderWidth(array(30, 50, 20, 10, 20, 20, 20, 30))
 				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C','C'))
-				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price', 'Discount', 'Tax', 'Amount'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'Price', 'Discount', 'Tax', 'Amount'))
 				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R', 'R','R'))
-				->setSummaryWidth(array('170', '30'));
+				->setSummaryWidth(array('120', '50', '30'))
+				->setSummaryAlign(array('L','R','R'));
 
 		$detail_height = 28;
 
@@ -565,14 +566,14 @@ class controller extends wc_controller
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
 				$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
-				$summary = array(
-					'VATable Sales'		=> number_format($vatable_sales, 2),
-					'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
-					'VAT Zero Rated Sales'	=> number_format($vat_zerorated, 2),
-					'Total Sales'		=> number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2),
-					'Discount'			=> number_format($discount, 2),
-					'Tax'				=> number_format($tax, 2),
-					'Total Amount'		=> number_format($total_amount, 2)
+				$summary = array(array('Notes:', 'VATable Sales', number_format($vatable_sales, 2)),
+					array($notes, 'VAT-Exempt Sales', number_format($vat_exempt, 2)),
+					array('','VAT Zero Rated Sales'	, number_format($vat_zerorated, 2)),
+					array('','Total Sales', number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2)),
+					array('','Tax', number_format($tax, 2)),
+					array('','Total Amount', number_format($total_amount, 2)),
+					array('','', ''),
+					array('','Discount', number_format($discount, 2))
 				);
 				$print->drawSummary($summary);
 				$vatable_sales	= 0;
@@ -584,15 +585,14 @@ class controller extends wc_controller
 			}
 		}
 		$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
-		$summary = array(
-			'VATable Sales'		=> number_format($vatable_sales, 2),
-			'VAT-Exempt Sales'	=> number_format($vat_exempt, 2),
-			'VAT Zero Rated Sales'	=> number_format($vat_zerorated, 2),
-			'Total Sales'		=> number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2),
-			'Tax'				=> number_format($tax, 2),
-			'Total Amount'		=> number_format($total_amount, 2),
-			''					=> '',
-			'Discount'			=> number_format($discount, 2)
+		$summary = array(array('Notes:', 'VATable Sales', number_format($vatable_sales, 2)),
+					array($notes, 'VAT-Exempt Sales', number_format($vat_exempt, 2)),
+					array('','VAT Zero Rated Sales'	, number_format($vat_zerorated, 2)),
+					array('','Total Sales', number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2)),
+					array('','Tax', number_format($tax, 2)),
+					array('','Total Amount', number_format($total_amount, 2)),
+					array('','', ''),
+					array('','Discount', number_format($discount, 2))
 		);
 		$print->drawSummary($summary);
 

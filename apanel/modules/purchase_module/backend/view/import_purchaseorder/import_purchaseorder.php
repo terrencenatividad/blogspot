@@ -250,7 +250,7 @@
 									<th class="col-md-1 text-center">Warehouse</th>
 									<th class="col-md-1 text-center">On Hand Qty</th>
 									<th class="col-md-1 text-center">Price</th>
-									<th class="col-md-1 text-center">Quantity</th>
+									<th class="col-md-1 text-center">Qty</th>
 									<th class="col-md-1 text-center">UOM</th>
 									<th class="col-md-1 text-center">Discount</th>
 									<th class="col-md-1 text-center">Foreign Currency Amount</th>
@@ -936,7 +936,7 @@
 									<th class="col-md-2 text-center">Item Name</th>
 									<th class="col-md-3 text-center">Description</th>
 									<th class="col-md-2 text-center">Warehouse</th>
-									<th class="col-md-1 text-center">Quantity</th>
+									<th class="col-md-1 text-center">Qty</th>
 									<th class="col-md-1 text-center">UOM</th>
 									<th class="col-md-2 text-center">Tax</th>
 									<th class="col-md-1 text-center">Price</th>
@@ -1819,7 +1819,7 @@ function cancelTransaction(vno)
 }
 
 /** FINALIZE SAVING **/
-function finalizeTransaction(type, error, warning, checkamount)
+function finalizeTransaction(type, error, warning, checkamount, date_checker)
 {
 	$("#purchase_order_form").find('.form-group').find('input, textarea, select').trigger('blur');
 
@@ -1863,6 +1863,9 @@ function finalizeTransaction(type, error, warning, checkamount)
 			} else if(warning != ''){
 				$('#accountchecker-modal').modal('show');
 				$('#accounterror').html(warning);
+			} else if(date_checker != ''){
+				$('#accountchecker-modal').modal('show');
+				$('#accounterror').html(date_checker);
 			} else {
 				$('#delay_modal').modal('show');
 				setTimeout(function() {
@@ -1918,6 +1921,7 @@ function finalizeEditTransaction()
 					warning = parsed['warning'];
 					checkamount = parsed['checkamount'];
 					errmsg = parsed['errmsg'];
+					date_checker = parsed['date_checker'];
 
 					if(checkamount != '') {
 						$('#warning-modal').modal('show');
@@ -1944,6 +1948,9 @@ function finalizeEditTransaction()
 					} else if(warning != ''){
 						$('#accountchecker-modal').modal('show');
 						$('#accounterror').html(warning);
+					} else if(date_checker != ''){
+						$('#accountchecker-modal').modal('show');
+						$('#accounterror').html(date_checker);
 					} else {
 						if(errmsg == '') {
 							if( btn == 'final' ) {
@@ -2398,6 +2405,7 @@ $(document).ready(function(){
 						error = parsed['error'];
 						warning = parsed['warning'];
 						checkamount = parsed['checkamount'];
+						date_checker = parsed['date_checker'];
 					});
 				}
 			});
@@ -2405,20 +2413,20 @@ $(document).ready(function(){
 			//Final Saving
 			$('#purchase_order_form #btnSave').click(function(){
 
-				finalizeTransaction("final", error, warning, checkamount);
+				finalizeTransaction("final", error, warning, checkamount, date_checker);
 
 			});
 
 			//Save & Preview
 			$("#purchase_order_form #save_preview").click(function()
 			{
-				finalizeTransaction("final_preview", error, warning, checkamount);
+				finalizeTransaction("final_preview", error, warning, checkamount, date_checker);
 			});
 
 			//Save & New
 			$("#purchase_order_form #save_new").click(function()
 			{
-				finalizeTransaction("final_new", error, warning, checkamount);
+				finalizeTransaction("final_new", error, warning, checkamount, date_checker);
 			});
 		}
 		else if('<?= $task ?>' == "edit")
