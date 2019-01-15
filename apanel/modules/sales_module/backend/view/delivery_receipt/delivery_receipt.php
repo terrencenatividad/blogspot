@@ -313,7 +313,7 @@
 					<table id="tableSerialList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
 						<thead>
 							<tr class="info">
-								<th class="col-xs-2"></th>
+								<th class="col-xs-2"><input type = "checkbox" class = "checkall"></th>
 								<th id = "serial_header">Serial No.</th>
 								<th id = "engine_header">Engine No.</th>
 								<th id = "chassis_header">Chassis No.</th>
@@ -1235,6 +1235,18 @@
 				return value != remove_this;
 			});
 			itemrow.closest('tr').find('.checked').val(checked_serials);
+		});
+
+		$('#tableSerialList').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
+			var b = $('#tableSerialList input[type=checkbox]:not(.checkall)');
+			var row = $('#tableSerialList >tbody >tr').length;
+			var c =  b.filter(':checked').length;
+			if(c == row){
+				$('#tableSerialList thead tr th').find('.checkall').prop('checked', true).iCheck('update');
+			}
+			else{
+				$('#tableSerialList thead tr th').find('.checkall').prop('checked', false).iCheck('update');
+			}
 		});
 
 		$('#btn_ok').on('click', function() {

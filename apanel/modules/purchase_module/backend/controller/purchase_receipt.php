@@ -661,7 +661,7 @@ class controller extends wc_controller {
 		$task 			= $post_data['task'];
 		$upload_result 	= false;
 		unset($post_data['task']);
-		
+
 		if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
 			if(!isset($upload_handler->response['files'][0]->error)){
 				/**
@@ -670,11 +670,13 @@ class controller extends wc_controller {
 				 * @param group fields
 				 * @param custom condition
 				 */
-				if ($task=='edit') 
-					$attachment_id = $this->purchase_model->getCurrentId("purchasereceipt_attachments", $reference);
-				
-				else
+				// if ($task=='edit') 
+				$attachment_id = $this->purchase_model->getCurrentId("purchasereceipt_attachments", $reference);
+				if ($attachment_id=='0'){
 					$attachment_id = $this->purchase_model->getNextId("purchasereceipt_attachments","attachment_id");
+				}
+				// else
+					// $attachment_id = $this->purchase_model->getNextId("purchasereceipt_attachments","attachment_id");
 
 				foreach($upload_handler->response['files'] as $key => $row) {
 					$post_data['attachment_id'] 	= $attachment_id;
