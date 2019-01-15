@@ -441,6 +441,20 @@
 		</form>
 		</div>
 	</div>
+	<div id="attach_success" class="modal fade" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title modal-success"><span class="glyphicon glyphicon-ok"></span> Success!</h4>
+				</div>
+				<div class="modal-body">
+					<p>You have successfully updated the attached file.</p>
+				</div>
+				<div class="modal-footer">
+				</div>
+			</div>
+		</div>
+	</div>
 	<script>
 		$(function(){
 		$('#Attachment').hide();
@@ -1648,12 +1662,21 @@
 				var source_no = $('#source_no').val();
 				var task = "create";
 				data.formData = {reference: source_no, task: task};
+				<? if($attachment_filename != '') {?>
+					var voucher_no = $('#voucherno').val();
+					var task = "edit";
+					data.formData = {reference: voucher_no, task: task};
+				<? }?>
+				
 			});
 			$('#attachments_form').bind('fileuploadalways', function (e, data) {
 				var error = data.result['files'][0]['error'];
 				var form_group = $('#attachments_form #files').closest('.form-group');
 				if(!error){
+					var source_no = $('#source_no').val();
 					$('#attach_modal').modal('hide');
+					// $('#attach_success').modal('show');
+					
 					var msg = data.result['files'][0]['name'];
 					form_group.removeClass('has-error');
 					form_group.find('p.help-block.m-none').html('');
