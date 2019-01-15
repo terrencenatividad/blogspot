@@ -1,13 +1,13 @@
 <section class="content">
 		<div class="box box-primary">
-			<?php if ($stat == 'Delivered') { ?>
+			<?php if ($stat == 'Delivered' || $stat == 'With Invoice') { ?>
 			<ul class="nav nav-tabs" role="tablist">
 				<li role="presentation" class="active"><a href="#details" aria-controls="details" role="tab" data-toggle="tab">Details</a></li>
 				<li role="presentation"><a href="#attachment" aria-controls="attachment" role="tab" data-toggle="tab">Attachment</a></li>
 			</ul>
 			<?php } ?>
 			<form action="" method="post" class="form-horizontal">
-				<?php if ($stat == 'Delivered') { ?>
+				<?php if ($stat == 'Delivered' || $stat == 'With Invoice') { ?>
 				<div class="tab-content">
 					<div role="tabpanel" class="tab-pane active" id="details">
 				<?php } ?>
@@ -151,6 +151,7 @@
 													->setSplit('col-md-2', 'col-md-10')
 													->setName('remarks')
 													->setId('remarks')
+													->setMaxLength(300)
 													->setValue($remarks)
 													->draw($show_input);
 											?>
@@ -222,7 +223,7 @@
 							</div>
 						</div>
 						</div>
-					<?php if ($stat == 'Delivered') { ?>
+					<?php if ($stat == 'Delivered' || $stat == 'With Invoice') { ?>
 					<div role="tabpanel" class="tab-pane" id="attachment">
 						<table id="AttachmentTable" class="table table-hover table-sidepad only-checkbox full-form">
 							<thead>

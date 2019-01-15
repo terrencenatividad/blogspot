@@ -732,7 +732,7 @@ class print_sales_model extends fpdf {
 			if ($this->document_code == 'PL' || $this->document_code == 'DR'){
 				$this->Cell(40, 5, 'Item Code', 'LTB', 0, 'C', true);
 				$this->Cell(100, 5, 'Description', 'LTB', 0, 'C', true);
-				$this->Cell(30, 5, 'Quantity', 1, 0, 'C', true);
+				$this->Cell(30, 5, 'Qty', 1, 0, 'C', true);
 				$this->Cell(30, 5, 'UOM', 1, 0, 'C', true);
 				$this->setWidths(array(40, 100, 30, 30));
 				$this->setAligns(array('L', 'L', 'R','L'));
@@ -746,7 +746,7 @@ class print_sales_model extends fpdf {
 			} else { 
 				$this->Cell(40, 5, 'Item Code', 'LTB', 0, 'C', true);
 				$this->Cell(60, 5, 'Description', 'LTB', 0, 'C', true);
-				$this->Cell(20, 5, 'Quantity', 'LTB', 0, 'C', true);
+				$this->Cell(20, 5, 'Qty', 'LTB', 0, 'C', true);
 				$this->Cell(20, 5, 'UOM', 'LTB', 0, 'C', true);
 				$this->Cell(30, 5, 'Price', 'LTB', 0, 'C', true);
 				$this->Cell(30, 5, 'Amount', 1, 0, 'C', true);
@@ -818,14 +818,14 @@ class print_sales_model extends fpdf {
 			if ($this->document_code == 'PL' || $this->document_code == 'DR'){
 				$this->Cell(40, 5, 'Item Code', 'LTB', 0, 'C', true);
 				$this->Cell(100, 5, 'Description', 'LTB', 0, 'C', true);
-				$this->Cell(30, 5, 'Quantity', 1, 0, 'C', true);
+				$this->Cell(30, 5, 'Qty', 1, 0, 'C', true);
 				$this->Cell(30, 5, 'Unit', 1, 0, 'C', true);
 				$this->setWidths(array(40, 100, 30, 30));
 				$this->setAligns(array('L', 'L', 'R','L'));
 			} else if ($this->document_code == 'SQ'){
 				$this->Cell(40, 5, 'Item Code', 'LTB', 0, 'C', true);
 				$this->Cell(120, 5, 'Description', 'LTB', 0, 'C', true);
-				$this->Cell(40, 5, 'Quantity', 1, 0, 'C', true);
+				$this->Cell(40, 5, 'Qty', 1, 0, 'C', true);
 				$this->setWidths(array(40, 120, 40));
 				$this->setAligns(array('L', 'L', 'R','R','R'));
 			} else { 
@@ -961,7 +961,7 @@ class print_sales_model extends fpdf {
 			}  else if( $this->document_code == "PL" || $this->document_code == "DR" ){
 				$this->Ln(35);
 				$this->SetFont('Arial','B','9');
-				$this->Cell(150,$rowheight,'Total Quantity',0,0,'R');
+				$this->Cell(150,$rowheight,'Total Qty',0,0,'R');
 				$this->Cell(50,$rowheight,$totalqty,0,0,'R');
 				$this->Ln();
 			} else {

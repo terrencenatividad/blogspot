@@ -321,7 +321,7 @@
 									<td class="text-center">
 										<?php
 											echo $ui->formField('text')
-												->setPlaceholder('Quantity')
+												->setPlaceholder('Qty')
 												->setSplit('', 'col-md-12')
 												->setClass('text-center')
 												->setName('selling_conv')
@@ -353,7 +353,7 @@
 									<td class="text-center">
 										<?php
 											echo $ui->formField('text')
-												->setPlaceholder('Quantity')
+												->setPlaceholder('Qty')
 												->setSplit('', 'col-md-12')
 												->setClass('text-center')
 												->setName('purchasing_conv')

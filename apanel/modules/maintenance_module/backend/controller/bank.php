@@ -792,5 +792,13 @@ class controller extends wc_controller
 		}
 		return $csv;
 	}
+
+	private function checkifexisting() {
+		$booknumber	= $this->input->post('booknumber');
+		$result = $this->bank->checkbooknumber($booknumber);
+		return array(
+			'available'	=> $result
+		);
+	}
 }
 ?>

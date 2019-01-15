@@ -190,7 +190,7 @@ class billing_model extends wc_model {
 
 	public function getCustomerList() {
 		$result = $this->db->setTable('partners')
-						->setFields("partnercode ind,partnername val")
+						->setFields("partnercode ind, CONCAT(partnercode,' - ',partnername) val")
 						->setWhere("partnercode != '' AND partnertype = 'customer' AND stat = 'active'")
 						->setOrderBy("val")
 						->runSelect()
@@ -307,6 +307,18 @@ class billing_model extends wc_model {
 								->runSelect()
 								->getResult();
 
+		return $result;
+	}
+
+	public function countServices($voucherno) {
+		$result = $this->db->setTable('job_order_details jod')
+							->setFields("COUNT('job_order_no') count")
+							->leftJoin('items i ON i.itemcode = jod.itemcode')
+							->leftJoin('itemtype it ON it.id = i.typeid AND it.companycode = i.companycode')
+							->setWhere("jod.job_order_no = '$voucherno' AND it.label LIKE '%service%'")
+							->runSelect()
+							->getRow();
+		
 		return $result;
 	}
 

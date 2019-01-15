@@ -146,7 +146,7 @@
 					<thead>
 						<tr class="info">
 							<th >Item Code</th>
-							<th>Item Name</th>
+							<!-- <th>Item Name</th> -->
 							<!--<th>Request Site</th>
 							<th>Destination Site</th>-->
 							<!-- <th>On Hand Qty</th> -->
@@ -252,7 +252,7 @@
 								->draw($show_input);
 						?>
 					</td>
-					<td>
+					<td class="hidden">
 						<?php
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
@@ -672,7 +672,7 @@
 				qtytoapply = 0;
 				$(this).closest('.form-group').addClass("has-error");
 				$("#submit-box button[type=submit]").prop("disabled",true);
-				$('#warning_modal #warning_message').html("<b>Please input a quantity.</b>");
+				$('#warning_modal #warning_message').html("<b>Please input a qty.</b>");
 				$('#warning_modal').modal('show');
 			}
 

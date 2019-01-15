@@ -51,8 +51,8 @@
 					<thead>
 						<tr class="info">
 							<th class="col-md-6 center">Item Category</th>
-                            <th class="col-md-2 center">Sales Quantity</th>
-							<th class="col-md-2 center">Base Quantity</th>
+                            <th class="col-md-2 center">Sales Qty</th>
+							<th class="col-md-2 center">Base Qty</th>
                             <th class="col-md-2 center">Amount</th>
 						</tr>
 					</thead>

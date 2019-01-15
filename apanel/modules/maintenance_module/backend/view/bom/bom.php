@@ -62,7 +62,7 @@
 													<th class="col-md-3 text-center">Item Code</th>
 													<th class="col-md-3 text-center">Item Name</th>
 													<th class="col-md-2">Description</th>
-													<th class="col-md-2">Quantity</th>
+													<th class="col-md-2">Qty</th>
 													<th class="col-md-2 center">UOM</th>
 													<th class="col-md-1 center"></th>
 												</tr>

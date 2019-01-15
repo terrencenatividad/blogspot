@@ -525,7 +525,7 @@ class controller extends wc_controller
 
 		$print->setHeaderWidth(array(40, 60, 20, 20, 30, 30))
 		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
-		->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price', 'Amount'))
+		->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'Price', 'Amount'))
 		->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R'))
 		->setSummaryWidth(array('170', '30'));
 

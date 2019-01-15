@@ -65,7 +65,7 @@
 								<th class="col-md-1 center">Date</th>
 								<th class="col-md-1 center">Invoice No.</th>
 								<th class="col-md-3 center">Customer</th>
-								<th class="col-md-2 center">Quantity</th>
+								<th class="col-md-2 center">Qty</th>
 								<th class="col-md-2 center">Total</th>
 								<th class="col-md-1 center">Unit Price</th>
 								<th class="col-md-2 center">Amount</th>

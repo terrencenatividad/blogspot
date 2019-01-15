@@ -63,7 +63,7 @@
 								<th class = "col-md-2 text-center">Transaction Date</th>
 								<th class = "col-md-2 text-center">SR No.</th>
 								<th class = "col-md-2 text-center">Item</th>
-								<th class = "col-md-1 text-center">Quantity</th>
+								<th class = "col-md-1 text-center">Qty</th>
 								<th class = "col-md-1 text-center">UOM</th>
 								<th class = "col-md-2 text-center">Unit Price</th>
 								<th class = "col-md-2 text-center">Amount</th>

@@ -129,7 +129,7 @@
 									<th class="col-md-3">Item</th>
 									<th class="col-md-3">Description</th>
 									<th class="col-md-2">Warehouse</th>
-									<th class="col-md-2">Quantity</th>
+									<th class="col-md-2">Qty</th>
 									<th class="col-md-1">UOM</th>
 									<?php if ($show_input): ?>
 									<th class="col-md-1"></th>
@@ -186,7 +186,7 @@
 								<th class="col-md-3">Item</th>
 								<th class="col-md-3">Description</th>
 								<th class="col-md-2">Warehouse</th>
-								<th class="col-md-2">Quantity</th>
+								<th class="col-md-2">Qty</th>
 								<th class="col-md-1">UOM</th>
 								<?php if ($show_input): ?>
 								<th class="col-md-1"></th>
