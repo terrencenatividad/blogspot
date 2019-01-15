@@ -93,8 +93,8 @@
 									echo $ui->formField('text')
 									->setLabel('Transaction Date')
 									->setSplit('col-md-4', 'col-md-8')
-									->setName('document_date')
-									->setId('document_date')
+									->setName('transactiondate')
+									->setId('transactiondate')
 									->setClass('datepicker-input')
 									->setAttribute(array('readonly' => '', 'data-date-start-date' => $close_date))
 									->setAddon('calendar')
@@ -1478,9 +1478,7 @@
 			$('.accountcode :selected').each(function() {
 				accountcodes.push($(this).val());
 			});
-
 			if($('#total_debit').val() != $('#total_credit').val()) {
-				$('#error-modal').modal('show');
 				$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
 				good = 'false';
 			}
@@ -1504,9 +1502,12 @@
 							} else if(data.error != '') {
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.error);
-							} else if(data.accountchecker != ''){
+							} else if(data.accountchecker != '') {
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.accountchecker);
+							} else if(data.date_check != ''){
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.date_check);
 							} else {
 								if(data.success) {
 									$('#delay_modal').modal('show');
@@ -1557,16 +1558,14 @@
 									}
 								});
 							} else if(data.error != '') {
-								$('#warning-modal').modal('show');
-								$('#errors').html(data.error);
-								$('#warning-modal').on('hidden.bs.modal', function() {
-									if(data.success) {
-										$('#delay_modal').modal('show');
-										setTimeout(function() {
-											window.location = data.redirect;
-										},500);
-									}
-								});
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.error);
+							} else if(data.accountchecker != ''){
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.accountchecker);
+							} else if(data.date_check != ''){
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.date_check);
 							} else {
 								if(data.success) {
 									$('#delay_modal').modal('show');
@@ -1617,16 +1616,14 @@
 									}
 								});
 							} else if(data.error != '') {
-								$('#warning-modal').modal('show');
-								$('#errors').html(data.error);
-								$('#warning-modal').on('hidden.bs.modal', function() {
-									if(data.success) {
-										$('#delay_modal').modal('show');
-										setTimeout(function() {
-											window.location = data.redirect;
-										},500);
-									}
-								});
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.error);
+							} else if(data.accountchecker != ''){
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.accountchecker);
+							} else if(data.date_check != ''){
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.date_check);
 							} else {
 								if(data.success) {
 									$('#delay_modal').modal('show');

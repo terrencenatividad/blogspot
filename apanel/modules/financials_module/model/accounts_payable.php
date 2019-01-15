@@ -41,6 +41,17 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
+	public function checkEffectivityDate($budgetcode, $date)
+	{
+		$result = $this->db->setTable('budget')
+		->setFields("TRUE")
+		->setWhere("budget_code = '$budgetcode' AND effectivity_date <= '$date'")
+		->runSelect()
+		->getRow();
+		
+		return $result;
+	}
+
 	public function getBudgetAmount($budgetcode, $accountcode)
 	{
 		$result = $this->db->setTable('budget_details as bd')
@@ -2235,10 +2246,10 @@ class accounts_payable extends wc_model
 	{
 		$fields = array('capitalized_cost','balance_value','useful_life','salvage_value','depreciation_month');
 		$result = $this->db->setTable('asset_master')
-						->setFields($fields)
-						->setWhere("asset_number = '$assetid'")
-						->runSelect()
-						->getRow();
+		->setFields($fields)
+		->setWhere("asset_number = '$assetid'")
+		->runSelect()
+		->getRow();
 
 		return $result;
 	}
@@ -2248,10 +2259,10 @@ class accounts_payable extends wc_model
 		$fields['capitalized_cost'] = $amount+$asd1;
 		$fields['balance_value'] = $amount+$asd2;
 		$result = $this->db->setTable('asset_master')
-							->setValues($fields)
-							->setWhere("asset_number = '$assetid'")
-							->setLimit(1)
-							->runUpdate();
+		->setValues($fields)
+		->setWhere("asset_number = '$assetid'")
+		->setLimit(1)
+		->runUpdate();
 
 		if ($result) {
 			$this->log->saveActivity("Update Asset Value [$assetid]");
@@ -2266,10 +2277,10 @@ class accounts_payable extends wc_model
 		$fields['accumulated_dep'] = $depreciation;
 		// var_dump($fields);
 		$result = $this->db->setTable('depreciation_schedule')
-							->setValues($fields)
-							->setWhere("asset_id = '$assetid' AND depreciation_date = '$final'")
-							->setLimit(1)
-							->runUpdate();
+		->setValues($fields)
+		->setWhere("asset_id = '$assetid' AND depreciation_date = '$final'")
+		->setLimit(1)
+		->runUpdate();
 
 		if ($result) {
 			$this->log->saveActivity("Update Asset Value [$assetid]");
