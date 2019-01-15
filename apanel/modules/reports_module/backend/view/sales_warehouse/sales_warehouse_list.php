@@ -61,7 +61,7 @@
 									->setHeaderClass('info')
 									->addHeader('Warehouse Code',array('class'=>'col-md-4 text center'),'sort','warehousecode')
 									->addHeader('Warehouse',array('class'=>'col-md-4 text center'),'sort','warehouse')
-									->addHeader('Quantity', array('class'=>'col-md-4'),'sort','quantity')
+									->addHeader('Qty', array('class'=>'col-md-4'),'sort','quantity')
 									->draw();
 						?>
 					</thead>

@@ -258,7 +258,7 @@
 								<tr class="info">
 									<th class="col-md-2 text-left">Item</th>
 									<th class="col-md-3 text-left">Description</th>
-									<th class="col-md-1 text-left">Quantity</th>
+									<th class="col-md-1 text-left">Qty</th>
 									<th class="col-md-1 text-left">UOM</th>
 									<th class="col-md-1 text-left">Price</th>
 									<th class="col-md-1 text-left">Discount</th>

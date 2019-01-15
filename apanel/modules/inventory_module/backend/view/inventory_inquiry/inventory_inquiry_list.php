@@ -101,10 +101,10 @@
 									->setHeaderClass('info')
 									->addHeader('Item Name',array('class' => 'col-md-2'),'sort','itemname')
 									->addHeader('Warehouse',array('class' => 'col-md-2'),'sort','w.description')
-									->addHeader('Onhand Quantity', array('class' => 'col-md-2'),'sort','SUM(inv.onhandQty)')
-									->addHeader('Ordered Quantity', array('class' => 'col-md-2'),'sort','SUM(inv.orderedQty)')
-									->addHeader('Allocated Quantity', array('class' => 'col-md-2'),'sort',' SUM(inv.allocatedQty)')
-									->addHeader('Available Quantity', array('class' => 'col-md-2'),'sort','SUM(inv.availableQty)')
+									->addHeader('Onhand Qty', array('class' => 'col-md-2'),'sort','SUM(inv.onhandQty)')
+									->addHeader('Ordered Qty', array('class' => 'col-md-2'),'sort','SUM(inv.orderedQty)')
+									->addHeader('Allocated Qty', array('class' => 'col-md-2'),'sort',' SUM(inv.allocatedQty)')
+									->addHeader('Available Qty', array('class' => 'col-md-2'),'sort','SUM(inv.availableQty)')
 									->draw();
 						?>
 					</thead>
@@ -122,7 +122,7 @@
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
-					On Hand Quantity
+					On Hand Qty
 					<button type="button" class="close" data-dismiss="modal">&times;</button>
 				</div>
 				<div class="modal-body">
@@ -167,7 +167,7 @@
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
-					Order Quantity
+					Order Qty
 					<button type="button" class="close" data-dismiss="modal">&times;</button>
 				</div>
 				<div class="modal-body">
@@ -208,7 +208,7 @@
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
-					Allocated Quantity
+					Allocated Qty
 					<button type="button" class="close" data-dismiss="modal">&times;</button>
 				</div>
 				<div class="modal-body">

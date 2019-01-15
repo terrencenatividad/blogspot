@@ -154,7 +154,7 @@ class controller extends wc_controller
 		}
 
 		$title = "Detailed Sales Return Per Customer Report";
-		$header = array("Transaction Date","SR No.","Item","Quantity","UOM","Unit Price","Amount");
+		$header = array("Transaction Date","SR No.","Item","Qty","UOM","Unit Price","Amount");
 
 		$csv = '';
 		$csv = '"' . $title . '"';

@@ -195,7 +195,7 @@ class controller extends wc_controller {
 
 		$print->setHeaderWidth(array(40, 100, 30, 30))
 				->setHeaderAlign(array('C', 'C', 'C', 'C'))
-				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
 				->setRowAlign(array('L', 'L', 'R', 'L'))
 				->setSummaryWidth(array('120', '50', '30'))
 				->setSummaryAlign(array('L','R','R'));
@@ -213,7 +213,7 @@ class controller extends wc_controller {
 		if ($hasSerial) {
 			$print->setHeaderWidth(array(30, 70, 20, 20, 20, 20, 20))
 					->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
-					->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'S/N', 'E/N', 'C/N',))
+					->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N',))
 					->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
 					->setSummaryWidth(array('120', '50', '30'))
 					->setSummaryAlign(array('L','R','R'));		
@@ -245,7 +245,7 @@ class controller extends wc_controller {
 				$print->addRow($row);
 			}
 			if (($key + 1) % $detail_height == 0) {
-				$print->drawSummary(array(array('Notes:', 'Total Quantity', $total_quantity),
+				$print->drawSummary(array(array('Notes:', 'Total Qty', $total_quantity),
 											array($notes, '', ''),
 											array('', '', ''),
 											array('', '', ''),
@@ -254,7 +254,7 @@ class controller extends wc_controller {
 				$total_quantity = 0;
 			}
 		}
-		$print->drawSummary(array(array('Notes:', 'Total Quantity', $total_quantity),
+		$print->drawSummary(array(array('Notes:', 'Total Qty', $total_quantity),
 											array($notes, '', ''),
 											array('', '', ''),
 											array('', '', ''),

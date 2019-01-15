@@ -62,10 +62,10 @@
 								->addHeader('Item Code',array('class'=>'col-md-2'),'sort','items.itemcode')
 								->addHeader('Item Name', array('class'=>'col-md-2'),'sort','items.itemname')
 								->addHeader('Brand', array('class'=>'col-md-2'),'sort','b.brandname')
-								->addHeader('On Hand Quantity', array('class'=>'col-md-1'),'sort','inv.onhandQty')
-								->addHeader('Allocated Quantity', array('class'=>'col-md-1'),'sort','inv.allocatedQty')
-								->addHeader('Ordered Quantity', array('class'=>'col-md-1'),'sort','inv.orderedQty')
-								->addHeader('Available Quantity', array('class'=>'col-md-1'),'sort','inv.availableQty')
+								->addHeader('On Hand Qty', array('class'=>'col-md-1'),'sort','inv.onhandQty')
+								->addHeader('Allocated Qty', array('class'=>'col-md-1'),'sort','inv.allocatedQty')
+								->addHeader('Ordered Qty', array('class'=>'col-md-1'),'sort','inv.orderedQty')
+								->addHeader('Available Qty', array('class'=>'col-md-1'),'sort','inv.availableQty')
 								->addHeader('', array('class'=>'col-md-1'))
 								->draw();
 					?>
@@ -181,7 +181,7 @@
 
 								<?php
 									echo $ui->formField('text')
-											->setLabel("Quantity:")
+											->setLabel("Qty:")
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('issueqty')
 											->setId('issueqty')

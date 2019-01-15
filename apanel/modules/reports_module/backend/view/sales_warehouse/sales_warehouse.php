@@ -41,7 +41,7 @@
 							<tr class="info">
 								<th>Itemcode</th>
 								<th>Itemname</th>
-								<th>Quantity</th>
+								<th>Qty</th>
 								<th>UOM</th>
 								<th>Unit Price</th>
 								<th>Amount</th>

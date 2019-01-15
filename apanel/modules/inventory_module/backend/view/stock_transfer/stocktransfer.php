@@ -672,7 +672,7 @@
 				qtytoapply = 0;
 				$(this).closest('.form-group').addClass("has-error");
 				$("#submit-box button[type=submit]").prop("disabled",true);
-				$('#warning_modal #warning_message').html("<b>Please input a quantity.</b>");
+				$('#warning_modal #warning_message').html("<b>Please input a qty.</b>");
 				$('#warning_modal').modal('show');
 			}
 

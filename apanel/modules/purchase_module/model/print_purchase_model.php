@@ -753,13 +753,13 @@ class print_purchase_model extends fpdf {
 		if ($this->document_code == 'REQ'){
 		$this->Cell(40, 5, 'Item Code', 'LTB', 0, 'C', true);
 		$this->Cell(60, 5, 'Description', 'LTB', 0, 'C', true);
-		$this->Cell(60, 5, 'Quantity', 1, 0, 'C', true);
+		$this->Cell(60, 5, 'Qty', 1, 0, 'C', true);
 		$this->Cell(40, 5, 'UOM', 'RTB', 0, 'C', true);
 		$this->setWidths(array(40,60,60,40));
 		$this->setAligns(array('L', 'L', 'R','L'));
 		} else if  ($this->document_code == 'PO'){
 		$this->Cell(50, 5, 'Item', 'LTB', 0, 'C', true);
-		$this->Cell(40, 5, 'Quantity', 'LTB', 0, 'C', true);
+		$this->Cell(40, 5, 'Qty', 'LTB', 0, 'C', true);
 		$this->Cell(30, 5, 'UOM', 'LTB', 0, 'C', true);
 		$this->Cell(40, 5, 'Price', 'LTB', 0, 'C', true);
 		$this->Cell(40, 5, 'Amount', 1, 0, 'C', true);
@@ -768,7 +768,7 @@ class print_purchase_model extends fpdf {
 		} else if  ($this->document_code == 'PR'){
 		$this->Cell(30, 5, 'Item Code', 'LTB', 0, 'C', true);
 		$this->Cell(40, 5, 'Description', 'LTB', 0, 'C', true);
-		$this->Cell(20, 5, 'Quantity', 'LTB', 0, 'C', true);
+		$this->Cell(20, 5, 'Qty', 'LTB', 0, 'C', true);
 		$this->Cell(20, 5, 'UOM', 'LTB', 0, 'C', true);
 		$this->Cell(30, 5, 'Price', 'LTB', 0, 'C', true);
 		$this->Cell(30, 5, 'Vat', 'LTB', 0, 'C', true);
@@ -778,7 +778,7 @@ class print_purchase_model extends fpdf {
 		} else if ($this->document_code == 'PRTN') {
 		$this->Cell(40, 5, 'Item Code', 'LTB', 0, 'C', true);
 		$this->Cell(60, 5, 'Description', 'LTB', 0, 'C', true);
-		$this->Cell(20, 5, 'Quantity', 1, 0, 'C', true);
+		$this->Cell(20, 5, 'Qty', 1, 0, 'C', true);
 		$this->Cell(20, 5, 'UOM', 'LTB', 0, 'C', true);
 		$this->Cell(30, 5, 'Price', 'LTB', 0, 'C', true);
 		$this->Cell(30, 5, 'Amount', 1, 0, 'C', true);
@@ -787,7 +787,7 @@ class print_purchase_model extends fpdf {
 		} else {
 		$this->Cell(40, 5, 'Item Code', 'LTB', 0, 'C', true);
 		$this->Cell(60, 5, 'Description', 'LTB', 0, 'C', true);
-		$this->Cell(20, 5, 'Quantity', 'LTB', 0, 'C', true);
+		$this->Cell(20, 5, 'Qty', 'LTB', 0, 'C', true);
 		$this->Cell(20, 5, 'UOM', 'LTB', 0, 'C', true);
 		$this->Cell(30, 5, 'Price', 'LTB', 0, 'C', true);
 		$this->Cell(30, 5, 'Amount', 1, 0, 'C', true);
