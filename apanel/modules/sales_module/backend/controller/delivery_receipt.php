@@ -149,7 +149,7 @@ class controller extends wc_controller {
 		);
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->delivery_model->getDeliveryReceiptById($this->fields, $voucherno);
-		if ($data['stat'] == 'Delivered') {
+		if ($data['stat'] == 'Delivered' || $data['stat'] == 'With Invoice') {
 			$getData = $this->delivery_model->getFile($voucherno);
 			$data['filename'] 		= $getData->attachment_name;
 			$data['filetype'] 		= $getData->attachment_type;
