@@ -683,7 +683,6 @@
 														if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque' && $ischeck == 'yes'){
 															$disable_debit		= 'readOnly';
 															$disable_credit		= 'readOnly';
-															$disable_budget 	= 'disabled';
 															$disable_code 		= 'disabled';
 															$added_class 		= 'added_row';
 															$indicator 			= "cheque";
@@ -703,7 +702,6 @@
 														->setName("budgetcode[".$row."]")
 														->setClass("budgetcode")
 														->setId("budgetcode[".$row."]")
-														->setAttribute(array($disable_budget))
 														->setValue($budgetcode)
 														->setList($budget_list)
 														->draw($show_input);
@@ -1377,7 +1375,6 @@
 		}
 
 		function disable_acct_fields(row){
-			$("#budgetcode\\["+ row +"\\]").prop("disabled", true);
 			$("#accountcode\\["+ row +"\\]").prop("disabled", true);
 			$("#debit\\["+ row +"\\]").prop("readonly", true);
 			$("#credit\\["+ row +"\\]").prop("readonly", true);
