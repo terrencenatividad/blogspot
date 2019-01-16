@@ -677,11 +677,13 @@
 														$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
 
 														$disable_code 		= "";
+														$disable_budget 	= "";
 														$added_class 		= "";
 														$indicator 			= "";
 														if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque' && $ischeck == 'yes'){
 															$disable_debit		= 'readOnly';
 															$disable_credit		= 'readOnly';
+															$disable_budget 	= 'disabled';
 															$disable_code 		= 'disabled';
 															$added_class 		= 'added_row';
 															$indicator 			= "cheque";
@@ -701,6 +703,7 @@
 														->setName("budgetcode[".$row."]")
 														->setClass("budgetcode")
 														->setId("budgetcode[".$row."]")
+														->setAttribute(array($disable_budget))
 														->setValue($budgetcode)
 														->setList($budget_list)
 														->draw($show_input);
