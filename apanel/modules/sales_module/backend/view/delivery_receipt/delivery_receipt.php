@@ -217,8 +217,9 @@
 										if ($stat == 'Prepared' && $restrict_dr || empty($stat)) {
 											echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 										}
-										echo $ui->drawCancel();
+										// echo $ui->drawCancel();
 									?>
+									<a href = "#" class = "btn btn-default" id = "btn_cancel" data-toggle="modal" data-target="#cancelModal">Cancel</a>
 								</div>
 							</div>
 						</div>
@@ -247,6 +248,32 @@
 			</form>
 		</div>
 	</section>
+	<div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					Confirmation
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to cancel this transaction?
+				</div>
+				<div class="modal-footer">
+					<div class="row row-dense">
+						<div class="col-md-12 center">
+							<div class="btn-group">
+								<a href="<?=MODULE_URL?>" class="btn btn-primary btn-flat" id="btnYes">Yes</a>
+							</div>
+								&nbsp;&nbsp;&nbsp;
+							<div class="btn-group">
+								<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div id="ordered_list_modal" class="modal fade" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">
