@@ -595,7 +595,7 @@ class import_purchaseorder extends wc_model
 								$warning[] = "The account of your item didn't match any accounts under budget code " . $row['budgetcode']. '.';
 							} else {
 								if($row['amount'] > $getbudgetaccount->amount) {
-									$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".";
+									$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
 								}
 							}
 						} else {
@@ -613,7 +613,7 @@ class import_purchaseorder extends wc_model
 								$warning[] = "The account of your item didn't match any accounts under budget code " . $row['budgetcode']. '.';
 							} else {
 								if($row['amount'] > $getbudgetaccount->amount) {
-									$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $check->accountname. ".";
+									$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 								}
 							}
 						}
@@ -648,7 +648,7 @@ class import_purchaseorder extends wc_model
 								$warning[] = "The account of your item didn't match any accounts under budget code " . $row['budgetcode']. '.';
 							} else {
 								if($row['amount'] > $getbudgetaccount->amount) {
-									$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".";
+									$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
 								}
 							}
 						} else {
@@ -666,7 +666,7 @@ class import_purchaseorder extends wc_model
 								$warning[] = "The account of your item didn't match any accounts under budget code " . $row['budgetcode']. '.';
 							} else {
 								if($row['amount'] > $getbudgetaccount->amount) {
-									$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $check->accountname. ".";
+									$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 								}
 							}
 						}
