@@ -872,8 +872,8 @@ class controller extends wc_controller
 					if(!$check_date) {
 						$date_checker[0] = "You don't have an effective budget for this Budget Code";
 					} else {
-						$getaccount = $this->payment_voucher->getAccountName($data_post['accountcode'][$arr]);
-						$checkaccount = $this->payment_voucher->getAmountAndAccount($data_post['budgetcode'][$arr], $data_post['accountcode'][$arr]);
+						$getaccount = $this->payment_voucher->getAccountName($data_post['h_accountcode'][$arr]);
+						$checkaccount = $this->payment_voucher->getAmountAndAccount($data_post['budgetcode'][$arr], $data_post['h_accountcode'][$arr]);
 						$accountname = $getaccount->accountname;
 						if(!$checkaccount) {
 							$accountchecker[] = 'The account ' . $accountname . ' is not in your budget code ' .$data_post['budgetcode'][$arr]. '.</br>';

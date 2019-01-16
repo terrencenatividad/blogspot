@@ -1311,6 +1311,7 @@
 				$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 				ParentRow.after(clone_acct);
 				resetIds();
+				$("#budgetcode\\["+ row +"\\]").val('').trigger('change.select2');
 				$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 				$("#entriesTable button#"+row).prop('disabled',true);
 				$("#entriesTable debit#"+row).prop('disabled',true);
@@ -2043,6 +2044,7 @@
 	}
 
 	function clear_acct_input(){
+		$('.budgetcode').val('').change();
 		$('.accountcode').val('').change();
 		$('.description').val('');
 		$('.debit').val('0.00');
