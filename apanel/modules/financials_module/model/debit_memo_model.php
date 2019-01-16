@@ -409,7 +409,7 @@ class debit_memo_model extends wc_model {
 	
 	public function getJobList() {
 		$result = $this->db->setTable('job')
-		->setFields("job_no")
+		->setFields("job_no, stat")
 		->setWhere('stat = "on-going"')
 		->setGroupBy('job_no')
 		->runPagination();

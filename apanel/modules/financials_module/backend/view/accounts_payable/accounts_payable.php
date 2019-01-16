@@ -1105,6 +1105,7 @@
 							->setHeaderClass('info')
 							->addHeader('', array('class' => 'col-md-1'))
 							->addHeader('Job Number', array('class' => 'col-md-3'))
+							->addHeader('Job Status', array('class' => 'col-md-1'))
 							->draw();
 							?>
 							<tbody>
