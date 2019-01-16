@@ -1483,9 +1483,9 @@
 					$('#exchangerate').val(data.exchangerate);	
 					$('.debit').each(function() {
 						if($(this).val() != '0.00') {
-							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).val()));
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).val())));
 						} else {
-							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).closest('tr').find('.credit').val()));
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).closest('tr').find('.credit').val())));
 						}
 					});
 					sumDebit();
