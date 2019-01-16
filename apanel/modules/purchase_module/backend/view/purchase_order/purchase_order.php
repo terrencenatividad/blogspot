@@ -378,7 +378,11 @@
 
 									for($i = 0; $i < count($details); $i++)
 									{
-										$budgetcode 	 	= $details[$i]->budgetcode;
+										if($task == 'edit') {
+											$budgetcode 	 	= $details[$i]->budgetcode;
+										} else {
+											$budgetcode = '';
+										}
 										$itemcode 	 		= $details[$i]->itemcode;
 										$detailparticular	= stripslashes($details[$i]->detailparticular);
 										$quantity 			= number_format($details[$i]->receiptqty,0);
@@ -389,7 +393,6 @@
 										$uom  				= $details[$i]->receiptuom;
 										$warehouse_code		= (empty($request_no)) ? $details[$i]->warehouse 	: 	'';
 										$warehouse_name		= (empty($request_no)) ? $details[$i]->description: 	'';
-
 
 										?>
 										<tr class="clone" valign="middle">
