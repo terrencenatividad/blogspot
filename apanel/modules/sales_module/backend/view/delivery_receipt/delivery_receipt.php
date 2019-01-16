@@ -1170,6 +1170,11 @@
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_serial_list', ajax, function(data) {
 				$('#tableSerialList tbody').html(data.table);
 				$('#serial_pagination').html(data.pagination);
+				$('#tableSerialList tbody tr td input[type="checkbox"]').each(function() {
+					if(jQuery.inArray($(this).val(), checked_serials) != -1) {
+						$(this).closest('tr').iCheck('check');
+					}
+				});
 				if (ajax.page > data.page_limit && data.page_limit > 0) {
 					ajax.page = data.page_limit;
 					getSerialList();
@@ -1180,6 +1185,12 @@
 		$('#serial_pagination').on('click', 'a', function(e) {
 			e.preventDefault();
 			var li = $(this).closest('li');
+			$('#tableSerialList tbody tr td input[type="checkbox"]:checked').each(function() {
+				var serialnum = $(this).val();
+				if($.inArray(serialnum, checked_serials) == -1) {
+					checked_serials.push(serialnum);
+				}
+			});	
 			if (li.not('.active').length && li.not('.disabled').length) {
 				ajax.page = $(this).attr('data-page');
 				getSerialList();
@@ -1204,18 +1215,27 @@
 			$('#serialModal').modal('hide');
 		});
 
+		<?php if($ajax_task == 'ajax_edit') : ?>
+		$('.serialbtn').on('click', function() {
+			checked_serials = $(this).closest('tr').find('.serialnumbers').val().split(',');
+		});
+		<?php endif;?>
+
 		$('#btn_tag').on('click', function() {
+			// var kunin = itemrow.closest('tr').find('.serialnumbers').val();
+			// var count = kunin.split(',').length;
 			itemselected = [];
 			allserials = [];
-			var count = 0;
 			var checkcount = $('#checkcount').val();
 			qtyleft =  removeComma(quantityleft);
 			$('#tableSerialList tbody tr input[type="checkbox"]:checked').each(function() {
-				count++;
 				var serialed = $(this).val();
-				itemselected.push(serialed);
-				itemrow.closest('tr').find('.serialnumbers').val(itemselected);
+				if($.inArray(serialed, checked_serials) == -1) {
+					checked_serials.push(serialed);
+				}
+				itemrow.closest('tr').find('.serialnumbers').val(checked_serials.toString());
 			});
+			var count = checked_serials.length;
 			$('#tableList tbody tr .serialnumbers').each(function() {
 				var serials = $(this).val();
 				if (serials != '') {
@@ -1253,8 +1273,10 @@
 
 		$('#tableSerialList').on('ifChecked', '.check_id', function () {
 			var serialnum = $(this).val();
-			checked_serials.push(serialnum);
-			itemrow.closest('tr').find('.checked').val(checked_serials);
+			if($.inArray(serialnum, checked_serials) == -1) {
+				checked_serials.push(serialnum);
+			}
+			itemrow.closest('tr').find('.serialnumbers').val(checked_serials);
 		});
 
 		$('#tableSerialList').on('ifUnchecked', '.check_id', function () {
@@ -1262,7 +1284,7 @@
 			checked_serials = jQuery.grep(checked_serials, function(value) {
 				return value != remove_this;
 			});
-			itemrow.closest('tr').find('.checked').val(checked_serials);
+			itemrow.closest('tr').find('.serialnumbers').val(checked_serials);
 		});
 
 		$('#tableSerialList').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
