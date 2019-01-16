@@ -563,7 +563,7 @@ class controller extends wc_controller
 					if(!empty($ap_details['budgetcode'][$check])) {
 						$check_date = $this->accounts_payable->checkEffectivityDate($ap_details['budgetcode'][$check], $ap['transactiondate']);
 						if(!$check_date) {
-							$date_check[] = "You don't have an effective budget for this Budget Code";
+							$date_check[0] = "You don't have an effective budget for this Budget Code";
 						} else {
 							$get_accountname = $this->accounts_payable->getAccountName($ap_details['accountcode'][$check]);
 							$get_amount = $this->accounts_payable->getBudgetAmount($ap_details['budgetcode'][$check], $ap_details['accountcode'][$check]);

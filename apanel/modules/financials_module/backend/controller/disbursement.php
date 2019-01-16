@@ -870,7 +870,7 @@ class controller extends wc_controller
 					$date = date('Y-m-d', strtotime($data_post['document_date']));
 					$check_date = $this->payment_voucher->checkEffectivityDate($data_post['budgetcode'][$arr], $date);
 					if(!$check_date) {
-						$date_checker[] = "You don't have an effective budget for this Budget Code";
+						$date_checker[0] = "You don't have an effective budget for this Budget Code";
 					} else {
 						$getaccount = $this->payment_voucher->getAccountName($data_post['accountcode'][$arr]);
 						$checkaccount = $this->payment_voucher->getAmountAndAccount($data_post['budgetcode'][$arr], $data_post['accountcode'][$arr]);
