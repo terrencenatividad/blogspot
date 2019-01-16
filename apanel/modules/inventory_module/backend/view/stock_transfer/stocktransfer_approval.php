@@ -207,8 +207,12 @@
                     </table>
                 </div>
                 <div class="modal-footer">
+                	<?php if($task == 'view_approval'): ?>
+                		<button id="btn_modal_close" class="btn btn-primary btn-flat">Confirm</button>
+                	<?php else: ?>
                     <button id="btn_serial_select" class="btn btn-primary btn-flat">Confirm</button>
                     <button id="btn_modal_close" class="btn btn-default btn-flat">Cancel</button>
+                	<?php endif;?>
                 </div>
             </div>
         </div>
@@ -223,7 +227,7 @@
 	var min_row		= 0;
 	var header_min_row = 0;
 	var selected = [];
-
+	var task = '<?=$task;?>';
 	function addRowDetails(details, index) 
 	{
 		var details = details || {itemcode: '', detailparticular: '', ohqty: '', qtytoapply: '', price: '', amount: ''};
@@ -247,6 +251,7 @@
 		delete other_details.price;
 		delete other_details.amount;
 		delete other_details.maxqty;
+		delete other_details.isserialized;
 		var otherdetails = '';
 		var linenum = index+1;
 
@@ -255,17 +260,28 @@
 				otherdetails += `<?php 
 					echo $ui->setElement('hidden')
 							->setName('` + key + `[]')
+							->setClass('` + key + `')
 							->setValue('` + other_details[key] + `')
 							->draw();
 					?>`;
 			}
 		}
+
+		if(task == 'view_approval'){
+			var btnlabel = 'View selected serialized item';
+			var selected_value = details.isserialized;
+		}
+		else{
+			var btnlabel = 'Click to tag serialized item';
+			var selected_value = 0;
+		}
+
 		if (details.isserialized>0) {
 			var max 	= (parseFloat(details.maxqty) || 0);
 			var trclass = 'serialized';
 			var inputqty = `<button type="button" class="btnserial btn btn-block btn-success btn-flat" data-max =`+max+` data-validation="required integer">
-                                <em class="pull-left"><small>Click to tag serialized item</small></em>
-                                <strong class="txtqtytransferred pull-right">0</strong>
+                                <em class="pull-left"><small>`+ btnlabel +`</small></em>
+                                <strong class="txtqtytransferred pull-right">`+selected_value+`</strong>
                             </button>
                             <input type='hidden' class='qtytransferred' name='qtytransferred[]' value='0'>`
 		}
@@ -282,10 +298,11 @@
 							->draw($show_input);
 					?>`
 		}
+
 		var row = `
 			<tr id='`+index+`' class='`+trclass+`'>
 				<?php if ($show_input): ?>
-					<input type='hidden' name='linenum[]' class='linenum' value='`+linenum+`'>
+					
 				<td>
 					<?php
 						echo $ui->loadElement('check_task')
@@ -437,8 +454,9 @@
         var itemcode 	= row.find('.itemcode').val();
         var itemname 	= row.find('.itemname').val();
         var linenum 	= row.find('.linenum').val();
+        var sourceno 	= $('#transaction_no').val();
         var max 		= row.find('.btnserial').data('max');
-        var data 		= {itemcode:itemcode, itemname:itemname, linenum:linenum, max:max};
+        var data 		= {task:task, sourceno:sourceno, itemcode:itemcode, itemname:itemname, linenum:linenum, max:max};
 
         $('#serial_tableList tbody').html(`<tr><td colspan="6" class="text-center">Loading Items</td></tr>`);
         $('#serial_modalList').modal('show');
@@ -533,16 +551,7 @@
 					data.engineno.push(selected[i].engineno);
 				}
 
-				if (data.voucherno.length > 0) {
-					$.post('<?=MODULE_URL?>ajax/save_serialized', data , function(data) {
-						console.log(data);
-						if (data) {
-							// serialized item update and save success
-						}
-					});
-				}
-
-				$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data , function(data) {
+				$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize()+'<?=$ajax_post?>'+submit_data+'&voucherno='+data.voucherno+'&serialitemcode='+data.itemcode+'&seriallinenum='+data.linenum+'&serialno='+data.serialno+'&chassisno='+data.chassisno+'&engineno='+data.engineno , function(data) {
 					if (data.success) {
 						$('#delay_modal').modal('show');
 							setTimeout(function() {							
@@ -595,12 +604,13 @@
 		var maxval = $(this).data('maxval');
 		maxval += 1;
 		$('.chkitem').data('maxval', maxval);
-		console.log($(this).data('maxval'));
 		if ($(this).data('maxval')<1) 
 			$('.chkitem:not(:checked)').attr('disabled', true);
 		
 		else
 			$('.chkitem').attr('disabled', false);
+
+		$('#serial_tableList input[type="checkbox"]').iCheck('update');
 	});
 	$('#serial_tableList tbody').on('ifChecked', '.chkitem', function() {
 		var maxval = $(this).data('maxval');
@@ -612,6 +622,8 @@
 		
 		else
 			$('.chkitem').attr('disabled', false);
+
+		$('#serial_tableList input[type="checkbox"]').iCheck('update');
 	});
 	
 	$('#tableList tbody').on('click', '.btnserial', function(){
@@ -626,7 +638,12 @@
 		
 		saveSelectedSerial(checkbox);
 
-		var qtycount 	= selected.length;
+		var qtycount 	= 0;
+		for(var i=0; i<selected.length; i++){
+			if (selected[i].linenum == linenum) {
+				qtycount += 1;
+			}
+		}
 		displayqty.text(qtycount);
 		inputqty.val(qtycount);
 
