@@ -326,9 +326,10 @@ class controller extends wc_controller
 				->setSummaryWidth(array('170', '30'));
 		
 		$documentcontent	= $this->stock_transfer->getDocumentRequestContent($voucherno);
-		$detail_height = 37;
 
+		$detail_height = 37;
 		$total_quantity = 0;
+
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
@@ -336,7 +337,10 @@ class controller extends wc_controller
 
 			$total_quantity	+= $row->Quantity;
 			$row->Quantity	= number_format($row->Quantity, 2);
+
 			$print->addRow($row);
+			
+
 			if (($key + 1) % $detail_height == 0) {
 				$print->drawSummary(array('Total Qty' => $total_quantity));
 				$total_quantity = 0;
@@ -369,10 +373,12 @@ class controller extends wc_controller
 				// ->addTermsAndCondition()
 				->addReceived();
 
-		$print->setHeaderWidth(array(40, 100, 30, 30))
-				->setHeaderAlign(array('C', 'C', 'C', 'C'))
-				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
-				->setRowAlign(array('L', 'L', 'R', 'L'))
+		
+
+		$print->setHeaderWidth(array(30, 70, 20, 20, 20, 20, 20))
+				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N'))
+				->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
 				->setSummaryWidth(array('170', '30'));
 		
 		$documentcontent	= $this->stock_transfer->getDocumentApprovalContent($voucherno);
@@ -386,7 +392,27 @@ class controller extends wc_controller
 
 			$total_quantity	+= $row->Quantity;
 			$row->Quantity	= number_format($row->Quantity, 2);
+			
+			if($row->serialno != "" || $row->engineno != "" || $row->chassisno != ""){
+				$qty = number_format(1, 2);
+				$sn = ($row->serialno == '')? 'N/A':$row->serialno;
+				$en = ($row->engineno == '')? 'N/A':$row->engineno;
+				$cn = ($row->chassisno == '')? 'N/A':$row->chassisno;
+			} 
+			else{
+				$qty = $row->Quantity;
+				$sn = 'N/A';
+				$en = 'N/A';
+				$cn = 'N/A';
+			}
+
+			$row->Quantity = $qty;
+			$row->serialno = $sn;
+			$row->engineno = $en;
+			$row->chassisno = $cn;
+
 			$print->addRow($row);
+
 			if (($key + 1) % $detail_height == 0) {
 				$print->drawSummary(array('Total Qty' => $total_quantity));
 				$total_quantity = 0;
