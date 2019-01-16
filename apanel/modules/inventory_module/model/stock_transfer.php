@@ -642,7 +642,7 @@
 		public function getDocumentRequestContent($voucherno) {
 			$result = $this->db->setTable('stock_transfer_details sad')
 								->setFields("itemcode 'Item Code', detailparticular 'Description', qtytoapply 'Quantity', UPPER(uom) 'UOM', price price, amount amount")
-								->leftJoin('uom u ON u.uomcode = sad.uom AND u.companycode = sad.companycode')
+								->leftJoin('uom u ON u.uomcode = sad.uom AND u.companycode = sad.companycode')								
 								// ->leftJoin('chartaccount ON 1=1')
 								->setWhere("stocktransferno = '$voucherno'")
 								->runSelect()
@@ -664,10 +664,11 @@
 	
 		public function getDocumentApprovalContent($voucherno) {
 			$result = $this->db->setTable('stock_approval_details sad')
-								->setFields("itemcode 'Item Code', detailparticular 'Description', qtytransferred 'Quantity', UPPER(uom) 'UOM', price price, amount amount")
+								->setFields("sad.itemcode 'Item Code', detailparticular 'Description', qtytransferred 'Quantity', UPPER(uom) 'UOM', happy.serialno 'serialno', happy.engineno 'engineno', happy.chassisno 'chassisno', price price, amount amount")
 								->leftJoin('uom u ON u.uomcode = sad.uom AND u.companycode = sad.companycode')
+								->leftJoin('stock_approval_serialized happy ON happy.stocktransferno = sad.stocktransferno AND happy.itemcode = sad.itemcode AND happy.linenum = sad.linenum')
 								// ->leftJoin('chartaccount ON 1=1')
-								->setWhere("stocktransferno = '$voucherno'")
+								->setWhere("sad.stocktransferno = '$voucherno'")
 								->runSelect()
 								->getResult();
 
