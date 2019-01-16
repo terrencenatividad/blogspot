@@ -559,7 +559,7 @@ class import_purchaseorder extends wc_model
 				->getRow();
 
 				if(!$result) {
-					$date_checker[] = "You don't have an effective budget for this Budget Code";
+					$date_checker[0] = "You don't have an effective budget for this Budget Code";
 				} else {
 
 					if($type->budget_check == 'Monitored') {

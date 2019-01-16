@@ -326,9 +326,10 @@ class controller extends wc_controller
 				->setSummaryWidth(array('170', '30'));
 		
 		$documentcontent	= $this->stock_transfer->getDocumentRequestContent($voucherno);
-		$detail_height = 37;
 
+		$detail_height = 37;
 		$total_quantity = 0;
+
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
@@ -336,7 +337,10 @@ class controller extends wc_controller
 
 			$total_quantity	+= $row->Quantity;
 			$row->Quantity	= number_format($row->Quantity, 2);
+
 			$print->addRow($row);
+			
+
 			if (($key + 1) % $detail_height == 0) {
 				$print->drawSummary(array('Total Qty' => $total_quantity));
 				$total_quantity = 0;
@@ -369,10 +373,12 @@ class controller extends wc_controller
 				// ->addTermsAndCondition()
 				->addReceived();
 
-		$print->setHeaderWidth(array(40, 100, 30, 30))
-				->setHeaderAlign(array('C', 'C', 'C', 'C'))
-				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
-				->setRowAlign(array('L', 'L', 'R', 'L'))
+		
+
+		$print->setHeaderWidth(array(30, 70, 20, 20, 20, 20, 20))
+				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N'))
+				->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
 				->setSummaryWidth(array('170', '30'));
 		
 		$documentcontent	= $this->stock_transfer->getDocumentApprovalContent($voucherno);
@@ -386,7 +392,27 @@ class controller extends wc_controller
 
 			$total_quantity	+= $row->Quantity;
 			$row->Quantity	= number_format($row->Quantity, 2);
+			
+			if($row->serialno != "" || $row->engineno != "" || $row->chassisno != ""){
+				$qty = number_format(1, 2);
+				$sn = ($row->serialno == '')? 'N/A':$row->serialno;
+				$en = ($row->engineno == '')? 'N/A':$row->engineno;
+				$cn = ($row->chassisno == '')? 'N/A':$row->chassisno;
+			} 
+			else{
+				$qty = $row->Quantity;
+				$sn = 'N/A';
+				$en = 'N/A';
+				$cn = 'N/A';
+			}
+
+			$row->Quantity = $qty;
+			$row->serialno = $sn;
+			$row->engineno = $en;
+			$row->chassisno = $cn;
+
 			$print->addRow($row);
+
 			if (($key + 1) % $detail_height == 0) {
 				$print->drawSummary(array('Total Qty' => $total_quantity));
 				$total_quantity = 0;
@@ -636,7 +662,6 @@ class controller extends wc_controller
 	private function set_release(){
 		// Merge header and details data
 		$data						= $this->input->post($this->approval_header);
-		// var_dump($data);
 		$data2						= $this->getItemDetails();
 		$data2						= $this->cleanData($data2);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
@@ -644,7 +669,28 @@ class controller extends wc_controller
 		$seq						= new seqcontrol();
 		$sta_no 					= $seq->getValue('STA');
 		$data['stocktransferno']	= $sta_no;
-		$result						= $this->stock_transfer->saveStockTransferApproval($data, $data2);
+
+		$itemcode 	= explode(',',$this->input->post('serialitemcode'));
+		$linenum 	= explode(',',$this->input->post('seriallinenum'));
+		$serialno 	= explode(',',$this->input->post('serialno'));
+		$chassisno 	= explode(',',$this->input->post('chassisno'));
+		$engineno 	= explode(',',$this->input->post('engineno'));
+		foreach ($itemcode as $key => $value) {
+			$voucherno[] = $sta_no;
+		}
+		$values = array(
+					'stocktransferno' => $voucherno,
+					'itemcode' 	=> $itemcode,
+					'linenum' 	=> $linenum,
+					'serialno' 	=> $serialno,
+					'chassisno' => $chassisno,
+					'engineno' 	=> $engineno,
+				);
+
+		$result = $this->stock_transfer->saveSerializedItems($values);
+		
+		$result	= $this->stock_transfer->saveStockTransferApproval($data, $data2);
+
 		if ($result && $this->inventory_model) {
 			$this->inventory_model->prepareInventoryLog('Stock Transfer', $sta_no)
 									->setDetails($data['approved_by'])
@@ -656,7 +702,7 @@ class controller extends wc_controller
 								->generateBalanceTable();
 		}
 		$redirect_url = MODULE_URL;
-		
+
 		return array(
 			'redirect'	=> $redirect_url,
 			'success'	=> $result
@@ -891,15 +937,31 @@ class controller extends wc_controller
 	}
 
 	private function ajax_load_serial(){
+		$task 		= $this->input->post('task');
+		$sourceno 	= $this->input->post('sourceno');
 		$itemcode 	= $this->input->post('itemcode');
 		$itemname 	= $this->input->post('itemname');
 		$linenum 	= $this->input->post('linenum');
 		$max 		= $this->input->post('max');
-		$result 	= $this->stock_transfer->retrieveSerial($itemcode);
+
+		if ($task=='view_approval') {
+			$result 	= $this->stock_transfer->retrieveApprovedSerial($sourceno, $linenum, $itemcode);
+		}
+		else{
+			$result 	= $this->stock_transfer->retrieveSerial($itemcode);
+		}
+
 		$table 		= '';
 		foreach ($result as $key => $row) {
 			$table 	.= '<tr>';
+
+			if ($task != 'view_approval') {	
 			$table 	.= '<td><input type="checkbox" name="chkitem" class="chkitem" data-itemcode="'.$itemcode.'" data-linenum="'.$linenum.'" data-serial="'.$row->serialno.'" data-chassis="'.$row->chassisno.'" data-engine="'.$row->engineno.'" data-maxval="'.$max.'"></td>';
+			}
+			else{
+			$table 	.= '<td></td>';
+			}
+
 			$table 	.= '<td class="text-center">'.$itemcode.'</td>';
 			$table 	.= '<td class="text-center">'.$itemname.'</td>';
 			$table 	.= '<td class="text-center">'.$row->serialno.'</td>';
@@ -914,25 +976,6 @@ class controller extends wc_controller
 		
 		return $table;
 	}
-	private function save_serialized(){
-		$voucherno 	= $this->input->post('voucherno');
-		$itemcode 	= $this->input->post('itemcode');
-		$linenum 	= $this->input->post('linenum');
-		$serialno 	= $this->input->post('serialno');
-		$chassisno 	= $this->input->post('chassisno');
-		$engineno 	= $this->input->post('engineno');
-		
-		$values = array(
-					'stocktransferno' => $voucherno,
-					'itemcode' 	=> $itemcode,
-					'linenum' 	=> $linenum,
-					'serialno' 	=> $serialno,
-					'chassisno' => $chassisno,
-					'engineno' 	=> $engineno,
-				);
-
-		$result = $this->stock_transfer->saveSerializedItems($values);
-		return $result;
-	}
+	
 }
 ?>

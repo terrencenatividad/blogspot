@@ -138,6 +138,19 @@
 									->setOrderBy('linenum')
 									->runSelect()
 									->getResult();
+				foreach ($result as $key => $row) {
+
+					$result2 = $this->db->setTable('stock_approval_serialized')
+									->setFields('COUNT(itemcode) as isserialized')
+									->setWhere("stocktransferno='$voucherno' AND linenum='$row->linenum' AND itemcode='$row->itemcode'")
+									->runSelect(false)
+									->getResult();
+					$row = (object) array_merge( (array)$row, array( 'isserialized' => $result2[0]->isserialized ) );
+
+					$_result1[] = $row;
+
+				}
+				$result = $_result1;
 			} else {
 				$sourceno = $this->db->setTable('stock_approval')
 									->setFields('source_no')
@@ -629,7 +642,7 @@
 		public function getDocumentRequestContent($voucherno) {
 			$result = $this->db->setTable('stock_transfer_details sad')
 								->setFields("itemcode 'Item Code', detailparticular 'Description', qtytoapply 'Quantity', UPPER(uom) 'UOM', price price, amount amount")
-								->leftJoin('uom u ON u.uomcode = sad.uom AND u.companycode = sad.companycode')
+								->leftJoin('uom u ON u.uomcode = sad.uom AND u.companycode = sad.companycode')								
 								// ->leftJoin('chartaccount ON 1=1')
 								->setWhere("stocktransferno = '$voucherno'")
 								->runSelect()
@@ -651,10 +664,11 @@
 	
 		public function getDocumentApprovalContent($voucherno) {
 			$result = $this->db->setTable('stock_approval_details sad')
-								->setFields("itemcode 'Item Code', detailparticular 'Description', qtytransferred 'Quantity', UPPER(uom) 'UOM', price price, amount amount")
+								->setFields("sad.itemcode 'Item Code', detailparticular 'Description', qtytransferred 'Quantity', UPPER(uom) 'UOM', happy.serialno 'serialno', happy.engineno 'engineno', happy.chassisno 'chassisno', price price, amount amount")
 								->leftJoin('uom u ON u.uomcode = sad.uom AND u.companycode = sad.companycode')
+								->leftJoin('stock_approval_serialized happy ON happy.stocktransferno = sad.stocktransferno AND happy.itemcode = sad.itemcode AND happy.linenum = sad.linenum')
 								// ->leftJoin('chartaccount ON 1=1')
-								->setWhere("stocktransferno = '$voucherno'")
+								->setWhere("sad.stocktransferno = '$voucherno'")
 								->runSelect()
 								->getResult();
 
@@ -681,6 +695,15 @@
 			return $result;
 		}
 
+		public function retrieveApprovedSerial($voucherno, $linenum, $itemcode){
+			$result = $this->db->setTable('stock_approval_serialized')
+						->setFields("serialno, chassisno, engineno")
+						->setWhere("stocktransferno='$voucherno' AND linenum='$linenum' AND itemcode='$itemcode'")
+						->runSelect(false)
+						->getResult();
+			return $result;
+		}
+		
 		public function saveSerializedItems($values){
 			foreach ($values['itemcode'] as $key => $value) {
 				$where = "itemcode='".$values['itemcode'][$key]."' AND serialno='".$values['serialno'][$key]."' AND 
@@ -696,7 +719,7 @@
 				$result1 = $this->db->setTable('stock_approval_serialized')
 	                            ->setValuesFromPost($values)
 	                            ->runInsert(false);
-	                            $result2 = $this->db->getQuery();
+	                            
 			}
                            
             return $result1;

@@ -378,6 +378,11 @@
 
 									for($i = 0; $i < count($details); $i++)
 									{
+										if(empty($request_no)) {
+											$budgetcode 	 	= $details[$i]->budgetcode;
+										} else {
+											$budgetcode = '';
+										}
 										$itemcode 	 		= $details[$i]->itemcode;
 										$detailparticular	= stripslashes($details[$i]->detailparticular);
 										$quantity 			= number_format($details[$i]->receiptqty,0);
@@ -388,7 +393,6 @@
 										$uom  				= $details[$i]->receiptuom;
 										$warehouse_code		= (empty($request_no)) ? $details[$i]->warehouse 	: 	'';
 										$warehouse_name		= (empty($request_no)) ? $details[$i]->description: 	'';
-
 
 										?>
 										<tr class="clone" valign="middle">
@@ -401,6 +405,7 @@
 												->setId("budgetcode[".$row."]")
 												->setList($budget_list)
 												->setClass('budgetcode')
+												->setValue($budgetcode)
 												->draw($show_input);
 												?>
 											</td>
