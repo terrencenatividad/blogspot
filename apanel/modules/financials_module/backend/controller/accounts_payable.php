@@ -409,6 +409,22 @@ class controller extends wc_controller
 		return '<span class="label label-' . $color . '">' . strtoupper($stat) . '</span>';
 	}
 
+	private function colorStatJob($stat) {
+		$color = 'default';
+		switch ($stat) {
+			case 'closed':
+				$color = 'success';
+				break;
+			case 'cancelled':
+				$color = 'danger';
+				break;
+			case 'on-going':
+				$color = 'warning';
+				break;
+		}
+		return '<span class="label label-' . $color . '">' . strtoupper($stat) . '</span>';
+	}
+
 	private function ajax_list()
 	{
 		$data_post = $this->input->post(array("daterangefilter", "vendor", "filter", "search", "sort"));
@@ -1677,6 +1693,7 @@ class controller extends wc_controller
 			$check = in_array($row->job_no, $tags) ? 'checked' : '';
 			$table	.= '<td class = "text-center"><input type = "checkbox" name = "jobno[]" id = "jobno" class = "jobno" value = "'.$row->job_no.'" '.$check.'></td>';
 			$table	.= '<td>'.$row->job_no.'</td>';
+			$table	.= '<td>'.$this->colorStatJob($row->stat).'</td>';
 			$table	.= '</tr>';
 		}
 
