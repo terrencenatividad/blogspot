@@ -244,27 +244,22 @@ class service_quotation_model extends wc_model
 	}
 	public function uploadAttachment($data) {
 		$reference = $data['reference'];
+
+		$delete_result = $this->deleteAttachment($data);
+
 		$result = $this->db->setTable('service_quotation_attachments')
 							->setValues($data)
 							->runInsert();
+
 		if ($result) {
 			$this->log->saveActivity("Approve [$reference] with attachment");		
 		}
+
 		return $result;
 	}
-	public function replaceAttachment($data) {
-		$reference = $data['reference'];
-		$result = $this->db->setTable('service_quotation_attachments')
-							->setValues($data)
-							->setWhere("reference='$reference'")
-							->runUpdate();
-		if ($result) {
-			$this->log->saveActivity("Update attachment with [$reference]");		
-		}
-		return $result;
-	}
+	
 	public function deleteAttachment($data) {
-		$attachment_file 	= $data['attachment_file'];
+		$result = true;
 		$reference 			= $data['reference'];
 		
 		if(isset($data['attachment_id']) && !empty($data['attachment_id'])){
@@ -280,29 +275,30 @@ class service_quotation_model extends wc_model
 			$attachment_id 	= $attachment->attachment_id;
 		}
 		
-		/**
-		 * Try to delete file from directory before running the SQL
-		 */
-		if (!unlink('files/'.$attachment_file))
-		{
-			$result = false;
-		}
-	  	else
-		{
-			$result = true;
-		}
-		
-		if($result)
-		{
-			$result = $this->db->setTable('service_quotation_attachments')
-				->setWhere(" reference = '$reference' AND attachment_id = '$attachment_id' ");
-			$this->db->runDelete();
-			
-			if($result)
+		$attachment = $this->db->setTable('service_quotation_attachments')
+							->setFields('attachment_name')
+							->setWhere("attachment_id='$attachment_id'")
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+
+
+		$filename = (isset($attachment->attachment_name))? $attachment->attachment_name : '';
+
+		if($filename != ''){
+			if(unlink('files/'.$filename))
 			{
-				$this->log->saveActivity("Delete Attachment [$attachment_file] For [$reference]");
+				$result = $this->db->setTable('service_quotation_attachments')
+					->setWhere(" reference = '$reference' AND attachment_id = '$attachment_id' ");
+				$this->db->runDelete();
+				
+				if($result)
+				{
+					$this->log->saveActivity("Delete Attachment [$filename] For [$reference]");
+				}
 			}
 		}
+		
 		return $result;
 	}
 }

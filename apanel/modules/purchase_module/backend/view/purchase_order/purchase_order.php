@@ -378,7 +378,7 @@
 
 									for($i = 0; $i < count($details); $i++)
 									{
-										if($task == 'edit') {
+										if(empty($request_no)) {
 											$budgetcode 	 	= $details[$i]->budgetcode;
 										} else {
 											$budgetcode = '';
@@ -1554,7 +1554,7 @@ function finalizeTransaction(type, error, warning, checkamount)
 				});
 			} else if(error != '') {
 				$('#accountchecker-modal').modal('show');
-				$('#accounterror').html(data.error);
+				$('#accounterror').html(error);
 			} else if(warning != ''){
 				$('#accountchecker-modal').modal('show');
 				$('#accounterror').html(warning);
@@ -1639,7 +1639,7 @@ function finalizeEditTransaction()
 						});
 					} else if(error != '') {
 						$('#accountchecker-modal').modal('show');
-						$('#accounterror').html(data.error);
+						$('#accounterror').html(error);
 					} else if(warning != ''){
 						$('#accountchecker-modal').modal('show');
 						$('#accounterror').html(warning);
