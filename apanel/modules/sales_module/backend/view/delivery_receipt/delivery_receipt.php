@@ -313,7 +313,8 @@
 					<table id="tableSerialList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
 						<thead>
 							<tr class="info">
-								<th class="col-xs-2"><input type = "checkbox" class = "checkall"></th>
+								<!-- <th class="col-xs-2"><input type = "checkbox" class = "checkall"></th> -->
+								<th class="col-xs-2"></th>
 								<th id = "serial_header">Serial No.</th>
 								<th id = "engine_header">Engine No.</th>
 								<th id = "chassis_header">Chassis No.</th>
