@@ -635,17 +635,15 @@ class controller extends wc_controller {
 					$attachment_id = $this->service_quotation->getNextId("service_quotation_attachments","attachment_id");
 
 				foreach($upload_handler->response['files'] as $key => $row) {
+					$post_data['reference'] 		= $reference;
 					$post_data['attachment_id'] 	= $attachment_id;
 					$post_data['attachment_name'] 	= $row->name;
 					$post_data['attachment_type'] 	= $row->type;
 					$post_data['attachment_url']	= $row->url;
 				}
 
-				if ($task == 'view')
-					$upload_result 	= $this->service_quotation->replaceAttachment($post_data);
 				
-				else
-					$upload_result 	= $this->service_quotation->uploadAttachment($post_data);
+				$upload_result 	= $this->service_quotation->uploadAttachment($post_data);
 
 			}else{
 				$upload_result 	= false;
