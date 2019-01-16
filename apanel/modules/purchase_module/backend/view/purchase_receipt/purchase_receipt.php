@@ -1519,7 +1519,6 @@
 				$('#warning_modal').modal('show').find('#warning_message').html('Please Select a PO or IPO');
 				$('#source_no').trigger('blur');
 				} else {
-					var old_file = $('#file').val();
 					$('#modal-voucher').html(source_no);
 					$('#attach_modal').modal('show');
 				}
@@ -1624,6 +1623,7 @@
 			}
 		});
 	</script>
+	<?php endif ?>
 	<script>
 		$(function () {
 			'use strict';
@@ -1675,9 +1675,15 @@
 				var form_group = $('#attachments_form #files').closest('.form-group');
 				if(!error){
 					var source_no = $('#source_no').val();
+					var voucherno =  $('#input_voucherno').val();
 					$('#attach_modal').modal('hide');
-					// $('#attach_success').modal('show');
-					
+					<?php if (!$show_input) { ?>
+					$('#attachment_success').modal('show');
+					setTimeout(function() {							
+						window.location = '<?=MODULE_URL?>view/'+voucherno;						
+					}, 1000)
+					<?php } ?>
+
 					var msg = data.result['files'][0]['name'];
 					form_group.removeClass('has-error');
 					form_group.find('p.help-block.m-none').html('');
@@ -1693,5 +1699,3 @@
 			});
 		});
 	</script>
-	
-	<?php endif ?>
