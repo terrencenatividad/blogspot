@@ -481,7 +481,7 @@
 
 									for($i = 0; $i < count($details); $i++)
 									{
-										$budgetcode 	 		= $details[$i]->budgetcode;
+										$budgetcode 	 	= $details[$i]->budgetcode;
 										$itemcode 	 		= $details[$i]->itemcode;
 										$detailparticular	= stripslashes($details[$i]->detailparticular);
 										$onhandqty  		= $details[$i]->onhandqty;
