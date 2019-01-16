@@ -118,7 +118,7 @@ class controller extends wc_controller {
 		$data = $this->input->post(array('warehouse','daterangefilter'));
 		$data['daterangefilter'] = str_replace(array('%2C', '+'), array(',', ' '), $data['daterangefilter']);
 		$result = $this->sales_warehouse->fileExport($data);
-		$header = array("Warehouse Code","Warehouse","Quantity");
+		$header = array("Warehouse Code","Warehouse","Qty");
 		$warehouse_list = $this->sales_warehouse->warehouses($data['warehouse']);
 		// var_dump($warehouse_list);
 

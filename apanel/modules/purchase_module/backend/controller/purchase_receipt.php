@@ -308,7 +308,7 @@ class controller extends wc_controller {
 
 		$print->setHeaderWidth(array(30, 50, 20, 20, 30, 20, 30))
 				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
-				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'Price', 'Tax', 'Amount'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'Price', 'Tax', 'Amount'))
 				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R', 'R'))
 				->setSummaryWidth(array('170', '30'));
 		
@@ -324,7 +324,7 @@ class controller extends wc_controller {
 		if ($hasSerial) {
 			$print->setHeaderWidth(array(25, 30, 15, 15, 15, 15, 15, 25, 20, 25))
 					->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
-					->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM', 'S/N', 'E/N', 'C/N', 'Price', 'Tax', 'Amount'))
+					->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N', 'Price', 'Tax', 'Amount'))
 					->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L', 'R', 'R', 'R'))
 					->setSummaryWidth(array('170', '30'));		
 		}
@@ -661,7 +661,7 @@ class controller extends wc_controller {
 		$task 			= $post_data['task'];
 		$upload_result 	= false;
 		unset($post_data['task']);
-		
+
 		if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
 			if(!isset($upload_handler->response['files'][0]->error)){
 				/**
@@ -670,11 +670,13 @@ class controller extends wc_controller {
 				 * @param group fields
 				 * @param custom condition
 				 */
-				if ($task=='edit') 
-					$attachment_id = $this->purchase_model->getCurrentId("purchasereceipt_attachments", $reference);
-				
-				else
+				// if ($task=='edit') 
+				$attachment_id = $this->purchase_model->getCurrentId("purchasereceipt_attachments", $reference);
+				if ($attachment_id=='0'){
 					$attachment_id = $this->purchase_model->getNextId("purchasereceipt_attachments","attachment_id");
+				}
+				// else
+					// $attachment_id = $this->purchase_model->getNextId("purchasereceipt_attachments","attachment_id");
 
 				foreach($upload_handler->response['files'] as $key => $row) {
 					$post_data['attachment_id'] 	= $attachment_id;

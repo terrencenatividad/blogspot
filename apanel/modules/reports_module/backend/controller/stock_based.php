@@ -107,7 +107,7 @@ class controller extends wc_controller {
 		$data = $this->input->post(array('itemcode','warehouse','customer','daterangefilter'));
 		$data['daterangefilter'] = str_replace(array('%2C', '+'), array(',', ' '), $data['daterangefilter']);
 		$result = $this->stock_based->fileExport($data);
-		$header = array("Date","Invoice","Customer","Quantity","Total","Unit Price","Amount");
+		$header = array("Date","Invoice","Customer","Qty","Total","Unit Price","Amount");
 
 		$csv = 'Stock Based Sales';
 		$csv .= "\n\n";

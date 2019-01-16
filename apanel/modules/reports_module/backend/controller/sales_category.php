@@ -86,7 +86,7 @@ class controller extends wc_controller {
 		$data = $this->input->post(array('category','warehouse','daterangefilter'));
 		$data['daterangefilter'] = str_replace(array('%2C', '+'), array(',', ' '), $data['daterangefilter']);
 		$result = $this->sales_category->fileExport($data);
-		$header = array("Item Category","Sales Quantity","Base Quantity","Amount");
+		$header = array("Item Category","Sales Qty","Base Qty","Amount");
 
 		$csv = 'Sales Per Category';
 		$csv .= "\n\n";

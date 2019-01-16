@@ -78,7 +78,7 @@
 										->addHeader('Item Category',array('class' => 'col-md-2'),'sort','label')
 										->addHeader('Stocks', array('class' => 'col-md-2'),'sort','detailparticular')
 										// ->addHeader('Warehouse', array('class' => 'col-md-2'),'sort','invdtl.warehouse')
-										->addHeader('Quantity', array('class' => 'col-md-2'),'sort','issueqty')
+										->addHeader('Qty', array('class' => 'col-md-2'),'sort','issueqty')
 										->addHeader('Unit Price', array('class' => 'col-md-2'),'sort','unitprice')
 										->addHeader('Amount', array('class' => 'col-md-2'),'sort','inv.amount')
 										->draw();

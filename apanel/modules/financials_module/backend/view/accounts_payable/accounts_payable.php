@@ -93,8 +93,8 @@
 									echo $ui->formField('text')
 									->setLabel('Transaction Date')
 									->setSplit('col-md-4', 'col-md-8')
-									->setName('document_date')
-									->setId('document_date')
+									->setName('transactiondate')
+									->setId('transactiondate')
 									->setClass('datepicker-input')
 									->setAttribute(array('readonly' => '', 'data-date-start-date' => $close_date))
 									->setAddon('calendar')
@@ -1615,9 +1615,12 @@
 							} else if(data.error != '') {
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.error);
-							} else if(data.accountchecker != ''){
+							} else if(data.accountchecker != '') {
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.accountchecker);
+							} else if(data.date_check != ''){
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.date_check);
 							} else {
 								if(data.success) {
 									$('#delay_modal').modal('show');
@@ -1673,6 +1676,9 @@
 							} else if(data.accountchecker != ''){
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.accountchecker);
+							} else if(data.date_check != ''){
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.date_check);
 							} else {
 								if(data.success) {
 									$('#delay_modal').modal('show');
@@ -1728,6 +1734,9 @@
 							} else if(data.accountchecker != ''){
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.accountchecker);
+							} else if(data.date_check != ''){
+								$('#accountchecker-modal').modal('show');
+								$('#accounterror').html(data.date_check);
 							} else {
 								if(data.success) {
 									$('#delay_modal').modal('show');

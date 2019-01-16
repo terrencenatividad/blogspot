@@ -517,8 +517,14 @@
 
 							$('#itemsTable tbody tr select').select2({width: "100%"});
 							$('#itemsTable tbody tr .accountname').last().val('').trigger('change');
+							$('#itemsTable tbody tr .accountname').find('.form-group').removeClass('has-error');
+							$('#itemsTable tbody tr .accountname').closest('.form-group').find('.help-block').html('');
 							$('#itemsTable tbody tr .description').last().val('');
 							$('#itemsTable tbody tr .amount').last().val('');
+						});
+
+						$('.accountname').on('change', function() {
+							$(this).closest('td').find('.form-group').removeClass('has-error');
 						});
 
 						<?php if ($show_input): ?>

@@ -321,7 +321,7 @@ class controller extends wc_controller
 
 		$print->setHeaderWidth(array(40, 100, 30, 30))
 				->setHeaderAlign(array('C', 'C', 'C', 'C'))
-				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
 				->setRowAlign(array('L', 'L', 'R', 'L'))
 				->setSummaryWidth(array('170', '30'));
 		
@@ -338,11 +338,11 @@ class controller extends wc_controller
 			$row->Quantity	= number_format($row->Quantity, 2);
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$print->drawSummary(array('Total Quantity' => $total_quantity));
+				$print->drawSummary(array('Total Qty' => $total_quantity));
 				$total_quantity = 0;
 			}
 		}
-		$print->drawSummary(array('Total Quantity' => $total_quantity));
+		$print->drawSummary(array('Total Qty' => $total_quantity));
 
 		$print->drawPDF('Approved Stock Transfer - ' . $voucherno);
 	}
@@ -371,7 +371,7 @@ class controller extends wc_controller
 
 		$print->setHeaderWidth(array(40, 100, 30, 30))
 				->setHeaderAlign(array('C', 'C', 'C', 'C'))
-				->setHeader(array('Item Code', 'Description', 'Quantity', 'UOM'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
 				->setRowAlign(array('L', 'L', 'R', 'L'))
 				->setSummaryWidth(array('170', '30'));
 		
@@ -388,11 +388,11 @@ class controller extends wc_controller
 			$row->Quantity	= number_format($row->Quantity, 2);
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$print->drawSummary(array('Total Quantity' => $total_quantity));
+				$print->drawSummary(array('Total Qty' => $total_quantity));
 				$total_quantity = 0;
 			}
 		}
-		$print->drawSummary(array('Total Quantity' => $total_quantity));
+		$print->drawSummary(array('Total Qty' => $total_quantity));
 		$print->drawPDF('Approved Transfer - ' . $voucherno);
 	}
 

@@ -715,20 +715,70 @@ class purchase_receipt_model extends wc_model {
 		if ($result) {
 			$return = $result->attachment_id;
 		} else {
-			$return = '1';
+			$return = '0';
 		}
 		return $return;
 	}
 	public function uploadAttachment($data) {
 		$reference = $data['reference'];
+		$filename = $data['attachment_name'];
+		
+		$getFiles = $this->db->setTable('purchasereceipt_attachments')
+							->setFields("COUNT('attachment_id') count")
+							->setWhere("reference = '$reference'")
+							->runSelect()
+							->getRow();
+							// echo $this->db->getQuery();
+
+		if ($getFiles) {
+			$this->deleteAttachment($reference, $filename);
+		}
+
 		$result = $this->db->setTable('purchasereceipt_attachments')
 							->setValues($data)
 							->runInsert();
-		// if ($result) {
-		// 	$this->log->saveActivity("Approve [$reference] with attachment");		
-		// }
+		
+		if ($result) {
+			$this->log->saveActivity("Approve [$reference] with attachment");		
+		}
 		return $result;
 	}
+
+	public function deleteAttachment($reference, $filename) {
+		$result = $this->db->setTable('purchasereceipt_attachments')
+							->setFields('attachment_name')
+							->setWhere("reference='$reference'")
+							->setOrderBy('entereddate DESC')
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+		if ($result) {
+			unlink('files/'.$result->attachment_name);
+		}
+		
+		$result = $this->db->setTable('purchasereceipt_attachments')
+							->setWhere("reference='$reference' AND attachment_name != '$filename'")
+							->runDelete();
+
+		return $result;
+	}
+
+	public function deleteExistingFile($filename){
+		$result = $this->db->setTable('purchasereceipt_attachments')
+							->setFields('attachment_name')
+							->setWhere("attachment_name='$filename'")
+							->setOrderBy('entereddate DESC')
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+
+		if ($result) {
+			unlink('files/'.$result->attachment_name);
+		} 
+		
+		return $result;
+	}
+
 	public function replaceAttachment($data) {
 		$reference = $data['reference'];
 		$result = $this->db->setTable('purchasereceipt_attachments')
