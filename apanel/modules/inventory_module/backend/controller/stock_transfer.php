@@ -636,7 +636,6 @@ class controller extends wc_controller
 	private function set_release(){
 		// Merge header and details data
 		$data						= $this->input->post($this->approval_header);
-		// var_dump($data);
 		$data2						= $this->getItemDetails();
 		$data2						= $this->cleanData($data2);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
@@ -644,7 +643,28 @@ class controller extends wc_controller
 		$seq						= new seqcontrol();
 		$sta_no 					= $seq->getValue('STA');
 		$data['stocktransferno']	= $sta_no;
-		$result						= $this->stock_transfer->saveStockTransferApproval($data, $data2);
+
+		$itemcode 	= explode(',',$this->input->post('serialitemcode'));
+		$linenum 	= explode(',',$this->input->post('seriallinenum'));
+		$serialno 	= explode(',',$this->input->post('serialno'));
+		$chassisno 	= explode(',',$this->input->post('chassisno'));
+		$engineno 	= explode(',',$this->input->post('engineno'));
+		foreach ($itemcode as $key => $value) {
+			$voucherno[] = $sta_no;
+		}
+		$values = array(
+					'stocktransferno' => $voucherno,
+					'itemcode' 	=> $itemcode,
+					'linenum' 	=> $linenum,
+					'serialno' 	=> $serialno,
+					'chassisno' => $chassisno,
+					'engineno' 	=> $engineno,
+				);
+
+		$result = $this->stock_transfer->saveSerializedItems($values);
+		
+		$result	= $this->stock_transfer->saveStockTransferApproval($data, $data2);
+
 		if ($result && $this->inventory_model) {
 			$this->inventory_model->prepareInventoryLog('Stock Transfer', $sta_no)
 									->setDetails($data['approved_by'])
@@ -656,7 +676,7 @@ class controller extends wc_controller
 								->generateBalanceTable();
 		}
 		$redirect_url = MODULE_URL;
-		
+
 		return array(
 			'redirect'	=> $redirect_url,
 			'success'	=> $result
@@ -891,15 +911,31 @@ class controller extends wc_controller
 	}
 
 	private function ajax_load_serial(){
+		$task 		= $this->input->post('task');
+		$sourceno 	= $this->input->post('sourceno');
 		$itemcode 	= $this->input->post('itemcode');
 		$itemname 	= $this->input->post('itemname');
 		$linenum 	= $this->input->post('linenum');
 		$max 		= $this->input->post('max');
-		$result 	= $this->stock_transfer->retrieveSerial($itemcode);
+
+		if ($task=='view_approval') {
+			$result 	= $this->stock_transfer->retrieveApprovedSerial($sourceno, $linenum, $itemcode);
+		}
+		else{
+			$result 	= $this->stock_transfer->retrieveSerial($itemcode);
+		}
+
 		$table 		= '';
 		foreach ($result as $key => $row) {
 			$table 	.= '<tr>';
+
+			if ($task != 'view_approval') {	
 			$table 	.= '<td><input type="checkbox" name="chkitem" class="chkitem" data-itemcode="'.$itemcode.'" data-linenum="'.$linenum.'" data-serial="'.$row->serialno.'" data-chassis="'.$row->chassisno.'" data-engine="'.$row->engineno.'" data-maxval="'.$max.'"></td>';
+			}
+			else{
+			$table 	.= '<td></td>';
+			}
+
 			$table 	.= '<td class="text-center">'.$itemcode.'</td>';
 			$table 	.= '<td class="text-center">'.$itemname.'</td>';
 			$table 	.= '<td class="text-center">'.$row->serialno.'</td>';
@@ -914,25 +950,6 @@ class controller extends wc_controller
 		
 		return $table;
 	}
-	private function save_serialized(){
-		$voucherno 	= $this->input->post('voucherno');
-		$itemcode 	= $this->input->post('itemcode');
-		$linenum 	= $this->input->post('linenum');
-		$serialno 	= $this->input->post('serialno');
-		$chassisno 	= $this->input->post('chassisno');
-		$engineno 	= $this->input->post('engineno');
-		
-		$values = array(
-					'stocktransferno' => $voucherno,
-					'itemcode' 	=> $itemcode,
-					'linenum' 	=> $linenum,
-					'serialno' 	=> $serialno,
-					'chassisno' => $chassisno,
-					'engineno' 	=> $engineno,
-				);
-
-		$result = $this->stock_transfer->saveSerializedItems($values);
-		return $result;
-	}
+	
 }
 ?>
