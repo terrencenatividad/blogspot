@@ -111,7 +111,7 @@ class controller extends wc_controller
 		if( $request_no != "" )
 		{
 			$retrieved_data 		= $this->po->retrieveExistingPQ($request_no);
-			
+
 			$data["request_no"]  	= $retrieved_data["header"]->voucherno;
 			$data['department'] 	= $retrieved_data['header']->department;
 			$data["referenceno"]  	= $retrieved_data["header"]->voucherno;
@@ -141,8 +141,6 @@ class controller extends wc_controller
 			
 			//Details
 			$data['details'] 		 = $retrieved_data['details'];
-
-			//var_dump($data['details']);
 		}
 		else
 		{

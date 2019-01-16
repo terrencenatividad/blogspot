@@ -876,7 +876,7 @@ class controller extends wc_controller
 						$checkaccount = $this->payment_voucher->getAmountAndAccount($data_post['budgetcode'][$arr], $data_post['accountcode'][$arr]);
 						$accountname = $getaccount->accountname;
 						if(!$checkaccount) {
-							$accountchecker[] = 'The account ' . $accountname . ' is not in your budget code ' .$data_post['budgetcode'][$arr]. '.';
+							$accountchecker[] = 'The account ' . $accountname . ' is not in your budget code ' .$data_post['budgetcode'][$arr]. '.</br>';
 						} else {
 							$amount = $checkaccount->amount;
 							$type = $checkaccount->budget_check;
