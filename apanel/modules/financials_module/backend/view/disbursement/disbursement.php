@@ -677,6 +677,7 @@
 														$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
 
 														$disable_code 		= "";
+														$disable_budget 	= "";
 														$added_class 		= "";
 														$indicator 			= "";
 														if($aPvJournalDetails_Index > 0 && $paymenttype == 'cheque' && $ischeck == 'yes'){
@@ -1310,6 +1311,7 @@
 				$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 				ParentRow.after(clone_acct);
 				resetIds();
+				$("#budgetcode\\["+ row +"\\]").val('').trigger('change.select2');
 				$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 				$("#entriesTable button#"+row).prop('disabled',true);
 				$("#entriesTable debit#"+row).prop('disabled',true);
@@ -1374,7 +1376,6 @@
 		}
 
 		function disable_acct_fields(row){
-			$("#budgetcode\\["+ row +"\\]").prop("disabled", true);
 			$("#accountcode\\["+ row +"\\]").prop("disabled", true);
 			$("#debit\\["+ row +"\\]").prop("readonly", true);
 			$("#credit\\["+ row +"\\]").prop("readonly", true);
@@ -2043,6 +2044,7 @@
 	}
 
 	function clear_acct_input(){
+		$('.budgetcode').val('').change();
 		$('.accountcode').val('').change();
 		$('.description').val('');
 		$('.debit').val('0.00');
