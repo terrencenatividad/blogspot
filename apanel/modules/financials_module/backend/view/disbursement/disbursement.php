@@ -1374,6 +1374,7 @@
 		}
 
 		function disable_acct_fields(row){
+			$("#budgetcode\\["+ row +"\\]").prop("disabled", true);
 			$("#accountcode\\["+ row +"\\]").prop("disabled", true);
 			$("#debit\\["+ row +"\\]").prop("readonly", true);
 			$("#credit\\["+ row +"\\]").prop("readonly", true);
