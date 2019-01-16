@@ -813,7 +813,6 @@ class payment_voucher_model extends wc_model
 				$taxbase_amount			    			= isset($tempArrayValue['taxbase_amount']) ?	$tempArrayValue['taxbase_amount'] 	:	0;
 				$taxcode			    				= isset($tempArrayValue['taxcode']) ?	$tempArrayValue['taxcode'] 	:	"";
 				$ischeck 								= isset($tempArrayValue['ischeck']) && $tempArrayValue != "" 	?	$tempArrayValue['ischeck'] 	:	"no";
-
 				$post_detail['voucherno']				= $voucherno;
 				$post_detail['linenum']					= $iDetailLineNum;
 				$post_detail['transtype']				= $source;

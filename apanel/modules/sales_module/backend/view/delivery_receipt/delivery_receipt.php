@@ -217,8 +217,9 @@
 										if ($stat == 'Prepared' && $restrict_dr || empty($stat)) {
 											echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 										}
-										echo $ui->drawCancel();
+										// echo $ui->drawCancel();
 									?>
+									<a href = "#" class = "btn btn-default" id = "btn_cancel" data-toggle="modal" data-target="#cancelModal">Cancel</a>
 								</div>
 							</div>
 						</div>
@@ -247,6 +248,32 @@
 			</form>
 		</div>
 	</section>
+	<div class="modal fade" id="cancelModal" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					Confirmation
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to cancel this transaction?
+				</div>
+				<div class="modal-footer">
+					<div class="row row-dense">
+						<div class="col-md-12 center">
+							<div class="btn-group">
+								<a href="<?=MODULE_URL?>" class="btn btn-primary btn-flat" id="btnYes">Yes</a>
+							</div>
+								&nbsp;&nbsp;&nbsp;
+							<div class="btn-group">
+								<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div id="ordered_list_modal" class="modal fade" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">
@@ -313,7 +340,8 @@
 					<table id="tableSerialList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
 						<thead>
 							<tr class="info">
-								<th class="col-xs-2"><input type = "checkbox" class = "checkall"></th>
+								<!-- <th class="col-xs-2"><input type = "checkbox" class = "checkall"></th> -->
+								<th class="col-xs-2"></th>
 								<th id = "serial_header">Serial No.</th>
 								<th id = "engine_header">Engine No.</th>
 								<th id = "chassis_header">Chassis No.</th>
@@ -1142,6 +1170,11 @@
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_serial_list', ajax, function(data) {
 				$('#tableSerialList tbody').html(data.table);
 				$('#serial_pagination').html(data.pagination);
+				$('#tableSerialList tbody tr td input[type="checkbox"]').each(function() {
+					if(jQuery.inArray($(this).val(), checked_serials) != -1) {
+						$(this).closest('tr').iCheck('check');
+					}
+				});
 				if (ajax.page > data.page_limit && data.page_limit > 0) {
 					ajax.page = data.page_limit;
 					getSerialList();
@@ -1152,6 +1185,12 @@
 		$('#serial_pagination').on('click', 'a', function(e) {
 			e.preventDefault();
 			var li = $(this).closest('li');
+			$('#tableSerialList tbody tr td input[type="checkbox"]:checked').each(function() {
+				var serialnum = $(this).val();
+				if($.inArray(serialnum, checked_serials) == -1) {
+					checked_serials.push(serialnum);
+				}
+			});	
 			if (li.not('.active').length && li.not('.disabled').length) {
 				ajax.page = $(this).attr('data-page');
 				getSerialList();
@@ -1176,18 +1215,27 @@
 			$('#serialModal').modal('hide');
 		});
 
+		<?php if($ajax_task == 'ajax_edit') : ?>
+		$('.serialbtn').on('click', function() {
+			checked_serials = $(this).closest('tr').find('.serialnumbers').val().split(',');
+		});
+		<?php endif;?>
+
 		$('#btn_tag').on('click', function() {
+			// var kunin = itemrow.closest('tr').find('.serialnumbers').val();
+			// var count = kunin.split(',').length;
 			itemselected = [];
 			allserials = [];
-			var count = 0;
 			var checkcount = $('#checkcount').val();
 			qtyleft =  removeComma(quantityleft);
 			$('#tableSerialList tbody tr input[type="checkbox"]:checked').each(function() {
-				count++;
 				var serialed = $(this).val();
-				itemselected.push(serialed);
-				itemrow.closest('tr').find('.serialnumbers').val(itemselected);
+				if($.inArray(serialed, checked_serials) == -1) {
+					checked_serials.push(serialed);
+				}
+				itemrow.closest('tr').find('.serialnumbers').val(checked_serials.toString());
 			});
+			var count = checked_serials.length;
 			$('#tableList tbody tr .serialnumbers').each(function() {
 				var serials = $(this).val();
 				if (serials != '') {
@@ -1225,8 +1273,10 @@
 
 		$('#tableSerialList').on('ifChecked', '.check_id', function () {
 			var serialnum = $(this).val();
-			checked_serials.push(serialnum);
-			itemrow.closest('tr').find('.checked').val(checked_serials);
+			if($.inArray(serialnum, checked_serials) == -1) {
+				checked_serials.push(serialnum);
+			}
+			itemrow.closest('tr').find('.serialnumbers').val(checked_serials);
 		});
 
 		$('#tableSerialList').on('ifUnchecked', '.check_id', function () {
@@ -1234,7 +1284,7 @@
 			checked_serials = jQuery.grep(checked_serials, function(value) {
 				return value != remove_this;
 			});
-			itemrow.closest('tr').find('.checked').val(checked_serials);
+			itemrow.closest('tr').find('.serialnumbers').val(checked_serials);
 		});
 
 		$('#tableSerialList').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {

@@ -227,7 +227,7 @@ class controller extends wc_controller {
 			}
 
 			$total_quantity	+= $row->Quantity;
-			$row->Quantity	= number_format($row->Quantity, 2);
+			$row->Quantity	= number_format($row->Quantity, 0);
 			if($hasSerial){
 				$print->addRow(array($row->ItemCode, $row->Description, $row->Quantity, $row->UOM, '', '', ''));
 				if ($row->serialnumbers != '') {
