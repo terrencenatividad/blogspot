@@ -378,7 +378,7 @@
 
 									for($i = 0; $i < count($details); $i++)
 									{
-										if($task == 'edit') {
+										if(empty($request_no)) {
 											$budgetcode 	 	= $details[$i]->budgetcode;
 										} else {
 											$budgetcode = '';
