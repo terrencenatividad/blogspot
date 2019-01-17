@@ -767,9 +767,12 @@ class controller extends wc_controller
 			for($check = 0; $check < count($ap_details['budgetcode']); $check++) {
 				if(!empty($ap_details['budgetcode'][$check])) {
 					$check_date = $this->accounts_payable->checkEffectivityDate($ap_details['budgetcode'][$check], $ap['transactiondate']);
+					$get_date = $this->accounts_payable->getEffectivityDate($ap_details['budgetcode'][$check]);
 					if(!$check_date) {
-						$date_check[] = "You don't have an effective budget for this Budget Code";
-					} else {
+						foreach($get_date as $key) {
+							$date_check[] = "The budget code " .$ap_details['budgetcode'][$check] . " is available on " . date('M d, Y', strtotime($key)). "<br>";
+						}
+					} else if(!empty($date_check)){
 						$get_accountname = $this->accounts_payable->getAccountName($ap_details['accountcode'][$check]);
 						$get_amount = $this->accounts_payable->getBudgetAmount($ap_details['budgetcode'][$check], $ap_details['accountcode'][$check]);
 						$accountname = $get_accountname->accountname;

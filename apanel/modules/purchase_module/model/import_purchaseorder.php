@@ -558,9 +558,17 @@ class import_purchaseorder extends wc_model
 				->runSelect()
 				->getRow();
 
+				$get_date = $this->db->setTable('budget')
+				->setFields("effectivity_date")
+				->setWhere("budget_code = '$budgetcode'")
+				->runSelect()
+				->getRow();
+
 				if(!$result) {
-					$date_checker[0] = "You don't have an effective budget for this Budget Code";
-				} else {
+					foreach($get_date as $key) {
+						$date_checker[] = "The budget code " .$budgetcode . " is available on " . date('M d, Y', strtotime($key)). "<br>";
+					}
+				} else if(empty($date_checker)) {
 
 					if($type->budget_check == 'Monitored') {
 
