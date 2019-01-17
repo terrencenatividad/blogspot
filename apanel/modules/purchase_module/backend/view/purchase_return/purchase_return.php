@@ -216,9 +216,13 @@ var delete_row	= {};
 var ajax		= {};
 var ajax_call	= '';
 var min_row		= 0;
+var serialize = [{
+						'itemcode': ''
+					}];
 function addVoucherDetails(details, index) {
 	var details = details || {itemcode: '', detailparticular: '', receiptqty: ''};
 	var other_details = JSON.parse(JSON.stringify(details));
+	// console.log(details.item_ident_flag);
 	delete other_details.itemcode;
 	delete other_details.detailparticular;
 	delete other_details.receiptqty;
@@ -318,11 +322,15 @@ function addVoucherDetails(details, index) {
 			</td>
 			<?php endif ?>
 			<td class="text-right">
+				<button type="button" id="serial_`+ details.linenum +`" data-itemcode="`+details.itemcode+`" data-item="`+details.detailparticular+`" class="serialize_button btn btn-block btn-success btn-flat hidden">
+					<em class="pull-left"><small>Enter serial numbers (<span class="receiptqty_serialized_display"><?php if ($show_input == '' || $ajax_task == "ajax_edit") { ?>` + (addComma(details.receiptqty, 0) || 0) + `<?php } else { ?>0<?php }?></span>)</small></em>
+				</button>
 				<?php
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
 						->setName('receiptqty[]')
 						->setClass('receiptqty text-right')
+						->setID('receiptqty`+ details.linenum +`')
 						->setAttribute(array('data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.receiptqty) || 0) + `'))
 						->setValidation('required integer')
 						->setValue('` + (addComma(details.receiptqty, 0) || 0) + `')
@@ -358,6 +366,7 @@ function addVoucherDetails(details, index) {
 			<?php endif ?>
 		</tr>
 	`;
+	
 	$('#tableList tbody').append(row);
 	if (details.itemcode != '') {
 		$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
@@ -386,10 +395,40 @@ function addVoucherDetails(details, index) {
 			$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
 		} else {
 			$('#tableList tbody').find('tr:last .receiptqty').attr('readonly', '').val(0);
+			$('#tableList tbody').find('tr:last .serialize_button').prop('disabled', true);
 			$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('enable');
 		}
 	});
+
+	// if (details.item_ident_flag == 0 || details.item_ident_flag == null) {		
+	// 	$('#serial_' + details.linenum).addClass('hidden');
+	// 	$('#receiptqty' + details.linenum).removeClass('hidden receiptqty_serialized');
+	// } else {
+	// 	<?php if($ajax_task == "ajax_create") { ?>
+	// 	$('#receiptqty' + details.linenum).addClass('hidden receiptqty_serialized').attr('data-value',0);
+	// 	<?php } else { ?>
+	// 	$('#receiptqty' + details.linenum).addClass('hidden receiptqty_serialized')
+	// 	<?php } ?>
+	// 	$('#serial_' + details.linenum).removeClass('hidden');
+		
+	// 	var item = {};
+	// 	item = {itemcode : details.itemcode,
+	// 			numbers : []};
+	// 	serialize[index] = item;
+
+	// 	// DECLARE SERIAL NUMBERS BASED ON QUANTITY
+	// 	var prop = {};
+	// 	for(var i = 1; i <= details.maxqty; i++){
+	// 		prop = {serialno: '',
+	// 					engineno: '',
+	// 					chassisno: ''
+	// 					};
+	// 		serialize[index].numbers.push(prop);
+	// 	};		
+	// }
+
 }
+console.log(serialize);
 var voucher_details = <?php echo $voucher_details ?>;
 function displayDetails(details) {
 	if (details.length < min_row) {
@@ -509,10 +548,13 @@ $('#vendor').on('change', function() {
 });
 $('tbody').on('ifUnchecked', '.check_task input[type="checkbox"]', function() {
 	$(this).closest('tr').find('.receiptqty').attr('readonly', '').val(0);
+	$(this).closest('tr').find('.serialize_button').prop("disabled",true);
 });
 $('tbody').on('ifChecked', '.check_task input[type="checkbox"]', function() {
 	var n = $(this).closest('tr').find('.receiptqty');
+	var m = $(this).closest('tr').find('.serialize_button');
 	n.removeAttr('readonly', '').val(addComma(n.attr('data-value')));
+	m.prop("disabled",false);
 });
 $('#receipt_tableList').on('click', 'tr[data-id]', function() {
 	var so = $(this).attr('data-id');
