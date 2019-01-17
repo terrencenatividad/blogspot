@@ -581,7 +581,7 @@ class controller extends wc_controller
 					foreach($get_date as $key) {
 						$date_check[] = "The budget code " .$ap_details['budgetcode'][$count] . " is available on " . date('M d, Y', strtotime($key)). "<br>";
 					}
-				} else if(!empty($date_check)){
+				} else if(empty($date_check)) {
 					$get_accountname = $this->accounts_payable->getAccountName($ap_details['accountcode'][$count]);
 					$get_amount = $this->accounts_payable->getBudgetAmount($ap_details['budgetcode'][$count], $ap_details['accountcode'][$count]);
 					$accountname = $get_accountname->accountname;
@@ -590,7 +590,6 @@ class controller extends wc_controller
 					} else {
 						$amount = $get_amount->amount;
 						$type = $get_amount->budget_check;
-
 						if($type == 'Monitored') {
 							if($ap_details['debit'][$count] != '0.00') {
 								if($ap_details['debit'][$count] > $amount) {
