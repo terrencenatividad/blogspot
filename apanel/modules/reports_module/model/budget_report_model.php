@@ -13,15 +13,16 @@ class budget_report_model extends wc_model {
 
 	public function getYearList() {
 		$result = $this->db->setTable('budget_report')
-		->setFields("date_approved ind, date_approved val")
+		->setFields("year as ind, year as val")
 		->setOrderBy("id")
+		->setGroupBy('year')
 		->runSelect(false)
 		->getResult();
 
 		return $result;
 	}
 
-	public function getBudgetReportList($budgetcode) {
+	public function getBudgetReportList($budgetcode, $year) {
 		$budgetreport = array(
 			'br.budget_code',
 			'br.date_approved',
@@ -46,6 +47,12 @@ class budget_report_model extends wc_model {
 			$condition .= "b.budget_code != ''";
 		} else if($budgetcode != 'none'){
 			$condition .= "b.budget_code = '$budgetcode'";
+		}
+
+		if($year == 'none' || empty($year)) {
+			$condition .= " AND br.year != ''";
+		} else if($year != 'none'){
+			$condition .= " AND br.year = '$year'";
 		}
 
 		$result = $this->db->setTable('budget_report as br')

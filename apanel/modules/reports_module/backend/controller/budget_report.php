@@ -15,14 +15,8 @@ class controller extends wc_controller {
 		$data['ui']				= $this->ui;
 		$data['datefilter']		= date("M d, Y");
 		$data['budgetcenter_list']	= $this->budget_report->getBudgetCodeList();
-		$data['years']	= $this->budget_report->getYearList();
+		$data['year_list']	= $this->budget_report->getYearList();
 		$ret = '';
-		foreach($data['years'] as $row) {
-			$ind = $row->ind;
-			$val = $row->val;
-			$ret .= "<option value = ".$ind.">".$val."</option>";
-		}
-		$data['year_list'] = $ret;
 		$this->view->load('budget_report', $data);
 	}
 
@@ -35,10 +29,10 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_list() {
-		$data			= $this->input->post(array('budgetcode'));
+		$data			= $this->input->post(array('budgetcode', 'year'));
 		extract($data);
 
-		$pagination		= $this->budget_report->getBudgetReportList($budgetcode);
+		$pagination		= $this->budget_report->getBudgetReportList($budgetcode, $year);
 
 		$table		= '';
 		if (empty($pagination->result)) {

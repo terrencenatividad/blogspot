@@ -18,8 +18,9 @@
 					echo $ui->formField('dropdown')
 					->setPlaceholder('Filter Year')
 					->setSplit('', 'col-md-6')
-					->setName('date_approved')
-					->setId('date_approved')
+					->setName('year')
+					->setId('year')
+					->setList($year_list)
 					->setNone('Filter: All')
 					->draw();
 					?>
@@ -88,7 +89,8 @@
 		getList();
 	});
 
-	$(document).ready(function() {
-		$('#date_approved').html('<?php echo $year_list ?>').val('').trigger('change');
+	$("#year").on("change",function(){
+		ajax.year = $(this).val();
+		getList();
 	});
 </script>
