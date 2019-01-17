@@ -32,5 +32,15 @@
 
             return $returnvalue;
         }
+
+        public function getCustomerDetails($partnercode){
+            $result     =   $this->db->setTable("partners")
+                                     ->setFields("partnername customer, address1 address, tinno, terms, mobile contactno")
+                                     ->setWhere("partnercode='$partnercode' AND partnertype='customer' AND stat = 'active'")
+                                     ->setLimit(1)
+                                     ->runSelect()
+                                     ->getRow();
+            return $result;
+        }
     }
 
