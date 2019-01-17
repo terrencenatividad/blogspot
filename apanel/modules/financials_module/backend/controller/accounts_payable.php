@@ -413,14 +413,14 @@ class controller extends wc_controller
 		$color = 'default';
 		switch ($stat) {
 			case 'closed':
-				$color = 'success';
-				break;
+			$color = 'success';
+			break;
 			case 'cancelled':
-				$color = 'danger';
-				break;
+			$color = 'danger';
+			break;
 			case 'on-going':
-				$color = 'warning';
-				break;
+			$color = 'warning';
+			break;
 		}
 		return '<span class="label label-' . $color . '">' . strtoupper($stat) . '</span>';
 	}
@@ -573,69 +573,68 @@ class controller extends wc_controller
 		$accountchecker = array();
 		$errors = array();
 		$actualbudget = $this->input->post($this->actualbudget);
-		for($count = 0; $count < count($ap_details['budgetcode']);$count++) {
+		for($count = 0; $count < count($ap_details['budgetcode']); $count++) {
 			if(!empty($ap_details['budgetcode'][$count])) {
-				for($check = 0; $check < count($ap_details['budgetcode']); $check++) {
-					if(!empty($ap_details['budgetcode'][$check])) {
-						$check_date = $this->accounts_payable->checkEffectivityDate($ap_details['budgetcode'][$check], $ap['transactiondate']);
-						if(!$check_date) {
-							$date_check[0] = "You don't have an effective budget for this Budget Code";
-						} else {
-							$get_accountname = $this->accounts_payable->getAccountName($ap_details['accountcode'][$check]);
-							$get_amount = $this->accounts_payable->getBudgetAmount($ap_details['budgetcode'][$check], $ap_details['accountcode'][$check]);
-							$accountname = $get_accountname->accountname;
-							if(!$get_amount) {
-								$accountchecker[] = 'The account ' . $accountname . ' is not in your budget code ' .$ap_details['budgetcode'][$check]. '.';
-							} else {
-								$amount = $get_amount->amount;
-								$type = $get_amount->budget_check;
+				$check_date = $this->accounts_payable->checkEffectivityDate($ap_details['budgetcode'][$count], $ap['transactiondate']);
+				$get_date = $this->accounts_payable->getEffectivityDate($ap_details['budgetcode'][$count]);
+				if(!$check_date) {
+					foreach($get_date as $key) {
+						$date_check[] = "The budget code " .$ap_details['budgetcode'][$count] . " is available on " . date('M d, Y', strtotime($key)). "<br>";
+					}
+				} else if(!empty($date_check)){
+					$get_accountname = $this->accounts_payable->getAccountName($ap_details['accountcode'][$count]);
+					$get_amount = $this->accounts_payable->getBudgetAmount($ap_details['budgetcode'][$count], $ap_details['accountcode'][$count]);
+					$accountname = $get_accountname->accountname;
+					if(!$get_amount) {
+						$accountchecker[] = 'The account ' . $accountname . ' is not in your budget code ' .$ap_details['budgetcode'][$count]. '.';
+					} else {
+						$amount = $get_amount->amount;
+						$type = $get_amount->budget_check;
 
-								if($type == 'Monitored') {
-									if($ap_details['debit'][$check] != '0.00') {
-										if($ap_details['debit'][$check] > $amount) {
-											$warning[] = 'You were about to exceed from your budget code ' . $ap_details['budgetcode'][$check] . 
-											' ' . $accountname . ' account <br>';
-											$actualbudget['voucherno'] = $ap['voucherno'];
-											$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
-											$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
-											$actualbudget['actual'] = $ap_details['debit'][$check];
-											$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
-										} else {
-											$actualbudget['voucherno'] = $ap['voucherno'];
-											$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
-											$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
-											$actualbudget['actual'] = $ap_details['debit'][$check];
-											$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
-										}
-									} else {
-										if($ap_details['credit'][$check] > $amount) {
-											$warning[] = 'You were about to exceed from your budget code ' . $ap_details['budgetcode'][$check] . 
-											' ' . $accountname . ' account <br>';
-											$actualbudget['voucherno'] = $ap['voucherno'];
-											$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
-											$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
-											$actualbudget['actual'] = $ap_details['credit'][$check];
-											$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
-										} else {
-											$actualbudget['voucherno'] = $ap['voucherno'];
-											$actualbudget['budget_code'] = $ap_details['budgetcode'][$check];
-											$actualbudget['accountcode'] = $ap_details['accountcode'][$check];
-											$actualbudget['actual'] = $ap_details['credit'][$check];
-											$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
-										}
-									}
+						if($type == 'Monitored') {
+							if($ap_details['debit'][$count] != '0.00') {
+								if($ap_details['debit'][$count] > $amount) {
+									$warning[] = 'You were about to exceed from your budget code ' . $ap_details['budgetcode'][$count] . 
+									' ' . $accountname . ' account <br>';
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$count];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$count];
+									$actualbudget['actual'] = $ap_details['debit'][$count];
+									$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
 								} else {
-									if($ap_details['debit'][$check] != '0.00') {
-										if($ap_details['debit'][$check] > $amount) {
-											$error[] = 'You are not allowed to exceed budget in ' . $ap_details['budgetcode'][$check] . 
-											' ' . $accountname . ' account <br>';
-										}
-									} else {
-										if($ap_details['credit'][$check] > $amount) {
-											$error[] = 'You are not allowed to exceed budget in ' . $ap_details['budgetcode'][$check] . 
-											' ' . $accountname . ' account <br>';
-										}
-									}
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$count];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$count];
+									$actualbudget['actual'] = $ap_details['debit'][$count];
+									$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
+								}
+							} else {
+								if($ap_details['credit'][$count] > $amount) {
+									$warning[] = 'You were about to exceed from your budget code ' . $ap_details['budgetcode'][$count] . 
+									' ' . $accountname . ' account <br>';
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$count];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$count];
+									$actualbudget['actual'] = $ap_details['credit'][$count];
+									$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
+								} else {
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$count];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$count];
+									$actualbudget['actual'] = $ap_details['credit'][$count];
+									$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
+								}
+							}
+						} else {
+							if($ap_details['debit'][$count] != '0.00') {
+								if($ap_details['debit'][$count] > $amount) {
+									$error[] = 'You are not allowed to exceed budget in ' . $ap_details['budgetcode'][$count] . 
+									' ' . $accountname . ' account <br>';
+								}
+							} else {
+								if($ap_details['credit'][$count] > $amount) {
+									$error[] = 'You are not allowed to exceed budget in ' . $ap_details['budgetcode'][$count] . 
+									' ' . $accountname . ' account <br>';
 								}
 							}
 						}
