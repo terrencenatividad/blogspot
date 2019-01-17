@@ -771,7 +771,7 @@ class controller extends wc_controller
 						foreach($get_date as $key) {
 							$date_check[] = "The budget code " .$ap_details['budgetcode'][$check] . " is available on " . date('M d, Y', strtotime($key)). "<br>";
 						}
-					} else if(!empty($date_check)){
+					} else if(empty($date_check)){
 						$get_accountname = $this->accounts_payable->getAccountName($ap_details['accountcode'][$check]);
 						$get_amount = $this->accounts_payable->getBudgetAmount($ap_details['budgetcode'][$check], $ap_details['accountcode'][$check]);
 						$accountname = $get_accountname->accountname;

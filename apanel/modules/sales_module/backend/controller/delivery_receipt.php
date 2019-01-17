@@ -211,7 +211,7 @@ class controller extends wc_controller {
 		}
 
 		if ($hasSerial) {
-			$print->setHeaderWidth(array(30, 70, 20, 20, 20, 20, 20))
+			$print->setHeaderWidth(array(30, 55, 20, 20, 25, 25, 25))
 					->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
 					->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N',))
 					->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))

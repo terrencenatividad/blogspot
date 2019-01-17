@@ -91,6 +91,18 @@
 											->draw($show_input);
 									?>
 								</div>
+								<div class="col-md-6">
+									<?php
+										echo $ui->formField('text')
+												->setLabel('Reference')
+												->setId('referenceno')
+												->setName('referenceno')
+												->setSplit('col-md-4', 'col-md-8')
+												->setValue($referenceno)
+												->setValidation('required')
+												->draw($show_input);
+									?>
+								</div>
 							</div>
 							<div class="row">
 								<div class="col-md-12">
