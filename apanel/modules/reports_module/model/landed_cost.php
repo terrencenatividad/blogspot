@@ -169,7 +169,7 @@ class landed_cost extends wc_model {
 		$result = $this->db->setTable('ap_details apd')
 							->setFields('SUM(apd.converteddebit) AS credit')
 							->leftJoin('accountspayable ap ON ap.voucherno = apd.voucherno')
-							->setWhere("ap.job_no LIKE '%$job_no%'")
+							->setWhere("ap.job_no LIKE '%$job_no%' AND ap.stat = 'posted'")
 							->runSelect()
 							->getRow();
 							// echo $this->db->getQuery();
@@ -181,7 +181,7 @@ class landed_cost extends wc_model {
 		$result = $this->db->setTable('journaldetails jd')
 							->setFields('SUM(jd.converteddebit) AS credit')
 							->leftJoin('journalvoucher jv ON jv.voucherno = jd.voucherno')
-							->setWhere("jv.transtype = 'CM' AND jv.job_no LIKE '%$job_no%'")
+							->setWhere("jv.transtype = 'CM' AND jv.stat = 'posted' AND jv.job_no LIKE '%$job_no%'")
 							->runSelect()
 							->getRow();
 							// echo $this->db->getQuery();
@@ -193,7 +193,7 @@ class landed_cost extends wc_model {
 		$result = $this->db->setTable('journaldetails jd')
 							->setFields('SUM(jd.converteddebit) AS debit')
 							->leftJoin('journalvoucher jv ON jv.voucherno = jd.voucherno')
-							->setWhere("jv.transtype = 'DM' AND jv.job_no LIKE '%$job_no%'")
+							->setWhere("jv.transtype = 'DM' AND jv.stat = 'posted' AND jv.job_no LIKE '%$job_no%'")
 							->runSelect()
 							->getRow();
 							// echo $this->db->getQuery();
