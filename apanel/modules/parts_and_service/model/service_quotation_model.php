@@ -301,4 +301,24 @@ class service_quotation_model extends wc_model
 		
 		return $result;
 	}
+
+	public function getSQheader($voucherno){
+		$result = $this->db->setTable('servicequotation sq')
+						->setFields("customer, jobtype, reference, notes, stat, voucherno, transactiondate, targetdate, t_amount amount, t_discount discount, vat_sales vatsales, exempt_sales vatexempt, t_sales sales, t_vat vat")
+						->setWhere("voucherno='$voucherno'")
+						->runSelect()
+						->getRow();
+
+		return $result;
+	}
+
+	public function getSQcontent($voucherno){
+		$result = $this->db->setTable('servicequotation_details sq')
+						->setFields("itemcode, detailparticular, haswarranty, qty quantity, uom, unitprice price, IF(discounttype = 'perc', CONCAT(discountrate,'%'), discountrate), taxamount, amount, taxcode, taxrate")
+						->setWhere("voucherno='$voucherno'")
+						->runSelect()
+						->getResult();
+
+		return $result;
+	}
 }
