@@ -287,7 +287,7 @@ class controller extends wc_controller
 			$session			= new session();
 			$get = $session->get('login');
 			$username = $get['username'];
-			$return = false;
+			$result = false;
 			if($username == $approver) {
 				$fields['status'] = $status;
 				$fields['approved_by'] = $username;
