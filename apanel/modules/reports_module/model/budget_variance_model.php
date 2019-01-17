@@ -28,11 +28,11 @@ class budget_variance_model extends wc_model {
 		}
 
 		$result = $this->db->setTable('budget_details bd')
-		->setFields('ca.segment5 segment5, ca.accountname description, SUM(bd.amount) + SUM(bs.amount) amount, SUM(ab.actual) actual, (SUM(bd.amount)-SUM(ab.actual)) variance, b.effectivity_date as effectivity_date')
+		->setFields('ca.segment5 segment5, ca.accountname description, SUM(bd.amount) + IF(IFNULL(bs.amount, 0) = 0,0,SUM(bs.amount)) as amount, SUM(ab.actual) actual, (SUM(bd.amount)-SUM(ab.actual)) variance, b.effectivity_date as effectivity_date')
 		->leftJoin('budget b ON b.budget_code = bd.budget_code')
 		->leftJoin('actual_budget as ab ON ab.accountcode = bd.accountcode')
 		->leftJoin('chartaccount ca ON bd.accountcode = ca.id')
-		->leftJoin('budget_supplement as bs ON b.id = bs.budget_id AND bs.accountcode = bd.accountcode')
+		->leftJoin("budget_supplement as bs ON b.id = bs.budget_id AND bs.accountcode = bd.accountcode AND bs.status = 'approved'")
 		->setGroupBy('bd.accountcode')
 		->setOrderBy('bd.accountcode')
 		->setWhere($condition . $type)
