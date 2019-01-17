@@ -541,12 +541,13 @@ class purchase_order extends wc_model
 							$expenseaccount = $getaccount->expense_account;
 							$accountcode = $expenseaccount;
 							$getbudgetaccount = $this->db->setTable('budget_details bd')
-							->setFields('IF(IFNULL(bs.amount, 0) = 0, 0, bs.amount) + bd.amount as amount, CONCAT(ca.segment5, " - ", ca.accountname) as accountname')
+							->setFields('IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, SUM(ac.actual)) as amount, CONCAT(ca.segment5, " - ", ca.accountname) as accountname')
 							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
 							->leftJoin("budget_supplement as bs ON b.id = bs.budget_id AND bs.accountcode = '$expenseaccount'")
+							->leftJoin("actual_budget as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode' AND ac.voucherno NOT LIKE '%TMP%'")
 							->leftJoin('chartaccount as ca ON ca.id = bs.accountcode')
 							->setWhere("bd.accountcode = '$expenseaccount' AND bd.budget_code = '$budgetcode'")
-							->runSelect()	
+							->runSelect()
 							->getRow();
 
 							if(!$getbudgetaccount) {
@@ -560,9 +561,10 @@ class purchase_order extends wc_model
 							$expenseaccount = $check->expense_account;
 							$accountcode = $expenseaccount;
 							$getbudgetaccount = $this->db->setTable('budget_details bd')
-							->setFields('IF(IFNULL(bs.amount, 0) = 0, 0, bs.amount) + bd.amount as amount, CONCAT(ca.segment5, " - ", ca.accountname) as accountname')
+							->setFields('IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, SUM(ac.actual)) as amount, CONCAT(ca.segment5, " - ", ca.accountname) as accountname')
 							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
 							->leftJoin("budget_supplement as bs ON b.id = bs.budget_id AND bs.accountcode = '$expenseaccount'")
+							->leftJoin("actual_budget as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode' AND ac.voucherno NOT LIKE '%TMP%'")
 							->leftJoin('chartaccount as ca ON ca.id = bs.accountcode')
 							->setWhere("bd.accountcode = '$expenseaccount' AND bd.budget_code = '$budgetcode'")
 							->runSelect()
@@ -595,9 +597,10 @@ class purchase_order extends wc_model
 							$expenseaccount = $getaccount->expense_account;
 							$accountcode = $expenseaccount;
 							$getbudgetaccount = $this->db->setTable('budget_details bd')
-							->setFields('IF(IFNULL(bs.amount, 0) = 0, 0, bs.amount) + bd.amount as amount, CONCAT(ca.segment5, " - ", ca.accountname) as accountname')
+							->setFields('IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, SUM(ac.actual)) as amount, CONCAT(ca.segment5, " - ", ca.accountname) as accountname')
 							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
 							->leftJoin("budget_supplement as bs ON b.id = bs.budget_id AND bs.accountcode = '$expenseaccount'")
+							->leftJoin("actual_budget as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode' AND ac.voucherno NOT LIKE '%TMP%'")
 							->leftJoin('chartaccount as ca ON ca.id = bs.accountcode')
 							->setWhere("bd.accountcode = '$expenseaccount' AND bd.budget_code = '$budgetcode'")
 							->runSelect()
@@ -613,9 +616,10 @@ class purchase_order extends wc_model
 							$expenseaccount = $check->expense_account;
 							$accountcode = $expenseaccount;
 							$getbudgetaccount = $this->db->setTable('budget_details bd')
-							->setFields('IF(IFNULL(bs.amount, 0) = 0, 0, bs.amount) + bd.amount as amount, CONCAT(ca.segment5, " - ", ca.accountname) as accountname')
+							->setFields('IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, SUM(ac.actual)) as amount, CONCAT(ca.segment5, " - ", ca.accountname) as accountname')
 							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
 							->leftJoin("budget_supplement as bs ON b.id = bs.budget_id AND bs.accountcode = '$expenseaccount'")
+							->leftJoin("actual_budget as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode' AND ac.voucherno NOT LIKE '%TMP%'")
 							->leftJoin('chartaccount as ca ON ca.id = bs.accountcode')
 							->setWhere("bd.accountcode = '$expenseaccount' AND bd.budget_code = '$budgetcode'")
 							->runSelect()
