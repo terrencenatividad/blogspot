@@ -437,6 +437,7 @@ class budgetting extends wc_model
 			$temp['october'] = $rounded;
 			$temp['november'] = $rounded;
 			$temp['december'] = $rounded;
+			$temp['year'] = date('Y');
 			$result = $this->db->setTable('budget_report')
 			->setValues($temp)
 			->runInsert(false);	
@@ -479,6 +480,7 @@ class budgetting extends wc_model
 				$temp['october'] = $rounded;
 				$temp['november'] = $rounded;
 				$temp['december'] = $rounded;
+				$temp['year'] = date('Y');
 				$fields[] = $temp;	
 			}			
 			$result = $this->db->setTable('budget_report')
