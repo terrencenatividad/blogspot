@@ -11,9 +11,20 @@ class budget_report_model extends wc_model {
 		return $result;
 	}
 
+	public function getYearList() {
+		$result = $this->db->setTable('budget_report')
+		->setFields("date_approved ind, date_approved val")
+		->setOrderBy("id")
+		->runSelect(false)
+		->getResult();
+
+		return $result;
+	}
+
 	public function getBudgetReportList($budgetcode) {
 		$budgetreport = array(
 			'br.budget_code',
+			'br.date_approved',
 			'br.january',
 			'br.february',
 			'br.march',

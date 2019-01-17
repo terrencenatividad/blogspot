@@ -15,6 +15,14 @@ class controller extends wc_controller {
 		$data['ui']				= $this->ui;
 		$data['datefilter']		= date("M d, Y");
 		$data['budgetcenter_list']	= $this->budget_report->getBudgetCodeList();
+		$data['years']	= $this->budget_report->getYearList();
+		$ret = '';
+		foreach($data['years'] as $row) {
+			$ind = $row->ind;
+			$val = $row->val;
+			$ret .= "<option value = ".$ind.">".$val."</option>";
+		}
+		$data['year_list'] = $ret;
 		$this->view->load('budget_report', $data);
 	}
 
@@ -41,6 +49,7 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$table .= '<td>' . $row->accountname . '</td>';
 			$table .= '<td>' . $row->budget_code . '</td>';
+			$table .= '<td>' . date('Y', strtotime($row->date_approved)) . '</td>';
 			$table .= '<td>' . number_format($row->january, 2) . '</td>';
 			$table .= '<td>' . number_format($row->february, 2) . '</td>';
 			$table .= '<td>' . number_format($row->march, 2) . '</td>';
@@ -57,7 +66,7 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$table .= '<td colspan = "12"></td>';
 			$table .= '<td><b>Total</b></td>';
-			$table .= '<td><b>' .$total. '</b></td>';
+			$table .= '<td><b>' .number_format($total,2). '</b></td>';
 			$table .= '</tr>';
 		}
 

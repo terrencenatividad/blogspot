@@ -415,6 +415,7 @@ class budgetting extends wc_model
 
 	public function saveBudgetReportSupplement($id) {
 		$getdetails = $this->getIdOfBudgetCode($id);
+		$return = false;
 		if($getdetails) {
 			$temp = array();
 			$budget_code = $getdetails->budget_code;
@@ -439,8 +440,6 @@ class budgetting extends wc_model
 			$result = $this->db->setTable('budget_report')
 			->setValues($temp)
 			->runInsert(false);	
-		} else {
-			$return = false;
 		}
 		return $result;
 	}
