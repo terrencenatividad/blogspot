@@ -297,6 +297,7 @@ class controller extends wc_controller
 			} else {
 				$result = false;
 			}
+			var_dump($v);
 
 			return array('success' => $result);
 		}
