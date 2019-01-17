@@ -287,19 +287,14 @@ class controller extends wc_controller
 			$session			= new session();
 			$get = $session->get('login');
 			$username = $get['username'];
+			$return = false;
 			if($username == $approver) {
 				$fields['status'] = $status;
 				$fields['approved_by'] = $username;
 				$result = $this->budgetting->updateBudgetStatus($fields, $id);
-			} else {
-				$result = false;
 			}
 
-			if($result && $status == 'approved') {
-				$saveBudget = $this->budgetting->saveBudgetReport($id);
-			}
-
-			return array('success' => $saveBudget);
+			return array('success' => $result);
 		}
 
 
