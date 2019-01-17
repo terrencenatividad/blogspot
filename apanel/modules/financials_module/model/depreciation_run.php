@@ -2,6 +2,27 @@
 class depreciation_run extends wc_model {
 
 	public function getAsset() {
+		$fields = array(
+		'asset_id',
+		'asset_class',
+		'assetclass'
+	);
+		
+	$condition = '';
+	$result = $this->db->setTable('depreciation_schedule d')
+						->setFields($fields)
+						->leftJoin('asset_master am ON am.asset_number = d.asset_id')
+						->leftJoin('asset_class ac ON ac.id = am.asset_class')
+						->setWhere("depreciation_date <= DATE(NOW())")
+						->setGroupBy('d.asset_id')
+						->runPagination();
+
+						// echo $this->db->getQuery();
+						
+		return $result;
+	}
+
+	public function getAsset123() {
 		$fields = array('a.id id',
 		'itemcode',
 		'asset_class',
@@ -54,6 +75,7 @@ class depreciation_run extends wc_model {
 						
 		return $result;
 	}
+
 	public function deleteSched(){
 		$this->db->setTable('depreciation_schedule')
 		->setWhere('companycode IS NOT NULL')
@@ -222,7 +244,9 @@ class depreciation_run extends wc_model {
 		'coa.segment5 a_segment5',
 		'asd.segment5 b_segment5',
 		'dsa.segment5 c_segment5',
-		'ac.assetclass'
+		'ac.assetclass',
+		'depreciation_date',
+		'accumulated_dep',
 	);
 	$condition = '';
 	$result = $this->db->setTable('depreciation_schedule d')
@@ -233,8 +257,8 @@ class depreciation_run extends wc_model {
 						->leftJoin('chartaccount coa ON coa.id = am.gl_asset')
 						->leftJoin('chartaccount asd ON asd.id = am.gl_accdep')
 						->leftJoin('chartaccount dsa ON dsa.id = am.gl_depexpense')
-						->setWhere($condition)
-						->setGroupBy('asset_class')
+						->setWhere("asset_class = '$asset_class'")
+						->setGroupBy('am.id')
 						->runSelect()
 						->getResult();
 						// echo $this->db->getQuery();
