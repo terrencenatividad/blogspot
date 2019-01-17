@@ -211,6 +211,55 @@
 	</div>
 </div>
 </div>
+
+<div id="serialize_modal" class="modal fade" tabindex="-1" role="dialog" data-item="" data-itemcode="">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<?php if ($show_input) { ?>
+					<h4 class="modal-title">Input Serial Numbers</h4>
+				<?php } else { ?>
+					<h4 class="modal-title">View Serial Numbers</h4>
+				<?php } ?>
+			</div>
+
+			<div class="modal-body no-padding">
+				<table id="serialize_tableList" class="table table-hover table-sidepad no-margin-bottom">
+					<thead>
+						<tr class="info">
+							<th class="col-xs-1 text-center">Item No.</th>
+							<th class="col-xs-2 text-center">Item Name</th>
+							<th class="col-xs-3 text-center">Serial Number</th>
+							<th class="col-xs-3 text-center">Engine Number</th>
+							<th class="col-xs-3 text-center">Chassis Number</th>
+							<th class="col-xs-1 text-center"></th>
+						</tr>
+					</thead>
+					<tbody id="serialize_tbody" data-item-ident-flag="">
+						
+					</tbody>
+					<?php if ($show_input) {?>
+					<tfoot class="summary">
+						<tr>
+							<td colspan="4">
+								<a type="button" class="btn btn-link add-data" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Line</a>
+							</td>	
+						</tr>
+
+					</tfoot>
+					<?php } ?>
+				</table>
+			</div>
+			<?php if ($show_input) {?>
+			<div class="modal-footer text-center">
+				<button type="button" class="btn btn-primary save_serials">Save</button>
+				<button type="button" class="btn btn-default close_serials" data-dismiss="modal">Close</button>
+			</div>
+			<?php } ?>
+		</div>
+	</div>					
+</div>
 <script>
 var delete_row	= {};
 var ajax		= {};
