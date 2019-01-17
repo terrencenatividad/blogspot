@@ -434,11 +434,28 @@ class controller extends wc_controller {
 			$check = in_array($row->job_no, $tags) ? 'checked' : '';
 			$table	.= '<td class = "text-center"><input type = "checkbox" name = "jobno[]" id = "jobno" class = "jobno" value = "'.$row->job_no.'" '.$check.'></td>';
 			$table	.= '<td>'.$row->job_no.'</td>';
+			$table	.= '<td>'.$this->colorStat($row->stat).'</td>';
 			$table	.= '</tr>';
 		}
 
 		$pagination->table = $table;
 		return $pagination;
+	}
+
+	private function colorStat($stat) {
+		$color = 'default';
+		switch ($stat) {
+			case 'closed':
+				$color = 'success';
+				break;
+			case 'cancelled':
+				$color = 'danger';
+				break;
+			case 'on-going':
+				$color = 'warning';
+				break;
+		}
+		return '<span class="label label-' . $color . '">' . strtoupper($stat) . '</span>';
 	}
 
 }

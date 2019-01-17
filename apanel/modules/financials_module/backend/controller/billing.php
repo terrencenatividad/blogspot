@@ -13,6 +13,7 @@ class controller extends wc_controller {
 			'voucherno',
 			'transactiondate',
 			'job_orderno',
+			'referenceno',
 			'customer',
 			'remarks',
 			'amount',

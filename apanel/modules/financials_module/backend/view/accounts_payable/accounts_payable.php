@@ -1105,6 +1105,7 @@
 							->setHeaderClass('info')
 							->addHeader('', array('class' => 'col-md-1'))
 							->addHeader('Job Number', array('class' => 'col-md-3'))
+							->addHeader('Job Status', array('class' => 'col-md-1'))
 							->draw();
 							?>
 							<tbody>
@@ -1482,9 +1483,9 @@
 					$('#exchangerate').val(data.exchangerate);	
 					$('.debit').each(function() {
 						if($(this).val() != '0.00') {
-							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).val()));
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).val())));
 						} else {
-							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).closest('tr').find('.credit').val()));
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).closest('tr').find('.credit').val())));
 						}
 					});
 					sumDebit();
@@ -1560,6 +1561,9 @@
 			$('#itemsTable tbody tr.clone #detailparticulars').last().val('');
 			$('#itemsTable tbody tr.clone #debit').last().val('0.00');
 			$('#itemsTable tbody tr.clone #credit').last().val('0.00');
+			$('#itemsTable tbody tr.clone #debit').last().removeAttr('readonly');
+			$('#itemsTable tbody tr.clone #credit').last().removeAttr('readonly');
+			$('#itemsTable tbody tr.clone #currencyamount').last().val('0.00');
 			$('#itemsTable tbody tr.clone .edit-button').last().hide();
 			$('#itemsTable tbody tr.clone .checkbox-select').last().show();
 			$('#itemsTable tbody tr.clone .linenum').last().val(++data_id);

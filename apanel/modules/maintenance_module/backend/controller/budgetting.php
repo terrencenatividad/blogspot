@@ -287,15 +287,11 @@ class controller extends wc_controller
 			$session			= new session();
 			$get = $session->get('login');
 			$username = $get['username'];
+			$result = false;
 			if($username == $approver) {
 				$fields['status'] = $status;
-				if($status == 'approved') {
-					$v = $this->budgetting->saveBudgetReport($id);
-				}
 				$fields['approved_by'] = $username;
 				$result = $this->budgetting->updateBudgetStatus($fields, $id);
-			} else {
-				$result = false;
 			}
 
 			return array('success' => $result);
@@ -415,41 +411,41 @@ class controller extends wc_controller
 		}
 
 		private function get_export() {
-		$data	= $this->input->post(array('search', 'sort', 'filter'));
-		extract($data);
+			$data	= $this->input->post(array('search', 'sort', 'filter'));
+			extract($data);
 
-		$result			= $this->budgetting->getBudgetListingExport($this->fields, $sort, $search, $filter);
+			$result			= $this->budgetting->getBudgetListingExport($this->fields, $sort, $search, $filter);
 
-		$header = array(
-			'Budget Code',
-			'Budget Description',
-			'Budget Type',
-			'Budget Check',
-			'Owner',
-			'Prepared By',
-			'Effectivity Date',
-			'Status'
-		);
+			$header = array(
+				'Budget Code',
+				'Budget Description',
+				'Budget Type',
+				'Budget Check',
+				'Owner',
+				'Prepared By',
+				'Effectivity Date',
+				'Status'
+			);
 
-		$csv = '';
-		$csv .= '"' . implode('","', $header) . '"';
-		if (empty($result)) {
-			$csv .= 'No Records Found';
+			$csv = '';
+			$csv .= '"' . implode('","', $header) . '"';
+			if (empty($result)) {
+				$csv .= 'No Records Found';
+			}
+			foreach ($result as $key => $row) {
+				$csv .= "\n";
+				$csv .= '"' . $row->budget_code . '",';
+				$csv .= '"' . $row->budgetdesc . '",';
+				$csv .= '"' . $row->budget_type . '",';
+				$csv .= '"' . $row->budget_check . '",';
+				$csv .= '"' . $row->owner . '",';
+				$csv .= '"' . $row->prepared_by . '",';
+				$csv .= '"' . $row->effectivity_date . '",';
+				$csv .= '"' . $row->status . '",';
+			}
+
+			return $csv;
 		}
-		foreach ($result as $key => $row) {
-			$csv .= "\n";
-			$csv .= '"' . $row->budget_code . '",';
-			$csv .= '"' . $row->budgetdesc . '",';
-			$csv .= '"' . $row->budget_type . '",';
-			$csv .= '"' . $row->budget_check . '",';
-			$csv .= '"' . $row->owner . '",';
-			$csv .= '"' . $row->prepared_by . '",';
-			$csv .= '"' . $row->effectivity_date . '",';
-			$csv .= '"' . $row->status . '",';
-		}
-		
-		return $csv;
-	}
 
 	// activate/deactivate
 

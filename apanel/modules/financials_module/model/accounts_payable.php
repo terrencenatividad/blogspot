@@ -44,8 +44,19 @@ class accounts_payable extends wc_model
 	public function checkEffectivityDate($budgetcode, $date)
 	{
 		$result = $this->db->setTable('budget')
-		->setFields("TRUE")
+		->setFields("effectivity_date")
 		->setWhere("budget_code = '$budgetcode' AND effectivity_date <= '$date'")
+		->runSelect()
+		->getRow();
+		
+		return $result;
+	}
+
+	public function getEffectivityDate($budgetcode)
+	{
+		$result = $this->db->setTable('budget')
+		->setFields("effectivity_date")
+		->setWhere("budget_code = '$budgetcode'")
 		->runSelect()
 		->getRow();
 		
@@ -55,10 +66,11 @@ class accounts_payable extends wc_model
 	public function getBudgetAmount($budgetcode, $accountcode)
 	{
 		$result = $this->db->setTable('budget_details as bd')
-		->setFields("IFNULL(bs.amount, 0) + bd.amount as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
+		->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, SUM(ac.actual)) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
 		->leftJoin('budget as b ON bd.budget_code = b.budget_code')
 		->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
 		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
+		->leftJoin("actual_budget as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
 		->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 		->setGroupBy('bs.accountcode')
 		->runSelect()
@@ -100,7 +112,7 @@ class accounts_payable extends wc_model
 
 	public function getJobList() {
 		$result = $this->db->setTable('job')
-		->setFields("job_no")
+		->setFields("job_no, stat")
 		->setWhere('stat = "on-going"')
 		->setGroupBy('job_no')
 		->runPagination();
