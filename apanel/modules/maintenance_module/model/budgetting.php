@@ -160,7 +160,7 @@ class budgetting extends wc_model
 	public function getAccounts($type)
 	{
 		$result = $this->db->setTable('chartaccount')
-		->setFields('id ind, accountname val')
+		->setFields('id ind, CONCAT(segment5, " - ", accountname) val')
 		->setWhere("fspresentation = '$type'")
 		->runSelect()
 		->getResult();
