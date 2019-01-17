@@ -44,8 +44,19 @@ class accounts_payable extends wc_model
 	public function checkEffectivityDate($budgetcode, $date)
 	{
 		$result = $this->db->setTable('budget')
-		->setFields("TRUE")
+		->setFields("effectivity_date")
 		->setWhere("budget_code = '$budgetcode' AND effectivity_date <= '$date'")
+		->runSelect()
+		->getRow();
+		
+		return $result;
+	}
+
+	public function getEffectivityDate($budgetcode)
+	{
+		$result = $this->db->setTable('budget')
+		->setFields("effectivity_date")
+		->setWhere("budget_code = '$budgetcode'")
 		->runSelect()
 		->getRow();
 		

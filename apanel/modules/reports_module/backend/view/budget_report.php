@@ -13,7 +13,18 @@
 					->draw();
 					?>
 				</div>
-				<div class="col-md-6"></div>
+				<div class="col-md-6">
+					<?php
+					echo $ui->formField('dropdown')
+					->setPlaceholder('Filter Year')
+					->setSplit('', 'col-md-6')
+					->setName('year')
+					->setId('year')
+					->setList($year_list)
+					->setNone('Filter: All')
+					->draw();
+					?>
+				</div>
 				<div class="col-md-3 text-right">
 					<a href="" id="export_csv" download="Budget_Report.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 				</div>
@@ -26,6 +37,7 @@
 					<tr class="info">
 						<th class="col-md-1">Account Name</th>
 						<th class="col-md-1">Budget Code</th>
+						<th class="col-md-1">Year</th>
 						<th class="col-md-1">January</th>
 						<th class="col-md-1">February</th>
 						<th class="col-md-1">March</th>
@@ -74,6 +86,11 @@
 
 	$("#budgetcode").on("change",function(){
 		ajax.budgetcode = $(this).val();
+		getList();
+	});
+
+	$("#year").on("change",function(){
+		ajax.year = $(this).val();
 		getList();
 	});
 </script>

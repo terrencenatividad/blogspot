@@ -1554,7 +1554,7 @@ function finalizeTransaction(type, error, warning, checkamount)
 				});
 			} else if(error != '') {
 				$('#accountchecker-modal').modal('show');
-				$('#accounterror').html(data.error);
+				$('#accounterror').html(error);
 			} else if(warning != ''){
 				$('#accountchecker-modal').modal('show');
 				$('#accounterror').html(warning);
@@ -1639,7 +1639,7 @@ function finalizeEditTransaction()
 						});
 					} else if(error != '') {
 						$('#accountchecker-modal').modal('show');
-						$('#accounterror').html(data.error);
+						$('#accounterror').html(error);
 					} else if(warning != ''){
 						$('#accountchecker-modal').modal('show');
 						$('#accounterror').html(warning);

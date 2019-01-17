@@ -160,7 +160,7 @@ class budgetting extends wc_model
 	public function getAccounts($type)
 	{
 		$result = $this->db->setTable('chartaccount')
-		->setFields('id ind, accountname val')
+		->setFields('id ind, CONCAT(segment5, " - ", accountname) val')
 		->setWhere("fspresentation = '$type'")
 		->runSelect()
 		->getResult();
@@ -415,6 +415,7 @@ class budgetting extends wc_model
 
 	public function saveBudgetReportSupplement($id) {
 		$getdetails = $this->getIdOfBudgetCode($id);
+		$return = false;
 		if($getdetails) {
 			$temp = array();
 			$budget_code = $getdetails->budget_code;
@@ -436,11 +437,10 @@ class budgetting extends wc_model
 			$temp['october'] = $rounded;
 			$temp['november'] = $rounded;
 			$temp['december'] = $rounded;
+			$temp['year'] = date('Y');
 			$result = $this->db->setTable('budget_report')
 			->setValues($temp)
 			->runInsert(false);	
-		} else {
-			$return = false;
 		}
 		return $result;
 	}
@@ -480,6 +480,7 @@ class budgetting extends wc_model
 				$temp['october'] = $rounded;
 				$temp['november'] = $rounded;
 				$temp['december'] = $rounded;
+				$temp['year'] = date('Y');
 				$fields[] = $temp;	
 			}			
 			$result = $this->db->setTable('budget_report')
