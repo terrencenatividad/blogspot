@@ -247,8 +247,9 @@ class purchase_return_model extends wc_model {
 
 	public function getPurchaseReceiptDetails($voucherno, $voucherno_ref = false) {
 		$result1		= $this->db->setTable('purchasereceipt_details prd')
-								->setFields("itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, prd.warehouse, receiptuom, unitprice, prd.taxcode, prd.taxrate, prd.taxamount, prd.amount, convreceiptqty, convuom, conversion, receiptqty realqty")
+								->setFields("prd.itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, prd.warehouse, receiptuom, unitprice, prd.taxcode, prd.taxrate, prd.taxamount, prd.amount, convreceiptqty, convuom, conversion, receiptqty realqty, item_ident_flag")
 								->innerJoin('purchasereceipt pr ON prd.voucherno = pr.voucherno AND prd.companycode = pr.companycode')
+								->innerJoin('items i ON i.itemcode = prd.itemcode')
 								->setWhere("pr.voucherno = '$voucherno'")
 								->runSelect()
 								->getResult();
