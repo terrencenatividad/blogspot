@@ -462,7 +462,7 @@ class accounts_payable extends wc_model
 		->runSelect()
 		->getResult();
 		
-		$temp["details"] = $retrieveArrayDetail;
+		$temp["wtax_details"] = $retrieveArrayDetail;
 		return $temp;
 	}
 

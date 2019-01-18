@@ -126,7 +126,7 @@ class payment_voucher_model extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat status";
+		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat status, companycode";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -158,6 +158,25 @@ class payment_voucher_model extends wc_model
 		->getResult();
 
 		$temp["details"] = $retrieveArrayDetail;
+
+		// Retrieve WTAX Details
+		$detailFields = "main.budgetcode, main.accountcode, chart.accountname, main.detailparticulars, main.ischeck, main.debit, main.credit credit, main.taxcode, main.taxbase_amount taxbase_amount, atc.short_desc atccode, atc.atc_code atc_code";
+		$detail_cond  = "main.voucherno = '$sid' AND main.stat != 'temporary' AND main.taxcode != '' ";
+		$orderby 	  = "main.linenum";	
+		$detailJoin   = "chartaccount as chart ON chart.id = main.accountcode AND chart.companycode = main.companycode";
+		$groupby      = "main.linenum";
+
+		$retrieveArrayTaxDetail = $this->db->setTable('pv_details as main')
+		->setFields($detailFields)
+		->leftJoin($detailJoin)
+		->leftJoin("atccode atc ON atc.atcId = main.taxcode")
+		->setWhere($detail_cond)
+		->setGroupBy($groupby)
+		->setOrderBy($orderby)
+		->runSelect()
+		->getResult();
+
+		$temp["wtax_details"] = $retrieveArrayTaxDetail;
 		
 		$setFields = "partnername name, email, tinno, address1, terms";
 		$vendor    = $temp["main"]->vendor;
