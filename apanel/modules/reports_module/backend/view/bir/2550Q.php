@@ -1753,9 +1753,9 @@
 					var sum = data.sum_amount;
 					var taxamount = data.sum_taxamount;
 					if(sum == null || taxamount == null) {
-						$('#vat_exempt').val('0.00');
+						$('#vat_zero').val('0.00');
 					} else {
-						$('#vat_exempt').val(sum);
+						$('#vat_zero').val(sum);
 					}
 				});
 
@@ -1763,9 +1763,9 @@
 					var sum = data.sum_amount;
 					var taxamount = data.sum_taxamount;
 					if(sum == null || taxamount == null) {
-						$('#vat_zero').val('0.00');
+						$('#vat_exempt').val('0.00');
 					} else {
-						$('#vat_zero').val(sum);
+						$('#vat_exempt').val(sum);
 					}
 				});
 

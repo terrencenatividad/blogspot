@@ -1618,6 +1618,7 @@
 		$('#totalsales19A').val('0.00');
 		$('#totalsales19B').val('0.00');
 		makeZero();
+		$('#monthfilter').trigger('change');
 	});
 
 	$('#monthfilter').on('change', function() {
