@@ -197,7 +197,7 @@ class item_model extends wc_model {
 			$condition .= " AND itemcode = '$search'";
 		}
 		return $this->db->setTable('items')
-						->setFields('itemcode ind, itemname val')
+						->setFields('itemcode ind, CONCAT(itemcode," - ",itemname) val')
 						->setWhere($condition)
 						->runSelect()
 						->getResult();

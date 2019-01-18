@@ -17,7 +17,7 @@ class inventory_inquiry_model extends wc_model {
 		// }
 		$result = $this->db->setTable("invfile as inv")
 							->innerJoin('items as items ON inv.itemcode = items.itemcode  ') 
-							->setFields("inv.itemcode as itemcode,w.description as des, SUM(inv.onhandQty) as OHQty, inv.warehouse as warehouse , SUM(inv.allocatedQty) as AllocQty, SUM(inv.orderedQty) as OrderQty,SUM(inv.availableQty) as avail,items.itemname as itemname")
+							->setFields("inv.itemcode as itemcode,w.description as des, SUM(inv.onhandQty) as OHQty, inv.warehouse as warehouse , SUM(inv.allocatedQty) as AllocQty, SUM(inv.orderedQty) as OrderQty,SUM(inv.availableQty) as avail,CONCAT(items.itemcode,' - ',items.itemname) as itemname")
 							->leftJoin('warehouse w ON inv.warehouse = w.warehousecode')
 							->setWhere($condition)
 							->setGroupBy('inv.warehouse,inv.itemcode')
@@ -116,7 +116,7 @@ class inventory_inquiry_model extends wc_model {
 		// }
 		$result = $this->db->setTable("invfile as inv")
 							->innerJoin('items as items ON inv.itemcode = items.itemcode  ') 
-							->setFields("description warehousename,inv.itemcode as itemcode, SUM(inv.onhandQty) as OHQty, inv.warehouse as warehouse , SUM(inv.allocatedQty) as AllocQty, SUM(inv.orderedQty) as OrderQty,SUM(inv.availableQty) as avail,items.itemname as itemname")
+							->setFields("description warehousename,inv.itemcode as itemcode, SUM(inv.onhandQty) as OHQty, inv.warehouse as warehouse , SUM(inv.allocatedQty) as AllocQty, SUM(inv.orderedQty) as OrderQty,SUM(inv.availableQty) as avail,CONCAT(items.itemcode,' - ',items.itemname) as itemname")
 							->leftJoin("warehouse wh on inv.warehouse = wh.warehousecode")
 							->setWhere($condition)
 							->setGroupBy('inv.warehouse,inv.itemcode')

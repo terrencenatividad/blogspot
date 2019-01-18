@@ -271,7 +271,7 @@ class controller extends wc_controller {
 
 			else if ($taxyear == 'fiscal' && $periodstart == 'Oct'){
 				$table 			.=	"<tr>";
-				$table 			.=	"<td class='text-left'>".$customer."</td>";
+				$table 			.=	"<td class='text-left'>".$vendor."</td>";
 				$table 			.=  ($october > 0) 		?  "<td>".$this->display_amount(10, $partnercode, $vendor, $october) 	. "</td>" : 	"<td>".number_format($october, 2)	."</td>";
 				$table 			.=  ($november > 0) 	?  "<td>".$this->display_amount(11, $partnercode, $vendor, $november) . "</td>" : 	"<td>".number_format($november, 2)	."</td>";
 				$table 			.=  ($december > 0) 	?  "<td>".$this->display_amount(12, $partnercode, $vendor, $december) . "</td>" : 	"<td>".number_format($december, 2)	."</td>";
@@ -289,7 +289,7 @@ class controller extends wc_controller {
 
 			else if ($taxyear == 'fiscal' && $periodstart == 'Nov'){
 				$table 			.=	"<tr>";
-				$table 			.=	"<td class='text-left'>".$customer."</td>";
+				$table 			.=	"<td class='text-left'>".$vendor."</td>";
 				$table 			.=  ($november > 0) 	?  "<td>".$this->display_amount(11, $partnercode, $vendor, $november) . "</td>" : 	"<td>".number_format($november, 2)	."</td>";
 				$table 			.=  ($december > 0) 	?  "<td>".$this->display_amount(12, $partnercode, $vendor, $december) . "</td>" : 	"<td>".number_format($december, 2)	."</td>";
 				$table 			.=  ($january > 0) 		?  "<td>".$this->display_amount(1, $partnercode, $vendor, $january) 	. "</td>" : 	"<td>".number_format($january, 2)	."</td>";
