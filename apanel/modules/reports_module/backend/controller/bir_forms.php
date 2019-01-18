@@ -245,6 +245,45 @@ class controller extends wc_controller {
 		$this->view->load('bir/2550M', $data);
 	}
 
+	public function view_0619E() {
+		$data['ui'] 			= $this->ui;
+		$data['bir_form'] 		= "0619E";
+		$data['bir_forms'] 		= $this->bir_forms;
+		$data['months'] 		= $this->months;
+		$data['years'] 			= $this->years;
+
+		$data['year'] 			= $this->getDate('year');
+		$data['month']			= $this->getDate('month');
+
+		$data['remittance'] 	= number_format($this->bir->getTotalRemittance(), 2);
+		$company_info 			= $this->bir->getCompanyInfo(
+			array('businessline','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','email')
+		);
+		$businessline			= $company_info->businessline;
+		$data['tin']			= $company_info->tin;
+		$data['rdo_code']		= $company_info->rdo_code;
+		$lastname				= $company_info->lastname;
+		$firstname				= $company_info->firstname;
+		$middlename				= $company_info->middlename;
+		$companyname			= $company_info->companyname;
+		$address				= $company_info->address;
+		$postalcode				= $company_info->postalcode;
+		$contact				= $company_info->phone;
+		$email					= $company_info->email;
+		$agentname				= (strtolower($businessline) == 'individual') ? $lastname.', '.$firstname.', '.$middlename : $companyname;
+		$data['agentname']		= $agentname;
+		$firstaddress			= substr($address, 0, 40);
+		$secondaddress			= (strlen($address) > 40) ? substr($address, 40, 30) : "";
+		$data['firstaddress']	= $firstaddress;
+		$data['secondaddress']	= $secondaddress;
+		$data['zipcode']		= $postalcode;
+		$data['contact']		= $contact;
+		$data['email']			= $email;
+		$data['businessline']	= $businessline;
+		
+		$this->view->load('bir/0619E', $data);
+	}
+
 	public function ajax($task, $form = '') {
 		$ajax = $this->{$task}($form);
 		if ($ajax) {
@@ -532,6 +571,15 @@ class controller extends wc_controller {
 		return array(
 			'url'	=> $url
 		);
+	}
+
+	public function print_0619E() {
+		$company_signatory = $this->bir->getCompanyInfo(array('businesstype','signatory_name','signatory_role','signatory_tin'));
+		$print = new print_bir_0619E('P', 'mm', array(216,330.2));
+		$print->setPreviewTitle(MODULE_NAME)
+		->setDocumentDetails($this->input->get())
+		->setSignatory($company_signatory)
+		->drawPDF(MODULE_NAME);
 	}
 
 	public function print_1601EQ() {

@@ -359,4 +359,25 @@ class bir extends wc_model {
                 ->runSelect()
                 ->getResult();
     }
+
+    public function getTotalRemittance(){
+        $ap	= $this->db->setTable('ap_details')
+								->setFields(array('credit'))
+								->setWhere("taxcode IS NOT NULL AND taxcode != ''")
+                                ->buildSelect();
+
+        $pv	= $this->db->setTable('pv_details')
+								->setFields(array('credit'))
+								->setWhere("taxcode IS NOT NULL AND taxcode != ''")
+                                ->buildSelect();
+        
+        $union = $ap . ' UNION ALL ' . $pv;
+        
+        $result = $this->db->setTable("($union) u")
+                        ->setFields('SUM(credit) total')
+                        ->setWhere(1)
+                        ->runSelect(false)
+                        ->getResult();
+        return $result[0]->total;
+    }
 }	
