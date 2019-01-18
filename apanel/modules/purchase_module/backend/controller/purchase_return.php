@@ -52,6 +52,8 @@ class controller extends wc_controller {
 			'discounttype',
 			'discountamount',
 			'detail_warehouse' => 'warehouse',
+			'po_qty',
+			'item_ident_flag'
 		);
 		$this->clean_number		= array(
 			'receiptqty'
@@ -393,6 +395,68 @@ class controller extends wc_controller {
 			}
 		}
 		return $data;
+	}
+
+	private function ajax_serial_list() {
+		$search	= $this->input->post('search');
+		$itemcode = $this->input->post('itemcode');
+		$allserials = $this->input->post('allserials');
+		$itemselected = $this->input->post('itemselected');
+		$linenum = $this->input->post('linenumber');
+		$id = $this->input->post('id');
+		$task = $this->input->post('task');
+		$item_ident = $this->input->post('item_ident');
+		$checked_serials = $this->input->post('checked_serials');
+		$voucherno = '';
+		// if ($task=='ajax_edit') {
+		$voucherno = $this->input->post('voucherno');
+		// }
+		// $curr = $this->delivery_model->getDRSerials($itemcode, $voucherno, $linenum);
+		// if ($curr) {
+		// 	$current_id = explode(",", $curr->serialnumbers);
+		// 	$curr_serialnumbers = $curr->serialnumbers;
+		// }
+		// else {
+			$current_id = [];
+			$curr_serialnumbers = '';
+		// }
+		$array_id = explode(',', $id);
+		$all_id = explode(',', $allserials);
+		$checked_id = explode(',', $checked_serials);
+
+		$pagination	= $this->purchase_model->getSerialList($itemcode, $search, $voucherno, $linenum);
+		$table		= '';
+		$counter = 0;
+		foreach ($pagination->result as $key => $row) {
+			if ($curr_serialnumbers == $id) {
+				$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id) || in_array($row->id, $current_id)) ? 'checked' : '';
+			}
+			else {
+				$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id)) ? 'checked' : '';
+			}
+			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id))) ? 'hidden' : '';
+			$table .= '<tr class = "'.$hide_tr.'">';
+			$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'" '.$checker.'></td>';
+			
+			$has_serial 	=	substr($item_ident,0,1);
+			$has_engine 	=	substr($item_ident,1,1);
+			$has_chassis 	=	substr($item_ident,2,1);
+
+			$hide_serial 	=	($has_serial == 0) 	? "hidden" 	:	"";
+			$hide_engine 	=	($has_engine == 0) ? "hidden" 	:	"";
+			$hide_chassis 	=	($has_chassis == 0) ? "hidden" 	:	"";
+			
+			$table .= '<td class = "'.$hide_serial.'">' . $row->serialno . '</td>';
+			$table .= '<td class = "'.$hide_engine.'">' . $row->engineno . '</td>';
+			$table .= '<td class = "'.$hide_chassis.'">' . $row->chassisno . '</td>';
+			$table .= '</tr>';
+			$counter++;
+		}
+		if ($counter == 0) {
+			$table.= '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+		}
+		$pagination->table = $table;
+		return $pagination;
 	}
 
 }

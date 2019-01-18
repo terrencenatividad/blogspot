@@ -258,9 +258,11 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
+
 									->addEdit($row->stat == 'Pending')
 									->addDelete($row->stat == 'Pending')
 									->addOtherTask('Approve', 'thumbs-up', $row->stat == 'Pending')
+									->addPrint()
 									->addCheckbox($row->stat == 'Pending')
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->voucherno)
@@ -470,6 +472,103 @@ class controller extends wc_controller {
 				break;
 		}
 		return '<span class="label label-' . $color . '">' . strtoupper($stat) . '</span>';
+	}
+	public function print_preview($voucherno){
+
+		$header  = $this->service_quotation->getSQheader($voucherno);
+		$details = $this->service_quotation->getSQcontent($voucherno);
+		$customer = $this->parts_and_service->getCustomerDetails($header->customer);
+		/** VENDOR DETAILS --END**/
+
+		$docheader	= array(
+			'Date' 	=> $this->date->dateFormat($header->transactiondate),
+			'Target Date' 		=> $this->date->dateFormat($header->targetdate),
+			'SEQ #'				=> $header->voucherno
+		);
+		$print = new sq_print_model();
+		$print->setDocumentType('Service Quotation')
+				->setFooterDetails(array('Approved By', 'Checked By'))
+				->setCustomerDetails($customer)
+				->setRemarksDetail($header->notes)
+				->setDocumentDetails($docheader)
+				// ->addTermsAndCondition()
+				->addReceived();
+
+		$print->setHeaderWidth(array(25, 45, 20, 10, 10, 20, 20, 20, 30))
+				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C','C','C'))
+				->setHeader(array('Item Code', 'Description', 'Warranty', 'Qty', 'UOM', 'Price','Discount','Tax','Amount'))
+				->setRowAlign(array('L', 'L', 'L', 'R', 'L', 'R', 'R','R','R'))
+				->setSummaryWidth(array('120', '50', '30'))
+				->setSummaryAlign(array('L','R','R'));
+
+		$detail_height = 37;
+
+		$vatable_sales	= 0;
+		$vat_exempt		= 0;
+		$vat_zerorated	= 0;
+		$discount		= 0;
+		$tax			= 0;
+		$total_amount 	= 0;
+		$notes = $header->notes; 
+		foreach ($details as $key => $row) {
+			if ($key % $detail_height == 0) {
+				$print->drawHeader();
+			}
+			// $vatable_sales	+= ($row->taxrate) ? $row->amount : 0;
+			// $vat_exempt		+= ($row->taxrate) ? 0 : $row->amount;
+			if($row->taxrate > 0.00 || $row->taxrate > 0 )	{
+				$vatable_sales += $row->amount;
+			}
+			else {
+				if ($row->taxcode == '' || $row->taxcode == 'none' || $row->taxcode == 'ES') {
+					$vat_exempt += $row->amount;
+				}
+				else {
+					$vat_zerorated += $row->amount;
+				}
+			}
+			$tax			+= $row->taxamount;
+			$discount 	    = isset($documentinfo->discount) ? $documentinfo->discount : 0;
+			$row->quantity	= number_format($row->quantity);
+			$row->price		= number_format($row->price, 2);
+			$row->amount	= number_format($row->amount, 2);
+			$row->taxamount	= number_format($row->taxamount, 2);
+			$print->addRow($row);
+			if (($key + 1) % $detail_height == 0) {
+				$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
+				$summary = array(array('Notes:', 'VATable Sales', number_format($vatable_sales, 2)),
+					array($notes, 'VAT-Exempt Sales', number_format($vat_exempt, 2)),
+					array('','VAT Zero Rated Sales'	, number_format($vat_zerorated, 2)),
+					array('','Total Sales'		, number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2)),
+					array('','Tax'				, number_format($tax, 2)),
+					array('','Total Amount'		, number_format($total_amount, 2)),
+					array('','', ''),
+					array('','Discount'			, number_format($discount, 2))
+				);
+				$print->drawSummary($summary);
+				// $print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
+				$vatable_sales	= 0;
+				$vat_exempt		= 0;
+				$vat_zerorated	= 0;
+				$discount		= 0;
+				$tax			= 0;
+				$total_amount	= 0;
+			}
+		}
+		$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
+		$summary = array(array('Notes:', 'VATable Sales', number_format($vatable_sales, 2)),
+					array($notes,'VAT-Exempt Sales', number_format($vat_exempt, 2)),
+					array('','VAT Zero Rated Sales'	, number_format($vat_zerorated, 2)),
+					array('','Total Sales'		, number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2)),
+					array('','Tax'				, number_format($tax, 2)),
+					array('','Total Amount'		, number_format($total_amount, 2)),
+					array('','', ''),
+					array('','Discount'			, number_format($discount, 2))
+		);
+		$print->drawSummary($summary);
+		// $print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
+
+		$print->drawPDF('Service Quotation - ' . $voucherno);
 	}
 	private function get_item_details()
 	{

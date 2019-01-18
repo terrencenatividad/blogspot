@@ -254,6 +254,54 @@ class controller extends wc_controller {
 		}
 		$this->view->load('job_order/job_order', $data);
 	}
+	public function print_preview($voucherno){
+
+		$header  = $this->job_order->getJOheader($voucherno);
+		$details = $this->job_order->getJOcontent($voucherno);
+		$customer = $this->parts_and_service->getCustomerDetails($header->customer);
+		/** VENDOR DETAILS --END**/
+
+		$docheader	= array(
+			'Date' 	=> $this->date->dateFormat($header->transactiondate),
+			'JO #'				=> $header->voucherno
+		);
+		$print = new jo_print_model();
+		$print->setDocumentType('Job Order')
+				->setFooterDetails(array('Approved By', 'Checked By'))
+				->setCustomerDetails($customer)
+				->setRemarksDetail($header->notes)
+				->setDocumentDetails($docheader)
+				// ->addTermsAndCondition()
+				->addReceived();
+
+		$print->setHeaderWidth(array(40, 100, 30, 30))
+				->setHeaderAlign(array('C', 'C', 'C', 'C'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
+				->setRowAlign(array('L', 'L', 'R', 'L'))
+				->setSummaryWidth(array('170', '30'))
+				->setSummaryAlign(array('L','R'));
+
+		$detail_height = 37;
+		$total_quantity = 0;
+
+		$notes = $header->notes; 
+		foreach ($details as $key => $row) {
+			if ($key % $detail_height == 0) {
+				$print->drawHeader();
+			}
+			
+			$total_quantity += $row->quantity;
+			$print->addRow($row);
+
+			if (($key + 1) % $detail_height == 0) {
+				
+				$print->drawSummary(array('Total Qty' => $total_quantity));
+				$total_amount = 0;
+			}
+		}
+		$print->drawSummary(array('Total Qty' => $total_quantity));
+		$print->drawPDF('Job Order - ' . $voucherno);
+	}
 	public function payment($id) {
 		$this->view->title			= 'Job Order - Issue Parts';
 		$this->fields[]				= 'stat';
@@ -305,7 +353,7 @@ class controller extends wc_controller {
 									->addEdit($row->stat == 'prepared')
 									->addDelete($row->stat == 'prepared')
 									->addPrint()
-									->addOtherTask('Add Payment', 'bookmark')
+									->addOtherTask('Issue Parts', 'bookmark')
 									->addOtherTask('Tag as Complete', 'bookmark')
 									->addCheckbox($row->stat == 'prepared')
 									->setLabels(array('delete' => 'Cancel'))
