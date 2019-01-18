@@ -198,7 +198,7 @@ class controller extends wc_controller {
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
 				->setRowAlign(array('L', 'L', 'R', 'L'))
 				->setSummaryWidth(array('120', '50', '30'))
-				->setSummaryAlign(array('L','R','R'));
+				->setSummaryAlign(array('J','R','R'));
 		
 		$documentcontent	= $this->delivery_model->getDocumentContent($voucherno);
 		$detail_height = 37;
@@ -216,10 +216,10 @@ class controller extends wc_controller {
 					->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N',))
 					->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
 					->setSummaryWidth(array('120', '50', '30'))
-					->setSummaryAlign(array('L','R','R'));		
+					->setSummaryAlign(array('J','R','R'));		
 		}
 
-		$notes = $documentinfo->notes; 
+		$notes = preg_replace('!\s+!', ' ', $documentinfo->notes);
 		$total_quantity = 0;
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {

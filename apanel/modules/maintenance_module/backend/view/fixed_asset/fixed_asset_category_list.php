@@ -249,22 +249,22 @@ $('#items').on('change', function(){
 	showList();
 });
 
-
+var activate_id = '';
 	$('#currency_table').on('click', '.activate', function() { 
-			var id = $(this).attr('data-id');
-			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+			activate_id = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+activate_id ,function(data) {
 				showList();
 			});
 		});
-
+var deactivate_id = '';
 	$('#currency_table').on('click', '.deactivate', function() {
 		$('#deactivate_modal').modal('show');
-			var id = $(this).attr('data-id');
+			deactivate_id = $(this).attr('data-id');
 			
 			$('#deactivate_modal').on('click', '#deactyes', function() {
 				$('#deactivate_modal').modal('hide');
 				
-				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+deactivate_id ,function(data) {
 					showList();
 				});
 			});

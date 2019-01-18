@@ -44,7 +44,7 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->accountname . '</td>';
 			$table .= '<td>' . $row->budget_code . '</td>';
 			$table .= '<td>' . date('Y', strtotime($row->date_approved)) . '</td>';
-			$table .= '<td>' . number_format($row->january, 2) . '</td>';
+			$table .= '<td class = "total">' . number_format($row->january, 2) . '</td>';
 			$table .= '<td>' . number_format($row->february, 2) . '</td>';
 			$table .= '<td>' . number_format($row->march, 2) . '</td>';
 			$table .= '<td>' . number_format($row->april, 2) . '</td>';
@@ -56,11 +56,6 @@ class controller extends wc_controller {
 			$table .= '<td>' . number_format($row->october, 2) . '</td>';
 			$table .= '<td>' . number_format($row->november, 2) . '</td>';
 			$table .= '<td>' . number_format($row->december, 2) . '</td>';
-			$table .= '</tr>';
-			$table .= '<tr>';
-			$table .= '<td colspan = "12"></td>';
-			$table .= '<td><b>Total</b></td>';
-			$table .= '<td><b>' .number_format($total,2). '</b></td>';
 			$table .= '</tr>';
 		}
 

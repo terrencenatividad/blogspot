@@ -474,7 +474,7 @@ class controller extends wc_controller
 		$documentinfo  	= $this->invoice->retrieveData($docinfo_table, $docinfo_fields, $docinfo_cond, $docinfo_join);
 		$documentinfo	= $documentinfo[0]; 
 		$customer 	    = $documentinfo->customer;
-		$notes			= $documentinfo->remarks;
+		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
 		/** HEADER INFO - END**/
 
 		/** DETAILS INFO **/
@@ -525,7 +525,7 @@ class controller extends wc_controller
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'Price', 'Discount', 'Tax', 'Amount'))
 				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R', 'R','R'))
 				->setSummaryWidth(array('120', '50', '30'))
-				->setSummaryAlign(array('L','R','R'));
+				->setSummaryAlign(array('J','R','R'));
 
 		$detail_height = 28;
 
@@ -661,7 +661,6 @@ class controller extends wc_controller
 		$voucher 		= $this->input->post('voucher');
 		$result 	= '';
 		$deliveries = $this->invoice->retrieveDeliveries($sourceno, $voucher);
-
 		$customer 		= $deliveries['header']->customer;
 		$notes 			= $deliveries['header']->remarks;
 		$discounttype	= isset($deliveries['header']->discounttype) ? $deliveries['header']->discounttype : 0 ; 
@@ -680,10 +679,10 @@ class controller extends wc_controller
 				$detailparticular 	= htmlspecialchars($val->detailparticular);
 				$quantity 			= $val->issueqty;
 				$unitprice 			= isset($val->unitprice) ? $val->unitprice : 0;
-				$discount 			= ($val->discounttype == 'amt') ? $val->discountamount : $val->discountrate;
+				$discount 			= ($val->discounttype == 'amt') ? $val->discountamount/$val->init_qty : $val->discountrate/$val->init_qty;
 				$percentage 		= ($val->discounttype == 'perc') ? "%" : "";
-				$discountamount 	= isset($val->discountamount) ? $val->discountamount : 0;
-				$discountrate 		= isset($val->discountrate) ? $val->discountrate : 0;
+				$discountamount 	= isset($val->discountamount) ? $val->discountamount/$val->init_qty : 0;
+				$discountrate 		= isset($val->discountrate) ? $val->discountrate/$val->init_qty : 0;
 				$taxcode 			= isset($val->taxcode) ? $val->taxcode : '';
 				$taxrate 			= isset($val->taxrate) ? $val->taxrate : 0;
 				$taxamount 			= isset($val->taxamount) ? $val->taxamount : 0;

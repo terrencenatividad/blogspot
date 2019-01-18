@@ -358,4 +358,39 @@ class purchase_return_model extends wc_model {
 		return '(' . implode(' OR ', $temp) . ')';
 	}
 
+	public function getSerialList($itemcode, $search, $voucherno, $linenum) {
+		$condition = '';
+		if ($search) {
+			$condition .= $this->generateSearch($search, array('serialno', 'engineno', 'chassisno'));
+		}
+		$result1	= $this->db->setTable('items_serialized')
+								->setFields(array('companycode', 'id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat'))
+								->setWhere("itemcode = '$itemcode' AND stat = 'Available' AND voucherno = '$voucherno'")
+								->buildSelect();
+		// $sub_query = $this->db->setTable('deliveryreceipt_details')
+		// 						->setFields('serialnumbers')
+		// 						->setWhere("itemcode='$itemcode' AND voucherno='$voucherno' AND linenum='$linenum'")
+		// 						->setLimit(1)
+		// 						->runSelect()
+		// 						->getRow();
+		// $serials = ($sub_query) ? $sub_query->serialnumbers : '""';
+		// $serials = '""';
+		// $result2 = $this->db->setTable('items_serialized') 
+		// 						->setFields(array('companycode', 'id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat'))
+		// 						->setWhere("id IN ($serials)")
+		// 						->buildSelect();
+
+		$inner_query = $result1;
+		if (!empty($result2)) {
+			$inner_query .= ' UNION ALL ' . $result2;
+		}
+		
+		$inner_query = $this->db->setTable("($inner_query) i")
+								->setFields('*')
+								->setWhere($condition)
+								->setOrderBy('id')
+								->runPagination();	
+		return $inner_query;
+	}
+
 }

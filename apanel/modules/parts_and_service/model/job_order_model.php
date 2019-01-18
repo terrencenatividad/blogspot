@@ -688,7 +688,7 @@ class job_order_model extends wc_model
 		return $result;
 	}
 
-	public function deleteJobRelease($id,$data) {
+	public function deleteJobRelease($id) {
 		$result	= $this->db->setTable('job_release')
 				->setValues(array('stat'=>'cancelled'))
 				->setWhere("job_release_no = '$id'")

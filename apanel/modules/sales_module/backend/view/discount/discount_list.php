@@ -1,8 +1,8 @@
 <section class="content">
-    <div class="box box-primary">
-        
-        <div class="box-header">
-            <div class="row">
+	<div class="box box-primary">
+
+		<div class="box-header">
+			<div class="row">
 
 				<!-- <div class = "col-md-4">
 					<a href="<?php echo BASE_URL; ?>maintenance/discount/create" class="btn btn-primary danger">Create</a>
@@ -23,10 +23,10 @@
 
 				<div class = "col-md-8">
 					<?= 
-						$ui->CreateNewButton('');
+					$ui->CreateNewButton('');
 					?>
 					<?= 
-						$ui->OptionButton('');
+					$ui->OptionButton('');
 					?>
 					<?=	$ui->CreateDeleteButton(''); ?>
 					<?=	$ui->CreateActButton(''); ?>
@@ -37,13 +37,13 @@
 				</div>-->
 
 				<div class="col-md-4 pull-right">
-                    <div class="input-group input-group-sm">
-                        <input id="search" name="table_search" class="form-control pull-right" placeholder="Search" type="text">
-                        <div class="input-group-btn">
-                            <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
-                        </div>
-                    </div>
-                </div>
+					<div class="input-group input-group-sm">
+						<input id="search" name="table_search" class="form-control pull-right" placeholder="Search" type="text">
+						<div class="input-group-btn">
+							<button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+						</div>
+					</div>
+				</div>
 
 			</div>
 
@@ -74,34 +74,34 @@
 			<div id = "errmsg"></div>
 		</div>
 
-       	<div class="box-body table table-responsive" style = "overflow-x: inherit;">
-            <table id = "discount_table" class="table table-hover">
-                <thead>
+		<div class="box-body table table-responsive" style = "overflow-x: inherit;">
+			<table id = "discount_table" class="table table-hover">
+				<thead>
 					<?php
-						echo $ui->loadElement('table')
-								->setHeaderClass('info')
-								->addHeader(
-									'<input type="checkbox" class="checkall">',
-									array(
-										'class' => 'text-center col-md-1',
-										'style' => 'width:100px'
-									)
-								)
-								->addHeader('Discount Code',array('class'=>'col-md-3'),'sort','discountcode')
-								->addHeader('Discount Name', array('class'=>'col-md-3'),'sort','discountname')
-								->addHeader('Description',array('class'=>'col-md-3'),'sort','discountdesc')
-								->addHeader('Status',array('class'=>'col-md-3'),'sort','stat')
-								->draw();
+					echo $ui->loadElement('table')
+					->setHeaderClass('info')
+					->addHeader(
+						'<input type="checkbox" class="checkall">',
+						array(
+							'class' => 'text-center col-md-1',
+							'style' => 'width:100px'
+						)
+					)
+					->addHeader('Discount Code',array('class'=>'col-md-3'),'sort','discountcode')
+					->addHeader('Discount Name', array('class'=>'col-md-3'),'sort','discountname')
+					->addHeader('Description',array('class'=>'col-md-3'),'sort','discountdesc')
+					->addHeader('Status',array('class'=>'col-md-3'),'sort','stat')
+					->draw();
 					?>
 				</thead>
-               
-                <form method = "post">
-                    <tbody id = "list_container">
-                    </tbody>
-                </form>
-            </table>
+
+				<form method = "post">
+					<tbody id = "list_container">
+					</tbody>
+				</form>
+			</table>
 			<div id="pagination"></div>
-        </div>
+		</div>
 	</div>
 </div>
 
@@ -110,206 +110,206 @@
 		<div class="modal-dialog" style = "width: 300px;">
 			<div class="modal-content">
 				<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Confirmation</h4>
-				</div>
-				<div class="modal-body">
-				<p>Are you sure you want to delete this record?</p>
-				</div>
-				<div class="modal-footer text-center">
-					<button type="button" class="btn btn-outline btn-flat" id = "delete-yes">Yes</button>
-					<button type="button" class="btn btn-outline btn-flat" data-dismiss="modal">No</button>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<!-- Import Modal -->
-<div class="import-modal" id="import-modal">
-	<div class="modal">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<form method="POST" id="importForm" ENCTYPE="multipart/form-data">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true">×</span></button>
-						<h4 class="modal-title">Import Discount</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Confirmation</h4>
 					</div>
 					<div class="modal-body">
-						<label>Step 1. Download the sample template <a href="<?=MODULE_URL?>get_import" download="Discount_Template.csv">here</a></label>
-						<hr/>
-						<label>Step 2. Fill up the information needed for each columns of the template.</label>
-						<hr/>
-						<div class="form-group">
-							<label for="import_csv">Step 3. Select the updated file and click 'Import' to proceed.</label>
-							<?php
-								echo $ui->setElement('file')
-										->setId('import_csv')
-										->setName('import_csv')
-										->setAttribute(array('accept' => '.csv'))
-										->setValidation('required')
-										->draw();
-							?>
-							<span class="help-block"></span>
-						</div>
-						<p class="help-block">The file to be imported must be in CSV (Comma Separated Values) file.</p>
+						<p>Are you sure you want to delete this record?</p>
 					</div>
 					<div class="modal-footer text-center">
-						<button type="button" class="btn btn-info btn-flat" id = "btnImport">Import</button>
-						<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-outline btn-flat" id = "delete-yes">Yes</button>
+						<button type="button" class="btn btn-outline btn-flat" data-dismiss="modal">No</button>
 					</div>
-				</form>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
 
-<!-- Import Customers Modal -->
-<div class="import-modal" id="import-tagcust-modal" tabindex="-1" data-backdrop="static">>
-<div class="modal">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<form method="POST" id="importCustForm" ENCTYPE="multipart/form-data">
-				<input id="hidden_id" value="" class="hidden">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">×</span></button>
-					<h4 class="modal-title">Import Customers</h4>
-				</div>
-				<div class="modal-body">
-					<label>Step 1. Download the sample template <a href="<?=MODULE_URL?>get_import_customers" class="download_button" download="Discount - Customers.csv">here</a></label>
-					<hr/>
-					<label>Step 2. Fill up the information needed for each columns of the template.</label>
-					<hr/>
-					<div class="form-group">
-						<label for="import_cust_csv">Step 3. Select the updated file and click 'Import' to proceed.</label>
-						<?php
-							echo $ui->setElement('file')
-									->setId('import_cust_csv')
-									->setName('import_cust_csv')
+	<!-- Import Modal -->
+	<div class="import-modal" id="import-modal">
+		<div class="modal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<form method="POST" id="importForm" ENCTYPE="multipart/form-data">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">×</span></button>
+								<h4 class="modal-title">Import Discount</h4>
+							</div>
+							<div class="modal-body">
+								<label>Step 1. Download the sample template <a href="<?=MODULE_URL?>get_import" download="Discount_Template.csv">here</a></label>
+								<hr/>
+								<label>Step 2. Fill up the information needed for each columns of the template.</label>
+								<hr/>
+								<div class="form-group">
+									<label for="import_csv">Step 3. Select the updated file and click 'Import' to proceed.</label>
+									<?php
+									echo $ui->setElement('file')
+									->setId('import_csv')
+									->setName('import_csv')
 									->setAttribute(array('accept' => '.csv'))
 									->setValidation('required')
 									->draw();
-						?>
-						<span class="help-block"></span>
+									?>
+									<span class="help-block"></span>
+								</div>
+								<p class="help-block">The file to be imported must be in CSV (Comma Separated Values) file.</p>
+							</div>
+							<div class="modal-footer text-center">
+								<button type="button" class="btn btn-info btn-flat" id = "btnImport">Import</button>
+								<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
+							</div>
+						</form>
 					</div>
-					<p class="help-block">The file to be imported must be in CSV (Comma Separated Values) file.</p>
 				</div>
-				<div class="modal-footer text-center">
-					<button type="button" class="btn btn-info btn-flat" id = "btnImport">Import</button>
-					<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
-				</div>
-			</form>
+			</div>
 		</div>
-	</div>
-</div>
-</div>
 
-<script>
-var ajax = filterFromURL();
-var ajax_call = '';
+		<!-- Import Customers Modal -->
+		<div class="import-modal" id="import-tagcust-modal" tabindex="-1" data-backdrop="static">>
+			<div class="modal">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<form method="POST" id="importCustForm" ENCTYPE="multipart/form-data">
+							<input id="hidden_id" value="" class="hidden">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">×</span></button>
+									<h4 class="modal-title">Import Customers</h4>
+								</div>
+								<div class="modal-body">
+									<label>Step 1. Download the sample template <a href="<?=MODULE_URL?>get_import_customers" class="download_button" download="Discount - Customers.csv">here</a></label>
+									<hr/>
+									<label>Step 2. Fill up the information needed for each columns of the template.</label>
+									<hr/>
+									<div class="form-group">
+										<label for="import_cust_csv">Step 3. Select the updated file and click 'Import' to proceed.</label>
+										<?php
+										echo $ui->setElement('file')
+										->setId('import_cust_csv')
+										->setName('import_cust_csv')
+										->setAttribute(array('accept' => '.csv'))
+										->setValidation('required')
+										->draw();
+										?>
+										<span class="help-block"></span>
+									</div>
+									<p class="help-block">The file to be imported must be in CSV (Comma Separated Values) file.</p>
+								</div>
+								<div class="modal-footer text-center">
+									<button type="button" class="btn btn-info btn-flat" id = "btnImport">Import</button>
+									<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
 
-function show_error(msg)
-{
-	$(".delete-modal").modal("hide");
-	$(".alert-warning").removeClass("hidden");
-	$("#errmsg").html(msg);
-}
+			<script>
+				var ajax = filterFromURL();
+				var ajax_call = '';
 
-function show_success_msg(msg)
-	{
-		$('#success_modal #message').html(msg);
-		$('#success_modal').modal('show');
-		setTimeout(function() {												
-			window.location = '<?= MODULE_URL ?>';		
-		}, 1000)
-	}
+				function show_error(msg)
+				{
+					$(".delete-modal").modal("hide");
+					$(".alert-warning").removeClass("hidden");
+					$("#errmsg").html(msg);
+				}
 
-tableSort('#discount_table', function(value, getlist) {
-  	ajax.sort = value;
- 	ajax.page = 1;
-	if(getlist){
-	  	showList();
-	}
-}, ajax);
+				function show_success_msg(msg)
+				{
+					$('#success_modal #message').html(msg);
+					$('#success_modal').modal('show');
+					setTimeout(function() {												
+						window.location = '<?= MODULE_URL ?>';		
+					}, 1000)
+				}
 
-$('#items').on('change', function() {
-	ajax.page = 1;
-	ajax.limit = $(this).val();
-	showList();
-});
-
-$( "#search" ).keyup(function() 
-{
-	var search = $( this ).val();
-	ajax.search = search;
-	showList();
-});
-
-ajaxToFilter(ajax, { search : '#search', limit : '#items'});
-
-function showList(pg){
-	filterToURL();
-	if (ajax_call != '') {
-		ajax_call.abort();
-	}
-	ajax_call = $.post('<?=BASE_URL?>maintenance/discount/ajax/discount_list',ajax, function(data) {
-					$('#discount_table #list_container').html(data.table);
-					$('#pagination').html(data.pagination);
-					historyOfMyLife();
-					$("#export_id").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
-					if (ajax.page > data.page_limit && data.page_limit > 0) {
-						ajax.page = data.page_limit;
+				tableSort('#discount_table', function(value, getlist) {
+					ajax.sort = value;
+					ajax.page = 1;
+					if(getlist){
 						showList();
 					}
+				}, ajax);
+
+				$('#items').on('change', function() {
+					ajax.page = 1;
+					ajax.limit = $(this).val();
+					showList();
 				});
-};
 
-showList();
+				$( "#search" ).keyup(function() 
+				{
+					var search = $( this ).val();
+					ajax.search = search;
+					showList();
+				});
 
-function ajaxCallback(id) {
-	var ids = getDeleteId(id);
-	$.post('<?=MODULE_URL?>ajax/ajax_delete', ids, function(data) {
-		if ( ! data.success) {
-			$('#warning_modal #warning_message').html('<p>Unable to delete Discount: Discount in Use</p>');
-			data.error_id.forEach(function(id) {
-				$('#warning_modal #warning_message').append('<p>Discount Code: ' + id + '</p>');
-			});
-			$('#warning_modal').modal('show');
-		}
-		showList();
-	});
-}
+				ajaxToFilter(ajax, { search : '#search', limit : '#items'});
 
-$(function() {
-	linkButtonToTable('#item_multiple_delete', '#discount_table');
-	linkDeleteToModal('#discount_table .delete', 'ajaxCallback');
-	linkDeleteMultipleToModal('#item_multiple_delete', '#discount_table', 'ajaxCallback');
-});
+				function showList(pg){
+					filterToURL();
+					if (ajax_call != '') {
+						ajax_call.abort();
+					}
+					ajax_call = $.post('<?=BASE_URL?>maintenance/discount/ajax/discount_list',ajax, function(data) {
+						$('#discount_table #list_container').html(data.table);
+						$('#pagination').html(data.pagination);
+						historyOfMyLife();
+						$("#export_id").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+						if (ajax.page > data.page_limit && data.page_limit > 0) {
+							ajax.page = data.page_limit;
+							showList();
+						}
+					});
+				};
 
-$(document).ready(function() 
-{
-	/** -- FOR TAGGING AS COMPLETE -- **/
-	$('#discount_table').on('click','.tag_customers',function(){
-		var code	=	$(this).attr('data-id');
-		window.location = '<?=MODULE_URL?>tag_customers/'+code;
-	});
-	/** -- FOR TAGGING AS COMPLETE -- end **/
+				showList();
 
-	/** For Import Modal **/
-	$("#import_id").click(function() 
-	{
-		$("#import-modal > .modal").css("display", "inline");
-		$('#import-modal').modal();
-	});
+				function ajaxCallback(id) {
+					var ids = getDeleteId(id);
+					$.post('<?=MODULE_URL?>ajax/ajax_delete', ids, function(data) {
+						if ( ! data.success) {
+							$('#warning_modal #warning_message').html('<p>Unable to delete Discount: Discount in Use</p>');
+							data.error_id.forEach(function(id) {
+								$('#warning_modal #warning_message').append('<p>Discount Code: ' + id + '</p>');
+							});
+							$('#warning_modal').modal('show');
+						}
+						showList();
+					});
+				}
 
-	$("#importForm #btnImport").click(function() 
-	{
-		var formData =	new FormData();
-		formData.append('file',$('#import_csv')[0].files[0]);
-		ajax_call 	=	$.ajax({
+				$(function() {
+					linkButtonToTable('#item_multiple_delete', '#discount_table');
+					linkDeleteToModal('#discount_table .delete', 'ajaxCallback');
+					linkDeleteMultipleToModal('#item_multiple_delete', '#discount_table', 'ajaxCallback');
+				});
+
+				$(document).ready(function() 
+				{
+					/** -- FOR TAGGING AS COMPLETE -- **/
+					$('#discount_table').on('click','.tag_customers',function(){
+						var code	=	$(this).attr('data-id');
+						window.location = '<?=MODULE_URL?>tag_customers/'+code;
+					});
+					/** -- FOR TAGGING AS COMPLETE -- end **/
+
+					/** For Import Modal **/
+					$("#import_id").click(function() 
+					{
+						$("#import-modal > .modal").css("display", "inline");
+						$('#import-modal').modal();
+					});
+
+					$("#importForm #btnImport").click(function() 
+					{
+						var formData =	new FormData();
+						formData.append('file',$('#import_csv')[0].files[0]);
+						ajax_call 	=	$.ajax({
 							url : '<?=MODULE_URL?>ajax/save_import',
 							data:	formData,
 							cache: 	false,
@@ -328,26 +328,26 @@ $(document).ready(function()
 								}
 							},
 						});
-	});
-	
-	$('#importForm').on('change', '#import_csv', function() {
-		var filename = $(this).val().split("\\");
-		$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
-	});
+					});
 
-    $('#import-modal').on('show.bs.modal', function() {
-		var form_csv = $('#import_csv').val('').closest('.form-group').find('.form-control').html('').closest('.form-group').html();
-		$('#import_csv').closest('.form-group').html(form_csv);
-	});
+					$('#importForm').on('change', '#import_csv', function() {
+						var filename = $(this).val().split("\\");
+						$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
+					});
 
-	/** For Import Modal **/
+					$('#import-modal').on('show.bs.modal', function() {
+						var form_csv = $('#import_csv').val('').closest('.form-group').find('.form-control').html('').closest('.form-group').html();
+						$('#import_csv').closest('.form-group').html(form_csv);
+					});
 
-	$("#importCustForm #btnImport").click(function() 
-	{
-		var formData =	new FormData();
-		formData.append('file',$('#import_cust_csv')[0].files[0]);
-		formData.append('discountcode',$('#hidden_id').val());
-		ajax_call 	=	$.ajax({
+					/** For Import Modal **/
+
+					$("#importCustForm #btnImport").click(function() 
+					{
+						var formData =	new FormData();
+						formData.append('file',$('#import_cust_csv')[0].files[0]);
+						formData.append('discountcode',$('#hidden_id').val());
+						ajax_call 	=	$.ajax({
 							url : '<?=MODULE_URL?>ajax/save_import_customers',
 							data:	formData,
 							cache: 	false,
@@ -366,143 +366,143 @@ $(document).ready(function()
 								}
 							},
 						});
-	});
-	
-	$('#importCustForm').on('change', '#import_cust_csv', function() {
-		var filename = $(this).val().split("\\");
-		$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
-	});
+					});
 
-    $('#import-tagcust-modal').on('show.bs.modal', function() {
-		var form_csv = $('#import_cust_csv').val('').closest('.form-group').find('.form-control').html('').closest('.form-group').html();
-		$('#import_cust_csv').closest('.form-group').html(form_csv);
-	});
+					$('#importCustForm').on('change', '#import_cust_csv', function() {
+						var filename = $(this).val().split("\\");
+						$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
+					});
 
-	$('#discount_table').on('click','.import_customers',function(){
-		var code	=	$(this).attr('data-id');
-		$("#import-tagcust-modal > .modal").css("display", "inline");
-		$('#hidden_id').val(code);
-		$('.download_button').attr('download','Discount [ '+code+' ] - Customers.csv');
-		$('#import-tagcust-modal').modal('show');
-	});
+					$('#import-tagcust-modal').on('show.bs.modal', function() {
+						var form_csv = $('#import_cust_csv').val('').closest('.form-group').find('.form-control').html('').closest('.form-group').html();
+						$('#import_cust_csv').closest('.form-group').html(form_csv);
+					});
 
-	$('#pagination').on('click', 'a', function(e) {
-		e.preventDefault();
-		$('.checked').iCheck('uncheck');
-		var li = $(this).closest('li');
-		if (li.not('.active').length && li.not('.disabled').length) {
-			ajax.page = $(this).attr('data-page');
-			showList();
-		}
-	});
-	
-	$('#success_modal .btn-success').on('click', function(){
-		$('#success_modal').modal('hide');
-		$('#import-tagcust-modal').modal('hide');
-		showList();
-	});
-});
+					$('#discount_table').on('click','.import_customers',function(){
+						var code	=	$(this).attr('data-id');
+						$("#import-tagcust-modal > .modal").css("display", "inline");
+						$('#hidden_id').val(code);
+						$('.download_button').attr('download','Discount [ '+code+' ] - Customers.csv');
+						$('#import-tagcust-modal').modal('show');
+					});
 
+					$('#pagination').on('click', 'a', function(e) {
+						e.preventDefault();
+						$('.checked').iCheck('uncheck');
+						var li = $(this).closest('li');
+						if (li.not('.active').length && li.not('.disabled').length) {
+							ajax.page = $(this).attr('data-page');
+							showList();
+						}
+					});
 
-		$('#discount_table').on('click', '.activate', function() { 
-			var id = $(this).attr('data-id');
-			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
-				showList();
-			});
-		});
-
-		$('#discount_table').on('click', '.deactivate', function() { 
-			$('#deactivate_modal').modal('show');
-			var id = $(this).attr('data-id');
-			
-			$('#deactivate_modal').on('click', '#deactyes', function() {
-				$('#deactivate_modal').modal('hide');
-				
-				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
-					showList();
+					$('#success_modal .btn-success').on('click', function(){
+						$('#success_modal').modal('hide');
+						$('#import-tagcust-modal').modal('hide');
+						showList();
+					});
 				});
-			});
-		});
+				var activate_id = '';
+				$('#discount_table').on('click', '.activate', function() { 
+					activate_id = $(this).attr('data-id');
+					$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+activate_id ,function(data) {
+						showList();
+					});
+				});
 
-$('#export_id').prop('download','discount.csv');
+				var deactivate_id = '';
+				$('#discount_table').on('click', '.deactivate', function() { 
+					$('#deactivate_modal').modal('show');
+					deactivate_id = $(this).attr('data-id');
 
-$("#deactivateMultipleBtn").click(function() 
-	{
-		$('#multipleDeactivateModal').modal('show');
-		$( "#multipleDeactivateModal #btnDeac" ).click(function() {
-		ids 	=	getSelectedIds();
-		$.post('<?=MODULE_URL?>ajax/update_multiple_deactivate', "&ids="+ids ,function(data) {
-			
-			if( data.msg == 'success' )
-			{
-				$('.checked').iCheck('uncheck');
-				showList();
-				$('#multipleDeactivateModal').modal('hide');
-			} 
-		});
-	});
-	});
+					$('#deactivate_modal').on('click', '#deactyes', function() {
+						$('#deactivate_modal').modal('hide');
 
-	$("#activateMultipleBtn").click(function() 
-	{
-		var id = [];
+						$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+deactivate_id ,function(data) {
+							showList();
+						});
+					});
+				});
 
-		$('input:checkbox.item_checkbox:checked').each(function()
-		{
-			id.push($(this).val());
-		});
+				$('#export_id').prop('download','discount.csv');
 
-		if( id != "" )
-		{
-			$('#multipleActivateModal').modal('show');
-			$( "#multipleActivateModal #btnYes" ).click(function() {
-			ids 	=	getSelectedIds();
-			$.post('<?=MODULE_URL?>ajax/update_multiple_activate', "&ids="+ids ,function(data) {
-				if( data.msg == 'success' )
+				$("#deactivateMultipleBtn").click(function() 
 				{
-					$('.checked').iCheck('uncheck');
-					showList();
-					$('#multipleActivateModal').modal('hide');
-				} 
-			});
-		});
-		}
-	});
+					$('#multipleDeactivateModal').modal('show');
+					$( "#multipleDeactivateModal #btnDeac" ).click(function() {
+						ids 	=	getSelectedIds();
+						$.post('<?=MODULE_URL?>ajax/update_multiple_deactivate', "&ids="+ids ,function(data) {
 
-	function getSelectedIds(){
-		id 	=	[];
-		$('.checkbox:checked').each(function(){
-			id.push($(this).val());
-		});
-		return id;
-	}
+							if( data.msg == 'success' )
+							{
+								$('.checked').iCheck('uncheck');
+								showList();
+								$('#multipleDeactivateModal').modal('hide');
+							} 
+						});
+					});
+				});
 
-	$('#discount_table').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
-			var b = $('input[type=checkbox]:not(.checkall)');
-			var row = $('#discount_table >tbody >tr').length;
-			var c =	b.filter(':checked').length;
-			if(c == row){
-				$('#discount_table thead tr th').find('.checkall').prop('checked', true).iCheck('update');
-			}else{
-				$('#discount_table thead tr th').find('.checkall').prop('checked', false).iCheck('update');
-			}
-		});
+				$("#activateMultipleBtn").click(function() 
+				{
+					var id = [];
 
-function historyOfMyLife() {
-	var arr = [];
-	$('#discount_table tbody').find('.label').each(function(index, value){
-		arr.push($(this).html());
-		if(jQuery.inArray('ACTIVE', arr) != -1) {
-			$('#deactivateMultipleBtn').attr('disabled', false);
-		}else{
-			$('#deactivateMultipleBtn').attr('disabled', true);
-		}
-		if(jQuery.inArray('INACTIVE', arr) != -1) {
-			$('#activateMultipleBtn').attr('disabled', false);
-		}else{
-			$('#activateMultipleBtn').attr('disabled', true);
-			
-		}
-	});
-}
-</script>
+					$('input:checkbox.item_checkbox:checked').each(function()
+					{
+						id.push($(this).val());
+					});
+
+					if( id != "" )
+					{
+						$('#multipleActivateModal').modal('show');
+						$( "#multipleActivateModal #btnYes" ).click(function() {
+							ids 	=	getSelectedIds();
+							$.post('<?=MODULE_URL?>ajax/update_multiple_activate', "&ids="+ids ,function(data) {
+								if( data.msg == 'success' )
+								{
+									$('.checked').iCheck('uncheck');
+									showList();
+									$('#multipleActivateModal').modal('hide');
+								} 
+							});
+						});
+					}
+				});
+
+				function getSelectedIds(){
+					id 	=	[];
+					$('.checkbox:checked').each(function(){
+						id.push($(this).val());
+					});
+					return id;
+				}
+
+				$('#discount_table').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
+					var b = $('input[type=checkbox]:not(.checkall)');
+					var row = $('#discount_table >tbody >tr').length;
+					var c =	b.filter(':checked').length;
+					if(c == row){
+						$('#discount_table thead tr th').find('.checkall').prop('checked', true).iCheck('update');
+					}else{
+						$('#discount_table thead tr th').find('.checkall').prop('checked', false).iCheck('update');
+					}
+				});
+
+				function historyOfMyLife() {
+					var arr = [];
+					$('#discount_table tbody').find('.label').each(function(index, value){
+						arr.push($(this).html());
+						if(jQuery.inArray('ACTIVE', arr) != -1) {
+							$('#deactivateMultipleBtn').attr('disabled', false);
+						}else{
+							$('#deactivateMultipleBtn').attr('disabled', true);
+						}
+						if(jQuery.inArray('INACTIVE', arr) != -1) {
+							$('#activateMultipleBtn').attr('disabled', false);
+						}else{
+							$('#activateMultipleBtn').attr('disabled', true);
+
+						}
+					});
+				}
+			</script>

@@ -485,7 +485,6 @@ class purchase_order extends wc_model
 
 				$tempArr[] 						= $data_insert;
 			}
-
 		}
 		$warning = array();
 		$checkamount = array();
@@ -550,11 +549,10 @@ class purchase_order extends wc_model
 							->setGroupBy('bs.accountcode')
 							->runSelect()
 							->getRow();
-
 							if(!$getbudgetaccount) {
 								$warning[] = 'The account ' . $getaccount->accountname . ' is not in your budget code ' .$budgetcode. '.';
 							} else {
-								if($row['amount'] > $getbudgetaccount->amount) {
+								if($subtotal > $getbudgetaccount->amount) {
 									$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
 								}
 							}
@@ -574,7 +572,7 @@ class purchase_order extends wc_model
 							if(!$getbudgetaccount) {
 								$warning[] = 'The account ' . $check->accountname . ' is not in your budget code ' .$budgetcode. '.';
 							} else {
-								if($row['amount'] > $getbudgetaccount->amount) {
+								if($subtotal > $getbudgetaccount->amount) {
 									$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 								}
 							}
@@ -611,7 +609,7 @@ class purchase_order extends wc_model
 							if(!$getbudgetaccount) {
 								$warning[] = 'The account ' . $getaccount->accountname . ' is not in your budget code ' .$budgetcode. '.';
 							} else {
-								if($row['amount'] > $getbudgetaccount->amount) {
+								if($subtotal > $getbudgetaccount->amount) {
 									$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
 								}
 							}
@@ -631,7 +629,7 @@ class purchase_order extends wc_model
 							if(!$getbudgetaccount) {
 								$warning[] = 'The account ' . $check->accountname . ' is not in your budget code ' .$budgetcode. '.';
 							} else {
-								if($row['amount'] > $getbudgetaccount->amount) {
+								if($subtotal > $getbudgetaccount->amount) {
 									$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 								}
 							}

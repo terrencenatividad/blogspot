@@ -710,7 +710,7 @@
 			$result	= $this->db->setTable('salesorder a')
 								->innerJoin('salesorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
 								->leftJoin("($dr_inner) dr ON dr.source_no = a.voucherno AND dr.companycode = a.companycode AND dr.linenum = b.linenum")
-								->setFields('b.itemcode, detailparticular, b.warehouse, (b.issueqty - dr.issueqty) balance_qty, dr.discountamount as discountamount, dr.discountrate as discountrate, b.amount as amount, b.taxcode, b.taxrate, b.issueuom, unitprice')
+								->setFields('b.itemcode, detailparticular, b.warehouse, b.issueqty init_qty, (b.issueqty - dr.issueqty) balance_qty, dr.discountamount as discountamount, dr.discountrate as discountrate, b.amount as amount, b.taxcode, b.taxrate, b.issueuom, unitprice')
 								->setWhere("a.stat IN('open', 'partial', 'posted') AND a.voucherno = '$voucherno'")
 								->setHaving('balance_qty > 0')
 								->runSelect()
@@ -730,7 +730,7 @@
 			$result	= $this->db->setTable('salesorder a')
 								->innerJoin('salesorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
 								->leftJoin("($dr_inner) dr ON dr.source_no = a.voucherno AND dr.companycode = a.companycode AND dr.linenum = b.linenum")
-								->setFields('b.itemcode, detailparticular, b.warehouse, dr.issueqty, b.taxcode, b.taxrate, dr.taxamount as taxamount, b.issueuom, dr.discountamount as discountamount, dr.discountrate as discountrate, unitprice, dr.amount as amount, vat_sales, vat_exempt, vat_zerorated')
+								->setFields('b.itemcode, detailparticular, b.warehouse, b.issueqty init_qty, dr.issueqty, b.taxcode, b.taxrate, dr.taxamount as taxamount, b.issueuom, dr.discountamount as discountamount, dr.discountrate as discountrate, unitprice, dr.amount as amount, vat_sales, vat_exempt, vat_zerorated')
 								->setWhere("a.stat IN('open', 'partial', 'posted') AND a.voucherno = '$voucherno'")
 								->runSelect()
 								->getResult();
