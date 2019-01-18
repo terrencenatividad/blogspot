@@ -255,21 +255,21 @@
 								},
 							});
 		});
-
+		var activate_code = '';
 		$('#tableList').on('click', '.activate', function() { 
-			var code = $(this).attr('data-id');
-			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&code='+code ,function(data) {
+			activate_code = $(this).attr('data-id');
+			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&code='+activate_code ,function(data) {
 				getList();
 			});
 		});
-
+		var deactivate_code = '';
 		$('#tableList').on('click', '.deactivate', function() { 
 			$('#deactivate_modal').modal('show');
-			var id = $(this).attr('data-id');
+			deactivate_code = $(this).attr('data-id');
 			
 			$('#deactivate_modal').on('click', '#deactyes', function() {
 				$('#deactivate_modal').modal('hide');
-				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&code='+id ,function(data) {
+				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&code='+deactivate_code ,function(data) {
 					getList();
 				});
 			});
