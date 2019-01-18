@@ -43,7 +43,7 @@
 			<div class="box-header">
 				<!--<textarea id="export_json" class="hidden"></textarea>-->
 				<div class="row">
-						<div class = "col-md-8">
+					<div class = "col-md-8">
 							<!-- <a class="btn btn-primary" role="button" 
 								href="<?=MODULE_URL?>create" style="outline:none;">Add New Proforma </a>
 							<form class="navbar-form navbar-left">
@@ -63,51 +63,51 @@
 							<input id = "deleteMultipleBtn" type = "button" name = "delete" 
 							value = "Delete" class="btn btn-danger "> -->
 							<?= 
-								$ui->CreateNewButton('');
+							$ui->CreateNewButton('');
 							?>
 
 							<?= 
-								$ui->OptionButton('');
+							$ui->OptionButton('');
 							?>
 							<?=	$ui->CreateDeleteButton(''); ?>
 							<?=	$ui->CreateActButton(''); ?>
-							</div>
+						</div>
 						<div class="col-md-4">
 							<div class="input-group ">
 								<input name="table_search" class="form-control pull-right" 
-									placeholder="Search accounts..." type="text" id="table_search">
+								placeholder="Search accounts..." type="text" id="table_search">
 								<div class="input-group-btn">
 									<button type="submit" class="btn btn-default">
 										<i class="fa fa-search"></i></button>
+									</div>
 								</div>
 							</div>
 						</div>
-				</div>
-				<br/>
-				<div class="row">
-					<div class="col-md-4 col-md-offset-8">
+						<br/>
 						<div class="row">
-							<div class="col-sm-8 col-xs-6 text-right">
-								<label for="" class="padded">Items: </label>
-							</div>
-							<div class="col-sm-4 col-xs-6">
-								<div class="form-group">
-									<select id="items">
-										<option value="10">10</option>
-										<option value="20">20</option>
-										<option value="50">50</option>
-										<option value="100">100</option>
-									</select>
+							<div class="col-md-4 col-md-offset-8">
+								<div class="row">
+									<div class="col-sm-8 col-xs-6 text-right">
+										<label for="" class="padded">Items: </label>
+									</div>
+									<div class="col-sm-4 col-xs-6">
+										<div class="form-group">
+											<select id="items">
+												<option value="10">10</option>
+												<option value="20">20</option>
+												<option value="50">50</option>
+												<option value="100">100</option>
+											</select>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
-				</div>
-			
-				<div class="box-body table table-responsive">
-					<table id="tableList" class="table table-striped table-condensed table-bordered table-hover">
-						<?
-							echo $ui->loadElement('table')
+
+						<div class="box-body table table-responsive">
+							<table id="tableList" class="table table-striped table-condensed table-bordered table-hover">
+								<?
+								echo $ui->loadElement('table')
 								->setHeaderClass('info')
 								->addHeader(
 									'<input type="checkbox" class="checkall">',
@@ -116,215 +116,215 @@
 									)
 								)
 								->addHeader('Proforma Code', array('class' => 'col-md-2 text-center'), 
-											'sort', 'p.proformacode', 'asc')
+									'sort', 'p.proformacode', 'asc')
 								->addHeader('Proforma Desc', array('class' => 'col-md-5 text-center'), 
-											'sort', 'p.proformadesc')
+									'sort', 'p.proformadesc')
 								->addHeader('Status', array('class' => 'col-md-5 text-center'), 
-								'sort', 'p.status')
+									'sort', 'p.status')
 								->draw();
-						?>
-						<tbody id="list_container">
+								?>
+								<tbody id="list_container">
 
-						</tbody>
-						
-					</table>
-					<div id="pagination"></div>
-				</div>
-				
-			</div>
-		</form>	
-	</div>
-</section>
-<!--DELETE RECORD CONFIRMATION MODAL-->
-<div class="modal fade" id="deleteModal" tabindex="-1" data-backdrop="static">
-	<div class="modal-dialog modal-sm">
-		<div class="modal-content">
-			<div class="modal-header">
-				Confirmation
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-			</div>
-			<div class="modal-body">
-				Are you sure you want to delete this proforma?
-				<input type="hidden" id="recordId"/>
-			</div>
-			<div class="modal-footer">
-				<div class="row row-dense">
-					<div class="col-md-12 center">
-						<div class="btn-group">
-							<button type="button" class="btn btn-primary" id="btnYes">Yes</button>
+								</tbody>
+
+							</table>
+							<div id="pagination"></div>
 						</div>
-							&nbsp;&nbsp;&nbsp;
-						<div class="btn-group">
-							<button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-						</div>
+
 					</div>
-				</div>
+				</form>	
 			</div>
-		</div>
-	</div>
-</div>
-
-<!--DELETE RECORDS CONFIRMATION MODAL-->
-<div class="modal fade" id="multipleDeleteModal" tabindex="-1" data-backdrop="static">
-	<div class="modal-dialog modal-sm">
-		<div class="modal-content">
-			<div class="modal-header">
-				Confirmation
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-			</div>
-			<div class="modal-body">
-				Are you sure you want to delete selected proforma(s)?
-			</div>
-			<div class="modal-footer">
-				<div class="row row-dense">
-					<div class="col-md-12 center">
-						<div class="btn-group">
-							<button type="button" class="btn btn-primary" id="btnYes">Yes</button>
-						</div>
-							&nbsp;&nbsp;&nbsp;
-						<div class="btn-group">
-							<button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<!-- Import Modal -->
-<div class="import-modal" id="import-modal">
-	<div class="modal">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<form method="POST" id="importForm" ENCTYPE="multipart/form-data">
+		</section>
+		<!--DELETE RECORD CONFIRMATION MODAL-->
+		<div class="modal fade" id="deleteModal" tabindex="-1" data-backdrop="static">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
 					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true">×</span></button>
-						<h4 class="modal-title">Import Proforma List</h4>
+						Confirmation
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
 					</div>
 					<div class="modal-body">
-						<label>Step 1. Download the sample template 
-						<a href="<?=BASE_URL?>modules/financials_module/backend/view/
-											pdf/import_proforma_list.csv">here</a>
-						</label>
-						<hr/>
-						<label>Step 2. Fill up the information needed for each columns of the template.
-						</label>
-						<hr/>
-						<div class="form-group field_col">
-							<label for="import_csv">
-								Step 3. Select the updated file and click 'Import' to proceed.
-							</label>
-							<?php
-								echo $ui->setElement('file')
-										->setId('import_csv')
-										->setName('import_csv')
-										->setAttribute(array('accept' => '.csv'))
-										->setValidation('required')
-										->draw();
-							?>
-							<span class="help-block"></span>
+						Are you sure you want to delete this proforma?
+						<input type="hidden" id="recordId"/>
+					</div>
+					<div class="modal-footer">
+						<div class="row row-dense">
+							<div class="col-md-12 center">
+								<div class="btn-group">
+									<button type="button" class="btn btn-primary" id="btnYes">Yes</button>
+								</div>
+								&nbsp;&nbsp;&nbsp;
+								<div class="btn-group">
+									<button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+								</div>
+							</div>
 						</div>
-						<p class="help-block">The file to be imported must be in CSV 
-											  (Comma Separated Values) file.</p>
 					</div>
-					<div class="modal-footer text-center">
-						<button type="button" class="btn btn-info btn-flat" id="btnImport">Import</button>
-						<button type="button" class="btn btn-default btn-flat" 
-							data-dismiss="modal">Close</button>
-					</div>
-				</form>
+				</div>
 			</div>
 		</div>
-	</div>
-</div>
-<script>
-	var ajax = {};
-	function show_error(msg)
-	{
-		$(".delete-modal").modal("hide");
-		$(".alert-warning").removeClass("hidden");
-		$("#errmsg").html(msg);
-	}
 
-	function showList() 
-	{
-		$.post('<?=MODULE_URL?>ajax/load_list', ajax, function(data)
-		{
-			$('#list_container').html(data.table);
-			$('#pagination').html(data.pagination);
-			historyOfMyLife();
-			$("#export_id").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+		<!--DELETE RECORDS CONFIRMATION MODAL-->
+		<div class="modal fade" id="multipleDeleteModal" tabindex="-1" data-backdrop="static">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-header">
+						Confirmation
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						Are you sure you want to delete selected proforma(s)?
+					</div>
+					<div class="modal-footer">
+						<div class="row row-dense">
+							<div class="col-md-12 center">
+								<div class="btn-group">
+									<button type="button" class="btn btn-primary" id="btnYes">Yes</button>
+								</div>
+								&nbsp;&nbsp;&nbsp;
+								<div class="btn-group">
+									<button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-			if (ajax.page > data.page_limit && data.page_limit > 0) 
-			{
-				ajax.page = data.page_limit;
-				showList();
-			}
-		});
-	}
-	$(function() {
-			linkButtonToTable('#item_multiple_delete', '#tableList');
+		<!-- Import Modal -->
+		<div class="import-modal" id="import-modal">
+			<div class="modal">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<form method="POST" id="importForm" ENCTYPE="multipart/form-data">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">×</span></button>
+									<h4 class="modal-title">Import Proforma List</h4>
+								</div>
+								<div class="modal-body">
+									<label>Step 1. Download the sample template 
+										<a href="<?=BASE_URL?>modules/financials_module/backend/view/
+											pdf/import_proforma_list.csv">here</a>
+										</label>
+										<hr/>
+										<label>Step 2. Fill up the information needed for each columns of the template.
+										</label>
+										<hr/>
+										<div class="form-group field_col">
+											<label for="import_csv">
+												Step 3. Select the updated file and click 'Import' to proceed.
+											</label>
+											<?php
+											echo $ui->setElement('file')
+											->setId('import_csv')
+											->setName('import_csv')
+											->setAttribute(array('accept' => '.csv'))
+											->setValidation('required')
+											->draw();
+											?>
+											<span class="help-block"></span>
+										</div>
+										<p class="help-block">The file to be imported must be in CSV 
+										(Comma Separated Values) file.</p>
+									</div>
+									<div class="modal-footer text-center">
+										<button type="button" class="btn btn-info btn-flat" id="btnImport">Import</button>
+										<button type="button" class="btn btn-default btn-flat" 
+										data-dismiss="modal">Close</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<script>
+					var ajax = {};
+					function show_error(msg)
+					{
+						$(".delete-modal").modal("hide");
+						$(".alert-warning").removeClass("hidden");
+						$("#errmsg").html(msg);
+					}
+
+					function showList() 
+					{
+						$.post('<?=MODULE_URL?>ajax/load_list', ajax, function(data)
+						{
+							$('#list_container').html(data.table);
+							$('#pagination').html(data.pagination);
+							historyOfMyLife();
+							$("#export_id").attr('href', 'data:text/csv;filename=chart_of_accounts.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+
+							if (ajax.page > data.page_limit && data.page_limit > 0) 
+							{
+								ajax.page = data.page_limit;
+								showList();
+							}
+						});
+					}
+					$(function() {
+						linkButtonToTable('#item_multiple_delete', '#tableList');
 			// linkButtonToTable('#activateMultipleBtn', '#tableList');
 			// linkButtonToTable('#deactivateMultipleBtn', '#tableList');
 		});
-	tableSort('#tableList', function(value, x) 
-	{
-		ajax.sort = value;
-		ajax.page = 1;
-		if (x) 
-		{
-			showList();
-		}
-	});
+					tableSort('#tableList', function(value, x) 
+					{
+						ajax.sort = value;
+						ajax.page = 1;
+						if (x) 
+						{
+							showList();
+						}
+					});
 
-	$( "#table_search" ).keyup(function() 
-	{
-		var search = $( this ).val();
-		ajax.search = search;
-		showList();
-	});
+					$( "#table_search" ).keyup(function() 
+					{
+						var search = $( this ).val();
+						ajax.search = search;
+						showList();
+					});
 
-	/**IMPORT**/
-	$('#import-modal').on('show.bs.modal', function() {
-		var form_csv = $('#import_csv').val('').closest('.form-group').
-					find('.form-control').html('').closest('.form-group').html();
-		$('#import_csv').closest('.form-group').html(form_csv);
-	});
+					/**IMPORT**/
+					$('#import-modal').on('show.bs.modal', function() {
+						var form_csv = $('#import_csv').val('').closest('.form-group').
+						find('.form-control').html('').closest('.form-group').html();
+						$('#import_csv').closest('.form-group').html(form_csv);
+					});
 
-	$('#importForm').on('change', '#import_csv', function() {
-			var filename = $(this).val().split("\\");
-			$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
-	});
+					$('#importForm').on('change', '#import_csv', function() {
+						var filename = $(this).val().split("\\");
+						$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
+					});
 
-	$(function() {
-		showList();
+					$(function() {
+						showList();
 
-		$("#selectall").click(function() 
-		{
-			$('input:checkbox').not(this).prop('checked', this.checked);
-		});
+						$("#selectall").click(function() 
+						{
+							$('input:checkbox').not(this).prop('checked', this.checked);
+						});
 		/*
 		* For Single Delete
 		*/
 		$(document.body).on("click", ".delete", function() 
 		{   
 			var id = [];
-				id.push($( this ).attr("data-id"));
+			id.push($( this ).attr("data-id"));
 			
-			 if( id != "" )
-			 {
-			 	$("#deleteModal").modal("show");
+			if( id != "" )
+			{
+				$("#deleteModal").modal("show");
 
 				$( "#btnYes" ).click(function() 
 				{
-						$.post('<?=MODULE_URL?>ajax/delete', 'id=' + id, function(data) 
+					$.post('<?=MODULE_URL?>ajax/delete', 'id=' + id, function(data) 
+					{
+						if( data.msg == "" )
+							window.location.href = "<?=MODULE_URL?>";
+						else
 						{
-							if( data.msg == "" )
-								window.location.href = "<?=MODULE_URL?>";
-							else
-							{
 								// Call function to display error_get_last
 								show_error(data.msg);
 							}
@@ -347,7 +347,7 @@
 			//alert(id);
 			if( id != "" )
 			{
-			 	$("#multipleDeleteModal").modal("show");
+				$("#multipleDeleteModal").modal("show");
 
 				$( "#multipleDeleteModal #btnYes" ).click(function() 
 				{
@@ -385,24 +385,24 @@
 			var formData =	new FormData();
 			formData.append('file',$('#import_csv')[0].files[0]);
 			ajax_call 	=	$.ajax({
-								url : '<?=MODULE_URL?>ajax/save_import',
-								data:	formData,
-								cache: 	false,
-								processData: false, 
-								contentType: false,
-								type: 	'POST',
-								success: function(response){
-									if(response && response.errmsg == ""){
-										$('#import-modal').modal('hide');
-										show_success_msg("Your data has been successfully imported!");										
-										$(".alert-warning").addClass("hidden");
-										$("#errmsg").html('');
-									}else{
-										$('#import-modal').modal('hide');
-										show_error(response.errmsg);
-									}
-								},
-							});
+				url : '<?=MODULE_URL?>ajax/save_import',
+				data:	formData,
+				cache: 	false,
+				processData: false, 
+				contentType: false,
+				type: 	'POST',
+				success: function(response){
+					if(response && response.errmsg == ""){
+						$('#import-modal').modal('hide');
+						show_success_msg("Your data has been successfully imported!");										
+						$(".alert-warning").addClass("hidden");
+						$("#errmsg").html('');
+					}else{
+						$('#import-modal').modal('hide');
+						show_error(response.errmsg);
+					}
+				},
+			});
 		});
 
 		$('#pagination').on('click', 'a', function(e) {
@@ -422,124 +422,124 @@
 		});
 
 	});
+					var activate_id = '';
+					$('#tableList').on('click', '.activate', function() { 
+						activate_id = $(this).attr('data-id');
+						$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+activate_id ,function(data) {
+							showList();
+						});
+					});
+					var deactivate_id = '';
+					$('#tableList').on('click', '.deactivate', function() { 
+						$('#deactivate_modal').modal('show');
+						deactivate_id = $(this).attr('data-id');
 
-	$('#tableList').on('click', '.activate', function() { 
-			var id = $(this).attr('data-id');
-			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
-				showList();
-			});
-		});
+						$('#deactivate_modal').on('click', '#deactyes', function() {
+							$('#deactivate_modal').modal('hide');
 
-		$('#tableList').on('click', '.deactivate', function() { 
-			$('#deactivate_modal').modal('show');
-			var id = $(this).attr('data-id');
-			
-			$('#deactivate_modal').on('click', '#deactyes', function() {
-				$('#deactivate_modal').modal('hide');
-				
-				$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+id ,function(data) {
-					showList();
-				});
-			});
-		});
-	
-function show_success_msg(msg)
-{
-	$('#success_modal #message').html(msg);
-	$('#success_modal').modal('show');
-	setTimeout(function() {												
-		window.location = '<?= MODULE_URL ?>';		
-	}, 1000)
-}
+							$.post('<?=MODULE_URL?>ajax/ajax_edit_deactivate', '&id='+deactivate_id ,function(data) {
+								showList();
+							});
+						});
+					});
 
-	$('#export_id').prop('download','proforma.csv');
-	
-	$("#deactivateMultipleBtn").click(function() 
-	{
-	var id = [];
+					function show_success_msg(msg)
+					{
+						$('#success_modal #message').html(msg);
+						$('#success_modal').modal('show');
+						setTimeout(function() {												
+							window.location = '<?= MODULE_URL ?>';		
+						}, 1000)
+					}
 
-		$('input:checkbox.item_checkbox:checked').each(function()
-		{
-			id.push($(this).val());
-		});
-		
-		if( id != "" )
-		{
-			$('#multipleDeactivateModal').modal('show');
-			$( "#multipleDeactivateModal #btnDeac" ).click(function() {
-			ids 	=	getSelectedIds();
-			$.post('<?=MODULE_URL?>ajax/update_multiple_deactivate', "&ids="+ids ,function(data) {
-				
-				if( data.msg == 'success' )
-				{
-					$('.checked').iCheck('uncheck');
-					showList();
-					$('#multipleDeactivateModal').modal('hide');
-				} 
-			});
-		});
-		}
-	});
+					$('#export_id').prop('download','proforma.csv');
 
-	$("#activateMultipleBtn").click(function() 
-	{
-		var id = [];
+					$("#deactivateMultipleBtn").click(function() 
+					{
+						var id = [];
 
-		$('input:checkbox.item_checkbox:checked').each(function()
-		{
-			id.push($(this).val());
-		});
+						$('input:checkbox.item_checkbox:checked').each(function()
+						{
+							id.push($(this).val());
+						});
 
-		if( id != "" )
-		{
-			$('#multipleActivateModal').modal('show');
-			$( "#multipleActivateModal #btnYes" ).click(function() {
-			ids 	=	getSelectedIds();
-			$.post('<?=MODULE_URL?>ajax/update_multiple_activate', "&ids="+ids ,function(data) {
-				if( data.msg == 'success' )
-				{
-					$('.checked').iCheck('uncheck');
-					showList();
-					$('#multipleActivateModal').modal('hide');
-				} 
-			});
-		});
-		}
-	});
+						if( id != "" )
+						{
+							$('#multipleDeactivateModal').modal('show');
+							$( "#multipleDeactivateModal #btnDeac" ).click(function() {
+								ids 	=	getSelectedIds();
+								$.post('<?=MODULE_URL?>ajax/update_multiple_deactivate', "&ids="+ids ,function(data) {
 
-	function getSelectedIds(){
-		id 	=	[];
-		$('.checkbox:checked').each(function(){
-			id.push($(this).val());
-		});
-		return id;
-	}
+									if( data.msg == 'success' )
+									{
+										$('.checked').iCheck('uncheck');
+										showList();
+										$('#multipleDeactivateModal').modal('hide');
+									} 
+								});
+							});
+						}
+					});
 
-	$('#tableList').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
-			var b = $('input[type=checkbox]:not(.checkall)');
-			var row = $('#tableList >tbody >tr').length;
-			var c =	b.filter(':checked').length;
-			if(c == row){
-				$('#tableList thead tr th').find('.checkall').prop('checked', true).iCheck('update');
-			}else{
-				$('#tableList thead tr th').find('.checkall').prop('checked', false).iCheck('update');
-			}
-		});
+					$("#activateMultipleBtn").click(function() 
+					{
+						var id = [];
 
-function historyOfMyLife() {
-	var arr = [];
-	$('#tableList tbody').find('.label').each(function(index, value){
-		arr.push($(this).html());
-		if(jQuery.inArray('ACTIVE', arr) != -1) {
-			$('#deactivateMultipleBtn').attr('disabled', false);
-		}else{
-			$('#deactivateMultipleBtn').attr('disabled', true);
-		}
-		if(jQuery.inArray('INACTIVE', arr) != -1) {
-			$('#activateMultipleBtn').attr('disabled', false);
-		}else{
-			$('#activateMultipleBtn').attr('disabled', true);
-		}
-	});
-}
-</script>
+						$('input:checkbox.item_checkbox:checked').each(function()
+						{
+							id.push($(this).val());
+						});
+
+						if( id != "" )
+						{
+							$('#multipleActivateModal').modal('show');
+							$( "#multipleActivateModal #btnYes" ).click(function() {
+								ids 	=	getSelectedIds();
+								$.post('<?=MODULE_URL?>ajax/update_multiple_activate', "&ids="+ids ,function(data) {
+									if( data.msg == 'success' )
+									{
+										$('.checked').iCheck('uncheck');
+										showList();
+										$('#multipleActivateModal').modal('hide');
+									} 
+								});
+							});
+						}
+					});
+
+					function getSelectedIds(){
+						id 	=	[];
+						$('.checkbox:checked').each(function(){
+							id.push($(this).val());
+						});
+						return id;
+					}
+
+					$('#tableList').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
+						var b = $('input[type=checkbox]:not(.checkall)');
+						var row = $('#tableList >tbody >tr').length;
+						var c =	b.filter(':checked').length;
+						if(c == row){
+							$('#tableList thead tr th').find('.checkall').prop('checked', true).iCheck('update');
+						}else{
+							$('#tableList thead tr th').find('.checkall').prop('checked', false).iCheck('update');
+						}
+					});
+
+					function historyOfMyLife() {
+						var arr = [];
+						$('#tableList tbody').find('.label').each(function(index, value){
+							arr.push($(this).html());
+							if(jQuery.inArray('ACTIVE', arr) != -1) {
+								$('#deactivateMultipleBtn').attr('disabled', false);
+							}else{
+								$('#deactivateMultipleBtn').attr('disabled', true);
+							}
+							if(jQuery.inArray('INACTIVE', arr) != -1) {
+								$('#activateMultipleBtn').attr('disabled', false);
+							}else{
+								$('#activateMultipleBtn').attr('disabled', true);
+							}
+						});
+					}
+				</script>
