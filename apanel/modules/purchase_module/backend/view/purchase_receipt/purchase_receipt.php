@@ -131,7 +131,7 @@
 													'target'=> "_blank",
 												))
 											// ->addHidden($source_no)
-											->setValidation('required')
+											// ->setValidation('required')
 											->draw($show_input);
 											// ->draw($show_input && $ajax_task != 'ajax_edit');
 									?>
