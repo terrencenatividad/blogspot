@@ -393,7 +393,6 @@
 										$uom  				= $details[$i]->receiptuom;
 										$warehouse_code		= (empty($request_no)) ? $details[$i]->warehouse 	: 	'';
 										$warehouse_name		= (empty($request_no)) ? $details[$i]->description: 	'';
-
 										?>
 										<tr class="clone" valign="middle">
 											<td class = "remove-margin">
