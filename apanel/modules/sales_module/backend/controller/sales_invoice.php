@@ -525,7 +525,7 @@ class controller extends wc_controller
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'Price', 'Discount', 'Tax', 'Amount'))
 				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R', 'R','R'))
 				->setSummaryWidth(array('120', '50', '30'))
-				->setSummaryAlign(array('L','R','R'));
+				->setSummaryAlign(array('J','R','R'));
 
 		$detail_height = 28;
 
