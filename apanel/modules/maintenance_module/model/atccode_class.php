@@ -64,10 +64,12 @@ class atccode_class extends wc_model
 
 		$sort 	   = (!empty($sort)) ? $sort : "atcId DESC";
 		$leftJoin  = "chartaccount c ON a.tax_account = c.id";
+		$leftJoin2 = "chartaccount coa ON coa.id = a.cwt";
 
 		$result = $this->db->setTable('atccode a')
 					->setFields($data)
 					->leftJoin($leftJoin)
+					->leftJoin($leftJoin2)
 					->setWhere($add_query)
 					->setOrderBy($sort)
 					->runPagination();
@@ -93,7 +95,7 @@ class atccode_class extends wc_model
 		$addCond 		= 	stripslashes($addCond);
 		$search          = (isset($data['search']))? htmlentities($data['search']) : "";
 		$fetch_sort      = (isset($data['sort']))? htmlentities($data['sort']) : "";
-		$fields 		 =  array("atc_code", "tax_rate","wtaxcode","short_desc","accountname","cwt");
+		$fields 		 =  array("atc_code", "tax_rate","wtaxcode","short_desc","c.accountname","coa.accountname cwt_acctname","cwt","a.stat");
 
 		$addCondition = "";
 		$addCondition = (!empty($search)) ? " (atc_code LIKE '%$search%' 
@@ -103,12 +105,14 @@ class atccode_class extends wc_model
 
 		$addCondition .= (!empty($addCond)) ? ((!empty($search))? "AND ".$addCond: $addCond) : "";
 		$sort 	       = (!empty($fetch_sort)) ? $fetch_sort : "atcId desc";
-		$left  			= "chartaccount c ON c.id = a.tax_account";
+		$left  		   = "chartaccount c ON c.id = a.tax_account";
+		$left2 		   = "chartaccount coa ON coa.id = a.cwt";
 	
 		$result = $this->db->setTable('atccode a')
 							->setFields($fields)
 							->setWhere($addCondition)
 							->leftJoin($left)
+							->leftJoin($left2)
 							->setOrderBy($sort)
 							->runSelect()
 							->getResult();
