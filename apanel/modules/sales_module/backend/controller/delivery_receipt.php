@@ -219,7 +219,7 @@ class controller extends wc_controller {
 					->setSummaryAlign(array('J','R','R'));		
 		}
 
-		$notes = $documentinfo->notes; 
+		$notes = preg_replace('!\s+!', ' ', $documentinfo->notes);
 		$total_quantity = 0;
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
