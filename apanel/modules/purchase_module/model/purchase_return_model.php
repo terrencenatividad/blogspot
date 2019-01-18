@@ -247,8 +247,9 @@ class purchase_return_model extends wc_model {
 
 	public function getPurchaseReceiptDetails($voucherno, $voucherno_ref = false) {
 		$result1		= $this->db->setTable('purchasereceipt_details prd')
-								->setFields("itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, prd.warehouse, receiptuom, unitprice, prd.taxcode, prd.taxrate, prd.taxamount, prd.amount, convreceiptqty, convuom, conversion, receiptqty realqty")
+								->setFields("prd.itemcode, detailparticular, linenum, receiptqty, receiptqty maxqty, prd.warehouse, receiptuom, unitprice, prd.taxcode, prd.taxrate, prd.taxamount, prd.amount, convreceiptqty, convuom, conversion, receiptqty realqty, item_ident_flag")
 								->innerJoin('purchasereceipt pr ON prd.voucherno = pr.voucherno AND prd.companycode = pr.companycode')
+								->innerJoin('items i ON i.itemcode = prd.itemcode')
 								->setWhere("pr.voucherno = '$voucherno'")
 								->runSelect()
 								->getResult();
@@ -355,6 +356,41 @@ class purchase_return_model extends wc_model {
 			$temp[] = $arr . " LIKE '%" . str_replace(' ', '%', $search) . "%'";
 		}
 		return '(' . implode(' OR ', $temp) . ')';
+	}
+
+	public function getSerialList($itemcode, $search, $voucherno, $linenum) {
+		$condition = '';
+		if ($search) {
+			$condition .= $this->generateSearch($search, array('serialno', 'engineno', 'chassisno'));
+		}
+		$result1	= $this->db->setTable('items_serialized')
+								->setFields(array('companycode', 'id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat'))
+								->setWhere("itemcode = '$itemcode' AND stat = 'Available' AND voucherno = '$voucherno'")
+								->buildSelect();
+		// $sub_query = $this->db->setTable('deliveryreceipt_details')
+		// 						->setFields('serialnumbers')
+		// 						->setWhere("itemcode='$itemcode' AND voucherno='$voucherno' AND linenum='$linenum'")
+		// 						->setLimit(1)
+		// 						->runSelect()
+		// 						->getRow();
+		// $serials = ($sub_query) ? $sub_query->serialnumbers : '""';
+		// $serials = '""';
+		// $result2 = $this->db->setTable('items_serialized') 
+		// 						->setFields(array('companycode', 'id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat'))
+		// 						->setWhere("id IN ($serials)")
+		// 						->buildSelect();
+
+		$inner_query = $result1;
+		if (!empty($result2)) {
+			$inner_query .= ' UNION ALL ' . $result2;
+		}
+		
+		$inner_query = $this->db->setTable("($inner_query) i")
+								->setFields('*')
+								->setWhere($condition)
+								->setOrderBy('id')
+								->runPagination();	
+		return $inner_query;
 	}
 
 }

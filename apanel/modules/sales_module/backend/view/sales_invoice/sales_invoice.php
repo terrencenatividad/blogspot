@@ -84,16 +84,16 @@
 					
 					</div>
 					<div class="col-md-6">
-					<?php
-						echo $ui->formField('text')
-								->setLabel('Reference')
-								->setId('referenceno')
-								->setName('referenceno')
-								->setSplit('col-md-3', 'col-md-8')
-								->setValue($referenceno)
-								->setValidation('required')
-								->draw($show_input);
-					?>
+						<?php
+							echo $ui->formField('text')
+									->setLabel('Reference')
+									->setId('referenceno')
+									->setName('referenceno')
+									->setSplit('col-md-3', 'col-md-8')
+									->setValue($referenceno)
+									->setValidation('required')
+									->draw($show_input);
+						?>
 					</div>
 				</div>
 				<?php
@@ -1513,7 +1513,7 @@ function finalizeTransaction()
 	{	
 		computeAmount();
 
-		if($("#sales_invoice_form #itemcode\\[1\\]").val() != '' && $("#sales_invoice_form #transactiondate").val() != '' && $("#sales_invoice_form #duedate").val() != '' && $("#sales_invoice_form #customer").val() != '')
+		if($("#sales_invoice_form #referenceno").val() != '' && $("#sales_invoice_form #itemcode\\[1\\]").val() != '' && $("#sales_invoice_form #transactiondate").val() != '' && $("#sales_invoice_form #duedate").val() != '' && $("#sales_invoice_form #customer").val() != '')
 		{
 			$('#sales_invoice_form #btnSave').addClass('disabled');
 			$('#sales_invoice_form #btnSave_toggle').addClass('disabled');

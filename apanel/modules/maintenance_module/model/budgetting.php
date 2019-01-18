@@ -280,11 +280,45 @@ class budgetting extends wc_model
 
 	public function updateBudgetStatus($fields, $id)
 	{
-		$result 			   = $this->db->setTable('budget')
+		$result = $this->db->setTable('budget')
 		->setValues($fields)
 		->setWhere("id = '$id'")
 		->setLimit(1)
 		->runUpdate();
+
+		$budget = $this->getIdOfBudget($id);
+		$temp = array();
+		$reports = array();
+		if($budget) {
+			foreach($budget as $row) {
+				$budget_code = $row->budget_code;
+				$accountcode = $row->accountcode;
+				$description = $row->description;
+				$amount = $row->amount;
+				$rounded = round($amount / 12);
+				$temp['budget_code'] = $budget_code;
+				$temp['accountcode'] = $accountcode;
+				$temp['january'] = $rounded;
+				$temp['february'] = $rounded;
+				$temp['march'] = $rounded;
+				$temp['april'] = $rounded;
+				$temp['may'] = $rounded;
+				$temp['june'] = $rounded;
+				$temp['july'] = $rounded;
+				$temp['august'] = $rounded;
+				$temp['september'] = $rounded;
+				$temp['october'] = $rounded;
+				$temp['november'] = $rounded;
+				$temp['december'] = $rounded;
+				$temp['year'] = date('Y');
+				$reports[] = $temp;	
+			}			
+			if($fields['status'] == 'approved') {
+				$result = $this->db->setTable('budget_report')
+				->setValues($reports)
+				->runInsert(false);
+			}
+		}
 
 		return $result;
 	}
@@ -415,6 +449,7 @@ class budgetting extends wc_model
 
 	public function saveBudgetReportSupplement($id) {
 		$getdetails = $this->getIdOfBudgetCode($id);
+		$return = false;
 		if($getdetails) {
 			$temp = array();
 			$budget_code = $getdetails->budget_code;
@@ -436,11 +471,10 @@ class budgetting extends wc_model
 			$temp['october'] = $rounded;
 			$temp['november'] = $rounded;
 			$temp['december'] = $rounded;
+			$temp['year'] = date('Y');
 			$result = $this->db->setTable('budget_report')
 			->setValues($temp)
 			->runInsert(false);	
-		} else {
-			$return = false;
 		}
 		return $result;
 	}
@@ -480,6 +514,7 @@ class budgetting extends wc_model
 				$temp['october'] = $rounded;
 				$temp['november'] = $rounded;
 				$temp['december'] = $rounded;
+				$temp['year'] = date('Y');
 				$fields[] = $temp;	
 			}			
 			$result = $this->db->setTable('budget_report')

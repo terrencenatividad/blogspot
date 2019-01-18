@@ -62,6 +62,7 @@ class controller extends wc_controller {
 		$header = array(
 			'Account Code',
 			'Description',
+			'Effectivity Date',
 			'Budget',
 			'Actual',
 			'Variance'
@@ -76,6 +77,7 @@ class controller extends wc_controller {
 			$csv .= "\n";
 			$csv .= '"' . $row->accountcode . '",';
 			$csv .= '"' . $row->description . '",';
+			$csv .= '"' . $row->effectivity_date . '",';
 			$csv .= '"' . $row->amount . '",';
 			$csv .= '"' . $row->actual . '",';
 			$csv .= '"' . $row->variance . '",';

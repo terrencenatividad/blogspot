@@ -163,6 +163,7 @@ class billing_model extends wc_model {
 			'b.vat_sales',
 			'b.vat_exempt',
 			'b.job_orderno',
+			'b.referenceno',
 			'b.exchangerate',
 			"IF(b.stat = 'Cancelled', b.stat, IF(IFNULL(balance, 0) <= 0, 'Paid', IF(IFNULL(balance, 0) = netamount, 'Unpaid', 'With Partial Payment'))) stat"
 		);

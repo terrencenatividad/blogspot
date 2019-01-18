@@ -28,15 +28,18 @@ class budget_variance_model extends wc_model {
 		}
 
 		$result = $this->db->setTable('budget_details bd')
-		->setFields('ca.segment5 segment5, ca.accountname description, SUM(bd.amount) + IF(IFNULL(bs.amount, 0) = 0,0,SUM(bs.amount)) as amount, SUM(ab.actual) actual, (SUM(bd.amount)-SUM(ab.actual)) variance, b.effectivity_date as effectivity_date')
+		->setFields('ca.segment5 segment5, ca.accountname description, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) as amount, ifnull(ab.actual,0) as actual, b.effectivity_date as effectivity_date, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) - IFNULL(ab.actual,0) as variance')
 		->leftJoin('budget b ON b.budget_code = bd.budget_code')
-		->leftJoin('actual_budget as ab ON ab.accountcode = bd.accountcode')
 		->leftJoin('chartaccount ca ON bd.accountcode = ca.id')
+		->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code FROM actual_budget WHERE id != '' GROUP BY accountcode, budget_code)
+			as ab ON  ab.accountcode = bd.accountcode AND ab.budget_code = bd.budget_code")
 		->leftJoin("budget_supplement as bs ON b.id = bs.budget_id AND bs.accountcode = bd.accountcode AND bs.status = 'approved'")
-		->setGroupBy('bd.accountcode')
+		->setGroupBy('bd.accountcode, bd.budget_code')
 		->setOrderBy('bd.accountcode')
 		->setWhere($condition . $type)
 		->runPagination();
+
+		 // echo $this->db->getQuery();
 
 		return $result;
 	}
@@ -58,10 +61,13 @@ class budget_variance_model extends wc_model {
 		}
 
 		$result = $this->db->setTable('budget_details bd')
-		->setFields('bd.accountcode accountcode, ca.accountname description, SUM(bd.amount) amount, SUM(bd.actual) actual, (SUM(bd.amount)-SUM(bd.actual)) variance')
+		->setFields('bd.accountcode accountcode, ca.accountname description, b.effectivity_date as effectivity_date, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) as amount, IFNULL(ab.actual,0) as actual, b.effectivity_date as effectivity_date, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) - IFNULL(ab.actual,0) as variance')
 		->leftJoin('budget b ON b.budget_code = bd.budget_code')
-		->leftJoin('chartaccount ca ON bd.accountcode = ca.segment5')
-		->setGroupBy('bd.accountcode')
+		->leftJoin('chartaccount ca ON bd.accountcode = ca.id')
+		->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code FROM actual_budget WHERE id != '' GROUP BY accountcode, budget_code)
+			as ab ON  ab.accountcode = bd.accountcode AND ab.budget_code = bd.budget_code")
+		->leftJoin("budget_supplement as bs ON b.id = bs.budget_id AND bs.accountcode = bd.accountcode AND bs.status = 'approved'")
+		->setGroupBy('bd.accountcode, bd.budget_code')
 		->setOrderBy('bd.accountcode')
 		->setWhere($condition . $type)
 		->runSelect()

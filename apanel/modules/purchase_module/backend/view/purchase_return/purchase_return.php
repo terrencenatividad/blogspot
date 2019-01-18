@@ -211,14 +211,72 @@
 	</div>
 </div>
 </div>
+
+<div class="modal fade" id="serialModal" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog modal-md" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" id = "modal_close" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Items</h4>
+				<h5 class="modal-title">Item Code: <input type = "text" id = "sec_itemcode" style = "width:350px"></h5>
+				<h5 class="modal-title">Description: <input type = "text" id = "sec_description" style = "width:350px"></h5>
+				<input type = "hidden" id  = "checkcount">
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-4 col-md-offset-8">
+						<div class="input-group">
+							<input id="sec_search" class="form-control pull-right" placeholder="Search" type="text">
+							<div class="input-group-addon">
+								<i class="fa fa-search"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body no-padding">
+				<table id="tableSerialList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
+					<thead>
+						<tr class="info">
+							<!-- <th class="col-xs-2"><input type = "checkbox" class = "checkall"></th> -->
+							<th class="col-xs-2"></th>
+							<th id = "serial_header">Serial No.</th>
+							<th id = "engine_header">Engine No.</th>
+							<th id = "chassis_header">Chassis No.</th>
+						</tr>
+					</thead>
+					<tbody>
+						
+					</tbody>
+				</table>
+				<div id="serial_pagination"></div>
+			</div>
+			<div class="modal-footer">
+				<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+					<div class="btn-group">
+						<button id = "btn_tag" type = "button" class = "btn btn-primary btn-sm btn-flat">Tag</button>
+					</div>
+					&nbsp;&nbsp;&nbsp;
+					<div class="btn-group">
+						<button id = "btn_close" type="button" class="btn btn-default btn-sm btn-flat">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 <script>
 var delete_row	= {};
 var ajax		= {};
 var ajax_call	= '';
 var min_row		= 0;
+var serialize = [{
+						'itemcode': ''
+					}];
 function addVoucherDetails(details, index) {
 	var details = details || {itemcode: '', detailparticular: '', receiptqty: ''};
 	var other_details = JSON.parse(JSON.stringify(details));
+	// console.log(details.item_ident_flag);
 	delete other_details.itemcode;
 	delete other_details.detailparticular;
 	delete other_details.receiptqty;
@@ -262,12 +320,88 @@ function addVoucherDetails(details, index) {
 						->addHidden()
 						->draw($show_input);
 				?>
+				<?php
+					echo $ui->formField('hidden')
+						->setName('serialnumbers[]')
+						->setClass('serialnumbers')
+						->setValue('` + details.serialnumbers + `')
+						->draw($show_input);
+				?>
+				<?php
+					echo $ui->formField('hidden')
+						->setName('h_itemcode[]')
+						->setClass('h_itemcode')
+						->setValue('` + details.itemcode + `')
+						->draw($show_input);
+				?>
+				<?php
+					echo $ui->formField('hidden')
+						->setName('parentcode[]')
+						->setClass('parentcode')
+						->setValue('` + details.parentcode + `')
+						->draw($show_input);
+				?>
+				<?php
+					echo $ui->formField('hidden')
+						->setName('h_detailparticular[]')
+						->setClass('h_detailparticular')
+						->setValue('` + details.detailparticular + `')
+						->draw($show_input);
+				?>
+				<?php
+					echo $ui->formField('hidden')
+						->setName('bundle_itemqty[]')
+						->setClass('bundle_itemqty')
+						->setValue('` + details.bundle_itemqty + `')
+						->draw($show_input);
+				?>
+				<?php
+					echo $ui->formField('hidden')
+						->setName('parentline[]')
+						->setClass('parentline')
+						->setValue('` + details.parentline + `')
+						->draw($show_input);
+				?>
+				<?php
+					echo $ui->formField('hidden')
+						->setName('item_ident_flag[]')
+						->setClass('item_ident_flag')
+						->setValue('` + details.item_ident_flag + `')
+						->draw($show_input);
+				?>
+				<?php
+					echo $ui->formField('hidden')
+						->setName('linenumber[]')
+						->setClass('linenumber')
+						->setValue('` + details.linenum + `')
+						->draw($show_input);
+				?>
+				<?php
+					echo $ui->formField('hidden')
+						->setName('quantityleft[]')
+						->setClass('quantityleft')
+						->setValue('` + details.qtyleft + `')
+						->draw($show_input);
+				?>
+				<?php
+					echo $ui->formField('hidden')
+						->setClass('available_qty')
+						->setValue('` + details.available + `')
+						->draw($show_input);
+				?>
+				<?php
+					echo $ui->formField('hidden')
+						->setClass('checked')
+						->setValue('')
+						->draw($show_input);
+				?>
 			</td>
 			<td>
 				<?php
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
 						->setName('detailparticular[]')
+						->setClass('description')
 						->setValue('` + details.detailparticular + `')
 						->addHidden()
 						->draw($show_input);
@@ -302,6 +436,7 @@ function addVoucherDetails(details, index) {
 				<?php
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
+						->setClass('realqty')
 						->setValue('` + addComma(details.realqty) + `')
 						->addHidden()
 						->draw($show_input);
@@ -311,6 +446,7 @@ function addVoucherDetails(details, index) {
 				<?php
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
+						->setClass('maxqty')
 						->setValue('` + addComma(details.maxqty) + `')
 						->addHidden()
 						->draw($show_input);
@@ -318,11 +454,15 @@ function addVoucherDetails(details, index) {
 			</td>
 			<?php endif ?>
 			<td class="text-right">
+				<button type="button" id="serial_`+ details.linenum +`" data-itemcode="`+details.itemcode+`" data-item="`+details.detailparticular+`" data-item-ident-flag="`+details.item_ident_flag+`" data-linenum="`+details.linenum+`" class="serialize_button btn btn-block btn-success btn-flat hidden">
+					<em class="pull-left"><small>Select Items (<span class="receiptqty_serialized_display"><?php if ($show_input == '' || $ajax_task == "ajax_edit") { ?>` + (addComma(details.receiptqty, 0) || 0) + `<?php } else { ?>0<?php }?></span>)</small></em>
+				</button>
 				<?php
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
 						->setName('receiptqty[]')
 						->setClass('receiptqty text-right')
+						->setID('receiptqty`+ details.linenum +`')
 						->setAttribute(array('data-max' => '` + (parseFloat(details.maxqty) || 0) + `', 'data-value' => '` + (parseFloat(details.receiptqty) || 0) + `'))
 						->setValidation('required integer')
 						->setValue('` + (addComma(details.receiptqty, 0) || 0) + `')
@@ -358,6 +498,7 @@ function addVoucherDetails(details, index) {
 			<?php endif ?>
 		</tr>
 	`;
+	
 	$('#tableList tbody').append(row);
 	if (details.itemcode != '') {
 		$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
@@ -386,10 +527,180 @@ function addVoucherDetails(details, index) {
 			$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
 		} else {
 			$('#tableList tbody').find('tr:last .receiptqty').attr('readonly', '').val(0);
+			$('#tableList tbody').find('tr:last .serialize_button').prop('disabled', true);
 			$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('enable');
 		}
 	});
+
+	if (details.item_ident_flag == 0 || details.item_ident_flag == null) {		
+		$('#serial_' + details.linenum).addClass('hidden');
+		$('#receiptqty' + details.linenum).removeClass('hidden receiptqty_serialized');
+	} else {
+		<?php if($ajax_task == "ajax_create") { ?>
+		$('#receiptqty' + details.linenum).addClass('hidden receiptqty_serialized').attr('data-value',0);
+		<?php } else { ?>
+		$('#receiptqty' + details.linenum).addClass('hidden receiptqty_serialized')
+		<?php } ?>
+		$('#serial_' + details.linenum).removeClass('hidden');
+		
+		var item = {};
+		item = {itemcode : details.itemcode,
+				numbers : []};
+		serialize[index] = item;
+
+		// DECLARE SERIAL NUMBERS BASED ON QUANTITY
+		var prop = {};
+		for(var i = 1; i <= details.maxqty; i++){
+			prop = {serialno: '',
+						engineno: '',
+						chassisno: ''
+						};
+			serialize[index].numbers.push(prop);
+		};		
+	}
+
 }
+// console.log(serialize);
+var itemselected = [];
+var allserials = [];
+var checked_serials = [];
+var linenum = '';
+var serials = '';
+var itemrow = '';
+var task = '';
+var type = '';
+var quantityleft = '';
+var item_ident = '';
+$('#tableList tbody').on('click', '.serialize_button', function(){
+	linenum = $(this).data('linenum');
+	itemcode = $(this).data('itemcode');
+	itemrow = $(this);
+	serials = $(this).closest('tr').find('.serialnumbers').val();;
+	item_ident = $(this).closest('tr').find('.item_ident_flag').val();;
+	description = $(this).closest('tr').find('.description').val();
+	check_num = $(this).closest('tr').find('.maxqty').val();
+	// console.log(linenum+' '+itemcode+' '+itemrow+' '+item_ident+' '+description+' '+check_num);
+	if ($(this).hasClass('mainitem')) {
+		type = 'mainitem';
+	}
+	else {
+		type = 'itempart';
+	}
+	tagSerial(itemcode, description, serials, check_num, type, quantityleft, item_ident);	
+	// $('#serialModal').modal('show');
+});
+
+function tagSerial(itemcode, description, serials, check_num, type, quantityleft, item_ident) {
+	$('#serialModal').modal('show');
+	$('#serialModal #checkcount').val(check_num);
+	$("#serialModal #sec_itemcode").val(itemcode).prop('disabled', 'disabled').css('border', 'white').css('background', 'white');
+	$("#serialModal #sec_description").val(description).prop('disabled', 'disabled').css('border', 'white').css('background', 'white');
+	if (item_ident == '100') {
+		$('#serial_header').show().addClass('col-xs-10');
+		$('#engine_header').hide();
+		$('#chassis_header').hide();
+	}
+	else if (item_ident == '010') {
+		$('#serial_header').hide();
+		$('#engine_header').show().addClass('col-xs-10');
+		$('#chassis_header').hide();
+	}
+	else if (item_ident == '001') {
+		$('#serial_header').hide();
+		$('#engine_header').hide();
+		$('#chassis_header').addClass('col-xs-10').show();
+	}
+	else if (item_ident == '110') {
+		$('#serial_header').show().addClass('col-xs-5');
+		$('#engine_header').show().addClass('col-xs-5');
+		$('#chassis_header').hide();
+	}
+	else if (item_ident == '101') {
+		$('#serial_header').show().addClass('col-xs-5');
+		$('#engine_header').hide();
+		$('#chassis_header').show().addClass('col-xs-5');
+	}
+	else if (item_ident == '011') {
+		$('#serial_header').hide();
+		$('#engine_header').show().addClass('col-xs-5');
+		$('#chassis_header').show().addClass('col-xs-5');
+	}
+	else if (item_ident == '111') {
+		$('#serial_header').show().addClass('col-xs-3');
+		$('#engine_header').show().addClass('col-xs-3');
+		$('#chassis_header').show().addClass('col-xs-4');
+	}	
+}
+
+function getSerialList() {
+	filterToURL();
+	if (ajax_call != '') {
+		ajax_call.abort();
+	}
+	ajax.limit = 5;
+	ajax.itemselected = serials;
+	ajax.allserials = $('#main_serial').val();
+	ajax.id = itemrow.closest('tr').find('.serialnumbers').val();
+	ajax.item_ident = itemrow.closest('tr').find('.item_ident_flag').val();
+	var checked = itemrow.closest('tr').find('.checked').val();
+	ajax.checked_serials = checked.toString();
+	// console.log(ajax.checked_serials);
+	task = $('#task').val();
+	ajax.task = $('#task').val();
+	// if (task=='ajax_edit') {
+		var linenumber = itemrow.closest('tr').find('.linenumber').val();
+		ajax.linenumber = linenumber;
+		ajax.voucherno = $('#source_no').val();//$('#voucher').val();
+	// }
+	ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_serial_list', ajax, function(data) {
+		$('#tableSerialList tbody').html(data.table);
+		$('#serial_pagination').html(data.pagination);
+		$('#tableSerialList tbody tr td input[type="checkbox"]').each(function() {
+			if(jQuery.inArray($(this).val(), checked_serials) != -1) {
+				$(this).closest('tr').iCheck('check');
+			}
+		});
+		if (ajax.page > data.page_limit && data.page_limit > 0) {
+			ajax.page = data.page_limit;
+			getSerialList();
+		}
+	});
+}
+
+$('#serial_pagination').on('click', 'a', function(e) {
+	e.preventDefault();
+	var li = $(this).closest('li');
+	$('#tableSerialList tbody tr td input[type="checkbox"]:checked').each(function() {
+		var serialnum = $(this).val();
+		if($.inArray(serialnum, checked_serials) == -1) {
+			checked_serials.push(serialnum);
+		}
+	});	
+	if (li.not('.active').length && li.not('.disabled').length) {
+		ajax.page = $(this).attr('data-page');
+		getSerialList();
+	}
+});
+
+$('#serialModal #sec_search').on('input', function() {
+	ajax.page = 1;
+	ajax.search = $(this).val();
+	itemcode = $('#sec_itemcode').val();
+	ajax.itemcode = itemcode;
+	getSerialList();
+});
+
+$("#serialModal").on('shown.bs.modal', function () {
+	itemcode = $('#sec_itemcode').val();
+	ajax.itemcode = itemcode;
+	getSerialList();
+});
+
+$('#serialModal #btn_close').on('click', function() {
+	$('#serialModal').modal('hide');
+});
+
+
 var voucher_details = <?php echo $voucher_details ?>;
 function displayDetails(details) {
 	if (details.length < min_row) {
@@ -509,10 +820,13 @@ $('#vendor').on('change', function() {
 });
 $('tbody').on('ifUnchecked', '.check_task input[type="checkbox"]', function() {
 	$(this).closest('tr').find('.receiptqty').attr('readonly', '').val(0);
+	$(this).closest('tr').find('.serialize_button').prop("disabled",true);
 });
 $('tbody').on('ifChecked', '.check_task input[type="checkbox"]', function() {
 	var n = $(this).closest('tr').find('.receiptqty');
+	var m = $(this).closest('tr').find('.serialize_button');
 	n.removeAttr('readonly', '').val(addComma(n.attr('data-value')));
+	m.prop("disabled",false);
 });
 $('#receipt_tableList').on('click', 'tr[data-id]', function() {
 	var so = $(this).attr('data-id');

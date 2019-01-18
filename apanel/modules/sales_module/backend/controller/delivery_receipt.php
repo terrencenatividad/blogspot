@@ -198,7 +198,7 @@ class controller extends wc_controller {
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
 				->setRowAlign(array('L', 'L', 'R', 'L'))
 				->setSummaryWidth(array('120', '50', '30'))
-				->setSummaryAlign(array('L','R','R'));
+				->setSummaryAlign(array('J','R','R'));
 		
 		$documentcontent	= $this->delivery_model->getDocumentContent($voucherno);
 		$detail_height = 37;
@@ -211,12 +211,12 @@ class controller extends wc_controller {
 		}
 
 		if ($hasSerial) {
-			$print->setHeaderWidth(array(30, 70, 20, 20, 20, 20, 20))
+			$print->setHeaderWidth(array(30, 55, 20, 20, 25, 25, 25))
 					->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
 					->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N',))
 					->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
 					->setSummaryWidth(array('120', '50', '30'))
-					->setSummaryAlign(array('L','R','R'));		
+					->setSummaryAlign(array('J','R','R'));		
 		}
 
 		$notes = $documentinfo->notes; 

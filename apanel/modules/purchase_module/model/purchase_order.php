@@ -485,7 +485,6 @@ class purchase_order extends wc_model
 
 				$tempArr[] 						= $data_insert;
 			}
-
 		}
 		$warning = array();
 		$checkamount = array();
@@ -540,37 +539,40 @@ class purchase_order extends wc_model
 
 							$expenseaccount = $getaccount->expense_account;
 							$accountcode = $expenseaccount;
-							$getbudgetaccount = $this->db->setTable('budget_details bd')
-							->setFields('IFNULL(bs.amount, 0) + bd.amount as amount, CONCAT(ca.segment5, " - ", ca.accountname) as accountname')
+							$getbudgetaccount = $this->db->setTable('budget_details as bd')
+							->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, SUM(ac.actual)) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
 							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
-							->leftJoin("budget_supplement as bs ON b.id = bs.budget_id AND bs.accountcode = '$expenseaccount'")
-							->leftJoin('chartaccount as ca ON ca.id = bs.accountcode')
-							->setWhere("bd.accountcode = '$expenseaccount' AND bd.budget_code = '$budgetcode'")
+							->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
+							->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
+							->leftJoin("actual_budget as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode' AND ac.voucherno NOT LIKE '%TMP%'")
+							->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
+							->setGroupBy('bs.accountcode')
 							->runSelect()
 							->getRow();
-
 							if(!$getbudgetaccount) {
-								$warning[] = "The account of your item didn't match any accounts under budget code " . $row['budgetcode']. '.';
+								$warning[] = 'The account ' . $getaccount->accountname . ' is not in your budget code ' .$budgetcode. '.';
 							} else {
-								if($row['amount'] > $getbudgetaccount->amount) {
+								if($subtotal > $getbudgetaccount->amount) {
 									$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
 								}
 							}
 						} else {
 							$expenseaccount = $check->expense_account;
 							$accountcode = $expenseaccount;
-							$getbudgetaccount = $this->db->setTable('budget_details bd')
-							->setFields('IFNULL(bs.amount, 0) + bd.amount as amount, CONCAT(ca.segment5, " - ", ca.accountname) as accountname')
+							$getbudgetaccount = $this->db->setTable('budget_details as bd')
+							->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, SUM(ac.actual)) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
 							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
-							->leftJoin("budget_supplement as bs ON b.id = bs.budget_id AND bs.accountcode = '$expenseaccount'")
-							->leftJoin('chartaccount as ca ON ca.id = bs.accountcode')
-							->setWhere("bd.accountcode = '$expenseaccount' AND bd.budget_code = '$budgetcode'")
+							->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
+							->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
+							->leftJoin("actual_budget as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode' AND ac.voucherno NOT LIKE '%TMP%'")
+							->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
+							->setGroupBy('bs.accountcode')
 							->runSelect()
 							->getRow();
 							if(!$getbudgetaccount) {
-								$warning[] = "The account of your item didn't match any accounts under budget code " . $row['budgetcode']. '.';
+								$warning[] = 'The account ' . $check->accountname . ' is not in your budget code ' .$budgetcode. '.';
 							} else {
-								if($row['amount'] > $getbudgetaccount->amount) {
+								if($subtotal > $getbudgetaccount->amount) {
 									$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 								}
 							}
@@ -594,36 +596,40 @@ class purchase_order extends wc_model
 
 							$expenseaccount = $getaccount->expense_account;
 							$accountcode = $expenseaccount;
-							$getbudgetaccount = $this->db->setTable('budget_details bd')
-							->setFields('IFNULL(bs.amount, 0) + bd.amount as amount, CONCAT(ca.segment5, " - ", ca.accountname) as accountname')
+							$getbudgetaccount = $this->db->setTable('budget_details as bd')
+							->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, SUM(ac.actual)) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
 							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
-							->leftJoin("budget_supplement as bs ON b.id = bs.budget_id AND bs.accountcode = '$expenseaccount'")
-							->leftJoin('chartaccount as ca ON ca.id = bs.accountcode')
-							->setWhere("bd.accountcode = '$expenseaccount' AND bd.budget_code = '$budgetcode'")
+							->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
+							->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
+							->leftJoin("actual_budget as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode' AND ac.voucherno NOT LIKE '%TMP%'")
+							->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
+							->setGroupBy('bs.accountcode')
 							->runSelect()
 							->getRow();
 							if(!$getbudgetaccount) {
-								$warning[] = "The account of your item didn't match any accounts under budget code " . $row['budgetcode']. '.';
+								$warning[] = 'The account ' . $getaccount->accountname . ' is not in your budget code ' .$budgetcode. '.';
 							} else {
-								if($row['amount'] > $getbudgetaccount->amount) {
+								if($subtotal > $getbudgetaccount->amount) {
 									$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
 								}
 							}
 						} else {
 							$expenseaccount = $check->expense_account;
 							$accountcode = $expenseaccount;
-							$getbudgetaccount = $this->db->setTable('budget_details bd')
-							->setFields('IFNULL(bs.amount, 0) + bd.amount as amount, CONCAT(ca.segment5, " - ", ca.accountname) as accountname')
+							$getbudgetaccount = $this->db->setTable('budget_details as bd')
+							->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, SUM(ac.actual)) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
 							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
-							->leftJoin("budget_supplement as bs ON b.id = bs.budget_id AND bs.accountcode = '$expenseaccount'")
-							->leftJoin('chartaccount as ca ON ca.id = bs.accountcode')
-							->setWhere("bd.accountcode = '$expenseaccount' AND bd.budget_code = '$budgetcode'")
+							->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
+							->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
+							->leftJoin("actual_budget as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode' AND ac.voucherno NOT LIKE '%TMP%'")
+							->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
+							->setGroupBy('bs.accountcode')
 							->runSelect()
 							->getRow();
 							if(!$getbudgetaccount) {
-								$warning[] = "The account of your item didn't match any accounts under budget code " . $row['budgetcode']. '.';
+								$warning[] = 'The account ' . $check->accountname . ' is not in your budget code ' .$budgetcode. '.';
 							} else {
-								if($row['amount'] > $getbudgetaccount->amount) {
+								if($subtotal > $getbudgetaccount->amount) {
 									$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 								}
 							}

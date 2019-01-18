@@ -97,20 +97,22 @@ class controller extends wc_controller {
 			$item_desc = $row->detailparticular;
 			$ipo_no = $row->ipo_num;
 			$transaction_date = $row->transactiondate;
+			$transaction_date_display = (is_null($transaction_date)) ? '' : date('M d, Y',strtotime($transaction_date));
 			$ipo_item_quantity = $row->receiptqty;
 			$job_item_quantity = $row->qty;
 			$uom = $row->receiptuom;
 			$job_no = $row->job_no;
 			$receipt_date = $row->receiptdate;
+			$receipt_date_display = (is_null($receipt_date)) ? '' : date('M d, Y',strtotime($receipt_date));
 
 			$table .= '<tr>
 						<td class="text-right">'.$item_code.'- '.$item_name.'</td>
 						<td class="text-right">'.$item_desc.'</td>
 						<td class="text-right">'.$ipo_no.'</td>
-						<td class="text-center">'.date('M d, Y',strtotime($transaction_date)).'</td>
+						<td class="text-center">'.$transaction_date_display.'</td>
 						<td class="text-center">'.$job_item_quantity.' '.$uom.'</td>
 						
-						<td class="text-center">'.date('M d, Y',strtotime($receipt_date)).'</td>
+						<td class="text-center">'.$receipt_date_display.'</td>
 						<td class="text-right"><span class="pull-left">'.$exchange_curr.'</span>'.number_format($unit_cost_foreign,2).'</td>
 						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($unit_cost_base,2).'</td>';
 
@@ -137,8 +139,8 @@ class controller extends wc_controller {
 
 			$importation_cost_unit =  ($item_cost_ratio * $total_importation_cost) / $job_item_quantity; //sprintf("%7.2f",$quantity);
 			
-			$table .=	'<td class="text-right">'.$job_no.'</td> 
-						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($importation_cost_unit,2).'</td>'; 
+			$table .=	'<td class="text-right">'.$dm_debit.'</td> 
+						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($importation_cost_unit,2).'</td>';
 			
 				// LANDED COST CALCS STAGING
 			$landed_cost_unit = $unit_cost_base + $importation_cost_unit;
@@ -232,18 +234,20 @@ class controller extends wc_controller {
 			$item_desc = $row->detailparticular;
 			$ipo_no = $row->ipo_num;
 			$transaction_date = $row->transactiondate;
+			$transaction_date_display = (is_null($transaction_date)) ? '' : date('M d, Y',strtotime($transaction_date));
 			$ipo_item_quantity = $row->receiptqty;
 			$job_item_quantity = $row->qty;
 			$uom = $row->receiptuom;
 			$job_no = $row->job_no;
 			$receipt_date = $row->receiptdate;
+			$receipt_date_display = (is_null($receipt_date)) ? '' : date('M d, Y',strtotime($receipt_date));
 
 			$csv .= '"' .$item_code.'- '.$item_name. '",';
 			$csv .= '"' .$item_desc. '",';
 			$csv .= '"' .$ipo_no. '",';
-			$csv .= '"' .date('M d, Y',strtotime($transaction_date)). '",';
+			$csv .= '"' .$transaction_date_display. '",';
 			$csv .= '"' .$job_item_quantity.' '.$uom. '",';
-			$csv .= '"' .date('M d, Y',strtotime($receipt_date)). '",';
+			$csv .= '"' .$receipt_date_display. '",';
 			$csv .= '"' .$exchange_curr.' '.number_format($unit_cost_foreign,2). '",';
 			$csv .= '"' .$base_curr.' '.number_format($unit_cost_base,2). '",';
 

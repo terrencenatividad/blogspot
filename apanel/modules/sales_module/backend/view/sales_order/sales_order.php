@@ -873,6 +873,7 @@
 								?>
 								<?php foreach ($delivered_items as $row): ?>
 								<?php 
+									$row->discountamount = $row->discountamount / $row->init_qty;
 									if($row->taxrate > 0.00 || $row->taxrate > 0 )	{
 										$vatable_sales += $row->amount-$row->discountamount;
 									}
@@ -884,7 +885,6 @@
 											$vat_zerorated += $row->amount-$row->discountamount;
 										}
 									}
-
 									$tax += ($row->amount - $row->discountamount) * $row->taxrate;
 									$total_discount += $row->discountamount;
 								?>
@@ -961,7 +961,7 @@
 													echo $ui->formField('text')
 														->setSplit('', 'col-md-12')
 														->setClass("text-right discount")
-														->setValue($row->discountamount)
+														->setValue(number_format($row->discountamount, 2))
 														->setValidation('decimal')
 														->draw(false);
 												}
@@ -1148,6 +1148,9 @@
 							</thead>
 							<tbody>
 								<?php foreach ($cancelled_items as $row): ?>
+								<?php 
+									$row->discountamount = $row->discountamount / $row->init_qty;	
+								?>
 									<tr class="clone" valign="middle">
 										<td class = "remove-margin">
 											<?php
@@ -1221,7 +1224,7 @@
 													echo $ui->formField('text')
 														->setSplit('', 'col-md-12')
 														->setClass("text-right discount")
-														->setValue($row->discountamount)
+														->setValue(number_format($row->discountamount, 2))
 														->setValidation('decimal')
 														->draw(false);
 												}
@@ -1244,7 +1247,7 @@
 														->setSplit('', 'col-md-12')
 														->setClass("text-right")
 														->setValidation('decimal')
-														->setValue(number_format($row->unitprice * $row->balance_qty, 2))
+														->setValue(number_format($row->unitprice * $row->balance_qty - $row->discountamount, 2))
 														->draw(false);
 											?>
 										</td>		

@@ -651,11 +651,13 @@ class sales_invoice extends wc_model
 													->runSelect()
 													->getRow();
 
-			$detail_fields 		= "itemcode, detailparticular, unitprice, issueqty, taxcode, taxrate, taxamount, amount, issueuom, discountrate, discounttype, discountamount";
-			$condition 			= " voucherno = '$code' ";
+			$detail_fields 		= "drd.itemcode, drd.detailparticular, drd.unitprice, sod.issueqty init_qty, drd.issueqty, drd.taxcode, drd.taxrate, drd.taxamount, drd.amount, drd.issueuom, drd.discountrate, drd.discounttype, drd.discountamount";
+			$condition 			= " drd.voucherno = '$code' ";
 			
-			$retrieved_data['details'] 	= $this->db->setTable('deliveryreceipt_details')
+			$retrieved_data['details'] 	= $this->db->setTable('deliveryreceipt_details drd')
 											->setFields($detail_fields)
+											->leftJoin('deliveryreceipt dr ON dr.voucherno = drd.voucherno')
+											->leftJoin('salesorder_details sod ON sod.voucherno = dr.source_no AND sod.itemcode = drd.itemcode')
 											->setWhere($condition)
 											->runSelect()
 											->getResult();

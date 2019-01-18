@@ -845,4 +845,24 @@ class job_order_model extends wc_model
 		}
 		return '(' . implode(' OR ', $temp) . ')';
 	}
+
+	public function getJOheader($voucherno){
+		$result = $this->db->setTable('job_order jo')
+						->setFields("job_order_no voucherno, customer, reference, notes, stat, transactiondate")
+						->setWhere("job_order_no='$voucherno'")
+						->runSelect()
+						->getRow();
+
+		return $result;
+	}
+
+	public function getJOcontent($voucherno){
+		$result = $this->db->setTable('job_order_details jo')
+						->setFields("itemcode, detailparticular, quantity, uom")
+						->setWhere("job_order_no='$voucherno'")
+						->runSelect()
+						->getResult();
+
+		return $result;
+	}
 }
