@@ -14,7 +14,7 @@ class budget_report_model extends wc_model {
 	public function getYearList() {
 		$result = $this->db->setTable('budget_report')
 		->setFields("year as ind, year as val")
-		->setOrderBy("id")
+		->setOrderBy("year")
 		->setGroupBy('year')
 		->runSelect(false)
 		->getResult();
