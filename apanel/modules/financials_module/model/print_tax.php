@@ -115,9 +115,8 @@ class print_tax extends Fpdi {
 		
 
 		// FIRST ROW //
-
-		$arr11 = ($set_coa['details'][0]->atccode);
-		$arr12 = ($set_coa['details'][0]->atc_code);
+		$arr11 = ($set_coa['wtax_details'][0]->atccode);
+		$arr12 = ($set_coa['wtax_details'][0]->atc_code);
 		$str1 = substr($arr11, 0, 30) ; 
 		$this->SetFont("Arial", "", 8);
 		$this->Text(8,123,$str1);
@@ -131,10 +130,10 @@ class print_tax extends Fpdi {
 
 		$tot_taxbase = 0;
 		$tot_tax = 0;
-		if(isset($set_coa["details"])){
-			for($i = 0; $i < count($set_coa["details"]); $i++){
-				$tot_taxbase		+= $set_coa["details"][$i]->taxbase_amount;
-				$tot_tax		+= $set_coa["details"][$i]->credit;
+		if(isset($set_coa["wtax_details"])){
+			for($i = 0; $i < count($set_coa["wtax_details"]); $i++){
+				$tot_taxbase		+= $set_coa["wtax_details"][$i]->taxbase_amount;
+				$tot_tax		+= $set_coa["wtax_details"][$i]->credit;
 			}
 		}
 		$tot_taxbase = number_format($tot_taxbase,2);
@@ -145,11 +144,11 @@ class print_tax extends Fpdi {
 		$tot_taxbase3 = (in_array($trans_date, range('9','12'))) ?  $tot_taxbase : '';
 		
 		$taxbase_amount2 = 0;
-		if (isset($set_coa['details'])){
+		if (isset($set_coa['wtax_details'])){
 			$tax = 0;
-			for($i = 0; $i < count($set_coa['details']); $i++){
-				$taxbase_amount_ 	= $set_coa['details'][$i]->taxbase_amount;
-				$tax 				+= $set_coa['details'][$i]->credit;
+			for($i = 0; $i < count($set_coa['wtax_details']); $i++){
+				$taxbase_amount_ 	= $set_coa['wtax_details'][$i]->taxbase_amount;
+				$tax 				+= $set_coa['wtax_details'][$i]->credit;
 				$taxbase_amount		= number_format($taxbase_amount_ ,2);
 				$taxbase_amount2    += $taxbase_amount_;
 			}
@@ -170,11 +169,11 @@ class print_tax extends Fpdi {
 			$this->Cell(42,4,$tax,0,0,'R');
 		}
 
-		if (isset($set_coa['details'][1])){
+		if (isset($set_coa['wtax_details'][1])){
 			$tax = 0;
-			for($i = 0; $i < count($set_coa['details'][1]); $i++){
-				$taxbase_amount_ 	= $set_coa['details'][1]->taxbase_amount;
-				$tax 				+= $set_coa['details'][1]->credit;
+			for($i = 0; $i < count($set_coa['wtax_details'][1]); $i++){
+				$taxbase_amount_ 	= $set_coa['wtax_details'][1]->taxbase_amount;
+				$tax 				+= $set_coa['wtax_details'][1]->credit;
 				$taxbase_amount		= number_format($taxbase_amount_ ,2);
 				$taxbase_amount2    += $taxbase_amount_;
 			}
@@ -182,8 +181,8 @@ class print_tax extends Fpdi {
 		$arrval1 = (in_array($trans_date, range('1','4'))) ?  $taxbase_amount : '';
 		$arrval2 = (in_array($trans_date, range('5','8'))) ?  $taxbase_amount : '';
 		$arrval3 = (in_array($trans_date, range('9','12'))) ?  $taxbase_amount : '';
-		$arr21 = ($set_coa['details'][1]->atccode);
-		$arr22 = ($set_coa['details'][1]->atc_code);
+		$arr21 = ($set_coa['wtax_details'][1]->atccode);
+		$arr22 = ($set_coa['wtax_details'][1]->atc_code);
 		$str2 = substr($arr21, 0, 30) ; 
 		$this->SetFont("Arial", "", 8);
 		$this->Text(8,127,$str2);
@@ -200,17 +199,17 @@ class print_tax extends Fpdi {
 		$this->Cell(42,4,$tax,0,0,'R');
 		}
 
-		if (isset($set_coa['details'][2])){
+		if (isset($set_coa['wtax_details'][2])){
 			$tax = 0;
-			for($i = 0; $i < count($set_coa['details'][0]); $i++){
-				$taxbase_amount_ 	= $set_coa['details'][0]->taxbase_amount;
-				$tax 				+= $set_coa['details'][0]->credit;
+			for($i = 0; $i < count($set_coa['wtax_details'][0]); $i++){
+				$taxbase_amount_ 	= $set_coa['wtax_details'][0]->taxbase_amount;
+				$tax 				+= $set_coa['wtax_details'][0]->credit;
 				$taxbase_amount		= number_format($taxbase_amount_ ,2);
 				$taxbase_amount2    += $taxbase_amount_;
 			}
 			$tax = number_format($tax,2);
-			$arr31 = ($set_coa['details'][2]->atccode);
-			$arr32 = ($set_coa['details'][2]->atc_code);
+			$arr31 = ($set_coa['wtax_details'][2]->atccode);
+			$arr32 = ($set_coa['wtax_details'][2]->atc_code);
 			$str2 = substr($arr31, 0, 30) ; 
 		$arrval1 = (in_array($trans_date, range('1','4'))) ?  $taxbase_amount : '';
 		$arrval2 = (in_array($trans_date, range('5','8'))) ?  $taxbase_amount : '';
