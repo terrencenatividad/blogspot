@@ -307,4 +307,8 @@
 			showList();
 		});
 	}
+	$('#tableList').on('click', '.print_2307',function(){
+		var voucher = $(this).attr('data-id');
+		window.location = '<?=MODULE_URL?>apply_bir/' + voucher;
+	})
 </script>

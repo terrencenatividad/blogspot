@@ -1458,6 +1458,13 @@ class controller extends wc_controller
 				}else if($status == 'posted'){
 					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
 				}
+				$is_tax 	 		= $this->payment_voucher->getValue("pv_details",array("taxcode"),"voucherno = '$voucher' ");
+				$bir_link 			= false;
+				foreach ($is_tax as $rows) {
+					if ($rows->taxcode != '') {
+						$bir_link = true;
+					}
+				}
 
 				$has_edit 		= isset($has_access[0]->mod_edit)		?	$has_access[0]->mod_edit	:	0;
 				$has_delete		= isset($has_access[0]->mod_delete)		?	$has_access[0]->mod_delete	:	0;
@@ -1488,6 +1495,11 @@ class controller extends wc_controller
 								$show_btn
 							)
 							->addPrint()
+							->addOtherTask(
+								'Print 2307',
+								'print',
+								$bir_link
+							)
 							//->addDelete($show_dlt)
 							->addCheckbox($show_btn)
 							->setValue($voucher)
@@ -1693,6 +1705,71 @@ class controller extends wc_controller
 		// $bno 		  = $result[0]->booknumber;
 		$data = array('nno' => $nextcheckno, 'last' => $lastcheckno);
 		return $data; 
+	}
+
+	public function apply_bir($sid){
+		
+		$data        			    = $this->payment_voucher->retrieveEditData($sid);
+		$ven						= $data["main"]->vendor; 
+		$transactiondate			= $data["main"]->transactiondate; 
+		$ven_dtl 	 				= $this->payment_voucher->getValue("partners",array("partnername","address1","tinno"),"partnercode = '$ven' ");
+		$data['partnername']        = $ven_dtl[0]->partnername;
+		$data['address1']       	= $ven_dtl[0]->address1;
+		$data['tinno']      	  	= $ven_dtl[0]->tinno;
+		$cmp						= $data["main"]->companycode; 
+		$cmp_dtl 	 				= $this->payment_voucher->getValue("company",array("companyname","address","tin"),"companycode = '$cmp' "); 
+		$data['companyname']        = $cmp_dtl[0]->companyname;
+		$data['address']       		= $cmp_dtl[0]->address;
+		$data['tin']      	  		= $cmp_dtl[0]->tin;
+		$data["sid"] 		   		= $sid;
+		$data["ajax_task"] 		   	= "apply_bir";
+		$data["ui"]   			    = $this->ui;
+		$data['show_input'] 	    = false;
+		$from = date('Y-m-01', strtotime($transactiondate));
+		$from = explode('-',$from);
+		$data['f_yr']  = $from[0];
+		$data['f_mo']  = $from[1];
+		$data['f_dy']  = $from[2];
+		$to = date('Y-m-t', strtotime($transactiondate));
+		$to = explode('-',$to);
+		$data['to_yr']  = $to[0];
+		$data['to_mo']  = $to[1];
+		$data['to_dy']  = $to[2];
+		$data["button_name"] 	    = "Edit";
+		$this->view->load('accounts_payable/accounts_payable_apply_bir', $data);
+	}
+
+	public function generate_pdf($sid){
+		$data        			    = $this->payment_voucher->retrieveEditData($sid);
+		$transactiondate			= $data["main"]->transactiondate; 
+		$from = date('Y-m-01', strtotime($transactiondate));
+		$from = explode('-',$from);
+		$data['f_yr']  = $from[0];
+		$data['f_mo']  = $from[1];
+		$data['f_dy']  = $from[2];
+		$to = date('Y-m-t', strtotime($transactiondate));
+		$to = explode('-',$to);
+		$data['to_yr']  = $to[0];
+		$data['to_mo']  = $to[1];
+		$data['to_dy']  = $to[2];
+		$ven							= $data["main"]->vendor; 
+		$ven_dtl 	 					= $this->payment_voucher->getValue("partners",array("partnername","address1","tinno"),"partnercode = '$ven' ");
+		$data_ven['partnername']        = $ven_dtl[0]->partnername;
+		$data_ven['address1']       	= $ven_dtl[0]->address1;
+		$data_ven['tinno']      	  	= $ven_dtl[0]->tinno;
+		$cmp							= $data["main"]->companycode; 
+		$cmp_dtl 	 					= $this->payment_voucher->getValue("company",array("companyname","address","tin"),"companycode = '$cmp' "); 
+		$data_payor['companyname']  	= $cmp_dtl[0]->companyname;
+		$data_payor['address']       	= $cmp_dtl[0]->address;
+		$data_payor['tin']      	  	= $cmp_dtl[0]->tin;
+
+		$print_test = new print_tax();
+		$print_test->setFile('modules/financials_module/model/2307_form.pdf')
+		->setDocumentInfoPayee($data)
+		->setDocumentInfoVendor($data_ven)
+		->setDocumentInfoPayor($data_payor)
+		->setDetails($data)
+		->Output();
 	}
 
 }

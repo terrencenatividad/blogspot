@@ -705,7 +705,7 @@ class controller extends wc_controller {
 		$serialnumbers = $this->input->post('serialnumbers');
 		
 		if ($delete_id) {
-			$result = $this->job_order->deleteJobRelease($delete_id,$voucherno, $serialnumbers);
+			$result = $this->job_order->deleteJobRelease($delete_id);
 		}
 		if ($result && $this->inventory_model) {
 			
