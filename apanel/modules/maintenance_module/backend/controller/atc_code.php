@@ -356,20 +356,13 @@ class controller extends wc_controller
 		$sort 	= $this->input->post("sort");
 		$limit 	= $this->input->post("limit");
 		$addCond = stripslashes($this->input->post("addCond"));
-		$fields = array("atcId","atc_code","tax_rate","wtaxcode","atc_type","short_desc","tax_account","cwt","accountname","a.stat stat");
+		$fields = array("atcId","atc_code","tax_rate","wtaxcode","atc_type","short_desc","tax_account","cwt","c.accountname","coa.accountname cwt_acctname","a.stat stat");
 		$table = "";
 		$list = $this->atc_code->retrieveData($fields,$search, $sort, $addCond, $limit); 
 
 		if( !empty($list->result) ) :
 			foreach($list->result as $key => $row)
 			{
-				$getCwt = $this->atc_code->getAtc($row->cwt);
-				if ($getCwt) {
-					$acctname = $getCwt->accountname;
-				}
-				else {
-					$acctname = '';
-				}
 				$sid = $row->atcId;
 				$rate = ($row->tax_rate * 100).'%';
 
@@ -407,7 +400,7 @@ class controller extends wc_controller
 				<td>'.$row->wtaxcode.'</td> 
 				<td>'.$row->short_desc.'</td>
 				<td>'.$row->accountname.'</td>
-				<td>'.$acctname.'</td>
+				<td>'.$row->cwt_acctname.'</td>
 				<td>'.$status.'</td>'; 
 				'</tr>';		
 			}
@@ -624,7 +617,7 @@ class controller extends wc_controller
 
 			$result = $this->atc_code->fileExport($data_post);
 
-			$header = array("ATC Code","Tax Rate","Tax Code","Description","EWT Account Code","CWT Account Code");
+			$header = array("ATC Code","Tax Rate","Tax Code","Description","EWT Account Code","CWT Account Code","Status");
 			
 
 			$csv = '';
@@ -634,25 +627,20 @@ class controller extends wc_controller
 			$retrieved 	=	array_filter($result);
 			if(!empty($retrieved)){
 				foreach ($retrieved as $key => $row){
-					$getCwt = $this->atc_code->getAtc($row->cwt);
-					if ($getCwt) {
-						$acctname = $getCwt->accountname;
-					}
-					else {
-						$acctname = '';
-					}
 					$atc_code 			= $row->atc_code;
 					$tax_rate 			= $row->tax_rate * 100 .'%';
 					$wtaxcode       	= $row->wtaxcode;
 					$short_desc    	 	= $row->short_desc;
 					$accountname    	= $row->accountname;    	 	
+					$cwt    			= $row->cwt_acctname;    	 	
 
 					$csv .= '"' . $atc_code 		. '",';
 					$csv .= '"' . $tax_rate 		. '",';
 					$csv .= '"' . $wtaxcode 		. '",';
 					$csv .= '"' . $short_desc 		. '",';
 					$csv .= '"' . $accountname 		. '",';
-					$csv .= '"' . $acctname . '"';
+					$csv .= '"' . $cwt 				. '",';
+					$csv .= '"' . $row->stat 		. '"';
 					$csv .= "\n";
 				}
 			}
