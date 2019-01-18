@@ -661,34 +661,26 @@ $('#save_cancelled').on('click',function(){
 })
 
 $('#cancelled_checks #firstcancelled, #lastcancelled').on('blur',function(){
-	var first_number= parseFloat('0.' + $('#firstcancelled').val());
-	var end_number 	= parseFloat('0.' + $('#lastcancelled').val());
+	var first_number= parseFloat($('#firstcancelled').val());
+	var end_number 	= parseFloat($('#lastcancelled').val());
 	var range 		= $('#check_between').html();
 	var range = range.split('-');
 	var next = $(this).closest('tr').find('.next').html();
-	var start = parseFloat('0.' + range[0]);
-	var end = parseFloat('0.' + range[1]);
-	var next = parseFloat('0.' + next);
-	console.log('start'+start);
-	console.log('end'+end);
-	console.log('first_number'+first_number);
-	console.log('end_number'+end_number);
-	if (first_number){
-		if (start <= first_number && first_number <= start){ 
-			$('#cancel_checks #firstcancelled').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
-		}  else {
-			error_message 	=	"<b>The number you entered is not within the check range</b>";
-			$('#cancel_checks #firstcancelled').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
-		}
+	var start = parseFloat(range[0]);
+	var end = parseFloat(range[1]);
+	var next = parseFloat(next);
+	
+	if (start <= first_number && first_number <= end){ 
+		$('#cancel_checks #firstcancelled').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+	}  else {
+		error_message 	=	"<b>The number you entered is not within the check range</b>";
+		$('#cancel_checks #firstcancelled').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
 	}
-
-	if (end_number){
-		if (end <= end_number && end_number <= end){ 
-			$('#cancel_checks #lastcancelled').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
-		}  else {
-			error_message 	=	"<b>The number you entered is not within the check range</b>";
-			$('#cancel_checks #lastcancelled').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
-		}
+	if (start <= end_number && end_number <= end){ 
+		$('#cancel_checks #lastcancelled').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+	}  else {
+		error_message 	=	"<b>The number you entered is not within the check range</b>";
+		$('#cancel_checks #lastcancelled').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
 	}
 
 })
