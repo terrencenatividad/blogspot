@@ -30,7 +30,7 @@
 				</div>
 			</div>
 		</div>
-		<br><br><br>
+		<h5>Note : <i>This list is for the Budget Check "Monitored" only.</i></h5>
 		<div class="box-body table-responsive no-padding" id="report_content">
 			<table id="tableList" class="table table-hover table-striped table-sidepad">
 				<thead>
@@ -55,6 +55,24 @@
 				<tbody>
 
 				</tbody>
+				<tfoot>
+					<tr>
+						<td colspan = "2"></td>
+						<td class = "text-right"><strong>Total</strong></td>
+						<td class = "all_total"></td>
+						<td class = "all_total"></td>
+						<td class = "all_total"></td>
+						<td class = "all_total"></td>
+						<td class = "all_total"></td>
+						<td class = "all_total"></td>
+						<td class = "all_total"></td>
+						<td class = "all_total"></td>
+						<td class = "all_total"></td>
+						<td class = "all_total"></td>
+						<td class = "all_total"></td>
+						<td class = "all_total"></td>
+					</tr>
+				</tfoot>
 			</table>
 		</div>
 	</div>
@@ -64,13 +82,18 @@
 	var ajax = {};
 	var ajax_call = '';
 	ajax.limit = 10;
-
+	var total = 0;
 	function getList() {
 		ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list',ajax, function(data) {
 			$('#tableList tbody').html(data.table);
 			$('#tableList tfoot').html(data.footer);
 			$('#pagination').html(data.pagination);
 			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+			$('#tableList tbody tr td.total').each(function() {
+				var val = parseInt($(this).html());
+				total += +val;
+				$('.all_total').html(addComma(total));
+			});
 		});
 	}
 	getList();
@@ -80,16 +103,19 @@
 		var li = $(this).closest('li');
 		if (li.not('.active').length && li.not('.disabled').length) {
 			ajax.page = $(this).attr('data-page');
+			total = 0;
 			getList();
 		}
 	});
 
 	$("#budgetcode").on("change",function(){
+		total = 0;
 		ajax.budgetcode = $(this).val();
 		getList();
 	});
 
 	$("#year").on("change",function(){
+		total = 0;
 		ajax.year = $(this).val();
 		getList();
 	});
