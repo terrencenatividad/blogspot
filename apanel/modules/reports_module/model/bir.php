@@ -361,14 +361,16 @@ class bir extends wc_model {
     }
 
     public function getTotalRemittance(){
-        $ap	= $this->db->setTable('ap_details')
-								->setFields(array('credit'))
-								->setWhere("taxcode IS NOT NULL AND taxcode != ''")
+        $ap	= $this->db->setTable('ap_details apd')
+                                ->setFields(array('credit'))
+                                ->leftJoin('accountspayable ap ON ap.voucherno = apd.voucherno')
+								->setWhere("taxcode IS NOT NULL AND taxcode != '' AND ap.stat = 'posted'")
                                 ->buildSelect();
 
-        $pv	= $this->db->setTable('pv_details')
+        $pv	= $this->db->setTable('pv_details pvd')
 								->setFields(array('credit'))
-								->setWhere("taxcode IS NOT NULL AND taxcode != ''")
+                                ->leftJoin('paymentvoucher pv ON pv.voucherno = pvd.voucherno')
+								->setWhere("taxcode IS NOT NULL AND taxcode != '' AND pv.stat = 'posted'")
                                 ->buildSelect();
         
         $union = $ap . ' UNION ALL ' . $pv;
