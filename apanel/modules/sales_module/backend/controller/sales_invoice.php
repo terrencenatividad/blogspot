@@ -463,7 +463,7 @@ class controller extends wc_controller
 		$docinfo_table  = "salesinvoice as si";
 		$docinfo_fields = array('si.transactiondate AS documentdate', 'si.voucherno AS voucherno',
 								"CONCAT( first_name, ' ', last_name) AS customer",
-								"'' AS referenceno",'si.netamount AS amount','si.remarks as remarks',
+								"si.referenceno AS referenceno",'si.netamount AS amount','si.remarks as remarks',
 								'si.discounttype as disctype','si.discountamount as discount', 
 								'si.amount as net','si.vat_sales as vat_sales','si.vat_exempt as vat_exempt', 'si.vat_zerorated as vat_zerorated',
 								'si.taxamount as vat','si.vat_zerorated as zerorated',
@@ -507,6 +507,7 @@ class controller extends wc_controller
 			'SI #'	=> $voucherno,
 			'SO #'	=> $documentinfo->sono,
 			'DR/JO #'	=> $documentinfo->sourceno,
+			'REF #'	=> $documentinfo->referenceno,
 			'TERMS'	=> $customerdetails->terms
 		);
 
