@@ -30,6 +30,16 @@
 			return $result;
 		}
 
+		public function getItemList() {
+			$result = $this->db->setTable('items i')
+							->setFields("i.itemcode ind, CONCAT(i.itemcode,' - ',i.itemname) val")
+							->setWhere("i.stat = 'active'")
+							->runSelect()
+							->getResult();
+
+			return $result;
+		}
+
 		public function getSalesReturnPagination($search, $sort, $customer, $filter, $datefilter) {
 
 			$sort = ($sort) ? $sort : 'transactiondate desc';
@@ -89,12 +99,12 @@
 
 			if ($source == 'DR') {
 				$table = 'deliveryreceipt_details';
-				$fields = 'itemcode, detailparticular, warehouse, unitprice, issueqty, issueuom';
+				$fields = 'itemcode, detailparticular, warehouse, unitprice, issueqty, issueuom, linenum';
 			}
 
 			elseif ($source == 'SI') {
 				$table = 'salesinvoice_details';
-				$fields = 'itemcode, detailparticular, warehouse, unitprice, issueqty, issueuom';
+				$fields = 'itemcode, detailparticular, warehouse, unitprice, issueqty, issueuom, linenum';
 			}
 
 			$cond = 'voucherno = "'.$voucherno.'"';
@@ -141,38 +151,6 @@
 		}
 
 
-		public function getItemList() {
-			$result = $this->db->setTable('items i')
-							->setFields("i.itemcode ind, CONCAT(i.itemcode,' - ',i.itemname) val")
-							->setWhere("i.stat = 'active'")
-							->runSelect()
-							->getResult();
-
-			return $result;
-		}
-
-		public function getItemDetails($itemcode, $warehouse) {
-			$fields = "i.itemname as itemname, i.itemdesc as itemdesc, i.uom_base, COALESCE(pa.price_average,0) as price, COALESCE(invdtl.onhandQty,0) onhandQty";
-			
-			$cond = $warehouse_cond = "";
-			$cond 				.= (!empty($itemcode))? "i.itemcode = '$itemcode' " : "";
-			$warehouse_cond   	.= (!empty($warehouse))? " AND invdtl.warehouse = '$warehouse' " : "";
-
-			$result = $this->db->setTable('items i')
-								->setFields($fields)
-								->leftJoin('items_price p ON p.itemcode = i.itemcode')
-								->leftJoin("invfile invdtl ON invdtl.itemcode = i.itemcode $warehouse_cond")
-								->leftJoin("price_average pa ON pa.itemcode = i.itemcode")
-								->setWhere($cond)
-								->setOrderBy("pa.linenum DESC")
-								->setLimit('1')
-								->runSelect()
-								->getRow();
-			return $result;
-		}
-
-		
-
 		public function saveSalesReturn($data, $data2) {
 			$this->getAmounts($data, $data2);
 
@@ -200,8 +178,8 @@
 			$result = $this->db->setTable('inventory_salesreturn_details')
 								->setValuesFromPost($data)
 								->runInsert();
-								$result1 = $this->db->getQuery();
-			return $result1;
+								
+			return $result;
 		}
 
 		private function getAmounts(&$data, &$data2) {
