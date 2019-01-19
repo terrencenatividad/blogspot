@@ -304,7 +304,7 @@ class controller extends wc_controller
 				$entereddate = explode(' ',$row->entereddate);
 				$date = $entereddate[0];
 				$book_date = str_replace('-', '', $date);
-
+				$get_cancelled = $this->bank->get_cancel($row->bank_id, $row->firstchequeno, $row->lastchequeno);
 				if($row->stat == 'open'){
 					$next = $row->nextchequeno;
 					$check_stat = '<span class="label label-success">'.strtoupper('AVAILABLE').'</span>';
@@ -312,41 +312,48 @@ class controller extends wc_controller
 					$next = '';
 					$check_stat = '<span class="label label-info">'."USED".'</span>';
 				}
-					// } else {
-					// 	$check_stat = '<span class="label label-warning">'."USED".'</span>';
-					// }
+				$check = '';
+				if(!empty($get_cancelled)) {
+					if($row->id == $get_cancelled[0]->bank_id) {
+						$check_stat = '<span class="label label-danger">'."CANCELLED".'</span>';
+						$check = 'cancel';	
+					}
+				}
 				$show_edit = ($next == $row->firstchequeno) ? 'editcheck' : '';
 				$show_del = ($next == $row->firstchequeno) ? 'deletecheck' : '';
 				$show_cancel = ($row->stat == 'closed') ? '' : 'cancel';
-				
-				if ($show_cancel == ''){
+				$checker = ($check == 'cancel');
+
+				if ($show_cancel == '') {
 					$dropdown = '';
 				} else {
-					$dropdown = $this->ui->loadElement('check_task')
+					if($check == '') {
+						$dropdown = $this->ui->loadElement('check_task')
 
-					->addOtherTask(
-						'Edit Check Series',
-						'pencil',
-						$show_edit
-					)
+						->addOtherTask(
+							'Edit Check Series',
+							'pencil',
+							$show_edit
+						)
 
-					->addOtherTask(
-						'Delete Check Series',
-						'trash',
-						$show_del
-					)
-					
+						->addOtherTask(
+							'Delete Check Series',
+							'trash',
+							$show_del
+						)
+
 								// ->addOtherTask(
 								// 	'Set as Default Check',
 								// 	'check',
 								// 	'set_default'
 								// )
-					->addOtherTask(
-						'Cancel Check Range',
-						'remove-circle',
-						$show_cancel
-					)
-					->draw();
+						->addOtherTask(
+							'Cancel Check Range',
+							'remove-circle',
+							$show_cancel
+						)
+						->draw();
+					}
 				}
 
 				$table .= '<tr>';
@@ -365,6 +372,7 @@ class controller extends wc_controller
 				if ($cancel_list){
 					$table	.= '<tr>';
 					$table	.= '<td></td>';
+					$table	.= '<td></td>';
 					$table	.= '<td class="warning" ><strong>First Number</strong></td>';
 					$table	.= '<td class="warning" ><strong>Last Number</strong></td>';
 					$table	.= '<td class="warning" ><strong>Date</strong></td>';
@@ -377,19 +385,16 @@ class controller extends wc_controller
 						$book_date = str_replace('-', '', $date);
 
 						$table .= '<tr>';
-						$table	.= '<td class="text-center"><span class="label label-danger ">CANCELLED</span></td>';
+						$table .= '<td></td>';
+						$table .= '<td></td>';
 						$table .= '<td>' . $value->firstcancelled . '</td>';
 						$table .= '<td>' . $value->lastcancelled . '</td>';
 						$table .= '<td>' . $book_date . '</td>';
-						$table .= '<td colspan="2">' . $value->remarks. '</td>';
+						$table .= '<td>' . $value->remarks. '</td>';
+						$table	.= '<td><span class="label label-danger ">CANCELLED</span></td>';
 						$table .= '</tr>';
 					}
 				} 
-
-
-
-
-
 			}
 		else:
 			$table .= "<tr>
@@ -560,7 +565,7 @@ class controller extends wc_controller
 
 	private function update_multiple_deactivate(){
 		$posted_data       =  $this->input->post(array('ids'));
-		
+
 		$data['stat']       =  'inactive';
 
 		$posted_ids       =  $posted_data['ids'];
@@ -570,14 +575,14 @@ class controller extends wc_controller
 		{
 			$result       =   $this->bank->deactivateBank($value, $data);
 		}
-		
+
 		if($result)
 		{
 			$msg = "success";
 		} else {
 			$msg = "Failed to Update.";
 		}
-		
+
 		return $dataArray = array( "msg" => $msg );
 	}
 
@@ -613,7 +618,7 @@ class controller extends wc_controller
 
 		if ($csv_array[0] == $header) {
 			unset($csv_array[0]);
-			
+
 			if (empty($csv_array)) {
 				$errors[] = 'No Data Given';
 			} else {
@@ -672,7 +677,7 @@ class controller extends wc_controller
 					$line++;	
 				}
 
- 				if (empty($errors)) {
+				if (empty($errors)) {
 					$result = $this->bank->saveUserCSV($values);
 				}
 			}
