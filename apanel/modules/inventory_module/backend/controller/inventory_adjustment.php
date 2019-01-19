@@ -241,6 +241,28 @@ class controller extends wc_controller {
 		echo $return;
 	}
 
+	public function get_serial_import($date){
+		
+		header('Content-type: application/csv');
+		$header = array('Item Code','Item Name','Warehouse','Qty','Unit Price');
+
+		$return = '';
+		$return .= '"Date","'.$date.'"';
+		$return .= "\n\n";
+		$return .= '"' . implode('","',$header) . '"';
+		$return .= "\n";
+		//$return .= '"PEN_006","WH_01","3","Accounts Payable - Non-Trade"';
+		
+		$lists 	=	$this->adjustment->getImportList();	
+
+		foreach($lists as $key){
+			$return .= '"'.$key->itemcode.'","'.$key->name.'","'.$key->warehouse.'","0","0.00"';
+			$return .= "\n";
+		}
+
+		echo $return;
+	}
+
 	private function check_character_length($field_name, $field_value, $line, $max_length, $input_length){
 		$error 	=	"";
 		
