@@ -34,9 +34,17 @@
 		}
 
 		public function retrieveCustomerList(){
+			$result = $this->db->setTable('balance_table_sales')
+						->setFields("GROUP_CONCAT(customercode SEPARATOR ',') as customers")
+						->runSelect()
+						->getRow();
+
+			$ids = preg_split("/[\s,]+/", $result->customers);
+			$customers	= "'" . implode("','", $ids) . "'";
+
 			$result = $this->db->setTable('partners')
 						->setFields("partnercode ind, CONCAT(partnercode,' - ',partnername) val")
-						->setWhere("partnercode != '' AND partnertype = 'customer' AND stat = 'active'")
+						->setWhere("partnercode != '' AND partnertype = 'customer' AND stat = 'active' AND partnercode IN ($customers)")
 						->setOrderBy("val")
 						->runSelect()
 						->getResult();
