@@ -374,9 +374,9 @@
 							<tr class="info">
 								<th class="col-xs-1 text-center">Item No.</th>
 								<th class="col-xs-2 text-center">Item Name</th>
-								<th class="col-xs-3 text-center">Serial Number</th>
-								<th class="col-xs-3 text-center">Engine Number</th>
-								<th class="col-xs-3 text-center">Chassis Number</th>
+								<th class="col-xs-3 text-center snHeader">Serial Number</th>
+								<th class="col-xs-3 text-center enHeader">Engine Number</th>
+								<th class="col-xs-3 text-center cnHeader">Chassis Number</th>
 								<th class="col-xs-1 text-center"></th>
 							</tr>
 						</thead>
@@ -843,6 +843,19 @@
 				} else {
 					$('.add-data').text("Add a New Line");
 				}
+				
+				// console.log(details.item_ident_flag);
+				if (details.item_ident_flag[0]=='0') {
+					$('.snHeader, .serial_no').hide();
+				}
+				if (details.item_ident_flag[1]=='0') {
+					$('.enHeader, .engine_no').hide();
+				}
+				if (details.item_ident_flag[2]=='0') {
+					$('.cnHeader, .chassis_no').hide();
+				}
+
+
 				$("#serialize_modal").modal('show');
 			});
 		}
@@ -903,6 +916,10 @@
 			chassis_input = [];
 		});
 
+		$("#serialize_modal").on('hidden.bs.modal', function () {
+			$('.snHeader, .enHeader, .cnHeader').show();
+		});
+
 		function addRow(icode, item, rownum, serialno, engineno, chassisno){
 				if (typeof rownum == 'undefined'){
 					rownum = $('#serialize_tableList tbody tr').length;
@@ -914,11 +931,12 @@
 				hasEngine = '';
 				hasChassis = '';
 				
-				<?php if($show_input) { ?>
-				hasSerial = (item_ident_flag[0] == 1) ? '' : 'disabled';
-				hasEngine = (item_ident_flag[1] == 1) ? '' : 'disabled';
-				hasChassis = (item_ident_flag[2] == 1) ? '' : 'disabled';
-				<?php } ?>
+				
+				// hasSerial = (item_ident_flag[0] == 1) ? '' : 'hidden';
+				// hasEngine = (item_ident_flag[1] == 1) ? '' : 'hidden';
+				// hasChassis = (item_ident_flag[2] == 1) ? '' : 'hidden';
+				// <?php if($show_input) { ?>
+				// <?php } ?>
 
 				(typeof serialno == 'undefined') ? serialno = '' : serialno=serialno;
 				(typeof engineno == 'undefined') ? engineno = '' : engineno=engineno;
@@ -929,7 +947,7 @@
 						
 						<td class="item_no col-xs-1 text-center">` + icode + `</td>
 						<td class="item_name col-xs-2 text-center">` + item + `</td>
-						<td class="serial_no" class="col-xs-3">
+						<td class="serial_no col-xs-3 `+hasSerial+`">
 							<?php
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
@@ -947,7 +965,7 @@
 							?>
 							<div><strong><small class="error_message"></small></strong></div>
 						</td>
-						<td class="engine_no" class="col-xs-3">
+						<td class="engine_no col-xs-3 `+hasEngine+`">
 							<?php
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
@@ -965,7 +983,7 @@
 							?>
 							<div><strong><small class="error_message"></small></strong></div>
 						</td>
-						<td class="chassis_no" class="col-xs-3">
+						<td class="chassis_no col-xs-3" `+hasChassis+`>
 							<?php
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
