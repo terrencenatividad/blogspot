@@ -455,7 +455,7 @@ function addVoucherDetails(details, index) {
 			<?php endif ?>
 			<td class="text-right">
 				<button type="button" id="serial_`+ details.linenum +`" data-itemcode="`+details.itemcode+`" data-item="`+details.detailparticular+`" data-item-ident-flag="`+details.item_ident_flag+`" data-linenum="`+details.linenum+`" class="serialize_button btn btn-block btn-success btn-flat hidden">
-					<em class="pull-left"><small>Select Items (<span class="receiptqty_serialized_display"><?php if ($show_input == '' || $ajax_task == "ajax_edit") { ?>` + (addComma(details.receiptqty, 0) || 0) + `<?php } else { ?>0<?php }?></span>)</small></em>
+					<em class="text-center"><small>Select Items (<span class="receiptqty_serialized_display"><?php if ($show_input == '' || $ajax_task == "ajax_edit") { ?>` + (addComma(details.receiptqty, 0) || 0) + `<?php } else { ?>0<?php }?></span>)</small></em>
 				</button>
 				<?php
 					echo $ui->formField('text')
