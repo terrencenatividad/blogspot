@@ -749,4 +749,13 @@ class inventory_adjustment_model extends wc_model {
 
 		return $result;
 	}
+
+	public function check_existing_serials($warehouse, $itemcode){
+		$result = $this->db->setTable('items_serialized')
+							->setFields(array("COUNT(*) count"))
+							->setWhere("warehousecode = '$warehouse' AND itemcode = '$itemcode'")
+							->runSelect()
+							->getRow();
+		return $result;
+	}
 }
