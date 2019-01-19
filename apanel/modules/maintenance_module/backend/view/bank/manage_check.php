@@ -238,6 +238,7 @@
 				<div class="modal-body">
 					<div class = 'row'>
 						<input type='hidden' name='bank' id='bank' value=''>
+						<input type='hidden' name='selected_book' id='selected_book' value=''>
 
 						<div class = 'panel panel-default'>
 							<div class = 'panel-heading'>
@@ -309,7 +310,7 @@
 <script>
 var ajax = {};
 var book = {};
-
+var cancel = {}; 
 $('#checkForm #btnSave').on('click',function(){
 	$('#checkForm #booknumber').trigger('blur');
 	$('#checkForm #firstchequeno').trigger('blur');
@@ -624,12 +625,16 @@ $('#clear_checks').on('click', function(){
 }) 
 
 $('#check_container').on('click', '.cancel_check_range', function(){
-	ajax.id     =  $('#id').val();
+	var id     =  $('#id').val();
 	check_range =  $(this).closest('tr').find('#start_check').html();
 	next = $(this).closest('tr').find('.next').html();
-	var result = check_range.split('-');
-	ajax.start = result[0];
-	ajax.end = result[1];
+	var selected	= $(this).data('id');
+	var result 		= check_range.split('-');
+	$('#cancelled_checks #selected_book').val(selected);
+	$('#cancelled_checks #bank').val(id);
+	ajax.id 	= id;
+	ajax.start  = result[0];
+	ajax.end 	= result[1];
 	$('#range').html("Please enter a number between <span id='check_between'>"+next+"-"+ajax.end+"</span>");
 	if( id != "" )
 	{
@@ -649,41 +654,87 @@ $('#save_cancelled').on('click',function(){
 	ajax.firstcancelled = $('#firstcancelled').val();
 	ajax.lastcancelled = $('#lastcancelled').val();
 	ajax.remarks = $('#remarks').val();
+	ajax.booknumber = $('#selected_book').val();
 	if ($('#cancelled_checks').find('.form-group.has-error').length == 0)
 	{	
+		$(this).prop('disabled',true);
 		$.post('<?=BASE_URL?>maintenance/bank/ajax/save_cancelled', ajax, function(data) {
 			if( data.msg == 'yes' )
 			{
+				$(this).prop('disabled',false);
 				window.location = self.location;
 			}
 		});
 	}
 })
 
-$('#cancelled_checks #firstcancelled, #lastcancelled').on('blur',function(){
-	var first_number= parseFloat($('#firstcancelled').val());
-	var end_number 	= parseFloat($('#lastcancelled').val());
-	var range 		= $('#check_between').html();
-	var range = range.split('-');
-	var next = $(this).closest('tr').find('.next').html();
-	var start = parseFloat(range[0]);
-	var end = parseFloat(range[1]);
-	var next = parseFloat(next);
+function checkpreviouslycancelled(book, bank, input, $type){
+	cancel.booknumber 	= book;
+	cancel.bank_id		= bank;
+	cancel.input 	 	= input;
+	$.post('<?=BASE_URL?>maintenance/bank/ajax/checkpreviouslycancelled', cancel, function(data) {
+		if(data.cancelled){
+			if($type == 'first'){
+				error_message 	=	"<b>The number you entered has already been cancelled previously.</b>";
+				$('#cancel_checks #firstcancelled').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+			}
+			if($type == 'last'){
+				error_message 	=	"<b>The number you entered has already been cancelled previously.</b>";
+				$('#cancel_checks #lastcancelled').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+			}
+		}
+	});
+}
+
+$('#cancelled_checks #firstcancelled').on('blur',function(){
+	var first_number	= parseFloat($('#firstcancelled').val());
+	var end_number 		= parseFloat($('#lastcancelled').val());
+	var booknumber 		= $('#selected_book').val();
+	var range 			= $('#check_between').html();
+	var range 			= range.split('-');
+	var next 			= $(this).closest('tr').find('.next').html();
+	var start 			= parseFloat(range[0]);
+	var end 			= parseFloat(range[1]);
+	var next 			= parseFloat(next);
+	var bank_id 		= $('#cancelled_checks #bank').val();
+	var selected_book	= $('#cancelled_checks #selected_book').val();
 	
 	if (start <= first_number && first_number <= end){ 
 		$('#cancel_checks #firstcancelled').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+		checkpreviouslycancelled(booknumber, bank_id, first_number, 'first');
 	}  else {
 		error_message 	=	"<b>The number you entered is not within the check range</b>";
 		$('#cancel_checks #firstcancelled').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
 	}
+});
+
+$('#cancelled_checks #lastcancelled').on('blur',function(){
+	var first_number	= parseFloat($('#firstcancelled').val());
+	var end_number 		= parseFloat($('#lastcancelled').val());
+	var booknumber 		= $('#selected_book').val();
+	var range 			= $('#check_between').html();
+	var range 			= range.split('-');
+	var next 			= $(this).closest('tr').find('.next').html();
+	var start 			= parseFloat(range[0]);
+	var end 			= parseFloat(range[1]);
+	var next 			= parseFloat(next);
+	var bank_id 		= $('#cancelled_checks #bank').val();
+	var selected_book	= $('#cancelled_checks #selected_book').val();
+	
 	if (start <= end_number && end_number <= end){ 
 		$('#cancel_checks #lastcancelled').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+		checkpreviouslycancelled(booknumber, bank_id, end_number, 'last');
 	}  else {
 		error_message 	=	"<b>The number you entered is not within the check range</b>";
 		$('#cancel_checks #lastcancelled').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
 	}
-
-})
+	if(end_number > first_number){
+		$('#cancel_checks #lastcancelled').closest('.form-group').removeClass('has-error').find('p.help-block').html('');
+	} else {
+		error_message 	=	"<b>Please enter a number greater than the First Number.</b>";
+		$('#cancel_checks #lastcancelled').closest('.form-group').addClass("has-error").find('p.help-block').html(error_message);
+	}
+});
 
 $('#cancel_checks_modal').on('click', function(){
 	window.location = self.location;

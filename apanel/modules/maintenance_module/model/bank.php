@@ -345,6 +345,7 @@ class bank extends wc_model
 		$data['lastcancelled'] 		= $data1['lastcancelled'];
 		$data['remarks'] 			= $data1['remarks'];
 		$data['stat']				= 'cancelled';
+		$data['booknumber'] 		= $data1['booknumber'];
 		$result = $this->db->setTable('cancelled_checks')
 		->setValues($data)
 		->runInsert();
@@ -368,6 +369,15 @@ class bank extends wc_model
 		return $result;
 	}
 
+	public function get_cancel($bank, $first, $last){
+		$result = $this->db->setTable('cancelled_checks')
+		->setFields('bank_id')
+		->setWhere("bank_id = '$bank' AND firstcancelled = '$first' AND lastcancelled >= '$last'")
+		->runSelect()
+		->getResult();
+		return $result;
+	}
+
 	public function checkbooknumber($booknumber) {
 		$result = $this->db->setTable('bankdetail')
 							->setFields('booknumber')
@@ -383,5 +393,13 @@ class bank extends wc_model
 		}
 	}
 
+	public function checkpreviouslycancelled($book, $id, $input){
+		$result = $this->db->setTable("cancelled_checks")
+						   ->setFields(array("firstcancelled","lastcancelled"))
+						   ->setWhere("bank_id = '$id' AND booknumber = '$book' AND (firstcancelled <= '$input' AND '$input' <= lastcancelled)")
+						   ->runSelect()
+						   ->getResult();
+		return $result;
+	}
 }
 ?>

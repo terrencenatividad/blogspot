@@ -59,9 +59,9 @@
 					<?php
 						echo $ui->loadElement('table')
 								->setHeaderClass('info')
-								->addHeader('Item Code',array('class'=>'col-md-2'),'sort','items.itemcode')
+								->addHeader('Item Code',array('class'=>'col-md-1'),'sort','items.itemcode')
 								->addHeader('Item Name', array('class'=>'col-md-2'),'sort','items.itemname')
-								->addHeader('Brand', array('class'=>'col-md-2'),'sort','b.brandname')
+								->addHeader('Brand', array('class'=>'col-md-1'),'sort','b.brandname')
 								->addHeader('On Hand Qty', array('class'=>'col-md-1'),'sort','inv.onhandQty')
 								->addHeader('Allocated Qty', array('class'=>'col-md-1'),'sort','inv.allocatedQty')
 								->addHeader('Ordered Qty', array('class'=>'col-md-1'),'sort','inv.orderedQty')
@@ -351,6 +351,70 @@
 
 					<div id = 'import-step2'>
 						<label>Step 1. Download the sample template <a href="<?=MODULE_URL?>get_import" id="download-link" download="Beginning Balance.csv" >here</a></label>
+						<hr/>
+						<label>Step 2. Fill up the information needed for each columns of the template.</label>
+						<hr/>
+						<div class="form-group">
+							<label for="import_csv">Step 3. Select the updated file and click 'Import' to proceed.</label>
+							<?php
+								echo $ui->setElement('file')
+										->setId('import_csv')
+										->setName('import_csv')
+										->setAttribute(array('accept' => '.csv'))
+										->setValidation('required')
+										->draw();
+							?>
+							<span class="help-block"></span>
+						</div>
+						<p class="help-block">The file to be imported must be in CSV (Comma Separated Values) file.</p>
+						<div class="modal-footer text-center">
+							<button type="button" class="btn btn-info btn-flat" id = "btnImport">Import</button>
+							<button type="button" class="btn btn-default btn-flat" id="btnClose">Close</button>
+						</div>
+					</div>
+				</div>
+				
+			</form>
+		</div>
+	</div>
+</div>
+
+<!-- Import Serial Modal -->
+<div class="modal fade" id="import-serial-modal" tabindex="-1" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form method="POST" id="importSerialForm" ENCTYPE="multipart/form-data">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span></button>
+					<h4 class="modal-title">Import Serial/Engine/Chassis Numbers</h4>
+				</div>
+				<div class="modal-body">
+					<div id = 'import-step1'>
+						<div class = 'row'>
+							<div class = 'col-md-1'></div>
+							<?php
+								echo $ui->formField('text')
+										->setLabel('Date')
+										->setSplit('col-md-3', 'col-md-8')
+										->setName('importdate')
+										->setId('importdate')
+										->setClass('datepicker-input')
+										->setAttribute(array('readonly' => ''))
+										->setAddon('calendar')
+										->setValue($importdate)
+										->setValidation('required')
+										->draw(true);
+							?>
+						</div>
+						<div class="modal-footer text-center">
+							<button type = 'button' class = 'btn btn-info btn-flat' name = 'import-proceed' id = 'import-proceed'><i id='loading' class="hidden fa fa-refresh fa-spin"></i> Proceed</button>
+							<button type = 'button' class = 'btn btn-default btn-flat' name = 'import-skip' id = 'import-skip'><i id='loading' class="hidden fa fa-refresh fa-spin"></i> Skip</button>
+						</div>	
+					</div>
+
+					<div id = 'import-step2'>
+						<label>Step 1. Download the sample template <a href="<?=MODULE_URL?>get_serial_import" id="download-link" download="Import Serial Numbers.csv" >here</a></label>
 						<hr/>
 						<label>Step 2. Fill up the information needed for each columns of the template.</label>
 						<hr/>

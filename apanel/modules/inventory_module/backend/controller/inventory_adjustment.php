@@ -177,8 +177,8 @@ class controller extends wc_controller {
 		if (empty($list->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-		if ($list->result) 
-		{
+		if ($list->result) {
+			$display 					= $this->adjustment->getDisplayPermission();
 			foreach ($list->result as $key => $row) {
 
 				$itemcode 		=	trim($row->itemcode);
@@ -191,6 +191,14 @@ class controller extends wc_controller {
 				$available 		=  	isset($row->AvailQty) 	? 	$row->AvailQty 	: 	number_format(0,2);
 				$item_ident_flag=	$row->item_ident_flag;
 
+				$ret_existing 		= $this->adjustment->check_existing_serials($warehouse, $itemcode);
+				$show_import_button = ($ret_existing->count > 0) ? 1 : 0;
+
+				$import_serial 	=	"";
+				if($item_ident_flag != "000" && $show_import_button && $display){
+					$import_serial = '<button type = "button" id="import-serial" class = "btn btn-info"><i class="fa fa-paperclip"></i></button>';
+				}
+
 				$table .= '<tr>';
 				$table .= '<td>' . $itemcode . '</td>';
 				$table .= '<td>' . $itemname . '</td>' ;
@@ -199,7 +207,7 @@ class controller extends wc_controller {
 				$table .= '<td>' . $allocated . '</td>';
 				$table .= '<td>' . $ordered . '</td>';
 				$table .= '<td>' . $available . '</td>';
-				$table .= '<td>
+				$table .= '<td>' . $import_serial .'
 								<button type = "button" id="plus" class = "btn btn-danger" onClick = "adjustment(\''.$itemcode.'\',\''.$itemname.'\', \''.$quantity.'\', \''.$item_ident_flag.'\', \'plus\');" ><i class="fa fa-plus"></i></button>
 								<button type = "button" id="plus" class = "btn btn-danger" onClick = "adjustment(\''.$itemcode.'\',\''.$itemname.'\', \''.$quantity.'\', \''.$item_ident_flag.'\', \'minus\');"><i class="fa fa-minus"></i></button>
 							</td>'; 
@@ -212,6 +220,28 @@ class controller extends wc_controller {
 	}
 
 	public function get_import($date){
+		
+		header('Content-type: application/csv');
+		$header = array('Item Code','Item Name','Warehouse','Qty','Unit Price');
+
+		$return = '';
+		$return .= '"Date","'.$date.'"';
+		$return .= "\n\n";
+		$return .= '"' . implode('","',$header) . '"';
+		$return .= "\n";
+		//$return .= '"PEN_006","WH_01","3","Accounts Payable - Non-Trade"';
+		
+		$lists 	=	$this->adjustment->getImportList();	
+
+		foreach($lists as $key){
+			$return .= '"'.$key->itemcode.'","'.$key->name.'","'.$key->warehouse.'","0","0.00"';
+			$return .= "\n";
+		}
+
+		echo $return;
+	}
+
+	public function get_serial_import($date){
 		
 		header('Content-type: application/csv');
 		$header = array('Item Code','Item Name','Warehouse','Qty','Unit Price');
