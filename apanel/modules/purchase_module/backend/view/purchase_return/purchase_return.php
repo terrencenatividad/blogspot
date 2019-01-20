@@ -700,6 +700,85 @@ $('#serialModal #btn_close').on('click', function() {
 	$('#serialModal').modal('hide');
 });
 
+$('#btn_tag').on('click', function() {
+	// var kunin = itemrow.closest('tr').find('.serialnumbers').val();
+	// var count = kunin.split(',').length;
+	itemselected = [];
+	console.log(itemselected);
+	allserials = [];
+	var checkcount = $('#checkcount').val();
+	qtyleft =  removeComma(quantityleft);
+	$('#tableSerialList tbody tr input[type="checkbox"]:checked').each(function() {
+		var serialed = $(this).val();
+		if($.inArray(serialed, checked_serials) == -1) {
+			checked_serials.push(serialed);
+		}
+		itemrow.closest('tr').find('.serialnumbers').val(checked_serials.toString());
+	});
+	var count = checked_serials.length;
+	$('#tableList tbody tr .serialnumbers').each(function() {
+		var serials = $(this).val();
+		if (serials != '') {
+			allserials.push(serials);
+			$('#main_serial').val(allserials);
+		}	
+	});	
+	// if (count != checkcount && type =='itempart') {
+	// 	$('#warning_counter .modal-body').html('Selected serial numbers must be equal to the required value.')
+	// 	$('#warning_counter').modal('show');
+	// 	$('#modal_close').hide();
+	// 	$('#btn_close').hide();
+	// }
+	// else 
+	if (count > qtyleft) {
+		$('#warning_counter .modal-body').html('Selected serial numbers must not be more than the quantity left.')
+		$('#warning_counter').modal('show');
+		$('#modal_close').hide();
+		// $('#btn_close').hide();
+	}
+	else if (count == 0) {
+		$('#warning_counter .modal-body').html('There is no selected serial number.')
+		$('#warning_counter').modal('show');
+		$('#modal_close').hide();
+		// $('#btn_close').hide();
+	}
+	// else {
+		if (type == 'mainitem') {
+			itemrow.closest('tr').find('.issueqty').val(count);
+		}
+		$('#serialModal').modal('hide');	
+		$('#modal_close').show();
+		$('#btn_close').show();
+	// }
+});
+
+$('#tableSerialList').on('ifChecked', '.check_id', function () {
+	var serialnum = $(this).val();
+	if($.inArray(serialnum, checked_serials) == -1) {
+		checked_serials.push(serialnum);
+	}
+	itemrow.closest('tr').find('.serialnumbers').val(checked_serials);
+});
+
+$('#tableSerialList').on('ifUnchecked', '.check_id', function () {
+	var remove_this  =   $(this).val(); 
+	checked_serials = jQuery.grep(checked_serials, function(value) {
+		return value != remove_this;
+	});
+	itemrow.closest('tr').find('.serialnumbers').val(checked_serials);
+});
+
+$('#tableSerialList').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
+	var b = $('#tableSerialList input[type=checkbox]:not(.checkall)');
+	var row = $('#tableSerialList >tbody >tr').length;
+	var c =  b.filter(':checked').length;
+	if(c == row){
+		$('#tableSerialList thead tr th').find('.checkall').prop('checked', true).iCheck('update');
+	}
+	else{
+		$('#tableSerialList thead tr th').find('.checkall').prop('checked', false).iCheck('update');
+	}
+});
 
 var voucher_details = <?php echo $voucher_details ?>;
 function displayDetails(details) {

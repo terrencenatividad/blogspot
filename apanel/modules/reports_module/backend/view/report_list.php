@@ -98,10 +98,10 @@
 								<h4 class="list-group-item-heading">Sales Report per Customer</h4>
 								<p class="list-group-item-text">List of sales transactions per customer in a given period</p>
 							</a>
-							<a href="sales_person" class="list-group-item">
+							<!-- <a href="sales_person" class="list-group-item">
 								<h4 class="list-group-item-heading">Sales Report per Sales Person</h4>
 								<p class="list-group-item-text">List of sales transactions per sales person in a given period</p>
-							</a>
+							</a> -->
 							<a href="sales_warehouse" class="list-group-item">
 								<h4 class="list-group-item-heading">Sales Report per Warehouse</h4>
 								<p class="list-group-item-text">List of sales transactions per warehouse in a given period</p>
@@ -134,10 +134,10 @@
 								<h4 class="list-group-item-heading">Sales Return per Customer</h4>
 								<p class="list-group-item-text">List of returns per customer in a given period</p>
 							</a>
-							<a href="cust_type_sales" class="list-group-item">
+							<!-- <a href="cust_type_sales" class="list-group-item">
 								<h4 class="list-group-item-heading">Sales per Customer Type</h4>
 								<p class="list-group-item-text">List of sales return per customer in a given period</p>
-							</a>
+							</a> -->
 							<!--<a href="stock_ledger" class="list-group-item">
 								<h4 class="list-group-item-heading">Stock Transaction Ledger Report</h4>
 								<p class="list-group-item-text">List of sales return per customer in a given period</p>

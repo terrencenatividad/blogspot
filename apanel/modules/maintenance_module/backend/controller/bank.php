@@ -329,30 +329,23 @@ class controller extends wc_controller
 				} else {
 					if($check == '') {
 						$dropdown = $this->ui->loadElement('check_task')
-
-						->addOtherTask(
-							'Edit Check Series',
-							'pencil',
-							$show_edit
-						)
-
-						->addOtherTask(
-							'Delete Check Series',
-							'trash',
-							$show_del
-						)
-
-								// ->addOtherTask(
-								// 	'Set as Default Check',
-								// 	'check',
-								// 	'set_default'
-								// )
-						->addOtherTask(
-							'Cancel Check Range',
-							'remove-circle',
-							$show_cancel
-						)
-						->draw();
+											->addOtherTask(
+												'Edit Check Series',
+												'pencil',
+												$show_edit
+											)
+											->addOtherTask(
+												'Delete Check Series',
+												'trash',
+												$show_del
+											)
+											->addOtherTask(
+												'Cancel Check Range',
+												'remove-circle',
+												$show_cancel
+											)
+											->setValue($row->booknumber)
+											->draw();
 					}
 				}
 
@@ -389,7 +382,7 @@ class controller extends wc_controller
 						$table .= '<td></td>';
 						$table .= '<td>' . $value->firstcancelled . '</td>';
 						$table .= '<td>' . $value->lastcancelled . '</td>';
-						$table .= '<td>' . $book_date . '</td>';
+						$table .= '<td>' . $this->date->dateFormat($book_date) . '</td>';
 						$table .= '<td>' . $value->remarks. '</td>';
 						$table	.= '<td><span class="label label-danger ">CANCELLED</span></td>';
 						$table .= '</tr>';
@@ -549,6 +542,7 @@ class controller extends wc_controller
 			'id',
 			'start',
 			'end',
+			'booknumber',
 			'firstcancelled',
 			'lastcancelled',
 			'remarks'
@@ -804,6 +798,21 @@ class controller extends wc_controller
 		return array(
 			'available'	=> $result
 		);
+	}
+
+	private function checkpreviouslycancelled() {
+		$booknumber =	$this->input->post('booknumber');
+		$bankid 	=	$this->input->post('bank_id');
+		$number 	=	$this->input->post('input');
+
+		$ret 		=	$this->bank->checkpreviouslycancelled($booknumber, $bankid, $number);
+
+		$exists 	=	0;
+		if($ret) {
+			$exists =	1;
+		}
+
+		return array('cancelled'=>$exists);
 	}
 }
 ?>
