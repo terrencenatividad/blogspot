@@ -873,7 +873,13 @@
 								?>
 								<?php foreach ($delivered_items as $row): ?>
 								<?php 
-									$row->discountamount = $row->discountamount / $row->init_qty;
+									if ($row->discounttype == 'perc') {
+										$row->discountamount = $row->amount * (($row->discountrate / $row->init_qty) * $row->issueqty) / 100;
+									}
+									else {
+										$row->discountamount = ($row->discountamount / $row->init_qty) * $row->issueqty;
+									}
+									$row->discountrate = ($row->discountrate / $row->init_qty) * $row->issueqty;
 									if($row->taxrate > 0.00 || $row->taxrate > 0 )	{
 										$vatable_sales += $row->amount-$row->discountamount;
 									}
@@ -984,7 +990,7 @@
 														->setSplit('', 'col-md-12')
 														->setClass("text-right")
 														->setValidation('decimal')
-														->setValue(number_format($row->amount-$row->discountamount, 2))
+														->setValue(number_format($row->amount - $row->discountamount, 2))
 														->draw(false);
 											?>
 										</td>		
@@ -1149,7 +1155,14 @@
 							<tbody>
 								<?php foreach ($cancelled_items as $row): ?>
 								<?php 
-									$row->discountamount = $row->discountamount / $row->init_qty;	
+									if ($row->discounttype == 'perc') {
+										$row->discountamount = ($row->balance_qty * $row->unitprice) * (($row->discountrate / $row->init_qty) * $row->balance_qty) / 100;
+									}
+									else {
+										$row->discountamount = ($row->discountamount / $row->init_qty) * $row->balance_qty;
+									}	
+									$row->discountrate = ($row->discountrate / $row->init_qty) * $row->balance_qty;
+									$amount = ($row->balance_qty * $row->unitprice) - $row->discountamount;
 								?>
 									<tr class="clone" valign="middle">
 										<td class = "remove-margin">
@@ -1247,7 +1260,7 @@
 														->setSplit('', 'col-md-12')
 														->setClass("text-right")
 														->setValidation('decimal')
-														->setValue(number_format($row->unitprice * $row->balance_qty - $row->discountamount, 2))
+														->setValue(number_format($amount, 2))
 														->draw(false);
 											?>
 										</td>		
