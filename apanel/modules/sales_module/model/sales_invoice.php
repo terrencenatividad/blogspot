@@ -678,7 +678,7 @@ class sales_invoice extends wc_model
 			
 			$retrieved_data['details'] 	= $this->db->setTable('job_order_details jod')
 											->setFields($detail_fields)
-											->leftJoin('job_order jo ON jo.job_order_no = jo.job_order_no')
+											->leftJoin('job_order jo ON jo.job_order_no = jod.job_order_no')
 											->leftJoin('servicequotation_details sqd ON sqd.voucherno = jo.service_quotation AND sqd.itemcode = jod.itemcode AND sqd.companycode = jod.companycode')
 											->setWhere($condition)
 											->runSelect()
