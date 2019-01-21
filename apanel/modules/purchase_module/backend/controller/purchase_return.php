@@ -52,11 +52,23 @@ class controller extends wc_controller {
 			'discounttype',
 			'discountamount',
 			'detail_warehouse' => 'warehouse',
-			'po_qty',
-			'item_ident_flag'
+			// 'po_qty',
+			// 'item_ident_flag'
 		);
 		$this->clean_number		= array(
 			'receiptqty'
+		);
+		$this->serial_fields	= array(
+			// 'detail_warehouse'			=> 'warehouse',
+			'voucherno',
+			// 'source_no',
+			'h_itemcode',
+			'linenumber',
+			'serialnumbers',
+			'enginenumbers',
+			'chassisnumbers',
+			'receiptqty',
+			'item_ident_flag'
 		);
 	}
 
@@ -250,6 +262,9 @@ class controller extends wc_controller {
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$seq						= new seqcontrol();
 		$data['voucherno']			= $seq->getValue('PRTN');
+		$serials					= $this->input->post($this->serial_fields);
+		$serials['voucherno']		= $data['source_no'];
+		$results2					= $this->purchase_model->updateSerialData($serials);
 		$result						= $this->purchase_model->savePurchaseReturn($data, $data2);
 	
 		if ($result && $this->inventory_model) {
@@ -446,9 +461,9 @@ class controller extends wc_controller {
 			$hide_engine 	=	($has_engine == 0) ? "hidden" 	:	"";
 			$hide_chassis 	=	($has_chassis == 0) ? "hidden" 	:	"";
 			
-			$table .= '<td class = "'.$hide_serial.'">' . $row->serialno . '</td>';
-			$table .= '<td class = "'.$hide_engine.'">' . $row->engineno . '</td>';
-			$table .= '<td class = "'.$hide_chassis.'">' . $row->chassisno . '</td>';
+			$table .= '<td class = "'.$hide_serial.' serialno">' . $row->serialno . '</td>';
+			$table .= '<td class = "'.$hide_engine.' engineno">' . $row->engineno . '</td>';
+			$table .= '<td class = "'.$hide_chassis.' chassisno">' . $row->chassisno . '</td>';
 			$table .= '</tr>';
 			$counter++;
 		}

@@ -295,7 +295,7 @@ function addVoucherDetails(details, index) {
 		}
 	}
 	var row = `
-		<tr>
+		<tr data-index="`+index+`">
 			<?php if ($show_input): ?>
 			<td>
 				<?php
@@ -324,7 +324,24 @@ function addVoucherDetails(details, index) {
 					echo $ui->formField('hidden')
 						->setName('serialnumbers[]')
 						->setClass('serialnumbers')
-						->setValue('` + details.serialnumbers + `')
+						->setID('serialnumbers`+index+`')
+						->setValue('')
+						->draw($show_input);
+				?>
+				<?php
+					echo $ui->formField('hidden')
+						->setName('enginenumbers[]')
+						->setClass('enginenumbers')
+						->setID('enginenumbers`+index+`')
+						->setValue('')
+						->draw($show_input);
+				?>
+				<?php
+					echo $ui->formField('hidden')
+						->setName('chassisnumbers[]')
+						->setClass('chassisnumbers')
+						->setID('chassisnumbers`+index+`')
+						->setValue('')
 						->draw($show_input);
 				?>
 				<?php
@@ -560,32 +577,40 @@ function addVoucherDetails(details, index) {
 	}
 
 }
-// console.log(serialize);
+
 var itemselected = [];
 var allserials = [];
 var checked_serials = [];
 var linenum = '';
 var serials = '';
 var itemrow = '';
+var index = '';
 var task = '';
 var type = '';
 var quantityleft = '';
 var item_ident = '';
+var serialnumbers = [];
+var enginenumbers = [];
+var chassisnumbers = [];
 $('#tableList tbody').on('click', '.serialize_button', function(){
 	linenum = $(this).data('linenum');
 	itemcode = $(this).data('itemcode');
 	itemrow = $(this);
-	serials = $(this).closest('tr').find('.serialnumbers').val();;
-	item_ident = $(this).closest('tr').find('.item_ident_flag').val();;
+	index = $(this).closest('tr').attr('data-index');
+	// serials = $(this).closest('tr').find('.serialnumbers').val();;
+	quantityleft = $(this).closest('tr').find('.quantityleft').val();
+	item_ident = $(this).closest('tr').find('.item_ident_flag').val();
 	description = $(this).closest('tr').find('.description').val();
 	check_num = $(this).closest('tr').find('.maxqty').val();
-	// console.log(linenum+' '+itemcode+' '+itemrow+' '+item_ident+' '+description+' '+check_num);
-	if ($(this).hasClass('mainitem')) {
-		type = 'mainitem';
-	}
-	else {
-		type = 'itempart';
-	}
+	// if ($(this).hasClass('mainitem')) {
+	// 	type = 'mainitem';
+	// }
+	// else {
+	// 	type = 'itempart';
+	// }
+	serialnumbers = [];
+	enginenumbers = [];
+	chassisnumbers = [];
 	tagSerial(itemcode, description, serials, check_num, type, quantityleft, item_ident);	
 	// $('#serialModal').modal('show');
 });
@@ -640,7 +665,7 @@ function getSerialList() {
 	ajax.limit = 5;
 	ajax.itemselected = serials;
 	ajax.allserials = $('#main_serial').val();
-	ajax.id = itemrow.closest('tr').find('.serialnumbers').val();
+	// ajax.id = itemrow.closest('tr').find('.serialnumbers').val();
 	ajax.item_ident = itemrow.closest('tr').find('.item_ident_flag').val();
 	var checked = itemrow.closest('tr').find('.checked').val();
 	ajax.checked_serials = checked.toString();
@@ -701,27 +726,40 @@ $('#serialModal #btn_close').on('click', function() {
 });
 
 $('#btn_tag').on('click', function() {
-	// var kunin = itemrow.closest('tr').find('.serialnumbers').val();
-	// var count = kunin.split(',').length;
 	itemselected = [];
-	console.log(itemselected);
 	allserials = [];
 	var checkcount = $('#checkcount').val();
 	qtyleft =  removeComma(quantityleft);
 	$('#tableSerialList tbody tr input[type="checkbox"]:checked').each(function() {
 		var serialed = $(this).val();
+		var sn = $(this).closest('tr').find('.serialno').text();
+		var en = $(this).closest('tr').find('.engineno').text();
+		var cn = $(this).closest('tr').find('.chassisno').text();
 		if($.inArray(serialed, checked_serials) == -1) {
 			checked_serials.push(serialed);
 		}
-		itemrow.closest('tr').find('.serialnumbers').val(checked_serials.toString());
+		if($.inArray(sn, serialnumbers) == -1 && sn != ""){
+			serialnumbers.push(sn);
+		}
+		if($.inArray(en, enginenumbers) == -1 && en != ""){
+			enginenumbers.push(en);
+		}
+		if($.inArray(cn, chassisnumbers) == -1 && cn != ""){
+			chassisnumbers.push(cn);
+		}
+		// itemrow.closest('tr').find('.serialnumbers').val(checked_serials.toString());
 	});
-	var count = checked_serials.length;
+	// if(!serialnumbers.length && !enginenumbers.length && !chassisnumbers.length) {
+	// 	var count = 0;
+	// } else {
+		var count = Math.max(serialnumbers.length,Math.max(enginenumbers.length,chassisnumbers.length));
+	// }
 	$('#tableList tbody tr .serialnumbers').each(function() {
 		var serials = $(this).val();
 		if (serials != '') {
 			allserials.push(serials);
 			$('#main_serial').val(allserials);
-		}	
+		}
 	});	
 	// if (count != checkcount && type =='itempart') {
 	// 	$('#warning_counter .modal-body').html('Selected serial numbers must be equal to the required value.')
@@ -730,42 +768,81 @@ $('#btn_tag').on('click', function() {
 	// 	$('#btn_close').hide();
 	// }
 	// else 
-	if (count > qtyleft) {
-		$('#warning_counter .modal-body').html('Selected serial numbers must not be more than the quantity left.')
-		$('#warning_counter').modal('show');
-		$('#modal_close').hide();
-		// $('#btn_close').hide();
-	}
-	else if (count == 0) {
+	
+	// if (count > qtyleft) {
+	// 	$('#warning_counter .modal-body').html('Selected serial numbers must not be more than the quantity left.')
+	// 	$('#warning_counter').modal('show');
+	// 	$('#modal_close').hide();
+	// 	// $('#btn_close').hide();
+	// }
+	// else
+	if (count == 0) {
 		$('#warning_counter .modal-body').html('There is no selected serial number.')
 		$('#warning_counter').modal('show');
 		$('#modal_close').hide();
 		// $('#btn_close').hide();
+	} else {
+	// if (type == 'mainitem') {
+		if (serialnumbers.length)
+		$('#serialnumbers'+index).val(serialnumbers.toString());
+		if (enginenumbers.length)
+		$('#enginenumbers'+index).val(enginenumbers.toString());
+		if (chassisnumbers.length)
+		$('#chassisnumbers'+index).val(chassisnumbers.toString());
+		// console.log(count);
+		// console.log(serialnumbers);
+		// console.log(enginenumbers);
+		// console.log(chassisnumbers);
 	}
-	// else {
-		if (type == 'mainitem') {
-			itemrow.closest('tr').find('.issueqty').val(count);
-		}
-		$('#serialModal').modal('hide');	
-		$('#modal_close').show();
-		$('#btn_close').show();
+	itemrow.closest('tr').find('.receiptqty').val(count);
+	itemrow.closest('tr').find('.receiptqty_serialized_display').text(count);
+	$('#serialModal').modal('hide');	
+	$('#modal_close').show();
+	$('#btn_close').show();
 	// }
+
 });
 
 $('#tableSerialList').on('ifChecked', '.check_id', function () {
 	var serialnum = $(this).val();
+	var sn = $(this).closest('tr').find('.serialno').text();
+	var en = $(this).closest('tr').find('.engineno').text();
+	var cn = $(this).closest('tr').find('.chassisno').text();
 	if($.inArray(serialnum, checked_serials) == -1) {
 		checked_serials.push(serialnum);
 	}
-	itemrow.closest('tr').find('.serialnumbers').val(checked_serials);
+	if($.inArray(sn, serialnumbers) == -1 && sn != ""){
+		serialnumbers.push(sn);
+	}
+	if($.inArray(en, enginenumbers) == -1 && en != ""){
+		enginenumbers.push(en);
+	}
+	if($.inArray(cn, chassisnumbers) == -1 && cn != ""){
+		chassisnumbers.push(cn);
+	}
+	// itemrow.closest('tr').find('.serialnumbers').val(checked_serials);
+	// console.log(serialnumbers);
 });
 
 $('#tableSerialList').on('ifUnchecked', '.check_id', function () {
-	var remove_this  =   $(this).val(); 
+	var remove_this  =   $(this).val();
+	var remove_sn = $(this).closest('tr').find('.serialno').text();
+	var remove_en = $(this).closest('tr').find('.engineno').text();
+	var remove_cn = $(this).closest('tr').find('.chassisno').text();
 	checked_serials = jQuery.grep(checked_serials, function(value) {
 		return value != remove_this;
 	});
-	itemrow.closest('tr').find('.serialnumbers').val(checked_serials);
+	serialnumbers = jQuery.grep(serialnumbers, function(value) {
+		return value != remove_sn;
+	});
+	enginenumbers = jQuery.grep(enginenumbers, function(value) {
+		return value != remove_en;
+	});
+	chassisnumbers = jQuery.grep(chassisnumbers, function(value) {
+		return value != remove_cn;
+	});
+	// itemrow.closest('tr').find('.serialnumbers').val(checked_serials);
+	// console.log(serialnumbers);
 });
 
 $('#tableSerialList').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
