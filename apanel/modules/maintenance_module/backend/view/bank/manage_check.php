@@ -610,16 +610,18 @@ $('#checkForm #firstchequeno, #lastchequeno').on('blur' ,function(){
 			$('#modal_checker_on_range').modal('show');
 			$('#msg1').html("Number entered is within the series of existing checks");
 			$('#checkForm #inner_input').addClass("has-error").find('p.help-block').html(error_message);
-		}  else if (first_number != "" && end_number !="" ){
-			if (end_number < first_number){
-				$('#modal_checker_on_range').modal('show');
-				$('#msg2').html("First check number cannot be greater than last check number");
-				$('#checkForm #inner_input').addClass("has-error").find('p.help-block').html(error_message);
-			} 
 		} else if (task == 'update_check'){
 			$('#checkForm #inner_input').removeClass("has-error").find('p.help-block').html(error_message);
 		} 
-    })
+	});
+	
+	if (first_number != "" && end_number !="" ){
+		if (end_number < first_number){
+			$('#modal_checker_on_range').modal('show');
+			$('#msg2').html("First check number cannot be greater than last check number");
+			$('#checkForm #inner_input').addClass("has-error").find('p.help-block').html(error_message);
+		} 
+	}
 	
 })
 
