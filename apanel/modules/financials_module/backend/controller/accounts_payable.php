@@ -97,7 +97,8 @@ class controller extends wc_controller
 		$data["transactiondate"]    = $this->date->dateFormat();
 		$data["duedate"]      		= $this->date->dateFormat();
 		$data['currencycodes'] = $this->accounts_payable->getCurrencyCode();
-		$data['currency'] = 'PHP';
+		$data['currency'] 			= 'PHP';
+		$data['exchangerate'] 		= '1.00';
 		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
 		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList($data);
 		$data['account_list'] = $this->accounts_payable->retrieveAccounts();
@@ -516,7 +517,7 @@ class controller extends wc_controller
 		$ap['stat'] = 'posted';
 		$ap['job_no'] = $post['job'];
 		$jobs = explode(',', $post['job']);
-
+		
 		if(!empty($jobs[0])) {
 			$finjobs['voucherno'] = $ap['voucherno'];
 			$finjobs['job_no'] = $jobs;
@@ -536,13 +537,13 @@ class controller extends wc_controller
 
 			$this->accounts_payable->updateAsset($ap['assetid'],$ap_details['debit'][0],$capitalized_cost,$balance_value);
 			
-			$depreciation = 0;
-			for($x=1;$x<=$useful_life;$x++){
-				$depreciation_amount 	= ($bv - $salvage_value) / $useful_life;
-				$depreciation += ($bv - $salvage_value) / $useful_life;
-				$final = date("Y-m-d", strtotime("+$x month", $time));
-				$sched = $this->accounts_payable->updateAssetMasterSchedule($ap['assetid'],$final,$depreciation,$depreciation_amount);
-			}
+			// $depreciation = 0;
+			// for($x=1;$x<=$useful_life;$x++){
+			// 	$depreciation_amount 	= ($bv - $salvage_value) / $useful_life;
+			// 	$depreciation += ($bv - $salvage_value) / $useful_life;
+			// 	$final = date("Y-m-d", strtotime("+$x month", $time));
+			// 	$sched = $this->accounts_payable->updateAssetMasterSchedule($ap['assetid'],$final,$depreciation,$depreciation_amount);
+			// }
 		}
 
 		$ap_details['transtype'] = 'AP';
@@ -1643,7 +1644,7 @@ class controller extends wc_controller
 	private function ajax_get_currency_val() {
 		$currencycode = $this->input->post('currencycode');
 		$result = $this->accounts_payable->getExchangeRate($currencycode);
-		return array("exchangerate" => $result->exchangerate);
+		return array("exchangerate" => ($result) ? $result->exchangerate : '1.00');
 	}
 
 	private function ajax_get_details() {
