@@ -69,7 +69,6 @@
 	<ul id="filter_tabs" class="nav nav-tabs">
 		<li class="active"><a href="all" data-toggle="tab">All</a></li>
 		<li><a href="Returned" data-toggle="tab">Returned</a></li>
-		<li><a href="Scrapped" data-toggle="tab">Scrapped</a></li>
 		<li><a href="Cancelled" data-toggle="tab">Cancelled</a></li>
 	</ul>
 	<div class="table-responsive">
