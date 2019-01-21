@@ -516,7 +516,7 @@ class controller extends wc_controller
 		$ap['stat'] = 'posted';
 		$ap['job_no'] = $post['job'];
 		$jobs = explode(',', $post['job']);
-
+		
 		if(!empty($jobs[0])) {
 			$finjobs['voucherno'] = $ap['voucherno'];
 			$finjobs['job_no'] = $jobs;
@@ -536,13 +536,13 @@ class controller extends wc_controller
 
 			$this->accounts_payable->updateAsset($ap['assetid'],$ap_details['debit'][0],$capitalized_cost,$balance_value);
 			
-			$depreciation = 0;
-			for($x=1;$x<=$useful_life;$x++){
-				$depreciation_amount 	= ($bv - $salvage_value) / $useful_life;
-				$depreciation += ($bv - $salvage_value) / $useful_life;
-				$final = date("Y-m-d", strtotime("+$x month", $time));
-				$sched = $this->accounts_payable->updateAssetMasterSchedule($ap['assetid'],$final,$depreciation,$depreciation_amount);
-			}
+			// $depreciation = 0;
+			// for($x=1;$x<=$useful_life;$x++){
+			// 	$depreciation_amount 	= ($bv - $salvage_value) / $useful_life;
+			// 	$depreciation += ($bv - $salvage_value) / $useful_life;
+			// 	$final = date("Y-m-d", strtotime("+$x month", $time));
+			// 	$sched = $this->accounts_payable->updateAssetMasterSchedule($ap['assetid'],$final,$depreciation,$depreciation_amount);
+			// }
 		}
 
 		$ap_details['transtype'] = 'AP';
