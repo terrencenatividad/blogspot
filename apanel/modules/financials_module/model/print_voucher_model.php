@@ -188,7 +188,7 @@ class print_voucher_model extends fpdf {
 		}
 		
 		/**AMOUNT IN WORDS**/
-		$convert		= new convert($amount,'Pesos Only');
+		$convert		= new convert($amount,'Pesos');
 		
 		$amt_words		= $convert->display() . ' (' . number_format($amount, 2) . ')';
 		$first_part		= $amt_words;
