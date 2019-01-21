@@ -349,15 +349,15 @@ class bank extends wc_model
 		$data['stat']				= 'cancelled';
 		$data['booknumber'] 		= $data1['booknumber'];
 		$result = $this->db->setTable('cancelled_checks')
-		->setValues($data)
-		->runInsert();
+							->setValues($data)
+							->runInsert();
 		if ($result){
 			$data_check['has_cancelled']          = 'yes';
 			$result 			   = $this->db->setTable('bankdetail')
-			->setValues($data_check)
-			->setWhere("bank_id = {$data1['id']} AND firstchequeno={$data1['start']}")
-			->setLimit(1)
-			->runUpdate();
+												->setValues($data_check)
+												->setWhere("bank_id = {$data1['id']} AND firstchequeno={$data1['start']}")
+												->setLimit(1)
+												->runUpdate();
 		}
 		return $result;
 	}
