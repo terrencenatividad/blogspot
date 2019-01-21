@@ -975,7 +975,7 @@
 		$('#serialModal #sec_description').val(itemname);
 		
 		ajax_serials.itemcode	=	itemcode;
-		ajax_serials.warehouse	=	$('#warehouse').val();
+		ajax_serials.warehouse	=	$('#h_warehouse').val();
 		ajax_serials.limit 		= 	5;
 
 		if(button_ident=="minus"){
@@ -1347,7 +1347,7 @@
 	// For Importing SErial Number 
 	$('#tableList').on('click','.import-serial',function(){
 		var itemcode 	= $(this).data('itemcode');
-		var warehouse 	= $('#warehouse').val();
+		var warehouse 	= $('#h_warehouse').val();
 		var link 	=	'<?=MODULE_URL?>get_serial_import/'+itemcode+'/'+warehouse;
 
 		$('#main_item').val(itemcode);

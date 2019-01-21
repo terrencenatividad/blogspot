@@ -63,7 +63,7 @@ class inventory_adjustment_model extends wc_model {
 							->setOrderBy('items.itemcode')
 							->runSelect()
 							->getResult();
-
+		// echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -528,7 +528,7 @@ class inventory_adjustment_model extends wc_model {
 		$result = $this->db->setTable('items_serialized')
 				->setValuesFromPost($data)
 				->runInsert();
-
+		// echo $this->db->getQuery();
 		return $result;
 	}
 
