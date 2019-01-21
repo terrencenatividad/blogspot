@@ -195,18 +195,20 @@ class bank extends wc_model
 		$data_post_dtl['nextchequeno'] 		= $data2['firstchequeno'];
 
 		$result = $this->db->setTable('bankdetail')
-		->setValues($data_post_dtl)
-		->runInsert();
+							->setValues($data_post_dtl)
+							->runInsert();
+		// echo $this->db->getQuery();
 		return $result;
 
 	}
 	public function getAccountname($id){
 		$result = $this->db->setTable('bank b')
-		->setFields('id, shortname, firstchequeno, lastchequeno ')
-		->setWhere("id = '$id'")
-		->leftJoin("bankdetail bd ON b.id = bd.bank_id ")
-		->runSelect()
-		->getResult();
+							->setFields('id, shortname, firstchequeno, lastchequeno ')
+							->setWhere("id = '$id'")
+							->leftJoin("bankdetail bd ON b.id = bd.bank_id ")
+							->runSelect()
+							->getResult();
+
 		return $result;
 
 

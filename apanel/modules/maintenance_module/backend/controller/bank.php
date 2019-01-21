@@ -272,7 +272,7 @@ class controller extends wc_controller
 		$lastchequeno	= $posted_data['lastchequeno'];
 		$id				= $posted_data['bank_id'];
 		$accntname 		= $this->bank->getAccountname($id);
-		$id = $accntname[0]->shortname;
+		$id 			= isset($accntname[0]->shortname) ? $accntname[0]->shortname : "";
 
 		if( $result )
 		{

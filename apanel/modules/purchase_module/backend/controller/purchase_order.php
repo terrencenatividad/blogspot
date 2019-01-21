@@ -516,7 +516,7 @@ class controller extends wc_controller
 
 		$print = new purchase_print_model();
 		$print->setDocumentType('Purchase Order')
-		->setFooterDetails(array('Approved By', 'Checked By'))
+		->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))
 		->setVendorDetails($vendordetails)
 		->setDocumentDetails($documentdetails)
 		->addReceived();
