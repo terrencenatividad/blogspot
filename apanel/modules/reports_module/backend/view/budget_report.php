@@ -30,14 +30,16 @@
 				</div>
 			</div>
 		</div>
-		<h5>Note : <i>This list is for the Budget Check "Monitored" only.</i></h5>
+		<!-- <h5>Note : <i>This list is for the Budget Check "Monitored" only.</i></h5> -->
 		<div class="box-body table-responsive no-padding" id="report_content">
 			<table id="tableList" class="table table-hover table-striped table-sidepad">
 				<thead>
 					<tr class="info">
-						<th class="col-md-1">Account Name</th>
+						<!-- <th class="col-md-1">Account Name</th>
+						<th class="col-md-1">Budget Code</th> -->
 						<th class="col-md-1">Budget Code</th>
-						<th class="col-md-1">Year</th>
+						<th class="col-md-1">Budget Description</th>
+						<th class="col-md-1">Total Budget</th>
 						<th class="col-md-1">January</th>
 						<th class="col-md-1">February</th>
 						<th class="col-md-1">March</th>
@@ -57,20 +59,20 @@
 				</tbody>
 				<tfoot>
 					<tr>
-						<td colspan = "2"></td>
-						<td class = "text-right"><strong>Total</strong></td>
-						<td class = "all_total"></td>
-						<td class = "all_total"></td>
-						<td class = "all_total"></td>
-						<td class = "all_total"></td>
-						<td class = "all_total"></td>
-						<td class = "all_total"></td>
-						<td class = "all_total"></td>
-						<td class = "all_total"></td>
-						<td class = "all_total"></td>
-						<td class = "all_total"></td>
-						<td class = "all_total"></td>
-						<td class = "all_total"></td>
+						<td colspan="2" class="text-right"><strong>Total</strong></td>
+						<td class = "text-right year_total"></td>
+						<td class = "text-right all_total"></td>
+						<td class = "text-right all_total"></td>
+						<td class = "text-right all_total"></td>
+						<td class = "text-right all_total"></td>
+						<td class = "text-right all_total"></td>
+						<td class = "text-right all_total"></td>
+						<td class = "text-right all_total"></td>
+						<td class = "text-right all_total"></td>
+						<td class = "text-right all_total"></td>
+						<td class = "text-right all_total"></td>
+						<td class = "text-right all_total"></td>
+						<td class = "text-right all_total"></td>
 					</tr>
 				</tfoot>
 			</table>
@@ -89,10 +91,16 @@
 			$('#tableList tfoot').html(data.footer);
 			$('#pagination').html(data.pagination);
 			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
-			$('#tableList tbody tr td.total').each(function() {
-				var val = parseInt($(this).html());
+			$('#tableList tbody tr input.monthly_total').each(function() {
+				var val = parseInt($(this).val());
 				total += +val;
-				$('.all_total').html(addComma(total));
+				$('.all_total').html('<strong>'+addComma(total)+'</strong>');
+			});
+			total = 0;
+			$('#tableList tbody tr input.year_total').each(function() {
+				var val = parseInt($(this).val());
+				total += +val;
+				$('.year_total').html('<strong>'+addComma(total)+'</strong>');
 			});
 		});
 	}
