@@ -1346,120 +1346,48 @@
 	});
 	// For Importing SErial Number 
 	$('#tableList').on('click','.import-serial',function(){
-		var itemcode = $(this).data('itemcode');
-		var link 	=	'<?=MODULE_URL?>get_serial_import/'+itemcode;
+		var itemcode 	= $(this).data('itemcode');
+		var warehouse 	= $('#warehouse').val();
+		var link 	=	'<?=MODULE_URL?>get_serial_import/'+itemcode+'/'+warehouse;
 
 		$('#main_item').val(itemcode);
 		$('#import-serial-modal #download-link').attr('href',link);
 
 		$('#import-serial-modal').modal('show');
 	});
-	$('#import-serial-modal').on('click','#download-link',function(e){
-		// e.preventDefault();
-		// href="<?=MODULE_URL?>get_serial_import" 
-	})
-	// $("#import").click(function() 
-	// {
-	// 	$('#import-modal #import-step2').hide();
-	// 	$('#import-modal').modal('show');
-	// });
 
-	// $('#import-modal #import-skip').click(function(){
+	$('#import-serial-modal #btnClose').click(function(){
+		$('#import-serial-modal').modal('hide');	
+	});
 
-	// 	$('#import-modal #import-skip #loading').removeClass('hidden');
+	// For Filename 
+	$('#importSerialForm').on('change', '#import_csv', function() {
+		var filename = $(this).val().split("\\");
+		$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
+	});
 
-	// 	var date 		=	$('#importForm #importdate').val();
-	// 	date 			=  	retrieveformatteddate(date);
-		
-	// 	var link 	=	'<?=MODULE_URL?>get_import/'+date;
-		
-	// 	$('#import-modal #download-link').attr('href',link);
-	// 	setTimeout(function() {
-	// 		$('#import-modal #import-step1').hide();
-	// 		$('#import-modal #import-step2').show();
-	// 		$('#import-modal #btnYes').prop('disabled',false);
-	// 	},1000);
-	// });
-
-	// $('#import-modal #btnClose').click(function(){
-	// 	$('#import-modal #import-skip #loading').addClass('hidden');
-	// 	$('#import-modal #import-proceed #loading').addClass('hidden');
-	// 	$('#import-modal #import-step1').show();
-	// 	$('#import-modal #import-step2').hide();
-	// 	$('#import-modal').modal('hide');	
-	// });
-
-	// $('#importForm').on('change', '#import_csv', function() {
-	// 	var filename = $(this).val().split("\\");
-	// 	$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
-	// });
-
-    // $('#import-modal').on('show.bs.modal', function() {
-	// 	var form_csv = $('#import_csv').val('').closest('.form-group').find('.form-control').html('').closest('.form-group').html();
-	// 	$('#import_csv').closest('.form-group').html(form_csv);
-
-	// 	$('#import-modal #import-skip #loading').addClass('hidden');
-	// 	$('#import-modal #import-proceed #loading').addClass('hidden');
-	// 	$('#import-modal #import-step1').show();
-	// });
-
-	// function retrieveformatteddate(date)
-	// {
-	// 	date = new Date(date);
-	// 	year = date.getFullYear();
-	// 	month = date.getMonth()+1;
-	// 	dt = date.getDate();
-
-	// 	if (dt < 10) {
-	// 	dt = '0' + dt;
-	// 	}
-	// 	if (month < 10) {
-	// 	month = '0' + month;
-	// 	}
-
-	// 	return year+'-' + month + '-'+dt;
-	// }
-
-	// $('#import-modal #import-proceed').click(function(){
-		
-	// 	$('#import-modal #import-proceed #loading').removeClass('hidden');
-
-	// 	var date 		=	$('#importForm #importdate').val();
-	// 	date 			=  	retrieveformatteddate(date);
-		
-	// 	var link 	=	'<?=MODULE_URL?>get_import/'+date;
-		
-	// 	$('#import-modal #download-link').attr('href',link);
-
-	// 	setTimeout(function() {
-	// 		$('#import-modal #import-step1').hide();
-	// 		$('#import-modal #import-step2').show();
-	// 	},1000);
-	// });
-
-	// $("#importForm #btnImport").click(function() 
-	// {
-	// 	var formData =	new FormData();
-	// 	formData.append('file',$('#import_csv')[0].files[0]);
-	// 	ajax_call 	=	$.ajax({
-	// 						url : '<?=MODULE_URL?>ajax/save_import',
-	// 						data:	formData,
-	// 						cache: 	false,
-	// 						processData: false, 
-	// 						contentType: false,
-	// 						type: 	'POST',
-	// 						success: function(response){
-	// 							if(response && response.errmsg == ""){
-	// 								$('#import-modal').modal('hide');
-	// 								$(".alert-warning").addClass("hidden");
-	// 								$("#errmsg").html('');
-	// 								hide_error();
-	// 								show_success_msg('Your Data has been imported successfully.');
-	// 							}else{
-	// 								$('#import-modal').modal('hide');
-	// 								show_error(response.errmsg, response.warning);
-	// 							}
-	// 						},
-	// 					});
-	// });
+	$("#importSerialForm #btnImport").click(function()  {
+		var formData =	new FormData();
+		formData.append('file',$('#import_csv')[0].files[0]);
+		ajax_call 	=	$.ajax({
+							url : '<?=MODULE_URL?>ajax/save_serial_import',
+							data:	formData,
+							cache: 	false,
+							processData: false, 
+							contentType: false,
+							type: 	'POST',
+							success: function(response){
+								if(response && response.errmsg == ""){
+									$('#import-serial-modal').modal('hide');
+									$(".alert-warning").addClass("hidden");
+									$("#errmsg").html('');
+									hide_error();
+									show_success_msg('Your Data has been imported successfully.');
+								}else{
+									$('#import-serial-modal').modal('hide');
+									show_error(response.errmsg, response.warning);
+								}
+							},
+						});
+	});
 </script>
