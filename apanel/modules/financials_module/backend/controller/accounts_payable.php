@@ -1539,19 +1539,23 @@ class controller extends wc_controller
 
 							if( !isset($h_vouchlist) || !in_array($voucherno, $h_vouchlist) ){
 								$h_vouchlist[] 		= $voucherno;
-							}
-							if( !isset($datelist) || !in_array($transdate, $datelist) ){	
 								$datelist[] 		= $transdate;
-							}
-							if( !isset($duedatelist) || !in_array($duedate, $duedatelist) ){	
 								$duedatelist[] 		= $duedate;
-							}
-							if( !isset($vendorlist) || !in_array($vendor, $vendorlist) ){
 								$vendorlist[] 		= $vendor;
-							}
-							if( !isset($invoicelist) || !in_array($invoiceno, $invoicelist) ){
 								$invoicelist[] 		= $invoiceno;
 							}
+							// if( !isset($datelist) || !in_array($transdate, $datelist) ){	
+							// 	$datelist[] 		= $transdate;
+							// }
+							// if( !isset($duedatelist) || !in_array($duedate, $duedatelist) ){	
+							// 	$duedatelist[] 		= $duedate;
+							// }
+							// if( !isset($vendorlist) || !in_array($vendor, $vendorlist) ){
+							// 	$vendorlist[] 		= $vendor;
+							// }
+							// if( !isset($invoicelist) || !in_array($invoiceno, $invoicelist) ){
+							// 	$invoicelist[] 		= $invoiceno;
+							// }
 						}
 
 						$prev_no 		= $jvno;
