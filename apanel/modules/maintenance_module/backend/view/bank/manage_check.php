@@ -311,10 +311,13 @@
 var ajax = {};
 var book = {};
 var cancel = {}; 
-$('#checkForm #btnSave').on('click',function(){
-	$('#checkForm #booknumber').trigger('blur');
-	$('#checkForm #firstchequeno').trigger('blur');
-	$('#checkForm #lastchequeno').trigger('blur');
+$('#checkForm').on('click',"#btnSave",function(){
+	// $('#checkForm #booknumber').trigger('blur');
+	// $('#checkForm #firstchequeno').trigger('blur');
+	// $('#checkForm #lastchequeno').trigger('blur');
+
+	$('#checkForm').find('.form-group').find('input, textarea, select').trigger('blur');
+
 	var bank_id = $('#id').val();
 
 	if ($('#checkForm').find('.has-error').length == 0)
