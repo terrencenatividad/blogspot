@@ -311,10 +311,13 @@
 var ajax = {};
 var book = {};
 var cancel = {}; 
-$('#checkForm #btnSave').on('click',function(){
-	$('#checkForm #booknumber').trigger('blur');
-	$('#checkForm #firstchequeno').trigger('blur');
-	$('#checkForm #lastchequeno').trigger('blur');
+$('#checkForm').on('click',"#btnSave",function(){
+	// $('#checkForm #booknumber').trigger('blur');
+	// $('#checkForm #firstchequeno').trigger('blur');
+	// $('#checkForm #lastchequeno').trigger('blur');
+
+	$('#checkForm').find('.form-group').find('input, textarea, select').trigger('blur');
+
 	var bank_id = $('#id').val();
 
 	if ($('#checkForm').find('.has-error').length == 0)
@@ -607,16 +610,18 @@ $('#checkForm #firstchequeno, #lastchequeno').on('blur' ,function(){
 			$('#modal_checker_on_range').modal('show');
 			$('#msg1').html("Number entered is within the series of existing checks");
 			$('#checkForm #inner_input').addClass("has-error").find('p.help-block').html(error_message);
-		}  else if (first_number != "" && end_number !="" ){
-			if (end_number < first_number){
-				$('#modal_checker_on_range').modal('show');
-				$('#msg2').html("First check number cannot be greater than last check number");
-				$('#checkForm #inner_input').addClass("has-error").find('p.help-block').html(error_message);
-			} 
 		} else if (task == 'update_check'){
 			$('#checkForm #inner_input').removeClass("has-error").find('p.help-block').html(error_message);
 		} 
-    })
+	});
+	
+	if (first_number != "" && end_number !="" ){
+		if (end_number < first_number){
+			$('#modal_checker_on_range').modal('show');
+			$('#msg2').html("First check number cannot be greater than last check number");
+			$('#checkForm #inner_input').addClass("has-error").find('p.help-block').html(error_message);
+		} 
+	}
 	
 })
 

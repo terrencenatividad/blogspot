@@ -931,10 +931,9 @@
 				hasEngine = '';
 				hasChassis = '';
 				
-				
-				// hasSerial = (item_ident_flag[0] == 1) ? '' : 'hidden';
-				// hasEngine = (item_ident_flag[1] == 1) ? '' : 'hidden';
-				// hasChassis = (item_ident_flag[2] == 1) ? '' : 'hidden';
+				hasSerial = (item_ident_flag[0] == 1) ? '' : 'hidden';
+				hasEngine = (item_ident_flag[1] == 1) ? '' : 'hidden';
+				hasChassis = (item_ident_flag[2] == 1) ? '' : 'hidden';
 				// <?php if($show_input) { ?>
 				// <?php } ?>
 
@@ -983,7 +982,7 @@
 							?>
 							<div><strong><small class="error_message"></small></strong></div>
 						</td>
-						<td class="chassis_no col-xs-3" `+hasChassis+`>
+						<td class="chassis_no col-xs-3 `+hasChassis+`">
 							<?php
 								echo $ui->formField('text')
 									->setSplit('', 'col-md-12')
