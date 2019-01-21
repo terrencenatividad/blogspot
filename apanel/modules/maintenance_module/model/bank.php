@@ -195,18 +195,20 @@ class bank extends wc_model
 		$data_post_dtl['nextchequeno'] 		= $data2['firstchequeno'];
 
 		$result = $this->db->setTable('bankdetail')
-		->setValues($data_post_dtl)
-		->runInsert();
+							->setValues($data_post_dtl)
+							->runInsert();
+		// echo $this->db->getQuery();
 		return $result;
 
 	}
 	public function getAccountname($id){
 		$result = $this->db->setTable('bank b')
-		->setFields('id, shortname, firstchequeno, lastchequeno ')
-		->setWhere("id = '$id'")
-		->leftJoin("bankdetail bd ON b.id = bd.bank_id ")
-		->runSelect()
-		->getResult();
+							->setFields('id, shortname, firstchequeno, lastchequeno ')
+							->setWhere("id = '$id'")
+							->leftJoin("bankdetail bd ON b.id = bd.bank_id ")
+							->runSelect()
+							->getResult();
+
 		return $result;
 
 
@@ -347,15 +349,15 @@ class bank extends wc_model
 		$data['stat']				= 'cancelled';
 		$data['booknumber'] 		= $data1['booknumber'];
 		$result = $this->db->setTable('cancelled_checks')
-		->setValues($data)
-		->runInsert();
+							->setValues($data)
+							->runInsert();
 		if ($result){
 			$data_check['has_cancelled']          = 'yes';
 			$result 			   = $this->db->setTable('bankdetail')
-			->setValues($data_check)
-			->setWhere("bank_id = {$data1['id']} AND firstchequeno={$data1['start']}")
-			->setLimit(1)
-			->runUpdate();
+												->setValues($data_check)
+												->setWhere("bank_id = {$data1['id']} AND firstchequeno={$data1['start']}")
+												->setLimit(1)
+												->runUpdate();
 		}
 		return $result;
 	}

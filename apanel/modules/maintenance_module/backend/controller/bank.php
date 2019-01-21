@@ -272,7 +272,7 @@ class controller extends wc_controller
 		$lastchequeno	= $posted_data['lastchequeno'];
 		$id				= $posted_data['bank_id'];
 		$accntname 		= $this->bank->getAccountname($id);
-		$id = $accntname[0]->shortname;
+		$id 			= isset($accntname[0]->shortname) ? $accntname[0]->shortname : "";
 
 		if( $result )
 		{
@@ -324,29 +324,26 @@ class controller extends wc_controller
 				$show_cancel = ($row->stat == 'closed') ? '' : 'cancel';
 				$checker = ($check == 'cancel');
 
-				if ($show_cancel == '') {
-					$dropdown = '';
-				} else {
-					if($check == '') {
-						$dropdown = $this->ui->loadElement('check_task')
-											->addOtherTask(
-												'Edit Check Series',
-												'pencil',
-												$show_edit
-											)
-											->addOtherTask(
-												'Delete Check Series',
-												'trash',
-												$show_del
-											)
-											->addOtherTask(
-												'Cancel Check Range',
-												'remove-circle',
-												$show_cancel
-											)
-											->setValue($row->booknumber)
-											->draw();
-					}
+				$dropdown = '';
+				if($check == '') {
+					$dropdown = $this->ui->loadElement('check_task')
+										->addOtherTask(
+											'Edit Check Series',
+											'pencil',
+											$show_edit
+										)
+										->addOtherTask(
+											'Delete Check Series',
+											'trash',
+											$show_del
+										)
+										->addOtherTask(
+											'Cancel Check Range',
+											'remove-circle',
+											$show_cancel
+										)
+										->setValue($row->booknumber)
+										->draw();
 				}
 
 				$table .= '<tr>';

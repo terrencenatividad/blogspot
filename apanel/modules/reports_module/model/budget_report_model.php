@@ -25,7 +25,7 @@ class budget_report_model extends wc_model {
 	public function getBudgetReportList($budgetcode, $year) {
 		$budgetreport = array(
 			'br.budget_code',
-			'br.date_approved',
+			'b.budgetdesc',
 			'br.january',
 			'br.february',
 			'br.march',
@@ -68,6 +68,7 @@ class budget_report_model extends wc_model {
 	public function getBudgetReportExport($budgetcode) {
 		$budgetreport = array(
 			'br.budget_code',
+			'b.budgetdesc',
 			'br.january',
 			'br.february',
 			'br.march',

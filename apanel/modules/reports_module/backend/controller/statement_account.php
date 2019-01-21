@@ -94,7 +94,11 @@ class controller extends wc_controller
 				$table .= '<td>' . $row->documenttype . '</td>';
 				$table .= '<td>' . $row->reference . '</td>';
 				$table .= '<td>' . $row->particulars . '</td>';
-				$table .= '<td class="text-right">' .   $this->amount($row->amount) . '</td>';
+				if($this->amount($row->amount) < 0){
+					$table .= '<td class="text-right">(' .   $this->amount($row->amount*-1) . ')</td>';
+				}else{
+					$table .= '<td class="text-right">' .   $this->amount($row->amount) . '</td>';					
+				}
 				$balance += (empty($highlight)) ? $row->amount : 0;
 				$balance = ($balance >= 0) ? $balance : 0;
 				$table .= '<td class="text-right">' .   $this->amount($balance). '</td>';

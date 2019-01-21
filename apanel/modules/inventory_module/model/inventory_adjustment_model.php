@@ -54,6 +54,19 @@ class inventory_adjustment_model extends wc_model {
 						->getResult();
 	}
 
+	public function getImportSerialList($itemcode, $warehouse) {
+		$result	=	$this->db->setTable('items')
+							->setFields('items.itemcode as itemcode, items.itemname as name, w.description as warehouse, inv.onhandQty qty')
+							->leftJoin("warehouse w ON w.companycode = items.companycode")
+							->leftJoin("invfile inv ON inv.itemcode = items.itemcode AND w.warehousecode = inv.warehouse AND w.companycode = inv.companycode")
+							->setWhere("items.itemgroup = 'goods' AND items.itemcode = '$itemcode' AND inv.warehouse = '$warehouse'")
+							->setOrderBy('items.itemcode')
+							->runSelect()
+							->getResult();
+		// echo $this->db->getQuery();
+		return $result;
+	}
+
 	public function getLoggedInUsers($curr_user)
 	{
 		return $this->db->setTable('wc_users')
@@ -508,6 +521,14 @@ class inventory_adjustment_model extends wc_model {
 		$result = $this->db->setTable('inv_beg_balance')
 							->setWhere("companycode = 'CID'")
 							->runDelete(false);
+		return $result;
+	}
+
+	public function importinitialserials($data){
+		$result = $this->db->setTable('items_serialized')
+				->setValuesFromPost($data)
+				->runInsert();
+		// echo $this->db->getQuery();
 		return $result;
 	}
 

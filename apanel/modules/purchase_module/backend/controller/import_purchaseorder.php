@@ -557,7 +557,7 @@ class controller extends wc_controller
 
 		$print = new import_purchase_print_model();
 		$print->setDocumentType('Import Purchase Order')
-		->setFooterDetails(array('Prepared By', 'Recommending Approval','Approved By'))
+		->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))
 		->setVendorDetails($vendordetails)
 		->setDocumentDetails($documentdetails)
 		->setDocumentInfo($documentinfo)

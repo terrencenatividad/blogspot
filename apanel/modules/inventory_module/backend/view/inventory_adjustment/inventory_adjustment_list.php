@@ -384,34 +384,35 @@
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<form method="POST" id="importSerialForm" ENCTYPE="multipart/form-data">
+				<input id="main_item" name="main_item" value="" type="hidden">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">×</span></button>
 					<h4 class="modal-title">Import Serial/Engine/Chassis Numbers</h4>
 				</div>
 				<div class="modal-body">
-					<div id = 'import-step1'>
+					<!-- <div id = 'import-step1'>
 						<div class = 'row'>
 							<div class = 'col-md-1'></div>
 							<?php
-								echo $ui->formField('text')
-										->setLabel('Date')
-										->setSplit('col-md-3', 'col-md-8')
-										->setName('importdate')
-										->setId('importdate')
-										->setClass('datepicker-input')
-										->setAttribute(array('readonly' => ''))
-										->setAddon('calendar')
-										->setValue($importdate)
-										->setValidation('required')
-										->draw(true);
+								// echo $ui->formField('text')
+								// 		->setLabel('Date')
+								// 		->setSplit('col-md-3', 'col-md-8')
+								// 		->setName('importdate')
+								// 		->setId('importdate')
+								// 		->setClass('datepicker-input')
+								// 		->setAttribute(array('readonly' => ''))
+								// 		->setAddon('calendar')
+								// 		->setValue($importdate)
+								// 		->setValidation('required')
+								// 		->draw(true);
 							?>
 						</div>
 						<div class="modal-footer text-center">
 							<button type = 'button' class = 'btn btn-info btn-flat' name = 'import-proceed' id = 'import-proceed'><i id='loading' class="hidden fa fa-refresh fa-spin"></i> Proceed</button>
 							<button type = 'button' class = 'btn btn-default btn-flat' name = 'import-skip' id = 'import-skip'><i id='loading' class="hidden fa fa-refresh fa-spin"></i> Skip</button>
 						</div>	
-					</div>
+					</div> -->
 
 					<div id = 'import-step2'>
 						<label>Step 1. Download the sample template <a href="<?=MODULE_URL?>get_serial_import" id="download-link" download="Import Serial Numbers.csv" >here</a></label>
@@ -778,7 +779,7 @@
 		$('#lockerModal #logged_users').html(data.user_lists);
 	});
 	
-	$('#lockerModal').modal('show');
+	// $('#lockerModal').modal('show');
 
 	$('#lockerModal').on('click','#btnProceed',function(){
 		$.post('<?=MODULE_URL?>ajax/update_locktime', ajax, function(data) {
@@ -974,7 +975,7 @@
 		$('#serialModal #sec_description').val(itemname);
 		
 		ajax_serials.itemcode	=	itemcode;
-		ajax_serials.warehouse	=	$('#warehouse').val();
+		ajax_serials.warehouse	=	$('#h_warehouse').val();
 		ajax_serials.limit 		= 	5;
 
 		if(button_ident=="minus"){
@@ -1342,5 +1343,51 @@
 		} else {
 			temp_serial_manual_box[index]['chassisno'] = "";
 		}
+	});
+	// For Importing SErial Number 
+	$('#tableList').on('click','.import-serial',function(){
+		var itemcode 	= $(this).data('itemcode');
+		var warehouse 	= $('#h_warehouse').val();
+		var link 	=	'<?=MODULE_URL?>get_serial_import/'+itemcode+'/'+warehouse;
+
+		$('#main_item').val(itemcode);
+		$('#import-serial-modal #download-link').attr('href',link);
+
+		$('#import-serial-modal').modal('show');
+	});
+
+	$('#import-serial-modal #btnClose').click(function(){
+		$('#import-serial-modal').modal('hide');	
+	});
+
+	// For Filename 
+	$('#importSerialForm').on('change', '#import_csv', function() {
+		var filename = $(this).val().split("\\");
+		$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
+	});
+
+	$("#importSerialForm #btnImport").click(function()  {
+		var formData =	new FormData();
+		formData.append('file',$('#import_csv')[0].files[0]);
+		ajax_call 	=	$.ajax({
+							url : '<?=MODULE_URL?>ajax/save_serial_import',
+							data:	formData,
+							cache: 	false,
+							processData: false, 
+							contentType: false,
+							type: 	'POST',
+							success: function(response){
+								if(response && response.errmsg == ""){
+									$('#import-serial-modal').modal('hide');
+									$(".alert-warning").addClass("hidden");
+									$("#errmsg").html('');
+									hide_error();
+									show_success_msg('Your Data has been imported successfully.');
+								}else{
+									$('#import-serial-modal').modal('hide');
+									show_error(response.errmsg, response.warning);
+								}
+							},
+						});
 	});
 </script>
