@@ -99,7 +99,7 @@
 												->setName('referenceno')
 												->setSplit('col-md-4', 'col-md-8')
 												->setValue($referenceno)
-												->setMaxLength(30)
+												->setMaxLength(20)
 												->setValidation('required')
 												->draw($show_input);
 									?>
