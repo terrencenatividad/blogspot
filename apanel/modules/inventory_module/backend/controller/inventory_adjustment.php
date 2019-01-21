@@ -246,7 +246,7 @@ class controller extends wc_controller {
 		header('Content-type: application/csv');
 		$header = array('Item Code','Warehouse','Serial No.','Engine No.','Chassis No.');
 
-		$date 	=	$this->date->dateDbFormat();
+		$date 	= $this->date->dateDbFormat();
 
 		$return = '';
 		$return .= '"Date","'.$date.'"';
@@ -608,7 +608,9 @@ class controller extends wc_controller {
 			$amount_ 			=	array();
 
 			$total_qty 			=	0;
+			$count 				= 	1;
 			$actual_item 		= 	"";
+			$actual_warehouse 	=	"";
 
 			if( empty($errmsg)  && !empty($z) ){
 				// var_dump($z);
@@ -653,24 +655,26 @@ class controller extends wc_controller {
 
 							$itemcode_[] 			= $itemcode;
 							$warehouse_[] 			= $warehousecode;
-							$rowno_[] 				= $line;
-							$linenum_[] 			= $line;
+							$rowno_[] 				= $count;
+							$linenum_[] 			= $count;
 							$serialno_[] 			= $serialno;
 							$engineno_[] 			= $engineno;
 							$chassisno_[] 			= $chassisno;
 						}
 						
-						$actual_item 	=	$itemcode;
+						$actual_item 		=	$itemcode;
+						$actual_warehouse	=	$warehousecode;
 						$total_qty++;
 						$line++;
+						$count++;
 					} 
 				} 
 				
-				$lists 	=	$this->adjustment->getImportSerialList($actual_item);	
+				$lists 	=	$this->adjustment->getImportSerialList($actual_item, $actual_warehouse);	
 				$qty 	=	isset($lists[0]->qty) ? $lists[0]->qty	:	0;
-
-				if($qty != $total_qty) {
-					$errmsg[] 	=	"You cannot import this Template exceeding the total Inventory Quantity for this Item.";
+				// echo $total_qty." - ".$qty;
+				if($total_qty > $qty) {
+					$errmsg[] 	=	"This Serial/Engine/Chassis Nos. uploaded in this Template exceeds the total Inventory Quantity for this Item.";
 				}
 
 				$errmsg 	=	array_filter($errmsg);
@@ -681,9 +685,10 @@ class controller extends wc_controller {
 					$post = array(
 						'voucherno' 	=> $voucherno,
 						'source_no' 	=> $voucherno,
-						'importdate' 	=> $importdate,
 						'itemcode'		=> $itemcode_,
-						'warehouse'		=> $warehouse_,
+						'rowno' 		=> $rowno_,
+						'linenum' 		=> $linenum_,
+ 						'warehousecode'	=> $warehouse_,
 						'serialno'		=> $serialno_,
 						'engineno' 		=> $engineno_,
 						'chassisno' 	=> $chassisno_
