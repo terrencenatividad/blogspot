@@ -195,8 +195,8 @@ class controller extends wc_controller {
 				$show_import_button = ($ret_existing->count > 0) ? 1 : 0;
 
 				$import_serial 	=	"";
-				if($item_ident_flag != "000" && $show_import_button && $display){
-					$import_serial = '<button type = "button" id="import-serial" class = "btn btn-info"><i class="fa fa-paperclip"></i></button>';
+				if($item_ident_flag != "000" ){//&& $show_import_button && $display
+					$import_serial = '<button type = "button" data-itemcode="'.$itemcode.'" id="import-serial" class="import-serial btn btn-info"><i class="fa fa-paperclip"></i></button>';
 				}
 
 				$table .= '<tr>';
@@ -241,10 +241,12 @@ class controller extends wc_controller {
 		echo $return;
 	}
 
-	public function get_serial_import($date){
+	public function get_serial_import($itemcode){
 		
 		header('Content-type: application/csv');
-		$header = array('Item Code','Item Name','Warehouse','Qty','Unit Price');
+		$header = array('Item Code','Warehouse','Serial No.','Engine No.','Chassis No.');
+
+		$date 	=	$this->date->dateDbFormat();
 
 		$return = '';
 		$return .= '"Date","'.$date.'"';
@@ -253,10 +255,11 @@ class controller extends wc_controller {
 		$return .= "\n";
 		//$return .= '"PEN_006","WH_01","3","Accounts Payable - Non-Trade"';
 		
-		$lists 	=	$this->adjustment->getImportList();	
+		$lists 	=	$this->adjustment->getImportSerialList($itemcode);	
+		$qty 	=	isset($lists[0]->qty) ? $lists[0]->qty	:	0;
 
-		foreach($lists as $key){
-			$return .= '"'.$key->itemcode.'","'.$key->name.'","'.$key->warehouse.'","0","0.00"';
+		for($i=0; $i<$qty;$i++){
+			$return .= '"'.$lists[0]->itemcode.'","'.$lists[0]->warehouse.'","","",""';
 			$return .= "\n";
 		}
 

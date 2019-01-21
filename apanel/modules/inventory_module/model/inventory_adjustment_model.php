@@ -54,6 +54,19 @@ class inventory_adjustment_model extends wc_model {
 						->getResult();
 	}
 
+	public function getImportSerialList($itemcode) {
+		$result	=	$this->db->setTable('items')
+							->setFields('items.itemcode as itemcode, items.itemname as name, w.description as warehouse, inv.onhandQty qty')
+							->leftJoin("warehouse w ON w.companycode = items.companycode")
+							->leftJoin("invfile inv ON inv.itemcode = items.itemcode AND w.warehousecode = inv.warehouse AND w.companycode = inv.companycode")
+							->setWhere("items.itemgroup = 'goods' AND items.itemcode = '$itemcode'")
+							->setOrderBy('items.itemcode')
+							->runSelect()
+							->getResult();
+
+		return $result;
+	}
+
 	public function getLoggedInUsers($curr_user)
 	{
 		return $this->db->setTable('wc_users')
