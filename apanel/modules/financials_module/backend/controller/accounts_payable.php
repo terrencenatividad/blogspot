@@ -97,7 +97,8 @@ class controller extends wc_controller
 		$data["transactiondate"]    = $this->date->dateFormat();
 		$data["duedate"]      		= $this->date->dateFormat();
 		$data['currencycodes'] = $this->accounts_payable->getCurrencyCode();
-		$data['currency'] = 'PHP';
+		$data['currency'] 			= 'PHP';
+		$data['exchangerate'] 		= '1.00';
 		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
 		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList($data);
 		$data['account_list'] = $this->accounts_payable->retrieveAccounts();
@@ -1643,7 +1644,7 @@ class controller extends wc_controller
 	private function ajax_get_currency_val() {
 		$currencycode = $this->input->post('currencycode');
 		$result = $this->accounts_payable->getExchangeRate($currencycode);
-		return array("exchangerate" => $result->exchangerate);
+		return array("exchangerate" => ($result) ? $result->exchangerate : '1.00');
 	}
 
 	private function ajax_get_details() {
