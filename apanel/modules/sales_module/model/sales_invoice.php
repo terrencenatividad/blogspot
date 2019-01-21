@@ -338,7 +338,7 @@ class sales_invoice extends wc_model
 			}
 			else {
 				$detail_row = $this->db->setTable('job_order_details')
-								->setFields("uom issueuom, qty convissueqty, uom convuom")
+								->setFields("uom issueuom, quantity convissueqty, uom convuom")
 								->setWhere(" job_order_no = '$sourceno' AND linenum = '$linenum' ")
 								->runSelect()
 								->getRow();
