@@ -99,7 +99,7 @@ class warehouse_model extends wc_model {
 
 	public function export($search, $sort)
 	{
-		$fields 			= array('warehousecode','description');
+		$fields 			= array('warehousecode','description','stat');
 
 		$addtl_cond 		= (!empty($search)) ? "AND (warehousecode LIKE '%$search%' OR description LIKE '%$search%'  ) " : "";
 

@@ -524,7 +524,7 @@ class controller extends wc_controller
 		$data_post = $this->input->get(array("search"));
 		$result = $this->proformaclass->fileExport($data_post);
 
-		$header = array('Proforma Code','Description','Transaction Type','Account Name','Account Code Id');
+		$header = array('Proforma Code','Description','Transaction Type','Account Name','Account Code Id','Status');
 		
 		$csv = '';
 		$csv .= '"' . implode('","', $header) . '"';
@@ -544,7 +544,8 @@ class controller extends wc_controller
 				$csv .= '"' . $proformadesc 	. '",';
 				$csv .= '"' . $transactiontype 	. '",';
 				$csv .= '"' . $accountname		. '",';
-				$csv .= '"' . $accountid		. '"';
+				$csv .= '"' . $accountid		. '",';
+				$csv .= '"' . ucfirst($row->stat)		. '"';
 				$csv .= "\n";
 			}
 		}

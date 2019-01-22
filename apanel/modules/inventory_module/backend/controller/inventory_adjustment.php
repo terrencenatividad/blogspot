@@ -195,7 +195,7 @@ class controller extends wc_controller {
 				$show_import_button = ($ret_existing->count > 0) ? 1 : 0;
 
 				$import_serial 	=	"";
-				if($item_ident_flag != "000" ){//&& $show_import_button && $display
+				if($item_ident_flag != "000" && $show_import_button && $display){
 					$import_serial = '<button type = "button" data-itemcode="'.$itemcode.'" id="import-serial" class="import-serial btn btn-info"><i class="fa fa-paperclip"></i></button>';
 				}
 
@@ -320,10 +320,10 @@ class controller extends wc_controller {
 		return $error;
 	}
 
-	private function check_duplicate_code($field_name,$field_value,$line){
+	private function check_duplicate_code($table_field, $table, $cond, $field_name, $field_value, $line){
 		$error 		=	"";
 
-		$exists 	= 	$this->customer->check_duplicate($field_value);
+		$exists 	= 	$this->adjustment->check_duplicate($table_field,$table,$cond);
 		$count  	=	isset($exists[0]->count) 	?	$exists[0]->count 	:	0;
 
 		if($count > 0){
@@ -540,7 +540,9 @@ class controller extends wc_controller {
 	}
 
 	private function save_serial_import(){
-		$file		= fopen($_FILES['file']['tmp_name'],'r') or exit ("File Unable to upload") ;
+		$file				= fopen($_FILES['file']['tmp_name'],'r') or exit ("File Unable to upload") ;
+		$actual_item		= isset($_POST['itemcode']) ? $_POST['itemcode'] : "";
+		$actual_warehouse   = isset($_POST['warehouse'])? $_POST['warehouse']: "";
 
 		$filedir	= $_FILES["file"]["tmp_name"];
 
@@ -559,10 +561,29 @@ class controller extends wc_controller {
 			$errmsg[]= "Invalid file type, file must be .csv.<br/>";
 		}
 		
-		$headerArr = array('Item Code','Warehouse','Serial No.','Engine No.','Chassis No.');
+		$lists 	=	$this->adjustment->getImportSerialList($actual_item, $actual_warehouse);	
+		$qty 	=	isset($lists[0]->qty) ? $lists[0]->qty	:	0;
+		$flag 	=	isset($lists[0]->item_ident_flag) ? $lists[0]->item_ident_flag : "000";
+
+		$has_serial = substr($flag,0, 1);
+		$has_engine = substr($flag,1, 1);
+		$has_chassis = substr($flag,2, 1);
+
+		$headerArr = array('Item Code','Warehouse');
+		if($has_serial) {
+			$headerArr[] = "Serial No.";
+		}
+		if($has_engine) {
+			$headerArr[] = "Engine No.";
+		}
+		if($has_chassis) {
+			$headerArr[] = "Chassis No.";
+		}
+
 		$first_line 	=	"Date";
 
 		$importdate =	"";
+		$z 	=	array();
 
 		if( empty($errmsg) )  {
 			$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
@@ -595,7 +616,7 @@ class controller extends wc_controller {
 					for ($m=0; $m< $layout; $m++){
 						$template_header = $header[$m];
 
-						$error 	= (empty($template_header) && !in_array($template_header,$headerArr)) ? "error" : "";
+						$error 	= (empty($template_header) || !in_array($template_header,$headerArr)) ? "error" : "";
 					}	
 					$errmsg[]	= (!empty($error) ) ? "Invalid template. Please download the template from the system first.<br/>" : "";
 					
@@ -608,10 +629,13 @@ class controller extends wc_controller {
 				}
 			}
 			
+			// var_dump($errmsg);
 			$line 				=	4;
 			$warehousecode 		= 	"";
 			$accountcode 		=	"";
-			$pair_list 			= 	array();
+			$serial_list 		= 	array();
+			$engine_list 		= 	array();
+			$chassis_list 		= 	array();
 			$post 				=	array();
 			$warning 			=	array();
 
@@ -623,24 +647,37 @@ class controller extends wc_controller {
 
 			$total_qty 			=	0;
 			$count 				= 	1;
-			$actual_item 		= 	"";
-			$actual_warehouse 	=	"";
 
-			if( empty($errmsg)  && !empty($z) ){
-				// var_dump($z);
+			if(!empty($z)){
 				foreach ($z as $key => $b)  {
 					if ( ! empty($b)) {	
+						// var_dump($b);
 						$itemcode 	   		= isset($b[0]) 						?	trim($b[0])	:	"";
 						$warehouse 	        = isset($b[1]) 						?	trim($b[1])	:	"";
-						$serialno 	        = isset($b[2]) 						?	trim($b[2])	:	"";
-						$engineno 	        = isset($b[3]) 						?	trim($b[3])	:	"";
-						$chassisno 	        = isset($b[4]) 						?	trim($b[4])	:	"";
 						
-						// if($key == 0) {
-						// 	$errmsg[] 	=	$this->check_empty("Serial No.", $serialno, $line);
-						// 	$errmsg[] 	=	$this->check_empty("Engine No.", $engineno, $line);
-						// 	$errmsg[] 	=	$this->check_empty("Chassis No.", $engineno, $line);
-						// } 
+						$serialno = $engineno = $chassisno = "";
+						if($has_serial) {
+							$serialno 	        = isset($b[2]) 					?	trim($b[2])	:	"";
+							if($has_engine) {
+								$engineno 	    = isset($b[3]) 					?	trim($b[3])	:	"";
+								if($has_chassis) {
+									$chassisno 	= isset($b[4]) 					?	trim($b[4])	:	"";
+								}
+							} else {
+								$chassisno 		= isset($b[3]) 					?	trim($b[3])	:	"";
+							}
+						} else {
+							if($has_engine) {
+								$engineno 	    = isset($b[2]) 					?	trim($b[2])	:	"";
+								if($has_chassis) {
+									$chassisno 	= isset($b[3]) 					?	trim($b[3])	:	"";
+								}
+							} else {
+								if($has_chassis) {
+									$chassisno 	= isset($b[2]) 					?	trim($b[2])	:	"";
+								}
+							}
+						}
 
 						$errmsg[] 	=	$this->check_empty("Item Code", $itemcode, $line);
 						$errmsg[] 	=	$this->check_empty("Warehouse Name", $warehouse, $line);
@@ -649,21 +686,41 @@ class controller extends wc_controller {
 						$errmsg[] 	=	$this->check_character_length("Item Code", $itemcode, $line, "25", strlen($itemcode));
 						$errmsg[] 	=	$this->check_character_length("Warehouse Name", $warehouse, $line, "25", strlen($warehouse));
 
-
 						$errmsg[] 	=	$this->check_if_exists("itemcode", "items", "itemcode='$itemcode'", "Item Code", $itemcode, $line);
 						$errmsg[] 	=	$this->check_if_exists("warehousecode", "warehouse", "description='$warehouse'", "Warehouse", $warehouse, $line);
 
 						// Insert the itemcode - warehouse pair into an array ( for validation )
-						$concat_serialenginechassis 	= $serialno.'-'.$engineno.'-'.$chassisno;
-					
-						if( !in_array($concat_serialenginechassis, $pair_list) ){
-							$pair_list[] 	=	$concat_serialenginechassis;
-						} else {
-							$errmsg[]	= "Itemcode [<strong>$itemcode</strong> with the following Serial/Engine/Chassis No. on row $line has a duplicate within the document.<br/>";
-							$errmsg		= array_filter($errmsg);
-						}
-	
 						if( $serialno!="" || $engineno!="" || $chassisno!="" ) {
+							if($has_serial && $serialno!=""){
+								if(!in_array($serialno, $serial_list) ){
+									$serial_list[] 	=	$serialno;
+								} else {
+									$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] with the following Serial No. on row $line has a duplicate within the document.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+								$errmsg[] 	=	$this->check_duplicate_code("serialno", "items_serialized", "serialno='$serialno'", "Serial No.", $serialno, $line);
+							}
+
+							if($has_engine && $engineno!=""){
+								if(!in_array($engineno, $engine_list) ){
+									$engine_list[] 	=	$engineno;
+								} else {
+									$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] with the following Engine No. on row $line has a duplicate within the document.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+								$errmsg[] 	=	$this->check_duplicate_code("engineno", "items_serialized", "engineno='$engineno'", "Engine No.", $engineno, $line);
+							}
+
+							if($has_chassis && $chassisno!=""){
+								if(!in_array($chassisno, $chassis_list) ){
+									$chassis_list[] 	=	$chassisno;
+								} else {
+									$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] with the following Chassis No. on row $line has a duplicate within the document.<br/>";
+									$errmsg		= array_filter($errmsg);
+								}
+								$errmsg[] 	=	$this->check_duplicate_code("chassisno", "items_serialized", "chassisno='$chassisno'", "Chassis No.", $chassisno, $line);
+							}
+
 							$retrieve 				= $this->adjustment->getValue('warehouse', array('warehousecode'), " description = '$warehouse' ");
 							$warehousecode 			= isset($retrieve[0]->warehousecode) 	?	$retrieve[0]->warehousecode 	:	"";
 
@@ -674,19 +731,18 @@ class controller extends wc_controller {
 							$serialno_[] 			= $serialno;
 							$engineno_[] 			= $engineno;
 							$chassisno_[] 			= $chassisno;
+
+							$total_qty++;
 						}
-						
-						$actual_item 		=	$itemcode;
-						$actual_warehouse	=	$warehousecode;
-						$total_qty++;
+
 						$line++;
 						$count++;
 					} 
 				} 
-				
-				$lists 	=	$this->adjustment->getImportSerialList($actual_item, $actual_warehouse);	
-				$qty 	=	isset($lists[0]->qty) ? $lists[0]->qty	:	0;
-				// echo $total_qty." - ".$qty;
+
+				if($total_qty == 0){
+					$errmsg[] 	=	"Please input a Serial/Engine/Chassis No. for this Item.";
+				}
 				if($total_qty > $qty) {
 					$errmsg[] 	=	"This Serial/Engine/Chassis Nos. uploaded in this Template exceeds the total Inventory Quantity for this Item.";
 				}

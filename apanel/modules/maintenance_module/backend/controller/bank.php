@@ -20,7 +20,8 @@ class controller extends wc_controller
 			'accountno',
 			'currency',
 			'checking_account',
-			'address1'
+			'address1',
+			'stat'
 		);
 
 		$this->fields2 = array(
@@ -759,7 +760,7 @@ class controller extends wc_controller
 		$data_post = $this->input->post("search");
 		$result = $this->bank->exportBank($this->fields, $data_post);
 
-		$header = array("Bank Account GL Code","Bank Code","Bank Name","Bank Account Number","Currency Code","Checking Account (yes/no)", "Bank Address");
+		$header = array("Bank Account GL Code","Bank Code","Bank Name","Bank Account Number","Currency Code","Checking Account (yes/no)", "Bank Address", "Status");
 
 		$csv = '';
 		$csv .= '"' . implode('","', $header) . '"';
@@ -783,6 +784,7 @@ class controller extends wc_controller
 				$csv .= '"' . $currency	. '",';
 				$csv .= '"' . $checking_account	. '",';
 				$csv .= '"' . $address1 	. '",';
+				$csv .= '"' . ucfirst($row->stat) 	. '",';
 				$csv .= "\n";
 			}
 		}

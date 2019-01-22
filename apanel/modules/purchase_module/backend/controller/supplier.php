@@ -237,7 +237,7 @@
 			$search = $this->input->post('search');
 			$sort 	= $this->input->post('sort');
 
-			$header = array("Supplier Code","Company Name","First Name","Last Name","Address","E-mail Address","Business Type","Tin No.","Payment Terms","Contact No.");
+			$header = array("Supplier Code","Company Name","First Name","Last Name","Address","E-mail Address","Business Type","Tin No.","Payment Terms","Contact No.","Status");
 			
 			$csv = '';
 			$csv .= '"' . implode('", "', $header) . '"';
@@ -257,7 +257,8 @@
 					$csv .= '"' . $row->businesstype . '",';
 					$csv .= '"' . $row->tinno . '",';
 					$csv .= '"' . $row->terms . '",';
-					$csv .= '"' . $row->mobile . '"';
+					$csv .= '"' . $row->mobile . '",';
+					$csv .= '"' . ucfirst($row->stat)		. '"';
 					$csv .= "\n";
 				}
 			}

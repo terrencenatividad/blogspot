@@ -343,7 +343,7 @@
 					
 					$csv .= '"' . $row->brandcode . '",';
 					$csv .= '"' . $row->brandname . '",';
-					$csv .= '"' . $row->stat . '",';
+					$csv .= '"' . ucfirst($row->stat) . '",';
 					
 					// $csv .= '"' . $row->customercode . '"';
 					$csv .= "\n";
