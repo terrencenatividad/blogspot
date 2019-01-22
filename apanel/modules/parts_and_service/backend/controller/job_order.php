@@ -347,14 +347,16 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $row) {
+			$withparts = $this->job_order->checkForParts($row->job_order_no);
+			$withparts = ($withparts=='released')? true : false;
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit($row->stat == 'prepared')
 									->addDelete($row->stat == 'prepared')
 									->addPrint()
-									->addOtherTask('Issue Parts', 'bookmark')
-									->addOtherTask('Tag as Complete', 'bookmark')
+									->addOtherTask('Issue Parts', 'bookmark', !$withparts)
+									->addOtherTask('Tag as Complete', 'bookmark', $withparts)
 									->addCheckbox($row->stat == 'prepared')
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->job_order_no)

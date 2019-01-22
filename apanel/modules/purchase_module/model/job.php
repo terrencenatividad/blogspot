@@ -110,7 +110,7 @@
         public function getIPOPagination() {
             $result = $this->db->setTable("import_purchaseorder")
                             ->setFields("voucherno, transactiondate, amount")
-                            ->setWhere("stat='open'")
+                            ->setWhere("stat='open' OR stat='partial' OR stat='posted'")
                             ->setOrderBy("voucherno ASC")
                             ->runPagination();
             return $result;

@@ -219,7 +219,11 @@
 										}
 										// echo $ui->drawCancel();
 									?>
-									<a href = "#" class = "btn btn-default" id = "btn_cancel" data-toggle="modal" data-target="#cancelModal">Cancel</a>
+									<?php if ($ajax_task == 'ajax_create') { ?>
+										<a href = "#" class = "btn btn-default" id = "btn_cancel" data-toggle="modal" data-target="#cancelModal">Cancel</a>
+									<?php } else { ?>
+										<a href = "#" class = "btn btn-default" id = "btn_cancel" data-toggle="modal" data-target="#cancelModal">Exit</a>
+									<?php } ?>
 								</div>
 							</div>
 						</div>
@@ -256,7 +260,7 @@
 					<button type="button" class="close" data-dismiss="modal">&times;</button>
 				</div>
 				<div class="modal-body">
-					Are you sure you want to cancel this transaction?
+					Are you sure you want to exit?
 				</div>
 				<div class="modal-footer">
 					<div class="row row-dense">
@@ -589,6 +593,7 @@
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
 								->setName('detailparticular[]')
+								->setMaxLength(100)
 								->setValue('` + details.detailparticular + `')
 								->addHidden()
 								->draw($show_input);

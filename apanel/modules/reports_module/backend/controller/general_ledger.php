@@ -106,7 +106,7 @@ class controller extends wc_controller {
 				$debit 				= 	$row->debit;
 				$credit 			=	$row->credit;
 				$transtype 			=	$row->transtype;
-				$description  		=	"";
+				$description  		=	$row->detailparticulars;
 				$status 			=	$row->status;
 				$bdebit 			=	0;
 				$bcredit 			=	0;
@@ -296,7 +296,7 @@ class controller extends wc_controller {
 				$debit 				= 	$row->debit;
 				$credit 			=	$row->credit;
 				$transtype 			=	$row->transtype;
-				$description  		=	"";
+				$description  		=	$row->detailparticulars;
 				$status 			=	$row->status;
 				$bdebit 			=	0;
 				$bcredit 			=	0;

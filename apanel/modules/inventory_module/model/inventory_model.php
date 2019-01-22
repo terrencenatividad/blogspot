@@ -209,6 +209,7 @@ class inventory_model extends wc_model {
 		$fields = 'b.itemcode, b.companycode, b.entereddate';
 		$bb = $this->db->setTable('inv_beg_balance b')
 						->setFields($fields . ", unitprice price, quantity, 'IN' movement, b.voucherno documentno, 'BEG_BAL' doctype")
+						->setGroupBy('b.itemcode')
 						->buildSelect();
 
 		$dr = $this->db->setTable('deliveryreceipt a')

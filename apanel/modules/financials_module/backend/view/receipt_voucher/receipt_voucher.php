@@ -143,6 +143,7 @@
 									->setId('paymentreference')
 									->setMaxLength(30)
 									->setValue($or_no)
+									->setValidation('required')
 									->draw($show_input);
 									?>
 								</div>
@@ -665,7 +666,7 @@
 											->setSplit('', 'col-md-12')
 											->setName('detailparticulars['.$row.']')
 											->setId('detailparticulars['.$row.']')
-											->setMaxLength(250)
+											->setMaxLength(100)
 											->setClass('description')
 											->setValue($detailparticulars)
 											->draw($show_input);
@@ -769,7 +770,7 @@
 											->setSplit('', 'col-md-12')
 											->setName('detailparticulars['.$row.']')
 											->setId('detailparticulars['.$row.']')
-											->setMaxLength(250)
+											->setMaxLength(100)
 											->setClass('description')
 											->setValue($detailparticulars)
 											->draw($show_input);
@@ -870,7 +871,7 @@
 										->setSplit('', 'col-md-12')
 										->setName('detailparticulars['.$row.']')
 										->setId('detailparticulars['.$row.']')
-										->setMaxLength(250)
+										->setMaxLength(100)
 										->setClass('description')
 										->setValue($detailparticulars)
 										->draw($show_input);
@@ -1023,7 +1024,7 @@
 															->setSplit('', 'col-md-12')
 															->setName('detailparticulars['.$row.']')
 															->setId('detailparticulars['.$row.']')
-															->setMaxLength(250)
+															->setMaxLength(100)
 															->setClass('description')
 															->setValue($detailparticulars)
 															->draw($show_input);
