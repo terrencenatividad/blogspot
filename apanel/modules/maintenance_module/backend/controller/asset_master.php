@@ -44,6 +44,30 @@ class controller extends wc_controller {
 			'gl_accdep',
 			'gl_depexpense'
 		);
+		$this->csv_header		= array(
+			'Asset Number',
+			'Asset Name',
+			'Asset Class',
+			'Item Code',
+			'Sub Number',
+			'Serial Number',
+			'Description',
+			'Asset Location',
+			'Budget Center',
+			'Accountable Person',
+			'Retirement Date',
+			'Commissioning Date',
+			'No. of Months Useful Life',
+			'Depreciation Month Start',
+			'Capitalized Cost',
+			'Purchase Value',
+			'Book Value',
+			'Salvage Value',
+			'GL Account(Asset)',
+			'GL Account(Accumulated Depreciation)',
+			'GL Account(Depreciation Expense)',
+			'Status'
+		);
 	}
 
 	public function listing() {
@@ -399,6 +423,11 @@ class controller extends wc_controller {
 		return $dataArray = array("msg" => $msg);
 	}
 
+	public function get_import() {
+		$csv = $this->csv_header();
+		echo $csv;
+	}
+
 	private function csv_header() {
 		header('Content-type: application/csv');
 
@@ -406,6 +435,39 @@ class controller extends wc_controller {
 		$csv .= '"' . implode('","', $this->csv_header) . '"';
 
 		return $csv;
+	}
+
+	public function get_export($search = '', $sort = '') {
+		$search	= base64_decode($search);
+		$sort	= base64_decode($sort);
+		$csv	= $this->csv_header();
+		$result = $this->asset_master->getAssetMasterList($this->fields, $search, $sort);
+		foreach ($result as $row) {
+			$csv .= "\n";
+			$csv .= '"' . $row->asset_number . '",';
+			$csv .= '"' . $row->asset_name . '",';
+			$csv .= '"' . $row->assetclass . '",';
+			$csv .= '"' . $row->itemcode . '",';
+			$csv .= '"' . $row->sub_number . '",';
+			$csv .= '"' . $row->serial_number . '",';
+			$csv .= '"' . $row->description . '",';
+			$csv .= '"' . $row->asset_location . '",';
+			$csv .= '"' . $row->department . '",';
+			$csv .= '"' . $row->accountable_person . '",';
+			$csv .= '"' . $row->retirement_date . '",';
+			$csv .= '"' . $row->commissioning_date . '",';
+			$csv .= '"' . $row->useful_life . '",';
+			$csv .= '"' . $row->depreciation_month . '",';
+			$csv .= '"' . $row->capitalized_cost . '",';
+			$csv .= '"' . $row->purchase_value . '",';
+			$csv .= '"' . $row->balance_value . '",';
+			$csv .= '"' . $row->salvage_value . '",';
+			$csv .= '"' . $row->a_asset .' - ' . $row->asset . '",';
+			$csv .= '"' . $row->a_accdep .' - '. $row->accdep . '",';
+			$csv .= '"' . $row->a_depexp .' - '. $row->depexp . '",';
+			$csv .= '"' . ucfirst($row->stat) . '"';
+		}
+		echo $csv;
 	}
 
 	private function ajax_save_import() {
