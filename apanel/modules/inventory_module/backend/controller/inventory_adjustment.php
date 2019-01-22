@@ -206,8 +206,7 @@ class controller extends wc_controller {
 				}
 
 				$table .= '<tr>';
-				$table .= '<td>' . $itemcode . '</td>';
-				$table .= '<td>' . $itemname . '</td>' ;
+				$table .= '<td>' . $itemcode. ' - ' .$itemname. '</td>';
 				$table .= '<td>' . $brand . '</td>';
 				$table .= '<td>' . $quantity . '</td>';
 				$table .= '<td>' . $allocated . '</td>';

@@ -96,6 +96,7 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('referenceno')
 								->setId('referenceno')
+								->setMaxLength(20)
 								->setValue($referenceno)
 								->draw($show_input);
 								?>
@@ -223,6 +224,7 @@
 								->setName('remarks')
 								->setId('remarks')
 								->setValue($remarks)
+								->setMaxLength(300)
 								->draw($show_input);
 								?>
 							</div>
