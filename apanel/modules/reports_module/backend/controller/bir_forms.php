@@ -255,7 +255,6 @@ class controller extends wc_controller {
 		$data['year'] 			= $this->getDate('year');
 		$data['month']			= $this->getDate('month');
 
-		$data['remittance'] 	= number_format($this->bir->getTotalRemittance(), 2);
 		$company_info 			= $this->bir->getCompanyInfo(
 			array('businessline','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','email')
 		);
@@ -857,6 +856,14 @@ class controller extends wc_controller {
 	private function getExemptMonthly() {
 		$period = $this->input->post('period');
 		$result = $this->bir->getExemptMonthly($period);
+		return $result;
+	}
+
+	private function getMonthYear() {
+		$year = $this->input->post('year');
+		$month = $this->input->post('month');
+		
+		$result 	= $this->bir->getTotalRemittance($month, $year);
 		return $result;
 	}
 }
