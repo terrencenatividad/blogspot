@@ -248,6 +248,34 @@ class budgetting extends wc_model
 		->setLimit(1)
 		->runUpdate(false);
 
+		$getdetails = $this->getIdOfBudgetCode($id);
+		$temp = array();
+		if($getdetails) {
+			$budget_code = $getdetails->budget_code;
+			$accountcode = $getdetails->accountcode;
+			$description = $getdetails->description;
+			$amount = $getdetails->amount;
+			$rounded = round($amount / 12);
+			$temp['budget_code'] = $budget_code;
+			$temp['accountcode'] = $accountcode;
+			$temp['january'] = $rounded;
+			$temp['february'] = $rounded;
+			$temp['march'] = $rounded;
+			$temp['april'] = $rounded;
+			$temp['may'] = $rounded;
+			$temp['june'] = $rounded;
+			$temp['july'] = $rounded;
+			$temp['august'] = $rounded;
+			$temp['september'] = $rounded;
+			$temp['october'] = $rounded;
+			$temp['november'] = $rounded;
+			$temp['december'] = $rounded;
+			$temp['year'] = date('Y');
+			$result = $this->db->setTable('budget_report')
+			->setValues($temp)
+			->runInsert(false);	
+		}
+
 		return $result;
 	}
 
