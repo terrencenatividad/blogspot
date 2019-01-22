@@ -98,7 +98,7 @@
 				$condition .= " AND (ca.segment5 LIKE '%$search%' OR ca.accountname LIKE '%$search%' OR bal.voucherno LIKE '%$search%' OR p.partnername LIKE '%$search%' OR ( p.first_name LIKE '%$search%' OR p.last_name LIKE '%$search%' ) ) ";
 			}
 
-			$fields 	=	 array('bal.accountcode as accountcode, ca.segment5 as segment5, ca.accountname, bal.transactiondate, bal.period, bal.fiscalyear, bal.voucherno, p.partnername as partner , bal.transtype, SUM(bal.debit) as debit, SUM(bal.credit) as credit, bal.stat as status');
+			$fields 	=	 array('bal.accountcode as accountcode, ca.segment5 as segment5, ca.accountname, bal.transactiondate, bal.period, bal.fiscalyear, bal.voucherno, p.partnername as partner , bal.transtype, SUM(bal.debit) as debit, SUM(bal.credit) as credit, bal.stat as status, bal.detailparticulars');
 			
 			$result 	=	$this->db->setTable("balance_table bal")
 							->leftJoin("chartaccount ca ON ca.id = bal.accountcode")
@@ -127,7 +127,7 @@
 				$condition .= " AND (ca.segment5 LIKE '%$search%' OR ca.accountname LIKE '%$search%' OR bal.voucherno LIKE '%$search%' OR ( p.first_name LIKE '%$search%' OR p.last_name LIKE '%$search%' ) ) ";
 			}
 
-			$fields 	=	 array('bal.accountcode, bal.transactiondate, bal.voucherno, p.partnername as partner ,  ca.accountname, ca.segment5 as segment5,bal.period, bal.fiscalyear, bal.transtype, SUM(bal.debit) as debit, SUM(bal.credit) as credit, bal.stat as status');
+			$fields 	=	 array('bal.accountcode, bal.transactiondate, bal.voucherno, p.partnername as partner ,  ca.accountname, ca.segment5 as segment5,bal.period, bal.fiscalyear, bal.transtype, SUM(bal.debit) as debit, SUM(bal.credit) as credit, bal.stat as status, bal.detailparticulars');
 
 			$result 	=	$this->db->setTable("balance_table bal")
 								->leftJoin("chartaccount ca ON ca.id = bal.accountcode")
