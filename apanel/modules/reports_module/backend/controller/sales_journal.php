@@ -125,8 +125,8 @@ class controller extends wc_controller {
 				$csv .= '"' . $row->remarks . '",';
 				$csv .= '"' . $row->ref_no . '",';
 				$csv .= '"' . number_format($amount,2) . '",';
-				$csv .= '"' . $row->discount . '",';
-				$csv .= '"' . $row->taxamount . '",';
+				$csv .= '"' . number_format($row->discount,2) . '",';
+				$csv .= '"' . number_format($row->taxamount,2) . '",';
 				$csv .= '"' . number_format($row->amount,2) . '"';
 				$csv .= "\n";
 			}
