@@ -31,7 +31,7 @@ class pricelist extends wc_model
 	{
 		$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (pl.itemPriceCode LIKE '%$search%' OR pl.itemPriceName LIKE '%$search%' OR pld.itemDtlCode LIKE '%$search%' OR i.itemdesc LIKE '%$search%' OR sect.partnername LIKE '%$search%' ) " 	: 	"";
 
-        $fields 	=	array("pl.itemPriceCode, pl.itemPriceName, pl.itemPriceDesc, pld.itemDtlCode, pld.sellPrice");
+        $fields 	=	array("pl.itemPriceCode, pl.itemPriceName, pl.itemPriceDesc, pld.itemDtlCode, pld.sellPrice, pl.stat");
 
         $result     =   $this->db->setTable('price_list pl')
                         ->leftJoin('price_list_details pld ON pl.itemPriceCode = pld.itemPriceCode AND pl.companycode = pld.companycode')

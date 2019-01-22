@@ -19,6 +19,7 @@ class controller extends wc_controller {
 			'inventory_account',
 			'revenuetype',
 			'expensetype',
+			'stat',
 		);
 		$this->csv_header		= array(
 			'Item Class',
@@ -29,7 +30,8 @@ class controller extends wc_controller {
 			'Purchase Credit Account',
 			'Inventory Account',
 			'Revenue Type',
-			'Expense Type'
+			'Expense Type',
+			'Status'
 		);
 	}
 
@@ -233,7 +235,8 @@ class controller extends wc_controller {
 			$csv .= '"' . $row['payable_account'] . '",';
 			$csv .= '"' . $row['inventory_account'] . '",';
 			$csv .= '"' . $row['revenuetype'] . '",';
-			$csv .= '"' . $row['expensetype'] . '"';
+			$csv .= '"' . $row['expensetype'] . '",';
+			$csv .= '"' . ucfirst($row['stat']) . '"';
 			// if (isset($row['children'])) {
 			// 	$csv .= $this->createCSVList($row['children'], $row['label']);
 			// }

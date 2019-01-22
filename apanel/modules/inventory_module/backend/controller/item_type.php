@@ -15,7 +15,8 @@ class controller extends wc_controller {
 		);
 		$this->csv_header		= array(
 			'Item Group',
-			'Item Type'
+			'Item Type',
+			'Status'
 		);
 	}
 
@@ -66,7 +67,8 @@ class controller extends wc_controller {
 		foreach ($result as $row) {
 			$csv .= "\n";
 			$csv .= '"' . $row->item_group . '",';
-			$csv .= '"' . $row->label . '"';
+			$csv .= '"' . $row->label . '",';
+			$csv .= '"' . ucfirst($row->stat) . '"';
 		}
 		echo $csv;
 	}

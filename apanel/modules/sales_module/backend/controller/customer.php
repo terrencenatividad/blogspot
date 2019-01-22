@@ -457,7 +457,7 @@
 			
 			//echo $sort;
 
-			$header = array('Customer Code','Company Name','Address','Email','Business Type','Contact Number','First Name','Last Name','Payment Terms','Tin No.','Credit Limit');
+			$header = array('Customer Code','Company Name','Address','Email','Business Type','Contact Number','First Name','Last Name','Payment Terms','Tin No.','Credit Limit','Status');
 
 			$csv = '';
 			$csv .= '"' . implode('","', $header) . '"';
@@ -467,7 +467,6 @@
 
 			if (!empty($result)){
 				foreach ($result as $key => $row){
-
 					$csv .= '"' . $row->partnercode . '",';
 					$csv .= '"' . $row->partnername . '",';
 					$csv .= '"' . $row->address1 . '",';
@@ -478,7 +477,8 @@
 					$csv .= '"' . $row->last_name . '",';
 					$csv .= '"' . $row->terms . '",';
 					$csv .= '"' . $row->tinno . '",';
-					$csv .= '"' . $row->credit_limit . '"';
+					$csv .= '"' . $row->credit_limit . '",';
+					$csv .= '"' . ucfirst($row->stat) . '"';
 					$csv .= "\n";
 				}
 			}
