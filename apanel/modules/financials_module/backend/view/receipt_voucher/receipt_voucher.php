@@ -143,6 +143,7 @@
 									->setId('paymentreference')
 									->setMaxLength(30)
 									->setValue($or_no)
+									->setValidation('required')
 									->draw($show_input);
 									?>
 								</div>
