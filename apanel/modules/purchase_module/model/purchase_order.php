@@ -172,7 +172,7 @@ class purchase_order extends wc_model
 	{	 
 		$retrieved_data =	array();
 		
-		$header_fields 	= 	"po.voucherno, po.transactiondate, po.referenceno, po.vendor, p.partnername as companyname,CONCAT(p.first_name, ' ',p.last_name) as vendor_name, po.amount, po.discounttype, po.discountamount, po.netamount, po.taxamount, po.wtaxamount, po.wtaxrate, po.wtaxcode, po.atcCode, po.department, po.stat";
+		$header_fields 	= 	"po.voucherno, po.transactiondate, po.referenceno, po.vendor, p.partnername as companyname,CONCAT(p.first_name, ' ',p.last_name) as vendor_name, po.amount, po.discounttype, po.discountamount, po.netamount, po.taxamount, po.wtaxamount, po.wtaxrate, po.wtaxcode, po.atcCode, po.department, po.stat, po.remarks";
 
 		$condition 		=	" po.voucherno = '$voucherno' ";
 		

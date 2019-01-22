@@ -216,7 +216,7 @@ class purchase_print_model extends fpdf {
 			$label_width		= 30;
 			$footer_label_1	= isset($this->footer_details) ? $this->footer_details[0] : '';
 			$footer_label_2	= isset($this->footer_details) ? $this->footer_details[1] : '';
-			$footer_label_3	= isset($this->footer_details) ? $this->footer_details[2] : '';
+			$footer_label_3	= isset($this->footer_details[2]) ? $this->footer_details[2] : '';
 			//$this->SetFillColor(230,230,230);
 			// $this->SetFont('Arial', 'B', 8);
 			// $this->SetX($this->margin_side);
@@ -225,9 +225,9 @@ class purchase_print_model extends fpdf {
 			// $this->SetX($this->margin_side + 101);
 			// $this->Cell(30, 10, $footer_label_right, 'TLRB', 0, 'C', true);
 			// $this->Cell($content_width, 10, '', 'TLRB', 0, 'L');
-			$this->Cell(67, 8, $footer_label_1.':', 'TLRB', 0, 'L');
-			$this->Cell(67, 8, $footer_label_2.':', 'TLRB', 0, 'L');
-			$this->Cell(66, 8, $footer_label_3.':', 'TLRB', 1, 'L');
+			$this->Cell(67, 8, $footer_label_1, 'TLRB', 0, 'L');
+			$this->Cell(67, 8, $footer_label_2, 'TLRB', 0, 'L');
+			$this->Cell(66, 8, $footer_label_3, 'TLRB', 1, 'L');
 			$this->Cell(67, 8, '', 'LRB', 0, 'L');
 			$this->Cell(67, 8, '', 'LRB', 0, 'L');
 			$this->Cell(66, 8, '', 'LRB', 1, 'L');
@@ -263,6 +263,11 @@ class purchase_print_model extends fpdf {
 	
 	public function setSummaryWidth($width) {
 		$this->summary_width = $width;
+		return $this;
+	}
+
+	public function setSummaryAlign($align) {
+		$this->summary_align = $align;
 		return $this;
 	}
 
