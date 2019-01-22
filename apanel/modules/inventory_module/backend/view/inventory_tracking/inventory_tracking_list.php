@@ -75,7 +75,7 @@
 						echo $ui->loadElement('table')
 								->setHeaderClass('info')
 								->addHeader('Date', array('class' => 'col-md-2'), 'sort', 'il.entereddate', 'desc')
-								->addHeader('Item Name', array('class' => 'col-md-2'), 'sort', 'itemname')
+								->addHeader('Item', array('class' => 'col-md-2'), 'sort', 'itemname')
 								->addHeader('Warehouse', array('class' => 'col-md-1'), 'sort', 'description')
 								->addHeader('Reference No.', array('class' => 'col-md-1'), 'sort', 'reference')
 								->addHeader('Particulars', array('class' => 'col-md-1'), 'sort', 'partnername')
