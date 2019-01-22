@@ -388,7 +388,7 @@
 														->setName('amountremittance')
 														->setId('amountremittance')
 														->setClass('text-right amount')
-														->setValue($remittance)
+														->setValue('')
 														->setValidation('decimal')
 														->setPlaceholder('0.00')
 														->draw(true);
@@ -566,8 +566,11 @@
 
 	var ajax = {}
 	var ajax_call = '';
-	ajax.year 		= $('#birForm #yearfilter').val();
-	ajax.quarter 	= $('#birForm input[name=quarter]:checked').val();
+
+	$('#birForm #monthfilter').on('change',function(){
+		ajax.month 		= $(this).val();
+		getList();		
+	});
 
 	$('#birForm #yearfilter').on('change',function(){
 		ajax.year = this.value;
@@ -587,11 +590,10 @@
 		if (ajax_call != '') {
 			ajax_call.abort();
 		}
-		ajax_call = $.post("<?=MODULE_URL?>ajax/load_list/<?=$bir_form?>", ajax, function(data) {
-			$('#birForm #atc_container').html(data.atc_table);
-			$('#birForm #totalwithheld').val(data.quartertotal);
-			$('#birForm #firstremittance').val(data.firstmonth);
-			$('#birForm #secondremittance').val(data.secondmonth);
+		ajax.month = $('#monthfilter').val();
+		ajax.year = $('#yearfilter').val();
+		ajax_call = $.post("<?=MODULE_URL?>ajax/getMonthYear/<?=$bir_form?>", ajax, function(data) {
+			$('#birForm #amountremittance').val(data);
 			compute();
 		});
 	}
@@ -659,8 +661,4 @@
 		}
 		return x1 + x2;
 	}
-
-	var now = new Date();
-	current = new Date(now.getFullYear(), now.getMonth()+1, 10);
-	console.log(current);
 </script>

@@ -436,9 +436,9 @@
 										for($i = 0; $i < count($details); $i++)
 										{
 											$itemcode 	 		= $details[$i]->itemcode;
-											$parentcode 	 	= $details[$i]->parentcode;
-											$isbundle 	 		= $details[$i]->isbundle;
-											$parentline 	 	= $details[$i]->parentline;
+											$parentcode 	 	= isset($details[$i]->parentcode) ? $details[$i]->parentcode : '';
+											$isbundle 	 		= isset($details[$i]->isbundle) ? $details[$i]->isbundle : 'No';
+											$parentline 	 	= isset($details[$i]->parentline) ? $details[$i]->parentline : 0;
 											$detailparticular	= htmlspecialchars($details[$i]->detailparticular);
 											$quantity 			= isset($details[$i]->issueqty) ?	number_format($details[$i]->issueqty,0) 	: 	"1";
 											$bundle_itemqty 	= isset($details[$i]->bundle_itemqty) ?	number_format($details[$i]->bundle_itemqty,0) 	: 	"0";

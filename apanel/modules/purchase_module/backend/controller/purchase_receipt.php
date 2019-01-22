@@ -310,7 +310,8 @@ class controller extends wc_controller {
 				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'Price', 'Tax', 'Amount'))
 				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R', 'R'))
-				->setSummaryWidth(array('170', '30'));
+				->setSummaryAlign(array('J'))	
+				->setSummaryWidth(array('200'));
 		
 		$documentcontent	= $this->purchase_model->getDocumentContent($voucherno);		
 		
@@ -326,11 +327,12 @@ class controller extends wc_controller {
 					->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
 					->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N', 'Price', 'Tax', 'Amount'))
 					->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L', 'R', 'R', 'R'))
-					->setSummaryWidth(array('170', '30'));		
+					->setSummaryAlign(array('J'))	
+					->setSummaryWidth(array('200'));		
 		}
 
 		$detail_height = 37;
-
+		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
 		$vatable_sales	= 0;
 		$vat_exempt		= 0;
 		$discount		= 0;
@@ -388,6 +390,12 @@ class controller extends wc_controller {
 				// $tax			= 0;
 				// $wtax			= 0;
 				// $total_amount	= 0;
+				$print->drawSummary(array(array('Notes:'),
+											array($notes),
+											array(''),
+											array(''),
+											array('')
+				));
 			}
 		}
 		$total_amount = $vatable_sales + $vat_exempt - $discount + $tax - $wtax;
@@ -401,7 +409,12 @@ class controller extends wc_controller {
 		// 	'Total Amount'		=> number_format($total_amount, 2)
 		// );
 		// $print->drawSummary($summary);
-
+		$print->drawSummary(array(array('Notes:'),
+								array($notes),
+								array(''),
+								array(''),
+								array('')
+		));
 		$print->drawPDF('Purchase Receipt - ' . $voucherno);
 	}
 	

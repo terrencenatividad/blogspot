@@ -35,6 +35,7 @@ class controller extends wc_controller {
 		$data['brand_list'] 		= $this->brand_model->getBrandDropdownList();
 		$w_entry_data          		= array("warehousecode ind","description val");
 		$data["warehouses"] 		= $this->adjustment->getValue("warehouse", $w_entry_data,"stat = 'active'","warehousecode");
+		$this->inventory_model->recomputePriceAverage();
 		$this->view->load('inventory_adjustment/inventory_adjustment_list', $data);
 	}
 	
@@ -206,8 +207,7 @@ class controller extends wc_controller {
 				}
 
 				$table .= '<tr>';
-				$table .= '<td>' . $itemcode . '</td>';
-				$table .= '<td>' . $itemname . '</td>' ;
+				$table .= '<td>' . $itemcode. ' - ' .$itemname. '</td>';
 				$table .= '<td>' . $brand . '</td>';
 				$table .= '<td>' . $quantity . '</td>';
 				$table .= '<td>' . $allocated . '</td>';

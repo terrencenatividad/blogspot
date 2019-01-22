@@ -375,10 +375,11 @@ class controller extends wc_controller
 				->setHeaderAlign(array('C', 'C', 'C', 'C'))
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
 				->setRowAlign(array('L', 'L', 'R', 'L'))
-				->setSummaryWidth(array('170', '30'));
+				->setSummaryAlign(array('J','R','R', 'R'))	
+				->setSummaryWidth(array('120', '50', '30'));
 
 		$detail_height = 37;
-
+		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
 		$total_quantity = 0;
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
@@ -389,11 +390,21 @@ class controller extends wc_controller
 			$row->quantity	= number_format($row->quantity);
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$print->drawSummary(array('Total Qty' => number_format($total_quantity)));
+				$print->drawSummary(array(array('Notes:', 'Total Qty', number_format($total_quantity, 2)),
+											array($notes, '', ''),
+											array('', '', ''),
+											array('', '', ''),
+											array('', '', '')
+				));
 				$total_quantity = 0;
 			}
 		}
-		$print->drawSummary(array('Total Qty' => number_format($total_quantity)));
+		$print->drawSummary(array(array('Notes:', 'Total Qty', number_format($total_quantity, 2)),
+											array($notes, '', ''),
+											array('', '', ''),
+											array('', '', ''),
+											array('', '', '')
+		));
 
 		$print->drawPDF('Purchase Request - ' . $voucherno);
 	}

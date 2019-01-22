@@ -60,6 +60,8 @@ class purchase_return_model extends wc_model {
 					->runDelete();
 		
 		$data['voucherno']	= $voucherno;
+		unset($data['item_ident_flag']);
+		unset($data['po_qty']);
 		$result = $this->db->setTable('purchasereturn_details')
 							->setValuesFromPost($data)
 							->runInsert();
@@ -415,7 +417,7 @@ class purchase_return_model extends wc_model {
 							'linenum' => $linenum,
 							'serialno' => $sn[$a],
 						);
-						$result = $this->deleteSerialFromDb($values);
+						$result = $this->updateSerialFromDb($values);
 					}
 				}
 				for ($a = 0 ; $a < sizeof($en) ; $a++){
@@ -426,7 +428,7 @@ class purchase_return_model extends wc_model {
 							'linenum' => $linenum,
 							'engineno' => $en[$a],
 						);
-						$result = $this->deleteEngineFromDb($values);
+						$result = $this->updateEngineFromDb($values);
 					}
 				}
 				for ($a = 0 ; $a < sizeof($cn) ; $a++){
@@ -437,14 +439,14 @@ class purchase_return_model extends wc_model {
 							'linenum' => $linenum,
 							'chassisno' => $cn[$a],
 						);
-						$result = $this->deleteChassisFromDb($values);
+						$result = $this->updateChassisFromDb($values);
 					}
 				}
 			}
 		}
 	}
 
-	function deleteSerialFromDb($values) {
+	function updateSerialFromDb($values) {
 		$voucherno = $values['voucherno'];
 		$linenum = $values['linenum'];
 		$itemcode = $values['itemcode'];
@@ -458,12 +460,17 @@ class purchase_return_model extends wc_model {
 		
 		if ($query) {
 			$result = $this->db->setTable('items_serialized')
-			->setWhere("serialno = '$number' AND $condition")
-								->runDelete();
+								->setValues(array('stat'=>'Not Available'))
+								->setWhere("serialno = '$number' AND $condition")
+								->runUpdate();
+
+			// $result = $this->db->setTable('items_serialized')
+			// 					->setWhere("serialno = '$number' AND $condition")
+			// 					->runDelete();
 		}
 	}
 
-	function deleteEngineFromDb($values) {
+	function updateEngineFromDb($values) {
 		$voucherno = $values['voucherno'];
 		$linenum = $values['linenum'];
 		$itemcode = $values['itemcode'];
@@ -477,12 +484,17 @@ class purchase_return_model extends wc_model {
 		
 		if ($query) {
 			$result = $this->db->setTable('items_serialized')
-			->setWhere("engineno = '$number' AND $condition")
-								->runDelete();
+								->setValues(array('stat'=>'Not Available'))
+								->setWhere("engineno = '$number' AND $condition")
+								->runUpdate();
+
+			// $result = $this->db->setTable('items_serialized')
+			// 					->setWhere("engineno = '$number' AND $condition")
+			// 					->runDelete();
 		}
 	}
 
-	function deleteChassisFromDb($values) {
+	function updateChassisFromDb($values) {
 		$voucherno = $values['voucherno'];
 		$linenum = $values['linenum'];
 		$itemcode = $values['itemcode'];
@@ -496,8 +508,13 @@ class purchase_return_model extends wc_model {
 		
 		if ($query) {
 			$result = $this->db->setTable('items_serialized')
-			->setWhere("chassisno = '$number' AND $condition")
-								->runDelete();
+								->setValues(array('stat'=>'Not Available'))
+								->setWhere("chassisno = '$number' AND $condition")
+								->runUpdate();
+								
+			// $result = $this->db->setTable('items_serialized')
+			// 					->setWhere("chassisno = '$number' AND $condition")
+			// 					->runDelete();
 		}
 	}
 

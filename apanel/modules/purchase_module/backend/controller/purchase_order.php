@@ -76,6 +76,7 @@ class controller extends wc_controller
 		$data["tax_codes"] 		= $this->po->getTaxCode('VAT',"fstaxcode ind, shortname val");
 		$data["wtax_codes"] 	= $this->po->getTaxCode('WTX',"fstaxcode ind, shortname val");
 		$data['percentage'] 	= "";
+		$data['remarks'] 		= "";
 		$data['h_disctype'] 	= "perc";
 
 		$data["h_request_no"] 	= "";
@@ -171,6 +172,7 @@ class controller extends wc_controller
 				$data["vendor"]      	 = $retrieved_data["header"]->vendor;
 				$data['referenceno'] 	 = $retrieved_data['header']->referenceno;
 				$data['department'] 	 = $retrieved_data['header']->department;
+				$data['remarks'] 	 	 = $retrieved_data['header']->remarks;
 
 				$data["transactiondate"] = date('M d,Y', strtotime($retrieved_data["header"]->transactiondate));
 				
@@ -301,6 +303,7 @@ class controller extends wc_controller
 		$data["vendor"]      	 = $retrieved_data["header"]->vendor;
 		$data['department'] 	 = $retrieved_data['header']->department;
 		$data['referenceno'] 	 = $retrieved_data['header']->referenceno;
+		$data['remarks'] 	 	 = $retrieved_data['header']->remarks;
 		$data["transactiondate"] = date('M d,Y', strtotime($transactiondate));
 		
 		//Footer Data
@@ -396,6 +399,7 @@ class controller extends wc_controller
 		$data['referenceno'] 	 = $retrieved_data['header']->referenceno;
 		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
 		$data['stat'] 			 = $retrieved_data["header"]->stat;
+		$data['remarks'] 	 	 = $retrieved_data['header']->remarks;
 
 		//Footer Data
 		$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
@@ -469,7 +473,7 @@ class controller extends wc_controller
 		/** HEADER INFO **/
 
 		$docinfo_table  = "purchaseorder as po";
-		$docinfo_fields = array('po.transactiondate AS documentdate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","'' AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate');
+		$docinfo_fields = array('po.transactiondate AS documentdate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","referenceno AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate');
 		$docinfo_join   = "partners as p ON p.partnercode = po.vendor AND p.partnertype = 'supplier' AND p.companycode = po.companycode";
 		$docinfo_cond 	= "po.voucherno = '$voucherno'";
 
@@ -504,7 +508,8 @@ class controller extends wc_controller
 
 		$documentdetails	= array(
 			'Date'	=> $this->date->dateFormat($documentinfo->documentdate),
-			'PO #'	=> $voucherno
+			'PO #'	=> $voucherno,
+			'Ref #'	=> $documentinfo->referenceno
 		);
 
 		$amount = $documentinfo->amount;
@@ -525,10 +530,11 @@ class controller extends wc_controller
 		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
 		->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'Price', 'Amount'))
 		->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R'))
-		->setSummaryWidth(array('170', '30'));
+		->setSummaryAlign(array('J','R','R', 'R'))	
+		->setSummaryWidth(array('120', '50', '30'));
 
 		$detail_height = 37;
-
+		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
 		$total_amount = 0;
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
@@ -542,18 +548,21 @@ class controller extends wc_controller
 			$row->description 	= html_entity_decode(stripslashes($row->description));
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$print->drawSummary(array('Total Purchase' => number_format($amount, 2),
-					'Total Purchase Tax' => number_format($vat, 2),
-					'Withholding Tax' => number_format($wtaxamount, 2),
-					'Total Amount Due' => number_format($netamount, 2)));
+				$print->drawSummary(array(array('Notes:', 'Total Purchase', number_format($amount, 2)),
+											array($notes, 'Total Purchase Tax', number_format($vat, 2)),
+											array('', 'Withholding Tax', number_format($wtaxamount, 2)),
+											array('', 'Total Amount Due', number_format($netamount, 2)),
+											array('', '', '')
+				));
 				$total_amount = 0;
 			}
 		}
-		$print->drawSummary(array('Total Purchase' => number_format($amount, 2),
-			'Total Purchase Tax' => number_format($vat, 2),
-			'Withholding Tax' => number_format($wtaxamount, 2),
-			'Total Amount Due' => number_format($netamount, 2)));
-
+		$print->drawSummary(array(array('Notes:', 'Total Purchase', number_format($amount, 2)),
+											array($notes, 'Total Purchase Tax', number_format($vat, 2)),
+											array('', 'Withholding Tax', number_format($wtaxamount, 2)),
+											array('', 'Total Amount Due', number_format($netamount, 2)),
+											array('', '', '')
+		));
 		$print->drawPDF('Purchase Order - ' . $voucherno);
 	}
 

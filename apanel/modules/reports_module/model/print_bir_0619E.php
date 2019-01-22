@@ -140,7 +140,7 @@ class print_bir_0619E extends fpdf {
 			$taxwithheld5		= ($taxwithheld5 != 0) ? $taxwithheld5 : '';
 
 			$amountremittance	= isset($documentInfo['amountremittance']) ? urldecode($documentInfo['amountremittance']) : "0.00";
-			$amountremittance	= ($amountremittance != '') ? $amountremittance : '';
+			$amountremittance	= ($amountremittance != 0) ? $amountremittance : '';
 			$amountremitted		= isset($documentInfo['amountremitted']) ? urldecode($documentInfo['amountremitted']) : "0.00";
 			$amountremitted		= ($amountremitted != 0) ? $amountremitted : '';
 			$netamount			= isset($documentInfo['netamount']) ? urldecode($documentInfo['netamount']) : "0.00";
@@ -158,7 +158,7 @@ class print_bir_0619E extends fpdf {
 			$penalties			= isset($documentInfo['penalties']) ? urldecode($documentInfo['penalties']) : "0.00";
 			$penalties			= ($penalties != 0) ? $penalties : '';
 			$amountdue			= isset($documentInfo['amountdue']) ? urldecode($documentInfo['amountdue']) : "0.00";
-			$amountdue			= ($amountdue != '') ? $amountdue : '';
+			$amountdue			= ($amountdue != 0) ? $amountdue : '';
 		}
 
 		$signatory_arr		= $this->signatory;
@@ -453,7 +453,7 @@ class print_bir_0619E extends fpdf {
 		$this->cellSpacing($array);
 
 		if(empty($amount_decimal_arr[0])){
-			$array = str_split('    ');
+			$array = str_split('   ');
 		}else{
 			$array = str_split(str_pad($amount_decimal_arr[0],3," ",STR_PAD_LEFT));
 		}

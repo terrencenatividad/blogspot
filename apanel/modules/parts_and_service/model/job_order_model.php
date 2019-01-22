@@ -865,4 +865,14 @@ class job_order_model extends wc_model
 
 		return $result;
 	}
+
+	public function checkForParts($voucherno){
+		$result = $this->db->setTable('job_release')
+						->setFields("stat")
+						->setWhere("job_order_no='$voucherno' AND stat='released'")
+						->runSelect()
+						->getRow();
+
+		return $result;
+	}
 }
