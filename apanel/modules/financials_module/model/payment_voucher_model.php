@@ -914,10 +914,6 @@ class payment_voucher_model extends wc_model
 			$isAppDetailExist	= $this->getValue($applicationTable, array("COUNT(*) AS count"), " voucherno = '$voucherno'");
 
 			if($isAppDetailExist[0]->count > 0){
-				$this->db->setTable('actual_budget')
-				->setValues($budget)
-				->setWhere("voucherno = '$voucherno'")
-				->runInsert();
 
 				$this->db->setTable($detailAppTable)
 				->setWhere("voucherno = '$voucherno'")
