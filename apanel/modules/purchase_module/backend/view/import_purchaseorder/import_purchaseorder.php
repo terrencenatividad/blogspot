@@ -113,6 +113,7 @@
 								->setList($currency_codes)
 								->setId('currency')
 								->setValue($currency)
+								->setValidation('required')
 								->draw($show_input);
 								?>
 							</div>
