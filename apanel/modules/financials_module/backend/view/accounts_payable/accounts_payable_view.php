@@ -327,7 +327,7 @@
                         <thead>
                             <tr class="info">
                                 <th class="col-md-1 text-center">Date</th>
-                                <th class="col-md-1 text-center">Mode</th>
+                                <th class="col-md-1 text-center">Mode / Cheque no.</th>
                                 <th class="col-md-2 text-center">Reference</th>
                                 <th class="col-md-2 text-center">Payment Account</th>
                                 <th class="col-md-2 text-center">Amount</th>
@@ -361,7 +361,7 @@
                                             ->setId('mode')
                                             ->setAttribute(array("maxlength" => "100"))
                                             ->setClass('mode')
-                                            ->setValue(strtoupper($row->mode))
+                                            ->setValue(ucfirst($row->mode))
                                             ->draw($show_input);
                                             ?>
                                         </td>

@@ -39,7 +39,8 @@ class controller extends wc_controller
 			'signatory_name'=> '',
 			'signatory_role'=> '',
 			'signatory_tin'	=> '',
-			'tin'			=> ''
+			'tin'			=> '',
+			'rdo_code' 		=> ''
 		);
 
 		/**
@@ -63,6 +64,7 @@ class controller extends wc_controller
 		$data_var['period_list']		= $this->companyclass->getPeriods();
 		$data_var['taxyear_lock']   	= ($data_var['taxyear'] == 'calendar') ? "disabled" : "";
 		$data_var['businesstype_list']	= $this->companyclass->getOption("businesstype");
+		$data_var['rdo_list']			= $this->companyclass->getOption("rdo_code","value");
 		$this->view->load('company', $data_var);
 	}
 
@@ -111,7 +113,8 @@ class controller extends wc_controller
 			'signatory_name',
 			'signatory_role',
 			'signatory_tin',
-			'tin'
+			'tin',
+			'rdo_code'
 		);
 		
 		/**
@@ -161,7 +164,8 @@ class controller extends wc_controller
 			'signatory_name',
 			'signatory_role',
 			'signatory_tin',
-			'tin'
+			'tin',
+			'rdo_code'
 		);
 
 		/**

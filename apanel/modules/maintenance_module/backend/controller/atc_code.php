@@ -640,7 +640,7 @@ class controller extends wc_controller
 					$csv .= '"' . $short_desc 		. '",';
 					$csv .= '"' . $accountname 		. '",';
 					$csv .= '"' . $cwt 				. '",';
-					$csv .= '"' . $row->stat 		. '"';
+					$csv .= '"' . ucfirst($row->stat) 		. '"';
 					$csv .= "\n";
 				}
 			}

@@ -396,7 +396,6 @@ class controller extends wc_controller
 			$arr = array('status');
 			$fields = $this->input->post($arr);
 			$fields['status'] = 'approved';
-			$savereport = $this->budgetting->saveBudgetReportSupplement($id);
 			$result = $this->budgetting->updateSupplementAppove($id, $fields);
 			return $result;
 		}
@@ -441,7 +440,7 @@ class controller extends wc_controller
 				$csv .= '"' . $row->owner . '",';
 				$csv .= '"' . $row->prepared_by . '",';
 				$csv .= '"' . $row->effectivity_date . '",';
-				$csv .= '"' . $row->status . '",';
+				$csv .= '"' . ucfirst($row->status) . '",';
 			}
 
 			return $csv;

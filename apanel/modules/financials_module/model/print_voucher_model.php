@@ -22,10 +22,10 @@ class print_voucher_model extends fpdf {
 
 	private function getCompanyInfo() {
 		$result = $this->db->setTable('company')
-							->setFields('companycode, companyname, address, email, tin')
-							->setLimit(1)
-							->runSelect()
-							->getRow();
+		->setFields('companycode, companyname, address, email, tin')
+		->setLimit(1)
+		->runSelect()
+		->getRow();
 		$this->companyinfo = $result;
 	}
 
@@ -83,7 +83,7 @@ class print_voucher_model extends fpdf {
 		$this->drawDocumentDetails();
 		$this->Output($filename . '.pdf', 'I');
 	}
-		
+
 	public function Header() {
 		$this->getCompanyInfo();
 		/**COMPANY INFO**/
@@ -93,6 +93,7 @@ class print_voucher_model extends fpdf {
 		$address		= $companyinfo->address;
 		$email			= $companyinfo->email;
 		$tin			= $companyinfo->tin;
+		// var_dump($this->voucher_status);
 		
 		/**DOCUMENT INFO**/
 		$documentinfo	= $this->documentinfo;
@@ -118,23 +119,15 @@ class print_voucher_model extends fpdf {
 		$this->SetFont('Arial', '', 12);
 		$this->Cell(200, $rowheight, $document_type, 0, 0, 'C');
 		$this->Ln();
-		$this->Ln();
 
-
-
-		// $this->SetTextColor(255,255,255);
-		// $w = $this->GetStringWidth($this->voucher_status);
-		// if ($this->voucher_status == 'PAID'){
-		// 	$this->SetFillColor(0,166,90);
-		// } else if ($this->voucher_status == 'UNPAID'){
-		// 	$this->SetFillColor(255,0,0);
-		// } else if ($this->voucher_status == 'PARTIAL'){
-		// 	$this->SetFillColor(0,192,239);
-		// } 
-		// $this->SetFont('Arial', 'B', 9);
-		// $this->Cell($w,5,$this->voucher_status,5,5,'L',true);
-		
-		$this->Ln();
+		if($this->voucher_status == 'CANCELLED'){
+			$this->SetFont('Arial', '', 12);
+			$this->Cell(200, $rowheight, 'This voucher has been ' .$this->voucher_status, 0, 0, 'C');
+			$this->Ln();
+			$this->Ln();
+		} else {
+			$this->Ln();
+		}
 		
 		//Invoice Date
 		$this->SetTextColor(0,0,0);

@@ -99,6 +99,16 @@ class payment_voucher_model extends wc_model
 		return $result;
 	}
 
+	public function getStatus($voucherno)
+	{
+		$result = $this->db->setTable('paymentvoucher')
+		->setFields('stat')
+		->setWhere("voucherno = '$voucherno'")
+		->runSelect()
+		->getRow();
+		return $result;
+	}
+
 	public function retrievebank($table, $fields = array(), $cond = "", $ijoin = "", $orderby = "", $groupby = "")
 	{
 		$result = $this->db->setTable($table)
@@ -904,10 +914,6 @@ class payment_voucher_model extends wc_model
 			$isAppDetailExist	= $this->getValue($applicationTable, array("COUNT(*) AS count"), " voucherno = '$voucherno'");
 
 			if($isAppDetailExist[0]->count > 0){
-				$this->db->setTable('actual_budget')
-				->setValues($budget)
-				->setWhere("voucherno = '$voucherno'")
-				->runInsert();
 
 				$this->db->setTable($detailAppTable)
 				->setWhere("voucherno = '$voucherno'")

@@ -19,6 +19,7 @@ class controller extends wc_controller {
 			'remarks',
 			'warehouse',
 			'amount',
+			'taxamount',
 			'reason'
 		);
 		$this->fields_header	= array(
@@ -57,6 +58,18 @@ class controller extends wc_controller {
 		);
 		$this->clean_number		= array(
 			'receiptqty'
+		);
+		$this->serial_fields	= array(
+			// 'detail_warehouse'			=> 'warehouse',
+			'voucherno',
+			// 'source_no',
+			'h_itemcode',
+			'linenumber',
+			'serialnumbers',
+			'enginenumbers',
+			'chassisnumbers',
+			'receiptqty',
+			'item_ident_flag'
 		);
 	}
 
@@ -250,6 +263,9 @@ class controller extends wc_controller {
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$seq						= new seqcontrol();
 		$data['voucherno']			= $seq->getValue('PRTN');
+		$serials					= $this->input->post($this->serial_fields);
+		$serials['voucherno']		= $data['source_no'];
+		$results2					= $this->purchase_model->updateSerialData($serials);
 		$result						= $this->purchase_model->savePurchaseReturn($data, $data2);
 	
 		if ($result && $this->inventory_model) {
@@ -351,7 +367,7 @@ class controller extends wc_controller {
 		}
 		$total_amount	= $header->amount;
 		$total_discount	= 0;
-		$discountrate	= 0;
+		$discountrate	= $header->discountrate;
 
 		if ($header->discounttype == 'perc') {
 			$discountrate	= $header->discountrate / 100;
@@ -363,8 +379,8 @@ class controller extends wc_controller {
 		foreach ($details as $key => $row) {
 			$discount = $row->unitprice * $discountrate;
 			$details[$key]->unitprice = $row->unitprice - $discount;
-			$details[$key]->taxrate = 0;
-			$details[$key]->taxamount = 0;
+			// $details[$key]->taxrate = 0;
+			// $details[$key]->taxamount = 0;
 		}
 		
 		return array(
@@ -446,9 +462,9 @@ class controller extends wc_controller {
 			$hide_engine 	=	($has_engine == 0) ? "hidden" 	:	"";
 			$hide_chassis 	=	($has_chassis == 0) ? "hidden" 	:	"";
 			
-			$table .= '<td class = "'.$hide_serial.'">' . $row->serialno . '</td>';
-			$table .= '<td class = "'.$hide_engine.'">' . $row->engineno . '</td>';
-			$table .= '<td class = "'.$hide_chassis.'">' . $row->chassisno . '</td>';
+			$table .= '<td class = "'.$hide_serial.' serialno">' . $row->serialno . '</td>';
+			$table .= '<td class = "'.$hide_engine.' engineno">' . $row->engineno . '</td>';
+			$table .= '<td class = "'.$hide_chassis.' chassisno">' . $row->chassisno . '</td>';
 			$table .= '</tr>';
 			$counter++;
 		}

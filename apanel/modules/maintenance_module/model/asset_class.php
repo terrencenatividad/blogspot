@@ -137,19 +137,38 @@ class asset_class extends wc_model {
 							->getResult();
 		}
 
-	// private function getAssetClassListQuery($fields, $search = '', $sort) {
-	// 	$sort		= ($sort) ? $sort : 'assetclass';
-	// 	$condition = '';
-	// 	if ($search) {
-	// 		$condition = $this->generateSearch($search, array('id', 'assetclass'));
-	// 	}
-	// 	$query = $this->db->setTable('asset_class')
-	// 						->setFields($fields)
-	// 						->setOrderBy($sort)
-	// 						->setWhere($condition);
+	private function getAssetClassListQuery($fields, $search = '', $sort) {
+		$fields = array('a.id',
+		'code',
+		'assetclass',
+		'depreciate',
+		'useful_life',
+		'salvage_value',
+		'gl_asset',
+		'gl_accdep',
+		'gl_depexpense',
+		'c.accountname asset',
+		'o.accountname accdep',
+		'a.accountname depexp',
+		'c.segment5 a_asset',
+		'o.segment5 a_accdep',
+		'a.segment5 a_depexp',
+		'ac.stat');
+		$sort		= ($sort) ? $sort : 'assetclass';
+		$condition = '';
+		if ($search) {
+			$condition = $this->generateSearch($search, array('id', 'assetclass'));
+		}
+		$query = $this->db->setTable('asset_class ac')
+							->setFields($fields)
+							->leftJoin("chartaccount c ON c.id = ac.gl_asset")
+							->leftJoin("chartaccount o ON o.id = ac.gl_accdep")
+							->leftJoin("chartaccount a ON a.id = ac.gl_depexpense")
+							->setOrderBy($sort)
+							->setWhere($condition);
 
-	// 	return $query;
-	// }
+		return $query;
+	}
 
 	private function generateSearch($search, $array) {
 		$temp = array();

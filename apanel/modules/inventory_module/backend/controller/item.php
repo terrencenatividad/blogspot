@@ -66,7 +66,8 @@ class controller extends wc_controller {
 			'Purchase Credit Account',
 			'Inventory Account',
 			'Revenue Type',
-			'Expense Type'
+			'Expense Type',
+			'Status'
 		);
 		$this->clean_number		= array(
 			'weight',
@@ -231,7 +232,8 @@ class controller extends wc_controller {
 			$csv .= '"' . $row->payable_account . '",';
 			$csv .= '"' . $row->inventory_account . '",';
 			$csv .= '"' . $row->revenuetype . '",';
-			$csv .= '"' . $row->expensetype . '"';
+			$csv .= '"' . $row->expensetype . '",';
+			$csv .= '"' . ucfirst($row->stat) . '"';
 		}
 		echo $csv;
 	}

@@ -112,7 +112,7 @@ class chartofaccountsclass extends wc_model
 		$search          = (isset($data['search']))? htmlentities($data['search']) : "";
 		$fetch_sort      = (isset($data['sort']))? htmlentities($data['sort']) : "";
 		$fields 		 =  array("segment5", "accountname","accountclasscode","fspresentation", 
-		"accounttype", "parentaccountcode", "accountnature");
+		"accounttype", "parentaccountcode", "accountnature","stat");
 
 		$addCondition = "";
 		$addCondition = (!empty($search)) ? " (chart.segment1 LIKE '%$search%' 

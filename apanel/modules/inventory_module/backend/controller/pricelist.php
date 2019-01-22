@@ -582,96 +582,102 @@
 				$prev_name  	=	'';
 				$prev_desc 		= 	'';
 
-				foreach ($z as $b) 
-				{
-					if ( !empty($b)) 
-					{	
-						$itempricecode 	   	= (!empty($b[0])) ?	trim($b[0]) 	: 	$prev;
-						$itempricename      = (!empty($b[1])) ? trim($b[1]) 	: 	$prev_name; 
-						$description        = (!empty($b[2])) ? trim($b[2]) 	: 	$prev_desc; 
-						$itemcode 			= trim($b[3]);
-						$itemprice 			= trim($b[4]);
-						$name			    = trim($b[1]); 
-						$desc			    = trim($b[2]); 
+				if(!empty($z)){
+					foreach ($z as $b) 
+					{
+						if ( !empty($b)) 
+						{	
+							$itempricecode 	   	= (!empty($b[0])) ?	trim($b[0]) 	: 	$prev;
+							$itempricename      = (!empty($b[1])) ? trim($b[1]) 	: 	$prev_name; 
+							$description        = (!empty($b[2])) ? trim($b[2]) 	: 	$prev_desc; 
+							$itemcode 			= trim($b[3]);
+							$itemprice 			= trim($b[4]);
+							$name			    = trim($b[1]); 
+							$desc			    = trim($b[2]); 
 
-						$prev 				= $itempricecode;
-						$prev_name 			= $itempricename;
-						$prev_desc 			= $description;
+							$prev 				= $itempricecode;
+							$prev_name 			= $itempricename;
+							$prev_desc 			= $description;
 
-						// Check if Price List exists
-						$tpl_exists 		= $this->pricelist->check_duplicate($itempricecode,'price_list',"itemPriceCode");
-						$tpl_count  		= $tpl_exists[0]->count;
+							// Check if Price List exists
+							$tpl_exists 		= $this->pricelist->check_duplicate($itempricecode,'price_list',"itemPriceCode");
+							$tpl_count  		= $tpl_exists[0]->count;
 
-						if( $tpl_count > 0 )
-						{
-							$errmsg[]	= "Price List Code [<strong>$itempricecode</strong>] on row $line already exists.<br/>";
-							$errmsg		= array_filter($errmsg);
+							if( $tpl_count > 0 )
+							{
+								$errmsg[]	= "Price List Code [<strong>$itempricecode</strong>] on row $line already exists.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+
+							if(empty($itempricecode)){
+								$errmsg[] 	= "Price List Code is required. Row $line should not be empty.<br>";
+							}
+
+							if(empty($name)){
+								$errmsg[] 	= "Price List Name is required. Row $line should not be empty.<br>";
+							}
+							if(empty($desc)){
+								$errmsg[] 	= "Description is required. Row $line should not be empty.<br>";
+							}
+							
+							// Check if Itemcode Exists
+							$item_exists 		= $this->pricelist->check_duplicate($itemcode,'items',"itemcode");
+							$item_count  		= $item_exists[0]->count;
+
+							if( $item_count <= 0 )
+							{
+								$errmsg[]	= "Item Code [<strong>$itemcode</strong>] on row $line does not exists.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+
+							// Check if Price is valid amount & not empty
+							if( !empty($itemprice) && !is_numeric($itemprice)){
+								$errmsg[] 	= "Adjusted Price [ <strong>$itemprice</strong> ] on row $line is not a valid amount.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+							else if ( $itemprice == "" ){
+								$errmsg[] 	= "Adjusted Price [ <strong>$itemprice</strong> ] on row $line should not be empty.<br/>";
+								$errmsg		= array_filter($errmsg);
+							}
+
+							
+							// Check if Price List - Itemcode Pair already exists
+							// $tpl_code_exists 	= $this->pricelist->check_duplicate_pair('price_list_details', " itemPriceCode = '$itempricecode' AND itemDtlCode = '$itemcode' " );
+							// $tpl_code_count 	= (!empty($tpl_code_exists)) ? $tpl_code_exists[0]->count 	: 	0 ;
+				
+							// if( $tpl_code_count > 0 )
+							// {
+							// 	$errmsg[]	= "The [<strong>$itempricecode - $itemcode</strong>] pair on row $line already exists.<br/>";
+							// 	$errmsg		= array_filter($errmsg);
+							// }
+
+							// Check if Itemcode already exists in a Price List within the document
+							// if( !in_array($itempricecode, $list) ){
+							// 	$list[] 	=	$itempricecode;
+							// }
+							// else
+							// {
+							// 	$errmsg[]	= "Price List Code [<strong>$itempricecode</strong>] on row $line has a duplicate within the document.<br/>";
+							// 	$errmsg		= array_filter($errmsg);
+							// }
+
+							if( !in_array($itempricecode, $uniquecode_) ){
+								$uniquecode_[]		= $itempricecode;
+								$itempricename_[]	= $itempricename;
+								$description_[]		= $description;
+							}
+
+							$itempricecode_[] 	= $itempricecode;
+							$itemcode_[] 		= $itemcode;
+							$itemprice_[] 		= $itemprice;
+
+							$line++;
 						}
-
-						if(empty($itempricecode)){
-							$errmsg[] 	= "Price List Code is required. Row $line should not be empty.<br>";
-						}
-
-						if(empty($name)){
-							$errmsg[] 	= "Price List Name is required. Row $line should not be empty.<br>";
-						}
-						if(empty($desc)){
-							$errmsg[] 	= "Description is required. Row $line should not be empty.<br>";
-						}
-						
-						// Check if Itemcode Exists
-						$item_exists 		= $this->pricelist->check_duplicate($itemcode,'items',"itemcode");
-						$item_count  		= $item_exists[0]->count;
-
-						if( $item_count <= 0 )
-						{
-							$errmsg[]	= "Item Code [<strong>$itemcode</strong>] on row $line does not exists.<br/>";
-							$errmsg		= array_filter($errmsg);
-						}
-
-						// Check if Price is valid amount & not empty
-						if( !empty($itemprice) && !is_numeric($itemprice)){
-							$errmsg[] 	= "Adjusted Price [ <strong>$itemprice</strong> ] on row $line is not a valid amount.<br/>";
-							$errmsg		= array_filter($errmsg);
-						}
-						else if ( $itemprice == "" ){
-							$errmsg[] 	= "Adjusted Price [ <strong>$itemprice</strong> ] on row $line should not be empty.<br/>";
-							$errmsg		= array_filter($errmsg);
-						}
-
-						
-						// Check if Price List - Itemcode Pair already exists
-						// $tpl_code_exists 	= $this->pricelist->check_duplicate_pair('price_list_details', " itemPriceCode = '$itempricecode' AND itemDtlCode = '$itemcode' " );
-						// $tpl_code_count 	= (!empty($tpl_code_exists)) ? $tpl_code_exists[0]->count 	: 	0 ;
-			
-						// if( $tpl_code_count > 0 )
-						// {
-						// 	$errmsg[]	= "The [<strong>$itempricecode - $itemcode</strong>] pair on row $line already exists.<br/>";
-						// 	$errmsg		= array_filter($errmsg);
-						// }
-
-						// Check if Itemcode already exists in a Price List within the document
-						// if( !in_array($itempricecode, $list) ){
-						// 	$list[] 	=	$itempricecode;
-						// }
-						// else
-						// {
-						// 	$errmsg[]	= "Price List Code [<strong>$itempricecode</strong>] on row $line has a duplicate within the document.<br/>";
-						// 	$errmsg		= array_filter($errmsg);
-						// }
-
-						if( !in_array($itempricecode, $uniquecode_) ){
-							$uniquecode_[]		= $itempricecode;
-							$itempricename_[]	= $itempricename;
-							$description_[]		= $description;
-						}
-
-						$itempricecode_[] 	= $itempricecode;
-  						$itemcode_[] 		= $itemcode;
-						$itemprice_[] 		= $itemprice;
-
-						$line++;
 					}
+				}
+				else {
+					$errmsg[] 	= "You are importing an empty template.";
+					$errmsg		= array_filter($errmsg);
 				}
 
 				$proceed 	=	false;
@@ -748,7 +754,7 @@
 			$search = $this->input->post("search");
 			$sort 	= $this->input->post('sort');
 
-			$header = array('Price List Code','Price List Name','Description',"Item Code","Adjusted Price");
+			$header = array('Price List Code','Price List Name','Description',"Item Code","Adjusted Price", "Status");
 
 			$prev 	= '';
 			$next 	= '';
@@ -778,7 +784,14 @@
 					}
 					
 					$csv .= '"' . $row->itemDtlCode . '",';
+					if( $prev != '' && $prev != $next)
+					{
+					$csv .= '"' . number_format($row->sellPrice,2) . '",';
+					$csv .= '"' . ucfirst($row->stat) . '"';
+					}else{
 					$csv .= '"' . number_format($row->sellPrice,2) . '"';
+					}
+
 					$csv .= "\n";
 
 					$next 	= $prev;

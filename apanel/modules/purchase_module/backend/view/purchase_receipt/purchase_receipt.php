@@ -146,6 +146,7 @@
 											->setSplit('col-md-2', 'col-md-10')
 											->setName('remarks')
 											->setId('remarks')
+											->setMaxLength(300)
 											->setValue($remarks)
 											->draw($show_input);
 									?>
@@ -552,6 +553,7 @@
 							echo $ui->formField('text')
 								->setSplit('', 'col-md-12')
 								->setName('detailparticular[]')
+								->setMaxLength(100)
 								->setValue('` + details.detailparticular + `')
 								->addHidden()
 								->draw($show_input);

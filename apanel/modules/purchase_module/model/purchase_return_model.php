@@ -60,6 +60,8 @@ class purchase_return_model extends wc_model {
 					->runDelete();
 		
 		$data['voucherno']	= $voucherno;
+		unset($data['item_ident_flag']);
+		unset($data['po_qty']);
 		$result = $this->db->setTable('purchasereturn_details')
 							->setValuesFromPost($data)
 							->runInsert();
@@ -391,6 +393,129 @@ class purchase_return_model extends wc_model {
 								->setOrderBy('id')
 								->runPagination();	
 		return $inner_query;
+	}
+
+	public function updateSerialData($data) {
+		$number_of_items = sizeof($data['linenumber']);
+		$voucherno = $data['voucherno'];
+
+		for ($i = 0 ; $i < ($number_of_items) ; $i++){
+			$serialized_flag = $data['item_ident_flag'][$i*2]; 
+			$item_quantity = intval($data['receiptqty'][$i]);
+			$linenum = $data['linenumber'][$i];
+			$itemcode = $data['h_itemcode'][$i];
+			$sn = explode(",",$data['serialnumbers'][$i]);
+			$en = explode(",",$data['enginenumbers'][$i]);
+			$cn = explode(",",$data['chassisnumbers'][$i]);
+
+			if ($serialized_flag != '0' && $item_quantity > 0) {
+				for ($a = 0 ; $a < sizeof($sn) ; $a++){
+					if ($sn[$a]!=''){
+						$values = array(
+							'voucherno' => $voucherno,
+							'itemcode' => $itemcode,
+							'linenum' => $linenum,
+							'serialno' => $sn[$a],
+						);
+						$result = $this->updateSerialFromDb($values);
+					}
+				}
+				for ($a = 0 ; $a < sizeof($en) ; $a++){
+					if ($en[$a]!=''){
+						$values = array(
+							'voucherno' => $voucherno,
+							'itemcode' => $itemcode,
+							'linenum' => $linenum,
+							'engineno' => $en[$a],
+						);
+						$result = $this->updateEngineFromDb($values);
+					}
+				}
+				for ($a = 0 ; $a < sizeof($cn) ; $a++){
+					if ($cn[$a]!=''){
+						$values = array(
+							'voucherno' => $voucherno,
+							'itemcode' => $itemcode,
+							'linenum' => $linenum,
+							'chassisno' => $cn[$a],
+						);
+						$result = $this->updateChassisFromDb($values);
+					}
+				}
+			}
+		}
+	}
+
+	function updateSerialFromDb($values) {
+		$voucherno = $values['voucherno'];
+		$linenum = $values['linenum'];
+		$itemcode = $values['itemcode'];
+		$number = $values['serialno'];
+		$condition = "voucherno='$voucherno' AND itemcode = '$itemcode' AND linenum = '$linenum'";
+		$query = $this->db->setTable('items_serialized')
+							->setFields('*')
+							->setWhere("serialno = '$number' AND $condition")
+							->runSelect();
+							// echo $this->db->getQuery();
+		
+		if ($query) {
+			$result = $this->db->setTable('items_serialized')
+								->setValues(array('stat'=>'Not Available'))
+								->setWhere("serialno = '$number' AND $condition")
+								->runUpdate();
+
+			// $result = $this->db->setTable('items_serialized')
+			// 					->setWhere("serialno = '$number' AND $condition")
+			// 					->runDelete();
+		}
+	}
+
+	function updateEngineFromDb($values) {
+		$voucherno = $values['voucherno'];
+		$linenum = $values['linenum'];
+		$itemcode = $values['itemcode'];
+		$number = $values['engineno'];
+		$condition = "voucherno='$voucherno' AND itemcode = '$itemcode' AND linenum = '$linenum'";
+		$query = $this->db->setTable('items_serialized')
+							->setFields('*')
+							->setWhere("engineno = '$number' AND $condition")
+							->runSelect();
+							// echo $this->db->getQuery();
+		
+		if ($query) {
+			$result = $this->db->setTable('items_serialized')
+								->setValues(array('stat'=>'Not Available'))
+								->setWhere("engineno = '$number' AND $condition")
+								->runUpdate();
+
+			// $result = $this->db->setTable('items_serialized')
+			// 					->setWhere("engineno = '$number' AND $condition")
+			// 					->runDelete();
+		}
+	}
+
+	function updateChassisFromDb($values) {
+		$voucherno = $values['voucherno'];
+		$linenum = $values['linenum'];
+		$itemcode = $values['itemcode'];
+		$number = $values['chassisno'];
+		$condition = "voucherno='$voucherno' AND itemcode = '$itemcode' AND linenum = '$linenum'";
+		$query = $this->db->setTable('items_serialized')
+							->setFields('*')
+							->setWhere("chassisno = '$number' AND $condition")
+							->runSelect();
+							// echo $this->db->getQuery();
+		
+		if ($query) {
+			$result = $this->db->setTable('items_serialized')
+								->setValues(array('stat'=>'Not Available'))
+								->setWhere("chassisno = '$number' AND $condition")
+								->runUpdate();
+								
+			// $result = $this->db->setTable('items_serialized')
+			// 					->setWhere("chassisno = '$number' AND $condition")
+			// 					->runDelete();
+		}
 	}
 
 }

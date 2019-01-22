@@ -513,6 +513,7 @@ echo $ui->loadElement('modal')
 				echo $ui->formField('text')
 				->setSplit('', 'col-md-12')
 				->setName('detailparticulars[]')
+				->setMaxLength(100)
 				->setValue('` +
 						details.detailparticulars +
 						`')
