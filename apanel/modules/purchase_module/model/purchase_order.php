@@ -569,9 +569,12 @@ class purchase_order extends wc_model
 							->setGroupBy('bs.accountcode')
 							->runSelect()
 							->getRow();
+
+							echo $this->db->getQuery();
 							if(!$getbudgetaccount) {
 								$warning[] = 'The account ' . $check->accountname . ' is not in your budget code ' .$budgetcode. '.';
 							} else {
+								var_dump($getbudgetaccount->amount);
 								if($subtotal > $getbudgetaccount->amount) {
 									$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 								}
