@@ -97,11 +97,6 @@ class controller extends wc_controller
 		$data["transactiondate"]    = $this->date->dateFormat();
 		$data["duedate"]      		= $this->date->dateFormat();
 		$data['currencycodes'] = $this->accounts_payable->getCurrencyCode();
-<<<<<<< HEAD
-=======
-		$data['currency'] 			= 'PHP';
-		$data['exchangerate'] 		= '1.00';
->>>>>>> 0a8406372d2ee04880d21c81d1489b48b1d535d3
 		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
 		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList($data);
 		$data['account_list'] = $this->accounts_payable->retrieveAccounts();
