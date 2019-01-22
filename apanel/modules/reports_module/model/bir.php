@@ -93,32 +93,45 @@ class bir extends wc_model {
     public function getGov($period) {
         return $this->db->setTable('salesinvoice_details as sd')
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
-        ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
-        ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_gov' AND si.period IN $period")
+        ->leftJoin('fintaxcode AS tax ON tax.fstaxcode = sd.taxcode')
+        ->setFields('SUM(sd.amount) as sum_amount , SUM(sd.taxamount) as sum_taxamount')
+        ->setWhere("sd.taxcode = 'SG' AND si.period IN $period AND si.stat NOT IN('cancelled','temporary') ")
         ->runSelect()
         ->getRow();
     }
 
     public function getZero($period) {
+        // return $this->db->setTable('salesinvoice_details as sd')
+        // ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
+        // ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
+        // ->leftJoin('itemclass as ic ON i.classid = ic.id')
+        // ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
+        // ->setWhere("ic.revenuetype = 'vat_zero' AND si.period IN $period")
+        // ->runSelect()
+        // ->getRow();
         return $this->db->setTable('salesinvoice_details as sd')
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
-        ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
-        ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_zero' AND si.period IN $period")
+        ->leftJoin('fintaxcode AS tax ON tax.fstaxcode = sd.taxcode')
+        ->setFields('SUM(sd.amount) as sum_amount , SUM(sd.taxamount) as sum_taxamount')
+        ->setWhere("sd.taxcode = 'ZRS' AND si.period IN $period AND si.stat NOT IN('cancelled','temporary') ")
         ->runSelect()
         ->getRow();
     }
 
     public function getExempt($period) {
+        // return $this->db->setTable('salesinvoice_details as sd')
+        // ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
+        // ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
+        // ->leftJoin('itemclass as ic ON i.classid = ic.id')
+        // ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
+        // ->setWhere("ic.revenuetype = 'vat_exempt' AND si.period IN $period ")
+        // ->runSelect()
+        // ->getRow();
         return $this->db->setTable('salesinvoice_details as sd')
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
-        ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
-        ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_exempt' AND si.period IN $period ")
+        ->leftJoin('fintaxcode AS tax ON tax.fstaxcode = sd.taxcode')
+        ->setFields('SUM(sd.amount) as sum_amount , SUM(sd.taxamount) as sum_taxamount')
+        ->setWhere("sd.taxcode = 'ES' AND si.period IN $period AND si.stat NOT IN('cancelled','temporary') ")
         ->runSelect()
         ->getRow();
     }
@@ -212,34 +225,55 @@ class bir extends wc_model {
     }
 
     public function getGovMonthly($period) {
+        // return $this->db->setTable('salesinvoice_details as sd')
+        // ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
+        // ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
+        // ->leftJoin('itemclass as ic ON i.classid = ic.id')
+        // ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
+        // ->setWhere("ic.revenuetype = 'vat_gov' AND si.period = '$period'")
+        // ->runSelect()
+        // ->getRow();
         return $this->db->setTable('salesinvoice_details as sd')
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
-        ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
-        ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_gov' AND si.period = '$period'")
+        ->leftJoin('fintaxcode AS tax ON tax.fstaxcode = sd.taxcode')
+        ->setFields('SUM(sd.amount) as sum_amount , SUM(sd.taxamount) as sum_taxamount')
+        ->setWhere("sd.taxcode = 'SG' AND si.period IN('$period') AND si.stat NOT IN('cancelled','temporary') ")
         ->runSelect()
         ->getRow();
     }
 
     public function getZeroMonthly($period) {
+        // return $this->db->setTable('salesinvoice_details as sd')
+        // ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
+        // ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
+        // ->leftJoin('itemclass as ic ON i.classid = ic.id')
+        // ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
+        // ->setWhere("ic.revenuetype = 'vat_zero' AND si.period = '$period")
+        // ->runSelect()
+        // ->getRow();
         return $this->db->setTable('salesinvoice_details as sd')
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
-        ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
-        ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_zero' AND si.period = '$period")
+        ->leftJoin('fintaxcode AS tax ON tax.fstaxcode = sd.taxcode')
+        ->setFields('SUM(sd.amount) as sum_amount , SUM(sd.taxamount) as sum_taxamount')
+        ->setWhere("sd.taxcode = 'ZRS' AND si.period IN('$period') AND si.stat NOT IN('cancelled','temporary') ")
         ->runSelect()
         ->getRow();
     }
 
     public function getExemptMonthly($period) {
+        // return $this->db->setTable('salesinvoice_details as sd')
+        // ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
+        // ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
+        // ->leftJoin('itemclass as ic ON i.classid = ic.id')
+        // ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
+        // ->setWhere("ic.revenuetype = 'vat_exempt' AND si.period = '$period'")
+        // ->runSelect()
+        // ->getRow();
         return $this->db->setTable('salesinvoice_details as sd')
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
-        ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
-        ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_exempt' AND si.period = '$period'")
+        ->leftJoin('fintaxcode AS tax ON tax.fstaxcode = sd.taxcode')
+        ->setFields('SUM(sd.amount) as sum_amount , SUM(sd.taxamount) as sum_taxamount')
+        ->setWhere("sd.taxcode = 'ES' AND si.period IN('$period') AND si.stat NOT IN('cancelled','temporary') ")
         ->runSelect()
         ->getRow();
     }

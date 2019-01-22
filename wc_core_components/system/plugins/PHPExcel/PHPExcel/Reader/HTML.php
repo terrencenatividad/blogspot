@@ -94,7 +94,7 @@ class PHPExcel_Reader_HTML extends PHPExcel_Reader_Abstract implements PHPExcel_
             ),
         ), //	Blue underlined
         'hr' => array('borders' => array('bottom' => array('style' => PHPExcel_Style_Border::BORDER_THIN,
-                    'color' => array(PHPExcel_Style_Color::COLOR_BLACK,
+                    'color' => array(\PHPExcel_Style_Color::COLOR_BLACK,
                     ),
                 ),
             ),
@@ -410,7 +410,7 @@ class PHPExcel_Reader_HTML extends PHPExcel_Reader_Abstract implements PHPExcel_
                                 ++$columnTo;
                             }
                             $range = $column . $row . ':' . $columnTo . ($row + $attributeArray['rowspan'] - 1);
-                            foreach (PHPExcel_Cell::extractAllCellReferencesInRange($range) as $value) {
+                            foreach (\PHPExcel_Cell::extractAllCellReferencesInRange($range) as $value) {
                                 $this->rowspan[$value] = true;
                             }
                             $sheet->mergeCells($range);
@@ -418,7 +418,7 @@ class PHPExcel_Reader_HTML extends PHPExcel_Reader_Abstract implements PHPExcel_
                         } elseif (isset($attributeArray['rowspan'])) {
                             //create merging rowspan
                             $range = $column . $row . ':' . $column . ($row + $attributeArray['rowspan'] - 1);
-                            foreach (PHPExcel_Cell::extractAllCellReferencesInRange($range) as $value) {
+                            foreach (\PHPExcel_Cell::extractAllCellReferencesInRange($range) as $value) {
                                 $this->rowspan[$value] = true;
                             }
                             $sheet->mergeCells($range);

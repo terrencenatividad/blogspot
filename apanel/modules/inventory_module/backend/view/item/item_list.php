@@ -186,7 +186,7 @@
 			ajaxToFilter(ajax, { search : '#table_search', limit : '#items', classid : '#classid', typeid : '#typeid' });
 			function changeExportLink() {
 				var url = '<?= MODULE_URL ?>get_export/';
-				$('#export_table').attr('href', url + btoa(ajax.search || '') + '/' + btoa(ajax.typeid || '') + '/' + btoa(ajax.classid || '') + '/' + btoa(ajax.sort || ''));
+				$('#export_id').attr('href', url + btoa(ajax.search || '') + '/' + btoa(ajax.typeid || '') + '/' + btoa(ajax.classid || '') + '/' + btoa(ajax.sort || ''));
 			}
 			tableSort('#tableList', function(value, getlist) {
 				ajax.sort = value;

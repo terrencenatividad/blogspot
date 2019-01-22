@@ -224,13 +224,22 @@ class returns_customer extends wc_model
 
 	public function retrieveCustomerList()
 	{
-			$result = $this->db->setTable('partners')
-						->setFields("partnercode ind, partnername val")
-						->setWhere("partnercode != '' AND partnertype = 'customer' AND stat = 'active'")
+		$result = $this->db->setTable('salesreturn')
+							->setFields("GROUP_CONCAT(customer SEPARATOR ',') as customers")
+							->setWhere("stat NOT IN ('temporary','cancelled')")
+							->runSelect()
+							->getRow();
+
+		$ids = preg_split("/[\s,]+/", $result->customers);
+		$customers	= "'" . implode("','", $ids) . "'";
+
+		$result = $this->db->setTable('partners')
+						->setFields("partnercode ind, CONCAT(partnercode,' - ',partnername) val")
+						->setWhere("partnercode != '' AND partnertype = 'customer' AND stat = 'active' AND partnercode IN ($customers)")
 						->setOrderBy("val")
 						->runSelect()
 						->getResult();
-			return $result;
+		return $result;
 	}
 
 	public function getWarehouseList() 

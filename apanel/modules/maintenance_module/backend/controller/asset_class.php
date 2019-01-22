@@ -19,6 +19,15 @@ class controller extends wc_controller {
 			'gl_depexpense',
 			'stat'
 		);
+
+		$this->csv_header		= array(
+			'Code',
+			'Asset Class',
+			'GL Account(Asset)',
+			'GL Account(Accumulated Depreciation)',
+			'GL Account(Depreciation Expense)',
+			'Status'
+		);
 	}
 
 	public function listing() {
@@ -182,6 +191,11 @@ class controller extends wc_controller {
 		);
 	}
 
+	public function get_import() {
+		$csv = $this->csv_header();
+		echo $csv;
+	}
+
 	private function csv_header() {
 		header('Content-type: application/csv');
 
@@ -189,6 +203,23 @@ class controller extends wc_controller {
 		$csv .= '"' . implode('","', $this->csv_header) . '"';
 
 		return $csv;
+	}
+
+	public function get_export($search = '', $sort = '') {
+		$search	= base64_decode($search);
+		$sort	= base64_decode($sort);
+		$csv	= $this->csv_header();
+		$result = $this->asset_class->getAssetClassList($this->fields, $search, $sort);
+		foreach ($result as $row) {
+			$csv .= "\n";
+			$csv .= '"' . $row->code . '",';
+			$csv .= '"' . $row->assetclass . '",';
+			$csv .= '"' . $row->a_asset .' - ' . $row->asset . '",';
+			$csv .= '"' . $row->a_accdep .' - '. $row->accdep . '",';
+			$csv .= '"' . $row->a_depexp .' - '. $row->depexp . '",';
+			$csv .= '"' . ucfirst($row->stat) . '"';
+		}
+		echo $csv;
 	}
 
 	private function ajax_save_import() {

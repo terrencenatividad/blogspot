@@ -86,8 +86,7 @@ class controller extends wc_controller
 
 		$data["exchange_rate"] 	= '0.00';
 
-		$curr_type_data         = array("currencycode ind", "currency val");
-		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
+		$data["currency_codes"]		= $this->po->getCurrency();
 
 		$dep_type_data          = array("id ind", "name val");
 		$data["department_list"] = $this->po->getValue("cost_center", $dep_type_data,'','name');
@@ -281,8 +280,7 @@ class controller extends wc_controller
 		$data["wtax_codes"] 	= $this->po->getTaxCode('WTX',"fstaxcode ind, shortname val");
 		$data['budget_list'] = $this->po->getBudgetCodes();
 
-		$curr_type_data         = array("currencycode ind", "currency val");
-		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
+		$data["currency_codes"]		= $this->po->getCurrency();
 
 		$dep_type_data          = array("id ind", "name val");
 		$data["department_list"] = $this->po->getValue("cost_center", $dep_type_data,'','name');
@@ -388,9 +386,8 @@ class controller extends wc_controller
 		$data["wtax_codes"] 	= $this->po->getTaxCode('WTX',"fstaxcode ind, shortname val");
 		$data['budget_list'] = $this->po->getBudgetCodes();
 
-		$curr_type_data         = array("currencycode ind", "currency val");
-		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
-
+		$data["currency_codes"]		= $this->po->getCurrency();
+		
 		$dep_type_data          = array("id ind", "name val");
 		$data["department_list"] = $this->po->getValue("cost_center", $dep_type_data,'','name');
 
@@ -557,7 +554,7 @@ class controller extends wc_controller
 
 		$print = new import_purchase_print_model();
 		$print->setDocumentType('Import Purchase Order')
-		->setFooterDetails(array('Prepared By', 'Recommending Approval','Approved By'))
+		->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))
 		->setVendorDetails($vendordetails)
 		->setDocumentDetails($documentdetails)
 		->setDocumentInfo($documentinfo)
@@ -565,7 +562,7 @@ class controller extends wc_controller
 
 		$print->setHeaderWidth(array(20, 29, 18, 26, 15, 12, 22, 29, 29))
 		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
-		->setHeader(array('Item Code', 'Description', 'On Hand Qty', 'Price',  'Qty', 'UOM', 'Discount', 'Foreign Currency', 'Base Currency'))
+		->setHeader(array('Item Code', 'Description', 'Ohq', 'Price',  'Qty', 'UOM', 'Discount', 'Foreign Currency', 'Base Currency'))
 		->setRowAlign(array('L', 'L', 'R', 'R', 'R', 'R', 'R', 'R', 'R'))
 		->setSummaryWidth(array('170', '30'));
 

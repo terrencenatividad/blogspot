@@ -338,7 +338,7 @@ class sales_invoice extends wc_model
 			}
 			else {
 				$detail_row = $this->db->setTable('job_order_details')
-								->setFields("uom issueuom, qty convissueqty, uom convuom")
+								->setFields("uom issueuom, quantity convissueqty, uom convuom")
 								->setWhere(" job_order_no = '$sourceno' AND linenum = '$linenum' ")
 								->runSelect()
 								->getRow();
@@ -673,12 +673,12 @@ class sales_invoice extends wc_model
 													->runSelect()
 													->getRow();
 
-			$detail_fields 		= "jod.itemcode, jod.detailparticular, jod.quantity issueqty, jod.uom issueuom, sqd.unitprice, sqd.taxcode, sqd.taxrate, sqd.taxamount, sqd.amount, sqd.discountrate, sqd.discounttype, sqd.discountamount";
+			$detail_fields 		= "jod.itemcode, jod.detailparticular, sqd.qty init_qty, jod.quantity issueqty, jod.uom issueuom, sqd.unitprice, sqd.taxcode, sqd.taxrate, sqd.taxamount, sqd.amount, sqd.discountrate, sqd.discounttype, sqd.discountamount";
 			$condition 			= "jod.job_order_no = '$code' ";
 			
 			$retrieved_data['details'] 	= $this->db->setTable('job_order_details jod')
 											->setFields($detail_fields)
-											->leftJoin('job_order jo ON jo.job_order_no = jo.job_order_no')
+											->leftJoin('job_order jo ON jo.job_order_no = jod.job_order_no')
 											->leftJoin('servicequotation_details sqd ON sqd.voucherno = jo.service_quotation AND sqd.itemcode = jod.itemcode AND sqd.companycode = jod.companycode')
 											->setWhere($condition)
 											->runSelect()

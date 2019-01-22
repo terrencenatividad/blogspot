@@ -440,7 +440,7 @@ class controller extends wc_controller
 				$csv .= '"' . $row->owner . '",';
 				$csv .= '"' . $row->prepared_by . '",';
 				$csv .= '"' . $row->effectivity_date . '",';
-				$csv .= '"' . $row->status . '",';
+				$csv .= '"' . ucfirst($row->status) . '",';
 			}
 
 			return $csv;

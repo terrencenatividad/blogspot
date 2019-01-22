@@ -463,11 +463,11 @@ class controller extends wc_controller
 		$docinfo_table  = "salesinvoice as si";
 		$docinfo_fields = array('si.transactiondate AS documentdate', 'si.voucherno AS voucherno',
 								"CONCAT( first_name, ' ', last_name) AS customer",
-								"'' AS referenceno",'si.netamount AS amount','si.remarks as remarks',
+								"si.referenceno AS referenceno",'si.netamount AS amount','si.remarks as remarks',
 								'si.discounttype as disctype','si.discountamount as discount', 
 								'si.amount as net','si.vat_sales as vat_sales','si.vat_exempt as vat_exempt', 'si.vat_zerorated as vat_zerorated',
 								'si.taxamount as vat','si.vat_zerorated as zerorated',
-								'sourceno', 'pl.voucherno plno', 'dr.source_no sono');
+								'sourceno', 'pl.voucherno plno', 'dr.source_no sono, dr.s_address s_address');
 		$docinfo_join   = "partners as p ON p.partnercode = si.customer AND p.companycode = si.companycode LEFT JOIN deliveryreceipt dr ON dr.voucherno = si.sourceno AND dr.companycode = si.companycode LEFT JOIN packinglist pl ON pl.voucherno = dr.source_no AND pl.companycode = dr.companycode";
 		$docinfo_cond 	= "si.voucherno = '$voucherno'"; 
 
@@ -507,11 +507,12 @@ class controller extends wc_controller
 			'SI #'	=> $voucherno,
 			'SO #'	=> $documentinfo->sono,
 			'DR/JO #'	=> $documentinfo->sourceno,
+			'REF #'	=> $documentinfo->referenceno,
 			'TERMS'	=> $customerdetails->terms
 		);
 
 		$print = new sales_print_model();
-		$s_address = 'N/A';
+		$s_address = $documentinfo->s_address;
 		$print->setDocumentType('Sales Invoice')
 				->setFooterDetails(array('Approved By', 'Checked By'))
 				->setCustomerDetails($customerdetails)
@@ -520,7 +521,7 @@ class controller extends wc_controller
 				->addTermsAndCondition()
 				->addReceived();
 
-		$print->setHeaderWidth(array(30, 40, 20, 20, 20, 20, 20, 30))
+		$print->setHeaderWidth(array(30, 40, 10, 12, 30, 28, 20, 30))
 				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C','C'))
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'Price', 'Discount', 'Tax', 'Amount'))
 				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R', 'R','R'))
@@ -679,10 +680,10 @@ class controller extends wc_controller
 				$detailparticular 	= htmlspecialchars($val->detailparticular);
 				$quantity 			= $val->issueqty;
 				$unitprice 			= isset($val->unitprice) ? $val->unitprice : 0;
-				$discount 			= ($val->discounttype == 'amt') ? $val->discountamount/$val->init_qty : $val->discountrate/$val->init_qty;
+				$discount 			= ($val->discounttype == 'amt') ? ($val->discountamount/$val->init_qty) * $val->issueqty : ($val->discountrate/$val->init_qty) * $val->issueqty;
 				$percentage 		= ($val->discounttype == 'perc') ? "%" : "";
-				$discountamount 	= isset($val->discountamount) ? $val->discountamount/$val->init_qty : 0;
-				$discountrate 		= isset($val->discountrate) ? $val->discountrate/$val->init_qty : 0;
+				$discountamount 	= isset($val->discountamount) ? ($val->discountamount/$val->init_qty) * $val->issueqty : 0;
+				$discountrate 		= isset($val->discountrate) ? ($val->discountrate/$val->init_qty) * $val->issueqty : 0;
 				$taxcode 			= isset($val->taxcode) ? $val->taxcode : '';
 				$taxrate 			= isset($val->taxrate) ? $val->taxrate : 0;
 				$taxamount 			= isset($val->taxamount) ? $val->taxamount : 0;

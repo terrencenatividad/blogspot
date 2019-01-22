@@ -97,6 +97,11 @@ class controller extends wc_controller
 		$data["transactiondate"]    = $this->date->dateFormat();
 		$data["duedate"]      		= $this->date->dateFormat();
 		$data['currencycodes'] = $this->accounts_payable->getCurrencyCode();
+<<<<<<< HEAD
+=======
+		$data['currency'] 			= 'PHP';
+		$data['exchangerate'] 		= '1.00';
+>>>>>>> 0a8406372d2ee04880d21c81d1489b48b1d535d3
 		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
 		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList($data);
 		$data['account_list'] = $this->accounts_payable->retrieveAccounts();
@@ -515,7 +520,7 @@ class controller extends wc_controller
 		$ap['stat'] = 'posted';
 		$ap['job_no'] = $post['job'];
 		$jobs = explode(',', $post['job']);
-
+		
 		if(!empty($jobs[0])) {
 			$finjobs['voucherno'] = $ap['voucherno'];
 			$finjobs['job_no'] = $jobs;
@@ -535,13 +540,13 @@ class controller extends wc_controller
 
 			$this->accounts_payable->updateAsset($ap['assetid'],$ap_details['debit'][0],$capitalized_cost,$balance_value);
 			
-			$depreciation = 0;
-			for($x=1;$x<=$useful_life;$x++){
-				$depreciation_amount 	= ($bv - $salvage_value) / $useful_life;
-				$depreciation += ($bv - $salvage_value) / $useful_life;
-				$final = date("Y-m-d", strtotime("+$x month", $time));
-				$sched = $this->accounts_payable->updateAssetMasterSchedule($ap['assetid'],$final,$depreciation,$depreciation_amount);
-			}
+			// $depreciation = 0;
+			// for($x=1;$x<=$useful_life;$x++){
+			// 	$depreciation_amount 	= ($bv - $salvage_value) / $useful_life;
+			// 	$depreciation += ($bv - $salvage_value) / $useful_life;
+			// 	$final = date("Y-m-d", strtotime("+$x month", $time));
+			// 	$sched = $this->accounts_payable->updateAssetMasterSchedule($ap['assetid'],$final,$depreciation,$depreciation_amount);
+			// }
 		}
 
 		$ap_details['transtype'] = 'AP';
@@ -1537,19 +1542,23 @@ class controller extends wc_controller
 
 							if( !isset($h_vouchlist) || !in_array($voucherno, $h_vouchlist) ){
 								$h_vouchlist[] 		= $voucherno;
-							}
-							if( !isset($datelist) || !in_array($transdate, $datelist) ){	
 								$datelist[] 		= $transdate;
-							}
-							if( !isset($duedatelist) || !in_array($duedate, $duedatelist) ){	
 								$duedatelist[] 		= $duedate;
-							}
-							if( !isset($vendorlist) || !in_array($vendor, $vendorlist) ){
 								$vendorlist[] 		= $vendor;
-							}
-							if( !isset($invoicelist) || !in_array($invoiceno, $invoicelist) ){
 								$invoicelist[] 		= $invoiceno;
 							}
+							// if( !isset($datelist) || !in_array($transdate, $datelist) ){	
+							// 	$datelist[] 		= $transdate;
+							// }
+							// if( !isset($duedatelist) || !in_array($duedate, $duedatelist) ){	
+							// 	$duedatelist[] 		= $duedate;
+							// }
+							// if( !isset($vendorlist) || !in_array($vendor, $vendorlist) ){
+							// 	$vendorlist[] 		= $vendor;
+							// }
+							// if( !isset($invoicelist) || !in_array($invoiceno, $invoicelist) ){
+							// 	$invoicelist[] 		= $invoiceno;
+							// }
 						}
 
 						$prev_no 		= $jvno;
@@ -1642,7 +1651,7 @@ class controller extends wc_controller
 	private function ajax_get_currency_val() {
 		$currencycode = $this->input->post('currencycode');
 		$result = $this->accounts_payable->getExchangeRate($currencycode);
-		return array("exchangerate" => $result->exchangerate);
+		return array("exchangerate" => ($result) ? $result->exchangerate : '1.00');
 	}
 
 	private function ajax_get_details() {

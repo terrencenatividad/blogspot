@@ -137,7 +137,7 @@
 						->getResult();
 			}else if($type == 'customers'){
 				$result = $this->db->setTable('salesinvoice inv')
-						->setFields(" part.partnercode ind, partnername val")
+						->setFields(" part.partnercode ind, CONCAT(partnercode,' - ',partnername) val")
 						->leftJoin("partners part ON part.partnercode = inv.customer ")
 						->setWhere("inv.voucherno != '' AND (inv.stat = 'open' OR inv.stat = 'posted') AND part.partnertype = 'customer' ")
 						->setGroupBy("ind")

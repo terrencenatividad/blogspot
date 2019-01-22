@@ -105,7 +105,7 @@ class controller extends wc_controller {
 		foreach ($pagination->result as $key => $row) {
 			$table .= '<tr>';
 			$table .= '<td>' . $this->date->datetimeFormat($row->entereddate) . '</td>';
-			$table .= '<td>' . $row->itemname . '</td>';
+			$table .= '<td>' . $row->itemcode.' - '.$row->itemname . '</td>';
 			$table .= '<td>' . $row->warehouse . '</td>';
 			$table .= '<td>' . $row->reference . '</td>';
 			$table .= '<td>' . $row->partnername . '</td>';

@@ -54,6 +54,19 @@ class inventory_adjustment_model extends wc_model {
 						->getResult();
 	}
 
+	public function getImportSerialList($itemcode, $warehouse) {
+		$result	=	$this->db->setTable('items')
+							->setFields('items.itemcode as itemcode, items.itemname as name, w.description as warehouse, inv.onhandQty qty, items.item_ident_flag')
+							->leftJoin("warehouse w ON w.companycode = items.companycode")
+							->leftJoin("invfile inv ON inv.itemcode = items.itemcode AND w.warehousecode = inv.warehouse AND w.companycode = inv.companycode")
+							->setWhere("items.itemgroup = 'goods' AND items.itemcode = '$itemcode' AND inv.warehouse = '$warehouse'")
+							->setOrderBy('items.itemcode')
+							->runSelect()
+							->getResult();
+		// echo $this->db->getQuery();
+		return $result;
+	}
+
 	public function getLoggedInUsers($curr_user)
 	{
 		return $this->db->setTable('wc_users')
@@ -511,6 +524,14 @@ class inventory_adjustment_model extends wc_model {
 		return $result;
 	}
 
+	public function importinitialserials($data){
+		$result = $this->db->setTable('items_serialized')
+				->setValuesFromPost($data)
+				->runInsert();
+		// echo $this->db->getQuery();
+		return $result;
+	}
+
 	public function generate_beg_jv($voucher, $jvvoucher)
 	{
 		$detail_info		= array();
@@ -747,6 +768,24 @@ class inventory_adjustment_model extends wc_model {
 							->runSelect()
 							->getResult();
 
+		return $result;
+	}
+
+	public function check_existing_serials($warehouse, $itemcode){
+		$result = $this->db->setTable('items_serialized')
+							->setFields(array("COUNT(*) count"))
+							->setWhere("warehousecode = '$warehouse' AND itemcode = '$itemcode'")
+							->runSelect()
+							->getRow();
+		return $result;
+	}
+
+	public function check_duplicate($code, $table, $cond) {
+		$result = $this->db->setTable($table)
+						->setFields('COUNT(*) count')
+						->setWhere($cond)
+						->runSelect()
+						->getResult();
 		return $result;
 	}
 }

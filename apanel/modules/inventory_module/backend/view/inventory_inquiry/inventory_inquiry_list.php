@@ -99,7 +99,7 @@
 						<?php
 							echo $ui->loadElement('table')
 									->setHeaderClass('info')
-									->addHeader('Item Name',array('class' => 'col-md-2'),'sort','itemname')
+									->addHeader('Item',array('class' => 'col-md-2'),'sort','itemname')
 									->addHeader('Warehouse',array('class' => 'col-md-2'),'sort','w.description')
 									->addHeader('Onhand Qty', array('class' => 'col-md-2'),'sort','SUM(inv.onhandQty)')
 									->addHeader('Ordered Qty', array('class' => 'col-md-2'),'sort','SUM(inv.orderedQty)')

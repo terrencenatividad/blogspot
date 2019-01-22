@@ -39,26 +39,27 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
+			$budget_desc = ($row->budgetdesc) ? $row->budgetdesc : '';
 			$total = $row->january * 12;
 			$table .= '<tr>';
-			$table .= '<td>' . $row->accountname . '</td>';
-			$table .= '<td>' . $row->budget_code . '</td>';
-			$table .= '<td>' . date('Y', strtotime($row->date_approved)) . '</td>';
-			$table .= '<td class = "total">' . number_format($row->january, 2) . '</td>';
-			$table .= '<td>' . number_format($row->february, 2) . '</td>';
-			$table .= '<td>' . number_format($row->march, 2) . '</td>';
-			$table .= '<td>' . number_format($row->april, 2) . '</td>';
-			$table .= '<td>' . number_format($row->may, 2) . '</td>';
-			$table .= '<td>' . number_format($row->june, 2) . '</td>';
-			$table .= '<td>' . number_format($row->july, 2) . '</td>';
-			$table .= '<td>' . number_format($row->august, 2) . '</td>';
-			$table .= '<td>' . number_format($row->september, 2) . '</td>';
-			$table .= '<td>' . number_format($row->october, 2) . '</td>';
-			$table .= '<td>' . number_format($row->november, 2) . '</td>';
-			$table .= '<td>' . number_format($row->december, 2) . '</td>';
+			$table .= '<td>' . $row->budget_code .'</td>';
+			$table .= '<td>' . $budget_desc .'</td>';
+			$table .= '<td class="text-right">' . number_format($total, 2) . '<input type="hidden" class="year_total" value="'.$total.'"/></td>';
+			$table .= '<td class="text-right">' . number_format($row->january, 2) . '<input type="hidden" class="monthly_total" value="'.$row->january.'"/></td>';
+			$table .= '<td class="text-right">' . number_format($row->february, 2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->march, 2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->april, 2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->may, 2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->june, 2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->july, 2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->august, 2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->september, 2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->october, 2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->november, 2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->december, 2) . '</td>';
 			$table .= '</tr>';
 		}
-
+		
 		$pagination->table	= $table;
 		$pagination->csv	= $this->get_export();
 		return $pagination;
@@ -71,8 +72,9 @@ class controller extends wc_controller {
 		$result			= $this->budget_report->getBudgetReportExport($budgetcode);
 
 		$header = array(
-			'Account Name',
 			'Budget Code',
+			'Budget Description',
+			'Total Budget',
 			'January',
 			'February',
 			'March',
@@ -92,10 +94,15 @@ class controller extends wc_controller {
 		if (empty($result)) {
 			$csv .= 'No Records Found';
 		}
+		$yearly_total 	= 0;
+		$total_month 	= 0;
+		$year_total 	= 0;
 		foreach ($result as $key => $row) {
+			$yearly_total = $row->january * 12;
 			$csv .= "\n";
-			$csv .= '"' . $row->accountname . '",';
 			$csv .= '"' . $row->budget_code . '",';
+			$csv .= '"' . $row->budgetdesc . '",';
+			$csv .= '"' . $yearly_total . '",';
 			$csv .= '"' . $row->january . '",';
 			$csv .= '"' . $row->february . '",';
 			$csv .= '"' . $row->march . '",';
@@ -108,7 +115,27 @@ class controller extends wc_controller {
 			$csv .= '"' . $row->october . '",';
 			$csv .= '"' . $row->november . '",';
 			$csv .= '"' . $row->december . '",';
+
+			$year_total 	+= $yearly_total;
+			$total_month 	+= $row->january;
 		}
+
+		$csv .= "\n";
+		$csv .= ',';
+		$csv .= 'TOTAL,';
+		$csv .= '"' . $year_total . '",';
+		$csv .= '"' . $total_month . '",';
+		$csv .= '"' . $total_month . '",';
+		$csv .= '"' . $total_month . '",';
+		$csv .= '"' . $total_month . '",';
+		$csv .= '"' . $total_month . '",';
+		$csv .= '"' . $total_month . '",';
+		$csv .= '"' . $total_month . '",';
+		$csv .= '"' . $total_month . '",';
+		$csv .= '"' . $total_month . '",';
+		$csv .= '"' . $total_month . '",';
+		$csv .= '"' . $total_month . '",';
+		$csv .= '"' . $total_month . '",';
 		
 		return $csv;
 	}
