@@ -60,6 +60,8 @@ class purchase_return_model extends wc_model {
 					->runDelete();
 		
 		$data['voucherno']	= $voucherno;
+		unset($data['item_ident_flag']);
+		unset($data['po_qty']);
 		$result = $this->db->setTable('purchasereturn_details')
 							->setValuesFromPost($data)
 							->runInsert();

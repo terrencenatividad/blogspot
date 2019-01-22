@@ -53,8 +53,8 @@ class controller extends wc_controller {
 			'discounttype',
 			'discountamount',
 			'detail_warehouse' => 'warehouse',
-			// 'po_qty',
-			// 'item_ident_flag'
+			'po_qty',
+			'item_ident_flag'
 		);
 		$this->clean_number		= array(
 			'receiptqty'
@@ -266,18 +266,18 @@ class controller extends wc_controller {
 		$serials					= $this->input->post($this->serial_fields);
 		$serials['voucherno']		= $data['source_no'];
 		$results2					= $this->purchase_model->updateSerialData($serials);
-		// $result						= $this->purchase_model->savePurchaseReturn($data, $data2);
+		$result						= $this->purchase_model->savePurchaseReturn($data, $data2);
 	
-		// if ($result && $this->inventory_model) {
-		// 	$this->inventory_model->prepareInventoryLog('Purchase Return', $data['voucherno'])
-		// 							->setDetails($data['vendor'])
-		// 							->computeValues()
-		// 							->logChanges();
+		if ($result && $this->inventory_model) {
+			$this->inventory_model->prepareInventoryLog('Purchase Return', $data['voucherno'])
+									->setDetails($data['vendor'])
+									->computeValues()
+									->logChanges();
 
-		// 	$this->inventory_model->setReference($data['voucherno'])
-		// 							->setDetails($data['vendor'])
-		// 							->generateBalanceTable();
-		// }
+			$this->inventory_model->setReference($data['voucherno'])
+									->setDetails($data['vendor'])
+									->generateBalanceTable();
+		}
 		$redirect_url = MODULE_URL;
 		if ($submit == 'save_new') {
 			$redirect_url = MODULE_URL . 'create';
