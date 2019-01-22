@@ -1363,12 +1363,14 @@
 	// For Filename 
 	$('#importSerialForm').on('change', '#import_csv', function() {
 		var filename = $(this).val().split("\\");
-		$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
+		$('#importSerialForm #import_csv').closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
 	});
 
 	$("#importSerialForm #btnImport").click(function()  {
 		var formData =	new FormData();
 		formData.append('file',$('#import_csv')[0].files[0]);
+		formData.append('itemcode',$('#main_item').val());
+		formData.append('warehouse',$('#h_warehouse').val());
 		ajax_call 	=	$.ajax({
 							url : '<?=MODULE_URL?>ajax/save_serial_import',
 							data:	formData,
