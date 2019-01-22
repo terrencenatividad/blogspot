@@ -473,4 +473,6 @@
 			}
 		});
 	}
+
+	$('#import_id').hide();
 	</script>
