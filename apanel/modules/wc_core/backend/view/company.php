@@ -89,6 +89,22 @@
 					</div>
 				</div>
 				<br/>
+				<div class="row">
+					<div class="col-md-6">
+						<?php
+							echo $ui->formField('dropdown')
+								->setLabel('RDO Code')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('rdo_code')
+								->setId('rdo_code')
+								->setList($rdo_list)
+								->setValue($rdo_code)
+								->setMaxLength(3)
+								->draw();
+						?>
+					</div>
+				</div>
+				<br/>
 				<h3>Contact Information</h3>
 				<hr/>
 				<div class="row">
