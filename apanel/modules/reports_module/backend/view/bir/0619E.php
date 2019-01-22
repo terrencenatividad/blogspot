@@ -553,9 +553,6 @@
 </section>
 
 <script>
-// $(document).ready(function(){
-// 	getList();
-// })
 	$('#birForm #generate').on('click',function(){
 		$.post("<?=MODULE_URL?>ajax/print_form/<?=$bir_form?>",$('#birForm').serialize())
 		.done(function( data ) 
