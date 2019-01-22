@@ -549,7 +549,7 @@ class controller extends wc_controller
 			'Date'	=> $this->date->dateFormat($documentinfo->documentdate),
 			'PO #'	=> $voucherno,
 			'Currency' => $documentinfo->exchangecurrency,
-			'Reference #' => $documentinfo->referenceno
+			'Ref #' => $documentinfo->referenceno
 		);
 
 		$print = new import_purchase_print_model();
@@ -564,11 +564,27 @@ class controller extends wc_controller
 		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
 		->setHeader(array('Item Code', 'Description', 'Ohq', 'Price',  'Qty', 'UOM', 'Discount', 'Foreign Currency', 'Base Currency'))
 		->setRowAlign(array('L', 'L', 'R', 'R', 'R', 'R', 'R', 'R', 'R'))
-		->setSummaryWidth(array('170', '30'));
+		->setSummaryAlign(array('J','R','R', 'R'))	
+		->setSummaryWidth(array('120', '30', '25', '25'));
 
 		$detail_height = 37;
 
 		$total_amount = 0;
+		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		$amount = $documentinfo->amount;
+		$wtaxamount = $documentinfo->wtax;
+		$vat = $documentinfo->vat;
+		$taxcode = $documentinfo->wtaxcode;
+		$taxrate = $documentinfo->wtaxrate;
+		$netamount = $documentinfo->net;
+		$freight = $documentinfo->freight;
+		$insurance = $documentinfo->insurance;
+		$packaging = $documentinfo->packaging;
+		$converted_freight = $documentinfo->converted_freight;
+		$converted_insurance = $documentinfo->converted_insurance;
+		$converted_packaging = $documentinfo->converted_packaging;
+		$convertedamount = $documentinfo->convertedamount;
+		$exchangecurrency = $documentinfo->exchangecurrency;
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
@@ -584,11 +600,23 @@ class controller extends wc_controller
 			$row->description 	= html_entity_decode(stripslashes($row->description));
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
+				$print->drawSummary(array(array('Notes:', 'Total Purchase', number_format($amount, 2), number_format($convertedamount, 2)),
+											array($notes, 'Freight', number_format($freight, 2), number_format($converted_freight, 2)),
+											array('', 'Insurance', number_format($insurance, 2), number_format($converted_insurance, 2)),
+											array('', 'Packaging', number_format($packaging, 2), number_format($converted_packaging, 2)),
+											array('', 'Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2), number_format(($convertedamount+$converted_freight+$converted_insurance+$converted_packaging), 2)),
+											array('','','','')
+				));
 				$total_amount = 0;
 			}
 		}
-		// $print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
+		$print->drawSummary(array(array('Notes:', 'Total Purchase', number_format($amount, 2), number_format($convertedamount, 2)),
+											array($notes, 'Freight', number_format($freight, 2), number_format($converted_freight, 2)),
+											array('', 'Insurance', number_format($insurance, 2), number_format($converted_insurance, 2)),
+											array('', 'Packaging', number_format($packaging, 2), number_format($converted_packaging, 2)),
+											array('', 'Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2), number_format(($convertedamount+$converted_freight+$converted_insurance+$converted_packaging), 2)),
+											array('','','','')
+		));
 
 		$print->drawPDF('Purchase Order - ' . $voucherno);
 	}
