@@ -779,14 +779,14 @@
 		$('#lockerModal #logged_users').html(data.user_lists);
 	});
 	
-	// $('#lockerModal').modal('show');
+	$('#lockerModal').modal('show');
 
 	$('#lockerModal').on('click','#btnProceed',function(){
 		$.post('<?=MODULE_URL?>ajax/update_locktime', ajax, function(data) {
 			if( data.msg == 'success' )
 			{
 				$('#lockerModal').modal('hide');
-				document.getElementById('timer').innerHTML = 05 + ":" + 01;
+				document.getElementById('timer').innerHTML = 10 + ":" + 01;
 				startTimer();
 
 				var warehouse 	=	$('#warehouse').val();

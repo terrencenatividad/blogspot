@@ -195,7 +195,7 @@ class controller extends wc_controller {
 				$show_import_button = ($ret_existing->count > 0) ? 1 : 0;
 
 				$import_serial 	=	"";
-				if($item_ident_flag != "000" ){//&& $show_import_button && $display
+				if($item_ident_flag != "000" && $show_import_button && $display){
 					$import_serial = '<button type = "button" data-itemcode="'.$itemcode.'" id="import-serial" class="import-serial btn btn-info"><i class="fa fa-paperclip"></i></button>';
 				}
 
