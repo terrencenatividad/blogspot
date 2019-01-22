@@ -543,7 +543,7 @@
 								</tr>
 
 								<tr id="total_purchase">
-									<td colspan = '5'></td>
+									<td colspan = '6'></td>
 									<td class="text-right">
 										<label class="control-label">Total Purchase</label>
 									</td>
@@ -572,7 +572,7 @@
 								</tr>
 
 								<tr id="total_purchase">
-									<td colspan = '5'></td>
+									<td colspan = '6'></td>
 									<td class="text-right">
 										<label class="control-label">Total Purchases Tax</label>
 									</td>
@@ -601,7 +601,7 @@
 								</tr>
 
 								<tr id="total_purchase" class="hidden">
-									<td colspan = '5'></td>
+									<td colspan = '6'></td>
 									<td class="text-right">
 										<label class="control-label">Withholding Tax</label>
 									</td>
@@ -670,7 +670,7 @@
 								</tr>
 
 								<tr id="total_amount_due">
-									<td colspan = '5'></td>
+									<td colspan = '6'></td>
 									<td class="text-right">
 										<label class="control-label">Total Amount Due</label>
 									</td>

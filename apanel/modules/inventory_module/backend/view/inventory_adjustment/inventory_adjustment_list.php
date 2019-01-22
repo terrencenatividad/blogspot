@@ -390,40 +390,17 @@
 					<h4 class="modal-title">Import Serial/Engine/Chassis Numbers</h4>
 				</div>
 				<div class="modal-body">
-					<!-- <div id = 'import-step1'>
-						<div class = 'row'>
-							<div class = 'col-md-1'></div>
-							<?php
-								// echo $ui->formField('text')
-								// 		->setLabel('Date')
-								// 		->setSplit('col-md-3', 'col-md-8')
-								// 		->setName('importdate')
-								// 		->setId('importdate')
-								// 		->setClass('datepicker-input')
-								// 		->setAttribute(array('readonly' => ''))
-								// 		->setAddon('calendar')
-								// 		->setValue($importdate)
-								// 		->setValidation('required')
-								// 		->draw(true);
-							?>
-						</div>
-						<div class="modal-footer text-center">
-							<button type = 'button' class = 'btn btn-info btn-flat' name = 'import-proceed' id = 'import-proceed'><i id='loading' class="hidden fa fa-refresh fa-spin"></i> Proceed</button>
-							<button type = 'button' class = 'btn btn-default btn-flat' name = 'import-skip' id = 'import-skip'><i id='loading' class="hidden fa fa-refresh fa-spin"></i> Skip</button>
-						</div>	
-					</div> -->
-
 					<div id = 'import-step2'>
 						<label>Step 1. Download the sample template <a href="<?=MODULE_URL?>get_serial_import" id="download-link" download="Import Serial Numbers.csv" >here</a></label>
 						<hr/>
 						<label>Step 2. Fill up the information needed for each columns of the template.</label>
 						<hr/>
 						<div class="form-group">
-							<label for="import_csv">Step 3. Select the updated file and click 'Import' to proceed.</label>
+							<label for="import_serial_csv">Step 3. Select the updated file and click 'Import' to proceed.</label>
 							<?php
 								echo $ui->setElement('file')
-										->setId('import_csv')
-										->setName('import_csv')
+										->setId('import_serial_csv')
+										->setName('import_serial_csv')
 										->setAttribute(array('accept' => '.csv'))
 										->setValidation('required')
 										->draw();
@@ -778,14 +755,14 @@
 		$('#lockerModal #logged_users').html(data.user_lists);
 	});
 	
-	// $('#lockerModal').modal('show');
+	$('#lockerModal').modal('show');
 
 	$('#lockerModal').on('click','#btnProceed',function(){
 		$.post('<?=MODULE_URL?>ajax/update_locktime', ajax, function(data) {
 			if( data.msg == 'success' )
 			{
 				$('#lockerModal').modal('hide');
-				document.getElementById('timer').innerHTML = 05 + ":" + 01;
+				document.getElementById('timer').innerHTML = 10 + ":" + 01;
 				startTimer();
 
 				var warehouse 	=	$('#warehouse').val();
@@ -1360,16 +1337,24 @@
 	});
 
 	// For Filename 
-	$('#importSerialForm').on('change', '#import_csv', function() {
+	$('#importSerialForm').on('change', '#import_serial_csv', function() {
 		var filename = $(this).val().split("\\");
+		console.log(filename);
 		$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
+	});
+
+	$('#import-serial-modal').on('show.bs.modal', function() {
+		var form_csv = $('#import_serial_csv').val('').closest('.form-group').find('.form-control').html('').closest('.form-group').html();
+		$('#import_serial_csv').closest('.form-group').html(form_csv);
 	});
 
 	$("#importSerialForm #btnImport").click(function()  {
 		var formData =	new FormData();
-		formData.append('file',$('#import_csv')[0].files[0]);
+		formData.append('file',$('#import_serial_csv')[0].files[0]);
+		formData.append('itemcode',$('#main_item').val());
+		formData.append('warehouse',$('#h_warehouse').val());
 		ajax_call 	=	$.ajax({
-							url : '<?=MODULE_URL?>ajax/save_serial_import',
+							url : 	'<?=MODULE_URL?>ajax/save_serial_import',
 							data:	formData,
 							cache: 	false,
 							processData: false, 

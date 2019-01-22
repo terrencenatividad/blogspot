@@ -559,6 +559,7 @@ class controller extends wc_controller
 		$pv_v 		  = "";
 		$pv_voucherno = $this->payment_voucher->getValue("pv_application", array("voucherno"), "voucherno = '$voucherno'");
 		$ap_voucher   = $this->payment_voucher->getValue("pv_details", array("apvoucherno"), "voucherno = '$voucherno'","","","apvoucherno" );
+		$status = $this->payment_voucher->getStatus($voucherno);
 		
 		foreach ($ap_voucher as $row) {
 			$apvoucher[] = $row->apvoucherno;
@@ -614,7 +615,7 @@ class controller extends wc_controller
 		$print->setDocumentType('Payment Voucher')
 				->setDocumentInfo($documentinfo[0])
 				->setVendor($vendor)
-				->setVoucherStatus($voucher_status)
+				->setVoucherStatus(strtoupper($status->stat))
 				->setPayments($chequeArray_2)
 				->setDocumentDetails($documentdetails)
 				->setCheque($chequeArray)

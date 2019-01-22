@@ -316,13 +316,46 @@ class asset_master extends wc_model {
 		}
 
 	private function getAssetMasterListQuery($fields, $search = '', $sort) {
+		$fields = array(
+			'am.id',
+			'itemcode',
+			'assetclass',
+			'asset_name',
+			'asset_number',
+			'sub_number',
+			'serial_number',
+			'am.description',
+			'asset_location',
+			'department',
+			'accountable_person',
+			'commissioning_date',
+			'retirement_date',
+			'am.useful_life',
+			'depreciation_month',
+			'depreciation_amount',
+			'capitalized_cost',
+			'purchase_value',
+			'balance_value',
+			'am.salvage_value',
+			'c.accountname asset',
+			'o.accountname accdep',
+			'a.accountname depexp',
+			'c.segment5 a_asset',
+			'o.segment5 a_accdep',
+			'a.segment5 a_depexp',
+			'am.stat'
+		);
 		$sort		= ($sort) ? $sort : 'asset_number';
 		$condition = '';
 		if ($search) {
 			$condition = $this->generateSearch($search, array('id', 'asset_number'));
 		}
-		$query = $this->db->setTable('asset_master')
+		$query = $this->db->setTable('asset_master am')
 							->setFields($fields)
+							->leftJoin("asset_class ac ON ac.id = am.asset_class")
+							->leftJoin("chartaccount c ON c.id = am.gl_asset")
+							->leftJoin("chartaccount o ON o.id = am.gl_accdep")
+							->leftJoin("chartaccount a ON a.id = am.gl_depexpense")
 							->setOrderBy($sort)
 							->setWhere($condition);
 
@@ -351,6 +384,19 @@ class asset_master extends wc_model {
 	}
 
 	public function tagRetired($id,$data)
+	{
+		$condition 	= " id = '$id' ";
+
+		$result 	= $this->db->setTable('asset_master')
+							->setValues($data)
+							->setWhere($condition)
+							->setLimit(1)
+							->runUpdate();
+
+		return $result;
+	}
+
+	public function untagRetired($id,$data)
 	{
 		$condition 	= " id = '$id' ";
 
