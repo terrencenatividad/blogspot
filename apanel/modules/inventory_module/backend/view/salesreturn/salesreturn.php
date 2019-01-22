@@ -152,17 +152,143 @@
 				<tbody>
 				
 				</tbody>
-				<tfoot class="summary text-right" <?php echo ($ajax_task == 'ajax_create') ? 'style="display: none"' : '' ?>>
+				<tfoot class="summary">
 					<tr>
-						<td colspan="<?php echo ($show_input) ? '9' : '6' ?>"><label class="control-label">Total Amount</label></td>
-						<td colspan="1">
+						<td colspan="13" style="border-top:1px solid #E2E2E2;">
+							
+						</td>	
+					</tr>	
+
+					<tr>
+						<td colspan="7">
+						<td class="right" colspan="3">
+							<label class="control-label col-md-12">VATable Sales</label>
+						</td>
+						<td class="text-right" colspan="3">
 							<?php
 								echo $ui->formField('text')
 										->setSplit('', 'col-md-12')
-										->setName('header_amount')
-										->setClass('total_amount')
-										->setValue(((empty($amount)) ? '0.00' : number_format($amount, 2)))
-										->addHidden()
+										->setName('vat_sales')
+										->setId('vat_sales')
+										->setClass("input_label text-right remove-margin")
+										->setAttribute(array('readOnly'=>"readOnly"))
+										->setValue(number_format($vat_sales,2))
+										->draw($show_input);
+							?>
+						</td>
+						
+					</tr>
+					
+					<tr>
+						<td colspan="7">
+						<td class="right" colspan="3">
+							<label class="control-label col-md-12">VAT-Exempt Sales</label>
+						</td>
+						<td class="text-right" colspan="3">
+							<?php
+								echo $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setName('vat_exempt')
+										->setId('vat_exempt')
+										->setAttribute(array('readOnly'=>"readOnly"))
+										->setClass("input_label text-right remove-margin")
+										->setValue(number_format($vat_exempt,2))
+										->draw($show_input);
+							?>
+						</td>
+					</tr>
+
+					<tr id="vat_zerorated_sales" >
+						<td colspan="7"></td>
+						<td class="right" colspan="3">
+							<label class="control-label col-md-12">VAT Zero Rated Sales</label>
+						</td>
+						<td class="text-right" colspan="3">
+							<?php
+								echo $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setName('vat_zerorated')
+										->setId('vat_zerorated')
+										->setAttribute(array("readOnly"=>"readOnly"))
+										->setClass("input_label text-right remove-margin")
+										->setValue(number_format($vat_zerorated,2))
+										->draw($show_input);
+							?>
+						</td>
+					</tr>
+
+					<tr>
+						<td colspan="7">
+						<td class="right" colspan="3">
+							<label class="control-label col-md-12">Total Sales</label>
+						</td>
+						<td class="text-right" colspan="3">
+							<?php
+								echo $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setName('total_sales')
+										->setId('total_sales')
+										->setClass("input_label text-right")
+										->setAttribute(array("maxlength" => "40","readOnly"=>"readOnly"))
+										->setValue(number_format($total_sales,2))
+										->draw($show_input);
+							?>
+						</td>
+					</tr>
+
+					<tr>
+						<td colspan="7">
+						<td class="right" colspan="3">
+							<label class="control-label col-md-12">Add 12% VAT</label>
+						</td>
+						<td class="text-right" colspan="3">
+							<?php
+								echo $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setName('total_tax')
+										->setId('total_tax')
+										->setClass("input_label text-right")
+										->setAttribute(array("maxlength" => "40","readOnly"=>"readOnly"))
+										->setValue(number_format($total_tax,2))
+										->draw($show_input);
+							?>
+						</td>
+					</tr>
+
+					<tr>
+						<td colspan="7">
+						<td class="right" colspan="3">
+							<label class="control-label col-md-12">Total Amount Due</label>
+						</td>
+						<td class="text-right"  colspan="3" style="border-top:1px solid #DDDDDD;">
+							<?php
+								echo $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setName('total_amount')
+										->setId('total_amount')
+										->setClass("input_label text-right")
+										->setAttribute(array("maxlength" => "40","readOnly"=>"readOnly"))
+										->setValue(number_format($total_amount,2))
+										->draw($show_input);
+							?>
+						</td>
+					</tr>
+					
+					<tr>
+						<td colspan="7">
+						<td class="right" colspan="3">
+							<label class="control-label col-md-12">Discount</label>
+						</td>
+						<td class="text-right" colspan="3">
+							<input type = "hidden" value = "<?=$disctype?>" name = "disctype" id = "disctype"/>
+							<?php
+								echo $ui->formField('text')
+										->setSplit('', '')
+										->setName('total_discount')
+										->setId('total_discount')
+										->setClass("input_label text-right")
+										->setAttribute(array('readOnly'=>"readOnly"))
+										->setValue(number_format($total_discount,2))
 										->draw($show_input);
 							?>
 						</td>
@@ -224,7 +350,7 @@
 			<table id="invoice_tableList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
 				<thead>
 					<tr class="info">
-						<th class="col-xs-3">PR No.</th>
+						<th class="col-xs-3">Source No.</th>
 						<th class="col-xs-3">Transaction Date</th>
 						<th class="col-xs-4">Notes</th>
 						<th class="col-xs-2 text-right">Amount</th>
@@ -400,6 +526,17 @@ function addVoucherDetails(details, index) {
 						->draw($show_input);
 				?>
 			</td>
+			<td class="text-right">
+				<?php
+					echo $ui->formField('text')
+						->setSplit('', 'col-md-12')
+						->setName('discountrate[]')
+						->setClass('discountrate')
+						->setValue('` + details.discountrate + `')
+						->addHidden()
+						->draw($show_input);
+				?>
+			</td>
 			<td>
 				<?php
 					$value = "<span id='temp_view_taxrate_` + index + `'></span>";
@@ -419,9 +556,9 @@ function addVoucherDetails(details, index) {
 				<?php
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
-						->setName('detail_amount[]')
-						->setClass('amount')
-						->setValue('` + addComma(parseFloat(details.issueqty) * (parseFloat(details.unitprice) || 0).toFixed(2)) + `')
+						->setName('amount1[]')
+						->setClass('amount1')
+						->setValue('` + details.amount + `')
 						->addHidden()
 						->draw($show_input);
 				?>
@@ -435,7 +572,6 @@ function addVoucherDetails(details, index) {
 			<?php endif ?>
 		</tr>
 	`;
-
 	// <td class="text-right">
 	// 			<?php
 	// 				echo $ui->formField('text')
@@ -489,10 +625,10 @@ function addVoucherDetails(details, index) {
 	$('#tableList tbody').find('tr:last .issueqty').each(function() {
 		if (details.issueqty > 0) {
 			$(this).removeAttr('readonly').val(addComma($(this).attr('data-value')));
-			$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('check').iCheck('enable');
+			$('#tableList tbody').find('tr:last .chkitem').iCheck('check').iCheck('enable');
 		} else {
-			$('#tableList tbody').find('tr:last .issueqty').attr('readonly', '').val(0);
-			$('#tableList tbody').find('tr:last .check_task [type="checkbox"]').iCheck('uncheck').iCheck('enable');
+			$('#tableList tbody').find('tr:last .issueqty').attr('readonly', 'readonly').val(0);
+			$('#tableList tbody').find('tr:last .chkitem').iCheck('uncheck').iCheck('enable');
 		}
 	});
 }
@@ -514,10 +650,6 @@ function displayDetails(details) {
 			</tr>
 		`);
 	}
-
-	<?php if ($show_input): ?>
-	recomputeAll();
-	<?php endif ?>
 }
 
 function displayHeader(header) {
@@ -562,15 +694,10 @@ displayHeader(header_values);
 <?php if ($show_input): ?>
 <script>
 
-$('#addNewItem').on('click', function() {
-	addVoucherDetails();
-});
-
 $('#tableList tbody').on('blur recompute', '.issueqty', function(e) {
+	$(this).val(addComma($(this).val()));
 	recomputeAll();
 });
-
-<?php // if ($ajax_task == 'ajax_create'): ?>
 
 $('#source_no').on('focus', function() {
 	$('#invoice_tableList tbody').html(`<tr>
@@ -619,23 +746,11 @@ $('#pagination').on('click', 'a', function(e) {
 	}
 });
 
-<?php // endif ?>
-
-$('#customer').on('change', function() {
-	ajax.customer = $(this).val();
-	$('#source_no').val('');
-	$('#tableList tbody').html(`
-		<tr>
-			<td colspan="11" class="text-center"><b>Select Sales Order No.</b></td>
-		</tr>
-	`);
+$('tbody').on('ifUnchecked', '.chkitem', function() {
+	$(this).closest('tr').find('.issueqty').attr('readonly', 'readonly').val(0);
 });
 
-$('tbody').on('ifUnchecked', '.check_task input[type="checkbox"]', function() {
-	$(this).closest('tr').find('.issueqty').attr('readonly', '').val(0);
-});
-
-$('tbody').on('ifChecked', '.check_task input[type="checkbox"]', function() {
+$('tbody').on('ifChecked', '.chkitem', function() {
 	var n = $(this).closest('tr').find('.issueqty');
 	n.removeAttr('readonly', '').val(addComma(n.attr('data-value')));
 });
@@ -647,6 +762,15 @@ $('#invoice_tableList').on('click', 'tr[data-id]', function() {
 	loadSalesDetails();
 });
 
+$('table').on('ifToggled', 'tr [type="checkbox"].checkallitem', function() {
+	var checked = $(this).prop('checked');
+	var check_type = 'ifUnchecked';
+	if (checked) {
+		check_type = 'ifChecked';
+	}
+	$(this).closest('table').find('tbody .chkitem:not(:disabled, .disabled)').prop('checked', checked).iCheck('update').trigger(check_type);
+});
+
 function loadSalesDetails() {
 	var voucherno = $('#source_no').val();
 	if (voucherno) {
@@ -654,25 +778,21 @@ function loadSalesDetails() {
 			if ( ! data.success) {
 				$('#tableList tbody').html(data.table);
 			} else {
+				var header = data.header;
 				$('#tableList tbody').html('');
 				displayDetails(data.details);
-				displayHeader(data.header);
+				$('.vat_sales')		.val(header.vat_sales);
+				$('.vat_exempt')	.val(header.vat_exempt);
+				$('.vat_zerorated')	.val(header.vat_zerorated);
+				$('.total_sales')	.val(header.total_sales);
+				$('.total_tax')		.val(header.total_tax);
+				$('.total_amount')	.val(header.total_amount);
+				$('.total_discount').val(header.total_discount);
 			}
 		});
 	}
 }
-function deleteVoucherDetails(id) {
-	delete_row.remove();
-	if ($('#tableList tbody tr').length < min_row) {
-		addVoucherDetails();
-	}
-}
-$('body').on('click', '.delete_row', function() {
-	delete_row = $(this).closest('tr');
-});
-$(function() {
-	linkDeleteToModal('.delete_row', 'deleteVoucherDetails');
-});
+
 $('form').on('click', '[type="submit"]', function(e) {
 	e.preventDefault();
 	var form_element = $(this).closest('form');
@@ -708,12 +828,5 @@ $('form').on('click', '[type="submit"]', function(e) {
 <?php endif ?>
 
 <script type="text/javascript">
-	$('table').on('ifToggled', 'tr [type="checkbox"].checkallitem', function() {
-		var checked = $(this).prop('checked');
-		var check_type = 'ifUnchecked';
-		if (checked) {
-			check_type = 'ifChecked';
-		}
-		$(this).closest('table').find('tbody .chkitem:not(:disabled, .disabled)').prop('checked', checked).iCheck('update').trigger(check_type);
-	});
+	
 </script>

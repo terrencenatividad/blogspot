@@ -14,7 +14,6 @@ class controller extends wc_controller {
 		$this->fields 			= array(
 			'voucherno',
 			'transactiondate',
-			'source_no',
 			'remarks',
 			'stat',
 			'vat_sales',
@@ -22,6 +21,7 @@ class controller extends wc_controller {
 			'vat_zerorated',
 			'taxamount',
 			'netamount',
+			'discounttype',
 			'discountamount'
 		);
 		$this->fields_header	= array(
@@ -54,8 +54,7 @@ class controller extends wc_controller {
 			'taxamount',
 			'convissueqty',
 			'discounttype',
-			'discountamount',
-			'taxcode'
+			'discountrate'
 		);
 		$this->clean_number		= array(
 			'issueqty'
@@ -71,7 +70,20 @@ class controller extends wc_controller {
 
 	public function create() {
 		$this->view->title			= 'Create Sales Return';
-		$data						= $this->input->post($this->fields);
+
+		$fields = $this->fields;
+		array_push($fields, 'source_no');
+
+		$data						= $this->input->post($fields);
+
+		$data['vat_sales'] 			= 0;
+		$data['vat_exempt'] 		= 0;
+		$data['vat_zerorated'] 		= 0;
+		$data['total_sales'] 		= 0;
+		$data['total_tax'] 			= 0;
+		$data['total_amount'] 		= 0;
+		$data['total_discount'] 	= 0;
+
 		$data['reason'] 			= '';
 		$data['ui']					= $this->ui;
 		$data['transactiondate']	= $this->date->dateFormat();
@@ -96,6 +108,7 @@ class controller extends wc_controller {
 		$this->fields[]				= 'stat';
 		$data['ui']					= $this->ui;
 		$data						= (array) $this->sr_model->getSalesReturn($this->fields, $voucherno);
+		$data['total_sales'] 		= $data['vat_sales'] + $data['vat_exempt'] + $data['vat_zerorated'];
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['customer_list']		= $this->sr_model->getCustomerList();
@@ -119,6 +132,7 @@ class controller extends wc_controller {
 		$this->view->title			= 'View Return';
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->sr_model->getReturnById($this->fields, $voucherno);
+		$data['total_sales'] 		= $data['vat_sales'] + $data['vat_exempt'] + $data['vat_zerorated'];
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ajax_task']			= '';
@@ -346,33 +360,98 @@ class controller extends wc_controller {
 
 	private function ajax_load_invoice_details() {
 		$voucherno	= $this->input->post('voucherno');
-		$details	= $this->sr_model->getSourceDetails($this->fields2, $voucherno);
-		$header		= $this->sr_model->getSourceHeader($this->fields, $voucherno);
+
+	/*
+		CHECK SOURCE
+		ADJUST COLUMN NAME
+		RENAME RETRIEVED COLUMNS
+	*/
+
+		$source = substr($voucherno, 0,2);
+		$fields = $this->fields;
+		$fields2 = $this->fields2;
+		if ($source == 'DR') {
+			$table 		= 'deliveryreceipt';
+			$table2 	= 'deliveryreceipt_details';
+			array_push($fields, 'source_no sourceno');
+			array_push($fields2, 'discountamount');
+		}
+
+		elseif ($source == 'SI') {
+			$table 		= 'salesinvoice';
+			$table2 	= 'salesinvoice_details';
+			array_push($fields, 'sourceno');
+			array_push($fields2, 'itemdiscount discountamount');
+		}
+
+	/*
+		END 
+	*/
+
+		$details	= $this->sr_model->getSourceDetails($table2, $fields2, $voucherno);
+		$header		= $this->sr_model->getSourceHeader($table, $fields, $voucherno);
+
 		$table		= '';
 		$success	= true;
+
 		if (empty($details)) {
 			$table		= '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 			$success	= false;
 		}
-		//$total_amount	= $header->amount;
-		// $total_discount	= 0;
-		// $discountrate	= 0;
 
-		// if ($header->discounttype == 'perc') {
-		// 	$total_discount	= $total_amount * $header->discountamount / 100;
-		// 	$discountrate	= $header->discountamount / 100;
-		// } else {
-		// 	$total_discount	= $header->discountamount;
-		// 	$discountrate	= $total_discount / $total_amount;
-		// }
+		$vat_sales 		= 0;
+		$vat_exempt 	= 0;
+		$vat_zerorated 	= 0;
+		$total_tax 		= 0;
+		$total_sales 	= 0;
+		$total_amount 	= 0;
+		$total_discount	= 0;
+		$discountrate	= 0;
+
+
+		foreach ($details as $key => $row) {
+
+			$amount 	= $row->issueqty * $row->unitprice;
+
+			if ($header->discounttype == 'perc') {
+				$discountrate	= $row->discountrate;
+				$discountamount	= $amount * ($discountrate/100);
+				$discountsuffix = ' %';
+			} else {
+				$discountrate	= $row->discountamount;
+				$discountamount	= $row->discountamount;
+				$discountsuffix = '';
+			}
+
+			$discountedamount 	= $amount - $discountamount;
+
+			if (strpos($row->taxcode, 'VAT') !== false) {
+				$total_tax += $row->taxrate * $discountedamount;
+				$vat_sales += $discountedamount;
+			}
+			elseif ($row->taxcode == 'ZRS') {
+				$vat_zerorated 	+= $discountedamount;
+			}
+			else{
+				$vat_exempt 	+= $discountedamount;
+			}
+			$total_discount 	+= $discountamount; 
+
+			$details[$key]->amount 			= number_format($discountedamount, 2);
+			$details[$key]->discountrate  	= $discountrate . $discountsuffix;
+		}
+		$total_sales 	= $vat_sales + $vat_exempt + $vat_zerorated;
+		$total_amount	= $total_sales + $total_tax;
 		
-		// foreach ($details as $key => $row) {
-		// 	$taxamount = $row->unitprice - ($row->unitprice / (1 + $row->taxrate));
-		// 	$discount = ($row->unitprice - $taxamount) * $discountrate;
-		// 	$details[$key]->unitprice = $row->unitprice - $discount + $taxamount;
-		// 	$details[$key]->taxrate = 0;
-		// 	$details[$key]->taxamount = 0;
-		// }
+		
+		$header->vat_sales 		= $vat_sales;
+		$header->vat_exempt 	= $vat_exempt;
+		$header->vat_zerorated 	= $vat_zerorated;
+		$header->total_sales 	= $total_sales;
+		$header->total_tax 		= $total_tax;
+		$header->total_amount 	= $total_amount;
+		$header->total_discount = $total_discount;
+		
 		
 		return array(
 			'table'		=> $table,
