@@ -29,6 +29,16 @@ class receipt_voucher_model extends wc_model
 		return $result;
 	}
 
+	public function getStatus($voucherno)
+	{
+		$result = $this->db->setTable('receiptvoucher')
+		->setFields('stat')
+		->setWhere("voucherno = '$voucherno'")
+		->runSelect()
+		->getRow();
+		return $result;
+	}
+
 	public function retrieveOverpaymentAccountList(){
 		$result = $this->db->setTable('chartaccount')
 					->setFields("id ind, accountname val")
