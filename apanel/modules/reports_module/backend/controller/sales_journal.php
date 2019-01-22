@@ -59,7 +59,7 @@ class controller extends wc_controller {
 			$totalvat 			+= $row->taxamount;
 			$total_discount 	= $totaldiscount1 + $totaldiscount2;
 			$totalnetpurchases 	+= $row->amount;
-			$t  += ($row->discounttype == 'perc') ? $row->d_amount : $row->discount;
+			$t += $row->discount;
 
 			$table .= '<tr>';
 			$table .= '<td>' . $this->date($row->transactiondate) . '</td>';
@@ -68,11 +68,7 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->remarks . '</td>';
 			$table .= '<td><a href="'.BASE_URL."sales/sales_invoice/view/" . $row->ref_no . '">' .$row->ref_no. '</a></td>';
 			$table .= '<td>' . number_format($amount,2) . '</td>';
-			// if ($row->discounttype == 'amt'){
-				$table .= '<td>' . number_format($row->discount,2) . '</td>';
-			// } else {
-			// 	$table .= '<td>' . number_format($row->d_amount,2) . '</td>';
-			// }
+			$table .= '<td>' . number_format($row->discount,2) . '</td>';
 			$table .= '<td>' . number_format($row->taxamount,2) . '</td>';
 			$table .= '<td>' . number_format($row->amount,2) . '</td>';
 			$table .= '</tr>';
