@@ -53,8 +53,8 @@ class controller extends wc_controller {
 			'discounttype',
 			'discountamount',
 			'detail_warehouse' => 'warehouse',
-			// 'po_qty',
-			// 'item_ident_flag'
+			'po_qty',
+			'item_ident_flag'
 		);
 		$this->clean_number		= array(
 			'receiptqty'
