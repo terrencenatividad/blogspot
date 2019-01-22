@@ -244,7 +244,25 @@ class controller extends wc_controller {
 	public function get_serial_import($itemcode, $warehouse){
 		
 		header('Content-type: application/csv');
-		$header = array('Item Code','Warehouse','Serial No.','Engine No.','Chassis No.');
+
+		$lists 	=	$this->adjustment->getImportSerialList($itemcode, $warehouse);	
+		$qty 	=	isset($lists[0]->qty) ? $lists[0]->qty	:	0;
+		$flag 	=	isset($lists[0]->item_ident_flag) ? $lists[0]->item_ident_flag : "000";
+
+		$has_serial = substr($flag,0, 1);
+		$has_engine = substr($flag,1, 1);
+		$has_chassis = substr($flag,2, 1);
+
+		$header = array('Item Code','Warehouse');
+		if($has_serial) {
+			$header[] = "Serial No.";
+		}
+		if($has_engine) {
+			$header[] = "Engine No.";
+		}
+		if($has_chassis) {
+			$header[] = "Chassis No.";
+		}
 
 		$date 	= $this->date->dateDbFormat();
 
@@ -253,13 +271,9 @@ class controller extends wc_controller {
 		$return .= "\n\n";
 		$return .= '"' . implode('","',$header) . '"';
 		$return .= "\n";
-		//$return .= '"PEN_006","WH_01","3","Accounts Payable - Non-Trade"';
-		
-		$lists 	=	$this->adjustment->getImportSerialList($itemcode, $warehouse);	
-		$qty 	=	isset($lists[0]->qty) ? $lists[0]->qty	:	0;
-	
+
 		for($i=0; $i<$qty;$i++){
-			$return .= '"'.$lists[0]->itemcode.'","'.$lists[0]->warehouse.'","","",""';
+			$return .= '"'.$lists[0]->itemcode.'","'.$lists[0]->warehouse.'"';
 			$return .= "\n";
 		}
 
@@ -622,11 +636,11 @@ class controller extends wc_controller {
 						$engineno 	        = isset($b[3]) 						?	trim($b[3])	:	"";
 						$chassisno 	        = isset($b[4]) 						?	trim($b[4])	:	"";
 						
-						if($key == 0) {
-							$errmsg[] 	=	$this->check_empty("Serial No.", $serialno, $line);
-							$errmsg[] 	=	$this->check_empty("Engine No.", $engineno, $line);
-							$errmsg[] 	=	$this->check_empty("Chassis No.", $engineno, $line);
-						} 
+						// if($key == 0) {
+						// 	$errmsg[] 	=	$this->check_empty("Serial No.", $serialno, $line);
+						// 	$errmsg[] 	=	$this->check_empty("Engine No.", $engineno, $line);
+						// 	$errmsg[] 	=	$this->check_empty("Chassis No.", $engineno, $line);
+						// } 
 
 						$errmsg[] 	=	$this->check_empty("Item Code", $itemcode, $line);
 						$errmsg[] 	=	$this->check_empty("Warehouse Name", $warehouse, $line);
