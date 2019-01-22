@@ -19,6 +19,7 @@ class controller extends wc_controller {
 			'remarks',
 			'warehouse',
 			'amount',
+			'taxamount',
 			'reason'
 		);
 		$this->fields_header	= array(
@@ -366,7 +367,7 @@ class controller extends wc_controller {
 		}
 		$total_amount	= $header->amount;
 		$total_discount	= 0;
-		$discountrate	= 0;
+		$discountrate	= $header->discountrate;
 
 		if ($header->discounttype == 'perc') {
 			$discountrate	= $header->discountrate / 100;
@@ -378,8 +379,8 @@ class controller extends wc_controller {
 		foreach ($details as $key => $row) {
 			$discount = $row->unitprice * $discountrate;
 			$details[$key]->unitprice = $row->unitprice - $discount;
-			$details[$key]->taxrate = 0;
-			$details[$key]->taxamount = 0;
+			// $details[$key]->taxrate = 0;
+			// $details[$key]->taxamount = 0;
 		}
 		
 		return array(

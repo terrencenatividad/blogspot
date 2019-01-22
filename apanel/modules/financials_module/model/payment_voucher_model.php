@@ -99,6 +99,16 @@ class payment_voucher_model extends wc_model
 		return $result;
 	}
 
+	public function getStatus($voucherno)
+	{
+		$result = $this->db->setTable('paymentvoucher')
+		->setFields('stat')
+		->setWhere("voucherno = '$voucherno'")
+		->runSelect()
+		->getRow();
+		return $result;
+	}
+
 	public function retrievebank($table, $fields = array(), $cond = "", $ijoin = "", $orderby = "", $groupby = "")
 	{
 		$result = $this->db->setTable($table)

@@ -25,6 +25,7 @@
 					<div class="col-md-8">
 					<?=  
 						$ui->CreateNewButton('');
+						echo $ui->OptionButton('');
 					?>
 					<?php 
 						// $ui->OptionButton('');
@@ -320,7 +321,7 @@
 			}, 1000)
 		}
 
-		$('#export_id').prop('download','item_type.csv');
+		$('#export_id').prop('download','assetclass.csv');
 		$('#export_id').prop('href','<?= MODULE_URL ?>get_export');
 		$('#import_id').prop('href','#import-modal');
 		// $('#import_id').prop('data-toggle','modal');
@@ -418,4 +419,7 @@
 			}
 		});
 	}
+	
+	$('#import_id').hide();
+
 	</script>
