@@ -86,8 +86,7 @@ class controller extends wc_controller
 
 		$data["exchange_rate"] 	= '0.00';
 
-		$curr_type_data         = array("currencycode ind", "currency val");
-		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
+		$data["currency_codes"]		= $this->po->getCurrency();
 
 		$dep_type_data          = array("id ind", "name val");
 		$data["department_list"] = $this->po->getValue("cost_center", $dep_type_data,'','name');
@@ -281,8 +280,7 @@ class controller extends wc_controller
 		$data["wtax_codes"] 	= $this->po->getTaxCode('WTX',"fstaxcode ind, shortname val");
 		$data['budget_list'] = $this->po->getBudgetCodes();
 
-		$curr_type_data         = array("currencycode ind", "currency val");
-		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
+		$data["currency_codes"]		= $this->po->getCurrency();
 
 		$dep_type_data          = array("id ind", "name val");
 		$data["department_list"] = $this->po->getValue("cost_center", $dep_type_data,'','name');
@@ -388,9 +386,8 @@ class controller extends wc_controller
 		$data["wtax_codes"] 	= $this->po->getTaxCode('WTX',"fstaxcode ind, shortname val");
 		$data['budget_list'] = $this->po->getBudgetCodes();
 
-		$curr_type_data         = array("currencycode ind", "currency val");
-		$data["currency_codes"] = $this->po->getValue("currency", $curr_type_data,'','currencycode');
-
+		$data["currency_codes"]		= $this->po->getCurrency();
+		
 		$dep_type_data          = array("id ind", "name val");
 		$data["department_list"] = $this->po->getValue("cost_center", $dep_type_data,'','name');
 

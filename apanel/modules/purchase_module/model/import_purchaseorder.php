@@ -900,5 +900,16 @@ class import_purchaseorder extends wc_model
 
 		return $result;
 	}
+
+	public function getCurrency() {
+		$result = $this->db->setTable('exchangerate e')
+		->setFields("exchangecurrencycode ind, currency val")
+		->leftJoin("currency c ON c.currencycode = e.exchangecurrencycode")
+		->setWhere("e.stat = 'active'")
+		->runSelect()
+		->getResult();
+
+		return $result;
+	}
 }
 ?>
