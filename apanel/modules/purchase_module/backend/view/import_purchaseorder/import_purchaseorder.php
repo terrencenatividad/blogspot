@@ -96,6 +96,7 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('referenceno')
 								->setId('referenceno')
+								->setMaxLength(20)
 								->setValue($referenceno)
 								->draw($show_input);
 								?>
@@ -113,6 +114,7 @@
 								->setList($currency_codes)
 								->setId('currency')
 								->setValue($currency)
+								->setValidation('required')
 								->draw($show_input);
 								?>
 							</div>
@@ -222,6 +224,7 @@
 								->setName('remarks')
 								->setId('remarks')
 								->setValue($remarks)
+								->setMaxLength(300)
 								->draw($show_input);
 								?>
 							</div>

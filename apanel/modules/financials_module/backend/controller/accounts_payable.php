@@ -97,8 +97,6 @@ class controller extends wc_controller
 		$data["transactiondate"]    = $this->date->dateFormat();
 		$data["duedate"]      		= $this->date->dateFormat();
 		$data['currencycodes'] = $this->accounts_payable->getCurrencyCode();
-		$data['currency'] 			= 'PHP';
-		$data['exchangerate'] 		= '1.00';
 		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
 		$data["proforma_list"]        = $this->accounts_payable->retrieveProformaList($data);
 		$data['account_list'] = $this->accounts_payable->retrieveAccounts();
@@ -983,7 +981,7 @@ class controller extends wc_controller
 			$dataArray = array("accountnature" => $result[0]->accountnature);
 		}
 
-		echo json_encode($dataArray);
+		return $dataArray;
 	}
 
 	private function save_data()

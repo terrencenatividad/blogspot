@@ -192,25 +192,27 @@ class controller extends wc_controller {
 				$item_ident_flag=	$row->item_ident_flag;
 
 				$ret_existing 		= $this->adjustment->check_existing_serials($warehouse, $itemcode);
-				$show_import_button = ($ret_existing->count > 0) ? 1 : 0;
-
-				$import_serial 	=	"";
+				// var_dump($ret_existing);
+				$show_import_button = (isset($ret_existing->display) && ($ret_existing->display == "hide")) ? 0 : 1;
+				// var_dump($show_import_button);
+				$displayed_button 	=	"";
 				if($item_ident_flag != "000" && $show_import_button && $display){
 					$import_serial = '<button type = "button" data-itemcode="'.$itemcode.'" id="import-serial" class="import-serial btn btn-info"><i class="fa fa-paperclip"></i></button>';
+					$displayed_button = $import_serial;
+				} else {
+					$buttons 	=	'<button type = "button" id="plus" class = "btn btn-danger" onClick = "adjustment(\''.$itemcode.'\',\''.$itemname.'\', \''.$quantity.'\', \''.$item_ident_flag.'\', \'plus\');" ><i class="fa fa-plus"></i></button>
+									<button type = "button" id="plus" class = "btn btn-danger" onClick = "adjustment(\''.$itemcode.'\',\''.$itemname.'\', \''.$quantity.'\', \''.$item_ident_flag.'\', \'minus\');"><i class="fa fa-minus"></i></button>';
+					$displayed_button = $buttons;	
 				}
 
 				$table .= '<tr>';
-				$table .= '<td>' . $itemcode . '</td>';
-				$table .= '<td>' . $itemname . '</td>' ;
+				$table .= '<td>' . $itemcode. ' - ' .$itemname. '</td>';
 				$table .= '<td>' . $brand . '</td>';
 				$table .= '<td>' . $quantity . '</td>';
 				$table .= '<td>' . $allocated . '</td>';
 				$table .= '<td>' . $ordered . '</td>';
 				$table .= '<td>' . $available . '</td>';
-				$table .= '<td>' . $import_serial .'
-								<button type = "button" id="plus" class = "btn btn-danger" onClick = "adjustment(\''.$itemcode.'\',\''.$itemname.'\', \''.$quantity.'\', \''.$item_ident_flag.'\', \'plus\');" ><i class="fa fa-plus"></i></button>
-								<button type = "button" id="plus" class = "btn btn-danger" onClick = "adjustment(\''.$itemcode.'\',\''.$itemname.'\', \''.$quantity.'\', \''.$item_ident_flag.'\', \'minus\');"><i class="fa fa-minus"></i></button>
-							</td>'; 
+				$table .= '<td>' . $displayed_button .'</td>'; 
 				$table .= '</tr>';
 			}
 		}
@@ -614,7 +616,7 @@ class controller extends wc_controller {
 					$header = $x[$n];
 
 					for ($m=0; $m< $layout; $m++){
-						$template_header = $header[$m];
+						$template_header = isset($header[$m]) ? $header[$m] : "";
 
 						$error 	= (empty($template_header) || !in_array($template_header,$headerArr)) ? "error" : "";
 					}	
@@ -743,8 +745,8 @@ class controller extends wc_controller {
 				if($total_qty == 0){
 					$errmsg[] 	=	"Please input a Serial/Engine/Chassis No. for this Item.";
 				}
-				if($total_qty > $qty) {
-					$errmsg[] 	=	"This Serial/Engine/Chassis Nos. uploaded in this Template exceeds the total Inventory Quantity for this Item.";
+				if($total_qty != $qty) {
+					$errmsg[] 	=	"This Serial/Engine/Chassis Nos. uploaded in this Template is not equal to the total Inventory Quantity (<strong>".number_format($qty,0)."</strong>) for this Item.";
 				}
 
 				$errmsg 	=	array_filter($errmsg);

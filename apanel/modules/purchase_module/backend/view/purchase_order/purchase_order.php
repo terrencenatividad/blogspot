@@ -96,6 +96,7 @@
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('referenceno')
 								->setId('referenceno')
+								->setMaxLength(20)
 								->setValue($referenceno)
 								->draw($show_input);
 								?>
@@ -174,7 +175,8 @@
 								->setSplit('col-md-2', 'col-md-10')
 								->setName('remarks')
 								->setId('remarks')
-								->setValue("")
+								->setMaxLength(300)
+								->setValue($remarks)
 								->draw($show_input);
 								?>
 							</div>
@@ -541,7 +543,7 @@
 								</tr>
 
 								<tr id="total_purchase">
-									<td colspan = '5'></td>
+									<td colspan = '6'></td>
 									<td class="text-right">
 										<label class="control-label">Total Purchase</label>
 									</td>
@@ -570,7 +572,7 @@
 								</tr>
 
 								<tr id="total_purchase">
-									<td colspan = '5'></td>
+									<td colspan = '6'></td>
 									<td class="text-right">
 										<label class="control-label">Total Purchases Tax</label>
 									</td>
@@ -599,7 +601,7 @@
 								</tr>
 
 								<tr id="total_purchase" class="hidden">
-									<td colspan = '5'></td>
+									<td colspan = '6'></td>
 									<td class="text-right">
 										<label class="control-label">Withholding Tax</label>
 									</td>
@@ -668,7 +670,7 @@
 								</tr>
 
 								<tr id="total_amount_due">
-									<td colspan = '5'></td>
+									<td colspan = '6'></td>
 									<td class="text-right">
 										<label class="control-label">Total Amount Due</label>
 									</td>

@@ -526,8 +526,8 @@ class inventory_adjustment_model extends wc_model {
 
 	public function importinitialserials($data){
 		$result = $this->db->setTable('items_serialized')
-				->setValuesFromPost($data)
-				->runInsert();
+							->setValuesFromPost($data)
+							->runInsert();
 		// echo $this->db->getQuery();
 		return $result;
 	}
@@ -772,11 +772,26 @@ class inventory_adjustment_model extends wc_model {
 	}
 
 	public function check_existing_serials($warehouse, $itemcode){
-		$result = $this->db->setTable('items_serialized')
-							->setFields(array("COUNT(*) count"))
-							->setWhere("warehousecode = '$warehouse' AND itemcode = '$itemcode'")
-							->runSelect()
-							->getRow();
+		// $result = $this->db->setTable('items_serialized')
+		// 					->setFields(array("COUNT(*) count"))
+		// 					->setWhere("warehousecode = '$warehouse' AND itemcode = '$itemcode'")
+		// 					->runSelect()
+		// 					->getRow();
+		// return $result;
+
+		$inner_query 	=	$this->db->setTable('items_serialized')
+									->setFields(array("COUNT(*) count", "itemcode", "warehousecode", "companycode"))
+									->setGroupBy("itemcode, warehousecode")
+									->buildSelect();
+
+		$result 		=	$this->db->setTable("items i")
+									 ->leftJoin("invfile inv ON inv.itemcode = i.itemcode AND inv.companycode = i.companycode")
+									 ->leftJoin("($inner_query) isr ON isr.itemcode = inv.itemcode AND isr.warehousecode = inv.warehouse AND isr.companycode = inv.companycode")
+									 ->setFields(array("IF(inv.onhandQty>IFNULL(isr.count,0), 'show', 'hide') display", "i.itemcode"))
+									 ->setWhere("inv.warehouse = '$warehouse' AND inv.itemcode = '$itemcode'")
+									 ->runSelect()
+									 ->getRow();
+									//  echo $this->db->getQuery();
 		return $result;
 	}
 

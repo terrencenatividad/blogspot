@@ -152,145 +152,6 @@ class import_purchase_print_model extends fpdf {
 				$this->Ln();
 			}
 		}
-		$document_info = $this->document_info;
-		$amount = $document_info->amount;
-		$wtaxamount = $document_info->wtax;
-		$vat = $document_info->vat;
-		$taxcode = $document_info->wtaxcode;
-		$taxrate = $document_info->wtaxrate;
-		$netamount = $document_info->net;
-		$freight = $document_info->freight;
-		$insurance = $document_info->insurance;
-		$packaging = $document_info->packaging;
-		$converted_freight = $document_info->converted_freight;
-		$converted_insurance = $document_info->converted_insurance;
-		$converted_packaging = $document_info->converted_packaging;
-		$convertedamount = $document_info->convertedamount;
-		$exchangecurrency = $document_info->exchangecurrency;
-		$remarks = $document_info->remarks;
-
-		$this->SetFont('Arial', 'B', 8);
-		$this->SetY(205);
-		$this->SetX(8);
-		$this->Cell(20, 4, 'Notes:', 0, 0, 'L');
-
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(210);
-		$this->SetX(8);
-		$this->Cell(90, 4, $remarks, 0, 0, 'L');
-
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(205);
-		$this->SetX(145);
-		$this->Cell(8, 4, $exchangecurrency, 0, 0, 'L');
-
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(215);
-		$this->SetX(145);
-		$this->Cell(8, 4, $exchangecurrency, 0, 0, 'L');
-
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(225);
-		$this->SetX(145);
-		$this->Cell(8, 4, $exchangecurrency, 0, 0, 'L');
-
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(235);
-		$this->SetX(145);
-		$this->Cell(8, 4, $exchangecurrency, 0, 0, 'L');
-
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(243);
-		$this->SetX(145);
-		$this->Cell(8, 4, $exchangecurrency, 0, 0, 'L');
-
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(205);
-		$this->SetX(176.5);
-		$this->Cell(8, 4, 'PHP', 0, 0, 'L');
-
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(215);
-		$this->SetX(176.5);
-		$this->Cell(8, 4, 'PHP', 0, 0, 'L');
-
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(225);
-		$this->SetX(176.5);
-		$this->Cell(8, 4, 'PHP', 0, 0, 'L');
-
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(235);
-		$this->SetX(176.5);
-		$this->Cell(8, 4, 'PHP', 0, 0, 'L');
-
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(243);
-		$this->SetX(176.5);
-		$this->Cell(8, 4, 'PHP', 0, 0, 'L');
-
-		$this->SetFont('Arial', 'B', 8);
-		$this->SetY(205);
-		$this->SetX(115);
-		$this->Cell(20, 4, 'Total Purchase', 0, 0, 'L');
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(205);
-		$this->SetX(156);
-		$this->Cell(20, 4, number_format($amount, 2), 0, 0, 'R');
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(205);
-		$this->SetX(188);
-		$this->Cell(20, 4, number_format($convertedamount, 2), 0, 0, 'R');
-		$this->SetFont('Arial', 'B', 8);
-		$this->SetY(215);
-		$this->SetX(115);
-		$this->Cell(20, 4, 'Freight', 0, 0, 'L');
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(215);
-		$this->SetX(156);
-		$this->Cell(20, 4, number_format($freight, 2), 0, 0, 'R');
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(215);
-		$this->SetX(188);
-		$this->Cell(20, 4, number_format($converted_freight, 2), 0, 0, 'R');
-		$this->SetFont('Arial', 'B', 8);
-		$this->SetY(225);
-		$this->SetX(115);
-		$this->Cell(20, 4, 'Insurance', 0, 0, 'L');
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(225);
-		$this->SetX(156);
-		$this->Cell(20, 4, number_format($insurance, 2), 0, 0, 'R');
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(225);
-		$this->SetX(188);
-		$this->Cell(20, 4, number_format($converted_insurance, 2), 0, 0, 'R');
-		$this->SetFont('Arial', 'B', 8);
-		$this->SetY(235);
-		$this->SetX(115);
-		$this->Cell(20, 4, 'Packaging', 0, 0, 'L');
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(235);
-		$this->SetX(156);
-		$this->Cell(20, 4, number_format($packaging, 2), 0, 0, 'R');
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(235);
-		$this->SetX(188);
-		$this->Cell(20, 4, number_format($converted_packaging, 2), 0, 0, 'R');
-		$this->SetFont('Arial', 'B', 8);
-		$this->SetY(243);
-		$this->SetX(115);
-		$this->Cell(20, 4, 'Total Amount Due', 0, 0, 'L');
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(243);
-		$this->SetX(156);
-		$this->Cell(20, 4, number_format(($amount+$freight+$insurance+$packaging), 2), 0, 0, 'R');
-		$this->SetFont('Arial', '', 8);
-		$this->SetY(243);
-		$this->SetX(188);
-		$this->Cell(20, 4, number_format(($convertedamount+$converted_freight+$converted_insurance+$converted_packaging), 2), 0, 0, 'R');
-		$this->SetY($header_end);
-		$this->Ln();
 	
 	}
 
@@ -403,6 +264,11 @@ class import_purchase_print_model extends fpdf {
 	
 	public function setSummaryWidth($width) {
 		$this->summary_width = $width;
+		return $this;
+	}
+
+	public function setSummaryAlign($align) {
+		$this->summary_align = $align;
 		return $this;
 	}
 

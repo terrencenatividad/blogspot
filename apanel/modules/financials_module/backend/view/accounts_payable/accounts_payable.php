@@ -272,8 +272,7 @@
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('currencycode')
 									->setId('currencycode')
-									->setDefault('PHP')
-									->setValue($currency)
+									->setValue($currencycode)
 									->setList($currencycodes)
 									->draw($show_input);
 									?>
@@ -1257,8 +1256,74 @@
 			</div>
 		</div>
 	</div>
-
+	<?php
+	echo $ui->loadElement('modal')
+	->setId('vendor_modal')
+	->setContent('maintenance/supplier/create')
+	->setHeader('Add New Supplier')
+	->draw();
+	?>
 	<script>
+		function computeDueDate()
+		{
+			var invoice = $("#due_date").val();
+
+			var terms 	= $("#vendor_terms").val();
+
+			if(invoice != '')
+			{
+				var newDate	= moment(new Date(invoice)).add(terms, 'days').format("MMM DD, YYYY");
+				$("#due_date").val(newDate);
+			}
+		}
+
+		function addVendorToDropdown() 
+		{
+			var optionvalue = $("#vendor_modal #supplierForm #partnercode").val();
+			var optiondesc 	= $("#vendor_modal #supplierForm #partnername").val();
+
+			$('<option value="'+optionvalue+'">'+optionvalue+" - "+optiondesc+'</option>').insertAfter("#payableForm #vendor option");
+			$('#payableForm #vendor').val(optionvalue);
+
+			getPartnerInfo(optionvalue);
+
+			$('#vendor_modal').modal('hide');
+			$('#vendor_modal').find("input[type=text], textarea, select").val("");
+		}
+		function getPartnerInfo(code)
+		{
+			if(code == '' || code == 'add')
+			{
+				$("#vendor_tin").val("");
+				$("#vendor_terms").val("");
+				$("#vendor_address").val("");
+
+				computeDueDate();
+			}
+			else
+			{
+				$.post('<?=BASE_URL?>financials/accounts_payable/ajax/get_value', "code=" + code + "&event=getPartnerInfo", function(data) 
+				{
+					var address		= data.address.trim();
+					var tinno		= (data.tinno != null ) ? data.tinno.trim() : "000-000-000-000";
+					var terms		= data.terms.trim();
+
+					$("#vendor_tin").val(tinno);
+					$("#vendor_terms").val(terms);
+					$("#vendor_address").val(address);
+
+					computeDueDate();
+				});
+			}
+		}
+		function closeModal()
+		{
+			$('#vendor_modal').modal('hide');
+		}
+		$('#vendor_button').click(function() 
+		{
+			$('#vendor_modal').modal('show');
+		});
 		$(document).ready(function() {
 			var currencycode = $('#currencycode').val();
 			$.post('<?=MODULE_URL?>ajax/ajax_get_currency_val', { currencycode : currencycode }, function(data) {
@@ -1434,11 +1499,21 @@
 
 		$('#vendor').on('change', function() {
 			var vendor = $(this).val();
+			var invoice = $("#due_date").val();
+
+			var terms 	= $("#vendor_terms").val();
+
+			
 			$.post('<?=MODULE_URL?>ajax/ajax_get_details', '&vendor=' + vendor, function(data) {
 				if(data) {
 					$('#vendor_tin').val(data.tinno);
 					$('#vendor_terms').val(data.terms);
 					$('#vendor_address').val(data.address1);
+					if(invoice != '')
+					{
+						var newDate	= moment(new Date(invoice)).add(terms, 'days').format("MMM DD, YYYY");
+						$("#due_date").val(newDate);
+					}
 				}
 			});
 		});
