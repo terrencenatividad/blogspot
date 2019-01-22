@@ -128,8 +128,9 @@
 						<th class="col-xs-1 text-right">Qty Left</th>
 						<?php endif ?>
 						<th class="col-xs-<?php echo ($show_input) ? '1' : '2' ?> text-right">Qty</th>
-						<th class="col-xs-1">UOM</th>
-						<th class="col-xs-1 text-right">Amount</th>
+						<th class="col-xs-1 text-center">UOM</th>
+						<th class="col-xs-1 text-center">Tax</th>
+						<th class="col-xs-2 text-right">Amount</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -137,14 +138,45 @@
 				</tbody>
 				<tfoot class="summary text-right" <?php echo ($ajax_task == 'ajax_create') ? 'style="display: none"' : '' ?>>
 					<tr>
+						<td colspan="<?php echo ($show_input) ? '9' : '6' ?>"><label class="control-label">Total Purchases</label></td>
+						<td style="border-top:1px solid #DDDDDD;"></td>
+						<td colspan="2" style="border-top:1px solid #DDDDDD;">
+							<?php
+								echo $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setName('header_purchase')
+										->setClass('total_purchase')
+										->setValue(((empty($amount)) ? '0.00' : $amount))
+										->addHidden()
+										->draw($show_input);
+							?>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="<?php echo ($show_input) ? '9' : '6' ?>"><label class="control-label">Total Purchases Tax</label></td>
+						<td></td>
+						<td colspan="2">
+							<?php
+								echo $ui->formField('text')
+										->setSplit('', 'col-md-12')
+										->setName('header_purchase_tax')
+										->setClass('total_purchase_tax')
+										->setValue(((empty($taxamount)) ? '0.00' : $taxamount))
+										->addHidden()
+										->draw($show_input);
+							?>
+						</td>
+					</tr>
+					<tr>
 						<td colspan="<?php echo ($show_input) ? '9' : '6' ?>"><label class="control-label">Total Amount</label></td>
-						<td colspan="1">
+						<td style="border-top:1px solid #DDDDDD;"></td>
+						<td colspan="2" style="border-top:1px solid #DDDDDD;">
 							<?php
 								echo $ui->formField('text')
 										->setSplit('', 'col-md-12')
 										->setName('header_amount')
 										->setClass('total_amount')
-										->setValue(((empty($amount)) ? '0.00' : $amount))
+										->setValue(((empty($amount)) ? '0.00' : $amount + $taxamount))
 										->addHidden()
 										->draw($show_input);
 							?>
@@ -276,7 +308,7 @@ var serialize = [{
 function addVoucherDetails(details, index) {
 	var details = details || {itemcode: '', detailparticular: '', receiptqty: ''};
 	var other_details = JSON.parse(JSON.stringify(details));
-	// console.log(details.item_ident_flag);
+	// console.log(details);
 	delete other_details.itemcode;
 	delete other_details.detailparticular;
 	delete other_details.receiptqty;
@@ -493,6 +525,26 @@ function addVoucherDetails(details, index) {
 						->setSplit('', 'col-md-12')
 						->setValue('` + details.receiptuom.toUpperCase() + `')
 						->draw(false);
+				?>
+			</td>
+			<td class="text-right">
+				<?php
+					echo $ui->formField('text')
+						->setSplit('', 'col-md-12 text-center')
+						->setName('detail_taxcode[]')
+						->setClass('taxcode')
+						->setValue('` + ((details.taxcode == "VATG") ? "VAT Goods 12%" : 
+										((details.taxcode == "VATS") ? "VAT Services 12%" : 
+										((details.taxcode == "Ptax") ? "Percentage Tax" : "None"))) + `')
+						->addHidden()
+						->draw($show_input);
+				?>
+				<?php
+					echo $ui->formField('hidden')
+						->setName('detail_taxrate[]')
+						->setClass('taxrate')
+						->setValue('` + parseFloat(details.taxrate) + `')
+						->draw($show_input);
 				?>
 			</td>
 			<td class="text-right">
@@ -760,6 +812,7 @@ $('#btn_tag').on('click', function() {
 			allserials.push(serials);
 			$('#main_serial').val(allserials);
 		}
+	
 	});	
 	// if (count != checkcount && type =='itempart') {
 	// 	$('#warning_counter .modal-body').html('Selected serial numbers must be equal to the required value.')
@@ -800,7 +853,7 @@ $('#btn_tag').on('click', function() {
 	$('#modal_close').show();
 	$('#btn_close').show();
 	// }
-
+	recomputeAll();
 });
 
 $('#tableSerialList').on('ifChecked', '.check_id', function () {
@@ -897,15 +950,23 @@ function displayHeader(header) {
 }
 function recomputeAll() {
 	if ($('#tableList tbody tr .unitprice').length) {
+		var total_purchase = 0;
+		var total_purchase_tax = 0;
 		var total_amount = 0;
 		$('#tableList tbody tr').each(function() {
 			var price = removeComma($(this).find('.unitprice').val());
 			var quantity = removeComma($(this).find('.receiptqty').val());
-
-			var amount = (price * quantity);
+			var taxrate = removeComma($(this).find('.taxrate').val());
+			var purchase = (price * quantity);
+			var tax = (price * quantity * taxrate);
+			var amount = (price * quantity * (1+taxrate));
+			total_purchase += purchase;
+			total_purchase_tax += tax;
 			total_amount += amount;
 			$(this).find('.amount').val(addComma(amount)).closest('.form-group').find('.form-control-static').html(addComma(amount));
 		});
+		$('#tableList tfoot .total_purchase').val(total_purchase).closest('.form-group').find('.form-control-static').html(addComma(total_purchase));
+		$('#tableList tfoot .total_purchase_tax').val(total_purchase_tax).closest('.form-group').find('.form-control-static').html(addComma(total_purchase_tax));
 		$('#tableList tfoot .total_amount').val(total_amount).closest('.form-group').find('.form-control-static').html(addComma(total_amount));
 		$('#tableList tfoot.summary').show();
 	}
